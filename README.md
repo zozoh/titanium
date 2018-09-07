@@ -2,7 +2,7 @@
 
 ![](img/ti_logo_gray.png)
 
-> A UI library, which design for Frontend Programmer to enhance the performance of GUI building job as much as they can.
+> A UI library, which design for you(The Frontend Programmer) to enhance your performance of GUI building job as much as you can.
 
 -----------------------------------
 
