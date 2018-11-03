@@ -27,7 +27,7 @@ author: zozoh
     // 所有的元素都有如下公开行为：
     //  - redraw | destroy
     "behavior" : {
-        "redraw" : {
+        "someFunc" : {
             "method" : "do_refresh",
             "params" : [{
                 "name" : "callback"
