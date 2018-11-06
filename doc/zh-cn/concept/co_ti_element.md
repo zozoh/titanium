@@ -4,23 +4,9 @@ author: zozoh
 ---
 
 ----------------------------------------------------
-# 动机
-
-- 可以是一个功能界面
-- 可以是一个组合界面
-- 业务逻辑只在一处封装
-- Easy to group : `Slot`
-- Easy to combine : `MsgBus & UeEvent`
-- Esay to customize : `options`
-- Esay to seal : `Behavior & Tmpl`
-
-----------------------------------------------------
-# 脑图
+# 元素定义
 
 ![](../../img/ti_dia_3d.png)
-
-----------------------------------------------------
-# 元素定义
 
 > 任何一个 TiElement 均为 `ti.el.TiElement` 的实例。
 > 可以用 `new ti.el.TiElement("ti.coll.table")` 创建实例 
