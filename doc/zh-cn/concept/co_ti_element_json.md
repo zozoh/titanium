@@ -41,21 +41,17 @@ author: zozoh
     // 内置方法名
     //    on_init/on_render/on_destroy
     methods : ["table.js"],
-    // 本元素可以发出的事件列表
-    events : {
-        // watch 表示数据模型发生变化以后，要发出的事件
-        // 'shape.x' 表示一个监控路径
-        "watch shape.x" : true,
-        // 如果是数组，一般都是监听到整个集合
-        "watch items" : {
-            type : "change",
-            data : "items"
-        },
-
-        "input:tip" : {
-            type : "input"
-        }
-    },
+    // 本元素自动冒泡的事件列表
+    bubble : [{
+        // 默认就是 watch，可以不写
+        // 数据路径下有变化，就触发
+        // 因此下述事件，可以用字符串表示 "shape.x"
+        type    : "watch",   
+        keyPath : "shape.x", 
+    }, {
+        type    : "watch",   // 通常对于数组
+        keyPath : "items"    // 监听整个集合
+    }]
     // 本元素的公开行为
     // 所有的元素都有如下公开行为：
     //  - redraw | destroy
