@@ -22,8 +22,8 @@ author: zozoh
 # 钛元素的目录
 
 ```bash
-# 对应的包名 `ti.coll.table`
-# 使用方式为 `<ti-coll-table ..>`
+# 对应的包名 `ti.uie.coll.table`
+# 使用方式为 `<ti-uie-coll-table ..>`
 ti/coll/table/              # 元素的主目录
     |-- i18n/               # 国际化
         |-- zh-cn.json      # 每个语言一个文件标准的 JSON 文件
@@ -38,7 +38,9 @@ ti/coll/table/              # 元素的主目录
 # 钛元素的配置
 
 ```js
-// 
+// 依赖的控件
+
+// 本包所带的资源
 ```
 
 ----------------------------------------------------
