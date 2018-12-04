@@ -75,8 +75,7 @@ class TiDefer {
     }
 
     __check_all_defer_done() {
-        // if all done, the callbacks will be cleared
-        // after been invoked.
+        // if all done, the callbacks will be cleared after been invoked.
         // Then it would not be necessary to check them again.
         if(this.callbacks.length == 0)
             return;
