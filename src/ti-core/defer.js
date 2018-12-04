@@ -1,7 +1,25 @@
 /**
  * A lightly defer class, providing clearness way to holding defer operation.
+ *
+ * @example
+ * let de = new TiDefer(['keyA','keyB'], function(){
+ *    alert('done')
+ * })
+ * // is same as:
+ * let de = new TiDefer()
+ * de.add(['keyA','keyB'], function(){
+ *    alert('done)
+ * })
  */
 class TiDefer {
+    /**
+     * You can call it without any arguments, 
+     * and provide defer keys later by invoke `add` method
+     * 
+     * 
+     * @param {string|string[]} keys - Keys to defer
+     * @param {function(*)} callback - invoke when all defer keys finished
+     */
     constructor(keys=[], callback) {
         this.keys = {}
         this.callbacks = []
@@ -82,46 +100,20 @@ class TiDefer {
 /**
  * Factory method to create a new [Defer Object]{@link TiDefer}.
  * 
- * <pre>
- * let de = ti.defer(["A", "B"], ()=>console.log("I am done!"))
- * _.delay(()=>de.report("A"), 500)
- * _.delay(()=>de.report("B"), 1200)
- * 
- * // After 1200ms, the console should output:
- * //  I am done
- * </pre>
- * 
  * @param {string|string[]} keys - Keys to defer
  * @param {function} callback - invoke when all defer keys finished
  * @return [Defer Object]{@link TiDefer}
  * @function defer
  * @memberof ti
- */
-ti.ns('ti.defer', function(keys, callback){   
-    return new TiDefer(keys, callback);
-})
-
-/**@namespace  ti.uie*/
-/**@namespace  ti.uie.coll*/
-
-/**
- * Factory method to create a new [Defer Object]{@link TiDefer}.
  * 
- * <pre>
+ * @example
  * let de = ti.defer(["A", "B"], ()=>console.log("I am done!"))
  * _.delay(()=>de.report("A"), 500)
  * _.delay(()=>de.report("B"), 1200)
  * 
  * // After 1200ms, the console should output:
  * //  I am done
- * </pre>
- * 
- * @param {string|string[]} keys - Keys to defer
- * @param {function} callback - invoke when all defer keys finished
- * @function table
- * @memberof ti.uie.coll
- * @class Table
  */
-ti.ns('ti.coll.table', function(){
-
+ti.ns('ti.defer', function(keys, callback){   
+    return new TiDefer(keys, callback);
 })
