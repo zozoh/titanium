@@ -6,11 +6,17 @@
     "templates": {
         "logo": {
             "url" : "https://nutzam.com/core/logo.png",
-            "width"  : "32px",
-            "height" : "32px",
             "link" : "http://github.com/zozoh/titanium"
         },
         "name": "Ti.API",
+        "default": {
+            "staticFiles": {
+                "include": ["src/ti-doc-static/"]
+            }
+        },
+        "css": [
+            "styles/ti-doc.css"
+        ],
         "footerText": "Titanium - a nice Vue ComLib &copy; Power by Nutz"
     }
 }

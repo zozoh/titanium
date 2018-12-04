@@ -1,0 +1,44 @@
+html {
+  font-size: 100px;
+}
+body {
+  font-size: .16rem;
+}
+.main section header h2 {
+  font-size: .3rem;
+}
+.main section article dl h4 {
+  font-size: .2rem;
+}
+.main section article dl h4.name {
+  padding: .1rem .14rem;
+  margin: .1rem;
+}
+.main section article dl h4 .signature {
+  font-size: .9em;
+}
+.lnb {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+.lnb .logo {
+  width: 64px;
+  height: 64px;
+}
+.lnb h1 {
+  font-size: .2rem;
+  margin: 0;
+}
+#resizer,
+footer {
+  background-color: #ba5603;
+}
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .12rem;
+}
+footer .logo {
+  width: 32px;
+  height: 32px;
+}

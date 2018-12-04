@@ -16,6 +16,7 @@ class TiDefer {
      * You can call it without any arguments, 
      * and provide defer keys later by invoke `add` method
      * 
+     * yes
      * 
      * @param {string|string[]} keys - Keys to defer
      * @param {function(*)} callback - invoke when all defer keys finished
