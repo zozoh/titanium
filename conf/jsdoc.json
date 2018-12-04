@@ -1,11 +1,14 @@
 {
-    "plugins": ["plugins/markdown"],
+    "plugins": [
+        "plugins/markdown"
+    ],
     "opts": {
-        "template": "node_modules/tui-jsdoc-template"
+        "template": "node_modules/tui-jsdoc-template",
+        "destination": "./api-doc"
     },
     "templates": {
         "logo": {
-            "url" : "https://nutzam.com/core/logo.png",
+            "url" : "styles/ti_logo_gray.png",
             "link" : "http://github.com/zozoh/titanium"
         },
         "name": "Ti.API",

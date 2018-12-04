@@ -21,12 +21,19 @@ body {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 .lnb .logo {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
 }
 .lnb h1 {
   font-size: .2rem;
   margin: 0;
+}
+.main section article table td.name,
+.main section article table td.type,
+.main section article table td.attributes,
+.main section article table td.default {
+  max-width: unset;
+  padding: .06rem;
 }
 #resizer,
 footer {
@@ -39,6 +46,6 @@ footer {
   font-size: .12rem;
 }
 footer .logo {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
 }

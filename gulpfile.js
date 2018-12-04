@@ -1,11 +1,19 @@
 var gulp = require('gulp'),
-    jsdoc = require("gulp-jsdoc3");
+    jsdoc = require("gulp-jsdoc3"),
+    config = require("./conf/jsdoc.json");
 
-gulp.task('generate', function(){
-     return gulp.src("./src/ti-core/*.js")
-            .pipe(jsdoc('./api-doc'))
+gulp.task('gen_doc', function(cb){
+    gulp.src("src/ti-core/*.js")
+        .pipe(jsdoc(config, cb))
 });
 gulp.task('watch', function(){
-     gulp.watch('./src/ti-core/*.js', ['generate']);
+    gulp.watch([
+        './src/ti-core/*.js',
+        './src/ti-doc-static/**/*.css',
+        './conf/jsdoc.json',
+    ], ['gen_doc']);
 });
-gulp.task('default', ['generate']);
+gulp.task('default', ['gen_doc']);
+
+
+

@@ -4,6 +4,6 @@
  * @function load
  * @memberof ti
  */
-ti.ns('ti.load', function() {
+ti.ns('load', function() {
 
 })
