@@ -1,19 +1,117 @@
+(function(){
+//=======================================================
 /**
- * A lightly defer class, providing clearness way to holding defer operation.
+ * A directly defer pattern, provided clearness way to holding defer operation.
+ * 
+ * # Motivation
+ * 
+ * Sometimes, you want to do this:
+ * 
+ * ```
+UI showloading ...
+ 
+async get Data A
+    async get Data B
+        hideLoading
+        render View by A and B
+ * ```
+ * 
+ * In tradition way, we always used the nested callback to reach the purpose.
+ * But if the previous operations are not only A and B, but A,B,C,D,E ...
+ * we will fall down to the so called `callback hell`, it is so painful that
+ * `ES6` offser a solution named `Promise`, it provide a grace way to group 
+ * two async operations (`Promise` object) into a new one. So the logic above
+ * will be present like this:
+ * 
+ * ```js
+const p1 = new Promise(function(resolve, reject) {
+  console.log("mock async operation A ...")
+  setTimeout(function(){
+      resolve("data A")
+  }, 1000)
+});
+
+const p2 = new Promise(function(resolve, reject) {
+  console.log("mock async operation B ...")
+  setTimeout(function(){
+      resolve("data B")
+  }, 2000)
+});
+
+Promise.all([p1, p2])
+  .then(function(value){
+    console.log("done", value)
+  })
+ * ```
+ * > [view full code](https://codepen.io/zozoh/pen/xmRLYJ?editors=0012)
+ *
+ * The `Promise Object` will be executed as soon as it be created (`new`),
+ * since that, it is almost impossable if we want to mutate the chain of
+ * the  `Promise Object`, and it may reasonable requirement for some case
+ * like that: 
+ * 
+ * ```
+UI showloading ...
+ 
+async get Data A
+    async get Data B
+        hideLoading
+        render View by A and B
+    async get Data C
+        async get Data D
+            hideLoading
+            render View by A, C and D
+ * ```
+ * 
+ * If we write this kinds of logic by `Promise`, we will fall into another kinds of
+ * "callback hell" maybe.
+ * 
+ * So we need another simply way to deal with this kinds situation, 
+ * then we called the solution as `ti.defer`
+ * 
+ * # Usage
+ * 
+ * ```js
+var value = [];
+let defer = ti.defer(['A','B'], function(){
+    console.log("done", value)
+})
+// you can control the timing of operation A now
+console.log("mock async operation A ...")
+setTimeout(function(){
+    defer.resolve("data A")
+}, 1000)
+// you can control the timing of operation B also
+console.log("mock async operation B ...")
+setTimeout(function(){
+    value.push("data B")
+}, 2000)
+ * ```
+ * 
  */
 class TiDefer {
     /**
      * You can call it without any arguments, 
      * and provide defer keys later by invoke `add` method
+     * zozoh
      * 
      * ```js
-     * let de = new TiDefer(['keyA','keyB'], function(){
+     * let defer = new TiDefer(['keyA','keyB'], function(){
      *    alert('done')
      * })
      * // is same as:
-     * let de = new TiDefer()
-     * de.add(['keyA','keyB'], function(){
+     * let defer = new TiDefer()
+     * defer.add(['keyA','keyB'], function(){
      *    alert('done)
+     * })
+     * ```
+     * 
+     * **Note**: for the reason `TiDefer class` has been protected from `defer.js`,
+     * in realtime, you should use the factory method to create the `TiDefer` instance:
+     * 
+     * ```
+     * let defer = ti.defer(['keyA','keyB'], function(){
+     *      alert('done')
      * })
      * ```
      * 
@@ -118,6 +216,8 @@ class TiDefer {
  * @function defer
  * @memberof ti
   */
-ti.ns('defer', function(keys, callback){   
+ti.ns('ti.defer', function(keys, callback){   
     return new TiDefer(keys, callback);
 })
+//=======================================================
+})();

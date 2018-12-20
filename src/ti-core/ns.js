@@ -1,34 +1,17 @@
-if(!ti) {
-    /**
-     * Titanium core package namespace.
-     * 
-     * @namespace
-     */
-    var ti = {
-        /**
-         * Define function set or object in a namespace
-         * 
-         * ```js
-         * //.......................................
-         * // define a function set
-         * ti.ns("xyz", {
-         *      foo : function(){},
-         *      bar : function(){}
-         * });
-         * // Then you can invoke `ti.xyz.foo()` anywhere
-         * //.......................................
-         * // define one function
-         * ti.ns("abc", function(){})
-         * // Then you can invoke `ti.abc()` anywhere
-         * ```
-         * 
-         * @param {string} namespace - name path 
-         * @param {Object|function} defObj - object in name path
-         * 
-         * @returns {undefined}
-         */
-        ns : function(namespace, defObj) {
-            _.set(this, namespace, defObj)
+(function(_G){
+///////////////////////
+if(_G.ti)
+    return;    
+//.....................
+_G.ti = {
+    ns : function(fullname, obj) {
+        let oldObj = _.get(_G, fullname);
+        if(_.isPlainObject(obj) && _.isPlainObject(obj)) {
+            _.assign(oldObj, obj)
+        }else{
+            _.set(_G, fullname, obj)
         }
     }
 }
+///////////////////////
+})(this);

@@ -7,6 +7,8 @@
     <title>${title}</title>
     <link rel="stylesheet" type="text/css"
           href="${rs}/core/css/font-md/css/material-design-iconic-font.css">
+    <script src="${rs}/core/js/axios/axios.js"></script>
+    <script src="${rs}/core/js/axios/axios.js"></script>
     <script src="${rs}/core/js/lodash/lodash.js"></script>
     <script src="${rs}/core/js/vue2/vue.js"></script>
     <script src="${rs}/ti/ns.js"></script>
@@ -18,6 +20,9 @@
 </main>
 </body>
 <script>
-    console.log("check!!!", window.ti);
+console.log(document.currentScript)
+ti.load('/api/titanium/test/now')
+    .then(str => console.log(str))
+    .catch(err => console.warn(err))
 </script>
 </html>

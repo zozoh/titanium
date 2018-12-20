@@ -6,7 +6,9 @@
   "directories": {
     "doc": "doc"
   },
-  "dependencies": {},
+  "dependencies": {
+    "axios": "^0.18.0"
+  },
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-csso": "^3.0.1",

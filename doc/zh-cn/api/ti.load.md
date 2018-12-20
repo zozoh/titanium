@@ -1,0 +1,67 @@
+---
+title : ti.load
+author: zozoh
+tags:
+- method
+---
+
+# `ti.load(url,{options})` 资源加载
+
+```js
+function(url, {mode="auto"})
+```
+
+资源加载，支持如下资源类型:
+
+ URL模式  | 加载方式  | 说明
+----------|----------|----------------
+`*.js`    | script   | JS 脚本将会用 `<script>` 加载
+`*.css`   | css      | CSS 文件将会用 `<link>` 加载
+`*.json`  | json     | 通过 `XmlHttpRequest` 对象加载，并将内容转换为 Json
+*default* | text     | 通过 `XmlHttpRequest` 对象加载
+
+> 如果是自动模式 `mode="auto"`，则会自动根据 `url` 按照上表进行推断
+
+## @params
+
+- `url` : 资源的路径或者 `URL`
+- `mode` : *可选*，指明加载方式 `script|css|json|text`
+
+## @return
+
+*Promise* 对象，其 `resolve` 的值为
+
+ 加载方式 | resolve 值
+---------|----------------
+script   | `https://yoursite.com/context/path/to.js`
+css      | `https://yoursite.com/context/path/to.css`
+json     | Plain Object
+text     | String
+
+## @usage
+
+```js
+// 加载普通 JS 库，会在 <head> 最后增加 <script> 标签
+ti.load("/path/to.js")
+    .then(re => console.log(re))
+    .catch(err => console.warn(err))
+// "https://yoursite.com/context/path/to.js"
+
+// 加载普通 CSS 样式表
+ti.load("/path/to.css")
+    .then(re => console.log(re))
+    .catch(err => console.warn(err))
+// "https://yoursite.com/context/path/to.css"
+
+// 加载 JSON
+ti.load("/path/to.json")
+    .then(re => console.log(re))
+    .catch(err => console.warn(err))
+// {..}
+
+// 加载文本，假设 to.text 内容为 `Hello Titanium`
+ti.load("/path/to.text")
+    .then(re => console.log(re))
+    .catch(err => console.warn(err))
+// "Hello Titanium"
+```
