@@ -1,17 +1,19 @@
 (function(_G){
 ///////////////////////
 if(_G.ti)
-    return;    
+  return;    
 //.....................
 _G.ti = {
-    ns : function(fullname, obj) {
-        let oldObj = _.get(_G, fullname);
-        if(_.isPlainObject(obj) && _.isPlainObject(obj)) {
-            _.assign(oldObj, obj)
-        }else{
-            _.set(_G, fullname, obj)
-        }
+  ns : function(fullname, obj) {
+    let oldObj = _.get(_G, fullname);
+    if(oldObj 
+      &&_.isPlainObject(oldObj) 
+      && _.isPlainObject(obj)) {
+      _.assign(oldObj, obj)
+    }else{
+      _.set(_G, fullname, obj)
     }
+  }
 }
 ///////////////////////
 })(this);

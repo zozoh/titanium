@@ -5,7 +5,7 @@ tags:
 - method
 ---
 
-# `ti.load(url,{options})` 资源加载
+# `ti.load(url,{conf})` 资源加载
 
 ```js
 function(url, {mode="auto"})
@@ -25,7 +25,8 @@ function(url, {mode="auto"})
 ## @params
 
 - `url` : 资源的路径或者 `URL`
-- `mode` : *可选*，指明加载方式 `script|css|json|text`
+- `conf` : *可选*，默认为 `{mode:"auto"}`
+    + `mode` : 指明加载方式 `script|css|json|text`, 如果是 `auto` 为自动决定
 
 ## @return
 
@@ -64,4 +65,10 @@ ti.load("/path/to.text")
     .then(re => console.log(re))
     .catch(err => console.warn(err))
 // "Hello Titanium"
+
+// 强制加载 JSON 文本
+ti.load("/path/to.text", {mode:"json"})
+    .then(re => console.log(re))
+    .catch(err => console.warn(err))
+// {..}
 ```
