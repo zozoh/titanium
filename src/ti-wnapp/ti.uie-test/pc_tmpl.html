@@ -22,7 +22,7 @@
 </body>
 <script>
 ti.load('/api/titanium/test/now')
-  .then(str => console.log(str))
+  .then(str => console.log("now is", str))
   .catch(err => console.warn(err))
 
 ti.load('/api/titanium/test/json', {mode:"json"})
