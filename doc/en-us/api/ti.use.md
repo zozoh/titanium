@@ -9,7 +9,7 @@ tags:
 # `ti.use(url,{conf})` 资源加载
 
 ```js
-function(url, {mode="auto"})
+function(url, {mode="auto"}={})
 ```
 
 资源加载，支持如下资源类型:
@@ -35,9 +35,9 @@ function(url, {mode="auto"})
 
  加载方式 | resolve 值
 ---------|----------------
-script   | `https://yoursite.com/context/path/to.js`
-css      | `https://yoursite.com/context/path/to.css`
-json     | Plain Object
+script   | `<script>`
+css      | `<link>`
+json     | Object
 text     | String
 
 ## @usage
@@ -47,29 +47,29 @@ text     | String
 ti.use("/path/to.js")
     .then(re => console.log(re))
     .catch(err => console.warn(err))
-// "https://yoursite.com/context/path/to.js"
+//=> <script> Element
 
 // 加载普通 CSS 样式表
 ti.use("/path/to.css")
     .then(re => console.log(re))
     .catch(err => console.warn(err))
-// "https://yoursite.com/context/path/to.css"
+//=> <link> Element
 
 // 加载 JSON
 ti.use("/path/to.json")
     .then(re => console.log(re))
     .catch(err => console.warn(err))
-// {..}
+//=> {..}
 
 // 加载文本，假设 to.text 内容为 `Hello Titanium`
 ti.use("/path/to.text")
     .then(re => console.log(re))
     .catch(err => console.warn(err))
-// "Hello Titanium"
+//=> "Hello Titanium"
 
 // 强制加载 JSON 文本
 ti.use("/path/to.text", {mode:"json"})
     .then(re => console.log(re))
     .catch(err => console.warn(err))
-// {..}
+//=> {..}
 ```

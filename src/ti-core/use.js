@@ -5,7 +5,7 @@ const loading = {
     return new Promise((resolve, reject)=>{
       let $script = ti.dom.find(`script[src="${url}"]`)
       if($script) {
-        resolve($script)
+        _.defer(resolve, $script)
       } else {
         $script = ti.dom.createElement({
           tagName : "script",
@@ -30,7 +30,7 @@ const loading = {
     return new Promise((resolve, reject)=>{
       let $link = ti.dom.find(`link[href="${url}"]`)
       if($link) {
-        resolve($link)
+        _.defer(resolve, $link)
       } else {
         $link = ti.dom.createElement({
           tagName : "link",
@@ -65,15 +65,13 @@ const loading = {
   text(url) {
     return new Promise((resolve, reject)=>{
       axios.get(url)
-        .then(resp => {
-          resolve(resp.data)
-        })
+        .then(resp => resolve(resp.data))
         .catch(err => reject(err))
     })
   }
 }
 //.....................
-ti.ns('ti.use', function(url, {mode}={mode:"auto"}) {
+ti.ns('ti.use', function(url, {mode="auto"}={}) {
   // auto mode
   if("auto" == mode) {
     mode = /^.+\.js$/.test(url)
