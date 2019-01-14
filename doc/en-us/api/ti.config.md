@@ -99,16 +99,19 @@ set({prefix,alias}={prefix={}, alias={}})
 
 Same like [ti.config.update](#ti.config.update), but a little differance, it will override all setting of the [GCO](#GCO)
 
+> @see
+>
+> - [`ti.use`](ti.use.md)
 
-## @params
+## `set@params`
 
 - `prefix{object}` : Field [prefix](#GCO.prefix) of [GCO](#GCO)
 
-## @return
+## `set@return`
 
 *undefined*
 
-## @usage
+## `set@usage`
 
 ```js
 /* If Global Object is:
@@ -133,10 +136,6 @@ ti.config.set({
 */
 ```
 
-## @see
-
-- [`ti.use`](ti.use.md)
-
 -------------------------------------------------
 # `ti.config.update` : Set Config Object
 
@@ -146,15 +145,19 @@ set({prefix={}})
 
 Same like [ti.config.set](#ti.config.set), but a little differance, it will replace all setting of the [GCO](#GCO)
 
-## @params
+> @see
+>
+> - [`ti.use`](ti.use.md)
+
+## `update@params`
 
 - `prefix{object}` : Field [prefix](#GCO.prefix) of [GCO](#GCO)
 
-## @return
+## `update@return`
 
 *undefined*
 
-## @usage
+## `update@usage`
 
 ```js
 /* If Global Object is:
@@ -180,28 +183,28 @@ ti.config.update({
 */
 ```
 
-## @see
-
-- [`ti.use`](ti.use.md)
-
 -------------------------------------------------
-# `get` : Get Configuration
+# `ti.config.get` : Get Configuration
 
 ```js
 get(key=null): Any
 ```
 
+> @see
+>
+> - [`ti.use`](ti.use.md)
+
 Get one field value from [GCO](#GCO), or entire [GCO](#GCO) if `null` has been passsed. The return value should be the same refer with the [GCO](#GCO) instance, which mean, if you mutate the value, it will effect the [GCO](#GCO), because you are mutate the same copy of it.
 
-## @params
+## `get@params`
 
 - `key{string}` : The field key of which you want to get. Whole [GCO](#GCO) will be returned when you passed `null`. It supported the dotted seperated path string also.
 
-## @return
+## `get@return`
 
 `Any Object` which is the same copy of [GCO](#GCO).
 
-## @usage
+## `get@usage`
 
 ```js
 const prefix = ti.config.get("prefix")
@@ -211,6 +214,3 @@ const uiPrefix = ti.config.get("prefix.ui")
 // => "js:/ti/ui"
 ```
 
-## @see
-
-- [`ti.use`](ti.use.md)

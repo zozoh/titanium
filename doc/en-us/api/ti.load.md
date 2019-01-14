@@ -13,7 +13,7 @@ tags:
 - [explain](#explain) : Brief resource loading map for a glance.
 
 -------------------------------------------------
-# `run` Loading Resource
+# `ti.load.run` Loading Resource
 
 ```js
 run(path, {forceArray=false}={}): Promise
@@ -42,16 +42,16 @@ If you passed an array, each element is a string as the path, it will invoke [ti
 ## `run@usage`
 
 ```js
-ti.load("@lib:lodash").then(re=>console.log(re))
+ti.load.run("@lib:lodash").then(re=>console.log(re))
 // -> <script> Element
 
-ti.load(["@lib:lodash", "@lib:jquery"])
+ti.load.run(["@lib:lodash", "@lib:jquery"])
   .then(re=>console.log(re))
 // -> [<script> Element, <script> Element]
 ```
 
 -------------------------------------------------
-# `explain` What Will Be Loaded
+# `ti.load.explain` What Will Be Loaded
 
 ```js
 explain(path, {recur=false,forceArray=false}={}): {Premise|Object}
