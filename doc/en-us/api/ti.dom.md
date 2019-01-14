@@ -15,7 +15,7 @@ Provide a dom quick operation layer
 # `createElement`
 
 ```js
-createElement({tagName="div", attrs={}, props={}, className=""}, $doc=document):Element
+ti.dom.createElement({tagName="div", attrs={}, props={}, className=""}, $doc=document):Element
 ```
 
 ## @params
@@ -42,19 +42,19 @@ const $div = ti.com.createElement({})
 # `appendToHead`
 
 ```js
-appendToHead($el, $head=document.head) 
+ti.dom.appendToHead($el, $head=document.head) 
 ```
 
 ----------------------------------------------------
 # `findAll`
 
 ```js
-findAll(selector="*", $doc=document)
+ti.dom.findAll(selector="*", $doc=document)
 ```
 
 ----------------------------------------------------
 # `find`
 
 ```js
-find(selector="*", $doc=document)
+ti.dom.find(selector="*", $doc=document)
 ```

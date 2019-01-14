@@ -3,13 +3,20 @@ title : ti.load
 author: zozoh(zozohtnt@gmail.com)
 tags:
 - API
-- method
+- namespace
 ---
 
-# `ti.load` Loading Resource
+-------------------------------------------------
+# `ti.load` Overview
+
+- [run](#run) : Do the resource loading.
+- [explain](#explain) : Brief resource loading map for a glance.
+
+-------------------------------------------------
+# `run` Loading Resource
 
 ```js
-function({path, mode="process"})
+run({path, mode="process"}):Promise
 ```
 
 ## @params
@@ -21,7 +28,7 @@ function({path, mode="process"})
 
 ## @return
 
-*Premise*
+`Premise`
 
 ## @usage
 
