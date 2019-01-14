@@ -1,0 +1,11 @@
+{
+  "name"  : "plan",
+  "state" : "@com:state",
+  "template" : "...@com:template",
+  "computed" : "...@com:computed",
+  "methods"  : "...@com:methods",
+  "deps" : [
+    "@ui:element-ui",
+    "@ui:vuematerial"
+  ]
+}

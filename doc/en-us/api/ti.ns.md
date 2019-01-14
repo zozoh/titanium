@@ -1,7 +1,8 @@
 ---
 title : ti.ns
-author: zozoh
+author: zozoh(zozohtnt@gmail.com)
 tags:
+- API
 - method
 ---
 

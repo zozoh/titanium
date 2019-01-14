@@ -1,10 +1,12 @@
 (function(){
 ///////////////////////
-function TiLoad() {
+
+//---------------------
+function TiSetup(tiDef={}) {
   
 }
 
 // join to namespace
-ti.ns('ti.load', TiLoad)
+ti.ns('ti.setup', TiSetup)
 ///////////////////////
 })();

@@ -1,0 +1,11 @@
+{
+  "name"  : "plan",
+  "state" : "@mod:state",
+  "getters"   : "...@mod:getters",
+  "mutations" : "...@mod:mutations",
+  "actions"   : "...@mod:actions",
+  "deps" : [
+    "@lib:loadash", 
+    "@lib:axios"
+  ]
+}

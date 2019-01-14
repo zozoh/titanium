@@ -1,10 +1,10 @@
 (function(){
 ///////////////////////
-function TiLoad() {
+function TiConfig(conf={}) {
   
 }
 
 // join to namespace
-ti.ns('ti.load', TiLoad)
+ti.ns('ti.config', TiConfig)
 ///////////////////////
 })();

@@ -1,11 +1,12 @@
 ---
-title : ti.load
-author: zozoh
+title : ti.use
+author: zozoh(zozohtnt@gmail.com)
 tags:
+- API
 - method
 ---
 
-# `ti.load(url,{conf})` 资源加载
+# `ti.use(url,{conf})` 资源加载
 
 ```js
 function(url, {mode="auto"})
@@ -43,31 +44,31 @@ text     | String
 
 ```js
 // 加载普通 JS 库，会在 <head> 最后增加 <script> 标签
-ti.load("/path/to.js")
+ti.use("/path/to.js")
     .then(re => console.log(re))
     .catch(err => console.warn(err))
 // "https://yoursite.com/context/path/to.js"
 
 // 加载普通 CSS 样式表
-ti.load("/path/to.css")
+ti.use("/path/to.css")
     .then(re => console.log(re))
     .catch(err => console.warn(err))
 // "https://yoursite.com/context/path/to.css"
 
 // 加载 JSON
-ti.load("/path/to.json")
+ti.use("/path/to.json")
     .then(re => console.log(re))
     .catch(err => console.warn(err))
 // {..}
 
 // 加载文本，假设 to.text 内容为 `Hello Titanium`
-ti.load("/path/to.text")
+ti.use("/path/to.text")
     .then(re => console.log(re))
     .catch(err => console.warn(err))
 // "Hello Titanium"
 
 // 强制加载 JSON 文本
-ti.load("/path/to.text", {mode:"json"})
+ti.use("/path/to.text", {mode:"json"})
     .then(re => console.log(re))
     .catch(err => console.warn(err))
 // {..}

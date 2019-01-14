@@ -1,14 +1,14 @@
 (function(){
 ///////////////////////
 const TiDom = {
-  createElement({tagName="div", attrs={}, prop={}, className=""}, $doc=document) {
+  createElement({tagName="div", attrs={}, props={}, className=""}, $doc=document) {
     const $el = $doc.createElement(tagName)
     if(className)
       $el.className = className    
     _.forOwn(attrs, (val, key) => {
       $el.setAttribute(key, val)
     })
-    _.forOwn(prop, (val, key) => {
+    _.forOwn(props, (val, key) => {
       $el[key] = val
     })
     return $el
