@@ -6,10 +6,10 @@ tags:
 - method
 ---
 
-# `ti.use(url,{conf})` 资源加载
+# `ti.use` 资源加载
 
 ```js
-function(url, {mode="auto"}={})
+function(url, {type="auto"}={})
 ```
 
 资源加载，支持如下资源类型:
@@ -19,15 +19,14 @@ function(url, {mode="auto"}={})
 `*.js`    | script   | JS 脚本将会用 `<script>` 加载
 `*.css`   | css      | CSS 文件将会用 `<link>` 加载
 `*.json`  | json     | 通过 `XmlHttpRequest` 对象加载，并将内容转换为 Json
-*default* | text     | 通过 `XmlHttpRequest` 对象加载
+`Any`     | text     | 通过 `XmlHttpRequest` 对象加载
 
 > 如果是自动模式 `mode="auto"`，则会自动根据 `url` 按照上表进行推断
 
 ## @params
 
-- `url` : 资源的路径或者 `URL`
-- `conf` : *可选*，默认为 `{mode:"auto"}`
-    + `mode` : 指明加载方式 `script|css|json|text`, 如果是 `auto` 为自动决定
+- `url{String}` : 资源的路径或者 `URL`
+- `mode{String}` : 指明加载方式 `script|css|json|text|auto`, 默认 `auto` 表示自动根据 `url` 推断
 
 ## @return
 

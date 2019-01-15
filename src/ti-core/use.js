@@ -71,10 +71,10 @@ const loading = {
   }
 }
 //.....................
-ti.ns('ti.use', function(url, {mode="auto"}={}) {
+ti.ns('ti.use', function(url, {type="auto"}={}) {
   // auto mode
-  if("auto" == mode) {
-    mode = /^.+\.js$/.test(url)
+  if("auto" == type) {
+    type = /^.+\.js$/.test(url)
             ? "script"
             : (/^.+\.css$/.test(url)
                 ? "css"
@@ -84,7 +84,7 @@ ti.ns('ti.use', function(url, {mode="auto"}={}) {
   }
 
   // invoke
-  return loading[mode](url)
+  return loading[type](url)
 })
 ///////////////////////
 })();

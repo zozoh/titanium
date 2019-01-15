@@ -9,9 +9,10 @@ tags:
 -------------------------------------------------
 # `ti.config` Global Configuration
 
-- [set](#set) : Set new [GCO](#GCO) to global.
-- [update](#set) : Update new [GCO](#GCO) to global.
-- [get](#get) : Get one configuration fields value (same refer). 
+- [set](#ti.config.set) : Set new [GCO](#GCO) to global.
+- [update](#ti.config.update) : Update new [GCO](#GCO) to global.
+- [get](#ti.config.get) : Get one configuration fields value (same refer). 
+- [url](#ti.config.url) : eval the full resource path by [prefix](#GCO.prefix)
 
 -------------------------------------------------
 # `GCO`: Global Configuration Object
@@ -24,10 +25,10 @@ Here is the gloable configuration looks like:
   @see [prefix]
   */
   "prefix" : {
-    "app"   : "app:/ti/app/",
-    "ui"    : "com:/ti/ui/",
-    "lib"   : "js:/ti/lib/",
-    "theme" : "css:/ti/theme/"
+    "app"   : "/ti/app/",
+    "ui"    : "/ti/ui/",
+    "lib"   : "/ti/lib/",
+    "theme" : "/ti/theme/"
   }
   /*
   @see [alias]
@@ -45,56 +46,32 @@ This section defined all prefix of resource base locations.
 For example:
 
 ```js
-ti.use('@lib:lodash/lodash')
-// -> /ti/lib/lodash/lodash.js
-```
-
-The value of each prefix obey the form below:
-
-```
-[suffix]:[/path/to]
-```
-
-If without the `[suffix]` part, no suffix will be appended.
-And the content type of the resource will be thought as `text/plain`
-
-The value of `[suffix]` should be one of them below:
-
- Suffix  | Type       | Comment
----------|------------|-------
-js       | `*.js`     | Javascript File
-css      | `*.css`    | CSS File
-app      | `app.json` | Ti App config File
-com      | `com.json` | Ti Component config File
-
-```js
 //------------------------------------------
 // Define the prefix
 ti.config.set({
   prefix : {
-    "ui"    : "js:/ti/ui/",
-    "lib"   : "js:/ti/lib/",
-    "app"   : "app:/ti/app/",
-    "theme" : "css:/ti/theme/"
+    "foo" : "/my/foo",
+    "bar" : "/my/bar/"
   }
 })
-// -> /my/lib/abc.js  -> [application/x-javascript]
 ///------------------------------------------
-//prefix : `"bar" : "/my/lib/"`
-ti.use('@bar:xyz')
-// -> /my/lib/xyz  -> [text/plain]
+ti.config.url('@foo:abc')
+// -> /my/fooabc
+///------------------------------------------
+ti.config.url('@bar:xyz')
+// -> /my/bar/xyz
 ```
 
-## `GCO.alias` Alias for resource
+## `GCO.alias`
 
 *TODO: NEED DOC*
 
 
 -------------------------------------------------
-# `ti.config.set` : Set Config Object
+# `ti.config.set`
 
 ```js
-set({prefix,alias}={prefix={}, alias={}})
+set({prefix,alias})
 ```
 
 Same like [ti.config.update](#ti.config.update), but a little differance, it will override all setting of the [GCO](#GCO)
@@ -117,30 +94,30 @@ Same like [ti.config.update](#ti.config.update), but a little differance, it wil
 /* If Global Object is:
 {
   prefix : {
-    "ui"    : "js:/api/ui",
-    "lib"   : "js:/ti/lib/"
+    "ui"    : "/api/ui",
+    "lib"   : "/ti/lib/"
   }
 }
 */
 ti.config.set({
   prefix : {
-    "ui"    : "js:/ti/ui/",
+    "ui"    : "/ti/ui/",
   }
 })
 /* Global Object will change to:
 {
   prefix : {
-    "ui"    : "js:/ti/ui/"
+    "ui"    : "/ti/ui/"
   }
 }
 */
 ```
 
 -------------------------------------------------
-# `ti.config.update` : Set Config Object
+# `ti.config.update`
 
 ```js
-set({prefix={}})
+update({prefix, alias})
 ```
 
 Same like [ti.config.set](#ti.config.set), but a little differance, it will replace all setting of the [GCO](#GCO)
@@ -163,8 +140,8 @@ Same like [ti.config.set](#ti.config.set), but a little differance, it will repl
 /* If Global Object is:
 {
   prefix : {
-    "ui"    : "js:/api/ui",
-    "lib"   : "js:/ti/lib/"
+    "ui"    : "/api/ui",
+    "lib"   : "/ti/lib/"
   }
 }
 */
@@ -176,15 +153,15 @@ ti.config.update({
 /* Global Object will change to:
 {
   prefix : {
-    "ui"    : "js:/ti/ui/",
-    "lib"   : "js:/ti/lib/"
+    "ui"    : "/ti/ui/",
+    "lib"   : "/ti/lib/"
   }
 }
 */
 ```
 
 -------------------------------------------------
-# `ti.config.get` : Get Configuration
+# `ti.config.get`
 
 ```js
 get(key=null): Any
@@ -208,9 +185,46 @@ Get one field value from [GCO](#GCO), or entire [GCO](#GCO) if `null` has been p
 
 ```js
 const prefix = ti.config.get("prefix")
-// => {"ui":"xxx", "lib":"xxx" ...}
+// => {"ui":"/ti/ui/", "lib":"/ti/lib/"}
 
 const uiPrefix = ti.config.get("prefix.ui")
-// => "js:/ti/ui"
+// => "/ti/ui"
+```
+
+-------------------------------------------------
+# `ti.config.url`
+
+```js
+url(path=""): String
+```
+
+> @see
+>
+> - [`ti.use`](ti.use.md)
+
+Eval resource full path by [prefix](#GCO.prefix) and [alias](#GCO.alias). Actually, it will apply the  [alias](#GCO.alias) at first, then replace the [prefix](#GCO.prefix) part.
+
+The prefix of the path (`"@app"` or `"@com"` etc.) should be defined in [prefix](#GCO.prefix) field. 
+
+If the input path is not formed like `@xxx:path`, it will be returned directly. If the prefix (`"@xxx"`) is not defined in [prefix](#GCO.prefix), an error will be raised.
+
+## `url@params`
+
+- `path{string}` : reource path formed like `"@app:foo.bar"`
+
+## `url@return`
+
+`String` as the full path of given resource path
+
+## `url@thrown`
+
+- `{errCode:"e.ti.config.prefix_without_defined", data:[prefix]}`
+
+## `url@usage`
+
+```js
+//prefix : `{"bar" : "/my/lib/"}`
+ti.config.url('@bar:xyz')
+// -> /my/lib/xyz
 ```
 
