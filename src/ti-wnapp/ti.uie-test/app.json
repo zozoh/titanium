@@ -1,19 +1,23 @@
 {
   "name"  : "ti.uie-test",
   "theme" : "@theme:light",
-  "state" : "@my-app:app_state.json",
+  "state" : "@my:app_state.json",
   "dom"   : {
-    "desktop" : "@my-app:template/desktop.html",
-    "mobile"  : "@my-app:template/mobile.html"
+    "desktop" : "@my:template/desktop.html",
+    "mobile"  : "@my:template/mobile.html"
   },
-  "css"   : "@my-app-style:test.css",
-  "mutations" : "@my-app-script:mutations",
+  "css"   : "@my:style/test.css",
+  "mutations" : "@my:script/mutations.js",
   "actions"  : [
-    "@my-app-script:actions"
+    "@my:script/actions.js"
   ],
   "getters" : false,
-  "modules" : ["@my-app-module:foo"],
-  "components" : ["@my-app-com:ti-test-com-0"],
+  "modules" : [
+    "@my:module/foo"
+  ],
+  "components" : [
+    "@my:component/ti-test-com-0"
+  ],
   "deps" : [
     "@jslib:jquery"
   ]

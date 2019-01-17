@@ -1,27 +1,49 @@
-(function(){
-///////////////////////
+import {ti} from "./ti.mjs"
+//-----------------------------------
 const TI = {
   version : "1.0",
   prefix  : {},
-  alias   : {}
+  alias   : {},
+  dynamicPrefix : {}
 }
 //-----------------------------------
-const TiConfig = {
+class AliasMapping {
+  constructor(alias) {
+    this.list = []
+  }
+  reset(alias=TI.alias) {
+    console.log("alias", alias)
+    return this
+  }
+}
+const ALIAS = new AliasMapping().reset()
+//-----------------------------------
+export const TiConfig = {
   //.................................
-  set({prefix, alias}) {
+  set({prefix, alias, dynamicPrefix={
+    module : "my-mod", component : "my-com"
+  }}={}) {
     if(prefix)
       TI.prefix = prefix
     if(alias)
       TI.alias = alias
+    if(dynamicPrefix)
+      TI.dynamicPrefix = dynamicPrefix
+    
+    ALIAS.reset()
   },
   //.................................
-  update({prefix, alias}) {
+  update({prefix, alias, dynamicPrefix={
+    module : "my-mod", component : "my-com"
+  }}={}) {
     if(prefix)
       _.assign(TI.prefix, prefix)
     if(alias)
       _.assign(TI.alias, alias)
+    if(dynamicPrefix)
+      _.assign(TI.dynamicPrefix, dynamicPrefix)
 
-    rebuild_prefix_map()
+    ALIAS.reset()
   },
   //.................................
   get(key=null) {
@@ -31,8 +53,7 @@ const TiConfig = {
     return TI;
   },
   //...............................
-
-  url(path="") {
+  url(path="", dynamic={}) {
     // apply alias
     let ph = TI.alias[path] || path
     // expend prefix
@@ -46,8 +67,5 @@ const TiConfig = {
     return prefix + url
   }
 }
-
-// join to namespace
-ti.ns('ti.config', TiConfig)
-///////////////////////
-})();
+//-----------------------------------
+export default TiConfig

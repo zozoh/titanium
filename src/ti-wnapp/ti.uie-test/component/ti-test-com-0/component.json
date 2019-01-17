@@ -5,8 +5,8 @@
     "a" : {"type":"string"},
     "b" : {"type":"number"}
   },
-  "computed" : "!module:@my-com:computed",
+  "computed" : "@my-com:computed.js",
   "methods"  : [
-    "!module:@my-com:methods"
+    "@my-com:methods.js"
   ]
 }

@@ -10,18 +10,31 @@
   <script src="${rs}/core/js/axios/axios.js"></script>
   <script src="${rs}/core/js/lodash/lodash.js"></script>
   <script src="${rs}/core/js/vue2/vue.js"></script>
-  <script src="${rs}/ti/ns.js"></script>
+  <!--script src="${rs}/ti/ns.js"></script>
   <script src="${rs}/ti/err.js"></script>
   <script src="${rs}/ti/config.js"></script>
   <script src="${rs}/ti/dom.js"></script>
   <script src="${rs}/ti/use.js"></script>
+  <script src="${rs}/ti/load.js"></script-->
 </head>
 <body>
 <main>
   I am Titanium UI Testor
 </main>
 </body>
-<script src="/a/load/ti.uie-test/test_case/tc_ti_use.js" defer>
-
-</script>
+<script type="module" src="/a/load/ti.uie-test/test_case/tc_ti_use.mjs"></script>
+<!--script src="/a/load/ti.uie-test/test_case/tc_ti_app.js" defer>
+ti.config.update({
+  prefix : {
+    "my" : "/a/load/ti.uie-test/"
+  },
+  alias : {
+    "^@my:module\/[^\/]+$"    : "${0}/module.json",
+    "^@my:component\/[^\/]+$" : "${0}/component.json"
+  },
+  dynamicPrefix : {
+    module : "my-mod", component : "my-com"
+  }
+})
+</script-->
 </html>

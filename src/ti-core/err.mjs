@@ -1,6 +1,4 @@
-(function(){
-///////////////////////
-const TiError = {
+export const TiError = {
   make(code="",data="",msg){
     let er = new Error(msg || [code,data].join(" : "))
     er.errCode = code
@@ -8,8 +6,5 @@ const TiError = {
     return er
   }
 }
-
-// join to namespace
-ti.ns('ti.err', TiError)
-///////////////////////
-})();
+//-----------------------------------
+export default TiError

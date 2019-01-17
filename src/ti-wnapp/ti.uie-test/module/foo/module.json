@@ -1,9 +1,9 @@
 {
   "name"  : "foo",
   "state" : "@my-mod:app_state.json",
-  "mutations" : "!module:@my-mod:mutations",
+  "mutations" : "@my-mod:mutations.js",
   "actions"  : [
-    "!module:@my-app:actions"
+    "@my-mod:actions.js"
   ],
   "getters" : false
 }

@@ -1,6 +1,5 @@
-(function(){
-///////////////////////
-const TiDom = {
+//-----------------------------------
+export const TiDom = {
   createElement({tagName="div", attrs={}, props={}, className=""}, $doc=document) {
     const $el = $doc.createElement(tagName)
     if(className)
@@ -24,8 +23,6 @@ const TiDom = {
     return $doc.querySelector(selector);
   }
 }
+//---------------------------------------
+export default TiDom
 
-// join to namespace
-ti.ns('ti.dom', TiDom)
-///////////////////////
-})();

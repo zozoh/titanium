@@ -1,3 +1,5 @@
+import {G,ti} from "/gu/rs/ti/ti.mjs"
+//---------------------------------------
 ti.config.set({
   prefix : {
     "api" : "/api/titanium/",
@@ -18,8 +20,8 @@ ti.use(['@api:test/now',
   })
 
 
-ti.use(()=>['!lib:@jslib:jquery',
-        '@api:test/demo.js'])
+ti.use(()=>['@jslib:jquery',
+        '!mjs:@api:test/demo.js'])
   .then(([$jq, $mod]) => {
     console.log("--------------------- js")
     console.log("js loaded", typeof $mod, typeof $jq)

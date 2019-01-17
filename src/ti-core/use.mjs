@@ -1,8 +1,9 @@
-(function(){
-///////////////////////
+import {ti} from "./ti.mjs"
+import { importModule } from "./importModule.mjs"
+//---------------------------------------
 const loading = {
   // normal js lib
-  lib(url) {
+  js(url) {
     return new Promise((resolve, reject)=>{
       let $script = ti.dom.find(`script[src="${url}"]`)
       if($script) {
@@ -28,8 +29,11 @@ const loading = {
     })  // ~ Promise
   },
   // official js module
-  module(url) {
-    return import(url).then(m => m.default)
+  mjs(url) {
+    // FF done suppor the import() yet by default 
+    // return import(url).then(m => m.default)
+    // use the polyfill method instead
+    return importModule(url).then(m=>m.default)
   },
   // css file
   css(url) {
@@ -78,21 +82,25 @@ const loading = {
     })
   }
 }
-//.....................
+//---------------------------------------
 // url: /^(!($prefix):)?(.+)$/
 //  - "/js/jquery.js"
-//  - "!lib:/js/jquery.js"
+//  - "!mjs:/js/jquery.js"
 //  - "!css:/my/css.txt"
 function autoType(url) {
   // url prefix indicate the type
-  let m = /^(!(lib|module|json|css|text):)?(.+)$/.exec(url)
+  let m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
   if(m[2])
     return {type:m[2],url:m[3]}
   
   // detect by suffix
   // for script, take it as module
   if(/^.+\.js$/.test(url)) {
-    return {url, type:"module"}
+    return {url, type:"js"}
+  }
+
+  if(/^.+\.mjs$/.test(url)) {
+    return {url, type:"mjs"}
   }
   
   if(/^.+\.css$/.test(url))
@@ -103,8 +111,8 @@ function autoType(url) {
   
   return {url, type:"text"}
 }
-//.....................
-const TiUse = function(url=[], {type="auto"}={}) {
+//---------------------------------------
+export const TiUse = function(url=[], {type="auto"}={}) {
   // dynamic url 
   if(_.isFunction(url)) {
     let u2 = url();
@@ -139,8 +147,5 @@ const TiUse = function(url=[], {type="auto"}={}) {
   // invoke
   return loading[lo.type](lo.url)
 }
-
-// join to namespace
-ti.ns('ti.use', TiUse)
-///////////////////////
-})();
+//-----------------------------------
+export default TiUse
