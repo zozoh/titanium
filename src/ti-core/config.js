@@ -30,19 +30,20 @@ const TiConfig = {
     }
     return TI;
   },
-  //.................................
+  //...............................
+
   url(path="") {
     // apply alias
-    let p2 = TI.alias[path] || path
+    let ph = TI.alias[path] || path
     // expend prefix
-    let m = /^(@([^:]+):)(.+)/.exec(p2)
+    let m = /^(@([^:]+):)(.+)/.exec(ph)
     if(!m)
-      return p2;
-    let {px,ph} = m.slice(2)
-    let p0 = TI.prefix[px]
-    if(!p0)
-      throw ti.err.make("e.ti.config.prefix_without_defined", px)
-    return p0 + ph
+      return ph;
+    let [prefixName, url] = m.slice(2)
+    let prefix = TI.prefix[prefixName]
+    if(!prefix)
+      throw ti.err.make("e.ti.config.prefix_without_defined", prefixName)
+    return prefix + url
   }
 }
 

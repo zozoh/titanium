@@ -128,9 +128,17 @@ class TiLoading {
   }
 }
 //-----------------------------------
-const TiLoad = function(path, {recur=true,forceArray=false}={}) {
-  const ing = new TiLoading(path, {recur,forceArray})
-  return ing.run()
+const TiLoad = {
+  //.................................
+  run(path, {recur=true,forceArray=false}={}) {
+    const ing = new TiLoading(path, {recur,forceArray})
+    return ing.run()
+  },
+  //.................................
+  explain(path, {recur=false,forceArray=false}={}) {
+    const ing = new TiLoading(path, {recur,forceArray})
+    return ing.explain()
+  }
 }
 
 // join to namespace

@@ -1,7 +1,8 @@
 (function(){
 ///////////////////////
 const loading = {
-  script(url) {
+  // normal js lib
+  lib(url) {
     return new Promise((resolve, reject)=>{
       let $script = ti.dom.find(`script[src="${url}"]`)
       if($script) {
@@ -9,9 +10,9 @@ const loading = {
       } else {
         $script = ti.dom.createElement({
           tagName : "script",
-          prop : {
+          props : {
             charset : "stylesheet",
-            type    : "text/javascript",
+            type    : "module",
             src     : url,
             async   : true
           }
@@ -26,6 +27,11 @@ const loading = {
       }
     })  // ~ Promise
   },
+  // official js module
+  module(url) {
+    return import(url).then(m => m.default)
+  },
+  // css file
   css(url) {
     return new Promise((resolve, reject)=>{
       let $link = ti.dom.find(`link[href="${url}"]`)
@@ -34,7 +40,7 @@ const loading = {
       } else {
         $link = ti.dom.createElement({
           tagName : "link",
-          prop : {
+          props : {
             rel : "stylesheet",
             type : "text/css",
             href : url
@@ -50,6 +56,7 @@ const loading = {
       }
     })  // ~ Promise
   },
+  // json object
   json(url) {
     return new Promise((resolve, reject)=>{
       loading.text(url)
@@ -62,6 +69,7 @@ const loading = {
         .catch(err => reject(err))
     });
   },
+  // pure text
   text(url) {
     return new Promise((resolve, reject)=>{
       axios.get(url)
@@ -71,20 +79,68 @@ const loading = {
   }
 }
 //.....................
-ti.ns('ti.use', function(url, {type="auto"}={}) {
-  // auto mode
-  if("auto" == type) {
-    type = /^.+\.js$/.test(url)
-            ? "script"
-            : (/^.+\.css$/.test(url)
-                ? "css"
-                : (/^.+\.json$/.test(url)
-                  ? "json"
-                  : "text"))
+// url: /^(!($prefix):)?(.+)$/
+//  - "/js/jquery.js"
+//  - "!lib:/js/jquery.js"
+//  - "!css:/my/css.txt"
+function autoType(url) {
+  // url prefix indicate the type
+  let m = /^(!(lib|module|json|css|text):)?(.+)$/.exec(url)
+  if(m[2])
+    return {type:m[2],url:m[3]}
+  
+  // detect by suffix
+  // for script, take it as module
+  if(/^.+\.js$/.test(url)) {
+    return {url, type:"module"}
+  }
+  
+  if(/^.+\.css$/.test(url))
+    return {url, type:"css"}
+  
+  if(/^.+\.json$/.test(url))
+    return {url, type:"json"}
+  
+  return {url, type:"text"}
+}
+//.....................
+const TiUse = function(url=[], {type="auto"}={}) {
+  // dynamic url 
+  if(_.isFunction(url)) {
+    let u2 = url();
+    return TiUse(u2, {type})
+  }
+  // multi urls
+  if(_.isArray(url)) {
+    let ps = []
+    let result = []
+    url.forEach((s, index)=>{
+      ps.push(
+        TiUse(s, {type})
+          .then(re => result[index] = re)
+      )
+    })
+    return Promise.all(ps).then(()=>result)
   }
 
+  // Must be a String
+  if(!_.isString(url)) {
+    throw ti.err.make("e.ti.use.url_must_string", url)
+  }
+
+  // check auto mode
+  let lo = ("auto" == type) 
+              ? autoType(url)
+              : {type, url}
+  
+  // apply url prefix & alias
+  lo.url = ti.config.url(lo.url)
+
   // invoke
-  return loading[type](url)
-})
+  return loading[lo.type](lo.url)
+}
+
+// join to namespace
+ti.ns('ti.use', TiUse)
 ///////////////////////
 })();

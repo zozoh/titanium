@@ -7,34 +7,21 @@
   <title>${title}</title>
   <link rel="stylesheet" type="text/css"
         href="${rs}/core/css/font-md/css/material-design-iconic-font.css">
-  <script src="/gu/rs/core/js/jquery/2.x/jquery.min.js"></script>
   <script src="${rs}/core/js/axios/axios.js"></script>
   <script src="${rs}/core/js/lodash/lodash.js"></script>
   <script src="${rs}/core/js/vue2/vue.js"></script>
   <script src="${rs}/ti/ns.js"></script>
+  <script src="${rs}/ti/err.js"></script>
+  <script src="${rs}/ti/config.js"></script>
   <script src="${rs}/ti/dom.js"></script>
-  <script src="${rs}/ti/load.js"></script>
+  <script src="${rs}/ti/use.js"></script>
 </head>
 <body>
 <main>
   I am Titanium UI Testor
 </main>
 </body>
-<script>
-ti.load('/api/titanium/test/now')
-  .then(str => console.log("now is", str))
-  .catch(err => console.warn(err))
+<script src="/a/load/ti.uie-test/test_case/tc_ti_use.js" defer>
 
-ti.load('/api/titanium/test/json', {mode:"json"})
-  .then(str => console.log(str))
-  .catch(err => console.warn(err))
-
-ti.load('/api/titanium/test/demo.css')
-  .then($link => console.log("css loaded", $link))
-  .catch(err => console.warn(err))
-
-ti.load('/api/titanium/test/demo.js')
-  .then($link => console.log("js loaded", $link))
-  .catch(err => console.warn(err))
 </script>
 </html>
