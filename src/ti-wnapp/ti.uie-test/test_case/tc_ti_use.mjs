@@ -1,4 +1,4 @@
-import {G,ti} from "/gu/rs/ti/ti.mjs"
+import {ti} from "/gu/rs/ti/ti.mjs"
 //---------------------------------------
 ti.config.set({
   prefix : {
@@ -24,9 +24,7 @@ ti.use(()=>['@jslib:jquery',
         '!mjs:@api:test/demo.js'])
   .then(([$jq, $mod]) => {
     console.log("--------------------- js")
-    console.log("js loaded", typeof $mod, typeof $jq)
-    //eval('('+$jq+')')
-    console.log($jq)
+    console.log("js loaded", $mod, $jq)
     console.log("jQuery:", window.jQuery)
     console.log("ti:", my.test())
   })

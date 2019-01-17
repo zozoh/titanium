@@ -28,7 +28,7 @@ export function importModule(url) {
       destructor();
     };
     const absURL = toAbsoluteURL(url);
-    const loader = `import * as m from "${absURL}"; window.${vector} = m;`; // export Module
+    const loader = `import * as m from "${absURL}"; window.${vector} = m;`;
     const blob = new Blob([loader], { type: "text/javascript" });
     script.src = URL.createObjectURL(blob);
 

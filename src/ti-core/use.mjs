@@ -1,10 +1,11 @@
 import {ti} from "./ti.mjs"
-import { importModule } from "./importModule.mjs"
+import {importModule} from "./__dynamic-import-polyfill.mjs"
 //---------------------------------------
 const loading = {
   // normal js lib
   js(url) {
     return new Promise((resolve, reject)=>{
+      console.log("Hasdfaadsfadsfadsfasd")
       let $script = ti.dom.find(`script[src="${url}"]`)
       if($script) {
         _.defer(resolve, $script)
@@ -13,7 +14,6 @@ const loading = {
           tagName : "script",
           props : {
             charset : "stylesheet",
-            type    : "module",
             src     : url,
             async   : true
           }
@@ -62,61 +62,28 @@ const loading = {
   },
   // json object
   json(url) {
-    return new Promise((resolve, reject)=>{
-      loading.text(url)
+    return loading.text(url)
         .then(json => {
-          let obj = _.isString(json)
+          return _.isString(json)
                       ? JSON.parse(json)
                       : json
-          resolve(obj)
         })
-        .catch(err => reject(err))
-    });
   },
   // pure text
   text(url) {
-    return new Promise((resolve, reject)=>{
-      axios.get(url)
-        .then(resp => resolve(resp.data))
-        .catch(err => reject(err))
-    })
+    return axios.get(url, {
+        // zozoh@2019-01-18: Avaoid bug of: axios/axios#907
+        //responseType : "text",
+        transformResponse : undefined
+      }).then(resp => resp.data)
   }
 }
 //---------------------------------------
-// url: /^(!($prefix):)?(.+)$/
-//  - "/js/jquery.js"
-//  - "!mjs:/js/jquery.js"
-//  - "!css:/my/css.txt"
-function autoType(url) {
-  // url prefix indicate the type
-  let m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
-  if(m[2])
-    return {type:m[2],url:m[3]}
-  
-  // detect by suffix
-  // for script, take it as module
-  if(/^.+\.js$/.test(url)) {
-    return {url, type:"js"}
-  }
-
-  if(/^.+\.mjs$/.test(url)) {
-    return {url, type:"mjs"}
-  }
-  
-  if(/^.+\.css$/.test(url))
-    return {url, type:"css"}
-  
-  if(/^.+\.json$/.test(url))
-    return {url, type:"json"}
-  
-  return {url, type:"text"}
-}
-//---------------------------------------
-export const TiUse = function(url=[], {type="auto"}={}) {
+export const TiUse = function(url=[], {dynamicPrefix}={}) {
   // dynamic url 
   if(_.isFunction(url)) {
     let u2 = url();
-    return TiUse(u2, {type})
+    return TiUse(u2, {dynamicPrefix})
   }
   // multi urls
   if(_.isArray(url)) {
@@ -124,7 +91,7 @@ export const TiUse = function(url=[], {type="auto"}={}) {
     let result = []
     url.forEach((s, index)=>{
       ps.push(
-        TiUse(s, {type})
+        TiUse(s, {dynamicPrefix})
           .then(re => result[index] = re)
       )
     })
@@ -136,16 +103,24 @@ export const TiUse = function(url=[], {type="auto"}={}) {
     throw ti.err.make("e.ti.use.url_must_string", url)
   }
 
-  // check auto mode
-  let lo = ("auto" == type) 
-              ? autoType(url)
-              : {type, url}
-  
+  // url prefix indicate the type
+  let type, m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
+  if(m) {
+    type = m[2]
+    url  = m[3]
+  }
+
   // apply url prefix & alias
-  lo.url = ti.config.url(lo.url)
+  url = ti.config.url(url, dynamicPrefix)
+
+  // auto type by suffix
+  if(!type) {
+    m = /\.(m?js|css|json)$/.exec(url)
+    type = m ? m[1] : "text"
+  }
 
   // invoke
-  return loading[lo.type](lo.url)
+  return loading[type](url)
 }
 //-----------------------------------
 export default TiUse

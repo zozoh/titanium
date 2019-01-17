@@ -29,8 +29,8 @@ ti.config.update({
     "my" : "/a/load/ti.uie-test/"
   },
   alias : {
-    "^@my:module\/[^\/]+$"    : "${0}/module.json",
-    "^@my:component\/[^\/]+$" : "${0}/component.json"
+    "^@my:module\/[^\/]+$"    : "$&/module.json",
+    "^@my:component\/[^\/]+$" : "$&/component.json"
   },
   dynamicPrefix : {
     module : "my-mod", component : "my-com"
