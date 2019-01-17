@@ -22,7 +22,9 @@ ti.use(()=>['!lib:@jslib:jquery',
         '@api:test/demo.js'])
   .then(([$jq, $mod]) => {
     console.log("--------------------- js")
-    console.log("js loaded", $mod, $jq)
+    console.log("js loaded", typeof $mod, typeof $jq)
+    //eval('('+$jq+')')
+    console.log($jq)
     console.log("jQuery:", window.jQuery)
-    console.log("ti:", my.test.x, my.test.y)
+    console.log("ti:", my.test())
   })

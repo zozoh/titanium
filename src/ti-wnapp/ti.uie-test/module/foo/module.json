@@ -1,0 +1,9 @@
+{
+  "name"  : "foo",
+  "state" : "@my-mod:app_state.json",
+  "mutations" : "!module:@my-mod:mutations",
+  "actions"  : [
+    "!module:@my-app:actions"
+  ],
+  "getters" : false
+}

@@ -1,0 +1,12 @@
+{
+  "name"  : "ti-test-com-0",
+  "data"  : "@my-com:data.json",
+  "props" : {
+    "a" : {"type":"string"},
+    "b" : {"type":"number"}
+  },
+  "computed" : "!module:@my-com:computed",
+  "methods"  : [
+    "!module:@my-com:methods"
+  ]
+}
