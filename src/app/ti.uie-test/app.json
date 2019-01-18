@@ -1,0 +1,24 @@
+{
+  "name"  : "ti.uie-test",
+  "theme" : "@theme:light",
+  "state" : "@my:app_state.json",
+  "dom"   : {
+    "desktop" : "@my:template/desktop.html",
+    "mobile"  : "@my:template/mobile.html"
+  },
+  "css"   : "@my:style/test.css",
+  "mutations" : "@my:script/mutations.mjs",
+  "actions"  : [
+    "@my:script/actions.mjs"
+  ],
+  "getters" : false,
+  "modules" : [
+    "@my:module/foo"
+  ],
+  "components" : [
+    "@my:component/ti-test-com-0"
+  ],
+  "deps" : [
+    "@jslib:jquery"
+  ]
+}
