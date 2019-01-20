@@ -1,3 +1,10 @@
+//---------------------------------------
+import {TiApp as App} from "./app.mjs"
+import {TiError as Err} from "./err.mjs"
+import {TiConfig as Config} from "./config.mjs"
+import {TiDom as Dom} from "./dom.mjs"
+import {TiLoad as Load} from "./load.mjs"
+//---------------------------------------
 // Define the Gloabl object
 var THE_GLOABL_OBJ = {}  
 //---------------------------------------
@@ -5,6 +12,7 @@ export var Ti = {
   Version() {
     return "1.0"
   },
+  /*
   Namespace(fullname, obj) {
     let oldObj = _.get(THE_GLOABL_OBJ, fullname);
     if(oldObj 
@@ -18,7 +26,8 @@ export var Ti = {
     if(window) {
       _.assign(window, THE_GLOABL_OBJ)
     }
-  }
+  },*/
+  App, Err, Config, Dom, Load
 }
 //---------------------------------------
 export {
@@ -27,18 +36,6 @@ export {
 }
 //---------------------------------------
 THE_GLOABL_OBJ.Ti = Ti
-//---------------------------------------
-import {TiError} from "./err.mjs"
-Ti.Namespace('Ti.Err', TiError)
-//---------------------------------------
-import {TiConfig} from "./config.mjs"
-Ti.Namespace('Ti.Config', TiConfig)
-//---------------------------------------
-import {TiDom} from "./dom.mjs"
-Ti.Namespace('Ti.Dom', TiDom)
-//---------------------------------------
-import {TiLoad} from "./load.mjs"
-Ti.Namespace('Ti.Load', TiLoad)
-//---------------------------------------
-import {TiApp} from "./app.mjs"
-Ti.Namespace('Ti.App', TiApp)
+if(window) {
+  window.Ti = Ti
+}
