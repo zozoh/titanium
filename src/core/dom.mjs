@@ -27,6 +27,18 @@ export const TiDom = {
   },
   find(selector="*", $doc=document) {
     return $doc.querySelector(selector);
+  },
+  remove(selectorOrElement, context) {
+    if(_.isString(selectorOrElement)) {
+      let $els = TiDom.findAll(selectorOrElement, context)
+      for(let $el of $els) {
+        TiDom.remove($el)
+      }
+      return
+    }
+    // remove single element
+    if(_.isElement(selectorOrElement))
+      selectorOrElement.parentNode.removeChild(selectorOrElement)
   }
 }
 //---------------------------------------

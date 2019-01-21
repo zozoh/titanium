@@ -36,10 +36,12 @@ export class OneTiApp {
 }
 //---------------------------------------
 export const TiApp = function(url) {
+  // load the app info 
   if(_.isString(url)) {
     return Ti.Load(url).then(info=>{
       return new OneTiApp(info)
     })
   }
+  // return the app instance directly
   return new OneTiApp(url)
 }

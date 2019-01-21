@@ -1,9 +1,10 @@
 ---
-title : Titanium Core
+title : Ti.Config
 author: zozoh(zozohtnt@gmail.com)
 tags:
 - core
 - API
+- namespace
 ---
 
 # Global Configuration
