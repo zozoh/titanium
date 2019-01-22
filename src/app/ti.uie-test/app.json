@@ -9,9 +9,10 @@
   "css"   : "@my:style/test.css",
   "mutations" : "@my:script/mutations.mjs",
   "actions"  : [
-    "@my:script/actions.mjs"
+    "@my:script/actions.mjs",
+    "@my:script/a2.mjs"
   ],
-  "getters" : false,
+  "getters" : "@my:script/getters.mjs",
   "modules" : [
     "@my:module/foo"
   ],

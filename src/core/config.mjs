@@ -11,7 +11,7 @@ class AliasMapping {
   }
   reset(alias=CONFIG.alias) {
     _.forOwn(alias, (val, key)=>{
-      console.log("alias", key, val)
+      // console.log("alias", key, val)
       // Regex
       if(_.startsWith(key, "^")){
         this.list.push({
@@ -29,7 +29,7 @@ class AliasMapping {
     })
     return this
   }
-  get(url="") {
+  get(url="", dft) {
     for(let r of this.list) {
       // Match Regex
       if(r.regex) {
@@ -42,7 +42,7 @@ class AliasMapping {
         return r.newstr
       }
     }
-    return url
+    return _.isUndefined(dft) ? url : dft
   }
 }
 const ALIAS = new AliasMapping().reset()
@@ -78,18 +78,30 @@ export const TiConfig = {
     return CONFIG;
   },
   //...............................
-  url(path="", dynamicPrefix={}) {
+  url(path="", {dynamicPrefix={},dynamicAlias}={}) {
     // apply alias
-    let ph = ALIAS.get(path)
+    let ph, m
+    if(dynamicAlias) {
+      let a_map = (dynamicAlias instanceof AliasMapping) 
+                    ? dynamicAlias 
+                    : new AliasMapping().reset(dynamicAlias)
+      ph = a_map.get(path, null)
+    }
+    if(!ph) {
+      ph = ALIAS.get(path)
+    }
+
     // expend prefix
-    let m = /^(@([^:]+):)(.*)/.exec(ph)
+    m = /^(@([^:]+):)(.*)/.exec(ph)
     if(!m)
       return ph;
     let [prefixName, url] = m.slice(2)
     let prefix = dynamicPrefix[prefixName] || CONFIG.prefix[prefixName]
+
     if(!prefix)
       throw Ti.Err.make("e.ti.config.prefix_without_defined", prefixName)
-    return prefix + url
+    
+      return prefix + url
   }
 }
 //-----------------------------------

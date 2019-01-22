@@ -4,11 +4,13 @@ Ti.Config.set({
   prefix : {
     "app"   : "/a/load/",
     "theme" : "/gu/rs/ti/theme/",
-    "my"    : "/a/load/ti.uie-test/"
+    "my"    : "/a/load/ti.uie-test/",
+    "jslib" : "/gu/rs/core/js/"
   },
   alias : {
     "@jslib:jquery" : "@jslib:jquery/2.x/jquery.min.js",
     "@my:"          : "@my:app.json",
+    "^@theme:.+$"   : "$&.css",
     "^@app:[^\/]+$"           : "$&/app.json",
     "^@my:module\/[^\/]+$"    : "$&/module.json",
     "^@my:component\/[^\/]+$" : "$&/component.json"

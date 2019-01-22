@@ -79,7 +79,7 @@ const loading = {
   }
 }
 //---------------------------------------
-export const TiLoad = function(url=[], {dynamicPrefix}={}) {
+export const TiLoad = function(url=[], {dynamicPrefix, dynamicAlias}={}) {
   // dynamic url 
   if(_.isFunction(url)) {
     let u2 = url();
@@ -111,7 +111,7 @@ export const TiLoad = function(url=[], {dynamicPrefix}={}) {
   }
 
   // apply url prefix & alias
-  url = Ti.Config.url(url, dynamicPrefix)
+  url = Ti.Config.url(url, {dynamicPrefix, dynamicAlias})
 
   // auto type by suffix
   if(!type) {
