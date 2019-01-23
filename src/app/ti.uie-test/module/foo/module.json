@@ -1,10 +1,10 @@
 {
   "name"  : "foo",
   "namespaced" : true,
-  "state" : "@my-mod:state.json",
-  "mutations" : "@my-mod:mutations.mjs",
+  "state" : "./state.json",
+  "mutations" : "./mutations.mjs",
   "actions"  : [
-    "@my-mod:actions.mjs"
+    "./actions.mjs"
   ],
   "getters" : false
 }

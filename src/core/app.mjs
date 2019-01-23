@@ -7,6 +7,7 @@ const TI_INFO  = Symbol("ti-info")
 const TI_CONF  = Symbol("ti-conf")
 const TI_STORE = Symbol("ti-store")
 const TI_VM    = Symbol("ti-vm")
+const GET_SET  = Symbol("getter/setter")
 //---------------------------------------
 /***
 Encapsulate all stuffs of Titanium Application
@@ -19,7 +20,7 @@ export class OneTiApp {
     this.$vm(null)
   }
   //---------------------------------------
-  __get_set(key, val) {
+  [GET_SET](key, val) {
     if(!_.isUndefined(val)){
       this[key] = val
       return this
@@ -29,10 +30,10 @@ export class OneTiApp {
   //---------------------------------------
   name () {return this.obj().name}
   //---------------------------------------
-  $info(info)   {return this.__get_set(TI_INFO , info)}
-  $conf(conf)   {return this.__get_set(TI_CONF , conf)}
-  $store(store) {return this.__get_set(TI_STORE, store)}
-  $vm   (vm)    {return this.__get_set(TI_VM   , vm)}
+  $info(info)   {return this[GET_SET](TI_INFO , info)}
+  $conf(conf)   {return this[GET_SET](TI_CONF , conf)}
+  $store(store) {return this[GET_SET](TI_STORE, store)}
+  $vm   (vm)    {return this[GET_SET](TI_VM   , vm)}
   //---------------------------------------
   async init(){
     // load each fields of info obj
@@ -41,14 +42,16 @@ export class OneTiApp {
     console.log("Ti.$conf", this.$conf())
 
     // Store instance
-    let sc = TiVue.StoreConfig(conf)
-    console.log(sc)
-    let store = new Vuex.Store(sc)
-    store.strict = true  // Enable strict mode for scene of dev 
-    this.$store(store)
-    console.log("Ti.$store", this.$store())
+    if(conf.store) {
+      let sc = TiVue.StoreConfig(conf.store)
+      console.log(sc)
+      let store = new Vuex.Store(sc)
+      store.strict = true  // Enable strict mode for scene of dev 
+      this.$store(store)
+      console.log("Ti.$store", this.$store())
 
-    store.dispatch("foo/doAction")
+      store.dispatch("foo/doAction")
+    }
 
     // Vue instance: 
 

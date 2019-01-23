@@ -8,12 +8,13 @@ const CONFIG = {
 class AliasMapping {
   constructor(alias) {
     this.list = []
+    this.reset(alias)
   }
-  reset(alias=CONFIG.alias) {
+  reset(alias={}) {
     _.forOwn(alias, (val, key)=>{
       // console.log("alias", key, val)
       // Regex
-      if(_.startsWith(key, "^")){
+      if(_.startsWith(key, "^") || _.endsWith(key, "$")){
         this.list.push({
           regex  : new RegExp(key),
           newstr : val
@@ -30,24 +31,26 @@ class AliasMapping {
     return this
   }
   get(url="", dft) {
+    let re = url
     for(let r of this.list) {
       // Match Regex
       if(r.regex) {
-        if(r.regex.test(url)){
-          return url.replace(r.regex, r.newstr)
+        if(r.regex.test(re)){
+          re = re.replace(r.regex, r.newstr)
         }
       }
       // Match static value
       if(url == r.substr){
-        return r.newstr
+        re = r.newstr
       }
     }
-    return _.isUndefined(dft) ? url : dft
+    return re || (_.isUndefined(dft) ? url : dft)
   }
 }
 const ALIAS = new AliasMapping().reset()
 //-----------------------------------
 export const TiConfig = {
+  AliasMapping,
   //.................................
   version() {
     return CONFIG.version
@@ -59,7 +62,7 @@ export const TiConfig = {
     if(alias)
       CONFIG.alias = alias
     
-    ALIAS.reset()
+    ALIAS.reset(CONFIG.alias)
   },
   //.................................
   update({prefix, alias}) {
@@ -68,7 +71,7 @@ export const TiConfig = {
     if(alias)
       _.assign(CONFIG.alias, alias)
 
-    ALIAS.reset()
+    ALIAS.reset(CONFIG.alias)
   },
   //.................................
   get(key=null) {
@@ -78,21 +81,22 @@ export const TiConfig = {
     return CONFIG;
   },
   //...............................
-  url(path="", {dynamicPrefix={},dynamicAlias}={}) {
+  url(path="", {dynamicPrefix={}, dynamicAlias}={}) {
     // apply alias
     let ph, m
+
+    // amend the url dynamically
     if(dynamicAlias) {
       let a_map = (dynamicAlias instanceof AliasMapping) 
                     ? dynamicAlias 
                     : new AliasMapping().reset(dynamicAlias)
       ph = a_map.get(path, null)
     }
-    if(!ph) {
-      ph = ALIAS.get(path)
-    }
+    // amend the url statictly
+    ph = ALIAS.get(ph || path)
 
     // expend prefix
-    m = /^(@([^:]+):)(.*)/.exec(ph)
+    m = /^(@([^:]+):?)(.*)/.exec(ph)
     if(!m)
       return ph;
     let [prefixName, url] = m.slice(2)

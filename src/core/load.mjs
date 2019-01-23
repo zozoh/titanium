@@ -91,7 +91,7 @@ export const TiLoad = function(url=[], {dynamicPrefix, dynamicAlias}={}) {
     let result = []
     url.forEach((s, index)=>{
       ps.push(
-        TiLoad(s, {dynamicPrefix})
+        TiLoad(s, {dynamicPrefix, dynamicAlias})
           .then(re => result[index] = re)
       )
     })

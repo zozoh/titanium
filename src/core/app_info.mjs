@@ -1,5 +1,7 @@
 import {Ti} from './ti.mjs'
 //---------------------------------------
+const BASE = Symbol("BASE")
+//---------------------------------------
 async function LoadTiLinkedObj(obj={}, {dynamicPrefix, dynamicAlias}={}) {
   // Promise list
   let ps = []
@@ -8,9 +10,16 @@ async function LoadTiLinkedObj(obj={}, {dynamicPrefix, dynamicAlias}={}) {
     // String
     if(_.isString(val)) {
       // the value is linked
-      if(/^@[a-z0-9_-]+:/.test(val)) {
+      if(/^(@[a-z0-9_-]+:?|\.\/)/.test(val)) {
         ps.push(Ti.Load(val, {dynamicPrefix, dynamicAlias}).then(re=>{
-          obj[key] = re
+          // Plain Object save the BASE for recur
+          if(_.isPlainObject(re)) {
+            obj[key] = {[BASE]:val, ...re}
+          }
+          // Others just save it
+          else {
+            obj[key] = re
+          }
         }))
       }
     }
@@ -21,7 +30,7 @@ async function LoadTiLinkedObj(obj={}, {dynamicPrefix, dynamicAlias}={}) {
       let index = []   // the index of `list` in `val`
       for(let i=0; i<val.length; i++) {
         let v = val[i];
-        if(/^@[a-z0-9_-]+:/.test(val)){
+        if(/^(@[a-z0-9_-]+:?|\.\/)/.test(val)) {
           list.push(v)
           index.push(i)
         }
@@ -31,10 +40,11 @@ async function LoadTiLinkedObj(obj={}, {dynamicPrefix, dynamicAlias}={}) {
         return
 
       // Do loading
+      console.log("load: ", list)
       ps.push(Ti.Load(list, {dynamicPrefix, dynamicAlias}).then(reList=>{
         for(let i=0; i<reList.length; i++) {
           let ix = index[i]
-          val[ix] = reList[i]
+          val[ix] = {[BASE]:list[i], ...reList[i]}
         }
       }))
     }
@@ -71,17 +81,17 @@ function RemarkCssLink(cssLink, {key="",val=""}={}, $doc=document) {
   if(key && val)
     cssLink.setAttribute(key, val)
 }
-//---------------------------------------
-function MergeToOne(listOrObj) {
-  if(_.isArray(listOrObj)) {
-    return _.assign({}, ...listOrObj)
-  }
-  // `null/false ...` unify to undefined
-  if(!listOrObj)
-    return undefined
-  // Plain object already
-  return listOrObj
-}
+// //---------------------------------------
+// function MergeToOne(listOrObj) {
+//   if(_.isArray(listOrObj)) {
+//     return _.assign({}, ...listOrObj)
+//   }
+//   // `null/false ...` unify to undefined
+//   if(!listOrObj)
+//     return undefined
+//   // Plain object already
+//   return listOrObj
+// }
 //---------------------------------------
 export const TiAppInfo = {
   /***
@@ -93,31 +103,34 @@ export const TiAppInfo = {
       throw Ti.Err.make("e.ti.app.load_info_without_name")
     }
     // Clone info and reload its all detail
-    let obj = _.cloneDeep(info)
-    await LoadTiLinkedObj(obj)
+    let conf = _.cloneDeep(info)
+    await LoadTiLinkedObj(conf)
+    console.log("conf1", conf)
 
     // Then check each part
     
     // For Theme / CSS
-    RemarkCssLink(obj.theme, {key:"ti-theme", val:"yes"})
-    RemarkCssLink(obj.css,   {key:"ti-app-css", val:obj.name})
+    RemarkCssLink(conf.theme, {key:"ti-theme", val:"yes"})
+    RemarkCssLink(conf.css,   {key:"ti-app-css", val:conf.name})
     
     // Merge mutations/actions/getters as single one Object
-    obj.mutations = MergeToOne(obj.mutations)
-    obj.actions   = MergeToOne(obj.actions)
-    obj.getters   = MergeToOne(obj.getters)
+    // conf.mutations = MergeToOne(conf.mutations)
+    // conf.actions   = MergeToOne(conf.actions)
+    // conf.getters   = MergeToOne(conf.getters)
     
     // extends all modules
-    if(_.isArray(obj.modules) && obj.modules.length>0) {
+    if(_.isArray(conf.modules) && conf.modules.length>0) {
       let ps = []
-      for(let mod of obj.modules) {
-        console.log(mod)
-        ps.push(LoadTiLinkedObj(mod, {dynamicPrefix:{
-          "my-mod" : Ti.Config.url("@my:module/"+mod.name+"/")
-        }}).then(mod=>{
-          mod.mutations = MergeToOne(mod.mutations)
-          mod.actions   = MergeToOne(mod.actions)
-          mod.getters   = MergeToOne(mod.getters)
+      for(let mod of conf.modules) {
+        console.log("mod:", mod)
+        ps.push(LoadTiLinkedObj(mod, { 
+          dynamicAlias : new Ti.Config.AliasMapping({
+            "^\./" : mod[BASE] + "/"
+          })
+        }).then(mod=>{
+          // mod.mutations = MergeToOne(mod.mutations)
+          // mod.actions   = MergeToOne(mod.actions)
+          // mod.getters   = MergeToOne(mod.getters)
         }))
       }
       // wait the loading has been done
@@ -125,21 +138,25 @@ export const TiAppInfo = {
     }
 
     // extends all components
-    if(_.isArray(obj.components) && obj.components.length>0) {
+    if(_.isArray(conf.components) && conf.components.length>0) {
       let ps = []
-      for(let com of obj.components) {
-        ps.push(LoadTiLinkedObj(com, {dynamicPrefix:{
-          "my-com" : Ti.Config.url("@my:component/"+com.name+"/")
-        }}).then(com=>{
-          com.computed = MergeToOne(com.computed)
-          com.methods  = MergeToOne(com.methods)
+      for(let com of conf.components) {
+        console.log("com before", com)
+        ps.push(LoadTiLinkedObj(com, { 
+          dynamicAlias : new Ti.Config.AliasMapping({
+            "^\./" : com[BASE] + "/"
+          })
+        }).then(com=>{
+          console.log("com after", com)
+          // com.computed = MergeToOne(com.computed)
+          // com.methods  = MergeToOne(com.methods)
         }))
       }
       // wait the loading has been done
       await Promise.all(ps)
     }
 
-    // Then return the app object which has been loaded completely
-    return obj
+    // The app config object which has been loaded completely
+    return conf
   }
 }

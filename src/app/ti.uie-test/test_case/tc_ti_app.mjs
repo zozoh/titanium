@@ -4,16 +4,17 @@ Ti.Config.set({
   prefix : {
     "app"   : "/a/load/",
     "theme" : "/gu/rs/ti/theme/",
-    "my"    : "/a/load/ti.uie-test/",
+    "MyApp" : "/a/load/ti.uie-test/",
     "jslib" : "/gu/rs/core/js/"
   },
   alias : {
+    "^\./"          : "@MyApp:",
     "@jslib:jquery" : "@jslib:jquery/2.x/jquery.min.js",
-    "@my:"          : "@my:app.json",
+    "^@MyApp:?$"    : "@MyApp:app.json",
     "^@theme:.+$"   : "$&.css",
-    "^@app:[^\/]+$"           : "$&/app.json",
-    "^@my:module\/[^\/]+$"    : "$&/module.json",
-    "^@my:component\/[^\/]+$" : "$&/component.json"
+    "^@app:[^\/]+$"          : "$&/app.json",
+    "\/?module\/[^\/]+$"    : "$&/module.json",
+    "\/?component\/[^\/]+$" : "$&/component.json"
   }
 })
 //---------------------------------------
@@ -29,7 +30,7 @@ Ti.Config.set({
 // })
 //---------------------------------------
 async function main(){
-  let app = await Ti.App("@my:")
+  let app = await Ti.App("@MyApp")
   await app.init()
   console.log(app)
   app.mountTo("#app")
