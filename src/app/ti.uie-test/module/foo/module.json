@@ -1,5 +1,6 @@
 {
   "name"  : "foo",
+  "namespaced" : true,
   "state" : "@my-mod:state.json",
   "mutations" : "@my-mod:mutations.mjs",
   "actions"  : [

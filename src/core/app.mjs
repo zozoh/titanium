@@ -1,6 +1,6 @@
 import {Ti}        from "./ti.mjs"
 import {TiAppInfo} from "./app_info.mjs"
-import {TiVue}     from "./polyfill_ti_vue.mjs"
+import {TiVue}     from "./polyfill-ti-vue.mjs"
 //---------------------------------------
 const TI_APP   = Symbol("ti-app")
 const TI_INFO  = Symbol("ti-info")

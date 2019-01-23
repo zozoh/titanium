@@ -10,6 +10,7 @@ export const TiVue = {
   StoreConfig(conf={}) {
     // Just pick necessary fields from conf obj
     let sc = {
+      namespaced : conf.namespaced,
       state : _.partial(_.cloneDeep, conf.state||{}),
       mutations : conf.mutaions,
       actions : conf.actions,
@@ -20,7 +21,6 @@ export const TiVue = {
       sc.modules = {}
       for(let mc of conf.modules) {
         let mo = TiVue.StoreConfig(mc)
-        mo.namespaced = true
         sc.modules[mc.name] = mo
       }
     }

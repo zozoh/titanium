@@ -1,5 +1,5 @@
 import {Ti} from "./ti.mjs"
-import {importModule} from "./polyfill_dynamic_import.mjs"
+import {importModule} from "./polyfill-dynamic-import.mjs"
 //---------------------------------------
 const loading = {
   // normal js lib
