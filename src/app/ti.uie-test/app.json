@@ -19,7 +19,5 @@
   "components" : [
     "@my:component/ti-test-com-0"
   ],
-  "deps" : [
-    "@jslib:jquery"
-  ]
+  "deps" : []
 }

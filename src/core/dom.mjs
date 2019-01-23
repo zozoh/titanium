@@ -26,6 +26,8 @@ export const TiDom = {
     return [...$ndList]
   },
   find(selector="*", $doc=document) {
+    if(_.isElement(selector))
+      return selector
     return $doc.querySelector(selector);
   },
   remove(selectorOrElement, context) {

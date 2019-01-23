@@ -32,5 +32,6 @@ async function main(){
   let app = await Ti.App("@my:")
   await app.init()
   console.log(app)
+  app.mountTo("#app")
 }
 main()
