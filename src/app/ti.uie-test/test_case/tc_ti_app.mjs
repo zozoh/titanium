@@ -1,5 +1,7 @@
 import {Ti} from "/gu/rs/ti/core/ti.mjs"
 //---------------------------------------
+Ti.SetForDev(true)
+//---------------------------------------
 Ti.Config.set({
   prefix : {
     "app"   : "/a/load/",

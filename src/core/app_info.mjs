@@ -1,17 +1,27 @@
-import {Ti} from './ti.mjs'
+import {Ti}    from './ti.mjs'
+import {TiVue} from "./polyfill-ti-vue.mjs"
 //---------------------------------------
-const BASE = Symbol("BASE")
+export const BASE = Symbol("BASE")
 //---------------------------------------
-async function LoadTiLinkedObj(obj={}, {dynamicPrefix, dynamicAlias}={}) {
+export async function LoadTiLinkedObj(
+  obj={}, 
+  {dynamicPrefix, dynamicAlias}={}
+) {
   // Promise list
   let ps = []
   // walk Object Key shallowly
   _.forOwn(obj, function(val, key){
+    // Escape "...", the syntax for MappingXXX of Vuex
+    if(/^\.{3}/.test(key)) {
+      return
+    }
     // String
     if(_.isString(val)) {
       // the value is linked
       if(/^(@[a-z0-9_-]+:?|\.\/)/.test(val)) {
-        ps.push(Ti.Load(val, {dynamicPrefix, dynamicAlias}).then(re=>{
+        ps.push(Ti.Load(val, {
+          dynamicPrefix, dynamicAlias
+        }).then(re=>{
           // Plain Object save the BASE for recur
           if(_.isPlainObject(re)) {
             obj[key] = {[BASE]:val, ...re}
@@ -30,7 +40,7 @@ async function LoadTiLinkedObj(obj={}, {dynamicPrefix, dynamicAlias}={}) {
       let index = []   // the index of `list` in `val`
       for(let i=0; i<val.length; i++) {
         let v = val[i];
-        if(/^(@[a-z0-9_-]+:?|\.\/)/.test(val)) {
+        if(/^(@[a-z0-9_-]+:?|\.\/)/.test(v)) {
           list.push(v)
           index.push(i)
         }
@@ -40,17 +50,31 @@ async function LoadTiLinkedObj(obj={}, {dynamicPrefix, dynamicAlias}={}) {
         return
 
       // Do loading
-      console.log("load: ", list)
-      ps.push(Ti.Load(list, {dynamicPrefix, dynamicAlias}).then(reList=>{
+      ps.push(Ti.Load(list, {
+        dynamicPrefix, dynamicAlias
+      }).then(reList=>{
         for(let i=0; i<reList.length; i++) {
+          let base = list[i]
+          let re = reList[i]
           let ix = index[i]
-          val[ix] = {[BASE]:list[i], ...reList[i]}
+          // Plain Object save the BASE for recur
+          if(_.isPlainObject(re)) {
+            val[ix] = {[BASE]:base, ...re}
+          }
+          // Others just save it
+          else {
+            val[ix] = re
+          }
         }
       }))
     }
     // Object recur
-    else if(_.isObject(val)){{
-      ps.push(LoadTiLinkedObj(val, {dynamicPrefix, dynamicAlias}))
+    else if(_.isPlainObject(val)){{
+      ps.push(LoadTiLinkedObj(val, {
+        dynamicPrefix, dynamicAlias
+      }).then(re=>{
+
+      }))
     }}
   })
   // Promise obj has been returned
@@ -92,71 +116,42 @@ function RemarkCssLink(cssLink, {key="",val=""}={}, $doc=document) {
 //   // Plain object already
 //   return listOrObj
 // }
-//---------------------------------------
-export const TiAppInfo = {
-  /***
-  Load all app info for app.json  
-  */
-  async load(info={}, $doc=document) {
-    // App Must has a name
-    if(!info.name) {
-      throw Ti.Err.make("e.ti.app.load_info_without_name")
-    }
-    // Clone info and reload its all detail
-    let conf = _.cloneDeep(info)
-    await LoadTiLinkedObj(conf)
-    console.log("conf1", conf)
-
-    // Then check each part
-    
-    // For Theme / CSS
-    RemarkCssLink(conf.theme, {key:"ti-theme", val:"yes"})
-    RemarkCssLink(conf.css,   {key:"ti-app-css", val:conf.name})
-    
-    // Merge mutations/actions/getters as single one Object
-    // conf.mutations = MergeToOne(conf.mutations)
-    // conf.actions   = MergeToOne(conf.actions)
-    // conf.getters   = MergeToOne(conf.getters)
-    
-    // extends all modules
-    if(_.isArray(conf.modules) && conf.modules.length>0) {
-      let ps = []
-      for(let mod of conf.modules) {
-        console.log("mod:", mod)
-        ps.push(LoadTiLinkedObj(mod, { 
-          dynamicAlias : new Ti.Config.AliasMapping({
-            "^\./" : mod[BASE] + "/"
-          })
-        }).then(mod=>{
-          // mod.mutations = MergeToOne(mod.mutations)
-          // mod.actions   = MergeToOne(mod.actions)
-          // mod.getters   = MergeToOne(mod.getters)
-        }))
-      }
-      // wait the loading has been done
-      await Promise.all(ps)
-    }
-
-    // extends all components
-    if(_.isArray(conf.components) && conf.components.length>0) {
-      let ps = []
-      for(let com of conf.components) {
-        console.log("com before", com)
-        ps.push(LoadTiLinkedObj(com, { 
-          dynamicAlias : new Ti.Config.AliasMapping({
-            "^\./" : com[BASE] + "/"
-          })
-        }).then(com=>{
-          console.log("com after", com)
-          // com.computed = MergeToOne(com.computed)
-          // com.methods  = MergeToOne(com.methods)
-        }))
-      }
-      // wait the loading has been done
-      await Promise.all(ps)
-    }
-
-    // The app config object which has been loaded completely
-    return conf
+/***
+Load all app info for app.json  
+*/
+export async function LoadTiAppInfo(info={}, $doc=document) {
+  // App Must has a name
+  if(!info.name) {
+    throw Ti.Err.make("e.ti.app.load_info_without_name")
   }
+  // Clone info and reload its all detail
+  let conf = _.cloneDeep(info)
+  await LoadTiLinkedObj(conf)
+  {
+    console.log("await LoadTiLinkedObj(conf)", conf)
+  }
+
+  // Then check each part
+  
+  // For Theme / CSS
+  RemarkCssLink(conf.theme, {key:"ti-theme", val:"yes"})
+  RemarkCssLink(conf.css,   {key:"ti-app-css", val:conf.name})
+  
+  // Merge mutations/actions/getters as single one Object
+  // conf.mutations = MergeToOne(conf.mutations)
+  // conf.actions   = MergeToOne(conf.actions)
+  // conf.getters   = MergeToOne(conf.getters)
+  
+  // extends all modules
+  if(conf.store) {
+    await TiVue.LoadVuexModule(conf.store, "@MyApp:")
+  }
+
+  // extends all components
+  if(_.isArray(conf.components) && conf.components.length>0) {
+    TiVue.LoadVueComponents(conf.components)
+  }
+
+  // The app config object which has been loaded completely
+  return conf
 }

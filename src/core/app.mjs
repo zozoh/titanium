@@ -1,6 +1,6 @@
-import {Ti}        from "./ti.mjs"
-import {TiAppInfo} from "./app_info.mjs"
-import {TiVue}     from "./polyfill-ti-vue.mjs"
+import {Ti}            from "./ti.mjs"
+import {LoadTiAppInfo} from "./app_info.mjs"
+import {TiVue}         from "./polyfill-ti-vue.mjs"
 //---------------------------------------
 const TI_APP   = Symbol("ti-app")
 const TI_INFO  = Symbol("ti-info")
@@ -37,24 +37,32 @@ export class OneTiApp {
   //---------------------------------------
   async init(){
     // load each fields of info obj
-    let conf = await TiAppInfo.load(this.$info())
+    let conf = await LoadTiAppInfo(this.$info())
     this.$conf(conf)
-    console.log("Ti.$conf", this.$conf())
-
-    // Store instance
-    if(conf.store) {
-      let sc = TiVue.StoreConfig(conf.store)
-      console.log(sc)
-      let store = new Vuex.Store(sc)
-      store.strict = true  // Enable strict mode for scene of dev 
-      this.$store(store)
-      console.log("Ti.$store", this.$store())
-
-      store.dispatch("foo/doAction")
+    {
+      console.log("Ti.$conf", this.$conf())
     }
 
-    // Vue instance: 
+    // Store instance
+    let store, vm
+    if(conf.store) {
+      let sc = TiVue.StoreConfig(conf.store)
+      {
+        console.log("TiVue.StoreConfig:", sc)
+      }
+      store = TiVue.CreateStore(sc)
+      this.$store(store)
+      {
+        console.log("Ti.$store", this.$store())
+      }
 
+      this.$store().dispatch("foo/doAction")
+    }
+
+    // Vue instance
+    let setup = TiVue.VueSetup(conf)
+    vm = TiVue.CreateInstance(setup, store)
+    this.$vm(vm)
 
     // return self for chained operation
     return this
@@ -64,7 +72,10 @@ export class OneTiApp {
     this.$el = Ti.Dom.find(el)
     console.log("mountTo", this.$el)
 
-    // bind to ...
+    // Mount App
+    this.$vm().$mount(this.$el)
+
+    // bind to Element for find back anytime
     this.$el[TI_APP] = this
   }
 }

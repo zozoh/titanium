@@ -1,10 +1,31 @@
 {
   "name"  : "ti.uie-test",
   "theme" : "@theme:light",
-  "dom"   : "./app.html",
   "css"   : "./style/test.css",
-  "computed" : "./computed.mjs",
-  "methods"  : "./methods.mjs",
+  "template" : "./app.html",
+  "data" : "./app-data.json",
+  "computed" : ["./computed.mjs", {
+    "..."   : {
+      "state" : ["x", "y"],
+      "getters" : {"MMM" : "mmm"}
+    },
+    "...foo" : {
+      "state" : {"Foo":"foo"}
+    }
+  }],
+  "methods"  : ["./methods.mjs", {
+    "..." : {
+      "actions" : {
+        "save" : "doSave", "load" : "doLoad"
+      }
+    },
+    "...foo" : {
+      "actions" : ["doAction"],
+      "mutations" : {
+        "fooMu" : "doFooMutation"
+      }
+    }
+  }],
   "mixin"    : ["./mixin.mjs"],
   "components" : [
     "./component/ti-test-com-0"

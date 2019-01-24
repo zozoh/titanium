@@ -1,6 +1,7 @@
 {
   "name"  : "ti-test-com-0",
-  "data"  : "./data.json",
+  "data"  : "./com-data.json",
+  "template" : "./com.html",
   "props" : {
     "a" : {"type":"string"},
     "b" : {"type":"number"}

@@ -1,5 +1,5 @@
 export default {
-  doFoo() {
-    console.log("foo!")
+  doFooMutation() {
+    console.log("foo mutation!")
   }
 }

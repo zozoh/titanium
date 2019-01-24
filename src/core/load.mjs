@@ -5,7 +5,6 @@ const loading = {
   // normal js lib
   js(url) {
     return new Promise((resolve, reject)=>{
-      console.log("Hasdfaadsfadsfadsfasd")
       let $script = Ti.Dom.find(`script[src="${url}"]`)
       if($script) {
         _.defer(resolve, $script)
