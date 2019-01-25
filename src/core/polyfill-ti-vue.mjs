@@ -1,5 +1,4 @@
 import {Ti} from './ti.mjs'
-import {LoadTiLinkedObj, BASE} from "./app_info.mjs"
 //---------------------------------------
 function do_map_xxx(modPath, setting) {
   const re = {}
@@ -34,47 +33,6 @@ function do_extend_setting(store, obj) {
 }
 //---------------------------------------
 export const TiVue = {
-  //---------------------------------------
-  async LoadVuexModule(modConf={}, base=modConf[BASE]) {
-    if(!base)
-      return
-    // Loaded the actions/mutaions/getters/state...
-    await LoadTiLinkedObj(modConf, { 
-      dynamicAlias : new Ti.Config.AliasMapping({
-        "^\./" : base + "/"
-      })
-    })
-    // Symbol(BASE) useless now
-    delete modConf[BASE]
-  
-    // Loaded the sub-modules
-    if(_.isArray(modConf.modules) && modConf.modules.length>0) {
-      let ps = []
-      for(let mod of modConf.modules) {
-        ps.push(TiVue.LoadVuexModule(mod))
-      }
-      // wait the loading has been done
-      await Promise.all(ps)
-    }
-    
-    // Then return
-    return modConf
-  },
-  //---------------------------------------
-  LoadVueComponents(components=[]) {
-    let ps = []
-    for(let com of components) {
-      ps.push(LoadTiLinkedObj(com, { 
-        dynamicAlias : new Ti.Config.AliasMapping({
-          "^\./" : com[BASE] + "/"
-        })
-      }))
-      // Symbol(BASE) useless now
-      delete com[BASE]
-    }
-    return Promise.all(ps)
-  },
-  //---------------------------------------
   /***
   Generated a new configuration object for `Vuex.Store` to generated a new Vuex instance. It will build sub-modules deeply by invoke self recursively.
 
@@ -113,15 +71,7 @@ export const TiVue = {
     })
   },
   //---------------------------------------
-  /***
-  Generated a new conf object for `Vue` to generated a new Vue instance.
-
-  @params
-  - `conf{Object}` Configuration object of `app | app.components[n]`
-
-  @return A New Configuration Object
-  */
-  VueSetup(conf={}, store) {
+  Options({global={}, conf={}, store}={}) {
     //.............................
     // Pick necessary fields
     //.............................
@@ -132,11 +82,6 @@ export const TiVue = {
       "props",
       /*computed|methods will be deal with later*/
       "watch"])
-    // TODO if store exists, else drop the stub object ("...":Any)
-    {
-      // TODO expend computed
-      // TODO expend methods
-    }
     //.............................
     /*DOM*/
     const DOM = _.pick(conf, [
@@ -160,7 +105,6 @@ export const TiVue = {
     //.............................
     /*Assets*/
     // Find global Assets
-    const global = {}
     const Assets = _.pick(conf, [
       "directives",
       "filters",
@@ -185,7 +129,7 @@ export const TiVue = {
     //.............................
     /*Composition*/
     const Composition = _.pick(conf, [
-      "mixin",
+      "mixins",
       "extends"])
     //.............................
     /*Misc*/
@@ -208,13 +152,13 @@ export const TiVue = {
       // Asserts
       directives : Ti.Util.merge({}, Assets.directives),
       filters    : Ti.Util.merge({}, Assets.filters),
+      // components should merge the computed/methods/watch
       components : (function(){
         let coms = {}
         _.map(Assets.components, com=>{
-          coms[com.name] = com
-          if(!_.isFunction(com.data)) {
-            com.data = Ti.Util.genObj(com.data)
-          }
+          coms[com.name] = TiVue.Options({
+            conf : com, global
+          })
         })
         return coms
       })(),
@@ -243,6 +187,24 @@ export const TiVue = {
     if(store)
       options.store = store
 
+    // return the options
+    return options
+  },
+  //---------------------------------------
+  /***
+  Generated a new conf object for `Vue` to generated a new Vue instance.
+
+  @params
+  - `conf{Object}` Configuration object of `app | app.components[n]`
+
+  @return A New Configuration Object
+  */
+  Setup(conf={}, store) {
+    const global  = {}
+    const options = TiVue.Options({
+      global, conf, store
+    })
+    
     // return the setup object
     return {
       global, options

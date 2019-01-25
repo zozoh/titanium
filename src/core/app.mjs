@@ -41,10 +41,12 @@ export class OneTiApp {
     this.$conf(conf)
     {
       console.log("Ti.$conf", this.$conf())
+      console.log("!!!!--> ", 
+        JSON.stringify(conf.components[0],null, 3))
     }
 
     // Store instance
-    let store, vm
+    let store
     if(conf.store) {
       let sc = TiVue.StoreConfig(conf.store)
       {
@@ -60,11 +62,13 @@ export class OneTiApp {
     }
 
     // Vue instance
-    let setup = TiVue.VueSetup(conf, store)
+    let setup = TiVue.Setup(conf, store)
     {
-      console.log("TiVue.VueSetup(conf)", setup)
+      console.log("TiVue.VueSetup(conf)")
+      console.log(" -- global:", setup.global)
+      console.log(" -- options:", setup.options)
     }
-    vm = TiVue.CreateInstance(setup)
+    let vm = TiVue.CreateInstance(setup)
     this.$vm(vm)
 
     // return self for chained operation

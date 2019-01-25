@@ -7,7 +7,7 @@
     "a" : {"type":"string"},
     "b" : {"type":"number"}
   },
-  "computed" : "./computed.mjs",
+  "computed" : ["./computed.mjs"],
   "methods"  : [
     "./methods.mjs"
   ]
