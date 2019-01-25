@@ -1,6 +1,38 @@
 import {Ti} from './ti.mjs'
 import {LoadTiLinkedObj, BASE} from "./app_info.mjs"
 //---------------------------------------
+function do_map_xxx(modPath, setting) {
+  const re = {}
+  _.forOwn(setting, (val, key)=>{
+    let methodName = "map"+_.capitalize(key)
+    // Map namespaced module
+    if(modPath) {
+      _.assign(re, Vuex[methodName](modPath, val))
+    }
+    // Map general
+    else {
+      _.assign(re, Vuex[methodName](val))
+    }
+  })
+  return re
+}
+//---------------------------------------
+function do_extend_setting(store, obj) {
+  let is_extendable = false;
+  let re = {}
+  _.forOwn(obj, (val, key, obj)=>{
+    let m = /^\.{3}(.*)$/.exec(key)
+    if(m) {
+      is_extendable = true
+      let modPath = m[1]
+      if(store) {
+        _.assign(re, do_map_xxx(modPath, val))
+      }
+    }
+  })
+  return is_extendable ? re : obj
+}
+//---------------------------------------
 export const TiVue = {
   //---------------------------------------
   async LoadVuexModule(modConf={}, base=modConf[BASE]) {
@@ -12,6 +44,8 @@ export const TiVue = {
         "^\./" : base + "/"
       })
     })
+    // Symbol(BASE) useless now
+    delete modConf[BASE]
   
     // Loaded the sub-modules
     if(_.isArray(modConf.modules) && modConf.modules.length>0) {
@@ -35,6 +69,8 @@ export const TiVue = {
           "^\./" : com[BASE] + "/"
         })
       }))
+      // Symbol(BASE) useless now
+      delete com[BASE]
     }
     return Promise.all(ps)
   },
@@ -85,16 +121,16 @@ export const TiVue = {
 
   @return A New Configuration Object
   */
-  VueSetup(conf={}) {
+  VueSetup(conf={}, store) {
     //.............................
     // Pick necessary fields
     //.............................
     /*Data*/
     const Data = _.pick(conf, [
       "data",
-      "props",   /*props:[..] would not be supported*/
-      "computed",
-      "methods",
+      /*form like `props:[..]` would not be supported*/
+      "props",
+      /*computed|methods will be deal with later*/
       "watch"])
     // TODO if store exists, else drop the stub object ("...":Any)
     {
@@ -129,7 +165,8 @@ export const TiVue = {
       "directives",
       "filters",
       "components"])
-    _.forOwn(Assets, (val, key, obj)=>{
+    const it_asset_part = function(val, key, obj) {
+      //console.log("!!!", key, val)
       const list = _.flattenDeep([val])
       const remain = []
       for(let asset of list) {
@@ -143,7 +180,8 @@ export const TiVue = {
         }
       }
       obj[key] = remain
-    })
+    }
+    _.forOwn(Assets, it_asset_part)
     //.............................
     /*Composition*/
     const Composition = _.pick(conf, [
@@ -164,10 +202,23 @@ export const TiVue = {
       ..._.mapValues(
           Data, v=>Ti.Util.merge({}, v)),
       ... DOM,
+      // LifecycleHooks
       ..._.mapValues(
           LifecycleHooks, Ti.Util.groupCall),
-      ..._.mapValues(
-          Assets, v=>Ti.Util.merge({}, v)),
+      // Asserts
+      directives : Ti.Util.merge({}, Assets.directives),
+      filters    : Ti.Util.merge({}, Assets.filters),
+      components : (function(){
+        let coms = {}
+        _.map(Assets.components, com=>{
+          coms[com.name] = com
+          if(!_.isFunction(com.data)) {
+            com.data = Ti.Util.genObj(com.data)
+          }
+        })
+        return coms
+      })(),
+      // Composition
       ..._.mapValues(
           Composition, v=>Ti.Util.merge({}, v)),
       ... Misc
@@ -178,13 +229,27 @@ export const TiVue = {
       options.data = Ti.Util.genObj(options.data)
     }
 
+    //.............................
+    // expend the "..." key like object for `computed/methods`
+    // if without store defination, they will be dropped
+    const merger = _.partial(do_extend_setting, store);
+    options.computed = Ti.Util.mergeWith(
+                  merger, {}, ...conf.computed)
+    options.methods = Ti.Util.mergeWith(
+                  merger, {}, ...conf.methods)
+
+    //.............................
+    // bind Vuex.store
+    if(store)
+      options.store = store
+
     // return the setup object
     return {
       global, options
     }
   },
   //---------------------------------------
-  CreateInstance(setup, store) {
+  CreateInstance(setup) {
     // Global Assets
     const filters    = Ti.Util.merge({}, setup.global.filters)
     const directives = Ti.Util.merge({}, setup.global.directives)
@@ -203,10 +268,6 @@ export const TiVue = {
     _.map(setup.global.components, com=>{
       Vue.component(com.name, com)
     })
-
-    // bind Vuex.store
-    if(store)
-      setup.options.store = store
 
     // return new vm instance
     return new Vue(setup.options)

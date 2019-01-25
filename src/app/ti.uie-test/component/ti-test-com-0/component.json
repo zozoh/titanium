@@ -1,4 +1,5 @@
 {
+  "globally" : false,
   "name"  : "ti-test-com-0",
   "data"  : "./com-data.json",
   "template" : "./com.html",

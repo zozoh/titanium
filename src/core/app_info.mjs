@@ -72,8 +72,6 @@ export async function LoadTiLinkedObj(
     else if(_.isPlainObject(val)){{
       ps.push(LoadTiLinkedObj(val, {
         dynamicPrefix, dynamicAlias
-      }).then(re=>{
-
       }))
     }}
   })

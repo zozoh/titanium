@@ -60,8 +60,11 @@ export class OneTiApp {
     }
 
     // Vue instance
-    let setup = TiVue.VueSetup(conf)
-    vm = TiVue.CreateInstance(setup, store)
+    let setup = TiVue.VueSetup(conf, store)
+    {
+      console.log("TiVue.VueSetup(conf)", setup)
+    }
+    vm = TiVue.CreateInstance(setup)
     this.$vm(vm)
 
     // return self for chained operation

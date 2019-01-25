@@ -14,22 +14,27 @@ export const TiUtil = {
   The `obj` which be passed on.
   */
   merge(obj={}, ...args){
+    return TiUtil.mergeWith(undefined, obj, ...args)
+  },
+  //---------------------------------------
+  mergeWith(customizer=_.identity, obj={}, ...args) {
     const list = _.flattenDeep(args)
     for(let arg of list) {
       if(!arg) {
         continue
       }
+      let val = customizer(arg)
       // Array
-      if(_.isArray(arg)) {
-        TiUtil.merge(obj, ...arg)
+      if(_.isArray(val)) {
+        TiUtil.merge(obj, ...val)
       }
       // Function
-      else if(_.isFunction(arg)) {
-        obj[arg.name] = arg
+      else if(_.isFunction(val)) {
+        obj[val.name] = val
       }
       // Plain Object
-      else if(_.isPlainObject(arg)) {
-        _.assign(obj, arg)
+      else if(_.isPlainObject(val)) {
+        _.assign(obj, val)
       }
       // Another types will be ignore
     }
