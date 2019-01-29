@@ -41,8 +41,8 @@ export class OneTiApp {
     this.$conf(conf)
     {
       console.log("Ti.$conf", this.$conf())
-      console.log("!!!!--> ", 
-        JSON.stringify(conf.components[0],null, 3))
+      // console.log("!!!!--> ", 
+      //   JSON.stringify(conf.components[0],null, 3))
     }
 
     // Store instance
@@ -57,8 +57,6 @@ export class OneTiApp {
       {
         console.log("Ti.$store", this.$store())
       }
-
-      this.$store().dispatch("foo/doAction")
     }
 
     // Vue instance

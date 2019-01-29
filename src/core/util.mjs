@@ -1,4 +1,8 @@
+import {TiPaths} from "./util_paths.mjs"
+//---------------------------------------
 export const TiUtil = {
+  ...TiPaths,
+  //-------------------------------------
   /***
   Merge an plain object by gived arguments deeply.
 

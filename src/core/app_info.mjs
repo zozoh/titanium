@@ -35,7 +35,7 @@ async function LoadTiLinkedObj(
       for(let i=0; i<val.length; i++) {
         let v = val[i];
         // only link like value should be respected
-        if(!/^(@[a-z0-9_-]+:?|\.\/)/.test(v)) {
+        if(!_.isString(v) || !/^(@[a-z0-9_-]+:?|\.\/)/.test(v)) {
           continue
         }
         ps.push(new Promise((resolve, reject)=>{
@@ -46,6 +46,11 @@ async function LoadTiLinkedObj(
               })
             });
             val[i] = re2
+            // If modules/components, apply the default name
+            if(!re2.name && /^(modules|components)$/.test(key)) {
+              re2.name = Ti.Util.getMajorName(v)
+            }
+            // Done for loading
             resolve(re2);
           })
         }))

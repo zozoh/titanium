@@ -45,7 +45,7 @@ export const TiVue = {
     // Pick necessary fields
     let sc = {
       state : Ti.Util.genObj(conf.state),
-      mutations : Ti.Util.merge({}, conf.mutaions),
+      mutations : Ti.Util.merge({}, conf.mutations),
       actions   : Ti.Util.merge({}, conf.actions),
       getters   : Ti.Util.merge({}, conf.getters)
     }
@@ -170,17 +170,21 @@ export const TiVue = {
 
     // thunk data
     if(!_.isFunction(options.data)) {
-      options.data = Ti.Util.genObj(options.data)
+      options.data = Ti.Util.genObj(options.data || {})
     }
 
     //.............................
     // expend the "..." key like object for `computed/methods`
     // if without store defination, they will be dropped
     const merger = _.partial(do_extend_setting, store);
-    options.computed = Ti.Util.mergeWith(
-                  merger, {}, ...conf.computed)
-    options.methods = Ti.Util.mergeWith(
-                  merger, {}, ...conf.methods)
+    if(_.isArray(conf.computed)) {
+      options.computed = Ti.Util.mergeWith(
+                            merger, {}, ...conf.computed)
+    }
+    if(_.isArray(conf.methods)) {
+      options.methods = Ti.Util.mergeWith(
+                            merger, {}, ...conf.methods)
+    }
 
     //.............................
     // bind Vuex.store

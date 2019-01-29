@@ -1,0 +1,7 @@
+{
+  "namespaced" : true,
+  "state" : "./state.json",
+  "getters" : "./getters.mjs",
+  "mutations" : "./mutations.mjs",
+  "actions" : "./actions.mjs"
+}

@@ -1,0 +1,19 @@
+{
+  "name" : "obj.manager",
+  "data" : "./data.json",
+  "template" : "./template.html",
+  "computed" : ["./computed.mjs", {
+    "...session" : {
+      "getters" : {
+        "me"      : "get",
+        "myId"    : "getMyId",
+        "myName"  : "getMyName",
+        "myGroup" : "getMyGroup"
+      }
+    }
+  }],
+  "store" : {
+    "modules" : ["./mod/session"]
+  },
+  "components" : ["./com/ti-user-info"]
+}
