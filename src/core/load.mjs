@@ -70,11 +70,7 @@ const loading = {
   },
   // pure text
   text(url) {
-    return axios.get(url, {
-        // zozoh@2019-01-18: Avaoid bug of: axios/axios#907
-        //responseType : "text",
-        transformResponse : undefined
-      }).then(resp => resp.data)
+    return Ti.Http.get(url)
   }
 }
 //---------------------------------------

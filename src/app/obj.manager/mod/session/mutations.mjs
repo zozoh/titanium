@@ -1,15 +1,16 @@
 export default {
-  set(state, sess) {
-    state.id = sess.id
-    state.me = sess.me
-    state.grp = sess.grp
-    state.du = sess.du
-    state.envs = _.cloneDeep(sess.envs)
+  set(state, {id,me,grp,du,envs}={}) {
+    _.assign(state, {id,me,grp})
+    if(envs)
+      state.envs = _.cloneDeep(envs)
   },
-  setName(state, myName) {
-    state.me = myName
-  },
-  setGroup(state, myGroup) {
-    state.grp = myGroup
+  reset(state) {
+    _.assign(state, {
+      "id": null,
+      "me": null,
+      "grp": null,
+      "du": -1,
+      "envs": {}
+    })
   }
 }

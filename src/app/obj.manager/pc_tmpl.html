@@ -51,7 +51,7 @@ async function main(){
   app.$store().commit("session/set", _app.session)
 
   _.delay(()=>{
-    app.$store().commit("session/setName", "NoName")
+    app.$store().commit("session/set", {me:"NoName"})
   }, 2000)
 }
 main()

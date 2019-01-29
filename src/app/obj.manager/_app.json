@@ -5,10 +5,12 @@
   "computed" : ["./computed.mjs", {
     "...session" : {
       "getters" : {
-        "me"      : "get",
-        "myId"    : "getMyId",
-        "myName"  : "getMyName",
-        "myGroup" : "getMyGroup"
+        "me" : "get"
+      },
+      "state" : {
+        "myId"    : "id",
+        "myName"  : "me",
+        "myGroup" : "grp"
       }
     }
   }],
