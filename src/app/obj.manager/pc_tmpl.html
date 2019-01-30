@@ -29,16 +29,20 @@ Ti.Config.set({
     "app"   : "/a/load/",
     "MyApp" : "/a/load/${appName}/",
     "theme" : "${rs}/ti/theme/",
-    "jslib" : "${rs}/core/js/"
+    "lib"   : "${rs}/ti/lib/",
+    "mod"   : "${rs}/ti/mod/",
+    "com"   : "${rs}/ti/com/"
   },
   alias : {
     "^\./"          : "@MyApp:",
-    "@jslib:jquery" : "@jslib:jquery/2.x/jquery.min.js",
+    "@lib:walnut"   : "@lib:walnut/walnut.mjs",
     "^@MyApp:?$"    : "@MyApp:_app.json",
     "^@theme:.+$"   : "$&.css",
     "^@app:[^\/]+$"   : "$&/_app.json",
     "\/?mod\/[^\/]+$" : "$&/_mod.json",
-    "\/?com\/[^\/]+$" : "$&/_com.json"
+    "\/?com\/[^\/]+$" : "$&/_com.json",
+    "^@mod:[^.]+$"    : "$&/_mod.json",
+    "^@com:[^.]+$"    : "$&/_com.json"
   }
 })
 //---------------------------------------
@@ -46,15 +50,14 @@ async function main(){
   let app = await Ti.App("@MyApp")
   await app.init()
   console.log(app)
-  app.mountTo("#app")
-  
   app.$store().commit("session/set", _app.session)
+  app.mountTo("#app")
 
-  _.delay(()=>{
-    app.$store().commit("session/set", {me:"NoName"})
-  }, 2000)
+  app.$store().dispatch("obj/fetch", "~")
+  
 }
+//---------------------------------------
 main()
-
+//---------------------------------------
 </script>
 </html>

@@ -3,8 +3,10 @@ import {WnSession as Session} from "./wn-session.mjs"
 import {WnSys     as Sys    } from "./wn-sys.mjs"
 import {WnThing   as Thing  } from "./wn-thing.mjs"
 //---------------------------------------
+const WALNUT_VERSION = "1.0"
+//---------------------------------------
 export const Wn = {
-  Version() {return "1.0"},
+  Version: WALNUT_VERSION,
   Io, Session, Sys, Thing
 }
 //---------------------------------------

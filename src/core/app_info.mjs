@@ -48,7 +48,10 @@ async function LoadTiLinkedObj(
             val[i] = re2
             // If modules/components, apply the default name
             if(!re2.name && /^(modules|components)$/.test(key)) {
-              re2.name = Ti.Util.getMajorName(v)
+              let p_a = v.lastIndexOf('/')
+              let p_b = v.lastIndexOf(':')
+              let pos = Math.max(p_a, p_b, 0)
+              re2.name = Ti.Util.getMajorName(v.substring(pos+1))
             }
             // Done for loading
             resolve(re2);

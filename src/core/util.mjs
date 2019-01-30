@@ -86,6 +86,25 @@ export const TiUtil = {
   pushValue(obj, key, val) {
     let old = _.get(obj, key) || []
     _.set(obj, key, _.concat(old, val||[]))
+  },
+  /***
+  Set value to obj[key] if only val is not undefined
+  If value is null, use the `dft`
+  */
+  setTo(obj={}, key, val, dft) {
+    // String mode
+    if(_.isString(key) && !_.isUndefined(val)) {
+      obj[key] = _.isNull(val) ? dft : val
+    }
+    // Object mode
+    else if(_.isPlainObject(key)) {
+      dft = val
+      _.forOwn(key, (v, k)=>{
+        if(!_.isUndefined(v)) {
+          obj[k] = _.isNull(v) ? dft : v
+        }
+      })
+    }
   }
 }
 //-----------------------------------

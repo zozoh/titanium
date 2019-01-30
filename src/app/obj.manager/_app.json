@@ -1,7 +1,7 @@
 {
   "name" : "obj.manager",
   "data" : "./data.json",
-  "template" : "./template.html",
+  "template" : "./dom.html",
   "computed" : ["./computed.mjs", {
     "...session" : {
       "getters" : {
@@ -12,10 +12,22 @@
         "myName"  : "me",
         "myGroup" : "grp"
       }
+    },
+    "...obj" : {
+      "getters" : {
+        "obj" : "get"
+      }      
     }
   }],
   "store" : {
-    "modules" : ["./mod/session"]
+    "modules" : [
+      "./mod/session",
+      "./mod/obj"]
   },
-  "components" : ["./com/ti-user-info"]
+  "components" : [
+    "./com/ti-user-info",
+    "@com:ti-table",
+    "@com:ti-tiles",
+    "@com:ti-wn-meta"],
+  "deps" : ["@lib:walnut"]
 }

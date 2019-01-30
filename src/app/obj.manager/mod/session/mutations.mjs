@@ -1,6 +1,8 @@
 export default {
-  set(state, {id,me,grp,du,envs}={}) {
-    _.assign(state, {id,me,grp})
+  set(state, {
+    id,me,grp,du,envs
+  }={}) {
+    Ti.Util.setTo(state, {id,me,grp}, null)
     if(envs)
       state.envs = _.cloneDeep(envs)
   },
