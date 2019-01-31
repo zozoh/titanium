@@ -11,6 +11,12 @@
   <script src="${rs}/ti/deps/lodash.min.js"></script>
   <script src="${rs}/ti/deps/vue.js"></script>
   <script src="${rs}/ti/deps/vuex.js"></script>
+
+  <!--link rel="stylesheet" href="${rs}/ti/deps/element-ui/index.css">
+  <script src="${rs}/ti/deps/element-ui/index.js"></script>
+
+  <link rel="stylesheet" href="${rs}/ti/deps/muse-ui/muse-ui.css">
+  <script src="${rs}/ti/deps/muse-ui/muse-ui.js"></script-->
 </head>
 <body>
 <main id="app">
@@ -30,6 +36,7 @@ Ti.Config.set({
     "MyApp" : "/a/load/${appName}/",
     "theme" : "${rs}/ti/theme/",
     "lib"   : "${rs}/ti/lib/",
+    "deps"  : "${rs}/ti/deps/",
     "mod"   : "${rs}/ti/mod/",
     "com"   : "${rs}/ti/com/"
   },
@@ -52,9 +59,8 @@ async function main(){
   console.log(app)
   app.$store().commit("session/set", _app.session)
   app.mountTo("#app")
-
+  console.log(MuseUI )
   app.$store().dispatch("obj/fetch", "~")
-  
 }
 //---------------------------------------
 main()

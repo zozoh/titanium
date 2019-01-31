@@ -25,9 +25,14 @@
       "./mod/obj"]
   },
   "components" : [
-    "./com/ti-user-info",
+    "@com:ti-user-info",
     "@com:ti-table",
     "@com:ti-tiles",
     "@com:ti-wn-meta"],
-  "deps" : ["@lib:walnut"]
+  "deps" : [
+    "@lib:walnut",
+    "@deps:md/iconfont/material-icons.css",
+    "@deps:muse-ui/muse-ui.css",
+    "@deps:muse-ui/muse-ui.js"
+  ]
 }
