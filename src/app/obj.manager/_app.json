@@ -6,11 +6,6 @@
     "...session" : {
       "getters" : {
         "me" : "get"
-      },
-      "state" : {
-        "myId"    : "id",
-        "myName"  : "me",
-        "myGroup" : "grp"
       }
     },
     "...obj" : {

@@ -83,6 +83,16 @@ export class OneTiApp {
     // bind to Element for find back anytime
     this.$el[TI_APP] = this
   }
+  //---------------------------------------
+  commit(nm, payload)   {this.$store().commit(nm, payload)}
+  dispatch(nm, payload) {this.$store().dispatch(nm, payload)}
+  //---------------------------------------
+  get(key) {
+    if(!key) {
+      return this.$vm()
+    }
+    return this.$vm()[key]
+  }
 }
 //---------------------------------------
 export const TiApp = function(a0) {

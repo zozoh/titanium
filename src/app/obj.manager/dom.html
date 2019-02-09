@@ -1,5 +1,13 @@
 <div>
   <ti-user-info :name="me.name" :group="me.group"></ti-user-info>
   <hr>
-  <ti-wn-meta :meta="obj.meta"></ti-wn-meta>
+  <ti-wn-meta :meta="obj.parent"></ti-wn-meta>
+  <hr>
+  <ul>
+    <li v-for="an in obj.ancestors">
+      {{an.ph}}
+    </li>
+  </ul>
+  <hr>
+  <pre>{{obj.content}}</pre>
 </div>

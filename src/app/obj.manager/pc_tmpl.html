@@ -57,13 +57,18 @@ async function main(){
   let app = await Ti.App("@MyApp")
   await app.init()
   console.log(app)
-  app.$store().commit("session/set", _app.session)
+  app.commit("session/set", _app.session)
   app.mountTo("#app")
   console.log(MuseUI )
-  app.$store().dispatch("obj/fetch", "~")
+  await app.dispatch("obj/reload", "~/tmp/zozoh.json")
+  return app.get("obj")
 }
 //---------------------------------------
-main()
+main().then(o=>{
+  console.log("get!!!", o)
+}).catch(err=>{
+  console.log("!!!!", err)
+})
 //---------------------------------------
 </script>
 </html>
