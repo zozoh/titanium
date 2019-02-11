@@ -41,6 +41,35 @@ export const TiDom = {
     // remove single element
     if(_.isElement(selectorOrElement))
       selectorOrElement.parentNode.removeChild(selectorOrElement)
+  },
+  autoRootFontSize(win=window,{
+    phoneMaxWidth=540,
+    tabletMaxWidth=720,
+    max=100,min=60
+  }={}) {
+    const $doc  = window.document
+    const $root = document.documentElement
+    let size = (win.innerWidth/tabletMaxWidth) * max
+    let px = Math.min(Math.max(size,min), max)
+    $root.style.fontSize = px+"px"
+    // apply the mark
+    if(win.innerWidth > tabletMaxWidth) {
+      $root.setAttribute("as", "desktop")
+    } else if(win.innerWidth > phoneMaxWidth) {
+        $root.setAttribute("as", "tablet")
+    } else {
+      $root.setAttribute("as", "phone")
+    }
+  },
+  watchAutoRootFontSize(win=window, options) {
+    // Watch the window resizing
+    win.addEventListener("resize", _.throttle(()=>{
+      TiDom.autoRootFontSize(win,options)
+    }, 10))
+    // auto resize at first
+    _.delay(()=>{
+      TiDom.autoRootFontSize(win,options)
+    }, 100)
   }
 }
 //---------------------------------------

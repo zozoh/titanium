@@ -3,6 +3,7 @@ import {TiApp    as App   } from "./app.mjs"
 import {TiError  as Err   } from "./err.mjs"
 import {TiConfig as Config} from "./config.mjs"
 import {TiDom    as Dom   } from "./dom.mjs"
+import {TiCss    as Css   } from "./css.mjs"
 import {TiLoad   as Load  } from "./load.mjs"
 import {TiHttp   as Http  } from "./http.mjs"
 //---------------------------------------
@@ -11,7 +12,7 @@ const ENV = {
 }
 //---------------------------------------
 export const Ti = {
-  Util, App, Err, Config, Dom, Load, Http,
+  Util, App, Err, Config, Dom, Css, Load, Http,
   //.....................................
   Version() {return "1.0"},
   //.....................................

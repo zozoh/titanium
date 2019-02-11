@@ -1,0 +1,14 @@
+<div class="ti-obj-tiles">
+  <div :class="tilesUlClass" class="ti-obj-tiles-con">
+    <template v-for="(it, index) in list">
+      <div :style="itemStyle" class="ti-obj-tiles-item">
+        <slot :it="it" :index="index">
+          <ti-obj-thumb 
+            :title="it.nm"
+            :thumb="thumbnail(it)">
+          </ti-obj-thumb>
+        </slot>
+      </div>
+    </template>
+  </div>
+</div>

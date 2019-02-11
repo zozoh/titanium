@@ -2,25 +2,22 @@ import {TiPaths} from "./util_paths.mjs"
 //---------------------------------------
 export const TiUtil = {
   ...TiPaths,
-  //-------------------------------------
   /***
-  Merge an plain object by gived arguments deeply.
-
-  @params
-  - `obj{Object}` : the object to be merged with
-  - `args{Array<Any>}` : the value that will be merged to `obj`
-    For each argument passed on, here is the treatment:
-    + `Object` : merge to the result by `_.assign`
-    + `Function` : set to result, `name` as the key
-    + `Array` : merget to `obj` recursively
-    + Another simple object like *Boolean|String|Number...* will be ignore
-  @return
-  The `obj` which be passed on.
-  */
+   * Merge an plain object by gived arguments deeply.
+   * 
+   * @param obj{Object} : the object to be merged with
+   * @param args{...<Any>} : the value that will be merged to `obj`
+   *   For each argument passed on, here is the treatment:
+   *   + `Object` : merge to the result by `_.assign`
+   *   + `Function` : set to result, `name` as the key
+   *   + `Array` : merget to `obj` recursively
+   *   + Another simple object like *Boolean|String|Number...* will be ignore
+   * @return
+   *  The `obj` which be passed on.
+   */
   merge(obj={}, ...args){
     return TiUtil.mergeWith(undefined, obj, ...args)
   },
-  //---------------------------------------
   mergeWith(customizer=_.identity, obj={}, ...args) {
     const list = _.flattenDeep(args)
     for(let arg of list) {
@@ -44,27 +41,27 @@ export const TiUtil = {
     }
     return obj
   },
-  //---------------------------------------
   /***
-  Create a function to return a given object's copy.
-  It just return the simple object like (`Number|String|Boolean`) directly,
-  and deep clone complex object like `Object|Array|Date|RegExp`
-  @params
-  - obj{Object|Array}
-  @return
-  `Function`, no arguments and return the new copy of given object each time invoked.
-  */
+   * Create a function to return a given object's copy.
+   * It just return the simple object like (`Number|String|Boolean`) directly,
+   * and deep clone complex object like `Object|Array|Date|RegExp`
+   * 
+   * @param obj{Object|Array} : The obj pattern to be generated.
+   * 
+   * @return
+   * `Function`, no arguments and return the new copy of given object each time be invoked.
+   */
   genObj(obj={}) {
     return  _.partial(_.cloneDeep, obj)
   },
-  //---------------------------------------
   /***
-  Group a batch of functions as one function.
-  @params
-  - fns{Array} : Functions to be grouped
-  @return
-  `Function` grouping the passed on function list
-  */
+   * Group a batch of functions as one function.
+   * 
+   * @params
+   * - fns{Array} : Functions to be grouped
+   * @return
+   * `Function` grouping the passed on function list
+   */
   groupCall(...fns) {
     const list = _.flattenDeep(fns)
                     .filter(fn=>_.isFunction(fn))
@@ -82,15 +79,14 @@ export const TiUtil = {
       }
     }
   },
-  //---------------------------------------
   pushValue(obj, key, val) {
     let old = _.get(obj, key) || []
     _.set(obj, key, _.concat(old, val||[]))
   },
   /***
-  Set value to obj[key] if only val is not undefined
-  If value is null, use the `dft`
-  */
+   * Set value to obj[key] if only val is not undefined
+   * If value is null, use the `dft`
+   */
   setTo(obj={}, key, val, dft) {
     // String mode
     if(_.isString(key) && !_.isUndefined(val)) {

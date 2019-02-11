@@ -1,0 +1,23 @@
+$screen-min-widths: (
+  xs: 0,       // Extra small screen / phone
+  sm: 576px,   // Small screen / phone
+  md: 768px,   // Medium screen / tablet
+  lg: 992px,   // Large screen / desktop
+  xl: 1200px   // Extra large screen / wide desktop
+);
+//-----------------------------------------------------
+$screen-max-widths: (
+  sm: 540px,   // Small screen / phone
+  md: 720px,   // Medium screen / tablet
+  lg: 960px,   // Large screen / desktop
+  xl: 1140px   // Extra large screen / wide desktop
+);
+//-----------------------------------------------------
+// Define font size
+$body-font-sizes: (
+  xs: 12px,    // Extra small
+  sm: 12px,    // Small
+  md: 13px,    // Medium
+  lg: 14px,    // Large
+  xl: 14px     // Extra large
+);

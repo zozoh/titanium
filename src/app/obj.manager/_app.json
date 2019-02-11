@@ -2,6 +2,7 @@
   "name" : "obj.manager",
   "data" : "./data.json",
   "template" : "./dom.html",
+  "theme" : "@theme:light",
   "computed" : ["./computed.mjs", {
     "...session" : {
       "getters" : {
@@ -20,14 +21,14 @@
       "./mod/obj"]
   },
   "components" : [
+    "./com/ti-obj-tiles",
+    "./com/ti-obj-thumb",
     "@com:ti-user-info",
     "@com:ti-table",
     "@com:ti-tiles",
     "@com:ti-wn-meta"],
   "deps" : [
     "@lib:walnut",
-    "@deps:md/iconfont/material-icons.css",
-    "@deps:muse-ui/muse-ui.css",
-    "@deps:muse-ui/muse-ui.js"
+    "@deps:md/iconfont/material-icons.css"
   ]
 }

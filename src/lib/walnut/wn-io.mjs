@@ -43,13 +43,24 @@ export const WnIo = {
   /***
    * Get obj children by meta
    */
-  async loadChildren(pid, {skip, limit, sort, mine, match={}}={}) {
-    if(!pid)
+  async loadChildren(meta, {skip, limit, sort, mine, match={}}={}) {
+    if(!meta)
       return null
+    if('DIR' != meta.race)
+      return []
     // parent ID
-    match.pid = pid
+    match.pid = meta.id
     // find them
-    return WnIo.find({skip, limit, sort, mine, match})
+    let children = await WnIo.find({skip, limit, sort, mine, match})
+    // Auto set children path if noexists
+    if(meta.ph && children && _.isArray(children.list)) {
+      for(let child of children.list) {
+        if(!child.ph) {
+          child.ph = Ti.Util.appendPath(meta.ph, child.nm)
+        }
+      }
+    }
+    return children
   },
   /***
    * Query object

@@ -1,0 +1,34 @@
+//-----------------------------------------------------
+// Define color variables
+$color: (
+  primary   : #2196f3,
+  secondary : #ff4081,
+  success   : #4caf50,
+  warning   : #fdd835,
+  info      : #2196f3,
+  error     : #f44336,
+  track     : #bdbdbd,
+  divider   : rgba(0, 0, 0, 0.12)
+);
+$text-color: (
+  primary   : rgba(0, 0, 0, 0.87),
+  secondary : rgba(0, 0, 0, 0.54),
+  alternate : #fff,
+  disabled  : rgba(0, 0, 0, 0.38),
+  hint      : rgba(0, 0, 0, 0.38)
+);
+$bgcolor: (
+  paper   : #fff,
+  chip    : #e0e0e0,
+  default : #fafafa
+);
+//-----------------------------------------------------
+// Utility mixins
+@import "_sizing.scss";
+@import "_mixins.scss";
+@import "_default.scss";
+//-----------------------------------------------------
+// Include coms
+@import "com/_ti-obj-tiles.scss";
+@import "com/_ti-obj-thumb.scss";
+

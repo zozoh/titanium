@@ -1,3 +1,102 @@
+html {
+  height: 100%;
+  font-size: 100px; }
+
 body {
-  background: red;
-}
+  font-size: .18rem;
+  line-height: 2.4em;
+  letter-spacing: .015em;
+  color: rgba(0, 0, 0, 0.87);
+  background: #fafafa; }
+
+@media (min-width: 0) {
+  body {
+    font-size: 12px; } }
+@media (min-width: 576px) {
+  body {
+    font-size: 12px; } }
+@media (min-width: 768px) {
+  body {
+    font-size: 13px; } }
+@media (min-width: 992px) {
+  body {
+    font-size: 14px; } }
+@media (min-width: 1200px) {
+  body {
+    font-size: 14px; } }
+.ti-obj-tiles > .ti-obj-tiles-con {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+  flex-wrap: wrap; }
+  .ti-obj-tiles > .ti-obj-tiles-con > .ti-obj-tiles-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    flex-wrap: wrap; }
+    .ti-obj-tiles > .ti-obj-tiles-con > .ti-obj-tiles-item > * {
+      flex: 1 1 auto; }
+  .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-xs {
+    padding: 1px; }
+    .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-xs > * {
+      margin: 0; }
+  .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-sm {
+    padding: .08rem; }
+    .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-sm > * {
+      margin: .08rem; }
+  .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-md {
+    padding: .16rem; }
+    .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-md > * {
+      margin: .16rem; }
+  .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-lg {
+    padding: .24rem; }
+    .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-lg > * {
+      margin: .24rem; }
+  .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-xl {
+    padding: .32rem; }
+    .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-xl > * {
+      margin: .32rem; }
+
+.ti-obj-thumb {
+  width: 1.5rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+  flex-wrap: nowrap;
+  flex-direction: column; }
+  .ti-obj-thumb > header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: stretch;
+    flex-wrap: nowrap;
+    flex: 1 1 auto; }
+    .ti-obj-thumb > header > [as-preview] {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: stretch;
+      flex-wrap: nowrap;
+      flex: 1 1 auto; }
+      .ti-obj-thumb > header > [as-preview] img {
+        object-fit: contain; }
+  .ti-obj-thumb > footer {
+    flex: 1 1 auto;
+    padding: .06rem .04rem;
+    text-align: center;
+    font-size: 12px; }
+    .ti-obj-thumb > footer > [as-title] {
+      height: 3.3em;
+      line-height: 1.1em;
+      overflow: hidden;
+      word-break: break-all;
+      font-size: 1em;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      -moz-box-orient: vertical;
+      -moz-line-clamp: 3; }

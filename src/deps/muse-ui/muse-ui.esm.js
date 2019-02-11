@@ -1,5 +1,5 @@
 /* muse-ui myron.liu version 3.0.1 */
-import Vue from 'vue';
+//import Vue from 'vue';
 
 var red50 = '#ffebee';
 var red100 = '#ffcdd2';

@@ -1,0 +1,31 @@
+@mixin flex($jc:flex-start,$ai:flex-start,$wp:wrap,$ac:stretch) {
+  display: flex;
+  justify-content: $jc;
+  align-items: $ai;
+  align-content: $ac;
+  flex-wrap: $wp;
+}
+
+@mixin flex-center($jc:center,$ai:center,$wp:wrap,$ac:center) {
+  @include flex($jc,$ai,$wp,$ac);
+}
+
+@mixin flex-full($fx) {
+  @include flex(center,center,nowrap);
+  flex: $fx;
+}
+
+@mixin flex-align($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {
+  @include flex($jc,$ai,$wp,$ac);
+}
+
+@mixin flex-align-v($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {
+  @include flex($jc,$ai,$wp,$ac);
+  flex-direction: column;
+}
+
+@mixin raw-list($padding:0,$margin:0) {
+  list-style:none;
+  padding:$padding;
+  margin:$margin;
+}

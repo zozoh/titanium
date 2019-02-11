@@ -56,6 +56,29 @@ export const TiPaths = {
           return "";
       var sfnm = path.substring(p0 + 1);
       return forceLower ? sfnm.toLowerCase() : sfnm;
+  },
+  /***
+   * Merge a group of string to a path.
+   * 
+   * @param args{...<String>} : The paths to join
+   * 
+   * @return Path string
+   */
+  appendPath: function(...args) {
+    let re = []
+    for(let ph of args) {
+      // remove the last '/'
+      let m = /\/*$/.exec(ph)
+      if(m) {
+        ph = ph.substring(0, m.index)
+      }
+      // add the middle '/'
+      if(re.length > 0 && !/^\//.test(ph)) {
+        re.push("/")
+      }
+      re.push(ph)
+    }
+    return re.join("")
   }
 }
 //-----------------------------------

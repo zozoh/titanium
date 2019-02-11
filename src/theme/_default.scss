@@ -1,0 +1,19 @@
+html {
+  height:100%; font-size:100px;
+}
+
+body {
+  font-size:.18rem; 
+  line-height:2.4em;
+  letter-spacing:.015em;
+  color: map-get($text-color, primary);
+  background: map-get($bgcolor, default);
+}
+
+@each $key, $value in $screen-min-widths {
+  @media (min-width:$value) {
+    body {
+      font-size:map-get($body-font-sizes, $key)
+    }
+  }
+}

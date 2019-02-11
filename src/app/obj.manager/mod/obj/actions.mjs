@@ -47,9 +47,8 @@ export default {
       commit("set", null)
       return
     }
-    let children = await Wn.Io.loadChildren(
-      meta.id, 
-      {skip, limit, sort, mine, match})
+    let children = await Wn.Io.loadChildren(meta, {
+      skip, limit, sort, mine, match})
     commit("set", {children})
   },
   /***
@@ -75,7 +74,7 @@ export default {
     
     let children  = null;
     if('DIR' == meta.race) {
-      children = await Wn.Io.loadChildren(meta.id)
+      children = await Wn.Io.loadChildren(meta)
     }
     
     let content = await Wn.Io.loadContent(meta)
