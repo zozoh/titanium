@@ -21,14 +21,14 @@
       "./mod/obj"]
   },
   "components" : [
-    "./com/ti-obj-tiles",
-    "./com/ti-obj-thumb",
+    "@com:ti-icon",
     "@com:ti-user-info",
-    "@com:ti-table",
-    "@com:ti-tiles",
+    "@com:ti-obj-tiles",
+    "@com:ti-obj-thumb",
     "@com:ti-wn-meta"],
   "deps" : [
     "@lib:walnut",
-    "@deps:md/iconfont/material-icons.css"
+    "@deps:md/iconfont/material-icons.css",
+    "@deps:iconmonstr/css/iconmonstr-iconic-font.css"
   ]
 }

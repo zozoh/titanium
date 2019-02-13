@@ -1,7 +1,15 @@
 {
   "ancestors" : [], 
   "parent" : null, 
-  "children" : [],
+  "children" : {
+    "list" : [],
+    "pager" : {
+        "pageNumber" : -1,
+        "pageSize" : -1,
+        "pageCount" : -1,
+        "totalCoun" : -1
+    }
+  },
   "meta": null,
   "content": null,
   "contentType": null

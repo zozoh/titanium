@@ -1,0 +1,15 @@
+<div class="ti-obj-thumb" :class="classObject">
+  <header>
+    <div as-preview>
+      <template v-if="preview.type=='image'">
+        <img :src="preview.value">
+      </template>
+      <template v-else>
+        <ti-icon v-bind="preview"></ti-icon>
+      </template>
+    </div>
+  </header>
+  <footer>
+    <div as-title>{{title}}</div>
+  </footer>
+</div>

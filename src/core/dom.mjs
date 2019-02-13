@@ -42,33 +42,38 @@ export const TiDom = {
     if(_.isElement(selectorOrElement))
       selectorOrElement.parentNode.removeChild(selectorOrElement)
   },
-  autoRootFontSize(win=window,{
+  autoRootFontSize({
+    $win=window,
     phoneMaxWidth=540,
-    tabletMaxWidth=720,
-    max=100,min=60
+    tabletMaxWidth=768,
+    max=100,min=60,
+    callback
   }={}) {
     const $doc  = window.document
     const $root = document.documentElement
-    let size = (win.innerWidth/tabletMaxWidth) * max
-    let px = Math.min(Math.max(size,min), max)
-    $root.style.fontSize = px+"px"
+    let size = ($win.innerWidth/tabletMaxWidth) * max
+    let fontSize = Math.min(Math.max(size,min), max)
+    $root.style.fontSize = fontSize + "px"
     // apply the mark
-    if(win.innerWidth > tabletMaxWidth) {
-      $root.setAttribute("as", "desktop")
-    } else if(win.innerWidth > phoneMaxWidth) {
-        $root.setAttribute("as", "tablet")
-    } else {
-      $root.setAttribute("as", "phone")
+    if(_.isFunction(callback)) {
+      let mode = $win.innerWidth > tabletMaxWidth
+                  ? "desktop"
+                  : ($win.innerWidth > phoneMaxWidth
+                      ? "tablet" : "phone")
+      callback({
+        $win, $doc, $root, mode, fontSize
+      })
     }
   },
-  watchAutoRootFontSize(win=window, options) {
+  watchAutoRootFontSize(options={}) {
+    let $win = options.$win || window
     // Watch the window resizing
-    win.addEventListener("resize", _.throttle(()=>{
-      TiDom.autoRootFontSize(win,options)
-    }, 10))
-    // auto resize at first
+    $win.addEventListener("resize", ()=>{
+      TiDom.autoRootFontSize(options)
+    })
+    // auto resize firstly
     _.delay(()=>{
-      TiDom.autoRootFontSize(win,options)
+      TiDom.autoRootFontSize(options)
     }, 100)
   }
 }

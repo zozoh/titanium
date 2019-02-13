@@ -8,7 +8,8 @@ $color: (
   info      : #2196f3,
   error     : #f44336,
   track     : #bdbdbd,
-  divider   : rgba(0, 0, 0, 0.12)
+  divider   : rgba(0, 0, 0, 0.12),
+  selected  : rgba(128,128,128,0.3)
 );
 $text-color: (
   primary   : rgba(0, 0, 0, 0.87),

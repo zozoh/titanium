@@ -29,3 +29,8 @@
   padding:$padding;
   margin:$margin;
 }
+
+@mixin highlight($bg:primary, $txt:alternate) {
+  background:map-get($color, $bg);
+  color:map-get($text-color, $txt);
+}

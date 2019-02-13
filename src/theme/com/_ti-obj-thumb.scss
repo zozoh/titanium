@@ -1,17 +1,23 @@
 .ti-obj-thumb {
-  width:1.5rem;
+  width:1rem;
   @include flex-align-v($wp:nowrap);
   > header {
     @include flex-full(1 1 auto);
+    padding:.06rem 0 .02rem 0;
     > [as-preview] {
       @include flex-full(1 1 auto);
-      img {
+      width:.64rem; height:.64rem;
+      > img {
         object-fit: contain;
+        width:100%; height:100%;
+      }
+      > i {
+        font-size: .64rem;
       }
     }
   }
   > footer {
-    flex:1 1 auto; padding:.06rem .04rem;
+    flex:1 1 auto; padding:.04rem;
     text-align:center;
     font-size:map-get($body-font-sizes, sm);
     > [as-title] {
@@ -28,4 +34,8 @@
       // for more detail to support the Firefox
     }
   }
+  &.is-highlight {
+    @include highlight(primary);
+  }
 }
+

@@ -1,5 +1,6 @@
 {
   "globally" : true,
   "template" : "./dom.html",
+  "computed" : "./computed.mjs",
   "props" : "./props.mjs"
 }

@@ -1,10 +1,5 @@
 <div>
   <ti-user-info :name="me.name" :group="me.group"></ti-user-info>
   <hr>
-  <ti-obj-tiles :list="obj.children.list">
-    <template v-slot="SCP">
-      
-    </template>
-  </ti-obj-tiles>
-  
+  <ti-obj-tiles :list="objChildrenList"></ti-obj-tiles>
 </div>

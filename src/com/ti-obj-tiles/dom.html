@@ -1,11 +1,15 @@
 <div class="ti-obj-tiles">
   <div :class="tilesUlClass" class="ti-obj-tiles-con">
     <template v-for="(it, index) in list">
-      <div :style="itemStyle" class="ti-obj-tiles-item">
+      <div :style="itemStyle" class="ti-obj-tiles-item" :it-index="index">
         <slot :it="it" :index="index">
           <ti-obj-thumb 
-            :title="it.nm"
-            :thumb="thumbnail(it)">
+            :index="index"
+            :id="it.id"
+            :title="it.title"
+            :preview="it.preview"
+            :highlight="it.selected"
+            :renameable="renameable">
           </ti-obj-thumb>
         </slot>
       </div>

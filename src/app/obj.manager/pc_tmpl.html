@@ -5,8 +5,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
-  <link rel="stylesheet" type="text/css"
-        href="${rs}/core/css/font-md/css/material-design-iconic-font.css">
+  <!--link rel="stylesheet" type="text/css"
+        href="${rs}/core/css/font-md/css/material-design-iconic-font.css"-->
   <script src="${rs}/ti/deps/axios.min.js"></script>
   <script src="${rs}/ti/deps/lodash.min.js"></script>
   <script src="${rs}/ti/deps/vue.js"></script>
@@ -53,7 +53,9 @@ Ti.Config.set({
   }
 })
 //---------------------------------------
-Ti.Dom.watchAutoRootFontSize()
+Ti.Dom.watchAutoRootFontSize({callback:({$root, mode})=>{
+  $root.setAttribute("as", mode)
+}})
 //---------------------------------------
 async function main(){
   let app = await Ti.App("@MyApp")
