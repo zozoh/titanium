@@ -180,10 +180,15 @@ export const TiVue = {
     if(_.isArray(conf.computed)) {
       options.computed = Ti.Util.mergeWith(
                             merger, {}, ...conf.computed)
+    } else if(_.isObject(conf.computed)) {
+      options.computed = conf.computed
     }
+    
     if(_.isArray(conf.methods)) {
       options.methods = Ti.Util.mergeWith(
                             merger, {}, ...conf.methods)
+    } else if(_.isObject(conf.methods)) {
+      options.methods = conf.methods
     }
 
     //.............................

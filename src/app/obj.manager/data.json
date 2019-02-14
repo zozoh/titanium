@@ -1,3 +1,4 @@
 {
-  "abc" : "ABC"
+  "loadingComType" : "ti-obj-loading",
+  "mainComType"    : null
 }

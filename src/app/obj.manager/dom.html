@@ -1,5 +1,8 @@
 <div>
   <ti-user-info :name="me.name" :group="me.group"></ti-user-info>
   <hr>
-  <ti-obj-tiles :list="objChildrenList"></ti-obj-tiles>
+  <!--ti-obj-tiles :list="objChildrenList"></ti-obj-tiles-->
+  <b>{{mainComType}}</b>
+  <hr>
+  <component :is="mainComType" :data="mainData"></component>
 </div>

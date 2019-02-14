@@ -9,18 +9,21 @@
         "me" : "get"
       }
     },
-    "...obj" : {
+    "...obj-meta" : {
       "getters" : {
         "obj" : "get"
       }      
     }
   }],
+  "methods" : "./methods.mjs",
+  "watch" : "./watchers.mjs",
   "store" : {
     "modules" : [
       "./mod/session",
-      "./mod/obj"]
+      "./mod/obj-meta"]
   },
   "components" : [
+    "./com/ti-obj-loading",
     "@com:ti-icon",
     "@com:ti-user-info",
     "@com:ti-obj-tiles",

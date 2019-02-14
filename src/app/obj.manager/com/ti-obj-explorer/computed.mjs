@@ -1,10 +1,7 @@
 export default {
-  mainData() {
-    return this.$store.state.main
-  },
-  objChildrenList() {
+  objList() {
     let vm = this
-    let list = vm.obj.children.list
+    let list = vm.data.children
     let re = []
     //..........................
     for(let it of list) {
@@ -26,5 +23,5 @@ export default {
       })
     }
     return re
-  }  // ~ objList
+  }
 }

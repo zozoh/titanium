@@ -1,5 +1,25 @@
 export const TiPaths = {
   /***
+   * Get the name of a Ti linked path, such as:
+   * 
+   * - `@com:xxxx`
+   * - `@mod:xxxx`
+   * - `./mod/xxxx`
+   * - `./com/xxxx`
+   * 
+   * @param `path{String}` The path
+   * @return The major name of entity
+   */
+  getLinkName: function(path) {
+    let p_a = path.lastIndexOf('/')
+    let p_b = path.lastIndexOf(':')
+    let pos = Math.max(p_a, p_b)
+    let str = pos >= 0 
+                ? path.substring(pos+1)
+                : path
+    return TiPaths.getMajorName(str)
+  },
+  /***
    * Get the major name of a path
    * 
    * @param `path{String}` The path

@@ -1,6 +1,6 @@
 import {Ti}            from "./ti.mjs"
-import {LoadTiAppInfo} from "./app_info.mjs"
 import {TiVue}         from "./polyfill-ti-vue.mjs"
+import {LoadTiAppInfo, LoadTiLinkedObj} from "./app_info.mjs"
 //---------------------------------------
 const TI_APP   = Symbol("ti-app")
 const TI_INFO  = Symbol("ti-info")
@@ -39,34 +39,33 @@ export class OneTiApp {
     // load each fields of info obj
     let conf = await LoadTiAppInfo(this.$info())
     this.$conf(conf)
-    {
+    if(Ti.IsInfo()) {
       console.log("Ti.$conf", this.$conf())
-      // console.log("!!!!--> ", 
-      //   JSON.stringify(conf.components[0],null, 3))
     }
 
     // Store instance
     let store
     if(conf.store) {
       let sc = TiVue.StoreConfig(conf.store)
-      {
+      if(Ti.IsInfo()) {
         console.log("TiVue.StoreConfig:", sc)
       }
       store = TiVue.CreateStore(sc)
       this.$store(store)
-      {
+      if(Ti.IsInfo()) {
         console.log("Ti.$store", this.$store())
       }
     }
 
     // Vue instance
     let setup = TiVue.Setup(conf, store)
-    {
+    if(Ti.IsInfo()) {
       console.log("TiVue.VueSetup(conf)")
       console.log(" -- global:", setup.global)
       console.log(" -- options:", setup.options)
     }
     let vm = TiVue.CreateInstance(setup)
+    vm.$app = this
     this.$vm(vm)
 
     // return self for chained operation
@@ -75,7 +74,7 @@ export class OneTiApp {
   //---------------------------------------
   mountTo(el) {
     this.$el = Ti.Dom.find(el)
-    console.log("mountTo", this.$el)
+    //console.log("mountTo", this.$el)
 
     // Mount App
     this.$vm().$mount(this.$el)
@@ -92,6 +91,41 @@ export class OneTiApp {
       return this.$vm()
     }
     return this.$vm()[key]
+  }
+  //---------------------------------------
+  async loadView(name, view) {
+    // Load the module
+    let moInfo = await Ti.Load("./mod/"+view.moduleName)
+    let moConf = await LoadTiLinkedObj(moInfo, {
+      dynamicAlias: new Ti.Config.AliasMapping({
+        "^\./": "@MyApp:mod/" + view.moduleName + "/"
+      })
+    })
+    let mo = TiVue.StoreConfig(moConf)
+    this.$store().registerModule(name, mo)
+    
+    // Load the component
+    let comInfo = await Ti.Load("./com/"+view.component)
+    let comConf = await await LoadTiLinkedObj(comInfo, {
+      dynamicAlias: new Ti.Config.AliasMapping({
+        "^\./": "@MyApp:com/" + view.component + "/"
+      })
+    })
+    let setup = TiVue.Setup(comConf)
+    let comName = Ti.Util.getLinkName(view.component)
+
+    _.map(setup.global.components, com=>{
+      Vue.component(com.name, com)
+    })
+    console.log(comName)
+    Vue.component(comName, setup.options)
+    Vue.component(comName, setup.options)
+    Vue.component(comName, setup.options)
+    
+    return {
+      com : comName,
+      mod : name
+    }
   }
 }
 //---------------------------------------

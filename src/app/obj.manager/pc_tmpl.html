@@ -29,6 +29,7 @@ import {Ti} from "${rs}/ti/core/ti.mjs"
 window._app = ${app};
 //---------------------------------------
 Ti.SetForDev(true)
+Ti.SetLogLevel("info")
 //---------------------------------------
 Ti.Config.set({
   prefix : {
@@ -60,11 +61,12 @@ Ti.Dom.watchAutoRootFontSize({callback:({$root, mode})=>{
 async function main(){
   let app = await Ti.App("@MyApp")
   await app.init()
-  console.log(app)
+  //console.log(app)
   app.commit("session/set", _app.session)
   app.mountTo("#app")
   //console.log("0000000000000000000",MuseUI.theme )
-  await app.dispatch("obj/reload", "~/tmp")
+  await app.dispatch("obj-meta/reload", "~/tmp")
+  
   return app.get("obj")
 }
 //---------------------------------------

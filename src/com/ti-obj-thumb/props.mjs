@@ -16,8 +16,8 @@ export default {
     type : Boolean,
     default : false
   },
-  renameable : {
-    type : Boolean,
-    default : false
+  index : {
+    type : Number,
+    default : -1
   }
 }

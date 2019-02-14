@@ -1,4 +1,4 @@
-<div class="ti-obj-thumb" :class="classObject">
+<div class="ti-obj-thumb" :class="classObject" @click.stop="$emit('selected', index)">
   <header>
     <div as-preview>
       <template v-if="preview.type=='image'">

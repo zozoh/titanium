@@ -1,7 +1,9 @@
-<div class="ti-obj-tiles">
+<div class="ti-obj-tiles" @click="onClickBody">
   <div :class="tilesUlClass" class="ti-obj-tiles-con">
-    <template v-for="(it, index) in list">
-      <div :style="itemStyle" class="ti-obj-tiles-item" :it-index="index">
+    <template v-for="(it, index) in list" :key="it.id">
+      <div class="ti-obj-tiles-item" 
+        :style="itemStyle"
+        :it-index="index">
         <slot :it="it" :index="index">
           <ti-obj-thumb 
             :index="index"
@@ -9,8 +11,7 @@
             :title="it.title"
             :preview="it.preview"
             :highlight="it.selected"
-            :renameable="renameable">
-          </ti-obj-thumb>
+            @selected="onItemSelected"></ti-obj-thumb>
         </slot>
       </div>
     </template>

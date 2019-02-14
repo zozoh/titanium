@@ -1,6 +1,6 @@
 import {Ti}    from './ti.mjs'
 //---------------------------------------
-async function LoadTiLinkedObj(
+export async function LoadTiLinkedObj(
   obj={}, 
   {dynamicPrefix, dynamicAlias}={}
 ) {
@@ -48,10 +48,7 @@ async function LoadTiLinkedObj(
             val[i] = re2
             // If modules/components, apply the default name
             if(!re2.name && /^(modules|components)$/.test(key)) {
-              let p_a = v.lastIndexOf('/')
-              let p_b = v.lastIndexOf(':')
-              let pos = Math.max(p_a, p_b, 0)
-              re2.name = Ti.Util.getMajorName(v.substring(pos+1))
+              re2.name = Ti.Util.getLinkName(v)
             }
             // Done for loading
             resolve(re2);
@@ -105,7 +102,7 @@ export async function LoadTiAppInfo(info={}, $doc=document) {
   // Clone info and reload its all detail
   let conf = _.cloneDeep(info)
   await LoadTiLinkedObj(conf)
-  {
+  if(Ti.IsInfo()) {
     console.log("await LoadTiLinkedObj(conf)", conf)
   }
   
