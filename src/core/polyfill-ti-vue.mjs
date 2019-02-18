@@ -116,7 +116,7 @@ export const TiVue = {
       for(let asset of list) {
         // => global
         if(asset.globally) {
-          Ti.Util.pushValue(global, key, val)
+          Ti.Util.pushValue(global, key, asset)
         }
         // => key
         else {
@@ -236,9 +236,14 @@ export const TiVue = {
     })
 
     // components registration
-    _.map(setup.global.components, com=>{
+    const defineComponent = com=>{
+      // define sub
+      _.map(com.components, defineComponent)
+      delete com.components
+      // define self
       Vue.component(com.name, com)
-    })
+    }
+    _.map(setup.global.components, defineComponent)
 
     // return new vm instance
     return new Vue(setup.options)

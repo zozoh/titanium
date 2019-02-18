@@ -29,7 +29,7 @@ const loading = {
   },
   // official js module
   mjs(url) {
-    // FF done suppor the import() yet by default 
+    // FF don't suppor the import() yet by default 
     // return import(url).then(m => m.default)
     // use the polyfill method instead
     return importModule(url).then(m=>m.default)

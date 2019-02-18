@@ -1,15 +1,15 @@
 {
-  "name" : "obj.manager",
+  "name" : "wn.manager",
   "data" : "./data.json",
   "template" : "./dom.html",
   "theme" : "@theme:light",
   "computed" : ["./computed.mjs", {
-    "...session" : {
+    "...wn-session" : {
       "getters" : {
         "me" : "get"
       }
     },
-    "...obj-meta" : {
+    "...wn-obj-meta" : {
       "getters" : {
         "obj" : "get"
       }      
@@ -19,16 +19,17 @@
   "watch" : "./watchers.mjs",
   "store" : {
     "modules" : [
-      "./mod/session",
-      "./mod/obj-meta"]
+      "@mod:wn-session",
+      "@mod:wn-obj-meta"]
   },
   "components" : [
-    "./com/ti-obj-loading",
+    "@com:ti-layout",
+    "@com:ti-obj-loading",
     "@com:ti-icon",
     "@com:ti-user-info",
     "@com:ti-obj-tiles",
     "@com:ti-obj-thumb",
-    "@com:ti-wn-meta"],
+    "@com:ti-obj-meta"],
   "deps" : [
     "@lib:walnut",
     "@deps:md/iconfont/material-icons.css",

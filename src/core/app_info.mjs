@@ -20,9 +20,10 @@ export async function LoadTiLinkedObj(
       }
       ps.push(new Promise((resolve, reject)=>{
         Ti.Load(val, {dynamicPrefix, dynamicAlias}).then(async re=>{
+          const v2  = Ti.Config.url(val, {dynamicPrefix, dynamicAlias})
           const re2 = await LoadTiLinkedObj(re, {
             dynamicAlias: new Ti.Config.AliasMapping({
-              "^\./": val + "/"
+              "^\./": v2 + "/"
             })
           });
           obj[key] = re2;
@@ -40,9 +41,10 @@ export async function LoadTiLinkedObj(
         }
         ps.push(new Promise((resolve, reject)=>{
           Ti.Load(v, {dynamicPrefix, dynamicAlias}).then(async re=>{
+            const v2  = Ti.Config.url(v, {dynamicPrefix, dynamicAlias})
             const re2 = await LoadTiLinkedObj(re, {
               dynamicAlias: new Ti.Config.AliasMapping({
-                "^\./": v + "/"
+                "^\./": v2 + "/"
               })
             });
             val[i] = re2

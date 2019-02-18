@@ -25,28 +25,28 @@ export default {
       }
       // Folder
       if('DIR' == meta.race) {
-        mainView.component  = "ti-obj-explorer";
-        mainView.moduleName = "obj-explorer";
+        mainView.component  = "@com:wn-obj-explorer";
+        mainView.moduleName = "@mod:wn-obj-explorer";
       }
       // Text
       else if(/^text\//.test(meta.mime)) {
-        mainView.component  = "ti-obj-text";
-        mainView.moduleName = "obj-binary";
+        mainView.component  = "@com:ti-obj-text";
+        mainView.moduleName = "@mod:wn-obj-binary";
       }
       // Image
       else if(/^image\//.test(meta.mime)) {
-        mainView.component  = "ti-obj-image";
-        mainView.moduleName = "obj-binary";
+        mainView.component  = "@com:ti-obj-image";
+        mainView.moduleName = "@mod:wn-obj-binary";
       }
       // Video
       else if(/^video\//.test(meta.mime)) {
-        mainView.component  = "ti-obj-video";
-        mainView.moduleName = "obj-binary";
+        mainView.component  = "@com:ti-obj-video";
+        mainView.moduleName = "@mod:wn-obj-binary";
       }
       // Others
       else {
-        mainView.component  = "ti-obj-binary";
-        mainView.moduleName = "obj-binary";
+        mainView.component  = "@com:ti-obj-binary";
+        mainView.moduleName = "@mod:wn-obj-binary";
       }
       // Register Module
       //console.log(mainView)

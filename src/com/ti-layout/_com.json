@@ -1,0 +1,10 @@
+{
+  "globally" : true,
+  "template" : "./dom.html",
+  "props" : "./props.mjs",
+  "computed" : "./computed.mjs",
+  "methods" : "./methods.mjs",
+  "components" : [
+    "./com/ti-layout-block",
+    "./com/ti-layout-group"]
+}

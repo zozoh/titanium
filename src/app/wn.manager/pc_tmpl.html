@@ -12,16 +12,16 @@
   <script src="${rs}/ti/deps/vue.js"></script>
   <script src="${rs}/ti/deps/vuex.js"></script>
 
-  <!--link rel="stylesheet" href="${rs}/ti/deps/element-ui/index.css">
-  <script src="${rs}/ti/deps/element-ui/index.js"></script-->
+  <link rel="stylesheet" href="${rs}/ti/deps/element-ui/index.css">
+  <script src="${rs}/ti/deps/element-ui/index.js"></script>
 
-  <link rel="stylesheet" href="${rs}/ti/deps/muse-ui/muse-ui.css">
-  <script src="${rs}/ti/deps/muse-ui/muse-ui.js"></script>
+  <!--link rel="stylesheet" href="${rs}/ti/deps/muse-ui/muse-ui.css">
+  <script src="${rs}/ti/deps/muse-ui/muse-ui.js"></script-->
 </head>
 <body>
-<main id="app">
+<div id="app">
   Loading...
-</main>
+</div>
 </body>
 <script type="module">
 import {Ti} from "${rs}/ti/core/ti.mjs"
@@ -62,10 +62,9 @@ async function main(){
   let app = await Ti.App("@MyApp")
   await app.init()
   //console.log(app)
-  app.commit("session/set", _app.session)
+  app.commit("wn-session/set", _app.session)
   app.mountTo("#app")
-  //console.log("0000000000000000000",MuseUI.theme )
-  await app.dispatch("obj-meta/reload", "~/tmp")
+  await app.dispatch("wn-obj-meta/reload", "~/tmp")
   
   return app.get("obj")
 }
@@ -75,6 +74,7 @@ main().then(o=>{
 }).catch(err=>{
   throw err
 })
+
 //---------------------------------------
 </script>
 </html>

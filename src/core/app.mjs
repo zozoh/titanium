@@ -95,20 +95,20 @@ export class OneTiApp {
   //---------------------------------------
   async loadView(name, view) {
     // Load the module
-    let moInfo = await Ti.Load("./mod/"+view.moduleName)
+    let moInfo = await Ti.Load(view.moduleName)
     let moConf = await LoadTiLinkedObj(moInfo, {
       dynamicAlias: new Ti.Config.AliasMapping({
-        "^\./": "@MyApp:mod/" + view.moduleName + "/"
+        "^\./": view.moduleName + "/"
       })
     })
     let mo = TiVue.StoreConfig(moConf)
     this.$store().registerModule(name, mo)
     
     // Load the component
-    let comInfo = await Ti.Load("./com/"+view.component)
-    let comConf = await await LoadTiLinkedObj(comInfo, {
+    let comInfo = await Ti.Load(view.component)
+    let comConf = await LoadTiLinkedObj(comInfo, {
       dynamicAlias: new Ti.Config.AliasMapping({
-        "^\./": "@MyApp:com/" + view.component + "/"
+        "^\./": view.component + "/"
       })
     })
     let setup = TiVue.Setup(comConf)

@@ -1,0 +1,31 @@
+<el-container class="abc">
+  <el-header>
+    <el-row>
+      <el-col :span="2">
+        Logo
+      </el-col>
+      <el-col :span="16">
+        <el-breadcrumb separator="&gt;">
+          <el-breadcrumb-item v-for="an in obj.ancestors"
+            :key="an.id"
+            :to="{ path: '/' }">
+            {{an.nm}}
+          </el-breadcrumb-item>
+          <el-breadcrumb-item v-if="obj.meta">
+            <b>{{obj.meta.nm}}</b>
+          </el-breadcrumb-item>
+        </el-breadcrumb>
+      </el-col>
+      <el-col :span="6">
+        <ti-user-info :name="me.name" :group="me.group"></ti-user-info>
+      </el-col>
+    </el-row>
+  </el-header>
+  <el-aside></el-aside>
+  <el-main>
+    <component :is="mainComType" :data="mainData"></component>
+  </el-main>
+  <el-footer>
+      <b>{{mainComType}}</b>
+  </el-footer>
+</el-container>
