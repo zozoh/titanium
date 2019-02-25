@@ -18,7 +18,7 @@
   <!--link rel="stylesheet" href="${rs}/ti/deps/muse-ui/muse-ui.css">
   <script src="${rs}/ti/deps/muse-ui/muse-ui.js"></script-->
 </head>
-<body>
+<body class="main-body">
 <div id="app">
   Loading...
 </div>
@@ -39,9 +39,11 @@ Ti.Config.set({
     "lib"   : "${rs}/ti/lib/",
     "deps"  : "${rs}/ti/deps/",
     "mod"   : "${rs}/ti/mod/",
-    "com"   : "${rs}/ti/com/"
+    "com"   : "${rs}/ti/com/",
+    "i18n"  : "${rs}/ti/i18n/"
   },
   alias : {
+    "^.+[.](css|js|mjs|json|txt|text)$"  : "$&",
     "^\./"          : "@MyApp:",
     "@lib:walnut"   : "@lib:walnut/walnut.mjs",
     "^@MyApp:?$"    : "@MyApp:_app.json",
@@ -50,15 +52,22 @@ Ti.Config.set({
     "\/?mod\/[^\/]+$" : "$&/_mod.json",
     "\/?com\/[^\/]+$" : "$&/_com.json",
     "^@mod:[^.]+$"    : "$&/_mod.json",
-    "^@com:[^.]+$"    : "$&/_com.json"
-  }
+    "^@com:[^.]+$"    : "$&/_com.json",
+    "^@i18n:(.+)$"    : "@i18n:zh-cn/$1.i18n.json"
+  },
+  lang : "zh-cn"
 })
 //---------------------------------------
 Ti.Dom.watchAutoRootFontSize({callback:({$root, mode})=>{
   $root.setAttribute("as", mode)
 }})
 //---------------------------------------
+Ti.Install()
+//---------------------------------------
 async function main(){
+  // setup the i18n
+  Ti.I18n.load("_ti")
+  // Load main app
   let app = await Ti.App("@MyApp")
   await app.init()
   //console.log(app)

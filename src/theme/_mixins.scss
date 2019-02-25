@@ -5,32 +5,57 @@
   align-content: $ac;
   flex-wrap: $wp;
 }
-
 @mixin flex-center($jc:center,$ai:center,$wp:wrap,$ac:center) {
   @include flex($jc,$ai,$wp,$ac);
 }
-
 @mixin flex-full($fx) {
   @include flex(center,center,nowrap);
   flex: $fx;
 }
-
 @mixin flex-align($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {
   @include flex($jc,$ai,$wp,$ac);
 }
-
 @mixin flex-align-v($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {
   @include flex($jc,$ai,$wp,$ac);
   flex-direction: column;
 }
-
+//-------------------------------------------------------------
+@mixin ul($align:null, $padding:0, $margin:0) {
+  list-style:none;
+  padding:$padding;
+  margin:$margin;
+  @if $align == left {
+    @include flex-align($jc:flex-start,$wp:nowrap);
+  }
+  @else if $align == center {
+    @include flex-align($jc:center,$wp:nowrap);
+  }
+  @else if $align == right {
+    @include flex-align($jc:flex-end,$wp:nowrap);
+  }
+}
+//-------------------------------------------------------------
 @mixin raw-list($padding:0,$margin:0) {
   list-style:none;
   padding:$padding;
   margin:$margin;
 }
-
+//-------------------------------------------------------------
 @mixin highlight($bg:primary, $txt:alternate) {
   background:map-get($color, $bg);
   color:map-get($text-color, $txt);
 }
+//-------------------------------------------------------------
+@mixin border($pos,$w:1px,$s:solid,$c:map-get($color,divider)) {
+  border-#{$pos}:$w $s $c;
+}
+//-------------------------------------------------------------
+@mixin pos($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
+  @if $l != null {left  : $l;}
+  @if $t != null {top   : $t;}
+  @if $w != null {width : $w;}
+  @if $h != null {height: $h;}
+  @if $r != null {right : $r;}
+  @if $b != null {bottom: $b;}
+}
+

@@ -1,7 +1,7 @@
 html {
   height:100%; font-size:100px;
 }
-
+//...................................................
 body {
   height: 100%; margin:0;
   font-size:.18rem; 
@@ -10,11 +10,49 @@ body {
   color: map-get($text-color, primary);
   background: map-get($bgcolor, default);
 }
-
+//...................................................
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+//...................................................
+a {
+  color:map-get($color, primary);
+  text-decoration: none;
+}
+a:hover {
+  color:map-get($color, secondary);
+  text-decoration: underline;
+}
+//...................................................
+.ti-ul-reset {@include ul;}
+.ti-ul-align-left   {@include ul(left);}
+.ti-ul-align-center {@include ul(center);}
+.ti-ul-align-right  {@include ul(right);}
+//...................................................
+.ti-flex-cols-3 {
+  @include flex-align($wp:nowrap);
+  > * {flex:0 0 auto;}
+  > *:nth-child(2) {flex:1 1 auto;}
+}
+// make children fit full area
+.ti-flex-fit {
+  @include flex(center,stretch,nowrap);
+  > * {flex:1 1 auto;}
+}
+.ti-flex-left   {@include flex-center($jc:flex-start,$wp:nowrap);}
+.ti-flex-center {@include flex-center;}
+.ti-flex-right  {@include flex-center($jc:flex-end,$wp:nowrap);}
+//...................................................
 @each $key, $value in $screen-min-widths {
   @media (min-width:$value) {
     body {
       font-size:map-get($body-font-sizes, $key)
     }
   }
+}
+//...................................................
+.main-body {
+  overflow:hidden;
 }

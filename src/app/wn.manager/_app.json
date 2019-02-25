@@ -3,6 +3,7 @@
   "data" : "./data.json",
   "template" : "./dom.html",
   "theme" : "@theme:light",
+  "i18n" : "@i18n:wn-manager",
   "computed" : ["./computed.mjs", {
     "...wn-session" : {
       "getters" : {

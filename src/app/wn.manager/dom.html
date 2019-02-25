@@ -1,31 +1,52 @@
-<el-container class="abc">
-  <el-header>
-    <el-row>
-      <el-col :span="2">
-        Logo
-      </el-col>
-      <el-col :span="16">
-        <el-breadcrumb separator="&gt;">
-          <el-breadcrumb-item v-for="an in obj.ancestors"
-            :key="an.id"
-            :to="{ path: '/' }">
-            {{an.nm}}
-          </el-breadcrumb-item>
-          <el-breadcrumb-item v-if="obj.meta">
-            <b>{{obj.meta.nm}}</b>
-          </el-breadcrumb-item>
-        </el-breadcrumb>
-      </el-col>
-      <el-col :span="6">
-        <ti-user-info :name="me.name" :group="me.group"></ti-user-info>
-      </el-col>
-    </el-row>
-  </el-header>
-  <el-aside></el-aside>
-  <el-main>
-    <component :is="mainComType" :data="mainData"></component>
-  </el-main>
-  <el-footer>
-      <b>{{mainComType}}</b>
-  </el-footer>
-</el-container>
+<div class="wn-manager">
+  <div class="wnm-sky ti-flex-cols-3">
+    <div class="wnm-logo ti-flex-center">
+      <ti-icon value="im-network"/>
+    </div>
+    <div class="wnm-title ti-flex-left ti-crumb">
+      <ul>
+        <li v-for="an in obj.ancestors" :key="an.id">
+          <a href="/">{{an.nm}}</a>
+          <ti-icon value="chevron_right"/>
+        </li>
+        <li v-if="obj.meta">
+          <b>{{obj.meta.nm}}</b>
+        </li>
+      </ul>
+    </div>
+    <div class="wnm-action ti-flex-center">
+      <ti-user-info :name="me.name" :group="me.group"/>
+    </div>
+  </div>
+  <div class="wnm-aside">
+    <section>
+      <h1>Group A</h1>
+      <ul class="ti-ul-reset">
+        <li><a href="#">Item A</a></li>
+        <li><a href="#">Item B</a></li>
+      </ul>
+    </section>
+    <section>
+      <h1>Group B</h1>
+      <ul class="ti-ul-reset">
+        <li><a href="#">Item A</a></li>
+        <li><a href="#">Item B</a></li>
+      </ul>
+    </section>
+  </div>
+  <div class="wnm-arena">
+    <component :is="mainComName" :data="mainData"/>
+  </div>
+  <div class="wnm-footer ti-flex-cols-3">
+    <div class="wnm-info ti-flex-center">
+      <ti-icon :value="mainComIcon"/>
+      <span>{{mainComName|i18n}}</span>
+    </div>
+    <div class="wnm-status ti-flex-center">
+      <span>{{status}}</span>
+    </div>
+    <div class="wnm-indicator ti-flex-center">
+      <em>{{mainModType}}</em>
+    </div>
+  </div>
+</div>

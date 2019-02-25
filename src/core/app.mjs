@@ -57,6 +57,10 @@ export class OneTiApp {
       }
     }
 
+    // TODO: shoudl I put this below to LoadTiLinkedObj?
+    // It is sames a litter bit violence -_-! so put here for now...
+    Ti.I18n.put(conf.i18n)
+
     // Vue instance
     let setup = TiVue.Setup(conf, store)
     if(Ti.IsInfo()) {
@@ -95,36 +99,38 @@ export class OneTiApp {
   //---------------------------------------
   async loadView(name, view) {
     // Load the module
-    let moInfo = await Ti.Load(view.moduleName)
+    let moInfo = await Ti.Load(view.modType)
     let moConf = await LoadTiLinkedObj(moInfo, {
       dynamicAlias: new Ti.Config.AliasMapping({
-        "^\./": view.moduleName + "/"
+        "^\./": view.modType + "/"
       })
     })
     let mo = TiVue.StoreConfig(moConf)
     this.$store().registerModule(name, mo)
     
     // Load the component
-    let comInfo = await Ti.Load(view.component)
+    let comInfo = await Ti.Load(view.comType)
     let comConf = await LoadTiLinkedObj(comInfo, {
       dynamicAlias: new Ti.Config.AliasMapping({
-        "^\./": view.component + "/"
+        "^\./": view.comType + "/"
       })
     })
+    // TODO: shoudl I put this below to LoadTiLinkedObj?
+    // It is sames a litter bit violence -_-! so put here for now...
+    Ti.I18n.put(comInfo.i18n)
+    // Setup ...
     let setup = TiVue.Setup(comConf)
-    let comName = Ti.Util.getLinkName(view.component)
+    let comName = Ti.Util.getLinkName(view.comType)
 
     _.map(setup.global.components, com=>{
       Vue.component(com.name, com)
     })
-    console.log(comName)
-    Vue.component(comName, setup.options)
-    Vue.component(comName, setup.options)
+    //console.log(comName)
     Vue.component(comName, setup.options)
     
     return {
-      com : comName,
-      mod : name
+      ...view,
+      comName
     }
   }
 }

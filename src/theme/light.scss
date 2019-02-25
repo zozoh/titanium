@@ -23,6 +23,10 @@ $bgcolor: (
   chip    : #e0e0e0,
   default : #fafafa
 );
+$bg-overlay: (
+  primary   : rgba(0,0,0,0.08),
+  secondary : rgba(0,0,0,0.04)
+);
 //-----------------------------------------------------
 // Utility mixins
 @import "_sizing.scss";
@@ -30,6 +34,10 @@ $bgcolor: (
 @import "_default.scss";
 //-----------------------------------------------------
 // Include coms
+@import "com/_ti-crumb.scss";
 @import "com/_ti-obj-tiles.scss";
 @import "com/_ti-obj-thumb.scss";
+//-----------------------------------------------------
+// Include apps
+@import "com/_wn-manager.scss";
 

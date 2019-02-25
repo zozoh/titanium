@@ -34,6 +34,16 @@ function do_extend_setting(store, obj) {
 //---------------------------------------
 export const TiVue = {
   /***
+   * Install the Vue Plugin for i18n filter etc.
+   */
+  install() {
+    Vue.use({install:(Vue)=>{
+      Vue.filter("i18n", function(val){
+        return Ti.I18n.get(val)
+      })
+    }})
+  },
+  /***
   Generated a new configuration object for `Vuex.Store` to generated a new Vuex instance. It will build sub-modules deeply by invoke self recursively.
 
   @params

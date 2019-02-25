@@ -1,0 +1,68 @@
+// bordering
+.wn-manager {
+  .wnm-sky    {@include border(bottom);}
+  .wnm-aside  {@include border(right);}
+  .wnm-footer {@include border(top);}
+}
+// padding
+.wn-manager {
+  .wnm-logo   {padding:0 .12rem;}
+  .wnm-action {padding:0 .12rem;}
+  .wnm-aside  {padding: .12rem;}
+  .wnm-footer > * {padding:0 .1rem;}
+}
+// bgcolor
+.wn-manager {
+  .wnm-sky,
+  .wnm-aside,
+  .wnm-footer{
+    background:map-get($bg-overlay, primary);
+  }
+}
+// font-size & misc
+.wn-manager {
+  .wnm-title {
+    overflow:hidden;
+  }
+  .wnm-footer {
+    font-size: .12em; color:map-get($text-color, disabled);
+    .ti-icon {
+      font-size:1.2em; margin:0 .06rem 0 0;
+    }
+  }
+}
+// Sizing
+.wn-manager {
+  $SZ : (
+    sky    : .48rem,
+    aside  : 1.8rem,
+    footer : .32rem
+  );
+  width:100%; height:100%;
+  position:relative;
+  > * {position:absolute;}
+  > .wnm-sky {
+    @include pos((
+      l:0,t:0,w:100%,
+      h:map-get($SZ,sky))...);
+  }
+  > .wnm-aside {
+    @include pos((
+      l:0,
+      b:map-get($SZ,footer),
+      t:map-get($SZ,sky),
+      w:map-get($SZ,aside))...);
+  }
+  > .wnm-arena {
+    @include pos((
+      r:0,
+      l:map-get($SZ,aside),
+      t:map-get($SZ,sky),
+      b:map-get($SZ,footer))...);
+  }
+  > .wnm-footer {
+    @include pos((
+      l:0, b:0,r:0,
+      h:map-get($SZ,footer))...);
+  }
+}

@@ -1,4 +1,5 @@
 {
   "loadingComType" : "ti-obj-loading",
-  "mainComType"    : null
+  "mainView" : null,
+  "status"   : null
 }
