@@ -21,5 +21,11 @@ export const WnUtil = {
       type : "image",
       value : '/o/thumbnail/id:' + it.id
     }
+  },
+  /***
+   * return the object readable name
+   */
+  getObjDisplayName(meta) {
+    return meta.title || meta.nm
   }
 }

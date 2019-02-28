@@ -6,7 +6,8 @@
     <div class="wnm-title ti-flex-left ti-crumb">
       <ul>
         <li v-for="an in obj.ancestors" :key="an.id">
-          <a href="/">{{an.nm}}</a>
+          <a :href="getObjLink(an)"
+             @click.prevent="onOpen(an)">{{an.nm}}</a>
           <ti-icon value="chevron_right"/>
         </li>
         <li v-if="obj.meta">
@@ -35,7 +36,11 @@
     </section>
   </div>
   <div class="wnm-arena">
-    <component :is="mainComName" :data="mainData"/>
+    <component
+      class="ti-fill-parent" 
+      :is="mainComName"
+      :data="mainData"
+      @open="onOpen"/>
   </div>
   <div class="wnm-footer ti-flex-cols-3">
     <div class="wnm-info ti-flex-center">

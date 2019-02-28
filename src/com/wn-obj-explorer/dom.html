@@ -1,5 +1,7 @@
 <div class="ti-obj-explore">
-  <ti-obj-tiles 
+  <ti-obj-tiles class="ti-fill-parent"
     :list="objList"
-    @selected="onSelectedItem"></ti-obj-tiles>
+    @selected="onItemSelected"
+    @open="onItemOpen"
+    @blur="onItemBlur"/>
 </div>

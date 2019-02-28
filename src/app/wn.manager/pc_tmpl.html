@@ -73,8 +73,15 @@ async function main(){
   //console.log(app)
   app.commit("wn-session/set", _app.session)
   app.mountTo("#app")
-  await app.dispatch("wn-obj-meta/reload", "~/tmp")
+
+  // main obj path
+  let basePath = "~"
+  if(_app.obj) {
+    basePath = "id:" + _app.obj.id
+  }
+  await app.dispatch("wn-obj-meta/reload", basePath)
   
+  // just for fun
   return app.get("obj")
 }
 //---------------------------------------

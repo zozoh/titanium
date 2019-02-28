@@ -1,4 +1,7 @@
-<div class="ti-obj-thumb" :class="classObject" @click.stop="$emit('selected', index)">
+<div class="ti-obj-thumb" 
+    :class="classObject" 
+    @click.stop="onTopSelect"
+    @dblclick.stop="onTopOpen">
   <header>
     <div as-preview>
       <template v-if="preview.type=='image'">

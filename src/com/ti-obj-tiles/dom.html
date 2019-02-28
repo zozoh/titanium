@@ -1,4 +1,4 @@
-<div class="ti-obj-tiles" @click="onClickBody">
+<div class="ti-obj-tiles" @click="onThumbBlur">
   <div :class="tilesUlClass" class="ti-obj-tiles-con">
     <div v-for="(it, index) in list" :key="it.id"
       class="ti-obj-tiles-item"
@@ -11,7 +11,8 @@
           :title="it.title"
           :preview="it.preview"
           :highlight="it.selected"
-          @selected="onItemSelected"></ti-obj-thumb>
+          @selected="onThumbSelected"
+          @open="onThumbOpen"/>
       </slot>
     </div>
   </div>

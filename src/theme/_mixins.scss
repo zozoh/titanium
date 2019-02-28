@@ -1,3 +1,7 @@
+@mixin noselect(){
+  user-select:none;
+}
+//-------------------------------------------------------------
 @mixin flex($jc:flex-start,$ai:flex-start,$wp:wrap,$ac:stretch) {
   display: flex;
   justify-content: $jc;

@@ -1,9 +1,12 @@
 export default {
-  onItemSelected(index){
-    //console.log("--------------------", arg)
-    this.$emit("selected", index)
+  onThumbSelected(index, mode){
+    //console.log("--------------------", index)
+    this.$emit("selected", index, mode)
   },
-  onClickBody(){
-    console.log("click body")
+  onThumbOpen(index) {
+    this.$emit("open", index)
+  },
+  onThumbBlur() {
+    this.$emit("blur")
   }
 }

@@ -2,7 +2,7 @@ export default {
   // The text to present the object
   title : {
     type : String,
-    default : ()=>null
+    default : null
   },
   // The URL of thumb
   preview : {

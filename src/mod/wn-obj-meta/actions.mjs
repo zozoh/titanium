@@ -41,9 +41,21 @@ export default {
   },
     /***
    * Load obj meta/ancestors/children/content
+   * 
+   * @param str{String|Object} : string as the path,
+   *        object is the meta
    */
   async reload({state, dispatch}, str) {
-    await dispatch("loadMeta", str)
-    await dispatch("loadAncestors")
+    if(_.isString(str)) {
+      await dispatch("loadMeta", str)
+      await dispatch("loadAncestors")
+    }
+    // Object as the meta object
+    else if(_.isPlainObject(str)) {
+      await dispatch("loadAncestors", str)
+    }
+    // return the curent meta anyway
+    console.log("state.meta", state.meta.ph)
+    return state.meta
   }
 }

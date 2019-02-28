@@ -26,25 +26,6 @@ a:hover {
   text-decoration: underline;
 }
 //...................................................
-.ti-ul-reset {@include ul;}
-.ti-ul-align-left   {@include ul(left);}
-.ti-ul-align-center {@include ul(center);}
-.ti-ul-align-right  {@include ul(right);}
-//...................................................
-.ti-flex-cols-3 {
-  @include flex-align($wp:nowrap);
-  > * {flex:0 0 auto;}
-  > *:nth-child(2) {flex:1 1 auto;}
-}
-// make children fit full area
-.ti-flex-fit {
-  @include flex(center,stretch,nowrap);
-  > * {flex:1 1 auto;}
-}
-.ti-flex-left   {@include flex-center($jc:flex-start,$wp:nowrap);}
-.ti-flex-center {@include flex-center;}
-.ti-flex-right  {@include flex-center($jc:flex-end,$wp:nowrap);}
-//...................................................
 @each $key, $value in $screen-min-widths {
   @media (min-width:$value) {
     body {
@@ -53,6 +34,3 @@ a:hover {
   }
 }
 //...................................................
-.main-body {
-  overflow:hidden;
-}

@@ -24,6 +24,24 @@ a:hover {
   color: #ff4081;
   text-decoration: underline; }
 
+@media (min-width: 0) {
+  body {
+    font-size: 12px; } }
+@media (min-width: 576px) {
+  body {
+    font-size: 12px; } }
+@media (min-width: 768px) {
+  body {
+    font-size: 13px; } }
+@media (min-width: 992px) {
+  body {
+    font-size: 14px; } }
+@media (min-width: 1200px) {
+  body {
+    font-size: 14px; } }
+.main-body {
+  overflow: hidden; }
+
 .ti-ul-reset {
   list-style: none;
   padding: 0;
@@ -100,23 +118,9 @@ a:hover {
   align-content: center;
   flex-wrap: nowrap; }
 
-@media (min-width: 0) {
-  body {
-    font-size: 12px; } }
-@media (min-width: 576px) {
-  body {
-    font-size: 12px; } }
-@media (min-width: 768px) {
-  body {
-    font-size: 13px; } }
-@media (min-width: 992px) {
-  body {
-    font-size: 14px; } }
-@media (min-width: 1200px) {
-  body {
-    font-size: 14px; } }
-.main-body {
-  overflow: hidden; }
+.ti-fill-parent {
+  width: 100%;
+  height: 100%; }
 
 .ti-crumb > ul {
   list-style: none;
@@ -175,13 +179,14 @@ a:hover {
       margin: .32rem; }
 
 .ti-obj-thumb {
-  width: 1rem;
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
   align-content: stretch;
   flex-wrap: nowrap;
-  flex-direction: column; }
+  flex-direction: column;
+  user-select: none;
+  width: 1rem; }
   .ti-obj-thumb > header {
     display: flex;
     justify-content: center;

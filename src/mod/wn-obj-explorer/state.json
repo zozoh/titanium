@@ -1,6 +1,7 @@
 {
   "meta": null,
   "children" : [],
+  "currentIndex" : 0,
   "pager" : {
     "pageNumber" : -1,
     "pageSize" : -1,

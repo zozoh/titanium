@@ -1,6 +1,7 @@
 .ti-obj-thumb {
-  width:1rem;
   @include flex-align-v($wp:nowrap);
+  @include noselect();
+  width:1rem;
   > header {
     @include flex-full(1 1 auto);
     padding:.06rem 0 .02rem 0;

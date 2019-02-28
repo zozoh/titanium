@@ -18,6 +18,7 @@
   }],
   "methods" : "./methods.mjs",
   "watch" : "./watchers.mjs",
+  "hooks" : "./hooks.mjs",
   "store" : {
     "modules" : [
       "@mod:wn-session",
