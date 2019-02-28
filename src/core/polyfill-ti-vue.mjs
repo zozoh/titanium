@@ -172,9 +172,9 @@ export const TiVue = {
         })
         return coms
       })(),
-      // Composition
-      ..._.mapValues(
-          Composition, v=>Ti.Util.merge({}, v)),
+      ...Composition,
+      // ..._.mapValues(
+      //     Composition, v=>Ti.Util.merge({}, v)),
       ... Misc
     }
 

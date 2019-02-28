@@ -1,26 +1,4 @@
-export default {
-  /***
-   * compute the obj link
-   */
-  getObjLink(meta) {
-    return '/a/open/wn.manager?ph=id:'+meta.id
-  },
-  onOpen(meta) {
-    let vm = this
-    vm.$store.dispatch("wn-obj-meta/reload", meta).then((meta)=>{
-      let his = window.history
-      if(his) {
-        let newLink = vm.getObjLink(meta)
-        let title =  Wn.Util.getObjDisplayName(meta)
-        console.log(title , "->", newLink)
-        his.pushState(meta, title, newLink)
-      }
-    })
-  },
-  /***
-   * It will reload main moudle by obj.meta
-   */
-  reloadMain(meta) {
+export default function reloadMain(meta) {
     let vm = this
 
     // default meta
@@ -78,6 +56,5 @@ export default {
         // call main reload
         vm.$store.dispatch("main/reload", meta)
       })
-    }
+      }
   } // reloadMain
-}

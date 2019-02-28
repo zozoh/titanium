@@ -1,0 +1,55 @@
+export default {
+  props : {
+    // The text to present the object
+    title : {
+      type : String,
+      default : null
+    },
+    // The URL of thumb
+    preview : {
+      type : Object,
+      default : ()=>({
+        type : "icon",
+        value : "broken_image"
+      })
+    },
+    highlight : {
+      type : Boolean,
+      default : false
+    },
+    index : {
+      type : Number,
+      default : -1
+    }
+  },
+  computed : {
+    classObject() {
+      let vm = this
+      return {
+        "is-highlight"  : vm.highlight,
+        "is-renameable" : vm.renameable
+      }
+    }
+  },
+  methods : {
+    onTopSelect(eo) {
+      let vm = this
+      let mode = "active"
+      // shift key on: batch
+      if(eo.shiftKey) {
+        mode = "shift"
+      }
+      // ctrl key on: toggle
+      else if(eo.ctrlKey || eo.metaKey) {
+        mode = "toggle"
+      }
+      vm.$emit('selected', vm.index, mode)
+    },
+    onTopOpen(eo) {
+      let vm = this
+      if(vm.highlight) {
+        vm.$emit('open', vm.index)
+      }
+    }
+  }
+}

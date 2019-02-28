@@ -1,7 +1,5 @@
 {
   "globally" : true,
-  "template" : "./dom.html",
-  "computed" : "./computed.mjs",
-  "methods"  : "./methods.mjs",
-  "props" : "./props.mjs"
+  "template" : "./wn-obj-explorer.html",
+  "mixins" : ["./wn-obj-explorer.mjs"]
 }

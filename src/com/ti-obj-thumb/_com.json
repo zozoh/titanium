@@ -1,7 +1,5 @@
 {
   "globally" : true,
-  "template" : "./dom.html",
-  "props" : "./props.mjs",
-  "computed" : "./computed.mjs",
-  "methods" : "./methods.mjs"
+  "template" : "./ti-obj-thumb.html",
+  "mixins" : ["./ti-obj-thumb.mjs"]
 }

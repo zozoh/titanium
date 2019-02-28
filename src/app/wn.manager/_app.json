@@ -1,10 +1,9 @@
 {
   "name" : "wn.manager",
-  "data" : "./data.json",
-  "template" : "./dom.html",
   "theme" : "@theme:light",
   "i18n" : "@i18n:wn-manager",
-  "computed" : ["./computed.mjs", {
+  "template" : "./wn-manager.html",
+  "computed" : [{
     "...wn-session" : {
       "getters" : {
         "me" : "get"
@@ -16,9 +15,10 @@
       }      
     }
   }],
-  "methods" : "./methods.mjs",
-  "watch" : "./watchers.mjs",
-  "hooks" : "./hooks.mjs",
+  "methods" : {
+    "reloadMain" : "./reload_main.mjs"
+  },
+  "mixins" : ["./wn-manager.mjs"],
   "store" : {
     "modules" : [
       "@mod:wn-session",

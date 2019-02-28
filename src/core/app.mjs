@@ -121,7 +121,11 @@ export class OneTiApp {
     // Setup ...
     let setup = TiVue.Setup(comConf)
     let comName = Ti.Util.getLinkName(view.comType)
-
+    if(Ti.IsInfo()) {
+      console.log("TiApp.loadView:", comName)
+      console.log(" -- global:", setup.global)
+      console.log(" -- options:", setup.options)
+    }
     _.map(setup.global.components, com=>{
       Vue.component(com.name, com)
     })

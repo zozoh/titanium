@@ -1,4 +1,4 @@
 {
   "globally" : true,
-  "template" : "./dom.html"
+  "template" : "./ti-obj-loading.html"
 }

@@ -1,0 +1,5 @@
+{
+  "globally" : true,
+  "template" : "./wn-pure-text.html",
+  "mixins" : ["./wn-pure-text.mjs"]
+}
