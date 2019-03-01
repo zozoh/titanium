@@ -1,5 +1,0 @@
-{
-  "globally" : true,
-  "template" : "./ti-obj-thumb.html",
-  "mixins" : ["./ti-obj-thumb.mjs"]
-}

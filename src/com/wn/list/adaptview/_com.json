@@ -1,0 +1,6 @@
+{
+  "name" : "wn-list-adaptview",
+  "globally" : true,
+  "template" : "./wn-list-adaptview.html",
+  "mixins" : ["./wn-list-adaptview.mjs"]
+}

@@ -1,0 +1,8 @@
+{
+  "name" : "ti-layout-block",
+  "globally" : true,
+  "template" : "./dom.html",
+  "props" : "./props.mjs",
+  "computed" : "./computed.mjs",
+  "methods" : "./methods.mjs"
+}

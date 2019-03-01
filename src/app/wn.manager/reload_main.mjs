@@ -22,28 +22,18 @@ export default function reloadMain(meta) {
       // Folder
       if('DIR' == meta.race) {
         mainView.comIcon = "im-folder-open"
-        mainView.comType = "@com:wn-obj-explorer"
-        mainView.modType = "@mod:wn-obj-explorer"
+        mainView.comType = "@com:wn/list/adaptview"
+        mainView.modType = "@mod:wn/obj-explorer"
       }
       // Text
-      else if(/^text\//.test(meta.mime)) {
-        mainView.comType = "@com:ti-obj-text"
-        mainView.modType = "@mod:wn-obj-binary"
+      else if(/^text\//.test(meta.mime) || "application/x-javascript" == meta.mime) {
+        mainView.comType = "@com:wn/obj/puretext"
+        mainView.modType = "@mod:wn/obj-as-text"
       }
-      // Image
-      else if(/^image\//.test(meta.mime)) {
-        mainView.comType = "@com:ti-obj-image"
-        mainView.modType = "@mod:wn-obj-binary"
-      }
-      // Video
-      else if(/^video\//.test(meta.mime)) {
-        mainView.comType = "@com:ti-obj-video"
-        mainView.modType = "@mod:wn-obj-binary"
-      }
-      // Others
+      // Others like Image/Video or another binary stream
       else {
-        mainView.comType = "@com:ti-obj-binary"
-        mainView.modType = "@mod:wn-obj-binary"
+        mainView.comType = "@com:wn/obj/preview"
+        mainView.modType = "@mod:wn/obj-as-binary"
       }
       // Register Module
       //console.log(mainView)

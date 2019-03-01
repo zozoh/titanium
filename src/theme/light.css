@@ -143,39 +143,39 @@ a:hover {
   .ti-crumb > ul li > b {
     color: rgba(0, 0, 0, 0.87); }
 
-.ti-obj-tiles > .ti-obj-tiles-con {
+.ti-set-tiles > .ti-obj-tiles-con {
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
   align-content: stretch;
   flex-wrap: wrap; }
-  .ti-obj-tiles > .ti-obj-tiles-con > .ti-obj-tiles-item {
+  .ti-set-tiles > .ti-obj-tiles-con > .ti-obj-tiles-item {
     display: flex;
     justify-content: flex-start;
     align-items: stretch;
     align-content: stretch;
     flex-wrap: wrap; }
-    .ti-obj-tiles > .ti-obj-tiles-con > .ti-obj-tiles-item > * {
+    .ti-set-tiles > .ti-obj-tiles-con > .ti-obj-tiles-item > * {
       flex: 1 1 auto; }
-  .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-xs {
+  .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xs {
     padding: 1px; }
-    .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-xs > * {
+    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xs > * {
       margin: 0; }
-  .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-sm {
+  .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-sm {
     padding: .08rem; }
-    .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-sm > * {
+    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-sm > * {
       margin: .08rem; }
-  .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-md {
+  .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-md {
     padding: .16rem; }
-    .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-md > * {
+    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-md > * {
       margin: .16rem; }
-  .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-lg {
+  .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-lg {
     padding: .24rem; }
-    .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-lg > * {
+    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-lg > * {
       margin: .24rem; }
-  .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-xl {
+  .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xl {
     padding: .32rem; }
-    .ti-obj-tiles > .ti-obj-tiles-con.ti-spacing-xl > * {
+    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xl > * {
       margin: .32rem; }
 
 .ti-obj-thumb {

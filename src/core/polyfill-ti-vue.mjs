@@ -52,19 +52,24 @@ export const TiVue = {
   @return A New Configuration Object
   */
   StoreConfig(conf={}) {
-    // Pick necessary fields
-    let sc = {
-      state : Ti.Util.genObj(conf.state),
-      mutations : Ti.Util.merge({}, conf.mutations),
-      actions   : Ti.Util.merge({}, conf.actions),
-      getters   : Ti.Util.merge({}, conf.getters)
+    // Build the baseline
+    let sc = Ti.Util.merge({}, conf.mixins);
+
+    // Pick the necessary fields
+    if(conf.state || !sc.state) {
+      sc.state = Ti.Util.genObj(conf.state)
     }
+    sc.getters   = _.assign(sc.getters,   Ti.Util.merge({}, conf.getters))
+    sc.mutations = _.assign(sc.mutations, Ti.Util.merge({}, conf.mutations))
+    sc.actions   = _.assign(sc.actions,   Ti.Util.merge({}, conf.actions))
+    
     // namespaced module
     if(conf.namespaced)
       sc.namespaced = true
+    
     // Join modules
     if(_.isArray(conf.modules) && conf.modules.length > 0) {
-      sc.modules = {}
+      sc.modules = sc.modules || {}
       for(let mc of conf.modules) {
         let mo = TiVue.StoreConfig(mc)
         sc.modules[mc.name] = mo

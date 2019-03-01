@@ -21,17 +21,17 @@
   "mixins" : ["./wn-manager.mjs"],
   "store" : {
     "modules" : [
-      "@mod:wn-session",
-      "@mod:wn-obj-meta"]
+      "@mod:wn/session",
+      "@mod:wn/obj-meta"]
   },
   "components" : [
-    "@com:ti-layout",
-    "@com:ti-obj-loading",
-    "@com:ti-icon",
-    "@com:ti-user-info",
-    "@com:ti-obj-tiles",
-    "@com:ti-obj-thumb",
-    "@com:ti-obj-meta"],
+    "@com:ti/layout",
+    "@com:ti/loading",
+    "@com:ti/icon",
+    "@com:ti/user/info",
+    "@com:ti/set/tiles",
+    "@com:ti/obj/thumb",
+    "@com:ti/obj/meta"],
   "deps" : [
     "@lib:walnut",
     "@deps:md/iconfont/material-icons.css",

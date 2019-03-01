@@ -1,0 +1,5 @@
+{
+  "name" : "ti-loading",
+  "globally" : true,
+  "template" : "./ti-loading.html"
+}

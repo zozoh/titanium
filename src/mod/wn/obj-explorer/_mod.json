@@ -1,0 +1,7 @@
+{
+  "name" : "wn-obj-explorer",
+  "namespaced" : true,
+  "state" : "./wn-obj-explorer.json",
+  "mutations" : "./woe-mutations.mjs",
+  "actions" : "./woe-actions.mjs"
+}

@@ -1,0 +1,6 @@
+{
+  "name" : "ti-text-raw",
+  "globally" : true,
+  "template" : "./ti-text-raw.html",
+  "mixins" : ["./ti-text-raw.mjs"]
+}

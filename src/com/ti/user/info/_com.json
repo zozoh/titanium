@@ -1,0 +1,6 @@
+{
+  "name" : "ti-user-info",
+  "globally" : true,
+  "template" : "./ti-user-info.html",
+  "mixins" : ["./ti-user-info.mjs"]
+}

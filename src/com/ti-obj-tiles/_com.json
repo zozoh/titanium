@@ -1,5 +1,0 @@
-{
-  "globally" : true,
-  "template" : "./ti-obj-tiles.html",
-  "mixins" : ["./ti-obj-tiles.mjs"]
-}

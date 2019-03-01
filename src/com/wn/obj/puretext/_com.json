@@ -1,0 +1,6 @@
+{
+  "name" : "wn-obj-puretext",
+  "globally" : true,
+  "template" : "./wn-obj-puretext.html",
+  "mixins" : ["./wn-obj-puretext.mjs"]
+}

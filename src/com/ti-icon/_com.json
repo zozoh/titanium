@@ -1,5 +1,0 @@
-{
-  "globally" : true,
-  "template" : "./ti-icon.html",
-  "mixins" : ["./ti-icon.mjs"]
-}

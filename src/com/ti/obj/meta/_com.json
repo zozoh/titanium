@@ -1,0 +1,7 @@
+{
+  "name" : "ti-obj-meta",
+  "globally" : true,
+  "template" : "./dom.html",
+  "props" : "./props.mjs",
+  "computed" : "./computed.mjs"
+}

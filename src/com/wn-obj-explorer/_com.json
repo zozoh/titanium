@@ -1,5 +1,0 @@
-{
-  "globally" : true,
-  "template" : "./wn-obj-explorer.html",
-  "mixins" : ["./wn-obj-explorer.mjs"]
-}

@@ -1,0 +1,15 @@
+.ti-set-tiles {
+  > .ti-obj-tiles-con {
+    @include flex-align;
+    > .ti-obj-tiles-item {
+      @include flex-align;
+      > * {flex:1 1 auto;}
+    }
+    &.ti-spacing-xs {padding:1px;     >* {margin:0;}}
+    &.ti-spacing-sm {padding:.08rem;  >* {margin:.08rem;}}
+    &.ti-spacing-md {padding:.16rem;  >* {margin:.16rem;}}
+    &.ti-spacing-lg {padding:.24rem;  >* {margin:.24rem;}}
+    &.ti-spacing-xl {padding:.32rem;  >* {margin:.32rem;}}}
+
+} // ~ .ti-obj-tiles
+

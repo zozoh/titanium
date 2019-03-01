@@ -1,0 +1,6 @@
+{
+  "name" : "wn-obj-preview",
+  "globally" : true,
+  "template" : "./wn-obj-preview.html",
+  "mixins" : ["./wn-obj-preview.mjs"]
+}
