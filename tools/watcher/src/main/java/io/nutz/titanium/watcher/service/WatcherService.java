@@ -198,14 +198,26 @@ public class WatcherService {
             if (Strings.isBlank(wb.cmdTmpl))
                 continue;
             try {
-                String cmd = Tmpl.parse(wb.cmdTmpl).render(new NutMap("dir", wb.paths[0]));
-                Lang.execOutput(cmd);
-                wb.lastRun = System.currentTimeMillis();
-                wb.lastNotify = wb.lastRun;
+                String cmd = Tmpl.parse(wb.cmdTmpl).render(Lang.obj2nutmap(wb));
+                executeCmd(cmd);
             }
             catch (Throwable e) {
                 log.warn("exec fail", e);
             }
+            wb.lastRun = System.currentTimeMillis();
+            wb.lastNotify = wb.lastRun;
+        }
+    }
+    
+    public void executeCmd(String cmd) throws IOException {
+        log.debug("exec " + cmd);
+        if (cmd.startsWith("*zdoc")) {
+            cmd = cmd.substring(5);
+            String[] args = Strings.splitIgnoreBlank(cmd, " ");
+            org.nutz.plugins.zdoc.NutzDocMain.main(args);
+        }
+        else {
+            Lang.execOutput(cmd);
         }
     }
 
