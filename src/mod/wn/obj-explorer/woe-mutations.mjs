@@ -19,12 +19,12 @@ export default {
    * Update the state 
    */
   set(state, {
-    ancestors, parent, children, meta, content, contentType
+    ancestors, parent, children, meta, pager, currentIndex
   }={}) {
     Ti.Util.setTo(state, {ancestors, children}, [])
-    Ti.Util.setTo(state, {parent, meta, content, contentType}, null)
+    Ti.Util.setTo(state, {parent, meta, pager, currentIndex}, null)
     // It really need to reset the current index if the children changed
-    if(children) {
+    if(children && !_.isNumber(currentIndex)) {
       state.currentIndex = 0
     }
   },

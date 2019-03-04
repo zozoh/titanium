@@ -1,14 +1,16 @@
 <div class="wn-manager">
   <div class="wnm-sky ti-flex-cols-3">
     <div class="wnm-logo ti-flex-center">
-      <ti-icon value="im-network"/>
+      <ti-icon class="center" 
+               value="im-network"
+               size="1.6em"/>
     </div>
     <div class="wnm-title ti-flex-left ti-crumb">
       <ul>
         <li v-for="an in obj.ancestors" :key="an.id">
           <a :href="getObjLink(an)"
              @click.prevent="onOpen(an)">{{an.nm}}</a>
-          <ti-icon value="chevron_right"/>
+          <ti-icon class="center" value="chevron_right"/>
         </li>
         <li v-if="obj.meta">
           <b>{{obj.meta.nm}}</b>
@@ -44,8 +46,8 @@
   </div>
   <div class="wnm-footer ti-flex-cols-3">
     <div class="wnm-info ti-flex-center">
-      <ti-icon :value="mainComIcon"/>
-      <span>{{mainComName|i18n}}</span>
+      <ti-icon class="center" :value="mainComIcon"/>
+      <span>{{mainComTypeName|i18n}}</span>
     </div>
     <div class="wnm-status ti-flex-center">
       <span>{{status}}</span>

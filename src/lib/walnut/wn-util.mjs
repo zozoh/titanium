@@ -1,4 +1,12 @@
+// Ti required(Ti.Icons)
+//---------------------------------------
 export const WnUtil = {
+  isMimeText(mime) {
+    return /^text\//.test(mime) 
+           || "application/x-javascript" == mime
+           || "application/json" == mime
+  },
+  // adapt for old versiton walnut icon attribute
   getIconName(iconHtml) {
     let m = /^<i +class=["'] *(fa|zmdi|im) +(fa|zmdi|im)-([^" ]+) *["']> *<\/i>$/
               .exec(iconHtml)
@@ -10,17 +18,40 @@ export const WnUtil = {
   /***
    * Gen preview object for a object
    */
-  genPreviewObj(it) {
-    if(it.icon) {
+  genPreviewObj(meta) {
+    // Uploaded thumb preview
+    if(meta.thumb) {
       return {
-        type  : "icon",
-        value : WnUtil.getIconName(it.icon)
+        type : "image",
+        value : '/o/thumbnail/id:' + meta.id
       }
     }
-    return {
-      type : "image",
-      value : '/o/thumbnail/id:' + it.id
+    // Customized Icon
+    if(meta.icon) {
+      return {
+        type  : "icon",
+        value : WnUtil.getIconName(meta.icon)
+      }
     }
+    // Default
+    return Ti.Icons.get(meta)
+  },
+  getIconObj(meta) {
+    if(meta && meta.icon) {
+      // customized icon object
+      if(_.isPlainObject(meta.icon)) {
+        return _.assign(
+          Ti.Icons.get()
+          , meta.icon)
+      }
+      // customized icon name
+      return {
+        type  : "font",
+        value : WnUtil.getIconName(meta.icon)
+      }
+    }
+    // return default
+    return Ti.Icons.get(meta)
   },
   /***
    * return the object readable name

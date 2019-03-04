@@ -1,8 +1,19 @@
 export default {
   props : {
+    type : {
+      type : String,
+      default : "font"
+    },
     value : {
       type : String,
       default : ""
+    },
+    data :{
+      type : Object,
+      default : ()=>({
+        type  : "font",
+        value : "zmdi-dribbble"
+      })
     },
     size : {
       type : [Number, String],
@@ -18,18 +29,25 @@ export default {
     }
   },
   computed : {
-    isLiga() {
-      return !/^([a-z]+)-/.test(this.value)
+    isFont() {
+      return this.data.type == "font"
     },
-    classObject() {
-      let vm = this
-      let m = /^([a-z]+)-(.+)$/.exec(vm.value)
+    isFontLiga() {
+      let val = this.fontValue
+      return !/^([a-z]+)-/.test(val)
+    },
+    fontValue() {
+      return this.value || this.data.value
+    },
+    fontClassObject() {
+      let val = this.fontValue
+      let m = /^([a-z]+)-(.+)$/.exec(val)
       if(m) {
-        return m[1] + ' ' + vm.value
+        return m[1] + ' ' + val
       }
       return "material-icons"
     },
-    styleObject() {
+    fontStyleObject() {
       let vm = this
       let re = {}
       if(vm.size) {

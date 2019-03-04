@@ -1,3 +1,5 @@
+// Ti required(Wn)
+//---------------------------------------
 export default function reloadMain(meta) {
     let vm = this
 
@@ -7,7 +9,10 @@ export default function reloadMain(meta) {
     }
 
     // Switch to Loading component
-    vm.mainComType = vm.loadingComType
+    vm.mainView = {
+      comIcon : "zmdi-more",
+      comName : vm.loadingCom
+    }
     // then try to unregisterModule safely
     try{
       vm.$store.unregisterModule("main")
@@ -21,17 +26,19 @@ export default function reloadMain(meta) {
       }
       // Folder
       if('DIR' == meta.race) {
-        mainView.comIcon = "im-folder-open"
+        mainView.comIcon = "im-archive"
         mainView.comType = "@com:wn/list/adaptview"
         mainView.modType = "@mod:wn/obj-explorer"
       }
       // Text
-      else if(/^text\//.test(meta.mime) || "application/x-javascript" == meta.mime) {
+      else if(Wn.Util.isMimeText(meta.mime)) {
+        mainView.comIcon = "im-edit"
         mainView.comType = "@com:wn/obj/puretext"
         mainView.modType = "@mod:wn/obj-as-text"
       }
       // Others like Image/Video or another binary stream
       else {
+        mainView.comIcon = "im-eye"
         mainView.comType = "@com:wn/obj/preview"
         mainView.modType = "@mod:wn/obj-as-binary"
       }
@@ -40,7 +47,9 @@ export default function reloadMain(meta) {
 
       // Load moudle/component
       vm.$app.loadView("main", mainView).then((view)=>{
-        console.log(view)
+        if(Ti.IsInfo()) {
+          console.log("TiView Loaded:", view)
+        }
         // switch to main component
         vm.mainView = view
         // call main reload

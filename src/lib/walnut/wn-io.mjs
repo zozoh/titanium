@@ -1,3 +1,5 @@
+import {WnUtil} from "./wn-util.mjs"
+//---------------------------------------
 // Ti required(Ti.Http)
 //---------------------------------------
 function URL(actionName) {
@@ -82,16 +84,16 @@ export const WnIo = {
    * 
    * - `DIR`   : null
    * - `text`  : PureText
-   * - `json`  : JSON Object
+   * - `json`  : Pure Text
    * - `image` : SHA1 finger
    */
-  async loadContent(meta) {
+  async loadContentAsText(meta) {
     if(!meta || 'DIR' == meta.race) {
       return null
     }
     let mime = meta.mime || 'application/octet-stream'
     // PureText
-    if(_.startsWith(mime, "text/") || "application/json" == mime) {
+    if(WnUtil.isMimeText(mime)) {
       let url = URL("content")
       let text = await Ti.Http.get(url, {
         params: {
@@ -99,10 +101,6 @@ export const WnIo = {
           d   : "raw"
         }, 
         as:"text"})
-      // For JSON 
-      if(mime.indexOf("json") >= 0) {
-        return JSON.parse(text)
-      }
       // Others just return pure text content
       return text
     }

@@ -7,6 +7,7 @@ import {TiCss    as Css     } from "./css.mjs"
 import {TiLoad   as Load    } from "./load.mjs"
 import {TiHttp   as Http    } from "./http.mjs"
 import {Ti18n    as I18n    } from "./i18n.mjs"
+import {TiIcons  as Icons   } from "./icons.mjs"
 import {Tinstall as Install } from "./install.mjs"
 //---------------------------------------
 const ENV = {
@@ -24,7 +25,7 @@ const LogLevels = {
 //---------------------------------------
 export const Ti = {
   Util, App, Err, Config, Dom, Css, Load, Http, 
-  I18n, Install,
+  Icons, I18n, Install,
   //.....................................
   Version() {return "1.0"},
   //.....................................

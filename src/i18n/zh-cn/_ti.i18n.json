@@ -1,4 +1,5 @@
 {
   "logout" : "退出",
-  "login"  : "登录"
+  "login"  : "登录",
+  "no-title" : "无标题"
 }

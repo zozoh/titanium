@@ -13,7 +13,7 @@
   @include flex($jc,$ai,$wp,$ac);
 }
 @mixin flex-full($fx) {
-  @include flex(center,center,nowrap);
+  @include flex(center,stretch,nowrap);
   flex: $fx;
 }
 @mixin flex-align($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {

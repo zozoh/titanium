@@ -1,0 +1,25 @@
+.ti-text-raw {
+  @include flex-align-v;
+  .te-head {
+    flex:0 0 auto;
+    padding:0 .1rem;
+    color:map-get($text-color, primary);
+    @include flex-align($ai:center);
+    > .ti-icon {
+      padding:0 .08rem 0 0; font-size:1.4em;
+    }
+    > b {font-weight:normal;}
+  }
+  .te-main {
+    @include flex-full(1 1 auto);
+    padding:.04rem;
+    textarea {
+      @include flex-full(1 1 auto);
+      resize:none; outline:none;
+      border:1px solid map-get($color,divider); 
+      padding:.1rem;
+      font-family: Monaco, Consolas, Courier New;
+      font-size:.16rem; line-height:.2rem;
+    }
+  }
+}

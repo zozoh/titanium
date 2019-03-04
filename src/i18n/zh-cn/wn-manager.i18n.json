@@ -1,3 +1,5 @@
 {
-  "wn-obj-explorer" : "对象浏览器"
+  "wn-list-adaptview" : "对象浏览器",
+  "wn-obj-puretext"   : "纯文本编辑器",
+  "wn-obj-preview"    : "对象预览"
 }

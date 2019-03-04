@@ -1,8 +1,8 @@
 export default {
   data : ()=>({
-    "loadingComType" : "ti-obj-loading",
-    "mainView" : null,
-    "status"   : null
+    "loadingCom" : "ti-loading",
+    "mainView"   : null,
+    "status"     : null
   }),
   //////////////////////////////////////////////
   watch : {
@@ -18,7 +18,6 @@ export default {
   },
   //////////////////////////////////////////////
   mounted : function(){
-    console.log("hahahahahahahaha=============")
     let vm = this
     window.onpopstate = function({state}){
       let meta = state
@@ -37,8 +36,15 @@ export default {
     mainComName() {
       return this.mainView ? this.mainView.comName : null
     },
+    mainComTypeName() {
+      let comType = this.mainView ? this.mainView.comType : null
+      let m = /^(@[a-z]+:)?(.+)$/.exec(comType)
+      if(m) {
+        return m[2].replace(/\//g,"-")
+      }
+    },
     mainModType() {
-      return this.mainView ? this.mainView.comType : null
+      return this.mainView ? this.mainView.modType : null
     }
   },
   //////////////////////////////////////////////

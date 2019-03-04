@@ -2,5 +2,5 @@
   "name" : "wn-obj-as-binary",
   "namespaced" : true,
   "state" : "./wn-obj-as-binary.json",
-  "mixins" : ["wn-obj-as-binary.mjs"]
+  "mixins" : ["./wn-obj-as-binary.mjs"]
 }
