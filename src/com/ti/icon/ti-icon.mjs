@@ -43,6 +43,11 @@ export default {
       let val = this.fontValue
       let m = /^([a-z]+)-(.+)$/.exec(val)
       if(m) {
+        // fontawsome
+        if(/^fa[a-z]$/.test(m[1])) {
+          return m[1] + ' fa-' + m[2]
+        }
+        // Other font libs
         return m[1] + ' ' + val
       }
       return "material-icons"

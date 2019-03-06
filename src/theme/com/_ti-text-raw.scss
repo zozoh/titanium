@@ -2,7 +2,7 @@
   @include flex-align-v;
   .te-head {
     flex:0 0 auto;
-    padding:0 .1rem;
+    padding:.04rem .12rem 0 .12rem;
     color:map-get($text-color, primary);
     @include flex-align($ai:center);
     > .ti-icon {

@@ -1,24 +1,28 @@
 //-----------------------------------
 const TYPES = {
   "apk"  : {type:"font",value:"zmdi-android-alt"},
-  "gif"  : {type:"font",value:"zmdi-gif"},
-  "rss"  : {type:"font",value:"zmdi-rss"},
-  "js"   : {type:"font",value:"zmdi-language-javascript"},
-  "xml"  : {type:"font",value:"zmdi-code"},
-  "py"   : {type:"font",value:"zmdi-language-python"},
-  "json" : {type:"font",value:"zmdi-quote"},
+  "rss"  : {type:"font",value:"fas-rss-square"},
+  "js"   : {type:"font",value:"fab-js-square"},
+  "xml"  : {type:"font",value:"far-file-code"},
+  "py"   : {type:"font",value:"fab-python"},
+  "json" : {type:"font",value:"fas-quote-right"},
+  "tar"  : {type:"font",value:"far-file-archive"},
+  "gz"   : {type:"font",value:"fas-file-archive"},
+  "tgz"  : {type:"font",value:"fas-file-archive"},
+  "rar"  : {type:"font",value:"fas-file-archive"},
+  "7z"   : {type:"font",value:"fas-file-archive"},
+  "zip"  : {type:"font",value:"fas-file-archive"}
 }
 //-----------------------------------
 const MIMES = {
-  "audio"       : {type:"font", value:"zmdi-audio"},
-  "image"       : {type:"font", value:"zmdi-image-o"},
-  "text"        : {type:"font", value:"zmdi-file-text"},
-  "video"       : {type:"font", value:"zmdi-movie"},
-  "application" : {type:"font", value:"zmdi-toys"},
-  "text/css"    : {type:"font", value:"zmdi-language-css3"},
-  "text/html"   : {type:"font", value:"zmdi-language-html5"},
-  "application/x-javascript" : {type:"font", value:"zmdi-language-javascript"},
-  "text/javascript" : {type:"font", value:"zmdi-language-javascript"},
+  "audio"       : {type:"font", value:"far-file-audio"},
+  "image"       : {type:"font", value:"far-file-image"},
+  "text"        : {type:"font", value:"far-file-alt"},
+  "video"       : {type:"font", value:"far-file-video"},
+  "text/css"    : {type:"font", value:"fab-css3"},
+  "text/html"   : {type:"font", value:"fab-html5"},
+  "application/x-javascript" : {type:"font", value:"fab-js-square"},
+  "text/javascript"          : {type:"font", value:"fab-js-square"},
 }
 //-----------------------------------
 const NAMES = {
@@ -32,8 +36,9 @@ const NAMES = {
 }
 //-----------------------------------
 const RACES = {
-  "FILE" : {type:"font", value:"im-file-o"},
-  "DIR"  : {type:"font", value:"im-folder"},
+  "FILE" : {type:"font", value:"far-file"},
+  //"DIR"  : {type:"font", value:"zmdi-folder-outline"},
+  "DIR"  : {type:"font", value:"fas-folder"},
 }
 //-----------------------------------
 const ALL = {
@@ -65,8 +70,18 @@ export const TiIcons = {
     }
     // Base on the type
     let {tp, mime, race, name} = icon
+    // fallback to the mime Group Name
+    // 'text/plain' will be presented as 'text'
+    let mimeGroup = null
+    if(mime) {
+      let m = /^([a-z0-9]+)\/(.+)$/.exec(mime)
+      if(m) {
+        mimeGroup = m[1]
+      }
+    }
     return _.assign({}, TYPES[tp] 
-           || MIMES[mime] 
+           || MIMES[mime]
+           || MIMES[mimeGroup] 
            || RACES[race]
            || NAMES[name]
            || DEFAULT)

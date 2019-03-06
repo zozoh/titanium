@@ -218,7 +218,7 @@ a:hover {
         width: 100%;
         height: 100%; }
       .ti-obj-thumb > header > [as-preview] > .ti-icon i {
-        font-size: .64rem; }
+        font-size: .52rem; }
   .ti-obj-thumb > footer {
     flex: 1 1 auto;
     padding: .04rem;
@@ -249,7 +249,7 @@ a:hover {
   flex-direction: column; }
   .ti-text-raw .te-head {
     flex: 0 0 auto;
-    padding: 0 .1rem;
+    padding: .04rem .12rem 0 .12rem;
     color: rgba(0, 0, 0, 0.87);
     display: flex;
     justify-content: flex-start;

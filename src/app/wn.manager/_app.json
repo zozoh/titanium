@@ -36,6 +36,7 @@
     "@lib:walnut",
     "@deps:md/iconfont/material-icons.css",
     "@deps:zmdi/css/material-design-iconic-font.css",
+    "@deps:fontawesome/5.7.2-web/css/all.css",
     "@deps:iconmonstr/css/iconmonstr-iconic-font.css"
   ]
 }
