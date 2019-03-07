@@ -8,6 +8,7 @@ import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
+import org.nutz.lang.Lang;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.annotation.At;
@@ -16,28 +17,32 @@ import org.nutz.mvc.annotation.Ok;
 import io.nutz.titanium.watcher.bean.WatcherBean;
 import io.nutz.titanium.watcher.service.WatcherService;
 
-@IocBean(create="init", depose="depose")
+@IocBean(create = "init", depose = "depose")
 public class MainLauncher {
-    
+
     private static final Log log = Logs.get();
-    
+
     @Inject
     protected PropertiesProxy conf;
-    
+
     @Inject("refer:$ioc")
     protected Ioc ioc;
-    
+
     @Inject
     protected WatcherService ws;
-    
+
     @At("/")
     @Ok("->:/index.html")
     public void index() {}
-    
+
     public void init() {
-        File dir = new File(conf.get("jwatcher.confpath", "./"));
+        String confPath = conf.get("jwatcher.confpath", "./");
+        File dir = new File(confPath);
         if (!dir.exists()) {
-            throw new RuntimeException("confpath=" + dir.getPath() +" not exsits!!");
+            throw Lang.makeThrow("confpath=%s not exsits!!", confPath);
+        }
+        if (!dir.isDirectory()) {
+            throw Lang.makeThrow("confpath=%s should be a directory!!", confPath);
         }
         for (File f : dir.listFiles()) {
             if (!f.isFile())
@@ -52,6 +57,7 @@ public class MainLauncher {
             }
         }
     }
+
     public void depose() {}
 
     public static void main(String[] args) throws Exception {
