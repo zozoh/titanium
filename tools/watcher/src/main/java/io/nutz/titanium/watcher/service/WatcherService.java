@@ -34,6 +34,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -174,7 +175,9 @@ public class WatcherService {
             for (Map.Entry<String, Object> en : wbmap.entrySet()) {
                 String k = en.getKey();
                 String p = dir.toFile().getAbsolutePath();
-                if (p.startsWith(k)) {
+                String k2 = Disks.getCanonicalPath(k);
+                String p2 = Disks.getCanonicalPath(p);
+                if (p2.startsWith(k2)) {
                     List<WatcherBean> list = (List<WatcherBean>) en.getValue();
                     for (WatcherBean wb : list) {
                         wb.lastNotify = System.currentTimeMillis();

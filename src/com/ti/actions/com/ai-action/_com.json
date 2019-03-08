@@ -1,0 +1,5 @@
+{
+  "name" : "ai-action",
+  "template" : "./ai-action.html",
+  "mixins" : ["./ai-action.mjs"]
+}

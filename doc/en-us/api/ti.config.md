@@ -7,7 +7,7 @@ tags:
 ---
 
 -------------------------------------------------
-# `ti.config` Global Configuration
+# `ti.config` Global Configuration  
 
 - [set](#ti.config.set) : Set new [GCO](#GCO) to global.
 - [update](#ti.config.update) : Update new [GCO](#GCO) to global.

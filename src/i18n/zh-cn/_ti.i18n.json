@@ -1,5 +1,11 @@
 {
-  "logout" : "退出",
+  "loading" : "加载中...",
   "login"  : "登录",
-  "no-title" : "无标题"
+  "logout" : "退出",
+  "no-title" : "无标题",
+  "refresh" : "刷新",
+  "save" : "保存",
+  "save-now" : "立即保存",
+  "save-change" : "保存修改",
+  "saving" : "正在保存..."
 }

@@ -1,0 +1,52 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ti.ns</title>
+</head>
+<body>
+<article>
+<hr>
+<p>title : ti.ns<br>author: zozoh(zozohtnt@gmail.com)<br>tags:<br>- API<br>- method
+</p>
+<hr>
+<h1><code>ti.ns</code> 声明名称空间
+</h1>
+<p>在 <code>Titanium</code> 声明名称空间的方法。当然你可以用这个函数声明自己的具备 <code>Ti</code> 风格的名称空间。
+</p>
+<h2><code>ti.ns@params</code>
+</h2>
+<ul>
+<li><code>fullname{String}</code> : 名称空间全名，譬如 <code>ti.load</code>
+</li>
+<li><code>obj{Function|Object}</code> : 定义对象，可以是函数，也可以是一个对象表示一个方法集
+</li>
+</ul>
+<h2><code>ti.ns@return</code>
+</h2>
+<p><em>undefined</em>
+</p>
+<h2><code>ti.ns@usage</code>
+</h2>
+<pre code-type="js">// Declare a function set
+ti.ns(&quot;your.app.name&quot;, {
+    &quot;funcA&quot; : function(){/*..*/}
+    &quot;funcB&quot; : function(){/*..*/}
+})
+// Then you can:
+your.app.name.funcA()
+your.app.name.funcB()
+
+// Declare a method
+ti.ns(&quot;foo.bar&quot;, function(){
+    /*..*/
+})
+// Then you can:
+foo.bar()
+</pre>
+
+</article>
+</body>
+</html>

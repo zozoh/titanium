@@ -1,0 +1,147 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ti.use</title>
+</head>
+<body>
+<article>
+<hr>
+<p>title : ti.use<br>author: zozoh(zozohtnt@gmail.com)<br>tags:<br>- API<br>- method
+</p>
+<hr>
+<h1><code>ti.use</code> 资源加载
+</h1>
+<pre code-type="js">function(url, {type=&quot;auto&quot;}={})
+</pre>
+<p>资源加载，支持如下资源类型:
+</p>
+<table><thead>
+<tr><th>URL模式
+</th><th>加载方式
+</th><th>说明
+</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>*.js</code>
+</td>
+<td>script
+</td>
+<td>JS 脚本将会用 <code>&lt;script&gt;</code> 加载
+</td>
+</tr>
+<tr>
+<td><code>*.css</code>
+</td>
+<td>css
+</td>
+<td>CSS 文件将会用 <code>&lt;link&gt;</code> 加载
+</td>
+</tr>
+<tr>
+<td><code>*.json</code>
+</td>
+<td>json
+</td>
+<td>通过 <code>XmlHttpRequest</code> 对象加载，并将内容转换为 Json
+</td>
+</tr>
+<tr>
+<td><code>Any</code>
+</td>
+<td>text
+</td>
+<td>通过 <code>XmlHttpRequest</code> 对象加载
+</td>
+</tr>
+<tr>
+</tr>
+</tbody>
+</table>
+<blockquote>如果是自动模式 <code>mode=&quot;auto&quot;</code>，则会自动根据 <code>url</code> 按照上表进行推断
+</blockquote>
+<h2>@params
+</h2>
+<ul>
+<li><code>url{String}</code> : 资源的路径或者 <code>URL</code>
+</li>
+<li><code>mode{String}</code> : 指明加载方式 <code>script|css|json|text|auto</code>, 默认 <code>auto</code> 表示自动根据 <code>url</code> 推断
+</li>
+</ul>
+<h2>@return
+</h2>
+<p><em>Promise</em> 对象，其 <code>resolve</code> 的值为
+</p>
+<table><thead>
+<tr><th>加载方式
+</th><th>resolve 值
+</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>script
+</td>
+<td><code>&lt;script&gt;</code>
+</td>
+</tr>
+<tr>
+<td>css
+</td>
+<td><code>&lt;link&gt;</code>
+</td>
+</tr>
+<tr>
+<td>json
+</td>
+<td>Object
+</td>
+</tr>
+<tr>
+<td>text
+</td>
+<td>String
+</td>
+</tr>
+<tr>
+</tr>
+</tbody>
+</table>
+<h2>@usage
+</h2>
+<pre code-type="js">// 加载普通 JS 库，会在 &lt;head&gt; 最后增加 &lt;script&gt; 标签
+ti.use(&quot;/path/to.js&quot;)
+    .then(re =&gt; console.log(re))
+    .catch(err =&gt; console.warn(err))
+//=&gt; &lt;script&gt; Element
+
+// 加载普通 CSS 样式表
+ti.use(&quot;/path/to.css&quot;)
+    .then(re =&gt; console.log(re))
+    .catch(err =&gt; console.warn(err))
+//=&gt; &lt;link&gt; Element
+
+// 加载 JSON
+ti.use(&quot;/path/to.json&quot;)
+    .then(re =&gt; console.log(re))
+    .catch(err =&gt; console.warn(err))
+//=&gt; {..}
+
+// 加载文本，假设 to.text 内容为 `Hello Titanium`
+ti.use(&quot;/path/to.text&quot;)
+    .then(re =&gt; console.log(re))
+    .catch(err =&gt; console.warn(err))
+//=&gt; &quot;Hello Titanium&quot;
+
+// 强制加载 JSON 文本
+ti.use(&quot;/path/to.text&quot;, {mode:&quot;json&quot;})
+    .then(re =&gt; console.log(re))
+    .catch(err =&gt; console.warn(err))
+//=&gt; {..}
+</pre>
+
+</article>
+</body>
+</html>

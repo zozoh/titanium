@@ -25,6 +25,7 @@
       "@mod:wn/obj-meta"]
   },
   "components" : [
+    "@com:ti/actions",
     "@com:ti/layout",
     "@com:ti/loading",
     "@com:ti/icon",

@@ -20,6 +20,9 @@ export default {
   },
   //.....................................
   actions : {
+    save({state, commit, dispatch}) {
+      console.log("saving....")
+    },
     async reload({state, commit, dispatch}, meta) {
       // Use the default meta
       if(!meta) {

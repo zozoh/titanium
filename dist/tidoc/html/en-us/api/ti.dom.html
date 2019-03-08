@@ -1,0 +1,70 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ti.dom</title>
+</head>
+<body>
+<article>
+<hr>
+<p>title : ti.dom<br>author: zozoh(zozohtnt@gmail.com)<br>tags:<br>- API<br>- namespace
+</p>
+<hr>
+<hr>
+<h1><code>ti.dom</code> Overview
+</h1>
+<p>Provide a dom quick operation layer
+</p>
+<hr>
+<h1><code>createElement</code>
+</h1>
+<pre code-type="js">ti.dom.createElement({tagName=&quot;div&quot;, attrs={}, props={}, className=&quot;&quot;}, $doc=document):Element
+</pre>
+<h2>@params
+</h2>
+<ul>
+<li><code>options{Object}</code> : Element defination
+<ul>
+<li><code>tagName{String}</code> : Element Tag Name, default by <code>div</code>
+</li>
+<li><code>attr{Object}</code> : Attribute set for the element, default by empty
+</li>
+<li><code>props{Object}</code> : Properties set for the element, default by empty
+</li>
+<li><code>className{String}</code> : Class selector for the element, name splited by whitespace
+</li>
+</ul>
+</li>
+<li><code>$doc</code> : The Document Object which provided the <code>createElement</code> method really.
+</li>
+</ul>
+<h2>@return
+</h2>
+<p>New DOM Element, which not join the DOM tree yet.
+</p>
+<h2>@usage
+</h2>
+<pre code-type="js">const $div = ti.com.createElement({})
+// -&gt; &lt;div&gt;
+</pre>
+<hr>
+<h1><code>appendToHead</code>
+</h1>
+<pre code-type="js">ti.dom.appendToHead($el, $head=document.head) 
+</pre>
+<hr>
+<h1><code>findAll</code>
+</h1>
+<pre code-type="js">ti.dom.findAll(selector=&quot;*&quot;, $doc=document)
+</pre>
+<hr>
+<h1><code>find</code>
+</h1>
+<pre code-type="js">ti.dom.find(selector=&quot;*&quot;, $doc=document)
+</pre>
+
+</article>
+</body>
+</html>

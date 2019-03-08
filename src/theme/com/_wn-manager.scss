@@ -3,11 +3,16 @@
   .wnm-sky    {@include border(bottom);}
   .wnm-aside  {@include border(right);}
   .wnm-footer {@include border(top);}
+  .wnm-action .wnm-action-menu {@include border(left);}
 }
 // padding
 .wn-manager {
   .wnm-logo   {padding:0 .12rem;}
-  .wnm-action {padding:0 .12rem;}
+  .wnm-action {padding:0 .12rem;
+    > * {padding:0 .08rem;}
+    > *:first-child{padding-left:0;}
+    > *:last-child{padding-right:0;}
+  }
   .wnm-aside  {padding: .12rem;}
   .wnm-footer > * {padding:0 .1rem;}
 }

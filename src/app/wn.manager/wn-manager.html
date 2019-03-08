@@ -17,8 +17,13 @@
         </li>
       </ul>
     </div>
-    <div class="wnm-action ti-flex-center">
-      <ti-user-info :name="me.name" :group="me.group"/>
+    <div class="wnm-action ti-flex-right">
+      <ti-user-info
+        :name="me.name"
+        :group="me.group"/>
+      <div v-if="hasMainActionMenu" class="wnm-action-menu">
+        <ti-actions :data="mainActionMenu"/>
+      </div>
     </div>
   </div>
   <div class="wnm-aside">

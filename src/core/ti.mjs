@@ -1,3 +1,4 @@
+import {TiStr    as S       } from "./str.mjs"
 import {TiUtil   as Util    } from "./util.mjs"
 import {TiApp    as App     } from "./app.mjs"
 import {TiError  as Err     } from "./err.mjs"
@@ -24,7 +25,7 @@ const LogLevels = {
 }
 //---------------------------------------
 export const Ti = {
-  Util, App, Err, Config, Dom, Css, Load, Http, 
+  S, Util, App, Err, Config, Dom, Css, Load, Http, 
   Icons, I18n, Install,
   //.....................................
   Version() {return "1.0"},

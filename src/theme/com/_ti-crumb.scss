@@ -2,6 +2,7 @@
   > ul {@include ul(left, .1rem);}
   > ul li {
     @include flex-center($wp:nowrap);
+    white-space: nowrap;
     .ti-icon i {color:map-get($text-color, disabled); font-size:1em;}
     > b {color:map-get($text-color, primary);}
   }

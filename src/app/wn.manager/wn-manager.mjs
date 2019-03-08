@@ -45,6 +45,19 @@ export default {
     },
     mainModType() {
       return this.mainView ? this.mainView.modType : null
+    },
+    hasMainActionMenu() {
+      return this.mainActionMenu.length > 0
+    },
+    mainActionMenu() {
+      let vm = this
+      let re = []
+      if(vm.mainView && !_.isEmpty(vm.mainView.actions)) {
+        _.forOwn(vm.mainView.actions, (it, key)=>{
+          re.push({key, ...it})
+        })
+      }
+      return re
     }
   },
   //////////////////////////////////////////////

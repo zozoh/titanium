@@ -1,0 +1,272 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ti.config</title>
+</head>
+<body>
+<article>
+<hr>
+<p>title : ti.config<br>author: zozoh(zozohtnt@gmail.com)<br>tags:<br>- API<br>- namespace
+</p>
+<hr>
+<hr>
+<h1><code>ti.config</code> Global Configuration
+</h1>
+<ul>
+<li><a href="#ti.config.set">set
+</a> : Set new <a href="#GCO">GCO
+</a> to global.
+</li>
+<li><a href="#ti.config.update">update
+</a> : Update new <a href="#GCO">GCO
+</a> to global.
+</li>
+<li><a href="#ti.config.get">get
+</a> : Get one configuration fields value (same refer).
+</li>
+<li><a href="#ti.config.url">url
+</a> : eval the full resource path by <a href="#GCO.prefix">prefix
+</a>
+</li>
+</ul>
+<hr>
+<h1><code>GCO</code>: Global Configuration Object
+</h1>
+<p>Here is the gloable configuration looks like:
+</p>
+<pre code-type="js">{
+  /*
+  @see [prefix]
+  */
+  &quot;prefix&quot; : {
+    &quot;app&quot;   : &quot;/ti/app/&quot;,
+    &quot;ui&quot;    : &quot;/ti/ui/&quot;,
+    &quot;lib&quot;   : &quot;/ti/lib/&quot;,
+    &quot;theme&quot; : &quot;/ti/theme/&quot;
+  }
+  /*
+  @see [alias]
+  */
+  &quot;alias&quot; {
+    &quot;@lib:jquery&quot; : &quot;@lib:jquery/2.3.1/jquery_min.js&quot;
+    &quot;@lib:lodash&quot; : &quot;@lib:lodash/4.1.5/lodash_min.js&quot;
+  }
+}
+</pre>
+<h2><code>GCO.prefix</code>
+</h2>
+<p>This section defined all prefix of resource base locations.<br>For example:
+</p>
+<pre code-type="js">//------------------------------------------
+// Define the prefix
+ti.config.set({
+  prefix : {
+    &quot;foo&quot; : &quot;/my/foo&quot;,
+    &quot;bar&quot; : &quot;/my/bar/&quot;
+  }
+})
+///------------------------------------------
+ti.config.url('@foo:abc')
+// -&gt; /my/fooabc
+///------------------------------------------
+ti.config.url('@bar:xyz')
+// -&gt; /my/bar/xyz
+</pre>
+<h2><code>GCO.alias</code>
+</h2>
+<p><em>TODO: NEED DOC</em>
+</p>
+<hr>
+<h1><code>ti.config.set</code>
+</h1>
+<pre code-type="js">set({prefix,alias})
+</pre>
+<p>Same like <a href="#ti.config.update">ti.config.update
+</a>, but a little differance, it will override all setting of the <a href="#GCO">GCO
+</a>
+</p>
+<blockquote>@see
+</blockquote>
+<blockquote>
+</blockquote>
+<blockquote>- <a href="ti.use.html"><code>ti.use</code>
+</a>
+</blockquote>
+<h2><code>set@params</code>
+</h2>
+<ul>
+<li><code>prefix{object}</code> : Field <a href="#GCO.prefix">prefix
+</a> of <a href="#GCO">GCO
+</a>
+</li>
+</ul>
+<h2><code>set@return</code>
+</h2>
+<p><em>undefined</em>
+</p>
+<h2><code>set@usage</code>
+</h2>
+<pre code-type="js">/* If Global Object is:
+{
+  prefix : {
+    &quot;ui&quot;    : &quot;/api/ui&quot;,
+    &quot;lib&quot;   : &quot;/ti/lib/&quot;
+  }
+}
+*/
+ti.config.set({
+  prefix : {
+    &quot;ui&quot;    : &quot;/ti/ui/&quot;,
+  }
+})
+/* Global Object will change to:
+{
+  prefix : {
+    &quot;ui&quot;    : &quot;/ti/ui/&quot;
+  }
+}
+*/
+</pre>
+<hr>
+<h1><code>ti.config.update</code>
+</h1>
+<pre code-type="js">update({prefix, alias})
+</pre>
+<p>Same like <a href="#ti.config.set">ti.config.set
+</a>, but a little differance, it will replace all setting of the <a href="#GCO">GCO
+</a>
+</p>
+<blockquote>@see
+</blockquote>
+<blockquote>
+</blockquote>
+<blockquote>- <a href="ti.use.html"><code>ti.use</code>
+</a>
+</blockquote>
+<h2><code>update@params</code>
+</h2>
+<ul>
+<li><code>prefix{object}</code> : Field <a href="#GCO.prefix">prefix
+</a> of <a href="#GCO">GCO
+</a>
+</li>
+</ul>
+<h2><code>update@return</code>
+</h2>
+<p><em>undefined</em>
+</p>
+<h2><code>update@usage</code>
+</h2>
+<pre code-type="js">/* If Global Object is:
+{
+  prefix : {
+    &quot;ui&quot;    : &quot;/api/ui&quot;,
+    &quot;lib&quot;   : &quot;/ti/lib/&quot;
+  }
+}
+*/
+ti.config.update({
+  prefix : {
+    &quot;ui&quot;    : &quot;js:/ti/ui/&quot;,
+  }
+})
+/* Global Object will change to:
+{
+  prefix : {
+    &quot;ui&quot;    : &quot;/ti/ui/&quot;,
+    &quot;lib&quot;   : &quot;/ti/lib/&quot;
+  }
+}
+*/
+</pre>
+<hr>
+<h1><code>ti.config.get</code>
+</h1>
+<pre code-type="js">get(key=null): Any
+</pre>
+<blockquote>@see
+</blockquote>
+<blockquote>
+</blockquote>
+<blockquote>- <a href="ti.use.html"><code>ti.use</code>
+</a>
+</blockquote>
+<p>Get one field value from <a href="#GCO">GCO
+</a>, or entire <a href="#GCO">GCO
+</a> if <code>null</code> has been passsed. The return value should be the same refer with the <a href="#GCO">GCO
+</a> instance, which mean, if you mutate the value, it will effect the <a href="#GCO">GCO
+</a>, because you are mutate the same copy of it.
+</p>
+<h2><code>get@params</code>
+</h2>
+<ul>
+<li><code>key{string}</code> : The field key of which you want to get. Whole <a href="#GCO">GCO
+</a> will be returned when you passed <code>null</code>. It supported the dotted seperated path string also.
+</li>
+</ul>
+<h2><code>get@return</code>
+</h2>
+<p><code>Any Object</code> which is the same copy of <a href="#GCO">GCO
+</a>.
+</p>
+<h2><code>get@usage</code>
+</h2>
+<pre code-type="js">const prefix = ti.config.get(&quot;prefix&quot;)
+// =&gt; {&quot;ui&quot;:&quot;/ti/ui/&quot;, &quot;lib&quot;:&quot;/ti/lib/&quot;}
+
+const uiPrefix = ti.config.get(&quot;prefix.ui&quot;)
+// =&gt; &quot;/ti/ui&quot;
+</pre>
+<hr>
+<h1><code>ti.config.url</code>
+</h1>
+<pre code-type="js">url(path=&quot;&quot;): String
+</pre>
+<blockquote>@see
+</blockquote>
+<blockquote>
+</blockquote>
+<blockquote>- <a href="ti.use.html"><code>ti.use</code>
+</a>
+</blockquote>
+<p>Eval resource full path by <a href="#GCO.prefix">prefix
+</a> and <a href="#GCO.alias">alias
+</a>. Actually, it will apply the  <a href="#GCO.alias">alias
+</a> at first, then replace the <a href="#GCO.prefix">prefix
+</a> part.
+</p>
+<p>The prefix of the path (<code>&quot;@app&quot;</code> or <code>&quot;@com&quot;</code> etc.) should be defined in <a href="#GCO.prefix">prefix
+</a> field.
+</p>
+<p>If the input path is not formed like <code>@xxx:path</code>, it will be returned directly. If the prefix (<code>&quot;@xxx&quot;</code>) is not defined in <a href="#GCO.prefix">prefix
+</a>, an error will be raised.
+</p>
+<h2><code>url@params</code>
+</h2>
+<ul>
+<li><code>path{string}</code> : reource path formed like <code>&quot;@app:foo.bar&quot;</code>
+</li>
+</ul>
+<h2><code>url@return</code>
+</h2>
+<p><code>String</code> as the full path of given resource path
+</p>
+<h2><code>url@thrown</code>
+</h2>
+<ul>
+<li><code>{errCode:&quot;e.ti.config.prefix_without_defined&quot;, data:[prefix]}</code>
+</li>
+</ul>
+<h2><code>url@usage</code>
+</h2>
+<pre code-type="js">//prefix : `{&quot;bar&quot; : &quot;/my/lib/&quot;}`
+ti.config.url('@bar:xyz')
+// -&gt; /my/lib/xyz
+</pre>
+
+</article>
+</body>
+</html>

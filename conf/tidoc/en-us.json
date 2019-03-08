@@ -1,4 +1,4 @@
 {
-    "id" : "TiDoc:en-us",
-    "paths" : ["D:/workspace/git/github/titanium/doc/"]
+    "paths" : ["D:/workspace/git/github/titanium/doc/"],
+    "cmdTmpl" : "*zdoc md2html D:/workspace/git/github/titanium/doc/ D:/workspace/git/github/titanium/dist/tidoc/html/"
 }
