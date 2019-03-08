@@ -54,6 +54,14 @@
   border-#{$pos}:$w $s $c;
 }
 //-------------------------------------------------------------
+@mixin fireable($colorName:primary) {
+  cursor:pointer;
+  &:hover {
+    color: map-get($revs-color, $colorName);
+    background: map-get($color, $colorName);
+  }
+}
+//-------------------------------------------------------------
 @mixin pos($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
   @if $l != null {left  : $l;}
   @if $t != null {top   : $t;}

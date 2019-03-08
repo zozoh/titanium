@@ -1,5 +1,5 @@
-<div class="ti-actions">
-  <ul class="ai-top" :class="topUlClassName">
+<div class="ti-menu">
+  <ul class="menu-top" :class="topUlClassName">
     <li v-for="it in showList" :key="it.key">
       <component :is="it.comType" v-bind="it"/>
     </li>

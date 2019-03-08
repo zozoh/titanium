@@ -22,6 +22,9 @@ export default {
   actions : {
     save({state, commit, dispatch}) {
       console.log("saving....")
+      return new Promise((resolve, reject)=>{
+        _.delay(resolve, 4000)
+      })
     },
     async reload({state, commit, dispatch}, meta) {
       // Use the default meta

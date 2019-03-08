@@ -1,0 +1,4 @@
+<div class="mi-action" :tip="theTip" @click="invokeAction">
+  <ti-icon v-if="hasIcon" :value="theIcon"/>
+  <span v-if="hasText">{{theText|i18n}}</span>
+</div>

@@ -95,7 +95,7 @@ export const TiLoad = function(url=[], {dynamicPrefix, dynamicAlias}={}) {
 
   // Must be a String
   if(!_.isString(url)) {
-    throw Ti.Err.make("e.ti.use.url_must_string", url)
+    throw Ti.Err.make("e-ti-use-url_must_string", url)
   }
 
   // url prefix indicate the type

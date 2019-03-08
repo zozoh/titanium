@@ -1,0 +1,6 @@
+{
+  "name" : "mi-action",
+  "template" : "./mi-action.html",
+  "mixins"   : ["./mi-action.mjs"],
+  "methods"  : "./mi-action-methods.mjs"
+}

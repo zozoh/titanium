@@ -1,20 +1,21 @@
 function normalizeActionItem({
   key, type, 
   icon, text, tip,
-  async,
+  action, async,
   items
 }, dftKey){
   let it = {
     key  : key  || dftKey,   // Action item must contains a key
     type : type || "action", // default as normal action
-    icon, text, tip
+    icon, text, tip,
+    action
   }
   // mark async
   if(_.isPlainObject(async)) {
     it.async = {...async}
   }
   // set sub comType by type
-  it.comType = "ai-" + _.kebabCase(it.type)
+  it.comType = "mi-" + _.kebabCase(it.type)
   // If group, recur
   if(_.isArray(items) && items.length > 0) {
     let list = []

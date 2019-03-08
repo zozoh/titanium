@@ -122,8 +122,15 @@ a:hover {
   width: 100%;
   height: 100%; }
 
-.ti-actions {
-  color: red; }
+.ti-menu {
+  user-select: none; }
+  .ti-menu > .menu-top > li > .mi-action {
+    cursor: pointer;
+    border-radius: .02rem;
+    padding: 0 .06rem; }
+    .ti-menu > .menu-top > li > .mi-action:hover {
+      color: #FFF;
+      background: #2196f3; }
 
 .ti-icon.center {
   display: flex;

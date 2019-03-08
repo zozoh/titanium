@@ -71,7 +71,7 @@ export default {
     }
     // invalid mode
     else {
-      throw Ti.Err.make("e-mod-wnObjExplorer-selecItem-invalidMode", mode)
+      throw Ti.Err.make("e-mod-WnObjExplorer-selecItem-invalidMode", mode)
     }
     // Update state
     state.children = [].concat(list)

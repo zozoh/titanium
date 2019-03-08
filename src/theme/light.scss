@@ -11,6 +11,16 @@ $color: (
   divider   : rgba(0, 0, 0, 0.12),
   selected  : rgba(128,128,128,0.3)
 );
+$revs-color: (
+  primary   : #FFF,
+  secondary : #FFF,
+  success   : #FFF,
+  warning   : #FFF,
+  info      : #FFF,
+  error     : #FFF,
+  track     : #000,
+  selected  : #FFF
+);
 $text-color: (
   primary   : rgba(0, 0, 0, 0.87),
   secondary : rgba(0, 0, 0, 0.54),
@@ -35,7 +45,7 @@ $bg-overlay: (
 @import "_utility.scss";
 //-----------------------------------------------------
 // Include coms
-@import "com/_ti-actions.scss";
+@import "com/_ti-menu.scss";
 @import "com/_ti-icon.scss";
 @import "com/_ti-crumb.scss";
 @import "com/_ti-set-tiles.scss";

@@ -99,7 +99,7 @@ Load all app info for app.json
 export async function LoadTiAppInfo(info={}, $doc=document) {
   // App Must has a name
   if(!info.name) {
-    throw Ti.Err.make("e.ti.app.load_info_without_name")
+    throw Ti.Err.make("e-ti-app_load_info_without_name")
   }
   // Clone info and reload its all detail
   let conf = _.cloneDeep(info)

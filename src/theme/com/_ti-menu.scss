@@ -1,0 +1,12 @@
+.ti-menu {
+  @include noselect;
+  > .menu-top {
+    > li {
+      > .mi-action {
+        @include fireable;
+        border-radius:.02rem;
+        padding:0 .06rem;
+      }
+    }
+  }
+}

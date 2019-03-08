@@ -111,7 +111,7 @@ export const TiConfig = {
     let prefix = dynamicPrefix[prefixName] || CONFIG.prefix[prefixName]
 
     if(!prefix)
-      throw Ti.Err.make("e.ti.config.prefix_without_defined", prefixName)
+      throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
     
       return prefix + url
   }

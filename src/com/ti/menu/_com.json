@@ -1,0 +1,9 @@
+{
+  "name" : "ti-actions",
+  "globally" : true,
+  "template" : "./ti-menu.html",
+  "mixins" : ["./ti-menu.mjs"],
+  "components" : [
+    "./com/mi-action"
+  ]
+}

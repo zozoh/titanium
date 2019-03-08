@@ -39,7 +39,7 @@ export const TiVue = {
   install() {
     Vue.use({install:(Vue)=>{
       Vue.filter("i18n", function(val){
-        return Ti.I18n.get(val)
+        return Ti.I18n.text(val)
       })
     }})
   },

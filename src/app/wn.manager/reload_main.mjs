@@ -38,20 +38,22 @@ export default function reloadMain(meta) {
         mainView.actions = {
           "save" : {
             type : "action",
-            icon : "far-save",
+            icon : "zmdi-floppy",
             text : "i18n:save-change",
             async : {
-              icon : "fas-cog fa-spin",
+              icon : "fas-spinner fa-pulse",
               text : "i18n:saving",
             },
             action : "dispatch:main/save"
           },
           "refresh" : {
             type : "action",
-            icon : "fas-sync",
+            icon : "zmdi-refresh",
             text : "i18n:refresh",
-            asyncIcon : "fas-sync fa-spin",
-            asyncText : "i18n:loading",
+            async : {
+              icon : "zmdi-refresh zmdi-hc-spin",
+              text : "i18n:loading",
+            },
             action : "dispatch:main/reload"
           }
         }

@@ -25,14 +25,14 @@
       "@mod:wn/obj-meta"]
   },
   "components" : [
-    "@com:ti/actions",
+    "@com:ti/icon",
     "@com:ti/layout",
     "@com:ti/loading",
-    "@com:ti/icon",
-    "@com:ti/user/info",
-    "@com:ti/set/tiles",
+    "@com:ti/menu",
     "@com:ti/obj/thumb",
-    "@com:ti/obj/meta"],
+    "@com:ti/obj/meta",
+    "@com:ti/set/tiles",
+    "@com:ti/user/info"],
   "deps" : [
     "@lib:walnut",
     "@deps:md/iconfont/material-icons.css",
