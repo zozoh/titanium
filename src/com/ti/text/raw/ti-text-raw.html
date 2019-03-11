@@ -4,6 +4,8 @@
     <b>{{title}}</b>
   </div>
   <div class="te-main">
-    <textarea spellcheck="false">{{content}}</textarea>
+    <textarea ref="text"
+      spellcheck="false"
+      @change="onChangeTextarea">{{content}}</textarea>
   </div>
 </div>

@@ -44,7 +44,7 @@ export const TiHttp = {
   /***
    * Send HTTP post
    */
-  async post(url, {params, headers}={}){
+  async post(url, config={}){
     return TiHttp.send(url, _.assign({}, config, {method:"post"}))
   }
 }

@@ -20,11 +20,15 @@ export default {
   },
   //.....................................
   actions : {
-    save({state, commit, dispatch}) {
-      console.log("saving....")
-      return new Promise((resolve, reject)=>{
-        _.delay(resolve, 4000)
-      })
+    async save({state, commit, dispatch}) {
+      let meta = state.meta
+      let content = state.content
+
+      let newMeta = await Wn.Io.saveContentAsText(meta, content)
+
+      commit("set", {meta: newMeta})
+      // return the new meta
+      return state.meta
     },
     async reload({state, commit, dispatch}, meta) {
       // Use the default meta

@@ -23,5 +23,10 @@ export default {
         title : "no-title"
       }
     }  // ~ obj()
+  },
+  methods : {
+    onChangeContent(newContent) {
+      this.$emit("change", {content:newContent})
+    }
   }
 }

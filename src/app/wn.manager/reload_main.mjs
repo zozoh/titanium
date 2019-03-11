@@ -44,7 +44,8 @@ export default function reloadMain(meta) {
               icon : "fas-spinner fa-pulse",
               text : "i18n:saving",
             },
-            action : "dispatch:main/save"
+            action : "dispatch:main/save",
+            shortcut : "CTRL+S"
           },
           "refresh" : {
             type : "action",
@@ -54,7 +55,8 @@ export default function reloadMain(meta) {
               icon : "zmdi-refresh zmdi-hc-spin",
               text : "i18n:loading",
             },
-            action : "dispatch:main/reload"
+            action : "dispatch:main/reload",
+            shortcut : "CTRL+R"
           }
         }
       }

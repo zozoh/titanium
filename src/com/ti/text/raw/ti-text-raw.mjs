@@ -15,5 +15,13 @@ export default {
       type : String,
       default : ""
     }
+  },
+  methods : {
+    onChangeTextarea() {
+      let vm = this
+      let $t = vm.$refs.text
+      let txt = $t.value
+      vm.$emit("change-content", txt)
+    }
   }
 }

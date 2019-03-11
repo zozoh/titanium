@@ -5,11 +5,11 @@
                value="im-network"
                size="1.6em"/>
     </div>
-    <div class="wnm-title ti-flex-left ti-crumb">
-      <ul>
+    <div class="wnm-title ti-flex-left">
+      <ul class="ti-crumb">
         <li v-for="an in obj.ancestors" :key="an.id">
           <a :href="getObjLink(an)"
-             @click.prevent="onOpen(an)">{{an.nm}}</a>
+             @click.prevent="onMainViewOpen(an)">{{an.nm}}</a>
           <ti-icon class="center" value="chevron_right"/>
         </li>
         <li v-if="obj.meta">
@@ -22,7 +22,7 @@
         :name="me.name"
         :group="me.group"/>
       <div v-if="hasMainActionMenu" class="wnm-action-menu">
-        <ti-actions :data="mainActionMenu"/>
+        <ti-menu :data="mainActionMenu"/>
       </div>
     </div>
   </div>
@@ -47,7 +47,8 @@
       class="ti-fill-parent" 
       :is="mainComName"
       :data="mainData"
-      @open="onOpen"/>
+      @open="onMainViewOpen"
+      @change="onMainDataChange"/>
   </div>
   <div class="wnm-footer ti-flex-cols-3">
     <div class="wnm-info ti-flex-center">

@@ -1,5 +1,5 @@
 {
-  "name" : "ti-actions",
+  "name" : "ti-menu",
   "globally" : true,
   "template" : "./ti-menu.html",
   "mixins" : ["./ti-menu.mjs"],

@@ -81,11 +81,6 @@ export const WnIo = {
   },
   /***
    * Get obj content by meta:
-   * 
-   * - `DIR`   : null
-   * - `text`  : PureText
-   * - `json`  : Pure Text
-   * - `image` : SHA1 finger
    */
   async loadContentAsText(meta) {
     if(!meta || 'DIR' == meta.race) {
@@ -107,5 +102,27 @@ export const WnIo = {
 
     // Others just return the SHA1 finger
     return meta.sha1
+  },
+  /***
+   * Save obj content
+   */
+  async saveContentAsText(meta, content) {
+    if(!meta || 'DIR' == meta.race) {
+      throw Ti.Err.make('e-wn-io-writeNoFile', meta.ph || meta.nm)
+    }
+    // Prepare params
+    let params = {
+      str : "id:"+meta.id,
+      content
+    }
+    // do send
+    let url = URL("/save/text")
+    let reo = await Ti.Http.post(url, {params, as:"json"})
+
+    if(!reo.ok) {
+      throw Ti.Err.make(reo.errCode, reo.data, reo.msg)
+    }
+
+    return reo.data
   }
 }

@@ -66,7 +66,7 @@ export default {
       return '/a/open/wn.manager?ph=id:'+meta.id
     },
     //.........................................
-    onOpen(meta) {
+    onMainViewOpen(meta) {
       let vm = this
       vm.$store.dispatch("wn-obj-meta/reload", meta).then((meta)=>{
         let his = window.history
@@ -77,6 +77,11 @@ export default {
           his.pushState(meta, title, newLink)
         }
       })
+    },
+    //.........................................
+    onMainDataChange(data) {
+      console.log("onMainDataChange", data)
+      this.$store.commit("main/set", data)
     }
   }  // methods
   //////////////////////////////////////////////

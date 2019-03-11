@@ -1,8 +1,8 @@
 {
   "name" : "wn-obj-meta",
   "namespaced" : true,
-  "state" : "./state.json",
-  "getters" : "./getters.mjs",
-  "mutations" : "./mutations.mjs",
-  "actions" : "./actions.mjs"
+  "state" : "./wn-obj-meta.json",
+  "getters" : "./wn-obj-meta-getters.mjs",
+  "mutations" : "./wn-obj-meta-mutations.mjs",
+  "actions" : "./wn-obj-meta-actions.mjs"
 }

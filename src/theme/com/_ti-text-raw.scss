@@ -20,6 +20,9 @@
       padding:.1rem;
       font-family: Monaco, Consolas, Courier New;
       font-size:.16rem; line-height:.2rem;
+      &:focus {
+        border-color:map-get($color, secondary);
+      }
     }
   }
 }

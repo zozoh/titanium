@@ -1,21 +1,21 @@
 const ActionModes = {
-  async dispatch(vm, arg) {
-    await vm.$store.dispatch(arg)
+  async dispatch(vm, actionPath) {
+    await vm.$store.dispatch(actionPath)
   }
 }
 //---------------------------------------
 export default {
   invokeAction : _.debounce(function(){
     let vm = this
-    console.log("haha", this.$store)
+    // console.log("haha", this.$store)
     if(vm.action) {
       let m = /^(dispatch):(.+)$/.exec(vm.action)
       if(m) {
         // setup async action
         vm.processing = true
         // do action and recover
-        let [_, mode, arg] = m
-        ActionModes[mode](vm, arg)
+        let [_, mode, actionPath] = m
+        ActionModes[mode](vm, actionPath)
           .then(()=>vm.processing = false)
       }
       // invalid action form

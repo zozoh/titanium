@@ -141,7 +141,7 @@ a:hover {
 .ti-icon > i {
   font-size: 1em; }
 
-.ti-crumb > ul {
+.ti-crumb {
   list-style: none;
   padding: 0.1rem;
   margin: 0;
@@ -150,18 +150,18 @@ a:hover {
   align-items: stretch;
   align-content: stretch;
   flex-wrap: nowrap; }
-.ti-crumb > ul li {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  flex-wrap: nowrap;
-  white-space: nowrap; }
-  .ti-crumb > ul li .ti-icon i {
-    color: rgba(0, 0, 0, 0.38);
-    font-size: 1em; }
-  .ti-crumb > ul li > b {
-    color: rgba(0, 0, 0, 0.87); }
+  .ti-crumb > li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: nowrap;
+    white-space: nowrap; }
+    .ti-crumb > li .ti-icon i {
+      color: rgba(0, 0, 0, 0.38);
+      font-size: 1em; }
+    .ti-crumb > li > b {
+      color: rgba(0, 0, 0, 0.87); }
 
 .ti-set-tiles > .ti-obj-tiles-con {
   display: flex;
@@ -294,6 +294,8 @@ a:hover {
       font-family: Monaco, Consolas, Courier New;
       font-size: .16rem;
       line-height: .2rem; }
+      .ti-text-raw .te-main textarea:focus {
+        border-color: #ff4081; }
 
 .wn-manager .wnm-sky {
   border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
