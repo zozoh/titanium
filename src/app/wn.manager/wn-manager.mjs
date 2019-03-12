@@ -54,6 +54,9 @@ export default {
       let re = []
       if(vm.mainView && !_.isEmpty(vm.mainView.actions)) {
         _.forOwn(vm.mainView.actions, (it, key)=>{
+          if(_.isNumber(key)) {
+            key = "menu-item-" + key
+          }
           re.push({key, ...it})
         })
       }

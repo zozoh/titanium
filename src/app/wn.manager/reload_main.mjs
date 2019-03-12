@@ -35,8 +35,8 @@ export default function reloadMain(meta) {
         mainView.comIcon = "im-edit"
         mainView.comType = "@com:wn/obj/puretext"
         mainView.modType = "@mod:wn/obj-as-text"
-        mainView.actions = {
-          "save" : {
+        mainView.actions = [{
+            key  : "save",
             type : "action",
             icon : "zmdi-floppy",
             text : "i18n:save-change",
@@ -46,8 +46,8 @@ export default function reloadMain(meta) {
             },
             action : "dispatch:main/save",
             shortcut : "CTRL+S"
-          },
-          "refresh" : {
+          }, {
+            key : "refresh",
             type : "action",
             icon : "zmdi-refresh",
             text : "i18n:refresh",
@@ -57,8 +57,7 @@ export default function reloadMain(meta) {
             },
             action : "dispatch:main/reload",
             shortcut : "CTRL+R"
-          }
-        }
+          }]
       }
       // Others like Image/Video or another binary stream
       else {
@@ -70,14 +69,16 @@ export default function reloadMain(meta) {
       //console.log(mainView)
 
       // Load moudle/component
-      vm.$app.loadView("main", mainView).then((view)=>{
+      let $app = Ti.App(vm)
+      $app.loadView("main", mainView).then((view)=>{
         if(Ti.IsInfo()) {
           console.log("TiView Loaded:", view)
         }
         // switch to main component
         vm.mainView = view
+        
         // call main reload
-        vm.$store.dispatch("main/reload", meta)
+        $app.dispatch("main/reload", meta)
       })
       }
   } // reloadMain

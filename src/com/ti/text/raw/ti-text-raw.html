@@ -4,8 +4,11 @@
     <b>{{title}}</b>
   </div>
   <div class="te-main">
-    <textarea ref="text"
+    <textarea 
+      ref="text" 
       spellcheck="false"
-      @change="onChangeTextarea">{{content}}</textarea>
+      :value="content"
+      @keyup="onDebounceChangeTextarea"
+    ></textarea>
   </div>
 </div>

@@ -69,7 +69,7 @@ export class OneTiApp {
       console.log(" -- options:", setup.options)
     }
     let vm = TiVue.CreateInstance(setup)
-    vm.$app = this
+    vm[TI_APP] = this
     this.$vm(vm)
 
     // return self for chained operation
@@ -88,7 +88,12 @@ export class OneTiApp {
   }
   //---------------------------------------
   commit(nm, payload)   {this.$store().commit(nm, payload)}
-  dispatch(nm, payload) {this.$store().dispatch(nm, payload)}
+  dispatch(nm, payload) {
+    if(Ti.IsInfo()) {
+      console.log("TiApp.dispatch", nm, payload)
+    }
+    this.$store().dispatch(nm, payload)
+  }
   //---------------------------------------
   get(key) {
     if(!key) {
@@ -131,6 +136,9 @@ export class OneTiApp {
     })
     //console.log(comName)
     Vue.component(comName, setup.options)
+
+    // watch the shortcut
+    Ti.Shortcut.watch(this, view.actions)
     
     return {
       ...view,
@@ -149,6 +157,10 @@ export const TiApp = function(a0) {
   // Get back App from Element
   if(_.isElement(a0)){
     return a0[TI_APP]
+  }
+  // for Vue
+  if(a0 instanceof Vue) {
+    return a0.$root[TI_APP]
   }
   // return the app instance directly
   return new OneTiApp(a0)

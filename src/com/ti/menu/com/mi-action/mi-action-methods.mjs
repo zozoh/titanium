@@ -1,6 +1,18 @@
 const ActionModes = {
   async dispatch(vm, actionPath) {
-    await vm.$store.dispatch(actionPath)
+    let $app = Ti.App(vm)
+    // TiApp
+    if($app) {
+      await $app.dispatch(actionPath)
+    }
+    // Pure Vuex
+    else if(vm.$store){
+      vm.$store.dispatch(actionPath)
+    }
+    // Imposseble
+    else {
+      throw Ti.Err.make("e-ti-menu-action-CanNotDispatch", {vm, actionPath})
+    }
   }
 }
 //---------------------------------------

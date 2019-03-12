@@ -23,5 +23,11 @@ export default {
       let txt = $t.value
       vm.$emit("change-content", txt)
     }
+  },
+  created() {
+    this.onDebounceChangeTextarea = _.debounce(
+      this.onChangeTextarea, 500
+    )
   }
+
 }

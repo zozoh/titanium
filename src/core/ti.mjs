@@ -10,6 +10,7 @@ import {TiHttp   as Http    } from "./http.mjs"
 import {Ti18n    as I18n    } from "./i18n.mjs"
 import {TiIcons  as Icons   } from "./icons.mjs"
 import {Tinstall as Install } from "./install.mjs"
+import {TiShortcut as Shortcut} from "./shortcut.mjs"
 //---------------------------------------
 const ENV = {
   dev : false,
@@ -26,7 +27,7 @@ const LogLevels = {
 //---------------------------------------
 export const Ti = {
   S, Util, App, Err, Config, Dom, Css, Load, Http, 
-  Icons, I18n, Install,
+  Icons, I18n, Install, Shortcut,
   //.....................................
   Version() {return "1.0"},
   //.....................................
