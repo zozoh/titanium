@@ -47,7 +47,7 @@ export default function reloadMain(meta) {
             action : "dispatch:main/save",
             shortcut : "CTRL+S"
           }, {
-            key : "refresh",
+            key : "reload",
             type : "action",
             icon : "zmdi-refresh",
             text : "i18n:refresh",

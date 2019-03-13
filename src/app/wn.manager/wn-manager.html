@@ -22,7 +22,9 @@
         :name="me.name"
         :group="me.group"/>
       <div v-if="hasMainActionMenu" class="wnm-action-menu">
-        <ti-menu :data="mainActionMenu"/>
+        <ti-menu 
+          :data="mainActionMenu"
+          :status="mainStatus"/>
       </div>
     </div>
   </div>

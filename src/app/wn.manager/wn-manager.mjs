@@ -61,6 +61,11 @@ export default {
         })
       }
       return re
+    },
+    mainStatus() {
+      if(this.$store.state.main){
+        return this.$store.state.main.status
+      }
     }
   },
   //////////////////////////////////////////////

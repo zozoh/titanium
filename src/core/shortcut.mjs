@@ -13,7 +13,10 @@ class Shortcut {
     if(m) {
       let func = this.$app[m[1]]
       let arg  = m[2]
-      return _.bind(func, this.$app, arg)
+      return _.debounce(_.bind(func, this.$app, arg), 500, {
+        leading  : true,
+        trailing : false
+      })
     }
     return function(){
       alert("invalid action: [" + action + "]")
@@ -67,7 +70,7 @@ export const TiShortcut = {
       
       // Then try to find the action
       if(THE_SHORTCUT.fire(uniqKey)) {
-        if(Ti.IsInfo()) {
+        if(Ti.IsDebug()) {
           console.log("TiShortcut.fired", uniqKey)
         }
         evt.preventDefault()

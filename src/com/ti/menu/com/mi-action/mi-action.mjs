@@ -1,11 +1,11 @@
-function THE(vm, key) {
-  if(vm.processing && vm.async) {
-    return vm.async[key] || vm[key]
+function THE(vm, fldName) {
+  if(vm.async && vm.status[vm.statusKey]) {
+    return vm.async[fldName] || vm[fldName]
   }
-  return vm[key]
+  return vm[fldName]
 }
-function HAS(vm, key) {
-  return THE(vm, key) ? true : false
+function HAS(vm, fldName) {
+  return THE(vm, fldName) ? true : false
 }
 //---------------------------------------
 export default {
@@ -38,6 +38,14 @@ export default {
       default : null
     },
     action : {
+      type : String,
+      default : null
+    },
+    status : {
+      type : Object,
+      default : ()=>({})
+    },
+    statusKey : {
       type : String,
       default : null
     }

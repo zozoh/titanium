@@ -41,6 +41,10 @@ export default {
       validator : function(val) {
         return ["left","right","center"].indexOf(val)!=-1
       }
+    },
+    status : {
+      type : Object,
+      default : ()=>({})
     }
   },
   computed : {
@@ -55,8 +59,5 @@ export default {
       })
       return list
     }
-  },
-  methods : {
-
   }
 }

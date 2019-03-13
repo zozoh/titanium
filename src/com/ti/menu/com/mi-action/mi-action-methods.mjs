@@ -7,7 +7,7 @@ const ActionModes = {
     }
     // Pure Vuex
     else if(vm.$store){
-      vm.$store.dispatch(actionPath)
+      await vm.$store.dispatch(actionPath)
     }
     // Imposseble
     else {
@@ -35,5 +35,8 @@ export default {
         throw Ti.Err.make("e-com-MiAction-invalidActionForm")
       }
     }
-  }, 500, {leading:true})
+  }, 500, {
+    leading  : true,
+    trailing : false
+  })
 }
