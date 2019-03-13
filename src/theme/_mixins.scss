@@ -70,4 +70,22 @@
   @if $r != null {right : $r;}
   @if $b != null {bottom: $b;}
 }
-
+@mixin pos-abs($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
+  position:absolute;
+  @include pos($l,$t,$w,$h,$r,$b)
+}
+@mixin pos-fixed($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
+  position:fixed;
+  @include pos($l,$t,$w,$h,$r,$b)
+}
+@mixin pos-abs-full($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
+  @include pos-abs($l:0,$r:0,$t:0,$b:0);
+}
+@mixin pos-fixed-full($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
+  @include pos-fixed($l:0,$r:0,$t:0,$b:0);
+}
+//-------------------------------------------------------------
+@mixin color($cl:null, $bg:null) {
+  @if $c != null {color:$cl;}
+  @if $c != null {background-color:$bg;}
+}

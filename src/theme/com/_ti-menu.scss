@@ -2,11 +2,35 @@
   @include noselect;
   > .menu-top {
     > li {
-      > .mi-action {
+      .ti-menu-item-btnlike {
         @include fireable;
+        @include flex-align($ai:center, $wp:nowrap);
         border-radius:.02rem;
         padding:0 .06rem;
       }
+      .ti-icon > i {
+        @include flex-center;
+        font-size:.18rem;
+        width:.24rem;
+      }
     }
   }
+  .mi-group-con {
+    &.mi-group-closed {display:none;}
+    &.mi-group-opened {display:block;}
+    &:before {
+      display:block; content:"";
+      @include pos-fixed-full;
+      background-color:rgba(0,0,0,0);
+      z-index: $z-mask;
+    }
+    > .menu-sub {
+      @include pos-abs($r:50px,$t:50px);
+      min-width: 1.8rem;
+      z-index: $z-menu;
+      color:map-get($text-color, primary);
+      background-color:map-get($bgcolor, chip);
+    }
+  }
+  
 }

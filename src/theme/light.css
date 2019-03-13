@@ -122,15 +122,59 @@ a:hover {
   width: 100%;
   height: 100%; }
 
+.ti-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 1; }
+
 .ti-menu {
   user-select: none; }
-  .ti-menu > .menu-top > li > .mi-action {
+  .ti-menu > .menu-top > li .ti-menu-item-btnlike {
     cursor: pointer;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: stretch;
+    flex-wrap: nowrap;
     border-radius: .02rem;
     padding: 0 .06rem; }
-    .ti-menu > .menu-top > li > .mi-action:hover {
+    .ti-menu > .menu-top > li .ti-menu-item-btnlike:hover {
       color: #FFF;
       background: #2196f3; }
+  .ti-menu > .menu-top > li .ti-icon > i {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    font-size: .18rem;
+    width: .24rem; }
+  .ti-menu .mi-group-con.mi-group-closed {
+    display: none; }
+  .ti-menu .mi-group-con.mi-group-opened {
+    display: block; }
+  .ti-menu .mi-group-con:before {
+    display: block;
+    content: "";
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0);
+    z-index: 1; }
+  .ti-menu .mi-group-con > .menu-sub {
+    position: absolute;
+    top: 50px;
+    right: 50px;
+    min-width: 1.8rem;
+    z-index: 100;
+    color: rgba(0, 0, 0, 0.87);
+    background-color: #e0e0e0; }
 
 .ti-icon.center {
   display: flex;

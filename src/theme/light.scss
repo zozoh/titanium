@@ -39,6 +39,7 @@ $bg-overlay: (
 );
 //-----------------------------------------------------
 // Utility mixins
+@import "_vars.scss";
 @import "_sizing.scss";
 @import "_mixins.scss";
 @import "_default.scss";

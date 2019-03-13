@@ -40,23 +40,39 @@ export default function reloadMain(meta) {
             type : "action",
             icon : "zmdi-floppy",
             text : "i18n:save-change",
-            async : {
+            altDisplay : {
               icon : "fas-spinner fa-pulse",
               text : "i18n:saving",
             },
             action : "dispatch:main/save",
             shortcut : "CTRL+S"
           }, {
-            key : "reload",
+            key  : "reload",
             type : "action",
             icon : "zmdi-refresh",
             text : "i18n:refresh",
-            async : {
+            altDisplay : {
               icon : "zmdi-refresh zmdi-hc-spin",
               text : "i18n:loading",
             },
             action : "dispatch:main/reload",
             shortcut : "CTRL+R"
+          }, {
+            key  : "more",
+            type : "group",
+            icon : "zmdi-settings",
+            text : "i18n:more",
+            items : [{
+              key  : "save",
+              type : "action",
+              icon : "zmdi-floppy",
+              text : "i18n:save-change",
+              altDisplay : {
+                icon : "fas-spinner fa-pulse",
+                text : "i18n:saving",
+              },
+              action : "dispatch:main/save",
+            }]
           }]
       }
       // Others like Image/Video or another binary stream

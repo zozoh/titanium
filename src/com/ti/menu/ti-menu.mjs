@@ -1,7 +1,8 @@
 function normalizeActionItem({
   key, type, 
-  icon, text, tip,
-  action, async,
+  icon, text, tip, 
+  altDisplay,
+  action, 
   items
 }, dftKey){
   let it = {
@@ -10,9 +11,9 @@ function normalizeActionItem({
     icon, text, tip,
     action
   }
-  // mark async
-  if(_.isPlainObject(async)) {
-    it.async = {...async}
+  // mark altDisplay
+  if(_.isPlainObject(altDisplay)) {
+    it.altDisplay = {...altDisplay}
   }
   // set sub comType by type
   it.comType = "mi-" + _.kebabCase(it.type)

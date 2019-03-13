@@ -10,7 +10,7 @@ export const TiPaths = {
    * @param `path{String}` The path
    * @return The major name of entity
    */
-  getLinkName: function(path) {
+  getLinkName(path) {
     let p_a = path.lastIndexOf('/')
     let p_b = path.lastIndexOf(':')
     let pos = Math.max(p_a, p_b)
@@ -25,7 +25,7 @@ export const TiPaths = {
    * @param `path{String}` The path
    * @return The major name of entity (like file ordir) in a path
    */
-  getMajorName: function (path) {
+  getMajorName(path) {
       if (!path)
           return "";
       var len = path.length;
@@ -50,7 +50,7 @@ export const TiPaths = {
    *            文件路径
    * @return 文件后缀名
    */
-  getSuffixName: function (path, forceLower) {
+  getSuffixName(path, forceLower) {
       if (!path)
           return "";
       var p0 = path.lastIndexOf('.');
@@ -67,7 +67,7 @@ export const TiPaths = {
    *            文件路径
    * @return 文件后缀
    */
-  getSuffix: function (path, forceLower) {
+  getSuffix(path, forceLower) {
       if (!path)
           return "";
       var p0 = path.lastIndexOf('.');
@@ -84,7 +84,7 @@ export const TiPaths = {
    * 
    * @return Path string
    */
-  appendPath: function(...args) {
+  appendPath(...args) {
     let re = []
     for(let ph of args) {
       // remove the last '/'
@@ -99,6 +99,17 @@ export const TiPaths = {
       re.push(ph)
     }
     return re.join("")
+  },
+  /***
+   * Get the parent path
+   */
+  getParentPath(path="") {
+    if(!path || path.endsWith("/"))
+      return path
+    let pos = path.lastIndexOf("/")
+    if(pos<0)
+      return ""
+    return path.substring(0, pos+1)
   }
 }
 //-----------------------------------

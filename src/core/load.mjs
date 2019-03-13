@@ -99,23 +99,29 @@ export const TiLoad = function(url=[], {dynamicPrefix, dynamicAlias}={}) {
   }
 
   // url prefix indicate the type
+  let url2 = url
   let type, m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
   if(m) {
     type = m[2]
-    url  = m[3]
+    url2 = m[3]
   }
 
   // apply url prefix & alias
-  url = Ti.Config.url(url, {dynamicPrefix, dynamicAlias})
+  let url3 = Ti.Config.url(url2, {dynamicPrefix, dynamicAlias})
+  console.log("url：", url, 
+                "\n  ::", url2, 
+                "\n  ::", url3,
+                "\n  ::", dynamicPrefix,
+                "\n  ::", dynamicAlias)
 
   // auto type by suffix
   if(!type) {
-    m = /\.(m?js|css|json)$/.exec(url)
+    m = /\.(m?js|css|json)$/.exec(url3)
     type = m ? m[1] : "text"
   }
 
   // invoke
-  return loading[type](url)
+  return loading[type](url3)
 }
 //-----------------------------------
 export default TiLoad
