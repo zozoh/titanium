@@ -29,7 +29,7 @@ import {Ti} from "${rs}/ti/core/ti.mjs"
 window._app = ${app};
 //---------------------------------------
 Ti.SetForDev(true)
-Ti.SetLogLevel("info")
+Ti.SetLogLevel("debug")
 //---------------------------------------
 Ti.Config.set({
   prefix : {
@@ -67,7 +67,7 @@ Ti.Shortcut.startListening()
 //---------------------------------------
 async function main(){
   // setup the i18n
-  Ti.I18n.load("_ti")
+  Ti.I18n.put(await Ti.Load("@i18n:_ti"))
   // Load main app
   let app = await Ti.App("@MyApp")
   await app.init()

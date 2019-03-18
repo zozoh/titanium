@@ -168,13 +168,13 @@ a:hover {
     background-color: rgba(0, 0, 0, 0);
     z-index: 1; }
   .ti-menu .mi-group-con > .menu-sub {
-    position: absolute;
-    top: 50px;
-    right: 50px;
-    min-width: 1.8rem;
+    position: fixed;
+    min-width: 1.5rem;
     z-index: 100;
     color: rgba(0, 0, 0, 0.87);
-    background-color: #e0e0e0; }
+    background-color: #e0e0e0;
+    padding: 1px;
+    border: 1px solid rgba(0, 0, 0, 0.12); }
 
 .ti-icon.center {
   display: flex;

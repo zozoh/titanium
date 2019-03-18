@@ -25,11 +25,12 @@
       z-index: $z-mask;
     }
     > .menu-sub {
-      @include pos-abs($r:50px,$t:50px);
-      min-width: 1.8rem;
+      position:fixed;
+      min-width: 1.5rem;
       z-index: $z-menu;
       color:map-get($text-color, primary);
       background-color:map-get($bgcolor, chip);
+      padding:1px; border:1px solid map-get($color, divider);
     }
   }
   

@@ -14,17 +14,12 @@ export const Ti18n = {
     }
     return msg
   },
-  text(str) {
+  text(str, dft) {
     let m = /^i18n:(.+)$/.exec(str)
     if(m) {
-      return Ti18n.get(m[1])
+      return Ti18n.get(m[1], dft)
     }
-    return Ti18n.get(str)
-  },
-  async load(name) {
-    let url = Ti.Config.i18n(name)
-    let msgs = await Ti.Load(url)
-    Ti18n.put(msgs)
+    return Ti18n.get(str, dft)
   }
 }
 //---------------------------------------

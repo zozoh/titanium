@@ -101,6 +101,17 @@ export const TiUtil = {
         }
       })
     }
+  },
+  /***
+   * Fallback a group value
+   * 
+   * @return The first one which is not undefined
+   */
+  fallback(...args) {
+    for(let arg of args) {
+      if(!_.isUndefined(arg))
+        return arg
+    }
   }
 }
 //-----------------------------------

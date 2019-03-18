@@ -3,8 +3,9 @@
      @click.stop="toggleChildren">
   <ti-icon v-if="hasIcon" :value="theIcon"/>
   <span v-if="hasText">{{theText|i18n}}</span>
-  <div class="mi-group-con" :class="classObject.groupCon">
-    <ul class="menu-sub ti-ul-reset">
+  <div class="mi-group-con" 
+       :class="classObject.groupCon">
+    <ul class="menu-sub ti-ul-reset" ref="sub">
       <li v-for="it in items" :key="it.key">
         <component :is="it.comType"
             v-bind="it"

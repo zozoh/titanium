@@ -85,10 +85,6 @@ export const TiConfig = {
     return TiConfig.get("lang") || "zh-cn"
   },
   //...............................
-  i18n(name) {
-    return "@i18n:"+name
-  },
-  //...............................
   url(path="", {dynamicPrefix={}, dynamicAlias}={}) {
     // apply alias
     let ph, m
