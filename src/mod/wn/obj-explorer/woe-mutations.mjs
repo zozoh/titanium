@@ -1,23 +1,4 @@
 export default {
-  /***
-   * Reset the state to default
-   */
-  reset(state) {
-    _.assign(state, {
-      "meta": null,
-      "children" : [],
-      "currentIndex" : 0,
-      "pager" : {
-        "pageNumber" : -1,
-        "pageSize" : -1,
-        "pageCount" : -1,
-        "totalCoun" : -1
-      }
-    })
-  },
-  /***
-   * Update the state 
-   */
   set(state, {
     ancestors, parent, children, meta, pager, currentIndex
   }={}) {

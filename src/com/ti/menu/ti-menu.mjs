@@ -1,6 +1,8 @@
 function normalizeActionItem({
   key, type, 
   icon, text, tip, 
+  shortcut,
+  enableBy, disableBy, 
   altDisplay,
   action, 
   items
@@ -8,7 +10,9 @@ function normalizeActionItem({
   let it = {
     key  : key  || dftKey,   // Action item must contains a key
     type : type || "action", // default as normal action
+    shortcut,
     icon, text, tip,
+    enableBy, disableBy, 
     action
   }
   // mark altDisplay

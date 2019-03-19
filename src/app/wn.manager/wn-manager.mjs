@@ -26,46 +26,47 @@ export default {
   },
   //////////////////////////////////////////////
   computed : {
-    mainData() {
-      return this.$store.state.main
-    },
-    mainComIcon() {
-      let icon = this.mainView ? this.mainView.comIcon : null
-      return icon || "extension"
-    },
-    mainComName() {
-      return this.mainView ? this.mainView.comName : null
-    },
-    mainComTypeName() {
-      let comType = this.mainView ? this.mainView.comType : null
-      let m = /^(@[a-z]+:)?(.+)$/.exec(comType)
-      if(m) {
-        return m[2].replace(/\//g,"-")
-      }
-    },
-    mainModType() {
-      return this.mainView ? this.mainView.modType : null
-    },
-    hasMainActionMenu() {
-      return this.mainActionMenu.length > 0
-    },
-    mainActionMenu() {
-      let vm = this
-      let re = []
-      if(vm.mainView && !_.isEmpty(vm.mainView.actions)) {
-        _.forOwn(vm.mainView.actions, (it, key)=>{
+    main() {
+      // evaluate the action menu
+      let actionMenu = []
+      if(this.mainView && !_.isEmpty(this.mainView.actions)) {
+        _.forOwn(this.mainView.actions, (it, key)=>{
           if(_.isNumber(key)) {
             key = "menu-item-" + key
           }
-          re.push({key, ...it})
+          actionMenu.push({key, ...it})
         })
       }
-      return re
+      // gen result object
+      return {
+        comIcon : (this.mainView 
+          ? this.mainView.comIcon 
+          : null) || "extension",
+        comName : (this.mainView 
+          ? this.mainView.comName 
+          : null),
+        comTypeName : (()=>{
+            let comType = this.mainView ? this.mainView.comType : null
+            let m = /^(@[a-z]+:)?(.+)$/.exec(comType)
+            if(m) {
+              return m[2].replace(/\//g,"-")
+            }
+          })(),
+        modType : this.mainView ? this.mainView.modType : null,
+        actionMenu,
+      }
     },
     mainStatus() {
-      if(this.$store.state.main){
-        return this.$store.state.main.status
+      let status = {}
+      if(this.mainData) {
+        _.assign(status, this.$store.state.main.status, {
+          changed : this.$store.getters["main/isChanged"]
+        })
       }
+      return status
+    },
+    mainData() {
+      return this.$store.state.main
     }
   },
   //////////////////////////////////////////////

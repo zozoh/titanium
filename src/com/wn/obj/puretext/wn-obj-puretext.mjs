@@ -1,12 +1,16 @@
 export default {
   props : {
-    data : {
+    "data" : {
       type : Object,
       default : ()=>({
         "meta" : null,
         "content" : null,
         "contentType" : null
       })
+    },
+    "dataIsChanged" : {
+      type : Boolean,
+      default : false
     }
   },
   computed : {

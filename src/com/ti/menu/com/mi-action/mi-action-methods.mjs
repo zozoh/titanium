@@ -19,8 +19,7 @@ const ActionModes = {
 export default {
   invokeAction : _.debounce(function(){
     let vm = this
-    // console.log("haha", this.$store)
-    if(vm.action) {
+    if(vm.action && vm.isEnabled) {
       let m = /^(dispatch):(.+)$/.exec(vm.action)
       if(m) {
         // setup async action

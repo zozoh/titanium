@@ -1,4 +1,6 @@
 <div class="mi-action ti-menu-item-btnlike"
+     :item-disabled="isDisabled"
+     :item-enabled="isEnabled"
      :tip="theTip"
      @click="invokeAction">
   <ti-icon v-if="hasIcon" :value="theIcon"/>

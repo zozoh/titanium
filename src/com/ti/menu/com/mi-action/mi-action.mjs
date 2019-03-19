@@ -16,5 +16,12 @@ export default {
                 ? true : false
       }
     }
-  )
+  ),
+  mounted : function() {
+    if(this.shortcut) {
+      Ti.Shortcut.addGuard(this.shortcut, ()=>{
+        return this.isEnabled
+      })
+    }
+  }
 }

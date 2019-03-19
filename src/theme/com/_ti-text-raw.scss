@@ -5,6 +5,9 @@
     padding:.04rem .12rem 0 .12rem;
     color:map-get($text-color, primary);
     @include flex-align($ai:center);
+    &.content-changed {
+      color:map-get($color, secondary);
+    }
     > .ti-icon {
       padding:0 .08rem 0 0; font-size:1.4em;
     }

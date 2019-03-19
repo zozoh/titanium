@@ -1,9 +1,10 @@
 {
   "meta": null,
   "content": null,
+  "savedContent" : null,
   "contentType": null,
   "status" : {
-    "save"   : false,
-    "reload" : false
+    "saving"   : false,
+    "reloading" : false
   }
 }

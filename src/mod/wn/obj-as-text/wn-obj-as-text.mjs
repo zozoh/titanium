@@ -1,31 +1,37 @@
 // Ti required(Wn)
 //---------------------------------------
 export default {
+  getters : {
+    isChanged : (state)=>{
+      return state.content != state.savedContent
+    }
+  },
+  //.....................................
   mutations : {
-    reset(state) {
-      _.assign(state, {
-        "meta": null,
-        "content": null,
-        "contentType": null,
-        "status" : {
-          "save" : false,
-          "refresh" : false
-        }
-      })
-    },
     set(state, {
-      meta, content, contentType, status
+      meta, content, savedContent, contentType, status
     }={}) {
+      // Default contentType
       if(_.isUndefined(contentType) && meta) {
         contentType = meta.mime
       }
-      Ti.Util.setTo(state, {meta, content, contentType}, null)
+      // Content
+      Ti.Util.setTo(state, {
+        meta, 
+        content, 
+        savedContent,
+        contentType
+      }, null)
+      // Status
       _.assign(state.status, status)
     }
   },
   //.....................................
   actions : {
-    async save({state, commit, dispatch}) {
+    /***
+     * Save content to remote
+     */
+    async save({state, commit}) {
       if(state.status.save){
         return
       }
@@ -33,14 +39,21 @@ export default {
       let meta = state.meta
       let content = state.content
 
-      commit("set", {status:{save:true}})
+      commit("set", {status:{saving:true}})
       let newMeta = await Wn.Io.saveContentAsText(meta, content)
-      commit("set", {meta: newMeta, status:{save:false}})
+      commit("set", {
+        meta: newMeta, 
+        savedContent : content,
+        status:{saving:false}
+      })
 
       // return the new meta
       return state.meta
     },
-    async reload({state, commit, dispatch}, meta) {
+    /***
+     * Reload content from remote
+     */
+    async reload({state, commit}, meta) {
       if(state.status.reload){
         return
       }
@@ -50,9 +63,14 @@ export default {
         meta = state.meta
       }
       
-      commit("set", {status:{reload:true}})
+      commit("set", {status:{reloading:true}})
       let content = await Wn.Io.loadContentAsText(meta)
-      commit("set", {meta, content, status:{reload:false}})
+      commit("set", {
+        meta, 
+        content, 
+        savedContent : content,
+        status:{reloading:false}
+      })
 
       // return the root state
       return state

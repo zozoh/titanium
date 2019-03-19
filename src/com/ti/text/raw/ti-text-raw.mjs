@@ -14,6 +14,17 @@ export default {
     "content" : {
       type : String,
       default : ""
+    }, 
+    "contentIsChanged" : {
+      type : Boolean,
+      default : false
+    }
+  },
+  computed : {
+    headClass() {
+      return {
+        "content-changed" : this.contentIsChanged
+      }
     }
   },
   methods : {

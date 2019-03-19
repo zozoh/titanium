@@ -6,6 +6,7 @@ class Shortcut {
   reset($app=null) {
     this.$app = $app
     this.actions = {}
+    this.guards = {}
     return this
   }
   bind(action) {
@@ -36,23 +37,56 @@ class Shortcut {
       }
     })
   }
+  watch($app, actions) {
+    this.reset($app).addWatch(actions)
+  }
+  /***
+   * ComUI can append the guard later for block one process.
+   * 
+   * For example, if we provide the `saving` operation in action menu
+   * with `CTRL+S` shortcut, but we want to fire the action only if 
+   * the `content` changed. So we will detected the content change 
+   * and mark it in UI to present the status to user. When user process
+   * `CTRL+S` we also want to block the action if content without changed.
+   * For the reason most UI was been loaded asynchronous, so we need provide
+   * a way to those UIs to append the `guard` before the action invoking.
+   * 
+   * @param uniqKey{String} : The shortcut key like `CTRL+S`
+   * @param guard{Function} : synchronized function, return false to block
+   */
+  addGuard(uniqKey, guard) {
+    this.guards[uniqKey] = guard
+  }
+  /***
+   * Fire an action
+   *
+   * @param uniqKey{String} : The shortcut key like `CTRL+S`
+   * 
+   * @return Boolean for fired status:
+   *  - `true` : action found, if the guard block it, still true
+   *  - `false` : action not found
+   */
   fire(uniqKey) {
+    // fire the action
     let func = this.actions[uniqKey]
     if(_.isFunction(func)) {
-      func()
+      // ask guard firstly
+      let guard = this.guards[uniqKey]
+
+      // invoke the action
+      if(!_.isFunction(guard) || guard()){
+        func()
+      }
+      
       return true
     }
     return false
   }
-}
-//-----------------------------------
-const THE_SHORTCUT = new Shortcut()
-//-----------------------------------
-export const TiShortcut = {
-  watch($app, actions) {
-    THE_SHORTCUT.reset($app).addWatch(actions)
-  },
   startListening() {
+    // Prevent multiple listening
+    if(this.isListening)
+      return
+    // Do listen
     window.addEventListener("keydown", (evt)=>{
       // get the unify key code
       let keys = []
@@ -69,7 +103,7 @@ export const TiShortcut = {
       let uniqKey = keys.join("+")
       
       // Then try to find the action
-      if(THE_SHORTCUT.fire(uniqKey)) {
+      if(this.fire(uniqKey)) {
         if(Ti.IsDebug()) {
           console.log("TiShortcut.fired", uniqKey)
         }
@@ -77,7 +111,11 @@ export const TiShortcut = {
         evt.stopPropagation()
       }
     })
+    // Mark
+    this.isListening = true
   }
 }
+//-----------------------------------
+export const TiShortcut = new Shortcut()
 //-----------------------------------
 export default TiShortcut

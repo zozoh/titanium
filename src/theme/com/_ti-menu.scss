@@ -3,10 +3,15 @@
   > .menu-top {
     > li {
       .ti-menu-item-btnlike {
-        @include fireable;
         @include flex-align($ai:center, $wp:nowrap);
         border-radius:.02rem;
         padding:0 .06rem;
+        &[item-disabled] {
+          @include fireable($disable:yes);
+        }
+        &[item-enabled] {
+          @include fireable;
+        }
       }
       .ti-icon > i {
         @include flex-center;

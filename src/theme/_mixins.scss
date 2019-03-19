@@ -54,11 +54,16 @@
   border-#{$pos}:$w $s $c;
 }
 //-------------------------------------------------------------
-@mixin fireable($colorName:primary) {
+@mixin fireable($colorName:primary, $disable:null) {
   cursor:pointer;
-  &:hover {
-    color: map-get($revs-color, $colorName);
-    background: map-get($color, $colorName);
+  @if $disable == null {
+    &:hover {
+      color: map-get($revs-color, $colorName);
+      background: map-get($color, $colorName);
+    }
+  }
+  @else {
+    opacity: 0.4;
   }
 }
 //-------------------------------------------------------------

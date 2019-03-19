@@ -131,10 +131,15 @@ a:hover {
   background-color: rgba(0, 0, 0, 0);
   z-index: 1; }
 
+.ti-mark-changed {
+  color: #ff4081;
+  margin: 0 .02rem;
+  font-style: normal;
+  font-weight: bold; }
+
 .ti-menu {
   user-select: none; }
   .ti-menu > .menu-top > li .ti-menu-item-btnlike {
-    cursor: pointer;
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -142,9 +147,14 @@ a:hover {
     flex-wrap: nowrap;
     border-radius: .02rem;
     padding: 0 .06rem; }
-    .ti-menu > .menu-top > li .ti-menu-item-btnlike:hover {
-      color: #FFF;
-      background: #2196f3; }
+    .ti-menu > .menu-top > li .ti-menu-item-btnlike[item-disabled] {
+      cursor: pointer;
+      opacity: 0.4; }
+    .ti-menu > .menu-top > li .ti-menu-item-btnlike[item-enabled] {
+      cursor: pointer; }
+      .ti-menu > .menu-top > li .ti-menu-item-btnlike[item-enabled]:hover {
+        color: #FFF;
+        background: #2196f3; }
   .ti-menu > .menu-top > li .ti-icon > i {
     display: flex;
     justify-content: center;
@@ -311,6 +321,8 @@ a:hover {
     align-items: center;
     align-content: stretch;
     flex-wrap: wrap; }
+    .ti-text-raw .te-head.content-changed {
+      color: #ff4081; }
     .ti-text-raw .te-head > .ti-icon {
       padding: 0 .08rem 0 0;
       font-size: 1.4em; }

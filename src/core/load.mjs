@@ -108,11 +108,13 @@ export const TiLoad = function(url=[], {dynamicPrefix, dynamicAlias}={}) {
 
   // apply url prefix & alias
   let url3 = Ti.Config.url(url2, {dynamicPrefix, dynamicAlias})
-  console.log("url：", url, 
-                "\n  ::", url2, 
-                "\n  ::", url3,
-                "\n  ::", dynamicPrefix,
-                "\n  ::", dynamicAlias)
+  if(Ti.IsTrace()) {
+    console.log("url：", url, 
+                  "\n  ::", url2, 
+                  "\n  ::", url3,
+                  "\n  ::", dynamicPrefix,
+                  "\n  ::", dynamicAlias)
+  }
 
   // auto type by suffix
   if(!type) {

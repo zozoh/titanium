@@ -30,3 +30,9 @@
   background-color:rgba(0,0,0,0);
   z-index: $z-mask;
 }
+//...................................................
+.ti-mark-changed {
+  color: map-get($color, secondary);
+  margin:0 .02rem;
+  font-style:normal; font-weight: bold;
+}

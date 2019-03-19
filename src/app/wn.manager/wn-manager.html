@@ -14,6 +14,8 @@
         </li>
         <li v-if="obj.meta">
           <b>{{obj.meta.nm}}</b>
+          <span v-if="mainStatus.changed"
+            class="ti-mark-changed">*</span>
         </li>
       </ul>
     </div>
@@ -21,9 +23,10 @@
       <ti-user-info
         :name="me.name"
         :group="me.group"/>
-      <div v-if="hasMainActionMenu" class="wnm-action-menu">
+      <div v-if="main.actionMenu.length > 0"
+        class="wnm-action-menu">
         <ti-menu 
-          :data="mainActionMenu"
+          :data="main.actionMenu"
           :status="mainStatus"/>
       </div>
     </div>
@@ -47,21 +50,22 @@
   <div class="wnm-arena">
     <component
       class="ti-fill-parent" 
-      :is="mainComName"
+      :is="main.comName"
       :data="mainData"
+      :data-is-changed="mainStatus.changed"
       @open="onMainViewOpen"
       @change="onMainDataChange"/>
   </div>
   <div class="wnm-footer ti-flex-cols-3">
     <div class="wnm-info ti-flex-center">
-      <ti-icon class="center" :value="mainComIcon"/>
-      <span>{{mainComTypeName|i18n}}</span>
+      <ti-icon class="center" :value="main.comIcon"/>
+      <span>{{main.comTypeName|i18n}}</span>
     </div>
     <div class="wnm-status ti-flex-center">
       <span>{{status}}</span>
     </div>
     <div class="wnm-indicator ti-flex-center">
-      <em>{{mainModType}}</em>
+      <em>{{main.modType}}</em>
     </div>
   </div>
 </div>

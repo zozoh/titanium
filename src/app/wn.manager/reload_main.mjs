@@ -36,7 +36,7 @@ export default function reloadMain(meta) {
         mainView.comType = "@com:wn/obj/puretext"
         mainView.modType = "@mod:wn/obj-as-text"
         mainView.actions = [{
-            key  : "save",
+            key  : "saving",
             type : "action",
             icon : "zmdi-floppy",
             text : "i18n:save-change",
@@ -44,10 +44,11 @@ export default function reloadMain(meta) {
               icon : "fas-spinner fa-pulse",
               text : "i18n:saving",
             },
+            enableBy : "changed",
             action : "dispatch:main/save",
             shortcut : "CTRL+S"
           }, {
-            key  : "reload",
+            key  : "reloading",
             type : "action",
             icon : "zmdi-refresh",
             text : "i18n:refresh",
@@ -63,10 +64,11 @@ export default function reloadMain(meta) {
             icon : "zmdi-settings",
             text : "i18n:more",
             items : [{
-              key  : "save",
+              key  : "saving",
               type : "action",
               icon : "zmdi-floppy",
               text : "i18n:save-change",
+              enableBy : "changed",
               altDisplay : {
                 icon : "fas-spinner fa-pulse",
                 text : "i18n:saving",

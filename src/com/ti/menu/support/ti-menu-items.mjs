@@ -47,6 +47,18 @@ export const fireable = {
       statusKey : {
         type : String,
         default : null
+      },
+      enableBy : {
+        type : String,
+        default : null
+      },
+      disableBy : {
+        type : String,
+        default : null
+      },
+      shortcut : {
+        type : String,
+        default : null
       }
     }, props)
   },
@@ -57,7 +69,25 @@ export const fireable = {
       theTip () {return THE(isAlt, this, "tip")},
       hasIcon() {return HAS(isAlt, this, "icon")},
       hasText() {return HAS(isAlt, this, "text")},
-      hasTip () {return HAS(isAlt, this, "tip")}
+      hasTip () {return HAS(isAlt, this, "tip")},
+      isEnabled() {
+        if(this.enableBy) {
+          return this.status[this.enableBy]
+        }
+        if(this.disableBy) {
+          return !this.status[this.disableBy]
+        }
+        return true
+      },
+      isDisabled() {
+        if(this.enableBy) {
+          return !this.status[this.enableBy]
+        }
+        if(this.disableBy) {
+          return this.status[this.disableBy]
+        }
+        return false
+      }
     }, comp)
   }
 }
