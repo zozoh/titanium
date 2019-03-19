@@ -9,7 +9,7 @@ import {TiLoad   as Load    } from "./load.mjs"
 import {TiHttp   as Http    } from "./http.mjs"
 import {Ti18n    as I18n    } from "./i18n.mjs"
 import {TiIcons  as Icons   } from "./icons.mjs"
-import {TiFuse   as TiFuse  } from "./fuse.mjs"
+import {TiFuse   as Fuse    } from "./fuse.mjs"
 import {Tinstall as Install } from "./install.mjs"
 import {TiShortcut as Shortcut} from "./shortcut.mjs"
 //---------------------------------------
@@ -36,7 +36,7 @@ const LogLevels = {
 //---------------------------------------
 export const Ti = {
   S, Util, App, Err, Config, Dom, Css, Load, Http, 
-  Icons, I18n, Install, Shortcut, TiFuse,
+  Icons, I18n, Install, Shortcut, Fuse,
   //.....................................
   Version() {return "1.0"},
   //.....................................

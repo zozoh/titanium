@@ -32,5 +32,24 @@ export default {
     onChangeContent(newContent) {
       this.$emit("change", {content:newContent})
     }
+  },
+  mounted : function(){
+    Ti.Fuse.getOrCreate().add({
+      key : "wn-obj-puretext",
+      check : ()=>{
+        return !this.dataIsChanged
+      },
+      fail : ()=>{
+        this.$message({
+          showClose: true,
+          message: Ti.I18n.get("wn-obj-puretext-nosave"),
+          duration : 3000,
+          type: 'warning'
+        });
+      }
+    })
+  },
+  beforeDestroy : function(){
+    Ti.Fuse.get().remove("wn-obj-puretext")
   }
 }

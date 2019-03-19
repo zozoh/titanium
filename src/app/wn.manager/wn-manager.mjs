@@ -75,17 +75,28 @@ export default {
       return '/a/open/wn.manager?ph=id:'+meta.id
     },
     //.........................................
-    onMainViewOpen(meta) {
-      let vm = this
-      vm.$store.dispatch("wn-obj-meta/reload", meta).then((meta)=>{
-        let his = window.history
-        if(his) {
-          let newLink = vm.getObjLink(meta)
-          let title =  Wn.Util.getObjDisplayName(meta)
+    async onMainViewOpen(objMeta) {
+      // Ti.Fuse.fire().then(()=>{
+
+      // })
+      // Try to protect data by Ti.Fuse
+      let bombed = await Ti.Fuse.fire()
+      if(!bombed)
+        return
+
+      // Then reload the object meta
+      let meta = await this.$store.dispatch("wn-obj-meta/reload", objMeta)
+
+      // Push history to update the browser address bar
+      let his = window.history
+      if(his) {
+        let newLink = this.getObjLink(meta)
+        let title =  Wn.Util.getObjDisplayName(meta)
+        if(Ti.IsInfo("app/wn-manager")) {
           console.log(title , "->", newLink)
-          his.pushState(meta, title, newLink)
         }
-      })
+        his.pushState(meta, title, newLink)
+      }
     },
     //.........................................
     onMainDataChange(data) {
