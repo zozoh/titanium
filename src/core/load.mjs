@@ -108,7 +108,7 @@ export const TiLoad = function(url=[], {dynamicPrefix, dynamicAlias}={}) {
 
   // apply url prefix & alias
   let url3 = Ti.Config.url(url2, {dynamicPrefix, dynamicAlias})
-  if(Ti.IsTrace()) {
+  if(Ti.IsInfo("TiLoad")) {
     console.log("url：", url, 
                   "\n  ::", url2, 
                   "\n  ::", url3,

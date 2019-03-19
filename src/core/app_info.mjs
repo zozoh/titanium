@@ -104,7 +104,7 @@ export async function LoadTiAppInfo(info={}, $doc=document) {
   // Clone info and reload its all detail
   let conf = _.cloneDeep(info)
   await LoadTiLinkedObj(conf)
-  if(Ti.IsInfo()) {
+  if(Ti.IsInfo("TiApp")) {
     console.log("await LoadTiLinkedObj(conf)", conf)
   }
   

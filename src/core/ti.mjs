@@ -14,8 +14,16 @@ import {Tinstall as Install } from "./install.mjs"
 import {TiShortcut as Shortcut} from "./shortcut.mjs"
 //---------------------------------------
 const ENV = {
-  dev : false,
-  logLevel : 0
+  "dev" : false,
+  "logLevel" : {
+    "ROOT" : 0
+  }
+}
+function _IS_LOG(cate="ROOT", lv) {
+  let ll = ENV.logLevel[cate]
+  if(_.isUndefined(ll))
+    ll = ENV.logLevel.ROOT
+  return ll >= lv
 }
 //---------------------------------------
 const LogLevels = {
@@ -35,17 +43,19 @@ export const Ti = {
   SetForDev(dev=true){ENV.dev = dev},
   IsForDev(){return ENV.dev},
   //.....................................
-  SetLogLevel(lv=0){
-    if(_.isNumber(lv))
-      ENV.logLevel=lv
-    else
-      ENV.logLevel=LogLevels[lv]
+  SetLogLevel(lv=0, cate="ROOT"){
+    // Get number by name
+    if(_.isString(lv))
+      lv = LogLevels[lv] || 0
+    
+    // Set the level
+    ENV.logLevel[cate] = lv
   },
-  IsError(){return ENV.logLevel>=LogLevels.error},
-  IsWarn (){return ENV.logLevel>=LogLevels.warn},
-  IsInfo (){return ENV.logLevel>=LogLevels.info},
-  IsDebug(){return ENV.logLevel>=LogLevels.debug},
-  IsTrace(){return ENV.logLevel>=LogLevels.trace},
+  IsError(cate){return _IS_LOG(cate, LogLevels.error)},
+  IsWarn (cate){return _IS_LOG(cate, LogLevels.warn)},
+  IsInfo (cate){return _IS_LOG(cate, LogLevels.info)},
+  IsDebug(cate){return _IS_LOG(cate, LogLevels.debug)},
+  IsTrace(cate){return _IS_LOG(cate, LogLevels.trace)},
 }
 //---------------------------------------
 export default Ti

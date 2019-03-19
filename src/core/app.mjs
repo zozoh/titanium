@@ -39,7 +39,7 @@ export class OneTiApp {
     // load each fields of info obj
     let conf = await LoadTiAppInfo(this.$info())
     this.$conf(conf)
-    if(Ti.IsInfo()) {
+    if(Ti.IsInfo("TiApp")) {
       console.log("Ti.$conf", this.$conf())
     }
 
@@ -47,12 +47,12 @@ export class OneTiApp {
     let store
     if(conf.store) {
       let sc = TiVue.StoreConfig(conf.store)
-      if(Ti.IsInfo()) {
+      if(Ti.IsInfo("TiApp")) {
         console.log("TiVue.StoreConfig:", sc)
       }
       store = TiVue.CreateStore(sc)
       this.$store(store)
-      if(Ti.IsInfo()) {
+      if(Ti.IsInfo("TiApp")) {
         console.log("Ti.$store", this.$store())
       }
     }
@@ -63,7 +63,7 @@ export class OneTiApp {
 
     // Vue instance
     let setup = TiVue.Setup(conf, store)
-    if(Ti.IsInfo()) {
+    if(Ti.IsInfo("TiApp")) {
       console.log("TiVue.VueSetup(conf)")
       console.log(" -- global:", setup.global)
       console.log(" -- options:", setup.options)
@@ -89,7 +89,7 @@ export class OneTiApp {
   //---------------------------------------
   commit(nm, payload)   {this.$store().commit(nm, payload)}
   dispatch(nm, payload) {
-    if(Ti.IsInfo()) {
+    if(Ti.IsInfo("TiApp")) {
       console.log("TiApp.dispatch", nm, payload)
     }
     this.$store().dispatch(nm, payload)
@@ -126,7 +126,7 @@ export class OneTiApp {
     // Setup ...
     let setup = TiVue.Setup(comConf)
     let comName = Ti.Util.getLinkName(view.comType)
-    if(Ti.IsInfo()) {
+    if(Ti.IsInfo("TiApp")) {
       console.log("TiApp.loadView:", comName)
       console.log(" -- global:", setup.global)
       console.log(" -- options:", setup.options)

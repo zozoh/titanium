@@ -30,6 +30,8 @@ window._app = ${app};
 //---------------------------------------
 Ti.SetForDev(true)
 Ti.SetLogLevel("debug")
+Ti.SetLogLevel("warn", "TiLoad")
+Ti.SetLogLevel("warn", "TiApp")
 //---------------------------------------
 Ti.Config.set({
   prefix : {
