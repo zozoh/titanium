@@ -12,21 +12,24 @@ import {TiIcons  as Icons   } from "./icons.mjs"
 import {TiFuse   as Fuse    } from "./fuse.mjs"
 import {Tinstall as Install } from "./install.mjs"
 import {TiShortcut as Shortcut} from "./shortcut.mjs"
+import {TiRandom as Random} from "./random.mjs"
 //---------------------------------------
 const ENV = {
+  "version" : "1.0",
   "dev" : false,
-  "logLevel" : {
+  "appName" : null,
+  "log" : {
     "ROOT" : 0
   }
 }
 function _IS_LOG(cate="ROOT", lv) {
-  let ll = ENV.logLevel[cate]
-  if(_.isUndefined(ll))
-    ll = ENV.logLevel.ROOT
-  return ll >= lv
+  let logc = ENV.log[cate]
+  if(_.isUndefined(logc))
+    logc = ENV.log.ROOT
+  return logc >= lv
 }
 //---------------------------------------
-const LogLevels = {
+const LOG_LEVELS = {
   "error" : 0,
   "warn"  : 1,
   "info"  : 2,
@@ -36,26 +39,44 @@ const LogLevels = {
 //---------------------------------------
 export const Ti = {
   S, Util, App, Err, Config, Dom, Css, Load, Http, 
-  Icons, I18n, Install, Shortcut, Fuse,
+  Icons, I18n, Install, Shortcut, Fuse, Random,
   //.....................................
-  Version() {return "1.0"},
+  Env(key, val) {
+    return Ti.Util.geset(ENV, key, val)
+  },
   //.....................................
-  SetForDev(dev=true){ENV.dev = dev},
-  IsForDev(){return ENV.dev},
+  Version() {return Ti.Env("version")},
+  //.....................................
+  SetForDev(dev=true){Ti.Env({dev})},
+  IsForDev(){return Ti.Env("dev")},
+  //.....................................
+  SetAppName(appName){Ti.Env({appName})},
+  GetAppName(){return Ti.Env("appName")},
   //.....................................
   SetLogLevel(lv=0, cate="ROOT"){
     // Get number by name
     if(_.isString(lv))
-      lv = LogLevels[lv] || 0
+      lv = LOG_LEVELS[lv] || 0
     
     // Set the level
-    ENV.logLevel[cate] = lv
+    ENV.log[cate] = lv
   },
-  IsError(cate){return _IS_LOG(cate, LogLevels.error)},
-  IsWarn (cate){return _IS_LOG(cate, LogLevels.warn)},
-  IsInfo (cate){return _IS_LOG(cate, LogLevels.info)},
-  IsDebug(cate){return _IS_LOG(cate, LogLevels.debug)},
-  IsTrace(cate){return _IS_LOG(cate, LogLevels.trace)},
+  IsError(cate){return _IS_LOG(cate, LOG_LEVELS.error)},
+  IsWarn (cate){return _IS_LOG(cate, LOG_LEVELS.warn)},
+  IsInfo (cate){return _IS_LOG(cate, LOG_LEVELS.info)},
+  IsDebug(cate){return _IS_LOG(cate, LOG_LEVELS.debug)},
+  IsTrace(cate){return _IS_LOG(cate, LOG_LEVELS.trace)},
+  //.....................................
+  Invoke(fn, args=[], context) {
+    if(_.isFunction(fn)) {
+      context = context || this
+      return fn.apply(context, args)
+    }
+  },
+  //.....................................
+  InvokeBy(target={}, funcName, args=[]) {
+    return Ti.Invoke(target[funcName], args, target)
+  }
 }
 //---------------------------------------
 export default Ti

@@ -112,6 +112,38 @@ export const TiUtil = {
       if(!_.isUndefined(arg))
         return arg
     }
+  },
+  /***
+   * Get or set one object value.
+   * Unlike the `geset`, the param `key` is expected as `String`.
+   * If it is `Object`, it will batch set values by `Object` key-value pairs.
+   * 
+   * @param obj{Object} - The target object, which get from or set to.
+   * @param key{String|Object|Array} - The value key or pairs to set to `obj`.
+   *     If `array`, it will pick and return a group of key-values from target object 
+   * @param val{Any} - When key is not `Object`, it will take the param as value
+   *     to set to target object. If it is `undefined`, it will get value from 
+   *     target object
+   * 
+   * @return the value when play as `getter`, and `obj` self when play as `setter`
+   */
+  geset(obj={}, key, val) {
+    // Set by pairs
+    if(_.isPlainObject(key)) {
+      _.assign(obj, key)
+      return obj
+    }
+    // Pick mode
+    else if(_.isArray(key)) {
+      return _.pick(obj, key)
+    }
+    // Set the value
+    else if(!_.isUndefined(val)){
+      obj[key] = val
+      return obj
+    }
+    // As general getter
+    return obj[key]
   }
 }
 //-----------------------------------

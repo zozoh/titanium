@@ -20,24 +20,21 @@ export class OneTiApp {
     this.$vm(null)
   }
   //---------------------------------------
-  [GET_SET](key, val) {
-    if(!_.isUndefined(val)){
-      this[key] = val
-      return this
-    }
-    return this[key]
-  }
+  name () {return this.$info().name}
   //---------------------------------------
-  name () {return this.obj().name}
-  //---------------------------------------
-  $info(info)   {return this[GET_SET](TI_INFO , info)}
-  $conf(conf)   {return this[GET_SET](TI_CONF , conf)}
-  $store(store) {return this[GET_SET](TI_STORE, store)}
-  $vm   (vm)    {return this[GET_SET](TI_VM   , vm)}
+  $info(info)   {return Ti.Util.geset(this, TI_INFO , info)}
+  $conf(conf)   {return Ti.Util.geset(this, TI_CONF , conf)}
+  $store(store) {return Ti.Util.geset(this, TI_STORE, store)}
+  $vm   (vm)    {return Ti.Util.geset(this, TI_VM   , vm)}
   //---------------------------------------
   async init(){
+    // App Must has a name
+    let info = this.$info()
+    if(!info.name) {
+      throw Ti.Err.make("e-ti-app_load_info_without_name")
+    }
     // load each fields of info obj
-    let conf = await LoadTiAppInfo(this.$info())
+    let conf = await LoadTiAppInfo(info)
     this.$conf(conf)
     if(Ti.IsInfo("TiApp")) {
       console.log("Ti.$conf", this.$conf())

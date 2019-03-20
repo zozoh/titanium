@@ -7,7 +7,6 @@
   <title>${title}</title>
   <!--link rel="stylesheet" type="text/css"
         href="${rs}/core/css/font-md/css/material-design-iconic-font.css"-->
-  <script src="${rs}/ti/deps/axios.min.js"></script>
   <script src="${rs}/ti/deps/lodash.min.js"></script>
   <script src="${rs}/ti/deps/vue.js"></script>
   <script src="${rs}/ti/deps/vuex.js"></script>
@@ -73,7 +72,14 @@ async function main(){
   // Load main app
   let app = await Ti.App("@MyApp")
   await app.init()
-  //console.log(app)
+
+  // Save current app name
+  Ti.SetAppName(app.name())
+  Ti.Env({
+    "PWD" : "~"
+  })
+
+  // Load session and display
   app.commit("wn-session/set", _app.session)
   app.mountTo("#app")
 
