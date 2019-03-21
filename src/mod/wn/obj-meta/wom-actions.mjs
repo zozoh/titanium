@@ -55,7 +55,6 @@ export default {
       await dispatch("loadAncestors", str)
     }
     // return the curent meta anyway
-    console.log("state.meta", state.meta.ph)
     return state.meta
   }
 }

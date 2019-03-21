@@ -6,9 +6,26 @@ import {WnUtil    as Util   } from "./wn-util.mjs"
 //---------------------------------------
 const WALNUT_VERSION = "1.0"
 //---------------------------------------
+const HOOKs = {
+
+}
+//---------------------------------------
 export const Wn = {
   Version: WALNUT_VERSION,
-  Io, Session, Sys, Thing, Util
+  Io, Session, Sys, Thing, Util,
+  //-------------------------------------
+  addHook(key, fn) {
+    Ti.Util.pushValue(HOOKs, key, fn)
+  },
+  //-------------------------------------
+  doHook(key, payload) {
+    let fns = HOOKs[key]
+    if(_.isArray(fns) && fns.length > 0) {
+      for(let fn of fns) {
+        fn(payload)
+      }
+    }
+  }
 }
 //---------------------------------------
 export default Wn

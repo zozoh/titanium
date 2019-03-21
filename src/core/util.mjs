@@ -142,6 +142,10 @@ export const TiUtil = {
       obj[key] = val
       return obj
     }
+    // Return self
+    else if(_.isUndefined(key)) {
+      return obj
+    }
     // As general getter
     return obj[key]
   }

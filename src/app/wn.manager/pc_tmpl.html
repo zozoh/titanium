@@ -31,6 +31,9 @@ Ti.SetForDev(true)
 Ti.SetLogLevel("debug")
 Ti.SetLogLevel("warn", "TiLoad")
 Ti.SetLogLevel("warn", "TiApp")
+Ti.SetLogLevel("warn", "TiHttp")
+Ti.SetLogLevel("warn", "Wn.Sys")
+Ti.SetLogLevel("warn", "app/wn.manager")
 //---------------------------------------
 Ti.Config.set({
   prefix : {
@@ -75,13 +78,22 @@ async function main(){
 
   // Save current app name
   Ti.SetAppName(app.name())
-  Ti.Env({
-    "PWD" : "~"
-  })
 
   // Load session and display
   app.commit("wn-session/set", _app.session)
   app.mountTo("#app")
+  Ti.Session({
+    "id"       : _app.session.id,
+    "name"     : _app.session.me,
+    "group"    : _app.session.grp,
+    "duration" : _app.session.du,
+    "vars" : _app.session.envs
+  })
+
+  // Hook the session env change
+  Wn.addHook("update_envs", (envs)=>{
+    Ti.SessionVar(envs)
+  })
 
   // main obj path
   let basePath = "~"
@@ -95,7 +107,9 @@ async function main(){
 }
 //---------------------------------------
 main().then(o=>{
-  console.log("get!!!", o)
+  if(Ti.IsInfo("main")) {
+    console.log("MainLoaded", o)
+  }
 }).catch(err=>{
   throw err
 })

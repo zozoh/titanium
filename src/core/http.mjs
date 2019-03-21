@@ -39,6 +39,9 @@ export const TiHttp = {
       method="GET", 
       params={},
       headers={},
+      created=_.identity,
+      beforeSend=_.identity,
+      finished=_.identity,
       readyStateChanged=_.identity
     } = options
     // normalize method
@@ -68,6 +71,9 @@ export const TiHttp = {
     // Prepare the Request Object
     let $req = new XMLHttpRequest()
 
+    // Hooking
+    created($req)
+
     // Process sending
     return new Promise((resolve, reject)=>{
       // callback
@@ -75,6 +81,8 @@ export const TiHttp = {
         readyStateChanged($req, options)
         // Done
         if(4 == $req.readyState) {
+          // Hooking
+          finished($req)
           if(200 == $req.status) {
             resolve($req)
           } else {
@@ -88,6 +96,8 @@ export const TiHttp = {
       _.forOwn(headers, (val, key)=>{
         $req.setRequestHeader(key, val)
       })
+      // Hooking
+      beforeSend($req)
       // Send data
       $req.send(sendData)
     })
