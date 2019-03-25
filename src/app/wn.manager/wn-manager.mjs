@@ -42,17 +42,13 @@ export default {
         comIcon : (this.mainView 
           ? this.mainView.comIcon 
           : null) || "extension",
+        // Component
         comName : (this.mainView 
           ? this.mainView.comName 
           : null),
-        comTypeName : (()=>{
-            let comType = this.mainView ? this.mainView.comType : null
-            let m = /^(@[a-z]+:)?(.+)$/.exec(comType)
-            if(m) {
-              return m[2].replace(/\//g,"-")
-            }
-          })(),
+        // Module
         modType : this.mainView ? this.mainView.modType : null,
+        // Menu
         actionMenu,
       }
     },

@@ -41,6 +41,8 @@ export const WnSys = {
       created : ($req)=>{
         parsing.init(()=>$req.responseText)
       }
+    }).catch($req=>{
+      parsing.isError = true
     }).finally(()=>{
       parsing.done()
     })
@@ -50,6 +52,16 @@ export const WnSys = {
     // Then we got the result
     if(Ti.IsInfo("Wn.Sys")) {
       console.log("Wn.Sys.exec@return", re)
+    }
+
+    // Handle error
+    if(parsing.isError) {
+      let str = re.lines.join("\n")
+      let [code, ...datas] = str.split(/ *: */);
+      let data = datas.join(" : ")
+      let msgKey = code.replace(/[.]/g, "-")
+      let err = Ti.Err.make(code, data, Ti.I18n.get(msgKey))
+      throw err
     }
 
     // Evaluate the result
@@ -69,5 +81,23 @@ export const WnSys = {
         return eval('('+json+')')
       }
     })[as]()
-  }
+  },
+  //-------------------------------------
+  async exec2(vm, cmdText, options){
+    try {
+      return await Wn.Sys.exec(cmdText, {as:"json"})
+    }
+    // Handle Error
+    catch(err) {
+      if(Ti.IsError()) {
+        console.error(err)
+      }
+      vm.$message({
+        type : "warning",
+        showClose: true,
+        message : err.message,
+      })
+    }
+  } 
+  //-------------------------------------
 }

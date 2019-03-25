@@ -8,5 +8,6 @@
   "save" : "保存",
   "save-now" : "立即保存",
   "save-change" : "保存修改",
-  "saving" : "正在保存..."
+  "saving" : "正在保存...",
+  "e-io-obj-noexists" : "数据对象其实并不存在"
 }
