@@ -8,7 +8,7 @@ tags:
 
 # What is Sidebar ?
 
-A sidebar is a quick access object set which needed by `app/wn.manager`. User can define the sidebar as they want.
+A sidebar is a quick access object set which needed by `app/wn.manager`. You can define the sidebar as you want.
 
 -------------------------------------------------
 # Sidebar Definition
