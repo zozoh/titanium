@@ -49,7 +49,7 @@ get the view defination for current `Obj`:
 
 ```bash
 titanium:> ti views id:qjt1ho2k6oh6np40vopovqg29d
-  # It will output the view Defination as JSON string
+# -> It will output the view Defination as JSON string
 ```
 
 In javascript:
@@ -60,16 +60,21 @@ Wn.Sys.exec(`ti view id:${objId}`,{as:'json'}).then(view=>{
 })
 ```
 
-> In another hand, you can build you own `app/your.own` to change the way to load View Defination also, but it should be another topic, we will discuss it in another sestion later.
+> P.S.  you can  build you own `app/your.own` to change the way to load View Defination also, but it should be another topic, we will discuss it in another sestion later.
 
 Walnut is a web OS, it stored the view mapping like this:
 
 ```bash
-/rs/ti/view/          # Generatl view mapping
-  |-- views.json      # viewo mapping file
-/home/$YOUR/          # domain special view mapping
-  |-- .ti/            # Titanium config home
-      |-- views.json  # view mapping file
+/rs/ti/view/            # Generatl view mapping
+  |-- mapping.json      # viewo mapping file
+  |-- views/            # Store all view
+  		|-- text-editor.json  # View definition file
+  		|-- ...               # View name as the file major name
+/home/$YOUR/            # domain special view mapping
+  |-- .ti/              # Titanium config home
+      |-- mapping.json  # view mapping file
+      |-- views/        # Your customized views
+      	  |-- youview.json  # Your customized view definition file
 ```
 
 The search path has been defined in ENV:
@@ -84,6 +89,21 @@ The search path has been defined in ENV:
 
 If `VIEWS_PATH` failed to found, default value `/rs/ti/view/` will be taken.
 
+Alternativly, you can fetch a view definition by indicated the `ViewName` explicatly:
+
+```bash
+titanium:> ti views -name "text-editor"
+# -> It will output the view Defination as JSON string
+```
+
+In javascript:
+
+```js
+Wn.Sys.exec(`ti view -name "text-editor"`,{as:'json'}).then(view=>{
+  /* Here you got your view defination object */
+})
+```
+
 -------------------------------------------------
 # View Mapping
 
@@ -94,33 +114,39 @@ If `VIEWS_PATH` failed to found, default value `/rs/ti/view/` will be taken.
   // will be normlized as "~/xxx" if it is in current user home folder
   // !!! NOTE, it is case sensitive.
   paths : {
-    "~/my_folder/my_file.txt" : {/*@see View Definition*/}
+    "~/my_folder/my_file.txt" : "$ViewName"
   },
   // Secondly, matching by object type
   // the extension name which called "object type"
   // willl be transform to lower case before process matching
   types : {
     // special type names will be try firstly
-    "html" : {/*@see View Definition*/},
-    "mp3"  : {/*@see View Definition*/},
+    "html" : "$ViewName"
+    "mp3"  : "$ViewName"
     // RegExp has been supported, the matching keys
     // starts by '^' will be taken as RegExp.
     // And it will obey the original order of input file 
     // for matching priority
-    "^(jpe?g)$" : {/*@see View Definition*/},
+    "^(jpe?g)$" : "$ViewName"
   },
   // Then, matching by object mime Type
   // In this matching, you can use group name.
   mimes : {
     // Full mime type
-    "text/xml" : {/*@see View Definition*/},
+    "text/xml" : "$ViewName"
     // Just a group name
-    "text" : {/*@see View Definition*/}
+    "text" : "$ViewName"
   },
   // Finally, matching by object race
   races : {
-    "DIR"  : {/*@see View Definition*/},
-    "FILE" : {/*@see View Definition*/}
+    "DIR"  : "$ViewName"
+    "FILE" : "$ViewName"
   }
 }
 ```
+It will find a view definition by `$ViewName` in **view path**, which defined in ENV `VIEWS_PATH`, and it will look up the folder which the mapping located at first. If without found the view definition, it will search the `VIEW_PATH` one directory by one directory, and of cause, the location of mapping file will be skipped.
+
+-------------------------------------------------
+# How to get view information
+
+`Walnut` provided extend command `ti views` to load view information for any given object, you can run `man ti views` for more detail in `walnut console`

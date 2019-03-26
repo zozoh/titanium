@@ -1,0 +1,9 @@
+{
+  "mimes" : {
+    "text" : "text-editor"
+  },
+  "races" : {
+    "DIR" : "obj-explorer",
+    "FILE" : "obj-preview"
+  }
+}
