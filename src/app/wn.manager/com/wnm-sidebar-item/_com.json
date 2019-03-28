@@ -1,0 +1,5 @@
+{
+  "name" : "wnm-sidebar-item",
+  "template" : "./wnm-sidebar-item.html",
+  "mixins" : ["./wnm-sidebar-item.mjs"]
+}

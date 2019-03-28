@@ -2,7 +2,8 @@ export default {
   data : ()=>({
     "loadingCom" : "ti-loading",
     "mainView"   : null,
-    "status"     : null
+    "status"     : null,
+    "sidebar"    : []
   }),
   //////////////////////////////////////////////
   watch : {
@@ -19,10 +20,13 @@ export default {
   //////////////////////////////////////////////
   mounted : function(){
     let vm = this
+    // Watch the browser "Forward/Backward"
     window.onpopstate = function({state}){
       let meta = state
       vm.$store.dispatch("wn-obj-meta/reload", meta)
     }
+    // Reload sidebar
+    vm.reloadSidebar()
   },
   //////////////////////////////////////////////
   computed : {
@@ -69,6 +73,14 @@ export default {
   methods : {
     getObjLink(meta) {
       return '/a/open/wn.manager?ph=id:'+meta.id
+    },
+    //.........................................
+    async reloadSidebar() {
+      let reo = await Wn.Sys.exec("ti sidebar -qn", {as:"json"});
+      if(Ti.IsInfo("app/wn.manager")) {
+        console.log("app/wn.manager::LoadSideBar", reo)
+      }
+      this.sidebar = reo.sidebar
     },
     //.........................................
     async onMainViewOpen(objMeta) {

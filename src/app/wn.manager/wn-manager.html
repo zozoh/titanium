@@ -2,7 +2,8 @@
   <div class="wnm-sky ti-flex-cols-3">
     <div class="wnm-logo ti-flex-center">
       <ti-icon class="center" 
-               value="im-network"
+               value="/gu/rs/ti/icons/svg/im/puzzle-11.svg"
+               color="#F00"
                size="1.6em"/>
     </div>
     <div class="wnm-title ti-flex-left">
@@ -32,20 +33,9 @@
     </div>
   </div>
   <div class="wnm-aside">
-    <section>
-      <h1>Group A</h1>
-      <ul class="ti-ul-reset">
-        <li><a href="#">Item A</a></li>
-        <li><a href="#">Item B</a></li>
-      </ul>
-    </section>
-    <section>
-      <h1>Group B</h1>
-      <ul class="ti-ul-reset">
-        <li><a href="#">Item A</a></li>
-        <li><a href="#">Item B</a></li>
-      </ul>
-    </section>
+    <wnm-sidebar-item v-for="it in sidebar"
+      :key="it.key"
+      v-bind="it"/>
   </div>
   <div class="wnm-arena">
     <component

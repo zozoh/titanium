@@ -18,6 +18,7 @@ A sidebar is a quick access object set which needed by `app/wn.manager`. You can
 ```js
 {
   "sidebar" : [{
+    "icon"  : "im-xxx",
     "title" : "i18n:xxx",
     "items" : [{
         // [optional] Item key default by `obj.id`
@@ -28,10 +29,18 @@ A sidebar is a quick access object set which needed by `app/wn.manager`. You can
         // Formed path like "~/xxx" would be supported, and it will be
         // formmated to absolute full path.
         path : "/path/to/object",
+        // [optional] Item icon 
+        // @see [#Sidebar Item] for more detail
+        "icon"  : "im-xxx",
+        // [optional] Item icon
+        "title" : "i18n:xxx",
+        // [optional] Item view
+        "view"  : "text-editor",
         // [optional] Item default icon
+        // @see [#Sidebar Item] for more detail
         defaultIcon : "im-network",
         // [optional] Item default display text
-        defaultText : 'i18n:xxx',
+        defaultTitle : 'i18n:xxx',
         // [optional] Item default view
         defaultView : null,
         // [optional] Additionaly privilege setting. 
@@ -47,22 +56,43 @@ A sidebar is a quick access object set which needed by `app/wn.manager`. You can
     // to retrieve the sidebar items.
     // Each item's key should be `obj.id`
     {
-        cmd : 'obj -match "{..}"',
+        command : 'obj -match "{..}"',
         // The following option following the meaning defined above
-        key, defaultIcon, defaultText, defaultView, roles
+        key,icon,title,view,defaultIcon, defaultTitle,defaultView,roles
     },
     // Nested group
     {
-        title : "i18n:xxx",
+        title  : "i18n:xxx",
         items : [],
         // The following option following the meaning defined above
-        key, defaultIcon, defaultText, defaultView, roles
+        key,icon,title,view,defaultIcon, defaultTitle,defaultView,roles
         // !Yes, the nested group must with a `key`, if without a
         // key the whole group will be dropped.
     }]
   }]
 }
 ```
+
+-------------------------------------------------
+# Sidebar Item
+
+For normal `WnObj` which declared by `path` or `command`, it will retrieve the `icon/title/view` by the priority:
+
+1. try `icon/title/view` in `sidebar.json`
+2. try `icon/title/view` in `WnObj`
+3. try `defaultIcon/defaultTitle/defaultView` in `sidebar.json`
+4. apply the default value
+
+The default value of each fields:
+
+Field            | Default Value
+-----------------|------------------------------------
+icon.WnObj | `{tp, mime, race}`
+icon.Group  | `null`
+title.WnObj  | `obj.nm`
+title.Group   | `"Group"`
+view.WnObj | `null`
+view.Group  | `null`
 
 -------------------------------------------------
 # Sidebar Output
@@ -72,7 +102,7 @@ By `Sidebar Definition`, it will generated a explicit sidebar manifestation:
 ```js
 {
   "sidebar" : [{
-    "title" : "i18n:xxx",   // Items group
+    "text"  : "i18n:xxx",   // Items group
     "items" : [{
         key  : "The-Item-Key",     // [*] Item key default by `obj.id`
         path : "/path/to/object",  // [*] Item path

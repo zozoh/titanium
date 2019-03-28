@@ -1,19 +1,8 @@
 export default {
   props : {
-    type : {
-      type : String,
-      default : "font"
-    },
     value : {
-      type : String,
+      type : [String,Object],
       default : ""
-    },
-    data :{
-      type : Object,
-      default : ()=>({
-        type  : "font",
-        value : "zmdi-dribbble"
-      })
     },
     size : {
       type : [Number, String],
@@ -29,18 +18,27 @@ export default {
     }
   },
   computed : {
-    isFont() {
-      return this.data.type == "font"
+    icon() {
+      if(_.isPlainObject(this.value)){
+        return Ti.Icons.get(this.value)
+      }
+      let re = {
+        type : "font",
+        value : this.value
+      }
+      if(_.isString(this.value)) {
+        re.type = Ti.Util.getSuffixName(this.value) || "font"
+      }
+      return re
     },
     isFontLiga() {
-      let val = this.fontValue
-      return !/^([a-z]+)-/.test(val)
-    },
-    fontValue() {
-      return this.value || this.data.value
+      let icon = this.icon
+      if("font" == icon.type)
+        return !/^([a-z]+)-/.test(icon.value)
+      return false
     },
     fontClassObject() {
-      let val = this.fontValue
+      let val = this.icon.value
       let m = /^([a-z]+)-(.+)$/.exec(val)
       if(m) {
         // fontawsome
@@ -57,6 +55,21 @@ export default {
       let re = {}
       if(vm.size) {
         re.fontSize = Ti.Css.toSize(vm.size)
+      }
+      if(vm.color) {
+        re.color = vm.color
+      }
+      if(vm.opacity >=0 ) {
+        re.opacity = vm.opacity
+      }
+      return re
+    },
+    imgStyleObject() {
+      let vm = this
+      let re = {}
+      if(vm.size) {
+        re.width = Ti.Css.toSize(vm.size)
+        re.height = re.width
       }
       if(vm.color) {
         re.color = vm.color

@@ -1,0 +1,12 @@
+<div class="sidebar-item">
+  <div class="sidebar-item-info">
+    <ti-icon :value="icon"/>
+    <span>{{title|i18n}}</span>
+  </div>
+  <div class="sidebar-items-con">
+      <wnm-sidebar-item v-for="subIt in items"
+        class="sub-item"
+        :key="subIt.key"
+        v-bind="subIt"/>
+  </div>
+</div>

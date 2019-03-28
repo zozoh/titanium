@@ -1,0 +1,15 @@
+{
+  "sidebar" : [{
+    "text"  : "i18n:abc",
+    "items" : [{
+        "path" : "~/tmp"
+    }, {
+        "command" : "obj -mine -match '{tp:\"txt\"}'"
+    }, {
+        "text" : "i18n:api",
+        "items" : [{
+          "command" : "obj ~/.regapi/api/*"
+        }]
+    }]
+  }]
+}
