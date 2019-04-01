@@ -36,7 +36,7 @@ export default {
   mounted : function(){
     Ti.Fuse.getOrCreate().add({
       key : "wn-obj-puretext",
-      check : ()=>{
+      everythingOk : ()=>{
         return !this.dataIsChanged
       },
       fail : ()=>{

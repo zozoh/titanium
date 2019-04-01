@@ -1,6 +1,11 @@
 @mixin noselect(){
   user-select:none;
 }
+@mixin text-overflow(){
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 //-------------------------------------------------------------
 @mixin flex($jc:flex-start,$ai:flex-start,$wp:wrap,$ac:stretch) {
   display: flex;
@@ -91,6 +96,6 @@
 }
 //-------------------------------------------------------------
 @mixin color($cl:null, $bg:null) {
-  @if $c != null {color:$cl;}
-  @if $c != null {background-color:$bg;}
+  @if $cl != null {color:$cl;}
+  @if $cl != null {background-color:$bg;}
 }

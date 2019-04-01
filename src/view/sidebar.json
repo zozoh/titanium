@@ -1,15 +1,14 @@
 {
   "sidebar" : [{
-    "text"  : "i18n:abc",
+    "path" : "~",
+    "defaultIcon" : "fas-home",
+    "defaultTitle" : "i18n:home"
+  }, {
+    "key" : "wn-manager-favorites",
+    "icon" : "far-star",
+    "title"  : "i18n:favorites",
     "items" : [{
-        "path" : "~/tmp"
-    }, {
-        "command" : "obj -mine -match '{tp:\"txt\"}'"
-    }, {
-        "text" : "i18n:api",
-        "items" : [{
-          "command" : "obj ~/.regapi/api/*"
-        }]
-    }]
+        "command" : "obj ~ -mine -match 'race:\"DIR\"'"
+      }]
   }]
 }

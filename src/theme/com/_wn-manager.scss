@@ -13,7 +13,7 @@
     > *:first-child{padding-left:0;}
     > *:last-child{padding-right:0;}
   }
-  .wnm-aside  {padding: .12rem;}
+  .wnm-aside  {padding: .01rem;}
   .wnm-footer > * {padding:0 .1rem;}
 }
 // bgcolor
@@ -70,4 +70,53 @@
       l:0, b:0,r:0,
       h:map-get($SZ,footer))...);
   }
+  .wnm-loading-mask {
+    @include pos-fixed-full;
+    background:rgba(0,0,0,0);
+  }
+}
+
+// Sidebar
+.wnm-aside {
+  overflow-x:hidden; overflow-y:auto; 
+  .sidebar-item {
+    .it-info {
+      @include noselect;
+      @include flex-align($wp:nowrap);
+      width:100%; padding:0 .5em; cursor: pointer;
+      > span.ti-icon {
+        flex:0 0 auto; width:.2rem;
+      }
+      > .it-info-text {
+        flex:1 1 auto; 
+        @include text-overflow;
+      }
+    }
+    .it-con {
+      padding-left:1em; 
+    }
+    &.is-highlight {
+      > .it-info {
+        color:map-get($revs-color, primary);
+        background:map-get($color, primary);
+        a{color:unset;}
+        a:hover {text-decoration: none; color:unset;}
+      }
+    }
+    &.is-group {
+      > .it-info {
+        font-size:.8em;
+      }
+    }
+    &.is-collapse {
+      &.is-group > .it-info {
+        @include color(map-get($color,primary),map-get($bgcolor,paper));
+        &:after {
+          display:block; flex:0 0 auto;
+          content:"..."; padding:0 .1em;
+        }
+      }
+      > .it-con {height:0; overflow:hidden;}
+    }
+  } // ~ .sidebar-item
 }

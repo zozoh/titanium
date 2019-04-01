@@ -102,9 +102,12 @@ By `Sidebar Definition`, it will generated a explicit sidebar manifestation:
 ```js
 {
   "sidebar" : [{
+    "depth" : 0,   // Item depth, 0 base
     "text"  : "i18n:xxx",   // Items group
     "items" : [{
+        depth : 1,
         key  : "The-Item-Key",     // [*] Item key default by `obj.id`
+        oid  : "xxx",              // [O] Item id, `null` if group
         path : "/path/to/object",  // [*] Item path
         icon : "im-network",       // [*] Item icon
         text : 'i18n:xxx',         // [*] Item text

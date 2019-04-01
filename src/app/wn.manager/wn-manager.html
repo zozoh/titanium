@@ -35,6 +35,10 @@
   <div class="wnm-aside">
     <wnm-sidebar-item v-for="it in sidebar"
       :key="it.key"
+      :group-status-store-key="it.key"
+      :highlight-id="mainDataId"
+      :do-open-path="onMainViewOpen"
+      :get-obj-link="getObjLink"
       v-bind="it"/>
   </div>
   <div class="wnm-arena">
@@ -58,4 +62,5 @@
       <em>{{main.modType}}</em>
     </div>
   </div>
+  <div v-if="isLoading" class="wnm-loading-mask"></div>
 </div>

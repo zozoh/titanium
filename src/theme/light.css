@@ -373,7 +373,7 @@ a:hover {
   .wn-manager .wnm-action > *:last-child {
     padding-right: 0; }
 .wn-manager .wnm-aside {
-  padding: .12rem; }
+  padding: .01rem; }
 .wn-manager .wnm-footer > * {
   padding: 0 .1rem; }
 
@@ -417,3 +417,55 @@ a:hover {
     height: 0.32rem;
     right: 0;
     bottom: 0; }
+  .wn-manager .wnm-loading-mask {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0); }
+
+.wnm-aside {
+  overflow-x: hidden;
+  overflow-y: auto; }
+  .wnm-aside .sidebar-item .it-info {
+    user-select: none;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    flex-wrap: nowrap;
+    width: 100%;
+    padding: 0 .5em;
+    cursor: pointer; }
+    .wnm-aside .sidebar-item .it-info > span.ti-icon {
+      flex: 0 0 auto;
+      width: .2rem; }
+    .wnm-aside .sidebar-item .it-info > .it-info-text {
+      flex: 1 1 auto;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; }
+  .wnm-aside .sidebar-item .it-con {
+    padding-left: 1em; }
+  .wnm-aside .sidebar-item.is-highlight > .it-info {
+    color: #FFF;
+    background: #2196f3; }
+    .wnm-aside .sidebar-item.is-highlight > .it-info a {
+      color: unset; }
+    .wnm-aside .sidebar-item.is-highlight > .it-info a:hover {
+      text-decoration: none;
+      color: unset; }
+  .wnm-aside .sidebar-item.is-group > .it-info {
+    font-size: .8em; }
+  .wnm-aside .sidebar-item.is-collapse.is-group > .it-info {
+    color: #2196f3;
+    background-color: #fff; }
+    .wnm-aside .sidebar-item.is-collapse.is-group > .it-info:after {
+      display: block;
+      flex: 0 0 auto;
+      content: "...";
+      padding: 0 .1em; }
+  .wnm-aside .sidebar-item.is-collapse > .it-con {
+    height: 0;
+    overflow: hidden; }

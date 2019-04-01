@@ -1,11 +1,11 @@
 class Detonator {
-  constructor({key, check, fail, once=false}={}){
+  constructor({key, everythingOk, fail, once=false}={}){
     _.assign(this, {
-      key, check, fail, once
+      key, everythingOk, fail, once
     })
   }
   async explode() {
-    let ok = await this.check()
+    let ok = await this.everythingOk()
     // fail to explode，then it is a dud
     if(!ok) {
       await this.fail()

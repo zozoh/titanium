@@ -3,6 +3,8 @@
 export default async function reloadMain(meta) {
   let vm = this
 
+  vm.reloading = true
+
   // default meta
   if(!meta) {
     mata = vm.obj.meta
@@ -18,7 +20,6 @@ export default async function reloadMain(meta) {
     vm.$store.unregisterModule("main")
   }catch(Err){}
   
-
   // Load the module/component for the object
   if(meta) {
     let mainView = await Wn.Sys.exec2(vm, `ti views -cqn id:${meta.id}`, {as:"json"})
@@ -38,4 +39,6 @@ export default async function reloadMain(meta) {
     // call main reload
     await $app.dispatch("main/reload", meta)
   }
+
+  vm.reloading = false
 } // reloadMain

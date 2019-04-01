@@ -1,12 +1,23 @@
-<div class="sidebar-item">
-  <div class="sidebar-item-info">
-    <ti-icon :value="icon"/>
-    <span>{{title|i18n}}</span>
+<div class="sidebar-item" :class="itemClass">
+  <div class="it-info" >
+    <ti-icon v-if="icon" :value="icon"/>
+    <span v-if="isGroup"
+      class="it-info-text"
+      @click.stop.prevent="onClickGroupInfo">{{title|i18n}}</span>
+    <a v-else
+      :href="itemLink"
+      class="it-info-text"
+      @click.stop.prevent="onClickItemInfo">
+      {{title|i18n}}
+    </a>
   </div>
-  <div class="sidebar-items-con">
+  <div class="it-con" v-if="items && items.length > 0">
       <wnm-sidebar-item v-for="subIt in items"
-        class="sub-item"
         :key="subIt.key"
+        :group-status-store-key="subIt.key"
+        :highlight-id="highlightId"
+        :do-open-path="doOpenPath"
+        :get-obj-link="getObjLink"
         v-bind="subIt"/>
   </div>
 </div>

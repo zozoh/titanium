@@ -1,4 +1,7 @@
 {
+  "e-io-obj-noexists" : "数据对象其实并不存在",
+  "favorites" : "收藏",
+  "home" : "主目录",
   "loading" : "加载中...",
   "login"  : "登录",
   "logout" : "退出",
@@ -8,6 +11,5 @@
   "save" : "保存",
   "save-now" : "立即保存",
   "save-change" : "保存修改",
-  "saving" : "正在保存...",
-  "e-io-obj-noexists" : "数据对象其实并不存在"
+  "saving" : "正在保存..."
 }

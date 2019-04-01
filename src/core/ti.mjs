@@ -10,6 +10,7 @@ import {TiHttp   as Http    } from "./http.mjs"
 import {Ti18n    as I18n    } from "./i18n.mjs"
 import {TiIcons  as Icons   } from "./icons.mjs"
 import {TiFuse   as Fuse    } from "./fuse.mjs"
+import {TiStorage as Storage} from "./storage.mjs"
 import {Tinstall as Install } from "./install.mjs"
 import {TiShortcut as Shortcut} from "./shortcut.mjs"
 import {TiRandom as Random} from "./random.mjs"
@@ -40,7 +41,7 @@ const LOG_LEVELS = {
 //---------------------------------------
 export const Ti = {
   S, Util, App, Err, Config, Dom, Css, Load, Http, 
-  Icons, I18n, Install, Shortcut, Fuse, Random,
+  Icons, I18n, Install, Shortcut, Fuse, Random,Storage,
   //.....................................
   Env(key, val) {
     return Ti.Util.geset(ENV, key, val)

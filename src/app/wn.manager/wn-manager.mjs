@@ -1,5 +1,6 @@
 export default {
   data : ()=>({
+    "reloading"  : false,
     "loadingCom" : "ti-loading",
     "mainView"   : null,
     "status"     : null,
@@ -27,9 +28,32 @@ export default {
     }
     // Reload sidebar
     vm.reloadSidebar()
+    // Protected loading
+    Ti.Fuse.getOrCreate().add({
+      key : "wn-manager-view-opening",
+      everythingOk : ()=>{
+        return !vm.isLoading
+      },
+      fail : ()=>{
+        vm.$message({
+          showClose: true,
+          message: Ti.I18n.get("wnm-view-opening"),
+          duration : 3000,
+          type: 'warning'
+        });
+      }
+    })
+  },
+  //////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Fuse.get().remove("wn-manager-view-opening")
   },
   //////////////////////////////////////////////
   computed : {
+    isLoading() {
+      return this.$store.state.main == null
+             || this.reloading
+    },
     main() {
       // evaluate the action menu
       let actionMenu = []
@@ -67,12 +91,37 @@ export default {
     },
     mainData() {
       return this.$store.state.main
+    },
+    mainDataId() {
+      if(this.$store.state.main && this.$store.state.main.meta) {
+        return this.$store.state.main.meta.id
+      }
     }
   },
   //////////////////////////////////////////////
   methods : {
     getObjLink(meta) {
-      return '/a/open/wn.manager?ph=id:'+meta.id
+      if(!meta){
+        return '/a/open/wn.manager'
+      }
+
+      if(/^(\/|~)/.test(meta)) {
+        return '/a/open/wn.manager?ph='+meta
+      }
+
+      if(_.isString(meta)) {
+        return '/a/open/wn.manager?ph=id:'+meta
+      }
+      
+      if(meta.id){
+        return '/a/open/wn.manager?ph=id:'+meta.id
+      }
+
+      if(meta.ph){
+        return '/a/open/wn.manager?ph='+meta.ph
+      }
+
+      return '#'
     },
     //.........................................
     async reloadSidebar() {
