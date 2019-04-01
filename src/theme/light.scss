@@ -31,7 +31,8 @@ $text-color: (
 $bgcolor: (
   paper   : #fff,
   chip    : #e0e0e0,
-  default : #fafafa
+  default : #fafafa,
+  mask    : rgba(0,0,0,0.4)
 );
 $bg-overlay: (
   primary   : rgba(0,0,0,0.08),

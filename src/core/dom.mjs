@@ -1,7 +1,7 @@
 import {TiRects} from "./rect.mjs"
 //-----------------------------------
 export const TiDom = {
-  createElement({tagName="div", attrs={}, props={}, className=""}, $doc=document) {
+  createElement({tagName="div", attrs={}, props={}, className="", $p=null}, $doc=document) {
     const $el = $doc.createElement(tagName)
     if(className)
       $el.className = className    
@@ -11,6 +11,9 @@ export const TiDom = {
     _.forOwn(props, (val, key) => {
       $el[key] = val
     })
+    if($p) {
+      $p.appendChild($el)
+    }
     return $el
   },
   appendToHead($el, $head=document.head) {
@@ -21,6 +24,13 @@ export const TiDom = {
   },
   appendTo($el, $p) {
     $p.appendChild($el)
+  },
+  prependTo($el, $p) {
+    if($p.firstChild) {
+      $p.insertBefore($el, $p.firstChild)
+    }else{
+      $p.appendChild($el)
+    }
   },
   findAll(selector="*", $doc=document) {
     const $ndList = $doc.querySelectorAll(selector);

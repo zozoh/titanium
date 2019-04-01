@@ -32,16 +32,112 @@ function do_extend_setting(store, obj) {
   return is_extendable ? re : obj
 }
 //---------------------------------------
+function $vm($el) {
+
+}
+//---------------------------------------
 export const TiVue = {
   /***
    * Install the Vue Plugin for i18n filter etc.
    */
   install() {
     Vue.use({install:(Vue)=>{
+      // Filter: i18n
       Vue.filter("i18n", function(val){
         return Ti.I18n.text(val)
       })
-    }})
+      //................................
+      // Directive: v-drop-files
+      //  - value : f() | [f(), "i18n:mask-tip"]
+      //  - modifiers : {
+      //      mask : Auto show DIV.ti-drag-mask
+      //    }
+      Vue.directive("dropFiles", {
+        bind : function($el, binding){
+          console.log("drop-files bind", $el, binding)
+          // Preparent Handler / Mask Content
+          let handler  = null
+          let maskHtml = null
+          let showMask = binding.modifiers.mask
+          if(_.isArray(binding.value)) {
+            handler  = binding.value.length > 0 ? binding.value[0] : null
+            maskHtml = binding.value.length > 1 ? binding.value[1] : null
+          }
+          // Directly function
+          else if(_.isFunction(binding.value)) {
+            handler = binding.value
+          }
+          if(showMask) {
+            maskHtml = Ti.I18n.text(
+              maskHtml || "i18n:drop-file-here-to-upload"
+            )
+          }
+          // Attach Events
+          $el.__drag_enter_count = 0
+          $el.addEventListener("dragenter", function(evt){
+            $el.__drag_enter_count++;
+            if($el.__drag_enter_count == 1) {
+              //console.log(">>>>>>>>>>>> enter")
+              $el.setAttribute("ti-is-drag", "")
+              if(showMask) {
+                $el.$ti_drag_mask = Ti.Dom.createElement({
+                  className:"ti-drag-mask",
+                  $p : $el
+                })
+                $el.$ti_drag_mask.innerHTML=`<span>${maskHtml}</span>`
+              }
+            }
+          })
+          $el.addEventListener("dragover", function(evt){
+            evt.preventDefault();
+            evt.stopPropagation();
+          })
+          $el.addEventListener("dragleave", function(evt){
+            $el.__drag_enter_count--;
+            if($el.__drag_enter_count<=0) {
+              //console.log("<<<<<<<<<<<<< leave")
+              $el.removeAttribute("ti-is-drag")
+              if($el.$ti_drag_mask) {
+                Ti.Dom.remove($el.$ti_drag_mask)
+                delete $el.$ti_drag_mask
+              }
+            }
+          })
+          $el.addEventListener("drop", function(evt){
+            evt.preventDefault();
+            evt.stopPropagation();
+            //console.log("drop:", evt.dataTransfer.files)
+            //..........................
+            // reset drag tip
+            $el.removeAttribute("ti-is-drag")
+            if($el.$ti_drag_mask) {
+              Ti.Dom.remove($el.$ti_drag_mask)
+              delete $el.$ti_drag_mask
+            }
+            //..........................
+            if(_.isFunction(handler)){
+              handler(evt.dataTransfer.files)
+            }
+            //..........................
+          })
+        }
+      })
+      //................................
+      // Directive: v-drop-files
+      Vue.directive("dropOff", {
+        bind : function($el, binding){
+          // console.log("drop-off bind", $el, binding)
+          $el.addEventListener("dragover", function(evt){
+            evt.preventDefault();
+            evt.stopPropagation();
+          })
+          $el.addEventListener("drop", function(evt){
+            evt.preventDefault();
+            evt.stopPropagation();
+          })
+        }
+      })  // ~ Vue.directive("drop-none"
+    }})  // ~ Vue.use({install:(Vue)=>{
   },
   /***
   Generated a new configuration object for `Vuex.Store` to generated a new Vuex instance. It will build sub-modules deeply by invoke self recursively.

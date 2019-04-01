@@ -46,6 +46,10 @@ export default {
     },
     onItemBlur() {
       this.$store.commit("main/blurAll")
+    },
+    onDropFiles(files) {
+      let fs = [...files]
+      this.$store.dispatch("main/upload", fs)
     }
   }
 }

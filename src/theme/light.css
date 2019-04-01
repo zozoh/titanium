@@ -131,6 +131,26 @@ a:hover {
   background-color: rgba(0, 0, 0, 0);
   z-index: 1; }
 
+[ti-is-drag] {
+  position: relative; }
+  [ti-is-drag] > .ti-drag-mask {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    z-index: 1000;
+    font-size: 2em;
+    padding-bottom: 20%;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #ff4081;
+    border: 0.04rem dashed #ff4081; }
+
 .ti-mark-changed {
   color: #ff4081;
   margin: 0 .02rem;

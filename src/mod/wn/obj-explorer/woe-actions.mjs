@@ -19,6 +19,12 @@ export default {
     })
     return re
   },
+  /**
+   * Upload files
+   */
+  async upload({state, commit, dispath}, files) {
+    console.log("uploadFiles", files)
+  },
   /***
    * Reload all
    */

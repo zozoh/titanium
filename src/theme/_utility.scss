@@ -31,6 +31,19 @@
   z-index: $z-mask;
 }
 //...................................................
+[ti-is-drag] {
+  position:relative;
+  > .ti-drag-mask {
+    @include pos-abs-full;
+    @include flex-center;
+    z-index: $z-top;
+    font-size:2em; padding-bottom:20%;
+    background-color:map-get($bgcolor, mask);
+    color: map-get($color, secondary);
+    border:.04rem dashed map-get($color, secondary);
+  }
+}
+//...................................................
 .ti-mark-changed {
   color: map-get($color, secondary);
   margin:0 .02rem;
