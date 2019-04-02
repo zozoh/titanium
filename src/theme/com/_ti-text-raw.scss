@@ -3,10 +3,9 @@
   .te-head {
     flex:0 0 auto;
     padding:.04rem .12rem 0 .12rem;
-    color:map-get($text-color, primary);
     @include flex-align($ai:center);
     &.content-changed {
-      color:map-get($color, secondary);
+      @include color($color-secondary, c);
     }
     > .ti-icon {
       padding:0 .08rem 0 0; font-size:1.4em;
@@ -18,13 +17,13 @@
     padding:.04rem;
     textarea {
       @include flex-full(1 1 auto);
+      @include border(1px, solid, dark);
       resize:none; outline:none;
-      border:1px solid map-get($color,divider); 
       padding:.1rem;
       font-family: Monaco, Consolas, Courier New;
       font-size:.16rem; line-height:.2rem;
       &:focus {
-        border-color:map-get($color, secondary);
+        border-color:map-get($color-line, highlight);
       }
     }
   }

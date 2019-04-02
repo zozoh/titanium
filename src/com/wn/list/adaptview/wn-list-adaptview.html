@@ -9,7 +9,8 @@
          class="ti-hide"
          multiple
          @change.stop.seft="onSelectFilesToUpload">
-  <div class="wla-uploading">
+  <div class="wla-uploading"
+      :class="uploadingClass">
     <header>
       <ti-icon value="fas-spinner fa-pulse"/>
       <span>{{'uploading'|i18n}}</span>

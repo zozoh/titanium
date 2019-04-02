@@ -73,6 +73,9 @@ export default {
      */
     hasUploading() {
       return this.uploadingList.length > 0
+    },
+    uploadingClass() {
+      return this.hasUploading ? "up-show" : "up-hide"
     }
   },  // ~ computed
   methods : {

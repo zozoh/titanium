@@ -7,8 +7,7 @@ body {
   font-size:.18rem; 
   line-height:2.4em;
   letter-spacing:.015em;
-  color: map-get($text-color, primary);
-  background: map-get($bgcolor, default);
+  @include color($color-body, r, c);
 }
 //...................................................
 * {
@@ -18,11 +17,11 @@ body {
 }
 //...................................................
 a {
-  color:map-get($color, primary);
+  @include color($color-primary, c);
   text-decoration: none;
 }
 a:hover {
-  color:map-get($color, secondary);
+  @include color($color-secondary, c);
   text-decoration: underline;
 }
 //...................................................

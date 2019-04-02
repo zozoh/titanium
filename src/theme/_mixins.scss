@@ -50,26 +50,19 @@
   margin:$margin;
 }
 //-------------------------------------------------------------
-@mixin highlight($bg:primary, $txt:alternate) {
-  background:map-get($color, $bg);
-  color:map-get($text-color, $txt);
+@mixin highlight($color:$color-primary) {
+  @include color($color, r, c);
 }
 //-------------------------------------------------------------
-@mixin border($pos,$w:1px,$s:solid,$c:map-get($color,divider)) {
-  border-#{$pos}:$w $s $c;
-}
-//-------------------------------------------------------------
-@mixin fireable($colorName:primary, $disable:null) {
+@mixin fireable() {
   cursor:pointer;
-  @if $disable == null {
-    &:hover {
-      color: map-get($revs-color, $colorName);
-      background: map-get($color, $colorName);
-    }
+  &:hover {
+    @include color($color-primary, r, c)
   }
-  @else {
-    opacity: 0.4;
-  }
+}
+//-------------------------------------------------------------
+@mixin disabled() {
+  cursor: default; opacity:0.4;
 }
 //-------------------------------------------------------------
 @mixin pos($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
@@ -94,8 +87,4 @@
 @mixin pos-fixed-full($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
   @include pos-fixed($l:0,$r:0,$t:0,$b:0);
 }
-//-------------------------------------------------------------
-@mixin color($cl:null, $bg:null) {
-  @if $cl != null {color:$cl;}
-  @if $cl != null {background-color:$bg;}
-}
+

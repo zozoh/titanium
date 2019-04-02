@@ -7,7 +7,7 @@
         border-radius:.02rem;
         padding:0 .06rem;
         &[item-disabled] {
-          @include fireable($disable:yes);
+          @include disabled;
         }
         &[item-enabled] {
           @include fireable;
@@ -33,9 +33,9 @@
       position:fixed;
       min-width: 1.5rem;
       z-index: $z-menu;
-      color:map-get($text-color, primary);
-      background-color:map-get($bgcolor, chip);
-      padding:1px; border:1px solid map-get($color, divider);
+      padding:1px; 
+      @include color($color-chip, r, c);
+      @include border(1px, solid shallow);
     }
   }
   

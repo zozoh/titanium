@@ -1,9 +1,11 @@
 // bordering
 .wn-manager {
-  .wnm-sky    {@include border(bottom);}
-  .wnm-aside  {@include border(right);}
-  .wnm-footer {@include border(top);}
-  .wnm-action .wnm-action-menu {@include border(left);}
+  .wnm-sky    {@include border($pos:bottom);}
+  .wnm-aside  {@include border($pos:right);}
+  .wnm-footer {@include border($pos:top);}
+  .wnm-action .wnm-action-menu {
+    @include border($pos:left);
+  }
 }
 // padding
 .wn-manager {
@@ -21,7 +23,7 @@
   .wnm-sky,
   .wnm-aside,
   .wnm-footer{
-    background:map-get($bg-overlay, primary);
+    @include color($color-h1, null, c);
   }
 }
 // font-size & misc
@@ -30,7 +32,8 @@
     overflow:hidden;
   }
   .wnm-footer {
-    font-size: .12em; color:map-get($text-color, disabled);
+    @include color($color-disable, c);
+    font-size: .12em; 
     .ti-icon {
       font-size:1.2em; margin:0 .06rem 0 0;
     }
@@ -85,7 +88,8 @@
       @include flex-align($wp:nowrap);
       width:100%; padding:0 .5em; cursor: pointer;
       > span.ti-icon {
-        flex:0 0 auto; width:.2rem;
+        flex:0 0 auto; width:.2rem; min-width:18px;
+        margin-right:1px;
       }
       > .it-info-text {
         flex:1 1 auto; 
@@ -97,8 +101,7 @@
     }
     &.is-highlight {
       > .it-info {
-        color:map-get($revs-color, primary);
-        background:map-get($color, primary);
+        @include color($color-primary, r, c);
         a{color:unset;}
         a:hover {text-decoration: none; color:unset;}
       }
@@ -110,7 +113,8 @@
     }
     &.is-collapse {
       &.is-group > .it-info {
-        @include color(map-get($color,primary),map-get($bgcolor,paper));
+        color: map-get($color-primary, c);
+        background: map-get($color-h1, c);
         &:after {
           display:block; flex:0 0 auto;
           content:"..."; padding:0 .1em;

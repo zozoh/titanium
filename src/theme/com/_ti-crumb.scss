@@ -3,7 +3,8 @@
   > li {
     @include flex-center($wp:nowrap);
     white-space: nowrap;
-    .ti-icon i {color:map-get($text-color, disabled); font-size:1em;}
-    > b {color:map-get($text-color, primary);}
+    .ti-icon i {
+      font-size:1em;
+    }
   }
 }

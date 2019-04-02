@@ -40,14 +40,14 @@
     @include flex-center;
     z-index: $z-top;
     font-size:2em; padding-bottom:20%;
-    background-color:map-get($bgcolor, mask);
-    color: map-get($color, secondary);
-    border:.04rem dashed map-get($color, secondary);
+    @include color($color-mask, null, thin);
+    @include color($color-secondary, c); 
+    @include border(.04rem, dashed, hightlight);
   }
 }
 //...................................................
 .ti-mark-changed {
-  color: map-get($color, secondary);
+  @include color($color-secondary, c);
   margin:0 .02rem;
   font-style:normal; font-weight: bold;
 }

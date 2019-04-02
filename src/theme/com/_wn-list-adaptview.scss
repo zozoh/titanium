@@ -2,8 +2,21 @@
   position: relative;
   > .wla-uploading {
     @include pos-abs($l:0,$r:0,$b:0);
+    @include color($color-cloak, r, c);
     max-height: 100%; overflow-y:auto;
-    padding: .1rem;
-    background: map-get($bgcolor, mask);
+    transition: 0.5s;
+    &.up-show {
+      opacity: 1; bottom:0;
+    }
+    &.up-hide {
+      opacity: 0; bottom:-100%;
+    }
+    > header {
+      @include color($color-warn, r, c);
+      padding: .04rem .1rem;
+    }
+    > section {
+      padding: .1rem;
+    }
   }
 }
