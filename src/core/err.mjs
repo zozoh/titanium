@@ -9,7 +9,11 @@ export const TiError = {
     let msgKey = er.code.replace(/[.]/g, "-")
     let errMsg = Ti18n.get(msgKey)
     if(data) {
-      errMsg += " : " + data
+      if(_.isPlainObject(data)) {
+        errMsg += " : " + JSON.stringify(data)
+      } else {
+        errMsg += " : " + data
+      }
     }
     let errObj = new Error(errMsg);
     return _.assign(errObj, er)

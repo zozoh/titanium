@@ -1,0 +1,9 @@
+.wn-list-adaptview {
+  position: relative;
+  > .wla-uploading {
+    @include pos-abs($l:0,$r:0,$b:0);
+    max-height: 100%; overflow-y:auto;
+    padding: .1rem;
+    background: map-get($bgcolor, mask);
+  }
+}

@@ -20,14 +20,19 @@ export default {
   invokeAction : _.debounce(function(){
     let vm = this
     if(vm.action && vm.isEnabled) {
-      let m = /^(dispatch):(.+)$/.exec(vm.action)
+      let m = /^([a-zA-Z0-9_]+):(.+)$/.exec(vm.action)
       if(m) {
-        // setup async action
-        vm.processing = true
-        // do action and recover
-        let [_, mode, actionPath] = m
-        ActionModes[mode](vm, actionPath)
-          .then(()=>vm.processing = false)
+        let $app = Ti.App(vm)
+        let func = $app[m[1]]
+        let arg  = m[2]
+        if(_.isFunction(func) && arg) {
+          func.apply($app, [arg])
+        }
+        // Fail to found function
+        else {
+          throw Ti.Err.make("e-ti-menu-action-InvalidAction", vm.action)
+        }
+        //.then(()=>vm.processing = false)
       }
       // invalid action form
       else {

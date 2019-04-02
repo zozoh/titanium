@@ -6,6 +6,9 @@ export default {
     }
   },
   computed : {
+    /***
+     * Current Object list to show
+     */
     objList() {
       let vm = this
       let list = vm.data.children
@@ -32,8 +35,46 @@ export default {
         }
       }
       return re
+    },
+    /***
+     * Show uploading list
+     */
+    uploadingList() {
+      let vm = this
+      let list = vm.data.uploadings
+      let re = []
+      if(_.isArray(list)) {
+        for(let it of list) {
+          // Gen Preview for local image
+          let mime = it.file.type
+          let preview;
+          if(/^image\//.test(mime)) {
+            preview = {
+              type : "localFile",
+              value : it.file
+            }
+          } else {
+            preview = Ti.Icons.get({mime})
+          }
+          // Join to result list
+          re.push({
+            id    : it.id,
+            title : it.file.name,
+            preview,
+            process : (it.current/it.total)
+          })
+        }
+      }
+      console.log("uploadingList", re)
+      return re
+    },
+    /***
+     * has uploading
+     */
+    hasUploading() {
+      return this.uploadingList.length > 0
     }
-  },
+  },  // ~ computed
   methods : {
     onItemSelected(index, mode) {
       this.$store.commit("main/selectItem", {index, mode})
@@ -50,6 +91,13 @@ export default {
     onDropFiles(files) {
       let fs = [...files]
       this.$store.dispatch("main/upload", fs)
+    },
+    openFileSelectdDialog(){
+      this.$refs.file.click()
+    },
+    onSelectFilesToUpload(evt){
+      this.onDropFiles(evt.target.files)
+      this.$refs.file.value = ""
     }
   }
 }

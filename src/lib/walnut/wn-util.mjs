@@ -28,10 +28,8 @@ export const WnUtil = {
     }
     // Customized Icon
     if(meta.icon) {
-      return {
-        type  : "icon",
-        value : WnUtil.getIconName(meta.icon)
-      }
+      let icon = WnUtil.getIconName(meta.icon)
+      return Ti.Icons.get(icon)
     }
     // Default
     return Ti.Icons.get(meta)

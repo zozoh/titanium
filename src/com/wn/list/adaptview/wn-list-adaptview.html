@@ -4,4 +4,18 @@
     @selected="onItemSelected"
     @open="onItemOpen"
     @blur="onItemBlur"/>
+  <input type="file" 
+         ref="file" 
+         class="ti-hide"
+         multiple
+         @change.stop.seft="onSelectFilesToUpload">
+  <div class="wla-uploading">
+    <header>
+      <ti-icon value="fas-spinner fa-pulse"/>
+      <span>{{'uploading'|i18n}}</span>
+    </header>
+    <section>
+      <ti-set-tiles :list="uploadingList"/>
+    </section>
+  </div>
 </div>

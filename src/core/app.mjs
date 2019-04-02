@@ -2,12 +2,13 @@ import {Ti}            from "./ti.mjs"
 import {TiVue}         from "./polyfill-ti-vue.mjs"
 import {LoadTiAppInfo, LoadTiLinkedObj} from "./app_info.mjs"
 //---------------------------------------
-const TI_APP   = Symbol("ti-app")
-const TI_INFO  = Symbol("ti-info")
-const TI_CONF  = Symbol("ti-conf")
-const TI_STORE = Symbol("ti-store")
-const TI_VM    = Symbol("ti-vm")
-const GET_SET  = Symbol("getter/setter")
+const TI_APP     = Symbol("ti-app")
+const TI_INFO    = Symbol("ti-info")
+const TI_CONF    = Symbol("ti-conf")
+const TI_STORE   = Symbol("ti-store")
+const TI_VM      = Symbol("ti-vm")
+const TI_VM_MAIN = Symbol("ti-vm-main")
+const GET_SET    = Symbol("getter/setter")
 //---------------------------------------
 /***
 Encapsulate all stuffs of Titanium Application
@@ -22,10 +23,11 @@ export class OneTiApp {
   //---------------------------------------
   name () {return this.$info().name}
   //---------------------------------------
-  $info(info)   {return Ti.Util.geset(this, TI_INFO , info)}
-  $conf(conf)   {return Ti.Util.geset(this, TI_CONF , conf)}
-  $store(store) {return Ti.Util.geset(this, TI_STORE, store)}
-  $vm   (vm)    {return Ti.Util.geset(this, TI_VM   , vm)}
+  $info (info)   {return Ti.Util.geset(this, TI_INFO ,   info)}
+  $conf (conf)   {return Ti.Util.geset(this, TI_CONF ,   conf)}
+  $store (store) {return Ti.Util.geset(this, TI_STORE,   store)}
+  $vm    (vm)    {return Ti.Util.geset(this, TI_VM   ,   vm)}
+  $vmMain(mvm)   {return Ti.Util.geset(this, TI_VM_MAIN, mvm)}
   //---------------------------------------
   async init(){
     // App Must has a name
@@ -84,12 +86,44 @@ export class OneTiApp {
     this.$el[TI_APP] = this
   }
   //---------------------------------------
-  commit(nm, payload)   {this.$store().commit(nm, payload)}
+  commit(nm, payload){
+    this.$store().commit(nm, payload)
+  }
   dispatch(nm, payload) {
     if(Ti.IsInfo("TiApp")) {
       console.log("TiApp.dispatch", nm, payload)
     }
     this.$store().dispatch(nm, payload)
+  }
+  //---------------------------------------
+  self(nm, payload) {
+    if(Ti.IsInfo("TiApp")) {
+      console.log("TiApp.self", nm, payload)
+    }
+    let vm = this.$vm()
+    let fn = vm[nm]
+    if(_.isFunction(fn)){
+      fn(payload)
+    }
+    // report error
+    else {
+      throw Ti.Err.make("e-ti-app-self", {nm, payload})
+    }
+  }
+  //---------------------------------------
+  main(nm, payload) {
+    if(Ti.IsInfo("TiApp")) {
+      console.log("TiApp.main", nm, payload)
+    }
+    let vm = this.$vmMain()
+    let fn = vm[nm]
+    if(_.isFunction(fn)){
+      fn(payload)
+    }
+    // report error
+    else {
+      throw Ti.Err.make("e-ti-app-main", {nm, payload})
+    }
   }
   //---------------------------------------
   get(key) {
@@ -99,7 +133,7 @@ export class OneTiApp {
     return this.$vm()[key]
   }
   //---------------------------------------
-  async loadView(name, view) {
+  async loadView(name, view, {updateComSetup=_.identity}={}) {
     // Load the module
     let moInfo = await Ti.Load(view.modType)
     let moConf = await LoadTiLinkedObj(moInfo, {
@@ -122,6 +156,11 @@ export class OneTiApp {
     Ti.I18n.put(comInfo.i18n)
     // Setup ...
     let setup = TiVue.Setup(comConf)
+
+    // Update Setup before create instance
+    updateComSetup(setup)
+
+    // Get the formed comName
     let comName = setup.options.name 
                   || Ti.Util.getLinkName(view.comType)
     if(Ti.IsInfo("TiApp")) {
@@ -132,7 +171,8 @@ export class OneTiApp {
     _.map(setup.global.components, com=>{
       Vue.component(com.name, com)
     })
-    console.log(comName)
+    
+    // Define the com
     Vue.component(comName, setup.options)
 
     // watch the shortcut

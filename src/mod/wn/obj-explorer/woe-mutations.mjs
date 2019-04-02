@@ -9,6 +9,12 @@ export default {
       state.currentIndex = 0
     }
   },
+  addUploadings(state, ups) {
+    state.uploadings = [].concat(state.uploadings, ups)
+  },
+  clearUploadings(state) {
+    state.uploadings = []
+  },
   /***
    * Make item selected
    * 

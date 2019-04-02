@@ -109,6 +109,7 @@ export const TiVue = {
             //console.log("drop:", evt.dataTransfer.files)
             //..........................
             // reset drag tip
+            $el.__drag_enter_count = 0
             $el.removeAttribute("ti-is-drag")
             if($el.$ti_drag_mask) {
               Ti.Dom.remove($el.$ti_drag_mask)

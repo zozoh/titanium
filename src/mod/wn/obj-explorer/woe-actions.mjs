@@ -23,7 +23,14 @@ export default {
    * Upload files
    */
   async upload({state, commit, dispath}, files) {
-    console.log("uploadFiles", files)
+    let ups = _.map(files, (file, index)=>({
+      id : `U${index}_${Ti.Random.str(6)}`,
+      file : file,
+      total : file.size,
+      current : 0
+    }))
+    // Show uploading
+    commit("addUploadings", ups)
   },
   /***
    * Reload all

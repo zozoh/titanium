@@ -157,7 +157,7 @@ export default {
     },
     //.........................................
     onMainDataChange(data) {
-      console.log("onMainDataChange", data)
+      //console.log("onMainDataChange", data)
       this.$store.commit("main/set", data)
     }
   }  // methods

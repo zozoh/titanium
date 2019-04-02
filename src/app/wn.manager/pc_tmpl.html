@@ -28,10 +28,11 @@ import {Ti} from "${rs}/ti/core/ti.mjs"
 window._app = ${app};
 //---------------------------------------
 Ti.SetForDev(true)
-Ti.SetLogLevel("debug")
+Ti.SetLogLevel("warn")
 Ti.SetLogLevel("warn", "TiLoad")
-Ti.SetLogLevel("warn", "TiApp")
+Ti.SetLogLevel("info", "TiApp")
 Ti.SetLogLevel("warn", "TiHttp")
+Ti.SetLogLevel("info", "TiShortcut")
 Ti.SetLogLevel("warn", "Wn.Sys")
 Ti.SetLogLevel("info", "app/wn.manager")
 //---------------------------------------

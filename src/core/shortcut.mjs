@@ -10,10 +10,13 @@ class Shortcut {
     return this
   }
   bind(action) {
-    let m = /^([a-z]+):(.+)$/.exec(action)
+    let m = /^([a-zA-Z0-9_]+):(.+)$/.exec(action)
     if(m) {
       let func = this.$app[m[1]]
       let arg  = m[2]
+      if(!_.isFunction(func) || !arg) {
+        throw Ti.Err.make("e-ti-shortcut-InvalidAction", action)
+      }
       return _.debounce(_.bind(func, this.$app, arg), 500, {
         leading  : true,
         trailing : false
@@ -104,7 +107,7 @@ class Shortcut {
       
       // Then try to find the action
       if(this.fire(uniqKey)) {
-        if(Ti.IsDebug()) {
+        if(Ti.IsInfo("TiShortcut")) {
           console.log("TiShortcut.fired", uniqKey)
         }
         evt.preventDefault()

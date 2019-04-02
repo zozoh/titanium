@@ -7,16 +7,12 @@ export default {
       default : null
     }
   }),
-  computed : fireable.Computed(
-    (vm)=>{
-      return vm.isProcessing
-    }, { 
-      isProcessing() {
-        return this.status[this.statusKey] 
-                ? true : false
-      }
+  computed : fireable.Computed(vm=>vm.isProcessing, { 
+    isProcessing() {
+      return this.status[this.statusKey] 
+              ? true : false
     }
-  ),
+  }),
   mounted : function() {
     if(this.shortcut) {
       Ti.Shortcut.addGuard(this.shortcut, ()=>{

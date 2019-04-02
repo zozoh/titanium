@@ -1,5 +1,14 @@
 {
   "comIcon" : "im-archive",
   "comType" : "@com:wn/list/adaptview",
-  "modType" : "@mod:wn/obj-explorer"
+  "modType" : "@mod:wn/obj-explorer",
+  "actions" : [{
+    "key"  : "upload",
+    "type" : "action",
+    "icon" : "fas-upload",
+    "text" : "i18n:upload-file",
+    "action" : "main:openFileSelectdDialog",
+    "shortcut" : "ALT+CTRL+SHIFT+U"
+  }]
+
 }

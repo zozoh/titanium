@@ -22,6 +22,17 @@ export default {
       default : -1
     }
   },
+  mounted : function(){
+    let vm = this
+    if('localFile' == vm.preview.type) {
+      console.log(vm.$refs.localImage)
+      let reader = new FileReader();
+      reader.onload = function(evt) {
+        vm.$refs.localImage.src = evt.target.result
+      }
+      reader.readAsDataURL(vm.preview.value);
+    }
+  },
   computed : {
     classObject() {
       let vm = this

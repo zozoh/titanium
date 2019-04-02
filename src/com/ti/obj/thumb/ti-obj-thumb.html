@@ -4,7 +4,10 @@
     @dblclick.stop="onTopOpen">
   <header>
     <div as-preview>
-      <template v-if="preview.type=='image'">
+      <template v-if="'localFile'==preview.type">
+        <img ref="localImage">
+      </template>
+      <template v-else-if="'image'==preview.type">
         <img :src="preview.value">
       </template>
       <template v-else>

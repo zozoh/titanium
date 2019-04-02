@@ -13,5 +13,7 @@
   "save" : "保存",
   "save-now" : "立即保存",
   "save-change" : "保存修改",
-  "saving" : "正在保存..."
+  "saving" : "正在保存...",
+  "upload-file" : "上传文件...",
+  "uploading" : "正在上传"
 }
