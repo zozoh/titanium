@@ -1,4 +1,5 @@
 {
+  "create" : "新建...",
   "drop-here" : "拖拽文件至此",
   "drop-file-here-to-upload" : "拖拽文件至此以便上传",
   "e-io-obj-noexists" : "数据对象其实并不存在",

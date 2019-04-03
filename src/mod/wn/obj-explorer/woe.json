@@ -9,5 +9,8 @@
     "pageSize" : -1,
     "pageCount" : -1,
     "totalCoun" : -1
+  },
+  "status" : {
+    "reloading" : false
   }
 }

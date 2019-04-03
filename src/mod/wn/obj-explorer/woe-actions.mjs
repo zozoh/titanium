@@ -19,6 +19,7 @@ export default {
     })
     return re
   },
+  //---------------------------------------
   /**
    * Upload files
    */
@@ -51,6 +52,7 @@ export default {
     // Reload the data
     return await dispatch("reload")
   },
+  //---------------------------------------
   /***
    * Reload all
    */
@@ -64,8 +66,18 @@ export default {
       commit("set", {meta})
     }
     // Load children
+    commit("set", {status:{reloading:true}})
     await dispatch("loadChildren", {meta})
+    commit("set", {status:{reloading:false}})
     // return the root state
     return state
+  },
+  //---------------------------------------
+  /***
+   * Create new object
+   */
+  async create({state, commit, dispatch}) {
+    console.log("hahah")
   }
+  //---------------------------------------
 }

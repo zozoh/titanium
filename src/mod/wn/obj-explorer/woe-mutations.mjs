@@ -1,7 +1,8 @@
 export default {
+  //---------------------------------------------------
   set(state, {
     ancestors, parent, children, meta, pager, 
-    currentIndex, currentId
+    currentIndex, currentId, status
   }={}) {
     Ti.Util.setTo(state, {ancestors, children}, [])
     Ti.Util.setTo(state, {
@@ -11,13 +12,18 @@ export default {
     if(children && !_.isNumber(currentIndex)) {
       state.currentIndex = 0
     }
+    // Status
+    _.assign(state.status, status)
   },
+  //---------------------------------------------------
   addUploadings(state, ups) {
     state.uploadings = [].concat(state.uploadings, ups)
   },
+  //---------------------------------------------------
   clearUploadings(state) {
     state.uploadings = []
   },
+  //---------------------------------------------------
   updateUploadProgress(state, {uploadId, loaded=0}={}){
     for(let up of state.uploadings) {
       if(up.id == uploadId) {
@@ -26,6 +32,7 @@ export default {
     }
     state.uploadings = [...state.uploadings]
   },
+  //---------------------------------------------------
   /***
    * Make item selected
    * 
@@ -76,6 +83,7 @@ export default {
     state.currentIndex = index
     state.currentId = id
   },
+  //---------------------------------------------------
   /***
    * Make item blur
    */
