@@ -1,27 +1,32 @@
 .ti-obj-thumb {
-  @include flex-align-v($wp:nowrap);
   @include noselect();
   width:1rem;
   > header {
-    @include flex-full(1 1 auto);
-    padding:.06rem 0 .02rem 0;
-    > [as-preview] {
-      @include flex-full(1 1 auto);
-      width:.64rem; height:.64rem;
+    @include flex-center;
+    position:relative;
+    padding-bottom:.05rem;
+    > .as-preview {
+      @include flex-full-center;
+      width:.8rem; height:.8rem;
+      padding:.04rem; border-radius:.04rem;
       > img {
         object-fit: contain;
         width:100%; height:100%;
       }
       > .ti-icon i {
-        font-size: .52rem;
+        font-size: .48rem;
       }
+    }
+    > .as-progress {
+      @include pos-abs($l:0,$r:0,$b:0);
     }
   }
   > footer {
-    flex:1 1 auto; padding:.04rem;
+    padding:.04rem;
     text-align:center;
     font-size:map-get($body-font-sizes, sm);
-    > [as-title] {
+    border:1px solid transparent;
+    > .as-title {
       height:3.3em; line-height:1.1em;
       overflow:hidden; word-break: break-all;
       font-size:1em;
@@ -31,12 +36,20 @@
       -webkit-line-clamp: 3;
       -moz-box-orient: vertical;
       -moz-line-clamp: 3;
-      // May I need read https://css-tricks.com/almanac/properties/l/line-clamp/
+      // zozoh: Maybe I need read:
+      // https://css-tricks.com/almanac/properties/l/line-clamp/
       // for more detail to support the Firefox
     }
   }
-  &.is-highlight {
-    @include highlight($color-primary);
+  &.is-selected {
+    > header > .as-preview{
+      @include color($color-h1, _, c);
+      @include color($color-primary, c);
+    }
+    > footer {@include color($color-primary, r, c);}
+  }
+  &.is-current {
+    > footer {border:1px dotted map-get($color-track, c);}
   }
 }
 

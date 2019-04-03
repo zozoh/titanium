@@ -26,19 +26,15 @@ function ProcessResponseData($req, {as="text"}={}) {
 //-----------------------------------
 export const TiHttp = {
   send(url, options={}) {
-    // let resp = await axios({
-    //   url, method,
-    //   params, 
-    //   headers,
-    //   transformResponse : undefined
-    // })
     if(Ti.IsInfo("TiHttp")) {
       console.log("TiHttp.send", url, options)
     }
     let {
       method="GET", 
       params={},
+      file=null,
       headers={},
+      progress=_.identity,
       created=_.identity,
       beforeSend=_.identity,
       finished=_.identity,
@@ -59,17 +55,35 @@ export const TiHttp = {
       },
       "POST" : ()=>{
         _.defaults(headers, {
-          "Content-type": "application/x-www-form-urlencoded"
+          "Content-type": "application/x-www-form-urlencoded; charset=utf-8"
         })
-        return {
-          urlToSend : url,
-          sendData  : TiHttp.encodeFormData(params)
+        // Upload file, encode the params to query string
+        if(file) {
+          return {
+            urlToSend : [url,TiHttp.encodeFormData(params)].join("?"),
+            sendData  : file
+          }
+        } 
+        // Normal form upload
+        else {
+          return {
+            urlToSend : url,
+            sendData  : TiHttp.encodeFormData(params)
+          }
         }
       }
     })[method]) || {urlToSend : url}
     
     // Prepare the Request Object
     let $req = new XMLHttpRequest()
+
+    // Check upload file supporting
+    if(file) {
+      if(!$req.upload) {
+        throw Ti.Err.make("e.ti.http.upload.NoSupported")
+      }
+      $req.upload.addEventListener("progress", progress)
+    }
 
     // Hooking
     created($req)

@@ -15,5 +15,6 @@
   "save-change" : "保存修改",
   "saving" : "正在保存...",
   "upload-file" : "上传文件...",
-  "uploading" : "正在上传"
+  "uploading" : "正在上传",
+  "upload-done" : "文件上传已完成"
 }

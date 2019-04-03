@@ -10,7 +10,10 @@
           :id="it.id"
           :title="it.title"
           :preview="it.preview"
-          :highlight="it.selected"
+          :selected="it.selected"
+          :loading="it.loading"
+          :progress="it.progress"
+          :current="it.current"
           @selected="onThumbSelected"
           @open="onThumbOpen"/>
       </slot>

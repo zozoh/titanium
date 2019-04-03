@@ -22,7 +22,7 @@ export default {
   /**
    * Upload files
    */
-  async upload({state, commit, dispath}, files) {
+  async upload({state, commit, dispatch}, files) {
     let ups = _.map(files, (file, index)=>({
       id : `U${index}_${Ti.Random.str(6)}`,
       file : file,
@@ -31,6 +31,25 @@ export default {
     }))
     // Show uploading
     commit("addUploadings", ups)
+    // Do upload file one by one
+    for(let up of ups) {
+      let file = up.file
+      let newMeta = await Wn.Io.uploadFile(file, {
+        target : `id:${state.meta.id}`,
+        progress : function(pe){
+          commit("updateUploadProgress", {
+            uploadId : up.id, 
+            loaded   : pe.loaded
+          })
+        }
+      })
+    }
+    // All done, hide upload
+    _.delay(()=>{
+      commit("clearUploadings")
+    }, 2000)
+    // Reload the data
+    return await dispatch("reload")
   },
   /***
    * Reload all

@@ -20,11 +20,14 @@ export default {
             id      : it.id,
             title   : it.nm,
             preview : Wn.Util.genPreviewObj(it),
+            // status
             ...(it.__is || {
-              loading : false,
-              process : -1,
+              loading  : false,
+              progress : -1,
               selected : false
             }),
+            current : (it.id == vm.data.currentId),
+            // Icons
             icons : it.__icons || {
               NW : null,
               NE : null,
@@ -61,11 +64,10 @@ export default {
             id    : it.id,
             title : it.file.name,
             preview,
-            process : (it.current/it.total)
+            progress : (it.current/it.total)
           })
         }
       }
-      console.log("uploadingList", re)
       return re
     },
     /***
@@ -78,11 +80,23 @@ export default {
       return this.hasUploading ? "up-show" : "up-hide"
     }
   },  // ~ computed
+  watch: {
+    "hasUploading" : function(newVal, oldVal) {
+      if(true===oldVal && false===newVal) {
+        this.$message({
+          showClose: true,
+          message: Ti.I18n.get("upload-done"),
+          duration : 3000,
+          type: 'success'
+        });
+      }
+    }
+  },
   methods : {
-    onItemSelected(index, mode) {
-      this.$store.commit("main/selectItem", {index, mode})
+    onItemSelected({mode,id,index}={}) {
+      this.$store.commit("main/selectItem", {index, id, mode})
     },
-    onItemOpen(index) {
+    onItemOpen({id,index}={}) {
       let meta = _.nth(this.data.children, index)
       if(meta) {
         this.$emit("open", meta)

@@ -17,8 +17,12 @@
 @mixin flex-center($jc:center,$ai:center,$wp:wrap,$ac:center) {
   @include flex($jc,$ai,$wp,$ac);
 }
-@mixin flex-full($fx) {
+@mixin flex-full($fx:1 1 auto) {
   @include flex(center,stretch,nowrap);
+  flex: $fx;
+}
+@mixin flex-full-center($fx:1 1 auto) {
+  @include flex-center;
   flex: $fx;
 }
 @mixin flex-align($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {
@@ -48,10 +52,6 @@
   list-style:none;
   padding:$padding;
   margin:$margin;
-}
-//-------------------------------------------------------------
-@mixin highlight($color:$color-primary) {
-  @include color($color, r, c);
 }
 //-------------------------------------------------------------
 @mixin fireable() {

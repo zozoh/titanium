@@ -230,18 +230,18 @@ export class Rect {
   }
   //.............................................
   // 将给定矩形等比缩放到适合宽高
-  //  - w : 最大宽度
-  //  - h : 最大高度
+  //  - width  : 最大宽度
+  //  - height : 最大高度
   //  - forContains : false : true 表示如果全部在视口内，就无视
   // 返回矩形自身
-  zoomTo({w,h,forContains=false}={}) {
+  zoomTo({width,height,forContains=false}={}) {
     // zoom scale when necessary
     if(forContains && viewport.contains(this)){
         return;
     }
     // 获得尺寸
-    let w  = viewport.width;
-    let h  = viewport.height;
+    let w  = width;
+    let h  = height;
     let oW = this.width;
     let oH = this.height;
     let oR = oW / oH;

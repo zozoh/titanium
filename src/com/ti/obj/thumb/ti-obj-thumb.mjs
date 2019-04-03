@@ -1,5 +1,15 @@
+import Ti from "../../../../core/ti.mjs";
+
 export default {
   props : {
+    index : {
+      type : Number,
+      default : -1
+    },
+    id : {
+      type : String,
+      default : null
+    },
     // The text to present the object
     title : {
       type : String,
@@ -13,11 +23,19 @@ export default {
         value : "broken_image"
       })
     },
-    highlight : {
+    selected : {
       type : Boolean,
       default : false
     },
-    index : {
+    loading : {
+      type : Boolean,
+      default : false
+    },
+    current : {
+      type : Boolean,
+      default : false
+    },
+    progress : {
       type : Number,
       default : -1
     }
@@ -36,13 +54,23 @@ export default {
     classObject() {
       let vm = this
       return {
-        "is-highlight"  : vm.highlight,
-        "is-renameable" : vm.renameable
+        "is-selected"   : vm.selected,
+        "is-renameable" : vm.renameable,
+        "is-current"    : vm.current
       }
+    },
+    showProgress() {
+      return this.progress>=0;
+    },
+    progressTip() {
+      return Ti.S.toPercent(this.progress, {fixed:1, auto:false})
+    },
+    progressStyleObj() {
+      return {width:this.progressTip}
     }
   },
   methods : {
-    onTopSelect(eo) {
+    onSelected(eo) {
       let vm = this
       let mode = "active"
       // shift key on: batch
@@ -53,12 +81,19 @@ export default {
       else if(eo.ctrlKey || eo.metaKey) {
         mode = "toggle"
       }
-      vm.$emit('selected', vm.index, mode)
+      vm.$emit('selected', {
+        mode,
+        id : vm.id,
+        index: vm.index, 
+      })
     },
-    onTopOpen(eo) {
+    onOpen(eo) {
       let vm = this
-      if(vm.highlight) {
-        vm.$emit('open', vm.index)
+      if(vm.selected) {
+        vm.$emit('open', {
+          id : vm.id,
+          index: vm.index, 
+        })
       }
     }
   }

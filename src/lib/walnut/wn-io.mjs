@@ -124,5 +124,31 @@ export const WnIo = {
     }
 
     return reo.data
+  },
+  /***
+   * Upload file
+   */
+  async uploadFile(file, {
+    target = "~",
+    mode = "a",
+    tmpl = "${major}(${nb})${suffix}",
+    progress = _.identity
+  }={}) {
+    // do send
+    let url = URL("/save/stream")
+    let newMeta = await Ti.Http.post(url, {
+      file, 
+      progress,
+      params : {
+        str  : target,
+        nm   : file.name,
+        sz   : file.size,
+        mime : file.type,
+        m    : mode,
+        tmpl
+      },
+      as:"json"
+    })
+    return newMeta
   }
 }

@@ -48,12 +48,11 @@ export default {
     }
   },
   methods : {
-    onThumbSelected(index, mode){
-      //console.log("--------------------", index)
-      this.$emit("selected", index, mode)
+    onThumbSelected({mode,id,index}={}){
+      this.$emit("selected", {mode,id,index})
     },
-    onThumbOpen(index) {
-      this.$emit("open", index)
+    onThumbOpen({id,index}={}) {
+      this.$emit("open", {id,index})
     },
     onThumbBlur() {
       this.$emit("blur")

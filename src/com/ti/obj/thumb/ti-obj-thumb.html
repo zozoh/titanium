@@ -1,9 +1,9 @@
 <div class="ti-obj-thumb" 
     :class="classObject" 
-    @click.stop="onTopSelect"
-    @dblclick.stop="onTopOpen">
+    @click.stop="onSelected"
+    @dblclick.stop="onOpen">
   <header>
-    <div as-preview>
+    <div class="as-preview">
       <template v-if="'localFile'==preview.type">
         <img ref="localImage">
       </template>
@@ -14,8 +14,16 @@
         <ti-icon v-bind="preview"></ti-icon>
       </template>
     </div>
+    <div v-if="showProgress"
+      class="as-progress ti-progress-bar">
+      <span class="bar-tip">{{progressTip}}</span>
+      <b class="bar-outer">
+        <em class="bar-inner" 
+            :style="progressStyleObj"></em>
+      </b>
+    </div>
   </header>
   <footer>
-    <div as-title>{{title}}</div>
+    <div class="as-title">{{title}}</div>
   </footer>
 </div>

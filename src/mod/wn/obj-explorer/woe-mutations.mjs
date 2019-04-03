@@ -1,9 +1,12 @@
 export default {
   set(state, {
-    ancestors, parent, children, meta, pager, currentIndex
+    ancestors, parent, children, meta, pager, 
+    currentIndex, currentId
   }={}) {
     Ti.Util.setTo(state, {ancestors, children}, [])
-    Ti.Util.setTo(state, {parent, meta, pager, currentIndex}, null)
+    Ti.Util.setTo(state, {
+      parent, meta, pager, currentIndex, currentId
+    }, null)
     // It really need to reset the current index if the children changed
     if(children && !_.isNumber(currentIndex)) {
       state.currentIndex = 0
@@ -15,6 +18,14 @@ export default {
   clearUploadings(state) {
     state.uploadings = []
   },
+  updateUploadProgress(state, {uploadId, loaded=0}={}){
+    for(let up of state.uploadings) {
+      if(up.id == uploadId) {
+        up.current = loaded
+      }
+    }
+    state.uploadings = [...state.uploadings]
+  },
   /***
    * Make item selected
    * 
@@ -24,7 +35,7 @@ export default {
    *   - "shift"  : make items selected betwen the last selected item and current one
    *   - "toggle" : toggle current on selection
    */
-  selectItem(state, {index, mode="active"}={}) {
+  selectItem(state, {index, id, mode="active"}={}) {
     let list = state.children 
     // Shift mode may mutate multiple items in scope
     if('shift' == mode) {
@@ -63,6 +74,7 @@ export default {
     // Update state
     state.children = [].concat(list)
     state.currentIndex = index
+    state.currentId = id
   },
   /***
    * Make item blur
@@ -74,5 +86,7 @@ export default {
       }
     }
     state.children = [].concat(state.children)
+    state.currentIndex = 0
+    state.currentId = null
   }
 }

@@ -2,6 +2,7 @@
   "meta": null,
   "children" : [],
   "currentIndex" : 0,
+  "currentId" : null,
   "uploadings" : [],
   "pager" : {
     "pageNumber" : -1,
