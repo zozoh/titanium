@@ -1,4 +1,5 @@
 .ti-set-tiles {
+  overflow:auto;
   > .ti-obj-tiles-con {
     @include flex-align;
     > .ti-obj-tiles-item {

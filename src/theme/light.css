@@ -256,40 +256,42 @@ a:hover {
     .ti-crumb > li .ti-icon i {
       font-size: 1em; }
 
-.ti-set-tiles > .ti-obj-tiles-con {
-  display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  align-content: stretch;
-  flex-wrap: wrap; }
-  .ti-set-tiles > .ti-obj-tiles-con > .ti-obj-tiles-item {
+.ti-set-tiles {
+  overflow: auto; }
+  .ti-set-tiles > .ti-obj-tiles-con {
     display: flex;
     justify-content: flex-start;
     align-items: stretch;
     align-content: stretch;
     flex-wrap: wrap; }
-    .ti-set-tiles > .ti-obj-tiles-con > .ti-obj-tiles-item > * {
-      flex: 1 1 auto; }
-  .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xs {
-    padding: 1px; }
-    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xs > * {
-      margin: 0; }
-  .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-sm {
-    padding: .08rem; }
-    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-sm > * {
-      margin: .08rem; }
-  .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-md {
-    padding: .16rem; }
-    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-md > * {
-      margin: .16rem; }
-  .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-lg {
-    padding: .24rem; }
-    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-lg > * {
-      margin: .24rem; }
-  .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xl {
-    padding: .32rem; }
-    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xl > * {
-      margin: .32rem; }
+    .ti-set-tiles > .ti-obj-tiles-con > .ti-obj-tiles-item {
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      align-content: stretch;
+      flex-wrap: wrap; }
+      .ti-set-tiles > .ti-obj-tiles-con > .ti-obj-tiles-item > * {
+        flex: 1 1 auto; }
+    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xs {
+      padding: 1px; }
+      .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xs > * {
+        margin: 0; }
+    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-sm {
+      padding: .08rem; }
+      .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-sm > * {
+        margin: .08rem; }
+    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-md {
+      padding: .16rem; }
+      .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-md > * {
+        margin: .16rem; }
+    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-lg {
+      padding: .24rem; }
+      .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-lg > * {
+        margin: .24rem; }
+    .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xl {
+      padding: .32rem; }
+      .ti-set-tiles > .ti-obj-tiles-con.ti-spacing-xl > * {
+        margin: .32rem; }
 
 .ti-obj-thumb {
   user-select: none;

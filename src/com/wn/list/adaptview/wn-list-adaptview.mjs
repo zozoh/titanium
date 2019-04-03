@@ -5,6 +5,7 @@ export default {
       default : ()=>({})
     }
   },
+  //------------------------------------------------
   computed : {
     /***
      * Current Object list to show
@@ -80,6 +81,7 @@ export default {
       return this.hasUploading ? "up-show" : "up-hide"
     }
   },  // ~ computed
+  //------------------------------------------------
   watch: {
     "hasUploading" : function(newVal, oldVal) {
       if(true===oldVal && false===newVal) {
@@ -92,6 +94,7 @@ export default {
       }
     }
   },
+  //------------------------------------------------
   methods : {
     onItemSelected({mode,id,index}={}) {
       this.$store.commit("main/selectItem", {index, id, mode})
@@ -116,5 +119,25 @@ export default {
       this.onDropFiles(evt.target.files)
       this.$refs.file.value = ""
     }
+  },
+  //------------------------------------------------
+  mounted : function(){
+    Ti.Fuse.getOrCreate().add({
+      key : "wn-list-adaptview-check-uploading",
+      everythingOk : ()=>{
+        return !this.hasUploading
+      },
+      fail : ()=>{
+        this.$message({
+          showClose: true,
+          message: Ti.I18n.get("upload-nofinished"),
+          duration : 3000,
+          type: 'warning'
+        });
+      }
+    })
+  },
+  beforeDestroy : function(){
+    Ti.Fuse.get().remove("wn-list-adaptview-check-uploading")
   }
 }
