@@ -32,9 +32,9 @@ export class OneTiApp {
   async init(){
     // App Must has a name
     let info = this.$info()
-    if(!info.name) {
-      throw Ti.Err.make("e-ti-app_load_info_without_name")
-    }
+    // if(!info.name) {
+    //   throw Ti.Err.make("e-ti-app_load_info_without_name")
+    // }
     // load each fields of info obj
     let conf = await LoadTiAppInfo(info)
     this.$conf(conf)
@@ -84,6 +84,11 @@ export class OneTiApp {
 
     // bind to Element for find back anytime
     this.$el[TI_APP] = this
+  }
+  //---------------------------------------
+  destroy(){
+    this.$vm().$destroy()
+    this.$el[TI_APP] = null
   }
   //---------------------------------------
   commit(nm, payload){

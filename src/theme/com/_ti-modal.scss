@@ -1,0 +1,17 @@
+.ti-modal {
+  z-index: $z-top;
+  > .mdl-mask {
+    @include pos-fixed-full;
+    @include color($color-mask, r, bushy);
+  }
+  > .mdl-con {
+    @include pos-fixed-full;
+    @include flex-center;
+    padding:.2rem 0 2rem 0;
+    > .mdl-main {
+      @include color($color-chip, r, c);
+      position:relative;
+      min-width: 3.2rem;
+    }
+  } // ~ .mdl-con
+}

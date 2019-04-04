@@ -85,6 +85,34 @@ export const TiIcons = {
            || RACES[race]
            || NAMES[name]
            || DEFAULT)
+  },
+  parseFontIcon(val, dft={}) {
+    if(!val)
+      return dft
+    let icon = {
+      className: "material-icons",
+      text : val
+    }
+    let m = /^([a-z]+)-(.+)$/.exec(val)
+    if(m) {
+      // fontawsome
+      if(/^fa[a-z]$/.test(m[1])) {
+        icon.className = m[1] + ' fa-' + m[2]
+        icon.text = null
+      }
+      // Other font libs
+      else {
+        icon.className = m[1] + ' ' + val
+        icon.text = null
+      }
+    }
+    return icon
+  },
+  fontIconHtml(val, dft="") {
+    if(!val)
+      return dft
+    let icon = TiIcons.parseFontIcon(val)
+    return `<i class="${icon.className}">${icon.text||""}</i>`
   }
 }
 //-----------------------------------

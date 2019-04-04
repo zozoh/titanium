@@ -1,11 +1,11 @@
 <span class="ti-icon">
   <i v-if="'font'==icon.type"
-     :class="fontClassObject"
-     :style="fontStyleObject">
-    <template v-if="isFontLiga">{{icon.value}}</template>
+     :class="fontIcon.className"
+     :style="fontStyle">
+    <template v-if="fontIcon.text">{{fontIcon.text}}</template>
   </i>
   <img v-else-if="'svg'==icon.type"
        :src="icon.value"
-       :style="imgStyleObject"/>
+       :style="imgStyle"/>
   <em v-else>{{value}}</em>
 </span>

@@ -31,26 +31,10 @@ export default {
       }
       return re
     },
-    isFontLiga() {
-      let icon = this.icon
-      if("font" == icon.type)
-        return !/^([a-z]+)-/.test(icon.value)
-      return false
+    fontIcon() {
+      return Ti.Icons.parseFontIcon(this.icon.value)
     },
-    fontClassObject() {
-      let val = this.icon.value
-      let m = /^([a-z]+)-(.+)$/.exec(val)
-      if(m) {
-        // fontawsome
-        if(/^fa[a-z]$/.test(m[1])) {
-          return m[1] + ' fa-' + m[2]
-        }
-        // Other font libs
-        return m[1] + ' ' + val
-      }
-      return "material-icons"
-    },
-    fontStyleObject() {
+    fontStyle() {
       let vm = this
       let re = {}
       if(vm.size) {
@@ -64,7 +48,7 @@ export default {
       }
       return re
     },
-    imgStyleObject() {
+    imgStyle() {
       let vm = this
       let re = {}
       if(vm.size) {

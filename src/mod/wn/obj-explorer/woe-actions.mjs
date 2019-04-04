@@ -78,6 +78,11 @@ export default {
    */
   async create({state, commit, dispatch}) {
     console.log("hahah")
+    Ti.Modal.open({
+      template : `<b>I am Dialog</b>`
+    }, {
+      
+    })
   }
   //---------------------------------------
 }

@@ -179,6 +179,34 @@ a:hover {
   background: #4caf50;
   min-height: 2px; }
 
+.ti-modal {
+  z-index: 1000; }
+  .ti-modal > .mdl-mask {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    color: #e0e0e0;
+    background-color: rgba(50, 50, 50, 0.8); }
+  .ti-modal > .mdl-con {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    padding: .2rem 0 2rem 0; }
+    .ti-modal > .mdl-con > .mdl-main {
+      color: #666;
+      background-color: #e0e0e0;
+      position: relative;
+      min-width: 3.2rem; }
+
 .ti-menu {
   user-select: none; }
   .ti-menu > .menu-top > li .ti-menu-item-btnlike {

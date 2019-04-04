@@ -162,6 +162,46 @@ export const TiDom = {
     console.log("doctTo")
     rect.el = rect.src.dockTo(rect.ta, mode, axis, space)
     TiDom.applyRect($src, rect.el)
+  },
+  /**
+   * Return HTML string to present the icon/text/tip HTML segment
+   */
+  htmlChipITT({icon,text,tip}={}, {
+    tagName   = "div",
+    className = "",
+    iconTag   = "span", 
+    iconClass = "",
+    textTag   = "span", 
+    textClass = "",
+    wrapperTag   = "",
+    wrapperClass = ""
+  }={}){
+    let html = ""
+    if(icon || text) {
+      let iconHtml = Ti.Icons.fontIconHtml(icon)
+      let attr=(name, value)=>{
+        if(name && value){
+          return `${name}="${value}"`
+        }
+        return ""
+      }
+      let klass = (name)=>{
+        return attr("class", name)
+      }
+      html += `<${tagName} ${klass(className)} ${attr("ti-tip", tip)}>`
+      if(iconHtml) {
+        html += `<${iconTag} ${klass(iconClass)}">${iconHtml}</${iconTag}>`
+      }
+      if(text) {
+        let i18nText = Ti.I18n.text(text)
+        html += `<${textTag} ${klass(textClass)}>${i18nText}</${textTag}>`
+      }
+      html += `</${tagName}>`
+    }
+    if(wrapperTag) {
+      return `<${wrapperTag} ${klass(wrapperClass)}>${html}</${wrapperTag}>`
+    }
+    return html
   }
 }
 //---------------------------------------
