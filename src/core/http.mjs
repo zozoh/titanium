@@ -43,6 +43,11 @@ export const TiHttp = {
     // normalize method
     method = _.upperCase(method)
 
+    // Add the default header to identify the TiHttpClient
+    _.defaults(headers, {
+      "x-requested-with": "XMLHttpRequest"
+    })
+
     // Default header for POST
     let {urlToSend, sendData} = Ti.Invoke(({
       "GET" : ()=>{

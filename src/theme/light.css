@@ -204,8 +204,122 @@ a:hover {
     .ti-modal > .mdl-con > .mdl-main {
       color: #666;
       background-color: #e0e0e0;
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      align-content: stretch;
+      flex-wrap: nowrap;
+      flex-direction: column;
       position: relative;
       min-width: 3.2rem; }
+      .ti-modal > .mdl-con > .mdl-main > * {
+        flex: 0 0 auto; }
+      .ti-modal > .mdl-con > .mdl-main > .mdl-closer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        align-content: stretch;
+        flex-wrap: nowrap;
+        flex: 1 1 auto;
+        cursor: pointer;
+        width: 0.32rem;
+        height: 0.32rem;
+        line-height: 0.32rem;
+        margin-right: -0.16rem;
+        margin-top: -0.16rem; }
+        .ti-modal > .mdl-con > .mdl-main > .mdl-closer > span {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          align-content: center;
+          flex-wrap: wrap;
+          flex: 1 1 auto;
+          color: #CCC;
+          background-color: #000;
+          border: 2px solid;
+          border-radius: 50%;
+          overflow: hidden;
+          font-size: .16rem;
+          transition: transform 0.3s; }
+        .ti-modal > .mdl-con > .mdl-main > .mdl-closer:hover > span {
+          color: #FFF;
+          background-color: #ff4081;
+          border-width: 0;
+          transform: scale(1.2) rotate(180deg);
+          font-size: .24rem; }
+      .ti-modal > .mdl-con > .mdl-main > .mdl-title {
+        user-select: none;
+        display: flex;
+        justify-content: flex-start;
+        align-items: stretch;
+        align-content: stretch;
+        flex-wrap: wrap;
+        color: #000;
+        background-color: rgba(0, 0, 0, 0.08);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding: .04rem .1rem;
+        font-size: .12rem;
+        line-height: 2em; }
+      .ti-modal > .mdl-con > .mdl-main > .mdl-body {
+        display: flex;
+        justify-content: flex-start;
+        align-items: stretch;
+        align-content: stretch;
+        flex-wrap: nowrap;
+        flex: 1 1 auto; }
+      .ti-modal > .mdl-con > .mdl-main > .mdl-actions {
+        user-select: none;
+        color: #000;
+        background-color: rgba(0, 0, 0, 0.04);
+        border-top: 1px solid rgba(0, 0, 0, 0.1); }
+        .ti-modal > .mdl-con > .mdl-main > .mdl-actions > ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          justify-content: flex-end;
+          align-items: stretch;
+          align-content: stretch;
+          flex-wrap: wrap;
+          padding: .04rem; }
+          .ti-modal > .mdl-con > .mdl-main > .mdl-actions > ul > li {
+            color: #666;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            margin: .02rem;
+            padding: 0 .12rem;
+            font-size: .12rem;
+            line-height: 2.4em;
+            min-width: 1rem;
+            text-align: center;
+            letter-spacing: .1em; }
+            .ti-modal > .mdl-con > .mdl-main > .mdl-actions > ul > li:hover {
+              color: #FFF;
+              background-color: #2196f3; }
+            .ti-modal > .mdl-con > .mdl-main > .mdl-actions > ul > li .mdl-btn-icon {
+              margin-right: .05rem; }
+  .ti-modal.ti-success > .mdl-con > .mdl-main > .mdl-title {
+    color: #FFF;
+    background-color: #4caf50; }
+  .ti-modal.ti-warn > .mdl-con > .mdl-main > .mdl-title {
+    color: #620;
+    background-color: #fdd835; }
+  .ti-modal.ti-info > .mdl-con > .mdl-main > .mdl-title {
+    color: #FFF;
+    background-color: #2196f3; }
+  .ti-modal.ti-error > .mdl-con > .mdl-main > .mdl-title {
+    color: #FFF;
+    background-color: #f44336; }
+  .ti-modal.ti-track > .mdl-con > .mdl-main > .mdl-title {
+    color: #FFF;
+    background-color: #bdbdbd; }
+
+.ti-modal-alert {
+  padding: .12rem .2rem; }
 
 .ti-menu {
   user-select: none; }

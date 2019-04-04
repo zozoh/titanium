@@ -96,6 +96,20 @@ export const Ti = {
   //.....................................
   InvokeBy(target={}, funcName, args=[]) {
     return Ti.Invoke(target[funcName], args, target)
+  },
+  //.....................................
+  async Alert(msg="", options={}){
+    let str = Ti.I18n.text(msg)
+    return Ti.Modal.open({
+      template : `<div class="ti-modal-alert">${str}</div>`
+    }, {
+      title   : "i18n:" + (options.type||"info"),
+      closer  : false,
+      width   : 420,
+      height  : 240,
+      actions : [{text: "i18n:ok"}],
+      ...options
+    })
   }
 }
 //---------------------------------------

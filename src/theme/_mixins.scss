@@ -17,8 +17,8 @@
 @mixin flex-center($jc:center,$ai:center,$wp:wrap,$ac:center) {
   @include flex($jc,$ai,$wp,$ac);
 }
-@mixin flex-full($fx:1 1 auto) {
-  @include flex(center,stretch,nowrap);
+@mixin flex-full($fx:1 1 auto, $jc:center,$ai:stretch,$wp:nowrap,$ac:stretch) {
+  @include flex($jc,$ai,$wp,$ac);
   flex: $fx;
 }
 @mixin flex-full-center($fx:1 1 auto) {

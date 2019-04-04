@@ -8,6 +8,7 @@ export const TiModal = {
     icon = null,
     title = 'i18n:modal',
     closer = true,
+    type = "hint",  // info|warn|error|success|track|disable|hint
     beforeClose = function(){},
     ready = function(){},
     actions = [{
@@ -20,7 +21,10 @@ export const TiModal = {
   }={}) {
     // Create the DOM root
     let $el = Ti.Dom.createElement({
-      className: "ti-modal",
+      className: ["ti-modal", 
+        /^(success|warn|info|error|tracke)$/.test(type)
+                  ? "ti-" + type
+                  : "" ].join(" "),
       $p : document.body
     })
     //........................................
@@ -64,29 +68,34 @@ export const TiModal = {
     let html = `<div class="mdl-mask"></div>
     <div class="mdl-con">
       <div class="mdl-main">
-        ${closerHtml}
         ${titleHtml}
-        <div class="mdl-body"></div>
+        <div class="mdl-body"><div></div></div>
         ${actionsHtml}
+        ${closerHtml}
       </div>
     </div>`
     //........................................
     // init DOM and find the body
     $el.innerHTML = html
     let $actions  = Ti.Dom.findAll("li.mdl-btn", $el)
-    let $body     = Ti.Dom.find(".mdl-body", $el)
-    let $closer   = Ti.Dom.find(".mdl-closer", $el)
+    let $main     = Ti.Dom.find(".mdl-main", $el)
+    let $body     = Ti.Dom.find(".mdl-body", $main)
+    let $closer   = Ti.Dom.find(".mdl-closer", $main)
+    //........................................
+    // Sizing 
+    Ti.Dom.setStyle($main, {width, height})
     //........................................
     // create TiApp
     let app = await Ti.App(appInfo)
     await app.init()
     //........................................
     // Mount to body
-    app.mountTo($body)
+    app.mountTo($body.firstChild)
+    //........................................
+    let context = {app, $el, $main, $body, $closer, $actions}
     //........................................
     // await the modal dialog close
     let data = await new Promise((resolve, reject)=>{
-      console.log("!!!!!!!!!!!!!!!!!!!!!!!!!")
       // Bind closer event
       if($closer) {
         $closer.addEventListener("click", ()=>{
@@ -96,21 +105,17 @@ export const TiModal = {
       // Bind action events
       _.forEach($actions, ($btn, index)=>{
         let handler = actions[index].handler
-        console.log(index, handler)
-        if(_.isFunction(handler)){
-          $btn.addEventListener("click", ()=>{
-            let reData = handler(app)
-            resolve(reData)
-          })
-        }
+        $btn.addEventListener("click", ()=>{
+          let reData = Ti.Invoke(handler, [context])
+          resolve(reData)
+        })
       })
       // -> ready
-      ready({app, $el, $body, $closer, $actions})
+      ready(context)
     })
     //........................................
     // -> beforeClose
-    console.log("beforeClose", data)
-    let data2 = await beforeClose({data, app, $el, $body, $closer, $actions})
+    let data2 = await beforeClose({data, ...context})
     //........................................
     // destroy app
     app.destroy()

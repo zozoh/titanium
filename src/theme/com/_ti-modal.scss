@@ -1,4 +1,5 @@
 .ti-modal {
+  $closer-width : .32rem;
   z-index: $z-top;
   > .mdl-mask {
     @include pos-fixed-full;
@@ -9,9 +10,85 @@
     @include flex-center;
     padding:.2rem 0 2rem 0;
     > .mdl-main {
+      //....................................
       @include color($color-chip, r, c);
+      @include flex-align-v($wp:nowrap);
+      //....................................
       position:relative;
       min-width: 3.2rem;
+      //....................................
+      > * {flex:0 0 auto;}
+      //....................................
+      > .mdl-closer {
+        @include pos-abs($t:0, $r:0);
+        @include flex-full;
+        cursor:pointer;
+        width:$closer-width; height:$closer-width; 
+        line-height: $closer-width;
+        margin-right: $closer-width/-2;
+        margin-top: $closer-width/-2;
+        > span {
+          @include flex-full-center;
+          @include color($color-hint, r, c);
+          @include border(2px, solid, r);
+          border-radius:50%; overflow:hidden;
+          font-size: .16rem;
+          transition: transform 0.3s;
+        }
+        &:hover {
+          > span {
+            @include color($color-secondary, r, c);
+            border-width:0;
+            transform: scale(1.2) rotate(180deg);
+            font-size: .24rem;
+          }
+        }
+      }
+      //....................................
+      > .mdl-title {
+        @include noselect;
+        @include flex-align;
+        @include color($color-h1, r, c);
+        @include border(1px, solid, shallow, bottom);
+        padding:.04rem .1rem; 
+        font-size:.12rem; line-height:2em;
+      }
+      //....................................
+      > .mdl-body {
+        @include flex-full($jc:flex-start);
+      }
+      //....................................
+      > .mdl-actions {
+        @include noselect;
+        @include color($color-h2, r, c);
+        @include border(1px, solid, shallow, top);
+        > ul {
+          @include raw-list; 
+          @include flex-align($jc:flex-end);
+          padding:.04rem;
+          > li {
+            @include color($color-chip, r, c);
+            @include fireable;
+            @include border(1px, solid, dark);
+            margin:.02rem; padding:0 .12rem;
+            font-size:.12rem; line-height:2.4em;
+            min-width:1rem; text-align:center;
+            letter-spacing: .1em;
+            .mdl-btn-icon {margin-right:.05rem;}
+          }
+        }
+      }
+      //....................................
     }
   } // ~ .mdl-con
+  $titlePath: ".mdl-con > .mdl-main > .mdl-title";
+  &.ti-success   > #{$titlePath} {@include color($color-success, r, c);}
+  &.ti-warn      > #{$titlePath} {@include color($color-warn,    r, c);}
+  &.ti-info      > #{$titlePath} {@include color($color-info,    r, c);}
+  &.ti-error     > #{$titlePath} {@include color($color-error,   r, c);}
+  &.ti-track     > #{$titlePath} {@include color($color-track,   r, c);}
+}
+//---------------------------------------------
+.ti-modal-alert {
+  padding:.12rem .2rem; 
 }
