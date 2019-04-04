@@ -200,7 +200,7 @@ a:hover {
     align-items: center;
     align-content: center;
     flex-wrap: wrap;
-    padding: .2rem 0 2rem 0; }
+    padding: .2rem .2rem 2rem .2rem; }
     .ti-modal > .mdl-con > .mdl-main {
       color: #666;
       background-color: #e0e0e0;
@@ -211,7 +211,8 @@ a:hover {
       flex-wrap: nowrap;
       flex-direction: column;
       position: relative;
-      min-width: 3.2rem; }
+      min-width: 3.2rem;
+      min-height: 1.8rem; }
       .ti-modal > .mdl-con > .mdl-main > * {
         flex: 0 0 auto; }
       .ti-modal > .mdl-con > .mdl-main > .mdl-closer {
@@ -263,6 +264,10 @@ a:hover {
         padding: .04rem .1rem;
         font-size: .12rem;
         line-height: 2em; }
+        .ti-modal > .mdl-con > .mdl-main > .mdl-title > .mdl-title-icon {
+          font-size: 1.3em;
+          padding: 0 .06rem 0 0;
+          opacity: 0.4; }
       .ti-modal > .mdl-con > .mdl-main > .mdl-body {
         display: flex;
         justify-content: flex-start;
@@ -310,7 +315,7 @@ a:hover {
     background-color: #fdd835; }
   .ti-modal.ti-info > .mdl-con > .mdl-main > .mdl-title {
     color: #FFF;
-    background-color: #2196f3; }
+    background-color: #4e9abd; }
   .ti-modal.ti-error > .mdl-con > .mdl-main > .mdl-title {
     color: #FFF;
     background-color: #f44336; }
@@ -319,7 +324,18 @@ a:hover {
     background-color: #bdbdbd; }
 
 .ti-modal-alert {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+  flex-wrap: wrap;
   padding: .12rem .2rem; }
+  .ti-modal-alert > .ti-modal-alert-icon {
+    flex: 0 0 auto;
+    padding: 0 .4rem 0 .1rem;
+    font-size: .64rem; }
+  .ti-modal-alert > .ti-modal-alert-text {
+    flex: 1 1 auto; }
 
 .ti-menu {
   user-select: none; }

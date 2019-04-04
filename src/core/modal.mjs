@@ -3,12 +3,13 @@ export const TiModal = {
    * Open a modal dialog to contains a TiApp
    */
   async open(appInfo={}, {
-    width  = 640,
-    height = 480,
+    width  = "",
+    height = "",
     icon = null,
     title = 'i18n:modal',
     closer = true,
-    type = "hint",  // info|warn|error|success|track|disable|hint
+    type = "hint",  // info|warn|error|success|track
+    className = "",
     beforeClose = function(){},
     ready = function(){},
     actions = [{
@@ -21,7 +22,7 @@ export const TiModal = {
   }={}) {
     // Create the DOM root
     let $el = Ti.Dom.createElement({
-      className: ["ti-modal", 
+      className: ["ti-modal", className, 
         /^(success|warn|info|error|tracke)$/.test(type)
                   ? "ti-" + type
                   : "" ].join(" "),
@@ -30,6 +31,9 @@ export const TiModal = {
     //........................................
     // setup HTML
     // - title
+    if(true === icon) {
+      icon = type
+    }
     let titleHtml = Ti.Dom.htmlChipITT({
       icon, text:title
     },{

@@ -98,18 +98,47 @@ export const Ti = {
     return Ti.Invoke(target[funcName], args, target)
   },
   //.....................................
-  async Alert(msg="", options={}){
+  async Alert(msg="", {
+    title = "i18n:info", 
+    icon = null,
+    className,
+    type  = "track", 
+    width, height}={}){
     let str = Ti.I18n.text(msg)
+    let html = Ti.Dom.htmlChipITT({
+        icon:(icon||type), text:str
+      },{
+        className : "ti-modal-alert",
+        iconClass : "ti-modal-alert-icon",
+        textClass : "ti-modal-alert-text"
+      })
     return Ti.Modal.open({
-      template : `<div class="ti-modal-alert">${str}</div>`
+      template : html
     }, {
-      title   : "i18n:" + (options.type||"info"),
+      title, type, width, height, className,
       closer  : false,
-      width   : 420,
-      height  : 240,
-      actions : [{text: "i18n:ok"}],
-      ...options
+      icon : false,
+      actions : [{text: "i18n:ok"}]
     })
+  },
+  //---------------------------------------
+  async Confirm(msg="", {
+    title = "i18n:confirm", 
+    icon = null,
+    className,
+    type  = "track", 
+    width, height}={}){
+  
+  },
+  //---------------------------------------
+  async prompt(msg="", {
+    title = "i18n:prompt", 
+    icon = null,
+    className,
+    type  = "track", 
+    width, height
+  }) {
+
   }
 }
 //---------------------------------------

@@ -77,7 +77,8 @@ export default {
    * Create new object
    */
   async create({state, commit, dispatch}) {
-    let data = await Ti.Alert("哈哈哈")
+    console.log(Ti.Icons.get("track"))
+    let data = await Ti.Alert("哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈")
   }
   //---------------------------------------
 }

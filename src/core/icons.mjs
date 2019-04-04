@@ -32,7 +32,14 @@ const NAMES = {
   "edit"     : {type:"font", value:"zmdi-edit"},
   "refresh"  : {type:"font", value:"zmdi-refresh"},
   "setting"  : {type:"font", value:"zmdi-settings"},
-  "help"     : {type:"font", value:"zmdi-help"},
+  "help"     : {type:"font", value:"zmdi-help-outline"},
+  "info"     : {type:"font", value:"zmdi-zmdi-info-outline"},
+  "warn"     : {type:"font", value:"zmdi-alert-triangle"},
+  "error"    : {type:"font", value:"zmdi-alert-octagon"},
+  "success"  : {type:"font", value:"zmdi-check-circle"},
+  "track"    : {type:"font", value:"zmdi-notifications-none"},
+  "confirm"  : {type:"font", value:"zmdi-help"},
+  "prompt"   : {type:"font", value:"zmdi-keyboard"},
 }
 //-----------------------------------
 const RACES = {
@@ -59,14 +66,14 @@ export const TiIcons = {
       _.assign(DEFAULT, dft)
     }
   },
-  get(icon) {
+  get(icon,dft=DEFAULT) {
     // Default icon
     if(!icon) {
-      return _.assign({}, DEFAULT)
+      return _.assign({}, dft)
     }
     // String: look up "ALL"
     if(_.isString(icon)) {
-      return _.assign({}, ALL[icon] || DEFAULT)
+      return _.assign({}, ALL[icon] || dft)
     }
     // Base on the type
     let {tp, mime, race, name} = icon
@@ -84,11 +91,15 @@ export const TiIcons = {
            || MIMES[mimeGroup] 
            || RACES[race]
            || NAMES[name]
-           || DEFAULT)
+           || dft)
   },
   parseFontIcon(val, dft={}) {
     if(!val)
       return dft
+    let font = TiIcons.get(val, null)
+    if(!_.isEmpty(font)) {
+      val = font.value
+    }
     let icon = {
       className: "material-icons",
       text : val
@@ -112,6 +123,8 @@ export const TiIcons = {
     if(!val)
       return dft
     let icon = TiIcons.parseFontIcon(val)
+    if(_.isEmpty(icon))
+      return dft
     return `<i class="${icon.className}">${icon.text||""}</i>`
   }
 }
