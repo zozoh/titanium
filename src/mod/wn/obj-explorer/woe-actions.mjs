@@ -78,11 +78,17 @@ export default {
    */
   async create({state, commit, dispatch}) {
     console.log("hahah")
-    Ti.Modal.open({
+    let data = await Ti.Modal.open({
       template : `<b>I am Dialog</b>`
     }, {
-      
+      actions : [{
+        text : "test",
+        handler : ({app})=>{
+          return "I am test return"
+        }
+      }]
     })
+    console.log("The data is:", data)
   }
   //---------------------------------------
 }

@@ -8,8 +8,8 @@ export const TiModal = {
     icon = null,
     title = 'i18n:modal',
     closer = true,
-    beforeClose = _.identity,
-    ready = _.identity,
+    beforeClose = function(){},
+    ready = function(){},
     actions = [{
       text: 'i18n:ok',
       handler : _.identity
@@ -73,7 +73,7 @@ export const TiModal = {
     //........................................
     // init DOM and find the body
     $el.innerHTML = html
-    let $actions  = Ti.Dom.findAll("li.mdl-abtn", $el)
+    let $actions  = Ti.Dom.findAll("li.mdl-btn", $el)
     let $body     = Ti.Dom.find(".mdl-body", $el)
     let $closer   = Ti.Dom.find(".mdl-closer", $el)
     //........................................
@@ -84,16 +84,9 @@ export const TiModal = {
     // Mount to body
     app.mountTo($body)
     //........................................
-    // bind event listening for actions
-    _.forEach($actions, ($btn, index)=>{
-      let handler = actions[index].handler
-      if(_.isFunction(handler)){
-        $btn.addEventListener("click", handler)
-      }
-    })
-    //........................................
     // await the modal dialog close
     let data = await new Promise((resolve, reject)=>{
+      console.log("!!!!!!!!!!!!!!!!!!!!!!!!!")
       // Bind closer event
       if($closer) {
         $closer.addEventListener("click", ()=>{
@@ -103,6 +96,7 @@ export const TiModal = {
       // Bind action events
       _.forEach($actions, ($btn, index)=>{
         let handler = actions[index].handler
+        console.log(index, handler)
         if(_.isFunction(handler)){
           $btn.addEventListener("click", ()=>{
             let reData = handler(app)
@@ -115,6 +109,7 @@ export const TiModal = {
     })
     //........................................
     // -> beforeClose
+    console.log("beforeClose", data)
     let data2 = await beforeClose({data, app, $el, $body, $closer, $actions})
     //........................................
     // destroy app
