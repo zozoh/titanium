@@ -54,7 +54,7 @@ export const TiVue = {
       //    }
       Vue.directive("dropFiles", {
         bind : function($el, binding){
-          console.log("drop-files bind", $el, binding)
+          //console.log("drop-files bind", $el, binding)
           // Preparent Handler / Mask Content
           let handler  = null
           let maskHtml = null
@@ -202,7 +202,7 @@ export const TiVue = {
       "renderError"])
     //.............................
     /*Lifecycle Hooks*/
-    const LifecycleHooks = _.pick(conf.hooks, [
+    const LifecycleHooks = _.pick(conf, [
       "beforeCreate",
       "created",
       "beforeMount",

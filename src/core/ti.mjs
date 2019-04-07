@@ -15,6 +15,9 @@ import {TiStorage as Storage} from "./storage.mjs"
 import {Tinstall as Install } from "./install.mjs"
 import {TiShortcut as Shortcut} from "./shortcut.mjs"
 import {TiRandom as Random} from "./random.mjs"
+import {Alert} from "./ti_alert.mjs"
+import {Confirm} from "./ti_confirm.mjs"
+import {Prompt} from "./ti_prompt.mjs"
 //---------------------------------------
 const ENV = {
   "version" : "1.0",
@@ -43,6 +46,8 @@ const LOG_LEVELS = {
 export const Ti = {
   S, Util, App, Err, Config, Dom, Css, Load, Http, Modal,
   Icons, I18n, Install, Shortcut, Fuse, Random,Storage,
+  //.....................................
+  Alert, Confirm, Prompt,
   //.....................................
   Env(key, val) {
     return Ti.Util.geset(ENV, key, val)
@@ -96,49 +101,6 @@ export const Ti = {
   //.....................................
   InvokeBy(target={}, funcName, args=[]) {
     return Ti.Invoke(target[funcName], args, target)
-  },
-  //.....................................
-  async Alert(msg="", {
-    title = "i18n:info", 
-    icon = null,
-    className,
-    type  = "track", 
-    width, height}={}){
-    let str = Ti.I18n.text(msg)
-    let html = Ti.Dom.htmlChipITT({
-        icon:(icon||type), text:str
-      },{
-        className : "ti-modal-alert",
-        iconClass : "ti-modal-alert-icon",
-        textClass : "ti-modal-alert-text"
-      })
-    return Ti.Modal.open({
-      template : html
-    }, {
-      title, type, width, height, className,
-      closer  : false,
-      icon : false,
-      actions : [{text: "i18n:ok"}]
-    })
-  },
-  //---------------------------------------
-  async Confirm(msg="", {
-    title = "i18n:confirm", 
-    icon = null,
-    className,
-    type  = "track", 
-    width, height}={}){
-  
-  },
-  //---------------------------------------
-  async prompt(msg="", {
-    title = "i18n:prompt", 
-    icon = null,
-    className,
-    type  = "track", 
-    width, height
-  }) {
-
   }
 }
 //---------------------------------------

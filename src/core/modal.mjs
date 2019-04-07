@@ -90,13 +90,15 @@ export const TiModal = {
     Ti.Dom.setStyle($main, {width, height})
     //........................................
     // create TiApp
+    // console.log(appInfo)
     let app = await Ti.App(appInfo)
     await app.init()
     //........................................
     // Mount to body
     app.mountTo($body.firstChild)
     //........................................
-    let context = {app, $el, $main, $body, $closer, $actions}
+    let context = {app, $el, $main, $body, $closer, $actions, $btns:{}}
+    app.$modal = context
     //........................................
     // await the modal dialog close
     let data = await new Promise((resolve, reject)=>{
@@ -108,7 +110,13 @@ export const TiModal = {
       }
       // Bind action events
       _.forEach($actions, ($btn, index)=>{
-        let handler = actions[index].handler
+        let btn = actions[index]
+        let handler = btn.handler
+        // save action refer
+        if(btn.key) {
+          context.$btns[btn.key] = $btn
+        }
+        // listen
         $btn.addEventListener("click", ()=>{
           let reData = Ti.Invoke(handler, [context])
           resolve(reData)

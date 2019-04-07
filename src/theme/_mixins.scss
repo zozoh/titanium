@@ -61,6 +61,14 @@
   }
 }
 //-------------------------------------------------------------
+@mixin text-input(){
+  @include border(1px, solid, dark);
+  font-family: $f_fixed;
+  &:focus {
+    border-color:map-get($color-line, highlight);
+  }
+}
+//-------------------------------------------------------------
 @mixin disabled() {
   cursor: default; opacity:0.4;
 }

@@ -94,15 +94,36 @@
   &.ti-track     > #{$titlePath} {@include color($color-track,   r, c);}
 }
 //---------------------------------------------
-.ti-modal-alert {
+.ti-modal-noti {
   @include flex-align(flex-start);
   padding:.12rem .2rem; 
-  > .ti-modal-alert-icon {
+  flex:1 1 auto;
+  > .ti-modal-noti-icon {
     flex:0 0 auto;
     padding:0 .4rem 0 .1rem;
     font-size:.64rem;
   }
-  > .ti-modal-alert-text {
+  > .ti-modal-noti-text {
     flex:1 1 auto;
+  }
+}
+//---------------------------------------------
+.ti-modal-noti {
+  &.as-prompt {
+    .ti-modal-noti-text {
+      @include flex-align-v;
+      .prompt-tip {
+
+      }
+      .prompt-input {
+        @include flex-full;
+        input {
+          @include text-input;
+          flex:1 1 auto;
+          padding:.02rem .1rem; font-size:1.2em;
+          outline:none;
+        }
+      }
+    }
   }
 }

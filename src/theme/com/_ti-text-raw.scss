@@ -13,18 +13,14 @@
     > b {font-weight:normal;}
   }
   .te-main {
-    @include flex-full(1 1 auto);
+    @include flex-full;
     padding:.04rem;
     textarea {
-      @include flex-full(1 1 auto);
-      @include border(1px, solid, dark);
+      @include flex-full;
+      @include text-input;
       resize:none; outline:none;
       padding:.1rem;
-      font-family: Monaco, Consolas, Courier New;
       font-size:.16rem; line-height:.2rem;
-      &:focus {
-        border-color:map-get($color-line, highlight);
-      }
     }
   }
 }

@@ -5,6 +5,7 @@ html {
 body {
   height: 100%;
   margin: 0;
+  font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;
   font-size: .18rem;
   line-height: 2.4em;
   letter-spacing: .015em;
@@ -323,19 +324,44 @@ a:hover {
     color: #FFF;
     background-color: #bdbdbd; }
 
-.ti-modal-alert {
+.ti-modal-noti {
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
   align-content: stretch;
   flex-wrap: wrap;
-  padding: .12rem .2rem; }
-  .ti-modal-alert > .ti-modal-alert-icon {
+  padding: .12rem .2rem;
+  flex: 1 1 auto; }
+  .ti-modal-noti > .ti-modal-noti-icon {
     flex: 0 0 auto;
     padding: 0 .4rem 0 .1rem;
     font-size: .64rem; }
-  .ti-modal-alert > .ti-modal-alert-text {
+  .ti-modal-noti > .ti-modal-noti-text {
     flex: 1 1 auto; }
+
+.ti-modal-noti.as-prompt .ti-modal-noti-text {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+  flex-wrap: wrap;
+  flex-direction: column; }
+  .ti-modal-noti.as-prompt .ti-modal-noti-text .prompt-input {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    align-content: stretch;
+    flex-wrap: nowrap;
+    flex: 1 1 auto; }
+    .ti-modal-noti.as-prompt .ti-modal-noti-text .prompt-input input {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      font-family: Monaco, Consolas, Courier New;
+      flex: 1 1 auto;
+      padding: .02rem .1rem;
+      font-size: 1.2em;
+      outline: none; }
+      .ti-modal-noti.as-prompt .ti-modal-noti-text .prompt-input input:focus {
+        border-color: #ff4081; }
 
 .ti-menu {
   user-select: none; }
@@ -548,10 +574,10 @@ a:hover {
       flex-wrap: nowrap;
       flex: 1 1 auto;
       border: 1px solid rgba(0, 0, 0, 0.2);
+      font-family: Monaco, Consolas, Courier New;
       resize: none;
       outline: none;
       padding: .1rem;
-      font-family: Monaco, Consolas, Courier New;
       font-size: .16rem;
       line-height: .2rem; }
       .ti-text-raw .te-main textarea:focus {

@@ -77,8 +77,10 @@ export default {
    * Create new object
    */
   async create({state, commit, dispatch}) {
-    console.log(Ti.Icons.get("track"))
-    let data = await Ti.Alert("哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈")
+    let data = await Ti.Prompt("是不是要考虑一下呢？",{
+      placeholder: "输入一下"
+    })
+    console.log("re:", data)
   }
   //---------------------------------------
 }

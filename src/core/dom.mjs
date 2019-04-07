@@ -173,28 +173,39 @@ export const TiDom = {
     iconClass = "",
     textTag   = "span", 
     textClass = "",
+    textAsHtml = false,
     wrapperTag   = "",
-    wrapperClass = ""
+    wrapperClass = "",
+    attrs = {}
   }={}){
     let html = ""
     if(icon || text) {
       let iconHtml = Ti.Icons.fontIconHtml(icon)
+      //--------------------------------
       let attr=(name, value)=>{
         if(name && value){
           return `${name}="${value}"`
         }
         return ""
       }
+      //--------------------------------
       let klass = (name)=>{
         return attr("class", name)
       }
-      html += `<${tagName} ${klass(className)} ${attr("ti-tip", tip)}>`
+      //--------------------------------
+      let attrsHtml = []
+      _.forOwn(attrs, (val, nm)=>{
+        attrsHtml.push(attr(nm, val))
+      })
+      attrsHtml = attrsHtml.join(" ")
+      //--------------------------------
+      html += `<${tagName} ${klass(className)} ${attr("ti-tip", tip)} ${attrsHtml}>`
       if(iconHtml) {
         html += `<${iconTag} ${klass(iconClass)}">${iconHtml}</${iconTag}>`
       }
       if(text) {
-        let i18nText = Ti.I18n.text(text)
-        html += `<${textTag} ${klass(textClass)}>${i18nText}</${textTag}>`
+        let textHtml = textAsHtml ? text : Ti.I18n.text(text)
+        html += `<${textTag} ${klass(textClass)}>${textHtml}</${textTag}>`
       }
       html += `</${tagName}>`
     }
