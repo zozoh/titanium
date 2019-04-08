@@ -26,25 +26,9 @@ $color-mask: (
 $color-line: (
   dark      : rgba(0,0,0,0.2),
   shallow   : rgba(0,0,0,0.1),
-  highlight : #ff4081
+  primary   : map-get($color-primary, c),
+  highlight : map-get($color-secondary, c)
 );
-//-------------------------------------------------------------
-@mixin color($color:null, $c:null, $bg:null) {
-  @if $color!= null {
-    @if $c  != null {color:map-get($color, $c);}
-    @if $bg != null {background-color:map-get($color, $bg);}
-  }
-}
-//-------------------------------------------------------------
-@mixin border($w:1px,$s:solid,$c:shallow, $pos:null) {
-  @if $pos == null {
-    border:$w $s map-get($color-line, $c);
-  }
-  @else {
-    border-#{$pos}:$w $s map-get($color-line, $c);
-  }
-  
-}
 //-----------------------------------------------------
 // Utility mixins
 @import "_vars.scss";

@@ -3,29 +3,54 @@
   "comType" : "@com:wn/list/adaptview",
   "modType" : "@mod:wn/obj-explorer",
   "actions" : [{
-    "key"  : "upload",
-    "type" : "action",
-    "icon" : "fas-upload",
-    "text" : "i18n:upload-file",
-    "action" : "main:openFileSelectdDialog",
-    "shortcut" : "ALT+CTRL+SHIFT+U"
-  },{
-    "key"  : "reloading",
-    "type" : "action",
-    "icon" : "zmdi-refresh",
-    "text" : "i18n:refresh",
-    "altDisplay" : {
-      "icon" : "zmdi-refresh zmdi-hc-spin",
-      "text" : "i18n:loading"
-    },
-    "action" : "dispatch:main/reload",
-    "shortcut" : "CTRL+R"
-  },{
-    "key"  : "create",
-    "type" : "action",
-    "icon" : "zmdi-flare",
-    "text" : "i18n:create",
-    "action" : "dispatch:main/create",
-    "shortcut" : "ALT+CTRL+N"
-  }]
+      "key"  : "reloading",
+      "type" : "action",
+      "icon" : "zmdi-refresh",
+      "text" : "i18n:refresh",
+      "altDisplay" : {
+        "icon" : "zmdi-refresh zmdi-hc-spin",
+        "text" : "i18n:loading"
+      },
+      "action" : "dispatch:main/reload",
+      "shortcut" : "CTRL+R"
+    },{
+      "type":"line"
+    },{
+      "key"  : "create",
+      "type" : "action",
+      "icon" : "zmdi-flare",
+      "text" : "i18n:create",
+      "action" : "dispatch:main/create",
+      "shortcut" : "ALT+CTRL+N"
+    },{
+      "type" : "action",
+      "icon" : "zmdi-download",
+      "text" : "i18n:download-to-local",
+      "action" : "dispatch:main/download"
+    }, {
+      "type" : "group",
+      "icon" : "zmdi-settings",
+      "text" : "i18n:more",
+      "items" : [{
+          "key"  : "selectAll",
+          "type" : "action",
+          "text" : "i18n:select-all",
+          "action" : "commit:main/selectAll",
+          "shortcut" : "CTRL+A"
+        },{
+          "key"  : "blurAll",
+          "type" : "action",
+          "text" : "i18n:blur-all",
+          "action" : "commit:main/blurAll"
+        },{
+          "type" : "line"
+        },{
+          "key"  : "upload",
+          "type" : "action",
+          "icon" : "fas-upload",
+          "text" : "i18n:upload-file",
+          "action" : "main:openFileSelectdDialog",
+          "shortcut" : "ALT+CTRL+SHIFT+U"
+        }]
+    }]
 }

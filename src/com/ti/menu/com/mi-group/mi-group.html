@@ -1,10 +1,15 @@
-<div class="mi-group ti-menu-item-btnlike"
-     :tip="theTip"
-     @click.stop="toggleChildren">
-  <ti-icon v-if="hasIcon" :value="theIcon"/>
-  <span v-if="hasText">{{theText|i18n}}</span>
+<div class="mi-group">
+  <div class="ti-menu-item-btnlike"
+      :item-disabled="isDisabled"
+      :item-enabled="isEnabled"
+      :tip="theTip"
+      @click.stop="showChildren">
+    <ti-icon v-if="hasIcon" :value="theIcon"/>
+    <span v-if="hasText">{{theText|i18n}}</span>
+  </div>
   <div class="mi-group-con" 
-       :class="classObject.groupCon">
+       :class="classObject.groupCon"
+       @click.stop="hideChildren">
     <ul class="menu-sub ti-ul-reset" ref="sub">
       <li v-for="it in items" :key="it.key">
         <component :is="it.comType"

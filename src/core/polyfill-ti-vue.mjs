@@ -1,4 +1,3 @@
-import {Ti} from './ti.mjs'
 //---------------------------------------
 function do_map_xxx(modPath, setting) {
   const re = {}
@@ -159,6 +158,9 @@ export const TiVue = {
     sc.getters   = _.assign(sc.getters,   Ti.Util.merge({}, conf.getters))
     sc.mutations = _.assign(sc.mutations, Ti.Util.merge({}, conf.mutations))
     sc.actions   = _.assign(sc.actions,   Ti.Util.merge({}, conf.actions))
+
+    // I18n
+    Ti.I18n.put(conf.i18n)
     
     // namespaced module
     if(conf.namespaced)

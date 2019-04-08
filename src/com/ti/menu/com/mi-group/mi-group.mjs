@@ -22,8 +22,11 @@ export default {
     }
   ),
   methods : {
-    toggleChildren() {
-      this.isOpened = !this.isOpened
+    showChildren() {
+      this.isOpened = true
+    },
+    hideChildren() {
+      this.isOpened = false
     }
   },
   watch : {

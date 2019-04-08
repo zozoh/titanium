@@ -1,7 +1,9 @@
 .ti-menu {
-  @include noselect;
+  @include noselect; 
+  //------------------------------------------------
   > .menu-top {
     > li {
+      @include flex-center;
       .ti-menu-item-btnlike {
         @include flex-align($ai:center, $wp:nowrap);
         border-radius:.02rem;
@@ -18,8 +20,22 @@
         font-size:.18rem;
         width:.24rem;
       }
+      > .mi-line {
+        @include color($color-line, null, shallow);
+        width:1px; height:.2rem; overflow:hidden;
+        margin:0 .02rem;
+      }
+    }
+  }  // ~ > .menu-top
+  //------------------------------------------------
+  .mi-group {
+    &:hover {
+      > .ti-menu-item-btnlike {
+        @include color-highlight;
+      }
     }
   }
+  //------------------------------------------------
   .mi-group-con {
     &.mi-group-closed {display:none;}
     &.mi-group-opened {display:block;}
@@ -34,9 +50,14 @@
       min-width: 1.5rem;
       z-index: $z-menu;
       padding:1px; 
-      @include color($color-chip, r, c);
-      @include border(1px, solid shallow);
+      @include color($color-cloak, r, c);
+      @include border(1px, solid, primary);
+      .mi-line {
+        @include color($color-line, null, shallow);
+        height:1px; overflow:hidden;
+        margin:.04rem 0;
+      }
     }
-  }
-  
+  }  // ~ .mi-group-con
+  //------------------------------------------------
 }

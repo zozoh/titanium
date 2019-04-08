@@ -17,6 +17,10 @@ body {
   -webkit-box-sizing: border-box;
   box-sizing: border-box; }
 
+pre {
+  tab-size: 4;
+  -moz-tab-size: 4; }
+
 a {
   color: #2196f3;
   text-decoration: none; }
@@ -365,30 +369,45 @@ a:hover {
 
 .ti-menu {
   user-select: none; }
-  .ti-menu > .menu-top > li .ti-menu-item-btnlike {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    align-content: stretch;
-    flex-wrap: nowrap;
-    border-radius: .02rem;
-    padding: 0 .06rem; }
-    .ti-menu > .menu-top > li .ti-menu-item-btnlike[item-disabled] {
-      cursor: default;
-      opacity: 0.4; }
-    .ti-menu > .menu-top > li .ti-menu-item-btnlike[item-enabled] {
-      cursor: pointer; }
-      .ti-menu > .menu-top > li .ti-menu-item-btnlike[item-enabled]:hover {
-        color: #FFF;
-        background-color: #2196f3; }
-  .ti-menu > .menu-top > li .ti-icon > i {
+  .ti-menu > .menu-top > li {
     display: flex;
     justify-content: center;
     align-items: center;
     align-content: center;
-    flex-wrap: wrap;
-    font-size: .18rem;
-    width: .24rem; }
+    flex-wrap: wrap; }
+    .ti-menu > .menu-top > li .ti-menu-item-btnlike {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      align-content: stretch;
+      flex-wrap: nowrap;
+      border-radius: .02rem;
+      padding: 0 .06rem; }
+      .ti-menu > .menu-top > li .ti-menu-item-btnlike[item-disabled] {
+        cursor: default;
+        opacity: 0.4; }
+      .ti-menu > .menu-top > li .ti-menu-item-btnlike[item-enabled] {
+        cursor: pointer; }
+        .ti-menu > .menu-top > li .ti-menu-item-btnlike[item-enabled]:hover {
+          color: #FFF;
+          background-color: #2196f3; }
+    .ti-menu > .menu-top > li .ti-icon > i {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      font-size: .18rem;
+      width: .24rem; }
+    .ti-menu > .menu-top > li > .mi-line {
+      background-color: rgba(0, 0, 0, 0.1);
+      width: 1px;
+      height: .2rem;
+      overflow: hidden;
+      margin: 0 .02rem; }
+  .ti-menu .mi-group:hover > .ti-menu-item-btnlike {
+    color: #FFF;
+    background-color: #2196f3; }
   .ti-menu .mi-group-con.mi-group-closed {
     display: none; }
   .ti-menu .mi-group-con.mi-group-opened {
@@ -408,9 +427,14 @@ a:hover {
     min-width: 1.5rem;
     z-index: 100;
     padding: 1px;
-    color: #666;
-    background-color: #e0e0e0;
-    border: 1px solid shallow rgba(0, 0, 0, 0.1); }
+    color: #444;
+    background-color: rgba(220, 220, 220, 0.95);
+    border: 1px solid #2196f3; }
+    .ti-menu .mi-group-con > .menu-sub .mi-line {
+      background-color: rgba(0, 0, 0, 0.1);
+      height: 1px;
+      overflow: hidden;
+      margin: .04rem 0; }
 
 .ti-icon.center {
   display: flex;

@@ -5,6 +5,7 @@
   "mixins" : ["./ti-menu.mjs"],
   "components" : [
     "./com/mi-action",
-    "./com/mi-group"
+    "./com/mi-group",
+    "./com/mi-line"
   ]
 }

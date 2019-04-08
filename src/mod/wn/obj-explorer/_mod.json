@@ -1,7 +1,9 @@
 {
   "name" : "wn-obj-explorer",
   "namespaced" : true,
+  "i18n" : "@i18n:wn-obj-explorer",
   "state" : "./woe.json",
+  "getters" : "./woe-getters.mjs",
   "mutations" : "./woe-mutations.mjs",
   "actions" : "./woe-actions.mjs"
 }

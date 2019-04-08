@@ -84,6 +84,20 @@ export default {
     state.currentId = id
   },
   //---------------------------------------------------
+  selectAll(state) {
+    // Loop All Items
+    let list = state.children 
+    for(let it of list) {
+      let _is  = it.__is || {}
+      _is.selected = true
+      it.__is = _is
+    }
+    // Update state
+    state.children = [].concat(list)
+    state.currentIndex = 0
+    state.currentId = null
+  },
+  //---------------------------------------------------
   /***
    * Make item blur
    */

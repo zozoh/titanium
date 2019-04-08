@@ -101,27 +101,7 @@ export default {
   //////////////////////////////////////////////
   methods : {
     getObjLink(meta) {
-      if(!meta){
-        return '/a/open/wn.manager'
-      }
-
-      if(/^(\/|~)/.test(meta)) {
-        return '/a/open/wn.manager?ph='+meta
-      }
-
-      if(_.isString(meta)) {
-        return '/a/open/wn.manager?ph=id:'+meta
-      }
-      
-      if(meta.id){
-        return '/a/open/wn.manager?ph=id:'+meta.id
-      }
-
-      if(meta.ph){
-        return '/a/open/wn.manager?ph='+meta.ph
-      }
-
-      return '#'
+      return Wn.Util.getAppLink(meta).toString()
     },
     //.........................................
     async reloadSidebar() {

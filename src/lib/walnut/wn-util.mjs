@@ -56,5 +56,78 @@ export const WnUtil = {
    */
   getObjDisplayName(meta) {
     return meta.title || meta.nm
+  },
+  /***
+   * Get Object link as `String`
+   * 
+   * @param meta{String|Object} : Object meta or id as string
+   * @param options.appName{String} : Walnut App Name, "wn.manager" as default
+   * @param options.encoded{Boolean} : Encode the path or not
+   */
+  getAppLink(meta, {
+    appName = "wn.manager",
+    encoded = true
+  }={}) {
+    return WnUtil.getLink(`/a/open/${appName}`, meta, {
+      pathKey : "ph",
+      encoded : true
+    })
+  },
+  /***
+   * Get object link for download
+   */
+  getDownloadLink(meta, {mode="force"}={}) {
+    return WnUtil.getLink(`/o/content`, meta, {
+      pathKey : "str",
+      encoded : true,
+      params : {d:mode}
+    })
+  },
+  /***
+   * Get Object link as `Plain Object`
+   * 
+   * @param url{String} : Target URL
+   * @param meta{String|Object} : Object meta or id as string
+   * @param options.pathKey{String} : Which key to send object path
+   * @param options.encoded{Boolean} : Encode the path or not
+   * @param options.params{Object} : Init params value
+   * 
+   * @return `TiLinkObj`
+   */
+  getLink(url, meta, {
+    pathKey = "ph",
+    encoded = false,
+    params = {}
+  }={}) {
+    let params2 = {...params}
+    if(!meta) {
+      return {url, params2}
+    }
+    const __V = (val)=>{
+      return encoded
+        ? encodeURIComponent(val)
+        : val
+    }
+    // META: "~/path/to/obj"
+    if(/^(\/|~)/.test(meta)) {
+      params2[pathKey] = __V(meta)
+    }
+    // META: "478e..6ea2"
+    else if(_.isString(meta)) {
+      params2[pathKey] = `id:${meta}`
+    }
+    // META: {id:"478e..6ea2"}
+    else if(meta.id){
+      params2[pathKey] = `id:${meta.id}`
+    }
+    // META: {ph:"/path/to/obj"}
+    else if(meta.ph){
+      params2[pathKey] = __V(meta.ph)
+    }
+    // Default return
+    return Ti.Util.Link({
+      url, 
+      params : params2,
+    })
   }
 }

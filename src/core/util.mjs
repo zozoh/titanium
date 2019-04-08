@@ -1,7 +1,8 @@
 import {TiPaths} from "./util_paths.mjs"
+import {TiLink} from "./util_link.mjs"
 //---------------------------------------
 export const TiUtil = {
-  ...TiPaths,
+  ...TiPaths, ...TiLink,
   /***
    * Merge an plain object by gived arguments deeply.
    * 

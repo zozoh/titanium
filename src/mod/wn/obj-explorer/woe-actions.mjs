@@ -1,6 +1,40 @@
 // Ti required(Wn)
 //---------------------------------------
 export default {
+  //---------------------------------------
+  async download({state, getters}) {
+    let list = getters.selectedItems
+    if(_.isEmpty(list)) {
+      return await Ti.Alert('i18n:weo-download-none')
+    }
+    //let link = Wn.Util.getMetaLinkObj()
+    //Ti.Be.Open("http://www.nutzam.com")
+    if(list.length > 5) {
+      if(!await Ti.Confirm({
+        text : "i18n:weo-download-too-many",
+        vars : {N:list.length}})) {
+        return
+      }
+    }
+    // Do the download
+    for(let it of list) {
+      if('FILE' != it.race) {
+        if(!await Ti.Confirm({
+            text : "i18n:weo-download-dir",
+            vars : it
+          }, {
+            textYes : "i18n:continue",
+            textNo  : "i18n:terminate"
+          })){
+          return
+        }
+        continue;
+      }
+      let link = Wn.Util.getDownloadLink(it)
+      await Ti.Be.OpenLink(link)
+    }
+  },
+  //---------------------------------------
   /***
    * Get obj children by meta
    */

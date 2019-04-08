@@ -7,6 +7,26 @@
   text-overflow: ellipsis;
 }
 //-------------------------------------------------------------
+@mixin color($color:null, $c:null, $bg:null) {
+  @if $color!= null {
+    @if $c  != null {color:map-get($color, $c);}
+    @if $bg != null {background-color:map-get($color, $bg);}
+  }
+}
+@mixin color-highlight() {
+  @include color($color-primary, r, c)
+}
+//-------------------------------------------------------------
+@mixin border($w:1px,$s:solid,$c:shallow, $pos:null) {
+  @if $pos == null {
+    border:$w $s map-get($color-line, $c);
+  }
+  @else {
+    border-#{$pos}:$w $s map-get($color-line, $c);
+  }
+  
+}
+//-------------------------------------------------------------
 @mixin flex($jc:flex-start,$ai:flex-start,$wp:wrap,$ac:stretch) {
   display: flex;
   justify-content: $jc;
@@ -57,7 +77,7 @@
 @mixin fireable() {
   cursor:pointer;
   &:hover {
-    @include color($color-primary, r, c)
+    @include color-highlight;
   }
 }
 //-------------------------------------------------------------
