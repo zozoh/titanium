@@ -11,6 +11,7 @@
     "totalCoun" : -1
   },
   "status" : {
-    "reloading" : false
+    "reloading" : false,
+    "deleting" : false
   }
 }

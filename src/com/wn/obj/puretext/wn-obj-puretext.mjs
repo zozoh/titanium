@@ -8,6 +8,10 @@ export default {
         "contentType" : null
       })
     },
+    "status" : {
+      type : Object,
+      default : ()=>({})
+    },
     "dataIsChanged" : {
       type : Boolean,
       default : false

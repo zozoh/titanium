@@ -2,7 +2,27 @@
 //---------------------------------------
 export default {
   //---------------------------------------
-  async download({state, getters}) {
+  async deleteSelected({commit, getters}) {
+    let list = getters.selectedItems
+    if(_.isEmpty(list)) {
+      return await Ti.Alert('i18n:weo-del-none')
+    }
+    commit("set", {status:{deleting:true}})
+    // Loop items
+    for(let it of list) {
+      console.log("delete:", it.nm)
+      await new Promise((resolve)=>{
+        _.delay(()=>{
+          console.log("  - done for ", it.nm)
+          resolve(true)
+        }, 1000)
+      })
+    }
+    // End deleting
+    commit("set", {status:{deleting:false}})
+  },
+  //---------------------------------------
+  async download({getters}) {
     let list = getters.selectedItems
     if(_.isEmpty(list)) {
       return await Ti.Alert('i18n:weo-download-none')
@@ -38,7 +58,7 @@ export default {
   /***
    * Get obj children by meta
    */
-  async loadChildren({state, commit}, {
+  async loadChildren({commit}, {
     meta, skip, limit, sort, mine, match
   }) {
     if('DIR' != meta.race) {
@@ -49,7 +69,9 @@ export default {
       skip, limit, sort, mine, match})
     commit("set", {
       children : re.list,
-      pager    : re.pager
+      pager    : re.pager,
+      currentIndex : 0,
+      currentId : null
     })
     return re
   },

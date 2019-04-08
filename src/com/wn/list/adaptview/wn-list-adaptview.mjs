@@ -1,8 +1,16 @@
 export default {
   props : {
-    data : {
+    "data" : {
       type : Object,
       default : ()=>({})
+    },
+    "status" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "dataIsChanged" : {
+      type : Boolean,
+      default : false
     }
   },
   //------------------------------------------------

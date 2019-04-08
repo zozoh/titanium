@@ -23,10 +23,17 @@
       "action" : "dispatch:main/create",
       "shortcut" : "ALT+CTRL+N"
     },{
+      "key"  : "deleting",
       "type" : "action",
-      "icon" : "zmdi-download",
-      "text" : "i18n:download-to-local",
-      "action" : "dispatch:main/download"
+      "icon" : "zmdi-delete",
+      "text" : "i18n:del",
+      "altDisplay" : {
+        "icon" : "zmdi-refresh zmdi-hc-spin",
+        "text" : "i18n:del-ing"
+      },
+      "action" : "dispatch:main/deleteSelected"
+    },{
+      "type":"line"
     }, {
       "type" : "group",
       "icon" : "zmdi-settings",
@@ -47,10 +54,17 @@
         },{
           "key"  : "upload",
           "type" : "action",
-          "icon" : "fas-upload",
+          "icon" : "zmdi-cloud-upload",
           "text" : "i18n:upload-file",
           "action" : "main:openFileSelectdDialog",
           "shortcut" : "ALT+CTRL+SHIFT+U"
+        },{
+          "type" : "line"
+        },{
+          "type" : "action",
+          "icon" : "zmdi-download",
+          "text" : "i18n:download-to-local",
+          "action" : "dispatch:main/download"
         }]
     }]
 }
