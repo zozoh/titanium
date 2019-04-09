@@ -32,6 +32,7 @@ export default {
             // status
             ...(it.__is || {
               loading  : false,
+              removed  : false,
               progress : -1,
               selected : false
             }),

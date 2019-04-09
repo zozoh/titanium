@@ -16,6 +16,20 @@ export default {
     _.assign(state.status, status)
   },
   //---------------------------------------------------
+  updateChildStatus(state, {id, status={}}={}) {
+    if(_.isArray(state.children)) {
+      for(let i=0; i<state.children.length; i++) {
+        let child = state.children[i]
+        if(child.id == id) {
+          child.__is = child.__is || {}
+          _.assign(child.__is, status)
+          Vue.set(state.children, i, child)
+          break;
+        }
+      }
+    }
+  },
+  //---------------------------------------------------
   addUploadings(state, ups) {
     state.uploadings = [].concat(state.uploadings, ups)
   },

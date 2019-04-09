@@ -504,13 +504,14 @@ a:hover {
 .ti-obj-thumb {
   user-select: none;
   width: 1rem; }
+  .ti-obj-thumb.is-removed {
+    opacity: 0.4; }
   .ti-obj-thumb > header {
     display: flex;
     justify-content: center;
     align-items: center;
     align-content: center;
     flex-wrap: wrap;
-    position: relative;
     padding-bottom: .05rem; }
     .ti-obj-thumb > header > .as-preview {
       display: flex;
@@ -519,6 +520,7 @@ a:hover {
       align-content: center;
       flex-wrap: wrap;
       flex: 1 1 auto;
+      position: relative;
       width: .8rem;
       height: .8rem;
       padding: .04rem;
@@ -529,6 +531,20 @@ a:hover {
         height: 100%; }
       .ti-obj-thumb > header > .as-preview > .ti-icon i {
         font-size: .48rem; }
+      .ti-obj-thumb > header > .as-preview > .as-status {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        flex-wrap: wrap;
+        color: #e0e0e0;
+        background-color: rgba(50, 50, 50, 0.8);
+        font-size: .2rem; }
     .ti-obj-thumb > header > .as-progress {
       position: absolute;
       left: 0;

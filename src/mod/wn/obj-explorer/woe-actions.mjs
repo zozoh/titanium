@@ -10,12 +10,20 @@ export default {
     commit("set", {status:{deleting:true}})
     // Loop items
     for(let it of list) {
-      console.log("delete:", it.nm)
+      //console.log("delete:", it.nm)
+      commit("updateChildStatus", {
+        id:it.id, 
+        status:{loading:true, removed:false}
+      })
       await new Promise((resolve)=>{
         _.delay(()=>{
-          console.log("  - done for ", it.nm)
+          //console.log("  - done for ", it.nm)
+          commit("updateChildStatus", {
+            id:it.id, 
+            status:{loading:false, removed:true}
+          })
           resolve(true)
-        }, 1000)
+        }, 200)
       })
     }
     // End deleting

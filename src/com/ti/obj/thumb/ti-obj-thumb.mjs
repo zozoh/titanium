@@ -31,6 +31,10 @@ export default {
       type : Boolean,
       default : false
     },
+    removed : {
+      type : Boolean,
+      default : false
+    },
     current : {
       type : Boolean,
       default : false
@@ -56,7 +60,9 @@ export default {
       return {
         "is-selected"   : vm.selected,
         "is-renameable" : vm.renameable,
-        "is-current"    : vm.current
+        "is-current"    : vm.current,
+        "is-removed"    : vm.removed,
+        "is-loading"    : vm.loading
       }
     },
     showProgress() {
