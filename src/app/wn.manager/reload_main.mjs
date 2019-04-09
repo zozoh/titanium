@@ -30,10 +30,35 @@ export default async function reloadMain(meta) {
     }
     // Load moudle/component
     let view = await $app.loadView("main", mainView, {
+      updateStoreConfig : config=>{
+        console.log(config)
+        if(!config.state) {
+          config.state = {}
+        }
+        config.state = _.assign({}, config.state, {
+          $message : {
+            noti  : null,
+            toast : null,
+            log : null
+          }
+        })
+        
+        config.mutations = _.assign({}, config.mutations, {
+          $noti(state, str) {
+            state.$message.noti = str
+          },
+          $toast(state, str) {
+            state.$message.toast = str
+          },
+          $log(state, str) {
+            state.$message.log = str
+          }
+        })
+      },
       // Add hook to get back the mainView instance
-      updateComSetup : setup=>{
-        setup.options.mixins = [].concat(setup.options.mixins||[])
-        setup.options.mixins.push({
+      updateComSetup : conf=>{
+        conf.mixins = [].concat(conf.mixins||[])
+        conf.mixins.push({
           mounted : function(){
             $app.$vmMain(this)
           }

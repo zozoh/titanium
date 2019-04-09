@@ -138,7 +138,10 @@ export class OneTiApp {
     return this.$vm()[key]
   }
   //---------------------------------------
-  async loadView(name, view, {updateComSetup=_.identity}={}) {
+  async loadView(name, view, {
+    updateStoreConfig=_.identity,
+    updateComSetup=_.identity
+  }={}) {
     // Load the module
     let moInfo = await Ti.Load(view.modType)
     let moConf = await LoadTiLinkedObj(moInfo, {
@@ -146,6 +149,9 @@ export class OneTiApp {
         "^\./": view.modType + "/"
       })
     })
+    // Customized
+    updateStoreConfig(moConf)
+    // Formed
     let mo = TiVue.StoreConfig(moConf)
     this.$store().registerModule(name, mo)
     
@@ -156,14 +162,13 @@ export class OneTiApp {
         "^\./": view.comType + "/"
       })
     })
+    // Customized
+    updateComSetup(comConf)
     // TODO: shoudl I put this below to LoadTiLinkedObj?
     // It is sames a litter bit violence -_-! so put here for now...
     Ti.I18n.put(comInfo.i18n)
     // Setup ...
     let setup = TiVue.Setup(comConf)
-
-    // Update Setup before create instance
-    updateComSetup(setup)
 
     // Get the formed comName
     let comName = setup.options.name 

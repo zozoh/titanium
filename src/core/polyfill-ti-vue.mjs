@@ -174,6 +174,10 @@ export const TiVue = {
         sc.modules[mc.name] = mo
       }
     }
+
+    // Join plugins
+    sc.plugins = [].concat(conf.plugins||[])
+
     // Return then
     return sc
   },

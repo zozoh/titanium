@@ -20,9 +20,8 @@
   },
   "mixins" : ["./wn-manager.mjs"],
   "store" : {
-    "modules" : [
-      "@mod:wn/session",
-      "@mod:wn/obj-meta"]
+    "modules" : ["@mod:wn/session", "@mod:wn/obj-meta"],
+    "plugins" : ["./store_watcher.mjs"]
   },
   "components" : [
     "./com/wnm-sidebar-item",

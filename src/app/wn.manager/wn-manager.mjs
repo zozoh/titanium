@@ -3,18 +3,30 @@ export default {
     "reloading"  : false,
     "loadingCom" : "ti-loading",
     "mainView"   : null,
-    "status"     : null,
     "sidebar"    : []
   }),
   //////////////////////////////////////////////
   watch : {
     "obj.meta" : function(newMeta, oldMeta) {
-      let vm = this;
+      let vm = this
       if(Ti.IsTrace()) {
         console.log("watched-----------------", newMeta, oldMeta)
       }
       if(!newMeta || !oldMeta || newMeta.id != oldMeta.id) {
         vm.reloadMain(newMeta)
+      }
+    },
+    "mainData.$message.toast" : function(newVal, oldVal) {
+      if(newVal || oldVal) {
+        console.log("mainData.$message.toast", newVal, oldVal)
+        if(newVal) {
+        this.$message({
+            showClose : true,
+            duration  : 2000,
+            type : "success",
+            message   : Ti.I18n.text(newVal)
+          });
+        }
       }
     }
   },
@@ -95,6 +107,11 @@ export default {
     mainDataId() {
       if(this.$store.state.main && this.$store.state.main.meta) {
         return this.$store.state.main.meta.id
+      }
+    },
+    mainLog() {
+      if(this.$store.state.main && this.$store.state.main.$message) {
+        return this.$store.state.main.$message.log
       }
     }
   },

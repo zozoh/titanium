@@ -9,8 +9,10 @@ export default {
     }
     commit("set", {status:{deleting:true}})
     // Loop items
+    let delCount = 0
     for(let it of list) {
       //console.log("delete:", it.nm)
+      commit("$log". it.nm)
       // Mark item is processing
       commit("updateChildStatus", 
         {id:it.id, status:{loading:true, removed:false}})
@@ -31,17 +33,20 @@ export default {
       // Do delete
       await new Promise((resolve)=>{
         _.delay(()=>{
-          // Done for remove
           resolve(true)
         }, 200)
       })
       // Mark item removed
       commit("updateChildStatus", 
         {id:it.id, status:{loading:false, removed:true}})
+      // Counting
+      delCount++
       // Then continue the loop .......^
     }
     // End deleting
     commit("set", {status:{deleting:false}})
+    commit("$log", null)
+    commit("$toast", {text:"i18n:weo-del-ok", vars:{N:delCount}})
   },
   //---------------------------------------
   async download({getters}) {
