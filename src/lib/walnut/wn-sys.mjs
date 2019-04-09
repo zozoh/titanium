@@ -97,6 +97,7 @@ export const WnSys = {
         showClose: true,
         message : err.message,
       })
+      return false
     }
   } 
   //-------------------------------------

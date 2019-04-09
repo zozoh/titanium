@@ -1,14 +1,15 @@
 .ti-modal {
   $closer-width : .32rem;
-  z-index: $z-top;
   > .mdl-mask {
     @include pos-fixed-full;
     @include color($color-mask, r, bushy);
+    z-index: $z-top;
   }
   > .mdl-con {
     @include pos-fixed-full;
     @include flex-center;
     padding:.2rem .2rem 2rem .2rem;
+    z-index: $z-top;
     > .mdl-main {
       //....................................
       @include color($color-chip, r, c);

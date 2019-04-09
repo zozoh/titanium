@@ -11,20 +11,34 @@ export default {
     // Loop items
     for(let it of list) {
       //console.log("delete:", it.nm)
-      commit("updateChildStatus", {
-        id:it.id, 
-        status:{loading:true, removed:false}
-      })
+      // Mark item is processing
+      commit("updateChildStatus", 
+        {id:it.id, status:{loading:true, removed:false}})
+      // If DIR, check it is empty or not
+      if('DIR' == it.race) {
+        let count = await Wn.Sys.exec(`count -A id:${it.id}`)
+        count = parseInt(count)
+        if(count > 0) {
+          // If user confirmed, then rm it recurently
+          if(!(await Ti.Confirm({
+              text:'i18n:weo-del-no-empty-folder', vars:{nm:it.nm}}))) {
+            commit("updateChildStatus", 
+              {id:it.id, status:{loading:false, removed:false}})
+            continue
+          }
+        }
+      }
+      // Do delete
       await new Promise((resolve)=>{
         _.delay(()=>{
-          //console.log("  - done for ", it.nm)
-          commit("updateChildStatus", {
-            id:it.id, 
-            status:{loading:false, removed:true}
-          })
+          // Done for remove
           resolve(true)
         }, 200)
       })
+      // Mark item removed
+      commit("updateChildStatus", 
+        {id:it.id, status:{loading:false, removed:true}})
+      // Then continue the loop .......^
     }
     // End deleting
     commit("set", {status:{deleting:false}})
