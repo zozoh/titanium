@@ -1,4 +1,7 @@
+const DF_STOREAGE_KEY_OF_EXPOSE_HIDDEN = "wn-list-adaptview-expose-hidden"
+//----------------------------------------------
 export default {
+  //////////////////////////////////////////////
   data : ()=>({
     "reloading"  : false,
     "loadingCom" : "ti-loading",

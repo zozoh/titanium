@@ -70,6 +70,9 @@ export const fireable = {
       hasIcon() {return HAS(isAlt, this, "icon")},
       hasText() {return HAS(isAlt, this, "text")},
       hasTip () {return HAS(isAlt, this, "tip")},
+      isCaptureWhenAltDisplay() {
+        return this.altDisplay && this.altDisplay.capture !== false
+      },
       isEnabled() {
         if(this.enableBy) {
           return this.status[this.enableBy]

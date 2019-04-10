@@ -52,11 +52,23 @@
         },{
           "type" : "line"
         },{
+          "key"  : "exposeHidden",
+          "type" : "action",
+          "text" : "i18n:weo-export-hidden",
+          "altDisplay" : {
+            "icon" : "zmdi-check",
+            "capture" : false
+          },
+          "action" : "commit:main/toggleExposeHidden",
+          "shortcut" : "ALT+CTRL+SHIFT+H"
+        },{
+          "type" : "line"
+        },{
           "key"  : "upload",
           "type" : "action",
           "icon" : "zmdi-cloud-upload",
           "text" : "i18n:upload-file",
-          "action" : "main:openFileSelectdDialog",
+          "action" : "main:openLocalFileSelectdDialog",
           "shortcut" : "ALT+CTRL+SHIFT+U"
         },{
           "type" : "line"

@@ -5,5 +5,6 @@
   "weo-del-none" : "请选择至少一个文件进行删除!",
   "weo-del-no-empty-folder" : "目录\"${nm}\"不是空的，您是否要全部删除？点击\"否\"跳过",
   "weo-del-item" : "正在删除: \"${name}\"",
-  "weo-del-ok" : "已有 ${N} 个对象被移除"
+  "weo-del-ok" : "已有 ${N} 个对象被移除",
+  "weo-export-hidden" : "显示隐藏对象"
 }

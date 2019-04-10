@@ -523,9 +523,8 @@ a:hover {
 
 .ti-obj-thumb {
   user-select: none;
-  width: 1rem; }
-  .ti-obj-thumb.is-removed {
-    opacity: 0.4; }
+  width: 1rem;
+  border: 1px solid transparent; }
   .ti-obj-thumb > header {
     display: flex;
     justify-content: center;
@@ -574,8 +573,7 @@ a:hover {
   .ti-obj-thumb > footer {
     padding: .04rem;
     text-align: center;
-    font-size: 12px;
-    border: 1px solid transparent; }
+    font-size: 12px; }
     .ti-obj-thumb > footer > .as-title {
       height: 3.3em;
       line-height: 1.1em;
@@ -588,14 +586,18 @@ a:hover {
       -webkit-line-clamp: 3;
       -moz-box-orient: vertical;
       -moz-line-clamp: 3; }
-  .ti-obj-thumb.is-selected > header > .as-preview {
-    background-color: rgba(0, 0, 0, 0.08);
-    color: #2196f3; }
-  .ti-obj-thumb.is-selected > footer {
-    color: #FFF;
-    background-color: #2196f3; }
-  .ti-obj-thumb.is-current > footer {
-    border: 1px dotted #bdbdbd; }
+  .ti-obj-thumb.is-selected {
+    color: #2196f3;
+    background-color: #cce8ff; }
+  .ti-obj-thumb.is-current {
+    border-style: dotted;
+    border-color: #2196f3; }
+  .ti-obj-thumb.is-removed {
+    opacity: 0.4; }
+  .ti-obj-thumb.is-weak {
+    opacity: 0.4; }
+  .ti-obj-thumb.is-hide {
+    display: none; }
 
 .ti-text-raw {
   display: flex;

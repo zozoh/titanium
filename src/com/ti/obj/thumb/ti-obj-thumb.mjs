@@ -42,6 +42,10 @@ export default {
     progress : {
       type : Number,
       default : -1
+    },
+    visibility : {
+      type : String,
+      default : "show"  // `show|weak|hide`
     }
   },
   mounted : function(){
@@ -62,7 +66,9 @@ export default {
         "is-renameable" : vm.renameable,
         "is-current"    : vm.current,
         "is-removed"    : vm.removed,
-        "is-loading"    : vm.loading
+        "is-loading"    : vm.loading,
+        "is-hide" : ('hide' == vm.visibility),
+        "is-weak" : ('weak' == vm.visibility)
       }
     },
     showProgress() {

@@ -46,7 +46,7 @@ const LOG_LEVELS = {
 //---------------------------------------
 export const Ti = {
   Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Modal,
-  Icons, I18n, Install, Shortcut, Fuse, Random,Storage,
+  Icons, I18n, Install, Shortcut, Fuse, Random, Storage,
   //.....................................
   Alert, Confirm, Prompt,
   //.....................................

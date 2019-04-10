@@ -1,3 +1,5 @@
+const SKEY_EXPOSE_HIDDEN = "wn-list-adaptview-expose-hidden"
+//----------------------------------------------------
 export default {
   //---------------------------------------------------
   set(state, {
@@ -14,6 +16,15 @@ export default {
     }
     // Status
     _.assign(state.status, status)
+  },
+  //---------------------------------------------------
+  toggleExposeHidden(state) {
+    state.status.exposeHidden = !state.status.exposeHidden
+    Ti.Storage.session.set(SKEY_EXPOSE_HIDDEN, state.status.exposeHidden)
+  },
+  //---------------------------------------------------
+  recoverExposeHidden(state) {
+    state.status.exposeHidden = Ti.Storage.session.getBoolean(SKEY_EXPOSE_HIDDEN)
   },
   //---------------------------------------------------
   updateChildStatus(state, {id, status={}}={}) {

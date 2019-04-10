@@ -1,7 +1,6 @@
 .ti-obj-thumb {
   @include noselect();
-  width:1rem;
-  &.is-removed {opacity:0.4;}
+  width:1rem; border:1px solid transparent;
   > header {
     @include flex-center;
     position:relative;
@@ -33,7 +32,6 @@
     padding:.04rem;
     text-align:center;
     font-size:map-get($body-font-sizes, sm);
-    border:1px solid transparent;
     > .as-title {
       height:3.3em; line-height:1.1em;
       overflow:hidden; word-break: break-all;
@@ -50,14 +48,14 @@
     }
   }
   &.is-selected {
-    > header > .as-preview{
-      @include color($color-h1, _, c);
-      @include color($color-primary, c);
-    }
-    > footer {@include color($color-primary, r, c);}
+    @include color($color-selected, r, c);
   }
   &.is-current {
-    > footer {border:1px dotted map-get($color-track, c);}
+    border-style: dotted;
+    border-color: map-get($color-primary, c);
   }
+  &.is-removed {opacity:0.4;}
+  &.is-weak {opacity:0.4;}
+  &.is-hide {display:none;}
 }
 

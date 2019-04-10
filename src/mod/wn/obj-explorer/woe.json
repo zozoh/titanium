@@ -12,6 +12,7 @@
   },
   "status" : {
     "reloading" : false,
-    "deleting" : false
+    "deleting" : false,
+    "exposeHidden" : false
   }
 }

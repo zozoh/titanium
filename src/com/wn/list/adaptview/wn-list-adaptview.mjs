@@ -24,7 +24,18 @@ export default {
       let re = []
       //..........................
       if(_.isArray(list)) {
+
         for(let it of list) {
+          // Check the visibility
+          let visibility = "show"
+          if(it.nm.startsWith(".")) {
+            if(vm.status.exposeHidden) {
+              visibility = "weak"
+            } else {
+              visibility = "hide"
+            }
+          }
+          // Generate new Thumb Item
           re.push({
             id      : it.id,
             title   : it.nm,
@@ -36,6 +47,7 @@ export default {
               progress : -1,
               selected : false
             }),
+            visibility,
             current : (it.id == vm.data.currentId),
             // Icons
             icons : it.__icons || {
@@ -108,6 +120,7 @@ export default {
     onItemSelected({mode,id,index}={}) {
       this.$store.commit("main/selectItem", {index, id, mode})
     },
+    //----------------------------------------------
     onItemOpen({id,index}={}) {
       let meta = _.nth(this.data.children, index)
       if(meta) {
@@ -117,20 +130,24 @@ export default {
     onItemBlur() {
       this.$store.commit("main/blurAll")
     },
+    //----------------------------------------------
     onDropFiles(files) {
       let fs = [...files]
       this.$store.dispatch("main/upload", fs)
     },
-    openFileSelectdDialog(){
+    //----------------------------------------------
+    openLocalFileSelectdDialog(){
       this.$refs.file.click()
     },
-    onSelectFilesToUpload(evt){
+    //----------------------------------------------
+    onSelectLocalFilesToUpload(evt){
       this.onDropFiles(evt.target.files)
       this.$refs.file.value = ""
     }
   },
-  //------------------------------------------------
+  //----------------------------------------------
   mounted : function(){
+    // Guart the uploading
     Ti.Fuse.getOrCreate().add({
       key : "wn-list-adaptview-check-uploading",
       everythingOk : ()=>{
@@ -145,6 +162,9 @@ export default {
         });
       }
     })
+    // Restore the exposeHidden
+    let $app = Ti.App(this.$root)
+    $app.commit("main/recoverExposeHidden")
   },
   beforeDestroy : function(){
     Ti.Fuse.get().remove("wn-list-adaptview-check-uploading")

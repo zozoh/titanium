@@ -9,16 +9,16 @@ class TiStorageWrapper {
       return dft
     return fmt(str)
   }
-  getString(key, dft){
+  getString(key, dft=null){
     return this.get(key, dft)
   }
-  getInt(key, dft){
+  getInt(key, dft=-1){
     return this.get(key, dft, (s)=>parseInt(s))
   }
-  getBoolean(key, dft){
+  getBoolean(key, dft=false){
     return this.get(key, dft, (s)=>(/^(true|yes|on|ok)$/.test(s)?true:false))
   }
-  getNumber(key, dft){
+  getNumber(key, dft=-1){
     return this.get(key, dft, (s)=>s*1)
   }
   set(key, val){
@@ -38,7 +38,7 @@ class TiStorageWrapper {
 //-----------------------------------
 export const TiStorage = {
   session : new TiStorageWrapper(window.sessionStorage),
-  loca    : new TiStorageWrapper(window.localStorage)
+  local   : new TiStorageWrapper(window.localStorage)
 }
 //---------------------------------------
 export default TiStorage
