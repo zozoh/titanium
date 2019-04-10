@@ -45,6 +45,9 @@ export default {
       return {
         "width" : Ti.Css.toSize(vm.itemWidth)
       }
+    },
+    isEmpty() {
+      return this.list.length == 0
     }
   },
   methods : {

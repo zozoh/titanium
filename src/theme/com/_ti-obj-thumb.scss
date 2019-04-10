@@ -4,6 +4,7 @@
   &.is-removed {opacity:0.4;}
   > header {
     @include flex-center;
+    position:relative;
     padding-bottom:.05rem;
     > .as-preview {
       @include flex-full-center;

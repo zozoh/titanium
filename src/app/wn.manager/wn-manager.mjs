@@ -17,16 +17,24 @@ export default {
       }
     },
     "mainData.$message.toast" : function(newVal, oldVal) {
-      if(newVal || oldVal) {
-        console.log("mainData.$message.toast", newVal, oldVal)
-        if(newVal) {
+      if(newVal) {
         this.$message({
             showClose : true,
-            duration  : 2000,
-            type : "success",
+            duration  : 3000,
+            type      : "success",
             message   : Ti.I18n.text(newVal)
           });
-        }
+      }
+    },
+    "mainData.$message.noti" : function(newVal, oldVal) {
+      if(newVal) {
+        this.$notify({
+            showClose : true,
+            duration  : 3000,
+            type     : "success",
+            title    : Ti.I18n.get("success"),
+            message  : Ti.I18n.text(newVal)
+          });
       }
     }
   },
@@ -111,7 +119,7 @@ export default {
     },
     mainLog() {
       if(this.$store.state.main && this.$store.state.main.$message) {
-        return this.$store.state.main.$message.log
+        return Ti.I18n.text(this.$store.state.main.$message.log)
       }
     }
   },

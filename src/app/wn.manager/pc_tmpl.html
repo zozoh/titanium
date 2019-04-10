@@ -63,9 +63,11 @@ Ti.Config.set({
   lang : "zh-cn"
 })
 //---------------------------------------
-Ti.Dom.watchAutoRootFontSize({callback:({$root, mode})=>{
-  $root.setAttribute("as", mode)
-}})
+Ti.Dom.watchAutoRootFontSize({
+  callback:({$root, mode})=>{
+    $root.setAttribute("as", mode)
+  }
+})
 //---------------------------------------
 Ti.Install()
 Ti.Shortcut.startListening()

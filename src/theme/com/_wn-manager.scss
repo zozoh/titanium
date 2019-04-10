@@ -1,5 +1,6 @@
 // bordering
 .wn-manager {
+  @include font-nice(null);
   .wnm-sky    {@include border($pos:bottom);}
   .wnm-aside  {@include border($pos:right);}
   .wnm-footer {@include border($pos:top);}
@@ -34,9 +35,8 @@
   .wnm-footer {
     @include color($color-disable, c);
     font-size: .12em; 
-    .ti-icon {
-      font-size:1.2em; margin:0 .06rem 0 0;
-    }
+    .ti-icon {font-size:1.2em; margin:0 .06rem 0 0;}
+    > .wnm-log {white-space: nowrap;}
   }
 }
 // Sizing

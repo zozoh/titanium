@@ -2,7 +2,7 @@
 //---------------------------------------
 export default {
   //---------------------------------------
-  async deleteSelected({commit, getters}) {
+  async deleteSelected({commit, getters, dispatch}) {
     let list = getters.selectedItems
     if(_.isEmpty(list)) {
       return await Ti.Alert('i18n:weo-del-none')
@@ -11,8 +11,10 @@ export default {
     // Loop items
     let delCount = 0
     for(let it of list) {
-      //console.log("delete:", it.nm)
-      commit("$log". it.nm)
+      // Duck check
+      if(!it || !it.id || !it.nm)
+        continue
+      
       // Mark item is processing
       commit("updateChildStatus", 
         {id:it.id, status:{loading:true, removed:false}})
@@ -31,11 +33,15 @@ export default {
         }
       }
       // Do delete
-      await new Promise((resolve)=>{
-        _.delay(()=>{
-          resolve(true)
-        }, 200)
+      // await new Promise((resolve)=>{
+      //   _.delay(()=>{
+      //     resolve(true)
+      //   }, 300)
+      // })
+      commit("$log", {
+        text:"i18n:weo-del-item", vars:{name:it.nm}
       })
+      await Wn.Sys.exec(`rm ${'DIR'==it.race?"-r":""} id:${it.id}`)
       // Mark item removed
       commit("updateChildStatus", 
         {id:it.id, status:{loading:false, removed:true}})
@@ -43,10 +49,12 @@ export default {
       delCount++
       // Then continue the loop .......^
     }
+    // Do reload
+    await dispatch("reload")
     // End deleting
     commit("set", {status:{deleting:false}})
     commit("$log", null)
-    commit("$toast", {text:"i18n:weo-del-ok", vars:{N:delCount}})
+    commit("$noti", {text:"i18n:weo-del-ok", vars:{N:delCount}})
   },
   //---------------------------------------
   async download({getters}) {
@@ -80,27 +88,6 @@ export default {
       let link = Wn.Util.getDownloadLink(it)
       await Ti.Be.OpenLink(link)
     }
-  },
-  //---------------------------------------
-  /***
-   * Get obj children by meta
-   */
-  async loadChildren({commit}, {
-    meta, skip, limit, sort, mine, match
-  }) {
-    if('DIR' != meta.race) {
-      commit("set", null)
-      return
-    }
-    let re = await Wn.Io.loadChildren(meta, {
-      skip, limit, sort, mine, match})
-    commit("set", {
-      children : re.list,
-      pager    : re.pager,
-      currentIndex : 0,
-      currentId : null
-    })
-    return re
   },
   //---------------------------------------
   /**
@@ -144,14 +131,29 @@ export default {
     if(!meta) {
       meta = state.meta
     }
+    // !!! Must be DIR
+    if('DIR' != meta.race) {
+      commit("set", null)
+      return
+    }
     // Update the current meta
-    else {
+    if(meta != state.meta) {
       commit("set", {meta})
     }
-    // Load children
+    // Mark begin
     commit("set", {status:{reloading:true}})
-    await dispatch("loadChildren", {meta})
-    commit("set", {status:{reloading:false}})
+       
+    let re = await Wn.Io.loadChildren(meta)
+
+    // Update state and Mark end
+    commit("set", {
+      children : re.list,
+      pager    : re.pager,
+      currentIndex : 0,
+      currentId : null,
+      status:{reloading:false}
+    })
+    
     // return the root state
     return state
   },

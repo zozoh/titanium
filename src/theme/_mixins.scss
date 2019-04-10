@@ -53,6 +53,38 @@
   flex-direction: column;
 }
 //-------------------------------------------------------------
+@mixin font($fa:$f_nice, $sz:.18rem, $lh:.2.4em, $ls:.015em) {
+  @if $fa != null {font-family: $fa;}
+  @if $lh != null {line-height:$lh;}
+  @if $ls != null {letter-spacing:$ls;}
+  @if $sz != null {
+    @if adapt == $sz {
+      @each $key, $value in $screen-min-widths {
+        @media (min-width:$value) {
+          font-size:map-get($body-font-sizes, $key)
+        }
+      }
+    } @else {
+      font-size:$sz;
+    }
+  }
+}
+@mixin font-nice($sz:.18rem, $lh:2.4em, $ls:.015em) {
+  @include font($f_nice, $sz,$lh,$ls)
+}
+@mixin font-fixed($sz:.18rem, $lh:.2.4em, $ls:.015em) {
+  @include font($f_fixed, $sz,$lh,$ls)
+}
+@mixin font-sizes($selector, $sizes:$body-font-sizes) {
+  @each $key, $value in $screen-min-widths {
+    @media (min-width:$value) {
+      #{$selector} {
+        font-size:map-get($sizes, $key)
+      }
+    }
+  }
+}
+//-------------------------------------------------------------
 @mixin ul($align:null, $padding:0, $margin:0) {
   list-style:none;
   padding:$padding;

@@ -114,14 +114,14 @@
     .ti-modal-noti-text {
       @include flex-align-v;
       .prompt-tip {
-
+        flex:1 1 auto; padding:.06rem 0;
       }
       .prompt-input {
-        @include flex-full;
+        @include flex-full(0 0 auto);
         input {
           @include text-input;
           flex:1 1 auto;
-          padding:.02rem .1rem; font-size:1.2em;
+          padding:.12rem; font-size:1.2em;
           outline:none;
         }
       }

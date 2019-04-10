@@ -1,5 +1,9 @@
 <div class="ti-set-tiles" @click="onThumbBlur">
   <div :class="tilesUlClass" class="ti-obj-tiles-con">
+    <div v-if="isEmpty" class="is-empty">
+      <ti-icon value="zmdi-alert-circle-o"/>
+      <span>{{"empty-data"|i18n}}</span>
+    </div>
     <div v-for="(it, index) in list" :key="it.id"
       class="ti-obj-tiles-item"
       :style="itemStyle"
