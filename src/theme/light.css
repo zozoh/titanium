@@ -334,11 +334,19 @@ a:hover {
   flex: 1 1 auto; }
   .ti-modal-noti > .ti-modal-noti-icon {
     flex: 0 0 auto;
-    padding: 0 .4rem 0 .1rem;
+    padding: 0 .24rem 0 .12rem;
     font-size: .64rem; }
   .ti-modal-noti > .ti-modal-noti-text {
     flex: 1 1 auto; }
 
+.ti-modal-noti.as-alert .ti-modal-noti-text {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: stretch;
+  flex-wrap: wrap;
+  padding-right: .32rem;
+  padding-bottom: .2rem; }
 .ti-modal-noti.as-prompt .ti-modal-noti-text {
   display: flex;
   justify-content: flex-start;
