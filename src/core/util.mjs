@@ -49,8 +49,7 @@ export const TiUtil = {
    * 
    * @param obj{Object|Array} : The obj pattern to be generated.
    * 
-   * @return
-   * `Function`, no arguments and return the new copy of given object each time be invoked.
+   * @return `Function`, nil arguments and return the new copy of given object.
    */
   genObj(obj={}) {
     return  _.partial(_.cloneDeep, obj)
@@ -58,10 +57,9 @@ export const TiUtil = {
   /***
    * Group a batch of functions as one function.
    * 
-   * @params
-   * - fns{Array} : Functions to be grouped
-   * @return
-   * `Function` grouping the passed on function list
+   * @param fns{Array} : Functions to be grouped
+   * 
+   * @return `Function` grouping the passed on function list
    */
   groupCall(...fns) {
     const list = _.flattenDeep(fns)

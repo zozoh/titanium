@@ -56,16 +56,12 @@ const ALL = {
 const DEFAULT = {type:"font", value:"zmdi-cake"}
 //-----------------------------------
 export const TiIcons = {
-  put({types, mimes, race="FILE"}={}) {
-    if(types) {
-      _.assign(TYPES, types)
-    }
-    if(mimes) {
-      _.assign(MIMES, mimes)
-    }
-    if(dft) {
-      _.assign(DEFAULT, dft)
-    }
+  put({types, mimes, races, names, dft}={}) {
+    _.assign(TYPES, types)
+    _.assign(MIMES, mimes)
+    _.assign(NAMES, names)
+    _.assign(RACES, races)
+    _.assign(DEFAULT, dft)
   },
   get(icon,dft=DEFAULT) {
     // Default icon

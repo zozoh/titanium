@@ -27,6 +27,22 @@ export default {
     state.status.exposeHidden = Ti.Storage.session.getBoolean(SKEY_EXPOSE_HIDDEN)
   },
   //---------------------------------------------------
+  updateChild(state, it={}) {
+    if(_.isArray(state.children)) {
+      for(let i=0; i<state.children.length; i++) {
+        let child = state.children[i]
+        if(child.id == it.id) {
+          let newIt = {__is:{}, ...it}
+          if(state.currentId == it.id) {
+            newIt.__is.selected = true
+          }
+          Vue.set(state.children, i, newIt)
+          break;
+        }
+      }
+    }
+  },
+  //---------------------------------------------------
   updateChildStatus(state, {id, status={}}={}) {
     if(_.isArray(state.children)) {
       for(let i=0; i<state.children.length; i++) {

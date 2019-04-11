@@ -60,7 +60,7 @@ export const WnSys = {
       let [code, ...datas] = str.split(/ *: */);
       let data = datas.join(" : ")
       let msgKey = code.replace(/[.]/g, "-")
-      let err = Ti.Err.make(code, data, Ti.I18n.get(msgKey))
+      let err = Ti.Err.make(msgKey, data)
       throw err
     }
 
@@ -83,21 +83,20 @@ export const WnSys = {
     })[as]()
   },
   //-------------------------------------
-  async exec2(vm, cmdText, options){
+  async exec2(cmdText, options){
     try {
       return await Wn.Sys.exec(cmdText, {as:"json"})
     }
     // Handle Error
     catch(err) {
-      if(Ti.IsError()) {
-        console.error(err)
+      if(Ti.IsWarn()) {
+        console.warn(err)
       }
-      vm.$message({
-        type : "warning",
-        showClose: true,
-        message : err.message,
+      await Ti.Alert(err, {
+        title : "i18n:warn",
+        type : "warn"
       })
-      return false
+      return err
     }
   } 
   //-------------------------------------

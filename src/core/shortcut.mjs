@@ -3,11 +3,28 @@ class Shortcut {
   constructor(){
     this.reset()
   }
+  watch($app, actions) {
+    this.reset($app).addWatch(actions)
+  }
   reset($app=null) {
     this.$app = $app
     this.actions = {}
     this.guards = {}
     return this
+  }
+  addWatch(actions) {
+    _.forOwn(actions, (aIt)=>{
+      // Groups, recur ...
+      if('group' == aIt 
+         && _.isArray(aIt.items)
+         && aIt.items.length > 0) {
+        this.addWatch(aIt.items)
+      }
+      // Action
+      else if(aIt.action && aIt.shortcut) {
+        this.actions[aIt.shortcut] = this.bind(aIt.action)
+      }
+    })
   }
   bind(action) {
     let m = /^([a-zA-Z0-9_]+):(.+)$/.exec(action)
@@ -25,23 +42,6 @@ class Shortcut {
     return function(){
       alert("invalid action: [" + action + "]")
     }
-  }
-  addWatch(actions) {
-    _.forOwn(actions, (aIt)=>{
-      // Groups, recur ...
-      if('group' == aIt 
-         && _.isArray(aIt.items)
-         && aIt.items.length > 0) {
-        this.addWatch(aIt.items)
-      }
-      // Action
-      else if(aIt.action && aIt.shortcut) {
-        this.actions[aIt.shortcut] = this.bind(aIt.action)
-      }
-    })
-  }
-  watch($app, actions) {
-    this.reset($app).addWatch(actions)
   }
   /***
    * ComUI can append the guard later for block one process.
@@ -98,12 +98,16 @@ class Shortcut {
       if(evt.metaKey) {keys.push("META")}
       if(evt.shiftKey) {keys.push("SHIFT")}
       
-      let k = _.kebabCase(evt.key).toUpperCase()
+      let k = evt.key.toUpperCase()
       if(!/^(ALT|CONTROL|SHIFT|META)$/.test(k)) {
         keys.push(k)
       }
 
       let uniqKey = keys.join("+")
+
+      if(Ti.IsDebug("TiShortcut")) {
+        console.log("TiShortcut.detected", uniqKey)
+      }
       
       // Then try to find the action
       if(this.fire(uniqKey)) {

@@ -1,5 +1,17 @@
 export const TiStr = {
   /***
+   * Join without `null/undefined`
+   */
+  join(sep="", ...ss){
+    let list = []
+    for(let s of ss) {
+      if(_.isUndefined(s) || _.isNull(s))
+        continue
+      list.push(s)
+    }
+    return list.join(sep)
+  },
+  /***
    * Get the display text for bytes
    */
   sizeText(byte=0, {

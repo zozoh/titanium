@@ -11,33 +11,36 @@ export default {
   //////////////////////////////////////////////
   watch : {
     "obj.meta" : function(newMeta, oldMeta) {
-      let vm = this
-      if(Ti.IsTrace()) {
-        console.log("watched-----------------", newMeta, oldMeta)
+      if(Ti.IsInfo()) {
+        console.log("MetaChanged:", newMeta, oldMeta)
       }
       if(!newMeta || !oldMeta || newMeta.id != oldMeta.id) {
-        vm.reloadMain(newMeta)
+        this.reloadMain(newMeta)
       }
     },
     "mainData.$message.toast" : function(newVal, oldVal) {
+      let app = Ti.App(this)
       if(newVal) {
         this.$message({
             showClose : true,
-            duration  : 3000,
-            type      : "success",
+            duration  : 2000,
+            type      : newVal.type || "success",
             message   : Ti.I18n.text(newVal)
           });
+        app.commit("main/$toast", null)
       }
     },
     "mainData.$message.noti" : function(newVal, oldVal) {
+      let app = Ti.App(this)
       if(newVal) {
         this.$notify({
             showClose : true,
-            duration  : 3000,
-            type     : "success",
-            title    : Ti.I18n.get("success"),
+            duration  : 2000,
+            type      : newVal.type || "success",
+            title    : Ti.I18n.text(newVal.title || "i18n:success"),
             message  : Ti.I18n.text(newVal)
           });
+        app.commit("main/$noti", null)
       }
     }
   },

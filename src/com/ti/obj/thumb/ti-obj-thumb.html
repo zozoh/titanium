@@ -13,12 +13,6 @@
       <template v-else>
         <ti-icon v-bind="preview"></ti-icon>
       </template>
-      <div class="as-status" v-if="loading || removed">
-        <ti-icon v-if="loading" 
-                  value="fas-spinner fa-spin"/>
-        <ti-icon v-else-if="removed"
-                  value="far-trash-alt"/>
-      </div>
     </div>
     <div v-if="showProgress"
       class="as-progress ti-progress-bar">
@@ -29,6 +23,12 @@
       </b>
     </div>
   </header>
+  <section class="as-status" v-if="loading || removed">
+    <ti-icon v-if="loading" 
+              value="fas-spinner fa-spin"/>
+    <ti-icon v-else-if="removed"
+              value="far-trash-alt"/>
+  </section>
   <footer>
     <div class="as-title">{{title}}</div>
   </footer>

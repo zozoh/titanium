@@ -33,6 +33,15 @@
       },
       "action" : "dispatch:main/deleteSelected"
     },{
+      "key"  : "renaming",
+      "type" : "action",
+      "text" : "i18n:rename",
+      "altDisplay" : {
+        "icon" : "zmdi-refresh zmdi-hc-spin"
+      },
+      "action" : "dispatch:main/rename",
+      "shortcut" : "F2"
+    },{
       "type":"line"
     }, {
       "type" : "group",

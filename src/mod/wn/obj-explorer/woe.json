@@ -13,6 +13,7 @@
   "status" : {
     "reloading" : false,
     "deleting" : false,
-    "exposeHidden" : false
+    "exposeHidden" : false,
+    "renaming" : false
   }
 }

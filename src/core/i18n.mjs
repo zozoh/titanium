@@ -14,6 +14,13 @@ export const Ti18n = {
     if(key && key.key && _.isPlainObject(key)) {
       return Ti18n.getf(key.key, key.vars)
     }
+    // Error Object
+    if(key instanceof Error) {
+      if(key.code) {
+        return Ti.S.join(" : ", Ti18n.get(key.code), key.data)
+      }
+      return key.message
+    }
     // key as String
     let msg = I18N[key]
     if(_.isUndefined(msg)){
@@ -31,6 +38,10 @@ export const Ti18n = {
     // str as `{text, vars}`
     if(str && str.text && _.isPlainObject(str)) {
       return Ti18n.textf(str.text, str.vars)
+    }
+    // Error Object
+    if(str instanceof Error) {
+      return Ti18n.get(str)
     }
     // key as String
     let m = /^i18n:(.+)$/.exec(str)

@@ -20,6 +20,11 @@ export default {
   computed : {
     icon() {
       if(_.isPlainObject(this.value)){
+        // Regular icon object, return it directly
+        if(this.value.type && this.value.value) {
+          return this.value
+        }
+        // Eval it as meta
         return Ti.Icons.get(this.value)
       }
       let re = {

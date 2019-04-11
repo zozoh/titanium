@@ -38,9 +38,7 @@ export const WnUtil = {
     if(meta && meta.icon) {
       // customized icon object
       if(_.isPlainObject(meta.icon)) {
-        return _.assign(
-          Ti.Icons.get()
-          , meta.icon)
+        return _.assign(Ti.Icons.get(), meta.icon)
       }
       // customized icon name
       return {

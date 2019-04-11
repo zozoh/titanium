@@ -15,7 +15,7 @@ export const TiError = {
         errMsg += " : " + data
       }
     }
-    let errObj = new Error(errMsg);
+    let errObj = new Error(errMsg.trim());
     return _.assign(errObj, er)
   }
 }

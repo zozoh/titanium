@@ -23,8 +23,8 @@ export default async function reloadMain(meta) {
   
   // Load the module/component for the object
   if(meta) {
-    let mainView = await Wn.Sys.exec2(
-        vm, `ti views -cqn id:${meta.id}`, {as:"json"})
+    let mainView = await Wn.Sys.exec2(`ti views -cqn id:${meta.id}`, 
+                                      {as:"json"})
     if(Ti.IsInfo("app/wn.manager")) {
       console.log("ReloadMainView", mainView)
     }

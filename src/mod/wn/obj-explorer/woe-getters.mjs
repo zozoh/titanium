@@ -8,6 +8,15 @@ export default {
       }
     }
     return list
+  },
+  //---------------------------------------------------
+  activeItem(state) {
+    if(state.currentIndex>=0 && state.currentId) {
+      let it = state.children[state.currentIndex]
+      if(it.id == state.currentId) {
+        return it
+      }
+    }
   }
   //---------------------------------------------------
 }

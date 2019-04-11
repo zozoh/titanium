@@ -1,6 +1,7 @@
 .ti-obj-thumb {
   @include noselect();
   width:1rem; border:1px solid transparent;
+  position:relative;
   > header {
     @include flex-center;
     position:relative;
@@ -17,16 +18,16 @@
       > .ti-icon i {
         font-size: .48rem;
       }
-      > .as-status {
-        @include pos-abs-full;
-        @include flex-center;
-        @include color($color-mask, r, bushy);
-        font-size:.2rem; 
-      }
     }
     > .as-progress {
       @include pos-abs($l:0,$r:0,$b:0);
     }
+  }
+  > section.as-status {
+    @include pos-abs-full;
+    @include flex-center;
+    @include color($color-mask, r, bushy);
+    font-size:.2rem; 
   }
   > footer {
     padding:.04rem;
