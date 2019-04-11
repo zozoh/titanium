@@ -180,6 +180,19 @@ a:hover {
   background: #4caf50;
   min-height: 2px; }
 
+.ti-loading {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+  flex-wrap: wrap;
+  color: #CCC;
+  font-size: 1.2em;
+  padding: .3rem; }
+  .ti-loading > .ti-icon {
+    font-size: 1.2em;
+    margin-right: .06rem; }
+
 .ti-modal > .mdl-mask {
   position: fixed;
   left: 0;

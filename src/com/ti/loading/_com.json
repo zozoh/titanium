@@ -1,5 +1,6 @@
 {
   "name" : "ti-loading",
   "globally" : true,
-  "template" : "./ti-loading.html"
+  "template" : "./ti-loading.html",
+  "mixins" : ["./ti-loading.mjs"]
 }

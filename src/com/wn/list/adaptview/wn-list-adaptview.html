@@ -1,5 +1,8 @@
 <div class="wn-list-adaptview" v-drop-files.mask="onDropFiles">
-  <ti-set-tiles class="ti-fill-parent"
+  <ti-loading v-if="status.reloading" 
+    text="i18n:reloading"/>
+  <ti-set-tiles v-else
+    class="ti-fill-parent"
     :list="objList"
     @selected="onItemSelected"
     @open="onItemOpen"

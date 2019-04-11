@@ -1,0 +1,9 @@
+.ti-loading {
+  @include flex-align;
+  @include color($color-hint, r);
+  font-size:1.2em;
+  padding:.3rem;
+  > .ti-icon {
+    font-size:1.2em; margin-right:.06rem;
+  }
+}

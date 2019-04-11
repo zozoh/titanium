@@ -40,6 +40,7 @@ $color-line: (
 @import "_utility.scss";
 //-----------------------------------------------------
 // Include coms
+@import "com/_ti-loading.scss";
 @import "com/_ti-modal.scss";
 @import "com/_ti-menu.scss";
 @import "com/_ti-icon.scss";

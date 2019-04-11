@@ -37,6 +37,7 @@
   "on" : "开",
   "prompt" : "提问",
   "refresh" : "刷新",
+  "reloading" : "重新加载数据..." ,
   "remove" : "移除",
   "removing" : "正在移除...",
   "rename" : "重命名...",
