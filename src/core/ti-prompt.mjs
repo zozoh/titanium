@@ -33,7 +33,7 @@ export async function Prompt(msg="", {
       textAsHtml : true
     })
   // Open modal
-  return Ti.Modal.open({
+  return Ti.Modal({
     // !!! zozoh: Why function don't work? I should find the reason later!
     // data : ()=>({value, placeholder}),
     data : {value, placeholder},

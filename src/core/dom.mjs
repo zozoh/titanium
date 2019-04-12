@@ -159,7 +159,6 @@ export const TiDom = {
     }
 
     // Dock & Apply
-    console.log("doctTo")
     rect.el = rect.src.dockTo(rect.ta, mode, axis, space)
     TiDom.applyRect($src, rect.el)
   },

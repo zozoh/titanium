@@ -96,7 +96,7 @@
 }
 //---------------------------------------------
 .ti-modal-noti {
-  @include flex-align(flex-start);
+  @include flex-align($jc:flex-start, $wp:nowrap);
   padding:.12rem .2rem; 
   flex:1 1 auto;
   > .ti-modal-noti-icon {
@@ -110,7 +110,7 @@
 }
 //---------------------------------------------
 .ti-modal-noti {
-  &.as-alert {
+  &.as-alert, &.as-confirm {
     .ti-modal-noti-text {
       @include flex-align($ai:center);
       padding-right:.32rem;

@@ -1,25 +1,35 @@
-export const TiModal = {
+const APP_INFO = Symbol("dia-app-info")
+const OPTIONS  = Symbol("dia-options")
+//-----------------------------------
+class TiModalDialog {
+  constructor(appInfo={}, options={}) {
+    this[APP_INFO] = appInfo
+    this[OPTIONS]  = options
+  }
   /***
-   * Open a modal dialog to contains a TiApp
+   * Open dialog
    */
-  async open(appInfo={}, {
-    width  = "",
-    height = "",
-    icon = null,
-    title = 'i18n:modal',
-    closer = true,
-    type = "hint",  // info|warn|error|success|track
-    className = "",
-    beforeClose = function(){},
-    ready = function(){},
-    actions = [{
-      text: 'i18n:ok',
-      handler : _.identity
-    }, {
-      text: 'i18n:cancel',
-      handler : _.identity
-    }]
-  }={}) {
+  async open(){
+    // Extract vars
+    let appInfo = this[APP_INFO]
+    let {
+      width  = "",
+      height = "",
+      icon = null,
+      title = 'i18n:modal',
+      closer = true,
+      type = "hint",  // info|warn|error|success|track
+      className = "",
+      beforeClose = function(){},
+      ready = function(){},
+      actions = [{
+        text: 'i18n:ok',
+        handler : _.identity
+      }, {
+        text: 'i18n:cancel',
+        handler : _.identity
+      }]
+    } = this[OPTIONS]
     // Create the DOM root
     let $el = Ti.Dom.createElement({
       className: ["ti-modal", className, 
@@ -96,9 +106,10 @@ export const TiModal = {
     //........................................
     // Mount to body
     app.mountTo($body.firstChild)
+    app.$modal = this
     //........................................
-    let context = {app, $el, $main, $body, $closer, $actions, $btns:{}}
-    app.$modal = context
+    _.assign(this, {app, $el, $main, $body, $closer, $actions, $btns:{}})
+    let context = this
     //........................................
     // await the modal dialog close
     let data = await new Promise((resolve, reject)=>{
@@ -138,4 +149,9 @@ export const TiModal = {
   }
 }
 //-----------------------------------
-export default TiModal
+export async function OpenModal(appInfo, options) {
+  let dia = new TiModalDialog(appInfo, options)
+  return dia.open()
+}
+//-----------------------------------
+export default OpenModal

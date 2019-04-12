@@ -1,6 +1,4 @@
 {
-  "name" : "wn-session",
-  "namespaced" : true,
   "state" : "./wn-session.json",
   "mixins" : ["./wn-session.mjs"]
 }

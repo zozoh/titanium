@@ -153,7 +153,7 @@ export default {
         return
 
       // Then reload the object meta
-      let meta = await this.$store.dispatch("wn-obj-meta/reload", objMeta)
+      let meta = await this.$store.dispatch("meta/reload", objMeta)
 
       // Push history to update the browser address bar
       let his = window.history

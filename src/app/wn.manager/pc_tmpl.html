@@ -14,12 +14,18 @@
   <link rel="stylesheet" href="${rs}/ti/deps/element-ui/index.css">
   <script src="${rs}/ti/deps/element-ui/index.js"></script>
 
+  <link rel="stylesheet" href="${rs}/ti/theme/light.css">
+  <link rel="stylesheet" href="${rs}/ti/deps/md/iconfont/material-icons.css">
+  <link rel="stylesheet" href="${rs}/ti/deps/zmdi/css/material-design-iconic-font.css">
+  <link rel="stylesheet" href="${rs}/ti/deps/fontawesome/5.7.2-web/css/all.css">
+  <link rel="stylesheet" href="${rs}/ti/deps/iconmonstr/css/iconmonstr-iconic-font.css">
+  
   <!--link rel="stylesheet" href="${rs}/ti/deps/muse-ui/muse-ui.css">
   <script src="${rs}/ti/deps/muse-ui/muse-ui.js"></script-->
 </head>
 <body class="main-body">
-<div id="app">
-  Loading...
+<div id="app" class="app-loading">
+  <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
 </div>
 </body>
 <script type="module">
@@ -30,7 +36,7 @@ window._app = ${app};
 Ti.SetForDev(true)
 Ti.SetLogLevel("warn")
 Ti.SetLogLevel("warn", "TiLoad")
-Ti.SetLogLevel("warn", "TiApp")
+Ti.SetLogLevel("debug", "TiApp")
 Ti.SetLogLevel("warn", "TiHttp")
 Ti.SetLogLevel("info", "TiShortcut")
 Ti.SetLogLevel("warn", "Wn.Sys")
@@ -83,7 +89,7 @@ async function main(){
   Ti.SetAppName(app.name())
 
   // Load session and display
-  app.commit("wn-session/set", _app.session)
+  app.commit("session/set", _app.session)
   app.mountTo("#app")
   Ti.Session({
     "id"       : _app.session.id,
@@ -103,7 +109,7 @@ async function main(){
   if(_app.obj) {
     basePath = "id:" + _app.obj.id
   }
-  await app.dispatch("wn-obj-meta/reload", basePath)
+  await app.dispatch("meta/reload", basePath)
   
   // just for fun
   return app.get("obj")

@@ -1,6 +1,4 @@
 {
-  "name" : "wn-obj-meta",
-  "namespaced" : true,
   "state" : "./wom.json",
   "actions" : "./wom-actions.mjs",
   "mixins" : "./wom.mjs"

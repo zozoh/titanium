@@ -152,7 +152,7 @@ export class OneTiApp {
     // Customized
     updateStoreConfig(moConf)
     // Formed
-    let mo = TiVue.StoreConfig(moConf)
+    let mo = TiVue.StoreConfig(moConf, true)
     this.$store().registerModule(name, mo)
     
     // Load the component

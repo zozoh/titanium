@@ -1,7 +1,7 @@
 <div class="wn-list-adaptview" v-drop-files.mask="onDropFiles">
   <ti-loading v-if="status.reloading" 
     text="i18n:reloading"/>
-  <ti-set-tiles v-else
+  <ti-list-tiles v-else
     class="ti-fill-parent"
     :list="objList"
     @selected="onItemSelected"
@@ -19,7 +19,7 @@
       <span>{{'uploading'|i18n}}</span>
     </header>
     <section>
-      <ti-set-tiles :list="uploadingList"/>
+      <ti-list-tiles :list="uploadingList"/>
     </section>
   </div>
 </div>

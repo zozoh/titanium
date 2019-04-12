@@ -143,16 +143,20 @@ export const TiVue = {
     }})  // ~ Vue.use({install:(Vue)=>{
   },
   /***
-  Generated a new configuration object for `Vuex.Store` to generated a new Vuex instance. It will build sub-modules deeply by invoke self recursively.
-
-  @params
-  - `conf{Object}` : Configuration object of `app.store | app.store.modules[n]`
-
-  @return A New Configuration Object
-  */
-  StoreConfig(conf={}) {
+   * Generated a new configuration object for `Vuex.Store` to 
+   * generated a new Vuex instance. 
+   * It  will build sub-modules deeply by invoke self recursively.
+   * 
+   * @param conf{Object} : Configuration object of `app.store | app.store.modules[n]`
+   * @param modName{String} : If defined, the module should `namespaced=true`
+   * 
+   * @return A New Configuration Object
+   */
+  StoreConfig(conf={}, modName=null) {
     // Build the baseline
-    let sc = Ti.Util.merge({}, conf.mixins);
+    let sc = Ti.Util.merge({
+      modules : {}
+    }, conf.mixins);
 
     // Pick the necessary fields
     if(conf.state || !sc.state) {
@@ -166,19 +170,25 @@ export const TiVue = {
     Ti.I18n.put(conf.i18n)
     
     // namespaced module
-    if(conf.namespaced)
+    if(modName)
       sc.namespaced = true
     
     // Join modules
-    if(_.isArray(conf.modules) && conf.modules.length > 0) {
-      sc.modules = sc.modules || {}
-      for(let mc of conf.modules) {
-        let mo = TiVue.StoreConfig(mc)
-        sc.modules[mc.name] = mo
+    _.forEach(conf.modules, (modConf, modKey)=>{
+      let newModConf;
+      // inline modual
+      if(modKey.startsWith(".")) {
+        newModConf = TiVue.StoreConfig(modConf)
       }
-    }
+      // namespaced modual
+      else {
+        newModConf = TiVue.StoreConfig(modConf, modKey)
+      }
+      // Update to modules
+      sc.modules[modKey] = newModConf
+    })
 
-    // Join plugins
+    // Join plugins, make it force to Array
     sc.plugins = [].concat(conf.plugins||[])
 
     // Return then

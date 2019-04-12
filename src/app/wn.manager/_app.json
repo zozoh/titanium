@@ -1,15 +1,14 @@
 {
   "name" : "wn.manager",
-  "theme" : "@theme:light",
   "i18n" : "@i18n:wn-manager",
   "template" : "./wn-manager.html",
   "computed" : [{
-    "...wn-session" : {
+    "...session" : {
       "getters" : {
         "me" : "get"
       }
     },
-    "...wn-obj-meta" : {
+    "...meta" : {
       "getters" : {
         "obj" : "get"
       }      
@@ -20,7 +19,10 @@
   },
   "mixins" : ["./wn-manager.mjs"],
   "store" : {
-    "modules" : ["@mod:wn/session", "@mod:wn/obj-meta"],
+    "modules" : {
+      "session" : "@mod:wn/session", 
+      "meta"    : "@mod:wn/obj-meta"
+    },
     "plugins" : ["./store_watcher.mjs"]
   },
   "components" : [
@@ -31,13 +33,7 @@
     "@com:ti/menu",
     "@com:ti/obj/thumb",
     "@com:ti/obj/meta",
-    "@com:ti/set/tiles",
+    "@com:ti/list/tiles",
     "@com:ti/user/info"],
-  "deps" : [
-    "@lib:walnut",
-    "@deps:md/iconfont/material-icons.css",
-    "@deps:zmdi/css/material-design-iconic-font.css",
-    "@deps:fontawesome/5.7.2-web/css/all.css",
-    "@deps:iconmonstr/css/iconmonstr-iconic-font.css"
-  ]
+  "deps" : ["@lib:walnut"]
 }

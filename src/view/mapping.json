@@ -1,6 +1,7 @@
 {
   "mimes" : {
-    "text" : "text-editor"
+    "text" : "text-editor",
+    "application/json" : "text-editor"
   },
   "races" : {
     "DIR" : "obj-explorer",

@@ -1,5 +1,5 @@
-import {TiPaths} from "./util_paths.mjs"
-import {TiLink} from "./util_link.mjs"
+import {TiPaths} from "./util-paths.mjs"
+import {TiLink} from "./util-link.mjs"
 //---------------------------------------
 export const TiUtil = {
   ...TiPaths, ...TiLink,

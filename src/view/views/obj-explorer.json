@@ -23,31 +23,33 @@
       "action" : "dispatch:main/create",
       "shortcut" : "ALT+CTRL+N"
     },{
-      "key"  : "deleting",
-      "type" : "action",
-      "icon" : "zmdi-delete",
-      "text" : "i18n:del",
-      "altDisplay" : {
-        "icon" : "zmdi-refresh zmdi-hc-spin",
-        "text" : "i18n:del-ing"
-      },
-      "action" : "dispatch:main/deleteSelected"
-    },{
-      "key"  : "renaming",
-      "type" : "action",
-      "text" : "i18n:rename",
-      "altDisplay" : {
-        "icon" : "zmdi-refresh zmdi-hc-spin"
-      },
-      "action" : "dispatch:main/rename",
-      "shortcut" : "F2"
-    },{
       "type":"line"
     }, {
       "type" : "group",
       "icon" : "zmdi-settings",
       "text" : "i18n:more",
       "items" : [{
+          "key"  : "renaming",
+          "type" : "action",
+          "text" : "i18n:rename",
+          "altDisplay" : {
+            "icon" : "zmdi-refresh zmdi-hc-spin"
+          },
+          "action" : "dispatch:main/rename",
+          "shortcut" : "F2"
+        },{
+          "key"  : "deleting",
+          "type" : "action",
+          "icon" : "zmdi-delete",
+          "text" : "i18n:del",
+          "altDisplay" : {
+            "icon" : "zmdi-refresh zmdi-hc-spin",
+            "text" : "i18n:del-ing"
+          },
+          "action" : "dispatch:main/deleteSelected"
+        },{
+          "type":"line"
+        },{
           "key"  : "selectAll",
           "type" : "action",
           "text" : "i18n:select-all",

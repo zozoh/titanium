@@ -5,6 +5,7 @@ html {
 body {
   color: #444;
   background-color: #fafafa;
+  font-size: .14rem;
   height: 100%;
   margin: 0; }
 
@@ -40,6 +41,21 @@ a:hover {
 @media (min-width: 1200px) {
   body > * {
     font-size: 14px; } }
+.app-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+  color: #ff4081;
+  background-color: #FFF;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: .2rem .2rem 20%;
+  font-size: .5rem; }
+
 .main-body {
   overflow: hidden; }
 
@@ -342,7 +358,7 @@ a:hover {
   justify-content: flex-start;
   align-items: stretch;
   align-content: stretch;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   padding: .12rem .2rem;
   flex: 1 1 auto; }
   .ti-modal-noti > .ti-modal-noti-icon {
@@ -352,7 +368,7 @@ a:hover {
   .ti-modal-noti > .ti-modal-noti-text {
     flex: 1 1 auto; }
 
-.ti-modal-noti.as-alert .ti-modal-noti-text {
+.ti-modal-noti.as-alert .ti-modal-noti-text, .ti-modal-noti.as-confirm .ti-modal-noti-text {
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -484,55 +500,54 @@ a:hover {
     .ti-crumb > li .ti-icon i {
       font-size: 1em; }
 
-.ti-set-tiles {
+.ti-list-tiles {
   overflow: auto; }
-
-.ti-obj-tiles-con {
-  display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  align-content: stretch;
-  flex-wrap: wrap; }
-  .ti-obj-tiles-con > .ti-obj-tiles-item {
+  .ti-list-tiles > .list-con {
     display: flex;
     justify-content: flex-start;
     align-items: stretch;
     align-content: stretch;
     flex-wrap: wrap; }
-    .ti-obj-tiles-con > .ti-obj-tiles-item > * {
-      flex: 1 1 auto; }
-  .ti-obj-tiles-con.ti-spacing-xs {
-    padding: 1px; }
-    .ti-obj-tiles-con.ti-spacing-xs > * {
-      margin: 0; }
-  .ti-obj-tiles-con.ti-spacing-sm {
-    padding: .08rem; }
-    .ti-obj-tiles-con.ti-spacing-sm > * {
-      margin: .08rem; }
-  .ti-obj-tiles-con.ti-spacing-md {
-    padding: .16rem; }
-    .ti-obj-tiles-con.ti-spacing-md > * {
-      margin: .16rem; }
-  .ti-obj-tiles-con.ti-spacing-lg {
-    padding: .24rem; }
-    .ti-obj-tiles-con.ti-spacing-lg > * {
-      margin: .24rem; }
-  .ti-obj-tiles-con.ti-spacing-xl {
-    padding: .32rem; }
-    .ti-obj-tiles-con.ti-spacing-xl > * {
-      margin: .32rem; }
-  .ti-obj-tiles-con > .is-empty {
-    color: #bdbdbd;
-    display: flex;
-    justify-content: flex-start;
-    align-items: stretch;
-    align-content: stretch;
-    flex-wrap: wrap;
-    padding: .3rem;
-    font-size: 1.2em; }
-    .ti-obj-tiles-con > .is-empty .ti-icon {
-      font-size: 2em;
-      margin-right: .06rem; }
+    .ti-list-tiles > .list-con > .ti-obj-tiles-item {
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      align-content: stretch;
+      flex-wrap: wrap; }
+      .ti-list-tiles > .list-con > .ti-obj-tiles-item > * {
+        flex: 1 1 auto; }
+    .ti-list-tiles > .list-con.ti-spacing-xs {
+      padding: 1px; }
+      .ti-list-tiles > .list-con.ti-spacing-xs > * {
+        margin: 0; }
+    .ti-list-tiles > .list-con.ti-spacing-sm {
+      padding: .08rem; }
+      .ti-list-tiles > .list-con.ti-spacing-sm > * {
+        margin: .08rem; }
+    .ti-list-tiles > .list-con.ti-spacing-md {
+      padding: .16rem; }
+      .ti-list-tiles > .list-con.ti-spacing-md > * {
+        margin: .16rem; }
+    .ti-list-tiles > .list-con.ti-spacing-lg {
+      padding: .24rem; }
+      .ti-list-tiles > .list-con.ti-spacing-lg > * {
+        margin: .24rem; }
+    .ti-list-tiles > .list-con.ti-spacing-xl {
+      padding: .32rem; }
+      .ti-list-tiles > .list-con.ti-spacing-xl > * {
+        margin: .32rem; }
+    .ti-list-tiles > .list-con > .is-empty {
+      color: #bdbdbd;
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      align-content: stretch;
+      flex-wrap: wrap;
+      padding: .3rem;
+      font-size: 1.2em; }
+      .ti-list-tiles > .list-con > .is-empty .ti-icon {
+        font-size: 2em;
+        margin-right: .06rem; }
 
 .ti-obj-thumb {
   user-select: none;

@@ -1,10 +1,9 @@
-export async function Confirm(msg="", {
-  title = "i18n:confirm", 
-  icon = "confirm",
+export async function Alert(msg="", {
+  title = "i18n:info", 
+  icon = "alert",
   className,
-  type  = "warn", 
-  textYes = "i18n:yes",
-  textNo  = "i18n:no",
+  type  = "track", 
+  textOk = "i18n:ok",
   width, height}={}){
   // Get the tip text
   let str = Ti.I18n.text(msg)
@@ -12,21 +11,17 @@ export async function Confirm(msg="", {
   let html = Ti.Dom.htmlChipITT({
       icon:icon, text:str
     },{
-      className : "ti-modal-noti as-confirm",
+      className : "ti-modal-noti as-alert",
       iconClass : "ti-modal-noti-icon",
       textClass : "ti-modal-noti-text"
     })
   // Open modal
-  return Ti.Modal.open({
+  return Ti.Modal({
     template : html
   }, {
     title, type, width, height, className,
     closer  : false,
     icon : false,
-    actions : [{
-      text: textYes, handler :()=>true
-    }, {
-      text: textNo,  handler :()=>false
-    }]
+    actions : [{text: textOk}]
   })
 }
