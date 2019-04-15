@@ -1,0 +1,64 @@
+.ti-obj-creation {
+  @include flex-align($wp:nowrap);
+  width:100%; height:100%;
+  > * {height:100%;}
+  > .toc-types {
+    flex:0 0 auto;
+    ul {
+      @include raw-list;
+      height:100%; overflow-y: scroll;
+      li {
+        @include flex-align($wp:nowrap);
+        @include fireable($color-h2);
+        padding:.08rem; font-size:0.8em;
+        &.as-current {
+          @include color($color-primary, r, c);
+        }
+        > .ti-icon {
+          width: .32rem; margin-right:.02rem;
+          text-align: center;
+          font-size:1.2em;
+        }
+        > em {
+          @include font-fixed(0.8em);
+          @include color($color-disable, c);
+          font-style:normal; margin-left:.06rem;
+        }
+      }
+    }
+  }
+  > .toc-main {
+    flex:1 1 auto; padding:.12rem;
+    @include flex-align-v;
+    > .toc-info {
+      flex: 1 1 auto; text-align:center;
+      @include flex-align-v;
+      > * {padding:.08rem;}
+      > .toc-thumb {
+        font-size:.8rem;
+      }
+      > .toc-name {
+        @include font($f_fixed, 1.1em);
+        @include color($color-hint, c);
+      }
+      > .toc-brief {
+        @include color($color-h2, r, c);
+        @include border(1px, dashed, shallow);
+        text-align: left; font-size:.8em;
+        padding:.1rem; 
+      }
+    }
+    > .toc-free {
+      @include flex-full-center;
+    }
+    > .toc-input {
+      flex: 0 0 auto;
+      input {
+        @include text-input;
+        padding:.12rem;
+        font-size:1.2em;
+        outline:none; width:100%;
+      }
+    }
+  }
+}

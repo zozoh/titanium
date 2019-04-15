@@ -15,7 +15,7 @@ class Shortcut {
   addWatch(actions) {
     _.forOwn(actions, (aIt)=>{
       // Groups, recur ...
-      if('group' == aIt 
+      if('group' == aIt.type 
          && _.isArray(aIt.items)
          && aIt.items.length > 0) {
         this.addWatch(aIt.items)

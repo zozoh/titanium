@@ -1,0 +1,75 @@
+{
+  "folder" : {
+    "race" : "DIR",
+    "icon"  : "fas-folder",
+    "thumb" : "fas-folder",
+    "text"  : "文件夹",
+    "brief" : "文件夹可以装载任何文件对象，便于你在文件较多时，对其分组管理"
+  },
+  "css" : {
+    "race" : "FILE",
+    "icon"  : "fab-css3",
+    "thumb" : "fab-css3",
+    "text"  : "CSS样式文件"
+  },
+  "html" : {
+    "race" : "FILE",
+    "icon"  : "fab-html5",
+    "thumb" : "fab-html5",
+    "text"  : "HTML文本"
+  },
+  "js" : {
+    "race" : "FILE",
+    "icon"  : "fab-node-js",
+    "thumb" : "fab-node-js",
+    "text"  : "JS脚本"
+  },
+  "json" : {
+    "race" : "FILE",
+    "icon"  : "fas-quote-right",
+    "thumb" : "fas-quote-right",
+    "text"  : "JSON文本"
+  },
+  "less" : {
+    "race" : "FILE",
+    "icon"  : "fab-first-order-alt",
+    "thumb" : "fab-first-order-alt",
+    "text"  : "LESS文本"
+  },
+  "md" : {
+    "race" : "FILE",
+    "icon"  : "fab-markdown",
+    "thumb" : "fab-markdown",
+    "text"  : "Markdown文本"
+  },
+  "mjs" : {
+    "race" : "FILE",
+    "icon"  : "fab-node-js",
+    "thumb" : "fab-node-js",
+    "text"  : "模块化JS脚本"
+  },
+  "sass" : {
+    "race" : "FILE",
+    "icon"  : "fab-first-order",
+    "thumb" : "fab-first-order",
+    "text"  : "SASS文本"
+  },
+  "txt" : {
+    "race" : "FILE",
+    "icon"  : "far-file-alt",
+    "thumb" : "far-file-alt",
+    "text"  : "纯文本"
+  },
+  "wnml" : {
+    "race" : "FILE",
+    "icon"  : "fas-file-code",
+    "thumb" : "fas-file-code",
+    "text"  : "WNML源文件"
+  },
+  "xml" : {
+    "race" : "FILE",
+    "icon"  : "far-file-code",
+    "thumb" : "far-file-code",
+    "text"  : "XML文本"
+  }
+}

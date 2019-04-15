@@ -218,10 +218,78 @@ export default {
    * Create new object
    */
   async create({state, commit, dispatch}) {
-    let data = await Ti.Prompt("是不是要考虑一下呢？",{
-      placeholder: "输入一下"
+    let vm = this
+    // Load the creation setting
+    let {types, freeCreate} = await Wn.Sys.exec(
+                    `ti creation -cqn id:${state.meta.id}`, 
+                    {as:"json"})
+
+    // Open modal to get the file name
+    let no = await Ti.Modal({
+      data : {
+        types : types || [],
+        freeCreate : freeCreate,
+        value : {
+          name : "",
+          type : "",
+          race : ""
+        }
+      },
+      template : `<ti-obj-creation 
+                    :types="types" 
+                    :free-create="freeCreate"
+                    v-model="value"/>`,
+      components : ["@com:ti/obj/creation"]
+    }, {
+      width  : 640,
+      height : 480,
+      title : "i18n:create",
+      type  : "success",
+      actions : [{
+        key : "ok",
+        text: "i18n:ok", 
+        handler : ({app})=>{
+          return app.$vm().value
+        }
+      }, {
+        key : "cancel",
+        text: "i18n:cancel"
+      }]
     })
-    console.log("re:", data)
+
+    // do the new name
+    //console.log("get the new object: ", no)
+
+    // Do Create
+    // Check the newName
+    if(no && no.name) {
+      // Check the newName contains the invalid char
+      if(no.name.search(/[%;:"'*?`\t^<>\/\\]/)>=0) {
+        return await Ti.Alert('i18n:weo-create-invalid')
+      }
+      // Check the newName length
+      if(no.length > 256) {
+        return await Ti.Alert('i18n:weo-create-too-long')
+      }      
+      // Do the creation
+      let json = JSON.stringify({
+        nm   : no.name, 
+        tp   : no.type=="folder"?"":no.type, 
+        race : no.race
+      })
+      let newMeta = await Wn.Sys.exec2(
+          `obj id:${state.meta.id} -cqno -new '${json}'`,
+          {as:"json"})
+      // Error
+      if(newMeta instanceof Error) {
+        commit("$toast", {text:"i18n:weo-create-fail", type:"error"})
+      }
+      // Replace the data
+      else {
+        commit("$toast", "i18n:weo-create-ok")
+        await dispatch("reload")
+      }
+    }  // ~ if(newName)
   }
   //---------------------------------------
 }

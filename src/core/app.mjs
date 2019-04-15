@@ -179,6 +179,7 @@ export class OneTiApp {
       console.log(" -- options:", setup.options)
     }
     _.map(setup.global.components, com=>{
+      Ti.I18n.put(com.i18n)
       Vue.component(com.name, com)
     })
     

@@ -14,6 +14,22 @@ body {
   -webkit-box-sizing: border-box;
   box-sizing: border-box; }
 
+::-webkit-input-placeholder {
+  /* WebKit browsers */
+  color: rgba(0, 0, 0, 0.38); }
+
+:-moz-placeholder {
+  /* Mozilla Firefox 4 to 18 */
+  color: rgba(0, 0, 0, 0.38); }
+
+::-moz-placeholder {
+  /* Mozilla Firefox 19+ */
+  color: rgba(0, 0, 0, 0.38); }
+
+:-ms-input-placeholder {
+  /* Internet Explorer 10+ */
+  color: rgba(0, 0, 0, 0.38); }
+
 pre {
   tab-size: 4;
   -moz-tab-size: 4; }
@@ -202,12 +218,108 @@ a:hover {
   align-items: stretch;
   align-content: stretch;
   flex-wrap: wrap;
-  color: #CCC;
+  color: #eee;
   font-size: 1.2em;
   padding: .3rem; }
   .ti-loading > .ti-icon {
     font-size: 1.2em;
     margin-right: .06rem; }
+
+.ti-obj-creation {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+  flex-wrap: nowrap;
+  width: 100%;
+  height: 100%; }
+  .ti-obj-creation > * {
+    height: 100%; }
+  .ti-obj-creation > .toc-types {
+    flex: 0 0 auto; }
+    .ti-obj-creation > .toc-types ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      overflow-y: scroll; }
+      .ti-obj-creation > .toc-types ul li {
+        display: flex;
+        justify-content: flex-start;
+        align-items: stretch;
+        align-content: stretch;
+        flex-wrap: nowrap;
+        cursor: pointer;
+        padding: .08rem;
+        font-size: 0.8em; }
+        .ti-obj-creation > .toc-types ul li:hover {
+          color: #000;
+          background-color: rgba(0, 0, 0, 0.04); }
+        .ti-obj-creation > .toc-types ul li.as-current {
+          color: #FFF;
+          background-color: #2196f3; }
+        .ti-obj-creation > .toc-types ul li > .ti-icon {
+          width: .32rem;
+          margin-right: .02rem;
+          text-align: center;
+          font-size: 1.2em; }
+        .ti-obj-creation > .toc-types ul li > em {
+          font-family: Monaco, Consolas, Courier New;
+          font-size: 0.8em;
+          color: rgba(0, 0, 0, 0.38);
+          font-style: normal;
+          margin-left: .06rem; }
+  .ti-obj-creation > .toc-main {
+    flex: 1 1 auto;
+    padding: .12rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    flex-wrap: wrap;
+    flex-direction: column; }
+    .ti-obj-creation > .toc-main > .toc-info {
+      flex: 1 1 auto;
+      text-align: center;
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      align-content: stretch;
+      flex-wrap: wrap;
+      flex-direction: column; }
+      .ti-obj-creation > .toc-main > .toc-info > * {
+        padding: .08rem; }
+      .ti-obj-creation > .toc-main > .toc-info > .toc-thumb {
+        font-size: .8rem; }
+      .ti-obj-creation > .toc-main > .toc-info > .toc-name {
+        font-family: Monaco, Consolas, Courier New;
+        font-size: 1.1em;
+        color: #888; }
+      .ti-obj-creation > .toc-main > .toc-info > .toc-brief {
+        color: #000;
+        background-color: rgba(0, 0, 0, 0.04);
+        border: 1px dashed rgba(0, 0, 0, 0.1);
+        text-align: left;
+        font-size: .8em;
+        padding: .1rem; }
+    .ti-obj-creation > .toc-main > .toc-free {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      flex: 1 1 auto; }
+    .ti-obj-creation > .toc-main > .toc-input {
+      flex: 0 0 auto; }
+      .ti-obj-creation > .toc-main > .toc-input input {
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        font-family: Monaco, Consolas, Courier New;
+        padding: .12rem;
+        font-size: 1.2em;
+        outline: none;
+        width: 100%; }
+        .ti-obj-creation > .toc-main > .toc-input input:focus {
+          border-color: #ff4081; }
 
 .ti-modal > .mdl-mask {
   position: fixed;
@@ -268,8 +380,8 @@ a:hover {
         align-content: center;
         flex-wrap: wrap;
         flex: 1 1 auto;
-        color: #CCC;
-        background-color: #000;
+        color: rgba(220, 220, 220, 0.95);
+        background-color: #444;
         border: 2px solid;
         border-radius: 50%;
         overflow: hidden;
@@ -601,8 +713,7 @@ a:hover {
     font-size: .2rem; }
   .ti-obj-thumb > footer {
     padding: .04rem;
-    text-align: center;
-    font-size: 12px; }
+    text-align: center; }
     .ti-obj-thumb > footer > .as-title {
       height: 3.3em;
       line-height: 1.1em;
@@ -702,7 +813,7 @@ a:hover {
 
 .wn-manager {
   font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;
-  line-height: 2.4em;
+  line-height: 2.2em;
   letter-spacing: 0.015em; }
   .wn-manager .wnm-sky {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
@@ -737,7 +848,8 @@ a:hover {
   overflow: hidden; }
 .wn-manager .wnm-footer {
   color: rgba(0, 0, 0, 0.38);
-  font-size: .12em; }
+  font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;
+  font-size: 0.12rem; }
   .wn-manager .wnm-footer .ti-icon {
     font-size: 1.2em;
     margin: 0 .06rem 0 0; }

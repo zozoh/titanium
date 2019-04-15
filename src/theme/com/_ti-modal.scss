@@ -31,7 +31,7 @@
         margin-top: $closer-width/-2;
         > span {
           @include flex-full-center;
-          @include color($color-hint, r, c);
+          @include color($color-cloak, c, r);
           @include border(2px, solid, r);
           border-radius:50%; overflow:hidden;
           font-size: .16rem;

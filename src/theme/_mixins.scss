@@ -13,8 +13,8 @@
     @if $bg != null {background-color:map-get($color, $bg);}
   }
 }
-@mixin color-highlight() {
-  @include color($color-primary, r, c)
+@mixin color-highlight($color:$color-primary) {
+  @include color($color, r, c)
 }
 //-------------------------------------------------------------
 @mixin border($w:1px,$s:solid,$c:shallow, $pos:null) {
@@ -53,7 +53,7 @@
   flex-direction: column;
 }
 //-------------------------------------------------------------
-@mixin font($fa:$f_nice, $sz:.18rem, $lh:.2.4em, $ls:.015em) {
+@mixin font($fa:$f_nice, $sz:null, $lh:null, $ls:null) {
   @if $fa != null {font-family: $fa;}
   @if $lh != null {line-height:$lh;}
   @if $ls != null {letter-spacing:$ls;}
@@ -69,10 +69,10 @@
     }
   }
 }
-@mixin font-nice($sz:.18rem, $lh:2.4em, $ls:.015em) {
+@mixin font-nice($sz:null, $lh:null, $ls:null) {
   @include font($f_nice, $sz,$lh,$ls)
 }
-@mixin font-fixed($sz:.18rem, $lh:.2.4em, $ls:.015em) {
+@mixin font-fixed($sz:null, $lh:null, $ls:null) {
   @include font($f_fixed, $sz,$lh,$ls)
 }
 @mixin font-sizes($selector, $sizes:$body-font-sizes) {
@@ -106,10 +106,10 @@
   margin:$margin;
 }
 //-------------------------------------------------------------
-@mixin fireable() {
+@mixin fireable($color:$color-primary) {
   cursor:pointer;
   &:hover {
-    @include color-highlight;
+    @include color-highlight($color);
   }
 }
 //-------------------------------------------------------------

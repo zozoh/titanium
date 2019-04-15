@@ -72,7 +72,7 @@ The search path share with [View Path](view.md), which has been defined in ENV:
 {
   "includes" : ["/path/to/parent"],
   "mapping"  : {
-    "d-box"   : ["box", "folder"], 
+    "d-box"   : ["*", "box", "folder"], 
     "folder"  : [],
     "d-pub"   : null
   },
@@ -86,6 +86,7 @@ The search path share with [View Path](view.md), which has been defined in ENV:
 - `[]` - empty array mean no limitation
 - `["xx"]` - array specify the types list allowed to be created
 - `null` - forbid to create anything
+- `"*"` is mean that, the type can create any file type freedly
 
 --------------------------------------------------
 # Type Defination
@@ -96,7 +97,6 @@ The search path share with [View Path](view.md), which has been defined in ENV:
     race  : "FILE",
     icon  : "zmid-video",            // icon/thumb could be icon-font
     thumb : "svg:/path/to/svg.svg",  // or svg file
-    mime  : "video/mp4",
     text  : "MP4 Video",   // display name of current type
     brief : "The brief description of MP4, pure text, options",
     help  : "./mp4-help.html"
@@ -112,12 +112,14 @@ The search path share with [View Path](view.md), which has been defined in ENV:
 
 ```js
 {
+  freeCreate : false,
   types: [{
+    name  : "mp4",                   // Auto Set by key
+    mime  : "video/mp4",             // Auto Set by key
+    //..................................................
     race  : "FILE",
     icon  : "zmid-video",            // icon/thumb could be icon-font
     thumb : "svg:/path/to/svg.svg",  // or svg file
-    name  : "mp4",
-    mime  : "video/mp4",
     text  : "MP4 Video",   // display name of current type
     brief : "The brief description of MP4, pure text, options",
     help  : "<h1>HTML document content as the help, <em>optional</em></h1>"

@@ -1,8 +1,0 @@
-{
-  "name" : "wn-obj-puretext",
-  "globally" : true,
-  "i18n" : "@i18n:wn-obj-puretext",
-  "template" : "./wn-obj-puretext.html",
-  "mixins" : ["./wn-obj-puretext.mjs"],
-  "components" : ["@com:ti/text/raw"]
-}

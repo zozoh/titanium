@@ -1,0 +1,44 @@
+<div class="ti-obj-creation">
+  <div class="toc-types"
+    v-if="hasTypes">
+    <ul>
+      <li v-if="freeCreate"
+        @click="setCurrentType(null)">
+        <span class="ti-icon"></span>
+        <span class="ti-text">{{'toc-auto-type'|i18n}}</span>
+      </li>
+      <li v-for="tp of types"
+        :class="getTypeItemClassName(tp)"
+        @click="setCurrentType(tp)">
+        <ti-icon :value="tp.icon"/>
+        <span class="ti-text">{{tp.text}}</span>
+        <em v-if="'DIR' != tp.race">(*.{{tp.name}})</em>
+      </li>
+    </ul>
+  </div>
+  <div class="toc-main">
+    <div v-if="hasCurrentType"
+      class="toc-info">
+      <div class="toc-thumb">
+        <ti-icon :value="currentType.thumb"/>
+      </div>
+      <div class="toc-text">{{currentType.text}}</div>
+      <div v-if="!currentIsDir"
+        class="toc-name">*.{{currentType.name}}</div>
+      <div class="toc-brief"
+        v-if="currentType.brief">{{currentType.brief}}</div>
+    </div>
+    <div v-else
+      class="toc-free">
+      <span>{{'toc-free'|i18n}}</span>
+    </div>
+    <div class="toc-input">
+      <input
+        ref="input" 
+        :value="value.name"
+        :placeholder="'toc-tip'|i18n" 
+        @change="onChange" 
+        spellcheck="false">
+    </div>
+  </div>
+</div>

@@ -7,7 +7,7 @@ export async function Prompt(msg="", {
   textCancel  = "i18n:cancel", 
   width = 480, 
   height,
-  trimValue = true,
+  trimed = true,
   placeholder = "",
   value = ""
 }={}) {
@@ -73,7 +73,7 @@ export async function Prompt(msg="", {
       text: textOk, 
       handler : ({app})=>{
         let val = app.$vm().value
-        if(trimValue)
+        if(trimed)
           return _.trim(val)
         return val
       }

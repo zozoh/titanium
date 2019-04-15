@@ -8,7 +8,7 @@ $color-info   : (c:#4e9abd, r:#FFF);
 $color-error  : (c:#f44336, r:#FFF);
 $color-track  : (c:#bdbdbd, r:#FFF);
 $color-disable: (c:rgba(0,0,0,.38), r:rgba(255,255,255,.38));
-$color-hint   : (c:#000, r:#CCC);
+$color-hint   : (c:#888, r:#eee);
 //...........................................
 $color-paper : (c:#fff,    r:#444);
 $color-chip  : (c:#e0e0e0, r:#666);
@@ -41,6 +41,7 @@ $color-line: (
 //-----------------------------------------------------
 // Include coms
 @import "com/_ti-loading.scss";
+@import "com/_ti-obj-creation.scss";
 @import "com/_ti-modal.scss";
 @import "com/_ti-menu.scss";
 @import "com/_ti-icon.scss";

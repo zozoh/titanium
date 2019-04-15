@@ -1,16 +1,23 @@
 //-----------------------------------
 const TYPES = {
-  "apk"  : {type:"font",value:"zmdi-android-alt"},
-  "rss"  : {type:"font",value:"fas-rss-square"},
-  "js"   : {type:"font",value:"fab-js-square"},
-  "xml"  : {type:"font",value:"far-file-code"},
-  "py"   : {type:"font",value:"fab-python"},
-  "json" : {type:"font",value:"fas-quote-right"},
-  "tar"  : {type:"font",value:"far-file-archive"},
-  "gz"   : {type:"font",value:"fas-file-archive"},
-  "tgz"  : {type:"font",value:"fas-file-archive"},
-  "rar"  : {type:"font",value:"fas-file-archive"},
   "7z"   : {type:"font",value:"fas-file-archive"},
+  "apk"  : {type:"font",value:"zmdi-android-alt"},
+  "css"  : {type:"font", value:"fab-css3"},
+  "gz"   : {type:"font",value:"fas-file-archive"},
+  "html" : {type:"font", value:"fab-html5"},
+  "js"   : {type:"font",value:"fab-node-js"},
+  "json" : {type:"font",value:"fas-quote-right"},
+  "less" : {type:"font",value:"fab-first-order-alt"},
+  "md"   : {type:"font",value:"fab-markdown"},
+  "mjs"  : {type:"font",value:"fab-node-js"},
+  "py"   : {type:"font",value:"fab-python"},
+  "rar"  : {type:"font",value:"fas-file-archive"},
+  "rss"  : {type:"font",value:"fas-rss-square"},
+  "sass" : {type:"font",value:"fab-first-order"},
+  "tar"  : {type:"font",value:"far-file-archive"},
+  "tgz"  : {type:"font",value:"fas-file-archive"},
+  "wnml" : {type:"font",value:"fas-file-code"},
+  "xml"  : {type:"font",value:"far-file-code"},
   "zip"  : {type:"font",value:"fas-file-archive"}
 }
 //-----------------------------------

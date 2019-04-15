@@ -12,5 +12,9 @@
   "weo-rename-invalid" : "名称不能包括非法字符",
   "weo-rename-too-long" : "名称过长",
   "weo-rename-ok" : "重命名成功",
-  "weo-rename-fail" : "重命名失败"
+  "weo-rename-fail" : "重命名失败",
+  "weo-create-invalid" : "新对象名称不能包括非法字符",
+  "weo-create-too-long" : "新对象名称过长",
+  "weo-create-ok" : "创建成功",
+  "weo-create-fail" : "创建失败"
 }

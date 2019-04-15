@@ -43,6 +43,7 @@ export const TiVue = {
     Vue.use({install:(Vue)=>{
       // Filter: i18n
       Vue.filter("i18n", function(val){
+        //console.log(`i18n:: ${val}`)
         if(/^i18n:(.+)/.test(val)) {
           return Ti.I18n.text(val)
         }
@@ -371,6 +372,8 @@ export const TiVue = {
       // define sub
       _.map(com.components, defineComponent)
       delete com.components
+      // I18ns
+      Ti.I18n.put(com.i18n)
       // define self
       Vue.component(com.name, com)
     }
