@@ -1,0 +1,55 @@
+apply plugin: 'java'
+apply from: "../walnut/common.gradle"
+
+group = 'org.nutz'
+version = '1.r.67'
+
+description = """titanium"""
+
+def WALNUT_ROOT = '../walnut'
+def version_tag = getDate()
+
+buildscript {
+    repositories {
+        maven { url "https://jfrog.nutz.cn/artifactory/jcenter"}
+    }
+
+    dependencies {
+        classpath 'org.nutz:nutz:1.r.67'
+    }
+}
+
+import org.nutz.lang.Files
+
+task wbuild() << {}
+
+task wtar(overwrite: true) << {
+   	Files.write(file('build/update'), '''#!/bin/bash
+   		rm -r $WUPROOT/$APPNAME.old
+   		mv $WUPROOT/$APPNAME $WUPROOT/$APPNAME.old
+   		mkdir $WUPROOT/$APPNAME/
+   		tar -C $WUPROOT/$APPNAME/ -x -f $APPNAME.tar
+   		rm -rf $WUPROOT/$APPNAME.old &
+   	''')
+	file('build/update').setExecutable(true, false)
+   	task (_wtar, type: Tar) {
+   		from "."
+		include "src/"
+   		archiveName 'titanium.tar'
+   		destinationDir buildDir
+   	}.execute()
+
+   	task (_wtar2, type: Tar) {
+   		from "build/update"
+   		from "build/titanium.tar"
+   		archiveName 'titanium-'+version_tag+'.tgz'
+   		destinationDir buildDir
+   		compression Compression.GZIP
+   	}.execute()
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return formattedDate
+}
