@@ -27,6 +27,23 @@ body {
   @include color($color-disable, c);
 }
 //...................................................
+::-webkit-scrollbar {
+  width: 8px; height: 8px;
+}
+::-webkit-scrollbar-track {
+  @include color($color-line, null, shallow);
+}
+::-webkit-scrollbar-thumb {
+  @include color($color-line, null, dark);
+}
+::-webkit-scrollbar-thumb:hover {
+  @include color($color-line, null, highlight);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: map-get($color-line, dark) map-get($color-line, shallow);
+}
+//...................................................
 pre {
   tab-size: 4; -moz-tab-size:4;
 }

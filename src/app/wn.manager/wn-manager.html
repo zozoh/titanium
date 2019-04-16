@@ -1,20 +1,17 @@
 <div class="wn-manager" v-drop-off>
   <div class="wnm-sky ti-flex-cols-3">
     <div class="wnm-logo ti-flex-center">
-      <ti-icon class="center" 
-               value="/gu/rs/ti/icons/svg/im/puzzle-11.svg"
-               color="#F00"
-               size="1.6em"/>
+      <ti-icon :value="logoIcon"/>
     </div>
     <div class="wnm-title ti-flex-left">
       <ul class="ti-crumb">
         <li v-for="an in obj.ancestors" :key="an.id">
           <a :href="getObjLink(an)"
-             @click.prevent="onMainViewOpen(an)">{{an.nm}}</a>
+             @click.prevent="onMainViewOpen(an)">{{getObjTitle(an)}}</a>
           <ti-icon class="center" value="chevron_right"/>
         </li>
         <li v-if="obj.meta">
-          <b>{{obj.meta.nm}}</b>
+          <b>{{getObjTitle(obj.meta)}}</b>
           <span v-if="mainStatus.changed"
             class="ti-mark-changed">*</span>
         </li>

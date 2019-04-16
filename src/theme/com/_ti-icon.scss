@@ -1,6 +1,4 @@
 .ti-icon {
-  &.center {
-    @include flex-center;
-  }
+  @include flex-center;
   > i {font-size:1em; }
 }

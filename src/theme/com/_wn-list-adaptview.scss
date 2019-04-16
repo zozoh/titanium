@@ -12,8 +12,10 @@
       opacity: 0; bottom:-100%;
     }
     > header {
+      @include flex-align;
       @include color($color-warn, r, c);
       padding: .04rem .1rem;
+      > span {margin-right:.06rem;}
     }
     > section {
       padding: .1rem;

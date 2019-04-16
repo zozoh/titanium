@@ -80,6 +80,11 @@ export default {
       return this.$store.state.main == null
              || this.reloading
     },
+    logoIcon() {
+      if(this.obj.meta && this.obj.meta.icon)
+        return this.obj.meta.icon 
+      return "/gu/rs/ti/icons/svg/im/puzzle-11.svg"
+    },
     main() {
       // evaluate the action menu
       let actionMenu = []
@@ -131,6 +136,12 @@ export default {
   },
   //////////////////////////////////////////////
   methods : {
+    //.........................................
+    getObjTitle(meta) {
+      let title = meta.title || meta.nm
+      return Ti.I18n.text(title)
+    },
+    //.........................................
     getObjLink(meta) {
       return Wn.Util.getAppLink(meta).toString()
     },
