@@ -31,7 +31,6 @@ export default async function reloadMain(meta) {
     // Load moudle/component
     let view = await $app.loadView("main", mainView, {
       updateStoreConfig : config=>{
-        console.log(config)
         if(!config.state) {
           config.state = {}
         }

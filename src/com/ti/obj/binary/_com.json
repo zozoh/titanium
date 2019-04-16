@@ -1,0 +1,6 @@
+{
+  "name" : "ti-obj-binary",
+  "globally" : true,
+  "template" : "./ti-obj-binary.html",
+  "mixins" : ["./ti-obj-binary.mjs"]
+}

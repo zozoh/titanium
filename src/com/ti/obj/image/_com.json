@@ -1,0 +1,6 @@
+{
+  "name" : "ti-obj-image",
+  "globally" : true,
+  "template" : "./ti-obj-image.html",
+  "mixins" : ["./ti-obj-image.mjs"]
+}

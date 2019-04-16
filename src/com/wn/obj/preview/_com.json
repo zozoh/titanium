@@ -2,5 +2,9 @@
   "name" : "wn-obj-preview",
   "globally" : true,
   "template" : "./wn-obj-preview.html",
-  "mixins" : ["./wn-obj-preview.mjs"]
+  "mixins" : ["./wn-obj-preview.mjs"],
+  "components" : [
+    "@com:ti/obj/binary",
+    "@com:ti/obj/image",
+    "@com:ti/obj/video"]
 }
