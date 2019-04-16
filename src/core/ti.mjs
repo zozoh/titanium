@@ -19,6 +19,7 @@ import {TiRandom    as Random} from "./random.mjs"
 import {TiStorage   as Storage } from "./storage.mjs"
 import {TiShortcut  as Shortcut} from "./shortcut.mjs"
 import {TiBehaviors as Be      } from "./behaviors.mjs"
+import {TiViewport  as Viewport} from "./viewport.mjs"
 //---------------------------------------
 const ENV = {
   "version" : "1.0",
@@ -46,7 +47,7 @@ const LOG_LEVELS = {
 //---------------------------------------
 export const Ti = {
   Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Modal,
-  Icons, I18n, Install, Shortcut, Fuse, Random, Storage,
+  Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Viewport,
   //.....................................
   Alert, Confirm, Prompt,
   //.....................................

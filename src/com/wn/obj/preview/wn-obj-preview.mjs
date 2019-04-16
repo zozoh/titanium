@@ -15,7 +15,6 @@ export default {
   },
   computed : {
     previewComType() {
-      console.log(this.data)
       if(this.data.meta) {
         let mime = this.data.meta.mime
         // Video
@@ -31,6 +30,12 @@ export default {
           return "ti-obj-binary"
         }
       }
+    },
+    dataSource() {
+      if(!this.data.meta)
+        return ""
+      let link = Wn.Util.getDownloadLink(this.data.meta, {mode:"raw"})
+      return link.toString();
     }
   }
 }

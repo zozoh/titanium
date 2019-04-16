@@ -24,7 +24,7 @@
   .wnm-sky,
   .wnm-aside,
   .wnm-footer{
-    @include color($color-h1, null, c);
+    @include color($color-paper, null, c);
   }
 }
 // font-size & misc

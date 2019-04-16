@@ -15,28 +15,17 @@
       "shortcut" : "CTRL+R"
     },{
       "type":"line"
-    },{
-      "key"  : "create",
-      "type" : "action",
-      "icon" : "zmdi-flare",
-      "text" : "i18n:create",
-      "action" : "dispatch:main/create",
-      "shortcut" : "ALT+CTRL+N"
-    },{
-      "type":"line"
     }, {
       "type" : "group",
       "icon" : "zmdi-settings",
       "text" : "i18n:more",
       "items" : [{
-          "key"  : "renaming",
+          "key"  : "create",
           "type" : "action",
-          "text" : "i18n:rename",
-          "altDisplay" : {
-            "icon" : "zmdi-refresh zmdi-hc-spin"
-          },
-          "action" : "dispatch:main/rename",
-          "shortcut" : "F2"
+          "icon" : "zmdi-flare",
+          "text" : "i18n:create",
+          "action" : "dispatch:main/create",
+          "shortcut" : "ALT+CTRL+N"
         },{
           "key"  : "deleting",
           "type" : "action",
@@ -46,7 +35,19 @@
             "icon" : "zmdi-refresh zmdi-hc-spin",
             "text" : "i18n:del-ing"
           },
-          "action" : "dispatch:main/deleteSelected"
+          "action" : "dispatch:main/deleteSelected",
+          "shortcut" : "CTRL+DELETE"
+        },{
+          "type":"line"
+        },{
+          "key"  : "renaming",
+          "type" : "action",
+          "text" : "i18n:rename",
+          "altDisplay" : {
+            "icon" : "zmdi-refresh zmdi-hc-spin"
+          },
+          "action" : "dispatch:main/rename",
+          "shortcut" : "F2"
         },{
           "type":"line"
         },{

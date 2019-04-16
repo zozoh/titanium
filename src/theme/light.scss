@@ -6,16 +6,16 @@ $color-success: (c:#4caf50, r:#FFF);
 $color-warn   : (c:#fdd835, r:#620);
 $color-info   : (c:#4e9abd, r:#FFF);
 $color-error  : (c:#f44336, r:#FFF);
-$color-track  : (c:#AAA, r:#FFF);
+$color-track  : (c:#888, r:#FFF);
 $color-disable: (c:rgba(0,0,0,.38), r:rgba(255,255,255,.38));
-$color-hint   : (c:#888, r:#eee);
+$color-hint   : (c:#ccca42, r:#666);
 //...........................................
-$color-paper : (c:#fff,    r:#444);
+$color-paper : (c:#F0F0F0,    r:#444);
 $color-chip  : (c:#e0e0e0, r:#666);
 $color-cloak : (c:rgba(220,220,220,0.95), r:#444);
-$color-body  : (c:#fafafa, r:#444);
-$color-h1    : (c:rgba(0,0,0,0.08), r:#000);
-$color-h2    : (c:rgba(0,0,0,0.04), r:#000);
+$color-body  : (c:#FAFAFA, r:#444);
+$color-h1    : (c:rgba(20,20,20,0.4), r:rgba(200,200,200,0.4));
+$color-h2    : (c:rgba(20,20,20,0.2), r:rgba(200,200,200,0.2));
 //...........................................
 $color-selected  : (c:#cce8ff, r:#2196f3);
 //...........................................
