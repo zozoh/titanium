@@ -28,7 +28,6 @@
   "components" : [
     "./com/wnm-sidebar-item",
     "@com:ti/icon",
-    "@com:ti/layout",
     "@com:ti/loading",
     "@com:ti/menu",
     "@com:ti/obj/thumb",

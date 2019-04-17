@@ -13,9 +13,9 @@ class QuickKeyMap {
       y : "y"
     })
   }
-  explainToArray(keys) {
+  explainToArray(keys, sorted=true) {
     let re = []
-    let ks = NormalizeQuickKeys(keys)
+    let ks = NormalizeQuickKeys(keys, sorted)
     for(let k of ks) {
       let key = this[k];
       if(key)
@@ -41,17 +41,20 @@ function AutoModeBy(rect={}) {
   return ms.join("")
 }
 //................................................
-function NormalizeQuickKeys(keys) {
+function NormalizeQuickKeys(keys, sorted=true) {
   if(!keys)
     return []
   if(_.isArray(keys))
     return keys
-  return keys.toLowerCase().split("").sort()
+  let list =  keys.toLowerCase().split("")
+  if(sorted)
+    return list.sort()
+  return list
 }
 //................................................
 function PickKeys(rect, keys, dft) {
   let re = {};
-  let ks = QKM.explainToArray(keys)
+  let ks = QKM.explainToArray(keys, false)
   for(let key of ks) {
     let val = TiUtil.fallback(rect[key], dft)
     if(!_.isUndefined(val)) {
@@ -62,8 +65,8 @@ function PickKeys(rect, keys, dft) {
 }
 //................................................
 export class Rect {
-  constructor(rect){
-    this.set(rect)
+  constructor(rect, mode){
+    this.set(rect, mode)
   }
   //...............................................
   set(rect={top:0,left:0,width:0,height:0}, mode) {
@@ -88,6 +91,16 @@ export class Rect {
     
     // update
     return this.updateBy(mode)
+  }
+  //...............................................
+  toString(keys="tlwh"){
+    let re = PickKeys(this, keys, "NaN")
+    let ss = []
+    _.forEach(re, (val)=>ss.push(val))
+    return ss.join(",")
+  }
+  valueOf(){
+    return this.toString()
   }
   //...............................................
   updateBy(mode="tlwh") {
@@ -525,6 +538,10 @@ export class Rect {
 }
 //................................................
 export const TiRects = {
+  create(rect, mode) {
+    return new Rect(rect, mode)
+  },
+  //.............................................
   createBy($el) {
     // Whole window
     if(!$el.ownerDocument) {

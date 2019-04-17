@@ -125,9 +125,9 @@ export const TiVue = {
             //..........................
           })
         }
-      })
+      })  // ~ Vue.directive("dropFiles", {
       //................................
-      // Directive: v-drop-files
+      // Directive: v-drop-off
       Vue.directive("dropOff", {
         bind : function($el, binding){
           // console.log("drop-off bind", $el, binding)
@@ -140,7 +140,19 @@ export const TiVue = {
             evt.stopPropagation();
           })
         }
-      })  // ~ Vue.directive("drop-none"
+      })  // ~ Vue.directive("dropOff"
+      //................................
+      // Directive: v-drag-off
+      Vue.directive("dragOff", {
+        bind : function($el, binding){
+          // console.log("drop-off bind", $el, binding)
+          $el.addEventListener("dragstart", function(evt){
+            evt.preventDefault();
+            evt.stopPropagation();
+          })
+        }
+      })  // ~ Vue.directive("dragOff"
+      //................................
     }})  // ~ Vue.use({install:(Vue)=>{
   },
   /***

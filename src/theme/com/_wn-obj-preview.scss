@@ -1,0 +1,4 @@
+.wn-obj-preview {
+  @include flex-full-center(1 1 auto);
+  @include color($color-mask, r, thin);
+}

@@ -112,6 +112,25 @@ export const TiDom = {
       }
     })
   },
+  setClass($el, ...classNames) {
+    let klass = _.flattenDeep(classNames)
+    let className = klass.join(" ")
+    $el.className = className
+  },
+  addClass($el, ...classNames) {
+    let klass = _.flattenDeep(classNames)
+    for(let kl of klass) {
+      let className = _.trim(kl)
+      $el.classList.add(className)
+    }
+  },
+  removeClass($el, ...classNames) {
+    let klass = _.flattenDeep(classNames)
+    for(let kl of klass) {
+      let className = _.trim(kl)
+      $el.classList.remove(className)
+    }
+  },
   applyRect($el, rect, keys="tlwh", viewport={}) {
     let $win = $el.ownerDocument.defaultView
     _.defaults(viewport, {

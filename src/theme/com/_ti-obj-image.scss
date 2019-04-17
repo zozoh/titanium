@@ -1,0 +1,22 @@
+.ti-obj-image {
+  @include noselect;
+  //............................................
+  &.as-none {
+    @include flex-center;
+    img {box-shadow: 1px 1px 3px map-get($color-shadow, c);}
+  }
+  &.as-contain {
+    padding:.06rem;
+    img {
+      width:100%; height:100%;
+      object-fit: contain;
+    }
+  }
+  &.as-cover {
+    img {
+      width:100%; height:100%;
+      object-fit: cover;
+    }
+  }
+  //............................................
+}  // ~ .ti-obj-image

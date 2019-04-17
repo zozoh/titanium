@@ -9,6 +9,7 @@ import {TiError     as Err     } from "./err.mjs"
 import {TiConfig    as Config  } from "./config.mjs"
 import {TiDom       as Dom     } from "./dom.mjs"
 import {TiCss       as Css     } from "./css.mjs"
+import {TiRects     as Rects   } from "./rect.mjs"
 import {TiLoad      as Load    } from "./load.mjs"
 import {TiHttp      as Http    } from "./http.mjs"
 import {Ti18n       as I18n    } from "./i18n.mjs"
@@ -46,7 +47,7 @@ const LOG_LEVELS = {
 }
 //---------------------------------------
 export const Ti = {
-  Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Modal,
+  Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Modal, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Viewport,
   //.....................................
   Alert, Confirm, Prompt,

@@ -1,5 +1,9 @@
-<div class="ti-obj-image">
+<div class="ti-obj-image" 
+     :class="topClass"
+     :style="topStyle"
+     v-drag-off>
   <img ref="the_image"
     :src="src"
-    @load="onImageLoaded">
+    @load="onImageLoaded"
+    @dblclick="onToggleImageFitMode">
 </div>
