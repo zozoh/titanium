@@ -1,4 +1,22 @@
 .wn-obj-preview {
   @include flex-full-center(1 1 auto);
   @include color($color-mask, r, thin);
+  > .my-closer {
+    display:none;
+  }
+  &.as-fullscreen {
+    @include pos-fixed-full;
+    @include color($color-mask, null, heavy);
+    z-index: $z-mask;
+    > .my-closer {
+      @include noselect;
+      @include pos-fixed($r:0.02rem, $t:0.02rem);
+      @include color($color-mask, r, thin);
+      @include fireable;
+      z-index: $z-mask + 1;
+      font-size: 2em;
+      display:block;
+      padding:.06rem;
+    }
+  }
 }

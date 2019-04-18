@@ -142,7 +142,7 @@ export default {
         continue;
       }
       let link = Wn.Util.getDownloadLink(it)
-      await Ti.Be.OpenLink(link)
+      Ti.Be.OpenLink(link)
     }
   },
   //---------------------------------------

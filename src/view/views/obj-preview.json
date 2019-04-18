@@ -1,5 +1,24 @@
 {
   "comIcon" : "im-eye",
   "comType" : "@com:wn/obj/preview",
-  "modType" : "@mod:wn/obj-as-binary"
+  "modType" : "@mod:wn/obj-as-binary",
+  "actions" : [{
+      "key"  : "fullscreen",
+      "type" : "action",
+      "icon" : "zmdi-fullscreen",
+      "text" : "i18n:wop-fullscreen-enter",
+      "altDisplay" : {
+        "icon" : "zmdi-fullscreen-exit",
+        "text" : "i18n:wop-fullscreen-quit",
+        "capture" : false
+      },
+      "action" : "commit:main/toggleFullscreen"
+    },{
+      "type" : "line"
+    },{
+      "type" : "action",
+      "icon" : "zmdi-download",
+      "text" : "i18n:download-to-local",
+      "action" : "dispatch:main/download"
+    }]
 }

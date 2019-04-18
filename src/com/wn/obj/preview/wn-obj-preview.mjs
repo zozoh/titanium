@@ -14,6 +14,11 @@ export default {
     }
   },
   computed : {
+    topClass() {
+      return {
+        "as-fullscreen" : this.status.fullscreen
+      }
+    },
     previewComType() {
       if(this.data.meta) {
         let mime = this.data.meta.mime
@@ -36,6 +41,12 @@ export default {
         return ""
       let link = Wn.Util.getDownloadLink(this.data.meta, {mode:"raw"})
       return link.toString();
+    }
+  },
+  methods : {
+    exitFullscreen(){
+      let $app = Ti.App(this)
+      $app.commit("main/exitFullscreen")
     }
   }
 }

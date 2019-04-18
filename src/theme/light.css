@@ -877,6 +877,31 @@ a:hover {
   flex: 1 1 auto;
   color: #e0e0e0;
   background-color: rgba(50, 50, 50, 0.4); }
+  .wn-obj-preview > .my-closer {
+    display: none; }
+  .wn-obj-preview.as-fullscreen {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 1; }
+    .wn-obj-preview.as-fullscreen > .my-closer {
+      user-select: none;
+      position: fixed;
+      top: 0.02rem;
+      right: 0.02rem;
+      color: #e0e0e0;
+      background-color: rgba(50, 50, 50, 0.4);
+      cursor: pointer;
+      z-index: 2;
+      font-size: 2em;
+      display: block;
+      padding: .06rem; }
+      .wn-obj-preview.as-fullscreen > .my-closer:hover {
+        color: #FFF;
+        background-color: #2196f3; }
 
 .wn-manager {
   font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;

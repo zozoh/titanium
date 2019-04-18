@@ -5,5 +5,5 @@
   <img ref="the_image"
     :src="src"
     @load="onImageLoaded"
-    @dblclick="onToggleImageFitMode">
+    @dblclick.stop="onToggleImageFitMode">
 </div>
