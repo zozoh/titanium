@@ -29,23 +29,17 @@ class Viewport {
     if(this.isListening)
       return
     // Do listen: resize
-    window.addEventListener("resize", _.debounce((evt)=>{
+    window.addEventListener("resize", (evt)=>{
       for(let call of vp.resizing) {
         call.handler.apply(call.context, [evt])
       }
-    }, 500, {
-      leading  : true,
-      trailing : true
-    }))
+    })
     // Do listen: scroll
-    window.addEventListener("scroll", _.debounce((evt)=>{
+    window.addEventListener("scroll", (evt)=>{
       for(let call of vp.scrolling) {
         call.handler.apply(call.context, [evt])
       }
-    }, 500, {
-      leading  : true,
-      trailing : true
-    }))
+    })
     // Mark
     this.isListening = true
   }

@@ -1,4 +1,8 @@
 .ti-icon {
-  @include flex-center;
-  > i {font-size:1em; }
+  display:inline-block; vertical-align: middle;
+  dbackground:red; 
+  .tii-con {
+    @include flex-center;
+    > i {font-size:1em; }
+  }
 }

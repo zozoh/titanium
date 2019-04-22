@@ -1,0 +1,22 @@
+.ti-obj-video {
+  @include noselect;
+  @include flex-center;
+  background:#000;
+  //............................................
+  &.as-none {
+    video {box-shadow: 1px 1px 3px map-get($color-shadow, c);}
+  }
+  &.as-contain {
+    padding:.02rem;
+    video {max-width:100%; max-height:100%;}
+  }
+  &.as-loading {
+    position: relative;
+    video {visibility: hidden;}
+    .tov-loading {
+      @include pos-abs-full;
+      @include flex-center;
+    }
+  }
+  //............................................
+}  // ~ .ti-obj-image

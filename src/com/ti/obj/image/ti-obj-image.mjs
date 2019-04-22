@@ -36,6 +36,14 @@ export default {
         width  : this.width, 
         height : this.height
       }
+    }
+  },
+  methods : {
+    onImageLoaded() {
+      let $img = this.$refs.the_image
+      this.naturalWidth  = $img.naturalWidth
+      this.naturalHeight = $img.naturalHeight
+      this.doResizeImage()
     },
     isContainsByViewport() {
       // Get the viewport
@@ -48,18 +56,11 @@ export default {
       // console.log("vpRect", vpRect.toString())
       // console.log("imRect", imRect.toString())
       return vpRect.contains(imRect)
-    }
-  },
-  methods : {
-    onImageLoaded() {
-      let $img = this.$refs.the_image
-      this.naturalWidth  = $img.naturalWidth
-      this.naturalHeight = $img.naturalHeight
-      this.doResizeImage()
     },
     doResizeImage() {
+      //console.log("I am doResize")
       // Image is in viewport
-      if(this.isContainsByViewport) {
+      if(this.isContainsByViewport()) {
         this.fitMode = "none"
       }
       // Image is too big, mark "cover"
@@ -68,7 +69,7 @@ export default {
       }
     },
     onToggleImageFitMode() {
-      if(this.isContainsByViewport) {
+      if(this.isContainsByViewport()) {
         this.fitMode = ({
           "none"  : "cover",
           "cover" : "none"

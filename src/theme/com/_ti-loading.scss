@@ -1,9 +1,11 @@
 .ti-loading {
-  @include flex-align;
   @include color($color-hint, r);
-  font-size:1.2em;
-  padding:.3rem;
-  > .ti-icon {
-    font-size:1.2em; margin-right:.06rem;
+  > .tl-con {
+    @include flex-align($ai:center,$wp:nowrap);
+    font-size:1.2em;
+    padding:.3rem;
+    > .ti-icon {
+      font-size:1.2em; margin-right:.06rem;
+    }
   }
 }

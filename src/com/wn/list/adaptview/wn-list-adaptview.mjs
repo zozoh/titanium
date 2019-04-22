@@ -72,6 +72,7 @@ export default {
         for(let it of list) {
           // Gen Preview for local image
           let mime = it.file.type
+          let tp = Ti.Util.getSuffixName(it.file.name)
           let preview;
           if(/^image\//.test(mime)) {
             preview = {
@@ -79,7 +80,7 @@ export default {
               value : it.file
             }
           } else {
-            preview = Ti.Icons.get({mime})
+            preview = Ti.Icons.get({tp, mime})
           }
           // Join to result list
           re.push({

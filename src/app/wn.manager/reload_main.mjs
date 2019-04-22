@@ -20,7 +20,6 @@ export default async function reloadMain(meta) {
   try{
     vm.$store.unregisterModule("main")
   }catch(Err){}
-  
   // Load the module/component for the object
   if(meta) {
     let mainView = await Wn.Sys.exec2(`ti views -cqn id:${meta.id}`, 

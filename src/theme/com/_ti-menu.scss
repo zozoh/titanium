@@ -15,10 +15,8 @@
           @include fireable;
         }
       }
-      .ti-icon > i {
-        @include flex-center;
-        font-size:.18rem;
-        width:.24rem;
+      .ti-icon {
+        margin-right:.04rem;
       }
       > .mi-line {
         @include color($color-line, null, shallow);

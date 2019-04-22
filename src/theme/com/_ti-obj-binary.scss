@@ -1,0 +1,12 @@
+.ti-obj-binary {
+  @include color($color-paper, r, c);
+  padding:.2rem .2rem 1rem .2rem;
+  @include flex-align-v($jc:center, $ai:center,$wp:nowrap);
+  .tob-icon {
+    padding:.2rem
+  }
+  .tob-title {
+    @include font-fixed(1.4em);
+    padding:.2rem;
+  }
+}

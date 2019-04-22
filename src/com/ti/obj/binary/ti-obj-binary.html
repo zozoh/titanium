@@ -1,3 +1,14 @@
 <div class="ti-obj-binary">
-  I am binary
+  <div class="tob-icon">
+    <ti-icon v-if="icon" :value="icon" size="1.28rem"/>
+  </div>
+  <div class="tob-title">
+    {{title}}
+  </div>
+  <div class="tob-actions">
+    <a :href="src">
+      <ti-icon value="download"/>
+      <span>{{'download'|i18n}}</span>
+    </a>
+  </div>
 </div>

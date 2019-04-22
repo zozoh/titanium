@@ -1,3 +1,12 @@
-<div class="ti-obj-image">
-  I am video
+<div class="ti-obj-video"
+    :class="topClass"
+    :style="topStyle"
+    v-drag-off>
+    <video ref="the_video"
+      :src="src"
+      controls
+      @loadeddata="onVideoLoaded"/>
+    <div class="tov-loading" v-if="loading">
+      <ti-loading/>
+    </div>
 </div>

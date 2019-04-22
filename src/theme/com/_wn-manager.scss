@@ -85,12 +85,9 @@
   .sidebar-item {
     .it-info {
       @include noselect;
-      @include flex-align($wp:nowrap);
+      @include flex-align($ai:center, $wp:nowrap);
       width:100%; padding:0 .5em; cursor: pointer;
-      > span.ti-icon {
-        flex:0 0 auto; width:.2rem; min-width:18px;
-        margin-right:1px;
-      }
+      > span.ti-icon {margin-right:.06rem;}
       > .it-info-text {
         flex:1 1 auto; 
         @include text-overflow;
@@ -113,8 +110,7 @@
     }
     &.is-collapse {
       &.is-group > .it-info {
-        color: map-get($color-primary, c);
-        background: map-get($color-h1, c);
+        @include color($color-hint, r, c);
         &:after {
           display:block; flex:0 0 auto;
           content:"..."; padding:0 .1em;

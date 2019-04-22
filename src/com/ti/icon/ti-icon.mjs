@@ -6,7 +6,7 @@ export default {
     },
     size : {
       type : [Number, String],
-      default : ""
+      default : ".2rem"
     },
     color : {
       type : String,
@@ -35,6 +35,13 @@ export default {
         re.type = Ti.Util.getSuffixName(this.value) || "font"
       }
       return re
+    },
+    topStyle() {
+      let sz = Ti.Css.toSize(this.size)
+      return {
+        width  : sz, 
+        height : sz
+      }
     },
     fontIcon() {
       return Ti.Icons.parseFontIcon(this.icon.value)

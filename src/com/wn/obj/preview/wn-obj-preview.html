@@ -1,6 +1,8 @@
 <div class="wn-obj-preview" :class="topClass">
   <component class="ti-fill-parent"
     :is="previewComType"
+    :icon="dataIcon"
+    :title="dataTitle"
     :src="dataSource"/>
   <div class="my-closer" @click="exitFullscreen">
     <ti-icon value="zmdi-fullscreen-exit"/>

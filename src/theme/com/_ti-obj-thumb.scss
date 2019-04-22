@@ -15,9 +15,6 @@
         object-fit: contain;
         width:100%; height:100%;
       }
-      > .ti-icon i {
-        font-size: .48rem;
-      }
     }
     > .as-progress {
       @include pos-abs($l:0,$r:0,$b:0);

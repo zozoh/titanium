@@ -28,6 +28,7 @@ const MIMES = {
   "video"       : {type:"font", value:"far-file-video"},
   "text/css"    : {type:"font", value:"fab-css3"},
   "text/html"   : {type:"font", value:"fab-html5"},
+  "application/x-zip-compressed" : {type:"font", value:"fas-file-archive"},
   "application/x-javascript" : {type:"font", value:"fab-js-square"},
   "text/javascript"          : {type:"font", value:"fab-js-square"},
 }
@@ -36,6 +37,7 @@ const NAMES = {
   "create"   : {type:"font", value:"zmdi-audio"},
   "add"      : {type:"font", value:"zmdi-plus"},
   "del"      : {type:"font", value:"zmdi-delete"},
+  "download" : {type:"font", value:"zmdi-download"},
   "edit"     : {type:"font", value:"zmdi-edit"},
   "refresh"  : {type:"font", value:"zmdi-refresh"},
   "setting"  : {type:"font", value:"zmdi-settings"},

@@ -39,8 +39,14 @@ export default {
     dataSource() {
       if(!this.data.meta)
         return ""
-      let link = Wn.Util.getDownloadLink(this.data.meta, {mode:"raw"})
+      let link = Wn.Util.getDownloadLink(this.data.meta, {mode:"auto"})
       return link.toString();
+    },
+    dataIcon() {
+      return Wn.Util.getIconObj(this.data.meta)
+    },
+    dataTitle() {
+      return Wn.Util.getObjDisplayName(this.data.meta)
     }
   },
   methods : {
