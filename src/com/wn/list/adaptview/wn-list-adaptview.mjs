@@ -1,16 +1,42 @@
 export default {
   props : {
-    "data" : {
+    "meta" : {
       type : Object,
       default : ()=>({})
+    },
+    "children" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "currentIndex" : {
+      type : Number,
+      default : 0
+    },
+    "currentId" : {
+      type : String,
+      default : null
+    },
+    "uploadings" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "pager" : {
+      type : Object,
+      default : ()=>({
+        "pageNumber" : -1,
+        "pageSize" : -1,
+        "pageCount" : -1,
+        "totalCoun" : -1
+      })
     },
     "status" : {
       type : Object,
-      default : ()=>({})
-    },
-    "dataIsChanged" : {
-      type : Boolean,
-      default : false
+      default : ()=>({
+        "reloading" : false,
+        "deleting" : false,
+        "exposeHidden" : false,
+        "renaming" : false
+      })
     }
   },
   //------------------------------------------------
@@ -20,7 +46,7 @@ export default {
      */
     objList() {
       let vm = this
-      let list = vm.data.children
+      let list = vm.children
       let re = []
       //..........................
       if(_.isArray(list)) {
@@ -48,7 +74,7 @@ export default {
               selected : false
             }),
             visibility,
-            current : (it.id == vm.data.currentId),
+            current : (it.id == vm.currentId),
             // Icons
             icons : it.__icons || {
               NW : null,
@@ -66,7 +92,7 @@ export default {
      */
     uploadingList() {
       let vm = this
-      let list = vm.data.uploadings
+      let list = vm.uploadings
       let re = []
       if(_.isArray(list)) {
         for(let it of list) {
@@ -123,7 +149,7 @@ export default {
     },
     //----------------------------------------------
     onItemOpen({id,index}={}) {
-      let meta = _.nth(this.data.children, index)
+      let meta = _.nth(this.children, index)
       if(meta) {
         this.$emit("open", meta)
       }

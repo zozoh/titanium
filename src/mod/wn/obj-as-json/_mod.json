@@ -1,0 +1,6 @@
+{
+  "name" : "wn-obj-as-json",
+  "namespaced" : true,
+  "state" : "./wn-obj-as-json.json",
+  "mixins" : "./wn-obj-as-json.mjs"
+}

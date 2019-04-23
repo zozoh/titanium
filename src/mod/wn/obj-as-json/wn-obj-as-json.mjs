@@ -1,30 +1,27 @@
 // Ti required(Wn)
 //---------------------------------------
 export default {
+  getters : {
+    isChanged : (state)=>{
+      return _.isEqual(state.data, state.savedData)
+    }
+  },
+  //.....................................
   mutations : {
     set(state, {
-      meta, content, savedContent, contentType, status
+      meta, data, savedData, status
     }={}) {
-      // Default contentType
-      if(_.isUndefined(contentType) && meta) {
-        contentType = meta.mime
-      }
       // Meta
       if(!_.isUndefined(meta))
         state.meta = _.cloneDeep(meta)
       // Data
-      if(!_.isUndefined(content))
-        state.content = content
+      if(!_.isUndefined(data))
+        state.data = _.cloneDeep(data)
       // SavedData
-      if(!_.isUndefined(savedContent))
-        state.savedContent = savedContent
-      // ContentType
-      if(!_.isUndefined(contentType))
-        state.contentType = contentType
+      if(!_.isUndefined(savedData))
+        state.savedData = _.cloneDeep(savedData)
       // Status
       _.assign(state.status, status)
-      // Changed
-      state.status.changed = (state.content != state.savedContent)
     }
   },
   //.....................................
@@ -38,13 +35,14 @@ export default {
       }
 
       let meta = state.meta
-      let content = state.content
+      let data = state.data
+      let json = JSON.stringify(data)
 
       commit("set", {status:{saving:true}})
-      let newMeta = await Wn.Io.saveContentAsText(meta, content)
+      let newMeta = await Wn.Io.saveContentAsText(meta, json)
       commit("set", {
         meta: newMeta, 
-        savedContent : content,
+        savedData : json,
         status:{saving:false}
       })
 
@@ -65,11 +63,13 @@ export default {
       }
       
       commit("set", {status:{reloading:true}})
-      let content = await Wn.Io.loadContentAsText(meta)
+      let json = await Wn.Io.loadContentAsText(meta)
+      json = _.trim(json) || null
+      let data = JSON.parse(json)
       commit("set", {
         meta, 
-        content, 
-        savedContent : content,
+        data, 
+        savedData : data,
         status:{reloading:false}
       })
 

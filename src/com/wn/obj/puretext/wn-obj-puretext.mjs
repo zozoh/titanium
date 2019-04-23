@@ -1,36 +1,43 @@
 export default {
   props : {
-    "data" : {
-      type : Object,
-      default : ()=>({
-        "meta" : null,
-        "content" : null,
-        "contentType" : null
-      })
-    },
-    "status" : {
+    "meta" : {
       type : Object,
       default : ()=>({})
     },
-    "dataIsChanged" : {
-      type : Boolean,
-      default : false
+    "content" : {
+      type : String,
+      default : null
+    },
+    "savedContent" : {
+      type : String,
+      default : null
+    },
+    "contentType" : {
+      type : String,
+      default : null
+    },
+    "status" : {
+      type : Object,
+      default : ()=>({
+        "changed"   : false,
+        "saving"    : false,
+        "reloading" : false
+      })
     }
   },
   computed : {
-    obj() {
-      let vm = this;
-      if(vm.data && vm.data.meta) {
-        return {
-          icon  : Wn.Util.getIconObj(this.data.meta),
-          title : vm.data.meta.title || vm.data.meta.nm
-        }
+    theIcon() {
+      if(this.meta) {
+        return Wn.Util.getIconObj(this.meta)
       }
-      return {
-        icon  : Ti.Icons.get(),
-        title : "no-title"
+      return Ti.Icons.get()
+    },
+    theTitle() {
+      if(this.meta) {
+        return this.meta.title || this.meta.nm
       }
-    }  // ~ obj()
+      return "no-title"
+    }
   },
   methods : {
     onChangeContent(newContent) {
@@ -41,7 +48,7 @@ export default {
     Ti.Fuse.getOrCreate().add({
       key : "wn-obj-puretext",
       everythingOk : ()=>{
-        return !this.dataIsChanged
+        return !this.status.changed
       },
       fail : ()=>{
         this.$message({

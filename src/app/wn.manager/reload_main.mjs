@@ -34,7 +34,7 @@ export default async function reloadMain(meta) {
           config.state = {}
         }
         config.state = _.assign({}, config.state, {
-          $message : {
+          __wn_messages : {
             noti  : null,
             toast : null,
             log : null
@@ -43,13 +43,13 @@ export default async function reloadMain(meta) {
         
         config.mutations = _.assign({}, config.mutations, {
           $noti(state, str) {
-            state.$message.noti = str
+            state.__wn_messages.noti = str
           },
           $toast(state, str) {
-            state.$message.toast = str
+            state.__wn_messages.toast = str
           },
           $log(state, str) {
-            state.$message.log = str
+            state.__wn_messages.log = str
           }
         })
       },

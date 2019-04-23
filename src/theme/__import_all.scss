@@ -21,6 +21,21 @@
 @import "com/_ti-obj-video.scss";
 @import "com/_ti-text-raw.scss";
 //-----------------------------------------------------
+// Include form
+@import "com/_ti-form.scss";
+@import "com/form/ti-form-input.scss";
+@import "com/form/ti-form-input-number.scss";
+@import "com/form/ti-form-dropdown.scss";
+@import "com/form/ti-form-toggle.scss";
+@import "com/form/ti-form-switcher.scss";
+@import "com/form/ti-form-picker.scss";
+@import "com/form/ti-form-pick-date.scss";
+@import "com/form/ti-form-pick-time.scss";
+@import "com/form/ti-form-pick-datetime.scss";
+@import "com/form/ti-form-pick-color.scss";
+@import "com/form/ti-form-image.scss";
+
+//-----------------------------------------------------
 // Include ex-coms
 @import "com/_wn-list-adaptview.scss";
 @import "com/_wn-obj-preview.scss";

@@ -114,9 +114,7 @@ export default {
     mainStatus() {
       let status = {}
       if(this.mainData) {
-        _.assign(status, this.$store.state.main.status, {
-          changed : this.$store.getters["main/isChanged"]
-        })
+        _.assign(status, this.mainData.status)
       }
       return status
     },
@@ -124,13 +122,13 @@ export default {
       return this.$store.state.main
     },
     mainDataId() {
-      if(this.$store.state.main && this.$store.state.main.meta) {
-        return this.$store.state.main.meta.id
+      if(this.mainData && this.mainData.meta) {
+        return this.mainData.meta.id
       }
     },
     mainLog() {
-      if(this.$store.state.main && this.$store.state.main.$message) {
-        return Ti.I18n.text(this.$store.state.main.$message.log)
+      if(this.mainData && this.mainData.$message) {
+        return Ti.I18n.text(this.mainData.$message.log)
       }
     }
   },

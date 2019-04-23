@@ -1,0 +1,6 @@
+{
+  "name" : "ti-form-input",
+  "globally" : true,
+  "template" : "./ti-form-input.html",
+  "mixins" : ["./ti-form-input.mjs"]
+}

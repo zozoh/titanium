@@ -25,7 +25,6 @@ export default {
   },
   computed : {
     topClass() {
-      console.log(this.fitMode)
       return {
         "as-none"    : this.fitMode=="none",
         "as-contain" : this.fitMode=="contain",

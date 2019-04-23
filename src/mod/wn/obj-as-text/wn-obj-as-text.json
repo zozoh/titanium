@@ -4,7 +4,8 @@
   "savedContent" : null,
   "contentType": null,
   "status" : {
-    "saving"   : false,
+    "changed"   : false,
+    "saving"    : false,
     "reloading" : false
   }
 }

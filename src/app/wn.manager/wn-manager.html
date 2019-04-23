@@ -25,7 +25,7 @@
         class="wnm-action-menu">
         <ti-menu 
           :data="main.actionMenu"
-          :status="mainStatus"/>
+          :status="mainData"/>
       </div>
     </div>
   </div>
@@ -42,9 +42,7 @@
     <component
       class="ti-fill-parent" 
       :is="main.comName"
-      :data="mainData"
-      :data-is-changed="mainStatus.changed"
-      :status="mainStatus"
+      v-bind="mainData"
       @open="onMainViewOpen"
       @change="onMainDataChange"/>
   </div>

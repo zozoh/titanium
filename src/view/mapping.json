@@ -1,4 +1,7 @@
 {
+  "types" : {
+    "form" : "form-view"
+  },
   "mimes" : {
     "text" : "text-editor",
     "application/json" : "text-editor"

@@ -85,6 +85,9 @@ export const TiUtil = {
   /***
    * Set value to obj[key] if only val is not undefined
    * If value is null, use the `dft`
+   * 
+   * @TODO zozoh: I think this function will cause many `Hard Reading Code`, 
+   * should remove it
    */
   setTo(obj={}, key, val, dft) {
     // String mode

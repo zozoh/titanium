@@ -1,0 +1,10 @@
+{
+  "name" : "ti-form",
+  "globally" : true,
+  "template" : "./ti-form.html",
+  "mixins" : ["./ti-form.mjs"],
+  "components" : [
+    "./com/form-group",
+    "./com/form-field",
+    "./input/_com.json"]
+}

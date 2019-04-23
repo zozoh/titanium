@@ -1,9 +1,4 @@
 export default {
-  getters : {
-    isChanged : (state)=>{
-      return false
-    }
-  },
   //.....................................
   mutations : {
     set(state, {

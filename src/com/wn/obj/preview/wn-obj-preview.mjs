@@ -1,16 +1,18 @@
 export default {
   props : {
-    "data" : {
+    "meta" : {
       type : Object,
       default : ()=>({})
+    },
+    "contentType" : {
+      type : String,
+      default : null
     },
     "status" : {
       type : Object,
-      default : ()=>({})
-    },
-    "dataIsChanged" : {
-      type : Boolean,
-      default : false
+      default : ()=>({
+        "fullscreen" : false
+      })
     }
   },
   computed : {
@@ -20,8 +22,8 @@ export default {
       }
     },
     previewComType() {
-      if(this.data.meta) {
-        let mime = this.data.meta.mime
+      if(this.meta) {
+        let mime = this.meta.mime
         // Video
         if(mime.startsWith("video/")){
           return "ti-obj-video"
@@ -37,16 +39,16 @@ export default {
       }
     },
     dataSource() {
-      if(!this.data.meta)
+      if(!this.meta)
         return ""
-      let link = Wn.Util.getDownloadLink(this.data.meta, {mode:"auto"})
+      let link = Wn.Util.getDownloadLink(this.meta, {mode:"auto"})
       return link.toString();
     },
     dataIcon() {
-      return Wn.Util.getIconObj(this.data.meta)
+      return Wn.Util.getIconObj(this.meta)
     },
     dataTitle() {
-      return Wn.Util.getObjDisplayName(this.data.meta)
+      return Wn.Util.getObjDisplayName(this.meta)
     }
   },
   methods : {
