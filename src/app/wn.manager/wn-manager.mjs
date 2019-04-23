@@ -50,7 +50,7 @@ export default {
     // Watch the browser "Forward/Backward"
     window.onpopstate = function({state}){
       let meta = state
-      vm.$store.dispatch("wn-obj-meta/reload", meta)
+      vm.$store.dispatch("meta/reload", meta)
     }
     // Reload sidebar
     vm.reloadSidebar()
@@ -119,7 +119,9 @@ export default {
       return status
     },
     mainData() {
-      return this.$store.state.main
+      return _.pickBy(this.$store.state.main, (val, key)=>{
+        return key && !key.startsWith("_")
+      })
     },
     mainDataId() {
       if(this.mainData && this.mainData.meta) {

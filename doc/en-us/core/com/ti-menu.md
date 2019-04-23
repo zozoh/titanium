@@ -1,5 +1,5 @@
 ---
-title : TiMenu
+title : <ti-menu>
 author: zozoh(zozohtnt@gmail.com)
 tags:
 - ti

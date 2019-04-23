@@ -1,9 +1,10 @@
 {
   "meta": null,
   "data": null,
-  "savedData" : null,
+  "__saved_data" : null,
   "status" : {
-    "saving"   : false,
+    "changed"   : false,
+    "saving"    : false,
     "reloading" : false
   }
 }

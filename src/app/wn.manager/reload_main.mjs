@@ -22,8 +22,21 @@ export default async function reloadMain(meta) {
   }catch(Err){}
   // Load the module/component for the object
   if(meta) {
-    let mainView = await Wn.Sys.exec2(`ti views -cqn id:${meta.id}`, 
-                                      {as:"json"})
+    // Get back the viewName from hash
+    let m = /^#!(.+)$/.exec(window.location.hash)
+    let viewName = m ? m[1] : null
+
+    let cmdText;
+    // If defined the viewName
+    if(viewName) {
+      cmdText = `ti views -cqn -name '${viewName}'`
+    }
+    // Query by current object
+    else {
+      cmdText = `ti views -cqn id:${meta.id}`
+    }
+    // Load the main view
+    let mainView = await Wn.Sys.exec2(cmdText, {as:"json"})
     if(Ti.IsInfo("app/wn.manager")) {
       console.log("ReloadMainView", mainView)
     }

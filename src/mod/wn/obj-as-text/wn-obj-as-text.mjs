@@ -3,7 +3,7 @@
 export default {
   mutations : {
     set(state, {
-      meta, content, savedContent, contentType, status
+      meta, content, __saved_content, contentType, status
     }={}) {
       // Default contentType
       if(_.isUndefined(contentType) && meta) {
@@ -16,15 +16,15 @@ export default {
       if(!_.isUndefined(content))
         state.content = content
       // SavedData
-      if(!_.isUndefined(savedContent))
-        state.savedContent = savedContent
+      if(!_.isUndefined(__saved_content))
+        state.__saved_content = __saved_content
       // ContentType
       if(!_.isUndefined(contentType))
         state.contentType = contentType
       // Status
       _.assign(state.status, status)
       // Changed
-      state.status.changed = (state.content != state.savedContent)
+      state.status.changed = (state.content != state.__saved_content)
     }
   },
   //.....................................
@@ -44,7 +44,7 @@ export default {
       let newMeta = await Wn.Io.saveContentAsText(meta, content)
       commit("set", {
         meta: newMeta, 
-        savedContent : content,
+        __saved_content : content,
         status:{saving:false}
       })
 
@@ -69,7 +69,7 @@ export default {
       commit("set", {
         meta, 
         content, 
-        savedContent : content,
+        __saved_content : content,
         status:{reloading:false}
       })
 

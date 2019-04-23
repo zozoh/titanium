@@ -1,15 +1,9 @@
 // Ti required(Wn)
 //---------------------------------------
 export default {
-  getters : {
-    isChanged : (state)=>{
-      return _.isEqual(state.data, state.savedData)
-    }
-  },
-  //.....................................
   mutations : {
     set(state, {
-      meta, data, savedData, status
+      meta, data, __saved_data, status
     }={}) {
       // Meta
       if(!_.isUndefined(meta))
@@ -18,10 +12,12 @@ export default {
       if(!_.isUndefined(data))
         state.data = _.cloneDeep(data)
       // SavedData
-      if(!_.isUndefined(savedData))
-        state.savedData = _.cloneDeep(savedData)
+      if(!_.isUndefined(__saved_data))
+        state.__saved_data = _.cloneDeep(__saved_data)
       // Status
       _.assign(state.status, status)
+      // Changed
+      state.status.changed = !_.isEqual(state.data, state.__saved_data)
     }
   },
   //.....................................
@@ -42,7 +38,7 @@ export default {
       let newMeta = await Wn.Io.saveContentAsText(meta, json)
       commit("set", {
         meta: newMeta, 
-        savedData : json,
+        __saved_data : json,
         status:{saving:false}
       })
 
@@ -69,7 +65,7 @@ export default {
       commit("set", {
         meta, 
         data, 
-        savedData : data,
+        __saved_data : data,
         status:{reloading:false}
       })
 
