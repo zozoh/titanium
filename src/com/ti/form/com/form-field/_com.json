@@ -2,5 +2,6 @@
   "name" : "ti-form-field",
   "globally" : true,
   "template" : "./ti-form-field.html",
+  "props" : "./ti-form-field-props.mjs",
   "mixins" : ["./ti-form-field.mjs"]
 }

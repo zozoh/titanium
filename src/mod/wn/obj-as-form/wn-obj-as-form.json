@@ -1,0 +1,22 @@
+{
+  "meta": null,
+  "config": {
+    "serilizers"   : {},
+    "transformers" : {},
+    "validators"   : {},
+    "statusIcons" : {
+      "spinning" : "fas-spinner fa-spin",
+      "error"    : "zmdi-alert-polygon",
+      "warn"     : "zmdi-alert-triangle",
+      "ok"       : "zmdi-check-circle"
+    },
+    "fields": []
+  },
+  "data": null,
+  "__saved_data" : null,
+  "status" : {
+    "changed"   : false,
+    "saving"    : false,
+    "reloading" : false
+  }
+}

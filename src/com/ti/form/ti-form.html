@@ -1,3 +1,14 @@
 <div class="ti-form">
-  {{data}}
+  <template v-for="fld in fieldList">
+    <ti-form-group v-if="'Group' == fld.type"
+      v-bind="fld"
+      :data="data"
+      :status="status"
+      :status-icons="config.statusIcons"/>
+    <ti-form-field v-else
+      v-bind="fld"
+      :data="data"
+      :status="status"
+      :status-icons="config.statusIcons"/>
+  </template>
 </div>
