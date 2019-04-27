@@ -61,14 +61,26 @@ export default {
         meta = state.meta
       }
       
+      // Declare to loading
       commit("set", {status:{reloading:true}})
-      let json = await Wn.Io.loadContentAsText(meta)
-      json = _.trim(json) || null
-      // Parse the config object
-      let config = _.defaults(JSON.parse(json) || {}, {
-        serilizers   : {},
+
+      // The loading result
+      let json
+      
+      // Load config
+      let config = {}
+      if(meta.form) {
+        let pph = Ti.Util.getParentPath(meta.ph)
+        let aph = Ti.Util.appendPath(pph, meta.form)
+        let formMeta = await Wn.Io.loadMeta(aph)
+        json = await Wn.Io.loadContentAsText(formMeta)
+        json = _.trim(json) || null
+        config = JSON.parse(json) || {}
+      }
+      // set defaults to config
+      config = _.defaults(config, {
+        serializers  : {},
         transformers : {},
-        validators   : {},
         statusIcons : {
           spinning : 'fas-spinner fa-spin',
           error    : 'zmdi-alert-polygon',
@@ -77,11 +89,16 @@ export default {
         },
         fields: []
       })
+
+      // Load data
+      json = await Wn.Io.loadContentAsText(meta)
+      json = _.trim(json) || null
+      let data = JSON.parse(json)
+
       // reset data
       commit("set", {
-        meta, config,
-        data : null, 
-        __saved_data : null,
+        meta, data, config,
+        __saved_data : data,
         status:{reloading:false}
       })
 

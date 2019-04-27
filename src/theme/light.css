@@ -881,6 +881,9 @@ a:hover {
       .ti-text-raw .te-main textarea:focus {
         border-color: #ff4081; }
 
+.ti-form {
+  padding: .1rem; }
+
 .wn-list-adaptview {
   position: relative; }
   .wn-list-adaptview > .wla-uploading {

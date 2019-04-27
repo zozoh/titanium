@@ -1,6 +1,6 @@
 {
   "types" : {
-    "form" : "form-view"
+    "form_data" : "form-view"
   },
   "mimes" : {
     "text" : "text-editor",

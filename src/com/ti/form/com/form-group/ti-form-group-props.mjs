@@ -24,13 +24,5 @@ export default {
     error    : 'zmdi-alert-polygon',
     warn     : 'zmdi-alert-triangle',
     ok       : 'zmdi-check-circle',
-  },
-  "status" : {
-    type : Object,
-    default : ()=>({
-      "changed"   : false,
-      "saving"    : false,
-      "reloading" : false
-    })
   }
 }

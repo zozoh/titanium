@@ -35,8 +35,12 @@ export default {
     type : String,
     default : null
   },
-  "undefinedAs" : undefined,
-  "nullAs" : null,
+  "undefinedAs" : {
+    default : undefined
+  },
+  "nullAs" : {
+    default : null
+  },
   "comType" : {
     type : String,
     default : "ti-form-input"
@@ -49,13 +53,9 @@ export default {
     type : Function,
     default : _.identity
   },
-  "transfomer" : {
+  "transformer" : {
     type : Function,
     default : _.identity
-  },
-  "validator" : {
-    type : Function,
-    default : function(){}
   },
   "data" : {
     type : Object,
@@ -66,13 +66,5 @@ export default {
     error    : 'zmdi-alert-polygon',
     warn     : 'zmdi-alert-triangle',
     ok       : 'zmdi-check-circle',
-  },
-  "status" : {
-    type : Object,
-    default : ()=>({
-      "changed"   : false,
-      "saving"    : false,
-      "reloading" : false
-    })
   }
 }

@@ -16,7 +16,8 @@
     <div class="field-component">
       <component :is="componentType"
         v-bind="componentOptions"
-        :value="componentValue"/>
+        :value="componentValue"
+        @changed="onChanged"/>
     </div>
     <div 
       v-if="show.tip"

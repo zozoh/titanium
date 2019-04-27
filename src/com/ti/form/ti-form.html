@@ -3,12 +3,12 @@
     <ti-form-group v-if="'Group' == fld.type"
       v-bind="fld"
       :data="data"
-      :status="status"
       :status-icons="config.statusIcons"/>
     <ti-form-field v-else
       v-bind="fld"
-      :data="data"
-      :status="status"
-      :status-icons="config.statusIcons"/>
+      :data="formData"
+      :status-icons="config.statusIcons"
+      @changed="onChanged"
+      @invalid="onInvalid"/>
   </template>
 </div>
