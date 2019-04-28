@@ -52,7 +52,7 @@ export default {
       let v2 = val
       try {
         v2 = this.serializer(val)
-        console.log("field changed", val, v2)
+        //console.log("field changed", val, v2)
       }
       // Invalid 
       catch(error) {

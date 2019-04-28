@@ -145,7 +145,7 @@ export const TiTypes = {
     return val
   },
   //.......................................
-  toArray(val, {sep=","}={}) {
+  toArray(val, {sep=/[ ,;\/、，；]/}={}) {
     if(_.isArray(val)) {
       return val
     }

@@ -1,5 +1,5 @@
 //-----------------------------------------
-// fnType : "transformer|serializer|validator"
+// fnType : "transformer|serializer"
 function formFunc(config={}, fld, fnType){
   let fnName = fld[fnType]
   // Get the `func` by field type
@@ -40,17 +40,7 @@ export default {
   props : {
     "config" : {
       type : Object,
-      default : ()=>({
-        serializers  : {},
-        transformers : {},
-        statusIcons : {
-          spinning : 'fas-spinner fa-spin',
-          error    : 'zmdi-alert-polygon',
-          warn     : 'zmdi-alert-triangle',
-          ok       : 'zmdi-check-circle',
-        },
-        fields: []
-      })
+      default : ()=>({})
     },
     "data" : {
       type : Object,
@@ -69,17 +59,19 @@ export default {
   computed : {
     fieldList() {
       let list = []
-      for(let fld of this.config.fields) {
-        let f2 = _.cloneDeep(fld)
-        f2.type = f2.type || "String"
+      if(_.isArray(this.config.fields)) {
+        for(let fld of this.config.fields) {
+          let f2 = _.cloneDeep(fld)
+          f2.type = f2.type || "String"
 
-        // Tidi form function
-        f2.serializer  = formFunc(this.config, f2, "serializer")
-        f2.transformer = formFunc(this.config, f2, "transformer")
-        //console.log(f2)
+          // Tidi form function
+          f2.serializer  = formFunc(this.config, f2, "serializer")
+          f2.transformer = formFunc(this.config, f2, "transformer")
+          //console.log(f2)
 
-        // Add to list
-        list.push(f2)
+          // Add to list
+          list.push(f2)
+        }
       }
       return list
     },
@@ -91,11 +83,11 @@ export default {
   //////////////////////////////////////////////////////
   methods : {
     onChanged(payload) {
-      console.log("changed", payload)
+      //console.log("changed", payload)
       this.$emit("changed", payload)
     },
     onInvalid(payload) {
-      console.log("invalid", payload)
+      //console.log("invalid", payload)
       this.$emit("invalid", payload)
     }
   }

@@ -21,10 +21,48 @@ export default {
       _.assign(state.status, status)
       // Changed
       state.status.changed = !_.isEqual(state.data, state.__saved_data)
+    },
+    syncStatusChanged(state){
+      state.status.changed = !_.isEqual(state.data, state.__saved_data)
+    },
+    /***
+     * Update the data and `status.changed`
+     */
+    update(state, {name, value}={}){
+      // value is partial data, shallow merge it
+      if(_.isArray(name) && name.length > 0){
+        _.assign(state.data, _.cloneDeep(value))
+      }
+      // set the value
+      else if(_.isString(name) && name) {
+        state.data[name] = _.cloneDeep(value)
+      }
+    },
+    /***
+     * Change the field status
+     */
+    changeStatus(state, {name, message, status}={}) {
+      // Find the field
+      if(state.config && _.isArray(state.config.fields)) {
+        for(let fld of state.config.fields) {
+          if(_.isEqual(fld.name, name)) {
+            Vue.set(fld, "status", status)
+            Vue.set(fld, "message", message)
+          }
+        }
+      }
     }
   },
   //.....................................
   actions : {
+    /***
+     * Update the data and `status.changed`
+     */
+    update({state, commit}, {name, value}={}){
+      commit("update", {name, value})
+      commit("changeStatus", {name})
+      commit("syncStatusChanged")
+    },
     /***
      * Save content to remote
      */

@@ -254,12 +254,19 @@ export const TiVue = {
       "filters",
       "components"])
     const it_asset_part = function(val, key, obj) {
-      //console.log("!!!", key, val)
       const list = _.flattenDeep([val])
       const remain = []
       for(let asset of list) {
         // => global
         if(asset.globally) {
+          // Special for components
+          if("components" == key) {
+            // console.log("!!!", key, val, asset)
+            asset = TiVue.Options({
+              conf : asset, global
+            })
+          }
+          // Push it
           Ti.Util.pushValue(global, key, asset)
         }
         // => key

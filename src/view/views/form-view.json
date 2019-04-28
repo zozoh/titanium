@@ -1,5 +1,5 @@
 {
   "comIcon" : "im-flask",
-  "comType" : "@com:ti/form",
+  "comType" : "@com:wn/obj/form",
   "modType" : "@mod:wn/obj-as-form"
 }
