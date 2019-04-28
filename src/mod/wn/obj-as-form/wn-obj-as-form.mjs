@@ -19,8 +19,6 @@ export default {
         state.__saved_data = _.cloneDeep(__saved_data)
       // Status
       _.assign(state.status, status)
-      // Changed
-      state.status.changed = !_.isEqual(state.data, state.__saved_data)
     },
     syncStatusChanged(state){
       state.status.changed = !_.isEqual(state.data, state.__saved_data)
@@ -62,19 +60,24 @@ export default {
       commit("update", {name, value})
       commit("changeStatus", {name})
       commit("syncStatusChanged")
+      commit("set", {data: state.data})
     },
     /***
      * Save content to remote
      */
     async save({state, commit}) {
-      if(state.status.save){
+      if(state.status.saving){
         return
       }
 
-      let meta = state.meta
-      let data = state.data
-      let json = JSON.stringify(data)
-
+      let meta   = state.meta
+      let data   = state.data
+      let config = state.config
+      let json = config.json 
+                  ? JSON.stringify(data, 
+                      config.json.replacer, 
+                      config.json.tabs || '   ')
+                  : JSON.stringify(data)
       commit("set", {status:{saving:true}})
       let newMeta = await Wn.Io.saveContentAsText(meta, json)
       commit("set", {
@@ -82,6 +85,7 @@ export default {
         __saved_data : json,
         status:{saving:false}
       })
+      commit("syncStatusChanged")
 
       // return the new meta
       return state.meta
@@ -139,6 +143,7 @@ export default {
         __saved_data : data,
         status:{reloading:false}
       })
+      commit("syncStatusChanged")
 
       // return the root state
       return state

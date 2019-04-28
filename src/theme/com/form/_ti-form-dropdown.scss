@@ -1,0 +1,13 @@
+.ti-form-dropdown {
+  @include noselect;
+  display:inline-block; vertical-align: middle;
+  .dd-box {
+    @include flex-align;
+    @include text-input;
+    padding:.02rem 0 .02rem .1rem;
+    min-width: 1.2rem;
+    cursor:pointer;
+    > .as-single, >.as-multi {flex:1 1 auto;}
+    > .dd-btn {flex:0 0 auto; padding:0 .06rem;}
+  }
+}

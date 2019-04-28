@@ -19,6 +19,7 @@ function formFunc(config={}, fld, fnType){
   }
   // Plain Object 
   if(_.isPlainObject(fnName) && fnName.name) {
+    console.log(fnType, fnName)
     let fn = Ti.Types.$FN(config, fnType, fnName.name)
     if(!_.isFunction(fn))
       return

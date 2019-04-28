@@ -6,5 +6,6 @@
   "components" : [
     "./com/form-group",
     "./com/form-field",
-    "./input/_com.json"]
+    "./input/_com.json",
+    "./dropdown/_com.json"]
 }

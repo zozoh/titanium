@@ -26,6 +26,11 @@ Define the schema(`Object`) of  data presentation.
     warn     : 'zmdi-alert-triangle',
     ok       : 'zmdi-check-circle',
   },
+  // if serialize the data, how to format to JSON string
+  // default is null, will output JSON compactly
+  json : {
+    tabs : '   '    // tabs, default 3 whitespaces
+  },
   // Form fields
   fields : [{
     // @see `Data Type`

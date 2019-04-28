@@ -1,6 +1,17 @@
 function BOOL(val) {
   return val ? true : false
 }
+function VAL(vm, val) {
+  let v2 = val
+  // apply default
+  if(_.isUndefined(val) && !_.isUndefined(vm.undefinedAs)){
+    v2 = _.cloneDeep(vm.undefinedAs)
+  }
+  if(_.isNull(val) && !_.isNull(this.nullAs)){
+    v2 = _.cloneDeep(this.nullAs)
+  }
+  return v2
+}
 //-------------------------------------------
 export default {
   computed : {
@@ -35,10 +46,14 @@ export default {
         return undefined
       }
       let val = this.data[this.name]
-      if(_.isFunction(this.transformer)){
-        val = this.transformer(val)
-      }
-      return val
+
+      // apply default
+      let v2 = VAL(this, val)
+
+      // Customized Transform
+      v2  = this.transformer(v2)
+
+      return v2
     },
     //.......................................  
     statusIcon() {
@@ -65,12 +80,9 @@ export default {
       }
       
       // apply default
-      if(_.isUndefined(v2) && !_.isUndefined(this.undefinedAs)){
-        v2 = _.cloneDeep(this.undefinedAs)
-      }
-      if(_.isNull(v2) && !_.isNull(this.nullAs)){
-        v2 = _.cloneDeep(this.nullAs)
-      }
+      v2 = VAL(this, v2)
+      
+      // emit event
       this.$emit("changed", {
         name  : this.name,
         value : v2

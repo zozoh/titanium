@@ -1,0 +1,8 @@
+{
+  "name" : "ti-form-dropdown",
+  "globally" : true,
+  "template" : "./ti-form-dropdown.html",
+  "mixins" : ["./ti-form-dropdown.mjs"],
+  "components" : [
+    "@com:ti/form/list"]
+}

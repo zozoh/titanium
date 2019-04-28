@@ -105,6 +105,32 @@ export const TiUtil = {
     }
   },
   /***
+   * Create new Mapping value
+   * 
+   * @param source{Object|Array} - Source to apply mapping
+   * @param mapping{Object} - Mapping
+   * 
+   * @return `Object|Array`
+   */
+  mapping(source={}, mapping={}) {
+    if(_.isEmpty(mapping))
+      return source
+    // Array
+    if(_.isArray(source)) {
+      let re = []
+      for(let it of source) {
+        re.push(TiUtil.mapping(it, mapping))
+      }
+      return re
+    }
+    // Take as plain object
+    let re = {}
+    _.forEach(mapping, (val, key)=>{
+      re[key] = source[val||key]
+    })
+    return re
+  },
+  /***
    * Fallback a group value
    * 
    * @return The first one which is not undefined

@@ -1,0 +1,36 @@
+<div class="ti-form-dropdown">
+  <div
+    class="dd-box" 
+    @click="toggleShowDrop">
+    <ul v-if="multi"
+      class="as-multi">
+      <li v-for="it in selectedItems">
+        <ti-icon
+          v-if="it.icon" 
+          :value="it.icon"/>
+        <span class="it-text">{{it.text|i18n}}</span>
+        <ti-icon class="it-del" value="close"/>
+      </li>
+    </ul>
+    <div v-else
+      class="as-single">
+      <ti-icon
+        v-if="selectedItem.icon" 
+        :value="selectedItem.icon"/>
+      <span class="it-text">{{selectedItem.text|i18n}}</span>
+    </div>
+    <div class="dd-btn">
+      <ti-icon 
+        v-if="showDropdown"
+        value="zmdi-chevron-up"/>
+      <ti-icon 
+        v-else
+        value="zmdi-chevron-down"/>
+    </div>
+  </div><!--//.dd-box-->
+  <div class="dd-drop" v-show="showDropdown">
+    <ti-form-list 
+      :list="droplist"
+      :multi="multi"/>
+  </div>
+</div>

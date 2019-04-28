@@ -131,8 +131,11 @@ export const TiTypes = {
   toBoolean(val) {
     if(false ==  val)
       return false
+    if(_.isNull(val) || _.isUndefined(val)) 
+      return false
     if(/^(no|off|false)$/i.test(val))
       return false
+
     return true
   },
   //.......................................
@@ -167,6 +170,7 @@ export const TiTypes = {
   },
   //.......................................
   formatDate(date, fmt="yyyy-MM-dd'T'HH:mm:ss.SSS") {
+    //console.log("formatDate", date, fmt)
     if(!_.isDate(date)) {
       date = parseDate(date)
     }

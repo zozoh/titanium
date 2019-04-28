@@ -33,7 +33,7 @@ export default {
      * Save content to remote
      */
     async save({state, commit}) {
-      if(state.status.save){
+      if(state.status.saving){
         return
       }
 

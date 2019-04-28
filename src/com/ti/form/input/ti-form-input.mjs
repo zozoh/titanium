@@ -8,7 +8,7 @@ export default {
   },
   computed : {
     theValue() {
-      console.log("input value:", this.value)
+      //console.log("input value:", this.value)
       return Ti.Types.toStr(this.value)
     }
   },

@@ -37,6 +37,7 @@ const NAMES = {
   "create"   : {type:"font", value:"zmdi-audio"},
   "add"      : {type:"font", value:"zmdi-plus"},
   "del"      : {type:"font", value:"zmdi-delete"},
+  "close"    : {type:"font", value:"zmdi-close"},
   "download" : {type:"font", value:"zmdi-download"},
   "edit"     : {type:"font", value:"zmdi-edit"},
   "refresh"  : {type:"font", value:"zmdi-refresh"},
