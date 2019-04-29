@@ -144,6 +144,7 @@ export const TiDom = {
     if(position) {
       $src.style.position = position
     }
+    //console.log(mode, axis, space, position)
     // Get the rect
     let rect = {
       src : TiRects.createBy($src),
@@ -165,16 +166,16 @@ export const TiDom = {
     if("auto" == axis.x) {
       let list = ({
         "H" : ["left", "center", "right"],
-        "V" : ["right", "center", "left"]
+        "V" : ["right", "left"]
       })[mode]
-      axis.x = getAxis(rect.ta.x, rect.win.width/3, list)
+      axis.x = getAxis(rect.ta.x, rect.win.width/list.length, list)
     }
     if("auto" == axis.y) {
       let list = ({
-        "H" : ["bottom", "center", "top"],
+        "H" : ["bottom", "top"],
         "V" : ["top", "center", "bottom"]
       })[mode]
-      axis.y = getAxis(rect.ta.y, rect.win.height/3, list)
+      axis.y = getAxis(rect.ta.y, rect.win.height/list.length, list)
     }
 
     // Dock & Apply

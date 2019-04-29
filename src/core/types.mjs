@@ -8,7 +8,7 @@ const P_DATE = new RegExp(
   + "$"
 )
 function parseDate(d) {
-  console.log("parseDate:", d)
+  //console.log("parseDate:", d)
   // Default return today
   if(_.isUndefined(d)){
     return new Date()

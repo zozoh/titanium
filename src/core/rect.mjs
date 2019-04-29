@@ -364,6 +364,9 @@ export class Rect {
    * @return {Self}
    */
   dockTo(rect, mode="H", axis={}, space={}) {
+    if(_.isNumber(space)) {
+      space = {x:space, y:space}
+    }
     _.defaults(axis,  {x:"center", y:"bottom"})
     _.defaults(space, {x:0, y:0})
 

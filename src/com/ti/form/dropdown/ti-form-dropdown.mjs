@@ -1,6 +1,6 @@
 export default {
   data : ()=>({
-    "showDropdown" : true,
+    "showDropdown" : false,
     "items" : []
   }),
   /////////////////////////////////////////
@@ -33,7 +33,13 @@ export default {
     "showDropdown" : function(newVal, oldVal) {
       // If show, make sure items loaded
       if(true === newVal) {
-        this.tryReload()
+        this.tryReload().then(()=>{
+          let $box   = this.$refs.box
+          let $drop  = this.$refs.drop
+          let r_box  = Ti.Rects.createBy($box)
+          Ti.Dom.dockTo($drop, $box, {space:{y:1}})
+          Ti.Dom.setStyle($drop, {width:r_box.width})
+        })
       }
       // If hide, erase the un-cached data
       else {
@@ -51,7 +57,7 @@ export default {
     //......................................
     droplist() {
       let reList = []
-      console.log("droplist")
+      //console.log("droplist")
       if(!_.isEmpty(this.items)) {
         let mapping = _.defaults({...this.mapping}, {
           icon     : "icon",
@@ -77,7 +83,7 @@ export default {
           reList.push(re)
         }
       }
-      console.log(reList)
+      //console.log(reList)
       return reList
     },
     //......................................
@@ -109,12 +115,9 @@ export default {
   //////////////////////////////////////////
   methods : {
     //......................................
-    onChanged() {
-      let val = this.$refs.input.value
-      if(this.trimed) {
-        val = _.trim(val)
-      }
-      this.$emit("changed", val)
+    onChanged(payload) {
+      this.$emit("changed", payload)
+      this.showDropdown = false
     },
     //......................................
     isSelectedItem(it={}) {

@@ -938,7 +938,7 @@ a:hover {
     border: 1px solid rgba(0, 0, 0, 0.2);
     font-family: Monaco, Consolas, Courier New;
     padding: .02rem 0 .02rem .1rem;
-    min-width: 1.2rem;
+    min-width: 2rem;
     cursor: pointer; }
     .ti-form-dropdown .dd-box:focus {
       border-color: #ff4081; }
@@ -947,11 +947,22 @@ a:hover {
     .ti-form-dropdown .dd-box > .dd-btn {
       flex: 0 0 auto;
       padding: 0 .06rem; }
+  .ti-form-dropdown .dd-mask {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    content: "";
+    display: block; }
   .ti-form-dropdown .dd-drop {
     color: #444;
     background-color: #F0F0F0;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    position: fixed; }
+    box-shadow: 0.03rem 0.03rem 0.06rem rgba(50, 50, 50, 0.4);
+    position: fixed;
+    z-index: 1000; }
 
 .wn-list-adaptview {
   position: relative; }

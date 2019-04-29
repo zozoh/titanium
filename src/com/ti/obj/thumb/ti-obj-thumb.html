@@ -11,7 +11,7 @@
         <img :src="preview.value">
       </template>
       <template v-else>
-        <ti-icon v-bind="preview" size=".48rem"></ti-icon>
+        <ti-icon :value="preview" size=".48rem"></ti-icon>
       </template>
     </div>
     <div v-if="showProgress"

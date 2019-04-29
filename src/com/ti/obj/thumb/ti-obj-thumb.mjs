@@ -1,5 +1,3 @@
-import Ti from "../../../../core/ti.mjs";
-
 export default {
   props : {
     index : {

@@ -28,9 +28,16 @@
         value="zmdi-chevron-down"/>
     </div>
   </div><!--//.dd-box-->
-  <div class="dd-drop" v-show="showDropdown">
+  <div
+    class="dd-mask" 
+    v-show="showDropdown"
+    @click="showDropdown=false"></div>
+  <div ref="drop"
+    class="dd-drop" 
+    v-show="showDropdown">
     <ti-form-list 
       :list="droplist"
-      :multi="multi"/>
+      :multi="multi"
+      @changed="onChanged"/>
   </div>
 </div>

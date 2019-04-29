@@ -1,4 +1,7 @@
 export default {
+  data : ()=>({
+    lastIndex : 0
+  }),
   //////////////////////////////////////////
   props : {
     // The list to be rendered
@@ -55,7 +58,50 @@ export default {
       if(it.selected) {
         return "is-selected"
       }
+    },
+    onClick(index, eo) {
+      // Multi mode
+      if(this.multi) {
+        let vals = []
+        // Shift mode
+        if(eo.shiftKey) {
+          let minIndex = Math.min(index, this.lastIndex)
+          let maxIndex = Math.max(index, this.lastIndex)
+          _.forEach(this.formedList, (it, i)=>{
+            if(i>=minIndex && i<=maxIndex) {
+              vals.push(it.value)
+            }
+          })
+        }
+        // Toggle mode
+        else {
+          _.forEach(this.formedList, (it, i)=>{
+            // The item which to be click, toggle
+            if(index == i) {
+              if(!it.selected) {
+                vals.push(it.value)
+              }
+            }
+            // Others
+            else if(it.selected) {
+              vals.push(it.value)
+            }
+          })
+        }
+        // Emit the value
+        this.$emit("changed", vals)
+      }
+      // Single mode
+      else {
+        let it = this.formedList[index]
+        this.$emit("changed", it.value)
+      }
+      // remember the last
+      this.lastIndex = index
     }
-  }
+  },
   //////////////////////////////////////////
+  updated : function(){
+    this.lastIndex = 0
+  }
 }

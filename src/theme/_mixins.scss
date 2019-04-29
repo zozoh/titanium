@@ -24,7 +24,10 @@
   @else {
     border-#{$pos}:$w $s map-get($color-line, $c);
   }
-  
+}
+//-------------------------------------------------------------
+@mixin box-shadow() {
+  box-shadow: .03rem .03rem .06rem map-get($color-mask, thin);
 }
 //-------------------------------------------------------------
 @mixin flex($jc:flex-start,$ai:flex-start,$wp:wrap,$ac:stretch) {
