@@ -1,5 +1,5 @@
 <div class="ti-form-dropdown">
-  <div
+  <div ref="box"
     class="dd-box" 
     @click="toggleShowDrop">
     <ul v-if="multi"
@@ -15,9 +15,9 @@
     <div v-else
       class="as-single">
       <ti-icon
-        v-if="selectedItem.icon" 
-        :value="selectedItem.icon"/>
-      <span class="it-text">{{selectedItem.text|i18n}}</span>
+        v-if="theItem.icon" 
+        :value="theItem.icon"/>
+      <span class="it-text">{{theItem.text|i18n}}</span>
     </div>
     <div class="dd-btn">
       <ti-icon 

@@ -1,9 +1,12 @@
 <div class="ti-form-list">
   <ul>
-    <li v-for="it in formedList">
-      <ti-icon
-        v-if="it.icon" 
-        :value="it.icon"/>
+    <li v-for="it in formedList" :class="itemClass(it)">
+      <span v-if="hasIcon"
+        class="it-icon">
+        <ti-icon 
+          v-if="it.icon"
+          :value="it.icon"/>
+      </span>
       <span
         v-if="it.text" 
         class="it-text">{{it.text|i18n}}</span>

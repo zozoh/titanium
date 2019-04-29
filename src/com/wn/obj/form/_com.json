@@ -3,5 +3,5 @@
   "globally" : true,
   "template" : "./wn-obj-form.html",
   "mixins" : ["./wn-obj-form.mjs"],
-  "components" : ["@com:ti/form"]
+  "components" : ["@com:wn/form"]
 }

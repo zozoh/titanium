@@ -1,21 +1,10 @@
-async function tryReloadList(vm){
-  if(!vm.isLoaded) {
-    await vm.reloadList()
-    vm.setValue(vm.value)
-  }
-}
-//-----------------------------------------
 export default {
   data : ()=>({
-    showDropdown : false,
-    _the_list : []
+    "showDropdown" : true,
+    "items" : []
   }),
   /////////////////////////////////////////
   props : {
-    "selects" : {
-      type : Array,
-      default : ()=>[]
-    },
     "empty" :{
       type : Object,
       default : ()=>({
@@ -25,23 +14,15 @@ export default {
     },
     "value" : null,
     "multi" : false,
-    "list" : {
-      type : Array,
+    "data" : {
+      type : [Array, Function],
       default : ()=>[]
-    },
-    "reload" : {
-      type : Function,
-      default : (val)=>[]
     },
     "mapping" : {
       type : Object,
-      default : ()=>({
-        icon  : "icon",
-        text  : "text",
-        value : "value",
-        tip   : "tip"
-      })
+      default : ()=>({})
     },
+    "defaultIcon" : null,
     "cached" : {
       type : Boolean,
       default : true
@@ -50,47 +31,79 @@ export default {
   //////////////////////////////////////////
   watch : {
     "showDropdown" : function(newVal, oldVal) {
+      // If show, make sure items loaded
       if(true === newVal) {
-        tryReloadList(this)
+        this.tryReload()
+      }
+      // If hide, erase the un-cached data
+      else {
+        if(!this.cached) {
+          this.items = []
+        }
       }
     }
   },
   //////////////////////////////////////////
   computed : {
     isLoaded() {
-      return !_.isEmpty(this._the_list)
-    },
-    //......................................
-    hasValue() {
-      return this.selects.length > 0
+      return !_.isEmpty(this.items)
     },
     //......................................
     droplist() {
       let reList = []
       console.log("droplist")
-      if(!_.isEmpty(this._the_list)) {
-        for(let it of this._the_list) {
-          let re = Ti.Util.mapping(it, this.mapping)
-          re.highlight = this.multi
+      if(!_.isEmpty(this.items)) {
+        let mapping = _.defaults({...this.mapping}, {
+          icon     : "icon",
+          text     : "text",
+          value    : "value",
+          tip      : "tip",
+          selected : "selected"
+        })
+        for(let it of this.items) {
+          let re = Ti.Util.mapping(it, mapping)
+          // Default Icon
+          if(!re.icon)
+            re.icon = this.defaultIcon
+          // Uniq tip
+          if(re.tip == re.text) {
+            delete re.tip
+          }
+          // Mark highlight
+          re.selected = this.multi
                 ? _.indexOf(this.value, re.value) >= 0
                 : _.isEqual(this.value, re.value)
+          // Join to list
           reList.push(re)
         }
       }
+      console.log(reList)
       return reList
     },
     //......................................
+    hasSelecteds() {
+      return this.selectedItems.length > 0
+    },
+    //......................................
     // For Single mode
-    selectedItem() {
-      if(this.hasValue){
-        return _.get(this.selects, 0)
+    theItem() {
+      if(this.hasSelecteds){
+        return _.get(this.selectedItems, 0)
       }
       return this.empty
     },
     //......................................
     // For Multi mode
     selectedItems() {
-      return this.selects
+      let selects = []
+      for(let it of this.droplist) {
+        if(this.isSelectedItem(it)) {
+          selects.push(it)
+          if(!this.multi)
+            break
+        }
+      }
+      return selects
     }
   },
   //////////////////////////////////////////
@@ -104,47 +117,37 @@ export default {
       this.$emit("changed", val)
     },
     //......................................
+    isSelectedItem(it={}) {
+      if(this.multi) {
+        return _.indexOf(this.value, it.value)
+      }
+      return _.isEqual(this.value, it.value)
+    },
+    //......................................
     toggleShowDrop() {
       this.showDropdown = !this.showDropdown
     },
     //......................................
-    async reloadList() {
-      this._the_list = await this.reload(this.value)
+    async tryReload(){
+      if(!this.isLoaded) {
+        await this.reload()
+      }
     },
     //......................................
-    setValue(val) {
-      this.value = val
-      let selects = []
-      // looking for text/icon/tip
-      if(this.multi) {
-        let vals = []
-        for(let it of this._the_list) {
-          if(_.indexOf(this.value, it.value)>=0) {
-            vals.push(it.value)
-            selects.push(it)
-          }
-        }
-        this.value = vals
+    async reload() {
+      // Dynamic value
+      if(_.isFunction(this.data)) {
+        this.items = await this.data(this.value)
       }
-      // Single value
-      else {
-        for(let it of this._the_list) {
-          if(_.isEqual(it.value, this.value)) {
-            selects.push(it)
-            this.value = it.value
-            break;
-          }
-        }
+      // Static value
+      else if(_.isArray(this.data)){
+        this.items = [].concat(this.data)
       }
-      // Update selects
-      this.selects = selects
     }
     //......................................
   },
   /////////////////////////////////////////
   mounted : async function(){
-    this._the_list = [...this.list]
-    console.log(this._the_list)
-    await tryReloadList(this)
+    await this.tryReload()
   }
 }

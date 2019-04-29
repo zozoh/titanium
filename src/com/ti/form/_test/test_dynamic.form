@@ -1,0 +1,36 @@
+{
+  "json": true,
+  "fields" : [{
+      "name" : "name"
+    }, {
+      "name" : "age",
+      "type" : "Number"
+    }, {
+      "name" : "great",
+      "type" : "Boolean"
+    }, {
+      "name" : "lbls",
+      "type" : "Array"
+    }, {
+      "name" : "profession",
+      "type" : "String",
+      "comType" : "ti-form-dropdown",
+      "comConf" : {
+        "cached" : false,
+        "data" : {
+          "method" : "Wn.Sys.exec2",
+          "args"   : ["obj ~/* -cqn -e '^(id|nm|title|icon)$' -l -json"]
+        },
+        "mapping" : {
+          "icon"  : "icon",
+          "text"  : ["title", "nm"],
+          "value" : "id"
+        }
+      }
+    }, {
+      "name" : "birthday",
+      "type" : "DateTime",
+      "serializer"  : {"name":"formatDate", "args":["yyyyMMdd"]},
+      "transformer" : {"name":"formatDate", "args":["yyyy-MM-dd"]}
+    }]
+}

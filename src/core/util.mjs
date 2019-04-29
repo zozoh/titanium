@@ -126,9 +126,25 @@ export const TiUtil = {
     // Take as plain object
     let re = {}
     _.forEach(mapping, (val, key)=>{
-      re[key] = source[val||key]
+      re[key] = TiUtil.getFallback(source, val, key)
     })
     return re
+  },
+  /***
+   * Get value from object fallbackly
+   * 
+   * @param obj{Object} - source object
+   * @param keys{Array} - candicate keys
+   * 
+   * @return `undefined` if not found
+   */
+  getFallback(obj, ...keys) {
+    let ks = _.flattenDeep(keys)
+    for(let k of ks) {
+      let v = obj[k]
+      if(!_.isUndefined(v))
+        return v
+    }
   },
   /***
    * Fallback a group value

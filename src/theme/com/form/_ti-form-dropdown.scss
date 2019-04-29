@@ -10,4 +10,9 @@
     > .as-single, >.as-multi {flex:1 1 auto;}
     > .dd-btn {flex:0 0 auto; padding:0 .06rem;}
   }
+  .dd-drop {
+    @include color($color-paper, r, c);
+    @include border(1px, solid, shallow);
+    position:fixed;
+  }
 }

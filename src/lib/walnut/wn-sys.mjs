@@ -85,7 +85,7 @@ export const WnSys = {
   //-------------------------------------
   async exec2(cmdText, options){
     try {
-      return await Wn.Sys.exec(cmdText, {as:"json"})
+      return await Wn.Sys.exec(cmdText, options)
     }
     // Handle Error
     catch(err) {

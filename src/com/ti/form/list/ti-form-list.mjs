@@ -15,12 +15,7 @@ export default {
     // How to mapping the list to formed value
     "mapping" : {
       type : Object,
-      default : ()=>({
-        icon  : "icon",
-        text  : "text",
-        value : "value",
-        tip   : "tip"
-      })
+      default : ()=>({})
     },
     // select item
     "selectable" : {
@@ -36,12 +31,31 @@ export default {
   //////////////////////////////////////////
   computed : {
     formedList() {
+      let mapping = _.defaults({...this.mapping}, {
+        icon     : "icon",
+        text     : "text",
+        value    : "value",
+        tip      : "tip",
+        selected : "selected"
+      })
       return Ti.Util.mapping(this.list, this.mapping)
+    },
+    //......................................
+    hasIcon() {
+      for(let it of this.formedList) {
+        if(it.icon)
+          return true
+      }
+      return false
     }
   },
   //////////////////////////////////////////
   methods : {
-    
+    itemClass(it) {
+      if(it.selected) {
+        return "is-selected"
+      }
+    }
   }
   //////////////////////////////////////////
 }
