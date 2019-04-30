@@ -19,7 +19,7 @@ function formFunc(config={}, fld, fnType){
   }
   // Plain Object 
   if(_.isPlainObject(fnName) && fnName.name) {
-    console.log(fnType, fnName)
+    //console.log(fnType, fnName)
     let fn = Ti.Types.$FN(config, fnType, fnName.name)
     if(!_.isFunction(fn))
       return
@@ -59,6 +59,7 @@ export default {
   //////////////////////////////////////////////////////
   computed : {
     fieldList() {
+      console.log("fieldList")
       let list = []
       if(_.isArray(this.config.fields)) {
         for(let fld of this.config.fields) {

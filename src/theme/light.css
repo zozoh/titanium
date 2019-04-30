@@ -250,8 +250,7 @@ a:hover {
 
 .ti-icon {
   display: inline-block;
-  vertical-align: middle;
-  dbackground: red; }
+  vertical-align: middle; }
   .ti-icon .tii-con {
     display: flex;
     justify-content: center;
@@ -900,9 +899,6 @@ a:hover {
   padding: .02rem .06rem; }
   .ti-form-list li:first-child {
     border-top: 0; }
-  .ti-form-list li:hover {
-    color: #FFF;
-    background-color: #2196f3; }
   .ti-form-list li.is-selected {
     color: #FFF;
     background-color: #ff4081; }
@@ -914,7 +910,10 @@ a:hover {
     flex-wrap: wrap;
     width: .32rem; }
   .ti-form-list li > .it-text {
+    transition: 0.2s;
     padding: 0 0.1rem 0 .04rem; }
+  .ti-form-list li:hover > .it-text {
+    transform: translateX(4px) scale(1.2); }
 
 .ti-form-input input {
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -937,16 +936,56 @@ a:hover {
     flex-wrap: wrap;
     border: 1px solid rgba(0, 0, 0, 0.2);
     font-family: Monaco, Consolas, Courier New;
-    padding: .02rem 0 .02rem .1rem;
     min-width: 2rem;
     cursor: pointer; }
     .ti-form-dropdown .dd-box:focus {
       border-color: #ff4081; }
-    .ti-form-dropdown .dd-box > .as-single, .ti-form-dropdown .dd-box > .as-multi {
+    .ti-form-dropdown .dd-box > .as-single, .ti-form-dropdown .dd-box > .as-multi, .ti-form-dropdown .dd-box .as-empty {
       flex: 1 1 auto; }
     .ti-form-dropdown .dd-box > .dd-btn {
       flex: 0 0 auto;
       padding: 0 .06rem; }
+    .ti-form-dropdown .dd-box > .as-single {
+      padding: .02rem 0 .02rem .1rem; }
+    .ti-form-dropdown .dd-box > .as-multi {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      padding: .02rem;
+      font-size: 0.9em; }
+      .ti-form-dropdown .dd-box > .as-multi > li {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        align-content: center;
+        flex-wrap: wrap;
+        color: #FFF;
+        background-color: #4e9abd;
+        cursor: pointer;
+        padding: 0 .06rem;
+        margin-right: 0.02rem;
+        border-radius: 2px; }
+        .ti-form-dropdown .dd-box > .as-multi > li .it-del {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          align-content: center;
+          flex-wrap: wrap;
+          display: block;
+          padding-left: 0.04rem;
+          font-size: 0.9em; }
+          .ti-form-dropdown .dd-box > .as-multi > li .it-del > .ti-icon {
+            transition: transform 0.3s; }
+          .ti-form-dropdown .dd-box > .as-multi > li .it-del:hover > .ti-icon {
+            color: #fdd835;
+            transform: scale(1.2) rotate(180deg); }
+    .ti-form-dropdown .dd-box .as-empty {
+      padding: .02rem 0 .02rem .1rem; }
   .ti-form-dropdown .dd-mask {
     position: fixed;
     left: 0;

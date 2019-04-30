@@ -180,7 +180,7 @@ export const TiDom = {
 
     // Dock & Apply
     rect.el = rect.src.dockTo(rect.ta, mode, axis, space)
-    TiDom.applyRect($src, rect.el)
+    TiDom.applyRect($src, rect.el, "tl")
   },
   /**
    * Return HTML string to present the icon/text/tip HTML segment

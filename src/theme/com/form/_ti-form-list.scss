@@ -9,9 +9,6 @@
     cursor:pointer;
     padding:.02rem .06rem;
     &:first-child {border-top:0;}    
-    &:hover {
-      @include color($color-primary, r, c);
-    }
     &.is-selected {
       @include color($color-secondary, r, c);
     }
@@ -20,7 +17,13 @@
       width:.32rem;
     }
     > .it-text {
+      transition: 0.2s;
       padding:0 0.1rem 0 .04rem;
+    }
+    &:hover {
+      > .it-text {
+        transform:translateX(4px) scale(1.2);
+      }
     }
   }
 }

@@ -1,5 +1,6 @@
 export default {
   data : ()=>({
+    "loading" : false,
     "showDropdown" : false,
     "items" : []
   }),
@@ -41,12 +42,6 @@ export default {
           Ti.Dom.setStyle($drop, {width:r_box.width})
         })
       }
-      // If hide, erase the un-cached data
-      else {
-        if(!this.cached) {
-          this.items = []
-        }
-      }
     }
   },
   //////////////////////////////////////////
@@ -57,6 +52,9 @@ export default {
     //......................................
     droplist() {
       let reList = []
+      if(!this.multi) {
+        reList.push(this.empty)
+      }
       //console.log("droplist")
       if(!_.isEmpty(this.items)) {
         let mapping = _.defaults({...this.mapping}, {
@@ -117,12 +115,25 @@ export default {
     //......................................
     onChanged(payload) {
       this.$emit("changed", payload)
-      this.showDropdown = false
+      if(!this.multi) {
+        this.showDropdown = false
+      }
+    },
+    //......................................
+    onRemoveItem(rmIt) {
+      console.log("onRemoveItem", rmIt)
+      let payload = []
+      for(let it of this.selectedItems){
+        if(!_.isEqual(it.value, rmIt.value)){
+          payload.push(it.value)
+        }
+      }
+      this.$emit("changed", payload)
     },
     //......................................
     isSelectedItem(it={}) {
       if(this.multi) {
-        return _.indexOf(this.value, it.value)
+        return _.indexOf(this.value, it.value) >= 0
       }
       return _.isEqual(this.value, it.value)
     },
@@ -132,7 +143,7 @@ export default {
     },
     //......................................
     async tryReload(){
-      if(!this.isLoaded) {
+      if(!this.isLoaded || !this.cached) {
         await this.reload()
       }
     },
@@ -140,7 +151,12 @@ export default {
     async reload() {
       // Dynamic value
       if(_.isFunction(this.data)) {
+        this.loading = true
         this.items = await this.data(this.value)
+        if(!_.isArray(this.items)){
+          this.items = []
+        }
+        this.loading = false
       }
       // Static value
       else if(_.isArray(this.data)){

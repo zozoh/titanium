@@ -51,6 +51,9 @@
 @mixin flex-align($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {
   @include flex($jc,$ai,$wp,$ac);
 }
+@mixin flex-align-center($jc:flex-start,$ai:center,$wp:wrap,$ac:center) {
+  @include flex($jc,$ai,$wp,$ac);
+}
 @mixin flex-align-v($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {
   @include flex($jc,$ai,$wp,$ac);
   flex-direction: column;

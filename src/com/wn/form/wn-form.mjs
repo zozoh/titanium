@@ -29,7 +29,9 @@ function gen_wn_sys_exec(vm, fn, args){
    */
   const cmdTmpl =  _.template(cmdText);
   return async function(val) {
-    let str = _STR(val).replace(/'/g, "")
+    let str = _STR(val)
+    if(str)
+      str = str.replace(/'/g, "")
     let cmd = cmdTmpl({value:str})
     return await fn.apply(vm, [cmd, options])
   }
