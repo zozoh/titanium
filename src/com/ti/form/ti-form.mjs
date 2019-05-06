@@ -58,8 +58,12 @@ export default {
   },
   //////////////////////////////////////////////////////
   computed : {
+    formClass() {
+      let spacing = this.config.spacing || "comfy"
+      return "as-spacing-" + spacing
+    },
+    //.......................................
     fieldList() {
-      console.log("fieldList")
       let list = []
       if(_.isArray(this.config.fields)) {
         for(let fld of this.config.fields) {
@@ -92,5 +96,29 @@ export default {
       //console.log("invalid", payload)
       this.$emit("invalid", payload)
     }
+  },
+  //////////////////////////////////////////////////////
+  updated : function() {
+    // Find all field-name Elements
+    let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
+
+    // Reset them to org-width
+    for(let $fldnm of $fldNames) {
+      Ti.Dom.setStyle($fldnm, {width:""})
+    }
+
+    // Get the max-width of them
+    let maxWidth = 0
+    for(let $fldnm of $fldNames) {
+      let rect = Ti.Rects.createBy($fldnm)
+      maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
+    }
+
+    // Wait for whole view rendered, and align the field-name
+    this.$nextTick(()=>{
+      for(let $fldnm of $fldNames) {
+        Ti.Dom.setStyle($fldnm, {width:maxWidth})
+      }
+    })
   }
 }

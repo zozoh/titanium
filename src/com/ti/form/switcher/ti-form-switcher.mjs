@@ -9,7 +9,7 @@ export default {
   props : {
     "value" : null,
     "multi" : false,
-    "data" : {
+    "options" : {
       type : [Array, Function],
       default : ()=>[]
     },
@@ -131,17 +131,17 @@ export default {
     //......................................
     async reload() {
       // Dynamic value
-      if(_.isFunction(this.data)) {
+      if(_.isFunction(this.options)) {
         this.loading = true
-        this.items = await this.data(this.value)
+        this.items = await this.options(this.value)
         if(!_.isArray(this.items)){
           this.items = []
         }
         this.loading = false
       }
       // Static value
-      else if(_.isArray(this.data)){
-        this.items = [].concat(this.data)
+      else if(_.isArray(this.options)){
+        this.items = [].concat(this.options)
       }
     },
     //......................................

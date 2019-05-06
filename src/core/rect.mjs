@@ -557,7 +557,7 @@ export const TiRects = {
     }
     // Element
     let rect = $el.getBoundingClientRect()
-    return new Rect(rect)
+    return new Rect(rect, "tlwh")
   },
   //.............................................
   union(...rects) {

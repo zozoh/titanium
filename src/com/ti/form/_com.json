@@ -6,7 +6,8 @@
   "components" : [
     "./com/form-group",
     "./com/form-field",
-    "./input/_com.json",
-    "./switcher/_com.json",
-    "./dropdown/_com.json"]
+    "@com:ti/form/input",
+    "@com:ti/form/toggle",
+    "@com:ti/form/switcher",
+    "@com:ti/form/dropdown"]
 }

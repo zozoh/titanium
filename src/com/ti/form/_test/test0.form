@@ -1,5 +1,6 @@
 {
   "json": true,
+  "dspacing" : "tiny",
   "fields" : [{
       "name" : "name"
     }, {
@@ -7,7 +8,8 @@
       "type" : "Number"
     }, {
       "name" : "great",
-      "type" : "Boolean"
+      "type" : "Boolean",
+      "comType" : "ti-form-toggle"
     }, {
       "name" : "lbls",
       "type" : "Array"
@@ -18,7 +20,7 @@
       "comType" : "ti-form-switcher",
       "comConf" : {
         "multi" : false,
-        "data" : [
+        "options" : [
           {"value":"live", "text":"生"},
           {"value":"quanta", "text":"量子"},
           {"value":"dead", "text":"死"}]
@@ -29,7 +31,7 @@
       "comType" : "ti-form-dropdown",
       "comConf" : {
         "multi" : true,
-        "data" : [
+        "options" : [
           {"value":"A", "text":"程序员"},
           {"value":"B", "text":"架构师"},
           {"value":"C", "text":"设计师"},
@@ -41,7 +43,7 @@
       "comType" : "ti-form-dropdown",
       "comConf" : {
         "cached" : true,
-        "data" : {
+        "options" : {
           "method" : "Wn.Sys.exec2",
           "args"   : ["obj ~/* -cqn -e '^(id|nm|title|icon)$' -l -json"]
         },

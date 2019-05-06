@@ -1,5 +1,9 @@
 export default {
   props : {
+    "meta" : {
+      type : Object,
+      default : ()=>({})
+    },
     "config" : {
       type : Object,
       default : null

@@ -1,4 +1,5 @@
-<div class="ti-form">
+<div class="ti-form"
+  :class="formClass">
   <template v-for="fld in fieldList">
     <ti-form-group v-if="'Group' == fld.type"
       v-bind="fld"

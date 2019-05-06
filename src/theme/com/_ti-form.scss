@@ -1,3 +1,39 @@
 .ti-form {
-  padding:.1rem;
+  .form-field {
+    @include flex-align;
+    > .field-name  {
+      @include flex-align;
+      flex:0 0 auto;
+      line-height: 2.6em;
+      > .name-status {
+        flex:1 1 auto;
+      }
+    }
+    > .field-value {
+      @include flex-align-center;
+      flex:1 1 auto;
+      > .field-component {
+        @include flex-align-center;
+      }
+    }
+  }
+  //----------------------------------
+  &.as-spacing-comfy {
+    padding:.2rem;
+    .form-field {
+      padding:.08rem;
+      > .field-name  {padding:0 .08rem;}
+      > .field-value {padding:0 .08rem;}
+    }
+  }
+  //----------------------------------
+  &.as-spacing-tiny {
+    padding:.1rem;
+    .form-field {
+      padding:.04rem;
+      > .field-name  {padding:0 .05rem;}
+      > .field-value {padding:0 .05rem;}
+    }
+  }
+  //----------------------------------
 }

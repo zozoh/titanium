@@ -31,6 +31,10 @@ Define the schema(`Object`) of  data presentation.
   json : {
     tabs : '   '    // tabs, default 3 whitespaces
   },
+  // it will render class to root element
+  //  - `tiny`  : "as-spacing-tiny"
+  //  - `comfy` : "as-spacing-comfy"
+  spacing : "comfy",
   // Form fields
   fields : [{
     // @see `Data Type`
