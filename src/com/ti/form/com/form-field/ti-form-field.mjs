@@ -7,8 +7,8 @@ function VAL(vm, val) {
   if(_.isUndefined(val) && !_.isUndefined(vm.undefinedAs)){
     v2 = _.cloneDeep(vm.undefinedAs)
   }
-  if(_.isNull(val) && !_.isNull(this.nullAs)){
-    v2 = _.cloneDeep(this.nullAs)
+  if(_.isNull(val) && !_.isNull(vm.nullAs)){
+    v2 = _.cloneDeep(vm.nullAs)
   }
   return v2
 }

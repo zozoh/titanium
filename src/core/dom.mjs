@@ -84,6 +84,12 @@ export const TiDom = {
       })
     }
   },
+  watchDocument(event, handler) {
+    document.addEventListener(event, handler);
+  },
+  unwatchDocument(event, handler) {
+    document.removeEventListener(event, handler);
+  },
   watchAutoRootFontSize(options={}) {
     let $win = options.$win || window
     // Watch the window resizing

@@ -1,0 +1,6 @@
+{
+  "name" : "ti-form-switcher",
+  "globally" : true,
+  "template" : "./ti-form-switcher.html",
+  "mixins" : ["./ti-form-switcher.mjs"]
+}

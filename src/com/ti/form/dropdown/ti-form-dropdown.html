@@ -8,6 +8,7 @@
         class="as-multi">
         <li v-for="it in selectedItems" :key="it.value">
           <ti-icon
+            class="it-icon"
             v-if="it.icon" 
             :value="it.icon"/>
           <span
@@ -30,6 +31,7 @@
     <div v-else
       class="as-single">
       <ti-icon
+        class="it-icon"
         v-if="theItem.icon" 
         :value="theItem.icon"/>
       <span class="it-text">{{theItem.text|i18n}}</span>
@@ -37,8 +39,7 @@
     <div class="dd-btn">
       <ti-icon
         v-if="loading"
-        value="zmdi-settings zmdi-hc-spin"
-      />
+        value="zmdi-settings zmdi-hc-spin"/>
       <ti-icon 
         v-else-if="showDropdown"
         value="zmdi-chevron-up"/>

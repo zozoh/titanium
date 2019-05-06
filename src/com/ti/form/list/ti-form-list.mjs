@@ -1,6 +1,7 @@
 export default {
   data : ()=>({
-    lastIndex : 0
+    lastIndex  : 0,
+    focusIndex : -1
   }),
   //////////////////////////////////////////
   props : {
@@ -34,14 +35,18 @@ export default {
   //////////////////////////////////////////
   computed : {
     formedList() {
+      let vm = this
       let mapping = _.defaults({...this.mapping}, {
         icon     : "icon",
         text     : "text",
         value    : "value",
         tip      : "tip",
-        selected : "selected"
+        selected : "selected",
       })
-      return Ti.Util.mapping(this.list, this.mapping)
+      return Ti.Util.mapping(this.list, mapping, (it, index)=>{
+        it.focused = (index == vm.focusIndex)
+        return it
+      })
     },
     //......................................
     hasIcon() {
@@ -55,10 +60,12 @@ export default {
   //////////////////////////////////////////
   methods : {
     itemClass(it) {
-      if(it.selected) {
-        return "is-selected"
+      return {
+        "is-selected" : it.selected,
+        "is-focused"  : it.focused
       }
     },
+    //......................................
     onClick(index, eo) {
       // Multi mode
       if(this.multi) {
@@ -98,10 +105,25 @@ export default {
       }
       // remember the last
       this.lastIndex = index
+    },
+    //......................................
+    onMouseDown(index, eo) {
+      this.focusIndex = index
     }
   },
   //////////////////////////////////////////
   updated : function(){
     this.lastIndex = 0
+  },
+  //////////////////////////////////////////
+  mounted : function() {
+    let vm = this
+    this.__on_mouseup = function(index){
+      vm.focusIndex = -1
+    }
+    Ti.Dom.watchDocument("mouseup", this.__on_mouseup)
+  },
+  beforeDestroy : function(){
+    Ti.Dom.unwatchDocument("mouseup", this.__on_mouseup)
   }
 }

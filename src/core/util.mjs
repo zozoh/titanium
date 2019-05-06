@@ -109,17 +109,23 @@ export const TiUtil = {
    * 
    * @param source{Object|Array} - Source to apply mapping
    * @param mapping{Object} - Mapping
+   * @param customizer{Function} - Customized with params
+   *                `(result, index, source)`
+   *                only when source is `Array`
    * 
    * @return `Object|Array`
    */
-  mapping(source={}, mapping={}) {
+  mapping(source={}, mapping={}, customizer=_.identity) {
     if(_.isEmpty(mapping))
       return source
     // Array
     if(_.isArray(source)) {
       let re = []
-      for(let it of source) {
-        re.push(TiUtil.mapping(it, mapping))
+      for(let i=0; i<source.length; i++) {
+        let it = source[i]
+        let result = TiUtil.mapping(it, mapping)
+        let t2 = customizer(result, i, source)
+        re.push(t2)
       }
       return re
     }

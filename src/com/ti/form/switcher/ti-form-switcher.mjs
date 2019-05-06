@@ -1,18 +1,12 @@
 export default {
   data : ()=>({
     "loading" : false,
-    "showDropdown" : false,
-    "items" : []
+    "items" : [],
+    "lastIndex"  : 0,
+    "focusIndex" : -1
   }),
   /////////////////////////////////////////
   props : {
-    "empty" :{
-      type : Object,
-      default : ()=>({
-        text  : "i18n:no-selected",
-        value : undefined
-      })
-    },
     "value" : null,
     "multi" : false,
     "data" : {
@@ -23,25 +17,12 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "defaultIcon" : null,
     "cached" : {
       type : Boolean,
       default : true
-    }
-  },
-  //////////////////////////////////////////
-  watch : {
-    "showDropdown" : function(newVal, oldVal) {
-      // If show, make sure items loaded
-      if(true === newVal) {
-        this.tryReload().then(()=>{
-          let $box   = this.$refs.box
-          let $drop  = this.$refs.drop
-          let r_box  = Ti.Rects.createBy($box)
-          Ti.Dom.dockTo($drop, $box, {space:{y:1}})
-          Ti.Dom.setStyle($drop, {width:r_box.width})
-        })
-      }
+    },
+    "nullAs" : {
+      default : null
     }
   },
   //////////////////////////////////////////
@@ -50,11 +31,8 @@ export default {
       return !_.isEmpty(this.items)
     },
     //......................................
-    droplist() {
+    formedList() {
       let reList = []
-      if(!this.multi) {
-        reList.push(this.empty)
-      }
       //console.log("droplist")
       if(!_.isEmpty(this.items)) {
         let mapping = _.defaults({...this.mapping}, {
@@ -64,7 +42,8 @@ export default {
           tip      : "tip",
           selected : "selected"
         })
-        for(let it of this.items) {
+        for(let i=0 ; i<this.items.length; i++) {
+          let it = this.items[i]
           let re = Ti.Util.mapping(it, mapping)
           // Default Icon
           if(!re.icon)
@@ -77,68 +56,71 @@ export default {
           re.selected = this.multi
                 ? _.indexOf(this.value, re.value) >= 0
                 : _.isEqual(this.value, re.value)
+          // Focused
+          re.focused = (i == this.focusIndex)
           // Join to list
           reList.push(re)
         }
       }
-      //console.log(reList)
       return reList
-    },
-    //......................................
-    hasSelecteds() {
-      return this.selectedItems.length > 0
-    },
-    //......................................
-    // For Single mode
-    theItem() {
-      if(this.hasSelecteds){
-        return _.get(this.selectedItems, 0)
-      }
-      return this.empty
-    },
-    //......................................
-    // For Multi mode
-    selectedItems() {
-      let selects = []
-      for(let it of this.droplist) {
-        if(this.isSelectedItem(it)) {
-          selects.push(it)
-          if(!this.multi)
-            break
-        }
-      }
-      return selects
     }
   },
   //////////////////////////////////////////
   methods : {
     //......................................
-    onChanged(payload) {
-      this.$emit("changed", payload)
-      if(!this.multi) {
-        this.showDropdown = false
+    onClick(index, eo) {
+      // Multi mode
+      if(this.multi) {
+        let vals = []
+        // Shift mode
+        if(eo.shiftKey) {
+          let minIndex = Math.min(index, this.lastIndex)
+          let maxIndex = Math.max(index, this.lastIndex)
+          _.forEach(this.formedList, (it, i)=>{
+            if(i>=minIndex && i<=maxIndex) {
+              vals.push(it.value)
+            }
+          })
+        }
+        // Toggle mode
+        else {
+          _.forEach(this.formedList, (it, i)=>{
+            // The item which to be click, toggle
+            if(index == i) {
+              if(!it.selected) {
+                vals.push(it.value)
+              }
+            }
+            // Others
+            else if(it.selected) {
+              vals.push(it.value)
+            }
+          })
+        }
+        // Emit the value
+        this.$emit("changed", vals)
       }
-    },
-    //......................................
-    onRemoveItem(rmIt) {
-      let payload = []
-      for(let it of this.selectedItems){
-        if(!_.isEqual(it.value, rmIt.value)){
-          payload.push(it.value)
+      // Single mode
+      else {
+        let it = this.formedList[index]
+        // if can be null, click selected item will cancel it
+        if(it.selected && !_.isUndefined(this.nullAs)) {
+          this.$emit("changed", this.nullAs)
+        }
+        // Always keep selected
+        else if(!it.selected) {
+          this.$emit("changed", it.value)
         }
       }
-      this.$emit("changed", payload)
+      // remember the last
+      this.lastIndex = index
     },
     //......................................
-    isSelectedItem(it={}) {
-      if(this.multi) {
-        return _.indexOf(this.value, it.value) >= 0
+    itemClass(it) {
+      return {
+        "is-selected" : it.selected,
+        "is-focused"  : it.focused
       }
-      return _.isEqual(this.value, it.value)
-    },
-    //......................................
-    toggleShowDrop() {
-      this.showDropdown = !this.showDropdown
     },
     //......................................
     async tryReload(){
@@ -161,11 +143,23 @@ export default {
       else if(_.isArray(this.data)){
         this.items = [].concat(this.data)
       }
+    },
+    //......................................
+    onMouseDown(index, eo) {
+      this.focusIndex = index
     }
     //......................................
   },
   /////////////////////////////////////////
   mounted : async function(){
     await this.tryReload()
+    let vm = this
+    this.__on_mouseup = function(index){
+      vm.focusIndex = -1
+    }
+    Ti.Dom.watchDocument("mouseup", this.__on_mouseup)
+  },
+  beforeDestroy : function(){
+    Ti.Dom.unwatchDocument("mouseup", this.__on_mouseup)
   }
 }

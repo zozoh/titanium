@@ -902,6 +902,9 @@ a:hover {
   .ti-form-list li.is-selected {
     color: #FFF;
     background-color: #ff4081; }
+  .ti-form-list li.is-focused {
+    color: #2196f3;
+    background-color: #cce8ff; }
   .ti-form-list li > .it-icon {
     display: flex;
     justify-content: center;
@@ -910,10 +913,7 @@ a:hover {
     flex-wrap: wrap;
     width: .32rem; }
   .ti-form-list li > .it-text {
-    transition: 0.2s;
     padding: 0 0.1rem 0 .04rem; }
-  .ti-form-list li:hover > .it-text {
-    transform: translateX(4px) scale(1.2); }
 
 .ti-form-input input {
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -1002,6 +1002,45 @@ a:hover {
     box-shadow: 0.03rem 0.03rem 0.06rem rgba(50, 50, 50, 0.4);
     position: fixed;
     z-index: 1000; }
+
+.ti-form-switcher {
+  user-select: none;
+  display: inline-block;
+  vertical-align: middle; }
+  .ti-form-switcher ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    flex-wrap: nowrap;
+    border: 1px solid rgba(0, 0, 0, 0.1); }
+  .ti-form-switcher li {
+    color: #888;
+    background-color: #FFF;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    cursor: pointer;
+    padding: .5em;
+    min-width: 3em;
+    line-height: 1em;
+    text-align: center; }
+    .ti-form-switcher li:first-child {
+      border-left: 0; }
+    .ti-form-switcher li.is-selected {
+      color: #FFF;
+      background-color: #4caf50; }
+    .ti-form-switcher li.is-focused {
+      color: #2196f3;
+      background-color: #cce8ff; }
+    .ti-form-switcher li > .it-text {
+      padding: 0 .04rem; }
 
 .wn-list-adaptview {
   position: relative; }

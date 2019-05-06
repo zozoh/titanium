@@ -2,7 +2,8 @@
   <ul>
     <li v-for="(it, index) in formedList" 
       :class="itemClass(it)"
-      @click="onClick(index, $event)">
+      @click="onClick(index, $event)"
+      @mousedown="onMouseDown(index, $event)">
       <span v-if="hasIcon"
         class="it-icon">
         <ti-icon 

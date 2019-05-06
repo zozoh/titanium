@@ -7,5 +7,6 @@
     "./com/form-group",
     "./com/form-field",
     "./input/_com.json",
+    "./switcher/_com.json",
     "./dropdown/_com.json"]
 }
