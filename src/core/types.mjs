@@ -108,7 +108,9 @@ export const TiTypes = {
     }
     let n = 1 * val
     if(isNaN(n)){
-      throw 'i18n:invalid-number'
+      // console.log("invalid number")
+      // throw 'i18n:invalid-number'
+      return NaN
     }
     return n
   },
@@ -119,7 +121,8 @@ export const TiTypes = {
     }
     let n = parseInt(val)
     if(isNaN(n)){
-      throw 'i18n:invalid-number'
+      //throw 'i18n:invalid-integer'
+      return NaN
     }
     return n
   },

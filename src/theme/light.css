@@ -880,6 +880,14 @@ a:hover {
       .ti-text-raw .te-main textarea:focus {
         border-color: #ff4081; }
 
+.ti-form .form-group {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+  .ti-form .form-group:last-child {
+    border: 0; }
+  .ti-form .form-group .group-title {
+    user-select: none; }
+  .ti-form .form-group .group-fields {
+    border-top: 1px solid rgba(0, 0, 0, 0.1); }
 .ti-form .form-field {
   display: flex;
   justify-content: flex-start;
@@ -911,6 +919,11 @@ a:hover {
       flex-wrap: wrap; }
 .ti-form.as-spacing-comfy {
   padding: .2rem; }
+  .ti-form.as-spacing-comfy .form-group .group-title {
+    line-height: 2em;
+    padding: .12rem .1rem .06rem; }
+  .ti-form.as-spacing-comfy .form-group .group-fields {
+    padding: .1rem 0; }
   .ti-form.as-spacing-comfy .form-field {
     padding: .08rem; }
     .ti-form.as-spacing-comfy .form-field > .field-name {
@@ -919,6 +932,11 @@ a:hover {
       padding: 0 .08rem; }
 .ti-form.as-spacing-tiny {
   padding: .1rem; }
+  .ti-form.as-spacing-tiny .form-group .group-title {
+    line-height: 1.4em;
+    padding: .08rem .1rem .04rem; }
+  .ti-form.as-spacing-tiny .form-group .group-fields {
+    padding: .1rem 0; }
   .ti-form.as-spacing-tiny .form-field {
     padding: .04rem; }
     .ti-form.as-spacing-tiny .form-field > .field-name {

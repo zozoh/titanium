@@ -38,7 +38,7 @@ Define the schema(`Object`) of  data presentation.
   // Form fields
   fields : [{
     // @see `Data Type`
-    type  : "Object",
+    type  : "Object
     // field modes
     disabled : false,
     hidden   : false,
@@ -55,6 +55,8 @@ Define the schema(`Object`) of  data presentation.
     undefinedAs : undeinfed,
     // If value is null, it will be applied
     nullAs : null,
+    // If value if NaN, it willl be applied
+    nanAs : -1,
     // The component name, if undefined, it will auto evaluate by `type`
     comType : "ti-form-input",
     // The component properties, default is `undefined`

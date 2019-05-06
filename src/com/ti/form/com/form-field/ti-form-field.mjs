@@ -10,6 +10,9 @@ function VAL(vm, val) {
   if(_.isNull(val) && !_.isNull(vm.nullAs)){
     v2 = _.cloneDeep(vm.nullAs)
   }
+  if(vm.isNumberType && isNaN(val)) {
+    v2 = vm.nanAs
+  }
   return v2
 }
 //-------------------------------------------
@@ -25,6 +28,10 @@ export default {
         title, icon, message, status, tip,
         name : (title || icon)
       }
+    },
+    //.......................................  
+    isNumberType() {
+      return /^(Number|Integer|AMS)$/.test(this.type)
     },
     //.......................................  
     fieldTitle() {

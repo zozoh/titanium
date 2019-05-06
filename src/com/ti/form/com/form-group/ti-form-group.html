@@ -1,3 +1,19 @@
 <div class="form-group">
-  I am form group
+  <div class="group-title">
+    <ti-icon
+      v-if="show.icon" 
+      :value="icon"/>
+    <span
+      v-if="show.title"
+      class="name-title">{{title|i18n}}</span>
+  </div>
+  <div class="group-fields">
+      <ti-form-field v-for="fld in fields"
+        :key="fld.key"
+        v-bind="fld"
+        :data="data"
+        :status-icons="statusIcons"
+        @changed="onChanged"
+        @invalid="onInvalid"/>
+  </div>
 </div>

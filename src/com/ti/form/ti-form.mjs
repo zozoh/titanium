@@ -36,6 +36,40 @@ function formFunc(config={}, fld, fnType){
   }
 }
 //-----------------------------------------
+function normlizeFormField(vm, fld, nbs=[]) {
+  let f2;
+  // For group
+  if('Group' == fld.type) {
+    f2 = {
+      type  : "Group",
+      icon  : fld.icon,
+      title : fld.title,
+      fields : []
+    }
+    // Recur ...
+    for(let i=0; i<fld.fields.length; i++) {
+      let subFld = fld.fields[i]
+      let sub2 = normlizeFormField(vm, subFld, [...nbs, i])
+      f2.fields.push(sub2)
+    }
+  }
+  // Normal field
+  else {
+    f2 = _.cloneDeep(fld)
+    f2.type = f2.type || "String"
+
+    // Tidy form function
+    f2.serializer  = formFunc(vm.config, f2, "serializer")
+    f2.transformer = formFunc(vm.config, f2, "transformer")
+  }
+  // field key
+  f2.key = fld.name 
+            ? [].concat(fld.name).join("-")
+            : "ti-fld-" + nbs.join("-")
+  // return it
+  return f2
+}
+//-----------------------------------------
 export default {
   //////////////////////////////////////////////////////
   props : {
@@ -66,17 +100,9 @@ export default {
     fieldList() {
       let list = []
       if(_.isArray(this.config.fields)) {
-        for(let fld of this.config.fields) {
-          let f2 = _.cloneDeep(fld)
-          f2.type = f2.type || "String"
-
-          // Tidi form function
-          f2.serializer  = formFunc(this.config, f2, "serializer")
-          f2.transformer = formFunc(this.config, f2, "transformer")
-          //console.log(f2)
-
-          // Add to list
-          list.push(f2)
+        for(let i=0; i<this.config.fields.length; i++) {
+          let fld = normlizeFormField(this, this.config.fields[i], [i])
+          list.push(fld)
         }
       }
       return list

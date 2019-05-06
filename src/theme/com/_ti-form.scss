@@ -1,4 +1,18 @@
 .ti-form {
+  //----------------------------------
+  .form-group {
+    @include border(1px, solid, shallow, bottom);
+    &:last-child {
+      border:0
+    }
+    .group-title {
+      @include noselect;
+    }
+    .group-fields {
+      @include border(1px, solid, shallow, top);
+    }
+  }
+  //----------------------------------
   .form-field {
     @include flex-align;
     > .field-name  {
@@ -20,6 +34,15 @@
   //----------------------------------
   &.as-spacing-comfy {
     padding:.2rem;
+    .form-group {
+      .group-title {
+        line-height:2em;
+        padding:.12rem .1rem .06rem;
+      }
+      .group-fields {
+        padding:.1rem 0;
+      }
+    }
     .form-field {
       padding:.08rem;
       > .field-name  {padding:0 .08rem;}
@@ -29,6 +52,15 @@
   //----------------------------------
   &.as-spacing-tiny {
     padding:.1rem;
+    .form-group {
+      .group-title {
+        line-height:1.4em;
+        padding:.08rem .1rem .04rem;
+      }
+      .group-fields {
+        padding:.1rem 0;
+      }
+    }
     .form-field {
       padding:.04rem;
       > .field-name  {padding:0 .05rem;}

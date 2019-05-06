@@ -4,8 +4,11 @@
     <ti-form-group v-if="'Group' == fld.type"
       v-bind="fld"
       :data="data"
-      :status-icons="config.statusIcons"/>
+      :status-icons="config.statusIcons"
+      @changed="onChanged"
+      @invalid="onInvalid"/>
     <ti-form-field v-else
+      :key="fld.key"
       v-bind="fld"
       :data="formData"
       :status-icons="config.statusIcons"

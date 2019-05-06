@@ -1,7 +1,7 @@
 export default {
   "type" : {
     type : String,
-    default : "Group"
+    default : "String"
   },
   "disabled" : {
     type : Boolean,
@@ -40,6 +40,10 @@ export default {
   },
   "nullAs" : {
     default : null
+  },
+  "nanAs" : {
+    type : Number,
+    default : -1
   },
   "comType" : {
     type : String,
