@@ -18,11 +18,7 @@ export default {
     },
     "status" : {
       type : Object,
-      default : ()=>({
-        "changed"   : false,
-        "saving"    : false,
-        "reloading" : false
-      })
+      default : ()=>({})
     }
   },
   computed : {

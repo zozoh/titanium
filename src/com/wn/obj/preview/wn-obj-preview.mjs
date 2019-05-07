@@ -10,9 +10,7 @@ export default {
     },
     "status" : {
       type : Object,
-      default : ()=>({
-        "fullscreen" : false
-      })
+      default : ()=>({})
     }
   },
   computed : {

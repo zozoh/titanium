@@ -14,7 +14,7 @@ export default {
     },
     "status" : {
       type : Object,
-      default : null
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////////////////

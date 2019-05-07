@@ -65,7 +65,7 @@ export default {
       }
       
       commit("set", {status:{reloading:true}})
-      let content = await Wn.Io.loadContentAsText(meta)
+      let content = await Wn.Io.loadContent(meta)
       commit("set", {
         meta, 
         content, 

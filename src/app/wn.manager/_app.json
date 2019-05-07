@@ -34,5 +34,5 @@
     "@com:ti/obj/meta",
     "@com:ti/list/tiles",
     "@com:ti/user/info"],
-  "deps" : ["@lib:walnut"]
+  "deps" : []
 }

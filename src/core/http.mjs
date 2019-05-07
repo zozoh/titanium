@@ -13,7 +13,15 @@ const RESP_TRANS = {
     throw "No implement yet!"
   },
   json(content){
-    return JSON.parse(content)
+    let str = _.trim(content) || null
+    return JSON.parse(str)
+  },
+  jsonOrText(content){
+    try{
+      let str = _.trim(content) || null
+      return JSON.parse(str)
+    }catch(E){}
+    return content
   },
   text(content){
     return content

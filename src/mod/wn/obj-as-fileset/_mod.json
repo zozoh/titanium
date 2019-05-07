@@ -1,0 +1,6 @@
+{
+  "name" : "wn-obj-as-fileset",
+  "namespaced" : true,
+  "state" : "./wn-obj-as-fileset.json",
+  "mixins" : "./wn-obj-as-fileset.mjs"
+}

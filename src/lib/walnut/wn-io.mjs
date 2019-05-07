@@ -82,7 +82,7 @@ export const WnIo = {
   /***
    * Get obj content by meta:
    */
-  async loadContentAsText(meta) {
+  async loadContent(meta, {as="text"}={}) {
     if(!meta || 'DIR' == meta.race) {
       return null
     }
@@ -90,14 +90,13 @@ export const WnIo = {
     // PureText
     if(WnUtil.isMimeText(mime)) {
       let url = URL("content")
-      let text = await Ti.Http.get(url, {
+      let content = await Ti.Http.get(url, {
         params: {
           str : "id:" + meta.id,
           d   : "raw"
-        }, 
-        as:"text"})
+        }, as})
       // Others just return pure text content
-      return text
+      return content
     }
 
     // Others just return the SHA1 finger

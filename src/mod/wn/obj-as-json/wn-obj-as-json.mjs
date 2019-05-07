@@ -59,9 +59,7 @@ export default {
       }
       
       commit("set", {status:{reloading:true}})
-      let json = await Wn.Io.loadContentAsText(meta)
-      json = _.trim(json) || null
-      let data = JSON.parse(json)
+      let data = await Wn.Io.loadContent(meta, {as:"json"})
       commit("set", {
         meta, 
         data, 

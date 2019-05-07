@@ -6,6 +6,10 @@ export const WnUtil = {
            || "application/x-javascript" == mime
            || "application/json" == mime
   },
+  isMimeJson(mime) {
+    return "text/json" == mime
+           || "application/json" == mime
+  },
   // adapt for old versiton walnut icon attribute
   getIconName(iconHtml) {
     let m = /^<i +class=["'] *(fa|zmdi|im) +(fa|zmdi|im)-([^" ]+) *["']> *<\/i>$/

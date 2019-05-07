@@ -1,0 +1,15 @@
+{
+  "meta": null,
+  "files": [],
+  "config" : {
+    "json" : true
+  },
+  "current" : null,
+  "data": null,
+  "__saved_data" : null,
+  "status" : {
+    "changed"   : false,
+    "saving"    : false,
+    "reloading" : false
+  }
+}

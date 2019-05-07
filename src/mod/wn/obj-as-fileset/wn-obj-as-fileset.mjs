@@ -1,28 +1,38 @@
 // Ti required(Wn)
 //---------------------------------------
 export default {
+  ////////////////////////////////////////////
   mutations : {
+    //------------------------------------------
     set(state, {
-      meta, config, data, __saved_data, status
+      meta, files, current, config, data, __saved_data, status
     }={}) {
       // Meta
       if(!_.isUndefined(meta))
         state.meta = _.cloneDeep(meta)
+      // files
+      if(!_.isUndefined(files))
+        state.files = [].concat(files)
+      // current file
+      if(!_.isUndefined(current))
+        state.current = _.cloneDeep(current)
+      // config
+      if(!_.isUndefined(current))
+        state.current = _.cloneDeep(current)
       // Data
       if(!_.isUndefined(config))
         state.config = _.cloneDeep(config)
-      // Data
-      if(!_.isUndefined(data))
-        state.data = _.cloneDeep(data)
       // SavedData
       if(!_.isUndefined(__saved_data))
         state.__saved_data = _.cloneDeep(__saved_data)
       // Status
       _.assign(state.status, status)
     },
+    //------------------------------------------
     syncStatusChanged(state){
       state.status.changed = !_.isEqual(state.data, state.__saved_data)
     },
+    //------------------------------------------
     /***
      * Update the data and `status.changed`
      */
@@ -35,33 +45,19 @@ export default {
       else if(_.isString(name) && name) {
         state.data[name] = _.cloneDeep(value)
       }
-    },
-    /***
-     * Change the field status
-     */
-    changeStatus(state, {name, message, status}={}) {
-      // Find the field
-      if(state.config && _.isArray(state.config.fields)) {
-        for(let fld of state.config.fields) {
-          if(_.isEqual(fld.name, name)) {
-            Vue.set(fld, "status", status)
-            Vue.set(fld, "message", message)
-          }
-        }
-      }
     }
   },
-  //.....................................
+  ////////////////////////////////////////////
   actions : {
     /***
      * Update the data and `status.changed`
      */
     update({state, commit}, {name, value}={}){
       commit("update", {name, value})
-      commit("changeStatus", {name})
       commit("syncStatusChanged")
       commit("set", {data: state.data})
     },
+    //------------------------------------------
     /***
      * Save content to remote
      */
@@ -70,7 +66,7 @@ export default {
         return
       }
 
-      let meta   = state.meta
+      let meta   = state.current
       let data   = state.data
       let config = state.config
       let json = config.json 
@@ -81,7 +77,7 @@ export default {
       commit("set", {status:{saving:true}})
       let newMeta = await Wn.Io.saveContentAsText(meta, json)
       commit("set", {
-        meta: newMeta, 
+        current: newMeta, 
         __saved_data : json,
         status:{saving:false}
       })
@@ -90,6 +86,39 @@ export default {
       // return the new meta
       return state.meta
     },
+    //------------------------------------------
+    /**
+     * Load curretn file
+     */
+    async loadCurrentFile({state, commit}, current) {
+      if(state.status.reloading){
+        return
+      }
+
+      // Get Current Object
+      current = current || state.current
+      if(!current) {
+        return
+      }
+
+      // Declare to loading
+      commit("set", {status:{reloading:true}})
+
+      // Load data
+      let data = await Wn.Io.loadContent(current, {as:"jsonOrText"})
+
+      // reset data
+      commit("set", {
+        current, data,
+        __saved_data : data,
+        status:{reloading:false}
+      })
+      commit("syncStatusChanged")
+
+      // return the root state
+      return state
+    },
+    //------------------------------------------
     /***
      * Reload content from remote
      */
@@ -106,37 +135,26 @@ export default {
       // Declare to loading
       commit("set", {status:{reloading:true}})
 
-      // The loading result
-      let json
-      
-      // Load config
-      let config = {}
-      if(meta.form) {
-        let pph = Ti.Util.getParentPath(meta.ph)
-        let aph = Ti.Util.appendPath(pph, meta.form)
-        let formMeta = await Wn.Io.loadMeta(aph)
-        json = await Wn.Io.loadContent(formMeta, {as:"json"})
-        config = json || {}
+      // Load files
+      let files = state.files
+      if(!files || files.length == 0) {
+        let result = await Wn.Io.loadChildren(meta)
+        if(result) {
+          files = result.list || []
+        }
       }
-      // set defaults to config
-      config = _.defaults(config, {
-        serializers  : {},
-        transformers : {},
-        statusIcons : {
-          spinning : 'fas-spinner fa-spin',
-          error    : 'zmdi-alert-polygon',
-          warn     : 'zmdi-alert-triangle',
-          ok       : 'zmdi-check-circle',
-        },
-        fields: []
-      })
 
-      // Load data
-      let data = await Wn.Io.loadContent(meta, {as:"json"})
+      // Try current
+      let current = state.current
+      let data = null
+
+      if(current) {
+        data = await Wn.Io.loadContent(current, {as:"jsonOrText"})        
+      }
 
       // reset data
       commit("set", {
-        meta, data, config,
+        meta, files, current, data,
         __saved_data : data,
         status:{reloading:false}
       })
