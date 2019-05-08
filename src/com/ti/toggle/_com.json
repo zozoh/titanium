@@ -1,0 +1,6 @@
+{
+  "name" : "ti-toggle",
+  "globally" : true,
+  "template" : "./ti-toggle.html",
+  "mixins" : ["./ti-toggle.mjs"]
+}

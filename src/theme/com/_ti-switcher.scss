@@ -1,0 +1,26 @@
+.ti-switcher {
+  @include noselect;
+  display:inline-block;
+  vertical-align: middle;
+  ul {
+    @include raw-list;
+    @include flex-align($wp:nowrap);
+    @include border(1px, solid, shallow);
+  }
+  li {
+    @include color($color-track, c, r);
+    @include border(1px, solid, shallow, left);
+    @include flex-align-center;
+    &:first-child{border-left:0;}
+    cursor:pointer;
+    padding:.5em; min-width:3em;
+    line-height:1em; text-align:center;
+    &.is-selected {
+      @include color($color-success, r, c);
+    }
+    &.is-focused {
+      @include color($color-selected, r, c);
+    }
+    > .it-text {padding:0 .04rem;}
+  }
+}

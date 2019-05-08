@@ -1,0 +1,6 @@
+{
+  "name" : "ti-label",
+  "globally" : true,
+  "template" : "./ti-label.html",
+  "mixins" : ["./ti-label.mjs"]
+}

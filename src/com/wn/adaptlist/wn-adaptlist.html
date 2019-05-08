@@ -1,0 +1,27 @@
+<div class="wn-adaptlist" v-drop-files.mask="onDropFiles">
+  <ti-loading v-if="status.reloading" 
+    text="i18n:reloading"/>
+  <ti-tiles v-else
+    class="ti-fill-parent"
+    :list="objList"
+    @selected="onItemSelected"
+    @open="onItemOpen"
+    @blur="onItemBlur"/>
+  <input 
+    type="file" 
+    ref="file" 
+    class="ti-hide"
+    multiple
+    @change.stop.seft="onSelectLocalFilesToUpload">
+  <div
+    class="wal-uploading"
+    :class="uploadingClass">
+    <header>
+      <ti-icon value="fas-spinner fa-pulse"/>
+      <span>{{'uploading'|i18n}}</span>
+    </header>
+    <section>
+      <ti-tiles :list="uploadingList"/>
+    </section>
+  </div>
+</div>

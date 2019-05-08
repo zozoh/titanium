@@ -32,7 +32,6 @@
     "@com:ti/menu",
     "@com:ti/obj/thumb",
     "@com:ti/obj/meta",
-    "@com:ti/list/tiles",
     "@com:ti/user/info"],
   "deps" : []
 }

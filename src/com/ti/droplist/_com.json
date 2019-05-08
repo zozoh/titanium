@@ -1,0 +1,8 @@
+{
+  "name" : "ti-droplist",
+  "globally" : true,
+  "template" : "./ti-droplist.html",
+  "methods"  : "@com:ti/support/formed_list_methods.mjs",
+  "mixins"   : ["./ti-droplist.mjs"],
+  "components" : ["@com:ti/list"]
+}

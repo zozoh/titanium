@@ -110,7 +110,7 @@
     }
     &.is-collapse {
       &.is-group > .it-info {
-        @include color($color-hint, r, c);
+        @include color($color-cloak, r, c);
         &:after {
           display:block; flex:0 0 auto;
           content:"..."; padding:0 .1em;

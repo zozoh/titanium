@@ -1,6 +1,0 @@
-{
-  "name" : "ti-list-tiles",
-  "globally" : true,
-  "template" : "./ti-list-tiles.html",
-  "mixins" : ["./ti-list-tiles.mjs"]
-}

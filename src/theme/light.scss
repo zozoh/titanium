@@ -8,7 +8,6 @@ $color-info   : (c:#4e9abd, r:#FFF);
 $color-error  : (c:#f44336, r:#FFF);
 $color-track  : (c:#888, r:#FFF);
 $color-disable: (c:rgba(0,0,0,.38), r:rgba(255,255,255,.38));
-$color-hint   : (c:#ccca42, r:#666);
 //...........................................
 $color-paper : (c:#F0F0F0,    r:#444);
 $color-chip  : (c:#e0e0e0, r:#666);
@@ -44,7 +43,7 @@ $color-line: (
 // Include coms
 @import "com/_ti-crumb.scss";
 @import "com/_ti-icon.scss";
-@import "com/_ti-list-tiles.scss";
+@import "com/_ti-tiles.scss";
 @import "com/_ti-loading.scss";
 @import "com/_ti-menu.scss";
 @import "com/_ti-modal.scss";
@@ -58,26 +57,19 @@ $color-line: (
 //-----------------------------------------------------
 // Include form
 @import "com/_ti-form.scss";
-@import "com/form/ti-form-list.scss";
-@import "com/form/ti-form-input.scss";
-@import "com/form/ti-form-input-number.scss";
-@import "com/form/ti-form-dropdown.scss";
-@import "com/form/ti-form-toggle.scss";
-@import "com/form/ti-form-switcher.scss";
-@import "com/form/ti-form-picker.scss";
-@import "com/form/ti-form-pick-date.scss";
-@import "com/form/ti-form-pick-time.scss";
-@import "com/form/ti-form-pick-datetime.scss";
-@import "com/form/ti-form-pick-color.scss";
-@import "com/form/ti-form-image.scss";
+@import "com/_ti-list.scss";
+@import "com/_ti-label.scss";
+@import "com/_ti-input.scss";
+@import "com/_ti-input-num.scss";
+@import "com/_ti-droplist.scss";
+@import "com/_ti-toggle.scss";
+@import "com/_ti-switcher.scss";
+@import "com/_ti-image.scss";
+
 //-----------------------------------------------------
 // Include ex-coms
-@import "com/_wn-list-adaptview.scss";
+@import "com/_wn-adaptlist.scss";
 @import "com/_wn-obj-preview.scss";
 //-----------------------------------------------------
 // Include apps
 @import "com/_wn-manager.scss";
-//-----------------------------------------------------
-
-
-

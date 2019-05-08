@@ -1,6 +1,0 @@
-{
-  "name" : "ti-form-toggle",
-  "globally" : true,
-  "template" : "./ti-form-toggle.html",
-  "mixins" : ["./ti-form-toggle.mjs"]
-}

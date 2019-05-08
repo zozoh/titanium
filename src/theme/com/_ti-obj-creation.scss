@@ -39,7 +39,7 @@
       }
       > .toc-name {
         @include font($f_fixed, 1.1em);
-        @include color($color-hint, c);
+        @include color($color-track, c);
       }
       > .toc-brief {
         @include color($color-h2, r, c);

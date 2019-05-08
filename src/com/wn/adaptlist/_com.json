@@ -1,0 +1,8 @@
+{
+  "name" : "wn-adaptlist",
+  "globally" : true,
+  "template" : "./wn-adaptlist.html",
+  "mixins" : ["./wn-adaptlist.mjs"],
+  "components" : [
+    "@com:ti/tiles"]
+}

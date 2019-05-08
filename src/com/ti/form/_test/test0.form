@@ -2,11 +2,14 @@
   "json": true,
   "dspacing" : "tiny",
   "fields" : [{
+      "name" : "id",
+      "comType" : "ti-label"
+    }, {    
       "name" : "name"
     }, {
       "name" : "great",
       "type" : "Boolean",
-      "comType" : "ti-form-toggle"
+      "comType" : "ti-toggle"
     }, {
       "name" : "lbls",
       "type" : "Array"
@@ -14,7 +17,7 @@
       "name" : "status",
       "type" : "String",
       "title" : "状态",
-      "comType" : "ti-form-switcher",
+      "comType" : "ti-switcher",
       "comConf" : {
         "multi" : false,
         "options" : [
@@ -25,7 +28,7 @@
     }, {
       "name" : "profession",
       "type" : "Array",
-      "comType" : "ti-form-dropdown",
+      "comType" : "ti-droplist",
       "comConf" : {
         "multi" : true,
         "options" : [
@@ -37,7 +40,7 @@
     }, {
       "name" : "home",
       "type" : "String",
-      "comType" : "ti-form-dropdown",
+      "comType" : "ti-droplist",
       "comConf" : {
         "cached" : true,
         "options" : {

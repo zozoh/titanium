@@ -82,7 +82,7 @@ export default {
       let newMeta = await Wn.Io.saveContentAsText(meta, json)
       commit("set", {
         meta: newMeta, 
-        __saved_data : json,
+        __saved_data : data,
         status:{saving:false}
       })
       commit("syncStatusChanged")

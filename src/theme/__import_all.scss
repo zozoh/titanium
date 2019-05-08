@@ -9,7 +9,7 @@
 // Include coms
 @import "com/_ti-crumb.scss";
 @import "com/_ti-icon.scss";
-@import "com/_ti-list-tiles.scss";
+@import "com/_ti-tiles.scss";
 @import "com/_ti-loading.scss";
 @import "com/_ti-menu.scss";
 @import "com/_ti-modal.scss";
@@ -23,22 +23,18 @@
 //-----------------------------------------------------
 // Include form
 @import "com/_ti-form.scss";
-@import "com/form/ti-form-list.scss";
-@import "com/form/ti-form-input.scss";
-@import "com/form/ti-form-input-number.scss";
-@import "com/form/ti-form-dropdown.scss";
-@import "com/form/ti-form-toggle.scss";
-@import "com/form/ti-form-switcher.scss";
-@import "com/form/ti-form-picker.scss";
-@import "com/form/ti-form-pick-date.scss";
-@import "com/form/ti-form-pick-time.scss";
-@import "com/form/ti-form-pick-datetime.scss";
-@import "com/form/ti-form-pick-color.scss";
-@import "com/form/ti-form-image.scss";
+@import "com/_ti-list.scss";
+@import "com/_ti-label.scss";
+@import "com/_ti-input.scss";
+@import "com/_ti-input-num.scss";
+@import "com/_ti-droplist.scss";
+@import "com/_ti-toggle.scss";
+@import "com/_ti-switcher.scss";
+@import "com/_ti-image.scss";
 
 //-----------------------------------------------------
 // Include ex-coms
-@import "com/_wn-list-adaptview.scss";
+@import "com/_wn-adaptlist.scss";
 @import "com/_wn-obj-preview.scss";
 //-----------------------------------------------------
 // Include apps

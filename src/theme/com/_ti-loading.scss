@@ -1,5 +1,5 @@
 .ti-loading {
-  @include color($color-hint, r);
+  @include color($color-track, c);
   > .tl-con {
     @include flex-align($ai:center,$wp:nowrap);
     font-size:1.2em;

@@ -47,7 +47,7 @@ export default {
   },
   "comType" : {
     type : String,
-    default : "ti-form-input"
+    default : "ti-input"
   },
   "comConf" : {
     type : Object,

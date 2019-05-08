@@ -1,6 +1,6 @@
 {
   "comIcon" : "im-archive",
-  "comType" : "@com:wn/list/adaptview",
+  "comType" : "@com:wn/adaptlist",
   "modType" : "@mod:wn/obj-explorer",
   "actions" : [{
       "key"  : "reloading",

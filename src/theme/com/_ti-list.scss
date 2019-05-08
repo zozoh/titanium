@@ -1,0 +1,26 @@
+.ti-list {
+  ul {
+    @include raw-list;
+    padding:1px;
+  }
+  li {
+    @include flex-align($ai:center);
+    @include border(1px, dashed, shallow, top);
+    cursor:pointer;
+    padding:.02rem .06rem;
+    &:first-child {border-top:0;}    
+    &.is-selected {
+      @include color($color-secondary, r, c);
+    }
+    &.is-focused {
+      @include color($color-selected, r, c);
+    }
+    > .it-icon {
+      @include flex-center;
+      width:.32rem;
+    }
+    > .it-text {
+      padding:0 0.1rem 0 .04rem;
+    }
+  }
+}

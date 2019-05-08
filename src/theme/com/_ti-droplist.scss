@@ -1,0 +1,65 @@
+.ti-droplist {
+  @include noselect;
+  display:inline-block; vertical-align: middle;
+  //----------------------------------------------
+  .dl-box {
+    @include flex-align;
+    @include text-input;
+    min-width: 2rem;
+    cursor:pointer;
+    //--------------------------------------------
+    > .as-single, >.as-multi, .as-empty {flex:1 1 auto;}
+    //--------------------------------------------
+    > .dl-btn {flex:0 0 auto; padding:0 .06rem;}
+    //--------------------------------------------
+    > .as-single {
+      padding:.02rem 0 .02rem .1rem;
+    }
+    //--------------------------------------------
+    > .as-multi {
+      @include raw-list;
+      @include flex-align-center;
+      padding:.02rem;
+      font-size:0.9em;
+      > li {
+        @include flex-align-center;
+        @include color($color-info, r, c);
+        cursor:pointer;
+        padding:0 .06rem; margin-right:0.02rem;
+        border-radius:2px;
+        //------------------------------------------
+        .it-del {
+          @include flex-center;
+          display:block; padding-left:0.04rem;
+          font-size:0.9em; 
+          > .ti-icon {transition: transform 0.3s;}
+          &:hover > .ti-icon{
+            @include color($color-warn, c);
+            transform: scale(1.2) rotate(180deg);
+          }
+        }
+        //------------------------------------------
+      }  // > li
+    }
+    //--------------------------------------------
+    .as-empty {
+      padding:.02rem 0 .02rem .1rem;
+    }
+    //--------------------------------------------
+  }
+  //----------------------------------------------
+  .dl-mask {
+    @include pos-fixed-full;
+    z-index:$z-mask;
+    content:""; display: block;
+  }
+  //----------------------------------------------
+  .dl-drop {
+    @include color($color-paper, r, c);
+    @include border(1px, solid, shallow);
+    @include box-shadow;
+    position:fixed;
+    z-index:$z-top;
+  }
+  //----------------------------------------------
+}

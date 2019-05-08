@@ -1,0 +1,6 @@
+{
+  "name" : "ti-tiles",
+  "globally" : true,
+  "template" : "./ti-tiles.html",
+  "mixins" : ["./ti-tiles.mjs"]
+}

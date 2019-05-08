@@ -1,6 +1,0 @@
-{
-  "name" : "ti-form-list",
-  "globally" : true,
-  "template" : "./ti-form-list.html",
-  "mixins" : ["./ti-form-list.mjs"]
-}
