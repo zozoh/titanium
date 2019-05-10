@@ -1,0 +1,100 @@
+// bordering
+.wn-explorer {
+  @include font-nice(null, 2.2em, .015em);
+  .explorer-sky    {
+    @include border($pos:bottom);
+    .sky-action .sky-action-menu {
+      @include border($pos:left);
+    }
+  }
+  .explorer-aside  {@include border($pos:right);}
+  .explorer-footer {@include border($pos:top);}
+}
+// padding
+.wn-explorer {
+  .explorer-sky { 
+    .sky-logo   {padding:0 .02rem 0 .12rem;}
+    .sky-action {padding:0 .12rem;
+      > * {padding:0 .08rem;}
+      > *:first-child{padding-left:0;}
+      > *:last-child{padding-right:0;}
+    }
+  }
+  .explorer-footer > * {padding:0 .1rem;}
+}
+// bgcolor
+.wn-explorer {
+  .explorer-sky,
+  .explorer-aside,
+  .explorer-footer{
+    @include color($color-paper, null, c);
+  }
+}
+// font-size & misc
+.wn-explorer {
+  .explorer-title {
+    overflow:hidden;
+  }
+  .explorer-footer {
+    @include color($color-disable, c);
+    @include font-nice(.12rem); 
+    .ti-icon {font-size:1.2em; margin:0 .06rem 0 0;}
+    > .footer-log {white-space: nowrap;}
+  }
+}
+// Sizing
+.wn-explorer {
+  $SZ : (
+    sky    : .48rem,
+    aside  : 1.8rem,
+    footer : .32rem
+  );
+  width:100%; height:100%;
+  position:relative;
+  > * {position:absolute;}
+  > .explorer-sky {
+    @include flex-align;
+    @include pos((
+      l:0,t:0,w:100%,
+      h:map-get($SZ,sky))...);
+    > .sky-logo, >.sky-action {flex:0 0 auto;}
+    > .sky-title {flex:1 1 auto;}
+  }
+  > .explorer-aside {
+    @include pos((
+      l:0,
+      b:map-get($SZ,footer),
+      t:map-get($SZ,sky),
+      w:map-get($SZ,aside))...);
+  }
+  > .explorer-arena {
+    @include pos((
+      r:0,
+      l:map-get($SZ,aside),
+      t:map-get($SZ,sky),
+      b:map-get($SZ,footer))...);
+  }
+  > .explorer-footer {
+    @include flex-align;
+    @include pos((
+      l:0, b:0,r:0,
+      h:map-get($SZ,footer))...);
+    > .footer-info, >.footer-indicator {flex:0 0 auto;}
+    > .footer-log {flex:1 1 auto;}
+  }
+  &.no-aside {
+    > .explorer-arena {left:0;}
+  }
+  &.no-sky {
+    > .explorer-arena, 
+    > .explorer-aside {top:0;}
+  }
+  &.no-footer {
+    > .explorer-arena, 
+    > .explorer-aside {bottom:0;}
+  }
+  .explorer-loading-mask {
+    @include pos-fixed-full;
+    background:rgba(0,0,0,0);
+  }
+}

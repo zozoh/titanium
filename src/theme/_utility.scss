@@ -7,11 +7,6 @@
 .ti-ul-align-center {@include ul(center);}
 .ti-ul-align-right  {@include ul(right);}
 //...................................................
-.ti-flex-cols-3 {
-  @include flex-align($wp:nowrap);
-  > * {flex:0 0 auto;}
-  > *:nth-child(2) {flex:1 1 auto;}
-}
 // make children fit full area
 .ti-flex-fit {
   @include flex(center,stretch,nowrap);

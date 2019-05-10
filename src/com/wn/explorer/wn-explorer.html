@@ -1,0 +1,44 @@
+<div class="wn-explorer"
+  v-drop-off
+  :class="topClass">
+  <div v-if="show.sky"
+    class="explorer-sky">
+    <div v-if="show.logo"
+      class="sky-logo ti-flex-center">
+      <slot name="logo"></slot>
+    </div>
+    <div v-if="!noTitle"
+      class="sky-title ti-flex-left">
+      <slot name="title">
+        <ul class="ti-crumb">
+          <li v-for="an in ancestors" :key="an.id">
+            <a :href="getObjLink(an)"
+              @click.prevent="$emit('main:open', an)">{{getObjTitle(an)}}</a>
+            <ti-icon class="center" value="chevron_right"/>
+          </li>
+          <li v-if="meta">
+            <b>{{getObjTitle(meta)}}</b>
+            <span v-if="status.changed"
+              class="ti-mark-changed">*</span>
+          </li>
+        </ul>
+      </slot>
+    </div>
+    <div v-if="show.action"
+      class="sky-action ti-flex-right">
+      <slot name="action"></slot>
+    </div>
+  </div>
+  <div v-if="show.aside"
+    class="explorer-aside">
+    <slot name="aside"></slot>
+  </div>
+  <div class="explorer-arena">
+    <slot name="arena"></slot>
+  </div>
+  <div v-if="show.footer"
+    class="explorer-footer">
+    <slot name="footer"></slot>
+  </div>
+  <div v-if="loading" class="exploer-loading-mask"></div>
+</div>

@@ -127,17 +127,6 @@ a:hover {
   align-content: stretch;
   flex-wrap: nowrap; }
 
-.ti-flex-cols-3 {
-  display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  align-content: stretch;
-  flex-wrap: nowrap; }
-  .ti-flex-cols-3 > * {
-    flex: 0 0 auto; }
-  .ti-flex-cols-3 > *:nth-child(2) {
-    flex: 1 1 auto; }
-
 .ti-flex-fit {
   display: flex;
   justify-content: center;
@@ -1141,6 +1130,109 @@ a:hover {
     .ti-switcher li > .it-text {
       padding: 0 .04rem; }
 
+.wn-explorer {
+  font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;
+  line-height: 2.2em;
+  letter-spacing: 0.015em; }
+  .wn-explorer .explorer-sky {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+    .wn-explorer .explorer-sky .sky-action .sky-action-menu {
+      border-left: 1px solid rgba(0, 0, 0, 0.1); }
+  .wn-explorer .explorer-aside {
+    border-right: 1px solid rgba(0, 0, 0, 0.1); }
+  .wn-explorer .explorer-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.1); }
+
+.wn-explorer .explorer-sky .sky-logo {
+  padding: 0 .02rem 0 .12rem; }
+.wn-explorer .explorer-sky .sky-action {
+  padding: 0 .12rem; }
+  .wn-explorer .explorer-sky .sky-action > * {
+    padding: 0 .08rem; }
+  .wn-explorer .explorer-sky .sky-action > *:first-child {
+    padding-left: 0; }
+  .wn-explorer .explorer-sky .sky-action > *:last-child {
+    padding-right: 0; }
+.wn-explorer .explorer-footer > * {
+  padding: 0 .1rem; }
+
+.wn-explorer .explorer-sky,
+.wn-explorer .explorer-aside,
+.wn-explorer .explorer-footer {
+  background-color: #F0F0F0; }
+
+.wn-explorer .explorer-title {
+  overflow: hidden; }
+.wn-explorer .explorer-footer {
+  color: rgba(0, 0, 0, 0.38);
+  font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;
+  font-size: 0.12rem; }
+  .wn-explorer .explorer-footer .ti-icon {
+    font-size: 1.2em;
+    margin: 0 .06rem 0 0; }
+  .wn-explorer .explorer-footer > .footer-log {
+    white-space: nowrap; }
+
+.wn-explorer {
+  width: 100%;
+  height: 100%;
+  position: relative; }
+  .wn-explorer > * {
+    position: absolute; }
+  .wn-explorer > .explorer-sky {
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    flex-wrap: wrap;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 0.48rem; }
+    .wn-explorer > .explorer-sky > .sky-logo, .wn-explorer > .explorer-sky > .sky-action {
+      flex: 0 0 auto; }
+    .wn-explorer > .explorer-sky > .sky-title {
+      flex: 1 1 auto; }
+  .wn-explorer > .explorer-aside {
+    left: 0;
+    top: 0.48rem;
+    width: 1.8rem;
+    bottom: 0.32rem; }
+  .wn-explorer > .explorer-arena {
+    left: 1.8rem;
+    top: 0.48rem;
+    right: 0;
+    bottom: 0.32rem; }
+  .wn-explorer > .explorer-footer {
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    flex-wrap: wrap;
+    left: 0;
+    height: 0.32rem;
+    right: 0;
+    bottom: 0; }
+    .wn-explorer > .explorer-footer > .footer-info, .wn-explorer > .explorer-footer > .footer-indicator {
+      flex: 0 0 auto; }
+    .wn-explorer > .explorer-footer > .footer-log {
+      flex: 1 1 auto; }
+  .wn-explorer.no-aside > .explorer-arena {
+    left: 0; }
+  .wn-explorer.no-sky > .explorer-arena,
+  .wn-explorer.no-sky > .explorer-aside {
+    top: 0; }
+  .wn-explorer.no-footer > .explorer-arena,
+  .wn-explorer.no-footer > .explorer-aside {
+    bottom: 0; }
+  .wn-explorer .explorer-loading-mask {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0); }
+
 .wn-adaptlist {
   position: relative; }
   .wn-adaptlist > .wal-uploading {
@@ -1208,88 +1300,12 @@ a:hover {
         color: #FFF;
         background-color: #2196f3; }
 
-.wn-manager {
-  font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;
-  line-height: 2.2em;
-  letter-spacing: 0.015em; }
-  .wn-manager .wnm-sky {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
-  .wn-manager .wnm-aside {
-    border-right: 1px solid rgba(0, 0, 0, 0.1); }
-  .wn-manager .wnm-footer {
-    border-top: 1px solid rgba(0, 0, 0, 0.1); }
-  .wn-manager .wnm-action .wnm-action-menu {
-    border-left: 1px solid rgba(0, 0, 0, 0.1); }
-
-.wn-manager .wnm-logo {
-  padding: 0 .02rem 0 .12rem; }
-.wn-manager .wnm-action {
-  padding: 0 .12rem; }
-  .wn-manager .wnm-action > * {
-    padding: 0 .08rem; }
-  .wn-manager .wnm-action > *:first-child {
-    padding-left: 0; }
-  .wn-manager .wnm-action > *:last-child {
-    padding-right: 0; }
-.wn-manager .wnm-aside {
-  padding: .01rem; }
-.wn-manager .wnm-footer > * {
-  padding: 0 .1rem; }
-
-.wn-manager .wnm-sky,
-.wn-manager .wnm-aside,
-.wn-manager .wnm-footer {
-  background-color: #F0F0F0; }
-
-.wn-manager .wnm-title {
-  overflow: hidden; }
-.wn-manager .wnm-footer {
-  color: rgba(0, 0, 0, 0.38);
-  font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;
-  font-size: 0.12rem; }
-  .wn-manager .wnm-footer .ti-icon {
-    font-size: 1.2em;
-    margin: 0 .06rem 0 0; }
-  .wn-manager .wnm-footer > .wnm-log {
-    white-space: nowrap; }
-
-.wn-manager {
+.wnm-aside {
   width: 100%;
   height: 100%;
-  position: relative; }
-  .wn-manager > * {
-    position: absolute; }
-  .wn-manager > .wnm-sky {
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 0.48rem; }
-  .wn-manager > .wnm-aside {
-    left: 0;
-    top: 0.48rem;
-    width: 1.8rem;
-    bottom: 0.32rem; }
-  .wn-manager > .wnm-arena {
-    left: 1.8rem;
-    top: 0.48rem;
-    right: 0;
-    bottom: 0.32rem; }
-  .wn-manager > .wnm-footer {
-    left: 0;
-    height: 0.32rem;
-    right: 0;
-    bottom: 0; }
-  .wn-manager .wnm-loading-mask {
-    position: fixed;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0); }
-
-.wnm-aside {
   overflow-x: hidden;
-  overflow-y: auto; }
+  overflow-y: auto;
+  padding: .01rem; }
   .wnm-aside .sidebar-item .it-info {
     user-select: none;
     display: flex;

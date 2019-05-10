@@ -32,6 +32,7 @@
     "@com:ti/menu",
     "@com:ti/obj/thumb",
     "@com:ti/obj/meta",
-    "@com:ti/user/info"],
+    "@com:wn/explorer",
+    "@com:wn/user/info"],
   "deps" : []
 }

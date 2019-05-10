@@ -1,10 +1,10 @@
 export default {
   props : {
-      name : {
+    "name" : {
       type : String,
       default : "--"
     },
-    group : {
+    "group" : {
       type : String,
       default : "--"
     }

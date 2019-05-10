@@ -1,0 +1,6 @@
+{
+  "name" : "wn-user-info",
+  "globally" : true,
+  "template" : "./wn-user-info.html",
+  "mixins" : ["./wn-user-info.mjs"]
+}

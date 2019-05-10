@@ -1,62 +1,52 @@
-<div class="wn-manager" v-drop-off>
-  <div class="wnm-sky ti-flex-cols-3">
-    <div class="wnm-logo ti-flex-center">
-      <ti-icon :value="logoIcon" size=".24rem"/>
+<wn-explorer 
+  :loading="isLoading"
+  :ancestors="obj.ancestors"
+  :meta="obj.meta"
+  :status="mainStatus"
+  @main:open="onMainViewOpen">
+  <template v-slot:logo>
+    <ti-icon :value="logoIcon" size=".24rem"/>
+  </template>
+  <template v-slot:action>
+    <wn-user-info
+      :name="me.name"
+      :group="me.group"/>
+    <div v-if="main.actionMenu.length > 0"
+      class="sky-action-menu">
+      <ti-menu 
+        :data="main.actionMenu"
+        :status="mainStatus"/>
     </div>
-    <div class="wnm-title ti-flex-left">
-      <ul class="ti-crumb">
-        <li v-for="an in obj.ancestors" :key="an.id">
-          <a :href="getObjLink(an)"
-             @click.prevent="onMainViewOpen(an)">{{getObjTitle(an)}}</a>
-          <ti-icon class="center" value="chevron_right"/>
-        </li>
-        <li v-if="obj.meta">
-          <b>{{getObjTitle(obj.meta)}}</b>
-          <span v-if="mainStatus.changed"
-            class="ti-mark-changed">*</span>
-        </li>
-      </ul>
-    </div>
-    <div class="wnm-action ti-flex-right">
-      <ti-user-info
-        :name="me.name"
-        :group="me.group"/>
-      <div v-if="main.actionMenu.length > 0"
-        class="wnm-action-menu">
-        <ti-menu 
-          :data="main.actionMenu"
-          :status="mainStatus"/>
+  </template>
+  <template v-slot:aside>
+    <div class="wnm-aside">
+        <wnm-sidebar-item v-for="it in sidebar"
+          :key="it.key"
+          :group-status-store-key="it.key"
+          :highlight-id="mainDataId"
+          :do-open-path="onMainViewOpen"
+          :get-obj-link="getObjLink"
+          v-bind="it"/>
       </div>
-    </div>
-  </div>
-  <div class="wnm-aside">
-    <wnm-sidebar-item v-for="it in sidebar"
-      :key="it.key"
-      :group-status-store-key="it.key"
-      :highlight-id="mainDataId"
-      :do-open-path="onMainViewOpen"
-      :get-obj-link="getObjLink"
-      v-bind="it"/>
-  </div>
-  <div class="wnm-arena">
+  </template>
+  <template v-slot:arena!>
     <component
       class="ti-fill-parent" 
       :is="main.comName"
       v-bind="mainData"
       @open="onMainViewOpen"
       @change="onMainDataChange"/>
-  </div>
-  <div class="wnm-footer ti-flex-cols-3">
-    <div class="wnm-info ti-flex-center">
+  </template>
+  <template v-slot:footer>
+    <div class="footer-info ti-flex-center">
       <ti-icon class="center" :value="main.comIcon"/>
       <span>{{main.comName|i18n}}</span>
     </div>
-    <div class="wnm-log">
+    <div class="footer-log">
       <span>{{mainLog}}</span>
     </div>
-    <div class="wnm-indicator ti-flex-center">
+    <div class="footer-indicator ti-flex-center">
       <em>{{main.modType}}</em>
     </div>
-  </div>
-  <div v-if="isLoading" class="wnm-loading-mask"></div>
-</div>
+  </template>
+</wn-explorer>
