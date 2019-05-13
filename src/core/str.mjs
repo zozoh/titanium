@@ -1,5 +1,41 @@
 export const TiStr = {
   /***
+   * Replace the placeholder
+   */
+  renderBy(str="", vars={}, iteratee, regex=/\$\{([^}]+)\}/g) {
+    // Normlized args
+    if(_.isRegExp(iteratee)) {
+      regex = iteratee
+      iteratee = undefined
+    }
+    // Default iteratee
+    if(!iteratee) {
+      iteratee = (varName, vars, placeholder)=>{
+        return Ti.Util.fallback(vars[varName], placeholder)  
+      }
+    }
+    // Looping
+    let m
+    let ss = []
+    let last = 0
+    while(m=regex.exec(str)){
+      let current = m.index
+      if(current > last) {
+        ss.push(msg.substring(last, current))
+        last = regex.lastIndex
+      }
+      let varName  = m[1]
+      let varValue = iteratee(varName, vars, m[0])
+      ss.push(varValue)
+    }
+    // Add tail
+    if(last < msg.length) {
+      ss.push(msg.substring(last))
+    }
+    // Return
+    return ss.join("")
+  },
+  /***
    * Join without `null/undefined`
    */
   join(sep="", ...ss){

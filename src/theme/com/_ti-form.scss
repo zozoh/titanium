@@ -7,6 +7,8 @@
     }
     .group-title {
       @include noselect;
+      @include flex-align-nowrap;
+      > .ti-icon {margin-right:.08rem; opacity: 0.4;}
     }
     .group-fields {
       @include border(1px, solid, shallow, top);
@@ -16,11 +18,14 @@
   .form-field {
     @include flex-align;
     > .field-name  {
-      @include flex-align;
+      @include flex-align-nowrap;
       flex:0 0 auto;
       line-height: 2.6em;
       > .name-status {
         flex:1 1 auto;
+      }
+      > .name-title {
+        white-space: nowrap;
       }
     }
     > .field-value {

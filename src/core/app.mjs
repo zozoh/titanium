@@ -94,11 +94,11 @@ export class OneTiApp {
   commit(nm, payload){
     this.$store().commit(nm, payload)
   }
-  dispatch(nm, payload) {
+  async dispatch(nm, payload) {
     if(Ti.IsInfo("TiApp")) {
       console.log("TiApp.dispatch", nm, payload)
     }
-    this.$store().dispatch(nm, payload)
+    return await this.$store().dispatch(nm, payload)
   }
   //---------------------------------------
   self(nm, payload) {
@@ -108,7 +108,11 @@ export class OneTiApp {
     let vm = this.$vm()
     let fn = vm[nm]
     if(_.isFunction(fn)){
-      fn(payload)
+      return fn(payload)
+    }
+    // Properties
+    else if(fn) {
+      return fn
     }
     // report error
     else {
@@ -123,7 +127,11 @@ export class OneTiApp {
     let vm = this.$vmMain()
     let fn = vm[nm]
     if(_.isFunction(fn)){
-      fn(payload)
+      return fn(payload)
+    }
+    // Properties
+    else if(fn) {
+      return fn
     }
     // report error
     else {

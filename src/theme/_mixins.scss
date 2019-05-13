@@ -54,7 +54,14 @@
 @mixin flex-align-center($jc:flex-start,$ai:center,$wp:wrap,$ac:center) {
   @include flex($jc,$ai,$wp,$ac);
 }
+@mixin flex-align-nowrap($jc:flex-start,$ai:center,$wp:nowrap,$ac:center) {
+  @include flex($jc,$ai,$wp,$ac);
+}
 @mixin flex-align-v($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {
+  @include flex($jc,$ai,$wp,$ac);
+  flex-direction: column;
+}
+@mixin flex-align-v-nowrap($jc:flex-start,$ai:stretch,$wp:nowrap,$ac:stretch) {
   @include flex($jc,$ai,$wp,$ac);
   flex-direction: column;
 }

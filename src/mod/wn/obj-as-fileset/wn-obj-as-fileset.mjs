@@ -17,11 +17,11 @@ export default {
       if(!_.isUndefined(current))
         state.current = _.cloneDeep(current)
       // config
-      if(!_.isUndefined(current))
-        state.current = _.cloneDeep(current)
-      // Data
       if(!_.isUndefined(config))
         state.config = _.cloneDeep(config)
+      // Data
+      if(!_.isUndefined(data))
+        state.data = _.cloneDeep(data)
       // SavedData
       if(!_.isUndefined(__saved_data))
         state.__saved_data = _.cloneDeep(__saved_data)
@@ -103,6 +103,8 @@ export default {
 
       // Declare to loading
       commit("set", {status:{reloading:true}})
+
+      console.log("load", current)
 
       // Load data
       let data = await Wn.Io.loadContent(current, {as:"jsonOrText"})

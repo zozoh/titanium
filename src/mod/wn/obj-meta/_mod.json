@@ -1,5 +1,5 @@
 {
-  "state" : "./wom.json",
-  "actions" : "./wom-actions.mjs",
-  "mixins" : "./wom.mjs"
+  "state" : "./obj-meta.json",
+  "actions" : "./obj-meta-actions.mjs",
+  "mixins" : "./obj-meta.mjs"
 }

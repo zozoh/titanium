@@ -1,0 +1,23 @@
+.ti-tabs {
+  @include noselect;
+  ul {
+    @include raw-list;
+    @include flex-align-nowrap;
+    padding:.1rem .1rem 0 .1rem;
+    li {
+      @include flex-align($ai:center);
+      padding:.06rem .3rem;
+      border-radius:.04rem .04rem 0 0;
+      cursor: pointer;
+      opacity: 0.4;
+      > .it-icon {
+        margin-right:.08rem;
+      }
+      &.is-current {
+        @include color($color-chip, r, c);
+        opacity: 1;
+      }
+      &:hover {opacity: 1;}
+    }
+  }
+}

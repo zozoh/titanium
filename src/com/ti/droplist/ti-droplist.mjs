@@ -46,7 +46,7 @@ export default {
           loaded : this.isLoaded,
           cached : this.cached
         }).then(()=>{
-          let $box   = this.$refs.box
+          let $box   = this.$refs.box.$el
           let $drop  = this.$refs.drop
           let r_box  = Ti.Rects.createBy($box)
           Ti.Dom.setStyle($drop, {width:r_box.width})

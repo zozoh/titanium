@@ -4,6 +4,9 @@
   <ti-tiles v-else
     class="ti-fill-parent"
     :list="objList"
+    :spacing="spacing"
+    :multi="multi"
+    :selectable="selectable"
     @selected="onItemSelected"
     @open="onItemOpen"
     @blur="onItemBlur"/>
@@ -21,7 +24,10 @@
       <span>{{'uploading'|i18n}}</span>
     </header>
     <section>
-      <ti-tiles :list="uploadingList"/>
+      <ti-tiles 
+        :list="uploadingList"
+        :spacing="spacing"
+        :selectable="false"/>
     </section>
   </div>
 </div>

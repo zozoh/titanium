@@ -1,0 +1,9 @@
+{
+  "name" : "wn-obj-picker",
+  "globally" : true,
+  "template" : "./wn-obj-picker.html",
+  "mixins"   : ["./wn-obj-picker.mjs"],
+  "components" : [
+    "@com:ti/box",
+    "@com:wn/adaptlist"]
+}

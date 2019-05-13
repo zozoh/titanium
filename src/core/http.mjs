@@ -33,7 +33,7 @@ function ProcessResponseData($req, {as="text"}={}) {
 }
 //-----------------------------------
 export const TiHttp = {
-  send(url, options={}) {
+  async send(url, options={}) {
     if(Ti.IsInfo("TiHttp")) {
       console.log("TiHttp.send", url, options)
     }
@@ -102,7 +102,7 @@ export const TiHttp = {
     created($req)
 
     // Process sending
-    return new Promise((resolve, reject)=>{
+    return await new Promise((resolve, reject)=>{
       // callback
       $req.onreadystatechange = ()=>{
         readyStateChanged($req, options)
@@ -136,8 +136,8 @@ export const TiHttp = {
    * @param options.readyStateChanged{Function}=_.identity
    * @param options.as{String}="text"
    */
-  sendAndProcess(url, options={}) {
-    return TiHttp.send(url, options)
+  async sendAndProcess(url, options={}) {
+    return await TiHttp.send(url, options)
       .then(($req)=>{
         return ProcessResponseData($req, options)
       })
@@ -145,8 +145,8 @@ export const TiHttp = {
   /***
    * Send HTTP GET
    */
-  get(url, options={}){
-    return TiHttp.sendAndProcess(
+  async get(url, options={}){
+    return await TiHttp.sendAndProcess(
       url, 
       _.assign({}, options, {
         method:"GET"
@@ -155,8 +155,8 @@ export const TiHttp = {
   /***
    * Send HTTP post
    */
-  post(url, options={}){
-    return TiHttp.sendAndProcess(
+  async post(url, options={}){
+    return await TiHttp.sendAndProcess(
       url, 
       _.assign({}, options, {
         method: "POST"

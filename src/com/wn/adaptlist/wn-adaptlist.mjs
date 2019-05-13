@@ -37,6 +37,28 @@ export default {
         "exposeHidden" : false,
         "renaming" : false
       })
+    },
+    // Drop files to upload
+    "droppable" : {
+      type : Boolean,
+      default : true
+    },
+    // aspect: list item spacing
+    // `xs|sm|md|lg|xl`
+    "spacing" : {
+      type : String,
+      default : "sm"
+    },
+    // multi-selectable
+    // effected when selectable is true
+    "multi" : {
+      type : Boolean,
+      default : true
+    },
+    // select item
+    "selectable" : {
+      type : Boolean,
+      default : true
     }
   },
   //------------------------------------------------
@@ -159,6 +181,8 @@ export default {
     },
     //----------------------------------------------
     onDropFiles(files) {
+      if(!this.droppable)
+        return
       let fs = [...files]
       this.$store.dispatch("main/upload", fs)
     },

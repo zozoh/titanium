@@ -14,6 +14,11 @@
       "name" : "lbls",
       "type" : "Array"
     }, {
+      "name" : "avatar",
+      "type" : "Object",
+      "comType" : "wn-obj-picker",
+      "comConf" : {}
+    }, {
       "name" : "status",
       "type" : "String",
       "title" : "状态",

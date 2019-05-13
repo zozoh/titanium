@@ -218,6 +218,37 @@ a:hover {
   background: #4caf50;
   min-height: 2px; }
 
+.ti-tabs {
+  user-select: none; }
+  .ti-tabs ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    flex-wrap: nowrap;
+    padding: .1rem .1rem 0 .1rem; }
+    .ti-tabs ul li {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      align-content: stretch;
+      flex-wrap: wrap;
+      padding: .06rem .3rem;
+      border-radius: .04rem .04rem 0 0;
+      cursor: pointer;
+      opacity: 0.4; }
+      .ti-tabs ul li > .it-icon {
+        margin-right: .08rem; }
+      .ti-tabs ul li.is-current {
+        color: #666;
+        background-color: #e0e0e0;
+        opacity: 1; }
+      .ti-tabs ul li:hover {
+        opacity: 1; }
+
 .ti-crumb {
   list-style: none;
   padding: 0.1rem;
@@ -266,9 +297,9 @@ a:hover {
       .ti-tiles > .tiles-con > .ti-obj-tiles-item > * {
         flex: 1 1 auto; }
     .ti-tiles > .tiles-con.ti-spacing-xs {
-      padding: 1px; }
+      padding: .08rem; }
       .ti-tiles > .tiles-con.ti-spacing-xs > * {
-        margin: 0; }
+        margin: .02rem; }
     .ti-tiles > .tiles-con.ti-spacing-sm {
       padding: .08rem; }
       .ti-tiles > .tiles-con.ti-spacing-sm > * {
@@ -874,7 +905,15 @@ a:hover {
   .ti-form .form-group:last-child {
     border: 0; }
   .ti-form .form-group .group-title {
-    user-select: none; }
+    user-select: none;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    flex-wrap: nowrap; }
+    .ti-form .form-group .group-title > .ti-icon {
+      margin-right: .08rem;
+      opacity: 0.4; }
   .ti-form .form-group .group-fields {
     border-top: 1px solid rgba(0, 0, 0, 0.1); }
 .ti-form .form-field {
@@ -886,13 +925,15 @@ a:hover {
   .ti-form .form-field > .field-name {
     display: flex;
     justify-content: flex-start;
-    align-items: stretch;
-    align-content: stretch;
-    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+    flex-wrap: nowrap;
     flex: 0 0 auto;
     line-height: 2.6em; }
     .ti-form .form-field > .field-name > .name-status {
       flex: 1 1 auto; }
+    .ti-form .form-field > .field-name > .name-title {
+      white-space: nowrap; }
   .ti-form .form-field > .field-value {
     display: flex;
     justify-content: flex-start;
@@ -932,6 +973,66 @@ a:hover {
       padding: 0 .05rem; }
     .ti-form.as-spacing-tiny .form-field > .field-value {
       padding: 0 .05rem; }
+
+.ti-box {
+  user-select: none;
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+  flex-wrap: wrap;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  font-family: Monaco, Consolas, Courier New;
+  min-width: 2rem;
+  cursor: pointer; }
+  .ti-box:focus {
+    border-color: #ff4081; }
+  .ti-box > .as-single, .ti-box > .as-multi, .ti-box .as-empty {
+    flex: 1 1 auto; }
+  .ti-box > .box-btn {
+    flex: 0 0 auto;
+    padding: 0 .06rem; }
+  .ti-box > .as-single {
+    padding: .02rem 0 .02rem .1rem; }
+  .ti-box > .as-multi {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    padding: .02rem;
+    font-size: 0.9em; }
+    .ti-box > .as-multi > li {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      color: #FFF;
+      background-color: #4e9abd;
+      cursor: pointer;
+      padding: 0 .06rem;
+      margin-right: 0.02rem;
+      border-radius: 2px; }
+      .ti-box > .as-multi > li .it-del {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        flex-wrap: wrap;
+        display: block;
+        padding-left: 0.04rem;
+        font-size: 0.9em; }
+        .ti-box > .as-multi > li .it-del > .ti-icon {
+          transition: transform 0.3s; }
+        .ti-box > .as-multi > li .it-del:hover > .ti-icon {
+          color: #fdd835;
+          transform: scale(1.2) rotate(180deg); }
+  .ti-box .as-empty {
+    padding: .02rem 0 .02rem .1rem; }
 
 .ti-list ul {
   list-style: none;
@@ -985,64 +1086,6 @@ a:hover {
   user-select: none;
   display: inline-block;
   vertical-align: middle; }
-  .ti-droplist .dl-box {
-    display: flex;
-    justify-content: flex-start;
-    align-items: stretch;
-    align-content: stretch;
-    flex-wrap: wrap;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    font-family: Monaco, Consolas, Courier New;
-    min-width: 2rem;
-    cursor: pointer; }
-    .ti-droplist .dl-box:focus {
-      border-color: #ff4081; }
-    .ti-droplist .dl-box > .as-single, .ti-droplist .dl-box > .as-multi, .ti-droplist .dl-box .as-empty {
-      flex: 1 1 auto; }
-    .ti-droplist .dl-box > .dl-btn {
-      flex: 0 0 auto;
-      padding: 0 .06rem; }
-    .ti-droplist .dl-box > .as-single {
-      padding: .02rem 0 .02rem .1rem; }
-    .ti-droplist .dl-box > .as-multi {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      align-content: center;
-      flex-wrap: wrap;
-      padding: .02rem;
-      font-size: 0.9em; }
-      .ti-droplist .dl-box > .as-multi > li {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        align-content: center;
-        flex-wrap: wrap;
-        color: #FFF;
-        background-color: #4e9abd;
-        cursor: pointer;
-        padding: 0 .06rem;
-        margin-right: 0.02rem;
-        border-radius: 2px; }
-        .ti-droplist .dl-box > .as-multi > li .it-del {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          align-content: center;
-          flex-wrap: wrap;
-          display: block;
-          padding-left: 0.04rem;
-          font-size: 0.9em; }
-          .ti-droplist .dl-box > .as-multi > li .it-del > .ti-icon {
-            transition: transform 0.3s; }
-          .ti-droplist .dl-box > .as-multi > li .it-del:hover > .ti-icon {
-            color: #fdd835;
-            transform: scale(1.2) rotate(180deg); }
-    .ti-droplist .dl-box .as-empty {
-      padding: .02rem 0 .02rem .1rem; }
   .ti-droplist .dl-mask {
     position: fixed;
     left: 0;
@@ -1106,8 +1149,8 @@ a:hover {
     flex-wrap: nowrap;
     border: 1px solid rgba(0, 0, 0, 0.1); }
   .ti-switcher li {
-    color: #888;
-    background-color: #FFF;
+    color: rgba(0, 0, 0, 0.38);
+    background-color: rgba(255, 255, 255, 0.38);
     border-left: 1px solid rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: flex-start;

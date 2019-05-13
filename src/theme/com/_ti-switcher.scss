@@ -8,7 +8,7 @@
     @include border(1px, solid, shallow);
   }
   li {
-    @include color($color-track, c, r);
+    @include color($color-disable, c, r);
     @include border(1px, solid, shallow, left);
     @include flex-align-center;
     &:first-child{border-left:0;}

@@ -45,7 +45,9 @@ Define the schema(`Object`) of  data presentation.
     // Key in data, if array, it will pick out a object as the value
     name  : "name",
     icon  : "im-file",      // Field icon
+    // Special status
     status : "error|warn|ok|spinning",
+    // Message for current status
     message : "i18n:xxx",
     // Field title, `undefined` will auto use `key` as title
     // if `null`, the filed title will be hidded

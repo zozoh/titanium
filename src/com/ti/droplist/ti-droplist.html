@@ -1,53 +1,12 @@
 <div class="ti-droplist">
-  <div ref="box"
-    class="dl-box" 
-    @click="isDropShown=true">
-    <template v-if="multi">
-      <ul 
-        v-if="this.hasSelecteds"
-        class="as-multi">
-        <li v-for="it in selectedItems" :key="it.value">
-          <ti-icon
-            class="it-icon"
-            v-if="it.icon" 
-            :value="it.icon"/>
-          <span
-            class="it-text">{{it.text|i18n}}</span>
-          <span
-            class="it-del"
-            @click.stop="onRemoveItem(it)">
-            <ti-icon value="close" size="0.16rem"/>
-          </span>
-        </li>
-      </ul>
-      <div v-else
-        class="as-empty">
-        <ti-icon
-          v-if="empty.icon" 
-          :value="empty.icon"/>
-        <span class="it-text">{{empty.text|i18n}}</span>
-      </div>
-    </template>
-    <div v-else
-      class="as-single">
-      <ti-icon
-        class="it-icon"
-        v-if="theItem.icon" 
-        :value="theItem.icon"/>
-      <span class="it-text">{{theItem.text|i18n}}</span>
-    </div>
-    <div class="dl-btn">
-      <ti-icon
-        v-if="loading"
-        value="zmdi-settings zmdi-hc-spin"/>
-      <ti-icon 
-        v-else-if="isDropShown"
-        value="zmdi-chevron-up"/>
-      <ti-icon 
-        v-else
-        value="zmdi-chevron-down"/>
-    </div>
-  </div><!--//.dl-box-->
+  <ti-box ref="box"
+    :empty="empty"
+    :items="selectedItems"
+    :loading="loading"
+    :multi="multi"
+    :opened="isDropShown"
+    @open="isDropShown=true"
+    @remove="onRemoveItem"/>
   <div
     class="dl-mask" 
     v-show="isDropShown"

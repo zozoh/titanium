@@ -1,6 +1,13 @@
 //-----------------------------------
 const I18N = {}
 //-----------------------------------
+function __MSG(key) {
+  if(!key)
+    return
+  let k2 = key.replace(/\./g,"-")
+  return I18N[k2]
+}
+//-----------------------------------
 export const Ti18n = {
   put(msgs) {
     _.assign(I18N, msgs)
@@ -22,7 +29,7 @@ export const Ti18n = {
       return key.message
     }
     // key as String
-    let msg = I18N[key]
+    let msg = __MSG(key)
     if(_.isUndefined(msg)){
       if(_.isUndefined(dft))
         return key
@@ -51,25 +58,8 @@ export const Ti18n = {
     return Ti.Util.fallback(str, dft)
   },
   getf(key, vars={}){
-    let msg = I18N[key] || key
-    let regex = /\$\{([^}]+)\}/g
-    let m
-    let ss = []
-    let last = 0
-    while(m=regex.exec(msg)){
-      let current = m.index
-      if(current > last) {
-        ss.push(msg.substring(last, current))
-        last = regex.lastIndex
-      }
-      let varName  = m[1]
-      let varValue = Ti.Util.fallback(vars[varName],m[0])
-      ss.push(varValue)
-    }
-    if(last < msg.length) {
-      ss.push(msg.substring(last))
-    }
-    return ss.join("")
+    let msg = __MSG(key) || key
+    return Ti.S.renderBy(msg, vars)
   },
   textf(str, vars={}){
     let m = /^i18n:(.+)$/.exec(str)

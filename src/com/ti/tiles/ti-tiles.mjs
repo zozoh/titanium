@@ -1,44 +1,33 @@
 export default {
   props : {
     // The list to be rendered
-    list : {
+    "list" : {
       type : Array,
       default : ()=>[]
     },
     // aspect: list item spacing
     // `xs|sm|md|lg|xl`
-    spacing : {
+    "spacing" : {
       type : String,
       default : "sm"
     },
-    // Drop -> emmit("drop", file)
-    droppable : {
-      type : Boolean,
-      default : false
-    },
     // multi-selectable
     // effected when selectable is true
-    multi : {
+    "multi" : {
       type : Boolean,
       default : false
     },
     // select item
-    selectable : {
+    "selectable" : {
       type : Boolean,
       default : true
-    },
-    // rename items, it will pass on to slot.default
-    renameable : {
-      type : Boolean,
-      default : false
     }
   },
   computed : {
     tilesUlClass() {
-      let vm = this
-      return {
-        ["ti-spacing-" + vm.spacing] : true
-      }
+      let re = {}
+      re["ti-spacing-" + this.spacing] = true
+      return re
     },
     itemStyle() {
       let vm = this
@@ -52,6 +41,12 @@ export default {
   },
   methods : {
     onThumbSelected({mode,id,index}={}){
+      if(!this.selectable){
+        return
+      }
+      if(!this.multi) {
+        mode = "active"
+      }
       this.$emit("selected", {mode,id,index})
     },
     onThumbOpen({id,index}={}) {

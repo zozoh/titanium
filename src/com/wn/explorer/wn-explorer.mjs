@@ -37,7 +37,7 @@ export default {
         aside  : this.$slots.aside  ? true : false,
         footer : this.$slots.footer ? true : false,
       }
-      re.sky = !this.noTitle && re.logo && re.action
+      re.sky = !(this.noTitle && !re.logo && !re.action)
       return re
     },
     topClass() {

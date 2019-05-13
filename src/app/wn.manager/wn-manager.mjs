@@ -137,12 +137,14 @@ export default {
   //////////////////////////////////////////////
   methods : {
     //.........................................
-    getObjTitle(meta) {
-      let title = meta.title || meta.nm
-      return Ti.I18n.text(title)
-    },
+    // getObjTitle(meta) {
+    //   console.log("getObjTitle")
+    //   let title = meta.title || meta.nm
+    //   return Ti.I18n.text(title)
+    // },
     //.........................................
     getObjLink(meta) {
+      //console.log("getObjLink")
       return Wn.Util.getAppLink(meta).toString()
     },
     //.........................................
