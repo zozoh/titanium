@@ -14,9 +14,11 @@ Define the schema(`Object`) of  data presentation.
 
 ```js
 {
+  // field com value -> form data
   serilizers : {
     "Key" : (val, key)=>Any
   },
+  // form data -> field com value
   transformers : {
     "Key" : (val, key)=>Any
   },
@@ -63,7 +65,7 @@ Define the schema(`Object`) of  data presentation.
     comType : "ti-form-input",
     // The component properties, default is `undefined`
     comConf : {..}
-    // Customized transformer
+    // Customized serializer
     serializer : String | Object | (val)=>Any
     // Customized transformer
     transformer : String | Object | (val)=>Any

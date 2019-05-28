@@ -42,7 +42,14 @@ export default {
       let meta = this.value || this.base || "~"
       console.log(meta)
       let payload = await Wn.OpenObjSelector(meta, {multi:this.multi})
-      this.$emit("changed", payload)
+      if(payload) {
+        console.log(payload)
+        this.$emit("changed", payload)
+      }
+      // Null or undefined mean cancel
+      else {
+        console.log("canceled!")
+      }
     },
     //......................................
     onRemoveItem(rmIt) {
@@ -55,14 +62,12 @@ export default {
       this.$emit("changed", payload)
     },
     //......................................
-
-    //......................................
     async tryReload() {
-
+      console.log("I am tryReload")
     },
     //......................................
     async reload() {
-      
+      console.log("I am reload")
     }
     //......................................
   },

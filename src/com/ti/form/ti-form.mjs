@@ -1,38 +1,40 @@
 //-----------------------------------------
 // fnType : "transformer|serializer"
-function formFunc(config={}, fld, fnType){
-  let fnName = fld[fnType]
-  // Get the `func` by field type
-  if(!fnName) {
-    fnName = Ti.Types.$FNAME(fld.type, fnType)
-  }
-  if(!fnName && 'validator'!=fnType) {
-    throw Error("invalid ti-form field type: " + fld.type)
+function formFunc(fnSet={}, fld, fnType){
+  // console.log("formFunc:")
+  // console.log(" --", fnSet)
+  // console.log(" --", fld)
+  // console.log(" --", fnType)
+  // Try to ge the function
+  let fn = fld[fnType]
+  // Get the `func` by field type as default
+  if(!fn) {
+    return Ti.Types.$FN(fld.type, fnType)
   }
     
   // Function already
-  if(_.isFunction(fnName))
-    return fnName
+  if(_.isFunction(fn))
+    return fn
   // Is string
-  if(_.isString(fnName)) {
-    return Ti.Types.$FN(config, fnType, fnName)
+  if(_.isString(fn)) {
+    return _.get(fnSet, [fnType, fn])
   }
   // Plain Object 
-  if(_.isPlainObject(fnName) && fnName.name) {
+  if(_.isPlainObject(fn) && fn.name) {
     //console.log(fnType, fnName)
-    let fn = Ti.Types.$FN(config, fnType, fnName.name)
-    if(!_.isFunction(fn))
+    let fn2 = _.get(fnSet, [fnType, fn.name])
+    if(!_.isFunction(fn2))
       return
     // Partical args ...
-    if(_.isArray(fnName.args) && fnName.args.length > 0) {
-      return _.partialRight(fn, ...fnName.args)
+    if(_.isArray(fn.args) && fn.args.length > 0) {
+      return _.partialRight(fn2, ...fn.args)
     }
     // Partical one arg
-    if(!_.isUndefined(fnName.args) && !_.isNull(fnName.args)) {
-      return _.partialRight(fn, fnName.args)
+    if(!_.isUndefined(fn.args) && !_.isNull(fn.args)) {
+      return _.partialRight(fn2, fn.args)
     }
     // Just return
-    return fn
+    return fn2
   }
 }
 //-----------------------------------------
@@ -59,8 +61,8 @@ function normlizeFormField(vm, fld, nbs=[]) {
     f2.type = f2.type || "String"
 
     // Tidy form function
-    f2.serializer  = formFunc(vm.config, f2, "serializer")
-    f2.transformer = formFunc(vm.config, f2, "transformer")
+    f2.serializer  = formFunc(vm.fnSet, f2, "serializer")
+    f2.transformer = formFunc(vm.fnSet, f2, "transformer")
   }
   // field key
   f2.key = fld.name 
@@ -108,12 +110,36 @@ export default {
       return list
     },
     //.......................................
+    fnSet() {
+      return {
+        serializer  : this.getFunctionSet("serializers"),
+        transformer : this.getFunctionSet("transformers")
+      }
+    },
+    //.......................................
     formData() {
       return this.data || {}
     }
+    //.......................................
   },
   //////////////////////////////////////////////////////
   methods : {
+    // Get the function set for `transformer|serializer`
+    // add the default mapping functions
+    getFunctionSet(fnSetName) {
+      let fnSet = this.config[fnSetName]
+      return _.assign({}, fnSet, {
+        // format obj to string
+        formatStringBy(obj={}, fmt=""){
+          console.log("hahahaha")
+          return Ti.S.renderBy(fmt, obj)
+        },
+        // Mapping obj to another
+        mappingBy(obj={}, mapping={}) {
+          return Ti.Util.mapping(obj, mapping)
+        }
+      })
+    },
     onChanged(payload) {
       //console.log("changed", payload)
       this.$emit("changed", payload)

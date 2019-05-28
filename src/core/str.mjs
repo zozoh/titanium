@@ -21,7 +21,7 @@ export const TiStr = {
     while(m=regex.exec(str)){
       let current = m.index
       if(current > last) {
-        ss.push(msg.substring(last, current))
+        ss.push(str.substring(last, current))
         last = regex.lastIndex
       }
       let varName  = m[1]
@@ -29,8 +29,8 @@ export const TiStr = {
       ss.push(varValue)
     }
     // Add tail
-    if(last < msg.length) {
-      ss.push(msg.substring(last))
+    if(last < str.length) {
+      ss.push(str.substring(last))
     }
     // Return
     return ss.join("")

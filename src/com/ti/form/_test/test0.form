@@ -16,6 +16,10 @@
     }, {
       "name" : "avatar",
       "type" : "Object",
+      "serializer" : {
+         "name" : "formatString",
+         "args" : ["id:${id}"]
+      },
       "comType" : "wn-obj-picker",
       "comConf" : {}
     }, {

@@ -220,9 +220,11 @@ export const TiTypes = {
     return _.get(BUILTIN_TYPES, [type, fnType])
   },
   //.......................................
-  $FN(config={}, fnType, fnName) {
-    let fn = _.get(config, [`${fnType}s`, fnName])
-    return fn || TiTypes[fnName]
+  $FN(type, fnType) {
+    // let fn = _.get(config, [`${fnType}s`, fnName])
+    // return fn || TiTypes[fnName]
+    let fnName = TiTypes.$FNAME(type, fnType)
+    return TiTypes[fnName]
   }
 }
 //---------------------------------------
