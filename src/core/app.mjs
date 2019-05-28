@@ -29,7 +29,8 @@ export class OneTiApp {
   $vm    (vm)    {return Ti.Util.geset(this, TI_VM   ,   vm)}
   $vmMain(mvm)   {return Ti.Util.geset(this, TI_VM_MAIN, mvm)}
   //---------------------------------------
-  async init(){
+  async init({comDecorator}={}){
+    this.__com_decorator = comDecorator
     // App Must has a name
     let info = this.$info()
     // if(!info.name) {
@@ -67,7 +68,7 @@ export class OneTiApp {
       console.log(" -- global:", setup.global)
       console.log(" -- options:", setup.options)
     }
-    let vm = TiVue.CreateInstance(setup)
+    let vm = TiVue.CreateInstance(setup, this.__com_decorator)
     vm[TI_APP] = this
     this.$vm(vm)
 
@@ -157,7 +158,7 @@ export class OneTiApp {
         "^\./": view.modType + "/"
       })
     })
-    // Customized
+    // Customized Store configuration
     updateStoreConfig(moConf)
     // Formed
     let mo = TiVue.StoreConfig(moConf, true)
@@ -170,7 +171,7 @@ export class OneTiApp {
         "^\./": view.comType + "/"
       })
     })
-    // Customized
+    // Customized Component configuration
     updateComSetup(comConf)
     // TODO: shoudl I put this below to LoadTiLinkedObj?
     // It is sames a litter bit violence -_-! so put here for now...
@@ -181,6 +182,10 @@ export class OneTiApp {
     // Get the formed comName
     let comName = setup.options.name 
                   || Ti.Util.getLinkName(view.comType)
+    // Decorate it
+    if(_.isFunction(this.__com_decorator)){
+      this.__com_decorator(setup.options)
+    }
     if(Ti.IsInfo("TiApp")) {
       console.log("TiApp.loadView:", comName)
       console.log(" -- global:", setup.global)
@@ -188,6 +193,11 @@ export class OneTiApp {
     }
     _.map(setup.global.components, com=>{
       Ti.I18n.put(com.i18n)
+      // Decorate it
+      if(_.isFunction(this.__com_decorator)){
+        this.__com_decorator(com)
+      }
+      // Regist it
       Vue.component(com.name, com)
     })
     

@@ -86,7 +86,7 @@ export default {
           // Generate new Thumb Item
           re.push({
             id      : it.id,
-            title   : it.nm,
+            title   : Wn.Util.getObjDisplayName(it),
             preview : Wn.Util.genPreviewObj(it),
             // status
             ...(it.__is || {

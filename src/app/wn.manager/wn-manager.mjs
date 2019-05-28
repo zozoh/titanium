@@ -18,31 +18,32 @@ export default {
         this.reloadMain(newMeta)
       }
     },
-    "mainData.$message.toast" : function(newVal, oldVal) {
-      let app = Ti.App(this)
-      if(newVal) {
-        this.$message({
-            showClose : true,
-            duration  : 2000,
-            type      : newVal.type || "success",
-            message   : Ti.I18n.text(newVal)
-          });
-        app.commit("main/$toast", null)
-      }
-    },
-    "mainData.$message.noti" : function(newVal, oldVal) {
-      let app = Ti.App(this)
-      if(newVal) {
-        this.$notify({
-            showClose : true,
-            duration  : 2000,
-            type      : newVal.type || "success",
-            title    : Ti.I18n.text(newVal.title || "i18n:success"),
-            message  : Ti.I18n.text(newVal)
-          });
-        app.commit("main/$noti", null)
-      }
-    }
+    // "mainData.$message.toast" : function(newVal, oldVal) {
+    //   let app = Ti.App(this)
+    //   if(newVal) {
+    //     console.log("toast!", newVal)
+    //     this.$message({
+    //         showClose : true,
+    //         duration  : 2000,
+    //         type      : newVal.type || "success",
+    //         message   : Ti.I18n.text(newVal)
+    //       });
+    //     app.commit("main/$toast", null)
+    //   }
+    // },
+    // "mainData.$message.noti" : function(newVal, oldVal) {
+    //   let app = Ti.App(this)
+    //   if(newVal) {
+    //     this.$notify({
+    //         showClose : true,
+    //         duration  : 2000,
+    //         type      : newVal.type || "success",
+    //         title    : Ti.I18n.text(newVal.title || "i18n:success"),
+    //         message  : Ti.I18n.text(newVal)
+    //       });
+    //     app.commit("main/$noti", null)
+    //   }
+    // }
   },
   //////////////////////////////////////////////
   mounted : function(){

@@ -42,12 +42,6 @@ Ti.SetLogLevel("warn", "TiShortcut")
 Ti.SetLogLevel("warn", "Wn.Sys")
 Ti.SetLogLevel("warn", "app/wn.manager")
 //---------------------------------------
-Ti.Dom.watchAutoRootFontSize({
-  callback:({$root, mode})=>{
-    $root.setAttribute("as", mode)
-  }
-})
-//---------------------------------------
 Ti.Install()
 Ti.Shortcut.startListening()
 Ti.Viewport.startListening()
@@ -108,12 +102,28 @@ async function main(){
     }
   }
 
+  // Load the com common mixins 
+  let comMixins = await Ti.Load("@com:ti/support/auto_page_mode.mjs")
+
   // Load main app
   let app = await Ti.App("@MyApp")
-  await app.init()
+  await app.init({
+    comDecorator : (com)=>{
+      //console.log("++++++Decorator", com.name)
+      Ti.Util.pushValue(com, "mixins", comMixins)
+    }
+  })
 
   // Save current app name
   Ti.SetAppName(app.name())
+
+  //---------------------------------------
+  Ti.Dom.watchAutoRootFontSize({
+    callback:({$root, mode})=>{
+      $root.setAttribute("as", mode)
+      app.commit("page/setMode", mode)
+    }
+  })
 
   // Load session and display
   app.commit("session/set", _app.session)

@@ -371,7 +371,7 @@ export const TiVue = {
     }
   },
   //---------------------------------------
-  CreateInstance(setup) {
+  CreateInstance(setup, decorator) {
     // Global Assets
     const filters    = Ti.Util.merge({}, setup.global.filters)
     const directives = Ti.Util.merge({}, setup.global.directives)
@@ -393,10 +393,19 @@ export const TiVue = {
       delete com.components
       // I18ns
       Ti.I18n.put(com.i18n)
+      // Decorate it
+      if(_.isFunction(decorator)){
+        decorator(com)
+      }
       // define self
       Vue.component(com.name, com)
     }
     _.map(setup.global.components, defineComponent)
+
+    // Decorate it
+    if(_.isFunction(decorator)){
+      decorator(setup.options)
+    }
 
     // return new vm instance
     return new Vue(setup.options)

@@ -99,7 +99,7 @@ export const TiDom = {
     // auto resize firstly
     _.delay(()=>{
       TiDom.autoRootFontSize(options)
-    }, 100)
+    }, 1)
   },
   setStyle($el, css={}) {
     _.forOwn(css, (val, key)=>{
