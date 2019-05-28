@@ -10,7 +10,10 @@
     },
     "...meta" : {
       "getters" : {
-        "obj" : "get"
+        "obj" : "get",
+        "hasParent" : "hasParent",
+        "parentIsHome" : "parentIsHome",
+        "currentIsHome" : "currentIsHome"
       }      
     }
   }],

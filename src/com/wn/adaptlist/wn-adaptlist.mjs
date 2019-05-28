@@ -167,7 +167,17 @@ export default {
   //------------------------------------------------
   methods : {
     onItemSelected({mode,id,index}={}) {
-      this.$store.commit("main/selectItem", {index, id, mode})
+      // Desktop mode, select items
+      if(this.isPageModeDesktop) {
+        this.$store.commit("main/selectItem", {index, id, mode})
+      }
+      // Else just open it
+      else {
+        let meta = _.nth(this.children, index)
+        if(meta) {
+          this.$emit("open", meta)
+        }  
+      }
     },
     //----------------------------------------------
     onItemOpen({id,index}={}) {

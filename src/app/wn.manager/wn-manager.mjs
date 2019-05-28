@@ -138,11 +138,12 @@ export default {
   //////////////////////////////////////////////
   methods : {
     //.........................................
-    // getObjTitle(meta) {
-    //   console.log("getObjTitle")
-    //   let title = meta.title || meta.nm
-    //   return Ti.I18n.text(title)
-    // },
+    getObjTitle(meta) {
+      if(meta) {
+        let title = meta.title || meta.nm
+        return Ti.I18n.text(title)
+      }
+    },
     //.........................................
     getObjLink(meta) {
       //console.log("getObjLink")

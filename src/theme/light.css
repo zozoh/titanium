@@ -1186,17 +1186,17 @@ a:hover {
   .wn-explorer .explorer-footer {
     border-top: 1px solid rgba(0, 0, 0, 0.1); }
 
-.wn-explorer .explorer-sky .sky-logo {
+.wn-explorer.as-desktop .explorer-sky .sky-logo, .wn-explorer.is-home .explorer-sky .sky-logo {
   padding: 0 .02rem 0 .12rem; }
-.wn-explorer .explorer-sky .sky-action {
+.wn-explorer.as-desktop .explorer-sky .sky-action, .wn-explorer.is-home .explorer-sky .sky-action {
   padding: 0 .12rem; }
-  .wn-explorer .explorer-sky .sky-action > * {
+  .wn-explorer.as-desktop .explorer-sky .sky-action > *, .wn-explorer.is-home .explorer-sky .sky-action > * {
     padding: 0 .08rem; }
-  .wn-explorer .explorer-sky .sky-action > *:first-child {
+  .wn-explorer.as-desktop .explorer-sky .sky-action > *:first-child, .wn-explorer.is-home .explorer-sky .sky-action > *:first-child {
     padding-left: 0; }
-  .wn-explorer .explorer-sky .sky-action > *:last-child {
+  .wn-explorer.as-desktop .explorer-sky .sky-action > *:last-child, .wn-explorer.is-home .explorer-sky .sky-action > *:last-child {
     padding-right: 0; }
-.wn-explorer .explorer-footer > * {
+.wn-explorer.as-desktop .explorer-footer > *, .wn-explorer.is-home .explorer-footer > * {
   padding: 0 .1rem; }
 
 .wn-explorer .explorer-sky,
@@ -1231,19 +1231,19 @@ a:hover {
     left: 0;
     top: 0;
     width: 100%;
-    height: 0.48rem; }
+    height: 48px; }
     .wn-explorer > .explorer-sky > .sky-logo, .wn-explorer > .explorer-sky > .sky-action {
       flex: 0 0 auto; }
     .wn-explorer > .explorer-sky > .sky-title {
       flex: 1 1 auto; }
   .wn-explorer > .explorer-aside {
     left: 0;
-    top: 0.48rem;
+    top: 48px;
     width: 1.8rem;
     bottom: 0.32rem; }
   .wn-explorer > .explorer-arena {
     left: 1.8rem;
-    top: 0.48rem;
+    top: 48px;
     right: 0;
     bottom: 0.32rem; }
   .wn-explorer > .explorer-footer {
@@ -1275,6 +1275,19 @@ a:hover {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0); }
+
+.wn-explorer > .explorer-sky > .sky-logo {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: center;
+  flex-wrap: nowrap; }
+  .wn-explorer > .explorer-sky > .sky-logo > .logo-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap; }
 
 .wn-adaptlist {
   position: relative; }
@@ -1342,6 +1355,16 @@ a:hover {
       .wn-obj-preview.as-fullscreen > .my-closer:hover {
         color: #FFF;
         background-color: #2196f3; }
+
+.wn-manager {
+  width: 100%;
+  height: 100%; }
+  .wn-manager .sky-icon-backward {
+    padding: 0 .14rem;
+    cursor: pointer; }
+    .wn-manager .sky-icon-backward:hover {
+      color: #2196f3;
+      background-color: #cce8ff; }
 
 .wnm-aside {
   width: 100%;

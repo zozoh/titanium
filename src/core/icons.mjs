@@ -49,6 +49,8 @@ const NAMES = {
   "success"  : {type:"font", value:"zmdi-check-circle"},
   "track"    : {type:"font", value:"zmdi-notifications-none"},
   "alert"    : {type:"font", value:"zmdi-notifications-none"},
+  "backward" : {type:"font", value:"zmdi-chevron-left"},
+  "forward"  : {type:"font", value:"zmdi-chevron-right"},
   "confirm"  : {type:"font", value:"zmdi-help"},
   "prompt"   : {type:"font", value:"zmdi-keyboard"},
 }
