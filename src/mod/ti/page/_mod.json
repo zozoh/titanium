@@ -1,3 +1,4 @@
 {
+  "state" : "./ti-page.json",
   "mixins" : "./ti-page.mjs"
 }

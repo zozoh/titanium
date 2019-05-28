@@ -1,7 +1,4 @@
 export default {
-  state : {
-    "mode" : "desktop"
-  },
   getters : {
     pageMode : (state) => state.mode,
     isPageModeDesktop : (state)=> "desktop" == state.mode,

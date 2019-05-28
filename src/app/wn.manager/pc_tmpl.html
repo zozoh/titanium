@@ -82,6 +82,15 @@ async function main(){
   // Update Config Setting
   Ti.Config.set(tiConf)
 
+  // Load the com common mixins 
+  let comMixins = await Ti.Load("@com:ti/support/auto_page_mode.mjs")
+  Ti.Config.set({
+    comDecorator : (com)=>{
+      //console.log("++++++Decorator", com.name)
+      Ti.Util.pushValue(com, "mixins", comMixins)
+    }
+  })
+
   // setup the i18n
   Ti.I18n.put(await Ti.Load("@i18n:_ti"))
 
@@ -102,17 +111,9 @@ async function main(){
     }
   }
 
-  // Load the com common mixins 
-  let comMixins = await Ti.Load("@com:ti/support/auto_page_mode.mjs")
-
   // Load main app
   let app = await Ti.App("@MyApp")
-  await app.init({
-    comDecorator : (com)=>{
-      //console.log("++++++Decorator", com.name)
-      Ti.Util.pushValue(com, "mixins", comMixins)
-    }
-  })
+  await app.init()
 
   // Save current app name
   Ti.SetAppName(app.name())
@@ -120,6 +121,7 @@ async function main(){
   //---------------------------------------
   Ti.Dom.watchAutoRootFontSize({
     callback:({$root, mode})=>{
+      // console.log(app.name(), app)
       $root.setAttribute("as", mode)
       app.commit("page/setMode", mode)
     }

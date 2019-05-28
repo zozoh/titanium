@@ -2,7 +2,8 @@ import {Ti} from "./ti.mjs"
 //-----------------------------------
 const CONFIG = {
   prefix  : {},
-  alias   : {}
+  alias   : {},
+  comDecorator : null
 }
 //-----------------------------------
 class AliasMapping {
@@ -56,20 +57,36 @@ export const TiConfig = {
     return CONFIG.version
   },
   //.................................
-  set({prefix, alias}) {
+  set({prefix, alias, lang, comDecorator}) {
     if(prefix)
       CONFIG.prefix = prefix
-    if(alias)
+
+    if(alias) {
       CONFIG.alias = alias
-    
-    ALIAS.reset(CONFIG.alias)
+      ALIAS.reset(CONFIG.alias)
+    }
+
+    if(lang)
+      CONFIG.lang = lang
+
+    if(comDecorator)
+      CONFIG.comDecorator = comDecorator
   },
   //.................................
-  update({prefix, alias}) {
+  update({prefix, alias, lang, comDecorator}) {
     if(prefix)
       _.assign(CONFIG.prefix, prefix)
-    if(alias)
+
+    if(alias) {
       _.assign(CONFIG.alias, alias)
+      ALIAS.reset(CONFIG.alias)
+    }
+
+    if(lang)
+      CONFIG.lang = lang
+
+    if(comDecorator)
+      CONFIG.comDecorator = comDecorator
 
     ALIAS.reset(CONFIG.alias)
   },
@@ -79,6 +96,12 @@ export const TiConfig = {
       return _.get(CONFIG, key);
     }
     return CONFIG;
+  },
+  //...............................
+  decorate(com) {
+    if(_.isFunction(CONFIG.comDecorator)) {
+      CONFIG.comDecorator(com)
+    }
   },
   //...............................
   lang() {

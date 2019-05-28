@@ -9,7 +9,7 @@ export async function OpenObjSelector(pathOrObj="~", {
   type = "info", 
   textOk = "i18n:ok",
   textCancel = "i18n:cancel",
-  width="61.8%", height="61.8%",
+  width="80%", height="90%",
   multi=false,
   spacing="xs"}={}){
   //................................................
@@ -40,6 +40,7 @@ export async function OpenObjSelector(pathOrObj="~", {
     /////////////////////////////////////////////////
     "store" : {
       "modules" : {
+        "page" : "@mod:ti/page",
         "meta" : "@mod:wn/obj-meta",
         "main" : "@mod:wn/obj-explorer"
       }

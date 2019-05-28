@@ -426,7 +426,7 @@ a:hover {
   align-items: center;
   align-content: center;
   flex-wrap: wrap;
-  padding: .2rem .2rem 2rem .2rem;
+  padding: .2rem;
   z-index: 1000; }
   .ti-modal > .mdl-con > .mdl-main {
     color: #666;
