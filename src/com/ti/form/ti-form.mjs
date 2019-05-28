@@ -121,30 +121,47 @@ export default {
     onInvalid(payload) {
       //console.log("invalid", payload)
       this.$emit("invalid", payload)
-    }
-  },
-  //////////////////////////////////////////////////////
-  updated : function() {
-    // Find all field-name Elements
-    let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
+    },
+    __adjust_fields_width() {
+      // Find all field-name Elements
+      let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
 
-    // Reset them to org-width
-    for(let $fldnm of $fldNames) {
-      Ti.Dom.setStyle($fldnm, {width:""})
-    }
+      // Reset them to org-width
+      for(let $fldnm of $fldNames) {
+        Ti.Dom.setStyle($fldnm, {width:""})
+      }
 
-    // Get the max-width of them
-    let maxWidth = 0
-    for(let $fldnm of $fldNames) {
-      let rect = Ti.Rects.createBy($fldnm)
-      maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
-    }
+      // Get the max-width of them
+      let maxWidth = 0
+      for(let $fldnm of $fldNames) {
+        let rect = Ti.Rects.createBy($fldnm)
+        maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
+      }
 
-    // Wait for whole view rendered, and align the field-name
-    this.$nextTick(()=>{
+      // Wait for whole view rendered, and align the field-name
       for(let $fldnm of $fldNames) {
         Ti.Dom.setStyle($fldnm, {width:maxWidth})
       }
+    }
+  },
+  //////////////////////////////////////////////////////
+  created : function() {
+    this.__debounce_adjust_fields_width = _.debounce(()=>{
+      this.__adjust_fields_width()
+    }, 500)
+  },
+  mounted : function() {
+    Ti.Viewport.watch(this,  _.debounce(()=>{
+      this.__adjust_fields_width()
+    }, 500))
+  },
+  updated : function() {
+    this.$nextTick(()=>{
+      this.__adjust_fields_width()
     })
+  },
+  beforeDestroy : function(){
+    Ti.Viewport.unwatch(this)
   }
+  //////////////////////////////////////////////////////
 }

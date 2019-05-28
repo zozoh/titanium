@@ -1,7 +1,7 @@
 .ti-modal {
-  $closer-width : .32rem;
-  $title-size   : .32rem;
-  $action-size  : .48rem;
+  $closer-width : 32px;
+  $title-size   : 32px;
+  $action-size  : 48px;
   > .mdl-mask {
     @include pos-fixed-full;
     @include color($color-mask, r, bushy);
@@ -33,7 +33,7 @@
           @include color($color-mask, r, bushy);
           @include border(2px, solid, r);
           border-radius:50%; overflow:hidden;
-          font-size: .16rem;
+          font-size: 16px;
           transition: transform 0.3s;
         }
         &:hover {
@@ -49,14 +49,18 @@
       > .mdl-title {
         @include pos-abs($l:0,$r:0, $t:0, $h:$title-size);
         @include noselect;
-        @include flex-align;
+        @include flex-align-nowrap;
         @include color($color-h1, r, c);
         @include border(1px, solid, shallow, bottom);
-        padding:.04rem .1rem; 
+        padding:.04rem .08rem; 
         font-size:.12rem; line-height:2em;
+        > * {
+          @include flex-center;
+          display:inline; line-height: 16px;
+        }
         > .mdl-title-icon {
-          font-size:1.3em; padding:0 .06rem 0 0;
-          opacity: 0.4;;
+          margin:0 .06rem 0 0; opacity: 0.4;
+          > i {font-size:1.3em; display:block;}
         }
       }
       //....................................

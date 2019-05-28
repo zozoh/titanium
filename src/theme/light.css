@@ -61,13 +61,13 @@ a:hover {
 
 @media (min-width: 0) {
   body > * {
-    font-size: 12px; } }
+    font-size: 14px; } }
 @media (min-width: 576px) {
   body > * {
-    font-size: 12px; } }
+    font-size: 14px; } }
 @media (min-width: 768px) {
   body > * {
-    font-size: 13px; } }
+    font-size: 14px; } }
 @media (min-width: 992px) {
   body > * {
     font-size: 14px; } }
@@ -445,11 +445,11 @@ a:hover {
       flex-wrap: nowrap;
       flex: 1 1 auto;
       cursor: pointer;
-      width: 0.32rem;
-      height: 0.32rem;
-      line-height: 0.32rem;
-      margin-right: -0.16rem;
-      margin-top: -0.16rem; }
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      margin-right: -16px;
+      margin-top: -16px; }
       .ti-modal > .mdl-con > .mdl-main > .mdl-closer > span {
         display: flex;
         justify-content: center;
@@ -462,7 +462,7 @@ a:hover {
         border: 2px solid;
         border-radius: 50%;
         overflow: hidden;
-        font-size: .16rem;
+        font-size: 16px;
         transition: transform 0.3s; }
       .ti-modal > .mdl-con > .mdl-main > .mdl-closer:hover > span {
         color: #FFF;
@@ -474,30 +474,40 @@ a:hover {
       position: absolute;
       left: 0;
       top: 0;
-      height: 0.32rem;
+      height: 32px;
       right: 0;
       user-select: none;
       display: flex;
       justify-content: flex-start;
-      align-items: stretch;
-      align-content: stretch;
-      flex-wrap: wrap;
+      align-items: center;
+      align-content: center;
+      flex-wrap: nowrap;
       color: rgba(200, 200, 200, 0.4);
       background-color: rgba(20, 20, 20, 0.4);
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      padding: .04rem .1rem;
+      padding: .04rem .08rem;
       font-size: .12rem;
       line-height: 2em; }
+      .ti-modal > .mdl-con > .mdl-main > .mdl-title > * {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        flex-wrap: wrap;
+        display: inline;
+        line-height: 16px; }
       .ti-modal > .mdl-con > .mdl-main > .mdl-title > .mdl-title-icon {
-        font-size: 1.3em;
-        padding: 0 .06rem 0 0;
+        margin: 0 .06rem 0 0;
         opacity: 0.4; }
+        .ti-modal > .mdl-con > .mdl-main > .mdl-title > .mdl-title-icon > i {
+          font-size: 1.3em;
+          display: block; }
     .ti-modal > .mdl-con > .mdl-main > .mdl-body {
       position: absolute;
       left: 0;
-      top: 0.32rem;
+      top: 32px;
       right: 0;
-      bottom: 0.48rem;
+      bottom: 48px;
       display: flex;
       justify-content: flex-start;
       align-items: stretch;
@@ -507,7 +517,7 @@ a:hover {
     .ti-modal > .mdl-con > .mdl-main > .mdl-actions {
       position: absolute;
       left: 0;
-      height: 0.48rem;
+      height: 48px;
       right: 0;
       bottom: 0;
       user-select: none;
