@@ -115,7 +115,6 @@ export default {
     },
     //......................................
     async doReload() {
-      console.log("I am reload", this.value)
       let vals = this.value ? [].concat(this.value) : []
       let items = []
       // Loop each value item

@@ -24,7 +24,7 @@ export default {
   //////////////////////////////////////////////////////
   methods : {
     onChanged(payload) {
-      console.log("wn-form.changed", payload)
+      //console.log("wn-form.changed", payload)
       let app = Ti.App(this)
       app.dispatch("main/update", payload)
     },

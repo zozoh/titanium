@@ -4,7 +4,7 @@ export const TiStr = {
    */
   renderBy(str="", vars={}, iteratee, regex=/\$\{([^}]+)\}/g) {
     if(!str || _.isEmpty(vars)){
-      return ""
+      return _.isArray(vars) ? [] : ""
     }
     // Normlized args
     if(_.isRegExp(iteratee)) {

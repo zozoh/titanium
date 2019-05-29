@@ -56,7 +56,10 @@ export default {
     },
     //......................................
     showBtn() {
-      return this.icon || this.text
+      return (this.loading && this.loadingIcon)
+              || (this.opened && this.openedIcon)
+              || this.icon 
+              || this.text
     },
     //......................................
     // For Single mode
