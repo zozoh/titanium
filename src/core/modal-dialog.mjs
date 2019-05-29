@@ -116,7 +116,7 @@ class TiModalDialog {
       // Bind closer event
       if($closer) {
         $closer.addEventListener("click", ()=>{
-          resolve(null)
+          resolve()
         })
       }
       // Bind action events

@@ -4,10 +4,44 @@
   @include text-input;
   min-width: 2rem;
   cursor:pointer;
+  &:hover {
+    border-color: map-get($color-selected, r);
+    @include color($color-selected, c, r); 
+    > .box-clear {
+      > .ti-icon {
+        @include color($color-selected, c);
+        &:hover {
+          @include color($color-warn, c);
+          transform:scale(1.2);
+        }
+      }
+    }
+    > .box-btn {
+      @include color($color-selected, c, r); 
+    }
+  }
   //--------------------------------------------
   > .as-single, >.as-multi, .as-empty {flex:1 1 auto;}
   //--------------------------------------------
-  > .box-btn {flex:0 0 auto; padding:0 .06rem;}
+  > .box-clear {
+    @include flex-center;
+    padding:0 .06rem;
+    > .ti-icon {
+      @include color($color-track, c);
+      transition: transform 0.3s;
+    }
+
+  }
+  //--------------------------------------------
+  > .box-btn {
+    @include flex-center;
+    //@include color($color-success, r, c);
+    flex:0 0 auto;
+    padding:0 .06rem;
+    > .btn-text {
+      margin:0 .04rem;
+    }
+  }
   //--------------------------------------------
   > .as-single {
     padding:.02rem 0 .02rem .1rem;
@@ -24,6 +58,8 @@
       cursor:pointer;
       padding:0 .06rem; margin-right:0.02rem;
       border-radius:2px;
+      //------------------------------------------
+      .it-icon {margin-right:.04rem;}
       //------------------------------------------
       .it-del {
         @include flex-center;

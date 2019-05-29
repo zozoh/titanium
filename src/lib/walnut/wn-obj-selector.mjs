@@ -11,6 +11,8 @@ export async function OpenObjSelector(pathOrObj="~", {
   textCancel = "i18n:cancel",
   width="80%", height="90%",
   multi=false,
+  selected=[],
+  autoOpenDir=false,
   spacing="xs"}={}){
   //................................................
   // Prepare the DOM
@@ -69,12 +71,10 @@ export async function OpenObjSelector(pathOrObj="~", {
     },
     /////////////////////////////////////////////////
     "methods" : {
-      onMainViewOpen(meta){
-        console.log("meta", meta)
-      },
-      abc(){
-        console.log("I am abc")
-        return this.mainData
+      async onMainViewOpen(meta){
+        // console.log("meta", meta)
+        let meta2 = await this.$store.dispatch("meta/reload", meta)
+        return await this.$store.dispatch("main/reload", meta2)
       }
     },
     //................................................
@@ -94,13 +94,15 @@ export async function OpenObjSelector(pathOrObj="~", {
         // Reloading relatived data
         if(meta) {
           // Make sure curretn is directory
-          if('DIR' != meta.race) {
+          if(!autoOpenDir || 'DIR' != meta.race) {
             meta = await Wn.Io.loadMetaById(meta.pid)
           }
           // Reload ancestors
           await app.dispatch("meta/reload", meta)
           // Reload children
           await app.dispatch("main/reload", meta)
+          // Then highlight the selection
+          app.commit("main/setSelected", selected)
         }
         // Report Error
         else {

@@ -131,7 +131,7 @@ export default {
       return _.assign({}, fnSet, {
         // format obj to string
         formatStringBy(obj={}, fmt=""){
-          console.log("hahahaha")
+          console.log("hahahaha", obj, fmt)
           return Ti.S.renderBy(fmt, obj)
         },
         // Mapping obj to another

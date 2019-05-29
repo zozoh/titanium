@@ -75,7 +75,7 @@ export default {
       try {
         console.log("this.serializer(val):", val)
         v2 = this.serializer(val)
-        //console.log("field changed", val, v2)
+        console.log("field changed", val, v2)
       }
       // Invalid 
       catch(error) {

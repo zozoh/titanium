@@ -82,15 +82,6 @@ export default {
       return this.selectedItems.length > 0
     },
     //......................................
-    // For Single mode
-    theItem() {
-      if(this.hasSelecteds){
-        return _.get(this.selectedItems, 0)
-      }
-      return this.empty
-    },
-    //......................................
-    // For Multi mode
     selectedItems() {
       let selects = []
       for(let it of this.droplist) {

@@ -37,16 +37,25 @@
   </div>
   <!--// slot here to extends -->
   <slot>
-    <div class="box-btn">
+    <div v-if="clearIcon && hasItems"
+      class="box-clear"
+      @click.stop="$emit('clear')">
+      <ti-icon :value="clearIcon"/>
+    </div>
+    <div v-if="showBtn"
+      class="box-btn">
       <ti-icon
-        v-if="loading"
+        v-if="loading && loadingIcon"
         :value="loadingIcon"/>
       <ti-icon 
-        v-else-if="opened"
+        v-else-if="opened && openedIcon"
         :value="openedIcon"/>
       <ti-icon 
-        v-else
+        v-else-if="icon"
         :value="icon"/>
+      <span v-if="text"
+        class="btn-text"
+        >{{text|i18n}}</span>
     </div>
   </slot>
 </div>

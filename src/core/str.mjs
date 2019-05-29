@@ -3,6 +3,9 @@ export const TiStr = {
    * Replace the placeholder
    */
   renderBy(str="", vars={}, iteratee, regex=/\$\{([^}]+)\}/g) {
+    if(!str || _.isEmpty(vars)){
+      return ""
+    }
     // Normlized args
     if(_.isRegExp(iteratee)) {
       regex = iteratee
@@ -13,6 +16,16 @@ export const TiStr = {
       iteratee = (varName, vars, placeholder)=>{
         return Ti.Util.fallback(vars[varName], placeholder)  
       }
+    }
+    // Array
+    if(_.isArray(vars)) {
+      let re = []
+      for(let i=0; i<vars.length; i++) {
+        let vars2 = vars[i]
+        let s2 = TiStr.renderBy(str, vars2)
+        re.push(s2)
+      }
+      return re
     }
     // Looping
     let m

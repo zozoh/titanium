@@ -1,10 +1,12 @@
 <div class="wn-obj-picker">
     <ti-box ref="box"
       :empty="empty"
-      :items="items"
+      :items="formedItems"
       :loading="loading"
       :multi="multi"
-      icon="zmdi-more"
+      :icon="chooseIcon"
+      :clear-icon="clearIcon"
       @open="openPicker"
-      @remove="onRemoveItem"/>
+      @remove="onRemoveItem"
+      @clear="onClearItems"/>
 </div>

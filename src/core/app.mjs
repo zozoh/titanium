@@ -113,7 +113,7 @@ export class OneTiApp {
       return fn(payload)
     }
     // Properties
-    else if(fn) {
+    else if(!_.isUndefined(fn)) {
       return fn
     }
     // report error
@@ -132,7 +132,7 @@ export class OneTiApp {
       return fn(payload)
     }
     // Properties
-    else if(fn) {
+    else if(!_.isUndefined(fn)) {
       return fn
     }
     // report error

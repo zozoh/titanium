@@ -125,6 +125,20 @@ export default {
     state.currentId = id
   },
   //---------------------------------------------------
+  setSelected(state, items=[]) {
+    // Loop All Items
+    let list = state.children 
+    for(let it of list) {
+      let _is  = it.__is || {}
+      _is.selected = _.findIndex(items, (it2)=>it2.id == it.id) >= 0
+      it.__is = _is
+    }
+    // Update state
+    state.children = [].concat(list)
+    state.currentIndex = 0
+    state.currentId = items.length > 0 ? items[0].id : null
+  },
+  //---------------------------------------------------
   selectAll(state) {
     // Loop All Items
     let list = state.children 
@@ -136,7 +150,7 @@ export default {
     // Update state
     state.children = [].concat(list)
     state.currentIndex = 0
-    state.currentId = null
+    state.currentId = list.length > 0 ? list[0].id : null
   },
   //---------------------------------------------------
   /***

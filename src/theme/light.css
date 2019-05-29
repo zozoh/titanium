@@ -559,7 +559,7 @@ a:hover {
   background-color: #fdd835; }
 .ti-modal.ti-info > .mdl-con > .mdl-main > .mdl-title {
   color: #FFF;
-  background-color: #4e9abd; }
+  background-color: #2196f3; }
 .ti-modal.ti-error > .mdl-con > .mdl-main > .mdl-title {
   color: #FFF;
   background-color: #f44336; }
@@ -997,11 +997,40 @@ a:hover {
   cursor: pointer; }
   .ti-box:focus {
     border-color: #ff4081; }
+  .ti-box:hover {
+    border-color: #2196f3;
+    color: #cce8ff;
+    background-color: #2196f3; }
+    .ti-box:hover > .box-clear > .ti-icon {
+      color: #cce8ff; }
+      .ti-box:hover > .box-clear > .ti-icon:hover {
+        color: #fdd835;
+        transform: scale(1.2); }
+    .ti-box:hover > .box-btn {
+      color: #cce8ff;
+      background-color: #2196f3; }
   .ti-box > .as-single, .ti-box > .as-multi, .ti-box .as-empty {
     flex: 1 1 auto; }
+  .ti-box > .box-clear {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    padding: 0 .06rem; }
+    .ti-box > .box-clear > .ti-icon {
+      color: #888;
+      transition: transform 0.3s; }
   .ti-box > .box-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
     flex: 0 0 auto;
     padding: 0 .06rem; }
+    .ti-box > .box-btn > .btn-text {
+      margin: 0 .04rem; }
   .ti-box > .as-single {
     padding: .02rem 0 .02rem .1rem; }
   .ti-box > .as-multi {
@@ -1022,11 +1051,13 @@ a:hover {
       align-content: center;
       flex-wrap: wrap;
       color: #FFF;
-      background-color: #4e9abd;
+      background-color: #2196f3;
       cursor: pointer;
       padding: 0 .06rem;
       margin-right: 0.02rem;
       border-radius: 2px; }
+      .ti-box > .as-multi > li .it-icon {
+        margin-right: .04rem; }
       .ti-box > .as-multi > li .it-del {
         display: flex;
         justify-content: center;

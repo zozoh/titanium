@@ -24,9 +24,17 @@ export default {
       type : [String, Object],
       default : "zmdi-chevron-down"
     },
+    "text" : {
+      type : String,
+      default : null
+    },
     "opened" : {
       type : Boolean,
       default : false
+    },
+    "clearIcon" : {
+      type : [String, Object],
+      default : null
     },
     "openedIcon" : {
       type : [String, Object],
@@ -45,6 +53,10 @@ export default {
     },
     noItems() {
       return _.isEmpty(this.items)
+    },
+    //......................................
+    showBtn() {
+      return this.icon || this.text
     },
     //......................................
     // For Single mode

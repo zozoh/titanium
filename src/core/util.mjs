@@ -116,7 +116,7 @@ export const TiUtil = {
    * @return `Object|Array`
    */
   mapping(source={}, mapping={}, customizer=_.identity) {
-    if(_.isEmpty(mapping))
+    if(_.isEmpty(source) || _.isEmpty(mapping))
       return source
     // Array
     if(_.isArray(source)) {

@@ -15,8 +15,17 @@ function _STR(val) {
 }
 //----------------------------------------------
 function gen_wn_sys_exec(vm, fn, args){
-  let cmdText = _.get(args, 0)
-  let options = _.get(args, 1) || {as:"json"}
+  let cmdText, options
+  // args like [$cmdText, {..options..}]
+  if(_.isArray(args)) {
+    cmdText = _.get(args, 0)
+    options = _.get(args, 1) || {as:"json"}
+  }
+  // The args is just normalze string
+  else {
+    cmdText = args
+    options = {as:"json"}
+  }
   if(!cmdText)
     return
   
