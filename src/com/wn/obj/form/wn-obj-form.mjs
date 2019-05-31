@@ -1,9 +1,11 @@
 export default {
   props : {
+    // Just hide the income properties
     "meta" : {
       type : Object,
       default : ()=>({})
     },
+    // The 3 properties below are really useful
     "config" : {
       type : Object,
       default : null
