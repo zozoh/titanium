@@ -179,7 +179,7 @@ The `thing.json` declared the thing set aspect.
 
 Save store/recorver the layout setting to local storage as json:
 
-```json
+```js
 {
   "main" : "100%",
   "search" : ["40%", "100%"],  // [PC,Mobile]
