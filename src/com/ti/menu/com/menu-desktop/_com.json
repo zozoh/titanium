@@ -1,0 +1,5 @@
+{
+  "name" : "menu-desktop",
+  "template" : "./menu-desktop.html",
+  "mixins"   : ["./menu-desktop.mjs"]
+}

@@ -54,6 +54,12 @@
     "thumb" : "fab-first-order",
     "text"  : "SASS文本"
   },
+  "thing_set" : {
+    "race" : "DIR",
+    "icon"  : "fas-cubes",
+    "thumb" : "fas-cubes",
+    "text"  : "数据集合"
+  },
   "txt" : {
     "race" : "FILE",
     "icon"  : "far-file-alt",

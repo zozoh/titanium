@@ -1,63 +1,63 @@
 <div class="wn-manager">
   <!--
-      For Desktop
-    -->
-    <wn-explorer v-if="isPageModeDesktop"
-      class="as-desktop"
-      key="for-desktop"
-      :loading="isLoading"
-      :ancestors="obj.ancestors"
-      :meta="obj.meta"
-      :status="mainStatus"
-      @main:open="onMainViewOpen">
-      <template v-slot:logo>
-        <div class="logo-icon">
-          <ti-icon :value="logoIcon" size=".24rem"/>
+    For Desktop
+  -->
+  <wn-explorer v-if="isPageModeDesktop"
+    class="as-desktop"
+    key="for-desktop"
+    :loading="isLoading"
+    :ancestors="obj.ancestors"
+    :meta="obj.meta"
+    :status="mainStatus"
+    @main:open="onMainViewOpen">
+    <template v-slot:logo>
+      <div class="logo-icon">
+        <ti-icon :value="logoIcon" size=".24rem"/>
+      </div>
+    </template>
+    <template v-slot:action>
+      <wn-user-info
+        :name="me.name"
+        :group="me.group"/>
+      <div v-if="main.actionMenu.length > 0"
+        class="sky-action-menu">
+        <ti-menu 
+          :data="main.actionMenu"
+          :status="mainStatus"/>
+      </div>
+    </template>
+    <template v-slot:aside>
+      <div class="wnm-aside">
+          <wnm-sidebar-item v-for="it in sidebar"
+            :key="it.key"
+            :group-status-store-key="it.key"
+            :highlight-id="mainDataId"
+            :do-open-path="onMainViewOpen"
+            :get-obj-link="getObjLink"
+            v-bind="it"/>
         </div>
-      </template>
-      <template v-slot:action>
-        <wn-user-info
-          :name="me.name"
-          :group="me.group"/>
-        <div v-if="main.actionMenu.length > 0"
-          class="sky-action-menu">
-          <ti-menu 
-            :data="main.actionMenu"
-            :status="mainStatus"/>
-        </div>
-      </template>
-      <template v-slot:aside>
-        <div class="wnm-aside">
-            <wnm-sidebar-item v-for="it in sidebar"
-              :key="it.key"
-              :group-status-store-key="it.key"
-              :highlight-id="mainDataId"
-              :do-open-path="onMainViewOpen"
-              :get-obj-link="getObjLink"
-              v-bind="it"/>
-          </div>
-      </template>
-      <template v-slot:arena>
-        <component
-          class="ti-fill-parent" 
-          :is="main.comName"
-          v-bind="mainData"
-          @open="onMainViewOpen"
-          @change="onMainDataChange"/>
-      </template>
-      <template v-slot:footer>
-        <div class="footer-info ti-flex-center">
-          <ti-icon class="center" :value="main.comIcon"/>
-          <span>{{main.comName|i18n}}</span>
-        </div>
-        <div class="footer-log">
-          <span>{{mainLog}}</span>
-        </div>
-        <div class="footer-indicator ti-flex-center">
-          <em>{{main.modType}}</em>
-        </div>
-      </template>
-    </wn-explorer>
+    </template>
+    <template v-slot:arena>
+      <component
+        class="ti-fill-parent" 
+        :is="main.comName"
+        v-bind="mainData"
+        @open="onMainViewOpen"
+        @change="onMainDataChange"/>
+    </template>
+    <template v-slot:footer>
+      <div class="footer-info ti-flex-center">
+        <ti-icon class="center" :value="main.comIcon"/>
+        <span>{{main.comName|i18n}}</span>
+      </div>
+      <div class="footer-log">
+        <span>{{mainLog}}</span>
+      </div>
+      <div class="footer-indicator ti-flex-center">
+        <em>{{main.modType}}</em>
+      </div>
+    </template>
+  </wn-explorer>
   <!--
     For Phone or Tablet
   -->
@@ -84,6 +84,13 @@
       <ul class="ti-crumb">
         <li><b>{{getObjTitle(obj.meta)}}</b></li>
       </ul>
+    </template>
+    <template v-slot:action>
+      <div v-if="main.actionMenu.length > 0">
+        <ti-menu 
+          :data="main.actionMenu"
+          :status="mainStatus"/>
+      </div>
     </template>
     <template v-slot:arena>
       <component

@@ -1,10 +1,12 @@
-.ti-menu {
-  @include noselect; 
-  //------------------------------------------------
-  > .menu-top {
+.ti-menu {@include noselect;}
+//------------------------------------------------
+// For Desktop
+//------------------------------------------------
+.ti-menu-desktop { 
+  > .menu-desktop-top {
     > li {
       @include flex-center;
-      .ti-menu-item-btnlike {
+      .md-info {
         @include flex-align($ai:center, $wp:nowrap);
         border-radius:.02rem;
         padding:0 .06rem;
@@ -15,34 +17,34 @@
           @include fireable;
         }
       }
-      .ti-icon {
+      .md-icon {
         margin-right:.04rem;
       }
-      > .mi-line {
+      > .md-line {
         @include color($color-line, null, shallow);
         width:1px; height:.2rem; overflow:hidden;
         margin:0 .02rem;
       }
     }
-  }  // ~ > .menu-top
+  }  // ~ > .desktop-
   //------------------------------------------------
-  .mi-group {
+  .md-group {
     &:hover {
-      > .ti-menu-item-btnlike {
+      > .md-info {
         @include color-highlight;
       }
     }
-  }
-  //------------------------------------------------
-  .mi-group-con {
-    &.mi-group-closed {display:none;}
-    &.mi-group-opened {display:block;}
-    &:before {
-      display:block; content:"";
+    &.is-top > .md-group-con:before {
       @include pos-fixed-full;
+      display:block; content:"";
       background-color:rgba(0,0,0,0);
       z-index: $z-mask;
     }
+  }
+  //------------------------------------------------
+  .md-group-con {
+    &.md-group-closed {display:none;}
+    &.md-group-opened {display:block;}
     > .menu-sub {
       position:fixed;
       min-width: 1.5rem;
@@ -50,12 +52,39 @@
       padding:1px; 
       @include color($color-cloak, r, c);
       @include border(1px, solid, primary);
-      .mi-line {
+      //-------------------------------------------
+      .md-line {
         @include color($color-line, null, shallow);
         height:1px; overflow:hidden;
         margin:.04rem 0;
       }
+      //-------------------------------------------
+      .md-info {
+        padding:.02rem .1rem; line-height:1.2em;
+        height: .32rem;
+        &:hover {
+          .md-tip {opacity: 1; }
+        }
+        > * {
+          flex:0 0 auto;
+          white-space: nowrap; display:block;
+        }
+        .md-icon {
+          width:.24rem;
+        }
+        .md-tip {
+          flex:1 1 auto;
+          font-size:.1rem; padding-left:.24rem;
+          text-align:right;
+          opacity: 0.4;
+          &.md-tip-icon {
+            font-size:.14rem; opacity: 0.6;
+          }
+        }
+      }
     }
-  }  // ~ .mi-group-con
-  //------------------------------------------------
+  }  // ~ .md-group-con
 }
+//------------------------------------------------
+// For Mobile
+//------------------------------------------------

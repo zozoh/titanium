@@ -1,0 +1,37 @@
+<div class="md-group"
+  :class="classObject.top"
+  @mouseenter="onMouseEnter"
+  @mouseleave="onMouseLeave">
+  <div class="md-info"
+      :item-disabled="isDisabled"
+      :item-enabled="isEnabled"
+      :tip="theTip"
+      @click.stop="showChildren">
+    <span v-if="isTop || showIcon"
+      class="md-icon">
+      <ti-icon v-if="hasIcon" 
+        size=".16rem"
+        :value="theIcon"/>
+    </span>
+    <span v-if="hasText"
+      class="md-text">{{theText|i18n}}</span>
+    <span v-if="!isTop"
+      class="md-tip md-tip-icon">
+      <ti-icon value="fas-caret-right" size=".16rem"/>
+    </span>
+  </div>
+  <div class="md-group-con" 
+       :class="classObject.groupCon"
+       @click.stop="hideChildren">
+    <ul class="menu-sub ti-ul-reset" ref="sub">
+      <li v-for="it in items" :key="it.key">
+        <component :is="it.comType"
+            v-bind="it"
+            :show-icon="itemsHasIcon"
+            :status="status"
+            :status-key="it.key"
+            @action="$emit('action', $event)"/>
+      </li>
+    </ul>
+  </div>
+</div>

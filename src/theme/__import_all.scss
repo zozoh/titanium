@@ -7,10 +7,12 @@
 @import "_utility.scss";
 //-----------------------------------------------------
 // Include coms
+@import "com/_ti-table.scss";
 @import "com/_ti-tabs.scss";
 @import "com/_ti-crumb.scss";
 @import "com/_ti-icon.scss";
 @import "com/_ti-tiles.scss";
+@import "com/_ti-layout.scss";
 @import "com/_ti-loading.scss";
 @import "com/_ti-menu.scss";
 @import "com/_ti-modal.scss";
@@ -39,6 +41,7 @@
 @import "com/_wn-explorer.scss";
 @import "com/_wn-adaptlist.scss";
 @import "com/_wn-obj-preview.scss";
+@import "com/_wn-thing.scss";
 //-----------------------------------------------------
 // Include apps
 @import "com/_wn-manager.scss";

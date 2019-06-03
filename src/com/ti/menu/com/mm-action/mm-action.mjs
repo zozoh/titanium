@@ -11,6 +11,12 @@ export default {
     isProcessing() {
       return this.status[this.statusKey] 
               ? true : false
+    },
+    hasShortcut() {
+      return this.shortcut ? true : false
+    },
+    shortcutText() {
+      return this.shortcut || ""
     }
   }),
   mounted : function() {

@@ -63,9 +63,16 @@ const loading = {
   json(url) {
     return loading.text(url)
         .then(json => {
-          return _.isString(json)
-                      ? JSON.parse(json)
-                      : json
+          try {
+            return _.isString(json)
+                        ? JSON.parse(json)
+                        : json
+          }catch(E) {
+            if(Ti.IsWarn("TiLoad")) {
+              console.log("ti.load.json!!", url, json, E)
+              }
+            throw E
+          }
         })
   },
   // pure text

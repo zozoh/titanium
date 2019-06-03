@@ -2,5 +2,6 @@
   "wn-list-adaptview" : "对象浏览器",
   "wn-obj-preview"    : "对象预览",
   "wn-obj-puretext"   : "纯文本编辑器",
+  "wn-thing" : "数据集合",
   "wnm-view-opening"  : "正在读取数据中..."
 }

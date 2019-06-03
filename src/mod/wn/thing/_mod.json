@@ -1,0 +1,6 @@
+{
+  "name" : "wn-thing",
+  "namespaced" : true,
+  "state" : "./wn-thing.json",
+  "mixins" : "./wn-thing.mjs"
+}

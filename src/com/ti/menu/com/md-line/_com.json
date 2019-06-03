@@ -1,0 +1,5 @@
+{
+  "name" : "md-line",
+  "template" : "<div class=\"md-line\"></div>",
+  "mixins"   : ["./md-line.mjs"]
+}

@@ -1,0 +1,7 @@
+{
+  "name" : "wn-thing-layout",
+  "globally" : true,
+  "template" : "./thing-layout.html",
+  "mixins"   : ["./thing-layout.mjs"],
+  "components" : []
+}

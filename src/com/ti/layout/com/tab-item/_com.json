@@ -1,0 +1,6 @@
+{
+  "name" : "ti-layout-tab-item",
+  "globally" : true,
+  "template" : "./ti-layout-tab-item.html",
+  "mixins" : ["./ti-layout-tab-item.mjs"]
+}

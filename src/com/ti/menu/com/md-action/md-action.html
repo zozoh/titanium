@@ -1,0 +1,17 @@
+<div class="md-action md-info"
+     :item-disabled="isDisabled"
+     :item-enabled="isEnabled"
+     :tip="theTip"
+     @click="$emit('action', action)">
+  <span v-if="isTop || showIcon"
+    class="md-icon">
+    <ti-icon v-if="hasIcon" 
+      size=".16rem"
+      :value="theIcon"/>
+  </span>
+  <span v-if="hasText"
+    class="md-text">{{theText|i18n}}</span>
+  <span v-if="!isTop && hasShortcut"
+    class="md-tip">{{shortcutText}}</span>
+  <div v-if="isProcessing && isCaptureWhenAltDisplay" class="ti-mask"></div>
+</div>

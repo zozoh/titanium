@@ -113,14 +113,12 @@ The `thing.json` declared the thing set aspect.
 {
   "main" : {
     "name" : "main",
-    "type" : "blocks",   // tabs | *blocks | @xxx
+    "type" : "cols",   // tabs | *cols | rows | @xxx
     "size" : "100%",
-    "direction" : "horizontal",  // *horizontal | vertical
     "blocks" : [{
       "name" : "search",
-     	"type" : "blocks",
+     	"type" : "rows",
       "size" : ["40%", "100%"],  // [PC,Mobile]
-      "direction" : "vertical",
       "blocks" : [{
           "name" : "filter",
           "type" : "@filter",

@@ -20,6 +20,10 @@ export const fireable = {
         type : Boolean,
         default : false
       },
+      showIcon : {
+        type : Boolean,
+        default : false
+      },
       type : {
         type : String,
         default : null

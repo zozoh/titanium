@@ -1,0 +1,6 @@
+{
+  "name" : "ti-layout-block",
+  "globally" : true,
+  "template" : "./ti-layout-block.html",
+  "mixins" : ["./ti-layout-block.mjs"]
+}

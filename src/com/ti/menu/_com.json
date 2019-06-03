@@ -4,8 +4,10 @@
   "template" : "./ti-menu.html",
   "mixins" : ["./ti-menu.mjs"],
   "components" : [
-    "./com/mi-action",
-    "./com/mi-group",
-    "./com/mi-line"
+    "./com/menu-desktop",
+    "./com/md-action",
+    "./com/md-group",
+    "./com/md-line",
+    "./com/menu-mobile"
   ]
 }

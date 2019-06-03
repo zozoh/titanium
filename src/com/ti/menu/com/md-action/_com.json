@@ -1,0 +1,5 @@
+{
+  "name" : "md-action",
+  "template" : "./md-action.html",
+  "mixins"   : ["./md-action.mjs"]
+}

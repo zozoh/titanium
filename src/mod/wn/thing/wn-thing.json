@@ -1,0 +1,47 @@
+{
+  "meta": null,
+  "search" : {
+    "filter" : {},
+    "sorter" : {},
+    "list": [],
+    "pager" : [],
+    "status" : {
+      "reloading" : false,
+      "saving"    : false,
+      "deleting"  : false
+    }
+  },
+  "config" : {
+    "json" : true
+  },
+  "index" : {
+    "meta": null,
+    "content": null,
+    "__saved_content" : null,
+    "contentType": null,
+    "status" : {
+      "changed"   : false,
+      "saving"    : false,
+      "reloading" : false
+    }
+  },
+  "files" : {
+    "meta": null,
+    "children" : [],
+    "currentIndex" : 0,
+    "currentId" : null,
+    "uploadings" : [],
+    "pager" : {
+      "pageNumber" : -1,
+      "pageSize" : -1,
+      "pageCount" : -1,
+      "totalCoun" : -1
+    },
+    "status" : {
+      "reloading" : false,
+      "deleting" : false,
+      "exposeHidden" : false,
+      "renaming" : false
+    }
+  }
+}
