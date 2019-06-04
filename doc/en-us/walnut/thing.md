@@ -17,9 +17,7 @@ Thing is just a thing, and it almostly can be anything.
 %THING SET%
   index/
 	data/
-	th_fields.json    # Define the meta form detail
-	th_actions.json   # Define the table detail
-	thing.json        # It will link to th_meta/table.json
+	thing-schema.json  # Schema file to define the aspact of thing manager
 ```
 
 The `thing.json` declared the thing set aspect.
@@ -35,24 +33,23 @@ The `thing.json` declared the thing set aspect.
   //   + @col2
   //   + @col1
   //
-  "layout" : "./th_layout.json",
+  "layout" : {/*@see Thing Layout Section below*/},
   // Define current thing set special actions. 
   // It will override the default setting in `views/thing-manager.json`
-  //  - If falsy, apply the default actions setting in `views` 
-  //  - String to link to individual json file
+  //  - If falsy, apply the default actions setting in `views`   
   //  - Use `[]` to disabled the actions meta
   "actions" : [/*@see view.md#View Defination->actions*/],
-  // Define the current thing set fields
-  //  - String to link to individual json setting file
-  //  - `Plain Object`, it will be take the meta defination directly
-  "fields" : "./th_fields.json",
+  // extends method set, it will be add to current component instance
+  // - String to link extra method script file
+  // - Plain Object is the raw method set
+  // - async/await can be allowed
+  "methods" : "@com:support/customized.mjs",
   //
   // List
   // 
   "list" : {
 		"comType": "ti-table",
-    "comConf": {/*...*/},
-    "fields" : ["fieldA", "fieldB"]
+    "comConf": {/*...*/}
   },
   //
   // Filter: falsy to hidden
@@ -80,8 +77,7 @@ The `thing.json` declared the thing set aspect.
   //
   "meta" : {
 		"comType": "wn-obj-form",
-    "comConf": {/*...*/},
-    "fields" : ["fieldA", "fieldB"]
+    "comConf": {/*...*/}
   },
   "content" : {
     "comType": "wn-obj-puretext",
@@ -110,66 +106,88 @@ The `thing.json` declared the thing set aspect.
 # Thing Layout
 
 ```js
+/*
+ There are 3 kinds of layout: "desktop|tablet|phone"
+ */
 {
-  "main" : {
-    "name" : "main",
-    "type" : "cols",   // tabs | *cols | rows | @xxx
-    "size" : "100%",
+  //----------------------------------------
+  // Desktop
+  //----------------------------------------
+  "desktop" : {
+    // root layout type: tabs | *cols | rows | @xxx
+    "type" : "cols",
+    // If declared, it will allow user to adjust each block size(children only)
+    "adjustable" : true,
+    // Local store key for saving user adjusting result
+    "adjustResult" : "my-thing-desktop",
     "blocks" : [{
-      "name" : "search",
+      "name" : "search",  // MUST unique in current section(layout.desktop)
      	"type" : "rows",
-      "size" : ["40%", "100%"],  // [PC,Mobile]
+      "size" : "40%",  // %|px|rem, if adjusted, it will keep the unit
       "blocks" : [{
           "name" : "filter",
-          "type" : "@filter",
           "size" : "50px",
+        	"use"  : "@filter"  // This block use @filter
         }, {
 					"name" : "sorter",
-          "type" : "@sorter",
-          "size" : ["32px", 0],  // [PC,Mobile]
+          "size" : "32px",
+          "use"  : "@sorter"
         }, {
           "name" : "list",
-          "type" : "@list",
-          "size" : "stretch"  // will not allow customizing
+          "size" : "stretch", // will NOT allow to adjust
+          "use"  : "@list"
         }, {
           "name" : "pager",
-          "type" : "@pager",
-          "size" : "50px"
+          "size" : "50px",
+          "use"  : "@pager"
         }] // search.blocks
     }, {
       "name" : "info",
-      "title" : [null, "i18n:thing.info"],
+      // show title bar if `icon||title||actions`
+      "icon" : "fas-info",          // show title bar
+      "title" : "i18n:thing.info",  // show title bar
+      "actions" : [/*@see view.md#View Defination->actions*/],
+      // tabs will auto add <ti-tabs> in header part
       "type" : "tabs",
-      "size" : ["30%", "V:right-center=100%x100%"],
-      "tabs" : [{
-        "name" : "meta",
+      "size" : "30%",
+      "blocks" : [{
+        "name"  : "meta",
         "title" : "i18n:thing.meta",
-        "type" : "@meta"
+        "use"   : "@meta"
       }, {
-        "name" : "content",
+        "name"  : "content",
         "title" : "i18n:thing.detail",
-        "type" : "@content"
+        "use"   : "@content"
       }]
     }, {
       "name" : "files",
       "title" : [null, "i18n:thing.files"],
       "type" : "tabs",
-      "size" : ["30%", "H:center-bottom=100%x80%"],
-      "tabs" : [{
-          "name" : "media",
+      "size" : "30%",
+      "blocks" : [{
+          "name"  : "media",
           "title" : "i18n:thing.media",
-          "type" : "@media"
+          "use"   : "@media"
         }, {
-          "name" : "attachment",
+          "name"  : "attachment",
           "title" : "i18n:thing.attachment",
-          "type" : "@attachment"
+          "use"   : "@attachment"
       }]
-    }], // main.blocks
-  } // main
+    }], // desktop.blocks
+  }, // desktop
+  //----------------------------------------
+  // Tablet
+  // If the value is String, it means that copy the relative setting
+  //----------------------------------------
+  "tablet" : "phone",
+  //----------------------------------------
+  // Phone
+  //----------------------------------------
+  "phone"  : {/*..*/}
 }
 ```
 
-> The thing layout power by `<ti-layout> | <ti-layout-block> | <ti-layout-tabs>`
+> The thing layout power by `<ti-layout> | <ti-layout-block>`
 
 
 
