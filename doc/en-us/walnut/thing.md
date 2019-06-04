@@ -114,7 +114,7 @@ The `thing.json` declared the thing set aspect.
   // Desktop
   //----------------------------------------
   "desktop" : {
-    // root layout type: tabs | *cols | rows | @xxx
+    // root layout type: "tabs|cols|rows|@xxx"
     "type" : "cols",
     // If declared, it will allow user to adjust each block size(children only)
     "adjustable" : true,
@@ -127,23 +127,24 @@ The `thing.json` declared the thing set aspect.
       "blocks" : [{
           "name" : "filter",
           "size" : "50px",
-        	"use"  : "@filter"  // This block use @filter
+          // This block use @filter, if without defined, block will be skipped
+        	"body" : "@filter"
         }, {
 					"name" : "sorter",
           "size" : "32px",
-          "use"  : "@sorter"
+          "body" : "@sorter"
         }, {
           "name" : "list",
           "size" : "stretch", // will NOT allow to adjust
-          "use"  : "@list"
+          "body" : "@list"
         }, {
           "name" : "pager",
           "size" : "50px",
-          "use"  : "@pager"
+          "body" : "@pager"
         }] // search.blocks
     }, {
       "name" : "info",
-      // show title bar if `icon||title||actions`
+      // show title bar if `icon|title|actions`
       "icon" : "fas-info",          // show title bar
       "title" : "i18n:thing.info",  // show title bar
       "actions" : [/*@see view.md#View Defination->actions*/],
@@ -153,11 +154,11 @@ The `thing.json` declared the thing set aspect.
       "blocks" : [{
         "name"  : "meta",
         "title" : "i18n:thing.meta",
-        "use"   : "@meta"
+        "body"  : "@meta"
       }, {
         "name"  : "content",
         "title" : "i18n:thing.detail",
-        "use"   : "@content"
+        "body"  : "@content"
       }]
     }, {
       "name" : "files",
@@ -167,13 +168,43 @@ The `thing.json` declared the thing set aspect.
       "blocks" : [{
           "name"  : "media",
           "title" : "i18n:thing.media",
-          "use"   : "@media"
+          "body"  : "@media"
         }, {
           "name"  : "attachment",
           "title" : "i18n:thing.attachment",
-          "use"   : "@attachment"
+          "body"  : "@attachment"
       }]
     }], // desktop.blocks
+    /*
+    Panel it float box, default is hidden.
+    */
+    "panels" : [{
+			"name"  : "create",
+      // show title bar if `icon|title|closer=default`
+      "icon"   : "zmdi-flare",
+      "title"  : "i18n:thing.create",
+      // closer button's position
+      // "default" - right/top at title bar
+      // "none" - no closer
+      // "bottom" - bottom/center lamp cord
+      // "top" - center/top shrink button 
+      // "left" - center/left shrink button 
+      // "right" - center/right shrink button 
+      "closer" : "default",
+      // Position of the original point of the panel
+      // @see Ti.Rect.doctIn
+      "position" : "center-top",
+      "width"  : "100%",
+      "height" : "100%",
+      // user can adjust the size
+      //  - true : both x/y
+      //  - "x"  : x only
+      //  - "y"  : y only
+      //  - false : forbid adjust size
+      "adjustable" : true,
+      // panel body component instance
+      "body"  : "@create"
+    }]
   }, // desktop
   //----------------------------------------
   // Tablet
@@ -197,13 +228,16 @@ Save store/recorver the layout setting to local storage as json:
 
 ```js
 {
-  "main" : "100%",
-  "search" : ["40%", "100%"],  // [PC,Mobile]
+  "search" : "40%",
   "filter" ："50px",
-  "sorter" : ["32px", 0],  // [PC,Mobile]
+  "sorter" : "32px",
   "pager" : "50px",
-  "info " : ["30%", "V:right-center=100%x100%"],
-  "files" : ["30%", "H:center-bottom=100%x80%"]
+  "info " : "30%",
+  "files" : "30%",
+  "create" : {
+    width  : "70%",
+    height : "45%" 
+  }
 }
 ```
 
