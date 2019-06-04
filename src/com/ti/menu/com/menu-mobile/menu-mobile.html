@@ -1,12 +1,31 @@
 <div class="ti-menu-mobile"
   :class="topClassName">
-  <div class="mobile-btn">
-    <ti-icon value="fas-bars" size=".24rem"/>
+  <!--
+    Action toggle button
+  -->
+  <div class="mobile-btn" @click.stop="isOpened=!isOpened">
+    <ti-icon v-if="isOpened"
+      value="fas-times" size=".24rem"/>
+    <ti-icon v-else
+      value="fas-bars" size=".24rem"/>
   </div>
-  <div class="mobile-con">
+  <!--
+    Action container
+  -->
+  <div class="mobile-con"
+    @click="isOpened=false">
     <ul>
-      <li v-for="it in items" :key="it.key">
-        
+      <li v-for="it in items" :key="it.key"
+        :style="liStyle">
+        <mm-action
+          v-bind="it"
+          :status="status"
+          :status-key="it.statusKey || it.key"
+          @action="$emit('action', $event);"/>
+      </li>
+      <li v-for="it in placeholders"
+        :style="liStyle">
+        <div class="action-placeholder"></div>
       </li>
     </ul>
   </div>

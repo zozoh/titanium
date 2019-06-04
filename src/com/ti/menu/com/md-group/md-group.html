@@ -29,7 +29,7 @@
             v-bind="it"
             :show-icon="itemsHasIcon"
             :status="status"
-            :status-key="it.key"
+            :status-key="it.statusKey || it.key"
             @action="$emit('action', $event)"/>
       </li>
     </ul>

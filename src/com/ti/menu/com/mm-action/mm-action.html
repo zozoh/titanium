@@ -1,17 +1,16 @@
-<div class="md-action md-info"
+<div class="mm-action"
      :item-disabled="isDisabled"
      :item-enabled="isEnabled"
      :tip="theTip"
-     @click="invokeAction">
-  <span v-if="isTop || showIcon"
-    class="md-icon">
+     @click="$emit('action', action)">
+  <span class="action-icon">
     <ti-icon v-if="hasIcon" 
-      size=".16rem"
+      size=".4rem"
       :value="theIcon"/>
+    <b v-else
+      class="no-icon"></b>
   </span>
   <span v-if="hasText"
-    class="md-text">{{theText|i18n}}</span>
-  <span v-if="!isTop && hasShortcut"
-    class="md-tip">{{shortcutText}}</span>
-  <div v-if="isProcessing && isCaptureWhenAltDisplay" class="ti-mask"></div>
+    class="action-text">{{theText|i18n}}</span>
+  <div v-if="isProcessing && isCaptureWhenAltDisplay" class="action-ing-mask"></div>
 </div>

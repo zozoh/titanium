@@ -1,5 +1,5 @@
 function joinActionItem(list=[], {
-  key, type, 
+  key, type, statusKey,
   icon, text, tip, 
   shortcut,
   enableBy, disableBy, 
@@ -7,8 +7,12 @@ function joinActionItem(list=[], {
   action, 
   items
 }, dftKey){
+  // Ignore the line
+  if('line' == type)
+    return
   let it = {
     key  : key  || dftKey,   // Action item must contains a key
+    statusKey : statusKey || key || dftKey,
     type : type || "action", // default as normal action
     shortcut,
     icon, text, tip,
@@ -28,13 +32,15 @@ function joinActionItem(list=[], {
     })
   }
   // Join the normalized item
-  list.push(it)
+  else {
+    list.push(it)
+  }
 }
 //--------------------------------------------
 export default {
   ///////////////////////////////////////
   data : ()=>({
-    isOpened : true
+    isOpened : false
   }),
   ///////////////////////////////////////
   props : {
@@ -49,6 +55,10 @@ export default {
     status : {
       type : Object,
       default : ()=>({})
+    },
+    cols : {
+      type : Number,
+      default : 4
     }
   },
   ///////////////////////////////////////
@@ -60,11 +70,24 @@ export default {
       }
       return klass.join(" ")
     },
+    liStyle() {
+      return {
+        "width" : Ti.S.toPercent(Math.floor(1000/this.cols)/1000)
+      }
+    },
     items() {
       let list = []
       _.forEach(this.data, (it, index)=>{
         joinActionItem(list, it, "/item"+index)
       })
+      return list
+    },
+    placeholders() {
+      let n = this.cols - this.items.length % this.cols
+      let list = []
+      for(let i=0; i<n; i++) {
+        list.push({})
+      }
       return list
     }
   }

@@ -34,6 +34,7 @@
         @include color-highlight;
       }
     }
+    // Top group open, it should mask page
     &.is-top > .md-group-con:before {
       @include pos-fixed-full;
       display:block; content:"";
@@ -88,3 +89,83 @@
 //------------------------------------------------
 // For Mobile
 //------------------------------------------------
+.ti-menu-mobile { 
+  width:100%; height:100%;
+  position: relative;
+  //----------------------------------------------
+  .mobile-btn {
+    @include pos-abs-full;
+    @include flex-center;
+    cursor: pointer; 
+    z-index:$z-mask+1;
+    &:hover {
+      @include color($color-primary, c);
+    }
+  }
+  &.align-is-left   .mobile-btn {justify-content: flex-start;}
+  &.align-is-center .mobile-btn {justify-content: center;}
+  &.align-is-right  .mobile-btn {justify-content: flex-end;}
+  //----------------------------------------------
+  .mobile-con {
+    @include pos-fixed-full;
+    @include color($color-mask, r, heavy);
+    z-index:$z-mask;
+    display: none;
+    padding:30px;
+    overflow:auto;
+    ul {
+      @include raw-list;
+      @include flex-center($jc:space-around);
+      width:100%; height:100%;
+      li {
+        width: 25%; text-align:center;
+        padding:0 .1rem;
+        .mm-action {
+          @include flex-align-v-nowrap;
+          width:100%; cursor: pointer;
+          padding:.4rem 0;
+          //--------------------------------------
+          .action-icon {
+            @include flex-center;
+            display: block; height:.6rem;
+            .no-icon {
+              background:rgba(200,200,200,0.3);
+              border:1px dotted map-get($color-mask, r);
+              display: block; width:.4rem; height:.4rem;
+              margin:0 auto;
+              border-radius: .08rem;
+            }
+          }
+          //--------------------------------------
+          .action-text {
+            flex:1 1 auto; display: block;
+            height:.24rem; line-height:.22rem;
+            width:100%; white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow:hidden;
+          }
+          //--------------------------------------
+          &[item-disabled] {
+            @include disabled;
+          }
+          //--------------------------------------
+          &[item-enabled] {
+            @include fireable;
+            &:hover {
+              .action-icon .no-icon {
+                border-color: map-get($color-selected, r);
+              }
+            }
+          }
+          //--------------------------------------
+        }
+      }
+    }
+  }
+  //----------------------------------------------
+  &.is-opened {
+    .mobile-con {
+      display: block;
+    }
+  }
+}

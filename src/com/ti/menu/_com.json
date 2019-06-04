@@ -8,6 +8,7 @@
     "./com/md-action",
     "./com/md-group",
     "./com/md-line",
-    "./com/menu-mobile"
+    "./com/menu-mobile",
+    "./com/mm-action"
   ]
 }

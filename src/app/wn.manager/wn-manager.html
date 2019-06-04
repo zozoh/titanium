@@ -86,11 +86,11 @@
       </ul>
     </template>
     <template v-slot:action>
-      <div v-if="main.actionMenu.length > 0">
-        <ti-menu 
-          :data="main.actionMenu"
-          :status="mainStatus"/>
-      </div>
+      <ti-menu v-if="main.actionMenu.length > 0"
+        class="sky-menu-icon"
+        align="center"
+        :data="main.actionMenu"
+        :status="mainStatus"/>
     </template>
     <template v-slot:arena>
       <component

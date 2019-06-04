@@ -1,5 +1,5 @@
 function joinActionItem(list=[], {
-  key, type, 
+  key, type, statusKey,
   icon, text, tip, 
   shortcut,
   enableBy, disableBy, 
@@ -9,6 +9,7 @@ function joinActionItem(list=[], {
 }, dftKey){
   let it = {
     key  : key  || dftKey,   // Action item must contains a key
+    statusKey : statusKey || key || dftKey,
     type : type || "action", // default as normal action
     shortcut,
     icon, text, tip,

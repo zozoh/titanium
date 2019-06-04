@@ -39,30 +39,6 @@
           "shortcut" : "CTRL+DELETE"
         },{
           "type":"line"
-        }, {
-          "type" : "group",
-          "text" : "i18n:more",
-          "items" : [{
-              "key"  : "create",
-              "type" : "action",
-              "icon" : "zmdi-flare",
-              "text" : "i18n:create",
-              "action" : "dispatch:main/create",
-              "shortcut" : "ALT+CTRL+N"
-            },{
-              "key"  : "deleting",
-              "type" : "action",
-              "icon" : "zmdi-delete",
-              "text" : "i18n:del",
-              "altDisplay" : {
-                "icon" : "zmdi-refresh zmdi-hc-spin",
-                "text" : "i18n:del-ing"
-              },
-              "action" : "dispatch:main/deleteSelected",
-              "shortcut" : "CTRL+DELETE"
-            }]
-        },{
-          "type":"line"
         },{
           "key"  : "renaming",
           "type" : "action",

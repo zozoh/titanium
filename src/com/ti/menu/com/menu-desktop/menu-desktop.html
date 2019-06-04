@@ -5,7 +5,7 @@
         v-bind="it"
         :is-top="true"
         :status="status"
-        :status-key="it.key"
+        :status-key="it.statusKey || it.key"
         @action="$emit('action', $event)"/>
     </li>
   </ul>

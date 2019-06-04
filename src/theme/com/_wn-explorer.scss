@@ -13,7 +13,7 @@
 // padding
 .wn-explorer {
   //-----------------------------------------
-  &.as-desktop, &.is-home {
+  &.as-desktop {
     .explorer-sky { 
       .sky-logo   {padding:0 .02rem 0 .12rem;}
       .sky-action {padding:0 .12rem;
@@ -27,7 +27,7 @@
   //-----------------------------------------
   &.as-phone {
     .explorer-sky {
-      padding:0 .1rem;
+      padding:0;
       .ti-crumb {
         justify-content: center;
         align-content: center;
@@ -35,6 +35,9 @@
         height:100%; padding:0 .1rem;
         b {font-weight: normal;}
       }
+    }
+    &.is-home {
+      .explorer-sky {padding-left:.2rem;}
     }
   }
   //-----------------------------------------
@@ -70,7 +73,7 @@
   position:relative;
   > * {position:absolute;}
   > .explorer-sky {
-    @include flex-align;
+    @include flex-align-nowrap($ai:stretch);
     @include pos((
       l:0,t:0,w:100%,
       h:map-get($SZ,sky))...);
@@ -122,5 +125,10 @@
       > .logo-icon {
         @include flex-center;
       }
-    }  
+    } 
+    > .sky-action {
+      .sky-menu-icon {
+        width:.52rem; height:100%; 
+      }
+    } 
 }
