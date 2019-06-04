@@ -320,8 +320,8 @@ a:hover {
       color: #888;
       display: flex;
       justify-content: flex-start;
-      align-items: stretch;
-      align-content: stretch;
+      align-items: center;
+      align-content: center;
       flex-wrap: wrap;
       padding: .3rem;
       font-size: 1.2em; }
@@ -1488,8 +1488,8 @@ a:hover {
     .wn-adaptlist > .wal-uploading > header {
       display: flex;
       justify-content: flex-start;
-      align-items: stretch;
-      align-content: stretch;
+      align-items: center;
+      align-content: center;
       flex-wrap: wrap;
       color: #620;
       background-color: #fdd835;

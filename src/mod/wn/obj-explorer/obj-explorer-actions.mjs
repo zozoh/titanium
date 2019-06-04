@@ -9,11 +9,23 @@ export default {
     }
     commit("set", {status:{deleting:true}})
     let delCount = 0
+    // make removed files. it remove a video
+    // it will auto-remove the `videoc_dir` in serverside also
+    // so, in order to avoid delete the no-exists file, I should
+    // remove the `videoc_dir` ID here, each time loop, check current
+    // match the id set or not, then I will get peace
+    let exRemovedIds = {}
     try {
       // Loop items
       for(let it of list) {
         // Duck check
         if(!it || !it.id || !it.nm)
+          continue
+        // Ignore obsolete item
+        if(it.__is && (it.__is.loading || it.__is.removed))
+          continue
+        // Ignore the exRemovedIds
+        if(exRemovedIds[it.id])
           continue
         
         // Mark item is processing
@@ -46,6 +58,14 @@ export default {
         // Mark item removed
         commit("updateChildStatus", 
           {id:it.id, status:{loading:false, removed:true}})
+        // If video result folder, mark it at same time
+        let m = /^id:(.+)$/.exec(it.videoc_dir)
+        if(m) {
+          let vdId = m[1]
+          exRemovedIds[vdId] = true
+          commit("updateChildStatus", 
+            {id:it.vdId, status:{loading:false, removed:true}})
+        }
         // Counting
         delCount++
         // Then continue the loop .......^

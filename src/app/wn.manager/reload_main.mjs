@@ -46,28 +46,25 @@ export default async function reloadMain(meta) {
         if(!config.state) {
           config.state = {}
         }
-        // config.state = _.assign({}, config.state, {
-        //   __wn_messages : {
-        //     noti  : null,
-        //     toast : null,
-        //     log : null
-        //   }
-        // })
+        config.state = _.assign({}, config.state, {
+          __wn_messages : {
+            noti  : null,
+            toast : null,
+            log : null
+          }
+        })
         
-        // config.mutations = _.assign({}, config.mutations, {
-        //   $noti(state, str) {
-        //     console.log("hahah")
-        //     state.__wn_messages.noti = str
-        //   },
-        //   $toast(state, str) {
-        //     console.log("hahah")
-        //     state.__wn_messages.toast = str
-        //   },
-        //   $log(state, str) {
-        //     console.log("hahah")
-        //     state.__wn_messages.log = str
-        //   }
-        // })
+        config.mutations = _.assign({}, config.mutations, {
+          $noti(state, str) {
+            state.__wn_messages.noti = str
+          },
+          $toast(state, str) {
+            state.__wn_messages.toast = str
+          },
+          $log(state, str) {
+            state.__wn_messages.log = str
+          }
+        })
       },
       // Add hook to get back the mainView instance
       updateComSetup : conf=>{

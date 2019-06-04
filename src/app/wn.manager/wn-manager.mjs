@@ -121,6 +121,9 @@ export default {
     },
     mainData() {
       return _.pickBy(this.$store.state.main, (val, key)=>{
+        if("__wn_messages" == key) {
+          return true
+        }
         return key && !key.startsWith("_")
       })
     },
@@ -130,8 +133,8 @@ export default {
       }
     },
     mainLog() {
-      if(this.mainData && this.mainData.$message) {
-        return Ti.I18n.text(this.mainData.$message.log)
+      if(this.mainData && this.mainData.__wn_messages) {
+        return Ti.I18n.text(this.mainData.__wn_messages.log)
       }
     }
   },

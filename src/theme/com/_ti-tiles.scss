@@ -13,7 +13,7 @@
     &.ti-spacing-xl {padding:.32rem;  >* {margin:.32rem;}}
     > .is-empty {
       @include color($color-track, c);
-      @include flex-align;
+      @include flex-align-center;
       padding:.3rem; font-size:1.2em;
       .ti-icon {font-size:2em; margin-right:.06rem;}
     }
