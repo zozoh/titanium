@@ -131,7 +131,7 @@ export default {
       return _.assign({}, fnSet, {
         // format obj to string
         formatStringBy(obj={}, fmt=""){
-          return Ti.S.renderBy(fmt, obj)
+          return Ti.S.renderVars(fmt, obj)
         },
         // Mapping obj to another
         mappingBy(obj={}, mapping={}) {

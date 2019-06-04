@@ -54,7 +54,7 @@
         <span>{{mainLog}}</span>
       </div>
       <div class="footer-indicator ti-flex-center">
-        <em>{{main.modType}}</em>
+        {{mainStatusText}}
       </div>
     </template>
   </wn-explorer>
@@ -101,4 +101,11 @@
         @change="onMainDataChange"/>
     </template>
   </wn-explorer>
+  <!--
+    Loading Mask
+  -->
+  <div v-if="mainStatus.publishing"
+    class="wnm-loading-mask">
+    <ti-loading :text="mainStatusText"/>
+  </div>
 </div>

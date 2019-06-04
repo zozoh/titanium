@@ -72,7 +72,6 @@ export const TiDom = {
     const $root = document.documentElement
     let size = ($win.innerWidth/tabletMaxWidth) * max
     let fontSize = Math.min(Math.max(size,min), max)
-    $root.style.fontSize = fontSize + "px"
     // apply the mark
     if(_.isFunction(callback)) {
       let mode = $win.innerWidth > tabletMaxWidth

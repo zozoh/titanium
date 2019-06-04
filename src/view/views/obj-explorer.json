@@ -42,6 +42,7 @@
         },{
           "key"  : "renaming",
           "type" : "action",
+          "icon" : "zmdi-space-bar",
           "text" : "i18n:rename",
           "altDisplay" : {
             "icon" : "zmdi-refresh zmdi-hc-spin"
@@ -53,22 +54,38 @@
         },{
           "key"  : "selectAll",
           "type" : "action",
+          "icon" : "zmdi-check-all",
           "text" : "i18n:select-all",
           "action" : "commit:main/selectAll",
           "shortcut" : "CTRL+A"
         },{
           "key"  : "blurAll",
           "type" : "action",
+          "icon" : "zmdi-minus",
           "text" : "i18n:blur-all",
           "action" : "commit:main/blurAll"
         },{
           "type" : "line"
         },{
+          "key"  : "publishing",
+          "type" : "action",
+          "icon" : "zmdi-mail-send",
+          "text" : "i18n:publish",
+          "altDisplay" : {
+            "icon" : "zmdi-refresh zmdi-hc-spin",
+            "text" : "i18n:publishing"
+          },
+          "action" : "dispatch:main/publish",
+          "shortcut" : "CTRL+SHIFT+P"
+        },{
+          "type" : "line"
+        },{
           "key"  : "exposeHidden",
           "type" : "action",
+          "icon" : "zmdi-eye-off",
           "text" : "i18n:weo-export-hidden",
           "altDisplay" : {
-            "icon" : "zmdi-check",
+            "icon" : "zmdi-eye",
             "capture" : false
           },
           "action" : "commit:main/toggleExposeHidden",

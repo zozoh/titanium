@@ -1,9 +1,15 @@
 export const TiStr = {
+  renderVars(str="", vars={}, iteratee, regex=/\$\{([^}]+)\}/g) {
+    if(_.isEmpty(vars)){
+      return _.isArray(vars) ? [] : ""
+    }
+    return TiStr.renderBy(str, vars, iteratee, regex)
+  },
   /***
    * Replace the placeholder
    */
   renderBy(str="", vars={}, iteratee, regex=/\$\{([^}]+)\}/g) {
-    if(!str || _.isEmpty(vars)){
+    if(!str){
       return _.isArray(vars) ? [] : ""
     }
     // Normlized args

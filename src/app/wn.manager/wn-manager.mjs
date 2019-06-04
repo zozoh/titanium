@@ -18,32 +18,32 @@ export default {
         this.reloadMain(newMeta)
       }
     },
-    // "mainData.$message.toast" : function(newVal, oldVal) {
-    //   let app = Ti.App(this)
-    //   if(newVal) {
-    //     console.log("toast!", newVal)
-    //     this.$message({
-    //         showClose : true,
-    //         duration  : 2000,
-    //         type      : newVal.type || "success",
-    //         message   : Ti.I18n.text(newVal)
-    //       });
-    //     app.commit("main/$toast", null)
-    //   }
-    // },
-    // "mainData.$message.noti" : function(newVal, oldVal) {
-    //   let app = Ti.App(this)
-    //   if(newVal) {
-    //     this.$notify({
-    //         showClose : true,
-    //         duration  : 2000,
-    //         type      : newVal.type || "success",
-    //         title    : Ti.I18n.text(newVal.title || "i18n:success"),
-    //         message  : Ti.I18n.text(newVal)
-    //       });
-    //     app.commit("main/$noti", null)
-    //   }
-    // }
+    "mainData.__wn_messages.toast" : function(newVal, oldVal) {
+      let app = Ti.App(this)
+      if(newVal) {
+        //console.log("toast!", newVal)
+        this.$message({
+            showClose : true,
+            duration  : 2000,
+            type      : newVal.type || "success",
+            message   : Ti.I18n.text(newVal)
+          });
+        app.commit("main/$toast", null)
+      }
+    },
+    "mainData.__wn_messages.noti" : function(newVal, oldVal) {
+      let app = Ti.App(this)
+      if(newVal) {
+        this.$notify({
+            showClose : true,
+            duration  : 2000,
+            type      : newVal.type || "success",
+            title    : Ti.I18n.text(newVal.title || "i18n:success"),
+            message  : Ti.I18n.text(newVal)
+          });
+        app.commit("main/$noti", null)
+      }
+    }
   },
   //////////////////////////////////////////////
   mounted : function(){
@@ -135,6 +135,18 @@ export default {
     mainLog() {
       if(this.mainData && this.mainData.__wn_messages) {
         return Ti.I18n.text(this.mainData.__wn_messages.log)
+      }
+    },
+    mainStatusText(){
+      let st = this.mainStatus
+      if(st.publishing) {
+        return Ti.I18n.text("i18n:publishing")
+      }
+      if(st.reloading) {
+        return Ti.I18n.text("i18n:loading")
+      }
+      if(st.renaming) {
+        return Ti.I18n.text("i18n:renaming")
       }
     }
   },

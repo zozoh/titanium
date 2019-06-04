@@ -1549,7 +1549,8 @@ a:hover {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: .01rem; }
+  padding: .06rem .02rem;
+  line-height: 2.4em; }
   .wnm-aside .sidebar-item .it-info {
     user-select: none;
     display: flex;
@@ -1560,7 +1561,13 @@ a:hover {
     width: 100%;
     padding: 0 .5em;
     cursor: pointer; }
-    .wnm-aside .sidebar-item .it-info > span.ti-icon {
+    .wnm-aside .sidebar-item .it-info > .it-info-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      width: .28rem;
       margin-right: .06rem; }
     .wnm-aside .sidebar-item .it-info > .it-info-text {
       flex: 1 1 auto;
@@ -1590,5 +1597,21 @@ a:hover {
   .wnm-aside .sidebar-item.is-collapse > .it-con {
     height: 0;
     overflow: hidden; }
+
+.wnm-loading-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  color: #e0e0e0;
+  background-color: rgba(50, 50, 50, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  z-index: 1000;
+  padding-bottom: 30%; }
 
 /*# sourceMappingURL=light.css.map */

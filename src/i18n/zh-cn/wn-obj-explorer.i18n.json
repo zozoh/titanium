@@ -16,5 +16,8 @@
   "weo-create-invalid" : "新对象名称不能包括非法字符",
   "weo-create-too-long" : "新对象名称过长",
   "weo-create-ok" : "创建成功",
-  "weo-create-fail" : "创建失败"
+  "weo-create-fail" : "创建失败",
+  "weo-publish-to-nil" : "未设置发布目标",
+  "weo-publish-to-noexist" : "发布目标不存在",
+  "weo-publish-done" : "发布成功"
 }

@@ -1,12 +1,17 @@
 <div class="wn-explorer"
   v-drop-off
   :class="topClass">
+  <!--
+    Sky
+  -->
   <div v-if="show.sky"
     class="explorer-sky">
+    <!--Logo-->
     <div v-if="show.logo"
       class="sky-logo ti-flex-center">
       <slot name="logo"></slot>
     </div>
+    <!--Title/Crumb-->
     <div v-if="!noTitle"
       class="sky-title">
       <slot name="title">
@@ -24,18 +29,28 @@
         </ul>
       </slot>
     </div>
+    <!--Actions-->
     <div v-if="show.action"
       class="sky-action ti-flex-right">
       <slot name="action"></slot>
     </div>
   </div>
+  <!--
+    Aside
+  -->>
   <div v-if="show.aside"
     class="explorer-aside">
     <slot name="aside"></slot>
   </div>
+  <!--
+    Main Arena
+  -->>
   <div class="explorer-arena">
     <slot name="arena"></slot>
   </div>
+  <!--
+    Footer
+  -->>
   <div v-if="show.footer"
     class="explorer-footer">
     <slot name="footer"></slot>

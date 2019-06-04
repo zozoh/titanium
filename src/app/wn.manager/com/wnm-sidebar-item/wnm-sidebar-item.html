@@ -1,6 +1,8 @@
 <div class="sidebar-item" :class="itemClass">
   <div class="it-info" >
-    <ti-icon v-if="icon" :value="icon" size=".16rem"/>
+    <span v-if="icon" class="it-info-icon">
+      <ti-icon :value="icon" size=".16rem"/>
+    </span>
     <span v-if="isGroup"
       class="it-info-text"
       @click.stop.prevent="onClickGroupInfo">{{title|i18n}}</span>

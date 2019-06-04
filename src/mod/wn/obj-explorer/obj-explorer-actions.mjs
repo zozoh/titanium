@@ -199,6 +199,34 @@ export default {
     return await dispatch("reload")
   },
   //---------------------------------------
+  async publish({state,commit,dispatch}) {
+    let meta = state.meta
+    // Check the publish target
+    if(!meta.publish_to) {
+      commit("$toast", {
+        type : "warning",
+        text : "i18n:weo-publish-to-nil"
+      })
+    }
+    // Get the target
+    let ta = await Wn.Io.loadMetaAt(meta, meta.publish_to)
+    if(!ta || !ta.id) {
+      commit("$toast", {
+        type : "warning",
+        text : "i18n:weo-publish-to-noexist"
+      })
+    }
+
+    commit("set", {status:{publishing:true}})
+    // Do copy
+    let cmdText = `cp -r id:${meta.id}/* id:${ta.id}/`
+    let re = await Wn.Sys.exec2(cmdText)
+
+    // All done
+    commit("set", {status:{publishing:false}})
+    commit("$toast", "i18n:weo-publish-done")
+  },
+  //---------------------------------------
   /***
    * Reload all
    */

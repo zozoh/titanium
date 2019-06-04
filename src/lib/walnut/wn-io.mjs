@@ -33,6 +33,20 @@ export const WnIo = {
     return AJAX_RETURN(reo)
   },
   /***
+   * Get object meta by refer meta
+   */
+  async loadMetaAt(refer, path) {
+    // eval absolute path
+    let aph = path;
+
+    // Relative to refer (path is not absolute)
+    if(refer && !(/^(~\/|\/|id:)/.test(path))) {
+      aph = `id:${refer.pid}/${path}`
+    }
+    // Do load
+    return await WnIo.loadMeta(aph)
+  },
+  /***
    * Get obj children by meta
    */
   async loadAncestors(str) {

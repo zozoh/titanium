@@ -11,13 +11,17 @@
 .wnm-aside {
   width:100%; height:100%;
   overflow-x:hidden; overflow-y:auto; 
-  padding: .01rem;
+  padding: .06rem .02rem; line-height: 2.4em;
   .sidebar-item {
     .it-info {
       @include noselect;
       @include flex-align($ai:center, $wp:nowrap);
       width:100%; padding:0 .5em; cursor: pointer;
-      > span.ti-icon {margin-right:.06rem;}
+      > .it-info-icon {
+        @include flex-center;
+        width:.28rem;
+        margin-right:.06rem;
+      }
       > .it-info-text {
         flex:1 1 auto; 
         @include text-overflow;
@@ -49,4 +53,13 @@
       > .it-con {height:0; overflow:hidden;}
     }
   } // ~ .sidebar-item
+}
+
+// Loading mask
+.wnm-loading-mask {
+  @include pos-fixed-full;
+  @include color($color-mask, r, thin);
+  @include flex-center;
+  z-index: $z-top;
+  padding-bottom:30%;
 }

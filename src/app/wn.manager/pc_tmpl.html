@@ -120,8 +120,11 @@ async function main(){
 
   //---------------------------------------
   Ti.Dom.watchAutoRootFontSize({
-    callback:({$root, mode})=>{
+    max : 100,
+    min : 80,
+    callback:({$root, mode, fontSize})=>{
       // console.log(app.name(), app)
+      $root.style.fontSize = fontSize + "px"
       $root.setAttribute("as", mode)
       app.commit("page/setMode", mode)
     }
