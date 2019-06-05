@@ -162,7 +162,7 @@ The `thing.json` declared the thing set aspect.
       }]
     }, {
       "name" : "files",
-      "title" : [null, "i18n:thing.files"],
+      "title" : "i18n:thing.files",
       "type" : "tabs",
       "size" : "30%",
       "blocks" : [{
