@@ -1,0 +1,7 @@
+{
+  "name" : "wn-gui",
+  "globally" : true,
+  "template" : "./wn-gui.html",
+  "mixins"   : ["./wn-gui.mjs"],
+  "components" : []
+}

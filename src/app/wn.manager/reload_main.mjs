@@ -40,6 +40,7 @@ export default async function reloadMain(meta) {
     if(Ti.IsInfo("app/wn.manager")) {
       console.log("ReloadMainView", mainView)
     }
+    console.log(mainView)
     // Load moudle/component
     let view = await $app.loadView("main", mainView, {
       updateStoreConfig : config=>{

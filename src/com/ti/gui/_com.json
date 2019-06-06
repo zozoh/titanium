@@ -1,0 +1,7 @@
+{
+  "name" : "ti-gui",
+  "globally" : true,
+  "template" : "./ti-gui.html",
+  "mixins"   : ["./ti-gui.mjs"],
+  "components" : []
+}
