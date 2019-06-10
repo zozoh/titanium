@@ -22,14 +22,6 @@ export default {
       type : Boolean,
       default : true
     },
-    "size" : {
-      type : [String,Number],
-      default : "stretch"
-    },
-    "adjustable" : {
-      type : Boolean,
-      default : true
-    },
     "position" : {
       type : String,
       default : "center/center"
@@ -58,35 +50,26 @@ export default {
     hasActions() {
       return !_.isEmpty(this.actions)
     },
-    hasBody() {
-      return this.body ? true : false
+    showHeader() {
+      return this.hasTitle || this.hasIcon || this.hasActions
     },
-    hasType() {
-      return this.type ? true : false
-    },
-    formedBlockList() {
-      return this.__formed_list(this.blocks)
-    },
-    formedPanelList() {
-      return this.__formed_list(this.panels)
+    topStyle() {
+      let style = {}
+      if(_.isString(this.width) || this.width > 0) {
+        style.width = Ti.Css.toSize(this.width)
+      }
+      if(_.isString(this.height) || this.height > 0) {
+        style.height = Ti.Css.toSize(this.height)
+      }
+      if(!_.isEmpty(style)) {
+        style.flex = "0 0 auto"
+      }
+      return style
     }
   },
   //////////////////////////////////////////
   methods : {
-    __formed_list(list=[]) {
-      let list2 = []
-      if(_.isArray(list)) {
-        for(let b of list) {
-          // Info
-
-          // ComType
-          if(b.body) {
-
-          }
-        }
-      }
-      return list2
-    }
+    
   }
   //////////////////////////////////////////
 }

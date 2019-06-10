@@ -43,7 +43,8 @@
         :is="main.comName"
         v-bind="mainData"
         @open="onMainViewOpen"
-        @change="onMainDataChange"/>
+        @change="onMainDataChange"
+        @action:upated="onActionUpdated"/>
     </template>
     <template v-slot:footer>
       <div class="footer-info ti-flex-center">
@@ -98,7 +99,8 @@
         :is="main.comName"
         v-bind="mainData"
         @open="onMainViewOpen"
-        @change="onMainDataChange"/>
+        @change="onMainDataChange"
+        @action:upated="onActionUpdated"/>
     </template>
   </wn-explorer>
   <!--

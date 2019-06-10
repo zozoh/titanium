@@ -1,0 +1,33 @@
+.ti-layout {
+  .ti-block {flex:1 1 auto;}
+  //------------------------------------
+  // Layout: rows
+  //------------------------------------
+  &.as-rows {
+    @include flex-align-v-nowrap($ai:stretch,$ac:stretch);
+    &.show-border {
+      > .ti-block {
+        @include border($pos:top);
+        &:first-child {border:0;}
+      }
+    }
+  }
+  //------------------------------------
+  // Layout: cols
+  //------------------------------------
+  &.as-cols {
+    @include flex-align-nowrap($ai:stretch,$ac:stretch);
+    &.show-border {
+      > .ti-block {
+        @include border($pos:left);
+        &:first-child {border:0;}
+      }
+    }
+  }
+  //------------------------------------
+  // Layout: tabs
+  //------------------------------------
+  //------------------------------------
+  // Layout: wall
+  //------------------------------------
+} // ~ .ti-layout

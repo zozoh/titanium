@@ -10,6 +10,10 @@ export default {
       type : Boolean,
       default : true
     },
+    "border" : {
+      type : Boolean,
+      default : false
+    },
     "blocks" : {
       type : Array,
       default : ()=>[]
@@ -42,8 +46,19 @@ export default {
       if(_.isArray(list)) {
         for(let b of list) {
           let info = _.pick(b, [
-              "title","icon","actions","name", "adjustable", "size",
+              "title","icon","actions","name", "adjustable", 
               "position", "width", "height", "closer"])
+          // Sizing
+          if(b.size && "stretch"!=b.size) {
+            // Cols
+            if("cols" == this.type) {
+              info.width = b.size
+            }
+            // Rows
+            else if("rows" == this.type) {
+              info.height = b.size
+            }
+          }
           // ComType as body
           let comType, comConf
           if(b.body) {
@@ -66,7 +81,7 @@ export default {
           else if(!_.isEmpty(b.blocks)){
             comType = "ti-gui"
             comConf = _.pick(b, [
-              "type", "blocks", "adjustable"
+              "type", "blocks", "adjustable", "border"
             ])
             _.defaults(comConf, {
               type : "cols",

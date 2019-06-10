@@ -2,16 +2,17 @@
   <!--
     Regular Layouts
   -->
-  <ti-layout
+  <ti-layout class="ti-fill-parent"
     :type="type"
+    :border="border"
     :adjustable="adjustable">
     <ti-block v-for="b in formedBlockList"
       :key="b.name"
       v-bind="b.info">
       <component :is="b.comType"
+        class="ti-fill-parent"
         v-bind="b.comConf"/>
     </ti-block>
-
   </ti-layout>
   <!--
     Float panels
@@ -22,6 +23,7 @@
       :key="b.name"
       v-bind="b.info">
       <component :is="b.comType"
+        class="ti-fill-parent"
         v-bind="b.comConf"/>
     </ti-block>
   </div>

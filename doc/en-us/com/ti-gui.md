@@ -54,6 +54,11 @@ User can adjust the size
 Defaultly `true`
 
 -------------------------------------------------
+## `border`
+
+Boolean. Show sub block border or not.
+
+-------------------------------------------------
 ## `blocks`
 
 Current block title/icon/actions
@@ -84,7 +89,9 @@ Each block looked like:
   // If true, use can change the block size by mouse.
   // It will be ignored when "wall" or "tabs"
   // default is true
-  adjustable : true
+  adjustable : true,
+  // Show border between subblock or not
+  border: false
 }
 ```
 

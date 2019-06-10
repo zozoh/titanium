@@ -22,13 +22,18 @@ export default {
     invokeAction : _.debounce(function(action){
       //console.log("invokeAction", action)
       let vm = this
-      let m = /^([a-zA-Z0-9_]+):(.+)$/.exec(action)
+      let m = /^([a-zA-Z0-9_]+):([^()]+)(\((.+)\))?$/.exec(action)
       if(m) {
         let $app = Ti.App(vm)
         let func = $app[m[1]]
-        let arg  = m[2]
-        if(_.isFunction(func) && arg) {
-          func.apply($app, [arg])
+        let tanm = m[2]
+        if(_.isFunction(func) && tanm) {
+          let args = [tanm]
+          if(m[4]) {
+            let payload = Ti.S.toJsValue(m[4])
+            args.push(payload)
+          }
+          func.apply($app, [tanm])
         }
         // Fail to found function
         else {

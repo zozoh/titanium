@@ -1,12 +1,15 @@
 {
   "layout" : {
     "type" : "cols",
+    "border" : true,
     "blocks" : [{
       "name" : "C0",
       "size" : "20%",
       "type" : "rows",
+      "border" : true,
       "blocks" : [{
         "name" : "C0-1",
+        "size" : 100,
         "body" : {
           "comType" : "ti-label",
           "comConf" : {"value" : "C0-1 content"}
@@ -31,7 +34,7 @@
     }, {
       "name" : "C2",
       "body" : "C2",
-      "size" : "30%"
+      "size" : 260
     }]
   },
   "schema" : {
@@ -47,5 +50,21 @@
         "value" : "I am C22"
       }
     }
-  } 
+  },
+  "actions" : [{
+      "key"  : "reloading",
+      "type" : "action",
+      "icon" : "zmdi-refresh",
+      "text" : "i18n:refresh",
+      "altDisplay" : {
+        "icon" : "zmdi-refresh zmdi-hc-spin",
+        "text" : "i18n:loading"
+      },
+      "action" : "dispatch:main/reload",
+      "shortcut" : "CTRL+R"
+    }, {
+      "key" : "show-CP",
+      "type" : "action",
+      "action" : "main:showBlock(P1)"
+    }] 
 }

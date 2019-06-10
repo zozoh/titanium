@@ -200,6 +200,10 @@ export default {
     onMainDataChange(data) {
       //console.log("onMainDataChange", data)
       this.$store.commit("main/set", data)
+    },
+    //.........................................
+    onActionUpdated(actions) {
+      console.log("update the actions", actions)
     }
   }  // methods
   //////////////////////////////////////////////

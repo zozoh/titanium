@@ -19,6 +19,11 @@ export default {
         return this.data.schema
       return {}
     }
-  }
+  },
   //////////////////////////////////////////
+  mounted : function() {
+    if(this.data && _.isArray(this.data.actions)) {
+      this.$emit("actions:updated", this.data.actions)
+    }
+  }
 }

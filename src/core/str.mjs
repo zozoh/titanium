@@ -67,6 +67,26 @@ export const TiStr = {
     return list.join(sep)
   },
   /***
+   * Convert string to Js Object automatictly
+   */
+  toJsValue(v="") {
+    let str = _.trim(v)
+    // Number
+    if (/^-?[\d.]+$/.test(str)) {
+        return str * 1;
+    }
+    // Boolean
+    if(/^(true|false|yes|no|on|off)$/i.test(str)) {
+      return /^(true|yes|on)$/i.test(str)
+    }
+    // Date
+    try {
+      return Ti.Types.parseDate(v)
+    } catch(E){}
+    // Then, it is a string
+    return str
+  },
+  /***
    * Get the display text for bytes
    */
   sizeText(byte=0, {

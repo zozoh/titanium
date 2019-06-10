@@ -7,6 +7,9 @@ export const TiCss = {
       return sz + "px"
     }
     return sz
+  },
+  toStyle(obj) {
+    _.mapValues(obj, TiCss.toSize)
   }
 }
 //---------------------------------------
