@@ -1,3 +1,28 @@
 <div class="ti-gui">
-  I am ti-gui
+  <!--
+    Regular Layouts
+  -->
+  <ti-layout
+    :type="type"
+    :adjustable="adjustable">
+    <ti-block v-for="b in formedBlockList"
+      :key="b.name"
+      v-bind="b.info">
+      <component :is="b.comType"
+        v-bind="b.comConf"/>
+    </ti-block>
+
+  </ti-layout>
+  <!--
+    Float panels
+  -->
+  <div v-if="hasPanels"
+    class="gui-panels">
+    <ti-block v-for="b in formedPanelList"
+      :key="b.name"
+      v-bind="b.info">
+      <component :is="b.comType"
+        v-bind="b.comConf"/>
+    </ti-block>
+  </div>
 </div>

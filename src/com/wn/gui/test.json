@@ -1,4 +1,51 @@
 {
-  "layout" : {},
-  "schema" : {} 
+  "layout" : {
+    "type" : "cols",
+    "blocks" : [{
+      "name" : "C0",
+      "size" : "20%",
+      "type" : "rows",
+      "blocks" : [{
+        "name" : "C0-1",
+        "body" : {
+          "comType" : "ti-label",
+          "comConf" : {"value" : "C0-1 content"}
+        }
+      }, {
+        "name" : "C0-2",
+        "body" : {
+          "comType" : "ti-label",
+          "comConf" : {"value" : "C0-2 content"}
+        }
+      }, {
+        "name" : "C0-3",
+        "body" : {
+          "comType" : "ti-label",
+          "comConf" : {"value" : "C0-3 content"}
+        }
+      }]
+    }, {
+      "name" : "C1",
+      "body" : "C1",
+      "size" : "stretch"
+    }, {
+      "name" : "C2",
+      "body" : "C2",
+      "size" : "30%"
+    }]
+  },
+  "schema" : {
+    "C1" : {
+      "comType" : "ti-label",
+      "comConf" : {
+        "value" : "I am C11"
+      }
+    },
+    "C2" : {
+      "comType" : "ti-label",
+      "comConf" : {
+        "value" : "I am C22"
+      }
+    }
+  } 
 }

@@ -1,0 +1,6 @@
+{
+  "name" : "gui-layout",
+  "globally" : true,
+  "template" : "./gui-layout.html",
+  "mixins" : ["./gui-layout.mjs"]
+}

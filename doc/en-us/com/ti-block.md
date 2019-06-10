@@ -7,7 +7,7 @@ tags:
 ---
 
 -------------------------------------------------
-# TiLayout Overview
+# TiBlock Overview
 
 -------------------------------------------------
 # Properties
@@ -20,13 +20,11 @@ tags:
 
 ## `name`
 
-## `type`
-
-## `body`
+## `adjustable`
 
 ## `size`
 
-## `adjustable`
+## `position`
 
 ## `width`
 

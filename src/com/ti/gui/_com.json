@@ -3,5 +3,7 @@
   "globally" : true,
   "template" : "./ti-gui.html",
   "mixins"   : ["./ti-gui.mjs"],
-  "components" : []
+  "components" : [
+    "@com:ti/layout"
+  ]
 }

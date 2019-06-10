@@ -12,119 +12,136 @@ tags:
 Render complex GUI by `<ti-layout>|<ti-block>` according the setting of
 JSON style defination.
 
-```bash
-TiGui
- +-- GuiLayout
-      +-- TiLayout  <----------------------+
-           |                               |
-           +--<slot:blocks>-- [TiBlock..]  +-- Recursion
-           |                    +--<slot>--+-- AnotherComponent
-           +--<slot:panels>-- [TiBlock..]  
-```
+
 
 -------------------------------------------------
 # Properties
 
-## `layout`
+## `type`
 
-> Layout is a `block`, it will build a tree structure by `blocks` and `panels`
+Layout type could be `cols|rows|tabs|wall`.
+The "size" field of each sub-block has different meaning
+
+### `cols`
+
+size is width of each column
+
+### `rows`
+
+size is height of each row
+
+###  `tabs`
+
+It will auto show the tabs bar, which each tab item texted by block's title.
+The block's name will be used when title no-defined.
+
+### `wall`
+
+size should item count of each row when Number,
+String("%|rem|px") will be taken as items's width
+Array[width,height] will be taken as item's  `width/height`
+"stretch" will be ignored.
+
+-------------------------------------------------
+## `adjustable`
+
+User can adjust the size
+ - `true` : both x/y
+ - `"x"`  : x only
+ - `"y"`  : y only
+ - `false` : forbid adjust size
+
+Defaultly `true`
+
+-------------------------------------------------
+## `blocks`
+
+Current block title/icon/actions
+If one of them has been declared, it will show the title bar
+
+Each block looked like:
 
 ```js
 {
-  // Current block title/icon/actions
-  // If one of them has been declared, it will show the title bar
   title : "i18n:xxx",
   icon  : "fas-file",
   actions : [/*
-    action menu items, @see <ti-menu> for more detail
-    */],
-  //----------------------------------------------
-  // Top layout block, name is "@top", it is readonly
-  name : "@top",
-  //----------------------------------------------
-  // [alt with "body"] cols|rows|tabs|wall
-  // If type=="tabs", it will auto show the tabs bar,
-  // which each tab item texted by block's title.
-  // The block's name will be used when title no-defined.
-  //
-  // The "size" field of each sub-block has different meaning
-  // based on the "type"
-  //  - "cols" : size is width of each column
-  //  - "rows" : size is height of each row
-  //  - "tabs" : size will be ignored
-  //  - "wall" : size should item count of each row when Number,
-  //             String("%|rem|px") will be taken as items's width
-  //             Array[width,height] will be taken as items's width/height
-  //             "stretch" will be ignore
-  type : "cols",
-  // [If "type"] Declare current layout blocks
-  blocks : [{
-    // Declare the title bar stuff
-    title,icon,actions,
-    //.....................................
-    // required and must be unique
-    name : "b0",
-    type : "tabs",  // sub-layout
-    blocks : [{     // sub-blocks
-      /*layout*/
-    }],
-    body : "xxx",   // refer to schame
-    //.....................................
-    // default size is "stretch"
-    // "%" "rem" "px" was supported also.
-    // Number will be taken as "px" when "rows|cols"
-    size : "30%",
-    // If true, use can change the block size by mouse.
-    // It will be ignored when "wall" or "tabs"
-    // default is true
-    adjustable : true
-    //.....................................
+ 	 action menu items, @see <ti-menu> for more detail
+  */],
+  //.....................................
+  // required and must be unique
+  name : "b0",
+  type : "tabs",  // sub-layout
+  blocks : [{     // sub-blocks
+  /*layout*/
   }],
-  //----------------------------------------------
-  // [alt with "type"] default slot should be a customized component.
-  // This field declared the schame name. It will find the defination
-  // in "schame" field
-  body : "media",
-  //----------------------------------------------
-  // Declare a group of blocks with absolute position.
-  // In current layout, the "panels" fields is can only be the top leave
-  // That's mean you can NOT put the "panels" field in sub-block.
-  // If you did it, I will ignore them whatever
-  panels : [{
-    title,icon,actions,
-    //.....................................
-    name : "b0",             // required and must be unique
-    type : "rows",           // sub-layout
-    blocks : [{/*layout*/}], // sub-blocks
-    body : "xxx",
-    //.....................................
-    // For the reason panels is absoluted, so we need more fields
-    // to declare the position. Those fields following is worked only
-    // in "panles" fields
-    position : "center-top",    // @see Ti.Rect.doctIn
-    width  : "100%",
-    height : "100%",
-    // closer button's position
-    // "default" - right/top at title bar
-    // "none" - no closer
-    // "bottom" - bottom/center lamp cord
-    // "top" - center/top shrink button 
-    // "left" - center/left shrink button 
-    // "right" - center/right shrink button 
-    closer : "default",
-    // user can adjust the size
-    //  - true : both x/y
-    //  - "x"  : x only
-    //  - "y"  : y only
-    //  - false : forbid adjust size
-    adjustable : true,
-  }]
+  body : "xxx",   // refer to schame
+  //.....................................
+  // default size is "stretch"
+  // "%" "rem" "px" was supported also.
+  // Number will be taken as "px" when "rows|cols"
+  size : "30%",
+  // If true, use can change the block size by mouse.
+  // It will be ignored when "wall" or "tabs"
+  // default is true
+  adjustable : true
 }
 ```
 
+-------------------------------------------------
+## `panels`
+
+Each panel looked like:
+
+```js
+{
+  title,icon,actions,
+  //.....................................
+  name : "b0",             // required and must be unique
+  type : "rows",           // sub-layout
+  blocks : [{/*layout*/}], // sub-blocks
+  body : "xxx",
+  //.....................................
+  // For the reason panels is absoluted, so we need more fields
+  // to declare the position. Those fields following is worked only
+  // in "panles" fields
+  position : "center-top",    // @see Ti.Rect.doctIn
+  width  : "100%",
+  height : "100%",
+  // closer button's position
+  // "default" - right/top at title bar
+  // "none" - no closer
+  // "bottom" - bottom/center lamp cord
+  // "top" - center/top shrink button 
+  // "left" - center/left shrink button 
+  // "right" - center/right shrink button 
+  closer : "default",
+  // user can adjust the size
+  //  - true : both x/y
+  //  - "x"  : x only
+  //  - "y"  : y only
+  //  - false : forbid adjust size
+  adjustable : true,
+}
+```
+
+-------------------------------------------------
 ## schame
 
 > Define each layout block body
+
+```js
+{
+  "key" : {
+    comType : "ti-form",
+    comConf : {
+      /* Config of the ti-form*/
+    }
+  }
+}
+```
+
+
 
 -------------------------------------------------
 # Event

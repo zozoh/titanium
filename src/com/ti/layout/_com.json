@@ -4,8 +4,5 @@
   "template" : "./ti-layout.html",
   "mixins" : ["./ti-layout.mjs"],
   "components" : [
-    "./com/block",
-    "./com/blocks-con",
-    "./com/tab-item",
-    "./com/tabs"]
+    "./com/block"]
 }
