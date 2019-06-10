@@ -105,7 +105,7 @@ Each panel looked like:
   // For the reason panels is absoluted, so we need more fields
   // to declare the position. Those fields following is worked only
   // in "panles" fields
-  position : "center-top",    // @see Ti.Rect.doctIn
+  position : "center/center",    // @see Ti.Rect.doctIn
   width  : "100%",
   height : "100%",
   // closer button's position

@@ -24,7 +24,7 @@ export default {
     },
     "size" : {
       type : [String,Number],
-      default : true
+      default : "stretch"
     },
     "adjustable" : {
       type : Boolean,
@@ -32,7 +32,7 @@ export default {
     },
     "position" : {
       type : String,
-      default : true
+      default : "center/center"
     },
     "width" : {
       type : [String,Number],
