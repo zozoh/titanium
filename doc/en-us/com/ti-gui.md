@@ -112,9 +112,17 @@ Each panel looked like:
   // For the reason panels is absoluted, so we need more fields
   // to declare the position. Those fields following is worked only
   // in "panles" fields
-  position : "center/center",    // @see Ti.Rect.doctIn
+  //.....................................
+  // panel poisiton could be:
+  //  - left|right|top|bottom
+  //  - center
+  //  - left-top|right-top|bottom-left|bottom|right
+  position : "center/center",
   width  : "100%",
   height : "100%",
+  // This panel will mask GUI
+  // Default is false
+  mask : false
   // closer button's position
   // "default" - right/top at title bar
   // "none" - no closer

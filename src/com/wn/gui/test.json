@@ -29,12 +29,43 @@
       }]
     }, {
       "name" : "C1",
-      "body" : "C1",
-      "size" : "stretch"
+      "size" : "stretch",
+      "type" : "tabs",
+      "blocks" : [{
+        "name" : "C1-1",
+        "size" : 100,
+        "body" : {
+          "comType" : "ti-label",
+          "comConf" : {"value" : "C1-1 content"}
+        }
+      }, {
+        "name" : "C1-2",
+        "body" : {
+          "comType" : "ti-label",
+          "comConf" : {"value" : "C1-2 content"}
+        }
+      }, {
+        "name" : "C1-3",
+        "body" : {
+          "comType" : "ti-label",
+          "comConf" : {"value" : "C1-3 content"}
+        }
+      }]
     }, {
       "name" : "C2",
       "body" : "C2",
       "size" : 260
+    }],
+    "panels" : [{
+      "name" : "P1",
+      "position":"center",
+      "width" : "300px",
+      "height" : "200px",
+      "mask" : true,
+      "body" : {
+        "comType" : "ti-label",
+        "comConf" : {"value" : "P1"}
+      }
     }]
   },
   "schema" : {
@@ -63,8 +94,14 @@
       "action" : "dispatch:main/reload",
       "shortcut" : "CTRL+R"
     }, {
-      "key" : "show-CP",
+      "key" : "show-P1",
+      "text" : "show P1",
       "type" : "action",
       "action" : "main:showBlock(P1)"
+    }, {
+      "key" : "hide-P1",
+      "text" : "hide P1",
+      "type" : "action",
+      "action" : "main:hideBlock(P1)"
     }] 
 }

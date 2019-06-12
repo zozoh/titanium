@@ -5,6 +5,7 @@ export default async function reloadMain(meta) {
   let $app = Ti.App(vm)
 
   vm.reloading = true
+  vm.mainActions = []
 
   // default meta
   if(!meta) {

@@ -1,6 +1,10 @@
 export default {
   inheritAttrs : false,
   /////////////////////////////////////////
+  data : ()=>({
+    "shown" : {}
+  }),
+  /////////////////////////////////////////
   props : {
     "data" : {
       type : Object,
@@ -21,9 +25,24 @@ export default {
     }
   },
   //////////////////////////////////////////
-  mounted : function() {
-    if(this.data && _.isArray(this.data.actions)) {
+  watch : {
+    "data.actions" : function(){
       this.$emit("actions:updated", this.data.actions)
+    }
+  },
+  //////////////////////////////////////////
+  methods : {
+    showBlock(name) {
+      this.shown = {
+        ...this.shown, 
+        [name]: true
+      }
+    },
+    hideBlock(name) {
+      this.shown = {
+        ...this.shown, 
+        [name]: false
+      }
     }
   }
 }

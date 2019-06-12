@@ -6,7 +6,8 @@ export default {
     "reloading"  : false,
     "loadingCom" : "ti-loading",
     "mainView"   : null,
-    "sidebar"    : []
+    "sidebar"    : [],
+    "mainActions" : []
   }),
   //////////////////////////////////////////////
   watch : {
@@ -88,15 +89,19 @@ export default {
     },
     main() {
       // evaluate the action menu
-      let actionMenu = []
-      if(this.mainView && !_.isEmpty(this.mainView.actions)) {
-        _.forOwn(this.mainView.actions, (it, key)=>{
-          if(_.isNumber(key)) {
-            key = "menu-item-" + key
-          }
-          actionMenu.push({key, ...it})
-        })
+      let actionList = this.mainActions
+      if(_.isEmpty(actionList) 
+        && this.mainView 
+        && !_.isEmpty(this.mainView.actions)) {
+          actionList = this.mainView.actions
       }
+      let actionMenu = []
+      _.forOwn(actionList, (it, key)=>{
+        if(_.isNumber(key)) {
+          key = "menu-item-" + key
+        }
+        actionMenu.push({key, ...it})
+      })
       // gen result object
       return {
         comIcon : (this.mainView 
@@ -203,7 +208,10 @@ export default {
     },
     //.........................................
     onActionUpdated(actions) {
-      console.log("update the actions", actions)
+      //console.log("update the actions", actions)
+      if(!_.isEmpty(actions)) {
+        this.mainActions = actions
+      }
     }
   }  // methods
   //////////////////////////////////////////////

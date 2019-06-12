@@ -1,5 +1,5 @@
 export default {
-  inheritAttrs : false,
+  inheritAttrs : true,
   /////////////////////////////////////////
   props : {
     "title" : {

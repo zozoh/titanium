@@ -1,3 +1,23 @@
-<div :class="topClass">
+<div class="ti-layout" :class="topClass">
+  <!--
+    Is for tabs
+  -->
+  <div v-if="'tabs' == type"
+    class="layout-tabs">
+    <ul>
+      <li v-for="it in tabItems"
+        :key="it.name"
+        :class="it.className"
+        @click="setCurrentItem(it)">
+        <span v-if="it.icon" class="it-icon">
+          <ti-icon :value="it.icon"/>
+        </span>
+        <span class="it-text">{{it.text}}</span>
+      </li>
+    </ul>
+  </div>
+  <!--
+    Body slot
+  -->
   <slot></slot>
 </div>

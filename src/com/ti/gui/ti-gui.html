@@ -5,9 +5,11 @@
   <ti-layout class="ti-fill-parent"
     :type="type"
     :border="border"
+    :blocks="blocks"
     :adjustable="adjustable">
     <ti-block v-for="b in formedBlockList"
       :key="b.name"
+      :tab="b.name"
       v-bind="b.info">
       <component :is="b.comType"
         class="ti-fill-parent"
@@ -17,14 +19,18 @@
   <!--
     Float panels
   -->
-  <div v-if="hasPanels"
-    class="gui-panels">
-    <ti-block v-for="b in formedPanelList"
-      :key="b.name"
-      v-bind="b.info">
-      <component :is="b.comType"
-        class="ti-fill-parent"
-        v-bind="b.comConf"/>
-    </ti-block>
-  </div>
+  <template v-for="b in formedPanelList">
+    <transition :name="b.transName">
+      <div v-if="b.isShown"
+        class="gui-panel"
+        :class="b.className"
+        :key="b.name">
+        <ti-block v-bind="b.info">
+          <component :is="b.comType"
+            class="ti-fill-parent"
+            v-bind="b.comConf"/>
+        </ti-block>
+      </div>
+    </transition>
+  </template>
 </div>

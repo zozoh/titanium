@@ -33,7 +33,7 @@ export default {
             let payload = Ti.S.toJsValue(m[4])
             args.push(payload)
           }
-          func.apply($app, [tanm])
+          func.apply($app, args)
         }
         // Fail to found function
         else {

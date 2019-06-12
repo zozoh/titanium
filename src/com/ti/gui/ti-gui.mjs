@@ -25,6 +25,10 @@ export default {
     "schema" : {
       type : Object,
       default : ()=>({})
+    },
+    "shown" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////
@@ -40,11 +44,29 @@ export default {
     }
   },
   //////////////////////////////////////////
+  watch : {
+    "shown" : function() {
+      console.log("shown changed", this.shown)
+      this.$forceUpdate()
+    }
+  },
+  //////////////////////////////////////////
   methods : {
     __formed_list(list=[]) {
       let list2 = []
       if(_.isArray(list)) {
         for(let b of list) {
+          // ClassName
+          let klass = [`at-${b.position||"center"}`]
+          // Show/hide
+          let isShown = this.shown[b.name] ? true : false
+          // Mask
+          if(b.mask) {
+            klass.push(`show-mask`)
+          }
+          // Transition Name
+          let transName = `gui-panel-${b.position}`
+          // Block Info
           let info = _.pick(b, [
               "title","icon","actions","name", "adjustable", 
               "position", "width", "height", "closer"])
@@ -90,11 +112,14 @@ export default {
           }
           // Join to result list
           list2.push({
+            className: klass.join(" "), 
+            name : b.name,
+            isShown, transName,
             info, comType, comConf
           })
         }
       }
-      console.log(list2)
+      //console.log(list2)
       return list2
     }
   }

@@ -1,0 +1,56 @@
+.ti-gui {
+  position:relative;
+  // Panels
+  > .gui-panel {
+    //-----------------------------------
+    @include pos-abs(0,0,100%,100%);
+    @include flex-center;
+    //-----------------------------------
+    &.show-mask {
+      @include color($color-mask, null, thin);
+    }
+    //-----------------------------------
+    > .ti-block {
+      @include color($color-chip, r, c);
+    }
+    //-----------------------------------
+    // Positions
+    &.at-center {padding-bottom:19%;}
+    &.at-left   {justify-content: flex-start;}
+    &.at-right  {justify-content: flex-end;}
+    &.at-top    {align-content: flex-start;}
+    &.at-bottom {align-content: flex-end;}
+    &.at-left-top     {justify-content: flex-start; align-content: flex-start;}
+    &.at-right-top    {justify-content: flex-end;   align-content: flex-start;}
+    &.at-bottom-left  {justify-content: flex-start; align-content: flex-end;}
+    &.at-bottom-right {justify-content: flex-end;   align-content: flex-end;}
+    //-----------------------------------
+  }
+}
+//---------------------------------------
+// Animation
+//---------------------------------------
+@mixin gui-trans($name, $trans, $tor:null, $du:.3s) {
+  .gui-panel-#{$name}-enter-active, .gui-panel-#{$name}-leave-active {
+    transition: opacity $du;
+    > .ti-block {
+      transition: transform $du ease;
+      @if $tor != null {
+        transform-origin: $tor;
+      }
+    }
+  }
+  .gui-panel-#{$name}-enter, .gui-panel-#{$name}-leave-to  {
+    opacity: 0;
+    > .ti-block {transform: $trans;}
+  }
+}
+@include gui-trans(top,    translateY(-300px));
+@include gui-trans(left,   translateX(-300px));
+@include gui-trans(right,  translateX(300px));
+@include gui-trans(bottom, translateY(300px));
+@include gui-trans(center, scale(0));
+@include gui-trans(left-top,     scale(0), left top);
+@include gui-trans(right-top,    scale(0), right top);
+@include gui-trans(bottom-left,  scale(0), bottom left);
+@include gui-trans(bottom-right, scale(0), bottom right);

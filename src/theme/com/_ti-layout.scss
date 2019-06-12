@@ -27,6 +27,33 @@
   //------------------------------------
   // Layout: tabs
   //------------------------------------
+  &.as-tabs {
+    > .layout-tabs {
+      ul {
+        @include raw-list;
+        @include flex-align-nowrap;
+        @include border(1px, solid, shallow, bottom);
+        @include color($color-cloak, r, c);
+        padding:.1rem .1rem 0 .1rem;
+        li {
+          cursor:pointer; 
+          border:1px solid transparent;
+          border-top-width:5px;
+          border-bottom:0;
+          border-radius: .04rem .04rem 0 0;
+          padding:.02rem; min-width: .8rem; text-align: center;
+          line-height:1.6em; font-size:0.9em;
+          margin-bottom:-1px;
+          &.is-current {
+            @include color($color-body, r, c);
+            border-color:map-get($color-line, dark);
+            border-top-color:map-get($color-secondary, c);
+            background-color:map-get($color-body, c);
+          }
+        }
+      }
+    }
+  }
   //------------------------------------
   // Layout: wall
   //------------------------------------
