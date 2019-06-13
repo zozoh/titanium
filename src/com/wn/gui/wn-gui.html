@@ -1,4 +1,6 @@
 <ti-gui
   v-bind="layout"
   :schema="schema"
-  :shown="shown"/>
+  :shown="shown"
+  @block:show="showBlock"
+  @block:hide="hideBlock"/>

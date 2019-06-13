@@ -3,6 +3,5 @@
   "globally" : true,
   "template" : "./ti-layout.html",
   "mixins" : ["./ti-layout.mjs"],
-  "components" : [
-    "./com/block"]
+  "components" : ["./com/block"]
 }

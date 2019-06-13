@@ -1,4 +1,34 @@
 <div class="ti-block"
+  :class="topClass"
   :style="topStyle">
-  <slot></slot>
+  <header v-if="showHeader">
+    <div v-if="hasIcon"
+      class="tbh-icon">
+      <ti-icon :value="icon" size="16px"/>
+    </div>
+    <div class="tbh-text">{{title}}</div>
+    <div v-if="hasActions"
+      class="tbh-actions">
+      <ti-menu 
+        :data="actions"
+        more-icon="zmdi-more-vert"
+        more-icon-size="16px"/>
+    </div>
+    <div v-if="hasCloser"
+      class="tbh-closer"
+      :class="closerClass"
+      @click="onCloseBlock">
+      <ti-icon :value="closerIconName" size="16px"/>
+    </div>
+  </header>
+  <section>
+    <slot></slot>
+  </section>
+  <footer v-if="!showHeader && hasCloser"
+    class="float-closer"
+    :class="closerClass">
+    <ti-icon :value="closerIconName" 
+      size="unset"
+      @click.native="onCloseBlock"/>
+  </footer>
 </div>

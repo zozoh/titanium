@@ -4,6 +4,24 @@
     "border" : true,
     "blocks" : [{
       "name" : "C0",
+      "icon"  : "im-award",
+      "title" : "Test C0",
+      "closer" : true,
+      "actions" : [{
+          "type" : "group",
+          "icon" : "zmdi-more-vert",
+          "items" :  [{
+              "key" : "show-P1",
+              "text" : "show P1",
+              "type" : "action",
+              "action" : "main:showBlock(P1)"
+            }, {
+              "key" : "hide-P1",
+              "text" : "hide P1",
+              "type" : "action",
+              "action" : "main:hideBlock(P1)"
+            }]
+        }],
       "size" : "20%",
       "type" : "rows",
       "border" : true,
@@ -29,6 +47,23 @@
       }]
     }, {
       "name" : "C1",
+      "icon"  : "im-award",
+      "title" : "Test C0",
+      "actions" : [{
+          "type" : "group",
+          "icon" : "zmdi-more-vert",
+          "items" :  [{
+              "key" : "show-P1",
+              "text" : "show P1",
+              "type" : "action",
+              "action" : "main:showBlock(P1)"
+            }, {
+              "key" : "hide-P1",
+              "text" : "hide P1",
+              "type" : "action",
+              "action" : "main:hideBlock(P1)"
+            }]
+        }],
       "size" : "stretch",
       "type" : "tabs",
       "blocks" : [{
@@ -58,9 +93,10 @@
     }],
     "panels" : [{
       "name" : "P1",
-      "position":"center",
-      "width" : "300px",
-      "height" : "200px",
+      "closer" : "right",
+      "position":"left-top",
+      "width" : "50%",
+      "height" : "50%",
       "mask" : true,
       "body" : {
         "comType" : "ti-label",

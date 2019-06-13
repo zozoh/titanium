@@ -55,8 +55,28 @@ export default {
               : null
         })
       }
-      console.log("tabItems", list)
+      //console.log("tabItems", list)
       return list
+    }
+  },
+  ///////////////////////////////////////////
+  watch : {
+    // For tabs, it should show/hide the sub-blocks 
+    "currentBlockName" : function(){
+      if('tabs' == this.type) {
+        let blocks = Ti.Dom.findAll(":scope > .ti-block", this.$el)
+        for(let $b of blocks) {
+          let bnm = $b.getAttribute("tab")
+          // Show
+          if(bnm == this.currentBlockName) {
+            Ti.Dom.setStyle($b, {"display":""})
+          }
+          // Hide
+          else {
+            Ti.Dom.setStyle($b, {"display":"none"})
+          }
+        }
+      }
     }
   },
   ///////////////////////////////////////////

@@ -10,10 +10,14 @@
     <ti-block v-for="b in formedBlockList"
       :key="b.name"
       :tab="b.name"
-      v-bind="b.info">
+      v-bind="b.info"
+      @block:show="$emit('block:show', $event)"
+      @block:hide="$emit('block:hide', $event)">
       <component :is="b.comType"
         class="ti-fill-parent"
-        v-bind="b.comConf"/>
+        v-bind="b.comConf"
+        @block:show="$emit('block:show', $event)"
+        @block:hide="$emit('block:hide', $event)"/>
     </ti-block>
   </ti-layout>
   <!--
@@ -25,10 +29,16 @@
         class="gui-panel"
         :class="b.className"
         :key="b.name">
-        <ti-block v-bind="b.info">
+        <ti-block 
+          v-bind="b.info"
+          :float="true"
+          @block:show="$emit('block:show', $event)"
+          @block:hide="$emit('block:hide', $event)">
           <component :is="b.comType"
             class="ti-fill-parent"
-            v-bind="b.comConf"/>
+            v-bind="b.comConf"
+            @block:show="$emit('block:show', $event)"
+            @block:hide="$emit('block:hide', $event)"/>
         </ti-block>
       </div>
     </transition>

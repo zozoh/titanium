@@ -5,9 +5,9 @@
   -->
   <div class="mobile-btn" @click.stop="isOpened=!isOpened">
     <ti-icon v-if="isOpened"
-      value="fas-times" size=".24rem"/>
+      :value="closeIcon" :size="moreIconSize"/>
     <ti-icon v-else
-      value="fas-bars" size=".24rem"/>
+      :value="moreIcon" :size="moreIconSize"/>
   </div>
   <!--
     Action container

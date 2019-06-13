@@ -28,12 +28,15 @@
   // Layout: tabs
   //------------------------------------
   &.as-tabs {
+    padding-top: 40px; position:relative;
     > .layout-tabs {
+      @include noselect;
+      position: absolute; left:0; right:0; top:0;
       ul {
         @include raw-list;
         @include flex-align-nowrap;
         @include border(1px, solid, shallow, bottom);
-        @include color($color-cloak, r, c);
+        @include color($color-paper, r, c);
         padding:.1rem .1rem 0 .1rem;
         li {
           cursor:pointer; 
@@ -53,8 +56,116 @@
         }
       }
     }
+    > .ti-block {
+      width:100%; height:100%;
+    }
   }
   //------------------------------------
   // Layout: wall
   //------------------------------------
 } // ~ .ti-layout
+$ti-block-header : 28px;
+.ti-block {
+  position: relative;
+  &.show-header {
+    @include noselect;
+    padding-top:$ti-block-header;
+    > header {
+      @include pos-abs($t:0,$l:0,$r:0);
+      @include flex-align-nowrap($ai:stretch);
+      @include color($color-bar, r, c);
+      @include border(1px, solid, shallow, bottom);
+      height: $ti-block-header; line-height: $ti-block-header;
+      padding:0;
+      font-size:.8em;
+      > div {white-space: nowrap;}
+      > .tbh-icon {
+        @include flex-center;
+        padding-left:.06rem;
+      }
+      > .tbh-text {
+        flex:1 0 auto;
+        padding:0 .06rem;
+      }
+      > .tbh-actions {
+        @include flex-align($jc:center);
+        > .ti-menu {
+          min-width: 30px;
+          .menu-desktop-top {
+            > li > .is-top > .md-info {
+              height: $ti-block-header;
+              border-radius: 0;
+              &:hover {
+                @include color($color-secondary, r, c);
+              }
+            }
+          }
+        }
+      }
+      > .tbh-closer {
+        cursor: pointer;
+        &.is-docked {
+          @include flex-center;
+          padding:0 .04rem; 
+          &:hover {@include color-highlight($color-secondary);}
+        }
+        
+      }
+    }
+  }
+  //----------------------------------------
+  > section {
+    width:100%; height:100%;
+  }
+  //----------------------------------------
+  $foot-closer-size : 80px;
+  //----------------------------------------
+  > footer.float-closer {
+    position: absolute;
+    @include flex-center;
+    //--------------------------------------
+    > .ti-icon {
+      color:rgba(255,255,255,0.8); 
+      border:1px solid rgba(255,255,255,0.8);
+      background:rgba(0,0,0,0.4);
+      border-radius: 50%;
+      width:32px; height:32px;
+      cursor: pointer;
+      font-size:16px;
+      transition: transform 0.3s;
+      &:hover {
+        @include color($color-secondary, r, c);
+        border-color:transparent;
+        transform: scale(1.2) rotate(180deg);
+        box-shadow:0 0 10px 4px map-get($color-light, c);
+      }
+    }
+    //--------------------------------------
+    &.at-top {
+      height: $foot-closer-size;
+      top: $foot-closer-size * -1;
+      left:0; right:0;
+    }
+    &.at-bottom {
+      height: $foot-closer-size;
+      bottom: $foot-closer-size * -1;
+      left:0; right:0;
+    }
+    &.at-left {
+      width: $foot-closer-size;
+      left: $foot-closer-size * -1;
+      top:0; bottom:0;
+    }
+    &.at-right {
+      width: $foot-closer-size;
+      right: $foot-closer-size * -1;
+      top:0; bottom:0;
+    }
+    //--------------------------------------
+  } // > footer.float-closer
+  //----------------------------------------
+  &.is-panel {
+    // Maybe show border here
+  }
+  //----------------------------------------
+} // ~ .ti-block

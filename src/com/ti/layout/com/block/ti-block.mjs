@@ -2,6 +2,10 @@ export default {
   inheritAttrs : true,
   /////////////////////////////////////////
   props : {
+    "float" : {
+      type : Boolean,
+      default : false
+    },
     "title" : {
       type : String,
       default : null
@@ -22,10 +26,6 @@ export default {
       type : Boolean,
       default : true
     },
-    "position" : {
-      type : String,
-      default : "center/center"
-    },
     "width" : {
       type : [String,Number],
       default : -1
@@ -35,8 +35,8 @@ export default {
       default : -1
     },
     "closer" : {
-      type : String,
-      default : "default"
+      type : [Boolean, String],
+      default : null
     }
   },
   //////////////////////////////////////////
@@ -50,8 +50,54 @@ export default {
     hasActions() {
       return !_.isEmpty(this.actions)
     },
+    hasCloser() {
+      return this.closer ? true : false
+    },
+    closerClass() {
+      let klass = []
+      if(this.float) {
+        if(_.isBoolean(this.closer) || "default" == this.closer) {
+          klass.push("is-docked")
+          klass.push("at-default")
+        } else {
+          klass.push("is-float")
+          klass.push(`at-${this.closer}`)
+        }
+      }
+      // docked
+      else {
+        klass.push("is-docked")
+      }
+      return klass.join(" ")
+    },
+    closerIconName() {
+      // Float block (in panel) it will should closer
+      if(this.float) {
+        return "zmdi-close"
+      }
+      // Docking block, closer should like minus
+      else {
+        return "zmdi-minus"
+      }
+    },
     showHeader() {
-      return this.hasTitle || this.hasIcon || this.hasActions
+      return this.hasTitle 
+              || this.hasIcon 
+              || this.hasActions
+              || (this.hasCloser
+                  && (true === this.closer
+                    || "default" == this.closer)
+                )
+    },
+    topClass() {
+      let klass = []
+      if(this.showHeader) {
+        klass.push("show-header")
+      }
+      if(this.float) {
+        klass.push("is-panel")
+      }
+      return klass.join(" ")
     },
     topStyle() {
       let style = {}
@@ -69,7 +115,10 @@ export default {
   },
   //////////////////////////////////////////
   methods : {
-    
+    onCloseBlock() {
+      //console.log("$emit->block:hide", this.name)
+      this.$emit("block:hide", this.name)
+    }
   }
   //////////////////////////////////////////
 }

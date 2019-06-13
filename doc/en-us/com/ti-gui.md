@@ -124,13 +124,13 @@ Each panel looked like:
   // Default is false
   mask : false
   // closer button's position
+  // null - no closer
   // "default" - right/top at title bar
-  // "none" - no closer
   // "bottom" - bottom/center lamp cord
   // "top" - center/top shrink button 
   // "left" - center/left shrink button 
   // "right" - center/right shrink button 
-  closer : "default",
+  closer : null,
   // user can adjust the size
   //  - true : both x/y
   //  - "x"  : x only

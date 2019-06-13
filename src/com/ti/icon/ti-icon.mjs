@@ -37,6 +37,9 @@ export default {
       return re
     },
     topStyle() {
+      if("unset" == this.size) {
+        return {}
+      }
       let sz = Ti.Css.toSize(this.size)
       return {
         width  : sz, 
@@ -49,7 +52,7 @@ export default {
     fontStyle() {
       let vm = this
       let re = {}
-      if(vm.size) {
+      if(vm.size && "unset"!=vm.size) {
         re.fontSize = Ti.Css.toSize(vm.size)
       }
       if(vm.color) {
@@ -63,7 +66,7 @@ export default {
     imgStyle() {
       let vm = this
       let re = {}
-      if(vm.size) {
+      if(vm.size && "unset"!=vm.size) {
         re.width = Ti.Css.toSize(vm.size)
         re.height = re.width
       }

@@ -46,7 +46,7 @@ export default {
   //////////////////////////////////////////
   watch : {
     "shown" : function() {
-      console.log("shown changed", this.shown)
+      //console.log("shown changed", this.shown)
       this.$forceUpdate()
     }
   },

@@ -1,8 +1,12 @@
-.ti-menu {@include noselect;}
+.ti-menu {
+  @include noselect;
+  @include flex-align($jc:center);
+}
 //------------------------------------------------
 // For Desktop
 //------------------------------------------------
-.ti-menu-desktop { 
+.ti-menu-desktop {
+  @include flex-align;
   > .menu-desktop-top {
     > li {
       @include flex-center;
@@ -18,8 +22,9 @@
         }
       }
       .md-icon {
-        margin-right:.04rem;
+        
       }
+      .md-text {padding:0 2px;}
       > .md-line {
         @include color($color-line, null, shallow);
         width:1px; height:.2rem; overflow:hidden;
@@ -51,7 +56,7 @@
       min-width: 1.5rem;
       z-index: $z-menu;
       padding:1px; 
-      @include color($color-cloak, r, c);
+      @include color($color-chip, r, c);
       @include border(1px, solid, primary);
       //-------------------------------------------
       .md-line {
@@ -97,9 +102,8 @@
     @include pos-abs-full;
     @include flex-center;
     cursor: pointer; 
-    z-index:$z-mask+1;
     &:hover {
-      @include color($color-primary, c);
+      @include color($color-secondary, r, c);
     }
   }
   &.align-is-left   .mobile-btn {justify-content: flex-start;}
@@ -164,6 +168,11 @@
   }
   //----------------------------------------------
   &.is-opened {
+    .mobile-btn {
+      @include pos-fixed($l:unset,$b:unset,$t:0,$r:0,$w:40px,$h:40px);
+      justify-content: center;
+      z-index:$z-mask+1;
+    }
     .mobile-con {
       display: block;
     }

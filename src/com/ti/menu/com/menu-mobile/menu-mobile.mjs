@@ -59,7 +59,20 @@ export default {
     cols : {
       type : Number,
       default : 4
+    },
+    moreIcon : {
+      type : String,
+      default : "fas-bars"
+    },
+    moreIconSize :{
+      type : String,
+      default : ".24rem"
+    },
+    closeIcon : {
+      type : String,
+      default : "fas-times"
     }
+
   },
   ///////////////////////////////////////
   computed : {

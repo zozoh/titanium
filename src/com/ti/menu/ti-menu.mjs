@@ -7,7 +7,7 @@ export default {
     },
     align : {
       type : String,
-      default : "left",
+      default : "center",
       validator : function(val) {
         return ["left","right","center"].indexOf(val)!=-1
       }
@@ -15,6 +15,22 @@ export default {
     status : {
       type : Object,
       default : ()=>({})
+    },
+    cols : {
+      type : Number,
+      default : 4
+    },
+    moreIcon : {
+      type : String,
+      default : "fas-bars"
+    },
+    moreIconSize :{
+      type : String,
+      default : ".24rem"
+    },
+    closeIcon : {
+      type : String,
+      default : "fas-times"
     }
   },
   ///////////////////////////////////////

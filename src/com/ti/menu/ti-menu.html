@@ -1,16 +1,20 @@
 <div class="ti-menu">
   <!--
-    For Desktop
+    For Phone or Tablet
   -->
-  <menu-desktop v-if="isPageModeDesktop"
+  <menu-mobile v-if="isPageModePhoneOrTablet"
     :data="data"
     :align="align"
     :status="status"
+    :cols="cols"
+    :more-icon="moreIcon"
+    :more-icon-size="moreIconSize"
+    :close-icon="closeIcon"
     @action="invokeAction"/>
   <!--
-    For Phone or Tablet
+    For Desktop
   -->
-  <menu-mobile v-else
+  <menu-desktop v-else
     :data="data"
     :align="align"
     :status="status"

@@ -136,6 +136,13 @@ export const TiDom = {
       $el.classList.remove(className)
     }
   },
+  hasClass($el, ...classNames) {
+    for(let klass of classNames) {
+      if(!$el.classList.contains(klass))
+        return false
+    }
+    return true
+  },
   applyRect($el, rect, keys="tlwh", viewport={}) {
     let $win = $el.ownerDocument.defaultView
     _.defaults(viewport, {

@@ -2,5 +2,6 @@
   "name" : "ti-block",
   "globally" : true,
   "template" : "./ti-block.html",
-  "mixins" : ["./ti-block.mjs"]
+  "mixins" : ["./ti-block.mjs"],
+  "components" : ["@com:ti/menu"]
 }

@@ -9,7 +9,7 @@
       height:100%; overflow-y: scroll;
       li {
         @include flex-align($wp:nowrap);
-        @include fireable($color-h2);
+        @include fireable($color-func);
         padding:.08rem; font-size:0.8em;
         &.as-current {
           @include color($color-primary, r, c);
@@ -42,7 +42,7 @@
         @include color($color-track, c);
       }
       > .toc-brief {
-        @include color($color-h2, r, c);
+        @include color($color-func, r, c);
         @include border(1px, dashed, shallow);
         text-align: left; font-size:.8em;
         padding:.1rem; 
