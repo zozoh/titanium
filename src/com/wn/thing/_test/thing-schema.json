@@ -1,0 +1,14 @@
+{
+  "abc" : "@search.list",
+  "list" : {
+    "comType" : "ti-table",
+    "comConf" : {
+      "fields" : [{
+        "key" : "nm"
+      }, {
+        "key" : "ct"
+      }],
+      "list" : "@search.list"
+    }
+  }
+}

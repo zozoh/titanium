@@ -1,6 +1,17 @@
 {
   "comIcon" : "fas-cubes",
-  "comType" : "@com:wn/thing",
+  "comType" : "@com:wn/thing/manager",
   "modType" : "@mod:wn/thing",
-  "actions" : []
+  "actions" : [{
+    "key"  : "reloading",
+    "type" : "action",
+    "icon" : "zmdi-refresh",
+    "text" : "i18n:refresh",
+    "altDisplay" : {
+      "icon" : "zmdi-refresh zmdi-hc-spin",
+      "text" : "i18n:loading"
+    },
+    "action" : "dispatch:main/reload",
+    "shortcut" : "CTRL+R"
+  }]
 }

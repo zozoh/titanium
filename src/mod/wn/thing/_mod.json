@@ -2,5 +2,6 @@
   "name" : "wn-thing",
   "namespaced" : true,
   "state" : "./wn-thing.json",
+  "actions" : "./wn-thing-actions.mjs",
   "mixins" : "./wn-thing.mjs"
 }

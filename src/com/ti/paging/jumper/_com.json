@@ -1,0 +1,6 @@
+{
+  "name" : "ti-paging-jumper",
+  "globally" : true,
+  "template" : "./ti-paging-jumper.html",
+  "mixins" : ["./ti-paging-jumper.mjs"]
+}

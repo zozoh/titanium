@@ -1,0 +1,13 @@
+{
+  "name" : "wn-thing-manager",
+  "globally" : true,
+  "template" : "./wn-thing-manager.html",
+  "mixins"   : ["./wn-thing-manager.mjs"],
+  "components" : [
+    "./com/thing-files",
+    "./com/thing-filter",
+    "@com:ti/gui",
+    "@com:ti/paging/jumper",
+    "@com:ti/table",
+    "@com:ti/form"]
+}

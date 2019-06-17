@@ -1,18 +1,43 @@
 {
   "meta": null,
-  "search" : {
+  "schema": {
     "filter" : {},
     "sorter" : {},
-    "list": [],
-    "pager" : [],
-    "status" : {
-      "reloading" : false,
-      "saving"    : false,
-      "deleting"  : false
-    }
+    "list": {},
+    "pager" : {},
+    "meta" : {},
+    "content" : {},
+    "media" : {},
+    "attachment" : {}
+  },
+  "layout" : {
+    "deskstop" : {},
+    "tablet" : {},
+    "phone" : {}
+  },
+  "actions" : [],
+  "status" : {
+    "reloading" : false,
+    "saving"    : false,
+    "deleting"  : false
   },
   "config" : {
     "json" : true
+  },
+  "search" : {
+    "filter" : {},
+    "sorter" : {
+      "ct" : -1
+    },
+    "pager" : {
+      "pn"   : 1,
+      "pgsz" : 50,
+      "pgc"  : 0,
+      "sum"  : 0,
+      "skip" : 0,
+      "count": 0
+    },
+    "list" : []
   },
   "index" : {
     "meta": null,
@@ -26,22 +51,43 @@
     }
   },
   "files" : {
-    "meta": null,
-    "children" : [],
-    "currentIndex" : 0,
-    "currentId" : null,
-    "uploadings" : [],
-    "pager" : {
-      "pageNumber" : -1,
-      "pageSize" : -1,
-      "pageCount" : -1,
-      "totalCoun" : -1
+    "media" : {
+      "meta": null,
+      "children" : [],
+      "currentIndex" : 0,
+      "currentId" : null,
+      "uploadings" : [],
+      "pager" : {
+        "pageNumber" : -1,
+        "pageSize" : -1,
+        "pageCount" : -1,
+        "totalCoun" : -1
+      },
+      "status" : {
+        "reloading" : false,
+        "deleting" : false,
+        "exposeHidden" : false,
+        "renaming" : false
+      }
     },
-    "status" : {
-      "reloading" : false,
-      "deleting" : false,
-      "exposeHidden" : false,
-      "renaming" : false
+    "attachment" : {
+      "meta": null,
+      "children" : [],
+      "currentIndex" : 0,
+      "currentId" : null,
+      "uploadings" : [],
+      "pager" : {
+        "pageNumber" : -1,
+        "pageSize" : -1,
+        "pageCount" : -1,
+        "totalCoun" : -1
+      },
+      "status" : {
+        "reloading" : false,
+        "deleting" : false,
+        "exposeHidden" : false,
+        "renaming" : false
+      }
     }
   }
 }

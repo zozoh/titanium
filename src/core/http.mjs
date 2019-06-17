@@ -14,7 +14,12 @@ const RESP_TRANS = {
   },
   json(content){
     let str = _.trim(content) || null
-    return JSON.parse(str)
+    try {
+      return JSON.parse(str)
+    }catch(E) {
+      console.warn("fail to JSON.parse", str)
+      throw E
+    }
   },
   jsonOrText(content){
     try{

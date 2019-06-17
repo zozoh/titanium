@@ -1,0 +1,7 @@
+<div class="ti-table">
+  <ul v-for="it in list" :key="it[idKey]">
+    <li v-for="fld in fields">
+      <span>{{it[fld.key]}}</span>
+    </li>
+  </ul>
+</div>

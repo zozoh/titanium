@@ -1,0 +1,40 @@
+{
+  "desktop" : {
+    "type" : "cols",
+    "border" : true,
+    "blocks" : [{
+      "name" : "search",
+      "size" : "50%",
+      "type" : "rows",
+      "border" : true,
+      "blocks" : [{
+          "name" : "filter",
+          "size" : 50,
+          "body" : {
+            "comType" : "wn-thing-filter",
+            "comConf" : {}
+          }
+        }, {
+          "name" : "list",
+          "size" : "stretch",
+          "body" : "list"
+        }, {
+          "name" : "pager",
+          "size" : 50,
+          "body" : {
+            "comType" : "ti-paging-jumper",
+            "comConf" : {}
+          }
+        }]
+    }, {
+      "name" : "meta",
+      "size" : "stretch",
+      "body" : {
+        "comType" : "ti-label",
+        "comConf" : {"value" : "It is Meta"}
+      }
+    }]
+  },
+  "tablet" : "desktop",
+  "phone" : "desktop"
+}
