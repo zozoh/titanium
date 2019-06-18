@@ -12,12 +12,14 @@
       :tab="b.name"
       v-bind="b.info"
       @block:show="$emit('block:show', $event)"
-      @block:hide="$emit('block:hide', $event)">
+      @block:hide="$emit('block:hide', $event)"
+      @block:event="$emit('block:event', $event)">
       <component :is="b.comType"
         class="ti-fill-parent"
         v-bind="b.comConf"
         @block:show="$emit('block:show', $event)"
-        @block:hide="$emit('block:hide', $event)"/>
+        @block:hide="$emit('block:hide', $event)"
+        @block:event="$emit('block:event', $event)"/>
     </ti-block>
   </ti-layout>
   <!--
@@ -33,12 +35,14 @@
           v-bind="b.info"
           :float="true"
           @block:show="$emit('block:show', $event)"
-          @block:hide="$emit('block:hide', $event)">
+          @block:hide="$emit('block:hide', $event)"
+          @block:event="$emit('block:event', $event)">
           <component :is="b.comType"
             class="ti-fill-parent"
             v-bind="b.comConf"
             @block:show="$emit('block:show', $event)"
-            @block:hide="$emit('block:hide', $event)"/>
+            @block:hide="$emit('block:hide', $event)"
+            @block:event="$emit('block:event', $event)"/>
         </ti-block>
       </div>
     </transition>

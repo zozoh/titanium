@@ -127,6 +127,20 @@ export default {
     onCloseBlock() {
       //console.log("$emit->block:hide", this.name)
       this.$emit("block:hide", this.name)
+    },
+    hijackEmit(name, args) {
+      console.log("--hijackEmit--", name, args)
+      // By Padd
+      if("block:event" == name) {
+        this.$emit(name, ...args)
+      }
+      // Gen Block Event
+      else {
+        this.$emit("block:event", {
+          block : this.name,
+          name, args
+        })
+      }
     }
   }
   //////////////////////////////////////////

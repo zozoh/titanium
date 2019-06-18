@@ -84,7 +84,7 @@ async function main(){
   Ti.Config.set(tiConf)
 
   // Load the com common mixins 
-  let comMixins = await Ti.Load("@com:ti/support/auto_page_mode.mjs")
+  let comMixins = await Ti.Load("@com:ti/support/com_mixins.mjs")
   Ti.Config.set({
     comDecorator : (com)=>{
       //console.log("++++++Decorator", com.name)

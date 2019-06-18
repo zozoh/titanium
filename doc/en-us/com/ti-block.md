@@ -37,3 +37,19 @@ tags:
 
 default slot to place the body content
 
+-------------------------------------------------
+# Event
+
+## `block:show`
+
+## `block:hide`
+
+## `block:event`
+
+```js
+{
+  block : "xxx",   // The unique name of block
+  name  : "xxx",   // Event Name of sub UI
+  args  : [..],    // Event payload
+}
+```

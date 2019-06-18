@@ -20,10 +20,11 @@
   <div class="table-con as-body">
     <div class="table-body" ref="body"
       :style="tableStyle">
-      <ul v-for="it in list" :key="it[idKey]"
-        class="table-row in-body">
-        <li v-for="(fld, index) in fields"
-          :style="cellStyle(index, fld)">
+      <ul v-for="(it, index) in list" :key="it[idKey]"
+        class="table-row in-body"
+        @click.stop="onSelected(it, index, $event)">
+        <li v-for="(fld, ci) in fields"
+          :style="cellStyle(ci, fld)">
           <span>{{it[fld.key]}}</span>
         </li>
       </ul>

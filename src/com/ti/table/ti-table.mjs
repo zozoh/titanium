@@ -51,6 +51,10 @@ export default {
       type : Boolean,
       default : false
     },
+    "checkable" : {
+      type : Boolean,
+      default : false
+    },
     "border" : {
       type : Boolean,
       default : true
@@ -103,13 +107,25 @@ export default {
   },
   ///////////////////////////////////////////////////
   methods : {
-    onSelected({mode,id,index}={}){
+    onSelected(it, index, eo){
       if(!this.selectable){
         return
       }
-      if(!this.multi) {
-        mode = "active"
+      // Eval Mode
+      let mode = "active"
+      if(this.multi) {
+        if(eo.shiftKey) {
+          mode = "shift"
+        }
+        // ctrl key on: toggle
+        else if(eo.ctrlKey || eo.metaKey) {
+          mode = "toggle"
+        }
       }
+      // Eval ID
+      let id = it[this.idKey]
+      // Do emit
+      console.log("selected", {mode,id,index})
       this.$emit("selected", {mode,id,index})
     },
     onOpen({id,index}={}) {
@@ -150,12 +166,9 @@ export default {
 
       // re-count
       if(!_.isEmpty(this.fields) && !_.isEmpty(this.list)) {
-        // this.$nextTick(()=>{
-        _.delay(()=>{
+        this.$nextTick(()=>{
           this.updateSizing()
-        }, 0)
-           
-        // })
+        })
       }
     }, 100, {
       leading : false

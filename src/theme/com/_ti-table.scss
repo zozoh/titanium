@@ -10,8 +10,14 @@
     display: table-row;
     > li {
       display: table-cell;
-      padding: $tcpad; 
+      padding: $tcpad $tcpad*2; 
       white-space: nowrap;
+    }
+    &.in-head {
+      > li {
+        @include border(1px, dotted, shallow, left);
+        &:first-child {border-left:0;}
+      }
     }
   }
   //---------------------------------------------

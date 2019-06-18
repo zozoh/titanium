@@ -116,6 +116,9 @@ export default {
         ...this.shown, 
         [name]: false
       }
+    },
+    onBlockEvent(payload={}) {
+      console.log("onBlockEvent", payload)
     }
   }
   ///////////////////////////////////////////
