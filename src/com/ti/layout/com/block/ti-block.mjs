@@ -34,6 +34,10 @@ export default {
       type : [String,Number],
       default : -1
     },
+    "overflow" : {
+      type : String,
+      default : null
+    },
     "closer" : {
       type : [Boolean, String],
       default : null
@@ -107,8 +111,13 @@ export default {
       if(_.isString(this.height) || this.height > 0) {
         style.height = Ti.Css.toSize(this.height)
       }
+      // If defined width/height, should forbid the flex auto
       if(!_.isEmpty(style)) {
         style.flex = "0 0 auto"
+      }
+      // append overflow setting
+      if(this.overflow) {
+        style.overflow = this.overflow
       }
       return style
     }

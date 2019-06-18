@@ -1,7 +1,32 @@
-<div class="ti-table">
-  <ul v-for="it in list" :key="it[idKey]">
-    <li v-for="fld in fields">
-      <span>{{it[fld.key]}}</span>
-    </li>
-  </ul>
+<div class="ti-table"
+  :class="topClass">
+  <!--
+    Header
+  -->
+  <div class="table-con as-head">
+    <div class="table-head" ref="head"
+      :style="tableStyle">
+      <ul class="table-row in-head">
+        <li v-for="(fld, index) in fields"
+          :style="cellStyle(index, fld)">
+          <span>{{fld.title || fld.key}}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!--
+    Body
+  -->
+  <div class="table-con as-body">
+    <div class="table-body" ref="body"
+      :style="tableStyle">
+      <ul v-for="it in list" :key="it[idKey]"
+        class="table-row in-body">
+        <li v-for="(fld, index) in fields"
+          :style="cellStyle(index, fld)">
+          <span>{{it[fld.key]}}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
 </div>

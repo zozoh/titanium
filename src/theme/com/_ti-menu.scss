@@ -131,7 +131,7 @@
           //--------------------------------------
           .action-icon {
             @include flex-center;
-            display: block; height:.6rem;
+            height:.6rem;
             .no-icon {
               background:rgba(200,200,200,0.3);
               border:1px dotted map-get($color-mask, r);

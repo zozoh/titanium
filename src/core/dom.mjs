@@ -244,6 +244,25 @@ export const TiDom = {
       return `<${wrapperTag} ${klass(wrapperClass)}>${html}</${wrapperTag}>`
     }
     return html
+  },
+  /**
+   * Retrive Current window scrollbar size
+   */
+  scrollBarSize: function () {
+    if (!window.SCROLL_BAR_SIZE) {
+        var newDivOut = "<div id='div_out' style='position:relative;width:100px;height:100px;overflow-y:scroll;overflow-x:scroll'></div>";
+        var newDivIn = "<div id='div_in' style='position:absolute;width:100%;height:100%;'></div>";
+        var scrollSize = 0;
+        $('body').append(newDivOut);
+        $('#div_out').append(newDivIn);
+        var divOutS = $('#div_out');
+        var divInS = $('#div_in');
+        scrollSize = divOutS.width() - divInS.width();
+        $('#div_out').remove();
+        $('#div_in').remove();
+        window.SCROLL_BAR_SIZE = scrollSize;
+    }
+    return window.SCROLL_BAR_SIZE;
   }
 }
 //---------------------------------------

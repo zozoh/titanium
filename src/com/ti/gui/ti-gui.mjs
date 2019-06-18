@@ -68,8 +68,8 @@ export default {
           let transName = `gui-panel-${b.position}`
           // Block Info
           let info = _.pick(b, [
-              "title","icon","actions","name", "adjustable", 
-              "position", "width", "height", "closer"])
+              "title","icon","actions","name", "adjustable", "closer", 
+              "position", "width", "height", "overflow"])
           // Sizing
           if(b.size && "stretch"!=b.size) {
             // Cols

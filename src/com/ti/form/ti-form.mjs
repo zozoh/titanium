@@ -72,6 +72,10 @@ function normlizeFormField(vm, fld, nbs=[]) {
   return f2
 }
 //-----------------------------------------
+const resize = function(evt){
+  this.__debounce_adjust_fields_width()
+}
+//-----------------------------------------
 export default {
   //////////////////////////////////////////////////////
   props : {
@@ -176,9 +180,7 @@ export default {
     }, 500)
   },
   mounted : function() {
-    Ti.Viewport.watch(this,  _.debounce(()=>{
-      this.__adjust_fields_width()
-    }, 500))
+    Ti.Viewport.watch(this, {resize})
   },
   updated : function() {
     this.$nextTick(()=>{

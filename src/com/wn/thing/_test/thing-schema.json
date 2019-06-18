@@ -3,10 +3,13 @@
   "list" : {
     "comType" : "ti-table",
     "comConf" : {
+      "border" : true,
       "fields" : [{
-        "key" : "nm"
+        "key" : "th_nm",
+        "title" : "名称"
       }, {
-        "key" : "ct"
+        "key" : "ct",
+        "title" : "创建时间"
       }],
       "list" : "@search.list"
     }

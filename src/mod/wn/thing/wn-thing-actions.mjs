@@ -6,7 +6,7 @@ export default {
     let aph  = `id:${state.meta.id}/thing-schema.json`
     let obj  = await Wn.Io.loadMeta(aph)
     let json = await Wn.Io.loadContent(obj, {as:"json"})
-    console.log("setSchema", json)
+    //console.log("setSchema", json)
     commit("setSchema", json)
     return json
   },
@@ -15,7 +15,7 @@ export default {
     let aph  = `id:${state.meta.id}/thing-layout.json`
     let obj  = await Wn.Io.loadMeta(aph)
     let json = await Wn.Io.loadContent(obj, {as:"json"})
-    console.log("setLayout", json)
+    //console.log("setLayout", json)
     commit("setLayout", json)
     return json
   },
@@ -24,7 +24,7 @@ export default {
     let aph  = `id:${state.meta.id}/thing-actions.json`
     let obj  = await Wn.Io.loadMeta(aph)
     let json = await Wn.Io.loadContent(obj, {as:"json"})
-    console.log("setActions", json)
+    //console.log("setActions", json)
     commit("setActions", json)
     return json
   },
@@ -49,13 +49,13 @@ export default {
     // Run Command
     let cmdText = cmds.join(" ")
     let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
-    console.log("reloadData", reo)
+    
     commit("setSearchPager", reo.pager)
     commit("setSearchList", reo.list)
   },
   //--------------------------------------------
   async reload({state, commit, dispatch}, meta) {
-    console.log("reload", meta)
+    console.log("thing-manager.reload", meta)
     // Update New Meta
     if(meta) {
       commit("setHome", meta)
@@ -64,7 +64,6 @@ export default {
     else {
       meta = state.meta
     }
-    console.log("Mark")
     // Mark reloading
     commit("setStatus", {reloading:true})
 

@@ -9,7 +9,7 @@ export const TiCss = {
     return sz
   },
   toStyle(obj) {
-    _.mapValues(obj, TiCss.toSize)
+    return _.mapValues(obj, TiCss.toSize)
   }
 }
 //---------------------------------------

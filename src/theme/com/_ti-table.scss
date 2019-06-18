@@ -1,3 +1,50 @@
-.ti-table {
-  
+.ti-table {@include noselect;
+  $thead : 32px; 
+  $tcpad : 4px;
+  overflow:hidden;
+  position: relative;
+  padding-top:$thead;
+  /* Reset UL */
+  ul.table-row {
+    @include raw-list;
+    display: table-row;
+    > li {
+      display: table-cell;
+      padding: $tcpad; 
+      white-space: nowrap;
+    }
+  }
+  //---------------------------------------------
+  .table-con {
+    // thead
+    &.as-head {
+      @include pos-abs($t:0, $l:0, $r:0, $h:$thead);
+      @include border(1px,solid,shallow,bottom);
+      line-height: $thead - ($tcpad * 2);
+      overflow:hidden;
+    }
+    // tbody {
+    &.as-body {
+      width:100%; height:100%; overflow: auto;
+    }
+    // Define the table layout
+    > div {
+      display: table;
+      &.table-head {
+        text-align:center; font-weight: bold;
+      }
+      &.table-body {
+
+      }
+    } // ~ div
+  }
+  //---------------------------------------------
+  &.show-border {
+    ul.table-row {
+      li {
+        @include border(1px, dotted, shallow, bottom);
+      }
+    }
+  }
+  //---------------------------------------------
 }
