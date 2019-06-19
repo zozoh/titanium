@@ -8,17 +8,29 @@
   ul.table-row {
     @include raw-list;
     display: table-row;
+    //-------------------------------------------
     > li {
       display: table-cell;
       padding: $tcpad $tcpad*2; 
       white-space: nowrap;
+      > .row-checker {
+        cursor: pointer;
+      }
     }
+    //-------------------------------------------
     &.in-head {
       > li {
         @include border(1px, dotted, shallow, left);
         &:first-child {border-left:0;}
       }
     }
+    //-------------------------------------------
+    &.in-body {
+      > li:first-child {
+        border-left: 2px solid transparent;
+      }
+    }
+    //-------------------------------------------
   }
   //---------------------------------------------
   .table-con {
@@ -42,7 +54,9 @@
       &.table-body {
         ul.table-row {
           &.is-current {
-
+            > li:first-child {
+              border-left-color: map-get($color-secondary, c);
+            }
           }
           &.is-selected {
             @include color-highlight;

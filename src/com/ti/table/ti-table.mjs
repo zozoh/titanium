@@ -4,13 +4,19 @@ function __find_each_col_size($div) {
   for(let $cell of $cells) {
     let orgWidth = $cell.getAttribute("org-width")
     if(orgWidth) {
-      list.push(orgWidth * 1)
+      list.push({
+        fixed : $cell.hasAttribute("col-fixed"),
+        size  : orgWidth * 1
+      })
     }
     // Re-count
     else {
       let bcr = $cell.getBoundingClientRect()
       $cell.setAttribute("org-width", bcr.width)
-      list.push(bcr.width)
+      list.push({
+        fixed : $cell.hasAttribute("col-fixed"),
+        size  : bcr.width
+      })
     }
   }
   return list
@@ -74,22 +80,60 @@ export default {
   },
   ///////////////////////////////////////////////////
   computed : {
+    //--------------------------------------
     isEmpty() {
       return this.list.length == 0
     },
+    //--------------------------------------
     colSumWidth() {
-      return _.sum(this.colSizes)
+      let sum = 0
+      for(let col of this.colSizes) {
+        sum += col.size
+      }
+      return sum
     },
-    colSizesInPercent() {
-      let sum = this.colSumWidth
+    //--------------------------------------
+    colFixedWidth() {
+      let sum = 0
+      for(let col of this.colSizes) {
+        if(col.fixed)
+          sum += col.size
+      }
+      return sum
+    },
+    //--------------------------------------
+    colDynamicWidth() {
+      let sum = 0
+      for(let col of this.colSizes) {
+        if(!col.fixed)
+          sum += col.size
+      }
+      return sum
+    },
+    //--------------------------------------
+    formedColSizes() {
+      let sum = this.colDynamicWidth
       let list = []
-      if(sum > 0) {
-        for(let sz of this.colSizes) {
-          list.push(sz / sum)
+      if(this.colSizes.length > 0) {
+        for(let col of this.colSizes) {
+          list.push({
+            fixed   : col.fixed,
+            size    : col.size,
+            percent : col.size / sum
+          })
         }
       }
       return list
     },
+    //--------------------------------------
+    tableWidth() {
+      return Math.max(this.colSumWidth, this.viewportWidth)
+    },
+    //--------------------------------------
+    tableDynamicWidth() {
+      return this.tableWidth - this.colFixedWidth
+    },
+    //--------------------------------------
     tableStyle() {
       let css = {}
       if(this.colSumWidth <= 0) {
@@ -103,6 +147,7 @@ export default {
       }
       return Ti.Css.toStyle(css)
     },
+    //--------------------------------------
     topClass() {
       let klass = []
       if(this.border) {
@@ -111,6 +156,39 @@ export default {
       if(!_.isEmpty(klass))
         return klass.join(" ")
     },
+    //--------------------------------------
+    isAllChecked() {
+      // Empty list, nothing checked
+      if(_.isEmpty(this.list)) 
+        return false 
+      // Checking ...
+      for(let it of this.list){
+        let itId = it[this.idKey]
+        if(!this.checkedIds[itId])
+          return false;  
+      }
+      return true
+    },
+    //--------------------------------------
+    hasChecked() {
+      for(let it of this.list){
+        let itId = it[this.idKey]
+        if(this.checkedIds[itId])
+          return true  
+      }
+      return false
+    },
+    //--------------------------------------
+    headCheckerIcon() {
+      if(this.isAllChecked) {
+        return "fas-check-square"
+      }
+      if(this.hasChecked) {
+        return "fas-minus-square"
+      }
+      return "far-square"
+    },
+    //--------------------------------------
     selectedItems() {
       let idKey = this.idKey || "id"
       let list = []
@@ -122,6 +200,7 @@ export default {
       }
       return list
     },
+    //--------------------------------------
     currentItem() {
       let idKey = this.idKey || "id"
       for(let it of this.list) {
@@ -200,8 +279,69 @@ export default {
       })
 
       // memo last Index
-      this.currentId = this.checkedIds[id] ? id : null
+      if(!this.currentId || "active" == mode) {
+        this.currentId = this.checkedIds[id] ? id : null
+      }
       this.lastIndex = index
+
+      // Do emit
+      this.$emit("selected", {
+        selected : this.selectedItems,
+        current  : this.currentItem
+      })
+    },
+    //--------------------------------------
+    onToggle(it) {
+      let id = it[this.idKey]
+      // Cancel it
+      if(this.checkedIds[id]) {
+        this.checkedIds = {
+          ...this.checkedIds,
+          [id] : false
+        }
+      }
+      // multi
+      else if(this.multi) {
+        this.checkedIds = {
+          ...this.checkedIds,
+          [id] : true
+        }
+      }
+      // Signle
+      else {
+        this.checkedIds = {[id] : true}
+      }
+
+      // memo last Index
+      this.currentId = this.checkedIds[id] ? id : null
+
+      // Do emit
+      this.$emit("selected", {
+        selected : this.selectedItems,
+        current  : this.currentItem
+      })
+    },
+    //--------------------------------------
+    onClickHeadRowChecker() {
+      // All  -> none
+      if(this.isAllChecked) {
+        this.checkedIds = {}
+      }
+      // Half -> All
+      // None -> All
+      else {
+        this.checkedIds = {}
+        for(let it of this.list) {
+          let itId = it[this.idKey]
+          this.checkedIds[itId] = true
+        }
+      }
+
+      // memo last Index
+      if(!this.checkedIds[this.currentId]) {
+        this.currentId = null
+      }
+      this.lastIndex = 0
 
       // Do emit
       this.$emit("selected", {
@@ -234,10 +374,28 @@ export default {
       }
     },
     //--------------------------------------
-    cellStyle(index, fld) {
-      return Ti.Css.toStyle({
-        width : this.colSizesInPercent[index]
-      })
+    bodyRowCheckerIcon(it) {
+      let itId = it[this.idKey]
+      if(this.checkedIds[itId])
+        return "fas-check-square"
+      return "far-square"
+    },
+    //--------------------------------------
+    cellStyle(index, fld={}) {
+      // If should checkbox, the index should base on 1
+      if(this.checkable)
+        index++
+      
+      // Check boundary
+      if(index >= this.formedColSizes.length)
+        return
+
+      // Eval the colWidth
+      let col = this.formedColSizes[index]
+      let width = col.fixed
+                  ? col.size
+                  : col.percent * this.tableDynamicWidth
+      return Ti.Css.toStyle({width})
     },
     //--------------------------------------
     updateSizing() {
@@ -249,7 +407,12 @@ export default {
         // Compare the max size to get the org-width of each columns
         let colSizes = []
         for(let i=0; i<lstHead.length; i++) {
-          colSizes.push(Math.max(lstHead[i], lstBody[i]))
+          let liH = lstHead[i]
+          let liB = lstBody[i]
+          colSizes.push({
+            fixed : liH.fixed || liB.fixed,
+            size  : Math.max(liH.size, liB.size)
+          })
         }
         this.colSizes = colSizes
         console.log("!!!this.colSizes", this.colSizes)
