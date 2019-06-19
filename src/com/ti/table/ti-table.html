@@ -9,11 +9,10 @@
       :style="tableStyle">
       <ul class="table-row in-head">
         <li v-if="checkable" col-fixed
-          :style="cellStyle(-1)">
-          <span class="row-checker"
-            @click.stop="onClickHeadRowChecker">
-            <ti-icon :value="headCheckerIcon"/>
-          </span>
+          class="row-checker"
+          :style="cellStyle(-1)"
+          @click.stop="onClickHeadRowChecker">
+          <ti-icon :value="headCheckerIcon"/>
         </li>
         <li v-for="(fld, index) in fields"
           :style="cellStyle(index, fld)">
@@ -33,11 +32,11 @@
         :class="bodyRowClass(it)"
         @click.stop="onSelected(it, index, $event)"
         @dblclick.stop="onOpen(it, index)">
-        <li v-if="checkable" col-fixed :style="cellStyle(-1)">
-          <span class="row-checker"
-            @click.stop="onToggle(it)">
-            <ti-icon :value="bodyRowCheckerIcon(it)"/>
-          </span>
+        <li v-if="checkable" col-fixed 
+          class="row-checker"
+          :style="cellStyle(-1)"
+          @click.stop="onToggle(it)">
+          <ti-icon :value="bodyRowCheckerIcon(it)"/>
         </li>
         <li v-for="(fld, ci) in fields"
           :style="cellStyle(ci, fld)">

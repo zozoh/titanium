@@ -13,7 +13,7 @@
       display: table-cell;
       padding: $tcpad $tcpad*2; 
       white-space: nowrap;
-      > .row-checker {
+      &.row-checker {
         cursor: pointer;
       }
     }
@@ -27,7 +27,14 @@
     //-------------------------------------------
     &.in-body {
       > li:first-child {
-        border-left: 2px solid transparent;
+        padding-left: 13px; position:relative;
+        &::before {
+          @include pos-abs($t:12px,$b:12px,$l:4px,$w:1px);
+          display:block; content:"";
+          border:1px dotted map-get($color-primary, r);
+          border-top:0; border-bottom:0;
+          opacity: 0;
+        }
       }
     }
     //-------------------------------------------
@@ -55,7 +62,9 @@
         ul.table-row {
           &.is-current {
             > li:first-child {
-              border-left-color: map-get($color-secondary, c);
+              &::before {
+                opacity: 0.5;
+              }
             }
           }
           &.is-selected {

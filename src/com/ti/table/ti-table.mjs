@@ -292,6 +292,7 @@ export default {
     },
     //--------------------------------------
     onToggle(it) {
+      console.log("onToggle")
       let id = it[this.idKey]
       // Cancel it
       if(this.checkedIds[id]) {
@@ -312,8 +313,14 @@ export default {
         this.checkedIds = {[id] : true}
       }
 
-      // memo last Index
-      this.currentId = this.checkedIds[id] ? id : null
+      // memo current Id
+      if(!this.currentId) {
+        this.currentId = id
+      }
+      if(this.currentId 
+        && !this.checkedIds[this.currentId]) {
+        this.currentId = null
+      }
 
       // Do emit
       this.$emit("selected", {
