@@ -80,7 +80,7 @@ export default {
    * @param index{Integer} : the item should be selected (0 base)
    * @param mode{String} : 3 kinds mode:
    *   - "active" : just on item should be selected
-   *   - "shift"  : make items selected betwen the last selected item and current one
+   *   - "shift"  : select items between the last selected item and given one
    *   - "toggle" : toggle current on selection
    */
   selectItem(state, {index, id, mode="active"}={}) {

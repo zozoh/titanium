@@ -3,5 +3,10 @@
   "namespaced" : true,
   "state" : "./wn-thing.json",
   "actions" : "./wn-thing-actions.mjs",
-  "mixins" : "./wn-thing.mjs"
+  "mixins" : "./wn-thing.mjs",
+  "modules" : {
+    "config" : "./mod/config",
+    "search" : "./mod/search",
+    "current" : "./mod/current"
+  }
 }

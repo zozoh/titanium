@@ -1,0 +1,6 @@
+{
+  "namespaced" : true,
+  "state" : "./thing-current.json",
+  "actions" : "./thing-current-actions.mjs",
+  "mixins" : "./thing-current.mjs"
+}

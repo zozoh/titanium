@@ -40,7 +40,14 @@
         text-align:center; font-weight: bold;
       }
       &.table-body {
+        ul.table-row {
+          &.is-current {
 
+          }
+          &.is-selected {
+            @include color-highlight;
+          }
+        }
       }
     } // ~ div
   }

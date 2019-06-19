@@ -1,5 +1,6 @@
 <div class="ti-table"
-  :class="topClass">
+  :class="topClass"
+  @click="onBlur">
   <!--
     Header
   -->
@@ -7,6 +8,11 @@
     <div class="table-head" ref="head"
       :style="tableStyle">
       <ul class="table-row in-head">
+        <li v-if="checkable" col-fixed>
+          <span class="list-checker">
+            <ti-icon value="far-check-square"/>
+          </span>
+        </li>
         <li v-for="(fld, index) in fields"
           :style="cellStyle(index, fld)">
           <span>{{fld.title || fld.key}}</span>
@@ -22,7 +28,14 @@
       :style="tableStyle">
       <ul v-for="(it, index) in list" :key="it[idKey]"
         class="table-row in-body"
-        @click.stop="onSelected(it, index, $event)">
+        :class="bodyRowClass(it)"
+        @click.stop="onSelected(it, index, $event)"
+        @dblclick.stop="onOpen(it, index)">
+        <li v-if="checkable" col-fixed>
+          <span class="list-checker">
+            <ti-icon value="far-square"/>
+          </span>
+        </li>
         <li v-for="(fld, ci) in fields"
           :style="cellStyle(ci, fld)">
           <span>{{it[fld.key]}}</span>

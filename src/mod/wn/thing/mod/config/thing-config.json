@@ -1,0 +1,23 @@
+{
+  "home": null,
+  "schema": {
+    "filter" : {},
+    "sorter" : {},
+    "list": {},
+    "pager" : {},
+    "meta" : {},
+    "content" : {},
+    "media" : {},
+    "attachment" : {}
+  },
+  "layout" : {
+    "deskstop" : {},
+    "tablet" : {},
+    "phone" : {}
+  },
+  "actions" : [],
+  "status" : {
+    "reloading" : false,
+    "saving"    : false
+  }
+}

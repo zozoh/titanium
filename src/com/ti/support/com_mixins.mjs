@@ -13,6 +13,7 @@ export default {
   },
   //////////////////////////////////////////
   created : function(){
+    // Hijack the emit by $parent
     if(!this.hijackEmit) {
       if(this.$parent && _.isFunction(this.$parent.hijackEmit)) {
         this.$emit = (name, ...args) => {

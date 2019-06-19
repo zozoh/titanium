@@ -27,7 +27,10 @@ export default {
   ///////////////////////////////////////////////////
   data : ()=>({
     viewportWidth : 0,
-    colSizes : []
+    colSizes : [],
+    lastIndex  : 0,
+    currentId  : null,
+    checkedIds : {}
   }),
   ///////////////////////////////////////////////////
   props : {
@@ -54,6 +57,10 @@ export default {
     "checkable" : {
       type : Boolean,
       default : false
+    },
+    "blurable" : {
+      type : Boolean,
+      default : true
     },
     "border" : {
       type : Boolean,
@@ -103,10 +110,67 @@ export default {
       }
       if(!_.isEmpty(klass))
         return klass.join(" ")
+    },
+    selectedItems() {
+      let idKey = this.idKey || "id"
+      let list = []
+      for(let it of this.list) {
+        let itId = it[idKey]
+        if(this.checkedIds[itId]) {
+          list.push(it)
+        }
+      }
+      return list
+    },
+    currentItem() {
+      let idKey = this.idKey || "id"
+      for(let it of this.list) {
+        let itId = it[idKey]
+        if(this.currentId == itId) {
+          return it
+        }
+      }
     }
   },
   ///////////////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    getIds({
+      list=[],
+      ids={}, 
+      fromIndex=0, 
+      toIndex=0, 
+      currentId, 
+      mode="actived"
+    }={}) {
+      let idKey = this.idKey || "id"
+      // Shift mode may mutate multiple items in scope
+      if('shift' == mode) {
+        let min = Math.min(fromIndex, toIndex)
+        let max = Math.max(fromIndex, toIndex)
+        for(let i=0; i<list.length; i++) {
+          let it = list[i]
+          if(i>=min && i<=max) {
+            ids[it[idKey]] = true
+          }
+        }
+        return {...ids}
+      }
+      // Toggle mode need to mutate single one item
+      if('toggle' == mode){
+        let it = list[toIndex];
+        let itId = it[idKey]
+        ids[itId] = !ids[itId]
+        return {...ids}
+      }
+      // Active mode need to keep only one item selected
+      if('active' == mode) {
+        return {[currentId] : true}
+      }
+      // invalid mode
+      throw Ti.Err.make("e-com-TiTable-getIds-invalidMode", mode)
+    },
+    //--------------------------------------
     onSelected(it, index, eo){
       if(!this.selectable){
         return
@@ -122,23 +186,60 @@ export default {
           mode = "toggle"
         }
       }
-      // Eval ID
+      // Eval current ID
       let id = it[this.idKey]
+
+      // Get Check Ids
+      this.checkedIds = this.getIds({
+        list      : this.list,
+        ids       : this.checkedIds,
+        fromIndex : this.lastIndex,
+        toIndex   : index,
+        currentId : id,
+        mode
+      })
+
+      // memo last Index
+      this.currentId = this.checkedIds[id] ? id : null
+      this.lastIndex = index
+
       // Do emit
-      console.log("selected", {mode,id,index})
-      this.$emit("selected", {mode,id,index})
+      this.$emit("selected", {
+        selected : this.selectedItems,
+        current  : this.currentItem
+      })
     },
-    onOpen({id,index}={}) {
-      this.$emit("open", {id,index})
+    //--------------------------------------
+    onOpen(it,index) {
+      this.$emit("open", {it,index})
     },
+    //--------------------------------------
     onBlur() {
-      this.$emit("blur")
+      if(!this.blurable)
+        return
+      this.checkedIds = {}
+      this.currentId = null
+      this.lastIndex = 0
+      this.$emit("selected", {
+        selected : [],
+        current  : null
+      })
     },
+    //--------------------------------------
+    bodyRowClass(it) {
+      let itId = it[this.idKey]
+      return {
+        "is-selected" : this.checkedIds[itId],
+        "is-current"  : this.currentId == itId
+      }
+    },
+    //--------------------------------------
     cellStyle(index, fld) {
       return Ti.Css.toStyle({
         width : this.colSizesInPercent[index]
       })
     },
+    //--------------------------------------
     updateSizing() {
       this.viewportWidth = this.$el.getBoundingClientRect().width
       if(_.isEmpty(this.colSizes)) {

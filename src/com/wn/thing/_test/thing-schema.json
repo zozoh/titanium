@@ -1,17 +1,18 @@
 {
-  "abc" : "@search.list",
   "list" : {
     "comType" : "ti-table",
     "comConf" : {
+      "list" : "@search.list",
       "border" : true,
+      "checkable" : true,
+      "multi"  : true,
       "fields" : [{
         "key" : "th_nm",
         "title" : "名称"
       }, {
         "key" : "ct",
         "title" : "创建时间"
-      }],
-      "list" : "@search.list"
+      }]
     }
   }
 }

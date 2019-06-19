@@ -39,22 +39,6 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "layout" : {
-      type : Object,
-      default : ()=>({
-        "desktop" : {},
-        "tablet" : {},
-        "phone" : {}
-      })
-    },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "actions" : {
-      type : Array,
-      default : ()=>[]
-    },
     "status" : {
       type : Object,
       default : ()=>({})
@@ -67,7 +51,7 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "index" : {
+    "current" : {
       type : Object,
       default : ()=>({})
     },
@@ -83,7 +67,7 @@ export default {
     },
     formedSchema() {
       let re = {}
-      _.forEach(this.schema, (val, key)=>{
+      _.forEach(this.config.schema, (val, key)=>{
         re[key] = __format_obj(this, val)
       })
       return re
@@ -91,11 +75,13 @@ export default {
   },
   ///////////////////////////////////////////
   methods : {
+    //--------------------------------------
     getLayout(name) {
-      let vm = this
-      let la = this.layout[name]
+      if(_.isEmpty(this.config))
+        return {}
+      let la = this.config.layout[name]
       if(_.isString(la)) {
-        la = this.layout[la]
+        la = this.config.layout[la]
       }
       //...........................
       let re = {}
@@ -105,21 +91,41 @@ export default {
       //...........................
       return re
     },
+    //--------------------------------------
     showBlock(name) {
       this.shown = {
         ...this.shown, 
         [name]: true
       }
     },
+    //--------------------------------------
     hideBlock(name) {
       this.shown = {
         ...this.shown, 
         [name]: false
       }
     },
-    onBlockEvent(payload={}) {
-      console.log("onBlockEvent", payload)
+    //--------------------------------------
+    onBlockEvent(be={}) {
+      console.log("onBlockEvent", be)
+      // Event Handlers
+      let fn = ({
+        // Select item in search list
+        "list.selected" : (payload)=>{
+          console.log("list.selected", payload)
+        },
+        // Select item in search list
+        "list.open" : (payload)=>{
+          console.log("list.open", payload)
+        }
+      })[`${be.block}.${be.name}`]
+
+      // Run Handler
+      if(_.isFunction(fn)) {
+        fn(...be.args)
+      }
     }
+    //--------------------------------------
   }
   ///////////////////////////////////////////
 }

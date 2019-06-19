@@ -6,7 +6,7 @@ export default {
     },
     size : {
       type : [Number, String],
-      default : ".2rem"
+      default : "unset"
     },
     color : {
       type : String,
