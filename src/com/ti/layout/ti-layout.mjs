@@ -1,10 +1,6 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////
-  data : ()=>({
-    currentBlockName : null
-  }),
-  ///////////////////////////////////////////
   props : {
     "type" : {
       type : String,
@@ -21,10 +17,15 @@ export default {
     "adjustable" : {
       type : Boolean,
       default : true
+    },
+    "shown" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   ///////////////////////////////////////////
   computed : {
+    //--------------------------------------
     topClass() {
       let klass = [`as-${this.type}`]
 
@@ -36,63 +37,70 @@ export default {
       // Output class names
       return klass.join(" ")
     },
+    //--------------------------------------
+    formedBlockList() {
+      //console.log(`layout(${this.type}).shown:`, JSON.stringify(this.shown))
+      // @see ti-gui-methods.mjs#getFormedBlockList
+      return this.getFormedBlockList(this.blocks, this.shown)
+    },
+    //--------------------------------------
     tabItems() {
-      // Make sure one tab items has to been the current
-      this.autoCurrentBlockName()
+      //console.log(`layout(${this.type}).currentTabBlock:`, this.currentTabBlock)
+      let currentBlock = this.currentTabBlock
       // Formed list
       let list = []
-      for(let b of this.blocks) {
-        let text = b.title
-        if(!text && !b.icon) {
+      for(let b of this.formedBlockList) {
+        let text = b.info.title
+        if(!text && !b.info.icon) {
           text = b.name
         }
         list.push({
           text,
           name : b.name,
           icon : b.icon,
-          className : (this.currentBlockName == b.name)
+          className : (b.name == currentBlock.name)
               ? "is-current"
               : null
         })
       }
-      //console.log("tabItems", list)
       return list
-    }
-  },
-  ///////////////////////////////////////////
-  watch : {
-    // For tabs, it should show/hide the sub-blocks 
-    "currentBlockName" : function(){
+    },
+    //--------------------------------------
+    currentTabBlock() {
+      // console.log(`layout(${this.type}).formedBlockList:`, this.formedBlockList)
       if('tabs' == this.type) {
-        let blocks = Ti.Dom.findAll(":scope > .ti-block", this.$el)
-        for(let $b of blocks) {
-          let bnm = $b.getAttribute("tab")
-          // Show
-          if(bnm == this.currentBlockName) {
-            Ti.Dom.setStyle($b, {"display":""})
-          }
-          // Hide
-          else {
-            Ti.Dom.setStyle($b, {"display":"none"})
-          }
+        for(let b of this.formedBlockList) {
+          if(b.isShown)
+            return b
         }
+        if(!_.isEmpty(this.formedBlockList)){
+          return this.formedBlockList[0]
+        }
+        return {}
       }
+    },
+    //--------------------------------------
+    hasCurrentTabBlock() {
+      return this.currentTabBlock 
+             && this.currentTabBlock.name 
+              ? true 
+              : false
     }
+    //--------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
-    autoCurrentBlockName() {
-      if('tabs' == this.type) {
-        if(!this.currentBlockName && !_.isEmpty(this.blocks)){
-          this.currentBlockName = this.blocks[0].name
-        }
+    setCurrentTabItem({name}={}) {
+      let st = {}
+      // Hide current one
+      if(this.hasCurrentTabBlock) {
+        st[this.currentTabBlock.name] = false
       }
-    },
-    setCurrentItem({name}={}) {
-      this.currentBlockName = name
+      // Show given one
+      st[name] = true
+      // Notify ancestor
+      this.$emit("block:show", st)
     }
-  },
-  ///////////////////////////////////////////
-
+  }
   ///////////////////////////////////////////
 }

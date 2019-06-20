@@ -2,22 +2,28 @@
   <!--
     Is for tabs
   -->
-  <div v-if="'tabs' == type"
-    class="layout-tabs">
-    <ul>
-      <li v-for="it in tabItems"
-        :key="it.name"
-        :class="it.className"
-        @click="setCurrentItem(it)">
-        <span v-if="it.icon" class="it-icon">
-          <ti-icon :value="it.icon"/>
-        </span>
-        <span class="it-text">{{it.text}}</span>
-      </li>
-    </ul>
-  </div>
+  <template  v-if="'tabs' == type">
+    <div class="layout-tabs">
+      <ul>
+        <li v-for="it in tabItems"
+          :key="it.name"
+          :class="it.className"
+          @click="setCurrentTabItem(it)">
+          <span v-if="it.icon" class="it-icon">
+            <ti-icon :value="it.icon"/>
+          </span>
+          <span class="it-text">{{it.text}}</span>
+        </li>
+      </ul>
+    </div>
+    <component :is="currentTabBlock.comType"
+      class="ti-fill-parent"
+      v-bind="currentTabBlock.comConf"/>
+  </template>
   <!--
     Body slot
   -->
-  <slot></slot>
+  <template v-else>
+    <slot></slot>
+  </template>
 </div>

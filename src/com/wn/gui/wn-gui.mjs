@@ -1,9 +1,11 @@
 export default {
   inheritAttrs : false,
   /////////////////////////////////////////
-  data : ()=>({
-    "shown" : {}
-  }),
+  data : function(){
+    return {
+      "shown" : {}
+    }
+  },
   /////////////////////////////////////////
   props : {
     "data" : {
@@ -26,23 +28,20 @@ export default {
   },
   //////////////////////////////////////////
   watch : {
+    // Notify wn-manager update the action menu
     "data.actions" : function(){
       this.$emit("actions:updated", this.data.actions)
     }
   },
   //////////////////////////////////////////
   methods : {
+    // @see ti-gui-methods.mjs#showGuiBlock
     showBlock(name) {
-      this.shown = {
-        ...this.shown, 
-        [name]: true
-      }
+      this.shown = this.setGuiBlock(this.shown, name, true)
     },
+    // @see ti-gui-methods.mjs#hideGuiBlock
     hideBlock(name) {
-      this.shown = {
-        ...this.shown, 
-        [name]: false
-      }
+      this.shown = this.setGuiBlock(this.shown, name, false)
     }
   }
 }

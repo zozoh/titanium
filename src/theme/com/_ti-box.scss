@@ -44,7 +44,9 @@
   }
   //--------------------------------------------
   > .as-single {
+    @include flex-align-nowrap;
     padding:.02rem 0 .02rem .1rem;
+    > .it-icon {margin-right:.06rem;}
   }
   //--------------------------------------------
   > .as-multi {

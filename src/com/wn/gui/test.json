@@ -48,7 +48,7 @@
     }, {
       "name" : "C1",
       "icon"  : "im-award",
-      "title" : "Test C0",
+      "title" : "Test C1",
       "actions" : [{
           "type" : "group",
           "icon" : "zmdi-more-vert",

@@ -130,8 +130,8 @@ export default {
     },
     hijackEmit(name, args) {
       console.log("--hijackEmit--", name, args)
-      // By Padd
-      if("block:event" == name) {
+      // By Pass: "block:show/hide/event"
+      if(/^block:(show|hide|event)$/.test(name)) {
         this.$emit(name, ...args)
       }
       // Gen Block Event
