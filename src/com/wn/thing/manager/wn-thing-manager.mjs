@@ -106,18 +106,35 @@ export default {
       }
     },
     //--------------------------------------
+    toggleBlock(name) {
+      if(this.shown[name]) {
+        this.hideBlock(name)
+      } else {
+        this.showBlock(name)
+      }
+    },
+    //--------------------------------------
     onBlockEvent(be={}) {
-      console.log("onBlockEvent", be)
+      //console.log("onBlockEvent", be)
+      let app = Ti.App(this)
       // Event Handlers
       let fn = ({
+        //..................................
         // Select item in search list
-        "list.selected" : (payload)=>{
-          console.log("list.selected", payload)
+        "list.selected" : ({current})=>{
+          //console.log("list.selected", current)
+          if(!current) {
+            this.shown.content = false
+          }
+          app.dispatch("main/current/setCurrent", current, this.shown.content)
         },
+        //..................................
         // Select item in search list
-        "list.open" : (payload)=>{
-          console.log("list.open", payload)
+        "list.open" : ({current})=>{
+          this.shown.content = true
+          app.dispatch("main/current/reload", current)
         }
+        //..................................
       })[`${be.block}.${be.name}`]
 
       // Run Handler

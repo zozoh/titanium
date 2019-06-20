@@ -143,7 +143,7 @@ export default {
       let tableWidth = Math.max(this.viewportWidth, this.colSumWidth)
       if(tableWidth > 0) {
         css.width = tableWidth
-        console.log("tableStyle", css, Ti.Css.toStyle(css))
+        //console.log("tableStyle", css, Ti.Css.toStyle(css))
       }
       return Ti.Css.toStyle(css)
     },
@@ -265,6 +265,12 @@ export default {
           mode = "toggle"
         }
       }
+
+      // Already current, ignore
+      if("active" == mode && this.currentId == it.id) {
+        return
+      }
+
       // Eval current ID
       let id = it[this.idKey]
 
@@ -422,7 +428,7 @@ export default {
           })
         }
         this.colSizes = colSizes
-        console.log("!!!this.colSizes", this.colSizes)
+        //console.log("!!!this.colSizes", this.colSizes)
       }
     }
   },

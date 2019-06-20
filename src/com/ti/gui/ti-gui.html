@@ -15,6 +15,7 @@
       <ti-block v-for="b in formedBlockList"
         :key="b.name"
         v-bind="b.info"
+        :shown="shown"
         @block:show="$emit('block:show', $event)"
         @block:hide="$emit('block:hide', $event)"
         @block:event="$emit('block:event', $event)">
@@ -39,6 +40,7 @@
         <ti-block 
           v-bind="b.info"
           :float="true"
+          :shown="shown"
           @block:show="$emit('block:show', $event)"
           @block:hide="$emit('block:hide', $event)"
           @block:event="$emit('block:event', $event)">

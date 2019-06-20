@@ -28,12 +28,32 @@
           }
         }]
     }, {
-      "name" : "meta",
-      "size" : "stretch",
-      "body" : {
-        "comType" : "ti-label",
-        "comConf" : {"value" : "It is Meta"}
-      }
+      "name"  : "meta",
+      "title" : "对象属性",
+      "icon"  : "zmdi-info",
+      "actions" : [{
+          "key" : "show-content",
+          "statusKey" : "content",
+          "type" : "action",
+          "text" : "显示内容",
+          "altDisplay" : {
+            "text" : "隐藏内容",
+            "capture" : false
+          },
+          "action" : "main:toggleBlock(content)"
+        }],
+      "size"  : "stretch",
+      "body"  : "meta"
+    }],
+    "panels" : [{
+      "name" : "content",
+      "title" : "对象内容",
+      "icon"  : "zmdi-file-text",
+      "body" : "content",
+      "position" : "left",
+      "width"  : "50%",
+      "height" : "100%",
+      "closer" : "default"
     }]
   },
   "tablet" : "desktop",

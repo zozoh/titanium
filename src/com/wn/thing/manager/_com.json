@@ -9,5 +9,7 @@
     "@com:ti/gui",
     "@com:ti/paging/jumper",
     "@com:ti/table",
-    "@com:ti/form"]
+    "@com:wn/obj/puretext",
+    "@com:wn/obj/preview",
+    "@com:wn/obj/form"]
 }

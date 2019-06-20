@@ -41,6 +41,10 @@ export default {
     "closer" : {
       type : [Boolean, String],
       default : null
+    },
+    "shown" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////
@@ -129,7 +133,7 @@ export default {
       this.$emit("block:hide", this.name)
     },
     hijackEmit(name, args) {
-      console.log("--hijackEmit--", name, args)
+      //console.log("--hijackEmit--", name, args)
       // By Pass: "block:show/hide/event"
       if(/^block:(show|hide|event)$/.test(name)) {
         this.$emit(name, ...args)

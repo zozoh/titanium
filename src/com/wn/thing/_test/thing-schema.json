@@ -7,12 +7,35 @@
       "checkable" : true,
       "multi"  : true,
       "fields" : [{
-        "key" : "th_nm",
+        "key"   : "th_nm",
         "title" : "名称"
       }, {
-        "key" : "ct",
+        "key"   : "ct",
         "title" : "创建时间"
       }]
+    }
+  },
+  "meta" : {
+    "comType" : "wn-obj-form",
+    "comConf" : {
+      "data"   : "@current.meta",
+      "status" : "@current.status",
+      "config" : {
+        "fields" : [{
+          "name"    : "th_nm",
+          "comType" : "ti-input"
+        }]
+      }
+    }
+  },
+  "content" : {
+    "comType" : "wn-obj-puretext",
+    "comConf" : {
+      "meta"         : "@current.meta",
+      "content"      : "@current.content",
+      "savedContent" : "@current.__saved_content",
+      "contentType"  : "@current.contentType",
+      "status"       : "@current.status"
     }
   }
 }

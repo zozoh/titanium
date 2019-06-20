@@ -21,7 +21,7 @@ export default {
     return newMeta
   },
   //--------------------------------------------
-  async reload({state, commit, dispatch}, meta) {
+  async reload({state, commit}, meta) {
     if(state.status.reloading
       || state.status.saving){
       return
@@ -43,6 +43,19 @@ export default {
 
     // return the loaded content
     return content
+  },
+  //--------------------------------------------
+  async setCurrent({commit,dispatch}, meta, loadContent) {
+    console.log("setCurrent", meta, loadContent)
+    
+    commit("setMeta", meta)
+
+    let content = null
+    if(loadContent) {
+      content = await dispatch("reload")
+    }
+
+    return {meta, content}
   }
   //--------------------------------------------
 }

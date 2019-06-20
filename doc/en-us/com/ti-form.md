@@ -63,7 +63,7 @@ Define the schema(`Object`) of  data presentation.
     // If value if NaN, it willl be applied
     nanAs : -1,
     // The component name, if undefined, it will auto evaluate by `type`
-    comType : "ti-form-input",
+    comType : "ti-input",
     // The component properties, default is `undefined`
     comConf : {..}
     // Customized serializer
