@@ -17,27 +17,56 @@ export default {
     "status" : {
       type : Object,
       default : ()=>({})
+    },
+    "fieldStatus" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "updateBy" : {
+      type : Object,
+      default : ()=>({
+        method : "dispatch",
+        target : "main/update"
+      })
+    },
+    "setFieldStatusBy" : {
+      type : Object,
+      default : ()=>({
+        method : "commit",
+        target : "main/setFieldStatus"
+      })
     }
   },
   //////////////////////////////////////////////////////
   computed : {
-    
+    hasData() {
+      return !_.isEmpty(this.data)
+    }
   },
   //////////////////////////////////////////////////////
   methods : {
-    onChanged(payload) {
-      //console.log("wn-form.changed", payload)
-      let app = Ti.App(this)
-      app.dispatch("main/update", payload)
+    doAction(emitName, action, payload) {
+      if(action) {
+        let app = Ti.App(this)
+        app[action.method](action.target, payload)
+      }
+      // Just notify $parent
+      else {
+        this.$emit(emitName, payload)
+      }
     },
-    onInvalid(payload) {
+    onChanged(payload) {
+      console.log("wn-form.changed", payload)
+      this.doAction("changed", this.updateBy, payload)
+    },
+    onInvalid(err) {
       console.log("wn-form.invalid", payload)
-      let app = Ti.App(this)
-      app.commit("main/changeStatus", {
-        name    : payload.name,
-        message : [payload.errMessage,payload.value].join(" :: "),
+      let payload = {
+        name    : err.name,
+        message : [err.errMessage, err.value].join(" :: "),
         status  : "warn"
-      })
+      }
+      this.doAction("invalid", this.setFieldStatusBy, payload)
     }
   },
   //////////////////////////////////////////////////////

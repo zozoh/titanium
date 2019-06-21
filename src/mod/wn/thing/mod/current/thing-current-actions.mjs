@@ -21,6 +21,14 @@ export default {
     return newMeta
   },
   //--------------------------------------------
+  async updateMeta({state, commit}, payload) {
+    console.log("I am update", payload)
+    // commit("setFieldValue", {name, value})
+    // commit("clearFieldStatus", [name])
+    // commit("syncStatusChanged")
+    // commit("set", {data: state.data})
+  },
+  //--------------------------------------------
   async reload({state, commit}, meta) {
     if(state.status.reloading
       || state.status.saving){
@@ -34,7 +42,10 @@ export default {
     
     commit("setStatus", {reloading:true})
 
-    let content = await Wn.Io.loadContent(meta)
+    let content = null
+    if(meta) {
+      content = await Wn.Io.loadContent(meta)
+    }
 
     commit("setMeta",         meta)
     commit("setContent",      content)
@@ -45,14 +56,19 @@ export default {
     return content
   },
   //--------------------------------------------
-  async setCurrent({commit,dispatch}, meta, loadContent) {
+  async setCurrent({commit,dispatch}, {
+    meta=null, loadContent=false
+  }={}) {
     console.log("setCurrent", meta, loadContent)
     
-    commit("setMeta", meta)
-
+    // Load content and meta
     let content = null
     if(loadContent) {
-      content = await dispatch("reload")
+      content = await dispatch("reload", meta)
+    }
+    // Just update the meta
+    else {
+      commit("setMeta", meta)
     }
 
     return {meta, content}

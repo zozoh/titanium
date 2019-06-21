@@ -20,11 +20,23 @@
     "comConf" : {
       "data"   : "@current.meta",
       "status" : "@current.status",
+      "fieldStatus" : "@current.fieldStatus",
       "config" : {
         "fields" : [{
           "name"    : "th_nm",
           "comType" : "ti-input"
+        },{
+          "name" : "id"
+
         }]
+      },
+      "updateBy" : {
+        "method" : "dispatch",
+        "target" : "main/current/updateMeta"
+      },
+      "setFieldStatusBy" : {
+        "method" : "commit",
+        "target" : "main/config/setMetaFieldStatus"
       }
     }
   },

@@ -24,29 +24,39 @@ export default {
       state.status.changed = !_.isEqual(state.data, state.__saved_data)
     },
     /***
-     * Update the data and `status.changed`
+     * Update the data
      */
-    update(state, {name, value}={}){
-      // value is partial data, shallow merge it
-      if(_.isArray(name) && name.length > 0){
-        _.assign(state.data, _.cloneDeep(value))
-      }
-      // set the value
-      else if(_.isString(name) && name) {
-        state.data[name] = _.cloneDeep(value)
-      }
+    setFieldValue(state, {name, value}={}){
+      Vue.set(state.data, name, _.cloneDeep(value))
     },
     /***
      * Change the field status
      */
-    changeStatus(state, {name, message, status}={}) {
-      // Find the field
-      if(state.config && _.isArray(state.config.fields)) {
-        for(let fld of state.config.fields) {
-          if(_.isEqual(fld.name, name)) {
-            Vue.set(fld, "status", status)
-            Vue.set(fld, "message", message)
-          }
+    setFieldStatus(state, {name, message, status}={}) {
+      let st = null
+      if(status) {
+        st = {status, message}
+      }
+      Vue.set(state.fieldStatus, name, st)
+    },
+    /***
+     * Clear the field status.
+     * 
+     * @param name{Array|String} field names to clean. if empty, clean all
+     */
+    clearFieldStatus(state, names=[]) {
+      // Clean All
+      if(_.isEmpty(names)) {
+        state.fieldStatus = {}
+      }
+      // Clear one
+      else if(_.isString(names)) {
+        Vue.set(state.fieldStatus, names, null)
+      }
+      // Clean one by one
+      else {
+        for(let nm of names) {
+          Vue.set(state.fieldStatus, name, null)
         }
       }
     }
@@ -57,8 +67,8 @@ export default {
      * Update the data and `status.changed`
      */
     update({state, commit}, {name, value}={}){
-      commit("update", {name, value})
-      commit("changeStatus", {name})
+      commit("setFieldValue", {name, value})
+      commit("clearFieldStatus", [name])
       commit("syncStatusChanged")
       commit("set", {data: state.data})
     },
@@ -85,6 +95,7 @@ export default {
         __saved_data : data,
         status:{saving:false}
       })
+      commit("clearFieldStatus")
       commit("syncStatusChanged")
 
       // return the new meta
@@ -140,6 +151,7 @@ export default {
         __saved_data : data,
         status:{reloading:false}
       })
+      commit("clearFieldStatus")
       commit("syncStatusChanged")
 
       // return the root state

@@ -7,5 +7,6 @@
     "changed"   : false,
     "saving"    : false,
     "reloading" : false
-  }
+  },
+  "fieldStatus" : {}
 }

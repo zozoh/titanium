@@ -115,7 +115,7 @@ export default {
     },
     //--------------------------------------
     onBlockEvent(be={}) {
-      //console.log("onBlockEvent", be)
+      console.log("onBlockEvent", be)
       let app = Ti.App(this)
       // Event Handlers
       let fn = ({
@@ -126,7 +126,10 @@ export default {
           if(!current) {
             this.shown.content = false
           }
-          app.dispatch("main/current/setCurrent", current, this.shown.content)
+          app.dispatch("main/current/setCurrent", {
+            meta : current, 
+            loadContent : this.shown.content
+          })
         },
         //..................................
         // Select item in search list

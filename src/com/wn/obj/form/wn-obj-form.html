@@ -1,8 +1,11 @@
-<div class="wn-obj-form">
-  <wn-form 
-    :config="config"
-    :data="data"
-    :status="status"
-    @changed="onChanged"
-    @invalid="onInvalid"/>
+<div>
+<wn-form 
+  :config="config"
+  :data="data"
+  :status="status"
+  :field-status="fieldStatus"
+  @changed="onChanged"
+  @invalid="onInvalid"/>
+  <hr>
+  <pre>{{updateBy}}</pre>
 </div>

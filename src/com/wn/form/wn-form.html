@@ -1,6 +1,20 @@
-  <ti-form 
+<div class="wn-form">
+  <!--
+    Show data in form
+  -->
+  <ti-form v-if="hasData"
     :config="formedConfig"
     :data="data"
     :status="status"
+    :field-status="fieldStatus"
     @changed="onChanged"
     @invalid="onInvalid"/>
+  <!--
+    Empty Data
+  -->
+  <div v-else
+    class="ti-blank is-big">
+    <ti-icon value="zmdi-alert-circle-o"/>
+    <span>{{"empty-data"|i18n}}</span>
+  </div>
+</div>

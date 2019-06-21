@@ -26,6 +26,15 @@
   z-index: $z-mask;
 }
 //...................................................
+.ti-blank {
+  padding:.2rem; 
+  &.is-big {
+    @include color($color-track, c);
+    text-align: center; font-size:.16rem;
+    > .ti-icon {font-size:3em;padding:.2rem;}
+  }
+}
+//...................................................
 .ti-hide {display:none;}
 //...................................................
 [ti-is-drag] {

@@ -99,12 +99,19 @@ export default {
     "status" : {
       type : Object,
       default : null
+    },
+    "fieldStatus" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////////////////
   computed : {
     formedConfig() {
       return formatObj(this, this.config);
+    },
+    hasData() {
+      return !_.isEmpty(this.data)
     }
   },
   //////////////////////////////////////////////////////

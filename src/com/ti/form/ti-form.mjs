@@ -60,6 +60,14 @@ function normlizeFormField(vm, fld, nbs=[]) {
     f2 = _.cloneDeep(fld)
     f2.type = f2.type || "String"
 
+    // field status
+    let fstKey = [].concat(f2.name).join("-")
+    let fst = vm.fieldStatus[fstKey]
+    if(fst) {
+      f2.status  = fst.status
+      f2.message = fst.message
+    }
+
     // Tidy form function
     f2.serializer  = formFunc(vm.fnSet, f2, "serializer")
     f2.transformer = formFunc(vm.fnSet, f2, "transformer")
@@ -94,6 +102,10 @@ export default {
         "saving"    : false,
         "reloading" : false
       })
+    },
+    "fieldStatus" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////////////////
@@ -174,6 +186,14 @@ export default {
     }
   },
   //////////////////////////////////////////////////////
+  watch : {
+    "config.fields" : function(){
+      this.$nextTick(()=>{
+        this.__adjust_fields_width()
+      })
+    }
+  },
+  //////////////////////////////////////////////////////
   created : function() {
     this.__debounce_adjust_fields_width = _.debounce(()=>{
       this.__adjust_fields_width()
@@ -181,8 +201,6 @@ export default {
   },
   mounted : function() {
     Ti.Viewport.watch(this, {resize})
-  },
-  updated : function() {
     this.$nextTick(()=>{
       this.__adjust_fields_width()
     })

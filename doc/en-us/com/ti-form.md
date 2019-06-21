@@ -48,19 +48,15 @@ Define the schema(`Object`) of  data presentation.
     // Key in data, if array, it will pick out a object as the value
     name  : "name",
     icon  : "im-file",      // Field icon
-    // Special status
-    status : "error|warn|ok|spinning",
-    // Message for current status
-    message : "i18n:xxx",
     // Field title, `undefined` will auto use `key` as title
     // if `null`, the filed title will be hidded
     title : "i18n:xxx",
     tip   : "i18n:xxx"
-    // If value is undefined, it wil be applied
+    // Applied when undeinfed value
     undefinedAs : undeinfed,
-    // If value is null, it will be applied
+    // Applied when null value
     nullAs : null,
-    // If value if NaN, it willl be applied
+    // Applied when NaN value
     nanAs : -1,
     // The component name, if undefined, it will auto evaluate by `type`
     comType : "ti-input",
@@ -127,7 +123,7 @@ com.$emit("changed")
 
 ## status
 
-Each field status
+The status of whole form
 
 ```js
 {
@@ -137,19 +133,34 @@ Each field status
 }
 ```
 
+## fieldStatus
+
+The status for each fields
+
+```js
+{
+  "fieldA" : {
+    // Special status
+    status : "error|warn|ok|spinning",
+    // Message for current status
+    message : "i18n:xxx",
+  }
+}
+```
+
 ------------------------------------------------------
 # Data Type
 
   Type              | JSON            | Com Value  | Default Component
 ----------------------|------------------|------------------|-------------------
-`"String"`    | `String`   | `String`  | `<ti-form-input>`
-`"Number"`    | `Number`   |`Number`   | `<ti-form-input-num>`
-`"Integer"`  | `Integer`|`Integer`   | `<ti-form-input-num>`
-`"Boolean"`  | `Boolean`|`Boolean` |`<ti-form-toggle>`
-`"Object"`    | `Object`   | `Object`  | `<ti-form-pair>`
-`"Array"`       | `Array`     |`Array`      | `<ti-form-list>`
-`"DateTime"`| `String`   |`Date`        | `<ti-form-date>`
-`"AMS"`            | `Integer`|`Date`        | `<ti-form-date>`
+`"String"`    | `String`   | `String`  | `<ti-label>` 
+`"Number"`    | `Number`   |`Number`   | `<ti-input>` 
+`"Integer"`  | `Integer`|`Integer`   | `<ti-input>` 
+`"Boolean"`  | `Boolean`|`Boolean` |`<ti-toggle>`
+`"Object"`    | `Object`   | `Object`  | `<ti-pair>` 
+`"Array"`       | `Array`     |`Array`      | `<ti-list>` 
+`"DateTime"`| `String`   |`Date`        | `<ti-date>` 
+`"AMS"`            | `Integer`|`Date`        | `<ti-date>` 
 
 ```
 `class TiTime`   |`<ti-form-time>`

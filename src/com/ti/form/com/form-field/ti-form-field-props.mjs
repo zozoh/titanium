@@ -47,7 +47,7 @@ export default {
   },
   "comType" : {
     type : String,
-    default : "ti-input"
+    default : "ti-label"
   },
   "comConf" : {
     type : Object,
