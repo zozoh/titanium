@@ -8,5 +8,7 @@
     "saving"    : false,
     "reloading" : false
   },
-  "fieldStatus" : {}
+  "fieldStatus" : {
+    
+  }
 }

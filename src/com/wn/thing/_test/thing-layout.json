@@ -53,7 +53,20 @@
       "position" : "left",
       "width"  : "50%",
       "height" : "100%",
-      "closer" : "default"
+      "closer" : "default",
+      "status" : "@current.status",
+      "actions" : [{
+        "key"  : "saving",
+        "type" : "action",
+        "icon" : "zmdi-floppy",
+        "text" : "i18n:save-change",
+        "altDisplay" : {
+          "icon" : "fas-spinner fa-pulse",
+          "text" : "i18n:saving"
+        },
+        "enableBy" : "changed",
+        "action" : "dispatch:main/current/save"
+      }]
     }]
   },
   "tablet" : "desktop",

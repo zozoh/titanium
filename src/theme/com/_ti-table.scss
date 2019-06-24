@@ -70,6 +70,20 @@
           &.is-selected {
             @include color-highlight;
           }
+          &.is-changed {
+            @include color($color-secondary, r, c);
+            &.in-body {
+              > li:first-child {
+                padding-left: 13px;
+                &::before {
+                  @include flex-center;
+                  left:6px;
+                  content:"*";
+                  border:0; 
+                }
+              }
+            }
+          }
         }
       }
     } // ~ div

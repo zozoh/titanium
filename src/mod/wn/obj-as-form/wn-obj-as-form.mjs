@@ -27,7 +27,21 @@ export default {
      * Update the data
      */
     setFieldValue(state, {name, value}={}){
-      Vue.set(state.data, name, _.cloneDeep(value))
+      // Normal field
+      if(_.isString(name)) {
+        Vue.set(state.data, name, _.cloneDeep(value))
+      }
+      // name is Array, ti-form support the Array as field name
+      // it will pick the keys from data and pass to form-field
+      // just like country-province-city-address it should be edit 
+      // by one casecaded component
+      else {
+        for(let nm of name) {
+          let v2 = value ? value[nm] : undefined
+          let v3 = _.cloneDeep(v2)
+          Vue.set(state.data, nm, v3)
+        }
+      }
     },
     /***
      * Change the field status
@@ -37,7 +51,18 @@ export default {
       if(status) {
         st = {status, message}
       }
-      Vue.set(state.fieldStatus, name, st)
+      if(_.isString(name)) {
+        Vue.set(state.fieldStatus, name, st)
+      }
+      // name is Array, ti-form support the Array as field name
+      // it will pick the keys from data and pass to form-field
+      // just like country-province-city-address it should be edit 
+      // by one casecaded component
+      else if(_.isArray(name)) {
+        for(let nm of name) {
+          Vue.set(state.fieldStatus, nm, st)
+        }
+      }
     },
     /***
      * Clear the field status.

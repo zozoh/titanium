@@ -1,5 +1,6 @@
-<div class="ti-text-raw">
-  <div v-if="isPageModeDesktop"
+<div class="ti-text-raw"
+  :class="topClass">
+  <div v-if="showTitle"
     class="te-head" :class="headClass">
     <ti-icon class="center" :value="icon"/>
     <b>{{title}}</b>

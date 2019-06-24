@@ -11,6 +11,10 @@ export default {
       type : String,
       default : "No Title"
     },
+    "showTitle" : {
+      type : Boolean,
+      default : true
+    },
     "content" : {
       type : String,
       default : ""
@@ -21,6 +25,12 @@ export default {
     }
   },
   computed : {
+    topClass() {
+      return {
+        "show-title" : this.showTitle,
+        "hide-title" : !this.showTitle
+      }
+    },
     headClass() {
       return {
         "content-changed" : this.contentIsChanged

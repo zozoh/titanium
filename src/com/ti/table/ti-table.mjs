@@ -54,6 +54,12 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    // Indicate which row has been change
+    // The value should be the row[idKey]
+    "changedId" : {
+      type : String,
+      default : null
+    },
     // multi-selectable
     // effected when selectable is true
     "multi" : {
@@ -364,7 +370,10 @@ export default {
     },
     //--------------------------------------
     onOpen(it,index) {
-      this.$emit("open", {it,index})
+      this.$emit("open", {
+        index,
+        current :it
+      })
     },
     //--------------------------------------
     onBlur() {
@@ -383,7 +392,8 @@ export default {
       let itId = it[this.idKey]
       return {
         "is-selected" : this.checkedIds[itId],
-        "is-current"  : this.currentId == itId
+        "is-current"  : this.currentId == itId,
+        "is-changed"  : this.changedId == itId
       }
     },
     //--------------------------------------

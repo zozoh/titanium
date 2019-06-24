@@ -3,6 +3,7 @@
     "comType" : "ti-table",
     "comConf" : {
       "list" : "@search.list",
+      "changedId" : "@changedRowId",
       "border" : true,
       "checkable" : true,
       "multi"  : true,
@@ -43,6 +44,7 @@
   "content" : {
     "comType" : "wn-obj-puretext",
     "comConf" : {
+      "showTitle"    : false,
       "meta"         : "@current.meta",
       "content"      : "@current.content",
       "savedContent" : "@current.__saved_content",

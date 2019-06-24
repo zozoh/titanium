@@ -71,6 +71,11 @@ export default {
         re[key] = __format_obj(this, val)
       })
       return re
+    },
+    changedRowId() {
+      if(this.current && this.current.meta && this.current.status.changed) {
+        return this.current.meta.id
+      }
     }
   },
   ///////////////////////////////////////////
@@ -122,20 +127,32 @@ export default {
         //..................................
         // Select item in search list
         "list.selected" : ({current})=>{
-          //console.log("list.selected", current)
+          console.log("list.selected", current)
           if(!current) {
             this.shown.content = false
           }
           app.dispatch("main/current/setCurrent", {
             meta : current, 
-            loadContent : this.shown.content
+            loadContent : this.shown.content,
+            force : false
           })
         },
         //..................................
         // Select item in search list
         "list.open" : ({current})=>{
+          console.log("list.open", current)
           this.shown.content = true
-          app.dispatch("main/current/reload", current)
+          app.dispatch("main/current/setCurrent", {
+            meta : current, 
+            loadContent : this.shown.content,
+            force : false
+          })
+        },
+        //..................................
+        // Content changed
+        "content.change" : ({content})=>{
+          app.dispatch("main/current/changeContent", content)
+          app.commit("main/syncStatusChanged")
         }
         //..................................
       })[`${be.block}.${be.name}`]

@@ -16,6 +16,10 @@ export default {
       type : String,
       default : null
     },
+    "showTitle" : {
+      type : Boolean,
+      default : true
+    },
     "status" : {
       type : Object,
       default : ()=>({})

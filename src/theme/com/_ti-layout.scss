@@ -68,9 +68,9 @@ $ti-block-header : 28px;
 .ti-block {
   position: relative;
   &.show-header {
-    @include noselect;
     padding-top:$ti-block-header;
     > header {
+      @include noselect;
       @include pos-abs($t:0,$l:0,$r:0);
       @include flex-align-nowrap($ai:stretch);
       @include color($color-bar, r, c);

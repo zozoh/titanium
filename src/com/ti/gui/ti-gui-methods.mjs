@@ -14,7 +14,7 @@ export default {
     // Block Info
     let info = _.pick(b, [
         "icon","title","actions","name", "adjustable", "closer", 
-        "position", "width", "height", "overflow"])
+        "position", "width", "height", "overflow", "status"])
     // Sizing
     if(b.size && "stretch"!=b.size) {
       // Cols

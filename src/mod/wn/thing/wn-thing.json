@@ -2,6 +2,7 @@
   "meta": null,
   "status" : {
     "reloading" : false,
+    "changed"   : false,
     "saving"    : false,
     "deleting"  : false
   }

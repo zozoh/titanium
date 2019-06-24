@@ -45,10 +45,17 @@ export default {
     "shown" : {
       type : Object,
       default : ()=>({})
+    },
+    "status" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////
   computed : {
+    blockStatus() {
+      return _.assign({}, this.shown, this.status)
+    },
     hasTitle() {
       return this.title ? true : false
     },

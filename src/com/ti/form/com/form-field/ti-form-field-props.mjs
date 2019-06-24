@@ -66,9 +66,12 @@ export default {
     default : null
   },
   "statusIcons" : {
-    spinning : 'fas-spinner fa-spin',
-    error    : 'zmdi-alert-polygon',
-    warn     : 'zmdi-alert-triangle',
-    ok       : 'zmdi-check-circle',
+    type : Object,
+    default : ()=>({
+      spinning : 'fas-spinner fa-spin',
+      error    : 'zmdi-alert-polygon',
+      warn     : 'zmdi-alert-triangle',
+      ok       : 'zmdi-check-circle',
+    })
   }
 }

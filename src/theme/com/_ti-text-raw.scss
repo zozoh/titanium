@@ -20,9 +20,7 @@
     textarea {
       @include flex-full;
       @include text-input;
-      border-width:0;
-      border-top-style:dashed;
-      border-top-width:1px;
+      border:1px dotted transparent;
       resize:none; outline:none;
       padding:.1rem;
       font-size:.16rem; line-height:.2rem;

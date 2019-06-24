@@ -16,18 +16,27 @@
   }
   //----------------------------------
   .form-field {
-    @include flex-align;
+    @include flex-align-nowrap;
+    //------------------------
     > .field-name  {
       @include flex-align-nowrap;
+      position: relative;
       flex:0 0 auto;
       line-height: 2.6em;
+      padding:0 .05rem 0 .26rem;
       > .name-status {
-        flex:1 1 auto;
+        @include pos-abs($l:0,$t:0,$b:0,$w:.24rem);
+        @include flex-center;
+      }
+      > .name-icon {
+        flex: 1 1 auto;
       }
       > .name-title {
+        flex: 0 0 auto;
         white-space: nowrap;
       }
     }
+    //------------------------
     > .field-value {
       @include flex-align-center;
       flex:1 1 auto;
@@ -35,6 +44,7 @@
         @include flex-align-center;
       }
     }
+    //------------------------
   }
   //----------------------------------
   &.as-spacing-comfy {
@@ -50,8 +60,6 @@
     }
     .form-field {
       padding:.08rem;
-      > .field-name  {padding:0 .08rem;}
-      > .field-value {padding:0 .08rem;}
     }
   }
   //----------------------------------
@@ -68,8 +76,6 @@
     }
     .form-field {
       padding:.04rem;
-      > .field-name  {padding:0 .05rem;}
-      > .field-value {padding:0 .05rem;}
     }
   }
   //----------------------------------
