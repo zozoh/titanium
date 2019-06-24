@@ -13,5 +13,17 @@
     },
     "action" : "dispatch:main/reload",
     "shortcut" : "CTRL+R"
+  }, {
+    "key"  : "saving",
+    "type" : "action",
+    "icon" : "zmdi-floppy",
+    "text" : "i18n:save-change",
+    "altDisplay" : {
+      "icon" : "fas-spinner fa-pulse",
+      "text" : "i18n:saving"
+    },
+    "enableBy" : "changed",
+    "action" : "dispatch:main/saveCurrent",
+    "shortcut" : "CTRL+S"
   }]
 }

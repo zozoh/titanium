@@ -2,6 +2,12 @@
 ////////////////////////////////////////////////
 export default {
   //--------------------------------------------
+  async saveCurrent({state, commit, dispatch}) {
+    commit("setStatus", {saving:true})
+    await dispatch("current/save")
+    commit("setStatus", {saving:false})
+  },
+  //--------------------------------------------
   async reload({state, commit, dispatch}, meta) {
     console.log("thing-manager.reload", state)
     // Update New Meta
