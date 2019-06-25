@@ -58,7 +58,7 @@ export class OneTiApp {
 
     // TODO: shoudl I put this below to LoadTiLinkedObj?
     // It is sames a litter bit violence -_-! so put here for now...
-    Ti.I18n.put(conf.i18n)
+    //Ti.I18n.put(conf.i18n)
 
     // Vue instance
     let setup = TiVue.Setup(conf, store)
@@ -172,11 +172,12 @@ export class OneTiApp {
         "^\./": view.comType + "/"
       })
     })
+
     // Customized Component configuration
     updateComSetup(comConf)
     // TODO: shoudl I put this below to LoadTiLinkedObj?
     // It is sames a litter bit violence -_-! so put here for now...
-    Ti.I18n.put(comInfo.i18n)
+    //Ti.I18n.put(comInfo.i18n)
     // Setup ...
     let setup = TiVue.Setup(comConf)
 
@@ -192,7 +193,7 @@ export class OneTiApp {
       console.log(" -- options:", setup.options)
     }
     _.map(setup.global.components, com=>{
-      Ti.I18n.put(com.i18n)
+      //Ti.I18n.put(com.i18n)
       // Decorate it
       Ti.Config.decorate(com)
       

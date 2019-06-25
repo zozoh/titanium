@@ -17,6 +17,7 @@ $color-bar   : (c:#f0f0f0, r:#888);
 $color-func  : (c:#F0F0F0, r:#666);
 $color-shadow : (c:rgba(0,0,0,0.6), r:#AAA);
 $color-light  : (c:rgba(255,255,255,0.6), r:#444);
+$color-input  : (c:#444, r:#FFF);
 //...........................................
 $color-selected  : (c:#cce8ff, r:#2196f3);
 //...........................................
@@ -59,6 +60,8 @@ $color-line: (
 @import "com/_ti-obj-thumb.scss";
 @import "com/_ti-obj-video.scss";
 @import "com/_ti-text-raw.scss";
+@import "com/_ti-paging.scss";
+@import "com/_ti-thing.scss";
 //-----------------------------------------------------
 // Include form
 @import "com/_ti-form.scss";

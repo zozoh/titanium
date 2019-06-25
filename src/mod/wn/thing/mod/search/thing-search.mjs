@@ -21,6 +21,18 @@ export default {
       state.list = list
     },
     //---------------------------------------------------
+    updateItem(state, it) {
+      let list = []
+      for(let li of state.list) {
+        if(li.id == it.id) {
+          list.push(it)
+        } else {
+          list.push(li)
+        }
+      }
+      state.list = list
+    },
+    //---------------------------------------------------
     /***
      * Make item selected
      * 

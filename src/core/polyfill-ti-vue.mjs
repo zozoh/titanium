@@ -42,12 +42,14 @@ export const TiVue = {
   install() {
     Vue.use({install:(Vue)=>{
       // Filter: i18n
-      Vue.filter("i18n", function(val){
-        //console.log(`i18n:: ${val}`)
-        if(/^i18n:(.+)/.test(val)) {
-          return Ti.I18n.text(val)
+      Vue.filter("i18n", function(val, vars={}){
+        if('ti-paging-sum' == val) {
+          console.log(`i18n:: ${val}`)
         }
-        return Ti.I18n.get(val)
+        if(/^i18n:(.+)/.test(val)) {
+          return Ti.I18n.textf(val, vars)
+        }
+        return Ti.I18n.getf(val, vars)
       })
       //................................
       // Directive: v-drop-files
@@ -216,6 +218,10 @@ export const TiVue = {
   },
   //---------------------------------------
   Options({global={}, conf={}, store}={}) {
+    // Install I18n
+    if(_.isPlainObject(conf.i18n)){
+      Ti.I18n.put(conf.i18n)
+    }
     //.............................
     // Pick necessary fields
     //.............................

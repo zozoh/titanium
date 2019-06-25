@@ -5,7 +5,7 @@
     Header
   -->
   <div class="table-con as-head">
-    <div class="table-head" ref="head"
+    <div class="table-head as-table" ref="head"
       :style="tableStyle">
       <ul class="table-row in-head">
         <li v-if="checkable" col-fixed
@@ -25,7 +25,12 @@
     Body
   -->
   <div class="table-con as-body">
-    <div class="table-body" ref="body"
+    <div v-if="isEmpty"
+      class="ti-blank is-big">
+      <ti-icon value="zmdi-alert-circle-o"/>
+      <span>{{'empty-data'|i18n}}</span>
+    </div>
+    <div class="table-body as-table" ref="body"
       :style="tableStyle">
       <ul v-for="(it, index) in list" :key="it[idKey]"
         class="table-row in-body"

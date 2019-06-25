@@ -1,3 +1,22 @@
 <div class="ti-paging-jumper">
-  I am paging jumper
+  <div 
+    class="pj-btn"
+    :class="btnClass(1)">{{'ti-paging-first'|i18n}}</div>
+  <div 
+    class="pj-btn"
+    :class="btnClass(data.pn-1)">{{'ti-paging-prev'|i18n}}</div>
+  <div 
+    class="pj-current"
+    :class="pnClass">
+    <b>{{data.pn}}</b>
+  </div>
+  <div 
+    class="pj-btn"
+    :class="btnClass(data.pn+1)">{{'ti-paging-next'|i18n}}</div>
+  <div 
+    class="pj-btn"
+    :class="btnClass(data.pgc)">{{'ti-paging-last'|i18n}}</div>
+  <div
+    class="pj-sum"
+    :class="pnClass">{{'ti-paging-sum'|i18n(data)}}</div>
 </div>

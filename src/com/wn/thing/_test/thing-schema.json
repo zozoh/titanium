@@ -1,4 +1,8 @@
 {
+  "filter" : {
+    "comType" : "wn-thing-filter",
+    "comConf" : {}
+  },
   "list" : {
     "comType" : "ti-table",
     "comConf" : {
@@ -14,6 +18,12 @@
         "key"   : "ct",
         "title" : "创建时间"
       }]
+    }
+  },
+  "pager" : {
+    "comType" : "ti-paging-jumper",
+    "comConf" : {
+      "data" : "@search.pager"
     }
   },
   "meta" : {
@@ -33,11 +43,11 @@
       },
       "updateBy" : {
         "method" : "dispatch",
-        "target" : "main/current/updateMeta"
+        "target" : "main/updateCurrent"
       },
       "setFieldStatusBy" : {
         "method" : "commit",
-        "target" : "main/config/setMetaFieldStatus"
+        "target" : "main/current/setMetaFieldStatus"
       }
     }
   },

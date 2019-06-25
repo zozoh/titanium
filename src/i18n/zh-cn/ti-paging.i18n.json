@@ -1,0 +1,7 @@
+{
+  "ti-paging-first" : "首页",
+  "ti-paging-last"  : "尾页",
+  "ti-paging-prev"  : "前一页",
+  "ti-paging-next"  : "后一页",
+  "ti-paging-sum"   : "共${pgc}页${sum}条记录，当前${count}/${pgsz}"
+}

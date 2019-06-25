@@ -10,10 +10,7 @@
       "blocks" : [{
           "name" : "filter",
           "size" : 50,
-          "body" : {
-            "comType" : "wn-thing-filter",
-            "comConf" : {}
-          }
+          "body" : "filter"
         }, {
           "name" : "list",
           "size" : "stretch",
@@ -21,11 +18,8 @@
           "body" : "list"
         }, {
           "name" : "pager",
-          "size" : 50,
-          "body" : {
-            "comType" : "ti-paging-jumper",
-            "comConf" : {}
-          }
+          "size" : "auto",
+          "body" : "pager"
         }]
     }, {
       "name"  : "meta",
@@ -65,7 +59,7 @@
           "text" : "i18n:saving"
         },
         "enableBy" : "changed",
-        "action" : "dispatch:main/current/save"
+        "action" : "dispatch:main/saveCurrent"
       }]
     }]
   },

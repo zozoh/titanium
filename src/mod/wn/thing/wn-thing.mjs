@@ -1,6 +1,12 @@
 //---------------------------------------
 export default {
   ////////////////////////////////////////////
+  getters : {
+    hasCurrent(state) {
+      return state.current && state.current.meta
+    }
+  },
+  ////////////////////////////////////////////
   mutations : {
     setHome(state, meta) {
       state.meta = meta

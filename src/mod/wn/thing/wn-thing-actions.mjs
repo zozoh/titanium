@@ -6,6 +6,14 @@ export default {
     commit("setStatus", {saving:true})
     await dispatch("current/save")
     commit("setStatus", {saving:false})
+    commit("syncStatusChanged")
+  },
+  //--------------------------------------------
+  async updateCurrent({state, commit, dispatch, getters}, {name, value}={}) {
+    if(getters.hasCurrent) {
+      await dispatch("current/updateMeta", {name,value})
+      commit("search/updateItem", state.current.meta)
+    }
   },
   //--------------------------------------------
   async reload({state, commit, dispatch}, meta) {

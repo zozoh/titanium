@@ -1,1 +1,12 @@
-<div>I am thing filter</div>
+<div class="thing-filter">
+  <div class="filter-keyword"
+    :class="keywordClass">
+    <input 
+      :placeholder="placeholderText" 
+      spellcheck="false"
+      @focus="keywordFocus=true"
+      @blur="keywordFocus=false">
+    <ti-icon v-if="hasSearchIcon"
+      :value="searchIcon"/>
+  </div>
+</div>

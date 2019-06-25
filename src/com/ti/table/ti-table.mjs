@@ -430,8 +430,8 @@ export default {
         // Compare the max size to get the org-width of each columns
         let colSizes = []
         for(let i=0; i<lstHead.length; i++) {
-          let liH = lstHead[i]
-          let liB = lstBody[i]
+          let liH = lstHead[i] || {size:0}
+          let liB = lstBody[i] || {size:0}
           colSizes.push({
             fixed : liH.fixed || liB.fixed,
             size  : Math.max(liH.size, liB.size)

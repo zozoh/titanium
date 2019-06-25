@@ -6,8 +6,8 @@ $color-success: (c:#080, r:#FFF);
 $color-warn   : (c:#FE0, r:#620);
 $color-info   : (c:#08F, r:#FFF);
 $color-error  : (c:#F20, r:#FFF);
-$color-track  : (c:rgba(220,220,220,.38), r:#888);
-$color-disable: (c:rgba(255,255,255,.38), r:rgba(0,0,0,.38));
+$color-track  : (c:rgba(160,160,160,.38), r:#888);
+$color-disable: (c:rgba(200,200,200,.38), r:rgba(0,0,0,.38));
 //...........................................
 $color-paper : (c:#444, r:#FFF);
 $color-chip  : (c:#666, r:#E0E0E0);
@@ -17,6 +17,7 @@ $color-bar   : (c:rgba(255,255,255,0.08), r:#EEE);
 $color-func  : (c:rgba(255,255,255,0.04), r:#EEE);
 $color-shadow : (c:rgba(0,0,0,0.8), r:#888);
 $color-light  : (c:rgba(255,255,10,0.6), r:#444);
+$color-input  : (c:#CCC, r:rgba(50,50,50,0.8));
 //...........................................
 $color-selected  : (c:rgba(255,255,0,0.6), r:#000);
 //...........................................
@@ -59,6 +60,8 @@ $color-line: (
 @import "com/_ti-obj-thumb.scss";
 @import "com/_ti-obj-video.scss";
 @import "com/_ti-text-raw.scss";
+@import "com/_ti-paging.scss";
+@import "com/_ti-thing.scss";
 //-----------------------------------------------------
 // Include form
 @import "com/_ti-form.scss";
@@ -71,7 +74,6 @@ $color-line: (
 @import "com/_ti-toggle.scss";
 @import "com/_ti-switcher.scss";
 @import "com/_ti-image.scss";
-
 //-----------------------------------------------------
 // Include ex-coms
 @import "com/_wn-explorer.scss";

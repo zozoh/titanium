@@ -18,6 +18,13 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "fuse" : {
+      type : Object,
+      default : ()=>({
+        key  : "wn-obj-form",
+        noti : null
+      })
+    },
     "fieldStatus" : {
       type : Object,
       default : ()=>({})
@@ -71,22 +78,30 @@ export default {
   },
   //////////////////////////////////////////////////////
   mounted : function(){
-    Ti.Fuse.getOrCreate().add({
-      key : "wn-obj-form",
-      everythingOk : ()=>{
-        return !(this.status && this.status.changed)
-      },
-      fail : ()=>{
-        this.$message({
-          showClose: true,
-          message: Ti.I18n.get("no-saved"),
-          duration : 3000,
-          type: 'warning'
-        });
-      }
-    })
+    if(this.fuse) {
+      let failBy = this.fuse.failBy || "status.changed"
+      // Defauls noti
+      let noti = _.assign({
+        showClose: true,
+        message: Ti.I18n.get("no-saved"),
+        duration : 3000,
+        type: 'warning'
+      }, this.fuse.noti)
+      // Watch fuse
+      Ti.Fuse.getOrCreate().add({
+        key : this.fuse.key,
+        everythingOk : ()=>{
+          return !(_.get(this, failBy))
+        },
+        fail : ()=>{
+          this.$message(noti);
+        }
+      })
+    }
   },
   beforeDestroy : function(){
-    Ti.Fuse.get().remove("wn-obj-form")
+    if(this.fuse) {
+      Ti.Fuse.get().remove("wn-obj-form")
+    }
   }
 }

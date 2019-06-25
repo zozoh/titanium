@@ -1,0 +1,33 @@
+////////////////////////////////////////////////
+// Thing filter
+////////////////////////////////////////////////
+.thing-filter {
+  @include flex-align-nowrap($ai:stretch);
+  padding:.04rem;
+  //----------------------------------------
+  // Keywork
+  > .filter-keyword {
+    @include flex-full;
+    position: relative;
+    > input {
+      @include text-input;
+      font-size: .16rem; padding:0 32px 0 .1rem;
+      flex:1 1 auto;
+    }
+    > .ti-icon {
+      @include pos-abs($t:0,$b:0,$r:0, $w:32px);
+      @include color($color-track,c);
+      @include flex-center;
+      opacity: 0.4;
+      font-size: 20px;
+      transition: 0.5s;
+    }
+    &.is-focus {
+      > .ti-icon {
+        color: map-get($color-secondary, c);
+        opacity: 1;
+      }
+    }
+  }
+  //----------------------------------------
+}

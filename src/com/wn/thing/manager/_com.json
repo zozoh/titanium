@@ -1,6 +1,7 @@
 {
   "name" : "wn-thing-manager",
   "globally" : true,
+  "i18n" : "@i18n:wn-thing",
   "template" : "./wn-thing-manager.html",
   "mixins"   : ["./wn-thing-manager.mjs"],
   "components" : [

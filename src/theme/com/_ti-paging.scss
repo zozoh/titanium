@@ -1,0 +1,44 @@
+/////////////////////////////////////////////////////
+// Jumper
+/////////////////////////////////////////////////////
+.ti-paging-jumper {
+  @include flex-center;
+  @include noselect;
+  padding:.06rem;
+  //-------------------------------------
+  .pj-btn {
+    @include border(1px, solid, dark);
+    padding:0 .06rem; margin:0 4px;
+    &.is-disabled {
+      opacity: 0.2; cursor: default;
+    }
+    &.is-enabled {
+      @include fireable;
+    }
+  }
+  //-------------------------------------
+  .pj-current {
+    min-width: 4em; padding:0 .02rem;
+    text-align: center;
+    &.is-disabled {
+      opacity: 0.2; cursor: default;
+    }
+    &.is-enabled {
+      
+    }
+  }
+  //-------------------------------------
+  .pj-sum {
+    @include color($color-track, c);
+    font-size:.9em; padding:0 .04rem;
+    white-space: nowrap;
+    &.is-disabled {
+      opacity: 0.2; cursor: default;
+    }
+    &.is-enabled {
+      
+    }
+  }
+  //-------------------------------------
+}
+/////////////////////////////////////////////////////
