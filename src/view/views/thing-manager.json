@@ -3,6 +3,13 @@
   "comType" : "@com:wn/thing/manager",
   "modType" : "@mod:wn/thing",
   "actions" : [{
+    "key"  : "create",
+    "type" : "action",
+    "icon" : "zmdi-flare",
+    "text" : "i18n:create",
+    "action" : "main:showBlock(creator)",
+    "shortcut" : "ALT+CTRL+N"
+  }, {
     "key"  : "reloading",
     "type" : "action",
     "icon" : "zmdi-refresh",

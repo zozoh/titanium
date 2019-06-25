@@ -125,9 +125,9 @@ $ti-block-header : 28px;
     @include flex-center;
     //--------------------------------------
     > .ti-icon {
-      color:rgba(255,255,255,0.8); 
-      border:1px solid rgba(255,255,255,0.8);
-      background:rgba(0,0,0,0.4);
+      color:rgba(50,50,50,0.5); 
+      border:1px solid rgba(50,50,50,0.5);
+      background:rgba(255,255,255,0.4);
       border-radius: 50%;
       width:32px; height:32px;
       cursor: pointer;

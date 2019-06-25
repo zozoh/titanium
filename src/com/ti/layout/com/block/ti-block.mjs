@@ -68,10 +68,13 @@ export default {
     hasCloser() {
       return this.closer ? true : false
     },
+    isCloserDefault() {
+      return true === this.closer || "default" == this.closer
+    },
     closerClass() {
       let klass = []
       if(this.float) {
-        if(_.isBoolean(this.closer) || "default" == this.closer) {
+        if(this.isCloserDefault) {
           klass.push("is-docked")
           klass.push("at-default")
         } else {

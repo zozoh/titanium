@@ -6,7 +6,7 @@
       class="tbh-icon">
       <ti-icon :value="icon" size="16px"/>
     </div>
-    <div class="tbh-text">{{title}}</div>
+    <div class="tbh-text">{{title|i18n}}</div>
     <div v-if="hasActions"
       class="tbh-actions">
       <ti-menu 
@@ -15,7 +15,7 @@
         more-icon="zmdi-more-vert"
         more-icon-size="16px"/>
     </div>
-    <div v-if="hasCloser"
+    <div v-if="hasCloser && isCloserDefault"
       class="tbh-closer"
       :class="closerClass"
       @click="onCloseBlock">
@@ -25,7 +25,7 @@
   <section>
     <slot></slot>
   </section>
-  <footer v-if="!showHeader && hasCloser"
+  <footer v-if="hasCloser && !isCloserDefault"
     class="float-closer"
     :class="closerClass">
     <ti-icon :value="closerIconName" 

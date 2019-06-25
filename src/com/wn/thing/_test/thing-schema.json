@@ -26,6 +26,21 @@
       "data" : "@search.pager"
     }
   },
+  "creator" : {
+    "comType" : "wn-thing-creator",
+    "comConf" : {
+      "config" : {
+        "fields" : [{
+          "name" : "th_nm",
+          "comType" : "ti-input",
+          "comConf" : {}
+        }]
+      },
+      "data" : {
+        "th_nm" : "XXX"
+      }
+    }
+  },
   "meta" : {
     "comType" : "wn-obj-form",
     "comConf" : {

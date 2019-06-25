@@ -1,0 +1,7 @@
+{
+  "name" : "wn-thing-creator",
+  "globally" : true,
+  "template" : "./thing-creator.html",
+  "mixins"   : ["./thing-creator.mjs"],
+  "components" : []
+}

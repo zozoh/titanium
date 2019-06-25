@@ -23,15 +23,15 @@
         }]
     }, {
       "name"  : "meta",
-      "title" : "对象属性",
+      "title" : "i18n:thing-meta",
       "icon"  : "zmdi-info",
       "actions" : [{
           "key" : "show-content",
           "statusKey" : "content",
           "type" : "action",
-          "text" : "显示内容",
+          "text" : "i18n:thing-content-show",
           "altDisplay" : {
-            "text" : "隐藏内容",
+            "text" : "i18n:thing-content-hide",
             "capture" : false
           },
           "action" : "main:toggleBlock(content)"
@@ -41,7 +41,7 @@
     }],
     "panels" : [{
       "name" : "content",
-      "title" : "对象内容",
+      "title" : "i18n:thing-content",
       "icon"  : "zmdi-file-text",
       "body" : "content",
       "position" : "left",
@@ -61,6 +61,16 @@
         "enableBy" : "changed",
         "action" : "dispatch:main/saveCurrent"
       }]
+    }, {
+      "name" : "creator",
+      "title" : "i18n:thing-create",
+      "icon"  : "zmdi-flare",
+      "body" : "creator",
+      "position" : "top",
+      "width"  : "61.8%",
+      "mask"   : true,
+      "closer" : "bottom",
+      "status" : "@status"
     }]
   },
   "tablet" : "desktop",
