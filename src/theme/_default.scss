@@ -48,6 +48,15 @@ pre {
   tab-size: 4; -moz-tab-size:4;
 }
 //...................................................
+hr {
+  height:0px; border:0;
+  @include border(1px, solid, shallow, top);
+  margin:.1rem 0;
+  &.no-space {margin:0;}
+  &.as-dashed {border-top-style:dashed;}
+  &.as-dotted {border-top-style:dotted;}
+}
+//...................................................
 a {
   @include color($color-primary, c);
   text-decoration: none;

@@ -18,16 +18,14 @@ export default {
   ///////////////////////////////////////////
   computed : {
     newObj() {
-      let obj = _.assign({}, this.data, this.obj)
-      console.log("newObj", obj)
-      return obj
+      return _.assign({}, this.data, this.obj)
     }
   },
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
     onChanged({name, value}={}) {
-      console.log("changed", name, value)
+      //console.log("changed", name, value)
       this.obj = _.assign({}, this.obj, {[name]: value})
     },
     //--------------------------------------

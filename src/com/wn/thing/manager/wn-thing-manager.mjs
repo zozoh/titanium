@@ -91,6 +91,14 @@ export default {
         "deleting" : {
           icon : "zmdi-refresh fa-spin",
           text : "i18n:del-ing"
+        },
+        "restoring" : {
+          icon : "zmdi-time-restore zmdi-hc-spin",
+          text : "i18n:thing-restoring"
+        },
+        "cleaning" : {
+          icon : "zmdi-settings zmdi-hc-spin",
+          text : "i18n:thing-cleaning"
         }
       })[key]
     }
@@ -115,6 +123,17 @@ export default {
     },
     //--------------------------------------
     showBlock(name) {
+      // If creator, then must leave the recycle bin
+      if("creator" == name) {
+        if(this.status.inRecycleBin) {
+          Ti.Alert("i18n:thing-create-in-recyclebin", {
+            title : "i18n:warn",
+            icon  : "im-warning",
+            type  : "warn"
+          })
+          return
+        }
+      }
       this.shown = {
         ...this.shown, 
         [name]: true
@@ -152,7 +171,7 @@ export default {
     },
     //--------------------------------------
     onBlockEvent(be={}) {
-      //console.log("onBlockEvent", be)
+      console.log("onBlockEvent", be)
       let app = Ti.App(this)
       // Event Handlers
       let fn = ({
@@ -191,6 +210,18 @@ export default {
         "content.change" : ({content})=>{
           app.dispatch("main/current/changeContent", content)
           app.commit("main/syncStatusChanged")
+        },
+        //..................................
+        // PageNumber changed
+        "pager.change:pn" : (pn)=>{
+          app.commit("main/search/updatePager", {pn})
+          app.dispatch("main/search/reload")
+        },
+        //..................................
+        // PageSize changed
+        "pager.change:pgsz" : (pgsz)=>{
+          app.commit("main/search/updatePager", {pgsz, pn:1})
+          app.dispatch("main/search/reload")
         }
         //..................................
       })[`${be.block}.${be.name}`]

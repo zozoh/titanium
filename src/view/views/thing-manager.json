@@ -47,7 +47,7 @@
           "text" : "i18n:del-ing"
         },
         "action" : "dispatch:main/removeChecked",
-        "shortcut" : "ALT+CTRL+D"
+        "shortcut" : "CTRL+DELETE"
       }, {
         "type" : "line"
       }, {
@@ -61,6 +61,26 @@
           "capture" : false
         },
         "action" : "dispatch:main/toggleInRecycleBin"
+      }, {
+        "key"  : "restoring",
+        "type" : "action",
+        "icon" : "zmdi-time-restore",
+        "text" : "i18n:thing-restore",
+        "altDisplay" : {
+          "icon" : "zmdi-time-restore zmdi-hc-spin",
+          "text" : "i18n:thing-restoring"
+        },
+        "action" : "dispatch:main/restoreRecycleBin"
+      }, {
+        "key"  : "cleaning",
+        "type" : "action",
+        "icon" : "fas-trash-restore",
+        "text" : "i18n:thing-clean",
+        "altDisplay" : {
+          "icon" : "zmdi-settings zmdi-hc-spin",
+          "text" : "i18n:thing-cleaning"
+        },
+        "action" : "dispatch:main/cleanRecycleBin"
       }]
   }]
 }

@@ -5,6 +5,8 @@
     "saving"    : false,
     "deleting"  : false,
     "changed"   : false,
+    "restoring" : false,
+    "cleaning"  : false,
     "inRecycleBin" : false
   }
 }

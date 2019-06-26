@@ -1,22 +1,36 @@
 <div class="ti-paging-jumper">
   <div 
     class="pj-btn"
-    :class="btnClass(1)">{{'ti-paging-first'|i18n}}</div>
+    :class="btnClass(1)"
+    @click="jumpTo(1)">
+      <ti-icon value="zmdi-skip-previous"/>
+      <span class="it-text">{{'ti-paging-first'|i18n}}</span></div>
   <div 
     class="pj-btn"
-    :class="btnClass(data.pn-1)">{{'ti-paging-prev'|i18n}}</div>
+    :class="btnClass(data.pn-1)"
+    @click="jumpTo(data.pn-1)">
+      <ti-icon value="zmdi-chevron-left"/>
+      <span class="it-text">{{'ti-paging-prev'|i18n}}</span></div>
   <div 
     class="pj-current"
-    :class="pnClass">
+    :class="pnClass"
+    @click="onClickCurrent">
     <b>{{data.pn}}</b>
   </div>
   <div 
     class="pj-btn"
-    :class="btnClass(data.pn+1)">{{'ti-paging-next'|i18n}}</div>
+    :class="btnClass(data.pn+1)"
+    @click="jumpTo(data.pn+1)">
+      <span class="it-text">{{'ti-paging-next'|i18n}}</span>
+      <ti-icon value="zmdi-chevron-right"/></div>
   <div 
     class="pj-btn"
-    :class="btnClass(data.pgc)">{{'ti-paging-last'|i18n}}</div>
+    :class="btnClass(data.pgc)"
+    @click="jumpTo(data.pgc)">
+      <span class="it-text">{{'ti-paging-last'|i18n}}</span>
+      <ti-icon value="zmdi-skip-next"/></div>
   <div
     class="pj-sum"
-    :class="pnClass">{{'ti-paging-sum'|i18n(data)}}</div>
+    :class="sumClass"
+    @click="onClickSum">{{'ti-paging-sum'|i18n(data)}}</div>
 </div>

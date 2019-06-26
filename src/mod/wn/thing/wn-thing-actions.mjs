@@ -53,7 +53,7 @@ export default {
   },
   //--------------------------------------------
   async removeChecked({state, commit, dispatch, getters}) {
-    console.log("removeChecked", state.search.checkedIds)
+    //console.log("removeChecked", state.search.checkedIds)
     let ids = state.search.checkedIds
     if(_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
@@ -63,7 +63,7 @@ export default {
 
     // Prepare the cmds
     let th_set = state.meta.id
-    let cmdText = `thing ${th_set} delete -cqn -quiet -l ${ids.join(" ")}`
+    let cmdText = `thing ${th_set} delete -cqn -l ${ids.join(" ")}`
     let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
 
     // Remove it from search list
@@ -71,13 +71,54 @@ export default {
     let current = getters["search/currentItem"]
     console.log("getback current", current)
     // Update current
-    dispatch("current/setCurrent", {
+    await dispatch("current/setCurrent", {
       meta : current, 
       loadContent : "auto",
       force : false
     })
 
     commit("setStatus", {deleting:false})
+  },
+  //--------------------------------------------
+  async restoreRecycleBin({state, commit, dispatch, getters}) {
+    let ids = state.search.checkedIds
+    if(_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:thing-restore-none')
+    }
+    commit("setStatus", {restoring:true})
+
+    // Run command
+    let th_set = state.meta.id
+    let cmdText = `thing ${th_set} restore -quiet -cqn -l ${ids.join(" ")}`
+    let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
+
+    // Reload
+    await dispatch("search/reload")
+
+    // Get back current
+    let current = getters["search/currentItem"]
+    
+    // Update current
+    await dispatch("current/setCurrent", {
+      meta : current, 
+      loadContent : "auto",
+      force : false
+    })
+
+    commit("setStatus", {restoring:false})
+  },
+  //--------------------------------------------
+  async cleanRecycleBin({state, commit, dispatch}) {
+    commit("setStatus", {cleaning:true})
+
+    // Run command
+    let th_set = state.meta.id
+    let cmdText = `thing ${th_set} clean -limit 3000`
+    await Wn.Sys.exec2(cmdText)
+
+    commit("setStatus", {cleaning:false})
+
+    await dispatch("reload")
   },
   //--------------------------------------------
   async reload({state, commit, dispatch}, meta) {

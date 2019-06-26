@@ -3,5 +3,9 @@
   "ti-paging-last"  : "尾页",
   "ti-paging-prev"  : "前一页",
   "ti-paging-next"  : "后一页",
-  "ti-paging-sum"   : "共${pgc}页${sum}条记录，当前${count}/${pgsz}"
+  "ti-paging-sum"   : "共${pgc}页${sum}条记录，当前${count}/${pgsz}",
+  "ti-paging-change-pgsz" : "当前每页有${pgsz}条记录，您想修改为：",
+  "ti-paging-change-pgsz-invalid" : "页大小必须是整数数字，而且必须大于0，可您... -_-!",
+  "ti-paging-change-pn" : "当前第${pn}页，您想跳转到：（请输入 1 至 ${pgc} 之间的数字）",
+  "ti-paging-change-pn-invalid" : "页码必须是整数数字，而且必须为 1 至 ${pgc} 之间的数字"
 }

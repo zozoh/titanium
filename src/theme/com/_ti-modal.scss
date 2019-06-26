@@ -107,8 +107,9 @@
   flex:1 1 auto;
   > .ti-modal-noti-icon {
     flex:0 0 auto;
-    padding:0 .24rem 0 .12rem;
-    font-size:.64rem;
+    padding:.1rem .24rem 0 .12rem; 
+    font-size:.5rem;
+    > * {font-size:inherit;}
   }
   > .ti-modal-noti-text {
     flex:1 1 auto;

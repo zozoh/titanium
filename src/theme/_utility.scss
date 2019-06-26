@@ -46,15 +46,6 @@
   }
 }
 //...................................................
-hr {
-  height:0px; border:0;
-  @include border(1px, solid, shallow, top);
-  margin:.1rem 0;
-  &.no-space {margin:0;}
-  &.as-dashed {border-top-style:dashed;}
-  &.as-dotted {border-top-style:dotted;}
-}
-//...................................................
 .ti-btn {
   @include fireable; display:inline-block;
   @include border(1px, solid, dark);

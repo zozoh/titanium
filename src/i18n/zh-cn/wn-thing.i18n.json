@@ -5,7 +5,13 @@
   "thing-content-show" : "显示内容",
   "thing-content-hide" : "隐藏内容",
   "thing-create" : "创建新对象",
+  "thing-create-in-recyclebin" : "请先退出回收站，再创建新对象",
   "thing-enter-recyclebin" : "打开回收站",
   "thing-leave-recyclebin" : "退出回收站",
-  "thing-recycle-bin" : "回收站"
+  "thing-recycle-bin" : "回收站",
+  "thing-restore" : "恢复选中",
+  "thing-restoring" : "正在恢复...",
+  "thing-restore-none" : "请先选择要恢复的数据",
+  "thing-clean"     : "清空回收站",
+  "thing-cleaning"  : "正在清空..."
 }

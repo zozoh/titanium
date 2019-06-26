@@ -4,10 +4,11 @@
 .ti-paging-jumper {
   @include flex-center;
   @include noselect;
-  padding:.06rem;
+  padding:.06rem; font-size:.12rem;
   //-------------------------------------
   .pj-btn {
     @include border(1px, solid, dark);
+    @include flex-align-nowrap;
     padding:0 .06rem; margin:0 4px;
     &.is-disabled {
       opacity: 0.2; cursor: default;
@@ -15,6 +16,7 @@
     &.is-enabled {
       @include fireable;
     }
+    > .it-text {margin:0 .04rem;}
   }
   //-------------------------------------
   .pj-current {
@@ -24,7 +26,11 @@
       opacity: 0.2; cursor: default;
     }
     &.is-enabled {
-      
+      cursor:pointer;
+      &:hover {
+        @include color($color-primary, c);
+        text-decoration: underline;
+      }
     }
   }
   //-------------------------------------
@@ -36,7 +42,11 @@
       opacity: 0.2; cursor: default;
     }
     &.is-enabled {
-      
+      cursor:pointer;
+      &:hover {
+        @include color($color-primary, c);
+        text-decoration: underline;
+      }
     }
   }
   //-------------------------------------
