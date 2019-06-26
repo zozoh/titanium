@@ -10,6 +10,7 @@
   > .menu-desktop-top {
     > li {
       @include flex-center;
+      //--------------------------------------
       .md-info {
         @include flex-align($ai:center, $wp:nowrap);
         border-radius:.02rem;
@@ -21,15 +22,23 @@
           @include fireable;
         }
       }
+      //--------------------------------------
       .md-icon {
-        
+        height:.3rem; line-height:.3rem;
+        @include flex-center;
       }
-      .md-text {padding:0 2px;}
+      //--------------------------------------
+      .md-text {
+        padding:0 2px;
+        height:.3rem; line-height:.3rem;
+      }
+      //--------------------------------------
       > .md-line {
         @include color($color-line, null, shallow);
         width:1px; height:.2rem; overflow:hidden;
         margin:0 .02rem;
       }
+      //--------------------------------------
     }
   }  // ~ > .desktop-
   //------------------------------------------------
@@ -73,10 +82,15 @@
         }
         > * {
           flex:0 0 auto;
-          white-space: nowrap; display:block;
+          white-space: nowrap; 
+          display:block;
         }
         .md-icon {
+          @include flex-center;
           width:.24rem;
+        }
+        .md-text {
+          padding-left:.1rem;
         }
         .md-tip {
           flex:1 1 auto;

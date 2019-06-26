@@ -1,13 +1,17 @@
 {
   "filter" : {
     "comType" : "wn-thing-filter",
-    "comConf" : {}
+    "comConf" : {
+      "status" : "@status"
+    }
   },
   "list" : {
     "comType" : "ti-table",
     "comConf" : {
       "list" : "@search.list",
-      "changedId" : "@changedRowId",
+      "changedId"  : "@changedRowId",
+      "currentId"  : "@search.currentId",
+      "checkedIds" : "@search.checkedIds",
       "border" : true,
       "checkable" : true,
       "multi"  : true,
@@ -37,7 +41,7 @@
         }]
       },
       "data" : {
-        "th_nm" : "XXX"
+        "th_nm" : "新数据对象"
       }
     }
   },

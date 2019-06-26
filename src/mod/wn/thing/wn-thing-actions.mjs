@@ -16,6 +16,70 @@ export default {
     }
   },
   //--------------------------------------------
+  async toggleInRecycleBin({state, commit, dispatch, getters}) {
+    console.log("thing-manager-toggleInRecycleBin")
+    // Update filter
+    let th_live = state.search.filter.th_live == -1 ? 1 : -1
+    commit("search/updateFilter", {th_live})
+    // Update status
+    let inRecycleBin = getters.isInRecycleBin
+    commit("setStatus", {inRecycleBin, reloading:true})
+    // Reload List
+    await dispatch("search/reload")
+
+    commit("setStatus", {reloading:false})
+  },
+  //--------------------------------------------
+  async create({state, commit, dispatch}, obj={}) {
+    // Prepare the command
+    let json = JSON.stringify(obj)
+    let th_set = state.meta.id
+    let cmdText = `thing ${th_set} create -cqn -fields`
+
+    // Do Create
+    let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+
+    // Set it as current
+    await dispatch("current/setCurrent", {
+      meta : reo, loadContent : "auto"
+    })
+
+    // Append To Search List as the first 
+    commit("search/prependToList", reo)
+    commit("search/selectItem", reo.id)
+
+    // Return the new object
+    return reo
+  },
+  //--------------------------------------------
+  async removeChecked({state, commit, dispatch, getters}) {
+    console.log("removeChecked", state.search.checkedIds)
+    let ids = state.search.checkedIds
+    if(_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:del-none')
+    }
+
+    commit("setStatus", {deleting:true})
+
+    // Prepare the cmds
+    let th_set = state.meta.id
+    let cmdText = `thing ${th_set} delete -cqn -quiet -l ${ids.join(" ")}`
+    let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
+
+    // Remove it from search list
+    commit("search/removeItems", state.search.checkedIds)
+    let current = getters["search/currentItem"]
+    console.log("getback current", current)
+    // Update current
+    dispatch("current/setCurrent", {
+      meta : current, 
+      loadContent : "auto",
+      force : false
+    })
+
+    commit("setStatus", {deleting:false})
+  },
+  //--------------------------------------------
   async reload({state, commit, dispatch}, meta) {
     console.log("thing-manager.reload", state)
     // Update New Meta
@@ -49,8 +113,6 @@ export default {
         loadContent : !_.isNull(state.current.content)
       })
     }
-
-    console.log(state.current.meta, state.current.content)
 
     // All done
     commit("setStatus", {reloading:false})

@@ -43,9 +43,6 @@ export const TiVue = {
     Vue.use({install:(Vue)=>{
       // Filter: i18n
       Vue.filter("i18n", function(val, vars={}){
-        if('ti-paging-sum' == val) {
-          console.log(`i18n:: ${val}`)
-        }
         if(/^i18n:(.+)/.test(val)) {
           return Ti.I18n.textf(val, vars)
         }

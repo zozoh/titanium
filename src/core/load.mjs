@@ -32,7 +32,14 @@ const loading = {
     // FF don't suppor the import() yet by default 
     // return import(url).then(m => m.default)
     // use the polyfill method instead
-    return importModule(url).then(m=>m.default)
+    try {
+      return importModule(url).then(m=>m.default)
+    }catch(E) {
+      if(Ti.IsWarn("TiLoad")) {
+        console.warn("ti.load.mjs", url, E)
+      }
+      throw E
+    }
   },
   // css file
   css(url) {
@@ -69,8 +76,8 @@ const loading = {
                         : json
           }catch(E) {
             if(Ti.IsWarn("TiLoad")) {
-              console.log("ti.load.json!!", url, json, E)
-              }
+              console.warn("ti.load.json!!", url, json, E)
+            }
             throw E
           }
         })
@@ -130,7 +137,14 @@ export const TiLoad = function(url=[], {dynamicPrefix, dynamicAlias}={}) {
   }
 
   // invoke
-  return loading[type](url3)
+  try {
+    return loading[type](url3)
+  }catch(E) {
+    if(Ti.IsWarn("TiLoad")) {
+      console.warn(`TiLoad Fail: [${type}]`, `"${url}" => "${url3}"`)
+    }
+    throw E
+  }
 }
 //-----------------------------------
 export default TiLoad

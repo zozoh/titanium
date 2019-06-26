@@ -12,6 +12,8 @@
     "skip" : 0,
     "count": 0
   },
+  "currentId" : null,
+  "checkedIds" : [],
   "list" : [],
   "status" : {
     "reloading" : false,

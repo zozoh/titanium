@@ -35,6 +35,41 @@
   }
 }
 //...................................................
+.ti-box-relative {
+  position: relative;
+  .ti-box-mask {
+    @include pos-abs-full;
+    background:rgba(0,0,0,0);
+    &.as-heavy {@include color($color-mask, r, heavy);}
+    &.as-bushy {@include color($color-mask, r, bushy);}
+    &.as-thin  {@include color($color-mask, r, thin);}
+  }
+}
+//...................................................
+hr {
+  height:0px; border:0;
+  @include border(1px, solid, shallow, top);
+  margin:.1rem 0;
+  &.no-space {margin:0;}
+  &.as-dashed {border-top-style:dashed;}
+  &.as-dotted {border-top-style:dotted;}
+}
+//...................................................
+.ti-btn {
+  @include fireable; display:inline-block;
+  @include border(1px, solid, dark);
+  text-align:center;
+  &.is-big {
+    font-size:1.3em; padding:.1rem;
+    min-width:2rem; 
+  }
+}
+//...................................................
+.ti-padding-5  {padding:.05rem;}
+.ti-padding-10 {padding:.1rem;}
+.ti-padding-20 {padding:.2rem;}
+.ti-padding-40 {padding:.4rem;}
+//...................................................
 .ti-hide {display:none;}
 //...................................................
 [ti-is-drag] {

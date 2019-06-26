@@ -29,10 +29,14 @@ export default {
       cmds.push(`-limit ${limit}`)
       cmds.push(`-skip  ${skip}`)
     }
-
+    // Eval Filter
+    let flt
+    if(!_.isEmpty(state.filter)) {
+      flt = JSON.stringify(state.filter)
+    }
     // Run Command
     let cmdText = cmds.join(" ")
-    let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
+    let reo = await Wn.Sys.exec2(cmdText, {input:flt, as:"json"})
     
     // All done
     commit("setPager", reo.pager)

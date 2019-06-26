@@ -3,6 +3,8 @@
   v-bind="currentLayout"
   :schema="formedSchema"
   :shown="shown"
+  :can-loading="true"
+  :loading-as="guiLoading"
   @block:show="showBlock"
   @block:hide="hideBlock"
   @block:event="onBlockEvent"/>

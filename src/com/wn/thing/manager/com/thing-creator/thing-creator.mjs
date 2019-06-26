@@ -1,7 +1,8 @@
 export default {
   ///////////////////////////////////////////
   data : ()=>({
-    "obj" : {}
+    "obj" : {},
+    "creating" : false
   }),
   ///////////////////////////////////////////
   props : {
@@ -17,14 +18,28 @@ export default {
   ///////////////////////////////////////////
   computed : {
     newObj() {
-      return _.assign({}, this.data, this.obj)
+      let obj = _.assign({}, this.data, this.obj)
+      console.log("newObj", obj)
+      return obj
     }
   },
   ///////////////////////////////////////////
   methods : {
+    //--------------------------------------
     onChanged({name, value}={}) {
       console.log("changed", name, value)
+      this.obj = _.assign({}, this.obj, {[name]: value})
+    },
+    //--------------------------------------
+    async onCreate() {
+      this.creating = true
+
+      let app = Ti.App(this)
+      await app.dispatch("main/create", this.newObj)
+
+      this.$emit("block:hide", "creator")
     }
+    //--------------------------------------
   }
   ///////////////////////////////////////////
 }

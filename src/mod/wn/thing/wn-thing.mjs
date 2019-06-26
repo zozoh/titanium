@@ -4,6 +4,9 @@ export default {
   getters : {
     hasCurrent(state) {
       return state.current && state.current.meta
+    },
+    isInRecycleBin(state) {
+      return state.search.filter.th_live == -1
     }
   },
   ////////////////////////////////////////////

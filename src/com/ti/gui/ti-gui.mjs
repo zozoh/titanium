@@ -29,6 +29,15 @@ export default {
     "shown" : {
       type : Object,
       default : ()=>({})
+    },
+    "canLoading" : {
+      type : Boolean,
+      default : false
+    },
+    // value should be prop of ti-loading
+    "loadingAs" : {
+      type : [Boolean, Object],
+      default : null
     }
   },
   //////////////////////////////////////////
@@ -43,6 +52,18 @@ export default {
     },
     hasPanels() {
       return !_.isEmpty(this.panels)
+    },
+    isLoading() {
+      return this.canLoading 
+             && this.loadingAs 
+                  ? true 
+                  : false
+    },
+    showLoading() {
+      if(_.isPlainObject(this.loadingAs)) {
+        return this.loadingAs
+      }
+      return {}
     }
   }
   //////////////////////////////////////////

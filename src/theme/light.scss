@@ -24,7 +24,8 @@ $color-selected  : (c:#cce8ff, r:#2196f3);
 $color-mask: (
   heavy : rgba(0,0,0,0.95),
   bushy : rgba(50,50,50,0.8),
-  thin  : rgba(50,50,50,0.4),
+  thin  : rgba(50,50,50,0.3),
+  weak  : rgba(230,230,230,0.4),
   r : #e0e0e0
 );
 //...........................................
@@ -61,7 +62,6 @@ $color-line: (
 @import "com/_ti-obj-video.scss";
 @import "com/_ti-text-raw.scss";
 @import "com/_ti-paging.scss";
-@import "com/_ti-thing.scss";
 //-----------------------------------------------------
 // Include form
 @import "com/_ti-form.scss";

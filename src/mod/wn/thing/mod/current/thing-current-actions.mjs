@@ -87,11 +87,16 @@ export default {
   async setCurrent({state, commit,dispatch}, {
     meta=null, loadContent=false, force=false
   }={}) {
-    console.log("setCurrent", meta, loadContent)
+    //console.log("setCurrent", meta, loadContent)
+
+    // Auto load Content
+    if("auto" == loadContent) {
+      loadContent = _.isString(state.content) ? true : false
+    }
 
     // Already current
     if(state.meta && meta && state.meta.id == meta.id) {
-      if((!loadContent || state.content) && !force) {
+      if((!loadContent || _.isString(state.content)) && !force) {
         return
       }
     }

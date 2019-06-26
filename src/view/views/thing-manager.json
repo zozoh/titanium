@@ -3,13 +3,6 @@
   "comType" : "@com:wn/thing/manager",
   "modType" : "@mod:wn/thing",
   "actions" : [{
-    "key"  : "create",
-    "type" : "action",
-    "icon" : "zmdi-flare",
-    "text" : "i18n:create",
-    "action" : "main:showBlock(creator)",
-    "shortcut" : "ALT+CTRL+N"
-  }, {
     "key"  : "reloading",
     "type" : "action",
     "icon" : "zmdi-refresh",
@@ -32,5 +25,42 @@
     "enableBy" : "changed",
     "action" : "dispatch:main/saveCurrent",
     "shortcut" : "CTRL+S"
+  }, {
+    "type" : "line"
+  }, {
+    "type" : "group",
+    "icon" : "zmdi-more-vert",
+    "items" : [{
+        "key"  : "create",
+        "type" : "action",
+        "icon" : "zmdi-flare",
+        "text" : "i18n:create",
+        "action" : "main:showBlock(creator)",
+        "shortcut" : "ALT+CTRL+N"
+      }, {
+        "key"  : "deleting",
+        "type" : "action",
+        "icon" : "zmdi-delete",
+        "text" : "i18n:del",
+        "altDisplay" : {
+          "icon" : "zmdi-settings zmdi-hc-spin",
+          "text" : "i18n:del-ing"
+        },
+        "action" : "dispatch:main/removeChecked",
+        "shortcut" : "ALT+CTRL+D"
+      }, {
+        "type" : "line"
+      }, {
+        "key"  : "inRecycleBin",
+        "type" : "action",
+        "icon" : "fas-recycle",
+        "text" : "i18n:thing-enter-recyclebin",
+        "altDisplay" : {
+          "icon" : "far-arrow-alt-circle-left",
+          "text" : "i18n:thing-leave-recyclebin",
+          "capture" : false
+        },
+        "action" : "dispatch:main/toggleInRecycleBin"
+      }]
   }]
 }

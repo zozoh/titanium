@@ -12,6 +12,10 @@ export default {
     "searchIcon" : {
       type : String,
       default : "zmdi-search"
+    },
+    "status" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   ///////////////////////////////////////////
@@ -29,11 +33,23 @@ export default {
         "has-icon" : this.hasSearchIcon,
         "is-focus" : this.keywordFocus
       }
+    },
+    isInRecycleBin() {
+      return this.status.inRecycleBin
+    },
+    topClass() {
+      return {
+        "in-recycle-bin" : this.isInRecycleBin
+      }      
     }
   },
   ///////////////////////////////////////////
   methods : {
-    
+    // When this func be invoked, the recycleBin must be true
+    onLeaveRecycleBin() {
+      let app = Ti.App(this)
+      app.dispatch('main/toggleInRecycleBin')
+    }
   }
   ///////////////////////////////////////////
 }

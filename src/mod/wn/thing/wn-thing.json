@@ -2,8 +2,9 @@
   "meta": null,
   "status" : {
     "reloading" : false,
-    "changed"   : false,
     "saving"    : false,
-    "deleting"  : false
+    "deleting"  : false,
+    "changed"   : false,
+    "inRecycleBin" : false
   }
 }

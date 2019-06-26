@@ -1,4 +1,20 @@
-<div class="thing-filter">
+<div class="thing-filter"
+  :class="topClass">
+  <!--
+    Icon: Recycle Bin
+  -->
+  <div v-if="isInRecycleBin"
+    class="filter-recycle-bin"
+    @click="onLeaveRecycleBin">
+    <span class="it-icon">
+      <ti-icon value="fas-recycle"/>
+      <ti-icon value="far-arrow-alt-circle-left"/>
+    </span>
+    <span class="it-text">{{'i18n:thing-recycle-bin'|i18n}}</span>
+  </div>
+  <!--
+    Keyword
+  -->
   <div class="filter-keyword"
     :class="keywordClass">
     <input 

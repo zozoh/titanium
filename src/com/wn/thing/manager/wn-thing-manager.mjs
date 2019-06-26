@@ -76,6 +76,23 @@ export default {
       if(this.current && this.current.meta && this.current.status.changed) {
         return this.current.meta.id
       }
+    },
+    guiLoading() {
+      let key = _.findKey(this.status, (v)=>v)
+      return ({
+        "reloading" : {
+          icon : "fas-spinner fa-spin",
+          text : "i18n:loading"
+        },
+        "saving" : {
+          icon : "zmdi-settings fa-spin",
+          text : "i18n:saving"
+        },
+        "deleting" : {
+          icon : "zmdi-refresh fa-spin",
+          text : "i18n:del-ing"
+        }
+      })[key]
     }
   },
   ///////////////////////////////////////////
@@ -119,34 +136,55 @@ export default {
       }
     },
     //--------------------------------------
+    setSeachSelected(current={}, selected) {
+      let app = Ti.App(this)
+
+      let cid = current ? current.id : null
+      app.commit("main/search/setCurrentId", cid)
+
+      if(_.isArray(selected)) {
+        let ids = []
+        for(let it of selected) {
+          ids.push(it.id)
+        }
+        app.commit("main/search/setCheckedIds", ids)
+      }
+    },
+    //--------------------------------------
     onBlockEvent(be={}) {
-      console.log("onBlockEvent", be)
+      //console.log("onBlockEvent", be)
       let app = Ti.App(this)
       // Event Handlers
       let fn = ({
         //..................................
         // Select item in search list
-        "list.selected" : ({current})=>{
-          console.log("list.selected", current)
+        "list.selected" : ({current, selected})=>{
+          //console.log("list.selected", current)
           if(!current) {
             this.shown.content = false
           }
+          // Update Current
           app.dispatch("main/current/setCurrent", {
             meta : current, 
             loadContent : this.shown.content,
             force : false
           })
+          // Update Checkes/Current to search
+          this.setSeachSelected(current, selected)
         },
         //..................................
         // Select item in search list
         "list.open" : ({current})=>{
-          console.log("list.open", current)
+          //console.log("list.open", current)
           this.shown.content = true
+          // Update Current
           app.dispatch("main/current/setCurrent", {
             meta : current, 
             loadContent : this.shown.content,
             force : false
           })
+          // Update Checkes/Current to search
+          this.setSeachSelected(current)
         },
         //..................................
         // Content changed

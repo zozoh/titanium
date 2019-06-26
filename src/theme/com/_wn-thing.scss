@@ -1,3 +1,60 @@
 .wn-thing {
-  
+  ////////////////////////////////////////////////
+  // Thing filter
+  .thing-filter {
+    @include flex-align-nowrap($ai:stretch);
+    padding:.04rem;
+    //----------------------------------------
+    &.in-recycle-bin {
+      @include color($color-secondary, r, c);
+    }
+    //----------------------------------------
+    > .filter-recycle-bin {
+      @include flex-align-v-nowrap($jc:center,$ai:center,$ac:center);
+      padding:0 .1rem; cursor: pointer;
+      opacity: 0.6;
+      > .it-icon {
+        font-size:1.2em;
+        > .ti-icon {
+          &:first-child {display:block;}
+          &:last-child  {display:none;}
+        }
+      }
+      > .it-text {font-size:.1rem; line-height: 1.1em;}
+      &:hover {
+        opacity: 1;
+        > .it-icon > .ti-icon {
+          &:first-child {display:none;}
+          &:last-child  {display:block;}
+        }
+      }
+    }
+    //----------------------------------------
+    // Keywork
+    > .filter-keyword {
+      @include flex-full;
+      position: relative;
+      > input {
+        @include text-input;
+        font-size: .16rem; padding:0 32px 0 .1rem;
+        flex:1 1 auto;
+      }
+      > .ti-icon {
+        @include pos-abs($t:0,$b:0,$r:0, $w:32px);
+        @include color($color-track,c);
+        @include flex-center;
+        opacity: 0.4;
+        font-size: 20px;
+        transition: 0.5s;
+      }
+      &.is-focus {
+        > .ti-icon {
+          color: map-get($color-secondary, c);
+          opacity: 1;
+        }
+      }
+    }
+    //----------------------------------------
+  }
+  ////////////////////////////////////////////////
 }

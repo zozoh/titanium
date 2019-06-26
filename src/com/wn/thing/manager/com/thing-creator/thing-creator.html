@@ -1,6 +1,17 @@
-<div class="thing-creator">
+<div class="thing-creator ti-box-relative">
   <wn-form
     :config="config"
     :data="newObj"
     @changed="onChanged"/>
+  <hr class="no-space">
+  <div class="ti-flex-center ti-padding-10">
+    <div class="ti-btn is-big" 
+      @click="onCreate">
+      <span>{{'create-now'|i18n}}</span>
+    </div>
+  </div>
+  <div v-if="creating"
+    class="ti-box-mask as-thin ti-flex-center">
+    <ti-loading text="i18n:creating"/>
+  </div>
 </div>

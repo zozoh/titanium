@@ -34,9 +34,9 @@ export default {
   data : ()=>({
     viewportWidth : 0,
     colSizes : [],
-    lastIndex  : 0,
-    currentId  : null,
-    checkedIds : {}
+    p_last_index  : 0,
+    p_current_id  : null,
+    p_checked_ids : {}
   }),
   ///////////////////////////////////////////////////
   props : {
@@ -60,6 +60,16 @@ export default {
       type : String,
       default : null
     },
+    // If changed, it will sync to "p_current_id" and auto set "p_last_index"
+    "currentId" : {
+      type : String,
+      default : null
+    },
+    // If changed, it will sync to "__checked_ids"
+    "checkedIds" : {
+      type : Array,
+      default : ()=>[]
+    },
     // multi-selectable
     // effected when selectable is true
     "multi" : {
@@ -82,6 +92,27 @@ export default {
     "selectable" : {
       type : Boolean,
       default : true
+    }
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "currentId" : function() {
+      this.p_current_id = this.currentId
+      this.p_last_index = 0
+      for(let i=0; i<this.list.length; i++) {
+        let it = this.list[i]
+        let itId = it[this.idKey]
+        if(itId == this.p_current_id) {
+          this.p_last_index = i
+          break;
+        }
+      }
+    },
+    "checkedIds" : function() {
+      this.p_checked_ids = {}
+      for(let id of this.checkedIds) {
+        this.p_checked_ids[id] = true
+      }
     }
   },
   ///////////////////////////////////////////////////
@@ -170,7 +201,7 @@ export default {
       // Checking ...
       for(let it of this.list){
         let itId = it[this.idKey]
-        if(!this.checkedIds[itId])
+        if(!this.p_checked_ids[itId])
           return false;  
       }
       return true
@@ -179,7 +210,7 @@ export default {
     hasChecked() {
       for(let it of this.list){
         let itId = it[this.idKey]
-        if(this.checkedIds[itId])
+        if(this.p_checked_ids[itId])
           return true  
       }
       return false
@@ -200,7 +231,7 @@ export default {
       let list = []
       for(let it of this.list) {
         let itId = it[idKey]
-        if(this.checkedIds[itId]) {
+        if(this.p_checked_ids[itId]) {
           list.push(it)
         }
       }
@@ -211,7 +242,7 @@ export default {
       let idKey = this.idKey || "id"
       for(let it of this.list) {
         let itId = it[idKey]
-        if(this.currentId == itId) {
+        if(this.p_current_id == itId) {
           return it
         }
       }
@@ -273,7 +304,7 @@ export default {
       }
 
       // Already current, ignore
-      if("active" == mode && this.currentId == it.id) {
+      if("active" == mode && this.p_current_id == it.id) {
         return
       }
 
@@ -281,20 +312,20 @@ export default {
       let id = it[this.idKey]
 
       // Get Check Ids
-      this.checkedIds = this.getIds({
+      this.p_checked_ids = this.getIds({
         list      : this.list,
-        ids       : this.checkedIds,
-        fromIndex : this.lastIndex,
+        ids       : this.p_checked_ids,
+        fromIndex : this.p_last_index,
         toIndex   : index,
         currentId : id,
         mode
       })
 
       // memo last Index
-      if(!this.currentId || "active" == mode) {
-        this.currentId = this.checkedIds[id] ? id : null
+      if(!this.p_current_id || "active" == mode) {
+        this.p_current_id = this.p_checked_ids[id] ? id : null
       }
-      this.lastIndex = index
+      this.p_last_index = index
 
       // Do emit
       this.$emit("selected", {
@@ -307,31 +338,31 @@ export default {
       console.log("onToggle")
       let id = it[this.idKey]
       // Cancel it
-      if(this.checkedIds[id]) {
-        this.checkedIds = {
-          ...this.checkedIds,
+      if(this.p_checked_ids[id]) {
+        this.p_checked_ids = {
+          ...this.p_checked_ids,
           [id] : false
         }
       }
       // multi
       else if(this.multi) {
-        this.checkedIds = {
-          ...this.checkedIds,
+        this.p_checked_ids = {
+          ...this.p_checked_ids,
           [id] : true
         }
       }
       // Signle
       else {
-        this.checkedIds = {[id] : true}
+        this.p_checked_ids = {[id] : true}
       }
 
       // memo current Id
-      if(!this.currentId) {
-        this.currentId = id
+      if(!this.p_current_id) {
+        this.p_current_id = id
       }
-      if(this.currentId 
-        && !this.checkedIds[this.currentId]) {
-        this.currentId = null
+      if(this.p_current_id 
+        && !this.p_checked_ids[this.p_current_id]) {
+        this.p_current_id = null
       }
 
       // Do emit
@@ -344,23 +375,23 @@ export default {
     onClickHeadRowChecker() {
       // All  -> none
       if(this.isAllChecked) {
-        this.checkedIds = {}
+        this.p_checked_ids = {}
       }
       // Half -> All
       // None -> All
       else {
-        this.checkedIds = {}
+        this.p_checked_ids = {}
         for(let it of this.list) {
           let itId = it[this.idKey]
-          this.checkedIds[itId] = true
+          this.p_checked_ids[itId] = true
         }
       }
 
       // memo last Index
-      if(!this.checkedIds[this.currentId]) {
-        this.currentId = null
+      if(!this.p_checked_ids[this.p_current_id]) {
+        this.p_current_id = null
       }
-      this.lastIndex = 0
+      this.p_last_index = 0
 
       // Do emit
       this.$emit("selected", {
@@ -379,9 +410,9 @@ export default {
     onBlur() {
       if(!this.blurable)
         return
-      this.checkedIds = {}
-      this.currentId = null
-      this.lastIndex = 0
+      this.p_checked_ids = {}
+      this.p_current_id = null
+      this.p_last_index = 0
       this.$emit("selected", {
         selected : [],
         current  : null
@@ -391,15 +422,15 @@ export default {
     bodyRowClass(it) {
       let itId = it[this.idKey]
       return {
-        "is-selected" : this.checkedIds[itId],
-        "is-current"  : this.currentId == itId,
+        "is-selected" : this.p_checked_ids[itId],
+        "is-current"  : this.p_current_id == itId,
         "is-changed"  : this.changedId == itId
       }
     },
     //--------------------------------------
     bodyRowCheckerIcon(it) {
       let itId = it[this.idKey]
-      if(this.checkedIds[itId])
+      if(this.p_checked_ids[itId])
         return "fas-check-square"
       return "far-square"
     },

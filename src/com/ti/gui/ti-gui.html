@@ -54,4 +54,11 @@
       </div>
     </transition>
   </template>
+  <!--
+    Loading
+  -->
+  <div v-if="isLoading"
+    class="gui-loading">
+    <ti-loading v-bind="showLoading"/>
+  </div>
 </div>
