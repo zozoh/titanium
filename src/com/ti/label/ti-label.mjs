@@ -1,10 +1,11 @@
 export default {
   props : {
-    "value" : null,
     "blankAs" : {
       type : String,
       default : "i18n:nil"
-    }
+    },
+    "value" : null,
+    "format" : undefined
   },
   computed : {
     isBlank() {
@@ -21,7 +22,7 @@ export default {
       if(this.isBlank) {
         return Ti.I18n.text(this.blankAs)
       }
-      let str = Ti.Types.toStr(this.value)
+      let str = Ti.Types.toStr(this.value, this.format)
       return Ti.I18n.text(str)
     }
   }

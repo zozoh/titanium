@@ -1,43 +1,4 @@
-//-----------------------------------------
-// fnType : "transformer|serializer"
-function formFunc(fnSet={}, fld, fnType){
-  // console.log("formFunc:")
-  // console.log(" --", fnSet)
-  // console.log(" --", fld)
-  // console.log(" --", fnType)
-  // Try to ge the function
-  let fn = fld[fnType]
-  // Get the `func` by field type as default
-  if(!fn) {
-    return Ti.Types.$FN(fld.type, fnType)
-  }
-    
-  // Function already
-  if(_.isFunction(fn))
-    return fn
-  // Is string
-  if(_.isString(fn)) {
-    return _.get(fnSet, [fnType, fn])
-  }
-  // Plain Object 
-  if(_.isPlainObject(fn) && fn.name) {
-    //console.log(fnType, fnName)
-    let fn2 = _.get(fnSet, [fnType, fn.name])
-    if(!_.isFunction(fn2))
-      return
-    // Partical args ...
-    if(_.isArray(fn.args) && fn.args.length > 0) {
-      return _.partialRight(fn2, ...fn.args)
-    }
-    // Partical one arg
-    if(!_.isUndefined(fn.args) && !_.isNull(fn.args)) {
-      return _.partialRight(fn2, fn.args)
-    }
-    // Just return
-    return fn2
-  }
-}
-//-----------------------------------------
+//////////////////////////////////////////////////
 function normlizeFormField(vm, fld, nbs=[]) {
   let f2;
   // For group
@@ -69,8 +30,8 @@ function normlizeFormField(vm, fld, nbs=[]) {
     }
 
     // Tidy form function
-    f2.serializer  = formFunc(vm.fnSet, f2, "serializer")
-    f2.transformer = formFunc(vm.fnSet, f2, "transformer")
+    f2.serializer  = Ti.Types.getFuncBy(vm.fnSet, f2, "serializer")
+    f2.transformer = Ti.Types.getFuncBy(vm.fnSet, f2, "transformer")
   }
   // field key
   f2.key = fld.name 
@@ -79,13 +40,12 @@ function normlizeFormField(vm, fld, nbs=[]) {
   // return it
   return f2
 }
-//-----------------------------------------
+//////////////////////////////////////////////////
 const resize = function(evt){
   this.__debounce_adjust_fields_width()
 }
-//-----------------------------------------
+//////////////////////////////////////////////////
 export default {
-  //////////////////////////////////////////////////////
   props : {
     "config" : {
       type : Object,
@@ -126,11 +86,13 @@ export default {
       return list
     },
     //.......................................
+    /***
+     * Eval function set for `transformer|serializer` of each fields
+     * 
+     * Defaultly, it will support the function set defined in `Ti.Types`
+     */
     fnSet() {
-      return {
-        serializer  : this.getFunctionSet("serializers"),
-        transformer : this.getFunctionSet("transformers")
-      }
+      return _.assign({}, Ti.Types, this.config.extendFunctionSet)
     },
     //.......................................
     formData() {
@@ -140,29 +102,17 @@ export default {
   },
   //////////////////////////////////////////////////////
   methods : {
-    // Get the function set for `transformer|serializer`
-    // add the default mapping functions
-    getFunctionSet(fnSetName) {
-      let fnSet = this.config[fnSetName]
-      return _.assign({}, fnSet, {
-        // format obj to string
-        formatStringBy(obj={}, fmt=""){
-          return Ti.S.renderVars(fmt, obj)
-        },
-        // Mapping obj to another
-        mappingBy(obj={}, mapping={}) {
-          return Ti.Util.mapping(obj, mapping)
-        }
-      })
-    },
+    //----------------------------------------------
     onChanged(payload) {
       //console.log("changed", payload)
       this.$emit("changed", payload)
     },
+    //----------------------------------------------
     onInvalid(payload) {
       //console.log("invalid", payload)
       this.$emit("invalid", payload)
     },
+    //----------------------------------------------
     __adjust_fields_width() {
       // Find all field-name Elements
       let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
@@ -184,6 +134,7 @@ export default {
         Ti.Dom.setStyle($fldnm, {width:maxWidth})
       }
     }
+    //----------------------------------------------
   },
   //////////////////////////////////////////////////////
   watch : {

@@ -1,8 +1,8 @@
 .ti-label {
   @include font-fixed;
-  padding: 0 .1rem;
+  padding: 0 .06rem;
   &.is-blank {
     @include noselect;
-    @include color($color-disable, c);
+    opacity: 0.4;
   }
 }

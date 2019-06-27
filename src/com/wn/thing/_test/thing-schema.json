@@ -16,11 +16,21 @@
       "checkable" : true,
       "multi"  : true,
       "fields" : [{
-        "key"   : "th_nm",
-        "title" : "名称"
+        "title" : "名称",
+        "display" : ["th_nm", "nm"]
       }, {
-        "key"   : "ct",
-        "title" : "创建时间"
+        "title" : "标签",
+        "display" : "lbls"
+      }, {
+        "title" : "创建时间",
+        "type"    : "DateTime",
+        "display" : {
+          "key":"ct", 
+          "transformer" : {
+            "name" : "formatDate",
+            "args" : "yyyyMMdd/HH:mm:s"
+          }
+        }
       }]
     }
   },
@@ -53,12 +63,26 @@
       "fieldStatus" : "@current.fieldStatus",
       "config" : {
         "fields" : [{
-          "name"    : "th_nm",
-          "comType" : "ti-input"
-        },{
-          "name" : "id"
-
-        }]
+            "title"  : "ID",
+            "name"   : "id"
+          }, {
+            "title"   : "名称",
+            "name"    : "th_nm",
+            "comType" : "ti-input"
+          },{
+            "icon"    : "zmdi-labels",
+            "title"   : "标签",
+            "name"    : "lbls",
+            "type"    : "Array",
+            "transformer" : "toStr",
+            "comType" : "ti-input"
+          },{
+            "icon"    : "zmdi-time",
+            "title"   : "最后修改时间",
+            "name"    : "lm",
+            "type"    : "DateTime",
+            "comConf" : {"format":"yyyy年MM月dd日"}
+          }]
       },
       "updateBy" : {
         "method" : "dispatch",

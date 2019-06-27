@@ -44,10 +44,48 @@ export default {
       type : String,
       default : "id"
     },
-    //
+    /***
+     * Defind each column of the table by `Array{Object}`
+     * The element in Array should like:
+     * 
+     * ```js
+     * {
+     *   title : "i18n:xxx",
+     *   display : "theName"
+     * }
+     * ```
+     * The field `display` defined how to render the column.
+     * You can declare the value in three modes below:
+     *  - String : render by `ti-label`
+     *  - Object : customized the display method
+     *  - Array{String|Object} : multi rendering
+     * 
+     * It will be formatted to Array like:
+     * ```js
+     * [{
+     *    key : "theName",
+     *    uniqueKey : "theName",  // String form by `key`
+     *    type : "String",    // @see Ti.Types
+     *    transformer : "toStr",  // @see Ti.Types.getFuncByType()
+     *    comType : "ti-label",
+     *    comConf : {}
+     * }]
+     * ```
+     * The `key` present the way how to pick the value from row data.
+     * It can be `String` or `Array`:
+     *  - `String` : as key path to get the value
+     *  - `Array`  : as key set to pick a new object
+     * 
+     * **Note!!** If key is falsy, the field will be ignored
+     */
     "fields" : {
       type : Array,
       default : ()=>[]
+    },
+    // extend function set for `transformer` in each field `display`
+    "extendFunctionSet" : {
+      type : Object,
+      default : ()=>({})
     },
     // The list to be rendered
     "list" : {
@@ -246,10 +284,69 @@ export default {
           return it
         }
       }
+    },
+    //--------------------------------------
+    fnSet() {
+      return _.assign({}, Ti.Types, this.extendFunctionSet)
+    },
+    //--------------------------------------
+    displayFields() {
+      let fields = []
+      for(let fld of this.fields) {
+        let display = this.evalFieldDisplay(fld)
+        fields.push({
+          title : fld.title,
+          display
+        })
+      }
+      return fields
     }
+    //--------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    evalFieldDisplay(fld) {
+      let list = _.isArray(fld.display)
+                    ? fld.display
+                    : [fld.display]
+      let items = []
+      for(let li of list) {
+        // String|Array -> ti-label
+        if(_.isString(li) || _.isArray(li)) {
+          items.push({
+            key  : li,
+            type : li.type || "String",
+            transformer : li.transformer,
+            comType : "ti-label",
+            comConf : {}
+          })
+        }
+        // Plan Object
+        else if(_.isPlainObject(li) && li.key){
+          items.push(_.assign({
+            type    : li.type || "String",
+            comType : "ti-label",
+          }, li))
+        }
+        // Ignore others ...
+      }
+      // Gen uniqueKey and transformer for each item
+      for(let it of items) {
+        // Unique Key
+        if(_.isArray(it.key)) {
+          it.uniqueKey = it.key.join("-")
+        }
+        // Get the value
+        else {
+          it.uniqueKey = it.key
+        }
+        // Transformer
+        it.transformer = Ti.Types.getFuncBy(this.fnSet, it, "transformer")
+      }
+      // Array to pick
+      return items
+    },
     //--------------------------------------
     getIds({
       list=[],
@@ -435,7 +532,7 @@ export default {
       return "far-square"
     },
     //--------------------------------------
-    cellStyle(index, fld={}) {
+    cellStyle(index) {
       // If should checkbox, the index should base on 1
       if(this.checkable)
         index++

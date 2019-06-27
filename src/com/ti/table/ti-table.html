@@ -25,28 +25,35 @@
     Body
   -->
   <div class="table-con as-body">
-    <div v-if="isEmpty"
+    <div 
+      v-if="isEmpty"
       class="ti-blank is-big">
       <ti-icon value="zmdi-alert-circle-o"/>
       <span>{{'empty-data'|i18n}}</span>
     </div>
-    <div class="table-body as-table" ref="body"
+    <div ref="body"
+      class="table-body as-table" 
       :style="tableStyle">
-      <ul v-for="(it, index) in list" :key="it[idKey]"
+      <ul 
+        v-for="(it, index) in list" 
+        :key="it[idKey]"
         class="table-row in-body"
         :class="bodyRowClass(it)"
         @click.stop="onSelected(it, index, $event)"
         @dblclick.stop="onOpen(it, index)">
-        <li v-if="checkable" col-fixed 
+        <li col-fixed 
+          v-if="checkable" 
           class="row-checker"
           :style="cellStyle(-1)"
           @click.stop="onToggle(it)">
           <ti-icon :value="bodyRowCheckerIcon(it)"/>
         </li>
-        <li v-for="(fld, ci) in fields"
-          :style="cellStyle(ci, fld)">
-          <span>{{it[fld.key]}}</span>
-        </li>
+        <ti-table-cell 
+          v-for="(fld, cellIndex) in displayFields"
+          :key="fld.uniqueKey"
+          :style="cellStyle(cellIndex, fld)"
+          v-bind="fld"
+          :data="it"/>
       </ul>
     </div>
   </div>

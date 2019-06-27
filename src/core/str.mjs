@@ -1,9 +1,9 @@
 export const TiStr = {
-  renderVars(str="", vars={}, iteratee, regex=/\$\{([^}]+)\}/g) {
+  renderVars(vars={}, fmt="", iteratee, regex=/\$\{([^}]+)\}/g) {
     if(_.isEmpty(vars)){
       return _.isArray(vars) ? [] : ""
     }
-    return TiStr.renderBy(str, vars, iteratee, regex)
+    return TiStr.renderBy(fmt, vars, iteratee, regex)
   },
   /***
    * Replace the placeholder

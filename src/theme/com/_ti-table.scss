@@ -11,7 +11,7 @@
     //-------------------------------------------
     > li {
       display: table-cell;
-      padding: $tcpad $tcpad*2; 
+      padding: $tcpad 0; 
       white-space: nowrap;
       &.row-checker {
         cursor: pointer;
@@ -36,6 +36,9 @@
           opacity: 0;
         }
       }
+      > li.row-checker {
+        padding-right:6px;
+      }
     }
     //-------------------------------------------
   }
@@ -55,11 +58,14 @@
     // Define the table layout
     > div.as-table {
       display: table;
+      //-------------------------------------------
       &.table-head {
         text-align:center; font-weight: bold;
       }
+      //-------------------------------------------
       &.table-body {
         ul.table-row {
+          //---------------------------------------
           &.is-current {
             > li:first-child {
               &::before {
@@ -67,9 +73,11 @@
               }
             }
           }
+          //---------------------------------------
           &.is-selected {
             @include color-highlight;
           }
+          //---------------------------------------
           &.is-changed {
             @include color($color-secondary, r, c);
             &.in-body {
@@ -84,9 +92,16 @@
               }
             }
           }
-        }
+          //---------------------------------------
+        } // ~ ul.table-row
+        //-----------------------------------------
+        li.table-cell {
+          > .cell-con {@include flex-align;}
+        } // ~ li.table-cell
+        //-----------------------------------------
       }
-    } // ~ div
+      //-------------------------------------------
+    } // ~ div.as-table
   }
   //---------------------------------------------
   &.show-border {

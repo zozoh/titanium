@@ -22,7 +22,7 @@ function parseDate(d) {
     return new Date(d)
   }
   // Number as AMS
-  if(_.isNumber()) {
+  if(_.isNumber(d)) {
     return new Date(d)
   }
   // String 
@@ -70,34 +70,34 @@ function parseDate(d) {
   // Invalid date
   throw 'i18n:invalid-date'
 }
-//-----------------------------------------
-const BUILTIN_TYPES = {
-  'String'   : {transformer:"toStr",     serializer:"toStr"},
-  'Number'   : {transformer:"toNumber",  serializer:"toNumber"},
-  'Integer'  : {transformer:"toInteger", serializer:"toInteger"},
-  'Boolean'  : {transformer:"toBoolean", serializer:"toBoolean"},
-  'Object'   : {transformer:"toObject",  serializer:"toObject"},
-  'Array'    : {transformer:"toArray",   serializer:"toArray"},
-  'DateTime' : {transformer:"toDate",    serializer:"formatDate"},
-  'AMS'      : {transformer:"toDate",    serializer:"toAMS"}
-}
 //-----------------------------------
 export const TiTypes = {
-  toStr(val) {
-    if(_.isNull(val) || _.isUndefined(val) || _.isString(val)){
+  toStr(val, fmt) {
+    if(_.isNull(val) || _.isUndefined(val)){
+      return fmt || ""
+    }
+    if(_.isString(val)){
       return val
     }
-    if(_.isNumber(val)){
-      return ""+val
-    }
     if(_.isArray(val)) {
-      return val.join(",")
+      return val.join(fmt || ",")
+    }
+    if(_.isBoolean(val)) {
+      return (fmt || ["false", "true"])[val*1]
     }
     if(_.isDate(val)){
-      return TiTypes.formatDate(val)
+      return TiTypes.formatDate(val, fmt)
     }
     if(_.isPlainObject(val)){
-      return JSON.stringify(val) 
+      if(fmt) {
+        if(_.isString(fmt)) {
+          return Ti.S.renderVars(val, fmt)
+        }
+        if(_.isPlainObject(fmt)) {
+          val = Ti.Util.mapping(val, fmt)
+        }
+      }
+      return JSON.stringify(val, null, fmt) 
     }
     return ""+val
   },
@@ -142,13 +142,17 @@ export const TiTypes = {
     return true
   },
   //.......................................
-  toObject(val) {
+  toObject(val, fmt) {
+    let obj = val
     if(_.isString(val)){
       if(/^\{.*\}$/.test(val)) {
-        return JSON.parse(val)
+        obj = JSON.parse(val)
       }
     }
-    return val
+    if(_.isPlainObject(fmt)) {
+      obj = Ti.Util.mapping(obj, fmt)
+    }
+    return obj
   },
   //.......................................
   toArray(val, {sep=/[ ,;\/、，；]/}={}) {
@@ -177,8 +181,15 @@ export const TiTypes = {
     if(!_.isDate(date)) {
       date = parseDate(date)
     }
+    // Guard it
     if(!date)
       return null
+    
+    // TODO here add another param
+    // to format the datetime to "in 5min" like string
+    // Maybe the param should named as "shorthand"
+    
+    // Format by pattern
     let yyyy = date.getFullYear()
     let M = date.getMonth() + 1
     let d = date.getDate()
@@ -216,15 +227,65 @@ export const TiTypes = {
     return list.join("")
   },
   //.......................................
-  $FNAME(type, fnType) {
-    return _.get(BUILTIN_TYPES, [type, fnType])
+  getFuncByType(type="String", name="transformer") {
+    return _.get({
+      'String'   : {transformer:"toStr",     serializer:"toStr"},
+      'Number'   : {transformer:"toNumber",  serializer:"toNumber"},
+      'Integer'  : {transformer:"toInteger", serializer:"toInteger"},
+      'Boolean'  : {transformer:"toBoolean", serializer:"toBoolean"},
+      'Object'   : {transformer:"toObject",  serializer:"toObject"},
+      'Array'    : {transformer:"toArray",   serializer:"toArray"},
+      'DateTime' : {transformer:"toDate",    serializer:"formatDate"},
+      'AMS'      : {transformer:"toDate",    serializer:"toAMS"},
+      // Time
+      // Date
+      // Color
+      // PhoneNumber
+      // Address
+      // Currency
+      // ...
+    }, `${type}.${name}`)
   },
   //.......................................
-  $FN(type, fnType) {
-    // let fn = _.get(config, [`${fnType}s`, fnName])
-    // return fn || TiTypes[fnName]
-    let fnName = TiTypes.$FNAME(type, fnType)
-    return TiTypes[fnName]
+  getFuncBy(fnSet={}, fld, name) {
+    //..................................
+    // Eval the function
+    let fn = fld[name]
+    //..................................
+    // Function already
+    if(_.isFunction(fn))
+      return fn
+    
+    //..................................
+    // If noexits, eval the function by `fld.type`
+    if(!fn) {
+      fn = TiTypes.getFuncByType(fld.type, name)
+    }
+
+    //..................................
+    // Is string
+    if(_.isString(fn)) {
+      return _.get(fnSet, fn)
+    }
+    //..................................
+    // Plain Object 
+    if(_.isPlainObject(fn) && fn.name) {
+      //console.log(fnType, fnName)
+      let fn2 = _.get(fnSet, fn.name)
+      // Invalid fn.name, ignore it
+      if(!_.isFunction(fn2))
+        return
+      // Partical args ...
+      if(_.isArray(fn.args) && fn.args.length > 0) {
+        return _.partialRight(fn2, ...fn.args)
+      }
+      // Partical one arg
+      if(!_.isUndefined(fn.args) && !_.isNull(fn.args)) {
+        return _.partialRight(fn2, fn.args)
+      }
+      // Just return
+      return fn2
+    }
   }
 }
 //---------------------------------------

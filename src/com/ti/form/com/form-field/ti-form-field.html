@@ -5,14 +5,14 @@
         v-if="show.status"
         :value="statusIcon"/>
     </span>
-    <span class="name-icon">
-      <ti-icon
-        v-if="show.icon" 
-        :value="icon"/>
-    </span>
     <span
       v-if="show.title"
       class="name-title">{{fieldTitle|i18n}}</span>
+    <span 
+      v-if="show.icon" 
+      class="name-icon">
+      <ti-icon :value="icon"/>
+    </span>
   </div>
   <div class="field-value">
     <div class="field-component">

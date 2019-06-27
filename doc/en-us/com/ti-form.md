@@ -15,14 +15,6 @@ Define the schema(`Object`) of  data presentation.
 
 ```js
 {
-  // field com value -> form data
-  serilizers : {
-    "Key" : (val, key)=>Any
-  },
-  // form data -> field com value
-  transformers : {
-    "Key" : (val, key)=>Any
-  },
   statusIcons : {
     spinning : 'fas-spinner fa-spin',
     error    : 'zmdi-alert-polygon',
@@ -41,7 +33,7 @@ Define the schema(`Object`) of  data presentation.
   // Form fields
   fields : [{
     // @see `Data Type`
-    type  : "Object
+    type  : "Object"
     // field modes
     disabled : false,
     hidden   : false,
@@ -62,9 +54,13 @@ Define the schema(`Object`) of  data presentation.
     comType : "ti-input",
     // The component properties, default is `undefined`
     comConf : {..}
-    // Customized serializer
+    // Customized serializer： 
+    // field com value -> form data
+    // @see extendFunctionSet
     serializer : String | Object | (val)=>Any
     // Customized transformer
+    // form data -> field com value
+    // @see extendFunctionSet
     transformer : String | Object | (val)=>Any
   }, {
   	type  : "Group",
@@ -72,7 +68,11 @@ Define the schema(`Object`) of  data presentation.
   	fields : [{
       // Nested field
   	}]
-  }]
+  }]，
+  // extend function set for `serializer` and `transformer`
+  extendFunctionSet : {
+    "Key" : (val, key)=>Any
+  }
 }
 ```
 
@@ -151,26 +151,25 @@ The status for each fields
 ------------------------------------------------------
 # Data Type
 
-  Type              | JSON            | Com Value  | Default Component
-----------------------|------------------|------------------|-------------------
-`"String"`    | `String`   | `String`  | `<ti-label>` 
-`"Number"`    | `Number`   |`Number`   | `<ti-input>` 
-`"Integer"`  | `Integer`|`Integer`   | `<ti-input>` 
-`"Boolean"`  | `Boolean`|`Boolean` |`<ti-toggle>`
-`"Object"`    | `Object`   | `Object`  | `<ti-pair>` 
-`"Array"`       | `Array`     |`Array`      | `<ti-list>` 
-`"DateTime"`| `String`   |`Date`        | `<ti-date>` 
-`"AMS"`            | `Integer`|`Date`        | `<ti-date>` 
-
+```js
+{
+  'String'   : {transformer:"toStr",     serializer:"toStr"},
+  'Number'   : {transformer:"toNumber",  serializer:"toNumber"},
+  'Integer'  : {transformer:"toInteger", serializer:"toInteger"},
+  'Boolean'  : {transformer:"toBoolean", serializer:"toBoolean"},
+  'Object'   : {transformer:"toObject",  serializer:"toObject"},
+  'Array'    : {transformer:"toArray",   serializer:"toArray"},
+  'DateTime' : {transformer:"toDate",    serializer:"formatDate"},
+  'AMS'      : {transformer:"toDate",    serializer:"toAMS"}
+  // Time
+  // Date
+  // Color
+  // PhoneNumber
+  // Address
+  // Currency
+}
 ```
-`class TiTime`   |`<ti-form-time>`
-`class TiColor` | `<ti-form-pick-color>`
-`class TiPhoneNumber` | `<ti-form-input-phone>` 
-`class TiEmail`         | `<ti-form-input-email>` 
-`class TiAddress`     | `<ti-form-casecade-address>` 
-`class TiCurrency` | `<ti-form-currency>` 
-`class TiImage`    | `<ti-form-image>` 
-```
+> please @see `Ti.Types.getFunctionByType()` for more detail
 
 ------------------------------------------------------
 # Event
@@ -203,6 +202,75 @@ The status for each fields
 - `hideFields`
 - `disableFields`
 - `enableFields`
+
+------------------------------------------------------
+# Function Set
+
+Defaults, `ti-form` suppor those functions in `serializer|transformer` of each field.
+You can expend the function set be `config.extendFunctionSet`
+
+------------------------------------------
+## The form of function
+
+Each method in function set should obey the form:
+
+```js
+{
+  yourMethod : (fieldValue, arg1, arg2) {
+    return $theNewFieldValue
+  }
+}
+```
+
+- `fieldValue` filled be form data.  It base on the `name` of each field.
+- `arg1, arg2` it will be filled by `serializer|transformer` setting
+
+Type       | `arg1, arg2 ...`
+-----------|----------------------
+`String`   | `[]`
+`Object`   | defined by `.args`
+`Function` | Declared by ES6 function default param
+
+------------------------------------------
+## Default Function Set
+
+Defaultly, `ti-form` provide some usefully function:
+
+- `toStr(val, fmt)`
+- `toNumber(val)`
+- `toInteger(val)`
+- `toBoolean(val)`
+- `toPercent(val)`
+- `toBoolean(val)`
+- `toArray(val, sep)`
+- `toObject(val, fmt)`
+- `formatDate(d, fmt="yyyy-MM-dd HH:mm:ss")`
+- `toDate(val)`
+- `toAMS(val)`
+
+> Please @see `Ti.Types` document for more detail
+
+------------------------------------------
+## Example
+
+```js
+// String
+serializer : "toStr"
+
+// Object
+transformer : {
+  name : "toDate",
+  args : "yyyy-MM-dd"
+}
+
+// Function
+serializer : (val)=>{
+  return `[${val}]`
+}
+```
+
+
+
 
 
 

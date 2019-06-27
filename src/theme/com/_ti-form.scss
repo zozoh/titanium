@@ -29,10 +29,11 @@
         @include flex-center;
       }
       > .name-icon {
-        flex: 1 1 auto;
+        @include flex-align($jc:flex-end);
+        padding:0 .04rem 0 .08rem;
       }
       > .name-title {
-        flex: 0 0 auto;
+        flex: 1 1 auto; text-align: right;
         white-space: nowrap;
       }
     }

@@ -2,5 +2,8 @@
   "name" : "ti-table",
   "globally" : true,
   "template" : "./ti-table.html",
-  "mixins" : ["./ti-table.mjs"]
+  "mixins" : ["./ti-table.mjs"],
+  "components" : [
+    "./com/table-cell"
+  ]
 }
