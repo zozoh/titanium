@@ -65,17 +65,17 @@ async function main(){
       "i18n"  : "${rs}/ti/i18n/"
     },
     alias : {
-      "^.+[.](css|js|mjs|json|txt|text)$"  : "$&",
-      "^\./(.+)$"     : "@MyApp:$1",
-      "@lib:walnut"   : "@lib:walnut/walnut.mjs",
+      "^\./"          : "@MyApp:",
       "^@MyApp:?$"    : "@MyApp:_app.json",
-      "^@theme:.+$"   : "$&.css",
-      "^@app:[^\/]+$"   : "$&/_app.json",
-      "\/?mod\/[^\/]+$" : "$&/_mod.json",
-      "\/?com\/[^\/]+$" : "$&/_com.json",
-      "^@mod:[^.]+$"    : "$&/_mod.json",
-      "^@com:[^.]+$"    : "$&/_com.json",
-      "^@i18n:(.+)$"    : "@i18n:zh-cn/$1.i18n.json"
+      "^@i18n:(.+)$"  : "@i18n:zh-cn/$1",
+      "\/i18n\/"      : "\/i18n\/zh-cn/"
+    },
+    suffix : {
+      "^@theme:"              : ".css",
+      "^@app:"                : "/_app.json",
+      "(^@mod:|[\/:]mod\/)"   : "/_mod.json",
+      "(^@com:|[\/:]com\/)"   : "/_com.json",
+      "(^@i18n:|[\/:]i18n\/)" : ".i18n.json"
     },
     lang : "zh-cn"
   })

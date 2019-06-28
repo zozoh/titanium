@@ -40,7 +40,6 @@ cat "${CURRENT_DIR}/_app.json"
 <div id="app" class="app-loading">
   <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
 </div>
-<pre>${app(json:n)?-obj-}</pre>
 <!--
   Main Script
 -->
@@ -73,15 +72,17 @@ async function main(){
       "i18n"  : "${rs}/ti/i18n/"
     },
     alias : {
-      "^.+[.](css|js|mjs|json|txt|text)$" : "$&",
-      "^\./(.+)$" : "@Site:$1",
-      "^@theme:.+$" : "$&.css",
-      "\/?mod\/[^\/]+$" : "$&/_mod.json",
-      "\/?com\/[^\/]+$" : "$&/_com.json",
-      "^@mod:[^.]+$" : "$&/_mod.json",
-      "^@com:[^.]+$" : "$&/_com.json",
-      "^@i18n:(.+)$" : "@i18n:zh-cn/$1.i18n.json",
-      "^@Site:i18n/(.+)$" : "@Site:i18n/zh-cn/$1.i18n.json"
+      "^\./"         : "@Site:",
+      "^@Site:?$"    : "@Site:_app.json",
+      "^@i18n:(.+)$" : "@i18n:zh-cn/$1",
+      "[:\/]i18n\/"     : "$&zh-cn/"
+    },
+    suffix : {
+      "^@theme:"              : ".css",
+      "^@app:"                : "/_app.json",
+      "(^@mod:|[\/:]mod\/)"   : "/_mod.json",
+      "(^@com:|[\/:]com\/)"   : "/_com.json",
+      "(^@i18n:|[\/:]i18n\/)" : ".i18n.json"
     },
     lang : "zh-cn"
   }
@@ -125,7 +126,7 @@ async function main(){
       // console.log(app.name(), app)
       $root.style.fontSize = fontSize + "px"
       $root.setAttribute("as", mode)
-      app.commit("page/setMode", mode)
+      app.commit("viewport/setMode", mode)
     }
   })
 

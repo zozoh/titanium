@@ -3,6 +3,7 @@ import {Ti} from "./ti.mjs"
 const CONFIG = {
   prefix  : {},
   alias   : {},
+  suffix  : {},
   comDecorator : null
 }
 //-----------------------------------
@@ -13,42 +14,52 @@ class AliasMapping {
   }
   reset(alias={}) {
     _.forOwn(alias, (val, key)=>{
-      // console.log("alias", key, val)
-      // Regex
-      if(_.startsWith(key, "^") || _.endsWith(key, "$")){
-        this.list.push({
-          regex  : new RegExp(key),
-          newstr : val
-        })
-      }
-      // Normal
-      else {
-        this.list.push({
-          substr : key,
-          newstr : val
-        })
-      }
+      this.list.push({
+        regex  : new RegExp(key),
+        newstr : val
+      })
     })
     return this
   }
   get(url="", dft) {
-    let re = url
-    for(let r of this.list) {
-      // Match Regex
-      if(r.regex) {
-        if(r.regex.test(re)){
-          re = re.replace(r.regex, r.newstr)
-        }
-      }
-      // Match static value
-      else if(url == r.substr){
-        re = r.newstr
+    let u2 = url
+    for(let li of this.list) {
+      if(li.regex.test(u2)){
+        u2 = u2.replace(li.regex, li.newstr)
       }
     }
-    return re || (_.isUndefined(dft) ? url : dft)
+    return u2 || (_.isUndefined(dft) ? url : dft)
   }
 }
 const ALIAS = new AliasMapping().reset()
+//-----------------------------------
+class SuffixMapping {
+  constructor(suffix) {
+    this.list = []
+    this.reset(suffix)
+  }
+  reset(suffix={}) {
+    _.forOwn(suffix, (val, key)=>{
+      // console.log("suffix", key, val)
+      this.list.push({
+        regex  : new RegExp(key),
+        suffix : val
+      })
+    })
+    return this
+  }
+  get(url="", dft) {
+    let u2 = url
+    for(let li of this.list) {
+      if(li.regex.test(u2) && !u2.endsWith(li.suffix)){
+        u2 += li.suffix
+        break
+      }
+    }
+    return u2 || (_.isUndefined(dft) ? url : dft)
+  }
+}
+const SUFFIX = new SuffixMapping().reset()
 //-----------------------------------
 export const TiConfig = {
   AliasMapping,
@@ -57,13 +68,18 @@ export const TiConfig = {
     return CONFIG.version
   },
   //.................................
-  set({prefix, alias, lang, comDecorator}) {
+  set({prefix, alias, suffix, lang, comDecorator}={}) {
     if(prefix)
       CONFIG.prefix = prefix
 
     if(alias) {
       CONFIG.alias = alias
       ALIAS.reset(CONFIG.alias)
+    }
+
+    if(suffix) {
+      CONFIG.suffix = suffix
+      SUFFIX.reset(CONFIG.suffix)
     }
 
     if(lang)
@@ -73,7 +89,7 @@ export const TiConfig = {
       CONFIG.comDecorator = comDecorator
   },
   //.................................
-  update({prefix, alias, lang, comDecorator}) {
+  update({prefix, alias, suffix, lang, comDecorator}={}) {
     if(prefix)
       _.assign(CONFIG.prefix, prefix)
 
@@ -82,13 +98,16 @@ export const TiConfig = {
       ALIAS.reset(CONFIG.alias)
     }
 
+    if(suffix) {
+      _.assign(CONFIG.suffix, suffix)
+      SUFFIX.reset(CONFIG.suffix)
+    }
+
     if(lang)
       CONFIG.lang = lang
 
     if(comDecorator)
       CONFIG.comDecorator = comDecorator
-
-    ALIAS.reset(CONFIG.alias)
   },
   //.................................
   get(key=null) {
@@ -111,7 +130,7 @@ export const TiConfig = {
   url(path="", {dynamicPrefix={}, dynamicAlias}={}) {
     // apply alias
     let ph, m
-
+    //.........................................
     // amend the url dynamically
     if(dynamicAlias) {
       let a_map = (dynamicAlias instanceof AliasMapping) 
@@ -121,7 +140,12 @@ export const TiConfig = {
     }
     // amend the url statictly
     ph = ALIAS.get(ph || path)
-
+    //.........................................
+    // expend suffix
+    if(!/^.+\.(css|js|mjs|json|txt|text|html|xml)$/.test(ph)) {
+      ph = SUFFIX.get(ph)
+    }
+    //.........................................
     // expend prefix
     m = /^(@([^:]+):?)(.*)/.exec(ph)
     if(!m)
@@ -131,8 +155,8 @@ export const TiConfig = {
 
     if(!prefix)
       throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
-    
-      return prefix + url
+    //.........................................
+    return prefix + url
   }
 }
 //-----------------------------------

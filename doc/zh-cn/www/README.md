@@ -15,11 +15,6 @@ $HOME/
   |-- css/
   |-- i18n/
   |-- js/
-  |-- mod/
-  |    |-- site-actions.mjs
-  |    |-- site-getters.mjs
-  |    |-- site-mutaions.mjs
-  |    |-- site-state.json
   |-- page/
   |    |-- home/
   |    |    |-- _com.json
@@ -30,6 +25,10 @@ $HOME/
   |-- index.wnml
   |-- site-main.html
   |-- site-main.mjs
+  |-- site-actions.mjs
+  |-- site-getters.mjs
+  |-- site-mutaions.mjs
+  |-- site-state.json
 ```
 
 ------------------------------------------------------
@@ -69,6 +68,7 @@ $HOME/
 
 ```js
 {
+  //-----------------------------------------
   // 这里描述了站点要用到的 api
   "apis" : {
     // 每个 API 都有唯一的键
@@ -85,27 +85,35 @@ $HOME/
       "as" : "json"    // 返回的值用什么方式解析
   	}
   },
-  // 这里是站点的每个页面
-  "pages" : {
-    // 每个页面都有一个唯一的键
-    "page1" : {
-      // 这个是一个字符串模板，支持从数据段获取内容
-      // 当页面更新后，会用这个值修改网页标题
-      "title" : "页面标题",
-      // 页面的数据段，每条数据值可能是来自 api 或者干脆是静态数据
-      "data" : {
-        // 来自 api
-        "article" : {
-          "type" : "api",
-          "name" : "apiNameA",
-          "params" : {/*这个值会与API默认参数值融合*/}
-        }
-        // 静态值
-        "info" : {
-          "type" : "static",
-          "data" : "Any"   // 可以是任何类型的值
-        }
-      }
+  //-----------------------------------------
+  // 指明要显示的页面
+  // 这个链接会被 TiLoad 自动加载
+  "currentPage" : "@Site:page/home.json"
+  //-----------------------------------------
+}
+```
+
+------------------------------------------------------
+# page/home.json
+
+```js
+{
+  // 这个是一个字符串模板，支持从数据段获取内容
+  // 当页面更新后，会用这个值修改网页标题
+  "title" : "页面标题",
+  // 页面的数据段，每条数据值可能是来自 api 或者干脆是静态数据
+  "data" : {
+    // 来自 api
+    "article" : {
+      "type" : "api",
+      "name" : "apiNameA",
+      "params" : {/*这个值会与API默认参数值融合*/},
+      "result" : {/*这里存放 API 的返回结果*/}
+    }
+    // 静态值
+    "info" : {
+      "type"   : "static",
+      "result" : "Any"   // 可以是任何类型的值
     }
   }
 }
