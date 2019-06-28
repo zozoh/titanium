@@ -8,7 +8,6 @@ const TI_CONF    = Symbol("ti-conf")
 const TI_STORE   = Symbol("ti-store")
 const TI_VM      = Symbol("ti-vm")
 const TI_VM_MAIN = Symbol("ti-vm-main")
-const GET_SET    = Symbol("getter/setter")
 //---------------------------------------
 /***
 Encapsulate all stuffs of Titanium Application

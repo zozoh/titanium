@@ -23,9 +23,9 @@
   "mixins" : ["./wn-manager.mjs"],
   "store" : {
     "modules" : {
-      "page"    : "@mod:ti/page", 
-      "session" : "@mod:wn/session", 
-      "meta"    : "@mod:wn/obj-meta"
+      "viewport" : "@mod:ti/viewport", 
+      "session"  : "@mod:wn/session", 
+      "meta"     : "@mod:wn/obj-meta"
     },
     "plugins" : ["./store_watcher.mjs"]
   },

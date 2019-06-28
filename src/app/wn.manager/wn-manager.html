@@ -2,7 +2,7 @@
   <!--
     For Desktop
   -->
-  <wn-explorer v-if="isPageModeDesktop"
+  <wn-explorer v-if="isViewportModeDesktop"
     class="as-desktop"
     key="for-desktop"
     :loading="isLoading"
@@ -62,7 +62,7 @@
   <!--
     For Phone or Tablet
   -->
-  <wn-explorer v-if="isPageModePhoneOrTablet"
+  <wn-explorer v-if="isViewportModePhoneOrTablet"
     class="as-phone"
     :class="currentIsHome?'is-home':'is-not-home'"
     key="for-phone"

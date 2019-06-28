@@ -168,7 +168,7 @@ export default {
   methods : {
     onItemSelected({mode,id,index}={}) {
       // Desktop mode, select items
-      if(this.isPageModeDesktop) {
+      if(this.isViewportModeDesktop) {
         this.$store.commit("main/selectItem", {index, id, mode})
       }
       // Else just open it

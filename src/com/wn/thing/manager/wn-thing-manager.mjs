@@ -63,7 +63,7 @@ export default {
   ///////////////////////////////////////////
   computed : {
     currentLayout() {
-      return this.getLayout(this.pageMode)
+      return this.getLayout(this.viewportMode)
     },
     formedSchema() {
       let re = {}

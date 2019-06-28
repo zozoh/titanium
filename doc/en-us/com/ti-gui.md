@@ -22,25 +22,18 @@ JSON style defination.
 Layout type could be `cols|rows|tabs|wall`.
 The "size" field of each sub-block has different meaning
 
-### `cols`
-
-size is width of each column
-
-### `rows`
-
-size is height of each row
-
-###  `tabs`
-
-It will auto show the tabs bar, which each tab item texted by block's title.
-The block's name will be used when title no-defined.
-
-### `wall`
-
-size should item count of each row when Number,
-String("%|rem|px") will be taken as items's width
-Array[width,height] will be taken as item's  `width/height`
-"stretch" will be ignored.
+- `cols`
+  + size is width of each column
+- `rows`
+  + size is height of each row
+- `tabs`
+  + It will auto show the tabs bar, which each tab item texted by block's title.
+  + The block's name will be used when title no-defined.
+- `wall`
+  + size should item count of each row when Number,
+  + String("%|rem|px") will be taken as items's width
+  + Array[width,height] will be taken as item's  `width/height`
+  + "stretch" will be ignored.
 
 -------------------------------------------------
 ## `adjustable`

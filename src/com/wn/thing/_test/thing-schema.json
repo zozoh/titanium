@@ -17,7 +17,7 @@
       "multi"  : true,
       "fields" : [{
         "title" : "名称",
-        "display" : ["th_nm", "nm"]
+        "display" : ["th_nm", "lbls"]
       }, {
         "title" : "标签",
         "display" : "lbls"

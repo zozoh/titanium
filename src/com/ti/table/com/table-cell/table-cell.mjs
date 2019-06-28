@@ -39,10 +39,15 @@ export default {
         else {
           value = _.get(this.data, it.key)
         }
+        // Ignore the undefined/null
+        if(_.isUndefined(value) || _.isNull(value)) {
+          continue
+        }
         // Transform
         if(it.transformer) {
           value = it.transformer(value)
         }
+        // console.log(it.key, value)
         // Join to list
         list.push({...it, value})
       }

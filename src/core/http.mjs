@@ -1,18 +1,19 @@
 //-----------------------------------
 const RESP_TRANS = {
-  arraybuffer(resp){
+  arraybuffer($req){
     throw "No implement yet!"
   },
-  blob(resp){
+  blob($req){
     throw "No implement yet!"
   },
-  document(resp){
+  document($req){
     throw "No implement yet!"
   },
-  xml(resp){
+  xml($req){
     throw "No implement yet!"
   },
-  json(content){
+  json($req){
+    let content = $req.responseText
     let str = _.trim(content) || null
     try {
       return JSON.parse(str)
@@ -21,20 +22,21 @@ const RESP_TRANS = {
       throw E
     }
   },
-  jsonOrText(content){
+  jsonOrText($req){
+    let content = $req.responseText
     try{
       let str = _.trim(content) || null
       return JSON.parse(str)
     }catch(E){}
     return content
   },
-  text(content){
-    return content
+  text($req){
+    return $req.responseText
   }
 }
 //-----------------------------------
 function ProcessResponseData($req, {as="text"}={}) {
-  return Ti.InvokeBy(RESP_TRANS, as, [$req.responseText])
+  return Ti.InvokeBy(RESP_TRANS, as, [$req])
 }
 //-----------------------------------
 export const TiHttp = {

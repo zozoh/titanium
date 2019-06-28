@@ -58,7 +58,7 @@ export default {
       let v2 = VAL(this, val)
 
       // Customized Transform
-      console.log("form-field transformer", `${this.title}(${this.name})`, v2)
+      //console.log("form-field transformer", `${this.title}(${this.name})`, v2)
       v2  = this.transformer(v2)
 
       return v2

@@ -2,13 +2,13 @@ export default {
   //////////////////////////////////////////
   computed :{
     // Auto PageMode
-    ...Vuex.mapGetters("page", [
-      "pageMode", 
-      "isPageModeDesktop", 
-      "isPageModeTablet", 
-      "isPageModePhone",
-      "isPageModeDesktopOrTablet", 
-      "isPageModePhoneOrTablet"
+    ...Vuex.mapGetters("viewport", [
+      "viewportMode", 
+      "isViewportModeDesktop", 
+      "isViewportModeTablet", 
+      "isViewportModePhone",
+      "isViewportModeDesktopOrTablet", 
+      "isViewportModePhoneOrTablet"
     ])
   },
   //////////////////////////////////////////

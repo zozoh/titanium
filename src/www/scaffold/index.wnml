@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+<!--
+  Load data
+-->
+<script class="wn-datasource" name="app" type="json">
+cat "${CURRENT_DIR}/_app.json" 
+</script>
+<!--
+  Page Head
+-->
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title}</title>
+  <title>${app.title}</title>
   <!--link rel="stylesheet" type="text/css"
         href="${rs}/core/css/font-md/css/material-design-iconic-font.css"-->
   <script src="${rs}/ti/deps/jquery.js"></script>
@@ -15,7 +24,7 @@
   <link rel="stylesheet" href="${rs}/ti/deps/element-ui/index.css">
   <script src="${rs}/ti/deps/element-ui/index.js"></script>
 
-  <link rel="stylesheet" href="${rs}/ti/theme/${theme}.css">
+  <link rel="stylesheet" href="${rs}/ti/theme/${app.theme}.css">
   <link rel="stylesheet" href="${rs}/ti/deps/md/iconfont/material-icons.css">
   <link rel="stylesheet" href="${rs}/ti/deps/zmdi/css/material-design-iconic-font.css">
   <link rel="stylesheet" href="${rs}/ti/deps/fontawesome/5.7.2-web/css/all.css">
@@ -24,24 +33,28 @@
   <!--link rel="stylesheet" href="${rs}/ti/deps/muse-ui/muse-ui.css">
   <script src="${rs}/ti/deps/muse-ui/muse-ui.js"></script-->
 </head>
-<body class="main-body">
+<!--
+  Page Body
+-->
+<body>
 <div id="app" class="app-loading">
   <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
 </div>
+<pre>${app(json:n)?-obj-}</pre>
+<!--
+  Main Script
+-->
 <script type="module">
-import {Ti} from "${rs}/ti/core/ti.mjs"
-import {Wn} from "${rs}/ti/lib/walnut/walnut.mjs"
 //---------------------------------------
-window._app = ${app};
+import {Ti} from "${rs}/ti/core/ti.mjs"
+//---------------------------------------
+window.__ti_www_app = ${app(json:n)};
 //---------------------------------------
 Ti.SetForDev(true)
 Ti.SetLogLevel("warn")
 Ti.SetLogLevel("warn", "TiLoad")
 Ti.SetLogLevel("warn", "TiApp")
 Ti.SetLogLevel("warn", "TiHttp")
-Ti.SetLogLevel("warn", "TiShortcut")
-Ti.SetLogLevel("warn", "Wn.Sys")
-Ti.SetLogLevel("warn", "app/wn.manager")
 //---------------------------------------
 Ti.Install()
 Ti.Shortcut.startListening()
@@ -49,14 +62,9 @@ Ti.Viewport.startListening()
 //---------------------------------------
 async function main(){
   // Load Config
-  let tiConf = await Wn.Sys.exec("ti config -cqn", {
-    appName : "wn.manager", as:"json"
-  })
-  // Add defaults
-  _.defaultsDeep(tiConf, {
+  let tiConf = {
     prefix : {
-      "app"   : "/a/load/",
-      "MyApp" : "/a/load/${appName}/",
+      "Site"  : "${URI_BASE}/${app.name}/",
       "theme" : "${rs}/ti/theme/",
       "lib"   : "${rs}/ti/lib/",
       "deps"  : "${rs}/ti/deps/",
@@ -66,19 +74,17 @@ async function main(){
     },
     alias : {
       "^.+[.](css|js|mjs|json|txt|text)$"  : "$&",
-      "^\./"          : "@MyApp:",
-      "@lib:walnut"   : "@lib:walnut/walnut.mjs",
-      "^@MyApp:?$"    : "@MyApp:_app.json",
+      "^\./"          : "@Site:",
       "^@theme:.+$"   : "$&.css",
-      "^@app:[^\/]+$"   : "$&/_app.json",
-      "\/?mod\/[^\/]+$" : "$&/_mod.json",
-      "\/?com\/[^\/]+$" : "$&/_com.json",
-      "^@mod:[^.]+$"    : "$&/_mod.json",
-      "^@com:[^.]+$"    : "$&/_com.json",
-      "^@i18n:(.+)$"    : "@i18n:zh-cn/$1.i18n.json"
+      "\/?mod\/[^\/]+$"    : "$&/_mod.json",
+      "\/?com\/[^\/]+$"    : "$&/_com.json",
+      "^@mod:[^.]+$" : "$&/_mod.json",
+      "^@com:[^.]+$" : "$&/_com.json",
+      "^@i18n:(.+)$"      : "@i18n:zh-cn/$1.i18n.json",
+      "^@Site:i18n/(.+)$" : "@Site:i18n/zh-cn/$1.i18n.json"
     },
     lang : "zh-cn"
-  })
+  }
 
   // Update Config Setting
   Ti.Config.set(tiConf)
@@ -92,7 +98,7 @@ async function main(){
     }
   })
 
-  // setup the i18n
+  // setup the base i18n
   Ti.I18n.put(await Ti.Load("@i18n:_ti"))
 
   // Load extend css
@@ -105,7 +111,7 @@ async function main(){
   }
 
   // Load main app
-  let app = await Ti.App("@MyApp")
+  let app = await Ti.App(window.__ti_www_app)
   await app.init()
 
   // Save current app name
@@ -119,45 +125,29 @@ async function main(){
       // console.log(app.name(), app)
       $root.style.fontSize = fontSize + "px"
       $root.setAttribute("as", mode)
-      app.commit("viewport/setMode", mode)
+      app.commit("page/setMode", mode)
     }
   })
 
   // Load session and display
-  app.commit("session/set", _app.session)
+  // TODO ! here add www Session:: app.commit("session/set", _app.session)
   app.mountTo("#app")
-  Ti.Session({
-    "id"       : _app.session.id,
-    "name"     : _app.session.me,
-    "group"    : _app.session.grp,
-    "duration" : _app.session.du,
-    "vars" : _app.session.envs
-  })
 
-  // Hook the session env change
-  Wn.addHook("update_envs", (envs)=>{
-    Ti.SessionVar(envs)
-  })
+  // Reload the page data
+  await app.dispatch("reload")
 
-  // main obj path
-  let basePath = "~"
-  if(_app.obj) {
-    basePath = "id:" + _app.obj.id
-  }
-  await app.dispatch("meta/reload", basePath)
+  // Return the app
+  return app
   
-  // just for fun
-  return app.get("obj")
 }
 //---------------------------------------
-main().then(o=>{
+main().then(app=>{
   if(Ti.IsInfo("main")) {
-    console.log("MainLoaded", o)
+    console.log("Page Ready", app)
   }
 }).catch(err=>{
   throw err
 })
-
 //---------------------------------------
 </script>
 </body>
