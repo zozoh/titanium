@@ -21,7 +21,7 @@ $HOME/
   |    |-- site-mutaions.mjs
   |    |-- site-state.json
   |-- page/
-  |    |-- page1/
+  |    |-- home/
   |    |    |-- _com.json
   |    |-- site-getters.mjs
   |    |-- site-mutaions.mjs

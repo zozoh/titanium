@@ -15,7 +15,7 @@ export async function LoadTiLinkedObj(
     // String
     if(_.isString(val)) {
       // only link like value should be respected
-      if(!/^(@[a-z0-9_-]+:?|\.\/)/.test(val)) {
+      if(!/^(@[A-Za-z0-9_-]+:?|\.\/)/.test(val)) {
         return
       }
       ps.push(new Promise((resolve, reject)=>{
@@ -105,8 +105,8 @@ export async function LoadTiAppInfo(info={}, $doc=document) {
   }
   
   // For Theme / CSS
-  RemarkCssLink(conf.theme, {key:"ti-theme", val:"yes"})
-  RemarkCssLink(conf.css,   {key:"ti-app-css", val:conf.name})
+  // RemarkCssLink(conf.theme, {key:"ti-theme", val:"yes"})
+  // RemarkCssLink(conf.css,   {key:"ti-app-css", val:conf.name})
   
   // The app config object which has been loaded completely
   return conf

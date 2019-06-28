@@ -15,13 +15,6 @@
       "viewport" : "@mod:ti/viewport" 
     },
     "mixins" : "@lib:www/app-mixins.mjs"
-  },
-  "components" : [
-    "@Site:page/page1",
-    "@com:ti/icon",
-    "@com:ti/form",
-    "@com:ti/loading",
-    "@com:ti/menu",
-    "@com:ti/obj/thumb",
-    "@com:ti/obj/meta"]
+  }
+
 }

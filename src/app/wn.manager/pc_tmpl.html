@@ -66,7 +66,7 @@ async function main(){
     },
     alias : {
       "^.+[.](css|js|mjs|json|txt|text)$"  : "$&",
-      "^\./"          : "@MyApp:",
+      "^\./(.+)$"     : "@MyApp:$1",
       "@lib:walnut"   : "@lib:walnut/walnut.mjs",
       "^@MyApp:?$"    : "@MyApp:_app.json",
       "^@theme:.+$"   : "$&.css",

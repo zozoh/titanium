@@ -64,7 +64,7 @@ async function main(){
   // Load Config
   let tiConf = {
     prefix : {
-      "Site"  : "${URI_BASE}/${app.name}/",
+      "Site"  : "${URI_BASE}",
       "theme" : "${rs}/ti/theme/",
       "lib"   : "${rs}/ti/lib/",
       "deps"  : "${rs}/ti/deps/",
@@ -73,14 +73,14 @@ async function main(){
       "i18n"  : "${rs}/ti/i18n/"
     },
     alias : {
-      "^.+[.](css|js|mjs|json|txt|text)$"  : "$&",
-      "^\./"          : "@Site:",
-      "^@theme:.+$"   : "$&.css",
-      "\/?mod\/[^\/]+$"    : "$&/_mod.json",
-      "\/?com\/[^\/]+$"    : "$&/_com.json",
+      "^.+[.](css|js|mjs|json|txt|text)$" : "$&",
+      "^\./(.+)$" : "@Site:$1",
+      "^@theme:.+$" : "$&.css",
+      "\/?mod\/[^\/]+$" : "$&/_mod.json",
+      "\/?com\/[^\/]+$" : "$&/_com.json",
       "^@mod:[^.]+$" : "$&/_mod.json",
       "^@com:[^.]+$" : "$&/_com.json",
-      "^@i18n:(.+)$"      : "@i18n:zh-cn/$1.i18n.json",
+      "^@i18n:(.+)$" : "@i18n:zh-cn/$1.i18n.json",
       "^@Site:i18n/(.+)$" : "@Site:i18n/zh-cn/$1.i18n.json"
     },
     lang : "zh-cn"

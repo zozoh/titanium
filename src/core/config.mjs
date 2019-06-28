@@ -41,7 +41,7 @@ class AliasMapping {
         }
       }
       // Match static value
-      if(url == r.substr){
+      else if(url == r.substr){
         re = r.newstr
       }
     }
