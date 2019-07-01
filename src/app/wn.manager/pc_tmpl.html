@@ -95,6 +95,11 @@ async function main(){
   // setup the i18n
   Ti.I18n.put(await Ti.Load("@i18n:_ti"))
 
+  // exit i18n
+  if(tiConf.i18n) {
+    Ti.I18n.put(await Ti.Load(tiConf.i18n))
+  }
+
   // Load extend css
   if(tiConf.css) {
     let exCssList = [].concat(tiConf.css)

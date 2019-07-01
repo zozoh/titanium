@@ -115,14 +115,32 @@ export const TiTypes = {
     return n
   },
   //.......................................
-  toInteger(val) {
+  toInteger(val, {mode="int", dft=NaN}={}) {
     if(_.isDate(val)){
       return val.getTime()
     }
-    let n = parseInt(val)
+    let n = ({
+      round : v => Math.round(v),
+      ceil  : v => Math.ceil(v),
+      floor : v => Math.floor(v),
+      int   : v => parseInt(v)
+    })[mode](val)
     if(isNaN(n)){
       //throw 'i18n:invalid-integer'
-      return NaN
+      return dft
+    }
+    return n
+  },
+  //.......................................
+  // precision: if less then 0, keep original
+  toFloat(val, {precision=2, dft=NaN}={}) {
+    let n = val * 1
+    if(isNaN(n)){
+      return dft
+    }
+    if(precision >= 0) {
+      var y = Math.pow(10, precision);
+      return Math.round(n * y) / y;
     }
     return n
   },

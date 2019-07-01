@@ -111,7 +111,8 @@ Wn.Sys.exec(`ti view -name "text-editor"`,{as:'json'}).then(view=>{
 {
   // Firstly, matching by object full path.
   // In the matching, "~" will be supported. In face, the object path
-  // will be normlized as "~/xxx" if it is in current user home folder
+  // will be normlized as "~/xxx" if it is in current user home folder。
+  // If current path is DIR, it should end by '/'
   // !!! NOTE, it is case sensitive.
   paths : {
     "~/my_folder/my_file.txt" : "$ViewName"

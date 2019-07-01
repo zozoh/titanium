@@ -580,7 +580,7 @@ export default {
       __clean_each_col_size(this.$refs.body)
 
       // re-count
-      if(!_.isEmpty(this.fields) && !_.isEmpty(this.list)) {
+      if(!_.isEmpty(this.fields)) {
         this.$nextTick(()=>{
           this.updateSizing()
         })

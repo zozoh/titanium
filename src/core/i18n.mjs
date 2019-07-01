@@ -10,7 +10,16 @@ function __MSG(key) {
 //-----------------------------------
 export const Ti18n = {
   put(msgs) {
-    _.assign(I18N, msgs)
+    // Multi set
+    if(_.isArray(msgs)) {
+      for(let ms of msgs) {
+        Ti18n.put(ms)
+      }
+    }
+    // Single set
+    else {
+      _.assign(I18N, msgs)
+    }
   },
   /***
    * @param key{String|Object}

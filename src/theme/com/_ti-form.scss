@@ -23,7 +23,7 @@
       position: relative;
       flex:0 0 auto;
       line-height: 2.6em;
-      padding:0 .05rem 0 .26rem;
+      padding:0 .1rem 0 .26rem;
       > .name-status {
         @include pos-abs($l:0,$t:0,$b:0,$w:.24rem);
         @include flex-center;

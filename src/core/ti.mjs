@@ -3,6 +3,7 @@ import {Confirm} from "./ti-confirm.mjs"
 import {Prompt}  from "./ti-prompt.mjs"
 import {OpenModal   as Modal   } from "./modal-dialog.mjs"
 import {TiBehaviors as Be      } from "./behaviors.mjs"
+import {TiAlg       as Alg     } from "./alg.mjs"
 import {TiStr       as S       } from "./str.mjs"
 import {TiUtil      as Util    } from "./util.mjs"
 import {TiApp       as App     } from "./app.mjs"
@@ -48,7 +49,7 @@ const LOG_LEVELS = {
 }
 //---------------------------------------
 export const Ti = {
-  Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Modal, Rects,
+  Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Modal, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
   //.....................................
   Alert, Confirm, Prompt,

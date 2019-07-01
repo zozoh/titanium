@@ -23,6 +23,9 @@
         @include border(1px, dotted, shallow, left);
         &:first-child {border-left:0;}
       }
+      > li.row-checker {
+        padding:0 .06rem;
+      }
     }
     //-------------------------------------------
     &.in-body {

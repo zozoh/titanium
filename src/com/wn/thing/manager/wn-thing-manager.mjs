@@ -181,7 +181,11 @@ export default {
           //console.log("list.selected", current)
           if(!current) {
             this.shown.content = false
+            this.shown.meta = false
+          } else {
+            this.shown.meta = true
           }
+          
           // Update Current
           app.dispatch("main/current/setCurrent", {
             meta : current, 
@@ -195,6 +199,7 @@ export default {
         // Select item in search list
         "list.open" : ({current})=>{
           //console.log("list.open", current)
+          this.shown.meta = true
           this.shown.content = true
           // Update Current
           app.dispatch("main/current/setCurrent", {
