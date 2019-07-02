@@ -44,7 +44,7 @@ export default {
   //////////////////////////////////////////
   computed : {
     formedList() {
-      return this.normalizeData(this.data, {
+      let list = this.normalizeData(this.data, {
         multi   : this.multi,
         value   : this.value,
         mapping : this.mapping,
@@ -54,6 +54,8 @@ export default {
           it.focused = (index == this.focusIndex)
         }
       })
+      //console.log(list)
+      return list
     },
     //......................................
     hasIcon() {

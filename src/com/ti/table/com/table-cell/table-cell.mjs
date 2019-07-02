@@ -18,6 +18,11 @@ export default {
       type : String,
       default : null
     },
+    // Auto wrap table, true:nowrap, false:wrap
+    "nowrap" : {
+      type : Boolean,
+      default : false
+    },
     // Array[{title,display}]
     "display" : {
       type : Array,
@@ -27,6 +32,12 @@ export default {
   ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
+    conClass() {
+      return {
+        "is-nowrap" : this.nowrap
+      }
+    },
+    //-----------------------------------------------
     displayItems() {
       let list = []
       // Get items value
@@ -34,6 +45,10 @@ export default {
         let value
         if(_.isArray(it.key)) {
           value = _.pick(this.data, it.key)
+        }
+        // Statci value
+        else if(/^'[^']+'$/.test(it.key)) {
+          value = it.key.substring(1, it.key.length-1)
         }
         // Get the value
         else {
@@ -51,6 +66,7 @@ export default {
         // Join to list
         list.push({...it, value})
       }
+      //console.log(this.title, ":", list)
       // Array to pick
       return list
     },

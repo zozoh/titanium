@@ -14,16 +14,19 @@ export default {
     value=null,
     mapping=null,
     defaultIcon=null,
-    iteratee=_.identity
+    iteratee=null
   }={}) {
+    //console.log("normalizeData", iteratee)
     let index = 0
     let reList = []
     if(!multi && emptyItem) {
       let emIt = _.cloneDeep(emptyItem)
-      emIt.selected = _.isUndefined(emIt.value)
-        ? _.isNull(value)
-        : this.isSelectedItem(emIt, {value, multi})
-      emIt = iteratee(emIt, index) || emIt
+      emIt.selected = 
+        _.isUndefined(emIt.value)||_.isNull(emIt.value)
+          ? _.isNull(value)
+          : this.isSelectedItem(emIt, {value, multi})
+      if(_.isFunction(iteratee))
+        emIt = iteratee(emIt, index) || emIt
       reList.push(emIt)
       index++
     }
@@ -37,20 +40,35 @@ export default {
           })
         : null
       for(let it of list) {
-        let re = theMapping 
-                    ? Ti.Util.mapping(it, theMapping)
-                    : _.cloneDeep(it)
-        // Default Icon
-        if(!re.icon)
-          re.icon = defaultIcon
-        // Uniq tip
-        if(re.tip == re.text) {
-          delete re.tip
+        let re
+        // Plain Object
+        if(_.isPlainObject(it)) {
+          re = theMapping 
+                      ? Ti.Util.mapping(it, theMapping)
+                      : _.cloneDeep(it)
+          // Default Icon
+          if(!re.icon)
+            re.icon = defaultIcon
+          // Uniq tip
+          if(re.tip == re.text) {
+            delete re.tip
+          }
+          // Mark highlight
+          re.selected = this.isSelectedItem(re, {value, multi})
         }
-        // Mark highlight
-        re.selected = this.isSelectedItem(re, {value, multi})
+        // Simple value
+        else {
+          let str = Ti.Types.toStr(it)
+          re = {
+            icon  : defaultIcon,
+            text  : str,
+            value : it,
+            selected : this.isSelectedItem(it, {value, multi})
+          }
+        }
         // Customized
-        re = iteratee(re, index) || re
+        if(_.isFunction(iteratee))
+          re = iteratee(re, index) || re
         // Join to list
         reList.push(re)
         index++

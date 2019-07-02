@@ -31,7 +31,7 @@ export default {
     },
     //.......................................  
     isNumberType() {
-      return /^(Number|Integer|AMS)$/.test(this.type)
+      return /^(Number|Integer)$/.test(this.type)
     },
     //.......................................  
     fieldTitle() {

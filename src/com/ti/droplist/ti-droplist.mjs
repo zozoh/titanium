@@ -1,4 +1,7 @@
 export default {
+  /////////////////////////////////////////
+  inheritAttrs : false,
+  /////////////////////////////////////////
   data : ()=>({
     "loading" : false,
     "isDropShown" : false,
@@ -7,7 +10,7 @@ export default {
   }),
   /////////////////////////////////////////
   props : {
-    "empty" :{
+    "empty" : {
       type : Object,
       default : ()=>({
         text  : "i18n:no-selected",
@@ -26,6 +29,10 @@ export default {
     "mapping" : {
       type : Object,
       default : ()=>({})
+    },
+    "formatItem" : {
+      type : Function,
+      default : undefined
     },
     "defaultIcon" : {
       type : String,
@@ -54,6 +61,9 @@ export default {
           this.isDropVisible = true
         })
       }
+    },
+    "options" : function() {
+      this.reload()
     }
   },
   //////////////////////////////////////////
@@ -69,13 +79,16 @@ export default {
     },
     //......................................
     droplist() {
-      return this.normalizeData(this.items, {
+      let list = this.normalizeData(this.items, {
         multi   : this.multi,
         value   : this.value,
         mapping : this.mapping,
         emptyItem   : this.empty,
-        defaultIcon : this.defaultIcon
+        defaultIcon : this.defaultIcon,
+        iteratee : this.formatItem
       })
+      //console.log("droplist", list)
+      return list
     },
     //......................................
     hasSelecteds() {
@@ -93,6 +106,7 @@ export default {
       }
       return selects
     }
+    //......................................
   },
   //////////////////////////////////////////
   methods : {

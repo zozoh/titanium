@@ -4,12 +4,16 @@ export default {
     "trimed" : {
       type : Boolean,
       default : true
+    },
+    "format" : {
+      type : [String, Array, Object],
+      default : undefined
     }
   },
   computed : {
     theValue() {
       //console.log("input value:", this.value)
-      return Ti.Types.toStr(this.value)
+      return Ti.Types.toStr(this.value, this.format)
     }
   },
   methods : {

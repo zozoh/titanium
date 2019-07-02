@@ -3,10 +3,13 @@
   <!--// Empty Mode-->
   <div v-if="noItems"
     class="as-empty">
-    <ti-icon
-      v-if="empty.icon" 
-      :value="empty.icon"/>
-    <span class="it-text">{{empty.text|i18n}}</span>
+    <template v-if="empty">
+      <ti-icon
+        v-if="empty.icon" 
+        :value="empty.icon"/>
+      <span class="it-text">{{empty.text|i18n}}</span>
+    </template>
+    <div v-else><span>&nbsp;</span></div>
   </div>
   <!--// Multi Mode-->
   <ul 

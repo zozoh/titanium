@@ -1,6 +1,6 @@
 .ti-box {
   @include noselect;
-  @include flex-align;
+  @include flex-align-nowrap;
   @include text-input;
   min-width: 2rem;
   cursor:pointer;
@@ -52,13 +52,13 @@
   > .as-multi {
     @include raw-list;
     @include flex-align-center;
-    padding:.02rem;
+    padding:.03rem .03rem .01rem .03rem;
     font-size:0.9em;
     > li {
       @include flex-align-center;
       @include color($color-info, r, c);
       cursor:pointer;
-      padding:0 .06rem; margin-right:0.02rem;
+      padding:0 .06rem; margin:0 .02rem .02rem 0;
       border-radius:2px;
       //------------------------------------------
       .it-icon {margin-right:.04rem;}

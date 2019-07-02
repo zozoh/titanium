@@ -1,0 +1,15 @@
+<div class="ti-chart ti-chart-simple">
+  <header 
+    v-if="title" 
+    @click="drawAll">{{title}}</header>
+  <aside v-if="aside">
+    <slot name="aside">
+      <span v-if="unit">单位: {{unit}}</span>
+    </slot>
+  </aside>
+  <section class="chart-main" ref="chart"></section>
+  <div v-if="hasSlider"
+    ref="slider"
+    class="chart-slider">
+  </div>
+</div>

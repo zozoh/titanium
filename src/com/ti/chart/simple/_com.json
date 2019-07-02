@@ -1,0 +1,8 @@
+{
+  "name" : "ti-chart-simple",
+  "globally" : true,
+  "template" : "./ti-chart-simple.html",
+  "mixins"   : ["./ti-chart-simple.mjs"],
+  "components" : [],
+  "deps" : []
+}

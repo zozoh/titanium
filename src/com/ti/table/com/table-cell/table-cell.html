@@ -1,7 +1,10 @@
-<li class="table-cell"><div class="cell-con">
-  <component v-for="it in displayItems"
-    :key="it.uniqueKey"
-    :is="it.comType"
-    v-bind="it.comConf"
-    :value="it.value"/>
-</div></li>
+<li class="table-cell">
+  <div class="cell-con"
+    :class="conClass">
+    <component v-for="it in displayItems"
+      :key="it.uniqueKey"
+      :is="it.comType"
+      v-bind="it.comConf"
+      :value="it.value"/>
+  </div>
+</li>

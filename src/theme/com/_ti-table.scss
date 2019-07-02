@@ -99,7 +99,10 @@
         } // ~ ul.table-row
         //-----------------------------------------
         li.table-cell {
-          > .cell-con {@include flex-align;}
+          > .cell-con {
+            @include flex-align;
+            &.is-nowrap {flex-wrap: nowrap;}
+          }
         } // ~ li.table-cell
         //-----------------------------------------
       }

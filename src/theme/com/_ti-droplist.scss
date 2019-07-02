@@ -9,8 +9,8 @@
   }
   //----------------------------------------------
   .dl-drop {
-    @include color($color-paper, r, c);
-    @include border(1px, solid, shallow);
+    @include color($color-chip, r, c);
+    @include border(1px, solid, dark);
     @include box-shadow;
     position:fixed;
     z-index:$z-top;

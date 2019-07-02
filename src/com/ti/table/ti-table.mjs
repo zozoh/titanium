@@ -44,6 +44,10 @@ export default {
       type : String,
       default : "id"
     },
+    "className" : {
+      type : String,
+      default : null
+    },
     /***
      * Defind each column of the table by `Array{Object}`
      * The element in Array should like:
@@ -228,6 +232,9 @@ export default {
       if(this.border) {
         klass.push("show-border")
       }
+      if(this.className) {
+        klass.push(this.className)
+      }
       if(!_.isEmpty(klass))
         return klass.join(" ")
     },
@@ -295,7 +302,8 @@ export default {
       for(let fld of this.fields) {
         let display = this.evalFieldDisplay(fld)
         fields.push({
-          title : fld.title,
+          title  : fld.title,
+          nowrap : fld.nowrap,
           display
         })
       }
@@ -519,9 +527,9 @@ export default {
     bodyRowClass(it) {
       let itId = it[this.idKey]
       return {
-        "is-selected" : this.p_checked_ids[itId],
-        "is-current"  : this.p_current_id == itId,
-        "is-changed"  : this.changedId == itId
+        "is-selected" : this.p_checked_ids && this.p_checked_ids[itId],
+        "is-current"  : this.p_current_id && this.p_current_id == itId,
+        "is-changed"  : this.changedId && this.changedId == itId
       }
     },
     //--------------------------------------
