@@ -1,7 +1,23 @@
 {
   "apis" : [],
-  "pages" : [
-    
-  ],
-  "currentPage" : "@Site:page/home.json"
+  "base" : "/www/titanium/scaffold/",
+  "nav" : [{
+      "title" : "首页",
+      "type"  : "page",
+      "value" : "page/home"
+    }, {
+      "title" : "关于",
+      "type"  : "page",
+      "value" : "page/about"
+    }, {
+      "title" : "Nutz",
+      "type"  : "href",
+      "value" : "https://nutzam.com",
+      "newTab" : true
+    }],
+  "entry" : "page/home",
+  "loading" : false,
+  "actions" : {
+    "nav:page" : "navToPage"
+  }
 }

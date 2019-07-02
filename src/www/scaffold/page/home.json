@@ -1,4 +1,31 @@
 {
-  "title" : "主页",
-  "data" : {}
+  "title" : "脚手架·首页",
+  "data" : {},
+  "layout" : {
+    "type" : "rows",
+    "blocks" : [{
+        "body" : "sky"
+      }, {
+        "body" : "main"
+      }]
+  },
+  "shown" : {},
+  "schema" : {
+    "sky" : {
+      "comType" : "ti-nav-links",
+      "comConf" : {
+        "base" : "=siteBase",
+        "data" : "=navigation"
+      }
+    },
+    "main" : {
+      "comType" : "ti-label",
+      "comConf" : {
+        "value" : "我是首页"
+      }
+    }
+  },
+  "actions" : {
+    
+  }
 }

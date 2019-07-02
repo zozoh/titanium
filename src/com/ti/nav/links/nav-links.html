@@ -1,0 +1,10 @@
+<div class="ti-nav-links">
+  <ul>
+    <li v-for="it in links" :key="it.value">
+      <a 
+        :href="it.href" 
+        :target="it.target"
+        @click.stop="onClickLink($event, it)">{{it.title}}</a>
+    </li>
+  </ul>
+</div>

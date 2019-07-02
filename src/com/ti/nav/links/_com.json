@@ -1,0 +1,7 @@
+{
+  "name" : "ti-nav-links",
+  "globally" : true,
+  "template" : "./nav-links.html",
+  "mixins"   : ["./nav-links.mjs"],
+  "components" : []
+}

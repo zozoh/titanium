@@ -12,14 +12,16 @@
     "mutations" : "./site-mutations.mjs",
     "actions"   : "./site-actions.mjs",
     "modules"   : {
-      "viewport" : "@mod:ti/viewport" 
+      "page"     : "@mod:www/page",
+      "viewport" : "@mod:ti/viewport"
     },
     "mixins" : "@lib:www/app-mixins.mjs"
   },
   "components" : [
-    "@Site:page/home",
     "@com:ti/icon",
     "@com:ti/form",
+    "@com:ti/gui",
+    "@com:ti/nav/links",
     "@com:ti/loading",
     "@com:ti/menu",
     "@com:ti/obj/thumb",

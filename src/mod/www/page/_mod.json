@@ -1,0 +1,6 @@
+{
+  "name" : "www-page",
+  "namespaced" : true,
+  "state" : "./www-page.json",
+  "mixins" : "./www-page.mjs"
+}

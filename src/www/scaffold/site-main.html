@@ -1,5 +1,8 @@
-<div>
-I am site-main.html
-<hr>
-{{xyz}}
+<div class="site-main">
+  <ti-gui 
+    v-bind="formatedPageGUI"
+    @block:show="showBlock"
+    @block:hide="hideBlock"
+    @block:event="onBlockEvent"/>
+  <pre>{{formatedPageGUI}}</pre>
 </div>

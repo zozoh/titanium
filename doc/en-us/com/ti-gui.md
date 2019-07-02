@@ -51,6 +51,8 @@ Defaultly `true`
 
 Boolean. Show sub block border or not.
 
+Default is `false`
+
 -------------------------------------------------
 ## `blocks`
 
