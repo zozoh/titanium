@@ -1,5 +1,10 @@
 {
-  "title" : "Untitled",
+  "title" : null,
+  "path"  : null,
+  "finger" : null,
+  "params" : {},
+  "anchor" : null,
+  "apis" : {},
   "data" : {},
   "layout" : {
     "type" : "rows",

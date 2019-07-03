@@ -1,3 +1,31 @@
 {
-  
+  "title" : "关于·脚手架",
+  "data" : {},
+  "layout" : {
+    "type" : "rows",
+    "blocks" : [{
+        "body" : "sky"
+      }, {
+        "body" : "main"
+      }]
+  },
+  "shown" : {},
+  "schema" : {
+    "sky" : {
+      "comType" : "ti-nav-links",
+      "comConf" : {
+        "base" : "=base",
+        "data" : "=navigation"
+      }
+    },
+    "main" : {
+      "comType" : "ti-label",
+      "comConf" : {
+        "value" : "我是关于页面"
+      }
+    }
+  },
+  "actions" : {
+    
+  }
 }

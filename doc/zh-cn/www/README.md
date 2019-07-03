@@ -36,6 +36,8 @@ $HOME/
 
 ```js
 {
+  //------------------------------------------------
+  // site-state.json
   apis : [{
     // 每个 API 参见后面描述
   }],
@@ -45,23 +47,44 @@ $HOME/
     icon  : "xxx",       // 链接的图标
     title : "xxx",       // 链接文字
     // 链接类型
-    //  - page : 表示链接到一个站内页面
-    //  - href : 链接到一个外部链接
-    //  - dispatch : 调用模型方法
+    //  - page   : 表示链接到一个站内页面
+    //  - href   : 链接到一个外部链接
+    //  - action : 调用模型方法名
     type  : "page",
     // 根据类型不同这里的值形式不一样
-    value : "page/home"
-    // 只有在 dispatch 模式下才生效，传入动作的参数
-    // 如果为 null 则表示无参数
-    payload : null
+    value : "page/home",
+    // 传入链接的参数，是一个 Object
+    //  - page/href : 作为 query string
+    //  - action    : 作为 action 的 payload
+    params : null,
+    // 只有在 `page|href` 模式下才有效，表示页面锚点
+    // 必须以 `#` 开头，如果不以 `#` 开头，处理器会自动补全
+    anchor : "#XXX",
 		// 是否打开新窗口，只有在 page|href 类型下有效
-    newTab : false    
+    newTab : false
   }],
-  // 当前页面
-  currentPage : {
-    title : "页面标题",
-    data  : {/*页面数据（静态|动态）*/},
-    layout : {/*页面布局*/}
+  // 默认入口页
+  entry : "page/home",
+  // 加载状态
+  loading : false,
+  // 全局动作映射
+  actions : {
+    "nav:page" : "navTo"
+  },
+  //------------------------------------------------
+  // @mod:www/page
+  Module::page : {
+    
+  },
+  //------------------------------------------------
+  // @mod:ti/viewport
+  Module::viewport : {
+    viewportMode,
+    isViewportModeDesktop,
+    isViewportModeTablet,
+    isViewportModePhone,
+    isViewportModeDesktopOrTablet,
+    isViewportModePhoneOrTablet
   }
 }
 ```
@@ -71,6 +94,7 @@ $HOME/
 ```bash
 DIV(@app)             # Vue(root) : index.wnml 
   |-- DIV.site-main   # Vue(root) : site-main.html
+       |-- <ti-gui>   # Mod(page) : page/xxx.json
 	
 ```
 
@@ -134,12 +158,13 @@ DIV(@app)             # Vue(root) : index.wnml
   //-----------------------------------------
   // 作为整个站点的全局导航条
   // 如果某个页面想有特殊设置，可以重载掉它
+  // @see 上面站点整体描述关于 nav 每个项目的细节介绍
   "nav" : [{
       "title" : "首页",
-      "page"  : "page/home"
+      "value"  : "page/home"
     }, {
       "title" : "关于",
-      "page"  : "page/about"
+      "value"  : "page/about",
     }],
   //-----------------------------------------
   // 指明要站点的入口页，如果不指明，则默认用 nav[0] 
@@ -159,7 +184,7 @@ DIV(@app)             # Vue(root) : index.wnml
   //  [块名.事件名] : "动作名"
   // 如果顶级块，"块名." 则不显示
   "actions" : {
-    "nav:page" : "navToPage"
+    "nav:to" : "navTo"
   }
 }
 ```
@@ -172,20 +197,44 @@ DIV(@app)             # Vue(root) : index.wnml
   // 这个是一个字符串模板，支持从数据段获取内容
   // 当页面更新后，会用这个值修改网页标题
   "title" : "页面标题",
-  // 页面的数据段，每条数据值可能是来自 api 或者干脆是静态数据
-  "data" : {
-    // 来自 api
+  "path"  : "page/home",
+  // 根据 path/params/anchor 做成一个指纹，表示页面输入的变动
+  "finger" : SHA1,
+  // 动态参数表，通常这个是网页访问时从 URL 里获取的
+  // 当重新调用 API 时，会从这里读取参数，以便动态更改内容
+  "params" : {},
+  // 当前锚点，通常这个是网页访问时从 URL 里获取的
+  "anchor" : "#xxx"
+  // 页面加载时需要预先处理的数据，
+  "apis" : {
+    // 页内唯一的处理名称作为键值
     "article" : {
-      "type" : "api",
-      "name" : "apiNameA",
-      "params" : {/*这个值会与API默认参数值融合*/},
-      "result" : {/*这里存放 API 的返回结果*/}
+      // 站点全局指定的 API 名称
+      // 选，如果不指明，则默认用键值作为 api 的名称去查找对应的API设置
+      "api" : "apiNameA",
+      // 这里是参数表，与站点的对应API参数表叠加
+      "params" : {
+        "id" : {
+          "refer"   : "params.id", // 从页面模型哪个字段读取数据
+          "default" : "xxx"        // 默认值，如果未声明，用站点api的参数表值
+        } 
+      },
+      // 接口的处理结果是否在页面加载时，由服务器渲染到了 DOM 里。
+      // 如果是的话，会根据 params 的结果计算一个 SHA1 值
+      // 在页面的 DOM 里寻找对应的节点，恢复回 JSON，这样就节省了一次网络请求
+      // 同时也可以利用这个机制做到 SEO
+      // 这个机制被封装在 SSR-JSON 里面
+      "cached" : true,
+      // 得到的数据对象应该存放到 data 段的哪个键下，
+      // 可选，如果未定义，则用 API 的键作为 dataKey
+      "dataKey" : "article"
     }
-    // 静态值
-    "info" : {
-      "type"   : "static",
-      "result" : "Any"   // 可以是任何类型的值
-    }
+  },
+  // 页面的数据段，记录每个 API 返回的结果
+  // 如果是静态数据，可以直接在这个段里声明
+  "data" : {
+    "article" : Any,
+    "info" : Any
   },
   // 页面布局
   "layout" : {
@@ -206,7 +255,7 @@ DIV(@app)             # Vue(root) : index.wnml
   // 当前页面特殊的 actions 映射
   // 重复的键优先级高于站点的 actions
   "actions" : {
-    "nav:page" : "navToPage"
+    "nav:to" : "navTo"
   }
 }
 ```

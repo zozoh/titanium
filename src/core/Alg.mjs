@@ -1,9 +1,17 @@
+// rquired crypto-js
 ///////////////////////////////////////////
 export const TiAlg = {
   //---------------------------------------
+  sha1(str) {
+    if(!_.isString(str)) {
+        str = JSON.stringify(str)
+    }
+    return CryptoJS.SHA1(str).toString();
+  },
+  //---------------------------------------
   // 获取两个数的最大公约数
   // greatest common divisor(gcd)
-  gcd : function(a,b){
+  gcd(a,b){
     a = Math.round(a);
     b = Math.round(b);
     if(b){
@@ -12,7 +20,7 @@ export const TiAlg = {
     return a;
   },
   //---------------------------------------
-  gcds : function() {
+  gcds() {
       var args = Array.from(arguments);
       var list = _.flatten(args);
       // 没数
@@ -33,13 +41,13 @@ export const TiAlg = {
   //---------------------------------------
   // 获取两个数的最小公倍数 
   // lowest common multiple (LCM)
-  lcm  : function(a, b) {
+  lcm(a, b) {
       a = Math.round(a);
       b = Math.round(b);
       return a * b / this.gcd(a, b);
   },
   //---------------------------------------
-  lcms : function() {
+  lcms() {
       var args = Array.from(arguments);
       var list = _.flatten(args);
       // 没数

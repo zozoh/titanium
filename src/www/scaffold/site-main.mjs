@@ -1,34 +1,59 @@
 export default {
   /////////////////////////////////////////
   computed : {
+    ...Vuex.mapState({
+        "page"       : state=>state.page,
+        "base"       : state=>state.base,
+        "loading"    : state=>state.loading,
+        "navigation" : state=>state.nav
+      }),
     //-------------------------------------
     // Mapp The Getters
     ...Vuex.mapGetters([
-      "siteBase",
-      "navigation",
-      "actions",
-      "pageGUI"
+      "actions"
     ]),
     //-------------------------------------
     // Format current pageGUI
-    formatedPageGUI() {
-      console.log("haha")
-      let gui = this.pageGUI
+    pageGUI() {
+      console.log("formatedPageGUI")
+      let page = this.page
+      // Without current page
+      if(!page) {
+        return {}
+      }
+      // Gen the GUI object
+      let gui = {
+        schema : {},
+        adjustable : false,
+        border     : false,
+        canLoading : true
+      }
+      // Add layout
+      if(page.layout) {
+        _.assign(gui, page.layout)
+      }
+      // Schema
+      if(page.schema) {
+        _.assign(gui.schema, page.schema)
+      }
+      // format it
       let fui = this.__format_obj(gui)
-      _.assign(fui, {
-        "adjustable" : false,
-        "border"     : false,
-        "canLoading" : true
-      })
       return fui
     }
     //-------------------------------------
   },
   /////////////////////////////////////////
+  watch : {
+    // PageChangd, Then push the history
+    "page.finger" : function() {
+      console.log("page changed to", this.page.path)
+    }
+  },
+  /////////////////////////////////////////
   methods : {
     //-------------------------------------
     __format_obj(obj){
-      console.log("format obj", obj)
+      //console.log("format obj", obj)
       // Array
       if(_.isArray(obj)) {
         let list = []
@@ -58,17 +83,19 @@ export default {
     //--------------------------------------
     async showBlock(name) {
       let app = Ti.App(this)
-      app.dispatch("showPageBlock", name)
+      app.dispatch("page/showBlock", name)
     },
     //--------------------------------------
     async hideBlock(name) {
       let app = Ti.App(this)
-      app.dispatch("hidePageBlock", name)
+      app.dispatch("page/hideBlock", name)
     },
     //-------------------------------------
     async onBlockEvent(be={}) {
       console.log("site-main::onBlockEvent", be)
       //....................................
+      // It will routing the event to action
+      // by site.actions|page.actions mapping
       let name = _.without([be.block, be.name], null).join(".")
       let dist = this.actions[name]
       if(!dist)

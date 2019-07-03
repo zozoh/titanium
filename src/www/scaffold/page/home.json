@@ -1,5 +1,5 @@
 {
-  "title" : "脚手架·首页",
+  "title" : "首页·脚手架",
   "data" : {},
   "layout" : {
     "type" : "rows",
@@ -14,7 +14,7 @@
     "sky" : {
       "comType" : "ti-nav-links",
       "comConf" : {
-        "base" : "=siteBase",
+        "base" : "=base",
         "data" : "=navigation"
       }
     },

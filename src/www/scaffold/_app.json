@@ -8,14 +8,11 @@
   "mixins"   : "./site-main.mjs",
   "store" : {
     "state"     : "./site-state.json",
-    "getters"   : "./site-getters.mjs",
-    "mutations" : "./site-mutations.mjs",
-    "actions"   : "./site-actions.mjs",
     "modules"   : {
       "page"     : "@mod:www/page",
       "viewport" : "@mod:ti/viewport"
     },
-    "mixins" : "@lib:www/app-mixins.mjs"
+    "mixins" : "@mod:www/site-mixins.mjs"
   },
   "components" : [
     "@com:ti/icon",

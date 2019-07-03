@@ -21,13 +21,17 @@ export default {
         }
         // Link to Site Page
         if('page' == li.type) {
-          li.href = this.base + li.value
+          li.href = this.joinHrefParams(
+            this.base + li.value, li.params, li.anchor
+          )
           if(li.newTab)
             li.target = "_blank"
         }
         // Link to URL
         else if('href' == li.type) {
-          li.href = li.value
+          li.href = this.joinHrefParams(
+            li.value, li.params, li.anchor
+          )
           if(li.newTab)
             li.target = "_blank"
         }
@@ -43,13 +47,41 @@ export default {
   },
   /////////////////////////////////////////
   methods : {
+    //------------------------------------
     onClickLink(evt, it) {
-      console.log(evt, it)
-      if('page' == it.type) {
+      if(/^(page|action)$/.test(it.type)) {
         evt.preventDefault()
-        this.$emit("nav:page", it)
+        this.$emit("nav:to", it)
       }
+    },
+    //------------------------------------
+    joinHrefParams(href, params, anchor) {
+      if(!href)
+        return href
+      //...........................
+      let query
+      if(!_.isEmpty(params)) {
+        query = []
+        _.forEach(params, (val, key)=>{
+          let v2 = encodeURIComponent(val)
+          query.push(`${key}=${v2}`)
+        })
+        if(query.length > 0) {
+          href = href + '?' + query.join("&")
+        }
+      }
+      //...........................
+      if(anchor) {
+        if(anchor.startsWith("#")) {
+          href += anchor
+        } else {
+          href += "#" + anchor
+        }
+      }
+      //...........................
+      return href
     }
+    //------------------------------------
   }
   /////////////////////////////////////////
 }

@@ -16,6 +16,7 @@ cat "${CURRENT_DIR}/_app.json"
   <title>${app.title}</title>
   <!--link rel="stylesheet" type="text/css"
         href="${rs}/core/css/font-md/css/material-design-iconic-font.css"-->
+  <script src="${rs}/ti/deps/crypto-js.js"></script>
   <script src="${rs}/ti/deps/jquery.js"></script>
   <script src="${rs}/ti/deps/lodash.min.js"></script>
   <script src="${rs}/ti/deps/vue.js"></script>
@@ -40,6 +41,8 @@ cat "${CURRENT_DIR}/_app.json"
 <div id="app" class="app-loading">
   <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
 </div>
+<!--set key="cc">API.getContextJsonString(false, false)</set>
+<pre>${cc}</pre-->
 <!--
   Main Script
 -->
