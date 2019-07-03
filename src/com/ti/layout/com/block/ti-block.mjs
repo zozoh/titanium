@@ -2,6 +2,10 @@ export default {
   inheritAttrs : true,
   /////////////////////////////////////////
   props : {
+    "className" : {
+      type : String,
+      default : null
+    },
     "float" : {
       type : Boolean,
       default : false
@@ -109,12 +113,20 @@ export default {
     },
     topClass() {
       let klass = []
+
+      // Customized className
+      if(this.className) {
+        klass.push(this.className)
+      }
+
       if(this.showHeader) {
         klass.push("show-header")
       }
+
       if(this.float) {
         klass.push("is-panel")
       }
+      
       return klass.join(" ")
     },
     topStyle() {

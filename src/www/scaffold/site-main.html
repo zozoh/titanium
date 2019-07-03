@@ -1,10 +1,11 @@
 <div class="site-main">
   <ti-gui 
+    class="site-page"
     v-bind="pageGUI"
     :loading-as="loading"
     :shown="page.shown"
     @block:show="showBlock"
     @block:hide="hideBlock"
     @block:event="onBlockEvent"/>
-  <pre>{{page}}</pre>
+  <!--pre>{{page}}</pre-->
 </div>

@@ -2,6 +2,10 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////
   props : {
+    "className" : {
+      type : String,
+      default : null
+    },
     "type" : {
       type : String,
       default : "cols"
@@ -28,6 +32,10 @@ export default {
     //--------------------------------------
     topClass() {
       let klass = [`as-${this.type}`]
+
+      if(this.className) {
+        klass.push(this.className)
+      }
 
       // Border
       if(this.border) {

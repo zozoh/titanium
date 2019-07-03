@@ -8,10 +8,27 @@ export default {
     "data" : {
       type : Array,
       default : ()=>[]
+    },
+    // "left | center | right"
+    "align" : {
+      type : String,
+      default : "left"
+    },
+    // "tiny | comfort | loose"
+    "space" : {
+      type : String,
+      default : "comfort"
+    },
+    // "solid | dashed | dotted"
+    // null will hide the border
+    "border" : {
+      type : String,
+      default : "solid"
     }
   },
   /////////////////////////////////////////
   computed : {
+    //------------------------------------
     links() {
       let list = []
       for(let it of this.data) {
@@ -43,7 +60,22 @@ export default {
         list.push(li)
       }
       return list
+    },
+    //------------------------------------
+    topClass() {
+      return {
+        "is-align-left"     : "left"    == this.align,
+        "is-align-center"   : "center"  == this.align,
+        "is-align-right"    : "right"   == this.align,
+        "is-space-tiny"     : "tiny"    == this.space,
+        "is-space-comfort"  : "comfort" == this.space,
+        "is-space-loose"    : "loose"   == this.space,
+        "is-border-solid"   : "solid"   == this.border,
+        "is-border-dashed"  : "dashed"  == this.border,
+        "is-border-dotted"  : "dotted"  == this.border
+      }
     }
+    //------------------------------------
   },
   /////////////////////////////////////////
   methods : {

@@ -1,10 +1,17 @@
-<div class="ti-nav-links">
-  <ul>
+<nav class="ti-nav-links"
+  :class="topClass">
+  <ul class="ti-fill-parent">
     <li v-for="it in links" :key="it.value">
       <a 
         :href="it.href" 
         :target="it.target"
-        @click.stop="onClickLink($event, it)">{{it.title}}</a>
+        @click.stop="onClickLink($event, it)">
+          <span v-if="it.icon"
+            class="it-icon">
+            <ti-icon :value="it.icon"/>
+          </span>
+          <span class="it-text">{{it.title}}</span>
+      </a>
     </li>
   </ul>
-</div>
+</nav>

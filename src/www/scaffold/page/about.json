@@ -2,12 +2,16 @@
   "title" : "关于·脚手架",
   "data" : {},
   "layout" : {
-    "type" : "rows",
-    "blocks" : [{
-        "body" : "sky"
-      }, {
-        "body" : "main"
-      }]
+    "desktop" : {
+      "type" : "rows",
+      "blocks" : [{
+          "body" : "sky"
+        }, {
+          "body" : "main"
+        }]
+    },
+    "tablet" : "desktop",
+    "phone"  : "desktop"
   },
   "shown" : {},
   "schema" : {

@@ -238,15 +238,22 @@ DIV(@app)             # Vue(root) : index.wnml
   },
   // 页面布局
   "layout" : {
-    "type" : "rows",
-    "blocks" : [{
-        "body" : {
-          "comType" : "ti-label",
-          "comConf" : {
-            "value" : "Sky"
+    // 桌面布局
+    "desktop" : {
+      "type" : "rows",
+      "blocks" : [{
+          "body" : {
+            "comType" : "ti-label",
+            "comConf" : {
+              "value" : "Sky"
+            }
           }
-        }
-      }]
+        }]
+    },
+    // 平板布局
+    "tablet" : "desktop",
+    // 手机布局
+    "phone"  : "desktop"
   },
   // 监控各个布局块的隐藏显示，主要用在 panels 段里
   "shown" : {},

@@ -7,8 +7,9 @@
   "apis" : {},
   "data" : {},
   "layout" : {
-    "type" : "rows",
-    "blocks" : []
+    "desktop" : {},
+    "tablet"  : "desktop",
+    "phone"   : "desktop"
   },
   "shown" : {},
   "schema" : {},

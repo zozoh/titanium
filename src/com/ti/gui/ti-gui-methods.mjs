@@ -13,6 +13,7 @@ export default {
     let transName = b.position ? `gui-panel-${b.position}` : null
     // Block Info
     let info = _.pick(b, [
+        "className",
         "icon","title","actions","name", "adjustable", "closer", 
         "position", "width", "height", "overflow", "status"])
     // Sizing

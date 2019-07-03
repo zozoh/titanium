@@ -1,6 +1,0 @@
-{
-  "name" : "site-page",
-  "globally" : true,
-  "template" : "./site-page.html",
-  "mixins" : ["./site-page.mjs"]
-}

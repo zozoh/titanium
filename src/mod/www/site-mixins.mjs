@@ -26,11 +26,12 @@ export default {
   actions : {
     //-------------------------------------
     // Only handle the "page|dispatch"
-    async navTo({commit, dispatch}, {
+    async navTo({state, commit, dispatch}, {
       type="page",
       value,
       params,
-      anchor
+      anchor,
+      pushHistory = true
     }={}) {
       console.log("navToPage::", value)
       // Guarding
@@ -44,6 +45,18 @@ export default {
           params : params,
           anchor : anchor
         })
+        // Push History
+        if(pushHistory) {
+          let page = state.page
+          let link = Ti.Util.appendPath(state.base, page.path)
+          if(window.location.pathname != link) {
+            console.log("page changed to", link)
+            let his = window.history
+            if(his) {
+              his.pushState(page, page.title, link)
+            }
+          }
+        }
         commit("setLoading", false)
       }
       // navTo::action
@@ -77,12 +90,19 @@ export default {
         }
       }
 
+      // Eval the entry page
+      let entry = state.entry
+      if(loc.path.startsWith(state.base)) {
+        entry = loc.path.substring(state.base.length) || entry;
+      }
+
       // nav to page
       await dispatch("navTo", {
         type   : "page",
-        value  : state.entry,
+        value  : entry,
         params : params,
-        anchor : loc.hash
+        anchor : loc.hash,
+        pushHistory : false
       })
     }
     //-------------------------------------

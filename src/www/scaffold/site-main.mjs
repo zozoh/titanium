@@ -2,6 +2,7 @@ export default {
   /////////////////////////////////////////
   computed : {
     ...Vuex.mapState({
+        "logo"       : state=>state.logo,
         "page"       : state=>state.page,
         "base"       : state=>state.base,
         "loading"    : state=>state.loading,
@@ -18,7 +19,7 @@ export default {
       console.log("formatedPageGUI")
       let page = this.page
       // Without current page
-      if(!page) {
+      if(!page || !page.layout) {
         return {}
       }
       // Gen the GUI object
@@ -28,11 +29,22 @@ export default {
         border     : false,
         canLoading : true
       }
-      // Add layout
-      if(page.layout) {
-        _.assign(gui, page.layout)
+      // Get layout be pageMode
+      let mode = this.viewportMode
+      let layout = page.layout[mode]
+      // Refer once
+      if(_.isString(layout)) {
+        layout = page.layout[layout]
       }
-      // Schema
+      // Refer twice
+      if(_.isString(layout)) {
+        layout = page.layout[layout]
+      }
+      // merge layout to gui
+      if(layout) {
+        _.assign(gui, layout)
+      }
+      // assign schema
       if(page.schema) {
         _.assign(gui.schema, page.schema)
       }
@@ -44,9 +56,10 @@ export default {
   },
   /////////////////////////////////////////
   watch : {
-    // PageChangd, Then push the history
+    // Page changd, update document title
     "page.finger" : function() {
-      console.log("page changed to", this.page.path)
+      document.title = this.page.title
+      // TODO : Maybe here to embed the BaiDu Tongji Code
     }
   },
   /////////////////////////////////////////
@@ -106,6 +119,22 @@ export default {
       await app.dispatch(dist, ...be.args)
     }
     //-------------------------------------
+  },
+  /////////////////////////////////////////
+  mounted : function(){
+    // Watch the browser "Forward/Backward"
+    // The state(page) pushed by $store.dispath("navTo")
+    window.onpopstate = ({state})=>{
+      let page = state
+      console.log("window.onpopstate", page)
+      let app = Ti.App(this)
+      app.dispatch("navTo", {
+        type   : "page",
+        value  : page.path,
+        params : page.params,
+        anchor : page.anchor
+      })
+    }
   }
   /////////////////////////////////////////
 }

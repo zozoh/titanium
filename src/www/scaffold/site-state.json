@@ -1,7 +1,9 @@
 {
   "apis" : [],
   "base" : "/www/titanium/scaffold/",
+  "logo" : "im-umbrella",
   "nav" : [{
+      "dicon"  : "fas-home",
       "title" : "首页",
       "type"  : "page",
       "value" : "page/home"

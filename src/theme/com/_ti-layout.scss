@@ -3,7 +3,7 @@
   //------------------------------------
   // Layout: rows
   //------------------------------------
-  &.as-rows {
+  &.as-rows > section{
     @include flex-align-v-nowrap($ai:stretch,$ac:stretch);
     &.show-border {
       > .ti-block {
@@ -15,7 +15,7 @@
   //------------------------------------
   // Layout: cols
   //------------------------------------
-  &.as-cols {
+  &.as-cols > section {
     @include flex-align-nowrap($ai:stretch,$ac:stretch);
     &.show-border {
       > .ti-block {

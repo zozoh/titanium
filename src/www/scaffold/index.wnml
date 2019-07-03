@@ -66,7 +66,7 @@ async function main(){
   // Load Config
   let tiConf = {
     prefix : {
-      "Site"  : "${URI_BASE}",
+      "Site"  : "${PAGE_BASE}",
       "theme" : "${rs}/ti/theme/",
       "lib"   : "${rs}/ti/lib/",
       "deps"  : "${rs}/ti/deps/",
