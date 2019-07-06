@@ -33,6 +33,7 @@ export default {
     topClass() {
       let klass = [`as-${this.type}`]
 
+      // Customized className
       if(this.className) {
         klass.push(this.className)
       }

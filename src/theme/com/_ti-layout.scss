@@ -3,25 +3,25 @@
   //------------------------------------
   // Layout: rows
   //------------------------------------
-  &.as-rows > section{
-    @include flex-align-v-nowrap($ai:stretch,$ac:stretch);
-    &.show-border {
-      > .ti-block {
-        @include border($pos:top);
-        &:first-child {border:0;}
-      }
+  &.as-rows {
+    > section {
+      @include flex-align-v-nowrap($ai:stretch,$ac:stretch);
+    }
+    &.show-border > section > .ti-block {
+      @include border($pos:top);
+      &:first-child {border:0;}
     }
   }
   //------------------------------------
   // Layout: cols
   //------------------------------------
-  &.as-cols > section {
-    @include flex-align-nowrap($ai:stretch,$ac:stretch);
-    &.show-border {
-      > .ti-block {
-        @include border($pos:left);
-        &:first-child {border:0;}
-      }
+  &.as-cols {
+    > section {
+      @include flex-align-nowrap($ai:stretch,$ac:stretch);
+    }
+    &.show-border > section > .ti-block {
+      @include border($pos:left);
+      &:first-child {border:0;}
     }
   }
   //------------------------------------

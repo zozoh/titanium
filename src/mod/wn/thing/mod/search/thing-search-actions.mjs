@@ -2,20 +2,20 @@
 ////////////////////////////////////////////////
 export default {
   //--------------------------------------------
-  async reload({state, commit, dispatch}, home) {
-    console.log("thing-manager-search.reload", home)
+  async reload({state, commit, dispatch}, meta) {
+    console.log("thing-manager-search.reload", meta)
     // Update New Meta
-    if(home) {
-      commit("setHome", home)
+    if(meta) {
+      commit("setMeta", meta)
     }
     // Get meta back
     else {
-      home = state.home
+      meta = state.meta
     }
     // Mark reloading
     commit("setStatus", {reloading:true})
 
-    let cmds = [`thing id:${home.id} query -pager -cqn`]
+    let cmds = [`thing id:${meta.id} query -pager -cqn`]
     // Eval Sorter
     if(!_.isEmpty(state.sorter)) {
       let sort = JSON.stringify(state.sorter)
