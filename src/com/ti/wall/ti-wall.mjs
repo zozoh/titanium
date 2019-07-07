@@ -3,11 +3,11 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   data : ()=>({
-    viewportWidth : 0,
-    colSizes : [],
     p_last_index  : 0,
     p_current_id  : null,
-    p_checked_ids : {}
+    p_checked_ids : {},
+    col_count : 0,
+    col_width : 0
   }),
   ///////////////////////////////////////////////////
   props : {
@@ -94,7 +94,7 @@ export default {
     },
     // Function return current item is hidden or not
     // the item is list[i]
-    isHiddenItem : {
+    "isHiddenItem" : {
       type : Function,
       default : ()=>false
     }
@@ -104,6 +104,32 @@ export default {
     //--------------------------------------
     isEmpty() {
       return this.list.length == 0
+    },
+    //--------------------------------------
+    listRealCount() {
+      let n = 0;
+      for(let it of this.list) {
+        if(!this.isHidden(it)){
+          n++
+        }
+      }
+      return n
+    },
+    //--------------------------------------
+    blankCols() {
+      let list = []
+      if(!_.isEmpty(this.list) && this.col_count > 0 && this.col_width > 1) {
+        // get list real count
+        let n = this.listRealCount % this.col_count
+        let nr = this.col_count - n
+        for(let i=0; i<nr; i++) {
+          list.push({
+            width : `${this.col_width}px`
+          })
+        }
+      }
+      //console.log(list)
+      return list
     },
     //--------------------------------------
     topClass() {
@@ -346,6 +372,38 @@ export default {
           this.p_checked_ids[id] = true
         }
       }
+    },
+    //--------------------------------------
+    updateSizing() {
+      this.$nextTick(()=>{
+        let $divs = Ti.Dom.findAll(":scope > .wall-tile", this.$el)
+        // Guard empty
+        if(_.isEmpty($divs)) 
+          return
+        // Eval the cols and width
+        let cols  = 0
+        let width = 1
+        let top = -1
+        for(let $div of $divs) {
+          let rect = $div.getBoundingClientRect()
+          if(top < 0) {
+            top  = rect.top
+          }
+          if(top == rect.top) {
+            cols ++
+            width = Math.max(rect.width, width)
+          }
+          // Find the next row
+          else {
+            break
+          }
+        }
+        //console.log({cols, width, top})
+        if(width > 1) {
+          this.col_count = cols
+          this.col_width = width
+        }
+      })
     }
     //--------------------------------------
   },
@@ -356,12 +414,26 @@ export default {
     },
     "checkedIds" : function() {
       this.autoSetCheckedIds()
+    },
+    "list" : function() {
+      this.updateSizing()
     }
   },
   ///////////////////////////////////////////////////
   mounted : function() {
     this.autoSetCurrentId()
     this.autoSetCheckedIds()
+    //.................................
+    this.updateSizing()
+    //.................................
+    const debounceUpdateSizing = _.debounce(()=>{
+      this.updateSizing()
+    }, 500, {
+      leading : false
+    })
+    //.................................
+    Ti.Viewport.watch(this, {resize : debounceUpdateSizing})
+    //.................................
   }
   ///////////////////////////////////////////////////
 }

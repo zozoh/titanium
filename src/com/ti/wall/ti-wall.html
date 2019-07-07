@@ -29,5 +29,12 @@
       @selected="onTileSelected"
       @click.native.stop="onSelected({it, index, $event})"
       @dblclick.native.stop="onOpen(it, index)"/>
+      <!--
+        Blank Tile
+      -->
+      <div v-for="bc in blankCols"
+        class="wall-tile"
+        :style="bc">
+      </div>
   </template>
 </div>

@@ -32,6 +32,7 @@ export const TiDom = {
       $p.appendChild($el)
     }
   },
+  // self by :scope
   findAll(selector="*", $doc=document) {
     const $ndList = $doc.querySelectorAll(selector);
     return [...$ndList]
