@@ -1,1 +1,28 @@
-<div>I am thing files</div>
+<div class="thing-files">
+  <!--
+    File Preview
+  -->
+  <div class="file-preview">
+    <wn-obj-preview
+      class="ti-fill-parent"
+      :meta="currentFile"/>
+  </div>
+  <!--
+    File List
+  -->
+  <div class="file-list">
+    <wn-adaptlist
+      class="ti-fill-parent"
+      :meta="meta"
+      :filter="filter"
+      :sorter="sorter"
+      :pager="pager"
+      :list="list"
+      :current-id="currentId"
+      :checked-ids="checkedIds"
+      :uploadings="uploadings"
+      :status="status"
+      :routers="routers"
+      @uploaded="onUploaded"/>
+  </div>
+</div>

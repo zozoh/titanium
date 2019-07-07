@@ -1,0 +1,32 @@
+.ti-wall {
+  overflow:auto;
+  @include flex-align($ac:flex-start,$ai:flex-start);
+  //-------------------------------------
+  &.spacing-xs {padding:.08rem;  >* {margin:.02rem;}}
+  &.spacing-sm {padding:.08rem;  >* {margin:.08rem;}}
+  &.spacing-md {padding:.16rem;  >* {margin:.16rem;}}
+  &.spacing-lg {padding:.24rem;  >* {margin:.24rem;}}
+  &.spacing-xl {padding:.32rem;  >* {margin:.32rem;}}
+  //-------------------------------------
+  > .is-empty {
+    @include color($color-track, c);
+    @include flex-align-center;
+    padding:.3rem; font-size:1.2em;
+    .ti-icon {font-size:2em; margin-right:.06rem;}
+  }
+  //-------------------------------------
+  > .wall-tile {
+    border:1px solid transparent;
+    &.is-selected {
+      @include color($color-selected, r, c);
+    }
+    &.is-current {
+      border-style: dotted;
+      border-color: map-get($color-primary, c);
+    }
+    &.is-removed {opacity:0.4;}
+    &.is-weak {opacity:0.4;}
+    &.is-hide {display:none;}
+  }
+  //-------------------------------------
+}

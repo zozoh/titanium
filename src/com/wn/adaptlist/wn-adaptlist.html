@@ -1,15 +1,24 @@
 <div class="wn-adaptlist" v-drop-files.mask="onDropFiles">
   <ti-loading v-if="status.reloading" 
     text="i18n:reloading"/>
-  <ti-tiles v-else
+  <ti-wall v-else
     class="ti-fill-parent"
-    :list="objList"
+    :list="list"
     :spacing="spacing"
+    :changed-id="changedId"
+    :current-id="currentId"
+    :checked-ids="checkedIds"
     :multi="multi"
+    :checkable="checkable"
+    :blurable="blurable"
     :selectable="selectable"
-    @selected="onItemSelected"
-    @open="onItemOpen"
-    @blur="onItemBlur"/>
+    :transformer="getFormedItem"
+    :com-type="'ti-obj-thumb'"
+    :com-conf="{'...':'=formedData'}"
+    :is-hidden-item="isHiddenItem"
+    @selected="onSelected"
+    @open="onOpen"
+    />
   <input 
     type="file" 
     ref="file" 
@@ -24,10 +33,12 @@
       <span>{{'uploading'|i18n}}</span>
     </header>
     <section>
-      <ti-tiles 
+      <ti-wall 
         :list="uploadingList"
         :spacing="spacing"
-        :selectable="false"/>
+        :selectable="false"
+        :com-type="'ti-obj-thumb'"
+        :com-conf="{'...':'=formedData'}"/>
     </section>
   </div>
 </div>

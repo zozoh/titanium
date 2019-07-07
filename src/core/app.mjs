@@ -92,6 +92,33 @@ export class OneTiApp {
     this.$el[TI_APP] = null
   }
   //---------------------------------------
+  /***
+   * cmd : {String|Object}
+   * payload : Any
+   * 
+   * ```
+   * "commit:xxx"   => {method:"commit",name:"xxx"}
+   * "dispatch:xxx" => {method:"dispatch",name:"xxx"}
+   * "self:xxx"     => {method:"self",name:"xxx"}
+   * "main:xxx"     => {method:"main",name:"xxx"}
+   * ```
+   */
+  async exec(cmd, payload) {
+    let ta = cmd
+    //...................
+    if(_.isString(ta)) {
+      let m = /^(commit|dispatch|self|main):(.+)$/.exec(ta)
+      if(!m)
+        return
+      ta = {
+        method : m[1],
+        name   : m[2]
+      }
+    }
+    //...................
+    return await this[ta.method](ta.name, payload)
+  }
+  //---------------------------------------
   commit(nm, payload){
     this.$store().commit(nm, payload)
   }

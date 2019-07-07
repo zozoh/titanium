@@ -3,5 +3,7 @@
   "globally" : true,
   "template" : "./thing-files.html",
   "mixins"   : ["./thing-files.mjs"],
-  "components" : []
+  "components" : [
+    "@com:wn/adaptlist"
+  ]
 }

@@ -6,9 +6,11 @@ function URL(actionName) {
   return "/o/" + actionName
 }
 //---------------------------------------
-function AJAX_RETURN(reo) {
+function AJAX_RETURN(reo, invalid) {
   if(!reo.ok) {
-    throw reo
+    if(_.isUndefined(invalid))
+      throw reo
+    return invalid
   }
   return reo.data;
 }
@@ -30,7 +32,7 @@ export const WnIo = {
         str : path
       }, 
       as:"json"})
-    return AJAX_RETURN(reo)
+    return AJAX_RETURN(reo, null)
   },
   /***
    * Get object meta by refer meta
@@ -54,7 +56,7 @@ export const WnIo = {
     let reo = await Ti.Http.get(url, {
       params: {str}, 
       as:"json"})
-    return AJAX_RETURN(reo)
+    return AJAX_RETURN(reo, [])
   },
   /***
    * Get obj children by meta

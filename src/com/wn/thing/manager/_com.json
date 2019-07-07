@@ -8,6 +8,7 @@
     "./com/thing-files",
     "./com/thing-filter",
     "./com/thing-creator",
+    "./com/thing-files",
     "@com:ti/gui",
     "@com:ti/paging/jumper",
     "@com:ti/table",

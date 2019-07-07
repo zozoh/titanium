@@ -1,9 +1,24 @@
 <div class="wn-obj-preview" :class="topClass">
-  <component class="ti-fill-parent"
+  <!--
+    With content
+  -->
+  <component v-if="hasMeta"
+    class="ti-fill-parent"
     :is="previewComType"
     :icon="dataIcon"
     :title="dataTitle"
     :src="dataSource"/>
+  <!--
+    Empty 
+  -->
+  <div v-else
+    class="ti-blank is-big">
+    <ti-icon value="zmdi-alert-circle-o"/>
+    <span>{{'empty-data'|i18n}}</span>
+  </div>
+  <!--
+    Full screen closer
+  -->
   <div class="my-closer" @click="exitFullscreen">
     <ti-icon value="zmdi-fullscreen-exit"/>
   </div>

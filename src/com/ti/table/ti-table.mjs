@@ -137,27 +137,6 @@ export default {
     }
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "currentId" : function() {
-      this.p_current_id = this.currentId
-      this.p_last_index = 0
-      for(let i=0; i<this.list.length; i++) {
-        let it = this.list[i]
-        let itId = it[this.idKey]
-        if(itId == this.p_current_id) {
-          this.p_last_index = i
-          break;
-        }
-      }
-    },
-    "checkedIds" : function() {
-      this.p_checked_ids = {}
-      for(let id of this.checkedIds) {
-        this.p_checked_ids[id] = true
-      }
-    }
-  },
-  ///////////////////////////////////////////////////
   computed : {
     //--------------------------------------
     isEmpty() {
@@ -576,10 +555,46 @@ export default {
         this.colSizes = colSizes
         //console.log("!!!this.colSizes", this.colSizes)
       }
+    },
+    //--------------------------------------
+    autoSetCurrentId() {
+      this.p_current_id = this.currentId
+      this.p_last_index = 0
+      for(let i=0; i<this.list.length; i++) {
+        let it = this.list[i]
+        let itId = it[this.idKey]
+        if(itId == this.p_current_id) {
+          this.p_last_index = i
+          break;
+        }
+      }
+    },
+    //--------------------------------------
+    autoSetCheckedIds() {
+      this.p_checked_ids = {}
+      if(_.isArray(this.checkedIds)) {
+        for(let id of this.checkedIds) {
+          this.p_checked_ids[id] = true
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "currentId" : function() {
+      this.autoSetCurrentId()
+    },
+    "checkedIds" : function() {
+      this.autoSetCheckedIds()
     }
   },
   ///////////////////////////////////////////////////
   mounted : function() {
+    //.................................
+    this.autoSetCurrentId()
+    this.autoSetCheckedIds()
+    //.................................
     const debounceUpdateSizing = _.debounce(()=>{
       // Reset
       this.colSizes = []
@@ -596,14 +611,17 @@ export default {
     }, 100, {
       leading : false
     })
+    //.................................
     this.$watch("fields", debounceUpdateSizing)
     this.$watch("list"  , debounceUpdateSizing)
-
+    //.................................
     const debounceUpdateSizing2 = _.debounce(()=>{
       this.updateSizing()
     }, 100, {
       leading : true
     })
+    //.................................
     Ti.Viewport.watch(this, {resize : debounceUpdateSizing2})
+    //.................................
   }
 }

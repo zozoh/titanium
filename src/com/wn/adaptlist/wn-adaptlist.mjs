@@ -1,20 +1,30 @@
 export default {
+  inheritAttrs : false,
+  ////////////////////////////////////////////////
   props : {
-    "meta" : {
-      type : Object,
-      default : ()=>({})
+    "className" : {
+      type : String,
+      default : null
     },
-    "children" : {
+    "itemClassName" : {
+      type : String,
+      default : null
+    },
+    "list" : {
       type : Array,
       default : ()=>[]
     },
-    "currentIndex" : {
-      type : Number,
-      default : 0
+    "changedId" : {
+      type : String,
+      default : null
     },
     "currentId" : {
       type : String,
       default : null
+    },
+    "checkedIds" : {
+      type : Array,
+      default : ()=>[]
     },
     "uploadings" : {
       type : Array,
@@ -22,12 +32,7 @@ export default {
     },
     "pager" : {
       type : Object,
-      default : ()=>({
-        "pageNumber" : -1,
-        "pageSize" : -1,
-        "pageCount" : -1,
-        "totalCoun" : -1
-      })
+      default : null
     },
     "status" : {
       type : Object,
@@ -43,72 +48,44 @@ export default {
       type : Boolean,
       default : true
     },
-    // aspect: list item spacing
-    // `xs|sm|md|lg|xl`
-    "spacing" : {
-      type : String,
-      default : "sm"
-    },
     // multi-selectable
     // effected when selectable is true
     "multi" : {
       type : Boolean,
       default : true
     },
-    // select item
+    "checkable" : {
+      type : Boolean,
+      default : true
+    },
+    "blurable" : {
+      type : Boolean,
+      default : true
+    },
     "selectable" : {
       type : Boolean,
       default : true
+    },
+    // aspect: list item spacing
+    // `xs|sm|md|lg|xl`
+    "spacing" : {
+      type : String,
+      default : "sm"
+    },
+    "routers" : {
+      type : Object,
+      default : ()=>({
+        "recoverExposeHidden" : "commit:main/recoverExposeHidden",
+        "setCurrentId"        : "commit:main/setCurrentId",
+        "setCheckedIds"       : "commit:main/setCheckedIds",
+        "selectItem"          : "commit:main/selectItem",
+        "blurAll"             : "commit:main/blurAll",
+        "upload"              : "dispatch:main/upload"
+      })
     }
   },
-  //------------------------------------------------
+  ////////////////////////////////////////////////
   computed : {
-    /***
-     * Current Object list to show
-     */
-    objList() {
-      let vm = this
-      let list = vm.children
-      let re = []
-      //..........................
-      if(_.isArray(list)) {
-
-        for(let it of list) {
-          // Check the visibility
-          let visibility = "show"
-          if(it.nm.startsWith(".")) {
-            if(vm.status.exposeHidden) {
-              visibility = "weak"
-            } else {
-              visibility = "hide"
-            }
-          }
-          // Generate new Thumb Item
-          re.push({
-            id      : it.id,
-            title   : Wn.Util.getObjDisplayName(it),
-            preview : Wn.Util.genPreviewObj(it),
-            // status
-            ...(it.__is || {
-              loading  : false,
-              removed  : false,
-              progress : -1,
-              selected : false
-            }),
-            visibility,
-            current : (it.id == vm.currentId),
-            // Icons
-            icons : it.__icons || {
-              NW : null,
-              NE : null,
-              SW : null,
-              SE : null
-            }
-          })
-        }
-      }
-      return re
-    },
     /***
      * Show uploading list
      */
@@ -151,8 +128,9 @@ export default {
       return this.hasUploading ? "up-show" : "up-hide"
     }
   },  // ~ computed
-  //------------------------------------------------
+  ////////////////////////////////////////////////
   watch: {
+    //--------------------------------------------
     "hasUploading" : function(newVal, oldVal) {
       if(true===oldVal && false===newVal) {
         this.$message({
@@ -163,51 +141,119 @@ export default {
         });
       }
     }
+    //--------------------------------------------
   },
-  //------------------------------------------------
+  ////////////////////////////////////////////////
   methods : {
-    onItemSelected({mode,id,index}={}) {
-      // Desktop mode, select items
-      if(this.isViewportModeDesktop) {
-        this.$store.commit("main/selectItem", {index, id, mode})
+    //--------------------------------------------
+    getFormedItem(it) {
+      // Check the visibility
+      let visibility = "show"
+      if(it.nm.startsWith(".")) {
+        if(this.status.exposeHidden) {
+          visibility = "weak"
+        } else {
+          visibility = "hide"
+        }
       }
-      // Else just open it
-      else {
-        let meta = _.nth(this.children, index)
-        if(meta) {
-          this.$emit("open", meta)
-        }  
+      // Generate new Thumb Item
+      return {
+        id    : it.id,
+        title : Wn.Util.getObjDisplayName(it),
+        preview : Wn.Util.genPreviewObj(it),
+        visibility,
+        ...(it.__is || {
+          loading  : false,
+          removed  : false,
+          progress : -1
+        }),
+        icons : it.__icons || {
+          NW : null,
+          NE : null,
+          SW : null,
+          SE : null
+        }
       }
     },
-    //----------------------------------------------
-    onItemOpen({id,index}={}) {
-      let meta = _.nth(this.children, index)
-      if(meta) {
-        this.$emit("open", meta)
+    //--------------------------------------------
+    isHiddenItem(it) {
+      if(it.nm.startsWith(".") && !this.status.exposeHidden) {
+        return true
+      }
+      return false
+    },
+    //--------------------------------------------
+    async _run(nm, payload) {
+      let target = (this.routers||{})[nm]
+      if(target) {
+        let app = Ti.App(this)
+        return await app.exec(target, payload)
       }
     },
-    onItemBlur() {
-      this.$store.commit("main/blurAll")
+    //--------------------------------------------
+    onSelected({current, selected}) {
+      let cid = current ? current.id : null
+      this._run("setCurrentId", cid)
+
+      if(_.isArray(selected)) {
+        let ids = []
+        for(let it of selected) {
+          ids.push(it.id)
+        }
+        this._run("setCheckedIds", ids)
+      }
     },
-    //----------------------------------------------
-    onDropFiles(files) {
+    //--------------------------------------------
+    onOpen({current}) {
+      this.$emit("open", current)
+    },
+    // //--------------------------------------------
+    // onItemSelected({mode,id,index}={}) {
+    //   // Desktop mode, select items
+    //   if(this.isViewportModeDesktop) {
+    //     this._run("selectItem", {index, id, mode})
+    //   }
+    //   // Else just open it
+    //   else {
+    //     let meta = _.nth(this.list, index)
+    //     if(meta) {
+    //       this.$emit("open", meta)
+    //     }  
+    //   }
+    // },
+    // //--------------------------------------------
+    // onItemOpen({id,index}={}) {
+    //   let meta = _.nth(this.list, index)
+    //   if(meta) {
+    //     this.$emit("open", meta)
+    //   }
+    // },
+    // //--------------------------------------------
+    // onItemBlur() {
+    //   this._run("blurAll")
+    // },
+    //--------------------------------------------
+    async onDropFiles(files) {
       if(!this.droppable)
         return
       let fs = [...files]
-      this.$store.dispatch("main/upload", fs)
+      let reo = await this._run("upload", fs)
+      // Emit events
+      this.$emit("uploaded", reo)
     },
-    //----------------------------------------------
+    //--------------------------------------------
     openLocalFileSelectdDialog(){
       this.$refs.file.click()
     },
-    //----------------------------------------------
-    onSelectLocalFilesToUpload(evt){
-      this.onDropFiles(evt.target.files)
+    //--------------------------------------------
+    async onSelectLocalFilesToUpload(evt){
+      await this.onDropFiles(evt.target.files)
       this.$refs.file.value = ""
     }
   },
-  //----------------------------------------------
+  ////////////////////////////////////////////////
   mounted : function(){
+    //--------------------------------------------
     // Guart the uploading
     Ti.Fuse.getOrCreate().add({
       key : "wn-list-adaptview-check-uploading",
@@ -224,10 +270,12 @@ export default {
       }
     })
     // Restore the exposeHidden
-    let $app = Ti.App(this.$root)
-    $app.commit("main/recoverExposeHidden")
+    this._run("recoverExposeHidden")
   },
+  //--------------------------------------------
   beforeDestroy : function(){
     Ti.Fuse.get().remove("wn-list-adaptview-check-uploading")
   }
+  //--------------------------------------------
+  ////////////////////////////////////////////////
 }

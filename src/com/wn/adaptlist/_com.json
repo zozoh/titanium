@@ -4,5 +4,6 @@
   "template" : "./wn-adaptlist.html",
   "mixins" : ["./wn-adaptlist.mjs"],
   "components" : [
-    "@com:ti/tiles"]
+    "@com:ti/obj/thumb",
+    "@com:ti/wall"]
 }

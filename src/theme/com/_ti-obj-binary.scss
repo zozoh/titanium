@@ -1,12 +1,17 @@
 .ti-obj-binary {
   @include color($color-paper, r, c);
-  padding:.2rem .2rem 1rem .2rem;
+  width:100%; height:100%;
+  padding-bottom:10%;
   @include flex-align-v($jc:center, $ai:center,$wp:nowrap);
   .tob-icon {
     padding:.2rem
   }
   .tob-title {
     @include font-fixed(1.4em);
-    padding:.2rem;
+    padding:.1rem;
+  }
+  .tob-actions > a{
+    @include flex-align-center;
+    > .ti-icon {margin-right:.06rem;}
   }
 }

@@ -16,6 +16,22 @@ export default {
     }
   },
   //--------------------------------------------
+  async autoSyncCurrentFilesCount({state, commit}) {
+    let oTh = state.current.meta
+    let dirName = state.filesName
+    // sync current media count
+    if(oTh && oTh.id && dirName) {
+      // run command
+      let th_set = oTh.th_set
+      let cmdText = `thing ${th_set} ${dirName} ${oTh.id} -ufc -cqn`
+      let oNew = await Wn.Sys.exec2(cmdText, {as:"json"})
+      // Set current meta
+      commit("current/setMeta", oNew)
+      // Set current to search list
+      commit("search/updateItem", oNew)
+    }
+  },
+  //--------------------------------------------
   async toggleInRecycleBin({state, commit, dispatch, getters}) {
     console.log("thing-manager-toggleInRecycleBin")
     // Update filter
@@ -119,6 +135,32 @@ export default {
     commit("setStatus", {cleaning:false})
 
     await dispatch("reload")
+  },
+  //--------------------------------------------
+  async reloadFiles({state,commit,dispatch}, {force=false}={}) {
+    console.log("reloadFiles")
+    let current = state.current.meta
+    let thingId = (current||{}).id
+    let dirName = state.filesName
+    // No current
+    if(!thingId || !dirName) {
+      commit("files/reset")
+    }
+    // Reload the files
+    else {
+      let thSetId = state.meta.id
+      // get the parent DIR
+      let oDir = state.files.meta
+      if(!oDir || !oDir.ph || !oDir.ph.endsWith(`/data/${thingId}/${dirName}`)) {
+        oDir = await Wn.Io.loadMeta(`id:${thSetId}/data/${thingId}/${dirName}/`)
+        if(!oDir) {
+          commit("files/reset")
+          return
+        }
+      }
+      // Try to reload the children
+      await dispatch("files/tryReload", oDir)
+    }
   },
   //--------------------------------------------
   async reload({state, commit, dispatch}, meta) {

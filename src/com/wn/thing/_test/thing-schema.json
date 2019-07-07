@@ -2,16 +2,16 @@
   "filter" : {
     "comType" : "wn-thing-filter",
     "comConf" : {
-      "status" : "@status"
+      "status" : "=status"
     }
   },
   "list" : {
     "comType" : "ti-table",
     "comConf" : {
-      "list" : "@search.list",
-      "changedId"  : "@changedRowId",
-      "currentId"  : "@search.currentId",
-      "checkedIds" : "@search.checkedIds",
+      "list" : "=search.list",
+      "changedId"  : "=changedRowId",
+      "currentId"  : "=search.currentId",
+      "checkedIds" : "=search.checkedIds",
       "border" : true,
       "checkable" : true,
       "multi"  : true,
@@ -37,7 +37,7 @@
   "pager" : {
     "comType" : "ti-paging-jumper",
     "comConf" : {
-      "data" : "@search.pager"
+      "data" : "=search.pager"
     }
   },
   "creator" : {
@@ -58,9 +58,9 @@
   "meta" : {
     "comType" : "wn-obj-form",
     "comConf" : {
-      "data"   : "@current.meta",
-      "status" : "@current.status",
-      "fieldStatus" : "@current.fieldStatus",
+      "data"   : "=current.meta",
+      "status" : "=current.status",
+      "fieldStatus" : "=current.fieldStatus",
       "config" : {
         "fields" : [{
             "title"  : "ID",
@@ -98,11 +98,17 @@
     "comType" : "wn-obj-puretext",
     "comConf" : {
       "showTitle"    : false,
-      "meta"         : "@current.meta",
-      "content"      : "@current.content",
-      "savedContent" : "@current.__saved_content",
-      "contentType"  : "@current.contentType",
-      "status"       : "@current.status"
+      "meta"         : "=current.meta",
+      "content"      : "=current.content",
+      "savedContent" : "=current.__saved_content",
+      "contentType"  : "=current.contentType",
+      "status"       : "=current.status"
+    }
+  },
+  "files" : {
+    "comType" : "wn-thing-files",
+    "comConf" : {
+      "..." : "=files"
     }
   }
 }

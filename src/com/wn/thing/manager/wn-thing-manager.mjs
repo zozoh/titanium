@@ -1,36 +1,9 @@
-const __format_obj = function(vm, obj){
-  // Array
-  if(_.isArray(obj)) {
-    let list = []
-    for(let val of obj) {
-      list.push(__format_obj(vm, val))
-    }
-    return list
-  }
-  // Plain Object
-  if(_.isPlainObject(obj)) {
-    let o2 = {}
-    _.forEach(obj, (v2, k2)=>{
-      o2[k2] = __format_obj(vm, v2)
-    })
-    return o2
-  }
-  // String: @xx.xx
-  if(_.isString(obj)) {
-    let m = /^@(.+)$/.exec(obj)
-    if(m) {
-      return _.get(vm, m[1])
-    }
-  }
-  // Others
-  return obj
-}
-///////////////////////////////////////////
 export default {
   inheritAttrs : false,
   /////////////////////////////////////////
   data : ()=>({
-    "shown" : {}
+    "shown" : {
+    }
   }),
   ///////////////////////////////////////////
   props : {
@@ -66,11 +39,7 @@ export default {
       return this.getLayout(this.viewportMode)
     },
     formedSchema() {
-      let re = {}
-      _.forEach(this.config.schema, (val, key)=>{
-        re[key] = __format_obj(this, val)
-      })
-      return re
+      return Ti.Util.explainObj(this, this.config.schema)
     },
     changedRowId() {
       if(this.current && this.current.meta && this.current.status.changed) {
@@ -114,12 +83,7 @@ export default {
         la = this.config.layout[la]
       }
       //...........................
-      let re = {}
-      _.forEach(la, (val, key)=>{
-        re[key] = __format_obj(this, val)
-      })
-      //...........................
-      return re
+      return Ti.Util.explainObj(this, la)
     },
     //--------------------------------------
     showBlock(name) {
@@ -133,6 +97,9 @@ export default {
           })
           return
         }
+      }
+      if("files" == name) {
+        Ti.App(this).dispatch("main/reloadFiles")
       }
       this.shown = {
         ...this.shown, 
@@ -194,6 +161,11 @@ export default {
           })
           // Update Checkes/Current to search
           this.setSeachSelected(current, selected)
+
+          // Reload files
+          if(this.shown.files) {
+            app.dispatch("main/reloadFiles")
+          }
         },
         //..................................
         // Select item in search list

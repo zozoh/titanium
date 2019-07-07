@@ -1,0 +1,10 @@
+{
+  "name" : "ti-wall",
+  "globally" : true,
+  "template" : "./ti-wall.html",
+  "mixins" : ["./ti-wall.mjs"],
+  "components" : [
+    "./com/wall-tile",
+    "@com:ti/label"
+  ]
+}

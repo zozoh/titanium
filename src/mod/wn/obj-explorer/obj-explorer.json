@@ -1,15 +1,21 @@
 {
   "meta": null,
-  "children" : [],
-  "currentIndex" : 0,
-  "currentId" : null,
-  "uploadings" : [],
-  "pager" : {
-    "pageNumber" : -1,
-    "pageSize" : -1,
-    "pageCount" : -1,
-    "totalCoun" : -1
+  "filter" : {},
+  "sorter" : {
+    "ct" : -1
   },
+  "pager" : {
+    "pn"   : 1,
+    "pgsz" : 50,
+    "pgc"  : 0,
+    "sum"  : 0,
+    "skip" : 0,
+    "count": 0
+  },
+  "list" : [],
+  "currentId" : null,
+  "checkedIds" : [],
+  "uploadings" : [],
   "status" : {
     "publishing" : false,
     "reloading" : false,

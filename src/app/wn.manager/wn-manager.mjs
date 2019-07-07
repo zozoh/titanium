@@ -125,12 +125,16 @@ export default {
       return status
     },
     mainData() {
-      return _.pickBy(this.$store.state.main, (val, key)=>{
+      let data = _.pickBy(this.$store.state.main, (val, key)=>{
         if("__wn_messages" == key) {
           return true
         }
         return key && !key.startsWith("_")
       })
+      if(this.mainView && !_.isEmpty(this.mainView.comConf)) {
+        _.assign(data, this.mainView.comConf)
+      }
+      return data
     },
     mainDataId() {
       if(this.mainData && this.mainData.meta) {

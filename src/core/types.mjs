@@ -276,7 +276,7 @@ export const TiTypes = {
     
     //..................................
     // If noexits, eval the function by `fld.type`
-    if(!fn) {
+    if(!fn && fld.type) {
       fn = TiTypes.getFuncByType(fld.type, name)
     }
 

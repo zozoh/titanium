@@ -43,6 +43,45 @@ export const TiUtil = {
     return obj
   },
   /***
+   * Explain obj to a new one
+   * 
+   * The key `...` in obj will `_.assign` the value
+   * The value `=xxxx` in obj will get the value from context
+   */
+  explainObj(context, obj) {
+    // Array
+    if(_.isArray(obj)) {
+      let list = []
+      for(let val of obj) {
+        list.push(TiUtil.explainObj(context, val))
+      }
+      return list
+    }
+    // Plain Object
+    if(_.isPlainObject(obj)) {
+      
+      let o2 = {}
+      _.forEach(obj, (v2, k2)=>{
+        let v3 = TiUtil.explainObj(context, v2)
+        if("..." == k2) {
+          _.assign(o2, v3)
+        } else {
+          o2[k2] = v3
+        }
+      })
+      return o2
+    }
+    // String: @xx.xx
+    if(_.isString(obj)) {
+      let m = /^[@=](.+)$/.exec(obj)
+      if(m) {
+        return _.get(context, m[1])
+      }
+    }
+    // Others
+    return obj
+  },
+  /***
    * Create a function to return a given object's copy.
    * It just return the simple object like (`Number|String|Boolean`) directly,
    * and deep clone complex object like `Object|Array|Date|RegExp`

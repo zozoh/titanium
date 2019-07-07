@@ -3,7 +3,6 @@
   "namespaced" : true,
   "i18n" : "@i18n:wn-obj-explorer",
   "state" : "./obj-explorer.json",
-  "getters" : "./obj-explorer-getters.mjs",
-  "mutations" : "./obj-explorer-mutations.mjs",
-  "actions" : "./obj-explorer-actions.mjs"
+  "actions" : "./obj-explorer-actions.mjs",
+  "mixins" : "./obj-explorer.mjs"
 }

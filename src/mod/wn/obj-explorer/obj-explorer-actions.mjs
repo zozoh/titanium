@@ -7,7 +7,7 @@ export default {
     if(_.isEmpty(list)) {
       return await Ti.Alert('i18n:weo-del-none')
     }
-    commit("set", {status:{deleting:true}})
+    commit("setStatus", {deleting:true})
     let delCount = 0
     // make removed files. it remove a video
     // it will auto-remove the `videoc_dir` in serverside also
@@ -29,7 +29,7 @@ export default {
           continue
         
         // Mark item is processing
-        commit("updateChildStatus", 
+        commit("updateItemStatus", 
           {id:it.id, status:{loading:true, removed:false}})
         // If DIR, check it is empty or not
         if('DIR' == it.race) {
@@ -39,7 +39,7 @@ export default {
             // If user confirmed, then rm it recurently
             if(!(await Ti.Confirm({
                 text:'i18n:weo-del-no-empty-folder', vars:{nm:it.nm}}))) {
-              commit("updateChildStatus", 
+              commit("updateItemStatus", 
                 {id:it.id, status:{loading:false, removed:false}})
               continue
             }
@@ -56,14 +56,14 @@ export default {
         })
         await Wn.Sys.exec(`rm ${'DIR'==it.race?"-r":""} id:${it.id}`)
         // Mark item removed
-        commit("updateChildStatus", 
+        commit("updateItemStatus", 
           {id:it.id, status:{loading:false, removed:true}})
         // If video result folder, mark it at same time
         let m = /^id:(.+)$/.exec(it.videoc_dir)
         if(m) {
           let vdId = m[1]
           exRemovedIds[vdId] = true
-          commit("updateChildStatus", 
+          commit("updateItemStatus", 
             {id:it.vdId, status:{loading:false, removed:true}})
         }
         // Counting
@@ -75,18 +75,18 @@ export default {
     }
     // End deleting
     finally {
-      commit("set", {status:{deleting:false}})
+      commit("setStatus", {deleting:false})
       commit("$log", null)
       commit("$noti", {text:"i18n:weo-del-ok", vars:{N:delCount}})
     }
   },
   //---------------------------------------
   async rename({getters, commit}) {
-    let it = getters.activeItem
+    let it = getters.currentItem
     if(!it) {
       return await Ti.Alert('i18n:weo-rename-none')
     }
-    commit("set", {status:{renaming:true}})
+    commit("setStatus", {renaming:true})
     try {
       // Get newName from User input
       let newName = await Ti.Prompt({
@@ -108,7 +108,7 @@ export default {
           return await Ti.Alert('i18n:weo-rename-too-long')
         }
         // Mark renaming
-        commit("updateChildStatus", 
+        commit("updateItemStatus", 
           {id:it.id, status:{loading:true}})
         // Do the rename
         let newMeta = await Wn.Sys.exec2(
@@ -117,19 +117,19 @@ export default {
         // Error
         if(newMeta instanceof Error) {
           commit("$toast", {text:"i18n:weo-rename-fail", type:"error"})
-          commit("updateChildStatus", 
+          commit("updateItemStatus", 
             {id:it.id, status:{loading:false}})
         }
         // Replace the data
         else {
           commit("$toast", "i18n:weo-rename-ok")
-          commit("updateChild", newMeta)
+          commit("updateItem", newMeta)
         }
       }  // ~ if(newName)
     }
     // reset the status
     finally {
-      commit("set", {status:{renaming:false}})
+      commit("setStatus", {renaming:false})
     }
   },
   //---------------------------------------
@@ -178,6 +178,7 @@ export default {
     }))
     // Show uploading
     commit("addUploadings", ups)
+    let list = []
     // Do upload file one by one
     for(let up of ups) {
       let file = up.file
@@ -190,13 +191,20 @@ export default {
           })
         }
       })
+      list.push(newMeta)
     }
     // All done, hide upload
     _.delay(()=>{
       commit("clearUploadings")
     }, 2000)
     // Reload the data
-    return await dispatch("reload")
+    await dispatch("reload")
+
+    return {
+      ...state,
+      localFiles   : files,
+      uploadedList : list
+    }
   },
   //---------------------------------------
   async publish({state,commit,dispatch}) {
@@ -217,48 +225,57 @@ export default {
       })
     }
 
-    commit("set", {status:{publishing:true}})
+    commit("setStatus", {publishing:true})
     // Do copy
     let cmdText = `cp -r id:${meta.id}/* id:${ta.id}/`
     let re = await Wn.Sys.exec2(cmdText)
 
     // All done
-    commit("set", {status:{publishing:false}})
+    commit("setStatus", {publishing:false})
     commit("$toast", "i18n:weo-publish-done")
   },
   //---------------------------------------
   /***
    * Reload all
    */
-  async reload({state, commit, dispatch}, meta) {
+  async reload({state, commit}, meta) {
     // Use the default meta
     if(!meta) {
       meta = state.meta
     }
     // !!! Must be DIR
     if('DIR' != meta.race) {
-      commit("set", null)
+      commit("setMeta", null)
       return
     }
     // Update the current meta
     if(meta != state.meta) {
-      commit("set", {meta})
+      commit("setMeta", meta)
     }
     // Mark begin
-    commit("set", {status:{reloading:true}})
+    commit("setStatus", {reloading:true})
        
     let re = await Wn.Io.loadChildren(meta)
+    console.log("reload", re)
 
     // Update state and Mark end
-    commit("set", {
-      children : re.list,
-      pager    : re.pager,
-      currentIndex : 0,
-      currentId : null,
-      status:{reloading:false}
-    })
+    commit("setList", re.list)
+    commit("setPager", re.pager)
+    commit("setStatus", {reloading:false})
     
     // return the root state
+    return state
+  },
+  //---------------------------------------
+  async tryReload({state, commit, dispatch}, meta) {
+    if(!meta) {
+      commit("reset")
+    }
+    if(!state.meta 
+      || state.meta.id != meta.id 
+      || _.isEmpty(state.list)) {
+      return await dispatch("reload", meta)
+    }
     return state
   },
   //---------------------------------------

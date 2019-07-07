@@ -1,24 +1,29 @@
 export default {
+  inheritAttrs : false,
+  //////////////////////////////////////////
   props : {
     "meta" : {
       type : Object,
       default : ()=>({})
-    },
-    "contentType" : {
-      type : String,
-      default : null
     },
     "status" : {
       type : Object,
       default : ()=>({})
     }
   },
+  //////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    hasMeta() {
+      return _.isEmpty(this.meta) ? false : true
+    },
+    //--------------------------------------
     topClass() {
       return {
         "as-fullscreen" : this.status.fullscreen
       }
     },
+    //--------------------------------------
     previewComType() {
       if(this.meta) {
         let mime = this.meta.mime
@@ -36,23 +41,31 @@ export default {
         }
       }
     },
+    //--------------------------------------
     dataSource() {
       if(!this.meta)
         return ""
       let link = Wn.Util.getDownloadLink(this.meta, {mode:"auto"})
       return link.toString();
     },
+    //--------------------------------------
     dataIcon() {
       return Wn.Util.getIconObj(this.meta)
     },
+    //--------------------------------------
     dataTitle() {
       return Wn.Util.getObjDisplayName(this.meta)
     }
+    //--------------------------------------
   },
+  //////////////////////////////////////////
   methods : {
+    //--------------------------------------
     exitFullscreen(){
       let $app = Ti.App(this)
       $app.commit("main/exitFullscreen")
     }
+    //--------------------------------------
   }
+  //////////////////////////////////////////
 }

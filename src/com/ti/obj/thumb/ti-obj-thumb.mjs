@@ -1,4 +1,6 @@
 export default {
+  inheritAttrs : false,
+  ////////////////////////////////////////////////
   props : {
     index : {
       type : Number,
@@ -46,6 +48,7 @@ export default {
       default : "show"  // `show|weak|hide`
     }
   },
+  ////////////////////////////////////////////////
   mounted : function(){
     let vm = this
     if('localFile' == vm.preview.type) {
@@ -56,6 +59,7 @@ export default {
       reader.readAsDataURL(vm.preview.value);
     }
   },
+  ////////////////////////////////////////////////
   computed : {
     classObject() {
       let vm = this
@@ -79,7 +83,9 @@ export default {
       return {width:this.progressTip}
     }
   },
+  ////////////////////////////////////////////////
   methods : {
+    //--------------------------------------------
     onSelected(eo) {
       let vm = this
       let mode = "active"
@@ -97,6 +103,7 @@ export default {
         index: vm.index, 
       })
     },
+    //--------------------------------------------
     onOpen(eo) {
       let vm = this
       if(vm.selected) {
@@ -106,5 +113,7 @@ export default {
         })
       }
     }
+    //--------------------------------------------
   }
+  ////////////////////////////////////////////////
 }
