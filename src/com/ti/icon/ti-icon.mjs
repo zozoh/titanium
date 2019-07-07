@@ -1,18 +1,18 @@
 export default {
   props : {
-    value : {
+    "value" : {
       type : [String,Object],
       default : ""
     },
-    size : {
+    "size" : {
       type : [Number, String],
       default : "unset"
     },
-    color : {
+    "color" : {
       type : String,
       default : ""
     },
-    opacity : {
+    "opacity" : {
       type : Number,
       default : -1
     }
@@ -34,6 +34,11 @@ export default {
       if(_.isString(this.value)) {
         re.type = Ti.Util.getSuffixName(this.value) || "font"
       }
+      // for image
+      if(/^(jpe?g|gif|png)$/.test(re.type.toLowerCase())){
+        re.type = "iimg"
+      }
+
       return re
     },
     topStyle() {

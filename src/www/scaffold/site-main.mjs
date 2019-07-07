@@ -49,8 +49,9 @@ export default {
         _.assign(gui.schema, page.schema)
       }
       // format it
-      let fui = this.__format_obj(gui)
-      return fui
+      // let fui = this.__format_obj(gui)
+      // return fui
+      return Ti.Util.explainObj(this, gui)
     }
     //-------------------------------------
   },
@@ -64,35 +65,6 @@ export default {
   },
   /////////////////////////////////////////
   methods : {
-    //-------------------------------------
-    __format_obj(obj){
-      //console.log("format obj", obj)
-      // Array
-      if(_.isArray(obj)) {
-        let list = []
-        for(let val of obj) {
-          list.push(this.__format_obj(val))
-        }
-        return list
-      }
-      // Plain Object
-      if(_.isPlainObject(obj)) {
-        let o2 = {}
-        _.forEach(obj, (v2, k2)=>{
-          o2[k2] = this.__format_obj(v2)
-        })
-        return o2
-      }
-      // String: @xx.xx
-      if(_.isString(obj)) {
-        let m = /^=(.+)$/.exec(obj)
-        if(m) {
-          return _.get(this, m[1])
-        }
-      }
-      // Others
-      return obj
-    },
     //--------------------------------------
     async showBlock(name) {
       let app = Ti.App(this)

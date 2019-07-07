@@ -1,13 +1,22 @@
 <span class="ti-icon" :style="topStyle">
   <span class="tii-con">
+    <!--
+      Font icon
+    -->
     <i v-if="'font'==icon.type"
       :class="fontIcon.className"
       :style="fontStyle">
       <template v-if="fontIcon.text">{{fontIcon.text}}</template>
     </i>
+    <!--
+      Svg
+    -->
     <img v-else-if="'svg'==icon.type"
         :src="icon.value"
         :style="imgStyle"/>
+    <!--
+      Default ligature font 
+    -->
     <em v-else>{{value}}</em>
   </span>
 </span>
