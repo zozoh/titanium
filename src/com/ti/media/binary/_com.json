@@ -1,0 +1,6 @@
+{
+  "name" : "ti-media-binary",
+  "globally" : true,
+  "template" : "./ti-media-binary.html",
+  "mixins" : ["./ti-media-binary.mjs"]
+}

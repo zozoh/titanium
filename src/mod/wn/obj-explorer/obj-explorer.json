@@ -16,6 +16,7 @@
   "currentId" : null,
   "checkedIds" : [],
   "uploadings" : [],
+  "uploadDialog" : false,
   "status" : {
     "publishing" : false,
     "reloading" : false,

@@ -1,6 +1,11 @@
 .ti-wall {
   overflow:auto;
-  @include flex-align($jc:space-around, $ac:flex-start,$ai:flex-start);
+  @include flex-align($ac:flex-start,$ai:flex-start);
+  // &.is-only-one-row {
+  // }
+  &.is-multi-rows {
+    justify-content: space-around;
+  }
   //-------------------------------------
   &.spacing-xs {padding:.08rem;  >* {margin:.02rem;}}
   &.spacing-sm {padding:.08rem;  >* {margin:.08rem;}}

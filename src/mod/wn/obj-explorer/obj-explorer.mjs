@@ -166,17 +166,24 @@ export default {
     },
     //---------------------------------------------------
     updateItemStatus(state, {id, status={}}={}) {
-      if(_.isArray(state.list)) {
-        for(let i=0; i<state.list.length; i++) {
-          let child = state.list[i]
-          if(child.id == id) {
-            child.__is = child.__is || {}
-            _.assign(child.__is, status)
-            Vue.set(state.list, i, child)
-            break;
-          }
+      let list = []
+      for(let li of state.list) {
+        if(li.id == id) {
+          let st = li.__is || {}
+          _.assign(st, status)
+          list.push({
+            ...li,
+            __is : st
+          })
+        } else {
+          list.push(li)
         }
       }
+      state.list = list
+    },
+    //---------------------------------------------------
+    showUploadFilePicker(state) {
+      state.uploadDialog = true
     },
     // //---------------------------------------------------
     // updateChild(state, it={}) {
@@ -222,6 +229,7 @@ export default {
     //---------------------------------------------------
     clearUploadings(state) {
       state.uploadings = []
+      state.uploadDialog = false
     },
     //---------------------------------------------------
     updateUploadProgress(state, {uploadId, loaded=0}={}){

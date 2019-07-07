@@ -159,7 +159,10 @@ export default {
         }
       }
       // Try to reload the children
-      await dispatch("files/tryReload", oDir)
+      let {list} = await dispatch("files/tryReload", oDir)
+      if(!_.isEmpty(list) && !state.files.currentId) {
+        commit("files/selectItem", list[0].id)
+      }
     }
   },
   //--------------------------------------------

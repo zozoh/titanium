@@ -7,7 +7,8 @@ export default {
     p_current_id  : null,
     p_checked_ids : {},
     col_count : 0,
-    col_width : 0
+    col_width : 0,
+    only_one_row : true
   }),
   ///////////////////////////////////////////////////
   props : {
@@ -118,7 +119,10 @@ export default {
     //--------------------------------------
     blankCols() {
       let list = []
-      if(!_.isEmpty(this.list) && this.col_count > 0 && this.col_width > 1) {
+      if(!_.isEmpty(this.list) 
+        && this.col_count > 0 
+        && this.col_width > 1
+        && !this.only_one_row) {
         // get list real count
         let n = this.listRealCount % this.col_count
         let nr = this.col_count - n
@@ -134,12 +138,21 @@ export default {
     //--------------------------------------
     topClass() {
       let klass = [`spacing-${this.spacing}`]
+      //......................
       if(this.border) {
         klass.push("show-border")
       }
+      //......................
       if(this.className) {
         klass.push(this.className)
       }
+      //......................
+      if(this.only_one_row) {
+        klass.push("is-only-one-row")
+      } else {
+        klass.push("is-multi-rows")
+      }
+      //......................
       if(!_.isEmpty(klass))
         return klass.join(" ")
     },
@@ -384,6 +397,7 @@ export default {
         let cols  = 0
         let width = 1
         let top = -1
+        let only_one_row = true
         for(let $div of $divs) {
           let rect = $div.getBoundingClientRect()
           if(top < 0) {
@@ -395,6 +409,7 @@ export default {
           }
           // Find the next row
           else {
+            only_one_row = false
             break
           }
         }
@@ -402,6 +417,7 @@ export default {
         if(width > 1) {
           this.col_count = cols
           this.col_width = width
+          this.only_one_row = only_one_row
         }
       })
     }

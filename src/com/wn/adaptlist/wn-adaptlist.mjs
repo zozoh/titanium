@@ -66,6 +66,10 @@ export default {
       type : Boolean,
       default : true
     },
+    "uploadDialog" : {
+      type : Boolean,
+      default : false
+    },
     // aspect: list item spacing
     // `xs|sm|md|lg|xl`
     "spacing" : {
@@ -79,6 +83,7 @@ export default {
         "setCurrentId"        : "commit:main/setCurrentId",
         "setCheckedIds"       : "commit:main/setCheckedIds",
         "blurAll"             : "commit:main/blurAll",
+        "clearUploadings"     : "commit:main/clearUploadings",
         "upload"              : "dispatch:main/upload"
       })
     }
@@ -138,6 +143,13 @@ export default {
           duration : 3000,
           type: 'success'
         });
+      }
+    },
+    //--------------------------------------------
+    "uploadDialog" : function() {
+      //console.log("uploadDialog", this.uploadDialog)
+      if(this.uploadDialog) {
+        this.openLocalFileSelectdDialog()
       }
     }
     //--------------------------------------------
@@ -250,6 +262,7 @@ export default {
     },
     //--------------------------------------------
     openLocalFileSelectdDialog(){
+      this._run("clearUploadings")
       this.$refs.file.click()
     },
     //--------------------------------------------

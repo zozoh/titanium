@@ -36,7 +36,9 @@
       <div v-if="b.isShown"
         class="gui-panel"
         :class="b.className"
-        :key="b.name">
+        :style="b.panelStyle"
+        :key="b.name"
+        @click="onClickPanel($event, b.name)">
         <ti-block 
           v-bind="b.info"
           :float="true"

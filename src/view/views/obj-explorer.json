@@ -100,7 +100,7 @@
           "type" : "action",
           "icon" : "zmdi-cloud-upload",
           "text" : "i18n:upload-file",
-          "action" : "main:openLocalFileSelectdDialog",
+          "action" : "commit:main/showUploadFilePicker",
           "shortcut" : "ALT+CTRL+SHIFT+U"
         },{
           "type" : "line"

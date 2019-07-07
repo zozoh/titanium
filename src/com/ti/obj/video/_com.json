@@ -1,6 +1,0 @@
-{
-  "name" : "ti-obj-video",
-  "globally" : true,
-  "template" : "./ti-obj-video.html",
-  "mixins" : ["./ti-obj-video.mjs"]
-}

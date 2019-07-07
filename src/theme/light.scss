@@ -55,12 +55,12 @@ $color-line: (
 @import "com/_ti-loading.scss";
 @import "com/_ti-menu.scss";
 @import "com/_ti-modal.scss";
-@import "com/_ti-obj-binary.scss";
 @import "com/_ti-obj-creation.scss";
-@import "com/_ti-obj-image.scss";
 @import "com/_ti-obj-meta.scss";
 @import "com/_ti-obj-thumb.scss";
-@import "com/_ti-obj-video.scss";
+@import "com/_ti-media-binary.scss";
+@import "com/_ti-media-image.scss";
+@import "com/_ti-media-video.scss";
 @import "com/_ti-text-raw.scss";
 @import "com/_ti-paging.scss";
 //-----------------------------------------------------

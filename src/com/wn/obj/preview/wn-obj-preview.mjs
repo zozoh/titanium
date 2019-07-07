@@ -29,15 +29,15 @@ export default {
         let mime = this.meta.mime
         // Video
         if(mime.startsWith("video/")){
-          return "ti-obj-video"
+          return "ti-media-video"
         }
         // Image
         else if(mime.startsWith("image/")){
-          return "ti-obj-image"
+          return "ti-media-image"
         }
         // Binary
         else {
-          return "ti-obj-binary"
+          return "ti-media-binary"
         }
       }
     },

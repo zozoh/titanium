@@ -48,7 +48,7 @@ export default {
     },
     formedPanelList() {
       // @see ti-gui-methods.mjs#getFormedBlockList
-      return this.getFormedBlockList(this.panels, this.shown)
+      return this.getFormedBlockList(this.panels, this.shown, true)
     },
     hasPanels() {
       return !_.isEmpty(this.panels)
@@ -64,6 +64,15 @@ export default {
         return this.loadingAs
       }
       return {}
+    }
+  },
+  //////////////////////////////////////////
+  methods : {
+    onClickPanel($event, name) {
+      if(Ti.Dom.hasClass($event.target, "gui-panel")) {
+        console.log("click panel", name)
+        this.$emit("block:hide", name)
+      }
     }
   }
   //////////////////////////////////////////

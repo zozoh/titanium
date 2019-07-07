@@ -34,6 +34,10 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "uploadDialog" : {
+      type : Boolean,
+      default : false
+    },
     "status" : {
       type : Object,
       default : ()=>({})
@@ -49,6 +53,7 @@ export default {
         "setCheckedIds"       : "commit:main/files/setCheckedIds",
         "selectItem"          : "commit:main/files/selectItem",
         "blurAll"             : "commit:main/files/blurAll",
+        "clearUploadings"     : "commit:main/files/clearUploadings",
         "upload"              : "dispatch:main/files/upload"
       }
     },

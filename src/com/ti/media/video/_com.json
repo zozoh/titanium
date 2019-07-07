@@ -1,0 +1,6 @@
+{
+  "name" : "ti-media-video",
+  "globally" : true,
+  "template" : "./ti-media-video.html",
+  "mixins" : ["./ti-media-video.mjs"]
+}

@@ -1,0 +1,6 @@
+{
+  "name" : "ti-media-image",
+  "globally" : true,
+  "template" : "./ti-media-image.html",
+  "mixins" : ["./ti-media-image.mjs"]
+}

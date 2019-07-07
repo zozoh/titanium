@@ -1,21 +1,57 @@
 export default {
   //--------------------------------------
-  formatGuiBlock(b={}, shown={}) {
+  formatGuiBlock(b={}, shown={}, float=false) {
     // ClassName
     let klass = [`at-${b.position||"center"}`]
     // Show/hide
     let isShown = shown[b.name] ? true : false
     // Mask
     if(b.mask) {
-      klass.push(`show-mask`)
+      klass.push("show-mask")
+    } else {
+      klass.push("no-mask")
     }
     // Transition Name
     let transName = b.position ? `gui-panel-${b.position}` : null
     // Block Info
-    let info = _.pick(b, [
-        "className",
-        "icon","title","actions","name", "adjustable", "closer", 
-        "position", "width", "height", "overflow", "status"])
+    let pickKeys = [
+      "className",
+      "icon","title","actions","name", "adjustable", "closer", 
+      "position", "overflow", "status"]
+    let panelSize = {}
+    // !!!
+    // If block is float, that mean it in a panel
+    // keep the width/height outside block info
+    // it should not set to the block but the panel
+    // !!!
+    if(!float || b.mask) {
+      pickKeys.push("width")
+      pickKeys.push("height")
+    }
+    // panelSize should be assign to top
+    else {
+      // left/right:  panel hold the with
+      if(/^(left|right)$/.test(b.position)) {
+        pickKeys.push("height")
+        panelSize.width = b.width
+      }
+      // top/bottom:  panel hold the height
+      else if(/^(top|bottom)$/.test(b.position)) {
+        pickKeys.push("width")
+        panelSize.height = b.height
+      }
+      // center, block hold the size
+      else if("center"==b.position){
+        pickKeys.push("width")
+        pickKeys.push("height")
+      }
+      // Others, panel hold the size
+      else {
+        panelSize.width = b.width
+        panelSize.height = b.height
+      }
+    }
+    let info = _.pick(b, pickKeys)
     // Sizing
     if(b.size && "stretch"!=b.size) {
       // Cols
@@ -60,17 +96,18 @@ export default {
     // Join to result list
     return {
       className: klass.join(" "), 
+      panelStyle : Ti.Css.toStyle(panelSize),
       name : b.name,
       isShown, transName,
       info, comType, comConf
     }
   },
   //--------------------------------------
-  getFormedBlockList(list=[], shown={}) {
+  getFormedBlockList(list=[], shown={}, float=false) {
     let list2 = []
     if(_.isArray(list)) {
       for(let b of list) {
-        let b2 = this.formatGuiBlock(b, shown)
+        let b2 = this.formatGuiBlock(b, shown, float)
         list2.push(b2)
       }
     }
