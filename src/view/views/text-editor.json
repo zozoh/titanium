@@ -25,22 +25,5 @@
       },
       "action" : "dispatch:main/reload",
       "shortcut" : "CTRL+R"
-    }, {
-      "key"  : "more",
-      "type" : "group",
-      "icon" : "zmdi-settings",
-      "text" : "i18n:more",
-      "items" : [{
-        "key"  : "saving",
-        "type" : "action",
-        "icon" : "zmdi-floppy",
-        "text" : "i18n:save-change",
-        "enableBy" : "changed",
-        "altDisplay" : {
-          "icon" : "fas-spinner fa-pulse",
-          "text" : "i18n:saving"
-        },
-        "action" : "dispatch:main/save"
-      }]
     }]
 }

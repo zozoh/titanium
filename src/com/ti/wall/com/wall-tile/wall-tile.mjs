@@ -14,6 +14,10 @@ export default {
       type : String,
       default : null
     },
+    "index" : {
+      type : Number,
+      default : -1
+    },
     "data" : {
       type : Object,
       default : ()=>({})
@@ -68,9 +72,11 @@ export default {
     },
     //-----------------------------------------------
     formedData() {
+      let data = _.assign({}, this.data)
       if(_.isFunction(this.transformer))
-        return this.transformer(this.data)
-      return this.data
+        data = this.transformer(data)
+      data.index = this.index
+      return data
     },
     //-----------------------------------------------
     formedComConf() {

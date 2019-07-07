@@ -34,6 +34,12 @@ export default {
     }
   },
   ///////////////////////////////////////////
+  watch : {
+    "config.actions" : function() {
+      this.$emit("actions:updated", this.config.actions)
+    }
+  },
+  ///////////////////////////////////////////
   computed : {
     currentLayout() {
       return this.getLayout(this.viewportMode)

@@ -42,17 +42,22 @@
       // zozoh: Maybe I need read:
       // https://css-tricks.com/almanac/properties/l/line-clamp/
       // for more detail to support the Firefox
+      > a {
+        @include color($color-body, r);
+        &:hover {
+          @include color($color-primary, c);
+        }
+      }
     }
-  }
-  &.is-selected {
-    @include color($color-selected, r, c);
-  }
-  &.is-current {
-    border-style: dotted;
-    border-color: map-get($color-primary, c);
   }
   &.is-removed {opacity:0.4;}
   &.is-weak {opacity:0.4;}
   &.is-hide {display:none;}
 }
 
+// For selected
+.is-selected .ti-obj-thumb {
+  > footer > .as-title > a {
+    @include color($color-selected, r);
+  }
+}

@@ -25,7 +25,9 @@
       :transformer="transformerFunction"
       :com-type="comType"
       :com-conf="comConf"
-      @click.native.stop="onSelected(it, index, $event)"
+      :index="index"
+      @selected="onTileSelected"
+      @click.native.stop="onSelected({it, index, $event})"
       @dblclick.native.stop="onOpen(it, index)"/>
   </template>
 </div>

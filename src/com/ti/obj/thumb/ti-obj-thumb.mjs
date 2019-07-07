@@ -23,19 +23,15 @@ export default {
         value : "broken_image"
       })
     },
-    selected : {
-      type : Boolean,
-      default : false
+    href : {
+      type : String,
+      default : null
     },
     loading : {
       type : Boolean,
       default : false
     },
     removed : {
-      type : Boolean,
-      default : false
-    },
-    current : {
       type : Boolean,
       default : false
     },
@@ -64,9 +60,6 @@ export default {
     classObject() {
       let vm = this
       return {
-        "is-selected"   : vm.selected,
-        "is-renameable" : vm.renameable,
-        "is-current"    : vm.current,
         "is-removed"    : vm.removed,
         "is-loading"    : vm.loading,
         "is-hide" : ('hide' == vm.visibility),
@@ -86,32 +79,13 @@ export default {
   ////////////////////////////////////////////////
   methods : {
     //--------------------------------------------
-    onSelected(eo) {
-      let vm = this
-      let mode = "active"
-      // shift key on: batch
-      if(eo.shiftKey) {
-        mode = "shift"
-      }
-      // ctrl key on: toggle
-      else if(eo.ctrlKey || eo.metaKey) {
-        mode = "toggle"
-      }
-      vm.$emit('selected', {
-        mode,
-        id : vm.id,
-        index: vm.index, 
+    onClickTitle($event) {
+      //console.log("onClickTitle", $event)
+      this.$emit("selected", {
+        index : this.index,
+        id : this.id,
+        $event : $event
       })
-    },
-    //--------------------------------------------
-    onOpen(eo) {
-      let vm = this
-      if(vm.selected) {
-        vm.$emit('open', {
-          id : vm.id,
-          index: vm.index, 
-        })
-      }
     }
     //--------------------------------------------
   }

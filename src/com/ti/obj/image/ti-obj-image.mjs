@@ -40,9 +40,11 @@ export default {
   methods : {
     onImageLoaded() {
       let $img = this.$refs.the_image
-      this.naturalWidth  = $img.naturalWidth
-      this.naturalHeight = $img.naturalHeight
-      this.doResizeImage()
+      if($img) {
+        this.naturalWidth  = $img.naturalWidth
+        this.naturalHeight = $img.naturalHeight
+        this.doResizeImage()
+      }
     },
     isContainsByViewport() {
       // Get the viewport

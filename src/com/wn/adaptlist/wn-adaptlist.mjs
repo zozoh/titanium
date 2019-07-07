@@ -78,7 +78,6 @@ export default {
         "recoverExposeHidden" : "commit:main/recoverExposeHidden",
         "setCurrentId"        : "commit:main/setCurrentId",
         "setCheckedIds"       : "commit:main/setCheckedIds",
-        "selectItem"          : "commit:main/selectItem",
         "blurAll"             : "commit:main/blurAll",
         "upload"              : "dispatch:main/upload"
       })
@@ -161,6 +160,7 @@ export default {
         id    : it.id,
         title : Wn.Util.getObjDisplayName(it),
         preview : Wn.Util.genPreviewObj(it),
+        href : Wn.Util.getAppLink(it).toString(),
         visibility,
         ...(it.__is || {
           loading  : false,
@@ -191,16 +191,23 @@ export default {
       }
     },
     //--------------------------------------------
-    onSelected({current, selected}) {
+    onSelected({current, selected, selectingOnly}) {
       let cid = current ? current.id : null
-      this._run("setCurrentId", cid)
+      // For Desktop
+      if(this.isViewportModeDesktop || selectingOnly) {
+        this._run("setCurrentId", cid)
 
-      if(_.isArray(selected)) {
-        let ids = []
-        for(let it of selected) {
-          ids.push(it.id)
+        if(_.isArray(selected)) {
+          let ids = []
+          for(let it of selected) {
+            ids.push(it.id)
+          }
+          this._run("setCheckedIds", ids)
         }
-        this._run("setCheckedIds", ids)
+      }
+      // Mobile and phone
+      else {
+        this.$emit("open", current)
       }
     },
     //--------------------------------------------

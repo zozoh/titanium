@@ -256,7 +256,7 @@ export default {
     commit("setStatus", {reloading:true})
        
     let re = await Wn.Io.loadChildren(meta)
-    console.log("reload", re)
+    //console.log("reload", re)
 
     // Update state and Mark end
     commit("setList", re.list)

@@ -1,1 +1,62 @@
-[]
+[{
+  "key"  : "reloading",
+  "type" : "action",
+  "icon" : "zmdi-refresh",
+  "text" : "i18n:refresh",
+  "altDisplay" : {
+    "icon" : "zmdi-refresh zmdi-hc-spin",
+    "text" : "i18n:loading"
+  },
+  "action" : "dispatch:main/reload",
+  "shortcut" : "CTRL+R"
+}, {
+  "type" : "line"
+}, {
+  "type" : "group",
+  "icon" : "zmdi-more-vert",
+  "items" : [{
+      "key"  : "deleting",
+      "type" : "action",
+      "icon" : "zmdi-delete",
+      "text" : "i18n:del",
+      "altDisplay" : {
+        "icon" : "zmdi-settings zmdi-hc-spin",
+        "text" : "i18n:del-ing"
+      },
+      "action" : "dispatch:main/removeChecked",
+      "shortcut" : "CTRL+DELETE"
+    }, {
+      "type" : "line"
+    }, {
+      "key"  : "inRecycleBin",
+      "type" : "action",
+      "icon" : "fas-recycle",
+      "text" : "i18n:thing-enter-recyclebin",
+      "altDisplay" : {
+        "icon" : "far-arrow-alt-circle-left",
+        "text" : "i18n:thing-leave-recyclebin",
+        "capture" : false
+      },
+      "action" : "dispatch:main/toggleInRecycleBin"
+    }, {
+      "key"  : "restoring",
+      "type" : "action",
+      "icon" : "zmdi-time-restore",
+      "text" : "i18n:thing-restore",
+      "altDisplay" : {
+        "icon" : "zmdi-time-restore zmdi-hc-spin",
+        "text" : "i18n:thing-restoring"
+      },
+      "action" : "dispatch:main/restoreRecycleBin"
+    }, {
+      "key"  : "cleaning",
+      "type" : "action",
+      "icon" : "fas-trash-restore",
+      "text" : "i18n:thing-clean",
+      "altDisplay" : {
+        "icon" : "zmdi-settings zmdi-hc-spin",
+        "text" : "i18n:thing-cleaning"
+      },
+      "action" : "dispatch:main/cleanRecycleBin"
+    }]
+}]

@@ -1,6 +1,5 @@
 <div class="ti-obj-thumb" 
-    :class="classObject" 
-    >
+    :class="classObject">
   <header>
     <div class="as-preview">
       <template v-if="'localFile'==preview.type">
@@ -29,6 +28,12 @@
               value="far-trash-alt"/>
   </section>
   <footer>
-    <div class="as-title">{{title}}</div>
+    <div class="as-title"
+      @click.stop="onClickTitle">
+      <a v-if="href"
+        :href="href"
+        @click.prevent>{{title}}</a>
+      <span v-else>{{title}}</span>
+    </div>
   </footer>
 </div>

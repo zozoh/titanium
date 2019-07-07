@@ -210,29 +210,34 @@ export default {
       throw Ti.Err.make("e-com-TiTable-getIds-invalidMode", mode)
     },
     //--------------------------------------
-    onSelected(it, index, eo){
+    onTileSelected({id, index, $event}={}) {
+      //console.log(id, index, $event)
+      this.onSelected({it:id, index, $event, selectingOnly:true})
+    },
+    //--------------------------------------
+    onSelected({it, index, $event, selectingOnly=false}={}){
       if(!this.selectable){
         return
       }
       // Eval Mode
       let mode = "active"
       if(this.multi) {
-        if(eo.shiftKey) {
+        if($event.shiftKey) {
           mode = "shift"
         }
         // ctrl key on: toggle
-        else if(eo.ctrlKey || eo.metaKey) {
+        else if($event.ctrlKey || $event.metaKey) {
           mode = "toggle"
         }
       }
 
+      // Eval current ID
+      let id = _.isString(it) ? it : it[this.idKey]
+
       // Already current, ignore
-      if("active" == mode && this.p_current_id == it.id) {
+      if("active" == mode && this.p_current_id == id) {
         return
       }
-
-      // Eval current ID
-      let id = it[this.idKey]
 
       // Get Check Ids
       this.p_checked_ids = this.getIds({
@@ -253,13 +258,14 @@ export default {
       // Do emit
       this.$emit("selected", {
         selected : this.selectedItems,
-        current  : this.currentItem
+        current  : this.currentItem,
+        selectingOnly
       })
     },
     //--------------------------------------
     onToggle(it) {
-      console.log("TiWall::onToggle")
-      let id = it[this.idKey]
+      //console.log("TiWall::onToggle")
+      let id = _.isString(it) ? it : it[this.idKey]
       // Cancel it
       if(this.p_checked_ids[id]) {
         this.p_checked_ids = {

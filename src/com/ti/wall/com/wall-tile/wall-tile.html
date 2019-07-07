@@ -1,4 +1,7 @@
 <div class="wall-tile"
   :class="topClass">
-  <component :is="comType" v-bind="formedComConf"/>
+  <component 
+    :is="comType" 
+    v-bind="formedComConf"
+    @selected="$emit('selected', $event)"/>
 </div>
