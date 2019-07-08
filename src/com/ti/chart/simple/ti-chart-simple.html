@@ -4,7 +4,7 @@
     @click="drawAll">{{title}}</header>
   <aside v-if="aside">
     <slot name="aside">
-      <span v-if="unit">单位: {{unit}}</span>
+      <span v-if="unit">{{unit}}</span>
     </slot>
   </aside>
   <section class="chart-main" ref="chart"></section>

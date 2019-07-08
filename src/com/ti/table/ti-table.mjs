@@ -612,6 +612,11 @@ export default {
       leading : false
     })
     //.................................
+    // Update Sizing Right Now
+    this.$nextTick(()=>{
+      this.updateSizing()
+    })
+    //.................................
     this.$watch("fields", debounceUpdateSizing)
     this.$watch("list"  , debounceUpdateSizing)
     //.................................

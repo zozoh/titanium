@@ -5,6 +5,8 @@ function draw_chart({
   data=[],
   axisX,
   axisY,
+  color,
+  animate,
   padding,
   minValue,
   maxValue,
@@ -80,16 +82,59 @@ function draw_chart({
   })
   //.......................................
   // 图表种类和风格
+  let factory = ({
+    //+++++++++++++++++++++++++++++++++++++
+    // 折线
+    line() {
+      let geom = chart.line().position(position)
+      chart.point().position(position).size(4).shape('circle').style({
+        stroke: '#fff',
+        lineWidth: 1
+      });
+      return geom
+    },
+    //+++++++++++++++++++++++++++++++++++++
+    // 柱图·单柱
+    interval() {
+      return chart.interval().position(position)
+    },
+    //+++++++++++++++++++++++++++++++++++++
+    // 柱图·分组
+    intervalDodge() {
+      return chart.interval().position(position).adjust([{
+        type: 'dodge',
+        marginRatio: 1 / 32
+      }])
+    },
+    //+++++++++++++++++++++++++++++++++++++
+    // 柱图·堆叠
+    intervalStack(position) {
+      return chart.intervalStack().position(position)
+    },
+  })[type]
+  // 默认就是柱图
+  factory = factory || ((position)=>{
+    return chart.interval().position(position)
+  })
+  //.......................................
+  // 生成图表
   let position = `${axisX.name}*${axisY.name}`
-  let geom = chart[type]()
-    .position(position)
-    //.color(color || 'l(270) 0:#0d4a6a 1:#00fddd')
-    .animate({
-      appear: {
-        delay: 500, // 动画延迟执行时间
-        duration: 1000 // 动画执行时间
-      }
-    });
+  let geom = factory(position)
+  //.......................................
+  // 设置数据显示
+      //.color(color || 'l(270) 0:#0d4a6a 1:#00fddd')
+    // .animate({
+    //   appear: {
+    //     delay: 500, // 动画延迟执行时间
+    //     duration: 1000 // 动画执行时间
+    //   }
+    // });
+  if(color) {
+    geom.color(color)
+  }
+  if(animate) {
+    geom.animate(animate)
+  }
     
   //.......................................
   // 渲染并返回
@@ -138,7 +183,7 @@ export default {
     },
     "padding" : {
       type: Array,
-      default : ()=>[20,20,30,45]
+      default : ()=>[20,20,50,50]
     },
     "minValue" : {
       type: Number,
@@ -147,6 +192,17 @@ export default {
     "maxValue" : {
       type: Number,
       default : undefined
+    },
+    "color" : {
+      type: String,
+      default : null
+    },
+    "animate" : {
+      type : Object,
+      default : ()=>({
+        delay: 500, // 动画延迟执行时间
+        duration: 1000 // 动画执行时间
+      })
     },
     "valueInterval" : {
       type: Number,
