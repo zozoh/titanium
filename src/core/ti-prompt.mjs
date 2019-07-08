@@ -15,7 +15,7 @@ export async function Prompt(msg="", {
   let str = Ti.I18n.text(msg)
   let plh = Ti.I18n.text(placeholder)
   // Build promptHtml
-  let promptHtml = `<div class="prompt-tip">${str}</div>
+  let promptHtml = `<div class="prompt-tip">${str}::{{viewportMode}}</div>
   <div class="prompt-input">
     <input v-model="value" ref="inbox"
             :placeholder="placeholder"
@@ -33,7 +33,7 @@ export async function Prompt(msg="", {
       textAsHtml : true
     })
   // Open modal
-  return Ti.Modal({
+  return Ti.Modal.Open({
     // !!! zozoh: Why function don't work? I should find the reason later!
     // data : ()=>({value, placeholder}),
     data : {value, placeholder},

@@ -11,7 +11,7 @@
     <!--
       Svg
     -->
-    <img v-else-if="'svg'==icon.type"
+    <img v-else-if="'svg'==icon.type || 'img'==icon.type"
         :src="icon.value"
         :style="imgStyle"/>
     <!--

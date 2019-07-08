@@ -1,14 +1,64 @@
+//////////////////////////////////////////////
+// Store all live dialog instance as stack
+class TiModalRuntime {
+  //------------------------------------------
+  constructor() {
+    this.viewportMode = "desktop"
+    this.stack = []
+  }
+  //------------------------------------------
+  push(dia) {
+    if(dia) {
+      dia.$app().commit("viewport/setMode", this.viewportMode)
+      this.stack.push(dia)
+    }
+  }
+  //------------------------------------------
+  remove(dia) {
+    let stack = []
+    let re
+    for(let it of this.stack) {
+      if(it === dia) {
+        re = it
+      } else {
+        stack.push(it)
+      }
+    }
+    this.stack = stack
+    return re
+  }
+  //------------------------------------------
+  setViewportMode(mode) {
+    this.viewportMode = mode
+    for(let dia of this.stack) {
+      dia.$app().commit("viewport/setMode", mode)
+    }
+  }
+  //------------------------------------------
+  pop() {
+    return this.stack.pop()
+  }
+  //------------------------------------------
+}
+//////////////////////////////////////////////
+const DRT = new TiModalRuntime()
 const APP_INFO = Symbol("dia-app-info")
 const OPTIONS  = Symbol("dia-options")
+const _APP_    = Symbol("dia-app-instance")
 //-----------------------------------
 class TiModalDialog {
+  //------------------------------------------
   constructor(appInfo={}, options={}) {
+    // Append Viewport support
+    // The viewport module getters has been mapped by "com_mixins.mjs"
+    // which setup be Ti.Config comDecorator in pc_tmpl.html
+    _.set(appInfo, "store.modules.viewport", "@mod:ti/viewport")
+    // Store
     this[APP_INFO] = appInfo
     this[OPTIONS]  = options
   }
-  /***
-   * Open dialog
-   */
+  //------------------------------------------
+  // Open dialog
   async open(){
     // Extract vars
     let appInfo = this[APP_INFO]
@@ -31,11 +81,15 @@ class TiModalDialog {
       }]
     } = this[OPTIONS]
     // Create the DOM root
+    let klass = ["ti-modal", `vm-${DRT.viewportMode}`]
+    if(className) {
+      klass.push(className)
+    }
+    if(/^(success|warn|info|error|tracke)$/.test(type)){
+      klass.push("ti-" + type)
+    }
     let $el = Ti.Dom.createElement({
-      className: ["ti-modal", className, 
-        /^(success|warn|info|error|tracke)$/.test(type)
-                  ? "ti-" + type
-                  : "" ].join(" "),
+      className: klass.join(" "),
       $p : document.body
     })
     //........................................
@@ -102,17 +156,23 @@ class TiModalDialog {
     // create TiApp
     // console.log(appInfo)
     let app = await Ti.App(appInfo)
+    this[_APP_] = app
     await app.init()
     //........................................
     // Mount to body
     app.mountTo($body.firstChild)
     app.$modal = this
     //........................................
+    // Join to runtime
+    DRT.push(this)
+    //........................................
     _.assign(this, {app, $el, $main, $body, $closer, $actions, $btns:{}})
     let context = this
     //........................................
     // await the modal dialog close
     let data = await new Promise((resolve, reject)=>{
+      // Save the Close function
+      this.__close_by = resolve
       // Bind closer event
       if($closer) {
         $closer.addEventListener("click", ()=>{
@@ -147,11 +207,36 @@ class TiModalDialog {
     // return the data
     return _.isUndefined(data2) ? data : data2
   }
+  //------------------------------------------
+  $app() {
+    return this[_APP_]
+  }
+  //------------------------------------------
+  close() {
+    if(_.isFunction(this.__close_by)){
+      this.__close_by()
+    }
+  }
+  //------------------------------------------
 }
-//-----------------------------------
-export async function OpenModal(appInfo, options) {
-  let dia = new TiModalDialog(appInfo, options)
-  return dia.open()
+//////////////////////////////////////////////
+export const TiModal = {
+  //------------------------------------------
+  Open(appInfo, options) {
+    let dia = new TiModalDialog(appInfo, options)
+    return dia.open()
+  },
+  //------------------------------------------
+  SetViewportMode(mode) {
+    DRT.setViewportMode(mode)
+  },
+  //------------------------------------------
+  Close() {
+    let dia = DRT.pop()
+    if(dia) {
+      dia.close()
+    }
+  }
+  //------------------------------------------
 }
-//-----------------------------------
-export default OpenModal
+//////////////////////////////////////////////

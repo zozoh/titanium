@@ -1,7 +1,7 @@
 import {Alert}   from "./ti-alert.mjs"
 import {Confirm} from "./ti-confirm.mjs"
 import {Prompt}  from "./ti-prompt.mjs"
-import {OpenModal   as Modal   } from "./modal-dialog.mjs"
+import {TiModal     as Modal   } from "./modal-dialog.mjs"
 import {TiBehaviors as Be      } from "./behaviors.mjs"
 import {TiAlg       as Alg     } from "./algorithm.mjs"
 import {TiStr       as S       } from "./str.mjs"

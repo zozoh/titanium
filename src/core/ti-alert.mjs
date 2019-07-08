@@ -16,7 +16,7 @@ export async function Alert(msg="", {
       textClass : "ti-modal-noti-text"
     })
   // Open modal
-  return Ti.Modal({
+  return Ti.Modal.Open({
     template : html
   }, {
     title, type, width, height, className,

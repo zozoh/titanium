@@ -215,6 +215,7 @@ export default {
         type : "warning",
         text : "i18n:weo-publish-to-nil"
       })
+      return
     }
     // Get the target
     let ta = await Wn.Io.loadMetaAt(meta, meta.publish_to)
@@ -223,6 +224,7 @@ export default {
         type : "warning",
         text : "i18n:weo-publish-to-noexist"
       })
+      return
     }
 
     commit("setStatus", {publishing:true})
@@ -290,7 +292,7 @@ export default {
                     {as:"json"})
 
     // Open modal to get the file name
-    let no = await Ti.Modal({
+    let no = await Ti.Modal.Open({
       data : {
         types : types || [],
         freeCreate : freeCreate,

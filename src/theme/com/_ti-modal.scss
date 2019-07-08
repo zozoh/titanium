@@ -83,7 +83,7 @@
             @include fireable;
             @include border(1px, solid, dark);
             margin:.02rem; padding:0 .12rem;
-            font-size:.12rem; line-height:2.4em;
+            font-size:12px; line-height:2.4em;
             min-width:1rem; text-align:center;
             letter-spacing: .1em;
             .mdl-btn-icon {margin-right:.05rem;}

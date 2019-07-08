@@ -129,6 +129,7 @@ async function main(){
       $root.style.fontSize = fontSize + "px"
       $root.setAttribute("as", mode)
       app.commit("viewport/setMode", mode)
+      Ti.Modal.SetViewportMode(mode)
     }
   })
 
