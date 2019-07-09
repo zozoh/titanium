@@ -138,7 +138,7 @@ export default {
   },
   //--------------------------------------------
   async reloadFiles({state,commit,dispatch}, {force=false}={}) {
-    console.log("reloadFiles")
+    //console.log("reloadFiles")
     let current = state.current.meta
     let thingId = (current||{}).id
     let dirName = state.filesName
@@ -152,12 +152,20 @@ export default {
       // get the parent DIR
       let oDir = state.files.meta
       if(!oDir || !oDir.ph || !oDir.ph.endsWith(`/data/${thingId}/${dirName}`)) {
-        oDir = await Wn.Io.loadMeta(`id:${thSetId}/data/${thingId}/${dirName}/`)
-        if(!oDir) {
-          commit("files/reset")
-          return
+        let dataHome = `id:${thSetId}/data`
+        let dirPath = `${thingId}/${dirName}`
+        // Create or fetch the dir
+        let newMeta = {
+          race : "DIR",
+          nm   : dirPath
         }
-      }
+        let json = JSON.stringify(newMeta)
+        let cmdText = `obj "${dataHome}" -IfNoExists -new '${json}' -cqno`
+        oDir = await Wn.Sys.exec2(cmdText, {as:"json"})
+        if(!oDir) {
+          return 
+        }
+      } // ~ if(!oDir || !oDir.ph
       // Try to reload the children
       let {list} = await dispatch("files/tryReload", oDir)
       if(!_.isEmpty(list) && !state.files.currentId) {

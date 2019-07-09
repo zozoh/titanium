@@ -48,38 +48,42 @@ export const TiUtil = {
    * The key `...` in obj will `_.assign` the value
    * The value `=xxxx` in obj will get the value from context
    */
-  explainObj(context, obj) {
+  explainObj(context, obj, iteratee=_.identity) {
+    // Customized the input object
+    let o1 = iteratee(obj)
     // Array
-    if(_.isArray(obj)) {
+    if(_.isArray(o1)) {
       let list = []
-      for(let val of obj) {
-        list.push(TiUtil.explainObj(context, val))
+      for(let val of o1) {
+        list.push(TiUtil.explainObj(context, val, iteratee))
       }
       return list
     }
     // Plain Object
-    if(_.isPlainObject(obj)) {
-      
+    if(_.isPlainObject(o1)) {
       let o2 = {}
-      _.forEach(obj, (v2, k2)=>{
-        let v3 = TiUtil.explainObj(context, v2)
+      _.forEach(o1, (v2, k2)=>{
+        let v3 = TiUtil.explainObj(context, v2, iteratee)
+        // key `...` -> assign o1
         if("..." == k2) {
           _.assign(o2, v3)
-        } else {
+        }
+        // set value
+        else {
           o2[k2] = v3
         }
       })
       return o2
     }
     // String: @xx.xx
-    if(_.isString(obj)) {
-      let m = /^[@=](.+)$/.exec(obj)
+    if(_.isString(o1)) {
+      let m = /^[@=](.+)$/.exec(o1)
       if(m) {
         return _.get(context, m[1])
       }
     }
     // Others
-    return obj
+    return o1
   },
   /***
    * Create a function to return a given object's copy.

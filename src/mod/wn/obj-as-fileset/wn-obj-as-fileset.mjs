@@ -4,28 +4,49 @@ export default {
   ////////////////////////////////////////////
   mutations : {
     //------------------------------------------
-    set(state, {
-      meta, files, current, config, data, __saved_data, status
-    }={}) {
-      // Meta
-      if(!_.isUndefined(meta))
-        state.meta = _.cloneDeep(meta)
-      // files
-      if(!_.isUndefined(files))
-        state.files = [].concat(files)
-      // current file
-      if(!_.isUndefined(current))
-        state.current = _.cloneDeep(current)
-      // config
-      if(!_.isUndefined(config))
-        state.config = _.cloneDeep(config)
-      // Data
-      if(!_.isUndefined(data))
-        state.data = _.cloneDeep(data)
-      // SavedData
-      if(!_.isUndefined(__saved_data))
-        state.__saved_data = _.cloneDeep(__saved_data)
-      // Status
+    reset(state) {
+      _.assign(state, {
+        "meta": null,
+        "files": [],
+        "config" : {
+          "json" : true
+        },
+        "current" : null,
+        "data": null,
+        "__saved_data" : null,
+        "status" : {
+          "changed"   : false,
+          "saving"    : false,
+          "reloading" : false
+        }
+      })
+    },
+    //------------------------------------------
+    setMeta(state, meta) {
+      state.meta = _.cloneDeep(meta)
+    },
+    //------------------------------------------
+    setFiles(state, files) {
+      state.files = _.cloneDeep(files)
+    },
+    //------------------------------------------
+    setConfig(state, config) {
+      state.config = _.cloneDeep(config)
+    },
+    //------------------------------------------
+    setCurrent(state, current) {
+      state.current = _.cloneDeep(current)
+    },
+    //------------------------------------------
+    setData(state, data) {
+      state.data = _.cloneDeep(data)
+    },
+    //------------------------------------------
+    setSavedData(state, data) {
+      state.__saved_data = _.cloneDeep(data)
+    },
+    //------------------------------------------
+    setStatus(state, status={}) {
       _.assign(state.status, status)
     },
     //------------------------------------------
@@ -36,14 +57,15 @@ export default {
     /***
      * Update the data and `status.changed`
      */
-    update(state, {name, value}={}){
-      // value is partial data, shallow merge it
+    updateData(state, {name, value}={}){
+      // name is Array, the value must be the Object
+      // whihc as partial data, so we will shallow merge it
       if(_.isArray(name) && name.length > 0){
         _.assign(state.data, _.cloneDeep(value))
       }
       // set the value
       else if(_.isString(name) && name) {
-        state.data[name] = _.cloneDeep(value)
+        Vuex.set(state.data, name, _.cloneDeep(value))
       }
     }
   },
@@ -53,9 +75,9 @@ export default {
      * Update the data and `status.changed`
      */
     update({state, commit}, {name, value}={}){
-      commit("update", {name, value})
+      commit("updateData", {name, value})
       commit("syncStatusChanged")
-      commit("set", {data: state.data})
+      //commit("setData", state.data)
     },
     //------------------------------------------
     /***
@@ -69,18 +91,16 @@ export default {
       let meta   = state.current
       let data   = state.data
       let config = state.config
-      let json = config.json 
+      let content = config.json 
                   ? JSON.stringify(data, 
                       config.json.replacer, 
                       config.json.tabs || '   ')
-                  : JSON.stringify(data)
-      commit("set", {status:{saving:true}})
-      let newMeta = await Wn.Io.saveContentAsText(meta, json)
-      commit("set", {
-        current: newMeta, 
-        __saved_data : json,
-        status:{saving:false}
-      })
+                  : data
+      commit("setStatus", {saving:true})
+      let newMeta = await Wn.Io.saveContentAsText(meta, content)
+      commit("setMeta", newMeta)
+      commit("setSavedData", content)
+      commit("setStatus", {saving:false})
       commit("syncStatusChanged")
 
       // return the new meta
@@ -97,24 +117,18 @@ export default {
 
       // Get Current Object
       current = current || state.current
-      if(!current) {
-        return
-      }
-
-      // Declare to loading
-      commit("set", {status:{reloading:true}})
-
-      console.log("load", current)
 
       // Load data
-      let data = await Wn.Io.loadContent(current, {as:"jsonOrText"})
+      let data = null
+      if(current) {
+        commit("setStatus", {reloading:true})
+        data = await Wn.Io.loadContent(current, {as:"jsonOrText"})
+        commit("setStatus", {reloading:false})
+      }
 
       // reset data
-      commit("set", {
-        current, data,
-        __saved_data : data,
-        status:{reloading:false}
-      })
+      commit("current", current)
+      commit("setSavedData", data)
       commit("syncStatusChanged")
 
       // return the root state
@@ -125,6 +139,7 @@ export default {
      * Reload content from remote
      */
     async reload({state, commit}, meta) {
+      console.log("I am reload")
       if(state.status.reloading){
         return
       }
@@ -135,7 +150,8 @@ export default {
       }
       
       // Declare to loading
-      commit("set", {status:{reloading:true}})
+      commit("setStatus", {reloading:true})
+      
 
       // Load files
       let files = state.files
@@ -150,17 +166,36 @@ export default {
       let current = state.current
       let data = null
 
+      // Make sure current exists in files
+      if(current) {
+        // current must exists in files
+        let current2 = null
+        for(let f of files) {
+          if(f.id == current.id) {
+            current2 = f
+            break;
+          }
+        }
+        current = current2
+      }
+      // Default current
+      if(!current && files.length>0) {
+        current = files[0]
+      } 
+      // Reload the content
       if(current) {
         data = await Wn.Io.loadContent(current, {as:"jsonOrText"})        
       }
-
       // reset data
-      commit("set", {
-        meta, files, current, data,
-        __saved_data : data,
-        status:{reloading:false}
-      })
+      commit("setMeta", meta)
+      commit("setFiles", files)
+      commit("setData", data)
+      commit("setSavedData", data)
+      commit("setCurrent", current)
       commit("syncStatusChanged")
+      _.delay(()=>{
+        commit("setStatus", {reloading:false})
+      }, 300)
 
       // return the root state
       return state
