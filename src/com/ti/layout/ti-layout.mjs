@@ -108,7 +108,8 @@ export default {
       // Show given one
       st[name] = true
       // Notify ancestor
-      this.$emit("block:show", st)
+      this.$emit("block:show", name)
+      this.$emit("tabs:changed", st)
     }
   }
   ///////////////////////////////////////////

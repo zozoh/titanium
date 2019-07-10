@@ -60,6 +60,7 @@ class TiModalDialog {
   //------------------------------------------
   // Open dialog
   async open(){
+    console.log("haha")
     // Extract vars
     let appInfo = this[APP_INFO]
     let {

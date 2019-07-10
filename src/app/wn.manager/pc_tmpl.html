@@ -72,7 +72,8 @@ async function main(){
       "^\./"          : "@MyApp:",
       "^@MyApp:?$"    : "@MyApp:_app.json",
       "^@i18n:(.+)$"  : "@i18n:zh-cn/$1",
-      "\/i18n\/"      : "\/i18n\/zh-cn/"
+      "\/i18n\/"      : "\/i18n\/zh-cn/",
+      "^(@[A-Za-z]+):i18n/(.+)$" : "$1:i18n/zh-cn/$2"
     },
     suffix : {
       "^@theme:"              : ".css",

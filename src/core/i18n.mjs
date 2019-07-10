@@ -17,7 +17,11 @@ export const Ti18n = {
       }
     }
     // Single set
-    else {
+    else if(_.isPlainObject(msgs)) {
+      if(_.isBoolean(msgs.ok)) {
+        console.warn("invalid msgs", msgs)
+        return
+      }
       _.assign(I18N, msgs)
     }
   },

@@ -126,9 +126,10 @@
   }
   &.as-prompt {
     .ti-modal-noti-text {
-      @include flex-align-v;
+      @include flex-align-v-nowrap;
+      min-height: 100px;
       .prompt-tip {
-        flex:1 1 auto; padding:.06rem 0;
+        padding:.06rem 0;
       }
       .prompt-input {
         @include flex-full(0 0 auto);

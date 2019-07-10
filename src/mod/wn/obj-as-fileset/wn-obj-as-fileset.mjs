@@ -127,7 +127,8 @@ export default {
       }
 
       // reset data
-      commit("current", current)
+      commit("setCurrent", current)
+      commit("setData", data)
       commit("setSavedData", data)
       commit("syncStatusChanged")
 
