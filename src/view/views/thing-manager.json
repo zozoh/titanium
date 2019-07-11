@@ -11,7 +11,7 @@
       "icon" : "zmdi-refresh zmdi-hc-spin",
       "text" : "i18n:loading"
     },
-    "action" : "dispatch:main/reload",
+    "action" : "dispatch:main/reloadSearch",
     "shortcut" : "CTRL+R"
   }, {
     "key"  : "saving",
