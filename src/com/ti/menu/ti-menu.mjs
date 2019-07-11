@@ -31,6 +31,19 @@ export default {
     closeIcon : {
       type : String,
       default : "fas-times"
+    },
+    displayMode : {
+      type : String,
+      default : "auto"  // auto|desktop|tablet|phone
+    }
+  },
+  ///////////////////////////////////////
+  computed : {
+    isShowForMobile() {
+      if("auto" == this.displayMode) {
+        return this.isViewportModePhoneOrTablet
+      }
+      return this.displayMode != "desktop"
     }
   },
   ///////////////////////////////////////

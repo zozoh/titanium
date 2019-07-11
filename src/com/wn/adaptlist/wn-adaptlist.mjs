@@ -219,6 +219,7 @@ export default {
       }
       // Mobile and phone
       else {
+        this._run("setCurrentId", cid)
         this.$emit("open", current)
       }
     },

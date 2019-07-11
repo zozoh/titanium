@@ -15,7 +15,7 @@ export default {
     let transName = b.position ? `gui-panel-${b.position}` : null
     // Block Info
     let pickKeys = [
-      "className",
+      "className", "actionDisplayMode",
       "icon","title","actions","name", "adjustable", "closer", 
       "position", "overflow", "status"]
     let panelSize = {}

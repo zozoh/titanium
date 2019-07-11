@@ -114,6 +114,122 @@
       "status" : "@status"
     }]
   },
-  "tablet" : "desktop",
-  "phone" : "desktop"
+  "tablet" : "phone",
+  "phone" : {
+      "name" : "search",
+      "size" : "50%",
+      "type" : "rows",
+      "border" : true,
+      "blocks" : [{
+          "name" : "filter",
+          "size" : 50,
+          "body" : "filter"
+        }, {
+          "name" : "list",
+          "size" : "stretch",
+          "overflow" : "hidden",
+          "body" : "list"
+        }, {
+          "name" : "pager",
+          "size" : "auto",
+          "body" : "pager"
+        }],
+      "panels" : [{
+        "name"  : "meta",
+        "title" : "i18n:thing-meta",
+        "icon"  : "zmdi-info",
+        "position" : "right",
+        "width"  : "100%",
+        "height" : "100%",
+        "closer" : "default",
+        "body"  : "meta",
+        "actionDisplayMode" : "desktop",
+        "actions" : [{
+            "key" : "show-content",
+            "statusKey" : "content",
+            "type" : "action",
+            "text" : "i18n:thing-content-show",
+            "altDisplay" : {
+              "text" : "i18n:thing-content-hide",
+              "capture" : false
+            },
+            "action" : "main:toggleBlock(content)"
+          }, {
+            "key" : "show-files",
+            "statusKey" : "files",
+            "type" : "action",
+            "text" : "i18n:thing-files-show",
+            "altDisplay" : {
+              "text" : "i18n:thing-files-hide",
+              "capture" : false
+            },
+            "action" : "main:toggleBlock(files)"
+          }]
+      }, {
+        "name" : "content",
+        "title" : "i18n:thing-content",
+        "icon"  : "zmdi-file-text",
+        "body" : "content",
+        "position" : "bottom",
+        "width"  : "100%",
+        "height" : "100%",
+        "closer" : "default",
+        "status" : "@current.status",
+        "actionDisplayMode" : "desktop",
+        "actions" : [{
+          "key"  : "saving",
+          "type" : "action",
+          "icon" : "zmdi-floppy",
+          "text" : "i18n:save-change",
+          "altDisplay" : {
+            "icon" : "fas-spinner fa-pulse",
+            "text" : "i18n:saving"
+          },
+          "enableBy" : "changed",
+          "action" : "dispatch:main/saveCurrent"
+        }]
+      }, {
+        "name" : "files",
+        "title" : "i18n:thing-files",
+        "icon"  : "zmdi-collection-image",
+        "body" : "files",
+        "position" : "bottom",
+        "width"  : "100%",
+        "height" : "100%",
+        "closer" : "default",
+        "status" : "@files.status",
+        "actionDisplayMode" : "desktop",
+        "actions" : [{
+          "type" : "group",
+          "icon" : "zmdi-caret-down",
+          "items" :[{
+              "key"  : "deleting",
+              "type" : "action",
+              "icon" : "zmdi-delete",
+              "text" : "i18n:del-checked",
+              "altDisplay" : {
+                "icon" : "zmdi-refresh zmdi-hc-spin",
+                "text" : "i18n:del-ing"
+              },
+              "action" : "dispatch:main/files/deleteSelected"
+            },{
+              "key"  : "upload",
+              "type" : "action",
+              "icon" : "zmdi-cloud-upload",
+              "text" : "i18n:upload-file",
+              "action" : "commit:main/files/showUploadFilePicker"
+            }]
+          }]
+      }, {
+        "name" : "creator",
+        "title" : "i18n:thing-create",
+        "icon"  : "zmdi-flare",
+        "body" : "creator",
+        "position" : "top",
+        "width"  : "100%",
+        "mask"   : true,
+        "closer" : "bottom",
+        "status" : "@status"
+      }]
+    }
 }
