@@ -200,25 +200,21 @@
         "status" : "@files.status",
         "actionDisplayMode" : "desktop",
         "actions" : [{
-          "type" : "group",
-          "icon" : "zmdi-caret-down",
-          "items" :[{
-              "key"  : "deleting",
-              "type" : "action",
-              "icon" : "zmdi-delete",
-              "text" : "i18n:del-checked",
-              "altDisplay" : {
-                "icon" : "zmdi-refresh zmdi-hc-spin",
-                "text" : "i18n:del-ing"
-              },
-              "action" : "dispatch:main/files/deleteSelected"
-            },{
-              "key"  : "upload",
-              "type" : "action",
-              "icon" : "zmdi-cloud-upload",
-              "text" : "i18n:upload-file",
-              "action" : "commit:main/files/showUploadFilePicker"
-            }]
+            "key"  : "deleting",
+            "type" : "action",
+            "icon" : "zmdi-delete",
+            "text" : "i18n:del-checked",
+            "altDisplay" : {
+              "icon" : "zmdi-refresh zmdi-hc-spin",
+              "text" : "i18n:del-ing"
+            },
+            "action" : "dispatch:main/files/deleteSelected"
+          },{
+            "key"  : "upload",
+            "type" : "action",
+            "icon" : "zmdi-cloud-upload",
+            "text" : "i18n:upload-file",
+            "action" : "commit:main/files/showUploadFilePicker"
           }]
       }, {
         "name" : "creator",

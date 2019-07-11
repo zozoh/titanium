@@ -167,11 +167,12 @@
   //-----------------------------------------------------------
   > .mdl-con {
     @include flex-center($ai:flex-start, $ac:flex-start);
-    padding:1px;
+    padding:0px;
     z-index: $z-top;
     > .mdl-main {
       @include color($color-paper, r, c);
       width:100%; height:100%;
+      padding:1px;
       //....................................
       > .mdl-closer {
         @include pos-abs($t:0, $r:0);
