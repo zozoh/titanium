@@ -19,7 +19,7 @@
           @include disabled;
         }
         &[item-enabled] {
-          @include fireable;
+          @include fireable(null, $color-primary);
         }
       }
       //--------------------------------------
@@ -168,7 +168,7 @@
           }
           //--------------------------------------
           &[item-enabled] {
-            @include fireable;
+            @include fireable(null);
             &:hover {
               .action-icon .no-icon {
                 border-color: map-get($color-selected, r);

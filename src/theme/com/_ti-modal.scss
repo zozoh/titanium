@@ -1,7 +1,5 @@
+//////////////////////////////////////////////////////////////
 .ti-modal {
-  $closer-width : 32px;
-  $title-size   : 32px;
-  $action-size  : 48px;
   > .mdl-mask {
     @include pos-fixed-full;
     @include color($color-mask, r, bushy);
@@ -9,16 +7,79 @@
   }
   > .mdl-con {
     @include pos-fixed-full;
-    @include flex-center;
-    padding:.2rem;
     z-index: $z-top;
     > .mdl-main {
-      //....................................
       @include color($color-chip, r, c);
+      @include flex-align-v-nowrap;
       //....................................
       position:relative;
       min-width: 3.2rem;
       min-height: 1.8rem;
+      //....................................
+      > .mdl-closer {}
+      //....................................
+      > .mdl-title {
+        @include noselect;
+        @include flex-align-nowrap;
+        @include color($color-bar, r, c);
+        @include border(1px, solid, shallow, bottom);
+        padding:.04rem .08rem; 
+        font-size:12px; 
+        > * {
+          @include flex-center;
+          display:inline; line-height:24px;
+        }
+        > .mdl-title-icon {
+          margin:0 .06rem 0 0; opacity: 0.4;
+          > i {font-size:1.3em; display:block;}
+        }
+      }
+      //....................................
+      > .mdl-body {
+        flex:1 1 auto;
+      }
+      //....................................
+      > .mdl-actions {
+        @include noselect;
+        @include color($color-func, r, c);
+        @include border(1px, solid, shallow, top);
+        > ul {
+          @include raw-list; 
+          padding:.04rem;
+          > li {
+            @include color($color-chip, r, c);
+            @include fireable;
+            @include border(1px, solid, dark);
+            margin:.02rem; padding:0 .12rem;
+            font-size:12px; line-height:2.4em;
+            min-width:1rem; text-align:center;
+            letter-spacing: .1em;
+            .mdl-btn-icon {margin-right:.05rem;}
+          }
+        }
+      }
+      //....................................
+    }
+  } // ~ .mdl-con
+  //-----------------------------------------------------------
+  $titlePath: ".mdl-con > .mdl-main > .mdl-title";
+  &.ti-success   > #{$titlePath} {@include color($color-success, r, c);}
+  &.ti-warn      > #{$titlePath} {@include color($color-warn,    r, c);}
+  &.ti-info      > #{$titlePath} {@include color($color-info,    r, c);}
+  &.ti-error     > #{$titlePath} {@include color($color-error,   r, c);}
+  &.ti-track     > #{$titlePath} {@include color($color-track,   r, c);}
+  //-----------------------------------------------------------
+}
+//////////////////////////////////////////////////////////////
+// Desktop
+//////////////////////////////////////////////////////////////
+.ti-modal.vm-desktop {
+  $closer-width : 32px;
+  > .mdl-con {
+    @include flex-center;
+    padding:.2rem;
+    z-index: $z-top;
+    > .mdl-main {
       //....................................
       > .mdl-closer {
         @include pos-abs($t:0, $r:0);
@@ -41,105 +102,148 @@
             @include color($color-secondary, r, c);
             border-width:0;
             transform: scale(1.2) rotate(180deg);
-            font-size: .24rem; 
           }
         }
       }
       //....................................
-      > .mdl-title {
-        @include pos-abs($l:0,$r:0, $t:0, $h:$title-size);
-        @include noselect;
-        @include flex-align-nowrap;
-        @include color($color-bar, r, c);
-        @include border(1px, solid, shallow, bottom);
-        padding:.04rem .08rem; 
-        font-size:.12rem; line-height:2em;
-        > * {
-          @include flex-center;
-          display:inline; line-height: 16px;
-        }
-        > .mdl-title-icon {
-          margin:0 .06rem 0 0; opacity: 0.4;
-          > i {font-size:1.3em; display:block;}
-        }
-      }
+      > .mdl-title {}
       //....................................
-      > .mdl-body {
-        @include pos-abs($l:0,$r:0, $t:$title-size, $b:$action-size);
-        @include flex-full($jc:flex-start);
-      }
+      > .mdl-body {}
       //....................................
       > .mdl-actions {
-        @include pos-abs($l:0,$r:0, $b:0, $h:$action-size);
         @include noselect;
         @include color($color-func, r, c);
         @include border(1px, solid, shallow, top);
         > ul {
-          @include raw-list; 
           @include flex-align($jc:flex-end);
-          padding:.04rem;
-          > li {
-            @include color($color-chip, r, c);
-            @include fireable;
-            @include border(1px, solid, dark);
-            margin:.02rem; padding:0 .12rem;
-            font-size:12px; line-height:2.4em;
-            min-width:1rem; text-align:center;
-            letter-spacing: .1em;
-            .mdl-btn-icon {margin-right:.05rem;}
-          }
         }
       }
       //....................................
     }
   } // ~ .mdl-con
-  $titlePath: ".mdl-con > .mdl-main > .mdl-title";
-  &.ti-success   > #{$titlePath} {@include color($color-success, r, c);}
-  &.ti-warn      > #{$titlePath} {@include color($color-warn,    r, c);}
-  &.ti-info      > #{$titlePath} {@include color($color-info,    r, c);}
-  &.ti-error     > #{$titlePath} {@include color($color-error,   r, c);}
-  &.ti-track     > #{$titlePath} {@include color($color-track,   r, c);}
-}
-//---------------------------------------------
-.ti-modal-noti {
-  @include flex-align($jc:flex-start, $wp:nowrap);
-  padding:.12rem .2rem; 
-  flex:1 1 auto;
-  > .ti-modal-noti-icon {
-    flex:0 0 auto;
-    padding:.1rem .24rem 0 .12rem; 
-    font-size:.5rem;
-    > * {font-size:inherit;}
-  }
-  > .ti-modal-noti-text {
-    flex:1 1 auto;
-  }
-}
-//---------------------------------------------
-.ti-modal-noti {
-  &.as-alert, &.as-confirm {
-    .ti-modal-noti-text {
-      @include flex-align($ai:center);
-      padding-right:.32rem;
-      padding-bottom:.2rem;
+  //-----------------------------------------------------------
+  .ti-modal-noti {
+    position: relative;
+    padding:.12rem .2rem .12rem 1.2rem; 
+    //---------------------------------------------
+    > .ti-modal-noti-icon {
+      @include pos-abs($t:0,$l:0,$w:1.2rem,$h:1.2rem);
+      @include flex-center;
+      padding:.08rem; 
+      font-size:.5rem;
+      > * {font-size:inherit;}
     }
-  }
-  &.as-prompt {
-    .ti-modal-noti-text {
-      @include flex-align-v-nowrap;
-      min-height: 100px;
-      .prompt-tip {
-        padding:.06rem 0;
-      }
-      .prompt-input {
-        @include flex-full(0 0 auto);
+    //---------------------------------------------
+    > .ti-modal-noti-text {
+      padding: .1rem
+    }
+    //---------------------------------------------
+    > .ti-modal-noti-more {
+      padding: 0 .1rem .1rem .1rem;
+      &.prompt-input {
         input {
           @include text-input;
-          flex:1 1 auto;
+          flex:1 1 auto; width:100%;
           padding:.12rem; font-size:1.2em;
           outline:none;
         }
       }
     }
+    //---------------------------------------------
   }
+  //-----------------------------------------------------------
 }
+//////////////////////////////////////////////////////////////
+// Desktop
+//////////////////////////////////////////////////////////////
+.ti-modal.vm-tablet, .ti-modal.vm-phone {
+  $closer-width : 32px;
+  $closerPath: ".mdl-con > .mdl-main > .mdl-closer";
+  &.ti-success   > #{$closerPath} {@include color($color-success, r);}
+  &.ti-warn      > #{$closerPath} {@include color($color-warn,    r);}
+  &.ti-info      > #{$closerPath} {@include color($color-info,    r);}
+  &.ti-error     > #{$closerPath} {@include color($color-error,   r);}
+  &.ti-track     > #{$closerPath} {@include color($color-track,   r);}
+  //-----------------------------------------------------------
+  > .mdl-con {
+    @include flex-center($ai:flex-start, $ac:flex-start);
+    padding:1px;
+    z-index: $z-top;
+    > .mdl-main {
+      @include color($color-paper, r, c);
+      width:100%; height:100%;
+      //....................................
+      > .mdl-closer {
+        @include pos-abs($t:0, $r:0);
+        @include flex-center;
+        cursor:pointer;
+        width:$closer-width; height:$closer-width; 
+        line-height: $closer-width;
+        > span {
+          @include flex-full-center;
+          overflow:hidden;
+          font-size: 16px;
+          transition: transform 0.3s;
+        }
+        &:hover {
+          > span {
+            @include color($color-secondary, c);
+            transform: scale(1.2) rotate(180deg);
+          }
+        }
+      }
+      //....................................
+      > .mdl-title {
+        font-size:14px; padding-left:16px;
+        > * {
+          line-height:32px;
+        }
+      }
+      //....................................
+      > .mdl-body {}
+      //....................................
+      > .mdl-actions {
+        @include noselect;
+        @include color($color-chip, r, c);
+        @include border(1px, solid, shallow, top);
+        > ul {
+          padding:20px;
+          > li {margin:10px; padding:8px;}
+        }
+      }
+      //....................................
+    }
+  } // ~ .mdl-con
+  //-----------------------------------------------------------
+  .ti-modal-noti {
+    position: relative;
+    padding:.2rem; 
+    //---------------------------------------------
+    > .ti-modal-noti-icon {
+      @include flex-center;
+      padding:.08rem; 
+      font-size:.64rem;
+      > * {font-size:inherit;}
+    }
+    //---------------------------------------------
+    > .ti-modal-noti-text {
+      padding: .15rem; font-size:.2rem; 
+      text-align:center;
+    }
+    //---------------------------------------------
+    > .ti-modal-noti-more {
+      padding: 0 .1rem .1rem .1rem;
+      &.prompt-input {
+        input {
+          @include text-input;
+          flex:1 1 auto; width:100%;
+          padding:.12rem; font-size:1.2em;
+          outline:none;
+        }
+      }
+    }
+    //---------------------------------------------
+  }
+  //-----------------------------------------------------------
+}
+//////////////////////////////////////////////////////////////

@@ -14,7 +14,9 @@
   }
 }
 @mixin color-highlight($color:$color-primary) {
-  @include color($color, r, c)
+  @if $color != null {
+    @include color($color, r, c)
+  }
 }
 //-------------------------------------------------------------
 @mixin border($w:1px,$s:solid,$c:shallow, $pos:null) {
@@ -119,10 +121,11 @@
   margin:$margin;
 }
 //-------------------------------------------------------------
-@mixin fireable($color:$color-primary) {
+@mixin fireable($color:$color-primary,$hover:$color-secondary) {
   cursor:pointer;
+  @include color-highlight($color);
   &:hover {
-    @include color-highlight($color);
+    @include color-highlight($hover);
   }
 }
 //-------------------------------------------------------------

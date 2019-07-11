@@ -152,7 +152,9 @@ class TiModalDialog {
     let $closer   = Ti.Dom.find(".mdl-closer", $main)
     //........................................
     // Sizing 
-    Ti.Dom.setStyle($main, {width, height})
+    if("desktop" == DRT.viewportMode) {
+      Ti.Dom.setStyle($main, {width, height})
+    }
     //........................................
     // create TiApp
     // console.log(appInfo)

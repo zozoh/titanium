@@ -198,14 +198,16 @@ export const TiDom = {
   /**
    * Return HTML string to present the icon/text/tip HTML segment
    */
-  htmlChipITT({icon,text,tip}={}, {
+  htmlChipITT({icon,text,tip,more}={}, {
     tagName   = "div",
     className = "",
-    iconTag   = "span", 
+    iconTag   = "div", 
     iconClass = "",
-    textTag   = "span", 
+    textTag   = "div", 
     textClass = "",
     textAsHtml = false,
+    moreTag = "div",
+    moreClass = "",
     wrapperTag   = "",
     wrapperClass = "",
     attrs = {}
@@ -238,6 +240,10 @@ export const TiDom = {
       if(text) {
         let textHtml = textAsHtml ? text : Ti.I18n.text(text)
         html += `<${textTag} ${klass(textClass)}>${textHtml}</${textTag}>`
+      }
+      if(more) {
+        let moreHtml = Ti.I18n.text(more)
+        html += `<${moreTag} ${klass(moreClass)}>${moreHtml}</${moreTag}>`
       }
       html += `</${tagName}>`
     }

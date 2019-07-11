@@ -13,30 +13,27 @@ export async function Prompt(msg="", {
 }={}) {
   // Get the tip text
   let str = Ti.I18n.text(msg)
-  let plh = Ti.I18n.text(placeholder)
-  // Build promptHtml
-  let promptHtml = `<div class="prompt-tip">${str}::{{viewportMode}}</div>
-  <div class="prompt-input">
-    <input v-model="value" ref="inbox"
-            :placeholder="placeholder"
-            spellcheck="false"
-            @keydown="onKeyDown">
-  </div>`
   // Build DOM
   let html = Ti.Dom.htmlChipITT({
-      icon:icon, text:promptHtml
+      icon :icon, text:msg,
+      more : `<input v-model="value" ref="inbox"
+            :placeholder="placeholder"
+            spellcheck="false"
+            @keydown="onKeyDown">`
     },{
       className : "ti-modal-noti as-prompt",
       iconClass : "ti-modal-noti-icon",
       textClass : "ti-modal-noti-text",
-      textTag : "div",
-      textAsHtml : true
+      moreClass : "ti-modal-noti-more prompt-input",
     })
   // Open modal
   return Ti.Modal.Open({
     // !!! zozoh: Why function don't work? I should find the reason later!
     // data : ()=>({value, placeholder}),
-    data : {value, placeholder},
+    data : {
+      value, 
+      placeholder : Ti.I18n.text(placeholder)
+    },
     template : html,
     mounted : function(){
       this.$refs.inbox.select()
