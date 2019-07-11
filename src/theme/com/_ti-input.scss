@@ -1,8 +1,24 @@
 .ti-input {
+  $suffix-w : 32px;
+  //-----------------------------------------
+  position: relative;
+  //-----------------------------------------
   input {
     @include text-input;
+    width:100%;
     font-size:.16rem;
     outline:none;
     padding:.08rem .1rem;
+    &.has-suffix {
+      padding-right: $suffix-w;
+    }
   }
+  //-----------------------------------------
+  .input-suffix {
+    @include flex-center;
+    @include color($color-track, c);
+    @include pos-abs($t:0,$r:0,$b:0,$w:$suffix-w);
+    font-size:12px;
+  }
+  //-----------------------------------------
 }

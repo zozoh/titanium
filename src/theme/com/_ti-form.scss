@@ -1,4 +1,5 @@
 .ti-form {
+  overflow: hidden auto;
   //----------------------------------
   .form-group {
     @include border(1px, solid, shallow, bottom);
@@ -39,10 +40,13 @@
     }
     //------------------------
     > .field-value {
-      @include flex-align-center;
+      @include flex-align;
       flex:1 1 auto;
       > .field-component {
-        @include flex-align-center;
+        &.is-size-stretch {
+          flex:1 1 auto;
+          > * {width:100%;}
+        }
       }
     }
     //------------------------

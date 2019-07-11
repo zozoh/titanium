@@ -1,5 +1,10 @@
 <div class="ti-input">
-  <input spellcheck="false" ref="input"
+  <input 
+    ref="input"
+    spellcheck="false" 
+    :class="inputClass"
     :value="theValue"
     @change="onChanged">
+  <div v-if="suffix"
+    class="input-suffix">{{suffix}}</div>
 </div>

@@ -15,8 +15,10 @@ function VAL(vm, val) {
   }
   return v2
 }
-//-------------------------------------------
+////////////////////////////////////////////////
 export default {
+  inheritAttrs: false,
+  //////////////////////////////////////////////
   computed : {
     show() {
       let title   = !_.isNull(this.fieldTitle)
@@ -40,6 +42,23 @@ export default {
       if(_.isArray(this.name))
         return this.name.join("-")
       return this.name
+    },
+    //.......................................
+    fieldComClass() {
+      if("auto" == this.width) {
+        return "is-size-auto"
+      }
+      if("stretch" == this.width) {
+        return "is-size-stretch"
+      }
+    },
+    //.......................................
+    fieldComStyle() {
+      if(this.width && !/^(auto|stretch)$/.test(this.width)) {
+        return Ti.Css.toStyle({
+          width : this.width
+        })
+      }
     },
     //.......................................
     componentType() {
@@ -68,7 +87,7 @@ export default {
       return this.statusIcons[this.status]
     }
   },
-  //-----------------------------------------
+  ////////////////////////////////////////////////
   methods : {
     onChanged(val) {
       // Customized value
@@ -98,5 +117,5 @@ export default {
       })
     }
   }
-  //-----------------------------------------
+  ////////////////////////////////////////////////
 }

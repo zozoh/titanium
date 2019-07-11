@@ -35,6 +35,10 @@ export default {
     type : String,
     default : null
   },
+  "width" : {
+    type : [String, Number],
+    default : "stretch"
+  },
   "undefinedAs" : {
     default : undefined
   },

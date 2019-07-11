@@ -1,6 +1,9 @@
 .ti-label {
   @include font-fixed;
   padding: 0 .06rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   &.is-blank {
     @include noselect;
     opacity: 0.4;

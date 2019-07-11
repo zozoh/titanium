@@ -1,4 +1,5 @@
 export default {
+  ////////////////////////////////////////////////////
   props : {
     "value" : null,
     "trimed" : {
@@ -8,15 +9,30 @@ export default {
     "format" : {
       type : [String, Array, Object],
       default : undefined
+    },
+    "suffix" : {
+      type : String,
+      default : null
     }
   },
+  ////////////////////////////////////////////////////
   computed : {
+    //------------------------------------------------
     theValue() {
       //console.log("input value:", this.value)
       return Ti.Types.toStr(this.value, this.format)
+    },
+    //------------------------------------------------
+    inputClass() {
+      return {
+        "has-suffix" : this.suffix ? true : false
+      }
     }
+    //------------------------------------------------
   },
+  ////////////////////////////////////////////////////
   methods : {
+    //------------------------------------------------
     onChanged() {
       let val = this.$refs.input.value
       if(this.trimed) {
@@ -24,5 +40,7 @@ export default {
       }
       this.$emit("changed", val)
     }
+    //------------------------------------------------
   }
+  ////////////////////////////////////////////////////
 }

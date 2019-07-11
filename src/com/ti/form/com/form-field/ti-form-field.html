@@ -15,7 +15,9 @@
     </span>
   </div>
   <div class="field-value">
-    <div class="field-component">
+    <div class="field-component"
+      :class="fieldComClass"
+      :style="fieldComStyle">
       <component :is="componentType"
         v-bind="componentOptions"
         :value="componentValue"
