@@ -1,0 +1,6 @@
+{
+  "name" : "ti-thumb",
+  "globally" : true,
+  "template" : "./ti-thumb.html",
+  "mixins" : ["./ti-thumb.mjs"]
+}

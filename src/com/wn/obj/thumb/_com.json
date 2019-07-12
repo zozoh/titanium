@@ -1,0 +1,9 @@
+{
+  "name" : "wn-obj-thumb",
+  "globally" : true,
+  "template" : "./wn-obj-thumb.html",
+  "mixins" : ["./wn-obj-thumb.mjs"],
+  "components" : [
+    "@com:ti/thumb"
+  ]
+}

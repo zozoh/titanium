@@ -15,6 +15,24 @@ export default {
       return null
     },
     //---------------------------------------------------
+    currentItemId(state, getters) {
+      let it = getters["currentItem"]
+      return it ? it.id : null
+    },
+    //---------------------------------------------------
+    autoCurrentItem(state, getters) {
+      let it = getters["currentItem"]
+      if(!it && !_.isEmpty(state.list)) {
+         it = state.list[0]
+      }
+      return it
+    },
+    //---------------------------------------------------
+    autoCurrentItemId(state, getters) {
+      let it = getters["autoCurrentItem"]
+      return it ? it.id : null
+    },
+    //---------------------------------------------------
     selectedItems(state) {
       let list = []
       // Make the idsMap

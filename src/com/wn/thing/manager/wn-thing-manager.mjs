@@ -41,17 +41,21 @@ export default {
   },
   ///////////////////////////////////////////
   computed : {
+    //--------------------------------------
     currentLayout() {
       return this.getLayout(this.viewportMode)
     },
+    //--------------------------------------
     formedSchema() {
       return Ti.Util.explainObj(this, this.config.schema)
     },
+    //--------------------------------------
     changedRowId() {
       if(this.current && this.current.meta && this.current.status.changed) {
         return this.current.meta.id
       }
     },
+    //--------------------------------------
     guiLoading() {
       let key = _.findKey(this.status, (v)=>v)
       return ({
@@ -76,7 +80,17 @@ export default {
           text : "i18n:thing-cleaning"
         }
       })[key]
+    },
+    //--------------------------------------
+    curentThumbTarget() {
+      if(this.current.meta) {
+        let th_set = this.meta.id
+        let thId = this.current.id
+        return `id:${th_set}/data/${this.current.meta.id}/thumb.jpg`
+      }
+      return ""
     }
+    //--------------------------------------
   },
   ///////////////////////////////////////////
   methods : {

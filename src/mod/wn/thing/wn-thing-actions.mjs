@@ -137,7 +137,7 @@ export default {
     await dispatch("reload")
   },
   //--------------------------------------------
-  async reloadFiles({state,commit,dispatch}, {force=false}={}) {
+  async reloadFiles({state,commit,dispatch, getters}, {force=false}={}) {
     //console.log("reloadFiles")
     let current = state.current.meta
     let thingId = (current||{}).id
@@ -167,10 +167,9 @@ export default {
         }
       } // ~ if(!oDir || !oDir.ph
       // Try to reload the children
-      let {list} = await dispatch("files/tryReload", oDir)
-      if(!_.isEmpty(list) && !state.files.currentId) {
-        commit("files/selectItem", list[0].id)
-      }
+      await dispatch("files/tryReload", oDir)
+      let cuId = getters["files/autoCurrentItemId"]
+      commit("files/selectItem", cuId)
     }
   },
   //--------------------------------------------
@@ -217,6 +216,18 @@ export default {
 
     await dispatch("config/reload", meta)
     await dispatch("reloadSearch")
+
+    // Auto Select the first item
+    if(_.get(state, "meta.th_auto_select")) {
+      if(!state.current.meta && !_.isEmpty(state.search.list)) {
+        let current = state.search.list[0]
+        await dispatch("current/setCurrent", {
+          meta : current, 
+          loadContent : !_.isNull(state.current.content)
+        })
+        commit("search/selectItem", current.id)
+      }
+    }
 
     // All done
     commit("setStatus", {reloading:false})
