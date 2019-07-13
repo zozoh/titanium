@@ -6,5 +6,5 @@
   "components" : [
     "@com:ti/form",
     "@com:wn/obj/picker",
-    "@com:wn/obj/thumb"]
+    "@com:wn/imgfile"]
 }

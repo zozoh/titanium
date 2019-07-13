@@ -1,0 +1,7 @@
+{
+  "name" : "ti-imgfile",
+  "globally" : true,
+  "template" : "./ti-imgfile.html",
+  "mixins" : ["./ti-imgfile.mjs"],
+  "components" : ["@com:ti/obj/thumb"]
+}

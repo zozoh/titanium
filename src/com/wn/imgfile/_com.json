@@ -1,0 +1,10 @@
+{
+  "name" : "wn-imgfile",
+  "globally" : true,
+  "i18n" : "@i18n:wn-imgfile",
+  "template" : "./wn-imgfile.html",
+  "mixins" : ["./wn-imgfile.mjs"],
+  "components" : [
+    "@com:ti/imgfile"
+  ]
+}
