@@ -1,6 +1,7 @@
 {
   "name" : "wn-obj-thumb",
   "globally" : true,
+  "i18n" : "@i18n:wn-obj-thumb",
   "template" : "./wn-obj-thumb.html",
   "mixins" : ["./wn-obj-thumb.mjs"],
   "components" : [

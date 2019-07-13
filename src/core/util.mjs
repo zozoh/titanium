@@ -180,6 +180,19 @@ export const TiUtil = {
     return re
   },
   /***
+   * Get value from obj
+   * 
+   * @param key{String|Array} value key, if array will pick out a new obj
+   * 
+   * @return new obj or value
+   */
+  getOrPick(obj, key) {
+    if(_.isArray(key)) {
+      return _.pick(obj, key)
+    }
+    return _.get(obj, key)
+  },
+  /***
    * Get value from object fallbackly
    * 
    * @param obj{Object} - source object

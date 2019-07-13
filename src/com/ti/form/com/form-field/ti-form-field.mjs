@@ -61,17 +61,23 @@ export default {
       }
     },
     //.......................................
+    fieldValue() {
+      return Ti.Util.getOrPick(this.data, this.name)
+    },
+    //.......................................
     componentType() {
       return this.comType
     },
+    //.......................................
     componentOptions() {
       return this.comConf || {}
     },
+    //.......................................
     componentValue() {
       if(!this.data){
         return undefined
       }
-      let val = this.data[this.name]
+      let val = this.fieldValue
 
       // apply default
       let v2 = VAL(this, val)
@@ -109,12 +115,14 @@ export default {
       
       // apply default
       v2 = VAL(this, v2)
-      
+
       // emit event
-      this.$emit("changed", {
-        name  : this.name,
-        value : v2
-      })
+      if(!_.isEqual(v2, this.fieldValue)) {
+        this.$emit("changed", {
+          name  : this.name,
+          value : v2
+        })
+      }
     }
   }
   ////////////////////////////////////////////////

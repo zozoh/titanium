@@ -1,11 +1,9 @@
-<div>
 <ti-thumb
   :src="imageSrc"
   :width="width"
   :height="height"
-  :removable="removable"/>
-<hr>
-value:{{value}}
-<hr>
-target:{{target}}
-</div>
+  :progress="progress"
+  :upload-file="uploadFile"
+  :removable="removable"
+  @upload="onUpload"
+  @remove="onRemove"/>

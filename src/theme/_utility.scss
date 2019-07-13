@@ -68,11 +68,12 @@
   > .ti-drag-mask {
     @include pos-abs-full;
     @include flex-center;
-    z-index: $z-top;
-    font-size:2em; padding-bottom:20%;
     @include color($color-mask, null, thin);
     @include color($color-secondary, c); 
     @include border(.04rem, dashed, hightlight);
+    z-index: $z-top;
+    font-size:2em; line-height: 1.1em;
+    padding:.2rem .2rem 20% .2rem;
   }
 }
 //...................................................

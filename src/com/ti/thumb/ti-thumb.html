@@ -1,3 +1,35 @@
 <div class="ti-thumb">
-  I am thumb: {{src}}
+  <!--
+    Hidden input file to choose files
+  -->
+  <input 
+    type="file" 
+    ref="file" 
+    class="ti-hide"
+    @change.stop.seft="onSelectLocalFilesToUpload">
+  <!--
+    Major preview zone
+  -->
+  <div class="thumb-con"
+    @click="onClickToEdit"
+    v-drop-files.mask="onDropFiles">
+    <!--
+      Preview
+    -->
+    <ti-obj-thumb 
+      :preview="preview"
+      :progress="progress"
+      :footer="false"/>
+  </div>
+  <!--
+    Remove
+  -->
+  <div v-if="showRemoveIcon"
+    class="thumb-actions">
+    <div class="thumb-opt as-del"
+      @click="onRemove">
+      <ti-icon value="zmdi-delete"/>
+      <span class="it-text">{{'clear'|i18n}}</span>
+    </div>
+  </div>
 </div>

@@ -1,0 +1,56 @@
+.ti-thumb {
+  @include flex-align-nowrap($ai:flex-start);
+  ///////////////////////////////////////////////
+  > .thumb-con {
+    @include border(2px, solid, shallow);
+    @include color($color-func, r, c);
+    width:1.2rem; height:1.2rem;
+    cursor:pointer;
+    //-------------------------------------------
+    &[ti-is-drag] > .ti-drag-mask {
+      font-size:12px; border-width:2px;
+    }
+    //-------------------------------------------
+    // Override the ti-obj-thumb
+    .ti-obj-thumb {
+      border: 0;
+      width:100%; height:100%;
+      font-size: .2rem;
+      > header {
+        padding:0; width:100%; height:100%;
+        .as-preview {
+          padding:0; width:100%; height:100%;
+          .ti-icon .tii-con {
+            transition: transform .3s;
+          }
+        }
+      }
+    }
+    //-------------------------------------------
+    &:hover {
+      border:2px dashed map-get($color-secondary, c);
+      color:map-get($color-secondary, c);
+      .ti-obj-thumb .as-preview .ti-icon .tii-con {
+        transform: scale(1.5) rotate(180deg);
+      }
+    }
+    //-------------------------------------------
+  }
+  ///////////////////////////////////////////////
+  > .thumb-actions {
+    padding:1px 4px;
+    > .thumb-opt {
+      @include flex-align-nowrap($jc:center);
+      @include color($color-primary, r, c);
+      cursor:pointer;
+      padding:.06rem .1rem; 
+      margin-bottom:4px;
+      line-height: 1.1em; font-size:12px;
+      .it-text {margin-left:.06rem;}
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
+    }
+  }
+  ///////////////////////////////////////////////
+}

@@ -2,5 +2,6 @@
   "name" : "ti-thumb",
   "globally" : true,
   "template" : "./ti-thumb.html",
-  "mixins" : ["./ti-thumb.mjs"]
+  "mixins" : ["./ti-thumb.mjs"],
+  "components" : ["@com:ti/obj/thumb"]
 }

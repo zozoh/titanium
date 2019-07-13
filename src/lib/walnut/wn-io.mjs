@@ -151,7 +151,7 @@ export const WnIo = {
   }={}) {
     // do send
     let url = URL("/save/stream")
-    let newMeta = await Ti.Http.post(url, {
+    let reo = await Ti.Http.post(url, {
       file, 
       progress,
       params : {
@@ -164,6 +164,6 @@ export const WnIo = {
       },
       as:"json"
     })
-    return newMeta
+    return reo
   }
 }

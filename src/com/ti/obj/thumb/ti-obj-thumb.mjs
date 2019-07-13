@@ -42,17 +42,17 @@ export default {
     visibility : {
       type : String,
       default : "show"  // `show|weak|hide`
+    },
+    // true - alwasy show the footer part
+    footer : {
+      type : Boolean,
+      default : true
     }
   },
   ////////////////////////////////////////////////
-  mounted : function(){
-    let vm = this
-    if('localFile' == vm.preview.type) {
-      let reader = new FileReader();
-      reader.onload = function(evt) {
-        vm.$refs.localImage.src = evt.target.result
-      }
-      reader.readAsDataURL(vm.preview.value);
+  watch : {
+    "preview" : function() {
+      this.renderLocalFile()
     }
   },
   ////////////////////////////////////////////////
@@ -86,8 +86,22 @@ export default {
         id : this.id,
         $event : $event
       })
+    },
+    //--------------------------------------------
+    renderLocalFile() {
+      if('localFile' == this.preview.type) {
+        let reader = new FileReader();
+        reader.onload = (evt)=>{
+          this.$refs.localImage.src = evt.target.result
+        }
+        reader.readAsDataURL(this.preview.value);
+      }
     }
     //--------------------------------------------
+  },
+  ////////////////////////////////////////////////
+  mounted : function(){
+    this.renderLocalFile()
   }
   ////////////////////////////////////////////////
 }

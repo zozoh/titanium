@@ -3,13 +3,13 @@
   <header>
     <div class="as-preview">
       <template v-if="'localFile'==preview.type">
-        <img ref="localImage">
+        <img ref="localImage" is-local-file>
       </template>
       <template v-else-if="'image'==preview.type">
         <img :src="preview.value">
       </template>
       <template v-else>
-        <ti-icon :value="preview" size=".48rem"></ti-icon>
+        <ti-icon :value="preview"></ti-icon>
       </template>
     </div>
     <div v-if="showProgress"
@@ -27,7 +27,7 @@
     <ti-icon v-else-if="removed"
               value="far-trash-alt"/>
   </section>
-  <footer>
+  <footer v-if="footer">
     <div class="as-title"
       @click.stop="onClickTitle">
       <a v-if="href"
