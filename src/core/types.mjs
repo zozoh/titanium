@@ -72,9 +72,9 @@ function parseDate(d) {
 }
 //-----------------------------------
 export const TiTypes = {
-  toStr(val, fmt) {
+  toStr(val, fmt, dft) {
     if(_.isNull(val) || _.isUndefined(val)){
-      return fmt || ""
+      return Ti.Util.fallback(dft, null)
     }
     if(_.isString(val)){
       return val

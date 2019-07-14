@@ -60,11 +60,31 @@ export default {
         }
         // Transform
         if(it.transformer) {
+          //console.log("do trans")
           value = it.transformer(value)
         }
+        // Add value to comConf
+        let it2 = {...it}
+        let conf2 = {}
+        let valueAssigned = false
+        _.forEach(it2.comConf || {}, (val, key)=>{
+          // assign value
+          if("=value" == key) {
+            _.assign(conf2, value)
+            valueAssigned = true
+          }
+          // set val
+          else {
+            conf2[key] = val
+          }
+        })
+        if(!valueAssigned) {
+          conf2.value = value
+        }
+        it2.comConf = conf2
         // console.log(it.key, value)
         // Join to list
-        list.push({...it, value})
+        list.push(it2)
       }
       //console.log(this.title, ":", list)
       // Array to pick

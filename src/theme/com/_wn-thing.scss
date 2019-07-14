@@ -72,4 +72,18 @@
     //-------------------------------------
   }
   ////////////////////////////////////////////////
+  .thing-icon {
+    @include flex-center;
+    padding:0;
+    > .ti-icon {
+      width:36px; height:36px;
+    }
+    img {
+      width:32px; height:32px;
+      object-fit: cover;
+      border:1px solid map-get($color-line, shallow);
+      border-radius: 2px;
+    }
+  }
+  ////////////////////////////////////////////////
 }

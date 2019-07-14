@@ -4,7 +4,6 @@
     <component v-for="it in displayItems"
       :key="it.uniqueKey"
       :is="it.comType"
-      v-bind="it.comConf"
-      :value="it.value"/>
+      v-bind="it.comConf"/>
   </div>
 </li>

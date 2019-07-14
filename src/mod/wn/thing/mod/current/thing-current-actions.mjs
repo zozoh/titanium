@@ -28,20 +28,31 @@ export default {
   },
   //--------------------------------------------
   async updateMeta({state, commit}, {name, value}={}) {
-    console.log("I am update", name, value)
-    commit("setMetaFieldStatus", {name, status:"spinning"})
+    //console.log("I am update", name, value)
     let data = {}
     // Normal field
     if(_.isString(name)) {
+      // No-necessary
+      if(_.isEqual(state.meta[name], value))
+        return
       data[name] = value
     }
     // Multi fields
     else if(_.isArray(name)){
+      let noNecessary = true
       for(let nm of name) {
-        data[nm] = value[nm]
+        let vv = value[nm]
+        if(!_.isEqual(state.meta[nm], vv)) {
+          noNecessary = false
+          data[nm] = vv
+        }
       }
+      if(noNecessary)
+        return
     }
 
+    // Do the update
+    commit("setMetaFieldStatus", {name, status:"spinning"})
     let json = JSON.stringify(data)
     let th_set = state.meta.th_set
     let th_id  = state.meta.id

@@ -5,6 +5,7 @@
   "template" : "./wn-thing-manager.html",
   "mixins"   : ["./wn-thing-manager.mjs"],
   "components" : [
+    "./com/thing-icon",
     "./com/thing-files",
     "./com/thing-filter",
     "./com/thing-creator",

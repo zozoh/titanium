@@ -117,7 +117,7 @@ export default {
       v2 = VAL(this, v2)
 
       // emit event
-      if(!_.isEqual(v2, this.fieldValue)) {
+      if(!this.checkEquals || !_.isEqual(v2, this.fieldValue)) {
         this.$emit("changed", {
           name  : this.name,
           value : v2

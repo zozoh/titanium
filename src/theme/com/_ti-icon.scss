@@ -4,5 +4,6 @@
   .tii-con {
     @include flex-center;
     > i {font-size:1.2em; }
+    > img {display: block;}
   }
 }

@@ -22,16 +22,25 @@
   //-------------------------------------
   > .wall-tile {
     border:1px solid transparent;
+    //----------------------------------
     &.is-selected {
       @include color($color-selected, r, c);
     }
+    //----------------------------------
     &.is-current {
       border-style: dotted;
       border-color: map-get($color-primary, c);
     }
+    //----------------------------------
     &.is-removed {opacity:0.4;}
     &.is-weak {opacity:0.4;}
     &.is-hide {display:none;}
+    //----------------------------------
+    .ti-obj-thumb {
+      .as-preview {
+        font-size:.32rem;
+      }
+    }
   }
   //-------------------------------------
 }

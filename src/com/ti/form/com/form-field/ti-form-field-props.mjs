@@ -39,6 +39,10 @@ export default {
     type : [String, Number],
     default : "stretch"
   },
+  "checkEquals" : {
+    type : Boolean,
+    default : true
+  },
   "undefinedAs" : {
     default : undefined
   },

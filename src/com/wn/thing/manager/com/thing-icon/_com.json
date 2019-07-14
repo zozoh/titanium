@@ -1,0 +1,6 @@
+{
+  "name" : "wn-thing-icon",
+  "globally" : true,
+  "template" : "./thing-icon.html",
+  "mixins" : ["./thing-icon.mjs"]
+}

@@ -109,7 +109,7 @@ export default {
       let list = []
       for(let li of state.list) {
         if(li.id == it.id) {
-          list.push(it)
+          list.push({...it, __updated_time:Date.now()})
         } else {
           list.push(li)
         }

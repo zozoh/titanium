@@ -26,10 +26,18 @@
   -->
   <div v-if="showRemoveIcon"
     class="thumb-actions">
+    <!--remove-->
     <div class="thumb-opt as-del"
       @click="onRemove">
       <ti-icon value="zmdi-delete"/>
       <span class="it-text">{{'clear'|i18n}}</span>
     </div>
+    <!--open-->
+    <div class="thumb-opt as-open"
+      @click="onOpen">
+      <ti-icon value="zmdi-open-in-new"/>
+      <span class="it-text">{{'open'|i18n}}</span>
+    </div>
+    <!--//////-->
   </div>
 </div>

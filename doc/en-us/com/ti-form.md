@@ -44,6 +44,9 @@ Define the schema(`Object`) of  data presentation.
     // if `null`, the filed title will be hidded
     title : "i18n:xxx",
     tip   : "i18n:xxx"
+    // If false, it will notify the changed without value equals check
+    // Default is true
+    checkEquals : true,
     // Applied when undeinfed value
     undefinedAs : undeinfed,
     // Applied when null value

@@ -116,6 +116,15 @@ export default {
       return true
     },
     //--------------------------------------
+    async onOpen() {
+      // remove the thumb file
+      if(this.oImage) {
+        let link = Wn.Util.getAppLink(this.oImage)
+        //console.log("it will open ", link)
+        await Ti.Be.Open(link.url, {params:link.params})
+      }
+    },
+    //--------------------------------------
     async onRemove() {
       // remove the thumb file
       if(this.oImage) {
