@@ -23,6 +23,10 @@ export default {
     "status" : {
       type : Object,
       default : ()=>({})
+    },
+    "blankText" : {
+      type : String,
+      default : "i18n:blank"
     }
   },
   computed : {

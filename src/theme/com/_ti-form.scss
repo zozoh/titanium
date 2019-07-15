@@ -17,7 +17,7 @@
   }
   //----------------------------------
   .form-field {
-    @include flex-align-nowrap;
+    @include flex-align-nowrap($ai:flex-start,$ac:flex-start);
     //------------------------
     > .field-name  {
       @include flex-align-nowrap;
@@ -47,6 +47,12 @@
           flex:1 1 auto;
           > * {width:100%;}
         }
+      }
+      > .field-tip {
+        @include flex-align-center;
+        padding:4px;
+        font-size:12px; line-height: 1.2em;
+        color:map-get($color-track, c);
       }
     }
     //------------------------

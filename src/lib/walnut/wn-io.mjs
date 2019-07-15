@@ -61,24 +61,39 @@ export const WnIo = {
   /***
    * Get obj children by meta
    */
-  async loadChildren(meta, {skip, limit, sort, mine, match={}}={}) {
+  async loadChildren(meta, {skip, limit, sort={nm:1}, mine, match={}}={}) {
     if(!meta)
       return null
     if('DIR' != meta.race)
       return []
+    //......................................
+    // Load children when linked obj
+    if(meta.mnt || meta.ln) {
+      let url = URL("children")
+      let reo = await Ti.Http.get(url, {
+        params: {
+          "str" :  `id:${meta.id}`,
+          "pg"  : true
+        }, 
+        as:"json"})
+      return AJAX_RETURN(reo)
+    }
+    //......................................
+    // Just normal query
     // parent ID
     match.pid = meta.id
+
     // find them
-    let children = await WnIo.find({skip, limit, sort, mine, match})
-    // Auto set children path if noexists
-    if(meta.ph && children && _.isArray(children.list)) {
-      for(let child of children.list) {
+    let reo = await WnIo.find({skip, limit, sort, mine, match})
+    // Auto set reo path if noexists
+    if(meta.ph && reo && _.isArray(reo.list)) {
+      for(let child of reo.list) {
         if(!child.ph) {
           child.ph = Ti.Util.appendPath(meta.ph, child.nm)
         }
       }
     }
-    return children
+    return reo
   },
   /***
    * Query object

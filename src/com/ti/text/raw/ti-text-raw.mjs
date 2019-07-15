@@ -22,6 +22,10 @@ export default {
     "contentIsChanged" : {
       type : Boolean,
       default : false
+    },
+    "blankText" : {
+      type : String,
+      default : "i18n:blank"
     }
   },
   computed : {
@@ -35,6 +39,9 @@ export default {
       return {
         "content-changed" : this.contentIsChanged
       }
+    },
+    placeholder() {
+      return Ti.I18n.text(this.blankText)
     }
   },
   methods : {
