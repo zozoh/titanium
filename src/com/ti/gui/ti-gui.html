@@ -8,6 +8,8 @@
     :blocks="blocks"
     :adjustable="adjustable"
     :shown="shown"
+    :schema="schema"
+    @tabs:changed="$emit('tabs:changed', $event)"
     @block:show="$emit('block:show', $event)"
     @block:hide="$emit('block:hide', $event)"
     @block:event="$emit('block:event', $event)">

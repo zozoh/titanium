@@ -34,12 +34,6 @@ export default {
     }
   },
   ///////////////////////////////////////////
-  watch : {
-    "config.actions" : function() {
-      this.$emit("actions:updated", this.config.actions)
-    }
-  },
-  ///////////////////////////////////////////
   computed : {
     //--------------------------------------
     currentLayout() {
@@ -131,6 +125,13 @@ export default {
       return Ti.Util.explainObj(this, la, this.quickExplainObj)
     },
     //--------------------------------------
+    async changeTabs(tabs={}) {
+      this.shown = {
+        ...this.shown, 
+        ...tabs
+      }
+    },
+    //--------------------------------------
     showBlock(name) {
       // If creator, then must leave the recycle bin
       if("creator" == name) {
@@ -167,26 +168,26 @@ export default {
       }
     },
     //--------------------------------------
-    setSeachSelected(current={}, selected) {
-      let app = Ti.App(this)
+    // setSeachSelected(current={}, selected) {
+    //   let app = Ti.App(this)
 
-      let cid = current ? current.id : null
-      app.commit("main/search/setCurrentId", cid)
+    //   let cid = current ? current.id : null
+    //   app.commit("main/search/setCurrentId", cid)
 
-      if(_.isArray(selected)) {
-        let ids = []
-        for(let it of selected) {
-          ids.push(it.id)
-        }
-        app.commit("main/search/setCheckedIds", ids)
-      }
-    },
+    //   if(_.isArray(selected)) {
+    //     let ids = []
+    //     for(let it of selected) {
+    //       ids.push(it.id)
+    //     }
+    //     app.commit("main/search/setCheckedIds", ids)
+    //   }
+    // },
     //--------------------------------------
-    onBlockEvent(be={}) {
-      //console.log("onBlockEvent", be)
+    async onBlockEvent(be={}) {
+      console.log("onBlockEvent", be)
       let app = Ti.App(this)
       // Event Handlers
-      let fn = ({
+      const fns = {
         //..................................
         // Select item in search list
         "list.selected" : ({current, selected})=>{
@@ -194,18 +195,17 @@ export default {
           if(!current) {
             this.shown.content = false
             this.shown.meta = false
-          } else {
+          }
+          else if(!this.shown.content) {
             this.shown.meta = true
           }
           
           // Update Current
-          app.dispatch("main/current/setCurrent", {
+          app.dispatch("main/setCurrentThing", {
             meta : current, 
             loadContent : this.shown.content,
             force : false
           })
-          // Update Checkes/Current to search
-          this.setSeachSelected(current, selected)
 
           // Reload files
           if(this.shown.files) {
@@ -219,13 +219,13 @@ export default {
           this.shown.meta = true
           this.shown.content = true
           // Update Current
-          app.dispatch("main/current/setCurrent", {
+          app.dispatch("main/setCurrentThing", {
             meta : current, 
             loadContent : this.shown.content,
             force : false
           })
           // Update Checkes/Current to search
-          this.setSeachSelected(current)
+          //this.setSeachSelected(current)
         },
         //..................................
         // Content changed
@@ -244,16 +244,49 @@ export default {
         "pager.change:pgsz" : (pgsz)=>{
           app.commit("main/search/updatePager", {pgsz, pn:1})
           app.dispatch("main/search/reload")
-        }
+        },
         //..................................
-      })[`${be.block}.${be.name}`]
+        "tabs:changed" : this.changeTabs
+        //..................................
+      }
+
+      let fn = fns[`${be.block}.${be.name}`] || fns[be.name]
 
       // Run Handler
       if(_.isFunction(fn)) {
-        fn(...be.args)
+        await fn(...be.args)
       }
     }
     //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  watch : {
+    "config.actions" : function() {
+      this.$emit("actions:updated", this.config.actions)
+    },
+    "config.layout" : function() {
+      // Load the local 
+      let shown = Ti.Storage.session.getObject(this.meta.id)
+      // Update the shown
+      this.shown = _.assign({}, 
+          this.shown, 
+          this.config.layout.shown, 
+          shown)
+    },
+    "shown" : function() {
+      console.log("shown changed", JSON.stringify(this.shown))
+      if(this.meta && this.meta.id) {
+        Ti.Storage.session.setObject(this.meta.id, this.shown)
+      }
+    },
+    "current.meta" : function() {
+      if(this.shown.content && !this.current.content) {
+        Ti.App(this).dispatch("main/current/reload")
+      }
+      if(this.shown.files) {
+        Ti.App(this).dispatch("main/reloadFiles")
+      }
+    }
   }
   ///////////////////////////////////////////
 }

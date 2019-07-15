@@ -6,7 +6,8 @@ export default {
   data: ()=>({
     naturalWidth  : -1,
     naturalHeight : -1,
-    fitMode  : "none"
+    fitMode  : "none",
+    imgLoading : true
   }),
   props : {
     "src" : {
@@ -25,9 +26,10 @@ export default {
   computed : {
     topClass() {
       return {
-        "as-none"       : this.fitMode=="none",
-        "as-cover"      : this.fitMode=="cover",
-        "as-contain"    : this.fitMode=="contain"
+        "as-none"        : this.fitMode=="none",
+        "as-cover"       : this.fitMode=="cover",
+        "as-contain"     : this.fitMode=="contain",
+        "is-img-loading" : this.imgLoading
       }
     },
     topStyle() {
@@ -44,6 +46,7 @@ export default {
         this.naturalWidth  = $img.naturalWidth
         this.naturalHeight = $img.naturalHeight
         this.doResizeImage()
+        this.imgLoading = false
       }
     },
     isContainsByViewport() {

@@ -3,6 +3,9 @@
     Is for tabs
   -->
   <template  v-if="'tabs' == type">
+    <!--
+      Tabs list
+    -->
     <div class="layout-tabs">
       <ul>
         <li v-for="it in tabItems"
@@ -12,13 +15,28 @@
           <span v-if="it.icon" class="it-icon">
             <ti-icon :value="it.icon"/>
           </span>
-          <span class="it-text">{{it.text}}</span>
+          <span class="it-text">{{it.text|i18n}}</span>
         </li>
       </ul>
     </div>
-    <component :is="currentTabBlock.comType"
+    <!--
+      Cotnent
+    -->
+    <ti-block 
       class="ti-fill-parent"
-      v-bind="currentTabBlock.comConf"/>
+      v-bind="currentTabBlock.info"
+      :hide-title="true"
+      :shown="shown"
+      @block:show="$emit('block:show', $event)"
+      @block:hide="$emit('block:hide', $event)"
+      @block:event="$emit('block:event', $event)">
+      <component :is="currentTabBlock.comType"
+        class="ti-fill-parent"
+        v-bind="currentTabBlock.comConf"
+        @block:show="$emit('block:show', $event)"
+        @block:hide="$emit('block:hide', $event)"
+        @block:event="$emit('block:event', $event)"/>
+    </ti-block>
   </template>
   <!--
     Body slot

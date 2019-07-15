@@ -1,19 +1,28 @@
 <div class="ti-switcher">
+  <!--
+    Show Loading
+  -->
   <ti-icon
     v-if="loading"
     value="zmdi-settings zmdi-hc-spin"/>
-  <ul v-else>
-    <li v-for="(it, index) in formedList" 
-      :key="it.value"
-      :class="itemClass(it)"
-      @click="onClick(index, $event)"
-      @mousedown="onMouseDown(index, $event)">
-      <ti-icon class="it-icon"
-        size=".8em"
-        v-if="it.icon" 
-        :value="it.icon"/>
-      <span
-        class="it-text">{{it.text|i18n}}</span>
-    </li>
-  </ul>
+  <!--
+    Options
+  -->
+  <div v-else
+    class="switcher-con">
+    <ul>
+      <li v-for="(it, index) in formedList" 
+        :key="it.value"
+        :class="itemClass(it)"
+        @click="onClick(index, $event)"
+        @mousedown="onMouseDown(index, $event)">
+        <ti-icon class="it-icon"
+          size=".8em"
+          v-if="it.icon" 
+          :value="it.icon"/>
+        <span
+          class="it-text">{{it.text|i18n}}</span>
+      </li>
+    </ul>
+  </div>
 </div>

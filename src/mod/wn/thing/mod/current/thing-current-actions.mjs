@@ -116,7 +116,7 @@ export default {
     let content = null
     if(loadContent) {
       content = await dispatch("reload", meta)
-      console.log(" -loadContent", content)
+      //console.log(" -loadContent", content)
     }
     // Just update the meta
     else {

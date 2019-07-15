@@ -28,11 +28,11 @@
   // Layout: tabs
   //------------------------------------
   &.as-tabs {
-    padding-top: 40px; position:relative;
+    padding-top: 44px; position:relative;
     > .layout-tabs {
       @include noselect;
       position: absolute; left:0; right:0; top:0;
-      ul {
+      > ul {
         @include raw-list;
         @include flex-align-nowrap;
         @include border(1px, solid, shallow, bottom);

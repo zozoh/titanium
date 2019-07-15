@@ -18,6 +18,10 @@ export default {
       type : String,
       default : null
     },
+    "hideTitle" : {
+      type : Boolean,
+      default : false
+    },
     "actions" : {
       type : Array,
       default : ()=>[]
@@ -106,9 +110,15 @@ export default {
         return "zmdi-minus"
       }
     },
+    showTitle() {
+      return this.hasTitle && !this.hideTitle
+    },
+    showIcon() {
+      return this.hasIcon && !this.hideTitle
+    },
     showHeader() {
-      return this.hasTitle 
-              || this.hasIcon 
+      return this.showTitle 
+              || this.showIcon 
               || this.hasActions
               || (this.hasCloser
                   && (true === this.closer

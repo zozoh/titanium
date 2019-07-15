@@ -18,6 +18,10 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "schema" : {
+      type : Object,
+      default : ()=>({})
+    },
     "adjustable" : {
       type : Boolean,
       default : true
@@ -94,6 +98,13 @@ export default {
              && this.currentTabBlock.name 
               ? true 
               : false
+    },
+    //--------------------------------------
+    hasCurrentTabActions() {
+      return this.currentTabBlock 
+        && !_.isEmpty(this.currentTabBlock.info.actions)
+          ? true
+          : false
     }
     //--------------------------------------
   },

@@ -18,5 +18,8 @@
       object-fit: cover;
     }
   }
+  &.is-img-loading {
+    img {visibility: hidden;}
+  }
   //............................................
 }  // ~ .ti-media-image

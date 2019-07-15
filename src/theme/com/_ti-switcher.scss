@@ -2,26 +2,30 @@
   @include noselect;
   display:inline-block;
   vertical-align: middle;
-  ul {
-    @include raw-list;
-    @include flex-align($wp:nowrap);
-    @include border(1px, solid, shallow);
-  }
-  li {
-    @include color($color-disable, c, r);
-    @include border(1px, solid, shallow, left);
-    @include flex-align-center;
-    &:first-child{border-left:0;}
-    cursor:pointer;
-    padding:.5em; min-width:3em;
-    line-height:1em; text-align:center;
-    white-space: nowrap;
-    &.is-selected {
-      @include color($color-success, r, c);
+  > .switcher-con {
+    display:inline-block;
+    vertical-align: bottom;
+    ul {
+      @include raw-list;
+      @include flex-align($wp:nowrap);
+      @include border(1px, solid, shallow);
     }
-    &.is-focused {
-      @include color($color-selected, r, c);
+    li {
+      @include color($color-disable, c, r);
+      @include border(1px, solid, shallow, left);
+      @include flex-align-center;
+      &:first-child{border-left:0;}
+      cursor:pointer;
+      padding:.5em; min-width:3em;
+      line-height:1em; text-align:center;
+      white-space: nowrap;
+      &.is-selected {
+        @include color($color-success, r, c);
+      }
+      &.is-focused {
+        @include color($color-selected, r, c);
+      }
+      > .it-text {padding:0 .04rem;}
     }
-    > .it-text {padding:0 .04rem;}
   }
 }

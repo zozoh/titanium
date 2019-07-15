@@ -2,11 +2,16 @@
   :class="topClass"
   :style="topStyle">
   <header v-if="showHeader">
-    <div v-if="hasIcon"
+    <div v-if="showIcon"
       class="tbh-icon">
       <ti-icon :value="icon" size="16px"/>
     </div>
-    <div class="tbh-text">{{title|i18n}}</div>
+    <div class="tbh-text">
+      <span v-if="showTitle">
+        {{title|i18n}}
+      </span>
+      <span v-else>&nbsp;</span>
+    </div>
     <div v-if="hasActions"
       class="tbh-actions">
       <ti-menu 

@@ -13,6 +13,10 @@ export default {
     "suffix" : {
       type : String,
       default : null
+    },
+    "placeholder" : {
+      type : [String, Number],
+      default : null
     }
   },
   ////////////////////////////////////////////////////
@@ -34,11 +38,13 @@ export default {
   methods : {
     //------------------------------------------------
     onChanged() {
-      let val = this.$refs.input.value
-      if(this.trimed) {
-        val = _.trim(val)
+      if(_.isElement(this.$refs.input)) {
+        let val = this.$refs.input.value
+        if(this.trimed) {
+          val = _.trim(val)
+        }
+        this.$emit("changed", val)
       }
-      this.$emit("changed", val)
     }
     //------------------------------------------------
   }

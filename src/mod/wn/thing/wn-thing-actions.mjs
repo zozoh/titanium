@@ -201,6 +201,15 @@ export default {
     commit("setStatus", {reloading:false})
   },
   //--------------------------------------------
+  async setCurrentThing({state, commit, dispatch}, {
+    meta=null, loadContent=false, force=false
+  }={}) {
+    await dispatch("current/setCurrent", {
+      meta, loadContent, force
+    })
+    commit("search/selectItem", meta ? meta.id : null)
+  },
+  //--------------------------------------------
   async reload({state, commit, dispatch}, meta) {
     console.log("thing-manager.reload", state)
     // Update New Meta
@@ -221,11 +230,11 @@ export default {
     if(_.get(state, "meta.th_auto_select")) {
       if(!state.current.meta && !_.isEmpty(state.search.list)) {
         let current = state.search.list[0]
-        await dispatch("current/setCurrent", {
+        await dispatch("setCurrentThing", {
           meta : current, 
-          loadContent : !_.isNull(state.current.content)
+          loadContent : !_.isNull(state.current.content),
+          force : false
         })
-        commit("search/selectItem", current.id)
       }
     }
 

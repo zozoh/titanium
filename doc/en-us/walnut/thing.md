@@ -96,6 +96,10 @@ Thing is just a thing, and it almostly can be anything.
 
 ```js
 {
+  // Default shown setting
+  "shown" : {
+		"files" : true
+  },
   //----------------------------------------
   // Desktop
   //----------------------------------------

@@ -12,6 +12,9 @@ class TiStorageWrapper {
   getString(key, dft=null){
     return this.get(key, dft)
   }
+  getObject(key, dft={}){
+    return this.get(key, dft, (s)=>JSON.parse(s))
+  }
   getInt(key, dft=-1){
     return this.get(key, dft, (s)=>parseInt(s))
   }
@@ -26,6 +29,13 @@ class TiStorageWrapper {
       this.remove(key)
     }
     let str = val+""
+    this.storage.setItem(key, str)
+  }
+  setObject(key, obj={}){
+    if(_.isNull(obj) || _.isUndefined(obj)){
+      this.remove(key)
+    }
+    let str = JSON.stringify(obj)
     this.storage.setItem(key, str)
   }
   remove(key) {
