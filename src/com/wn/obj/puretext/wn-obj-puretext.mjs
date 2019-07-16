@@ -1,4 +1,6 @@
 export default {
+  inheritAttrs : true,
+  ////////////////////////////////////////////
   props : {
     "meta" : {
       type : Object,
@@ -29,26 +31,33 @@ export default {
       default : "i18n:blank"
     }
   },
+  ////////////////////////////////////////////
   computed : {
+    //----------------------------------------
     theIcon() {
       if(this.meta) {
         return Wn.Util.getIconObj(this.meta)
       }
       return Ti.Icons.get()
     },
+    //----------------------------------------
     theTitle() {
       if(this.meta) {
         return this.meta.title || this.meta.nm
       }
       return "no-title"
     }
+    //----------------------------------------
   },
+  ////////////////////////////////////////////
   methods : {
     onChangeContent(newContent) {
       this.$emit("change", {content:newContent})
     }
   },
+  ////////////////////////////////////////////
   mounted : function(){
+    //----------------------------------------
     Ti.Fuse.getOrCreate().add({
       key : "wn-obj-puretext",
       everythingOk : ()=>{
@@ -63,8 +72,11 @@ export default {
         });
       }
     })
+    //----------------------------------------
   },
+  ////////////////////////////////////////////
   beforeDestroy : function(){
     Ti.Fuse.get().remove("wn-obj-puretext")
   }
+  ////////////////////////////////////////////
 }
