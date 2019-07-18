@@ -274,7 +274,7 @@ export default {
           shown)
     },
     "shown" : function() {
-      console.log("shown changed", JSON.stringify(this.shown))
+      // console.log("shown changed", JSON.stringify(this.shown))
       if(this.meta && this.meta.id) {
         Ti.Storage.session.setObject(this.meta.id, this.shown)
       }
