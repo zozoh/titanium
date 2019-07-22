@@ -16,18 +16,12 @@ $HOME/
   |-- i18n/
   |-- js/
   |-- page/
-  |    |-- home/
-  |    |    |-- _com.json
-  |    |-- site-getters.mjs
-  |    |-- site-mutaions.mjs
-  |    |-- site-state.json
+  |    |-- about.json
+  |    |-- home.json
   |-- _app.json
   |-- index.wnml
   |-- site-main.html
   |-- site-main.mjs
-  |-- site-actions.mjs
-  |-- site-getters.mjs
-  |-- site-mutaions.mjs
   |-- site-state.json
 ```
 
@@ -199,6 +193,8 @@ DIV(@app)             # Vue(root) : index.wnml
   "title" : "页面标题",
   "path"  : "page/home",
   // 根据 path/params/anchor 做成一个指纹，表示页面输入的变动
+  // 在界面空间里，则可以方便的监控这个 finger 一旦变动，可以做一些事情
+  // 譬如改变页面标题等（在单页应用里尤其有用）
   "finger" : SHA1,
   // 动态参数表，通常这个是网页访问时从 URL 里获取的
   // 当重新调用 API 时，会从这里读取参数，以便动态更改内容

@@ -3,6 +3,16 @@
   //-----------------------------------------
   position: relative;
   //-----------------------------------------
+  textarea {
+    @include text-input;
+    width:100%;
+    font-size:.16rem;
+    outline:none;
+    resize:none;
+    padding:.08rem .1rem;
+    min-height: 4em;
+  }
+  //-----------------------------------------
   input {
     @include text-input;
     width:100%;

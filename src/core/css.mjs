@@ -9,7 +9,13 @@ export const TiCss = {
     return sz
   },
   toStyle(obj) {
-    return _.mapValues(obj, TiCss.toSize)
+    return _.mapValues(obj, (val, key)=>{
+      let ck = _.kebabCase(key)
+      if(/^(opacity|z-index|order)$/.test(ck)){
+        return val
+      }
+      return TiCss.toSize(val)
+    })
   }
 }
 //---------------------------------------

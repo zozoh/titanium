@@ -53,27 +53,39 @@ export default {
       let vm = this
       let m = /^([a-zA-Z0-9_]+):([^()]+)(\((.+)\))?$/.exec(action)
       if(m) {
-        let $app = Ti.App(vm)
-        let func = $app[m[1]]
+        let mode = m[1]
         let tanm = m[2]
+        let arg0 = m[4]
+        let args = []
+        let func, context
+        //...............................
+        // Call parent
+        if('parent' == mode) {
+          func = this.$parent[tanm]
+          context = this.$parent
+        }
+        // Call App
+        else {
+          let $app = Ti.App(vm)
+          func = $app[mode]
+          context = $app
+          args.push(tanm)
+        }
+        //...............................
+        // Do Invoke
         if(_.isFunction(func) && tanm) {
-          let args = [tanm]
-          if(m[4]) {
-            let payload = Ti.S.toJsValue(m[4])
+          if(arg0) {
+            let payload = Ti.S.toJsValue(arg0)
             args.push(payload)
           }
-          func.apply($app, args)
+          func.apply(context, args)
+          return
         }
-        // Fail to found function
-        else {
-          throw Ti.Err.make("e-ti-menu-action-InvalidAction", action)
-        }
-        //.then(()=>vm.processing = false)
       }
-      // invalid action form
-      else {
-        throw Ti.Err.make("e-com-MiAction-invalidActionForm")
-      }
+      // Fail to found function
+      // Then emit the action
+      //throw Ti.Err.make("e-ti-menu-action-InvalidAction", action)
+      this.$emit(action)
     }, 500, {
       leading  : true,
       trailing : false

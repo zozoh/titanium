@@ -104,6 +104,9 @@ $ti-block-header : 28px;
       }
       > .tbh-closer {
         cursor: pointer;
+        &.at-default {
+          width: .24rem;
+        }
         &.is-docked {
           @include flex-center;
           padding:0 .04rem; 

@@ -1,9 +1,13 @@
 .ti-icon {
-  display:inline-block; vertical-align: middle;
   @include flex-center;
-  .tii-con {
-    @include flex-center;
+  vertical-align: middle;
+  // The Icon
+  .icon-icon {
     > i {font-size:1.2em; }
     > img {display: block;}
+  }
+  // The Text
+  .icon-text {
+    
   }
 }

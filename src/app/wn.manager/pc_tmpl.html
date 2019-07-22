@@ -85,7 +85,7 @@ async function main(){
     lang : "zh-cn"
   })
 
-  console.log("tiConf", tiConf)
+  //console.log("tiConf", tiConf)
 
   // Update Config Setting
   Ti.Config.set(tiConf)
@@ -122,7 +122,10 @@ async function main(){
   if(!_.isEmpty(tiConf.components)) {
     Ti.Util.pushValue(appInfo, "components", tiConf.components)
   }
-  console.log(appInfo)
+  if(!_.isEmpty(tiConf.deps)) {
+    Ti.Util.pushValue(appInfo, "deps", tiConf.deps)
+  }
+  // console.log(appInfo)
   // Do init
   let app = Ti.App(appInfo)
   await app.init()

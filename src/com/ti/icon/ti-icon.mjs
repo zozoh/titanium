@@ -1,12 +1,30 @@
 export default {
+  inheritAttrs : false,
+  ///////////////////////////////////////////////////////
   props : {
+    "className" : {
+      type : String,
+      default : null
+    },
     "value" : {
       type : [String,Object],
       default : ""
     },
-    "size" : {
+    "text" : {
+      type : String,
+      default : null
+    },
+    "fontSize" : {
       type : [Number, String],
-      default : "unset"
+      default : null
+    },
+    "width" : {
+      type : [Number, String],
+      default : null
+    },
+    "height" : {
+      type : [Number, String],
+      default : null
     },
     "color" : {
       type : String,
@@ -17,71 +35,74 @@ export default {
       default : -1
     }
   },
+  ///////////////////////////////////////////////////////
   computed : {
+    //---------------------------------------------------
+    topClass() {
+      if(this.className)
+        return this.className
+    },
+    //---------------------------------------------------
+    // formed icon data
     icon() {
+      let icn 
       if(_.isPlainObject(this.value)){
         // Regular icon object, return it directly
         if(this.value.type && this.value.value) {
-          return this.value
+          icn = this.value
         }
         // Eval it as meta
-        return Ti.Icons.get(this.value)
+        else {
+          icn = Ti.Icons.get(this.value)
+        }
       }
-      let re = {
-        type : "font",
-        value : this.value
-      }
-      if(_.isString(this.value)) {
-        re.type = Ti.Util.getSuffixName(this.value) || "font"
-      }
-      // for image
-      if(/^(jpe?g|gif|png)$/.test(re.type.toLowerCase())){
-        re.type = "iimg"
+      // String
+      else {
+        icn = {
+          type : "font",
+          value : this.value
+        }
+        if(_.isString(this.value)) {
+          icn.type = Ti.Util.getSuffixName(this.value) || "font"
+        }
+        // for image
+        if(/^(jpe?g|gif|png)$/i.test(icn.type)){
+          icn.type = "img"
+        }
       }
 
-      return re
+      // Join `className / text` to show icon font
+      if('font' == icn.type) {
+        _.assign(icn, Ti.Icons.parseFontIcon(icn.value))
+      }
+
+      // join style:outer
+      icn.outerStyle = Ti.Css.toStyle({
+        width   : this.width,
+        height  : this.height,
+        color   : this.color,
+        opacity : this.opacity >= 0 ? this.opacity : undefined
+      })
+
+      // join style:inner
+      if('img' == icn.type) {
+        icn.innerStyle = {
+          "width"  : this.width  ? "100%" : undefined,
+          "height" : this.height ? "100%" : undefined
+        }
+      }
+      // font size
+      else if('font' == icn.type) {
+        icn.innerStyle = {
+          "font-size" : this.fontSize 
+                          ? Ti.Css.toSize(this.fontSize) 
+                          : undefined
+        }
+      }
+
+      return icn
     },
-    topStyle() {
-      if("unset" == this.size) {
-        return {}
-      }
-      let sz = Ti.Css.toSize(this.size)
-      return {
-        width  : sz, 
-        height : sz
-      }
-    },
-    fontIcon() {
-      return Ti.Icons.parseFontIcon(this.icon.value)
-    },
-    fontStyle() {
-      let vm = this
-      let re = {}
-      if(vm.size && "unset"!=vm.size) {
-        re.fontSize = Ti.Css.toSize(vm.size)
-      }
-      if(vm.color) {
-        re.color = vm.color
-      }
-      if(vm.opacity >=0 ) {
-        re.opacity = vm.opacity
-      }
-      return re
-    },
-    imgStyle() {
-      let vm = this
-      let re = {}
-      if(vm.size && "unset"!=vm.size) {
-        re.width = Ti.Css.toSize(vm.size)
-        re.height = re.width
-      }
-      if(vm.color) {
-        re.color = vm.color
-      }
-      if(vm.opacity >=0 ) {
-        re.opacity = vm.opacity
-      }
-      return re
-    }
+    //---------------------------------------------------
   }
+  ///////////////////////////////////////////////////////
 }

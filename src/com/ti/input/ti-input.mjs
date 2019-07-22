@@ -6,16 +6,27 @@ export default {
       type : Boolean,
       default : true
     },
+    "placeholder" : {
+      type : [String, Number],
+      default : null
+    },
     "format" : {
       type : [String, Array, Object],
       default : undefined
     },
-    "suffix" : {
-      type : String,
+    // true : Show multi-line textarea
+    "multi" : {
+      type : Boolean,
+      default : false
+    },
+    // multi-line only, indicate the textarea height
+    "height" : {
+      type : [Number, String],
       default : null
     },
-    "placeholder" : {
-      type : [String, Number],
+    // For `multi=false` only
+    "suffix" : {
+      type : String,
       default : null
     }
   },
@@ -25,6 +36,18 @@ export default {
     theValue() {
       //console.log("input value:", this.value)
       return Ti.Types.toStr(this.value, this.format)
+    },
+    //------------------------------------------------
+    topClass() {
+      return {
+        "is-multi" : this.multi
+      }
+    },
+    //------------------------------------------------
+    textClass() {
+      return {
+        "height" : Ti.Css.toSize(this.height)
+      }
     },
     //------------------------------------------------
     inputClass() {
@@ -37,9 +60,10 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onChanged() {
-      if(_.isElement(this.$refs.input)) {
-        let val = this.$refs.input.value
+    onChanged($event) {
+      let $in = $event.target
+      if(_.isElement($in)) {
+        let val = $in.value
         if(this.trimed) {
           val = _.trim(val)
         }

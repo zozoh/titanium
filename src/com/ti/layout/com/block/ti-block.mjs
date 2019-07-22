@@ -168,15 +168,15 @@ export default {
       //console.log("$emit->block:hide", this.name)
       this.$emit("block:hide", this.name)
     },
-    hijackEmit(name, args) {
+    async hijackEmit(name, args) {
       //console.log("--hijackEmit--", name, args)
       // By Pass: "block:show/hide/event"
       if(/^block:(show|hide|event)$/.test(name)) {
-        this.$emit(name, ...args)
+        await this.$emit(name, ...args)
       }
       // Gen Block Event
       else {
-        this.$emit("block:event", {
+        await this.$emit("block:event", {
           block : this.name,
           name, args
         })

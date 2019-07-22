@@ -1,13 +1,16 @@
 .ti-menu {
   @include noselect;
-  @include flex-align($jc:center);
 }
 //------------------------------------------------
 // For Desktop
 //------------------------------------------------
 .ti-menu-desktop {
-  @include flex-align;
   > .menu-desktop-top {
+    @include raw-list;
+    @include flex-align;
+    &.align-left   {justify-content: flex-start;}
+    &.align-center {justify-content: center;}
+    &.align-right  {justify-content: flex-end;}
     > li {
       @include flex-center;
       //--------------------------------------
@@ -24,8 +27,11 @@
       }
       //--------------------------------------
       .md-icon {
-        height:.3rem; line-height:.3rem;
         @include flex-center;
+        height:.3rem; line-height:.3rem;
+        > .ti-icon {
+          width:.24rem;
+        }
       }
       //--------------------------------------
       .md-text {

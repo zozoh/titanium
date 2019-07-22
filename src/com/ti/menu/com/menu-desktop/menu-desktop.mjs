@@ -56,7 +56,7 @@ export default {
   ///////////////////////////////////////
   computed : {
     topUlClassName() {
-      return "ti-ul-align-"+this.align
+      return "align-"+this.align
     },
     items() {
       let list = []

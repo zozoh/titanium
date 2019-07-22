@@ -12,12 +12,14 @@ export default {
     ])
   },
   //////////////////////////////////////////
-  created : function(){
+  created : async function(){
     // Hijack the emit by $parent
     if(!this.hijackEmit) {
       if(this.$parent && _.isFunction(this.$parent.hijackEmit)) {
-        this.$emit = (name, ...args) => {
-          this.$parent.hijackEmit(name, args)
+        const __old_emit = this.$emit
+        this.$emit = async (name, ...args) => {
+          await __old_emit.apply(this, [name, ...args])
+          await this.$parent.hijackEmit(name, args)
         }
       }
     }

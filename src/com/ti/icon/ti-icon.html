@@ -1,22 +1,28 @@
-<span class="ti-icon" :style="topStyle">
-  <span class="tii-con">
-    <!--
-      Font icon
-    -->
+<div 
+  class="ti-icon" 
+  :class="topClass">
+  <!--Icon-->
+  <span class="icon-icon"
+    :style="icon.outerStyle">
+    <!--Font icon-->
     <i v-if="'font'==icon.type"
-      :class="fontIcon.className"
-      :style="fontStyle">
-      <template v-if="fontIcon.text">{{fontIcon.text}}</template>
+      :class="icon.className"
+      :style="icon.innerStyle">
+      <!--ligature font -->
+      <template v-if="icon.text">{{icon.text}}</template>
     </i>
-    <!--
-      Svg
-    -->
+    <!--Svg/Image-->
     <img v-else-if="'svg'==icon.type || 'img'==icon.type"
         :src="icon.value"
-        :style="imgStyle"/>
+        :style="icon.innerStyle"/>
     <!--
-      Default ligature font 
+      Default output the value
     -->
     <em v-else>{{value}}</em>
   </span>
-</span>
+  <!--Text-->
+  <span v-if="text"
+    class="icon-text">
+    {{text | i18n}}
+  </span>
+</div>

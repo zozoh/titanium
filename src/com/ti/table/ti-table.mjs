@@ -414,7 +414,9 @@ export default {
       // Do emit
       this.$emit("selected", {
         selected : this.selectedItems,
-        current  : this.currentItem
+        current  : this.currentItem,
+        currentId  : this.p_current_id,
+        checkedIds : this.p_checked_ids
       })
     },
     //--------------------------------------
@@ -452,7 +454,9 @@ export default {
       // Do emit
       this.$emit("selected", {
         selected : this.selectedItems,
-        current  : this.currentItem
+        current  : this.currentItem,
+        currentId  : this.p_current_id,
+        checkedIds : this.p_checked_ids
       })
     },
     //--------------------------------------
@@ -480,7 +484,9 @@ export default {
       // Do emit
       this.$emit("selected", {
         selected : this.selectedItems,
-        current  : this.currentItem
+        current  : this.currentItem,
+        currentId  : this.p_current_id,
+        checkedIds : this.p_checked_ids
       })
     },
     //--------------------------------------
