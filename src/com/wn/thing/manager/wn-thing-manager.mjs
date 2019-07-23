@@ -41,7 +41,7 @@ export default {
     },
     //--------------------------------------
     formedSchema() {
-      return Ti.Util.explainObj(this, this.config.schema, this.quickExplainObj)
+      return Ti.Util.explainObj(this, this.config.schema)
     },
     //--------------------------------------
     changedRowId() {
@@ -89,31 +89,6 @@ export default {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    // some shorthands ...
-    quickExplainObj(obj) {
-      // Quick: table.field.display:: thumb->icon
-      if("@<thumb>" == obj) {
-        return {
-          key : ["icon", "thumb", "__updated_time"],
-          type : "Object",
-          transformer : {
-            name : "toObject",
-            args : {
-              icon  : "icon",
-              thumb : "thumb",
-              timestamp : "__updated_time"
-            }
-          },
-          comType  : "wn-thing-icon",
-          comConf : {
-            "=value" : true
-          }
-        }
-      }
-      // by pass
-      return obj
-    },
-    //--------------------------------------
     getLayout(name) {
       if(_.isEmpty(this.config))
         return {}
@@ -122,7 +97,7 @@ export default {
         la = this.config.layout[la]
       }
       //...........................
-      return Ti.Util.explainObj(this, la, this.quickExplainObj)
+      return Ti.Util.explainObj(this, la)
     },
     //--------------------------------------
     async changeTabs(tabs={}) {
@@ -184,7 +159,7 @@ export default {
     // },
     //--------------------------------------
     async onBlockEvent(be={}) {
-      console.log("onBlockEvent", be)
+      //console.log("onBlockEvent", be)
       let app = Ti.App(this)
       // Event Handlers
       const fns = {

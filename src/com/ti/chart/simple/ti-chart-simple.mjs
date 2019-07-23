@@ -211,7 +211,7 @@ export default {
   },
   //////////////////////////////////////////
   watch : {
-    // "data" : function() {this.debounceRedrawChart()},
+    "data" : function() {this.debounceRedrawChart()},
     // "type" : function() {this.debounceRedrawAll()},
     // "axisX" : function() {this.debounceRedrawAll()},
     // "axisY" : function() {this.debounceRedrawAll()}

@@ -52,10 +52,10 @@ export const TiUtil = {
    * if array returned, it will join the return array
    * @return the new Array instance
    */
-  inset(list=[], ele={}, iteratee=_.identity) {
+  inset(list=[], iteratee=_.identity) {
     let list2 = []
     for(let li of list) {
-      let li2 = iteratee(li, ele)
+      let li2 = iteratee(li)
       // Multi values returned
       if(_.isArray(li2) && !_.isEmpty(li2)) {
         for(let li22 of li2){
@@ -104,7 +104,7 @@ export const TiUtil = {
     }
     // String: @xx.xx
     if(_.isString(o1)) {
-      let m = /^[@=](.+)$/.exec(o1)
+      let m = /^[=](.+)$/.exec(o1)
       if(m) {
         return _.get(context, m[1])
       }

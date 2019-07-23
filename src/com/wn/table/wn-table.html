@@ -1,0 +1,16 @@
+<ti-table
+  :id-key="idKey"
+  :class-name="className"
+  :fields="formedFields"
+  :extend-function-set="extendFunctionSet"
+  :list="list"
+  :changed-id="changedId"
+  :current-id="currentId"
+  :checked-ids="checkedIds"
+  :multi="multi"
+  :checkable="checkable"
+  :blurable="blurable"
+  :border="border"
+  :selectable="selectable"
+  @selected="$emit('selected', $event)"
+  @open="$emit('open', $event)"/>

@@ -44,13 +44,19 @@ export default {
       }
     },
     //------------------------------------------------
-    textClass() {
-      return {
-        "height" : Ti.Css.toSize(this.height)
+    multiModeClass() {
+      // TODO ... maybe need nothing -_-!
+    },
+    //------------------------------------------------
+    multiModeStyle(){
+      if(this.height) {
+        return {
+          "height" : Ti.Css.toSize(this.height)
+        }
       }
     },
     //------------------------------------------------
-    inputClass() {
+    inputModeClass() {
       return {
         "has-suffix" : this.suffix ? true : false
       }

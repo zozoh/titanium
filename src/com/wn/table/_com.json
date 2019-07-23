@@ -1,0 +1,9 @@
+{
+  "name" : "wn-table",
+  "globally" : true,
+  "template" : "./wn-table.html",
+  "mixins" : ["./wn-table.mjs"],
+  "components" : [
+    "@com:ti/table"
+  ]
+}

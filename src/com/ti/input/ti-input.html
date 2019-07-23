@@ -6,7 +6,8 @@
   <template v-if="multi">
     <textarea
       spellcheck="false" 
-      :class="textClass"
+      :class="multiModeClass"
+      :style="multiModeStyle"
       :value="theValue"
       :placeholder="placeholder"
       @change="onChanged"></textarea>
@@ -17,7 +18,7 @@
   <template v-else>
     <input 
       spellcheck="false" 
-      :class="inputClass"
+      :class="inputModeClass"
       :value="theValue"
       :placeholder="placeholder"
       @change="onChanged">
