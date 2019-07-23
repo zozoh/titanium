@@ -43,6 +43,33 @@ export const TiUtil = {
     return obj
   },
   /***
+   * Gen new Array to update the given element
+   * 
+   * @param list{Array} - the source Array
+   * @param ele{Object} - Object to update
+   * @param iteratee{Function} - match by two arguments:
+   *  `function(item, ele)`, it undefined returned, the item wil be removed
+   * if array returned, it will join the return array
+   * @return the new Array instance
+   */
+  inset(list=[], ele={}, iteratee=_.identity) {
+    let list2 = []
+    for(let li of list) {
+      let li2 = iteratee(li, ele)
+      // Multi values returned
+      if(_.isArray(li2) && !_.isEmpty(li2)) {
+        for(let li22 of li2){
+          list2.push(li22)
+        }
+      }
+      // value returned
+      if(!_.isUndefined(li2)){
+        list2.push(li2)
+      }
+    }
+    return list2
+  },
+  /***
    * Explain obj to a new one
    * 
    * The key `...` in obj will `_.assign` the value

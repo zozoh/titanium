@@ -26,6 +26,16 @@
   z-index: $z-mask;
 }
 //...................................................
+// Loading
+.ti-mask-loading {
+  @include pos-abs-full;
+  @include flex-center;
+  @include color($color-mask, r, weak);
+  color:map-get($color-secondary, c);
+  padding-bottom: 20%;
+  z-index: $z-top;
+}
+//...................................................
 .ti-blank {
   padding:.2rem; 
   &.is-big {

@@ -63,7 +63,7 @@ export default {
             icon  : defaultIcon,
             text  : str,
             value : it,
-            selected : this.isSelectedItem(it, {value, multi})
+            selected : this.isSelectedItem({value:it}, {value, multi})
           }
         }
         // Customized
