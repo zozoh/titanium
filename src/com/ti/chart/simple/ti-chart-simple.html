@@ -2,7 +2,8 @@
   <header 
     v-if="title" 
     @click="drawAll">{{title}}</header>
-  <aside v-if="aside">
+  <aside v-if="aside"
+    :class="asideClass">
     <slot name="aside">
       <span v-if="unit">{{unit}}</span>
     </slot>

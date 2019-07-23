@@ -1,0 +1,9 @@
+.ti-chart-simple {
+  aside {
+    @include flex-align-nowrap;
+    &.at-left   {justify-content: flex-start;}
+    &.at-center {justify-content: center;}
+    &.at-right  {justify-content: flex-end;}
+    &.at-none {display: none;}
+  }
+}

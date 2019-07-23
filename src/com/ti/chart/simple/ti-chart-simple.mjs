@@ -10,10 +10,11 @@ function draw_chart({
   padding,
   minValue,
   maxValue,
-  valueInterval
+  valueInterval,
+  coord
 }={}) {
   let $container = $refs.chart
-  console.log(data)
+  //console.log(data)
   let width  = G2.DomUtil.getWidth($container)
   let height = G2.DomUtil.getHeight($container)
   // if(width > 500 && width < 510)
@@ -70,6 +71,13 @@ function draw_chart({
     }
   }
   chart.axis(axisY.name, axisYOptions)
+  //.......................................
+  // 坐标系变换
+  if(coord) {
+    if("transpose" == coord) {
+      chart.coord().transpose()
+    }
+  }
   //.......................................
   // 视图缩放
   let alias = axisY.title || axisY.name
@@ -174,8 +182,8 @@ export default {
       })
     },
     "aside" : {
-      type : Boolean,
-      default : true
+      type : String,
+      default : "left" // none|left|center|right
     },
     "unit" : {
       type : String,
@@ -207,6 +215,11 @@ export default {
     "valueInterval" : {
       type: Number,
       default : 100
+    },
+    // 坐标系变换
+    "coord" : {
+      type : [String, Object],
+      default : null
     }
   },
   //////////////////////////////////////////
@@ -219,7 +232,9 @@ export default {
   //////////////////////////////////////////
   computed : {
     //......................................
-
+    asideClass() {
+      return `at-${this.aside||"none"}`
+    },
     //......................................
     // TODO support slider
     hasSlider() {return false}
@@ -229,7 +244,7 @@ export default {
   methods : {
     //......................................
     redrawChart() {
-      console.log("I am redrawChart")
+      //console.log("I am redrawChart")
       if(this.__g2_chart) {
         this.__g2_chart.destroy()
         $(this.$refs.chart).empty()
@@ -237,7 +252,7 @@ export default {
       this.__g2_chart = draw_chart(this)
     },
     drawAll() {
-      console.log("I am drawAll")
+      //console.log("I am drawAll")
       this.$nextTick(()=>{
         this.redrawChart()
         //this.redrawSlider()
