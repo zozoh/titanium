@@ -66,7 +66,7 @@ export default {
     },
     //-------------------------------------
     async reload({state, dispatch}) {
-      console.log("I am reload", state.entry, state.base)
+      console.log("site.reload", state.entry, state.base)
       // Looking for the entry page
       let loc = {
         path   : window.location.pathname,

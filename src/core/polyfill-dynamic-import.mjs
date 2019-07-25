@@ -19,6 +19,7 @@ export function importModule(url) {
     };
     script.defer = "defer";
     script.type = "module";
+    script.crossOrigin = "use-credentials"
     script.onerror = () => {
       reject(new Error(`Failed to import: ${url}`));
       destructor();

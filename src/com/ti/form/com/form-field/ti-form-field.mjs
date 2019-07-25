@@ -2,18 +2,28 @@ function BOOL(val) {
   return val ? true : false
 }
 function VAL(vm, val) {
-  let v2 = val
   // apply default
-  if(_.isUndefined(val) && !_.isUndefined(vm.undefinedAs)){
-    v2 = _.cloneDeep(vm.undefinedAs)
+  if(_.isUndefined(val)){
+    return _.cloneDeep(
+      Ti.Util.fallback(vm.undefinedAs, vm.defaultAs)
+    )
   }
-  if(_.isNull(val) && !_.isNull(vm.nullAs)){
-    v2 = _.cloneDeep(vm.nullAs)
+  if(_.isNull(val)){
+    return _.cloneDeep(
+      Ti.Util.fallback(vm.nullAs, vm.defaultAs)
+    )
   }
   if(vm.isNumberType && isNaN(val)) {
-    v2 = vm.nanAs
+    return _.cloneDeep(
+      Ti.Util.fallback(vm.nanAs, vm.defaultAs)
+    )
   }
-  return v2
+  if(_.isEmpty(val) && _.isString(val)) {
+    return _.cloneDeep(
+      Ti.Util.fallback(vm.emptyAs, vm.defaultAs)
+    )
+  }
+  return val
 }
 ////////////////////////////////////////////////
 export default {

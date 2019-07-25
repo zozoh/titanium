@@ -47,11 +47,18 @@ export default {
     default : undefined
   },
   "nullAs" : {
-    default : null
+    default : undefined
   },
   "nanAs" : {
     type : Number,
-    default : -1
+    default : undefined
+  },
+  "emptyAs" : {
+    type : String,
+    default : undefined
+  },
+  "defaultAs" : {
+    default : undefined
   },
   "comType" : {
     type : String,

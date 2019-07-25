@@ -250,6 +250,7 @@ export const TiTypes = {
       'String'   : {transformer:"toStr",     serializer:"toStr"},
       'Number'   : {transformer:"toNumber",  serializer:"toNumber"},
       'Integer'  : {transformer:"toInteger", serializer:"toInteger"},
+      'Float'    : {transformer:"toFloat",   serializer:"toFloat"},
       'Boolean'  : {transformer:"toBoolean", serializer:"toBoolean"},
       'Object'   : {transformer:"toObject",  serializer:"toObject"},
       'Array'    : {transformer:"toArray",   serializer:"toArray"},
@@ -265,7 +266,7 @@ export const TiTypes = {
     }, `${type}.${name}`)
   },
   //.......................................
-  getFuncBy(fnSet={}, fld, name) {
+  getFuncBy(fnSet={}, fld={}, name) {
     //..................................
     // Eval the function
     let fn = fld[name]
@@ -304,7 +305,41 @@ export const TiTypes = {
       // Just return
       return fn2
     }
+  },
+  //.......................................
+  getFunc(fld={}, name) {
+    return TiTypes.getFuncBy(TiTypes, fld, name)
+  },
+  //.......................................
+  getJsType(val, dftType="Object") {
+    if(_.isUndefined(val)) {
+      return dftType
+    }
+    if(_.isNull(val)) {
+      return "Object"
+    }
+    if(_.isNaN(val)) {
+      return "Number"
+    }
+    if(_.isNumber(val)) {
+      if(parseInt(val) == val) {
+        return "Integer"
+      }
+      return "Number"
+    }
+    if(_.isBoolean(val)) {
+      return "Boolean"
+    }
+    if(_.isString(val)) {
+      return "String"
+    }
+    if(_.isArray(val)) {
+      return "Array"
+    }
+    // Default is Object
+    return "Object"
   }
+  //.......................................
 }
 //---------------------------------------
 export default TiTypes

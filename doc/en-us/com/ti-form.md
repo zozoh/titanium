@@ -47,16 +47,33 @@ Define the schema(`Object`) of  data presentation.
     // If false, it will notify the changed without value equals check
     // Default is true
     checkEquals : true,
+    //--------------------------------------------
+    // Default values
+    //--------------------------------------------
+    // if value is undefined/null/NaN, will apply the setting
+    defaultAs : Any,
     // Applied when undeinfed value
+    // Higher priority then "defaultAs"
     undefinedAs : undeinfed,
     // Applied when null value
+    // Higher priority then "defaultAs"
     nullAs : null,
-    // Applied when NaN value
+    // Applied when NaN value and type is Number
+    // Higher priority then "defaultAs"
     nanAs : -1,
+    // Applied when empty string
+    // Higher priority then "defaultAs"
+    emptyAs : "xxx",
+    //--------------------------------------------
+    // Display
+    //--------------------------------------------
     // The component name, if undefined, it will auto evaluate by `type`
     comType : "ti-input",
     // The component properties, default is `undefined`
     comConf : {..}
+    //--------------------------------------------
+    // Data
+    //--------------------------------------------
     // Customized serializer： 
     // field com value -> form data
     // @see extendFunctionSet

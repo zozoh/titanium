@@ -40,7 +40,7 @@ function ProcessResponseData($req, {as="text"}={}) {
 }
 //-----------------------------------
 export const TiHttp = {
-  async send(url, options={}) {
+  send(url, options={}) {
     if(Ti.IsInfo("TiHttp")) {
       console.log("TiHttp.send", url, options)
     }
@@ -109,7 +109,7 @@ export const TiHttp = {
     created($req)
 
     // Process sending
-    return await new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject)=>{
       // callback
       $req.onreadystatechange = ()=>{
         readyStateChanged($req, options)
@@ -143,8 +143,8 @@ export const TiHttp = {
    * @param options.readyStateChanged{Function}=_.identity
    * @param options.as{String}="text"
    */
-  async sendAndProcess(url, options={}) {
-    return await TiHttp.send(url, options)
+  sendAndProcess(url, options={}) {
+    return TiHttp.send(url, options)
       .then(($req)=>{
         return ProcessResponseData($req, options)
       })
@@ -152,8 +152,8 @@ export const TiHttp = {
   /***
    * Send HTTP GET
    */
-  async get(url, options={}){
-    return await TiHttp.sendAndProcess(
+  get(url, options={}){
+    return TiHttp.sendAndProcess(
       url, 
       _.assign({}, options, {
         method:"GET"
@@ -162,8 +162,8 @@ export const TiHttp = {
   /***
    * Send HTTP post
    */
-  async post(url, options={}){
-    return await TiHttp.sendAndProcess(
+  post(url, options={}){
+    return TiHttp.sendAndProcess(
       url, 
       _.assign({}, options, {
         method: "POST"
@@ -175,7 +175,8 @@ export const TiHttp = {
   encodeFormData(params={}) {
     let list = []
     _.forOwn(params, (val, key)=>{
-      list.push(`${key}=${encodeURIComponent(val)}`)
+      let str = Ti.Types.toStr(val)
+      list.push(`${key}=${encodeURIComponent(str)}`)
     })
     return list.join("&")
   }
