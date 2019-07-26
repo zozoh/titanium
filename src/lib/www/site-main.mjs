@@ -2,6 +2,7 @@ export default {
   /////////////////////////////////////////
   computed : {
     ...Vuex.mapState({
+        "siteId"     : state=>state.siteId,
         "logo"       : state=>state.logo,
         "page"       : state=>state.page,
         "base"       : state=>state.base,
@@ -26,7 +27,7 @@ export default {
     //-------------------------------------
     // Format current pageGUI
     pageGUI() {
-      console.log("formatedPageGUI")
+      //console.log("formatedPageGUI")
       let page = this.page
       //.....................................
       // Without current page
@@ -70,7 +71,7 @@ export default {
       if(page.schema) {
         _.assign(gui.schema, page.schema)
       }
-      console.log(gui)
+      //console.log(gui)
       //.....................................
       // format it
       return Ti.Util.explainObj(this, gui)
@@ -102,13 +103,20 @@ export default {
       // It will routing the event to action
       // by site.actions|page.actions mapping
       let name = _.without([be.block, be.name], null).join(".")
-      let dist = this.actions[name]
+      let dist = _.cloneDeep(this.actions[name])
       if(!dist)
         return
       //....................................
+      if(_.isString(dist)) {
+        dist = {action : dist}
+      }
+      //....................................
+      dist.payload = dist.payload || {}
+      dist.payload.args = be.args
+      //....................................
       console.log("invoke->", dist)
       let app = Ti.App(this)
-      await app.dispatch(dist, ...be.args)
+      await app.dispatch(dist.action, dist.payload)
     }
     //-------------------------------------
   },

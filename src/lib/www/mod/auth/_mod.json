@@ -1,0 +1,6 @@
+{
+  "name" : "www-auth",
+  "namespaced" : true,
+  "state" : "./www-auth.json",
+  "mixins" : "./www-auth.mjs"
+}

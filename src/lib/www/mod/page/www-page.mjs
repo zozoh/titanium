@@ -172,9 +172,9 @@ export default {
       commit("setShown", {[name]:false})
     },
     //--------------------------------------------
-    async reloadData({state, commit, dispatch, getters}, keys=[]) {
+    async reloadData({state, commit, getters}, keys=[]) {
       let apis = getters.pageApis
-      //console.log(apis)
+      console.log("reloadData", apis)
 
       // The api list to reload
       let list
@@ -183,7 +183,7 @@ export default {
       }
       // Pick specail apis
       else {
-        list = _.pick(apis, keys)
+        list = _.values(_.pick(apis, keys))
       }
 
       // Prepare the Promises
@@ -239,6 +239,13 @@ export default {
 
       // Mark root state
       commit("setLoading", false, {root:true})
+
+      // Get return value
+      let reKeys = []
+      for(let api of list) {
+        reKeys.push(api.dataKey)
+      }
+      return _.pick(state.data, reKeys)
     },
     //--------------------------------------------
     async reload({commit, dispatch}, {

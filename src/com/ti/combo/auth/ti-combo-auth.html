@@ -1,0 +1,28 @@
+<div 
+  class="ti-icon" 
+  :class="topClass">
+  <!--Icon-->
+  <span class="icon-icon"
+    :style="icon.outerStyle">
+    <!--Font icon-->
+    <i v-if="'font'==icon.type"
+      :class="icon.className"
+      :style="icon.innerStyle">
+      <!--ligature font -->
+      <template v-if="icon.text">{{icon.text}}</template>
+    </i>
+    <!--Svg/Image-->
+    <img v-else-if="'svg'==icon.type || 'img'==icon.type"
+        :src="icon.value"
+        :style="icon.innerStyle"/>
+    <!--
+      Default output the value
+    -->
+    <em v-else>{{value}}</em>
+  </span>
+  <!--Text-->
+  <span v-if="text"
+    class="icon-text">
+    {{text | i18n}}
+  </span>
+</div>

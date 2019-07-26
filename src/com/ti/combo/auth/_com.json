@@ -1,0 +1,6 @@
+{
+  "name" : "ti-combo-auth",
+  "globally" : true,
+  "template" : "./ti-combo-auth.html",
+  "mixins" : ["./ti-combo-auth.mjs"]
+}

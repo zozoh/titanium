@@ -17,6 +17,10 @@ export default {
   /////////////////////////////////////////
   mutations : {
     //-------------------------------------
+    setSiteId(state, siteId) {
+      state.siteId = siteId
+    },
+    //-------------------------------------
     setLoading(state, loading) {
       state.loading = loading
     }
@@ -25,7 +29,15 @@ export default {
   /////////////////////////////////////////
   actions : {
     //-------------------------------------
-    // Only handle the "page|dispatch"
+    // BlockEvent wrapper
+    async onNavTo({dispatch}, {args=[]}={}) {
+      let arg = _.first(args)
+      if(arg) {
+        await dispatch("navTo", arg)
+      }
+    },
+    //-------------------------------------
+    // Only handle the "page|action"
     async navTo({state, commit, dispatch}, {
       type="page",
       value,

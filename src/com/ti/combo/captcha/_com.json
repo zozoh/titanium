@@ -1,0 +1,6 @@
+{
+  "name" : "ti-combo-captcha",
+  "globally" : true,
+  "template" : "./ti-combo-captcha.html",
+  "mixins" : ["./ti-combo-captcha.mjs"]
+}

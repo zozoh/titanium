@@ -1,0 +1,14 @@
+{
+  "ticket" : null,
+  "expi"   : 0,
+  "me"     : null,
+  "paths"  : {
+    "checkme"         : "auth/checkme",
+    "login_by_wxcode" : "auth/login_by_wxcode",
+    "login_by_vcode"  : "auth/login_by_vcode",
+    "login_by_passwd" : "auth/login_by_passwd",
+    "check_name"      : "auth/check_name",
+    "check_phone"     : "auth/check_phone",
+    "logout"          : "auth/doLogout"
+  }
+}

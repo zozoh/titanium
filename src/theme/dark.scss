@@ -51,6 +51,7 @@ $color-line: (
 @import "com/_ti-crumb.scss";
 @import "com/_ti-imgfile.scss";
 @import "com/_ti-icon.scss";
+@import "com/_ti-button.scss";
 @import "com/_ti-tiles.scss";
 @import "com/_ti-wall.scss";
 @import "com/_ti-layout.scss";
@@ -77,6 +78,9 @@ $color-line: (
 @import "com/_ti-toggle.scss";
 @import "com/_ti-switcher.scss";
 @import "com/_ti-image.scss";
+//-----------------------------------------------------
+// Include combo
+@import "com/_ti-combo-auth.scss";
 //-----------------------------------------------------
 // Include www
 @import "com/_ti-nav-links.scss";

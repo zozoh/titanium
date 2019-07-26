@@ -1,0 +1,7 @@
+{
+  "name" : "ti-button",
+  "globally" : true,
+  "template" : "./ti-button.html",
+  "mixins"   : ["./ti-button.mjs"],
+  "components" : []
+}
