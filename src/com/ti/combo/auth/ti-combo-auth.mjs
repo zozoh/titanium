@@ -103,7 +103,7 @@ export default {
     },
     //---------------------------------------------------
     doAuth() {
-      Ti.Toast.Open("hahahahahahah", "track")
+      Ti.Toast.Open("hahahahahahah", "info", "center")
     }
     //---------------------------------------------------
   }

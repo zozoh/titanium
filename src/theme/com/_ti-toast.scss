@@ -28,6 +28,17 @@
   &.at-bottom-left  {@include pos-fixed($b:0,$l:0);}
   &.at-bottom-right {@include pos-fixed($b:0,$r:0);}
   //---------------------------------
+  $br:4px;
+  &.at-center       > .toast-con {border-radius: $br $br $br $br;}
+  &.at-left         > .toast-con {border-radius: 0px $br $br 0px;}
+  &.at-right        > .toast-con {border-radius: $br 0px 0px $br;}
+  &.at-top          > .toast-con {border-radius: 0px 0px $br $br;}
+  &.at-bottom       > .toast-con {border-radius: $br $br 0px 0px;}
+  &.at-left-top     > .toast-con {border-radius: 0px 0px $br 0px;}
+  &.at-right-top    > .toast-con {border-radius: 0px 0px 0px $br;}
+  &.at-bottom-left  > .toast-con {border-radius: 0px $br 0px 0px;}
+  &.at-bottom-right > .toast-con {border-radius: $br 0px 0px 0px;} 
+  //---------------------------------
   .toast-icon {
     opacity: 0.7;
   }
@@ -50,6 +61,7 @@
   }
   //---------------------------------
   > .toast-con {
+    box-shadow:0 0 6px map-get($color-shadow, c);
     //-----------------------------
     > .toast-body {
       flex:1 1 auto; word-break: break-all;
@@ -69,13 +81,10 @@
 //---------------------------------------
 // Animation
 //---------------------------------------
-@mixin toast-trans($name, $trans, $tor:null, $du:.3s) {
+@mixin toast-trans($name, $trans, $du:.3s) {
   .toast-trans-at-#{$name}-enter-active, 
   .toast-trans-at-#{$name}-leave-active {
     transition: all $du ease-out;
-    @if $tor != null {
-      transform-origin: $tor;
-    }
   }
   .toast-trans-at-#{$name}-enter, 
   .toast-trans-at-#{$name}-leave-to  {
@@ -88,7 +97,7 @@
 @include toast-trans(right,  translateX(100px));
 @include toast-trans(bottom, translateY(100px));
 @include toast-trans(center, scale(0));
-@include toast-trans(left-top,     scale(0), left top);
-@include toast-trans(right-top,    scale(0), right top);
-@include toast-trans(bottom-left,  scale(0), bottom left);
-@include toast-trans(bottom-right, scale(0), bottom right);
+@include toast-trans(left-top,     translateX(-200px));
+@include toast-trans(right-top,    translateX(200px));
+@include toast-trans(bottom-left,  translateX(-200px));
+@include toast-trans(bottom-right, translateX(200px));
