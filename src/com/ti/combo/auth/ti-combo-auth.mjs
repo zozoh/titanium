@@ -103,12 +103,7 @@ export default {
     },
     //---------------------------------------------------
     doAuth() {
-      Ti.Toast.Open({
-        position : "top",
-        type : "warn",
-        content : "hahahahahahah",
-        duration : 0
-      })
+      Ti.Toast.Open("hahahahahahah", "track")
     }
     //---------------------------------------------------
   }

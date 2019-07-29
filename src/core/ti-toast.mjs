@@ -130,9 +130,13 @@ class TiToastBox {
 //////////////////////////////////////////////
 export const TiToast = {
   //------------------------------------------
-  Open(options) {
+  Open(options, type, position) {
     if(_.isString(options)) {
-      options = {content : options}
+      options = {
+        type     : type || "info", 
+        position : position || "top",
+        content  : options
+      }
     }
     //console.log("toast", options)
     let toa = new TiToastBox(options)
