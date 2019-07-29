@@ -43,7 +43,7 @@ const NAMES = {
   "refresh"  : {type:"font", value:"zmdi-refresh"},
   "setting"  : {type:"font", value:"zmdi-settings"},
   "help"     : {type:"font", value:"zmdi-help-outline"},
-  "info"     : {type:"font", value:"zmdi-zmdi-info-outline"},
+  "info"     : {type:"font", value:"zmdi-info-outline"},
   "warn"     : {type:"font", value:"zmdi-alert-triangle"},
   "error"    : {type:"font", value:"zmdi-alert-octagon"},
   "success"  : {type:"font", value:"zmdi-check-circle"},

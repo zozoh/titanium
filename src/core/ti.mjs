@@ -1,7 +1,8 @@
 import {Alert}   from "./ti-alert.mjs"
 import {Confirm} from "./ti-confirm.mjs"
 import {Prompt}  from "./ti-prompt.mjs"
-import {TiModal     as Modal   } from "./modal-dialog.mjs"
+import {TiToast     as Toast   } from "./ti-toast.mjs"
+import {TiModal     as Modal   } from "./ti-modal.mjs"
 import {TiBehaviors as Be      } from "./behaviors.mjs"
 import {TiAlg       as Alg     } from "./algorithm.mjs"
 import {TiStr       as S       } from "./str.mjs"
@@ -49,10 +50,10 @@ const LOG_LEVELS = {
 }
 //---------------------------------------
 export const Ti = {
-  Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Modal, Rects,
+  Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
   //.....................................
-  Alert, Confirm, Prompt,
+  Alert, Confirm, Prompt, Toast, Modal,
   //.....................................
   Env(key, val) {
     return Ti.Util.geset(ENV, key, val)

@@ -4,7 +4,7 @@ $color-primary   : (c:#2196f3, r:#FFF);
 $color-secondary : (c:#ff4081, r:#FFF);
 $color-success: (c:#4caf50, r:#FFF);
 $color-warn   : (c:#fdd835, r:#620);
-$color-info   : (c:#2196f3, r:#FFF);
+$color-info   : (c:rgba(0,0,0,.8), r:#DDD);
 $color-error  : (c:#f44336, r:#FFF);
 $color-track  : (c:#888, r:#FFF);
 $color-disable: (c:rgba(0,0,0,.38), r:rgba(255,255,255,.38));
@@ -58,6 +58,7 @@ $color-line: (
 @import "com/_ti-loading.scss";
 @import "com/_ti-menu.scss";
 @import "com/_ti-modal.scss";
+@import "com/_ti-toast.scss";
 @import "com/_ti-obj-creation.scss";
 @import "com/_ti-obj-meta.scss";
 @import "com/_ti-obj-thumb.scss";
@@ -81,6 +82,7 @@ $color-line: (
 //-----------------------------------------------------
 // Include combo
 @import "com/_ti-combo-auth.scss";
+@import "com/_ti-combo-captcha.scss";
 //-----------------------------------------------------
 // Include www
 @import "com/_ti-nav-links.scss";

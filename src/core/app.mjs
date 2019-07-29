@@ -84,12 +84,16 @@ export class OneTiApp {
     this.$vm().$mount(this.$el)
 
     // bind to Element for find back anytime
+    this.$el = this.$vm().$el
     this.$el[TI_APP] = this
   }
   //---------------------------------------
-  destroy(){
+  destroy(removeDom=false){
     this.$vm().$destroy()
     this.$el[TI_APP] = null
+    if(removeDom) {
+      Ti.Dom.remove(this.$el)
+    }
   }
   //---------------------------------------
   /***

@@ -69,10 +69,10 @@ export default {
   //////////////////////////////////////////
   methods : {
     onClickPanel($event, name) {
-      if(Ti.Dom.hasClass($event.target, "gui-panel")) {
-        console.log("click panel", name)
-        this.$emit("block:hide", name)
-      }
+      // if(Ti.Dom.hasClass($event.target, "gui-panel")) {
+      //   console.log("click panel", name)
+      //   this.$emit("block:hide", name)
+      // }
     }
   }
   //////////////////////////////////////////

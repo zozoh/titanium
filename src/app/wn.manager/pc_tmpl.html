@@ -134,17 +134,7 @@ async function main(){
   Ti.SetAppName(app.name())
 
   //---------------------------------------
-  Ti.Dom.watchAutoRootFontSize({
-    max : 100,
-    min : 80,
-    callback:({$root, mode, fontSize})=>{
-      // console.log(app.name(), app)
-      $root.style.fontSize = fontSize + "px"
-      $root.setAttribute("as", mode)
-      app.commit("viewport/setMode", mode)
-      Ti.Modal.SetViewportMode(mode)
-    }
-  })
+  Ti.Dom.watchAutoRootFontSize(app, "viewport/setMode")
 
   // Load session and display
   app.commit("session/set", _app.session)

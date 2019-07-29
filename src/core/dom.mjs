@@ -90,7 +90,24 @@ export const TiDom = {
   unwatchDocument(event, handler) {
     document.removeEventListener(event, handler);
   },
-  watchAutoRootFontSize(options={}) {
+  watchAutoRootFontSize(app, options={}) {
+    if(_.isString(options)) {
+      options = {
+        max : 100,
+        min : 80,
+        callback : options
+      }
+    }
+    if(_.isString(options.callback)) {
+      let action = options.callback
+      options.callback = function({$root, mode, fontSize}){
+        // console.log(app.name(), app)
+        $root.style.fontSize = fontSize + "px"
+        $root.setAttribute("as", mode)
+        app.commit(action, mode)
+        Ti.Modal.SetViewportMode(mode)
+      }
+    }
     let $win = options.$win || window
     // Watch the window resizing
     $win.addEventListener("resize", ()=>{

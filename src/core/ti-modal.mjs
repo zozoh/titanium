@@ -1,47 +1,8 @@
+import {TiRuntimeStack} from "./ti-runtime-stack.mjs"
 //////////////////////////////////////////////
-// Store all live dialog instance as stack
-class TiModalRuntime {
-  //------------------------------------------
-  constructor() {
-    this.viewportMode = "desktop"
-    this.stack = []
-  }
-  //------------------------------------------
-  push(dia) {
-    if(dia) {
-      dia.$app().commit("viewport/setMode", this.viewportMode)
-      this.stack.push(dia)
-    }
-  }
-  //------------------------------------------
-  remove(dia) {
-    let stack = []
-    let re
-    for(let it of this.stack) {
-      if(it === dia) {
-        re = it
-      } else {
-        stack.push(it)
-      }
-    }
-    this.stack = stack
-    return re
-  }
-  //------------------------------------------
-  setViewportMode(mode) {
-    this.viewportMode = mode
-    for(let dia of this.stack) {
-      dia.$app().commit("viewport/setMode", mode)
-    }
-  }
-  //------------------------------------------
-  pop() {
-    return this.stack.pop()
-  }
-  //------------------------------------------
-}
-//////////////////////////////////////////////
-const DRT = new TiModalRuntime()
+const RTSTACK = new TiRuntimeStack((dia, mode)=>{
+  dia.$app().commit("viewport/setMode", mode)
+})
 const APP_INFO = Symbol("dia-app-info")
 const OPTIONS  = Symbol("dia-options")
 const _APP_    = Symbol("dia-app-instance")
@@ -81,7 +42,7 @@ class TiModalDialog {
       }]
     } = this[OPTIONS]
     // Create the DOM root
-    let klass = ["ti-modal", `vm-${DRT.viewportMode}`]
+    let klass = ["ti-modal", `vm-${RTSTACK.viewportMode}`]
     if(className) {
       klass.push(className)
     }
@@ -151,7 +112,7 @@ class TiModalDialog {
     let $closer   = Ti.Dom.find(".mdl-closer", $main)
     //........................................
     // Sizing 
-    if("desktop" == DRT.viewportMode) {
+    if("desktop" == RTSTACK.viewportMode) {
       Ti.Dom.setStyle($main, {width, height})
     }
     //........................................
@@ -166,7 +127,7 @@ class TiModalDialog {
     app.$modal = this
     //........................................
     // Join to runtime
-    DRT.push(this)
+    RTSTACK.push(this)
     //........................................
     _.assign(this, {app, $el, $main, $body, $closer, $actions, $btns:{}})
     let context = this
@@ -230,11 +191,11 @@ export const TiModal = {
   },
   //------------------------------------------
   SetViewportMode(mode) {
-    DRT.setViewportMode(mode)
+    RTSTACK.setViewportMode(mode)
   },
   //------------------------------------------
   Close() {
-    let dia = DRT.pop()
+    let dia = RTSTACK.pop()
     if(dia) {
       dia.close()
     }

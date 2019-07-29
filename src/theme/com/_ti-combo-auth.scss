@@ -1,4 +1,62 @@
 .ti-combo-auth {
+  @include flex-align-v-nowrap;
   //-------------------------------------
+  a {cursor: pointer;}
+  //-------------------------------------
+  header {
+    padding: .2rem; text-align: center;
+    font-size:2em;
+  }
+  //-------------------------------------
+  section {
+    padding:.2rem;
+    //---------------------------------
+    div {
+      @include flex-align-nowrap;
+      &.auth-in {
+        margin:.02rem .04rem;
+        border:1px solid map-get($color-line, dark);
+      }
+      &.auth-btn {
+        margin:.04rem .04rem;
+      }
+      input {
+        flex:1 1 auto;
+        padding: .1rem;
+        font-size: 14px;
+        outline:none; border:0;
+      }
+      span {
+        @include flex-center;
+        display: block; padding:.1rem;
+        white-space: nowrap;
+      }
+      button {
+        @include fireable;
+        flex:1 1 auto;
+        padding:.1rem; width:100%;
+        font-size: 14px;
+        outline:none; border:0; 
+      }
+    }
+    //---------------------------------
+    ul {
+      @include raw-list;
+      @include flex-align-nowrap;
+      padding:.08rem .04rem;
+      li {
+        &.at-left  {
+          flex:0 0 auto;
+        }
+        &.at-right {
+          flex:1 1 auto; text-align: right;
+          a {color:map-get($color-track, c);}
+        }
+      }
+    }
+    //---------------------------------
+  } // section {
+  //-------------------------------------
+  // TODO footer here
   //-------------------------------------
 }

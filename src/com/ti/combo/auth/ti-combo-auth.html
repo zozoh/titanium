@@ -1,28 +1,33 @@
 <div 
-  class="ti-icon" 
+  class="ti-combo-auth" 
   :class="topClass">
-  <!--Icon-->
-  <span class="icon-icon"
-    :style="icon.outerStyle">
-    <!--Font icon-->
-    <i v-if="'font'==icon.type"
-      :class="icon.className"
-      :style="icon.innerStyle">
-      <!--ligature font -->
-      <template v-if="icon.text">{{icon.text}}</template>
-    </i>
-    <!--Svg/Image-->
-    <img v-else-if="'svg'==icon.type || 'img'==icon.type"
-        :src="icon.value"
-        :style="icon.innerStyle"/>
-    <!--
-      Default output the value
-    -->
-    <em v-else>{{value}}</em>
-  </span>
-  <!--Text-->
-  <span v-if="text"
-    class="icon-text">
-    {{text | i18n}}
-  </span>
+  <header>{{msgs.title|i18n}}</header>
+  <section>
+    <div class="auth-in">
+      <input 
+        spellcheck="false"
+        :placeholder="msgs.nameTip|i18n"
+        v-model="params.name"></div>
+    <div class="auth-in">
+      <input 
+        spellcheck="false"
+        :placeholder="msgs.passwdTip|i18n"
+        v-model="params.passwd">
+      <span v-if="msgs.codeGet">
+        <a>{{msgs.codeGet|i18n}}</a>
+      </span>
+    </div>
+    <div class="auth-btn">
+      <button @click="doAuth">{{msgs.btnText|i18n}}</button>
+    </div>
+    <ul>
+      <li v-if="msgs.linkLeft"
+        class="at-left">
+        <a @click="onChangeMode">{{msgs.linkLeft   |i18n}}</a>
+      </li>
+      <li v-if="msgs.linkRight"
+        class="at-right">
+        <a>{{msgs.linkRight |i18n}}</a></li>
+    </ul>
+  </section>
 </div>

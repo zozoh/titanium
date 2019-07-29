@@ -59,6 +59,7 @@ export default {
       args = []
     }={}) {
       console.log("I am doCheckme", {force, success, fail, args})
+      commit("setLoading", true, {root:true})
       // Current Session ...
       let reo = getters.sessionState
       // Need to re-checkme from remote
@@ -68,6 +69,7 @@ export default {
           as : "json"
         })
       }
+      commit("setLoading", false, {root:true})
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       // success
       if(reo.ok) {

@@ -1,6 +1,6 @@
 {
-  "name" : "www-page",
+  "name" : "www-mod-page",
   "namespaced" : true,
-  "state" : "./www-page.json",
-  "mixins" : "./www-page.mjs"
+  "state" : "./www-mod-page.json",
+  "mixins" : "./www-mod-page.mjs"
 }

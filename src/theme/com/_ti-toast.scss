@@ -1,0 +1,94 @@
+.ti-toast {
+  @include flex-center;
+  //-----------------------------------------------------------
+  &.is-success .toast-con {@include color($color-success, r, c);}
+  &.is-warn    .toast-con {@include color($color-warn,    r, c);}
+  &.is-info    .toast-con {@include color($color-info,    r, c);}
+  &.is-error   .toast-con {@include color($color-error,   r, c);}
+  &.is-track   .toast-con {@include color($color-track,   r, c);}
+  //-----------------------------------------------------------
+  &.is-success .toast-closer a {@include color($color-success, r);}
+  &.is-warn    .toast-closer a {@include color($color-warn,    r);}
+  &.is-info    .toast-closer a {@include color($color-info,    r);}
+  &.is-error   .toast-closer a {@include color($color-error,   r);}
+  &.is-track   .toast-closer a {@include color($color-track,   r);}
+  //-----------------------------------------------------------
+  // If center, it should be mask by transparent
+  &.at-center {
+    @include pos-fixed(0,0,100%,100%);
+    padding-bottom:19%;
+  }
+  //---------------------------------
+  &.at-left   {@include pos-fixed($l:0,$t:0,$b:0);}
+  &.at-right  {@include pos-fixed($r:0,$t:0,$b:0);}
+  &.at-top    {@include pos-fixed($l:0,$t:0,$r:0);}
+  &.at-bottom {@include pos-fixed($l:0,$b:0,$r:0);}
+  &.at-left-top     {@include pos-fixed($l:0,$t:0);}
+  &.at-right-top    {@include pos-fixed($r:0,$t:0);}
+  &.at-bottom-left  {@include pos-fixed($b:0,$l:0);}
+  &.at-bottom-right {@include pos-fixed($b:0,$r:0);}
+  //---------------------------------
+  .toast-icon {
+    opacity: 0.7;
+  }
+  //---------------------------------
+  &.as-bar > .toast-con {
+    @include flex-align-nowrap;
+    min-width: 4.5rem; max-width:8rem;
+    padding:.1rem .06rem;
+    > .toast-icon {
+      font-size:.2rem;
+      padding:0 .1rem;
+    }
+  }
+  &.as-block > .toast-con {
+    @include flex-align-v-nowrap;
+    min-width: 1.2rem; min-height:1.2rem;
+    max-width: 4rem;
+    padding:.1rem;
+    > .toast-icon {font-size:3em;}
+  }
+  //---------------------------------
+  > .toast-con {
+    //-----------------------------
+    > .toast-body {
+      flex:1 1 auto; word-break: break-all;
+    }
+    //-----------------------------
+    // Show only if as-bar
+    > .toast-closer {
+      flex:0 0 auto; padding:0 .1rem;
+      a {
+        cursor: pointer;
+      }
+    }
+    //-----------------------------
+  }
+  //---------------------------------
+}
+//---------------------------------------
+// Animation
+//---------------------------------------
+@mixin toast-trans($name, $trans, $tor:null, $du:.3s) {
+  .toast-trans-at-#{$name}-enter-active, 
+  .toast-trans-at-#{$name}-leave-active {
+    transition: all $du ease-out;
+    @if $tor != null {
+      transform-origin: $tor;
+    }
+  }
+  .toast-trans-at-#{$name}-enter, 
+  .toast-trans-at-#{$name}-leave-to  {
+    opacity: 0;
+    transform: $trans;
+  }
+}
+@include toast-trans(top,    translateY(-100px));
+@include toast-trans(left,   translateX(-100px));
+@include toast-trans(right,  translateX(100px));
+@include toast-trans(bottom, translateY(100px));
+@include toast-trans(center, scale(0));
+@include toast-trans(left-top,     scale(0), left top);
+@include toast-trans(right-top,    scale(0), right top);
+@include toast-trans(bottom-left,  scale(0), bottom left);
+@include toast-trans(bottom-right, scale(0), bottom right);

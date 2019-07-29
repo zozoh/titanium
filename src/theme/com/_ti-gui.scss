@@ -40,7 +40,7 @@
     }
     //-----------------------------------
     > .ti-block {
-      @include color($color-chip, r, c);
+      @include color($color-body, r, c);
     }
     //-----------------------------------
   }

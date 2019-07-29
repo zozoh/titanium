@@ -58,6 +58,7 @@ $color-line: (
 @import "com/_ti-loading.scss";
 @import "com/_ti-menu.scss";
 @import "com/_ti-modal.scss";
+@import "com/_ti-toast.scss";
 @import "com/_ti-obj-creation.scss";
 @import "com/_ti-obj-meta.scss";
 @import "com/_ti-obj-thumb.scss";
@@ -81,6 +82,7 @@ $color-line: (
 //-----------------------------------------------------
 // Include combo
 @import "com/_ti-combo-auth.scss";
+@import "com/_ti-combo-captcha.scss";
 //-----------------------------------------------------
 // Include www
 @import "com/_ti-nav-links.scss";
