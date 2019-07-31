@@ -5,10 +5,19 @@ export default {
   async reloadSchema({state, commit}) {
     let aph  = `id:${state.home.id}/thing-schema.json`
     let obj  = await Wn.Io.loadMeta(aph)
-    let json = await Wn.Io.loadContent(obj, {as:"json"})
+    let schema = await Wn.Io.loadContent(obj, {as:"json"})
+
+    // Load extends methods
+    if(schema.methods) {
+      let methods = await Ti.Load(schema.methods)
+      if(!_.isArray(methods)) {
+        methods = [methods]
+      }
+      schema.methods = methods
+    }
     //console.log("setSchema", json)
-    commit("setSchema", json)
-    return json
+    commit("setSchema", schema)
+    return schema
   },
   //----------------------------------------
   async reloadLayout({state, commit}) {

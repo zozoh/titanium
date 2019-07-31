@@ -21,8 +21,9 @@ class TiToastBox {
       content = "i18n:empty",  // message content
       type = "info",           // info|warn|error|success|track
       className = "",
-      spacing=0,        // spacing
-      duration = 3000    // Duration of the toast
+      spacing=0,          // spacing
+      duration = 3000,    // Duration of the toast
+      closer = true       // Support close manually
     } = this[OPTIONS]
     //........................................
     let $el = Ti.Dom.createElement({
@@ -50,7 +51,7 @@ class TiToastBox {
             <ti-icon :value="icon"/>
           </div>
           <div class="toast-body">{{content|i18n}}</div>
-          <div v-if="'center'!=position"
+          <div v-if="closer && 'center'!=position"
             class="toast-closer">
             <a @click="onClose">{{'close'|i18n}}</a>
           </div>
@@ -62,7 +63,7 @@ class TiToastBox {
     let appInfo = {
       template : html,
       data : {
-        position, icon, content, type, className,
+        position, icon, content, type, className, closer,
         hidden : true
       },
       computed : {
@@ -74,8 +75,10 @@ class TiToastBox {
             `is-${this.type}`]
         },
         topStyle() {
-          return {
-            "padding" : Ti.Css.toSize(spacing)
+          if('center' != this.position) {
+            return {
+              "padding" : Ti.Css.toSize(spacing)
+            }
           }
         },
         transName() {
@@ -83,15 +86,20 @@ class TiToastBox {
         }
       },
       methods : {
-        onOpen() {
-          this.hidden = false
-        },
         onClose() {
-          this.hidden = true
+          if(this.closer) {
+            this.hidden = true
+          }
         },
         onAfterLeave() {
           Ti.App(this).$toast.close()
-        }
+        },
+        doOpen() {
+          this.hidden = false
+        },
+        doClose() {
+          this.hidden = true
+        },
       }
     }
     //........................................
@@ -104,7 +112,7 @@ class TiToastBox {
     // Mount to body
     app.mountTo($el)
     app.$toast = this
-    app.self("onOpen")
+    app.self("doOpen")
     //........................................
     // Join to runtime
     RTSTACK.push(this)
@@ -112,9 +120,11 @@ class TiToastBox {
     // Delay to remove
     if(duration > 0) {
       _.delay(()=>{
-        app.self("onClose")
+        app.self("doClose")
       }, duration)
     }
+    //........................................
+    return this
   }
   //------------------------------------------
   $app() {

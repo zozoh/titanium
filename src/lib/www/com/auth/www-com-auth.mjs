@@ -16,6 +16,11 @@ export default {
     "mode" : {
       type : String,
       default : "login-passwd"
+    },
+    "siteId" : {
+      type : String,
+      required : true,
+      default : null
     }
   },
   ///////////////////////////////////////////////////////
@@ -25,10 +30,38 @@ export default {
   },
   ///////////////////////////////////////////////////////
   methods :{
+    //---------------------------------------------------
+    getApiUrl(path) {
+      return this.$store.getters.getApiUrl(path)
+    },
+    //---------------------------------------------------
     onChangeMode({from,to}={}) {
       this.currentMode = to
       Ti.Be.BlinkIt(this.$el)
+    },
+    //---------------------------------------------------
+    async onDoAuth({name, passwd, toast}={}) {
+      // Toast
+      
+      // Prepare Request
+      let params = {
+        site   : this.siteId,
+        passwd : passwd
+      }
+      // phone
+      if(Ti.S.isPhoneNumber(name)) {
+        params.phone = name
+      }
+      // Or Name
+      else {
+        params.name = name
+      }
+      // Send request
+      let url = this.getApiUrl("auth/login_by_passwd")
+      let reo = await Ti.Http.post(url, {params, as:"json"})
+      console.log(reo)
     }
+    //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   mounted : function() {

@@ -17,17 +17,18 @@
   }
   //----------------------------------
   .form-field {
-    @include flex-align-nowrap($ai:flex-start,$ac:flex-start);
+    @include flex-align-nowrap($ai:stretch,$ac:stretch);
     //------------------------
     > .field-name  {
-      @include flex-align-nowrap;
+      @include flex-align-nowrap($ai:flex-start,$ac:flex-start);
       position: relative;
       flex:0 0 auto;
       line-height: 2.6em;
       padding:0 .1rem 0 .26rem;
       > .name-status {
-        @include pos-abs($l:0,$t:0,$b:0,$w:.24rem);
+        @include pos-abs($l:0,$t:0,$w:.24rem);
         @include flex-center;
+        padding:.02rem .04rem 0 0;
       }
       > .name-icon {
         @include flex-align($jc:flex-end);
@@ -43,6 +44,7 @@
       @include flex-align;
       flex:1 1 auto;
       > .field-component {
+        @include flex-align($ai:center);
         &.is-size-stretch {
           flex:1 1 auto;
           > * {width:100%;}

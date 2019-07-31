@@ -3,16 +3,16 @@
   :class="topClass">
   <header>{{msgs.title|i18n}}</header>
   <section>
-    <div class="auth-in">
+    <div class="auth-in" :class="nameClass">
       <input 
         spellcheck="false"
         :placeholder="msgs.nameTip|i18n"
-        v-model="params.name"></div>
-    <div class="auth-in">
+        v-model="data.name"></div>
+    <div class="auth-in" :class="passwdClass">
       <input 
         spellcheck="false"
         :placeholder="msgs.passwdTip|i18n"
-        v-model="params.passwd">
+        v-model="data.passwd">
       <span v-if="msgs.codeGet">
         <a>{{msgs.codeGet|i18n}}</a>
       </span>

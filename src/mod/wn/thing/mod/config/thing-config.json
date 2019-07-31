@@ -1,15 +1,6 @@
 {
   "home": null,
-  "schema": {
-    "filter" : {},
-    "sorter" : {},
-    "list": {},
-    "pager" : {},
-    "meta" : {},
-    "content" : {},
-    "media" : {},
-    "attachment" : {}
-  },
+  "schema": {},
   "layout" : {
     "deskstop" : {},
     "tablet" : {},

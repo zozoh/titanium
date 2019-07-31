@@ -16,6 +16,9 @@
       &.auth-in {
         margin:.02rem .04rem;
         border:1px solid map-get($color-line, dark);
+        &.is-invalid {
+          border-color:map-get($color-error, c);
+        }
       }
       &.auth-btn {
         margin:.04rem .04rem;

@@ -214,8 +214,8 @@ export default {
   },
   //////////////////////////////////////////
   watch : {
-    "value" : async function() {
-      await this.reload()
+    "value" : function() {
+      this.reload()
     }
   },
   //////////////////////////////////////////

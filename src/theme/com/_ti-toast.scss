@@ -29,7 +29,7 @@
   &.at-bottom-right {@include pos-fixed($b:0,$r:0);}
   //---------------------------------
   $br:4px;
-  &.at-center       > .toast-con {border-radius: $br $br $br $br;}
+  &.at-center       > .toast-con {border-radius: $br $br $br $br; text-align:center;}
   &.at-left         > .toast-con {border-radius: 0px $br $br 0px;}
   &.at-right        > .toast-con {border-radius: $br 0px 0px $br;}
   &.at-top          > .toast-con {border-radius: 0px 0px $br $br;}
@@ -53,11 +53,16 @@
     }
   }
   &.as-block > .toast-con {
-    @include flex-align-v-nowrap;
+    @include flex-center;
     min-width: 1.2rem; min-height:1.2rem;
     max-width: 4rem;
     padding:.1rem;
-    > .toast-icon {font-size:3em;}
+    > .toast-icon {
+      font-size:2em;
+    }
+    > .toast-body {
+      width:100%;
+    }
   }
   //---------------------------------
   > .toast-con {

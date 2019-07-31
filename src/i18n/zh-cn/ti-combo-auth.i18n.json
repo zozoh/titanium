@@ -20,5 +20,7 @@
   "auth-reset-next" : "下一步",
   "auth-reset-passwd" : "新密码（最少6位）",
   "auth-reset-retype" : "再次确认",
-  "auth-reset-save" : "保存"
+  "auth-reset-save" : "保存",
+  "auth-blank-name-passwd" : "名称或者密码不能为空",
+  "auth-doing" : "正在验证"
 }

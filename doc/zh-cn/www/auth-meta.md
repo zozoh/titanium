@@ -37,10 +37,11 @@ author: zozoh
 
   // 站点更多的设置
   www_site : {
-    accounts : "84..2c",   // ThingSetID: 账号数据集
-    roles    : "yt..2q",   // ThingSetID: 角色数据集
-    orders   : "u5..8a",   // ThingSetID: 订单数据集
-    wxmp     : "gh_xxx"    // ThingSetID:微信公号目录名
+    accounts : "~/accounts",  // ThingSet: 账号数据集
+    roles    : "~/roles",     // ThingSet: 角色数据集
+    orders   : "~/orders",    // ThingSet: 订单数据集
+    wxmp     : "gh_xxx",      // 微信公号目录名
+    se_du    : 86400          // 新会话过期时间（秒）
   }
 
 }

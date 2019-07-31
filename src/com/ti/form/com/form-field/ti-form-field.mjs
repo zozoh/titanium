@@ -10,17 +10,17 @@ function VAL(vm, val) {
   }
   if(_.isNull(val)){
     return _.cloneDeep(
-      Ti.Util.fallback(vm.nullAs, vm.defaultAs)
+      Ti.Util.fallback(vm.nullAs, vm.defaultAs, null)
     )
   }
   if(vm.isNumberType && isNaN(val)) {
     return _.cloneDeep(
-      Ti.Util.fallback(vm.nanAs, vm.defaultAs)
+      Ti.Util.fallback(vm.nanAs, vm.defaultAs, NaN)
     )
   }
   if(_.isEmpty(val) && _.isString(val)) {
     return _.cloneDeep(
-      Ti.Util.fallback(vm.emptyAs, vm.defaultAs)
+      Ti.Util.fallback(vm.emptyAs, vm.defaultAs, "")
     )
   }
   return val

@@ -83,11 +83,31 @@ export default {
         return `id:${th_set}/data/${this.current.meta.id}/thumb.jpg`
       }
       return ""
+    },
+    //--------------------------------------
+    schemaMethods() {
+      if(this.formedSchema && this.formedSchema.methods) {
+        return Ti.Util.merge({}, this.formedSchema.methods)
+      }
+      return {}
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    async invoke(fnName) {
+      //console.log("invoke ", fnName)
+      let fn = _.get(this.schemaMethods, fnName)
+      // Invoke the method
+      if(_.isFunction(fn)) {
+        return await fn.apply(this, [])
+      }
+      // Throw the error
+      else {
+        throw Ti.Err.make("e.thing.fail-to-invoke", fnName)
+      }
+    },
     //--------------------------------------
     getLayout(name) {
       if(_.isEmpty(this.config))
@@ -165,7 +185,7 @@ export default {
       const fns = {
         //..................................
         // Select item in search list
-        "list.selected" : ({current, selected})=>{
+        "list.selected" : ({current, currentId, checkedIds})=>{
           //console.log("list.selected", current)
           if(!current) {
             this.shown.content = false
@@ -181,6 +201,10 @@ export default {
             loadContent : this.shown.content,
             force : false
           })
+
+          // Update the search status
+          app.commit("main/search/setCurrentId", currentId)
+          app.commit("main/search/setCheckedIds", _.keys(checkedIds))
 
           // Reload files
           if(this.shown.files) {

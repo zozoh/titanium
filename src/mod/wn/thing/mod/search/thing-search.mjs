@@ -12,6 +12,23 @@ export default {
         }
       }
       return null
+    },
+    //---------------------------------------------------
+    checkedItems(state) {
+      // Make the idsMap
+      let checkedMap = {}
+      for(let id of state.checkedIds) {
+        checkedMap[id] = true
+      }
+      // Join the items
+      let list = []
+      for(let it of state.list) {
+        if(checkedMap[it.id]) {
+          list.push(it)
+        }
+      }
+      // done
+      return list
     }
     //---------------------------------------------------
   },
@@ -52,10 +69,12 @@ export default {
     },
     //---------------------------------------------------
     selectItem(state, id) {
-      state.currentId = id
-      state.checkedIds = []
-      if(id) {
-        state.checkedIds.push(id)
+      if(state.currentId != id) {
+        state.currentId = id
+        state.checkedIds = []
+        if(id) {
+          state.checkedIds.push(id)
+        }
       }
     },
     //---------------------------------------------------

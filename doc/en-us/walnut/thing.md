@@ -31,7 +31,13 @@ Thing is just a thing, and it almostly can be anything.
   // extends method set, it will be add to current component instance
   // - String to link extra method script file
   // - Plain Object is the raw method set
-  // - async/await can be allowed
+  // - async/await can be allowed when method invoked
+  // Thing Module(config) reload schema, if "methods" declared, it will be
+  // reloaded also. The loading result will be tidied as Array, each item
+  // is a method set. The thing main component will handler the method calling
+  // by "main:invoke" method, which accept on argument as the method name.
+  // it will invoke the method in "scheme.methods" which context(this) as 
+  // the Vue Component instance self.
   "methods" : "@com:support/customized.mjs",
   //
   // List

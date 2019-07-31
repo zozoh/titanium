@@ -138,6 +138,12 @@ export const TiStr = {
       }
     }
     return str + "%"
+  },
+  /***
+   * Check given string is phone number or not
+   */
+  isPhoneNumber(s="") {
+    return /^(\+\d{2})? *(\d{11})$/.test(s)
   }
 }
 //-----------------------------------

@@ -2,10 +2,11 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////////
   data : ()=>({
-    "params" : {
+    "data" : {
       "name"   : null,
       "passwd" : null
-    }
+    },
+    "guarding" : false
   }),
   ///////////////////////////////////////////////////////
   props : {
@@ -86,7 +87,29 @@ export default {
       }
       // Invalid mode
       throw Ti.Err.make("e.com.combo.auth.invalid-mode", this.mode)
-    }
+    },
+    //---------------------------------------------------
+    params() {
+      return _.mapValues(this.data, (str)=>_.trim(str))
+    },
+    //---------------------------------------------------
+    invalid() {
+      let {name, passwd} = this.params
+      return {
+        name   : name   ? false : true,
+        passwd : passwd ? false : true
+      }
+    },
+    //---------------------------------------------------
+    nameClass() {
+      if(this.guarding && this.invalid.name)
+        return "is-invalid"
+    },
+    //---------------------------------------------------
+    passwdClass() {
+      if(this.guarding && this.invalid.passwd)
+        return "is-invalid"
+    },
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
@@ -103,7 +126,23 @@ export default {
     },
     //---------------------------------------------------
     doAuth() {
-      Ti.Toast.Open("hahahahahahah", "info", "center")
+      this.guarding = true
+      // Guarding
+      if(this.invalid.name || this.invalid.passwd) {
+        return Ti.Toast.Open("i18n:auth-blank-name-passwd", "warn")
+      }
+      // Mask GUI
+      let toast = Ti.Toast.Open({
+        icon : "fas-spinner fa-spin",
+        content : "i18n:auth-doing",
+        position : "center",
+        duration : 0,
+        closer : false
+      })
+      // Do Auth
+      this.$emit("do:auth", {
+        ...this.params, toast
+      })
     }
     //---------------------------------------------------
   }

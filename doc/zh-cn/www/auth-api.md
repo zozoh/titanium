@@ -45,9 +45,7 @@ HTTP GET /api/auth/checkme
 #-----------------------------
 # Query String
 site=5auf..25ad     # 站点ID
-#-----------------------------
-# Cookies
-www=5auf..25ad/er43..23vd
+ticket=er43..23vd   # 会话票据
 #-----------------------------
 # Response HTTP 200
 #-----------------------------
@@ -86,6 +84,7 @@ code=xxx            # 微信oauth2的验证码
   data : {
     me : {...}   # @see auth_meta.md#账号元数据
     ticket : "54..8m"  # 会话票据
+    expi : 1598..      # 绝对毫秒数，表示会话到期的时间点
   }
 }
 # 用 code 创建会话失败
@@ -119,6 +118,7 @@ vcode=4321          # 验证码
   data :{
     me : {...}   # @see auth_meta.md#账号元数据
     ticket : "54..8m"  # 会话票据
+    expi : 1598..      # 绝对毫秒数，表示会话到期的时间点
   }
 }
 # 登录失败
@@ -182,6 +182,7 @@ passwd=123456       # 用户输入的密码明文
   data :{
     me : {...}   # @see auth_meta.md#账号元数据
     ticket : "54..8m"  # 会话票据
+    expi : 1598..      # 绝对毫秒数，表示会话到期的时间点
   }
 }
 # 登录失败
