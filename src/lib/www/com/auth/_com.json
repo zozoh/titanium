@@ -1,9 +1,0 @@
-{
-  "name" : "www-com-auth",
-  "globally" : true,
-  "template" : "./www-com-auth.html",
-  "mixins" : ["./www-com-auth.mjs"],
-  "components" : [
-    "@com:ti/combo/auth"
-  ]
-}

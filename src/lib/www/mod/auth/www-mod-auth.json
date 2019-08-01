@@ -7,6 +7,7 @@
     "login_by_wxcode" : "auth/login_by_wxcode",
     "login_by_vcode"  : "auth/login_by_vcode",
     "login_by_passwd" : "auth/login_by_passwd",
+    "bind_account"    : "auth/login_by_vcode",
     "check_name"      : "auth/check_name",
     "check_phone"     : "auth/check_phone",
     "logout"          : "auth/doLogout"

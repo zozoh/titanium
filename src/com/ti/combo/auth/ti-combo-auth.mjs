@@ -6,7 +6,10 @@ export default {
       "name"   : null,
       "passwd" : null
     },
-    "guarding" : false
+    "guarding" : false,
+    "currentMode"  : "login_by_passwd",
+    // String, Array
+    "invalidField" : null 
   }),
   ///////////////////////////////////////////////////////
   props : {
@@ -14,21 +17,21 @@ export default {
       type : String,
       default : null
     },
-    // - "login-passwd" : Login by passwd
-    // - "login-vcode"  : Login by phone-vcode
-    // - "bind-phone"   : Bind phone to current user
+    // - "login_by_passwd"
+    // - "login_by_vcode"
+    // - "bind_account"
     "mode" : {
       type : String,
-      default : "login-passwd"
+      default : "login_by_passwd"
     },
-    "invalidField" : {
-      type : [String, Array],
-      default : null
-    }
+    // "invalidField" : {
+    //   type : [String, Array],
+    //   default : null
+    // }
   },
   ///////////////////////////////////////////////////////
   watch : {
-    "mode" : function() {
+    "currentMode" : function() {
       this.guarding = false
     }
   },
@@ -41,7 +44,7 @@ export default {
     //---------------------------------------------------
     msgs() {
       // Login by password
-      if("login-passwd" == this.mode) {
+      if("login_by_passwd" == this.currentMode) {
         return {
           "title"     : "i18n:auth-passwd-title",
           "nameTip"   : "i18n:auth-passwd-name-tip",
@@ -52,7 +55,7 @@ export default {
         }
       }
       // Login by Vcode
-      if("login-vcode" == this.mode) {
+      if("login_by_vcode" == this.currentMode) {
         return {
           "title"     : "i18n:auth-phone-title",
           "nameTip"   : "i18n:auth-phone-tip",
@@ -64,7 +67,7 @@ export default {
         }
       }
       // Bind the phone
-      if("bind-phone" == this.mode) {
+      if("bind_account" == this.currentMode) {
         return {
           "title"     : "i18n:auth-bind-title",
           "nameTip"   : "i18n:auth-phone-tip",
@@ -76,7 +79,7 @@ export default {
         }
       }
       // Invalid mode
-      throw Ti.Err.make("e.com.combo.auth.invalid-mode", this.mode)
+      throw Ti.Err.make("e.com.combo.auth.invalid-mode", this.currentMode)
     },
     //---------------------------------------------------
     params() {
@@ -119,13 +122,15 @@ export default {
     },
     //---------------------------------------------------
     onChangeMode() {
-      let taMode = "login-passwd" == this.mode
-                      ? "login-vcode"
-                      : "login-passwd"
-      this.$emit("change:mode", {
-        from : this.mode,
-        to   : taMode
-      })
+      // -> login-by-vcode
+      if("login_by_passwd" == this.currentMode) {
+        this.currentMode = "login_by_vcode"
+      }
+      // -> login-by-passwd
+      else {
+        this.currentMode = "login_by_passwd"
+      }
+      Ti.Be.BlinkIt(this.$el)  
     },
     //---------------------------------------------------
     doAuth() {
@@ -142,12 +147,51 @@ export default {
         duration : 0,
         closer : false
       })
+
       // Do Auth
       this.$emit("do:auth", {
-        ...this.params, toast
+        type   : this.currentMode,
+        name   : this.params.name,
+        passwd : this.params.passwd,
+        // Close loading toast
+        before : ({ok}={})=> {
+          toast.close()
+          this.invalidField = null
+        },
+        ok : ()=>{
+          Ti.Toast.Open({
+            type : "success",
+            position : "top",
+            content : "i18n:auth-ok",
+            duration : 2000
+          })
+        },
+        noexist : ()=>{
+          this.invalidField = "name"
+        },
+        invalid : ()=> {
+          this.invalidField = "passwd"
+        },
+        others : ()=> {
+          this.invalidField = ["name", "passwd"]
+        },
+        fail : ({errCode, data}={})=> {
+          Ti.Toast.Open({
+            type : "warn",
+            position : "top",
+            content : `i18n:${errCode}`,
+            duration : 5000
+          })
+        }
       })
     }
     //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  mounted : function() {
+    if(this.mode) {
+      this.currentMode = this.mode
+    }
   }
   ///////////////////////////////////////////////////////
 }

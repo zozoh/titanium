@@ -107,12 +107,20 @@ export default {
       if(!dist)
         return
       //....................................
+      let args = be.args;
+      if(_.isArray(args) && args.length == 1) {
+        args = args[0]
+      }
+      //....................................
       if(_.isString(dist)) {
         dist = {action : dist}
       }
       //....................................
-      dist.payload = dist.payload || {}
-      dist.payload.args = be.args
+      if(!_.isEmpty(dist.payload)) {
+        dist.payload.args = be.args
+      } else {
+        dist.payload = args
+      }
       //....................................
       console.log("invoke->", dist)
       let app = Ti.App(this)

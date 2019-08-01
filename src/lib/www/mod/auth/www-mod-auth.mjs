@@ -100,7 +100,80 @@ export default {
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     },
     //--------------------------------------------
-    
+    async doAuth({state, commit, dispatch, getters, rootState}, {
+      type="login_by_passwd",
+      name, passwd,
+      before=_.identity, 
+      ok=_.identity, 
+      fail=_.identity, 
+      noexist=_.identity, 
+      invalid=_.identity, 
+      others=_.identity, 
+      done=_.identity
+    }={}) {
+      console.log("doAuth", name, passwd)
+
+      // Guard SiteId
+      let siteId = rootState.siteId
+      if(!siteId) {
+        Ti.Alert("Without siteId!!!")
+        return
+      }
+
+      // Eval URL
+      let url = getters.urls[type]
+
+      // Prepare params
+      let ticket = Ti.Storage.session.getString(`www-ticket-${siteId}`, "")
+      let passKey = ({
+        "login_by_passwd" : "passwd",
+        "login_by_vcode"  : "vcode",
+        "bind_account"    : "vcode"
+      })[type]
+      let params = {
+        site : siteId,
+        name, 
+        passwd : passwd,
+        ticket
+      }
+
+      // Call Remote
+      let reo = await Ti.Http.post(url, {params, as:"json"})
+      console.log(reo)
+
+      before(reo)
+
+      // Success
+      if(reo.ok && reo.data) {
+        // save ticket
+        Ti.Storage.session.set(
+          `www-ticket-${siteId}`,
+          reo.data.ticket
+        )
+        // Callback
+        ok(reo.data)
+      }
+      // Fail 
+      else {
+        // Fail : noexist
+        if("e.www.login.noexists" == reo.errCode) {
+          noexist(reo)
+        }
+        // Fail : invalid
+        else if("e.www.login.invalid.passwd" == reo.errCode) {
+          invalid(reo)
+        }
+        // Fail : others
+        else {
+          others(reo)
+        }
+        // Callback
+        fail(reo)
+      }
+
+      // Done
+      done(reo)
+    }
     //--------------------------------------------
   }
   ////////////////////////////////////////////////
