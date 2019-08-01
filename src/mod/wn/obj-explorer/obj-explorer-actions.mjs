@@ -77,7 +77,8 @@ export default {
     finally {
       commit("setStatus", {deleting:false})
       commit("$log", null)
-      commit("$noti", {text:"i18n:weo-del-ok", vars:{N:delCount}})
+      //commit("$noti", {text:"i18n:weo-del-ok", vars:{N:delCount}})
+      Ti.Toast.Open("i18n:weo-del-ok", {N:delCount})
     }
   },
   //---------------------------------------
@@ -116,13 +117,15 @@ export default {
             {as:"json"})
         // Error
         if(newMeta instanceof Error) {
-          commit("$toast", {text:"i18n:weo-rename-fail", type:"error"})
+          //commit("$toast", {text:"i18n:weo-rename-fail", type:"error"})
+          Ti.Toast.Open("i18n:weo-rename-fail", "error")
           commit("updateItemStatus", 
             {id:it.id, status:{loading:false}})
         }
         // Replace the data
         else {
-          commit("$toast", "i18n:weo-rename-ok")
+          //commit("$toast", "i18n:weo-rename-ok")
+          Ti.Toast.Open("i18n:weo-rename-ok", "success")
           commit("updateItem", newMeta)
         }
       }  // ~ if(newName)
@@ -211,19 +214,21 @@ export default {
     let meta = state.meta
     // Check the publish target
     if(!meta.publish_to) {
-      commit("$toast", {
-        type : "warning",
-        text : "i18n:weo-publish-to-nil"
-      })
+      // commit("$toast", {
+      //   type : "warning",
+      //   text : "i18n:weo-publish-to-nil"
+      // })
+      Ti.Toast.Open("i18n:weo-publish-to-nil", "warn")
       return
     }
     // Get the target
     let ta = await Wn.Io.loadMetaAt(meta, meta.publish_to)
     if(!ta || !ta.id) {
-      commit("$toast", {
-        type : "warning",
-        text : "i18n:weo-publish-to-noexist"
-      })
+      // commit("$toast", {
+      //   type : "warning",
+      //   text : "i18n:weo-publish-to-noexist"
+      // })
+      Ti.Toast.Open("i18n:weo-publish-to-noexist", "warn")
       return
     }
 
@@ -234,7 +239,8 @@ export default {
 
     // All done
     commit("setStatus", {publishing:false})
-    commit("$toast", "i18n:weo-publish-done")
+    //commit("$toast", "i18n:weo-publish-done")
+    Ti.Toast.Open("i18n:weo-publish-done", "success")
   },
   //---------------------------------------
   /***
@@ -349,11 +355,13 @@ export default {
           {as:"json"})
       // Error
       if(newMeta instanceof Error) {
-        commit("$toast", {text:"i18n:weo-create-fail", type:"error"})
+        //commit("$toast", {text:"i18n:weo-create-fail", type:"error"})
+        Ti.Toast.Open("i18n:weo-create-fail", "error")
       }
       // Replace the data
       else {
-        commit("$toast", "i18n:weo-create-ok")
+        //commit("$toast", "i18n:weo-create-ok")
+        Ti.Toast.Open("i18n:weo-create-ok", "success")
         await dispatch("reload")
       }
     }  // ~ if(newName)

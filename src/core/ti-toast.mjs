@@ -19,6 +19,7 @@ class TiToastBox {
       position = "center",
       icon = true,
       content = "i18n:empty",  // message content
+      vars = {},
       type = "info",           // info|warn|error|success|track
       className = "",
       spacing=0,          // spacing
@@ -34,6 +35,8 @@ class TiToastBox {
     if(true === icon) {
       icon = Ti.Icons.get(type)
     }
+    //........................................
+
     // console.log("icon", icon)
     //........................................
     // Setup content
@@ -50,7 +53,7 @@ class TiToastBox {
             class="toast-icon">
             <ti-icon :value="icon"/>
           </div>
-          <div class="toast-body">{{content|i18n}}</div>
+          <div class="toast-body">{{content|i18n(vars)}}</div>
           <div v-if="closer && 'center'!=position"
             class="toast-closer">
             <a @click="onClose">{{'close'|i18n}}</a>
@@ -63,7 +66,7 @@ class TiToastBox {
     let appInfo = {
       template : html,
       data : {
-        position, icon, content, type, className, closer,
+        position, icon, content, type, className, closer,vars,
         hidden : true
       },
       computed : {
@@ -142,15 +145,28 @@ export const TiToast = {
   //------------------------------------------
   Open(options, type, position) {
     if(_.isString(options)) {
-      options = {
-        type     : type || "info", 
-        position : position || "top",
-        content  : options
+      // Open("i18n:xxx", {vars})
+      if(_.isPlainObject(type)) {
+        options = {
+          type     : "info", 
+          position : position || "top",
+          content  : options,
+          vars : type
+        }
+      }
+      // Open("i18n:xxx", "warn")
+      else {
+        options = {
+          type     : type || "info", 
+          position : position || "top",
+          content  : options
+        }
       }
     }
     //console.log("toast", options)
     let toa = new TiToastBox(options)
-    return toa.open()
+    toa.open()
+    return toa
   },
   //------------------------------------------
   Close() {

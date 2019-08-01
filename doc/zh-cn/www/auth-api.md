@@ -9,11 +9,12 @@ author: zozoh
 - `/api/auth/oauth2_wx`: 微信重定向
 - `/api/auth/checkme`: 取得当前账户
 - `/api/auth/login_by_wxcode`: 微信自动登录
-- `/api/auth/check_name` : 检查重名
-- `/api/auth/check_phone`: 检查手机已注册
 - `/api/auth/login_by_vcode`: 短信密码登录
 - `/api/auth/login_by_passwd`: 账号密码登录
+- `/api/auth/captcha`: 图形验证码
 - `/api/auth/get_vcode`: 获取验证码
+- `/api/auth/logout`: 注销
+- `/api/auth/isava` : 检查重名
 
 -----------------------------------------
 # `oauth2_wx`: 微信重定向
@@ -64,6 +65,9 @@ ticket=er43..23vd   # 会话票据
   errCode : "e.www.api.auth.nologin",
   msg : "用户未登陆"
 }
+####################################
+# 测试命令
+www checkme "id:xxx" "45..ae" -ajax -cqn
 ```
 
 -----------------------------------------
@@ -102,13 +106,11 @@ code=xxx            # 微信oauth2的验证码
 ```bash
 HTTP POST /api/auth/login_by_vcode
 #-----------------------------
-# Cookies
-www=5auf..25ad/er43..23vd
-#-----------------------------
 # Params
 site=5auf..25ad     # 站点ID
-phone=1391...       # 手机
+name=1391...        # 手机
 vcode=4321          # 验证码
+ticket=er43..23vd   # 登录票据（绑定手机时标识当前用户）
 #-----------------------------
 # Response HTTP 200
 #-----------------------------
@@ -133,7 +135,7 @@ vcode=4321          # 验证码
 > 这里的处理逻辑稍微复杂一点，因为会有绑定手机的场景
 
 ```bash
-# 如果当前会话已经登录
+# 如果当前会话已经登录：则相当于绑定手机
 {
   # 如果手机号已经有了一个账号对象
   #  - 这种场景是用户预先用手机注册一个账号
@@ -170,8 +172,7 @@ HTTP POST /api/auth/login_by_passwd
 #-----------------------------
 # Params
 site=5auf..25ad     # 站点ID
-phone=1391...       # phone 与 name
-name=xiaobai        # 二者必须有一个
+name=1391...        # phone 或者 name
 passwd=123456       # 用户输入的密码明文
 #-----------------------------
 # Response HTTP 200
@@ -192,6 +193,30 @@ passwd=123456       # 用户输入的密码明文
   msg  : "登录失败，用户名或密码错误",
   data : "..."
 }
+####################################
+# 测试命令
+www checkme "id:xxx" "45..ae" -ajax -cqn
+```
+
+
+
+-----------------------------------------
+# `captcha`: 图形验证码
+
+```bash
+HTTP GET /api/auth/captcha
+#-----------------------------
+# Params
+site=5auf..25ad  # 站点ID
+scene=login      # 验证码的场景：login/bind
+account=1391...  # 手机/邮箱
+#-----------------------------
+# Response HTTP 200
+# Content-Type: image/png
+#-----------------------------
+00 45 5d 78 09 12 1f 3d 19 33 f2
+00 45 5d 78 09 12 1f 3d 19 33 f2
+..
 ```
 
 -----------------------------------------
@@ -201,8 +226,9 @@ passwd=123456       # 用户输入的密码明文
 HTTP GET /api/auth/get_vcode
 #-----------------------------
 # Params
-site=5auf..25ad     # 站点ID
-phone=1391...    # 手机
+site=5auf..25ad  # 站点ID
+scene=login      # 验证码的场景：login/bind
+account=1391...  # 手机
 captcha=45ca     # 图片验证码
 #-----------------------------
 # Response HTTP 200
@@ -218,60 +244,8 @@ captcha=45ca     # 图片验证码
 {
   ok : false ,
   errCode : "e.www.api.auth.fail_get_vcode",
-  msg  : "获取手机验证码失败",
+  msg  : "获取验证码失败",
   data : "..."
-}
-```
-
------------------------------------------
-# `check_name`: 检查重名
-
-```bash
-HTTP GET /api/auth/check_name
-#-----------------------------
-# Query String
-site=5auf..25ad     # 站点ID
-s=xiaobai
-#-----------------------------
-# Response HTTP 200
-#-----------------------------
-# 没有重名，可以用这个名字来注册
-{
-  ok : true
-  data : "xiaobai"
-}
-# 名称已经存在
-{
-  ok : false ,
-  errCode : "e.www.api.auth.name_exists",
-  msg  : "名称已存在",
-  data : "xiaobai"
-}
-```
-
------------------------------------------
-# `check_phone`: 检查手机已注册
-
-```bash
-HTTP GET /api/auth/check_phone
-#-----------------------------
-# Query String
-site=5auf..25ad     # 站点ID
-s=139..
-#-----------------------------
-# Response HTTP 200
-#-----------------------------
-# 这个手机可以用来注册
-{
-  ok : true
-  data : "xiaobai"
-}
-# 手机号已经被注册
-{
-  ok : false ,
-  errCode : "e.www.api.auth.phone_exists",
-  msg  : "手机号已经被注册",
-  data : "139.."
 }
 ```
 
@@ -289,6 +263,7 @@ HTTP POST /api/auth/logout
   data :{
     me : {...}   # @see auth_meta.md#账号元数据
     ticket : "54..8m"  # 会话票据
+    expi : 1598..      # 绝对毫秒数，表示会话到期的时间点
   }
 }
 # 注销失败
@@ -296,5 +271,31 @@ HTTP POST /api/auth/logout
   ok : false ,
   errCode : "e.www.api.auth.logout",
   msg  : "注销失败"
+}
+```
+
+-----------------------------------------
+# `isava`: 检查重名
+
+```bash
+HTTP GET /api/auth/isava
+#-----------------------------
+# Query String
+site=5auf..25ad     # 站点ID
+name=xiaobai        # 登录名/手机号/邮箱
+#-----------------------------
+# Response HTTP 200
+#-----------------------------
+# 没有重名，可以用这个名字来注册
+{
+  ok : true
+  data : "xiaobai"
+}
+# 名称已经存在
+{
+  ok : false ,
+  errCode : "e.www.api.auth.name_exists",
+  msg  : "该账号已被注册",
+  data : "xiaobai"
 }
 ```

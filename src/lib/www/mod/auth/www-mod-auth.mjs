@@ -22,6 +22,7 @@ export default {
     urls(state, getters, rootState) {
       let map = {}
       let base = rootState.apiBase || "/api/"
+      console.log("base is", base)
       _.forEach(state.paths, (ph, key)=>{
         let aph = Ti.Util.appendPath(base, ph)
         map[key] = aph
@@ -59,13 +60,28 @@ export default {
       args = []
     }={}) {
       console.log("I am doCheckme", {force, success, fail, args})
+      console.log(" -urls", getters.urls)
+      // Guard SiteId
+      let siteId  = rootState.siteId
+      if(!siteId) {
+        Ti.Alert("Without siteId!!!")
+        return
+      }
+
+      // Get Back the Ticket
+      let ticket = Ti.Storage.session.getString(`www-ticket-${siteId}`, "")
+
+      // Check to remote
       commit("setLoading", true, {root:true})
       // Current Session ...
       let reo = getters.sessionState
       // Need to re-checkme from remote
       if(force || !reo.ok) {
         reo = await Ti.Http.get(getters.urls["checkme"], {
-          params : {siteId : rootState.siteId},
+          params : {
+            site : siteId,
+            ticket 
+          },
           as : "json"
         })
       }

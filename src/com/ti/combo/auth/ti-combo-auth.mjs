@@ -21,26 +21,16 @@ export default {
       type : String,
       default : "login-passwd"
     },
-    // "apiCheckName" : {
-    //   type : String,
-    //   default : null
-    // },
-    // "apiCheckPhone" : {
-    //   type : String,
-    //   default : null
-    // },
-    // "apiLoginByVcode" : {
-    //   type : String,
-    //   default : null
-    // },
-    // "apiLoginByPasswd" : {
-    //   type : String,
-    //   default : null
-    // },
-    // "apiGetVcode" : {
-    //   type : String,
-    //   default : null
-    // }
+    "invalidField" : {
+      type : [String, Array],
+      default : null
+    }
+  },
+  ///////////////////////////////////////////////////////
+  watch : {
+    "mode" : function() {
+      this.guarding = false
+    }
   },
   ///////////////////////////////////////////////////////
   computed : {
@@ -93,27 +83,40 @@ export default {
       return _.mapValues(this.data, (str)=>_.trim(str))
     },
     //---------------------------------------------------
-    invalid() {
+    isBlankNameOrPasswd() {
       let {name, passwd} = this.params
+      return !name || !passwd
+    },
+    //---------------------------------------------------
+    invalid() {
       return {
-        name   : name   ? false : true,
-        passwd : passwd ? false : true
+        name   : this.isInvalid("name"),
+        passwd : this.isInvalid("passwd")
       }
     },
     //---------------------------------------------------
     nameClass() {
-      if(this.guarding && this.invalid.name)
+      if(this.guarding && 
+        (this.invalid.name || !this.params.name))
         return "is-invalid"
     },
     //---------------------------------------------------
     passwdClass() {
-      if(this.guarding && this.invalid.passwd)
+      if(this.guarding && 
+        (this.invalid.passwd || !this.params.passwd))
         return "is-invalid"
     },
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   methods :{
+    //---------------------------------------------------
+    isInvalid(name="") {
+      if(_.isArray(this.invalidField)) {
+        return _.indexOf(this.invalidField, name) >= 0
+      }
+      return name == this.invalidField
+    },
     //---------------------------------------------------
     onChangeMode() {
       let taMode = "login-passwd" == this.mode
@@ -128,7 +131,7 @@ export default {
     doAuth() {
       this.guarding = true
       // Guarding
-      if(this.invalid.name || this.invalid.passwd) {
+      if(this.isBlankNameOrPasswd) {
         return Ti.Toast.Open("i18n:auth-blank-name-passwd", "warn")
       }
       // Mask GUI

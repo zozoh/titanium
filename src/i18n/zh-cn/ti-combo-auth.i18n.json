@@ -22,5 +22,8 @@
   "auth-reset-retype" : "再次确认",
   "auth-reset-save" : "保存",
   "auth-blank-name-passwd" : "名称或者密码不能为空",
-  "auth-doing" : "正在验证"
+  "auth-doing" : "正在验证",
+  "auth-ok" : "账号验证通过",
+  "e-www-login-noexists" : "账号不存在",
+  "e-www-login-invalid-passwd" : "账号密码错误"
 }

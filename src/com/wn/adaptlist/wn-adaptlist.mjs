@@ -137,12 +137,7 @@ export default {
     //--------------------------------------------
     "hasUploading" : function(newVal, oldVal) {
       if(true===oldVal && false===newVal) {
-        this.$message({
-          showClose: true,
-          message: Ti.I18n.get("upload-done"),
-          duration : 3000,
-          type: 'success'
-        });
+        Ti.Toast.Open("i18n:upload-done", "success")
       }
     },
     //--------------------------------------------
@@ -227,31 +222,6 @@ export default {
     onOpen({current}) {
       this.$emit("open", current)
     },
-    // //--------------------------------------------
-    // onItemSelected({mode,id,index}={}) {
-    //   // Desktop mode, select items
-    //   if(this.isViewportModeDesktop) {
-    //     this._run("selectItem", {index, id, mode})
-    //   }
-    //   // Else just open it
-    //   else {
-    //     let meta = _.nth(this.list, index)
-    //     if(meta) {
-    //       this.$emit("open", meta)
-    //     }  
-    //   }
-    // },
-    // //--------------------------------------------
-    // onItemOpen({id,index}={}) {
-    //   let meta = _.nth(this.list, index)
-    //   if(meta) {
-    //     this.$emit("open", meta)
-    //   }
-    // },
-    // //--------------------------------------------
-    // onItemBlur() {
-    //   this._run("blurAll")
-    // },
     //--------------------------------------------
     async onDropFiles(files) {
       if(!this.droppable)
