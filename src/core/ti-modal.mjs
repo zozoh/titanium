@@ -175,9 +175,9 @@ class TiModalDialog {
     return this[_APP_]
   }
   //------------------------------------------
-  close() {
+  close(payload) {
     if(_.isFunction(this.__close_by)){
-      this.__close_by()
+      this.__close_by(payload)
     }
   }
   //------------------------------------------

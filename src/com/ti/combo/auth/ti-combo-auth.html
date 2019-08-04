@@ -1,26 +1,28 @@
 <div 
-  class="ti-combo-auth" 
+  class="ti-combo-auth ti-simple-form" 
   :class="topClass">
   <header>{{msgs.title|i18n}}</header>
   <section>
-    <div class="auth-in" :class="nameClass">
+    <div class="as-input" :class="nameClass">
       <input 
         spellcheck="false"
         :placeholder="msgs.nameTip|i18n"
         v-model="data.name"></div>
-    <div class="auth-in" :class="passwdClass">
+    <div class="as-input" :class="passwdClass">
       <input 
         spellcheck="false"
         :placeholder="msgs.passwdTip|i18n"
         v-model="data.passwd">
       <span v-if="msgs.codeGet">
-        <a>{{msgs.codeGet|i18n}}</a>
+        <em v-if="delay>0">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>
+        <a v-else
+          @click="onGetVcode">{{msgs.codeGet|i18n}}</a>
       </span>
     </div>
-    <div class="auth-btn">
+    <div class="as-btn">
       <button @click="doAuth">{{msgs.btnText|i18n}}</button>
     </div>
-    <ul>
+    <ul class="as-links">
       <li v-if="msgs.linkLeft"
         class="at-left">
         <a @click="onChangeMode">{{msgs.linkLeft   |i18n}}</a>

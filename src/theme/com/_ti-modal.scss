@@ -71,9 +71,9 @@
   //-----------------------------------------------------------
 }
 //////////////////////////////////////////////////////////////
-// Desktop
+// Desktop/Tablet
 //////////////////////////////////////////////////////////////
-.ti-modal.vm-desktop {
+.ti-modal.vm-desktop, .ti-modal.vm-tablet {
   $closer-width : 32px;
   > .mdl-con {
     @include flex-center;
@@ -154,9 +154,9 @@
   //-----------------------------------------------------------
 }
 //////////////////////////////////////////////////////////////
-// Desktop
+// Phone
 //////////////////////////////////////////////////////////////
-.ti-modal.vm-tablet, .ti-modal.vm-phone {
+.ti-modal.vm-phone {
   $closer-width : 32px;
   $closerPath: ".mdl-con > .mdl-main > .mdl-closer";
   &.ti-success   > #{$closerPath} {@include color($color-success, r);}

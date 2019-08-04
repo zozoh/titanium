@@ -7,22 +7,31 @@ export default {
         "page"       : state=>state.page,
         "base"       : state=>state.base,
         "apiBase"    : state=>state.apiBase,
+        "captcha"    : state=>state.captcha,
         "loading"    : state=>state.loading
       }),
     //-------------------------------------
     // Mapp The Getters
     ...Vuex.mapGetters([
-      "actions"
+      "actions",
+      "getUrl",
+      "getApiUrl"
     ]),
     //-------------------------------------
     siteLogo() {
-      return Ti.Util.appendPath(this.base, this.logo)
+      return this.getUrl(this.logo)
     },
     //-------------------------------------
     // Page Navigation
     navigation() {
       // TODO check the page overriding
       return this.$store.state.nav
+    },
+    //-------------------------------------
+    // The template of captcha to prevent robot
+    siteCaptcha() {
+      let path = Ti.S.renderBy(this.captcha, {site:this.siteId})
+      return this.getApiUrl(path)
     },
     //-------------------------------------
     // Format current pageGUI

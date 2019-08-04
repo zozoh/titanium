@@ -1,6 +1,7 @@
 import {Alert}   from "./ti-alert.mjs"
 import {Confirm} from "./ti-confirm.mjs"
 import {Prompt}  from "./ti-prompt.mjs"
+import {Captcha} from "./ti-captcha.mjs"
 import {TiToast     as Toast   } from "./ti-toast.mjs"
 import {TiModal     as Modal   } from "./ti-modal.mjs"
 import {TiBehaviors as Be      } from "./behaviors.mjs"
@@ -53,7 +54,7 @@ export const Ti = {
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
   //.....................................
-  Alert, Confirm, Prompt, Toast, Modal,
+  Alert, Confirm, Prompt, Toast, Captcha, Modal,
   //.....................................
   Env(key, val) {
     return Ti.Util.geset(ENV, key, val)

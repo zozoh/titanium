@@ -3,7 +3,7 @@ export default {
   getters : {
     //--------------------------------------------
     hasSession(state) {
-      return state.ticket 
+      return !_.isEmpty(state.ticket)
              && state.expi > Date.now()
              && !_.isEmpty(state.me)
     },
@@ -19,13 +19,10 @@ export default {
       }
     },
     //--------------------------------------------
-    urls(state, getters, rootState) {
+    urls(state, getters, rootState, rootGetters) {
       let map = {}
-      let base = rootState.apiBase || "/api/"
-      console.log("base is", base)
       _.forEach(state.paths, (ph, key)=>{
-        let aph = Ti.Util.appendPath(base, ph)
-        map[key] = aph
+        map[key] = rootGetters.getApiUrl(ph)
       })
       return map
     }
@@ -76,7 +73,7 @@ export default {
       // Current Session ...
       let reo = getters.sessionState
       // Need to re-checkme from remote
-      if(force || !reo.ok) {
+      if(ticket && (force || !reo.ok)) {
         reo = await Ti.Http.get(getters.urls["checkme"], {
           params : {
             site : siteId,
@@ -103,13 +100,12 @@ export default {
     async doAuth({state, commit, dispatch, getters, rootState}, {
       type="login_by_passwd",
       name, passwd,
-      before=_.identity, 
+      done=_.identity,
       ok=_.identity, 
       fail=_.identity, 
       noexist=_.identity, 
       invalid=_.identity, 
-      others=_.identity, 
-      done=_.identity
+      others=_.identity 
     }={}) {
       console.log("doAuth", name, passwd)
 
@@ -133,7 +129,7 @@ export default {
       let params = {
         site : siteId,
         name, 
-        passwd : passwd,
+        [passKey] : passwd,
         ticket
       }
 
@@ -141,7 +137,7 @@ export default {
       let reo = await Ti.Http.post(url, {params, as:"json"})
       console.log(reo)
 
-      before(reo)
+      done(reo)
 
       // Success
       if(reo.ok && reo.data) {
@@ -160,7 +156,7 @@ export default {
           noexist(reo)
         }
         // Fail : invalid
-        else if("e.www.login.invalid.passwd" == reo.errCode) {
+        else if(/^e.www.login.invalid/.test(reo.errCode)) {
           invalid(reo)
         }
         // Fail : others
@@ -170,9 +166,53 @@ export default {
         // Callback
         fail(reo)
       }
+    },
+    //--------------------------------------------
+    async getVcode({state, commit, dispatch, getters, rootState}, {
+      type="login_by_phone",
+      scene="auth",
+      account, captcha,
+      done=_.identity,
+      ok=_.identity, 
+      fail=_.identity
+    }={}) {
+      console.log("getVcode", scene, account, captcha)
 
-      // Done
+      // Guard SiteId
+      let siteId = rootState.siteId
+      if(!siteId) {
+        Ti.Alert("Without siteId!!!")
+        return
+      }
+
+      // Eval URL
+      let api = ({
+        "login_by_phone" : "get_sms_vcode",
+        "bind_phone"     : "get_sms_vcode",
+        "bind_email"     : "get_email_vcode"
+      })[type]
+      let url = getters.urls[api]
+
+      // Prepare params
+      let params = {
+        site : siteId,
+        scene, account, captcha
+      }
+
+      // Call Remote
+      let reo = await Ti.Http.get(url, {params, as:"json"})
+      console.log(reo)
+
       done(reo)
+
+      // Success
+      if(reo.ok && reo.data) {
+        ok(reo.data)
+      }
+      // Fail 
+      else {
+        fail(reo)
+      }
     }
     //--------------------------------------------
   }

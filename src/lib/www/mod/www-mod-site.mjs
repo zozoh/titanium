@@ -13,6 +13,12 @@ export default {
       return map
     },
     //-------------------------------------
+    getUrl(state) {
+      return (path)=>{
+        return Ti.Util.appendPath(state.base, path)
+      }
+    },
+    //-------------------------------------
     getApiUrl(state) {
       return (path)=>{
         return Ti.Util.appendPath(state.apiBase, path)

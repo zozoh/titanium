@@ -12,7 +12,8 @@ author: zozoh
 - `/api/auth/login_by_vcode`: 短信密码登录
 - `/api/auth/login_by_passwd`: 账号密码登录
 - `/api/auth/captcha`: 图形验证码
-- `/api/auth/get_vcode`: 获取验证码
+- `/api/auth/get_sms_vcode`: 获取短信验证码
+- `/api/auth/get_email_vcode`: 获取邮箱验证码
 - `/api/auth/logout`: 注销
 - `/api/auth/isava` : 检查重名
 
@@ -236,7 +237,7 @@ HTTP GET /api/auth/captcha
 #-----------------------------
 # Params
 site=5auf..25ad  # 站点ID
-scene=login      # 验证码的场景：login/bind
+scene=robot      # 【选】验证码的场景，默认robot作为防机器人场景
 account=1391...  # 手机/邮箱
 #-----------------------------
 # Response HTTP 200
@@ -248,16 +249,16 @@ account=1391...  # 手机/邮箱
 ```
 
 -----------------------------------------
-# `get_vcode`: 获取验证码
+# `get_sms_vcode`: 获取短信验证码
 
 ```bash
-HTTP GET /api/auth/get_vcode
+HTTP GET /api/auth/get_sms_vcode
 #-----------------------------
 # Params
 site=5auf..25ad  # 站点ID
 scene=login      # 验证码的场景：login/bind
 account=1391...  # 手机
-captcha=45ca     # 图片验证码
+captcha=45ca     # 图片验证码（防机器，场景为robot）
 #-----------------------------
 # Response HTTP 200
 #-----------------------------
@@ -268,7 +269,37 @@ captcha=45ca     # 图片验证码
     expi: 60     # 验证码有效期
   }
 }
-# 登录失败
+# 验证码获取失败
+{
+  ok : false ,
+  errCode : "e.www.api.auth.fail_get_vcode",
+  msg  : "获取验证码失败",
+  data : "..."
+}
+```
+
+-----------------------------------------
+# `get_email_vcode`: 获取邮箱验证码
+
+```bash
+HTTP GET /api/auth/get_email_vcode
+#-----------------------------
+# Params
+site=5auf..25ad  # 站点ID
+scene=login      # 验证码的场景：login/bind
+account=1391...  # 手机
+captcha=45ca     # 图片验证码（防机器，场景为robot）
+#-----------------------------
+# Response HTTP 200
+#-----------------------------
+# 验证码获取成功
+{
+  ok : true ,
+  data : {
+    expi: 60     # 验证码有效期
+  }
+}
+# 验证码获取失败
 {
   ok : false ,
   errCode : "e.www.api.auth.fail_get_vcode",

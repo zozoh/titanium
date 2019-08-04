@@ -41,11 +41,11 @@ export const TiStr = {
       let current = m.index
       if(current > last) {
         ss.push(str.substring(last, current))
-        last = regex.lastIndex
       }
       let varName  = m[1]
       let varValue = iteratee(varName, vars, m[0])
       ss.push(varValue)
+      last = regex.lastIndex
     }
     // Add tail
     if(last < str.length) {
