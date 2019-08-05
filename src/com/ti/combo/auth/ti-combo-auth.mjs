@@ -11,7 +11,7 @@ export default {
     // String, Array
     "invalidField" : null,
     // delay to get the next captcha to prevent robot
-    "delay" : 5
+    "delay" : -1
   }),
   ///////////////////////////////////////////////////////
   props : {
@@ -231,11 +231,17 @@ export default {
     },
     //---------------------------------------------------
     async onGetVcode() {
+      this.guarding = true
       // The Account Name is required
       if(this.isBlankName) {
+        this.invalidField = "name"
         Ti.Toast.Open(this.msgs["blankName"], "warn")
         return
       }
+
+      // Reset invalid
+      this.guarding = false
+      this.invalidField = null
 
       // Show the image captcha to prevent robot
       console.log("captcha", this.captcha)

@@ -9,7 +9,7 @@ author: zozoh
 - `/api/auth/oauth2_wx`: 微信重定向
 - `/api/auth/checkme`: 取得当前账户
 - `/api/auth/login_by_wxcode`: 微信自动登录
-- `/api/auth/login_by_vcode`: 短信密码登录
+- `/api/auth/login_by_phone`: 短信密码登录
 - `/api/auth/login_by_passwd`: 账号密码登录
 - `/api/auth/captcha`: 图形验证码
 - `/api/auth/get_sms_vcode`: 获取短信验证码
@@ -102,7 +102,7 @@ code=xxx            # 微信oauth2的验证码
 ```
 
 -----------------------------------------
-# `login_by_vcode`: 短信密码登录
+# `login_by_phone`: 短信密码登录
 
 ```bash
 HTTP POST /api/auth/login_by_vcode
@@ -266,7 +266,12 @@ captcha=45ca     # 图片验证码（防机器，场景为robot）
 {
   ok : true ,
   data : {
-    expi: 60     # 验证码有效期
+    account : "185...123",  # 账号
+    duInMin : 5,            # 验证码有效期（分钟）
+    expi: 1564992179107,    # 有效期的最后时间点
+    maxRetry : 3,           # 最大重试次数
+    retry : 0,              # 已经重试的次数
+    scene : "auth"          # 验证码的场景
   }
 }
 # 验证码获取失败
@@ -296,7 +301,12 @@ captcha=45ca     # 图片验证码（防机器，场景为robot）
 {
   ok : true ,
   data : {
-    expi: 60     # 验证码有效期
+    account : "xx@xx.com",  # 账号
+    duInMin : 20,           # 验证码有效期（分钟）
+    expi: 1564992179107,    # 有效期的最后时间点
+    maxRetry : 3,           # 最大重试次数
+    retry : 0,              # 已经重试的次数
+    scene : "auth"          # 验证码的场景
   }
 }
 # 验证码获取失败

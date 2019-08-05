@@ -5,10 +5,10 @@
   "paths"  : {
     "checkme"         : "auth/checkme",
     "login_by_wxcode" : "auth/login_by_wxcode",
-    "login_by_phone"  : "auth/login_by_vcode",
+    "login_by_phone"  : "auth/login_by_phone",
     "login_by_passwd" : "auth/login_by_passwd",
-    "bind_phone"      : "auth/login_by_vcode",
-    "bind_email"      : "auth/login_by_vcode",
+    "bind_phone"      : "auth/bind_account",
+    "bind_email"      : "auth/bind_account",
     "get_sms_vcode"   : "auth/get_sms_vcode",
     "get_email_vcode" : "auth/get_email_vcode",
     "check_name"      : "auth/check_name",

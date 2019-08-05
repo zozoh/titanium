@@ -123,9 +123,14 @@ export default {
       let ticket = Ti.Storage.session.getString(`www-ticket-${siteId}`, "")
       let passKey = ({
         "login_by_passwd" : "passwd",
-        "login_by_vcode"  : "vcode",
+        "login_by_phone"  : "vcode",
         "bind_account"    : "vcode"
       })[type]
+
+      if(!passKey) {
+        throw "Unknown auth type: " + type
+      }
+
       let params = {
         site : siteId,
         name, 
