@@ -5,10 +5,12 @@ export default {
         "siteId"     : state=>state.siteId,
         "logo"       : state=>state.logo,
         "page"       : state=>state.page,
+        "auth"       : state=>state.auth,
         "base"       : state=>state.base,
         "apiBase"    : state=>state.apiBase,
         "captcha"    : state=>state.captcha,
-        "loading"    : state=>state.loading
+        "loading"    : state=>state.loading,
+        "isReady"    : state=>state.isReady
       }),
     //-------------------------------------
     // Mapp The Getters
@@ -32,6 +34,14 @@ export default {
     siteCaptcha() {
       let path = Ti.S.renderBy(this.captcha, {site:this.siteId})
       return this.getApiUrl(path)
+    },
+    //-------------------------------------
+    siteLoginMode() {
+      // Already login, then bind the phone 
+      if(this.auth.me) {
+        return "bind_phone"
+      }
+      return "login_by_passwd"
     },
     //-------------------------------------
     // Format current pageGUI
@@ -93,6 +103,14 @@ export default {
     "page.finger" : function() {
       document.title = this.page.title
       // TODO : Maybe here to embed the BaiDu Tongji Code
+    },
+    "isReady" : function(current, old) {
+      console.log("isReady", old, "->", current)
+      if(true === current && false === old) {
+        this.invokeAction("@page:ready", {
+
+        })
+      }
     }
   },
   /////////////////////////////////////////
@@ -112,11 +130,15 @@ export default {
       // It will routing the event to action
       // by site.actions|page.actions mapping
       let name = _.without([be.block, be.name], null).join(".")
+      await this.invokeAction(name, be.args)
+    },
+    //-------------------------------------
+    async invokeAction(name, theArgs=[]) {
       let dist = _.cloneDeep(this.actions[name])
       if(!dist)
-        return
+        return;
       //....................................
-      let args = be.args;
+      let args = theArgs;
       if(_.isArray(args) && args.length == 1) {
         args = args[0]
       }
@@ -125,10 +147,17 @@ export default {
         dist = {action : dist}
       }
       //....................................
-      if(!_.isEmpty(dist.payload)) {
-        dist.payload.args = be.args
-      } else {
+      // apply args
+      if(_.isUndefined(dist.payload) || _.isNull(dist.payload)) {
         dist.payload = args
+      }
+      // Add args
+      else if(_.isPlainObject(dist.payload)) {
+        dist.payload.args = args
+      } 
+      // Join the args
+      else if(_.isArray(dist.payload) && theArgs.length>0){
+        dist.payload = [].concat(dist.payload, args)
       }
       //....................................
       console.log("invoke->", dist)

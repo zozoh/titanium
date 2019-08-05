@@ -15,6 +15,13 @@ author: zozoh
   expi : 159..,       // 过期时间点 AMS
   uid  : "u6..8r",    // 会话的用户ID
   unm  : "xxx",       // 用户的名称（冗余）
+  // 会话的创建场景
+  //  - web_vcode  : 网页动态验证码登录， scence_value 为手机号或邮箱
+  //  - web_passwd : 网页账号密码登录，scence_value 为用户登录名
+  //  - wx_xxxxxxx : 某微信公众号code自动登录, scene_value 为用户 OpenId
+  //  - microapp : 微信小程序，scene_value 为用户 OpenId
+  by_tp  : "web_passwd",
+  by_val : "xxx"
 }
 ```
 

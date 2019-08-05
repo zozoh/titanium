@@ -22,7 +22,8 @@ export default {
     // - "login_by_passwd"
     // - "login_by_phone"
     // - "login_by_email"
-    // - "bind_account"
+    // - "bind_phone"
+    // - "bind_email"
     "mode" : {
       type : String,
       default : "login_by_passwd"
@@ -177,7 +178,7 @@ export default {
       Ti.Be.BlinkIt(this.$el)  
     },
     //---------------------------------------------------
-    doAuth() {
+    onAuthSend() {
       this.guarding = true
       // Guarding
       if(this.isBlankNameOrPasswd) {
@@ -193,7 +194,7 @@ export default {
       })
 
       // Do Auth
-      this.$emit("do:auth", {
+      this.$emit("auth:send", {
         type   : this.currentMode,
         name   : this.params.name,
         passwd : this.params.passwd,
@@ -209,6 +210,7 @@ export default {
             content : "i18n:auth-ok",
             duration : 2000
           })
+          this.$emit("auth:ok")
         },
         noexist : ()=>{
           this.invalidField = "name"

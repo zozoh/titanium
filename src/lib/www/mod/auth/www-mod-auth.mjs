@@ -53,7 +53,7 @@ export default {
     //--------------------------------------------
     async checkme({state, commit, dispatch, getters, rootState}, {
       force = false,
-      success, fail,
+      success, fail, nophone,
       args = []
     }={}) {
       console.log("I am doCheckme", {force, success, fail, args})
@@ -87,7 +87,22 @@ export default {
       // success
       if(reo.ok) {
         console.log("checkme OK", reo)
-        dispatch(success.action, success.payload, {root:true})
+        commit("setTicket", reo.data.ticket)
+        commit("setExpi",   reo.data.expi)
+        commit("setMe",     reo.data.me)
+
+        // Check Phone
+        if(nophone) {
+          let me = reo.data.me
+          if(!me.phone) {
+            dispatch(nophone.action, nophone.payload, {root:true})
+            return
+          }
+        }
+        // Success
+        if(success) {
+          dispatch(success.action, success.payload, {root:true})
+        }
       }
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       // Fail
@@ -95,6 +110,66 @@ export default {
         dispatch(fail.action, fail.payload, {root:true})
       }
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    },
+    //--------------------------------------------
+    async autoLoginByWeixin({state, commit, dispatch, getters, rootState}, {
+      codeKey = "code",
+      done=_.identity,
+      ok=_.identity, 
+      fail=_.identity, 
+      invalid=_.identity, 
+      others=_.identity 
+    }={}) {
+      // Guard code
+      let code = rootState.page.params[codeKey]
+      if(!code) {
+        return
+      }
+
+      console.log("autoLoginByWeixin", code)
+
+      // Guard SiteId
+      let siteId = rootState.siteId
+      if(!siteId) {
+        Ti.Alert("Without siteId!!!")
+        return
+      }
+      // Eval URL
+      let url = getters.urls["login_by_wxcode"]
+
+      let params = {
+        site : siteId,
+        code : code
+      }
+
+      let reo = await Ti.Http.get(url, {params, as:"json"})
+      console.log(reo)
+
+      done(reo)
+
+      // Success
+      if(reo.ok && reo.data) {
+        // save ticket
+        Ti.Storage.session.set(
+          `www-ticket-${siteId}`,
+          reo.data.ticket
+        )
+        // Callback
+        ok(reo.data)
+      }
+      // Fail 
+      else {
+        // Fail : invalid
+        if(/^e.www.login.invalid/.test(reo.errCode)) {
+          invalid(reo)
+        }
+        // Fail : others
+        else {
+          others(reo)
+        }
+        // Callback
+        fail(reo)
+      }
     },
     //--------------------------------------------
     async doAuth({state, commit, dispatch, getters, rootState}, {
@@ -124,7 +199,8 @@ export default {
       let passKey = ({
         "login_by_passwd" : "passwd",
         "login_by_phone"  : "vcode",
-        "bind_account"    : "vcode"
+        "bind_phone"      : "vcode",
+        "bind_email"      : "vcode"
       })[type]
 
       if(!passKey) {

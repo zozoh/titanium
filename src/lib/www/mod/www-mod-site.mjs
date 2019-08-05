@@ -35,6 +35,10 @@ export default {
     //-------------------------------------
     setLoading(state, loading) {
       state.loading = loading
+    },
+    //-------------------------------------
+    setPageReady(state, isReady) {
+      state.isReady = isReady
     }
     //-------------------------------------
   },
@@ -43,6 +47,7 @@ export default {
     //-------------------------------------
     // BlockEvent wrapper
     async onNavTo({dispatch}, {args=[]}={}) {
+      console.log("onNavTo")
       let arg = _.first(args)
       if(arg) {
         await dispatch("navTo", arg)
@@ -63,6 +68,7 @@ export default {
         return
       // navTo::page
       if("page" == type) {
+        commit("setPageReady", false)
         commit("setLoading", true)
         await dispatch("page/reload", {
           path   : value,
@@ -82,6 +88,7 @@ export default {
           }
         }
         commit("setLoading", false)
+        commit("setPageReady", true)
       }
       // navTo::action
       else if("action" == type) {
@@ -96,6 +103,11 @@ export default {
         path   : window.location.pathname,
         hash   : window.location.hash,
         search : window.location.search
+      }
+
+      // tidy query string
+      if(loc.search && loc.search.startsWith("?")){
+        loc.search = loc.search.substring(1)
       }
 
       // Eval params
