@@ -1,6 +1,6 @@
 ```js
 ({
-	domain : 'site0', // 提供服务的域
+  	domain : 'site0', // 提供服务的域
     domainName : '零站', // 提供服务的域显示文字
     wxOpenName: 'wxlogin',  // 微信开放平台配置目录名称
     wxOpenAppId : 'wx43..', // 微信开放平台 ID

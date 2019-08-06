@@ -18,7 +18,7 @@
     }
   }],
   "methods" : {
-    "reloadMain" : "./reload_main.mjs"
+    "reloadMain" : "./reload-main.mjs"
   },
   "mixins" : ["./wn-manager.mjs"],
   "store" : {
@@ -27,7 +27,7 @@
       "session"  : "@mod:wn/session", 
       "meta"     : "@mod:wn/obj-meta"
     },
-    "plugins" : ["./store_watcher.mjs"]
+    "mixins" : ["./store-main.mjs"]
   },
   "components" : [
     "./com/wnm-sidebar-item",

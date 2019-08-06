@@ -4,11 +4,38 @@ export default {
     //-------------------------------------
     // Site Action Mapping
     actions(state) {
+      console.log("www-mod-site::getters.actions")
       // Global
-      let map = _.assign({}, state.actions)
+      let map = _.cloneDeep(state.actions)
+
+      // Evalue the actions
+      map = _.mapValues(map, (val)=>
+        _.isString(val)
+          ? {action:val}
+          : val)
+      
+
+      // Merge action set with the defination in page
       let page = state.page
       if(page) {
-        _.assign(map, page.actions)
+        _.forEach(page.actions, (val, key)=>{
+          let act = val
+          // format val
+          if(_.isString(val)) {
+            act = {action : val}
+          }
+
+          // do merge
+          let gAction = map[key]
+          // Array -> append
+          if(_.isArray(gAction)) {
+            gAction.push(act)
+          }
+          // Others -> replace
+          else {
+            map[key] = act
+          }
+        })
       }
       return map
     },
@@ -45,16 +72,7 @@ export default {
   /////////////////////////////////////////
   actions : {
     //-------------------------------------
-    // BlockEvent wrapper
-    async onNavTo({dispatch}, {args=[]}={}) {
-      console.log("onNavTo")
-      let arg = _.first(args)
-      if(arg) {
-        await dispatch("navTo", arg)
-      }
-    },
-    //-------------------------------------
-    // Only handle the "page|action"
+    // Only handle the "page|dispatch"
     async navTo({state, commit, dispatch}, {
       type="page",
       value,
@@ -90,10 +108,42 @@ export default {
         commit("setLoading", false)
         commit("setPageReady", true)
       }
-      // navTo::action
-      else if("action" == type) {
+      // navTo::dispatch
+      else if("dispatch" == type) {
         await dispatch(value, params)
       }
+    },
+    //-------------------------------------
+    /*
+      The action should like
+      {
+        action : "xx/xx",
+        payload : {} | [] | ...
+      } 
+     */
+    async doAction({dispatch}, {action, payload, args=[]}={}) {
+      if(!action)
+        return;
+      //....................................
+      if(_.isArray(args) && args.length == 1) {
+        args = args[0]
+      }
+      //....................................
+      // apply args
+      if(_.isUndefined(payload) || _.isNull(payload)) {
+        payload = args
+      }
+      // Add args
+      else if(_.isPlainObject(payload)) {
+        payload.args = args
+      } 
+      // Join the args
+      else if(_.isArray(payload) && theArgs.length>0){
+        payload = [].concat(payload, args)
+      }
+      //....................................
+      console.log("invoke->", {action, payload})
+      await dispatch(action, payload)
     },
     //-------------------------------------
     async reload({state, dispatch}) {

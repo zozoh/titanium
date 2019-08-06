@@ -50,14 +50,16 @@ export default {
   },
   ////////////////////////////////////////////////
   actions : {
+    abc() {
+      console.log("I am abc")
+    },
     //--------------------------------------------
-    async checkme({state, commit, dispatch, getters, rootState}, {
+    async doCheckMe({state, commit, dispatch, getters, rootState}, {
       force = false,
-      success, fail, nophone,
-      args = []
+      success, fail, nophone
     }={}) {
-      console.log("I am doCheckme", {force, success, fail, args})
-      console.log(" -urls", getters.urls)
+      console.log("I am doCheckMe", {force, success, fail, nophone})
+      // console.log(" -urls", getters.urls)
       // Guard SiteId
       let siteId  = rootState.siteId
       if(!siteId) {
@@ -112,7 +114,22 @@ export default {
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     },
     //--------------------------------------------
-    async autoLoginByWeixin({state, commit, dispatch, getters, rootState}, {
+    async autoCheckmeOrAuthByWxghCode({dispatch}, {
+      codeKey = "code",
+      force = false,
+    }={}) {
+      dispatch("doCheckMe", {
+        force,
+        fail : {
+          action : "auth/doAuthByWxghCode",
+          payload : {
+            codeKey
+          }
+        }
+      })
+    },
+    //--------------------------------------------
+    async doAuthByWxghCode({getters, rootState}, {
       codeKey = "code",
       done=_.identity,
       ok=_.identity, 
@@ -126,7 +143,7 @@ export default {
         return
       }
 
-      console.log("autoLoginByWeixin", code)
+      console.log("doAuthByWxghCode", code)
 
       // Guard SiteId
       let siteId = rootState.siteId
@@ -172,7 +189,7 @@ export default {
       }
     },
     //--------------------------------------------
-    async doAuth({state, commit, dispatch, getters, rootState}, {
+    async doAuth({commit, getters, rootState}, {
       type="login_by_passwd",
       name, passwd,
       done=_.identity,
@@ -227,6 +244,10 @@ export default {
           `www-ticket-${siteId}`,
           reo.data.ticket
         )
+        // Commit session to local
+        commit("setTicket", reo.data.ticket)
+        commit("setExpi",   reo.data.expi)
+        commit("setMe",     reo.data.me)
         // Callback
         ok(reo.data)
       }
@@ -249,7 +270,7 @@ export default {
       }
     },
     //--------------------------------------------
-    async getVcode({state, commit, dispatch, getters, rootState}, {
+    async doGetVcode({getters, rootState}, {
       type="login_by_phone",
       scene="auth",
       account, captcha,
@@ -288,6 +309,62 @@ export default {
 
       // Success
       if(reo.ok && reo.data) {
+        ok(reo.data)
+      }
+      // Fail 
+      else {
+        fail(reo)
+      }
+    },
+    //--------------------------------------------
+    async doLogout({commit, getters, rootState}, {
+      done=_.identity,
+      ok=_.identity, 
+      fail=_.identity
+    }={}) {
+      console.log("doLogout")
+      // Guard SiteId
+      let siteId = rootState.siteId
+      if(!siteId) {
+        Ti.Alert("Without siteId!!!")
+        return
+      }
+
+      // Always force remove
+      Ti.Storage.session.remove(`www-ticket-${siteId}`)
+
+      // No Session, ignore
+      if(!getters.hasSession) {
+        fail(getters.sessionState)
+        return
+      }
+
+      // Session
+      let se = getters.sessionState
+
+      // Eval URL
+      let url = getters.urls["logout"]
+      let params = {
+        site   : siteId,
+        ticket : se.ticket
+      }
+
+      commit("setLoading", {text:"i18n:logout-ing"}, {root:true})
+
+      // Call Remote
+      let reo = await Ti.Http.post(url, {params, as:"json"})
+      console.log(reo)
+
+      commit("setTicket", null)
+      commit("setExpi",   0)
+      commit("setMe",     null)
+
+      commit("setLoading", false, {root:true})
+
+      done(reo)
+
+      // Success
+      if(reo.ok) {
         ok(reo.data)
       }
       // Fail 

@@ -324,13 +324,16 @@ captcha=45ca     # 图片验证码（防机器，场景为robot）
 ```bash
 HTTP POST /api/auth/logout
 #-----------------------------
+# Query String
+site=5auf..25ad     # 站点ID
+ticket=er43..23vd   # 会话票据
+#-----------------------------
 # Response HTTP 200
 #-----------------------------
 # 注销成功
 {
   ok : true
   data :{
-    me : {...}   # @see auth_meta.md#账号元数据
     ticket : "54..8m"  # 会话票据
     expi : 1598..      # 绝对毫秒数，表示会话到期的时间点
   }
@@ -338,8 +341,8 @@ HTTP POST /api/auth/logout
 # 注销失败
 {
   ok : false ,
-  errCode : "e.www.api.auth.logout",
-  msg  : "注销失败"
+  errCode : "e.www.ticket.noexist",
+  msg  : "票据找不到对应会话"
 }
 ```
 

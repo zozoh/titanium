@@ -9,6 +9,8 @@ export default {
         "base"       : state=>state.base,
         "apiBase"    : state=>state.apiBase,
         "captcha"    : state=>state.captcha,
+        "schema"     : state=>state.schema,
+        "panels"     : state=>state.panels,
         "loading"    : state=>state.loading,
         "isReady"    : state=>state.isReady
       }),
@@ -33,6 +35,8 @@ export default {
     // The template of captcha to prevent robot
     siteCaptcha() {
       let path = Ti.S.renderBy(this.captcha, {site:this.siteId})
+      if(path.startsWith("/"))
+        return path
       return this.getApiUrl(path)
     },
     //-------------------------------------
@@ -46,7 +50,7 @@ export default {
     //-------------------------------------
     // Format current pageGUI
     pageGUI() {
-      //console.log("formatedPageGUI")
+      console.log("formatedPageGUI")
       let page = this.page
       //.....................................
       // Without current page
@@ -81,16 +85,27 @@ export default {
         layout = page.layout[layout]
       }
       //.....................................
-      // merge layout to gui
-      if(layout) {
-        _.assign(gui, layout)
+      // apply "@xxx" in panels
+      if(layout && _.isArray(layout.panels)) {
+        for(let i=0; i<layout.panels.length; i++) {
+          let pan = layout.panels[i]
+          if(!_.isString(pan)) {
+            continue
+          }
+          let m = /^ *@([^ ]+) *$/.exec(pan)
+          if(m) {
+            layout.panels[i] = this.panels[m[1]]
+          }
+        }
       }
       //.....................................
+      // merge layout to gui
+      _.assign(gui, layout)
+      
+      //.....................................
       // assign schema
-      if(page.schema) {
-        _.assign(gui.schema, page.schema)
-      }
-      //console.log(gui)
+      _.assign(gui.schema, this.schema, page.schema)
+      console.log("pageGUI", gui)
       //.....................................
       // format it
       return Ti.Util.explainObj(this, gui)
@@ -133,36 +148,39 @@ export default {
       await this.invokeAction(name, be.args)
     },
     //-------------------------------------
-    async invokeAction(name, theArgs=[]) {
-      let dist = _.cloneDeep(this.actions[name])
-      if(!dist)
-        return;
-      //....................................
-      let args = theArgs;
-      if(_.isArray(args) && args.length == 1) {
-        args = args[0]
-      }
-      //....................................
-      if(_.isString(dist)) {
-        dist = {action : dist}
-      }
-      //....................................
-      // apply args
-      if(_.isUndefined(dist.payload) || _.isNull(dist.payload)) {
-        dist.payload = args
-      }
-      // Add args
-      else if(_.isPlainObject(dist.payload)) {
-        dist.payload.args = args
+    async invokeAction(name, args=[]) {
+      /*
+      The action should like
+      {
+        action : "xx/xx",
+        payload : {} | [] | ...
       } 
-      // Join the args
-      else if(_.isArray(dist.payload) && theArgs.length>0){
-        dist.payload = [].concat(dist.payload, args)
-      }
-      //....................................
-      console.log("invoke->", dist)
+      */
+      let act = _.cloneDeep(this.actions[name])
+      if(!act)
+        return;
+  
+      // Prepare
       let app = Ti.App(this)
-      await app.dispatch(dist.action, dist.payload)
+
+      // Batch call
+      if(_.isArray(act)) {
+        for(let a of act) {
+          await app.dispatch("doAction", {
+            action  : a.action,
+            payload : a.payload,
+            args
+          })
+        }
+      }
+      // Direct call
+      else {
+        await app.dispatch("doAction", {
+          action  : act.action,
+          payload : act.payload,
+          args
+        })
+      }
     }
     //-------------------------------------
   },

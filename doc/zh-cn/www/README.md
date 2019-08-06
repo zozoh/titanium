@@ -215,6 +215,20 @@ DIV(@app)             # Vue(root) : index.wnml
   // 站点的总体 Logo
   "logo" : "img/logo60.png",
   //-----------------------------------------
+  // 如果站点要显示图形验证码，这个验证码图片的路径模板
+  // 这里的路径会自动拼合上 apiBase，除非你以 `/` 开头
+  "captcha" : "auth/captcha?site=${site}&account=${account}&scene=${scene}",
+  //-----------------------------------------
+  // 全局的 schema，将与 page 里面的定义合并(page的定义优先)
+  "schema" : {
+    /*...*/
+  },
+  //-----------------------------------------
+  // 全局的 panels 设定，在page里，可以用 "@xxx" 来引用
+  "panels" : {
+     "xxx" : {/*...*/}
+  },
+  //-----------------------------------------
   // 作为整个站点的全局导航条
   // 如果某个页面想有特殊设置，可以重载掉它
   // @see 上面站点整体描述关于 nav 每个项目的细节介绍
@@ -222,15 +236,15 @@ DIV(@app)             # Vue(root) : index.wnml
       icon  : "xxx",       // 链接的图标
       title : "xxx",       // 链接文字
       // 链接类型
-      //  - page   : 表示链接到一个站内页面
-      //  - href   : 链接到一个外部链接
-      //  - action : 调用模型方法名
+      //  - page     : 表示链接到一个站内页面
+      //  - href     : 链接到一个外部链接
+      //  - dispatch : 调用模型方法名
       type  : "page",
       // 根据类型不同这里的值形式不一样
       value : "page/home",
       // 传入链接的参数，是一个 Object
       //  - page/href : 作为 query string
-      //  - action    : 作为 action 的 payload
+      //  - dispatch  : 作为 dispatch 目标方法的 payload
       params : null,
       // 只有在 `page|href` 模式下才有效，表示页面锚点
       // 必须以 `#` 开头，如果不以 `#` 开头，处理器会自动补全
@@ -252,10 +266,24 @@ DIV(@app)             # Vue(root) : index.wnml
   // 这个对象就是  ti-loading 的属性
   "loading" : false,
   //-----------------------------------------
+  // 表示页面是否加载完成，当开始加载页面时，会主动设置为 false
+  // 当加载完成后（page/reload完毕）会设置成 true
+  "isReady" : false,
+  //-----------------------------------------
   // 站点全局的动作方法映射表
-  //  [块名.事件名] : "动作名"
+  //  [块名.事件名] : 动作（字符串表动作名，对象则带payload）
   // 如果顶级块，"块名." 则不显示
   "actions" : {
+    // 如果值是数组，那么页面的动作会追加在后面
+    "@page:ready" : [{
+      "action" : "auth/autoCheckmeOrAuthByWxghCode",
+      "playload" : {
+        "codeKey" : "code",
+        "force" : false
+      }
+    }],
+    // 非数组，则会替换这个动作
+    "do:logout" : "auth/doLogout",
     "nav:to" : "navTo"
   }
 }
@@ -327,9 +355,36 @@ DIV(@app)             # Vue(root) : index.wnml
   // 页面控件配置信息
   "schema" : {/*...*/},
   // 当前页面特殊的 actions 映射
-  // 重复的键优先级高于站点的 actions
+  // 如果站点级的映射动作是一个数组，则会在尾部叠加这个动作
+  // 否则就覆盖站点定义的全局动作
   "actions" : {
-    "nav:to" : "navTo"
+    "buy-now" : {
+      "action"  : "auth/checkme",
+      "payload" : {
+        "force" : true,
+        "success"   : {
+          "action"  : "navTo",
+          "payload" : {
+            "type"  : "page",
+            "value" : "page/order-create"
+          }
+        },
+        "nophone" : {
+          "action"  : "page/showBlock",
+          "payload" : "login"
+        },
+        "fail" : {
+          "action"  : "page/showBlock",
+          "payload" : "login"
+        }
+      }
+    },
+    "login.get:vcode" : "auth/doGetVcode",
+    "login.auth:send" : "auth/doAuth",
+    "login.auth:ok" : {
+      "action" : "page/hideBlock",
+      "payload" : "login"
+    }
   }
 }
 ```

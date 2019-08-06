@@ -1,9 +1,6 @@
 {
   "comIcon" : "im-archive",
   "comType" : "@com:wn/adaptlist",
-  "comConf" : {
-    
-  },
   "modType" : "@mod:wn/obj-explorer",
   "actions" : [{
       "key"  : "reloading",
@@ -109,6 +106,14 @@
           "icon" : "zmdi-download",
           "text" : "i18n:download-to-local",
           "action" : "dispatch:main/download"
+        },{
+          "type" : "line"
+        },{
+          "type" : "action",
+          "icon" : "zmdi-keyboard",
+          "text" : "i18n:console",
+          "action" : "dispatch:openConsole",
+          "shortcut" : "ALT+SHIFT+T"
         }]
     }]
 }

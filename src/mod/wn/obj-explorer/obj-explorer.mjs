@@ -119,10 +119,26 @@ export default {
     //---------------------------------------------------
     selectItem(state, id) {
       state.currentId = id
-      state.checkedIds = []
-      if(id) {
-        state.checkedIds.push(id)
+      state.checkedIds = id ? [id] : []
+    },
+    //---------------------------------------------------
+    selectAll(state) {
+      let ignoreHidden = !state.status.exposeHidden
+      let ids = []
+      for(let it of state.list) {
+        if(ignoreHidden && it.nm.startsWith(".")) {
+          continue;
+        }
+        ids.push(it.id)
       }
+      let firstId = _.get(ids, 0) || null
+      state.currentId = state.currentId || firstId
+      state.checkedIds = ids
+    },
+    //---------------------------------------------------
+    blurAll(state) {
+      state.currentId = null
+      state.checkedIds = []
     },
     //---------------------------------------------------
     removeItems(state, ids=[]) {

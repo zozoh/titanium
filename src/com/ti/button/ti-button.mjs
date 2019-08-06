@@ -54,6 +54,7 @@ export default {
       _.forEach(list, (li, index)=>{
         let it = {}
         it.name = li.name || `item-${index}`
+        it.eventName = li.eventName || it.name
         it.icon = li.icon
         it.text = li.text
         it.disabled = li.disabled
@@ -73,7 +74,7 @@ export default {
   methods :{
     onClickItem(it) {
       if(!it.disabled) {
-        this.$emit(it.name)
+        this.$emit(it.eventName)
       }
     }
   }
