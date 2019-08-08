@@ -3,6 +3,7 @@
   vertical-align: middle;
   // The Icon
   .icon-icon {
+    @include flex-center;
     > i {font-size:1.2em; }
     > img {display: block;}
   }

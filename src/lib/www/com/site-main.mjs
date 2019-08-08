@@ -23,7 +23,9 @@ export default {
     ]),
     //-------------------------------------
     siteLogo() {
-      return this.getUrl(this.logo)
+      if(this.logo && /\.(png|jpe?g)$/.test(this.logo))
+        return this.getUrl(this.logo)
+      return this.logo || "zmdi-globe"
     },
     //-------------------------------------
     // Page Navigation
