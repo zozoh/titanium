@@ -144,8 +144,18 @@ export default {
       state.data = data
     },
     //--------------------------------------------
-    updateData(state, data) {
-      state.data = _.assign({}, state.data, data)
+    updateData(state, {key, data}) {
+      if(!data || _.isEmpty(data)) {
+        return
+      }
+      // Apply Whole Data
+      if(!key) {
+        state.data = _.assign({}, state.data, data)
+      }
+      // for field
+      else {
+        state.data[key] = _.assign({}, state.data[key], data)
+      }
     },
     //--------------------------------------------
     setLayout(state, layout) {
@@ -170,6 +180,25 @@ export default {
     //--------------------------------------------
     hideBlock({commit}, name) {
       commit("setShown", {[name]:false})
+    },
+    //--------------------------------------------
+    /***
+     * @param key{String} : the field name in "page.data", falsy for whole data
+     * @param args{Object|Array} : `{name,value}` Object or Array
+     */
+    changeDataBy({commit}, {key, args}={}) {
+      console.log("changeDataBy", key, args)
+      // Eval the value
+      let data = {}
+      let list = [].concat(args)
+      for(let li of list) {
+        data[li.name] = li.value
+      }
+
+      console.log(" ->", key, data)
+
+      // Do Update
+      commit("updateData", {key, data})
     },
     //--------------------------------------------
     async reloadData({state, commit, getters}, keys=[]) {
@@ -209,12 +238,14 @@ export default {
               data = api.serializer(reo)
             }
             commit("updateData", {
-              [api.dataKey] : data
+              key : api.dataKey,
+              data
             })
           })
           .catch(($req)=>{
             commit("updateData", {
-              [api.dataKey] : {
+              key : api.dataKey,
+              data : {
                 ok : false,
                 errCode : `http.${$req.status}`,
                 msg : `http.${$req.status}`,

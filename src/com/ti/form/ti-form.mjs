@@ -49,6 +49,18 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////////////////
   props : {
+    "icon" : {
+      type : String,
+      default : null
+    },
+    "title" : {
+      type : String,
+      default : null
+    },
+    "className" : {
+      type : String,
+      default : null
+    },
     "config" : {
       type : Object,
       default : ()=>({})
@@ -72,9 +84,18 @@ export default {
   },
   //////////////////////////////////////////////////////
   computed : {
+    //.......................................
+    hasHeader() {
+      return this.title || this.icon ? true : false
+    },
+    //.......................................
     formClass() {
       let spacing = this.config.spacing || "comfy"
-      return "as-spacing-" + spacing
+      let klass = ["as-spacing-" + spacing]
+      if(this.className) {
+        klass.push(this.className)
+      }
+      return klass
     },
     //.......................................
     fieldList() {

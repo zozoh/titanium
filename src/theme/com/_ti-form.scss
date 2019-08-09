@@ -1,5 +1,11 @@
 .ti-form {
   overflow: hidden auto;
+  > .form-header {
+    @include noselect;
+    @include border(1px, solid, dark, bottom);
+    text-align: center; white-space: nowrap;
+    font-size:1.4em; line-height: 2.4em; font-weight: 400;
+  }
   //----------------------------------
   .form-group {
     @include border(1px, solid, shallow, bottom);

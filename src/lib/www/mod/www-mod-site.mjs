@@ -27,11 +27,29 @@ export default {
 
           // do merge
           let gAction = map[key]
-          // Array -> append
+          // Array+?
           if(_.isArray(gAction)) {
-            gAction.push(act)
+            // Array+Array
+            if(_.isArray(act)) {
+              if(act.length > 0) {
+                // Concat Array
+                if("+" == act[0]) {
+                  for(let z=1;z<act.length;z++) {
+                    gAction.push(act[z])
+                  }
+                }
+                // Replace Array
+                else {
+                  map[key] = act      
+                }
+              }
+            }
+            // Array+Object -> append
+            else {
+              gAction.push(act)
+            }
           }
-          // Others -> replace
+          // Object+Any -> replace
           else {
             map[key] = act
           }
@@ -125,21 +143,30 @@ export default {
       if(!action)
         return;
       //....................................
-      if(_.isArray(args) && args.length == 1) {
+      let autoDestructArgs = Ti.Util.fallback(
+                          action.autoDestructArgs, true)
+      let autoJoinArgs = Ti.Util.fallback(
+                          action.autoJoinArgs, true)
+      //....................................
+      if(autoDestructArgs 
+        &&_.isArray(args) 
+        && args.length == 1) {
         args = args[0]
       }
       //....................................
-      // apply args
-      if(_.isUndefined(payload) || _.isNull(payload)) {
-        payload = args
-      }
-      // Add args
-      else if(_.isPlainObject(payload)) {
-        payload.args = args
-      } 
-      // Join the args
-      else if(_.isArray(payload) && theArgs.length>0){
-        payload = [].concat(payload, args)
+      // Auto Join Args
+      if(autoJoinArgs) {
+        if(_.isUndefined(payload) || _.isNull(payload)) {
+          payload = args
+        }
+        // Add args
+        else if(_.isPlainObject(payload)) {
+          payload.args = args
+        } 
+        // Join the args
+        else if(_.isArray(payload) && args.length>0){
+          payload = [].concat(payload, args)
+        }
       }
       //....................................
       console.log("invoke->", {action, payload})

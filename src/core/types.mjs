@@ -115,7 +115,7 @@ export const TiTypes = {
     return n
   },
   //.......................................
-  toInteger(val, {mode="int", dft=NaN}={}) {
+  toInteger(val, {mode="int", dft=NaN, range=[], border=[true,true]}={}) {
     if(_.isDate(val)){
       return val.getTime()
     }
@@ -125,10 +125,39 @@ export const TiTypes = {
       floor : v => Math.floor(v),
       int   : v => parseInt(v)
     })[mode](val)
+    // Apply the default
     if(isNaN(n)){
       //throw 'i18n:invalid-integer'
-      return dft
+      n = dft
     }
+    // Apply Range
+    if(_.isArray(range) && range.length==2) {
+      // Eval the border
+      if(!_.isArray(border)) {
+        border = [border, border]
+      }
+      let [b_left, b_right] = border
+      let [min_left, max_right] = range
+      // Guard the NaN
+      if(isNaN(n)) {
+        return Math.round((min_left+max_right)/2)
+      }
+      // Left Range
+      if(!_.isNull(min_left)) {
+        if(b_left && n < min_left)
+          return min_left
+        if(!b_left && n <= min_left)
+          return min_left + 1
+      }
+      // Right Range
+      if(!_.isNull(max_right)) {
+        if(b_right && n > max_right)
+          return max_right
+        if(!b_right && n >= max_right)
+          return max_right - 1
+      }
+    }
+    // Return Directly
     return n
   },
   //.......................................

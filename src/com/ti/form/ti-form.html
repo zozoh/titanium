@@ -1,5 +1,12 @@
 <div class="ti-form"
   :class="formClass">
+  <header v-if="hasHeader"
+    class="form-header">
+    <span v-if="icon"
+      class="it-icon"><ti-icon :value="icon"/></span>
+    <span v-if="title"
+      class="it-text">{{title}}</span>
+  </header>
   <template v-for="fld in fieldList">
     <ti-form-group v-if="'Group' == fld.type"
       v-bind="fld"
