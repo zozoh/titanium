@@ -1,0 +1,6 @@
+{
+  "name" : "ti-obj-tile",
+  "globally" : true,
+  "template" : "./ti-obj-tile.html",
+  "mixins" : ["./ti-obj-tile.mjs"]
+}
