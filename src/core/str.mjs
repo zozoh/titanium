@@ -1,5 +1,7 @@
 export const TiStr = {
-  renderVars(vars={}, fmt="", iteratee, regex=/\$\{([^}]+)\}/g) {
+  renderVars(vars={}, fmt="", {
+    iteratee, regex=/\$\{([^}]+)\}/g
+  }={}) {
     if(_.isEmpty(vars)){
       return _.isArray(vars) ? [] : ""
     }
@@ -8,7 +10,10 @@ export const TiStr = {
   /***
    * Replace the placeholder
    */
-  renderBy(str="", vars={}, iteratee, regex=/\$\{([^}]+)\}/g) {
+  renderBy(str="", vars={}, {
+    iteratee, 
+    regex=/(\${1,2})\{([^}]+)\}/g
+  }={}) {
     if(!str){
       return _.isArray(vars) ? [] : ""
     }
@@ -19,8 +24,11 @@ export const TiStr = {
     }
     // Default iteratee
     if(!iteratee) {
-      iteratee = (varName, vars, placeholder)=>{
-        return Ti.Util.fallback(vars[varName], placeholder)  
+      iteratee = ({varName, vars, matched}={})=>{
+        if(matched.startsWith("$$")) {
+          return matched.substring(1)
+        }
+        return Ti.Util.fallback(vars[varName], matched)  
       }
     }
     // Array
@@ -42,8 +50,12 @@ export const TiStr = {
       if(current > last) {
         ss.push(str.substring(last, current))
       }
-      let varName  = m[1]
-      let varValue = iteratee(varName, vars, m[0])
+      let varValue = iteratee({
+        vars,
+        matched : m[0],
+        prefix  : m[1], 
+        varName : m[2]
+      })
       ss.push(varValue)
       last = regex.lastIndex
     }
@@ -144,6 +156,37 @@ export const TiStr = {
    */
   isPhoneNumber(s="") {
     return /^(\+\d{2})? *(\d{11})$/.test(s)
+  },
+  /***
+   * Explain Dynamic String
+   */
+  explainDynamicString(s="", {
+    context={},
+    regex=/^(:?)=(.+)$/,
+    whenGet = _.get,
+    whenEscape = (context, key)=>`=${key}`
+  }={}) {
+    let re = {
+      isDynamic : false,
+      isEscape  : false,
+      input  : s,
+      output : undefined
+    }
+    let m = regex.exec(s)
+    if(m) {
+      re.isDynamic = true
+      re.isEscape = m[1] ? true : false
+      let key = m[2]
+      // Escape
+      if(re.isEscape) {
+        re.output = whenEscape(context, key)
+      }
+      // Get
+      else {
+        re.output = whenGet(context, key)
+      }
+    }
+    return re
   }
 }
 //-----------------------------------

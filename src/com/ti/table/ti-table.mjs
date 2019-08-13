@@ -329,7 +329,7 @@ export default {
           it.uniqueKey = it.key
         }
         // Transformer
-        it.transformer = Ti.Types.getFuncBy(this.fnSet, it, "transformer")
+        it.transformer = Ti.Types.getFuncBy(it, "transformer", this.fnSet)
       }
       // Array to pick
       return items

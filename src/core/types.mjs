@@ -295,10 +295,10 @@ export const TiTypes = {
     }, `${type}.${name}`)
   },
   //.......................................
-  getFuncBy(fnSet={}, fld={}, name) {
+  getFuncBy(fld={}, name, fnSet=TiTypes) {
     //..................................
     // Eval the function
-    let fn = fld[name]
+    let fn = TiTypes.evalFunc(fld[name], fnSet)
     //..................................
     // Function already
     if(_.isFunction(fn))
@@ -337,7 +337,39 @@ export const TiTypes = {
   },
   //.......................................
   getFunc(fld={}, name) {
-    return TiTypes.getFuncBy(TiTypes, fld, name)
+    return TiTypes.getFuncBy(fld, name)
+  },
+  //.......................................
+  evalFunc(fn, fnSet=TiTypes) {
+    //..................................
+    // Function already
+    if(_.isFunction(fn))
+      return fn
+
+    //..................................
+    // Is string
+    if(_.isString(fn)) {
+      return _.get(fnSet, fn)
+    }
+    //..................................
+    // Plain Object 
+    if(_.isPlainObject(fn) && fn.name) {
+      //console.log(fnType, fnName)
+      let fn2 = _.get(fnSet, fn.name)
+      // Invalid fn.name, ignore it
+      if(!_.isFunction(fn2))
+        return
+      // Partical args ...
+      if(_.isArray(fn.args) && fn.args.length > 0) {
+        return _.partialRight(fn2, ...fn.args)
+      }
+      // Partical one arg
+      if(!_.isUndefined(fn.args) && !_.isNull(fn.args)) {
+        return _.partialRight(fn2, fn.args)
+      }
+      // Just return
+      return fn2
+    }
   },
   //.......................................
   getJsType(val, dftType="Object") {

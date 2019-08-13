@@ -65,31 +65,33 @@ export default {
       let list = []
       for(let fld of this.fields) {
         // Eval fld
-        let f2 = Ti.Util.explainObj(this, fld, (obj)=>{
-          // Quick: table.field.display:: thumb->icon
-          let m = /^@<thumb(:([^>]*))>$/.exec(obj)
-          if(m) {
-            let defaultIcon = m[2] || undefined
-            return {
-              key : ["icon", "thumb", "__updated_time"],
-              type : "Object",
-              transformer : {
-                name : "toObject",
-                args : {
-                  icon  : "icon",
-                  thumb : "thumb",
-                  timestamp : "__updated_time"
+        let f2 = Ti.Util.explainObj(this, fld, {
+          iteratee : (obj)=>{
+            // Quick: table.field.display:: thumb->icon
+            let m = /^@<thumb(:([^>]*))>$/.exec(obj)
+            if(m) {
+              let defaultIcon = m[2] || undefined
+              return {
+                key : ["icon", "thumb", "__updated_time"],
+                type : "Object",
+                transformer : {
+                  name : "toObject",
+                  args : {
+                    icon  : "icon",
+                    thumb : "thumb",
+                    timestamp : "__updated_time"
+                  }
+                },
+                comType  : "wn-obj-icon",
+                comConf : {
+                  "=value" : true,
+                  "defaultIcon" : defaultIcon
                 }
-              },
-              comType  : "wn-obj-icon",
-              comConf : {
-                "=value" : true,
-                "defaultIcon" : defaultIcon
               }
             }
+            // by pass
+            return obj
           }
-          // by pass
-          return obj
         })
         // join to the result list
         list.push(f2)

@@ -19,9 +19,9 @@ class Viewport {
       })
     }
   }
-  unwatch(context){
-    this.scrolling = _.pullAllBy(this.scrolling, [{context}], 'context')
-    this.resizing = _.pullAllBy(this.resizing, [{context}], 'context')
+  unwatch(theContext){
+    _.remove(this.scrolling, ({context})=>context===theContext)
+    _.remove(this.resizing, ({context})=>context===theContext)
   }
   startListening() {
     let vp = this

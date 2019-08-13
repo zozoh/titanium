@@ -14,7 +14,7 @@
     :selectable="selectable"
     :transformer="getFormedItem"
     :com-type="'ti-obj-thumb'"
-    :com-conf="{'...':'=formedData'}"
+    :com-conf="{'...':'=item'}"
     :is-hidden-item="isHiddenItem"
     @selected="onSelected"
     @open="onOpen"
@@ -38,7 +38,7 @@
         :spacing="spacing"
         :selectable="false"
         :com-type="'ti-obj-thumb'"
-        :com-conf="{'...':'=formedData'}"/>
+        :com-conf="{'...':'=item'}"/>
     </section>
   </div>
 </div>

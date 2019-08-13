@@ -4,18 +4,32 @@
     Preview Image
   -->
   <div class="as-preview">
-
+    <a v-if="hasHref"
+      :href="href"
+      ><ti-icon 
+        :value="preview"
+        :height="previewHeight"/></a>
+    <ti-icon v-else
+      :value="preview"
+      :height="previewHeight"/>
   </div>
   <!--
     Title
   -->
   <div class="as-title">
-
+    <a v-if="hasHref"
+      :href="href"
+    >{{title}}</a>
+    <!--
+      Without Href
+    -->
+    <span v-else>{{title}}</span>
   </div>
   <!--
     Footer
   -->
-  <div class="as-footer">
-
+  <div v-if="hasBrief"
+    class="as-brief">
+    <span>{{brief}}</span>
   </div>
 </div>

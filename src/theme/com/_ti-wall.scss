@@ -1,13 +1,14 @@
 .ti-wall {
   overflow:auto;
-  @include flex-align($ac:flex-start,$ai:flex-start);
+  @include flex-align($ac:flex-start,$ai:stretch);
   // &.is-only-one-row {
   // }
   &.is-multi-rows {
     justify-content: space-around;
   }
   //-------------------------------------
-  &.spacing-xs {padding:.08rem;  >* {margin:.02rem;}}
+  &.spacing-no >* {margin:0;}
+  &.spacing-xs {padding:.02rem;  >* {margin:.02rem;}}
   &.spacing-sm {padding:.08rem;  >* {margin:.08rem;}}
   &.spacing-md {padding:.16rem;  >* {margin:.16rem;}}
   &.spacing-lg {padding:.24rem;  >* {margin:.24rem;}}
@@ -21,7 +22,7 @@
   }
   //-------------------------------------
   > .wall-tile {
-    border:1px solid transparent;
+    border:0;
     //----------------------------------
     &.is-selected {
       @include color($color-selected, r, c);
@@ -41,6 +42,10 @@
         font-size:.32rem;
       }
     }
+  }
+  //-------------------------------------
+  &.show-border {
+    > .wall-tile {border:1px solid transparent;}
   }
   //-------------------------------------
 }

@@ -1,5 +1,38 @@
 .ti-obj-tile {
-  @include noselect();
-  
+  padding-bottom:.1rem;
+  //--------------------------------------
+  > .as-preview {
+    background:map-get($color-cloak, c);
+    .ti-icon {
+      .icon-icon {
+        width:100%;
+        font-size: .24rem;
+      } 
+      img {display:block; width:100%;}
+    }
+  }
+  //--------------------------------------
+  > .as-title {
+    padding:.1rem .06rem; font-size:1.2em;
+    text-align: center;
+  }
+  //--------------------------------------
+  > .as-brief {
+    @include color($color-track, c);
+    cursor: default;
+    padding:.1rem; font-size:1em;
+  }
+  //--------------------------------------
+  &.as-card {
+    box-shadow: 1px 1px 3px rgba(20,20,20,0.2);
+  }
+  //--------------------------------------
+  &.on-hover {transition: .3s;}
+  &.on-hover-up:hover    {transform: translateY(-3px);}
+  &.on-hover-down:hover  {transform: translateY(3px);}
+  &.on-hover-left:hover  {transform: translateX(-3px);}
+  &.on-hover-right:hover {transform: translateX(3px);}
+  &.on-hover-zoom:hover  {transform: scale(1.1);}
+  //--------------------------------------
 }
 

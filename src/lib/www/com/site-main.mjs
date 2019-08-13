@@ -4,6 +4,7 @@ export default {
     ...Vuex.mapState({
         "siteId"     : state=>state.siteId,
         "logo"       : state=>state.logo,
+        "utils"      : state=>state.utils,
         "page"       : state=>state.page,
         "auth"       : state=>state.auth,
         "base"       : state=>state.base,
@@ -48,6 +49,10 @@ export default {
         return "bind_phone"
       }
       return "login_by_passwd"
+    },
+    //-------------------------------------
+    pageFnSet() {
+      return _.assign({}, Ti.Types, this.utils)
     },
     //-------------------------------------
     // Format current pageGUI
@@ -110,7 +115,9 @@ export default {
       console.log("pageGUI", gui)
       //.....................................
       // format it
-      return Ti.Util.explainObj(this, gui)
+      return Ti.Util.explainObj(this, gui, {
+        fnSet: this.pageFnSet
+      })
     }
     //-------------------------------------
   },

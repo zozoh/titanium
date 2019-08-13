@@ -94,7 +94,7 @@ export default {
             return
           }
           //~~~~~~~~~~~~~~~~~~~~~~~~~
-          // Eval trnansformer
+          // Eval transformer
           pm.transformer = Ti.Types.getFunc(pm, "transformer")
           //~~~~~~~~~~~~~~~~~~~~~~~~~
           // Join

@@ -30,8 +30,8 @@ function normlizeFormField(vm, fld, nbs=[]) {
     }
 
     // Tidy form function
-    f2.serializer  = Ti.Types.getFuncBy(vm.fnSet, f2, "serializer")
-    f2.transformer = Ti.Types.getFuncBy(vm.fnSet, f2, "transformer")
+    f2.serializer  = Ti.Types.getFuncBy(f2, "serializer", vm.fnSet)
+    f2.transformer = Ti.Types.getFuncBy(f2, "transformer", vm.fnSet)
   }
   // field key
   f2.key = fld.name 

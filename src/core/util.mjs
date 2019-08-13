@@ -75,40 +75,115 @@ export const TiUtil = {
    * The key `...` in obj will `_.assign` the value
    * The value `=xxxx` in obj will get the value from context
    */
-  explainObj(context, obj, iteratee=_.identity) {
-    // Customized the input object
+  explainObj(context, obj, options={}) {
+    // Default options
+    let {
+      fnSet=Ti.Types,
+      iteratee = _.identity
+    } = options
+    //......................................
     let o1 = iteratee(obj)
+    //......................................
     // Array
     if(_.isArray(o1)) {
       let list = []
       for(let val of o1) {
-        list.push(TiUtil.explainObj(context, val, iteratee))
+        list.push(TiUtil.explainObj(context, val, options))
       }
       return list
     }
+    //......................................
     // Plain Object
     if(_.isPlainObject(o1)) {
-      let o2 = {}
-      _.forEach(o1, (v2, k2)=>{
-        let v3 = TiUtil.explainObj(context, v2, iteratee)
-        // key `...` -> assign o1
-        if("..." == k2) {
-          _.assign(o2, v3)
+      // Invoke function
+      if(o1.__is_calling) {
+        let fn = o1.name
+        if(_.isString(fn)) {
+          fn = _.get(fnSet, o1.name)
         }
-        // set value
-        else {
-          o2[k2] = v3
+        let args = []
+        if(_.isArray(o1.args)) {
+          for(let al of o1.args) {
+            // Dynamic
+            if(_.isFunction(al)) {
+              let li = al(context)
+              args.push(li)
+            }
+            // Static
+            else {
+              args.push(al)
+            }
+          }
         }
-      })
-      return o2
-    }
-    // String: @xx.xx
-    if(_.isString(o1)) {
-      let m = /^[=](.+)$/.exec(o1)
-      if(m) {
-        return _.get(context, m[1])
+        // Do invoke
+        return fn.apply(context, args)
+      }
+      // Bind Function
+      else if(o1.__is_function) {
+        let args = _.map(o1.args, (arg)=>{
+          // :?=xxx   Get Value
+          let re = Ti.S.explainDynamicString(arg, {
+            context,
+            whenEscape : (context, key)=>{
+              return (c2)=>{
+                return _.get(c2, key)
+              }
+            }
+          })
+          if(re.isDynamic) {
+            return re.output
+          }
+          // :?-?xxx${xx}  Tmplate
+          re = Ti.S.explainDynamicString(arg, {
+            context,
+            regex : /^(:?)->(.+)$/,
+            whenGet : (context, key)=> {
+              return Ti.S.renderBy(key, context)
+            },
+            whenEscape : (context, key)=>{
+              let tmpl = Ti.S.renderBy(key, context)
+              return (c2)=>{
+                return Ti.S.renderBy(tmpl, c2)
+              }
+            }
+          })
+          if(re.isDynamic) {
+            return re.output
+          }
+          // Normal
+          return Ti.S.toJsValue(arg)
+         })
+        return {
+          __is_calling : true,
+          name : _.get(fnSet, o1.name),
+          args
+        }
+      }
+      // Call down
+      else {
+        let o2 = {}
+        _.forEach(o1, (v2, k2)=>{
+          let v3 = TiUtil.explainObj(context, v2, options)
+          // key `...` -> assign o1
+          if("..." == k2) {
+            _.assign(o2, v3)
+          }
+          // set value
+          else {
+            o2[k2] = v3
+          }
+        })
+        return o2
       }
     }
+    //......................................
+    // String: =xx.xx
+    if(_.isString(o1)) {
+      let {isDynamic, output} = Ti.S.explainDynamicString(o1, {context})
+      if(isDynamic)
+        return output
+    }
+    //......................................
     // Others
     return o1
   },

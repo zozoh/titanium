@@ -14,6 +14,16 @@ export default {
       type : String,
       default : null
     },
+    // Wall-Tile width
+    "width" : {
+      type : [String, Number],
+      default : null
+    },
+    // Wall-Tile height
+    "height" : {
+      type : [String, Number],
+      default : null
+    },
     "index" : {
       type : Number,
       default : -1
@@ -34,10 +44,17 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    // Function set of transform
+    "fnSet" : {
+      type : Object,
+      default : ()=>({})
+    },
+    // Transform the data
     "transformer" : {
-      type : Function,
+      type : [String,Object,Function],
       default : null
     },
+    // Item Display Com
     "comType" : {
       type : String,
       default : "ti-label"
@@ -45,7 +62,7 @@ export default {
     "comConf" : {
       type : Object,
       default : ()=>({
-        value : "=formedData"
+        value : "=item"
       })
     }
   },
@@ -70,17 +87,34 @@ export default {
       if(!_.isEmpty(klass))
         return klass.join(" ")
     },
+    //--------------------------------------
+    topStyle() {
+      let css = {}
+      if(this.width) {
+        css.width = this.width
+      }
+      if(this.height) {
+        css.height = this.height
+      }
+      return Ti.Css.toStyle(css)
+    },
+    //--------------------------------------
+    transformerFunction() {
+      return Ti.Types.getFuncBy(this, "transformer", this.fnSet)
+    },
     //-----------------------------------------------
-    formedData() {
+    item() {
       let data = _.assign({}, this.data)
-      if(_.isFunction(this.transformer))
-        data = this.transformer(data)
+      if(_.isFunction(this.transformerFunction))
+        data = this.transformerFunction(data)
       data.index = this.index
       return data
     },
     //-----------------------------------------------
-    formedComConf() {
-      return Ti.Util.explainObj(this, this.comConf)
+    itemComConf() {
+      return Ti.Util.explainObj(this, 
+        this.comConf,
+        {fnSet : this.fnSet})
     },
     //-----------------------------------------------
     tileKey() {

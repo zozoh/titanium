@@ -175,6 +175,9 @@ export default {
     //-------------------------------------
     async reload({state, dispatch}) {
       console.log("site.reload", state.entry, state.base)
+      // Merge Site FuncSet
+      console.log(state.utils)
+
       // Looking for the entry page
       let loc = {
         path   : window.location.pathname,

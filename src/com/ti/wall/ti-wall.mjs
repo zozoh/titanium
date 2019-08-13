@@ -64,6 +64,16 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    // Wall-Tile width
+    "itemWidth" : {
+      type : [String, Number],
+      default : null
+    },
+    // Wall-Tile height
+    "itemHeight" : {
+      type : [String, Number],
+      default : null
+    },
     // multi-selectable
     // effected when selectable is true
     "multi" : {
@@ -88,7 +98,7 @@ export default {
       default : true
     },
     // aspect: list item spacing
-    // `xs|sm|md|lg|xl`
+    // `no|xs|sm|md|lg|xl`
     "spacing" : {
       type : String,
       default : "sm"
@@ -125,11 +135,13 @@ export default {
         && !this.only_one_row) {
         // get list real count
         let n = this.listRealCount % this.col_count
-        let nr = this.col_count - n
-        for(let i=0; i<nr; i++) {
-          list.push({
-            width : `${this.col_width}px`
-          })
+        if(n > 0) {
+          let nr = this.col_count - n
+          for(let i=0; i<nr; i++) {
+            list.push({
+              width : `${this.col_width}px`
+            })
+          }
         }
       }
       //console.log(list)
@@ -203,10 +215,6 @@ export default {
     //--------------------------------------
     fnSet() {
       return _.assign({}, Ti.Types, this.extendFunctionSet)
-    },
-    //--------------------------------------
-    transformerFunction() {
-      return Ti.Types.getFuncBy(this.fnSet, this, "transformer")
     }
     //--------------------------------------
   },
@@ -450,6 +458,10 @@ export default {
     //.................................
     Ti.Viewport.watch(this, {resize : debounceUpdateSizing})
     //.................................
+  },
+  ///////////////////////////////////////////////////
+  destroyed : function() {
+    Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////////////////////
 }
