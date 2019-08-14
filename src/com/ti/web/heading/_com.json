@@ -1,0 +1,7 @@
+{
+  "name" : "ti-web-heading",
+  "globally" : true,
+  "template" : "./ti-web-heading.html",
+  "mixins"   : ["./ti-web-heading.mjs"],
+  "components" : []
+}

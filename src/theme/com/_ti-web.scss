@@ -1,0 +1,27 @@
+//---------------------------------------------
+// Heading
+.ti-web-heading {
+  @include flex-align-nowrap;
+  border-bottom:2px solid map-get($color-line, shallow);
+  margin: .1rem 0 .06rem 0;
+  padding: .04rem .08rem;
+  height: unset;
+  //-----------------------------------------
+  > .as-title {
+    font-weight: 400; font-size:1.2em;
+  }
+  //-----------------------------------------
+  > .as-comment {
+    color:map-get($color-track, c);
+    padding:0 .1rem;
+  }
+  //-----------------------------------------
+}
+
+//---------------------------------------------
+// Footer
+.ti-web-footer {
+  @include color($color-primary, r, c);
+  text-align: center;
+  padding:.1rem;
+}
