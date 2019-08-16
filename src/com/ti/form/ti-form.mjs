@@ -127,7 +127,7 @@ export default {
   methods : {
     //----------------------------------------------
     onChanged(payload) {
-      //console.log("changed", payload)
+      console.log("------------------------ti-form changed", payload)
       this.$emit("changed", payload)
     },
     //----------------------------------------------

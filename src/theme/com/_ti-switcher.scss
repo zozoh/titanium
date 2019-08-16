@@ -13,7 +13,7 @@
     li {
       @include color($color-disable, c, r);
       @include border(1px, solid, shallow, left);
-      @include flex-align-center;
+      @include flex-align-center($jc:center);
       &:first-child{border-left:0;}
       cursor:pointer;
       padding:.5em; min-width:3em;
