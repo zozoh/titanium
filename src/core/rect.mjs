@@ -1,4 +1,4 @@
-import {TiUtil} from "./util.mjs"
+import TiUtil from "./util.mjs"
 //................................................
 class QuickKeyMap {
   constructor() {

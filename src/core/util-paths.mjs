@@ -1,4 +1,4 @@
-export const TiPaths = {
+const TiPaths = {
   /***
    * Get the name of a Ti linked path, such as:
    * 

@@ -45,6 +45,6 @@ class Viewport {
   }
 }
 //-----------------------------------
-export const TiViewport = new Viewport()
+const TiViewport = new Viewport()
 //-----------------------------------
 export default TiViewport

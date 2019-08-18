@@ -7,7 +7,6 @@ import {TiModal     as Modal   } from "./ti-modal.mjs"
 import {TiBehaviors as Be      } from "./behaviors.mjs"
 import {TiAlg       as Alg     } from "./algorithm.mjs"
 import {TiStr       as S       } from "./str.mjs"
-import {TiUtil      as Util    } from "./util.mjs"
 import {TiApp       as App     } from "./app.mjs"
 import {TiError     as Err     } from "./err.mjs"
 import {TiConfig    as Config  } from "./config.mjs"
@@ -24,7 +23,9 @@ import {TiRandom    as Random  } from "./random.mjs"
 import {TiStorage   as Storage } from "./storage.mjs"
 import {TiShortcut  as Shortcut} from "./shortcut.mjs"
 import {TiTypes     as Types   } from "./types.mjs"
-import {TiViewport  as Viewport} from "./viewport.mjs"
+import Util     from "./util.mjs"
+import Viewport from "./viewport.mjs"
+import WWW      from "./www.mjs"
 //---------------------------------------
 const ENV = {
   "version" : "1.0",
@@ -53,6 +54,7 @@ const LOG_LEVELS = {
 export const Ti = {
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
+  WWW,
   //.....................................
   Alert, Confirm, Prompt, Toast, Captcha, Modal,
   //.....................................

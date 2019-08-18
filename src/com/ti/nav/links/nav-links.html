@@ -1,7 +1,8 @@
 <nav class="ti-nav-links"
   :class="topClass">
   <ul class="ti-fill-parent">
-    <li v-for="it in links" :key="it.value">
+    <li v-for="it in displayLinks" :key="it.value"
+      :class="it.className">
       <a 
         :href="it.href" 
         :target="it.target"

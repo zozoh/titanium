@@ -1,4 +1,5 @@
 .ti-nav-links {
+  @include noselect;
   //------------------------------------
   ul {
     @include raw-list;
@@ -6,7 +7,9 @@
   }
   //------------------------------------
   li {
-    
+    &.is-highlight {
+      @include color($color-primary, r, c);
+    }
   }
   //------------------------------------
   &.is-border-solid li {

@@ -30,9 +30,18 @@ export default {
     },
     //-------------------------------------
     // Page Navigation
-    navigation() {
-      // TODO check the page overriding
-      return this.$store.state.nav
+    siteNavigation() {
+      return Ti.WWW.explainNavigation(this.$store.state.nav, this.base)
+    },
+    //-------------------------------------
+    pageNavigation() {
+      let links = this.siteNavigation
+      for(let li of links) {
+        if(li.highlightBy(this.page.path)) {
+          return Ti.WWW.explainNavigation(li.children||[], this.base)
+        }
+      }
+      return []
     },
     //-------------------------------------
     // The template of captcha to prevent robot
@@ -190,6 +199,33 @@ export default {
           args
         })
       }
+    },
+    //------------------------------------
+    joinHrefParams(href, params, anchor) {
+      if(!href)
+        return null
+      //...........................
+      let query
+      if(!_.isEmpty(params)) {
+        query = []
+        _.forEach(params, (val, key)=>{
+          let v2 = encodeURIComponent(val)
+          query.push(`${key}=${v2}`)
+        })
+        if(query.length > 0) {
+          href = href + '?' + query.join("&")
+        }
+      }
+      //...........................
+      if(anchor) {
+        if(anchor.startsWith("#")) {
+          href += anchor
+        } else {
+          href += "#" + anchor
+        }
+      }
+      //...........................
+      return href
     }
     //-------------------------------------
   },

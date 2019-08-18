@@ -30,7 +30,7 @@ class TiLinkObj {
   }
 }
 //-----------------------------------
-export const TiLink = {
+const TiLink = {
   Link({url, params}={}){
     return new TiLinkObj({url, params})
   }
