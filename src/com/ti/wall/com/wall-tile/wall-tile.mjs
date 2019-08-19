@@ -30,7 +30,7 @@ export default {
     },
     "data" : {
       type : Object,
-      default : ()=>({})
+      default : null
     },
     "changedId" : {
       type : String,
@@ -105,6 +105,9 @@ export default {
     //-----------------------------------------------
     item() {
       let data = _.assign({}, this.data)
+      // if(data.id == "30a87ogcf6j6jqfcf78r7mj4ha") {
+      //   console.log("wall-tile ", data)
+      // }
       if(_.isFunction(this.transformerFunction))
         data = this.transformerFunction(data)
       data.index = this.index

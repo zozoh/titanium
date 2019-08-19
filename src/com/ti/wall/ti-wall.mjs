@@ -112,9 +112,16 @@ export default {
   },
   ///////////////////////////////////////////////////
   computed : {
+    // theList() {
+    //   if(this.list.length >0 && this.list[0].id == "30a87ogcf6j6jqfcf78r7mj4ha") {
+    //     console.log("!!!!", JSON.stringify(this.list[0],null, '   '))
+    //   }
+    //   return this.list
+    // },
     //--------------------------------------
     isEmpty() {
-      return this.list.length == 0
+      return !this.list 
+             || this.list.length == 0
     },
     //--------------------------------------
     listRealCount() {

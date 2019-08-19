@@ -72,6 +72,12 @@ export default {
         // Define the detail in schema
         if(_.isPlainObject(sch)) {
           com = sch
+          // explain the "extends"
+          if(com.extends) {
+            let parentSchema = this.schema[com.extends]
+            let mySchema = _.omit(com, ["extends"])
+            com = _.merge({}, parentSchema, mySchema)
+          }
         }
         // Just a com-type
         else {
