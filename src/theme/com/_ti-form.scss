@@ -1,5 +1,5 @@
 .ti-form {
-  overflow: hidden auto;
+  overflow: hidden auto; padding:1px;
   > .form-header {
     @include noselect;
     @include border(1px, solid, dark, bottom);
@@ -15,36 +15,15 @@
     .group-title {
       @include noselect;
       @include flex-align-nowrap;
+      @include border(1px, solid, shallow);
+      @include color($color-bar, r, c);
       > .ti-icon {margin-right:.08rem; opacity: 0.4;}
     }
-    .group-fields {
-      @include border(1px, solid, shallow, top);
-    }
+    // .group-fields {
+    // }
   }
   //----------------------------------
   .form-field {
-    @include flex-align-nowrap($ai:stretch,$ac:stretch);
-    //------------------------
-    > .field-name  {
-      @include flex-align-nowrap($ai:flex-start,$ac:flex-start);
-      position: relative;
-      flex:0 0 auto;
-      line-height: 2.6em;
-      padding:0 .1rem 0 .26rem;
-      > .name-status {
-        @include pos-abs($l:0,$t:0,$w:.24rem);
-        @include flex-center;
-        padding:.02rem .04rem 0 0;
-      }
-      > .name-icon {
-        @include flex-align($jc:flex-end);
-        padding:0 .04rem 0 .08rem;
-      }
-      > .name-title {
-        flex: 1 1 auto; text-align: right;
-        white-space: nowrap;
-      }
-    }
     //------------------------
     > .field-value {
       @include flex-align;
@@ -64,38 +43,66 @@
       }
     }
     //------------------------
+    &.as-desktop, &.as-tablet {
+      @include flex-align-nowrap($ai:stretch,$ac:stretch);
+      @include border(1px, dashed, shallow, top);
+      &:first-child {border:0;}
+      > .field-name  {
+        @include flex-align-nowrap($ai:flex-start,$ac:flex-start);
+        position: relative;
+        flex:0 0 auto;
+        line-height: 2.6em;
+        padding:0 .1rem 0 .26rem;
+        > .name-status {
+          @include pos-abs($l:0,$t:0,$w:.24rem);
+          @include flex-center;
+          padding:.02rem .04rem 0 0;
+          height: 2.6em;
+        }
+        > .name-icon {
+          @include flex-align($jc:flex-end);
+          padding:0 .04rem 0 .08rem;
+          height: 2.6em;
+        }
+        > .name-title {
+          flex: 1 1 auto;
+          white-space: nowrap;
+          text-align: right;
+        }
+      }
+    }
+    //------------------------
+    &.as-phone {
+      > .field-name {
+        @include flex-align-nowrap;
+        @include border(1px, solid, shallow, bottom);
+        > .name-icon   {order: 1; padding:0 .06rem;}
+        > .name-title  {order: 2;}
+        > .name-status {order: 3;}
+      }
+      > .field-value {
+        padding:.1rem 0;
+      }
+    }
+    //------------------------
   }
   //----------------------------------
   &.as-spacing-comfy {
     padding:.2rem;
     .form-group {
-      .group-title {
-        line-height:2em;
-        padding:.12rem .1rem .06rem;
-      }
-      .group-fields {
-        padding:.1rem 0;
-      }
+      .group-title {line-height:2em;padding:.06rem .1rem;}
+      .group-fields {padding-bottom:.12rem;}
     }
-    .form-field {
-      padding:.08rem;
-    }
+    .form-field {padding:.08rem;}
   }
   //----------------------------------
   &.as-spacing-tiny {
     padding:.1rem;
     .form-group {
-      .group-title {
-        line-height:1.4em;
-        padding:.08rem .1rem .04rem;
-      }
-      .group-fields {
-        padding:.1rem 0;
-      }
+      .group-title {line-height:1.4em;padding:.04rem .06rem;}
+      .group-fields {padding-bottom:.06rem;}
     }
-    .form-field {
-      padding:.04rem;
-    }
+    .form-field {padding:.04rem;}
   }
   //----------------------------------
 }

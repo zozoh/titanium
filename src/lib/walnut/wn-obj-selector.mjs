@@ -33,7 +33,7 @@ export async function OpenObjSelector(pathOrObj="~", {
   </wn-explorer>`
   //................................................
   // Open modal dialog
-  let reObj = await Ti.Modal({
+  let reObj = await Ti.Modal.Open({
     "template" : html,
     /////////////////////////////////////////////////
     "data" : {
@@ -42,9 +42,9 @@ export async function OpenObjSelector(pathOrObj="~", {
     /////////////////////////////////////////////////
     "store" : {
       "modules" : {
-        "page" : "@mod:ti/page",
-        "meta" : "@mod:wn/obj-meta",
-        "main" : "@mod:wn/obj-explorer"
+        "viewport" : "@mod:ti/viewport", 
+        "meta"     : "@mod:wn/obj-meta",
+        "main"     : "@mod:wn/obj-explorer"
       }
     },
     /////////////////////////////////////////////////
@@ -54,7 +54,7 @@ export async function OpenObjSelector(pathOrObj="~", {
       }),
       ...Vuex.mapGetters("main", {
         "selected" : "selectedItems",
-        "actived"  : "activeItem"
+        "actived"  : "currentItem"
       }),
       mainStatus() {
         let status = {}
@@ -102,7 +102,12 @@ export async function OpenObjSelector(pathOrObj="~", {
           // Reload children
           await app.dispatch("main/reload", meta)
           // Then highlight the selection
-          app.commit("main/setSelected", selected)
+          if(!_.isEmpty(selected)) {
+            let checkedIds = _.map(selected, (o)=>o.id)
+            let currentId = _.get(checkedIds, 0)
+            app.commit("main/setCurrentId", currentId)
+            app.commit("main/setCheckedIds", checkedIds)
+          }
         }
         // Report Error
         else {

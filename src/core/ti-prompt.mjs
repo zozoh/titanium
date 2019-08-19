@@ -1,4 +1,4 @@
-export async function Prompt(msg="", {
+async function Prompt(msg="", {
   title = "i18n:prompt", 
   icon = "prompt",
   className,
@@ -80,3 +80,5 @@ export async function Prompt(msg="", {
     }]
   })
 }
+
+export default Prompt

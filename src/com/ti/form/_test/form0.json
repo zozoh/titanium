@@ -2,7 +2,9 @@
   "json": true,
   "dspacing" : "tiny",
   "fields" : [{
-      "name" : "id",
+      "icon"    : "zmdi-flattr",
+      "title"   : "ID",
+      "name"    : "id",
       "comType" : "ti-label"
     }, {    
       "name" : "name"
@@ -12,7 +14,18 @@
       "comType" : "ti-toggle"
     }, {
       "name" : "lbls",
-      "type" : "Array"
+      "type" : "Array",
+      "tip" : "xxxxxx"
+    }, {
+      "icon" : "zmdi-pin",
+      "title" : "地理位置",
+      "name" : ["lng", "lat"],
+      "type" : "Object",
+      "comType" : "ti-lbs-map-tencent",
+      "comConf" : {
+        "width" : "100%",
+        "zoom"  : 12
+      }
     }, {
       "name" : "avatar",
       "type" : "Object",

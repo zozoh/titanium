@@ -1,4 +1,4 @@
-export async function Confirm(msg="", {
+async function Confirm(msg="", {
   title = "i18n:confirm", 
   icon = "confirm",
   className,
@@ -30,3 +30,5 @@ export async function Confirm(msg="", {
     }]
   })
 }
+
+export default Confirm

@@ -183,7 +183,7 @@ class TiModalDialog {
   //------------------------------------------
 }
 //////////////////////////////////////////////
-export const TiModal = {
+const TiModal = {
   //------------------------------------------
   Open(appInfo, options) {
     let dia = new TiModalDialog(appInfo, options)
@@ -203,3 +203,4 @@ export const TiModal = {
   //------------------------------------------
 }
 //////////////////////////////////////////////
+export default TiModal

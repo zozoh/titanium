@@ -141,7 +141,7 @@ class TiToastBox {
   //------------------------------------------
 }
 //////////////////////////////////////////////
-export const TiToast = {
+const TiToast = {
   //------------------------------------------
   Open(options, type, position) {
     if(_.isString(options)) {
@@ -178,3 +178,4 @@ export const TiToast = {
   //------------------------------------------
 }
 //////////////////////////////////////////////
+export default TiToast

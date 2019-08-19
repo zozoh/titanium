@@ -1,4 +1,4 @@
-export async function Captcha(src="", {
+async function Captcha(src="", {
   title = "i18n:captcha-tip", 
   className,
   type  = "info",
@@ -102,3 +102,5 @@ export async function Captcha(src="", {
     actions : []
   })
 }
+
+export default Captcha

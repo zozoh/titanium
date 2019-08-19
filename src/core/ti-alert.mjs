@@ -1,4 +1,4 @@
-export async function Alert(msg="", {
+async function Alert(msg="", {
   title = "i18n:info", 
   icon = "alert",
   className,
@@ -25,3 +25,5 @@ export async function Alert(msg="", {
     actions : [{text: textOk}]
   })
 }
+
+export default Alert

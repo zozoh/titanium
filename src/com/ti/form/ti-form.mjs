@@ -131,9 +131,9 @@ export default {
       this.$emit("changed", payload)
     },
     //----------------------------------------------
-    onInvalid(payload) {
-      //console.log("invalid", payload)
-      this.$emit("invalid", payload)
+    onInvalid(err) {
+      //console.log("invalid", err)
+      this.$emit("invalid", err)
     },
     //----------------------------------------------
     __adjust_fields_width() {

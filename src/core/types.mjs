@@ -71,7 +71,7 @@ function parseDate(d) {
   throw 'i18n:invalid-date'
 }
 //-----------------------------------
-export const TiTypes = {
+const TiTypes = {
   toStr(val, fmt, dft) {
     if(_.isNull(val) || _.isUndefined(val)){
       return Ti.Util.fallback(dft, null)

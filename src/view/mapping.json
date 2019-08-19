@@ -1,8 +1,8 @@
 {
   "types" : {
-    "form_data" : "form-view",
+    "form"      : "form-view",
     "thing_set" : "thing-manager",
-    "gui" : "ti-gui"
+    "gui"       : "ti-gui"
   },
   "mimes" : {
     "text" : "text-editor",

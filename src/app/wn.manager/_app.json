@@ -36,6 +36,7 @@
     "@com:ti/menu",
     "@com:ti/obj/thumb",
     "@com:ti/obj/meta",
+    "@com:ti/lbs/map",
     "@com:wn/explorer",
     "@com:wn/user/info"],
   "deps" : []

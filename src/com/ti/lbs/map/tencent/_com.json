@@ -1,0 +1,7 @@
+{
+  "name" : "ti-lbs-map-tencent",
+  "globally" : true,
+  "template" : "./ti-lbs-map-tencent.html",
+  "mixins"   : ["./ti-lbs-map-tencent.mjs"],
+  "components" : []
+}

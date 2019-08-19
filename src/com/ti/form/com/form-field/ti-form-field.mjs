@@ -30,6 +30,11 @@ export default {
   inheritAttrs: false,
   //////////////////////////////////////////////
   computed : {
+    //----------------------------------------
+    topClass() {
+      return `as-${this.viewportMode}`
+    },
+    //----------------------------------------
     show() {
       let title   = !_.isNull(this.fieldTitle)
       let icon    = BOOL(this.icon)
@@ -41,11 +46,11 @@ export default {
         name : (title || icon)
       }
     },
-    //.......................................  
+    //----------------------------------------
     isNumberType() {
       return /^(Number|Integer)$/.test(this.type)
     },
-    //.......................................  
+    //----------------------------------------
     fieldTitle() {
       if(this.title)
         return this.title
@@ -53,7 +58,7 @@ export default {
         return this.name.join("-")
       return this.name
     },
-    //.......................................
+    //----------------------------------------
     fieldComClass() {
       if("auto" == this.width) {
         return "is-size-auto"
@@ -62,7 +67,7 @@ export default {
         return "is-size-stretch"
       }
     },
-    //.......................................
+    //----------------------------------------
     fieldComStyle() {
       if(this.width && !/^(auto|stretch)$/.test(this.width)) {
         return Ti.Css.toStyle({
@@ -70,19 +75,19 @@ export default {
         })
       }
     },
-    //.......................................
+    //----------------------------------------
     fieldValue() {
       return Ti.Util.getOrPick(this.data, this.name)
     },
-    //.......................................
+    //----------------------------------------
     componentType() {
       return this.comType
     },
-    //.......................................
+    //----------------------------------------
     componentOptions() {
       return this.comConf || {}
     },
-    //.......................................
+    //----------------------------------------
     componentValue() {
       if(!this.data){
         return undefined
@@ -98,7 +103,7 @@ export default {
 
       return v2
     },
-    //.......................................  
+    //----------------------------------------
     statusIcon() {
       return this.statusIcons[this.status]
     }
@@ -109,9 +114,9 @@ export default {
       // Customized value
       let v2 = val
       try {
-        //console.log("this.serializer(val):", val)
+        console.log("this.serializer(val):", val)
         v2 = this.serializer(val)
-        //console.log("field changed", val, v2)
+        console.log("field changed", val, v2)
       }
       // Invalid 
       catch(error) {
