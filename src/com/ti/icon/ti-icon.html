@@ -12,7 +12,7 @@
       <template v-if="icon.text">{{icon.text}}</template>
     </i>
     <!--Svg/Image-->
-    <img v-else-if="'svg'==icon.type || 'img'==icon.type"
+    <img v-else-if="'svg'==icon.type || 'image'==icon.type"
         :src="icon.value"
         :style="icon.innerStyle"/>
     <!--

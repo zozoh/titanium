@@ -34,7 +34,7 @@ export default {
           src += `&_t=${this.timestamp}`
         }
         return {
-          type : "img",
+          type : "image",
           value : src
         }
       }

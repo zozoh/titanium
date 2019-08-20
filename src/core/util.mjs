@@ -305,9 +305,11 @@ const TiUtil = {
   getFallback(obj, ...keys) {
     let ks = _.flattenDeep(keys)
     for(let k of ks) {
-      let v = obj[k]
-      if(!_.isUndefined(v))
-        return v
+      if(k) {
+        let v = obj[k]
+        if(!_.isUndefined(v))
+          return v
+      }
     }
   },
   /***

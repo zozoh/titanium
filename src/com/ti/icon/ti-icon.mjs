@@ -67,7 +67,7 @@ export default {
         }
         // for image
         if(/^(jpe?g|gif|png)$/i.test(icn.type)){
-          icn.type = "img"
+          icn.type = "image"
         }
       }
 
@@ -85,7 +85,7 @@ export default {
       })
 
       // join style:inner
-      if('img' == icn.type) {
+      if('image' == icn.type) {
         icn.innerStyle = {
           "width"  : this.width  ? "100%" : undefined,
           "height" : this.height ? "100%" : undefined

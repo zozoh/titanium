@@ -21,6 +21,14 @@
     }
   }
   //--------------------------------------------
+  .ti-icon {
+    height: 24px; 
+    .icon-icon {
+      height:100%;
+      img {height:100%;}
+    }
+  }
+  //--------------------------------------------
   > .as-single, >.as-multi, .as-empty {flex:1 1 auto;}
   //--------------------------------------------
   > .box-clear {
@@ -30,7 +38,6 @@
       @include color($color-track, c);
       transition: transform 0.3s;
     }
-
   }
   //--------------------------------------------
   > .box-btn {
@@ -45,8 +52,8 @@
   //--------------------------------------------
   > .as-single {
     @include flex-align-nowrap;
-    padding:.02rem 0 .02rem .1rem;
-    > .it-icon {margin-right:.06rem;}
+    padding:.02rem 0 .02rem .05rem;
+    > .it-icon {margin-right:.04rem; min-width: .24rem;}
   }
   //--------------------------------------------
   > .as-multi {

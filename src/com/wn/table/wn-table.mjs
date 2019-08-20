@@ -61,6 +61,7 @@ export default {
   },
   ///////////////////////////////////////////////////
   computed : {
+    //----------------------------------------------
     formedFields() {
       let list = []
       for(let fld of this.fields) {
@@ -98,6 +99,21 @@ export default {
       }
       return list
     }
+    //----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //----------------------------------------------
+    onSelected(eventInfo) {
+      //console.log("wn-table onSelected", eventInfo)
+      this.$emit("selected", eventInfo)
+    },
+    //----------------------------------------------
+    onOpen(eventInfo) {
+      console.log("wn-table onOpen", eventInfo)
+      this.$emit("open", eventInfo)
+    }
+    //----------------------------------------------
   }
   ///////////////////////////////////////////////////
 }

@@ -59,8 +59,8 @@ export const WnUtil = {
   /***
    * return the object readable name
    */
-  getObjDisplayName(meta) {
-    return meta.title || meta.nm
+  getObjDisplayName(meta, keys=[]) {
+    return Ti.Util.getFallback(meta, keys, "title", "nm")
   },
   /***
    * Get Object link as `String`

@@ -12,5 +12,5 @@
   :blurable="blurable"
   :border="border"
   :selectable="selectable"
-  @selected="$emit('selected', $event)"
-  @open="$emit('open', $event)"/>
+  @selected="onSelected"
+  @open="onOpen"/>

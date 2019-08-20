@@ -248,7 +248,7 @@ export default {
    */
   async reload({state, commit}, meta) {
     // Use the default meta
-    if(!meta) {
+    if(!meta || _.isEmpty(meta)) {
       meta = state.meta
     }
     // !!! Must be DIR

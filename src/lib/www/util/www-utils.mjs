@@ -14,7 +14,7 @@ export default {
     // Thumbnail
     if(obj[imgKey]) {
       let imgSrc = Ti.S.renderBy(src, obj)
-      return {type:"img", value:imgSrc}
+      return {type:"image", value:imgSrc}
     }
     // Icon Font
     return obj[iconKey] || dftIcon

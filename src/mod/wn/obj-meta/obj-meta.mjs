@@ -2,8 +2,8 @@ export default {
   getters : {
     get : (state) => state,
     hasParent : (state)=>{
-      console.log(state.ancestors)
-      console.log(state.parent)
+      // console.log(state.ancestors)
+      // console.log(state.parent)
       return state.parent ? true : false
     },
     parentIsHome : (state)=>{

@@ -29,9 +29,15 @@ export default {
       type : [String, Object],
       default : "zmdi-close-circle"
     },
-    "icon" : {
+    "chooseIcon" : {
       type : String,
       default : "zmdi-folder-outline"
+    },
+    // Key of meta to show as text
+    // If undefined, use "title -> nm"
+    "textBy" : {
+      type : [String, Array],
+      default : null
     }
   },
   //////////////////////////////////////////
@@ -46,8 +52,8 @@ export default {
       let list = []
       for(let obj of this.items) {
         let it = {
-          icon : Wn.Util.getIconObj(obj),
-          text : Wn.Util.getObjDisplayName(obj),
+          icon : Wn.Util.genPreviewObj(obj),
+          text : Wn.Util.getObjDisplayName(obj, this.textBy),
           value : obj.id
         }
         list.push(it)
@@ -59,8 +65,8 @@ export default {
         ? _.get(this.value, 0)
         : this.value
     },
-    chooseIcon() {
-      return _.isEmpty(this.items) ? this.icon : null
+    theChooseIcon() {
+      return _.isEmpty(this.items) ? this.chooseIcon : null
     }
   },
   //////////////////////////////////////////
@@ -70,7 +76,7 @@ export default {
       let autoOpenDir = false
       // Use base to open the folder
       // Then it should be auto-open the folder
-      if(!meta) {
+      if(!meta || _.isEmpty(meta)) {
         meta = this.base || "~"
         autoOpenDir = true
       }
@@ -132,7 +138,7 @@ export default {
     },
     //......................................
     async reloadItem(it) {
-      if(!it)
+      if(!it || _.isEmpty(it))
         return null
       // path id:xxxx
       if(_.isString(it)){
