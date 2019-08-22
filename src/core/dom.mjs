@@ -80,7 +80,9 @@ export const TiDom = {
                   : ($win.innerWidth > phoneMaxWidth
                       ? "tablet" : "phone")
       callback({
-        $win, $doc, $root, mode, fontSize
+        $win, $doc, $root, mode, fontSize,
+        width  : $win.innerWidth,
+        height : $win.innerHeight
       })
     }
   },
@@ -91,7 +93,7 @@ export const TiDom = {
     document.removeEventListener(event, handler);
   },
   watchAutoRootFontSize(app, options={}) {
-    if(_.isString(options)) {
+    if(_.isString(options) || _.isFunction(options)) {
       options = {
         max : 100,
         min : 80,

@@ -26,6 +26,7 @@ import Types    from "./types.mjs"
 import Util     from "./util.mjs"
 import Viewport from "./viewport.mjs"
 import WWW      from "./www.mjs"
+import GPS      from "./gps.mjs"
 //---------------------------------------
 const ENV = {
   "version" : "1.0",
@@ -54,7 +55,7 @@ const LOG_LEVELS = {
 export const Ti = {
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
-  WWW,
+  WWW, GPS,
   //.....................................
   Alert, Confirm, Prompt, Toast, Captcha, Modal,
   //.....................................

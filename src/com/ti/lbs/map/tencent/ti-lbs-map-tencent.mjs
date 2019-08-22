@@ -17,12 +17,14 @@ export default {
       type : String,
       default : "ROADMAP"
     },
-    // Map center : {lat:-34.397, lng:150.644}
+    // Map center : {"lat":39.9042, "lng":116.4074}
+    // If null, it will auto sync with the value
     "center" : {
       type : Object,
-      default : ()=>({
-        lat:39.9042, lng:116.4074
-      })
+      // default : ()=>({
+      //   {"lat":39.9042, "lng":116.4074}
+      // })
+      default : null
     },
     // Map width
     "width" : {
@@ -37,6 +39,14 @@ export default {
     "zoom" : {
       type : Number,
       default : 8
+    },
+    // The Coordinate System for input LatLng (center/value...)
+    //  - WGS84 : Standard GPS 
+    //  - BD09  : for Baidu Map
+    //  - GCJ02 : (Mars) QQ/GaoDe/AliYun ...
+    "coordinate" : {
+      type : String,
+      default : "WGS84"
     },
     // A LatLng Point in map, which react the changing
     "value" : {
@@ -74,7 +84,15 @@ export default {
     },
     //-------------------------------------
     qqMapCenterLatLng() {
-      return new qq.maps.LatLng(this.center.lat, this.center.lng);
+      console.log("haha")
+      if(!_.isEmpty(this.center)) {
+        return this.genLatLng(this.center)
+      }
+      if(!_.isEmpty(this.value)) {
+        return this.genLatLng(this.value)
+      }
+      // Default center to beijing
+      return new qq.maps.LatLng({lat:39.9042, lng:116.4074})
     },
     //-------------------------------------
     qqMapTypeId() {
@@ -86,6 +104,20 @@ export default {
   //////////////////////////////////////////
   methods : {
     //-------------------------------------
+    genLatLng({lat, lng}={}) {
+      let pos = {lat, lng}
+      // WGS84
+      if("WGS84" == this.coordinate) {
+        pos = Ti.GPS.gps84_To_Gcj02(lat, lng)
+      }
+      // BD09
+      else if("BD09" == this.coordinate) {
+        pos = Ti.GPS.bd09_To_Gcj02(lat, lng)
+      }
+
+      return new qq.maps.LatLng(pos.lat, pos.lng)
+    },
+    //-------------------------------------
     drawValue() {
       let $map = this.__map
       let opt  = this.valueMarkerOptions
@@ -94,7 +126,7 @@ export default {
       if(!this.value)
         return
 
-      let llpos = new qq.maps.LatLng(this.value.lat, this.value.lng);
+      let llpos = this.genLatLng(this.value);
 
       var marker = new qq.maps.Marker({
         position: llpos,

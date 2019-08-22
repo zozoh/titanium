@@ -24,7 +24,7 @@
       "comType" : "ti-lbs-map-tencent",
       "comConf" : {
         "width" : "100%",
-        "zoom"  : 12
+        "zoom"  : 16
       }
     }, {
       "name" : "avatar",
