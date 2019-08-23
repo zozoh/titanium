@@ -66,12 +66,13 @@ export const TiDom = {
     $win=window,
     phoneMaxWidth=540,
     tabletMaxWidth=768,
+    designWidth=800,
     max=100,min=60,
     callback
   }={}) {
     const $doc  = window.document
     const $root = document.documentElement
-    let size = ($win.innerWidth/tabletMaxWidth) * max
+    let size = ($win.innerWidth/designWidth) * max
     let fontSize = Math.min(Math.max(size,min), max)
     // apply the mark
     if(_.isFunction(callback)) {
