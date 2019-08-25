@@ -1,64 +1,26 @@
-<div class="ti-box"
-  @click="$emit('open')">
-  <!--// Empty Mode-->
-  <div v-if="noItems"
-    class="as-empty">
-    <template v-if="empty">
-      <ti-icon
-        v-if="empty.icon" 
-        :value="empty.icon"/>
-      <span class="it-text">{{empty.text|i18n}}</span>
-    </template>
-    <div v-else><span>&nbsp;</span></div>
-  </div>
-  <!--// Multi Mode-->
-  <ul 
-    v-else-if="multi"
-    class="as-multi">
-    <li v-for="it in items" :key="it.value">
-      <ti-icon
-        class="it-icon"
-        v-if="it.icon" 
-        :value="it.icon"/>
-      <span
-        class="it-text">{{it.text|i18n}}</span>
-      <span
-        class="it-del"
-        @click.stop="$emit('remove', it)">
-        <ti-icon value="close" size="0.16rem"/>
-      </span>
-    </li>
-  </ul>
-  <!--// Single Mode as default-->
-  <div v-else
-    class="as-single">
-    <ti-icon
-      class="it-icon"
-      v-if="firstItem.icon" 
-      :value="firstItem.icon"/>
-    <span class="it-text">{{firstItem.text|i18n}}</span>
-  </div>
-  <!--// slot here to extends -->
-  <slot>
-    <div v-if="clearIcon && hasItems"
-      class="box-clear"
-      @click.stop="$emit('clear')">
-      <ti-icon :value="clearIcon"/>
+<div class="ti-lbs-map" 
+  :class="topClass"
+  :style="topStyle">
+  <div class="map-con">
+    <!--
+      Map Main
+    -->
+    <div class="as-main">
+      <component 
+        :is="mapComType"
+        v-bind="mapComConf"/>
     </div>
-    <div v-if="showBtn"
-      class="box-btn">
-      <ti-icon
-        v-if="loading && loadingIcon"
-        :value="loadingIcon"/>
-      <ti-icon 
-        v-else-if="opened && openedIcon"
-        :value="openedIcon"/>
-      <ti-icon 
-        v-else-if="icon"
-        :value="icon"/>
-      <span v-if="text"
-        class="btn-text"
-        >{{text|i18n}}</span>
+    <!--
+      Map Info
+    -->
+    <div class="as-info">
+      <div class="as-toggle" @click="fullScreen=!fullScreen">
+        <ti-icon :value="toggleIcon"/>
+      </div>
+      <ul class="as-laln">
+        <li><span>{{'lat'|i18n}}:</span><em>{{lalnCenter.lat|float(8)}}</em></li>
+        <li><span>{{'lng'|i18n}}:</span><em>{{lalnCenter.lng|float(8)}}</em></li>
+      </ul>
     </div>
-  </slot>
+  </div>
 </div>

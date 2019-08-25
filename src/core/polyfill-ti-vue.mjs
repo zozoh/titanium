@@ -52,6 +52,10 @@ export const TiVue = {
       Vue.filter("percent", function(val, fixed=2, auto=true){
         return Ti.S.toPercent(val*1, {fixed, auto})
       })
+      // Filter: percent
+      Vue.filter("float", function(val, precision=2, dft=0.0){
+        return Ti.Types.toFloat(val, {precision, dft})
+      })
       //................................
       // Directive: v-drop-files
       //  - value : f() | [f(), "i18n:mask-tip"]

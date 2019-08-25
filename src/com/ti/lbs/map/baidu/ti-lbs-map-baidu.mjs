@@ -1,5 +1,5 @@
 //
-// The coordinate base on GCJ02
+// The coordinate base on BD09
 //
 export default {
   /////////////////////////////////////////
@@ -10,8 +10,10 @@ export default {
   }),
   /////////////////////////////////////////
   props : {
-    // @see https://lbs.qq.com/javascript_v2/doc/maptypeid.html
-    // ROADMAP | SATELLITE | HYBRID
+    // @see http://lbsyun.baidu.com/cms/jsapi/reference/jsapi_reference_3_0.html#a5b0
+    // ROADMAP    : BMAP_NORMAL_MAP
+    // SATELLITE  : BMAP_SATELLITE_MAP
+    // HYBRID     : BMAP_HYBRID_MAP
     "mapType" : {
       type : String,
       default : "ROADMAP"
@@ -59,8 +61,11 @@ export default {
     },
     //-------------------------------------
     mapTypeId() {
-      return (qq.maps.MapTypeId[this.mapType]) 
-             || qq.maps.MapTypeId.ROADMAP
+      return ({
+        "ROADMAP"   : BMAP_NORMAL_MAP,
+        "SATELLITE" : BMAP_SATELLITE_MAP,
+        "HYBRID"    : BMAP_HYBRID_MAP
+      })[this.mapType] || BMAP_NORMAL_MAP
     }
     //-------------------------------------
   },
@@ -68,7 +73,7 @@ export default {
   methods : {
     //-------------------------------------
     genLatLng({lat, lng}={}) {
-      return new qq.maps.LatLng(lat, lng)
+      return new BMap.Point(lng, lat)
     },
     //-------------------------------------
     drawValue() {
@@ -79,26 +84,9 @@ export default {
       if(!this.value)
         return
 
-      let llpos = this.genLatLng(this.value);
-
-      var marker = new qq.maps.Marker({
-        position: llpos,
-        animation: qq.maps.MarkerAnimation[opt.animation],
-        //设置显示Marker的地图
-        map: $map,
-        //设置Marker可拖动
-        draggable: true,
-        // //自定义Marker图标为大头针样式
-        // icon: new qq.maps.MarkerImage(
-        //     "https://open.map.qq.com/doc/img/nilt.png"),
-        // //自定义Marker图标的阴影
-        // shadow: new qq.maps.MarkerImage(
-        //     "https://open.map.qq.com/doc/img/nilb.png"),
-        //设置Marker标题，鼠标划过Marker时显示
-        title: opt.title,
-        //设置Marker的可见性，为true时可见,false时不可见
-        visible: true,
-      });
+      let point = this.genLatLng(this.value);
+      var marker = new BMap.Marker(point)
+      $map.addOverlay(marker);
 
       this.valueMarker = marker
     }
@@ -111,11 +99,17 @@ export default {
   //////////////////////////////////////////
   mounted : async function() {
     // Init Map
-    let $map = new qq.maps.Map(this.$refs.arena, {
-      zoom: this.zoom,
-      center: this.mapCenterLatLng,
-      mapTypeId: this.mapTypeId
+    let $map = new BMap.Map(this.$refs.arena, {
+      mapType : this.mapTypeId
     })
+    $map.centerAndZoom(this.mapCenterLatLng, this.zoom);
+    $map.addControl(new BMap.MapTypeControl({
+      mapTypes:[
+              BMAP_NORMAL_MAP,
+              BMAP_SATELLITE_MAP,
+              BMAP_HYBRID_MAP
+          ]}));	
+    $map.enableScrollWheelZoom(true);
     // Store
     this.__map = $map
     // Draw Value

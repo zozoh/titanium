@@ -1,0 +1,7 @@
+{
+  "name" : "ti-lbs-map-baidu",
+  "globally" : true,
+  "template" : "./ti-lbs-map-baidu.html",
+  "mixins"   : ["./ti-lbs-map-baidu.mjs"],
+  "components" : []
+}

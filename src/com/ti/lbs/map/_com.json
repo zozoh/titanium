@@ -4,6 +4,7 @@
   "template" : "./ti-lbs-map.html",
   "mixins"   : ["./ti-lbs-map.mjs"],
   "components" : [
-    "./tencent/_com.json"
+    "./tencent/_com.json",
+    "./baidu/_com.json"
   ]
 }

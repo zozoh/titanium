@@ -1,4 +1,4 @@
-const BAIDU_LBS_TYPE = "bd09ll";
+//const BAIDU_LBS_TYPE = "bd09ll";
 const pi = 3.1415926535897932384626;
 const a  = 6378245.0;
 const ee = 0.00669342162296594323;
@@ -10,7 +10,7 @@ const TiGPS = {
    * @param lon
    * @return Object({lat,lng})
    */
-  gps84_To_Gcj02(lat, lon) {
+  WGS84_TO_GCJ02(lat, lon) {
     if (TiGPS.outOfChina(lat, lon)) {
       return {lat:lat, lng:lon};
     }
@@ -28,12 +28,24 @@ const TiGPS = {
   },
 
   /**
+   * (BD-09)-->84
+   * @param bd_lat
+   * @param bd_lon
+   * @return Object({lat,lng})
+   */
+  WGS84_TO_BD09(lat, lon) {
+    let gcj02 = TiGPS.WGS84_TO_GCJ02(lat, lon);
+    let bd09  = TiGPS.GCJ02_TO_BD09(gcj02.lat, gcj02.lng);
+    return bd09;
+  },
+
+  /**
    * 火星坐标系 (GCJ-02) to 84 * 
    * @param lon 
    * @param lat
    * @return Object({lat,lng})
    */
-  gcj_To_Gps84(lat, lon) {
+  GCJ02_TO_WGS84(lat, lon) {
       let gps = TiGPS.transform(lat, lon);
       let longitude = lon * 2 - gps.lng;
       let latitude  = lat * 2 - gps.lat;
@@ -47,7 +59,7 @@ const TiGPS = {
    * @param gg_lon
    * @return Object({lat,lng})
    */
-  gcj02_To_Bd09(gg_lat, gg_lon) {
+  GCJ02_TO_BD09(gg_lat, gg_lon) {
       let x = gg_lon, y = gg_lat;
       let z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * pi);
       let theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * pi);
@@ -63,7 +75,7 @@ const TiGPS = {
    * @param bd_lon
    * @return Object({lat,lng})
    */
-  bd09_To_Gcj02(bd_lat, bd_lon) {
+  BD09_TO_GCJ02(bd_lat, bd_lon) {
       let x = bd_lon - 0.0065, y = bd_lat - 0.006;
       let z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * pi);
       let theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * pi);
@@ -78,9 +90,9 @@ const TiGPS = {
    * @param bd_lon
    * @return Object({lat,lng})
    */
-  bd09_To_Gps84(bd_lat, bd_lon) {
-      let gcj02 = TiGPS.bd09_To_Gcj02(bd_lat, bd_lon);
-      let map84 = TiGPS.gcj_To_Gps84(gcj02.lat, gcj02.lng);
+  BD09_TO_WGS84(bd_lat, bd_lon) {
+      let gcj02 = TiGPS.BD09_TO_GCJ02(bd_lat, bd_lon);
+      let map84 = TiGPS.GCJ02_TO_WGS84(gcj02.lat, gcj02.lng);
       return map84;
   },
 

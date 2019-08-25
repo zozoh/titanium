@@ -21,8 +21,9 @@
       "title" : "地理位置",
       "name" : ["lng", "lat"],
       "type" : "Object",
-      "comType" : "ti-lbs-map-tencent",
+      "comType" : "ti-lbs-map",
       "comConf" : {
+        "by" : "baidu",
         "width" : "100%",
         "zoom"  : 16
       }
