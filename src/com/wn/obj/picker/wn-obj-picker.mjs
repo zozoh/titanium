@@ -61,9 +61,12 @@ export default {
       return list
     },
     oneItem() {
-      return _.isArray(this.value) 
+      let it = _.isArray(this.value) 
         ? _.get(this.value, 0)
         : this.value
+      if("id:" == it || !it || _.isEmpty(it))
+        return null
+      return it
     },
     theChooseIcon() {
       return _.isEmpty(this.items) ? this.chooseIcon : null
@@ -74,6 +77,7 @@ export default {
     async openPicker() {
       let meta = this.oneItem
       let autoOpenDir = false
+      console.log("open")
       // Use base to open the folder
       // Then it should be auto-open the folder
       if(!meta || _.isEmpty(meta)) {
@@ -88,12 +92,12 @@ export default {
       })
       // take `undefined` as cancel
       if(_.isUndefined(payload)) {
-        console.log("canceled!")        
+        //console.log("canceled!")        
       }
       // take `null` as empty
       // object or array will be the value
       else {
-        console.log(payload)
+        //console.log(payload)
         this.$emit("changed", payload)
       }
     },
@@ -111,7 +115,8 @@ export default {
     },
     //......................................
     onClearItems() {
-      this.$emit("changed", [])
+      console.log("remove!!")
+      this.$emit("changed", this.multi ? [] : null)
     },
     //......................................
     async reload(){

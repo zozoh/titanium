@@ -19,6 +19,9 @@
 .ti-fill-parent {
   width:100%; height:100%;
 }
+.ti-scroll-v {
+  overflow:hidden auto;
+}
 //...................................................
 .ti-mask {
   @include pos-fixed-full;

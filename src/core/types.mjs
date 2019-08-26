@@ -76,7 +76,10 @@ const TiTypes = {
     if(_.isNull(val) || _.isUndefined(val)){
       return Ti.Util.fallback(dft, null)
     }
-    if(_.isString(val)){
+    if(_.isString(val) || _.isNumber(val)){
+      if(fmt) {
+        return Ti.S.renderVars(val, fmt)
+      }
       return val
     }
     if(_.isArray(val)) {

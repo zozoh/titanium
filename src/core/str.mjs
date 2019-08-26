@@ -2,6 +2,9 @@ export const TiStr = {
   renderVars(vars={}, fmt="", {
     iteratee, regex=/\$\{([^}]+)\}/g
   }={}) {
+    if(_.isString(vars) || _.isNumber(vars)) {
+      vars = {val:vars}
+    }
     if(_.isEmpty(vars)){
       return _.isArray(vars) ? [] : ""
     }

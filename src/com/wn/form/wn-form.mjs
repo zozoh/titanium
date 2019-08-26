@@ -117,6 +117,7 @@ export default {
   //////////////////////////////////////////////////////
   methods : {
     onChanged(payload) {
+      console.log("hahaha")
       this.$emit("changed", payload)
     },
     onInvalid(payload) {
