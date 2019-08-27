@@ -77,7 +77,6 @@ export default {
     async openPicker() {
       let meta = this.oneItem
       let autoOpenDir = false
-      console.log("open")
       // Use base to open the folder
       // Then it should be auto-open the folder
       if(!meta || _.isEmpty(meta)) {
