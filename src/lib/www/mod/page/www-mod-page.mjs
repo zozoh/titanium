@@ -30,7 +30,7 @@ export default {
       _.forEach(state.apis, (info, key)=>{
         //..........................................
         // Get SiteApi template
-        let Gapi = SiteApis[info.apiName]
+        let Gapi = SiteApis[info.apiName||key]
         //..........................................
         // Marge the page api
         let Papi = _.assign({
@@ -40,12 +40,16 @@ export default {
             as      : "json"
           }, Gapi, {
             params  : {},
+            vars    : {},
           })
         // API path is required
         if(!Papi.path) {
           console.warn(`!!!API[${key}] without defined in site!!!`, info)
           return
         }
+        //..........................................
+        // Merge vars
+        let vars = _.assign({}, Gapi.vars, Papi.vars)
         //..........................................
         // Merge params
         let params = {}  // Plain JSON for gen-finger
@@ -68,7 +72,29 @@ export default {
         //..........................................
         // Count the params finger & url
         Papi.finger = Ti.Alg.sha1(params)
-        Papi.url = Ti.Util.appendPath(apiBase, Papi.path)
+        // Absolute URL
+        if(/^(https?:\/\/|\/)/.test(Papi.path)) {
+          Papi.url = Papi.path
+        }
+        // Join with the apiBase
+        else {
+          Papi.url = Ti.Util.appendPath(apiBase, Papi.path)
+        }
+        //..........................................
+        // Explain vars
+        _.forEach(vars, (val, key)=>{
+          // Dynamic value
+          let m = /^=(.+)$/.exec(val)
+          if(m) {
+            Papi.vars[key] = _.bind(function(context, path){
+              return _.get(context, path)
+            }, Papi, rootState, m[1])
+          }
+          // Static
+          else {
+            Papi.vars[key] = ()=>{return val}
+          }
+        })
         //..........................................
         // Explain params
         _.forEach(params, (pm, key)=>{
@@ -78,15 +104,14 @@ export default {
           let m = /^=(.+)$/.exec(pm.value)
           // Dynamic get from page state (for user input)
           if(m) {
-            pm.value = _.bind(function(path){
-              return _.get(this, path)
-            }, state, m[1])
+            pm.value = _.bind(function(context, path){
+              return _.get(context, path)
+            }, Papi, rootState, m[1])
           }
           // Just clone it
           else if(!_.isUndefined(pm.value)){
-            pm.value = _.bind(function(){
-              return _.cloneDeep(this)
-            }, pm.value) 
+            let pm_val = pm.value
+            pm.value = ()=>{return pm_val}
           }
           //~~~~~~~~~~~~~~~~~~~~~~~~~
           // Ignore when invalid value
@@ -103,8 +128,8 @@ export default {
         }) // _.forEach(params, (pm, key)=>{
         //..........................................
         // Copy the Setting from page
-        Papi.preloaded = info.preloaded ? true : false
-        Papi.dataKey = info.dataKey || key
+        Papi.preloaded = Ti.Util.fallback(info.preloaded, true)
+        Papi.dataKey   = info.dataKey || key
         //..........................................
         // Eval api serializer
         Papi.serializer = Ti.Types.getFunc(Papi, "serializer")
@@ -113,6 +138,7 @@ export default {
         map[key] = Papi
         //..........................................
       })  // _.forEach(state.apis, (info, key)=>{
+      // console.log("APIs", map)
       // Return page api-set
       return map
     }
@@ -144,17 +170,34 @@ export default {
       state.data = data
     },
     //--------------------------------------------
-    updateData(state, {key, data}) {
-      if(!data || _.isEmpty(data)) {
+    updateData(state, {key, value}) {
+      if(_.isUndefined(value)) {
         return
       }
       // Apply Whole Data
       if(!key) {
-        state.data = _.assign({}, state.data, data)
+        if(_.isPlainObject(value)) {
+          state.data = _.assign({}, state.data, value)
+        }
       }
-      // for field
+      // for field merging
+      else if(_.isPlainObject(value)){
+        let vobj = _.assign({}, state.data[key], value)
+        state.data = _.assign({}, state.data, {
+          [key] : vobj
+        })
+      }
+      // update field
       else {
-        state.data[key] = _.assign({}, state.data[key], data)
+        state.data = _.assign({}, state.data, {
+          [key] : value
+        })
+      }
+    },
+    //--------------------------------------------
+    mergeData(state, data) {
+      if(_.isPlainObject(data)) {
+        Vue.set(state, "data", _.assign(state.data, data))
       }
     },
     //--------------------------------------------
@@ -198,28 +241,49 @@ export default {
       console.log(" ->", key, data)
 
       // Do Update
-      commit("updateData", {key, data})
+      commit("updateData", {
+        key, 
+        value:data
+      })
     },
     //--------------------------------------------
-    async reloadData({state, commit, getters}, keys=[]) {
+    async reloadData({state, commit, getters, rootState}, keys=[]) {
       let apis = getters.pageApis
-      console.log("reloadData", apis)
-
+      //console.log("reloadData", keys)
+      //.......................................
       // The api list to reload
       let list
       if(_.isEmpty(keys)) {
-        list = _.values(apis)
+        list = []
+        _.forEach(apis, (api)=>{
+          if(api.preloaded)
+            list.push(api)
+        })
       }
       // Pick specail apis
       else {
         list = _.values(_.pick(apis, keys))
       }
-
+      //.......................................
       // Prepare the Promises
       let ings = []
       for(let api of list) {
         // prepare http send options
         let url = api.url
+        // if("/www/dataocean/cygq/mock/right-b/b-${nm}.json"==url) {
+        //   console.log("haha", url)
+        // }
+        //.....................................
+        // Eval url
+        let vars = {}
+        _.forEach(api.vars, (fn, key)=>{
+          vars[key] = fn()
+        })
+        if(!_.isEmpty(vars)) {
+          url = Ti.S.renderBy(url, vars)
+        }
+        //.....................................
+        // Gen the options
         let options = _.pick(api, ["method", "headers", "as"])
         // Eval the params
         options.params = {}
@@ -228,7 +292,7 @@ export default {
           val = pm.transformer(val)
           options.params[key] = val
         })
-        // 
+        //.....................................
         // Join the http send Promise
         //console.log(`will send to "${url}"`, options)
         ings.push(Ti.Http.sendAndProcess(url, options)
@@ -238,27 +302,29 @@ export default {
               data = api.serializer(reo)
             }
             commit("updateData", {
-              key : api.dataKey,
-              data
+              key   : api.dataKey,
+              value : data
             })
           })
           .catch(($req)=>{
-            commit("updateData", {
-              key : api.dataKey,
-              data : {
-                ok : false,
-                errCode : `http.${$req.status}`,
-                msg : `http.${$req.status}`,
-                data : _.trim($req.responseText)
-              }
-            })
+            // commit("updateData", {
+            //   key   : api.dataKey,
+            //   value : {
+            //     ok : false,
+            //     errCode : `http.${$req.status}`,
+            //     msg : `http.${$req.status}`,
+            //     data : _.trim($req.responseText)
+            //   }
+            // })
+            // TODO maybe I should emit event here
+            // Then handle the event in actons 
           })
         ) // ings.push
       } // for(let api of list) {
-
+      //.......................................
       // Mark root state
       commit("setLoading", true, {root:true})
-
+      //.......................................
       // Only one request
       if(ings.length == 1) {
         await ings[0]
@@ -267,15 +333,16 @@ export default {
       else if(ings.length > 1) {
         await Promise.all(ings)
       }
-
+      //.......................................
       // Mark root state
       commit("setLoading", false, {root:true})
-
+      //.......................................
       // Get return value
       let reKeys = []
       for(let api of list) {
         reKeys.push(api.dataKey)
       }
+      //.......................................
       return _.pick(state.data, reKeys)
     },
     //--------------------------------------------

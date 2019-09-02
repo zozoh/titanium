@@ -66,7 +66,7 @@ export default {
     //-------------------------------------
     // Format current pageGUI
     pageGUI() {
-      console.log("formatedPageGUI")
+      //console.log("formatedPageGUI")
       let page = this.page
       //.....................................
       // Without current page
@@ -121,7 +121,7 @@ export default {
       //.....................................
       // assign schema
       _.assign(gui.schema, this.schema, page.schema)
-      console.log("pageGUI", gui)
+      //console.log("pageGUI", gui)
       //.....................................
       // format it
       return Ti.Util.explainObj(this, gui, {
@@ -138,7 +138,7 @@ export default {
       // TODO : Maybe here to embed the BaiDu Tongji Code
     },
     "isReady" : function(current, old) {
-      console.log("isReady", old, "->", current)
+      //console.log("isReady", old, "->", current)
       if(true === current && false === old) {
         this.invokeAction("@page:ready", {
 

@@ -1,0 +1,107 @@
+function draw_chart({
+  $refs,
+  padding,
+  data,
+  setup=_.identity
+}={}) {
+  let $container = $refs.chart
+  //console.log(data)
+  let width  = G2.DomUtil.getWidth($container)
+  let height = G2.DomUtil.getHeight($container)
+  //.......................................
+  // Create The Chart
+  let chart = new G2.Chart({
+    container: $container,
+    padding, width, height
+  })
+  //.......................................
+  // Set datasource
+  if(data && !_.isEmpty(data))
+    chart.source(data)
+  //.......................................
+  // Setup chart
+  setup(chart, data, {
+    width, height
+  })
+  //.......................................
+  // 渲染并返回
+  chart.render()
+  return chart
+}
+///////////////////////////////////////////
+export default {
+  /////////////////////////////////////////
+  inheritAttrs : false,
+  /////////////////////////////////////////
+  props : {
+    "data" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "padding" : {
+      type : [Number, Array],
+      default : ()=>[10,10,40,60]
+    },
+    // Function(chart, data):void
+    "setup" : {
+      type : Function,
+      default : _.identity
+    }
+  },
+  //////////////////////////////////////////
+  watch : {
+    "data" : function() {this.debounceRedrawChart()},
+  },
+  //////////////////////////////////////////
+  computed : {
+  },
+  //////////////////////////////////////////
+  methods : {
+    //......................................
+    redrawChart() {
+      if(this.__g2_chart) {
+        this.__g2_chart.destroy()
+        $(this.$refs.chart).empty()
+      }
+      this.__g2_chart = draw_chart(this)
+    },
+    drawAll() {
+      //console.log("I am drawAll")
+      this.$nextTick(()=>{
+        this.redrawChart()
+      })
+    }
+    //......................................
+  },
+  /////////////////////////////////////////
+  mounted : function() {
+    this.drawAll()
+    this.debounceRedrawChart = _.debounce(()=>{
+      this.redrawChart()
+    }, 500)
+    this.debounceRedrawAll = _.debounce(()=>{
+      this.drawAll()
+    }, 500)
+    // 监控窗口尺寸变化
+    Ti.Viewport.watch(this, {
+      resize: function() {
+        let chart = this.__g2_chart
+        if(chart) {
+          let $container = this.$refs.chart
+          let width  = G2.DomUtil.getWidth($container)
+          let height = G2.DomUtil.getHeight($container)
+          chart.changeWidth(width)
+          chart.changeHeight(height)
+        }
+      }
+    })
+  },
+  beforeDestroy : function(){
+    if(this.__g2_chart) {
+      this.__g2_chart.destroy()
+    }
+    // 解除窗口监控
+    Ti.Viewport.unwatch(this)
+  }
+  /////////////////////////////////////////
+}

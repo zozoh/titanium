@@ -1,0 +1,8 @@
+{
+  "name" : "ti-chart-g2",
+  "globally" : true,
+  "template" : "./ti-chart-g2.html",
+  "mixins"   : ["./ti-chart-g2.mjs"],
+  "components" : [],
+  "deps" : []
+}

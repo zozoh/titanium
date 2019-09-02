@@ -277,6 +277,31 @@ const TiTypes = {
     return list.join("")
   },
   //.......................................
+  toAjaxReturn(val, dftData) {
+    //console.log("toAjaxReturn", val)
+    let reo = val
+    if(_.isString(val)) {
+      try {
+        reo = JSON.parse(val)
+      }
+      // Invalid JSON
+      catch(E) {
+        return {
+          ok : false,
+          errCode : "e.invalid.json_format",
+          data : dftData
+        }
+      }
+    }
+    if(_.isBoolean(reo.ok)) {
+      return reo
+    }
+    return  {
+      ok : true,
+      data : reo
+    }
+  },
+  //.......................................
   getFuncByType(type="String", name="transformer") {
     return _.get({
       'String'   : {transformer:"toStr",     serializer:"toStr"},

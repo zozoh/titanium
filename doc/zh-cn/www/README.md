@@ -165,17 +165,24 @@ DIV(@app)             # Vue(root) : index.wnml
   "apis" : {
     // 每个 API 都有唯一的键，这个是整个站点的 api 模板
     // 每个页面根据名字引用，并且如果需要的话，可以覆盖掉如下字段
+    //  - vars       : 合并
     //  - params     : 合并
     //  - preloaded  : 替换
     //  - dataKey    : 替换
     //  - serializer : 替换
     "apiNameA" : {
-      "title" : "注记名",        // 支持 "i18n:xxx" 形态
-      "path"  : "path/to/api",  // 前面不加 `/`
+      // 支持 "i18n:xxx" 形态
+      "title" : "注记名",
+      // 前面不加 `/`，支持模板形态 `${xx}` 为占位符
+      // 占位符在 vars 段声明
+      "path"  : "path/to/api",
       "method" : "GET",         // 选，默认为GET，可为 GET|POST
       "headers" : {
         // 请求头，默认为空
       },
+      "vars" : {
+        "xyz" : "=page.data.xxx"   // 可以动态取值
+      }, 
       "params" : {
         "id" : {
           "type"  : "String",   // 参数的类型，默认 String
