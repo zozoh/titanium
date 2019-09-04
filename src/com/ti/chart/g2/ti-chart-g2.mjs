@@ -87,6 +87,7 @@ export default {
       resize: function() {
         let chart = this.__g2_chart
         if(chart) {
+          this.$emit("before_resize")
           let $container = this.$refs.chart
           let width  = G2.DomUtil.getWidth($container)
           let height = G2.DomUtil.getHeight($container)
