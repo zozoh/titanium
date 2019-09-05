@@ -2,7 +2,8 @@ function draw_chart({
   $refs,
   padding,
   data,
-  setup=_.identity
+  setup=_.identity,
+  autoSource
 }={}) {
   let $container = $refs.chart
   //console.log(data)
@@ -16,7 +17,7 @@ function draw_chart({
   })
   //.......................................
   // Set datasource
-  if(data && !_.isEmpty(data))
+  if(autoSource && data && !_.isEmpty(data))
     chart.source(data)
   //.......................................
   // Setup chart
@@ -46,6 +47,10 @@ export default {
     "setup" : {
       type : Function,
       default : _.identity
+    },
+    "autoSource" : {
+      type : Boolean,
+      default : true
     }
   },
   //////////////////////////////////////////
