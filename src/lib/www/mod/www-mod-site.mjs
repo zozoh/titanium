@@ -2,6 +2,30 @@ export default {
   /////////////////////////////////////////
   getters : {
     //-------------------------------------
+    // Pre-compiled Site Routers
+    routerList(state) {
+      let list = []
+      _.forEach(state.router, (ro)=>{
+        // Pre-compiled
+        let li = _.bind(function(path, regex, roParams, roPage){
+          let page = null
+          let params = {}
+          let m = regex.exec(path)
+          if(m) {
+            _.forEach(roParams, (val, key)=>{
+              params[key] = m[val]
+            })
+            page = Ti.S.renderBy(roPage, params)            
+          }
+          return [page, params]
+        }, ro, _, new RegExp(ro.match), ro.params, ro.page)
+
+        // Join to list
+        list.push(li)
+      })
+      return list
+    },
+    //-------------------------------------
     // Site Action Mapping
     actions(state) {
       //console.log("www-mod-site::getters.actions")

@@ -247,7 +247,7 @@ export default {
       })
     },
     //--------------------------------------------
-    async reloadData({state, commit, getters, rootState}, keys=[]) {
+    async reloadData({state, commit, getters}, keys=[]) {
       let apis = getters.pageApis
       //console.log("reloadData", keys)
       //.......................................
@@ -346,15 +346,27 @@ export default {
       return _.pick(state.data, reKeys)
     },
     //--------------------------------------------
-    async reload({commit, dispatch}, {
+    async reload({commit, dispatch, rootGetters}, {
       path,
       params={},
       anchor=null
     }) {
+      //console.log(rootGetters.routerList)
       console.log("page.reload", {path,params,anchor})
+      let pageJsonPath = path
+      //.....................................
+      // Apply routerList
+      for(let router of rootGetters.routerList) {
+        let [ph, pms] = router(path)
+        if(ph) {
+          pageJsonPath = ph
+          params = _.assign({}, params, pms)
+          break
+        }
+      }
       //.....................................
       // Load the page json
-      let json = await Ti.Load(`@Site:${path}.json`)
+      let json = await Ti.Load(`@Site:${pageJsonPath}.json`)
       let page = _.assign({
         "title" : null,
         "apis" : {},
