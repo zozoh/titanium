@@ -1,0 +1,26 @@
+<div class="ti-web-session-badge">
+  <!--
+    Has Session, show account info
+  -->
+  <template v-if="hasSession">
+    <div class="as-icon">
+      <ti-icon :value="myIcon"/>
+    </div>
+    <div class="as-name">{{myName}}</div>
+    <div class="as-link">
+      <a @click="$emit(logoutEvent)">{{'logout'|i18n}}</a>
+    </div>
+  </template>
+  <!--
+    Without session, show login link
+  -->
+  <template v-else>
+    <div v-if="loginIcon"
+      class="as-icon">
+      <ti-icon :value="loginIcon"/>
+    </div>
+    <div class="as-link">
+      <a @click="$emit(loginEvent)">{{'login'|i18n}}</a>
+    </div>
+  </template>
+</div>

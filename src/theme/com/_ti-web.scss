@@ -1,4 +1,19 @@
 /////////////////////////////////////////////////////
+// Session: Badge
+.ti-web-session-badge {
+  @include flex-align-nowrap;
+  > .as-icon {
+    font-size:1em;
+  }
+  > .as-name {
+    @include border(1px,solid,highlight,right);
+    padding:0 .08rem;
+  }
+  > .as-link {
+    padding:0 .08rem;
+  }
+}
+/////////////////////////////////////////////////////
 // Heading
 .ti-web-heading {
   @include flex-align-nowrap;

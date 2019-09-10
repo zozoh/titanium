@@ -11,7 +11,7 @@ export default {
         "apiBase"    : state=>state.apiBase,
         "captcha"    : state=>state.captcha,
         "schema"     : state=>state.schema,
-        "panels"     : state=>state.panels,
+        "blocks"     : state=>state.blocks,
         "loading"    : state=>state.loading,
         "isReady"    : state=>state.isReady
       }),
@@ -101,18 +101,31 @@ export default {
         layout = page.layout[layout]
       }
       //.....................................
-      // apply "@xxx" in panels
-      if(layout && _.isArray(layout.panels)) {
-        for(let i=0; i<layout.panels.length; i++) {
-          let pan = layout.panels[i]
-          if(!_.isString(pan)) {
-            continue
+      // Apply "@BLOCK(xxx)" in panels and layout blocks
+      if(layout) {
+        // Define the methods
+        const ExplainBlock = (anyValue)=>{
+          // String : Check the "@BLOCK(xxx)" 
+          if(_.isString(anyValue)) {
+            let m = /^@BLOCK\(([^ ]+)\)$/.exec(anyValue)
+            if(m) {
+              let blockName = m[1]
+              return _.get(this.blocks, blockName)
+            }
           }
-          let m = /^ *@([^ ]+) *$/.exec(pan)
-          if(m) {
-            layout.panels[i] = this.panels[m[1]]
+          // Array 
+          else if(_.isArray(anyValue)) {
+            return _.map(anyValue, ExplainBlock)  
           }
+          // Object
+          else if(_.isPlainObject(anyValue)) {
+            return _.mapValues(anyValue, ExplainBlock)
+          }
+          // Others return directly
+          return anyValue
         }
+        // do without layout
+        layout = ExplainBlock(layout)
       }
       //.....................................
       // merge layout to gui

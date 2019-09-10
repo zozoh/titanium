@@ -66,6 +66,7 @@ ul {
 a {
   @include color($color-primary, c);
   text-decoration: none;
+  cursor:pointer;
 }
 a:hover {
   @include color($color-secondary, c);
