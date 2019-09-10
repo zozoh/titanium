@@ -64,6 +64,10 @@ export default {
       default : ()=>({
         value : "=item"
       })
+    },
+    "hijackable" : {
+      type : Boolean,
+      default : true
     }
   },
   ///////////////////////////////////////////////////
@@ -115,10 +119,11 @@ export default {
     },
     //-----------------------------------------------
     itemComConf() {
+      console.log("wall:", this.comConf)
       let itConf = Ti.Util.explainObj(this, 
         this.comConf,
         {fnSet : this.fnSet})
-      //console.log("wall-tile itemComConf", itConf)
+      console.log("wall-tile itemComConf", itConf)
       return itConf
     },
     //-----------------------------------------------
@@ -133,7 +138,21 @@ export default {
   },
   ///////////////////////////////////////////////////
   methods : {
-    
+    async hijackEmit(name, args) {
+      //console.log("ti-wall-tile::hijackEmit->", name, args)
+      // By Pass: "block:show/hide/event"
+      if(/^(selected)$/.test(name)) {
+        await this.$emit(name, ...args)
+      }
+      // Gen Block Event
+      else {
+        await this.$emit("wall:tile:event", {
+          name, args,
+          id : this.data[this.idKey],
+          data : this.data
+        })
+      }
+    }
   }
   ///////////////////////////////////////////////////
 }

@@ -31,6 +31,7 @@
       :com-conf="comConf"
       :index="index"
       @selected="onTileSelected"
+      @wall:tile:event="onTileEvent"
       @click.native.stop="onSelected({it, index, $event})"
       @dblclick.native.stop="onOpen(it, index)"/>
     <!--Blank Tile-->

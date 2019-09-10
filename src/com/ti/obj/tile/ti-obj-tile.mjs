@@ -78,14 +78,14 @@ export default {
     //--------------------------------------------
     onClick(evt) {
       // Prevent default and emit event
-      // if(this.emitBy.eventName) {
-      //   evt.preventDefault()
-      //   let eventName = this.emitBy.eventName
-      //   let payload = this.emitBy.payload || {}
-      //   //............................
-      //   console.log("onClick", eventName, payload)
-      //   this.$emit(eventName, payload)
-      // }
+      if(this.emitBy.eventName) {
+        evt.preventDefault()
+        let eventName = this.emitBy.eventName
+        let payload = this.emitBy.payload || {}
+        //............................
+        //console.log("onClick", eventName, payload)
+        this.$emit(eventName, payload)
+      }
     }
     //--------------------------------------------
   },

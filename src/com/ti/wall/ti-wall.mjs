@@ -268,6 +268,10 @@ export default {
       //console.log(id, index, $event)
       this.onSelected({it:id, index, $event, selectingOnly:true})
     },
+    onTileEvent({id,name,args,data}) {
+      //console.log({id,name,args,data})
+      this.$emit(name, ...args)
+    },
     //--------------------------------------
     onSelected({it, index, $event, selectingOnly=false}={}){
       if(!this.selectable){
