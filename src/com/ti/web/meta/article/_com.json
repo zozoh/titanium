@@ -1,0 +1,7 @@
+{
+  "name" : "ti-web-meta-article",
+  "globally" : true,
+  "template" : "./ti-web-meta-article.html",
+  "mixins"   : ["./ti-web-meta-article.mjs"],
+  "components" : []
+}

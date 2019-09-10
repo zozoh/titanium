@@ -6,6 +6,7 @@
   <div class="as-preview">
     <a v-if="hasHref"
       :href="href"
+      @click="onClick"
       ><ti-icon 
         :value="preview"
         :height="previewHeight"/></a>
@@ -19,6 +20,7 @@
   <div class="as-title">
     <a v-if="hasHref"
       :href="href"
+      @click="onClick"
     >{{title}}</a>
     <!--
       Without Href

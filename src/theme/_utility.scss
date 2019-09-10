@@ -62,7 +62,8 @@
 .ti-btn {
   @include fireable; display:inline-block;
   @include border(1px, solid, dark);
-  text-align:center;
+  text-align:center; text-decoration: none;
+  &:hover {text-decoration: none;}
   &.is-big {
     font-size:1.3em; padding:.1rem;
     min-width:2rem; 

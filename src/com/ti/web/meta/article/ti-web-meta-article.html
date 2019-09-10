@@ -1,0 +1,25 @@
+<div class="ti-web-meta-article">
+  <!--
+    Title
+  -->
+  <h1>{{title}}</h1>
+  <!--
+    Brief
+  -->
+  <div v-if="brief"
+    class="as-brief">{{brief}}</div>
+  <!--
+    Author/Date
+  -->
+  <div v-if="hasDateOrAuthor"
+    class="as-sub">
+    <ul>
+      <li v-if="author">{{author}}</li>
+      <li v-if="date">{{date}}</li>
+    </ul>
+  </div>
+  <!--
+    Bottom line
+  -->
+  <hr v-if="bottomLine">
+</div>

@@ -1,4 +1,4 @@
-//---------------------------------------------
+/////////////////////////////////////////////////////
 // Heading
 .ti-web-heading {
   @include flex-align-nowrap;
@@ -17,8 +17,102 @@
   }
   //-----------------------------------------
 }
+/////////////////////////////////////////////////////
+// Meta:Article
+.ti-web-meta-article {
+  text-align: center;
+  padding:.1rem 0;
+  //------------------------------
+  > h1 {
+    margin:0; padding:.08rem;
+    font-weight: bold; font-size:2em;
+  }
+  //------------------------------
+  > .as-brief {
+    @include color($color-info, c);
+    padding:.1rem; font-size:1em;
+  }
+  //------------------------------
+  > .as-sub {
+    ul {
+      @include flex-align-center($jc:center);
+      color: map-get($color-secondary, c);
+      font-size:1em;
+    }
+    li {
+      &:before{
+        content:"/"; display:inline;
+        margin:0 .1rem;
+        color:map-get($color-track, c);
+      }
+      &:first-child:before {
+        content: "";
+      }
+    }
+  }
+  //------------------------------
+}
 
-//---------------------------------------------
+/////////////////////////////////////////////////////
+// Meta:commodity
+.ti-web-meta-commodity {
+  padding:.16rem 0;
+  > .as-main {
+    @include flex-align-nowrap($ai:flex-start);
+    > .at-left {
+      flex:0 0 auto;
+      width: 37.2%; height:3rem;
+    }
+    > .at-right {
+      flex:0 0 auto;
+      width: 61.8%;
+      padding:0 .1rem;
+      //-------------------------------------------
+      > h1 {
+        padding:.1rem .04rem; margin:0; 
+        font-weight: bold; font-size:1.2em;
+      }
+      //-------------------------------------------
+      > .as-brief {
+        @include border(1px, solid, shallow);
+        @include color($color-track, c, r);
+        padding:.1rem;
+      }
+      //-------------------------------------------
+      > .as-price {
+        @include font-fixed;
+        padding: .1rem;
+        color:map-get($color-secondary, c);
+        font-size: 1.6em;
+      }
+      //-------------------------------------------
+      > .as-btns {
+        .ti-btn {padding:.1rem .16rem;}
+      }
+      //-------------------------------------------
+    }
+  }
+}
+
+/////////////////////////////////////////////////////
+// Preview
+.ti-web-preview {
+  > .as-preview {
+    @include flex-center;
+    @include color($color-track, c, r);
+    @include border(1px, solid, shallow);
+    width:100%; height:100%;
+    font-size:2em;
+  }
+}
+
+/////////////////////////////////////////////////////
+// Content:Markdown
+.ti-web-content-markdown {
+  
+}
+
+/////////////////////////////////////////////////////
 // Footer
 .ti-web-footer {
   @include color($color-primary, r, c);

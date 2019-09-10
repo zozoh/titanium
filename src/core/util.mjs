@@ -133,7 +133,7 @@ const TiUtil = {
           if(re.isDynamic) {
             return re.output
           }
-          // :?-?xxx${xx}  Tmplate
+          // :?->xxx${xx}  Tmplate
           re = Ti.S.explainDynamicString(arg, {
             context,
             regex : /^(:?)->(.+)$/,

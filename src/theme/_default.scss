@@ -59,6 +59,10 @@ hr {
   &.as-dotted {border-top-style:dotted;}
 }
 //...................................................
+ul {
+  @include raw-list;
+}
+//...................................................
 a {
   @include color($color-primary, c);
   text-decoration: none;

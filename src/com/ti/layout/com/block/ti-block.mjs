@@ -173,7 +173,7 @@ export default {
       this.$emit("block:hide", this.name)
     },
     async hijackEmit(name, args) {
-      console.log("--hijackEmit--", name, args)
+      //console.log("--hijackEmit--", name, args)
       // By Pass: "block:show/hide/event"
       if(/^block:(show|hide|event)$/.test(name)) {
         await this.$emit(name, ...args)

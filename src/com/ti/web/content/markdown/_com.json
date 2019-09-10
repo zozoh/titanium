@@ -1,0 +1,7 @@
+{
+  "name" : "ti-web-content-markdown",
+  "globally" : true,
+  "template" : "./ti-web-content-markdown.html",
+  "mixins"   : ["./ti-web-content-markdown.mjs"],
+  "components" : []
+}

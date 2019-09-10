@@ -142,6 +142,10 @@ export default {
       if("files" == name) {
         Ti.App(this).dispatch("main/reloadFiles")
       }
+      else if("content" == name) {
+        //Ti.App(this).dispatch("main/reloadFiles")
+        Ti.App(this).dispatch("main/current/reload")
+      }
       this.shown = {
         ...this.shown, 
         [name]: true

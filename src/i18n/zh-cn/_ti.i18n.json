@@ -1,6 +1,8 @@
 {
   "blank" : "空白",
   "blur-all" : "取消选中",
+  "buy" : "购买",
+  "buy-now" : "立即购买",
   "cancel" : "取消",
   "captcha" : "验证码",
   "captcha-tip" : "请输入图中的验证码",

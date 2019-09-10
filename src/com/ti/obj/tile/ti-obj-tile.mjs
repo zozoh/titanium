@@ -47,6 +47,13 @@ export default {
     "brief" : {
       type : String,
       default : null
+    },
+    "emitBy" : {
+      type : Object,
+      default : ()=>({
+        evantName : null,
+        payload : {}
+      })
     }
   },
   ////////////////////////////////////////////////
@@ -69,29 +76,22 @@ export default {
   ////////////////////////////////////////////////
   methods : {
     //--------------------------------------------
-    onClickTitle($event) {
-      //console.log("onClickTitle", $event)
-      this.$emit("selected", {
-        index : this.index,
-        id : this.id,
-        $event : $event
-      })
-    },
-    //--------------------------------------------
-    renderLocalFile() {
-      if('localFile' == this.preview.type) {
-        let reader = new FileReader();
-        reader.onload = (evt)=>{
-          this.$refs.localImage.src = evt.target.result
-        }
-        reader.readAsDataURL(this.preview.value);
-      }
+    onClick(evt) {
+      // Prevent default and emit event
+      // if(this.emitBy.eventName) {
+      //   evt.preventDefault()
+      //   let eventName = this.emitBy.eventName
+      //   let payload = this.emitBy.payload || {}
+      //   //............................
+      //   console.log("onClick", eventName, payload)
+      //   this.$emit(eventName, payload)
+      // }
     }
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
   mounted : function(){
-    this.renderLocalFile()
+    
   }
   ////////////////////////////////////////////////
 }

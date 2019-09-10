@@ -115,9 +115,11 @@ export default {
     },
     //-----------------------------------------------
     itemComConf() {
-      return Ti.Util.explainObj(this, 
+      let itConf = Ti.Util.explainObj(this, 
         this.comConf,
         {fnSet : this.fnSet})
+      //console.log("wall-tile itemComConf", itConf)
+      return itConf
     },
     //-----------------------------------------------
     tileKey() {

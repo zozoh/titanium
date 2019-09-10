@@ -1,0 +1,7 @@
+{
+  "name" : "ti-web-preview",
+  "globally" : true,
+  "template" : "./ti-web-preview.html",
+  "mixins"   : ["./ti-web-preview.mjs"],
+  "components" : []
+}
