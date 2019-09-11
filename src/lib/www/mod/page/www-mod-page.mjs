@@ -247,6 +247,9 @@ export default {
       })
     },
     //--------------------------------------------
+    /***
+     * Reload page data by given api keys
+     */
     async reloadData({state, commit, getters}, keys=[]) {
       let apis = getters.pageApis
       //console.log("reloadData", keys)
@@ -346,6 +349,9 @@ export default {
       return _.pick(state.data, reKeys)
     },
     //--------------------------------------------
+    /***
+     * Reload whole page
+     */
     async reload({commit, dispatch, rootGetters}, {
       path,
       params={},

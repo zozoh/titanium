@@ -119,11 +119,13 @@ export default {
     },
     //-----------------------------------------------
     itemComConf() {
-      console.log("wall:", this.comConf)
+      //console.log("wall:", this.comConf)
       let itConf = Ti.Util.explainObj(this, 
-        this.comConf,
-        {fnSet : this.fnSet})
-      console.log("wall-tile itemComConf", itConf)
+        this.comConf, {
+          fnSet    : this.fnSet,
+          evalFunc : true
+        })
+      //console.log("wall-tile itemComConf", itConf)
       return itConf
     },
     //-----------------------------------------------

@@ -156,29 +156,49 @@ export default {
       }
     },
     //-------------------------------------
-    /*
-      The action should like
-      {
-        action : "xx/xx",
-        payload : {} | [] | ...
-      } 
+    /***
+     * Handle the action dispatching.
+     * 
+     * One action should be defined in `[page].json#actions`:
+     * 
+     * ```js
+     * {
+     *    action : "xx/xx",
+     *    payload : {} | [] | ...
+     * }
+     * ```
+     * 
+     * @param action{String} - action name like `page/showBlock`
+     * @param payload{Object|Array} - action payload, defined in `json` file
+     * @param args{Array} - the dynamic information emitted by `[Com].$emit`
+     * @param autoDestructArgs{Boolean} - If trusy, one element `args` will be unwrapped.
+     * @param autoJoinArgs{Boolean} - If trusy, 
+     *    it will auto join `args` to `payload` by `payload` type:
+     *   - `null` or `undeinfed` : replace `payload` by `args`
+     *   - `Object` : set `payload.args = args`
+     *   - `Array`  : concat to the tail of `payload`
+     * 
+     * @return {void}
      */
-    async doAction({dispatch}, {action, payload, args=[]}={}) {
+    async doAction({state, dispatch}, {
+      action, 
+      payload, 
+      args=[],
+      autoDestructArgs = true,
+      autoJoinArgs = true
+    }={}){
+      //....................................
       if(!action)
         return;
       //....................................
-      let autoDestructArgs = Ti.Util.fallback(
-                          action.autoDestructArgs, true)
-      let autoJoinArgs = Ti.Util.fallback(
-                          action.autoJoinArgs, true)
-      //....................................
+      // auto destruc args
       if(autoDestructArgs 
         &&_.isArray(args) 
         && args.length == 1) {
         args = args[0]
       }
       //....................................
-      // Auto Join Args
+      // auto join args
       if(autoJoinArgs) {
         if(_.isUndefined(payload) || _.isNull(payload)) {
           payload = args
@@ -193,8 +213,13 @@ export default {
         }
       }
       //....................................
-      console.log("invoke->", {action, payload})
-      await dispatch(action, payload)
+      // Explain payload
+      let pld2 = Ti.Util.explainObj(state, payload, {
+        evalFunc : true
+      })
+      //....................................
+      console.log("invoke->", {action, payload:pld2})
+      await dispatch(action, pld2)
     },
     //-------------------------------------
     async reload({state, dispatch}) {

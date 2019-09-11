@@ -130,16 +130,23 @@ export default {
       //.....................................
       // merge layout to gui
       _.assign(gui, layout)
+
+      // Empty GUI ...
+      if(!gui.body && _.isEmpty(gui.blocks)) {
+        return gui
+      }
       
       //.....................................
       // assign schema
       _.assign(gui.schema, this.schema, page.schema)
-      //console.log("pageGUI", gui)
+      
       //.....................................
       // format it
-      return Ti.Util.explainObj(this, gui, {
+      let formedGUI = Ti.Util.explainObj(this, gui, {
         fnSet: this.pageFnSet
       })
+      //console.log("pageGUI", formedGUI)
+      return formedGUI
     }
     //-------------------------------------
   },
@@ -212,33 +219,6 @@ export default {
           args
         })
       }
-    },
-    //------------------------------------
-    joinHrefParams(href, params, anchor) {
-      if(!href)
-        return null
-      //...........................
-      let query
-      if(!_.isEmpty(params)) {
-        query = []
-        _.forEach(params, (val, key)=>{
-          let v2 = encodeURIComponent(val)
-          query.push(`${key}=${v2}`)
-        })
-        if(query.length > 0) {
-          href = href + '?' + query.join("&")
-        }
-      }
-      //...........................
-      if(anchor) {
-        if(anchor.startsWith("#")) {
-          href += anchor
-        } else {
-          href += "#" + anchor
-        }
-      }
-      //...........................
-      return href
     }
     //-------------------------------------
   },

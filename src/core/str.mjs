@@ -5,7 +5,7 @@ export const TiStr = {
     if(_.isString(vars) || _.isNumber(vars)) {
       vars = {val:vars}
     }
-    if(_.isEmpty(vars)){
+    if(!vars || _.isEmpty(vars)){
       return _.isArray(vars) ? [] : ""
     }
     return TiStr.renderBy(fmt, vars, iteratee, regex)
@@ -20,6 +20,8 @@ export const TiStr = {
     if(!str){
       return _.isArray(vars) ? [] : ""
     }
+    // Make sure the `vars` empty-free
+    vars = vars || {}
     // Normlized args
     if(_.isRegExp(iteratee)) {
       regex = iteratee
@@ -159,37 +161,6 @@ export const TiStr = {
    */
   isPhoneNumber(s="") {
     return /^(\+\d{2})? *(\d{11})$/.test(s)
-  },
-  /***
-   * Explain Dynamic String
-   */
-  explainDynamicString(s="", {
-    context={},
-    regex=/^(:?)=(.+)$/,
-    whenGet = _.get,
-    whenEscape = (context, key)=>`=${key}`
-  }={}) {
-    let re = {
-      isDynamic : false,
-      isEscape  : false,
-      input  : s,
-      output : undefined
-    }
-    let m = regex.exec(s)
-    if(m) {
-      re.isDynamic = true
-      re.isEscape = m[1] ? true : false
-      let key = m[2]
-      // Escape
-      if(re.isEscape) {
-        re.output = whenEscape(context, key)
-      }
-      // Get
-      else {
-        re.output = whenGet(context, key)
-      }
-    }
-    return re
   }
 }
 //-----------------------------------

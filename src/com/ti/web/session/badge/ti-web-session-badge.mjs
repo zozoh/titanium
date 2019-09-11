@@ -5,6 +5,18 @@ export default {
       type : Object,
       default : null
     },
+    // Key to indicate Avatar existing
+    // null - will not support avatar
+    "avatarKey" : {
+      type : String,
+      default : null
+    },
+    // Avatar Source Template
+    // null - will not support avatar
+    "avatarSrc" : {
+      type : String,
+      default : null
+    },
     "loginIcon" : {
       type : String,
       default : "zmdi-account-circle"
@@ -40,6 +52,19 @@ export default {
         return "im-user-male"
       }
       return "far-user"
+    },
+    //......................................
+    myAvatar() {
+      if(this.avatarSrc) {
+        return Ti.S.renderBy(this.avatarSrc, this.me)
+      }
+    },
+    //......................................
+    hasAvatar() {
+      return this.avatarSrc
+        && this.avatarKey
+        && this.me
+        && this.me[this.avatarKey]
     },
     //......................................
     hasSession() {

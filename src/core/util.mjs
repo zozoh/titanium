@@ -75,117 +75,114 @@ const TiUtil = {
    * The key `...` in obj will `_.assign` the value
    * The value `=xxxx` in obj will get the value from context
    */
-  explainObj(context, obj, options={}) {
-    // Default options
-    let {
-      fnSet=Ti.Types,
-      iteratee = _.identity
-    } = options
+  explainObj(context={}, obj, {
+    fnSet = Ti.Types,
+    evalFunc = false,
+    iteratee = _.identity
+  }={}) {
     //......................................
-    let o1 = iteratee(obj)
-    //......................................
-    // Array
-    if(_.isArray(o1)) {
-      let list = []
-      for(let val of o1) {
-        list.push(TiUtil.explainObj(context, val, options))
-      }
-      return list
-    }
-    //......................................
-    // Plain Object
-    if(_.isPlainObject(o1)) {
-      // Invoke function
-      if(o1.__is_calling) {
-        let fn = o1.name
-        if(_.isString(fn)) {
-          fn = _.get(fnSet, o1.name)
-        }
-        let args = []
-        if(_.isArray(o1.args)) {
-          for(let al of o1.args) {
-            // Dynamic
-            if(_.isFunction(al)) {
-              let li = al(context)
-              args.push(li)
-            }
-            // Static
-            else {
-              args.push(al)
-            }
-          }
-        }
-        // Do invoke
-        return fn.apply(context, args)
-      }
-      // Bind Function
-      else if(o1.__is_function) {
-        let args = _.map(o1.args, (arg)=>{
-          // :?=xxx   Get Value
-          let re = Ti.S.explainDynamicString(arg, {
-            context,
-            whenEscape : (context, key)=>{
-              return (c2)=>{
-                return _.get(c2, key)
-              }
-            }
-          })
-          if(re.isDynamic) {
-            return re.output
-          }
-          // :?->xxx${xx}  Tmplate
-          re = Ti.S.explainDynamicString(arg, {
-            context,
-            regex : /^(:?)->(.+)$/,
-            whenGet : (context, key)=> {
-              return Ti.S.renderBy(key, context)
+    const ExplainValue = (anyValue)=>{
+      let theValue = iteratee(anyValue)
+      //....................................
+      // String : Check the "@BLOCK(xxx)" 
+      if(_.isString(theValue)) {
+        let m = /^(:?->|:?=)(.+)$/.exec(theValue)
+        // Matched
+        if(m) {
+          let m_type = m[1]
+          let m_val  = m[2]
+          return ({
+            // =xxx   # Get Value Now
+            "=" : (val)=>{
+              return _.get(context, val)
             },
-            whenEscape : (context, key)=>{
-              let tmpl = Ti.S.renderBy(key, context)
-              return (c2)=>{
-                return Ti.S.renderBy(tmpl, c2)
-              }
+            // :=xxx  # Get Value Later
+            ":=" : (val)=>{
+              return (c2)=>{return _.get(c2, val)}
+            },
+            // ->xxx  # Eval Template Result Now
+            "->" : (val)=>{
+              return Ti.S.renderBy(val, context)
+            },
+            // :->xxx # Eval Template Result Later
+            ":->" : (val)=>{
+              let tmpl = Ti.S.renderBy(val, context)
+              return (c2)=>{return Ti.S.renderBy(tmpl, c2)}
+            },
+          })[m_type](m_val)
+        }
+        // Simple String
+        return theValue
+      }
+      //....................................
+      // Function  
+      else if(_.isFunction(theValue)) {
+        return evalFunc 
+          ? theValue(context)
+          : theValue
+      }
+      //....................................
+      // Array 
+      else if(_.isArray(theValue)) {
+        return _.map(theValue, ExplainValue)  
+      }
+      //....................................
+      // Object
+      else if(_.isPlainObject(theValue)) {
+        //..................................
+        // Calling
+        if(theValue.__is_calling) {
+          // Find function
+          let fn = theValue.name
+          if(_.isString(fn)) {
+            fn = _.get(fnSet, theValue.name)
+          }
+          // Prepare arguments
+          let args = _.map(theValue.args||[], (arg)=>{
+            if(_.isFunction(arg)) {
+              return arg(context)
+            }
+            return arg
+          })
+          // Do invoke
+          return fn.apply(context, args)
+        }
+        //..................................
+        // Bind Function
+        else if(theValue.__is_function) {
+          let args = _.map(theValue.args, ExplainValue)
+          return {
+            __is_calling : true,
+            name : _.get(fnSet, theValue.name),
+            args
+          }
+        }
+        //..................................
+        // Call-down
+        else {
+          let o2 = {}
+          _.forEach(theValue, (v2, k2)=>{
+            let v3 = ExplainValue(v2)
+            // key `...` -> assign o1
+            if("..." == k2) {
+              _.assign(o2, v3)
+            }
+            // set value
+            else {
+              o2[k2] = v3
             }
           })
-          if(re.isDynamic) {
-            return re.output
-          }
-          // Normal
-          return Ti.S.toJsValue(arg)
-         })
-        return {
-          __is_calling : true,
-          name : _.get(fnSet, o1.name),
-          args
-        }
+          return o2
+        } // _.isPlainObject(anyValue)
       }
-      // Call down
-      else {
-        let o2 = {}
-        _.forEach(o1, (v2, k2)=>{
-          let v3 = TiUtil.explainObj(context, v2, options)
-          // key `...` -> assign o1
-          if("..." == k2) {
-            _.assign(o2, v3)
-          }
-          // set value
-          else {
-            o2[k2] = v3
-          }
-        })
-        return o2
-      }
+      //....................................
+      // Others return directly
+      return anyValue
     }
     //......................................
-    // String: =xx.xx
-    if(_.isString(o1)) {
-      let {isDynamic, output} = Ti.S.explainDynamicString(o1, {context})
-      if(isDynamic)
-        return output
-    }
+    // ^---- const ExplainValue = (anyValue)=>{
     //......................................
-    // Others
-    return o1
+    return ExplainValue(obj)
   },
   /***
    * Create a function to return a given object's copy.

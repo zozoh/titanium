@@ -3,10 +3,19 @@
     Has Session, show account info
   -->
   <template v-if="hasSession">
-    <div class="as-icon">
+    <!--Avatar-->
+    <div v-if="hasAvatar"
+      class="as-avatar">
+      <img :src="myAvatar"/>
+    </div>
+    <!--User Icon-->
+    <div v-else
+      class="as-icon">
       <ti-icon :value="myIcon"/>
     </div>
+    <!--User Name-->
     <div class="as-name">{{myName}}</div>
+    <!--Quit Link-->
     <div class="as-link">
       <a @click="$emit(logoutEvent)">{{'logout'|i18n}}</a>
     </div>
