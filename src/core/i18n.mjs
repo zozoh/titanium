@@ -2,7 +2,7 @@
 const I18N = {}
 //-----------------------------------
 function __MSG(key) {
-  if(!key)
+  if(!_.isString(key))
     return
   let k2 = key.replace(/\./g,"-")
   return I18N[k2]
@@ -71,8 +71,11 @@ export const Ti18n = {
     return Ti.Util.fallback(str, dft)
   },
   getf(key, vars={}){
-    let msg = __MSG(key) || key
-    return Ti.S.renderBy(msg, vars)
+    if(_.isString(key)) {
+      let msg = __MSG(key) || key
+      return Ti.S.renderBy(msg, vars)
+    }
+    return key
   },
   textf(str, vars={}){
     let m = /^i18n:(.+)$/.exec(str)
