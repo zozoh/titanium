@@ -64,56 +64,77 @@
   // Layout: wall
   //------------------------------------
 } // ~ .ti-layout
-$ti-block-header : 28px;
+$ti-block-header : .4rem;
 .ti-block {
   position: relative;
   &.show-header {
     padding-top:$ti-block-header;
     > header {
+      //----------------------------------------
       @include noselect;
       @include pos-abs($t:0,$l:0,$r:0);
       @include flex-align-nowrap($ai:stretch);
       @include color($color-bar, r, c);
       @include border(1px, solid, shallow, bottom);
+      //----------------------------------------
       height: $ti-block-header; line-height: $ti-block-header;
-      padding:0;
+      padding:0 0 0 .06rem;
       font-size:.8em;
+      //----------------------------------------
       > div {white-space: nowrap;}
+      //----------------------------------------
       > .tbh-icon {
         @include flex-center;
         padding-left:.06rem;
       }
+      //----------------------------------------
       > .tbh-text {
         flex:1 0 auto;
         padding:0 .06rem;
       }
+      //----------------------------------------
       > .tbh-actions {
         @include flex-align($jc:center);
+        padding-right:.04rem;
+        //--------------------------------------
         > .ti-menu {
-          min-width: 30px;
+          @include flex-align-nowrap($ai:center);
+          //------------------------------------
           .menu-desktop-top {
-            > li > .is-top > .md-info {
-              height: $ti-block-header;
-              border-radius: 0;
-              &:hover {
-                @include color($color-secondary, r, c);
+            > li {
+              //-------------------------
+              > .md-info ,
+              > .md-group > .md-info {
+                border-radius: 1px;
+                &[item-enabled]:hover {
+                  @include color($color-primary, r, c);
+                }
+                //-----------------------
+                > .md-icon ,
+                > .md-text {
+                  height:2.4em; line-height:2.4em;
+                }
+                //-----------------------
               }
-            }
-          }
-        }
-      }
+            } // > li
+          } // ~ .menu-desktop-top
+          //------------------------------------
+        } // ~ > .ti-menu
+      } // ~ > .tbh-actions
+      //----------------------------------------
       > .tbh-closer {
         cursor: pointer;
         &.at-default {
-          width: .24rem;
+          font-size:1.6em;
+          width: $ti-block-header;
         }
         &.is-docked {
           @include flex-center;
           padding:0 .04rem; 
           &:hover {@include color-highlight($color-secondary);}
         }
-        
       }
+      //----------------------------------------
     }
   }
   //----------------------------------------
