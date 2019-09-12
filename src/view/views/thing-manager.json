@@ -81,6 +81,14 @@
           "text" : "i18n:thing-cleaning"
         },
         "action" : "dispatch:main/cleanRecycleBin"
+      },{
+        "type" : "line"
+      },{
+        "type" : "action",
+        "icon" : "zmdi-keyboard",
+        "text" : "i18n:console",
+        "action" : "dispatch:openConsole",
+        "shortcut" : "ALT+SHIFT+T"
       }]
   }]
 }

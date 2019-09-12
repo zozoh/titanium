@@ -1,10 +1,5 @@
 export default {
   inheritAttrs : false,
-  /////////////////////////////////////////
-  data : ()=>({
-    "shown" : {
-    }
-  }),
   ///////////////////////////////////////////
   props : {
     // Thing Set Home
@@ -35,6 +30,10 @@ export default {
   },
   ///////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    shown() {
+      return _.get(this.config, "shown") || {}
+    },
     //--------------------------------------
     currentLayout() {
       return this.getLayout(this.viewportMode)
@@ -121,10 +120,7 @@ export default {
     },
     //--------------------------------------
     async changeTabs(tabs={}) {
-      this.shown = {
-        ...this.shown, 
-        ...tabs
-      }
+      Ti.App(this).dispatch("main/doChangeShown", tabs)
     },
     //--------------------------------------
     showBlock(name) {
@@ -146,25 +142,18 @@ export default {
         //Ti.App(this).dispatch("main/reloadFiles")
         Ti.App(this).dispatch("main/current/reload")
       }
-      this.shown = {
-        ...this.shown, 
-        [name]: true
-      }
+      // Mark block
+      Ti.App(this).dispatch("main/doChangeShown", {[name]:true})
     },
     //--------------------------------------
     hideBlock(name) {
-      this.shown = {
-        ...this.shown, 
-        [name]: false
-      }
+      Ti.App(this).dispatch("main/doChangeShown", {[name]:false})
     },
     //--------------------------------------
     toggleBlock(name) {
-      if(this.shown[name]) {
-        this.hideBlock(name)
-      } else {
-        this.showBlock(name)
-      }
+      Ti.App(this).dispatch("main/doChangeShown", {
+        [name]: !this.shown[name]
+      })
     },
     //--------------------------------------
     // setSeachSelected(current={}, selected) {
@@ -190,19 +179,11 @@ export default {
         //..................................
         // Select item in search list
         "list.selected" : ({current, currentId, checkedIds})=>{
-          //console.log("list.selected", current)
-          if(!current) {
-            this.shown.content = false
-            this.shown.meta = false
-          }
-          else if(!this.shown.content) {
-            this.shown.meta = true
-          }
+          console.log("list.selected", current)
           
           // Update Current
           app.dispatch("main/setCurrentThing", {
             meta : current, 
-            loadContent : this.shown.content,
             force : false
           })
 
@@ -210,21 +191,20 @@ export default {
           app.commit("main/search/setCurrentId", currentId)
           app.commit("main/search/setCheckedIds", _.keys(checkedIds))
 
-          // Reload files
-          if(this.shown.files) {
-            app.dispatch("main/reloadFiles")
-          }
         },
         //..................................
         // Select item in search list
         "list.open" : ({current})=>{
           //console.log("list.open", current)
-          this.shown.meta = true
-          this.shown.content = true
+          // TODO 这里双击，应该智能一点，或者从配置里读取
+          // 需要强制打开哪个区域
+          Ti.App(this).commit("main/config/updateShown", {
+            meta    : true,
+            content : true
+          })
           // Update Current
           app.dispatch("main/setCurrentThing", {
             meta : current, 
-            loadContent : this.shown.content,
             force : false
           })
           // Update Checkes/Current to search
@@ -267,27 +247,10 @@ export default {
     "config.actions" : function() {
       this.$emit("actions:updated", this.config.actions)
     },
-    "config.layout" : function() {
-      // Load the local 
-      let shown = Ti.Storage.session.getObject(this.meta.id)
-      // Update the shown
-      this.shown = _.assign({}, 
-          this.shown, 
-          this.config.layout.shown, 
-          shown)
-    },
     "shown" : function() {
-      // console.log("shown changed", JSON.stringify(this.shown))
+      console.log("shown changed", JSON.stringify(this.shown))
       if(this.meta && this.meta.id) {
         Ti.Storage.session.setObject(this.meta.id, this.shown)
-      }
-    },
-    "current.meta" : function() {
-      if(this.shown.content && !this.current.content) {
-        Ti.App(this).dispatch("main/current/reload")
-      }
-      if(this.shown.files) {
-        Ti.App(this).dispatch("main/reloadFiles")
       }
     }
   }

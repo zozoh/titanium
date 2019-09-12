@@ -28,29 +28,32 @@
   // Layout: tabs
   //------------------------------------
   &.as-tabs {
-    padding-top: 44px; position:relative;
+    padding-top: .4rem; position:relative;
     > .layout-tabs {
       @include noselect;
+      @include color($color-bar, r, c);
+      overflow: hidden;
       position: absolute; left:0; right:0; top:0;
       > ul {
         @include raw-list;
-        @include flex-align-nowrap;
-        @include border(1px, solid, shallow, bottom);
-        @include color($color-paper, r, c);
-        padding:.1rem .1rem 0 .1rem;
+        @include flex-align-nowrap($ai:flex-end);
+        border-bottom:1px solid map-get($color-line, shallow);
+        padding:0 .1rem;
+        height:.4rem;
         li {
+          @include flex-center;
           cursor:pointer; 
           border:1px solid transparent;
-          border-top-width:5px;
+          border-top-width:3px;
           border-bottom:0;
-          border-radius: .04rem .04rem 0 0;
-          padding:4px 8px; min-width: .8rem; text-align: center;
-          line-height:1.6em; font-size:0.9em;
+          min-width: .8rem; 
+          line-height:.28rem; 
+          font-size:.12rem;
           margin-bottom:-1px;
           &.is-current {
             @include color($color-body, r, c);
             border-color:map-get($color-line, dark);
-            border-top-color:map-get($color-secondary, c);
+            border-top-color:map-get($color-primary, c);
             background-color:map-get($color-body, c);
           }
         }
@@ -167,7 +170,7 @@ $ti-block-header : .4rem;
         }
       }
       &:hover {
-        @include color($color-secondary, r, c);
+        @include color($color-primary, r, c);
         border-color:transparent;
         box-shadow:0 0 10px 4px map-get($color-light, c);
         > .icon-icon > i {

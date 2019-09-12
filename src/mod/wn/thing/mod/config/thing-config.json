@@ -1,5 +1,11 @@
 {
   "home": null,
+  "shown" : {
+    "search"  : true,
+    "meta"    : true,
+    "content" : true,
+    "files"   : false
+  },
   "schema": {},
   "layout" : {
     "deskstop" : {},

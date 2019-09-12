@@ -12,10 +12,14 @@ export default {
       state.schema = schema
     },
     setLayout(state, layout) {
-      state.layout = layout
+      state.layout = _.pick(layout, ["desktop","tablet","phone"])
+      state.shown = layout.shown || {}
     },
     setActions(state, actions) {
       state.actions = actions
+    },
+    updateShown(state, shown) {
+      state.shown = _.assign({}, state.shown, shown)
     }
   }
   ////////////////////////////////////////////

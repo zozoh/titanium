@@ -2,6 +2,9 @@
 ////////////////////////////////////////////////
 export default {
   //--------------------------------------------
+  /***
+   * Save current thing detail
+   */
   async saveCurrent({state, commit, dispatch}) {
     commit("setStatus", {saving:true})
     await dispatch("current/save")
@@ -9,6 +12,9 @@ export default {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
+  /***
+   * Update current thing meta data to search/meta
+   */
   async updateCurrent({state, commit, dispatch, getters}, {name, value}={}) {
     if(getters.hasCurrent) {
       await dispatch("current/updateMeta", {name,value})
@@ -16,6 +22,9 @@ export default {
     }
   },
   //--------------------------------------------
+  /***
+   * Files: sync the file count and update to search/meta
+   */
   async autoSyncCurrentFilesCount({state, commit}) {
     let oTh = state.current.meta
     let dirName = state.filesName
@@ -32,6 +41,9 @@ export default {
     }
   },
   //--------------------------------------------
+  /***
+   * Toggle enter/outer RecycleBin
+   */
   async toggleInRecycleBin({state, commit, dispatch, getters}) {
     console.log("thing-manager-toggleInRecycleBin")
     // Update filter
@@ -46,6 +58,9 @@ export default {
     commit("setStatus", {reloading:false})
   },
   //--------------------------------------------
+  /***
+   * Create one new thing
+   */
   async create({state, commit, dispatch}, obj={}) {
     // Prepare the command
     let json = JSON.stringify(obj)
@@ -56,9 +71,7 @@ export default {
     let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
     // Set it as current
-    await dispatch("current/setCurrent", {
-      meta : reo, loadContent : "auto"
-    })
+    await dispatch("current/setCurrent", {meta: reo})
 
     // Append To Search List as the first 
     commit("search/prependToList", reo)
@@ -68,6 +81,9 @@ export default {
     return reo
   },
   //--------------------------------------------
+  /***
+   * Search: Remove Checked Items
+   */
   async removeChecked({state, commit, dispatch, getters}) {
     //console.log("removeChecked", state.search.checkedIds)
     let ids = state.search.checkedIds
@@ -88,15 +104,18 @@ export default {
     console.log("getback current", current)
     // Update current
     await dispatch("current/setCurrent", {
-      meta : current, 
-      loadContent : "auto",
+      meta : current,
       force : false
     })
 
     commit("setStatus", {deleting:false})
   },
   //--------------------------------------------
+  /***
+   * RecycleBin: restore
+   */
   async restoreRecycleBin({state, commit, dispatch, getters}) {
+    // Require user to select some things at first
     let ids = state.search.checkedIds
     if(_.isEmpty(ids)) {
       return await Ti.Alert('i18n:thing-restore-none')
@@ -117,13 +136,15 @@ export default {
     // Update current
     await dispatch("current/setCurrent", {
       meta : current, 
-      loadContent : "auto",
       force : false
     })
 
     commit("setStatus", {restoring:false})
   },
   //--------------------------------------------
+  /***
+   * RecycleBin: clean
+   */
   async cleanRecycleBin({state, commit, dispatch}) {
     commit("setStatus", {cleaning:true})
 
@@ -137,6 +158,9 @@ export default {
     await dispatch("reload")
   },
   //--------------------------------------------
+  /***
+   * Reload files
+   */
   async reloadFiles({state,commit,dispatch, getters}, {force=false}={}) {
     //console.log("reloadFiles")
     let current = state.current.meta
@@ -173,6 +197,9 @@ export default {
     }
   },
   //--------------------------------------------
+  /***
+   * Reload search list
+   */
   async reloadSearch({state, commit, dispatch}) {
     let meta = state.meta
 
@@ -180,7 +207,8 @@ export default {
 
     await dispatch("search/reload", meta)
 
-    // Reload current
+    // Sometimes, current object will not in the list
+    // we need remove it
     if(state.current.meta) {
       // find new meta
       let currentId = state.current.meta.id
@@ -192,24 +220,70 @@ export default {
         }
       }
       // Update the meta
-      await dispatch("current/setCurrent", {
-        meta : current, 
-        loadContent : !_.isNull(state.current.content)
-      })
+      await dispatch("setCurrentThing", {meta : current})
     }
 
     commit("setStatus", {reloading:false})
   },
   //--------------------------------------------
-  async setCurrentThing({state, commit, dispatch}, {
-    meta=null, loadContent=false, force=false
+  /***
+   * Set Current Thing
+   * 
+   * It will load content if "content" is shown
+   */
+  async setCurrentThing({commit, dispatch}, {
+    meta=null, force=false
   }={}) {
-    await dispatch("current/setCurrent", {
-      meta, loadContent, force
-    })
+    // Current
+    await dispatch("current/setCurrent", {meta, force})
+
+    // Update selected item in search list
     commit("search/selectItem", meta ? meta.id : null)
+
+    // May need to be reload content/files ?
+    await dispatch("tryReloadContentAndFiles")
   },
   //--------------------------------------------
+  /***
+   * Try to reload content/files
+   * 
+   * - If `config.shown.content`, reload content
+   * - If `config.shown.files`, reload files
+   * 
+   * @param force{Boolean} - If true, always reload. false, reload when empty
+   */
+  async tryReloadContentAndFiles({state, dispatch}, force=false) {
+    // May need to be reload content?
+    if(state.config.shown.content
+      && (force || !_.isString(state.current.content))
+    ){
+      await dispatch("current/reload")
+    }
+
+    // May need to be reload files?
+    if(state.config.shown.files 
+      && (force || !state.files.meta)
+    ){
+      await dispatch("reloadFiles")
+    }
+  },
+  //--------------------------------------------
+  /***
+   * Do Change Block Shown:
+   * 
+   * If show content/files, it may check if need to be reload data
+   */
+  async doChangeShown({state, commit, dispatch}, shown) {
+    // Just mark the shown
+    commit("config/updateShown", shown)
+
+    // May need to be reload content/files ?
+    await dispatch("tryReloadContentAndFiles")
+  },
+  //--------------------------------------------
+  /***
+   * Reload All
+   */
   async reload({state, commit, dispatch}, meta) {
     console.log("thing-manager.reload", state)
     // Update New Meta
@@ -223,7 +297,14 @@ export default {
     // Mark reloading
     commit("setStatus", {reloading:true})
 
+    // Reload Config
     await dispatch("config/reload", meta)
+
+    // Load shown from local
+    let shown = Ti.Storage.session.getObject(meta.id)
+    commit("config/updateShown", shown)
+
+    // Reload Search
     await dispatch("reloadSearch")
 
     // Auto Select the first item
@@ -232,7 +313,6 @@ export default {
         let current = state.search.list[0]
         await dispatch("setCurrentThing", {
           meta : current, 
-          loadContent : !_.isNull(state.current.content),
           force : false
         })
       }

@@ -67,7 +67,7 @@ export default {
     // commit("set", {data: state.data})
   },
   //--------------------------------------------
-  async reload({state, commit}, meta) {
+  async reload({state, commit, rootState}, meta) {
     if(state.status.reloading
       || state.status.saving){
       return
@@ -78,55 +78,39 @@ export default {
       meta = state.meta
     }
     
+    // Mark status
     commit("setStatus", {reloading:true})
 
+    // Init content as null
     let content = null
-    if(meta) {
+
+    // need to be reload content
+    if(meta && _.get(rootState, "config.show.content")) {
       content = await Wn.Io.loadContent(meta)
     }
-
+    // Just update the meta
     commit("setMeta",         meta)
     commit("setContent",      content)
     commit("setSavedContent", content)
     commit("setStatus",       {reloading:false})
     commit("syncStatusChanged")
-
-    // return the loaded content
-    return content
   },
   //--------------------------------------------
   async setCurrent({state, commit,dispatch}, {
-    meta=null, loadContent=false, force=false
+    meta=null, force=false
   }={}) {
     //console.log("setCurrent", meta, loadContent)
 
-    // Auto load Content
-    if("auto" == loadContent) {
-      loadContent = _.isString(state.content) ? true : false
-    }
-
-    // Already current
+    // Not need to reload
     if(state.meta && meta && state.meta.id == meta.id) {
-      if((!loadContent || _.isString(state.content)) && !force) {
+      if((_.isString(state.content)) && !force) {
         return
       }
     }
-    
-    // Load content and meta
-    let content = null
-    if(loadContent) {
-      content = await dispatch("reload", meta)
-      //console.log(" -loadContent", content)
-    }
-    // Just update the meta
-    else {
-      commit("setMeta", meta)
-      commit("setContent",      content)
-      commit("setSavedContent", content)
-      commit("syncStatusChanged")
-    }
 
-    return {meta, content}
+    // do reload
+    await dispatch("reload", meta)
+
   }
   //--------------------------------------------
 }
