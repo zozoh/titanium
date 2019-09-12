@@ -3,7 +3,7 @@
 export default {
   //----------------------------------------
   async reloadSchema({state, commit}) {
-    let aph  = `id:${state.home.id}/thing-schema.json`
+    let aph  = `id:${state.meta.id}/thing-schema.json`
     let obj  = await Wn.Io.loadMeta(aph)
     let schema = await Wn.Io.loadContent(obj, {as:"json"})
 
@@ -21,16 +21,21 @@ export default {
   },
   //----------------------------------------
   async reloadLayout({state, commit}) {
-    let aph  = `id:${state.home.id}/thing-layout.json`
+    let aph  = `id:${state.meta.id}/thing-layout.json`
     let obj  = await Wn.Io.loadMeta(aph)
     let json = await Wn.Io.loadContent(obj, {as:"json"})
+
+    // Load shown from local before reload config
+    let shown = Ti.Storage.session.getObject(state.meta.id)
+    json.shown = _.assign({}, json.shown, shown)
+
     //console.log("setLayout", json)
     commit("setLayout", json)
     return json
   },
   //----------------------------------------
   async reloadActions({state, commit}) {
-    let aph  = `id:${state.home.id}/thing-actions.json`
+    let aph  = `id:${state.meta.id}/thing-actions.json`
     let obj  = await Wn.Io.loadMeta(aph)
     let json = await Wn.Io.loadContent(obj, {as:"json"})
     //console.log("setActions", json)
@@ -42,7 +47,7 @@ export default {
     console.log("thing-manager-config.reload", state)
     // Update New Meta
     if(meta) {
-      commit("setHome", meta)
+      commit("setMeta", meta)
     }
     // Get meta back
     else {

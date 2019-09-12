@@ -1,10 +1,13 @@
 {
-  "home": null,
+  "meta": null,
   "shown" : {
     "search"  : true,
     "meta"    : true,
     "content" : true,
     "files"   : false
+  },
+  "listOpen" : {
+    "content" : true
   },
   "schema": {},
   "layout" : {

@@ -1,7 +1,8 @@
 <div class="ti-block"
   :class="topClass"
   :style="topStyle">
-  <header v-if="showHeader">
+  <header v-if="showHeader"
+    @dblclick="onShowBlock">
     <div v-if="showIcon"
       class="tbh-icon">
       <ti-icon :value="icon" size="16px"/>

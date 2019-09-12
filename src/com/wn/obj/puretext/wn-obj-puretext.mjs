@@ -46,6 +46,10 @@ export default {
         return this.meta.title || this.meta.nm
       }
       return "no-title"
+    },
+    //----------------------------------------
+    hasMeta() {
+      return this.meta ? true : false
     }
     //----------------------------------------
   },

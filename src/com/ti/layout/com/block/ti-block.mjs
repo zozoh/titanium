@@ -168,10 +168,15 @@ export default {
   },
   //////////////////////////////////////////
   methods : {
+    //------------------------------------
+    onShowBlock() {
+      this.$emit("block:show", this.name)
+    },
+    //------------------------------------
     onCloseBlock() {
-      //console.log("$emit->block:hide", this.name)
       this.$emit("block:hide", this.name)
     },
+    //------------------------------------
     async hijackEmit(name, args) {
       //console.log("ti-block::hijackEmit->", name, args)
       // By Pass: "block:show/hide/event"
@@ -186,6 +191,7 @@ export default {
         })
       }
     }
+    //------------------------------------
   }
   //////////////////////////////////////////
 }

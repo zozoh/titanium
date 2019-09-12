@@ -253,6 +253,7 @@ export default {
    * @param force{Boolean} - If true, always reload. false, reload when empty
    */
   async tryReloadContentAndFiles({state, dispatch}, force=false) {
+    // console.log("tryReloadContentAndFiles")
     // May need to be reload content?
     if(state.config.shown.content
       && (force || !_.isString(state.current.content))
@@ -262,7 +263,10 @@ export default {
 
     // May need to be reload files?
     if(state.config.shown.files 
-      && (force || !state.files.meta)
+      && state.current.meta
+      && (force 
+         || !state.files.meta 
+         || state.files.meta.id != state.current.meta.id)
     ){
       await dispatch("reloadFiles")
     }
@@ -299,10 +303,6 @@ export default {
 
     // Reload Config
     await dispatch("config/reload", meta)
-
-    // Load shown from local
-    let shown = Ti.Storage.session.getObject(meta.id)
-    commit("config/updateShown", shown)
 
     // Reload Search
     await dispatch("reloadSearch")

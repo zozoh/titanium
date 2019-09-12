@@ -179,7 +179,7 @@ export default {
         //..................................
         // Select item in search list
         "list.selected" : ({current, currentId, checkedIds})=>{
-          console.log("list.selected", current)
+          //console.log("list.selected", current)
           
           // Update Current
           app.dispatch("main/setCurrentThing", {
@@ -196,12 +196,8 @@ export default {
         // Select item in search list
         "list.open" : ({current})=>{
           //console.log("list.open", current)
-          // TODO 这里双击，应该智能一点，或者从配置里读取
-          // 需要强制打开哪个区域
-          Ti.App(this).commit("main/config/updateShown", {
-            meta    : true,
-            content : true
-          })
+          // Open customized block
+          Ti.App(this).commit("main/config/updateShown", this.config.listOpen)
           // Update Current
           app.dispatch("main/setCurrentThing", {
             meta : current, 
@@ -248,7 +244,7 @@ export default {
       this.$emit("actions:updated", this.config.actions)
     },
     "shown" : function() {
-      console.log("shown changed", JSON.stringify(this.shown))
+      //console.log("shown changed", JSON.stringify(this.shown))
       if(this.meta && this.meta.id) {
         Ti.Storage.session.setObject(this.meta.id, this.shown)
       }

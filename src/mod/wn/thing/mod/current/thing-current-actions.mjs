@@ -74,25 +74,26 @@ export default {
     }
 
     // Use the default meta
-    if(!meta) {
+    if(_.isUndefined(meta)) {
       meta = state.meta
     }
-    
-    // Mark status
-    commit("setStatus", {reloading:true})
 
     // Init content as null
     let content = null
-
-    // need to be reload content
-    if(meta && _.get(rootState, "config.show.content")) {
-      content = await Wn.Io.loadContent(meta)
+    
+    // Has meta, may need to be reload content
+    if(meta) {
+      commit("setStatus", {reloading:true})
+      // need to be reload content
+      if(_.get(rootState, "main.config.shown.content")) {
+        content = await Wn.Io.loadContent(meta)
+      }
+      commit("setStatus",       {reloading:false})
     }
     // Just update the meta
     commit("setMeta",         meta)
     commit("setContent",      content)
     commit("setSavedContent", content)
-    commit("setStatus",       {reloading:false})
     commit("syncStatusChanged")
   },
   //--------------------------------------------

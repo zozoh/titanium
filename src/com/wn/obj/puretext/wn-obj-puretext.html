@@ -1,8 +1,22 @@
-<ti-text-raw 
-  :icon="theIcon"
-  :title="theTitle"
-  :show-title="showTitle"
-  :content="content"
-  :content-is-changed="status.changed"
-  :blank-text="blankText"
-  @change-content="onChangeContent"/>
+<div class="wn-obj-puretext">
+  <!--
+    Show Text Editor
+  -->
+  <ti-text-raw v-if="hasMeta"
+    class="ti-fill-parent"
+    :icon="theIcon"
+    :title="theTitle"
+    :show-title="showTitle"
+    :content="content"
+    :content-is-changed="status.changed"
+    :blank-text="blankText"
+    @change-content="onChangeContent"/>
+  <!--
+    Empty Data
+  -->
+  <div v-else
+    class="ti-blank is-big">
+    <ti-icon value="zmdi-alert-circle-o"/>
+    <span>{{"empty-data"|i18n}}</span>
+  </div>
+</div>

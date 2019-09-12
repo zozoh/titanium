@@ -46,14 +46,10 @@ export default {
           }
         }
         // Do delete
-        // await new Promise((resolve)=>{
-        //   _.delay(()=>{
-        //     resolve(true)
-        //   }, 300)
+        // TODO 等增加了全局的 Log 模块，就搞一下这个
+        // commit("$log", {
+        //   text:"i18n:weo-del-item", vars:{name:it.nm}
         // })
-        commit("$log", {
-          text:"i18n:weo-del-item", vars:{name:it.nm}
-        })
         await Wn.Sys.exec(`rm ${'DIR'==it.race?"-r":""} id:${it.id}`)
         // Mark item removed
         commit("updateItemStatus", 
@@ -76,7 +72,7 @@ export default {
     // End deleting
     finally {
       commit("setStatus", {deleting:false})
-      commit("$log", null)
+      //commit("$log", null)
       //commit("$noti", {text:"i18n:weo-del-ok", vars:{N:delCount}})
       Ti.Toast.Open("i18n:weo-del-ok", {N:delCount})
     }
