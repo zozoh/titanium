@@ -112,7 +112,11 @@ export default {
   methods : {
     //......................................
     onChanged(payload) {
-      this.$emit("changed", payload)
+      // If value changed, emit the event
+      if(!_.isEqual(payload,this.value)) {
+        this.$emit("changed", payload)
+      }
+      // Single dropdown, it will auto-hide the droplist
       if(!this.multi) {
         this.isDropShown = false
       }

@@ -1,8 +1,31 @@
 <div class="thing-files">
   <!--
+    Head bar for switch dir and actions
+  -->
+  <div class="as-header">
+    <div v-if="showTitle"
+      class="as-title">
+      <span>{{showTitle|i18n}}</span>
+    </div>
+    <!--Left: select files home dirName-->
+    <div class="as-name">
+      <ti-droplist
+        :options="dirNameOptions"
+        :value="filesName"
+        :empty="null"
+        @changed="onFilesNameChanged"/>
+    </div>
+    <!--Right: Common Actions-->
+    <div class="as-menu">
+      <ti-menu 
+        :data="actionMenuData"
+        :status="files.status"/>
+    </div>
+  </div>
+  <!--
     File Preview
   -->
-  <div class="file-preview">
+  <div class="as-preview">
     <wn-obj-preview
       class="ti-fill-parent"
       :meta="currentFile"/>
@@ -10,19 +33,10 @@
   <!--
     File List
   -->
-  <div class="file-list">
+  <div class="as-list">
     <wn-adaptlist
       class="ti-fill-parent"
-      :meta="meta"
-      :filter="filter"
-      :sorter="sorter"
-      :pager="pager"
-      :list="list"
-      :current-id="currentId"
-      :checked-ids="checkedIds"
-      :uploadings="uploadings"
-      :upload-dialog="uploadDialog"
-      :status="status"
+      v-bind="files"
       :routers="routers"
       @uploaded="onUploaded"/>
   </div>

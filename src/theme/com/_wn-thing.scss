@@ -59,13 +59,40 @@
   ////////////////////////////////////////////////
   // Thing filter
   .thing-files {
+    position: relative;
+    padding-top:.4rem;
     //-------------------------------------
     // Sizing
-    > .file-preview {height: 37.2%;}
-    > .file-list {height: 61.8%;}
+    > .as-header {
+      @include pos-abs($t:0,$l:0,$r:0,$h:.4rem);
+    }
+    > .as-preview {height: 37.2%;}
+    > .as-list {height: 61.8%;}
     //-------------------------------------
     // Styling
-    > .file-preview {
+    > .as-header {
+      @include flex-align-nowrap;
+      @include color($color-bar, r, c);
+      font-size:.12rem;
+      > .as-title {
+        @include color($color-track, c);
+        flex:0 0 auto;
+        padding:0 .04rem 0 .1rem;
+      }
+      > .as-name  {
+        flex:1 1 auto;
+        padding-left:.06rem;
+        .ti-droplist {
+          display: block; 
+          line-height: 1.8em;
+        }
+      }
+      > .as-menu {
+        flex:0 0 auto;
+        padding:0 .06rem;
+      }
+    }
+    > .as-preview {
       @include color($color-paper, r, c);
       @include border(1px, solid, shallow, bottom);
     }

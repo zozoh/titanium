@@ -6,7 +6,7 @@
   cursor:pointer;
   &:hover {
     border-color: map-get($color-selected, r);
-    @include color($color-selected, c, r); 
+    @include color($color-selected, r, c); 
     > .box-clear {
       > .ti-icon {
         @include color($color-selected, c);
@@ -15,9 +15,6 @@
           transform:scale(1.2);
         }
       }
-    }
-    > .box-btn {
-      @include color($color-selected, c, r); 
     }
   }
   //--------------------------------------------

@@ -1,4 +1,5 @@
 {
+  "attachment" : "附件",
   "blank" : "空白",
   "blur-all" : "取消选中",
   "buy" : "购买",
@@ -47,6 +48,7 @@
   "logout-ing" : "正在注销...",
   "lng" : "东经",
   "me" : "我",
+  "media" : "媒体",
   "mine" : "我的",
   "modal" : "模式",
   "more" : "更多",
@@ -85,6 +87,7 @@
   "trace" : "跟踪",
   "true" : "是",
   "title" : "标题",
+  "upload" : "上传",
   "upload-file" : "上传文件...",
   "uploading" : "正在上传",
   "upload-done" : "文件上传已完成",

@@ -1,38 +1,38 @@
 export default {
   ///////////////////////////////////////
   props : {
-    data :{
+    "data" :{
       type : Array,
       default : ()=>[]
     },
-    align : {
+    "align" : {
       type : String,
       default : "center",
       validator : function(val) {
         return ["left","right","center"].indexOf(val)!=-1
       }
     },
-    status : {
+    "status" : {
       type : Object,
       default : ()=>({})
     },
-    cols : {
+    "cols" : {
       type : Number,
       default : 4
     },
-    moreIcon : {
+    "moreIcon" : {
       type : String,
       default : "fas-bars"
     },
-    moreIconSize :{
+    "moreIconSize" :{
       type : String,
       default : ".24rem"
     },
-    closeIcon : {
+    "closeIcon" : {
       type : String,
       default : "fas-times"
     },
-    displayMode : {
+    "displayMode" : {
       type : String,
       default : "auto"  // auto|desktop|tablet|phone
     }

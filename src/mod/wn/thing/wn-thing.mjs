@@ -11,8 +11,11 @@ export default {
   },
   ////////////////////////////////////////////
   mutations : {
-    setHome(state, meta) {
+    setMeta(state, meta) {
       state.meta = meta
+    },
+    setFilesName(state, filesName) {
+      state.filesName = filesName
     },
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)

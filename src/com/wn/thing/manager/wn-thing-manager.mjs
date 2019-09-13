@@ -7,6 +7,10 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "filesName" : {
+      type : String,
+      default : "media"
+    },
     "status" : {
       type : Object,
       default : ()=>({})

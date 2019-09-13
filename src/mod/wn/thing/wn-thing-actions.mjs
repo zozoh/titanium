@@ -292,7 +292,7 @@ export default {
     console.log("thing-manager.reload", state)
     // Update New Meta
     if(meta) {
-      commit("setHome", meta)
+      commit("setMeta", meta)
     }
     // Get meta back
     else {
