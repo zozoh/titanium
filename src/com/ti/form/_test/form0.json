@@ -13,6 +13,11 @@
       "type" : "Boolean",
       "comType" : "ti-toggle"
     }, {
+      "name" : "nb_test",
+      "type" : "Integer",
+      "width" : 120,
+      "comType" : "ti-input-num"
+    }, {
       "name" : "lbls",
       "type" : "Array",
       "tip" : "xxxxxx"

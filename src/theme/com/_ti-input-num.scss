@@ -1,0 +1,37 @@
+.ti-input-num {
+  @include flex-align-nowrap($ai:stretch); 
+  border:1px solid map-get($color-line, dark);
+  border-left:0; border-right:0;
+  //-----------------------------------
+  > .as-btn {
+    @include noselect;
+    @include flex-center;
+    cursor: pointer;
+    color:map-get($color-line, c);
+    flex:0 0  auto;
+    width:.32rem;
+    border:1px solid map-get($color-line, dark);
+    border-top:0; border-bottom:0;
+    &.is-enabled:hover {
+      @include color($color-primary, r ,c);
+    }
+    &.is-disabled {
+      @include color($color-disable, c, r);
+      cursor: default;
+    }
+  }
+  //-----------------------------------
+  > .as-input {
+    @include flex-align($jc:stretch);
+    flex:1 1 auto;
+    input {
+      @include font-fixed;
+      width:100%;
+      border:0; outline: none;
+      padding:.06rem .14rem;
+      font-size:1.2em;
+      text-align: center;
+    }
+  }
+  //-----------------------------------
+}

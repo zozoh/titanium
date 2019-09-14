@@ -1,0 +1,27 @@
+<div class="ti-input-num ti-fill-parent">
+  <!--
+    Multi-line textarea
+  -->
+  <div class="as-btn is-decrease"
+    :class="desreaseClass"
+    @click="changeByStep(-1)">
+    <ti-icon value="zmdi-minus"/>
+  </div>
+  <!--
+    Single-line input
+  -->
+  <div class="as-input">
+    <input 
+      spellcheck="false" 
+      :value="theValue"
+      @change="onChanged">
+  </div>
+  <!--
+    Multi-line textarea
+  -->
+  <div class="as-btn is-increase"
+    :class="increaseClass"
+    @click="changeByStep(1)">
+    <ti-icon value="zmdi-plus"/>
+  </div>
+</div>

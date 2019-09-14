@@ -1,0 +1,6 @@
+{
+  "name" : "ti-input-num",
+  "globally" : true,
+  "template" : "./ti-input-num.html",
+  "mixins" : ["./ti-input-num.mjs"]
+}
