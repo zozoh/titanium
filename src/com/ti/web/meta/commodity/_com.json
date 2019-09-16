@@ -1,6 +1,7 @@
 {
   "name" : "ti-web-meta-commodity",
   "globally" : true,
+  "i18n" : "@i18n:ti-web-meta-commodity",
   "template" : "./ti-web-meta-commodity.html",
   "mixins"   : ["./ti-web-meta-commodity.mjs"],
   "components" : [

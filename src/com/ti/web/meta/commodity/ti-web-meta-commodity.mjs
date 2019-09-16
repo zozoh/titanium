@@ -9,45 +9,37 @@ export default {
       type : String,
       default : "title"
     },
-    "briefKey" : {
-      type : String,
-      default : "brief"
+    "buyAmount" : {
+      type : Number,
+      default : 1
     },
-    "priceKey" : {
-      type : String,
-      default : "price"
-    },
-    "priceFormat" : {
-      type : String,
-      default : "￥${price}"
-    },
-    "bottomLine" : {
-      type : Boolean,
-      default : true
+    "fields" : {
+      type : Array,
+      default : ()=>[]
     }
   },
   //////////////////////////////////////////
   computed : {
     //......................................
+    formData() {
+      return {
+        meta   : this.meta,
+        amount : this.buyAmount
+      }
+    },
+    //......................................
+    formConfig() {
+      return {
+        fields : this.fields
+      }
+    },
+    //......................................
     title() {
       if(this.titleKey) {
-        return this.meta[this.titleKey]
+        return _.get(this, this.titleKey)
       }
       return "NoTitle"
-    },
-    //......................................
-    brief() {
-      if(this.briefKey) {
-        return this.meta[this.briefKey]
-      }
-    },
-    //......................................
-    price() {
-      if(this.priceKey) {
-        let price = this.meta[this.priceKey]
-        return Ti.S.renderBy(this.priceFormat, {price})
-      }
-    },
+    }
     //......................................
   },
   //////////////////////////////////////////

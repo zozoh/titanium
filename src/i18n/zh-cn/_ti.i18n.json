@@ -1,4 +1,5 @@
 {
+  "amount" : "数量",
   "attachment" : "附件",
   "blank" : "空白",
   "blur-all" : "取消选中",
@@ -64,6 +65,7 @@
   "open" : "打开",
   "passwd" : "密码",
   "passwd-reset" : "重置密码",
+  "price"  : "价格",
   "prompt" : "提问",
   "publish" : "发布",
   "publishing" : "正在发布...",

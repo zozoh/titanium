@@ -83,6 +83,7 @@
   padding:.16rem 0;
   > .as-main {
     @include flex-align-nowrap($ai:flex-start);
+    @include border(1px, solid, shallow);
     > .at-left {
       flex:0 0 auto;
       width: 37.2%; height:3rem;
@@ -93,24 +94,39 @@
       padding:0 .1rem;
       //-------------------------------------------
       > h1 {
-        padding:.1rem .04rem; margin:0; 
+        padding:.1rem 0; margin:0; 
         font-weight: bold; font-size:1.2em;
       }
       //-------------------------------------------
-      > .as-brief {
-        @include border(1px, solid, shallow);
-        @include color($color-track, c, r);
-        padding:.1rem;
-      }
-      //-------------------------------------------
-      > .as-price {
-        @include font-fixed;
-        padding: .1rem;
-        color:map-get($color-secondary, c);
-        font-size: 1.6em;
+      > .as-form {
+        .ti-form {
+          padding:0;
+          .form-field {
+            border:0;
+            padding:.08rem 0;
+            //-----------------------------------
+            &.webmc-highlight {
+              @include color($color-chip, r, c);
+              padding:.1rem .16rem;
+              .field-value {
+                color:map-get($color-secondary, c);
+                font-weight: 900; font-size:2em;
+              }
+            }
+            //-----------------------------------
+            .field-name {
+              padding-left:0;
+              .name-status {
+                padding:0;
+              }
+            }
+            //-----------------------------------
+          }
+        }  // ~ .ti-form
       }
       //-------------------------------------------
       > .as-btns {
+        padding:.1rem 0;
         .ti-btn {padding:.1rem .16rem;}
       }
       //-------------------------------------------
@@ -123,8 +139,7 @@
 .ti-web-preview {
   > .as-preview {
     @include flex-center;
-    @include color($color-track, c, r);
-    @include border(1px, solid, shallow);
+    @include color($color-track, c);
     width:100%; height:100%;
     font-size:2em;
   }

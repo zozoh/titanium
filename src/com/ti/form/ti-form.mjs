@@ -4,6 +4,7 @@ function normlizeFormField(vm, fld, nbs=[]) {
   // For group
   if('Group' == fld.type) {
     f2 = {
+      className : fld.className,
       type  : "Group",
       icon  : fld.icon,
       title : fld.title,

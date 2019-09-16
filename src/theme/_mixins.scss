@@ -121,7 +121,7 @@
   margin:$margin;
 }
 //-------------------------------------------------------------
-@mixin fireable($color:$color-secondary,$hover:$color-primary) {
+@mixin fireable($color:$color-primary,$hover:$color-secondary) {
   cursor:pointer;
   @include color-highlight($color);
   &:hover {

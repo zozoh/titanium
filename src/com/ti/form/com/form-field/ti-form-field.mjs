@@ -32,7 +32,11 @@ export default {
   computed : {
     //----------------------------------------
     topClass() {
-      return `as-${this.viewportMode}`
+      let klass = [`as-${this.viewportMode}`]
+      if(this.className) {
+        klass.push(this.className)
+      }
+      return klass
     },
     //----------------------------------------
     show() {

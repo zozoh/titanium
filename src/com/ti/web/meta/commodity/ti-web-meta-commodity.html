@@ -12,20 +12,15 @@
     <div class="at-right">
       <!--Title-->
       <h1>{{title}}</h1>
-      <!--Brief-->
-      <div v-if="brief"
-        class="as-brief">{{brief}}</div>
-      <!--Price-->
-      <div v-if="price"
-        class="as-price">{{price}}</div>
+      <div class="as-form">
+        <ti-form
+          :config="formConfig"
+          :data="formData"/>
+      </div>
       <div class="as-btns">
         <!--Buy Button-->
         <a class="ti-btn" @click="onClickBuyNow">{{'buy-now'|i18n}}</a>
       </div>
     </div>
   </div>
-  <!--
-    Bottom line
-  -->
-  <hr v-if="bottomLine">
 </div>
