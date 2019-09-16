@@ -231,19 +231,23 @@ export default {
      */
     changeDataBy({commit}, {key, args}={}) {
       console.log("changeDataBy", key, args)
-      // Eval the value
-      let data = {}
-      let list = [].concat(args)
-      for(let li of list) {
-        data[li.name] = li.value
+      if(_.isUndefined(key) && _.isUndefined(args)) {
+        return
       }
-
-      console.log(" ->", key, data)
+      // Eval the value
+      let value = args
+      if(_.isArray(value) || _.isPlainObject(value)) {
+        value = {}
+        let list = [].concat(args)
+        for(let li of list) {
+          _.set(value, li.name, li.value)
+        }
+        console.log(" ->", key, value)
+      }
 
       // Do Update
       commit("updateData", {
-        key, 
-        value:data
+        key, value
       })
     },
     //--------------------------------------------

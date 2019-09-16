@@ -24,7 +24,7 @@ export default {
     formData() {
       return {
         meta   : this.meta,
-        amount : this.buyAmount
+        buyAmount : this.buyAmount
       }
     },
     //......................................
@@ -44,9 +44,15 @@ export default {
   },
   //////////////////////////////////////////
   methods : {
+    //......................................
     onClickBuyNow() {
       this.$emit("buy:now")
+    },
+    //......................................
+    onFormChanged({name, value}) {
+      this.$emit("meta:changed", {name, value})
     }
+    //......................................
   }
   //////////////////////////////////////////
 }

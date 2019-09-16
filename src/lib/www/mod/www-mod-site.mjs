@@ -184,8 +184,7 @@ export default {
       action, 
       payload, 
       args=[],
-      autoDestructArgs = true,
-      autoJoinArgs = true
+      autoDestructArgs = true
     }={}){
       //....................................
       if(!action)
@@ -199,23 +198,19 @@ export default {
       }
       //....................................
       // auto join args
-      if(autoJoinArgs) {
-        if(_.isUndefined(payload) || _.isNull(payload)) {
-          payload = args
-        }
-        // Add args
-        else if(_.isPlainObject(payload)) {
-          payload.args = args
-        } 
-        // Join the args
-        else if(_.isArray(payload) && args.length>0){
-          payload = [].concat(payload, args)
-        }
+      let pld1 = payload;
+
+      // Use args directrly cause payload without defined
+      if(_.isUndefined(payload) || _.isNull(payload)) {
+        pld1 = _.cloneDeep(args)
       }
       //....................................
       // Explain payload
-      let pld2 = Ti.Util.explainObj(state, payload, {
-        evalFunc : true
+      let context = _.assign({}, state, {
+        $args : args
+      })
+      let pld2 = Ti.Util.explainObj(context, pld1, {
+        evalFunc : false
       })
       //....................................
       console.log("invoke->", {action, payload:pld2})
