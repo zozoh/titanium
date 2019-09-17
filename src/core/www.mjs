@@ -120,6 +120,42 @@ const TiWWW = {
     }
     //...........................
     return href
+  },
+  //--------------------------------------
+  /***
+   * Evaluate the order item real fee
+   */
+  evalFee({price=0, amount=1}={}) {
+    return price * amount
+  },
+  //---------------------------------------
+  getCurrencyPrefix(currency) {
+    let cu = _.upperCase(currency)
+    return ({
+      "RMB" : "￥",
+      "USD" : "$",
+      "EUR" : "€",
+      "GBP" : "￡"
+    })[cu]
+  },
+  //---------------------------------------
+  /***
+   * Display a currency
+   */
+  feeText(fee=0, currency="RMB", {
+    autoSuffix = true
+  }={}) {
+    let cu = _.upperCase(currency)
+    let prefix = TiWWW.getCurrencyPrefix(cu)
+    let ss = []
+    if(prefix) {
+      ss.push(prefix)
+    }
+    ss.push(fee)
+    if(!autoSuffix || !prefix) {
+      ss.push(cu)
+    }
+    return ss.join("")
   }
   //---------------------------------------
 }

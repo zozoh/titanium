@@ -1,0 +1,7 @@
+{
+  "name" : "order-item",
+  "globally" : true,
+  "template" : "./order-item.html",
+  "mixins"   : ["./order-item.mjs"],
+  "components" : []
+}

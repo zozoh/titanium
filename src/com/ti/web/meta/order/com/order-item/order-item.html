@@ -1,0 +1,24 @@
+<div class="as-row order-item">
+  <!--Thumb/Title-->
+  <div class="as-cell">
+    <div class="as-title">
+      <ti-icon 
+        :value="thumbObj" 
+        width=".32rem" 
+        height=".32rem"/>
+      <span class="as-text">{{title}}</span>
+    </div>
+  </div>
+  <!--price-->
+  <div class="as-cell as-price">
+    <span>{{price}}</span>
+  </div>
+  <!--amount-->
+  <div class="as-cell as-amount">
+    <span>{{amount}}</span>
+  </div>
+  <!--Total-->
+  <div class="as-cell as-fee">
+    <em class="ti-num is-md">{{feeText}}</em>
+  </div>
+</div>

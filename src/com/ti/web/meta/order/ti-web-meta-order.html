@@ -1,0 +1,41 @@
+<div class="ti-web-meta-order">
+  <!--
+    Title
+  -->
+  <h1>确认订单信息</h1>
+  <!--
+    Item list
+  -->
+  <div class="as-items">
+    <div class="as-table">
+      <div class="as-head">
+        <ul>
+          <li class="as-title">商品</li>
+          <li class="as-price">单价</li>
+          <li class="as-amount">数量</li>
+          <li class="as-fee">小计</li>
+        </ul>
+      </div>
+      <div class="as-body">
+        <order-item v-for="it in items"
+          :key="it.id"
+          v-bind="it"
+          :src="itemThumbSrc"
+          :currency="currency"/>
+      </div>
+    </div>
+  </div>
+  <!--
+    Summary
+  -->
+  <div class="as-summary">
+    <div class="as-sum-fee">
+      <span>实际支付</span>
+      <em class="ti-num is-xl">{{totalFeeText}}</em>
+    </div>
+    <div class="as-btns">
+      <a class="ti-btn" @click="onSubmit">提交订单</a>
+    </div>
+  </div>
+
+</div>

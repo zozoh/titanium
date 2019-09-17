@@ -38,7 +38,6 @@ export default {
           ? {action:val}
           : val)
       
-
       // Merge action set with the defination in page
       let page = state.page
       if(page) {
@@ -113,6 +112,12 @@ export default {
   },
   /////////////////////////////////////////
   actions : {
+    //-------------------------------------
+    navBackward() {
+      if(window.history) {
+        window.history.back()
+      }
+    },
     //-------------------------------------
     // Only handle the "page|dispatch"
     async navTo({state, commit, dispatch}, {

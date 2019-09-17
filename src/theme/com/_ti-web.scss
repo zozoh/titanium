@@ -146,6 +146,90 @@
 }
 
 /////////////////////////////////////////////////////
+// 
+.ti-web-meta-order {
+  padding:.2rem;
+  //--------------------------------------------
+  > h1 {
+    font-size:1.6em; font-weight: bold; 
+    padding:.1rem 0; margin:0;
+    text-align: center;
+  }
+  //--------------------------------------------
+  > .as-items {
+    padding:.1rem;
+    //------------------------------------------
+    .as-table {
+      display: table;
+      border-spacing: 1px;
+      width:100%;
+      //-----------------------------------
+      .as-price, .as-amount, .as-fee {
+        @include font-fixed;
+      }
+      //-----------------------------------
+      > .as-head {
+        display: table-header-group;
+        color: map-get($color-track, c);
+        ul {display: table-row;}
+        li {
+          border-bottom:2px solid map-get($color-primary, c);
+          display: table-cell;
+          padding:.06rem; text-align: center;
+          white-space: nowrap;
+          &.as-fee {
+            text-align: right;
+          }
+        }
+      }
+      //-----------------------------------
+      > .as-body {
+        display: table-row-group;
+        .as-row  {display: table-row;}
+        .as-cell {
+          display: table-cell; 
+          padding:.1rem;
+          vertical-align: middle;
+          text-align: center;
+        }
+        .order-item {
+          .as-title {
+            @include flex-align-nowrap;
+            flex:1 1 auto;
+            > span.as-text {
+              padding:0 .1rem; white-space: nowrap;
+            }
+          }
+          .as-fee {text-align: right;}
+        }
+      }
+      //-----------------------------------
+    } // .as-table
+    //------------------------------------------
+  } // .as-items
+  //--------------------------------------------
+  .as-summary {
+    @include color($color-chip, r, c);
+    border:1px dashed map-get($color-secondary, c);
+    width:3rem; margin:.2rem 0 .2rem auto;
+    padding:.2rem;
+    .as-sum-fee {
+      padding:.1rem; text-align:right;
+      span {font-weight: bold;}
+    }
+    .as-btns {
+      border-top:1px dashed map-get($color-line, dark);
+      padding:.1rem;
+      a {
+        width:100%;
+        padding:.1rem;
+      }
+    }
+  }
+  //--------------------------------------------
+}
+
+/////////////////////////////////////////////////////
 // Content:Markdown
 .ti-web-content-markdown {
   

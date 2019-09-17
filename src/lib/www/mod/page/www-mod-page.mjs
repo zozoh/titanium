@@ -252,6 +252,50 @@ export default {
     },
     //--------------------------------------------
     /***
+     * Assert page data under a group of restrictions 
+     */
+    assertPage({rootState, dispatch}, {checkList=[], fail={}}={}) {
+      // Prepare the checking method set
+      const CHECKING = {
+        "NoEmpty"       : (val)=>!_.isEmpty(val),
+        "HasValue"      : (val)=>(
+                            !_.isUndefined(val) 
+                            && !_.isNull(val)),
+        "isPlainObject" : (val)=>_.isPlainObject(val),
+        "isBoolean"     : (val)=>_.isBoolean(val),
+        "isNumber"      : (val)=>_.isNumber(val),
+        "isString"      : (val)=>_.isString(val),
+        "isDate"        : (val)=>_.isDate(val),
+        "inRange" : (val, args=[])=>{
+          return _.inRange(val, ...args)
+        },
+        "matchRegex" : (val, regex)=>{
+          if(_.isRegExp(regex)){
+            return regex.test(val)
+          }
+          return new RegExp(regex).test(val)
+        }
+      }
+      // Prepare check result
+      let assertFail = false
+      // Loop the checkList
+      for(let cl of checkList) {
+        let ckMethod = CHECKING[cl.assert]
+        if(ckMethod) {
+          let val = _.get(rootState, cl.target)
+          if(!ckMethod(val, cl.args)) {
+            assertFail = true
+            break
+          }
+        }
+      }
+      // Do Fail
+      if(assertFail && fail.action) {
+        dispatch("doAction", fail, {root:true})
+      }
+    },
+    //--------------------------------------------
+    /***
      * Reload page data by given api keys
      */
     async reloadData({state, commit, getters}, keys=[]) {
@@ -382,12 +426,16 @@ export default {
         "apis" : {},
         "data" : {},
         "layout" : {},
+        "params" : {},
         "shown" : {},
         "schema" : {},
         "actions" : {}
       }, json, {
-        path, params, anchor
+        path, anchor
       })
+      // Merge params
+      _.assign(page.params, params)
+
       // Add the finger
       appendFinger(page)
       
