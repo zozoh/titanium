@@ -1,0 +1,17 @@
+{
+  "comIcon" : "zmdi-steam",
+  "comType" : "@com:wn/obj/single-com",
+  "modType" : "@mod:wn/obj-as-com",
+  "actions" : [{
+      "key"  : "reloading",
+      "type" : "action",
+      "icon" : "zmdi-refresh",
+      "text" : "i18n:refresh",
+      "altDisplay" : {
+        "icon" : "zmdi-refresh zmdi-hc-spin",
+        "text" : "i18n:loading"
+      },
+      "action" : "dispatch:main/reload",
+      "shortcut" : "CTRL+R"
+    }]
+}

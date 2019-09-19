@@ -1,0 +1,10 @@
+{
+  "name" : "wn-obj-single-com",
+  "globally" : true,
+  "template" : "./wn-obj-single-com.html",
+  "mixins" : ["./wn-obj-single-com.mjs"],
+  "components" : [
+    "@com:ti/form",
+    "@com:ti/wizard"
+  ]
+}

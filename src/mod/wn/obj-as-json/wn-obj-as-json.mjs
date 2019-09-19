@@ -26,7 +26,7 @@ export default {
      * Save content to remote
      */
     async save({state, commit}) {
-      if(state.status.save){
+      if(state.status.saving){
         return
       }
 
@@ -49,7 +49,7 @@ export default {
      * Reload content from remote
      */
     async reload({state, commit}, meta) {
-      if(state.status.reload){
+      if(state.status.reloading){
         return
       }
 

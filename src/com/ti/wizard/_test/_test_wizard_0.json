@@ -1,0 +1,18 @@
+{
+  "comType" : "ti-wizard",
+  "comConf" : {
+    "steps" : [{
+      "key" : "step1",
+      "title" : "步骤1",
+      "dataKey" : "s1",
+      "comType" : "ti-input",
+      "comConf" : {}
+    }, {
+      "key" : "step2",
+      "title" : "步骤2",
+      "dataKey" : "s2",
+      "comType" : "ti-input",
+      "comConf" : {}
+    }]
+  }
+}

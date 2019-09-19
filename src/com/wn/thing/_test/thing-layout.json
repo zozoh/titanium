@@ -1,4 +1,14 @@
 {
+  "shown" : {
+    "search" : true,
+    "meta" : true,
+    "content" : false,
+    "files" : false
+  },
+  "listOpen" : {
+    "content" : true,
+    "files" : true
+  },
   "desktop" : {
     "type" : "cols",
     "border" : true,
@@ -58,7 +68,7 @@
       "width"  : "50%",
       "height" : "100%",
       "closer" : "default",
-      "status" : "@current.status",
+      "status" : "=current.status",
       "actions" : [{
         "key"  : "saving",
         "type" : "action",
@@ -79,29 +89,7 @@
       "position" : "right",
       "width"  : "50%",
       "height" : "100%",
-      "closer" : "default",
-      "status" : "@files.status",
-      "actions" : [{
-        "type" : "group",
-        "icon" : "zmdi-caret-down",
-        "items" :[{
-            "key"  : "deleting",
-            "type" : "action",
-            "icon" : "zmdi-delete",
-            "text" : "i18n:del-checked",
-            "altDisplay" : {
-              "icon" : "zmdi-refresh zmdi-hc-spin",
-              "text" : "i18n:del-ing"
-            },
-            "action" : "dispatch:main/files/deleteSelected"
-          },{
-            "key"  : "upload",
-            "type" : "action",
-            "icon" : "zmdi-cloud-upload",
-            "text" : "i18n:upload-file",
-            "action" : "commit:main/files/showUploadFilePicker"
-          }]
-        }]
+      "closer" : "default"
     }, {
       "name" : "creator",
       "title" : "i18n:thing-create",
@@ -111,7 +99,7 @@
       "width"  : "61.8%",
       "mask"   : true,
       "closer" : "bottom",
-      "status" : "@status"
+      "status" : "=status"
     }]
   },
   "tablet" : "phone",
@@ -174,7 +162,7 @@
         "width"  : "100%",
         "height" : "100%",
         "closer" : "default",
-        "status" : "@current.status",
+        "status" : "=current.status",
         "actionDisplayMode" : "desktop",
         "actions" : [{
           "key"  : "saving",
@@ -197,7 +185,7 @@
         "width"  : "100%",
         "height" : "100%",
         "closer" : "default",
-        "status" : "@files.status",
+        "status" : "=files.status",
         "actionDisplayMode" : "desktop",
         "actions" : [{
             "key"  : "deleting",
@@ -225,7 +213,7 @@
         "width"  : "100%",
         "mask"   : true,
         "closer" : "bottom",
-        "status" : "@status"
+        "status" : "=status"
       }]
     }
 }

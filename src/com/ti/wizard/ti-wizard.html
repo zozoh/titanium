@@ -1,0 +1,26 @@
+<div class="ti-wizard ti-fill-parent"
+  :class="topClass">
+  <!--
+    Header Indicators
+  -->
+  <div class="as-head">
+    <ul>
+      <li v-for="step in stepList">
+        <span class="as-text">{{step.title}}</span>
+      </li>
+    </ul>
+  </div>
+  <!--
+    Current Step Component
+  -->
+  <div class="as-main">
+    <component :is="currentStep.comType"
+      v-bind="currentStep.comConf"/>
+  </div>
+  <!--
+    Footer Default Buttons
+  -->
+  <div class="as-foot">
+
+  </div>
+</div>

@@ -1,0 +1,6 @@
+{
+  "name" : "ti-wizard",
+  "globally" : true,
+  "template" : "./ti-wizard.html",
+  "mixins" : ["./ti-wizard.mjs"]
+}
