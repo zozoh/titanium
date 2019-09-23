@@ -2,5 +2,7 @@
   "name" : "ti-wizard",
   "globally" : true,
   "template" : "./ti-wizard.html",
-  "mixins" : ["./ti-wizard.mjs"]
+  "mixins" : ["./ti-wizard.mjs"],
+  "components" : [
+    "./com/wizard-step"]
 }

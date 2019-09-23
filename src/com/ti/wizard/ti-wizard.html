@@ -5,7 +5,14 @@
   -->
   <div class="as-head">
     <ul>
-      <li v-for="step in stepList">
+      <li v-for="(step, index) in stepList"
+        :key="step.stepKey"
+        :class="step.className">
+        <span class="as-indicator">
+          <span class="as-line at-l"></span>
+          <span class="as-dot">{{index+1}}</span>
+          <span class="as-line at-r"></span>
+        </span>
         <span class="as-text">{{step.title}}</span>
       </li>
     </ul>
@@ -14,8 +21,7 @@
     Current Step Component
   -->
   <div class="as-main">
-    <component :is="currentStep.comType"
-      v-bind="currentStep.comConf"/>
+    <wizard-step v-bind="currentStep"/>
   </div>
   <!--
     Footer Default Buttons

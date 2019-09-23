@@ -1,3 +1,81 @@
 .ti-wizard {
   padding:.1rem;
+  //----------------------------------------
+  > .as-head {
+    @include noselect;
+    padding:.1rem 0;
+    ul {
+      @include flex-align-nowrap($jc:center);
+      li {
+        color:map-get($color-track, c);
+        //----------------------------------
+        .as-indicator {
+          @include flex-align-nowrap;
+          .as-line {
+            flex:1 1 auto;
+            background:map-get($color-line, dark);
+            height:.04rem; width:.1rem;
+          }
+          .as-dot {
+            @include flex-center;
+            @include font-fixed;
+            width:.32rem; height:.32rem; margin:0 auto;
+            border:2px solid map-get($color-line,dark);
+            font-size:.18rem; 
+            border-radius: 50%;
+          }
+        }
+        //----------------------------------
+        .as-text {
+          display:block; padding:.04rem .2rem;
+          text-align: center;
+          line-height: 1.4em;
+        }
+        //----------------------------------
+        &.is-passed {
+          .as-indicator {
+            .as-line {background:map-get($color-success, c);}
+            .as-dot {
+              @include color($color-success, c, r);
+              border-color:map-get($color-success, c);
+            }
+          }
+          .as-text {
+            color:map-get($color-success, c);
+          }
+        }
+        //----------------------------------
+        &.is-current {
+          font-weight: bold;
+          .as-indicator {
+            .as-line.at-l {background:map-get($color-success, c);}
+            .as-dot {
+              @include color($color-success, r, c);
+              border-color:map-get($color-success, c);
+            }
+          }
+          .as-text {
+            color:map-get($color-success, c);
+          }
+        }
+        //----------------------------------
+        &.is-future {
+          .as-dot,
+          .as-text {
+            opacity: 0.6;
+          }
+        }
+        //----------------------------------
+        &:first-child .as-indicator .at-l {
+          visibility: hidden;
+        }
+        &:last-child .as-indicator .at-r {
+          visibility: hidden;
+        }
+        //----------------------------------
+      } // li
+    } // ul
+  }
+  //----------------------------------------
+  //----------------------------------------
 }

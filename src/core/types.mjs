@@ -399,6 +399,14 @@ const TiTypes = {
     return obj
   },
   //.......................................
+  toObjByPair(pair={}, {keyBy="name", valueBy="value", dft={}}={}){
+    let key = pair[keyBy]
+    if(key) {
+      return {[key] : pair[valueBy]}
+    }
+    return dft
+  },
+  //.......................................
   toArray(val, {sep=/[ ,;\/、，；\r\n]+/}={}) {
     if(_.isArray(val)) {
       return val

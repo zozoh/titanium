@@ -13,6 +13,10 @@ export default {
     "current" : {
       type : [Number, String],
       default : 0
+    },
+    "hijackable" : {
+      type : Boolean,
+      default : true
     }
   },
   ///////////////////////////////////////////////////
@@ -28,49 +32,91 @@ export default {
         for(let i=0; i<this.steps.length; i++) {
           let step = this.steps[i]
           let stepKey = step.key || `step${i}`
+          let className = []
+          if(step.className) {
+            className = [].concat(step.className)
+          }
+          if(this.currentStepIndex == i) {
+            className.push("is-current")
+          }
+          else if(i > this.currentStepIndex) {
+            className.push("is-future")
+          }
+          else {
+            className.push("is-passed")
+          }
+          // Join to the list
           list.push({
-            ...step,
+            className,
             index   : i,
-            key     : stepKey,
-            title   : step.title || stepKey,
+            stepKey : stepKey,
+            title   : step.title   || stepKey,
             dataKey : step.dataKey || stepKey,
+            comType : step.comType || "ti-label",
+            comConf : step.comConf || {value:stepKey},
+            serializer : Ti.Types.getFunc(step, "serializer")
           })
         }
       }
       return list
     },
     //----------------------------------------------
-    currentStep() {
-      // By Index
-      if(_.isNumber(this.current)) {
-        let index = _.clamp(this.current, 0, this.stepList.length-1)
-        return _.nth(this.stepList, index)
-      }
-      // By Key
-      for(let step of this.stepList) {
-        if(step.key == this.current) {
-          return step
+    currentStepIndex() {
+      if(_.isArray(this.steps)) {
+        // Index Already
+        if(_.isNumber(this.current)) {
+          return _.clamp(this.current, 0, this.steps.length-1)
+        }
+        // By Key
+        for(let i=0; i<this.steps.length; i++) {
+          let stepKey = step.key || `step${i}`
+          if(this.current == stepKey) {
+            return i
+          }
         }
       }
+      // No Current
+      return -1
+    },
+    //----------------------------------------------
+    currentStep() {
+      let index = this.currentStepIndex
+      if(index >= 0)
+        return _.nth(this.stepList, index)
+      return null
     }
     //----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
+    //----------------------------------------------
     gotoStep(step) {
       this.current = step
     },
+    //----------------------------------------------
     gotoNext(off=1) {
       this.gotoFromCurrent(1)
     },
+    //----------------------------------------------
     gotoPrev(off=-1) {
       this.gotoFromCurrent(-1)
     },
+    //----------------------------------------------
     gotoFromCurrent(off=1) {
       if(this.currentStep) {
         this.current = this.currentStep.index + off
       }
+    },
+    //----------------------------------------------
+    async hijackEmit(name, args) {
+      console.log("ti-wizard::hijackEmit->", name, args)
+      let payload = args
+      if(args && _.isArray(args) && args.length == 1) {
+        payload = args[0]
+      }
+      
     }
+    //----------------------------------------------
   }
   ///////////////////////////////////////////////////
 }

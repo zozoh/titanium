@@ -1,0 +1,6 @@
+{
+  "name" : "wizard-step",
+  "globally" : true,
+  "template" : "./wizard-step.html",
+  "mixins" : ["./wizard-step.mjs"]
+}
