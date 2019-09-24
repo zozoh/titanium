@@ -1,10 +1,9 @@
 {
   "comType" : "ti-wizard",
   "comConf" : {
-    "current" : 0,
+    "first" : 1,
     "steps" : [{
         "dataKey" : null,
-        "comValueKey" : "data",
         "comType" : "ti-form",
         "comConf" : {
           "config" : {
@@ -20,21 +19,61 @@
               }]
           }
         },
+        "comValueKey" : "data",
         "comEvents" : {
           "changed" : "toObjByPair"
         },
         "prev" : false,
         "next" : {
           "enabled" : {
-            "theValue" : "isNumber"
+            "theValue" : "isNumber",
+            "theName"  : "NoEmpty"
           }
         }
       }, {
-        
+        "dataKey" : "pos",
+        "comType" : "ti-form",
+        "comConf" : {
+          "config" : {
+            "fields" : [{
+                "name" : "x",
+                "type" : "Integer",
+                "width" : "1.4rem",
+                "comType" : "ti-input-num",
+                "comConf" : {
+                  "step" : 100
+                }
+              }, {
+                "name" : "y",
+                "type" : "Integer",
+                "width" : "1.4rem",
+                "comType" : "ti-input-num",
+                "comConf" : {
+                  "step" : 100
+                }
+              }]
+          }
+        },
+        "comValueKey" : "data",
+        "comEvents" : {
+          "changed" : "toObjByPair"
+        },
+        "prev" : true,
+        "next" : {
+          "enabled" : {
+            "pos.x" : "isNumber",
+            "pos.y" : "isNumber"
+          }
+        }
       }, {
+        "prev" : true,
+        "next" : true
       }, {
+        "prev" : true,
+        "next" : true
       }, {
-        
+        "prev" : true,
+        "next" : true
       }]
   },
   "comEvents" : {

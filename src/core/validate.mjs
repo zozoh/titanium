@@ -9,7 +9,7 @@ const FnSet = {
   "isNumber"      : (val)=>_.isNumber(val),
   "isString"      : (val)=>_.isString(val),
   "isDate"        : (val)=>_.isDate(val),
-  "inRange" : (val, args=[])=>{
+  "inRange" : (val, ...args)=>{
     return _.inRange(val, ...args)
   },
   "matchRegex" : (val, regex)=>{

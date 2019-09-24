@@ -10,11 +10,11 @@ export default {
     },
     "maxValue" : {
       type : Number,
-      default : 10
+      default : undefined
     },
     "minValue" : {
       type : Number,
-      default : 0
+      default : undefined
     },
     "step" : {
       type : Number,
@@ -35,16 +35,20 @@ export default {
     //   }
     // },
     theValue() {
+      if(isNaN(this.value) 
+         || !_.isNumber(this.value)) {
+        return
+      }
       return this.getValue(this.value)
     },
     desreaseClass() {
-      if(this.value <= this.minValue) {
+      if(!_.isUndefined(this.minValue) && this.value <= this.minValue) {
         return "is-disabled"
       }
       return "is-enabled"
     },
     increaseClass() {
-      if(this.value >= this.maxValue) {
+      if(!_.isUndefined(this.maxValue) && this.value >= this.maxValue) {
         return "is-disabled"
       }
       return "is-enabled"
@@ -57,18 +61,29 @@ export default {
       if(isNaN(val) || !_.isNumber(val)) {
         return this.defaultValue
       }
-      if(val < this.minValue) {
+      if(!_.isUndefined(this.minValue) && val < this.minValue) {
         return this.minValue
       }
-      if(val > this.maxValue) {
+      if(!_.isUndefined(this.maxValue) && val > this.maxValue) {
         return this.maxValue
       }
       return val
     },
     //------------------------------------------------
     changeByStep(n=0) {
-      let val = this.theValue + (n * this.step)
+      let val = this.theValue
+      // Start with default value
+      if(_.isUndefined(val)) {
+        val = this.defaultValue
+      }
+      // change by step
+      else {
+        val += (n * this.step)
+      }
+      // Eval the min/max range
       val = this.getValue(val)
+
+      // Emit change
       if(val != this.value) {
         this.$emit("changed", val)
       }
@@ -77,7 +92,8 @@ export default {
     onChanged($event) {
       let $in = $event.target
       if(_.isElement($in)) {
-        let val = $in.value * 1
+        let str = _.trim($in.value)
+        let val = str ? str * 1 : this.defaultValue
         if(!isNaN(val)) {
           this.$emit("changed", val)  
         }

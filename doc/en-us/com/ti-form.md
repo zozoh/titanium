@@ -43,7 +43,10 @@ Define the schema(`Object`) of  data presentation.
     // Field title, `undefined` will auto use `key` as title
     // if `null`, the filed title will be hidded
     title : "i18n:xxx",
-    tip   : "i18n:xxx"
+    tip   : "i18n:xxx",
+    // The width of field component part
+    // Number or String, if Number, it will be taken as "px"
+    width : "2rem",
     // If false, it will notify the changed without value equals check
     // Default is true
     checkEquals : true,

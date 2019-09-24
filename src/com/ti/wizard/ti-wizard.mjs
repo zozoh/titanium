@@ -1,6 +1,10 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
+  data : ()=>({
+    "current" : 0
+  }),
+  ///////////////////////////////////////////////////
   props : {
     "className" : {
       type : String,
@@ -14,13 +18,19 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "current" : {
+    "first" : {
       type : [Number, String],
       default : 0
     },
     "hijackable" : {
       type : Boolean,
       default : true
+    }
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "first" : function() {
+      this.current = this.first
     }
   },
   ///////////////////////////////////////////////////
@@ -100,29 +110,48 @@ export default {
     //----------------------------------------------
     btnPrev() {
       let btn = _.get(this.currentStep, "prev")
-      return this.getStepAction(btn, "i18n:prev")
+      return this.getStepAction(btn, {
+        icon     : "zmdi-chevron-left",
+        text     : "i18n:prev",
+        enabled  : true
+      })
     },
     //----------------------------------------------
     btnNext() {
-      console.log("nanana", this.currentStep)
       let btn = _.get(this.currentStep, "next")
-      return this.getStepAction(btn, "i18n:next")
+      return this.getStepAction(btn, {
+        icon     : "zmdi-chevron-right",
+        text     : "i18n:next",
+        enabled  : true
+      })
     }
     //----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
     //----------------------------------------------
+    onClickBtnPrev() {
+      if(this.btnPrev && this.btnPrev.enabled) {
+        this.gotoPrev()
+      }
+    },
+    //----------------------------------------------
+    onClickBtnNext() {
+      if(this.btnNext && this.btnNext.enabled) {
+        this.gotoNext()
+      }
+    },
+    //----------------------------------------------
     gotoStep(step) {
       this.current = step
     },
     //----------------------------------------------
-    gotoNext(off=1) {
-      this.gotoFromCurrent(1)
-    },
-    //----------------------------------------------
     gotoPrev(off=-1) {
       this.gotoFromCurrent(-1)
+    },
+    //----------------------------------------------
+    gotoNext(off=1) {
+      this.gotoFromCurrent(1)
     },
     //----------------------------------------------
     gotoFromCurrent(off=1) {
@@ -131,7 +160,7 @@ export default {
       }
     },
     //----------------------------------------------
-    getStepAction(stepBtn, dftText) {
+    getStepAction(stepBtn, dftSetting={}) {
       if(stepBtn) {
         let btn
         // Boolean default
@@ -160,10 +189,7 @@ export default {
           }
         }
         // Setup 
-        _.defaults(btn, {
-          text     : dftText,
-          enabled  : true
-        })
+        _.defaults(btn, dftSetting)
         // ClassName
         if(btn.enabled) {
           btn.className = "is-enabled"
@@ -197,6 +223,10 @@ export default {
       }
     }
     //----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  mounted : function() {
+    this.current = this.first
   }
   ///////////////////////////////////////////////////
 }

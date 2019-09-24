@@ -81,25 +81,34 @@
   //----------------------------------------
   > .as-main {
     flex:1 1 auto;
-  }
+  } // .as-main
   //----------------------------------------
   > .as-foot {
     @include noselect;
     @include flex-align-nowrap($jc:flex-end);
     @include border(1px, solid, shallow, top);
     flex:0 0 auto;
+    //--------------------------------------
     ul {
       @include flex-align-nowrap;
-      padding:.06rem;
+      padding:.1rem .02rem;
+      //------------------------------------
       li {
+        @include flex-align-nowrap;
         padding:.04rem .12rem;
+        margin:0 .02rem;
         opacity: 0.4;
+        //----------------------------------
         &.is-enabled {
           @include fireable;
           opacity: 1;
         }
-      }
-    }
-  }
+        //----------------------------------
+        > .as-sep {width:.06rem;}
+        //----------------------------------
+      } // li
+      //------------------------------------
+    } // ul
+  } // .as-foot
   //----------------------------------------
 }

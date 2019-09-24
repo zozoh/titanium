@@ -30,11 +30,31 @@
   <div v-if="btnPrev || btnNext"
     class="as-foot">
     <ul>
-      <li v-if="btnPrev" :class="btnPrev.className">
+      <!--
+        Btn: Prev
+      -->
+      <li v-if="btnPrev" 
+        :class="btnPrev.className"
+        @click="onClickBtnPrev">
+        <span v-if="btnPrev.icon"
+          class="as-icon">
+          <ti-icon :value="btnPrev.icon"/>
+        </span>
+        <span class="as-sep"></span>
         <span class="as-text">{{btnPrev.text|i18n}}</span>
       </li>
-      <li v-if="btnNext" :class="btnNext.className">
+      <!--
+        Btn: Next
+      -->
+      <li v-if="btnNext" 
+        :class="btnNext.className"
+        @click="onClickBtnNext">
         <span class="as-text">{{btnNext.text|i18n}}</span>
+        <span class="as-sep"></span>
+        <span v-if="btnNext.icon"
+          class="as-icon">
+          <ti-icon :value="btnNext.icon"/>
+        </span>
       </li>
     </ul>
   </div>
