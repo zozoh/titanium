@@ -3,6 +3,8 @@
   "comConf" : {
     "current" : 0,
     "steps" : [{
+        "dataKey" : null,
+        "comValueKey" : "data",
         "comType" : "ti-form",
         "comConf" : {
           "config" : {
@@ -15,10 +17,18 @@
                 "comConf" : {
                   "options" : [1,2,3,5,8]
                 }
-            }]
+              }]
           }
         },
-        "serializer" : "toObjByPair"
+        "comEvents" : {
+          "changed" : "toObjByPair"
+        },
+        "prev" : false,
+        "next" : {
+          "enabled" : {
+            "theValue" : "isNumber"
+          }
+        }
       }, {
         
       }, {
@@ -26,5 +36,8 @@
       }, {
         
       }]
+  },
+  "comEvents" : {
+    "changed" : "main/update"
   }
 }

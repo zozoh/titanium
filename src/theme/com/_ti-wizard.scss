@@ -1,8 +1,10 @@
 .ti-wizard {
+  @include flex-align-v-nowrap;
   padding:.1rem;
   //----------------------------------------
   > .as-head {
     @include noselect;
+    flex:0 0 auto;
     padding:.1rem 0;
     ul {
       @include flex-align-nowrap($jc:center);
@@ -75,7 +77,29 @@
         //----------------------------------
       } // li
     } // ul
+  } // .as-head
+  //----------------------------------------
+  > .as-main {
+    flex:1 1 auto;
   }
   //----------------------------------------
+  > .as-foot {
+    @include noselect;
+    @include flex-align-nowrap($jc:flex-end);
+    @include border(1px, solid, shallow, top);
+    flex:0 0 auto;
+    ul {
+      @include flex-align-nowrap;
+      padding:.06rem;
+      li {
+        padding:.04rem .12rem;
+        opacity: 0.4;
+        &.is-enabled {
+          @include fireable;
+          opacity: 1;
+        }
+      }
+    }
+  }
   //----------------------------------------
 }

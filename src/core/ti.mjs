@@ -22,6 +22,7 @@ import {Tinstall    as Install } from "./install.mjs"
 import {TiRandom    as Random  } from "./random.mjs"
 import {TiStorage   as Storage } from "./storage.mjs"
 import {TiShortcut  as Shortcut} from "./shortcut.mjs"
+import Validate from "./validate.mjs"
 import Types    from "./types.mjs"
 import Util     from "./util.mjs"
 import Viewport from "./viewport.mjs"
@@ -55,7 +56,7 @@ const LOG_LEVELS = {
 export const Ti = {
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
-  WWW, GPS,
+  WWW, GPS, Validate,
   //.....................................
   Alert, Confirm, Prompt, Toast, Captcha, Modal,
   //.....................................

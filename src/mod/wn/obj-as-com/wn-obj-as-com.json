@@ -2,7 +2,11 @@
   "meta": null,
   "comType": null,
   "comConf" : {},
+  "data" : null,
+  "__saved_data" : null,
   "status" : {
+    "changed"   : false,
+    "saving"    : false,
     "reloading" : false
   }
 }

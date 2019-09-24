@@ -21,12 +21,21 @@
     Current Step Component
   -->
   <div class="as-main">
-    <wizard-step v-bind="currentStep"/>
+    <wizard-step v-bind="currentStep"
+      @step:changed="onStepChanged"/>
   </div>
   <!--
     Footer Default Buttons
   -->
-  <div class="as-foot">
-
+  <div v-if="btnPrev || btnNext"
+    class="as-foot">
+    <ul>
+      <li v-if="btnPrev" :class="btnPrev.className">
+        <span class="as-text">{{btnPrev.text|i18n}}</span>
+      </li>
+      <li v-if="btnNext" :class="btnNext.className">
+        <span class="as-text">{{btnNext.text|i18n}}</span>
+      </li>
+    </ul>
   </div>
 </div>

@@ -82,7 +82,7 @@ export const Ti18n = {
     if(m) {
       return Ti18n.getf(m[1], vars)
     }
-    return str
+    return Ti.S.renderBy(str, vars)
   }
 }
 //---------------------------------------

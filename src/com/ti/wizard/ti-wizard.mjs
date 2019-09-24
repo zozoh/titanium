@@ -10,6 +10,10 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "data" : {
+      type : Object,
+      default : ()=>({})
+    },
     "current" : {
       type : [Number, String],
       default : 0
@@ -51,10 +55,14 @@ export default {
             index   : i,
             stepKey : stepKey,
             title   : step.title   || stepKey,
-            dataKey : step.dataKey || stepKey,
+            dataKey : Ti.Util.fallback(step.dataKey,stepKey),
+            data    : this.data,
+            comValueKey : step.comValueKey,
             comType : step.comType || "ti-label",
             comConf : step.comConf || {value:stepKey},
-            serializer : Ti.Types.getFunc(step, "serializer")
+            comEvents : step.comEvents  || {},
+            prev : step.prev,
+            next : step.next
           })
         }
       }
@@ -79,11 +87,26 @@ export default {
       return -1
     },
     //----------------------------------------------
+    hasCurrentStep() {
+      return this.currentStepIndex >= 0
+    },
+    //----------------------------------------------
     currentStep() {
       let index = this.currentStepIndex
       if(index >= 0)
         return _.nth(this.stepList, index)
       return null
+    },
+    //----------------------------------------------
+    btnPrev() {
+      let btn = _.get(this.currentStep, "prev")
+      return this.getStepAction(btn, "i18n:prev")
+    },
+    //----------------------------------------------
+    btnNext() {
+      console.log("nanana", this.currentStep)
+      let btn = _.get(this.currentStep, "next")
+      return this.getStepAction(btn, "i18n:next")
     }
     //----------------------------------------------
   },
@@ -108,13 +131,70 @@ export default {
       }
     },
     //----------------------------------------------
-    async hijackEmit(name, args) {
-      console.log("ti-wizard::hijackEmit->", name, args)
-      let payload = args
-      if(args && _.isArray(args) && args.length == 1) {
-        payload = args[0]
+    getStepAction(stepBtn, dftText) {
+      if(stepBtn) {
+        let btn
+        // Boolean default
+        if(_.isBoolean(stepBtn)) {
+          btn = {}
+        }
+        // Customized Text 
+        else if(_.isString(stepBtn)) {
+          btn = {text : stepBtn || dftText}
+        }
+        // Actions
+        else {
+          btn = _.assign({}, stepBtn)
+          // Eval enabled
+          if(_.isPlainObject(btn.enabled)) {
+            let enabled = true
+            for(let key of _.keys(btn.enabled)) {
+              let fn  = _.get(btn.enabled, key)
+              let val = _.get(this.data, key)
+              if(!Ti.Validate.checkBy(fn, val)) {
+                enabled = false
+                break
+              }
+            }
+            btn.enabled = enabled
+          }
+        }
+        // Setup 
+        _.defaults(btn, {
+          text     : dftText,
+          enabled  : true
+        })
+        // ClassName
+        if(btn.enabled) {
+          btn.className = "is-enabled"
+        }
+        // Return 
+        return btn
       }
-      
+    }, 
+    //----------------------------------------------
+    onStepChanged( {
+      index=-1,
+      title,
+      stepKey,
+      dataKey,
+      payload
+    }={}) {
+      console.log("stepChanged", index, title, stepKey, dataKey)
+      if(!dataKey) {
+        // Global Payload
+        if(_.isPlainObject(payload)) {
+          this.$emit("changed", payload)
+        }
+        // Apply by stepKey
+        else {
+          this.$emit("changed", {[stepKey] : payload})
+        }
+      }
+      // emit by specail dataKey
+      else {
+        this.$emit("changed", {[dataKey] : payload})
+      }
     }
     //----------------------------------------------
   }

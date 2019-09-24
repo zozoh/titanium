@@ -3,6 +3,18 @@
   "comType" : "@com:wn/obj/single-com",
   "modType" : "@mod:wn/obj-as-com",
   "actions" : [{
+      "key"  : "saving",
+      "type" : "action",
+      "icon" : "zmdi-floppy",
+      "text" : "i18n:save-change",
+      "altDisplay" : {
+        "icon" : "fas-spinner fa-pulse",
+        "text" : "i18n:saving"
+      },
+      "enableBy" : "changed",
+      "action" : "dispatch:main/save",
+      "shortcut" : "CTRL+S"
+    }, {
       "key"  : "reloading",
       "type" : "action",
       "icon" : "zmdi-refresh",
