@@ -35,9 +35,6 @@ export default {
     //------------------------------------------------
     theValue() {
       //console.log("input value:", this.value)
-      if(isNaN(this.value)) {
-        return ""
-      }
       return Ti.Types.toStr(this.value, this.format)
     },
     //------------------------------------------------
