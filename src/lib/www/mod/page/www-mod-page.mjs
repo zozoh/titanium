@@ -261,15 +261,17 @@ export default {
       if(!_.isEmpty(offsets) && _.isPlainObject(offsets)) {
         let d2 = {}
         // Do shift
-        Ti.Util.walk(offsets, (off, path)=>{
-          let val = _.get(state.data, path)
-          // Number
-          if(_.isNumber(val) && _.isNumber(off)) {
-            _.set(d2, path, val+off)
-          }
-          // Others Replace
-          else {
-            _.set(d2, path, off)
+        Ti.Util.walk(offsets, {
+          leaf : (off, path)=>{
+            let val = _.get(state.data, path)
+            // Number
+            if(_.isNumber(val) && _.isNumber(off)) {
+              _.set(d2, path, val+off)
+            }
+            // Others Replace
+            else {
+              _.set(d2, path, off)
+            }
           }
         })
         // Do Merge

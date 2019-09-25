@@ -46,31 +46,53 @@ const TiUtil = {
    * @param input{Any}
    * @param iteratee{Function} - (val, path) 
    */
-  walk(input={}, iteratee=_.identity) {
+  walk(input={}, {
+    root = _.identity,
+    all  = _.identity,
+    leaf = _.identity,
+    node = _.identity,
+  }={}) {
     //..............................
-    const WalkAny = (input, iteratee, path=[])=>{
+    const WalkAny = (input, path=[])=>{
+      let isArray = _.isArray(input)
+      let isPojo  = _.isPlainObject(input)
+
+      all(input, path)
+
+      // For Node
+      if(isArray || isPojo) {
+        if(_.isEmpty(path)) {
+          root(input, path)
+        }
+        else {
+          node(input, path)
+        }
+      }
+      // For Leaf
+      else {
+        leaf(input, path)
+      }
+
       // Array
-      if(_.isArray(input)) {
+      if(isArray) {
         for(let i=0; i<input.length; i++) {
           let val = input[i]
           let ph  = path.concat(i)
-          iteratee(val, ph)
-          WalkAny(val, iteratee, ph)
+          WalkAny(val, ph)
         }
       }
       // Object
-      else if(_.isPlainObject(input)) {
+      else if(isPojo) {
         let keys = _.keys(input)
         for(let k of keys) {
           let val = input[k]
           let ph  = path.concat(k)
-          iteratee(val, ph)
-          WalkAny(val, iteratee, ph)
+          WalkAny(val, ph)
         }
       }
     }
     //..............................
-    WalkAny(input, iteratee)
+    WalkAny(input)
     //..............................
   },
   /***
