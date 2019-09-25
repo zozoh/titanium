@@ -122,9 +122,10 @@ export default {
     // Only handle the "page|dispatch"
     async navTo({state, commit, dispatch}, {
       type="page",
-      value,
-      params,
-      anchor,
+      value,    // page path
+      anchor,   // page anchor
+      data,     // page.data
+      params,   // page.params
       pushHistory = true
     }={}) {
       console.log("navToPage::", value)
@@ -137,8 +138,9 @@ export default {
         commit("setLoading", true)
         await dispatch("page/reload", {
           path   : value,
+          anchor : anchor,
           params : params,
-          anchor : anchor
+          data   : data
         })
         // Push History
         if(pushHistory) {

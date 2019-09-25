@@ -214,12 +214,12 @@
     width:3rem; margin:.2rem 0 .2rem auto;
     padding:.2rem;
     .as-sum-fee {
-      padding:.1rem; text-align:right;
+      padding:.1rem 0; text-align:right;
       span {font-weight: bold;}
     }
     .as-btns {
       border-top:1px dashed map-get($color-line, dark);
-      padding:.1rem;
+      padding:.1rem 0;
       a {
         width:100%;
         padding:.1rem;

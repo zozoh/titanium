@@ -206,7 +206,7 @@ export default {
       dataKey,
       payload
     }={}) {
-      console.log("stepChanged", index, title, stepKey, dataKey)
+      console.log("wizard:onStepChanged", {index, title, stepKey, dataKey}, payload)
       if(!dataKey) {
         // Global Payload
         if(_.isPlainObject(payload)) {

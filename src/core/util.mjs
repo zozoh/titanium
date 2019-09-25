@@ -43,6 +43,59 @@ const TiUtil = {
     return obj
   },
   /***
+   * @param input{Any}
+   * @param iteratee{Function} - (val, path) 
+   */
+  walk(input={}, iteratee=_.identity) {
+    //..............................
+    const WalkAny = (input, iteratee, path=[])=>{
+      // Array
+      if(_.isArray(input)) {
+        for(let i=0; i<input.length; i++) {
+          let val = input[i]
+          let ph  = path.concat(i)
+          iteratee(val, ph)
+          WalkAny(val, iteratee, ph)
+        }
+      }
+      // Object
+      else if(_.isPlainObject(input)) {
+        let keys = _.keys(input)
+        for(let k of keys) {
+          let val = input[k]
+          let ph  = path.concat(k)
+          iteratee(val, ph)
+          WalkAny(val, iteratee, ph)
+        }
+      }
+    }
+    //..............................
+    WalkAny(input, iteratee)
+    //..............................
+  },
+  /***
+   * Pick the object from source account the data
+   */
+  // pickDeep(src={}, data={}) {
+  //   let keys = TiUtil.walkKeys(data)
+  //   let re = {}
+  //   for(let k of keys) {
+  //     let val = _.get(src, k)
+  //     _.set(re, k, val)
+  //   }
+  //   return re
+  // },
+  /***
+   * Gen the keys deeply like `["a.b.c", "x.y.z"]` from a object
+   */
+  // walkKeys(input={}, predicate=()=>true) {
+  //   let keys = []
+  //   TiUtil.walk(input, (val, path)=>{
+  //     keys.push(path)
+  //   })
+  //   return keys
+  // },
+  /***
    * Gen new Array to update the given element
    * 
    * @param list{Array} - the source Array

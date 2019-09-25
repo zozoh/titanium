@@ -46,7 +46,7 @@ const TiValidate = {
     }
     if(_.isArray(fn) && fn.length>0) {
       let name = fn[0]
-      let args = fn.slice(1, args.length)
+      let args = fn.slice(1, fn.length)
       return TiValidate.get(name, args)
     }
   },

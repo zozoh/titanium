@@ -196,8 +196,8 @@ export default {
     },
     //--------------------------------------------
     mergeData(state, data) {
-      if(_.isPlainObject(data)) {
-        Vue.set(state, "data", _.assign(state.data, data))
+      if(!_.isEmpty(data) && _.isPlainObject(data)) {
+        state.data = _.merge({}, state.data, data)
       }
     },
     //--------------------------------------------
@@ -252,6 +252,32 @@ export default {
     },
     //--------------------------------------------
     /***
+     * Mutate the data fields in params `offset`, each field
+     * should be `Number`
+     * 
+     * @param offsets{Object} - the offset number set. "a.b.c" suppored
+     */ 
+    shiftData({state, commit}, offsets={}) {
+      if(!_.isEmpty(offsets) && _.isPlainObject(offsets)) {
+        let d2 = {}
+        // Do shift
+        Ti.Util.walk(offsets, (off, path)=>{
+          let val = _.get(state.data, path)
+          // Number
+          if(_.isNumber(val) && _.isNumber(off)) {
+            _.set(d2, path, val+off)
+          }
+          // Others Replace
+          else {
+            _.set(d2, path, off)
+          }
+        })
+        // Do Merge
+        commit("mergeData", d2)
+      }
+    },
+    //--------------------------------------------
+    /***
      * Assert page data under a group of restrictions 
      */
     assertPage({rootState, dispatch}, {checkList=[], fail={}}={}) {
@@ -260,11 +286,12 @@ export default {
       // Loop the checkList
       for(let cl of checkList) {
         let val = _.get(rootState, cl.target)
-        if(!Ti.Validate.checkBy(val, cl.assert)) {
+        if(!Ti.Validate.checkBy(cl.assert, val)) {
           assertFail = true
           break
         }
       }
+      console.log(assertFail)
       // Do Fail
       if(assertFail && fail.action) {
         dispatch("doAction", fail, {root:true})
@@ -378,8 +405,9 @@ export default {
      */
     async reload({commit, dispatch, rootGetters}, {
       path,
+      anchor=null,
       params={},
-      anchor=null
+      data={}
     }) {
       //console.log(rootGetters.routerList)
       console.log("page.reload", {path,params,anchor})
@@ -411,6 +439,9 @@ export default {
       })
       // Merge params
       _.assign(page.params, params)
+
+      // Merge data
+      _.assign(page.data, data)
 
       // Add the finger
       appendFinger(page)
