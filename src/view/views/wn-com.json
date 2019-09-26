@@ -1,5 +1,5 @@
 {
-  "comIcon" : "zmdi-steam",
+  "comIcon" : "im-flask",
   "comType" : "@com:wn/obj/single-com",
   "modType" : "@mod:wn/obj-as-com",
   "actions" : [{

@@ -72,197 +72,302 @@ function parseDate(d) {
   // Invalid date
   throw 'i18n:invalid-date'
 }
-//-----------------------------------
-function parseTime(input, dft) {
-  if(_.isNull(input) || _.isUndefined(input)) {
-    return null;
+/////////////////////////////////////
+// Time Object
+export class TiTime {
+  //--------------------------------
+  hours = 0;
+  minutes = 0;
+  seconds = 0;
+  milliseconds = 0;
+  //--------------------------------
+  constructor(input, unit) {
+    this.update(input, unit)
   }
-  // 接受日期对象
-  if(_.isDate(input)) {
-    var str = input.format('HH:MM:ss');
-    input = str;
-  }
-  // 准备对齐方法
-  var _pad = function (v, width) {
-    width = width || 2;
-    if (3 == width) {
-      return v > 99 ? v : (v > 9 ? "0" + v : "00" + v);
+  //--------------------------------
+  update(input, unit="ms") {
+    this.__cached = {}
+    // Date
+    if(_.isDate(input)) {
+      this.hours = input.getHours()
+      this.minutes = input.getMinutes()
+      this.seconds = input.getSeconds()
+      this.milliseconds = input.getMilliseconds()
     }
-    return v > 9 ? v : "0" + v;
-  };
-  input = (typeof input) == "number" ? input : input || dft;
-  var inType = (typeof input);
-  var ms = 0;
-  var ti = {};
-  // 字符串
-  if ("string" == inType) {
-    var m = /^([0-9]{1,2}):([0-9]{1,2})(:([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/
-        .exec(input);
-    if (!m) {
-      throw "Not a Time: '" + input + "'!!";
+    // Time
+    else if(input instanceof TiTime) {
+      this.hours = input.hours
+      this.minutes = input.minutes
+      this.seconds = input.seconds
+      this.milliseconds = input.milliseconds
     }
-    // 仅仅到分钟
-    if (!m[3]) {
-      ti.hour = parseInt(m[1]);
-      ti.minute = parseInt(m[2]);
-      ti.second = 0;
-      ti.millisecond = 0;
-    }
-    // 到秒
-    else if (!m[5]) {
-      ti.hour = parseInt(m[1]);
-      ti.minute = parseInt(m[2]);
-      ti.second = parseInt(m[4]);
-      ti.millisecond = 0;
-    }
-    // 到毫秒
-    else {
-      ti.hour = parseInt(m[1]);
-      ti.minute = parseInt(m[2]);
-      ti.second = parseInt(m[4]);
-      ti.millisecond = parseInt(m[6]);
-    }
-  }
-  // 数字
-  else if ("number" == inType) {
-    var sec;
-    if ("ms" == dft) {
-      sec = parseInt(input / 1000);
-      ms = Math.round(input - sec * 1000);
-    } else {
-      sec = parseInt(input);
-      ms = Math.round(input * 1000 - sec * 1000);
-    }
-    ti.hour = Math.min(23, parseInt(sec / 3600));
-    ti.minute = Math.min(59, parseInt((sec - ti.hour * 3600) / 60));
-    ti.second = Math.min(59, sec - ti.hour * 3600 - ti.minute * 60);
-    ti.millisecond = ms;
-  }
-  // 其他
-  else {
-    throw "Not a Time: " + input;
-  }
-  // 计算其他的值
-  ti.value = ti.hour * 3600 + ti.minute * 60 + ti.second;
-  ti.valueInMillisecond = ti.value * 1000 + ti.millisecond;
-  // 增加一个函数
-  ti.toString = function (fmt) {
-    // 默认的格式化方式
-    if (!fmt) {
-      fmt = "HH:mm";
-      // 到毫秒
-      if (0 != this.millisecond) {
-        fmt += ":ss.SSS";
-      }
-      // 到秒
-      else if (0 != this.second) {
-        fmt += ":ss";
-      }
-    }
-    // 自动格式化
-    else if ("min" == fmt) {
-      // 精确到分
-      if (this.hour <= 0) {
-        fmt = "mm:ss";
-      }
-      // 否则精确到小时
-      else {
-        fmt = "HH:mm:ss";
-      }
-    }
+    // Number as Seconds
+    else if(_.isNumber(input)) {
+      let ms = ({
+        "ms"  : (v)=>v,
+        "s"   : (v)=>Math.round(v*1000),
+        "min" : (v)=>Math.round(v*1000*60),
+        "hr"  : (v)=>Math.round(v*1000*60*60)
+      })[unit](input)
+      ms = _.clamp(ms, 0, 86400000)
+      let sec = parseInt(ms/1000)
+      this.milliseconds = ms - sec*1000
+      this.hours = parseInt(sec / 3600)
 
-    // 进行格式化
-    var sb = "";
-    var reg = /a|[HhKkms]{1,2}|S(SS)?/g;
-    var pos = 0;
-    var m;
-    while (m = reg.exec(fmt)) {
-      //console.log(reg.lastIndex, m.index, m.input)
-      var l = m.index;
-      // 记录之前
-      if (l > pos) {
+      sec -= this.hours * 3600
+      this.minutes = parseInt(sec / 60)
+      this.seconds = sec - this.minutes * 60
+    }
+    // String
+    else if(_.isString(input)) {
+      let m = /^([0-9]{1,2}):?([0-9]{1,2})(:?([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/
+                    .exec(input);
+      if(m) {
+        // Min: 23:59
+        if (!m[3]) {
+          this.hours = parseInt(m[1]);
+          this.minutes = parseInt(m[2]);
+          this.seconds = 0;
+          this.milliseconds = 0;
+        }
+        // Sec: 23:59:59
+        else if (!m[5]) {
+          this.hours = parseInt(m[1]);
+          this.minutes = parseInt(m[2]);
+          this.seconds = parseInt(m[4]);
+          this.milliseconds = 0;
+        }
+        // Ms: 23:59:59.234
+        else {
+          this.hours = parseInt(m[1]);
+          this.minutes = parseInt(m[2]);
+          this.seconds = parseInt(m[4]);
+          this.milliseconds = parseInt(m[6]);
+        }
+      } // if(m)
+    } // _.isString(input)
+    
+    return this
+    
+  } // update(input, unit="ms")
+  //--------------------------------
+  get value() {
+    if(!_.isNumber(this.__cached.value)) {
+      let val = this.hours*3600 
+                + this.minutes*60 
+                + this.seconds
+                + Math.round(this.milliseconds/1000)
+      this.__cached.value = val
+    }
+    return this.__cached.value
+  }
+  //--------------------------------
+  get valueInMilliseconds() {
+    if(!_.isNumber(this.__cached.valueInMilliseconds)) {
+      let val = this.hours*3600000
+                + this.minutes*60000
+                + this.seconds*1000
+                + this.milliseconds
+      this.__cached.valueInMilliseconds = val
+    }
+    return this.__cached.valueInMilliseconds
+  }
+  //--------------------------------
+  toString(fmt="auto") {
+    // Auto 
+    if("auto" == fmt) {
+      fmt = this.milliseconds>0 ? "HH:mm:ss.SSS"
+              : (this.seconds>0 ? "HH:mm:ss" : "HH:mm")
+    }
+    // To Min
+    else if("min" == fmt) {
+      fmt = this.hours <=0 ? "mm:ss" : "HH:mm:ss"
+    }
+    // Formatting
+    let sb  = "";
+    let ptn = /a|HH?|KK?|hh?|kk?|mm?|ss?|S(SS)?/g;
+    let pos = 0;
+    let m;
+    while (m = ptn.exec(fmt)) {
+      let l = m.index
+      // Join the prev part
+      if(l > pos) {
         sb += fmt.substring(pos, l);
       }
-      // 偏移
-      pos = reg.lastIndex;
+      pos = ptn.lastIndex
 
-      // 替换
-      var s = m[0];
-      if ("a" == s) {
-        sb += this.value > 43200 ? "PM" : "AM";
-      }
-      // H Hour in day (0-23)
-      else if ("H" == s) {
-        sb += this.hour;
-      }
-      // k Hour in day (1-24)
-      else if ("k" == s) {
-        sb += (this.hour + 1);
-      }
-      // K Hour in am/pm (0-11)
-      else if ("K" == s) {
-        sb += (this.hour % 12);
-      }
-      // h Hour in am/pm (1-12)
-      else if ("h" == s) {
-        sb += ((this.hour % 12) + 1);
-      }
-      // m Minute in hour
-      else if ("m" == s) {
-        sb += this.minute;
-      }
-      // s Second in minute
-      else if ("s" == s) {
-        sb += this.second;
-      }
-      // S Millisecond Number
-      else if ("S" == s) {
-        sb += this.millisecond;
-      }
-      // HH 补零的小时(0-23)
-      else if ("HH" == s) {
-        sb += _pad(this.hour);
-      }
-      // kk 补零的小时(1-24)
-      else if ("kk" == s) {
-        sb += _pad(this.hour + 1);
-      }
-      // KK 补零的半天小时(0-11)
-      else if ("KK" == s) {
-        sb += _pad(this.hour % 12);
-      }
-      // hh 补零的半天小时(1-12)
-      else if ("hh" == s) {
-        sb += _pad((this.hour % 12) + 1);
-      }
-      // mm 补零的分钟
-      else if ("mm" == s) {
-        sb += _pad(this.minute);
-      }
-      // ss 补零的秒
-      else if ("ss" == s) {
-        sb += _pad(this.second);
-      }
-      // SSS 补零的毫秒
-      else if ("SSS" == s) {
-        sb += _pad(this.millisecond, 3);
-      }
-      // 不认识
-      else {
-          sb.append(s);
-      }
-    }
-    // 结尾
+      // Replace
+      let s = m[0]
+      sb += ({
+        "a" : ()=>this.value>43200
+                    ? "PM" : "AM",     // am|pm
+        "H" : ()=>this.hours,          // Hour in day (0-23)
+        "k" : ()=>this.hours + 1,      // Hour in day (1-24)
+        "K" : ()=>this.hours % 12,     // Hour in am/pm (0-11)
+        "h" : ()=>(this.hours%12)+1,   // Hour in am/pm (1-12)
+        "m" : ()=>this.minutes,        // Minute in hour
+        "s" : ()=>this.seconds,        // Second in minute
+        "S" : ()=>this.milliseconds,   // Millisecond Number
+        "HH"  : ()=>_.padStart(this.hours,        2, '0'),
+        "kk"  : ()=>_.padStart(this.hours + 1,    2, '0'),
+        "KK"  : ()=>_.padStart(this.hours % 12,   2, '0'),
+        "hh"  : ()=>_.padStart((this.hours%12)+1, 2, '0'),
+        "mm"  : ()=>_.padStart(this.minutes,      2, '0'),
+        "ss"  : ()=>_.padStart(this.seconds,      2, '0'),
+        "SSS" : ()=>_.padStart(this.milliseconds, 3, '0')
+      })[s]()
+    } // while (m = reg.exec(fmt))
+    // Ending
     if (pos < fmt.length) {
-      sb.append(fmt.substring(pos));
+      sb += fmt.substring(pos);
     }
-
-    // 返回
-    return sb.toString();
-  };
-  ti.valueOf = ti.toString;
-  // 嗯，返回吧
-  return ti;
+    // Done
+    return sb
+  }
+  //--------------------------------
+}
+/////////////////////////////////////
+// Color Object
+const QUICK_COLOR_TABLE = {
+  "red"    : [255,0,0,1],
+  "green"  : [0,255,0,1],
+  "blue"   : [0,0,255,1],
+  "yellow" : [255,255,0,1],
+  "black"  : [0,0,0,1],
+  "white"  : [255,255,255,1]
+}
+export class TiColor {
+  // Default color is Black
+  red   = 0;
+  green = 0;
+  blue  = 0;
+  alpha = 1;
+  __cached = {};
+  constructor(input) {
+    this.update(input)
+  }
+  /***
+   * UPdate color by input
+   * 
+   * @param input{String|Number|Object} - input color:
+   * - `String Expression`
+   * - `Color`
+   * - `Integer` : Gray
+   * - `Quick Name` : See the quick name table
+   * 
+   * 
+   */ 
+  update(input) {
+    this.__cached = {}
+    // String
+    if(_.isString(input)) {
+      // Quick Table?
+      let qct = QUICK_COLOR_TABLE[input.toLowerCase()]
+      if(qct) {
+        this.red   = qct[0]
+        this.green = qct[1]
+        this.blue  = qct[2]
+        this.alpha = qct[3]
+      }
+      // Explain
+      else {
+        let str = input.replace(/[ \t\r\n]+/g, "").toUpperCase();
+        let m
+        // HEX: #FFF
+        if(m=/^#?([0-9A-F])([0-9A-F])([0-9A-F]);?$/.exec(str)) {
+          this.red   = parseInt(m[1] + m[1], 16);
+          this.green = parseInt(m[2] + m[2], 16);
+          this.blue  = parseInt(m[3] + m[3], 16);
+        }
+        // HEX2: #F0F0F0
+        else if(m=/^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
+          this.red   = parseInt(m[1], 16);
+          this.green = parseInt(m[2], 16);
+          this.blue  = parseInt(m[3], 16);
+        }
+        // RGB: rgb(255,33,89)
+        else if(m=/^RGB\((\d+),(\d+),(\d+)\)$/.exec(str)) {
+          this.red   = parseInt(m[1], 10);
+          this.green = parseInt(m[2], 10);
+          this.blue  = parseInt(m[3], 10);
+        }
+        // RGBA: rgba(6,6,6,0.9)
+        else if(m=/^RGBA\((\d+),(\d+),(\d+),([\d.]+)\)$/.exec(str)) {
+          this.red   = parseInt(m[1], 10);
+          this.green = parseInt(m[2], 10);
+          this.blue  = parseInt(m[3], 10);
+          this.alpha = m[4] * 1;
+        }
+        // AARRGGBB : 0xFF000000
+        else if(m=/^0[xX]([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)){
+          this.alpha = parseInt(m[1], 16) / 255;
+          this.red = parseInt(m[2], 16);
+          this.green = parseInt(m[3], 16);
+          this.blue = parseInt(m[4], 16);
+        }
+      }
+    }
+    // Number 
+    else if(_.isNumber(input)) {
+      // Must in 0-255
+      let gray = _.clamp(input, 0, 255)
+      this.red   = gray
+      this.green = gray
+      this.blue  = gray
+      this.alpha = 1
+    }
+    // Color
+    else if(input instanceof TiColor) {
+      this.red   = input.red
+      this.green = input.green
+      this.blue  = input.blue
+      this.alpha = input.alpha
+    }
+    // Invalid input, ignore it
+    return this
+  }
+  /***
+   * To `#FF0088`
+   */
+  get hex() {
+    if(!this.__cached.hex) {
+      let hex = ["#"]
+      hex.push(_.padStart(this.red.toString(16).toUpperCase(),2,'0'))
+      hex.push(_.padStart(this.green.toString(16).toUpperCase(),2,'0'))
+      hex.push(_.padStart(this.blue.toString(16).toUpperCase(),2,'0'))
+      this.__cached.hex = hex.join("")
+    }
+    return this.__cached.hex
+  }
+  /***
+   * To `RGB(0,0,0)
+   */
+  get rgb() {
+    if(!this.__cached.rgb) {
+      let rgb = [this.red, this.green,this.blue]
+      this.__cached.rgb = `RGB(${rgb.join(",")})`
+    }
+    return this.__cached.rgb
+  }
+  /***
+   * To `RGBA(0,0,0,1)
+   */
+  get rgba() {
+    if(!this.__cached.rgba) {
+      let rgba = [this.red, this.green, this.blue, this.alpha]
+      return `RGBA(${rgba.join(",")})`
+    }
+    return this.__cached.rgba
+  }
+  /***
+   * String 
+   */
+  toString() {
+    if(this.alpha == 1) {
+      return this.hex
+    }
+    return this.rgba
+  }
 }
 /////////////////////////////////////
 const TiTypes = {
@@ -365,7 +470,7 @@ const TiTypes = {
       return dft
     }
     if(precision >= 0) {
-      var y = Math.pow(10, precision);
+      let y = Math.pow(10, precision);
       return Math.round(n * y) / y;
     }
     return n
@@ -424,8 +529,18 @@ const TiTypes = {
     return parseDate(val)
   },
   //.......................................
-  toTime(val, dft) {
-    return parseTime(val, dft)
+  toTime(val, {dft,unit}={}) {
+    if(_.isNull(val) || _.isUndefined(val)) {
+      return dft
+    }
+    return new TiTime(val, unit)
+  },
+  //.......................................
+  toColor(val, dft=new TiColor()) {
+    if(_.isNull(val) || _.isUndefined(val)) {
+      return dft
+    }
+    return new TiColor(val)
   },
   //.......................................
   toAMS(val) {

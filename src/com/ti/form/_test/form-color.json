@@ -1,0 +1,15 @@
+{
+  "comType" : "ti-form",
+  "comConf" : {
+    "config" : {
+      "fields" : [{
+          "title" : "最喜爱的颜色",
+          "name"  : "favColor",
+          "comType" : "ti-input-color"
+        }]
+      }
+  },
+  "comEvents" : {
+    "changed" : "main/updatePair"
+  }
+}

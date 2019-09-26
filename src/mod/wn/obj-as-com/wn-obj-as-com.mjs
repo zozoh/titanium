@@ -32,10 +32,15 @@ export default {
   },
   //.....................................
   actions : {
+    updatePair({dispatch}, {name, value}={}) {
+      if(!_.isUndefined(name) && !_.isNull(name)) {
+        dispatch("update", {[name]:value})
+      }
+    },
     /***
      * Update the data and `status.changed`
      */
-    update({state, commit}, data={}){
+    update({commit}, data={}){
       if(!_.isEmpty(data)) {
         commit("mergeData", data)
         commit("syncStatusChanged")

@@ -16,6 +16,8 @@ const TYPES = {
   "sass" : {type:"font",value:"fab-first-order"},
   "tar"  : {type:"font",value:"far-file-archive"},
   "tgz"  : {type:"font",value:"fas-file-archive"},
+  "wncom": {type:"font",value:"im-flask"},
+  //"wncom": {type:"font",value:"im-diamond-o"},
   "wnml" : {type:"font",value:"fas-file-code"},
   "xml"  : {type:"font",value:"far-file-code"},
   "zip"  : {type:"font",value:"fas-file-archive"}

@@ -2,7 +2,8 @@
   "types" : {
     "form"      : "form-view",
     "thing_set" : "thing-manager",
-    "gui"       : "ti-gui"
+    "gui"       : "ti-gui",
+    "wncom"     : "wn-com"
   },
   "mimes" : {
     "text" : "text-editor",
