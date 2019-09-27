@@ -1,3 +1,20 @@
 <div class="ti-input-color">
-  I am color
+  <!--
+    Box
+  -->
+  <div class="as-box" ref="box" :class="boxClass">
+    <span class="as-color">
+      <u class="as-bg"></u>
+      <u class="as-fr"></u>
+    </span>
+    <span class="as-clear">
+      <ti-icon value="zmdi-close"/>
+    </span>
+  </div>
+  <!--
+    Dropdown color picker
+  -->
+  <div class="as-drop" ref="drop">
+    <ti-color/>
+  </div>
 </div>

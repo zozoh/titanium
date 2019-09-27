@@ -2,5 +2,6 @@
   "name" : "ti-input-color",
   "globally" : true,
   "template" : "./ti-input-color.html",
-  "mixins" : ["./ti-input-color.mjs"]
+  "mixins" : ["./ti-input-color.mjs"],
+  "components" : ["@com:ti/color"]
 }

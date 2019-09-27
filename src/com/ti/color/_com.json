@@ -1,0 +1,6 @@
+{
+  "name" : "ti-color",
+  "globally" : true,
+  "template" : "./ti-color.html",
+  "mixins" : ["./ti-color.mjs"]
+}
