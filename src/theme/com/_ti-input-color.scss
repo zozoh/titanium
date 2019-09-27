@@ -7,57 +7,81 @@
     //-------------------------------
     > .as-color {
       @include flex-center;
-      width:.32rem; height:.28rem; cursor:pointer;
-      position: relative; overflow: hidden;
-      padding:1px;
+      width:.26rem; height:.26rem; cursor:pointer;
+      padding:.01rem;
+      overflow: hidden; position: relative;
       //-----------------------------
-      u {display:block;}
-      .as-bg {flex:0 0 auto; width:100%; height:100%;}
-      .as-fr {@include pos-abs($t:0,$l:0,$w:100%,$h:100%);}
+      .as-bg {
+        display:block; flex:0 0 auto;
+        width:100%; height:100%;
+        transition: .3s;
+      }
+      //-----------------------------
+      .as-fr {
+        @include pos-abs-full(.01rem); 
+      }
       //-----------------------------
     }
     //-------------------------------
     > .as-clear {
       @include flex-center;
-      @include border(1px, solid, shallow, left);
+      @include border(1px, solid, dark, left);
       cursor:pointer;
       padding:0 .04rem;
-      font-size:.12rem;
+      font-size:.1rem;
       &:hover {
         @include color($color-secondary, r, c);
       }
     }
     //-------------------------------
     &.is-empty {
-      &:hover {
-        border-color:map-get($color-secondary, c);
-      }
+      //-----------------------------
       > .as-color {
-        padding:0;
         background-color:#FFF;
-        background-image: 
-          linear-gradient(90deg, #EEE 25%, transparent 25%, transparent), 
-          linear-gradient(0deg, #EEE 25%, transparent 25%, transparent), 
-          linear-gradient(90deg, transparent 75%, #EEE 75%), 
-          linear-gradient(0deg, transparent 75%, #EEE 75%);
-        background-size: 12px 12px;
         u.as-bg {
           background-color:red; 
-          height:1px; width:200px;
-          transform:rotate(38deg);
+          height:.03rem; width:200px;
+          transform:rotate(45deg);
+        }
+        u.as-fr {display: none;}
+      }
+      //-----------------------------
+      > .as-clear {display: none;}
+      //-----------------------------
+      &:hover {
+        border-color:map-get($color-secondary, c);
+        > .as-color {
+          u.as-bg {
+            transform: rotate(360deg); width:.08rem; height:.08rem;
+          }
         }
       }
-      > .as-clear {display: none;}
+      //-----------------------------
     }
     //-------------------------------
     &.is-valued {
-      background-color:red;
+      > .as-color {
+        u.as-bg {@include bg-chessboard(#e0e0e0, .12rem, #FFF);}
+      }
+      &:hover {
+        border-color:map-get($color-secondary, c);
+        > .as-color {
+          u.as-bg {@include bg-chessboard(#888, .12rem, #FFF);}
+        }
+      }
     }
     //-------------------------------
   }
   //---------------------------------
+  > .as-mask {
+    @include pos-fixed-full;
+  }
+  //---------------------------------
   > .as-drop {
-
+    @include color($color-body, r, c);
+    @include border(1px, solid, dark);
+    position: fixed;
+    width:3rem; height:3rem;
   }
   //---------------------------------
 }

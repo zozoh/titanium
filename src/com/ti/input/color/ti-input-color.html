@@ -3,18 +3,21 @@
     Box
   -->
   <div class="as-box" ref="box" :class="boxClass">
-    <span class="as-color">
+    <span class="as-color" @click="onSelectColor">
       <u class="as-bg"></u>
-      <u class="as-fr"></u>
+      <u class="as-fr" :style="colorStyle"></u>
     </span>
-    <span class="as-clear">
+    <span class="as-clear" @click="onClearColor">
       <ti-icon value="zmdi-close"/>
     </span>
   </div>
   <!--
-    Dropdown color picker
+    Drop
   -->
-  <div class="as-drop" ref="drop">
-    <ti-color/>
-  </div>
+  <template v-if="dropOpened">
+    <div class="as-mask" @click="dropOpened=false"></div>
+    <div class="as-drop" ref="drop">
+      <ti-color :value="value"/>
+    </div>
+  </template>
 </div>

@@ -236,6 +236,7 @@ const QUICK_COLOR_TABLE = {
   "black"  : [0,0,0,1],
   "white"  : [255,255,255,1]
 }
+//----------------------------------
 export class TiColor {
   // Default color is Black
   red   = 0;
@@ -310,11 +311,18 @@ export class TiColor {
     // Number 
     else if(_.isNumber(input)) {
       // Must in 0-255
-      let gray = _.clamp(input, 0, 255)
+      let gray = _.clamp(Math.round(input), 0, 255)
       this.red   = gray
       this.green = gray
       this.blue  = gray
       this.alpha = 1
+    }
+    // Array [R,G,B,A?]
+    else if(_.isArray(input) && input.length>=3) {
+      this.red   = _.clamp(Math.round(input[0]), 0, 255)
+      this.green = _.clamp(Math.round(input[1]), 0, 255)
+      this.blue  = _.clamp(Math.round(input[2]), 0, 255)
+      this.alpha = input.length>3?input[3]:1
     }
     // Color
     else if(input instanceof TiColor) {
@@ -358,6 +366,128 @@ export class TiColor {
       return `RGBA(${rgba.join(",")})`
     }
     return this.__cached.rgba
+  }
+  /***
+   * Make color lightly
+   * 
+   * @param degree{Number} - 0-255
+   */ 
+  light(degree=10) {
+    this.red   = _.clamp(this.red   + degree, 0, 255)
+    this.green = _.clamp(this.green + degree, 0, 255)
+    this.blue  = _.clamp(this.blue  + degree, 0, 255)
+  }
+  /***
+   * Make color lightly
+   * 
+   * @param degree{Number} - 0-255
+   */ 
+  dark(degree=10) {
+    this.red   = _.clamp(this.red   - degree, 0, 255)
+    this.green = _.clamp(this.green - degree, 0, 255)
+    this.blue  = _.clamp(this.blue  - degree, 0, 255)
+  }
+  /***
+   * Create a new Color Object which between self and given color
+   * 
+   * @param otherColor{TiColor} - Given color
+   * @param pos{Number} - position (0-1)
+   * 
+   * @return new TiColor
+   */
+  between(otherColor, pos=0.5, {
+
+  }={}) {
+    pos = _.clamp(pos, 0, 1)
+    let r0 = otherColor.red   - this.red
+    let g0 = otherColor.green - this.green
+    let b0 = otherColor.blue  - this.blue
+    let a0 = otherColor.alpha - this.alpha
+
+    let r = this.red   + r0 * pos
+    let g = this.green + g0 * pos
+    let b = this.blue  + b0 * pos
+    let a = this.alpha + a0 * pos
+    return new TiColor([
+      _.clamp(Math.round(r), 0, 255),
+      _.clamp(Math.round(g), 0, 255),
+      _.clamp(Math.round(b), 0, 255),
+      _.clamp(a, 0, 1),
+    ])
+  }
+  adjustByHSL({h=0, s=0, l=0}={}) {
+    let hsl = this.toHSL()
+    hsl.h = _.clamp(hsl.h + h, 0, 1)
+    hsl.s = _.clamp(hsl.s + s, 0, 1)
+    hsl.l = _.clamp(hsl.l + l, 0, 1)
+    return this.fromHSL(hsl)
+  }
+  toHSL() {
+		let r = this.red,
+    g = this.green,
+    b = this.blue;
+
+    r /= 255;
+    g /= 255;
+    b /= 255;
+
+    let max = Math.max(r, g, b),
+        min = Math.min(r, g, b),
+    h, s, l = (max + min) / 2;
+
+    if (max === min) {
+      h = s = 0; // achromatic
+    } else {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+
+    return {h, s, l};
+  }
+  fromHSL({h, s, l}={}) {
+    let r, g, b,
+
+    hue2rgb = function (p, q, t){
+      if (t < 0) {
+        t += 1;
+      }
+      if (t > 1) {
+        t -= 1;
+      }
+      if (t < 1/6) {
+        return p + (q - p) * 6 * t;
+      }
+      if (t < 1/2) {
+        return q;
+      }
+      if (t < 2/3) {
+        return p + (q - p) * (2/3 - t) * 6;
+      }
+      return p;
+    };
+
+    if (s === 0) {
+     r = g = b = l; // achromatic
+    } else {
+      let
+        q = l < 0.5 ? l * (1 + s) : l + s - l * s,
+        p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    
+    this.red   = Math.round(r * 0xFF)
+    this.green = Math.round(g * 0xFF)
+    this.blue  = Math.round(b * 0xFF)
+
+    return this
   }
   /***
    * String 
@@ -539,6 +669,9 @@ const TiTypes = {
   toColor(val, dft=new TiColor()) {
     if(_.isNull(val) || _.isUndefined(val)) {
       return dft
+    }
+    if(val instanceof TiColor) {
+      return val
     }
     return new TiColor(val)
   },

@@ -1,3 +1,32 @@
 <div class="ti-color" >
-  I am ti-color
+  I am ti-color : {{value}}
+  <hr>
+  <!--
+    Color Matrix Table
+  -->
+  <div class="as-table">
+    <table>
+      <thead>
+        <tr>
+          <th v-for="color in colorGrays">
+            <span :style="colorItemStyle(color)"></span>
+          </th>
+        </tr>
+        <tr>
+            <th v-for="color in colorMajors">
+              <span :style="colorItemStyle(color)"></span>
+            </th>
+          </tr>
+      </thead>
+      <!--Matrix-->
+      <tbody>
+        <tr v-for="row in colorMatrix"
+          class="as-row">
+          <td v-for="color in row">
+            <span :style="colorItemStyle(color)"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div> <!-- End Matrix-->
 </div>

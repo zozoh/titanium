@@ -173,7 +173,14 @@ export const TiDom = {
     let css = rect.toCss(viewport, keys)
     TiDom.setStyle($el, css)
   },
-  dockTo($src, $ta, {mode="H", axis={}, space, position}={}) {
+  dockTo($src, $ta, {
+    mode="H", 
+    axis={}, 
+    posListX,  // ["left", "center", "right"]
+    posListY,  // ["top", "center", "bottom"]
+    space, 
+    position}={}
+  ) {
     if(position) {
       $src.style.position = position
     }
@@ -197,14 +204,14 @@ export const TiDom = {
     // Auto axis
     _.defaults(axis, {x:"auto", y:"auto"})
     if("auto" == axis.x) {
-      let list = ({
+      let list = posListX || ({
         "H" : ["left", "center", "right"],
         "V" : ["right", "left"]
       })[mode]
       axis.x = getAxis(rect.ta.x, rect.win.width/list.length, list)
     }
     if("auto" == axis.y) {
-      let list = ({
+      let list = posListY || ({
         "H" : ["bottom", "top"],
         "V" : ["top", "center", "bottom"]
       })[mode]

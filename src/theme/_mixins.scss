@@ -159,10 +159,22 @@
   position:fixed;
   @include pos($l,$t,$w,$h,$r,$b)
 }
-@mixin pos-abs-full($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
-  @include pos-abs($l:0,$r:0,$t:0,$b:0);
+@mixin pos-abs-full($pad:0) {
+  @include pos-abs($l:$pad,$r:$pad,$t:$pad,$b:$pad);
 }
-@mixin pos-fixed-full($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
-  @include pos-fixed($l:0,$r:0,$t:0,$b:0);
+@mixin pos-fixed-full($pad:0) {
+  @include pos-fixed($l:$pad,$r:$pad,$t:$pad,$b:$pad);
 }
-
+//-------------------------------------------------------------
+@mixin bg-chessboard($color:#DDD, $sz:.1rem, $bg:transparent) {
+  background-color:$bg;
+  background-image: 
+    linear-gradient(
+      45deg, $color 25%, transparent 25%, 
+      transparent 75%, $color 75%, $color), 
+    linear-gradient(
+      45deg, $color 26%, transparent 26%, 
+      transparent 74%, $color 74%, $color); 
+  background-size: $sz $sz;
+  background-position: 0 0, $sz/2 $sz/2;
+}
