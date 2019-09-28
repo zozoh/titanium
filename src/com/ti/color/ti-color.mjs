@@ -49,7 +49,7 @@ export default {
     //---------------------------------------------------
     theColorValue() {
       if(this.theColor)
-        return this.theColor.toString()
+        return this.theColor.rgba
       return Ti.I18n.get("empty")
     },
     //---------------------------------------------------
