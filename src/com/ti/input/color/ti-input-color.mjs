@@ -3,7 +3,7 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data: ()=>({
-    "dropOpened" : true
+    "dropOpened" : false
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -55,10 +55,15 @@ export default {
         let $box = this.$refs.box
         if($drop && $box) {
           Ti.Dom.dockTo($drop, $box, {
-            space:2, posListX:["left", "right"]
+            space:{y:2}, posListX:["left", "right"]
           })
         }
       }
+    },
+    //------------------------------------------------
+    onColorChanged(color) {
+      let co = Ti.Types.toColor(color)
+      this.$emit("changed", co ? co.toString() : null)
     }
     //------------------------------------------------
   },

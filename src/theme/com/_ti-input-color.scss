@@ -10,6 +10,7 @@
       width:.26rem; height:.26rem; cursor:pointer;
       padding:.01rem;
       overflow: hidden; position: relative;
+      transition: .3s;
       //-----------------------------
       .as-bg {
         display:block; flex:0 0 auto;
@@ -19,6 +20,7 @@
       //-----------------------------
       .as-fr {
         @include pos-abs-full(.01rem); 
+        transition: .3s;
       }
       //-----------------------------
     }
@@ -61,12 +63,20 @@
     //-------------------------------
     &.is-valued {
       > .as-color {
-        u.as-bg {@include bg-chessboard(#e0e0e0, .12rem, #FFF);}
+        u.as-bg {@include bg-chessboard(#888, .12rem, #FFF);}
       }
       &:hover {
         border-color:map-get($color-secondary, c);
-        > .as-color {
-          u.as-bg {@include bg-chessboard(#888, .12rem, #FFF);}
+      }
+      > .as-color:hover {
+        padding: .02rem;
+        u.as-bg {
+          @include bg-chessboard(#888, .1rem, #FFF); 
+          border-radius: .04rem;
+        }
+        u.as-fr {
+          @include pos-abs-full(.02rem); 
+          border-radius: .04rem;
         }
       }
     }

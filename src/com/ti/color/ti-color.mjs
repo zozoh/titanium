@@ -50,6 +50,7 @@ export default {
     theColorValue() {
       if(this.theColor)
         return this.theColor.toString()
+      return Ti.I18n.get("empty")
     },
     //---------------------------------------------------
     colCount() {
@@ -108,11 +109,39 @@ export default {
   },
   ///////////////////////////////////////////////////////
   methods : {
+    //---------------------------------------------------
     colorItemStyle(color) {
       return {
         "background-color" : color.rgb
       }
+    },
+    //---------------------------------------------------
+    onHexChanged(evt) {
+      console.log("haha")
+      let hex=_.trim(evt.target.value)
+      if(/^[0-9a-f]{3,6}$/i.test(hex)) {
+        hex = "#" + hex
+      }
+      let co = Ti.Types.toColor(hex)
+      this.$emit("changed", co)
+    },
+    //---------------------------------------------------
+    onAlphaChanged(a) {
+      let co = this.theColor 
+                ? this.theColor.clone()
+                : Ti.Types.toColor("black")
+      co.alpha = a / 100
+      this.$emit("changed", co)
+    },
+    //---------------------------------------------------
+    onColorClicked(color) {
+      let co = color.clone()
+      if(_.isNumber(this.theAlpha)) {
+        co.alpha = this.theAlpha/100
+      }
+      this.$emit("changed", co)
     }
+    //---------------------------------------------------
   }
   ///////////////////////////////////////////////////////
 }

@@ -17,7 +17,9 @@
   <template v-if="dropOpened">
     <div class="as-mask" @click="dropOpened=false"></div>
     <div class="as-drop" ref="drop">
-      <ti-color :value="value"/>
+      <ti-color 
+        :value="value"
+        @changed="onColorChanged"/>
     </div>
   </template>
 </div>

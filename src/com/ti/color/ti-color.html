@@ -7,12 +7,16 @@
       <thead>
         <tr>
           <th v-for="color in colorGrays">
-            <span :style="colorItemStyle(color)"></span>
+            <span 
+              :style="colorItemStyle(color)" 
+              @click="onColorClicked(color)"></span>
           </th>
         </tr>
         <tr>
             <th v-for="color in colorMajors">
-              <span :style="colorItemStyle(color)"></span>
+              <span 
+                :style="colorItemStyle(color)" 
+                @click="onColorClicked(color)"></span>
             </th>
           </tr>
       </thead>
@@ -21,7 +25,9 @@
         <tr v-for="row in colorMatrix"
           class="as-row">
           <td v-for="color in row">
-            <span :style="colorItemStyle(color)"></span>
+            <span 
+              :style="colorItemStyle(color)" 
+              @click="onColorClicked(color)"></span>
           </td>
         </tr>
       </tbody>
@@ -34,10 +40,16 @@
     <div class="as-hex">
         <input class="as-value" 
           spellcheck="false"
-          :value="theHex"/>
+          :value="theHex"
+          @change="onHexChanged"/>
     </div>
     <div class="as-alpha">
-      <ti-input-num :value="theAlpha"/>
+      <ti-input-num 
+        :value="theAlpha"
+        :max-value="100"
+        :min-value="0"
+        :step="10"
+        @changed="onAlphaChanged"/>
     </div>
   </div>
   <!--

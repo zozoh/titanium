@@ -53,7 +53,7 @@ export default {
       }
       // dispatch action
       if(action) {
-        console.log("wn-obj-signle-com::hijackEmit->", name, payload)
+        //console.log("wn-obj-signle-com::hijackEmit->", name, payload)
         Ti.App(this).dispatch(action, payload)
         
       }

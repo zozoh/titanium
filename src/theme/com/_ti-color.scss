@@ -1,7 +1,7 @@
 .ti-color {
   //-------------------------------------
   > .as-table {
-    padding:.1rem;
+    padding:.12rem .1rem .1rem .1rem;
     table {
       width:100%;
       th {
@@ -26,7 +26,6 @@
   //-------------------------------------
   > .as-input {
     @include flex-align-nowrap;
-    border-top:1px solid map-get($color-line, shallow);
     padding: .04rem;
     //-----------------------------------
     > .as-hex {
@@ -52,7 +51,6 @@
   }
   //-------------------------------------
   > .as-preview {
-    border-top:1px solid map-get($color-line, shallow);
     padding:.06rem; text-align: center;
     @include font($f_fixed, .12rem);
     @include color($color-disable, c);

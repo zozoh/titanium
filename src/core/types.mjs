@@ -247,6 +247,40 @@ export class TiColor {
   constructor(input) {
     this.update(input)
   }
+  clone() {
+    return new TiColor([this.red, this.green, this.blue, this.alpha])
+  }
+  set red(r=0) {
+    this.__cached - {}
+    this.red = _.clamp(r, 0, 255)
+  }
+  set green(g=0) {
+    this.__cached - {}
+    this.green = _.clamp(g, 0, 255)
+  }
+  set blue(b=0) {
+    this.__cached - {}
+    this.blue = _.clamp(b, 0, 255)
+  }
+  set alpha(a=1) {
+    this.__cached = {}
+    this.alpha = a
+  }
+  setRGBA({r,g,b,a}={}) {
+    this.__cached = {}
+    if(_.isNumber(r)) {
+      this.red = _.clamp(r, 0, 255)
+    }
+    if(_.isNumber(g)) {
+      this.green = _.clamp(g, 0, 255)
+    }
+    if(_.isNumber(b)) {
+      this.blue = _.clamp(b, 0, 255)
+    }
+    if(_.isNumber(a)) {
+      this.alpha = _.clamp(a, 0, 1)
+    }
+  }
   /***
    * UPdate color by input
    * 
