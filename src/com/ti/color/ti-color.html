@@ -1,6 +1,4 @@
 <div class="ti-color" >
-  I am ti-color : {{value}}
-  <hr>
   <!--
     Color Matrix Table
   -->
@@ -29,4 +27,23 @@
       </tbody>
     </table>
   </div> <!-- End Matrix-->
+  <!--
+    Color Input
+  -->
+  <div class="as-input">
+    <div class="as-hex">
+        <input class="as-value" 
+          spellcheck="false"
+          :value="theHex"/>
+    </div>
+    <div class="as-alpha">
+      <ti-input-num :value="theAlpha"/>
+    </div>
+  </div>
+  <!--
+    Color Preview
+  -->
+  <div class="as-preview">
+    <span>{{theColorValue}}</span>
+  </div>
 </div>

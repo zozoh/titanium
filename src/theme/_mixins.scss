@@ -129,11 +129,13 @@
   }
 }
 //-------------------------------------------------------------
-@mixin text-input(){
+@mixin text-input($fa:$f_fixed){
   @include color($color-input,c,r);
   @include border(1px, solid, dark);
   outline: none; resize: none;
-  font-family: $f_fixed;
+  @if $fa != null {
+    font-family: $fa;
+  }
   &:focus {
     border-color:map-get($color-line, highlight);
   }

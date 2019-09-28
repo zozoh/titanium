@@ -81,7 +81,7 @@
     @include color($color-body, r, c);
     @include border(1px, solid, dark);
     position: fixed;
-    width:3rem; height:3rem;
+    
   }
   //---------------------------------
 }

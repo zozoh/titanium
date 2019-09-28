@@ -33,6 +33,25 @@ export default {
   ///////////////////////////////////////////////////////
   computed : {
     //---------------------------------------------------
+    theColor() {
+      return Ti.Types.toColor(this.value, null)
+    },
+    //---------------------------------------------------
+    theHex() {
+      if(this.theColor)
+        return this.theColor.hex
+    },
+    //---------------------------------------------------
+    theAlpha() {
+      if(this.theColor)
+        return Math.round(this.theColor.alpha * 100)
+    },
+    //---------------------------------------------------
+    theColorValue() {
+      if(this.theColor)
+        return this.theColor.toString()
+    },
+    //---------------------------------------------------
     colCount() {
       return this.topColors.length
     },

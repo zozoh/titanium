@@ -1,6 +1,6 @@
 .ti-color {
   //-------------------------------------
-  .as-table {
+  > .as-table {
     padding:.1rem;
     table {
       width:100%;
@@ -22,6 +22,40 @@
         }
       }
     }
+  }
+  //-------------------------------------
+  > .as-input {
+    @include flex-align-nowrap;
+    border-top:1px solid map-get($color-line, shallow);
+    padding: .04rem;
+    //-----------------------------------
+    > .as-hex {
+      flex:1 1 auto;
+      input.as-value {
+        @include text-input;
+        width:100%; font-size:.16rem;
+        padding:.06rem;
+      }
+    }
+    //-----------------------------------
+    > .as-alpha {
+      flex:0 0 auto; width:.9rem;
+      padding-left:.02rem;
+      .ti-input-num {
+        .as-btn {width:.2rem; font-size:.1rem;}
+        .as-input {
+          input {padding:.06rem 0; }
+        }
+      }
+    }
+    //-----------------------------------
+  }
+  //-------------------------------------
+  > .as-preview {
+    border-top:1px solid map-get($color-line, shallow);
+    padding:.06rem; text-align: center;
+    @include font($f_fixed, .12rem);
+    @include color($color-disable, c);
   }
   //-------------------------------------
 }
