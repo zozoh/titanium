@@ -1,0 +1,39 @@
+<div class="ti-calendar">
+  <!--
+    Switcher
+  -->
+  <slot name="head">
+    <div class="as-switcher">
+      <div class="go-btn to-prev-month" @click="gotoMonth(-1)">
+        <ti-icon value="zmdi-chevron-left"/>
+      </div>
+      <div class="as-title">
+        <span class="as-year">{{currentYear}}</span>
+        <span class="as-month">{{currentMonthAbbr|i18n}}</span>
+      </div>
+      <div class="go-btn to-next-month" @click="gotoMonth(1)">
+        <ti-icon value="zmdi-chevron-right"/>
+      </div>
+    </div>
+  </slot>
+  <!--
+    Day cells
+  -->
+  <div class="as-table">
+    <table>
+      <thead>
+        <th v-for="wt in weekTitles">{{wt.title}}</th>
+      </thead>
+      <tbody>
+        <tr v-for="row in dayMatrix">
+          <td v-for="cell in row" :class="cell.type">
+            <slot name="cell">
+              <span class="as-date-item"
+                @click="onClickCell(cell)">{{cell.date}}</span>
+            </slot>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

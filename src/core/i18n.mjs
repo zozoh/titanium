@@ -2,10 +2,14 @@
 const I18N = {}
 //-----------------------------------
 function __MSG(key) {
-  if(!_.isString(key))
-    return
-  let k2 = key.replace(/\./g,"-")
-  return I18N[k2]
+  let re = _.get(I18N, key)
+  if(re)
+    return re
+  if(_.isString(key)) {
+    let k2 = key.replace(/\./g,"-")
+    return I18N[k2]
+  }
+  return key
 }
 //-----------------------------------
 export const Ti18n = {

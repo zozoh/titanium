@@ -7,9 +7,12 @@
           "name"  : "favColor",
           "comType" : "ti-input-color"
         }]
-      }
+      },
+    "data" : {
+      "favColor" : "=favColor"
+    }
   },
   "comEvents" : {
-    "changed" : "main/updatePair"
+    "changed" : "updatePair"
   }
 }

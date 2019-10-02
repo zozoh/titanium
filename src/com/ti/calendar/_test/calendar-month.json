@@ -1,0 +1,19 @@
+{
+  "comType" : "ti-calendar",
+  "comConf" : {
+    "value" : "=current"
+  },
+  "comEvents" : {
+    "changed" : {
+      "action" : "updatePair",
+      "payload" : {
+        "name"  : "current",
+        "value" : {
+          "__is_calling" : true,
+          "name" : "formatDate",
+          "args" : ["=$args", "yyyy-MM-dd"]
+        }
+      }
+    }
+  }
+}

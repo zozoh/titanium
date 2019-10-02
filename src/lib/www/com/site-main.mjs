@@ -211,7 +211,14 @@ export default {
           })
         }
       }
-      // Direct call
+      // Direct call : String
+      else if(_.isString(act)) {
+        await app.dispatch("doAction", {
+          action: act,
+          args
+        })
+      }
+      // Direct call : Object
       else {
         await app.dispatch("doAction", {
           action  : act.action,

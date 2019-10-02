@@ -1,0 +1,64 @@
+.ti-calendar {
+  @include noselect;
+  width:2.6rem;
+  //---------------------------------
+  > .as-switcher {
+    @include flex-align-nowrap($ai:stretch);
+    > .go-btn {
+      @include flex-center;
+      width:.24rem;
+      cursor:pointer;
+      flex:0 0 auto;
+      &:hover {
+        @include color($color-primary, r, c);
+      }
+    }
+    > .as-title {
+      @include flex-center;
+      flex:1 1 auto;
+      > span {
+        padding:.04rem .06rem;
+      }
+    }
+  }
+  //---------------------------------
+  > .as-table {
+    table {
+      border-spacing: 0; width:100%;
+    }
+    th {
+      @include border(1px, solid, shallow, top);
+      @include border(1px, solid, shallow, bottom);
+      text-align:center;
+    }
+    td {
+      padding:.02rem;
+      &.is-prev,
+      &.is-next {
+        opacity: 0.4;
+      }
+      &.is-today {
+        color: map-get($color-secondary, c);
+        font-weight: bold;
+      }
+      &.is-current {
+        .as-date-item {
+          @include color($color-secondary, r, c);
+        }
+      }
+    }
+  }
+  //---------------------------------
+  .as-date-item {
+    @include flex-center;
+    width:.32rem; height:.32rem;
+    border-radius: 50%; margin:0 auto;
+    cursor: pointer;
+    font-size:.12rem;
+    &:hover {
+      @include color($color-primary, r, c);
+    }
+  }
+  //---------------------------------
+  //---------------------------------
+}

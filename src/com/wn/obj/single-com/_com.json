@@ -5,6 +5,7 @@
   "mixins" : ["./wn-obj-single-com.mjs"],
   "components" : [
     "@com:ti/form",
-    "@com:ti/wizard"
+    "@com:ti/wizard",
+    "@com:ti/calendar"
   ]
 }

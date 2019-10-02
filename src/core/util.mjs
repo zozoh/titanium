@@ -213,12 +213,7 @@ const TiUtil = {
             fn = _.get(fnSet, theValue.name)
           }
           // Prepare arguments
-          let args = _.map(theValue.args||[], (arg)=>{
-            if(_.isFunction(arg)) {
-              return arg(context)
-            }
-            return arg
-          })
+          let args = _.map(theValue.args||[], ExplainValue)
           // Do invoke
           return fn.apply(context, args)
         }

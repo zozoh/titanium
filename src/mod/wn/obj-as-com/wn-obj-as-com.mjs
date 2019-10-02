@@ -46,6 +46,67 @@ export default {
         commit("syncStatusChanged")
       }
     },
+    //-------------------------------------
+    /***
+     * Handle the action dispatching.
+     * 
+     * One action should be defined in `[page].json#actions`:
+     * 
+     * ```js
+     * {
+      *    action : "xx/xx",
+      *    payload : {} | [] | ...
+      * }
+      * ```
+      * 
+      * @param action{String} - action name like `page/showBlock`
+      * @param payload{Object|Array} - action payload, defined in `json` file
+      * @param args{Array} - the dynamic information emitted by `[Com].$emit`
+      * @param autoDestructArgs{Boolean} - If trusy, one element `args` will be unwrapped.
+      * @param autoJoinArgs{Boolean} - If trusy, 
+      *    it will auto join `args` to `payload` by `payload` type:
+      *   - `null` or `undeinfed` : replace `payload` by `args`
+      *   - `Object` : set `payload.args = args`
+      *   - `Array`  : concat to the tail of `payload`
+      * 
+      * @return {void}
+      */
+     async doAction({state, dispatch}, {
+       action, 
+       payload, 
+       args=[],
+       autoDestructArgs = true
+     }={}){
+       //....................................
+       if(!action)
+         return;
+       //....................................
+       // auto destruc args
+       if(autoDestructArgs 
+         &&_.isArray(args) 
+         && args.length == 1) {
+         args = args[0]
+       }
+       //....................................
+       // auto join args
+       let pld1 = payload;
+ 
+       // Use args directrly cause payload without defined
+       if(_.isUndefined(payload) || _.isNull(payload)) {
+         pld1 = _.cloneDeep(args)
+       }
+       //....................................
+       // Explain payload
+       let context = _.assign({}, state, {
+         $args : args
+       })
+       let pld2 = Ti.Util.explainObj(context, pld1, {
+         evalFunc : true
+       })
+       //....................................
+       console.log("invoke->", {action, payload:pld2})
+       await dispatch(action, pld2)
+     },
     /***
      * Save content to remote
      */

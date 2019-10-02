@@ -14,10 +14,6 @@ export default {
       type : [Array, Object, Number, Boolean, String],
       default : null
     },
-    "dataKey" : {
-      type : String,
-      default : "data"
-    },
     "status" : {
       type : Object,
       default : ()=>({})
@@ -34,8 +30,9 @@ export default {
   //////////////////////////////////////////
   computed : {
     comBindObject() {
-      let re = _.assign({}, this.comConf)
-      re[this.dataKey] = this.data
+      let re = Ti.Util.explainObj(this.data||{}, this.comConf, {
+        evalFunc : true
+      })
       return re      
     }
   },
@@ -44,18 +41,19 @@ export default {
     //----------------------------------------------
     async hijackEmit(name, args) {
       // Find the serializer function
-      let action = this.comEvents[name]
+      let act = this.comEvents[name]
 
-      // Eval Payload
-      let payload = args
-      if(args && _.isArray(args) && args.length == 1) {
-        payload = args[0]
-      }
       // dispatch action
-      if(action) {
+      if(act) {
         //console.log("wn-obj-signle-com::hijackEmit->", name, payload)
-        Ti.App(this).dispatch(action, payload)
-        
+        if(_.isString(act)) {
+          act = {action:act}
+        }
+        Ti.App(this).dispatch("main/doAction", {
+          action  : act.action,
+          payload : act.payload,
+          args
+        })
       }
     }
   }
