@@ -1,10 +1,16 @@
 export default {
+  inheritAttrs : false,
+  //////////////////////////////////////////
   data : ()=>({
     lastIndex  : 0,
     focusIndex : -1
   }),
   //////////////////////////////////////////
   props : {
+    "className" : {
+      type : String,
+      default : null
+    },
     "empty" :{
       type : Object,
       default : null
@@ -39,10 +45,39 @@ export default {
     "renameable" : {
       type : Boolean,
       default : false
+    },
+    // auto scroll the first highlight items into view
+    "autoScrollIntoView" : {
+      type : Boolean,
+      default : true
+    }
+  },
+  //////////////////////////////////////////
+  watch : {
+    "value" : function(val) {
+      if(!_.isNull(val)) {
+        if(this.autoScrollIntoView) {
+          this.$nextTick(()=>{
+            this.scrollFirstSelectedIntoView()
+          })
+        }
+      }
     }
   },
   //////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    topClass() {
+      let klass = []
+      if(this.className) {
+        klass.push(this.className)
+      }
+      if(this.dropOpened) {
+        klass.push("is-drop-opened")
+      }
+      return klass
+    },
+    //--------------------------------------
     formedList() {
       let list = this.normalizeData(this.data, {
         multi   : this.multi,
@@ -57,7 +92,7 @@ export default {
       //console.log(list)
       return list
     },
-    //......................................
+    //--------------------------------------
     hasIcon() {
       for(let it of this.formedList) {
         if(it.icon)
@@ -65,16 +100,18 @@ export default {
       }
       return false
     }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
     itemClass(it) {
       return {
         "is-selected" : it.selected,
         "is-focused"  : it.focused
       }
     },
-    //......................................
+    //--------------------------------------
     onClick(index, eo) {
       // Multi mode
       if(this.multi) {
@@ -115,10 +152,23 @@ export default {
       // remember the last
       this.lastIndex = index
     },
-    //......................................
+    //--------------------------------------
     onMouseDown(index, eo) {
       this.focusIndex = index
+    },
+    //--------------------------------------
+    scrollFirstSelectedIntoView() {
+      // find the first selected element
+      let [$first] = Ti.Dom.findAll("li.is-selected", this.$el)
+      if($first) {
+        let rect = Ti.Rects.createBy($first)
+        let view = Ti.Rects.createBy(this.$el)
+        if(!view.contains(rect)) {
+          this.$el.scrollTop += rect.top - view.top
+        }
+      }
     }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   updated : function(){
@@ -131,8 +181,13 @@ export default {
       vm.focusIndex = -1
     }
     Ti.Dom.watchDocument("mouseup", this.__on_mouseup)
+    if(this.autoScrollIntoView) {
+      this.scrollFirstSelectedIntoView()
+    }
   },
+  //////////////////////////////////////////
   beforeDestroy : function(){
     Ti.Dom.unwatchDocument("mouseup", this.__on_mouseup)
   }
+  //////////////////////////////////////////
 }

@@ -85,6 +85,43 @@ export class TiTime {
     this.update(input, unit)
   }
   //--------------------------------
+  clone() {
+    return new TiTime(this)
+  }
+  //--------------------------------
+  set hours(hours=0) {
+    this.__cached - {}
+    this.hours = _.clamp(hours, 0, 23)
+  }
+  set minutes(minutes=0) {
+    this.__cached - {}
+    this.minutes = _.clamp(minutes, 0, 59)
+  }
+  set seconds(seconds=0) {
+    this.__cached - {}
+    this.seconds = _.clamp(seconds, 0, 59)
+  }
+  set milliseconds(ms=1) {
+    this.__cached = {}
+    this.milliseconds = _.clamp(ms, 0, 999)
+  }
+  //--------------------------------
+  setTimes({hours, minutes, seconds, milliseconds}={}) {
+    this.__cached = {}
+    this.hours = _.clamp(
+      Ti.Util.fallback(hours, this.hours),
+      0, 23)
+    this.minutes = _.clamp(
+      Ti.Util.fallback(minutes, this.minutes),
+      0,59)
+    this.seconds = _.clamp(
+      Ti.Util.fallback(seconds, this.seconds),
+      0,59)
+    this.milliseconds = _.clamp(
+      Ti.Util.fallback(milliseconds, this.milliseconds),
+      0,999)
+  }
+  //--------------------------------
   update(input, unit="ms") {
     this.__cached = {}
     // Date
@@ -125,24 +162,24 @@ export class TiTime {
       if(m) {
         // Min: 23:59
         if (!m[3]) {
-          this.hours = parseInt(m[1]);
-          this.minutes = parseInt(m[2]);
+          this.hours   = _.clamp(parseInt(m[1]),0,23);
+          this.minutes = _.clamp(parseInt(m[2]),0,59);
           this.seconds = 0;
           this.milliseconds = 0;
         }
         // Sec: 23:59:59
         else if (!m[5]) {
-          this.hours = parseInt(m[1]);
-          this.minutes = parseInt(m[2]);
-          this.seconds = parseInt(m[4]);
+          this.hours   = _.clamp(parseInt(m[1]),0,23);
+          this.minutes = _.clamp(parseInt(m[2]),0,59);
+          this.seconds = _.clamp(parseInt(m[4]),0,59);
           this.milliseconds = 0;
         }
         // Ms: 23:59:59.234
         else {
-          this.hours = parseInt(m[1]);
-          this.minutes = parseInt(m[2]);
-          this.seconds = parseInt(m[4]);
-          this.milliseconds = parseInt(m[6]);
+          this.hours   = _.clamp(parseInt(m[1]),0,23);
+          this.minutes = _.clamp(parseInt(m[2]),0,59);
+          this.seconds = _.clamp(parseInt(m[4]),0,59);
+          this.milliseconds = _.clamp(parseInt(m[6]),0,999);
         }
       } // if(m)
     } // _.isString(input)
@@ -789,6 +826,9 @@ const TiTypes = {
       data : reo
     }
   },
+  //.......................................
+  Time  : TiTime,
+  Color : TiColor,
   //.......................................
   getFuncByType(type="String", name="transformer") {
     return _.get({

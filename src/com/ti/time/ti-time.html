@@ -1,0 +1,6 @@
+<div class="ti-time" :class="topClass" :style="topStyle">
+  <ti-list v-for="list in theListGroup"
+    :key="list.key"
+    v-bind="list"
+    @changed="onListChanged(list.key, $event)"/>
+</div>

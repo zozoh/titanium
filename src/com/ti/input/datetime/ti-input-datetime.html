@@ -1,0 +1,28 @@
+<div class="ti-input"
+  :class="topClass">
+  <!--
+    Multi-line textarea
+  -->
+  <template v-if="multi">
+    <textarea
+      spellcheck="false" 
+      :class="multiModeClass"
+      :style="multiModeStyle"
+      :value="theValue"
+      :placeholder="placeholder"
+      @change="onChanged"></textarea>
+  </template>
+  <!--
+    Single-line input
+  -->
+  <template v-else>
+    <input 
+      spellcheck="false" 
+      :class="inputModeClass"
+      :value="theValue"
+      :placeholder="placeholder"
+      @change="onChanged">
+    <div v-if="suffix"
+      class="input-suffix">{{suffix}}</div>
+  </template>
+</div>

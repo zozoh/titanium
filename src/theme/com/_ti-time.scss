@@ -1,0 +1,8 @@
+.ti-time {
+  @include flex-align-nowrap;
+  > .ti-list {
+    flex:1 1 auto; height:100%;
+    overflow: hidden scroll;
+    font-size:.12rem; line-height: 1.6em;
+  }
+}

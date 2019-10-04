@@ -1,0 +1,40 @@
+<div class="ti-combo-input"
+  :class="topClass">
+  <!--
+    Display or input
+  -->
+  <div class="as-box" ref="box"
+    :style="boxStyle"
+    @click="dropOpened=true">
+    <div v-if="icon"
+      class="as-icon">
+      <ti-icon :value="icon"/>
+    </div>
+    <div class="as-input">
+      <!--Editable-->
+      <input v-if="editable"
+        spellcheck="false" 
+        :value="text"
+        :placeholder="placeholder"
+        @click.stop
+        @change="onChanged"
+        @focus="onInputFocus">
+      <!--Display only-->
+      <span v-else>{{text}}</span>
+    </div>
+    <div class="as-icon is-state">
+      <ti-icon :value="stateIcon"/>
+    </div>
+  </div>
+  <!--
+    Drop
+  -->
+  <template v-if="dropOpened">
+    <div class="as-mask" @click="dropOpened=false"></div>
+    <div class="as-drop" ref="drop">
+      <slot>
+        <span>This is dropdown content</span>
+      </slot>
+    </div>
+  </template>
+</div>

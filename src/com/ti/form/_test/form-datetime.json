@@ -1,0 +1,22 @@
+{
+  "comType" : "ti-form",
+  "comConf" : {
+    "config" : {
+      "fields" : [{
+          "title" : "时间",
+          "name"  : "time",
+          "comType" : "ti-input-time",
+          "comConf" : {
+            "mode" : "sec",
+            "editable" : true
+          }
+        }]
+      },
+    "data" : {
+      "time" : "=time"
+    }
+  },
+  "comEvents" : {
+    "changed" : "updatePair"
+  }
+}

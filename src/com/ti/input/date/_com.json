@@ -1,0 +1,6 @@
+{
+  "name" : "ti-input-date",
+  "globally" : true,
+  "template" : "./ti-input-date.html",
+  "mixins" : ["./ti-input-date.mjs"]
+}

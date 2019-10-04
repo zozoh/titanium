@@ -1,0 +1,18 @@
+<ti-combo-input class="as-time"
+  icon="zmdi-time"
+  :class="topClass"
+  :text="theTimeText"
+  :placeholder="placeholder"
+  :editable="editable"
+  :focus-to-open="focusToOpen"
+  :width="width"
+  :height="height"
+  :dropHeight="dropHeight"
+  @changed="onChanged"
+  @collapse="onCollapse">
+  <ti-time
+    :value="theDropTime"
+    :mode="mode"
+    :height="dropHeight"
+    @changed="onTimeChanged"/>
+</ti-combo-input>

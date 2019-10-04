@@ -11,7 +11,6 @@ import {TiApp       as App     } from "./app.mjs"
 import {TiError     as Err     } from "./err.mjs"
 import {TiConfig    as Config  } from "./config.mjs"
 import {TiDom       as Dom     } from "./dom.mjs"
-import {TiCss       as Css     } from "./css.mjs"
 import {TiRects     as Rects   } from "./rect.mjs"
 import {TiLoad      as Load    } from "./load.mjs"
 import {TiHttp      as Http    } from "./http.mjs"
@@ -29,6 +28,8 @@ import Viewport from "./viewport.mjs"
 import WWW      from "./www.mjs"
 import GPS      from "./gps.mjs"
 import DateTime from "./datetime.mjs"
+import Num      from "./num.mjs"
+import Css      from "./css.mjs"
 //---------------------------------------
 const ENV = {
   "version" : "1.0",
@@ -57,7 +58,7 @@ const LOG_LEVELS = {
 export const Ti = {
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
-  WWW, GPS, Validate, DateTime,
+  WWW, GPS, Validate, DateTime, Num,
   //.....................................
   Alert, Confirm, Prompt, Toast, Captcha, Modal,
   //.....................................

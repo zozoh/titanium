@@ -1,0 +1,9 @@
+{
+  "name" : "ti-input-time",
+  "globally" : true,
+  "template" : "./ti-input-time.html",
+  "mixins" : ["./ti-input-time.mjs"],
+  "components" : [
+    "@com:ti/combo/input",
+    "@com:ti/time"]
+}

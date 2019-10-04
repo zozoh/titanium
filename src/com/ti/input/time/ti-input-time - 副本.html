@@ -1,0 +1,41 @@
+<div class="ti-combo-input as-time"
+  :class="topClass">
+  <!--
+    Display or input
+  -->
+  <div class="as-box" ref="box"
+    :style="boxStyle"
+    @click="dropOpened=true">
+    <div class="as-icon">
+      <ti-icon :value="'zmdi-time'"/>
+    </div>
+    <div class="as-input">
+      <!--Editable-->
+      <input v-if="editable"
+        spellcheck="false" 
+        :value="theTimeText"
+        :placeholder="placeholder"
+        @click.stop
+        @change="onChanged"
+        @focus="onInputFocus">
+      <!--Display only-->
+      <span v-else>{{theTimeText}}</span>
+    </div>
+    <div class="as-icon is-state">
+      <ti-icon :value="stateIcon"/>
+    </div>
+  </div>
+  <!--
+    Drop
+  -->
+  <template v-if="dropOpened">
+    <div class="as-mask" @click="dropOpened=false"></div>
+    <div class="as-drop" ref="drop">
+      <ti-time
+        :value="theDropTime"
+        :mode="mode"
+        :height="dropHeight"
+        @changed="onTimeChanged"/>
+    </div>
+  </template>
+</div>

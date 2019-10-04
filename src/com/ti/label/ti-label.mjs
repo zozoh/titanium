@@ -1,4 +1,6 @@
 export default {
+  inheritAttrs : false,
+  //////////////////////////////////////////
   props : {
     "blankAs" : {
       type : String,
@@ -7,6 +9,7 @@ export default {
     "value" : null,
     "format" : undefined
   },
+  //////////////////////////////////////////
   computed : {
     isBlank() {
       if(_.isNumber(this.value))
@@ -26,4 +29,5 @@ export default {
       return Ti.I18n.text(str)
     }
   }
+  //////////////////////////////////////////
 }

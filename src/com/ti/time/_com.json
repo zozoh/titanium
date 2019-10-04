@@ -1,0 +1,7 @@
+{
+  "name" : "ti-time",
+  "globally" : true,
+  "template" : "./ti-time.html",
+  "mixins" : ["./ti-time.mjs"],
+  "components" : ["@com:ti/list"]
+}

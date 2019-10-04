@@ -45,10 +45,6 @@ export default {
       this.$emit("changed", null)
     },
     //------------------------------------------------
-    onSelectColor() {
-      this.dropOpened = true
-    },
-    //------------------------------------------------
     dockDrop() {
       if(this.dropOpened) {
         let $drop = this.$refs.drop
