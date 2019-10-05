@@ -14,7 +14,8 @@ export default {
     value=null,
     mapping=null,
     defaultIcon=null,
-    iteratee=null
+    iteratee=null,
+    valueAsTip=false
   }={}) {
     //console.log("normalizeData", iteratee)
     let index = 0
@@ -69,6 +70,10 @@ export default {
         // Customized
         if(_.isFunction(iteratee))
           re = iteratee(re, index) || re
+        // value as tip
+        if(!re.tip && valueAsTip) {
+          re.tip = re.value
+        }
         // Join to list
         reList.push(re)
         index++

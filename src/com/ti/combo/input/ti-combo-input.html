@@ -18,13 +18,15 @@
       <!--Editable-->
       <input v-if="editable"
         spellcheck="false" 
-        :value="text"
+        :value="theTextOrValue"
         :placeholder="placeholder"
         @click.stop
-        @change="onChanged"
-        @focus="onInputFocus">
+        @keyup="onInputKeyPress"
+        @change="onInputChanged"
+        @focus="onInputFocus"
+        @blur="onInputBlur">
       <!--Display only-->
-      <span v-else>{{text}}</span>
+      <span v-else>{{theTextOrValue}}</span>
     </div>
     <!-- Drop State -->
     <div class="as-icon is-state">
@@ -35,7 +37,7 @@
     Drop
   -->
   <template v-if="dropOpened">
-    <div class="as-mask" @click="dropOpened=false"></div>
+    <div class="as-mask" @click="closeDrop"></div>
     <div class="as-drop" :style="dropStyle" ref="drop">
       <slot>
         <span>This is dropdown content</span>

@@ -15,8 +15,8 @@
           "name"  : "month",
           "comType" : "ti-input-month",
           "comConf" : {
-            "editable" : false,
-            "displayFormat" : "yyyy年M月",
+            "editable" : true,
+            "format" : "yyyy年M月",
             "beginYear" : 2000,
             "endYear" : 2025
           }
@@ -25,8 +25,8 @@
           "name"  : "date",
           "comType" : "ti-input-date",
           "comConf" : {
-            "editable" : false,
-            "displayFormat" : "yyyy年M月d日"
+            "editable" : true,
+            "format" : "yyyy年M月d日"
           }
         }, {
           "title" : "日期+时间",
@@ -34,7 +34,7 @@
           "comType" : "ti-input-datetime",
           "comConf" : {
             "editable" : true,
-            "displayFormat" : "yyyy年M月d日 HH:mm:ss"
+            "format" : "yyyy年M月d日 HH:mm:ss"
           }
         }]
       },

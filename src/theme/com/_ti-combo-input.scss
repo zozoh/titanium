@@ -11,6 +11,7 @@
     @include flex-align-nowrap($ai:stretch);
     @include border(1px, solid, dark);
     cursor: pointer;
+    height:.36rem;
     .as-icon {
       @include flex-center;
       flex:0 0 auto;

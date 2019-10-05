@@ -18,7 +18,7 @@ export default {
       type : String,
       default : "zmdi-calendar-alt"
     },
-    "displayFormat" : {
+    "format" : {
       type : String,
       default : "yyyy-MM-dd"
     },
@@ -44,7 +44,7 @@ export default {
     },
     "height" : {
       type : [Number, String],
-      default : ".3rem"
+      default : undefined
     },
     "beginYear" : {
       type : [Number, String],
@@ -72,12 +72,12 @@ export default {
       return this.dropDate || this.theDate
     },
     //------------------------------------------------
+    theDateValue() {
+      return this.getDateText(this.theDate)
+    },
+    //------------------------------------------------
     theDateText() {
-      if(this.editable) {
-        return this.getDateText(this.theDate)
-      }
-      // Display only
-      return this.getDateText(this.theDate, this.displayFormat)
+      return this.getDateText(this.theDate, this.format)
     }
     //------------------------------------------------
   },

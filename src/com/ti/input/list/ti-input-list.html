@@ -1,0 +1,20 @@
+<ti-combo-input class="as-list"
+  :class="topClass"
+  :icon="theItemIcon"
+  :text="theItemText"
+  :value="theItemValue"
+  :placeholder="placeholder"
+  :editable="editable"
+  :focus-to-open="focusToOpen"
+  :width="width"
+  :height="height"
+  :loading="loading"
+  @changed="onInputChanged"
+  @keypress="onInputKeyPress">
+  <ti-list 
+    :data="theItemList"
+    :value="value"
+    :height="dropHeight"
+    :value-as-tip="valueAsTip"
+    @changed="onListChanged"/>
+</ti-combo-input>

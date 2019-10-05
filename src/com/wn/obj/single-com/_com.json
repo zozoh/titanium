@@ -4,7 +4,7 @@
   "template" : "./wn-obj-single-com.html",
   "mixins" : ["./wn-obj-single-com.mjs"],
   "components" : [
-    "@com:ti/form",
+    "@com:wn/form",
     "@com:ti/wizard",
     "@com:ti/calendar"
   ]

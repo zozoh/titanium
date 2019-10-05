@@ -20,7 +20,13 @@
       width:.32rem;
     }
     > .it-text {
+      flex:1 1 auto;
       padding:0 0.1rem 0 .04rem;
+    }
+    > .it-tip {
+      @include font-fixed;
+      font-size:.9em; opacity: 0.6;
+      padding:0 .06rem;
     }
   }
 }

@@ -63,7 +63,7 @@ export default {
     },
     "height" : {
       type : [Number, String],
-      default : ".3rem"
+      default : undefined
     },
     // the height of drop list
     "dropHeight" : {

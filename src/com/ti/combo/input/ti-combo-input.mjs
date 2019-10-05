@@ -34,6 +34,10 @@ export default {
       type : String,
       default : null
     },
+    "value" : {
+      type : String,
+      default : null
+    },
     "placeholder" : {
       type : [String, Number],
       default : null
@@ -52,11 +56,11 @@ export default {
     },
     "width" : {
       type : [Number, String],
-      default : "1.4rem"
+      default : null
     },
     "height" : {
       type : [Number, String],
-      default : ".3rem"
+      default : null
     },
     // the height of drop list
     //  - null : will not set the height
@@ -96,6 +100,15 @@ export default {
       return klass
     },
     //------------------------------------------------
+    theTextOrValue() {
+      if(this.editable) {
+        if(this.dropOpened) {
+          return this.value || this.text
+        }
+      }
+      return this.text
+    },
+    //------------------------------------------------
     boxStyle() {
       return {
         "width"  : Ti.Css.toSize(this.width),
@@ -122,7 +135,22 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onChanged($event) {
+    onInputKeyPress($event) {
+      let $in = $event.target
+      if(_.isElement($in)) {
+        let val = _.trim($in.value)
+        // Empty value as null
+        if(_.isEmpty(val)) {
+          this.$emit("keypress", null);
+        }
+        // Parsed value
+        else {
+          this.$emit("keypress", val)
+        }
+      }
+    },
+    //------------------------------------------------
+    onInputChanged($event) {
       let $in = $event.target
       if(_.isElement($in)) {
         let val = _.trim($in.value)
@@ -138,9 +166,18 @@ export default {
     },
     //------------------------------------------------
     onInputFocus() {
+      this.focused = true
       if(this.focusToOpen) {
         this.dropOpened = true
       }
+    },
+    //------------------------------------------------
+    onInputBlur() {
+      this.focused = false
+    },
+    //------------------------------------------------
+    closeDrop() {
+      this.dropOpened = false
     },
     //------------------------------------------------
     getTimeText(tm) {

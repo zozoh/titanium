@@ -21,6 +21,11 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    // Make the value as item tip if tip without defined
+    "valueAsTip" : {
+      type : Boolean,
+      default : false
+    },
     // multi-selectable
     // effected when selectable is true
     "multi" : {
@@ -87,7 +92,8 @@ export default {
         defaultIcon : this.defaultIcon,
         iteratee : (it, index)=>{
           it.focused = (index == this.focusIndex)
-        }
+        },
+        valueAsTip : this.valueAsTip
       })
       //console.log(list)
       return list

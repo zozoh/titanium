@@ -1,0 +1,46 @@
+{
+  "comType" : "wn-form",
+  "comConf" : {
+    "config" : {
+      "fields" : [{
+          "title" : "选择文件",
+          "name"  : "theFile",
+          "comType" : "ti-input-list",
+          "comConf" : {
+            "placeholder" : "请选择文件",
+            "itemIcon" : "zmdi-assignment",
+            "options" : {
+              "method" : "Wn.Sys.exec2",
+              "args"   : ["obj ~/* -cqn -e '^(id|nm|title|icon)$' -l -json"]
+            },
+            "mapping" : {
+              "icon"  : "icon",
+              "text"  : ["title", "nm"],
+              "value" : "id"
+            }
+          }
+        }, {
+          "title" : "类型",
+          "name"  : "theType",
+          "comType" : "ti-input-list",
+          "comConf" : {
+            "placeholder" : "请选择类型",
+            "itemIcon" : "zmdi-boat",
+            "options" : [
+              {"value":"A", "text":"甲类"},
+              {"value":"B", "text":"乙类"},
+              {"value":"C", "text":"丙类"},
+              {"value":"D", "text":"丁类"},
+              {"value":"E", "text":"戊类"}]
+          }
+        }]
+      },
+    "data" : {
+      "theFile" : "=theFile",
+      "theType" : "=theType"
+    }
+  },
+  "comEvents" : {
+    "changed" : "updatePair"
+  }
+}

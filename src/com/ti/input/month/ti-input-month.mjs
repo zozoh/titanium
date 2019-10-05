@@ -18,7 +18,7 @@ export default {
       type : String,
       default : "zmdi-calendar"
     },
-    "displayFormat" : {
+    "format" : {
       type : String,
       default : "yyyy-MM"
     },
@@ -44,7 +44,7 @@ export default {
     },
     "height" : {
       type : [Number, String],
-      default : ".3rem"
+      default : undefined
     },
     // the height of drop list
     "dropHeight" : {
@@ -77,12 +77,12 @@ export default {
       return this.dropDate || this.theDate
     },
     //------------------------------------------------
+    theDateValue() {
+      return this.getDateText(this.theDate)
+    },
+    //------------------------------------------------
     theDateText() {
-      if(this.editable) {
-        return this.getDateText(this.theDate)
-      }
-      // Display only
-      return this.getDateText(this.theDate, this.displayFormat)
+      return this.getDateText(this.theDate, this.format)
     }
     //------------------------------------------------
   },
