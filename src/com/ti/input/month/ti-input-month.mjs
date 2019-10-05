@@ -11,8 +11,12 @@ export default {
       default : null
     },
     "value" : {
-      type : [String, Number, Ti.Types.Time],
+      type : [String, Number, Date],
       default : null
+    },
+    "icon" : {
+      type : String,
+      default : "zmdi-calendar"
     },
     "displayFormat" : {
       type : String,
@@ -71,10 +75,6 @@ export default {
     //------------------------------------------------
     theDropDate() {
       return this.dropDate || this.theDate
-    },
-    //------------------------------------------------
-    theDateFormat() {
-      return "yyyy-MM"
     },
     //------------------------------------------------
     theDateText() {

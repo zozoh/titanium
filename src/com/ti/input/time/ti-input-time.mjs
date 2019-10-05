@@ -14,6 +14,10 @@ export default {
       type : [String, Number, Ti.Types.Time],
       default : null
     },
+    "icon" : {
+      type : String,
+      default : "zmdi-time"
+    },
     /***
      * Value unit when value is Number
      */

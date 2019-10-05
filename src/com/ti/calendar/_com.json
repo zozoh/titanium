@@ -4,5 +4,6 @@
   "i18n" : "@i18n:ti-datetime",
   "template" : "./ti-calendar.html",
   "mixins"   : ["./ti-calendar.mjs"],
-  "components" : []
+  "components" : [
+    "@com:ti/input/month"]
 }

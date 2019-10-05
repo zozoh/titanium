@@ -1,80 +1,120 @@
 export default {
+  inheritAttrs : false,
+  ////////////////////////////////////////////////////
+  data : ()=>({
+    "dropDate"   : null
+  }),
   ////////////////////////////////////////////////////
   props : {
-    "value" : null,
-    "trimed" : {
-      type : Boolean,
-      default : true
+    "className" : {
+      type : String,
+      default : null
+    },
+    "value" : {
+      type : [String, Number, Date],
+      default : null
+    },
+    "icon" : {
+      type : String,
+      default : "zmdi-calendar-alt"
+    },
+    "displayFormat" : {
+      type : String,
+      default : "yyyy-MM-dd"
     },
     "placeholder" : {
       type : [String, Number],
       default : null
     },
-    "format" : {
-      type : [String, Array, Object],
-      default : undefined
-    },
-    // true : Show multi-line textarea
-    "multi" : {
+    // true : can write time directly
+    "editable" : {
       type : Boolean,
-      default : false
+      default : true
     },
-    // multi-line only, indicate the textarea height
+    // when "editable", it will render text by `input` element
+    // This prop indicate if open drop when input was focused
+    // `true` as default
+    "focusToOpen" : {
+      type : Boolean,
+      default : true
+    },
+    "width" : {
+      type : [Number, String],
+      default : "1.7rem"
+    },
     "height" : {
       type : [Number, String],
-      default : null
+      default : ".3rem"
     },
-    // For `multi=false` only
-    "suffix" : {
-      type : String,
-      default : null
+    "beginYear" : {
+      type : [Number, String],
+      default : 1970
+    },
+    "endYear" : {
+      type : [Number, String],
+      default : (new Date().getFullYear()+1)
     }
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    theValue() {
-      //console.log("input value:", this.value)
-      return Ti.Types.toStr(this.value, this.format)
-    },
-    //------------------------------------------------
     topClass() {
-      return {
-        "is-multi" : this.multi
-      }
+      return this.className
     },
     //------------------------------------------------
-    multiModeClass() {
-      // TODO ... maybe need nothing -_-!
+    theDate() {
+      if(this.value)
+        return Ti.Types.toDate(this.value)
+      return new Date()
     },
     //------------------------------------------------
-    multiModeStyle(){
-      if(this.height) {
-        return {
-          "height" : Ti.Css.toSize(this.height)
-        }
-      }
+    theDropDate() {
+      return this.dropDate || this.theDate
     },
     //------------------------------------------------
-    inputModeClass() {
-      return {
-        "has-suffix" : this.suffix ? true : false
+    theDateText() {
+      if(this.editable) {
+        return this.getDateText(this.theDate)
       }
+      // Display only
+      return this.getDateText(this.theDate, this.displayFormat)
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onChanged($event) {
-      let $in = $event.target
-      if(_.isElement($in)) {
-        let val = $in.value
-        if(this.trimed) {
-          val = _.trim(val)
-        }
-        this.$emit("changed", val)
+    onCollapse() {
+      if(this.dropDate) {
+        let dt = this.dropDate
+        this.dropDate = null
+        let str = this.getDateText(dt)
+        this.$emit("changed", str)
       }
+    },
+    //------------------------------------------------
+    onChanged(val) {
+      // Empty value as null
+      if(_.isEmpty(val)) {
+        this.$emit("changed", null);
+      }
+      // Parsed value
+      else {
+        let dt  = Ti.Types.toDate(val)
+        let str = this.getDateText(dt)
+        this.$emit("changed", str)
+      }
+    },
+    //------------------------------------------------
+    onDateChanged(dt) {
+      this.dropDate = dt
+    },
+    //------------------------------------------------
+    getDateText(dt, fmt="yyyy-MM-dd") {
+      if(!_.isDate(dt)) {
+        dt = Ti.Types.toDate(dt)
+      }
+      return Ti.Types.formatDate(dt, fmt)
     }
     //------------------------------------------------
   }

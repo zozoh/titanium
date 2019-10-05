@@ -6,10 +6,14 @@
   <div class="as-box" ref="box"
     :style="boxStyle"
     @click="dropOpened=true">
+    <!-- Icon -->
     <div v-if="icon"
       class="as-icon">
       <ti-icon :value="icon"/>
     </div>
+    <div v-else
+      class="as-space"></div>
+    <!-- Input / Text -->
     <div class="as-input">
       <!--Editable-->
       <input v-if="editable"
@@ -22,6 +26,7 @@
       <!--Display only-->
       <span v-else>{{text}}</span>
     </div>
+    <!-- Drop State -->
     <div class="as-icon is-state">
       <ti-icon :value="stateIcon"/>
     </div>
@@ -31,7 +36,7 @@
   -->
   <template v-if="dropOpened">
     <div class="as-mask" @click="dropOpened=false"></div>
-    <div class="as-drop" ref="drop">
+    <div class="as-drop" :style="dropStyle" ref="drop">
       <slot>
         <span>This is dropdown content</span>
       </slot>

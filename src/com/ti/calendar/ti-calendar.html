@@ -8,8 +8,14 @@
         <ti-icon value="zmdi-chevron-left"/>
       </div>
       <div class="as-title">
-        <span class="as-year">{{currentYear}}</span>
-        <span class="as-month">{{currentMonthAbbr|i18n}}</span>
+        <ti-input-month
+          width="100%"
+          height=".36rem"
+          :value="currentDate"
+          :editable="monthEditable"
+          :begin-year="beginYear"
+          :end-year="endYear"
+          @changed="onMonthChanged"/>
       </div>
       <div class="go-btn to-next-month" @click="gotoMonth(1)">
         <ti-icon value="zmdi-chevron-right"/>

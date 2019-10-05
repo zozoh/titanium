@@ -4,6 +4,7 @@
   //---------------------------------
   > .as-switcher {
     @include flex-align-nowrap($ai:stretch);
+    //-------------------------------
     > .go-btn {
       @include flex-center;
       width:.24rem;
@@ -13,13 +14,27 @@
         @include color($color-primary, r, c);
       }
     }
+    //-------------------------------
     > .as-title {
       @include flex-center;
+      padding:.04rem 0;
       flex:1 1 auto;
-      > span {
-        padding:.04rem .06rem;
-      }
-    }
+      // The Quick Year-Month picker
+      .ti-combo-input {
+        > .as-box {
+          border:0;
+        }
+        &.is-highlight {
+          > .as-box {
+            @include color($color-primary, r, c); 
+            input {
+              @include color($color-primary, r); 
+            }
+          }
+        }
+      } // .ti-combo-input
+    } // .as-title
+    //-------------------------------
   }
   //---------------------------------
   > .as-table {

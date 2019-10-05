@@ -1,0 +1,20 @@
+<div class="ti-datetime">
+  <!--Date-->
+  <ti-calendar class="is-date"
+    :value="theDate"
+    :begin-year="beginYear"
+    :end-year="endYear"
+    @changed="onDateChanged"/>
+  <!--Time-->
+  <div class="is-time">
+    <div class="as-time-text">{{theTimeText}}</div>
+    <div class="as-time-cols">
+      <ti-time
+        :value="theTime"
+        :mode="timeMode"
+        width="100%"
+        height="none"
+        @changed="onTimeChanged"/>
+    </div>
+  </div>
+</div>

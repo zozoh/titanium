@@ -7,7 +7,7 @@ export default {
       default : null
     },
     "value" : {
-      type : [String, Number, Ti.Types.Time],
+      type : [String, Number, Date, Ti.Types.Time],
       default : null
     },
     /***
@@ -32,6 +32,11 @@ export default {
       validator : function(unit) {
         return /^(sec|min|auto)$/.test(unit)
       }
+    },
+    // the height of drop list
+    "width" : {
+      type : [Number, String],
+      default : null
     },
     // the height of drop list
     "height" : {
@@ -62,9 +67,10 @@ export default {
     },
     //------------------------------------------------
     topStyle() {
-      return {
-        "height" : Ti.Css.toSize(this.height)
-      }
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
     }
     //------------------------------------------------
   },

@@ -20,11 +20,29 @@
             "beginYear" : 2000,
             "endYear" : 2025
           }
+        }, {
+          "title" : "日期",
+          "name"  : "date",
+          "comType" : "ti-input-date",
+          "comConf" : {
+            "editable" : false,
+            "displayFormat" : "yyyy年M月d日"
+          }
+        }, {
+          "title" : "日期+时间",
+          "name"  : "datetime",
+          "comType" : "ti-input-datetime",
+          "comConf" : {
+            "editable" : true,
+            "displayFormat" : "yyyy年M月d日 HH:mm:ss"
+          }
         }]
       },
     "data" : {
       "time"  : "=time",
-      "month" : "=month"
+      "month" : "=month",
+      "date"  : "=date",
+      "datetime"  : "=datetime"
     }
   },
   "comEvents" : {

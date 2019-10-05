@@ -1,0 +1,9 @@
+{
+  "name" : "ti-datetime",
+  "globally" : true,
+  "template" : "./ti-datetime.html",
+  "mixins" : ["./ti-datetime.mjs"],
+  "components" : [
+    "@com:ti/time",
+    "@com:ti/calendar"]
+}

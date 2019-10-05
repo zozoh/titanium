@@ -1,28 +1,18 @@
-<div class="ti-input"
-  :class="topClass">
-  <!--
-    Multi-line textarea
-  -->
-  <template v-if="multi">
-    <textarea
-      spellcheck="false" 
-      :class="multiModeClass"
-      :style="multiModeStyle"
-      :value="theValue"
-      :placeholder="placeholder"
-      @change="onChanged"></textarea>
-  </template>
-  <!--
-    Single-line input
-  -->
-  <template v-else>
-    <input 
-      spellcheck="false" 
-      :class="inputModeClass"
-      :value="theValue"
-      :placeholder="placeholder"
-      @change="onChanged">
-    <div v-if="suffix"
-      class="input-suffix">{{suffix}}</div>
-  </template>
-</div>
+<ti-combo-input class="as-date"
+  :class="topClass"
+  :icon="icon"
+  :text="theDateText"
+  :placeholder="placeholder"
+  :editable="editable"
+  :focus-to-open="focusToOpen"
+  :width="width"
+  :height="height"
+  drop-width="none"
+  @changed="onChanged"
+  @collapse="onCollapse">
+  <ti-calendar
+    :value="theDropDate"
+    :begin-year="beginYear"
+    :end-year="endYear"
+    @changed="onDateChanged"/>
+</ti-combo-input>

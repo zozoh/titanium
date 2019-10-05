@@ -1,0 +1,31 @@
+.ti-datetime {
+  @include flex-align-nowrap($ai:stretch);
+  //-------------------------------------
+  > .is-date {
+    @include border(1px, solid, highlight, right);
+    flex:0 0 auto;
+  }
+  //-------------------------------------
+  > .is-time {
+    @include flex-align-v-nowrap($ai:stretch);
+    > .as-time-text {
+      @include flex-center;
+      @include border(1px, solid, shallow, bottom);
+      @include font-fixed;
+      flex:0 0 auto; 
+      height: .45rem;
+      font-size:1.5em;
+      font-weight: bold;
+    }
+    > .as-time-cols {
+      height:2.5rem;
+      padding:.04rem;
+      flex:1 1 auto;
+      > .ti-col-data.as-time {
+        flex:1 1 auto;
+        height:100%;
+      }
+    }
+  }
+  //-------------------------------------
+}

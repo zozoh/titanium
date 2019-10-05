@@ -26,6 +26,19 @@ export default {
     "matrixMode" : {
       type : [Number, String],
       default : "monthly"
+    },
+    // true : can write time directly
+    "monthEditable" : {
+      type : Boolean,
+      default : true
+    },
+    "beginYear" : {
+      type : [Number, String],
+      default : 1970
+    },
+    "endYear" : {
+      type : [Number, String],
+      default : (new Date().getFullYear()+1)
     }
   },
   //////////////////////////////////////////
@@ -163,18 +176,28 @@ export default {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
     gotoMonth(offset=0) {
       let cd = this.currentDate
-      let d = new Date(cd.getFullYear(), cd.getMonth(), cd.getDate())
-      Ti.DateTime.moveMonth(d, offset)
-      this.my_current = d
+      let dt = new Date(cd.getFullYear(), cd.getMonth(), cd.getDate())
+      Ti.DateTime.moveMonth(dt, offset)
+      this.my_current = dt
 
       this.$emit("changed:current", this.currentDate)
     },
+    //--------------------------------------
+    onMonthChanged(month) {
+      let dt = Ti.Types.toDate(month)
+      this.my_current = dt
+
+      this.$emit("changed:current", this.currentDate)
+    },
+    //--------------------------------------
     onClickCell(cell) {
       this.$emit("changed:cell", cell)
       this.$emit("changed", cell.raw)
     }
+    //--------------------------------------
   }
   //////////////////////////////////////////
 }

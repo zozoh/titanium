@@ -59,9 +59,21 @@ export default {
       default : ".3rem"
     },
     // the height of drop list
+    //  - null : will not set the height
     "dropHeight" : {
       type : [Number, String],
-      default : 200
+      default : null
+    },
+    // drop width
+    //  - "box" : will auto fit with box
+    "dropWidth" : {
+      type : [Number, String],
+      default : "box"
+    },
+    // For test convenience, default is false
+    "autoOpenDrop" : {
+      type : Boolean,
+      default : false
     }
   },
   ////////////////////////////////////////////////////
@@ -92,8 +104,10 @@ export default {
     },
     //------------------------------------------------
     dropStyle() {
-      return {
-        "height" : Ti.Css.toSize(this.dropHeight)
+      if(this.dropHeight) {
+        return {
+          "height" : Ti.Css.toSize(this.dropHeight)
+        }
       }
     },
     //------------------------------------------------
@@ -141,10 +155,18 @@ export default {
         let $box   = this.$refs.box
         if($drop && $box) {
           // Make drop same width with box
-          let r_box  = $box.getBoundingClientRect()
-          Ti.Dom.setStyle($drop, {
-            "width" : `${r_box.width}px`
-          })
+          if("box" == this.dropWidth) {
+            let r_box  = $box.getBoundingClientRect()
+            Ti.Dom.setStyle($drop, {
+              "width" : `${r_box.width}px`
+            })
+          }
+          // Fixed drop width
+          else if(this.dropWidth) {
+            Ti.Dom.setStyle($drop, {
+              "width" : Ti.Css.toSize(this.dropWidth)
+            })
+          }
 
           // Dock drop to box
           Ti.Dom.dockTo($drop, $box, {
@@ -157,6 +179,7 @@ export default {
   },
   ////////////////////////////////////////////////////
   mounted : function() {
+    this.dropOpened = this.autoOpenDrop
     this.dockDrop()
   }
   ////////////////////////////////////////////////////
