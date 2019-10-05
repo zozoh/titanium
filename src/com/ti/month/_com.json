@@ -1,0 +1,7 @@
+{
+  "name" : "ti-month",
+  "globally" : true,
+  "template" : "./ti-month.html",
+  "mixins" : ["./ti-month.mjs"],
+  "components" : ["@com:ti/list"]
+}

@@ -10,10 +10,21 @@
             "mode" : "sec",
             "editable" : true
           }
+        }, {
+          "title" : "月份",
+          "name"  : "month",
+          "comType" : "ti-input-month",
+          "comConf" : {
+            "editable" : false,
+            "displayFormat" : "yyyy年M月",
+            "beginYear" : 2000,
+            "endYear" : 2025
+          }
         }]
       },
     "data" : {
-      "time" : "=time"
+      "time"  : "=time",
+      "month" : "=month"
     }
   },
   "comEvents" : {

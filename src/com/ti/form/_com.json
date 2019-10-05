@@ -12,6 +12,7 @@
     "@com:ti/input/color",
     "@com:ti/input/date",
     "@com:ti/input/time",
+    "@com:ti/input/month",
     "@com:ti/input/datetime",
     "@com:ti/label",
     "@com:ti/toggle",

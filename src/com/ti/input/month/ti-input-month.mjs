@@ -2,7 +2,7 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
-    "dropTime"   : null
+    "dropDate"   : null
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -14,28 +14,9 @@ export default {
       type : [String, Number, Ti.Types.Time],
       default : null
     },
-    /***
-     * Value unit when value is Number
-     */
-    "valueUnit" : {
+    "displayFormat" : {
       type : String,
-      default : "s",
-      validator : function(unit) {
-        return /^(ms|s|min|hr)$/.test(unit)
-      }
-    },
-    // Display mode
-    "mode" : {
-      type : String,
-      default : "auto",
-      /***
-       * - `sec`  : "HH:mm:ss"
-       * - `min`  : "HH:mm"
-       * - `auto` : "HH:mm" or "HH:mm:ss" if `ss` no zero
-       */
-      validator : function(unit) {
-        return /^(sec|min|auto)$/.test(unit)
-      }
+      default : "yyyy-MM"
     },
     "placeholder" : {
       type : [String, Number],
@@ -65,6 +46,14 @@ export default {
     "dropHeight" : {
       type : [Number, String],
       default : 200
+    },
+    "beginYear" : {
+      type : [Number, String],
+      default : 1970
+    },
+    "endYear" : {
+      type : [Number, String],
+      default : (new Date().getFullYear()+1)
     }
   },
   ////////////////////////////////////////////////////
@@ -74,25 +63,26 @@ export default {
       return this.className
     },
     //------------------------------------------------
-    theTime() {
-      //console.log("input value:", this.value)
-      return Ti.Types.toTime(this.value, this.valueUnit)
+    theDate() {
+      if(this.value)
+        return Ti.Types.toDate(this.value)
+      return new Date()
     },
     //------------------------------------------------
-    theDropTime() {
-      return this.dropTime || this.theTime
+    theDropDate() {
+      return this.dropDate || this.theDate
     },
     //------------------------------------------------
-    theTimeFormat() {
-      return ({
-        "sec"  : "HH:mm:ss",
-        "min"  : "HH:mm",
-        "auto" : "auto"
-      })[this.mode]
+    theDateFormat() {
+      return "yyyy-MM"
     },
     //------------------------------------------------
-    theTimeText() {
-      return this.getTimeText(this.theTime)
+    theDateText() {
+      if(this.editable) {
+        return this.getDateText(this.theDate)
+      }
+      // Display only
+      return this.getDateText(this.theDate, this.displayFormat)
     }
     //------------------------------------------------
   },
@@ -100,10 +90,10 @@ export default {
   methods : {
     //------------------------------------------------
     onCollapse() {
-      if(this.dropTime) {
-        let tm = this.dropTime
-        this.dropTime = null
-        let str = this.getTimeText(tm)
+      if(this.dropDate) {
+        let dt = this.dropDate
+        this.dropDate = null
+        let str = this.getDateText(dt)
         this.$emit("changed", str)
       }
     },
@@ -115,20 +105,21 @@ export default {
       }
       // Parsed value
       else {
-        let tm  = Ti.Types.toTime(val)
-        let str = this.getTimeText(tm)
+        let dt  = Ti.Types.toDate(val)
+        let str = this.getDateText(dt)
         this.$emit("changed", str)
       }
     },
     //------------------------------------------------
-    onTimeChanged(time) {
-      this.dropTime = time
+    onMonthChanged(dt) {
+      this.dropDate = dt
     },
     //------------------------------------------------
-    getTimeText(tm) {
-      if(tm instanceof Ti.Types.Time) {
-        return tm.toString(this.theTimeFormat)
+    getDateText(dt, fmt="yyyy-MM") {
+      if(!_.isDate(dt)) {
+        dt = Ti.Types.toDate(dt)
       }
+      return Ti.Types.formatDate(dt, fmt)
     }
     //------------------------------------------------
   }

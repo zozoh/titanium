@@ -1,0 +1,19 @@
+<ti-combo-input class="as-month"
+  icon="zmdi-calendar"
+  :class="topClass"
+  :text="theDateText"
+  :placeholder="placeholder"
+  :editable="editable"
+  :focus-to-open="focusToOpen"
+  :width="width"
+  :height="height"
+  :dropHeight="dropHeight"
+  @changed="onChanged"
+  @collapse="onCollapse">
+  <ti-month
+    :value="theDropDate"
+    :height="dropHeight"
+    :begin-year="beginYear"
+    :end-year="endYear"
+    @changed="onMonthChanged"/>
+</ti-combo-input>
