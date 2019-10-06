@@ -28,7 +28,7 @@
       }
     }
     .it-con {
-      padding-left:1em; 
+      padding:.2em 0 .6em 1em;  
     }
     &.is-highlight {
       > .it-info {
@@ -39,18 +39,28 @@
     }
     &.is-group {
       > .it-info {
-        font-size:.8em;
+        @include border(1px, solid, shallow, top);
+        @include border(1px, dotted, shallow, bottom);
+        font-size:.9em;
+        > .it-info-icon {
+          font-size:.12rem;
+          width:.2rem;
+        }
       }
     }
     &.is-collapse {
       &.is-group > .it-info {
-        @include color($color-cloak, r, c);
+        background: map-get($color-chip, c);
+        color: map-get($color-primary, c);
+        border-bottom:1px solid transparent;
         &:after {
           display:block; flex:0 0 auto;
           content:"..."; padding:0 .1em;
         }
       }
-      > .it-con {height:0; overflow:hidden;}
+      > .it-con {
+        display: none;
+      }
     }
   } // ~ .sidebar-item
 }

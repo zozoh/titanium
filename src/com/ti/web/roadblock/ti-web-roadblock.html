@@ -1,0 +1,10 @@
+<div class="ti-web-roadblock">
+  <div class="as-main">
+    <div v-if="icon" class="as-icon">
+      <ti-icon :value="icon"/>
+    </div>
+    <div v-if="text" class="as-text">
+      <span>{{text | i18n}}</span>
+    </div>
+  </div>
+</div>

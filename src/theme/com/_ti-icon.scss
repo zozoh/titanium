@@ -4,14 +4,9 @@
   // The Icon
   .icon-icon {
     @include flex-center;
-    > i {font-size:1.2em; }
     > img {
       display: block;
       object-fit: cover;
     }
-  }
-  // The Text
-  .icon-text {
-    
   }
 }

@@ -76,12 +76,12 @@ function parseDate(d) {
 // Time Object
 export class TiTime {
   //--------------------------------
-  hours = 0;
-  minutes = 0;
-  seconds = 0;
-  milliseconds = 0;
-  //--------------------------------
   constructor(input, unit) {
+    this.hours = 0;
+    this.minutes = 0;
+    this.seconds = 0;
+    this.milliseconds = 0;
+    this.__cached = {};
     this.update(input, unit)
   }
   //--------------------------------
@@ -90,15 +90,15 @@ export class TiTime {
   }
   //--------------------------------
   set hours(hours=0) {
-    this.__cached - {}
+    this.__cached = {}
     this.hours = _.clamp(hours, 0, 23)
   }
   set minutes(minutes=0) {
-    this.__cached - {}
+    this.__cached = {}
     this.minutes = _.clamp(minutes, 0, 59)
   }
   set seconds(seconds=0) {
-    this.__cached - {}
+    this.__cached = {}
     this.seconds = _.clamp(seconds, 0, 59)
   }
   set milliseconds(ms=1) {
@@ -276,12 +276,12 @@ const QUICK_COLOR_TABLE = {
 //----------------------------------
 export class TiColor {
   // Default color is Black
-  red   = 0;
-  green = 0;
-  blue  = 0;
-  alpha = 1;
-  __cached = {};
   constructor(input) {
+    this.red   = 0;
+    this.green = 0;
+    this.blue  = 0;
+    this.alpha = 1;
+    this.__cached = {};
     this.update(input)
   }
   clone() {

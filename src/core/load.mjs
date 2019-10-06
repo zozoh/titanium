@@ -1,14 +1,90 @@
 import {Ti} from "./ti.mjs"
 import {importModule} from "./polyfill-dynamic-import.mjs"
-//---------------------------------------
-const loading = {
+/////////////////////////////////////////
+// One resource load only once
+class UnifyResourceLoading {
+  //-------------------------------------
+  constructor(doLoad=(url)=>url) {
+    this.cached = {}
+    this.loading = {}
+    this.doLoad = doLoad
+  }
+  //-------------------------------------
+  async tryLoad(url, whenDone) {
+    // Is Loaded
+    let re = this.cached[url]
+    if(!_.isUndefined(re)) {
+      whenDone(re)
+      return
+    }
+    // Is Loading, just join it
+    let ing = this.loading[url]
+    if(_.isArray(ing) && ing.length>0) {
+      ing.push(whenDone)
+      return
+    }
+
+    // Load it
+    this.loading[url] = [whenDone]
+
+    let reo = await this.doLoad(url)
+
+    // cache it
+    this.cached[url] = reo
+
+    // Callback
+    let fns = this.loading[url]
+    this.loading[url] = null
+    for(let fn of fns) {
+      fn(reo)
+    }
+  }
+  //-------------------------------------
+}
+/////////////////////////////////////////
+const MjsLoading = new UnifyResourceLoading(async (url)=>{
+  window.mjsII = window.mjsII || []
+  window.mjsII.push(url)
+  // TBS browser don't suppor the import() yet by default 
+  //return import(url).then(m => m.default)
+  // use the polyfill method instead
+  try {
+    //return await importModule(url)
+    return await import(url)
+  }
+  catch(E) {
+    if(Ti.IsWarn("TiLoad")) {
+      console.warn("ti.load.mjs", url, E)
+    }
+    throw E
+  }
+})
+/////////////////////////////////////////
+const TextLoading = new UnifyResourceLoading(async (url)=>{
+  window.textII = window.textII || []
+  window.textII.push(url)
+  try {
+    return await Ti.Http.get(url)
+  }
+  catch(E) {
+    if(Ti.IsWarn("TiLoad")) {
+      console.warn("ti.load.text", url, E)
+    }
+    throw E
+  }
+})
+/////////////////////////////////////////
+const LoadModes = {
   // normal js lib
   js(url) {
     return new Promise((resolve, reject)=>{
+      // Already Loaded
       let $script = Ti.Dom.find(`script[src="${url}"]`)
       if($script) {
         _.defer(resolve, $script)
-      } else {
+      }
+      // Load it now
+      else {
         $script = Ti.Dom.createElement({
           tagName : "script",
           props : {
@@ -29,25 +105,22 @@ const loading = {
   },
   // official js module
   mjs(url) {
-    // TBS browser don't suppor the import() yet by default 
-     //return import(url).then(m => m.default)
-    // use the polyfill method instead
-    try {
-      return importModule(url).then(m=>m.default)
-    }catch(E) {
-      if(Ti.IsWarn("TiLoad")) {
-        console.warn("ti.load.mjs", url, E)
-      }
-      throw E
-    }
+    return new Promise((resolve, reject)=>{
+      MjsLoading.tryLoad(url, (reo)=>{
+        resolve(reo.default)
+      })
+    })
   },
   // css file
   css(url) {
     return new Promise((resolve, reject)=>{
       let $link = Ti.Dom.find(`link[href="${url}"]`)
+      // Already Loaded
       if($link) {
         _.defer(resolve, $link)
-      } else {
+      }
+      // Load it now
+      else {
         $link = Ti.Dom.createElement({
           tagName : "link",
           props : {
@@ -67,28 +140,32 @@ const loading = {
     })  // ~ Promise
   },
   // json object
-  json(url) {
-    return loading.text(url)
-        .then(json => {
-          try {
-            return _.isString(json)
-                        ? JSON.parse(json)
-                        : json
-          }catch(E) {
-            if(Ti.IsWarn("TiLoad")) {
-              console.warn("ti.load.json!!", url, json, E)
-            }
-            throw E
-          }
-        })
+  async json(url) {
+    try {
+      let json = await LoadModes.text(url)
+      return _.isPlainObject(json)
+              ? json
+              : JSON.parse(json)
+    } catch(E) {
+      if(Ti.IsWarn("TiLoad")) {
+        console.warn("ti.load.json!!", url, json, E)
+      }
+      throw E
+    }
   },
   // pure text
   text(url) {
-    return Ti.Http.get(url)
+    // if(url.endsWith("/ti-list.html")) {
+    //   console.log("::TEXT->", url)
+    // }
+    // Check the CACHE
+    return new Promise((resolve, reject)=>{
+      TextLoading.tryLoad(url, resolve)
+    })
   }
 }
 //---------------------------------------
-export const TiLoad = function(url=[], {dynamicPrefix, dynamicAlias}={}) {
+export const TiLoad = async function(url=[], {dynamicPrefix, dynamicAlias}={}) {
   // dynamic url 
   if(_.isFunction(url)) {
     let u2 = url();
@@ -138,7 +215,7 @@ export const TiLoad = function(url=[], {dynamicPrefix, dynamicAlias}={}) {
 
   // invoke
   try {
-    return loading[type](url3)
+    return await LoadModes[type](url3)
   }catch(E) {
     if(Ti.IsWarn("TiLoad")) {
       console.warn(`TiLoad Fail: [${type}]`, `"${url}" => "${url3}"`)

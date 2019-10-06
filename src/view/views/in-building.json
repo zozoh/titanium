@@ -1,0 +1,10 @@
+{
+  "comIcon" : "fas-cat",
+  "comType" : "@com:ti/web/roadblock",
+  "comConf" : {
+    "icon" : "fas-cat",
+    "text" : "i18n:under-construction"
+  },
+  "modType" : "@mod:wn/obj-meta",
+  "actions" : []
+}
