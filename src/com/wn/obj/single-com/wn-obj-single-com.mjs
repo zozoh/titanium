@@ -56,5 +56,23 @@ export default {
         })
       }
     }
+  },
+  ////////////////////////////////////////////
+  mounted : function(){
+    //----------------------------------------
+    Ti.Fuse.getOrCreate().add({
+      key : "wn-obj-single-com",
+      everythingOk : ()=>{
+        return !this.status.changed
+      },
+      fail : ()=>{
+        Ti.Toast.Open("i18n:no-saved", "warn")
+      }
+    })
+    //----------------------------------------
+  },
+  ////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Fuse.get().remove("wn-obj-single-com")
   }
 }

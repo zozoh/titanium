@@ -16,7 +16,7 @@ export default {
     },
     "icon" : {
       type : String,
-      default : "zmdi-calendar-alt"
+      default : "far-calendar-alt"
     },
     "format" : {
       type : String,
@@ -108,6 +108,15 @@ export default {
     //------------------------------------------------
     onDateChanged(dt) {
       this.dropDate = dt
+      this.closeDrop()
+    },
+    //------------------------------------------------
+    closeDrop() {
+      _.forEach(this.$children, ($child)=>{
+        if(_.isFunction($child.closeDrop)) {
+          $child.closeDrop()
+        }
+      })
     },
     //------------------------------------------------
     getDateText(dt, fmt="yyyy-MM-dd") {

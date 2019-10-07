@@ -171,6 +171,11 @@ const TiUtil = {
       //....................................
       // String : Check the "@BLOCK(xxx)" 
       if(_.isString(theValue)) {
+        // Whole Context
+        if(".." == theValue) {
+          return context
+        }
+        // Find key in context
         let m = /^(:?->|:?=)(.+)$/.exec(theValue)
         // Matched
         if(m) {

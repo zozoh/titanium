@@ -16,7 +16,7 @@ export default {
     },
     "icon" : {
       type : String,
-      default : "zmdi-calendar"
+      default : "far-calendar"
     },
     "format" : {
       type : String,

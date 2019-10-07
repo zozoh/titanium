@@ -1,4 +1,5 @@
 {
+  "blank-date-range" : "请选择日期范围",
   "today" : "今天",
   "Jan" : "一月",
   "Feb" : "二月",
@@ -28,8 +29,12 @@
   "Saturday"  :"星期六",
   "cal" : {
     "week"  : ["日","一","二","三","四","五","六"],
-    "range-beyond-year"  : "${fromYear}年${fromMonthText}至${toYear}年${toMonthText}",
-    "range-beyond-month" : "${fromYear}年${fromMonthText}至${toMonthText}",
+    "m-range-beyond-years"  : "${yy0}年${MT0}至${yy1}年${MT1}",
+    "m-range-beyond-months" : "${yy0}年${MT0}至${MT1}",
+    "d-range-beyond-years"  : "${yy0}年${MM0}月${dd0}日至${yy1}年${MM1}月${dd1}日",
+    "d-range-beyond-months" : "${yy0}年${MM0}月${dd0}日至${MM1}月${dd1}日",
+    "d-range-beyond-days"   : "${yy0}年${MM0}月${dd0}至${dd1}日",
+    "d-range-in-same-day"   : "${yy0}年${MM0}月${dd0}日全天",
     "abbr" : {
       "Jan" : "一月",
       "Feb" : "二月",

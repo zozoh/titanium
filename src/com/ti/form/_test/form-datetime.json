@@ -36,13 +36,22 @@
             "editable" : true,
             "format" : "yyyy年M月d日 HH:mm:ss"
           }
+        }, {
+          "title" : "日期范围",
+          "name"  : "daterange",
+          "type"  : "Array",
+          "comType" : "ti-input-daterange",
+          "comConf" : {
+            "editable" : true
+          }
         }]
       },
     "data" : {
       "time"  : "=time",
       "month" : "=month",
       "date"  : "=date",
-      "datetime"  : "=datetime"
+      "datetime"  : "=datetime",
+      "daterange" : "=daterange"
     }
   },
   "comEvents" : {

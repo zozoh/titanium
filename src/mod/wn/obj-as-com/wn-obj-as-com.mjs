@@ -173,6 +173,7 @@ export default {
       commit("setComEvents", com.comEvents)
       commit("setData", data)
       commit("setSavedData", data)
+      commit("syncStatusChanged")
       commit("setStatus", {reloading:false})
 
       // return the root state

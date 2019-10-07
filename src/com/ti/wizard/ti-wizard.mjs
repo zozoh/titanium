@@ -67,7 +67,6 @@ export default {
             title   : step.title   || stepKey,
             dataKey : Ti.Util.fallback(step.dataKey,stepKey),
             data    : this.data,
-            comValueKey : step.comValueKey,
             comType : step.comType || "ti-label",
             comConf : step.comConf || {value:stepKey},
             comEvents : step.comEvents  || {},

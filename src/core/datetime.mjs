@@ -44,12 +44,12 @@ const TiDateTime = {
     return MONTH_ABBR[m]
   },
   //---------------------------------------
-  setTime(d, {
+  setTime(d, [
     hours = 0,
     minutes = 0,
     seconds = 0,
     milliseconds = 0
-  }={}) {
+  ]=[]) {
     if(_.inRange(hours, 0, 24)) {
       d.setHours(hours)
     }

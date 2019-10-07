@@ -69,6 +69,22 @@ export default {
     }
   },
   //////////////////////////////////////////
+  watch : {
+    // If the value changed outside,
+    // and if the value our-of-view
+    // It should auto switch the viewDate
+    "value" : function(val) {
+      if(val) {
+        let [v0] = [].concat(val)
+        let dt = Ti.Types.toDate(v0)
+        let ms = dt.getTime()
+        if(!_.inRange(ms, ...this.theMatrixRangeInMs)) {
+          this.view_date = null
+        }
+      }
+    }
+  },
+  //////////////////////////////////////////
   computed : {
     //--------------------------------------
     switcherClass() {
@@ -119,8 +135,7 @@ export default {
       // dt0 start of the day
       dt0 = Ti.DateTime.setTime(new Date(msRange[0]))
       // dt1 end of the day
-      dt1 = Ti.DateTime.moveDate(new Date(msRange[1]), 1)
-      Ti.DateTime.setTime(dt1)
+      dt1 = Ti.DateTime.setTime(new Date(msRange[1]), [23,59,59,999])
 
       // rebuild the range
       return [dt0.getTime(), dt1.getTime()]
@@ -138,8 +153,27 @@ export default {
       return new Date(this.theRangeInMs[1])
     },
     //--------------------------------------
-    theViewRange() {
+    theMatrixRangeInMs() {
       let c0 = this.dateMatrixList[0][0][0]
+      let i = this.dateMatrixList.length - 1
+      let y = this.dateMatrixList[i].length - 1
+      let x = this.dateMatrixList[i][y].length - 1
+      let c1 = this.dateMatrixList[i][y][x]
+
+      let dt0 = new Date(c0.raw)
+      let dt1 = new Date(c1.raw)
+      Ti.DateTime.setTime(dt0)
+      Ti.DateTime.setTime(dt1, [23,59,59,999])
+      return [dt0.getTime(), dt1.getTime()]
+    },
+    //--------------------------------------
+    theMatrixRange() {
+      let dt0 = new Date(this.theMatrixRangeInMs[0])
+      let dt1 = new Date(this.theMatrixRangeInMs[1])
+      return [dt0, dt1]
+    },
+    //--------------------------------------
+    theViewRange() {
       let i = this.dateMatrixList.length - 1
       let y = this.dateMatrixList[i].length - 1
       let x = this.dateMatrixList[i][y].length - 1
@@ -147,34 +181,42 @@ export default {
       while(c1.type!="in-month" && x>0) {
         c1 = this.dateMatrixList[i][y][--x]
       }
-      return [c0.raw, c1.raw]
+
+      let dt0 = new Date(this.theViewDate)
+      let dt1 = new Date(c1.raw)
+      Ti.DateTime.setTime(dt0)
+      Ti.DateTime.setTime(dt1, [23,59,59,999])
+      return [dt0, dt1]
     },
     //--------------------------------------
     theViewRangeText() {
-      let dt0 = this.theViewDate
+      let dt0 = this.theViewRange[0]
       if(this.isMonthly && this.matrixCount > 1) {
         let dt1 = this.theViewRange[1]
-        let fromYear  = dt0.getFullYear()
-        let fromMonth = dt0.getMonth()
-        let toYear    = dt1.getFullYear()
-        let toMonth   = dt1.getMonth()
-        let fromMonthAbbr = Ti.DateTime.getMonthAbbr(fromMonth)
-        let toMonthAbbr   = Ti.DateTime.getMonthAbbr(toMonth)
-        let fromMonthText = Ti.I18n.get(fromMonthAbbr)
-        let toMonthText   = Ti.I18n.get(toMonthAbbr)
+        let yy0 = dt0.getFullYear()
+        let MM0 = dt0.getMonth()
+        let yy1 = dt1.getFullYear()
+        let MM1 = dt1.getMonth()
+        let MA0 = Ti.DateTime.getMonthAbbr(MM0)
+        let MA1 = Ti.DateTime.getMonthAbbr(MM1)
+        let MT0 = Ti.I18n.get(MA0)
+        let MT1 = Ti.I18n.get(MA1)
+
+        MM0++;  MM1++;  // Month change to 1 base
+
         let vars = {
-          fromYear,      toYear,
-          fromMonth,     toMonth,
-          fromMonthAbbr, toMonthAbbr,
-          fromMonthText, toMonthText
+          yy0, yy1,
+          MM0, MM1,
+          MA0, MA1,
+          MT0, MT1
         }
         // Beyound year
-        if(fromYear != toYear) {
-          return Ti.I18n.getf("cal.range-beyond-year", vars)
+        if(yy0 != yy1) {
+          return Ti.I18n.getf("cal.m-range-beyond-years", vars)
         }
         // Beyound month
-        if(fromMonth != toMonth) {
-          return Ti.I18n.getf("cal.range-beyond-month", vars)
+        if(MM0 != MM1) {
+          return Ti.I18n.getf("cal.m-range-beyond-months", vars)
         }
       }
       return Ti.Types.formatDate(dt0, this.monthFormat)

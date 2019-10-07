@@ -16,7 +16,7 @@ export default {
     },
     "icon" : {
       type : String,
-      default : "zmdi-time"
+      default : "fas-clock"
     },
     "format" : {
       type : String,

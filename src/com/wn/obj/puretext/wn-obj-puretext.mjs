@@ -68,12 +68,7 @@ export default {
         return !this.status.changed
       },
       fail : ()=>{
-        this.$message({
-          showClose: true,
-          message: Ti.I18n.get("wn-obj-puretext-nosave"),
-          duration : 3000,
-          type: 'warning'
-        });
+        Ti.Toast.Open("i18n:wn-obj-puretext-nosave", "warn")
       }
     })
     //----------------------------------------

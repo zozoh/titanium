@@ -117,7 +117,6 @@ export default {
     },
     //---------------------------------------------------
     onHexChanged(evt) {
-      console.log("haha")
       let hex=_.trim(evt.target.value)
       if(/^[0-9a-f]{3,6}$/i.test(hex)) {
         hex = "#" + hex

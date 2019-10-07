@@ -26,6 +26,7 @@
     flex:1 1 auto;
     input {
       @include font-fixed;
+      @include text-input;
       width:100%;
       border:0; outline: none;
       padding:.06rem .14rem;

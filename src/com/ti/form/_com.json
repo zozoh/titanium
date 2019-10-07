@@ -15,6 +15,7 @@
     "@com:ti/input/time",
     "@com:ti/input/month",
     "@com:ti/input/datetime",
+    "@com:ti/input/daterange",
     "@com:ti/label",
     "@com:ti/toggle",
     "@com:ti/switcher",

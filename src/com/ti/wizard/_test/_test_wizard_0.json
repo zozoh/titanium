@@ -1,7 +1,8 @@
 {
   "comType" : "ti-wizard",
   "comConf" : {
-    "first" : 1,
+    "first" : 0,
+    "data"  : "..",
     "steps" : [{
         "dataKey" : null,
         "comType" : "ti-form",
@@ -17,9 +18,12 @@
                   "options" : [1,2,3,5,8]
                 }
               }]
+          },
+          "data" : {
+            "theName"  : "=theName",
+            "theValue" : "=theValue"
           }
         },
-        "comValueKey" : "data",
         "comEvents" : {
           "changed" : "toObjByPair"
         },
@@ -49,12 +53,15 @@
                 "width" : "1.4rem",
                 "comType" : "ti-input-num",
                 "comConf" : {
-                  "step" : 100
+                  "step" : 10
                 }
               }]
+          },
+          "data" : {
+            "x"  : "=pos.x",
+            "y" : "=pos.y"
           }
         },
-        "comValueKey" : "data",
         "comEvents" : {
           "changed" : "toObjByPair"
         },
@@ -77,6 +84,6 @@
       }]
   },
   "comEvents" : {
-    "changed" : "main/update"
+    "changed" : "update"
   }
 }

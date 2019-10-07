@@ -16,7 +16,7 @@ export default {
     },
     "icon" : {
       type : String,
-      default : "zmdi-time"
+      default : "far-clock"
     },
     /***
      * Value unit when value is Number
