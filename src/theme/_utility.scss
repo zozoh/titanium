@@ -75,6 +75,7 @@
   @include fireable; display:inline-block;
   @include border(1px, solid, dark);
   text-align:center; text-decoration: none;
+  white-space: nowrap; padding:0 .04rem;
   &:hover {text-decoration: none;}
   &.is-big {
     font-size:1.3em; padding:.1rem;

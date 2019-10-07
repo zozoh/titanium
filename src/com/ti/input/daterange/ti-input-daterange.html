@@ -1,0 +1,19 @@
+<ti-combo-input class="as-date"
+  :class="topClass"
+  :icon="icon"
+  :text="theDateText"
+  :value="theDateValue"
+  :placeholder="placeholder"
+  :editable="editable"
+  :focus-to-open="focusToOpen"
+  :width="width"
+  :height="height"
+  drop-width="none"
+  @changed="onChanged"
+  @collapse="onCollapse">
+  <ti-calendar
+    :value="theDropDate"
+    :begin-year="beginYear"
+    :end-year="endYear"
+    @changed="onDateChanged"/>
+</ti-combo-input>

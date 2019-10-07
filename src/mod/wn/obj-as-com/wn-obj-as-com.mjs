@@ -21,7 +21,7 @@ export default {
       state.__saved_data = data
     },
     mergeData(state, data) {
-      state.data = _.merge({}, state.data, data)
+      state.data = Ti.Util.deepMergeObj({}, state.data, data)
     },
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)

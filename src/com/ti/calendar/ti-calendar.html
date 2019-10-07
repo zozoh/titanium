@@ -1,45 +1,60 @@
 <div class="ti-calendar">
   <!--
-    Switcher
+    Heading
   -->
-  <slot name="head">
-    <div class="as-switcher">
-      <div class="go-btn to-prev-month" @click="gotoMonth(-1)">
+  <div class="as-head">
+    <!--
+      Switcher
+    -->
+    <div class="as-switcher" :class="switcherClass">
+      <div class="go-btn to-prev-block" @click="gotoMatrix(-1)">
         <ti-icon value="zmdi-chevron-left"/>
       </div>
       <div class="as-title">
         <ti-input-month
           width="100%"
           height=".36rem"
-          :value="currentDate"
+          :value="theViewDate"
+          :format="theViewRangeText"
           :editable="monthEditable"
           :begin-year="beginYear"
           :end-year="endYear"
           @changed="onMonthChanged"/>
       </div>
-      <div class="go-btn to-next-month" @click="gotoMonth(1)">
+      <div class="go-btn go-today" @click="gotoToday">
+        <span>{{'today'|i18n}}</span>
+      </div>
+      <div class="go-btn to-next-block" @click="gotoMatrix(1)">
         <ti-icon value="zmdi-chevron-right"/>
       </div>
     </div>
-  </slot>
+    <!--
+      Change Mode
+      TODO maybe should support mode changing here
+    -->
+    
+  </div>
   <!--
     Day cells
   -->
-  <div class="as-table">
-    <table>
-      <thead>
-        <th v-for="wt in weekTitles">{{wt.title}}</th>
-      </thead>
-      <tbody>
-        <tr v-for="row in dayMatrix">
-          <td v-for="cell in row" :class="cell.type">
-            <slot name="cell">
-              <span class="as-date-item"
-                @click="onClickCell(cell)">{{cell.date}}</span>
-            </slot>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="as-matrix-table">
+    <div v-for="matrix in dateMatrixList"
+      class="as-matrix">
+      <table>
+        <thead>
+          <th v-for="wt in weekTitles">{{wt.title}}</th>
+        </thead>
+        <tbody>
+          <tr v-for="row in matrix">
+            <td v-for="cell in row" :class="cell.type">
+              <slot name="cell">
+                <span class="as-date-item"
+                  @click="onClickCell(cell)">{{cell.text}}</span>
+              </slot>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

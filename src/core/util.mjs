@@ -43,6 +43,16 @@ const TiUtil = {
     return obj
   },
   /***
+   * Unlike the `_.merge`, it will replace `Array` value
+   */
+  deepMergeObj(obj={}, ...others) {
+    return _.mergeWith(obj, ...others, (objValue, srcValue)=>{
+      if(_.isArray(objValue) || _.isArray(srcValue)) {
+        return srcValue
+      }
+    })
+  },
+  /***
    * @param input{Any}
    * @param iteratee{Function} - (val, path) 
    */

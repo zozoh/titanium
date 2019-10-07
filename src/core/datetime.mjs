@@ -44,6 +44,27 @@ const TiDateTime = {
     return MONTH_ABBR[m]
   },
   //---------------------------------------
+  setTime(d, {
+    hours = 0,
+    minutes = 0,
+    seconds = 0,
+    milliseconds = 0
+  }={}) {
+    if(_.inRange(hours, 0, 24)) {
+      d.setHours(hours)
+    }
+    if(_.inRange(minutes, 0, 60)) {
+      d.setMinutes(minutes)
+    }
+    if(_.inRange(seconds, 0, 60)) {
+      d.setSeconds(seconds)
+    }
+    if(_.inRange(milliseconds, 0, 1000)) {
+      d.setMilliseconds(milliseconds)
+    }
+    return d
+  },
+  //---------------------------------------
   moveYear(d, offset=0) {
     if(_.isDate(d)) {
       d.setFullYear(d.getFullYear + offset)

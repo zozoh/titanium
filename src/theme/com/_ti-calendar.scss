@@ -1,75 +1,104 @@
+$ti-cal-width: 2.6rem;
 .ti-calendar {
+  @include flex-align-v-nowrap;
   @include noselect;
-  width:2.6rem;
   //---------------------------------
-  > .as-switcher {
-    @include flex-align-nowrap($ai:stretch);
-    //-------------------------------
-    > .go-btn {
-      @include flex-center;
-      width:.24rem;
-      cursor:pointer;
-      flex:0 0 auto;
-      &:hover {
-        @include color($color-primary, r, c);
+  > .as-head {
+    @include flex-align;
+    //---------------------------------
+    > .as-switcher {
+      @include flex-align-nowrap($ai:stretch);
+      width:$ti-cal-width;
+      &.sz-double {
+        width:$ti-cal-width * 1.5;
       }
-    }
-    //-------------------------------
-    > .as-title {
-      @include flex-center;
-      padding:.04rem 0;
-      flex:1 1 auto;
-      // The Quick Year-Month picker
-      .ti-combo-input {
-        > .as-box {
-          border:0;
+      //-------------------------------
+      > .go-btn {
+        @include flex-center;
+        width:.24rem; white-space: nowrap;
+        cursor:pointer;
+        flex:0 0 auto;
+        &:hover {
+          @include color($color-primary, r, c);
         }
-        &.is-highlight {
+      }
+      //-------------------------------
+      > .go-today {
+        padding:0 .06rem; width:unset;
+      }
+      //-------------------------------
+      > .as-title {
+        @include flex-center;
+        padding:.04rem 0;
+        flex:1 1 auto;
+        // The Quick Year-Month picker
+        .ti-combo-input {
+          width:100%;
           > .as-box {
-            @include color($color-primary, r, c); 
-            input {
-              @include color($color-primary, r); 
+            border:0;
+          }
+          &.is-highlight {
+            > .as-box {
+              @include color($color-primary, r, c); 
+              input {
+                @include color($color-primary, r); 
+              }
             }
           }
-        }
-      } // .ti-combo-input
-    } // .as-title
-    //-------------------------------
+        } // .ti-combo-input
+      } // .as-title
+      //-------------------------------
+    } // > .as-switcher
+    //---------------------------------
+    // TODO mode changer
+    //---------------------------------
   }
   //---------------------------------
-  > .as-table {
-    table {
-      border-spacing: 0; width:100%;
-    }
-    th {
-      @include border(1px, solid, shallow, top);
-      @include border(1px, solid, shallow, bottom);
-      text-align:center;
-    }
-    td {
-      padding:.02rem;
-      &.is-prev,
-      &.is-next {
-        opacity: 0.4;
+  > .as-matrix-table {
+    @include flex-align-nowrap($ai:stretch);
+    > .as-matrix {
+      border-left:1px solid map-get($color-line, shallow);
+      width:$ti-cal-width;
+      //-------------------------------
+      &:first-child {border-left:0;}
+      //-------------------------------
+      table {
+        width:100%;
+        border-spacing: 0; 
       }
-      &.is-today {
-        color: map-get($color-secondary, c);
-        font-weight: bold;
+      //-------------------------------
+      th {
+        @include border(1px, solid, shallow, top);
+        @include border(1px, solid, shallow, bottom);
+        text-align:center;
       }
-      &.is-current {
-        .as-date-item {
-          @include color($color-secondary, r, c);
+      //-------------------------------
+      td {
+        padding:.02rem;
+        &.is-prev,
+        &.is-next {
+          opacity: 0.4;
+        }
+        &.is-today {
+          color: map-get($color-primary, c);
+          background: map-get($color-mask, weak);
+          font-weight: bold;
+        }
+        &.is-selected {
+          .as-date-item {
+            @include color($color-secondary, r, c);
+          }
         }
       }
-    }
+      //-------------------------------
+    } // > .as-matrix 
   }
   //---------------------------------
   .as-date-item {
-    @include flex-center;
-    width:.32rem; height:.32rem;
-    border-radius: 50%; margin:0 auto;
-    cursor: pointer;
-    font-size:.12rem;
+    @include flex-center; cursor: pointer;
+    width:.32rem; height:.32rem; margin:0 auto; 
+    border-radius: 50%;
+    font-size:.12rem; white-space: nowrap;
     &:hover {
       @include color($color-primary, r, c);
     }

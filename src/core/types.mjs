@@ -89,22 +89,24 @@ export class TiTime {
     return new TiTime(this)
   }
   //--------------------------------
-  set hours(hours=0) {
-    this.__cached = {}
-    this.hours = _.clamp(hours, 0, 23)
-  }
-  set minutes(minutes=0) {
-    this.__cached = {}
-    this.minutes = _.clamp(minutes, 0, 59)
-  }
-  set seconds(seconds=0) {
-    this.__cached = {}
-    this.seconds = _.clamp(seconds, 0, 59)
-  }
-  set milliseconds(ms=1) {
-    this.__cached = {}
-    this.milliseconds = _.clamp(ms, 0, 999)
-  }
+  // If move attr into constructor, TBS will be supported
+  // But the setter will be invoked infinitely 
+  // set hours(hours=0) {
+  //   this.__cached = {}
+  //   this.hours = _.clamp(hours, 0, 23)
+  // }
+  // set minutes(minutes=0) {
+  //   this.__cached = {}
+  //   this.minutes = _.clamp(minutes, 0, 59)
+  // }
+  // set seconds(seconds=0) {
+  //   this.__cached = {}
+  //   this.seconds = _.clamp(seconds, 0, 59)
+  // }
+  // set milliseconds(ms=1) {
+  //   this.__cached = {}
+  //   this.milliseconds = _.clamp(ms, 0, 999)
+  // }
   //--------------------------------
   setTimes({hours, minutes, seconds, milliseconds}={}) {
     this.__cached = {}
@@ -287,22 +289,24 @@ export class TiColor {
   clone() {
     return new TiColor([this.red, this.green, this.blue, this.alpha])
   }
-  set red(r=0) {
-    this.__cached - {}
-    this.red = _.clamp(r, 0, 255)
-  }
-  set green(g=0) {
-    this.__cached - {}
-    this.green = _.clamp(g, 0, 255)
-  }
-  set blue(b=0) {
-    this.__cached - {}
-    this.blue = _.clamp(b, 0, 255)
-  }
-  set alpha(a=1) {
-    this.__cached = {}
-    this.alpha = a
-  }
+  // If move attr into constructor, TBS will be supported
+  // But the setter will be invoked infinitely 
+  // set red(r=0) {
+  //   this.__cached - {}
+  //   this.red = _.clamp(r, 0, 255)
+  // }
+  // set green(g=0) {
+  //   this.__cached - {}
+  //   this.green = _.clamp(g, 0, 255)
+  // }
+  // set blue(b=0) {
+  //   this.__cached - {}
+  //   this.blue = _.clamp(b, 0, 255)
+  // }
+  // set alpha(a=1) {
+  //   this.__cached = {}
+  //   this.alpha = a
+  // }
   setRGBA({r,g,b,a}={}) {
     this.__cached = {}
     if(_.isNumber(r)) {
@@ -726,7 +730,10 @@ const TiTypes = {
     }
   },
   //.......................................
-  toDate(val) {
+  toDate(val, dft=new Date()) {
+    if(_.isNull(val) || _.isUndefined(val)) {
+      return dft
+    }
     return parseDate(val)
   },
   //.......................................
@@ -752,7 +759,16 @@ const TiTypes = {
   },
   //.......................................
   formatDate(date, fmt="yyyy-MM-dd'T'HH:mm:ss.SSS") {
-    //console.log("formatDate", date, fmt)
+    // Date Range or a group of date
+    if(_.isArray(date)) {
+      //console.log("formatDate", date, fmt)
+      let list = []
+      for(let d of date) {
+        list.push(TiTypes.formatDate(d, fmt))
+      }
+      return list
+    }
+
     if(!_.isDate(date)) {
       date = parseDate(date)
     }
