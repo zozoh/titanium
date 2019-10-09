@@ -46,6 +46,10 @@ export default {
       type : [Number, String],
       default : undefined
     },
+    "monthFormat" : {
+      type : String,
+      default : "yyyy-MM-dd" 
+    },
     "beginYear" : {
       type : [Number, String],
       default : 1970

@@ -67,12 +67,13 @@
   //---------------------------------
   > .as-mask {
     @include pos-fixed-full;
+    z-index:$z-mask;
   }
   //---------------------------------
   > .as-drop {
     @include color($color-body, r, c);
     border:1px solid map-get($color-primary, c);
-    z-index:$z-mask;
+    z-index:$z-mask + 1;
     position: fixed;
     
   }
