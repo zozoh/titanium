@@ -2,7 +2,7 @@
   :class="topClass"
   :icon="icon"
   :text="theRangeText"
-  :value="theRangeValue"
+  :value="theRangeText"
   :placeholder="placeholder|i18n"
   :editable="editable"
   :focus-to-open="focusToOpen"
@@ -11,12 +11,8 @@
   drop-width="none"
   @changed="onInputChanged"
   @collapse="onCollapse">
-  <ti-calendar
-    :value="theDropRange"
-    :range="true"
-    :matrix-count="matrixCount"
-    :month-format="monthFormat"
-    :begin-year="beginYear"
-    :end-year="endYear"
-    @changed="onDateRangeChanged"/>
+  <ti-form
+    :data="theDropRange"
+    :config="theFormConfig"
+    @changed="onFormChanged"/>
 </ti-combo-input>

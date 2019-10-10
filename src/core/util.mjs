@@ -36,7 +36,7 @@ const TiUtil = {
       }
       // Plain Object
       else if(_.isPlainObject(val)) {
-        _.assign(obj, val)
+        _.merge(obj, val)
       }
       // Another types will be ignore
     }

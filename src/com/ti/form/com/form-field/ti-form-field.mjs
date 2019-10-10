@@ -36,6 +36,9 @@ export default {
       if(this.className) {
         klass.push(this.className)
       }
+      if(!this.statusIcons) {
+        klass.push("no-status")
+      }
       return klass
     },
     //----------------------------------------
@@ -109,7 +112,9 @@ export default {
     },
     //----------------------------------------
     statusIcon() {
-      return this.statusIcons[this.status]
+      if(this.statusIcons) {
+        return this.statusIcons[this.status]
+      }
     }
   },
   ////////////////////////////////////////////////

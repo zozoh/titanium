@@ -1,5 +1,8 @@
 {
   "blank-date-range" : "请选择日期范围",
+  "blank-time-range" : "请选择时间范围",
+  "time-begin" : "开始时间",
+  "time-end"   : "结束时间",
   "today" : "今天",
   "Jan" : "一月",
   "Feb" : "二月",

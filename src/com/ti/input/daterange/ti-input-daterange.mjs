@@ -193,7 +193,7 @@ export default {
       }
     },
     //------------------------------------------------
-    onDateChanged(rg) {
+    onDateRangeChanged(rg) {
       this.dropRange = rg
     },
     //------------------------------------------------

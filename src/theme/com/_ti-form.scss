@@ -70,6 +70,9 @@
           text-align: right;
         }
       }
+      &.no-status {
+        > .field-name {padding-left:.04rem;}
+      }
     }
     //------------------------
     &.as-phone {

@@ -1,0 +1,8 @@
+{
+  "name" : "ti-input-timerange",
+  "globally" : true,
+  "template" : "./ti-input-timerange.html",
+  "mixins" : ["./ti-input-timerange.mjs"],
+  "components" : [
+    "@com:ti/combo/input"]
+}

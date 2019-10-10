@@ -595,6 +595,12 @@ const TiTypes = {
     if(_.isDate(val)){
       return TiTypes.formatDate(val, fmt)
     }
+    if(val instanceof TiTime) {
+      return val.toString(fmt)
+    }
+    if(val instanceof TiColor) {
+      return val.toString()
+    }
     if(_.isPlainObject(val)){
       if(fmt) {
         if(_.isString(fmt)) {
@@ -758,7 +764,21 @@ const TiTypes = {
     return parseDate(val).getTime()
   },
   //.......................................
-  formatDate(date, fmt="yyyy-MM-dd'T'HH:mm:ss.SSS") {
+  formatTime(time, fmt="auto") {
+    if(_.isUndefined(time) || _.isNull(time)) {
+      return ""
+    }
+    if(!(time instanceof TiTime)) {
+      time = new TiTime(time)
+    }
+    return time.toString(fmt)
+  },
+  //.......................................
+  formatDate(date, fmt="yyyy-MM-dd") {
+    return TiTypes.formatDateTime(date, fmt)
+  },
+  //.......................................
+  formatDateTime(date, fmt="yyyy-MM-dd'T'HH:mm:ss.SSS") {
     // Date Range or a group of date
     if(_.isArray(date)) {
       //console.log("formatDate", date, fmt)
@@ -855,9 +875,11 @@ const TiTypes = {
       'Boolean'  : {transformer:"toBoolean", serializer:"toBoolean"},
       'Object'   : {transformer:"toObject",  serializer:"toObject"},
       'Array'    : {transformer:"toArray",   serializer:"toArray"},
-      'DateTime' : {transformer:"toDate",    serializer:"formatDate"},
+      'DateTime' : {transformer:"toDate",    serializer:"formatDateTime"},
       'AMS'      : {transformer:"toDate",    serializer:"toAMS"},
-      // Time
+      'Time'     : {transformer:"toTime",    serializer:"formatTime"},
+      'Date'     : {transformer:"toDate",    serializer:"formatDate"},
+      'Color'    : {transformer:"toColor",   serializer:"toStr"},
       // Date
       // Color
       // PhoneNumber

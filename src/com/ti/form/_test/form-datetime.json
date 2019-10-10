@@ -44,6 +44,14 @@
           "comConf" : {
             "editable" : true
           }
+        }, {
+          "title" : "时间范围",
+          "name"  : "timerange",
+          "type"  : "Object",
+          "comType" : "ti-input-timerange",
+          "comConf" : {
+            "editable" : true
+          }
         }]
       },
     "data" : {
@@ -51,7 +59,8 @@
       "month" : "=month",
       "date"  : "=date",
       "datetime"  : "=datetime",
-      "daterange" : "=daterange"
+      "daterange" : "=daterange",
+      "timerange" : "=timerange"
     }
   },
   "comEvents" : {

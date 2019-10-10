@@ -1,7 +1,8 @@
 <div class="form-field"
   :class="topClass">
   <div class="field-name">
-    <span class="name-status">
+    <span v-if="statusIcons"
+      class="name-status">
       <ti-icon
         v-if="show.status"
         :value="statusIcon"/>
