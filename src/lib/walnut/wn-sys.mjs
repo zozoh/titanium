@@ -29,6 +29,7 @@ export const WnSys = {
     if(autoRunMacro) {
       ing.macro = {
         update_envs : (envs)=>{
+          Wn.Session.env(envs)
           Wn.doHook("update_envs", envs)
         }
       }

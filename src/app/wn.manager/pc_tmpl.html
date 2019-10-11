@@ -121,9 +121,17 @@ async function main(){
   if(!_.isEmpty(tiConf.components)) {
     Ti.Util.pushValue(appInfo, "components", tiConf.components)
   }
+  // Join the ext-deps
   if(!_.isEmpty(tiConf.deps)) {
     Ti.Util.pushValue(appInfo, "deps", tiConf.deps)
   }
+  // Load the global util modules
+  for(let key of _.keys(tiConf.global)) {
+    let val = tiConf.global[key]
+    let mod = await Ti.Load(val) 
+    window[key] = mod
+  }
+
   // console.log(appInfo)
   // Do init
   let app = Ti.App(appInfo)
@@ -146,7 +154,7 @@ async function main(){
     "vars" : _app.session.envs
   })
 
-  // Hook the session env change
+  // Hook the session env changing
   Wn.addHook("update_envs", (envs)=>{
     Ti.SessionVar(envs)
   })

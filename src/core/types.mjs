@@ -91,22 +91,22 @@ export class TiTime {
   //--------------------------------
   // If move attr into constructor, TBS will be supported
   // But the setter will be invoked infinitely 
-  // set hours(hours=0) {
-  //   this.__cached = {}
-  //   this.hours = _.clamp(hours, 0, 23)
-  // }
-  // set minutes(minutes=0) {
-  //   this.__cached = {}
-  //   this.minutes = _.clamp(minutes, 0, 59)
-  // }
-  // set seconds(seconds=0) {
-  //   this.__cached = {}
-  //   this.seconds = _.clamp(seconds, 0, 59)
-  // }
-  // set milliseconds(ms=1) {
-  //   this.__cached = {}
-  //   this.milliseconds = _.clamp(ms, 0, 999)
-  // }
+  setHours(hours=0) {
+    this.__cached = {}
+    this.hours = _.clamp(hours, 0, 23)
+  }
+  setMinutes(minutes=0) {
+    this.__cached = {}
+    this.minutes = _.clamp(minutes, 0, 59)
+  }
+  setSeconds(seconds=0) {
+    this.__cached = {}
+    this.seconds = _.clamp(seconds, 0, 59)
+  }
+  setMilliseconds(ms=1) {
+    this.__cached = {}
+    this.milliseconds = _.clamp(ms, 0, 999)
+  }
   //--------------------------------
   setTimes({hours, minutes, seconds, milliseconds}={}) {
     this.__cached = {}
@@ -768,9 +768,20 @@ const TiTypes = {
     if(_.isUndefined(time) || _.isNull(time)) {
       return ""
     }
+    // Array in deep
+    if(_.isArray(time)) {
+      //console.log("formatDate", date, fmt)
+      let list = []
+      for(let t of time) {
+        list.push(TiTypes.formatTime(t, fmt))
+      }
+      return list
+    }
+    // Guard time
     if(!(time instanceof TiTime)) {
       time = new TiTime(time)
     }
+    // Format it
     return time.toString(fmt)
   },
   //.......................................

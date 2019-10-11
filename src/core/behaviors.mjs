@@ -27,7 +27,7 @@ export const TiBehaviors = {
       $form.submit()
       // Remove it
       Ti.Dom.remove($form)
-      // await for 1000ms
+      // await for a while
       _.delay(function(){
         resolve({
           url, target, method, params

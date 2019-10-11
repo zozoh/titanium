@@ -47,6 +47,7 @@ export const TiHttp = {
     let {
       method="GET", 
       params={},
+      body=null,    // POST BODY, then params -> query string
       file=null,
       headers={},
       progress=_.identity,
@@ -84,6 +85,14 @@ export const TiHttp = {
             sendData  : file
           }
         } 
+        // if declare body, the params -> query string
+        // you can send XML/JSON by this branch
+        else if(body) {
+          return {
+            urlToSend : [url,TiHttp.encodeFormData(params)].join("?"),
+            sendData  : body
+          }
+        }
         // Normal form upload
         else {
           return {
