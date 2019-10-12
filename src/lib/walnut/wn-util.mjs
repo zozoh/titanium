@@ -1,5 +1,5 @@
 // Ti required(Ti.Icons)
-//---------------------------------------
+////////////////////////////////////////////
 export const WnUtil = {
   isMimeText(mime) {
     return /^text\//.test(mime) 
@@ -136,3 +136,5 @@ export const WnUtil = {
     })
   }
 }
+////////////////////////////////////////////
+export default WnUtil;

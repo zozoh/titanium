@@ -9,7 +9,8 @@
     </div>
     <!--Left: select files home dirName-->
     <div class="as-name">
-      <ti-droplist
+      <component 
+        :is="dirNameComType"
         :options="dirNameOptions"
         :value="filesName"
         :empty="null"

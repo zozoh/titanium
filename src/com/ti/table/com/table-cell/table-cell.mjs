@@ -3,7 +3,7 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   data : ()=>({
-    
+    displayItems : []
   }),
   ///////////////////////////////////////////////////
   props : {
@@ -36,13 +36,25 @@ export default {
       return {
         "is-nowrap" : this.nowrap
       }
-    },
+    }
     //-----------------------------------------------
-    displayItems() {
+    // cellKey() {
+    //   let list = []
+    //   for(let it of this.displayItems) {
+    //     list.push(it.uniqueKey)
+    //   }
+    //   return list.join("+")
+    // }
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    async evalDisplayItems() {
       let list = []
       // Get items value
       for(let it of this.display) {
-        let value
+        let value;
+        //.....................................
         if(_.isArray(it.key)) {
           value = _.pick(this.data, it.key)
         }
@@ -58,15 +70,22 @@ export default {
         if(_.isUndefined(value) || _.isNull(value)) {
           continue
         }
+        //.....................................
+        if(it.dict) {
+          value = await Wn.Dict.get(it.dict, value)
+        }
+        //.....................................
         // Transform
-        if(it.transformer) {
+        if(_.isFunction(it.transformer)) {
           //console.log("do trans")
           value = it.transformer(value)
         }
+        //.....................................
         // Add value to comConf
         let it2 = {...it}
         let conf2 = {}
         let valueAssigned = false
+        //.....................................
         _.forEach(it2.comConf || {}, (val, key)=>{
           // assign value
           if("=value" == key) {
@@ -78,31 +97,27 @@ export default {
             conf2[key] = val
           }
         })
+        //.....................................
         if(!valueAssigned) {
           conf2.value = value
         }
+        //.....................................
         it2.comConf = conf2
+        //.....................................
         // console.log(it.key, value)
         // Join to list
         list.push(it2)
-      }
+        //.....................................
+      } // ~ for(let it of this.display)
       //console.log(this.title, ":", list)
       // Array to pick
-      return list
-    },
-    //-----------------------------------------------
-    cellKey() {
-      let list = []
-      for(let it of this.displayItems) {
-        list.push(it.uniqueKey)
-      }
-      return list.join("+")
+      this.displayItems = list
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
-    
+  mounted : async function() {
+    await this.evalDisplayItems()
   }
   ///////////////////////////////////////////////////
 }

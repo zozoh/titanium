@@ -14,6 +14,10 @@ export default {
       type : String,
       default : "i18n:thing-files"
     },
+    "dirNameComType" : {
+      type : String,
+      default : "ti-droplist"
+    },
     "dirNameOptions" : {
       type : Array,
       default : ()=>[{

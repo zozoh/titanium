@@ -1,8 +1,9 @@
-import {WnIo      as Io     } from "./wn-io.mjs"
-import {WnSession as Session} from "./wn-session.mjs"
-import {WnSys     as Sys    } from "./wn-sys.mjs"
-import {WnUtil    as Util   } from "./wn-util.mjs"
-import {OpenObjSelector}      from "./wn-obj-selector.mjs"
+import Io      from "./wn-io.mjs"
+import Session from "./wn-session.mjs"
+import Sys     from "./wn-sys.mjs"
+import Util    from "./wn-util.mjs"
+import Dict    from "./wn-dict.mjs"
+import {OpenObjSelector} from "./wn-obj-selector.mjs"
 //---------------------------------------
 const WALNUT_VERSION = "1.0"
 //---------------------------------------
@@ -12,7 +13,7 @@ const HOOKs = {
 //---------------------------------------
 export const Wn = {
   Version: WALNUT_VERSION,
-  Io, Session, Sys, Util,
+  Io, Session, Sys, Util, Dict,
   OpenObjSelector,
   //-------------------------------------
   addHook(key, fn) {

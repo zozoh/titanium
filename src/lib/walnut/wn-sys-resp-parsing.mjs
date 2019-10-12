@@ -1,5 +1,5 @@
 // Ti required(Ti.Util)
-//---------------------------------------
+////////////////////////////////////////////
 export class WnSysRespParsing {
   constructor({
     macroObjSep, 
@@ -85,3 +85,4 @@ export class WnSysRespParsing {
     }
   }
 }
+////////////////////////////////////////////

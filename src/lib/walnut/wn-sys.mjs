@@ -1,11 +1,11 @@
 // Ti required(Ti.Icons)
 // Ti required(Ti.Http)
-//---------------------------------------
+////////////////////////////////////////////
 import {WnSysRespParsing} from "./wn-sys-resp-parsing.mjs"
 import Wn from "./walnut.mjs";
-//---------------------------------------
+////////////////////////////////////////////
 const DFT_MACRO_OBJ_SEP = "%%wn.meta." + Ti.Random.str(10) + "%%"
-//---------------------------------------
+////////////////////////////////////////////
 export const WnSys = {
   async exec(cmdText, {
     input = "",
@@ -102,3 +102,5 @@ export const WnSys = {
   } 
   //-------------------------------------
 }
+////////////////////////////////////////////
+export default WnSys;

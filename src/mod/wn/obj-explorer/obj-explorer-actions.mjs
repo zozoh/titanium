@@ -5,7 +5,7 @@ export default {
   async deleteSelected({commit, getters, dispatch}) {
     let list = getters.selectedItems
     if(_.isEmpty(list)) {
-      return await Ti.Alert('i18n:weo-del-none')
+      return await Ti.Toast.Open('i18n:weo-del-none', "warn")
     }
     commit("setStatus", {deleting:true})
     let delCount = 0
@@ -74,7 +74,7 @@ export default {
       commit("setStatus", {deleting:false})
       //commit("$log", null)
       //commit("$noti", {text:"i18n:weo-del-ok", vars:{N:delCount}})
-      Ti.Toast.Open("i18n:weo-del-ok", {N:delCount})
+      Ti.Toast.Open("i18n:weo-del-ok", {N:delCount}, "success")
     }
   },
   //---------------------------------------

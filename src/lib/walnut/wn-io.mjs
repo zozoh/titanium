@@ -1,11 +1,11 @@
 import {WnUtil} from "./wn-util.mjs"
-//---------------------------------------
+////////////////////////////////////////////
 // Ti required(Ti.Http)
-//---------------------------------------
+//-----------------------------------------
 function URL(actionName) {
   return "/o/" + actionName
 }
-//---------------------------------------
+//-----------------------------------------
 function AJAX_RETURN(reo, invalid) {
   if(!reo.ok) {
     if(_.isUndefined(invalid))
@@ -14,7 +14,7 @@ function AJAX_RETURN(reo, invalid) {
   }
   return reo.data;
 }
-//---------------------------------------
+////////////////////////////////////////////
 export const WnIo = {
   /***
    * Get object meta by id
@@ -182,3 +182,5 @@ export const WnIo = {
     return reo
   }
 }
+////////////////////////////////////////////
+export default WnIo;

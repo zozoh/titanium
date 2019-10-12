@@ -148,8 +148,8 @@ const TiToast = {
       // Open("i18n:xxx", {vars})
       if(_.isPlainObject(type)) {
         options = {
-          type     : "info", 
-          position : position || "top",
+          type     : position || "info", 
+          position : "top",
           content  : options,
           vars : type
         }
@@ -157,7 +157,7 @@ const TiToast = {
       // Open("i18n:xxx", "warn")
       else {
         options = {
-          type     : type || "info", 
+          type     : type     || "info", 
           position : position || "top",
           content  : options
         }

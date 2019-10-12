@@ -294,17 +294,14 @@ export default {
   methods : {
     //--------------------------------------
     evalFieldDisplay(fld) {
-      let list = _.isArray(fld.display)
-                    ? fld.display
-                    : [fld.display]
+      let list = [].concat(fld.display)
       let items = []
       for(let li of list) {
         // String|Array -> ti-label
         if(_.isString(li) || _.isArray(li)) {
           items.push({
             key  : li,
-            type : li.type || "String",
-            transformer : li.transformer,
+            //type : "String",
             comType : "ti-label",
             comConf : {}
           })
@@ -312,7 +309,7 @@ export default {
         // Plan Object
         else if(_.isPlainObject(li) && li.key){
           items.push(_.assign({
-            type    : li.type || "String",
+            //type    : li.type || "String",
             comType : "ti-label",
           }, li))
         }
@@ -320,14 +317,14 @@ export default {
       }
       // Gen uniqueKey and transformer for each item
       for(let it of items) {
-        // Unique Key
-        if(_.isArray(it.key)) {
-          it.uniqueKey = it.key.join("-")
-        }
-        // Get the value
-        else {
-          it.uniqueKey = it.key
-        }
+        // // Unique Key
+        // if(_.isArray(it.key)) {
+        //   it.uniqueKey = it.key.join("-")
+        // }
+        // // Get the value
+        // else {
+        //   it.uniqueKey = it.key
+        // }
         // Transformer
         it.transformer = Ti.Types.getFuncBy(it, "transformer", this.fnSet)
       }
@@ -604,6 +601,7 @@ export default {
     const debounceUpdateSizing = _.debounce(()=>{
       // Reset
       this.colSizes = []
+      console.log("hah")
 
       __clean_each_col_size(this.$refs.head)
       __clean_each_col_size(this.$refs.body)
@@ -634,5 +632,10 @@ export default {
     //.................................
     Ti.Viewport.watch(this, {resize : debounceUpdateSizing2})
     //.................................
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Viewport.unwatch(this)
   }
+  ///////////////////////////////////////////////////
 }

@@ -131,6 +131,8 @@ async function main(){
     let mod = await Ti.Load(val) 
     window[key] = mod
   }
+  // Setup dictionaly
+  Wn.Dict.setup(tiConf.dictionary)
 
   // console.log(appInfo)
   // Do init
