@@ -59,9 +59,12 @@
     // thead
     &.as-head {
       @include pos-abs($t:0, $l:0, $r:0, $h:$thead);
-      @include border(1px,solid,dark,bottom);
+      @include border(1px,solid,shallow,bottom);
       line-height: $thead - ($tcpad * 2);
       overflow:hidden;
+      > .table-head.as-table {
+        height:100%;
+      }
     }
     // tbody {
     &.as-body {

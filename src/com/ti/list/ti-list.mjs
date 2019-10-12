@@ -95,7 +95,6 @@ export default {
         },
         valueAsTip : this.valueAsTip
       })
-      //console.log(list)
       return list
     },
     //--------------------------------------

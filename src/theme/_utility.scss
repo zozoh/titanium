@@ -75,7 +75,7 @@
   @include noselect;
   @include fireable; display:inline-block;
   @include border(1px, solid, dark);
-  @include flex-align-nowrap;
+  @include flex-align-nowrap($jc:center);
   text-align:center; text-decoration: none;
   white-space: nowrap; padding:0 .1rem;
   .ti-icon {

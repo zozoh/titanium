@@ -86,7 +86,12 @@ export default {
   async tryReload({loaded=false, cached=true}={}){
     if(!loaded || !cached) {
       await this.reload()
+      return
     }
+    // Return the blank Promise
+    return new Promise((resolve)=>{
+      resolve()
+    })
   },
   //......................................
   async doReload(options = []) {

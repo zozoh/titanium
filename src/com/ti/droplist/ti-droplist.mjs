@@ -41,6 +41,31 @@ export default {
     "cached" : {
       type : Boolean,
       default : true
+    },
+    "width" : {
+      type : [Number, String],
+      default : null
+    },
+    "height" : {
+      type : [Number, String],
+      default : null
+    },
+    // the height of drop list
+    //  - null : will not set the height
+    "dropHeight" : {
+      type : [Number, String],
+      default : null
+    },
+    // drop width
+    //  - "box" : will auto fit with box
+    "dropWidth" : {
+      type : [Number, String],
+      default : "box"
+    },
+    // For test convenience, default is false
+    "autoOpenDrop" : {
+      type : Boolean,
+      default : false
     }
   },
   //////////////////////////////////////////
@@ -53,11 +78,7 @@ export default {
           loaded : this.isLoaded,
           cached : this.cached
         }).then(()=>{
-          let $box   = this.$refs.box.$el
-          let $drop  = this.$refs.drop
-          let r_box  = Ti.Rects.createBy($box)
-          Ti.Dom.setStyle($drop, {width:r_box.width})
-          Ti.Dom.dockTo($drop, $box, {space:{y:1}})
+          this.dockDrop()
           this.isDropVisible = true
         })
       }
@@ -71,11 +92,22 @@ export default {
     isLoaded() {
       return !_.isEmpty(this.items)
     },
+    //------------------------------------------------
+    boxStyle() {
+      return {
+        "width"  : Ti.Css.toSize(this.width),
+        "height" : Ti.Css.toSize(this.height)
+      }
+    },
     //......................................
     dropStyle() {
-      return {
+      let css = {
         "visibility" : this.isDropVisible ? "visible" : "hidden"
       }
+      if(this.dropHeight) {
+        css["height"] = Ti.Css.toSize(this.dropHeight)
+      }
+      return css
     },
     //......................................
     droplist() {
@@ -111,6 +143,34 @@ export default {
   //////////////////////////////////////////
   methods : {
     //......................................
+    //......................................
+    dockDrop() {
+      if(this.isDropShown) {
+        let $drop  = this.$refs.drop
+        let $box   = this.$refs.box.$el
+        if($drop && $box) {
+          // Make drop same width with box
+          if("box" == this.dropWidth) {
+            let r_box  = $box.getBoundingClientRect()
+            Ti.Dom.setStyle($drop, {
+              "min-width" : r_box.width
+            })
+          }
+          // Fixed drop width
+          else if(this.dropWidth) {
+            Ti.Dom.setStyle($drop, {
+              "min-width" : Ti.Css.toSize(this.dropWidth)
+            })
+          }
+
+          // Dock drop to box
+          Ti.Dom.dockTo($drop, $box, {
+            space:{y:2}, 
+          })
+        }
+      }
+    },
+    //......................................
     onChanged(payload) {
       // If value changed, emit the event
       if(!_.isEqual(payload,this.value)) {
@@ -145,5 +205,7 @@ export default {
       loaded : this.isLoaded,
       cached : this.cached
     })
+    this.dropOpened = this.autoOpenDrop
+    this.dockDrop()
   }
 }

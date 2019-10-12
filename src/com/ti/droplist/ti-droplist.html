@@ -1,5 +1,6 @@
 <div class="ti-droplist">
   <ti-box ref="box"
+    :style="boxStyle"
     :empty="empty"
     :items="selectedItems"
     :loading="loading"
@@ -19,6 +20,7 @@
       :data="items"
       :mapping="mapping"
       :empty="empty"
+      :default-icon="defaultIcon"
       :multi="multi"
       :value="value"
       @changed="onChanged"/>

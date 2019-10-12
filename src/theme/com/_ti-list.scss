@@ -4,7 +4,7 @@
     padding:1px;
   }
   li {
-    @include flex-align($ai:center);
+    @include flex-align-nowrap($ai:center);
     @include border(1px, dashed, shallow, top);
     cursor:pointer;
     padding:.02rem .06rem;
@@ -22,6 +22,8 @@
     > .it-text {
       flex:1 1 auto;
       padding:0 0.1rem 0 .04rem;
+      display: block;
+      white-space: nowrap;
     }
     > .it-tip {
       @include font-fixed;

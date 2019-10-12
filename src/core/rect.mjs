@@ -426,7 +426,7 @@ export class Rect {
       "H:right/top" : ()=>{
         this.right = rect.right - space.x
         this.bottom = rect.top - space.y
-        this.updateBy("lbwh")
+        this.updateBy("rbwh")
       },
       "H:right/bottom" : ()=>{
         this.right = rect.right - space.x

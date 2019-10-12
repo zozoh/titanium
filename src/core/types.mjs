@@ -581,9 +581,16 @@ const TiTypes = {
       return Ti.Util.fallback(dft, null)
     }
     if(_.isString(val) || _.isNumber(val)){
-      if(fmt) {
+      // Mapping
+      if(_.isPlainObject(fmt)) {
+        return _.get(fmt, val)
+      }
+      // Render template val -> {val:val}
+      else if(_.isString(fmt)) {
         return Ti.S.renderVars(val, fmt)
       }
+      // TODO maybe here can do some auto-format for String/Number
+      // Return directly
       return val
     }
     if(_.isArray(val)) {
