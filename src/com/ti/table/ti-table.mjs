@@ -36,7 +36,8 @@ export default {
     colSizes : [],
     p_last_index  : 0,
     p_current_id  : null,
-    p_checked_ids : {}
+    p_checked_ids : {},
+    tableData : []
   }),
   ///////////////////////////////////////////////////
   props : {
@@ -317,19 +318,101 @@ export default {
       }
       // Gen uniqueKey and transformer for each item
       for(let it of items) {
-        // // Unique Key
-        // if(_.isArray(it.key)) {
-        //   it.uniqueKey = it.key.join("-")
-        // }
-        // // Get the value
-        // else {
-        //   it.uniqueKey = it.key
-        // }
         // Transformer
         it.transformer = Ti.Types.getFuncBy(it, "transformer", this.fnSet)
       }
       // Array to pick
       return items
+    },
+    //--------------------------------------
+    async evalTableData() {
+      let sheet = []
+      for(let li of this.list) {
+        let obj = {
+          key : li[this.idKey],
+          raw : li,
+          cells : []
+        }
+        // Evel display for cell
+        for(let x=0; x<this.displayFields.length; x++) {
+          let fld = this.displayFields[x]
+          let display = await this.evalTableCellDisplay(li, fld)
+          obj.cells.push({
+            display,
+            index    : x,
+            fld      : fld,
+            title    : fld.title,
+            nowrap   : fld.nowrap            
+          })
+        }
+        // Join to sheet
+        sheet.push(obj)
+      } // ~ for(let li of this.list) 
+      return sheet
+    },
+    //--------------------------------------
+    async evalTableCellDisplay(rowData, fld) {
+      let list = []
+      // Get items value
+      for(let it of fld.display) {
+        let value;
+        //.....................................
+        if(_.isArray(it.key)) {
+          value = _.pick(rowData, it.key)
+        }
+        // Statci value
+        else if(/^'[^']+'$/.test(it.key)) {
+          value = it.key.substring(1, it.key.length-1)
+        }
+        // Get the value
+        else {
+          value = _.get(rowData, it.key)
+        }
+        // Ignore the undefined/null
+        if(_.isUndefined(value) || _.isNull(value)) {
+          continue
+        }
+        //.....................................
+        if(it.dict) {
+          value = await Wn.Dict.get(it.dict, value)
+        }
+        //.....................................
+        // Transform
+        if(_.isFunction(it.transformer)) {
+          //console.log("do trans")
+          value = it.transformer(value)
+        }
+        //.....................................
+        // Add value to comConf
+        let it2 = {...it}
+        let conf2 = {}
+        let valueAssigned = false
+        //.....................................
+        _.forEach(it2.comConf || {}, (val, key)=>{
+          // assign value
+          if("=value" == key) {
+            _.assign(conf2, value)
+            valueAssigned = true
+          }
+          // set val
+          else {
+            conf2[key] = val
+          }
+        })
+        //.....................................
+        if(!valueAssigned) {
+          conf2.value = value
+        }
+        //.....................................
+        it2.comConf = conf2
+        //.....................................
+        // console.log(it.key, value)
+        // Join to list
+        list.push(it2)
+        //.....................................
+      } // ~ for(let it of this.display)
+      // Done
+      return list
     },
     //--------------------------------------
     getIds({
@@ -418,14 +501,14 @@ export default {
     },
     //--------------------------------------
     onToggle(it) {
-      console.log("onToggle")
+      // console.log("->onToggle:before", 
+      //   JSON.stringify(this.p_checked_ids), this.p_current_id)
       let id = it[this.idKey]
       // Cancel it
       if(this.p_checked_ids[id]) {
-        this.p_checked_ids = {
-          ...this.p_checked_ids,
-          [id] : false
-        }
+        this.p_checked_ids = _.pickBy(this.p_checked_ids, (val, key)=>{
+          return val && key != id
+        })
       }
       // multi
       else if(this.multi) {
@@ -448,6 +531,9 @@ export default {
         this.p_current_id = null
       }
 
+      // console.log("->onToggle:emit", 
+      //   JSON.stringify(this.p_checked_ids), this.p_current_id)
+
       // Do emit
       this.$emit("selected", {
         selected : this.selectedItems,
@@ -455,6 +541,9 @@ export default {
         currentId  : this.p_current_id,
         checkedIds : this.p_checked_ids
       })
+
+      // console.log("->onToggle:done", 
+      //   JSON.stringify(this.p_checked_ids), this.p_current_id)
     },
     //--------------------------------------
     onClickHeadRowChecker() {
@@ -507,6 +596,8 @@ export default {
     },
     //--------------------------------------
     bodyRowClass(it) {
+      // console.log("->bodyRowClass", 
+      //   JSON.stringify(this.p_checked_ids), this.p_current_id)
       let itId = it[this.idKey]
       return {
         "is-selected" : this.p_checked_ids && this.p_checked_ids[itId],
@@ -516,6 +607,8 @@ export default {
     },
     //--------------------------------------
     bodyRowCheckerIcon(it) {
+      // console.log("->bodyRowCheckerIcon", 
+      //   JSON.stringify(this.p_checked_ids), this.p_current_id)
       let itId = it[this.idKey]
       if(this.p_checked_ids[itId])
         return "fas-check-square"
@@ -590,18 +683,25 @@ export default {
     },
     "checkedIds" : function() {
       this.autoSetCheckedIds()
+    },
+    "list" : async function() {
+      this.tableData = await this.evalTableData()
+      this.debounceUpdateSizing()
+    },
+    "fields" : function() {
+      this.debounceUpdateSizing()
     }
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
+  mounted : async function() {
+    this.tableData = await this.evalTableData()
     //.................................
     this.autoSetCurrentId()
     this.autoSetCheckedIds()
     //.................................
-    const debounceUpdateSizing = _.debounce(()=>{
+    this.debounceUpdateSizing = _.debounce(()=>{
       // Reset
       this.colSizes = []
-      console.log("hah")
 
       __clean_each_col_size(this.$refs.head)
       __clean_each_col_size(this.$refs.body)
@@ -621,16 +721,13 @@ export default {
       this.updateSizing()
     })
     //.................................
-    this.$watch("fields", debounceUpdateSizing)
-    this.$watch("list"  , debounceUpdateSizing)
-    //.................................
-    const debounceUpdateSizing2 = _.debounce(()=>{
+    const debounceQuickUpdateSizing = _.debounce(()=>{
       this.updateSizing()
     }, 100, {
       leading : true
     })
     //.................................
-    Ti.Viewport.watch(this, {resize : debounceUpdateSizing2})
+    Ti.Viewport.watch(this, {resize : debounceQuickUpdateSizing})
     //.................................
   },
   ///////////////////////////////////////////////////

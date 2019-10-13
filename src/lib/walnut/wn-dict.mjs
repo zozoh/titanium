@@ -107,7 +107,7 @@ class DictBuilder {
   async reload(vars={}) {
     // Build the obj
     let cmdText = Ti.S.renderBy(this.query, vars)
-    console.log(cmdText)
+    //console.log(cmdText)
     let re = await Sys.exec2(cmdText)
     let trimed = _.trim(re)
 

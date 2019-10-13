@@ -35,25 +35,24 @@
       class="table-body as-table" 
       :style="tableStyle">
       <ul 
-        v-for="(it, index) in list" 
-        :key="it[idKey]"
+        v-for="(it, index) in tableData" 
+        :key="it.key"
         class="table-row in-body"
-        :class="bodyRowClass(it)"
-        @click.stop="onSelected(it, index, $event)"
-        @dblclick.stop="onOpen(it, index)">
+        :class="bodyRowClass(it.raw)"
+        @click.stop="onSelected(it.raw, index, $event)"
+        @dblclick.stop="onOpen(it.raw, index)">
         <li col-fixed 
           v-if="checkable" 
           class="row-checker"
           :style="cellStyle(-1)"
-          @click.stop="onToggle(it)">
-          <ti-icon :value="bodyRowCheckerIcon(it)"/>
+          @click.stop="onToggle(it.raw)">
+          <ti-icon :value="bodyRowCheckerIcon(it.raw)"/>
         </li>
         <ti-table-cell 
-          v-for="(fld, cellIndex) in displayFields"
-          :key="fld.uniqueKey"
-          :style="cellStyle(cellIndex, fld)"
-          v-bind="fld"
-          :data="it"/>
+          v-for="(cell, cellIndex) in it.cells"
+          :key="cell.title"
+          :style="cellStyle(cell.index, cell.fld)"
+          v-bind="cell"/>
       </ul>
     </div>
   </div>

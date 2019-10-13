@@ -17,12 +17,14 @@
   -->
   <div class="filter-keyword"
     :class="keywordClass">
-    <input 
+    <!--Input Box-->
+    <input ref="input"
       :placeholder="placeholderText" 
       spellcheck="false"
+      @change="onInputChanged"
       @focus="keywordFocus=true"
       @blur="keywordFocus=false">
-    <ti-icon v-if="hasSearchIcon"
-      :value="searchIcon"/>
+    <!--Search Icon-->
+    <ti-icon v-if="searchIcon" :value="searchIcon"/>
   </div>
 </div>

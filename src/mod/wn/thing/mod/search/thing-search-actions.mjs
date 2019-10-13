@@ -30,13 +30,18 @@ export default {
       cmds.push(`-skip  ${skip}`)
     }
     // Eval Filter
-    let flt
+    let flt = {}
     if(!_.isEmpty(state.filter)) {
-      flt = JSON.stringify(state.filter)
+      _.forEach(state.filter, (val, key)=>{
+        if(!_.isNull(val)) {
+          flt[key] = val
+        }
+      })
     }
     // Run Command
+    let input = _.isEmpty(flt) ? undefined : JSON.stringify(flt)
     let cmdText = cmds.join(" ")
-    let reo = await Wn.Sys.exec2(cmdText, {input:flt, as:"json"})
+    let reo = await Wn.Sys.exec2(cmdText, {input, as:"json"})
     
     // All done
     commit("setPager", reo.pager)

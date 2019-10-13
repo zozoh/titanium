@@ -193,7 +193,14 @@ export default {
 
           // Update the search status
           app.commit("main/search/setCurrentId", currentId)
-          app.commit("main/search/setCheckedIds", _.keys(checkedIds))
+
+          // checkedIds map -> Array
+          let ckids = []
+          _.forEach(checkedIds, (val, key)=>{
+            if(val)
+              ckids.push(key)
+          })
+          app.commit("main/search/setCheckedIds", ckids)
 
         },
         //..................................

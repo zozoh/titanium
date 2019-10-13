@@ -63,11 +63,11 @@ export default {
       }
     },
     onChanged(payload) {
-      console.log("wn-form.changed", payload)
+      //console.log("wn-form.changed", payload)
       this.doAction("changed", this.updateBy, payload)
     },
     onInvalid(err) {
-      console.log("wn-form.invalid", err)
+      //console.log("wn-form.invalid", err)
       let payload = {
         name    : err.name,
         message : [err.errMessage, err.value].join(" :: "),
