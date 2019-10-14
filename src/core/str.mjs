@@ -133,7 +133,7 @@ export const TiStr = {
       return "NaN"
     let nb = n * 100
     // Round
-    let str = fixed > 0 ? nb.toFixed(fixed) : (nb+"")
+    let str = fixed >= 0 ? nb.toFixed(fixed) : (nb+"")
     if(auto) {
       let lastDot  = str.lastIndexOf('.')
       let lastZero = str.lastIndexOf('0')
