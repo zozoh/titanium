@@ -29,7 +29,6 @@ $ti-cal-width: 2.6rem;
       //-------------------------------
       > .as-title {
         @include flex-center;
-        padding:.04rem 0;
         flex:1 1 auto;
         // The Quick Year-Month picker
         .ti-combo-input {

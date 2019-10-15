@@ -7,9 +7,6 @@
       Switcher
     -->
     <div class="as-switcher" :class="switcherClass">
-      <div class="go-btn to-prev-block" @click="gotoMatrix(-1)">
-        <ti-icon value="zmdi-chevron-left"/>
-      </div>
       <div class="as-title">
         <ti-input-month
           width="100%"
@@ -21,6 +18,9 @@
           :begin-year="beginYear"
           :end-year="endYear"
           @changed="onMonthChanged"/>
+      </div>
+      <div class="go-btn to-prev-block" @click="gotoMatrix(-1)">
+        <ti-icon value="zmdi-chevron-left"/>
       </div>
       <div class="go-btn go-today" @click="gotoToday">
         <span>{{'today'|i18n}}</span>
