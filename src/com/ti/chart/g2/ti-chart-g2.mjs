@@ -40,8 +40,8 @@ export default {
       default : ()=>[]
     },
     "padding" : {
-      type : [Number, Array],
-      default : ()=>[10,10,40,60]
+      type : [Number, Array, String],
+      default : "auto"
     },
     // Function(chart, data):void
     "setup" : {

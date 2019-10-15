@@ -25,8 +25,14 @@ export default {
       type : Boolean,
       default : true
     },
-    "nullAs" : {
+    "emptylAs" : {
       default : null
+    },
+    // In single mode, to keep at least one item selected,
+    // you can set the prop to `false`
+    "allowEmpty" : {
+      type : Boolean,
+      default : true
     }
   },
   //////////////////////////////////////////
@@ -86,10 +92,13 @@ export default {
       else {
         let it = this.formedList[index]
         // if can be null, click selected item will cancel it
-        if(it.selected && !_.isUndefined(this.nullAs)) {
-          this.$emit("changed", this.nullAs)
+        if(it.selected && !_.isUndefined(this.emptyAs)) {
+          // Always keep selected
+          if(!this.allowEmpty) {
+            this.$emit("changed", this.emptyAs)
+          }
         }
-        // Always keep selected
+        // change value
         else if(!it.selected) {
           this.$emit("changed", it.value)
         }
