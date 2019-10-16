@@ -10,6 +10,7 @@
     @include noselect;
     @include flex-align-nowrap($ai:stretch);
     @include border(1px, solid, dark);
+    @include color($color-input, c, r);
     cursor: pointer;
     height:.36rem;
     .as-icon {
@@ -65,9 +66,16 @@
     }
   }
   //---------------------------------
+  &.is-drop-opened {
+    > .as-box {
+      z-index:$z-mask + 1;  
+    }
+  }
+  //---------------------------------
   > .as-mask {
     @include pos-fixed-full;
     z-index:$z-mask;
+    //background:rgba(0,0,0,0.5);
   }
   //---------------------------------
   > .as-drop {

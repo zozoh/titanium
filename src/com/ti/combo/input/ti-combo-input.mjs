@@ -3,7 +3,15 @@ export default {
   ////////////////////////////////////////////////////
   data : ()=>({
     "dropOpened" : false,
-    "focused"    : false
+    "focused"    : false,
+    "dropDocked" : false,
+    "box" : {
+      "position" : null,
+      "width"  : null,
+      "height" : null,
+      "top"    : null,
+      "left"   : null
+    }
   }),
   ////////////////////////////////////////////////////
   watch : {
@@ -16,6 +24,7 @@ export default {
       }
       // Sync the value when hide
       else {
+        this.dropDocked = false
         this.$emit("collapse")
       }
     }
@@ -110,10 +119,7 @@ export default {
     },
     //------------------------------------------------
     boxStyle() {
-      return {
-        "width"  : Ti.Css.toSize(this.width),
-        "height" : Ti.Css.toSize(this.height)
-      }
+      return Ti.Css.toStyle(this.box)
     },
     //------------------------------------------------
     dropStyle() {
@@ -169,6 +175,10 @@ export default {
       this.focused = true
       if(this.focusToOpen) {
         this.dropOpened = true
+        _.delay(()=>{
+          this.$refs.input.focus()
+          this.$refs.input.select()
+        }, 0)
       }
     },
     //------------------------------------------------
@@ -176,8 +186,16 @@ export default {
       this.focused = false
     },
     //------------------------------------------------
+    openDrop() {
+      this.dropOpened = true
+    },
+    //------------------------------------------------
     closeDrop() {
       this.dropOpened = false
+    },
+    //------------------------------------------------
+    toggleDrop() {
+      this.dropOpened = !this.dropOpened
     },
     //------------------------------------------------
     getTimeText(tm) {
@@ -187,37 +205,74 @@ export default {
     },
     //------------------------------------------------
     dockDrop() {
-      if(this.dropOpened) {
-        let $drop  = this.$refs.drop
-        let $box   = this.$refs.box
-        if($drop && $box) {
-          // Make drop same width with box
-          if("box" == this.dropWidth) {
-            let r_box  = $box.getBoundingClientRect()
-            Ti.Dom.setStyle($drop, {
-              "width" : `${r_box.width}px`
-            })
-          }
-          // Fixed drop width
-          else if(this.dropWidth) {
-            Ti.Dom.setStyle($drop, {
-              "width" : Ti.Css.toSize(this.dropWidth)
-            })
-          }
-
-          // Dock drop to box
-          Ti.Dom.dockTo($drop, $box, {
-            space:{y:2}, posListX:["left", "right"]
+      let $drop  = this.$refs.drop
+      let $box   = this.$refs.box
+      console.log("dock")
+      // Guard the elements
+      if(!_.isElement($drop) || !_.isElement($box)){
+        return
+      }
+      // If drop opened, make the box position fixed
+      // to at the top of mask
+      if(this.dropOpened && !this.dropDocked) {
+        let r_box  = Ti.Rects.createBy($box)
+        //..........................................
+        // Mark parent to hold the place
+        Ti.Dom.setStyle(this.$el, {
+          width  : r_box.width,
+          height : r_box.height
+        })
+        //..........................................
+        // Mark box to fixed position
+        Ti.Dom.applyRect($box, r_box)
+        _.assign(this.box, {position:"fixed"}, r_box.raw())
+        //..........................................
+        // Make drop same width with box
+        if("box" == this.dropWidth) {
+          Ti.Dom.setStyle($drop, {
+            "width" : `${r_box.width}px`
           })
         }
+        // Fixed drop width
+        else if(this.dropWidth) {
+          Ti.Dom.setStyle($drop, {
+            "width" : Ti.Css.toSize(this.dropWidth)
+          })
+        }
+        //..........................................
+        // Dock drop to box
+        Ti.Dom.dockTo($drop, $box, {
+          space:{y:2}, posListX:["left", "right"]
+        })
+        //..........................................
       }
+      // Cancel box position fixed
+      else {
+        Ti.Dom.setStyle(this.$el, {width: "", height: ""})
+        _.assign(this.box, {
+          position:null, top:null, left:null, 
+          width: this.width, height: this.height
+        })
+      }
+      // Mark docked
+      this.dropDocked = true
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   mounted : function() {
     this.dropOpened = this.autoOpenDrop
+    this.box.width  = this.width
+    this.box.height - this.height
     this.dockDrop()
+    Ti.Viewport.watch(this, {
+      scroll:()=>this.dropOpened=false,
+      resize:()=>this.dropOpened=false
+    })
+  },
+  ////////////////////////////////////////////////////
+  beforeDestroy : function() {
+    Ti.Viewport.unwatch(this)
   }
   ////////////////////////////////////////////////////
 }

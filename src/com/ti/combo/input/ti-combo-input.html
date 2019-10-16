@@ -1,11 +1,15 @@
 <div class="ti-combo-input"
   :class="topClass">
   <!--
+    Drop: Mask
+  -->
+  <div v-if="dropOpened" class="as-mask" @click.left="closeDrop"></div>
+  <!--
     Display or input
   -->
   <div class="as-box" ref="box"
     :style="boxStyle"
-    @click="dropOpened=true">
+    @click.left="openDrop">
     <!-- Icon -->
     <div v-if="icon"
       class="as-icon">
@@ -16,7 +20,7 @@
     <!-- Input / Text -->
     <div class="as-input">
       <!--Editable-->
-      <input v-if="editable"
+      <input v-if="editable" ref="input"
         spellcheck="false" 
         :value="theTextOrValue"
         :placeholder="placeholder"
@@ -29,19 +33,16 @@
       <span v-else>{{theTextOrValue}}</span>
     </div>
     <!-- Drop State -->
-    <div class="as-icon is-state">
+    <div class="as-icon is-state" @click.left.stop="toggleDrop">
       <ti-icon :value="stateIcon"/>
     </div>
   </div>
   <!--
-    Drop
+    Drop: Content
   -->
-  <template v-if="dropOpened">
-    <div class="as-mask" @click="closeDrop"></div>
-    <div class="as-drop" :style="dropStyle" ref="drop">
-      <slot>
-        <span>This is dropdown content</span>
-      </slot>
-    </div>
-  </template>
+  <div v-if="dropOpened" class="as-drop" :style="dropStyle" ref="drop">
+    <slot>
+      <span>This is dropdown content</span>
+    </slot>
+  </div>
 </div>
