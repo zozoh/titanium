@@ -93,25 +93,57 @@ class Shortcut {
     }
     return false
   }
+  /***
+   * Get uniquekey for a keyboard event object
+   * 
+   * @param $event{Event} - the Event like object with
+   *  `{"key", "altKey","ctrlKey","metaKey","shiftKey"}`
+   * @param sep{String} - how to join the multi-keys, `+` as default
+   * @param mode{String} - Method of key name transformer function:
+   *  - `"upper"` : to upport case
+   *  - `"lower"` : to lower case
+   *  - `"camel"` : to camel case
+   *  - `"snake"` : to snake case
+   *  - `"kebab"` : to kebab case
+   *  - `"start"` : to start case
+   *  - `null`  : keep orignal
+   * 
+   * @return Unique Key as string
+   */
+  getUniqueKey($event, {sep="+", mode="upper"}={}) {
+    let keys = []
+    if($event.altKey) {keys.push("ALT")}
+    if($event.ctrlKey) {keys.push("CTRL")}
+    if($event.metaKey) {keys.push("META")}
+    if($event.shiftKey) {keys.push("SHIFT")}
+
+    let k = $event.key
+    let fn = ({
+      upper : (s)=>s.toUpperCase(),
+      lower : (s)=>s.toLowerCase(),
+      camel : (s)=>_.camelCase(s),
+      snake : (s)=>_.snakeCase(s),
+      kebab : (s)=>_.kebabCase(s),
+      start : (s)=>_.startCase(s),
+    })[mode]
+    if(_.isFunction(fn)) {
+      k = fn(k)
+    }
+
+    if(!/^(ALT|CTRL|CONTROL|SHIFT|META)$/.test(k)) {
+      keys.push(k)
+    }
+
+    return keys.join(sep)
+  }
   startListening() {
     // Prevent multiple listening
     if(this.isListening)
       return
     // Do listen
-    window.addEventListener("keydown", (evt)=>{
+    window.addEventListener("keydown", ($event)=>{
       // get the unify key code
-      let keys = []
-      if(evt.altKey) {keys.push("ALT")}
-      if(evt.ctrlKey) {keys.push("CTRL")}
-      if(evt.metaKey) {keys.push("META")}
-      if(evt.shiftKey) {keys.push("SHIFT")}
-      
-      let k = evt.key.toUpperCase()
-      if(!/^(ALT|CONTROL|SHIFT|META)$/.test(k)) {
-        keys.push(k)
-      }
-
-      let uniqKey = keys.join("+")
+      let uniqKey = this.getUniqueKey($event)
 
       if(Ti.IsDebug("TiShortcut")) {
         console.log("TiShortcut.detected", uniqKey)
@@ -122,8 +154,8 @@ class Shortcut {
         if(Ti.IsInfo("TiShortcut")) {
           console.log("TiShortcut.fired", uniqKey)
         }
-        evt.preventDefault()
-        evt.stopPropagation()
+        $event.preventDefault()
+        $event.stopPropagation()
       }
     })
     // Mark

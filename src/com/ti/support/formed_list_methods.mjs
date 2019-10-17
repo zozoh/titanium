@@ -15,7 +15,12 @@ export default {
     mapping=null,
     defaultIcon=null,
     iteratee=null,
-    valueAsTip=false
+    valueAsTip=false,
+    // highlight item offset from value
+    // if without matched item, 
+    // +1: the first item， 
+    // -1: the last items
+    offset=0
   }={}) {
     //console.log("normalizeData", iteratee)
     let index = 0
@@ -45,8 +50,8 @@ export default {
         // Plain Object
         if(_.isPlainObject(it)) {
           re = theMapping 
-                      ? Ti.Util.mapping(it, theMapping)
-                      : _.cloneDeep(it)
+                ? Ti.Util.mapping(it, theMapping)
+                : _.cloneDeep(it)
           // Default Icon
           if(!re.icon)
             re.icon = defaultIcon

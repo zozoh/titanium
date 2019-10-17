@@ -10,10 +10,11 @@
   :height="height"
   :loading="loading"
   @changed="onInputChanged"
+  @input="onInputing"
   @keypress="onInputKeyPress">
   <ti-list 
-    :data="theItemList"
-    :value="value"
+    :data="theListData"
+    :value="theListValue"
     :height="dropHeight"
     :value-as-tip="valueAsTip"
     @changed="onListChanged"/>

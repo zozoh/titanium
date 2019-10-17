@@ -11,7 +11,8 @@ export default {
       "height" : null,
       "top"    : null,
       "left"   : null
-    }
+    },
+    "inputCompositionstart" : false
   }),
   ////////////////////////////////////////////////////
   watch : {
@@ -141,33 +142,42 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onInputKeyPress($event) {
-      let $in = $event.target
-      if(_.isElement($in)) {
-        let val = _.trim($in.value)
-        // Empty value as null
-        if(_.isEmpty(val)) {
-          this.$emit("keypress", null);
-        }
-        // Parsed value
-        else {
-          this.$emit("keypress", val)
-        }
+    onInputCompositionStart(){
+      this.inputCompositionstart = true
+    },
+    //------------------------------------------------
+    onInputCompositionEnd(){
+      this.inputCompositionstart = false
+      this.doWhenInput()
+    },
+    //------------------------------------------------
+    onInputing($event) {
+      if(!this.inputCompositionstart) {
+        this.doWhenInput()
       }
     },
     //------------------------------------------------
-    onInputChanged($event) {
-      let $in = $event.target
+    doWhenInput() {
+      let $in = this.$refs.input
       if(_.isElement($in)) {
         let val = _.trim($in.value)
-        // Empty value as null
-        if(_.isEmpty(val)) {
-          this.$emit("changed", null);
-        }
-        // Parsed value
-        else {
-          this.$emit("changed", val)
-        }
+        this.$emit("input", val)
+      }
+    },
+    //------------------------------------------------
+    onInputKeyDown($event) {
+      let payload = _.pick($event, 
+        "code","key","keyCode",
+        "altKey","ctrlKey","metaKey","shiftKey")
+      payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
+      this.$emit("keypress", payload)
+    },
+    //------------------------------------------------
+    onInputChanged($event) {
+      let $in = this.$refs.input
+      if(_.isElement($in)) {
+        let val = _.trim($in.value)
+        this.$emit("changed", val)
       }
     },
     //------------------------------------------------
@@ -207,7 +217,6 @@ export default {
     dockDrop() {
       let $drop  = this.$refs.drop
       let $box   = this.$refs.box
-      console.log("dock")
       // Guard the elements
       if(!_.isElement($drop) || !_.isElement($box)){
         return

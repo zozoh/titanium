@@ -3,6 +3,7 @@ export default {
   ////////////////////////////////////////////////////
   data : ()=>({
     "loading" : false,
+    "listValue" : undefined,
     "items" : []
   }),
   ////////////////////////////////////////////////////
@@ -77,7 +78,7 @@ export default {
       return this.className
     },
     //------------------------------------------------
-    theItemList() {
+    theListData() {
       let list = this.normalizeData(this.items, {
         value   : this.value,
         mapping : this.mapping,
@@ -89,7 +90,7 @@ export default {
     },
     //------------------------------------------------
     theItem() {
-      for(let li of this.theItemList) {
+      for(let li of this.theListData) {
         if(_.isEqual(li.value, this.value)) {
           return li
         }
@@ -114,6 +115,10 @@ export default {
       return _.get(this.theItem, "value")
     },
     //------------------------------------------------
+    theListValue() {
+      return Ti.Util.fallback(this.listValue, this.value)
+    },
+    //------------------------------------------------
     isLoaded() {
       return !_.isEmpty(this.items)
     },
@@ -122,10 +127,28 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onInputKeyPress(val) {
-      console.log(val)
+    onInputing(val) {
       // TODO like ti-input-month find a temp data
       // and apply it when collpase
+    },
+    //------------------------------------------------
+    onInputKeyPress({uniqueKey}={}) {
+      console.log(val)
+      let fn = ({
+        //................................
+        // Arrow Up
+        "ARROWUP" : ()=>{
+
+        },
+        //................................
+        // Arrow Up
+        "ARROWDOWN" : ()=>{
+
+        }
+        //................................
+      })[uniqueKey]
+
+      
     },
     //------------------------------------------------
     onInputChanged(val) {
@@ -140,7 +163,7 @@ export default {
     },
     //------------------------------------------------
     findValue(val) {
-      for(let li of this.theItemList) {
+      for(let li of this.theListData) {
         if(li.value && li.value.startsWith(val)) {
           return li.value
         }
