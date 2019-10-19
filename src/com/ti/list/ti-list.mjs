@@ -46,6 +46,14 @@ export default {
       type : Boolean,
       default : true
     },
+    // 0 - select current value item
+    // otherwise, it will move offset from current value item
+    // to mark the selected item
+    // !! only work in single mode 
+    "selectOffset" : {
+      type : Number,
+      default : 0
+    },
     // rename items, it will pass on to slot.default
     "renameable" : {
       type : Boolean,
@@ -93,7 +101,8 @@ export default {
         iteratee : (it, index)=>{
           it.focused = (index == this.focusIndex)
         },
-        valueAsTip : this.valueAsTip
+        valueAsTip : this.valueAsTip,
+        offset: this.selectOffset
       })
       return list
     },
@@ -104,6 +113,10 @@ export default {
           return true
       }
       return false
+    },
+    //--------------------------------------
+    hasData() {
+      return !_.isEmpty(this.formedList)
     }
     //--------------------------------------
   },

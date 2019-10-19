@@ -157,6 +157,40 @@ export const TiStr = {
     return str + "%"
   },
   /***
+   * switch given `str` to special case, the modes below would be supported:
+   * 
+   * @param str{String} - give string
+   * @param mode{String} - Method of key name transformer function:
+   *  - `"upper"` : to upport case
+   *  - `"lower"` : to lower case
+   *  - `"camel"` : to camel case
+   *  - `"snake"` : to snake case
+   *  - `"kebab"` : to kebab case
+   *  - `"start"` : to start case
+   *  - `null`  : keep orignal
+   * 
+   * @return string which applied the case mode
+   */
+  toCase(str, mode) {
+    // Guard
+    if(Ti.Util.isNil(str))
+      return str
+    // Find mode
+    let fn = ({
+      upper : (s)=>s.toUpperCase(),
+      lower : (s)=>s.toLowerCase(),
+      camel : (s)=>_.camelCase(s),
+      snake : (s)=>_.snakeCase(s),
+      kebab : (s)=>_.kebabCase(s),
+      start : (s)=>_.startCase(s),
+    })[mode]
+    // Apply mode
+    if(_.isFunction(fn)) {
+      return fn(str)
+    }
+    return str
+  },
+  /***
    * Check given string is phone number or not
    */
   isPhoneNumber(s="") {

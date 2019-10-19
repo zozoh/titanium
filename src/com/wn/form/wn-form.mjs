@@ -1,17 +1,20 @@
-function _STR(val) {
-  if(_.isNull(val) || _.isUndefined(val) || _.isString(val)){
-    return val
+function _VARS(val) {
+  if(_.isNull(val) || _.isUndefined(val)){
+    return {val:""}
+  }
+  if(_.isString(val)) {
+    return {val:val.replace(/'/g, "")}
   }
   if(_.isNumber(val)){
-    return ""+val
+    return {val}
   }
   if(_.isDate(val)){
-    return Ti.Types.formatDate(val)
+    return {val:Ti.Types.formatDate(val)}
   }
   if(_.isArray(val) || _.isPlainObject(val)){
-    return JSON.stringify(val) 
+    return val
   }
-  return "" + val
+  return {val: "" + val}
 }
 //----------------------------------------------
 function gen_wn_sys_exec(vm, fn, args){
@@ -38,10 +41,8 @@ function gen_wn_sys_exec(vm, fn, args){
    */
   const cmdTmpl =  _.template(cmdText);
   return async function(val) {
-    let str = _STR(val)
-    if(str)
-      str = str.replace(/'/g, "")
-    let cmd = cmdTmpl({value:str})
+    let vars = _VARS(val)
+    let cmd = cmdTmpl(vars)
     return await fn.apply(vm, [cmd, options])
   }
 }
@@ -56,6 +57,11 @@ const METHODS = {
   "Wn.Dict.getAll" : function(vm, args){
     return async function(){
       return await Wn.Dict.getAll(...args)
+    }
+  },
+  "Wn.Dict.get" : function(vm, args){
+    return async function(val){
+      return await Wn.Dict.get(...args, val)
     }
   }
 }

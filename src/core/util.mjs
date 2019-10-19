@@ -332,6 +332,30 @@ const TiUtil = {
     }
   },
   /***
+   * Get item from list by index scroll to begin:
+   * 
+   * @param list{Array} - source list
+   * @param index{Number} - index
+   *  - `<0` backword
+   *  - `>=0` forword
+   * 
+   * @return item
+   */
+  getItem(list=[], index=0, dft=null) {
+    let len = list.length
+    if(len <= 0)
+      return dft
+    
+    if(index < 0) {
+      index = len + (index%len)
+    }
+    else if(index >= len) {
+      index = index % len
+    }
+
+    return list[index]
+  },
+  /***
    * Create new Mapping value
    * 
    * @param source{Object|Array} - Source to apply mapping
@@ -394,6 +418,16 @@ const TiUtil = {
       }
     }
   },
+  getFallbackNil(obj, ...keys) {
+    let ks = _.flattenDeep(keys)
+    for(let k of ks) {
+      if(k) {
+        let v = obj[k]
+        if(!TiUtil.isNil(v))
+          return v
+      }
+    }
+  },
   /***
    * Fallback a group value
    * 
@@ -404,6 +438,22 @@ const TiUtil = {
       if(!_.isUndefined(arg))
         return arg
     }
+  },
+  fallbackNil(...args) {
+    for(let arg of args) {
+      if(!TiUtil.isNil(arg))
+        return arg
+    }
+  },
+  /***
+   * Test given input is `null` or `undefined`
+   * 
+   * @param o{Any} - any input value
+   * 
+   * @return `true` or `false`
+   */
+  isNil(o) {
+    return _.isUndefined(o) || _.isNull(o)
   },
   /***
    * Get or set one object value.

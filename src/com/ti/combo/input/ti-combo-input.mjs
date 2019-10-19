@@ -48,6 +48,10 @@ export default {
       type : String,
       default : null
     },
+    "valueCase" : {
+      type : String,
+      default : null
+    },
     "placeholder" : {
       type : [String, Number],
       default : null
@@ -161,6 +165,7 @@ export default {
       let $in = this.$refs.input
       if(_.isElement($in)) {
         let val = _.trim($in.value)
+        val = Ti.S.toCase(val, this.valueCase)
         this.$emit("input", val)
       }
     },
@@ -177,14 +182,15 @@ export default {
       let $in = this.$refs.input
       if(_.isElement($in)) {
         let val = _.trim($in.value)
+        val = Ti.S.toCase(val, this.valueCase)
         this.$emit("changed", val)
       }
     },
     //------------------------------------------------
     onInputFocus() {
       this.focused = true
-      if(this.focusToOpen) {
-        this.dropOpened = true
+      if(this.focusToOpen && !this.dropOpened) {
+        this.openDrop()
         _.delay(()=>{
           this.$refs.input.focus()
           this.$refs.input.select()
@@ -197,15 +203,26 @@ export default {
     },
     //------------------------------------------------
     openDrop() {
+      this.$emit("drop:beforeopen")
       this.dropOpened = true
+      this.$emit("drop:afteropen")
     },
     //------------------------------------------------
     closeDrop() {
+      this.$emit("drop:beforeclose")
       this.dropOpened = false
+      this.$emit("drop:afterclose")
     },
     //------------------------------------------------
     toggleDrop() {
-      this.dropOpened = !this.dropOpened
+      // Close It
+      if(this.dropOpened) {
+        this.closeDrop()
+      }
+      // Open It
+      else {
+        this.openDrop()
+      }
     },
     //------------------------------------------------
     getTimeText(tm) {

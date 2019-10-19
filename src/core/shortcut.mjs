@@ -117,18 +117,7 @@ class Shortcut {
     if($event.metaKey) {keys.push("META")}
     if($event.shiftKey) {keys.push("SHIFT")}
 
-    let k = $event.key
-    let fn = ({
-      upper : (s)=>s.toUpperCase(),
-      lower : (s)=>s.toLowerCase(),
-      camel : (s)=>_.camelCase(s),
-      snake : (s)=>_.snakeCase(s),
-      kebab : (s)=>_.kebabCase(s),
-      start : (s)=>_.startCase(s),
-    })[mode]
-    if(_.isFunction(fn)) {
-      k = fn(k)
-    }
+    let k = Ti.S.toCase($event.key, mode)
 
     if(!/^(ALT|CTRL|CONTROL|SHIFT|META)$/.test(k)) {
       keys.push(k)

@@ -13,8 +13,16 @@ export default {
       default : null
     },
     "value" : {
-      type : [String, Number, Object],
+      type : [String, Number, Object, Array],
       default : null
+    },
+    "getItemBy" : {
+      type : Function,
+      default : _.identity
+    },
+    "query" : {
+      type : Object,
+      default : ()=>({})
     },
     "options" : {
       type : [Array, Function],
@@ -23,6 +31,10 @@ export default {
     "mapping" : {
       type : Object,
       default : ()=>({})
+    },
+    "valueCase" : {
+      type : String,
+      default : null
     },
     // Make the value as item tip if tip without defined
     "valueAsTip" : {
@@ -78,6 +90,12 @@ export default {
       return this.className
     },
     //------------------------------------------------
+    queryValueInStr() {
+      if(_.isNull(this.listValue) || _.isUndefined(this.listValue)) 
+        return ""
+      return this.listValue + ""
+    },
+    //------------------------------------------------
     theListData() {
       let list = this.normalizeData(this.items, {
         value   : this.value,
@@ -89,9 +107,13 @@ export default {
       return list
     },
     //------------------------------------------------
+    theListValue() {
+      return Ti.Util.fallback(this.listValue, this.value)
+    },
+    //------------------------------------------------
     theItem() {
       for(let li of this.theListData) {
-        if(_.isEqual(li.value, this.value)) {
+        if(_.isEqual(li.value, this.theListValue)) {
           return li
         }
       }
@@ -115,8 +137,12 @@ export default {
       return _.get(this.theItem, "value")
     },
     //------------------------------------------------
-    theListValue() {
-      return Ti.Util.fallback(this.listValue, this.value)
+    theInputText() {
+      return Ti.Util.fallback(this.theItemText, this.theListValue)
+    },
+    //------------------------------------------------
+    theInputValue() {
+      return Ti.Util.fallback(this.theItemValue, this.theListValue)
     },
     //------------------------------------------------
     isLoaded() {
@@ -127,34 +153,50 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onInputing(val) {
-      // TODO like ti-input-month find a temp data
-      // and apply it when collpase
+    async onInputing(val) {
+      this.listValue = val
+      await this.debounceReload()
     },
     //------------------------------------------------
     onInputKeyPress({uniqueKey}={}) {
-      console.log(val)
+      let ci = this.getSelectedItemIndex(this.theListData, {
+        value : this.theListValue,
+        multi : this.multi
+      })
+
       let fn = ({
-        //................................
-        // Arrow Up
         "ARROWUP" : ()=>{
-
+          let item = Ti.Util.getItem(this.theListData, ci-1)
+          this.listValue = item ? item.value : null
         },
-        //................................
-        // Arrow Up
         "ARROWDOWN" : ()=>{
-
-        }
+          let item = Ti.Util.getItem(this.theListData, ci+1)
+          this.listValue = item ? item.value : null
+        },
+        "ENTER" : ()=>{
+          this.onInputChanged(this.theListValue)
+        },
+        "ESCAPE" : ()=>this.closeDrop()
         //................................
       })[uniqueKey]
 
-      
+      if(_.isFunction(fn)) {
+        fn()
+      }
     },
     //------------------------------------------------
     onInputChanged(val) {
+      console.log("changed", val)
       let v2 = this.findValue(val)
       this.$emit("changed", v2)
       this.closeDrop()
+    },
+    //------------------------------------------------
+    async onBeforeDropOpen() {
+      await this.tryReload({
+        loaded : this.isLoaded,
+        cached : this.cached
+      })
     },
     //------------------------------------------------
     onListChanged(val) {
@@ -163,11 +205,28 @@ export default {
     },
     //------------------------------------------------
     findValue(val) {
+      if(!val)
+        return null
+      // find by value
       for(let li of this.theListData) {
-        if(li.value && li.value.startsWith(val)) {
+        if(_.isEqual(li.value, val)) {
           return li.value
         }
       }
+      // find by text
+      for(let li of this.theListData) {
+        if(_.isEqual(li.text, val)) {
+          return li.value
+        }
+      }
+      // match by text
+      for(let li of this.theListData) {
+        if(li.text && li.text.indexOf(val)>=0) {
+          return li.value
+        }
+      }
+
+      return val
     },
     //------------------------------------------------
     closeDrop() {
@@ -176,21 +235,101 @@ export default {
           $child.closeDrop()
         }
       })
+      this.listValue = undefined
+      this.selectOffset = 0
+    },
+    //------------------------------------------------
+    createQueryObj() {
+      let re = {}
+      if(!this.query) {
+        return re
+      }
+      //.....................................
+      let _join_qkey = (qkey)=>{
+        // for simple string key
+        if(_.isString(qkey)) {
+          qkey = {key:qkey}
+        }
+        // for simple value
+        if(!qkey.val) {
+          re[qkey.key] = this.queryValueInStr
+        }
+        // value template
+        else {
+          re[qkey.key] = Ti.S.renderBy(qkey.val, {
+            val : this.queryValueInStr
+          })
+        }
+      }
+      //.....................................
+      // Match special
+      _.forEach(this.query.values, (qkey, qm)=>{
+        // REGEX
+        if(qm.startsWith("^")) {
+          if((new RegExp(qm)).test(this.queryValueInStr)) {
+            _join_qkey(qkey)
+          }
+        }
+        // normal value
+        else if(this.queryValueInStr == qm) {
+          _join_qkey(qkey)
+        }
+      })
+      //.....................................
+      // Match Default
+      if(_.isEmpty(re) && this.query.default) {
+        _join_qkey(this.query.default)
+      }
+      //.....................................
+      // Defaults Match
+      _.defaults(re, this.query.match)
+      //.....................................
+      return re
     },
     //------------------------------------------------
     async reload() {
       this.loading = true
-      this.items = await this.doReload(this.options)
+      //.......................................
+      let vars = {val:this.value, query:""}
+      let query = this.createQueryObj()
+      if(query && !_.isEmpty(query)) {
+        vars.query = `-match '${JSON.stringify(query)}'`
+      }
+      //.......................................
+      this.items = await this.doReload(this.options, vars)
+      //.......................................
+      this.loading = false
+    },
+    //------------------------------------------------
+    async reloadItemsByValue() {
+      this.loading = true
+      //.......................................
+      let items = []
+      let vals = _.concat(this.value)
+      for(let val of vals) {
+        let it = await this.getItemBy(val)
+        items.push(it)
+      }
+      //.......................................
+      if(!_.isEmpty(items)) {
+        this.items = items
+      }
+      //.......................................
       this.loading = false
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   mounted : async function(){
-    await this.tryReload({
-      loaded : this.isLoaded,
-      cached : this.cached
-    })
+    // Init the box
+    await this.reloadItemsByValue()
+    // Declare the value
+    this.debounceReload = _.debounce(async ()=>{
+      await this.tryReload({
+        loaded : this.isLoaded,
+        cached : this.cached
+      })
+    }, 500)
   }
   ////////////////////////////////////////////////////
 }

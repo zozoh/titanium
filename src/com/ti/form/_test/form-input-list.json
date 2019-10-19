@@ -7,11 +7,26 @@
           "name"  : "theFile",
           "comType" : "ti-input-list",
           "comConf" : {
+            "cached" : true,
             "placeholder" : "请选择文件",
             "itemIcon" : "zmdi-assignment",
+            "getItemBy" : {
+              "method" : "Wn.Dict.get",
+              "args" : ["tmp"]
+            },
+            "query" : {
+              "match" : {"race":"DIR"},
+              "values" : {
+                "^[0-9a-v]{26}$" : "id"
+              },
+              "default" : {
+                "key" : "nm",
+                "val" : "^.*${val}.*$"
+              }
+            },
             "options" : {
               "method" : "Wn.Sys.exec2",
-              "args"   : ["obj ~/* -cqn -e '^(id|nm|title|icon)$' -l -json"]
+              "args"   : ["obj ~ -mine ${query} -cqn -e '^(id|nm|title|icon)$' -sort 'nm:1' -l -json"]
             },
             "mapping" : {
               "icon"  : "icon",
@@ -25,6 +40,7 @@
           "comType" : "ti-input-list",
           "comConf" : {
             "placeholder" : "请选择类型",
+            "valueCase" : "upper",
             "itemIcon" : "zmdi-boat",
             "options" : [
               {"value":"A", "text":"甲类"},

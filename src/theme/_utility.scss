@@ -40,11 +40,15 @@
 }
 //...................................................
 .ti-blank {
-  padding:.2rem; 
+  @include color($color-track, c);
   &.is-big {
-    @include color($color-track, c);
-    text-align: center; font-size:.16rem;
+    padding:.2rem; text-align: center; font-size:.16rem;
     > .ti-icon {font-size:3em;padding:.2rem;}
+  }
+  &.is-inline {
+    @include flex-align-nowrap;
+    padding:.08rem .1rem; 
+    > .ti-icon {margin-right:.06rem;}
   }
 }
 //...................................................

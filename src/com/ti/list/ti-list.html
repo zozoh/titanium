@@ -1,5 +1,8 @@
 <div class="ti-list">
-  <ul>
+  <!--
+    Has Data
+  -->
+  <ul v-if="hasData">
     <li v-for="(it, index) in formedList" 
       :class="itemClass(it)"
       @click="onClick(index, $event)"
@@ -18,4 +21,12 @@
         class="it-tip">{{it.tip|i18n}}</span>
     </li>
   </ul>
+  <!--
+    Show black
+  -->
+  <div v-else
+    class="ti-blank is-inline">
+    <ti-icon value="zmdi-alert-circle-o"/>
+    <span>{{'empty-data'|i18n}}</span>
+  </div>
 </div>
