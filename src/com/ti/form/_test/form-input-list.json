@@ -9,6 +9,7 @@
           "comConf" : {
             "cached" : true,
             "placeholder" : "请选择文件",
+            "valueMustInList" : true,
             "itemIcon" : "zmdi-assignment",
             "getItemBy" : {
               "method" : "Wn.Dict.get",
@@ -26,7 +27,7 @@
             },
             "options" : {
               "method" : "Wn.Sys.exec2",
-              "args"   : ["obj ~ -mine ${query} -cqn -e '^(id|nm|title|icon)$' -sort 'nm:1' -l -json"]
+              "args"   : ["obj ~ -mine ${query} -cqn -e '^(id|nm|icon)$' -sort 'nm:1' -l -json"]
             },
             "mapping" : {
               "icon"  : "icon",

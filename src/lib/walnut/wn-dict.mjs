@@ -108,33 +108,41 @@ class DictBuilder {
     // Build the obj
     let cmdText = Ti.S.renderBy(this.query, vars)
     //console.log(cmdText)
-    let re = await Sys.exec2(cmdText)
-    let trimed = _.trim(re)
+    try {
+      let re = await Sys.exec(cmdText)
+      let trimed = _.trim(re)
 
-    // Save to cache
-    if(trimed) {
-      let reo = JSON.parse(trimed);
-      // List Mode
-      if("list" == this.mode) {
-        this.cache = {}
-        this.list = [].concat(reo)
-        for(let c of this.list) {
-          let {k, v} = Ti.Util.explainObj(c, {
-            k : this.key,
-            v : this.value
-          })
-          this.cache[k] = v
+      // Save to cache
+      if(trimed) {
+        let reo = JSON.parse(trimed);
+        // List Mode
+        if("list" == this.mode) {
+          this.cache = {}
+          this.list = [].concat(reo)
+          for(let c of this.list) {
+            let {k, v} = Ti.Util.explainObj(c, {
+              k : this.key,
+              v : this.value
+            })
+            this.cache[k] = v
+          }
+
+          // Return the list
+          return this.list
         }
-
-        // Return the list
-        return this.list
+        // Item Mode As Default
+        let {k, v} = Ti.Util.explainObj(reo, {
+          k : this.key,
+          v : this.value
+        })
+        this.cache[k] = v
       }
-      // Item Mode As Default
-      let {k, v} = Ti.Util.explainObj(reo, {
-        k : this.key,
-        v : this.value
-      })
-      this.cache[k] = v
+    }
+    // Quiet all error
+    catch(err){
+      if(Ti.IsWarn("Wn.Dict")) {
+        console.warn(err)
+      }
     }
   }
   //----------------------------------------

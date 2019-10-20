@@ -200,6 +200,9 @@ export default {
     //------------------------------------------------
     onInputBlur() {
       this.focused = false
+      if(this.dropOpened) {
+        this.closeDrop()
+      }
     },
     //------------------------------------------------
     openDrop() {

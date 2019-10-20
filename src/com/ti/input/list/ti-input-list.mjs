@@ -18,7 +18,7 @@ export default {
     },
     "getItemBy" : {
       type : Function,
-      default : _.identity
+      default : null
     },
     "query" : {
       type : Object,
@@ -64,6 +64,14 @@ export default {
     "focusToOpen" : {
       type : Boolean,
       default : true
+    },
+    "matchText" : {
+      type : Boolean,
+      default : true
+    },
+    "valueMustInList" : {
+      type : Boolean,
+      default : false
     },
     "width" : {
       type : [Number, String],
@@ -155,7 +163,7 @@ export default {
     //------------------------------------------------
     async onInputing(val) {
       this.listValue = val
-      await this.debounceReload()
+      await this.debounceReload(false)
     },
     //------------------------------------------------
     onInputKeyPress({uniqueKey}={}) {
@@ -186,7 +194,6 @@ export default {
     },
     //------------------------------------------------
     onInputChanged(val) {
-      console.log("changed", val)
       let v2 = this.findValue(val)
       this.$emit("changed", v2)
       this.closeDrop()
@@ -220,12 +227,18 @@ export default {
         }
       }
       // match by text
-      for(let li of this.theListData) {
-        if(li.text && li.text.indexOf(val)>=0) {
-          return li.value
+      if(this.matchText) {
+        for(let li of this.theListData) {
+          if(li.text && li.text.indexOf(val)>=0) {
+            return li.value
+          }
         }
       }
-
+      // Value must in list
+      if(this.valueMustInList) {
+        return null
+      }
+      // Keep return the original value
       return val
     },
     //------------------------------------------------
@@ -322,11 +335,18 @@ export default {
   ////////////////////////////////////////////////////
   mounted : async function(){
     // Init the box
-    await this.reloadItemsByValue()
+    // reload by static array
+    if(_.isArray(this.options)) {
+      await this.reload()
+    }
+    // Reload the items by value
+    else {
+      await this.reloadItemsByValue()
+    }
     // Declare the value
-    this.debounceReload = _.debounce(async ()=>{
+    this.debounceReload = _.debounce(async (loaded)=>{
       await this.tryReload({
-        loaded : this.isLoaded,
+        loaded : Ti.Util.fallback(loaded, this.isLoaded),
         cached : this.cached
       })
     }, 500)
