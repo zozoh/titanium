@@ -1,0 +1,6 @@
+{
+  "name" : "ti-combo-box",
+  "globally" : true,
+  "template" : "./ti-combo-box.html",
+  "mixins" : ["./ti-combo-box.mjs"]
+}

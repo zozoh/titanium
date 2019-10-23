@@ -1,0 +1,19 @@
+<div class="ti-crumb-piece" :class="topClass">
+  <!--
+    Icon
+  -->
+  <ti-icon v-if="icon" 
+    class="as-icon"
+    :value="icon"/>
+  <!--
+    Text
+  -->
+  <span v-if="text"
+    class="as-text">{{text|i18n}}</span>
+  <!--
+    Status Icon
+  -->
+  <ti-icon v-if="hasOptions"
+    class="as-status"
+    :value="statusIcon"/>
+</div>

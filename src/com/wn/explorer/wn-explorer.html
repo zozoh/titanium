@@ -15,7 +15,7 @@
     <div v-if="!noTitle"
       class="sky-title">
       <slot name="title">
-        <ul class="ti-crumb">
+        <ul class="as-address-bar">
           <li v-for="an in ancestors" :key="an.id">
             <a :href="getObjLink(an)"
               @click.prevent="$emit('main:open', an)">{{getObjTitle(an)}}</a>

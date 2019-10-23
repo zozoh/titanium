@@ -1,0 +1,44 @@
+.ti-input-tags {
+  @include noselect;
+  @include flex-align($ai:stretch);
+  @include border(1px, solid, dark);
+  @include color($color-input, c, r);
+  cursor: pointer;
+  //-----------------------------------------
+  // Tag Box
+  > .as-tags {
+    white-space: nowrap;
+    padding:0 .1rem;
+  }
+  //-----------------------------------------
+  // Input Box
+  > .as-input {
+    @include flex-align-nowrap($ai:stretch);
+    flex:1 1 auto;
+    > input {
+      width:1.5rem; height:.34rem;
+      outline:none;
+      flex:1 0 auto;
+      border:0; padding:0 .1rem;
+      font-family: inherit;
+      font-size:inherit;
+      background:transparent;
+    }
+    //---------------------------------------
+    > .as-status {
+      @include flex-center;
+      flex:0 0 auto;
+      width:.26rem;
+      .ti-icon .icon-icon>i {
+        font-size:1em; opacity: 0.6;
+      }
+      &:hover {
+        @include color($color-primary, r, c);
+        .ti-icon .icon-icon>i {
+          opacity: 1;
+        }
+      }
+    }
+  }
+  //-----------------------------------------
+}

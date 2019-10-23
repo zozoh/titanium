@@ -4,7 +4,8 @@ export default {
   data : ()=>({
     "loading" : false,
     "listValue" : undefined,
-    "items" : []
+    "items" : [],
+    "optionsLoaded" : false
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -77,9 +78,19 @@ export default {
       type : [Number, String],
       default : undefined
     },
+    "inputEditValue" : {
+      type : Boolean,
+      default : false
+    },
     "height" : {
       type : [Number, String],
       default : undefined
+    },
+    // drop width
+    //  - "box" : will auto fit with box
+    "dropWidth" : {
+      type : [Number, String],
+      default : "box"
     },
     // the height of drop list
     "dropHeight" : {
@@ -150,12 +161,11 @@ export default {
     },
     //------------------------------------------------
     theInputValue() {
-      return Ti.Util.fallback(this.theItemValue, this.theListValue)
-    },
-    //------------------------------------------------
-    isLoaded() {
-      return !_.isEmpty(this.items)
-    },
+      if(this.inputEditValue) {
+        return Ti.Util.fallback(this.theItemValue, this.theListValue)  
+      }
+      return Ti.Util.fallback(this.theItemText, this.theListValue)
+    }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -163,6 +173,7 @@ export default {
     //------------------------------------------------
     async onInputing(val) {
       this.listValue = val
+      this.openDrop(true)
       await this.debounceReload(false)
     },
     //------------------------------------------------
@@ -174,12 +185,26 @@ export default {
 
       let fn = ({
         "ARROWUP" : ()=>{
-          let item = Ti.Util.getItem(this.theListData, ci-1)
-          this.listValue = item ? item.value : null
+          // Just open Drop
+          if(!this.isDropOpened()) {
+            this.openDrop(true)
+          }
+          // Select item
+          else {
+            let item = Ti.Util.getItem(this.theListData, ci-1)
+            this.listValue = item ? item.value : null
+          }
         },
         "ARROWDOWN" : ()=>{
-          let item = Ti.Util.getItem(this.theListData, ci+1)
-          this.listValue = item ? item.value : null
+          // Just open Drop
+          if(!this.isDropOpened()) {
+            this.openDrop(true)
+          }
+          // Select item
+          else {
+            let item = Ti.Util.getItem(this.theListData, ci+1)
+            this.listValue = item ? item.value : null
+          }
         },
         "ENTER" : ()=>{
           this.onInputChanged(this.theListValue)
@@ -194,24 +219,28 @@ export default {
     },
     //------------------------------------------------
     onInputChanged(val) {
-      let v2 = this.findValue(val)
+      let v2 = this.findValue(val, this)
       this.$emit("changed", v2)
       this.closeDrop()
     },
     //------------------------------------------------
     async onBeforeDropOpen() {
       await this.tryReload({
-        loaded : this.isLoaded,
+        loaded : this.optionsLoaded ,
         cached : this.cached
       })
     },
     //------------------------------------------------
     onListChanged(val) {
+      console.log("onListChanged")
       this.$emit("changed", val)
       this.closeDrop()
     },
     //------------------------------------------------
-    findValue(val) {
+    findValue(val, {
+      matchText=false,
+      valueMustInList=false
+    }={}) {
       if(!val)
         return null
       // find by value
@@ -227,7 +256,7 @@ export default {
         }
       }
       // match by text
-      if(this.matchText) {
+      if(matchText) {
         for(let li of this.theListData) {
           if(li.text && li.text.indexOf(val)>=0) {
             return li.value
@@ -235,11 +264,30 @@ export default {
         }
       }
       // Value must in list
-      if(this.valueMustInList) {
+      if(valueMustInList) {
         return null
       }
       // Keep return the original value
       return val
+    },
+    //------------------------------------------------
+    isDropOpened() {
+      if(_.isArray(this.$children)) {
+        for(let $child of this.$children) {
+          if(_.isBoolean($child.dropOpened)) {
+            return $child.dropOpened
+          }
+        }
+      }
+      return false
+    },
+    //------------------------------------------------
+    openDrop(quiet) {
+      _.forEach(this.$children, ($child)=>{
+        if(_.isFunction($child.openDrop)) {
+          $child.openDrop(quiet)
+        }
+      })
     },
     //------------------------------------------------
     closeDrop() {
@@ -303,15 +351,25 @@ export default {
     async reload() {
       this.loading = true
       //.......................................
-      let vars = {val:this.value, query:""}
+      let vars = {val:this.theListValue, query:""}
       let query = this.createQueryObj()
       if(query && !_.isEmpty(query)) {
-        vars.query = `-match '${JSON.stringify(query)}'`
+        // Convert query to string
+        if(this.query.tmpl) {
+          vars.query = Ti.S.renderBy(this.query.tmpl, {
+            json : JSON.stringify(query)
+          })
+        }
+        // Keep the query
+        else {
+          vars.query = query
+        }
       }
       //.......................................
       this.items = await this.doReload(this.options, vars)
       //.......................................
       this.loading = false
+      this.optionsLoaded = true
     },
     //------------------------------------------------
     async reloadItemsByValue() {
@@ -329,8 +387,17 @@ export default {
       }
       //.......................................
       this.loading = false
+      this.optionsLoaded = false
     }
     //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    "value" : async function(){
+      if(!_.isArray(this.options)) {
+        await this.reloadItemsByValue()
+      }
+    }
   },
   ////////////////////////////////////////////////////
   mounted : async function(){
@@ -346,7 +413,7 @@ export default {
     // Declare the value
     this.debounceReload = _.debounce(async (loaded)=>{
       await this.tryReload({
-        loaded : Ti.Util.fallback(loaded, this.isLoaded),
+        loaded : Ti.Util.fallback(loaded, this.optionsLoaded),
         cached : this.cached
       })
     }, 500)

@@ -28,7 +28,7 @@
   &.as-phone {
     .explorer-sky {
       padding:0;
-      .ti-crumb {
+      .as-address-bar {
         justify-content: center;
         align-content: center;
         align-items: center;
@@ -126,6 +126,16 @@
         @include flex-center;
       }
     } 
+    > .sky-title .as-address-bar {
+      @include ul(left, .1rem);
+      > li {
+        @include flex-center($wp:nowrap);
+        white-space: nowrap;
+        .ti-icon i {
+          font-size:1em;
+        }
+      }
+    }
     > .sky-action {
       .sky-menu-icon {
         width:.52rem; height:100%; 

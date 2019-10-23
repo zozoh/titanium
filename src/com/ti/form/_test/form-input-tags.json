@@ -1,0 +1,30 @@
+{
+  "comType" : "wn-form",
+  "comConf" : {
+    "config" : {
+      "fields" : [{
+          "title" : "静态标签",
+          "name"  : "lbls",
+          "type"  : "Array",
+          "comType" : "ti-input-tags",
+          "comConf" : {
+            "placeholder" : "请选择类型",
+            "valueCase" : "upper",
+            "itemIcon" : "zmdi-boat",
+            "options" : [
+              {"value":"A", "text":"甲类"},
+              {"value":"B", "text":"乙类"},
+              {"value":"C", "text":"丙类"},
+              {"value":"D", "text":"丁类"},
+              {"value":"E", "text":"戊类"}]
+          }
+        }]
+      },
+    "data" : {
+      "lbls" : "=lbls"
+    }
+  },
+  "comEvents" : {
+    "changed" : "updatePair"
+  }
+}

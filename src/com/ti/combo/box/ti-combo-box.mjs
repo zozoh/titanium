@@ -212,6 +212,7 @@ export default {
     },
     //------------------------------------------------
     onInputBlur() {
+      console.log("blur")
       this.focused = false
       if(this.dropOpened && this.blurToClose>0) {
         _.delay(()=>this.closeDrop(), this.blurToClose)

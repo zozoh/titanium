@@ -1,0 +1,29 @@
+<div class="ti-input-tags"
+  :class="topClass"
+  :style="topStyle">
+  <!--
+    Tag List
+  -->
+  <div v-if="hasTags"
+    class="as-tags">
+    <ti-crumb
+      :data="theTags"/>
+  </div>
+  <!--
+    Input Box
+  -->
+  <div class="as-input">
+    <!--Input-->
+    <input 
+      spellcheck="false" 
+      :style="inputHeight"
+      :value="theInputValue"
+      :placeholder="placeholder"
+      @change="onInputChanged">
+    <!--Status Icon-->
+    <div v-if="statusIcon"
+      class="as-status">
+      <ti-icon :value="statusIcon"/>
+    </div>
+  </div>
+</div>

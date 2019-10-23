@@ -1,0 +1,9 @@
+<div class="ti-crumb"
+  :class="topClass">
+  <!--
+    Loop piece
+  -->
+  <ti-crumb-piece v-for="it in theData"
+    :key="it.key"
+    v-bind="it"/>
+</div>

@@ -10,12 +10,15 @@
             "cached" : true,
             "placeholder" : "请选择文件",
             "valueMustInList" : true,
+            "inputEditValue" : false,
+            "valueAsTip" : true,
             "itemIcon" : "zmdi-assignment",
             "getItemBy" : {
               "method" : "Wn.Dict.get",
               "args" : ["tmp"]
             },
             "query" : {
+              "tmpl" : "-match '${json}'",
               "match" : {"race":"DIR"},
               "values" : {
                 "^[0-9a-v]{26}$" : "id"

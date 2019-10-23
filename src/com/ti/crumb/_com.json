@@ -1,0 +1,9 @@
+{
+  "name" : "ti-crumb",
+  "globally" : true,
+  "template" : "./ti-crumb.html",
+  "mixins" : ["./ti-crumb.mjs"],
+  "components" : [
+    "@com:ti/crumb/piece"
+  ]
+}
