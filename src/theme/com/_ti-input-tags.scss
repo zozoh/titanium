@@ -3,12 +3,12 @@
   @include flex-align($ai:stretch);
   @include border(1px, solid, dark);
   @include color($color-input, c, r);
-  cursor: pointer;
   //-----------------------------------------
   // Tag Box
   > .as-tags {
+    @include flex-center;
     white-space: nowrap;
-    padding:0 .1rem;
+    padding:.04rem; line-height: 2em; font-size:.85em;
   }
   //-----------------------------------------
   // Input Box
@@ -27,6 +27,7 @@
     //---------------------------------------
     > .as-status {
       @include flex-center;
+      cursor: pointer;
       flex:0 0 auto;
       width:.26rem;
       .ti-icon .icon-icon>i {

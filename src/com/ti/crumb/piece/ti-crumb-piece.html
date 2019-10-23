@@ -1,4 +1,17 @@
-<div class="ti-crumb-piece" :class="topClass">
+<div class="ti-crumb-piece" 
+  :class="topClass"
+  @mouseenter="mouseEnter='top'"
+  @mouseleave="mouseEnter=null"
+  @click="openDrop">
+  <!--
+    Deleter
+  -->
+  <ti-icon v-if="removeIcon"
+    class="as-del"
+    :value="removeIcon"
+    @mouseenter.native="mouseEnter='del'"
+    @mouseleave.native="mouseEnter='top'"
+    @click.native.stop="onClickDel"/>
   <!--
     Icon
   -->
@@ -8,12 +21,26 @@
   <!--
     Text
   -->
-  <span v-if="text"
-    class="as-text">{{text|i18n}}</span>
+  <div v-if="text"
+    class="as-text"
+    :class="textClass">{{text|i18n}}</div>
   <!--
     Status Icon
   -->
   <ti-icon v-if="hasOptions"
     class="as-status"
-    :value="statusIcon"/>
+    :value="theStatusIcon"/>
+  <!--
+    Drop & Mask
+  -->
+  <template v-if="'extended' == status">
+    <div class="as-mask" @click.stop="closeDrop"></div>
+    <div class="as-drop" ref="drop"
+      @click.stop>
+      <ti-icon-text v-for="it in theOptions"
+        :key="it.index"
+        v-bind="it"
+        @click.native="onClickOption(it)"/>
+    </div>
+  </template>
 </div>

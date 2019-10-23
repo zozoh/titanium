@@ -1,0 +1,6 @@
+{
+  "name" : "ti-icon-text",
+  "globally" : true,
+  "template" : "./ti-icon-text.html",
+  "mixins" : ["./ti-icon-text.mjs"]
+}

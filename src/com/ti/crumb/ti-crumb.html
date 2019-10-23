@@ -4,6 +4,11 @@
     Loop piece
   -->
   <ti-crumb-piece v-for="it in theData"
-    :key="it.key"
-    v-bind="it"/>
+    :key="it.index"
+    v-bind="it"
+    :mode="mode"
+    :remove-icon="removeIcon"
+    :status-icons="statusIcons"
+    @changed="onPieceChanged"
+    @removed="onPieceRemoved"/>
 </div>

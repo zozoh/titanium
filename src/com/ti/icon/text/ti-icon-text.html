@@ -1,0 +1,7 @@
+<div class="ti-icon-text" 
+  :class="className">
+  <!--Icon-->
+  <ti-icon v-if="icon" class="as-icon" :value="icon"/>
+  <!--Text-->
+  <div v-if="text" class="as-text">{{text|i18n}}</div>
+</div>

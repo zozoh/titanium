@@ -7,10 +7,6 @@ export default {
       default : null
     },
     "value" : null,
-    "trimed" : {
-      type : Boolean,
-      default : true
-    },
     "placeholder" : {
       type : [String, Number],
       default : null
@@ -53,7 +49,7 @@ export default {
     //------------------------------------------------
     theInputValue() {
       //console.log("input value:", this.value)
-      return Ti.Types.toStr(this.value, this.format)
+      //return Ti.Types.toStr(this.value, this.format)
     },
     //------------------------------------------------
     /***
@@ -69,7 +65,6 @@ export default {
      * ```
      */
     theTags() {
-      console.log("hah")
       let list = _.without(_.concat(this.value), null)
       let tags = []
       for(let li of list) {
@@ -88,6 +83,14 @@ export default {
       return tags
     },
     //------------------------------------------------
+    theTagValues() {
+      let list = []
+      for(let tag of this.theTags) {
+        list.push(Ti.Util.fallback(tag.value, null))
+      }
+      return list
+    },
+    //------------------------------------------------
     hasTags() {
       return !_.isEmpty(this.theTags)
     }
@@ -99,12 +102,16 @@ export default {
     onInputChanged($event) {
       let $in = $event.target
       if(_.isElement($in)) {
-        let val = $in.value
-        if(this.trimed) {
-          val = _.trim(val)
-        }
-        this.$emit("changed", val)
+        let val = _.trim($in.value)
+        let ss  = _.split(val, /[ ,;\t]+/)
+        let s2  = _.remove(ss, (v)=>!v)
+        let values = _.concat(this.theTagValues, ss)
+        this.$emit("changed", values)
       }
+    },
+    //------------------------------------------------
+    onTagChanged(vals=[]) {
+      this.$emit("changed", vals)
     }
     //------------------------------------------------
   }
