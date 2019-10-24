@@ -7,6 +7,11 @@ export default {
       default : null
     },
     "value" : null,
+    "valueCase" : {
+      type : String,
+      default : null,
+      validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
+    },
     "placeholder" : {
       type : [String, Number],
       default : null
@@ -20,11 +25,17 @@ export default {
       type : [Number, String],
       default : null
     },
-
-    // For `multi=false` only
+    "tagIcon" : {
+      type : String,
+      default : null
+    },
+    "tagOptions" : {
+      type : [Array, Function],
+      default : ()=>[]
+    },
     "statusIcon" : {
       type : String,
-      default : "zmdi-chevron-down"
+      //default : "zmdi-chevron-down"
     }
   },
   ////////////////////////////////////////////////////
@@ -65,18 +76,23 @@ export default {
      * ```
      */
     theTags() {
-      let list = _.without(_.concat(this.value), null)
+      let list = _.filter(_.concat(this.value), (v)=>!Ti.Util.isNil(v))
       let tags = []
       for(let li of list) {
         // Object
         if(_.isPlainObject(li)) {
-          tags.push(li)
+          tags.push(_.assign({
+            icon    : this.tagIcon,
+            options : this.tagOptions
+          }, li))
         }
         // String or simple value
         else {
           tags.push({
+            icon  : this.tagIcon,
+            text  : Ti.Types.toStr(li),
             value : li,
-            text  : Ti.Types.toStr(li)
+            options : this.tagOptions
           })
         }
       }
@@ -106,6 +122,12 @@ export default {
         let ss  = _.split(val, /[ ,;\t]+/)
         let s2  = _.remove(ss, (v)=>!v)
         let values = _.concat(this.theTagValues, ss)
+        let caseFn = Ti.S.getCaseFunc(this.valueCase)
+        if(_.isFunction(caseFn)) {
+          for(let i=0; i<values.length; i++) {
+            values[i] = caseFn(values[i])
+          }
+        }
         this.$emit("changed", values)
       }
     },

@@ -176,19 +176,25 @@ export const TiStr = {
     if(Ti.Util.isNil(str))
       return str
     // Find mode
-    let fn = ({
-      upper : (s)=>s.toUpperCase(),
-      lower : (s)=>s.toLowerCase(),
-      camel : (s)=>_.camelCase(s),
-      snake : (s)=>_.snakeCase(s),
-      kebab : (s)=>_.kebabCase(s),
-      start : (s)=>_.startCase(s),
-    })[mode]
+    let fn = TiStr.getCaseFunc(mode)
     // Apply mode
     if(_.isFunction(fn)) {
       return fn(str)
     }
     return str
+  },
+  getCaseFunc(mode) {
+    return ({
+      upper : (s)=>s ? s.toUpperCase() : s,
+      lower : (s)=>s ? s.toLowerCase() : s,
+      camel : (s)=>_.camelCase(s),
+      snake : (s)=>_.snakeCase(s),
+      kebab : (s)=>_.kebabCase(s),
+      start : (s)=>_.startCase(s),
+    })[mode]
+  },
+  isValidCase(mode) {
+    return _.isFunction(TiStr.getCaseFunc(mode))
   },
   /***
    * Check given string is phone number or not

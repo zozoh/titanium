@@ -15,6 +15,10 @@ export default {
       type : String,
       default : "box"
     },
+    "optionIcon" : {
+      type : String,
+      default : null
+    },
     "removeIcon" : {
       type : String,
       default : "zmdi-close"

@@ -1,0 +1,8 @@
+{
+  "name" : "ti-combo-input2",
+  "globally" : true,
+  "template" : "./ti-combo-input2.html",
+  "props"  : "./input-props.mjs",
+  "mixins" : ["./ti-combo-input2.mjs"],
+  "components" : ["@com:ti/combo/box"]
+}

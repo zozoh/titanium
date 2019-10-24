@@ -61,6 +61,10 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "optionIcon" : {
+      type : String,
+      default : null
+    },
     "removeIcon" : {
       type : String,
       default : null
@@ -124,20 +128,21 @@ export default {
       * ```
       */
     theOptions() {
-      let list = _.without(_.concat(this.options), null)
+      let list = _.filter(_.concat(this.options), (v)=>!Ti.Util.isNil(v))
       let tags = []
       _.forEach(list, (li, index)=>{
         let tag
         // Object
         if(_.isPlainObject(li)) {
-          tag = _.assign({}, li, {index})
+          tag = _.assign({icon:this.optionIcon}, li, {index})
         }
         // String or simple value
         else {
           tag = {
-            key   : `Option-${index}`,
-            value : li,
-            text  : Ti.Types.toStr(li)
+            index : index,
+            icon  : this.optionIcon,
+            text  : Ti.Types.toStr(li),
+            value : li
           }
         }
         // Join to

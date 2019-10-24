@@ -4,14 +4,31 @@
     "config" : {
       "fields" : [{
           "title" : "静态标签",
-          "name"  : "lbls",
+          "name"  : "lbls0",
           "type"  : "Array",
           "comType" : "ti-input-tags",
           "comConf" : {
-            "placeholder" : "请选择类型",
-            "valueCase" : "upper",
-            "itemIcon" : "zmdi-boat",
-            "options" : [
+            "placeholder" : "请输入新标签",
+            "valueCase" : "upper"
+          }
+        }, {
+          "title" : "下拉选择标签（文本）",
+          "name"  : "lbls1",
+          "type"  : "Array",
+          "comType" : "ti-input-tags",
+          "comConf" : {
+            "placeholder" : "请输入新标签",
+            "tagOptions" : ["A","B","C","D"]
+          }
+        }, {
+          "title" : "下拉选择标签（图标）",
+          "name"  : "lbls2",
+          "type"  : "Array",
+          "comType" : "ti-input-tags",
+          "comConf" : {
+            "placeholder" : "请输入新标签",
+            "tagIcon" : "zmdi-boat",
+            "tagOptions" : [
               {"value":"A", "text":"甲类"},
               {"value":"B", "text":"乙类"},
               {"value":"C", "text":"丙类"},
@@ -21,7 +38,10 @@
         }]
       },
     "data" : {
-      "lbls" : "=lbls"
+      "lbls0" : "=lbls0",
+      "lbls1" : "=lbls1",
+      "lbls2" : "=lbls2",
+      "lbls3" : "=lbls3"
     }
   },
   "comEvents" : {

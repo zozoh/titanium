@@ -1,0 +1,27 @@
+.ti-combo-box {
+  //---------------------------------
+  > .as-box {
+    @include noselect;
+  }
+  //---------------------------------
+  &.is-extended {
+    > .as-box {
+      z-index:$z-mask + 1;  
+    }
+  }
+  //---------------------------------
+  > .as-mask {
+    @include pos-fixed-full;
+    z-index:$z-mask;
+    //background:rgba(0,0,0,0.5);
+  }
+  //---------------------------------
+  > .as-drop {
+    @include color($color-body, r, c);
+    border:1px solid map-get($color-primary, c);
+    z-index:$z-mask + 1;
+    position: fixed;
+    
+  }
+  //---------------------------------
+}
