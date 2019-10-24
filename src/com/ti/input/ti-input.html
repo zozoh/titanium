@@ -1,28 +1,43 @@
-<div class="ti-input"
-  :class="topClass">
-  <!--
-    Multi-line textarea
-  -->
-  <template v-if="multi">
-    <textarea
-      spellcheck="false" 
-      :class="multiModeClass"
-      :style="multiModeStyle"
-      :value="theValue"
-      :placeholder="placeholder"
-      @change="onChanged"></textarea>
-  </template>
-  <!--
-    Single-line input
-  -->
-  <template v-else>
-    <input 
-      spellcheck="false" 
-      :class="inputModeClass"
-      :value="theValue"
-      :placeholder="placeholder"
-      @change="onChanged">
-    <div v-if="suffix"
-      class="input-suffix">{{suffix}}</div>
-  </template>
+<div class="ti-input" :class="topClass" :style="topStyle">
+  <!--prefix:icon-->
+  <div v-if="prefixIcon"
+    class="as-icon at-prefix"
+    :class="getHoverClass('prefixIcon')"
+    @click.left="onClickPrefixIcon">
+    <ti-icon :value="prefixIcon"/>
+  </div>
+  <!--prefix:text-->
+  <div v-if="prefixText" 
+    class="as-text at-prefix"
+    :class="getHoverClass('prefixText')"
+    @click.left="onClickPrefixText">
+    <span>{{prefixText|i18n}}</span>
+  </div>
+  <!--input-->
+  <input ref="input"
+    spellcheck="false" 
+    :value="theValue"
+    :placeholder="placeholder"
+    @click.stop
+    @compositionstart="onInputCompositionStart"
+    @compositionend="onInputCompositionEnd"
+    @input="onInputing"
+    @keydown="onInputKeyDown"
+    @change="onInputChanged"
+    @focus="onInputFocus"
+    @blur="onInputBlur">
+  <!--suffix:text-->
+  <div v-if="suffixText"
+    class="as-text at-suffix"
+    :class="getHoverClass('suffixText')"
+    @click.left="onClickSuffixIcon">
+    <span>{{suffixText|i18n}}</span>
+  </div>
+  <!--suffix:icon-->
+  <div v-if="suffixIcon"
+    class="as-icon at-suffix"
+    :class="getHoverClass('suffixIcon')"
+    @click.left.left="onClickSuffixIcon">
+    <ti-icon :value="suffixIcon"/>
+  </div>
 </div>

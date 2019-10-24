@@ -8,9 +8,10 @@ export default {
     default : "input",
     validator : (md)=>/^(input|multi|droplist)$/.test(md)
   },
-  "value" : {
-    type : [String, Number, Object, Array],
-    default : null
+  "value" : null,
+  "format" : {
+    type : [String, Array, Object],
+    default : undefined
   },
   "valueCase" : {
     type : String,
@@ -61,6 +62,13 @@ export default {
     type : Boolean,
     default : true
   },
+  "statusIcons" : {
+    type : Object,
+    default : ()=>({
+      collapse : "zmdi-chevron-down",
+      extended : "zmdi-chevron-up"
+    })
+  },
   "matchText" : {
     type : Boolean,
     default : true
@@ -76,5 +84,9 @@ export default {
   "cached" : {
     type : Boolean,
     default : false
+  },
+  "autoFocusExtended" : {
+    type : Boolean,
+    default : true
   }
 }

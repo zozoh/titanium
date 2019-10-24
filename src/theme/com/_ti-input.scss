@@ -1,34 +1,46 @@
 .ti-input {
-  $suffix-w : 32px;
+  @include noselect;
+  @include flex-align-nowrap($ai:stretch);
+  @include border(1px, solid, dark);
+  @include color($color-input, c, r);
   //-----------------------------------------
-  position: relative;
-  //-----------------------------------------
-  textarea {
-    @include text-input;
-    width:100%;
-    font-size:.16rem;
-    outline:none;
-    resize:none;
-    padding:.08rem .1rem;
-    min-height: 4em;
+  &.is-focused, &.is-highlight {
+    border-color: map-get($color-line, highlight);
   }
   //-----------------------------------------
-  input {
-    @include text-input;
-    width:100%;
-    font-size:.16rem;
-    outline:none;
-    padding:.08rem .1rem;
-    &.has-suffix {
-      padding-right: $suffix-w;
+  > .as-icon {
+    @include flex-center;
+    flex:0 0 auto; width:.26rem;
+    opacity: 0.6;
+  }
+  //-----------------------------------------
+  > .as-text {
+    @include flex-center;
+    opacity: 0.6;
+  }
+  //-----------------------------------------
+  > .can-hover{
+    cursor: pointer; opacity: 1;
+    &:hover {
+      @include color($color-primary, r, c);
     }
   }
   //-----------------------------------------
-  .input-suffix {
+  > input {
+    width:1.5rem; height:.34rem;
+    outline:none;
+    flex:1 0 auto;
+    border:0; padding:0 .1rem;
+    font-family: inherit;
+    font-size:inherit;
+    background:transparent;
+  }
+  //-----------------------------------------
+  > .as-suffix-icon {
     @include flex-center;
-    @include color($color-track, c);
-    @include pos-abs($t:0,$r:0,$b:0,$w:$suffix-w);
-    font-size:12px;
+    cursor: pointer;
+    flex:0 0 auto;
+    width:.26rem;
   }
   //-----------------------------------------
 }

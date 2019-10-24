@@ -1,5 +1,27 @@
-<ti-combo-box>
+<ti-combo-box :class="topClass"
+  :drop-width="dropWidth"
+  :drop-height="dropHeight"
+  :status="status"
+  @collapse="onCollapse">
+  <!--
+    Box
+  -->
   <template v-slot:box>
-    <ti-input/>
+    <ti-input
+      :placeholder="placeholder"
+      :value="value"
+      :format="format"
+      :value-case="valueCase"
+      :width="width"
+      :height="height"
+      :highlight="isExtended"
+      :suffix-icon="theStatusIcon"
+      @changed="onInputChanged"
+      @focused="onInputFocused"
+      @blurred="onInputBlurred"
+      @suffix:icon="onClickStatusIcon"/>
   </template>
+  <!--
+    Drop
+  -->
 </ti-combo-box>

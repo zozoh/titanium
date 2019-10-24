@@ -10,9 +10,9 @@
   -->
   <template v-if="'extended'==status">
     <!--Mask-->
-    <div class="as-mask"></div>
+    <div class="as-mask" @click.left="notifyCollapse"></div>
     <!--Drop-->
-    <div class="as-drop" ref="drop">
+    <div class="as-drop" ref="drop" :style="dropStyle">
       <slot name="drop"><div>ComboBox Dropdown</div></slot>
     </div>
   </template>

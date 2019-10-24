@@ -8,7 +8,7 @@
           "type"  : "String",
           "comType" : "ti-combo-input2",
           "comConf" : {
-            "placeholder" : "请输入新标签",
+            "placeholder" : "请输入",
             "valueCase" : "upper"
           }
         }]

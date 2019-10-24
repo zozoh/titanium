@@ -47,7 +47,7 @@ export default {
   computed : {
     //------------------------------------------------
     topClass() {
-      let klass = [`is-${this.statusIcon}`]
+      let klass = [`is-${this.status}`]
       if(this.className) {
         klass.push(this.className)
       }
@@ -99,8 +99,10 @@ export default {
         })
         //..........................................
         // Dock drop to box
-        Ti.Dom.dockTo($drop, $box, {
-          space:{y:2}, posListX:["left", "right"]
+        this.$nextTick(()=>{
+          Ti.Dom.dockTo($drop, $box, {
+            space:{y:2}, posListX:["left", "right"]
+          })
         })
         //..........................................
       }
@@ -118,6 +120,12 @@ export default {
       //............................................
     }
     //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    "status" : function(){
+      this.$nextTick(()=>this.dockDrop())
+    }
   },
   ////////////////////////////////////////////////////
   mounted : function() {

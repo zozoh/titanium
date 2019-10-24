@@ -14,22 +14,48 @@ export default {
   computed : {
     //------------------------------------------------
     topClass() {
-      let klass = []
-      if(this.className) {
-        klass.push(this.className)
-      }
-      return klass
+      return Ti.Css.mergeClassName(this.className)
     },
     //------------------------------------------------
     isInputMode()    {return "input"   ==this.mode},
     isMultiMode()    {return "multi"   ==this.mode},
     isDroplistMode() {return "droplist"==this.mode},
+    isCollapse() {return "collapse"==this.status},
+    isExtended() {return "extended"==this.status},
+    //------------------------------------------------
+    theStatusIcon() {
+      return this.statusIcons[this.status]
+    }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
-    
     //------------------------------------------------
+    onInputChanged(val) {
+      this.$emit("changed", val)
+    },
+    //------------------------------------------------
+    onInputFocused() {
+      if(this.autoFocusExtended) {
+        this.status = "extended"
+      }
+    },
+    //------------------------------------------------
+    onInputBlurred() {
+      // TODO nothing stub
+    },
+    //------------------------------------------------
+    onClickStatusIcon() {
+      this.status = ({
+        "collapse" : "extended",
+        "extended" : "collapse"
+      })[this.status]
+    },
+    //-----------------------------------------------
+    onCollapse() {
+      this.status = "collapse"
+    }
+    //-----------------------------------------------
   },
   ////////////////////////////////////////////////////
   mounted : function() {
