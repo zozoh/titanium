@@ -54,6 +54,26 @@ const METHODS = {
   "Wn.Sys.exec2" : function(vm, args){
     return gen_wn_sys_exec(vm, Wn.Sys.exec2, args)
   },
+  "Wn.Io.find" : function(vm, args){
+    return async function() {
+      return await Wn.Io.find(...args)
+    }
+  },
+  "Wn.Io.findList" : function(vm, args){
+    return async function() {
+      return await Wn.Io.findList(...args)
+    }
+  },
+  "Wn.Io.findInBy" : function(vm, args){
+    return async function(val) {
+      return await Wn.Io.findInBy(val, ...args)
+    }
+  },
+  "Wn.Io.findListInBy" : function(vm, args){
+    return async function(val) {
+      return await Wn.Io.findListInBy(val, ...args)
+    }
+  },
   "Wn.Dict.getAll" : function(vm, args){
     return async function(){
       return await Wn.Dict.getAll(...args)

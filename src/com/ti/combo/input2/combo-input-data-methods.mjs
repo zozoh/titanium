@@ -1,54 +1,6 @@
 export default {
   //------------------------------------------------
-  createQueryObj() {
-    let re = {}
-    if(!this.query) {
-      return re
-    }
-    //.....................................
-    let _join_qkey = (qkey)=>{
-      // for simple string key
-      if(_.isString(qkey)) {
-        qkey = {key:qkey}
-      }
-      // for simple value
-      if(!qkey.val) {
-        re[qkey.key] = this.queryValueInStr
-      }
-      // value template
-      else {
-        re[qkey.key] = Ti.S.renderBy(qkey.val, {
-          val : this.queryValueInStr
-        })
-      }
-    }
-    //.....................................
-    // Match special
-    _.forEach(this.query.values, (qkey, qm)=>{
-      // REGEX
-      if(qm.startsWith("^")) {
-        if((new RegExp(qm)).test(this.queryValueInStr)) {
-          _join_qkey(qkey)
-        }
-      }
-      // normal value
-      else if(this.queryValueInStr == qm) {
-        _join_qkey(qkey)
-      }
-    })
-    //.....................................
-    // Match Default
-    if(_.isEmpty(re) && this.query.default) {
-      _join_qkey(this.query.default)
-    }
-    //.....................................
-    // Defaults Match
-    _.defaults(re, this.query.match)
-    //.....................................
-    return re
-  },
-  //------------------------------------------------
-  async reloadListData(force=false) {
+  async reloadListData({force=false, val}={}) {
     // Guard
     if(this.loading) {
       return
@@ -63,21 +15,7 @@ export default {
     //.......................................
     // Dynamic Load
     if(this.isDynamicOptions) {
-      let vars = {val:this.theListValue, query:""}
-      let query = this.createQueryObj()
-      if(query && !_.isEmpty(query)) {
-        // Convert query to string
-        if(this.query.tmpl) {
-          vars.query = Ti.S.renderBy(this.query.tmpl, {
-            json : JSON.stringify(query)
-          })
-        }
-        // Keep the query
-        else {
-          vars.query = query
-        }
-      }
-      this.listData = await this.options(vars)
+      this.listData = await this.options(val)
     }
     // Statice Load
     else if(this.hasOptions) {
@@ -92,14 +30,18 @@ export default {
     this.listLoaded = true
   },
   //------------------------------------------------
-  async reloadRuntime() {
+  async reloadRuntime(vals=[]) {
     //.......................................
     let list = []
     try {
       // Load in dynamic getItemBy
       if(this.isDynamicOptions && _.isFunction(this.getItemBy)) {
         this.loading = true
-        for(let val of this.valueInArray) {
+        for(let val of vals) {
+          // Ignore Empty
+          if(Ti.Util.isNil(val) || ""==val)
+            continue
+          // Load item
           let it = await this.getItemBy(val)
           if(this.mapping) {
             it = Ti.Util.mapping(it, this.mapping)
@@ -111,7 +53,7 @@ export default {
       else {
         await this.reloadListData()
         for(let li of this.theListData) {
-          if(_.findIndex(this.valueInArray, (v)=>_.isEqual(v, li.value))>=0) {
+          if(_.findIndex(vals, (v)=>_.isEqual(v, li.value))>=0) {
             list.push(li)
           }
         }
@@ -125,6 +67,31 @@ export default {
       this.loading = false
       this.listLoaded = false
     }
+  },
+  //------------------------------------------------
+  setRuntimeBy(vals=[]) {
+    let list = []
+    for(let li of this.theListData) {
+      // Equals Value/Text
+      if(_.findIndex(vals, (v)=>{
+        return _.isEqual(v, li.value)
+            || _.isEqual(v, li.text)
+      })>=0) {
+        list.push(li)
+      }
+      // Match Text
+      else if(this.matchText) {
+        if(_.findIndex(vals, (v)=>{
+          return li.text && (li.text.indexOf(v) >= 0)
+        })>=0) {
+          list.push(li)
+          break
+        } 
+      }
+    }
+    // Assign && Return
+    this.runtime = this.normalizeValueByArray(list)
+    return this.runtime
   },
   //------------------------------------------------
   // multi->[XX...] , single->XX

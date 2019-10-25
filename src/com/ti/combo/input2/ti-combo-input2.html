@@ -9,6 +9,7 @@
   <template v-slot:box>
     <ti-input
       :placeholder="placeholder"
+      :prefix-icon="theRuntimeIcon"
       :value="theBoxValue"
       :format="format"
       :value-case="valueCase"
@@ -16,6 +17,7 @@
       :height="height"
       :highlight="isExtended"
       :suffix-icon="theStatusIcon"
+      @inputing="onInputing"
       @keypress="onInputKeyPress"
       @changed="onInputChanged"
       @focused="onInputFocused"

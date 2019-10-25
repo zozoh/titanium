@@ -41,6 +41,9 @@ export default {
     },
     //------------------------------------------------
     theStatusIcon() {
+      if(this.loading) {
+        return this.loadingIcon
+      }
       return this.statusIcons[this.status]
     },
     //------------------------------------------------
@@ -55,6 +58,9 @@ export default {
     },
     //------------------------------------------------
     // multi->[{..}] , single->{..}
+    theRuntimeIcon() {
+      return this.pickValue(this.runtime, "icon")
+    },
     theRuntimeText() {
       return this.pickValue(this.runtime, "text")
     },
@@ -77,6 +83,13 @@ export default {
   },
   ////////////////////////////////////////////////////
   methods : {
+    //------------------------------------------------
+    async onInputing(val) {
+      console.log("I am inputing", val)
+      await this.setRuntimeBy(val ? [val] : [])
+      await this.debounceReloadListData({val, force:true})
+      this.doExtend()
+    },
     //------------------------------------------------
     async onInputKeyPress({uniqueKey}={}) {
       //..................................
@@ -141,6 +154,7 @@ export default {
     //------------------------------------------------
     async onInputFocused() {
       if(this.autoFocusExtended) {
+        await this.reloadListData()
         this.doExtend()
       }
     },
@@ -156,12 +170,12 @@ export default {
       }
       // collapse -> extended
       else {
+        await this.reloadListData()
         this.doExtend()
       }
     },
     //-----------------------------------------------
-    async doExtend() {
-      await this.reloadListData()
+    async doExtend({force=false, val}={}) {
       this.status = "extended"
     },
     //-----------------------------------------------
@@ -173,21 +187,18 @@ export default {
   ////////////////////////////////////////////////////
   watch : {
     "value" : async function(){
-      await this.reloadRuntime()
+      await this.reloadRuntime(this.valueInArray)
     }
   },
   ////////////////////////////////////////////////////
   mounted : async function(){
     // Init the box
     // reload by static array
-    await this.reloadRuntime()
+    await this.reloadRuntime(this.valueInArray)
 
     // Declare the value
-    this.debounceReload = _.debounce(async (loaded)=>{
-      await this.tryReload({
-        loaded : Ti.Util.fallback(loaded, this.listLoaded),
-        cached : this.cached
-      })
+    this.debounceReloadListData = _.debounce(async (val)=>{
+      await this.reloadListData(val)
     }, 500)
   }
   ////////////////////////////////////////////////////

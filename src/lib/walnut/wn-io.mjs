@@ -96,7 +96,7 @@ export const WnIo = {
     return reo
   },
   /***
-   * Query object
+   * Query object list
    */
   async find({skip=0, limit=100, sort={}, mine=true, match={}}={}) {
     let url = URL("find")
@@ -109,6 +109,52 @@ export const WnIo = {
       }), 
       as:"json"})
     return AJAX_RETURN(reo)
+  },
+  async findList(query={}) {
+    let reo = await WnIo.find(query)
+    if(reo && _.isArray(reo.list)) {
+      return reo.list
+    }
+    return []
+  },
+  /***
+   * Query object list by value
+   */
+  async findInBy(value, parent, {
+    skip=0, limit=100, sort={}, mine=true, match={},
+    keys = {
+      "^[0-9a-v]{26}$" : ["id", "${val}"]
+    },
+    dftKey = ["nm", "^.*${val}.*$"]
+  }={}) {
+    // Join Key To Match
+    if(!_.isUndefined(value)) {
+      let key = dftKey;
+      for(let regex of _.keys(keys)) {
+        if(new RegExp(regex).test(value)) {
+          key = keys[regex]
+          break
+        }
+      }
+      let k = key[0]
+      let v = Ti.S.renderBy(key[1], {val:value})
+      match[k] = v
+    }
+    // Eval Parent
+    if(parent) {
+      let oP = await WnIo.loadMeta(parent)
+      match.pid = oP.id
+    }
+
+    // Do Find
+    return await WnIo.find({skip,limit,sort,mine,match})
+  },
+  async findListInBy(value, parent, query={}) {
+    let reo = await WnIo.findInBy(value, parent, query)
+    if(reo && _.isArray(reo.list)) {
+      return reo.list
+    }
+    return []
   },
   /***
    * Get obj content by meta:

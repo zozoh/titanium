@@ -69,6 +69,10 @@ export default {
     type : Boolean,
     default : true
   },
+  "loadingIcon" : {
+    type : String,
+    default : "zmdi-settings zmdi-hc-spin"
+  },
   "statusIcons" : {
     type : Object,
     default : ()=>({

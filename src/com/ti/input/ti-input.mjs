@@ -121,10 +121,10 @@ export default {
       }
     },
     //------------------------------------------------
-    doWhenInput(emitName="input") {
-      let $in = this.$refs.input
-      if(_.isElement($in)) {
-        let val = $in.value
+    doWhenInput(emitName="inputing") {
+      if(_.isElement(this.$refs.input)) {
+        console.log("doWhenInput", emitName)
+        let val = this.$refs.input.value
         if(this.trimed) {
           val = _.trim(val)
         }
