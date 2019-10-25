@@ -2,20 +2,21 @@
   :drop-width="dropWidth"
   :drop-height="dropHeight"
   :status="status"
-  @collapse="onCollapse">
+  @collapse="doCollapse">
   <!--
     Box
   -->
   <template v-slot:box>
     <ti-input
       :placeholder="placeholder"
-      :value="value"
+      :value="theBoxValue"
       :format="format"
       :value-case="valueCase"
       :width="width"
       :height="height"
       :highlight="isExtended"
       :suffix-icon="theStatusIcon"
+      @keypress="onInputKeyPress"
       @changed="onInputChanged"
       @focused="onInputFocused"
       @blurred="onInputBlurred"
@@ -24,4 +25,14 @@
   <!--
     Drop
   -->
+  <template v-slot:drop>
+    <ti-list 
+      :data="theListData"
+      :multi="multi"
+      :value="theRuntimeValue"
+      :height="dropHeight"
+      :default-icon="itemIcon"
+      :value-as-tip="valueAsTip"
+      @changed="onListChanged"/>
+  </template>
 </ti-combo-box>

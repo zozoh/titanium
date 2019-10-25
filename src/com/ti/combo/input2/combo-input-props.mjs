@@ -3,10 +3,13 @@ export default {
     type : String,
     default : null
   },
-  "mode" : {
-    type : String,
-    default : "input",
-    validator : (md)=>/^(input|multi|droplist)$/.test(md)
+  "editable" : {
+    type : Boolean,
+    default : true
+  },
+  "multi" : {
+    type : Boolean,
+    default : false
   },
   "value" : null,
   "format" : {
@@ -17,6 +20,10 @@ export default {
     type : String,
     default : null,
     validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
+  },
+  "valueAsTip" : {
+    type : Boolean,
+    default : true
   },
   "placeholder" : {
     type : [String, Number],
@@ -77,7 +84,7 @@ export default {
     type : Boolean,
     default : false
   },
-  "inputEditValue" : {
+  "boxRawValue" : {
     type : Boolean,
     default : false
   },

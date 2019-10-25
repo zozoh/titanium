@@ -191,7 +191,7 @@ export default {
           }
           // Select item
           else {
-            let item = Ti.Util.getItem(this.theListData, ci-1)
+            let item = Ti.Util.nth(this.theListData, ci-1)
             this.listValue = item ? item.value : null
           }
         },
@@ -202,7 +202,7 @@ export default {
           }
           // Select item
           else {
-            let item = Ti.Util.getItem(this.theListData, ci+1)
+            let item = Ti.Util.nth(this.theListData, ci+1)
             this.listValue = item ? item.value : null
           }
         },

@@ -341,7 +341,7 @@ const TiUtil = {
    * 
    * @return item
    */
-  getItem(list=[], index=0, dft=null) {
+  nth(list=[], index=0, dft=null) {
     let len = list.length
     if(len <= 0)
       return dft
@@ -490,6 +490,32 @@ const TiUtil = {
     }
     // As general getter
     return obj[key]
+  },
+  /***
+   * Invoke function in Object or Map
+   */
+  async invoke(fnSet={}, name, args=[], context=this) {
+    let fn = _.get(fnSet, name)
+    if(_.isFunction(fn)) {
+      let as = _.concat(args)
+      await fn.apply(context, as)
+    }
+  },
+  /***
+   * @return Get first element if input is array, or input self
+   */
+  first(input=[]) {
+    if(_.isArray(input))
+      return _.first(input)
+    return input
+  },
+  /***
+   * @return Get last element if input is array, or input self
+   */
+  last(input=[]) {
+    if(_.isArray(input))
+      return _.last(input)
+    return input
   }
 }
 //-----------------------------------
