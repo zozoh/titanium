@@ -10,7 +10,7 @@
   //-----------------------------------------
   > .as-icon {
     @include flex-center;
-    flex:0 0 auto; width:.26rem;
+    flex:0 0 auto; width:.3rem;
     opacity: 0.6;
   }
   //-----------------------------------------
@@ -41,6 +41,14 @@
     cursor: pointer;
     flex:0 0 auto;
     width:.26rem;
+  }
+  //-----------------------------------------
+  &.has-prefix-icon {
+    > input {padding-left:0;}
+  }
+  //-----------------------------------------
+  &.has-suffix-icon {
+    > input {padding-right:0;}
   }
   //-----------------------------------------
 }

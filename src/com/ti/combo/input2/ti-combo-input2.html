@@ -7,16 +7,33 @@
     Box
   -->
   <template v-slot:box>
-    <ti-input
+    <!--Multi　Mode-->
+    <ti-input-tags v-if="multi"
       :placeholder="placeholder"
-      :prefix-icon="theRuntimeIcon"
+      :suffix-icon="theStatusIcon"
       :value="theBoxValue"
+      :value-case="valueCase"
+      :width="width"
+      :input-height="height"
+      :tag-icon="itemIcon"
+      :highlight="isExtended"
+      @inputing="onInputing"
+      @keypress="onInputKeyPress"
+      @changed="onListChanged"
+      @focused="onInputFocused"
+      @blurred="onInputBlurred"
+      @suffix:icon="onClickStatusIcon"/>
+    <!--Single Mode-->
+    <ti-input v-else
+      :placeholder="placeholder"
+      :prefix-icon="theBoxPrefixIcon"
+      :suffix-icon="theStatusIcon"
       :format="format"
+      :value="theBoxValue"
       :value-case="valueCase"
       :width="width"
       :height="height"
       :highlight="isExtended"
-      :suffix-icon="theStatusIcon"
       @inputing="onInputing"
       @keypress="onInputKeyPress"
       @changed="onInputChanged"
@@ -31,7 +48,8 @@
     <ti-list 
       :data="theListData"
       :multi="multi"
-      :value="theRuntimeValue"
+      :value="theListValue"
+      :focus="listFocusIndex"
       :height="dropHeight"
       :default-icon="itemIcon"
       :value-as-tip="valueAsTip"

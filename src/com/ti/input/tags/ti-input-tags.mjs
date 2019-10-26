@@ -1,6 +1,11 @@
 export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
+  data : ()=>({
+    "inputCompositionstart" : false,
+    "focused" : false
+  }),
+  ////////////////////////////////////////////////////
   props : {
     "className" : {
       type : String,
@@ -16,6 +21,10 @@ export default {
       type : [String, Number],
       default : null
     },
+    "trimed" : {
+      type : Boolean,
+      default : true
+    },
     // the whole top-box width
     "width" : {
       type : [Number, String],
@@ -25,6 +34,10 @@ export default {
       type : [Number, String],
       default : null
     },
+    "highlight" : {
+      type : Boolean,
+      default : false
+    },
     "tagIcon" : {
       type : String,
       default : null
@@ -33,7 +46,7 @@ export default {
       type : [Array, Function],
       default : ()=>[]
     },
-    "statusIcon" : {
+    "suffixIcon" : {
       type : String,
       //default : "zmdi-chevron-down"
     }
@@ -42,8 +55,12 @@ export default {
   computed : {
     //------------------------------------------------
     topClass() {
-      if(this.className)
-        return this.className
+      return Ti.Css.mergeClassName(this.className, {
+        "is-focused"   : this.focused,
+        "is-blurred"   : !this.focused,
+        "is-highlight" : this.highlight,
+        "has-suffix-icon" : this.suffixIcon
+      })
     },
     //------------------------------------------------
     topStyle(){
@@ -115,6 +132,43 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
+    onInputCompositionStart(){
+      this.inputCompositionstart = true
+    },
+    //------------------------------------------------
+    onInputCompositionEnd(){
+      this.inputCompositionstart = false
+      this.doWhenInput()
+    },
+    //------------------------------------------------
+    onInputing($event) {
+      console.log("haha")
+      if(!this.inputCompositionstart) {
+        this.doWhenInput()
+      }
+    },
+    //------------------------------------------------
+    doWhenInput(emitName="inputing") {
+      if(_.isElement(this.$refs.input)) {
+        //console.log("doWhenInput", emitName)
+        let val = this.$refs.input.value
+        if(this.trimed) {
+          val = _.trim(val)
+        }
+        val = Ti.S.toCase(val, this.valueCase)
+        this.$emit(emitName, val)
+      }
+    },
+    //------------------------------------------------
+    onInputKeyDown($event) {
+      let payload = _.pick($event, 
+        "code","key","keyCode",
+        "altKey","ctrlKey","metaKey","shiftKey")
+      payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
+      payload.$event = $event
+      this.$emit("keypress", payload)
+    },
+    //------------------------------------------------
     onInputChanged($event) {
       let $in = $event.target
       if(_.isElement($in)) {
@@ -132,8 +186,22 @@ export default {
       }
     },
     //------------------------------------------------
+    onInputFocus() {
+      this.focused = true
+      this.$emit("focused")      
+    },
+    //------------------------------------------------
+    onInputBlur() {
+      this.focused = false
+      this.$emit("blurred")
+    },
+    //------------------------------------------------
     onTagChanged(vals=[]) {
       this.$emit("changed", vals)
+    },
+    //------------------------------------------------
+    onClickSuffixIcon() {
+      this.$emit("suffix:icon")
     }
     //------------------------------------------------
   }

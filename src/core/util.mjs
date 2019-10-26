@@ -346,14 +346,9 @@ const TiUtil = {
     if(len <= 0)
       return dft
     
-    if(index < 0) {
-      index = len + (index%len)
-    }
-    else if(index >= len) {
-      index = index % len
-    }
+    let x = Ti.Num.scrollIndex(index, len)
 
-    return list[index]
+    return list[x]
   },
   /***
    * Create new Mapping value
@@ -454,6 +449,12 @@ const TiUtil = {
    */
   isNil(o) {
     return _.isUndefined(o) || _.isNull(o)
+  },
+  isBlank(o) {
+    return _.isUndefined(o)
+          || _.isNull(o)
+          || "" === o
+          || /^[ \t]*$/.test(o)
   },
   /***
    * Get or set one object value.

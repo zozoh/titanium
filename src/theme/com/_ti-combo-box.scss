@@ -17,6 +17,7 @@
   }
   //---------------------------------
   > .as-drop {
+    @include noselect;
     @include color($color-body, r, c);
     border:1px solid map-get($color-primary, c);
     z-index:$z-mask + 1;

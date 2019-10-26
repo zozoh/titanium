@@ -15,16 +15,20 @@ export default {
       type : Object,
       default : null
     },
-    "value" : null,
     // The list to be rendered
     "data" : {
       type : Array,
       default : ()=>[]
     },
+    "value" : null,
     // Make the value as item tip if tip without defined
     "valueAsTip" : {
       type : Boolean,
       default : false
+    },
+    "focus" : {
+      type : Number,
+      default : -1
     },
     // multi-selectable
     // effected when selectable is true
@@ -67,6 +71,9 @@ export default {
   },
   //////////////////////////////////////////
   watch : {
+    "focus" : function(val) {
+      this.focusIndex = val
+    },
     "value" : function(val) {
       if(!_.isNull(val)) {
         if(this.autoScrollIntoView) {
@@ -98,10 +105,8 @@ export default {
         mapping : this.mapping,
         emptyItem   : this.empty,
         defaultIcon : this.defaultIcon,
-        iteratee : (it, index)=>{
-          it.focused = (index == this.focusIndex)
-        },
-        valueAsTip : this.valueAsTip,
+        focusIndex  : this.focusIndex,
+        valueAsTip  : this.valueAsTip,
         offset: this.selectOffset
       })
       return list
@@ -195,6 +200,7 @@ export default {
   //////////////////////////////////////////
   mounted : function() {
     let vm = this
+    this.focusIndex = this.focus
     this.__on_mouseup = function(index){
       vm.focusIndex = -1
     }

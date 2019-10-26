@@ -21,11 +21,19 @@
       :style="inputHeight"
       :value="theInputValue"
       :placeholder="placeholder"
-      @change="onInputChanged">
+      @click.stop
+      @compositionstart="onInputCompositionStart"
+      @compositionend="onInputCompositionEnd"
+      @input="onInputing"
+      @keydown="onInputKeyDown"
+      @change="onInputChanged"
+      @focus="onInputFocus"
+      @blur="onInputBlur">
     <!--Status Icon-->
-    <div v-if="statusIcon"
-      class="as-status">
-      <ti-icon :value="statusIcon"/>
+    <div v-if="suffixIcon"
+      class="as-suffix-icon"
+      @click.left="onClickSuffixIcon">
+      <ti-icon :value="suffixIcon"/>
     </div>
   </div>
 </div>

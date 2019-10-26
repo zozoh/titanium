@@ -15,15 +15,16 @@ export default {
     },
     "valueCase" : {
       type : String,
+      default : null,
+      validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
+    },
+    "placeholder" : {
+      type : [String, Number],
       default : null
     },
     "trimed" : {
       type : Boolean,
       default : true
-    },
-    "placeholder" : {
-      type : [String, Number],
-      default : null
     },
     "width" : {
       type : [Number, String],
@@ -56,6 +57,10 @@ export default {
     "hover" : {
       type : [Array, String],
       default : "suffixIcon"
+    },
+    "autoSelect" : {
+      type : Boolean,
+      default : true
     }
   },
   ////////////////////////////////////////////////////
@@ -68,8 +73,8 @@ export default {
         "is-highlight" : this.highlight,
         "has-prefix-icon" : this.prefixIcon,
         "has-prefix-text" : this.prefixText,
-        "has-suffix-icon" : this.suffixText,
-        "has-suffix-text" : this.suffixIcon,
+        "has-suffix-icon" : this.suffixIcon,
+        "has-suffix-text" : this.suffixText,
       })
     },
     //------------------------------------------------
@@ -123,7 +128,7 @@ export default {
     //------------------------------------------------
     doWhenInput(emitName="inputing") {
       if(_.isElement(this.$refs.input)) {
-        console.log("doWhenInput", emitName)
+        //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         if(this.trimed) {
           val = _.trim(val)
@@ -138,6 +143,7 @@ export default {
         "code","key","keyCode",
         "altKey","ctrlKey","metaKey","shiftKey")
       payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
+      payload.$event = $event
       this.$emit("keypress", payload)
     },
     //------------------------------------------------
@@ -146,6 +152,9 @@ export default {
     },
     //------------------------------------------------
     onInputFocus() {
+      if(this.autoSelect) {
+        this.$refs.input.select()
+      }
       this.focused = true
       this.$emit("focused")      
     },

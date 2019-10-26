@@ -18,6 +18,34 @@ const TiNum = {
       ary[i] = startValue + i*step
     }
     return ary
+  },
+  /***
+   * Clamp the number in range.
+   * 
+   * ```
+   * scrollIndex( 3, 5) => 3
+   * scrollIndex( 0, 5) => 0
+   * scrollIndex( 4, 5) => 4
+   * scrollIndex( 5, 5) => 1
+   * scrollIndex( 6, 5) => 2
+   * scrollIndex(-1, 5) => 4
+   * scrollIndex(-5, 5) => 0
+   * scrollIndex(-6, 5) => 4
+   * ```
+   */
+  scrollIndex(index, len=0) {
+    if(len <= 0)
+      return -1
+
+    if(index < 0) {
+      return len + (index%len)
+    }
+
+    if(index >= len) {
+      return index % len
+    }
+
+    return index
   }
 }
 //---------------------------------------

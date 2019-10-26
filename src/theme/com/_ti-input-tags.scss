@@ -4,6 +4,10 @@
   @include border(1px, solid, dark);
   @include color($color-input, c, r);
   //-----------------------------------------
+  &.is-focused, &.is-highlight {
+    border-color: map-get($color-line, highlight);
+  }
+  //-----------------------------------------
   // Tag Box
   > .as-tags {
     @include flex-center;
@@ -25,7 +29,7 @@
       background:transparent;
     }
     //---------------------------------------
-    > .as-status {
+    > .as-suffix-icon {
       @include flex-center;
       cursor: pointer;
       flex:0 0 auto;

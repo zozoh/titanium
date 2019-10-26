@@ -1,34 +1,56 @@
 .ti-list {
+  //----------------------------------------------
   ul {
     @include raw-list;
     padding:1px;
   }
+  //----------------------------------------------
   li {
     @include flex-align-nowrap($ai:center);
     @include border(1px, dashed, shallow, top);
     cursor:pointer;
+    position: relative;
     padding:.02rem .06rem;
-    &:first-child {border-top:0;}    
+    //--------------------------------------------
+    &:first-child {border-top:0;}
+    //--------------------------------------------
+    &.is-focused {
+      //@include color($color-selected, r, c);
+      &::before {
+        @include pos-abs($t:12px,$b:12px,$l:4px,$w:1px);
+        display:block; content:"";
+        border:1px dotted map-get($color-secondary, c);
+        border-top:0; border-bottom:0;
+      }
+    }
+    //--------------------------------------------
     &.is-selected {
       @include color($color-secondary, r, c);
+      &.is-focused {
+        &::before {
+          border-color:map-get($color-secondary, r);
+        }
+      }
     }
-    &.is-focused {
-      @include color($color-selected, r, c);
-    }
+    //--------------------------------------------
     > .it-icon {
       @include flex-center;
       width:.32rem;
     }
+    //--------------------------------------------
     > .it-text {
       flex:1 1 auto;
       padding:0 0.1rem 0 .04rem;
       display: block;
       white-space: nowrap;
     }
+    //--------------------------------------------
     > .it-tip {
       @include font-fixed;
       font-size:.9em; opacity: 0.6;
       padding:0 .06rem;
     }
+    //--------------------------------------------
   }
+  //----------------------------------------------
 }

@@ -12,6 +12,7 @@ export default {
     emptyItem=null,
     multi=false,
     value=null,
+    focusIndex=-1,
     mapping=null,
     defaultIcon=null,
     iteratee=null,
@@ -73,6 +74,11 @@ export default {
     // Tidy it
     for(let i=0; i<list2.length; i++) {
       let li = list2[i]
+      // Mark index
+      li.index = i
+      li.focused = (i == focusIndex)
+      // Mark icon
+      li.icon = li.icon || defaultIcon
       // decide selected: by others
       if(offset != 0) {
         let taLiIndex = i + offset

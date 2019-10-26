@@ -81,10 +81,11 @@ export default {
     })
   },
   "matchText" : {
-    type : Boolean,
-    default : true
+    type : String,
+    default : "off",
+    validator : (mt)=>/^(off|starts|contains)$/.test(mt)
   },
-  "valueMustInList" : {
+  "mustInList" : {
     type : Boolean,
     default : false
   },
