@@ -7,10 +7,6 @@ export default {
     type : Boolean,
     default : true
   },
-  "multi" : {
-    type : Boolean,
-    default : false
-  },
   "value" : null,
   "format" : {
     type : [String, Array, Object],
@@ -82,14 +78,21 @@ export default {
   },
   "matchText" : {
     type : String,
-    default : "off",
-    validator : (mt)=>/^(off|starts|contains)$/.test(mt)
+    default : "equal",
+    validator : (mt)=>{
+      return Ti.Util.isNil(mt)
+      ||/^(off|equal|starts|contains)$/.test(mt)
+    }
+  },
+  "matchValue" : {
+    type : String,
+    default : "equal",
+    validator : (mt)=>{
+      return Ti.Util.isNil(mt)
+      ||/^(off|equal|starts|contains)$/.test(mt)
+    }
   },
   "mustInList" : {
-    type : Boolean,
-    default : false
-  },
-  "boxRawValue" : {
     type : Boolean,
     default : false
   },

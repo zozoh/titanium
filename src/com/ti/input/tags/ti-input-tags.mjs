@@ -142,7 +142,6 @@ export default {
     },
     //------------------------------------------------
     onInputing($event) {
-      console.log("haha")
       if(!this.inputCompositionstart) {
         this.doWhenInput()
       }

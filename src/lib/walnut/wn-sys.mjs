@@ -8,6 +8,7 @@ const DFT_MACRO_OBJ_SEP = "%%wn.meta." + Ti.Random.str(10) + "%%"
 ////////////////////////////////////////////
 export const WnSys = {
   async exec(cmdText, {
+    vars = {},
     input = "",
     appName = Ti.GetAppName(),
     eachLine = _.identity,
@@ -16,6 +17,8 @@ export const WnSys = {
     autoRunMacro = true,
     PWD = (Ti.SessionVar("PWD") || "~")
   }={}) {
+    // Eval command
+    cmdText = Ti.S.renderBy(cmdText, vars)
     // Prepare
     let url = `/a/run/${appName}`
     let params = {
@@ -99,7 +102,15 @@ export const WnSys = {
       })
       return err
     }
-  } 
+  },
+  //-------------------------------------
+  async execJson(cmdText, options={as:"json"}) {
+    return await WnSys.exec(cmdText, options)
+  },
+  //-------------------------------------
+  async exec2Json(cmdText, options={as:"json"}) {
+    return await WnSys.exec2(cmdText, options)
+  }
   //-------------------------------------
 }
 ////////////////////////////////////////////

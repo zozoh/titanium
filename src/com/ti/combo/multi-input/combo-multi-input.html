@@ -1,0 +1,40 @@
+<ti-combo-box :class="topClass"
+  :drop-width="dropWidth"
+  :drop-height="dropHeight"
+  :status="status"
+  @collapse="doCollapse">
+  <!--
+    Box
+  -->
+  <template v-slot:box>
+    <ti-input-tags
+      :placeholder="placeholder"
+      :suffix-icon="theStatusIcon"
+      :value="theInputValue"
+      :value-case="valueCase"
+      :width="width"
+      :input-height="height"
+      :tag-icon="itemIcon"
+      :highlight="isExtended"
+      @inputing="onInputing"
+      @keypress="onInputKeyPress"
+      @changed="onListChanged"
+      @focused="onInputFocused"
+      @blurred="onInputBlurred"
+      @suffix:icon="onClickStatusIcon"/>
+  </template>
+  <!--
+    Drop
+  -->
+  <template v-slot:drop>
+    <ti-list 
+      :data="theListData"
+      :multi="true"
+      :value="theListValue"
+      :focus="listFocusIndex"
+      :height="dropHeight"
+      :default-icon="itemIcon"
+      :value-as-tip="valueAsTip"
+      @changed="onListChanged"/>
+  </template>
+</ti-combo-box>

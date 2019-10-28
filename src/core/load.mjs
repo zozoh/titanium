@@ -49,8 +49,8 @@ const MjsLoading = new UnifyResourceLoading(async (url)=>{
   //return import(url).then(m => m.default)
   // use the polyfill method instead
   try {
-    return await importModule(url)
-    //return await import(url)
+    //return await importModule(url)
+    return await import(url)
   }
   catch(E) {
     if(Ti.IsWarn("TiLoad")) {

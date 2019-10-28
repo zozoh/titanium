@@ -106,6 +106,44 @@ export default {
     return list2
   },
   //------------------------------------------------
+  matchItemByKey(item={}, key="value", mode="equal", val) {
+    let itemValue = item[key]
+    // find method by mode
+    let fnCall = ({
+      "equal"   : ()=>_.isEqual(itemValue, val),
+      "starts"  : ()=>_.startsWith(itemValue, val),
+      "contains": ()=>{
+        if(_.isString(itemValue)) {
+          return itemValue.indexOf(val+"") >= 0
+        }
+        _.indexOf(itemValue, val)>=0
+      },
+    })[mode]
+    // Do the invoking
+    if(_.isFunction(fnCall)) {
+      return fnCall()
+    }
+    return false
+  },
+  //------------------------------------------------
+  findItemInList(str, {
+    list = [], 
+    matchValue = "equal",
+    matchText  = "off"
+  }={}) {
+    if(_.isArray(list) && !_.isEmpty(list)) {
+      for(let li of list) {
+        if(this.matchItemByKey(li, "value", matchValue, str)) {
+          return li
+        }
+        if(this.matchItemByKey(li, "text", matchText, str)) {
+          return li
+        }
+      }
+    }
+    return null
+  },
+  //------------------------------------------------
   // multi  : Array
   // single : Number
   getSelectedItemIndex(formedList, {value=null, multi=false}={}) {
