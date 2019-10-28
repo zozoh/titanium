@@ -1,5 +1,5 @@
 {
-  "name" : "ti-combo-input-multi",
+  "name" : "ti-combo-multi-input",
   "globally" : true,
   "template" : "./combo-multi-input.html",
   "props"    : "./multi-input-props.mjs",

@@ -10,7 +10,7 @@ export default {
       return
     }
     // Mark Loading
-    console.log("combo-input reload begin ...")
+    //console.log("combo-input reload begin ...")
     this.loading = true
     //.......................................
     // Dynamic Load
@@ -47,7 +47,8 @@ export default {
       it = await this.getItemBy(str)
       this.loading = false
       if(it) {
-        return it.value
+        let it2 = Ti.Util.mapping(iy, this.mapping)
+        return it2.value
       }
     }
 
@@ -72,7 +73,7 @@ export default {
     }
   },
   //------------------------------------------------
-  async reloadRuntime(val) {
+  async reloadRuntime(val=this.theValue) {
     // Guard Nil
     if(Ti.Util.isNil(val)) {
       this.runtimeValue = undefined

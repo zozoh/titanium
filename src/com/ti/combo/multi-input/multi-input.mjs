@@ -61,7 +61,7 @@ export default {
     },
     //------------------------------------------------
     theInputValue() {
-      console.log("!!<eval>:theBoxValue")
+      //console.log("!!<eval>:theBoxValue")
       return this.runtimeItems
     }
     //------------------------------------------------
@@ -74,8 +74,11 @@ export default {
       //await this.setRuntimeBy(val ? [val] : [])
       this.inputing = val
       this.listFocusIndex = -1
-      await this.debounceReloadListData({val, force:true})
-      this.doExtend()
+      if(this.queryWhenInput) {
+        await this.debounceReloadListData({val, force:true}, ()=>{
+          this.doExtend()
+        })
+      }
     },
     //------------------------------------------------
     async onInputKeyPress({uniqueKey}={}) {
@@ -96,22 +99,11 @@ export default {
         },
         "ENTER"  : async ()=>{
           await this.doEnter(this.inputing)
-          if(!this.multi) {
-            this.doCollapse()
-          }
         }
       }
       //..................................
-      //console.log("onInputKeyPress", uniqueKey)
-      
+      //console.log("onInputKeyPress", uniqueKey) 
       //................................
-      // Get All Selected Index
-      let indexes = []
-      for(let li of this.theListData) {
-        if(li.selected) {
-          indexes.push(li.index)
-        }
-      }
       let len = this.theListData.length
       //................................
       fnSet["ARROWUP"] = async ()=>{
@@ -123,7 +115,7 @@ export default {
         else {
           let index = this.listFocusIndex >= 0
                 ? this.listFocusIndex
-                : (_.first(indexes) || 0)
+                : 0
           this.listFocusIndex = Ti.Num.scrollIndex(index-1, len)
         }
       }
@@ -137,52 +129,55 @@ export default {
         else {
           let index = this.listFocusIndex >= 0
                 ? this.listFocusIndex
-                : (_.last(indexes) || -1)
+                : -1
           this.listFocusIndex = Ti.Num.scrollIndex(index+1, len)
         }
       }
-      //................................
-      
       //..................................
       await Ti.Util.invoke(fnSet, uniqueKey)
     },
-    //------------------------------------------------
-    async onSingleModeInputChanged(val) {
-      if(!this.multi) {
-        await this.doEnter(val)
-      }
-    },
     //-----------------------------------------------
-    async onListChanged(val) {
-      console.log("onListChanged", val)
-      let vals = _.filter(_.concat(val), (v)=>!Ti.Util.isNil(v))
+    async onInputChanged(vals) {
+      //console.log("onInputChanged", vals)
+      if(this.loading)
+        return
+      vals = _.filter(_.concat(vals), (v)=>!Ti.Util.isNil(v))
       let list = []
       for(let v of vals) {
         let v2 = await this.checkItemValue(v)
         if(!_.isUndefined(v2)) {
           list.push(v2)
         }
+        // Free Join
+        else if(!this.mustInList) {
+          list.push(v)
+        }
       }
+      if(this.valueUnique) {
+        list = _.uniq(list)
+      }
+      // Change Value
       this.$emit("changed", list)
-      this.inputing = null
-      // Single Mode: auto collapse the drop
-      if(!this.multi) {
-        this.doCollapse()
+      // Reload Data
+      console.log(this.reloadWhenChanged)
+      if(this.reloadWhenChanged>0) {
+        _.delay(async ()=>{
+          await this.reloadListData({force:true})
+        }, this.reloadWhenChanged)
       }
     },
     //------------------------------------------------
     async onInputFocused() {
       if(this.autoFocusExtended) {
         await this.reloadListData({
-          force : this.cached,
-          val   : this.theValue
+          force : !this.cached
         })
         this.doExtend()
       }
     },
     //------------------------------------------------
     onInputBlurred() {
-      this.inputing = null
+      //this.inputing = null
     },
     //------------------------------------------------
     async onClickStatusIcon() {
@@ -193,8 +188,7 @@ export default {
       // collapse -> extended
       else {
         await this.reloadListData({
-          force : this.cached,
-          val   : this.theValue
+          force : !this.cached
         })
         this.doExtend()
       }
@@ -202,74 +196,65 @@ export default {
     //-----------------------------------------------
     doPopValue(n=1) {
       // Multi Mode pop one
-      if(this.multi) {
-        let theValue = _.slice(this.runtimeValues, 0, this.runtimeValues.length-n)
-        this.$emit("changed", theValue)
-      }
-      // Single mode clear
-      else {
-        this.$emit("changed", null)
-      }
+      let theValue = _.slice(
+        this.runtimeValues, 0, this.runtimeValues.length - n)
+      this.$emit("changed", theValue)
     },
     //-----------------------------------------------
     doRemoveValue(val) {
-      if(this.multi) {
-        let theValue = _.filter(this.runtimeValues, (v)=>!_.isEqual(v, val))
-        this.$emit("changed", theValue)
-      }
-      // Single Mode, replace
-      else {
-        this.$emit("changed", null)
-      }
+      let theValue = _.filter(this.runtimeValues, (v)=>!_.isEqual(v, val))
+      this.$emit("changed", theValue)
     },
     //-----------------------------------------------
     async doAddBy(str) {
       let val = await this.checkItemValue(str)
-      // Guard
-      if(_.isUndefined(val)) {
-        return
+      // Guard & Join
+      if(!_.isUndefined(val)) {
+        let theValue = _.concat(this.runtimeValues, val)
+        this.$emit("changed", theValue)
       }
-      // Multi to Join
-      if(this.multi) {
-        if(!Ti.Util.isNil(str)) {
-          let theValue = _.concat(this.runtimeValues, val)
-          this.$emit("changed", theValue)
+    },
+    //-----------------------------------------------
+    async doToggleListItem({selected, value}={}) {
+      if(!_.isUndefined(value)) {
+        // Remove
+        if(selected) {
+          this.doRemoveValue(value)
         }
-      }
-      // Single Mode, replace
-      else {
-        this.$emit("changed", val)
+        // Add
+        else {
+          await this.doAddBy(value)
+        }
       }
     },
     //-----------------------------------------------
     async doEnter(str="") {
+      if(this.loading)
+        return
       // User Focus One Item By Key Board
       if(this.listFocusIndex >= 0) {
         let li = _.nth(this.theListData, this.listFocusIndex)
-        if(li) {
-          if(li.selected) {
-            this.doRemoveValue(li.value)
-          } else {
-            await this.doAddBy(li.value)
-          }
-        }
-        return
+        await this.doToggleListItem(li)
       }
-      // Multi Mode, listChanged() will charge the business
-      if(this.multi)
-        return
       // Then it must from input value
       else if(!Ti.Util.isBlank(str)) {
         await this.doAddBy(str)
       }
-      // Then Clearn the value
-      else if("" === str){
-        this.$emit("changed", null)
+      // Clean inputing
+      this.listFocusIndex = -1
+      this.inputing = ""
+      // Reload the main list
+      // I have to moved the calling to the end of stack,
+      // for the reason it has to been waiting the `loading` mark to false
+      // Else, the reloadListData will be rejected.
+      if(this.reloadWhenChanged>0) {
+        _.delay(async ()=>{
+          await this.reloadListData({force:true})
+        }, this.reloadWhenChanged)
       }
     },
     //-----------------------------------------------
     async doExtend({force=false, val}={}) {
-      //await this.reloadRuntime()
       this.status = "extended"
     },
     //-----------------------------------------------
@@ -277,19 +262,24 @@ export default {
       this.status = "collapse"
       this.listFocusIndex = -1
       this.inputing = null
-      // _.assign(this.runtime, {
-      //   value : [],
-      //   items : []
-      // })
-      // this.inputing = ""
+    },
+    //-----------------------------------------------
+    doDockDrop() {
+      this.$children[0].dockDrop(true)
     }
     //-----------------------------------------------
   },
   ////////////////////////////////////////////////////
   watch : {
     "value" : async function(){
-      console.log("<-> watch.value")
+      //console.log("<-> watch.value")
       await this.reloadRuntime()
+      if(this.isExtended) {
+        this.$children[0].resetBoxStyle()
+        this.$nextTick(()=>{
+          this.$children[0].dockDrop()
+        })
+      }
     },
     // "inputing" : function(newVal, oldVal){
     //   console.log("-- inputing: ", {newVal, oldVal})
@@ -301,12 +291,14 @@ export default {
     // reload by static array
     await this.reloadRuntime()
 
+    this.listData = []
+    this.listLoaded = false,
+    this.listFocusIndex = -1,
+
     // Declare the value
-    this.debounceReloadListData = _.debounce(async (val)=>{
-      await this.reloadListData(await this.reloadListData({
-        force : this.cached,
-        val   : val
-      }))
+    this.debounceReloadListData = _.debounce(async ({val, force}, callback)=>{
+      await this.reloadListData({val, force})
+      callback()
     }, 500)
   }
   ////////////////////////////////////////////////////

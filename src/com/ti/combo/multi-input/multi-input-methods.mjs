@@ -1,6 +1,7 @@
 export default {
   //------------------------------------------------
   async reloadListData({force=false, val}={}) {
+    //console.log(".......reloadListData", {force,val})
     // Guard
     if(this.loading) {
       return
@@ -10,7 +11,7 @@ export default {
       return
     }
     // Mark Loading
-    console.log("combo-input reload begin ...")
+    //console.log("multi-input reload begin ...")
     this.loading = true
     //.......................................
     // Dynamic Load
@@ -29,48 +30,14 @@ export default {
     this.loading = false
     this.listLoaded = true
   },
-  //------------------------------------------------
-  matchItemByKey(item={}, key="value", mode="equal", val) {
-    let itemValue = item[key]
-    // find method by mode
-    let fnCall = ({
-      "equal"   : ()=>_.isEqual(itemValue, val),
-      "starts"  : ()=>_.startsWith(itemValue, val),
-      "contains": ()=>{
-        if(_.isString(itemValue)) {
-          return itemValue.indexOf(val+"") >= 0
-        }
-        _.indexOf(itemValue, val)>=0
-      },
-    })[mode]
-    // Do the invoking
-    if(_.isFunction(fnCall)) {
-      return fnCall()
-    }
-    return false
-  },
-  //------------------------------------------------
-  findItemInList(str, {
-    list = this.theListData, 
-    matchText  = this.matchText,
-    matchValue = this.matchValue
-  }={}) {
-    if(_.isArray(list) && !_.isEmpty(list)) {
-      for(let li of list) {
-        if(this.matchItemByKey(li, "value", matchValue, str)) {
-          return li
-        }
-        if(this.matchItemByKey(li, "text", matchText, str)) {
-          return li
-        }
-      }
-    }
-    return null
-  },
   //-----------------------------------------------
-  async checkItemValue(str, vals=this.runtimeValues) {
+  async checkItemValue(str) {
     // Try to found the item in loaded listData
-    let it = this.findItemInList(str)
+    let it = this.findItemInList(str, {
+      list : this.theListData,
+      matchValue : this.matchValue,
+      matchText  : this.matchText,
+    })
     // If found, apply the value
     if(it) {
       return it.value
@@ -81,14 +48,19 @@ export default {
       it = await this.getItemBy(str)
       this.loading = false
       if(it) {
-        return it.value
+        let it2 = Ti.Util.mapping(it, this.mapping)
+        return it2.value
       }
     }
 
     // If still no found, try reloadData and find again
     if(!it && !this.listLoaded) {
-      await this.reloadListData({val:vals})
-      it = this.findItemInList(str)
+      await this.reloadListData()
+      it = this.findItemInList(str, {
+        list : this.theListData,
+        matchValue : this.matchValue,
+        matchText  : this.matchText,
+      })
       if(it) {
         return it.value
       }
@@ -101,13 +73,18 @@ export default {
   },
   //------------------------------------------------
   async reloadRuntime(vals=this.valueInArray) {
+    //console.log("reloadRuntime:", vals)
     //.......................................
     let values = _.concat(vals)
+    if(this.valueUnique) {
+      values = _.uniq(values)
+    }
     //.......................................
     let items = []
     for(let v of values) {
       // Try to load from listData
       let it = this.findItemInList(v, {
+        list : this.theListData,
         matchValue : "equal",
         matchText  : "off",
       })
@@ -121,8 +98,9 @@ export default {
 
       // If still no found, try reloadData and find again
       if(!it && !this.listLoaded) {
-        await this.reloadListData({val:vals})
+        await this.reloadListData()
         it = this.findItemInList(v, {
+          list : this.theListData,
           matchValue : "equal",
           matchText  : "off",
         })
@@ -146,52 +124,12 @@ export default {
       defaultIcon : this.itemIcon
     })
     //.......................................
-    if(this.mustInList) {
-      values = []
-      for(let it of this.runtimeItems) {
-        values.push(it.value)
-      }
-      this.runtimeValues = values
+    values = []
+    for(let it of this.runtimeItems) {
+      values.push(it.value)
     }
-    // Keep input values
-    else {
-      this.runtimeValues = values
-    }
+    this.runtimeValues = values
     //.......................................
-  },
-  //------------------------------------------------
-  // multi->[XX...] , single->XX
-  pickValue(input, key="value") {
-    if(_.isArray(input)) {
-      let re = []
-      for(let li of list) {
-        re.push(li[key])
-      }
-      return re
-    }
-    // Single
-    else if(!Ti.Util.isNil(input)) {
-      return input[key]
-    }
-  },
-  //------------------------------------------------
-  fallbackValueInArray(...args) {
-    for(let arg of args) {
-      // Ignore Nil
-      if(Ti.Util.isNil(arg)) {
-        continue
-      }
-      // Force to Array
-      return _.concat(arg)
-    }
-    return []
-  },
-  //------------------------------------------------
-  normalizeValueByArray(list=[]) {
-    if(this.multi) {
-      return list
-    }
-    return _.first(list)
   }
   //------------------------------------------------
 }

@@ -107,24 +107,30 @@ export default {
         //..........................................
       }
       //............................................
-      // Cancel box position fixed
-      else {
-        // Recover the $el width/height
-        Ti.Dom.setStyle(this.$el, {width: "", height: ""})
-        // Recover the $box width/height
-        _.assign(this.box, {
-          position:null, top:null, left:null, 
-          width: this.width, height: this.height
-        })
-      }
-      //............................................
+    },
+    //------------------------------------------------
+    resetBoxStyle() {
+      // Recover the $el width/height
+      Ti.Dom.setStyle(this.$el, {width: "", height: ""})
+      // Recover the $box width/height
+      _.assign(this.box, {
+        position:null, top:null, left:null, 
+        width: this.width, height: this.height
+      })
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   watch : {
-    "status" : function(){
-      this.$nextTick(()=>this.dockDrop())
+    "status" : function(sta){
+      this.$nextTick(()=>{
+        // If collapse, it should clean the box styles
+        if("collapse" == sta) {
+          this.resetBoxStyle()
+        }
+        // try docking
+        this.dockDrop()
+      })
     }
   },
   ////////////////////////////////////////////////////

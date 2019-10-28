@@ -12,6 +12,10 @@ export default {
       default : null
     },
     "value" : null,
+    "inputing" : {
+      type : String,
+      default : null
+    },
     "valueCase" : {
       type : String,
       default : null,
@@ -76,8 +80,7 @@ export default {
     },
     //------------------------------------------------
     theInputValue() {
-      //console.log("input value:", this.value)
-      //return Ti.Types.toStr(this.value, this.format)
+      return Ti.S.toCase(this.inputing, this.valueCase)
     },
     //------------------------------------------------
     /***

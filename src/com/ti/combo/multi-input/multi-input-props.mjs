@@ -17,6 +17,10 @@ export default {
     default : null,
     validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
   },
+  "valueUnique" : {
+    type : Boolean,
+    default : true
+  },
   "valueAsTip" : {
     type : Boolean,
     default : true
@@ -29,7 +33,7 @@ export default {
     type : [Number, String],
     default : null
   },
-  "height" : {
+  "inputHeight" : {
     type : [Number, String],
     default : null
   },
@@ -45,13 +49,17 @@ export default {
     type : Function,
     default : null
   },
-  "query" : {
-    type : Object,
-    default : ()=>({})
-  },
   "options" : {
     type : [Array, Function],
     default : ()=>[]
+  },
+  "queryWhenInput" : {
+    type : Boolean,
+    default : false
+  },
+  "reloadWhenChanged" : {
+    type : Number,
+    default : 0
   },
   "mapping" : {
     type : Object,
@@ -94,11 +102,11 @@ export default {
   },
   "mustInList" : {
     type : Boolean,
-    default : false
+    default : true
   },
   "cached" : {
     type : Boolean,
-    default : false
+    default : true
   },
   "autoFocusExtended" : {
     type : Boolean,

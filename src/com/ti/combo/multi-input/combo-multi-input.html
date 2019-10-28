@@ -1,6 +1,7 @@
 <ti-combo-box :class="topClass"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
+  :height="null"
   :status="status"
   @collapse="doCollapse">
   <!--
@@ -11,14 +12,15 @@
       :placeholder="placeholder"
       :suffix-icon="theStatusIcon"
       :value="theInputValue"
+      :inputing="inputing"
       :value-case="valueCase"
       :width="width"
-      :input-height="height"
+      :input-height="inputHeight"
       :tag-icon="itemIcon"
       :highlight="isExtended"
       @inputing="onInputing"
       @keypress="onInputKeyPress"
-      @changed="onListChanged"
+      @changed="onInputChanged"
       @focused="onInputFocused"
       @blurred="onInputBlurred"
       @suffix:icon="onClickStatusIcon"/>
@@ -35,6 +37,6 @@
       :height="dropHeight"
       :default-icon="itemIcon"
       :value-as-tip="valueAsTip"
-      @changed="onListChanged"/>
+      @toggle="doToggleListItem"/>
   </template>
 </ti-combo-box>

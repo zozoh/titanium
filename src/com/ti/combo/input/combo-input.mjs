@@ -57,7 +57,7 @@ export default {
     },
     //------------------------------------------------
     theInputValue() {
-      console.log("!!<eval>:theBoxValue")
+      //console.log("!!<eval>:theBoxValue")
       //........................................
       // Inputing just return
       if(this.isExtended && !Ti.Util.isNil(this.inputing)) {
@@ -85,8 +85,9 @@ export default {
       //await this.setRuntimeBy(val ? [val] : [])
       this.inputing = val
       this.listFocusIndex = -1
-      await this.debounceReloadListData({val, force:true})
-      this.doExtend()
+      await this.debounceReloadListData({val, force:true}, ()=>{
+        this.doExtend()
+      })
     },
     //------------------------------------------------
     async onInputKeyPress({uniqueKey}={}) {
@@ -217,7 +218,6 @@ export default {
     },
     //-----------------------------------------------
     async doExtend({force=false, val}={}) {
-      //await this.reloadRuntime()
       this.status = "extended"
     },
     //-----------------------------------------------
@@ -231,23 +231,21 @@ export default {
   ////////////////////////////////////////////////////
   watch : {
     "value" : async function(){
-      console.log("<-> watch.value")
-      await this.reloadRuntime(this.theValue)
+      //console.log("<-> watch.value")
+      await this.reloadRuntime()
     }
   },
   ////////////////////////////////////////////////////
   mounted : async function(){
     // Init the box
     // reload by static array
-    await this.reloadRuntime(this.theValue)
+    await this.reloadRuntime()
 
     // Declare the value
-    this.debounceReloadListData = _.debounce(async (val)=>{
-      await this.reloadListData(await this.reloadListData({
-        force : !this.cached,
-        val   : val
-      }))
-    }, 500)
+    this.debounceReloadListData = _.debounce(async ({val, force}, callback)=>{
+      await this.reloadListData({val, force})
+      callback()
+    },500)
   }
   ////////////////////////////////////////////////////
 }

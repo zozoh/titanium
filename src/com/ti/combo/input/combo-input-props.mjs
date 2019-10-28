@@ -102,7 +102,7 @@ export default {
   },
   "cached" : {
     type : Boolean,
-    default : false
+    default : true
   },
   "autoFocusExtended" : {
     type : Boolean,

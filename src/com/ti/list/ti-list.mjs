@@ -163,6 +163,9 @@ export default {
               vals.push(it.value)
             }
           })
+          // Notify the list-item
+          let li = _.nth(this.formedList, index)
+          this.$emit("toggle", li)
         }
         // Emit the value
         this.$emit("changed", vals)
@@ -170,6 +173,7 @@ export default {
       // Single mode
       else {
         let it = this.formedList[index]
+        this.$emit("selected", it)
         this.$emit("changed", it.value)
       }
       // remember the last
