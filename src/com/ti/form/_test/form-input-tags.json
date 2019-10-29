@@ -9,7 +9,8 @@
           "comType" : "ti-input-tags",
           "comConf" : {
             "placeholder" : "请输入新标签",
-            "valueCase" : "upper"
+            "valueCase" : "upper",
+            "maxValueLen" : -3
           }
         }, {
           "title" : "下拉选择标签（文本）",
@@ -18,6 +19,7 @@
           "comType" : "ti-input-tags",
           "comConf" : {
             "placeholder" : "请输入新标签",
+            "valueCase" : "upper",
             "tagOptions" : ["A","B","C","D"]
           }
         }, {

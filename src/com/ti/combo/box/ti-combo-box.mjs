@@ -109,6 +109,13 @@ export default {
       //............................................
     },
     //------------------------------------------------
+    reDockDrop() {
+      this.resetBoxStyle()
+      this.$nextTick(()=>{
+        this.dockDrop()
+      })
+    },
+    //------------------------------------------------
     resetBoxStyle() {
       // Recover the $el width/height
       Ti.Dom.setStyle(this.$el, {width: "", height: ""})

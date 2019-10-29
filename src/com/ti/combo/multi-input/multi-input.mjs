@@ -85,8 +85,8 @@ export default {
       //console.log(uniqueKey)
       //..................................
       let fnSet = {
-        "ESCAPE" : ()=>{
-          this.doCollapse()
+        "ESCAPE" : async ()=>{
+          await this.doCollapse(true)
         },
         "BACKSPACE" : ()=>{
           if(Ti.Util.isNil(this.inputing)) {
@@ -142,24 +142,20 @@ export default {
       if(this.loading)
         return
       vals = _.filter(_.concat(vals), (v)=>!Ti.Util.isNil(v))
-      let list = []
+      let vlist = []
       for(let v of vals) {
         let v2 = await this.checkItemValue(v)
         if(!_.isUndefined(v2)) {
-          list.push(v2)
+          vlist.push(v2)
         }
         // Free Join
         else if(!this.mustInList) {
-          list.push(v)
+          vlist.push(v)
         }
       }
-      if(this.valueUnique) {
-        list = _.uniq(list)
-      }
       // Change Value
-      this.$emit("changed", list)
+      this.notifyValueListChanged(vlist)
       // Reload Data
-      console.log(this.reloadWhenChanged)
       if(this.reloadWhenChanged>0) {
         _.delay(async ()=>{
           await this.reloadListData({force:true})
@@ -194,24 +190,40 @@ export default {
       }
     },
     //-----------------------------------------------
+    notifyValueListChanged(vlist=[]) {
+      // Tidy
+      let vlist2 = this.tidyVList(vlist)
+      // Notify the change
+      //this.$emit("changed", vlist2)
+      if(this.collapseChanged) {
+        this.reloadRuntime(vlist2).then(()=>{
+          this.doReDockDrop()
+        })
+      }
+      // Notify on-time
+      else {
+        this.$emit("changed", vlist2)
+      }
+    },
+    //-----------------------------------------------
     doPopValue(n=1) {
       // Multi Mode pop one
-      let theValue = _.slice(
+      let vlist = _.slice(
         this.runtimeValues, 0, this.runtimeValues.length - n)
-      this.$emit("changed", theValue)
+      this.notifyValueListChanged(vlist)
     },
     //-----------------------------------------------
     doRemoveValue(val) {
-      let theValue = _.filter(this.runtimeValues, (v)=>!_.isEqual(v, val))
-      this.$emit("changed", theValue)
+      let vlist = _.filter(this.runtimeValues, (v)=>!_.isEqual(v, val))
+      this.notifyValueListChanged(vlist)
     },
     //-----------------------------------------------
     async doAddBy(str) {
       let val = await this.checkItemValue(str)
       // Guard & Join
       if(!_.isUndefined(val)) {
-        let theValue = _.concat(this.runtimeValues, val)
-        this.$emit("changed", theValue)
+        let vlist  = _.concat(this.runtimeValues, val)
+        this.notifyValueListChanged(vlist)
       }
     },
     //-----------------------------------------------
@@ -241,7 +253,6 @@ export default {
         await this.doAddBy(str)
       }
       // Clean inputing
-      this.listFocusIndex = -1
       this.inputing = ""
       // Reload the main list
       // I have to moved the calling to the end of stack,
@@ -256,16 +267,34 @@ export default {
     //-----------------------------------------------
     async doExtend({force=false, val}={}) {
       this.status = "extended"
+      // Watch Keyboard
+      Ti.Shortcut.addWatch(this, [{
+        "shortcut" : "ESCAPE",
+        "action"   : ()=>this.doCollapse(true)
+      }, {
+        "shortcut" : "ENTER",
+        "action"   : ()=>this.doCollapse(false)
+      }])
     },
     //-----------------------------------------------
-    doCollapse() {
+    async doCollapse(resetValue=false) {
+      if(resetValue) {
+        await this.reloadRuntime(this.valueInArray)
+      }
       this.status = "collapse"
       this.listFocusIndex = -1
       this.inputing = null
+      // Notify Chagne If necessary
+      if(!_.isEqual(this.valueInArray, this.runtimeValues)) {
+        console.log("chagned!")
+        this.$emit("changed", this.runtimeValues)
+      }
+      // Unwatch
+      Ti.Shortcut.removeWatch(this)
     },
     //-----------------------------------------------
-    doDockDrop() {
-      this.$children[0].dockDrop(true)
+    doReDockDrop() {
+      this.$children[0].reDockDrop()
     }
     //-----------------------------------------------
   },
@@ -300,6 +329,11 @@ export default {
       await this.reloadListData({val, force})
       callback()
     }, 500)
+  },
+  ////////////////////////////////////////////////////
+  beforeDestroy: function() {
+    // Unwatch
+    Ti.Shortcut.removeWatch(this)
   }
   ////////////////////////////////////////////////////
 }

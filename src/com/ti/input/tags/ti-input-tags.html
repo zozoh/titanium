@@ -16,17 +16,15 @@
   -->
   <div class="as-input">
     <!--Input-->
-    <input ref="input"
-      spellcheck="false" 
-      :style="inputHeight"
+    <input ref="input" spellcheck="false" :style="inputStyle"
       :value="theInputValue"
       :placeholder="placeholder"
       @click.stop
       @compositionstart="onInputCompositionStart"
       @compositionend="onInputCompositionEnd"
       @input="onInputing"
-      @keydown="onInputKeyDown"
-      @change="onInputChanged"
+      @keydown.stop="onInputKeyDown"
+      @changed="onInputChanged"
       @focus="onInputFocus"
       @blur="onInputBlur">
     <!--Status Icon-->

@@ -29,14 +29,33 @@ export default {
       type : Boolean,
       default : true
     },
+    // +1 from the begin
+    // -1 from the last
+    "maxValueLen" : {
+      type : Number,
+      default : 0
+    },
+    "valueUnique" : {
+      type : Boolean,
+      default : true
+    },
     // the whole top-box width
     "width" : {
+      type : [Number, String],
+      default : null
+    },
+    "inputWidth" : {
       type : [Number, String],
       default : null
     },
     "inputHeight" : {
       type : [Number, String],
       default : null
+    },
+    // If true, blur->changed willl be auto-apply as changed
+    "autoApplyBlurChanged" : {
+      type : Boolean,
+      default : false
     },
     "highlight" : {
       type : Boolean,
@@ -75,6 +94,7 @@ export default {
     //------------------------------------------------
     inputStyle(){
       return Ti.Css.toStyle({
+        width  : this.inputWidth,
         height : this.inputHeight
       })
     },
@@ -108,9 +128,20 @@ export default {
         }
         // String or simple value
         else {
+          // try to find text in options
+          let icon = this.tagIcon
+          let text = li
+          if(_.isArray(this.tagOptions)) {
+            for(let to of this.tagOptions) {
+              if(_.isEqual(li, to.value)) {
+                icon = to.icon || this.tagIcon
+                text = to.text || li
+              }
+            }
+          }
+          // Join to list
           tags.push({
-            icon  : this.tagIcon,
-            text  : Ti.Types.toStr(li),
+            icon, text,
             value : li,
             options : this.tagOptions
           })
@@ -161,6 +192,25 @@ export default {
         this.$emit(emitName, val)
       }
     },
+    //-----------------------------------------------
+    tidyVList(vlist=[]) {
+      let vlist2 = vlist
+      // Unique Values
+      if(this.valueUnique) {
+        vlist2 = _.uniq(vlist)
+      }
+      // Slice from begin
+      if(this.maxValueLen > 0) {
+        return _.slice(vlist2, 0, this.maxValueLen)
+      }
+      // Slice from the end
+      if(this.maxValueLen < 0) {
+        let offset = Math.max(0, vlist2.length + this.maxValueLen)
+        return _.slice(vlist2, offset)
+      }
+      // Then return
+      return vlist2
+    },
     //------------------------------------------------
     onInputKeyDown($event) {
       let payload = _.pick($event, 
@@ -172,19 +222,25 @@ export default {
     },
     //------------------------------------------------
     onInputChanged($event) {
+      // Guard
+      if(!this.autoApplyBlurChanged) {
+        return
+      }
+      console.log("changed!")
       let $in = $event.target
       if(_.isElement($in)) {
         let val = _.trim($in.value)
         let ss  = _.split(val, /[ ,;\t]+/)
         let s2  = _.remove(ss, (v)=>!v)
-        let values = _.concat(this.theTagValues, ss)
+        let vlist = _.concat(this.theTagValues, ss)
         let caseFn = Ti.S.getCaseFunc(this.valueCase)
         if(_.isFunction(caseFn)) {
-          for(let i=0; i<values.length; i++) {
-            values[i] = caseFn(values[i])
+          for(let i=0; i<vlist.length; i++) {
+            vlist[i] = caseFn(vlist[i])
           }
         }
-        this.$emit("changed", values)
+        let vlist2 = this.tidyVList(vlist)
+        this.$emit("changed", vlist2)
       }
     },
     //------------------------------------------------
@@ -198,8 +254,9 @@ export default {
       this.$emit("blurred")
     },
     //------------------------------------------------
-    onTagChanged(vals=[]) {
-      this.$emit("changed", vals)
+    onTagChanged(vlist=[]) {
+      let vlist2 = this.tidyVList(vlist)
+        this.$emit("changed", vlist2)
     },
     //------------------------------------------------
     onClickSuffixIcon() {

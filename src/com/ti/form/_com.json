@@ -9,7 +9,6 @@
     "@com:ti/box",
     "@com:ti/input",
     "@com:ti/input/num",
-    "@com:ti/input/list",
     "@com:ti/input/tags",
     "@com:ti/input/color",
     "@com:ti/input/date",

@@ -85,9 +85,11 @@ export default {
       //await this.setRuntimeBy(val ? [val] : [])
       this.inputing = val
       this.listFocusIndex = -1
-      await this.debounceReloadListData({val, force:true}, ()=>{
-        this.doExtend()
-      })
+      if(this.queryWhenInput) {
+        await this.debounceReloadListData({val, force:true}, ()=>{
+          this.doExtend()
+        })
+      }
     },
     //------------------------------------------------
     async onInputKeyPress({uniqueKey}={}) {

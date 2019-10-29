@@ -72,6 +72,9 @@ export class OneTiApp {
     vm[TI_APP] = this
     this.$vm(vm)
 
+    // Reset Watch
+    Ti.Shortcut.watch(this)
+
     // return self for chained operation
     return this
   }
@@ -235,7 +238,7 @@ export class OneTiApp {
     Vue.component(comName, setup.options)
 
     // watch the shortcut
-    Ti.Shortcut.watch(this, view.actions)
+    //Ti.Shortcut.watch(this, view.actions)
     
     return {
       ...view,

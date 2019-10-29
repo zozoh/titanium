@@ -16,6 +16,9 @@ function AJAX_RETURN(reo, invalid) {
 }
 ////////////////////////////////////////////
 export const WnIo = {
+  isFullObjId(id) {
+    return /^[0-9a-v]{26}$/.test(id)
+  },
   /***
    * Get object meta by id
    */

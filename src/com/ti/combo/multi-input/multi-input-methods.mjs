@@ -1,4 +1,23 @@
 export default {
+  //-----------------------------------------------
+  tidyVList(vlist=[]) {
+    let vlist2 = vlist
+    // Unique Values
+    if(this.valueUnique) {
+      vlist2 = _.uniq(vlist)
+    }
+    // Slice from begin
+    if(this.maxValueLen > 0) {
+      return _.slice(vlist2, 0, this.maxValueLen)
+    }
+    // Slice from the end
+    if(this.maxValueLen < 0) {
+      let offset = Math.max(0, vlist2.length + this.maxValueLen)
+      return _.slice(vlist2, offset)
+    }
+    // Then return
+    return vlist2
+  },
   //------------------------------------------------
   async reloadListData({force=false, val}={}) {
     //console.log(".......reloadListData", {force,val})
@@ -73,12 +92,9 @@ export default {
   },
   //------------------------------------------------
   async reloadRuntime(vals=this.valueInArray) {
-    //console.log("reloadRuntime:", vals)
+    //console.log("-->reloadRuntime:", vals)
     //.......................................
-    let values = _.concat(vals)
-    if(this.valueUnique) {
-      values = _.uniq(values)
-    }
+    let values = this.tidyVList(vals)
     //.......................................
     let items = []
     for(let v of values) {
@@ -94,6 +110,9 @@ export default {
         this.loading = true
         it = await this.getItemBy(v)
         this.loading = false
+        if(it) {
+          it = Ti.Util.mapping(it, this.mapping)
+        }
       }
 
       // If still no found, try reloadData and find again
@@ -120,7 +139,6 @@ export default {
     }
     //.......................................
     this.runtimeItems = this.normalizeData(items, {
-      mapping : this.mapping,
       defaultIcon : this.itemIcon
     })
     //.......................................
@@ -130,6 +148,7 @@ export default {
     }
     this.runtimeValues = values
     //.......................................
+    // console.log("<--reloadRuntime:", values)
   }
   //------------------------------------------------
 }

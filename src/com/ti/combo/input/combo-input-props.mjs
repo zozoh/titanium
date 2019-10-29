@@ -45,13 +45,13 @@ export default {
     type : Function,
     default : null
   },
-  "query" : {
-    type : Object,
-    default : ()=>({})
-  },
   "options" : {
     type : [Array, Function],
     default : ()=>[]
+  },
+  "queryWhenInput" : {
+    type : Boolean,
+    default : false
   },
   "mapping" : {
     type : Object,

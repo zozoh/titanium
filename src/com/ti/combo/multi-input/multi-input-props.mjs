@@ -8,14 +8,16 @@ export default {
     default : true
   },
   "value" : null,
-  "format" : {
-    type : [String, Array, Object],
-    default : undefined
-  },
   "valueCase" : {
     type : String,
     default : null,
     validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
+  },
+  // +1 from the begin
+  // -1 from the last
+  "maxValueLen" : {
+    type : Number,
+    default : 0
   },
   "valueUnique" : {
     type : Boolean,
@@ -30,6 +32,10 @@ export default {
     default : null
   },
   "width" : {
+    type : [Number, String],
+    default : null
+  },
+  "inputWidth" : {
     type : [Number, String],
     default : null
   },
@@ -105,6 +111,10 @@ export default {
     default : true
   },
   "cached" : {
+    type : Boolean,
+    default : true
+  },
+  "collapseChanged" : {
     type : Boolean,
     default : true
   },

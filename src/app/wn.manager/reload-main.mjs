@@ -7,6 +7,11 @@ export default async function reloadMain(meta) {
   vm.reloading = true
   vm.mainActions = []
 
+  // Release Watch
+  if(vm.mainView) {
+    Ti.Shortcut.removeWatch(vm.mainView)
+  }
+
   // default meta
   if(!meta) {
     mata = vm.obj.meta
@@ -84,6 +89,11 @@ export default async function reloadMain(meta) {
     }
     // switch to main component
     vm.mainView = view
+
+    // Add Shortcut watching
+    if(_.isArray(view.actions)) {
+      Ti.Shortcut.addWatch(vm.mainView, view.actions)
+    }
     
     // call main reload
     await $app.dispatch("main/reload", meta)

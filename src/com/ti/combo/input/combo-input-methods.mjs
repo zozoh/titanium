@@ -47,7 +47,7 @@ export default {
       it = await this.getItemBy(str)
       this.loading = false
       if(it) {
-        let it2 = Ti.Util.mapping(iy, this.mapping)
+        let it2 = Ti.Util.mapping(it, this.mapping)
         return it2.value
       }
     }

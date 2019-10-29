@@ -3,17 +3,20 @@ class Shortcut {
   constructor(){
     this.reset()
   }
-  watch($app, actions) {
-    this.reset($app).addWatch(actions)
+  watch($app, actions=[]) {
+    this.reset($app).addWatch($app, actions)
   }
   reset($app=null) {
+    console.log("reset watch")
     this.$app = $app
     this.actions = {}
     this.guards = {}
     return this
   }
-  addWatch(actions) {
-    _.forOwn(actions, (aIt)=>{
+  addWatch(scope, actions=[]) {
+    scope = scope || this.$app
+    let as = _.without(_.concat(actions),null)
+    _.forEach(as, (aIt)=>{
       // Groups, recur ...
       if('group' == aIt.type 
          && _.isArray(aIt.items)
@@ -22,11 +25,69 @@ class Shortcut {
       }
       // Action
       else if(aIt.action && aIt.shortcut) {
-        this.actions[aIt.shortcut] = this.bind(aIt.action)
+        // Guarding for duplicated watching
+        if(this.isWatched(scope, aIt.shortcut)) {
+          return
+        }
+        //this.actions[aIt.shortcut] = this.bind(aIt.action)
+        Ti.Util.pushValue(this.actions, aIt.shortcut, {
+          scope,
+          func : this.bind(aIt.action)
+        })
       }
     })
   }
+  isWatched(scope, shortcutKey) {
+    scope = scope || this.$app
+    let as = this.actions[shortcutKey]
+    if(_.isArray(as)) {
+      for(let a of as) {
+        if(a.scope === scope) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+  removeWatch(scope, shortcutKeys=[]) {
+    scope = scope || this.$app
+    // Remove All
+    let keys = shortcutKeys
+    if(_.isEmpty(keys)) {
+      keys = _.keys(this.actions)
+    }
+    // Remove in loop
+    for(let k of keys) {
+      let as = this.actions[k]
+      if(_.isArray(as)) {
+        // Repare the new watch list
+        let as2 = []
+        for(let a of as) {
+          if(a.scope === scope) {
+            // Do Nothing to remove it
+          }
+          // Pick back
+          else {
+            as2.push(a)
+          }
+        }
+        // Clear 
+        if(_.isEmpty(as2)) {
+          delete this.actions[k]
+        }
+        // Or Reset
+        else {
+          this.actions[k] = as2
+        }
+      }
+    }
+  }
   bind(action) {
+    // Command in Function
+    if(_.isFunction(action)) {
+      return action
+    }
+    // Command In String
     let m = /^([a-zA-Z0-9_]+):([^()]+)(\((.+)\))?$/.exec(action)
     if(m) {
       let func = this.$app[m[1]]
@@ -79,19 +140,25 @@ class Shortcut {
    */
   fire(uniqKey) {
     // fire the action
-    let func = this.actions[uniqKey]
-    if(_.isFunction(func)) {
-      // ask guard firstly
-      let guard = this.guards[uniqKey]
-
-      // invoke the action
-      if(!_.isFunction(guard) || guard()){
-        func()
-      }
-      
-      return true
+    let as = this.actions[uniqKey]
+    // Guard
+    if(!_.isArray(as) || _.isEmpty(as)) {
+      return false
     }
-    return false
+    // Invoking function list
+    _.forEach(as, ({func})=>{
+      if(_.isFunction(func)) {
+        // ask guard firstly
+        let guard = this.guards[uniqKey]
+
+        // invoke the action
+        if(!_.isFunction(guard) || guard()){
+          func()
+        }
+      }
+    })
+    // All done    
+    return true
   }
   /***
    * Get uniquekey for a keyboard event object
