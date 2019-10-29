@@ -7,7 +7,6 @@ class Shortcut {
     this.reset($app).addWatch($app, actions)
   }
   reset($app=null) {
-    console.log("reset watch")
     this.$app = $app
     this.actions = {}
     this.guards = {}

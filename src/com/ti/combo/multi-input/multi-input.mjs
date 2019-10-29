@@ -286,7 +286,6 @@ export default {
       this.inputing = null
       // Notify Chagne If necessary
       if(!_.isEqual(this.valueInArray, this.runtimeValues)) {
-        console.log("chagned!")
         this.$emit("changed", this.runtimeValues)
       }
       // Unwatch
