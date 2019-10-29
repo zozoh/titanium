@@ -15,7 +15,7 @@
     &:first-child {border-top:0;}
     //--------------------------------------------
     &.is-focused {
-      //@include color($color-selected, r, c);
+      @include color($color-selected, null, c);
       &::before {
         @include pos-abs($t:12px,$b:12px,$l:4px,$w:1px);
         display:block; content:"";

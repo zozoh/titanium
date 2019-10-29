@@ -3,7 +3,8 @@ export default {
   ////////////////////////////////////////////////////
   data : ()=>({
     "inputCompositionstart" : false,
-    "focused" : false
+    "focused" : false,
+    "pointerHoverPrefixIcon" : false
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -12,6 +13,10 @@ export default {
     "format" : {
       type : [String, Array, Object],
       default : undefined
+    },
+    "readonly" : {
+      type: Boolean,
+      default : false
     },
     "valueCase" : {
       type : String,
@@ -33,6 +38,10 @@ export default {
     "height" : {
       type : [Number, String],
       default : null
+    },
+    "prefixHoverIcon" : {
+      type : String,
+      default : "zmdi-close-circle"
     },
     "prefixIcon" : {
       type : String,
@@ -56,7 +65,7 @@ export default {
     },
     "hover" : {
       type : [Array, String],
-      default : "suffixIcon"
+      default : ()=>["prefixIcon", "suffixIcon"]
     },
     "autoSelect" : {
       type : Boolean,
@@ -71,6 +80,7 @@ export default {
         "is-focused"   : this.focused,
         "is-blurred"   : !this.focused,
         "is-highlight" : this.highlight,
+        "is-readonly"  : this.readonly,
         "has-prefix-icon" : this.prefixIcon,
         "has-prefix-text" : this.prefixText,
         "has-suffix-icon" : this.suffixIcon,
@@ -88,6 +98,13 @@ export default {
     theValue() {
       //console.log("input value:", this.value)
       return Ti.Types.toStr(this.value, this.format)
+    },
+    //------------------------------------------------
+    thePrefixIcon() {
+      if(this.pointerHoverPrefixIcon) {
+        return this.prefixHoverIcon || this.prefixIcon
+      }
+      return this.prefixIcon
     },
     //------------------------------------------------
     theHover() {
@@ -152,7 +169,7 @@ export default {
     },
     //------------------------------------------------
     onInputFocus() {
-      if(this.autoSelect) {
+      if(this.autoSelect && !this.readonly) {
         this.$refs.input.select()
       }
       this.focused = true
@@ -165,6 +182,8 @@ export default {
     },
     //------------------------------------------------
     onClickPrefixIcon() {
+      console.log("hah")
+      this.$emit("changed", null)
       this.$emit("prefix:icon")
     },
     //------------------------------------------------

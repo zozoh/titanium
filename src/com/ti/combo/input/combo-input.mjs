@@ -214,7 +214,7 @@ export default {
         }
       }
       // Then Clearn the value
-      else if("" === str){
+      else {
         this.$emit("changed", null)
       }
     },

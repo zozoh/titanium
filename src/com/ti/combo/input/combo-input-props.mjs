@@ -3,7 +3,7 @@ export default {
     type : String,
     default : null
   },
-  "editable" : {
+  "canInput" : {
     type : Boolean,
     default : true
   },

@@ -36,8 +36,20 @@
     background:transparent;
     color:inherit;
   }
+  &.is-readonly {
+    > input:read-only {cursor:inherit; @include noselect;}
+  }
   //-----------------------------------------
-  > .as-suffix-icon {
+  > .as-icon.at-prefix {
+    > .ti-icon {transition: 0.5s;}
+    &.can-hover:hover {
+      .ti-icon {
+        transform:scale(1.1) rotate(180deg);
+      }
+    }
+  }
+  //-----------------------------------------
+  > .as-icon.at-suffix {
     @include flex-center;
     cursor: pointer;
     flex:0 0 auto;
@@ -45,11 +57,11 @@
   }
   //-----------------------------------------
   &.has-prefix-icon {
-    > input {padding-left:0;}
+    > input {padding-left:.04rem;}
   }
   //-----------------------------------------
   &.has-suffix-icon {
-    > input {padding-right:0;}
+    > input {padding-right:.04rem;}
   }
   //-----------------------------------------
 }

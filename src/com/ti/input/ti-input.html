@@ -3,8 +3,10 @@
   <div v-if="prefixIcon"
     class="as-icon at-prefix"
     :class="getHoverClass('prefixIcon')"
-    @click.left="onClickPrefixIcon">
-    <ti-icon :value="prefixIcon"/>
+    @click.left="onClickPrefixIcon"
+    @mouseenter="pointerHoverPrefixIcon=true"
+    @mouseleave="pointerHoverPrefixIcon=false">
+    <ti-icon :value="thePrefixIcon"/>
   </div>
   <!--prefix:text-->
   <div v-if="prefixText" 
@@ -16,6 +18,7 @@
   <!--input-->
   <input ref="input"
     spellcheck="false" 
+    :readonly="readonly"
     :value="theValue"
     :placeholder="placeholder"
     @click.stop

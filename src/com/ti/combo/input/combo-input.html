@@ -8,6 +8,7 @@
   -->
   <template v-slot:box>
     <ti-input 
+      :readonly="!canInput"
       :placeholder="placeholder"
       :prefix-icon="theBoxPrefixIcon"
       :suffix-icon="theStatusIcon"
