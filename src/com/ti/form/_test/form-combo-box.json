@@ -3,18 +3,15 @@
   "comConf" : {
     "__config" : {
       "fields" : [{
-        "title" : "动态单选组合下拉框",
-        "name"  : "f5",
-        "type"  : "String",
-        "comType" : "ti-combo-input",
+        "title" : "动态多选下拉框",
+        "name"  : "f7",
+        "type"  : "Array",
+        "comType" : "ti-combo-multi-input",
         "comConf" : {
-          "placeholder" : "请选择文件",
-          "cached" : true,
-          "mustInList" : true,
-          "valueAsTip" : true,
+          "placeholder" : "请输入",
+          "itemIcon" : "zmdi-reddit",
+          "maxValueLen" : -3,
           "canInput" : false,
-          "matchText" : "contains",
-          "itemIcon" : "zmdi-flattr",
           "getItemBy" : {
             "method" : "Wn.Dict.get",
             "args" : ["tmp"]
@@ -26,6 +23,7 @@
           "mapping" : {
             "icon"  : "icon",
             "text"  : "nm",
+            "tip"   : "title",
             "value" : "id"
           }
         }
@@ -33,7 +31,7 @@
     },
     "config" : {
       "fields" : [{
-        "title" : "静态单选组合输入框",
+        "title" : "静态单选输入框",
           "name"  : "f0",
           "type"  : "String",
           "comType" : "ti-combo-input",
@@ -51,7 +49,7 @@
               {"value":"E", "text":"戊类"}]
           }
         }, {
-          "title" : "动态单选组合输入框",
+          "title" : "动态单选输入框",
           "name"  : "f1",
           "type"  : "String",
           "comType" : "ti-combo-input",
@@ -59,7 +57,7 @@
             "placeholder" : "请选择文件",
             "cached" : true,
             "mustInList" : true,
-            "valueAsTip" : true,
+            "defaultTipKey" : "id",
             "matchText" : "contains",
             "itemIcon" : "zmdi-flattr",
             "getItemBy" : {
@@ -77,7 +75,7 @@
             }
           }
         }, {
-          "title" : "静态多选组合输入框",
+          "title" : "静态多选输入框",
           "name"  : "f2",
           "type"  : "Array",
           "comType" : "ti-combo-multi-input",
@@ -97,7 +95,7 @@
               {"value":"EEE", "text":"戊类"}]
           }
         }, {
-          "title" : "动态多选组合输入框",
+          "title" : "动态多选输入框",
           "name"  : "f3",
           "type"  : "Array",
           "comType" : "ti-combo-multi-input",
@@ -126,7 +124,7 @@
             }
           }
       }, {
-        "title" : "静态单选组合下拉框",
+        "title" : "静态单选下拉框",
           "name"  : "f4",
           "type"  : "String",
           "comType" : "ti-combo-input",
@@ -143,7 +141,7 @@
               {"value":"E", "text":"戊类"}]
           }
         }, {
-          "title" : "动态单选组合下拉框",
+          "title" : "动态单选下拉框",
           "name"  : "f5",
           "type"  : "String",
           "comType" : "ti-combo-input",
@@ -151,7 +149,7 @@
             "placeholder" : "请选择文件",
             "cached" : false,
             "mustInList" : true,
-            "valueAsTip" : true,
+            "defaultTipKey" : "id",
             "canInput" : false,
             "matchText" : "contains",
             "itemIcon" : "zmdi-flattr",
@@ -166,6 +164,48 @@
             "mapping" : {
               "icon"  : "icon",
               "text"  : "nm",
+              "value" : "id"
+            }
+          }
+        }, {
+          "title" : "静态多选下拉框",
+          "name"  : "f6",
+          "type"  : "Array",
+          "comType" : "ti-combo-multi-input",
+          "comConf" : {
+            "placeholder" : "请输入类型",
+            "itemIcon" : "zmdi-reddit",
+            "canInput" : false,
+            "maxValueLen" : -4,
+            "options" : [
+              {"value":"AAA", "text":"甲类"},
+              {"value":"BBB", "text":"乙类"},
+              {"value":"CCC", "text":"丙类"},
+              {"value":"DDD", "text":"丁类"},
+              {"value":"EEE", "text":"戊类"}]
+          }
+        }, {
+          "title" : "动态多选下拉框",
+          "name"  : "f7",
+          "type"  : "Array",
+          "comType" : "ti-combo-multi-input",
+          "comConf" : {
+            "placeholder" : "请输入",
+            "itemIcon" : "zmdi-reddit",
+            "maxValueLen" : -3,
+            "canInput" : false,
+            "getItemBy" : {
+              "method" : "Wn.Dict.get",
+              "args" : ["tmp"]
+            },
+            "options" : {
+              "method" : "Wn.Io.findListInBy",
+              "args"   : ["~"]
+            },
+            "mapping" : {
+              "icon"  : "icon",
+              "text"  : "nm",
+              "tip"   : "title",
               "value" : "id"
             }
           }

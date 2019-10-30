@@ -65,6 +65,10 @@ export default {
       type : String,
       default : null
     },
+    "cancelBubble" : {
+      type : Boolean,
+      default : true
+    },
     "removeIcon" : {
       type : String,
       default : null
@@ -176,6 +180,18 @@ export default {
         index: this.index
       })
       this.closeDrop()
+    },
+    //------------------------------------------------
+    onClickTop($event) {
+      // Show Drop Down
+      if(this.hasOptions) {
+        $event.stopPropagation()
+        this.openDrop()
+      }
+      // Stop Bubble Up
+      else if(this.cancelBubble) {
+        $event.stopPropagation()
+      }
     },
     //------------------------------------------------
     openDrop() {

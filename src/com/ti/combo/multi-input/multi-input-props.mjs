@@ -3,7 +3,7 @@ export default {
     type : String,
     default : null
   },
-  "editable" : {
+  "canInput" : {
     type : Boolean,
     default : true
   },
@@ -23,9 +23,9 @@ export default {
     type : Boolean,
     default : true
   },
-  "valueAsTip" : {
-    type : Boolean,
-    default : true
+  "defaultTipKey" : {
+    type : String,
+    default : null
   },
   "placeholder" : {
     type : [String, Number],
@@ -109,6 +109,10 @@ export default {
   "mustInList" : {
     type : Boolean,
     default : true
+  },
+  "cancelTagBubble" : {
+    type : Boolean,
+    default : false
   },
   "cached" : {
     type : Boolean,

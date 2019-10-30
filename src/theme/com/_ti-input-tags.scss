@@ -4,7 +4,7 @@
   @include border(1px, solid, dark);
   @include color($color-input, c, r);
   //-----------------------------------------
-  &.is-focused, &.is-highlight {
+  &.is-focused {
     border-color: map-get($color-line, highlight);
   }
   //-----------------------------------------
@@ -17,8 +17,8 @@
   //-----------------------------------------
   // Input Box
   > .as-input {
-    @include flex-align-nowrap($ai:stretch);
-    flex:1 1 auto;
+    @include flex-align-nowrap($jc:flex-end, $ai:stretch);
+    flex:1 1 auto; min-height: .35rem;
     > input {
       width:1.5rem; height:.34rem;
       outline:none;

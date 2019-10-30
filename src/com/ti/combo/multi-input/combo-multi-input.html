@@ -11,6 +11,8 @@
     <ti-input-tags
       :placeholder="placeholder"
       :suffix-icon="theStatusIcon"
+      :can-input="canInput"
+      :click-to-focus="!canInput"
       :value="theInputValue"
       :inputing="inputing"
       :value-case="valueCase"
@@ -18,7 +20,8 @@
       :input-width="inputWidth"
       :input-height="inputHeight"
       :tag-icon="itemIcon"
-      :highlight="isExtended"
+      :focus="isExtended"
+      :cancel-tag-bubble="cancelTagBubble"
       @inputing="onInputing"
       @keypress="onInputKeyPress"
       @changed="onInputChanged"
@@ -36,8 +39,6 @@
       :value="theListValue"
       :focus="listFocusIndex"
       :height="dropHeight"
-      :default-icon="itemIcon"
-      :value-as-tip="valueAsTip"
       @toggle="doToggleListItem"/>
   </template>
 </ti-combo-box>

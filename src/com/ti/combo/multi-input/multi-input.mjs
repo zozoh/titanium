@@ -50,7 +50,8 @@ export default {
         value   : this.valueInArray,
         mapping : this.mapping,
         multi   : true,
-        defaultIcon : this.itemIcon
+        defaultIcon : this.itemIcon,
+        defaultTipKey : this.defaultTipKey
       })
       //console.log("computed:theListData", list)
       return list
@@ -265,7 +266,7 @@ export default {
       }
     },
     //-----------------------------------------------
-    async doExtend({force=false, val}={}) {
+    async doExtend() {
       this.status = "extended"
       // Watch Keyboard
       Ti.Shortcut.addWatch(this, [{

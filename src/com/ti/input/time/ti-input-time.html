@@ -1,16 +1,33 @@
-<ti-combo-input class="as-time"
+<ti-combo-box class="as-time"
   :class="topClass"
-  :icon="icon"
-  :text="theTimeText"
-  :placeholder="placeholder"
-  :editable="editable"
-  :focus-to-open="focusToOpen"
-  :width="width"
-  :height="height"
-  @changed="onChanged"
-  @collapse="onCollapse">
-  <ti-time
-    :value="theDropTime"
-    :height="dropHeight"
-    @changed="onTimeChanged"/>
-</ti-combo-input>
+  :drop-width="dropWidth"
+  :drop-height="dropHeight"
+  :status="status"
+  @collapse="doCollapse">
+  <!--
+    Box
+  -->
+  <template v-slot:box>
+    <ti-input 
+      :readonly="!canInput"
+      :placeholder="placeholder"
+      :prefix-icon="icon"
+      :suffix-icon="theStatusIcon"
+      :value="theTimeText"
+      :width="width"
+      :height="height"
+      :focus="isExtended"
+      @changed="onChanged"
+      @focused="onInputFocused"
+      @suffix:icon="onClickStatusIcon"/>
+  </template>
+  <!--
+    Drop
+  -->
+  <template v-slot:drop>
+    <ti-time
+      :value="theDropTime"
+      :height="dropHeight"
+      @changed="onTimeChanged"/>
+  </template>
+</ti-combo-box>

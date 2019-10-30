@@ -21,10 +21,12 @@ export default {
       default : ()=>[]
     },
     "value" : null,
-    // Make the value as item tip if tip without defined
-    "valueAsTip" : {
-      type : Boolean,
-      default : false
+    // If `tip` without defined, use this key
+    // The key should be considering as it in prop data element
+    // As we said, the `orginal data key`
+    "defaultTipKey" : {
+      type : String,
+      default : null
     },
     "focus" : {
       type : Number,
@@ -49,14 +51,6 @@ export default {
     "selectable" : {
       type : Boolean,
       default : true
-    },
-    // 0 - select current value item
-    // otherwise, it will move offset from current value item
-    // to mark the selected item
-    // !! only work in single mode 
-    "selectOffset" : {
-      type : Number,
-      default : 0
     },
     // rename items, it will pass on to slot.default
     "renameable" : {
@@ -106,8 +100,7 @@ export default {
         emptyItem   : this.empty,
         defaultIcon : this.defaultIcon,
         focusIndex  : this.focusIndex,
-        valueAsTip  : this.valueAsTip,
-        offset: this.selectOffset
+        defaultTipKey : this.defaultTipKey
       })
       return list
     },

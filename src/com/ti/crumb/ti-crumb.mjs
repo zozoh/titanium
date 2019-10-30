@@ -19,6 +19,14 @@ export default {
       type : String,
       default : null
     },
+    "cancelItemBubble" : {
+      type : Boolean,
+      default : true
+    },
+    "itemOptions" : {
+      type : Array,
+      default : ()=>[]
+    },
     "removeIcon" : {
       type : String,
       default : "zmdi-close"
@@ -49,7 +57,9 @@ export default {
     theData() {
       let list = []
       _.forEach(this.data, (val, index)=>{
-        list.push(_.assign({}, val, {index}))
+        list.push(_.assign({
+          options : this.itemOptions
+        }, val, {index}))
       })
       return list
     },

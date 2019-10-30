@@ -17,9 +17,9 @@ export default {
     default : null,
     validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
   },
-  "valueAsTip" : {
-    type : Boolean,
-    default : true
+  "defaultTipKey" : {
+    type : String,
+    default : null
   },
   "placeholder" : {
     type : [String, Number],

@@ -16,16 +16,12 @@ export default {
     mapping=null,
     defaultIcon=null,
     iteratee=null,
-    valueAsTip=false,
-    // highlight item offset from value
-    // if without matched item, 
-    // +1: the first item， 
-    // -1: the last items
-    offset=0
+    defaultTipKey=null
   }={}) {
     //console.log("normalizeData", iteratee)
     let index = 0
     let reList = []
+    //.........................................
     // Single mode, join the empty item
     if(!multi && emptyItem) {
       let emIt = _.cloneDeep(emptyItem)
@@ -38,6 +34,7 @@ export default {
       reList.push(emIt)
       index++
     }
+    //.........................................
     // Format the list
     let list2 = []
     if(_.isArray(list)) {
@@ -52,14 +49,21 @@ export default {
       for(let it of list) {
         // Plain Object
         if(_.isPlainObject(it)) {
+          let it2
           // Mapping
           if(theMapping) {
-            list2.push(Ti.Util.mapping(it, theMapping))
+            it2 = Ti.Util.mapping(it, theMapping)
           }
           // Clone
           else {
-            list2.push(_.cloneDeep(it))
+            it2 = _.cloneDeep(it)
           }
+          // Apply Default Tip
+          if(!it2.tip && defaultTipKey) {
+            it2.tip = it[defaultTipKey]
+          }
+          // Join to list
+          list2.push(it2)
         }
         // Simple value
         else {
@@ -71,6 +75,7 @@ export default {
         }
       }
     }
+    //.........................................
     // Tidy it
     for(let i=0; i<list2.length; i++) {
       let li = list2[i]
@@ -79,24 +84,10 @@ export default {
       li.focused = (i == focusIndex)
       // Mark icon
       li.icon = li.icon || defaultIcon
-      // decide selected: by others
-      if(offset != 0) {
-        let taLiIndex = i + offset
-        if(taLiIndex < 0)
-          taLiIndex = list2.length + taLiIndex
-        else if(taLiIndex >= list2.length)
-          taLiIndex = taLiIndex % list2.length
-        let ta = list2[taLiIndex]
-        li.selected = this.isSelectedItem(ta, {value, multi})
-      }
+      
       // decide select: by self
-      else {
-        li.selected = this.isSelectedItem(li, {value, multi})
-      }
-      // Mark tip
-      if(!li.tip && valueAsTip) {
-        li.tip = li.value
-      }
+      li.selected = this.isSelectedItem(li, {value, multi})
+      
       // Customized
       if(_.isFunction(iteratee)) {
         list2[i] = iteratee(li, i) || li

@@ -1,6 +1,7 @@
 <div class="ti-input-tags"
   :class="topClass"
-  :style="topStyle">
+  :style="topStyle"
+  @click.left="onClickTop">
   <!--
     Tag List
   -->
@@ -9,6 +10,7 @@
     <ti-crumb
       :data="theTags"
       :option-icon="tagIcon"
+      :cancel-item-bubble="cancelTagBubble"
       @changed="onTagChanged"/>
   </div>
   <!--
@@ -16,7 +18,8 @@
   -->
   <div class="as-input">
     <!--Input-->
-    <input ref="input" spellcheck="false" :style="inputStyle"
+    <input v-if="canInput"
+      ref="input" spellcheck="false" :style="inputStyle"
       :value="theInputValue"
       :placeholder="placeholder"
       @click.stop
@@ -30,7 +33,7 @@
     <!--Status Icon-->
     <div v-if="suffixIcon"
       class="as-suffix-icon"
-      @click.left="onClickSuffixIcon">
+      @click.left.stop="onClickSuffixIcon">
       <ti-icon :value="suffixIcon"/>
     </div>
   </div>

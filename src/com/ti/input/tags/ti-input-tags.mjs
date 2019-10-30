@@ -3,13 +3,23 @@ export default {
   ////////////////////////////////////////////////////
   data : ()=>({
     "inputCompositionstart" : false,
-    "focused" : false
+    "isFocused" : false
   }),
+  ////////////////////////////////////////////////////
+  watch : {
+    "focus" : function(v) {
+      this.isFocused = v
+    }
+  },
   ////////////////////////////////////////////////////
   props : {
     "className" : {
       type : String,
       default : null
+    },
+    "canInput" : {
+      type : Boolean,
+      default : true
     },
     "value" : null,
     "inputing" : {
@@ -57,7 +67,11 @@ export default {
       type : Boolean,
       default : false
     },
-    "highlight" : {
+    "clickToFocus" : {
+      type : Boolean,
+      default : false
+    },
+    "focus" : {
       type : Boolean,
       default : false
     },
@@ -69,6 +83,10 @@ export default {
       type : [Array, Function],
       default : ()=>[]
     },
+    "cancelTagBubble" : {
+      type : Boolean,
+      default : false
+    },
     "suffixIcon" : {
       type : String,
       //default : "zmdi-chevron-down"
@@ -79,8 +97,8 @@ export default {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName(this.className, {
-        "is-focused"   : this.focused,
-        "is-blurred"   : !this.focused,
+        "is-focused"   : this.isFocused,
+        "is-blurred"   : !this.isFocused,
         "is-highlight" : this.highlight,
         "has-suffix-icon" : this.suffixIcon
       })
@@ -245,12 +263,12 @@ export default {
     },
     //------------------------------------------------
     onInputFocus() {
-      this.focused = true
+      this.isFocused = true
       this.$emit("focused")      
     },
     //------------------------------------------------
     onInputBlur() {
-      this.focused = false
+      this.isFocused = false
       this.$emit("blurred")
     },
     //------------------------------------------------
@@ -259,10 +277,21 @@ export default {
         this.$emit("changed", vlist2)
     },
     //------------------------------------------------
+    onClickTop() {
+      if(this.clickToFocus) {
+        this.isFocused = true
+        this.$emit("focused")
+      }
+    },
+    //------------------------------------------------
     onClickSuffixIcon() {
       this.$emit("suffix:icon")
     }
     //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  mounted : function() {
+    this.isFocused = this.focus
   }
   ////////////////////////////////////////////////////
 }

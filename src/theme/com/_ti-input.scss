@@ -4,7 +4,7 @@
   @include border(1px, solid, dark);
   @include color($color-input, c, r);
   //-----------------------------------------
-  &.is-focused, &.is-highlight {
+  &.is-focused {
     border-color: map-get($color-line, highlight);
   }
   //-----------------------------------------
@@ -27,7 +27,7 @@
   }
   //-----------------------------------------
   > input {
-    width:1.5rem; height:.34rem;
+    width:1.5rem; height:.35rem;
     outline:none;
     flex:1 0 auto;
     border:0; padding:0 .1rem;

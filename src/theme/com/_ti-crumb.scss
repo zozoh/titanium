@@ -47,12 +47,12 @@
   //-------------------------------------------
   > .as-mask {
     @include pos-fixed-full;
-    z-index:$z-mask;
+    z-index:$z-mask + 2;
   }
   //-------------------------------------------
   > .as-drop {
     @include color($color-chip, r, c);
-    position: fixed; z-index:$z-mask + 1;
+    position: fixed; z-index:$z-mask + 3;
     padding:1px; overflow: hidden;
     //-----------------------------------------
     > .ti-icon-text {

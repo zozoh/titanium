@@ -41,7 +41,8 @@ export default {
         value   : this.runtimeValue,
         mapping : this.mapping,
         multi   : false,
-        defaultIcon : this.itemIcon
+        defaultIcon : this.itemIcon,
+        defaultTipKey : this.defaultTipKey
       })
       //console.log("computed:theListData", list)
       return list
@@ -219,14 +220,21 @@ export default {
       }
     },
     //-----------------------------------------------
-    async doExtend({force=false, val}={}) {
+    async doExtend() {
       this.status = "extended"
+      // Watch Keyboard
+      Ti.Shortcut.addWatch(this, [{
+        "shortcut" : "ESCAPE",
+        "action"   : ()=>this.doCollapse()
+      }])
     },
     //-----------------------------------------------
     doCollapse() {
       this.status = "collapse"
       this.listFocusIndex = -1
       this.inputing = null
+      // Unwatch
+      Ti.Shortcut.removeWatch(this)
     }
     //-----------------------------------------------
   },
@@ -248,6 +256,11 @@ export default {
       await this.reloadListData({val, force})
       callback()
     },500)
+  },
+  ////////////////////////////////////////////////////
+  beforeDestroy: function() {
+    // Unwatch
+    Ti.Shortcut.removeWatch(this)
   }
   ////////////////////////////////////////////////////
 }

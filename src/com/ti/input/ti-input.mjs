@@ -3,9 +3,15 @@ export default {
   ////////////////////////////////////////////////////
   data : ()=>({
     "inputCompositionstart" : false,
-    "focused" : false,
+    "isFocused" : false,
     "pointerHoverPrefixIcon" : false
   }),
+  ////////////////////////////////////////////////////
+  watch : {
+    "focus" : function(v) {
+      this.isFocused = v
+    }
+  },
   ////////////////////////////////////////////////////
   props : {
     "className" : null,
@@ -59,7 +65,7 @@ export default {
       type : String,
       default : null
     },
-    "highlight" : {
+    "focus" : {
       type : Boolean,
       default : false
     },
@@ -77,9 +83,8 @@ export default {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName(this.className, {
-        "is-focused"   : this.focused,
-        "is-blurred"   : !this.focused,
-        "is-highlight" : this.highlight,
+        "is-focused"   : this.isFocused,
+        "is-blurred"   : !this.isFocused,
         "is-readonly"  : this.readonly,
         "has-prefix-icon" : this.prefixIcon,
         "has-prefix-text" : this.prefixText,
@@ -172,17 +177,16 @@ export default {
       if(this.autoSelect && !this.readonly) {
         this.$refs.input.select()
       }
-      this.focused = true
+      this.isFocused = true
       this.$emit("focused")      
     },
     //------------------------------------------------
     onInputBlur() {
-      this.focused = false
+      this.isFocused = false
       this.$emit("blurred")
     },
     //------------------------------------------------
     onClickPrefixIcon() {
-      console.log("hah")
       this.$emit("changed", null)
       this.$emit("prefix:icon")
     },

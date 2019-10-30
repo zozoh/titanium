@@ -2,13 +2,19 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
-    "dropTime"   : null
+    "dropTime" : null,
+    "status"   : "collapse",
+    "inputing" : null
   }),
   ////////////////////////////////////////////////////
   props : {
     "className" : {
       type : String,
       default : null
+    },
+    "canInput" : {
+      type : Boolean,
+      default : true
     },
     "value" : {
       type : [String, Number, Ti.Types.Time],
@@ -45,18 +51,6 @@ export default {
       type : [String, Number],
       default : null
     },
-    // true : can write time directly
-    "editable" : {
-      type : Boolean,
-      default : true
-    },
-    // when "editable", it will render text by `input` element
-    // This prop indicate if open drop when input was focused
-    // `true` as default
-    "focusToOpen" : {
-      type : Boolean,
-      default : true
-    },
     "width" : {
       type : [Number, String],
       default : "1.4rem"
@@ -65,18 +59,31 @@ export default {
       type : [Number, String],
       default : undefined
     },
-    // the height of drop list
+    "dropWidth" : {
+      type : [Number, String],
+      default : "box"
+    },
     "dropHeight" : {
       type : [Number, String],
       default : 200
-    }
+    },
+    "statusIcons" : {
+      type : Object,
+      default : ()=>({
+        collapse : "zmdi-chevron-down",
+        extended : "zmdi-chevron-up"
+      })
+    },
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     topClass() {
-      return this.className
+      return Ti.Css.mergeClassName(this.className)
     },
+    //------------------------------------------------
+    isCollapse() {return "collapse"==this.status},
+    isExtended() {return "extended"==this.status},
     //------------------------------------------------
     theTime() {
       //console.log("input value:", this.value)
@@ -97,19 +104,44 @@ export default {
     //------------------------------------------------
     theTimeText() {
       return this.getTimeText(this.theTime)
-    }
+    },
+    //------------------------------------------------
+    theStatusIcon() {
+      return this.statusIcons[this.status]
+    },
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onCollapse() {
+    __doCollapse() {
       if(this.dropTime) {
         let tm = this.dropTime
         this.dropTime = null
         let str = this.getTimeText(tm)
         this.$emit("changed", str)
       }
+    },
+    //-----------------------------------------------
+    doExtend() {
+      this.status = "extended"
+      // Watch Keyboard
+      Ti.Shortcut.addWatch(this, [{
+        "shortcut" : "ESCAPE",
+        "action"   : ()=>this.doCollapse()
+      }])
+    },
+    //-----------------------------------------------
+    doCollapse() {
+      this.status = "collapse"
+      this.dropTime = null
+      this.inputing = null
+      // Unwatch
+      Ti.Shortcut.removeWatch(this)
+    },
+    //------------------------------------------------
+    onInputFocused() {
+      this.doExtend()
     },
     //------------------------------------------------
     onChanged(val) {
@@ -122,6 +154,17 @@ export default {
         let tm  = Ti.Types.toTime(val)
         let str = this.getTimeText(tm)
         this.$emit("changed", str)
+      }
+    },
+    //------------------------------------------------
+    onClickStatusIcon() {
+      // extended -> collapse
+      if(this.isExtended) {
+        this.doCollapse()
+      }
+      // collapse -> extended
+      else {
+        this.doExtend()
       }
     },
     //------------------------------------------------
