@@ -47,7 +47,7 @@ export default {
     //------------------------------------------------
     theListData() {
       let list = this.normalizeData(this.listData, {
-        value   : this.valueInArray,
+        value   : this.runtimeValues,
         mapping : this.mapping,
         multi   : true,
         defaultIcon : this.itemIcon,
@@ -87,7 +87,7 @@ export default {
       //..................................
       let fnSet = {
         "ESCAPE" : async ()=>{
-          await this.doCollapse(true)
+          await this.doCollapse({escaped:true})
         },
         "BACKSPACE" : ()=>{
           if(Ti.Util.isNil(this.inputing)) {
@@ -139,7 +139,7 @@ export default {
     },
     //-----------------------------------------------
     async onInputChanged(vals) {
-      //console.log("onInputChanged", vals)
+      console.log("onInputChanged", vals)
       if(this.loading)
         return
       vals = _.filter(_.concat(vals), (v)=>!Ti.Util.isNil(v))
@@ -196,7 +196,7 @@ export default {
       let vlist2 = this.tidyVList(vlist)
       // Notify the change
       //this.$emit("changed", vlist2)
-      if(this.collapseChanged) {
+      if(this.collapseChanged && this.isExtended) {
         this.reloadRuntime(vlist2).then(()=>{
           this.doReDockDrop()
         })
@@ -228,7 +228,8 @@ export default {
       }
     },
     //-----------------------------------------------
-    async doToggleListItem({selected, value}={}) {
+    async doToggleListItem({index, selected, value}={}) {
+      this.listFocusIndex = index
       if(!_.isUndefined(value)) {
         // Remove
         if(selected) {
@@ -270,16 +271,25 @@ export default {
       this.status = "extended"
       // Watch Keyboard
       Ti.Shortcut.addWatch(this, [{
-        "shortcut" : "ESCAPE",
-        "action"   : ()=>this.doCollapse(true)
+        "shortcut" : "ARROWUP",
+        "action"   : ()=>this.onInputKeyPress({
+            uniqueKey:"ARROWUP"
+          })
+      }, {
+        "shortcut" : "ARROWDOWN",
+        "action"   : ()=>this.onInputKeyPress({
+            uniqueKey:"ARROWDOWN"
+          })
       }, {
         "shortcut" : "ENTER",
-        "action"   : ()=>this.doCollapse(false)
+        "action"   : ()=>this.onInputKeyPress({
+            uniqueKey:"ENTER"
+          })
       }])
     },
     //-----------------------------------------------
-    async doCollapse(resetValue=false) {
-      if(resetValue) {
+    async doCollapse({escaped=false}={}) {
+      if(escaped) {
         await this.reloadRuntime(this.valueInArray)
       }
       this.status = "collapse"
@@ -332,7 +342,6 @@ export default {
   },
   ////////////////////////////////////////////////////
   beforeDestroy: function() {
-    // Unwatch
     Ti.Shortcut.removeWatch(this)
   }
   ////////////////////////////////////////////////////

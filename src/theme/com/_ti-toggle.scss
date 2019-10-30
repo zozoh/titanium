@@ -8,7 +8,7 @@
     border-radius: .2rem;
     transition: background-color .2s;
     b {
-      @include color($color-success, null, r);
+      @include color($color-primary, null, r);
       display:block;
       border-radius: 50%;
       width:.2rem; height:.2rem;
@@ -23,7 +23,7 @@
   }
   //-----------------------------------------
   &.is-on aside {
-    @include color($color-success, r, c);
+    @include color($color-primary, r, c);
     border:1px solid transparent;
     b {
       border:1px solid transparent;

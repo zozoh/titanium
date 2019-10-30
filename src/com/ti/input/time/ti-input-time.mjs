@@ -2,9 +2,8 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
-    "dropTime" : null,
-    "status"   : "collapse",
-    "inputing" : null
+    "runtime" : null,
+    "status"   : "collapse"
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -49,7 +48,11 @@ export default {
     },
     "placeholder" : {
       type : [String, Number],
-      default : null
+      default : "i18n:blank-time"
+    },
+    "hideBorder" : {
+      type : Boolean,
+      default : false
     },
     "width" : {
       type : [Number, String],
@@ -73,7 +76,7 @@ export default {
         collapse : "zmdi-chevron-down",
         extended : "zmdi-chevron-up"
       })
-    },
+    }
   },
   ////////////////////////////////////////////////////
   computed : {
@@ -91,7 +94,7 @@ export default {
     },
     //------------------------------------------------
     theDropTime() {
-      return this.dropTime || this.theTime
+      return this.runtime || this.theTime
     },
     //------------------------------------------------
     theTimeFormat() {
@@ -103,21 +106,21 @@ export default {
     },
     //------------------------------------------------
     theTimeText() {
-      return this.getTimeText(this.theTime)
+      return this.getTimeText(this.theDropTime)
     },
     //------------------------------------------------
     theStatusIcon() {
       return this.statusIcons[this.status]
-    },
+    }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    __doCollapse() {
-      if(this.dropTime) {
-        let tm = this.dropTime
-        this.dropTime = null
+    applyRuntime() {
+      if(this.runtime) {
+        let tm = this.runtime
+        this.runtime = null
         let str = this.getTimeText(tm)
         this.$emit("changed", str)
       }
@@ -125,19 +128,19 @@ export default {
     //-----------------------------------------------
     doExtend() {
       this.status = "extended"
-      // Watch Keyboard
-      Ti.Shortcut.addWatch(this, [{
-        "shortcut" : "ESCAPE",
-        "action"   : ()=>this.doCollapse()
-      }])
     },
     //-----------------------------------------------
-    doCollapse() {
+    doCollapse({escaped=false}={}) {
+      //console.log("time doCollapse", {escaped})
       this.status = "collapse"
-      this.dropTime = null
-      this.inputing = null
-      // Unwatch
-      Ti.Shortcut.removeWatch(this)
+      // Drop runtime
+      if(escaped) {
+        this.runtime = null
+      }
+      // Apply Changed for runtime
+      else {
+        this.applyRuntime()
+      }
     },
     //------------------------------------------------
     onInputFocused() {
@@ -169,7 +172,7 @@ export default {
     },
     //------------------------------------------------
     onTimeChanged(time) {
-      this.dropTime = time
+      this.runtime = time
     },
     //------------------------------------------------
     getTimeText(tm) {

@@ -2,13 +2,18 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
-    "dropDate"   : null
+    "runtime" : null,
+    "status"  : "collapse"
   }),
   ////////////////////////////////////////////////////
   props : {
     "className" : {
       type : String,
       default : null
+    },
+    "canInput" : {
+      type : Boolean,
+      default : true
     },
     "value" : {
       type : [String, Number, Date],
@@ -24,19 +29,11 @@ export default {
     },
     "placeholder" : {
       type : [String, Number],
-      default : null
+      default : "i18n:blank-month"
     },
-    // true : can write time directly
-    "editable" : {
+    "hideBorder" : {
       type : Boolean,
-      default : true
-    },
-    // when "editable", it will render text by `input` element
-    // This prop indicate if open drop when input was focused
-    // `true` as default
-    "focusToOpen" : {
-      type : Boolean,
-      default : true
+      default : false
     },
     "width" : {
       type : [Number, String],
@@ -45,6 +42,10 @@ export default {
     "height" : {
       type : [Number, String],
       default : undefined
+    },
+    "dropWidth" : {
+      type : [Number, String],
+      default : "box"
     },
     // the height of drop list
     "dropHeight" : {
@@ -58,44 +59,75 @@ export default {
     "endYear" : {
       type : [Number, String],
       default : (new Date().getFullYear()+1)
+    },
+    "statusIcons" : {
+      type : Object,
+      default : ()=>({
+        collapse : "zmdi-chevron-down",
+        extended : "zmdi-chevron-up"
+      })
     }
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     topClass() {
-      return this.className
+      return Ti.Css.mergeClassName(this.className)
     },
     //------------------------------------------------
+    isCollapse() {return "collapse"==this.status},
+    isExtended() {return "extended"==this.status},
+    //------------------------------------------------
     theDate() {
-      if(this.value)
-        return Ti.Types.toDate(this.value)
-      return new Date()
+      return Ti.Types.toDate(this.value, null)
     },
     //------------------------------------------------
     theDropDate() {
-      return this.dropDate || this.theDate
+      return this.runtime || this.theDate
     },
     //------------------------------------------------
-    theDateValue() {
-      return this.getDateText(this.theDate)
+    theInputValue() {
+      if(this.isExtended) {
+        return this.getDateText(this.theDropDate)
+      }
+      return this.getDateText(this.theDropDate, this.format)
     },
     //------------------------------------------------
-    theDateText() {
-      return this.getDateText(this.theDate, this.format)
+    theStatusIcon() {
+      return this.statusIcons[this.status]
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onCollapse() {
-      if(this.dropDate) {
-        let dt = this.dropDate
-        this.dropDate = null
+    applyRuntime() {
+      if(this.runtime) {
+        let dt = this.runtime
+        this.runtime = null
         let str = this.getDateText(dt)
         this.$emit("changed", str)
       }
+    },
+    //-----------------------------------------------
+    doExtend() {
+      this.status = "extended"
+    },
+    //-----------------------------------------------
+    doCollapse({escaped=false}={}) {
+      this.status = "collapse"
+      // Drop runtime
+      if(escaped) {
+        this.runtime = null
+      }
+      // Apply Changed for runtime
+      else {
+        this.applyRuntime()
+      }
+    },
+    //------------------------------------------------
+    onInputFocused() {
+      this.doExtend()
     },
     //------------------------------------------------
     onChanged(val) {
@@ -111,15 +143,24 @@ export default {
       }
     },
     //------------------------------------------------
+    onClickStatusIcon() {
+      // extended -> collapse
+      if(this.isExtended) {
+        this.doCollapse()
+      }
+      // collapse -> extended
+      else {
+        this.doExtend()
+      }
+    },
+    //------------------------------------------------
     onMonthChanged(dt) {
-      this.dropDate = dt
+      this.runtime = dt
     },
     //------------------------------------------------
     getDateText(dt, fmt="yyyy-MM") {
-      if(!_.isDate(dt)) {
-        dt = Ti.Types.toDate(dt)
-      }
-      return Ti.Types.formatDate(dt, fmt)
+      let dt2 = Ti.Types.toDate(dt, null)
+      return Ti.Types.formatDate(dt2, fmt)
     }
     //------------------------------------------------
   }

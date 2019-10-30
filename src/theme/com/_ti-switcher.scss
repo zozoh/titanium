@@ -21,7 +21,7 @@
       line-height:1em; text-align:center;
       white-space: nowrap;
       &.is-selected {
-        @include color($color-success, r, c);
+        @include color($color-primary, r, c);
       }
       &.is-focused {
         @include color($color-selected, r, c);

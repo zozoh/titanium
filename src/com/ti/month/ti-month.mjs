@@ -28,9 +28,7 @@ export default {
   computed : {
     //------------------------------------------------
     theDate() {
-      if(this.value)
-        return Ti.Types.toDate(this.value)
-      return new Date()
+      return Ti.Types.toDate(this.value, null)
     },
     //------------------------------------------------
     theListGroup() {
@@ -38,13 +36,13 @@ export default {
         this.createList("year",  
           this.beginYear*1, 
           this.endYear*1,
-          this.theDate.getFullYear(),
+          this.theDate ? this.theDate.getFullYear() : null,
           {reverse:true}
         ),
         this.createList("month",
           0,
           12,
-          this.theDate.getMonth(),
+          this.theDate ? this.theDate.getMonth() : null,
           {getText: (val)=>{
             let abbr = Ti.DateTime.getMonthAbbr(val)
             return Ti.I18n.get(abbr)
@@ -89,12 +87,15 @@ export default {
     },
     //------------------------------------------------
     onListChanged(key, val) {
+      let theDate = this.theDate || new Date()
+      console.log("haha")
+
       let d = ({
         "month" : (m)=>{
-          return new Date(this.theDate.getFullYear(), m)
+          return new Date(theDate.getFullYear(), m)
         },
         "year" : (y)=>{
-          return new Date(y, this.theDate.getMonth())
+          return new Date(y, theDate.getMonth())
         }
       })[key](val)
 

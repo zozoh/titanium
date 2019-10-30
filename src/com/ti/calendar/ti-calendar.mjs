@@ -8,7 +8,7 @@ export default {
   props : {
     "value" : {
       type : [String, Number, Date, Array],
-      default : ()=>new Date()
+      default : null
     },
     /***
      * The value represent a **Date Range**.
@@ -112,9 +112,9 @@ export default {
         if(this.value.length > 0) {
           return Ti.Types.toDate(this.value[0])
         }
-        return new Date()
+        return null
       }
-      return Ti.Types.toDate(this.value)
+      return Ti.Types.toDate(this.value, null)
     },
     //--------------------------------------
     theRangeInMs() {
@@ -227,7 +227,7 @@ export default {
     },
     //--------------------------------------
     theViewDate() {
-      return this.view_date || this.theDate
+      return this.view_date || this.theDate || new Date()
     },
     //--------------------------------------
     theViewYear() {
@@ -472,7 +472,7 @@ export default {
   },
   //////////////////////////////////////////
   mounted : function() {
-    this.view_date = new Date(this.theDate)
+    this.view_date = this.theDate || new Date()
   }
   //////////////////////////////////////////
 }

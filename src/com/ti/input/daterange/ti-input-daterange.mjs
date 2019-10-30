@@ -2,13 +2,18 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
-    "dropRange"   : null
+    "runtime" : null,
+    "status"  : "collapse"
   }),
   ////////////////////////////////////////////////////
   props : {
     "className" : {
       type : String,
       default : null
+    },
+    "canInput" : {
+      type : Boolean,
+      default : true
     },
     "value" : {
       type : [String, Number, Date, Array],
@@ -26,17 +31,9 @@ export default {
       type : String,
       default : "i18n:blank-date-range"
     },
-    // true : can write time directly
-    "editable" : {
+    "hideBorder" : {
       type : Boolean,
-      default : true
-    },
-    // when "editable", it will render text by `input` element
-    // This prop indicate if open drop when input was focused
-    // `true` as default
-    "focusToOpen" : {
-      type : Boolean,
-      default : true
+      default : false
     },
     "width" : {
       type : [Number, String],
@@ -61,21 +58,28 @@ export default {
     "endYear" : {
       type : [Number, String],
       default : (new Date().getFullYear()+1)
+    },
+    "statusIcons" : {
+      type : Object,
+      default : ()=>({
+        collapse : "zmdi-chevron-down",
+        extended : "zmdi-chevron-up"
+      })
     }
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     topClass() {
-      return this.className
+      return Ti.Css.mergeClassName(this.className)
     },
+    //------------------------------------------------
+    isCollapse() {return "collapse"==this.status},
+    isExtended() {return "extended"==this.status},
     //--------------------------------------
     theDate() {
-      if(_.isArray(this.value)) {
-        if(this.value.length > 0) {
-          return Ti.Types.toDate(this.value[0])
-        }
-        return new Date()
+      if(_.isArray(this.value) && !_.isEmpty(this.value)) {
+        return Ti.Types.toDate(this.value[0])
       }
       if(this.value) {
         return Ti.Types.toDate(this.value)
@@ -119,7 +123,7 @@ export default {
     },
     //------------------------------------------------
     theDropRange() {
-      return this.dropRange || this.theRange
+      return this.runtime || this.theRange
     },
     //------------------------------------------------
     theRangeValue() {
@@ -165,22 +169,54 @@ export default {
         // Same day
         return Ti.I18n.getf("cal.d-range-in-same-day", vars)
       }
+    },
+    //------------------------------------------------
+    theInputValue() {
+      if(this.isExtended) {
+        return this.theRangeValue
+      }
+      return this.theRangeText
+    },
+    //------------------------------------------------
+    theStatusIcon() {
+      return this.statusIcons[this.status]
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onCollapse() {
-      if(this.dropRange) {
-        let rg = this.dropRange
-        this.dropRange = null
+    applyRuntime() {
+      if(this.runtime) {
+        let rg = this.runtime
+        this.runtime = null
         let rg2 = this.formatRangeValue(rg)
         this.$emit("changed", rg2)
       }
     },
+    //-----------------------------------------------
+    doExtend() {
+      this.status = "extended"
+    },
+    //-----------------------------------------------
+    doCollapse({escaped=false}={}) {
+      this.status = "collapse"
+      // Drop runtime
+      if(escaped) {
+        this.runtime = null
+      }
+      // Apply Changed for runtime
+      else {
+        this.applyRuntime()
+      }
+    },
     //------------------------------------------------
-    onInputChanged(val) {
+    onInputFocused() {
+      this.doExtend()
+    },
+    //------------------------------------------------
+    onChanged(val) {
+      console.log("haha")
       let rg = this.parseDateRange(val)
       // Empty Range
       if(_.isEmpty(rg)) {
@@ -193,8 +229,19 @@ export default {
       }
     },
     //------------------------------------------------
+    onClickStatusIcon() {
+      // extended -> collapse
+      if(this.isExtended) {
+        this.doCollapse()
+      }
+      // collapse -> extended
+      else {
+        this.doExtend()
+      }
+    },
+    //------------------------------------------------
     onDateRangeChanged(rg) {
-      this.dropRange = rg
+      this.runtime = rg
     },
     //------------------------------------------------
     parseDateRange(val) {
@@ -216,7 +263,9 @@ export default {
       // range
       let dt0 = Ti.Types.toDate(ss[0])
       let dt1 = Ti.Types.toDate(ss[1])
-      return [dt0, dt1].sort((dt0,dt1)=>dt0.getTime()-dt1.getTime())
+      return [dt0, dt1].sort((dt0,dt1)=>{
+        return dt0.getTime()-dt1.getTime()
+      })
     },
     //------------------------------------------------
     formatRangeValue(range) {

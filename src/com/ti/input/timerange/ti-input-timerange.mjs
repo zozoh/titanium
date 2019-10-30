@@ -2,13 +2,18 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
-    "dropRange"   : null
+    "runtime" : null,
+    "status"  : "collapse"
   }),
   ////////////////////////////////////////////////////
   props : {
     "className" : {
       type : String,
       default : null
+    },
+    "canInput" : {
+      type : Boolean,
+      default : true
     },
     "value" : {
       type : [String, Object, Number, Array],
@@ -32,23 +37,15 @@ export default {
     },
     "format" : {
       type : String,
-      default : "yyyy-MM-dd"
+      default : "HH:mm"
     },
     "placeholder" : {
       type : String,
       default : "i18n:blank-time-range"
     },
-    // true : can write time directly
-    "editable" : {
+    "hideBorder" : {
       type : Boolean,
-      default : true
-    },
-    // when "editable", it will render text by `input` element
-    // This prop indicate if open drop when input was focused
-    // `true` as default
-    "focusToOpen" : {
-      type : Boolean,
-      default : true
+      default : false
     },
     "width" : {
       type : [Number, String],
@@ -57,14 +54,24 @@ export default {
     "height" : {
       type : [Number, String],
       default : undefined
+    },
+    "statusIcons" : {
+      type : Object,
+      default : ()=>({
+        collapse : "zmdi-chevron-down",
+        extended : "zmdi-chevron-up"
+      })
     }
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     topClass() {
-      return this.className
+      return Ti.Css.mergeClassName(this.className)
     },
+    //------------------------------------------------
+    isCollapse() {return "collapse"==this.status},
+    isExtended() {return "extended"==this.status},
     //--------------------------------------
     theFormConfig() {
       let [keyBegin, keyEnd] = this.rangeKeys
@@ -94,7 +101,14 @@ export default {
       let [keyBegin, keyEnd] = this.rangeKeys
       let ss = []
       _.forEach(this.theRange, (val)=>{
-        ss.push(val.toString())
+        // Time
+        if(val) {
+          ss.push(val.toString(this.format))
+        }
+        // Zero
+        else {
+          ss.push(Ti.Types.formatTime(0, this.format))
+        }
       })
       return ss.join(" ~ ")
     },
@@ -104,24 +118,48 @@ export default {
     },
     //------------------------------------------------
     theDropRange() {
-      return this.dropRange || this.theRangeValue
+      return this.runtime || this.theRangeValue
+    },
+    //------------------------------------------------
+    theStatusIcon() {
+      return this.statusIcons[this.status]
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onCollapse() {
-      if(this.dropRange) {
-        let rg = this.parseTimeRange(this.dropRange)
-        this.dropRange = null
+    applyRuntime() {
+      if(this.runtime) {
+        let rg = this.parseTimeRange(this.runtime)
+        this.runtime = null
         let rg2 = this.formatRangeValue(rg)
         let rg3 = this.formatEmitRangeValue(rg2)
         this.$emit("changed", rg3)
       }
     },
+    //-----------------------------------------------
+    doExtend() {
+      this.status = "extended"
+    },
+    //-----------------------------------------------
+    doCollapse({escaped=false}={}) {
+      this.status = "collapse"
+      // Drop runtime
+      if(escaped) {
+        this.runtime = null
+      }
+      // Apply Changed for runtime
+      else {
+        this.applyRuntime()
+      }
+    },
     //------------------------------------------------
-    onInputChanged(val) {
+    onInputFocused() {
+      this.doExtend()
+    },
+    //------------------------------------------------
+    onChanged(val) {
       let rg = this.parseTimeRange(val)
       // Empty Range
       if(_.isEmpty(rg)) {
@@ -132,6 +170,17 @@ export default {
         let rg2 = this.formatRangeValue(rg)
         let rg3 = this.formatEmitRangeValue(rg2)
         this.$emit("changed", rg3);
+      }
+    },
+    //------------------------------------------------
+    onClickStatusIcon() {
+      // extended -> collapse
+      if(this.isExtended) {
+        this.doCollapse()
+      }
+      // collapse -> extended
+      else {
+        this.doExtend()
       }
     },
     //------------------------------------------------
@@ -147,9 +196,9 @@ export default {
     },
     //------------------------------------------------
     onFormChanged(pair) {
-      let rg = _.assign({}, this.theRangeValue, this.dropRange)
+      let rg = _.assign({}, this.theRangeValue, this.runtime)
       rg[pair.name] = pair.value
-      this.dropRange = rg
+      this.runtime = rg
     },
     //------------------------------------------------
     parseTimeRange(val) {
@@ -207,7 +256,14 @@ export default {
     formatRangeValue(range) {
       let rg = _.assign({}, range)
       _.forEach(rg, (val, key)=>{
-        rg[key] = val.toString()
+        // Time
+        if(val) {
+          rg[key] = val.toString()
+        }
+        // Zero
+        else {
+          rg[key] = Ti.Types.formatTime(0)
+        }
       })
       return rg
     }

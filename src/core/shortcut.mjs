@@ -20,7 +20,7 @@ class Shortcut {
       if('group' == aIt.type 
          && _.isArray(aIt.items)
          && aIt.items.length > 0) {
-        this.addWatch(aIt.items)
+        this.addWatch(scope, aIt.items)
       }
       // Action
       else if(aIt.action && aIt.shortcut) {

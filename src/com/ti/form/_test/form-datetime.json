@@ -7,15 +7,13 @@
           "name"  : "time",
           "comType" : "ti-input-time",
           "comConf" : {
-            "mode" : "sec",
-            "editable" : true
+            "mode" : "sec"
           }
         }, {
           "title" : "月份",
           "name"  : "month",
           "comType" : "ti-input-month",
           "comConf" : {
-            "editable" : true,
             "format" : "yyyy年M月",
             "beginYear" : 2000,
             "endYear" : 2025
@@ -25,7 +23,6 @@
           "name"  : "date",
           "comType" : "ti-input-date",
           "comConf" : {
-            "editable" : true,
             "format" : "yyyy年M月d日"
           }
         }, {
@@ -33,7 +30,6 @@
           "name"  : "datetime",
           "comType" : "ti-input-datetime",
           "comConf" : {
-            "editable" : true,
             "format" : "yyyy年M月d日 HH:mm:ss"
           }
         }, {
@@ -42,7 +38,7 @@
           "type"  : "Array",
           "comType" : "ti-input-daterange",
           "comConf" : {
-            "editable" : true
+            
           }
         }, {
           "title" : "时间范围",
@@ -50,7 +46,7 @@
           "type"  : "Object",
           "comType" : "ti-input-timerange",
           "comConf" : {
-            "editable" : true
+            "format" : "H点m分"
           }
         }]
       },

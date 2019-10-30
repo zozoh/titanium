@@ -1,5 +1,6 @@
 <ti-combo-box class="as-time"
   :class="topClass"
+  :width="width"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
   :status="status"
@@ -10,11 +11,11 @@
   <template v-slot:box>
     <ti-input 
       :readonly="!canInput"
-      :placeholder="placeholder"
+      :hide-border="hideBorder"
+      :placeholder="placeholder|i18n"
       :prefix-icon="icon"
       :suffix-icon="theStatusIcon"
       :value="theTimeText"
-      :width="width"
       :height="height"
       :focus="isExtended"
       @changed="onChanged"

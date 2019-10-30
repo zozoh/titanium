@@ -37,6 +37,10 @@ export default {
       type : Boolean,
       default : true
     },
+    "hideBorder" : {
+      type : Boolean,
+      default : false
+    },
     "width" : {
       type : [Number, String],
       default : null
@@ -83,6 +87,8 @@ export default {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName(this.className, {
+        "show-border"  : !this.hideBorder,
+        "hide-border"  : this.hideBorder,
         "is-focused"   : this.isFocused,
         "is-blurred"   : !this.isFocused,
         "is-readonly"  : this.readonly,

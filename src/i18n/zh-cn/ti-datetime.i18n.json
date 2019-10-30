@@ -1,4 +1,8 @@
 {
+  "blank-date"  : "请选择日期",
+  "blank-month" : "请选择月份",
+  "blank-time"  : "请选择时间",
+  "blank-datetime"   : "请选择日期时间",
   "blank-date-range" : "请选择日期范围",
   "blank-time-range" : "请选择时间范围",
   "time-begin" : "开始时间",

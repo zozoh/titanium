@@ -1,20 +1,35 @@
-<ti-combo-input class="as-date"
+<ti-combo-box class="as-date"
   :class="topClass"
-  :icon="icon"
-  :text="theDateText"
-  :value="theDateValue"
-  :placeholder="placeholder"
-  :editable="editable"
-  :focus-to-open="focusToOpen"
   :width="width"
-  :height="height"
-  drop-width="none"
-  @changed="onChanged"
-  @collapse="onCollapse">
-  <ti-calendar
-    :value="theDropDate"
-    :month-format="monthFormat"
-    :begin-year="beginYear"
-    :end-year="endYear"
-    @changed="onDateChanged"/>
-</ti-combo-input>
+  :drop-width="null"
+  :status="status"
+  @collapse="doCollapse">
+  <!--
+    Box
+  -->
+  <template v-slot:box>
+    <ti-input 
+      :readonly="!canInput"
+      :hide-border="hideBorder"
+      :placeholder="placeholder|i18n"
+      :prefix-icon="icon"
+      :suffix-icon="theStatusIcon"
+      :value="theInputValue"
+      :height="height"
+      :focus="isExtended"
+      @changed="onChanged"
+      @focused="onInputFocused"
+      @suffix:icon="onClickStatusIcon"/>
+  </template>
+  <!--
+    Drop
+  -->
+  <template v-slot:drop>
+    <ti-calendar
+      :value="theDropDate"
+      :month-format="monthFormat"
+      :begin-year="beginYear"
+      :end-year="endYear"
+      @changed="onDateChanged"/>
+  </template>
+</ti-combo-box>

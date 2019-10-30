@@ -1,8 +1,11 @@
 .ti-input {
   @include noselect;
   @include flex-align-nowrap($ai:stretch);
-  @include border(1px, solid, dark);
   @include color($color-input, c, r);
+  //-----------------------------------------
+  &.show-border {
+    @include border(1px, solid, dark);
+  }
   //-----------------------------------------
   &.is-focused {
     border-color: map-get($color-line, highlight);
@@ -27,12 +30,11 @@
   }
   //-----------------------------------------
   > input {
-    width:1.5rem; height:.35rem;
-    outline:none;
-    flex:1 0 auto;
-    border:0; padding:0 .1rem;
-    font-family: inherit;
-    font-size:inherit;
+    @include font-fixed(inherit);
+    width:100%; height:.35rem;
+    flex:1 1 auto;
+    outline:none; border:0;
+    padding:0 .1rem;
     background:transparent;
     color:inherit;
   }

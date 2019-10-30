@@ -12,7 +12,7 @@ export default {
     },
     "timeMode" : {
       type : String,
-      default : "auto",
+      default : "sec",
       /***
        * - `sec`  : "HH:mm:ss"
        * - `min`  : "HH:mm"
@@ -21,6 +21,10 @@ export default {
       validator : function(unit) {
         return /^(sec|min|auto)$/.test(unit)
       }
+    },
+    "monthFormat" : {
+      type : String,
+      default : "yyyy-MM" 
     },
     "beginYear" : {
       type : [Number, String],
@@ -39,9 +43,7 @@ export default {
     },
     //------------------------------------------------
     theDate() {
-      if(this.value)
-        return Ti.Types.toDate(this.value)
-      return new Date()
+      return Ti.Types.toDate(this.value, null)
     },
     //------------------------------------------------
     theTime() {
@@ -65,7 +67,8 @@ export default {
   methods : {
     //------------------------------------------------
     onDateChanged(dt) {
-      let tm = Ti.Types.toTime(this.theDate);
+      let theDate = this.theDate || new Date()
+      let tm = Ti.Types.toTime(this.theTime||0);
       dt = new Date(dt)
       dt.setHours(tm.hours)
       dt.setMinutes(tm.minutes)
@@ -75,7 +78,8 @@ export default {
     },
     //------------------------------------------------
     onTimeChanged(tm) {
-      let dt = new Date(this.theDate)
+      let theDate = this.theDate || new Date()
+      let dt = new Date(theDate)
       dt.setHours(tm.hours)
       dt.setMinutes(tm.minutes)
       dt.setSeconds(tm.seconds)

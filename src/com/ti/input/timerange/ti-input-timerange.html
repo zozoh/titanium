@@ -1,18 +1,33 @@
-<ti-combo-input class="as-date"
+<ti-combo-box class="as-timerange"
   :class="topClass"
-  :icon="icon"
-  :text="theRangeText"
-  :value="theRangeText"
-  :placeholder="placeholder|i18n"
-  :editable="editable"
-  :focus-to-open="focusToOpen"
   :width="width"
-  :height="height"
-  drop-width="none"
-  @changed="onInputChanged"
-  @collapse="onCollapse">
-  <ti-form
-    :data="theDropRange"
-    :config="theFormConfig"
-    @changed="onFormChanged"/>
-</ti-combo-input>
+  :drop-width="null"
+  :status="status"
+  @collapse="doCollapse">
+  <!--
+    Box
+  -->
+  <template v-slot:box>
+    <ti-input 
+      :readonly="!canInput"
+      :hide-border="hideBorder"
+      :placeholder="placeholder|i18n"
+      :prefix-icon="icon"
+      :suffix-icon="theStatusIcon"
+      :value="theRangeText"
+      :height="height"
+      :focus="isExtended"
+      @changed="onChanged"
+      @focused="onInputFocused"
+      @suffix:icon="onClickStatusIcon"/>
+  </template>
+  <!--
+    Drop
+  -->
+  <template v-slot:drop>
+    <ti-form
+      :data="theDropRange"
+      :config="theFormConfig"
+      @changed="onFormChanged"/>
+  </template>
+</ti-combo-box>

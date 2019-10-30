@@ -48,7 +48,9 @@ export default {
   computed : {
     //------------------------------------------------
     theTime() {
-      return Ti.Types.toTime(this.value||0, this.valueUnit)
+      return Ti.Types.toTime(this.value||0, {
+        unit: this.valueUnit
+      })
     },
     //------------------------------------------------
     theListGroup() {

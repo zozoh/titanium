@@ -1,28 +1,23 @@
-<div class="ti-droplist">
-  <ti-box ref="box"
-    :style="boxStyle"
-    :empty="empty"
-    :items="selectedItems"
-    :loading="loading"
-    :multi="multi"
-    :opened="isDropShown"
-    @open="isDropShown=true"
-    @remove="onRemoveItem"/>
-  <div
-    class="dl-mask" 
-    v-show="isDropShown"
-    @click="isDropShown=false"></div>
-  <div ref="drop"
-    class="dl-drop"
-    :style="dropStyle"
-    v-show="isDropShown">
-    <ti-list 
-      :data="items"
-      :mapping="mapping"
-      :empty="empty"
-      :default-icon="defaultIcon"
-      :multi="multi"
-      :value="value"
-      @changed="onChanged"/>
-  </div>
-</div>
+<component :is="theComType"
+  :class="topClass"
+  :can-input="canInput"
+  :multi="multi"
+  :value="value"
+  :max-value-len="maxValueLen"
+  :default-tip-key="defaultTipKey"
+  :placeholder="placeholder"
+  :width="width"
+  :height="height"
+  :drop-width="dropWidth"
+  :drop-height="dropHeight"
+  :get-item-by="getItemBy"
+  :options="options"
+  :query-when-input="queryWhenInput"
+  :mapping="mapping"
+  :item-icon="itemIcon"
+  :focus-to-open="focusToOpen"
+  :loading-icon="loadingIcon"
+  :status-icons="statusIcons"
+  :cancel-tag-bubble="cancelTagBubble"
+  :cached="cached"
+  @changed="$emit('changed', $event)"/>

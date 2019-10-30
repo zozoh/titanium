@@ -66,8 +66,8 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    notifyCollapse() {
-      this.$emit("collapse")
+    notifyCollapse(escaped=false) {
+      this.$emit("collapse", {escaped})
     },
     //------------------------------------------------
     dockDrop() {
@@ -134,9 +134,17 @@ export default {
         // If collapse, it should clean the box styles
         if("collapse" == sta) {
           this.resetBoxStyle()
+          // Unwatch
+          Ti.Shortcut.removeWatch(this)
         }
         // try docking
-        this.dockDrop()
+        else {
+          this.dockDrop()
+          Ti.Shortcut.addWatch(this, [{
+            "shortcut" : "ESCAPE",
+            "action"   : ()=>this.notifyCollapse(true)
+          }])
+        }
       })
     }
   },
@@ -156,6 +164,7 @@ export default {
   ////////////////////////////////////////////////////
   beforeDestroy : function() {
     Ti.Viewport.unwatch(this)
+    Ti.Shortcut.removeWatch(this)
   }
   ////////////////////////////////////////////////////
 }

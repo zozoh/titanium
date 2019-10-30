@@ -224,8 +224,20 @@ export default {
       this.status = "extended"
       // Watch Keyboard
       Ti.Shortcut.addWatch(this, [{
-        "shortcut" : "ESCAPE",
-        "action"   : ()=>this.doCollapse()
+        "shortcut" : "ARROWUP",
+        "action"   : ()=>this.onInputKeyPress({
+            uniqueKey:"ARROWUP"
+          })
+      }, {
+        "shortcut" : "ARROWDOWN",
+        "action"   : ()=>this.onInputKeyPress({
+            uniqueKey:"ARROWDOWN"
+          })
+      }, {
+        "shortcut" : "ENTER",
+        "action"   : ()=>this.onInputKeyPress({
+            uniqueKey:"ENTER"
+          })
       }])
     },
     //-----------------------------------------------
@@ -259,7 +271,6 @@ export default {
   },
   ////////////////////////////////////////////////////
   beforeDestroy: function() {
-    // Unwatch
     Ti.Shortcut.removeWatch(this)
   }
   ////////////////////////////////////////////////////

@@ -1,104 +1,130 @@
 {
-  "json": true,
-  "dspacing" : "tiny",
-  "fields" : [{
-      "icon"    : "zmdi-flattr",
-      "title"   : "ID",
-      "name"    : "id",
-      "comType" : "ti-label"
-    }, {    
-      "name" : "name"
-    }, {
-      "name" : "great",
-      "type" : "Boolean",
-      "comType" : "ti-toggle"
-    }, {
-      "name" : "nb_test",
-      "type" : "Integer",
-      "width" : 120,
-      "comType" : "ti-input-num"
-    }, {
-      "name" : "lbls",
-      "type" : "Array",
-      "tip" : "xxxxxx"
-    }, {
-      "icon" : "zmdi-pin",
-      "title" : "地理位置",
-      "name" : ["lng", "lat"],
-      "type" : "Object",
-      "comType" : "ti-lbs-map",
-      "comConf" : {
-        "by" : "baidu",
-        "width" : "100%",
-        "zoom"  : 16
-      }
-    }, {
-      "name" : "avatar",
-      "type" : "Object",
-      "serializer" : {
-         "name" : "formatStringBy",
-         "args" : "id:${id}"
-      },
-      "comType" : "wn-obj-picker",
-      "comConf" : {}
-    }, {
-      "name" : "status",
-      "type" : "String",
-      "title" : "状态",
-      "comType" : "ti-switcher",
-      "comConf" : {
-        "multi" : false,
-        "options" : [
-          {"value":"live", "text":"生"},
-          {"value":"quanta", "text":"量子"},
-          {"value":"dead", "text":"死"}]
-      }
-    }, {
-      "name" : "profession",
-      "type" : "Array",
-      "comType" : "ti-droplist",
-      "comConf" : {
-        "multi" : true,
-        "options" : [
-          {"value":"A", "text":"程序员"},
-          {"value":"B", "text":"架构师"},
-          {"value":"C", "text":"设计师"},
-          {"value":"D", "text":"企业家"}]
-      }
-    }, {
-      "name" : "home",
-      "type" : "String",
-      "comType" : "ti-droplist",
-      "comConf" : {
-        "cached" : true,
-        "options" : {
-          "method" : "Wn.Sys.exec2",
-          "args"   : ["obj ~/* -cqn -e '^(id|nm|title|icon)$' -l -json"]
-        },
-        "defaultIcon" : "",
-        "mapping" : {
-          "icon"  : "icon",
-          "text"  : ["title", "nm"],
-          "value" : "id"
-        }
-      }
-    }, {
-      "name" : "birthday",
-      "type" : "DateTime",
-      "serializer"  : {"name":"formatDate", "args":["yyyyMMdd"]},
-      "transformer" : {"name":"formatDate", "args":["yyyy-MM-dd"]}
-    }, {
-      "type" : "Group",
-      "title" : "基本信息",
+  "comType" : "wn-form",
+  "comConf" : {
+    "__config" : {
       "fields" : [{
-          "name" : "age",
-          "type" : "Number"
+        "name" : "f8",
+        "type" : "Array",
+        "comType" : "ti-droplist",
+        "comConf" : {
+          "options" : {
+            "method" : "Wn.Sys.exec2",
+            "args"   : ["obj ~/* -cqn -e '^(id|nm|title|icon)$' -l -json"]
+          },
+          "mapping" : {
+            "icon"  : "icon",
+            "text"  : ["title", "nm"],
+            "value" : "id"
+          }
+        }
+      }]
+    },
+    "config" : {
+      "fields" : [{
+          "icon"    : "zmdi-flattr",
+          "title"   : "ID",
+          "name"    : "f0",
+          "comType" : "ti-label"
+        }, {    
+          "name" : "f1"
         }, {
-          "name" : "stature",
-          "type" : "Number"
+          "name" : "f2",
+          "type" : "Boolean",
+          "comType" : "ti-toggle"
         }, {
-          "name" : "weight",
-          "type" : "Number"
+          "name" : "f3",
+          "type" : "Integer",
+          "width" : 120,
+          "comType" : "ti-input-num"
+        }, {
+          "name" : "f4",
+          "type" : "Array",
+          "tip" : "xxxxxx"
+        }, {
+          "name" : "f5",
+          "type" : "Object",
+          "serializer" : {
+            "name" : "formatStringBy",
+            "args" : "id:${id}"
+          },
+          "comType" : "wn-obj-picker",
+          "comConf" : {}
+        }, {
+          "name" : "f6",
+          "type" : "String",
+          "title" : "状态",
+          "comType" : "ti-switcher",
+          "comConf" : {
+            "multi" : false,
+            "options" : [
+              {"value":"live", "text":"生"},
+              {"value":"quanta", "text":"量子"},
+              {"value":"dead", "text":"死"}]
+          }
+        }, {
+          "name" : "f7",
+          "type" : "Array",
+          "comType" : "ti-droplist",
+          "comConf" : {
+            "multi" : true,
+            "options" : [
+              {"value":"A", "text":"程序员"},
+              {"value":"B", "text":"架构师"},
+              {"value":"C", "text":"设计师"},
+              {"value":"D", "text":"企业家"}]
+          }
+        }, {
+          "name" : "f8",
+          "type" : "Array",
+          "comType" : "ti-droplist",
+          "comConf" : {
+            "options" : {
+              "method" : "Wn.Sys.exec2",
+              "args"   : ["obj ~/* -cqn -e '^(id|nm|title|icon)$' -l -json"]
+            },
+            "mapping" : {
+              "icon"  : "icon",
+              "text"  : ["title", "nm"],
+              "value" : "id"
+            }
+          }
+        }, {
+          "name" : "f9",
+          "type" : "DateTime",
+          "serializer"  : {"name":"formatDate", "args":["yyyyMMdd"]},
+          "transformer" : {"name":"formatDate", "args":["yyyy-MM-dd"]}
+        }, {
+          "type" : "Group",
+          "title" : "基本信息",
+          "fields" : [{
+              "name" : "f10",
+              "type" : "Number"
+            }, {
+              "name" : "f11",
+              "type" : "Number"
+            }, {
+              "name" : "f12",
+              "type" : "Number"
+            }]
         }]
-    }]
+      },
+    "data" : {
+      "f0"  : "=f0",
+      "f1"  : "=f1",
+      "f2"  : "=f2",
+      "f3"  : "=f3",
+      "f4"  : "=f4",
+      "f5"  : "=f5",
+      "f6"  : "=f6",
+      "f7"  : "=f7",
+      "f8"  : "=f8",
+      "f9"  : "=f9",
+      "f10" : "=f10",
+      "f11" : "=f11",
+      "f12" : "=f12"
+    }
+  },
+  "comEvents" : {
+    "changed" : "updatePair"
+  }
 }

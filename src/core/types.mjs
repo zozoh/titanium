@@ -12,11 +12,11 @@ const P_DATE = new RegExp(
 function parseDate(d) {
   //console.log("parseDate:", d)
   // Default return today
-  if(_.isUndefined(d)){
+  if(_.isUndefined(d) || "today" === d){
     return new Date()
   }
   // keep null
-  if(!d) {
+  if(!d || (_.isArray(d) && _.isEmpty(d))) {
     return null
   }
   // Date
@@ -731,6 +731,9 @@ const TiTypes = {
   },
   //.......................................
   toArray(val, {sep=/[ ,;\/、，；\r\n]+/}={}) {
+    if(Ti.Util.isNil(val)) {
+      return val
+    }
     if(_.isArray(val)) {
       return val
     }

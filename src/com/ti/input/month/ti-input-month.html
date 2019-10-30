@@ -1,19 +1,36 @@
-<ti-combo-input class="as-month"
+<ti-combo-box class="as-month"
   :class="topClass"
-  :icon="icon"
-  :text="theDateText"
-  :value="theDateValue"
-  :placeholder="placeholder"
-  :editable="editable"
-  :focus-to-open="focusToOpen"
   :width="width"
-  :height="height"
-  @changed="onChanged"
-  @collapse="onCollapse">
-  <ti-month
-    :value="theDropDate"
-    :height="dropHeight"
-    :begin-year="beginYear"
-    :end-year="endYear"
-    @changed="onMonthChanged"/>
-</ti-combo-input>
+  :drop-width="dropWidth"
+  :drop-height="dropHeight"
+  :status="status"
+  @collapse="doCollapse">
+  <!--
+    Box
+  -->
+  <template v-slot:box>
+    <ti-input 
+      :readonly="!canInput"
+      :hide-border="hideBorder"
+      :placeholder="placeholder|i18n"
+      :prefix-icon="icon"
+      :suffix-icon="theStatusIcon"
+      :value="theInputValue"
+      :height="height"
+      :focus="isExtended"
+      @changed="onChanged"
+      @focused="onInputFocused"
+      @suffix:icon="onClickStatusIcon"/>
+  </template>
+  <!--
+    Drop
+  -->
+  <template v-slot:drop>
+    <ti-month
+      :value="theDropDate"
+      :height="dropHeight"
+      :begin-year="beginYear"
+      :end-year="endYear"
+      @changed="onMonthChanged"/>
+  </template>
+</ti-combo-box>
