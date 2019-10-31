@@ -4,7 +4,7 @@ export default {
   data : ()=>({
     "inputCompositionstart" : false,
     "isFocused" : false,
-    "pointerHoverPrefixIcon" : false
+    "pointerHover" : null
   }),
   ////////////////////////////////////////////////////
   watch : {
@@ -57,6 +57,10 @@ export default {
       type : String,
       default : null
     },
+    "prefixIconForClean" : {
+      type : Boolean,
+      default : true
+    },
     "prefixText" : {
       type : String,
       default : null
@@ -92,7 +96,7 @@ export default {
         "is-focused"   : this.isFocused,
         "is-blurred"   : !this.isFocused,
         "is-readonly"  : this.readonly,
-        "has-prefix-icon" : this.prefixIcon,
+        "has-prefix-icon" : this.thePrefixIcon,
         "has-prefix-text" : this.prefixText,
         "has-suffix-icon" : this.suffixIcon,
         "has-suffix-text" : this.suffixText,
@@ -112,7 +116,8 @@ export default {
     },
     //------------------------------------------------
     thePrefixIcon() {
-      if(this.pointerHoverPrefixIcon) {
+      if("prefixIcon" == this.pointerHover
+        && this.isCanHover("prefixIcon")) {
         return this.prefixHoverIcon || this.prefixIcon
       }
       return this.prefixIcon
@@ -133,9 +138,15 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
+    isCanHover(hoverName) {
+      return this.theHover[hoverName] ? true : false
+    },
+    //------------------------------------------------
     getHoverClass(hoverName) {
-      if(this.theHover[hoverName]) {
-        return "can-hover"
+      let canHover = this.isCanHover(hoverName)
+      return {
+        "can-hover" : canHover,
+        "for-look"  : !canHover
       }
     },
     //------------------------------------------------
@@ -193,7 +204,9 @@ export default {
     },
     //------------------------------------------------
     onClickPrefixIcon() {
-      this.$emit("changed", null)
+      if(this.prefixIconForClean) {
+        this.$emit("changed", null)
+      }
       this.$emit("prefix:icon")
     },
     //------------------------------------------------
@@ -207,7 +220,7 @@ export default {
     //------------------------------------------------
     onClickSuffixText() {
       this.$emit("suffix:text")
-    },
+    }
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////

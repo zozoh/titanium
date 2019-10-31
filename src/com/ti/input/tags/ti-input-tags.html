@@ -2,6 +2,24 @@
   :class="topClass"
   :style="topStyle"
   @click.left="onClickTop">
+  <!--prefix:icon-->
+  <div v-if="prefixIcon"
+    class="tit-icon at-prefix"
+    :class="getHoverClass('prefixIcon')"
+    @click.left.stop="onClickPrefixIcon"
+    @mouseenter="pointerHover='prefixIcon'"
+    @mouseleave="pointerHover=null">
+    <ti-icon :value="thePrefixIcon"/>
+  </div>
+  <!--prefix:text-->
+  <div v-if="prefixText" 
+    class="tit-text at-prefix"
+    :class="getHoverClass('prefixText')"
+    @click.left.stop="onClickPrefixText"
+    @mouseenter="pointerHover='prefixText'"
+    @mouseleave="pointerHover=null">
+    <span>{{prefixText|i18n}}</span>
+  </div>
   <!--
     Tag List
   -->
@@ -30,10 +48,22 @@
       @changed="onInputChanged"
       @focus="onInputFocus"
       @blur="onInputBlur">
-    <!--Status Icon-->
+    <!--suffix:text-->
+    <div v-if="suffixText"
+      class="tit-text at-suffix"
+      :class="getHoverClass('suffixText')"
+      @click.left.stop="onClickSuffixIcon"
+      @mouseenter="pointerHover='suffixText'"
+      @mouseleave="pointerHover=null">
+      <span>{{suffixText|i18n}}</span>
+    </div>
+    <!--suffix:icon-->
     <div v-if="suffixIcon"
-      class="as-suffix-icon"
-      @click.left.stop="onClickSuffixIcon">
+      class="tit-icon at-suffix"
+      :class="getHoverClass('suffixIcon')"
+      @click.left.stop="onClickSuffixIcon"
+      @mouseenter="pointerHover='suffixIcon'"
+      @mouseleave="pointerHover=null">
       <ti-icon :value="suffixIcon"/>
     </div>
   </div>

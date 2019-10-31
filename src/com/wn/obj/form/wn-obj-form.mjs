@@ -80,13 +80,6 @@ export default {
   mounted : function(){
     if(this.fuse) {
       let failBy = this.fuse.failBy || "status.changed"
-      // Defauls noti
-      let noti = _.assign({
-        showClose: true,
-        message: Ti.I18n.get("no-saved"),
-        duration : 3000,
-        type: 'warning'
-      }, this.fuse.noti)
       // Watch fuse
       Ti.Fuse.getOrCreate().add({
         key : this.fuse.key,
@@ -94,7 +87,7 @@ export default {
           return !(_.get(this, failBy))
         },
         fail : ()=>{
-          this.$message(noti);
+          Ti.Toast.Open("i18n:no-saved", "warn")
         }
       })
     }

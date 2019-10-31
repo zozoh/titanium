@@ -44,7 +44,7 @@ export default {
   },
   //----------------------------------------
   async reload({state, commit, dispatch}, meta) {
-    console.log("thing-manager-config.reload", state)
+    //console.log("thing-manager-config.reload", state)
     // Update New Meta
     if(meta) {
       commit("setMeta", meta)

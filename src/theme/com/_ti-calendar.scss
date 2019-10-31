@@ -10,7 +10,7 @@ $ti-cal-width: 2.6rem;
       @include flex-align-nowrap($ai:stretch);
       width:$ti-cal-width;
       &.sz-double {
-        width:$ti-cal-width * 1.5;
+        width:$ti-cal-width * 1.3;
       }
       //-------------------------------
       > .go-btn {
@@ -28,7 +28,6 @@ $ti-cal-width: 2.6rem;
       }
       //-------------------------------
       > .as-title {
-        @include flex-center;
         flex:1 1 auto;
         // The Quick Year-Month picker
         .ti-combo-input {
@@ -99,9 +98,8 @@ $ti-cal-width: 2.6rem;
     border-radius: 50%;
     font-size:.12rem; white-space: nowrap;
     &:hover {
-      @include color($color-primary, r, c);
+      @include color($color-selected, r, c);
     }
   }
-  //---------------------------------
   //---------------------------------
 }

@@ -3,11 +3,43 @@
   @include flex-align($ai:stretch);
   @include border(1px, solid, dark);
   @include color($color-input, c, r);
+  height:.35rem;
+  //-----------------------------------------
+  &.show-border {
+    @include border(1px, solid, dark);
+  }
   //-----------------------------------------
   &.is-focused {
     border-color: map-get($color-line, highlight);
   }
   //-----------------------------------------
+  .tit-icon {
+    @include flex-center;
+    flex:0 0 auto; width:.26rem;
+    //---------------------------------------
+    &.can-hover{cursor: pointer;}
+    &.can-hover:hover{@include color($color-primary,r,c);}
+    //---------------------------------------
+    &.at-prefix.can-hover {
+      > .ti-icon {
+        transition: 0.5s; opacity: 0.4;
+      }
+      &:hover > .ti-icon {
+        transform:scale(1.1) rotate(180deg);
+        opacity: 1;
+      }
+    }
+    //---------------------------------------
+  }
+  //-----------------------------------------
+  .tit-text {
+    @include flex-center;
+    //---------------------------------------
+    &.can-hover{cursor: pointer;}
+    &.can-hover:hover{@include color($color-primary,r,c);}
+    //---------------------------------------
+  }
+    //-----------------------------------------
   // Tag Box
   > .as-tags {
     @include flex-center;
@@ -20,7 +52,7 @@
     @include flex-align-nowrap($jc:flex-end, $ai:stretch);
     flex:1 1 auto; min-height: .35rem;
     > input {
-      width:1.5rem; height:.34rem;
+      width:1.5rem; 
       outline:none;
       flex:1 0 auto;
       border:0; padding:0 .1rem;
@@ -28,22 +60,6 @@
       font-size:inherit;
       background:transparent;
       color:inherit; 
-    }
-    //---------------------------------------
-    > .as-suffix-icon {
-      @include flex-center;
-      cursor: pointer;
-      flex:0 0 auto;
-      width:.26rem;
-      .ti-icon .icon-icon>i {
-        font-size:1em; opacity: 0.6;
-      }
-      &:hover {
-        @include color($color-primary, r, c);
-        .ti-icon .icon-icon>i {
-          opacity: 1;
-        }
-      }
     }
   }
   //-----------------------------------------

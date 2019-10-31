@@ -252,12 +252,7 @@ export default {
         return !this.hasUploading
       },
       fail : ()=>{
-        this.$message({
-          showClose: true,
-          message: Ti.I18n.get("upload-nofinished"),
-          duration : 3000,
-          type: 'warning'
-        });
+        Ti.Toast.Open("i18n:upload-nofinished", "warn")
       }
     })
     // Restore the exposeHidden

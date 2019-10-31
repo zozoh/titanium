@@ -6,13 +6,9 @@ export default {
       type : String,
       default : null
     },
-    "canInput" : {
-      type : Boolean,
-      default : true
-    },
     "multi" : {
       type : Boolean,
-      default : true
+      default : false
     },
     "value" : null,
     // +1 from the begin
@@ -61,6 +57,10 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "prefixIcon" : {
+      type : String,
+      default : undefined
+    },
     "itemIcon" : {
       type : String,
       default : null
@@ -76,6 +76,10 @@ export default {
     "statusIcons" : {
       type : Object,
       default : undefined
+    },
+    "prefixIconForClean" : {
+      type : Boolean,
+      default : true
     },
     "cancelTagBubble" : {
       type : Boolean,
@@ -100,6 +104,13 @@ export default {
       return "ti-combo-input"
     }
     //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    onChanged(val) {
+      console.log("changed!!!", val)
+      this.$emit('changed', val)
+    }
   }
   ////////////////////////////////////////////////////
 }

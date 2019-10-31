@@ -11,9 +11,10 @@
     <div class="as-name">
       <component 
         :is="dirNameComType"
+        height=".3rem"
         :options="dirNameOptions"
         :value="filesName"
-        :empty="null"
+        :prefix-icon-for-clean="false"
         @changed="onFilesNameChanged"/>
     </div>
     <!--Right: Common Actions-->

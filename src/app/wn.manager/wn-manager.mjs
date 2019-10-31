@@ -18,32 +18,6 @@ export default {
       if(!newMeta || !oldMeta || newMeta.id != oldMeta.id) {
         this.reloadMain(newMeta)
       }
-    },
-    "mainData.__wn_messages.toast" : function(newVal, oldVal) {
-      let app = Ti.App(this)
-      if(newVal) {
-        //console.log("toast!", newVal)
-        this.$message({
-            showClose : true,
-            duration  : 2000,
-            type      : newVal.type || "success",
-            message   : Ti.I18n.text(newVal)
-          });
-        app.commit("main/$toast", null)
-      }
-    },
-    "mainData.__wn_messages.noti" : function(newVal, oldVal) {
-      let app = Ti.App(this)
-      if(newVal) {
-        this.$notify({
-            showClose : true,
-            duration  : 2000,
-            type      : newVal.type || "success",
-            title    : Ti.I18n.text(newVal.title || "i18n:success"),
-            message  : Ti.I18n.text(newVal)
-          });
-        app.commit("main/$noti", null)
-      }
     }
   },
   //////////////////////////////////////////////
@@ -63,12 +37,7 @@ export default {
         return !vm.isLoading
       },
       fail : ()=>{
-        vm.$message({
-          showClose: true,
-          message: Ti.I18n.get("wnm-view-opening"),
-          duration : 3000,
-          type: 'warning'
-        });
+        Ti.Toast.Open("i18n:wnm-view-opening", "warn")
       }
     })
   },
@@ -126,9 +95,6 @@ export default {
     },
     mainData() {
       let data = _.pickBy(this.$store.state.main, (val, key)=>{
-        if("__wn_messages" == key) {
-          return true
-        }
         return key && !key.startsWith("_")
       })
       if(this.mainView && !_.isEmpty(this.mainView.comConf)) {
@@ -142,9 +108,7 @@ export default {
       }
     },
     mainLog() {
-      if(this.mainData && this.mainData.__wn_messages) {
-        return Ti.I18n.text(this.mainData.__wn_messages.log)
-      }
+      // TODO how to read the logging? maybe use the `Ti.Log` ?
     },
     mainStatusText(){
       let st = this.mainStatus

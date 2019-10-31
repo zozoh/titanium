@@ -3,7 +3,7 @@
 export default {
   //--------------------------------------------
   async reload({state, commit, dispatch}, meta) {
-    console.log("thing-manager-search.reload", meta)
+    //console.log("thing-manager-search.reload", meta)
     // Update New Meta
     if(meta) {
       commit("setMeta", meta)

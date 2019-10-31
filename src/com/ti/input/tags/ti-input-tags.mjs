@@ -3,7 +3,8 @@ export default {
   ////////////////////////////////////////////////////
   data : ()=>({
     "inputCompositionstart" : false,
-    "isFocused" : false
+    "isFocused" : false,
+    "pointerHover" : null
   }),
   ////////////////////////////////////////////////////
   watch : {
@@ -39,6 +40,10 @@ export default {
       type : Boolean,
       default : true
     },
+    "hideBorder" : {
+      type : Boolean,
+      default : false
+    },
     // +1 from the begin
     // -1 from the last
     "maxValueLen" : {
@@ -71,10 +76,6 @@ export default {
       type : Boolean,
       default : false
     },
-    "focus" : {
-      type : Boolean,
-      default : false
-    },
     "tagIcon" : {
       type : String,
       default : null
@@ -87,20 +88,53 @@ export default {
       type : Boolean,
       default : false
     },
+    "prefixHoverIcon" : {
+      type : String,
+      default : "zmdi-close-circle"
+    },
+    "prefixIcon" : {
+      type : String,
+      default : null
+    },
+    "prefixIconForClean" : {
+      type : Boolean,
+      default : true
+    },
+    "prefixText" : {
+      type : String,
+      default : null
+    },
+    "suffixText" : {
+      type : String,
+      default : null
+    },
     "suffixIcon" : {
       type : String,
-      //default : "zmdi-chevron-down"
-    }
+      default : null
+    },
+    "focus" : {
+      type : Boolean,
+      default : false
+    },
+    "hover" : {
+      type : [Array, String],
+      default : ()=>["prefixIcon", "suffixIcon"]
+    },
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName(this.className, {
+        "show-border"  : !this.hideBorder,
+        "hide-border"  : this.hideBorder,
         "is-focused"   : this.isFocused,
         "is-blurred"   : !this.isFocused,
-        "is-highlight" : this.highlight,
-        "has-suffix-icon" : this.suffixIcon
+        "is-can-input" : this.canInput,
+        "has-prefix-icon" : this.thePrefixIcon,
+        "has-prefix-text" : this.prefixText,
+        "has-suffix-icon" : this.suffixIcon,
+        "has-suffix-text" : this.suffixText,
       })
     },
     //------------------------------------------------
@@ -178,11 +212,35 @@ export default {
     //------------------------------------------------
     hasTags() {
       return !_.isEmpty(this.theTags)
+    },
+    //------------------------------------------------
+    thePrefixIcon() {
+      if("prefixIcon" == this.pointerHover) {
+        return this.prefixHoverIcon || this.prefixIcon
+      }
+      return this.prefixIcon
+    },
+    //------------------------------------------------
+    theHover() {
+      let map = {}
+      let hos = _.concat(this.hover)
+      for(let ho of hos) {
+        if(ho) {
+          map[ho] = true
+        }
+      }
+      return map
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
+    //------------------------------------------------
+    getHoverClass(hoverName) {
+      if(this.theHover[hoverName]) {
+        return "can-hover"
+      }
+    },
     //------------------------------------------------
     onInputCompositionStart(){
       this.inputCompositionstart = true
@@ -284,8 +342,23 @@ export default {
       }
     },
     //------------------------------------------------
+    onClickPrefixIcon() {
+      if(this.prefixIconForClean) {
+        this.$emit("changed", null)
+      }
+      this.$emit("prefix:icon")
+    },
+    //------------------------------------------------
+    onClickPrefixText() {
+      this.$emit("prefix:text")
+    },
+    //------------------------------------------------
     onClickSuffixIcon() {
       this.$emit("suffix:icon")
+    },
+    //------------------------------------------------
+    onClickSuffixText() {
+      this.$emit("suffix:text")
     }
     //------------------------------------------------
   },

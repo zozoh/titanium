@@ -75,7 +75,7 @@
           }
         }, {
           "name" : "f8",
-          "type" : "Array",
+          "type" : "String",
           "comType" : "ti-droplist",
           "comConf" : {
             "options" : {

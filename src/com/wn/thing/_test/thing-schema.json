@@ -108,7 +108,8 @@
   "files" : {
     "comType" : "wn-thing-files",
     "comConf" : {
-      "..." : "=files"
+      "filesName" : "=filesName",
+      "files"     : "=files"
     }
   }
 }

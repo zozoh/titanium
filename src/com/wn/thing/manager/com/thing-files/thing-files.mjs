@@ -98,6 +98,7 @@ export default {
     },
     //--------------------------------------
     onFilesNameChanged(dirName) {
+      console.log("haha")
       let app = Ti.App(this)
       app.commit("main/setFilesName", dirName)
       app.dispatch("main/reloadFiles", {force:true})

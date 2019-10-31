@@ -54,7 +54,7 @@ export default {
     //------------------------------------------------
     theBoxPrefixIcon() {
       return _.get(this.runtimeItem, "icon")
-            || this.itemIcon
+            || this.prefixIcon
     },
     //------------------------------------------------
     theInputValue() {
@@ -71,10 +71,18 @@ export default {
       }
       //........................................
       // Show Text
-      return Ti.Util.fallback(
-        _.get(this.runtimeItem, "text"),
-        this.theValue
-      )
+      let text = _.get(this.runtimeItem, "text")
+      if(_.isUndefined(text)) {
+        text = this.theValue
+      }
+      return Ti.I18n.text(text)
+    },
+    //------------------------------------------------
+    theHover() {
+      if(this.prefixIconForClean) {
+        return ["prefixIcon", "suffixIcon"]
+      }
+      return ["suffixIcon"]
     }
     //------------------------------------------------
   },

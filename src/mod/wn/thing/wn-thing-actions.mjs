@@ -45,7 +45,7 @@ export default {
    * Toggle enter/outer RecycleBin
    */
   async toggleInRecycleBin({state, commit, dispatch, getters}) {
-    console.log("thing-manager-toggleInRecycleBin")
+    //console.log("thing-manager-toggleInRecycleBin")
     // Update filter
     let th_live = state.search.filter.th_live == -1 ? 1 : -1
     commit("search/updateFilter", {th_live})
@@ -163,8 +163,8 @@ export default {
    */
   async reloadFiles({state,commit,dispatch, getters}, {force=false}={}) {
     //console.log("reloadFiles")
-    let current = state.current.meta
-    let thingId = (current||{}).id
+    let current = _.get(state.current, "meta")
+    let thingId = _.get(current, "id")
     let dirName = state.filesName
     // No current
     if(!thingId || !dirName) {
@@ -252,8 +252,8 @@ export default {
    * 
    * @param force{Boolean} - If true, always reload. false, reload when empty
    */
-  async tryReloadContentAndFiles({state, dispatch}, force=false) {
-    // console.log("tryReloadContentAndFiles")
+  async tryReloadContentAndFiles({state, commit, dispatch}, force=false) {
+    //console.log("tryReloadContentAndFiles")
     // May need to be reload content?
     if(state.config.shown.content
       && (force || !_.isString(state.current.content))
@@ -269,6 +269,10 @@ export default {
          || state.files.meta.id != state.current.meta.id)
     ){
       await dispatch("reloadFiles")
+    }
+    // May need reset files ?
+    else if(!state.current || !state.current.meta) {
+      commit("files/reset")
     }
   },
   //--------------------------------------------
@@ -289,7 +293,7 @@ export default {
    * Reload All
    */
   async reload({state, commit, dispatch}, meta) {
-    console.log("thing-manager.reload", state)
+    //console.log("thing-manager.reload", state)
     // Update New Meta
     if(meta) {
       commit("setMeta", meta)

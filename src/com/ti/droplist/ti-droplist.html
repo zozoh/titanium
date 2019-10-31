@@ -1,8 +1,7 @@
 <component :is="theComType"
   :class="topClass"
-  :can-input="canInput"
-  :multi="multi"
   :value="value"
+  :can-input="false"
   :max-value-len="maxValueLen"
   :default-tip-key="defaultTipKey"
   :placeholder="placeholder"
@@ -15,9 +14,11 @@
   :query-when-input="queryWhenInput"
   :mapping="mapping"
   :item-icon="itemIcon"
+  :prefix-icon="prefixIcon"
+  :prefix-icon-for-clean="prefixIconForClean"
   :focus-to-open="focusToOpen"
   :loading-icon="loadingIcon"
   :status-icons="statusIcons"
   :cancel-tag-bubble="cancelTagBubble"
   :cached="cached"
-  @changed="$emit('changed', $event)"/>
+  @changed="onChanged"/>

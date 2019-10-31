@@ -71,6 +71,14 @@ export default {
     type : Object,
     default : ()=>({})
   },
+  "prefixIcon" : {
+    type : String,
+    default : "far-trash-alt"
+  },
+  "prefixHoverIcon" : {
+    type : String,
+    default : undefined
+  },
   "itemIcon" : {
     type : String,
     default : null

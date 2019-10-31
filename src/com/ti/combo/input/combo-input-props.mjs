@@ -57,13 +57,21 @@ export default {
     type : Object,
     default : ()=>({})
   },
+  "prefixIcon" : {
+    type : String,
+    default : "zmdi-minus"
+  },
+  "prefixHoverIcon" : {
+    type : String,
+    default : undefined
+  },
+  "prefixIconForClean" : {
+    type : Boolean,
+    default : true
+  },
   "itemIcon" : {
     type : String,
     default : null
-  },
-  "focusToOpen" : {
-    type : Boolean,
-    default : true
   },
   "loadingIcon" : {
     type : String,

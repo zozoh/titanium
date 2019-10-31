@@ -2,6 +2,7 @@
   @include noselect;
   @include flex-align-nowrap($ai:stretch);
   @include color($color-input, c, r);
+  height:.35rem;
   //-----------------------------------------
   &.show-border {
     @include border(1px, solid, dark);
@@ -13,25 +14,34 @@
   //-----------------------------------------
   > .as-icon {
     @include flex-center;
-    flex:0 0 auto; width:.3rem;
-    opacity: 0.6;
+    flex:0 0 auto; width:.26rem;
+    //---------------------------------------
+    &.can-hover{cursor: pointer;}
+    &.can-hover:hover{@include color($color-primary,r,c);}
+    //---------------------------------------
+    &.at-prefix.can-hover {
+      > .ti-icon {
+        transition: 0.5s; opacity: 0.4;
+      }
+      &:hover > .ti-icon {
+        transform:scale(1.1) rotate(180deg);
+        opacity: 1;
+      }
+    }
+    //---------------------------------------
   }
   //-----------------------------------------
   > .as-text {
     @include flex-center;
-    opacity: 0.6;
+    //---------------------------------------
+    &.can-hover{cursor: pointer;}
+    &.can-hover:hover{@include color($color-primary,r,c);}
+    //---------------------------------------
   }
-  //-----------------------------------------
-  > .can-hover{
-    cursor: pointer; opacity: 1;
-    &:hover {
-      @include color($color-primary, r, c);
-    }
-  }
-  //-----------------------------------------
+    //-----------------------------------------
   > input {
     @include font-fixed(inherit);
-    width:100%; height:.35rem;
+    width:100%; 
     flex:1 1 auto;
     outline:none; border:0;
     padding:0 .1rem;
@@ -40,22 +50,6 @@
   }
   &.is-readonly {
     > input:read-only {cursor:inherit; @include noselect;}
-  }
-  //-----------------------------------------
-  > .as-icon.at-prefix {
-    > .ti-icon {transition: 0.5s;}
-    &.can-hover:hover {
-      .ti-icon {
-        transform:scale(1.1) rotate(180deg);
-      }
-    }
-  }
-  //-----------------------------------------
-  > .as-icon.at-suffix {
-    @include flex-center;
-    cursor: pointer;
-    flex:0 0 auto;
-    width:.26rem;
   }
   //-----------------------------------------
   &.has-prefix-icon {
