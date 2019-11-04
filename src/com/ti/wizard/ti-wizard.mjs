@@ -1,10 +1,6 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
-  data : ()=>({
-    "current" : 0
-  }),
-  ///////////////////////////////////////////////////
   props : {
     "className" : {
       type : String,
@@ -18,19 +14,17 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "first" : {
+    "current" : {
       type : [Number, String],
       default : 0
     },
     "hijackable" : {
       type : Boolean,
       default : true
-    }
-  },
-  ///////////////////////////////////////////////////
-  watch : {
-    "first" : function() {
-      this.current = this.first
+    },
+    "canClickHeadItem" : {
+      type : String,
+      default : null
     }
   },
   ///////////////////////////////////////////////////
@@ -40,35 +34,46 @@ export default {
       return this.className
     },
     //----------------------------------------------
-    stepList() {
+    displayStepList() {
       let list = []
       if(_.isArray(this.steps)) {
-        for(let i=0; i<this.steps.length; i++) {
-          let step = this.steps[i]
-          let stepKey = step.key || `step${i}`
+        for(let step of this.stepList) {
           let className = []
           if(step.className) {
             className = [].concat(step.className)
           }
-          if(this.currentStepIndex == i) {
+          if(this.currentStepIndex == step.index) {
             className.push("is-current")
           }
-          else if(i > this.currentStepIndex) {
+          else if(step.index > this.currentStepIndex) {
             className.push("is-future")
           }
           else {
             className.push("is-passed")
           }
           // Join to the list
+          list.push(_.assign({}, step, {className}))
+        }
+      }
+      return list
+    },
+    //----------------------------------------------
+    stepList() {
+      let list = []
+      if(_.isArray(this.steps)) {
+        for(let i=0; i<this.steps.length; i++) {
+          let step = this.steps[i]
+          let stepKey = step.key || `step${i}`
+          // Join to the list
           list.push({
-            className,
-            index   : i,
-            stepKey : stepKey,
-            title   : step.title   || stepKey,
-            dataKey : Ti.Util.fallback(step.dataKey,stepKey),
-            data    : this.data,
-            comType : step.comType || "ti-label",
-            comConf : step.comConf || {value:stepKey},
+            index     : i,
+            className : step.className,
+            stepKey   : stepKey,
+            title     : step.title   || stepKey,
+            dataKey   : step.dataKey,
+            data      : this.data,
+            comType   : step.comType || "ti-label",
+            comConf   : step.comConf || {value:stepKey},
             comEvents : step.comEvents  || {},
             prev : step.prev,
             next : step.next
@@ -79,32 +84,17 @@ export default {
     },
     //----------------------------------------------
     currentStepIndex() {
-      if(_.isArray(this.steps)) {
-        // Index Already
-        if(_.isNumber(this.current)) {
-          return _.clamp(this.current, 0, this.steps.length-1)
-        }
-        // By Key
-        for(let i=0; i<this.steps.length; i++) {
-          let stepKey = step.key || `step${i}`
-          if(this.current == stepKey) {
-            return i
-          }
-        }
-      }
-      // No Current
-      return -1
+      return this.currentStep
+                ? this.currentStep.index
+                : -1
     },
     //----------------------------------------------
     hasCurrentStep() {
-      return this.currentStepIndex >= 0
+      return this.currentStep ? true : false
     },
     //----------------------------------------------
     currentStep() {
-      let index = this.currentStepIndex
-      if(index >= 0)
-        return _.nth(this.stepList, index)
-      return null
+      return this.getStepBy(this.current)
     },
     //----------------------------------------------
     btnPrev() {
@@ -129,6 +119,24 @@ export default {
   ///////////////////////////////////////////////////
   methods : {
     //----------------------------------------------
+    getStepBy(keyOrIndex) {
+      // By Index: -1 is the last item
+      if(_.isNumber(keyOrIndex)) {
+        let i = Ti.Num.scrollIndex(keyOrIndex, this.stepList.length)
+        if(i>=0)
+          return this.stepList[i]
+      }
+      // By Key
+      else {
+        for(let step of this.stepList) {
+          if(step.stepKey == keyOrIndex) {
+            return step
+          }
+        }
+      }
+      // Return undefined
+    },
+    //----------------------------------------------
     onClickBtnPrev() {
       if(this.btnPrev && this.btnPrev.enabled) {
         this.gotoPrev()
@@ -141,8 +149,10 @@ export default {
       }
     },
     //----------------------------------------------
-    gotoStep(step) {
-      this.current = step
+    gotoStep(keyOrIndex) {
+      let step = this.getStepBy(keyOrIndex)
+      if(step)
+        this.$emit("goto-step", step)
     },
     //----------------------------------------------
     gotoPrev(off=-1) {
@@ -155,7 +165,8 @@ export default {
     //----------------------------------------------
     gotoFromCurrent(off=1) {
       if(this.currentStep) {
-        this.current = this.currentStep.index + off
+        let nextStepIndex = this.currentStep.index + off
+        this.gotoStep(nextStepIndex)
       }
     },
     //----------------------------------------------
@@ -198,34 +209,24 @@ export default {
       }
     }, 
     //----------------------------------------------
-    onStepChanged( {
-      index=-1,
-      title,
-      stepKey,
-      dataKey,
-      payload
-    }={}) {
-      console.log("wizard:onStepChanged", {index, title, stepKey, dataKey}, payload)
-      if(!dataKey) {
-        // Global Payload
-        if(_.isPlainObject(payload)) {
-          this.$emit("changed", payload)
-        }
-        // Apply by stepKey
-        else {
-          this.$emit("changed", {[stepKey] : payload})
-        }
+    onStepEvent({emitName, nextStep, payload}={}) {
+      console.log("wizard:onStepEvent", {emitName, nextStep, payload})
+      // Notify Event
+      if(emitName) {
+        this.$emit(emitName, payload)
       }
-      // emit by specail dataKey
-      else {
-        this.$emit("changed", {[dataKey] : payload})
+      // Try auto goto nextStep
+      this.gotoStep(nextStep)
+    },
+    //----------------------------------------------
+    onClickHeadItem(step, index) {
+      // Can Click Passed Steps
+      if("passed" == this.canClickHeadItem 
+        && this.currentStepIndex > index) {
+        this.gotoStep(index)
       }
     }
     //----------------------------------------------
-  },
-  ///////////////////////////////////////////////////
-  mounted : function() {
-    this.current = this.first
   }
   ///////////////////////////////////////////////////
 }

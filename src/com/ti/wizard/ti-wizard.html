@@ -5,9 +5,10 @@
   -->
   <div class="as-head">
     <ul>
-      <li v-for="(step, index) in stepList"
+      <li v-for="(step, index) in displayStepList"
         :key="step.stepKey"
-        :class="step.className">
+        :class="step.className"
+        @click.left="onClickHeadItem(step, index)">
         <span class="as-indicator">
           <span class="as-line at-l"></span>
           <span class="as-dot">{{index+1}}</span>
@@ -21,8 +22,9 @@
     Current Step Component
   -->
   <div class="as-main">
-    <wizard-step v-bind="currentStep"
-      @step:changed="onStepChanged"/>
+    <wizard-step 
+      v-bind="currentStep"
+      @step:event="onStepEvent"/>
   </div>
   <!--
     Footer Default Buttons

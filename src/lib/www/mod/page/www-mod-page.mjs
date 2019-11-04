@@ -264,9 +264,9 @@ export default {
         Ti.Util.walk(offsets, {
           leaf : (off, path)=>{
             let val = _.get(state.data, path)
-            // Number
-            if(_.isNumber(val) && _.isNumber(off)) {
-              _.set(d2, path, val+off)
+            // Offset
+            if(_.isNumber(val) && _.isString(off) && /^[+-][0-9.]+$/.test(off)) {
+              _.set(d2, path, val+off*1)
             }
             // Others Replace
             else {
@@ -293,7 +293,7 @@ export default {
           break
         }
       }
-      console.log(assertFail)
+      //console.log(assertFail)
       // Do Fail
       if(assertFail && fail.action) {
         dispatch("doAction", fail, {root:true})

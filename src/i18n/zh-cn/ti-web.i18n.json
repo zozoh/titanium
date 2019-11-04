@@ -1,0 +1,7 @@
+{
+  "pay-wx"   : "微信支付",
+  "pay-zfb"  : "支付宝",
+  "pay-by-wx-qrcode"  : "使用微信扫码支付",
+  "pay-by-zfb-qrcode" : "使用支付宝扫码支付",
+  "pay-by-nil" : "请选择一个支付方式"
+}

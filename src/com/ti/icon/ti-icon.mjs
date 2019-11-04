@@ -6,6 +6,11 @@ export default {
       type : String,
       default : null
     },
+    // If image, join the base
+    "base" : {
+      type : String,
+      default : null
+    },
     "value" : {
       type : [String,Object],
       default : ""
@@ -74,6 +79,12 @@ export default {
       // Join `className / text` to show icon font
       if('font' == icn.type) {
         _.assign(icn, Ti.Icons.parseFontIcon(icn.value))
+      }
+      // Join base
+      else if('image' == icn.type) {
+        if(!Ti.Util.isBlank(this.base)) {
+          icn.value = Ti.Util.appendPath(this.base, icn.value)
+        }
       }
 
       // join style:outer

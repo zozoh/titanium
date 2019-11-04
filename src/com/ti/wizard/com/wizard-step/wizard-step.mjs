@@ -26,10 +26,6 @@ export default {
       type : [Array, Object, Number, Boolean, String],
       default : null
     },
-    "comValueKey" : {
-      type : String,
-      default : "value"
-    },
     "comType" : {
       type : String,
       default : "ti-label"
@@ -53,15 +49,10 @@ export default {
   computed : {
     //----------------------------------------------
     comBindObject() {
-      let re = _.assign({}, this.comConf)
-      let comVal = this.data
-      if(this.data && this.dataKey) {
-        comVal = this.data[this.dataKey]
-      }
-      if(!_.isUndefined(comVal) && this.comValueKey) {
-        re[this.comValueKey] = comVal
-      }
-      return re      
+      let bind = Ti.Util.explainObj(this.data, this.comConf, {
+        evalFunc : true
+      })
+      return bind      
     }
     //----------------------------------------------
   },
@@ -70,33 +61,53 @@ export default {
     //----------------------------------------------
     async hijackEmit(name, args) {
       // Find the serializer function
-      let fn = this.comEvents[name]
-      let serializer = Ti.Types.evalFunc(fn)
-      console.log(this.comEvents)
+      let router = this.comEvents[name]
+      if(!name.startsWith("hook:"))
+        console.log("hijackEmit:", {name, args, router})
 
-      // Eval Payload
-      let payload = args
-      if(args && _.isArray(args) && args.length == 1) {
-        payload = args[0]
-      }
-      // transform value if necessary
-      // and emit it
-      if(fn) {
-        if(_.isFunction(serializer)) {
-          payload = serializer(payload)
+      // Do routing
+      if(router) {
+        // Boolean: keep emitName
+        if(_.isBoolean(router)) {
+          router = {emitName:name}
         }
-        console.log("wizard-step::hijackEmit->", name, payload)      
-        this.$emit("step:changed", {
-          index   : this.index,
-          title   : this.title,
-          stepKey : this.stepKey,
-          dataKey : this.dataKey,
-          payload
+        // String/Number: step
+        else if(_.isNumber(router) || /^[+-][0-9]+$/.test(router)) {
+          router = {emitName:name, nextStep:router}
+        }
+        // String for emitName
+        else if(_.isString(router)) {
+          router = {emitName:router}
+        }
+        //............................
+        // Eval emit & next
+        let emitName = router.emitName || name
+        let nextStep = router.nextStep
+        if(/^[+-][0-9]+$/.test(nextStep)) {
+          nextStep = this.index + (nextStep*1)
+        }
+        //............................
+        // Eval Payload
+        let payload = args
+        if(args && _.isArray(args) && args.length == 1) {
+          payload = args[0]
+        }
+        // Transform Payload
+        let trans = Ti.Types.getFuncBy(router, "transformer")
+        if(_.isFunction(trans)) {
+          payload = trans(payload)
+        }
+        // Wrap payload by dataKey
+        if(this.dataKey) {
+          payload = {[this.dataKey] : payload}
+        }
+        //............................
+        // Notify
+        this.$emit("step:event", {
+          emitName, nextStep, payload
         })
+        //............................
       }
-
-      // emit event
-
     }
     //----------------------------------------------
   }

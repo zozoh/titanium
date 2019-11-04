@@ -1,4 +1,8 @@
+/***
+ * In Building ....
+ */
 export default {
+  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "icon" : {

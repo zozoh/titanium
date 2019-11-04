@@ -18,7 +18,7 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "comEvents" : {
+    "dispatchActions" : {
       type : Object,
       default : ()=>({})
     },
@@ -41,17 +41,19 @@ export default {
     //----------------------------------------------
     async hijackEmit(name, args) {
       // Find the serializer function
-      let act = this.comEvents[name]
+      let action = this.dispatchActions[name]
+      if(!name.startsWith("hook:"))
+        console.log("hahah", {name, args, action})
 
       // dispatch action
-      if(act) {
-        //console.log("wn-obj-signle-com::hijackEmit->", name, payload)
-        if(_.isString(act)) {
-          act = {action:act}
+      if(action) {
+        console.log("wn-obj-signle-com::hijackEmit->", {name, action, args})
+        if(_.isString(action)) {
+          action = {action:action}
         }
         Ti.App(this).dispatch("main/doAction", {
-          action  : act.action,
-          payload : act.payload,
+          action  : action.action,
+          payload : action.payload,
           args
         })
       }

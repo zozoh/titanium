@@ -1,0 +1,14 @@
+<div class="ti-web-pay-types">
+  <!--Choosing-->
+  <ti-web-choose-mode
+    :base="base"
+    :options="options"
+    :value="value"
+    @changed="$emit('changed', $event)"/>
+  <!--Button-->
+  <div class="ti-btn is-huge" 
+    :class="btnClass"
+    @click.left="onClickBtn">
+    <span class="as-text">{{payTypeText|i18n}}</span>
+  </div>
+</div>

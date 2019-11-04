@@ -1,10 +1,9 @@
 {
   "comType" : "ti-wizard",
   "comConf" : {
-    "first" : 0,
+    "current" : 0,
     "data"  : "..",
     "steps" : [{
-        "dataKey" : null,
         "comType" : "ti-form",
         "comConf" : {
           "config" : {
@@ -25,7 +24,7 @@
           }
         },
         "comEvents" : {
-          "changed" : "toObjByPair"
+          "changed" : true
         },
         "prev" : false,
         "next" : {
@@ -63,7 +62,10 @@
           }
         },
         "comEvents" : {
-          "changed" : "toObjByPair"
+          "changed" : {
+            "emitName"    : "merge",
+            "transformer" : "toObjByPair"
+          }
         },
         "prev" : true,
         "next" : {
@@ -83,7 +85,14 @@
         "next" : true
       }]
   },
-  "comEvents" : {
-    "changed" : "update"
+  "dispatchActions" : {
+    "changed" : "updatePair",
+    "merge" : "update",
+    "goto-step" : {
+      "action" : "updateComConf",
+      "payload" : {
+        "current" : "=$args.index"
+      }
+    }
   }
 }

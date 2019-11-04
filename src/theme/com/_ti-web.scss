@@ -261,3 +261,50 @@
     }
   }
 }
+
+
+/////////////////////////////////////////////////////
+// Choose Mode By Thumbs
+.ti-web-choose-mode {
+  @include noselect;
+  @include flex-center;
+  padding:.2rem;
+  //--------------------------------------
+  > .wcm-item {
+    margin:.1rem; padding:.1rem; cursor:pointer;
+    border:1px solid transparent;
+    width:1.2rem; 
+    //------------------------------------
+    > .as-icon {
+      font-size:.64rem;
+      img {width:.64rem; height:.64rem;}
+    }
+    //------------------------------------
+    > .as-text {
+      text-align:center;
+      padding:.1rem; font-size:1.2em;
+    }
+    //------------------------------------
+    &:hover {
+      @include color($color-selected, r, c);
+    }
+    //------------------------------------
+    &.is-current {
+      @include color($color-selected, r, c);
+      border-color:map-get($color-primary, c);
+    }
+    //------------------------------------
+  }
+  //--------------------------------------
+}
+
+/////////////////////////////////////////////////////
+// Choose Pay Type
+.ti-web-pay-types {
+  > .ti-btn {
+    width:2.6rem; margin:0 auto;
+    &.is-disabled {
+      @include color($color-disable, c, r);
+    }
+  }
+}

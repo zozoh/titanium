@@ -2,6 +2,7 @@
   "meta": null,
   "comType": null,
   "comConf" : {},
+  "dispatchActions" : {},
   "data" : null,
   "__saved_data" : null,
   "status" : {

@@ -77,7 +77,7 @@
 //...................................................
 .ti-btn {
   @include noselect;
-  @include fireable; display:inline-block;
+  @include fireable; 
   @include border(1px, solid, dark);
   @include flex-align-nowrap($jc:center);
   text-align:center; text-decoration: none;
@@ -89,6 +89,10 @@
   &.is-big {
     font-size:1.3em; padding:.1rem;
     min-width:2rem; 
+  }
+  &.is-huge {
+    font-size:1.5em; padding:.16rem;
+    min-width:2.56rem; 
   }
 }
 //...................................................

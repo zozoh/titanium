@@ -11,8 +11,11 @@ export default {
     setComConf(state, comConf) {
       state.comConf = comConf || {}
     },
-    setComEvents(state, comEvents) {
-      state.comEvents = comEvents || {}
+    mergeComConf(state, comConf) {
+      state.comConf = _.assign({}, state.comConf, comConf)
+    },
+    setDispatchActions(state, dispatchActions) {
+      state.dispatchActions = dispatchActions || {}
     },
     setData(state, data) {
       state.data = data
@@ -32,11 +35,13 @@ export default {
   },
   //.....................................
   actions : {
+    //-------------------------------------
     updatePair({dispatch}, {name, value}={}) {
       if(!_.isUndefined(name) && !_.isNull(name)) {
         dispatch("update", {[name]:value})
       }
     },
+    //-------------------------------------
     /***
      * Update the data and `status.changed`
      */
@@ -45,6 +50,11 @@ export default {
         commit("mergeData", data)
         commit("syncStatusChanged")
       }
+    },
+    //-------------------------------------
+    updateComConf({commit}, comConf) {
+      commit("mergeComConf", comConf)
+      commit("syncStatusChanged")
     },
     //-------------------------------------
     /***
@@ -170,7 +180,7 @@ export default {
       // Update 
       commit("setComType", com.comType)
       commit("setComConf", com.comConf)
-      commit("setComEvents", com.comEvents)
+      commit("setDispatchActions", com.dispatchActions)
       commit("setData", data)
       commit("setSavedData", data)
       commit("syncStatusChanged")
