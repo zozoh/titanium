@@ -746,7 +746,7 @@ const TiTypes = {
     }
   },
   //.......................................
-  toDate(val, dft=new Date()) {
+  toDate(val, dft=null) {
     if(_.isNull(val) || _.isUndefined(val)) {
       return dft
     }

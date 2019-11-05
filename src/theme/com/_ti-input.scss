@@ -33,6 +33,7 @@
   //-----------------------------------------
   > .as-text {
     @include flex-center;
+    padding:0 .06rem;
     //---------------------------------------
     &.can-hover{cursor: pointer;}
     &.can-hover:hover{@include color($color-primary,r,c);}
