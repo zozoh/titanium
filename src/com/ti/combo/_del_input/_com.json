@@ -1,6 +1,0 @@
-{
-  "name" : "ti-combo-input",
-  "globally" : true,
-  "template" : "./ti-combo-input.html",
-  "mixins" : ["./ti-combo-input.mjs"]
-}

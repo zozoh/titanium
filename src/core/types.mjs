@@ -600,7 +600,7 @@ const TiTypes = {
       return (fmt || ["false", "true"])[val*1]
     }
     if(_.isDate(val)){
-      return TiTypes.formatDate(val, fmt)
+      return TiTypes.formatDateTime(val, fmt)
     }
     if(val instanceof TiTime) {
       return val.toString(fmt)
@@ -771,7 +771,10 @@ const TiTypes = {
   },
   //.......................................
   toAMS(val) {
-    return parseDate(val).getTime()
+    let dt = parseDate(val)
+    if(_.isDate(dt))
+      return dt.getTime()
+    return null
   },
   //.......................................
   formatTime(time, fmt="auto") {
@@ -799,7 +802,7 @@ const TiTypes = {
     return TiTypes.formatDateTime(date, fmt)
   },
   //.......................................
-  formatDateTime(date, fmt="yyyy-MM-dd'T'HH:mm:ss.SSS") {
+  formatDateTime(date, fmt="yyyy-MM-dd HH:mm:ss") {
     // Date Range or a group of date
     if(_.isArray(date)) {
       //console.log("formatDate", date, fmt)

@@ -231,10 +231,12 @@ export class OneTiApp {
       Ti.Config.decorate(com)
       
       // Regist it
+      //console.log("define com:", com.name)
       Vue.component(com.name, com)
     })
     
     // Define the com
+    //console.log("define com:", comName)
     Vue.component(comName, setup.options)
 
     // watch the shortcut

@@ -1,30 +1,39 @@
 <div class="form-field"
   :class="topClass">
-  <div class="field-name">
+  <!--
+    Field Name
+  -->
+  <div v-if="show.title"
+    class="field-name">
+    <!--Status Icon-->
     <span v-if="statusIcons"
       class="name-status">
       <ti-icon
         v-if="show.status"
         :value="statusIcon"/>
     </span>
-    <span
-      v-if="show.title"
-      class="name-title">{{fieldTitle|i18n}}</span>
+    <!--Title Text-->
+    <span class="name-title">{{fieldTitle|i18n}}</span>
+    <!--Field Icon-->
     <span 
       v-if="show.icon" 
       class="name-icon">
       <ti-icon :value="icon"/>
     </span>
   </div>
+  <!--
+    Field Value
+  -->
   <div class="field-value">
+    <!--UI Component-->
     <div class="field-component"
       :class="fieldComClass"
       :style="fieldComStyle">
       <component :is="componentType"
         v-bind="componentOptions"
-        :value="componentValue"
         @changed="onChanged"/>
     </div>
+    <!--Tips-->
     <div 
       v-if="show.tip"
       class="field-tip">{{tip|i18n}}</div>

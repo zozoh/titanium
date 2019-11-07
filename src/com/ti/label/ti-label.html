@@ -1,5 +1,26 @@
 <div
   class="ti-label"
   :class="topClass">
-  {{theValue}}
+  <!--prefix:icon-->
+  <div v-if="prefixIcon"
+    class="as-icon at-prefix">
+    <ti-icon :value="prefixIcon"/>
+  </div>
+  <!--prefix:text-->
+  <div v-if="prefixText" 
+    class="as-text at-prefix">
+    <span>{{prefixText|i18n}}</span>
+  </div>
+  <!--Text-->
+  <div class="as-value">{{theValue}}</div>
+  <!--suffix:text-->
+  <div v-if="suffixText"
+    class="as-text at-suffix">
+    <span>{{suffixText|i18n}}</span>
+  </div>
+  <!--suffix:icon-->
+  <div v-if="suffixIcon"
+    class="as-icon at-suffix">
+    <ti-icon :value="suffixIcon"/>
+  </div>
 </div>

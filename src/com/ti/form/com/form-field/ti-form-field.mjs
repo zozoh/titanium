@@ -43,7 +43,7 @@ export default {
     },
     //----------------------------------------
     show() {
-      let title   = !_.isNull(this.fieldTitle)
+      let title   = !_.isNull(this.title)
       let icon    = BOOL(this.icon)
       let message = BOOL(this.message)
       let status  = BOOL(this.status)
@@ -92,7 +92,13 @@ export default {
     },
     //----------------------------------------
     componentOptions() {
-      return this.comConf || {}
+      //return this.comConf || {}
+      let conf = this.comConf || {}
+      let conf2 = Ti.Util.explainObj(this.data, conf, {
+        evalFunc : true
+      })
+      conf2[this.comValueKey] = this.componentValue
+      return conf2
     },
     //----------------------------------------
     componentValue() {

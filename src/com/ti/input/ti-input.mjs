@@ -53,13 +53,13 @@ export default {
       type : String,
       default : "zmdi-close-circle"
     },
-    "prefixIcon" : {
-      type : String,
-      default : null
-    },
     "prefixIconForClean" : {
       type : Boolean,
       default : true
+    },
+    "prefixIcon" : {
+      type : String,
+      default : null
     },
     "prefixText" : {
       type : String,
