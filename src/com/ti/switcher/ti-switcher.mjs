@@ -10,7 +10,7 @@ export default {
     "value" : null,
     "multi" : false,
     "options" : {
-      type : [Array, Function],
+      type : [Array, Function, Object],
       default : ()=>[]
     },
     "mapping" : {
@@ -115,8 +115,28 @@ export default {
     },
     //......................................
     async reload() {
+      if(this.loading) {
+        return
+      }
+      if(this.isLoaded && this.cached) {
+        return
+      }
+
       this.loading = true
-      this.items = await this.doReload(this.options)
+      let list = []
+      // Dynamic value
+      if(_.isFunction(this.options)) {
+        list = await this.options()
+        console.log(list)
+        if(!_.isArray(list)){
+          return
+        } 
+      }
+      // Static value
+      else if(_.isArray(this.options)){
+        list = [].concat(this.options)
+      }
+      this.items = list
       this.loading = false
     },
     //......................................
@@ -127,10 +147,7 @@ export default {
   },
   /////////////////////////////////////////
   mounted : async function(){
-    await this.tryReload({
-      loaded : this.isLoaded,
-      cached : this.cached
-    })
+    await this.reload()
     let vm = this
     this.__on_mouseup = function(index){
       vm.focusIndex = -1

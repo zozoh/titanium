@@ -98,7 +98,7 @@ export const TiStr = {
     }
     // Date
     try {
-      return Ti.Types.parseDate(v)
+      return Ti.Types.toDate(v)
     } catch(E){}
     // Then, it is a string
     return str

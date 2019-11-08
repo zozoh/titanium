@@ -627,7 +627,6 @@
 
     warn = function (msg, vm) {
       var trace = vm ? generateComponentTrace(vm) : '';
-
       if (config.warnHandler) {
         config.warnHandler.call(null, msg, vm, trace);
       } else if (hasConsole && (!config.silent)) {
@@ -3118,6 +3117,9 @@
         var mountedNode = vnode; // work around flow
         componentVNodeHooks.prepatch(mountedNode, mountedNode);
       } else {
+        if(vnode.tag && _.endsWith(vnode.tag, "wn-adaptlist")) {
+          console.log("--> componentVNodeHooks.init()", vnode.tag)
+        }
         var child = vnode.componentInstance = createComponentInstanceForVnode(
           vnode,
           activeInstance
@@ -3258,6 +3260,9 @@
     }
 
     // install component management hooks onto the placeholder node
+    if("wn-adaptlist" == tag) {
+      console.log("installComponentHooks", tag)
+    }
     installComponentHooks(data);
 
     // return a placeholder vnode
@@ -4058,7 +4063,19 @@
       };
     } else {
       updateComponent = function () {
-        vm._update(vm._render(), hydrating);
+        // if(_.isFunction(vm.getObjTitle)) {
+        //   console.log("++++", vm.getObjTitle)
+        // }
+        if(_.isUndefined(window.__zzh)){
+          window.__zzh = 0
+        } else {
+          window.__zzh++
+        }
+        if(83 == window.__zzh) {
+          console.log("maybe here")
+        }
+        let vnode = vm._render();
+        vm._update(vnode, hydrating);
       };
     }
 
@@ -5924,6 +5941,7 @@
             creatingElmInVPre++;
           }
           if (isUnknownElement$$1(vnode, creatingElmInVPre)) {
+            console.warn("N:", window.__zzh)
             warn(
               'Unknown custom element: <' + tag + '> - did you ' +
               'register the component correctly? For recursive components, ' +
@@ -5961,6 +5979,9 @@
 
     function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
       var i = vnode.data;
+      if("wn-adaptlist" == vnode.tag) {
+        console.log(" --> createComponent", vnode.tag)
+      }
       if (isDef(i)) {
         var isReactivated = isDef(vnode.componentInstance) && i.keepAlive;
         if (isDef(i = i.hook) && isDef(i = i.init)) {
@@ -6164,6 +6185,10 @@
       var newEndVnode = newCh[newEndIdx];
       var oldKeyToIdx, idxInOld, vnodeToMove, refElm;
 
+      if(newStartVnode && "wn-adaptlist" == newStartVnode.tag) {
+        console.log("!!!!is here!!!!!")
+      }
+
       // removeOnly is a special flag used only by <transition-group>
       // to ensure removed elements stay in correct relative positions
       // during leaving transitions
@@ -6305,6 +6330,9 @@
       }
       if (isUndef(vnode.text)) {
         if (isDef(oldCh) && isDef(ch)) {
+          if(!_.isEmpty(ch) && ch[0].tag=="wn-adaptlist") {
+            console.log("patchVnode -> updateChildren")
+          }
           if (oldCh !== ch) { updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly); }
         } else if (isDef(ch)) {
           {

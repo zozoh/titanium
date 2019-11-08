@@ -92,13 +92,12 @@ export default {
     },
     //----------------------------------------
     componentOptions() {
-      //return this.comConf || {}
       let conf = this.comConf || {}
-      let conf2 = Ti.Util.explainObj(this.data, conf, {
-        evalFunc : true
-      })
-      conf2[this.comValueKey] = this.componentValue
-      return conf2
+      // let conf2 = Ti.Util.explainObj(this.data, conf, {
+      //   evalFunc : true
+      // })
+      conf[this.comValueKey] = this.componentValue
+      return conf
     },
     //----------------------------------------
     componentValue() {

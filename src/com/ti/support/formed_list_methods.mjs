@@ -154,32 +154,32 @@ export default {
     return re
   },
   //......................................
-  async tryReload({loaded=false, cached=true}={}){
-    if(!loaded || !cached) {
-      await this.reload()
-      return
-    }
-    // Return the blank Promise
-    return new Promise((resolve)=>{
-      resolve()
-    })
-  },
-  //......................................
-  async doReload(options=[], vars) {
-    vars = Ti.Util.fallback(vars, this.value)
-    let list = []
-    // Dynamic value
-    if(_.isFunction(options)) {
-      list = await options(vars)
-      if(!_.isArray(list)){
-        return []
-      }
-    }
-    // Static value
-    else if(_.isArray(this.options)){
-      list = [].concat(this.options)
-    }
-    return list
-  }
+  // async tryReload({loaded=false, cached=true}={}){
+  //   if(!loaded || !cached) {
+  //     await this.reload()
+  //     return
+  //   }
+  //   // Return the blank Promise
+  //   return new Promise((resolve)=>{
+  //     resolve()
+  //   })
+  // },
+  // //......................................
+  // async doReload(options=[], vars) {
+  //   vars = Ti.Util.fallback(vars, this.value)
+  //   let list = []
+  //   // Dynamic value
+  //   if(_.isFunction(options)) {
+  //     list = await options(vars)
+  //     if(!_.isArray(list)){
+  //       return []
+  //     }
+  //   }
+  //   // Static value
+  //   else if(_.isArray(this.options)){
+  //     list = [].concat(this.options)
+  //   }
+  //   return list
+  // }
   //......................................
 }

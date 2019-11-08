@@ -50,6 +50,7 @@ export class OneTiApp {
       }
       store = TiVue.CreateStore(sc)
       this.$store(store)
+      store[TI_APP] = this
       if(Ti.IsInfo("TiApp")) {
         console.log("Ti.$store", this.$store())
       }
@@ -260,9 +261,13 @@ export const TiApp = function(a0) {
   if(_.isElement(a0)){
     return a0[TI_APP]
   }
-  // for Vue
+  // for Vue or Vuex
   if(a0 instanceof Vue) {
     return a0.$root[TI_APP]
+  }
+  // for Vue or Vuex
+  if(a0 instanceof Vuex.Store) {
+    return a0[TI_APP]
   }
   // return the app instance directly
   return new OneTiApp(a0)

@@ -5,12 +5,10 @@ export default async function reloadMain(meta) {
   let $app = Ti.App(vm)
 
   vm.reloading = true
-  vm.mainActions = []
   //....................................
   // Release Watch
-  if(vm.mainView) {
-    Ti.Shortcut.removeWatch(vm.mainView)
-  }
+  Ti.Shortcut.removeWatch(vm)
+
   //....................................
   // default meta
   if(!meta) {
@@ -18,10 +16,10 @@ export default async function reloadMain(meta) {
   }
   //....................................
   // Switch to Loading component
-  vm.mainView = {
+  _.assign(vm.main, {
     comIcon : "zmdi-more",
     comName : vm.loadingCom
-  }
+  })
   //....................................
   // then try to unregisterModule safely
   try{
@@ -77,19 +75,8 @@ export default async function reloadMain(meta) {
     }
     //..................................
     // switch to main component
-    // wait a while to leave the time to Vue to load the Com definations
-    // TODO maybe it should use async function to set the mainView
-    // to avoid the [Vue warn]: Unknown custom element
-    _.delay(()=>{
-      //console.log("vm.mainView = view")
-      vm.mainView = view
-    }, 200)
-    
-    //..................................
-    // Add Shortcut watching
-    if(_.isArray(view.actions)) {
-      Ti.Shortcut.addWatch(vm.mainView, view.actions)
-    }
+    vm.setMainView(view)
+
     //..................................
     // call main reload
     await $app.dispatch("main/reload", meta)

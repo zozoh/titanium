@@ -42,10 +42,10 @@ Ti.SetLogLevel("warn")
 Ti.SetLogLevel("warn", "TiLoad")
 Ti.SetLogLevel("warn", "TiApp")
 Ti.SetLogLevel("warn", "TiHttp")
-Ti.SetLogLevel("warn", "TiShortcut")
+Ti.SetLogLevel("info", "TiShortcut")
 Ti.SetLogLevel("warn", "Wn.Sys")
 Ti.SetLogLevel("warn", "app/wn.manager")
-Ti.SetLogLevel("error", "Wn.Dict")
+Ti.SetLogLevel("warn", "Wn.Dict")
 //---------------------------------------
 Ti.Install()
 Ti.Shortcut.startListening()
@@ -167,7 +167,7 @@ async function main(){
   if(_app.obj) {
     basePath = "id:" + _app.obj.id
   }
-  await app.dispatch("meta/reload", basePath)
+  await app.dispatch("reload", basePath)
   
   // just for fun
   return app.get("obj")

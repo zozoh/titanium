@@ -14,8 +14,8 @@
     "markdown-it": "^9.1.0",
     "muse-ui": "^3.0.1",
     "showdown": "^1.9.0",
-    "vue": "^2.6.4",
-    "vuex": "^3.1.0",
+    "vue": "^2.6.10",
+    "vuex": "^3.1.1",
     "wordcloud": "^1.1.0"
   },
   "devDependencies": {

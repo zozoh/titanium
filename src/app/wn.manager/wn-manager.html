@@ -5,7 +5,7 @@
   <wn-explorer v-if="isViewportModeDesktop"
     class="as-desktop"
     key="for-desktop"
-    :loading="isLoading"
+    :loading="loading"
     :ancestors="obj.ancestors"
     :meta="obj.meta"
     :status="mainStatus"
@@ -19,10 +19,10 @@
       <wn-user-info
         :name="me.name"
         :group="me.group"/>
-      <div v-if="main.actionMenu.length > 0"
+      <div v-if="hasMainActions"
         class="sky-action-menu">
         <ti-menu 
-          :data="main.actionMenu"
+          :data="mainActions"
           :status="mainStatus"/>
       </div>
     </template>
@@ -31,7 +31,7 @@
           <wnm-sidebar-item v-for="it in sidebar"
             :key="it.key"
             :group-status-store-key="it.key"
-            :highlight-id="mainDataId"
+            :highlight-id="theMetaId"
             :do-open-path="onMainViewOpen"
             :get-obj-link="getObjLink"
             v-bind="it"/>
@@ -40,16 +40,16 @@
     <template v-slot:arena>
       <component
         class="ti-fill-parent" 
-        :is="main.comName"
-        v-bind="mainData"
+        :is="mainComType"
+        v-bind="mainComConf"
         @open="onMainViewOpen"
         @change="onMainDataChange"
         @actions:updated="onActionUpdated"/>
     </template>
     <template v-slot:footer>
       <div class="footer-info ti-flex-center">
-        <ti-icon class="center" :value="main.comIcon"/>
-        <span>{{main.comName|i18n}}</span>
+        <ti-icon class="center" :value="mainComIcon"/>
+        <span>{{mainComType|i18n}}</span>
       </div>
       <div class="footer-log">
         <span>{{mainLog}}</span>
@@ -66,7 +66,7 @@
     class="as-phone"
     :class="currentIsHome?'is-home':'is-not-home'"
     key="for-phone"
-    :loading="isLoading"
+    :loading="loading"
     :ancestors="obj.ancestors"
     :meta="obj.meta"
     :status="mainStatus"
@@ -87,17 +87,17 @@
       </ul>
     </template>
     <template v-slot:action>
-      <ti-menu v-if="main.actionMenu.length > 0"
+      <ti-menu v-if="hasMainActions"
         class="sky-menu-icon"
-        align="center"
-        :data="main.actionMenu"
+        :align="'center'"
+        :data="mainActions"
         :status="mainStatus"/>
     </template>
     <template v-slot:arena>
       <component
         class="ti-fill-parent" 
-        :is="main.comName"
-        v-bind="mainData"
+        :is="mainComType"
+        v-bind="mainComConf"
         @open="onMainViewOpen"
         @change="onMainDataChange"
         @actions:updated="onActionUpdated"/>

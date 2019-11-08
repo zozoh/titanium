@@ -94,7 +94,7 @@ export default {
   },
   beforeDestroy : function(){
     if(this.fuse) {
-      Ti.Fuse.get().remove("wn-obj-form")
+      Ti.Fuse.get().remove(this.fuse.key)
     }
   }
 }

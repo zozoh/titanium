@@ -36,6 +36,7 @@ class DictBuilder {
 
       // Do reloading
       let list = await this.reload()
+      console.log("aaa", list)
 
       // release the hijacking
       for(let fn of this.waitListReloading) {

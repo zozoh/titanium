@@ -22,12 +22,13 @@
   },
   "mixins" : ["./wn-manager.mjs"],
   "store" : {
+    "state" : "./store-root.json",
+    "mixins" : ["./store-root.mjs"],
     "modules" : {
       "viewport" : "@mod:ti/viewport", 
       "session"  : "@mod:wn/session", 
       "meta"     : "@mod:wn/obj-meta"
-    },
-    "mixins" : ["./store-main.mjs"]
+    }
   },
   "components" : [
     "./com/wnm-sidebar-item",

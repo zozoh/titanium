@@ -1,0 +1,10 @@
+{
+  "loading" : false,
+  "mainCom" : {
+    "icon" : "extension",
+    "name" : "ti-loading",
+    "conf" : {}
+  },
+  "actions" : [],
+  "sidebar" : []
+}
