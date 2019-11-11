@@ -47,6 +47,7 @@
           border-top-width:3px;
           border-bottom:0;
           min-width: .8rem; 
+          padding:0 .1rem;
           line-height:.28rem; 
           font-size:.12rem;
           margin-bottom:-1px;
@@ -55,6 +56,9 @@
             border-color:map-get($color-line, dark);
             border-top-color:map-get($color-primary, c);
             background-color:map-get($color-body, c);
+          }
+          > .it-icon {
+            padding-right:.06rem;
           }
         }
       }

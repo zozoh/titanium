@@ -218,14 +218,20 @@ export class OneTiApp {
     // Get the formed comName
     let comName = setup.options.name 
                   || Ti.Util.getLinkName(view.comType)
-    // Decorate it
-    Ti.Config.decorate(setup.options)
 
     if(Ti.IsInfo("TiApp")) {
       console.log("TiApp.loadView:", comName)
       console.log(" -- global:", setup.global)
       console.log(" -- options:", setup.options)
     }
+
+    // Decorate it
+    Ti.Config.decorate(setup.options)
+
+    // Define the com
+    //console.log("define com:", comName)
+    Vue.component(comName, setup.options)
+    
     _.map(setup.global.components, com=>{
       //Ti.I18n.put(com.i18n)
       // Decorate it
@@ -235,10 +241,6 @@ export class OneTiApp {
       //console.log("define com:", com.name)
       Vue.component(com.name, com)
     })
-    
-    // Define the com
-    //console.log("define com:", comName)
-    Vue.component(comName, setup.options)
 
     // watch the shortcut
     //Ti.Shortcut.watch(this, view.actions)

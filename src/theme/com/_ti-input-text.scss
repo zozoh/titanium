@@ -1,0 +1,30 @@
+.ti-input-text {
+  @include flex-align-v-nowrap;
+  height:1rem;
+  //-----------------------------------------
+  &.show-border {
+    @include border(1px, solid, dark);
+  }
+  //-----------------------------------------
+  &.is-focused {
+    border-color: map-get($color-line, highlight);
+  }
+  //----------------------------------
+  > .as-bar {
+    @include flex-align-nowrap;
+    flex:0 0 auto;
+    padding:.06rem;
+  }
+  //----------------------------------
+  > textarea {
+    @include font-fixed(inherit);
+    width:100%; 
+    outline: none; resize: none;
+    flex:1 1 auto;
+    outline:none; border:0;
+    padding:0 .1rem;
+    background:transparent;
+    color:inherit;
+  }
+  //----------------------------------
+}

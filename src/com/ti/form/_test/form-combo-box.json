@@ -222,7 +222,7 @@
       "f7" : "=f7"
     }
   },
-  "comEvents" : {
+  "dispatchActions" : {
     "changed" : "updatePair"
   }
 }

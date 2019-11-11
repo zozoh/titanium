@@ -59,7 +59,7 @@
       "timerange" : "=timerange"
     }
   },
-  "comEvents" : {
+  "dispatchActions" : {
     "changed" : "updatePair"
   }
 }

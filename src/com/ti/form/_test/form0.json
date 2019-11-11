@@ -124,7 +124,7 @@
       "f12" : "=f12"
     }
   },
-  "comEvents" : {
+  "dispatchActions" : {
     "changed" : "updatePair"
   }
 }

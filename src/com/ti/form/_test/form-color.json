@@ -12,7 +12,7 @@
       "favColor" : "=favColor"
     }
   },
-  "comEvents" : {
+  "dispatchActions" : {
     "changed" : "updatePair"
   }
 }

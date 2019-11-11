@@ -3,7 +3,6 @@
   @include flex-align($ai:stretch);
   @include border(1px, solid, dark);
   @include color($color-input, c, r);
-  height:.35rem;
   //-----------------------------------------
   &.show-border {
     @include border(1px, solid, dark);

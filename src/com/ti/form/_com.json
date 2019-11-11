@@ -17,6 +17,7 @@
     "@com:ti/input/month",
     "@com:ti/input/datetime",
     "@com:ti/input/daterange",
+    "@com:ti/input/text",
     "@com:ti/combo/input",
     "@com:ti/combo/multi-input",
     "@com:ti/label",

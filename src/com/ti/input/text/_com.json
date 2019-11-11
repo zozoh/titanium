@@ -1,0 +1,7 @@
+{
+  "name" : "ti-input-text",
+  "globally" : true,
+  "template" : "./ti-input-text.html",
+  "mixins" : ["./ti-input-text.mjs"],
+  "components" : []
+}

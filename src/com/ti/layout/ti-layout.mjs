@@ -70,7 +70,7 @@ export default {
         list.push({
           text,
           name : b.name,
-          icon : b.icon,
+          icon : b.info.icon,
           className : (b.name == currentBlock.name)
               ? "is-current"
               : null

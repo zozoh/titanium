@@ -46,7 +46,7 @@
       "lbls3" : "=lbls3"
     }
   },
-  "comEvents" : {
+  "dispatchActions" : {
     "changed" : "updatePair"
   }
 }

@@ -68,9 +68,9 @@ export default {
       default : null
     },
     // If true, blur->changed willl be auto-apply as changed
-    "autoApplyBlurChanged" : {
-      type : Boolean,
-      default : false
+    "changedKeyName" : {
+      type : String,
+      default : "ENTER"
     },
     "clickToFocus" : {
       type : Boolean,
@@ -257,15 +257,14 @@ export default {
       }
     },
     //------------------------------------------------
-    doWhenInput(emitName="inputing") {
+    doWhenInput() {
       if(_.isElement(this.$refs.input)) {
-        //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         if(this.trimed) {
           val = _.trim(val)
         }
         val = Ti.S.toCase(val, this.valueCase)
-        this.$emit(emitName, val)
+        this.$emit("inputing", val)
       }
     },
     //-----------------------------------------------
@@ -294,16 +293,20 @@ export default {
         "altKey","ctrlKey","metaKey","shiftKey")
       payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
       payload.$event = $event
-      this.$emit("keypress", payload)
+
+      // Fire changed
+      if(this.changedKeyName == payload.uniqueKey) {
+        this.onInputChanged()
+      }
+      // Leave it to parent COM
+      else {
+        this.$emit("keypress", payload)
+      }
     },
     //------------------------------------------------
-    onInputChanged($event) {
-      // Guard
-      if(!this.autoApplyBlurChanged) {
-        return
-      }
-      console.log("changed!")
-      let $in = $event.target
+    onInputChanged() {
+      //console.log("on changed!")
+      let $in = this.$refs.input
       if(_.isElement($in)) {
         let val = _.trim($in.value)
         let ss  = _.split(val, /[ ,;\t]+/)
@@ -326,6 +329,10 @@ export default {
     },
     //------------------------------------------------
     onInputBlur() {
+      //console.log("on blured!", this.$refs.input.value, this.theInputValue)
+      if(!_.isEqual(this.$refs.input.value, this.theInputValue)) {
+        this.onInputChanged()
+      }
       this.isFocused = false
       this.$emit("blurred")
     },
