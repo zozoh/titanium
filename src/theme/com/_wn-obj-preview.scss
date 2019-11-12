@@ -1,22 +1,40 @@
 .wn-obj-preview {
+  /*Cover on image*/
+  $float-color :(bg:rgba(20,20,20,0.2), fr:#FFF); 
   @include flex-full-center(1 1 auto);
-  @include color($color-mask, r, thin);
-  > .my-closer {
-    display:none;
+  @include color($color-mask, r, weak);
+  //--------------------------------------------------
+  > .wop-con {
+    width:100%; height:100%;
+    position: relative;
+    //------------------------------------------------
+    > .as-main {
+      width:100%; height:100%;
+    }
+    //------------------------------------------------
+    > .as-abar {
+      @include pos-abs($t:0,$r:0);
+      @include color($float-color, fr, bg);
+      //----------------------------------------------
+      li {
+        @include flex-center;
+        cursor: pointer;
+        width:.32rem; height:.32rem;
+        .it-icon {font-size:.18rem;}
+        &:hover {
+          @include color($color-secondary, r, c);
+        }
+      }
+      //----------------------------------------------  
+    }
+    //------------------------------------------------
+    //------------------------------------------------  
   }
-  &.as-fullscreen {
+  //--------------------------------------------------
+  &.is-fullscreen {
     @include pos-fixed-full;
     @include color($color-mask, null, heavy);
     z-index: $z-mask;
-    > .my-closer {
-      @include noselect;
-      @include pos-fixed($r:0.02rem, $t:0.02rem);
-      @include color($color-mask, r, thin);
-      @include fireable;
-      z-index: $z-mask + 1;
-      font-size: 2em;
-      display:block;
-      padding:.06rem;
-    }
   }
+  //--------------------------------------------------
 }

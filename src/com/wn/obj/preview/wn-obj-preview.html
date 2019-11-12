@@ -2,24 +2,33 @@
   <!--
     With content
   -->
-  <component v-if="hasMeta"
-    class="ti-fill-parent"
-    :is="previewComType"
-    :icon="dataIcon"
-    :title="dataTitle"
-    :src="dataSource"/>
+  <div class="wop-con" v-if="hasMeta">
+    <!--Main View-->
+    <component class="as-main"
+      :is="previewComType"
+      :icon="dataIcon"
+      :title="dataTitle"
+      :src="dataSource"/>
+    <!--ActionBar at top-->
+    <div class="as-abar">
+      <ul>
+        <li v-for="it in theActionBar"
+          @click.left="onAction(it.action)">
+          <ti-icon class="it-icon" :value="it.icon"/>
+        </li>
+      </ul>
+    </div>
+    <!--Meta at bottom-->
+    <div class="as-info">
+
+    </div>
+  </div>
   <!--
     Empty 
   -->
   <div v-else
     class="ti-blank is-big">
-    <ti-icon value="zmdi-alert-circle-o"/>
-    <span>{{'empty-data'|i18n}}</span>
-  </div>
-  <!--
-    Full screen closer
-  -->
-  <div class="my-closer" @click="exitFullscreen">
-    <ti-icon value="zmdi-fullscreen-exit"/>
+    <ti-icon value="fas-file-image"/>
+    <span>{{'nil-obj'|i18n}}</span>
   </div>
 </div>

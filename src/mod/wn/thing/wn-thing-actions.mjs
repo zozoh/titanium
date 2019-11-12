@@ -193,7 +193,8 @@ export default {
       // Try to reload the children
       await dispatch("files/tryReload", oDir)
       let cuId = getters["files/autoCurrentItemId"]
-      commit("files/selectItem", cuId)
+      //commit("files/selectItem", cuId)
+      dispatch("selectCurrentPreviewItem", cuId)
     }
   },
   //--------------------------------------------
@@ -224,6 +225,14 @@ export default {
     }
 
     commit("setStatus", {reloading:false})
+  },
+  //--------------------------------------------
+  selectCurrentPreviewItem({commit, dispatch, getters}, currentId) {
+    commit("files/selectItem", currentId)
+    // Find the current
+    let currentPreivew = getters["files/currentItem"]
+    // Reload preview
+    dispatch("preview/reload", currentPreivew)
   },
   //--------------------------------------------
   /***

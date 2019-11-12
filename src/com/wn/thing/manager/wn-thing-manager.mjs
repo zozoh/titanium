@@ -30,6 +30,10 @@ export default {
     "files" : {
       type : Object,
       default : ()=>({})
+    },
+    "preview" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   ///////////////////////////////////////////
@@ -160,21 +164,6 @@ export default {
       })
     },
     //--------------------------------------
-    // setSeachSelected(current={}, selected) {
-    //   let app = Ti.App(this)
-
-    //   let cid = current ? current.id : null
-    //   app.commit("main/search/setCurrentId", cid)
-
-    //   if(_.isArray(selected)) {
-    //     let ids = []
-    //     for(let it of selected) {
-    //       ids.push(it.id)
-    //     }
-    //     app.commit("main/search/setCheckedIds", ids)
-    //   }
-    // },
-    //--------------------------------------
     async onBlockEvent(be={}) {
       //console.log("onBlockEvent", be)
       let app = Ti.App(this)
@@ -246,6 +235,10 @@ export default {
       if(_.isFunction(fn)) {
         await fn(...be.args)
       }
+    },
+    //--------------------------------------
+    showPreviewObjInfo() {
+      console.log("showPreviewObjInfo:", this.preview)
     }
     //--------------------------------------
   },

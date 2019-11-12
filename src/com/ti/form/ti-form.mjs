@@ -70,14 +70,14 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "status" : {
-      type : Object,
-      default : ()=>({
-        "changed"   : false,
-        "saving"    : false,
-        "reloading" : false
-      })
-    },
+    // "status" : {
+    //   type : Object,
+    //   default : ()=>({
+    //     "changed"   : false,
+    //     "saving"    : false,
+    //     "reloading" : false
+    //   })
+    // },
     "fieldStatus" : {
       type : Object,
       default : ()=>({})

@@ -1,4 +1,5 @@
 export default {
+  inheritAttrs : false,
   props : {
     "icon" : {
       type : [String, Object],

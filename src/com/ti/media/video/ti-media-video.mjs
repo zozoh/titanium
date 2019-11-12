@@ -3,6 +3,7 @@ const resize = function(evt){
 }
 //-----------------------------------
 export default {
+  inheritAttrs : false,
   data: ()=>({
     naturalWidth  : -1,
     naturalHeight : -1,

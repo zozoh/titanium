@@ -3,6 +3,7 @@ const resize = function(evt){
 }
 //-----------------------------------
 export default {
+  inheritAttrs : false,
   data: ()=>({
     naturalWidth  : -1,
     naturalHeight : -1,
@@ -26,9 +27,9 @@ export default {
   computed : {
     topClass() {
       return {
-        "as-none"        : this.fitMode=="none",
-        "as-cover"       : this.fitMode=="cover",
-        "as-contain"     : this.fitMode=="contain",
+        "as-fitmode-none"        : this.fitMode=="none",
+        "as-fitmode-cover"       : this.fitMode=="cover",
+        "as-fitmode-contain"     : this.fitMode=="contain",
         "is-img-loading" : this.imgLoading
       }
     },

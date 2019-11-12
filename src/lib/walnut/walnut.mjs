@@ -3,10 +3,12 @@ import Session from "./wn-session.mjs"
 import Sys     from "./wn-sys.mjs"
 import Util    from "./wn-util.mjs"
 import Dict    from "./wn-dict.mjs"
-import {OpenObjSelector} from "./wn-obj-selector.mjs"
+import {OpenObjSelector} from "./wn-open-obj-selector.mjs"
+import {OpenObjInfo}     from "./wn-open-obj-info.mjs"
 //---------------------------------------
 const WALNUT_VERSION = "1.0"
 //---------------------------------------
+// For Wn.Sys.exec command result callback
 const HOOKs = {
 
 }
@@ -14,7 +16,7 @@ const HOOKs = {
 export const Wn = {
   Version: WALNUT_VERSION,
   Io, Session, Sys, Util, Dict,
-  OpenObjSelector,
+  OpenObjSelector, OpenObjInfo,
   //-------------------------------------
   addHook(key, fn) {
     Ti.Util.pushValue(HOOKs, key, fn)

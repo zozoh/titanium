@@ -8,6 +8,7 @@
     "config" : "./mod/config",
     "search" : "./mod/search",
     "current" : "./mod/current",
-    "files" : "@mod:wn/obj-explorer"
+    "files"   : "@mod:wn/obj-explorer",
+    "preview" : "@mod:wn/obj-as-binary"
   }
 }

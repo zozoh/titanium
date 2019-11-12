@@ -1,4 +1,5 @@
 export default {
+  ////////////////////////////////////////////////
   getters : {
     get : (state) => state,
     hasParent : (state)=>{
@@ -23,6 +24,7 @@ export default {
       return false
     }
   },
+  ////////////////////////////////////////////////
   mutations : {
     set(state, {
       ancestors, parent, children, meta, content, contentType
@@ -31,4 +33,5 @@ export default {
       Ti.Util.setTo(state, {parent, meta, content, contentType}, null)
     }
   }
+  ////////////////////////////////////////////////
 }

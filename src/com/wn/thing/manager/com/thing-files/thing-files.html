@@ -30,7 +30,7 @@
   <div class="as-preview">
     <wn-obj-preview
       class="ti-fill-parent"
-      :meta="currentFile"/>
+      v-bind="thePreview"/>
   </div>
   <!--
     File List
@@ -38,8 +38,7 @@
   <div class="as-list">
     <wn-adaptlist
       class="ti-fill-parent"
-      v-bind="files"
-      :routers="routers"
+      v-bind="theFiles"
       @uploaded="onUploaded"/>
   </div>
 </div>

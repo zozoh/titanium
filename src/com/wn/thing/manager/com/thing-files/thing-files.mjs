@@ -10,6 +10,13 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "preview" : {
+      type : Object,
+      default : ()=>({
+        meta   : null,
+        status : {}
+      })
+    },
     "showTitle" : {
       type : String,
       default : "i18n:thing-files"
@@ -67,27 +74,30 @@ export default {
   ///////////////////////////////////////////
   computed : {
     //--------------------------------------
-    routers() {
-      return {
-        "recoverExposeHidden" : "commit:main/files/recoverExposeHidden",
-        "setCurrentId"        : "commit:main/files/setCurrentId",
-        "setCheckedIds"       : "commit:main/files/setCheckedIds",
-        "selectItem"          : "commit:main/files/selectItem",
-        "blurAll"             : "commit:main/files/blurAll",
-        "clearUploadings"     : "commit:main/files/clearUploadings",
-        "upload"              : "dispatch:main/files/upload"
-      }
+    thePreview() {
+      return _.assign({}, this.preview, {
+        actions : {
+          enterFullscreen : {action : "commit:main/preview/enterFullscreen"},
+          exitFullscreen  : {action : "commit:main/preview/exitFullscreen"},
+          download : {action : "dispatch:main/preview/download"},
+          info     : {action : "main:showPreviewObjInfo"},
+        }
+      })
     },
     //--------------------------------------
-    currentFile() {
-      if(!_.isEmpty(this.files.list)) {
-        for(let f of this.files.list) {
-          if(f.id == this.files.currentId) {
-            return f
-          }
+    theFiles() {
+      return _.assign({}, this.files, {
+        routers : {
+          "recoverExposeHidden" : "commit:main/files/recoverExposeHidden",
+          "setCurrentId"        : "dispatch:main/selectCurrentPreviewItem",
+          "setCheckedIds"       : "commit:main/files/setCheckedIds",
+          //"selectItem"          : "dispatch:main/selectCurrentPreviewItem",
+          "blurAll"             : "commit:main/files/blurAll",
+          "clearUploadings"     : "commit:main/files/clearUploadings",
+          "upload"              : "dispatch:main/files/upload"
         }
-      }
-    },
+      })
+    }
     //--------------------------------------
   },
   ///////////////////////////////////////////
