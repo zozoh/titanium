@@ -1,23 +1,26 @@
 //////////////////////////////////////////////////////////////
 .ti-modal {
+  //---------------------------------------------------------
   > .mdl-mask {
     @include pos-fixed-full;
     @include color($color-mask, r, bushy);
     z-index: $z-top;
   }
+  //---------------------------------------------------------
   > .mdl-con {
     @include pos-fixed-full;
     z-index: $z-top;
+    //-------------------------------------------------------
     > .mdl-main {
       @include color($color-chip, r, c);
       @include flex-align-v-nowrap;
-      //....................................
+      //-----------------------------------------------------
       position:relative;
       min-width: 3.2rem;
       min-height: 1.8rem;
-      //....................................
+      //-----------------------------------------------------
       > .mdl-closer {}
-      //....................................
+      //-----------------------------------------------------
       > .mdl-title {
         @include noselect;
         @include flex-align-nowrap;
@@ -34,11 +37,12 @@
           > i {font-size:1.3em; display:block;}
         }
       }
-      //....................................
+      //-----------------------------------------------------
       > .mdl-body {
+        height: 100px; overflow: auto;
         flex:1 1 auto;
       }
-      //....................................
+      //-----------------------------------------------------
       > .mdl-actions {
         @include noselect;
         @include color($color-func, r, c);
@@ -57,9 +61,8 @@
             .mdl-btn-icon {margin-right:.05rem;}
           }
         }
-      }
-      //....................................
-    }
+      } // ~ > .mdl-actions
+    } // ~ > .mdl-main
   } // ~ .mdl-con
   //-----------------------------------------------------------
   $titlePath: ".mdl-con > .mdl-main > .mdl-title";
@@ -121,37 +124,6 @@
       //....................................
     }
   } // ~ .mdl-con
-  //-----------------------------------------------------------
-  .ti-modal-noti {
-    position: relative;
-    padding:.12rem .2rem .12rem 1.2rem; 
-    //---------------------------------------------
-    > .ti-modal-noti-icon {
-      @include pos-abs($t:0,$l:0,$w:1.2rem,$h:1.2rem);
-      @include flex-center;
-      padding:.08rem; 
-      font-size:.5rem;
-      > * {font-size:inherit;}
-    }
-    //---------------------------------------------
-    > .ti-modal-noti-text {
-      padding: .1rem
-    }
-    //---------------------------------------------
-    > .ti-modal-noti-more {
-      padding: 0 .1rem .1rem .1rem;
-      &.prompt-input {
-        input {
-          @include text-input;
-          flex:1 1 auto; width:100%;
-          padding:.12rem; font-size:1.2em;
-          outline:none;
-        }
-      }
-    }
-    //---------------------------------------------
-  }
-  //-----------------------------------------------------------
 }
 //////////////////////////////////////////////////////////////
 // Phone
@@ -215,36 +187,67 @@
       //....................................
     }
   } // ~ .mdl-con
-  //-----------------------------------------------------------
-  .ti-modal-noti {
-    position: relative;
-    padding:.2rem; 
-    //---------------------------------------------
-    > .ti-modal-noti-icon {
-      @include flex-center;
-      padding:.08rem; 
-      font-size:.64rem;
-      > * {font-size:inherit;}
-    }
-    //---------------------------------------------
-    > .ti-modal-noti-text {
-      padding: .15rem; font-size:.2rem; 
-      text-align:center;
-    }
-    //---------------------------------------------
-    > .ti-modal-noti-more {
-      padding: 0 .1rem .1rem .1rem;
-      &.prompt-input {
-        input {
-          @include text-input;
-          flex:1 1 auto; width:100%;
-          padding:.12rem; font-size:1.2em;
-          outline:none;
-        }
+}
+//////////////////////////////////////////////////////////////
+// For alert/confirm/prompt
+//-----------------------------------------------------------
+.ti-modal-noti {
+  position: relative;
+  padding:.12rem .2rem .12rem 1.2rem; 
+  //---------------------------------------------
+  > .ti-modal-noti-icon {
+    @include pos-abs($t:0,$l:0,$w:1.2rem,$h:1.2rem);
+    @include flex-center;
+    padding:.08rem; 
+    font-size:.5rem;
+    > * {font-size:inherit;}
+  }
+  //---------------------------------------------
+  > .ti-modal-noti-text {
+    padding: .1rem
+  }
+  //---------------------------------------------
+  > .ti-modal-noti-more {
+    padding: 0 .1rem .1rem .1rem;
+    &.prompt-input {
+      input {
+        @include text-input;
+        flex:1 1 auto; width:100%;
+        padding:.12rem; font-size:1.2em;
+        outline:none;
       }
     }
-    //---------------------------------------------
   }
-  //-----------------------------------------------------------
+  //---------------------------------------------
+}
+//-----------------------------------------------------------
+.ti-modal.vm-phone .ti-modal-noti {
+  position: relative;
+  padding:.2rem; 
+  //---------------------------------------------
+  > .ti-modal-noti-icon {
+    @include flex-center;
+    padding:.08rem; 
+    font-size:.64rem;
+    > * {font-size:inherit;}
+  }
+  //---------------------------------------------
+  > .ti-modal-noti-text {
+    padding: .15rem; font-size:.2rem; 
+    text-align:center;
+  }
+  //---------------------------------------------
+  > .ti-modal-noti-more {
+    padding: 0 .1rem .1rem .1rem;
+    &.prompt-input {
+      input {
+        @include text-input;
+        flex:1 1 auto; width:100%;
+        padding:.12rem; font-size:1.2em;
+        outline:none;
+      }
+    }
+  }
+  //---------------------------------------------
 }
 //////////////////////////////////////////////////////////////

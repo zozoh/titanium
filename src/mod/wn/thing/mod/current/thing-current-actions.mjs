@@ -29,30 +29,15 @@ export default {
   //--------------------------------------------
   async updateMeta({state, commit}, {name, value}={}) {
     //console.log("I am update", name, value)
-    let data = {}
-    // Normal field
-    if(_.isString(name)) {
-      // No-necessary
-      if(_.isEqual(state.meta[name], value))
-        return
-      data[name] = value
-    }
-    // Multi fields
-    else if(_.isArray(name)){
-      let noNecessary = true
-      for(let nm of name) {
-        let vv = value[nm]
-        if(!_.isEqual(state.meta[nm], vv)) {
-          noNecessary = false
-          data[nm] = vv
-        }
-      }
-      if(noNecessary)
-        return
+    let data = Ti.Types.toObjByPair({name, value})
+
+    // Check Necessary
+    if(_.isMatch(state.meta, data)) {
+      return
     }
 
     // Do the update
-    commit("setMetaFieldStatus", {name, status:"spinning"})
+    commit("setFieldStatus", {name, status:"spinning"})
     let json = JSON.stringify(data)
     let th_set = state.meta.th_set
     let th_id  = state.meta.id
@@ -60,11 +45,7 @@ export default {
     let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
     commit("setMeta", reo)
-    commit("clearMetaFieldStatus", name)
-    // commit("setMetaFieldValue", {name, value})
-    // commit("clearFieldStatus", [name])
-    // commit("syncStatusChanged")
-    // commit("set", {data: state.data})
+    commit("clearFieldStatus", name)
   },
   //--------------------------------------------
   async reload({state, commit, rootState}, meta) {
@@ -88,11 +69,11 @@ export default {
       if(_.get(rootState, "main.config.shown.content")) {
         content = await Wn.Io.loadContent(meta)
       }
-      commit("setStatus",       {reloading:false})
+      commit("setStatus", {reloading:false})
     }
     // Just update the meta
-    commit("setMeta",         meta)
-    commit("setContent",      content)
+    commit("setMeta", meta)
+    commit("setContent", content)
     commit("setSavedContent", content)
     commit("syncStatusChanged")
   },

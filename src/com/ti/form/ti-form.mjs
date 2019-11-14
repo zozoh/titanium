@@ -49,6 +49,10 @@ const resize = function(evt){
 export default {
   inheritAttrs : false,
   //////////////////////////////////////////////////////
+  data : ()=>({
+    currentTabIndex : 0
+  }),
+  //////////////////////////////////////////////////////
   props : {
     "icon" : {
       type : String,
@@ -61,6 +65,15 @@ export default {
     "className" : {
       type : String,
       default : null
+    },
+    "display" : {
+      type : String,
+      default : "all",
+      validator : (val)=>/^(all|tab)$/.test(val)
+    },
+    "currentTab" : {
+      type : Number,
+      default : 0
     },
     "config" : {
       type : Object,
@@ -90,16 +103,17 @@ export default {
       return this.title || this.icon ? true : false
     },
     //.......................................
-    formClass() {
+    topClass() {
       let spacing = this.config.spacing || "comfy"
-      let klass = ["as-spacing-" + spacing]
-      if(this.className) {
-        klass.push(this.className)
-      }
-      return klass
+      return Ti.Css.mergeClassName(
+        this.className, {
+          ["as-spacing-" + spacing] : true,
+          "display-as-tab": this.isDisplayAsTab,
+          "display-as-all": this.isDisplayAsAll
+        })
     },
     //.......................................
-    fieldList() {
+    theFields() {
       let list = []
       if(_.isArray(this.config.fields)) {
         for(let i=0; i<this.config.fields.length; i++) {
@@ -108,6 +122,75 @@ export default {
         }
       }
       return list
+    },
+    //.......................................
+    isDisplayAsTab() {
+      return 'tab' == this.display
+    },
+    //.......................................
+    isDisplayAsAll() {
+      return 'all' == (this.diaplay||"all")
+    },
+    //.......................................
+    theTabList() {
+      let list = []
+      let otherFields = []
+      if(this.isDisplayAsTab) {
+        for(let fld of this.theFields) {
+          if(fld.type == "Group") {
+            list.push(fld)
+          }
+          // Collect to others
+          else {
+            otherFields.push(fld)
+          }
+        }
+        // Join others
+        if(!_.isEmpty(otherFields)) {
+          list.push({
+            type : "Group",
+            title : "i18n:others",
+            fields : otherFields
+          })
+        }
+      }
+      return list;
+    },
+    //.......................................
+    // add "current" to theTabList
+    theTabItems() {
+      let items = []
+      _.forEach(this.theTabList, (li, index)=>{
+        let isCurrent = (index == this.currentTabIndex)
+        items.push(_.assign({}, li, {
+          index, isCurrent, className: {
+            "is-current" : isCurrent
+          }
+        }))
+      })
+      return items
+    },
+    //.......................................
+    theCurrentTab() {
+      for(let tab of this.theTabItems) {
+        if(tab.isCurrent) {
+          return tab
+        }
+      }
+    },
+    //.......................................
+    theFieldsInCurrentTab() {
+      // Current Tab
+      if(this.isDisplayAsTab) {
+        if(this.theCurrentTab) {
+          return this.theCurrentTab.fields || []
+        }
+        return []
+      }
+      // Show All
+      else {
+        return this.theFields
+      }
     },
     //.......................................
     /***
@@ -126,6 +209,11 @@ export default {
   },
   //////////////////////////////////////////////////////
   methods : {
+    //----------------------------------------------
+    onClickTab(tab) {
+      this.currentTabIndex = tab.index
+      this.$emit("tab:changed", tab)
+    },
     //----------------------------------------------
     onChanged(payload) {
       //console.log("------------------------ti-form changed", payload)
@@ -166,6 +254,14 @@ export default {
       this.$nextTick(()=>{
         this.__adjust_fields_width()
       })
+    },
+    "currentTab" : function(index){
+      this.currentTabIndex = index
+    },
+    "currentTabIndex" : function(index){
+      this.$nextTick(()=>{
+        this.__adjust_fields_width()
+      })
     }
   },
   //////////////////////////////////////////////////////
@@ -175,6 +271,7 @@ export default {
     }, 500)
   },
   mounted : function() {
+    this.currentTabIndex = this.currentTab
     Ti.Viewport.watch(this, {resize})
     this.$nextTick(()=>{
       this.__adjust_fields_width()

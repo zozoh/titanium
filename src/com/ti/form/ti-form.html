@@ -1,25 +1,53 @@
 <div class="ti-form"
-  :class="formClass">
-  <header v-if="hasHeader"
-    class="form-header">
+  :class="topClass">
+  <!--
+    Form Header
+  -->
+  <header class="form-header" v-if="hasHeader">
     <span v-if="icon"
       class="it-icon"><ti-icon :value="icon"/></span>
     <span v-if="title"
       class="it-text">{{title}}</span>
   </header>
-  <template v-for="fld in fieldList">
-    <ti-form-group v-if="'Group' == fld.type"
-      v-bind="fld"
-      :data="data"
-      :status-icons="config.statusIcons"
-      @changed="onChanged"
-      @invalid="onInvalid"/>
-    <ti-form-field v-else
-      :key="fld.key"
-      v-bind="fld"
-      :data="formData"
-      :status-icons="config.statusIcons"
-      @changed="onChanged"
-      @invalid="onInvalid"/>
-  </template>
+  <!--
+    Tabs for display:"tab"
+  -->
+  <div class="form-tab" v-if="isDisplayAsTab">
+    <ul>
+      <li v-for="tab in theTabItems" 
+        :class="tab.className"
+        @click.left="onClickTab(tab)">
+        <ti-icon 
+          class="tab-icon" v-if="tab.icon" :value="tab.icon"/>
+        <span 
+          class="tab-text" v-if="tab.title">{{tab.title|i18n}}</span>
+      </li>
+    </ul>
+  </div>
+  <!--
+    Form Fields
+  -->
+  <div class="form-body">
+    <template v-for="fld in theFieldsInCurrentTab">
+      <!--
+        For Group
+      -->
+      <ti-form-group v-if="'Group' == fld.type"
+        v-bind="fld"
+        :data="data"
+        :status-icons="config.statusIcons"
+        @changed="onChanged"
+        @invalid="onInvalid"/>
+      <!--
+        For field
+      -->
+      <ti-form-field v-else
+        :key="fld.key"
+        v-bind="fld"
+        :data="formData"
+        :status-icons="config.statusIcons"
+        @changed="onChanged"
+        @invalid="onInvalid"/>
+    </template>
+  </div>
 </div>

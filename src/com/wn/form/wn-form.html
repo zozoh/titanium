@@ -1,12 +1,15 @@
-<div class="wn-form">
+<div class="wn-form ti-fill-parent">
   <!--
     Show data in form
   -->
   <ti-form v-if="hasData"
-    class="ti-fill-parent"
+    :icon="icon"
+    :title="title"
+    :class-name="className"
+    :display="display"
+    :currentTab="currentTab"
     :config="formedConfig"
     :data="data"
-    :status="status"
     :field-status="fieldStatus"
     @changed="onChanged"
     @invalid="onInvalid"/>

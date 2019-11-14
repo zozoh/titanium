@@ -17,7 +17,15 @@ export default {
         status : {}
       })
     },
-    "showTitle" : {
+    "previewInfo" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "previewInfoEdit" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "dirNameTip" : {
       type : String,
       default : "i18n:thing-files"
     },
@@ -69,18 +77,31 @@ export default {
           "text" : "i18n:upload",
           "action" : "commit:main/files/showUploadFilePicker"
         }]
+    },
+    "stateLocalKey" : {
+      type : String,
+      default : null
     }
   },
   ///////////////////////////////////////////
   computed : {
     //--------------------------------------
     thePreview() {
-      return _.assign({}, this.preview, {
-        actions : {
-          enterFullscreen : {action : "commit:main/preview/enterFullscreen"},
-          exitFullscreen  : {action : "commit:main/preview/exitFullscreen"},
-          download : {action : "dispatch:main/preview/download"},
-          info     : {action : "main:showPreviewObjInfo"},
+      let theInfo = Ti.Util.getFallback(
+        this.previewInfo, 
+        this.filesName, 
+        "@default")
+
+      return _.assign({
+        showInfo  : false,
+        floatInfo : false,
+        infoPosition  : "left",
+        infoNameWidth : 50,
+        infoValueWidth : 100,
+        stateLocalKey : this.stateLocalKey
+      }, this.preview, theInfo, {
+        editInfoBy : ()=>{
+          this.editPreviewInfo()
         }
       })
     },
@@ -107,8 +128,20 @@ export default {
       await Ti.App(this).dispatch('main/autoSyncCurrentFilesCount')
     },
     //--------------------------------------
+    async editPreviewInfo() {
+      //console.log("showPreviewObjInfo:", this.preview)
+      if(this.preview.meta) {
+        let options = _.get(this.previewInfoEdit, this.filesName)
+        let newMeta = await Wn.EditObjMeta(this.preview.meta, options)
+        if(newMeta) {
+          let app = Ti.App(this)
+          app.dispatch("main/preview/reload", newMeta)
+          app.commit("main/files/updateItem", newMeta)
+        }
+      }
+    },
+    //--------------------------------------
     onFilesNameChanged(dirName) {
-      console.log("haha")
       let app = Ti.App(this)
       app.commit("main/setFilesName", dirName)
       app.dispatch("main/reloadFiles", {force:true})

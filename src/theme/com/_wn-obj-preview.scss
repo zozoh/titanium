@@ -9,6 +9,7 @@
     position: relative;
     //------------------------------------------------
     > .as-main {
+      flex:1 1 auto;
       width:100%; height:100%;
     }
     //------------------------------------------------
@@ -28,6 +29,37 @@
       //----------------------------------------------  
     }
     //------------------------------------------------
+    > .as-info {
+      @include color($color-paper, r, c);
+      font-size:.8em;
+      //----------------------------------------------
+      > .info-head {
+        @include flex-align-nowrap($ai:stretch);
+        @include border(1px, solid, dark, bottom);
+        line-height: 2.4em;
+        > .it-icon {
+          @include flex-center;
+          cursor:pointer; width:2em;
+          &:hover {@include color($color-secondary, r, c);}
+        }
+        > .it-text {flex:1 1 auto; padding:0 .3em;}
+        > .it-edit {
+          cursor:pointer; padding:0 .6em;
+          &:hover {@include color($color-secondary, r, c);}
+        }
+      }
+      //----------------------------------------------
+      > .info-field-con {
+        padding:.5em;
+        width:100%; height:100%;
+        //--------------------------------------------
+        > .info-field {
+          @include flex-align-nowrap;
+        }
+        //--------------------------------------------
+      }
+      //----------------------------------------------
+    }
     //------------------------------------------------  
   }
   //--------------------------------------------------
@@ -35,6 +67,81 @@
     @include pos-fixed-full;
     @include color($color-mask, null, heavy);
     z-index: $z-mask;
+  }
+  //--------------------------------------------------
+  &.is-info-at-bottom {
+    //------------------------------------------------
+    > .wop-con {
+      @include flex-align-v-nowrap;
+      > .as-main {
+        height:100px; /*Init value for flex*/
+      }
+      > .as-info {
+        @include flex-align-v-nowrap;
+        > .info-field-con {
+          @include flex-align;
+          > .info-field {
+            > div {
+              @include font-fixed;
+              overflow: hidden; white-space: nowrap;
+              text-overflow: ellipsis;
+              &.as-name {padding:0 .04rem;}
+              &.as-value{padding:0 .04rem;}
+            }
+          }
+        }
+      }
+    }
+    //------------------------------------------------
+    &.is-float-info {
+      > .wop-con > .as-info {
+        @include pos-abs($b:0,$l:0,$r:0);
+      }
+    }
+    //------------------------------------------------
+  }
+  //--------------------------------------------------
+  &.is-info-at-left {
+    //------------------------------------------------
+    > .wop-con {
+      @include flex-align-nowrap($ai:stretch);
+      > .as-main {
+        width:100px; /*Init value for flex*/
+        order: 2;
+      }
+      > .as-info {
+        order: 1; 
+        > .info-field-con {
+          overflow-y:auto;
+          > .info-field {
+            @include border(1px, dashed, shallow, bottom);
+            &:last-child {border:0;}
+            line-height: 1.2em; padding:.6em 0;
+            align-items: flex-start;
+            > div {
+              @include font-fixed;
+              word-break: break-all; overflow: hidden;
+              &.as-name {padding:0 .04rem;}
+              &.as-value{padding:0 .04rem;}
+            }
+          }
+        }
+      }
+    }
+    //------------------------------------------------
+    &.is-float-info {
+      > .wop-con > .as-info {
+        @include pos-abs($l:0,$t:0,$b:0);
+      }
+    }
+    //------------------------------------------------
+  }
+  //--------------------------------------------------
+  // Float info color
+  &.is-float-info {
+    > .wop-con > .as-info {
+      @include color($color-mask, r, bushy);
+    }
   }
   //--------------------------------------------------
 }

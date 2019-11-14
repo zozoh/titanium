@@ -106,15 +106,35 @@ class TiModalDialog {
     //........................................
     // init DOM and find the body
     $el.innerHTML = html
-    let $actions  = Ti.Dom.findAll("li.mdl-btn", $el)
     let $main     = Ti.Dom.find(".mdl-main", $el)
+    let $title    = Ti.Dom.find(".mdl-title", $main)
     let $body     = Ti.Dom.find(".mdl-body", $main)
+    let $actions  = Ti.Dom.find(".mdl-actions", $main)
     let $closer   = Ti.Dom.find(".mdl-closer", $main)
     //........................................
     // Sizing 
     if("desktop" == RTSTACK.viewportMode) {
       Ti.Dom.setStyle($main, {width, height})
     }
+    //........................................
+    // Join mounted
+    // Ti.Util.pushValue(appInfo, "mixins", {
+    //   ////////////////////////////////////
+    //   methods : {
+    //     resizeModal() {
+    //       // If defined height of the modal window
+    //       // It will auto resize body to fit the height perfactly
+    //       if(height) {
+
+    //       }
+    //     }
+    //   },
+    //   ////////////////////////////////////
+    //   mounted : function() {
+    //     this.resizeModal()
+    //   }
+    //   ////////////////////////////////////
+    // })
     //........................................
     // create TiApp
     // console.log(appInfo)
@@ -129,7 +149,9 @@ class TiModalDialog {
     // Join to runtime
     RTSTACK.push(this)
     //........................................
-    _.assign(this, {app, $el, $main, $body, $closer, $actions, $btns:{}})
+    _.assign(this, {
+      app, $el, $main, $body, $closer, $actions, $btns:{}
+    })
     let context = this
     //........................................
     // await the modal dialog close
@@ -143,7 +165,8 @@ class TiModalDialog {
         })
       }
       // Bind action events
-      _.forEach($actions, ($btn, index)=>{
+      let $btnList = Ti.Dom.findAll("li.mdl-btn", $actions)
+      _.forEach($btnList, ($btn, index)=>{
         let btn = actions[index]
         let handler = btn.handler
         // save action refer

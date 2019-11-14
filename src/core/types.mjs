@@ -722,12 +722,23 @@ const TiTypes = {
     return obj
   },
   //.......................................
-  toObjByPair(pair={}, {keyBy="name", valueBy="value", dft={}}={}){
-    let key = pair[keyBy]
-    if(key) {
-      return {[key] : pair[valueBy]}
+  toObjByPair(pair={}, {nameBy="name", valueBy="value", dft={}}={}){
+    let name  = pair[nameBy]
+    let value = pair[valueBy]
+
+    let data = _.assign({}, dft)
+    // Normal field
+    if(_.isString(name)) {
+      data[name] = value
     }
-    return dft
+    // Multi fields
+    else if(_.isArray(name)){
+      for(let nm of name) {
+        data[nm] = value[nm]
+      }
+    }
+
+    return data
   },
   //.......................................
   toArray(val, {sep=/[ ,;\/、，；\r\n]+/}={}) {

@@ -1,0 +1,6 @@
+{
+  "name" : "wn-obj-preview-info-field",
+  "globally" : true,
+  "template" : "./preview-info-field.html",
+  "mixins" : ["./preview-info-field.mjs"]
+}

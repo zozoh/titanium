@@ -5,22 +5,45 @@
   <div class="wop-con" v-if="hasMeta">
     <!--Main View-->
     <component class="as-main"
-      :is="previewComType"
+      :is="thePreviewComType"
       :icon="dataIcon"
       :title="dataTitle"
       :src="dataSource"/>
     <!--ActionBar at top-->
     <div class="as-abar">
       <ul>
-        <li v-for="it in theActionBar"
+        <li v-for="it in theActions"
           @click.left="onAction(it.action)">
           <ti-icon class="it-icon" :value="it.icon"/>
         </li>
       </ul>
     </div>
     <!--Meta at bottom-->
-    <div class="as-info">
-
+    <div class="as-info" v-if="isShowInfo">
+      <!--
+        Head
+      -->
+      <div class="info-head">
+        <!--Pin Status Icon-->
+        <span class="it-icon" @click.left="toggleInfoFloat">
+          <ti-icon :value="thePreviewInfoPinIcon"/>
+        </span>
+        <!--Head text-->
+        <span class="it-text">{{'i18n:info'|i18n}}</span>
+        <!--Edit Button-->
+        <span class="it-edit"
+          @click.left="doEditInfo">{{'i18n:edit'|i18n}}</span>
+      </div>
+      <!--
+        Fields
+      -->
+      <div class="info-field-con">
+        <wn-obj-preview-info-field
+          v-for="fld in thePrevewInfoFields"
+          :key="fld.name"
+          v-bind="fld"
+          :data="meta"/>
+      </div>
     </div>
   </div>
   <!--

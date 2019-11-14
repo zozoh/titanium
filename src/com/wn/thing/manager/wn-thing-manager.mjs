@@ -235,10 +235,6 @@ export default {
       if(_.isFunction(fn)) {
         await fn(...be.args)
       }
-    },
-    //--------------------------------------
-    showPreviewObjInfo() {
-      console.log("showPreviewObjInfo:", this.preview)
     }
     //--------------------------------------
   },

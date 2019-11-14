@@ -1,6 +1,12 @@
 export default {
   inheritAttrs : false,
   //////////////////////////////////////////
+  data : ()=>({
+    isInFullScreen : false,
+    isShowInfo     : false,
+    isFloatInfo    : false
+  }),
+  //////////////////////////////////////////
   props : {
     "meta" : {
       type : Object,
@@ -11,12 +17,42 @@ export default {
       default : ()=>({})
     },
     "actions" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "actionBar" : {
       type : Array,
-      default : ()=>["@fullscreen", "@download", "@info"]
+      default : ()=>["fullscreen", "newtab", "download", "info"]
+    },
+    "showInfo" : {
+      type : Boolean,
+      default : false
+    },
+    "floatInfo" : {
+      type : Boolean,
+      default : false
+    },
+    "editInfoBy" : {
+      type : [Function, String],
+      default : null
+    },
+    "infoPosition" : {
+      type : String,
+      default : "bottom",
+      validator: (val)=>/^(bottom|left)$/.test(val)
+    },
+    "infoNameWidth" : {
+      type : [String, Number],
+      default : 50
+    },
+    "infoValueWidth" : {
+      type : [String, Number],
+      default : 200
+    },
+    "infoFields" : {
+      type : Array,
+      default : ()=>["id", "race", "nm","ph", "tp"]
+    },
+    // Store the status in Local
+    "stateLocalKey" : {
+      type : String,
+      default : null
     }
   },
   //////////////////////////////////////////
@@ -28,11 +64,14 @@ export default {
     //--------------------------------------
     topClass() {
       return {
-        "is-fullscreen" : this.status.fullscreen
+        "is-fullscreen" : this.isInFullScreen,
+        "is-show-info"  : this.isShowInfo,
+        "is-float-info" : this.isFloatInfo,
+        [`is-info-at-${this.infoPosition}`] : true        
       }
     },
     //--------------------------------------
-    previewComType() {
+    thePreviewComType() {
       if(this.meta) {
         let mime = this.meta.mime
         // Video
@@ -50,63 +89,83 @@ export default {
       }
     },
     //--------------------------------------
-    theAction() {
-      if(this.actions) {
-        return _.merge({
-          "enterFullscreen" : {
-            icon : "zmdi-fullscreen",
-            text : "i18n:wop-fullscreen-enter",
-            action : "commit:main/enterFullscreen"
-          },
-          "exitFullscreen" : {
-            icon : "zmdi-fullscreen-exit",
-            text : "i18n:wop-fullscreen-quit",
-            action : "commit:main/exitFullscreen"
-          },
-          "download" : {
-            icon : "zmdi-download",
-            text : "i18n:download-to-local",
-            action : "dispatch:main/download"
-          },
-          "info" : {
-            icon : "fas-info-circle",
-            text : "i18n:info",
-            action : "main:showObjInfo"
-          }
-    
-        }, this.actions)
-      }
+    thePreviewInfoPinIcon() {
+      return this.isFloatInfo 
+        ? 'fas-thumbtack'
+        : 'zmdi-layers'
     },
     //--------------------------------------
-    theActionBar() {
+    thePrevewInfoFields() {
+      return Wn.Obj.evalFields(this.infoFields, (fld)=>{
+        return _.defaults(fld, {
+          nameWidth  : this.infoNameWidth,
+          valueWidth : this.infoValueWidth
+        })
+      })
+    },
+    //--------------------------------------
+    theActions() {
       let list = []
       if(this.hasMeta) {
-        _.forEach(this.actionBar, (it)=>{
+        _.forEach(this.actions, (it)=>{
           //..........................
           // full screen
-          if("@fullscreen" == it) {
-            if(!this.status.fullscreen) {
-              list.push(this.theAction["enterFullscreen"])
+          if("fullscreen" == it) {
+            if(!this.isInFullScreen) {
+              list.push({
+                icon : "zmdi-fullscreen",
+                text : "i18n:wop-fullscreen-enter",
+                action : ()=>this.enterFullscreen()
+              })
             }
             // Exit FullScreen
             else {
-              list.push(this.theAction["exitFullscreen"])
+              list.push({
+                icon : "zmdi-fullscreen-exit",
+                text : "i18n:wop-fullscreen-quit",
+                action : ()=>this.exitFullscreen()
+              })
             }
-            return
           }
           //..........................
-          // quick Name
-          let m = /^@(.+)$/.exec(it)
-          if(m) {
-            let quickName = m[1]
-            let aIt = this.theAction[quickName]
-            if(aIt) {
-              list.push(aIt)
-            }
-            return
+          // Open
+          else if("newtab" == it) {
+            list.push({
+              icon : "zmdi-open-in-new",
+              text : "i18n:open-newtab",
+              action : ()=>this.openInNewTab()
+            })
           }
           //..........................
-          if(_.isPlainObject(it) && it.action) {
+          // Download
+          else if("download" == it) {
+            list.push({
+              icon : "zmdi-download",
+              text : "i18n:download-to-local",
+              action : ()=>this.download()
+            })
+          }
+          //..........................
+          // Toggle Info
+          else if("info" == it) {
+            if(!this.isShowInfo) {
+              list.push({
+                icon : "zmdi-info",
+                text : "i18n:info",
+                action : ()=>this.doShowInfo()
+              })
+            }
+            // Show Info
+            else {
+              list.push({
+                icon : "zmdi-info-outline",
+                text : "i18n:info",
+                action : ()=>this.doHideInfo()
+              })
+            }
+          }
+          //..........................
+          else if(_.isPlainObject(it) && it.action) {
             list.push(it)
           }
           //..........................
@@ -135,29 +194,110 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onAction(actionName) {
-      Ti.App(this).exec(actionName)
+    onAction(action) {
+      // Exec command
+      if(_.isString(action)) {
+        Ti.App(this).exec(actionName)
+      }
+      // Call function
+      else if(_.isFunction(action)) {
+        action()
+      }
     },
     //--------------------------------------
-    showObjInfo() {
-      console.log("showObjInfo", this.meta)
+    enterFullscreen() {
+      this.isInFullScreen = true
+    },
+    //--------------------------------------
+    exitFullscreen() {
+      this.isInFullScreen = false
+    },
+    //--------------------------------------
+    doShowInfo() {
+      this.isShowInfo = true
+      this.saveStateToLocal()
+    },
+    //--------------------------------------
+    doHideInfo() {
+      this.isShowInfo = false
+      this.saveStateToLocal()
+    },
+    //--------------------------------------
+    toggleInfoFloat() {
+      this.isFloatInfo = !this.isFloatInfo
+      this.saveStateToLocal()
+    },
+    //--------------------------------------
+    openInNewTab() {
+      let link = Wn.Util.getAppLink(this.meta)
+      Ti.Be.OpenLink(link)
+    },
+    //--------------------------------------
+    download() {
+      let link = Wn.Util.getDownloadLink(this.meta)
+      Ti.Be.OpenLink(link)
+    },
+    //--------------------------------------
+    doEditInfo() {
+      if(this.meta) {
+        // Command
+        if(_.isString(this.editInfoBy)) {
+          Ti.App(this).exec(this.editInfoBy, this.meta)
+        }
+        // Function Invoking
+        else if(_.isFunction(this.editInfoBy)) {
+          this.editInfoBy(this.meta)
+        }
+        // Default to open the dialog
+        else {
+          Wn.EditObjMeta(this.meta)
+        }
+      }
+    },
+    //--------------------------------------
+    saveStateToLocal() {
+      if(this.stateLocalKey) {
+        Ti.Storage.session.mergeObject(this.stateLocalKey, {
+          isShowInfo     : this.isShowInfo,
+          isFloatInfo    : this.isFloatInfo
+        })
+        // let state = Ti.Storage.session.getObject(this.stateLocalKey)
+        // console.log("-> saveStateToLocal", state)
+      }
+    },
+    //--------------------------------------
+    loadStateFromLocal() {
+      if(this.stateLocalKey) {
+        let state = Ti.Storage.session.getObject(this.stateLocalKey)
+        //console.log("<- loadStateFromLocal", state)
+        _.defaults(state, {
+          isShowInfo     : this.isShowInfo,
+          isFloatInfo    : this.isFloatInfo
+        })
+        this.isShowInfo  = state.isShowInfo
+        this.isFloatInfo = state.isFloatInfo
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   watch : {
-    "status.fullscreen" : function(isInFullScreen) {
-      if(isInFullScreen && this.theAction) {
-        Ti.Shortcut.addWatch(this, {
-          shortcut : "ESCAPE",
-          action   : _.get(this.theAction, "exitFullscreen.action")
-        })
-      }
-      // Quit watch
-      else {
-        Ti.Shortcut.removeWatch(this)
-      }
+    "showInfo" : function(val) {
+      console.log("showInfo watched")
+      this.isShowInfo = val
+    },
+    "floatInfo" : function(val) {
+      console.log("floatInfo watched")
+      this.isFloatInfo = val
     }
+  },
+  //////////////////////////////////////////
+  mounted : function() {
+    this.isShowInfo  = this.showInfo
+    this.isFloatInfo = this.floatInfo
+    this.$nextTick(()=>{
+      this.loadStateFromLocal()
+    })
   }
   //////////////////////////////////////////
 }

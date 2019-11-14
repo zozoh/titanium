@@ -119,6 +119,26 @@ function formatObj(vm, obj) {
 //----------------------------------------------
 export default {
   props : {
+    "icon" : {
+      type : String,
+      default : null
+    },
+    "title" : {
+      type : String,
+      default : null
+    },
+    "className" : {
+      type : String,
+      default : null
+    },
+    "display" : {
+      type : String,
+      default : "all"
+    },
+    "currentTab" : {
+      type : Number,
+      default : 0
+    },
     "config" : {
       type : Object,
       default : null
@@ -127,10 +147,10 @@ export default {
       type : Object,
       default : null
     },
-    "status" : {
-      type : Object,
-      default : null
-    },
+    // "status" : {
+    //   type : Object,
+    //   default : null
+    // },
     "fieldStatus" : {
       type : Object,
       default : ()=>({})

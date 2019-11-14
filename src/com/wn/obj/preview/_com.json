@@ -5,6 +5,7 @@
   "template" : "./wn-obj-preview.html",
   "mixins" : ["./wn-obj-preview.mjs"],
   "components" : [
+    "./com/preview-info-field",
     "@com:ti/media/binary",
     "@com:ti/media/image",
     "@com:ti/media/video"]

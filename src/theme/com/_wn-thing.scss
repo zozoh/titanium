@@ -74,7 +74,7 @@
       @include flex-align-nowrap;
       @include color($color-bar, r, c);
       font-size:.12rem;
-      > .as-title {
+      > .as-tip {
         @include color($color-track, c);
         flex:0 0 auto;
         padding:0 .04rem 0 .1rem;

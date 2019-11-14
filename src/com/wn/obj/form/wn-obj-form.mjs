@@ -1,11 +1,27 @@
 export default {
+  inheritAttrs : false,
+  //////////////////////////////////////////////////////
   props : {
-    // Just hide the income properties
-    "meta" : {
-      type : Object,
-      default : ()=>({})
+    "icon" : {
+      type : String,
+      default : null
     },
-    // The 3 properties below are really useful
+    "title" : {
+      type : String,
+      default : null
+    },
+    "className" : {
+      type : String,
+      default : null
+    },
+    "display" : {
+      type : String,
+      default : "all"
+    },
+    "currentTab" : {
+      type : Number,
+      default : 0
+    },
     "config" : {
       type : Object,
       default : null
@@ -14,7 +30,11 @@ export default {
       type : Object,
       default : null
     },
-    "status" : {
+    // "status" : {
+    //   type : Object,
+    //   default : ()=>({})
+    // },
+    "fieldStatus" : {
       type : Object,
       default : ()=>({})
     },
@@ -24,10 +44,6 @@ export default {
         key  : "wn-obj-form",
         noti : null
       })
-    },
-    "fieldStatus" : {
-      type : Object,
-      default : ()=>({})
     },
     "updateBy" : {
       type : Object,

@@ -163,9 +163,15 @@ export const WnIo = {
    * Get obj content by meta:
    */
   async loadContent(meta, {as="text"}={}) {
+    // Load by path
+    if(_.isString(meta)) {
+      meta = await WnIo.loadMeta(meta)
+    }
+    // un-readable
     if(!meta || 'DIR' == meta.race) {
       return null
     }
+    // Do load
     let mime = meta.mime || 'application/octet-stream'
     // PureText
     if(WnUtil.isMimeText(mime)) {

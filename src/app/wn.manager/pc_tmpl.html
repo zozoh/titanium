@@ -100,7 +100,7 @@ async function main(){
   })
 
   // setup the i18n
-  Ti.I18n.put(await Ti.Load("@i18n:_ti"))
+  Ti.I18n.put(await Ti.Load(["@i18n:_ti", "@i18n:_wn"]))
 
   // exit i18n
   if(tiConf.i18n) {

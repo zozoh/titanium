@@ -9,6 +9,32 @@ tags:
 ------------------------------------------------------
 # Properties
 
+## icon
+
+Form header icon like `fas-xxx` or `zmdi-xxx`
+
+## title
+
+Form header text, `i18n:xxx` would be supported.
+
+## className
+
+Indicate the special className for the top Element of the DOM tree.
+
+## display
+
+The form display mode:
+
+- `all` : **Default**, it will list all field and group
+- `tab` : Field group as tab, the fields out-of-group,  will be collected to "others"
+
+## currentTab
+
+If display mode is in `tab`, the prop will indicate the current tab index.
+
+- `0 - n`
+- `-1 ~ -n`
+
 ## config
 
 Define the schema(`Object`) of  data presentation.
@@ -89,6 +115,7 @@ Define the schema(`Object`) of  data presentation.
     transformer : String | Object | (val)=>Any
   }, {
   	type  : "Group",
+    icon  : "fas-xxx",
   	title : "i18n:xxx",
   	fields : [{
       // Nested field

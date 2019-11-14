@@ -38,6 +38,11 @@ class TiStorageWrapper {
     let str = JSON.stringify(obj)
     this.storage.setItem(key, str)
   }
+  mergeObject(key, obj={}) {
+    let obj2 = this.getObject(key)
+    _.merge(obj2, obj)
+    this.setObject(key, obj2)
+  }
   remove(key) {
     this.storage.removeItem(key)
   }
