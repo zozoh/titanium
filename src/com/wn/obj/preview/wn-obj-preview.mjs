@@ -47,7 +47,7 @@ export default {
     },
     "infoFields" : {
       type : Array,
-      default : ()=>["id", "race", "nm","ph", "tp"]
+      default : ()=>["id", "race", "nm", "tp", "mime"]
     },
     // Store the status in Local
     "stateLocalKey" : {

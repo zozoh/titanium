@@ -96,8 +96,8 @@ export default {
         showInfo  : false,
         floatInfo : false,
         infoPosition  : "left",
-        infoNameWidth : 50,
-        infoValueWidth : 100,
+        infoNameWidth : 40,
+        infoValueWidth : 120,
         stateLocalKey : this.stateLocalKey
       }, this.preview, theInfo, {
         editInfoBy : ()=>{
