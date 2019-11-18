@@ -89,6 +89,12 @@
         "text" : "i18n:console",
         "action" : "dispatch:openConsole",
         "shortcut" : "ALT+SHIFT+T"
+      },{
+        "type" : "action",
+        "icon" : "zmdi-info-outline",
+        "text" : "i18n:properties",
+        "action" : "dispatch:openProperties",
+        "shortcut" : "ALT+CTRL+P"
       }]
   }]
 }

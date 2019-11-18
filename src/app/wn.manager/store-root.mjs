@@ -73,6 +73,15 @@ export default {
       Ti.Be.Open("/a/open/wn.console")
     },
     //-------------------------------------
+    async openProperties({state, dispatch}) {
+      if(state.meta.meta) {
+        let newMeta = await Wn.EditObjMeta(state.meta.meta, {closer:true})
+        if(newMeta) {
+          dispatch("reload", newMeta)
+        }
+      }
+    },
+    //-------------------------------------
     async reloadSidebar({commit}) {
       let reo = await Wn.Sys.exec("ti sidebar -cqn", {as:"json"});
       commit("setSidebar", reo.sidebar)

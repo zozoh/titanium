@@ -10,6 +10,10 @@ export default {
       type : String,
       default : null
     },
+    "meta" : {
+      type : Object,
+      default : null
+    },
     "list" : {
       type : Array,
       default : ()=>[]
@@ -90,6 +94,11 @@ export default {
   },
   ////////////////////////////////////////////////
   computed : {
+    // Auto PageMode
+    ...Vuex.mapGetters("main", [
+      "currentItem", 
+      "currentItemId", 
+      "selectedItems"]),
     /***
      * Show uploading list
      */
@@ -240,7 +249,19 @@ export default {
     async onSelectLocalFilesToUpload(evt){
       await this.onDropFiles(evt.target.files)
       this.$refs.file.value = ""
+    },
+    //--------------------------------------------
+    async onOpenProperties() {
+      console.log(this.currentItem)
+      let meta = this.currentItem || this.meta
+
+      if(!meta) {
+        return Ti.Toast.Open("i18n:nil-obj")
+      }
+
+      Wn.EditObjMeta(meta)
     }
+    //--------------------------------------------
   },
   ////////////////////////////////////////////////
   mounted : function(){
