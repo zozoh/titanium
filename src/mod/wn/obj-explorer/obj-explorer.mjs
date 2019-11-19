@@ -106,7 +106,9 @@ export default {
       state.pager = _.assign({}, state.pager, pg)
     },
     setList(state, list) {
-      state.list = list
+      if(_.isArray(list)) {
+        state.list = _.concat(list)
+      }
     },
     //---------------------------------------------------
     setCurrentId(state, id) {
@@ -199,7 +201,7 @@ export default {
       state.list = list
     },
     //---------------------------------------------------
-    updateItemStatus(state, {id, status={}}={}) {
+    updateItemStatus(state, {id, status=null}={}) {
       let list = []
       for(let li of state.list) {
         if(li.id == id) {
@@ -207,13 +209,43 @@ export default {
           _.assign(st, status)
           list.push({
             ...li,
-            __is : st
+            __is : status
           })
         } else {
           list.push(li)
         }
       }
       state.list = list
+    },
+    //---------------------------------------------------
+    updateAllItemStatus(state, {list=[], status=null}={}) {
+      // Make the id index map
+      let idMap = {}
+      _.forEach(list, (li)=>{
+        // ID
+        if(_.isString(li)) {
+          idMap[li] = true
+        }
+        // WnObj
+        else if(li.id) {
+          idMap[li.id] = true
+        }
+      })
+      // Walk new list
+      let list2 = []
+      for(let li of state.list) {
+        if(idMap[li.id]) {
+          let st = li.__is || {}
+          _.assign(st, status)
+          list2.push({
+            ...li,
+            __is : status
+          })
+        } else {
+          list2.push(li)
+        }
+      }
+      state.list = list2
     },
     //---------------------------------------------------
     showUploadFilePicker(state) {

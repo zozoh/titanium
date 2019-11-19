@@ -1,9 +1,0 @@
-{
-  "name" : "wn-form",
-  "globally" : true,
-  "template" : "./wn-form.html",
-  "mixins" : ["./wn-form.mjs"],
-  "components" : [
-    "@com:ti/form",
-    "@com:wn/obj/picker"]
-}

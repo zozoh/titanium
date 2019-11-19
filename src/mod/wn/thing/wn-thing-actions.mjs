@@ -2,10 +2,22 @@
 ////////////////////////////////////////////////
 export default {
   //--------------------------------------------
+  async deleteSelectedFiles({state, commit, dispatch}) {
+    await dispatch("files/deleteSelected")
+    // Empty to clear the preview
+    if(_.isEmpty(state.files.list)) {
+      dispatch("preview/reload", null)
+    }
+    // Auto-select the first one
+    else {
+      dispatch("selectCurrentPreviewItem", state.files.list[0].id)
+    }
+  },
+  //--------------------------------------------
   /***
    * Save current thing detail
    */
-  async saveCurrent({state, commit, dispatch}) {
+  async saveCurrent({commit, dispatch}) {
     commit("setStatus", {saving:true})
     await dispatch("current/save")
     commit("setStatus", {saving:false})

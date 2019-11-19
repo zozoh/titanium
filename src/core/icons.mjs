@@ -45,25 +45,29 @@ const MIMES = {
 }
 //-----------------------------------
 const NAMES = {
-  "create"   : {type:"font", value:"zmdi-audio"},
   "add"      : {type:"font", value:"zmdi-plus"},
-  "del"      : {type:"font", value:"zmdi-delete"},
-  "close"    : {type:"font", value:"zmdi-close"},
-  "download" : {type:"font", value:"zmdi-download"},
-  "edit"     : {type:"font", value:"zmdi-edit"},
-  "refresh"  : {type:"font", value:"zmdi-refresh"},
-  "setting"  : {type:"font", value:"zmdi-settings"},
-  "help"     : {type:"font", value:"zmdi-help-outline"},
-  "info"     : {type:"font", value:"zmdi-info-outline"},
-  "warn"     : {type:"font", value:"zmdi-alert-triangle"},
-  "error"    : {type:"font", value:"zmdi-alert-octagon"},
-  "success"  : {type:"font", value:"zmdi-check-circle"},
-  "track"    : {type:"font", value:"zmdi-notifications-none"},
   "alert"    : {type:"font", value:"zmdi-notifications-none"},
   "backward" : {type:"font", value:"zmdi-chevron-left"},
-  "forward"  : {type:"font", value:"zmdi-chevron-right"},
+  "close"    : {type:"font", value:"zmdi-close"},
   "confirm"  : {type:"font", value:"zmdi-help"},
+  "create"   : {type:"font", value:"zmdi-audio"},
+  "del"      : {type:"font", value:"zmdi-delete"},
+  "done"     : {type:"font", value:"fas-thumbs-up"},
+  "download" : {type:"font", value:"zmdi-download"},
+  "edit"     : {type:"font", value:"zmdi-edit"},
+  "error"    : {type:"font", value:"zmdi-alert-octagon"},
+  "forward"  : {type:"font", value:"zmdi-chevron-right"},
+  "help"     : {type:"font", value:"zmdi-help-outline"},
+  "info"     : {type:"font", value:"zmdi-info-outline"},
+  "loading"  : {type:"font", value:"fas-spinner fa-spin"},
+  "ok"       : {type:"font", value:"zmdi-check-circle"},
   "prompt"   : {type:"font", value:"zmdi-keyboard"},
+  "refresh"  : {type:"font", value:"zmdi-refresh"},
+  "removed"  : {type:"font", value:"far-trash-alt"},
+  "setting"  : {type:"font", value:"zmdi-settings"},
+  "success"  : {type:"font", value:"zmdi-check-circle"},
+  "track"    : {type:"font", value:"zmdi-notifications-none"},
+  "warn"     : {type:"font", value:"zmdi-alert-triangle"}
 }
 //-----------------------------------
 const RACES = {

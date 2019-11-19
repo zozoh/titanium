@@ -11,6 +11,7 @@
   }
   //////////////////////////////////////
   > .form-tab {
+    @include noselect;
     @include flex-center;
     ul {
       @include flex-align-nowrap;

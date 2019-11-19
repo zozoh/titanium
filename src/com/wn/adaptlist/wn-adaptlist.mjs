@@ -178,11 +178,8 @@ export default {
         preview : Wn.Util.genPreviewObj(it),
         href : Wn.Util.getAppLink(it).toString(),
         visibility,
-        ...(it.__is || {
-          loading  : false,
-          removed  : false,
-          progress : -1
-        }),
+        status   : it.__is,
+        progress : it.__progress,
         icons : it.__icons || {
           NW : null,
           NE : null,

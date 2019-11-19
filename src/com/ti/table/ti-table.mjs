@@ -368,19 +368,24 @@ export default {
         else {
           value = _.get(rowData, it.key)
         }
-        // Ignore the undefined/null
-        if(_.isUndefined(value) || _.isNull(value)) {
-          continue
-        }
         //.....................................
         if(it.dict) {
-          value = await Wn.Dict.get(it.dict, value)
+          if(!Ti.Util.isNil(value)) {
+            value = await Wn.Dict.get(it.dict, value)
+          }
         }
         //.....................................
         // Transform
         if(_.isFunction(it.transformer)) {
           //console.log("do trans")
-          value = it.transformer(value)
+          // Sometimes, we need transform nil also
+          if(!Ti.Util.isNil(value) || it.transNil) {
+            value = it.transformer(value)
+          }
+        }
+        // Ignore the undefined/null
+        if(Ti.Util.isNil(value)) {
+          continue
         }
         //.....................................
         // Add value to comConf

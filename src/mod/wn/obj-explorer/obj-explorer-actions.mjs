@@ -2,6 +2,49 @@
 //---------------------------------------
 export default {
   //---------------------------------------
+  /***
+   * Walk list, process a async function for each item
+   * 
+   * @param emptyForAll{Boolean} :
+   *  if no selected items, wall whole list, default true
+   * @param iteratee{Function} : 
+   *   Callback function for each item. async is supported.
+   *   it will be invoked by three args:
+   *   `item, index, UpdateProcess(0.4)`
+   * @return the list which has been walked
+   */
+  async walkList({state, commit, getters}, {
+    emptyForAll=true,
+    iteratee = _.identity,
+    itemDoneStatus = null,
+    doneMsg="All Done"
+  }={}) {
+    let list = getters.selectedItems
+    if(_.isEmpty(list) && emptyForAll) {
+      list = state.list
+    }
+    try {
+      // Loop items
+      for(let i=0; i<list.length; i++) {
+        let it = list[i]
+        
+        // Mark item is processing
+        commit("updateItemStatus", {id:it.id, status:"loading"})
+        
+        // Process item
+        let doneStatus = (await iteratee(it, i, list))||itemDoneStatus
+
+        // Mark item removed
+        commit("updateItemStatus", {id:it.id, status:doneStatus})
+      }
+      return list
+    }
+    // End deleting
+    finally {
+      Ti.Toast.Open(doneMsg, "success")
+    }
+  },
+  //---------------------------------------
   async deleteSelected({commit, getters, dispatch}) {
     let list = getters.selectedItems
     if(_.isEmpty(list)) {
@@ -29,8 +72,7 @@ export default {
           continue
         
         // Mark item is processing
-        commit("updateItemStatus", 
-          {id:it.id, status:{loading:true, removed:false}})
+        commit("updateItemStatus", {id:it.id, status:"loading"})
         // If DIR, check it is empty or not
         if('DIR' == it.race) {
           let count = await Wn.Sys.exec(`count -A id:${it.id}`)
@@ -39,8 +81,7 @@ export default {
             // If user confirmed, then rm it recurently
             if(!(await Ti.Confirm({
                 text:'i18n:weo-del-no-empty-folder', vars:{nm:it.nm}}))) {
-              commit("updateItemStatus", 
-                {id:it.id, status:{loading:false, removed:false}})
+              commit("updateItemStatus", {id:it.id, status:null})
               continue
             }
           }
@@ -52,15 +93,13 @@ export default {
         // })
         await Wn.Sys.exec(`rm ${'DIR'==it.race?"-r":""} id:${it.id}`)
         // Mark item removed
-        commit("updateItemStatus", 
-          {id:it.id, status:{loading:false, removed:true}})
+        commit("updateItemStatus", {id:it.id, status:"removed"})
         // If video result folder, mark it at same time
         let m = /^id:(.+)$/.exec(it.videoc_dir)
         if(m) {
           let vdId = m[1]
           exRemovedIds[vdId] = true
-          commit("updateItemStatus", 
-            {id:it.vdId, status:{loading:false, removed:true}})
+          commit("updateItemStatus", {id:it.vdId, status:"removed"})
         }
         // Counting
         delCount++

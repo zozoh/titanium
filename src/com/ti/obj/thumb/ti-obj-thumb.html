@@ -1,6 +1,10 @@
 <div class="ti-obj-thumb" 
     :class="classObject">
+  <!--
+    Preview && Process Bar
+  -->
   <header>
+    <!--Preview Image or Icon-->
     <div class="as-preview">
       <template v-if="'localFile'==preview.type">
         <img ref="localImage" is-local-file>
@@ -12,6 +16,7 @@
         <ti-icon :value="preview"></ti-icon>
       </template>
     </div>
+    <!--Process bar-->
     <div v-if="showProgress"
       class="as-progress ti-progress-bar">
       <span class="bar-tip">{{progressTip}}</span>
@@ -21,12 +26,15 @@
       </b>
     </div>
   </header>
-  <section class="as-status" v-if="loading || removed">
-    <ti-icon v-if="loading" 
-              value="fas-spinner fa-spin"/>
-    <ti-icon v-else-if="removed"
-              value="far-trash-alt"/>
+  <!--
+    Status Mask
+  -->
+  <section class="as-status" v-if="status">
+    <ti-icon :value="status"/>
   </section>
+  <!--
+    Footer for item title text
+  -->
   <footer v-if="footer">
     <div class="as-title"
       @click.stop="onClickTitle">

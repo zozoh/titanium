@@ -27,13 +27,9 @@ export default {
       type : String,
       default : null
     },
-    loading : {
-      type : Boolean,
-      default : false
-    },
-    removed : {
-      type : Boolean,
-      default : false
+    status : {
+      type : [String, Object],
+      default : null
     },
     progress : {
       type : Number,
