@@ -30,7 +30,6 @@
   > .form-body {
     //----------------------------------
     > .form-group {
-      @include border(1px, solid, shallow, bottom);
       &:last-child {
         border:0
       }
@@ -119,11 +118,11 @@
     > .form-body {
       //------------------------------
       > .form-group {
-        > .group-title {line-height:2em;padding:.06rem .1rem;}
-        > .group-fields {padding-bottom:.12rem;}
+        > .group-title {line-height:2em;padding:0 .08rem;}
+        > .group-fields {padding:.08rem 0 .16rem 0;}
       }
       //------------------------------
-      > .form-field {padding:.08rem;}
+      .form-field {padding:.08rem;}
       //------------------------------
     }
   }
@@ -133,11 +132,11 @@
     > .form-body {
       //------------------------------
       > .form-group {
-        > .group-title {line-height:1.4em;padding:.04rem .06rem;}
-        > .group-fields {padding-bottom:.06rem;}
+        > .group-title {line-height:1.4em;padding:0 .04rem;}
+        > .group-fields {padding:.04rem 0 .08rem 0;}
       }
       //------------------------------
-      > .form-field {padding:.04rem;}
+      .form-field {padding:.04rem;}
       //------------------------------
     }
   }

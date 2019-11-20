@@ -6,6 +6,22 @@ export default {
     setMeta(state, meta) {
       state.meta = meta
     },
+    //--------------------------------------------
+    assignMeta(state, meta) {
+      // Check Necessary
+      if(_.isEmpty(meta)) {
+        return
+      }
+      state.meta = _.assign({}, state.meta, meta);
+    },
+    //--------------------------------------------
+    mergeMeta(state, meta) {
+      // Check Necessary
+      if(!_.isEmpty(meta)) {
+        return
+      }
+      state.meta = _.merge({}, state.meta, meta);
+    },
     //------------------------------------------
     setFieldStatus(state, {name, message, status}={}) {
       if(name){

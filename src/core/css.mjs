@@ -1,5 +1,6 @@
-//-----------------------------------
+///////////////////////////////////////
 const TiCss = {
+  //-----------------------------------
   toSize(sz) {
     if(_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
       if(sz>-1 && sz<1)
@@ -8,6 +9,7 @@ const TiCss = {
     }
     return sz
   },
+  //-----------------------------------
   toStyle(obj) {
     return _.mapValues(obj, (val, key)=>{
       let ck = _.kebabCase(key)
@@ -17,6 +19,7 @@ const TiCss = {
       return TiCss.toSize(val)
     })
   },
+  //-----------------------------------
   mergeClassName(...args) {
     let klass = {}
     for(let arg of args) {
@@ -45,8 +48,19 @@ const TiCss = {
       }
     }
     return klass
+  },
+  //-----------------------------------
+  joinClassNames(...args) {
+    let klass = TiCss.mergeClassName(...args)
+    let names = []
+    _.forEach(klass, (enabled, key)=>{
+      if(enabled)
+        names.push(key)
+    })
+    return names.join(" ")
   }
+  //-----------------------------------
 }
-//---------------------------------------
+///////////////////////////////////////
 export default TiCss
 

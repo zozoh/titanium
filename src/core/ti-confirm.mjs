@@ -1,7 +1,6 @@
 async function Confirm(msg="", {
   title = "i18n:confirm", 
   icon = "confirm",
-  className,
   type  = "warn", 
   textYes = "i18n:yes",
   textNo  = "i18n:no",
@@ -20,7 +19,7 @@ async function Confirm(msg="", {
   return Ti.Modal.Open({
     template : html
   }, {
-    title, type, width, height, className,
+    title, type, width, height, 
     closer  : false,
     icon : false,
     actions : [{

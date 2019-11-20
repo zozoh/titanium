@@ -41,16 +41,24 @@ class TiModalDialog {
         handler : _.identity
       }]
     } = this[OPTIONS]
+    //........................................
+    // Prepare class
+    let klass = Ti.Css.joinClassNames("ti-modal", className, {
+      [`vm-${RTSTACK.viewportMode}`] : true,
+      [`ti-${type}`] : true
+    })
+    // // Create the DOM root
+    // let klass = ["ti-modal", `vm-${RTSTACK.viewportMode}`]
+    // if(className) {
+    //   klass.push(className)
+    // }
+    // if(/^(success|warn|info|error|tracke)$/.test(type)){
+    //   klass.push("ti-" + type)
+    // }
+    //........................................
     // Create the DOM root
-    let klass = ["ti-modal", `vm-${RTSTACK.viewportMode}`]
-    if(className) {
-      klass.push(className)
-    }
-    if(/^(success|warn|info|error|tracke)$/.test(type)){
-      klass.push("ti-" + type)
-    }
     let $el = Ti.Dom.createElement({
-      className: klass.join(" "),
+      className: klass,
       $p : document.body
     })
     //........................................

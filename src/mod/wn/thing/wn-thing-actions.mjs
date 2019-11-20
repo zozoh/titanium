@@ -34,6 +34,12 @@ export default {
     }
   },
   //--------------------------------------------
+  setCurrentMeta({state, commit}, meta) {
+    console.log(" -> setCurrentMeta", meta)
+    commit("current/assignMeta", meta)
+    commit("search/updateItem", state.current.meta)
+  },
+  //--------------------------------------------
   /***
    * Files: sync the file count and update to search/meta
    */

@@ -60,11 +60,14 @@ export default {
         return Ti.I18n.text(this.blankAs)
       }
       // Look up dictionary
+      let str = this.value
       if(this.dict) {
-        return await Wn.Dict.get(this.dict, this.value)
+        str = await Wn.Dict.get(this.dict, this.value)
       }
       // Format to display
-      let str = Ti.Types.toStr(this.value, this.format)
+      if(this.format) {
+        str = Ti.Types.toStr(str, this.format)
+      }
       // I18n ...
       return Ti.I18n.text(str)
     }

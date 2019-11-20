@@ -4,10 +4,12 @@ export const TiDom = {
   createElement({tagName="div", attrs={}, props={}, className="", $p=null}, $doc=document) {
     const $el = $doc.createElement(tagName)
     if(className)
-      $el.className = className    
+      $el.className = Ti.Css.joinClassNames(className)
+    
     _.forOwn(attrs, (val, key) => {
       $el.setAttribute(key, val)
     })
+
     _.forOwn(props, (val, key) => {
       $el[key] = val
     })

@@ -298,8 +298,17 @@ export default {
       let list = [].concat(fld.display)
       let items = []
       for(let li of list) {
+        let m = /^<([^:>]*):([^>]+)>$/.exec(li)
+        // Icon
+        if(m) {
+          items.push({
+            key   : m[1] || Symbol(li),
+            value : m[2],
+            comType : "ti-icon"
+          })
+        }
         // String|Array -> ti-label
-        if(_.isString(li) || _.isArray(li)) {
+        else if(_.isString(li) || _.isArray(li)) {
           items.push({
             key  : li,
             //type : "String",
@@ -355,18 +364,22 @@ export default {
       let list = []
       // Get items value
       for(let it of fld.display) {
-        let value;
+        let value = it.value;
         //.....................................
+        // Array -> Obj
         if(_.isArray(it.key)) {
           value = _.pick(rowData, it.key)
         }
-        // Statci value
-        else if(/^'[^']+'$/.test(it.key)) {
-          value = it.key.substring(1, it.key.length-1)
-        }
-        // Get the value
-        else {
-          value = _.get(rowData, it.key)
+        // String ...
+        else if(_.isString(it.key)){
+          // Statci value
+          if(/^'[^']+'$/.test(it.key)) {
+            value = it.key.substring(1, it.key.length-1)
+          }
+          // Dynamic value
+          else {
+            value = Ti.Util.fallback(_.get(rowData, it.key), value)
+          }
         }
         //.....................................
         if(it.dict) {
