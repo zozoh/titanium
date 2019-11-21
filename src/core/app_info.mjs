@@ -36,7 +36,7 @@ export async function LoadTiLinkedObj(
       for(let i=0; i<val.length; i++) {
         let v = val[i];
         // only link like value should be respected
-        if(!_.isString(v) || !/^(@[a-z0-9_-]+:?|\.\/)/.test(v)) {
+        if(!_.isString(v) || !/^(@[A-Za-z0-9_-]+:?|\.\/)/.test(v)) {
           continue
         }
         ps.push(new Promise((resolve, reject)=>{

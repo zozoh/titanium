@@ -407,7 +407,7 @@ const TiUtil = {
     let ks = _.flattenDeep(keys)
     for(let k of ks) {
       if(k) {
-        let v = obj[k]
+        let v = _.get(obj, k)
         if(!_.isUndefined(v))
           return v
       }
@@ -417,7 +417,7 @@ const TiUtil = {
     let ks = _.flattenDeep(keys)
     for(let k of ks) {
       if(k) {
-        let v = obj[k]
+        let v = _.get(obj, k)
         if(!TiUtil.isNil(v))
           return v
       }

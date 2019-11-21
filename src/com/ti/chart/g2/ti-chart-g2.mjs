@@ -64,8 +64,13 @@ export default {
   methods : {
     //......................................
     redrawChart() {
+      if(!_.isElement(this.$refs.chart)) {
+        return
+      }
       if(this.__g2_chart) {
-        this.__g2_chart.destroy()
+        try{
+          this.__g2_chart.destroy()
+        }catch(E){}
         $(this.$refs.chart).empty()
       }
       this.__g2_chart = draw_chart(this)
