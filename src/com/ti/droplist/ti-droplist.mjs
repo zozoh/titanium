@@ -108,7 +108,6 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     onChanged(val) {
-      console.log("changed!!!", val)
       this.$emit('changed', val)
     }
   }
