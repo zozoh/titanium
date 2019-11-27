@@ -173,13 +173,14 @@ DIV(@app)             # Vue(root) : index.wnml
     "apiNameA" : {
       // 支持 "i18n:xxx" 形态
       "title" : "注记名",
-      // 前面不加 `/`，支持模板形态 `${xx}` 为占位符
+      // 前面不加 `/`，支持模板形态 `${xx}` 为占位符，值来自 vars 段
       // 占位符在 vars 段声明
       "path"  : "path/to/api",
       "method" : "GET",         // 选，默认为GET，可为 GET|POST
       "headers" : {
         // 请求头，默认为空
       },
+      // 为 path 段声明动态展位符的值
       "vars" : {
         "xyz" : "=page.data.xxx"   // 可以动态取值
       }, 
@@ -198,6 +199,15 @@ DIV(@app)             # Vue(root) : index.wnml
             "args" : "id:${id}"
           }
         }
+      },
+      // 仅在 POST 时有效，如果声明这个段，那么 params 则会变成 queryString
+      "body" : {
+        "data" : {
+          "products" : "=page.data.items",
+          "pay_tp" : "=page.data.payType"
+        },
+        // data 的内容为 json | form
+        "type" : "json"
       },
       "as" : "json"    // 返回的值用什么方式解析
       // 当获取服务器响应后，在写入到 dataKey 以前，可以做一次转换

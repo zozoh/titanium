@@ -1,0 +1,19 @@
+<div class="ti-web-pay-scan">
+  <div class="scan-con">
+    <!--
+      QRCODE
+    -->
+    <div v-if="isQRCODE">
+      <img :src="paymentDataAsQrcodeUrl">
+    </div>
+    <!--
+      Others
+    -->
+    <div v-else>
+      {{paymentData}}
+    </div>
+  </div>
+  <div class="scan-tip">
+    {{theTip | i18n}}
+  </div>
+</div>

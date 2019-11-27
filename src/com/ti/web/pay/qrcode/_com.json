@@ -1,7 +1,0 @@
-{
-  "name" : "ti-web-pay-qrcode",
-  "globally" : true,
-  "template" : "./ti-web-pay-qrcode.html",
-  "mixins"   : ["./ti-web-pay-qrcode.mjs"],
-  "components" : []
-}

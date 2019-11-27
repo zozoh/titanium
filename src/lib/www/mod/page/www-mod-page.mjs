@@ -128,8 +128,9 @@ export default {
         }) // _.forEach(params, (pm, key)=>{
         //..........................................
         // Copy the Setting from page
-        Papi.preloaded = Ti.Util.fallback(info.preloaded, true)
-        Papi.dataKey   = info.dataKey || key
+        Papi.body = Ti.Util.fallback(info.body, Gapi.body, null)
+        Papi.preloaded = Ti.Util.fallback(info.preloaded, Gapi.preloaded, true)
+        Papi.dataKey = Ti.Util.fallback(info.dataKey, Gapi.dataKey, key)
         //..........................................
         // Eval api serializer
         Papi.serializer = Ti.Types.getFunc(Papi, "serializer")
@@ -303,7 +304,7 @@ export default {
     /***
      * Reload page data by given api keys
      */
-    async reloadData({state, commit, getters}, keys=[]) {
+    async reloadData({state, commit, getters, rootState}, keys=[]) {
       let apis = getters.pageApis
       //console.log("reloadData", keys)
       //.......................................
@@ -348,6 +349,19 @@ export default {
           val = pm.transformer(val)
           options.params[key] = val
         })
+        //.....................................
+        // Prepare the body
+        if("POST" == api.method && api.body && _.isPlainObject(api.body.data)) {
+          let bodyData = Ti.Util.explainObj(rootState, api.body.data)
+          // As JSON
+          if("json" == api.body.type) {
+            options.body = JSON.stringify(bodyData)
+          }
+          // Default is form
+          else {
+            options.body = Ti.Http.encodeFormData(bodyData)
+          }
+        }
         //.....................................
         // Join the http send Promise
         //console.log(`will send to "${url}"`, options)

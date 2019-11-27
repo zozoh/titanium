@@ -1,0 +1,7 @@
+{
+  "name" : "ti-web-pay-scan",
+  "globally" : true,
+  "template" : "./ti-web-pay-scan.html",
+  "mixins"   : ["./ti-web-pay-scan.mjs"],
+  "components" : []
+}

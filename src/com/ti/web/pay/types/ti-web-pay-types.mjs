@@ -18,6 +18,14 @@ export default {
     "value" : {
       type : String,
       default : null
+    },
+    "apiName" : {
+      type : String,
+      default : null
+    },
+    "orderStatusOk" : {
+      type : Boolean,
+      default : false
     }
   },
   //////////////////////////////////////////
@@ -40,7 +48,15 @@ export default {
   methods : {
     onClickBtn() {
       if(this.value) {
-        this.$emit("goto-next")
+        this.$emit("pay-buy")
+      }
+    }
+  },
+  //////////////////////////////////////////
+  watch : {
+    "orderStatusOk" : function(){
+      if(this.orderStatusOk) {
+        this.$emit("pay-ready")
       }
     }
   }
