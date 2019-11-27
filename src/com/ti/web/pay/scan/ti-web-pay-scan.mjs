@@ -18,6 +18,10 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "orderData" : {
+      type : Object,
+      default : ()=>({})
+    },
     "qrcodeSize" : {
       type : Number,
       default : 200
@@ -52,11 +56,27 @@ export default {
         "zfb.qrcode" : "pay-by-zfb-qrcode"
       })[this.payType]
         || "pay-by-nil"
+    },
+    checkBtnIcon(){
+      return "zmdi-assignment-check"
+    },
+    checkBtnText(){
+      return "i18n:pay-check-do"
     }
   },
   //////////////////////////////////////////
   methods : {
-    
+    onClickCheckBtn() {
+      this.$emit("pay-check")
+    }
+  },
+  //////////////////////////////////////////
+  watch : {
+    "orderData.st" : function() {
+      if(/^(OK|FAIL)$/.test(this.orderData.st)) {
+        this.$emit("pay-done")
+      }
+    }
   }
   //////////////////////////////////////////
 }

@@ -99,10 +99,13 @@
     //-------------------------------------
   }
   ////////////////////////////////////////////////
-  .ti-icon.thing-icon {
+  .ti-table .table-con 
+  > div.as-table.table-body li.table-cell 
+  > .cell-con 
+  > .ti-icon.thing-icon {
     @include flex-center;
     width:36px; height:36px;
-    padding:0;
+    padding:0 .04rem;
     img {
       width:32px; height:32px;
       object-fit: cover;

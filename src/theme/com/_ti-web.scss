@@ -299,7 +299,7 @@
 }
 
 /////////////////////////////////////////////////////
-// Choose Pay Type
+// Pay: Choose Types
 .ti-web-pay-types {
   > .ti-btn {
     width:2.6rem; margin:0 auto;
@@ -307,4 +307,38 @@
       @include color($color-disable, c, r);
     }
   }
+}
+/////////////////////////////////////////////////////
+// Pay: wait for scan
+.ti-web-pay-scan {
+  text-align: center;
+  .scan-con {
+    padding:.2rem 0;
+  }
+  .scan-check-btn {
+    width:2.6rem; margin:0 auto;
+    &.is-disabled {
+      @include color($color-disable, c, r);
+    }
+  }
+}
+/////////////////////////////////////////////////////
+// Pay: done
+.ti-web-pay-done {
+  text-align: center;
+  //--------------------------------------
+  &.is-ok   {@include color($color-success, c);}
+  &.is-fail {@include color($color-error, c);}
+  &.is-wait {@include color($color-warn, c);}
+  //--------------------------------------
+  .done-con {
+    padding:.2rem 0;
+    .done-icon {
+      font-size: 1rem;
+    }
+    .done-tip {
+      font-size:.2rem;
+    }
+  }
+  //--------------------------------------
 }

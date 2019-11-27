@@ -3,5 +3,11 @@
   "pay-zfb"  : "支付宝",
   "pay-by-wx-qrcode"  : "使用微信扫码支付",
   "pay-by-zfb-qrcode" : "使用支付宝扫码支付",
-  "pay-by-nil" : "请选择一个支付方式"
+  "pay-by-nil" : "请选择一个支付方式",
+  "pay-check-do"  : "已经支付完成",
+  "pay-check-ing" : "正在检查支付结果",
+  "pay-re-ok"   : "支付成功",
+  "pay-re-fail" : "支付失败",
+  "pay-re-wait" : "等待支付中",
+  "pay-re-nil"  : "支付结果是一只薛定谔的猫"
 }

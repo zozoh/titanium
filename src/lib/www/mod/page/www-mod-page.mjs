@@ -181,18 +181,10 @@ export default {
           state.data = _.assign({}, state.data, value)
         }
       }
-      // for field merging
-      else if(_.isPlainObject(value)){
-        let vobj = _.assign({}, state.data[key], value)
-        state.data = _.assign({}, state.data, {
-          [key] : vobj
-        })
-      }
       // update field
       else {
-        state.data = _.assign({}, state.data, {
-          [key] : value
-        })
+        let vobj = _.set({}, key, value)
+        state.data = _.merge({}, state.data, vobj)
       }
     },
     //--------------------------------------------

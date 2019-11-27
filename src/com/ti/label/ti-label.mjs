@@ -65,7 +65,7 @@ export default {
         str = await Wn.Dict.get(this.dict, this.value)
       }
       // Format to display
-      if(this.format) {
+      if(this.format || _.isDate(str)) {
         str = Ti.Types.toStr(str, this.format)
       }
       // I18n ...

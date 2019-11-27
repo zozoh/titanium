@@ -1,0 +1,7 @@
+{
+  "name" : "ti-web-pay-done",
+  "globally" : true,
+  "template" : "./ti-web-pay-done.html",
+  "mixins"   : ["./ti-web-pay-done.mjs"],
+  "components" : []
+}

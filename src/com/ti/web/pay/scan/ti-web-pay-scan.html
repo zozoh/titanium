@@ -12,8 +12,17 @@
     <div v-else>
       {{paymentData}}
     </div>
+    <!--
+      Tip
+    -->
+    <div class="scan-tip">{{theTip | i18n}}</div>
   </div>
-  <div class="scan-tip">
-    {{theTip | i18n}}
+  <!--
+    Check Button
+  -->
+  <div class="scan-check-btn ti-btn is-huge"
+    @click.left="onClickCheckBtn">
+    <ti-icon class="as-icon" :value="checkBtnIcon"/>
+    <span class="as-text">{{checkBtnText|i18n}}</span>
   </div>
 </div>
