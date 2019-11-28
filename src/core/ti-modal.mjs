@@ -26,6 +26,7 @@ class TiModalDialog {
     let {
       width  = "",
       height = "",
+      bodyHeight = "",
       icon = null,
       title = 'i18n:modal',
       closer = true,
@@ -123,6 +124,9 @@ class TiModalDialog {
     // Sizing 
     if("desktop" == RTSTACK.viewportMode) {
       Ti.Dom.setStyle($main, {width, height})
+      Ti.Dom.setStyle($body, {
+        height : bodyHeight  
+      })
     }
     //........................................
     // Join mounted
@@ -158,7 +162,7 @@ class TiModalDialog {
     RTSTACK.push(this)
     //........................................
     _.assign(this, {
-      app, $el, $main, $body, $closer, $actions, $btns:{}
+      app, $el, $title, $main, $body, $closer, $actions, $btns:{}
     })
     let context = this
     //........................................

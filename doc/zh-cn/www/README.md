@@ -238,6 +238,10 @@ DIV(@app)             # Vue(root) : index.wnml
   "apiBase" : "/api/titanium/",
   // 站点的总体 Logo
   "logo" : "img/logo60.png",
+  // 站点主目录ID作为站点ID,这个会在 __page_init__ 过程里动态设置
+  "siteId" : null,
+  // 站点的所在域的名称
+  "domain" : "titanium",
   //-----------------------------------------
   // 如果站点要显示图形验证码，这个验证码图片的路径模板
   // 这里的路径会自动拼合上 apiBase，除非你以 `/` 开头

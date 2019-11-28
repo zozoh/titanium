@@ -7,6 +7,7 @@ export default {
         "utils"      : state=>state.utils,
         "page"       : state=>state.page,
         "auth"       : state=>state.auth,
+        "domain"     : state=>state.domain,
         "base"       : state=>state.base,
         "apiBase"    : state=>state.apiBase,
         "captcha"    : state=>state.captcha,

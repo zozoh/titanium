@@ -1,7 +1,15 @@
 export default {
   inheritAttrs : false,
   /////////////////////////////////////////
+  data : ()=>({
+    __WS : null    // The handle of websocket
+  }),
+  /////////////////////////////////////////
   props : {
+    "watchUser" : {
+      type : String,
+      default : null
+    },
     "payType" : {
       type : String,
       default : null
@@ -66,9 +74,44 @@ export default {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
     onClickCheckBtn() {
       this.$emit("pay-check")
+    },
+    //--------------------------------------
+    async watchPaymentChanged() {
+      // Guard
+      if(this.__WS 
+        || !this.watchUser 
+        || !this.orderData 
+        || !this.orderData.pay_id) {
+        return
+      }
+      // Watch Remote
+      this.__WS = Ti.Websocket.listenRemote({
+        watchTo : {
+          method : "watch",
+          user   : this.watchUser,
+          match  : {
+            id : this.orderData.pay_id
+          }
+        },
+        received : (wso)=>{
+          console.log("websocket", wso)
+          this.onClickCheckBtn()
+        },
+        closed : ()=>{
+          this.unwatchPaymentChanged()
+        }
+      })
+    },
+    //--------------------------------------
+    unwatchPaymentChanged() {
+      if(this.__WS) {
+        this.__WS.close();
+      }
     }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   watch : {
@@ -77,6 +120,14 @@ export default {
         this.$emit("pay-done")
       }
     }
+  },
+  //////////////////////////////////////////
+  mounted : function() {
+    this.watchPaymentChanged()
+  },
+  //////////////////////////////////////////
+  beforeDestroy : function(){
+    this.unwatchPaymentChanged()
   }
   //////////////////////////////////////////
 }

@@ -7,6 +7,7 @@ import Wn from "./walnut.mjs";
 const DFT_MACRO_OBJ_SEP = "%%wn.meta." + Ti.Random.str(10) + "%%"
 ////////////////////////////////////////////
 export const WnSys = {
+  //-------------------------------------
   async exec(cmdText, {
     vars = {},
     input = "",

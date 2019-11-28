@@ -19,13 +19,19 @@ export const TiDom = {
     return $el
   },
   appendToHead($el, $head=document.head) {
-    $head.appendChild($el)
+    if(_.isElement($el) && _.isElement($head)) {
+      $head.appendChild($el)
+    }
   },
   appendToBody($el, $head=document.body) {
-    $body.appendChild($el)
+    if(_.isElement($el) && _.isElement($body)) {
+      $body.appendChild($el)
+    }
   },
   appendTo($el, $p) {
-    $p.appendChild($el)
+    if(_.isElement($el) && _.isElement($p)) {
+      $p.appendChild($el)
+    }
   },
   prependTo($el, $p) {
     if($p.firstChild) {
@@ -36,10 +42,14 @@ export const TiDom = {
   },
   // self by :scope
   findAll(selector="*", $doc=document) {
+    if(!$doc)
+      return []
     const $ndList = $doc.querySelectorAll(selector);
     return [...$ndList]
   },
   find(selector="*", $doc=document) {
+    if(!$doc)
+      return []
     if(_.isElement(selector))
       return selector
     return $doc.querySelector(selector);

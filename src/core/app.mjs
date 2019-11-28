@@ -274,3 +274,5 @@ export const TiApp = function(a0) {
   // return the app instance directly
   return new OneTiApp(a0)
 }
+//---------------------------------------
+export default TiApp
