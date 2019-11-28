@@ -11,6 +11,10 @@ export default {
   //////////////////////////////////////////////
   computed : {
     //-----------------------------------------
+    topClass() {
+      return Ti.Css.mergeClassName(this.className)
+    },
+    //-----------------------------------------
     ...Vuex.mapState([
       "loading", "mainCom", "actions", "sidebar"]),
     //-----------------------------------------

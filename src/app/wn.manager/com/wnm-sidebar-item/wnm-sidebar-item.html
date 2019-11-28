@@ -7,8 +7,8 @@
       class="it-info-text"
       @click.stop.prevent="onClickGroupInfo">{{title|i18n}}</span>
     <a v-else
-      :href="itemLink"
       class="it-info-text"
+      :href="itemLink"
       @click.stop.prevent="onClickItemInfo">
       {{title|i18n}}
     </a>

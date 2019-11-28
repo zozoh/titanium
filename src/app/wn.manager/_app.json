@@ -2,6 +2,9 @@
   "name" : "wn.manager",
   "i18n" : "@i18n:wn-manager",
   "template" : "./wn-manager.html",
+  "data" : {
+    "className" : "cnasit-app"
+  },
   "computed" : [{
     "...session" : {
       "getters" : {
