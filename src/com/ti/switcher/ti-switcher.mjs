@@ -127,7 +127,6 @@ export default {
       // Dynamic value
       if(_.isFunction(this.options)) {
         list = await this.options()
-        console.log(list)
         if(!_.isArray(list)){
           return
         } 

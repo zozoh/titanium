@@ -3,8 +3,19 @@
     <!--
       QRCODE
     -->
-    <div v-if="isQRCODE">
+    <div v-if="isQRCODE"
+      class="is-qrcode">
       <img :src="paymentDataAsQrcodeUrl">
+    </div>
+    <!--
+      IFRAME
+    -->
+    <div v-else-if="isIFRAME"
+      class="is-iframe">
+      <iframe 
+        frameborder="0" 
+        scrolling="no"
+        :src="paymentData"></iframe>
     </div>
     <!--
       Others

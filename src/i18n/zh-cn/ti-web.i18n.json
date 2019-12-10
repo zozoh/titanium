@@ -3,6 +3,8 @@
   "pay-zfb"  : "支付宝",
   "pay-by-wx-qrcode"  : "使用微信扫码支付",
   "pay-by-zfb-qrcode" : "使用支付宝扫码支付",
+  "pay-tip-wx-qrcode"  : "请于15分钟内用微信扫一扫付款码",
+  "pay-tip-zfb-qrcode" : "请于15分钟内用支付宝扫一扫付款码",
   "pay-by-nil" : "请选择一个支付方式",
   "pay-check-do"  : "已经支付完成",
   "pay-check-ing" : "正在检查支付结果",

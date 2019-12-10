@@ -314,6 +314,17 @@
   text-align: center;
   .scan-con {
     padding:.2rem 0;
+    // QRCode Image: Weixin Scan
+    .is-qrcode {
+      img {border:0;}
+    }
+    // IFRAME: Alipay Scan
+    .is-iframe {
+      iframe {
+        width:200px; height:200px;
+        margin:0 auto;
+      }
+    }
   }
   .scan-check-btn {
     width:2.6rem; margin:0 auto;

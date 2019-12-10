@@ -60,8 +60,8 @@ export default {
     },
     theTip() {
       return ({
-        "wx.qrcode"  : "pay-by-wx-qrcode",
-        "zfb.qrcode" : "pay-by-zfb-qrcode"
+        "wx.qrcode"  : "pay-tip-wx-qrcode",
+        "zfb.qrcode" : "pay-tip-zfb-qrcode"
       })[this.payType]
         || "pay-by-nil"
     },
