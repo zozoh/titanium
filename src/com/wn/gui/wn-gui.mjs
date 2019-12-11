@@ -37,11 +37,11 @@ export default {
   methods : {
     // @see ti-gui-methods.mjs#showGuiBlock
     showBlock(name) {
-      this.shown = this.setGuiBlock(this.shown, name, true)
+      this.shown = this.createGuiBlockShown(this.shown, name, true)
     },
     // @see ti-gui-methods.mjs#hideGuiBlock
     hideBlock(name) {
-      this.shown = this.setGuiBlock(this.shown, name, false)
+      this.shown = this.createGuiBlockShown(this.shown, name, false)
     }
   }
 }

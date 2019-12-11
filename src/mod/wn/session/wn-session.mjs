@@ -1,33 +1,32 @@
+////////////////////////////////////////////////
 export default {
   getters : {
-    get : (state) => ({
-        name  : state.me,
-        group : state.grp
-    })
+    get(state){return state}
   },
+  ////////////////////////////////////////////////
   mutations : {
-    set(state, {
-      id,me,grp,du,envs
-    }={}) {
-      Ti.Util.setTo(state, {id,me,grp}, null)
-      if(envs)
-        state.envs = _.cloneDeep(envs)
-    },
-    reset(state) {
-      _.assign(state, {
-        "id": null,
-        "me": null,
-        "grp": null,
-        "du": -1,
-        "envs": {}
-      })
+    set(state, session={}) {
+      state.id     = session.id;
+      state.grp    = session.grp;
+      state.du     = session.du;
+      state.expi   = session.expi;
+      state.pwd    = session.pwd;
+      state.ticket = session.ticket;
+      state.uid    = session.uid;
+      state.unm    = session.unm;
+      state.me     = session.me;
+      state.envs   = _.cloneDeep(session.envs);
     }
   },
+  ////////////////////////////////////////////////
   actions : {
     reload() {
+      // TODO 这里需要想想，如何刷新会话，得到新票据的问题
       _.delay(()=>{
         console.log("hahah")
       }, 1000)
     }
   }
+  ////////////////////////////////////////////////
 }
+////////////////////////////////////////////////

@@ -4,8 +4,5 @@
   "template" : "./wn-gui.html",
   "methods"  : "@com:ti/gui/ti-gui-methods.mjs",
   "mixins"   : ["./wn-gui.mjs"],
-  "components" : [
-    "@com:ti/gui",
-    "@com:ti/form"
-  ]
+  "components" : ["@com:ti/gui"]
 }

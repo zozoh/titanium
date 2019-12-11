@@ -1,7 +1,12 @@
 {
-  "id": null,
-  "me": null,
-  "grp": null,
-  "du": -1,
-  "envs": {}
+  "id"     : null,
+  "grp"    : null,
+  "du"     : -1,
+  "expi"   : 0,
+  "pwd"    : "~",
+  "ticket" : null,
+  "uid"    : null,
+  "unm"    : null,
+  "me"     : null,
+  "envs"   : {}
 }

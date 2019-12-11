@@ -1,0 +1,51 @@
+{
+  "desktop" : {
+    "type" : "rows",
+    "border" : true,
+    "blocks" : [{
+      "name" : "sky",
+      "size" : 50,
+      "type" : "rows",
+      "border" : true,
+      "blocks" : [{
+          "type" : "cols",
+          "blocks" : [{
+              "name" : "logo",
+              "size" : "auto",
+              "body" : "pcSkyLogo"
+            }, {
+              "name" : "title",
+              "size" : "stretch",
+              "body" : "pcSkyTitle"
+            }, {
+              "name" : "uinfo",
+              "size" : "auto",
+              "body" : "pcSkyUserInfo"
+            }, {
+              "name" : "menu",
+              "size" : "auto",
+              "body" : "pcSkyMenu"
+            }]
+      }]
+    }, {
+      "name" : "main",
+      "type" : "cols",
+      "border" : true,
+      "blocks" : [{
+          "name"  : "sidebar",
+          "size" : 180,
+          "body"  : "pcMainSideBar"
+        }, {
+          "name" : "arena",
+          "size" : "stretch",
+          "body" : "pcMainArena"
+        }]
+    }, {
+      "name" : "footer",
+      "size" : 32,
+      "body" : "pcFooter"
+    }]
+  },
+  "tablet" : "desktop",
+  "phone" : "desktop"
+}

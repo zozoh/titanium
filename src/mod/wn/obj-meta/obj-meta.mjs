@@ -2,15 +2,38 @@ export default {
   ////////////////////////////////////////////////
   getters : {
     //-------------------------------------------
-    get : (state) => state,
+    get(state){return state},
     //-------------------------------------------
-    hasParent : (state)=>{
+    getHome(state) {
+      let obj = state.meta
+      let ans = state.ancestors
+      if(!_.isEmpty(ans)) {
+        // for /home/xiaobai
+        if(1 == ans.length) {
+          if("home" == ans[0].nm) {
+            return obj
+          }
+        }
+        // for /home/xiaobai/path/to/file
+        if("home" == ans[0].nm) {
+          return ans[1]
+        }
+      }
+      // for /root
+      else if(obj && "root" == obj.nm) {
+        return obj
+      }
+      // Dont't known how to find the home
+      return null
+    },
+    //-------------------------------------------
+    hasParent (state) {
       // console.log(state.ancestors)
       // console.log(state.parent)
       return state.parent ? true : false
     },
     //-------------------------------------------
-    parentIsHome : (state)=>{
+    parentIsHome(state) {
       if(!_.isEmpty(state.ancestors) && state.parent && state.meta) {
         if(/^\/home\//.test(state.meta.ph)) {
           return state.parent.pid == state.ancestors[0].id
@@ -19,7 +42,7 @@ export default {
       return false
     },
     //-------------------------------------------
-    currentIsHome : (state)=>{
+    isHome (state) {
       if(!_.isEmpty(state.ancestors) && state.meta) {
         if(/^\/home\//.test(state.meta.ph)) {
           return state.meta.pid == state.ancestors[0].id

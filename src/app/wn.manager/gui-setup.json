@@ -1,0 +1,13 @@
+{
+  "shown" : {
+    "desktop" : {
+      "logo"         : "=theLogo",
+      "sessionBadge" : "=theSessionBadge"
+    },
+    "tablet"  : {},
+    "phone"   : {}
+  },
+  "canLoading" : true,
+  "loadingAs" : false,
+  "logo" : ["<:obj>","<:home>","fas-globe"]
+}

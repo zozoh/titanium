@@ -3,24 +3,27 @@
   "i18n" : "@i18n:wn-manager",
   "template" : "./wn-manager.html",
   "data" : {
-    "className" : "cnasit-app"
+    "layout" : "@MyApp:gui-layout.json",
+    "schema" : "@MyApp:gui-schema.json",
+    "setup"  : "@MyApp:gui-setup.json"
   },
   "computed" : [{
     "...session" : {
       "getters" : {
-        "me" : "get"
+        "session" : "get"
       }
     },
     "...meta" : {
       "getters" : {
-        "obj" : "get",
-        "hasParent" : "hasParent",
-        "parentIsHome" : "parentIsHome",
-        "currentIsHome" : "currentIsHome"
+        "obj"              : "get",
+        "objHome"          : "getHome",
+        "objIsHome"        : "isHome",
+        "objHasParent"     : "hasParent",
+        "objParentIsHome"  : "parentIsHome"
       }      
     }
   }],
-  "methods" : {
+  "__methods" : {
     "reloadMain" : "./reload-main.mjs"
   },
   "mixins" : ["./wn-manager.mjs"],
@@ -35,13 +38,13 @@
   },
   "components" : [
     "./com/wnm-sidebar-item",
+    "@com:ti/gui",
     "@com:ti/icon",
     "@com:ti/loading",
     "@com:ti/menu",
     "@com:ti/obj/thumb",
     "@com:ti/obj/meta",
     "@com:ti/lbs/map",
-    "@com:wn/explorer",
-    "@com:wn/user/info"],
+    "@com:ti/web/session/badge"],
   "deps" : []
 }

@@ -4,7 +4,8 @@ export default {
     // ClassName
     let klass = [`at-${b.position||"center"}`]
     // Show/hide
-    let isShown = shown[b.name] ? true : false
+    let isShown = Ti.Util.fallback(shown[b.name], b.type!="tabs")
+                    ? true : false
     // Mask
     if(b.mask) {
       klass.push("show-mask")
@@ -121,7 +122,18 @@ export default {
     return list2
   },
   //--------------------------------------
-  setGuiBlock(shown={}, name, value) {
+  /***
+   * Create new plain object to represent the blocks shown.
+   * 
+   * @param show{Object} : The primary shown object to be merge
+   * @param name{String|Array|Object} : Value to marge.
+   *  - `String` : Set the single key to the `value`
+   *  - `Array`  : Batch set a group of keys to the `value`
+   *  - `Object` : Merge to `shown` directly, the third argument `value` willl 
+   *               be ignored.
+   * @param value{Any} : if `name` is string, it will be taken as value.
+   */
+  createGuiBlockShown(shown={}, name, value) {
     let re = {...shown}
     // String
     if(_.isString(name)) {

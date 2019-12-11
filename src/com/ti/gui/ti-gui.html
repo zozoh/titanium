@@ -15,6 +15,7 @@
     @block:event="$emit('block:event', $event)">
     <template v-if="'tabs'!=type">
       <ti-block v-for="b in formedBlockList"
+        v-if="b.isShown"
         :key="b.name"
         v-bind="b.info"
         :shown="shown"

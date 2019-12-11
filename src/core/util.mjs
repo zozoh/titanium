@@ -167,7 +167,7 @@ const TiUtil = {
   }={}) {
     //......................................
     const ExplainValue = (anyValue)=>{
-      let theValue = iteratee(anyValue)
+      let theValue = anyValue
       //....................................
       // String : Check the "@BLOCK(xxx)" 
       if(_.isString(theValue)) {
@@ -202,19 +202,26 @@ const TiUtil = {
           })[m_type](m_val)
         }
         // Simple String
-        return theValue
+        return iteratee(theValue)
       }
       //....................................
       // Function  
       else if(_.isFunction(theValue)) {
-        return evalFunc 
-          ? theValue(context)
-          : theValue
+        if(evalFunc) {
+          let re = theValue(context)
+          return iteratee(re)
+        }
+        return theValue
       }
       //....................................
       // Array 
       else if(_.isArray(theValue)) {
-        return _.map(theValue, ExplainValue)  
+        let list = []
+        for(let li of theValue) {
+          let v2 = ExplainValue(li)
+          list.push(iteratee(v2))
+        }
+        return list
       }
       //....................................
       // Object
@@ -230,17 +237,19 @@ const TiUtil = {
           // Prepare arguments
           let args = _.map(theValue.args||[], ExplainValue)
           // Do invoke
-          return fn.apply(context, args)
+          let re = fn.apply(context, args)
+          return itertee(re)
         }
         //..................................
         // Bind Function
         else if(theValue.__is_function) {
           let args = _.map(theValue.args, ExplainValue)
-          return {
+          let re = {
             __is_calling : true,
             name : _.get(fnSet, theValue.name),
             args
           }
+          return re
         }
         //..................................
         // Call-down
@@ -248,13 +257,14 @@ const TiUtil = {
           let o2 = {}
           _.forEach(theValue, (v2, k2)=>{
             let v3 = ExplainValue(v2)
+            let v4 = iteratee(v3)
             // key `...` -> assign o1
             if("..." == k2) {
-              _.assign(o2, v3)
+              _.assign(o2, v4)
             }
             // set value
             else {
-              o2[k2] = v3
+              o2[k2] = v4
             }
           })
           return o2
@@ -262,7 +272,7 @@ const TiUtil = {
       }
       //....................................
       // Others return directly
-      return anyValue
+      return iteratee(anyValue)
     }
     //......................................
     // ^---- const ExplainValue = (anyValue)=>{

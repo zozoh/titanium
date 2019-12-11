@@ -1,0 +1,46 @@
+{
+  "methods" : "@Home:archives/archives-methods.mjs",
+  "pcSkyLogo" : {
+    "comType" : "ti-icon",
+    "comConf" : {
+      "width" : 50, 
+      "fontSize" : ".28rem", 
+      "color" : "#F80",
+      "value" : "=theLogo"
+    }
+  },
+  "pcSkyTitle" : {
+    "comType" : "ti-label",
+    "comConf" : {
+      "value" : "pcSkyTitle"
+    }
+  },
+  "pcSkyUserInfo" : {
+    "comType" : "ti-web-session-badge",
+    "comConf" : "=theSessionBadge"
+  },
+  "pcSkyMenu" : {
+    "comType" : "ti-label",
+    "comConf" : {
+      "value" : "pcSkyMenu"
+    }
+  },
+  "pcMainSideBar" : {
+    "comType" : "ti-label",
+    "comConf" : {
+      "value" : "pcMainSideBar"
+    }
+  },
+  "pcMainArena" : {
+    "comType" : "ti-label",
+    "comConf" : {
+      "value" : "pcMainArena"
+    }
+  },
+  "pcFooter" : {
+    "comType" : "ti-label",
+    "comConf" : {
+      "value" : "pcFooter"
+    }
+  }
+}
