@@ -11,6 +11,10 @@
   &.as-box {
     @include color($color-primary, r, c);
     border-radius: 6px; margin:.02rem;
+    > .as-text {
+      color: inherit; text-decoration: inherit;
+      &:hover {text-decoration: inherit;}
+    }
   }
   //-------------------------------------------
   > .as-del {
@@ -25,13 +29,14 @@
   }
   //-------------------------------------------
   > .as-text {
-    padding:0 0 0 .02rem;
+    @include flex-center;
+    padding:0 0 .02rem .02rem;
     &.without-icon    {padding-left:.08rem;}
     &.without-options {padding-right:.08rem;}
   }
   //-------------------------------------------
   > .as-status {
-    padding:0 .06rem;
+    padding:0 .06rem 0 0;
   }
   //-------------------------------------------
   &.is-enter-top {

@@ -1,5 +1,3 @@
-const DF_STOREAGE_KEY_OF_EXPOSE_HIDDEN = "wn-list-adaptview-expose-hidden"
-//----------------------------------------------
 export default {
   ///////////////////////////////////////////
   computed : {
@@ -25,6 +23,41 @@ export default {
             return li
           }
         }
+      }
+    },
+    //---------------------------------------
+    theCrumbData() {
+      let list = []
+      if(this.obj) {
+        let objList = _.concat(this.obj.ancestors, this.obj.meta)
+        _.forEach(objList, (an)=>{
+          if(_.isPlainObject(an)) {
+            let isCurrent = an.id == this.obj.meta.id
+            let icon = Wn.Util.getIconObj(an)
+            if(icon && icon.value == this.theLogo) {
+              icon = null
+            }
+            list.push({
+              icon,
+              text  : Wn.Util.getObjDisplayName(an),
+              value : an.id,
+              href  : isCurrent ? null : Wn.Util.getAppLink(an) + ""
+            })
+          }
+        })
+      }
+      return list
+    },
+    //---------------------------------------
+    theCrumb() {
+      return  {
+        "mode" : "path",
+        "removeIcon" : null,
+        "statusIcons" : {
+          "collapse" : "zmdi-chevron-right",
+          "extended" : "zmdi-chevron-down"
+        },
+        "data" : this.theCrumbData
       }
     },
     //---------------------------------------
@@ -58,6 +91,12 @@ export default {
     //---------------------------------------
     theLoadingAs() {
       return _.get(this.setup, "loadingAs")
+    },
+    //---------------------------------------
+    theArena() {
+      return {
+        meta : _.get(this.obj, "meta")
+      }
     },
     //---------------------------------------
     theLayout() {

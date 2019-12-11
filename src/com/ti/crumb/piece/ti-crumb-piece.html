@@ -21,13 +21,20 @@
   <!--
     Text
   -->
-  <div v-if="text"
-    class="as-text"
-    :class="textClass">{{text|i18n}}</div>
+  <template v-if="text">
+    <a v-if="href"
+      class="as-text"
+      @click.prevent
+      :href="href"
+      :class="textClass">{{text|i18n}}</a>
+    <span v-else
+      class="as-text"
+      :class="textClass">{{text|i18n}}</span>
+  </template>
   <!--
     Status Icon
   -->
-  <ti-icon v-if="hasOptions"
+  <ti-icon v-if="isShowStatusIcon"
     class="as-status"
     :value="theStatusIcon"/>
   <!--

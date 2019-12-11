@@ -1,0 +1,6 @@
+{
+  "name" : "wn-gui-footer",
+  "globally" : true,
+  "template" : "./wn-gui-footer.html",
+  "mixins"   : ["./wn-gui-footer.mjs"]
+}

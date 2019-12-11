@@ -1,0 +1,23 @@
+<div class="wn-gui-footer">
+  <!--
+    Info
+  -->
+  <div class="as-info ti-flex-center">
+    <ti-icon v-if="infoIcon"
+      :value="infoIcon"/>
+    <span v-if="infoText"
+      >{{infoText|i18n}}</span>
+  </div>
+  <!--
+    Log
+  -->
+  <div class="as-msg ti-flex-center">
+    <span>{{msg}}</span>
+  </div>
+  <!--
+    Indicator
+  -->
+  <div class="as-status ti-flex-center">
+    {{statusText}}
+  </div>
+</div>

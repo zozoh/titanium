@@ -319,6 +319,10 @@ const TiUtil = {
     let old = _.get(obj, key) || []
     _.set(obj, key, _.concat(old, val||[]))
   },
+  pushUniqValue(obj, key, val) {
+    let old = _.get(obj, key) || []
+    _.set(obj, key, _.uniq(_.concat(old, val||[])))
+  },
   /***
    * Set value to obj[key] if only val is not undefined
    * If value is null, use the `dft`

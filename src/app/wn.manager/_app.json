@@ -40,11 +40,14 @@
     "./com/wnm-sidebar-item",
     "@com:ti/gui",
     "@com:ti/icon",
+    "@com:ti/crumb",
     "@com:ti/loading",
     "@com:ti/menu",
     "@com:ti/obj/thumb",
     "@com:ti/obj/meta",
     "@com:ti/lbs/map",
-    "@com:ti/web/session/badge"],
+    "@com:ti/web/session/badge",
+    "@com:wn/gui/arena",
+    "@com:wn/gui/footer"],
   "deps" : []
 }

@@ -27,6 +27,10 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "itemIcon" : {
+      type : String,
+      default : null
+    },
     "removeIcon" : {
       type : String,
       default : "zmdi-close"
@@ -56,11 +60,14 @@ export default {
     //------------------------------------------------
     theData() {
       let list = []
-      _.forEach(this.data, (val, index)=>{
-        list.push(_.assign({
-          options : this.itemOptions
-        }, val, {index}))
-      })
+      if(_.isArray(this.data)) {
+        _.forEach(this.data, (val, index)=>{
+          list.push(_.assign({
+            icon    : this.itemIcon,
+            options : this.itemOptions
+          }, val, {index, atLast:index==this.data.length - 1}))
+        })
+      }
       return list
     },
     //------------------------------------------------
@@ -89,6 +96,15 @@ export default {
       if(index >= 0) {
         let values = _.remove(this.theDataValues, (v,i)=>i!=index)
         this.$emit("changed", values)
+      }
+    },
+    //------------------------------------------------
+    onPieceFired({index=-1}={}) {
+      if(index >= 0) {
+        let it = _.nth(this.theData, index)
+        if(it) {
+          this.$emit("fired", it)
+        }
       }
     }
     //------------------------------------------------

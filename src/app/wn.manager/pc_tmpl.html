@@ -120,11 +120,11 @@ async function main(){
   let appInfo = await Ti.Load("@MyApp")
   // Append exetend components
   if(!_.isEmpty(tiConf.components)) {
-    Ti.Util.pushValue(appInfo, "components", tiConf.components)
+    Ti.Util.pushUniqValue(appInfo, "components", tiConf.components)
   }
   // Join the ext-deps
   if(!_.isEmpty(tiConf.deps)) {
-    Ti.Util.pushValue(appInfo, "deps", tiConf.deps)
+    Ti.Util.pushUniqValue(appInfo, "deps", tiConf.deps)
   }
   // Load the global util modules
   for(let key of _.keys(tiConf.global)) {

@@ -26,11 +26,19 @@ export default {
       type : Number,
       default : -1
     },
+    "atLast" : {
+      type : Boolean,
+      default : false
+    },
     "icon" : {
-      type : String,
+      type : [String, Object],
       default : null
     },
     "text" : {
+      type : String,
+      default : null
+    },
+    "href" : {
       type : String,
       default : null
     },
@@ -85,23 +93,12 @@ export default {
   computed : {
     //------------------------------------------------
     topClass() {
-      let klass = [`as-${this.mode}`]
-      // Customized
-      if(this.className) {
-        klass.push(this.className)
-      }
-      // Mouse Enter
-      if(this.mouseEnter) {
-        // Enter Top
-        if('top' == this.mouseEnter && this.hasOptions) {
-          klass.push("is-enter-top")
-        }
-        // Enter Icon
-        else if('del' == this.mouseEnter) {
-          klass.push("is-enter-del")
-        }
-      }
-      return klass
+      return Ti.Css.mergeClassName({
+        "is-enter-top" : 'top' == this.mouseEnter && this.hasOptions,
+        "is-enter-del" : 'del' == this.mouseEnter,
+        "at-last" : this.atLast,
+        "at-item" : !this.atLast
+      }, `as-${this.mode}`, this.className)
     },
     //------------------------------------------------
     textClass() {
@@ -157,8 +154,28 @@ export default {
       return tags
     },
     //------------------------------------------------
+    isShowStatusIcon() {
+      if("box" == this.mode) {
+        return this.hasOptions
+      }
+      if("path" == this.mode) {
+        return !this.atLast
+      }
+    },
+    //------------------------------------------------
     theStatusIcon() {
       return this.statusIcons[this.status]
+    },
+    //------------------------------------------------
+    theData() {
+      return {
+        index  : this.index,
+        icon   : this.icon,
+        text   : this.text,
+        value  : this.value,
+        href   : this.href,
+        atLast : this.atLast
+      }
     }
     //------------------------------------------------
   },
@@ -166,12 +183,7 @@ export default {
   methods : {
     //------------------------------------------------
     onClickDel() {
-      this.$emit("removed", {
-        index : this.index,
-        icon  : this.icon,
-        text  : this.text,
-        value : this.value
-      })
+      this.$emit("removed", this.theData)
     },
     //------------------------------------------------
     onClickOption({value,text,icon}={}) {
@@ -191,6 +203,10 @@ export default {
       // Stop Bubble Up
       else if(this.cancelBubble) {
         $event.stopPropagation()
+      }
+      // Emit event
+      if(this.href) {
+        this.$emit("fire", this.theData)
       }
     },
     //------------------------------------------------

@@ -10,20 +10,16 @@
     }
   },
   "pcSkyTitle" : {
-    "comType" : "ti-label",
-    "comConf" : {
-      "value" : "pcSkyTitle"
-    }
+    "comType" : "ti-crumb",
+    "comConf" : "=theCrumb"
   },
   "pcSkyUserInfo" : {
     "comType" : "ti-web-session-badge",
     "comConf" : "=theSessionBadge"
   },
   "pcSkyMenu" : {
-    "comType" : "ti-label",
-    "comConf" : {
-      "value" : "pcSkyMenu"
-    }
+    "comType" : "ti-menu",
+    "comConf" : "=theMenu"
   },
   "pcMainSideBar" : {
     "comType" : "ti-label",
@@ -32,10 +28,8 @@
     }
   },
   "pcMainArena" : {
-    "comType" : "ti-label",
-    "comConf" : {
-      "value" : "pcMainArena"
-    }
+    "comType" : "wn-gui-arena",
+    "comConf" : "=theArena"
   },
   "pcFooter" : {
     "comType" : "ti-label",
