@@ -1,0 +1,6 @@
+<div class="wn-gui-side-nav">
+  <side-nav-item v-for="it in theItems"
+    :key="it.key"
+    v-bind="it"
+    @selected="onItemSelected"/>
+</div>

@@ -1,75 +1,16 @@
 .wn-manager {
   width:100%; height:100%;
-  .sky-icon-backward {
-    padding:0 .14rem; cursor: pointer;
-    &:hover {
-      @include color($color-selected, r, c);
-    }
+  .wn-desktop-menu {
+    @include border(1px, solid, shallow, left);
+    padding:0 .04rem;
   }
-}
-// Sidebar
-.wnm-aside {
-  width:100%; height:100%;
-  overflow-x:hidden; overflow-y:auto; 
-  padding: .06rem .02rem; line-height: 2.4em;
-  .sidebar-item {
-    .it-info {
-      @include noselect;
-      @include flex-align($ai:center, $wp:nowrap);
-      width:100%; padding:0 .5em; cursor: pointer;
-      > .it-info-icon {
-        @include flex-center;
-        width:.28rem;
-        margin-right:.06rem;
-      }
-      > .it-info-text {
-        flex:1 1 auto; 
-        @include text-overflow;
-      }
-    }
-    .it-con {
-      padding:.2em 0 .6em 1em;  
-    }
-    &.is-highlight {
-      > .it-info {
-        @include color($color-primary, r, c);
-        a{color:unset;}
-        a:hover {text-decoration: none; color:unset;}
-      }
-    }
-    &.is-group {
-      > .it-info {
-        @include border(1px, solid, shallow, top);
-        @include border(1px, dotted, shallow, bottom);
-        font-size:.9em;
-        > .it-info-icon {
-          font-size:.12rem;
-          width:.2rem;
-        }
-      }
-    }
-    &.is-collapse {
-      &.is-group > .it-info {
-        background: map-get($color-chip, c);
-        color: map-get($color-primary, c);
-        border-bottom:1px solid transparent;
-        &:after {
-          display:block; flex:0 0 auto;
-          content:"..."; padding:0 .1em;
-        }
-      }
-      > .it-con {
-        display: none;
-      }
-    }
-  } // ~ .sidebar-item
 }
 
 // Loading mask
-.wnm-loading-mask {
-  @include pos-fixed-full;
-  @include color($color-mask, r, thin);
-  @include flex-center;
-  z-index: $z-top;
-  padding-bottom:30%;
-}
+// .wnm-loading-mask {
+//   @include pos-fixed-full;
+//   @include color($color-mask, r, thin);
+//   @include flex-center;
+//   z-index: $z-top;
+//   padding-bottom:30%;
+// }

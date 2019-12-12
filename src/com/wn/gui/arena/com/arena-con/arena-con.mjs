@@ -13,12 +13,25 @@ export default {
     "comConf" : {
       type : Object,
       default : ()=>({})
+    },
+    "hijackable" : {
+      type : Boolean,
+      default : true
     }
   },
   //////////////////////////////////////////
   methods : {
-    onArenaEvent({name="gui-arena-event", args=[]}={}) {
-      this.$emit(name, ...args)
+    async hijackEmit(name, args) {
+      console.log("ArenaCon", name, args)
+      if(/^block:(show|hide|event)$/.test(name)) {
+        await this.$emit(name, ...args)
+      }
+      // Gen Block Event
+      else {
+        await this.$emit("arena:event", {
+          name, args
+        })
+      }
     }
   }
   //////////////////////////////////////////

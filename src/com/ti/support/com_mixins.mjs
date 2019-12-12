@@ -21,6 +21,11 @@ export default {
         const __old_emit = this.$emit
         this.$emit = async (name, ...args) => {
           //await __old_emit.apply(this, [name, ...args])
+          // Ignore the VueDevTool Event
+          if(/^hook:/.test(name)) {
+            return
+          }
+          // Do emit hijacking
           await this.$parent.hijackEmit(name, args)
         }
       }

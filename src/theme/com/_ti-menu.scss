@@ -1,5 +1,6 @@
 .ti-menu {
   @include noselect;
+  @include flex-center;
 }
 //------------------------------------------------
 // For Desktop

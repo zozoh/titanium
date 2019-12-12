@@ -4,8 +4,17 @@ export default {
     // ClassName
     let klass = [`at-${b.position||"center"}`]
     // Show/hide
-    let isShown = Ti.Util.fallback(shown[b.name], b.type!="tabs")
-                    ? true : false
+    let isShown = shown[b.name]
+    if(_.isUndefined(isShown)) {
+      // hide panel block in default
+      if(float) {
+        isShown = false
+      }
+      // show normal block in default
+      else {
+        isShown = true
+      }
+    }
     // Mask
     if(b.mask) {
       klass.push("show-mask")

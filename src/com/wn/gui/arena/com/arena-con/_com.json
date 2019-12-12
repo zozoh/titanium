@@ -1,0 +1,6 @@
+{
+  "name" : "wn-gui-arena-con",
+  "globally" : true,
+  "template" : "./arena-con.html",
+  "mixins"   : ["./arena-con.mjs"]
+}

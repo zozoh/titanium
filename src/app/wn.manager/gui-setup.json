@@ -2,6 +2,7 @@
   "shown" : {
     "desktop" : {
       "logo"         : "=theLogo",
+      "menu"         : "=theMenu",
       "sessionBadge" : "=theSessionBadge"
     },
     "tablet"  : {},

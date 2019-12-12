@@ -44,7 +44,7 @@ Ti.SetLogLevel("warn", "TiApp")
 Ti.SetLogLevel("warn", "TiHttp")
 Ti.SetLogLevel("warn", "TiShortcut")
 Ti.SetLogLevel("warn", "Wn.Sys")
-Ti.SetLogLevel("warn", "app/wn.manager")
+Ti.SetLogLevel("info", "WnGui")
 Ti.SetLogLevel("warn", "Wn.Dict")
 //---------------------------------------
 Ti.Install()
@@ -151,7 +151,7 @@ async function main(){
   app.mountTo("#app")
   Ti.Session({
     "id"       : _app.session.id,
-    "name"     : _app.session.me,
+    "name"     : _app.session.unm,
     "group"    : _app.session.grp,
     "duration" : _app.session.du,
     "vars" : _app.session.envs

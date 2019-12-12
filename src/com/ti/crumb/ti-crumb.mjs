@@ -103,7 +103,7 @@ export default {
       if(index >= 0) {
         let it = _.nth(this.theData, index)
         if(it) {
-          this.$emit("fired", it)
+          this.$emit("selected", it)
         }
       }
     }

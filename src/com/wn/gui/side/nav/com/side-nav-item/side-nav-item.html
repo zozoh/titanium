@@ -1,25 +1,33 @@
-<div class="sidebar-item" :class="itemClass">
+<div class="side-nav-item" :class="topClass">
+  <!--
+    Self Info
+  -->
   <div class="it-info" >
+    <!--Icon-->
     <span v-if="icon" class="it-info-icon">
       <ti-icon :value="icon" size=".16rem"/>
     </span>
+    <!--Group-->
     <span v-if="isGroup"
       class="it-info-text"
       @click.stop.prevent="onClickGroupInfo">{{title|i18n}}</span>
+    <!--Item-->
     <a v-else
       class="it-info-text"
-      :href="itemLink"
+      :href="href"
       @click.stop.prevent="onClickItemInfo">
       {{title|i18n}}
     </a>
   </div>
+  <!--
+    Sub Container
+  -->
   <div class="it-con" v-if="items && items.length > 0">
-      <wnm-sidebar-item v-for="subIt in items"
+      <side-nav-item v-for="subIt in items"
         :key="subIt.key"
         :group-status-store-key="subIt.key"
         :highlight-id="highlightId"
-        :do-open-path="doOpenPath"
-        :get-obj-link="getObjLink"
-        v-bind="subIt"/>
+        v-bind="subIt"
+        @selected="$emit('selected', $event)"/>
   </div>
 </div>

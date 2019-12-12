@@ -3,9 +3,8 @@
   "pcSkyLogo" : {
     "comType" : "ti-icon",
     "comConf" : {
-      "width" : 50, 
-      "fontSize" : ".28rem", 
-      "color" : "#F80",
+      "width" : "3em", 
+      "fontSize" : "1.5em", 
       "value" : "=theLogo"
     }
   },
@@ -22,9 +21,10 @@
     "comConf" : "=theMenu"
   },
   "pcMainSideBar" : {
-    "comType" : "ti-label",
+    "comType" : "wn-gui-side-nav",
     "comConf" : {
-      "value" : "pcMainSideBar"
+      "items" : "=sidebar",
+      "highlightItemId" : "=theMetaId"
     }
   },
   "pcMainArena" : {
@@ -32,9 +32,11 @@
     "comConf" : "=theArena"
   },
   "pcFooter" : {
-    "comType" : "ti-label",
+    "comType" : "wn-gui-footer",
     "comConf" : {
-      "value" : "pcFooter"
+      "infoIcon"   : "=mainComIcon",
+      "infoText"   : "=mainComType",
+      "statusText" : "=mainStatusText"
     }
   }
 }

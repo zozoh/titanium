@@ -35,9 +35,6 @@ export default {
       if(st.renaming) {
         return Ti.I18n.text("i18n:renaming")
       }
-    },
-    mainLog() {
-      // TODO how to read the logging? maybe use the `Ti.Log` ?
     }
   },
   /////////////////////////////////////////
@@ -58,6 +55,10 @@ export default {
           actions2.push({key, ...it})
         })
         state.actions = actions2
+      }
+      // Default As Empty 
+      else {
+        state.actions = []
       }
     },
     setSidebar(state, sidebar) {

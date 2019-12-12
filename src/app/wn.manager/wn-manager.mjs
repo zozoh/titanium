@@ -1,6 +1,50 @@
 export default {
+  //////////////////////////////////////////////
+  watch : {
+    "mainComType" : function(newType){
+      Ti.Shortcut.removeWatch(this)
+      Ti.Shortcut.addWatch(this, this.mainActions)
+    },
+    "obj.meta" : function(meta) {
+      // Push history to update the browser address bar
+      let his = window.history
+      if(his && meta) {
+        let newLink = Wn.Util.getAppLink(meta.id)
+        let title =  Wn.Util.getObjDisplayName(meta)
+        if(Ti.IsInfo("app/wn-manager")) {
+          console.log(title , "->", newLink)
+        }
+        his.pushState(meta, title, newLink)
+        // Update the Title
+        document.title = title;
+      }
+    }
+  },
   ///////////////////////////////////////////
   computed : {
+    //---------------------------------------
+    topClass() {
+      return Ti.Css.mergeClassName(this.className)
+    },
+    //---------------------------------------
+    ...Vuex.mapState([
+      "loading", "mainCom", "actions", "sidebar"]),
+    //---------------------------------------
+    ...Vuex.mapGetters([
+      "mainActions",
+      "mainComIcon", "mainComType", "mainComConf",
+      "mainStatus", "mainStatusText"]),
+    //---------------------------------------
+    theMetaId(){
+      if(this.$store.state.main && this.$store.state.main.meta) {
+        return this.$store.state.main.meta.id
+      }
+    },
+    //---------------------------------------
+    hasMainActions() {
+      return _.isArray(this.mainActions) 
+         && !_.isEmpty(this.mainActions)
+    },
     //---------------------------------------
     theLogo() {
       if(this.setup.logo) {
@@ -28,22 +72,37 @@ export default {
     //---------------------------------------
     theCrumbData() {
       let list = []
-      if(this.obj) {
-        let objList = _.concat(this.obj.ancestors, this.obj.meta)
-        _.forEach(objList, (an)=>{
-          if(_.isPlainObject(an)) {
-            let isCurrent = an.id == this.obj.meta.id
-            let icon = Wn.Util.getIconObj(an)
-            if(icon && icon.value == this.theLogo) {
-              icon = null
+      if(this.obj && this.obj.meta) {
+        let ans = _.map(this.obj.ancestors)
+        // Find the first Index from home
+        let firstIndex = 0
+        if(this.objHome) {
+          for(;firstIndex<ans.length; firstIndex++) {
+            let an = ans[firstIndex]
+            if(this.objHome.id == an.id) {
+              break
             }
-            list.push({
-              icon,
-              text  : Wn.Util.getObjDisplayName(an),
-              value : an.id,
-              href  : isCurrent ? null : Wn.Util.getAppLink(an) + ""
-            })
           }
+        }
+        // Show ancestors form Home
+        for(let i=firstIndex+1; i<ans.length; i++) {
+          let an = ans[i]
+          list.push({
+            icon  : Wn.Util.getIconObj(an),
+            text  : Wn.Util.getObjDisplayName(an),
+            value : an.id,
+            href  : isCurrent ? null : Wn.Util.getAppLink(an) + ""
+          })
+        }
+        // Show Self
+        let self = this.obj.meta
+        // Top Item, just show title
+        let icon = _.isEmpty(list) ? null : Wn.Util.getIconObj(self)
+        list.push({
+          icon,
+          text  : Wn.Util.getObjDisplayName(self),
+          value : self.id,
+          href  : null
         })
       }
       return list
@@ -74,6 +133,16 @@ export default {
       }
     },
     //---------------------------------------
+    theMenu() {
+      if(_.isArray(this.mainActions) && !_.isEmpty(this.mainActions)) {
+        return {
+          className : `wn-${this.viewportMode}-menu`,
+          data   : this.mainActions,
+          status : this.mainStatus
+        }
+      }
+    },
+    //---------------------------------------
     theShown() {
       let ShownSet = _.get(this.setup, "shown")
       if(_.isPlainObject(ShownSet)) {
@@ -95,7 +164,9 @@ export default {
     //---------------------------------------
     theArena() {
       return {
-        meta : _.get(this.obj, "meta")
+        meta    : _.get(this.obj, "meta"),
+        comType : this.mainComType || "ti-loading",
+        comConf : this.mainComConf || {}
       }
     },
     //---------------------------------------
@@ -158,28 +229,70 @@ export default {
       this.doChangeShown({[name]:!this.theShown[name]})
     },
     //--------------------------------------
-    onBlockEvent(be={}) {
-      console.log("wn-manager::BlockEvent", be)
+    async onBlockEvent(be={}) {
+      let app = Ti.App(this)
+      let evKey = _.concat(be.block, be.name).join("-")
+      console.log("wn-manager:onBlockEvent",evKey, be)
+      // Find Event Handler
+      let fn = ({
+        "sidebar-selected" : async (it)=>{
+          await this.openView(it.id)
+        },
+        "title-selected" : async (it)=>{
+          await this.openView(it.value)
+        },
+        "arena-open" : async (o)=>{
+          await this.openView(o.id)
+        },
+        "uinfo-do:logout" : async ()=>{
+          await this.doLogout()
+        }
+      })[evKey]
+
+      // Invoke Event Handler
+      if(_.isFunction(fn)) {
+        await fn(...be.args)
+      }
+    },
+    //--------------------------------------
+    async openView(oid) {
+      if(!_.isString(oid))
+        return
+
+      // Guard it
+      let bombed = await Ti.Fuse.fire()
+      if(!bombed) {
+        return
+      }
+      // Open It
+      Ti.App(this).dispatch("reloadMain", `id:${oid}`)
+    },
+    //--------------------------------------
+    async doLogout() {
+      await Wn.Sys.exec("exit")
+      Ti.Be.Open("/", {target:"_self", delay:0})
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
   mounted : function(){
-    let vm = this
+    //......................................
     // Watch the browser "Forward/Backward"
-    // window.onpopstate = function({state}){
-    //   vm.$store.dispatch("reloadMain", state)
-    // }
+    window.onpopstate = ({state})=>{
+      Ti.App(this).dispatch("reloadMain", state)
+    }
+    //......................................
     // Protected loading
     Ti.Fuse.getOrCreate().add({
       key : "wn-manager-view-opening",
       everythingOk : ()=>{
-        return !vm.isLoading
+        return !this.loading
       },
       fail : ()=>{
         Ti.Toast.Open("i18n:wnm-view-opening", "warn")
       }
     })
+    //......................................
   },
   ///////////////////////////////////////////
   beforeDestroy : function(){

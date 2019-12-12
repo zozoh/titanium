@@ -10,10 +10,6 @@ export default {
       type : String,
       default : null
     },
-    "msg" : {
-      type : String,
-      default : null
-    },
     "statusText" : {
       type : String,
       default : null

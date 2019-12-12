@@ -1,9 +1,12 @@
 export default {
+  inheritAttrs : false,
+  ///////////////////////////////////////////
   data : ()=>{
     return {
       collapse : true
     }
   },
+  ///////////////////////////////////////////
   props : {
     groupStatusStoreKey : {type:String, default:null},
     highlightId : {type:String, default:null},
@@ -13,14 +16,25 @@ export default {
     title : {type:String, default:null},
     path  : {type:String, default:null},
     view  : {type:String, default:null},
+    href  : {type:String, default:null},
     items : {
       type : Array,
       default : ()=>[]
-    },
-    doOpenPath : {type:Function, default:null},
-    getObjLink : {type:Function, default:_.identity}
+    }
   },
+  ///////////////////////////////////////////
   computed : {
+    topClass() {
+      return {
+        "is-top"   : this.isTop,
+        "is-sub"   : !this.isTop,
+        "is-group" : this.isGroup,
+        "is-item"  : !this.isGroup,
+        "is-collapse"  : this.collapse,
+        "is-expend"    : !this.collapse,
+        "is-highlight" : this.isHighlight
+      }
+    },
     isTop() {
       return this.depth == 0
     },
@@ -29,33 +43,9 @@ export default {
     },
     isHighlight() {
       return this.id && this.id == this.highlightId
-    },
-    itemLink() {
-      return this.getObjLink(this.id)
-    },
-    itemClass() {
-      let ss = [
-        this.isTop ? "top" : "sub", 
-        this.isGroup ? "group" : "item"]
-      // Prepare return
-      let re = ["", ss.join("-")].concat(ss)
-      // collapse / expend
-      re.push(this.collapse?"collapse":"expend")
-      // hightlight or not
-      if(this.isHighlight) {
-        re.push("highlight")
-      }
-      // Return
-      return re.join(" is-").trim()
-    },
-    itemIcon() {
-      let icon = this.icon
-      if(_.isString(icon)){
-        return icon
-      }
-      return Ti.Icons.get(icon)
     }
   },
+  ///////////////////////////////////////////
   methods : {
     onClickGroupInfo() {
       if(this.isGroup) {
@@ -67,11 +57,16 @@ export default {
       }
     },
     onClickItemInfo() {
-      if(this.path && _.isFunction(this.doOpenPath)) {
-        this.doOpenPath(this.path)
-      }
+      this.$emit("selected", {
+        id: this.id,
+        title : this.title,
+        path : this.path,
+        href : this.href,
+        view : this.view
+      })
     }
   },
+  ///////////////////////////////////////////
   mounted : function(){
     if(this.isGroup) {
       // Only Top Group is expended
@@ -90,4 +85,5 @@ export default {
       }
     }
   }
+  ///////////////////////////////////////////
 }

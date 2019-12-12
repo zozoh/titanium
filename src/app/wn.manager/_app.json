@@ -37,7 +37,6 @@
     }
   },
   "components" : [
-    "./com/wnm-sidebar-item",
     "@com:ti/gui",
     "@com:ti/icon",
     "@com:ti/crumb",
@@ -48,6 +47,7 @@
     "@com:ti/lbs/map",
     "@com:ti/web/session/badge",
     "@com:wn/gui/arena",
+    "@com:wn/gui/side/nav",
     "@com:wn/gui/footer"],
   "deps" : []
 }

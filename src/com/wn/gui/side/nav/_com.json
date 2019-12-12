@@ -1,0 +1,7 @@
+{
+  "name" : "wn-gui-side-nav",
+  "globally" : true,
+  "template" : "./wn-gui-side-nav.html",
+  "mixins"   : ["./wn-gui-side-nav.mjs"],
+  "components" : ["./com/side-nav-item"]
+}

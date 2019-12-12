@@ -1,7 +1,11 @@
 export default {
   inheritAttrs : false,
-  ///////////////////////////////////////
+  ///////////////////////////////////////////
   props : {
+    "className" : {
+      type : String,
+      default : null
+    },
     "data" :{
       type : Array,
       default : ()=>[]
@@ -38,8 +42,12 @@ export default {
       default : "auto"  // auto|desktop|tablet|phone
     }
   },
-  ///////////////////////////////////////
+  ///////////////////////////////////////////
   computed : {
+    //---------------------------------------
+    topClass() {
+      return Ti.Css.mergeClassName(this.className)
+    },
     isShowForMobile() {
       if("auto" == this.displayMode) {
         return this.isViewportModePhoneOrTablet
@@ -47,7 +55,7 @@ export default {
       return this.displayMode != "desktop"
     }
   },
-  ///////////////////////////////////////
+  ///////////////////////////////////////////
   methods : {
     invokeAction : _.debounce(function(action){
       //console.log("invokeAction", action)
@@ -92,5 +100,5 @@ export default {
       trailing : false
     })
   }
-  ///////////////////////////////////////
+  ///////////////////////////////////////////
 }
