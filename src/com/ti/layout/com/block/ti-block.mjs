@@ -46,6 +46,11 @@ export default {
       type : [String,Number],
       default : -1
     },
+    "flex" : {
+      type : String,
+      default : "auto",
+      validator : (v)=>/^(auto|grow|shrink|both|none)$/.test(v)
+    },
     "overflow" : {
       type : String,
       default : null
@@ -156,8 +161,17 @@ export default {
         style.height = Ti.Css.toSize(this.height)
       }
       // If defined width/height, should forbid the flex auto
-      if(!_.isEmpty(style)) {
+      if(!_.isEmpty(style) && "auto"==this.flex) {
         style.flex = "0 0 auto"
+      }
+      // Flex
+      else if("auto"!=this.flex) {
+        style.flex = ({
+          "none"   : "0 0 auto",
+          "grow"   : "1 0 auto",
+          "shrink" : "0 1 auto",
+          "both"   : "1 1 auto"
+        })[this.flex]
       }
       // append overflow setting
       if(this.overflow) {

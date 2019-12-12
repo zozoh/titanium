@@ -65,9 +65,12 @@ Each block looked like:
 {
   title : "i18n:xxx",
   icon  : "fas-file",
+  className : null,
   actions : [/*
  	 action menu items, @see <ti-menu> for more detail
   */],
+  // TODO maybe delete it I should be
+  actionDisplayMode 
   //.....................................
   // required and must be unique
   name : "b0",
@@ -77,10 +80,22 @@ Each block looked like:
   }],
   body : "xxx",   // refer to schame
   //.....................................
+  // The style.overflow
+  overflow : "hidden"
+  //.....................................
   // default size is "stretch"
   // "%" "rem" "px" was supported also.
   // Number will be taken as "px" when "rows|cols"
   size : "30%",
+  //.....................................
+  // Enabled in "cols/rows" block. To define the block flexibility.
+  // default is auto, 
+  //  - auto   : default. If defined size as "none", else "both"
+  //  - grow   : as flex: 1 0 auto;
+  //  - shrink : as flex: 0 1 auto;
+  //  - both   : as flex: 1 1 auto;
+  //  - none   : as flex: 0 0 auto;
+  flex : "auto"
   // If true, use can change the block size by mouse.
   // It will be ignored when "wall" or "tabs"
   // default is true
@@ -98,6 +113,7 @@ Each panel looked like:
 ```js
 {
   title,icon,actions,
+  hideTitle
   //.....................................
   name : "b0",             // required and must be unique
   type : "rows",           // sub-layout

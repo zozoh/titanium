@@ -29,6 +29,8 @@
       }]
     }, {
       "name" : "main",
+      "size" : "100%",
+      "flex" : "shrink",
       "type" : "cols",
       "border" : true,
       "blocks" : [{
