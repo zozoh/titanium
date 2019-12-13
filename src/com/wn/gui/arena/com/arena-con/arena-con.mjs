@@ -22,7 +22,7 @@ export default {
   //////////////////////////////////////////
   methods : {
     async hijackEmit(name, args) {
-      console.log("ArenaCon", name, args)
+      //console.log("ArenaCon", name, args)
       if(/^block:(show|hide|event)$/.test(name)) {
         await this.$emit(name, ...args)
       }

@@ -176,12 +176,20 @@ const TiUtil = {
           return context
         }
         // Find key in context
-        let m = /^(:?->|:?=)(.+)$/.exec(theValue)
+        let m = /^(:?->|:?=|==|!=)(.+)$/.exec(theValue)
         // Matched
         if(m) {
           let m_type = m[1]
           let m_val  = m[2]
           return ({
+            // ==xxx  # Get Boolean value now
+            "==" : (val)=> {
+              return _.get(context, val) ? true : false
+            },
+            // !=xxx  # Revert Boolean value now
+            "!=" : (val)=> {
+              return _.get(context, val) ? false : true
+            },
             // =xxx   # Get Value Now
             "=" : (val)=>{
               return _.get(context, val)

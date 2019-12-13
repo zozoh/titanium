@@ -29,7 +29,7 @@
     "type" : "line"
   }, {
     "type" : "group",
-    "icon" : "zmdi-more-vert",
+    "icon" : "im-menu",
     "items" : [{
         "key"  : "create",
         "type" : "action",

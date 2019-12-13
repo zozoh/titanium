@@ -47,27 +47,14 @@ export default {
     },
     //---------------------------------------
     theLogo() {
-      if(this.setup.logo) {
-        let list = _.concat(this.setup.logo)
-        for(let li of list) {
-          // Dynamic get the object icon
-          if("<:obj>" == li) {
-            let icon = _.get(this.obj, "meta.icon")
-            if(icon)
-              return icon
-          }
-          // Get the home obj icon
-          else if("<:home>" == li) {
-            let icon = _.get(this.objHome, "icon")
-            if(icon)
-              return icon
-          }
-          // Then it is the static icon
-          else {
-            return li
-          }
+      if("<:home>" == this.setup.logo) {
+        let crIt = _.nth(this.theCrumbData, 0)
+        if(crIt) {
+          return crIt.icon
         }
       }
+      // Then it is the static icon
+      return this.setup.logo
     },
     //---------------------------------------
     theCrumbData() {
@@ -75,31 +62,22 @@ export default {
       if(this.obj && this.obj.meta) {
         let ans = _.map(this.obj.ancestors)
         // Find the first Index from home
-        let firstIndex = 0
-        if(this.objHome) {
-          for(;firstIndex<ans.length; firstIndex++) {
-            let an = ans[firstIndex]
-            if(this.objHome.id == an.id) {
-              break
-            }
-          }
-        }
+        let i = Ti.Util.fallback(this.setup.firstCrumbIndex, 0)
         // Show ancestors form Home
-        for(let i=firstIndex+1; i<ans.length; i++) {
+        for(; i<ans.length; i++) {
           let an = ans[i]
           list.push({
             icon  : Wn.Util.getIconObj(an),
             text  : Wn.Util.getObjDisplayName(an),
             value : an.id,
-            href  : isCurrent ? null : Wn.Util.getAppLink(an) + ""
+            href  : Wn.Util.getAppLink(an) + ""
           })
         }
         // Show Self
         let self = this.obj.meta
         // Top Item, just show title
-        let icon = _.isEmpty(list) ? null : Wn.Util.getIconObj(self)
         list.push({
-          icon,
+          icon  : Wn.Util.getIconObj(self),
           text  : Wn.Util.getObjDisplayName(self),
           value : self.id,
           href  : null
@@ -109,6 +87,12 @@ export default {
     },
     //---------------------------------------
     theCrumb() {
+      let crumbs = _.cloneDeep(this.theCrumbData)
+      // Remove the first 
+      if(this.theLogo && !_.isEmpty(crumbs)) {
+        crumbs[0].icon = null
+      }
+      // Return it
       return  {
         "mode" : "path",
         "removeIcon" : null,
@@ -116,7 +100,7 @@ export default {
           "collapse" : "zmdi-chevron-right",
           "extended" : "zmdi-chevron-down"
         },
-        "data" : this.theCrumbData
+        "data" : crumbs
       }
     },
     //---------------------------------------
@@ -147,9 +131,7 @@ export default {
       let ShownSet = _.get(this.setup, "shown")
       if(_.isPlainObject(ShownSet)) {
         let shown = ShownSet[this.viewportMode]
-        return Ti.Util.explainObj(this, shown, {
-          iteratee : (val)=> val ? true : false
-        })
+        return Ti.Util.explainObj(this, shown)
       }
       return {}
     },
@@ -232,7 +214,7 @@ export default {
     async onBlockEvent(be={}) {
       let app = Ti.App(this)
       let evKey = _.concat(be.block, be.name).join("-")
-      console.log("wn-manager:onBlockEvent",evKey, be)
+      //console.log("wn-manager:onBlockEvent",evKey, be)
       // Find Event Handler
       let fn = ({
         "sidebar-selected" : async (it)=>{
