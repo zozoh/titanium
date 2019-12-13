@@ -1,13 +1,12 @@
 .ti-crumb {
-  //-------------------------------------------
+  @include noselect;
   @include flex-align($ai:stretch,$ac:stretch);
-  //-------------------------------------------
 }
 //---------------------------------------------
 .ti-crumb-piece {
   @include flex-align-nowrap($ai:stretch);
-  overflow: hidden; cursor: pointer;
-  padding: 0; 
+  overflow: hidden; padding: 0; 
+  //-------------------------------------------
   &.as-box {
     @include color($color-primary, r, c);
     border-radius: 6px; margin:.02rem;
@@ -15,6 +14,19 @@
       color: inherit; text-decoration: inherit;
       &:hover {text-decoration: inherit;}
     }
+  }
+  //-------------------------------------------
+  &.at-path {
+    cursor: pointer;
+  }
+  //-------------------------------------------
+  &.at-tail {
+    opacity: 0.8;
+  }
+  //-------------------------------------------
+  &.is-asterisk {
+    opacity: 1;
+    font-weight: bold;
   }
   //-------------------------------------------
   > .as-del {
@@ -33,6 +45,13 @@
     padding:0 0 .02rem .02rem;
     &.without-icon    {padding-left:.08rem;}
     &.without-options {padding-right:.08rem;}
+  }
+  //-------------------------------------------
+  > .as-mark {
+    @include color($color-secondary, c);
+    @include flex-center;
+    font-weight: bold;
+    padding:0 .02rem;
   }
   //-------------------------------------------
   > .as-status {

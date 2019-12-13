@@ -46,6 +46,10 @@ export default {
       type : [String, Number, Boolean, Object],
       default : null
     },
+    "asterisk" : {
+      type : Boolean,
+      default : false
+    },
     /***
      * Show drop list for changing the piece value
      * 
@@ -96,8 +100,9 @@ export default {
       return Ti.Css.mergeClassName({
         "is-enter-top" : 'top' == this.mouseEnter && this.hasOptions,
         "is-enter-del" : 'del' == this.mouseEnter,
-        "at-last" : this.atLast,
-        "at-item" : !this.atLast
+        "at-tail" : this.atLast,
+        "at-path" : !this.atLast,
+        "is-asterisk" : this.asterisk
       }, `as-${this.mode}`, this.className)
     },
     //------------------------------------------------
@@ -169,12 +174,13 @@ export default {
     //------------------------------------------------
     theData() {
       return {
-        index  : this.index,
-        icon   : this.icon,
-        text   : this.text,
-        value  : this.value,
-        href   : this.href,
-        atLast : this.atLast
+        index    : this.index,
+        icon     : this.icon,
+        text     : this.text,
+        value    : this.value,
+        href     : this.href,
+        atLast   : this.atLast,
+        asterisk : this.asterisk
       }
     }
     //------------------------------------------------

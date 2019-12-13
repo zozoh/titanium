@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////
 // Session: Badge
 .ti-web-session-badge {
+  @include noselect;
   @include flex-align-nowrap;
   > .as-avatar {
     @include flex-center;

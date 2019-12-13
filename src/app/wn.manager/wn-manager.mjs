@@ -80,7 +80,8 @@ export default {
           icon  : Wn.Util.getIconObj(self),
           text  : Wn.Util.getObjDisplayName(self),
           value : self.id,
-          href  : null
+          href  : null,
+          asterisk : _.get(this.mainStatus, "changed")
         })
       }
       return list
@@ -212,7 +213,6 @@ export default {
     },
     //--------------------------------------
     async onBlockEvent(be={}) {
-      let app = Ti.App(this)
       let evKey = _.concat(be.block, be.name).join("-")
       //console.log("wn-manager:onBlockEvent",evKey, be)
       // Find Event Handler
@@ -228,6 +228,9 @@ export default {
         },
         "uinfo-do:logout" : async ()=>{
           await this.doLogout()
+        },
+        "arena-change" : ()=>{
+          this.notifyChange(...be.args)
         }
       })[evKey]
 
@@ -235,6 +238,10 @@ export default {
       if(_.isFunction(fn)) {
         await fn(...be.args)
       }
+    },
+    //--------------------------------------
+    notifyChange(data) {
+      Ti.App(this).dispatch("main/onChanged", data);
     },
     //--------------------------------------
     async openView(oid) {

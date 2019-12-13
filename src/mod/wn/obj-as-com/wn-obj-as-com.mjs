@@ -31,7 +31,7 @@ export default {
     },
     syncStatusChanged(state){
       state.status.changed = !_.isEqual(state.data, state.__saved_data)
-    },
+    }
   },
   //.....................................
   actions : {

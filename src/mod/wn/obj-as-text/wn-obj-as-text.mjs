@@ -1,34 +1,60 @@
-// Ti required(Wn)
-//---------------------------------------
 export default {
+  ////////////////////////////////////////////////
   mutations : {
-    set(state, {
-      meta, content, __saved_content, contentType, status
-    }={}) {
-      // Default contentType
-      if(_.isUndefined(contentType) && meta) {
-        contentType = meta.mime
+    //--------------------------------------------
+    setMeta(state, meta) {
+      state.meta = meta
+    },
+    //--------------------------------------------
+    assignMeta(state, meta) {
+      // Check Necessary
+      if(_.isEmpty(meta)) {
+        return
       }
-      // Meta
-      if(!_.isUndefined(meta))
-        state.meta = _.cloneDeep(meta)
-      // Data
-      if(!_.isUndefined(content))
-        state.content = content
-      // SavedData
-      if(!_.isUndefined(__saved_content))
-        state.__saved_content = __saved_content
-      // ContentType
-      if(!_.isUndefined(contentType))
-        state.contentType = contentType
-      // Status
-      _.assign(state.status, status)
-      // Changed
-      state.status.changed = (state.content != state.__saved_content)
+      state.meta = _.assign({}, state.meta, meta);
+    },
+    //----------------------------------------------
+    mergeMeta(state, meta) {
+      // Check Necessary
+      if(!_.isEmpty(meta)) {
+        return
+      }
+      state.meta = _.merge({}, state.meta, meta);
+    },
+    //--------------------------------------------
+    setStatus(state, status) {
+      state.status = _.assign({}, state.status, status)
+    },
+    //--------------------------------------------
+    setContent(state, content) {
+      if(!_.isUndefined(content)) {
+        state.content = content||""
+      }
+    },
+    //--------------------------------------------
+    setSavedContent(state, content) {
+      if(!_.isUndefined(content)) {
+        state.__saved_content = content||""
+      }
+    },
+    //--------------------------------------------
+    setContentType(state, contentType) {
+      state.contentType = contentType
+    },
+    //--------------------------------------------
+    syncStatusChanged(state){
+      state.status.changed = !_.isEqual(state.content, state.__saved_content)
     }
+    //--------------------------------------------
   },
-  //.....................................
+  ////////////////////////////////////////////////
   actions : {
+    //--------------------------------------------
+    onChanged({commit}, {content}={}) {
+      commit("setContent", content);
+      commit("syncStatusChanged");
+    },
+    //--------------------------------------------
     /***
      * Save content to remote
      */
@@ -37,45 +63,51 @@ export default {
         return
       }
 
+      commit("setStatus", {saving:true})
+
       let meta = state.meta
       let content = state.content
-
-      commit("set", {status:{saving:true}})
       let newMeta = await Wn.Io.saveContentAsText(meta, content)
-      commit("set", {
-        meta: newMeta, 
-        __saved_content : content,
-        status:{saving:false}
-      })
+
+      commit("setMeta",         newMeta)
+      commit("setSavedContent", content)
+      commit("setStatus",       {saving:false})
+      commit("syncStatusChanged")
 
       // return the new meta
-      return state.meta
+      return newMeta
     },
+    //--------------------------------------------
     /***
      * Reload content from remote
      */
     async reload({state, commit}, meta) {
-      if(state.status.reload){
+      if(state.status.reloading
+        || state.status.saving){
         return
       }
 
       // Use the default meta
-      if(!meta) {
+      if(_.isUndefined(meta)) {
         meta = state.meta
       }
       
-      commit("set", {status:{reloading:true}})
-      let content = await Wn.Io.loadContent(meta)
-      commit("set", {
-        meta, 
-        content, 
-        __saved_content : content,
-        status:{reloading:false}
-      })
-
-      // return the root state
-      return state
+      // Init content as null
+      let content = null
+      
+      // Has meta, may need to be reload content
+      if(meta) {
+        commit("setStatus", {reloading:true})
+        // need to be reload content
+        content = await Wn.Io.loadContent(meta)
+        commit("setStatus", {reloading:false})
+      }
+      // Just update the meta
+      commit("setMeta", meta)
+      commit("setContent", content)
+      commit("setSavedContent", content)
+      commit("syncStatusChanged")
     }
   }
-  //.....................................
+  ////////////////////////////////////////////////
 }
