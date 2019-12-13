@@ -132,6 +132,14 @@ export default {
       let ShownSet = _.get(this.setup, "shown")
       if(_.isPlainObject(ShownSet)) {
         let shown = ShownSet[this.viewportMode]
+        // Refer onece
+        if(_.isString(shown)) {
+          shown = ShownSet[shown]
+        }
+        // Refer twice (I think it is enough for most of cases)
+        if(_.isString(shown)) {
+          shown = ShownSet[shown]
+        }
         return Ti.Util.explainObj(this, shown)
       }
       return {}

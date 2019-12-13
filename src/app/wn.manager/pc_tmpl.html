@@ -118,6 +118,10 @@ async function main(){
 
   // Load main app
   let appInfo = await Ti.Load("@MyApp")
+  
+  // Merge customized GUI setting in "data"
+  _.assign(appInfo.data, tiConf.gui)
+
   // Append exetend components
   if(!_.isEmpty(tiConf.components)) {
     Ti.Util.pushUniqValue(appInfo, "components", tiConf.components)

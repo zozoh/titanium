@@ -3,9 +3,9 @@
   "i18n" : "@i18n:wn-manager",
   "template" : "./wn-manager.html",
   "data" : {
-    "layout" : "@MyApp:gui-layout.json",
-    "schema" : "@MyApp:gui-schema.json",
-    "setup"  : "@MyApp:gui-setup.json"
+    "layout" : "@MyApp:gui/layout.json",
+    "schema" : "@MyApp:gui/schema.json",
+    "setup"  : "@MyApp:gui/setup.json"
   },
   "computed" : [{
     "...session" : {
