@@ -239,12 +239,21 @@ export default {
         },
         "arena-change" : ()=>{
           this.notifyChange(...be.args)
+        },
+        "arena-actions:updated" : (actions)=>{
+          this.updateActions(actions)
         }
       })[evKey]
 
       // Invoke Event Handler
       if(_.isFunction(fn)) {
         await fn(...be.args)
+      }
+    },
+    //--------------------------------------
+    updateActions(actions) {
+      if(_.isArray(actions)) {
+        Ti.App(this).commit("setActions", actions)
       }
     },
     //--------------------------------------

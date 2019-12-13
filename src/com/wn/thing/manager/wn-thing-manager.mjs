@@ -240,9 +240,9 @@ export default {
   },
   ///////////////////////////////////////////
   watch : {
-    // "config.actions" : function() {
-    //   this.$emit("actions:updated", this.config.actions)
-    // },
+    "config.actions" : function() {
+      this.$emit("actions:updated", this.config.actions)
+    },
     "shown" : function() {
       //console.log("shown changed", JSON.stringify(this.shown))
       if(this.meta && this.meta.id) {
