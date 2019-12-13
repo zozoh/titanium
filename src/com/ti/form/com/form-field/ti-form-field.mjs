@@ -67,10 +67,10 @@ export default {
     },
     //----------------------------------------
     fieldComClass() {
-      if("auto" == this.width) {
-        return "is-size-auto"
-      }
-      if("stretch" == this.width) {
+      if(!Ti.Util.isNil(this.width)) {
+        if("auto" == this.width) {
+          return "is-size-auto"
+        }
         return "is-size-stretch"
       }
     },

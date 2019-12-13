@@ -3,7 +3,6 @@
     "desktop" : {
       "logo"         : "==theLogo",
       "menu"         : "==theMenu",
-      "sidebar"      : "!=objIsHome",
       "sessionBadge" : "==theSessionBadge"
     },
     "tablet"  : {},
@@ -12,6 +11,5 @@
   "canLoading" : true,
   "loadingAs" : false,
   "firstCrumbIndex" : 1,
-  "logo" : "fas-globe",
-  "dogo" : "<:home>"
+  "logo" : "<:home>"
 }

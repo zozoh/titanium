@@ -1,5 +1,4 @@
 {
-  "methods" : "@Home:archives/archives-methods.mjs",
   "pcSkyLogo" : {
     "comType" : "ti-icon",
     "comConf" : {
