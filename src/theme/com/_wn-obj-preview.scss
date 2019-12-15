@@ -20,8 +20,10 @@
       li {
         @include flex-center;
         cursor: pointer;
-        width:.32rem; height:.32rem;
-        .it-icon {font-size:.18rem;}
+        width:.32rem; height:.32rem; 
+        .it-icon {
+          font-size:1em;
+        }
         &:hover {
           @include color($color-secondary, r, c);
         }

@@ -1,0 +1,5 @@
+{
+  "name" : "mitem-line",
+  "template" : "<div class=\"it-is-line\"></div>",
+  "inheritAttrs" : false
+}

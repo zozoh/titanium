@@ -1,201 +1,122 @@
 .ti-menu {
+  //////////////////////////////////////////////////
   @include noselect;
   @include flex-center;
-}
-//------------------------------------------------
-// For Desktop
-//------------------------------------------------
-.ti-menu-desktop {
-  > .menu-desktop-top {
+  //////////////////////////////////////////////////
+  .menu-con {
     @include raw-list;
     @include flex-align;
     &.align-left   {justify-content: flex-start;}
     &.align-center {justify-content: center;}
     &.align-right  {justify-content: flex-end;}
-    > li {
-      @include flex-center;
-      //--------------------------------------
-      .md-info {
-        @include flex-align($ai:center, $wp:nowrap);
-        border-radius:.02rem;
-        padding:0 .06rem;
-        &[item-disabled] {
-          @include disabled;
-        }
-        &[item-enabled] {
-          @include fireable(null, $color-primary);
-        }
+  }
+  //////////////////////////////////////////////////
+  .menu-top-item {
+    @include flex-center;
+    //----------------------------------------------
+    .as-info {
+      @include flex-align($ai:center, $wp:nowrap);
+      border-radius:.02rem;
+      padding:0 .06rem;
+      &[item-disabled] {
+        @include disabled;
       }
-      //--------------------------------------
-      .md-icon {
-        @include flex-center;
-        height:.3rem; line-height:.3rem;
-        > .ti-icon {
-          width:.24rem;
-        }
+      &[item-enabled] {
+        @include fireable(null, $color-primary);
       }
-      //--------------------------------------
-      .md-text {
-        padding:0 2px;
-        height:.3rem; line-height:.3rem;
-      }
-      //--------------------------------------
-      > .md-line {
-        @include color($color-line, null, shallow);
-        width:1px; height:.2rem; overflow:hidden;
-        margin:0 .02rem;
-      }
-      //--------------------------------------
     }
-  }  // ~ > .desktop-
-  //------------------------------------------------
-  .md-group {
+    //----------------------------------------------
+    .as-icon {
+      @include flex-center;
+      height:.3rem; line-height:.3rem;
+      > .ti-icon {
+        width:.24rem;
+      }
+    }
+    //----------------------------------------------
+    .as-text {
+      padding:0 2px;
+      height:.3rem; line-height:.3rem;
+    }
+    //----------------------------------------------
+    > .it-is-line {
+      @include color($color-line, null, shallow);
+      width:1px; height:.2rem; overflow:hidden;
+      margin:0 .02rem;
+    }
+    //----------------------------------------------
+  }  // .menu-top-item 
+  //////////////////////////////////////////////////
+  .it-is-group {
+    //----------------------------------------------
     &:hover {
       > .md-info {
         @include color-highlight;
       }
     }
+    //----------------------------------------------
     // Top group open, it should mask page
-    &.is-top > .md-group-con:before {
+    &.is-top > .as-children:before {
       @include pos-fixed-full;
       display:block; content:"";
       background-color:rgba(0,0,0,0);
       z-index: $z-mask;
     }
-  }
-  //------------------------------------------------
-  .md-group-con {
-    &.md-group-closed {display:none;}
-    &.md-group-opened {display:block;}
-    > .menu-sub {
-      position:fixed;
-      min-width: 1.5rem;
-      z-index: $z-menu;
-      padding:1px; 
-      @include color($color-chip, r, c);
-      @include border(1px, solid, primary);
-      //-------------------------------------------
-      .md-line {
-        @include color($color-line, null, shallow);
-        height:1px; overflow:hidden;
-        margin:.04rem 0;
-      }
-      //-------------------------------------------
-      .md-info {
-        padding:.02rem .1rem; line-height:1.2em;
-        height: .32rem;
-        &:hover {
-          .md-tip {opacity: 1; }
+    //----------------------------------------------
+    // > .as-info is defined above
+    //----------------------------------------------
+    > .as-children {
+      &.is-group-closed {display:none;}
+      &.is-group-opened {display:block;}
+      //--------------------------------------------
+      > .menu-sub {
+        @include color($color-chip, r, c);
+        @include border(1px, solid, primary);
+        position:fixed;
+        min-width: 1.5rem;
+        z-index: $z-menu;
+        padding:1px; 
+        //-----------------------------------------
+        .it-is-line {
+          @include color($color-line, null, shallow);
+          height:1px; overflow:hidden;
+          margin:.04rem 0;
         }
-        > * {
-          flex:0 0 auto;
-          white-space: nowrap; 
-          display:block;
-        }
-        .md-icon {
-          @include flex-center;
-          width:.24rem;
-        }
-        .md-text {
-          padding-left:.1rem;
-        }
-        .md-tip {
-          flex:1 1 auto;
-          font-size:.1rem; padding-left:.24rem;
-          text-align:right;
-          opacity: 0.4;
-          &.md-tip-icon {
+        //-----------------------------------------
+        .as-info {
+          padding:.02rem .1rem; line-height:1.2em;
+          height: .32rem;
+          //---------------------------------------
+          &:hover {
+            .as-tip {opacity: 1; }
+          }
+          //---------------------------------------
+          > * {
+            flex:0 0 auto;
+            white-space: nowrap; 
+            display:block;
+          }
+          //---------------------------------------
+          .as-icon {
+            @include flex-center;
+            width:.24rem; font-size:.12rem;
+          }
+          //---------------------------------------
+          .as-text {
+            padding-left:.1rem;
+          }
+          //---------------------------------------
+          .as-more-icon {
+            flex:1 1 auto;
+            padding-left:.24rem;
+            text-align:right;
             font-size:.14rem; opacity: 0.6;
           }
-        }
-      }
-    }
-  }  // ~ .md-group-con
-}
-//------------------------------------------------
-// For Mobile
-//------------------------------------------------
-.ti-menu-mobile { 
-  width:100%; height:100%;
-  position: relative;
-  //----------------------------------------------
-  .mobile-btn {
-    @include pos-abs-full;
-    @include flex-center;
-    cursor: pointer; 
-    &:hover {
-      @include color($color-secondary, r, c);
-    }
-  }
-  &.align-is-left   .mobile-btn {justify-content: flex-start;}
-  &.align-is-center .mobile-btn {justify-content: center;}
-  &.align-is-right  .mobile-btn {justify-content: flex-end;}
-  //----------------------------------------------
-  .mobile-con {
-    @include pos-fixed-full;
-    @include color($color-mask, r, heavy);
-    z-index:$z-mask;
-    display: none;
-    padding:30px;
-    overflow:auto;
-    ul {
-      @include raw-list;
-      @include flex-center($jc:space-around);
-      width:100%; height:100%;
-      li {
-        width: 25%; text-align:center;
-        padding:0 .1rem;
-        .mm-action {
-          @include flex-align-v-nowrap;
-          width:100%; cursor: pointer;
-          padding:.4rem 0;
-          //--------------------------------------
-          .action-icon {
-            @include flex-center;
-            height:.6rem;
-            .no-icon {
-              background:rgba(200,200,200,0.3);
-              border:1px dotted map-get($color-mask, r);
-              display: block; width:.4rem; height:.4rem;
-              margin:0 auto;
-              border-radius: .08rem;
-            }
-          }
-          //--------------------------------------
-          .action-text {
-            flex:1 1 auto; display: block;
-            height:.24rem; line-height:.22rem;
-            width:100%; white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow:hidden;
-          }
-          //--------------------------------------
-          &[item-disabled] {
-            @include disabled;
-          }
-          //--------------------------------------
-          &[item-enabled] {
-            @include fireable(null);
-            &:hover {
-              .action-icon .no-icon {
-                border-color: map-get($color-selected, r);
-              }
-            }
-          }
-          //--------------------------------------
-        }
-      }
-    }
-  }
-  //----------------------------------------------
-  &.is-opened {
-    .mobile-btn {
-      @include pos-fixed($l:unset,$b:unset,$t:0,$r:0,$w:40px,$h:40px);
-      justify-content: center;
-      z-index:$z-mask+1;
-    }
-    .mobile-con {
-      display: block;
-    }
-  }
-}
+          //---------------------------------------
+        } // .as-info 
+      } // > .menu-sub
+    } // ~ .as-children
+    //----------------------------------------------
+  } // .it-is-group 
+  //////////////////////////////////////////////////
+} // ~ .ti-menu {

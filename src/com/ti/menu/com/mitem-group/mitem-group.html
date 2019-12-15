@@ -1,30 +1,41 @@
-<div class="md-group"
+<div class="it-is-group"
   :class="classObject.top"
   @mouseenter="onMouseEnter"
   @mouseleave="onMouseLeave">
-  <div class="md-info"
+  <!--
+    Group Info
+  -->
+  <div class="as-info"
       :item-disabled="isDisabled"
       :item-enabled="isEnabled"
       :tip="theTip"
       @click.stop="showChildren">
+    <!--Icon-->
     <span v-if="isTop || showIcon"
-      class="md-icon">
+      class="as-icon">
       <ti-icon v-if="hasIcon" 
         size=".16rem"
         :value="theIcon"/>
     </span>
+    <!--Text-->
     <span v-if="hasText"
-      class="md-text">{{theText|i18n}}</span>
+      class="as-text">{{theText|i18n}}</span>
+    <!--Tip Icon-->
     <span v-if="!isTop"
-      class="md-tip md-tip-icon">
+      class="as-more-icon">
       <ti-icon value="fas-caret-right" size=".16rem"/>
     </span>
   </div>
-  <div class="md-group-con" 
+  <!--
+    Group Children
+  -->
+  <div class="as-children" 
        :class="classObject.groupCon"
        @click.stop="hideChildren">
     <ul class="menu-sub ti-ul-reset" ref="sub">
-      <li v-for="it in items" :key="it.key">
+      <li v-for="it in items" 
+        :key="it.key"
+        class="menu-sub-item">
         <component :is="it.comType"
             v-bind="it"
             :show-icon="itemsHasIcon"

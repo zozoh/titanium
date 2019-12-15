@@ -1,5 +1,0 @@
-{
-  "name" : "md-group",
-  "template" : "./md-group.html",
-  "mixins"   : ["./md-group.mjs"]
-}

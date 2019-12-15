@@ -20,26 +20,6 @@ export default {
     "status" : {
       type : Object,
       default : ()=>({})
-    },
-    "cols" : {
-      type : Number,
-      default : 4
-    },
-    "moreIcon" : {
-      type : String,
-      default : "fas-bars"
-    },
-    "moreIconSize" :{
-      type : String,
-      default : ".24rem"
-    },
-    "closeIcon" : {
-      type : String,
-      default : "fas-times"
-    },
-    "displayMode" : {
-      type : String,
-      default : "auto"  // auto|desktop|tablet|phone
     }
   },
   ///////////////////////////////////////////
@@ -48,15 +28,25 @@ export default {
     topClass() {
       return Ti.Css.mergeClassName(this.className)
     },
-    isShowForMobile() {
-      if("auto" == this.displayMode) {
-        return this.isViewportModePhoneOrTablet
+    //---------------------------------------
+    conClass() {
+      if(this.align) {
+        return "align-"+this.align
       }
-      return this.displayMode != "desktop"
+    },
+    //---------------------------------------
+    items() {
+      let list = []
+      _.forEach(this.data, (it, index)=>{
+        this.joinActionItem(list, it, "/item"+index)
+      })
+      return list
     }
+    //---------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
+    //---------------------------------------
     invokeAction : _.debounce(function(action){
       //console.log("invokeAction", action)
       let vm = this
@@ -98,7 +88,43 @@ export default {
     }, 500, {
       leading  : true,
       trailing : false
-    })
+    }),
+    //---------------------------------------
+    joinActionItem(list=[], {
+      key, type, statusKey,
+      icon, text, tip, 
+      shortcut,
+      enableBy, disableBy, 
+      altDisplay,
+      action, 
+      items
+    }, dftKey){
+      let it = {
+        key  : key  || dftKey,   // Action item must contains a key
+        statusKey : statusKey || key || dftKey,
+        type : type || "action", // default as normal action
+        shortcut,
+        icon, text, tip,
+        enableBy, disableBy, 
+        action
+      }
+      // mark altDisplay
+      if(_.isPlainObject(altDisplay)) {
+        it.altDisplay = {...altDisplay}
+      }
+      // set sub comType by type
+      it.comType = "mitem-" + _.kebabCase(it.type)
+      // If group, recur
+      if(_.isArray(items) && items.length > 0) {
+        it.items = []
+        _.forEach(items, (subIt, index)=>{
+          this.joinActionItem(it.items, subIt, it.key+"/item"+index)
+        })
+      }
+      // Join the normalized item
+      list.push(it)
+    }
+    //---------------------------------------
   }
   ///////////////////////////////////////////
 }

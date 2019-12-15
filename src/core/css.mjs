@@ -23,24 +23,31 @@ const TiCss = {
   mergeClassName(...args) {
     let klass = {}
     for(let arg of args) {
-      if(Ti.Util.isNil(arg))
+      let kla = arg
+      if(Ti.Util.isNil(kla))
         continue
+      // Function
+      if(_.isFunction(arg)) {
+        kla = arg()
+      }
       // String
-      if(_.isString(arg)) {
-        let ss = _.without(_.split(arg, / +/g), "")
-        for(let s of ss) {
-          klass[s] = true
+      if(_.isString(kla)) {
+        if(kla) {
+          let ss = _.without(_.split(kla, / +/g), "")
+          for(let s of ss) {
+            klass[s] = true
+          }
         }
       }
       // Array
-      else if(_.isArray(arg)) {
-        for(let a of arg) {
+      else if(_.isArray(kla)) {
+        for(let a of kla) {
           klass[a] = true
         }
       }
       // Object
-      else if(_.isPlainObject(arg)) {
-        _.forEach(arg, (val, key)=>{
+      else if(_.isPlainObject(kla)) {
+        _.forEach(kla, (val, key)=>{
           if(val) {
             klass[key] = true
           }

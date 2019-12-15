@@ -35,8 +35,8 @@ export default {
         let re = {}
         re.top = this.isTop ? "is-top" : "is-sub"
         re.groupCon = this.isOpened
-                        ? "md-group-open"
-                        : "md-group-closed"
+                        ? "is-group-open"
+                        : "is-group-closed"
         return re;
       },
       itemsHasIcon() {

@@ -1,0 +1,5 @@
+{
+  "name" : "mitem-group",
+  "template" : "./mitem-group.html",
+  "mixins"   : ["./mitem-group.mjs"]
+}

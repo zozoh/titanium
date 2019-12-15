@@ -35,6 +35,10 @@ export default {
       "mainComIcon", "mainComType", "mainComConf",
       "mainStatus", "mainStatusText"]),
     //---------------------------------------
+    objIsNotHome() {
+      return this.obj && this.obj.meta && !this.objIsHome
+    },
+    //---------------------------------------
     theMetaId(){
       if(this.$store.state.main && this.$store.state.main.meta) {
         return this.$store.state.main.meta.id
