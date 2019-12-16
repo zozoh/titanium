@@ -28,6 +28,6 @@
         :group-status-store-key="subIt.key"
         :highlight-id="highlightId"
         v-bind="subIt"
-        @selected="$emit('selected', $event)"/>
+        @item:actived="$emit('item:actived', $event)"/>
   </div>
 </div>

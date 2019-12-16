@@ -10,7 +10,7 @@
     @include border(1px, dashed, shallow, top);
     cursor:pointer;
     position: relative;
-    padding:.02rem .06rem;
+    padding:.04rem .06rem;
     //--------------------------------------------
     &:first-child {border-top:0;}
     //--------------------------------------------

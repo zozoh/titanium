@@ -57,7 +57,7 @@ export default {
       }
     },
     onClickItemInfo() {
-      this.$emit("selected", {
+      this.$emit("item:actived", {
         id: this.id,
         title : this.title,
         path : this.path,

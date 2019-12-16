@@ -24,7 +24,13 @@ export default {
   computed : {
     //---------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName(this.className)
+      return Ti.Css.mergeClassName(this.className, ()=>{
+        let klass = []
+        _.forEach(this.theShown, (val, key)=>{
+          klass.push(`is-${key}-${val?'shown':'hidden'}`)
+        })
+        return klass
+      })
     },
     //---------------------------------------
     ...Vuex.mapState([
@@ -225,29 +231,30 @@ export default {
     },
     //--------------------------------------
     async onBlockEvent(be={}) {
-      let evKey = _.concat(be.block, be.name).join("-")
+      let evKey = _.concat(be.block, be.name).join(".")
       //console.log("wn-manager:onBlockEvent",evKey, be)
       // Find Event Handler
-      let fn = ({
-        "sidebar-selected" : async (it)=>{
-          await this.openView(it.id)
+      let FnSet = {
+        // sidebar or title
+        "item:actived" : async (it)=>{
+          await this.openView(it.id || it.path || it.value)
         },
-        "title-selected" : async (it)=>{
-          await this.openView(it.value)
-        },
-        "arena-open" : async (o)=>{
-          await this.openView(o.id)
-        },
-        "uinfo-do:logout" : async ()=>{
+        // For uinfo
+        "do:logout" : async ()=>{
           await this.doLogout()
         },
-        "arena-change" : ()=>{
+        "arena.open" : async (o)=>{
+          await this.openView(o.id)
+        },
+        "arena.changed" : ()=>{
           this.notifyChange(...be.args)
         },
-        "arena-actions:updated" : (actions)=>{
+        "arena.actions:updated" : (actions)=>{
           this.updateActions(actions)
         }
-      })[evKey]
+      }
+
+      let fn = FnSet[evKey] || FnSet[be.name]
 
       // Invoke Event Handler
       if(_.isFunction(fn)) {
@@ -275,7 +282,10 @@ export default {
         return
       }
       // Open It
-      Ti.App(this).dispatch("reloadMain", `id:${oid}`)
+      let ph = Wn.Io.isFullObjId(oid)
+                ? `id:${oid}`
+                : oid;
+      Ti.App(this).dispatch("reloadMain", ph)
     },
     //--------------------------------------
     async doLogout() {

@@ -46,8 +46,8 @@ export default {
       })
     },
     //-------------------------------------
-    onItemSelected(payload={}){
-      this.$emit("selected", payload)
+    onItemActived(payload={}){
+      this.$emit("item:actived", payload)
     }
     //-------------------------------------
   }

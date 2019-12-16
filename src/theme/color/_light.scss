@@ -1,0 +1,36 @@
+//-----------------------------------------------------
+// Define color variables
+$color-primary   : (c:#2196f3, r:#FFF);
+$color-secondary : (c:#ff4081, r:#FFF);
+$color-success: (c:#4caf50, r:#CFC);
+$color-warn   : (c:#fdd835, r:#620);
+$color-info   : (c:rgba(0,0,0,.9), r:#DDD);
+$color-error  : (c:#f44336, r:#FFF);
+$color-track  : (c:#888, r:#FFF);
+$color-disable: (c:rgba(0,0,0,.38), r:rgba(255,255,255,.38));
+//...........................................
+$color-paper : (c:#F0F0F0,    r:#444);
+$color-chip  : (c:#e8e8e8,    r:#666);
+$color-cloak : (c:rgba(230,230,230,0.8), r:#666);
+$color-body  : (c:#FAFAFA, r:#444);
+$color-bar   : (c:#F0F0F0, r:#888);
+$color-func  : (c:#F0F0F0, r:#666);
+$color-shadow : (c:rgba(0,0,0,0.6), r:#AAA);
+$color-light  : (c:rgba(255,255,255,0.6), r:#444);
+$color-input  : (c:#444, r:#FFF);
+//...........................................
+$color-selected  : (c:#cce8ff, r:#2196f3);
+//...........................................
+$color-mask: (
+  heavy : rgba(0,0,0,0.95),
+  bushy : rgba(50,50,50,0.8),
+  thin  : rgba(50,50,50,0.3),
+  weak  : rgba(200,200,200,0.4),
+  r : #e0e0e0
+);
+//...........................................
+$color-line: (
+  dark      : rgba(0,0,0,0.2),
+  shallow   : rgba(20,20,20,0.1),
+  highlight : map-get($color-primary, c)
+);

@@ -208,7 +208,7 @@ export default {
         },
         //..................................
         // Content changed
-        "content.change" : ({content})=>{
+        "content.changed" : ({content})=>{
           app.dispatch("main/current/changeContent", content)
           app.commit("main/syncStatusChanged")
         },
