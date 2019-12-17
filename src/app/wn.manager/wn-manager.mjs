@@ -59,9 +59,7 @@ export default {
     theLogo() {
       if("<:home>" == this.setup.logo) {
         let crIt = _.nth(this.theCrumbData, 0)
-        if(crIt) {
-          return crIt.icon
-        }
+        return crIt ? crIt.icon : null
       }
       // Then it is the static icon
       return this.setup.logo
