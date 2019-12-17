@@ -32,7 +32,7 @@ export default {
     let data = Ti.Types.toObjByPair({name, value})
 
     // Check Necessary
-    if(_.isMatch(state.meta, data)) {
+    if(_.isMatchWith(state.meta, data, _.isEqual)) {
       return
     }
 

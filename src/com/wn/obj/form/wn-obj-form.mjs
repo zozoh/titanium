@@ -79,7 +79,7 @@ export default {
       }
     },
     onChanged(payload) {
-      //console.log("wn-form.changed", payload)
+      //console.log("wn-obj-form.changed", payload)
       this.doAction("changed", this.updateBy, payload)
     },
     onInvalid(err) {

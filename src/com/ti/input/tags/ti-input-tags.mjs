@@ -339,7 +339,7 @@ export default {
     //------------------------------------------------
     onTagChanged(vlist=[]) {
       let vlist2 = this.tidyVList(vlist)
-        this.$emit("changed", vlist2)
+      this.$emit("changed", vlist2)
     },
     //------------------------------------------------
     onClickTop() {
