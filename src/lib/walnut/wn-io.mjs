@@ -23,7 +23,7 @@ export const WnIo = {
    * Get object meta by id
    */
   async loadMetaById(id) {
-    return WnIo.loadMeta("id:"+id)
+    return await WnIo.loadMeta("id:"+id)
   },
   /***
    * Get object meta by full path
