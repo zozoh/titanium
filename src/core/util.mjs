@@ -246,7 +246,7 @@ const TiUtil = {
           let args = _.map(theValue.args||[], ExplainValue)
           // Do invoke
           let re = fn.apply(context, args)
-          return itertee(re)
+          return iteratee(re)
         }
         //..................................
         // Bind Function

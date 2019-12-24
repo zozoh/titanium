@@ -2,6 +2,7 @@ export default {
   inheritAttrs : false,
   /////////////////////////////////////////
   props : {
+    "className" : null,
     "me" : {
       type : Object,
       default : null
@@ -33,10 +34,63 @@ export default {
     "logoutEvent" : {
       type : String,
       default : "do:logout"
+    },
+    /***
+     * The customized link before `login/logout`.
+     * 
+     * ```
+     * {
+     *    icon   : "im-xxx",
+     *    text   : "i18n:xxx",
+     *    href   : "/path/to/uri"  // The <a href>
+     *    newtab : false,        // if href, the open target
+     *    emit   : "do:login"      // Mutex(href)
+     *    inSession : true       // Show only in session
+     * }
+     * ```
+     */
+    "links" : {
+      type : Array,
+      default : ()=>[]
     }
   },
   //////////////////////////////////////////
   computed : {
+    //......................................
+    topClass() {
+      return Ti.Css.mergeClassName(this.className)
+    },
+    //......................................
+    theLinks() {
+      let list = []
+      //---------------------------
+      // Join the links
+      for(let li of this.links) {
+        // Ignore out-of-session link
+        if(li.inSession && !this.hasSession) {
+          continue;
+        }
+        // Join
+        list.push(li)
+      }
+      //---------------------------
+      // Add the Login/Logout link
+      if(this.hasSession) {
+        list.push({
+          text : "i18n:logout",
+          emit : this.logoutEvent
+        })
+      }
+      // Login 
+      else {
+        list.push({
+          text : "i18n:login",
+          emit : this.loginEvent
+        })
+      }
+      //---------------------------
+      return list
+    },
     //......................................
     myName() {
       if(this.me) {
@@ -72,6 +126,17 @@ export default {
       return this.me ? true : false
     }
     //......................................
+  },
+  //////////////////////////////////////////
+  methods : {
+    onClickLink(link, $event) {
+      // Emit
+      if(link.emit) {
+        $event.preventDefault()
+        this.$emit(link.emit)
+      }
+      // Href: do nothing
+    }
   }
   //////////////////////////////////////////
 }
