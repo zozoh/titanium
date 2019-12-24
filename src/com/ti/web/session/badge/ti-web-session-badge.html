@@ -18,15 +18,15 @@
     <!--Links-->
     <div v-for="li in theLinks"
       class="as-link">
+      <!--Icon-->
+      <ti-icon v-if="li.icon"
+      class="it-icon"
+      :value="li.icon"/>
+      <!--Text-->
       <a @click.left="onClickLink(li, $event)"
         :href="li.href"
         :target="li.newtab?'_blank':null">
-        <!--Icon-->
-        <ti-icon v-if="li.icon"
-          class="it-icon"
-          :value="li.icon"/>
-        <!--Text-->
-        <span class="it-text">{{li.text|i18n}}</span>
+        {{li.text|i18n}}
       </a>
     </div>
   </template>

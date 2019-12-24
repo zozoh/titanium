@@ -33,7 +33,7 @@ export const TiStr = {
         if(matched.startsWith("$$")) {
           return matched.substring(1)
         }
-        return Ti.Util.fallback(vars[varName], matched)  
+        return Ti.Util.fallback(_.get(vars,varName), matched)  
       }
     }
     // Array
