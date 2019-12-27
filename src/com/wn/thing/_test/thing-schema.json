@@ -109,7 +109,20 @@
     "comType" : "wn-thing-files",
     "comConf" : {
       "filesName" : "=filesName",
-      "files"     : "=files"
+      "files"     : "=files",
+      "stateLocalKey" : "=meta.id",
+      "preview"   : "=preview",
+      "dirNameTip" : null,
+      "dirNameComType" : "ti-switcher",
+      "dirNameOptions" : [{
+          "icon"  :"fas-camera-retro",
+          "text"  :"实地拍摄",
+          "value" : "media"
+        }, {
+          "icon"  :"fas-paperclip",
+          "text"  :"其他文件",
+          "value" : "attachment"
+        }]
     }
   }
 }

@@ -20,33 +20,41 @@
   <!--===========Theme============-->
   <link rel="stylesheet" href="${theme}">
 
+
   <!--===========ExtAPIs==========-->
   ${extlibs?}
+  
+  <!--===========ES5 Support stub==========-->
+  <script src="${rs}/ti/deps/system_es5.js"></script>
+  <script src="${rs}/ti/deps/babel/browser.js"></script>
   
 </head>
 <body class="main-body">
 <div id="app" class="app-loading">
   <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
 </div>
-<script type="module">
-import Ti from "${rs}/ti/core/ti.mjs"
-import Wn from "${rs}/ti/lib/walnut/walnut.mjs"
-import main from "/a/load/${appName}/main.mjs"
+<script>
 //---------------------------------------
 window._app = ${app};
 //---------------------------------------
-main({
-  Ti, Wn, rs:"${rs}",
-  appName : "${appName}",
-  comMixinPath : "@com:ti/support/com_mixins.mjs"
-}).then(o=>{
-  if(Ti.IsInfo("main")) {
-    console.log("MainLoaded", o)
-  }
-}).catch(err=>{
-  throw err
+System.import("${rs}/ti/core/ti.js").then(function(){
+  System.import("${rs}/ti/lib/walnut/walnut.js").then(function(){
+    System.import("/a/load/${appName}/main.js").then(function(M){
+      M.main({
+        Ti, Wn, rs:"${rs}",
+        appName : "${appName}",
+        comMixinPath : "!mjs:@com:ti/support/com_mixins.js"
+      }).then(o=>{
+        if(Ti.IsInfo("main")) {
+          console.log("MainLoaded", o)
+        }
+      }).catch(err=>{
+        throw err
+      })
+    })
+  })
 })
 //---------------------------------------
-</script>
+</script
 </body>
 </html>

@@ -1,5 +1,18 @@
 import {Ti}    from './ti.mjs'
 //---------------------------------------
+function isTiLink(str) {
+  // @com:xxx or @mod:xxx
+  if(/^(@[A-Za-z0-9_-]+:?|\.\/)/.test(str)) {
+    return true
+  }
+  // !mjs:xxx
+  if(/^(!(m?js|json|css|text):)/.test(str)) {
+    return true
+  }
+  // Then it should be normal string
+  return false
+}
+//---------------------------------------
 export async function LoadTiLinkedObj(
   obj={}, 
   {dynamicPrefix, dynamicAlias}={}
@@ -15,7 +28,7 @@ export async function LoadTiLinkedObj(
     // String
     if(_.isString(val)) {
       // only link like value should be respected
-      if(!/^(@[A-Za-z0-9_-]+:?|\.\/)/.test(val)) {
+      if(!isTiLink(val)) {
         return
       }
       ps.push(new Promise((resolve, reject)=>{
@@ -36,7 +49,7 @@ export async function LoadTiLinkedObj(
       for(let i=0; i<val.length; i++) {
         let v = val[i];
         // only link like value should be respected
-        if(!_.isString(v) || !/^(@[A-Za-z0-9_-]+:?|\.\/)/.test(v)) {
+        if(!_.isString(v) || !isTiLink(v)) {
           continue
         }
         ps.push(new Promise((resolve, reject)=>{

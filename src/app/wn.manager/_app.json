@@ -23,13 +23,10 @@
       }      
     }
   }],
-  "__methods" : {
-    "reloadMain" : "./reload-main.mjs"
-  },
-  "mixins" : ["./wn-manager.mjs"],
+  "mixins" : ["!mjs:./wn-manager.mjs"],
   "store" : {
     "state" : "./store-root.json",
-    "mixins" : ["./store-root.mjs"],
+    "mixins" : ["!mjs:./store-root.mjs"],
     "modules" : {
       "viewport" : "@mod:ti/viewport", 
       "session"  : "@mod:wn/session", 
