@@ -82,14 +82,9 @@ export default {
   computed : {
     //--------------------------------------
     topClass() {
-      let klass = []
-      if(this.className) {
-        klass.push(this.className)
-      }
-      if(this.dropOpened) {
-        klass.push("is-drop-opened")
-      }
-      return klass
+      return Ti.Css.mergeClassName({
+        "is-drop-opened" : this.dropOpened
+      }, this.className)
     },
     //--------------------------------------
     formedList() {

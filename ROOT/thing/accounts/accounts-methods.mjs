@@ -43,7 +43,7 @@ export default {
     // 准备重置密码的命令列表
     let cmds = []
     for(let acc of accounts) {
-      cmds.push(`passwd "${passwd}" -u id:${acc.id}`)
+      cmds.push(`www passwd ~/www "${passwd}" -u id:${acc.id}`)
     }
     let cmdText = cmds.join(";\n")
     
