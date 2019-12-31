@@ -170,6 +170,9 @@ export const TiDom = {
     }
   },
   hasClass($el, ...classNames) {
+    if(!_.isElement($el)) {
+      return false
+    }
     for(let klass of classNames) {
       if(!$el.classList.contains(klass))
         return false

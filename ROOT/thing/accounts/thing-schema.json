@@ -1,0 +1,176 @@
+{
+  "methods" : "@Home:accounts/accounts-methods.mjs",
+  "filter" : {
+    "comType" : "wn-thing-filter",
+    "comConf" : {
+      "placeholder" : "请输入账号名过滤",
+      "status" : "=status"
+    }
+  },
+  "list" : {
+    "comType" : "wn-table",
+    "comConf" : {
+      "list" : "=search.list",
+      "changedId"  : "=changedRowId",
+      "currentId"  : "=search.currentId",
+      "checkedIds" : "=search.checkedIds",
+      "border" : true,
+      "checkable" : true,
+      "multi"  : true,
+      "fields" : [{
+        "title" : "账户",
+        "display" : ["@<thumb:zmdi-account>", "nickname", "nm"]
+      }, {
+        "title" : "角色",
+        "display" : {
+          "key"  : "role",
+          "dict" : "Roles"
+        }
+      }, {
+        "title" : "性别",
+        "display" : {
+          "key" : "sex",
+          "transformer" : {
+            "name" : "toStr",
+            "args" : {
+              "1" : "男", "2" : "女"
+            }
+          }
+        }
+      }]
+    }
+  },
+  "pager" : {
+    "comType" : "ti-paging-jumper",
+    "comConf" : {
+      "data" : "=search.pager"
+    }
+  },
+  "creator" : {
+    "comType" : "wn-thing-creator",
+    "comConf" : {
+      "config" : {
+        "fields" : [{
+          "name" : "nickname",
+          "title" : "用户昵称",
+          "comType" : "ti-input",
+          "comConf" : {}
+        }]
+      },
+      "data" : {
+        "th_nm" : "新用户"
+      }
+    }
+  },
+  "meta" : {
+    "comType" : "wn-obj-form",
+    "comConf" : {
+      "data"   : "=current.meta",
+      "status" : "=current.status",
+      "fieldStatus" : "=current.fieldStatus",
+      "config" : {
+        "fields" : [{
+            "title"  : "ID",
+            "name"   : "id"
+          }, {
+            "title"   : "头像",
+            "name"    : "thumb",
+            "checkEquals" : false,
+            "serializer" : {
+              "name" : "toStr",
+              "args" : "id:${id}"
+            },
+            "comType" : "wn-imgfile",
+            "comConf" : {
+              "target" : "=curentThumbTarget",
+              "filter" : "cover(256,256)"
+            }
+          }, {
+            "title"   : "用户昵称",
+            "name"    : "nickname",
+            "comType" : "ti-input"
+          },{
+            "title"   : "登录名",
+            "name"    : "nm",
+            "comType" : "ti-input"
+          },{
+            "title"   : "手机号",
+            "name"    : "phone",
+            "comType" : "ti-input"
+          },{
+            "title"   : "邮箱",
+            "name"    : "email",
+            "comType" : "ti-input"
+          },{
+            "title"   : "角色",
+            "name"    : "role",
+            "comType" : "ti-switcher",
+            "comConf" : {
+              "options" : {
+                "method" : "Wn.Dict.getAll",
+                "args" : ["Roles"]
+              },
+              "mapping" : {
+                "value" : "nm",
+                "text"  : "th_nm"
+              }
+            }
+          },{
+            "title"   : "性别",
+            "name"    : "sex",
+            "type"    : "Integer",
+            "comType" : "ti-switcher",
+            "comConf" : {
+              "options" : [
+                {"icon":"fas-mars",  "value":1, "text":"男"},
+                {"icon":"fas-venus", "value":2, "text":"女"}]
+            }
+          },{
+            "title"   : "国家",
+            "name"    : "country",
+            "comType" : "ti-input"
+          },{
+            "title"   : "省/市",
+            "name"    : "province",
+            "comType" : "ti-input"
+          },{
+            "title"   : "城市/区",
+            "name"    : "city",
+            "comType" : "ti-input"
+          },{
+            "title"   : "微信OpenID",
+            "name"    : "wx_gh_strato"
+          },{
+            "title"   : "最后登录",
+            "name"    : "login",
+            "type"    : "DateTime"
+          }]
+      },
+      "updateBy" : {
+        "method" : "dispatch",
+        "target" : "main/updateCurrent"
+      },
+      "setFieldStatusBy" : {
+        "method" : "commit",
+        "target" : "main/current/setMetaFieldStatus"
+      }
+    }
+  },
+  "content" : {
+    "comType" : "wn-obj-puretext",
+    "comConf" : {
+      "showTitle"    : false,
+      "meta"         : "=current.meta",
+      "content"      : "=current.content",
+      "savedContent" : "=current.__saved_content",
+      "contentType"  : "=current.contentType",
+      "status"       : "=current.status"
+    }
+  },
+  "files" : {
+    "comType" : "wn-thing-files",
+    "comConf" : {
+      "..." : "=files"
+    }
+  }
+}

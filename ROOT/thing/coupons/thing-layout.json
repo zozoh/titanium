@@ -1,0 +1,55 @@
+{
+  "shown" : {
+    "search"  : true,
+    "meta"    : true,
+    "content" : false,
+    "files"   : false
+  },
+  "listOpen" : {
+    "content" : true,
+    "files"   : true
+  },
+  "desktop" : {
+    "type" : "cols",
+    "border" : true,
+    "blocks" : [{
+      "name" : "search",
+      "size" : "50%",
+      "type" : "rows",
+      "border" : true,
+      "blocks" : [{
+          "name" : "filter",
+          "size" : 50,
+          "body" : "filter"
+        }, {
+          "name" : "list",
+          "size" : "stretch",
+          "overflow" : "hidden",
+          "body" : "list"
+        }, {
+          "name" : "pager",
+          "size" : "auto",
+          "body" : "pager"
+        }]
+    }, {
+      "name"  : "meta",
+      "title" : "优惠券属性",
+      "icon"  : "zmdi-info",
+      "size"  : "stretch",
+      "body"  : "meta"
+    }],
+    "panels" : [{
+      "name" : "creator",
+      "title" : "i18n:thing-create",
+      "icon"  : "zmdi-flare",
+      "body" : "creator",
+      "position" : "top",
+      "width"  : "61.8%",
+      "mask"   : true,
+      "closer" : "bottom",
+      "status" : "=status"
+    }]
+  },
+  "tablet" : "desktop",
+  "phone" : "desktop"
+}

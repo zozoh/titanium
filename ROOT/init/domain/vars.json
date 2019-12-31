@@ -1,0 +1,22 @@
+{
+  "domain"          : "titanium",
+  "domainName"      : "Ti测试",
+  "wxOpenName"      : "wxlogin", 
+  "wxOpenAppId"     : "wx43..",
+  "wxOpenAppSecret" : "3c..69", 
+  "wxGhName"        : "titanium", 
+  "wxAppId"         : "wx68..",
+  "wxAppSecret"     : "5e..c9",
+  "wxPayMchId"      : "19..82",
+  "wxPayKey"        : "am..6q",
+  "smsKey"          : "9a..c4",
+  "smtpHost"        : "smtp.qq.com", 
+  "smtpPort"        : 25, 
+  "smtpAccount"     : "abc@xx.com", 
+  "smtpAlias"       : "abc", 
+  "smtpPasswd"      : "123456",
+  "zfbName"         : "titanium", 
+  "zfbSellerEmail"  : "xx@xx.xx",
+  "zfbPartner"      : "20..36",
+  "zfbKey"          : "kt..o9"
+}

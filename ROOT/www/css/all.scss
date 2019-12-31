@@ -1,0 +1,51 @@
+//------------------------------------------------
+.site-main {
+  height:100%;
+}
+//------------------------------------------------
+html[as="tablet"] .site-main,
+html[as="phone"]  .site-main {
+  overflow-x:hidden;
+}
+//------------------------------------------------
+a {
+  text-decoration: none;
+  color:#ff4081;
+}
+//------------------------------------------------
+.site-page {
+  height:100%;
+}
+//------------------------------------------------
+.page-block {
+  > section {
+    max-width: 1000px; margin:0 auto;
+    padding:0 .15rem;
+  }
+}
+//------------------------------------------------
+.page-sky {
+  background:#444; color:#CCC;
+  > section {
+    padding: 0 .14rem;
+  }
+  a {
+    color:#FFF;
+    &:hover {color:#FF0;}
+  }
+}
+//------------------------------------------------
+.page-wall-card {
+  padding:.1rem 0 .4rem 0;
+  &.is-only-one-row {
+    justify-content: space-between;
+  }
+  > .wall-tile {
+    padding:.1rem;
+  }
+}
+//------------------------------------------------
+.ti-web-heading {
+  border-bottom-color: #F80;
+}
+//------------------------------------------------

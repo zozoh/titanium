@@ -49,7 +49,7 @@ export default {
       let vm = this
       let $t = vm.$refs.text
       let txt = $t.value
-      vm.$emit("change-content", txt)
+      vm.$emit("changed", txt)
     }
   },
   created() {

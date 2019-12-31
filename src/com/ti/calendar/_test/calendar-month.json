@@ -7,7 +7,7 @@
     "matrixMode" : "monthly",
     "matrixCount" : 1
   },
-  "comEvents" : {
+  "dispatchActions" : {
     "changed" : {
       "action" : "updatePair",
       "payload" : {

@@ -1,0 +1,23 @@
+{
+  "prefix" : {
+    "Home" : "/o/content?str=~/"
+  },
+  "alias" : {
+  },
+  "lang" : "zh-cn",
+  "i18n" : "@Home:.ti/i18n/all",
+  "dictionary" : {
+    "AccountName" : {
+      "mode"  : "item",
+      "query" : "thing ~/accounts get '${val}' -e '^(id|th_nm)$' -cqn",
+      "key"   : "=id",
+      "value" : "=th_nm"
+    },
+    "Roles" : {
+      "mode"  : "list",
+      "query" : "thing ~/roles query -sort 'th_sort:1' -e '^(th_nm|nm)' -cqn",
+      "key"   : "=nm",
+      "value" : "=th_nm"
+    }
+  }
+}

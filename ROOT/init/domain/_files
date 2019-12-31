@@ -1,0 +1,551 @@
+##########################################################
+#
+# 初始化文件:
+# mkdir ~/.domain
+# cp /mnt/ti/ROOT/init/domain/vars.json ~/.domain/
+# cat ~/.domain/vars.json | app init /mnt/ti/ROOT/init/domain ~
+#
+# 其中 ~/.domain/vars.jsson 作为上下文，保存一些关键敏感信息，格式可以看本目录下的例子
+#
+##########################################################
+# 管理界面配置(pc_tmpl.html通过 `ti config` 读取)
+@DIR .ti/
+{
+  ln : "/mnt/ti/ROOT/_ti/"
+}
+# 域配置
+@DIR .domain/
+{
+  title : "系统设置",
+  icon  : "zmdi-settings-square"
+}
+# 支付单完成后的订单同步代码
+@FILE .domain/payment/after
+%COPY:
+www payafter ${or_id}
+%END%
+##########################################################
+#
+#                      API 部分
+#
+##########################################################
+# API(thing): 缩略图
+@FILE .regapi/api/thumb
+{
+  "http-dynamic-header": true
+}
+%COPY:
+httpout -body `obj ${http-qs} -V -e "^thumb$"` \
+  -etag  '${http-header-IF-NONE-MATCH?none}' \
+  -range '${http-header-RANGE?}'
+%END%
+#---------------------------------------------------------
+# API(thing): 数据集列表
+@FILE .regapi/api/thing/query
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+thing ${http-qs-ts} query  -cqn -pager
+%END%
+#---------------------------------------------------------
+# API(thing): 数据集对象详情
+@FILE .regapi/api/thing/get
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+thing `obj id:${http-qs-id} -e "th_set" -V` get ${http-qs-id} -full -cqn
+%END%
+#---------------------------------------------------------
+# API(thing): 媒体内容
+@FILE .regapi/api/thing/media
+{
+  "http-dynamic-header": true
+}
+%COPY:
+thing ${http-qs-ts} media ${http-qs-id} -cat '${http-qs-fnm}' \
+    -etag  '${http-header-IF-NONE-MATCH?none}' \
+    -range '${http-header-RANGE?}' \
+    -download '${http-qs-d<boolean>?false}' \
+    -UserAgent '${http-header-USER-AGENT?}'
+%END%
+#---------------------------------------------------------
+# API(weixin): 微信响应
+@FILE .regapi/api/weixin/in
+%COPY:
+weixin zozoh in id:${id}
+%END%
+#---------------------------------------------------------
+# API(auth): 微信重定向跳板
+@FILE .regapi/api/weixin/oauth2_gh
+{
+   "http-resp-code": 302
+}
+%TMPL:
+weixin zozoh oauth2 \
+  "http://${hostAndPort}/www/${domain}/page/$${http-qs-page?home}" \
+  -scope ${http-qs-scope?snsapi_userinfo}
+%END%
+#---------------------------------------------------------
+# API(auth): 取得当前账户
+@FILE .regapi/api/auth/checkme
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+www checkme id:${http-qs-site?unkonw} ${http-qs-ticket?-nil-} -ajax -cqn
+%END%
+#---------------------------------------------------------
+# API(auth): 微信自动登录
+@FILE .regapi/api/auth/login_by_wxcode
+{
+   "http-header-Content-Type" : "text/json",
+}
+%COPY:
+httpparam -in id:${id} \
+  | run www auth id:$${site?} $${code?} -wxcode -ajax -cqn
+%END%
+#---------------------------------------------------------
+# API(auth): 账号密码登录
+@FILE .regapi/api/auth/login_by_passwd
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+httpparam -in id:${id} \
+  | run www auth id:$${site?} $${name?} -p $${passwd?} -ajax -cqn
+%END%
+#---------------------------------------------------------
+# API(auth): 短信密码登录
+@FILE .regapi/api/auth/login_by_phone
+{
+   "http-header-Content-Type" : "text/json",
+}
+%COPY:
+httpparam -in id:${id} \
+  | run www auth id:$${site?} $${name?} -scene $${scene?auth} -v $${vcode?} \
+    -ajax -cqn
+%END%
+#---------------------------------------------------------
+# API(auth): 绑定手机/邮箱
+@FILE .regapi/api/auth/bind_account
+{
+   "http-header-Content-Type" : "text/json",
+}
+%COPY:
+httpparam -in id:${id} \
+  | run www auth id:$${site?} $${name?} -scene $${scene?auth} -v $${vcode?} \
+    -ticket $${ticket?-nil-} \
+    -ajax -cqn
+%END%
+#---------------------------------------------------------
+# API(auth): 获取短信验证码
+@FILE .regapi/api/auth/get_sms_vcode
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+www captcha id:${http-qs-site} ${http-qs-scene?auth} ${http-qs-account?} \
+  -cap ${http-qs-captcha} \
+  -as sms -du 5 \
+  -ajax -cqn
+%END%
+#---------------------------------------------------------
+# API(auth): 获取邮箱验证码
+@FILE .regapi/api/auth/get_email_vcode
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+www captcha id:${http-qs-site} ${http-qs-scene?auth} ${http-qs-account?} \
+  -cap ${http-qs-captcha} \
+  -as email -du 20 \
+  -ajax -cqn
+%END%
+#---------------------------------------------------------
+# API(auth): 获取图形验证码
+@FILE .regapi/api/auth/captcha
+{
+   "http-header-Content-Type" : "image/png"
+}
+%COPY:
+www captcha id:${http-qs-site} ${http-qs-scene?robot} ${http-qs-account?} \
+  -size ${http-qs-size?100x50} \
+  -as png
+%END%
+#---------------------------------------------------------
+# API(auth): 注销会话
+@FILE .regapi/api/auth/logout
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+www logout id:${http-qs-site?unkonw} ${http-qs-ticket?-nil-} -ajax -cqn
+%END%
+#---------------------------------------------------------
+# API : 支付:创建订单和支付单
+@FILE .regapi/api/pay/buy
+%COPY:
+cat id:${id} | www buy ~/www \
+  -upick '{wx_gh_strato:"wx_openid"}' \
+  -cqn -ajax -ticket "${http-qs-ticket}"
+%END%
+#---------------------------------------------------------
+# API : 支付:检查订单支付状态
+@FILE .regapi/api/pay/check_order
+%COPY:
+www paycheck "${http-qs-id}" -cqn
+%END%
+#---------------------------------------------------------
+# API : 支付:支付宝回调
+@FILE .regapi/api/pay/re_zfb
+%COPY:
+httpparam -in id:${id} | pay re -idkey out_trade_no -s
+%END%
+#---------------------------------------------------------
+# API : 支付:微信回调
+@FILE .regapi/api/pay/re_wx
+%COPY:
+xml tojson id:${id} | pay re -idkey out_trade_no -s
+%END%
+##########################################################
+#
+#                     普通测试目录
+#
+##########################################################
+@DIR .tmp/
+@DIR media/
+{
+  title : "媒体目录"
+}
+##########################################################
+#
+#                     组件测试目录
+#
+##########################################################
+@DIR demo/
+{
+  title : "控件Demo",
+  icon: "zmdi-steam"
+}
+#---------------------------------------------------------
+@FILE demo/calendar-month.wncom
+{
+  com: "/rs/ti/com/ti/calendar/_test/calendar-month.json"
+}
+#---------------------------------------------------------
+@FILE demo/form-color.wncom
+{
+  com: "/rs/ti/com/ti/form/_test/form-color.json"
+}
+#---------------------------------------------------------
+@FILE demo/form-combo-box.wncom
+{
+  com: "/rs/ti/com/ti/form/_test/form-combo-box.json"
+}
+#---------------------------------------------------------
+@FILE demo/form-datetime.wncom
+{
+  com: "/rs/ti/com/ti/form/_test/form-datetime.json"
+}
+#---------------------------------------------------------
+@FILE demo/form-input-tags.wncom
+{
+  com: "/rs/ti/com/ti/form/_test/form-input-tags.json"
+}
+#---------------------------------------------------------
+@FILE demo/form form0.wncom
+{
+  com: "/rs/ti/com/ti/form/_test/form0.json"
+}
+#---------------------------------------------------------
+@FILE demo/wizard-0.wncom
+{
+  com: "/rs/ti/com/ti/wizard/_test/wizard_0.json"
+}
+##########################################################
+#
+#                     站点·数据部分
+#
+##########################################################
+# 数据:静态文章列表
+@DIR articles/
+{
+  title : "静态文章"
+  th_auto_select: true,
+  tp : "thing_set",
+  icon : "fas-book-reader"
+}
+#---------------------------------------------------------
+@FILE articles/thing-actions.json
+{
+  ln : "/mnt/ti/ROOT/thing/articles/thing-actions.json"
+}
+#---------------------------------------------------------
+@FILE articles/thing-layout.json
+{
+  ln : "/mnt/ti/ROOT/thing/articles/thing-layout.json"
+}
+#---------------------------------------------------------
+@FILE articles/thing-schema.json
+{
+  ln : "/mnt/ti/ROOT/thing/articles/thing-schema.json"
+}
+#---------------------------------------------------------
+# 数据:产品
+@DIR products/
+{
+  title : "产品"
+  th_auto_select: true,
+  tp : "thing_set",
+  icon : "fas-tablet-alt"
+}
+#---------------------------------------------------------
+@FILE products/thing-actions.json
+{
+  ln : "/mnt/ti/ROOT/thing/products/thing-actions.json"
+}
+#---------------------------------------------------------
+@FILE products/thing-layout.json
+{
+  ln : "/mnt/ti/ROOT/thing/products/thing-layout.json"
+}
+#---------------------------------------------------------
+@FILE products/thing-schema.json
+{
+  ln : "/mnt/ti/ROOT/thing/products/thing-schema.json"
+}
+#---------------------------------------------------------
+# 数据:订单
+@DIR orders/
+{
+  title : "订单库"
+  tp : "thing_set",
+  th_auto_select: true,
+  icon : "fas-database"
+}
+#---------------------------------------------------------
+@FILE orders/thing-actions.json
+{
+  ln : "/mnt/ti/ROOT/thing/orders/thing-actions.json"
+}
+#---------------------------------------------------------
+@FILE orders/thing-layout.json
+{
+  ln : "/mnt/ti/ROOT/thing/orders/thing-layout.json"
+}
+#---------------------------------------------------------
+@FILE orders/thing-schema.json
+{
+  ln : "/mnt/ti/ROOT/thing/orders/thing-schema.json"
+}
+#---------------------------------------------------------
+# 数据:优惠券
+@DIR coupons/
+{
+  title : "优惠券库"
+  tp : "thing_set",
+  th_auto_select: true,
+  icon : "fas-ticket-alt"
+}
+#---------------------------------------------------------
+@FILE coupons/thing-actions.json
+{
+  ln : "/mnt/ti/ROOT/thing/coupons/thing-actions.json"
+}
+#---------------------------------------------------------
+@FILE coupons/thing-layout.json
+{
+  ln : "/mnt/ti/ROOT/thing/coupons/thing-layout.json"
+}
+#---------------------------------------------------------
+@FILE coupons/thing-schema.json
+{
+  ln : "/mnt/ti/ROOT/thing/coupons/thing-schema.json"
+}
+#---------------------------------------------------------
+# 数据:用户
+@DIR accounts/
+{
+  title : "用户库"
+  tp : "thing_set",
+  th_auto_select: true,
+  icon : "fas-address-book"
+}
+#---------------------------------------------------------
+@FILE accounts/thing-actions.json
+{
+  ln : "/mnt/ti/ROOT/thing/accounts/thing-actions.json"
+}
+#---------------------------------------------------------
+@FILE accounts/thing-layout.json
+{
+  ln : "/mnt/ti/ROOT/thing/accounts/thing-layout.json"
+}
+#---------------------------------------------------------
+@FILE accounts/thing-schema.json
+{
+  ln : "/mnt/ti/ROOT/thing/accounts/thing-schema.json"
+}
+#---------------------------------------------------------
+@FILE accounts/accounts-methods.mjs
+{
+  ln : "/mnt/ti/ROOT/thing/accounts/accounts-methods.mjs"
+}
+#---------------------------------------------------------
+# 数据:角色
+@DIR roles/
+{
+  title : "角色库"
+  tp : "thing_set",
+  th_auto_select: true,
+  icon : "far-smile"
+}
+#---------------------------------------------------------
+@FILE roles/thing-actions.json
+{
+  ln : "/mnt/ti/ROOT/thing/roles/thing-actions.json"
+}
+#---------------------------------------------------------
+@FILE roles/thing-layout.json
+{
+  ln : "/mnt/ti/ROOT/thing/roles/thing-layout.json"
+}
+#---------------------------------------------------------
+@FILE roles/thing-schema.json
+{
+  ln : "/mnt/ti/ROOT/thing/roles/thing-schema.json"
+}
+#---------------------------------------------------------
+@FILE roles/account-actions.mjs
+{
+  ln : "/mnt/ti/ROOT/thing/roles/account-actions.mjs"
+}
+##########################################################
+#
+#                     站点·功能部分
+#
+##########################################################
+@DIR www/
+{
+  title : "${domainName}"
+  icon : "im-chrome",
+  ln : "/mnt/ti/ROOT/www",
+  www : "ROOT",
+  www_pages: "index.wnml:page/*",
+  accounts : "~/accounts",
+  roles    : "~/roles",
+  orders   : "~/orders",
+  products : "~/products",
+  coupons  : "~/coupons",
+  env : {
+    "THEME" : "dark",
+    "PATH"  : "/bin:/sbin:~/bin",
+    "OPEN"  : "wn.manager",
+    "APP_PATH"  : "/rs/ti/app:/app",
+    "QUIT"      : "/www/strato_website",
+    "VIEW_PATH" : "/rs/ti/view/",
+    "SIDEBAR_PATH" : "~/.ti/user_sidebar.json"
+  },
+  sellers : {
+    wx  : "${wxGhName}",
+    zfb : "${zfbName}"
+  },
+  se_dft_du : 86400,
+  se_tmp_du : 60
+}
+##########################################################
+# 支付宝的配置信息
+@FILE .alipay/${zfbName}/alipayconf
+%TMPL:
+{
+  "seller_email" : "${zfbSellerEmail}",
+  "partner" : "${zfbPartner}",
+  "key" : "${zfbKey}",
+  "pay_notify_url": "http://${hostAndPort}/api/${domain}/pay/re_zfb"
+}
+%END% 
+
+##########################################################
+# 微信的配置信息
+@FILE .weixin/${wxGhName}/wxconf
+%TMPL:
+{
+  "appID": "${wxAppId}",
+  "appsecret": "${wxAppSecret}",
+  "pay_mch_id" : "${wxPayMchId}",
+  "pay_key" : "${wxPayKey}",
+  "pay_notify_url": "http://${hostAndPort}/api/${domain}/pay/re_wx"
+}
+%END% 
+
+##########################################################
+# 微信的开放平台配置信息
+@FILE .weixin/${wxOpenName}/wxconf
+%TMPL:
+{
+  "appID": "${wxOpenAppId}",
+  "appsecret": "${wxOpenAppSecret}"
+}
+%END% 
+
+##########################################################
+# 短信的配置信息
+@FILE .sms/config_Yunpian
+%TMPL:
+{
+  "apikey" : "${smsKey}",
+  "header" : "【${domainName}服务】",
+  "lang"   : "zh-cn",
+}
+%END%
+#.........................................................
+# 验证码模板: 注册新用户
+@FILE .sms/i18n/zh-cn/signup
+%TMPL:
+您的验证码是 $${code}。有效期为 $${min} 分钟，感谢您使用${domainName}服务 ^_^
+%END%
+#.........................................................
+# 验证码模板: 找回密码
+@FILE .sms/i18n/zh-cn/passwdback
+%TMPL:
+您的验证码是 $${code}。有效期为 $${min} 分钟，感谢您使用${domainName}服务 ^_^
+%END%
+
+##########################################################
+# 邮件的配置信息
+@FILE .email/config_default
+%TMPL:
+{
+  "host"     : "${smtpHost}",
+  "port"     : ${smtpPort},
+  "account"  : '${smtpAccount}',
+  "from"     : "${domainName}",         
+  "alias"    : '${smtpAlias}',
+  "password" : '${smtpPasswd}',
+  "lang"     : "zh-cn",
+  "ssl"      : true
+}
+%END%
+#.........................................................
+# 验证码模板: 注册新用户
+@FILE .email/i18n/zh-cn/signup
+%TMPL:
+您的验证码是 $${code}。有效期为 $${day} 天，请在注册界面输入您的验证码，感谢您使用${domainName}服务 ^_^
+%END%
+#.........................................................
+# 验证码模板: 找回密码
+@FILE .email/i18n/zh-cn/passwdback
+%TMPL:
+您的验证码是 $${code}。有效期为 $${day} 天，请在注册界面输入您的验证码，感谢您使用${domainName}服务 ^_^
+%END%
+#.........................................................
+# 各个场景的邮件标题
+@FILE .email/i18n/zh-cn/_subjects
+%TMPL:
+{
+  "signup"     : "「验证码」注册${domainName}用户",
+  "passwdback" : "「验证码」找回${domainName}用户密码"
+}
+%END%

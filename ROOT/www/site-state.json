@@ -1,0 +1,260 @@
+{
+  "utils" : {
+    "www" : "@lib:www/util/www-utils.mjs"
+  },
+  "apis" : {
+    "thing-query" : {
+      "title"  : "数据集·分页查询",
+      "path"   : "thing/query",
+      "method" : "GET",
+      "params" : {
+        "ts" : {
+          "type"  : "Object",
+          "value" : "=page.params.ts"
+        },
+        "m"  : {
+          "type"  : "Object",
+          "value" : {}
+        },
+        "s"  : {
+          "type" : "Object",
+          "value" : {}
+        },
+        "skip"  : {
+          "type"  : "Integer",
+          "value" : 0
+        },
+        "limit" : {
+          "type"  : "Integer",
+          "value" : 20
+        }
+      }
+    },
+    "thing-get" : {
+      "title"  : "数据集·获取详情",
+      "path"   : "thing/get",
+      "method" : "GET",
+      "params" : {
+        "id" : {
+          "type"  : "String",
+          "value" : "=page.params.id"
+        }
+      }
+    },
+    "pay-buy" : {
+      "title"  : "创建订单",
+      "path"   : "pay/buy",
+      "method" : "POST",
+      "params" : {
+        "ticket" : {
+          "type"  : "String",
+          "value" : "=auth.ticket"
+        }
+      },
+      "body" : {
+        "data" : {
+          "products" : "=page.data.items",
+          "pay_tp" : "=page.data.payType"
+        },
+        "type" : "json"
+      },
+      "preloaded" : false,
+      "dataKey" : "order"
+    },
+    "pay-check" : {
+      "title"  : "检查订单支付状态",
+      "path"   : "pay/check_order",
+      "method" : "GET",
+      "params" : {
+        "id" : {
+          "type"  : "String",
+          "value" : "=page.data.order.data.id"
+        }
+      },
+      "preloaded" : false,
+      "dataKey" : "order.data"
+    }
+  },
+  "domain" : "strato_website",
+  "base" : "/www/strato_website/",
+  "siteId" : null,
+  "logo" : "img/dnet_strato_logo.png",
+  "apiBase" : "/api/strato_website/",
+  "captcha" : "auth/captcha?site=${site}&account=${account}&scene=${scene}",
+  "schema": {
+    "list-desktop" : {
+      "comType" : "ti-wall",
+      "comConf" : {
+        "className" : "page-wall-card",
+        "list" : [],
+        "spacing" : "no",
+        "border"  : false,
+        "itemWidth" : "33%",
+        "comType" : "ti-obj-tile",
+        "comConf" : {
+          "className" : "as-card ti-fill-parent",
+          "preview" : {
+            "__is_function" : true,
+            "name" : "www.genPreviewObj",
+            "args" : [":=item", "thumb", "icon", ":->${apiBase}thumb?id:$${id}"]
+          },
+          "previewHeight" : "2.4rem",
+          "hover" : "up",
+          "href" : {
+            "__is_function" : true,
+            "name" : "www.genLink",
+            "args" : [":=item", ":->${base}page/plan_$${id}.html"]
+          },
+          "emitBy" : {
+            "eventName" : "nav:to",
+            "payload" : {
+              "value" : {
+                "__is_function" : true,
+                "name" : "www.genLink",
+                "args" : [":=item", ":->page/plan_$${id}.html"]
+              }
+            }
+          },
+          "title" : ":=item.th_nm",
+          "brief" : ":=item.brief"
+        },
+        "selectable" : false,
+        "blurable" : false
+      }
+    }
+  },
+  "blocks" : {
+    "desktop" : {
+      "sky" : {
+        "className" : "page-block page-sky",
+        "size" : ".6rem",
+        "type" : "cols",
+        "blocks" : [{
+            "size" : "auto",
+            "body" : {
+              "comType" : "ti-icon",
+              "comConf" : {
+                "value" : "=siteLogo",
+                "height" : ".32rem"
+              }
+            }
+          },{
+            "body" : {
+              "comType" : "ti-nav-links",
+              "comConf" : {
+                "base" : "=base",
+                "data" : "=siteNavigation",
+                "space" : "loose",
+                "align" : "right",
+                "border" : "dotted"
+              }
+            }
+          }, {
+            "size" : "auto",
+            "body" : {
+              "comType" : "ti-web-session-badge",
+              "comConf" : {
+                "me" : "=auth.me",
+                "nameKeys" : "th_nm",
+                "avatarKey" : "thumb",
+                "avatarSrc" : "->${apiBase}thumb?id:$${id}",
+                "links" : [{
+                  "icon" : "im-soundcloud",
+                  "href" : "->/a/auth_by_domain?site=${siteId}&ticket=${auth.ticket}",
+                  "text" : "视云后台"
+                }]
+              }
+            }
+          }]
+      },
+      "footer" : {
+        "className" : "page-footer",
+        "size" : "auto",
+        "body" : {
+          "comType" : "ti-web-footer",
+          "comConf" : {
+            
+          }
+        }
+      },
+      "login" : {
+        "name" : "login",
+        "body" : {
+          "comType" : "ti-combo-auth",
+          "comConf" : {
+            "mode"    : "=siteLoginMode",
+            "captcha" : "=siteCaptcha"
+          }
+        },
+        "position" : "center",
+        "width"   : 360,
+        "height"  : 480,
+        "mask"    : true,
+        "closer"  : "bottom"
+      }
+    }
+  },
+  "nav" : [{
+      "title" : "首页",
+      "type"  : "page",
+      "value" : "page/home"
+    }, {
+      "title" : "产品",
+      "type"  : "page",
+      "value" : "page/products"
+    }, {
+      "title" : "场景",
+      "type"  : "page",
+      "value" : "page/scenes"
+    }, {
+      "title" : "案例",
+      "type"  : "page",
+      "value" : "page/cases"
+    }, {
+      "title" : "方案",
+      "type"  : "page",
+      "value" : "page/plans"
+    }, {
+      "title" : "关于",
+      "type"  : "page",
+      "value" : "page/about"
+    }],
+  "router" : [{
+      "match" : "^page/([^_]+)_([^.]+).html",
+      "params" : {
+        "name" : 1,
+        "id"   : 2
+      },
+      "page"  : "page/${name}"
+    }, {
+      "match" : "^page/([^.]+).html",
+      "params" : {
+        "name" : 1
+      },
+      "page"  : "page/${name}"
+    }],
+  "entry" : "page/home.html",
+  "loading" : false,
+  "isReady" : false,
+  "actions" : {
+    "@page:ready" : [{
+      "action" : "auth/autoCheckmeOrAuthByWxghCode",
+      "playload" : {
+        "codeKey" : "code",
+        "force" : false
+      }
+    }],
+    "do:login" : {
+      "action"  : "page/showBlock",
+      "payload" : "login"
+    },
+    "do:logout" : "auth/doLogout",
+    "login.get:vcode" : "auth/doGetVcode",
+    "login.auth:send" : "auth/doAuth",
+    "login.auth:ok" : {
+      "action" : "page/hideBlock",
+      "payload" : "login"
+    },
+    "nav:to" : "navTo"
+  }
+}

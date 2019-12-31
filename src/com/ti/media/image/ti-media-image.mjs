@@ -1,16 +1,20 @@
 const resize = function(evt){
   this.doResizeImage()
 }
-//-----------------------------------
+/////////////////////////////////////
 export default {
+  ///////////////////////////////////
   inheritAttrs : false,
+  ///////////////////////////////////
   data: ()=>({
     naturalWidth  : -1,
     naturalHeight : -1,
     fitMode  : "none",
     imgLoading : true
   }),
+  ///////////////////////////////////
   props : {
+    "className" : null,
     "src" : {
       type : String,
       default : null
@@ -24,14 +28,15 @@ export default {
       default : ""
     }
   },
+  ///////////////////////////////////
   computed : {
     topClass() {
-      return {
-        "as-fitmode-none"        : this.fitMode=="none",
-        "as-fitmode-cover"       : this.fitMode=="cover",
-        "as-fitmode-contain"     : this.fitMode=="contain",
+      return Ti.Css.mergeClassName({
+        "as-fitmode-none"    : this.fitMode=="none",
+        "as-fitmode-cover"   : this.fitMode=="cover",
+        "as-fitmode-contain" : this.fitMode=="contain",
         "is-img-loading" : this.imgLoading
-      }
+      }, this.className)
     },
     topStyle() {
       return {
@@ -40,6 +45,7 @@ export default {
       }
     }
   },
+  ///////////////////////////////////
   methods : {
     onImageLoaded() {
       let $img = this.$refs.the_image
@@ -87,10 +93,13 @@ export default {
       }
     }
   },
+  ///////////////////////////////////
   mounted : function(){
     Ti.Viewport.watch(this, {resize})
   },
+  ///////////////////////////////////
   beforeDestroy : function(){
     Ti.Viewport.unwatch(this)
   }
+  ///////////////////////////////////
 }

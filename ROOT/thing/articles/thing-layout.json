@@ -1,0 +1,64 @@
+{
+  "shown" : {
+    "search"  : true,
+    "meta"    : true,
+    "content" : true,
+    "files"   : true
+  },
+  "desktop" : {
+    "type" : "cols",
+    "border" : true,
+    "blocks" : [{
+      "name" : "search",
+      "size" : "30%",
+      "type" : "rows",
+      "border" : true,
+      "blocks" : [{
+          "name" : "filter",
+          "size" : 50,
+          "body" : "filter"
+        }, {
+          "name" : "list",
+          "size" : "stretch",
+          "overflow" : "hidden",
+          "body" : "list"
+        }, {
+          "name" : "pager",
+          "size" : "auto",
+          "body" : "pager"
+        }]
+    }, {
+      "name" : "info",
+      "size" : "40%",
+      "type" : "tabs",
+      "blocks" : [{
+          "name"  : "meta",
+          "title" : "文章属性",
+          "icon"  : "zmdi-info",
+          "body"  : "meta"
+        }, {
+          "name" : "content",
+          "title" : "文章内容",
+          "icon"  : "zmdi-file-text",
+          "body" : "content"
+        }]
+    }, {
+      "name"  : "files",
+      "size"  : "30%",
+      "body"  : "files"
+    }],
+    "panels" : [{
+      "name" : "creator",
+      "title" : "i18n:thing-create",
+      "icon"  : "zmdi-flare",
+      "body" : "creator",
+      "position" : "top",
+      "width"  : "61.8%",
+      "mask"   : true,
+      "closer" : "bottom",
+      "status" : "=status"
+    }]
+  },
+  "tablet" : "desktop",
+  "phone" : "desktop"
+}

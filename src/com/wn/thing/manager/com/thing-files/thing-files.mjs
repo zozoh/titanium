@@ -75,7 +75,8 @@ export default {
           "type" : "action",
           "icon" : "zmdi-cloud-upload",
           "text" : "i18n:upload",
-          "action" : "commit:main/files/showUploadFilePicker"
+          //"action" : "commit:main/files/showUploadFilePicker"
+          "action" : "main:openLocalFileSelectdDialogToUploadFiles"
         }]
     },
     "stateLocalKey" : {
@@ -145,8 +146,29 @@ export default {
       let app = Ti.App(this)
       app.commit("main/setFilesName", dirName)
       app.dispatch("main/reloadFiles", {force:true})
+    },
+    //--------------------------------------
+    openLocalFileSelectdDialog() {
+      for(let $child of this.$children) {
+        if(Ti.Dom.hasClass($child.$el, "wn-adaptlist")
+           && _.isFunction($child.openLocalFileSelectdDialog)) {
+          $child.openLocalFileSelectdDialog();
+        }
+      }
     }
     //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  mounted : function() {
+    let $p = this.$parent
+    // Find the thing root app
+    while($p && !$p.THING_MANAGER_ROOT) {
+      $p = $p.$parent
+    }
+    // append self
+    if($p && $p.THING_MANAGER_ROOT) {
+      $p.$thingFiles = this
+    }
   }
   ///////////////////////////////////////////
 }

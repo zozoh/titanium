@@ -90,7 +90,6 @@ export async function EditObjMeta(pathOrObj="~", {
     }]
   })
   //................................................
-  // End of OpenObjSelector
   return reObj
 }
 ////////////////////////////////////////////////////

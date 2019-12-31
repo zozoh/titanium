@@ -1,0 +1,165 @@
+{
+  "title" : "创建订单-视云",
+  "apis" : {
+    "PayBuy" : {
+      "apiName" : "pay-buy"
+    },
+    "PayCheck" : {
+      "apiName" : "pay-check"
+    }
+  },
+  "data" : {
+    "current" : 0,
+    "currency" : "RMB",
+    "items" : [
+      {"id":"30a87ogcf6j6jqfcf78r7mj4ha","thumb":"id:vbbidsmvbghj0qjujpe83hm1oo","title":"嵌入式播放器","price":0.1,"amount":1}
+    ],
+    "payType" : "wx.qrcode",
+    "order" : {"ok" : false}
+  },
+  "params" : {
+  },
+  "layout" : {
+    "desktop" : {
+      "type" : "rows",
+      "blocks" : [
+        "@BLOCK(desktop.sky)", 
+        {
+          "className" : "page-block page-arena",
+          "name" : "wizard",
+          "body" : "order-detail"
+        }, 
+        "@BLOCK(desktop.footer)"],
+      "panels" : [
+        "@BLOCK(desktop.login)"]
+    },
+    "tablet" : "desktop",
+    "phone"  : "desktop"
+  },
+  "shown" : {
+    "login" : false
+  },
+  "schema" : {
+    "order-detail" : {
+      "comType" : "ti-wizard",
+      "comConf" : {
+        "current" : "=page.data.current",
+        "steps" : [{
+          "title" : "确认订单",
+          "dataKey" : null,
+          "comType" : "ti-web-meta-order",
+          "comConf" : {
+            "items" : ":=items",
+            "itemThumbSrc" : "/api/strato_website/thumb?id:${id}"
+          },
+          "comEvents" : {
+            "order:submit" : {
+              "emitName" : "order-submit",
+              "nextStep" : "+1"
+            }
+          }
+        }, {
+            "title" : "选择支付方式",
+            "dataKey" : null,
+            "comType" : "ti-web-pay-types",
+            "comConf" : {
+              "value"   : ":=payType",
+              "apiName" : "buy",
+              "orderStatusOk" : ":=order.ok"
+            },
+            "comEvents" : {
+              "changed" : {
+                "emitName" : "pay-choose-type"
+              },
+              "pay-buy" : {
+                "emitName" : "pay-buy"
+              },
+              "pay-ready" : {
+                "nextStep" : "+1"
+              }
+            }
+          }, {
+            "title" : "扫码支付",
+            "dataKey" : null,
+            "comType" : "ti-web-pay-scan",
+            "comConf" : {
+              "watchUser" : "=domain",
+              "items"   : ":=items",
+              "payType" : ":=payType",
+              "orderStatusOk" : ":=order.ok",
+              "orderData"     : ":=order.data",
+              "orderPayment"  : ":=order.data.pay_re"
+            },
+            "comEvents" : {
+              "pay-check" : {
+                "emitName" : "pay-check"
+              },
+              "pay-done" : {
+                "nextStep" : "+1"
+              }
+            }
+          }, {
+            "title" : "完成",
+            "comType" : "ti-web-pay-done",
+            "comConf" : {
+              "items"   : ":=items",
+              "payType" : ":=payType",
+              "orderData"     : ":=order.data"
+            }
+          }],
+        "canClickHeadItem" : null,
+        "data" : "=page.data"
+      }
+    }
+  },
+  "actions" : {
+    "@page:ready" : {
+      "action" : "page/assertPage",
+      "payload" : {
+        "checkList" : [{
+            "target" : "page.data.items",
+            "assert" : "NoEmpty"
+          }, {
+            "target" : "page.data.items[0].title",
+            "assert" : "isString"
+          }, {
+            "target" : "page.data.items[0].price",
+            "assert" : "isNumber"
+          }, {
+            "target" : "page.data.items[0].amount",
+            "assert" : ["inRange", 0, 1000]
+          }],
+        "fail" : {
+          "action"  : "navBackward"
+        }
+      }
+    },
+    "wizard.order-submit" : {
+      "action" : "page/shiftData",
+      "payload" : {
+        "items"    : "=$args.items",
+        "currency" : "=$args.currency"
+      }
+    },
+    "wizard.pay-choose-type" : {
+      "action" : "page/shiftData",
+      "payload" : {
+        "payType"  : "=$args"
+      }
+    },
+    "wizard.pay-buy" : {
+      "action" : "page/reloadData",
+      "payload" : ["PayBuy"]
+    },
+    "wizard.pay-check" : {
+      "action" : "page/reloadData",
+      "payload" : ["PayCheck"]
+    },
+    "wizard.goto-step" : {
+      "action" : "page/shiftData",
+      "payload" : {
+        "current"  : "=$args.index"
+      }
+    }
+  }
+}

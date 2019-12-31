@@ -1,0 +1,45 @@
+{
+  "shown" : {
+    "search"  : true,
+    "meta"    : true,
+    "content" : false,
+    "files"   : false
+  },
+  "listOpen" : {
+    "content" : true,
+    "files"   : true
+  },
+  "desktop" : {
+    "type" : "cols",
+    "border" : true,
+    "blocks" : [{
+      "name" : "search",
+      "size" : "40%",
+      "type" : "rows",
+      "border" : true,
+      "blocks" : [{
+          "name" : "filter",
+          "size" : 50,
+          "body" : "filter"
+        }, {
+          "name" : "list",
+          "size" : "stretch",
+          "overflow" : "hidden",
+          "body" : "list"
+        }, {
+          "name" : "pager",
+          "size" : "auto",
+          "body" : "pager"
+        }]
+    }, {
+      "name"  : "meta",
+      "title" : "订单详情",
+      "icon"  : "fas-money-check-alt",
+      "size"  : "stretch",
+      "body"  : "meta"
+    }],
+    "panels" : []
+  },
+  "tablet" : "desktop",
+  "phone" : "desktop"
+}

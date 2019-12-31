@@ -6,6 +6,7 @@ import Util    from "./wn-util.mjs"
 import Dict    from "./wn-dict.mjs"
 import {OpenObjSelector} from "./wn-open-obj-selector.mjs"
 import {EditObjMeta}     from "./wn-edit-obj-meta.mjs"
+import {EditObjContent}  from "./wn-edit-obj-content.mjs"
 //---------------------------------------
 const WALNUT_VERSION = "1.0"
 //---------------------------------------
@@ -17,7 +18,7 @@ const HOOKs = {
 export const Wn = {
   Version: WALNUT_VERSION,
   Io, Obj, Session, Sys, Util, Dict,
-  OpenObjSelector, EditObjMeta,
+  OpenObjSelector, EditObjMeta, EditObjContent,
   //-------------------------------------
   addHook(key, fn) {
     Ti.Util.pushValue(HOOKs, key, fn)

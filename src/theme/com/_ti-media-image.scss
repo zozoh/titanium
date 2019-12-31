@@ -1,5 +1,11 @@
 .ti-media-image {
   @include noselect;
+  position: relative;
+  //-------------------------------------------------
+  > .as-con {
+    @include pos-abs-full;
+    img {width:100%; height:100%;}
+  }
   //-------------------------------------------------
   &.as-fitmode-none {
     @include flex-center;
@@ -7,18 +13,14 @@
   }
   //-------------------------------------------------
   &.as-fitmode-contain {
-    padding:.06rem;
-    img {
-      width:100%; height:100%;
-      object-fit: contain;
+    > .as-con {
+      top:.06rem; left:.06rem; right:.06rem; bottom:.06rem;
     }
+    img {object-fit: contain;}
   }
   //-------------------------------------------------
   &.as-fitmode-cover {
-    img {
-      width:100%; height:100%;
-      object-fit: cover;
-    }
+    img {object-fit: cover;}
   }
   //-------------------------------------------------
   &.is-img-loading {

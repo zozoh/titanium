@@ -1,0 +1,229 @@
+{
+  "title" : "首页-视云",
+  "apis" : {
+    "scenes" : {
+      "apiName" : "thing-query",
+      "params"  : {
+        "ts" : "~/scenes"
+      }
+    },
+    "products" : {
+      "apiName" : "thing-query",
+      "params"  : {
+        "ts" : "~/products"
+      }
+    },
+    "plans" : {
+      "apiName" : "thing-query",
+      "params"  : {
+        "ts" : "~/plans"
+      }
+    },
+    "cases" : {
+      "apiName" : "thing-query",
+      "params"  : {
+        "ts" : "~/cases"
+      }
+    }
+  },
+  "data" : {
+    "scenes" : null,
+    "products" : null,
+    "plans" : null,
+    "cases" : null
+  },
+  "layout" : {
+    "desktop" : {
+      "type" : "rows",
+      "blocks" : [
+        "@BLOCK(desktop.sky)", 
+        {
+          "className" : "page-block page-arena",
+          "size" : "auto",
+          "body" : {
+            "comType" : "ti-web-heading",
+            "comConf" : {
+              "title" : "场景",
+              "comment" : "Strato 技术正在被应用在哪些场景"
+            }
+          }
+        }, {
+          "className" : "page-block page-arena",
+          "body" : "scenes-list-desktop"
+        }, {
+          "className" : "page-block page-arena",
+          "size" : "auto",
+          "body" : {
+            "comType" : "ti-web-heading",
+            "comConf" : {
+              "title" : "方案",
+              "comment" : "三种解决方案贴合您的核心诉求"
+            }
+          }
+        }, {
+          "className" : "page-block page-arena",
+          "body" : "plans-list-desktop"
+        }, {
+          "className" : "page-block page-arena",
+          "size" : "auto",
+          "body" : {
+            "comType" : "ti-web-heading",
+            "comConf" : {
+              "title" : "产品",
+              "comment" : "浏览德纳的全产品线"
+            }
+          }
+        }, {
+          "className" : "page-block page-arena",
+          "body" : "products-list-desktop"
+        }, {
+          "className" : "page-block page-arena",
+          "size" : "auto",
+          "body" : {
+            "comType" : "ti-web-heading",
+            "comConf" : {
+              "title" : "案例 ",
+              "comment" : "这些合作伙伴正在采用视云的技术"
+            }
+          }
+        }, {
+          "className" : "page-block page-arena",
+          "body" : "cases-list-desktop"
+        }, 
+        "@BLOCK(desktop.footer)"],
+      "panels" : [
+        "@BLOCK(desktop.login)"]
+    },
+    "tablet" : "desktop",
+    "phone"  : "desktop"
+  },
+  "shown" : {
+    "login" : false
+  },
+  "schema" : {
+    "scenes-list-desktop" : {
+      "extends" : "list-desktop",
+      "comConf" : {
+        "list" : "=page.data.scenes.list",
+        "itemWidth" : "16%",
+        "comConf" : {
+          "previewHeight" : "1.2rem",
+          "href" : {
+            "__is_function" : true,
+            "name" : "www.genLink",
+            "args" : [":=item", ":->${base}page/scene_$${id}.html"]
+          },
+          "emitBy" : {
+            "eventName" : "nav:to",
+            "payload" : {
+              "value" : {
+                "__is_function" : true,
+                "name" : "www.genLink",
+                "args" : [":=item", ":->page/scene_$${id}.html"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "plans-list-desktop" : {
+      "extends" : "list-desktop",
+      "comConf" : {
+        "list" : "=page.data.plans.list",
+        "itemWidth" : "33%",
+        "comConf" : {
+          "previewHeight" : "2.4rem",
+          "href" : {
+            "__is_function" : true,
+            "name" : "www.genLink",
+            "args" : [":=item", ":->${base}page/plan_$${id}.html"]
+          },
+          "emitBy" : {
+            "eventName" : "nav:to",
+            "payload" : {
+              "value" : {
+                "__is_function" : true,
+                "name" : "www.genLink",
+                "args" : [":=item", ":->page/plan_$${id}.html"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "products-list-desktop" : {
+      "extends" : "list-desktop",
+      "comConf" : {
+        "list" : "=page.data.products.list",
+        "itemWidth" : "25%",
+        "comConf" : {
+          "title" : ":=item.title",
+          "previewHeight" : "2rem",
+          "href" : {
+            "__is_function" : true,
+            "name" : "www.genLink",
+            "args" : [":=item", ":->${base}page/product_$${id}.html"]
+          },
+          "emitBy" : {
+            "eventName" : "nav:to",
+            "payload" : {
+              "value" : {
+                "__is_function" : true,
+                "name" : "www.genLink",
+                "args" : [":=item", ":->page/product_$${id}.html"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "cases-list-desktop" : {
+      "extends" : "list-desktop",
+      "comConf" : {
+        "list" : "=page.data.cases.list",
+        "itemWidth" : "20%",
+        "comConf" : {
+          "previewHeight" : "2rem",
+          "href" : {
+            "__is_function" : true,
+            "name" : "www.genLink",
+            "args" : [":=item", ":->${base}page/case_$${id}.html"]
+          },
+          "emitBy" : {
+            "eventName" : "nav:to",
+            "payload" : {
+              "value" : {
+                "__is_function" : true,
+                "name" : "www.genLink",
+                "args" : [":=item", ":->page/case_$${id}.html"]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "actions" : {
+    "buy-now" : {
+      "action"  : "auth/doCheckMe",
+      "payload" : {
+        "force" : true,
+        "success"   : {
+          "action"  : "navTo",
+          "payload" : {
+            "type"  : "page",
+            "value" : "page/order-create"
+          }
+        },
+        "nophone" : {
+          "action"  : "page/showBlock",
+          "payload" : "login"
+        },
+        "fail" : {
+          "action"  : "page/showBlock",
+          "payload" : "login"
+        }
+      }
+    }
+  }
+}

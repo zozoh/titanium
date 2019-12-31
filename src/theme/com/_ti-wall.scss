@@ -1,6 +1,6 @@
 .ti-wall {
   overflow:auto;
-  @include flex-align($ac:flex-start,$ai:stretch);
+  @include flex-align($ac:flex-start,$ai:flex-start);
   // &.is-only-one-row {
   // }
   &.is-multi-rows {

@@ -1,0 +1,186 @@
+{
+  "filter" : {
+    "comType" : "wn-thing-filter",
+    "comConf" : {
+      "placeholder" : "请输入优惠券名称过滤",
+      "status" : "=status"
+    }
+  },
+  "list" : {
+    "comType" : "wn-table",
+    "comConf" : {
+      "list" : "=search.list",
+      "changedId"  : "=changedRowId",
+      "currentId"  : "=search.currentId",
+      "checkedIds" : "=search.checkedIds",
+      "border" : true,
+      "checkable" : true,
+      "multi"  : true,
+      "fields" : [{
+        "title" : "优惠券名称",
+        "display" : ["@<thumb:fas-ticket-alt>", "title"]
+      }, {
+        "title" : "类型",
+        "display" : {
+          "key" : "type",
+          "transformer" : {
+            "name" : "toStr",
+            "args" : {
+              "1" : "代金券",
+              "2" : "折扣券"
+            }
+          }
+        }
+      }, {
+        "title" : "金额/折扣",
+        "display" : "value"
+      }, {
+        "title" : "条件金额",
+        "display" : "thres"
+      }, {
+        "title" : "发放用户",
+        "display" : "owner"
+      }]
+    }
+  },
+  "pager" : {
+    "comType" : "ti-paging-jumper",
+    "comConf" : {
+      "data" : "=search.pager"
+    }
+  },
+  "creator" : {
+    "comType" : "wn-thing-creator",
+    "comConf" : {
+      "config" : {
+        "fields" : [{
+          "title"   : "优惠券名称",
+          "name"    : "title",
+          "comType" : "ti-combo-input",
+          "comConf" : {
+            "options" : ["满100减20", "8.5折优惠券", "5元代金券"]
+          }
+        },{
+          "title"   : "类型",
+          "name"    : "type",
+          "type"    : "Integer",
+          "comType" : "ti-switcher",
+          "comConf" : {
+            "options" : [
+              {"value":1, "text":"代金券"},
+              {"value":2, "text":"折扣券"}]
+          }
+        },{
+          "title"   : "金额/折扣",
+          "name"    : "value",
+          "type"    : "Float",
+          "tip"     : "代金券，金额单位为元；折扣券则为 0.0 ~ 1.0 之间的一个小数",
+          "defaultAs" : 0,
+          "width"   : 200,
+          "comType" : "ti-input",
+          "comConf" : {
+            "prefixIcon" : "fas-calculator"
+          }
+        },{
+          "title"   : "条件金额",
+          "name"    : "thres",
+          "type"    : "Integer",
+          "tip"     : "订单满足这个金额方可应用，0表示不限",
+          "defaultAs" : 0,
+          "width"   : 200,
+          "comType" : "ti-input",
+          "comConf" : {
+            "prefixIcon" : "fas-yen-sign",
+            "suffixText" : "元"
+          }
+        },{
+          "title"   : "过期时间",
+          "name"    : "expi",
+          "type"    : "AMS",
+          "comType" : "ti-input-datetime"
+        }]
+      },
+      "data" : {
+        "title" : "10元代金券"
+      }
+    }
+  },
+  "meta" : {
+    "comType" : "wn-obj-form",
+    "comConf" : {
+      "data"   : "=current.meta",
+      "status" : "=current.status",
+      "fieldStatus" : "=current.fieldStatus",
+      "config" : {
+        "fields" : [{
+            "title"  : "ID",
+            "name"   : "id"
+          }, {
+            "title"   : "优惠券名称",
+            "name"    : "title",
+            "comType" : "ti-combo-input",
+            "comConf" : {
+              "options" : ["满100减20", "8.5折优惠券", "5元代金券"]
+            }
+          },{
+            "title"   : "类型",
+            "name"    : "type",
+            "type"    : "Integer",
+            "comType" : "ti-switcher",
+            "comConf" : {
+              "options" : [
+                {"value":1, "text":"代金券"},
+                {"value":2, "text":"折扣券"}]
+            }
+          },{
+            "title"   : "金额/折扣",
+            "name"    : "value",
+            "type"    : "Float",
+            "tip"     : "代金券，金额单位为元；折扣券则为 0.0 ~ 1.0 之间的一个小数",
+            "defaultAs" : 0,
+            "width"   : 200,
+            "comType" : "ti-input",
+            "comConf" : {
+              "prefixIcon" : "fas-calculator"
+            }
+          },{
+            "title"   : "条件金额",
+            "name"    : "thres",
+            "type"    : "Integer",
+            "tip"     : "订单满足这个金额方可应用，0表示不限",
+            "defaultAs" : 0,
+            "width"   : 200,
+            "comType" : "ti-input",
+            "comConf" : {
+              "prefixIcon" : "fas-yen-sign",
+              "suffixText" : "元"
+            }
+          },{
+            "title"   : "过期时间",
+            "name"    : "cpn_expi",
+            "type"    : "AMS",
+            "comType" : "ti-input-datetime"
+          },{
+            "title"   : "发放用户",
+            "name"    : "owner"
+          },{
+            "title"   : "使用时间",
+            "name"    : "cpn_used",
+            "type"    : "AMS"
+          },{
+            "title"   : "创建时间",
+            "name"    : "ct",
+            "type"    : "AMS"
+          }]
+      },
+      "updateBy" : {
+        "method" : "dispatch",
+        "target" : "main/updateCurrent"
+      },
+      "setFieldStatusBy" : {
+        "method" : "commit",
+        "target" : "main/current/setMetaFieldStatus"
+      }
+    }
+  }
+}

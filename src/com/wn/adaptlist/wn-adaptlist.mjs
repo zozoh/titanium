@@ -249,7 +249,6 @@ export default {
     },
     //--------------------------------------------
     async onOpenProperties() {
-      console.log(this.currentItem)
       let meta = this.currentItem || this.meta
 
       if(!meta) {

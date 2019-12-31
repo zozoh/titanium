@@ -235,8 +235,15 @@ export default {
       if(_.isFunction(fn)) {
         await fn(...be.args)
       }
-    }
+    },
     //--------------------------------------
+    // Firefox 33.0, can not watch the click in callback
+    openLocalFileSelectdDialogToUploadFiles(){
+      //console.log(this.$thingFiles)
+      if(this.$thingFiles) {
+        this.$thingFiles.openLocalFileSelectdDialog()
+      }
+    }
   },
   ///////////////////////////////////////////
   watch : {
@@ -249,6 +256,10 @@ export default {
         Ti.Storage.session.setObject(this.meta.id, this.shown)
       }
     }
+  },
+  ///////////////////////////////////////////
+  mounted : function() {
+    this.THING_MANAGER_ROOT = true
   }
   ///////////////////////////////////////////
 }

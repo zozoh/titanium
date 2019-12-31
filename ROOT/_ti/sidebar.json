@@ -1,0 +1,38 @@
+{
+  "sidebar" : [{
+    "key" : "public",
+    "icon"   : "im-network",
+    "title"  : "控件测试",
+    "items" : [{
+        "path" : "~/demo"
+      }]
+  }, {
+    "key" : "webs",
+    "icon"   : "zmdi-archive",
+    "title"  : "数据集",
+    "items" : [{
+        "path" : "~/products"
+      }, {
+        "path" : "~/articles"
+      }, {
+        "path" : "~/orders"
+      }, {
+        "path" : "~/coupons"
+      }, {
+        "path" : "~/accounts"
+      }, {
+        "path" : "~/roles"
+      }]
+  }, {
+    "key" : "settings",
+    "icon"   : "zmdi-settings-square",
+    "title"  : "系统设置",
+    "items" : [{
+        "path" : "~/www"
+      }, {
+        "path" : "~/.domain/vars.json"
+      }, {
+        "path" : "~/.tmp"
+      }]
+  }]
+}

@@ -2,8 +2,10 @@
      :class="topClass"
      :style="topStyle"
      v-drag-off>
-  <img ref="the_image"
-    :src="src"
-    @load="onImageLoaded"
-    @dblclick.stop="onToggleImageFitMode">
+  <div class="as-con">
+    <img ref="the_image"
+      :src="src"
+      @load="onImageLoaded"
+      @dblclick.stop="onToggleImageFitMode">
+  </div>
 </div>

@@ -287,8 +287,33 @@ export default {
     },
     //--------------------------------------
     async doLogout() {
+      let quitPath = Wn.Session.env("QUIT") || "/"
       await Wn.Sys.exec("exit")
-      Ti.Be.Open("/", {target:"_self", delay:0})
+      Ti.Be.Open(quitPath, {target:"_self", delay:0})
+    },
+    //--------------------------------------
+    async editObjMeta() {
+      let meta = _.get(this.obj, "meta")
+
+      if(!meta) {
+        return Ti.Toast.Open("i18n:nil-obj")
+      }
+
+      Wn.EditObjMeta(meta)
+    },
+    //--------------------------------------
+    async viewObjContent() {
+      let meta = _.get(this.obj, "meta")
+
+      if(!meta) {
+        return Ti.Toast.Open("i18n:nil-obj")
+      }
+
+      let content = await Wn.EditObjContent(meta)
+      
+      if(!_.isUndefined(content)) {
+        Ti.App(this).dispatch("main/reload")
+      }
     }
     //--------------------------------------
   },

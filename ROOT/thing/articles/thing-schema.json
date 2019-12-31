@@ -1,0 +1,130 @@
+{
+  "filter" : {
+    "comType" : "wn-thing-filter",
+    "comConf" : {
+      "placeholder" : "请输入文章标题过滤",
+      "status" : "=status"
+    }
+  },
+  "list" : {
+    "comType" : "wn-table",
+    "comConf" : {
+      "list" : "=search.list",
+      "changedId"  : "=changedRowId",
+      "currentId"  : "=search.currentId",
+      "checkedIds" : "=search.checkedIds",
+      "border" : true,
+      "checkable" : true,
+      "multi"  : true,
+      "fields" : [{
+        "title" : "文章标题",
+        "display" : ["@<thumb:far-newspaper>", "th_nm"]
+      }, {
+        "title" : "标签",
+        "display" : "lbls"
+      }, {
+        "title" : "最后修改",
+        "type"    : "DateTime",
+        "display" : {
+          "key":"lm", 
+          "transformer" : {
+            "name" : "formatDate",
+            "args" : "M月d日H点"
+          }
+        }
+      }]
+    }
+  },
+  "pager" : {
+    "comType" : "ti-paging-jumper",
+    "comConf" : {
+      "data" : "=search.pager"
+    }
+  },
+  "creator" : {
+    "comType" : "wn-thing-creator",
+    "comConf" : {
+      "config" : {
+        "fields" : [{
+          "name" : "th_nm",
+          "title" : "文章标题",
+          "comType" : "ti-input",
+          "comConf" : {}
+        }]
+      },
+      "data" : {
+        "th_nm" : "新文章"
+      }
+    }
+  },
+  "meta" : {
+    "comType" : "wn-obj-form",
+    "comConf" : {
+      "data"   : "=current.meta",
+      "status" : "=current.status",
+      "fieldStatus" : "=current.fieldStatus",
+      "config" : {
+        "fields" : [{
+            "title"  : "ID",
+            "name"   : "id"
+          }, {
+            "title"   : "缩略图",
+            "name"    : "thumb",
+            "checkEquals" : false,
+            "serializer" : {
+              "name" : "toStr",
+              "args" : "id:${id}"
+            },
+            "comType" : "wn-imgfile",
+            "comConf" : {
+              "target" : "=curentThumbTarget",
+              "filter" : "scale(256,256)"
+            }
+          }, {
+            "title"   : "文章标题",
+            "name"    : "th_nm",
+            "comType" : "ti-input"
+          },{
+            "icon"    : "zmdi-labels",
+            "title"   : "标签",
+            "name"    : "lbls",
+            "type"    : "Array",
+            "transformer" : "toStr",
+            "comType" : "ti-input"
+          },{
+            "title"   : "最后更新",
+            "name"    : "lm",
+            "type"    : "DateTime",
+            "comConf" : {"format":"yyyy年MM月dd日 HH:mm:ss"}
+          }]
+      },
+      "updateBy" : {
+        "method" : "dispatch",
+        "target" : "main/updateCurrent"
+      },
+      "setFieldStatusBy" : {
+        "method" : "commit",
+        "target" : "main/current/setMetaFieldStatus"
+      }
+    }
+  },
+  "content" : {
+    "comType" : "wn-obj-puretext",
+    "comConf" : {
+      "showTitle"    : false,
+      "meta"         : "=current.meta",
+      "content"      : "=current.content",
+      "savedContent" : "=current.__saved_content",
+      "contentType"  : "=current.contentType",
+      "status"       : "=current.status"
+    }
+  },
+  "files" : {
+    "comType" : "wn-thing-files",
+    "comConf" : {
+      "filesName" : "=filesName",
+      "files"     : "=files",
+      "showTitle" : "文章文件表"
+    }
+  }
+}

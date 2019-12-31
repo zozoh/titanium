@@ -25,5 +25,18 @@
       },
       "action" : "dispatch:main/reload",
       "shortcut" : "CTRL+R"
+    }, {
+      "key"  : "viewsource",
+      "type" : "action",
+      "icon" : "far-file-alt",
+      "text" : "i18n:view-resource",
+      "action" : "self:viewObjContent",
+      "shortcut" : "ALT+CTRL+V"
+    },{
+      "type" : "action",
+      "icon" : "zmdi-info-outline",
+      "text" : "i18n:properties",
+      "action" : "self:editObjMeta",
+      "shortcut" : "ALT+CTRL+P"
     }]
 }

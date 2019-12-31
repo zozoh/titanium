@@ -1,0 +1,107 @@
+{
+  "title" : "产品-视云",
+  "apis" : {
+    "product" : {
+      "apiName" : "thing-get"
+    }
+  },
+  "data" : {
+    "product" : {},
+    "buyAmount" : 1
+  },
+  "layout" : {
+    "desktop" : {
+      "type" : "rows",
+      "blocks" : [
+        "@BLOCK(desktop.sky)", 
+        {
+          "name" : "product",
+          "className" : "page-block page-arena",
+          "size" : "auto",
+          "body" : "product-meta"
+        }, {
+          "className" : "page-block page-arena",
+          "body" : "product-content"
+        }, 
+        "@BLOCK(desktop.footer)"],
+      "panels" : [
+        "@BLOCK(desktop.login)"]
+    },
+    "tablet" : "desktop",
+    "phone"  : "desktop"
+  },
+  "shown" : {
+    "login" : false
+  },
+  "schema" : {
+    "product-meta" : {
+      "comType" : "ti-web-meta-commodity",
+      "comConf" : {
+        "meta" : "=page.data.product",
+        "titleKey" : "meta.title",
+        "buyAmount" : "=page.data.buyAmount",
+        "fields" : [{
+            "title" : "i18n:price",
+            "name"  : "meta.price",
+            "tip"   : "=page.data.product.brief",
+            "className" : "webmc-highlight",
+            "transformer" : {
+              "name" : "toStr",
+              "args" : "￥${val}"
+            }
+          }, {
+            "title" : "i18n:amount",
+            "name"  : "buyAmount",
+            "type"  : "Integer",
+            "width" : 120,
+            "comType" : "ti-input-num"
+          }]
+      }
+    },
+    "product-content" : {
+      "comType" : "ti-web-content-markdown",
+      "comConf" : {
+        "content" : "=page.data.product.content"
+      }
+    }
+  },
+  "actions" : {
+    "product.meta:changed" : {
+      "action" : "page/changeDataBy",
+      "payload" : {
+        "key"  : "buyAmount",
+        "args" : "=$args.value"
+      }
+    },
+    "product.buy:now" : {
+      "action"  : "auth/doCheckMe",
+      "payload" : {
+        "force" : true,
+        "success"   : {
+          "action"  : "navTo",
+          "payload" : {
+            "type"  : "page",
+            "value" : "page/order-create",
+            "data" : {
+              "items" : [{
+                "id" : "=page.data.product.id",
+                "thumb" : "=page.data.product.thumb",
+                "title" : "=page.data.product.title",
+                "price" : "=page.data.product.price",
+                "amount"  : "=page.data.buyAmount"
+              }]
+            }
+          }
+        },
+        "nophone" : {
+          "action"  : "page/showBlock",
+          "payload" : "login"
+        },
+        "fail" : {
+          "action"  : "page/showBlock",
+          "payload" : "login"
+        }
+      }
+    }
+  }
+}
