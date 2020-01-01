@@ -1,0 +1,42 @@
+<div class="ti-tree-node">
+  <!--
+    Node Info
+  -->
+  <div class="nd-self"
+    @click.left="onClickSelf">
+    <!--Info-->
+    <div class="nd-info">
+      <!--Handle Or Indent-->
+      <span v-if="isLeaf"
+        class="nd-handle as-leaf">
+      </span>
+      <span v-else
+        class="nd-handle as-node"
+        @click.left.stop="onClickHandle">
+        <ti-icon :value="theHandleIcon"/>
+      </span>
+      <!--Icons-->
+      <span v-for="theIcon in theIconList"
+        class="nd-icon">
+        <ti-icon :value="theIcon"/>
+      </span>
+      <!--Text-->
+      <a v-if="text"
+        class="nd-text"
+        :href="theHref">{{text|i18n}}</a>
+    </div>
+    <!--Tip-->
+    <div class="nd-tip" v-if="tip">
+      <span>{{tip|i18n}}</span>
+    </div>
+  </div>
+  <!--
+    Node Children
+  -->
+  <div v-if="isLeaf && opened"
+    class="node-children">
+    <ti-tree-node
+      v-for="nd in children"
+      v-bind="nd"/>
+  </div>
+</div>

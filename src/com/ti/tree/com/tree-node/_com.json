@@ -1,0 +1,6 @@
+{
+  "name" : "ti-tree-node",
+  "globally" : true,
+  "template" : "./ti-tree-node.html",
+  "mixins" : ["./ti-tree-node.mjs"]
+}

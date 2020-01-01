@@ -1,0 +1,7 @@
+{
+  "name" : "ti-tree",
+  "globally" : true,
+  "template" : "./ti-tree.html",
+  "mixins" : ["./ti-tree.mjs"],
+  "components" : ["./com/tree-node"]
+}
