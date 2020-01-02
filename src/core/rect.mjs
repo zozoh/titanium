@@ -245,12 +245,17 @@ export class Rect {
   // 将给定矩形等比缩放到适合宽高
   //  - width  : 最大宽度
   //  - height : 最大高度
-  //  - forContains : false : true 表示如果全部在视口内，就无视
+  //  - mode   : 缩放模式
+  //      - contain : 确保包含在内
+  //      - cover   : 最大限度撑满视口
   // 返回矩形自身
-  zoomTo({width,height,forContains=false}={}) {
+  zoomTo({width,height,mode="contain"}={}) {
     // zoom scale when necessary
-    if(forContains && viewport.contains(this)){
-        return;
+    if("contain" == mode){
+      let viewport = new Rect({top:0,left:0,width,height})
+      if(viewport.contains(this)) {
+        return this;
+      }
     }
     // 获得尺寸
     let w  = width;
@@ -264,13 +269,29 @@ export class Rect {
 
     // Too wide
     if (oR > nR) {
+      // Cover
+      if("cover" == mode) {
+        nH = h;
+        nW = h * oR;
+      }
+      // Contain
+      else {
         nW = w;
         nH = (w) / oR;
+      }
     }
     // Too hight
     else if (oR < nR) {
+      // Cover
+      if("cover" == mode) {
+        nW = w;
+        nH = (w) / oR;
+      }
+      // Contain
+      else {
         nH = h;
         nW = h * oR;
+      }
     }
     // Then same
     else {

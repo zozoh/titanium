@@ -16,6 +16,7 @@
     > .as-abar {
       @include pos-abs($t:0,$r:0);
       @include color($float-color, fr, bg);
+      z-index:$z-over;
       //----------------------------------------------
       li {
         @include flex-center;

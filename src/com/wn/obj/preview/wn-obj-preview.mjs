@@ -207,25 +207,40 @@ export default {
     //--------------------------------------
     enterFullscreen() {
       this.isInFullScreen = true
+      this.resizeMediaViewport()
     },
     //--------------------------------------
     exitFullscreen() {
       this.isInFullScreen = false
+      this.resizeMediaViewport()
     },
     //--------------------------------------
     doShowInfo() {
       this.isShowInfo = true
       this.saveStateToLocal()
+      this.resizeMediaViewport()
     },
     //--------------------------------------
     doHideInfo() {
       this.isShowInfo = false
       this.saveStateToLocal()
+      this.resizeMediaViewport()
     },
     //--------------------------------------
     toggleInfoFloat() {
       this.isFloatInfo = !this.isFloatInfo
       this.saveStateToLocal()
+      this.resizeMediaViewport()
+    },
+    //--------------------------------------
+    resizeMediaViewport() {
+      for(let $child of this.$children) {
+        if(_.isFunction($child.onResizeViewport)) {
+          this.$nextTick(()=>{
+            $child.onResizeViewport()
+          })
+        }
+      }
     },
     //--------------------------------------
     openInNewTab() {

@@ -1,10 +1,12 @@
 <div class="ti-media-image" 
      :class="topClass"
      :style="topStyle"
+     :fit-mode="fitMode"
      v-drag-off>
-  <div class="as-con">
+  <div class="as-con" ref="con">
     <img ref="the_image"
       :src="src"
+      :style="theImageStyle"
       @load="onImageLoaded"
       @dblclick.stop="onToggleImageFitMode">
   </div>

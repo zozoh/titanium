@@ -4,27 +4,36 @@
   //-------------------------------------------------
   > .as-con {
     @include pos-abs-full;
-    img {width:100%; height:100%;}
+    overflow: hidden;
+    //img {width:100%; height:100%;}
   }
   //-------------------------------------------------
-  &.as-fitmode-none {
-    @include flex-center;
-    img {box-shadow: 1px 1px 3px map-get($color-shadow, c);}
-  }
-  //-------------------------------------------------
-  &.as-fitmode-contain {
+  &.is-in-viewport {
     > .as-con {
-      top:.06rem; left:.06rem; right:.06rem; bottom:.06rem;
+      img {
+        box-shadow: 2px 2px 2px map-get($color-shadow, c);
+      }
     }
-    img {object-fit: contain;}
   }
   //-------------------------------------------------
-  &.as-fitmode-cover {
-    img {object-fit: cover;}
-  }
-  //-------------------------------------------------
-  &.is-img-loading {
-    img {visibility: hidden;}
-  }
+  // &.as-fitmode-none {
+  //   @include flex-center;
+  //   img {box-shadow: 1px 1px 3px map-get($color-shadow, c);}
+  // }
+  // //-------------------------------------------------
+  // &.as-fitmode-contain {
+  //   > .as-con {
+  //     top:.06rem; left:.06rem; right:.06rem; bottom:.06rem;
+  //   }
+  //   img {object-fit: contain;}
+  // }
+  // //-------------------------------------------------
+  // &.as-fitmode-cover {
+  //   img {object-fit: cover;}
+  // }
+  // //-------------------------------------------------
+  // &.is-img-loading {
+  //   img {visibility: hidden;}
+  // }
   //-------------------------------------------------
 }  // ~ .ti-media-image
