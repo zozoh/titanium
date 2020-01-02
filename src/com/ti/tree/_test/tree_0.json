@@ -2,6 +2,7 @@
   "comType" : "ti-tree",
   "comConf" : {
     "data"   : "..",
+    "value"  : "b222",
     "defaultIcon" : {
       "leaf" : "zmdi-collection-speaker",
       "node" : "zmdi-movie-alt"

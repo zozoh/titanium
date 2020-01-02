@@ -1,42 +1,61 @@
 ////////////////////////////////////////////////////
 .ti-tree {
+  @include noselect;
   padding:.1rem; overflow:auto;
 }
 ////////////////////////////////////////////////////
 .ti-tree-node {
-  line-height: .24rem;
+  line-height: 2.2em;
   //------------------------------------------------
   > .nd-self {
     @include flex-align-nowrap;
-    cursor: default;
+    cursor: pointer;
+    //----------------------------------------------
+    &:hover {
+      @include color($color-selected, r, c);
+    }
     //----------------------------------------------
     .nd-handle {
       @include flex-center;
-      width: .2rem; cursor: pointer;
+      width: 1.2em; cursor: default;
+      opacity: 0.6;
+      &:hover {
+        opacity: 1; font-weight: bolder;
+      }
     }
     //----------------------------------------------
     .nd-box {
       @include flex-align;
-      flex:1 1 auto;
+      flex:1 1 auto; padding:0 .2em;
       //--------------------------------------------
       .nd-info {
         @include flex-align-nowrap;
         flex:1 1 auto; 
         .nd-icon {
-          display: block; width: .24rem;
+          display: block; width: 2em;
         }
         .nd-text {
-          display: block; padding:0 .04rem;
+          display: block; padding:0 .02rem;
         }
       }
       //--------------------------------------------
       .nd-tip {
-        opacity: 0.8;
+        opacity: 0.8; padding:0 .04rem;
+        font-size:.85em;
       }
       //--------------------------------------------
-    }
+    } // ~ .nd-box
     //----------------------------------------------
   } // ~ > .nd-self {
+  //------------------------------------------------
+  &.is-selected {
+    > .nd-self {
+      @include color($color-secondary, r, c);
+      .nd-info .nd-text {
+        color:inherit;
+      }
+    }
+  }
   //------------------------------------------------
   > .nd-children {
     padding-left: .2rem;
