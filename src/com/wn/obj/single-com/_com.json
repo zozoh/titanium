@@ -6,6 +6,7 @@
   "components" : [
     "@com:wn/form",
     "@com:ti/wizard",
-    "@com:ti/calendar"
+    "@com:ti/calendar",
+    "@com:ti/tree"
   ]
 }

@@ -384,8 +384,9 @@ const TiUtil = {
    * @return `Object|Array`
    */
   mapping(source={}, mapping={}, customizer=_.identity) {
-    if(_.isEmpty(source) || _.isEmpty(mapping))
-      return source
+    if(_.isEmpty(source) || _.isEmpty(mapping)) {
+      return _.cloneDeep(source)
+    }
     // Array
     if(_.isArray(source)) {
       let re = []

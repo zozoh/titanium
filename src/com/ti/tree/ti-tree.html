@@ -1,6 +1,12 @@
-<div class="ti-tree">
+<div class="ti-tree"
+  :class="topClass"
+  :style="topStyle">
   <ti-tree-node
     v-for="nd in theTopData"
+    :key="nd.name"
     v-bind="nd"
-    :handle-icons="nodeHandleIcons"/>
+    :handle-icons="nodeHandleIcons"
+    @select="onNodeSelect"
+    @open="onNodeOpen"
+    @close="onNodeClose"/>
 </div>

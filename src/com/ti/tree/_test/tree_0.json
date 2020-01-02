@@ -1,0 +1,15 @@
+{
+  "comType" : "ti-tree",
+  "comConf" : {
+    "data"   : "..",
+    "defaultIcon" : {
+      "leaf" : "zmdi-collection-speaker",
+      "node" : "zmdi-movie-alt"
+    },
+    "width"  : 400,
+    "height" : 500
+  },
+  "dispatchActions" : {
+    
+  }
+}

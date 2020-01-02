@@ -32,6 +32,10 @@ export default {
       type : String,
       default : null
     },
+    "leaf" : {
+      type : Boolean,
+      default : false
+    },
     "selected" : {
       type : Boolean,
       default : false
@@ -63,7 +67,7 @@ export default {
     },
     //--------------------------------------
     isLeaf() {
-      return _.isArray(this.children)
+      return this.leaf
     },
     //--------------------------------------
     theIconList() {
@@ -99,6 +103,23 @@ export default {
       return this.opened
         ? this.handleIcons.opened
         : this.handleIcons.closed
+    },
+    //--------------------------------------
+    theNodeData() {
+      return {
+        className : this.className,
+        index : this.index,
+        name  : this.name,
+        path  : this.path,
+        text  : this.text,
+        icon  : this.icon,
+        href  : this.theHref,
+        value : this.value,
+        tip   : this.tip,
+        selected : this.selected,
+        opened   : this.opened,
+        children : this.children
+      }
     }
     //--------------------------------------
   },
@@ -107,10 +128,19 @@ export default {
     //--------------------------------------
     onClickSelf() {
       console.log("click self")
+      this.$emit("select", this.theNodeData)
     },
     //--------------------------------------
     onClickHandle() {
       console.log("click handle")
+      // Open -> Close
+      if(this.opened) {
+        this.$emit("close", this.theNodeData)
+      }
+      // Close -> Open
+      else {
+        this.$emit("open", this.theNodeData)
+      }
     }
     //--------------------------------------
   }

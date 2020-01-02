@@ -25,4 +25,4 @@ echo '[OK] Done for init thing set'
 
 # 打印完成信息
 echo '-------------------------------------'
-echo '[OK] joysenses setup finished'
+echo '[OK] Titanium Test setup finished'

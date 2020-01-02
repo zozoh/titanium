@@ -1,42 +1,58 @@
 <div class="ti-tree-node">
-  <!--
+  <!--===================================
     Node Info
   -->
   <div class="nd-self"
     @click.left="onClickSelf">
-    <!--Info-->
-    <div class="nd-info">
-      <!--Handle Or Indent-->
-      <span v-if="isLeaf"
-        class="nd-handle as-leaf">
-      </span>
-      <span v-else
-        class="nd-handle as-node"
-        @click.left.stop="onClickHandle">
-        <ti-icon :value="theHandleIcon"/>
-      </span>
-      <!--Icons-->
-      <span v-for="theIcon in theIconList"
-        class="nd-icon">
-        <ti-icon :value="theIcon"/>
-      </span>
-      <!--Text-->
-      <a v-if="text"
-        class="nd-text"
-        :href="theHref">{{text|i18n}}</a>
+    <!--
+      Handle Or Indent
+    -->
+    <div v-if="isLeaf"
+      class="nd-handle as-leaf">
     </div>
-    <!--Tip-->
-    <div class="nd-tip" v-if="tip">
-      <span>{{tip|i18n}}</span>
+    <div v-else
+      class="nd-handle as-node"
+      @click.left.stop="onClickHandle">
+      <ti-icon :value="theHandleIcon"/>
+    </div>
+    <!--
+      Handle Or Indent
+    -->
+    <div class="nd-box">
+      <!--
+        Info
+      -->
+      <div class="nd-info">
+        <!--Icons-->
+        <span v-for="theIcon in theIconList"
+          class="nd-icon">
+          <ti-icon :value="theIcon"/>
+        </span>
+        <!--Text-->
+        <a v-if="text"
+          class="nd-text"
+          :href="theHref">{{text|i18n}}</a>
+      </div>
+      <!--
+        Tip
+      -->
+      <div class="nd-tip" v-if="tip">
+        <span>{{tip|i18n}}</span>
+      </div>
     </div>
   </div>
-  <!--
+  <!--===================================
     Node Children
   -->
-  <div v-if="isLeaf && opened"
-    class="node-children">
+  <div v-if="!isLeaf && opened"
+    class="nd-children">
     <ti-tree-node
       v-for="nd in children"
-      v-bind="nd"/>
+      :key="nd.name"
+      v-bind="nd"
+      @select="$emit('select', $event)"
+      @open="$emit('open', $event)"
+      @close="$emit('close', $event)"/>
   </div>
+  <!--===================================-->
 </div>

@@ -34,12 +34,20 @@ export default {
       default : ()=>({})
     },
     "defaultIcon" : {
-      type : String,
+      type : [String, Object],
       default : null
     },
     // Href tmpl like "/xx/xx?id=${value}"
     "href" : {
       type : String,
+      default : null
+    },
+    "width" : {
+      type : [String, Number],
+      default : null
+    },
+    "height" : {
+      type : [String, Number],
       default : null
     },
     // select item
@@ -87,6 +95,37 @@ export default {
       }, this.className)
     },
     //--------------------------------------
+    topStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
+    },
+    //--------------------------------------
+    theDefaultNodeIcon() {
+      if(this.defaultIcon) {
+        let icons = this.defaultIcon
+        if(_.isPlainObject(icons)) {
+          if(icons.node && icons.leaf) {
+            return icons.node
+          }
+        }
+        return icons
+      }
+    },
+    //--------------------------------------
+    theDefaultLeafIcon() {
+      if(this.defaultIcon) {
+        let icons = this.defaultIcon
+        if(_.isPlainObject(icons)) {
+          if(icons.node && icons.leaf) {
+            return icons.leaf
+          }
+        }
+        return icons
+      }
+    },
+    //--------------------------------------
     theTopData() {
       let list = this.evalChildren(this.data)
       return list
@@ -124,27 +163,30 @@ export default {
       }
       // Self
       nd.selected = _.isEqual(nd.value, this.value)
-      nd.opened = this.openNodeValues[nd.value] ? true : false
+      nd.opened = Ti.Util.fallbackNil(
+        this.openNodeValues[nd.value],
+        nd.opened,
+        true
+      )
       nd.index = index
       nd.path = path
-      _.defaults(nd, {
-        className : this.nodeClassName,
-        name : `N${index}`,
-        icon : this.defaultIcon,
-        tip  : node[this.defaultTipKey],
-        href : this.href
-      })
       // Children
       if(_.isArray(nd.children)) {
         nd.children = this.evalChildren(nd.children, _.concat(path, nd.name))
       }
+      // Mark leaf
+      nd.leaf = !_.isArray(nd.children)
+      _.defaults(nd, {
+        className : this.nodeClassName,
+        name : `N${index}`,
+        icon : nd.leaf 
+                ? this.theDefaultLeafIcon
+                : this.theDefaultNodeIcon,
+        tip  : node[this.defaultTipKey],
+        href : this.href
+      })
       // Done
       return nd
-    },
-    //--------------------------------------
-    onClick(it) {    
-      this.$emit("selected", it)
-      this.$emit("changed", it.value)
     },
     //--------------------------------------
     scrollFirstSelectedIntoView() {
@@ -157,6 +199,24 @@ export default {
           this.$el.scrollTop += rect.top - view.top
         }
       }
+    },
+    //--------------------------------------
+    onNodeSelect(nd={}) {
+
+    },
+    //--------------------------------------
+    onNodeOpen(nd={}) {
+      console.log("open")
+      this.openNodeValues = _.assign({}, this.openNodeValues, {
+        [nd.value] : true
+      })
+    },
+    //--------------------------------------
+    onNodeClose(nd={}) {
+      console.log("close")
+      this.openNodeValues = _.assign({}, this.openNodeValues, {
+        [nd.value] : false
+      })
     }
     //--------------------------------------
   },

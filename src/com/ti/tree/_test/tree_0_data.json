@@ -1,0 +1,31 @@
+[{
+  "name"  : "A",
+  "text"  : "甲",
+  "icon"  : "zmdi-playstation",
+  "value" : "aaa",
+  "tip"   : "一些说明"
+}, {
+  "name"  : "B",
+  "text"  : "乙",
+  "value" : "bbb",
+  "tip"   : "一些说明",
+  "opened" : true,
+  "children" : [{
+    "text"  : "乙一",
+    "value" : "b111",
+    "tip"   : "一些说明"
+  }, {
+    "text"  : "乙二",
+    "value" : "b222",
+    "tip"   : "一些说明"
+  }, {
+    "text"  : "乙三",
+    "value" : "b333",
+    "tip"   : "一些说明"
+  }]
+}, {
+  "name"  : "C",
+  "text"  : "丙",
+  "value" : "ccc",
+  "tip"   : "一些说明"
+}]
