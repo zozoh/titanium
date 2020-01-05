@@ -31,8 +31,9 @@
         </span>
         <!--Text-->
         <template v-if="text">
-          <a v-if="href"
+          <a v-if="theHref"
             class="nd-text"
+            @click.prevent
             :href="theHref">{{text|i18n}}</a>
           <span v-else
             class="nd-text"

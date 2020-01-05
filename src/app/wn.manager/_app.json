@@ -45,6 +45,7 @@
     "@com:ti/web/session/badge",
     "@com:wn/gui/arena",
     "@com:wn/gui/side/nav",
+    "@com:wn/gui/side/tree",
     "@com:wn/gui/footer"],
   "deps" : []
 }

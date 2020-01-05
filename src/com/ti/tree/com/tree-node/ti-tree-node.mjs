@@ -11,6 +11,10 @@ export default {
       type : String,
       default : null
     },
+    "depth" : {
+      type : Number,
+      default : 1
+    },
     "path" : {
       type : Array,
       default : ()=>[]
@@ -62,7 +66,9 @@ export default {
     topClass() {
       return Ti.Css.mergeClassName({
         "is-opened"   : this.opened,
-        "is-selected" : this.selected
+        "is-selected" : this.selected,
+        "at-top" : 1==this.depth,
+        [`at-depth-${this.depth}`] : true
       }, this.className)
     },
     //--------------------------------------
@@ -94,7 +100,7 @@ export default {
     },
     //--------------------------------------
     theHref() {
-      if(this.href) {
+      if(this.href && !Ti.Util.isNil(this.value)) {
         return Ti.S.renderBy(this.href, this)
       }
     },
@@ -127,12 +133,12 @@ export default {
   methods : {
     //--------------------------------------
     onClickSelf() {
-      console.log("click self")
+      //console.log("click self")
       this.$emit("select", this.theNodeData)
     },
     //--------------------------------------
     onClickHandle() {
-      console.log("click handle")
+      //console.log("click handle")
       // Open -> Close
       if(this.opened) {
         this.$emit("close", this.theNodeData)

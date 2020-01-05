@@ -29,8 +29,8 @@
       }]
     }, {
       "name" : "main",
-      "size" : "100%",
-      "flex" : "shrink",
+      "size" : "100px",
+      "flex" : "both",
       "type" : "cols",
       "border" : true,
       "blocks" : [{

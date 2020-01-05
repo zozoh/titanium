@@ -2,7 +2,8 @@
   "comType" : "ti-tree",
   "comConf" : {
     "data"   : "..",
-    "value"  : "b222",
+    "value"  : "b111",
+    "href"   : "/a/open/aaa?id=${value}",
     "defaultIcon" : {
       "leaf" : "zmdi-collection-speaker",
       "node" : "zmdi-movie-alt"

@@ -1,0 +1,7 @@
+{
+  "name" : "wn-gui-side-tree",
+  "globally" : true,
+  "template" : "./wn-gui-side-tree.html",
+  "mixins"   : ["./wn-gui-side-tree.mjs"],
+  "components" : ["@com:ti/tree"]
+}

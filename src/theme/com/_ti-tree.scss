@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////
 .ti-tree {
   @include noselect;
-  padding:.1rem; overflow:auto;
+  padding:.06rem; overflow:auto;
 }
 ////////////////////////////////////////////////////
 .ti-tree-node {
@@ -26,7 +26,7 @@
     //----------------------------------------------
     .nd-box {
       @include flex-align;
-      flex:1 1 auto; padding:0 .2em;
+      flex:1 1 auto; padding:0;
       //--------------------------------------------
       .nd-info {
         @include flex-align-nowrap;
@@ -36,6 +36,7 @@
         }
         .nd-text {
           display: block; padding:0 .02rem;
+          white-space: nowrap;
         }
       }
       //--------------------------------------------
@@ -50,7 +51,7 @@
   //------------------------------------------------
   &.is-selected {
     > .nd-self {
-      @include color($color-secondary, r, c);
+      @include color($color-primary, r, c);
       .nd-info .nd-text {
         color:inherit;
       }

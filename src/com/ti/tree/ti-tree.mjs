@@ -2,7 +2,7 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   data : ()=>({
-    "openNodeValues" : {},
+    "openNodePaths" : {},
     "selectedNodeValue" : null
   }),
   //////////////////////////////////////////
@@ -27,6 +27,13 @@ export default {
     "defaultTipKey" : {
       type : String,
       default : null
+    },
+    // Default to open the node in depth.
+    // the top node depth is 1, which is eqausl the path array length.
+    // If 0, it will close all top leavel nodes
+    "defaultOpenDepth" : {
+      type : Number,
+      default : 1
     },
     // How to mapping the list to formed value
     "mapping" : {
@@ -162,29 +169,40 @@ export default {
         nd = _.cloneDeep(node)
       }
       // Self
-      nd.selected = _.isEqual(nd.value, this.value)
-      nd.opened = Ti.Util.fallbackNil(
-        this.openNodeValues[nd.value],
-        nd.opened,
-        true
-      )
+      nd.selected = !Ti.Util.isNil(nd.value) 
+                    && _.isEqual(nd.value, this.value)
       nd.index = index
-      nd.path = path
-      // Children
-      if(_.isArray(nd.children)) {
-        nd.children = this.evalChildren(nd.children, _.concat(path, nd.name))
-      }
-      // Mark leaf
-      nd.leaf = !_.isArray(nd.children)
       _.defaults(nd, {
         className : this.nodeClassName,
         name : `N${index}`,
+        text : nd.name,
         icon : nd.leaf 
                 ? this.theDefaultLeafIcon
                 : this.theDefaultNodeIcon,
         tip  : node[this.defaultTipKey],
         href : this.href
       })
+      // Eval Path
+      nd.path = _.concat(path, nd.name)
+      nd.depth = nd.path.length
+      // Mark leaf
+      nd.leaf = !_.isArray(node.children)
+      // Test Open
+      if(nd.leaf) {
+        nd.opended = false
+      }
+      // Tree Node default to open
+      else {
+        nd.opened = Ti.Util.fallbackNil(
+          this.openNodePaths[nd.path.join("/")],
+          nd.opened,
+          nd.depth <= this.defaultOpenDepth
+        )
+      }
+      // Children
+      if(_.isArray(nd.children)) {
+        nd.children = this.evalChildren(nd.children, nd.path)
+      }
       // Done
       return nd
     },
@@ -202,21 +220,35 @@ export default {
     },
     //--------------------------------------
     onNodeSelect(nd={}) {
-
+      //console.log("select", nd)
+      // Without value, toggle open
+      if(Ti.Util.isNil(nd.value)) {
+        if(nd.opened) {
+          this.onNodeClose(nd)
+        } else {
+          this.onNodeOpen(nd)
+        }
+      }
+      // Select the Node
+      else {
+        this.$emit("select", nd)
+      }
     },
     //--------------------------------------
     onNodeOpen(nd={}) {
-      console.log("open")
-      this.openNodeValues = _.assign({}, this.openNodeValues, {
-        [nd.value] : true
+      //console.log("open")
+      this.openNodePaths = _.assign({}, this.openNodePaths, {
+        [nd.path.join("/")] : true
       })
+      this.$emit("opened", nd)
     },
     //--------------------------------------
     onNodeClose(nd={}) {
-      console.log("close")
-      this.openNodeValues = _.assign({}, this.openNodeValues, {
-        [nd.value] : false
+      //console.log("close")
+      this.openNodePaths = _.assign({}, this.openNodePaths, {
+        [nd.path.join("/")] : false
       })
+      this.$emit("closed", nd)
     }
     //--------------------------------------
   },
