@@ -3,5 +3,7 @@
   :data="theTreeData"
   :value="highlightItemId"
   href="/a/open/wn.manager?ph=id:${value}"
-  :default-open-depth="2"
+  keep-open-by="wn-gui-side-tree"
+  :auto-open="true"
+  :default-open-depth="1"
   @select="onItemActived"/>

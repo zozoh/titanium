@@ -35,6 +35,11 @@ export default {
       type : Number,
       default : 1
     },
+    // Local store to save the tree open status
+    "keepOpenBy" : {
+      type : String,
+      default : null
+    },
     // How to mapping the list to formed value
     "mapping" : {
       type : Object,
@@ -71,6 +76,11 @@ export default {
     "autoScrollIntoView" : {
       type : Boolean,
       default : true
+    },
+    // If true, when focus one node, it will auto-open the sub-tree
+    "autoOpen" : {
+      type : Boolean,
+      default : false
     },
     "nodeHandleIcons" : {
       type : Object,
@@ -134,6 +144,7 @@ export default {
     },
     //--------------------------------------
     theTopData() {
+      //console.log("recound theTopData")
       let list = this.evalChildren(this.data)
       return list
     },
@@ -232,6 +243,10 @@ export default {
       // Select the Node
       else {
         this.$emit("select", nd)
+        // Auto Open Node
+        if(!nd.leaf && this.autoOpen && !nd.opened) {
+          this.onNodeOpen(nd)
+        }
       }
     },
     //--------------------------------------
@@ -240,6 +255,7 @@ export default {
       this.openNodePaths = _.assign({}, this.openNodePaths, {
         [nd.path.join("/")] : true
       })
+      this.saveNodeOpenStatus()
       this.$emit("opened", nd)
     },
     //--------------------------------------
@@ -248,7 +264,14 @@ export default {
       this.openNodePaths = _.assign({}, this.openNodePaths, {
         [nd.path.join("/")] : false
       })
+      this.saveNodeOpenStatus()
       this.$emit("closed", nd)
+    },
+    //--------------------------------------
+    saveNodeOpenStatus() {
+      if(this.keepOpenBy) {
+        Ti.Storage.session.setObject(this.keepOpenBy, this.openNodePaths)
+      }
     }
     //--------------------------------------
   },
@@ -260,7 +283,11 @@ export default {
     //   vm.focusIndex = -1
     // }
     // Ti.Dom.watchDocument("mouseup", this.__on_mouseup)
+    //console.log("tree mounted")
     this.selectedNodeValue = this.value
+    if(this.keepOpenBy) {
+      this.openNodePaths = Ti.Storage.session.getObject(this.keepOpenBy)
+    }
     if(this.autoScrollIntoView) {
       this.scrollFirstSelectedIntoView()
     }
