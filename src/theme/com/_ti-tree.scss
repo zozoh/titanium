@@ -17,6 +17,7 @@
     //----------------------------------------------
     .nd-handle {
       @include flex-center;
+      flex: 0 0 auto;
       width: 1.2em; cursor: default;
       opacity: 0.6;
       &:hover {
