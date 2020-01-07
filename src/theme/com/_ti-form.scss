@@ -17,7 +17,11 @@
       @include flex-align-nowrap;
     }
     li {
+      @include flex-align-nowrap;
       padding:.06rem .12rem; cursor: pointer;
+      > .tab-icon {
+        padding:0 .06rem 0 0;
+      }
       &:hover {
         @include color($color-selected, r, c);
       }
