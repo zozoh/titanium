@@ -61,21 +61,15 @@
 .wn-gui-side-tree {
   padding-right:0; padding-left:0;
   //------------------------------------------
-  .ti-tree-node.at-depth-0 {
-    > .nd-self {
-      @include color($color-chip, r, c);
-      @include border(1px, solid, shallow, bottom);
-      padding:.02rem 0;
-    }
-    > .nd-children {
-      padding-top: .04rem;
-      padding-bottom: .1rem;
-    }
+  .table-row.row-indent-0 {
+    @include color($color-chip, r, c);
+    @include border(1px, solid, shallow, bottom);
+    padding:.02rem 0;
   }
   //------------------------------------------
   .ti-icon .icon-icon i {font-size:1em;}
-  .ti-tree-node.at-depth-0 > .nd-self .ti-icon .icon-icon i {font-size:1.2em;}
-  .ti-tree-node.at-depth-1 > .nd-self .ti-icon .icon-icon i {font-size:1.2em;}
+  .table-row.row-indent-0 .icon-icon i {font-size:1.2em;}
+  .table-row.row-indent-1 .icon-icon i {font-size:1.2em;}
   //------------------------------------------
 }
 //////////////////////////////////////////////

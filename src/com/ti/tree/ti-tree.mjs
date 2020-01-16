@@ -2,9 +2,8 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   data : ()=>({
-    "theTopData" : [],
-    "openNodePaths" : {},
-    "selectedNodePath" : null
+    "treeTableData" : [],
+    "openNodePaths" : {}
   }),
   //////////////////////////////////////////
   props : {
@@ -21,13 +20,29 @@ export default {
       type : Array,
       default : ()=>[]
     },
-    "value" : null,
-    // If `tip` without defined, use this key
-    // The key should be considering as it in prop data element
-    // As we said, the `orginal data key`
-    "defaultTipKey" : {
+    "idBy" : {
+      type : [String, Function],
+      default : "id"
+    },
+    "nameBy" : {
+      type : [String, Function],
+      default : "name"
+    },
+    "childrenBy" : {
+      type : [String, Function],
+      default : "children"
+    },
+    "leafBy" : {
+      type    : [String, Function],
+      default : "!children"
+    },
+    "title" : {
       type : String,
-      default : null
+      default : 'i18n:title'
+    },
+    "display" : {
+      type : [String, Object, Array],
+      default : "name"
     },
     // Default to open the node in depth.
     // the top node depth is 1, which is eqausl the path array length.
@@ -41,19 +56,38 @@ export default {
       type : String,
       default : null
     },
-    // How to mapping the list to formed value
-    "mapping" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "defaultIcon" : {
-      type : [String, Object],
-      default : null
-    },
-    // Href tmpl like "/xx/xx?id=${value}"
-    "href" : {
+    "changedId" : {
       type : String,
       default : null
+    },
+    "currentId" : {
+      type : String,
+      default : null
+    },
+    "checkedIds" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "multi" : {
+      type : Boolean,
+      default : false
+    },
+    "checkable" : {
+      type : Boolean,
+      default : false
+    },
+    // select item
+    "selectable" : {
+      type : Boolean,
+      default : true
+    },
+    "cancelable" : {
+      type : Boolean,
+      default : true
+    },
+    "hoverable" : {
+      type : Boolean,
+      default : true
     },
     "width" : {
       type : [String, Number],
@@ -63,39 +97,29 @@ export default {
       type : [String, Number],
       default : null
     },
-    // select item
-    "selectable" : {
-      type : Boolean,
-      default : true
-    },
-    // show hover
-    "hoverable" : {
-      type : Boolean,
-      default : true
-    },
-    // rename items, it will pass on to slot.default
-    "renameable" : {
-      type : Boolean,
-      default : false
-    },
-    // auto scroll the first highlight items into view
     "autoScrollIntoView" : {
       type : Boolean,
       default : true
     },
-    // If true, when focus one node, it will auto-open the sub-tree
     "autoOpen" : {
       type : Boolean,
       default : false
     },
     "nodeHandleIcons" : {
-      type : Object,
-      default : ()=>({
-        "opened" : "zmdi-chevron-down",
-        "closed" : "zmdi-chevron-right"
-      })
+      type : Array,
+      default : ()=>[
+        "zmdi-chevron-right",
+        "zmdi-chevron-down"]
     },
-    // Same as table
+    "border" : {
+      type : String,
+      default : "column",
+      validator : v => /^(row|column|cell|none)$/.test(v)
+    },
+    "extendFunctionSet" : {
+      type : Object,
+      default : ()=>({})
+    },
     "fields" : {
       type : Array,
       default : ()=>[]
@@ -103,16 +127,7 @@ export default {
   },
   //////////////////////////////////////////
   watch : {
-    "value" : function(val) {
-      this.selectedNodePath = val
-      if(!_.isNull(val)) {
-        if(this.autoScrollIntoView) {
-          this.$nextTick(()=>{
-            this.scrollFirstSelectedIntoView()
-          })
-        }
-      }
-    }
+    
   },
   //////////////////////////////////////////
   computed : {
@@ -120,8 +135,7 @@ export default {
     topClass() {
       return Ti.Css.mergeClassName({
         "is-selectable"  : this.selectable,
-        "is-hoverable"   : this.hoverable,
-        "is-drop-opened" : this.dropOpened
+        "is-hoverable"   : this.hoverable
       }, this.className)
     },
     //--------------------------------------
@@ -156,190 +170,155 @@ export default {
       }
     },
     //--------------------------------------
+    getNodeId() {
+      if(_.isFunction(this.idBy)) {
+        return (it)=>this.idBy(it)
+      }
+      return (it)=>_.get(it, this.idBy)
+    },
+    //--------------------------------------
+    getNodeName() {
+      if(_.isFunction(this.nameBy)) {
+        return it => this.nameBy(it)
+      }
+      return it => _.get(it, this.nameBy)
+    },
+    //--------------------------------------
+    isNodeLeaf() {
+      if(_.isFunction(this.leafBy)) {
+        return it => (this.leafBy(it) ? true : false)
+      }
+      // Not
+      let m = /^(!)?(.+)$/.exec(this.leafBy)
+      let isNot = m[1] ? true : false
+      let keyPath = _.trim(m[2])
+      return it => (_.get(it, keyPath) ? !isNot : isNot)
+    },
+    //--------------------------------------
+    getNodeChildren() {
+      if(_.isFunction(this.childrenBy)) {
+        return it => this.childrenBy(it)
+      }
+      return it => _.get(it, this.childrenBy)
+    },
+    //--------------------------------------
     hasData() {
-      return !_.isEmpty(this.theTopData)
+      return !_.isEmpty(this.treeTableData)
     },
     //--------------------------------------
     isTable() {
       return _.isArray(this.fields) && !_.isEmpty(this.fields)
     },
     //--------------------------------------
-    theFields() {
-      let fields = []
-      for(let fld of this.fields) {
-        let display = this.evalFieldDisplay(fld)
-        fields.push({
-          key    : fld.key,
-          title  : fld.title,
-          nowrap : fld.nowrap,
-          display
-        })
+    theTableHead() {
+      if(this.isTable) {
+        return "frozen"
       }
-      return fields
+      return "none"
+    },
+    //--------------------------------------
+    theTableFields() {
+      let mainCol = {
+        title   : this.title,
+        display : this.display
+      }
+      if(this.isTable) {
+        return _.concat(mainCol, this.fields)
+      }
+      return [mainCol]
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    async evalChildren(list=[], path=[]) {
-      let children = []
-      for(let index=0; index<list.length; index++) {
-        let li = list[index]
-        let nd = await this.evalTreeNode(li, index, path)
-        let it = {}
-        if(this.isTable) {
-          it = await this.evalListItem(this.theFields, li)
+    async evalTreeTableData() {
+      this.treeTableData = []
+
+      if(!_.isEmpty(this.data)) {
+        for(let item of this.data) {
+          await this.joinTreeTableRow(this.treeTableData, item)
         }
-        children.push({
-          ...nd, ...it
-        })
       }
-      return children
     },
     //--------------------------------------
-    /***
-     * Each Tree Node 
-     */
-    async evalTreeNode(node={}, index=0, path=[]) {
-      let nd
-      // Mapping
-      if(_.isPlainObject(this.mapping)) {
-        nd = Ti.Util.mapping(node, this.mapping)
+    async joinTreeTableRow(rows=[], item={}, path=[]) {
+      let itName = this.getNodeName(item)
+      let itPath = _.concat(path, itName)
+      let itPathId = itPath.join("/")
+      let itId = Ti.Util.fallbackNil(this.getNodeId(item), itPathId)
+      let itLeaf = this.isNodeLeaf(item)
+      let opened = this.openNodePaths[itPathId] ? true : false;
+      // Join Self
+      let self = {
+        id     : itId,
+        name   : itName,
+        icon   : itLeaf 
+                  ? true
+                  : this.nodeHandleIcons[opened ? 1 : 0],
+        opened : opened,
+        indent : path.length,
+        path   : itPath,
+        pathId : itPathId,
+        leaf   : itLeaf,
+        rawData : item 
       }
-      // Just clone it
-      else {
-        nd = _.cloneDeep(node)
+      rows.push(self)
+
+      // Join Children
+      if(self.opened && !self.leaf) {
+        let children = await this.getNodeChildren(item)
+        for(let child of children) {
+          await this.joinTreeTableRow(rows, child, self.path)
+        }
       }
-      // Self
-      nd.index = index
-      _.defaults(nd, {
-        className : this.nodeClassName,
-        name : `N${index}`,
-        text : nd.name,
-        icon : nd.leaf 
-                ? this.theDefaultLeafIcon
-                : this.theDefaultNodeIcon,
-        tip  : node[this.defaultTipKey],
-        href : this.href
-      })
-      // Eval Path
-      nd.path = _.concat(path, nd.name)
-      nd.depth = nd.path.length - 1
-      // Mark leaf
-      nd.leaf = !_.isArray(node.children)
-      // Test Selected
-      nd.selected = _.isEqual(nd.path, this.selectedNodePath)
-      // Test Open
-      if(nd.leaf) {
-        nd.opended = false
-      }
-      // Tree Node default to open
-      else {
-        nd.opened = Ti.Util.fallbackNil(
-          this.openNodePaths[nd.path.join("/")],
-          nd.opened,
-          nd.depth <= this.defaultOpenDepth
-        )
-      }
-      // Children
-      if(_.isArray(nd.children)) {
-        nd.children = await this.evalChildren(nd.children, nd.path)
-      }
-      // Done
-      return nd
     },
     //--------------------------------------
-    findNodeByValue(value, list=[]) {
-      if(Ti.Util.isNil(value)) {
-        return
-      }
-      for(let nd of list) {
-        if(!Ti.Util.isNil(nd.value)
-           && _.isEqual(nd.value, value)) {
-          return nd
+    findTableRow(rowId) {
+      for(let row of this.treeTableData) {
+        if(row.id == rowId) {
+          return row
         }
-        if(!nd.leaf && _.isArray(nd.children)) {
-          let re = this.findNodeByValue(value, nd.children)
-          if(!Ti.Util.isNil(re)) {
-            return re
+      }
+    },
+    //--------------------------------------
+    onRowSelected({currentId, checkedIds={}}={}) {
+      let current, selected=[]
+      // Has selected
+      if(currentId) {
+        for(let row of this.treeTableData) {
+          if(row.id == currentId) {
+            current = row.rawData
+          }
+          if(checkedIds[row.id]) {
+            selected.push(row.rowData)
           }
         }
       }
+      // Emit the value
+      // console.log("selected", {
+      //   current, selected,
+      //   currentId, checkedIds
+      // })
+      this.$emit("selected", {
+        current, selected,
+        currentId, checkedIds
+      })
     },
     //--------------------------------------
-    findNodePathByValue(value, list=[]) {
-      let node = this.findNodeByValue(value, list);
-      if(node) {
-        return node.path
+    onRowIconClick({rowId}={}) {
+      console.log(rowId)
+      let row = this.findTableRow(rowId)
+      // Open it
+      if(row && !row.leaf && !row.opened) {
+        this.$set(this.openNodePaths, row.pathId, true)
       }
-    },
-    //--------------------------------------
-    evalSelectedNodePath() {
-      if(this.selectable) {
-        this.$nextTick(()=>{
-          this.selectedNodePath = this.findNodePathByValue(this.value, this.theTopData)
-        })
-      }
-    },
-    //--------------------------------------
-    scrollFirstSelectedIntoView() {
-      // find the first selected element
-      let [$first] = Ti.Dom.findAll("li.is-selected", this.$el)
-      if($first) {
-        let rect = Ti.Rects.createBy($first)
-        let view = Ti.Rects.createBy(this.$el)
-        if(!view.contains(rect)) {
-          this.$el.scrollTop += rect.top - view.top
-        }
-      }
-    },
-    //--------------------------------------
-    onNodeSelect(nd={}) {
-      //console.log("select", nd)
-      // Without value, toggle open
-      if(Ti.Util.isNil(nd.value)) {
-        if(nd.opened) {
-          this.onNodeClose(nd)
-        } else {
-          this.onNodeOpen(nd)
-        }
-      }
-      // Select the Node
+      // Close it
       else {
-        // Mark selected
-        if(this.selectable) {
-          this.selectedNodePath = nd.path
-        }
-        // Emit message
-        this.$emit("select", nd)
-        // Auto Open Node
-        if(!nd.leaf && this.autoOpen && !nd.opened) {
-          this.onNodeOpen(nd)
-        }
+        this.$set(this.openNodePaths, row.pathId, false)
       }
-    },
-    //--------------------------------------
-    onNodeOpen(nd={}) {
-      //console.log("open")
-      this.openNodePaths = _.assign({}, this.openNodePaths, {
-        [nd.path.join("/")] : true
-      })
+      // Save to Local
       this.saveNodeOpenStatus()
-      this.$emit("opened", nd)
-    },
-    //--------------------------------------
-    onNodeClose(nd={}) {
-      //console.log("close")
-      this.openNodePaths = _.assign({}, this.openNodePaths, {
-        [nd.path.join("/")] : false
-      })
-      this.saveNodeOpenStatus()
-      this.$emit("closed", nd)
-    },
-    //--------------------------------------
-    onNodeChanged(payload){
-      console.log(payload)
     },
     //--------------------------------------
     saveNodeOpenStatus() {
@@ -351,39 +330,27 @@ export default {
   },
   //////////////////////////////////////////
   watch : {
-    "value" : function(val) {
-      this.evalSelectedNodePath()
-    },
     "data" : async function() {
-      this.evalSelectedNodePath()
-      this.theTopData = await this.evalChildren(this.data)
-    },
-    "selectedNodePath" : async function() {
-      this.theTopData = await this.evalChildren(this.data)
-    },
-    "openNodePaths" : async function() {
-      this.theTopData = await this.evalChildren(this.data)
+      await this.evalTreeTableData()
     }
   },
   //////////////////////////////////////////
   mounted : async function() {
     let vm = this
-    // this.focusIndex = this.focus
-    // this.__on_mouseup = function(index){
-    //   vm.focusIndex = -1
-    // }
     // Ti.Dom.watchDocument("mouseup", this.__on_mouseup)
-    //console.log("tree mounted")
-    this.theTopData = await this.evalChildren(this.data)
-
-    this.evalSelectedNodePath()
-
+    // Recover the open status from local store
     if(this.keepOpenBy) {
       this.openNodePaths = Ti.Storage.session.getObject(this.keepOpenBy)
     }
-    if(this.autoScrollIntoView) {
-      this.scrollFirstSelectedIntoView()
-    }
+
+    // Eval Data
+    await this.evalTreeTableData()
+
+    // Watch Deep
+    this.$watch("openNodePaths", ()=>{
+      this.evalTreeTableData()
+    }, {deep:true})
+    
   },
   //////////////////////////////////////////
   beforeDestroy : function(){

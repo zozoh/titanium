@@ -22,6 +22,13 @@ export default {
         }
       }
       return list;
+    },
+    //-------------------------------------
+    theCheckedIds() {
+      if(!this.highlightItemId) {
+        return []
+      }
+      return [this.highlightItemId]
     }
     //-------------------------------------
   },
@@ -47,10 +54,12 @@ export default {
       }
     },
     //-------------------------------------
-    onItemActived({name, value}={}){
-      this.$emit("item:actived", {
-        id : value
-      })
+    onItemActived({current={}}={}){
+      if(current.value) {
+        this.$emit("item:actived", {
+          id : current.value
+        })
+      }
     }
     //-------------------------------------
   }

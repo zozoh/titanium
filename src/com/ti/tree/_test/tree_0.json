@@ -2,12 +2,11 @@
   "comType" : "ti-tree",
   "comConf" : {
     "data"   : "..",
-    "value"  : "b111",
+    "keepOpenBy" : "wn-tree-test-0",
+    "currentId"  : "b111",
+    "selectable" : false,
     "href"   : "/a/open/aaa?id=${value}",
-    "defaultIcon" : {
-      "leaf" : "zmdi-collection-speaker",
-      "node" : "zmdi-movie-alt"
-    },
+    "display" : ["<icon:zmdi-odnoklassniki>", "name"],
     "width"  : 400,
     "height" : 500
   },

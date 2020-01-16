@@ -7,9 +7,21 @@
   <div class="table-row-head"
     :style="theRowHeadStyle">
     <!-- Indents -->
+    <div v-for="n in indent"
+        class="row-indent"></div>
     <!--ICON: Handler-->
+    <template v-if="icon">
+      <ti-icon
+        v-if="hasRealIcon"
+          class="row-icon"
+          :value="icon"
+          @click.native.left.stop="onClickIcon"/>
+      <div v-else
+        class="row-icon"></div>
+    </template>
     <!--ICON: Checker-->
     <ti-icon v-if="checkable"
+        class="row-checker"
         :value="theCheckIcon"
         @click.native.left.stop="onClickChecker"/>
   </div>

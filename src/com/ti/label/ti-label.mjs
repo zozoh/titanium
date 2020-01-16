@@ -31,20 +31,41 @@ export default {
     "dict" : {
       type : String,
       default : null
+    },
+    "href" : {
+      type : String,
+      default : null
+    },
+    "newTab" : {
+      type : Boolean,
+      default : false
     }
   },
   //////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    topClass() {
+      return {
+        "is-blank" : this.isBlank
+      }
+    },
+    //--------------------------------------
     isBlank() {
       if(_.isNumber(this.value))
         return false
       return this.value ? false : true
     },
-    topClass() {
-      return {
-        "is-blank" : this.isBlank
+    //--------------------------------------
+    theLinkTarget() {
+      if(this.newTab) {
+        return "_blank"
       }
+    },
+    //--------------------------------------
+    hasHref() {
+      return this.href ? true : false
     }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   watch : {

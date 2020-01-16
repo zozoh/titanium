@@ -19,7 +19,7 @@ Table
 
 - `select`: User click one row
 - `check`: User click the `checkbox` of one row, or `Ctrl/Shift+Click` in `multi` mode.
-- `cancel` Unselect the checked row.
+- `cancel` Unselect the checked rows.
 
 -------------------------------------------------------------------
 # Properties
@@ -34,7 +34,7 @@ Table
 }
 ```
 
-Defind each column of the table by `Array{Object}`, the element in Array like:
+Defind each column of the table by `Array{Object}`, the elements in Array like:
 
 ```js
 {
@@ -75,10 +75,11 @@ It will be formatted to Array like:
   // Component
   comType : "ti-label",
   comConf : {
-    "..." : {..},    // ... will extends all value to comConf
-    "val" : "${=value}"   // value from row data by key
-    "obj" : ".."          // value for whole row data
-    "age" : "${info.age}" // value from row data
+    "..."  : {..},    // ... will extends all value to comConf
+    "val"  : "${=value}"   // value from row data by key
+    "obj"  : ".."          // value for whole row data
+    "age"  : "${info.age}" // value from row data
+    "href" : "(value)?/a/to?id-${value}" // test the value before render
   }
 }]
 ```
@@ -109,6 +110,54 @@ Indicate the way to get `id` from raw data. The value could be:
 
 The `id` of the raw data is the unique identification of each record.
 The value of the `id` should be `String`.
+
+-------------------------------------------------------------------
+## rawDataBy
+
+```js
+"rawDataBy" : {
+  type : [Object, String, Function],
+  default : _.identity
+}
+```
+
+Each time eval the row data, it will be invoked to get the raw-data.
+
+- `Object` : Object mapping 
+- `String` : Get the value of row data
+- `Function` : transform function with one argument `(itemInData)`
+
+-------------------------------------------------------------------
+## iconBy
+
+```js
+"iconBy" : {
+  type : [String, Function],
+  default : _.identity
+}
+```
+
+Get the icon data from the row data
+
+- `String` : Get the value of row data
+- `Function` : transform function with one argument `(itemInData)`
+
+-------------------------------------------------------------------
+## indentBy
+
+```js
+"indentBy" : {
+  type : [String, Function],
+  default : null
+}
+```
+
+Get the row indent from the row data
+
+- `String` : Get the value of row data
+- `Function` : transform function with one argument `(itemInData)`
+
+Default `null` will cause the indent as `0`.
 
 -------------------------------------------------------------------
 ## className
@@ -255,9 +304,30 @@ If `true`, user can cancle selected current row by click blank area.
 If `true`, show hover style when mouse hover the table-row.
 
 -------------------------------------------------------------------
+## puppetMode
+
+```js
+{
+  type : Boolean,
+  default : false
+}
+```
+
+If `true`, it will not update private status when user seleced any row:
+
+- `myCheckedIds`
+- `myCurrentId`
+- `myLastIndex`
+
+Only parent component can update them by relative properites:
+
+- `checkedIds`
+- `currentId`
+
+-------------------------------------------------------------------
 ## border
 
-```
+```js
 "border" : {
   type : String,
   default : "row",
@@ -273,7 +343,19 @@ Indicate the border aspect.
 - `cell`: border for each cell
 
 -------------------------------------------------------------------
-# Data
+## autoScrollIntoView
+
+```js
+"autoScrollIntoView" : {
+  type : Boolean,
+  default : true
+}
+```
+
+Auto scroll the first highlight item into view
+
+-------------------------------------------------------------------
+# data
 
 ```js
 data: ()=>({
@@ -289,10 +371,4 @@ data: ()=>({
 })
 ```
 
--------------------------------------------------------------------
 
--------------------------------------------------------------------
-
--------------------------------------------------------------------
-
--------------------------------------------------------------------

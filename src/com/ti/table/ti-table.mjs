@@ -21,6 +21,18 @@ export default {
       type : [String, Function],
       default : "id"
     },
+    "rawDataBy" : {
+      type : [Object, String, Function],
+      default : _.identity
+    },
+    "iconBy" : {
+      type : [String, Function],
+      default : null
+    },
+    "indentBy" : {
+      type : [String, Function],
+      default : null
+    },
     "className" : {
       type : String,
       default : null
@@ -57,7 +69,6 @@ export default {
       type : Boolean,
       default : false
     },
-    // select item
     "selectable" : {
       type : Boolean,
       default : true
@@ -69,6 +80,10 @@ export default {
     "hoverable" : {
       type : Boolean,
       default : true
+    },
+    "puppetMode" : {
+      type : Boolean,
+      default : false
     },
     "width" : {
       type : [Number, String],
@@ -89,6 +104,10 @@ export default {
       type : String,
       default : "column",
       validator : v => /^(row|column|cell|none)$/.test(v)
+    },
+    "autoScrollIntoView" : {
+      type : Boolean,
+      default : true
     }
   },
   ///////////////////////////////////////////////////
@@ -121,14 +140,55 @@ export default {
       }
     },
     //--------------------------------------
+    getRowId() {
+      if(_.isFunction(this.idBy)) {
+        return it => this.idBy(it)
+      }
+      return (it)=>_.get(it, this.idBy)
+    },
+    //--------------------------------------
+    getRowIndent() {
+      if(_.isFunction(this.indentBy)) {
+        return it => this.indentBy(it)
+      }
+      if(_.isString(this.indentBy)) {
+        return it => _.get(it, this.indentBy)
+      }
+      return it => 0
+    },
+    //--------------------------------------
+    getRowIcon() {
+      if(_.isFunction(this.iconBy)) {
+        return it => this.iconBy(it)
+      }
+      if(_.isString(this.iconBy)) {
+        return it => _.get(it, this.iconBy)
+      }
+      return it => null
+    },
+    //--------------------------------------
+    getRowData() {
+      if(_.isFunction(this.rawDataBy)) {
+        return it => this.rawDataBy(it)
+      }
+      if(_.isString(this.rawDataBy)) {
+        return it => _.get(it, this.rawDataBy)
+      }
+      if(_.isObject(this.rawDataBy)) {
+        return it => Ti.Util.mapping(it, this.rawDataBy)
+      }
+      return _.identity
+    },
+    //--------------------------------------
     theData() {
       let list = []
       _.forEach(this.data, (it, index)=>{
         list.push({
           index,
-          id     : this.getRowId(it),
-          indent : this.getRowIndent(it),
-          data   : it
+          id      : this.getRowId(it),
+          icon    : this.getRowIcon(it),
+          indent  : this.getRowIndent(it),
+          rawData : this.getRowData(it)
         })
       })
       return list
@@ -174,33 +234,6 @@ export default {
       return "far-square"
     },
     //--------------------------------------
-    theSelectedItems() {
-      let list = []
-      for(let it of this.theData) {
-        if(this.myCheckedIds[it.id]) {
-          list.push(it.data)
-        }
-      }
-      return list
-    },
-    //--------------------------------------
-    theCurrentItem() {
-      for(let it of this.theData) {
-        if(this.myCurrentId == it.id) {
-          return it.data
-        }
-      }
-    },
-    //--------------------------------------
-    theEmitContext() {
-      return {
-        selected   : this.theSelectedItems,
-        current    : this.theCurrentItem,
-        currentId  : this.myCurrentId,
-        checkedIds : this.myCheckedIds
-      }
-    },
-    //--------------------------------------
     fnSet() {
       return _.assign({}, Ti.Types, this.extendFunctionSet)
     },
@@ -224,18 +257,6 @@ export default {
   ///////////////////////////////////////////////////
   methods : {
     //--------------------------------------
-    getRowId(row) {
-      return Ti.Util.getOrPick(row, this.idBy)
-    },
-    //--------------------------------------
-    getRowIndent(row) {
-      return 0
-    },
-    //--------------------------------------
-    getRowStatusIcon(row) {
-      return null
-    },
-    //--------------------------------------
     headCellStyle(index=-1) {
       if(this.myColSizes.amended.length > index) {
         return Ti.Css.toStyle({
@@ -253,15 +274,43 @@ export default {
       return -1
     },
     //--------------------------------------
+    getEmitContext(
+      currentId, 
+      checkedIds={}
+    ) {
+      let selected = []
+      let current = null
+      for(let row of this.theData) {
+        if(row.id == currentId) {
+          current = row.rawData
+        }
+        if(checkedIds[row.id]) {
+          selected.push(row.rawData)
+        }
+      }
+      return {
+        currentId, checkedIds,
+        selected, current
+      }
+    },
+    //--------------------------------------
     selectRow(rowId) {
-      this.myCheckedIds = {[rowId]:true}
-      this.myCurrentId  = rowId
-      this.myLastIndex  = this.findRowIndexById(rowId)
+      let theCheckedIds = {[rowId]:true}
+      let theCurrentId  = rowId
+      let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+      // Private Mode
+      if(!this.puppetMode) {
+        this.myCheckedIds = theCheckedIds
+        this.myCurrentId  = theCurrentId
+        this.myLastIndex  = this.findRowIndexById(rowId)
+      }
       // Notify Changes
-      this.$emit("selected", this.theEmitContext)
+      this.$emit("selected", emitContext)
     },
     //--------------------------------------
     selectRowsToCurrent(rowId) {
+      let theCheckedIds = _.cloneDeep(this.myCheckedIds)
+      let theCurrentId  = this.myCurrentId
       let theIndex = this.findRowIndexById(rowId)
       if(theIndex >= 0) {
         let fromIndex = Math.min(theIndex, this.myLastIndex)
@@ -271,41 +320,72 @@ export default {
         }
         for(let i=fromIndex; i<=toIndex; i++) {
           let row = this.theData[i]
-          this.checkRow(row.id)
+          theCheckedIds[row.id] = true
+        }
+        // Eval context
+        let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+        // Private Mode
+        if(!this.puppetMode) {
+          this.myCheckedIds = theCheckedIds
+          this.myCurrentId  = theCurrentId
+          this.myLastIndex  = theIndex
         }
         // Notify Changes
-        this.$emit("selected", this.theEmitContext)
+        this.$emit("selected", emitContext)
       }
     },
     //--------------------------------------
     checkRow(rowId) {
+      let theCheckedIds = _.cloneDeep(this.myCheckedIds)
+      let theCurrentId  = this.myCurrentId
+      let theIndex = 0
       if(_.isUndefined(rowId)) {
-        this.myCheckedIds = {}
+        theCheckedIds = {}
         _.forEach(this.theData, (row)=>{
-          this.myCheckedIds[row.id] = true
+          theCheckedIds[row.id] = true
         })
       }
       // Single row
       else {
-        this.$set(this.myCheckedIds, rowId, true)
+        theIndex = this.findRowIndexById(rowId)
+        theCheckedIds[rowId] = true
+      }
+      // Eval context
+      let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+      // Private Mode
+      if(!this.puppetMode) {
+        this.myCheckedIds = theCheckedIds
+        this.myCurrentId  = theCurrentId
+        this.myLastIndex  = theIndex
       }
       // Notify Changes
-      this.$emit("selected", this.theEmitContext)
+      this.$emit("selected", emitContext)
     },
     //--------------------------------------
     cancelRow(rowId) {
+      console.log("haha")
+      let theCheckedIds = _.cloneDeep(this.myCheckedIds)
+      let theCurrentId  = this.myCurrentId
+      let theIndex = 0
       if(_.isUndefined(rowId)) {
-        this.myCheckedIds = {}
-        this.myCurrentId = null
-        this.myLastIndex = 0
+        theCheckedIds = {}
+        theCurrentId = null
       }
       // Single row
       else {
-        this.$set(this.myCheckedIds, rowId, false)
+        theIndex = this.findRowIndexById(rowId)
+        theCheckedIds[rowId] = false
+      }
+      // Eval context
+      let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+      // Private Mode
+      if(!this.puppetMode) {
+        this.myCheckedIds = theCheckedIds
+        this.myCurrentId  = theCurrentId
+        this.myLastIndex  = theIndex
       }
       // Notify Changes
-      //console.log("canceled", this.theEmitContext)
-      this.$emit("selected", this.theEmitContext)
+      this.$emit("selected", emitContext)
     },
     //--------------------------------------
     toggleRow(rowId) {
@@ -316,8 +396,8 @@ export default {
       }
     },
     //--------------------------------------
-    onRowToggle({rowId, shift}={}) {
-      console.log(rowId, shift)
+    onRowCheckerClick({rowId, shift}={}) {
+      //console.log(rowId, shift)
       if(this.multi) {
         // Shift Mode
         if(shift) {
@@ -377,28 +457,34 @@ export default {
       let items = []
       // Loop each items
       for(let li of displayItems) {
-        let m = /^<([^:>]*):([^>]+)>$/.exec(li)
+        let m = /^<([^:>]*)(:([^>]+))?>$/.exec(li)
         // Icon
         if(m) {
           items.push({
             key       : m[1] || Symbol(li),
-            defaultAs : m[2],
+            defaultAs : m[3] || undefined,
             comType   : "ti-icon"
           })
+          continue
         }
         // String|Array -> ti-label
-        else if(_.isString(li) || _.isArray(li)) {
+        if(_.isString(li) || _.isArray(li)) {
+          m = /^([^+-]+)(([+-])>(.+))?$/.exec(li)
+          let key  = _.trim(m[1] || m[0])
+          let newTab = m[3] == "+"
+          let href = _.trim(m[4])
           items.push({
-            key  : li,
-            //type : "String",
+            key,
             comType : "ti-label",
-            comConf : {}
+            comConf : {
+              newTab, href
+            }
           })
+          continue
         }
         // Plan Object
-        else if(_.isPlainObject(li) && li.key){
+        if(_.isPlainObject(li) && li.key){
           items.push(_.assign({
-            //type    : li.type || "String",
             comType : "ti-label",
           }, li))
         }

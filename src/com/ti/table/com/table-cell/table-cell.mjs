@@ -132,7 +132,24 @@ export default {
         }
         // "${info.age}" : value from row data
         else if(_.isString(val)) {
-          val = Ti.S.renderBy(val, itemData)
+          let m = /^(\((.+)\)\?)?(.+)$/.exec(val)
+          if(m) {
+            let preKey = _.trim(m[2])
+            let tmpl = _.trim(m[3])
+            //console.log("haha", preKey, tmpl)
+            // Only `itemData` contains the preKey, render the value
+            if(preKey) {
+              if(_.get(itemData, preKey)) {
+                val = Ti.S.renderBy(tmpl, itemData)
+              } else {
+                val = null
+              }
+            }
+            // Always render the value
+            else {
+              val = Ti.S.renderBy(tmpl, itemData)
+            }
+          }
         }
 
         //

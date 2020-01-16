@@ -49,9 +49,8 @@ export default {
         off : "far-square"
       })
     },
-    // Design for tree-table handler icon
-    "statusIcon" : {
-      type : String,
+    "icon" : {
+      type : [Boolean, String],
       default : null
     }
   },
@@ -62,7 +61,11 @@ export default {
       return Ti.Css.mergeClassName({
         "is-current" : (this.rowId == this.currentId),
         "is-checked" : (this.checkedIds[this.rowId] ? true : false)
-      }, this.className)
+      }, this.className, `row-indent-${this.indent}`)
+    },
+    //-----------------------------------------------
+    hasRealIcon() {
+      return this.icon && _.isString(this.icon)
     },
     //-----------------------------------------------
     theCheckIcon() {
@@ -90,9 +93,17 @@ export default {
       }
     },
     //-----------------------------------------------
+    onClickIcon($event) {
+      this.$emit("icon", {
+        rowId  : this.rowId,
+        shift  : $event.shiftKey,
+        toggle : ($event.ctrlKey || $event.metaKey)
+      })
+    },
+    //-----------------------------------------------
     onClickChecker($event) {
       if(this.checkable) {
-        this.$emit("toggle", {
+        this.$emit("checker", {
           rowId  : this.rowId,
           shift  : $event.shiftKey,
           toggle : ($event.ctrlKey || $event.metaKey)

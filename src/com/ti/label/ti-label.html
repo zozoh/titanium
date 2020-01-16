@@ -12,7 +12,16 @@
     <span>{{prefixText|i18n}}</span>
   </div>
   <!--Text-->
-  <div class="as-value">{{theValue}}</div>
+  <div class="as-value">
+    <a 
+      v-if="hasHref"
+        :href="href"
+        :taget="theLinkTarget"
+        @click.left.prevent>{{theValue}}</a>
+    <span
+      v-else>{{theValue}}</span
+      >
+  </div>
   <!--suffix:text-->
   <div v-if="suffixText"
     class="as-text at-suffix">

@@ -8,7 +8,7 @@
     "checkable"  : true,
     "selectable" : true,
     "hoverable"  : true,
-    "cancelable" : false,
+    "cancelable" : true,
     "fields"  : [{
         "title"   : "Name",
         "display" : ["<icon:zmdi-account-o>", "name"]

@@ -1,9 +1,13 @@
 <ti-tree
   class="ti-fill-parent wn-gui-side-tree"
+  id-by="value"
+  name-by="name"
+  :display="['<icon>','text->(value)?/a/open/wn.manager?ph=id:${value}']"
   :data="theTreeData"
-  :value="highlightItemId"
-  href="/a/open/wn.manager?ph=id:${value}"
+  :current-id="highlightItemId"
+  :checked-ids="theCheckedIds"
   keep-open-by="wn-gui-side-tree"
   :auto-open="true"
   :default-open-depth="1"
-  @select="onItemActived"/>
+  :puppet-mode="true"
+  @selected="onItemActived"/>

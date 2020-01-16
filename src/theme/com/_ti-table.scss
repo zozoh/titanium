@@ -81,6 +81,8 @@
       > .table-cell {display:table-cell;}
     }
     //-------------------------------------------
+    // Table Row 
+    //-------------------------------------------
     .table-row {
       @include flex-align-nowrap($ai:stretch);
       //-----------------------------------------
@@ -89,21 +91,33 @@
       //-----------------------------------------
       &.is-checked {
         @include color($color-primary, r, c);
-      }
-      //-----------------------------------------
-      > .table-row-head {
-        @include flex-align-nowrap;
-        padding:0 .05rem 0 .08rem;
+        a, a:hover {color:inherit;}
       }
       //-----------------------------------------
     }
     //-------------------------------------------
+    // Table Row Header
+    //-------------------------------------------
     .table-row-head {
-      .ti-icon {
+      @include flex-align-nowrap($jc:center, $ai:stretch);
+      //-----------------------------------------
+      .row-indent, .row-icon {
+        @include flex-center;
+        width:.16rem;
+      }
+      //-----------------------------------------
+      .row-icon, .row-checker {
         cursor: pointer; 
         &:hover {@include color($color-secondary, c);}
       }
+      //-----------------------------------------
+      .row-checker {
+        margin:0 .04rem;
+      }
+      //-----------------------------------------
     }
+    //-------------------------------------------
+    // Table Cell
     //-------------------------------------------
     .table-cell {
       @include flex($ai:stretch);
@@ -111,6 +125,9 @@
       > .cell-con {
         @include flex-align-center; flex:1 1 auto;
         line-height: 2.4em; padding:0 .04rem;
+        > .ti-icon {
+          width:.24rem;
+        }
       }
       //-----------------------------------------
       &.is-nowrap > .cell-con {
