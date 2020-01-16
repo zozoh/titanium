@@ -1,0 +1,6 @@
+{
+  "name" : "ti-table-row",
+  "globally" : true,
+  "template" : "./table-row.html",
+  "mixins" : ["./table-row.mjs"]
+}

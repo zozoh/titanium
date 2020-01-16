@@ -1,0 +1,35 @@
+{
+  "comType" : "ti-table",
+  "comConf" : {
+    "className" : "ti-fill-parent",
+    "data"   : "..",
+    "border" : "cell",
+    "multi"      : true,
+    "checkable"  : true,
+    "selectable" : true,
+    "hoverable"  : true,
+    "cancelable" : false,
+    "fields"  : [{
+        "title"   : "Name",
+        "display" : ["<icon:zmdi-account-o>", "name"]
+      }, {
+        "title" : "Age",
+        "display" : "age"
+      }, {
+        "title" : "Birthday",
+        "display" : {
+          "key" : "birthday",
+          "transformer" : "formatDate"
+        }
+      }, {
+        "title"   : "Dead",
+        "display" : {
+          "key" : "dead",
+          "comType" : "ti-toggle"
+        }
+      }]
+  },
+  "dispatchActions" : {
+    
+  }
+}

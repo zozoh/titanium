@@ -10,21 +10,21 @@
   "list" : {
     "comType" : "wn-table",
     "comConf" : {
-      "list" : "=search.list",
+      "data" : "=search.list",
       "changedId"  : "=changedRowId",
       "currentId"  : "=search.currentId",
       "checkedIds" : "=search.checkedIds",
-      "border" : true,
       "checkable" : true,
       "multi"  : true,
       "fields" : [{
         "title" : "账户",
+        "nowrap" : true,
         "display" : ["@<thumb:zmdi-account>", "nickname", "nm"]
       }, {
         "title" : "角色",
         "display" : {
           "key"  : "role",
-          "dict" : "Roles"
+          "dict" : "RoleNames"
         }
       }, {
         "title" : "性别",
@@ -58,7 +58,7 @@
         }]
       },
       "data" : {
-        "th_nm" : "新用户"
+        "nickname" : "新用户"
       }
     }
   },
@@ -108,7 +108,7 @@
             "comConf" : {
               "options" : {
                 "method" : "Wn.Dict.getAll",
-                "args" : ["Roles"]
+                "args" : ["RoleNames"]
               },
               "mapping" : {
                 "value" : "nm",

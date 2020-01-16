@@ -1,0 +1,25 @@
+<div class="table-row"
+  :class="topClass"
+  @click.left.stop="onClickRow">
+  <!--
+    Prefix
+  -->
+  <div class="table-row-head"
+    :style="theRowHeadStyle">
+    <!-- Indents -->
+    <!--ICON: Handler-->
+    <!--ICON: Checker-->
+    <ti-icon v-if="checkable"
+        :value="theCheckIcon"
+        @click.native.left.stop="onClickChecker"/>
+  </div>
+  <!--
+    Cells
+  -->
+  <ti-table-cell v-for="fld in fields"
+    :key="fld.index"
+    v-bind="fld"
+    :cell-size="getCellSize(fld.index + 1)"
+    :data="data"
+    @item:changed="$emit('item:changed', $event)"/>
+</div>

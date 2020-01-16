@@ -11,10 +11,10 @@ tags:
 
 ```
 Table
-|-- data
-    |-- Record
-        |-- Field Cell
-            |-- Display Item
+|-- Data
+    |-- Row
+        |-- Cell
+            |-- Item
 ```
 
 - `select`: User click one row
@@ -34,43 +34,63 @@ Table
 }
 ```
 
-Defind each column of the table by `Array{Object}`, The element in Array should like:
+Defind each column of the table by `Array{Object}`, the element in Array like:
 
 ```js
 {
-  title : "i18n:xxx",
-  display : "theName"
+  title  : "i18n:xxx",     // column title
+  nowrap : false,          // keep items nowrap
+  display : "theName"      // How to display the row data in cell
 }
 ```
 
-The field `display` defined how to render the column.
+The field `display` defined how to render the cell of table.
 You can declare the value in three modes below:
 
  Type     | Description
 ----------|------------
-`String`  | render by `ti-label`
-`Object`  | customized the display method
+`String`  | key in raw data, rendered by `ti-label` 
+`Object`  | customized the display component 
 `Array{String|Object}` | multi rendering
 
 It will be formatted to Array like:
 
 ```js
 [{
-  key : "theName",
-  uniqueKey : "theName", // String form by `key`
-  type : "String",       // @see Ti.Types
-  transformer : "toStr", // @see Ti.Types.getFuncByType()
+  key : "theName",        // How to pick out the value from row data
+  uniqueKey : "theName",  // String form for `key`
+  defaultAs : undefined,  // The default value if nil pick out
+  //-------------------------------
+  // Translate value by special dictionary
+  // @see Wn.Dict.get
+  dict : "DictionaryName",
+  //-------------------------------
+  // Transformer
+  //  - `type` for the default transformer
+  //  - `transformer` for the customized one in higher priority
+  type : "String",        // @see Ti.Types 
+  transformer : "toStr",  // @see Ti.Types.getFuncByType()
+  transNil : false,  // force to call transformer even the value is nil
+  //-------------------------------
+  // Component
   comType : "ti-label",
-  comConf : {}
+  comConf : {
+    "..." : {..},    // ... will extends all value to comConf
+    "val" : "${=value}"   // value from row data by key
+    "obj" : ".."          // value for whole row data
+    "age" : "${info.age}" // value from row data
+  }
 }]
 ```
 
 The `key` present the way how to pick the value from row data.
 It can be `String` or `Array`:
-- `String` : as key path to get the value
-- `Array`  : as key set to pick a new object
+- `String` : dynamic picking or static value
+  - `a.b.c` :  as key path to get the value
+  - `'Hello'`: as static value to render directly
+- `Array`  : as key set to pick out a new object
 
-**Note!!** If key is falsy, the field will be ignored
+**Note!!** If `key` is falsy, the field will be ignored
 
 -------------------------------------------------------------------
 ## idBy
@@ -223,6 +243,18 @@ Can select
 If `true`, user can cancle selected current row by click blank area.
 
 -------------------------------------------------------------------
+## hoverable
+
+```js
+{
+  type : Boolean,
+  default : true
+}
+```
+
+If `true`, show hover style when mouse hover the table-row.
+
+-------------------------------------------------------------------
 ## border
 
 ```
@@ -256,7 +288,6 @@ data: ()=>({
   }
 })
 ```
-
 
 -------------------------------------------------------------------
 

@@ -61,7 +61,7 @@
 .wn-gui-side-tree {
   padding-right:0; padding-left:0;
   //------------------------------------------
-  .ti-tree-node.at-depth-1 {
+  .ti-tree-node.at-depth-0 {
     > .nd-self {
       @include color($color-chip, r, c);
       @include border(1px, solid, shallow, bottom);
@@ -74,8 +74,8 @@
   }
   //------------------------------------------
   .ti-icon .icon-icon i {font-size:1em;}
+  .ti-tree-node.at-depth-0 > .nd-self .ti-icon .icon-icon i {font-size:1.2em;}
   .ti-tree-node.at-depth-1 > .nd-self .ti-icon .icon-icon i {font-size:1.2em;}
-  .ti-tree-node.at-depth-2 > .nd-self .ti-icon .icon-icon i {font-size:1.2em;}
   //------------------------------------------
 }
 //////////////////////////////////////////////
@@ -83,6 +83,7 @@
 .wn-gui-arena {
   width:100%; height:100%;
   overflow: hidden;
+  position: relative;
 }
 //////////////////////////////////////////////
 // Footer

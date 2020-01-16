@@ -135,7 +135,7 @@ export default {
         }
       }
       //..................................
-      await Ti.Util.invoke(fnSet, uniqueKey)
+      await Ti.DoInvokeBy(fnSet, uniqueKey)
     },
     //-----------------------------------------------
     async onInputChanged(vals) {

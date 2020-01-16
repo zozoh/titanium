@@ -24,7 +24,7 @@
   //-----------------------------------------
   &.is-on aside {
     @include color($color-primary, r, c);
-    border:1px solid transparent;
+    border:1px solid map-get($color-primary, r);
     b {
       border:1px solid transparent;
       margin-left: .16rem;

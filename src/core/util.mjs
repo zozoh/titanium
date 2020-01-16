@@ -416,6 +416,9 @@ const TiUtil = {
     if(_.isArray(key)) {
       return _.pick(obj, key)
     }
+    if(_.isFunction(key)) {
+      return key(obj)
+    }
     return _.get(obj, key)
   },
   /***

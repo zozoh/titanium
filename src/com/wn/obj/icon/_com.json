@@ -1,6 +1,6 @@
 {
   "name" : "wn-obj-icon",
   "globally" : true,
-  "template" : "./obj-icon.html",
-  "mixins" : ["./obj-icon.mjs"]
+  "template" : "./wn-obj-icon.html",
+  "mixins" : ["./wn-obj-icon.mjs"]
 }

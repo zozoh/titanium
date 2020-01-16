@@ -270,6 +270,12 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
   ln : "/rs/ti/com/ti/tree/_test/tree_0_data.json", 
   com: "/rs/ti/com/ti/tree/_test/tree_0.json"
 }
+#---------------------------------------------------------
+@FILE demo/table-0.wncom
+{
+  ln : "/rs/ti/com/ti/table/_test/table_0_data.json", 
+  com: "/rs/ti/com/ti/table/_test/table_0.json"
+}
 ##########################################################
 #
 #                     站点·数据部分

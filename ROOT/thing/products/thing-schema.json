@@ -9,11 +9,10 @@
   "list" : {
     "comType" : "wn-table",
     "comConf" : {
-      "list" : "=search.list",
+      "data" : "=search.list",
       "changedId"  : "=changedRowId",
       "currentId"  : "=search.currentId",
       "checkedIds" : "=search.checkedIds",
-      "border" : true,
       "checkable" : true,
       "multi"  : true,
       "fields" : [{

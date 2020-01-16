@@ -2,6 +2,48 @@
 .ti-tree {
   @include noselect;
   padding:.06rem; overflow:auto;
+  //------------------------------------------------
+  &.is-selectable {
+    .ti-tree-node {
+      > .nd-self {cursor: pointer;}
+      &.is-selected {
+        > .nd-self, > .nd-self:hover {
+          @include color($color-primary, r, c);
+          .nd-info .nd-text {
+            color:inherit;
+          }
+        }
+      }
+    }
+  }
+  //------------------------------------------------
+  &.is-hoverable {
+    .ti-tree-node > .nd-self:hover {
+      @include color($color-selected, r, c);
+    }
+  }
+  //------------------------------------------------
+  > .tree-head {
+    @include noselect;
+    @include flex-align-nowrap;
+    @include border(1px, solid, shallow, bottom);
+    font-size:.9em;
+    //----------------------------------------------
+    .tree-head-cell {
+      @include border(1px, solid, shallow, left);
+      flex:0 0 auto; padding:.06rem;
+      text-align: center;
+      &.as-name {
+        flex:1 1 auto; border:0;
+      }
+    }
+    //----------------------------------------------
+  }
+  //------------------------------------------------
+  > .tree-body {
+
+  }
+  //------------------------------------------------
 }
 ////////////////////////////////////////////////////
 .ti-tree-node {
@@ -9,16 +51,20 @@
   //------------------------------------------------
   > .nd-self {
     @include flex-align-nowrap;
-    cursor: pointer;
+    cursor: default;
+    padding-left:.04rem;
     //----------------------------------------------
-    &:hover {
-      @include color($color-selected, r, c);
+    .nd-indents {
+      @include flex-align-nowrap;
+      span {
+        display: block; width:1.3em;
+      }
     }
     //----------------------------------------------
     .nd-handle {
       @include flex-center;
       flex: 0 0 auto;
-      width: 1.2em; cursor: default;
+      width: 1.1em; cursor: default;
       opacity: 0.6;
       &:hover {
         opacity: 1; font-weight: bolder;
@@ -33,10 +79,10 @@
         @include flex-align-nowrap;
         flex:1 1 auto; 
         .nd-icon {
-          display: block; width: 2em;
+          display: block; width: 1.6em;
         }
         .nd-text {
-          display: block; padding:0 .02rem;
+          display: block; padding:0 .04rem;
           white-space: nowrap;
         }
       }
@@ -48,20 +94,15 @@
       //--------------------------------------------
     } // ~ .nd-box
     //----------------------------------------------
-  } // ~ > .nd-self {
-  //------------------------------------------------
-  &.is-selected {
-    > .nd-self {
-      @include color($color-primary, r, c);
-      .nd-info .nd-text {
-        color:inherit;
+    .nd-cell-row {
+      @include flex-align-nowrap;
+      > .nd-cell {
+        @include flex-center;
+        padding:0 .04rem;
       }
     }
-  }
-  //------------------------------------------------
-  > .nd-children {
-    padding-left: .2rem;
-  }
+    //----------------------------------------------
+  } // ~ > .nd-self {
   //------------------------------------------------
 }
 ////////////////////////////////////////////////////

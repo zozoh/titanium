@@ -60,21 +60,21 @@ export const Ti = {
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
   WWW, GPS, Validate, DateTime, Num, Websocket,
-  //.....................................
+  //-----------------------------------------------------
   Alert, Confirm, Prompt, Toast, Captcha, Modal,
-  //.....................................
+  //-----------------------------------------------------
   Env(key, val) {
     return Ti.Util.geset(ENV, key, val)
   },
-  //.....................................
+  //-----------------------------------------------------
   Version() {return Ti.Env("version")},
-  //.....................................
+  //-----------------------------------------------------
   SetForDev(dev=true){Ti.Env({dev})},
   IsForDev(){return Ti.Env("dev")},
-  //.....................................
+  //-----------------------------------------------------
   SetAppName(appName){Ti.Env({appName})},
   GetAppName(){return Ti.Env("appName")},
-  //.....................................
+  //-----------------------------------------------------
   Session(session) {
     return Ti.Util.geset(ENV.session, session)
   },
@@ -91,7 +91,7 @@ export const Ti = {
     ENV.session.vars = ENV.session.vars || {}
     return _.assign(ENV.session.vars, vars)
   },
-  //.....................................
+  //-----------------------------------------------------
   SetLogLevel(lv=0, cate="ROOT"){
     // Get number by name
     if(_.isString(lv))
@@ -105,17 +105,29 @@ export const Ti = {
   IsInfo (cate){return _IS_LOG(cate, LOG_LEVELS.info)},
   IsDebug(cate){return _IS_LOG(cate, LOG_LEVELS.debug)},
   IsTrace(cate){return _IS_LOG(cate, LOG_LEVELS.trace)},
-  //.....................................
+  //-----------------------------------------------------
   Invoke(fn, args=[], context) {
     if(_.isFunction(fn)) {
       context = context || this
       return fn.apply(context, args)
     }
   },
-  //.....................................
-  InvokeBy(target={}, funcName, args=[]) {
-    return Ti.Invoke(target[funcName], args, target)
+  //-----------------------------------------------------
+  InvokeBy(target={}, funcName, args=[], context) {
+    return Ti.Invoke(target[funcName], args, context||target)
+  },
+  //-----------------------------------------------------
+  async DoInvoke(fn, args=[], context) {
+    if(_.isFunction(fn)) {
+      context = context || this
+      return await fn.apply(context, args)
+    }
+  },
+  //-----------------------------------------------------
+  async DoInvokeBy(target={}, funcName, args=[], context) {
+    return await Ti.doInvoke(target[funcName], args, context||target)
   }
+  //-----------------------------------------------------
 }
 //---------------------------------------
 export default Ti

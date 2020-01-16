@@ -32,6 +32,18 @@ export default {
       default : null
     },
     "value" : null,
+    // The raw data of current node
+    "raw" : null,
+    // Display fields
+    "fields" : {
+      type : Array,
+      default : ()=>[]
+    },
+    // If table mode, each cell data
+    "cells" : {
+      type : Array,
+      default : ()=>[]
+    },
     "tip" : {
       type : String,
       default : null
@@ -111,6 +123,10 @@ export default {
         : this.handleIcons.closed
     },
     //--------------------------------------
+    isTable() {
+      return _.isArray(this.fields) && !_.isEmpty(this.fields)
+    },
+    //--------------------------------------
     theNodeData() {
       return {
         className : this.className,
@@ -147,6 +163,10 @@ export default {
       else {
         this.$emit("open", this.theNodeData)
       }
+    },
+    //--------------------------------------
+    onCellChanged(name, value) {
+      this.$emit("node:changed", {name, value})
     }
     //--------------------------------------
   }

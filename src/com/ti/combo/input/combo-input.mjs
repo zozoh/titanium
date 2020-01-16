@@ -161,7 +161,7 @@ export default {
       }
       //..................................
       // Invoke mapping key processing
-      await Ti.Util.invoke(fnSet, uniqueKey)
+      await Ti.DoInvokeBy(fnSet, uniqueKey)
       //..................................
     },
     //------------------------------------------------

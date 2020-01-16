@@ -21,6 +21,9 @@ export async function main({
   Ti.Shortcut.startListening()
   Ti.Viewport.startListening()
   //---------------------------------------
+  // Save current app name
+  Ti.SetAppName(appName)
+  //---------------------------------------
   // Load Config
   let tiConf = await Wn.Sys.exec("ti config -cqn", {
     appName : appName, as:"json"
@@ -115,9 +118,6 @@ export async function main({
   // Initialize the App
   let app = Ti.App(appInfo)
   await app.init()
-  //---------------------------------------
-  // Save current app name
-  Ti.SetAppName(app.name())
   //---------------------------------------
   Ti.Dom.watchAutoRootFontSize(app, "viewport/setMode")
   //---------------------------------------

@@ -24,7 +24,7 @@
   "type" : "line"
 }, {
   "type" : "group",
-  "icon" : "zmdi-more-vert",
+  "icon" : "im-menu",
   "items" : [{
       "key"  : "create",
       "type" : "action",
@@ -76,5 +76,19 @@
         "text" : "i18n:thing-cleaning"
       },
       "action" : "dispatch:main/cleanRecycleBin"
+    }, {
+      "type" : "line"
+    }, {
+      "type" : "action",
+      "icon" : "zmdi-keyboard",
+      "text" : "i18n:console",
+      "action" : "dispatch:openConsole",
+      "shortcut" : "ALT+SHIFT+T"
+    }, {
+      "type" : "action",
+      "icon" : "zmdi-info-outline",
+      "text" : "i18n:properties",
+      "action" : "dispatch:openProperties",
+      "shortcut" : "ALT+CTRL+P"
     }]
 }]

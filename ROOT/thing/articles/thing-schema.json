@@ -9,11 +9,10 @@
   "list" : {
     "comType" : "wn-table",
     "comConf" : {
-      "list" : "=search.list",
+      "data" : "=search.list",
       "changedId"  : "=changedRowId",
       "currentId"  : "=search.currentId",
       "checkedIds" : "=search.checkedIds",
-      "border" : true,
       "checkable" : true,
       "multi"  : true,
       "fields" : [{
@@ -124,7 +123,10 @@
     "comConf" : {
       "filesName" : "=filesName",
       "files"     : "=files",
-      "showTitle" : "文章文件表"
+      "stateLocalKey" : "=meta.id",
+      "preview"   : "=preview",
+      "dirNameTip" : null,
+      "dirNameComType" : "ti-switcher"
     }
   }
 }

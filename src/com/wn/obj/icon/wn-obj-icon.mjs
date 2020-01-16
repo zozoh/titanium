@@ -3,6 +3,7 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   props : {
+    "className" : null,
     // icon string
     "icon" : {
       type : String,
@@ -26,6 +27,9 @@ export default {
   },
   ///////////////////////////////////////////////////
   computed : {
+    topClass() {
+      return Ti.Css.mergeClassName(this.className)
+    },
     theIcon() {
       // Thumb as image
       if(this.thumb) {

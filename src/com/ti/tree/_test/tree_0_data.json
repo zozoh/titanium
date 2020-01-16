@@ -9,18 +9,18 @@
   "tip"   : "一些说明",
   "opened" : true,
   "children" : [{
-    "name"  : "乙一",
-    "value" : "b111",
-    "tip"   : "一些说明"
-  }, {
-    "name"  : "乙二",
-    "value" : "b222",
-    "tip"   : "一些说明"
-  }, {
-    "name"  : "乙三",
-    "value" : "b333",
-    "tip"   : "一些说明"
-  }]
+      "name"  : "乙一",
+      "value" : "b111",
+      "tip"   : "一些说明"
+    }, {
+      "name"  : "乙二",
+      "value" : "b222",
+      "tip"   : "一些说明"
+    }, {
+      "name"  : "乙三",
+      "value" : "b333",
+      "tip"   : "一些说明"
+    }]
 }, {
   "name"  : "丙",
   "value" : "ccc",

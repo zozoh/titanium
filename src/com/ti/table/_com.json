@@ -4,7 +4,7 @@
   "template" : "./ti-table.html",
   "mixins" : ["./ti-table.mjs"],
   "components" : [
-    "./com/table-cell",
-    "@com:ti/label"
+    "./com/table-row",
+    "./com/table-cell"
   ]
 }

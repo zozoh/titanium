@@ -1,9 +1,12 @@
-<li class="table-cell">
-  <div class="cell-con"
-    :class="conClass">
-    <component v-for="it in display"
+<div class="table-cell"
+  :class="topClass"
+  :style="topStyle"
+  :col-index="index">
+  <div class="cell-con">
+    <component v-for="it in cellItems"
       :key="it.uniqueKey"
       :is="it.comType"
-      v-bind="it.comConf"/>
+      v-bind="it.comConf"
+      @changed="$emit('item:changed', $event)"/>
   </div>
-</li>
+</div>

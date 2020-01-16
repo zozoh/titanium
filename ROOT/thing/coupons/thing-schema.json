@@ -9,11 +9,10 @@
   "list" : {
     "comType" : "wn-table",
     "comConf" : {
-      "list" : "=search.list",
+      "data" : "=search.list",
       "changedId"  : "=changedRowId",
       "currentId"  : "=search.currentId",
       "checkedIds" : "=search.checkedIds",
-      "border" : true,
       "checkable" : true,
       "multi"  : true,
       "fields" : [{
@@ -32,14 +31,14 @@
           }
         }
       }, {
-        "title" : "金额/折扣",
-        "display" : "value"
-      }, {
-        "title" : "条件金额",
-        "display" : "thres"
-      }, {
         "title" : "发放用户",
         "display" : "owner"
+      }, {
+        "title" : "过期时间",
+        "display" : {
+          "key" : "cpn_expi",
+          "type" : "AMS"
+        }
       }]
     }
   },
@@ -95,7 +94,7 @@
           }
         },{
           "title"   : "过期时间",
-          "name"    : "expi",
+          "name"    : "cpn_expi",
           "type"    : "AMS",
           "comType" : "ti-input-datetime"
         }]

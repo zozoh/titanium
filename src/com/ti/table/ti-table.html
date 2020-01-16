@@ -1,59 +1,60 @@
 <div class="ti-table"
-  :class="topClass"
-  @click="onBlur">
+  :class="topClass">
   <!--
-    Header
+    Blank
   -->
-  <div class="table-con as-head">
-    <div class="table-head as-table" ref="head"
-      :style="tableStyle">
-      <ul class="table-row in-head">
-        <li v-if="checkable" col-fixed
-          class="row-checker"
-          :style="cellStyle(-1)"
-          @click.stop="onClickHeadRowChecker">
-          <ti-icon :value="headCheckerIcon"/>
-        </li>
-        <li v-for="(fld, index) in fields"
-          :style="cellStyle(index, fld)">
-          <span>{{fld.title || fld.key}}</span>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <!--
-    Body
-  -->
-  <div class="table-con as-body">
-    <div 
-      v-if="isEmpty"
+  <div
+    v-if="isDataEmpty"
       class="ti-blank is-big">
       <ti-icon value="zmdi-alert-circle-o"/>
       <span>{{'empty-data'|i18n}}</span>
-    </div>
-    <div ref="body"
-      class="table-body as-table" 
-      :style="tableStyle">
-      <ul 
-        v-for="(it, index) in tableData" 
-        :key="it.key"
-        class="table-row in-body"
-        :class="bodyRowClass(it.raw)"
-        @click.stop="onSelected(it.raw, index, $event)"
-        @dblclick.stop="onOpen(it.raw, index)">
-        <li col-fixed 
-          v-if="checkable" 
-          class="row-checker"
-          :style="cellStyle(-1)"
-          @click.stop="onToggle(it.raw)">
-          <ti-icon :value="bodyRowCheckerIcon(it.raw)"/>
-        </li>
-        <ti-table-cell 
-          v-for="(cell, cellIndex) in it.cells"
-          :key="cell.title"
-          :style="cellStyle(cell.index, cell.fld)"
-          v-bind="cell"/>
-      </ul>
-    </div>
   </div>
+  <!--
+    Show thead/tbody
+  -->
+  <template v-else>
+    <!--
+      Head
+    -->
+    <div v-if="isShowHead"
+      class="table-head"
+      :style="tableStyle">
+      <ul>
+        <li :style="headCellStyle(0)">
+          <ti-icon v-if="checkable && multi"
+            class="as-checker"
+            :value="theHeadCheckerIcon"
+            @click.native.left="onClickHeadChecker"/>
+        </li>
+        <li v-for="fld in theDisplayFields"
+          :style="headCellStyle(fld.index + 1)"
+          :col-index="fld.index">
+          <span>{{fld.title|i18n}}</span>
+        </li>
+      </ul>
+    </div
+    <!--
+      Body
+    -->
+    <div class="table-body"
+      :style="tableStyle"
+      @click="onClickBody">
+      <ti-table-row
+        v-for="row in theData"
+          :key="row.id"
+          :row-id="row.id"
+          :fields="theDisplayFields"
+          :data="row.data"
+          :sizes="myColSizes.amended"
+          :current-id="myCurrentId"
+          :checked-ids="myCheckedIds"
+          :indent="row.indent"
+          :checkable="checkable"
+          :selectable="selectable"
+          :status-icon="getRowStatusIcon(row)"
+          @toggle="onRowToggle"
+          @select="onRowSelect"
+          @item:changed="onItemChanged"/>
+    </div>
+  </template>
 </div>

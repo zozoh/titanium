@@ -1,120 +1,54 @@
-function __find_each_col_size($div) {
-  let list = []
-  let $cells = Ti.Dom.findAll(":scope > .table-row > li", $div)
-  for(let $cell of $cells) {
-    let orgWidth = $cell.getAttribute("org-width")
-    if(orgWidth) {
-      list.push({
-        fixed : $cell.hasAttribute("col-fixed"),
-        size  : orgWidth * 1
-      })
-    }
-    // Re-count
-    else {
-      let bcr = $cell.getBoundingClientRect()
-      $cell.setAttribute("org-width", bcr.width)
-      list.push({
-        fixed : $cell.hasAttribute("col-fixed"),
-        size  : bcr.width
-      })
-    }
-  }
-  return list
-}
-function __clean_each_col_size($div) {
-  let $cells = Ti.Dom.findAll(":scope > .table-row > li", $div)
-  for(let $cell of $cells) {
-    $cell.removeAttribute("org-width")
-  }
-}
-/////////////////////////////////////////////////////
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   data : ()=>({
-    viewportWidth : 0,
-    colSizes : [],
-    p_last_index  : 0,
-    p_current_id  : null,
-    p_checked_ids : {},
-    tableData : []
+    myLastIndex: 0,       // The last row index selected by user
+    myCurrentId: null,    // Current row ID
+    myCheckedIds: {},     // Which row has been checked
+    myViewportWidth : 0,  // Update-in-time, root element width
+    myTableWidth: 0,      // Update-in-time, table width
+    myColSizes: {
+      priHead : [],  // Primary head column sizing
+      priBody : [],  // Primary body column sizing
+      primary : [],  // Primary Max Col-Sizes
+      amended : []   // The col-size to display in DOM
+    },
+    whenTableLayout: false, 
   }),
   ///////////////////////////////////////////////////
   props : {
-    "idKey" : {
-      type : String,
+    "idBy" : {
+      type : [String, Function],
       default : "id"
     },
     "className" : {
       type : String,
       default : null
     },
-    /***
-     * Defind each column of the table by `Array{Object}`
-     * The element in Array should like:
-     * 
-     * ```js
-     * {
-     *   title : "i18n:xxx",
-     *   display : "theName"
-     * }
-     * ```
-     * The field `display` defined how to render the column.
-     * You can declare the value in three modes below:
-     *  - String : render by `ti-label`
-     *  - Object : customized the display method
-     *  - Array{String|Object} : multi rendering
-     * 
-     * It will be formatted to Array like:
-     * ```js
-     * [{
-     *    key : "theName",
-     *    uniqueKey : "theName",  // String form by `key`
-     *    type : "String",    // @see Ti.Types
-     *    transformer : "toStr",  // @see Ti.Types.getFuncByType()
-     *    comType : "ti-label",
-     *    comConf : {}
-     * }]
-     * ```
-     * The `key` present the way how to pick the value from row data.
-     * It can be `String` or `Array`:
-     *  - `String` : as key path to get the value
-     *  - `Array`  : as key set to pick a new object
-     * 
-     * **Note!!** If key is falsy, the field will be ignored
-     */
     "fields" : {
       type : Array,
       default : ()=>[]
     },
-    // extend function set for `transformer` in each field `display`
     "extendFunctionSet" : {
       type : Object,
       default : ()=>({})
     },
-    // The list to be rendered
-    "list" : {
+    "data" : {
       type : Array,
       default : ()=>[]
     },
-    // Indicate which row has been change
-    // The value should be the row[idKey]
     "changedId" : {
       type : String,
       default : null
     },
-    // If changed, it will sync to "p_current_id" and auto set "p_last_index"
     "currentId" : {
       type : String,
       default : null
     },
-    // If changed, it will sync to "__checked_ids"
     "checkedIds" : {
       type : Array,
       default : ()=>[]
     },
-    // multi-selectable
-    // effected when selectable is true
     "multi" : {
       type : Boolean,
       default : false
@@ -123,125 +57,114 @@ export default {
       type : Boolean,
       default : false
     },
-    "blurable" : {
-      type : Boolean,
-      default : true
-    },
-    "border" : {
-      type : Boolean,
-      default : true
-    },
     // select item
     "selectable" : {
       type : Boolean,
       default : true
+    },
+    "cancelable" : {
+      type : Boolean,
+      default : true
+    },
+    "hoverable" : {
+      type : Boolean,
+      default : true
+    },
+    "width" : {
+      type : [Number, String],
+      default : null
+    },
+    "height" : {
+      type : [Number, String],
+      default : null
+    },
+    "head" : {
+      type : String,
+      default : "frozen",
+      validator : v =>
+        Ti.Util.isNil(v) 
+        || /^(frozen|none|normal)$/.test(v)
+    },
+    "border" : {
+      type : String,
+      default : "column",
+      validator : v => /^(row|column|cell|none)$/.test(v)
     }
   },
   ///////////////////////////////////////////////////
   computed : {
     //--------------------------------------
-    isEmpty() {
-      return this.list.length == 0
+    topClass() {
+      return Ti.Css.mergeClassName([
+        `is-border-${this.border}`,
+        `is-head-${this.head||"none"}`,
+      ], {
+        "is-when-layout" : this.whenTableLayout,
+        "is-hoverable"   : this.hoverable
+      },this.className)
     },
     //--------------------------------------
-    colSumWidth() {
-      let sum = 0
-      for(let col of this.colSizes) {
-        sum += col.size
-      }
-      return sum
-    },
-    //--------------------------------------
-    colFixedWidth() {
-      let sum = 0
-      for(let col of this.colSizes) {
-        if(col.fixed)
-          sum += col.size
-      }
-      return sum
-    },
-    //--------------------------------------
-    colDynamicWidth() {
-      let sum = 0
-      for(let col of this.colSizes) {
-        if(!col.fixed)
-          sum += col.size
-      }
-      return sum
-    },
-    //--------------------------------------
-    formedColSizes() {
-      let sum = this.colDynamicWidth
-      let list = []
-      if(this.colSizes.length > 0) {
-        for(let col of this.colSizes) {
-          list.push({
-            fixed   : col.fixed,
-            size    : col.size,
-            percent : col.size / sum
-          })
-        }
-      }
-      return list
-    },
-    //--------------------------------------
-    tableWidth() {
-      return Math.max(this.colSumWidth, this.viewportWidth)
-    },
-    //--------------------------------------
-    tableDynamicWidth() {
-      return this.tableWidth - this.colFixedWidth
+    topStyle() {
+      let w = this.width
+      let h = this.height
+      return Ti.Css.toStyle({
+        width  : w,
+        height : h
+      })
     },
     //--------------------------------------
     tableStyle() {
-      let css = {}
-      if(this.colSumWidth <= 0) {
-        return css
+      if(this.myTableWidth>0) {
+        return Ti.Css.toStyle({
+          "width" : this.myTableWidth
+        })
       }
-
-      let tableWidth = Math.max(this.viewportWidth, this.colSumWidth)
-      if(tableWidth > 0) {
-        css.width = tableWidth
-        //console.log("tableStyle", css, Ti.Css.toStyle(css))
-      }
-      return Ti.Css.toStyle(css)
     },
     //--------------------------------------
-    topClass() {
-      let klass = []
-      if(this.border) {
-        klass.push("show-border")
-      }
-      if(this.className) {
-        klass.push(this.className)
-      }
-      if(!_.isEmpty(klass))
-        return klass.join(" ")
+    theData() {
+      let list = []
+      _.forEach(this.data, (it, index)=>{
+        list.push({
+          index,
+          id     : this.getRowId(it),
+          indent : this.getRowIndent(it),
+          data   : it
+        })
+      })
+      return list
+    },
+    //--------------------------------------
+    isShowHead() {
+      return /^(frozen|normal)$/.test(this.head)
+    },
+    //--------------------------------------
+    isDataEmpty() {
+      return !_.isArray(this.data) || _.isEmpty(this.data)
     },
     //--------------------------------------
     isAllChecked() {
       // Empty list, nothing checked
-      if(_.isEmpty(this.list)) 
+      if(this.isDataEmpty) {
         return false 
+      }
       // Checking ...
-      for(let it of this.list){
-        let itId = it[this.idKey]
-        if(!this.p_checked_ids[itId])
+      for(let row of this.theData){
+        if(!this.myCheckedIds[row.id])
           return false;  
       }
       return true
     },
     //--------------------------------------
     hasChecked() {
-      for(let it of this.list){
-        let itId = it[this.idKey]
-        if(this.p_checked_ids[itId])
+      for(let it of this.data){
+        let itId = this.getRowId(it)
+        if(this.myCheckedIds[itId])
           return true  
       }
       return false
     },
     //--------------------------------------
-    headCheckerIcon() {
+    theHeadCheckerIcon() {
       if(this.isAllChecked) {
         return "fas-check-square"
       }
@@ -251,25 +174,30 @@ export default {
       return "far-square"
     },
     //--------------------------------------
-    selectedItems() {
-      let idKey = this.idKey || "id"
+    theSelectedItems() {
       let list = []
-      for(let it of this.list) {
-        let itId = it[idKey]
-        if(this.p_checked_ids[itId]) {
-          list.push(it)
+      for(let it of this.theData) {
+        if(this.myCheckedIds[it.id]) {
+          list.push(it.data)
         }
       }
       return list
     },
     //--------------------------------------
-    currentItem() {
-      let idKey = this.idKey || "id"
-      for(let it of this.list) {
-        let itId = it[idKey]
-        if(this.p_current_id == itId) {
-          return it
+    theCurrentItem() {
+      for(let it of this.theData) {
+        if(this.myCurrentId == it.id) {
+          return it.data
         }
+      }
+    },
+    //--------------------------------------
+    theEmitContext() {
+      return {
+        selected   : this.theSelectedItems,
+        current    : this.theCurrentItem,
+        currentId  : this.myCurrentId,
+        checkedIds : this.myCheckedIds
       }
     },
     //--------------------------------------
@@ -277,11 +205,13 @@ export default {
       return _.assign({}, Ti.Types, this.extendFunctionSet)
     },
     //--------------------------------------
-    displayFields() {
+    theDisplayFields() {
       let fields = []
-      for(let fld of this.fields) {
-        let display = this.evalFieldDisplay(fld)
+      for(let i=0; i< this.fields.length; i++) {
+        let fld = this.fields[i]
+        let display = this.evalFieldDisplay(fld.display)
         fields.push({
+          index  : i,
           title  : fld.title,
           nowrap : fld.nowrap,
           display
@@ -294,17 +224,166 @@ export default {
   ///////////////////////////////////////////////////
   methods : {
     //--------------------------------------
-    evalFieldDisplay(fld) {
-      let list = [].concat(fld.display)
+    getRowId(row) {
+      return Ti.Util.getOrPick(row, this.idBy)
+    },
+    //--------------------------------------
+    getRowIndent(row) {
+      return 0
+    },
+    //--------------------------------------
+    getRowStatusIcon(row) {
+      return null
+    },
+    //--------------------------------------
+    headCellStyle(index=-1) {
+      if(this.myColSizes.amended.length > index) {
+        return Ti.Css.toStyle({
+          "width" : this.myColSizes.amended[index]
+        })
+      }
+    },
+    //--------------------------------------
+    findRowIndexById(rowId) {
+      for(let row of this.theData) {
+        if(row.id == rowId) {
+          return row.index
+        }
+      }
+      return -1
+    },
+    //--------------------------------------
+    selectRow(rowId) {
+      this.myCheckedIds = {[rowId]:true}
+      this.myCurrentId  = rowId
+      this.myLastIndex  = this.findRowIndexById(rowId)
+      // Notify Changes
+      this.$emit("selected", this.theEmitContext)
+    },
+    //--------------------------------------
+    selectRowsToCurrent(rowId) {
+      let theIndex = this.findRowIndexById(rowId)
+      if(theIndex >= 0) {
+        let fromIndex = Math.min(theIndex, this.myLastIndex)
+        let toIndex   = Math.max(theIndex, this.myLastIndex)
+        if(fromIndex < 0) {
+          fromIndex = 0
+        }
+        for(let i=fromIndex; i<=toIndex; i++) {
+          let row = this.theData[i]
+          this.checkRow(row.id)
+        }
+        // Notify Changes
+        this.$emit("selected", this.theEmitContext)
+      }
+    },
+    //--------------------------------------
+    checkRow(rowId) {
+      if(_.isUndefined(rowId)) {
+        this.myCheckedIds = {}
+        _.forEach(this.theData, (row)=>{
+          this.myCheckedIds[row.id] = true
+        })
+      }
+      // Single row
+      else {
+        this.$set(this.myCheckedIds, rowId, true)
+      }
+      // Notify Changes
+      this.$emit("selected", this.theEmitContext)
+    },
+    //--------------------------------------
+    cancelRow(rowId) {
+      if(_.isUndefined(rowId)) {
+        this.myCheckedIds = {}
+        this.myCurrentId = null
+        this.myLastIndex = 0
+      }
+      // Single row
+      else {
+        this.$set(this.myCheckedIds, rowId, false)
+      }
+      // Notify Changes
+      //console.log("canceled", this.theEmitContext)
+      this.$emit("selected", this.theEmitContext)
+    },
+    //--------------------------------------
+    toggleRow(rowId) {
+      if(this.myCheckedIds[rowId]) {
+        this.cancelRow(rowId)
+      } else {
+        this.checkRow(rowId)
+      }
+    },
+    //--------------------------------------
+    onRowToggle({rowId, shift}={}) {
+      console.log(rowId, shift)
+      if(this.multi) {
+        // Shift Mode
+        if(shift) {
+          this.selectRowsToCurrent(rowId)
+        }
+        // Simple Toggle Mode
+        else {
+          this.toggleRow(rowId)
+        }
+      }
+      // Single Mode
+      else {
+        this.selectRow(rowId)
+      }
+    },
+    //--------------------------------------
+    onRowSelect({rowId, shift, toggle}={}) {
+      // Shift Mode
+      if(shift) {
+        this.selectRowsToCurrent(rowId)
+      }
+      // Toggle Mode
+      else if(toggle) {
+        this.toggleRow(rowId)
+      }
+      // Single Mode
+      else {
+        this.selectRow(rowId)
+      }
+    },
+    //--------------------------------------
+    onClickHeadChecker() {
+      // Cancel All
+      if(this.isAllChecked) {
+        this.cancelRow()
+      }
+      // Check All
+      else {
+        this.checkRow()
+      }
+    },
+    //--------------------------------------
+    onClickBody() {
+      if(this.cancelable) {
+        this.cancelRow()
+      }
+    },
+    //--------------------------------------
+    onItemChanged(it) {
+      console.log(it)
+    },
+    //--------------------------------------
+    evalFieldDisplay(displayItems=[]) {
+      // Force to Array
+      displayItems = _.concat(displayItems)
+      // Prepare the return list
       let items = []
-      for(let li of list) {
+      // Loop each items
+      for(let li of displayItems) {
         let m = /^<([^:>]*):([^>]+)>$/.exec(li)
         // Icon
         if(m) {
           items.push({
-            key   : m[1] || Symbol(li),
-            value : m[2],
-            comType : "ti-icon"
+            key       : m[1] || Symbol(li),
+            defaultAs : m[2],
+            comType   : "ti-icon"
           })
         }
         // String|Array -> ti-label
@@ -334,362 +413,76 @@ export default {
       return items
     },
     //--------------------------------------
-    async evalTableData() {
-      let sheet = []
-      for(let li of this.list) {
-        let obj = {
-          key : li[this.idKey],
-          raw : li,
-          cells : []
-        }
-        // Evel display for cell
-        for(let x=0; x<this.displayFields.length; x++) {
-          let fld = this.displayFields[x]
-          let display = await this.evalTableCellDisplay(li, fld)
-          obj.cells.push({
-            display,
-            index    : x,
-            fld      : fld,
-            title    : fld.title,
-            nowrap   : fld.nowrap            
-          })
-        }
-        // Join to sheet
-        sheet.push(obj)
-      } // ~ for(let li of this.list) 
-      return sheet
-    },
-    //--------------------------------------
-    async evalTableCellDisplay(rowData, fld) {
-      let list = []
-      // Get items value
-      for(let it of fld.display) {
-        let value = it.value;
-        //.....................................
-        // Array -> Obj
-        if(_.isArray(it.key)) {
-          value = _.pick(rowData, it.key)
-        }
-        // String ...
-        else if(_.isString(it.key)){
-          // Statci value
-          if(/^'[^']+'$/.test(it.key)) {
-            value = it.key.substring(1, it.key.length-1)
-          }
-          // Dynamic value
-          else {
-            value = Ti.Util.fallback(_.get(rowData, it.key), value)
-          }
-        }
-        //.....................................
-        if(it.dict) {
-          if(!Ti.Util.isNil(value)) {
-            value = await Wn.Dict.get(it.dict, value)
-          }
-        }
-        //.....................................
-        // Transform
-        if(_.isFunction(it.transformer)) {
-          //console.log("do trans")
-          // Sometimes, we need transform nil also
-          if(!Ti.Util.isNil(value) || it.transNil) {
-            value = it.transformer(value)
-          }
-        }
-        // Ignore the undefined/null
-        if(Ti.Util.isNil(value)) {
-          continue
-        }
-        //.....................................
-        // Add value to comConf
-        let it2 = {...it}
-        let conf2 = {}
-        let valueAssigned = false
-        //.....................................
-        _.forEach(it2.comConf || {}, (val, key)=>{
-          // assign value
-          if("=value" == key) {
-            _.assign(conf2, value)
-            valueAssigned = true
-          }
-          // set val
-          else {
-            conf2[key] = val
-          }
-        })
-        //.....................................
-        if(!valueAssigned) {
-          conf2.value = value
-        }
-        //.....................................
-        it2.comConf = conf2
-        //.....................................
-        // console.log(it.key, value)
-        // Join to list
-        list.push(it2)
-        //.....................................
-      } // ~ for(let it of this.display)
-      // Done
-      return list
-    },
-    //--------------------------------------
-    getIds({
-      list=[],
-      ids={}, 
-      fromIndex=0, 
-      toIndex=0, 
-      currentId, 
-      mode="actived"
-    }={}) {
-      let idKey = this.idKey || "id"
-      // Shift mode may mutate multiple items in scope
-      if('shift' == mode) {
-        let min = Math.min(fromIndex, toIndex)
-        let max = Math.max(fromIndex, toIndex)
-        for(let i=0; i<list.length; i++) {
-          let it = list[i]
-          if(i>=min && i<=max) {
-            ids[it[idKey]] = true
-          }
-        }
-        return {...ids}
+    evalEachColumnSize() {
+      // Reset each column size
+      this.myTableWidth = 0
+      this.myColSizes = {
+        priHead : [],
+        priBody : [],
+        primary : [],
+        amended : []
       }
-      // Toggle mode need to mutate single one item
-      if('toggle' == mode){
-        let it = list[toIndex];
-        let itId = it[idKey]
-        ids[itId] = !ids[itId]
-        return {...ids}
-      }
-      // Active mode need to keep only one item selected
-      if('active' == mode) {
-        return {[currentId] : true}
-      }
-      // invalid mode
-      throw Ti.Err.make("e-com-TiTable-getIds-invalidMode", mode)
-    },
-    //--------------------------------------
-    onSelected(it, index, eo){
-      if(!this.selectable){
-        return
-      }
-      // Eval Mode
-      let mode = "active"
-      if(this.multi) {
-        if(eo.shiftKey) {
-          mode = "shift"
+      // Wait reset applied, and ...
+      this.$nextTick(()=>{
+        // Get original size: head
+        let $heads = Ti.Dom.findAll(".table-head ul li", this.$el)
+        for(let $he of $heads) {
+          let rect = Ti.Rects.createBy($he)
+          this.myColSizes.priHead.push(rect.width)
         }
-        // ctrl key on: toggle
-        else if(eo.ctrlKey || eo.metaKey) {
-          mode = "toggle"
-        }
-      }
 
-      // Already current, ignore
-      if("active" == mode && this.p_current_id == it.id) {
+        // Get original size: body
+        let $rows = Ti.Dom.findAll(".table-body .table-row", this.$el)
+        for(let $row of $rows) {
+          let $cells = Ti.Dom.findAll(":scope > div", $row)
+          for(let x=0; x<$cells.length; x++) {
+            let $cell = $cells[x]
+            let rect = Ti.Rects.createBy($cell)
+            if(x>= this.myColSizes.priBody.length) {
+              this.myColSizes.priBody[x] = rect.width
+            } else {
+              this.myColSizes.priBody[x] = Math.max(
+                rect.width, this.myColSizes.priBody[x]
+              )
+            }
+          }
+        }
+
+        // Count the primary max sizing for each columns
+        for(let i=0; i<this.myColSizes.priHead.length; i++) {
+          let wHeadCell = this.myColSizes.priHead[i]
+          let wBodyCell = this.myColSizes.priBody[i]
+          let w = Math.max(wHeadCell, wBodyCell)
+          this.myColSizes.primary.push(w)
+        }
+
+        // Resize Table
+        this.onTableResize()
+      })
+    },
+    //--------------------------------------
+    onTableResize() {
+      // Guard it
+      let colN = this.myColSizes.primary.length - 1
+      if(colN <= 0) {
         return
       }
 
-      // Eval current ID
-      let id = it[this.idKey]
+      // Count the tableWidth
+      let sumWidth = _.sum(this.myColSizes.primary)
+      let tableWidth = Ti.Rects.createBy(this.$el).width
+      tableWidth = Math.max(tableWidth, sumWidth)
+      this.myTableWidth = tableWidth
 
-      // Get Check Ids
-      this.p_checked_ids = this.getIds({
-        list      : this.list,
-        ids       : this.p_checked_ids,
-        fromIndex : this.p_last_index,
-        toIndex   : index,
-        currentId : id,
-        mode
-      })
-
-      // memo last Index
-      if(!this.p_current_id || "active" == mode) {
-        this.p_current_id = this.p_checked_ids[id] ? id : null
-      }
-      this.p_last_index = index
-
-      // Do emit
-      this.$emit("selected", {
-        selected : this.selectedItems,
-        current  : this.currentItem,
-        currentId  : this.p_current_id,
-        checkedIds : this.p_checked_ids
-      })
-    },
-    //--------------------------------------
-    onToggle(it) {
-      // console.log("->onToggle:before", 
-      //   JSON.stringify(this.p_checked_ids), this.p_current_id)
-      let id = it[this.idKey]
-      // Cancel it
-      if(this.p_checked_ids[id]) {
-        this.p_checked_ids = _.pickBy(this.p_checked_ids, (val, key)=>{
-          return val && key != id
-        })
-      }
-      // multi
-      else if(this.multi) {
-        this.p_checked_ids = {
-          ...this.p_checked_ids,
-          [id] : true
-        }
-      }
-      // Signle
-      else {
-        this.p_checked_ids = {[id] : true}
-      }
-
-      // memo current Id
-      if(!this.p_current_id) {
-        this.p_current_id = id
-      }
-      if(this.p_current_id 
-        && !this.p_checked_ids[this.p_current_id]) {
-        this.p_current_id = null
-      }
-
-      // console.log("->onToggle:emit", 
-      //   JSON.stringify(this.p_checked_ids), this.p_current_id)
-
-      // Do emit
-      this.$emit("selected", {
-        selected : this.selectedItems,
-        current  : this.currentItem,
-        currentId  : this.p_current_id,
-        checkedIds : this.p_checked_ids
-      })
-
-      // console.log("->onToggle:done", 
-      //   JSON.stringify(this.p_checked_ids), this.p_current_id)
-    },
-    //--------------------------------------
-    onClickHeadRowChecker() {
-      // All  -> none
-      if(this.isAllChecked) {
-        this.p_checked_ids = {}
-      }
-      // Half -> All
-      // None -> All
-      else {
-        this.p_checked_ids = {}
-        for(let it of this.list) {
-          let itId = it[this.idKey]
-          this.p_checked_ids[itId] = true
-        }
-      }
-
-      // memo last Index
-      if(!this.p_checked_ids[this.p_current_id]) {
-        this.p_current_id = null
-      }
-      this.p_last_index = 0
-
-      // Do emit
-      this.$emit("selected", {
-        selected : this.selectedItems,
-        current  : this.currentItem,
-        currentId  : this.p_current_id,
-        checkedIds : this.p_checked_ids
-      })
-    },
-    //--------------------------------------
-    onOpen(it,index) {
-      this.$emit("open", {
-        index,
-        current :it
-      })
-    },
-    //--------------------------------------
-    onBlur() {
-      if(!this.blurable)
-        return
-      this.p_checked_ids = {}
-      this.p_current_id = null
-      this.p_last_index = 0
-      this.$emit("selected", {
-        selected : [],
-        current  : null
-      })
-    },
-    //--------------------------------------
-    bodyRowClass(it) {
-      // console.log("->bodyRowClass", 
-      //   JSON.stringify(this.p_checked_ids), this.p_current_id)
-      let itId = it[this.idKey]
-      return {
-        "is-selected" : this.p_checked_ids && this.p_checked_ids[itId],
-        "is-current"  : this.p_current_id && this.p_current_id == itId,
-        "is-changed"  : this.changedId && this.changedId == itId
-      }
-    },
-    //--------------------------------------
-    bodyRowCheckerIcon(it) {
-      // console.log("->bodyRowCheckerIcon", 
-      //   JSON.stringify(this.p_checked_ids), this.p_current_id)
-      let itId = it[this.idKey]
-      if(this.p_checked_ids[itId])
-        return "fas-check-square"
-      return "far-square"
-    },
-    //--------------------------------------
-    cellStyle(index) {
-      // If should checkbox, the index should base on 1
-      if(this.checkable)
-        index++
-      
-      // Check boundary
-      if(index >= this.formedColSizes.length)
-        return
-
-      // Eval the colWidth
-      let col = this.formedColSizes[index]
-      let width = col.fixed
-                  ? col.size
-                  : col.percent * this.tableDynamicWidth
-      return Ti.Css.toStyle({width})
-    },
-    //--------------------------------------
-    updateSizing() {
-      this.viewportWidth = this.$el.getBoundingClientRect().width
-      if(_.isEmpty(this.colSizes)) {
-        // List two list of size 
-        let lstHead = __find_each_col_size(this.$refs.head)
-        let lstBody = __find_each_col_size(this.$refs.body)
-        // Compare the max size to get the org-width of each columns
-        let colSizes = []
-        for(let i=0; i<lstHead.length; i++) {
-          let liH = lstHead[i] || {size:0}
-          let liB = lstBody[i] || {size:0}
-          colSizes.push({
-            fixed : liH.fixed || liB.fixed,
-            size  : Math.max(liH.size, liB.size)
-          })
-        }
-        this.colSizes = colSizes
-        //console.log("!!!this.colSizes", this.colSizes)
-      }
-    },
-    //--------------------------------------
-    autoSetCurrentId() {
-      this.p_current_id = this.currentId
-      this.p_last_index = 0
-      for(let i=0; i<this.list.length; i++) {
-        let it = this.list[i]
-        let itId = it[this.idKey]
-        if(itId == this.p_current_id) {
-          this.p_last_index = i
-          break;
-        }
-      }
-    },
-    //--------------------------------------
-    autoSetCheckedIds() {
-      this.p_checked_ids = {}
-      if(_.isArray(this.checkedIds)) {
-        for(let id of this.checkedIds) {
-          this.p_checked_ids[id] = true
-        }
+      // Assign the remain
+      this.myColSizes.amended = []
+      let remain = tableWidth - sumWidth
+      let remainCell = remain / colN
+      // The first column
+      this.myColSizes.amended.push(this.myColSizes.primary[0])
+      // The fields column
+      for(let i=1; i<this.myColSizes.primary.length; i++) {
+        this.myColSizes.amended.push(this.myColSizes.primary[i] + remainCell)
       }
     }
     //--------------------------------------
@@ -697,55 +490,25 @@ export default {
   ///////////////////////////////////////////////////
   watch : {
     "currentId" : function() {
-      this.autoSetCurrentId()
+      this.myCurrentId = this.currentId
+      this.myLastIndex = this.findRowIndexById(this.currentId)
     },
     "checkedIds" : function() {
-      this.autoSetCheckedIds()
-    },
-    "list" : async function() {
-      this.tableData = await this.evalTableData()
-      this.debounceUpdateSizing()
-    },
-    "fields" : function() {
-      this.debounceUpdateSizing()
+      this.myCheckedIds = {}
+      _.forEach(this.checkedIds, (rowId)=>{
+        this.myCheckedIds[rowId] = true
+      })
     }
   },
   ///////////////////////////////////////////////////
   mounted : async function() {
-    this.tableData = await this.evalTableData()
     //.................................
-    this.autoSetCurrentId()
-    this.autoSetCheckedIds()
+    // Define the method for sub-cells up-calling
+    this.debounceEvalEachColumnSize = _.debounce(()=>this.evalEachColumnSize(), 100)
     //.................................
-    this.debounceUpdateSizing = _.debounce(()=>{
-      // Reset
-      this.colSizes = []
-
-      __clean_each_col_size(this.$refs.head)
-      __clean_each_col_size(this.$refs.body)
-
-      // re-count
-      if(!_.isEmpty(this.fields)) {
-        this.$nextTick(()=>{
-          this.updateSizing()
-        })
-      }
-    }, 100, {
-      leading : false
+    Ti.Viewport.watch(this, {
+      resize : _.debounce(()=>this.onTableResize(), 100)
     })
-    //.................................
-    // Update Sizing Right Now
-    this.$nextTick(()=>{
-      this.updateSizing()
-    })
-    //.................................
-    const debounceQuickUpdateSizing = _.debounce(()=>{
-      this.updateSizing()
-    }, 100, {
-      leading : true
-    })
-    //.................................
-    Ti.Viewport.watch(this, {resize : debounceQuickUpdateSizing})
     //.................................
   },
   ///////////////////////////////////////////////////

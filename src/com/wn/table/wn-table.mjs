@@ -3,17 +3,14 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   props : {
-    "idKey" : {
-      type : String,
+    "idBy" : {
+      type : [String, Function],
       default : "id"
     },
     "className" : {
       type : String,
       default : null
     },
-    /***
-     * @see ti-table.fields
-     */
     "fields" : {
       type : Array,
       default : ()=>[]
@@ -22,7 +19,7 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "list" : {
+    "data" : {
       type : Array,
       default : ()=>[]
     },
@@ -46,23 +43,44 @@ export default {
       type : Boolean,
       default : false
     },
-    "blurable" : {
-      type : Boolean,
-      default : true
-    },
-    "border" : {
-      type : Boolean,
-      default : true
-    },
+    // select item
     "selectable" : {
       type : Boolean,
       default : true
+    },
+    "cancelable" : {
+      type : Boolean,
+      default : true
+    },
+    "hoverable" : {
+      type : Boolean,
+      default : true
+  },
+    "width" : {
+      type : [Number, String],
+      default : null
+    },
+    "height" : {
+      type : [Number, String],
+      default : null
+    },
+    "head" : {
+      type : String,
+      default : "frozen",
+      validator : v =>
+        Ti.Util.isNil(v) 
+        || /^(frozen|none|normal)$/.test(v)
+    },
+    "border" : {
+      type : String,
+      default : "column",
+      validator : v => /^(row|column|cell|none)$/.test(v)
     }
   },
   ///////////////////////////////////////////////////
   computed : {
     //----------------------------------------------
-    formedFields() {
+    theFields() {
       let list = []
       for(let fld of this.fields) {
         // Eval fld
@@ -85,8 +103,9 @@ export default {
                 },
                 comType  : "wn-obj-icon",
                 comConf : {
-                  "=value" : true,
-                  "defaultIcon" : defaultIcon
+                  "..." : "${=value}",
+                  "defaultIcon" : defaultIcon,
+                  "className"   : "thing-icon"
                 }
               }
             }

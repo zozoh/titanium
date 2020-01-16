@@ -1,0 +1,20 @@
+[{
+  "id"       : "001",
+  "name"     : "超人",
+  "age"      : 37,
+  "birthday" : 1578667048690,
+  "dead" : false
+}, {
+  "id"       : "002",
+  "name"     : "萨达姆·侯赛因",
+  "age"      : 56,
+  "birthday" : 1578667048690,
+  "dead" : true
+}, {
+  "id"       : "003",
+  "icon"     : "zmdi-face",
+  "name"     : "阿拉蕾",
+  "age"      : 12,
+  "birthday" : 1578667048690,
+  "dead" : false
+}]

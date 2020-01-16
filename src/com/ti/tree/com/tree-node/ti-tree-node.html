@@ -6,6 +6,12 @@
   <div class="nd-self"
     @click.left="onClickSelf">
     <!--
+      Indent blocks
+    -->
+    <div class="nd-indents">
+      <span v-for="n in depth"></span>
+    </div>
+    <!--
       Handle Or Indent
     -->
     <div v-if="isLeaf"
@@ -47,6 +53,22 @@
         <span>{{tip|i18n}}</span>
       </div>
     </div>
+    <!--
+      Table Cell
+    -->
+    <div v-if="isTable"
+      class="nd-cell-row">
+      <div v-for="cell in cells"
+        class="nd-cell"
+        :class="{'nd-cell-nowrap':cell.nowrap}">
+        <component v-for="dis in cell.display"
+          :key="dis.key"
+          :is="dis.comType"
+          v-bind="dis.comConf"
+          @changed="onCellChanged(dis.key, $event)"/>
+      </div>
+    </div>
+    <!--The end of Table Cell-->
   </div>
   <!--===================================
     Node Children
@@ -57,9 +79,12 @@
       v-for="nd in children"
       :key="nd.name"
       v-bind="nd"
+      :handle-icons="handleIcons"
+      :fields="fields"
       @select="$emit('select', $event)"
       @open="$emit('open', $event)"
-      @close="$emit('close', $event)"/>
+      @close="$emit('close', $event)"
+      @node:changed="$emit('node:changed', $event)"/>
   </div>
   <!--===================================-->
 </div>
