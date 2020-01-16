@@ -19,16 +19,19 @@
     <div v-if="isShowHead"
       class="table-head"
       :style="tableStyle">
-      <ul>
-        <li :style="headCellStyle(0)">
-          <ti-icon v-if="checkable && multi"
+      <!--checker-->
+      <div
+          v-if="checkable && multi"
             class="as-checker"
-            :value="theHeadCheckerIcon"
-            @click.native.left="onClickHeadChecker"/>
-        </li>
-        <li v-for="fld in theDisplayFields"
-          :style="headCellStyle(fld.index + 1)"
-          :col-index="fld.index">
+            @click.left="onClickHeadChecker">
+            <ti-icon :value="theHeadCheckerIcon"/>
+      </div>
+      <!--field titles-->
+      <ul>
+        <li
+          v-for="fld in theDisplayFields"
+            :style="headCellStyle(fld.index)"
+            :col-index="fld.index">
           <span>{{fld.title|i18n}}</span>
         </li>
       </ul>

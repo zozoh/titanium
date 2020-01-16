@@ -1,6 +1,5 @@
-// Ti required(Wn)
-//---------------------------------------
 export default {
+  ////////////////////////////////////////////////
   mutations : {
     set(state, {
       meta, data, __saved_data, status
@@ -18,10 +17,57 @@ export default {
       _.assign(state.status, status)
       // Changed
       state.status.changed = !_.isEqual(state.data, state.__saved_data)
+    },
+    //--------------------------------------------
+    setMeta(state, meta) {
+      state.meta = meta
+    },
+    //--------------------------------------------
+    assignMeta(state, meta) {
+      // Check Necessary
+      if(_.isEmpty(meta)) {
+        return
+      }
+      state.meta = _.assign({}, state.meta, meta);
+    },
+    //----------------------------------------------
+    mergeMeta(state, meta) {
+      // Check Necessary
+      if(!_.isEmpty(meta)) {
+        return
+      }
+      state.meta = _.merge({}, state.meta, meta);
+    },
+    //--------------------------------------------
+    setStatus(state, status) {
+      state.status = _.assign({}, state.status, status)
+    },
+    //--------------------------------------------
+    setData(state, data) {
+      if(_.isArray(data) || _.isPlainObject(data)) {
+        state.data = _.cloneDeep(data)
+      }
+    },
+    //--------------------------------------------
+    setSavedData(state, data) {
+      if(_.isArray(data) || _.isPlainObject(data)) {
+        state.__saved_data = _.cloneDeep(data)
+      }
+    },
+    //--------------------------------------------
+    syncStatusChanged(state){
+      state.status.changed = !_.isEqual(state.data, state.__saved_data)
     }
+    //--------------------------------------------
   },
-  //.....................................
+  ////////////////////////////////////////////////
   actions : {
+    //--------------------------------------------
+    onChanged({commit}, data={}) {
+      commit("setData", data);
+      commit("syncStatusChanged");
+    },
+    //--------------------------------------------
     /***
      * Save content to remote
      */
@@ -34,17 +80,19 @@ export default {
       let data = state.data
       let json = JSON.stringify(data)
 
-      commit("set", {status:{saving:true}})
+      commit("setStatus", {saving:true})
+
       let newMeta = await Wn.Io.saveContentAsText(meta, json)
-      commit("set", {
-        meta: newMeta, 
-        __saved_data : json,
-        status:{saving:false}
-      })
+
+      commit("setMeta",      newMeta)
+      commit("setSavedData", data)
+      commit("setStatus",    {saving:false})
+      commit("syncStatusChanged")
 
       // return the new meta
       return state.meta
     },
+    //--------------------------------------------
     /***
      * Reload content from remote
      */
@@ -58,18 +106,19 @@ export default {
         meta = state.meta
       }
       
-      commit("set", {status:{reloading:true}})
+      commit("setStatus", {reloading:true})
+
       let data = await Wn.Io.loadContent(meta, {as:"json"})
-      commit("set", {
-        meta, 
-        data, 
-        __saved_data : data,
-        status:{reloading:false}
-      })
+
+      commit("setMeta",      meta)
+      commit("setData",      data)
+      commit("setSavedData", data)
+      commit("setStatus",    {reloading:false})
+      commit("syncStatusChanged")
 
       // return the root state
       return state
     }
   }
-  //.....................................
+  ////////////////////////////////////////////////
 }

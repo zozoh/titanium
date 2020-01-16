@@ -16,6 +16,7 @@
   :selectable="selectable"
   :cancelable="cancelable"
   :hoverable="hoverable"
+  :puppet-mode="puppetMode"
   :width="width"
   :height="height"
   :head="theTableHead"
@@ -23,5 +24,6 @@
   :auto-scroll-into-view="autoScrollIntoView"
   @icon="onRowIconClick"
   @selected="onRowSelected"
+  @item:changed="onItemChanged"
   />
   

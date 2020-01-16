@@ -2,36 +2,35 @@
   :class="topClass"
   @click.left.stop="onClickRow">
   <!--
-    Prefix
-  -->
-  <div class="table-row-head"
-    :style="theRowHeadStyle">
-    <!-- Indents -->
-    <div v-for="n in indent"
-        class="row-indent"></div>
-    <!--ICON: Handler-->
-    <template v-if="icon">
-      <ti-icon
-        v-if="hasRealIcon"
-          class="row-icon"
-          :value="icon"
-          @click.native.left.stop="onClickIcon"/>
-      <div v-else
-        class="row-icon"></div>
-    </template>
-    <!--ICON: Checker-->
-    <ti-icon v-if="checkable"
-        class="row-checker"
-        :value="theCheckIcon"
-        @click.native.left.stop="onClickChecker"/>
-  </div>
-  <!--
     Cells
   -->
   <ti-table-cell v-for="fld in fields"
     :key="fld.index"
     v-bind="fld"
-    :cell-size="getCellSize(fld.index + 1)"
+    :cell-size="getCellSize(fld.index)"
     :data="data"
-    @item:changed="$emit('item:changed', $event)"/>
+    @item:changed="onItemChanged">
+    <template v-if="fld.index == 0">
+      <div class="table-row-head">
+        <!-- Indents -->
+        <div v-for="n in indent"
+            class="row-indent"></div>
+        <!--ICON: Handler-->
+        <template v-if="icon">
+          <ti-icon
+            v-if="hasRealIcon"
+              class="row-icon"
+              :value="icon"
+              @click.native.left.stop="onClickIcon"/>
+          <div v-else
+            class="row-icon"></div>
+        </template>
+        <!--ICON: Checker-->
+        <ti-icon v-if="checkable"
+            class="row-checker"
+            :value="theCheckIcon"
+            @click.native.left.stop="onClickChecker"/>
+      </div>
+    </template>
+  </ti-table-cell>
 </div>

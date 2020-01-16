@@ -140,7 +140,7 @@ How to display the tree node self. `@see` the `<ti-table>`
 }
 ```
 
-Default to open the node in depth. The top node depth is `1`, which eqausls the path array length.
+Default to open the node in depth. The top node depth is `0`, which eqausls the path array length.
 
 -------------------------------------------------------------------
 ## keepOpenBy
@@ -262,6 +262,18 @@ If `true`, user can cancle selected current row by click blank area.
 ```
 
 If `true`, show hover style when mouse hover the table-row.
+
+-------------------------------------------------------------------
+## puppetMode
+
+```js
+{
+  type : Boolean,
+  default : false
+}
+```
+
+By path to children component `ti-table`.
 
 -------------------------------------------------------------------
 ## width
@@ -393,7 +405,8 @@ Extend function set for `transformer` in each field `display`
   depth  : 0,
   opened : true,
   leaf   : false,
-  rawData : {...}
+  rawData : {...},
+  children : [..]
 }
 ```
 

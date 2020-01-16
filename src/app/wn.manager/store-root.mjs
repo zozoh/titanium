@@ -99,7 +99,7 @@ export default {
       try {
         //....................................
         // Reload Meta
-        let meta = await dispatch("meta/reload", basePath)
+        let meta = await dispatch("current/reload", basePath)
         //....................................
         // Meta Required
         if(!meta) {

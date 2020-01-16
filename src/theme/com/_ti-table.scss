@@ -46,9 +46,6 @@
       @include border(1px, solid, shallow, right);
       &:last-child {border-right:0;}
     }
-    .table-head li:first-child {
-      border-right:0;
-    }
   }
   //---------------------------------------------
   &.is-hoverable {
@@ -59,16 +56,27 @@
   //---------------------------------------------
   > .table-head {
     @include border(1px, solid, shallow, bottom);
-    ul {
-      @include flex-align-nowrap($ai:stretch);
+    position: relative;
+    //-------------------------------------------
+    > .as-checker {
+      @include pos-abs($t:0,$b:0,$l:0,$w:$thead);
+      @include flex-center;
+      @include border(1px, solid, shallow, right);
+      cursor: pointer;
+      &:hover {@include color($color-selected, r, c);}
     }
-    li {
-      @include flex-center; flex:0 0 auto;
-      padding:0 .06rem;
-      .as-checker{
-        cursor:pointer;
+    //-------------------------------------------
+    > ul {
+      @include flex-align-nowrap($ai:stretch);
+      li {
+        @include flex-center; flex:0 0 auto;
+        padding:0 .06rem;
+        .as-checker{
+          cursor:pointer;
+        }
       }
     }
+    //-------------------------------------------
   }
   //---------------------------------------------
   > .table-body {
@@ -99,7 +107,7 @@
     // Table Row Header
     //-------------------------------------------
     .table-row-head {
-      @include flex-align-nowrap($jc:center, $ai:stretch);
+      @include flex-align-nowrap($ai:stretch);
       //-----------------------------------------
       .row-indent, .row-icon {
         @include flex-center;
@@ -112,7 +120,7 @@
       }
       //-----------------------------------------
       .row-checker {
-        margin:0 .04rem;
+        margin:0 .06rem;
       }
       //-----------------------------------------
     }
@@ -120,7 +128,7 @@
     // Table Cell
     //-------------------------------------------
     .table-cell {
-      @include flex($ai:stretch);
+      @include flex($ai:stretch, $wp:nowrap);
       //-----------------------------------------
       > .cell-con {
         @include flex-align-center; flex:1 1 auto;

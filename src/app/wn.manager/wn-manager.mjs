@@ -46,8 +46,8 @@ export default {
     },
     //---------------------------------------
     theMetaId(){
-      if(this.$store.state.main && this.$store.state.main.meta) {
-        return this.$store.state.main.meta.id
+      if(this.obj && this.obj.meta) {
+        return this.obj.meta.id
       }
     },
     //---------------------------------------

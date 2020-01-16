@@ -73,14 +73,6 @@ export default {
         return this.checkIcons.on
       }
       return this.checkIcons.off
-    },
-    //-----------------------------------------------
-    theRowHeadStyle() {
-      if(this.sizes.length > 0) {
-        return Ti.Css.toStyle({
-          "width" : this.sizes[0]
-        })
-      }
     }
     //-----------------------------------------------
   },
@@ -91,6 +83,14 @@ export default {
       if(this.sizes.length > index) {
         return this.sizes[index]
       }
+    },
+    //-----------------------------------------------
+    onItemChanged({name,value}={}) {
+      this.$emit("item:changed", {
+        name, value,
+        rowId : this.rowId,
+        data  : this.data
+      })
     },
     //-----------------------------------------------
     onClickIcon($event) {

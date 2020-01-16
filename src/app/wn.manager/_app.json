@@ -13,7 +13,7 @@
         "session" : "get"
       }
     },
-    "...meta" : {
+    "...current" : {
       "getters" : {
         "obj"              : "get",
         "objHome"          : "getHome",
@@ -30,7 +30,7 @@
     "modules" : {
       "viewport" : "@mod:ti/viewport", 
       "session"  : "@mod:wn/session", 
-      "meta"     : "@mod:wn/obj-meta"
+      "current"  : "@mod:wn/obj-meta"
     }
   },
   "components" : [

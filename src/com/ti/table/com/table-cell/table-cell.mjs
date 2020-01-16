@@ -22,7 +22,7 @@ export default {
     },
     "nowrap" : {
       type : Boolean,
-      default : false
+      default : true
     },
     "display" : {
       type : Array,
@@ -171,6 +171,8 @@ export default {
       }
       //.....................................
       reDisplayItem.comConf = comConf
+      //.....................................
+      reDisplayItem.uniqueKey = _.concat(reDisplayItem.key).join("-")
       //.....................................
       return reDisplayItem
     }

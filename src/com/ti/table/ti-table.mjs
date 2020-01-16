@@ -446,8 +446,8 @@ export default {
       }
     },
     //--------------------------------------
-    onItemChanged(it) {
-      console.log(it)
+    onItemChanged(payload) {
+      this.$emit("item:changed", payload)
     },
     //--------------------------------------
     evalFieldDisplay(displayItems=[]) {
@@ -490,7 +490,7 @@ export default {
         }
         // Ignore others ...
       }
-      // Gen uniqueKey and transformer for each item
+      // Gen transformer for each item
       for(let it of items) {
         // Transformer
         it.transformer = Ti.Types.getFuncBy(it, "transformer", this.fnSet)
@@ -570,24 +570,37 @@ export default {
       for(let i=1; i<this.myColSizes.primary.length; i++) {
         this.myColSizes.amended.push(this.myColSizes.primary[i] + remainCell)
       }
+    },
+    //--------------------------------------
+    syncCurrentId() {
+      this.myCurrentId = this.currentId
+      this.myLastIndex = this.currentId
+        ? this.findRowIndexById(this.currentId)
+        : 0
+    },
+    //--------------------------------------
+    syncCheckedIds() {
+      this.myCheckedIds = {}
+      _.forEach(this.checkedIds, (rowId)=>{
+        this.myCheckedIds[rowId] = true
+      })
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
   watch : {
     "currentId" : function() {
-      this.myCurrentId = this.currentId
-      this.myLastIndex = this.findRowIndexById(this.currentId)
+      this.syncCurrentId()
     },
     "checkedIds" : function() {
-      this.myCheckedIds = {}
-      _.forEach(this.checkedIds, (rowId)=>{
-        this.myCheckedIds[rowId] = true
-      })
+      this.syncCheckedIds()
     }
   },
   ///////////////////////////////////////////////////
   mounted : async function() {
+    //.................................
+    this.syncCurrentId()
+    this.syncCheckedIds()
     //.................................
     // Define the method for sub-cells up-calling
     this.debounceEvalEachColumnSize = _.debounce(()=>this.evalEachColumnSize(), 100)

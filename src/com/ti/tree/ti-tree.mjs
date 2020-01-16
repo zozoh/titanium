@@ -49,7 +49,7 @@ export default {
     // If 0, it will close all top leavel nodes
     "defaultOpenDepth" : {
       type : Number,
-      default : 1
+      default : 0
     },
     // Local store to save the tree open status
     "keepOpenBy" : {
@@ -92,6 +92,10 @@ export default {
     "width" : {
       type : [String, Number],
       default : null
+    },
+    "puppetMode" : {
+      type : Boolean,
+      default : false
     },
     "height" : {
       type : [String, Number],
@@ -248,16 +252,19 @@ export default {
       let itPathId = itPath.join("/")
       let itId = Ti.Util.fallbackNil(this.getNodeId(item), itPathId)
       let itLeaf = this.isNodeLeaf(item)
-      let opened = this.openNodePaths[itPathId] ? true : false;
+      let depth = path.length
+      let itOpened = Ti.Util.fallback(
+          this.openNodePaths[itPathId], 
+          depth<=this.defaultOpenDepth);
       // Join Self
       let self = {
         id     : itId,
         name   : itName,
         icon   : itLeaf 
                   ? true
-                  : this.nodeHandleIcons[opened ? 1 : 0],
-        opened : opened,
-        indent : path.length,
+                  : this.nodeHandleIcons[itOpened ? 1 : 0],
+        opened : itOpened ? true : false,
+        indent : depth,
         path   : itPath,
         pathId : itPathId,
         leaf   : itLeaf,
@@ -282,16 +289,34 @@ export default {
       }
     },
     //--------------------------------------
+    onItemChanged({name, value, rowId}={}) {
+      let row = this.findTableRow(rowId)
+      if(row) {
+        this.$emit("item:changed", {
+          node : row,
+          name, value
+        })
+      }
+    },
+    //--------------------------------------
     onRowSelected({currentId, checkedIds={}}={}) {
       let current, selected=[]
       // Has selected
       if(currentId) {
+        let currentRow;
         for(let row of this.treeTableData) {
           if(row.id == currentId) {
+            currentRow = row
             current = row.rawData
           }
           if(checkedIds[row.id]) {
             selected.push(row.rowData)
+          }
+        }
+        // Auto Open
+        if(currentRow && this.autoOpen) {
+          if(!currentRow.opened) {
+            this.$set(this.openNodePaths, currentRow.pathId, true)
           }
         }
       }

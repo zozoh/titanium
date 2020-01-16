@@ -2,11 +2,14 @@
   :class="topClass"
   :style="topStyle"
   :col-index="index">
+  <!--Slot for first column-->
+  <slot></slot>
+  <!--Fields-->
   <div class="cell-con">
     <component v-for="it in cellItems"
       :key="it.uniqueKey"
       :is="it.comType"
       v-bind="it.comConf"
-      @changed="$emit('item:changed', $event)"/>
+      @changed="$emit('item:changed', {name:it.key, value:$event})"/>
   </div>
 </div>
