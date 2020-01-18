@@ -5,8 +5,9 @@ class TiStorageWrapper {
   }
   get(key, dft, fmt=_.identity){
     let str = this.storage.getItem(key)
-    if(_.isNull(str))
+    if(Ti.Util.isNil(str)) {
       return dft
+    }
     return fmt(str)
   }
   getString(key, dft=null){

@@ -35,6 +35,11 @@ If display mode is in `tab`, the prop will indicate the current tab index.
 - `0 - n`
 - `-1 ~ -n`
 
+## keepTabIndexBy
+
+Keep current tab index in local.
+Only effectived when `display:"tab"`
+
 ## config
 
 Define the schema(`Object`) of  data presentation.

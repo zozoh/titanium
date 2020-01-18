@@ -22,6 +22,10 @@ export default {
       type : Number,
       default : 0
     },
+    "keepTabIndexBy" : {
+      type : String,
+      default : null
+    },
     "config" : {
       type : Object,
       default : null

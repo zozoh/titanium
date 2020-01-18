@@ -75,6 +75,10 @@ export default {
       type : Number,
       default : 0
     },
+    "keepTabIndexBy" : {
+      type : String,
+      default : null
+    },
     "config" : {
       type : Object,
       default : ()=>({})
@@ -259,6 +263,9 @@ export default {
       this.currentTabIndex = index
     },
     "currentTabIndex" : function(index){
+      if(this.keepTabIndexBy) {
+        Ti.Storage.session.set(this.keepTabIndexBy, index)
+      }
       this.$nextTick(()=>{
         this.__adjust_fields_width()
       })
@@ -271,7 +278,8 @@ export default {
     }, 500)
   },
   mounted : function() {
-    this.currentTabIndex = this.currentTab
+    console.log("haha")
+    this.currentTabIndex = Ti.Storage.session.getInt(this.keepTabIndexBy, this.currentTab)
     Ti.Viewport.watch(this, {resize})
     this.$nextTick(()=>{
       this.__adjust_fields_width()

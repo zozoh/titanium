@@ -363,7 +363,6 @@ export default {
     },
     //--------------------------------------
     cancelRow(rowId) {
-      console.log("haha")
       let theCheckedIds = _.cloneDeep(this.myCheckedIds)
       let theCurrentId  = this.myCurrentId
       let theIndex = 0
