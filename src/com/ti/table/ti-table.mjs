@@ -549,7 +549,7 @@ export default {
     //--------------------------------------
     onTableResize() {
       // Guard it
-      let colN = this.myColSizes.primary.length - 1
+      let colN = this.myColSizes.primary.length
       if(colN <= 0) {
         return
       }
@@ -564,10 +564,9 @@ export default {
       this.myColSizes.amended = []
       let remain = tableWidth - sumWidth
       let remainCell = remain / colN
-      // The first column
-      this.myColSizes.amended.push(this.myColSizes.primary[0])
+
       // The fields column
-      for(let i=1; i<this.myColSizes.primary.length; i++) {
+      for(let i=0; i<this.myColSizes.primary.length; i++) {
         this.myColSizes.amended.push(this.myColSizes.primary[i] + remainCell)
       }
     },
