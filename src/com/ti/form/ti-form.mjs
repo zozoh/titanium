@@ -278,7 +278,6 @@ export default {
     }, 500)
   },
   mounted : function() {
-    console.log("haha")
     this.currentTabIndex = Ti.Storage.session.getInt(this.keepTabIndexBy, this.currentTab)
     Ti.Viewport.watch(this, {resize})
     this.$nextTick(()=>{
