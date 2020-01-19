@@ -255,7 +255,7 @@ export default {
       let depth = path.length
       let itOpened = Ti.Util.fallback(
           this.openNodePaths[itPathId], 
-          depth<=this.defaultOpenDepth);
+          depth<this.defaultOpenDepth);
       // Join Self
       let self = {
         id     : itId,
