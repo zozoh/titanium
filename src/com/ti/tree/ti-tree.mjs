@@ -332,7 +332,6 @@ export default {
     },
     //--------------------------------------
     onRowIconClick({rowId}={}) {
-      console.log(rowId)
       let row = this.findTableRow(rowId)
       // Open it
       if(row && !row.leaf && !row.opened) {

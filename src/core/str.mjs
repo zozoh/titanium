@@ -96,7 +96,11 @@ export const TiStr = {
     if(/^(true|false|yes|no|on|off)$/i.test(str)) {
       return /^(true|yes|on)$/i.test(str)
     }
-    // Date
+    // try JSON
+    try {
+      return JSON.parse(str)
+    } catch(E){}
+    // try Date
     try {
       return Ti.Types.toDate(v)
     } catch(E){}

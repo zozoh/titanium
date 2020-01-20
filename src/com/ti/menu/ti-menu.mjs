@@ -50,7 +50,7 @@ export default {
     invokeAction : _.debounce(function(action){
       //console.log("invokeAction", action)
       let vm = this
-      let m = /^([a-zA-Z0-9_]+):([^()]+)(\((.+)\))?$/.exec(action)
+      let m = /^([a-zA-Z0-9_]+):([^()]+)(\((.*)\))?$/.exec(action)
       if(m) {
         let mode = m[1]
         let tanm = m[2]

@@ -175,6 +175,24 @@ export class OneTiApp {
     }
   }
   //---------------------------------------
+  // Invoke the function in window object
+  global(nm, payload) {
+    // Find the function in window
+    let fn = _.get(window, nm)
+    // Fire the function
+    if(_.isFunction(fn)) {
+      let args = []
+      if(!_.isUndefined(payload)) {
+        args.push(payload)
+      }
+      return fn.apply(this, args)
+    }
+    // report error
+    else {
+      throw Ti.Err.make("e-ti-app-main", {nm, payload})
+    }
+  }
+  //---------------------------------------
   get(key) {
     if(!key) {
       return this.$vm()

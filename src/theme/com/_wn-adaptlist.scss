@@ -1,6 +1,5 @@
 .wn-adaptlist {
-  position: relative;
-  > .wal-uploading {
+  .wal-uploading {
     @include pos-abs($l:0,$r:0,$b:0);
     @include color($color-cloak, r, c);
     max-height: 100%; overflow-y:auto;
