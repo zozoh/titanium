@@ -4,6 +4,7 @@
   "template" : "./wn-table.html",
   "mixins" : ["./wn-table.mjs"],
   "components" : [
-    "@com:ti/table"
+    "@com:ti/table",
+    "@com:wn/label"
   ]
 }

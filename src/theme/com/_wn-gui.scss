@@ -64,7 +64,7 @@
   .table-row.row-indent-0 {
     @include color($color-chip, r, c);
     @include border(1px, solid, shallow, bottom);
-    padding:.02rem 0;
+    padding:.02rem 0 .02rem .04rem;
   }
   //------------------------------------------
   .ti-icon .icon-icon i {font-size:1em;}

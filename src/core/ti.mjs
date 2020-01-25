@@ -125,7 +125,7 @@ export const Ti = {
   },
   //-----------------------------------------------------
   async DoInvokeBy(target={}, funcName, args=[], context) {
-    return await Ti.doInvoke(target[funcName], args, context||target)
+    return await Ti.DoInvoke(target[funcName], args, context||target)
   }
   //-----------------------------------------------------
 }

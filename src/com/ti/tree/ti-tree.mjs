@@ -310,7 +310,7 @@ export default {
             current = row.rawData
           }
           if(checkedIds[row.id]) {
-            selected.push(row.rowData)
+            selected.push(row.rawData)
           }
         }
         // Auto Open

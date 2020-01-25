@@ -1,11 +1,8 @@
 export default {
   inheritAttrs : false,
   //////////////////////////////////////////
-  data: ()=>({
-    "theValue" : null
-  }),
-  //////////////////////////////////////////
   props : {
+    "className" : null,
     "blankAs" : {
       type : String,
       default : "i18n:nil"
@@ -28,10 +25,6 @@ export default {
       type : String,
       default : null
     },
-    "dict" : {
-      type : String,
-      default : null
-    },
     "href" : {
       type : String,
       default : null
@@ -45,9 +38,9 @@ export default {
   computed : {
     //--------------------------------------
     topClass() {
-      return {
+      return Ti.Css.mergeClassName({
         "is-blank" : this.isBlank
-      }
+      }, this.className)
     },
     //--------------------------------------
     isBlank() {
@@ -64,27 +57,15 @@ export default {
     //--------------------------------------
     hasHref() {
       return this.href ? true : false
-    }
+    },
     //--------------------------------------
-  },
-  //////////////////////////////////////////
-  watch : {
-    "value" : async function() {
-      this.theValue = await this.evalTheValue()
-    }
-  },
-  //////////////////////////////////////////
-  methods : {
-    async evalTheValue() {
+    theValue() {
       // Blank value
       if(this.isBlank) {
         return Ti.I18n.text(this.blankAs)
       }
       // Look up dictionary
       let str = this.value
-      if(this.dict) {
-        str = await Wn.Dict.get(this.dict, this.value)
-      }
       // Format to display
       if(this.format || _.isDate(str)) {
         str = Ti.Types.toStr(str, this.format)
@@ -92,10 +73,7 @@ export default {
       // I18n ...
       return Ti.I18n.text(str)
     }
-  },
-  //////////////////////////////////////////
-  mounted : async function() {
-    this.theValue = await this.evalTheValue()
+    //--------------------------------------
   }
   //////////////////////////////////////////
 }

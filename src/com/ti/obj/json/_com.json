@@ -1,0 +1,10 @@
+{
+  "name" : "ti-obj-json",
+  "globally" : true,
+  "template" : "./ti-obj-json.html",
+  "mixins" : ["./ti-obj-json.mjs"],
+  "components" : [
+    "./com/json-value",
+    "@com:ti/tree"
+  ]
+}

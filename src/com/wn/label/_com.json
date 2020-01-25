@@ -1,0 +1,7 @@
+{
+  "name" : "wn-label",
+  "globally" : true,
+  "template" : "./wn-label.html",
+  "mixins" : ["./wn-label.mjs"],
+  "components" : ["@com:ti/label"]
+}

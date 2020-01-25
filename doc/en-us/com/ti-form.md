@@ -40,6 +40,10 @@ If display mode is in `tab`, the prop will indicate the current tab index.
 Keep current tab index in local.
 Only effectived when `display:"tab"`
 
+## defaultComType
+
+Declare the default field `comType`. Default is `ti-label`
+
 ## config
 
 Define the schema(`Object`) of  data presentation.

@@ -1,23 +1,6 @@
 export default {
   ////////////////////////////////////////////////
   mutations : {
-    set(state, {
-      meta, data, __saved_data, status
-    }={}) {
-      // Meta
-      if(!_.isUndefined(meta))
-        state.meta = _.cloneDeep(meta)
-      // Data
-      if(!_.isUndefined(data))
-        state.data = _.cloneDeep(data)
-      // SavedData
-      if(!_.isUndefined(__saved_data))
-        state.__saved_data = _.cloneDeep(__saved_data)
-      // Status
-      _.assign(state.status, status)
-      // Changed
-      state.status.changed = !_.isEqual(state.data, state.__saved_data)
-    },
     //--------------------------------------------
     setMeta(state, meta) {
       state.meta = meta
@@ -37,6 +20,13 @@ export default {
         return
       }
       state.meta = _.merge({}, state.meta, meta);
+    },
+    //--------------------------------------------
+    setJsonTab(state, tabIndent=0) {
+      let n = parseInt(tabIndent)
+      if(n>=0)  {
+        state.jsonTab = n
+      }
     },
     //--------------------------------------------
     setStatus(state, status) {
@@ -78,7 +68,17 @@ export default {
 
       let meta = state.meta
       let data = state.data
-      let json = JSON.stringify(data)
+      let json;
+
+      // format JSON
+      if(state.jsonTab > 0) {
+        let tab = _.repeat(' ', state.jsonTab)
+        json = JSON.stringify(data, null, tab)
+      }
+      // Compact Mode
+      else {
+        json = JSON.stringify(data)
+      }
 
       commit("setStatus", {saving:true})
 

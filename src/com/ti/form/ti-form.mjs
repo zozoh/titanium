@@ -22,6 +22,11 @@ function normlizeFormField(vm, fld, nbs=[]) {
     f2 = _.cloneDeep(fld)
     f2.type = f2.type || "String"
 
+    // Default comType
+    if(!f2.comType) {
+      f2.comType = vm.defaultComType
+    }
+
     // field status
     let fstKey = [].concat(f2.name).join("-")
     let fst = vm.fieldStatus[fstKey]
@@ -78,6 +83,10 @@ export default {
     "keepTabIndexBy" : {
       type : String,
       default : null
+    },
+    "defaultComType" : {
+      type : String,
+      default : "ti-label"
     },
     "config" : {
       type : Object,

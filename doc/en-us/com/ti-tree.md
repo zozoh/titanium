@@ -380,33 +380,16 @@ Extend function set for `transformer` in each field `display`
 
 ```js
 {
-  className : null, // Node customized className
-  index : 0,    // [Auto] index(0 base) in current level
-  name  : "c"   // [Auto] Unique in current level, default is "N${index}"
-  path  : ["a","b"],     // [Auto] parent name path, top is []
-  text : "i18n:xxx",     // Node text
-  icon : "far-xxx",      // Node icon
-  href : "/xx?id=${id}", // href templ,
-  value : "45m..rt8",    // Node value, unique in tree
-  tip  : "i18n:xxx",     // Node tip
-  leaf : false,          // Node is leaf, children will be ignored
-  selected : false,      // [Auto] Node is selected
-  opened : false,        // [Auto] Node is opened
-  // Children nodes, if not array or undefined, take it as leaf
-  children : [..]
-}
-```
-
-```js
-{
-  id     : "45y..9r1",
-  name   : "xiaobai",
-  path   : ["user", "xiaobai"]
-  depth  : 0,
-  opened : true,
-  leaf   : false,
-  rawData : {...},
-  children : [..]
+  id     : "45y..9r1",    // -> idBy(item)
+  name   : "xiaobai",     // -> nameBy(item)
+  icon   : "zmdi-chevron-right",  // -> nodeHandleIcons
+  path   : ["user", "xiaobai"],   // node name path
+  pathId : "user/xiaobai",        // default ID
+  depth  : 0,        // top is 0
+  opened : true,     // Node opened or closed
+  leaf   : false,    // -> leafBy
+  rawData : {...},   // primary data 
+  children : [..]    // -> childrenBy
 }
 ```
 
