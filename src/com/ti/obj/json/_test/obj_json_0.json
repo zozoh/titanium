@@ -1,0 +1,9 @@
+{
+  "comType" : "ti-obj-json",
+  "comConf" : {
+    "data"   : ".."
+  },
+  "dispatchActions" : {
+    
+  }
+}

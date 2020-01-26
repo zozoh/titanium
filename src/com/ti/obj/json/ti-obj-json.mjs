@@ -7,12 +7,38 @@ export default {
   //////////////////////////////////////////
   props : {
     "className" : null,
-    "data" : null
+    "data" : null,
+    "border" : {
+      type : String,
+      default : "cell",
+      validator : v => /^(row|column|cell|none)$/.test(v)
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    theTreeDisplay() {
+      return "name"
+    },
+    //--------------------------------------
+    theTreeFields() {
+      return [{
+        title : "i18n:value",
+        display : {
+          key : "value",
+          comType : "ti-obj-json-value",
+          comConf : {
+          }
+        }
+      }]
+    }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
     evalTreeData() {
+      console.log("haha")
       let list = []
       // Join the top data
       this.joinTreeTableRow(list, this.data)
@@ -20,16 +46,45 @@ export default {
       this.theTreeData = list
     },
     //--------------------------------------
+    getJsValueType(val) {
+      if(Ti.Util.isNil(val))
+        return "Nil"
+
+      if(_.isArray(val))
+        return "Array"
+      
+      if(_.isNumber(val)) {
+        if(val === parseInt(val)) {
+          return "Integer"
+        }
+        return "Float"
+      }
+
+      return _.upperFirst(typeof val)
+    },
+    //--------------------------------------
     joinTreeTableRow(list=[], item, key) {
+      let nameType;
+      let valueType = this.getJsValueType(item)
       // Default itemKey is self-type
       // For top leval
       if(_.isUndefined(key)) {
-        key = _.upperFirst(typeof item)
+          key = valueType
+          nameType = "Label"
+      }
+      // Index key
+      else if(_.isNumber(key)) {
+        nameType = "Index"
+      }
+      // String key
+      else {
+        nameType = "Key"
       }
       //................................
       // undefined
       if(_.isUndefined(item)) {
         list.push({
+          nameType, valueType,
           name  : key,
           value : undefined
         })
@@ -38,6 +93,7 @@ export default {
       // null
       else if(_.isNull(item)) {
         list.push({
+          nameType, valueType,
           name  : key,
           value : null
         })
@@ -47,6 +103,7 @@ export default {
       if(_.isArray(item)) {
         // Create self
         let node = {
+          nameType, valueType: "Label",
           name  : key,
           value : "[..]",
           children : []
@@ -64,6 +121,7 @@ export default {
       else if(_.isPlainObject(item)) {
         // Create self
         let node = {
+          nameType, valueType: "Label",
           name  : key,
           value : "{..}",
           children : []
@@ -79,6 +137,7 @@ export default {
       // Boolean
       else if(_.isBoolean(item)) {
         list.push({
+          nameType, valueType,
           name  : key,
           value : item ? true : false
         })
@@ -87,6 +146,7 @@ export default {
       // Number 
       else if(_.isNumber(item)) {
         list.push({
+          nameType, valueType,
           name  : key,
           value : item * 1
         })
@@ -95,6 +155,7 @@ export default {
       // String
       else if(_.isString(item)) {
         list.push({
+          nameType, valueType,
           name  : key,
           value : item + ""
         })

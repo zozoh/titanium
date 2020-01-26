@@ -166,7 +166,7 @@ export default {
       })
       //.....................................
       // Set the default value key
-      if(!isValueAssigned) {
+      if(!isValueAssigned && _.isUndefined(comConf.value)) {
         comConf.value = value
       }
       //.....................................

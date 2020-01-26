@@ -6,6 +6,7 @@ tags:
 - com
 ---
 
+-------------------------------------------------------------------
 # ObjJson Overview
 
 `<ti-obj-json>` can:
@@ -18,26 +19,53 @@ tags:
   + `Boolean`
   + `String`
   
+
 The GUI base on `ti-tree` with one value field like:
 
 ![](design-json-editor.png)
 
+-------------------------------------------------------------------
 # Properties
 
--------------------------------------------------------------------
 ## className
 
 ```js
 "className" : null
-}
 ```
 
--------------------------------------------------------------------
 ## data
 
 ```js
 "data" : null
-}
 ```
 
 Any valid json data will be allowed.
+
+-------------------------------------------------------------------
+# Tree Data
+
+To render a tree, it will creat the tree data from a `PlainObject` like:
+
+```js
+{
+  name  : "Array",
+  value : "[..]",
+  //--------------------------------------------
+  // Indicate the name field value type, it could be:
+  //  - Label : Readonly
+  //  - Key   : Editable string key in Object
+  //  - Index : Readonly integer key of Array
+  nameType  : "Label",
+  //--------------------------------------------
+  // Indicate the value field render mode, it could be:
+  //  - Label   : Readonly
+  //  - String  : Editable string value
+  //  - Integer : Editable integer value
+  //  - Float   : Editable float value
+  //  - Boolean : Editable boolean value
+  //  - Nil     : Edtiable any value
+  valueType : "Label"
+  childern : []
+}
+```
+

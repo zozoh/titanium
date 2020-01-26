@@ -8,6 +8,7 @@
     "@com:ti/wizard",
     "@com:ti/calendar",
     "@com:ti/table",
-    "@com:ti/tree"
+    "@com:ti/tree",
+    "@com:ti/obj/json"
   ]
 }
