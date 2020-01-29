@@ -1,6 +1,7 @@
 <div
   class="ti-label"
-  :class="topClass">
+  :class="topClass"
+  @dblclick.left="onDblClick">
   <!--prefix:icon-->
   <div v-if="prefixIcon"
     class="as-icon at-prefix">
@@ -13,14 +14,13 @@
   </div>
   <!--Text-->
   <div class="as-value">
-    <a 
-      v-if="hasHref"
+    <!--Link-->
+    <a v-if="hasHref"
         :href="href"
         :taget="theLinkTarget"
-        @click.left.prevent>{{theValue}}</a>
-    <span
-      v-else>{{theValue}}</span
-      >
+        @click.left.prevent>{{theDisplayValue}}</a>
+    <!--Normal Text-->
+    <span v-else>{{theDisplayValue}}</span>
   </div>
   <!--suffix:text-->
   <div v-if="suffixText"

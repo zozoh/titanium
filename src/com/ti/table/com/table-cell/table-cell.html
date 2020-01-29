@@ -10,6 +10,6 @@
       :key="it.uniqueKey"
       :is="it.comType"
       v-bind="it.comConf"
-      @changed="$emit('item:changed', {name:it.key, value:$event})"/>
+      @changed="onItemChanged(it, $event)"/>
   </div>
 </div>

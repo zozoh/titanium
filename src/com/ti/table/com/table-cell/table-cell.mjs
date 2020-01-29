@@ -109,64 +109,72 @@ export default {
       }
       // Ignore the undefined/null
       if(Ti.Util.isNil(value)) {
-        return
+        if(Ti.Util.fallback(displayItem.ignoreNil, true)) {
+          return
+        }
       }
       //.....................................
       // Add value to comConf
       let reDisplayItem = _.cloneDeep(displayItem)
       let comConf = {}
-      let isValueAssigned = false
       //.....................................
-      _.forEach(displayItem.comConf || {}, (val, key)=>{
-        //
-        // VAL: evalue the special value
-        //
-        // "${=value}" : value from row data by key
-        if("${=value}" == val) {
-          val = value
-          isValueAssigned = true
-        }
-        // ".." : value for whole row data
-        else if(".." == val) {
-          val = itemData
-        }
-        // "${info.age}" : value from row data
-        else if(_.isString(val)) {
-          let m = /^(\((.+)\)\?)?(.+)$/.exec(val)
-          if(m) {
-            let preKey = _.trim(m[2])
-            let tmpl = _.trim(m[3])
-            //console.log("haha", preKey, tmpl)
-            // Only `itemData` contains the preKey, render the value
-            if(preKey) {
-              if(_.get(itemData, preKey)) {
+      // Customized comConf
+      if(_.isFunction(displayItem.comConf)) {
+        _.assign(comConf, displayItem.comConf(itemData))
+      }
+      //.....................................
+      // Eval comConf
+      else {
+        _.forEach(displayItem.comConf || {}, (val, key)=>{
+          //
+          // VAL: evalue the special value
+          //
+          // "${=value}" : value from row data by key
+          if("${=value}" == val) {
+            val = value
+          }
+          // ".." : value for whole row data
+          else if(".." == val) {
+            val = itemData
+          }
+          // "${info.age}" : value from row data
+          else if(_.isString(val)) {
+            let m = /^(\((.+)\)\?)?(.+)$/.exec(val)
+            if(m) {
+              let preKey = _.trim(m[2])
+              let tmpl = _.trim(m[3])
+              //console.log("haha", preKey, tmpl)
+              // Only `itemData` contains the preKey, render the value
+              if(preKey) {
+                if(_.get(itemData, preKey)) {
+                  val = Ti.S.renderBy(tmpl, itemData)
+                } else {
+                  val = null
+                }
+              }
+              // Always render the value
+              else {
                 val = Ti.S.renderBy(tmpl, itemData)
-              } else {
-                val = null
               }
             }
-            // Always render the value
-            else {
-              val = Ti.S.renderBy(tmpl, itemData)
-            }
           }
-        }
 
-        //
-        // KEY: Set to `comConf`
-        //
-        // ... will extends all value to comConf
-        if("..." == key) {
-          _.assign(comConf, val)
-        }
-        // Just set the val
-        else {
-          comConf[key] = val
-        }
-      })
+          //
+          // KEY: Set to `comConf`
+          //
+          // ... will extends all value to comConf
+          if("..." == key) {
+            _.assign(comConf, val)
+          }
+          // Just set the val
+          else {
+            comConf[key] = val
+          }
+        })
+      }
       //.....................................
       // Set the default value key
-      if(!isValueAssigned && _.isUndefined(comConf.value)) {
+      if(_.isUndefined(comConf.value)) {
         comConf.value = value
       }
       //.....................................
@@ -175,6 +183,10 @@ export default {
       reDisplayItem.uniqueKey = _.concat(reDisplayItem.key).join("-")
       //.....................................
       return reDisplayItem
+    },
+    //-----------------------------------------------
+    onItemChanged(item, payload) {
+      this.$emit('item:changed', {name:item.key, value:payload})
     }
     //-----------------------------------------------
   },

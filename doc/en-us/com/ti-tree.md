@@ -393,3 +393,33 @@ Extend function set for `transformer` in each field `display`
 }
 ```
 
+-------------------------------------------------------------------
+# Events
+
+## selected
+
+When row selected/checked or canceled, it will emit the event with payload:
+
+
+```js
+currentId : ID,    // current row ID
+checkedIds : {     // All checked row id set
+  [ID] : true     
+},
+selected : [..],   // checked rows raw-data
+current : {..}     // current row raw-data     
+```
+
+## item:changed
+
+When cell display item `changed`, it will emit the event with payload:
+
+```js
+name  : {DiplayItemKey},   // the display item key
+value : Any                // The display UI changed event payload
+data  : {..},    // Relative node raw-data
+nodeId : ID,     // Relative node ID
+node  : {   // The relative node 
+  /* @see TreeNode*/
+}
+```

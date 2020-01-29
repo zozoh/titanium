@@ -16,10 +16,7 @@ export default {
   props : {
     "className" : null,
     "value" : null,
-    "format" : {
-      type : [String, Array, Object],
-      default : undefined
-    },
+    "format" : undefined,
     "readonly" : {
       type: Boolean,
       default : false

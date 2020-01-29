@@ -6,6 +6,7 @@
   "dead" : false
 }, {
   "id"       : "002",
+  "icon"     : null,
   "name"     : "萨达姆·侯赛因",
   "age"      : 56,
   "birthday" : 1578667048690,

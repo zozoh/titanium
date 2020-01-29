@@ -1,3 +1,25 @@
 <div class="json-value">
-  <span>{{value}}</span>
+  <!--
+  //  - Label   : Readonly
+  -->
+  <span v-if="'Label' == valueType"
+    class="as-label">{{value}}</span>
+  <!--
+  //  - Boolean : Editable boolean value
+  -->
+  <ti-toggle v-else-if="'Boolean' == valueType"
+    :value="value"
+    @changed="$emit('changed', $event)"/>
+  <!--
+  //  - Integer : Editable integer value
+  //  - Float   : Editable float value
+  //  - String  : Editable string value
+  //  - Nil     : Edtiable any value
+  -->
+  <ti-label v-else
+    :value="value"
+    :class-name="theValueClassName"
+    :format="theValueFormat"
+    :editable="true"
+    @changed="$emit('changed', $event)"/>
 </div>

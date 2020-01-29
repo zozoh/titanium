@@ -43,7 +43,7 @@ export default {
       // Find the serializer function
       let action = this.dispatchActions[name]
       if(!name.startsWith("hook:"))
-        console.log("hahah", {name, args, action})
+        console.log("hijackEmit", {name, args, action})
 
       // dispatch action
       if(action) {

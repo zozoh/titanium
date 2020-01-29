@@ -8,6 +8,14 @@ export default {
       default : "i18n:nil"
     },
     "value" : null,
+    "autoI18n" : {
+      type : Boolean,
+      default : true
+    },
+    "trim" : {
+      type : Boolean,
+      default : true
+    },
     "format" : undefined,
     "prefixIcon" : {
       type : String,
@@ -32,6 +40,10 @@ export default {
     "newTab" : {
       type : Boolean,
       default : false
+    },
+    "editable" : {
+      type : Boolean,
+      default : false
     }
   },
   //////////////////////////////////////////
@@ -39,14 +51,8 @@ export default {
     //--------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "is-blank" : this.isBlank
+        "is-blank" : !_.isNumber(this.theValue) && _.isEmpty(this.theValue)
       }, this.className)
-    },
-    //--------------------------------------
-    isBlank() {
-      if(_.isNumber(this.value))
-        return false
-      return this.value ? false : true
     },
     //--------------------------------------
     theLinkTarget() {
@@ -60,18 +66,46 @@ export default {
     },
     //--------------------------------------
     theValue() {
-      // Blank value
-      if(this.isBlank) {
-        return Ti.I18n.text(this.blankAs)
-      }
-      // Look up dictionary
       let str = this.value
       // Format to display
       if(this.format || _.isDate(str)) {
-        str = Ti.Types.toStr(str, this.format)
+        return Ti.Types.toStr(str, this.format)
       }
-      // I18n ...
-      return Ti.I18n.text(str)
+      // Auto trim
+      if(this.trim && str) {
+        return _.trim(str)
+      }
+      // Return it directly
+      return str
+    },
+    //--------------------------------------
+    theDisplayValue() {
+      let val = this.theValue
+      if(_.isNumber(val)) {
+        return val
+      }
+      if(!val) {
+        return Ti.I18n.text(this.blankAs)
+      }
+      if(this.autoI18n) {
+        return Ti.I18n.text(val)
+      }
+      return val
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    onDblClick() {
+      if(this.editable) {
+        Ti.Be.EditIt(this.$el, {
+          text: this.value,
+          ok : (newVal)=> {
+            this.$emit("changed", newVal)
+          }
+        })
+      }
     }
     //--------------------------------------
   }

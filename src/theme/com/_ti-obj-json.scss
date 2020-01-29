@@ -1,0 +1,50 @@
+.ti-obj-json {
+  //-----------------------------------------------
+  // Reset table row contains
+  &.ti-table > .table-body .table-cell > .cell-con {
+    padding:0;
+    .ti-label, .ti-toggle {
+      padding:0 .04rem;
+    }
+  }
+  //-----------------------------------------------
+  .json-value {
+    @include flex-align-nowrap($ai:stretch,$jc:flex-start);
+    @include font-fixed;
+    > * {flex:1 1 auto;}
+    //---------------------------------------------
+    > .as-label {
+      opacity: 0.4;  padding:0 .04rem;
+    }
+    //---------------------------------------------
+  }
+  //-----------------------------------------------
+  .ti-label {
+    &.is-string {
+      @include color($color-text, c);
+    }
+    &.is-integer {
+      @include color($color-number, c);
+    }
+    &.is-float {
+      @include color($color-number, c);
+    }
+    &.is-index {
+      @include color($color-secondary, c);
+    }
+  }
+  //-----------------------------------------------
+  // Highlight row style
+  .table-row.is-checked {
+    //---------------------------------------------
+    .json-value {
+      color:inherit;
+    }
+    //---------------------------------------------
+    .ti-label {
+      color:inherit;
+    }
+    //---------------------------------------------
+  }
+  //-----------------------------------------------
+}

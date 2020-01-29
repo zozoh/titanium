@@ -4,4 +4,7 @@
   :border="border"
   :data="theTreeData"
   :display="theTreeDisplay"
-  :fields="theTreeFields"/>
+  :auto-open="true"
+  :default-open-depth="2"
+  :fields="theTreeFields"
+  @item:changed="onItemChanged"/>

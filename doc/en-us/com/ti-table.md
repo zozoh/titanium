@@ -72,6 +72,9 @@ It will be formatted to Array like:
   transformer : "toStr",  // @see Ti.Types.getFuncByType()
   transNil : false,  // force to call transformer even the value is nil
   //-------------------------------
+  // Skip `nil` value(`null` or `undefined`). Default is `true`
+  ignoreNil : true,
+  //-------------------------------
   // Component
   comType : "ti-label",
   comConf : {
@@ -371,4 +374,30 @@ data: ()=>({
 })
 ```
 
+-------------------------------------------------------------------
+# Events
 
+## selected
+
+When row selected/checked or canceled, it will emit the event with payload:
+
+
+```js
+currentId : ID,    // current row ID
+checkedIds : {     // All checked row id set
+  [ID] : true     
+},
+selected : [..],   // checked rows raw-data
+current : {..}     // current row raw-data     
+```
+
+## item:changed
+
+When cell display item `changed`, it will emit the event with payload:
+
+```js
+name  : {DiplayItemKey},   // the display item key
+value : Any                // The display UI changed event payload
+rowId : ID,     // Relative row data ID
+data  : {..}    // Relative row raw-data
+```

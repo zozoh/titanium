@@ -293,7 +293,9 @@ export default {
       let row = this.findTableRow(rowId)
       if(row) {
         this.$emit("item:changed", {
-          node : row,
+          node   : row,
+          nodeId : rowId,
+          data   : row.rawData,
           name, value
         })
       }

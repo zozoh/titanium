@@ -18,7 +18,15 @@ export default {
   computed : {
     //--------------------------------------
     theTreeDisplay() {
-      return "name"
+      return {
+        key : "name",
+        comType : "ti-label",
+        comConf : (it)=>({
+          className : _.kebabCase(`is-${it.nameType}`),
+          editable  : 'Key' == it.nameType,
+          format : 'Index' == it.nameType ? "[${val}]" : undefined,
+        })
+      }
     },
     //--------------------------------------
     theTreeFields() {
@@ -26,8 +34,10 @@ export default {
         title : "i18n:value",
         display : {
           key : "value",
+          ignoreNil : false,
           comType : "ti-obj-json-value",
           comConf : {
+            valueType : "${valueType}"
           }
         }
       }]
@@ -38,7 +48,6 @@ export default {
   methods : {
     //--------------------------------------
     evalTreeData() {
-      console.log("haha")
       let list = []
       // Join the top data
       this.joinTreeTableRow(list, this.data)
@@ -160,6 +169,60 @@ export default {
           value : item + ""
         })
       }
+    },
+    //--------------------------------------
+    onItemChanged({name, value, data, node}={}) {
+      console.log({name,value, data, node})
+      // Guard it
+      if(!node.id) {
+        return;
+      }
+
+      // Prepare the new Data
+      let newData = _.cloneDeep(this.data)
+
+      // Get the target JSON path
+      let path = node.id.split("/")
+      
+      // Modify the Array/Object
+      if(/^(Array|Object)$/.test(path[0])) {
+        let keys = _.slice(path, 1).join(".")
+        // Set the Key
+        if("name" == name) {
+          newData = Ti.Util.setKey(newData, keys, value)
+        }
+        // Set the Value
+        else if("value" == name) {
+          // Eval the value smartly
+          let fn = ({
+            "Integer" : (v)=> {
+              let v2 = parseInt(v)
+              if(isNaN(v2)) {
+                return v
+              }
+              return v2
+            },
+            "Float" : (v)=> {
+              let v2 = v * 1
+              if(isNaN(v2)) {
+                return v
+              }
+              return v2
+            }
+          })[data.valueType]
+          let v2 = _.isFunction(fn) ? fn(value) : value
+          
+          // Set it to data
+          _.set(newData, keys, v2)
+        }
+      }
+      // Modify the top data
+      else {
+        newData = value
+      }
+
+      // Emit the change
+      this.$emit("changed", newData)
     }
     //--------------------------------------
   },

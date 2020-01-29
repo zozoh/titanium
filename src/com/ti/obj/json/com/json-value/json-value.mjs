@@ -6,12 +6,29 @@ export default {
   }),
   //////////////////////////////////////////
   props : {
-    "value" : null
+    "value" : null,
+    "valueType" : {
+      type : String,
+      default : "Label"
+    }
   },
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    
+    theValueClassName() {
+      return _.kebabCase(`is${this.valueType}`)
+    },
+    //--------------------------------------
+    theValueFormat() {
+      if('String' == this.valueType) {
+        return function(val) {
+          if(val) {
+            return `"${val}"`
+          }
+          return '""'
+        }
+      }
+    }
     //--------------------------------------
   },
   //////////////////////////////////////////

@@ -34,9 +34,15 @@
       "shortcut" : "ALT+CTRL+V"
     },{
       "type" : "action",
+      "icon" : "zmdi-keyboard",
+      "text" : "i18n:console",
+      "action" : "dispatch:openConsole",
+      "shortcut" : "ALT+SHIFT+T"
+    },{
+      "type" : "action",
       "icon" : "zmdi-info-outline",
       "text" : "i18n:properties",
-      "action" : "self:editObjMeta",
+      "action" : "main:onOpenProperties",
       "shortcut" : "ALT+CTRL+P"
     }]
 }

@@ -43,6 +43,7 @@
     "@com:ti/obj/meta",
     "@com:ti/lbs/map",
     "@com:ti/web/session/badge",
+    "@com:wn/label",
     "@com:wn/gui/arena",
     "@com:wn/gui/side/nav",
     "@com:wn/gui/side/tree",

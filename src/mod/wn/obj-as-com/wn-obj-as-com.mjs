@@ -18,7 +18,7 @@ export default {
       state.dispatchActions = dispatchActions || {}
     },
     setData(state, data) {
-      state.data = data
+      state.data = _.cloneDeep(data)
     },
     setSavedData(state, data) {
       state.__saved_data = data
@@ -46,7 +46,13 @@ export default {
      * Update the data and `status.changed`
      */
     update({commit}, data={}){
-      if(!_.isEmpty(data)) {
+      // Array : replace
+      if(_.isArray(data)) {
+        commit("setData", data)
+        commit("syncStatusChanged")
+      }
+      // Object : merge
+      else if(!_.isEmpty(data)) {
         commit("mergeData", data)
         commit("syncStatusChanged")
       }

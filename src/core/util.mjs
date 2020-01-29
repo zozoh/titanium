@@ -406,6 +406,77 @@ const TiUtil = {
     return re
   },
   /***
+   * Replace one object property key. Only for plaint object.
+   * 
+   * @param source{Object|Array} - Source to apply mapping
+   * @param path{String} - dot splited path like "a.2.name"
+   * @param newKey{String}
+   * 
+   * @return new Object or array
+   */
+  setKey(source={}, path, newKey) {
+    // Define the iteratee
+    const set_key_by = function(src, keys=[], offset=0, newKey) {
+      // Guard it
+      if(offset >= keys.length) {
+        return src
+      }
+      //.....................................
+      // For Array : call-down
+      if(_.isArray(src)) {
+        let list = []
+        let theIndex = parseInt(keys[offset])
+        for(let i=0; i<src.length; i++) {
+          // call-down
+          if(i == theIndex) {
+            let val = set_key_by(src[i], keys, offset+1, newKey)
+            list.push(val)
+          }
+          // Just copy it
+          else {
+            list.push(src[i])
+          }
+        }
+        return list
+      }
+      //.....................................
+      // For Object
+      if(_.isPlainObject(src)) {
+        let reo = {}
+        let srcKeys = _.keys(src)
+        // Find the replace key
+        if(keys.length == (offset+1)) {
+          let theKey = keys[offset]
+          for(let key of srcKeys) {
+            let val = src[key]
+            // Now replace it
+            if(theKey == key) {
+              reo[newKey] = val
+            }
+            // Just copy it
+            else {
+              reo[key] = val
+            }
+          }
+        }
+        // Call-down
+        else {
+          for(let key of srcKeys) {
+            let val = src[key]
+            let v2 = set_key_by(val, keys, offset+1, newKey)
+            reo[key] = v2
+          }
+        }
+        return reo
+      }
+      //.....................................
+      // just return
+      return src;
+    }
+    // Call in
+    return set_key_by(source, path.split("."), 0, newKey)
+  },
+  /***
    * Get value from obj
    * 
    * @param key{String|Array} value key, if array will pick out a new obj
@@ -463,6 +534,12 @@ const TiUtil = {
   fallbackNil(...args) {
     for(let arg of args) {
       if(!TiUtil.isNil(arg))
+        return arg
+    }
+  },
+  fallbackNaN(...args) {
+    for(let arg of args) {
+      if(!isNaN(arg))
         return arg
     }
   },

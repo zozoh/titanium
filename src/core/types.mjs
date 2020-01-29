@@ -577,6 +577,9 @@ export class TiColor {
 /////////////////////////////////////
 const TiTypes = {
   toStr(val, fmt, dft) {
+    if(_.isFunction(fmt)) {
+      return fmt(val) || dft
+    }
     if(_.isNull(val) || _.isUndefined(val)){
       return Ti.Util.fallback(dft, null)
     }
