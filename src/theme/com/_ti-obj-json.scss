@@ -11,7 +11,27 @@
   .json-value {
     @include flex-align-nowrap($ai:stretch,$jc:flex-start);
     @include font-fixed;
-    > * {flex:1 1 auto;}
+    //---------------------------------------------
+    > .as-editing {
+      flex:1 1 auto;
+    }
+    //---------------------------------------------
+    > .as-actions {
+      flex:0 0 auto;
+      padding:.04rem .06rem;
+      font-size:.8em; 
+      .menu-top-item {
+        .as-info {
+          &[item-enabled]:hover {
+            @include color($color-secondary, r, c);
+          }
+          padding:0;
+          .as-icon {
+            height:2em; width:2em;
+          }
+        }
+      }
+    }
     //---------------------------------------------
     > .as-label {
       opacity: 0.4;  padding:0 .04rem;

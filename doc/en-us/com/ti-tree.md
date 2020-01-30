@@ -116,7 +116,19 @@ Test give node data is `leaf` or not.
 }
 ```
 
-It table mode, defined the `main-column` title.
+For `table mode`, defined the `main-column` title.
+
+-------------------------------------------------------------------
+## mainWidth
+
+```js
+"mainWidth" : {
+  type : [String, Number],
+  default : 'stretch'
+}
+```
+
+For `table mode`, defined the `main-column` width.
 
 -------------------------------------------------------------------
 ## display

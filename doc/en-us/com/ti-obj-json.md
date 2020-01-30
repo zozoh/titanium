@@ -58,13 +58,13 @@ To render a tree, it will creat the tree data from a `PlainObject` like:
   nameType  : "Label",
   //--------------------------------------------
   // Indicate the value field render mode, it could be:
-  //  - Label   : Readonly
-  //  - String  : Editable string value
-  //  - Integer : Editable integer value
-  //  - Float   : Editable float value
-  //  - Boolean : Editable boolean value
-  //  - Nil     : Edtiable any value
-  valueType : "Label"
+  //  - "Array"
+  //  - "String"
+  //  - "Integer"
+  //  - "Float"
+  //  - "Boolean"
+  //  - "Nil"
+  valueType : "Nil"
   childern : []
 }
 ```

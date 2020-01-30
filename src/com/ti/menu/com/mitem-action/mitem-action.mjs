@@ -1,12 +1,15 @@
 import {fireable} from "../../support/ti-menu-items.mjs"
 //---------------------------------------
 export default {
+  inheritAttrs : false,
+  ///////////////////////////////////////////  
   props : fireable.Props({
     "action" : {
-      type : String,
+      type : [String, Function],
       default : null
     }
   }),
+  ///////////////////////////////////////////
   computed : fireable.Computed(vm=>vm.isProcessing, { 
     isProcessing() {
       return this.status[this.statusKey] 
@@ -19,13 +22,7 @@ export default {
       return this.shortcut || ""
     }
   }),
-  methods : {
-    invokeAction : function(){
-      if(this.action && this.isEnabled) {
-        this.$emit('action', this.action)
-      }
-    }
-  },
+  ///////////////////////////////////////////
   mounted : function() {
     if(this.shortcut) {
       Ti.Shortcut.addGuard(this.shortcut, ()=>{
@@ -33,4 +30,5 @@ export default {
       })
     }
   }
+  ///////////////////////////////////////////
 }

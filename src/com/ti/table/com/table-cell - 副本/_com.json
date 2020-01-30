@@ -1,6 +1,0 @@
-{
-  "name" : "ti-table-cell",
-  "globally" : true,
-  "template" : "./table-cell.html",
-  "mixins" : ["./table-cell.mjs"]
-}

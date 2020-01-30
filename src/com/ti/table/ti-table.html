@@ -52,12 +52,15 @@
           :fields="theDisplayFields"
           :sizes="myColSizes.amended"
           :current-id="myCurrentId"
+          :hover-id="myHoverId"
           :checked-ids="myCheckedIds"
           :checkable="checkable"
           :selectable="selectable"
           @icon="$emit('icon', $event)"
           @checker="onRowCheckerClick"
           @select="onRowSelect"
+          @enter="onRowEnter"
+          @leave="onRowLeave"
           @item:changed="onItemChanged"/>
     </div>
   </template>

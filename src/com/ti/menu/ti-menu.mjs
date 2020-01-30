@@ -48,6 +48,11 @@ export default {
   methods : {
     //---------------------------------------
     invokeAction : _.debounce(function(action){
+      // Invoke directly
+      if(_.isFunction(action)) {
+        action()
+        return
+      }
       //console.log("invokeAction", action)
       let vm = this
       let m = /^([a-zA-Z0-9_]+):([^()]+)(\((.*)\))?$/.exec(action)
@@ -83,8 +88,10 @@ export default {
       }
       // Fail to found function
       // Then emit the action
-      //throw Ti.Err.make("e-ti-menu-action-InvalidAction", action)
-      this.$emit(action)
+      // throw Ti.Err.make("e-ti-menu-action-InvalidAction", action)
+      if(_.isString(action)) {
+        this.$emit(action)
+      }
     }, 500, {
       leading  : true,
       trailing : false

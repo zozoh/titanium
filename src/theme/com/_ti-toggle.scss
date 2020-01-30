@@ -1,17 +1,17 @@
 .ti-toggle {
   @include noselect;
-  display:inline-block;
-  cursor:pointer;
+  @include flex-align-nowrap;
   aside {
     position: relative;
     width:.4rem; padding:1px;
+    cursor:pointer;
     border-radius: .2rem;
     transition: background-color .2s;
     b {
       @include color($color-primary, null, r);
       display:block;
       border-radius: 50%;
-      width:.2rem; height:.2rem;
+      width:.18rem; height:.18rem;
       transition: margin-left .2s;
     }
   }
@@ -27,7 +27,7 @@
     border:1px solid map-get($color-primary, r);
     b {
       border:1px solid transparent;
-      margin-left: .16rem;
+      margin-left: .18rem;
     }
   }
   //-----------------------------------------

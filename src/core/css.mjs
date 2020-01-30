@@ -1,6 +1,30 @@
 ///////////////////////////////////////
 const TiCss = {
   //-----------------------------------
+  toPixel(str, base=100, dft=0) {
+    // Number may `.23` or `300`
+    if(_.isNumber(str)) {
+      // Take (-1, 1) as percent
+      if(str>-1 && str < 1) {
+        return str * base
+      }
+      // Fixed value
+      return str
+    }
+    // String, may `45px` or `43%`
+    let m = /^([\d.]+)(px)?(%)?$/.exec(str);
+    if(m) {
+      // percent
+      if(m[3]) {
+        return m[1] * base / 100
+      }
+      // fixed value
+      return m[1] * 1
+    }
+    // Fallback to default
+    return dft
+  },
+  //-----------------------------------
   toSize(sz) {
     if(_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
       if(sz>-1 && sz<1)

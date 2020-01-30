@@ -8,6 +8,10 @@ export default {
   props : {
     "className" : null,
     "data" : null,
+    "mainWidth" : {
+      type : [String, Number],
+      default : 200
+    },
     "border" : {
       type : String,
       default : "cell",
@@ -37,7 +41,9 @@ export default {
           ignoreNil : false,
           comType : "ti-obj-json-value",
           comConf : {
-            valueType : "${valueType}"
+            valueType   : "${valueType}",
+            valuePath   : "${=rowId}",
+            showActions : "${=isCurrent}"
           }
         }
       }]
@@ -112,9 +118,9 @@ export default {
       if(_.isArray(item)) {
         // Create self
         let node = {
-          nameType, valueType: "Label",
+          nameType, valueType: "Array",
           name  : key,
-          value : "[..]",
+          value : item,
           children : []
         }
         // Join Children
@@ -130,9 +136,9 @@ export default {
       else if(_.isPlainObject(item)) {
         // Create self
         let node = {
-          nameType, valueType: "Label",
+          nameType, valueType: "Object",
           name  : key,
-          value : "{..}",
+          value : item,
           children : []
         }
         // Join Children

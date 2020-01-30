@@ -81,6 +81,9 @@ Define the schema(`Object`) of  data presentation.
     tip   : "i18n:xxx",
     // The width of field component part
     // Number or String, if Number, it will be taken as "px"
+    //  - auto
+    //  - stretch
+    //  - 2rem | 100px | 30%
     width : "2rem",
     // If false, it will notify the changed without value equals check
     // Default is true

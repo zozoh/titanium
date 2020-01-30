@@ -30,6 +30,10 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "hoverId" : {
+      type : String,
+      default : null
+    },
     "indent" : {
       type : Number,
       default : 0
@@ -59,9 +63,22 @@ export default {
     //-----------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "is-current" : (this.rowId == this.currentId),
-        "is-checked" : (this.checkedIds[this.rowId] ? true : false)
+        "is-current" : this.isCurrent,
+        "is-checked" : this.isChecked,
+        "is-hover"   : this.isHover,
       }, this.className, `row-indent-${this.indent}`)
+    },
+    //-----------------------------------------------
+    isCurrent() {
+      return this.rowId == this.currentId
+    },
+    //-----------------------------------------------
+    isChecked() {
+      return this.checkedIds[this.rowId] ? true : false
+    },
+    //-----------------------------------------------
+    isHover() {
+      return this.rowId == this.hoverId
     },
     //-----------------------------------------------
     hasRealIcon() {
@@ -119,6 +136,18 @@ export default {
           toggle : ($event.ctrlKey || $event.metaKey)
         })
       }
+    },
+    //-----------------------------------------------
+    onMouseEnter() {
+      this.$emit("enter", {
+        rowId  : this.rowId
+      })
+    },
+    //-----------------------------------------------
+    onMouseLeave() {
+      this.$emit("leave", {
+        rowId  : this.rowId
+      })
     }
     //-----------------------------------------------
   }

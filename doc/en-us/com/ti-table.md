@@ -40,9 +40,26 @@ Defind each column of the table by `Array{Object}`, the elements in Array like:
 {
   title  : "i18n:xxx",     // column title
   nowrap : false,          // keep items nowrap
+  width  : "20%",          // field measure hint
   display : "theName"      // How to display the row data in cell
 }
 ```
+
+### field measure hint
+
+There are few valid value below:
+
+- `auto` : keep the primary size
+- `stretch` : auto assign the remains space
+- `20%` : auto count the fixed size
+- `0.3` : same as `30%`
+- 400  : render as `400px`
+- `-400` : min-width render as `400px` and stretch if necessary.
+- `-0.3` : same as `30%` and stretch if necessary
+
+The default value of field is `stretch`
+
+### field display
 
 The field `display` defined how to render the cell of table.
 You can declare the value in three modes below:
@@ -79,16 +96,21 @@ It will be formatted to Array like:
   comType : "ti-label",
   comConf : {
     "..."  : {..},    // ... will extends all value to comConf
-    "val"  : "${=value}"   // value from row data by key
-    "obj"  : ".."          // value for whole row data
-    "age"  : "${info.age}" // value from row data
-    "href" : "(value)?/a/to?id-${value}" // test the value before render
+    "val"  : "${=value}",   // value from row data by key
+    "obj"  : "..",          // value for whole row data
+    "age"  : "${info.age}", // value from row data
+    "href" : "(value)?/a/to?id-${value}", // test the value before render
+    "isCurrent" : "${=isCurrent}",  // parent row is actived
+    "isChecked" : "${=isChecked}",  // parent row is checked
+    "isHover"   : "${=isHover}",    // parent row is hover
+    "rowId"     : "${=rowId}"       // parent row ID
   }
 }]
 ```
 
 The `key` present the way how to pick the value from row data.
 It can be `String` or `Array`:
+
 - `String` : dynamic picking or static value
   - `a.b.c` :  as key path to get the value
   - `'Hello'`: as static value to render directly

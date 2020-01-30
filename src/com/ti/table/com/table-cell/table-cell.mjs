@@ -12,6 +12,10 @@ export default {
       type : Number,
       default : -1
     },
+    "rowId" : {
+      type : String,
+      default : null
+    },
     "cellSize" : {
       type : Number,
       default : 0
@@ -31,6 +35,18 @@ export default {
     "data" : {
       type : Object,
       default : ()=>({})
+    },
+    "isCurrent" : {
+      type : Boolean,
+      default : false
+    },
+    "isHover" : {
+      type : Boolean,
+      default : false
+    },
+    "isChecked" : {
+      type : Boolean,
+      default : false
     }
   },
   ///////////////////////////////////////////////////
@@ -133,6 +149,22 @@ export default {
           if("${=value}" == val) {
             val = value
           }
+          // "${=isCurrent}" : parent row is actived
+          else if("${=isCurrent}" == val) {
+            val = this.isCurrent
+          }
+          // "${=isChecked}" : parent row is checked
+          else if("${=isChecked}" == val) {
+            val = this.isChecked
+          }
+          // "${=isHover}" : parent row is checked
+          else if("${=isHover}" == val) {
+            val = this.isHover
+          }
+          // "${=rowId}" : parent row ID
+          else if("${=rowId}" == val) {
+            val = this.rowId
+          }
           // ".." : value for whole row data
           else if(".." == val) {
             val = itemData
@@ -197,6 +229,15 @@ export default {
     },
     "data" : async function() {
       //console.log("data changed")
+      await this.evalCellDisplayItems()
+    },
+    "isCurrent" : async function() {
+      await this.evalCellDisplayItems()
+    },
+    "isChecked" : async function() {
+      await this.evalCellDisplayItems()
+    },
+    "isHover" : async function() {
       await this.evalCellDisplayItems()
     }
   },

@@ -1,6 +1,7 @@
 {
   "comType" : "ti-obj-json",
   "comConf" : {
+    "className" : "ti-fill-parent",
     "data"   : ".."
   },
   "dispatchActions" : {

@@ -2,12 +2,13 @@
   <!--
   //  - Label   : Readonly
   -->
-  <span v-if="'Label' == valueType"
-    class="as-label">{{value}}</span>
+  <span v-if="isLabel"
+    class="as-editing as-label">{{theLabelDisplayText}}</span>
   <!--
   //  - Boolean : Editable boolean value
   -->
   <ti-toggle v-else-if="'Boolean' == valueType"
+    class="as-editing"
     :value="value"
     @changed="$emit('changed', $event)"/>
   <!--
@@ -17,9 +18,17 @@
   //  - Nil     : Edtiable any value
   -->
   <ti-label v-else
+    class="as-editing"
     :value="value"
     :class-name="theValueClassName"
     :format="theValueFormat"
     :editable="true"
     @changed="$emit('changed', $event)"/>
+  <!--
+    Action Menu
+  -->
+  <ti-menu v-if="showActions"
+    class="as-actions"
+    :data="theActionMenuData"
+    :status="theActionMenuStatus"/>
 </div>

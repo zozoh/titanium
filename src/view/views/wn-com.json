@@ -42,7 +42,7 @@
       "type" : "action",
       "icon" : "zmdi-info-outline",
       "text" : "i18n:properties",
-      "action" : "main:onOpenProperties",
+      "action" : "self:editObjMeta",
       "shortcut" : "ALT+CTRL+P"
     }]
 }

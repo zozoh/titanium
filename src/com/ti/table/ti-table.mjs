@@ -4,6 +4,7 @@ export default {
   data : ()=>({
     myLastIndex: 0,       // The last row index selected by user
     myCurrentId: null,    // Current row ID
+    myHoverId  : null,    // The row mouse hover
     myCheckedIds: {},     // Which row has been checked
     myViewportWidth : 0,  // Update-in-time, root element width
     myTableWidth: 0,      // Update-in-time, table width
@@ -11,6 +12,13 @@ export default {
       priHead : [],  // Primary head column sizing
       priBody : [],  // Primary body column sizing
       primary : [],  // Primary Max Col-Sizes
+      fixeds  : [],  // Fixed value [480, .23, 'auto', 'stretch']
+                     // Eval when `evalEachColumnSize`
+                     //  - 480 : fixed width
+                     //  - -480 : fixed width and override primary
+                     //  - .23 : as percent eval each time resize
+                     //  - 'auto' : it will keep the primary sizing
+                     //  - 'stretch' : it will join to the auto-remains-assignment
       amended : []   // The col-size to display in DOM
     },
     whenTableLayout: false, 
@@ -243,10 +251,23 @@ export default {
       for(let i=0; i< this.fields.length; i++) {
         let fld = this.fields[i]
         let display = this.evalFieldDisplay(fld.display)
+        let fldWidth = Ti.Util.fallbackNil(fld.width, "stretch")
+        //..................................
+        if(_.isString(fldWidth)) {
+          if(!/^(auto|stretch)$/.test(fldWidth)) {
+            fldWidth = "stretch"
+          }
+        }
+        // Must be number
+        else if(!_.isNumber(fldWidth)) {
+          fldWidth = "stretch"
+        }
+        //..................................
         fields.push({
           index  : i,
           title  : fld.title,
           nowrap : fld.nowrap,
+          width  : fldWidth,
           display
         })
       }
@@ -428,6 +449,16 @@ export default {
       }
     },
     //--------------------------------------
+    onRowEnter({rowId}={}) {
+      this.myHoverId = rowId
+    },
+    //--------------------------------------
+    onRowLeave({rowId}={}) {
+      if(this.myHoverId == rowId) {
+        //this.myHoverId = null
+      }
+    },
+    //--------------------------------------
     onClickHeadChecker() {
       // Cancel All
       if(this.isAllChecked) {
@@ -500,15 +531,32 @@ export default {
     //--------------------------------------
     evalEachColumnSize() {
       // Reset each column size
+      this.whenTableLayout = true
       this.myTableWidth = 0
       this.myColSizes = {
         priHead : [],
         priBody : [],
         primary : [],
+        fixeds  : [],
         amended : []
       }
+      //.........................................
+      // Eval the fixeds
+      for(let fld of this.theDisplayFields) {
+        let fldWidth = fld.width || "stretch"
+        // Stretch/Auto
+        if(/^(stretch|auto)$/.test(fldWidth)) {
+          this.myColSizes.fixeds.push(fldWidth)
+        }
+        // Fixed or percent
+        else {
+          this.myColSizes.fixeds.push(Ti.Css.toPixel(fldWidth, 1))
+        }
+      }
+      //.........................................
       // Wait reset applied, and ...
       this.$nextTick(()=>{
+        this.whenTableLayout = false
         // Get original size: head
         let $heads = Ti.Dom.findAll(".table-head ul li", this.$el)
         for(let $he of $heads) {
@@ -553,21 +601,64 @@ export default {
         return
       }
 
+      // Get the viewport width
+      let viewportWidth = Ti.Rects.createBy(this.$el).width
+
+      // Assign the fixed width
+      // And count how many fields to join the remains-assignment
+      let raIndexs = [];
+      let amended = []
+      for(let i=0; i<this.myColSizes.fixeds.length; i++) {
+        let fxW = this.myColSizes.fixeds[i]
+        // Get the primary width
+        let priW = this.myColSizes.primary[i]
+        // join to auto-remains-assignment
+        if("stretch" == fxW) {
+          raIndexs.push(i)
+          amended.push(priW)
+        }
+        // keep primary
+        else if("auto" == fxW) {
+          amended.push(priW)
+        }
+        // Eval percent
+        else if(fxW <= 1 && fxW > 0) {
+          amended.push(fxW * viewportWidth)
+        }
+        // Eval percent and join remains-assignment
+        else if(fxW < 0 && fxW >= -1) {
+          let w = Math.abs(fxW * viewportWidth)
+          amended.push(Math.max(w, priW))
+        }
+        // Fixed width and join remains-assignment
+        else if(fxW < -1) {
+          let w = Math.abs(fxW)
+          amended.push(Math.max(w, priW))
+        }
+        // Fixed width
+        else {
+          amended.push(fxW)
+        }
+      }
+
       // Count the tableWidth
-      let sumWidth = _.sum(this.myColSizes.primary)
-      let tableWidth = Ti.Rects.createBy(this.$el).width
-      tableWidth = Math.max(tableWidth, sumWidth)
+      let sumWidth = _.sum(amended)
+      let tableWidth = Math.max(viewportWidth, sumWidth)
       this.myTableWidth = tableWidth
 
       // Assign the remain
-      this.myColSizes.amended = []
-      let remain = tableWidth - sumWidth
-      let remainCell = remain / colN
-
-      // The fields column
-      for(let i=0; i<this.myColSizes.primary.length; i++) {
-        this.myColSizes.amended.push(this.myColSizes.primary[i] + remainCell)
+      if(raIndexs.length > 0) {
+        let remain = tableWidth - sumWidth
+        if(remain > 0) {
+          let remainCell = remain / raIndexs.length
+          for(let index of raIndexs) {
+            amended[index] += remainCell
+          }
+        }
       }
+
+      // apply amended
+      this.myColSizes.amended = amended
     },
     //--------------------------------------
     syncCurrentId() {

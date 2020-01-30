@@ -1,17 +1,25 @@
 <div class="table-row"
   :class="topClass"
-  @click.left.stop="onClickRow">
+  @click.left.stop="onClickRow"
+  @mouseenter="onMouseEnter"
+  @mouseleave="onMouseLeave">
   <!--
     Cells
   -->
   <ti-table-cell v-for="fld in fields"
     :key="fld.index"
+    :row-id="rowId"
     v-bind="fld"
     :cell-size="getCellSize(fld.index)"
+    :is-current="isCurrent"
+    :is-hover="isHover"
+    :is-checked="isChecked"
     :data="data"
     @item:changed="onItemChanged">
     <template v-if="fld.index == 0">
       <div class="table-row-head">
+        <!--current actived row indicator-->
+        <div class="row-actived-indicator"></div>
         <!-- Indents -->
         <div v-for="n in indent"
             class="row-indent"></div>

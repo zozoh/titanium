@@ -40,6 +40,10 @@ export default {
       type : String,
       default : 'i18n:title'
     },
+    "mainWidth" : {
+      type : [String, Number],
+      default : 'stretch'
+    },
     "display" : {
       type : [String, Object, Array],
       default : "name"
@@ -224,6 +228,7 @@ export default {
     theTableFields() {
       let mainCol = {
         title   : this.title,
+        width   : this.mainWidth,
         display : this.display
       }
       if(this.isTable) {
