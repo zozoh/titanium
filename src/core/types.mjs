@@ -790,6 +790,35 @@ const TiTypes = {
       return dt.getTime()
     return null
   },
+  /***
+   * parse JSON safely. It will support un-quoted key like `{x:100}`.
+   * Before eval, it will replace the key-word `function` to `Function`
+   * 
+   * @param str{Any} - input json source to parse
+   * @param dft - return value when parse failed
+   * 
+   * @return JS object
+   */
+  safeParseJson(str, dft) {
+    if(Ti.Util.isNil(str)) {
+      return null
+    }
+    if(!_.isString(str)) {
+      return str
+    }
+    try {
+      return JSON.parse(str)
+    }
+    // Try eval
+    catch(E) {
+      let json = str.replace(/function/g, "Function")
+      try {
+        return eval('(' + json + ')');
+      }catch(E2){}
+    }
+    // Return string directly
+    return dft
+  },
   //.......................................
   formatTime(time, fmt="auto") {
     if(_.isUndefined(time) || _.isNull(time)) {

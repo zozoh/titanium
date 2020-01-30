@@ -45,9 +45,9 @@ export default {
     /***
      * Update the data and `status.changed`
      */
-    update({commit}, data={}){
+    update({state, commit}, data={}){
       // Array : replace
-      if(_.isArray(data)) {
+      if(_.isArray(data) || _.isArray(state.data)) {
         commit("setData", data)
         commit("syncStatusChanged")
       }
@@ -56,6 +56,11 @@ export default {
         commit("mergeData", data)
         commit("syncStatusChanged")
       }
+    },
+    //-------------------------------------
+    updateData({state, commit}, data={}){
+      commit("setData", data)
+      commit("syncStatusChanged")
     },
     //-------------------------------------
     updateComConf({commit}, comConf) {
@@ -120,7 +125,7 @@ export default {
          evalFunc : true
        })
        //....................................
-       console.log("invoke->", {action, payload:pld2})
+       //console.log("invoke->", {action, payload:pld2})
        await dispatch(action, pld2)
      },
     /***

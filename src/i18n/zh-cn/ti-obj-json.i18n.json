@@ -6,5 +6,6 @@
   "json-Boolean" : "布尔",
   "json-Nil"     : "空值",
   "json-Array"   : "数组",
-  "json-Object"  : "对象"
+  "json-Object"  : "对象",
+  "json-new-key" : "请输入一个新键名"
 }

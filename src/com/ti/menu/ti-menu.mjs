@@ -20,6 +20,10 @@ export default {
     "status" : {
       type : Object,
       default : ()=>({})
+    },
+    "delay" : {
+      type : Number,
+      default : 0
     }
   },
   ///////////////////////////////////////////
@@ -47,7 +51,42 @@ export default {
   ///////////////////////////////////////////
   methods : {
     //---------------------------------------
-    invokeAction : _.debounce(function(action){
+    joinActionItem(list=[], {
+      key, type, statusKey,
+      icon, text, tip, 
+      shortcut,
+      enableBy, disableBy, 
+      altDisplay,
+      action, 
+      items
+    }, dftKey){
+      let it = {
+        key  : key  || dftKey,   // Action item must contains a key
+        statusKey : statusKey || key || dftKey,
+        type : type || "action", // default as normal action
+        shortcut,
+        icon, text, tip,
+        enableBy, disableBy, 
+        action
+      }
+      // mark altDisplay
+      if(_.isPlainObject(altDisplay)) {
+        it.altDisplay = {...altDisplay}
+      }
+      // set sub comType by type
+      it.comType = "mitem-" + _.kebabCase(it.type)
+      // If group, recur
+      if(_.isArray(items) && items.length > 0) {
+        it.items = []
+        _.forEach(items, (subIt, index)=>{
+          this.joinActionItem(it.items, subIt, it.key+"/item"+index)
+        })
+      }
+      // Join the normalized item
+      list.push(it)
+    },
+    //---------------------------------------
+    invokeAction(action){
       // Invoke directly
       if(_.isFunction(action)) {
         action()
@@ -92,46 +131,46 @@ export default {
       if(_.isString(action)) {
         this.$emit(action)
       }
-    }, 500, {
-      leading  : true,
-      trailing : false
-    }),
+    },
     //---------------------------------------
-    joinActionItem(list=[], {
-      key, type, statusKey,
-      icon, text, tip, 
-      shortcut,
-      enableBy, disableBy, 
-      altDisplay,
-      action, 
-      items
-    }, dftKey){
-      let it = {
-        key  : key  || dftKey,   // Action item must contains a key
-        statusKey : statusKey || key || dftKey,
-        type : type || "action", // default as normal action
-        shortcut,
-        icon, text, tip,
-        enableBy, disableBy, 
-        action
+    onInvokeAction(action) {
+      // Debounce call
+      if(_.isFunction(this.debounceInvokeAction)) {
+        this.debounceInvokeAction(action)
       }
-      // mark altDisplay
-      if(_.isPlainObject(altDisplay)) {
-        it.altDisplay = {...altDisplay}
+      // Directly Call
+      else {
+        this.invokeAction(action)
       }
-      // set sub comType by type
-      it.comType = "mitem-" + _.kebabCase(it.type)
-      // If group, recur
-      if(_.isArray(items) && items.length > 0) {
-        it.items = []
-        _.forEach(items, (subIt, index)=>{
-          this.joinActionItem(it.items, subIt, it.key+"/item"+index)
+    },
+    //---------------------------------------
+    installActionInvoker() {
+      if(this.delay > 0) {
+        this.debounceInvokeAction = _.debounce((action)=>{
+          this.invokeAction(action)
+        }, this.delay, {
+          leading  : true,
+          trailing : true
         })
       }
-      // Join the normalized item
-      list.push(it)
+      // Invoke action directly
+      else {
+        this.debounceInvokeAction = undefined
+      }
     }
     //---------------------------------------
+  },
+  ///////////////////////////////////////////
+  watch : {
+    "delay" : function() {
+      this.installActionInvoker()
+    }
+  },
+  ///////////////////////////////////////////
+  mounted : function() {
+    this.$nextTick(()=>{
+      this.installActionInvoker()
+    })
   }
   ///////////////////////////////////////////
 }

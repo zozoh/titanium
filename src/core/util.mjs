@@ -474,7 +474,10 @@ const TiUtil = {
       return src;
     }
     // Call in
-    return set_key_by(source, path.split("."), 0, newKey)
+    if(_.isString(path)) {
+      path = path.split(".")
+    }
+    return set_key_by(source, path, 0, newKey)
   },
   /***
    * Get value from obj

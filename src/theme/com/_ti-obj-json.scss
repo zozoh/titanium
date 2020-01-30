@@ -43,10 +43,9 @@
     &.is-string {
       @include color($color-text, c);
     }
-    &.is-integer {
-      @include color($color-number, c);
-    }
-    &.is-float {
+    &.is-integer,
+    &.is-float,
+    &.is-number {
       @include color($color-number, c);
     }
     &.is-index {

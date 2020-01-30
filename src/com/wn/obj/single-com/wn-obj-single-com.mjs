@@ -42,12 +42,12 @@ export default {
     async hijackEmit(name, args) {
       // Find the serializer function
       let action = this.dispatchActions[name]
-      if(!name.startsWith("hook:"))
-        console.log("hijackEmit", {name, args, action})
+      // if(!name.startsWith("hook:"))
+      //   console.log("hijackEmit", {name, args, action})
 
       // dispatch action
       if(action) {
-        console.log("wn-obj-signle-com::hijackEmit->", {name, action, args})
+        //console.log("wn-obj-signle-com::hijackEmit->", {name, action, args})
         if(_.isString(action)) {
           action = {action:action}
         }

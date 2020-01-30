@@ -68,13 +68,37 @@ export default {
     //--------------------------------------
     theActionMenuData() {
       //................................
+      let jvTypes = [{
+        key   : "jvTypeArray",
+        text  : "i18n:json-Array",
+        type  : "action",
+        altDisplay : {
+          icon : "zmdi-check",
+          capture : false
+        },
+        action : ()=>{
+          this.$emit("changed", {jsonMutate:"ChangeValueType", args:"Array"})
+        }
+      }, {
+        key   : "jvTypeObject",
+        text  : "i18n:json-Object",
+        type  : "action",
+        altDisplay : {
+          icon : "zmdi-check",
+          capture : false
+        },
+        action : ()=>{
+          this.$emit("changed", {jsonMutate:"ChangeValueType", args:"Object"})
+        }
+      }]
+      //................................
       // Add
       let menuData = [{
         key  : "jv-add",
         type : "action",
         icon : "zmdi-plus",
         action : ()=>{
-          console.log("add", this)
+          this.$emit("changed", {jsonMutate : "Add"})
         }
       }]
       //................................
@@ -83,12 +107,69 @@ export default {
         menuData.push({
           type : "line"
         })
+        // Can not remove top node
         menuData.push({
           key  : "jv-remove",
           type : "action",
           icon : "zmdi-delete",
           action : ()=>{
-            console.log("delete", this)
+            this.$emit("changed", {jsonMutate : "Remove"})
+          }
+        })
+        // Add More Types
+        jvTypes.push({
+          type : "line"
+        })
+        // AddType: Boolean
+        jvTypes.push({
+          key   : "jvTypeBoolean",
+          text  : "i18n:json-Boolean",
+          type  : "action",
+          altDisplay : {
+            icon : "zmdi-check",
+            capture : false
+          },
+          action : ()=>{
+            this.$emit("changed", {jsonMutate:"ChangeValueType", args:"Boolean"})
+          }
+        })
+        // AddType: Number
+        jvTypes.push({
+          key   : "jvTypeNumber",
+          text  : "i18n:json-Number",
+          type  : "action",
+          altDisplay : {
+            icon : "zmdi-check",
+            capture : false
+          },
+          action : ()=>{
+            this.$emit("changed", {jsonMutate:"ChangeValueType", args:"Number"})
+          }
+        })
+        // AddType: String
+        jvTypes.push({
+          key   : "jvTypeString",
+          text  : "i18n:json-String",
+          type  : "action",
+          altDisplay : {
+            icon : "zmdi-check",
+            capture : false
+          },
+          action : ()=>{
+            this.$emit("changed", {jsonMutate:"ChangeValueType", args:"String"})
+          }
+        })
+        // AddType: Nil
+        jvTypes.push({
+          key   : "jvTypeNil",
+          text  : "i18n:json-Nil",
+          type  : "action",
+          altDisplay : {
+            icon : "zmdi-check",
+            capture : false
+          },
+          action : ()=>{
+            this.$emit("changed", {jsonMutate:"ChangeValueType", args:"Nil"})
           }
         })
       }
@@ -101,84 +182,7 @@ export default {
         key  : "jv-types",
         type : "group",
         icon : "zmdi-more",
-        items : [{
-          key   : "jvTypeBoolean",
-          text  : "i18n:json-Boolean",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
-          },
-          action : ()=>{
-            console.log("to-> Boolean")
-          }
-        }, {
-          key   : "jvTypeInteger",
-          text  : "i18n:json-Integer",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
-          },
-          action : ()=>{
-            console.log("to-> Integer")
-          }
-        }, {
-          key   : "jvTypeFloat",
-          text  : "i18n:json-Float",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
-          },
-          action : ()=>{
-            console.log("to-> Float")
-          }
-        }, {
-          key   : "jvTypeString",
-          text  : "i18n:json-String",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
-          },
-          action : ()=>{
-            console.log("to-> String")
-          }
-        }, {
-          key   : "jvTypeArray",
-          text  : "i18n:json-Array",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
-          },
-          action : ()=>{
-            console.log("to-> Array")
-          }
-        }, {
-          key   : "jvTypeObject",
-          text  : "i18n:json-Object",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
-          },
-          action : ()=>{
-            console.log("to-> Object")
-          }
-        }, {
-          key   : "jvTypeNil",
-          text  : "i18n:json-Nil",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
-          },
-          action : ()=>{
-            console.log("to-> Nil")
-          }
-        }]
+        items : jvTypes
       })
       // Done
       return menuData

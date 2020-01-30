@@ -5,6 +5,6 @@
     "data"   : ".."
   },
   "dispatchActions" : {
-    "changed" : "update"
+    "changed" : "updateData"
   }
 }

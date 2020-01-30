@@ -131,7 +131,8 @@ export default {
         return {
           className : `wn-${this.viewportMode}-menu`,
           data   : this.mainActions,
-          status : this.mainStatus
+          status : this.mainStatus,
+          delay  : 500
         }
       }
     },

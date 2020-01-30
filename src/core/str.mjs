@@ -86,7 +86,10 @@ export const TiStr = {
   /***
    * Convert string to Js Object automatictly
    */
-  toJsValue(v="") {
+  toJsValue(v="", {
+    autoJson=true,
+    autoDate=true
+  }={}) {
     let str = _.trim(v)
     // Number
     if (/^-?[\d.]+$/.test(str)) {
@@ -97,13 +100,18 @@ export const TiStr = {
       return /^(true|yes|on)$/i.test(str)
     }
     // try JSON
-    try {
-      return JSON.parse(str)
-    } catch(E){}
+    if(autoJson) {
+      let re = Ti.Types.safeParseJson(v)
+      if(!_.isUndefined(re)) {
+        return re
+      }
+    }
     // try Date
-    try {
-      return Ti.Types.toDate(v)
-    } catch(E){}
+    if(autoDate) {
+      try {
+        return Ti.Types.toDate(v)
+      } catch(E){}
+    }
     // Then, it is a string
     return str
   },
