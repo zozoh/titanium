@@ -5,7 +5,8 @@
   "template" : "./ti-obj-json.html",
   "mixins" : ["./ti-obj-json.mjs"],
   "components" : [
-    "./com/json-value",
-    "@com:ti/tree"
+    "@com:ti/gui",
+    "@com:ti/text/raw",
+    "@com:ti/obj/json/tree"
   ]
 }

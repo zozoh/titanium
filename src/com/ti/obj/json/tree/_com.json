@@ -1,0 +1,11 @@
+{
+  "name" : "ti-obj-json-tree",
+  "globally" : true,
+  "i18n" : "@i18n:ti-obj-json",
+  "template" : "./ti-obj-json-tree.html",
+  "mixins" : ["./ti-obj-json-tree.mjs"],
+  "components" : [
+    "./com/json-value",
+    "@com:ti/tree"
+  ]
+}

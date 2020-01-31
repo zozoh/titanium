@@ -12,12 +12,39 @@ tags:
 Render complex GUI by `<ti-layout>|<ti-block>` according the setting of
 JSON style defination.
 
+The GUI flow the hierarchy below:
 
+```bash
+<ti-gui>
+#-----------------------------
+# tabs layout
+|-- <ti-gui-tabs>
+|   |-- <ti-gui-block>
+|   |   |-- <ti-gui>
+|   |   |   |-- ..
+|   |-- <ti-gui-block>
+|   |   |-- <ti-text-raw>
+#-----------------------------
+# cols layout
+|-- <ti-gui-cols>
+|   |-- <ti-gui-block>
+|   |-- <ti-gui-block>
+#-----------------------------
+# rows layout
+|-- <ti-gui-rows>
+|   |-- <ti-gui-block>
+|   |-- <ti-gui-block>
+#-----------------------------
+# Absolute panels
+|-- <ti-gui-panel>
+|-- <ti-gui-panle>
+|-- ...
+```
 
 -------------------------------------------------
 # Properties
 
-## `type`
+## type
 
 Layout type could be `cols|rows|tabs|wall`.
 The "size" field of each sub-block has different meaning
@@ -36,7 +63,20 @@ The "size" field of each sub-block has different meaning
   + "stretch" will be ignored.
 
 -------------------------------------------------
-## `adjustable`
+## tabAt
+
+```js
+"tabAt" : {
+  type : String,
+  default : "top-left",
+  validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
+}
+```
+
+If `type="tabs"`, the prop will be used to indicated the tab title bar position. `top-left` as default.
+
+-------------------------------------------------
+## adjustable
 
 User can adjust the size
  - `true` : both x/y
@@ -47,14 +87,14 @@ User can adjust the size
 Defaultly `true`
 
 -------------------------------------------------
-## `border`
+## border
 
 Boolean. Show sub block border or not.
 
 Default is `false`
 
 -------------------------------------------------
-## `blocks`
+## blocks
 
 Current block title/icon/actions
 If one of them has been declared, it will show the title bar
@@ -69,8 +109,6 @@ Each block looked like:
   actions : [/*
  	 action menu items, @see <ti-menu> for more detail
   */],
-  // TODO maybe delete it I should be
-  actionDisplayMode 
   //.....................................
   // required and must be unique
   name : "b0",
@@ -106,7 +144,7 @@ Each block looked like:
 ```
 
 -------------------------------------------------
-## `panels`
+## panels
 
 Each panel looked like:
 
@@ -127,10 +165,13 @@ Each panel looked like:
   // panel poisiton could be:
   //  - left|right|top|bottom
   //  - center
-  //  - left-top|right-top|bottom-left|bottom|right
+  //  - left-top|right-top|bottom-left|bottom-right
   position : "center/center",
   width  : "100%",
   height : "100%",
+  //.....................................
+  // The style.overflow
+  overflow : "hidden"
   // This panel will mask GUI
   // Default is false
   mask : false
@@ -167,7 +208,41 @@ Each panel looked like:
 }
 ```
 
+-------------------------------------------------
+## shown
 
+```js
+{
+  blockNameA : true,
+  blockNameB : false
+}
+```
+
+Indicate which block is shown.
+
+-------------------------------------------------
+## canLoading
+
+```js
+"canLoading" : {
+  type : Boolean,
+  default : false
+}
+```
+
+Indicate the GUI can should loading mask or not.
+
+-------------------------------------------------
+## loadingAs
+
+```js
+"loadingAs" : {
+  type : [Boolean, Object],
+  default : null
+}
+```
+
+`true` or special `Object` to show the loading mask. 
 
 -------------------------------------------------
 # Event

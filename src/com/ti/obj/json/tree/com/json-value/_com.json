@@ -1,0 +1,6 @@
+{
+  "name" : "ti-obj-json-value",
+  "globally" : true,
+  "template" : "./json-value.html",
+  "mixins" : ["./json-value.mjs"]
+}

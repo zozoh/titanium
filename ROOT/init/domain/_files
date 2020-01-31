@@ -279,8 +279,13 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
 #---------------------------------------------------------
 @FILE demo/obj-json-0.wncom
 {
-  ln : "/rs/ti/com/ti/obj/json/_test/obj_json_0_data.json", 
   com: "/rs/ti/com/ti/obj/json/_test/obj_json_0.json"
+}
+%COPY> /rs/ti/com/ti/obj/json/_test/obj_json_0_data.json
+#---------------------------------------------------------
+@FILE demo/gui-0.wncom
+{
+  com: "/rs/ti/com/ti/gui/_test/gui_0.json"
 }
 ##########################################################
 #

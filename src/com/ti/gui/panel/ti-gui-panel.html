@@ -1,0 +1,21 @@
+<transition :name="theTransName">
+  <div
+    class="ti-gui-panel"
+    :class="topClass"
+    :style="topStyle">
+    <!--Block-->
+    <ti-gui-block 
+      embed-in="panel"
+      :type="type"
+      :blocks="blocks"
+      :body="body"
+      :overflow="overflow"
+      :schema="schema"
+      :action-status="actionStatus"
+      :shown="shown"
+      @block:show="$emit('block:show', $event)"
+      @block:hide="$emit('block:hide', $event)"
+      @block:event="$emit('block:event', $event)"/>
+    <!--Block-->
+  </div>
+</transition>

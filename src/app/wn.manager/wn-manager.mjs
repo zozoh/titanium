@@ -208,7 +208,7 @@ export default {
     //--------------------------------------
     doChangeShown(newShown={}) {
       let ShownSet = _.get(this.setup, "shown")
-      if(_.isPlainObject(showns)) {
+      if(_.isPlainObject(ShownSet)) {
         ShownSet[this.viewportMode] = _.assign({}, this.theShown, newShown)
       }
     },

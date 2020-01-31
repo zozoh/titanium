@@ -1,10 +1,19 @@
 export default {
   /////////////////////////////////////////
   props : {
+    "className" : null,
     "type" : {
       type : String,
-      // cols | rows | tabs | wall
-      default : "cols"
+      default : null,
+      validator : (v)=>{
+        return Ti.Util.isNil(v)
+          || /^(cols|rows|tabs)$/.test(v)
+      }
+    },
+    "tabAt" : {
+      type : String,
+      default : "top-left",
+      validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
     },
     "adjustable" : {
       type : Boolean,
@@ -26,6 +35,10 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "actionStatus" : {
+      type : Object,
+      default : ()=>({})
+    },
     "shown" : {
       type : Object,
       default : ()=>({})
@@ -42,38 +55,58 @@ export default {
   },
   //////////////////////////////////////////
   computed : {
-    formedBlockList() {
-      // @see ti-gui-methods.mjs#getFormedBlockList
-      return this.getFormedBlockList(this.blocks, this.shown)
+    //--------------------------------------
+    topClass() {
+      return Ti.Css.mergeClassName({
+        "is-loading" : this.isLoading,
+        "has-panels" : this.hasPanels
+      }, [
+        `as-${this.type}`
+      ], this.className)
     },
-    formedPanelList() {
-      // @see ti-gui-methods.mjs#getFormedBlockList
-      return this.getFormedBlockList(this.panels, this.shown, true)
-    },
+    //--------------------------------------
     hasPanels() {
       return !_.isEmpty(this.panels)
     },
+    //--------------------------------------
+    thePanels() {
+      let list = []
+      if(this.hasPanels) {
+        for(let pan of this.panels) {
+          if(this.isShown(pan.name)) {
+            list.push(pan)
+          }
+        }
+      }
+      return list
+    },
+    //--------------------------------------
     isLoading() {
       return this.canLoading 
              && this.loadingAs 
                   ? true 
                   : false
     },
+    //--------------------------------------
     showLoading() {
       if(_.isPlainObject(this.loadingAs)) {
         return this.loadingAs
       }
       return {}
     }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
-    onClickPanel($event, name) {
-      // if(Ti.Dom.hasClass($event.target, "gui-panel")) {
-      //   console.log("click panel", name)
-      //   this.$emit("block:hide", name)
-      // }
+    //--------------------------------------
+    isShown(name) {
+      return this.shown[name] ? true : false
+    },
+    //--------------------------------------
+    onTabChanged() {
+      console.log(onTabChanged, arguments)
     }
+    //--------------------------------------
   }
   //////////////////////////////////////////
 }

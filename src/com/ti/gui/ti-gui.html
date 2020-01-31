@@ -1,65 +1,67 @@
-<div class="ti-gui">
-  <!--
-    Regular Layouts
+<div class="ti-gui" :class="topClass">
+  <!--===========================================
+    All normal layout
   -->
-  <ti-layout class="ti-fill-parent"
-    :type="type"
-    :border="border"
-    :blocks="blocks"
-    :adjustable="adjustable"
-    :shown="shown"
-    :schema="schema"
-    @tabs:changed="$emit('tabs:changed', $event)"
-    @block:show="$emit('block:show', $event)"
-    @block:hide="$emit('block:hide', $event)"
-    @block:event="$emit('block:event', $event)">
-    <template v-if="'tabs'!=type">
-      <ti-block v-for="b in formedBlockList"
-        v-if="b.isShown"
-        :key="b.name"
-        v-bind="b.info"
-        :shown="shown"
-        @block:show="$emit('block:show', $event)"
-        @block:hide="$emit('block:hide', $event)"
-        @block:event="$emit('block:event', $event)">
-        <component :is="b.comType"
-          class="ti-fill-parent"
-          v-bind="b.comConf"
-          @block:show="$emit('block:show', $event)"
-          @block:hide="$emit('block:hide', $event)"
-          @block:event="$emit('block:event', $event)"/>
-      </ti-block>
-    </template>
-  </ti-layout>
-  <!--
-    Float panels
+  <div class="gui-con">
+    <!--
+      Layout as rows
+    -->
+    <ti-gui-rows v-if="'rows' == type"
+      class="ti-fill-parent"
+      :blocks="blocks"
+      :adjustable="adjustable"
+      :border="border"
+      :schema="schema"
+      :action-status="actionStatus"
+      :shown="shown"
+      @block:show="$emit('block:show', $event)"
+      @block:hide="$emit('block:hide', $event)"
+      @block:event="$emit('block:event', $event)"/>
+    <!--
+      Layout as cols
+    -->
+    <ti-gui-cols v-else-if="'cols' == type"
+      class="ti-fill-parent"
+      :blocks="blocks"
+      :adjustable="adjustable"
+      :border="border"
+      :schema="schema"
+      :action-status="actionStatus"
+      :shown="shown"
+      @block:show="$emit('block:show', $event)"
+      @block:hide="$emit('block:hide', $event)"
+      @block:event="$emit('block:event', $event)"/>
+    <!--
+      Layout as tabs
+    -->
+    <ti-gui-tabs v-else-if="'tabs' == type"
+      class="ti-fill-parent"
+      :tab-at="tabAt"
+      :blocks="blocks"
+      :current-tab="theCurrentTabName"
+      @tab:changed="onTabChanged"
+      :schema="schema"
+      :action-status="actionStatus"
+      :shown="shown"
+      @block:show="$emit('block:show', $event)"
+      @block:hide="$emit('block:hide', $event)"
+      @block:event="$emit('block:event', $event)"/>
+  </div>
+  <!--===========================================
+    All float panels
   -->
-  <template v-for="b in formedPanelList">
-    <transition :name="b.transName">
-      <div v-if="b.isShown"
-        class="gui-panel"
-        :class="b.className"
-        :style="b.panelStyle"
-        :key="b.name"
-        @click="onClickPanel($event, b.name)">
-        <ti-block 
-          v-bind="b.info"
-          :float="true"
-          :shown="shown"
-          @block:show="$emit('block:show', $event)"
-          @block:hide="$emit('block:hide', $event)"
-          @block:event="$emit('block:event', $event)">
-          <component :is="b.comType"
-            class="ti-fill-parent"
-            v-bind="b.comConf"
-            @block:show="$emit('block:show', $event)"
-            @block:hide="$emit('block:hide', $event)"
-            @block:event="$emit('block:event', $event)"/>
-        </ti-block>
-      </div>
-    </transition>
+  <template v-if="hasPanels">
+    <ti-gui-panel v-for="(pan, index) in thePanels"
+      :key="index"
+      v-bind="pan"
+      :schema="schema"
+      :action-status="actionStatus"
+      :shown="shown"
+      @block:show="$emit('block:show', $event)"
+      @block:hide="$emit('block:hide', $event)"
+      @block:event="$emit('block:event', $event)"/>
   </template>
-  <!--
+  <!--===========================================
     Loading
   -->
   <div v-if="isLoading"

@@ -26,10 +26,6 @@ export default {
       type : Array,
       default : ()=>[]
     },
-    "actionDisplayMode" : {
-      type : String,
-      default : "auto"  // auto|desktop|tablet|phone
-    },
     "name" : {
       type : String,
       default : null

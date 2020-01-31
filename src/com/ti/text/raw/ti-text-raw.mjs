@@ -2,10 +2,10 @@ export default {
   props : {
     "icon" : {
       type : Object,
-      default : {
+      default : ()=>({
         type : "font",
         value : "im-hashtag"
-      }
+      })
     },
     "title" : {
       type : String,

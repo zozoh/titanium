@@ -5,6 +5,8 @@
   "methods"  : "./ti-gui-methods.mjs",
   "mixins"   : ["./ti-gui.mjs"],
   "components" : [
-    "@com:ti/layout"
+    "@com:ti/gui/cols",
+    "@com:ti/gui/rows",
+    "@com:ti/gui/tabs"
   ]
 }
