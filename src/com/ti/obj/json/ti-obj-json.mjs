@@ -16,6 +16,10 @@ export default {
       type : String,
       default : "cell",
       validator : v => /^(row|column|cell|none)$/.test(v)
+    },
+    "showRoot" : {
+      type : Boolean,
+      default : true
     }
   },
   //////////////////////////////////////////
@@ -57,8 +61,15 @@ export default {
       let list = []
       // Join the top data
       this.joinTreeTableRow(list, this.data)
+
+      // Unwrap root
+      if(!this.showRoot && list.length==1) {
+        this.theTreeData = list[0].children
+      }
       // Set the data
-      this.theTreeData = list
+      else {
+        this.theTreeData = list
+      }
     },
     //--------------------------------------
     getJsValueType(val) {
@@ -435,8 +446,11 @@ export default {
       }
       //....................................
       // Modify the Array/Object
-      else if(/^(Array|Object)$/.test(path[0])) {
-        let keys = _.slice(path, 1).join(".")
+      else {
+        let keys = path
+        if(/^i18n:json-(Array|Object)$/.test(path[0])) {
+          keys = _.slice(path, 1).join(".")
+        }
         // Set the Key
         if("name" == name) {
           newData = Ti.Util.setKey(newData, keys, value)
@@ -477,11 +491,6 @@ export default {
           // Set it to data
           _.set(newData, keys, v2)
         }
-      }
-      //....................................
-      // Modify the top data
-      else {
-        newData = value
       }
       //....................................
       // Emit the change
