@@ -25,27 +25,9 @@ export default {
   computed : {
     //......................................
     topClass() {
-      let klass = [`is-${this.size}`, `at-${this.align}`]
-      if(this.className) {
-        // String
-        if(_.isString(this.className)) {
-          klass.push(this.className)
-        }
-        // Array
-        else if(_.isArray(this.className)) {
-          for(let cn of this.className) {
-            klass.push(cn)
-          }
-        }
-        // Object
-        else if(_.isPlainObject(this.className)) {
-          _.forEach(this.className, (cn, isOn)=>{
-            if(isOn)
-              klass.push(cn)
-          })
-        }
-      }
-      return klass
+      return Ti.Css.mergeClassName([
+        `is-${this.size}`, `at-${this.align}`
+      ], this.className)
     },
     //......................................
     items() {
@@ -55,6 +37,7 @@ export default {
         let it = {}
         it.name = li.name || `item-${index}`
         it.eventName = li.eventName || it.name
+        it.payload = li.payload
         it.icon = li.icon
         it.text = li.text
         it.disabled = li.disabled
@@ -74,7 +57,7 @@ export default {
   methods :{
     onClickItem(it) {
       if(!it.disabled) {
-        this.$emit(it.eventName)
+        this.$emit(it.eventName, it.payload)
       }
     }
   }

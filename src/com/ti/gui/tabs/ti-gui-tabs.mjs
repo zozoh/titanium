@@ -1,4 +1,9 @@
 export default {
+  inheritAttrs : false,
+  /////////////////////////////////////////
+  data: ()=>({
+    myCurrentTab : 0
+  }),
   /////////////////////////////////////////
   props : {
     "className" : null,
@@ -10,10 +15,6 @@ export default {
     "blocks" : {
       type : Array,
       default : ()=>[]
-    },
-    "currentTab" : {
-      type : [String, Number],
-      default : 0
     },
     "schema" : {
       type : Object,
@@ -33,33 +34,65 @@ export default {
     //--------------------------------------
     topClass() {
       return Ti.Css.mergeClassName([
-        `at-${this.tabAt}`
+        `at-${this.theTabAt[0]}`
       ], this.className)
     },
     //--------------------------------------
-    theTabItems() {
+    theTabAt() {
+      return this.tabAt.split("-")
+    },
+    //--------------------------------------
+    tabClass() {
+      return `as-${this.theTabAt[1]}`
+    },
+    //--------------------------------------
+    theBlockWrapList() {
       let list = []
       for(let i=0; i<this.blocks.length; i++) {
         let block = this.blocks[i]
-        let current = this.isCurrentBlock(block, i)
+        let key = block.name || `tab-${i}`
         list.push({
-          current,
-          key: `tab-${i}`,
-          index : 0,
-          name  : block.name, 
-          icon  : block.icon,
-          title : block.title,
-          className : {"is-current":current}
+          index : i, 
+          key, block          
         })
       }
       return list
     },
     //--------------------------------------
+    theTabItems() {
+      let list = []
+      for(let wrap of this.theBlockWrapList) {
+        let current = this.myCurrentTab == wrap.key
+        let item = {
+          current,
+          key   : wrap.key,
+          index : wrap.index,
+          name  : wrap.block.name, 
+          icon  : wrap.block.icon,
+          title : wrap.block.title,
+          className : {"is-current":current}
+        }
+        // tab item can not be blank
+        if(!item.icon && !item.title) {
+          item.title = Ti.Util.fallback(item.name, item.key)
+        }
+        list.push(item)
+      }
+      return list
+    },
+    //--------------------------------------
+    theCurrentTabItem() {
+      for(let item of this.theTabItems) {
+        if(item.current) {
+          return item
+        }
+      }
+    },
+    //--------------------------------------
     theCurrentBlock() {
-      for(let i=0; i<this.blocks.length; i++) {
-        let block = this.blocks[i]
-        if(this.isCurrentBlock(block, i)) {
-          return block
+      for(let wrap of this.theBlockWrapList) {
+        if(this.myCurrentTab == wrap.key) {
+          return wrap.block
         }
       }
     }
@@ -68,15 +101,44 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    isCurrentBlock(block, index) {
-      return this.currentBlock == block.name
-        || this.currentBlock == index
+    onSetCurrentTabItem(item) {
+      // console.log("tab:changed", {
+      //   target  : item,
+      //   current : this.theCurrentTabItem
+      // })
+      this.$emit("block:shown", {
+        [item.key] : true,
+        [this.theCurrentTabItem.key] : false
+      })
     },
     //--------------------------------------
-    onSetCurrent({index, name}={}) {
-      this.$emit("tab:changed", Ti.Util.fallback(name, index))
+    syncCurrentTabFromShown() {
+      //console.log("syncCurrentTabFromShown")
+      for(let wrap of this.theBlockWrapList) {
+        if(this.shown[wrap.key]) {
+          this.myCurrentTab = wrap.key
+          return
+        }
+      }
+      // Default highlight the first tab
+      if(this.theBlockWrapList.length>0) {
+        this.myCurrentTab = this.theBlockWrapList[0].key
+      }
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "shown" : function() {
+      this.syncCurrentTabFromShown()
+    },
+    "blocks" : function() {
+      this.syncCurrentTabFromShown()
+    }
+  },
+  //////////////////////////////////////////
+  mounted : function() {
+    this.syncCurrentTabFromShown()
   }
   //////////////////////////////////////////
 }

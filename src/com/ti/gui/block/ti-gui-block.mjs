@@ -1,4 +1,5 @@
 export default {
+  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "className" : null,
@@ -157,14 +158,17 @@ export default {
       if(!_.isEmpty(this.blocks)) {
         let comType = "ti-gui"
         let comConf = {
-          type   : this.type || "cols",
-          blocks : this.blocks,
+          layout : {
+            type       : this.type || "cols",
+            blocks     : this.blocks,
+            tabAt      : this.tabAt,
+            border     : this.border,
+            adjustable : this.adjustable
+          },
           schema : this.schema,
+          inBlock : true,
           actionStatus : this.actionStatus,
-          shown  : this.shown,
-          tabAt      : this.tabAt,
-          adjustable : this.adjustable,
-          border     : this.border
+          shown  : this.shown
         }
         return {
           comType, comConf
@@ -178,9 +182,9 @@ export default {
   methods : {
     //--------------------------------------
     async hijackEmit(name, args) {
-      console.log("ti-gui-block::hijackEmit->", name, args)
+      //console.log("ti-gui-block::hijackEmit->", name, args)
       // By Pass: "block:show/hide/event"
-      if(/^block:(show|hide|event)$/.test(name)) {
+      if(/^block:(shown?|hide|event)$/.test(name)) {
         await this.$emit(name, ...args)
       }
       // Gen Block Event

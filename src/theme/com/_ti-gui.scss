@@ -35,7 +35,81 @@
 //---------------------------------------
 // Tabs
 .ti-gui-tabs {
-  
+  position: relative;
+  //-------------------------------------
+  $tabH : .4rem;
+  $tabPad: .08rem;
+  //-------------------------------------
+  // Docking Position
+  &.at-top {
+    padding-top: $tabH;
+    > header {
+      @include pos-abs($l:0,$r:0,$t:0,$h:$tabH);
+      border-bottom:1px solid map-get($color-line, shallow);
+      padding-bottom: 0;
+      li {
+        border-top-width:3px;
+        border-bottom:0;
+        margin-bottom:-1px;
+      }
+    }
+  }
+  &.at-bottom {
+    padding-bottom: $tabH;
+    > header {
+      @include pos-abs($l:0,$r:0,$b:0,$h:$tabH);
+      border-top:1px solid map-get($color-line, shallow);
+      padding-top: 0;
+      li {
+        border-bottom-width:3px;
+        border-top:0;
+        margin-top:-1px;
+      }
+    }
+  }
+  //-------------------------------------
+  // Tab Bar 
+  > header {
+    padding: $tabPad;
+    //-----------------------------------
+    @include noselect;
+    @include color($color-bar, r, c);
+    //-----------------------------------
+    &.as-left   ul {@include flex-align-nowrap($ai:stretch);}
+    &.as-center ul {@include flex-align-nowrap($ai:stretch, $jc:center);}
+    &.as-right  ul {@include flex-align-nowrap($ai:stretch, $jc:flex-end);}
+    //-----------------------------------
+    ul {
+      width:100%; height:100%;
+    }
+    //-----------------------------------
+    li {
+      @include flex-center;
+      cursor:pointer; 
+      border:1px solid transparent;
+      min-width: .8rem; 
+      padding:0 .1rem;
+      line-height:.28rem; 
+      font-size:.12rem;
+      &.is-current {
+        @include color($color-body, r, c);
+        border-color:map-get($color-line, dark);
+        border-top-color:map-get($color-primary, c);
+        border-bottom-color:map-get($color-primary, c);
+        background-color:map-get($color-body, c);
+      }
+      > .it-icon {
+        padding-right:.06rem;
+      }
+    }
+    //-----------------------------------
+  }
+  //-------------------------------------
+  // Main Block Section
+  > section {
+    width:100%; height:100%;
+  }
+  //-------------------------------------
 }
 //---------------------------------------
 // Panel

@@ -7,6 +7,7 @@
     "@com:wn/form",
     "@com:ti/wizard",
     "@com:ti/calendar",
+    "@com:ti/button",
     "@com:ti/table",
     "@com:ti/tree",
     "@com:ti/obj/json"

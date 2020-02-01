@@ -171,18 +171,7 @@ export default {
     },
     //---------------------------------------
     theLayout() {
-      if(_.isEmpty(this.layout))
-        return {}
-      let lay = this.layout[this.viewportMode]
-      // Refer onece
-      if(_.isString(lay)) {
-        lay = this.layout[lay]
-      }
-      // Refer twice (I think it is enough for most of cases)
-      if(_.isString(lay)) {
-        lay = this.layout[lay]
-      }
-      return Ti.Util.explainObj(this, lay)
+      return Ti.Util.explainObj(this, this.layout)
     },
     //---------------------------------------
     theSchema() {

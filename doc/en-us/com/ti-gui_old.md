@@ -42,22 +42,14 @@ The GUI flow the hierarchy below:
 ```
 
 -------------------------------------------------
-# Properties
-
-## className
-
-```js
-"className" : null
-```
-
-## layout
+# GUI Layout
 
 GUI can auto-adapt the layout for `phone|tablet|desktop` by property `layout`.
 
 ```js
 {
   desktop : {
-    type : "rows",   // cols|rows|tabs
+    type : "rows",
     blocks : [..]
   },
   tablet : "desktop",
@@ -65,17 +57,14 @@ GUI can auto-adapt the layout for `phone|tablet|desktop` by property `layout`.
 }
 ```
 
-Or, you can declare the layout `type/block` directly.
+-------------------------------------------------
+# Properties
 
+## className
+
+## layout
 
 ## panels
-
-```js
-"panels" : {
-  type : Array,
-  default : ()=>[]
-}
-```
 
 ## schame
 
@@ -99,34 +88,6 @@ Each layout block can refer to `schema` to get a component fully defination like
 }
 ```
 
-## keepStatusTo
-
-```js
-"keepStatusTo" : {
-  type : String,
-  default : null
-}
-```
-Declare the local storage key for private status storage. The privated status includes:
-
-- `shown`
-- `layoutSizing`
-
-
-
-## inBlock
-
-```js
-"inBlock" : {
-  type : Boolean,
-  default : false
-}
-```
-Indicate current GUI instance is in `<ti-gui-block>`.
-The GUI which not `inBlock`, we called it `top-level-block`.
-
-In top-level-block, we will store the private `shown` status, and persist it to local if `keepStatusTo` is enabled.
-
 ## actionStatus
 
 ```js
@@ -135,6 +96,7 @@ In top-level-block, we will store the private `shown` status, and persist it to 
   default : ()=>({})
 }
 ```
+
 
 ## shown
 
@@ -176,165 +138,7 @@ Indicate the GUI can should loading mask or not.
 `true` or special `Object` to show the loading mask. 
 
 -------------------------------------------------
-# Rows/Cols
-
-## className
-
-## blocks
-
-## adjustable
-
-## border
-
-## schema
-
-## actionStatus
-
-## shown
-
--------------------------------------------------
-# Tabs
-
-## className
-
-## tabAt
-
-```js
-"tabAt" : {
-  type : String,
-  default : "top-left",
-  validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
-}
-```
-
-It define the tabs position:
-
-- `top-left` or `top-center` or `top-right`
-- `bottom-left` or `bottom-center` or `bottom-right`
-
-```
- Left             Center           Right
-+---------------------------------------+
-| +------+------+                       |
-| | TabA | TabB |                       | Top
-+---------------------------------------+
-|                                       |
-|                                       |
-|       Main Block Section              |
-|                                       |
-|                                       |
-+---------------------------------------+
-|                       | TabA | TabB | | Bottom
-|                       +------+------+ |
-+---------------------------------------+
-```
-
-## blocks
-
-## currentTab
-
-```js
-"currentTab" : {
-  type : [String, Number],
-  default : 0
-}
-```
-Current tab index of name.
-
-## schema
-
-## actionStatus
-
-## shown
-
--------------------------------------------------
-# Panel
-
-## className
-
-## title
-
-## icon
-
-## hideTitle
-
-## actions
-
-## actionStatus
-
-## name
-
-## type
-
-## blocks
-
-## body
-
-## adjustable
-
-## overflow
-
-## width
-
-## height
-
-## position
-
-```js
-"position" : {
-  type : String,
-  default : "center",
-  validator : (v)=>{
-    return /^(left|right|top|bottom|center)$/.test(v)
-      || /^((left|right)-top|bottom-(left|right))$/.test(v)
-  }
-}
-```
-
-panel poisiton could be:
-
-- left|right|top|bottom
-- center
-- left-top|right-top|bottom-left|bottom-right
-
-## closer
-
-```js
-"closer" : {
-  type : [Boolean, String],
-  default : null,
-  validator : (v)=>{
-    return _isBoolean(v)
-      || _.isNull(v)
-      || /^(default|bottom|top|left|right)$/.test(v)
-  }
-}
-```
-
-Indiate the closer button's position:
-
-Closer      | Description
-------------|--------------------
-`null`      | no closer
-`"default"` | right/top at title bar
-`"bottom"`  | bottom/center lamp cord
-`"top"`     | center/top shrink button 
-`"left"`    | center/left shrink button 
-`"right"`   | center/right shrink button 
-
-## mask
-
-```js
-"mask" : {
-  type : Boolean,
-  default : true
-}
-```
-If `true`(default), it will enable mask layer to capture all user mouse operation duration
-the panel lifecycle.
-
--------------------------------------------------
-# Block
+# Block Properties
 
 ## className
 
@@ -346,16 +150,21 @@ Define the block special css selector.
 
 ## type
 
-```js
-"type" : {
-  type : String,
-  default : null,
-  validator : (v)=>{
-    return Ti.Util.isNil(v)
-      || /^(cols|rows|tabs)$/.test(v)
-  }
-}
-```
+Block's type could be `cols|rows|tabs|wall`.
+The "size" field of each sub-block has different meaning
+
+- `cols`
+  + size is width of each column
+- `rows`
+  + size is height of each row
+- `tabs`
+  + It will auto show the tabs bar, which each tab item texted by block's title.
+  + The block's name will be used when title no-defined.
+- `wall`
+  + size should item count of each row when Number,
+  + String("%|rem|px") will be taken as items's width
+  + Array[width,height] will be taken as item's  `width/height`
+  + "stretch" will be ignored.
 
 ## title
 
@@ -376,133 +185,10 @@ Block title bar text content, which supported the `i18n:xxx`.
   default : null
 }
 ```
+
 Block title bar icon.
 
-## hideTitle
-
-```js
-"hideTitle" : {
-  type : Boolean,
-  default : false
-}
-```
-
-Force to hide the title bar.
-
-## actions
-
-```js
-"actions" : {
-  type : Array,
-  default : ()=>[]
-}
-```
-The title bar action menu data.
-
-## actionStatus
-
-```js
-"actionStatus" : {
-  type : Object,
-  default : ()=>({})
-}
-```
-
-## name
-
-```js
-"name" : {
-  type : String,
-  default : null
-}
-```
-Block unique name in whole GUI. If without defined, the block is so called *"anonymity block"* which can not be `show/hide` by `shown` property.
-
-## blocks
-
-```js
-"blocks" : {
-  type : Array,
-  default : ()=>[]
-}
-```
-Define the sub-blocks.
-
-## body
-
-```js
-"body" : {
-  type : [String, Object],
-  default : null
-}
-```
-Indicate the block rendering component. It is higher priority then `type/blocks`.
-That's mean, if declared `body`, it will be ignore the `type/blocks` setup.
-
-## hijackable
-
-```js
-"hijackable" : {
-  type : Boolean,
-  default : true
-}
-```
-If turn `false`, it will mute all sub-component events emiting.
-
-## size
-
-```js
-"size" : {
-  type : [String, Number],
-  default : null
-}
-```
-
-The "size" field of each sub-block has different meaning
-
-- `cols`
-  + size is width of each column
-- `rows`
-  + size is height of each row
-- `tabs`
-  + It will auto show the tabs bar, which each tab item texted by block's title.
-  + The block's name will be used when title no-defined.
-- `wall`
-  + size should item count of each row when Number,
-  + String("%|rem|px") will be taken as items's width
-  + Array[width,height] will be taken as item's  `width/height`
-  + "stretch" will be ignored.
-
-## overflow
-
-```js
-"overflow" : {
-  type : String,
-  default : null
-}
-```
-Indicate the block css `overflow`.
-
-## flex
-
-```js
-"flex" : {
-  type : String,
-  default : "auto",
-  validator : (v)=>/^(auto|grow|shrink|both|none)$/.test(v)
-}
-```
-
-Enabled in `cols/rows` block for the block flexibility.
-
-Flex     | Description
----------|----------------------
-`auto`   | default. If `size` defined, same as "none", else "both"
-`grow`   | as `flex: 1 0 auto;`
-`shrink` | as `flex: 0 1 auto;`
-`both`   | as `flex: 1 1 auto;`
-`none`   | as `flex: 0 0 auto;`
-
+-------------------------------------------------
 ## tabAt
 
 ```js
@@ -512,16 +198,11 @@ Flex     | Description
   validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
 }
 ```
+
 If `type="tabs"`, the prop will be used to indicated the tab title bar position. `top-left` as default.
 
+-------------------------------------------------
 ## adjustable
-
-```js
-"adjustable" : {
-  type : Boolean,
-  default : true
-}
-```
 
 User can adjust the size
  - `true` : both x/y
@@ -531,16 +212,111 @@ User can adjust the size
 
 Defaultly `true`
 
+-------------------------------------------------
 ## border
 
+Boolean. Show sub block border or not.
+
+Default is `false`
+
+-------------------------------------------------
+## blocks
+
+Current block title/icon/actions
+If one of them has been declared, it will show the title bar
+
+Each block looked like:
+
 ```js
-"border" : {
-  type : Boolean,
-  default : false
+{
+  title : "i18n:xxx",
+  icon  : "fas-file",
+  className : null,
+  actions : [/*
+ 	 action menu items, @see <ti-menu> for more detail
+  */],
+  //.....................................
+  // required and must be unique
+  name : "b0",
+  type : "tabs",  // sub-layout
+  blocks : [{     // sub-blocks
+  /*layout*/
+  }],
+  body : "xxx",   // refer to schame
+  //.....................................
+  // The style.overflow
+  overflow : "hidden"
+  //.....................................
+  // default size is "stretch"
+  // "%" "rem" "px" was supported also.
+  // Number will be taken as "px" when "rows|cols"
+  size : "30%",
+  //.....................................
+  // Enabled in "cols/rows" block. To define the block flexibility.
+  // default is auto, 
+  //  - auto   : default. If defined size as "none", else "both"
+  //  - grow   : as flex: 1 0 auto;
+  //  - shrink : as flex: 0 1 auto;
+  //  - both   : as flex: 1 1 auto;
+  //  - none   : as flex: 0 0 auto;
+  flex : "auto"
+  // If true, use can change the block size by mouse.
+  // It will be ignored when "wall" or "tabs"
+  // default is true
+  adjustable : true,
+  // Show border between subblock or not
+  border: false
 }
 ```
 
-Show sub block border or not. Default is `false`
+-------------------------------------------------
+## panels
+
+Each panel looked like:
+
+```js
+{
+  title,icon,actions,
+  hideTitle
+  //.....................................
+  name : "b0",             // required and must be unique
+  type : "rows",           // sub-layout
+  blocks : [{/*layout*/}], // sub-blocks
+  body : "xxx",
+  //.....................................
+  // For the reason panels is absoluted, so we need more fields
+  // to declare the position. Those fields following is worked only
+  // in "panles" fields
+  //.....................................
+  // panel poisiton could be:
+  //  - left|right|top|bottom
+  //  - center
+  //  - left-top|right-top|bottom-left|bottom-right
+  position : "center/center",
+  width  : "100%",
+  height : "100%",
+  //.....................................
+  // The style.overflow
+  overflow : "hidden"
+  // This panel will mask GUI
+  // Default is false
+  mask : false
+  // closer button's position
+  // null - no closer
+  // "default" - right/top at title bar
+  // "bottom" - bottom/center lamp cord
+  // "top" - center/top shrink button 
+  // "left" - center/left shrink button 
+  // "right" - center/right shrink button 
+  closer : null,
+  // user can adjust the size
+  //  - true : both x/y
+  //  - "x"  : x only
+  //  - "y"  : y only
+  //  - false : forbid adjust size
+  adjustable : true,
+}
+```
 
 -------------------------------------------------
 # Event

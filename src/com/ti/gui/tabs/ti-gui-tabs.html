@@ -2,12 +2,12 @@
   <!--
     Tab title bar
   -->
-  <header>
+  <header :class="tabClass">
     <ul>
       <li v-for="it in theTabItems"
         :key="it.key"
         :class="it.className"
-        @click="onSetCurrent(it)">
+        @click="onSetCurrentTabItem(it)">
         <!--Icon-->
         <ti-icon
           v-if="it.icon"
@@ -22,7 +22,7 @@
     Current Block
   -->
   <section>
-    <ti-block 
+    <ti-gui-block 
       v-if="theCurrentBlock"
         embed-in="tabs"
         v-bind="theCurrentBlock"
@@ -31,6 +31,7 @@
         :shown="shown"
         @block:show="$emit('block:show', $event)"
         @block:hide="$emit('block:hide', $event)"
+        @block:shown="$emit('block:shown', $event)"
         @block:event="$emit('block:event', $event)"/>
   </section>
 </div>

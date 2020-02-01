@@ -6,46 +6,42 @@
     <!--
       Layout as rows
     -->
-    <ti-gui-rows v-if="'rows' == type"
+    <ti-gui-rows v-if="isRowsLayout"
       class="ti-fill-parent"
-      :blocks="blocks"
-      :adjustable="adjustable"
-      :border="border"
+      v-bind="theLayout"
       :schema="schema"
+      :shown="theShown"
       :action-status="actionStatus"
-      :shown="shown"
-      @block:show="$emit('block:show', $event)"
-      @block:hide="$emit('block:hide', $event)"
-      @block:event="$emit('block:event', $event)"/>
+      @block:show="onBlockShow"
+      @block:hide="onBlockHide"
+      @block:shown="onBlockShownUpdate"
+      @block:event="onBlockEvent"/>
     <!--
       Layout as cols
     -->
-    <ti-gui-cols v-else-if="'cols' == type"
+    <ti-gui-cols v-else-if="isColsLayout"
       class="ti-fill-parent"
-      :blocks="blocks"
-      :adjustable="adjustable"
-      :border="border"
+      v-bind="theLayout"
       :schema="schema"
+      :shown="theShown"
       :action-status="actionStatus"
-      :shown="shown"
-      @block:show="$emit('block:show', $event)"
-      @block:hide="$emit('block:hide', $event)"
-      @block:event="$emit('block:event', $event)"/>
+      @block:show="onBlockShow"
+      @block:hide="onBlockHide"
+      @block:shown="onBlockShownUpdate"
+      @block:event="onBlockEvent"/>
     <!--
       Layout as tabs
     -->
-    <ti-gui-tabs v-else-if="'tabs' == type"
+    <ti-gui-tabs v-else-if="isTabsLayout"
       class="ti-fill-parent"
-      :tab-at="tabAt"
-      :blocks="blocks"
-      :current-tab="theCurrentTabName"
-      @tab:changed="onTabChanged"
+      v-bind="theLayout"
       :schema="schema"
+      :shown="theShown"
       :action-status="actionStatus"
-      :shown="shown"
-      @block:show="$emit('block:show', $event)"
-      @block:hide="$emit('block:hide', $event)"
-      @block:event="$emit('block:event', $event)"/>
+      @block:show="onBlockShow"
+      @block:hide="onBlockHide"
+      @block:shown="onBlockShownUpdate"
+      @block:event="onBlockEvent"/>
   </div>
   <!--===========================================
     All float panels
@@ -56,10 +52,11 @@
       v-bind="pan"
       :schema="schema"
       :action-status="actionStatus"
-      :shown="shown"
-      @block:show="$emit('block:show', $event)"
-      @block:hide="$emit('block:hide', $event)"
-      @block:event="$emit('block:event', $event)"/>
+      :shown="theShown"
+      @block:show="onBlockShow"
+      @block:hide="onBlockHide"
+      @block:shown="onBlockShownUpdate"
+      @block:event="onBlockEvent"/>
   </template>
   <!--===========================================
     Loading

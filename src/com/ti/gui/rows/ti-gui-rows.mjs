@@ -1,4 +1,5 @@
 export default {
+  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "className" : null,

@@ -1,31 +1,19 @@
 export default {
+  inheritAttrs : false,
+  /////////////////////////////////////////
+  data: ()=>({
+    myShown : {}
+  }),
   /////////////////////////////////////////
   props : {
     "className" : null,
-    "type" : {
-      type : String,
-      default : null,
-      validator : (v)=>{
-        return Ti.Util.isNil(v)
-          || /^(cols|rows|tabs)$/.test(v)
-      }
-    },
-    "tabAt" : {
-      type : String,
-      default : "top-left",
-      validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
-    },
-    "adjustable" : {
-      type : Boolean,
-      default : true
-    },
-    "border" : {
-      type : Boolean,
-      default : false
-    },
-    "blocks" : {
-      type : Array,
-      default : ()=>[]
+    "layout" : {
+      type : Object,
+      default : ()=>({
+        desktop : {},
+        tablet  : "desktop",
+        phone   : "desktop"
+      })
     },
     "panels" : {
       type : Array,
@@ -34,6 +22,14 @@ export default {
     "schema" : {
       type : Object,
       default : ()=>({})
+    },
+    "keepStatusTo" : {
+      type : String,
+      default : null
+    },
+    "inBlock" : {
+      type : Boolean,
+      default : false
     },
     "actionStatus" : {
       type : Object,
@@ -65,6 +61,40 @@ export default {
       ], this.className)
     },
     //--------------------------------------
+    theLayout() {
+      if(_.isEmpty(this.layout))
+        return {}
+      //....................................
+      // Raw layout
+      if(/^(rows|cols|tabs)$/.test(this.layout.type)) {
+        return this.layout
+      }
+      //....................................
+      // Auto adapt viewMode
+      let lay = this.layout[this.viewportMode]
+      // Refer onece
+      if(_.isString(lay)) {
+        lay = this.layout[lay]
+      }
+      // Refer twice (I think it is enough for most of cases)
+      if(_.isString(lay)) {
+        lay = this.layout[lay]
+      }
+      return lay || {}
+    },
+    //--------------------------------------
+    isRowsLayout() {
+      return "rows" == this.theLayout.type
+    },
+    //--------------------------------------
+    isColsLayout() {
+      return "cols" == this.theLayout.type
+    },
+    //--------------------------------------
+    isTabsLayout() {
+      return "tabs" == this.theLayout.type
+    },
+    //--------------------------------------
     hasPanels() {
       return !_.isEmpty(this.panels)
     },
@@ -79,6 +109,12 @@ export default {
         }
       }
       return list
+    },
+    //--------------------------------------
+    theShown() {
+      return this.inBlock
+        ? this.shown
+        : this.myShown
     },
     //--------------------------------------
     isLoading() {
@@ -99,14 +135,87 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    isShown(name) {
-      return this.shown[name] ? true : false
+    isShown(...names) {
+      for(let name of names) {
+        if(this.shown[name])
+          return true
+      }
+      return false
     },
     //--------------------------------------
-    onTabChanged() {
-      console.log(onTabChanged, arguments)
+    updateShown(shown) {
+      if(!this.inBlock) {
+        this.syncMyShown(shown)
+        this.persistMyStatus()
+      }
+    },
+    //--------------------------------------
+    onBlockShow(name) {
+      if(this.inBlock) {
+        this.$emit("block:show", name)
+      }
+      // Update privated
+      else {
+        this.updateShown({[name]:true})
+      }
+    },
+    //--------------------------------------
+    onBlockHide(name) {
+      if(this.inBlock) {
+        this.$emit("block:hide", name)
+      }
+      // Update privated
+      else {
+        this.updateShown({[name]:false})
+      }
+    },
+    //--------------------------------------
+    onBlockShownUpdate(shown) {
+      if(this.inBlock) {
+        this.$emit("block:shown", shown)
+      }
+      // Update privated
+      else {
+        this.updateShown(shown)
+      }
+    },
+    //--------------------------------------
+    onBlockEvent(payload) {
+      this.$emit("block:event", payload)
+    },
+    //--------------------------------------
+    syncMyShown(...showns) {
+      if(!this.inBlock) {
+        this.myShown = _.assign({}, this.myShown, ...showns)
+      }
+    },
+    //--------------------------------------
+    persistMyStatus() {
+      if(!this.inBlock && this.keepStatusTo) {
+        let status = {
+          shown : _.omitBy(this.myShown, (v)=>!v)
+        }
+        Ti.Storage.session.setObject(this.keepStatusTo, status)
+      }
+    },
+    //--------------------------------------
+    loadMyStatus() {
+      if(!this.inBlock && this.keepStatusTo) {
+        let status = Ti.Storage.session.getObject(this.keepStatusTo)
+        this.syncMyShown(this.shown, status.shown)
+      }
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "shown" : function(shown) {
+      this.syncMyShown(shown)
+    }
+  },
+  //////////////////////////////////////////
+  mounted : function() {
+    this.loadMyStatus()
   }
   //////////////////////////////////////////
 }

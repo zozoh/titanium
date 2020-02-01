@@ -1,4 +1,5 @@
 export default {
+  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "className" : null,
@@ -18,13 +19,21 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "actionStatus" : {
+      type : Object,
+      default : ()=>({})
+    },
     "name" : {
       type : String,
       default : null
     },
     "type" : {
       type : String,
-      default : "cols"
+      default : null,
+      validator : (v)=>{
+        return Ti.Util.isNil(v)
+          || /^(cols|rows|tabs)$/.test(v)
+      }
     },
     "blocks" : {
       type : Array,
@@ -40,6 +49,10 @@ export default {
       validator : (v)=>{
         return _isBoolean(v) || /^(x|y)$/.test(v)
       }
+    },
+    "overflow" : {
+      type : String,
+      default : null
     },
     "width" : {
       type : [String,Number],
@@ -57,10 +70,6 @@ export default {
           || /^((left|right)-top|bottom-(left|right))$/.test(v)
       }
     },
-    "overflow" : {
-      type : String,
-      default : null
-    },
     "closer" : {
       type : [Boolean, String],
       default : null,
@@ -75,10 +84,6 @@ export default {
       default : true
     },
     "schema" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "actionStatus" : {
       type : Object,
       default : ()=>({})
     },
