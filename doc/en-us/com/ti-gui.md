@@ -112,21 +112,6 @@ Declare the local storage key for private status storage. The privated status in
 - `shown`
 - `layoutSizing`
 
-
-
-## inBlock
-
-```js
-"inBlock" : {
-  type : Boolean,
-  default : false
-}
-```
-Indicate current GUI instance is in `<ti-gui-block>`.
-The GUI which not `inBlock`, we called it `top-level-block`.
-
-In top-level-block, we will store the private `shown` status, and persist it to local if `keepStatusTo` is enabled.
-
 ## actionStatus
 
 ```js
@@ -278,6 +263,10 @@ Current tab index of name.
 
 ## height
 
+## viewportWidth
+
+## viewportHeight
+
 ## position
 
 ```js
@@ -301,13 +290,11 @@ panel poisiton could be:
 
 ```js
 "closer" : {
-  type : [Boolean, String],
-  default : null,
-  validator : (v)=>{
-    return _isBoolean(v)
-      || _.isNull(v)
-      || /^(default|bottom|top|left|right)$/.test(v)
-  }
+  type : String,
+  default : "default",
+  validator : (v)=>(
+    _.isNull(v) || /^(default|bottom|top|left|right)$/.test(v)
+  )
 }
 ```
 

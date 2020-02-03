@@ -45,6 +45,9 @@ export default {
     tabClass() {
       return `as-${this.theTabAt[1]}`
     },
+    theSchema() {
+      return this.schema
+    },
     //--------------------------------------
     theBlockWrapList() {
       let list = []

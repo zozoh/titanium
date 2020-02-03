@@ -43,11 +43,11 @@ export default {
       return _.get(this.config, "shown") || {}
     },
     //--------------------------------------
-    currentLayout() {
-      return this.getLayout(this.viewportMode)
+    theLayout() {
+      return Ti.Util.explainObj(this, this.config.layout)
     },
     //--------------------------------------
-    formedSchema() {
+    theSchema() {
       return Ti.Util.explainObj(this, this.config.schema)
     },
     //--------------------------------------
@@ -114,17 +114,6 @@ export default {
       else {
         throw Ti.Err.make("e.thing.fail-to-invoke", fnName)
       }
-    },
-    //--------------------------------------
-    getLayout(name) {
-      if(_.isEmpty(this.config))
-        return {}
-      let la = this.config.layout[name]
-      if(_.isString(la)) {
-        la = this.config.layout[la]
-      }
-      //...........................
-      return Ti.Util.explainObj(this, la)
     },
     //--------------------------------------
     async changeTabs(tabs={}) {
@@ -247,9 +236,9 @@ export default {
   },
   ///////////////////////////////////////////
   watch : {
-    "config.actions" : function() {
-      this.$emit("actions:updated", this.config.actions)
-    },
+    // "config.actions" : function() {
+    //   this.$emit("actions:updated", this.config.actions)
+    // },
     "shown" : function() {
       //console.log("shown changed", JSON.stringify(this.shown))
       if(this.meta && this.meta.id) {

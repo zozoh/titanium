@@ -21,17 +21,16 @@
   <!--
     Current Block
   -->
-  <section>
+  <section v-if="theCurrentBlock">
     <ti-gui-block 
-      v-if="theCurrentBlock"
-        embed-in="tabs"
-        v-bind="theCurrentBlock"
-        :shema="schema"
-        :action-status="actionStatus"
-        :shown="shown"
-        @block:show="$emit('block:show', $event)"
-        @block:hide="$emit('block:hide', $event)"
-        @block:shown="$emit('block:shown', $event)"
-        @block:event="$emit('block:event', $event)"/>
+      embed-in="tabs"
+      v-bind="theCurrentBlock"
+      :action-status="actionStatus"
+      :schema="schema"
+      :shown="shown"
+      @block:show="$emit('block:show', $event)"
+      @block:hide="$emit('block:hide', $event)"
+      @block:shown="$emit('block:shown', $event)"
+      @block:event="$emit('block:event', $event)"/>
   </section>
 </div>

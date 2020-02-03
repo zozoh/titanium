@@ -47,7 +47,7 @@ export default {
       type : [Boolean, String],
       default : true,
       validator : (v)=>{
-        return _isBoolean(v) || /^(x|y)$/.test(v)
+        return _.isBoolean(v) || /^(x|y)$/.test(v)
       }
     },
     "overflow" : {
@@ -62,6 +62,14 @@ export default {
       type : [String,Number],
       default : -1
     },
+    "viewportWidth" : {
+      type : [String,Number],
+      default : 0
+    },
+    "viewportHeight" : {
+      type : [String,Number],
+      default : 0
+    },
     "position" : {
       type : String,
       default : "center",
@@ -71,13 +79,11 @@ export default {
       }
     },
     "closer" : {
-      type : [Boolean, String],
-      default : null,
-      validator : (v)=>{
-        return _isBoolean(v)
-          || _.isNull(v)
-          || /^(default|bottom|top|left|right)$/.test(v)
-      }
+      type : String,
+      default : "default",
+      validator : (v)=>(
+        _.isNull(v) || /^(default|bottom|top|left|right)$/.test(v)
+      )
     },
     "mask" : {
       type : Boolean,
@@ -98,27 +104,48 @@ export default {
     topClass() {
       return Ti.Css.mergeClassName({
         "show-mask" : this.mask,
-        "no-mask"   : !this.mask
+        "no-mask"   : !this.mask,
+        "is-closer-default" : this.isCloserDefault
       },[
         `at-${this.position}`
       ], this.className)
     },
     //--------------------------------------
-    topStyle() {
-      return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
-      })
+    conStyle() {
+      let width  = Ti.Css.toPixel(this.width, this.viewportWidth, this.width)
+      let height = Ti.Css.toPixel(this.height, this.viewportHeight, this.height)
+      return Ti.Css.toStyle({width, height})
     },
     //--------------------------------------
-    theTransNme() {
-      return `gui-panel-${this.position}`
+    hasCloser() {
+      return this.closer ? true : false
+    },
+    //--------------------------------------
+    isCloserDefault() {
+      return true === this.closer || "default" == this.closer
+    },
+    //--------------------------------------
+    closerClass() {
+      return Ti.Css.mergeClassName({
+        'as-lamp-cord' : !this.isCloserDefault,
+        'as-default'   : this.isCloserDefault,
+        [`at-${this.closer}`] : !this.isCloserDefault
+      })
     }
+    //--------------------------------------
+    // theCloserIconName() {
+    //   return this.isCloserDefault
+    //           ? "zmdi-minus"
+    //           : "zmdi-close";
+    //}
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
+    onClose() {
+      this.$emit("block:hide", this.name)
+    }
     //--------------------------------------
   }
   //////////////////////////////////////////

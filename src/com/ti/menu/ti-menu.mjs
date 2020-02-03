@@ -94,7 +94,7 @@ export default {
       }
       //console.log("invokeAction", action)
       let vm = this
-      let m = /^([a-zA-Z0-9_]+):([^()]+)(\((.*)\))?$/.exec(action)
+      let m = /^([$a-zA-Z0-9_]+):([^()]+)(\((.*)\))?$/.exec(action)
       if(m) {
         let mode = m[1]
         let tanm = m[2]
@@ -106,6 +106,10 @@ export default {
         if('parent' == mode) {
           func = this.$parent[tanm]
           context = this.$parent
+        }
+        // Emit
+        else if("$emit" == mode) {
+          this.$emit(tanm, arg0)
         }
         // Call App
         else {

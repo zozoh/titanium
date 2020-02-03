@@ -2,7 +2,9 @@ export default {
   inheritAttrs : false,
   /////////////////////////////////////////
   data: ()=>({
-    myShown : {}
+    myShown : {},
+    myViewportWidth  : 0,
+    myViewportHeight : 0,
   }),
   /////////////////////////////////////////
   props : {
@@ -26,10 +28,6 @@ export default {
     "keepStatusTo" : {
       type : String,
       default : null
-    },
-    "inBlock" : {
-      type : Boolean,
-      default : false
     },
     "actionStatus" : {
       type : Object,
@@ -56,9 +54,7 @@ export default {
       return Ti.Css.mergeClassName({
         "is-loading" : this.isLoading,
         "has-panels" : this.hasPanels
-      }, [
-        `as-${this.type}`
-      ], this.className)
+      }, this.className)
     },
     //--------------------------------------
     theLayout() {
@@ -102,19 +98,19 @@ export default {
     thePanels() {
       let list = []
       if(this.hasPanels) {
-        for(let pan of this.panels) {
-          if(this.isShown(pan.name)) {
-            list.push(pan)
-          }
+        for(let i=0; i<this.panels.length; i++) {
+          let pan = this.panels[i]
+          let pos = Ti.Util.fallback(pan.position, "center")
+          list.push({
+            index     : i,
+            visible   : this.isShown(pan.name),
+            key       : `panel-${i}`,
+            transName : `ti-gui-panel-${pos}`,
+            panel     : pan
+          })
         }
       }
       return list
-    },
-    //--------------------------------------
-    theShown() {
-      return this.inBlock
-        ? this.shown
-        : this.myShown
     },
     //--------------------------------------
     isLoading() {
@@ -137,47 +133,28 @@ export default {
     //--------------------------------------
     isShown(...names) {
       for(let name of names) {
-        if(this.shown[name])
+        if(this.myShown[name])
           return true
       }
       return false
     },
     //--------------------------------------
     updateShown(shown) {
-      if(!this.inBlock) {
-        this.syncMyShown(shown)
-        this.persistMyStatus()
-      }
+      console.log("updateShown", shown)
+      this.syncMyShown(shown)
+      this.persistMyStatus()
     },
     //--------------------------------------
     onBlockShow(name) {
-      if(this.inBlock) {
-        this.$emit("block:show", name)
-      }
-      // Update privated
-      else {
-        this.updateShown({[name]:true})
-      }
+      this.updateShown({[name]:true})
     },
     //--------------------------------------
     onBlockHide(name) {
-      if(this.inBlock) {
-        this.$emit("block:hide", name)
-      }
-      // Update privated
-      else {
-        this.updateShown({[name]:false})
-      }
+      this.updateShown({[name]:false})
     },
     //--------------------------------------
     onBlockShownUpdate(shown) {
-      if(this.inBlock) {
-        this.$emit("block:shown", shown)
-      }
-      // Update privated
-      else {
-        this.updateShown(shown)
-      }
+      this.updateShown(shown)
     },
     //--------------------------------------
     onBlockEvent(payload) {
@@ -185,13 +162,11 @@ export default {
     },
     //--------------------------------------
     syncMyShown(...showns) {
-      if(!this.inBlock) {
-        this.myShown = _.assign({}, this.myShown, ...showns)
-      }
+      this.myShown = _.assign({}, this.myShown, ...showns)
     },
     //--------------------------------------
     persistMyStatus() {
-      if(!this.inBlock && this.keepStatusTo) {
+      if(this.keepStatusTo) {
         let status = {
           shown : _.omitBy(this.myShown, (v)=>!v)
         }
@@ -200,10 +175,16 @@ export default {
     },
     //--------------------------------------
     loadMyStatus() {
-      if(!this.inBlock && this.keepStatusTo) {
+      if(this.keepStatusTo) {
         let status = Ti.Storage.session.getObject(this.keepStatusTo)
         this.syncMyShown(this.shown, status.shown)
       }
+    },
+    //--------------------------------------
+    syncViewportMeasure() {
+      let rect = Ti.Rects.createBy(this.$el);
+      this.myViewportWidth  = rect.width
+      this.myViewportHeight = rect.height
     }
     //--------------------------------------
   },
@@ -215,7 +196,19 @@ export default {
   },
   //////////////////////////////////////////
   mounted : function() {
+    //......................................
+    Ti.Viewport.watch(this, {
+      resize : _.debounce(()=>this.syncViewportMeasure(), 100)
+    })
+    //......................................
+    this.syncViewportMeasure()
+    //......................................
     this.loadMyStatus()
+    //......................................
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////
 }

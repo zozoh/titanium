@@ -334,9 +334,11 @@ export default {
     commit("setStatus", {reloading:true})
 
     // Reload Config
+    //console.log("reload config")
     await dispatch("config/reload", meta)
 
     // Reload Search
+    //console.log("reload search")
     await dispatch("reloadSearch")
 
     // Auto Select the first item

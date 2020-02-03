@@ -455,7 +455,7 @@ export default {
     //--------------------------------------
     onRowLeave({rowId}={}) {
       if(this.myHoverId == rowId) {
-        //this.myHoverId = null
+        this.myHoverId = null
       }
     },
     //--------------------------------------

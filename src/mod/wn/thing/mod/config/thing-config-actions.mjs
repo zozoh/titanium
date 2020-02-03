@@ -3,6 +3,7 @@
 export default {
   //----------------------------------------
   async reloadSchema({state, commit}) {
+    //console.log("reloadSchema")
     let aph  = `id:${state.meta.id}/thing-schema.json`
     let obj  = await Wn.Io.loadMeta(aph)
     let schema = await Wn.Io.loadContent(obj, {as:"json"})
@@ -15,12 +16,13 @@ export default {
       }
       schema.methods = methods
     }
-    //console.log("setSchema", json)
+    //console.log("setSchema", schema)
     commit("setSchema", schema)
     return schema
   },
   //----------------------------------------
   async reloadLayout({state, commit}) {
+    //console.log("reloadLayout")
     let aph  = `id:${state.meta.id}/thing-layout.json`
     let obj  = await Wn.Io.loadMeta(aph)
     let json = await Wn.Io.loadContent(obj, {as:"json"})
@@ -35,6 +37,7 @@ export default {
   },
   //----------------------------------------
   async reloadActions({state, commit}) {
+    //console.log("reloadActions")
     let aph  = `id:${state.meta.id}/thing-actions.json`
     let obj  = await Wn.Io.loadMeta(aph)
     let json = await Wn.Io.loadContent(obj, {as:"json"})

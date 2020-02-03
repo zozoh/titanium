@@ -125,7 +125,7 @@ export default {
     },
     //--------------------------------------
     isShowHeader() {
-      if(this.hideTitle) {
+      if(this.hideTitle || 'tabs' == this.embedIn) {
         return false
       }
       if(this.title || this.hasActions) {
@@ -156,17 +156,13 @@ export default {
       //....................................
       // Sub GUI
       if(!_.isEmpty(this.blocks)) {
-        let comType = "ti-gui"
+        let comType = `ti-gui-${this.type||"cols"}`
         let comConf = {
-          layout : {
-            type       : this.type || "cols",
-            blocks     : this.blocks,
-            tabAt      : this.tabAt,
-            border     : this.border,
-            adjustable : this.adjustable
-          },
+          blocks     : this.blocks,
+          tabAt      : this.tabAt,
+          border     : this.border,
+          adjustable : this.adjustable,
           schema : this.schema,
-          inBlock : true,
           actionStatus : this.actionStatus,
           shown  : this.shown
         }

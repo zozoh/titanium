@@ -30,7 +30,7 @@ export default {
   watch : {
     // Notify wn-manager update the action menu
     "data.actions" : function(){
-      this.$emit("actions:updated", this.data.actions)
+      //this.$emit("actions:updated", this.data.actions)
     }
   },
   //////////////////////////////////////////

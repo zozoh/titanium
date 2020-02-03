@@ -1,22 +1,38 @@
-<transition :name="theTransName">
-  <div
-    class="ti-gui-panel"
-    :class="topClass"
-    :style="topStyle">
-    <!--Block-->
-    <ti-gui-block 
+<div class="ti-gui-panel"
+  :class="topClass">
+  <div class="panel-con" :style="conStyle">
+    <!--
+      Block
+    -->
+    <ti-gui-block
       embed-in="panel"
+      flex="none"
       :type="type"
+      :title="title"
+      :icon="icon"
+      :hide-title="hideTitle"
+      :actions="actions"
+      :action-status="actionStatus"
+      :name="name"
       :blocks="blocks"
       :body="body"
       :overflow="overflow"
       :schema="schema"
-      :action-status="actionStatus"
       :shown="shown"
       @block:show="$emit('block:show', $event)"
       @block:hide="$emit('block:hide', $event)"
       @block:shown="$emit('block:shown', $event)"
       @block:event="$emit('block:event', $event)"/>
-    <!--Block-->
+    <!--
+      Closer
+    -->
+    <div
+      v-if="hasCloser"
+        class="panel-closer"
+        :class="closerClass">
+        <ti-icon
+          value="zmdi-close"
+          @click.native="onClose"/>
+    </div>
   </div>
-</transition>
+</div>

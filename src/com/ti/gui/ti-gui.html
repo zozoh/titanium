@@ -10,7 +10,7 @@
       class="ti-fill-parent"
       v-bind="theLayout"
       :schema="schema"
-      :shown="theShown"
+      :shown="myShown"
       :action-status="actionStatus"
       @block:show="onBlockShow"
       @block:hide="onBlockHide"
@@ -23,7 +23,7 @@
       class="ti-fill-parent"
       v-bind="theLayout"
       :schema="schema"
-      :shown="theShown"
+      :shown="myShown"
       :action-status="actionStatus"
       @block:show="onBlockShow"
       @block:hide="onBlockHide"
@@ -36,7 +36,7 @@
       class="ti-fill-parent"
       v-bind="theLayout"
       :schema="schema"
-      :shown="theShown"
+      :shown="myShown"
       :action-status="actionStatus"
       @block:show="onBlockShow"
       @block:hide="onBlockHide"
@@ -46,17 +46,22 @@
   <!--===========================================
     All float panels
   -->
-  <template v-if="hasPanels">
-    <ti-gui-panel v-for="(pan, index) in thePanels"
-      :key="index"
-      v-bind="pan"
-      :schema="schema"
-      :action-status="actionStatus"
-      :shown="theShown"
-      @block:show="onBlockShow"
-      @block:hide="onBlockHide"
-      @block:shown="onBlockShownUpdate"
-      @block:event="onBlockEvent"/>
+  <template v-for="pan in thePanels">
+    <transition :name="pan.transName">
+      <ti-gui-panel
+        v-if="pan.visible"
+          :key="pan.key"
+          v-bind="pan.panel"
+          :viewport-width="myViewportWidth"
+          :viewport-height="myViewportHeight"
+          :schema="schema"
+          :action-status="actionStatus"
+          :shown="myShown"
+          @block:show="onBlockShow"
+          @block:hide="onBlockHide"
+          @block:shown="onBlockShownUpdate"
+          @block:event="onBlockEvent"/>
+    </transition>
   </template>
   <!--===========================================
     Loading
