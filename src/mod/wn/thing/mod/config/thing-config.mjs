@@ -19,8 +19,19 @@ export default {
     setActions(state, actions) {
       state.actions = actions
     },
-    updateShown(state, shown) {
+    mergeShown(state, shown) {
       if(shown && !_.isEmpty(shown)) {
+        state.shown = _.assign({}, state.shown, shown)
+      }
+    },
+    persistShown(state) {
+      if(state.meta && state.meta.id) {
+        Ti.Storage.session.setObject(`${state.meta.id}-shown`, state.shown)
+      }
+    },
+    restoreShown(state) {
+      if(state.meta && state.meta.id) {
+        let shown = Ti.Storage.session.getObject(`${state.meta.id}-shown`)
         state.shown = _.assign({}, state.shown, shown)
       }
     }

@@ -58,24 +58,25 @@ GUI can auto-adapt the layout for `phone|tablet|desktop` by property `layout`.
 {
   desktop : {
     type : "rows",   // cols|rows|tabs
-    blocks : [..]
+    blocks : [..],
+    // Panels in special viewport mode
+    panels : [{
+      name : "xxx",  // panel name, unique in whole GUI
+      body : "ti-xxx"
+    }]
   },
   tablet : "desktop",
-  phone  : "desktop"
+  phone  : "desktop",
+  // Define the global panels here
+  panels : [{
+    name : "xxx",  // panel name, unique in whole GUI
+    body : "ti-xxx"
+  }]
 }
 ```
 
 Or, you can declare the layout `type/block` directly.
 
-
-## panels
-
-```js
-"panels" : {
-  type : Array,
-  default : ()=>[]
-}
-```
 
 ## schame
 
@@ -99,7 +100,7 @@ Each layout block can refer to `schema` to get a component fully defination like
 }
 ```
 
-## keepStatusTo
+## keepShownTo
 
 ```js
 "keepStatusTo" : {
@@ -107,10 +108,9 @@ Each layout block can refer to `schema` to get a component fully defination like
   default : null
 }
 ```
-Declare the local storage key for private status storage. The privated status includes:
+Declare the local storage key for private shown storage. 
 
-- `shown`
-- `layoutSizing`
+If the prop was without defined, the `shown` will not be stored as the privated propery. That's GUI `shown` will obey the input property `shown`.
 
 ## actionStatus
 
@@ -314,11 +314,21 @@ Closer      | Description
 ```js
 "mask" : {
   type : Boolean,
-  default : true
+  default : false
 }
 ```
-If `true`(default), it will enable mask layer to capture all user mouse operation duration
-the panel lifecycle.
+If `true`, it will enable mask layer to capture all user mouse operation duration the panel lifecycle. Default is `false`
+
+## clickMaskToClose
+
+```js
+"clickMaskToClose" : {
+  type : Boolean,
+  default : false
+}
+```
+If `mask==true`, this prop will cause the panel closed when user click the mask area. Default is `false`.
+
 
 -------------------------------------------------
 # Block

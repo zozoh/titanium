@@ -116,11 +116,12 @@ export default {
       }
     },
     //--------------------------------------
-    async changeTabs(tabs={}) {
-      Ti.App(this).dispatch("main/doChangeShown", tabs)
+    async changeShown(shown={}) {
+      Ti.App(this).dispatch("main/doChangeShown", shown)
     },
     //--------------------------------------
     showBlock(name) {
+      console.log("showBlock", name)
       // If creator, then must leave the recycle bin
       if("creator" == name) {
         if(this.status.inRecycleBin) {
@@ -183,13 +184,15 @@ export default {
         },
         //..................................
         // Select item in search list
-        "list.open" : ({current})=>{
-          //console.log("list.open", current)
+        "list.open" : ({rawData})=>{
+          //console.log("list.open", rawData)
           // Open customized block
-          Ti.App(this).commit("main/config/updateShown", this.config.listOpen)
+          // Sometimes, may user want open the both "content" and "file"
+          // at same time when dbl-click the one row
+          Ti.App(this).dispatch("main/config/updateShown", this.config.listOpen)
           // Update Current
           app.dispatch("main/setCurrentThing", {
-            meta : current, 
+            meta  : rawData, 
             force : false
           })
           // Update Checkes/Current to search
@@ -235,19 +238,11 @@ export default {
     }
   },
   ///////////////////////////////////////////
-  watch : {
-    // "config.actions" : function() {
-    //   this.$emit("actions:updated", this.config.actions)
-    // },
-    "shown" : function() {
-      //console.log("shown changed", JSON.stringify(this.shown))
-      if(this.meta && this.meta.id) {
-        Ti.Storage.session.setObject(this.meta.id, this.shown)
-      }
-    }
-  },
-  ///////////////////////////////////////////
   mounted : function() {
+    // Mark self in order to let `thing-files` set self
+    // to root `wn-thing-manager` instance
+    // then `openLocalFileSelectdDialogToUploadFiles`
+    // can assess the `thing-files` instance directly.
     this.THING_MANAGER_ROOT = true
   }
   ///////////////////////////////////////////

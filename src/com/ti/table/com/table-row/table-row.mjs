@@ -46,6 +46,10 @@ export default {
       type : Boolean,
       default : true
     },
+    "openable" : {
+      type : Boolean,
+      default : true
+    },
     "checkIcons" : {
       type : Object,
       default : ()=>({
@@ -134,6 +138,14 @@ export default {
           rowId  : this.rowId,
           shift  : $event.shiftKey,
           toggle : ($event.ctrlKey || $event.metaKey)
+        })
+      }
+    },
+    //-----------------------------------------------
+    onDblClickRow() {
+      if(this.openable) {
+        this.$emit("open", {
+          rowId  : this.rowId
         })
       }
     },

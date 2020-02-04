@@ -87,7 +87,11 @@ export default {
     },
     "mask" : {
       type : Boolean,
-      default : true
+      default : false
+    },
+    "clickMaskToClose" : {
+      type : Boolean,
+      default : false
     },
     "schema" : {
       type : Object,
@@ -145,6 +149,13 @@ export default {
     //--------------------------------------
     onClose() {
       this.$emit("block:hide", this.name)
+    },
+    //--------------------------------------
+    onClickMask() {
+      console.log("haha")
+      if(this.clickMaskToClose) {
+        this.$emit("block:hide", this.name)
+      }
     }
     //--------------------------------------
   }

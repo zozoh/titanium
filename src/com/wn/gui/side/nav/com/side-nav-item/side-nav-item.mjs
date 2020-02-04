@@ -8,16 +8,16 @@ export default {
   },
   ///////////////////////////////////////////
   props : {
-    groupStatusStoreKey : {type:String, default:null},
-    highlightId : {type:String, default:null},
-    id : {type:String, default:null},
-    depth : {type:Number, default:0},
-    icon  : {type:[String,Object], default:null},
-    title : {type:String, default:null},
-    path  : {type:String, default:null},
-    view  : {type:String, default:null},
-    href  : {type:String, default:null},
-    items : {
+    "groupStatusStoreKey" : {type:String, default:null},
+    "highlightId" : {type:String, default:null},
+    "id" : {type:String, default:null},
+    "depth" : {type:Number, default:0},
+    "icon"  : {type:[String,Object], default:null},
+    "title" : {type:String, default:null},
+    "path"  : {type:String, default:null},
+    "view"  : {type:String, default:null},
+    "href"  : {type:String, default:null},
+    "items" : {
       type : Array,
       default : ()=>[]
     }

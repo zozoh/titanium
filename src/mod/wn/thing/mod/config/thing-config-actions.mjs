@@ -2,6 +2,11 @@
 ////////////////////////////////////////////////
 export default {
   //----------------------------------------
+  updateShown({commit}, shown) {
+    commit("mergeShown", shown)
+    commit("persistShown")
+  },
+  //----------------------------------------
   async reloadSchema({state, commit}) {
     //console.log("reloadSchema")
     let aph  = `id:${state.meta.id}/thing-schema.json`
@@ -27,12 +32,12 @@ export default {
     let obj  = await Wn.Io.loadMeta(aph)
     let json = await Wn.Io.loadContent(obj, {as:"json"})
 
-    // Load shown from local before reload config
-    let shown = Ti.Storage.session.getObject(state.meta.id)
-    json.shown = _.assign({}, json.shown, shown)
-
     //console.log("setLayout", json)
     commit("setLayout", json)
+
+    // Load shown from local before reload config
+    commit("restoreShown")
+
     return json
   },
   //----------------------------------------

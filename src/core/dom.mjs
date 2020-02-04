@@ -179,6 +179,16 @@ export const TiDom = {
     }
     return true
   },
+  hasOneClass($el, ...classNames) {
+    if(!_.isElement($el)) {
+      return false
+    }
+    for(let klass of classNames) {
+      if($el.classList.contains(klass))
+        return true
+    }
+    return false
+  },
   applyRect($el, rect, keys="tlwh", viewport={}) {
     let $win = $el.ownerDocument.defaultView
     _.defaults(viewport, {

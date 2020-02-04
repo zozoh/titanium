@@ -1,5 +1,6 @@
 <div class="ti-table"
-  :class="topClass">
+  :class="topClass"
+  @click="onClickTop">
   <!--
     Blank
   -->
@@ -30,9 +31,10 @@
       <ul>
         <li
           v-for="fld in theDisplayFields"
+            class="table-head-cell"
             :style="headCellStyle(fld.index)"
             :col-index="fld.index">
-          <span>{{fld.title|i18n}}</span>
+          <span class="table-head-cell-text">{{fld.title|i18n}}</span>
         </li>
       </ul>
     </div
@@ -40,8 +42,7 @@
       Body
     -->
     <div class="table-body"
-      :style="tableStyle"
-      @click="onClickBody">
+      :style="tableStyle">
       <ti-table-row
         v-for="row in theData"
           :key="row.id"
@@ -56,9 +57,11 @@
           :checked-ids="myCheckedIds"
           :checkable="checkable"
           :selectable="selectable"
+          :openable="openable"
           @icon="$emit('icon', $event)"
           @checker="onRowCheckerClick"
           @select="onRowSelect"
+          @open="onRowOpen"
           @enter="onRowEnter"
           @leave="onRowLeave"
           @item:changed="onItemChanged"/>

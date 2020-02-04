@@ -81,6 +81,10 @@ export default {
       type : Boolean,
       default : true
     },
+    "openable" : {
+      type : Boolean,
+      default : true
+    },
     "cancelable" : {
       type : Boolean,
       default : true
@@ -295,6 +299,14 @@ export default {
       return -1
     },
     //--------------------------------------
+    findRowById(rowId) {
+      for(let row of this.theData) {
+        if(row.id == rowId) {
+          return row
+        }
+      }
+    },
+    //--------------------------------------
     getEmitContext(
       currentId, 
       checkedIds={}
@@ -449,13 +461,24 @@ export default {
       }
     },
     //--------------------------------------
+    onRowOpen({rowId}={}) {
+      let row = this.findRowById(rowId)
+      if(row) {
+        this.$emit("open", row)
+      }
+    },
+    //--------------------------------------
     onRowEnter({rowId}={}) {
-      this.myHoverId = rowId
+      if(this.hoverable) {
+        this.myHoverId = rowId
+      }
     },
     //--------------------------------------
     onRowLeave({rowId}={}) {
-      if(this.myHoverId == rowId) {
-        this.myHoverId = null
+      if(this.hoverable) {
+        if(this.myHoverId == rowId) {
+          this.myHoverId = null
+        }
       }
     },
     //--------------------------------------
@@ -470,9 +493,15 @@ export default {
       }
     },
     //--------------------------------------
-    onClickBody() {
+    onClickTop($event) {
       if(this.cancelable) {
-        this.cancelRow()
+        // Click The body or top to cancel the row selection
+        if(Ti.Dom.hasOneClass($event.target,
+            'ti-table', 'table-body',
+            'table-head-cell',
+            'table-head-cell-text')) {
+          this.cancelRow()
+        }
       }
     },
     //--------------------------------------

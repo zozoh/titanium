@@ -305,6 +305,18 @@ Show the checkbox at the begin or each row. Default is `false`.
 Can select
 
 -------------------------------------------------------------------
+## openable
+
+```js
+"openable" : {
+  type : Boolean,
+  default : true
+}
+```
+
+Can double-click one row to `open`
+
+-------------------------------------------------------------------
 ## cancelable
 
 ```js

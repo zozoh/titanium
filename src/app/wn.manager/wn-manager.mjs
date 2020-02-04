@@ -45,9 +45,15 @@ export default {
       return this.obj && this.obj.meta && !this.objIsHome
     },
     //---------------------------------------
-    theMetaId(){
+    theMetaId() {
       if(this.obj && this.obj.meta) {
         return this.obj.meta.id
+      }
+    },
+    //---------------------------------------
+    theMetaPath() {
+      if(this.obj && this.obj.meta) {
+        return this.obj.meta.ph
       }
     },
     //---------------------------------------
@@ -220,7 +226,7 @@ export default {
     //--------------------------------------
     async onBlockEvent(be={}) {
       let evKey = _.concat(be.block, be.name).join(".")
-      console.log("wn-manager:onBlockEvent",evKey, be)
+      //console.log("wn-manager:onBlockEvent",evKey, be)
       // Find Event Handler
       let FnSet = {
         // sidebar or title

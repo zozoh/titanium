@@ -1,11 +1,8 @@
 <ti-gui
   class="ti-obj-json"
   :class="className"
-  v-bind="theLayout"
+  keep-shown-to="ti-obj-json-editor"
+  :layout="theLayout"
   :schema="theSchema"
-  :shown="theShown"
   :can-loading="true"
-  @tabs:changed="changeTabsShown"
-  @block:show="showBlock"
-  @block:hide="hideBlock"
   @block:event="onBlockEvent"/>

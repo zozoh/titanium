@@ -5,7 +5,8 @@
   :shown="shown"
   :can-loading="true"
   :loading-as="guiLoading"
-  @tabs:changed="changeTabs"
+  :action-status="status"
   @block:show="showBlock"
   @block:hide="hideBlock"
+  @block:shown="changeShown"
   @block:event="onBlockEvent"/>

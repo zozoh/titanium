@@ -311,7 +311,7 @@ export default {
    */
   async doChangeShown({state, commit, dispatch}, shown) {
     // Just mark the shown
-    commit("config/updateShown", shown)
+    dispatch("config/updateShown", shown)
 
     // May need to be reload content/files ?
     await dispatch("tryReloadContentAndFiles")

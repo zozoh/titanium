@@ -1,6 +1,9 @@
 <div class="ti-gui-panel"
-  :class="topClass">
-  <div class="panel-con" :style="conStyle">
+  :class="topClass"
+  @click.left="onClickMask">
+  <div class="panel-con"
+    :style="conStyle"
+    @click.left.stop>
     <!--
       Block
     -->

@@ -17,15 +17,11 @@ export default {
         phone   : "desktop"
       })
     },
-    "panels" : {
-      type : Array,
-      default : ()=>[]
-    },
     "schema" : {
       type : Object,
       default : ()=>({})
     },
-    "keepStatusTo" : {
+    "keepShownTo" : {
       type : String,
       default : null
     },
@@ -52,8 +48,7 @@ export default {
     //--------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "is-loading" : this.isLoading,
-        "has-panels" : this.hasPanels
+        "is-loading" : this.isLoading
       }, this.className)
     },
     //--------------------------------------
@@ -91,26 +86,26 @@ export default {
       return "tabs" == this.theLayout.type
     },
     //--------------------------------------
-    hasPanels() {
-      return !_.isEmpty(this.panels)
-    },
-    //--------------------------------------
     thePanels() {
       let list = []
-      if(this.hasPanels) {
-        for(let i=0; i<this.panels.length; i++) {
-          let pan = this.panels[i]
-          let pos = Ti.Util.fallback(pan.position, "center")
-          list.push({
-            index     : i,
-            visible   : this.isShown(pan.name),
-            key       : `panel-${i}`,
-            transName : `ti-gui-panel-${pos}`,
-            panel     : pan
-          })
-        }
+
+      // Join Global Panels
+      this.joinThePanels(list, this.layout.panels, "G")
+
+      // Join Current Mode Panels
+      if(this.layout != this.theLayout) {
+        this.joinThePanels(list, this.theLayout.panels, this.viewportMode)
       }
+
+      // Done
       return list
+    },
+    //--------------------------------------
+    theShown() {
+      if(this.keepShownTo) {
+        return this.myShown
+      }
+      return this.shown
     },
     //--------------------------------------
     isLoading() {
@@ -133,10 +128,27 @@ export default {
     //--------------------------------------
     isShown(...names) {
       for(let name of names) {
-        if(this.myShown[name])
+        if(this.theShown[name])
           return true
       }
       return false
+    },
+    //--------------------------------------
+    joinThePanels(list=[], panels=[], keyPrefix="") {
+      if(_.isArray(panels) && panels.length > 0) {
+        for(let i=0; i<panels.length; i++) {
+          let pan = panels[i]
+          let pos = Ti.Util.fallback(pan.position, "center")
+          let index = list.length
+          list.push({
+            index,
+            visible   : this.isShown(pan.name),
+            key       : pan.name || `panel-${keyPrefix}-${index}`,
+            transName : `ti-gui-panel-${pos}`,
+            panel     : pan
+          })
+        }
+      }
     },
     //--------------------------------------
     updateShown(shown) {
@@ -146,15 +158,36 @@ export default {
     },
     //--------------------------------------
     onBlockShow(name) {
-      this.updateShown({[name]:true})
+      // Update privated status
+      if(this.keepShownTo) {
+        this.updateShown({[name]:true})
+      }
+      // Leave it to parent
+      else {
+        this.$emit("block:show", name)
+      }
     },
     //--------------------------------------
     onBlockHide(name) {
-      this.updateShown({[name]:false})
+      // Update privated status
+      if(this.keepShownTo) {
+        this.updateShown({[name]:false})
+      }
+      // Leave it to parent
+      else {
+        this.$emit("block:hide", name)
+      }
     },
     //--------------------------------------
     onBlockShownUpdate(shown) {
-      this.updateShown(shown)
+      // Update privated status
+      if(this.keepShownTo) {
+        this.updateShown(shown)
+      }
+      // Leave it to parent
+      else {
+        this.$emit("block:shown", shown)
+      }
     },
     //--------------------------------------
     onBlockEvent(payload) {
@@ -162,22 +195,22 @@ export default {
     },
     //--------------------------------------
     syncMyShown(...showns) {
-      this.myShown = _.assign({}, this.myShown, ...showns)
+      if(this.keepShownTo) {
+        this.myShown = _.assign({}, this.myShown, ...showns)
+      }
     },
     //--------------------------------------
     persistMyStatus() {
-      if(this.keepStatusTo) {
-        let status = {
-          shown : _.omitBy(this.myShown, (v)=>!v)
-        }
-        Ti.Storage.session.setObject(this.keepStatusTo, status)
+      if(this.keepShownTo) {
+        let shown = _.omitBy(this.myShown, (v)=>!v)
+        Ti.Storage.session.setObject(this.keepShownTo, shown)
       }
     },
     //--------------------------------------
     loadMyStatus() {
-      if(this.keepStatusTo) {
-        let status = Ti.Storage.session.getObject(this.keepStatusTo)
-        this.syncMyShown(this.shown, status.shown)
+      if(this.keepShownTo) {
+        let shown = Ti.Storage.session.getObject(this.keepShownTo)
+        this.syncMyShown(this.shown, shown)
       }
     },
     //--------------------------------------
@@ -191,6 +224,7 @@ export default {
   //////////////////////////////////////////
   watch : {
     "shown" : function(shown) {
+      //console.log("ti-gui shown changed", shown)
       this.syncMyShown(shown)
     }
   },

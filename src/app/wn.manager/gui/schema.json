@@ -23,7 +23,8 @@
     "comType" : "wn-gui-side-nav",
     "comConf" : {
       "items" : "=sidebar",
-      "highlightItemId" : "=theMetaId"
+      "highlightItemId"   : "=theMetaId",
+      "highlightItemPath" : "=theMetaPath"
     }
   },
   "pcMainArena" : {

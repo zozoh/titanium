@@ -1,10 +1,6 @@
 export default {
   inheritAttrs : false,
   //////////////////////////////////////////
-  data : ()=>({
-    theShown : {}
-  }),
-  //////////////////////////////////////////
   props : {
     "className" : null,
     "data" : null,
@@ -35,7 +31,7 @@ export default {
     theLayout() {
       return {
         type : "tabs",
-        tabAt : "bottom-right",
+        tabAt : "bottom-left",
         blocks : [{
           title : "结构",
           name  : "tree",
@@ -74,25 +70,25 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    doChangeShown(newShown={}) {
-      this.theShown = _.assign({}, this.theShown, newShown)
-    },
-    //--------------------------------------
-    changeTabsShown(tabs={}) {
-      this.doChangeShown(tabs)
-    },
-    //--------------------------------------
-    showBlock(name) {
-      this.doChangeShown({[name]:true})
-    },
-    //--------------------------------------
-    hideBlock(name) {
-      this.doChangeShown({[name]:false})
-    },
-    //--------------------------------------
-    onBlockEvent(be={}) {
-      let evKey = _.concat(be.block, be.name).join(".")
-      console.log("ti-obj-json:onBlockEvent",evKey, be)
+    onBlockEvent({block, name, args}={}) {
+      let evKey = _.concat(block, name).join(".")
+      let data = _.first(args)
+      console.log("ti-obj-json:onBlockEvent",evKey, args)
+      // Ignore the undefined data
+      if(_.isUndefined(data)) {
+        return
+      }
+      // Tree Component emit changed
+      if("tree.changed" == evKey) {
+        this.$emit("changed", data)
+      }
+      // Source Component changed, it will try eval json
+      else if("source.changed" == evKey) {
+        let jsonData = Ti.Types.safeParseJson(data)
+        if(!_.isUndefined(jsonData)) {
+          this.$emit("changed", jsonData)
+        }
+      }
     }
     //--------------------------------------
   }

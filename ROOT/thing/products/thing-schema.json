@@ -143,7 +143,19 @@
     "comConf" : {
       "filesName" : "=filesName",
       "files"     : "=files",
-      "showTitle" : null
+      "stateLocalKey" : "=meta.id",
+      "preview"   : "=preview",
+      "dirNameTip" : null,
+      "dirNameComType" : "ti-switcher",
+      "dirNameOptions" : [{
+          "icon"  :"zmdi-collection-image",
+          "text"  :"i18n:media",
+          "value" : "media"
+        }, {
+          "icon"  :"fas-paperclip",
+          "text"  :"i18n:attachment",
+          "value" : "attachment"
+        }]
     }
   }
 }

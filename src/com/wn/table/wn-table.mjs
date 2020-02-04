@@ -129,7 +129,7 @@ export default {
     },
     //----------------------------------------------
     onOpen(eventInfo) {
-      console.log("wn-table onOpen", eventInfo)
+      //console.log("wn-table onOpen", eventInfo)
       this.$emit("open", eventInfo)
     }
     //----------------------------------------------

@@ -9,6 +9,10 @@ export default {
     "highlightItemId" : {
       type : String,
       default : null
+    },
+    "highlightItemPath" : {
+      type : String,
+      default : null
     }
   },
   //////////////////////////////////////////
