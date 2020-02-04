@@ -152,7 +152,7 @@ export default {
     },
     //--------------------------------------
     updateShown(shown) {
-      console.log("updateShown", shown)
+      //console.log("updateShown", shown)
       this.syncMyShown(shown)
       this.persistMyStatus()
     },

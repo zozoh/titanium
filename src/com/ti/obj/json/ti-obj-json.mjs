@@ -3,6 +3,11 @@ export default {
   //////////////////////////////////////////
   props : {
     "className" : null,
+    "tabAt" : {
+      type : String,
+      default : "bottom-left",
+      validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
+    },
     "data" : null,
     "mainWidth" : {
       type : [String, Number],
@@ -31,7 +36,7 @@ export default {
     theLayout() {
       return {
         type : "tabs",
-        tabAt : "bottom-left",
+        tabAt : this.tabAt,
         blocks : [{
           title : "结构",
           name  : "tree",
