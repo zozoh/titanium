@@ -160,6 +160,16 @@ export const TiVue = {
         }
       })  // ~ Vue.directive("dragOff"
       //................................
+      // Directive: v-ti-on-actived="this"
+      Vue.directive("tiOnActived", {
+        bind : function($el, binding) {
+          $el.addEventListener("click", function(evt){
+            evt.stopPropagation()
+            Ti.Invoke(binding.value)
+          })
+        }
+      })
+      //................................
     }})  // ~ Vue.use({install:(Vue)=>{
   },
   /***

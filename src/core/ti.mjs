@@ -114,7 +114,9 @@ export const Ti = {
   },
   //-----------------------------------------------------
   InvokeBy(target={}, funcName, args=[], context) {
-    return Ti.Invoke(target[funcName], args, context||target)
+    if(target) {
+      return Ti.Invoke(target[funcName], args, context||target)
+    }
   },
   //-----------------------------------------------------
   async DoInvoke(fn, args=[], context) {
@@ -125,7 +127,9 @@ export const Ti = {
   },
   //-----------------------------------------------------
   async DoInvokeBy(target={}, funcName, args=[], context) {
-    return await Ti.DoInvoke(target[funcName], args, context||target)
+    if(target) {
+      return await Ti.DoInvoke(target[funcName], args, context||target)
+    }
   }
   //-----------------------------------------------------
 }

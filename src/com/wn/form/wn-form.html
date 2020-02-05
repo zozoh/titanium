@@ -1,20 +1,22 @@
-<div class="wn-form ti-fill-parent">
+<div class="wn-form"
+  :class="topClass">
   <!--
     Show data in form
   -->
-  <ti-form v-if="hasData"
-    default-com-type="wn-label"
-    :icon="icon"
-    :title="title"
-    :class-name="className"
-    :display="display"
-    :current-tab="currentTab"
-    :keep-tab-index-by="keepTabIndexBy"
-    :config="formedConfig"
-    :data="data"
-    :field-status="fieldStatus"
-    @changed="onChanged"
-    @invalid="onInvalid"/>
+  <ti-form
+    v-if="hasData"
+      class="ti-fill-parent"
+      default-com-type="wn-label"
+      :icon="icon"
+      :title="title"
+      :display="display"
+      :current-tab="currentTab"
+      :keep-tab-index-by="keepTabIndexBy"
+      :config="formedConfig"
+      :data="data"
+      :field-status="fieldStatus"
+      @changed="onChanged"
+      @invalid="onInvalid"/>
   <!--
     Empty Data
   -->

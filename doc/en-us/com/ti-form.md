@@ -108,6 +108,16 @@ Define the schema(`Object`) of  data presentation.
     //--------------------------------------------
     // Display
     //--------------------------------------------
+    // If defined the display field, it will show
+    // it as first. and double-click will cause 
+    // the UI change to "comType/comConf"
+    // when "comType" has been declared
+    display : {
+      /* @see ti-table field display item*/
+    }
+    //--------------------------------------------
+    // Edit Component
+    //--------------------------------------------
     // The component name, if undefined, it will auto evaluate by `type`
     comType : "ti-input",
     // The component properties, default is `undefined`

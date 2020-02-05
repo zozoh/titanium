@@ -8,6 +8,7 @@ const TI_CONF    = Symbol("ti-conf")
 const TI_STORE   = Symbol("ti-store")
 const TI_VM      = Symbol("ti-vm")
 const TI_VM_MAIN = Symbol("ti-vm-main")
+const TI_VM_ACTIVED = Symbol("ti-vm-actived")
 //---------------------------------------
 /***
 Encapsulate all stuffs of Titanium Application
@@ -98,6 +99,26 @@ export class OneTiApp {
     if(removeDom) {
       Ti.Dom.remove(this.$el)
     }
+  }
+  //---------------------------------------
+  setActivedVm(vm=null) {
+    this[TI_VM_ACTIVED] = vm
+    this.$store().commit("viewport/setCurrent", _.get(vm, "_uid"))
+  }
+  //---------------------------------------
+  setBlurredVm(vm=null) {
+    if(this[TI_VM_ACTIVED] == vm){
+      this[TI_VM_ACTIVED] = null
+      this.$store().commit("viewport/setCurrent", null)
+    }
+  }
+  //---------------------------------------
+  getActivedVm() {
+    return this[TI_VM_ACTIVED]
+  }
+  //---------------------------------------
+  fireCurrentVmShortcut(uniqKey) {
+    return Ti.InvokeBy(this.getActivedVm(), "__ti_shortcut", [uniqKey])
   }
   //---------------------------------------
   /***
@@ -279,7 +300,14 @@ export const TiApp = function(a0) {
   }
   // Get back App from Element
   if(_.isElement(a0)){
-    return a0[TI_APP]
+    let app = a0[TI_APP]
+    if(app)
+      return app
+
+    let vm = a0.__vue__
+    if(vm) {
+      return vm.$root[TI_APP]
+    }
   }
   // for Vue or Vuex
   if(a0 instanceof Vue) {
@@ -291,6 +319,28 @@ export const TiApp = function(a0) {
   }
   // return the app instance directly
   return new OneTiApp(a0)
+}
+//---------------------------------------
+const APP_STACK = []
+//---------------------------------------
+TiApp.pushInstance = function(app) {
+  if(app) {
+    APP_STACK.push(app)
+  }
+}
+//---------------------------------------
+TiApp.pullInstance = function(app) {
+  if(app) {
+    _.pull(APP_STACK, app)
+  }
+}
+//---------------------------------------
+TiApp.topInstance = function() {
+  return _.last(APP_STACK)
+}
+//---------------------------------------
+TiApp.hasTopInstance = function() {
+  return APP_STACK.length > 0
 }
 //---------------------------------------
 export default TiApp

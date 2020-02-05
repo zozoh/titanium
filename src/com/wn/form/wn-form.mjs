@@ -162,6 +162,9 @@ export default {
   },
   //////////////////////////////////////////////////////
   computed : {
+    topClass() {
+      return this.className
+    },
     formedConfig() {
       return formatObj(this, this.config);
     },

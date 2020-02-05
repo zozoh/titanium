@@ -64,6 +64,10 @@ export default {
   "defaultAs" : {
     default : undefined
   },
+  "display" : {
+    type : [String, Object],
+    default : null
+  },
   "comType" : {
     type : String,
     default : "ti-label"

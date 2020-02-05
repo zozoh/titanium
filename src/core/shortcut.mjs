@@ -138,6 +138,12 @@ class Shortcut {
    *  - `false` : action not found
    */
   fire(uniqKey) {
+    // Capture by current Vm
+    if(Ti.App.hasTopInstance()) {
+      if(false === Ti.App.topInstance().fireCurrentVmShortcut(uniqKey)) {
+        return
+      }
+    }
     // fire the action
     let as = this.actions[uniqKey]
     // Guard

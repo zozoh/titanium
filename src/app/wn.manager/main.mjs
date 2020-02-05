@@ -139,6 +139,8 @@ export async function main({
     Ti.SessionVar(envs)
   })
   //---------------------------------------
+  Ti.App.pushInstance(app)
+  //---------------------------------------
   // Load main data object
   let basePath = "~"
   if(_app.obj) {

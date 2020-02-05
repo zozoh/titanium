@@ -4,12 +4,16 @@ export default {
     // Auto PageMode
     ...Vuex.mapGetters("viewport", [
       "viewportMode", 
+      "viewportCurrentComponentId",
       "isViewportModeDesktop", 
       "isViewportModeTablet", 
       "isViewportModePhone",
       "isViewportModeDesktopOrTablet", 
       "isViewportModePhoneOrTablet"
-    ])
+    ]),
+    isActived() {
+      return this._uid === this.viewportCurrentComponentId
+    }
   },
   //////////////////////////////////////////
   created : async function(){
@@ -29,6 +33,17 @@ export default {
           await this.$parent.hijackEmit(name, args)
         }
       }
+    }
+    // Auto mark self as actived Component in App
+    this.__set_actived = ()=>{
+      Ti.App(this).setActivedVm(this)
+      this.$emit("actived", this)
+    }
+  },
+  //////////////////////////////////////////
+  destroyed : function(){
+    if(Ti.App(this).setBlurredVm(this)) {
+      this.$emit("blurred", this)
     }
   }
   //////////////////////////////////////////

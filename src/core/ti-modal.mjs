@@ -159,6 +159,7 @@ class TiModalDialog {
     app.$modal = this
     //........................................
     // Join to runtime
+    Ti.App.pushInstance(app)
     RTSTACK.push(this)
     //........................................
     _.assign(this, {
@@ -199,6 +200,7 @@ class TiModalDialog {
     let data2 = await beforeClose({data, ...context})
     //........................................
     // destroy app
+    Ti.App.pullInstance(app)
     app.destroy()
     Ti.Dom.remove($el)
     //........................................

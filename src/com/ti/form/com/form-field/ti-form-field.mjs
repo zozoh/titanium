@@ -32,14 +32,12 @@ export default {
   computed : {
     //----------------------------------------
     topClass() {
-      let klass = [`as-${this.viewportMode}`]
-      if(this.className) {
-        klass.push(this.className)
-      }
-      if(!this.statusIcons) {
-        klass.push("no-status")
-      }
-      return klass
+      return Ti.Css.mergeClassName({
+        "no-status"  : !this.statusIcon,
+        "is-actived" : this.isActived
+      }, [
+        `as-${this.viewportMode}`
+      ], this.className)
     },
     //----------------------------------------
     show() {
@@ -84,11 +82,17 @@ export default {
       return Ti.Util.getOrPick(this.data, this.name)
     },
     //----------------------------------------
-    componentType() {
+    theDisplay() {
+      if(this.display) {
+        
+      }
+    },
+    //----------------------------------------
+    theComType() {
       return this.comType
     },
     //----------------------------------------
-    componentOptions() {
+    theComConf() {
       let conf = this.comConf || {}
       // let conf2 = Ti.Util.explainObj(this.data, conf, {
       //   evalFunc : true
@@ -121,6 +125,7 @@ export default {
   },
   ////////////////////////////////////////////////
   methods : {
+    //--------------------------------------------
     onChanged(val) {
       // Customized value
       let v2 = val
@@ -149,7 +154,13 @@ export default {
           value : v2
         })
       }
+    },
+    //--------------------------------------------
+    __ti_shortcut(uniqKey) {
+      console.log("ti-form", uniqKey)
+      return false
     }
+    //--------------------------------------------
   }
   ////////////////////////////////////////////////
 }

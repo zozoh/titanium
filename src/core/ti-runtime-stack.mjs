@@ -1,3 +1,5 @@
+// TODO 
+// maybe we don't need this anymore, since we get the app.mjs#APP_STACK 
 export class TiRuntimeStack {
   //------------------------------------------
   constructor({setItemViewportMode=_.identity}={}) {

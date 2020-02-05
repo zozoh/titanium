@@ -1,5 +1,6 @@
 <div class="form-field"
-  :class="topClass">
+  :class="topClass"
+  v-ti-on-actived="__set_actived">
   <!--
     Field Name
   -->
@@ -29,8 +30,8 @@
     <div class="field-component"
       :class="fieldComClass"
       :style="fieldComStyle">
-      <component :is="componentType"
-        v-bind="componentOptions"
+      <component :is="theComType"
+        v-bind="theComConf"
         @changed="onChanged"/>
     </div>
     <!--Tips-->
