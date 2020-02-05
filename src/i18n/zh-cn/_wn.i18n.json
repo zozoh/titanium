@@ -27,5 +27,6 @@
   "wn-key-pvg" : "定制权限",
   "wn-key-width"    : "宽",
   "wn-key-height"   : "高",
-  "wn-key-duration" : "时长"
+  "wn-key-duration" : "时长",
+  "wn-obj-nosaved" : "您有未保存的对象"
 }

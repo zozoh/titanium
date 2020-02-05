@@ -1,0 +1,7 @@
+{
+  "name" : "wn-obj-json",
+  "globally" : true,
+  "template" : "./wn-obj-json.html",
+  "mixins" : ["./wn-obj-json.mjs"],
+  "components" : ["@com:ti/obj/json"]
+}

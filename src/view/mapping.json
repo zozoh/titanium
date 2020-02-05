@@ -7,7 +7,7 @@
   },
   "mimes" : {
     "text" : "text-editor",
-    "application/json" : "text-editor"
+    "application/json" : "json-editor"
   },
   "races" : {
     "DIR" : "obj-explorer",

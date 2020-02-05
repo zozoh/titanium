@@ -1,0 +1,13 @@
+<div class="wn-obj-puretext">
+  <!--
+    Show Text Editor
+  -->
+  <ti-obj-json v-if="hasMeta"
+    class="ti-fill-parent"
+    :data="data"
+    @changed="onChangeContent"/>
+  <!--
+    Empty Data
+  -->
+  <ti-loading v-else/>
+</div>

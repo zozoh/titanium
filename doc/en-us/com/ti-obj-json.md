@@ -41,6 +41,44 @@ The GUI base on `ti-tree` with one value field like:
 
 Any valid json data will be allowed.
 
+## tabAt
+
+```js
+"tabAt" : {
+  type : String,
+  default : "bottom-left",
+  validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
+}
+```
+
+## mainWidth
+
+```js
+"mainWidth" : {
+  type : [String, Number],
+  default : 200
+}
+```
+
+## border
+
+```js
+"border" : {
+  type : String,
+  default : "cell",
+  validator : v => /^(row|column|cell|none)$/.test(v)
+}
+```
+
+## showRoot
+
+```
+"showRoot" : {
+  type : Boolean,
+  default : true
+}
+```
+
 -------------------------------------------------------------------
 # Tree Data
 

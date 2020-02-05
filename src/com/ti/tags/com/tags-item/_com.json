@@ -1,6 +1,6 @@
 {
   "name" : "tags-item",
-  "globally" : true,
+  "globally" : false,
   "template" : "./tags-item.html",
   "mixins" : ["./tags-item.mjs"],
   "components" : ["@com:ti/icon/text"]
