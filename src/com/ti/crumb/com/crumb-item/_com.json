@@ -1,0 +1,6 @@
+{
+  "name" : "crumb-item",
+  "globally" : true,
+  "template" : "./crumb-item.html",
+  "mixins" : ["./crumb-item.mjs"]
+}

@@ -1,0 +1,82 @@
+.ti-tags {
+  @include noselect;
+  @include flex-align($ai:stretch,$ac:stretch);
+}
+//---------------------------------------------
+.ti-tags-item {
+  @include flex-align-nowrap($ai:stretch);
+  @include color($color-primary, r, c);
+  overflow: hidden; padding: 0; 
+  border-radius: 6px; margin:.02rem;
+  //-------------------------------------------
+  &.has-options {
+    cursor: pointer;
+  }
+  //-------------------------------------------
+  > .as-del {
+    padding:0 .06rem; cursor: pointer;
+    .icon-icon {
+      transition: .3s; opacity: .6;
+    }
+  }
+  //-------------------------------------------
+  > .as-icon {
+    padding:0 .04rem;
+  }
+  //-------------------------------------------
+  > .as-text {
+    @include flex-center;
+    color: inherit; text-decoration: inherit;
+    padding:0 0 .02rem .02rem;
+    &:hover {text-decoration: inherit;}
+    &.without-icon    {padding-left:.08rem;}
+    &.without-options {padding-right:.08rem;}
+  }
+  //-------------------------------------------
+  > .as-mark {
+    @include color($color-secondary, c);
+    @include flex-center;
+    font-weight: bold;
+    padding:0 .02rem;
+  }
+  //-------------------------------------------
+  > .as-status {
+    padding:0 .06rem;
+  }
+  //-------------------------------------------
+  &.is-enter-top {
+    @include color($color-secondary, r, c);
+  }
+  &.is-enter-del > .as-del {
+    @include color($color-secondary, r, c);
+    .icon-icon {
+      transform: rotate(180deg);
+      opacity: 1;
+    }
+  }
+  //-------------------------------------------
+  > .as-mask {
+    @include pos-fixed-full;
+    z-index:$z-mask + 2;
+  }
+  //-------------------------------------------
+  > .as-drop {
+    @include color($color-chip, r, c);
+    position: fixed; z-index:$z-mask + 3;
+    padding:1px; overflow: hidden;
+    border-radius: 6px; 
+    //-----------------------------------------
+    > .ti-icon-text {
+      @include border(1px, solid, shallow, top);
+      &:first-child {border-top:0}
+      padding:.04rem .1rem;
+      cursor: pointer;
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
+    }
+    //-----------------------------------------
+  }
+  //-------------------------------------------
+}
+//---------------------------------------------

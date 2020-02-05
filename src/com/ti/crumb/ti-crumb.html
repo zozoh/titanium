@@ -1,17 +1,12 @@
 <div class="ti-crumb"
   :class="topClass">
   <!--
-    Loop piece
+    Loop items
   -->
-  <ti-crumb-piece v-for="it in theData"
+  <crumb-item v-for="it in theData"
     :key="it.index"
-    v-bind="it"
-    :mode="mode"
+    :path-icon="pathIcon"
     :cancel-bubble="cancelItemBubble"
-    :option-icon="optionIcon"
-    :remove-icon="removeIcon"
-    :status-icons="statusIcons"
-    @changed="onPieceChanged"
-    @removed="onPieceRemoved"
-    @fire="onPieceFired"/>
+    v-bind="it"
+    @fire="onItemFired"/>
 </div>

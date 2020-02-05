@@ -4,6 +4,6 @@
   "template" : "./ti-crumb.html",
   "mixins" : ["./ti-crumb.mjs"],
   "components" : [
-    "@com:ti/crumb/piece"
+    "./com/crumb-item"
   ]
 }

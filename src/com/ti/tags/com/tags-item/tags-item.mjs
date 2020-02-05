@@ -9,19 +9,7 @@ export default {
   }),
   ////////////////////////////////////////////////////
   props : {
-    "className" : {
-      type : String,
-      default : null
-    },
-    /***
-     * Display mode
-     * - box  : as label boxes
-     * - path : as path like crumb
-     */
-    "mode" : {
-      type : String,
-      default : "box"
-    },
+    "className" : null,
     "index" : {
       type : Number,
       default : -1
@@ -45,10 +33,6 @@ export default {
     "value" : {
       type : [String, Number, Boolean, Object],
       default : null
-    },
-    "asterisk" : {
-      type : Boolean,
-      default : false
     },
     /***
      * Show drop list for changing the piece value
@@ -98,12 +82,10 @@ export default {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
+        "has-options"  :  this.hasOptions,
         "is-enter-top" : 'top' == this.mouseEnter && this.hasOptions,
-        "is-enter-del" : 'del' == this.mouseEnter,
-        "at-tail" : this.atLast,
-        "at-path" : !this.atLast,
-        "is-asterisk" : this.asterisk
-      }, `as-${this.mode}`, this.className)
+        "is-enter-del" : 'del' == this.mouseEnter
+      }, this.className)
     },
     //------------------------------------------------
     textClass() {
@@ -157,15 +139,6 @@ export default {
         }
       })
       return tags
-    },
-    //------------------------------------------------
-    isShowStatusIcon() {
-      if("box" == this.mode) {
-        return this.hasOptions
-      }
-      if("path" == this.mode) {
-        return !this.atLast
-      }
     },
     //------------------------------------------------
     theStatusIcon() {

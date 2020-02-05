@@ -2,11 +2,20 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   props : {
-    "className" : {
+    "className" : null,
+    "data" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "optionIcon" : {
       type : String,
       default : null
     },
-    "data" : {
+    "cancelItemBubble" : {
+      type : Boolean,
+      default : true
+    },
+    "itemOptions" : {
       type : Array,
       default : ()=>[]
     },
@@ -14,13 +23,16 @@ export default {
       type : String,
       default : null
     },
-    "pathIcon" : {
+    "removeIcon" : {
       type : String,
-      default : "zmdi-chevron-right"
+      default : "zmdi-close"
     },
-    "cancelItemBubble" : {
-      type : Boolean,
-      default : true
+    "statusIcons" : {
+      type : Object,
+      default : ()=>({
+        collapse : "zmdi-chevron-down",
+        extended : "zmdi-chevron-up"
+      })
     }
   },
   ////////////////////////////////////////////////////
@@ -36,7 +48,8 @@ export default {
       if(_.isArray(this.data)) {
         _.forEach(this.data, (val, index)=>{
           list.push(_.assign({
-            icon    : this.itemIcon
+            icon    : this.itemIcon,
+            options : this.itemOptions
           }, val, {index, atLast:index==this.data.length - 1}))
         })
       }
@@ -54,6 +67,22 @@ export default {
   },
   ////////////////////////////////////////////////////
   methods : {
+    //------------------------------------------------
+    onItemChanged(it={}) {
+      if(it.index >= 0) {
+        this.$emit("piece:changed", it)
+        let values = _.concat(this.theDataValues)
+        values[it.index] = Ti.Util.fallback(it.value, null)
+        this.$emit("changed", values)
+      }
+    },
+    //------------------------------------------------
+    onItemRemoved({index=-1}={}) {
+      if(index >= 0) {
+        let values = _.remove(this.theDataValues, (v,i)=>i!=index)
+        this.$emit("changed", values)
+      }
+    },
     //------------------------------------------------
     onItemFired({index=-1}={}) {
       if(index >= 0) {

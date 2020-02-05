@@ -1,0 +1,16 @@
+<div class="ti-tags"
+  :class="topClass">
+  <!--
+    Loop piece
+  -->
+  <tags-item v-for="it in theData"
+    :key="it.index"
+    v-bind="it"
+    :cancel-bubble="cancelItemBubble"
+    :option-icon="optionIcon"
+    :remove-icon="removeIcon"
+    :status-icons="statusIcons"
+    @changed="onItemChanged"
+    @removed="onItemRemoved"
+    @fire="onItemFired"/>
+</div>

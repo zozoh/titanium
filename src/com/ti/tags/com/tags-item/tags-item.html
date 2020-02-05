@@ -1,4 +1,4 @@
-<div class="ti-crumb-piece" 
+<div class="ti-tags-item" 
   :class="topClass"
   @mouseenter="mouseEnter='top'"
   @mouseleave="mouseEnter=null"
@@ -31,13 +31,10 @@
       class="as-text"
       :class="textClass">{{text|i18n}}</span>
   </template>
-  <span v-if="asterisk"
-    class="as-mark"
-    >*</span>
   <!--
     Status Icon
   -->
-  <ti-icon v-if="isShowStatusIcon"
+  <ti-icon v-if="hasOptions"
     class="as-status"
     :value="theStatusIcon"/>
   <!--

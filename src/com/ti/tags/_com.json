@@ -1,0 +1,9 @@
+{
+  "name" : "ti-tags",
+  "globally" : true,
+  "template" : "./ti-tags.html",
+  "mixins" : ["./ti-tags.mjs"],
+  "components" : [
+    "./com/tags-item"
+  ]
+}
