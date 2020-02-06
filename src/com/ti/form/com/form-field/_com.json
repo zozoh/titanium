@@ -1,7 +1,8 @@
 {
-  "name" : "ti-form-field",
-  "globally" : true,
-  "template" : "./ti-form-field.html",
-  "props" : "./ti-form-field-props.mjs",
-  "mixins" : ["./ti-form-field.mjs"]
+  "name" : "form-field",
+  "globally" : false,
+  "template" : "./form-field.html",
+  "methods"  : "@com:ti/support/field_display.mjs",
+  "props" : "./form-field-props.mjs",
+  "mixins" : ["./form-field.mjs"]
 }

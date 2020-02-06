@@ -8,10 +8,34 @@
           "title"   : "ID",
           "name"    : "id"
         }, {
-          "title" : "name",
+          "title" : "Name",
           "name"  : "name",
-          "display" : "name",
-          "comType" : "ti-input"
+          "display" : true,
+          "comType" : "ti-input",
+          "comConf" : {
+            "focus" : "${=isActived}"
+          }
+        }, {
+          "title" : "Brief",
+          "name"  : "brief",
+          "display" : true,
+          "comType" : "ti-input-text"
+        }, {
+          "title" : "Sex",
+          "name" : "sex",
+          "type"    : "Integer",
+          "display" : {
+            "transformer" : {
+              "name" : "toStr",
+              "args" : {"1":"男", "2":"女"}
+            }
+          },
+          "comType" : "ti-switcher",
+          "comConf" : {
+            "options" : [
+              {"icon":"fas-mars",  "value":1, "text":"男"},
+              {"icon":"fas-venus", "value":2, "text":"女"}]
+          }
         }]
       },
     "data" : {

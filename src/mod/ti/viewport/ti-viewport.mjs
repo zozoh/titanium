@@ -1,7 +1,7 @@
 export default {
   getters : {
     viewportMode : (state) => state.mode,
-    viewportCurrentComponentId : (state) => state.current,
+    viewportActivedComIds : (state) => state.activedIds,
     isViewportModeDesktop : (state)=> "desktop" == state.mode,
     isViewportModeTablet  : (state)=> "tablet" == state.mode,
     isViewportModePhone   : (state)=> "phone" == state.mode,
@@ -14,8 +14,8 @@ export default {
     setMode(state, mode="desktop") {
       state.mode = mode
     },
-    setCurrent(state, currentVmId) {
-      state.current = currentVmId
+    setActivedIds(state, activedIds=[]) {
+      state.activedIds = activedIds
     }
   }
 }

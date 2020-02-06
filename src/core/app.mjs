@@ -103,13 +103,13 @@ export class OneTiApp {
   //---------------------------------------
   setActivedVm(vm=null) {
     this[TI_VM_ACTIVED] = vm
-    this.$store().commit("viewport/setCurrent", _.get(vm, "_uid"))
+    this.$store().commit("viewport/setActivedIds", _.get(vm, "myIdPathArray"))
   }
   //---------------------------------------
   setBlurredVm(vm=null) {
     if(this[TI_VM_ACTIVED] == vm){
       this[TI_VM_ACTIVED] = null
-      this.$store().commit("viewport/setCurrent", null)
+      this.$store().commit("viewport/setActivedIds", [])
     }
   }
   //---------------------------------------
@@ -300,14 +300,13 @@ export const TiApp = function(a0) {
   }
   // Get back App from Element
   if(_.isElement(a0)){
-    let app = a0[TI_APP]
-    if(app)
-      return app
-
-    let vm = a0.__vue__
-    if(vm) {
-      return vm.$root[TI_APP]
+    let $el = a0
+    let app = $el[TI_APP]
+    while(!app && $el.parentElement) {
+      $el = $el.parentElement
+      app = $el[TI_APP]
     }
+    return app
   }
   // for Vue or Vuex
   if(a0 instanceof Vue) {

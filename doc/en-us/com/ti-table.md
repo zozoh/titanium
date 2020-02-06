@@ -103,6 +103,7 @@ It will be formatted to Array like:
     "isCurrent" : "${=isCurrent}",  // parent row is actived
     "isChecked" : "${=isChecked}",  // parent row is checked
     "isHover"   : "${=isHover}",    // parent row is hover
+    "isActived" : "${=isActived}",  // parent row is actived
     "rowId"     : "${=rowId}"       // parent row ID
   }
 }]
@@ -114,9 +115,29 @@ It can be `String` or `Array`:
 - `String` : dynamic picking or static value
   - `a.b.c` :  as key path to get the value
   - `'Hello'`: as static value to render directly
+  - `text+>/a/link?nm=${name}` : `+>` Link open in new tab
+  - `'More'->/a/link?id=${id}` : `->` Link open in same tab
 - `Array`  : as key set to pick out a new object
 
 **Note!!** If `key` is falsy, the field will be ignored
+
+-------------------------------------------------------------------
+## explainDict
+
+```js
+ "explainDict" : {
+  type : Function,
+  default : _.identity
+}
+```
+If `dict` key was declared in field display item, it will apply this callback to explain the display value. The function accepted two arguments `(value, dict)`. 
+
+- `value` is the display item raw value picked by `key`
+- `dict` is the display item `dict` setting.
+
+The function should return the explained value for given value. For supporting async fetch, `async function` has been allowed.
+
+Usually it would been use in `id->displayName` translation for some refer field in raw-data.
 
 -------------------------------------------------------------------
 ## idBy

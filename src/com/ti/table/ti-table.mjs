@@ -49,6 +49,10 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "explainDict" : {
+      type : Function,
+      default : _.identity
+    },
     "extendFunctionSet" : {
       type : Object,
       default : ()=>({})
@@ -516,38 +520,10 @@ export default {
       let items = []
       // Loop each items
       for(let li of displayItems) {
-        let m = /^<([^:>]*)(:([^>]+))?>$/.exec(li)
-        // Icon
-        if(m) {
-          items.push({
-            key       : m[1] || Symbol(li),
-            defaultAs : m[3] || undefined,
-            comType   : "ti-icon"
-          })
-          continue
+        let item = this.evalFieldDisplayItem(li)
+        if(item) {
+          items.push(item)
         }
-        // String|Array -> ti-label
-        if(_.isString(li) || _.isArray(li)) {
-          m = /^([^+-]+)(([+-])>(.+))?$/.exec(li)
-          let key  = _.trim(m[1] || m[0])
-          let newTab = m[3] == "+"
-          let href = _.trim(m[4])
-          items.push({
-            key,
-            comType : "ti-label",
-            comConf : {
-              newTab, href
-            }
-          })
-          continue
-        }
-        // Plan Object
-        if(_.isPlainObject(li) && li.key){
-          items.push(_.assign({
-            comType : "ti-label",
-          }, li))
-        }
-        // Ignore others ...
       }
       // Gen transformer for each item
       for(let it of items) {

@@ -4,15 +4,30 @@ export default {
     // Auto PageMode
     ...Vuex.mapGetters("viewport", [
       "viewportMode", 
-      "viewportCurrentComponentId",
+      "viewportActivedComIds",
       "isViewportModeDesktop", 
       "isViewportModeTablet", 
       "isViewportModePhone",
       "isViewportModeDesktopOrTablet", 
       "isViewportModePhoneOrTablet"
     ]),
+    // Auto count my useful id path array
+    myIdPathArray() {
+      let list = [this._uid]
+      let vm = this.$parent
+      while(vm) {
+        // Only the `v-ti-actived` marked Com join the parent paths
+        if(vm.$el.getAttribute("ti-actived")) {
+          list.push(vm._uid)
+        }
+        // Look up
+        vm = vm.$parent
+      }
+      return list.reverse()
+    },
+    // Auto detected current com is actived or not.
     isActived() {
-      return this._uid === this.viewportCurrentComponentId
+      return _.indexOf(this.viewportActivedComIds, this._uid) >= 0
     }
   },
   //////////////////////////////////////////

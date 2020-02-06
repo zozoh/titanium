@@ -161,8 +161,9 @@ export const TiVue = {
       })  // ~ Vue.directive("dragOff"
       //................................
       // Directive: v-ti-on-actived="this"
-      Vue.directive("tiOnActived", {
+      Vue.directive("tiActived", {
         bind : function($el, binding) {
+          $el.setAttribute("ti-actived", true)
           $el.addEventListener("click", function(evt){
             evt.stopPropagation()
             Ti.Invoke(binding.value)

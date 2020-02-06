@@ -120,6 +120,13 @@ export const TiConfig = {
   decorate(com) {
     if(_.isFunction(CONFIG.comDecorator)) {
       CONFIG.comDecorator(com)
+
+      // inner-components
+      if(com && com.components) {
+        _.forEach(com.components, (subCom)=>{
+          CONFIG.comDecorator(subCom)
+        })
+      }
     }
   },
   //...............................

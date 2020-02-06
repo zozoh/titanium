@@ -2,6 +2,7 @@
   "name" : "ti-form",
   "globally" : true,
   "template" : "./ti-form.html",
+  "methods"  : "@com:ti/support/field_display.mjs",
   "mixins" : ["./ti-form.mjs"],
   "components" : [
     "./com/form-group",

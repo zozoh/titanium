@@ -2,6 +2,7 @@
   "name" : "ti-table",
   "globally" : true,
   "template" : "./ti-table.html",
+  "methods" : "@com:ti/support/field_display.mjs",
   "mixins" : ["./ti-table.mjs"],
   "components" : [
     "./com/table-row",

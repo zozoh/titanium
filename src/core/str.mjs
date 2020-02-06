@@ -1,6 +1,8 @@
 export const TiStr = {
   renderVars(vars={}, fmt="", {
-    iteratee, regex=/\$\{([^}]+)\}/g
+    iteratee, 
+    regex=/\$\{([^}]+)\}/g, 
+    safe=false
   }={}) {
     if(_.isString(vars) || _.isNumber(vars)) {
       vars = {val:vars}
@@ -8,20 +10,27 @@ export const TiStr = {
     if(!vars || _.isEmpty(vars)){
       return _.isArray(vars) ? [] : ""
     }
-    return TiStr.renderBy(fmt, vars, iteratee, regex)
+    return TiStr.renderBy(fmt, vars, {
+      iteratee, regex, safe
+    })
   },
   /***
    * Replace the placeholder
    */
   renderBy(str="", vars={}, {
     iteratee, 
-    regex=/(\${1,2})\{([^}]+)\}/g
+    regex=/(\${1,2})\{([^}]+)\}/g,
+    safe=false
   }={}) {
     if(!str){
       return _.isArray(vars) ? [] : ""
     }
     // Make sure the `vars` empty-free
     vars = vars || {}
+    if(safe) {
+      let regex = _.isRegExp(safe) ? safe : undefined
+      vars = TiStr.safeDeep(vars, regex)
+    }
     // Normlized args
     if(_.isRegExp(iteratee)) {
       regex = iteratee
@@ -70,6 +79,30 @@ export const TiStr = {
     }
     // Return
     return ss.join("")
+  },
+  /***
+   * Replace the dangerous char in Object deeply.
+   * 
+   * @param data{Array|Object|Any} : the value to be turn to safe
+   * @param regex{RegExp} : which char should be removed
+   * 
+   * @return data
+   */
+  safeDeep(data={}, regex=/['"]/g) {
+    // String to replace
+    if(_.isString(data)) {
+      return data.replace(regex, "")
+    }
+    // Array
+    else if(_.isArray(data)) {
+      return _.map(data, (v)=>this.safeDeep(v, regex))
+    }
+    // Object
+    else if(_.isPlainObject(data)) {
+      return _.mapValues(data, (v)=>this.safeDeep(v, regex))
+    }
+    // Others return
+    return data
   },
   /***
    * Join without `null/undefined`

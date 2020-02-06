@@ -7,12 +7,6 @@ export default {
     "pointerHover" : null
   }),
   ////////////////////////////////////////////////////
-  watch : {
-    "focus" : function(v) {
-      this.isFocused = v
-    }
-  },
-  ////////////////////////////////////////////////////
   props : {
     "className" : null,
     "value" : null,
@@ -217,8 +211,24 @@ export default {
     //------------------------------------------------
     onClickSuffixText() {
       this.$emit("suffix:text")
+    },
+    //------------------------------------------------
+    doAutoFocus() {
+      if(this.focus && !this.isFocused) {
+        this.onInputFocus()
+      }  
     }
     //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    "focus" : function() {
+      this.doAutoFocus()
+    }
+  },
+  ////////////////////////////////////////////////////
+  mounted : function(){
+    this.doAutoFocus()
   }
   ////////////////////////////////////////////////////
 }

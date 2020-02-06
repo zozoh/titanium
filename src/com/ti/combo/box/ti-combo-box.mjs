@@ -85,7 +85,7 @@ export default {
         //..........................................
         // Mark parent to hold the place
         Ti.Dom.setStyle(this.$el, {
-          width  : r_box.width,
+          //width  : r_box.width,
           height : r_box.height
         })
         //..........................................

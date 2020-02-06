@@ -43,7 +43,7 @@
     -->
     <div class="table-body"
       :style="tableStyle">
-      <ti-table-row
+      <table-row
         v-for="row in theData"
           :key="row.id"
           :row-id="row.id"
@@ -58,6 +58,7 @@
           :checkable="checkable"
           :selectable="selectable"
           :openable="openable"
+          :explain-dict="explainDict"
           @icon="$emit('icon', $event)"
           @checker="onRowCheckerClick"
           @select="onRowSelect"

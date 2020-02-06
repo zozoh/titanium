@@ -32,7 +32,10 @@
         }
       }, {
         "title" : "发放用户",
-        "display" : "owner"
+        "display" : {
+          "key" : "owner",
+          "dict" : "AccountName"
+        }
       }, {
         "title" : "过期时间",
         "display" : {
@@ -161,7 +164,19 @@
             "comType" : "ti-input-datetime"
           },{
             "title"   : "发放用户",
-            "name"    : "owner"
+            "name"    : "owner",
+            "comType" : "ti-droplist",
+            "comConf" : {
+              "prefixIcon" : "zmdi-account",
+              "options" : {
+                "method" : "Wn.Dict.getAll",
+                "args" : ["AccountNames"]
+              },
+              "mapping" : {
+                "value" : "id",
+                "text"  : "nickname"
+              }
+            }
           },{
             "title"   : "使用时间",
             "name"    : "cpn_used",

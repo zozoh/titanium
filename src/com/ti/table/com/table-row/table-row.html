@@ -7,7 +7,7 @@
   <!--
     Cells
   -->
-  <ti-table-cell v-for="fld in fields"
+  <table-cell v-for="fld in fields"
     :key="fld.index"
     :row-id="rowId"
     v-bind="fld"
@@ -16,6 +16,7 @@
     :is-hover="isHover"
     :is-checked="isChecked"
     :data="data"
+    :explain-dict="explainDict"
     @item:changed="onItemChanged">
     <template v-if="fld.index == 0">
       <div class="table-row-head">
@@ -41,5 +42,5 @@
             @click.native.left.stop="onClickChecker"/>
       </div>
     </template>
-  </ti-table-cell>
+  </table-cell>
 </div>

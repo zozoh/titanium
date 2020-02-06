@@ -60,6 +60,10 @@ export default {
     "icon" : {
       type : [Boolean, String],
       default : null
+    },
+    "explainDict" : {
+      type : Function,
+      default : _.identity
     }
   },
   ///////////////////////////////////////////////////

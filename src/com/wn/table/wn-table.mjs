@@ -2,6 +2,12 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
+  data : ()=>({
+    explainDict : async function(value, dict){
+      return await Wn.Dict.get(dict, value)
+    }
+  }),
+  ///////////////////////////////////////////////////
   props : {
     "idBy" : {
       type : [String, Function],

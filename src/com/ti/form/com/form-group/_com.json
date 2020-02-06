@@ -1,7 +1,7 @@
 {
-  "name" : "ti-form-group",
-  "globally" : true,
-  "template" : "./ti-form-group.html",
-  "props" : "./ti-form-group-props.mjs",
-  "mixins" : ["./ti-form-group.mjs"]
+  "name" : "form-group",
+  "globally" : false,
+  "template" : "./form-group.html",
+  "props" : "./form-group-props.mjs",
+  "mixins" : ["./form-group.mjs"]
 }

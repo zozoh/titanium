@@ -1,56 +1,3 @@
-//////////////////////////////////////////////////
-function normlizeFormField(vm, fld, nbs=[]) {
-  let f2;
-  // For group
-  if('Group' == fld.type) {
-    f2 = {
-      className : fld.className,
-      type  : "Group",
-      icon  : fld.icon,
-      title : fld.title,
-      fields : []
-    }
-    // Recur ...
-    for(let i=0; i<fld.fields.length; i++) {
-      let subFld = fld.fields[i]
-      let sub2 = normlizeFormField(vm, subFld, [...nbs, i])
-      f2.fields.push(sub2)
-    }
-  }
-  // Normal field
-  else {
-    f2 = _.cloneDeep(fld)
-    f2.type = f2.type || "String"
-
-    // Default comType
-    if(!f2.comType) {
-      f2.comType = vm.defaultComType
-    }
-
-    // field status
-    let fstKey = [].concat(f2.name).join("-")
-    let fst = vm.fieldStatus[fstKey]
-    if(fst) {
-      f2.status  = fst.status
-      f2.message = fst.message
-    }
-
-    // Tidy form function
-    f2.serializer  = Ti.Types.getFuncBy(f2, "serializer", vm.fnSet)
-    f2.transformer = Ti.Types.getFuncBy(f2, "transformer", vm.fnSet)
-  }
-  // field key
-  f2.key = fld.name 
-            ? [].concat(fld.name).join("-")
-            : "ti-fld-" + nbs.join("-")
-  // return it
-  return f2
-}
-//////////////////////////////////////////////////
-const resize = function(evt){
-  this.__debounce_adjust_fields_width()
-}
-//////////////////////////////////////////////////
 export default {
   inheritAttrs : false,
   //////////////////////////////////////////////////////
@@ -92,6 +39,10 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "explainDict" : {
+      type : Function,
+      default : _.identity
+    },
     "data" : {
       type : Object,
       default : ()=>({})
@@ -128,12 +79,9 @@ export default {
     //.......................................
     theFields() {
       let list = []
-      if(_.isArray(this.config.fields)) {
-        for(let i=0; i<this.config.fields.length; i++) {
-          let fld = normlizeFormField(this, this.config.fields[i], [i])
-          list.push(fld)
-        }
-      }
+      _.forEach(this.config.fields, (fld, index)=>{
+        list.push(this.evalFormField(fld, [index]))
+      })
       return list
     },
     //.......................................
@@ -211,7 +159,7 @@ export default {
      * 
      * Defaultly, it will support the function set defined in `Ti.Types`
      */
-    fnSet() {
+    theFuncSet() {
       return _.assign({}, Ti.Types, this.config.extendFunctionSet)
     },
     //.......................................
@@ -222,6 +170,60 @@ export default {
   },
   //////////////////////////////////////////////////////
   methods : {
+    //----------------------------------------------
+    evalFormField(fld={}, nbs=[]) {
+      // The key
+      let fldKey = fld.name
+        ? [].concat(fld.name).join("-")
+        : "ti-fld-" + nbs.join("-")
+      //............................................
+      // For group
+      if('Group' == fld.type) {
+        let group = {
+          type        : "Group",
+          key         : fldKey,
+          className   : fld.className,
+          icon        : fld.icon,
+          title       : fld.title,
+          fields      : [],
+          explainDict : this.explainDict,
+        }
+        // Group fields
+        _.forEach(fld.fields, (subfld, index)=>{
+          let newSubFld = this.evalFormField(subfld, [...nbs, index])
+          if(newSubFld) {
+            group.fields.push(newSubFld)
+          }
+        })
+        // Done
+        return group
+      }
+      //............................................
+      // For Normal Field
+      if(fld.name) {
+        let field = _.defaults(_.cloneDeep(fld), {
+          type : "String",
+          comType : this.defaultComType
+        })
+
+        // field status
+        let fstKey = _.concat(field.name).join("-")
+        let fldsta = _.get(this.fieldStatus, fstKey)
+        if(status) {
+          field.status  = fldsta.status
+          field.message = fldsta.message
+        }
+
+        // Tidy form function
+        field.serializer  = Ti.Types.getFuncBy(field, "serializer", this.theFuncSet)
+        field.transformer = Ti.Types.getFuncBy(field, "transformer", this.theFuncSet)
+        field.explainDict = this.explainDict
+        field.funcSet     = this.theFuncSet
+
+        // Done
+        return field
+      }
+    },
     //----------------------------------------------
     onClickTab(tab) {
       this.currentTabIndex = tab.index
@@ -237,6 +239,7 @@ export default {
       //console.log("invalid", err)
       this.$emit("invalid", err)
     },
+    //----------------------------------------------
     //----------------------------------------------
     __adjust_fields_width() {
       // Find all field-name Elements
@@ -286,13 +289,24 @@ export default {
       this.__adjust_fields_width()
     }, 500)
   },
+  //////////////////////////////////////////////////////
   mounted : function() {
-    this.currentTabIndex = Ti.Storage.session.getInt(this.keepTabIndexBy, this.currentTab)
-    Ti.Viewport.watch(this, {resize})
+    //.................................................
+    this.currentTabIndex = 
+      Ti.Storage.session.getInt(
+          this.keepTabIndexBy, this.currentTab
+      )
+    //.................................................
+    Ti.Viewport.watch(this, {resize:()=>{
+      this.__debounce_adjust_fields_width()
+    }})
+    //.................................................
     this.$nextTick(()=>{
       this.__adjust_fields_width()
     })
+    //.................................................
   },
+  //////////////////////////////////////////////////////
   beforeDestroy : function(){
     Ti.Viewport.unwatch(this)
   }

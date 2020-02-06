@@ -44,6 +44,24 @@ Only effectived when `display:"tab"`
 
 Declare the default field `comType`. Default is `ti-label`
 
+## explainDict
+
+```js
+ "explainDict" : {
+  type : Function,
+  default : _.identity
+}
+```
+
+If `dict` key was declared in field display item, it will apply this callback to explain the display value. The function accepted two arguments `(value, dict)`. 
+
+- `value` is the display item raw value picked by `key`
+- `dict` is the display item `dict` setting.
+
+The function should return the explained value for given value. For supporting async fetch, `async function` has been allowed.
+
+Usually it would been use in `id->displayName` translation for some refer field in raw-data.
+
 ## config
 
 Define the schema(`Object`) of  data presentation.

@@ -7,11 +7,23 @@
   "lang" : "zh-cn",
   "i18n" : "@Home:.ti/i18n/all",
   "dictionary" : {
+    "tmp" : {
+      "mode"  : "item",
+      "query" : "obj id:${val} -cqn",
+      "key"   : "=id",
+      "value" : ".."
+    },
     "AccountName" : {
       "mode"  : "item",
-      "query" : "thing ~/accounts get '${val}' -e '^(id|th_nm)$' -cqn",
+      "query" : "thing ~/accounts get '${val}' -e '^(id|nickname)$' -cqn",
       "key"   : "=id",
-      "value" : "=th_nm"
+      "value" : "=nickname"
+    },
+    "AccountNames" : {
+      "mode"  : "list",
+      "query" : "thing ~/accounts query -sort 'th_sort:1' -e '^(id|nickname)' -cqn",
+      "key"   : "=id",
+      "value" : "=nickname"
     },
     "RoleNames" : {
       "mode"  : "list",

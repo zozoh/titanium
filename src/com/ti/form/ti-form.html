@@ -1,6 +1,6 @@
 <div class="ti-form"
   :class="topClass"
-  v-ti-on-actived="__set_actived">
+  v-ti-actived="__set_actived">
   <!--
     Form Header
   -->
@@ -33,7 +33,7 @@
       <!--
         For Group
       -->
-      <ti-form-group v-if="'Group' == fld.type"
+      <form-group v-if="'Group' == fld.type"
         v-bind="fld"
         :data="data"
         :status-icons="config.statusIcons"
@@ -42,7 +42,7 @@
       <!--
         For field
       -->
-      <ti-form-field v-else
+      <form-field v-else
         :key="fld.key"
         v-bind="fld"
         :data="formData"

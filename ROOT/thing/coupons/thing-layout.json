@@ -35,7 +35,6 @@
       "name"  : "meta",
       "title" : "优惠券属性",
       "icon"  : "zmdi-info",
-      "size"  : "stretch",
       "body"  : "meta"
     }],
     "panels" : [{

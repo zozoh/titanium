@@ -65,8 +65,16 @@ export default {
     default : undefined
   },
   "display" : {
-    type : [String, Object],
-    default : null
+    type : [String, Object, Boolean],
+    default : false
+  },
+  "explainDict" : {
+    type : Function,
+    default : _.identity
+  },
+  "funcSet" : {
+    type : Object,
+    default : ()=>({})
   },
   "comType" : {
     type : String,
@@ -76,10 +84,10 @@ export default {
     type : Object,
     default : ()=>({})
   },
-  "comValueKey" : {
-    type : String,
-    default : "value"
-  },
+  // "comValueKey" : {
+  //   type : String,
+  //   default : "value"
+  // },
   "serializer" : {
     type : Function,
     default : _.identity
