@@ -1,8 +1,8 @@
 export const TiStr = {
   renderVars(vars={}, fmt="", {
     iteratee, 
-    regex=/\$\{([^}]+)\}/g, 
-    safe=false
+    regex, 
+    safe
   }={}) {
     if(_.isString(vars) || _.isNumber(vars)) {
       vars = {val:vars}
@@ -28,8 +28,8 @@ export const TiStr = {
     // Make sure the `vars` empty-free
     vars = vars || {}
     if(safe) {
-      let regex = _.isRegExp(safe) ? safe : undefined
-      vars = TiStr.safeDeep(vars, regex)
+      let r2 = _.isRegExp(safe) ? safe : undefined
+      vars = TiStr.safeDeep(vars, r2)
     }
     // Normlized args
     if(_.isRegExp(iteratee)) {
