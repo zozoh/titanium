@@ -13,13 +13,18 @@
           "display" : true,
           "comType" : "ti-input",
           "comConf" : {
-            "focus" : "${=isActived}"
+            "focus" : "${=isActived}",
+            "autoSelect" : false
           }
         }, {
           "title" : "Brief",
           "name"  : "brief",
           "display" : true,
-          "comType" : "ti-input-text"
+          "comType" : "ti-input-text",
+          "comConf" : {
+            "focus" : "${=isActived}",
+            "autoSelect" : false
+          }
         }, {
           "title" : "Sex",
           "name" : "sex",

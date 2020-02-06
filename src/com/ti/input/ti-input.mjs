@@ -182,8 +182,12 @@ export default {
     },
     //------------------------------------------------
     onInputFocus() {
-      if(this.autoSelect && !this.readonly) {
-        this.$refs.input.select()
+      if(!this.readonly) {
+        if(this.autoSelect) {
+          this.$refs.input.select()
+        } else {
+          this.$refs.input.focus()
+        }
       }
       this.isFocused = true
       this.$emit("focused")      

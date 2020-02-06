@@ -194,8 +194,12 @@ export default {
     },
     //------------------------------------------------
     onInputFocus() {
-      if(this.autoSelect && !this.readonly) {
-        this.$refs.input.select()
+      if(!this.readonly) {
+        if(this.autoSelect) {
+          this.$refs.input.select()
+        } else {
+          this.$refs.input.focus()
+        }
       }
       this.isFocused = true
       this.$emit("focused")      
@@ -223,8 +227,24 @@ export default {
     //------------------------------------------------
     onClickSuffixText() {
       this.$emit("suffix:text")
+    },
+    //------------------------------------------------
+    doAutoFocus() {
+      if(this.focus && !this.isFocused) {
+        this.onInputFocus()
+      }  
     }
     //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    "focus" : function() {
+      this.doAutoFocus()
+    }
+  },
+  ////////////////////////////////////////////////////
+  mounted : function(){
+    this.doAutoFocus()
   }
   ////////////////////////////////////////////////////
 }
