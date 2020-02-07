@@ -17,9 +17,17 @@ export default {
       default : "cell",
       validator : v => /^(row|column|cell|none)$/.test(v)
     },
+    "autoOpen" : {
+      type : Boolean,
+      default : false
+    },
     "showRoot" : {
       type : Boolean,
       default : true
+    },
+    "editing" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////
@@ -32,7 +40,10 @@ export default {
         comConf : (it)=>({
           className : _.kebabCase(`is-${it.nameType}`),
           editable  : 'Key' == it.nameType,
-          format : 'Index' == it.nameType ? "[${val}]" : undefined,
+          format : ({
+              "Index" : "[${val}]",
+              "Label" : "i18n:json-${val}"
+            })[it.nameType]
         })
       }
     },
@@ -43,7 +54,7 @@ export default {
         display : {
           key : "value",
           ignoreNil : false,
-          comType : "ti-obj-json-value",
+          comType : "ti-obj-json-tree-item",
           comConf : {
             valueType   : "${valueType}",
             valuePath   : "${=rowId}",
@@ -62,14 +73,8 @@ export default {
       // Join the top data
       this.joinTreeTableRow(list, this.data)
 
-      // Unwrap root
-      if(!this.showRoot && list.length==1) {
-        this.theTreeData = list[0].children
-      }
-      // Set the data
-      else {
-        this.theTreeData = list
-      }
+      // Update Tree Data
+      this.theTreeData = list
     },
     //--------------------------------------
     getJsValueType(val) {
@@ -92,7 +97,7 @@ export default {
       // Default itemKey is self-type
       // For top leval
       if(_.isUndefined(key)) {
-          key = `i18n:json-${valueType}`
+          key = valueType
           nameType = "Label"
       }
       // Index key
@@ -414,8 +419,8 @@ export default {
       // Fail to find the converter, return undeinfed to cancel
     },
     //--------------------------------------
-    async onItemChanged({name, value, data, node}={}) {
-      console.log({name,value, data, node})
+    async onItemChanged({name, value, data, node, nodeId}={}) {
+      console.log({name,value, data, node, nodeId})
       //....................................
       // Guard it
       if(!node.id) {
@@ -448,7 +453,7 @@ export default {
       // Modify the Array/Object
       else {
         let keys = path
-        if(/^i18n:json-(Array|Object)$/.test(path[0])) {
+        if(/^(Array|Object)$/.test(path[0])) {
           keys = _.slice(path, 1).join(".")
         }
         // Set the Key

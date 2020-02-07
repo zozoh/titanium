@@ -71,6 +71,8 @@ export default {
     //-----------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
+        "is-self-actived" : this.isSelfActived,
+        "is-actived" : this.isActived,
         "is-current" : this.isCurrent,
         "is-checked" : this.isChecked,
         "is-hover"   : this.isHover,
@@ -164,10 +166,24 @@ export default {
       this.$emit("leave", {
         rowId  : this.rowId
       })
+    },
+    //-----------------------------------------------
+    doAutoActived() {
+      if(!this.isActived && this.isCurrent) {
+        this.__set_actived()
+      }
     }
     //-----------------------------------------------
-  }
+  },
   ///////////////////////////////////////////////////
-
+  watch : {
+    "isCurrent" : function() {
+      this.doAutoActived()
+    }
+  },
+  ///////////////////////////////////////////////////
+  mounted : function(){
+    this.doAutoActived()
+  }
   ///////////////////////////////////////////////////
 }

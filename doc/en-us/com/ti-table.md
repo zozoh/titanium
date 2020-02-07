@@ -409,8 +409,18 @@ Indicate the border aspect.
   default : true
 }
 ```
-
 Auto scroll the first highlight item into view
+
+-------------------------------------------------------------------
+## scrollIndex
+
+```js
+"scrollIndex" : {
+  type : Boolean,
+  default : false
+}
+```
+If select row by index, auto-scroll the index into range.
 
 -------------------------------------------------------------------
 # data

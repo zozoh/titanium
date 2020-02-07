@@ -3,9 +3,10 @@
   :main-width="mainWidth"
   :class="className"
   :border="border"
+  :multi="true"
   :data="theTreeData"
   :display="theTreeDisplay"
-  :auto-open="true"
+  :auto-open="autoOpen"
   :default-open-depth="2"
   :fields="theTreeFields"
   @item:changed="onItemChanged"/>

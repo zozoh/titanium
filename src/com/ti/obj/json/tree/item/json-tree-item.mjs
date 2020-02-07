@@ -23,6 +23,13 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
+    topClass() {
+      return Ti.Css.mergeClassName({
+        "is-self-actived" : this.isSelfActived,
+        "is-actived" : this.isActived
+      })
+    },
+    //--------------------------------------
     isLabel() {
       return /^(Array|Object)$/.test(this.valueType)
     },

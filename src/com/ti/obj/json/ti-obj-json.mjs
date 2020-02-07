@@ -9,18 +9,9 @@ export default {
       validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
     },
     "data" : null,
-    "mainWidth" : {
-      type : [String, Number],
-      default : 200
-    },
-    "border" : {
-      type : String,
-      default : "cell",
-      validator : v => /^(row|column|cell|none)$/.test(v)
-    },
-    "showRoot" : {
-      type : Boolean,
-      default : true
+    "tree" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////
@@ -53,13 +44,9 @@ export default {
       return {
         "desktop-tree" : {
           comType : "ti-obj-json-tree", 
-          comConf : {
-            className : this.className,
-            data      : this.data,
-            mainWidth : this.mainWidth,
-            border    : this.border,
-            showRoot  : this.showRoot
-          }
+          comConf : _.assign({}, this.tree, {
+            data      : this.data
+          })
         },
         "desktop-source" : {
           comType : "ti-text-raw",

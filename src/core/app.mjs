@@ -103,13 +103,16 @@ export class OneTiApp {
   //---------------------------------------
   setActivedVm(vm=null) {
     this[TI_VM_ACTIVED] = vm
-    this.$store().commit("viewport/setActivedIds", _.get(vm, "myIdPathArray"))
+    let aIds = vm.tiActivableComIdPath()
+    this.$store().commit("viewport/setActivedIds", aIds)
   }
   //---------------------------------------
   setBlurredVm(vm=null) {
     if(this[TI_VM_ACTIVED] == vm){
-      this[TI_VM_ACTIVED] = null
-      this.$store().commit("viewport/setActivedIds", [])
+      let $pvm = vm.tiParentActivableCom()
+      this[TI_VM_ACTIVED] = $pvm
+      let aIds = $pvm ? $pvm.tiActivableComIdPath() : []
+      this.$store().commit("viewport/setActivedIds", aIds)
     }
   }
   //---------------------------------------
@@ -117,8 +120,24 @@ export class OneTiApp {
     return this[TI_VM_ACTIVED]
   }
   //---------------------------------------
-  fireCurrentVmShortcut(uniqKey) {
-    return Ti.InvokeBy(this.getActivedVm(), "__ti_shortcut", [uniqKey])
+  fireActivedVmShortcut(uniqKey) {
+    let re = {
+      stop    : false,
+      prevent : false,
+      quit    : false
+    };
+    let vm = this.getActivedVm()
+    if(vm) {
+      // Try to find the closest actived VM which with the __ti_shortcut
+      let vmPath = vm.tiActivableComPath()
+      for(let aVm of vmPath) {
+        if(_.isFunction(aVm.__ti_shortcut)) {
+          // Then to fire
+          _.assign(re, aVm.__ti_shortcut(uniqKey))
+        }
+      }
+    }
+    return re
   }
   //---------------------------------------
   /***

@@ -26,6 +26,10 @@
   overflow:hidden auto;
 }
 //...................................................
+.is-self-actived {
+  background: rgba(255,255,0,0.2);
+}
+//...................................................
 .ti-mask {
   @include pos-fixed-full;
   background-color:rgba(0,0,0,0);

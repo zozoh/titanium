@@ -51,7 +51,9 @@ export default {
     //--------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "is-blank" : !_.isNumber(this.theValue) && _.isEmpty(this.theValue)
+        "is-self-actived" : this.isSelfActived,
+        "is-actived" : this.isActived,
+        "is-blank"   : !_.isNumber(this.theValue) && _.isEmpty(this.theValue)
       }, this.className)
     },
     //--------------------------------------

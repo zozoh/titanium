@@ -2,7 +2,7 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   data : ()=>({
-    myLastIndex: 0,       // The last row index selected by user
+    myLastIndex: -1,      // The last row index selected by user
     myCurrentId: null,    // Current row ID
     myHoverId  : null,    // The row mouse hover
     myCheckedIds: {},     // Which row has been checked
@@ -95,7 +95,7 @@ export default {
     },
     "hoverable" : {
       type : Boolean,
-      default : true
+      default : false
     },
     "puppetMode" : {
       type : Boolean,
@@ -124,19 +124,25 @@ export default {
     "autoScrollIntoView" : {
       type : Boolean,
       default : true
+    },
+    "scrollIndex" : {
+      type : Boolean,
+      default : false
     }
   },
   ///////////////////////////////////////////////////
   computed : {
     //--------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName([
-        `is-border-${this.border}`,
-        `is-head-${this.head||"none"}`,
-      ], {
+      return Ti.Css.mergeClassName({
+        "is-self-actived" : this.isSelfActived,
+        "is-actived"     : this.isActived,
         "is-when-layout" : this.whenTableLayout,
         "is-hoverable"   : this.hoverable
-      },this.className)
+      }, [
+        `is-border-${this.border}`,
+        `is-head-${this.head||"none"}`,
+      ], this.className)
     },
     //--------------------------------------
     topStyle() {
@@ -345,6 +351,26 @@ export default {
       this.$emit("selected", emitContext)
     },
     //--------------------------------------
+    selectRowByIndex(rowIndex) {
+      //console.log(rowIndex)
+      let index = rowIndex
+      if(this.scrollIndex) {
+        index = Ti.Num.scrollIndex(rowIndex, this.theData.length)
+      }
+      if(_.inRange(index, 0, this.theData.length)) {
+        let row = this.theData[index]
+        this.selectRow(row.id)
+      }
+    },
+    //--------------------------------------
+    selectPrevRow() {
+      this.selectRowByIndex(Math.max(-1, this.myLastIndex-1))
+    },
+    //--------------------------------------
+    selectNextRow() {
+      this.selectRowByIndex(this.myLastIndex+1)
+    },
+    //--------------------------------------
     selectRowsToCurrent(rowId) {
       let theCheckedIds = _.cloneDeep(this.myCheckedIds)
       let theCurrentId  = this.myCurrentId
@@ -402,7 +428,7 @@ export default {
     cancelRow(rowId) {
       let theCheckedIds = _.cloneDeep(this.myCheckedIds)
       let theCurrentId  = this.myCurrentId
-      let theIndex = 0
+      let theIndex = -1
       if(_.isUndefined(rowId)) {
         theCheckedIds = {}
         theCurrentId = null
@@ -451,12 +477,12 @@ export default {
     },
     //--------------------------------------
     onRowSelect({rowId, shift, toggle}={}) {
-      // Shift Mode
-      if(shift) {
+      // Multi + Shift Mode
+      if(shift && this.multi) {
         this.selectRowsToCurrent(rowId)
       }
-      // Toggle Mode
-      else if(toggle) {
+      // Multi + Toggle Mode
+      else if(toggle && this.multi) {
         this.toggleRow(rowId)
       }
       // Single Mode
@@ -670,7 +696,7 @@ export default {
       this.myCurrentId = this.currentId
       this.myLastIndex = this.currentId
         ? this.findRowIndexById(this.currentId)
-        : 0
+        : -1
     },
     //--------------------------------------
     syncCheckedIds() {
@@ -678,6 +704,43 @@ export default {
       _.forEach(this.checkedIds, (rowId)=>{
         this.myCheckedIds[rowId] = true
       })
+    },
+    //--------------------------------------
+    scrollCurrentIntoView() {
+      if(this.autoScrollIntoView && this.myLastIndex>=0) {
+        let $tbody = this.$refs.body
+        let $row = Ti.Dom.find(`.table-row:nth-child(${this.myLastIndex+1})`, $tbody)
+
+        let tbody = Ti.Rects.createBy($tbody)
+        let row = Ti.Rects.createBy($row)
+
+        // test it need to scroll or not
+        if(!tbody.contains(row)) {
+          // at bottom
+          if(row.bottom > tbody.bottom) {
+            $tbody.scrollTop += row.bottom - tbody.bottom
+          }
+          // at top
+          else {
+            $tbody.scrollTop += row.top - tbody.top
+          }
+        }
+        // Prevent the default scrolling
+        return {prevent:true}
+      }
+    },
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-table", uniqKey)
+      if("ARROWUP" == uniqKey) {
+        this.selectPrevRow()
+        return this.scrollCurrentIntoView()
+      }
+
+      if("ARROWDOWN" == uniqKey) {
+        this.selectNextRow()
+        return this.scrollCurrentIntoView()
+      }
     }
     //--------------------------------------
   },

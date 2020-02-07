@@ -82,11 +82,13 @@ export default {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName(this.className, {
-        "show-border"  : !this.hideBorder,
-        "hide-border"  : this.hideBorder,
+        "is-self-actived" : this.isSelfActived,
+        "is-actived"   : this.isActived,
         "is-focused"   : this.isFocused,
         "is-blurred"   : !this.isFocused,
         "is-readonly"  : this.readonly,
+        "show-border"  : !this.hideBorder,
+        "hide-border"  : this.hideBorder,
         "has-prefix-icon" : this.thePrefixIcon,
         "has-prefix-text" : this.prefixText,
         "has-suffix-icon" : this.suffixIcon,
@@ -190,12 +192,16 @@ export default {
         }
       }
       this.isFocused = true
-      this.$emit("focused")      
+      this.$emit("input:focused")
+      // Auto Actived
+      if(!this.isActived) {
+        this.__set_actived()
+      }
     },
     //------------------------------------------------
     onInputBlur() {
       this.isFocused = false
-      this.$emit("blurred")
+      this.$emit("input:blurred")
     },
     //------------------------------------------------
     onClickPrefixIcon() {

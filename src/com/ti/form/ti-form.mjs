@@ -6,6 +6,7 @@ export default {
   }),
   //////////////////////////////////////////////////////
   props : {
+    "className" : null,
     "icon" : {
       type : String,
       default : null
@@ -62,11 +63,20 @@ export default {
   },
   //////////////////////////////////////////////////////
   computed : {
-    //.......................................
+    //--------------------------------------------------
+    topClass() {
+      return Ti.Css.mergeClassName({
+        "is-self-actived" : this.isSelfActived,
+        "is-actived" : this.isActived
+      }, [
+        `as-${this.viewportMode}`
+      ], this.className)
+    },
+    //--------------------------------------------------
     hasHeader() {
       return this.title || this.icon ? true : false
     },
-    //.......................................
+    //--------------------------------------------------
     topClass() {
       let spacing = this.config.spacing || "comfy"
       return Ti.Css.mergeClassName(
@@ -76,7 +86,7 @@ export default {
           "display-as-all": this.isDisplayAsAll
         })
     },
-    //.......................................
+    //--------------------------------------------------
     theFields() {
       let list = []
       _.forEach(this.config.fields, (fld, index)=>{
@@ -84,15 +94,15 @@ export default {
       })
       return list
     },
-    //.......................................
+    //--------------------------------------------------
     isDisplayAsTab() {
       return 'tab' == this.display
     },
-    //.......................................
+    //--------------------------------------------------
     isDisplayAsAll() {
       return 'all' == (this.diaplay||"all")
     },
-    //.......................................
+    //--------------------------------------------------
     theTabList() {
       let list = []
       let otherFields = []
@@ -117,7 +127,7 @@ export default {
       }
       return list;
     },
-    //.......................................
+    //--------------------------------------------------
     // add "current" to theTabList
     theTabItems() {
       let items = []
@@ -131,7 +141,7 @@ export default {
       })
       return items
     },
-    //.......................................
+    //--------------------------------------------------
     theCurrentTab() {
       for(let tab of this.theTabItems) {
         if(tab.isCurrent) {
@@ -139,7 +149,7 @@ export default {
         }
       }
     },
-    //.......................................
+    //--------------------------------------------------
     theFieldsInCurrentTab() {
       // Current Tab
       if(this.isDisplayAsTab) {
@@ -153,7 +163,7 @@ export default {
         return this.theFields
       }
     },
-    //.......................................
+    //--------------------------------------------------
     /***
      * Eval function set for `transformer|serializer` of each fields
      * 
@@ -162,15 +172,15 @@ export default {
     theFuncSet() {
       return _.assign({}, Ti.Types, this.config.extendFunctionSet)
     },
-    //.......................................
+    //--------------------------------------------------
     formData() {
       return this.data || {}
     }
-    //.......................................
+    //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
   methods : {
-    //----------------------------------------------
+    //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {
       // The key
       let fldKey = fld.name
@@ -224,23 +234,22 @@ export default {
         return field
       }
     },
-    //----------------------------------------------
+    //--------------------------------------------------
     onClickTab(tab) {
       this.currentTabIndex = tab.index
       this.$emit("tab:changed", tab)
     },
-    //----------------------------------------------
+    //--------------------------------------------------
     onChanged(payload) {
       //console.log("------------------------ti-form changed", payload)
       this.$emit("changed", payload)
     },
-    //----------------------------------------------
+    //--------------------------------------------------
     onInvalid(err) {
       //console.log("invalid", err)
       this.$emit("invalid", err)
     },
-    //----------------------------------------------
-    //----------------------------------------------
+    //--------------------------------------------------
     __adjust_fields_width() {
       // Find all field-name Elements
       let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
@@ -262,7 +271,7 @@ export default {
         Ti.Dom.setStyle($fldnm, {width:maxWidth})
       }
     }
-    //----------------------------------------------
+    //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
   watch : {
@@ -291,20 +300,20 @@ export default {
   },
   //////////////////////////////////////////////////////
   mounted : function() {
-    //.................................................
+    //--------------------------------------------------
     this.currentTabIndex = 
       Ti.Storage.session.getInt(
           this.keepTabIndexBy, this.currentTab
       )
-    //.................................................
+    //--------------------------------------------------
     Ti.Viewport.watch(this, {resize:()=>{
       this.__debounce_adjust_fields_width()
     }})
-    //.................................................
+    //--------------------------------------------------
     this.$nextTick(()=>{
       this.__adjust_fields_width()
     })
-    //.................................................
+    //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
   beforeDestroy : function(){

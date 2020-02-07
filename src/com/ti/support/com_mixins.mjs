@@ -11,24 +11,51 @@ export default {
       "isViewportModeDesktopOrTablet", 
       "isViewportModePhoneOrTablet"
     ]),
+    // Auto assign component ID
+    tiComId() {
+      return `${this._uid}:${this.tiComType}`
+    },
+    // Auto detected current com is actived or not.
+    isActived() {
+      return _.indexOf(this.viewportActivedComIds, this.tiComId) >= 0
+    },
+    isSelfActived() {
+      return _.last(this.viewportActivedComIds) == this.tiComId
+    }
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
     // Auto count my useful id path array
-    myIdPathArray() {
-      let list = [this._uid]
+    tiActivableComIdPath() {
+      let list = this.tiActivableComPath()
+      return _.map(list, (vm)=>vm.tiComId)
+    },
+    //--------------------------------------
+    // Auto count my useful id path array
+    tiActivableComPath() {
+      let list = [this]
       let vm = this.$parent
       while(vm) {
         // Only the `v-ti-actived` marked Com join the parent paths
-        if(vm.$el.getAttribute("ti-actived")) {
-          list.push(vm._uid)
+        if(vm.$el.__ti_activable__) {
+          list.push(vm)
         }
         // Look up
         vm = vm.$parent
       }
       return list.reverse()
     },
-    // Auto detected current com is actived or not.
-    isActived() {
-      return _.indexOf(this.viewportActivedComIds, this._uid) >= 0
+    //--------------------------------------
+    // Auto get the parent activable component
+    tiParentActivableCom() {
+      let $pvm = this.$parent
+      while($pvm && !$pvm.$el.__ti_activable__) {
+        $pvm = $pvm.$parent
+      }
+      return $pvm
     }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   created : async function(){
@@ -52,13 +79,14 @@ export default {
     // Auto mark self as actived Component in App
     this.__set_actived = ()=>{
       Ti.App(this).setActivedVm(this)
-      this.$emit("actived", this)
+      this.$emit("com:actived", this)
     }
   },
   //////////////////////////////////////////
   destroyed : function(){
+    //console.log("destroyed", this.$el)
     if(Ti.App(this).setBlurredVm(this)) {
-      this.$emit("blurred", this)
+      this.$emit("com:blurred", this)
     }
   }
   //////////////////////////////////////////

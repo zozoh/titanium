@@ -51,8 +51,6 @@
     > .form-group > .group-fields > .form-field,
     > .form-field {
       //------------------------
-      &.is-actived {background:#FF0;}
-      //------------------------
       > .field-value {
         @include flex-align;
         flex:1 1 auto;

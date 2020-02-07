@@ -325,7 +325,7 @@ export default {
     //------------------------------------------------
     onInputFocus() {
       this.isFocused = true
-      this.$emit("focused")      
+      this.$emit("input:focused")      
     },
     //------------------------------------------------
     onInputBlur() {
@@ -334,7 +334,7 @@ export default {
         this.onInputChanged()
       }
       this.isFocused = false
-      this.$emit("blurred")
+      this.$emit("input:blurred")
     },
     //------------------------------------------------
     onTagChanged(vlist=[]) {

@@ -81,8 +81,12 @@ export default {
     }
     // String ...
     else if(_.isString(displayItem.key)){
+      // Whole data
+      if(".." == displayItem.key) {
+        value = itemData
+      }
       // Statci value
-      if(/^'[^']+'$/.test(displayItem.key)) {
+      else if(/^'[^']+'$/.test(displayItem.key)) {
         value = displayItem.key.substring(1, displayItem.key.length-1)
       }
       // Dynamic value

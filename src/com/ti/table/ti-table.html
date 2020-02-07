@@ -1,6 +1,7 @@
 <div class="ti-table"
   :class="topClass"
-  @click="onClickTop">
+  @click="onClickTop"
+  v-ti-actived="__set_actived">
   <!--
     Blank
   -->
@@ -41,7 +42,8 @@
     <!--
       Body
     -->
-    <div class="table-body"
+    <div ref="body"
+      class="table-body"
       :style="tableStyle">
       <table-row
         v-for="row in theData"

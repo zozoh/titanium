@@ -1,0 +1,6 @@
+{
+  "name" : "ti-obj-json-tree-item",
+  "globally" : true,
+  "template" : "./json-tree-item.html",
+  "mixins" : ["./json-tree-item.mjs"]
+}

@@ -2,15 +2,18 @@ export default {
   inheritAttrs: false,
   //////////////////////////////////////////////
   data : ()=>({
-    theCom : null
+    isComReady : false,
+    theComType : null,
+    theComConf : null
   }),
   //////////////////////////////////////////////
   computed : {
     //----------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "no-status"  : !this.statusIcon,
-        "is-actived" : this.isActived
+        "is-self-actived" : this.isSelfActived,
+        "is-actived" : this.isActived,
+        "no-status"  : !this.statusIcon
       }, [
         `as-${this.viewportMode}`
       ], this.className)
@@ -73,30 +76,20 @@ export default {
 
       // If Actived reset the display
       if(this.isActived && this.comType) {
-        dis = {}
+        dis = {
+          comType : this.comType,
+          comConf : this.comConf,
+        }
       }
 
       // Assign the default value and return
       return _.defaults(_.cloneDeep(dis), {
+        comType : "ti-label",
         key     : this.name,
         type    : this.type,
         dict    : this.dict,
-        comType : this.comType,
-        comConf : this.comConf,
         transformer : this.transformer
       })
-    },
-    //----------------------------------------
-    isComReady () {
-      return this.theCom ? true : false
-    },
-    //----------------------------------------
-    theComType() {
-      return this.theCom ? this.theCom.comType : null
-    },
-    //----------------------------------------
-    theComConf() {
-      return this.theCom ? this.theCom.comConf : null
     },
     //----------------------------------------
     statusIcon() {
@@ -109,7 +102,7 @@ export default {
   methods : {
     //--------------------------------------------
     async evalTheCom() {
-      this.theCom = await this.evalDataForFieldDisplayItem({
+      let theCom = await this.evalDataForFieldDisplayItem({
         itemData : this.data, 
         displayItem : this.theCurrentDisplayItem, 
         vars : {
@@ -118,6 +111,19 @@ export default {
         explainDict: this.explainDict,
         autoIgnoreNil : false
       })
+      // console.log("evalTheCom", {
+      //   myUID      : this._uid,
+      //   isActived  : this.isActived,
+      //   oldComType : this.theComType,
+      //   oldComConf : _.cloneDeep(this.theComConf),
+      //   newComType : theCom.comType,
+      //   newComConf : _.cloneDeep(theCom.comConf),
+      // })
+      
+      this.theComType = theCom.comType
+      this.theComConf = theCom.comConf
+
+      this.isComReady = true
     },
     //--------------------------------------------
     onChanged(val) {
@@ -173,11 +179,6 @@ export default {
         )
       }
       return val
-    },
-    //--------------------------------------------
-    __ti_shortcut(uniqKey) {
-      console.log("ti-form", uniqKey)
-      return false
     }
     //--------------------------------------------
   },

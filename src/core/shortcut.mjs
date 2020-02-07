@@ -132,38 +132,55 @@ class Shortcut {
    * Fire an action
    *
    * @param uniqKey{String} : The shortcut key like `CTRL+S`
-   * 
-   * @return Boolean for fired status:
-   *  - `true` : action found, if the guard block it, still true
-   *  - `false` : action not found
+   * @param $event{Event} : the native event object
    */
-  fire(uniqKey) {
+  async fire(uniqKey, $event) {
+    // Logging
+    if(!/^(CTRL|SHIFT|ALT)$/.test(uniqKey) && Ti.IsInfo("TiShortcut")) {
+      console.log("TiShortcut.fired", uniqKey)
+    }
+    // Status
+    let stopBubble = 0
+    let preventDefault = 0
+    let quitNow = 0
+
     // Capture by current Vm
     if(Ti.App.hasTopInstance()) {
-      if(false === Ti.App.topInstance().fireCurrentVmShortcut(uniqKey)) {
-        return
-      }
+      let {stop,prevent,quit} = Ti.App.topInstance().fireActivedVmShortcut(uniqKey)
+      //console.log(uniqKey)
+      quitNow        |= quit
+      stopBubble     |= stop
+      preventDefault |= prevent
     }
-    // fire the action
-    let as = this.actions[uniqKey]
-    // Guard
-    if(!_.isArray(as) || _.isEmpty(as)) {
-      return false
-    }
-    // Invoking function list
-    _.forEach(as, ({func})=>{
-      if(_.isFunction(func)) {
-        // ask guard firstly
-        let guard = this.guards[uniqKey]
 
-        // invoke the action
-        if(!_.isFunction(guard) || guard()){
-          func()
-        }
-      }
-    })
-    // All done    
-    return true
+    // fire the action list
+    let as = this.actions[uniqKey]
+    if(_.isArray(as) && !quitNow) { 
+      for(let a of as) {
+        if(_.isFunction(a.func)) {
+          // ask guard firstly
+          let guard = this.guards[uniqKey]
+
+          if(_.isFunction(guard)) {
+            if(!guard()) {
+              return
+            }
+          }
+
+          // invoke the action
+          await a.func()
+          stopBubble     = 1
+          preventDefault = 1
+        } // if(_.isFunction(a.func)) 
+      } // for(let a of as)
+    }
+    // Modify default behaviors
+    if(preventDefault) {
+      $event.preventDefault()
+    }
+    if(stopBubble) {
+      $event.stopPropagation()
+    }
   }
   /***
    * Get uniquekey for a keyboard event object
@@ -205,19 +222,9 @@ class Shortcut {
     window.addEventListener("keydown", ($event)=>{
       // get the unify key code
       let uniqKey = this.getUniqueKey($event)
-
-      if(Ti.IsDebug("TiShortcut")) {
-        console.log("TiShortcut.detected", uniqKey)
-      }
       
       // Then try to find the action
-      if(this.fire(uniqKey)) {
-        if(Ti.IsInfo("TiShortcut")) {
-          console.log("TiShortcut.fired", uniqKey)
-        }
-        $event.preventDefault()
-        $event.stopPropagation()
-      }
+      this.fire(uniqKey, $event)
     })
     // Mark
     this.isListening = true

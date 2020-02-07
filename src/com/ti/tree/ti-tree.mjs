@@ -91,7 +91,7 @@ export default {
     },
     "hoverable" : {
       type : Boolean,
-      default : true
+      default : false
     },
     "width" : {
       type : [String, Number],
@@ -298,10 +298,11 @@ export default {
       let row = this.findTableRow(rowId)
       if(row) {
         this.$emit("item:changed", {
+          name,
+          value,
           node   : row,
           nodeId : rowId,
-          data   : row.rawData,
-          name, value
+          data   : row.rawData
         })
       }
     },

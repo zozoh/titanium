@@ -58,6 +58,8 @@ export default {
     //-----------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
+        "is-self-actived" : this.isSelfActived,
+        "is-actived" : this.isActived,
         "is-nowrap" : this.nowrap
       }, this.className)
     },

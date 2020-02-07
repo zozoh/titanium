@@ -118,15 +118,25 @@ export const TiConfig = {
   },
   //...............................
   decorate(com) {
+    //console.log("!!!decorate(com)", com)
+    // push the computed prop to get the name
+    let comName = com.name || "Unkown"
+    Ti.Util.pushValue(com, "mixins", {
+      computed : {
+        tiComType : ()=>comName
+      }
+    })
+    // Customized Decorator
     if(_.isFunction(CONFIG.comDecorator)) {
       CONFIG.comDecorator(com)
+    }
 
-      // inner-components
-      if(com && com.components) {
-        _.forEach(com.components, (subCom)=>{
-          CONFIG.comDecorator(subCom)
-        })
-      }
+    // inner-components
+    if(com && com.components) {
+      _.forEach(com.components, (subCom)=>{
+        //CONFIG.comDecorator(subCom)
+        TiConfig.decorate(subCom)
+      })
     }
   },
   //...............................

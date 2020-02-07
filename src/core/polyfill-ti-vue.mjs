@@ -163,10 +163,18 @@ export const TiVue = {
       // Directive: v-ti-on-actived="this"
       Vue.directive("tiActived", {
         bind : function($el, binding) {
-          $el.setAttribute("ti-actived", true)
+          $el.__ti_activable__ = true
           $el.addEventListener("click", function(evt){
-            evt.stopPropagation()
-            Ti.Invoke(binding.value)
+            // Only the closest activable COM of eve.target
+            // can be actived
+            let closestEl = _.find(evt.composedPath(), ($pe)=>{
+              return $pe.__ti_activable__ ? true : false
+            })
+            //console.log($el, closestEl)
+            if(closestEl === $el) {
+              //console.log("do invoke")
+              Ti.Invoke(binding.value)
+            }
           })
         }
       })

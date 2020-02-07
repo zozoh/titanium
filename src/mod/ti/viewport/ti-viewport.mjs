@@ -15,7 +15,8 @@ export default {
       state.mode = mode
     },
     setActivedIds(state, activedIds=[]) {
-      state.activedIds = activedIds
+      //console.log("viewport setActivedIds", activedIds)
+      state.activedIds = _.cloneDeep(activedIds)
     }
   }
 }

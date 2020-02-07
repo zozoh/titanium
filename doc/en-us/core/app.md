@@ -5,11 +5,11 @@ author: zozoh(zozohtnt@gmail.com)
 
 # shortcut routing
 
-If declare `v-ti-on-actived="__set_actived"` at any component root element, it will cause the component activable in whole app.
+If declare `v-ti-actived="__set_actived"` at any component root element, it will cause the component activable in whole app.
 
 > `__set_actived` is builtin method declared by `com_mixins` on any component `created` lifecyle stage.
 
-`TiApp` maintain one property `[TI_VM_ACTIVED]` to store current actived component. If shortcut fired, it will invoke `app.fireCurrentVmShortcut`
+`TiApp` maintain one property `[TI_VM_ACTIVED]` to store current actived component. If shortcut fired, it will invoke `app.fireActivedVmShortcut`
 
 Then it will call:
 

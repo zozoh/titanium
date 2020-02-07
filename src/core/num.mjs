@@ -34,7 +34,7 @@ const TiNum = {
    * ```
    */
   scrollIndex(index, len=0) {
-    if(len >= 0) {
+    if(len > 0) {
       if(index < 0) {
         return len + (index%len)
       }

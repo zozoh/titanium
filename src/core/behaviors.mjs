@@ -111,7 +111,7 @@ export const TiBehaviors = {
 
     // 修改之后的回调
     // 如果不指定这个项，默认实现是修改元素的 innertText
-    after : {c}F(newval, oldval, jEle){}
+    ok : {c}F(newval, oldval, jEle){}
 
     // 回调的上下文，默认为 ele 的 jQuery 包裹对象
     context : jEle
