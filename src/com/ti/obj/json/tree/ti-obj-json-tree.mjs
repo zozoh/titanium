@@ -10,7 +10,7 @@ export default {
     "data" : null,
     "mainWidth" : {
       type : [String, Number],
-      default : 200
+      default : -200
     },
     "border" : {
       type : String,

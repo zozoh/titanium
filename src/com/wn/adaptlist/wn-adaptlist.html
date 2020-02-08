@@ -1,4 +1,7 @@
-<div class="wn-adaptlist" v-drop-files.mask="onDropFiles">
+<div class="wn-adaptlist" 
+  :class="topClass"
+  v-drop-files.mask="onDropFiles"
+  v-ti-actived="__set_actived">
   <div class="ti-fill-parent">
     <!--==================================
       Show Loading

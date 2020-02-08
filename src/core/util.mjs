@@ -401,7 +401,14 @@ const TiUtil = {
     // Take as plain object
     let re = {}
     _.forEach(mapping, (val, key)=>{
-      re[key] = TiUtil.getFallback(source, val, key)
+      // Whole Context
+      if(".." == val) {
+        re[key] = source
+      }
+      // Get the value
+      else {
+        re[key] = TiUtil.getFallback(source, val, key)
+      }
     })
     return re
   },

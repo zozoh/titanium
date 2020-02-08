@@ -87,7 +87,7 @@ export default {
       }, this.className)
     },
     //--------------------------------------
-    formedList() {
+    theData() {
       let list = this.normalizeData(this.data, {
         multi   : this.multi,
         value   : this.value,
@@ -101,7 +101,7 @@ export default {
     },
     //--------------------------------------
     hasIcon() {
-      for(let it of this.formedList) {
+      for(let it of this.theData) {
         if(it.icon)
           return true
       }
@@ -109,7 +109,7 @@ export default {
     },
     //--------------------------------------
     hasData() {
-      return !_.isEmpty(this.formedList)
+      return !_.isEmpty(this.theData)
     }
     //--------------------------------------
   },
@@ -131,7 +131,7 @@ export default {
         if(eo.shiftKey) {
           let minIndex = Math.min(index, this.lastIndex)
           let maxIndex = Math.max(index, this.lastIndex)
-          _.forEach(this.formedList, (it, i)=>{
+          _.forEach(this.theData, (it, i)=>{
             if(i>=minIndex && i<=maxIndex) {
               vals.push(it.value)
             }
@@ -139,7 +139,7 @@ export default {
         }
         // Toggle mode
         else {
-          _.forEach(this.formedList, (it, i)=>{
+          _.forEach(this.theData, (it, i)=>{
             // The item which to be click, toggle
             if(index == i) {
               if(!it.selected) {
@@ -152,7 +152,7 @@ export default {
             }
           })
           // Notify the list-item
-          let li = _.nth(this.formedList, index)
+          let li = _.nth(this.theData, index)
           this.$emit("toggle", li)
         }
         // Emit the value
@@ -160,7 +160,7 @@ export default {
       }
       // Single mode
       else {
-        let it = this.formedList[index]
+        let it = this.theData[index]
         this.$emit("selected", it)
         this.$emit("changed", it.value)
       }

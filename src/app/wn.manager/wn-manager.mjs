@@ -1,25 +1,4 @@
 export default {
-  //////////////////////////////////////////////
-  watch : {
-    "mainComType" : function(newType){
-      Ti.Shortcut.removeWatch(this)
-      Ti.Shortcut.addWatch(this, this.mainActions)
-    },
-    "obj.meta" : function(meta) {
-      // Push history to update the browser address bar
-      let his = window.history
-      if(his && meta) {
-        let newLink = Wn.Util.getAppLink(meta.id)
-        let title =  Wn.Util.getObjDisplayName(meta)
-        if(Ti.IsInfo("app/wn-manager")) {
-          console.log(title , "->", newLink)
-        }
-        his.pushState(meta, title, newLink)
-        // Update the Title
-        document.title = title;
-      }
-    }
-  },
   ///////////////////////////////////////////
   computed : {
     //---------------------------------------
@@ -312,6 +291,32 @@ export default {
       }
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////////
+  watch : {
+    "mainComType" : function(newType){
+      Ti.Shortcut.removeWatch(this)
+      Ti.Shortcut.addWatch(this, this.mainActions)
+    },
+    "obj.meta" : function(meta) {
+      // Push history to update the browser address bar
+      let his = window.history
+      if(his && meta) {
+        // Done push duplicate state
+        if(his.state && his.state.id == meta.id){
+          return
+        }
+        // Push to history stack
+        let newLink = Wn.Util.getAppLink(meta.id)
+        let title =  Wn.Util.getObjDisplayName(meta)
+        if(Ti.IsInfo("app/wn-manager")) {
+          console.log(title , "->", newLink)
+        }
+        his.pushState(meta, title, newLink)
+        // Update the Title
+        document.title = title;
+      }
+    }
   },
   ///////////////////////////////////////////
   mounted : function(){

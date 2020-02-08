@@ -2,10 +2,7 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////
   props : {
-    "className" : {
-      type : String,
-      default : null
-    },
+    "className" : null,
     "itemClassName" : {
       type : String,
       default : null
@@ -99,6 +96,12 @@ export default {
       "currentItem", 
       "currentItemId", 
       "selectedItems"]),
+    topClass() {
+      return Ti.Css.mergeClassName({
+        "is-self-actived" : this.isSelfActived,
+        "is-actived"     : this.isActived
+      }, this.className)
+    },
     /***
      * Show uploading list
      */

@@ -38,7 +38,7 @@ export default {
     },
     "data" : {
       type : Object,
-      default : null
+      default : ()=>({})
     },
     // "status" : {
     //   type : Object,
@@ -47,6 +47,10 @@ export default {
     "fieldStatus" : {
       type : Object,
       default : ()=>({})
+    },
+    "autoShowBlank" : {
+      type : Boolean,
+      default : true
     }
   },
   //////////////////////////////////////////////////////

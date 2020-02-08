@@ -61,7 +61,7 @@ export default {
     },
     //-------------------------------------
     joinHighlightItems(list=[], items=[]) {
-      if(_.isArray(items) && items.length>0) {
+      if(this.highlightItemId && _.isArray(items) && items.length>0) {
         for(let it of items) {
           // Match the ID, 0
           if(it.id == this.highlightItemId) {

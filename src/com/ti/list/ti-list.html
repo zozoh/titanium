@@ -3,7 +3,7 @@
     Has Data
   -->
   <ul v-if="hasData">
-    <li v-for="(it, index) in formedList" 
+    <li v-for="(it, index) in theData" 
       :class="itemClass(it)"
       @click.left="onClick(index, $event)"
       @mousedown.left="onMouseDown(index, $event)">

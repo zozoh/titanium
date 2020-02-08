@@ -90,7 +90,10 @@ export default {
     theFields() {
       let list = []
       _.forEach(this.config.fields, (fld, index)=>{
-        list.push(this.evalFormField(fld, [index]))
+        let fld2 = this.evalFormField(fld, [index])
+        if(fld2) {
+          list.push(fld2)
+        }
       })
       return list
     },
@@ -251,6 +254,9 @@ export default {
     },
     //--------------------------------------------------
     __adjust_fields_width() {
+      // Guard
+      if(!_.isElement(this.$el))
+        return
       // Find all field-name Elements
       let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
 

@@ -4,7 +4,7 @@
     Show data in form
   -->
   <ti-form
-    v-if="hasData"
+    v-if="hasData || !autoShowBlank"
       class="ti-fill-parent"
       default-com-type="wn-label"
       :icon="icon"

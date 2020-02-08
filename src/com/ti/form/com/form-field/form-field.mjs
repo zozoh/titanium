@@ -75,7 +75,7 @@ export default {
       let dis = this.theDisplay || {}
 
       // If Actived reset the display
-      if(this.isActived && this.comType) {
+      if(this.isActived || !this.display) {
         dis = {
           comType : this.comType,
           comConf : this.comConf,

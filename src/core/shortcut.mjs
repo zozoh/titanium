@@ -87,14 +87,18 @@ class Shortcut {
       return action
     }
     // Command In String
-    let m = /^([a-zA-Z0-9_]+):([^()]+)(\((.+)\))?$/.exec(action)
+    let m = /^([$a-zA-Z0-9_]+):([^()]+)(\((.*)\))?$/.exec(action)
     if(m) {
-      let func = this.$app[m[1]]
+      let mode = m[1]
       let tanm = m[2]
+      let arg0 = m[4]
+      let args = []
+      let func = this.$app[mode]
+      //...............................
       if(_.isFunction(func) && tanm) {
-        let args = [tanm]
-        if(m[4]) {
-          let payload = Ti.S.toJsValue(m[4])
+        args.push(tanm)
+        if(arg0) {
+          let payload = Ti.S.toJsValue(arg0)
           args.push(payload)
         }
         return _.debounce(_.bind(func, this.$app, ...args), 500, {
@@ -102,10 +106,12 @@ class Shortcut {
           trailing : false
         })
       }
+      //...............................
       // Fail to found function in current app
       else {
         throw Ti.Err.make("e-ti-shortcut-InvalidAction", action)
       }
+      //...............................
     }
     return function(){
       alert("invalid action: [" + action + "]")

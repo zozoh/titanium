@@ -242,13 +242,15 @@ export default {
   methods : {
     //--------------------------------------
     async evalTreeTableData() {
-      this.treeTableData = []
+      let tableData = []
 
       if(!_.isEmpty(this.data)) {
         for(let item of this.data) {
-          await this.joinTreeTableRow(this.treeTableData, item)
+          await this.joinTreeTableRow(tableData, item)
         }
       }
+
+      this.treeTableData = tableData
     },
     //--------------------------------------
     async joinTreeTableRow(rows=[], item={}, path=[]) {
