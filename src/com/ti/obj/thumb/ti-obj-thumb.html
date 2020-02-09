@@ -4,16 +4,26 @@
     Preview && Process Bar
   -->
   <header>
-    <!--Preview Image or Icon-->
+    <!--Preview Part-->
     <div class="as-preview">
+      <!-- Local Image -->
       <template v-if="'localFile'==preview.type">
         <img ref="localImage" is-local-file>
       </template>
+      <!-- Remote Image -->
       <template v-else-if="'image'==preview.type">
         <img :src="preview.value">
       </template>
+      <!-- Icon -->
       <template v-else>
         <ti-icon :value="preview"></ti-icon>
+      </template>
+      <!--Badge-->
+      <template v-if="badges">
+        <div v-if="badges.NW" class="as-badge at-nw"><ti-icon :value="badges.NW"/></div>
+        <div v-if="badges.NE" class="as-badge at-ne"><ti-icon :value="badges.NE"/></div>
+        <div v-if="badges.SW" class="as-badge at-sw"><ti-icon :value="badges.SW"/></div>
+        <div v-if="badges.SE" class="as-badge at-se"><ti-icon :value="badges.SE"/></div>
       </template>
     </div>
     <!--Process bar-->
@@ -35,7 +45,7 @@
   <!--
     Footer for item title text
   -->
-  <footer v-if="footer">
+  <footer v-if="showFooter">
     <div class="as-title"
       @click.stop="onClickTitle">
       <a v-if="href"

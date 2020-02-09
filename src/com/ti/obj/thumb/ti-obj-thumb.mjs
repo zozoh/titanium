@@ -40,9 +40,18 @@ export default {
       default : "show"  // `show|weak|hide`
     },
     // true - alwasy show the footer part
-    footer : {
+    showFooter : {
       type : Boolean,
       default : true
+    },
+    badges : {
+      type : Object,
+      default: ()=>({
+        "NW" : null,
+        "NE" : null,
+        "SW" : null,
+        "SE" : null
+      })
     }
   },
   ////////////////////////////////////////////////

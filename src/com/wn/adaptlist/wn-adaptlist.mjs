@@ -183,9 +183,9 @@ export default {
         visibility,
         status   : it.__is,
         progress : it.__progress,
-        icons : it.__icons || {
+        badges : it.__icons || {
           NW : null,
-          NE : null,
+          NE : it.ln ? "zmdi-open-in-new" : null,
           SW : null,
           SE : null
         }

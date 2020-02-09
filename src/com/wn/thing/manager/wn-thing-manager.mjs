@@ -1,6 +1,11 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////
+  data : ()=>({
+    myActions : null,
+    myCooling : -1
+  }),
+  ///////////////////////////////////////////
   props : {
     // Thing Set Home
     "meta" : {
@@ -234,6 +239,41 @@ export default {
       //console.log(this.$thingFiles)
       if(this.$thingFiles) {
         this.$thingFiles.openLocalFileSelectdDialog()
+      }
+    },
+    //--------------------------------------
+    checkActionsUpdate() {
+      // Not need to check
+      if(this.myCooling < 0) {
+        return
+      }
+      // Wait cooling 1000ms
+      if(Date.now() - this.myCooling > 300) {
+        this.$emit("actions:updated", this.myActions)
+        this.myCooling = -1
+      }
+      // Wait cooling 1000ms
+      else {
+        _.delay(()=>{
+          this.checkActionsUpdate()
+        }, 200)
+      }
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  watch : {
+    "config.actions" : function(newActions, oldActions) {
+      //console.log("config.actions", this.config.actions)
+      if(!_.isEqual(newActions, oldActions)) {
+        this.myActions = newActions
+        this.myCooling = Date.now()
+      }
+    },
+    // To prevent the action update too often
+    "myCooling" : function(cooling) {
+      if(cooling > 0) {
+        this.checkActionsUpdate()
       }
     }
   },

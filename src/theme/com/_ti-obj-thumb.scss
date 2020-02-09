@@ -1,35 +1,57 @@
 .ti-obj-thumb {
+  //----------------------------------------------
   @include noselect();
   width:1rem; border:1px solid transparent;
   position:relative;
+  //----------------------------------------------
   > header {
     @include flex-center;
     position:relative;
     padding-bottom:.05rem;
+    //--------------------------------------------
     > .as-preview {
       @include flex-full-center;
       position:relative;
       width:.8rem; height:.8rem;
       padding:.04rem; border-radius:.04rem;
+      //------------------------------------------
       > img {
         object-fit: contain;
         width:100%; height:100%;
         display:block;
       }
+      //------------------------------------------
+      > .as-badge {
+        font-size: .12rem; opacity: 0.6;
+        //----------------------------------------
+        $bdgPad : .06rem;
+        //----------------------------------------
+        &.at-nw {@include pos-abs($t:$bdgPad, $l:$bdgPad);}
+        &.at-ne {@include pos-abs($t:$bdgPad, $r:$bdgPad);}
+        &.at-sw {@include pos-abs($b:$bdgPad, $l:$bdgPad);}
+        &.at-se {@include pos-abs($b:$bdgPad, $r:$bdgPad);}
+        //----------------------------------------
+      }
+      //------------------------------------------
     }
+    //--------------------------------------------
     > .as-progress {
       @include pos-abs($l:0,$r:0,$b:0);
     }
+    //--------------------------------------------
   }
+  //----------------------------------------------
   > section.as-status {
     @include pos-abs-full;
     @include flex-center;
     @include color($color-mask, r, bushy);
     font-size:.2rem; 
   }
+  //----------------------------------------------
   > footer {
     padding:.04rem;
     text-align:center;
+    //--------------------------------------------
     > .as-title {
       height:3.3em; line-height:1.1em;
       overflow:hidden; word-break: break-all;
@@ -40,6 +62,7 @@
       -webkit-line-clamp: 3;
       -moz-box-orient: vertical;
       -moz-line-clamp: 3;
+      //------------------------------------------
       // zozoh: Maybe I need read:
       // https://css-tricks.com/almanac/properties/l/line-clamp/
       // for more detail to support the Firefox
@@ -49,16 +72,21 @@
           @include color($color-primary, c);
         }
       }
+      //------------------------------------------
     }
+    //--------------------------------------------
   }
+  //----------------------------------------------
   &.is-removed {opacity:0.4;}
   &.is-weak {opacity:0.4;}
   &.is-hide {display:none;}
+  //----------------------------------------------
 }
-
+//------------------------------------------------
 // For selected
 .is-selected .ti-obj-thumb {
   > footer > .as-title > a {
     @include color($color-selected, r);
   }
 }
+//------------------------------------------------
