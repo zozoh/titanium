@@ -2,7 +2,7 @@
   <!--
     Box: Component
   -->
-  <div class="as-box" ref="box" :style="boxStyle">
+  <div class="as-box" ref="box" :style="theBoxStyle">
     <slot name="box"><div>ComboBox</div></slot>
   </div>
   <!--
@@ -12,7 +12,7 @@
     <!--Mask-->
     <div class="as-mask" @click.left="notifyCollapse()"></div>
     <!--Drop-->
-    <div class="as-drop" ref="drop" :style="dropStyle">
+    <div class="as-drop" ref="drop" :style="theDropStyle">
       <slot name="drop"><div>ComboBox Dropdown</div></slot>
     </div>
   </template>

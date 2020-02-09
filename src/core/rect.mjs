@@ -1,5 +1,5 @@
 import TiUtil from "./util.mjs"
-//................................................
+//--------------------------------------
 class QuickKeyMap {
   constructor() {
     _.assign(this, {
@@ -28,7 +28,7 @@ class QuickKeyMap {
   }
 }
 const QKM = new QuickKeyMap()
-//................................................
+//--------------------------------------
 function AutoModeBy(rect={}) {
   let keys = ["bottom", "height", "left", "right", "top", "width", "x", "y"]
   let ms = []
@@ -40,7 +40,7 @@ function AutoModeBy(rect={}) {
   }
   return ms.join("")
 }
-//................................................
+//--------------------------------------
 function NormalizeQuickKeys(keys, sorted=true) {
   if(!keys)
     return []
@@ -51,7 +51,7 @@ function NormalizeQuickKeys(keys, sorted=true) {
     return list.sort()
   return list
 }
-//................................................
+//--------------------------------------
 function PickKeys(rect, keys, dft) {
   let re = {};
   let ks = QKM.explainToArray(keys, false)
@@ -63,27 +63,41 @@ function PickKeys(rect, keys, dft) {
   }
   return re;
 }
-//................................................
+//--------------------------------------
 export class Rect {
+  __ti_rect__ = true;
   constructor(rect, mode){
     this.set(rect, mode)
   }
-  //...............................................
+  //--------------------------------------
   set(rect={top:0,left:0,width:0,height:0}, mode) {
     const keys = ["bottom", "height", "left", "right", "top", "width", "x", "y"]
-    let ms = []
-    for(let key of keys) {
-      let val = rect[key]
-      if(!_.isUndefined(val)) {
-        // copy value
-        this[key] = val
-        // quick key
-        let k = key.substring(0,1)
-        ms.push(k)
+
+    // Pick keys and auto-mode
+    if(_.isUndefined(mode)) {
+      let ms = []
+      for(let key of keys) {
+        let val = rect[key]
+        if(_.isNumber(val)) {
+          // copy value
+          this[key] = val
+          // quick key
+          let k = key.substring(0,1)
+          ms.push(k)
+        }
+      }
+      // Gen the quick mode
+      mode = ms.join("")
+    }
+    // Just pick the keys
+    else {
+      for(let key of keys) {
+        let val = rect[key]
+        if(_.isNumber(val)) {
+          this[key] = val
+        }
       }
     }
-    // check mode
-    mode = mode || ms.join("")
     
     // Ignore 
     if("bhlrtwxy" == mode)
@@ -92,7 +106,7 @@ export class Rect {
     // update
     return this.updateBy(mode)
   }
-  //...............................................
+  //--------------------------------------
   toString(keys="tlwh"){
     let re = PickKeys(this, keys, "NaN")
     let ss = []
@@ -102,7 +116,7 @@ export class Rect {
   valueOf(){
     return this.toString()
   }
-  //...............................................
+  //--------------------------------------
   updateBy(mode="tlwh") {
     let ary = QKM.explainToArray(mode)
     let alg = ary.join("/");
@@ -181,14 +195,14 @@ export class Rect {
     
     return this
   }
-  //...............................................
+  //--------------------------------------
   /***
    * Pick keys and create another raw object
    */
   raw(keys="tlwh", dft) {
     return PickKeys(this, keys, dft)
   }
-  //...............................................
+  //--------------------------------------
   // 将一个矩形转换为得到一个 CSS 的矩形描述
   // 即 right,bottom 是相对于视口的右边和底边的
   // keys 可选，比如 "top,left,width,height" 表示只输出这几个CSS的值
@@ -214,7 +228,7 @@ export class Rect {
     }
     return PickKeys(css, keys, dft)
   }
-  //...............................................
+  //--------------------------------------
   // 得到一个新 Rect，左上顶点坐标系相对于 base (Rect)
   // 如果给定 forCss=true，则将坐标系统换成 CSS 描述
   // baseScroll 是描述 base 的滚动，可以是 Element/jQuery
@@ -227,7 +241,7 @@ export class Rect {
 
     return this.updateBy("tlwh");
   }
-  //.............................................
+  //--------------------------------------
   // 缩放矩形
   // - x : X 轴缩放
   // - y : Y 轴缩放，默认与 zoomX 相等
@@ -241,7 +255,7 @@ export class Rect {
 
     return this.updateBy("tlwh");
   }
-  //.............................................
+  //--------------------------------------
   // 将给定矩形等比缩放到适合宽高
   //  - width  : 最大宽度
   //  - height : 最大高度
@@ -306,7 +320,7 @@ export class Rect {
     
     return this.updateBy("tlwh")
   }
-  //.............................................
+  //--------------------------------------
   // 移动矩形
   // - x   : X 轴位移
   // - y   : Y 周位移
@@ -381,10 +395,18 @@ export class Rect {
    *  - `center` : Dock to center
    * @param space.x{int} - spacing for vertical-side
    * @param space.y{int} - spacing for horizontal-side
+   * @param viewportBorder{int}
+   * @param wrapCut{Boolean}
    * 
    * @return {Self}
    */
-  dockTo(rect, mode="H", axis={}, space={}) {
+  dockTo(rect, mode="H", {
+    axis={}, 
+    space={}, 
+    viewport={}, 
+    viewportBorder=4,
+    wrapCut=false
+  }={}) {
     if(_.isNumber(space)) {
       space = {x:space, y:space}
     }
@@ -456,6 +478,12 @@ export class Rect {
       }
     })[alg]()
 
+    // Wrap cut
+    if(wrapCut && !TiRects.isRect(viewport)) {
+      let viewport2 = viewport.clone(viewportBorder)
+      viewport2.wrapCut(this)
+    }
+
     return this
   }
   /***
@@ -518,7 +546,88 @@ export class Rect {
     return this
 
   }
-  //.............................................
+  //--------------------------------------
+  /***
+   * Make given rect contained by self rect(as viewport).
+   * It will auto move the given rect to suited position.
+   * If still can not fail to contains it, let it be.
+   * 
+   * @param rect{Rect} : target rect
+   * 
+   * @return target rect
+   * 
+   */ 
+  wrap(rect) {
+    let ms = ["w","h"]
+    //....................................
+    // Try X
+    if(!this.containsX(rect)) {
+      // [viewport]{given} or [viewport {gi]ven}
+      if(rect.left>this.left && rect.right>this.right) {
+        rect.right = this.right
+        ms.push("r")
+      }
+      // {given}[viewport] or { gi[ven }viewport ]
+      // {giv-[viewport]-en}
+      else {
+        rect.left = this.left
+        ms.push("l")
+      }
+    }
+    //....................................
+    // Try Y
+    if(!this.containsY(rect)) {
+      // top:=> [viewport]{given} or [viewport {gi]ven}
+      if(rect.top>this.top && rect.bottom>this.bottom) {
+        rect.bottom = this.bottom
+        ms.push("b")
+      }
+      // top:=> {given}[viewport] or { gi[ven }viewport ]
+      // top:=> {giv-[viewport]-en}
+      else {
+        rect.top = this.top
+        ms.push("t")
+      }
+    }
+    // Has already X
+    else if(ms.length == 3) {
+      ms.push("t")
+    }
+    //....................................
+    // Lack X
+    if(3 == ms.length) {
+      ms.push("l")
+    }
+    //....................................
+    // Update it
+    if(4 == ms.length) {
+      return rect.updateBy(ms.join(""))
+    }
+    //....................................
+    // Done
+    return rect
+  }
+  //--------------------------------------
+  /***
+   * Make given rect contained by self rect(as viewport).
+   * It will auto move the given rect to suited position.
+   * If still can not fail to contains it, do the overlap
+   * 
+   * @param rect{Rect} : target rect
+   * 
+   * @return target rect
+   * 
+   */ 
+  wrapCut(rect) {
+    // Wrap at first
+    this.wrap(rect)
+    // If still can not contains, overlay it
+    if(!this.contains(rect)) {
+      rect.overlap(this)
+    }
+    return rect
+  }
+  //--------------------------------------
   /***
    * Union current rectangles with another
    */
@@ -531,7 +640,7 @@ export class Rect {
     }
     return this.updateBy("tlbr")
   }
-  //.............................................
+  //--------------------------------------
   overlap(...rects) {
     for(let rect of rects) {
       this.top    = Math.max(this.top,    rect.top);
@@ -541,31 +650,51 @@ export class Rect {
     }
     return this.updateBy("tlbr")
   }
-  //.............................................
+  //--------------------------------------
   contains(rect, border=0) {
-    return (this.top    + border) <= rect.top
-        && (this.bottom - border) >= rect.bottom
-        && (this.left   + border) <= rect.left
+    return this.containsX(rect, border)
+        && this.containsY(rect, border)
+  }
+  //--------------------------------------
+  containsX(rect, border=0) {
+    return (this.left   + border) <= rect.left
         && (this.right  - border) >= rect.right;
   }
-  //.............................................
+  //--------------------------------------
+  containsY(rect, border=0) {
+    return (this.top    + border) <= rect.top
+        && (this.bottom - border) >= rect.bottom
+  }
+  //--------------------------------------
   isOverlap(rect) {
     return this.overlap(rect).area() > 0
   }
-  //.............................................
+  //--------------------------------------
   /***
    * @return Current rectangle area
    */
   area() {
     return this.width * this.height;
   }
+  //--------------------------------------
+  /***
+   * Create new rect without the border
+   */
+  clone(border=0) {
+    return new Rect({
+      left   : this.left   + border,
+      right  : this.right  - border,
+      top    : this.top    + border,
+      bottom : this.bottom - border
+    }, "tlbr")
+  }
 }
-//................................................
+//--------------------------------------
 export const TiRects = {
   create(rect, mode) {
     return new Rect(rect, mode)
   },
-  //.............................................
+  //--------------------------------------
   createBy($el) {
     // Whole window
     if(!$el.ownerDocument) {
@@ -580,7 +709,7 @@ export const TiRects = {
     let rect = $el.getBoundingClientRect()
     return new Rect(rect, "tlwh")
   },
-  //.............................................
+  //--------------------------------------
   union(...rects) {
     // empty
     if (rects.length == 0)
@@ -591,7 +720,7 @@ export const TiRects = {
 
     return r0
   },
-  //.............................................
+  //--------------------------------------
   overlap(...rects) {
     // empty
     if (rects.length == 0)
@@ -601,7 +730,15 @@ export const TiRects = {
     r0.overlap(...rects.slice(1))
 
     return r0
+  },
+  //--------------------------------------
+  isRect(rect) {
+    return rect 
+      && !_.isEmpty(rect) 
+      && _.isPlainObject(rect)
+      && rect.__ti_rect__
   }
+  //--------------------------------------
 }
-//---------------------------------------
+//////////////////////////////////////////
 export default TiRects

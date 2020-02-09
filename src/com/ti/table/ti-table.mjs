@@ -725,8 +725,6 @@ export default {
             $tbody.scrollTop += row.top - tbody.top
           }
         }
-        // Prevent the default scrolling
-        return {prevent:true}
       }
     },
     //--------------------------------------
@@ -734,12 +732,14 @@ export default {
       //console.log("ti-table", uniqKey)
       if("ARROWUP" == uniqKey) {
         this.selectPrevRow()
-        return this.scrollCurrentIntoView()
+        this.scrollCurrentIntoView()
+        return {prevent:true}
       }
 
       if("ARROWDOWN" == uniqKey) {
         this.selectNextRow()
-        return this.scrollCurrentIntoView()
+        this.scrollCurrentIntoView()
+        return {prevent:true}
       }
     }
     //--------------------------------------

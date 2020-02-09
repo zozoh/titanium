@@ -8,11 +8,6 @@ export default {
       "height" : null,
       "top"    : null,
       "left"   : null
-    },
-    drop : {
-      "position" : "fixed",
-      "width"  : null,
-      "height" : null
     }
   }),
   ////////////////////////////////////////////////////
@@ -37,6 +32,30 @@ export default {
       type : [Number, String],
       default : null
     },
+    "dropOverflow" : {
+      type : [String, Array],
+      default : "auto",
+      validator : (v)=>{
+        if(Ti.Util.isNil(v)) {
+          return true
+        }
+        if(_.isString(v)) {
+          v = v.split(" ")
+        }
+        if(_.isArray(v)) {
+          if(v.length > 2 || v.length == 0) {
+            return false
+          }
+          for(let s of v) {
+            if(!/^(auto|hidden|visible|scroll)$/.test(s)) {
+              return false
+            }
+          }
+          return true
+        }
+        return false
+      }
+    },
     "status" : {
       type : String,
       default : "collapse",
@@ -54,12 +73,14 @@ export default {
       return klass
     },
     //------------------------------------------------
-    boxStyle() {
+    theBoxStyle() {
       return Ti.Css.toStyle(this.box)
     },
     //------------------------------------------------
-    dropStyle() {
-      return Ti.Css.toStyle(this.drop)
+    theDropStyle() {
+      return Ti.Css.toStyle({
+        "overflow" : this.dropOverflow
+      })
     }
     //------------------------------------------------
   },
@@ -93,10 +114,17 @@ export default {
         _.assign(this.box, {position:"fixed"}, r_box.raw())
         //..........................................
         // Make drop same width with box
-        _.assign(this.drop, {
-          width  : "box"==this.dropWidth ? r_box.width : this.dropWidth,
-          height : this.dropHeight
-        })
+        let dropStyle = {}
+        if("box" == this.dropWidth) {
+          dropStyle.width = r_box.width
+        }
+        else if(!Ti.Util.isNil(this.dropWidth)) {
+          dropStyle.width = this.dropWidth
+        }
+        if(!Ti.Util.isNil(this.dropHeight)) {
+          dropStyle.height = this.dropHeight
+        }
+        Ti.Dom.setStyle($drop, Ti.Css.toStyle(dropStyle))
         //..........................................
         // Dock drop to box
         this.$nextTick(()=>{

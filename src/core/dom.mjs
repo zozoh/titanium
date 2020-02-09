@@ -203,7 +203,8 @@ export const TiDom = {
     axis={}, 
     posListX,  // ["left", "center", "right"]
     posListY,  // ["top", "center", "bottom"]
-    space, 
+    space,
+    viewportBorder=4,
     position}={}
   ) {
     if(position) {
@@ -244,8 +245,20 @@ export const TiDom = {
     }
 
     // Dock & Apply
-    rect.el = rect.src.dockTo(rect.ta, mode, axis, space)
-    TiDom.applyRect($src, rect.el, "tl")
+    let dockedRect = rect.src.dockTo(rect.ta, mode, {
+      axis, 
+      space, 
+      viewport : rect.win,
+      viewportBorder,
+      wrapCut  : true
+    })
+    //console.log("do DockTo", dockedRect+"")
+    _.delay(()=>{
+      TiDom.applyRect($src, dockedRect, "tlwh")
+    }, 0)
+
+    // return
+    return dockedRect
   },
   /**
    * Return HTML string to present the icon/text/tip HTML segment

@@ -164,11 +164,8 @@ export default {
       }
     },
     //------------------------------------------------
-    async onInputFocused() {
+    onInputFocused() {
       if(this.autoFocusExtended) {
-        await this.reloadListData({
-          force : !this.cached
-        })
         this.doExtend()
       }
     },
@@ -177,16 +174,13 @@ export default {
       //this.inputing = null
     },
     //------------------------------------------------
-    async onClickStatusIcon() {
+    onClickStatusIcon() {
       // extended -> collapse
       if(this.isExtended) {
         this.doCollapse()
       }
       // collapse -> extended
       else {
-        await this.reloadListData({
-          force : !this.cached
-        })
         this.doExtend()
       }
     },
@@ -268,24 +262,12 @@ export default {
     },
     //-----------------------------------------------
     async doExtend() {
+      // Reload the data 
+      await this.reloadListData({
+        force : !this.cached
+      })
+      // Mark
       this.status = "extended"
-      // Watch Keyboard
-      Ti.Shortcut.addWatch(this, [{
-        "shortcut" : "ARROWUP",
-        "action"   : ()=>this.onInputKeyPress({
-            uniqueKey:"ARROWUP"
-          })
-      }, {
-        "shortcut" : "ARROWDOWN",
-        "action"   : ()=>this.onInputKeyPress({
-            uniqueKey:"ARROWDOWN"
-          })
-      }, {
-        "shortcut" : "ENTER",
-        "action"   : ()=>this.onInputKeyPress({
-            uniqueKey:"ENTER"
-          })
-      }])
     },
     //-----------------------------------------------
     async doCollapse({escaped=false}={}) {
@@ -299,8 +281,6 @@ export default {
       if(!_.isEqual(this.valueInArray, this.runtimeValues)) {
         this.$emit("changed", this.runtimeValues)
       }
-      // Unwatch
-      Ti.Shortcut.removeWatch(this)
     },
     //-----------------------------------------------
     doReDockDrop() {
@@ -339,10 +319,6 @@ export default {
       await this.reloadListData({val, force})
       callback()
     }, 500)
-  },
-  ////////////////////////////////////////////////////
-  beforeDestroy: function() {
-    Ti.Shortcut.removeWatch(this)
   }
   ////////////////////////////////////////////////////
 }

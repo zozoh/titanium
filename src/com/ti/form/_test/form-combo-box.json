@@ -1,6 +1,7 @@
 {
   "comType" : "wn-form",
   "comConf" : {
+    "className" : "ti-fill-parent",
     "__config" : {
       "fields" : [{
         "title" : "动态多选下拉框",

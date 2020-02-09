@@ -88,7 +88,6 @@ export default {
     //------------------------------------------------
     onListChanged(key, val) {
       let theDate = this.theDate || new Date()
-      console.log("haha")
 
       let d = ({
         "month" : (m)=>{

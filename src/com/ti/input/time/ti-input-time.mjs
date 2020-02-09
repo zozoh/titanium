@@ -68,7 +68,7 @@ export default {
     },
     "dropHeight" : {
       type : [Number, String],
-      default : 200
+      default : 400
     },
     "statusIcons" : {
       type : Object,

@@ -310,7 +310,14 @@ export default {
       if(_.isElement($in)) {
         let val = _.trim($in.value)
         let ss  = _.split(val, /[ ,;\t]+/)
-        let s2  = _.remove(ss, (v)=>!v)
+        _.remove(ss, (v)=>!v)
+
+        // Guard it
+        if(_.isEmpty(ss)) {
+          return
+        }
+
+        // Merge to primary list
         let vlist = _.concat(this.theTagValues, ss)
         let caseFn = Ti.S.getCaseFunc(this.valueCase)
         if(_.isFunction(caseFn)) {

@@ -22,7 +22,7 @@
     border:1px solid map-get($color-primary, c);
     z-index:$z-mask + 1;
     position: fixed;
-    
+    overflow: auto;
   }
   //---------------------------------
 }

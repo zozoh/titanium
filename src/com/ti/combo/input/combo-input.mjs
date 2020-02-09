@@ -135,6 +135,7 @@ export default {
       let len = this.theListData.length
       //................................
       fnSet["ARROWUP"] = async ()=>{
+        console.log("ARROWUP")
         // Just Extended Drop
         if(this.isCollapse) {
           await this.doExtend()
@@ -148,6 +149,7 @@ export default {
       }
       //................................
       fnSet["ARROWDOWN"] = async ()=>{
+        console.log("ARROWDOWN")
         // Just Extended Drop
         if(this.isCollapse) {
           await this.doExtend()
@@ -230,31 +232,12 @@ export default {
     //-----------------------------------------------
     async doExtend() {
       this.status = "extended"
-      // Watch Keyboard
-      Ti.Shortcut.addWatch(this, [{
-        "shortcut" : "ARROWUP",
-        "action"   : ()=>this.onInputKeyPress({
-            uniqueKey:"ARROWUP"
-          })
-      }, {
-        "shortcut" : "ARROWDOWN",
-        "action"   : ()=>this.onInputKeyPress({
-            uniqueKey:"ARROWDOWN"
-          })
-      }, {
-        "shortcut" : "ENTER",
-        "action"   : ()=>this.onInputKeyPress({
-            uniqueKey:"ENTER"
-          })
-      }])
     },
     //-----------------------------------------------
     doCollapse() {
       this.status = "collapse"
       this.listFocusIndex = -1
       this.inputing = null
-      // Unwatch
-      Ti.Shortcut.removeWatch(this)
     }
     //-----------------------------------------------
   },
@@ -276,10 +259,6 @@ export default {
       await this.reloadListData({val, force})
       callback()
     },500)
-  },
-  ////////////////////////////////////////////////////
-  beforeDestroy: function() {
-    Ti.Shortcut.removeWatch(this)
   }
   ////////////////////////////////////////////////////
 }

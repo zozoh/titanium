@@ -3,7 +3,8 @@ export default {
   //////////////////////////////////////////
   data : ()=>({
     "treeTableData" : [],
-    "openNodePaths" : {}
+    "openNodePaths" : {},
+    "myCurrentId"   : null
   }),
   //////////////////////////////////////////
   props : {
@@ -289,9 +290,11 @@ export default {
     },
     //--------------------------------------
     findTableRow(rowId) {
-      for(let row of this.treeTableData) {
-        if(row.id == rowId) {
-          return row
+      if(!Ti.Util.isNil(rowId)) {
+        for(let row of this.treeTableData) {
+          if(row.id == rowId) {
+            return row
+          }
         }
       }
     },
@@ -329,12 +332,14 @@ export default {
             this.$set(this.openNodePaths, currentRow.pathId, true)
           }
         }
+        // Store current Id
+        this.myCurrentId = _.get(currentRow, "id")
+      }
+      // Cancel current row
+      else {
+        this.myCurrentId = null
       }
       // Emit the value
-      // console.log("selected", {
-      //   current, selected,
-      //   currentId, checkedIds
-      // })
       this.$emit("selected", {
         current, selected,
         currentId, checkedIds
@@ -345,19 +350,47 @@ export default {
       let row = this.findTableRow(rowId)
       // Open it
       if(row && !row.leaf && !row.opened) {
-        this.$set(this.openNodePaths, row.pathId, true)
+        this.openRow(row)
       }
       // Close it
       else {
-        this.$set(this.openNodePaths, row.pathId, false)
+        this.closeRow(row)
       }
       // Save to Local
       this.saveNodeOpenStatus()
     },
     //--------------------------------------
+    openRow(rowOrId) {
+      let row = _.isString(rowOrId) 
+                  ? this.findTableRow(rowOrId)
+                  : rowOrId
+      if(row && !row.leaf && !row.opened) {
+        this.$set(this.openNodePaths, row.pathId, true)
+      }
+    },
+    //--------------------------------------
+    closeRow(rowOrId) {
+      let row = _.isString(rowOrId) 
+                  ? this.findTableRow(rowOrId)
+                  : rowOrId
+      if(row && !row.leaf && row.opened) {
+        this.$set(this.openNodePaths, row.pathId, false)
+      }
+    },
+    //--------------------------------------
     saveNodeOpenStatus() {
       if(this.keepOpenBy) {
         Ti.Storage.session.setObject(this.keepOpenBy, this.openNodePaths)
+      }
+    },
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      if("CTRL+ARROWLEFT" == uniqKey) {
+        this.closeRow(this.myCurrentId)
+      }
+
+      if("CTRL+ARROWRIGHT" == uniqKey) {
+        this.openRow(this.myCurrentId)
       }
     }
     //--------------------------------------
