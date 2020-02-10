@@ -2,6 +2,10 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   props : {
+    "meta" : {
+      type : Object,
+      default : ()=>({})
+    },
     "comType" : {
       type : String,
       default : null
@@ -30,7 +34,10 @@ export default {
   //////////////////////////////////////////
   computed : {
     comBindObject() {
-      let re = Ti.Util.explainObj(this.data||{}, this.comConf, {
+      let re = Ti.Util.explainObj({
+        meta : this.meta,
+        data : this.data
+      }, this.comConf, {
         evalFunc : true
       })
       return re      

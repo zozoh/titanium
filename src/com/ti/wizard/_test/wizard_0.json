@@ -2,7 +2,7 @@
   "comType" : "ti-wizard",
   "comConf" : {
     "current" : 0,
-    "data"  : "..",
+    "data"  : "=data",
     "steps" : [{
         "comType" : "ti-form",
         "comConf" : {
@@ -19,8 +19,8 @@
               }]
           },
           "data" : {
-            "theName"  : "=theName",
-            "theValue" : "=theValue"
+            "theName"  : "=data.theName",
+            "theValue" : "=data.theValue"
           }
         },
         "comEvents" : {
@@ -57,8 +57,8 @@
               }]
           },
           "data" : {
-            "x"  : "=pos.x",
-            "y" : "=pos.y"
+            "x"  : "=data.pos.x",
+            "y" : "=data.pos.y"
           }
         },
         "comEvents" : {

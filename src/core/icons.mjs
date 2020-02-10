@@ -7,6 +7,7 @@ const TYPES = {
   "doc"  : {type:"font", value:"far-file-word"},
   "docx" : {type:"font", value:"fas-file-word"},
   "gz"   : {type:"font",value:"fas-file-archive"},
+  "hmaker_site" : {type:"font",value:"zmdi-globe-alt"},
   "html" : {type:"font", value:"fab-html5"},
   "js"   : {type:"font",value:"fab-node-js"},
   "json" : {type:"font",value:"fas-quote-right"},

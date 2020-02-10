@@ -2,7 +2,7 @@
   "comType" : "ti-table",
   "comConf" : {
     "className" : "ti-fill-parent",
-    "data"   : "..",
+    "data"   : "=data",
     "border" : "cell",
     "multi"      : true,
     "checkable"  : true,

@@ -1,10 +1,12 @@
 {
   "comType" : "ti-tree",
   "comConf" : {
-    "data"   : "..",
+    "data"   : "=data",
+    "border" : "cell",
     "keepOpenBy" : "wn-tree-test-0",
     "currentId"  : "b111",
     "selectable" : false,
+    "hoverable"  : true,
     "href"   : "/a/open/aaa?id=${value}",
     "display" : ["<icon:zmdi-odnoklassniki>", "name"],
     "width"  : 400,

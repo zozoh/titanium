@@ -44,7 +44,7 @@
         }]
       },
     "data" : {
-      "..."  : ".."
+      "..."  : "=data"
     }
   },
   "dispatchActions" : {

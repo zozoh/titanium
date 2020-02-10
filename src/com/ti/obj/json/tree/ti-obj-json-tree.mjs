@@ -17,6 +17,10 @@ export default {
       default : "cell",
       validator : v => /^(row|column|cell|none)$/.test(v)
     },
+    "keepOpenBy" : {
+      type : String,
+      default : null
+    },
     "autoOpen" : {
       type : Boolean,
       default : false

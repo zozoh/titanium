@@ -101,7 +101,11 @@ class Shortcut {
           let payload = Ti.S.toJsValue(arg0)
           args.push(payload)
         }
-        return _.debounce(_.bind(func, this.$app, ...args), 500, {
+        let bindFuncWrapper = ()=>{
+          //console.log("call bindFuncWrapper")
+          return func.apply(this.$app, args)
+        }
+        return _.debounce(bindFuncWrapper, 500, {
           leading  : true,
           trailing : false
         })
@@ -164,19 +168,17 @@ class Shortcut {
     if(_.isArray(as) && !quitNow) { 
       for(let a of as) {
         if(_.isFunction(a.func)) {
-          // ask guard firstly
-          let guard = this.guards[uniqKey]
-
-          if(_.isFunction(guard)) {
-            if(!guard()) {
-              return
-            }
-          }
-
-          // invoke the action
-          await a.func()
           stopBubble     = 1
           preventDefault = 1
+          // ask guard firstly
+          let guard = this.guards[uniqKey]
+          if(_.isFunction(guard)) {
+            if(!guard()) {
+              break
+            }
+          }
+          // invoke the action
+          a.func()
         } // if(_.isFunction(a.func)) 
       } // for(let a of as)
     }

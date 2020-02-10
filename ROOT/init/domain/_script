@@ -9,7 +9,7 @@ me -set SIDEBAR_PATH=~/.ti/sidebar.json:/rs/ti/view/sidebar.json
 echo '[OK] done for setup env'
 
 # 设置图标和域标题
-obj ~ -u 'icon:"zmdi-globe-alt", title:"Ti·测试域"'
+obj ~ -u 'icon:"im-apartment", title:"Ti·测试域"'
 
 # 初始化数据集
 echo '-------------------------------------'

@@ -140,6 +140,8 @@ export default {
       let data = state.data
       let json = JSON.stringify(data, null, '   ')
       commit("setStatus", {saving:true})
+
+      //console.log("obj-as-com:save", meta, json)
       let newMeta = await Wn.Io.saveContentAsText(meta, json)
 
       commit("setMeta", newMeta)

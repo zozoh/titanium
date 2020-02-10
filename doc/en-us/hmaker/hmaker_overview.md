@@ -60,12 +60,75 @@ some-page.json
 ```
 
 -------------------------------------------------------------
-# Editing
+# Editing.Modules
+
+```bash
+SITE                  # -> @hmaker/site-explorer
+|-- com/              # 
+|   |-- page-footer/  # 
+|-- css/              # 
+|   |-- all.css       # 
+|-- i18n/             # 
+|   |-- zh-cn/        # 
+|       |-- all.i18n.json  # 
+|-- js/               # 
+|   |-- all.js        # 
+|-- img/              # 
+|-- page/             # 
+|   |-- home.json     # -> @hmaker/site-page
+|-- _app.json         # -> @hmaker/site-app
+|-- site-state.json   # -> @hmaker/site-state
+```
+
+The module hierarchy should be:
+
+```bash
+@hmaker/website      # reload,CRUD
+|-- tree : .mod/site-tree     # mutate: site reource as tree
+|-- app  : @wn/obj-as-json    # mutate: _app.json
+|-- site : @wn/obj-as-json    # mutate: site-state.json
+|-- page : @wn/obj-as-json    # mutate: each page
+```
+
+## site-tree module
+
+The `site-tree` state json should like:
+
+```js
+{
+  // The root node should refer to website.state.meta
+  "root" : {
+    "id"   : "=meta.id",   // site.meta.id as Root Node Id
+    "name" : "=meta.nm",   // site.meta.nm as Root Node Name
+    "meta" : "=meta"       // refer to site.meta as WnObj
+    "leaf" : false         // Indicate node as leaf or node
+    // If current node is NOT leaf, which it must be, always
+    // set the `children:[]`
+    "children" : [{
+        "id"   : "45a..gh3",    // object id
+        "name" : "_app.json",   // object name
+        "leaf" : true,          // Indicate node as leaf or node
+        "meta" : {/*..*/},      // the WnObj Meta
+      }, {
+        "id"   : "45a..gh3",    // object id
+        "name" : "page",        // object name
+        "leaf" : false,         // Indicate it is leaf node
+        "meta" : {/*..*/},      // the WnObj Meta,
+        "children" : [
+          /* children pages */
+        ]
+      }]
+  }
+}
+```
+
+-------------------------------------------------------------
+# Editing.Components
 
 ## Site Top Level
 
 ```bash
-SITE
+SITE                  # -> <hmaker-site-manager>
 |-- com/              # -> <wn-adaptlist>
 |   |-- page-footer/  # -> <wn-adaptlist>
 |-- css/              # -> <wn-adaptlist>
@@ -73,7 +136,7 @@ SITE
 |-- i18n/             # -> <wn-adaptlist>
 |   |-- zh-cn/        # -> <wn-adaptlist>
 |       |-- all.i18n.json  # -> <ti-obj-json>
-|-- js/               # site customized script
+|-- js/               # -> <wn-adaptlist>
 |   |-- all.js        # -> <ti-text-raw>
 |-- img/              # -> <wn-adaptlist>
 |-- page/             # -> <wn-adaptlist>

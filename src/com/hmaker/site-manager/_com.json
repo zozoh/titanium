@@ -1,0 +1,6 @@
+{
+  "name" : "hmaker-site-manager",
+  "globally" : true,
+  "template" : "./hm-site-manager.html",
+  "mixins" : ["./hm-site-manager.mjs"]
+}

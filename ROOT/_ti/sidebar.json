@@ -7,7 +7,14 @@
         "path" : "~/demo"
       }]
   }, {
-    "key" : "webs",
+    "key" : "sites",
+    "icon"   : "zmdi-compass",
+    "title"  : "网站工程",
+    "items" : [{
+        "command"  : "obj ~/sites -mine -match 'tp:\"hmaker_site\"' -l -cqn"
+      }]
+  }, {
+    "key" : "things",
     "icon"   : "zmdi-archive",
     "title"  : "数据集",
     "items" : [{

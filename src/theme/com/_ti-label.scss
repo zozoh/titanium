@@ -1,9 +1,14 @@
 .ti-label {
   @include flex-align-nowrap($ai:stretch);
+  line-height: 2em;
   //-----------------------------------------
   &.is-blank {
     @include noselect;
     opacity: 0.4;
+  }
+  //-----------------------------------------
+  &.is-break-line {
+    > .as-value {white-space: pre;}
   }
   //-----------------------------------------
   > .as-icon {

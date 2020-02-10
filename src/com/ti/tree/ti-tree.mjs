@@ -2,8 +2,8 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   data : ()=>({
-    "treeTableData" : [],
-    "openNodePaths" : {},
+    "myTreeTableData" : [],
+    "myOpenedNodePaths" : {},
     "myCurrentId"   : null
   }),
   //////////////////////////////////////////
@@ -72,6 +72,10 @@ export default {
     "checkedIds" : {
       type : Array,
       default : ()=>[]
+    },
+    "openedNodePaths" : {
+      type : Object,
+      default : ()=>({})
     },
     "multi" : {
       type : Boolean,
@@ -212,7 +216,7 @@ export default {
     },
     //--------------------------------------
     hasData() {
-      return !_.isEmpty(this.treeTableData)
+      return !_.isEmpty(this.myTreeTableData)
     },
     //--------------------------------------
     isTable() {
@@ -251,7 +255,7 @@ export default {
         }
       }
 
-      this.treeTableData = tableData
+      this.myTreeTableData = tableData
     },
     //--------------------------------------
     async joinTreeTableRow(rows=[], item={}, path=[]) {
@@ -262,7 +266,7 @@ export default {
       let itLeaf = this.isNodeLeaf(item)
       let depth = path.length
       let itOpened = Ti.Util.fallback(
-          this.openNodePaths[itPathId], 
+          this.myOpenedNodePaths[itPathId], 
           depth<this.defaultOpenDepth);
       // Join Self
       let self = {
@@ -291,7 +295,7 @@ export default {
     //--------------------------------------
     findTableRow(rowId) {
       if(!Ti.Util.isNil(rowId)) {
-        for(let row of this.treeTableData) {
+        for(let row of this.myTreeTableData) {
           if(row.id == rowId) {
             return row
           }
@@ -317,7 +321,7 @@ export default {
       // Has selected
       if(currentId) {
         let currentRow;
-        for(let row of this.treeTableData) {
+        for(let row of this.myTreeTableData) {
           if(row.id == currentId) {
             currentRow = row
             current = row.rawData
@@ -329,7 +333,7 @@ export default {
         // Auto Open
         if(currentRow && this.autoOpen) {
           if(!currentRow.opened) {
-            this.$set(this.openNodePaths, currentRow.pathId, true)
+            this.$set(this.myOpenedNodePaths, currentRow.pathId, true)
           }
         }
         // Store current Id
@@ -365,7 +369,7 @@ export default {
                   ? this.findTableRow(rowOrId)
                   : rowOrId
       if(row && !row.leaf && !row.opened) {
-        this.$set(this.openNodePaths, row.pathId, true)
+        this.$set(this.myOpenedNodePaths, row.pathId, true)
       }
     },
     //--------------------------------------
@@ -374,22 +378,30 @@ export default {
                   ? this.findTableRow(rowOrId)
                   : rowOrId
       if(row && !row.leaf && row.opened) {
-        this.$set(this.openNodePaths, row.pathId, false)
+        this.$set(this.myOpenedNodePaths, row.pathId, false)
       }
     },
     //--------------------------------------
     saveNodeOpenStatus() {
       if(this.keepOpenBy) {
-        Ti.Storage.session.setObject(this.keepOpenBy, this.openNodePaths)
+        Ti.Storage.session.setObject(this.keepOpenBy, this.myOpenedNodePaths)
       }
+      this.$emit("opened", this.myOpenedNodePaths)
+    },
+    //--------------------------------------
+    syncOpenedNodePaths() {
+      this.myOpenedNodePaths = {}
+      _.forEach(this.openedNodePaths, (rowId)=>{
+        this.myOpenedNodePaths[rowId] = true
+      })
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
-      if("CTRL+ARROWLEFT" == uniqKey) {
+      if("ARROWLEFT" == uniqKey) {
         this.closeRow(this.myCurrentId)
       }
 
-      if("CTRL+ARROWRIGHT" == uniqKey) {
+      if("ARROWRIGHT" == uniqKey) {
         this.openRow(this.myCurrentId)
       }
     }
@@ -397,27 +409,32 @@ export default {
   },
   //////////////////////////////////////////
   watch : {
-    "data" : async function() {
-      await this.evalTreeTableData()
+    "data" : function() {
+      this.evalTreeTableData()
+    },
+    "openedNodePaths" : function() {
+      this.syncOpenedNodePaths()
     }
   },
   //////////////////////////////////////////
   mounted : async function() {
-    let vm = this
+    //.................................
+    this.syncOpenedNodePaths()
+    //.................................
     // Ti.Dom.watchDocument("mouseup", this.__on_mouseup)
     // Recover the open status from local store
     if(this.keepOpenBy) {
-      this.openNodePaths = Ti.Storage.session.getObject(this.keepOpenBy)
+      this.myOpenedNodePaths = Ti.Storage.session.getObject(this.keepOpenBy)
     }
-
+    //................................
     // Eval Data
     await this.evalTreeTableData()
-
+    //................................
     // Watch Deep
-    this.$watch("openNodePaths", ()=>{
+    this.$watch("myOpenedNodePaths", ()=>{
       this.evalTreeTableData()
     }, {deep:true})
-    
+    //................................
   },
   //////////////////////////////////////////
   beforeDestroy : function(){

@@ -1,0 +1,11 @@
+{
+  "meta": null,
+  "status" : {
+    "reloading"  : false,
+    "doing"      : false,
+    "saving"     : false,
+    "deleting"   : false,
+    "changed"    : false,
+    "publishing" : false
+  }
+}

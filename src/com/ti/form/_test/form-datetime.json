@@ -50,14 +50,7 @@
           }
         }]
       },
-    "data" : {
-      "time"  : "=time",
-      "month" : "=month",
-      "date"  : "=date",
-      "datetime"  : "=datetime",
-      "daterange" : "=daterange",
-      "timerange" : "=timerange"
-    }
+    "data" : "=data"
   },
   "dispatchActions" : {
     "changed" : "updatePair"

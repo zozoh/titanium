@@ -1,4 +1,6 @@
-<div class="wn-gui-side-nav">
+<div class="wn-gui-side-nav"
+  :class="topClass"
+  v-ti-actived="__set_actived">
   <side-nav-item v-for="it in theItems"
     :key="it.key"
     v-bind="it"

@@ -1,0 +1,10 @@
+{
+  "name" : "hmaker-site-tree",
+  "namespaced" : true,
+  "state" : "./site-tree.json",
+  "actions" : "./site-tree-actions.mjs",
+  "mixins" : "./site-tree.mjs",
+  "modules" : {
+    
+  }
+}

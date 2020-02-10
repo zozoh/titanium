@@ -39,12 +39,7 @@
           }
         }]
       },
-    "data" : {
-      "lbls0" : "=lbls0",
-      "lbls1" : "=lbls1",
-      "lbls2" : "=lbls2",
-      "lbls3" : "=lbls3"
-    }
+    "data" : "=data"
   },
   "dispatchActions" : {
     "changed" : "updatePair"

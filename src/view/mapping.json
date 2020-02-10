@@ -1,9 +1,10 @@
 {
   "types" : {
-    "form"      : "form-view",
-    "thing_set" : "thing-manager",
-    "gui"       : "ti-gui",
-    "wncom"     : "wn-com"
+    "form"        : "form-view",
+    "thing_set"   : "thing-manager",
+    "gui"         : "ti-gui",
+    "wncom"       : "wn-com",
+    "hmaker_site" : "hmaker-site"
   },
   "mimes" : {
     "text" : "text-editor",

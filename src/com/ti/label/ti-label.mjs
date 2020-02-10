@@ -41,6 +41,10 @@ export default {
       type : Boolean,
       default : false
     },
+    "breakLine" : {
+      type : Boolean,
+      default : true
+    },
     "editable" : {
       type : Boolean,
       default : false
@@ -53,6 +57,7 @@ export default {
       return Ti.Css.mergeClassName({
         "is-self-actived" : this.isSelfActived,
         "is-actived" : this.isActived,
+        "is-break-line" : this.breakLine,
         "is-blank"   : !_.isNumber(this.theValue) && _.isEmpty(this.theValue)
       }, this.className)
     },

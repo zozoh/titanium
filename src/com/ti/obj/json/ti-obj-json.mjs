@@ -41,21 +41,28 @@ export default {
     },
     //--------------------------------------
     theSchema() {
+      //....................................
+      // Tree Conf
+      let treeConf = _.assign({}, this.tree, {data: this.data})
+      //....................................
+      // Source Conf
+      let sourceConf = {
+        showTitle : false,
+        content   : this.theContent
+      }
+      //....................................
+      // Done
       return {
         "desktop-tree" : {
           comType : "ti-obj-json-tree", 
-          comConf : _.assign({}, this.tree, {
-            data      : this.data
-          })
+          comConf : treeConf
         },
         "desktop-source" : {
           comType : "ti-text-raw",
-          comConf : {
-            showTitle : false,
-            content   : this.theContent
-          }
+          comConf : sourceConf
         }
       }
+      //....................................
     }
     //--------------------------------------
   },

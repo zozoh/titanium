@@ -70,6 +70,24 @@ Any valid json data will be allowed.
 }
 ```
 
+## keepOpenBy
+
+```js
+"keepOpenBy" : {
+  type : String,
+  default : null
+},
+```
+
+## autoOpen
+
+```js
+"autoOpen" : {
+  type : Boolean,
+  default : false
+},
+```
+
 ## showRoot
 
 ```js

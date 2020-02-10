@@ -2,6 +2,7 @@ export default {
   inheritAttrs : false,
   /////////////////////////////////////////
   props : {
+    "className" : null,
     "items" : {
       type : Array,
       default : null
@@ -17,6 +18,13 @@ export default {
   },
   //////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    topClass() {
+      return Ti.Css.mergeClassName({
+        "is-self-actived" : this.isSelfActived,
+        "is-actived" : this.isActived
+      }, this.className)
+    },
     //-------------------------------------
     theItems() {
       let list = []

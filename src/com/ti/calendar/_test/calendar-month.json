@@ -1,7 +1,7 @@
 {
   "comType" : "ti-calendar",
   "comConf" : {
-    "value" : "=current",
+    "value" : "=data.current",
     "range" : false,
     "monthFormat" : "yyyy年M月",
     "matrixMode" : "monthly",

@@ -212,6 +212,20 @@ Indicate the checked rows outside from the components.
 > It will auto update the private status `myCheckedId`
 
 -------------------------------------------------------------------
+## openedNodePaths
+
+```js
+"openedNodePaths" : {
+  type : Object,
+  default : ()=>({})
+}
+```
+
+Indicate the opened nodes outside from the components.
+
+> It will auto update the private status `myOpenedNodePaths`
+
+-------------------------------------------------------------------
 ## multi
 
 ```js
@@ -435,3 +449,16 @@ node  : {   // The relative node
   /* @see TreeNode*/
 }
 ```
+
+## opened
+
+When node open or closed, it will emit the event with payload:
+
+```js
+{
+  "Array/0" : false,
+  "Array/1" : true,
+  "Array/2/pet" : true
+}
+```
+
