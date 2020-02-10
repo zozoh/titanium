@@ -77,12 +77,12 @@ SITE
 |   |-- all.js        # -> <ti-text-raw>
 |-- img/              # -> <wn-adaptlist>
 |-- page/             # -> <wn-adaptlist>
-|   |-- home.json     # -> <wn-hmaker-page> {NEW}
+|   |-- home.json     # -> <hmaker-page> {NEW}
 |-- _app.json         # -> <ti-obj-json>
-|-- site-state.json   # -> <wn-hmaker-site> {NEW}
+|-- site-state.json   # -> <hmaker-site> {NEW}
 ```
 
-## wn-hmaker-site
+## hmaker-site
 
 ```bash
 site-state.json
@@ -98,47 +98,47 @@ site-state.json
 |-- isReady : false
 #-------------------------------------------------------------
 |-- entry   : "page/home.html"  # -> <ti-combo-input>
-|-- utils : {..}            # -> <wn-hmaker-utils-list> {NEW}
-|-- apis  : {..}            # -> <wn-hmaker-api-list> {NEW}
-|   |-- thing/get           # -> <wn-hmaker-api-item> {NEW}
-|-- schema  : {..}          # -> <wn-hmaker-schema-list> {NEW}
-|   |-- list-desktop        # -> <wn-hmaker-scheme-item> {NEW}
+|-- utils : {..}            # -> <hmaker-utils-list> {NEW}
+|-- apis  : {..}            # -> <hmaker-api-list> {NEW}
+|   |-- thing/get           # -> <hmaker-api-item> {NEW}
+|-- schema  : {..}          # -> <hmaker-schema-list> {NEW}
+|   |-- list-desktop        # -> <hmaker-scheme-item> {NEW}
 |-- blocks  : {..}          # -no-selectable-
-|   |-- desktop             # -> <wn-hmaker-layout-block-list> {NEW}
-|   |   |-- sky             # -> <wn-hmaker-layout-block-item> {NEW}
-|   |       |-- [0]: {..}   # -> <wn-hmaker-layout-block-item>
-|   |       |-- [1]: {..}   # -> <wn-hmaker-layout-block-item>
-|   |-- tablet              # -> <wn-hmaker-layout-block-list> reuse
-|   |-- phone               # -> <wn-hmaker-layout-block-list> desktop
-|-- nav     : [..]          # -> <wn-hmaker-nav-list> {NEW}
-|   |-- [0] : {..}          # -> <wn-hmaker-nav-item> {NEW}
-|   |-- [1] : {..}          # -> <wn-hmaker-nav-item>
-|-- router  : [..]          # -> <wn-hmaker-router-list> {NEW}
-|   |-- [0] : {..}          # -> <wn-hmaker-router-item> {NEW}
-|-- actions : {..}          # -> <wn-hmaker-action-list> {NEW}
-    |-- "@page:ready"       # -> <wn-hmaker-action-item> {NEW}
+|   |-- desktop             # -> <hmaker-layout-block-list> {NEW}
+|   |   |-- sky             # -> <hmaker-layout-block-item> {NEW}
+|   |       |-- [0]: {..}   # -> <hmaker-layout-block-item>
+|   |       |-- [1]: {..}   # -> <hmaker-layout-block-item>
+|   |-- tablet              # -> <hmaker-layout-block-list> reuse
+|   |-- phone               # -> <hmaker-layout-block-list> desktop
+|-- nav     : [..]          # -> <hmaker-nav-list> {NEW}
+|   |-- [0] : {..}          # -> <hmaker-nav-item> {NEW}
+|   |-- [1] : {..}          # -> <hmaker-nav-item>
+|-- router  : [..]          # -> <hmaker-router-list> {NEW}
+|   |-- [0] : {..}          # -> <hmaker-router-item> {NEW}
+|-- actions : {..}          # -> <hmaker-action-list> {NEW}
+    |-- "@page:ready"       # -> <hmaker-action-item> {NEW}
 ```
 
-## wn-hmaker-page
+## hmaker-page
 
 ```bash
 some-page.json
 |-- title   : "xxx"         # -> <ti-input>
 #-------------------------------------------------------------
-|-- apis  : {..}            # -> <wn-hmaker-api-list>
-|   |-- thing/get           # -> <wn-hmaker-api-item>
+|-- apis  : {..}            # -> <hmaker-api-list>
+|   |-- thing/get           # -> <hmaker-api-item>
 |-- data    : {..}          # -> <ti-obj-json>
 |-- params  : {..}          # -> <ti-obj-json>
 |-- layout  : {..}          # non-selectable
-|   |-- desktop             # -> <wn-hmaker-layout-block-edit> {NEW}
-|   |   |-- [0]: {..}       # -> <wn-hmaker-layout-block-item>
+|   |-- desktop             # -> <hmaker-layout-block-edit> {NEW}
+|   |   |-- [0]: {..}       # -> <hmaker-layout-block-item>
 |   |   |-- [1]: {..}       # ->  support : "@BLOCK(desktop.sky)"
-|   |-- tablet              # -> <wn-hmaker-layout-block-edit> reuse
-|   |-- phone               # -> <wn-hmaker-layout-block-edit> desktop
-|-- schema  : {..}          # -> <wn-hmaker-schema-list>
-|   |-- news-list-desktop   # -> <wn-hmaker-scheme-item>
+|   |-- tablet              # -> <hmaker-layout-block-edit> reuse
+|   |-- phone               # -> <hmaker-layout-block-edit> desktop
+|-- schema  : {..}          # -> <hmaker-schema-list>
+|   |-- news-list-desktop   # -> <hmaker-scheme-item>
 |   |-- news-detail         # -> support: "extends" : "list-desktop"
-|-- shown   : {login:false} # -> <wn-hmaker-shown-list>
-|-- actions : {..}          # -> <wn-hmaker-action-list>
-    |-- "buy-now"           # -> <wn-hmaker-action-item>
+|-- shown   : {login:false} # -> <hmaker-shown-list>
+|-- actions : {..}          # -> <hmaker-action-list>
+    |-- "buy-now"           # -> <hmaker-action-item>
 ```

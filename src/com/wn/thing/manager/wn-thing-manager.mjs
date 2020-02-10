@@ -98,8 +98,8 @@ export default {
     },
     //--------------------------------------
     schemaMethods() {
-      if(this.formedSchema && this.formedSchema.methods) {
-        return Ti.Util.merge({}, this.formedSchema.methods)
+      if(this.theSchema && this.theSchema.methods) {
+        return Ti.Util.merge({}, this.theSchema.methods)
       }
       return {}
     }

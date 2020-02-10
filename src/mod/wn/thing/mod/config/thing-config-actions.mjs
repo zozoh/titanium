@@ -42,7 +42,7 @@ export default {
   },
   //----------------------------------------
   async reloadActions({state, commit}) {
-    console.log("reloadActions")
+    // console.log("reloadActions")
     let aph  = `id:${state.meta.id}/thing-actions.json`
     let obj  = await Wn.Io.loadMeta(aph)
     let json = await Wn.Io.loadContent(obj, {as:"json"})
