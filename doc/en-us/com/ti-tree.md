@@ -364,6 +364,17 @@ Auto scroll the first highlight item into view
 If `true`, it will auto-open the sub-tree, when focus one node.
 
 -------------------------------------------------------------------
+## showRoot
+
+```js
+"showRoot" : {
+  type : Boolean,
+  default : true
+}
+```
+Show the root node
+
+-------------------------------------------------------------------
 ## nodeHandleIcons
 
 ```js
@@ -400,6 +411,15 @@ Extend function set for `transformer` in each field `display`
 ```
 
 > `@see` the defination in `<ti-table>`
+
+-------------------------------------------------------------------
+## blankAs
+
+```js
+"blankAs" : undefined
+```
+
+@see [TiTable>Properties>blankAs](ti-table.md#blankAs) 
 
 -------------------------------------------------------------------
 # Tree Node
@@ -450,7 +470,7 @@ node  : {   // The relative node
 }
 ```
 
-## opened
+## opened:changed
 
 When node open or closed, it will emit the event with payload:
 

@@ -2,8 +2,10 @@ export default {
   ////////////////////////////////////////////
   mutations : {
     //----------------------------------------
-    setRoot(state, node=null) {
-      state.root = node
+    setRoot(state, root=null) {
+      if(!_.isEqual(state.root, root)) {
+        state.root = root
+      }
     },
     //----------------------------------------
     setCurrentId(state, currentId=null) {

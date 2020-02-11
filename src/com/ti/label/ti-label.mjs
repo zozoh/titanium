@@ -74,12 +74,8 @@ export default {
     //--------------------------------------
     theValue() {
       let str = this.value
-      // Format to display
-      if(this.format || _.isDate(str)) {
-        return Ti.Types.toStr(str, this.format)
-      }
       // Auto trim
-      if(this.trim && str) {
+      if(this.trim && _.isString(str)) {
         return _.trim(str)
       }
       // Return it directly
@@ -88,16 +84,30 @@ export default {
     //--------------------------------------
     theDisplayValue() {
       let val = this.theValue
+      // Number
       if(_.isNumber(val)) {
         return val
       }
-      if(!val) {
+      // Collection
+      if(_.isArray(val) || _.isPlainObject(val)) {
+        return JSON.stringify(val, null, '  ')
+      }
+      // Normal value
+      if(Ti.Util.isNil(val)) {
         return Ti.I18n.text(this.blankAs)
       }
-      if(this.autoI18n) {
-        return Ti.I18n.text(val)
+      // Date
+      if(_.isDate(val)) {
+        return Ti.Types.toStr(val, this.format)
       }
-      return val
+      // Auto format
+      if(this.format) {
+        val = Ti.Types.toStr(val, this.format)
+      }
+      // Return & auto-i18n
+      return this.autoI18n 
+              ? Ti.I18n.text(val)
+              : val
     }
     //--------------------------------------
   },

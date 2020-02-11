@@ -1,4 +1,3 @@
-import {Ti} from "./ti.mjs"
 //-----------------------------------
 const CONFIG = {
   prefix  : {},

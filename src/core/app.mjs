@@ -1,4 +1,3 @@
-import {Ti}            from "./ti.mjs"
 import {TiVue}         from "./polyfill-ti-vue.mjs"
 import {LoadTiAppInfo, LoadTiLinkedObj} from "./app_info.mjs"
 //---------------------------------------

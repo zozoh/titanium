@@ -134,6 +134,29 @@ export const WnUtil = {
       url, 
       params : params2,
     })
+  },
+  /***
+   * Wrap meta to standard tree node
+   * 
+   * @param meta{Object} - WnObj meta data
+   * 
+   * @return TreeNode: {id,name,leaf,rawData,children}
+   */
+  wrapTreeNode(meta) {
+    if(_.isPlainObject(meta)) {
+      let node = {
+        id : meta.id,
+        name : meta.nm,
+        leaf : 'DIR' != meta.race,
+        rawData : meta
+      }
+      if(!node.leaf) {
+        node.children = []
+      }
+      if(node.id && node.name) {
+        return node
+      }
+    }
   }
 }
 ////////////////////////////////////////////

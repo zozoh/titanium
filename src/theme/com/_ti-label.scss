@@ -1,6 +1,5 @@
 .ti-label {
   @include flex-align-nowrap($ai:stretch);
-  line-height: 2em;
   //-----------------------------------------
   &.is-blank {
     @include noselect;

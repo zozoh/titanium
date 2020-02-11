@@ -1,6 +1,7 @@
 {
   "name" : "hmaker-site-manager",
   "globally" : true,
+  "i18n" : "@i18n:hmaker",
   "template" : "./hm-site-manager.html",
   "mixins" : ["./hm-site-manager.mjs"]
 }

@@ -1,4 +1,3 @@
-import {Ti} from "./ti.mjs"
 import {importModule} from "./polyfill-dynamic-import.mjs"
 /////////////////////////////////////////
 // One resource load only once

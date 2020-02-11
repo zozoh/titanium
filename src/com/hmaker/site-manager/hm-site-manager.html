@@ -1,5 +1,8 @@
-<div class="hmaker-site-manager"
-  :class="topClass"
-  v-ti-actived="__set_actived">
-  I am Hmaker Site Manager
-</div>
+<ti-gui
+  class="hmaker-site-manager"
+  :class="className"
+  keep-shown-to="hmaker-site-manager"
+  :layout="theLayout"
+  :schema="theSchema"
+  :can-loading="true"
+  @block:event="onBlockEvent"/>

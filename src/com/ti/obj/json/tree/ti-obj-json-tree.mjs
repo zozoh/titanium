@@ -78,7 +78,7 @@ export default {
       this.joinTreeTableRow(list, this.data)
 
       // Update Tree Data
-      this.theTreeData = list
+      this.theTreeData = _.first(list)
     },
     //--------------------------------------
     getJsValueType(val) {
@@ -424,7 +424,7 @@ export default {
     },
     //--------------------------------------
     async onItemChanged({name, value, data, node, nodeId}={}) {
-      console.log({name,value, data, node, nodeId})
+      //console.log({name,value, data, node, nodeId})
       //....................................
       // Guard it
       if(!node.id) {

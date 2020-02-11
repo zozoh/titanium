@@ -18,8 +18,8 @@ export default {
     },
     // The list to be rendered
     "data" : {
-      type : Array,
-      default : ()=>[]
+      type : [Object, Array],
+      default : null
     },
     "idBy" : {
       type : [String, Function],
@@ -118,6 +118,10 @@ export default {
       type : Boolean,
       default : false
     },
+    "showRoot" : {
+      type : Boolean,
+      default : true
+    },
     "nodeHandleIcons" : {
       type : Array,
       default : ()=>[
@@ -136,7 +140,8 @@ export default {
     "fields" : {
       type : Array,
       default : ()=>[]
-    }
+    },
+    "blankAs" : undefined
   },
   //////////////////////////////////////////
   watch : {
@@ -215,10 +220,6 @@ export default {
       return it => _.get(it, this.childrenBy)
     },
     //--------------------------------------
-    hasData() {
-      return !_.isEmpty(this.myTreeTableData)
-    },
-    //--------------------------------------
     isTable() {
       return _.isArray(this.fields) && !_.isEmpty(this.fields)
     },
@@ -249,10 +250,16 @@ export default {
     async evalTreeTableData() {
       let tableData = []
 
-      if(!_.isEmpty(this.data)) {
-        for(let item of this.data) {
-          await this.joinTreeTableRow(tableData, item)
-        }
+      // Array push to root
+      if(_.isArray(this.data)) {
+        await this.joinTreeTableRow(tableData, {
+          name : "ROOT",
+          children : this.data
+        })
+      }
+      // already has root
+      else {
+        await this.joinTreeTableRow(tableData, this.data)
       }
 
       this.myTreeTableData = tableData
@@ -268,6 +275,16 @@ export default {
       let itOpened = Ti.Util.fallback(
           this.myOpenedNodePaths[itPathId], 
           depth<this.defaultOpenDepth);
+      let isRoot = path.length == 0
+      // show Root
+      if(!this.showRoot) {
+        // If hide root, keep the root open
+        if(isRoot) {
+          itOpened = true
+        }
+        // indent up
+        depth --
+      }
       // Join Self
       let self = {
         id     : itId,
@@ -282,7 +299,10 @@ export default {
         leaf   : itLeaf,
         rawData : item 
       }
-      rows.push(self)
+      // Add root if necesssary
+      if(this.showRoot || !isRoot) {
+        rows.push(self)
+      }
 
       // Join Children
       if(self.opened && !self.leaf) {
@@ -332,9 +352,7 @@ export default {
         }
         // Auto Open
         if(currentRow && this.autoOpen) {
-          if(!currentRow.opened) {
-            this.$set(this.myOpenedNodePaths, currentRow.pathId, true)
-          }
+          this.openRow(currentRow)
         }
         // Store current Id
         this.myCurrentId = _.get(currentRow, "id")
@@ -360,8 +378,6 @@ export default {
       else {
         this.closeRow(row)
       }
-      // Save to Local
-      this.saveNodeOpenStatus()
     },
     //--------------------------------------
     openRow(rowOrId) {
@@ -370,6 +386,10 @@ export default {
                   : rowOrId
       if(row && !row.leaf && !row.opened) {
         this.$set(this.myOpenedNodePaths, row.pathId, true)
+        // Notify status changed
+        this.$emit("opened", row)
+        // Save to Local
+        this.saveNodeOpenStatus()
       }
     },
     //--------------------------------------
@@ -379,6 +399,10 @@ export default {
                   : rowOrId
       if(row && !row.leaf && row.opened) {
         this.$set(this.myOpenedNodePaths, row.pathId, false)
+        // Notify status changed
+        this.$emit("closed", row)
+        // Save to Local
+        this.saveNodeOpenStatus()
       }
     },
     //--------------------------------------
@@ -386,7 +410,7 @@ export default {
       if(this.keepOpenBy) {
         Ti.Storage.session.setObject(this.keepOpenBy, this.myOpenedNodePaths)
       }
-      this.$emit("opened", this.myOpenedNodePaths)
+      this.$emit("opened-status:changed", this.myOpenedNodePaths)
     },
     //--------------------------------------
     syncOpenedNodePaths() {

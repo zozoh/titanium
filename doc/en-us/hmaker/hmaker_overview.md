@@ -63,7 +63,7 @@ some-page.json
 # Editing.Modules
 
 ```bash
-SITE                  # -> @hmaker/site-explorer
+SITE                  # -> @hmaker/website/site-tree
 |-- com/              # 
 |   |-- page-footer/  # 
 |-- css/              # 
@@ -75,9 +75,9 @@ SITE                  # -> @hmaker/site-explorer
 |   |-- all.js        # 
 |-- img/              # 
 |-- page/             # 
-|   |-- home.json     # -> @hmaker/site-page
-|-- _app.json         # -> @hmaker/site-app
-|-- site-state.json   # -> @hmaker/site-state
+|   |-- home.json     # -> @wn/obj-as-json
+|-- _app.json         # -> @wn/obj-as-json
+|-- site-state.json   # -> @wn/obj-as-json
 ```
 
 The module hierarchy should be:
@@ -100,7 +100,7 @@ The `site-tree` state json should like:
   "root" : {
     "id"   : "=meta.id",   // site.meta.id as Root Node Id
     "name" : "=meta.nm",   // site.meta.nm as Root Node Name
-    "meta" : "=meta"       // refer to site.meta as WnObj
+    "rawData" : "=meta"    // refer to site.meta as WnObj
     "leaf" : false         // Indicate node as leaf or node
     // If current node is NOT leaf, which it must be, always
     // set the `children:[]`

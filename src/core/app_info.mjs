@@ -1,4 +1,3 @@
-import {Ti}    from './ti.mjs'
 //---------------------------------------
 function isTiLink(str) {
   // @com:xxx or @mod:xxx

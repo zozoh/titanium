@@ -4,7 +4,6 @@ import Session from "./wn-session.mjs"
 import Sys     from "./wn-sys.mjs"
 import Util    from "./wn-util.mjs"
 import Dict    from "./wn-dict.mjs"
-import Tree    from "./wn-tree.mjs"
 import {OpenObjSelector} from "./wn-open-obj-selector.mjs"
 import {EditObjMeta}     from "./wn-edit-obj-meta.mjs"
 import {EditObjContent}  from "./wn-edit-obj-content.mjs"
@@ -18,7 +17,7 @@ const HOOKs = {
 //---------------------------------------
 export const Wn = {
   Version: WALNUT_VERSION,
-  Io, Obj, Session, Sys, Util, Dict, Tree,
+  Io, Obj, Session, Sys, Util, Dict, 
   OpenObjSelector, EditObjMeta, EditObjContent,
   //-------------------------------------
   addHook(key, fn) {

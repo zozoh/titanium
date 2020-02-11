@@ -8,8 +8,7 @@
   <div
     v-if="isDataEmpty"
       class="ti-blank is-big">
-      <ti-icon value="zmdi-alert-circle-o"/>
-      <span>{{'empty-data'|i18n}}</span>
+      <ti-loading v-bind="blankAs"/>
   </div>
   <!--
     Show thead/tbody

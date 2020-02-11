@@ -25,14 +25,72 @@ export default {
     force=false,
     depth=1
   }={}) {
-    
+    //......................................
+    // Clone the tree
+    let treeRoot = _.cloneDeep(state.root)
+    let loaded = false
+    //......................................
+    // Find the node
+    let node;
+    if(!_.isUndefined(id)) {
+      node = Ti.Tree.getNodeById(treeRoot, id)
+    }
+    // By Path
+    else {
+      node = Ti.Tree.getNodeByPath(treeRoot, id)
+    }
+    //......................................
+    // Guard
+    if(!node) {
+      return
+    }
+    //......................................
+    // Reload self
+    if(self) {
+      let nodeMeta = await Wn.Io.loadMetaById(node.id)
+      node.rawData = nodeMeta
+      loaded = true
+    }
+    //......................................
+    // Define the loading
+    const __load_subs = async (node, depth)=>{
+      if(depth > 0 && !node.leaf) {
+        depth --;
+        if(force || _.isEmpty(node.children)) {
+          let children = []
+          let {list} = await Wn.Io.loadChildren(node.rawData)
+          for(let li of list) {
+            let sub = Wn.Util.wrapTreeNode(li)
+            await __load_subs(sub, depth)
+            children.push(sub)
+          }
+          node.children = children
+          return true
+        }
+      }
+      return false
+    }
+    //......................................
+    // Do load
+    loaded |= await __load_subs(node, depth)
+    //......................................
+    // Update the whole tree
+    if(loaded) {
+      commit("setRoot", treeRoot)
+    }
   },
   //----------------------------------------
   /***
    * Reload site root node, and reload the first leave
    */
   async reloadRoot({state, commit, dispatch}, meta) {
-    
+    let root = Wn.Util.wrapTreeNode(meta)
+
+    // Update Root Node
+    commit("setRoot", root)
+
+    // Reload Root Node
+    dispatch("reloadNode")
   }
   //----------------------------------------
 }

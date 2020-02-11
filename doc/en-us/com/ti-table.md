@@ -423,6 +423,19 @@ Auto scroll the first highlight item into view
 If select row by index, auto-scroll the index into range.
 
 -------------------------------------------------------------------
+## blankAs
+
+```js
+"blankAs" : {
+  type : Object,
+  default : ()=>({
+    icon : "zmdi-alert-circle-o",
+    text : "empty-data"
+  })
+}
+```
+
+-------------------------------------------------------------------
 # data
 
 ```js

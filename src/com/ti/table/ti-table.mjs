@@ -128,6 +128,13 @@ export default {
     "scrollIndex" : {
       type : Boolean,
       default : false
+    },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "zmdi-alert-circle-o",
+        text : "empty-data"
+      })
     }
   },
   ///////////////////////////////////////////////////
