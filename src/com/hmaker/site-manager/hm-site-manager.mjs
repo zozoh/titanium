@@ -35,19 +35,29 @@ export default {
       //....................................
       // Tree Conf
       let siteTreeConf = _.assign({
+        //=========================
         data : this.tree.root,
+        //=========================
         display : [{
-          key : "rawData",
-          type : "Object",
-          transformer : "getIconObj",
-          comType : "ti-icon"
-        }, "rawData.title","name"],
-        defaultOpenDepth : 1,
+            key : "rawData",
+            type : "Object",
+            transformer : "getIconObj",
+            comType : "ti-icon"
+          },
+          "rawData.title",
+          "name"],
+        //=========================
         blankAs : {
           icon : "zmdi-settings zmdi-hc-spin",
           text : "i18n:hmaker-site-tree-loading"
         },
-        extendFunctionSet : Wn.Util
+        //=========================
+        currentId : this.tree.currentId,
+        showRoot:false,
+        defaultOpenDepth : 1,
+        extendFunctionSet : Wn.Util,
+        openedNodePaths : this.tree.openedNodePaths
+        //=========================
       })
       //....................................
       // Source Conf
@@ -86,6 +96,16 @@ export default {
       // Opened Node
       if("site-tree.opened" == evKey) {
         Ti.App(this).dispatch("main/reloadTreeNode", {id:data.id})
+      }
+      //....................................
+      // Save Tree opened Status
+      if("site-tree.opened-status:changed" == evKey) {
+        Ti.App(this).dispatch("main/persistTreeOpenedNodePaths", data)
+      }
+      //....................................
+      // Save Tree selected Status
+      if("site-tree.selected" == evKey) {
+        Ti.App(this).dispatch("main/persistTreeSelected", data)
       }
       //....................................
     }

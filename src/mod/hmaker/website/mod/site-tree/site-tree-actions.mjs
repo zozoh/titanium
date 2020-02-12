@@ -5,7 +5,7 @@ export default {
    * It will auto load all the ancestor node of the meta in tree
    */ 
   async appendNode({state, commit, dispatch}, meta) {
-    
+    console.log("TODO appendNode", meta)
   },
   //----------------------------------------
   /***
@@ -33,11 +33,11 @@ export default {
     // Find the node
     let node;
     if(!_.isUndefined(id)) {
-      node = Ti.Tree.getNodeById(treeRoot, id)
+      node = Ti.Trees.getNodeById(treeRoot, id)
     }
     // By Path
     else {
-      node = Ti.Tree.getNodeByPath(treeRoot, id)
+      node = Ti.Trees.getNodeByPath(treeRoot, path)
     }
     //......................................
     // Guard
@@ -90,7 +90,32 @@ export default {
     commit("setRoot", root)
 
     // Reload Root Node
-    dispatch("reloadNode")
+    await dispatch("reloadNode")
+
+    // Reload The Opened Node
+    if(!_.isEmpty(state.root.children)) {
+      let keys = _.keys(state.openedNodePaths).sort()
+      for(let key of keys) {
+        let hie = Ti.Trees.getByPath(state.root, key)
+        if(hie && !hie.node.leaf) {
+          console.log("reloadNode", hie.path)
+          await dispatch("reloadNode", {
+            path : hie.path
+          })
+        }
+      }
+    }
+
+    // Append The Current Node
+    if(state.currentId) {
+      // Check if it had already loaded
+      let hie = Ti.Trees.getNodeById(state.root, state.currentId)
+      // Do reload it
+      if(!hie) {
+        let meta = await Wn.Io.loadMetaById(state.currentId)
+        await dispatch("appendNode", meta)
+      }
+    }
   }
   //----------------------------------------
 }

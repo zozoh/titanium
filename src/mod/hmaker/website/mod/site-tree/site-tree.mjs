@@ -13,7 +13,7 @@ export default {
     },
     //----------------------------------------
     setOpenedNodePaths(state, openedNodePaths={}) {
-      state.openedNodePaths = openedNodePaths
+      state.openedNodePaths = _.cloneDeep(openedNodePaths)
     }
     //----------------------------------------
   }

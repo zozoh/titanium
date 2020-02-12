@@ -344,8 +344,8 @@ export default {
       }
     },
     //--------------------------------------
-    selectRow(rowId) {
-      let theCheckedIds = {[rowId]:true}
+    selectRow(rowId, quiet) {
+      let theCheckedIds = rowId ? {[rowId]:true} : {}
       let theCurrentId  = rowId
       let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
       // Private Mode
@@ -355,7 +355,9 @@ export default {
         this.myLastIndex  = this.findRowIndexById(rowId)
       }
       // Notify Changes
-      this.$emit("selected", emitContext)
+      if(!quiet) {
+        this.$emit("selected", emitContext)
+      }
     },
     //--------------------------------------
     selectRowByIndex(rowIndex) {
@@ -700,13 +702,14 @@ export default {
     },
     //--------------------------------------
     syncCurrentId() {
-      this.myCurrentId = this.currentId
-      this.myLastIndex = this.currentId
-        ? this.findRowIndexById(this.currentId)
-        : -1
+      //console.log("syncCurrentId", this.currentId)
+      if(this.myCurrentId != this.currentId) {
+        this.selectRow(this.currentId, this.puppetMode)
+      }
     },
     //--------------------------------------
     syncCheckedIds() {
+      //console.log("syncCheckedIds", this.checkedIds)
       this.myCheckedIds = {}
       _.forEach(this.checkedIds, (rowId)=>{
         this.myCheckedIds[rowId] = true
@@ -763,8 +766,8 @@ export default {
   ///////////////////////////////////////////////////
   mounted : async function() {
     //.................................
-    this.syncCurrentId()
     this.syncCheckedIds()
+    this.syncCurrentId()
     //.................................
     // Define the method for sub-cells up-calling
     this.debounceEvalEachColumnSize = _.debounce(()=>this.evalEachColumnSize(), 100)

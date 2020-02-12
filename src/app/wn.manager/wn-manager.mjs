@@ -333,6 +333,7 @@ export default {
         return !this.loading
       },
       fail : ()=>{
+        console.log("haha")
         Ti.Toast.Open("i18n:wnm-view-opening", "warn")
       }
     })

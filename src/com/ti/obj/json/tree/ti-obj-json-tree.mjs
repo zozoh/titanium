@@ -2,7 +2,9 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   data : ()=>({
-    theTreeData : []
+    myTreeRoot : [],
+    myTreeCurrentPathId : null,
+    myTreeOpenedStatus : {}
   }),
   //////////////////////////////////////////
   props : {
@@ -78,7 +80,7 @@ export default {
       this.joinTreeTableRow(list, this.data)
 
       // Update Tree Data
-      this.theTreeData = _.first(list)
+      this.myTreeRoot = _.first(list)
     },
     //--------------------------------------
     getJsValueType(val) {
@@ -194,23 +196,26 @@ export default {
       }
     },
     //--------------------------------------
-    async doAdd(data={}, path=[]) {
+    async doAdd(root={}, path=[]) {
       // Looking for the target from data
-      let target = _.isEmpty(path) ? data : _.get(data, path)
+      let hie = Ti.Trees.getByPath(this.myTreeRoot, path)
+      let target = _.isEmpty(path) ? root : _.get(root, path)
+      let isOpened = this.myTreeOpenedStatus[path.join("/")]
+      //console.log({root, path, target, hie, isOpened})
       //.....................................
       // Guard: Fail to find the target
-      if(_.isUndefined(target)) {
+      if(!hie) {
         return
       }
       //.....................................
-      // If Array
-      if(_.isArray(target)) {
+      // If Opened Array
+      if(isOpened && _.isArray(target)) {
         // just append the nil at tail
         target.push(null)
       }
       //.....................................
-      // If Object
-      else if(_.isPlainObject(target)) {
+      // If Opened Object
+      else if(isOpened && _.isPlainObject(target)) {
         // ask the key
         let newKey = await Ti.Prompt("i18n:json-new-key")
         if(Ti.Util.isNil(newKey)) {
@@ -225,7 +230,7 @@ export default {
         //...................................
         // get the parent node
         let p_ph = path.slice(0, path.length-1);
-        let parent = _.isEmpty(p_ph) ? data : _.get(data, p_ph);
+        let parent = _.isEmpty(p_ph) ? root : _.get(root, p_ph);
         let keyOrIndex = _.last(path)
         //...................................
         // Prepare the new data
@@ -233,29 +238,20 @@ export default {
         //...................................
         // If array, insert nil after current
         if(_.isArray(parent)) {
-          stub = []
-          _.forEach(parent, (val, index)=>{
-            stub.push(val)
-            if(index == keyOrIndex) {
-              stub.push(null)
-            }
-          })
+          stub = parent
+          Ti.Util.insertToArray(parent, keyOrIndex+1, null)
         }
         //...................................
         // If Object
         else if(_.isPlainObject(parent)) {
-          stub = {}
           // ask the key
           let newKey = await Ti.Prompt("i18n:json-new-key")
           if(Ti.Util.isNil(newKey)) {
             return
           }
           // and insert nil after current path
-          _.forEach(parent, (val, key)=>{
-            stub[key] = val
-            if(key == keyOrIndex) {
-              stub[newKey] = null
-            }
+          stub = Ti.Util.appendToObject(parent, keyOrIndex, {
+            [newKey] : null
           })
         }
         //...................................
@@ -264,21 +260,25 @@ export default {
           return stub
         }
         // Set stub
-        _.set(data, p_ph, stub)
+        _.set(root, p_ph, stub)
       }
       //.....................................
-      return data
+      return root
     },
     //--------------------------------------
-    doRemove(data={}, path=[]) {
+    doRemove(root={}, path=[]) {
       // Forbid to remove the top
       if(_.isEmpty(path)) {
         return
       }
       //...................................
+      // get the candidate for next highlight
+      let hie = Ti.Trees.getByPath(this.myTreeRoot, path)
+      let can = Ti.Trees.nextCandidate(hie)
+      //...................................
       // get the parent node
       let p_ph = path.slice(0, path.length-1);
-      let parent = _.isEmpty(p_ph) ? data : _.get(data, p_ph);
+      let parent = _.isEmpty(p_ph) ? root : _.get(root, p_ph);
       let keyOrIndex = _.last(path)
       //...................................
       // Prepare the new data
@@ -304,21 +304,29 @@ export default {
           }
         })
       }
+      //.....................................
+      // Highlight the next
+      if(can && can.node) {
+        let nextPathId = _.concat(can.path, can.node.name).join("/")
+        this.$nextTick(()=>{
+          this.myTreeCurrentPathId = nextPathId
+        })
+      }
       //...................................
       // If root, return the stub 
       if(p_ph.length == 0) {
         return stub
       }
       // Set stub
-      _.set(data, p_ph, stub)
+      _.set(root, p_ph, stub)
       //.....................................
-      return data
+      return root
     },
     //--------------------------------------
-    doChangeValueType(data={}, path=[], type) {
+    doChangeValueType(root={}, path=[], type) {
       // Get the source
       let isRoot = _.isEmpty(path);
-      let src = isRoot ? data : _.get(data, path)
+      let src = isRoot ? root : _.get(root, path)
       //.....................................
       // Prepare converter
       let convert = ({
@@ -416,8 +424,8 @@ export default {
           return stub
         }
         // Update to main data
-        _.set(data, path, stub)
-        return data
+        _.set(root, path, stub)
+        return root
       }
       //.....................................
       // Fail to find the converter, return undeinfed to cancel
@@ -435,7 +443,7 @@ export default {
       let newData = _.cloneDeep(this.data)
       //....................................
       // Get the target JSON path
-      let path = node.id.split("/")
+      let path = node.path
       //....................................
       // Mutate JSON structure
       if(value && value.jsonMutate) {
@@ -445,8 +453,7 @@ export default {
           ChangeValueType : this.doChangeValueType
         })[value.jsonMutate]
         // Invoke it
-        let keys = _.slice(path, 1)
-        newData = await Ti.DoInvoke(fn, _.concat([newData, keys], value.args), this)
+        newData = await Ti.DoInvoke(fn, _.concat([newData, path], value.args), this)
 
         // Canceled the mutation
         if(_.isUndefined(newData)) {
@@ -456,13 +463,9 @@ export default {
       //....................................
       // Modify the Array/Object
       else {
-        let keys = path
-        if(/^(Array|Object)$/.test(path[0])) {
-          keys = _.slice(path, 1).join(".")
-        }
         // Set the Key
         if("name" == name) {
-          newData = Ti.Util.setKey(newData, keys, value)
+          newData = Ti.Util.setKey(newData, path, value)
         }
         // Set the Value
         else if("value" == name) {
@@ -498,12 +501,16 @@ export default {
           let v2 = _.isFunction(fn) ? fn(value) : value
           
           // Set it to data
-          _.set(newData, keys, v2)
+          _.set(newData, path, v2)
         }
       }
       //....................................
       // Emit the change
       this.$emit("changed", newData)
+    },
+    //--------------------------------------
+    onOpenedStatusChanged(opened) {
+      this.myTreeOpenedStatus = opened
     }
     //--------------------------------------
   },

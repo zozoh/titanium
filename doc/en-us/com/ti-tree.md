@@ -470,7 +470,7 @@ node  : {   // The relative node
 }
 ```
 
-## opened:changed
+## opened-status:changed
 
 When node open or closed, it will emit the event with payload:
 
@@ -479,6 +479,26 @@ When node open or closed, it will emit the event with payload:
   "Array/0" : false,
   "Array/1" : true,
   "Array/2/pet" : true
+}
+```
+
+## opened
+
+When node opened, it will emit the event with payload:
+
+```js
+{
+  /*@see TreeNode*/  
+}
+```
+
+## closed
+
+When node closed, it will emit the event with payload:
+
+```js
+{
+  /*@see TreeNode*/  
 }
 ```
 

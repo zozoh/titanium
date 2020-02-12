@@ -250,60 +250,72 @@ export default {
     async evalTreeTableData() {
       let tableData = []
 
+      //if(this.showRoot)
+      //console.log("evalTreeTableData", this.data)
+
       // Array push to root
       if(_.isArray(this.data)) {
         await this.joinTreeTableRow(tableData, {
-          name : "ROOT",
           children : this.data
-        })
+        }, null)
       }
       // already has root
       else {
-        await this.joinTreeTableRow(tableData, this.data)
+        await this.joinTreeTableRow(tableData, this.data, null)
       }
 
       this.myTreeTableData = tableData
     },
     //--------------------------------------
     async joinTreeTableRow(rows=[], item={}, path=[]) {
-      let itName = this.getNodeName(item)
-      let itPath = _.concat(path, itName)
-      let itPathId = itPath.join("/")
-      let itId = Ti.Util.fallbackNil(this.getNodeId(item), itPathId)
-      let itLeaf = this.isNodeLeaf(item)
-      let depth = path.length
-      let itOpened = Ti.Util.fallback(
-          this.myOpenedNodePaths[itPathId], 
-          depth<this.defaultOpenDepth);
-      let isRoot = path.length == 0
-      // show Root
-      if(!this.showRoot) {
-        // If hide root, keep the root open
-        if(isRoot) {
-          itOpened = true
-        }
-        // indent up
-        depth --
+      // if(this.showRoot)
+      //   console.log("joinTreeTableRow", item)
+      let self = {}
+      //....................................
+      // For ROOT
+      if(!path) {
+        self.name = this.getNodeName(item) || "$ROOT$"
+        self.path = []
+        self.pathId = "/"
+        self.id = Ti.Util.fallbackNil(this.getNodeId(item), self.pathId)
+        self.indent = 0
+        self.leaf   = this.isNodeLeaf(item)
+        self.opened = !this.showRoot
+          ? true 
+          : Ti.Util.fallback(
+              this.myOpenedNodePaths[self.pathId], 
+              self.indent < this.defaultOpenDepth);
+        self.icon   = self.leaf ? true : this.nodeHandleIcons[self.opened ? 1 : 0]
       }
-      // Join Self
-      let self = {
-        id     : itId,
-        name   : itName,
-        icon   : itLeaf 
-                  ? true
-                  : this.nodeHandleIcons[itOpened ? 1 : 0],
-        opened : itOpened ? true : false,
-        indent : depth,
-        path   : itPath,
-        pathId : itPathId,
-        leaf   : itLeaf,
-        rawData : item 
+      // Others node
+      else {
+        self.name   = this.getNodeName(item)
+        self.path   = _.concat(path, self.name)
+        self.pathId = self.path.join("/")
+        self.id = Ti.Util.fallbackNil(this.getNodeId(item), self.pathId)
+        self.indent = self.path.length
+        self.leaf   = this.isNodeLeaf(item)
+        self.opened = Ti.Util.fallback(
+          this.myOpenedNodePaths[self.pathId], 
+          self.indent < this.defaultOpenDepth);
+        self.icon   = self.leaf ? true : this.nodeHandleIcons[self.opened ? 1 : 0]
       }
+      //....................................
+      // Join the rawData
+      self.rawData = item
+      //....................................
       // Add root if necesssary
-      if(this.showRoot || !isRoot) {
+      if(this.showRoot) {
         rows.push(self)
       }
-
+      // If not show root, minus depth
+      else {
+        self.indent --
+        if(self.indent >= 0) {
+          rows.push(self)
+        }
+      }
+      //....................................
       // Join Children
       if(self.opened && !self.leaf) {
         let children = await this.getNodeChildren(item)
@@ -311,6 +323,7 @@ export default {
           await this.joinTreeTableRow(rows, child, self.path)
         }
       }
+      //....................................
     },
     //--------------------------------------
     findTableRow(rowId) {
@@ -414,10 +427,7 @@ export default {
     },
     //--------------------------------------
     syncOpenedNodePaths() {
-      this.myOpenedNodePaths = {}
-      _.forEach(this.openedNodePaths, (rowId)=>{
-        this.myOpenedNodePaths[rowId] = true
-      })
+      this.myOpenedNodePaths = _.assign({}, this.openedNodePaths)
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
@@ -449,6 +459,9 @@ export default {
     // Recover the open status from local store
     if(this.keepOpenBy) {
       this.myOpenedNodePaths = Ti.Storage.session.getObject(this.keepOpenBy)
+      if(!this.puppetMode) {
+        this.$emit("opened-status:changed", this.myOpenedNodePaths)
+      }
     }
     //................................
     // Eval Data

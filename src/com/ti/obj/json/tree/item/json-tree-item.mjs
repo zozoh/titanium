@@ -35,7 +35,7 @@ export default {
     },
     //--------------------------------------
     isTop() {
-      return this.theValuePath.length <= 1
+      return this.theValuePath.length == 0
     },
     //--------------------------------------
     theLabelDisplayText() {

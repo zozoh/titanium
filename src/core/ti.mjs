@@ -25,7 +25,7 @@ import Websocket    from "./websocket.mjs"
 import Validate     from "./validate.mjs"
 import Types        from "./types.mjs"
 import Util         from "./util.mjs"
-import Tree         from "./tree.mjs"
+import Trees        from "./trees.mjs"
 import Viewport     from "./viewport.mjs"
 import WWW          from "./www.mjs"
 import GPS          from "./gps.mjs"
@@ -60,7 +60,7 @@ const LOG_LEVELS = {
 export const Ti = {
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
-  WWW, GPS, Validate, DateTime, Num, Websocket, Tree,
+  WWW, GPS, Validate, DateTime, Num, Websocket, Trees,
   //-----------------------------------------------------
   Alert, Confirm, Prompt, Toast, Captcha, Modal,
   //-----------------------------------------------------

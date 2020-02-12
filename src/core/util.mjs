@@ -53,6 +53,78 @@ const TiUtil = {
     })
   },
   /***
+   * Insert one or more elements into specific position of list.
+   * It will mutate the given list.
+   * 
+   * @param list{Array} - target list
+   * @param pos{Integer} - 
+   *   specific position. 
+   *    0 : the head, 
+   *    -1: the tail, 
+   *    -2: before the last lement
+   * @param items{Array} - one or more elements
+   * 
+   * @return the index which to insert the items
+   */
+  insertToArray(list=[], pos=-1, ...items) {
+    // Guard
+    if(!_.isArray(list) || _.isEmpty(items))
+      return -1
+
+    // Empty array
+    if(_.isEmpty(list)) {
+      list.push(...items)
+      return 0
+    }
+
+    // Find the position
+    let index = Ti.Num.scrollIndex(pos, list.length+1)
+
+    // At the head
+    if(0 == index) {
+      list.unshift(...items)
+    }
+    // At the tail
+    else if(list.length == index) {
+      list.push(...items)
+    }
+    // At the middle
+    else {
+      let size = items.length
+      // More for room
+      for(let i=list.length-1; i>=index; i--) {
+        list[i+size] = list[i]
+      }
+      // Copy the items
+      for(let i=0; i<size; i++) {
+        list[index+i] = items[i]
+      }
+    }
+
+    // done
+    return index
+  },
+  /***
+   * Insert one or more elements after specific position of object.
+   * It will return new object.
+   * 
+   * @param list{Array} - target object
+   * @param key{String} - the anchor key
+   * @param items{Object} - new data to add
+   * 
+   * @return number or pair to add
+   */
+  appendToObject(obj={}, key=null, data={}) {
+    let stub = {}
+    _.forEach(obj, (v, k)=>{
+      stub[k] = v
+      if(key == k) {
+        _.assign(stub, data)
+      }
+    })
+    return stub
+  },
+  /***
    * @param input{Any}
    * @param iteratee{Function} - (val, path) 
    */

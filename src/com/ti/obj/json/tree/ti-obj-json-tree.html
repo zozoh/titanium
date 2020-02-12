@@ -5,9 +5,11 @@
   :border="border"
   :keep-open-by="keepOpenBy"
   :multi="true"
-  :data="theTreeData"
+  :data="myTreeRoot"
   :display="theTreeDisplay"
   :auto-open="autoOpen"
+  :current-id="myTreeCurrentPathId"
   :default-open-depth="2"
   :fields="theTreeFields"
-  @item:changed="onItemChanged"/>
+  @item:changed="onItemChanged"
+  @opened-status:changed="onOpenedStatusChanged"/>

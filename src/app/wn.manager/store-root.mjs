@@ -63,7 +63,7 @@ export default {
     },
     setSidebar(state, sidebar) {
       if(_.isArray(sidebar)) {
-        state.sidebar = [].concat(sidebar)
+        state.sidebar = _.cloneDeep(sidebar)
       }
     }
   },
