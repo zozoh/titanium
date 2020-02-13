@@ -5,9 +5,7 @@
   "actions" : "./website-actions.mjs",
   "mixins" : "./website.mjs",
   "modules" : {
-    "tree"  : "./mod/site-tree",
-    "app"   : "@mod:wn/obj-as-json",
-    "site"  : "@mod:wn/obj-as-json",
-    "page"  : "@mod:wn/obj-as-json"
+    "tree"    : "./mod/site-tree",
+    "current" : "./mod/site-current"
   }
 }

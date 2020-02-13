@@ -2,20 +2,20 @@ export default {
   ////////////////////////////////////////////////
   getters : {
     TREE_OPEND_KEY(state) {
-      if(state.meta) {
-        return `website_tree_openeds_${state.meta.id}`
+      if(state.home) {
+        return `website_tree_openeds_${state.home.id}`
       }
     },
     TREE_SELECTED_KEY(state) {
-      if(state.meta) {
-        return `website_tree_selected_${state.meta.id}`
+      if(state.home) {
+        return `website_tree_selected_${state.home.id}`
       }
     }
   },
   ////////////////////////////////////////////////
   mutations : {
-    setMeta(state, meta) {
-      state.meta = meta
+    setHome(state, home) {
+      state.home = home
     },
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)
@@ -24,9 +24,7 @@ export default {
     syncStatusChanged(state){
       if(state.current) {
         //console.log("do sync")
-        state.status.changed = state.app.status.changed
-          || state.site.status.changed
-          || state.page.status.changed
+        state.status.changed = state.current.status.changed
       }
     }
     //--------------------------------------------

@@ -1,7 +1,6 @@
-const TREE_OPEND_KEY = "tree/setOpenedNodePaths";
 export default {
   //--------------------------------------------
-  persistTreeOpenedNodePaths({getters, commit}, openeds={}) {
+  setTreeOpenedNodePaths({getters, commit}, openeds={}) {
     if(getters.TREE_OPEND_KEY) {
       openeds = _.pickBy(openeds, val=>val)
       commit("tree/setOpenedNodePaths", openeds)
@@ -9,11 +8,22 @@ export default {
     }
   },
   //--------------------------------------------
-  persistTreeSelected({getters, commit}, {currentId}={}) {
+  async setTreeSelected({getters, commit, dispatch}, {currentId}={}) {
     if(getters.TREE_SELECTED_KEY) {
       commit("tree/setCurrentId", currentId)
       Ti.Storage.session.set(getters.TREE_SELECTED_KEY, currentId)
+      // Load current
+      let meta = null
+      if(currentId) {
+        meta = await Wn.Io.loadMetaById(currentId)
+      }
+      dispatch("current/reload", meta)
     }
+  },
+  //--------------------------------------------
+  onCurrentChanged({commit, dispatch}, payload) {
+    dispatch("current/onChanged", payload)
+    commit("syncStatusChanged")
   },
   //--------------------------------------------
   async reloadPage({state, commit, dispatch}) {
@@ -42,7 +52,7 @@ export default {
     }
 
     // Reload the tree root
-    await dispatch("tree/reloadRoot", state.meta)
+    await dispatch("tree/reloadRoot", state.home)
   },
   //--------------------------------------------
   async reloadTreeNode({commit, dispatch}, payload) {
@@ -51,15 +61,15 @@ export default {
     commit("setStatus", {reloading:false})
   },
   //--------------------------------------------
-  async reload({state, commit, dispatch}, meta) {
+  async reload({state, commit, dispatch}, home) {
     //console.log("thing-manager.reload", state)
     // Update New Meta
-    if(meta) {
-      commit("setMeta", meta)
+    if(home) {
+      commit("setHome", home)
     }
-    // Get meta back
+    // Get home back
     else {
-      meta = state.meta
+      home = state.home
     }
     
     // Mark reloading

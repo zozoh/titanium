@@ -98,7 +98,7 @@ export default {
       for(let key of keys) {
         let hie = Ti.Trees.getByPath(state.root, key)
         if(hie && !hie.node.leaf) {
-          console.log("reloadNode", hie.path)
+          //console.log("reloadNode", hie.path)
           await dispatch("reloadNode", {
             path : hie.path
           })

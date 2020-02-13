@@ -62,32 +62,12 @@ some-page.json
 -------------------------------------------------------------
 # Editing.Modules
 
-```bash
-SITE                  # -> @hmaker/website/site-tree
-|-- com/              # 
-|   |-- page-footer/  # 
-|-- css/              # 
-|   |-- all.css       # 
-|-- i18n/             # 
-|   |-- zh-cn/        # 
-|       |-- all.i18n.json  # 
-|-- js/               # 
-|   |-- all.js        # 
-|-- img/              # 
-|-- page/             # 
-|   |-- home.json     # -> @wn/obj-as-json
-|-- _app.json         # -> @wn/obj-as-json
-|-- site-state.json   # -> @wn/obj-as-json
-```
-
 The module hierarchy should be:
 
 ```bash
 @hmaker/website      # reload,CRUD
-|-- tree : .mod/site-tree     # mutate: site reource as tree
-|-- app  : @wn/obj-as-json    # mutate: _app.json
-|-- site : @wn/obj-as-json    # mutate: site-state.json
-|-- page : @wn/obj-as-json    # mutate: each page
+|-- tree    : .mod/site-tree     # mutate: site reource as tree
+|-- current : .mod/site-current  # mutate: current resource content
 ```
 
 ## site-tree module

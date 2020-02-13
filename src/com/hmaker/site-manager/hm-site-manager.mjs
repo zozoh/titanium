@@ -10,6 +10,10 @@ export default {
     "tree" : {
       type : Object,
       default : ()=>({})
+    },
+    "current" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////
@@ -62,7 +66,7 @@ export default {
       //....................................
       // Source Conf
       let siteItemConf = {
-        value : this.tree
+        value : this.current
       }
       //....................................
       // Done
@@ -100,12 +104,12 @@ export default {
       //....................................
       // Save Tree opened Status
       if("site-tree.opened-status:changed" == evKey) {
-        Ti.App(this).dispatch("main/persistTreeOpenedNodePaths", data)
+        Ti.App(this).dispatch("main/setTreeOpenedNodePaths", data)
       }
       //....................................
       // Save Tree selected Status
       if("site-tree.selected" == evKey) {
-        Ti.App(this).dispatch("main/persistTreeSelected", data)
+        Ti.App(this).dispatch("main/setTreeSelected", data)
       }
       //....................................
     }
