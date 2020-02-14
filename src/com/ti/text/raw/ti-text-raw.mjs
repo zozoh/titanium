@@ -1,5 +1,8 @@
 export default {
+  inheritAttrs : false,
+  ///////////////////////////////////////////////////
   props : {
+    "className" : null,
     "icon" : {
       type : Object,
       default : ()=>({
@@ -28,12 +31,15 @@ export default {
       default : "i18n:blank"
     }
   },
+  ///////////////////////////////////////////////////
   computed : {
     topClass() {
-      return {
+      return Ti.Css.mergeClassName({
+        "is-self-actived" : this.isSelfActived,
+        "is-actived"     : this.isActived,
         "show-title" : this.showTitle,
         "hide-title" : !this.showTitle
-      }
+      }, this.className)
     },
     headClass() {
       return {
@@ -44,6 +50,7 @@ export default {
       return Ti.I18n.text(this.blankText)
     }
   },
+  ///////////////////////////////////////////////////
   methods : {
     onChangeTextarea() {
       let vm = this
@@ -52,9 +59,11 @@ export default {
       vm.$emit("changed", txt)
     }
   },
-  created() {
+  ///////////////////////////////////////////////////
+  created : function() {
     this.onDebounceChangeTextarea = _.debounce(
       this.onChangeTextarea, 500
     )
   }
+  ///////////////////////////////////////////////////
 }

@@ -83,7 +83,7 @@
           "key"  : "exposeHidden",
           "type" : "action",
           "icon" : "zmdi-eye-off",
-          "text" : "i18n:weo-export-hidden",
+          "text" : "i18n:wn-export-hidden",
           "altDisplay" : {
             "icon" : "zmdi-eye",
             "capture" : false

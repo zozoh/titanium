@@ -48,7 +48,7 @@ export default {
   async deleteSelected({commit, getters, dispatch}) {
     let list = getters.selectedItems
     if(_.isEmpty(list)) {
-      return await Ti.Toast.Open('i18n:weo-del-none', "warn")
+      return await Ti.Toast.Open('i18n:wn-del-none', "warn")
     }
     commit("setStatus", {deleting:true})
     let delCount = 0
@@ -80,7 +80,7 @@ export default {
           if(count > 0) {
             // If user confirmed, then rm it recurently
             if(!(await Ti.Confirm({
-                text:'i18n:weo-del-no-empty-folder', vars:{nm:it.nm}}))) {
+                text:'i18n:wn-del-no-empty-folder', vars:{nm:it.nm}}))) {
               commit("updateItemStatus", {id:it.id, status:null})
               continue
             }
@@ -89,7 +89,7 @@ export default {
         // Do delete
         // TODO 等增加了全局的 Log 模块，就搞一下这个
         // commit("$log", {
-        //   text:"i18n:weo-del-item", vars:{name:it.nm}
+        //   text:"i18n:wn-del-item", vars:{name:it.nm}
         // })
         await Wn.Sys.exec(`rm ${'DIR'==it.race?"-r":""} id:${it.id}`)
         // Mark item removed
@@ -112,21 +112,21 @@ export default {
     finally {
       commit("setStatus", {deleting:false})
       //commit("$log", null)
-      //commit("$noti", {text:"i18n:weo-del-ok", vars:{N:delCount}})
-      Ti.Toast.Open("i18n:weo-del-ok", {N:delCount}, "success")
+      //commit("$noti", {text:"i18n:wn-del-ok", vars:{N:delCount}})
+      Ti.Toast.Open("i18n:wn-del-ok", {N:delCount}, "success")
     }
   },
   //---------------------------------------
   async rename({getters, commit}) {
     let it = getters.currentItem
     if(!it) {
-      return await Ti.Alert('i18n:weo-rename-none')
+      return await Ti.Alert('i18n:wn-rename-none')
     }
     commit("setStatus", {renaming:true})
     try {
       // Get newName from User input
       let newName = await Ti.Prompt({
-          text : 'i18n:weo-rename',
+          text : 'i18n:wn-rename',
           vars : {name:it.nm}
         }, {
           title : "i18n:rename",
@@ -137,11 +137,11 @@ export default {
       if(newName) {
         // Check the newName contains the invalid char
         if(newName.search(/[%;:"'*?`\t^<>\/\\]/)>=0) {
-          return await Ti.Alert('i18n:weo-rename-invalid')
+          return await Ti.Alert('i18n:wn-rename-invalid')
         }
         // Check the newName length
         if(newName.length > 256) {
-          return await Ti.Alert('i18n:weo-rename-too-long')
+          return await Ti.Alert('i18n:wn-rename-too-long')
         }
         // Mark renaming
         commit("updateItemStatus", 
@@ -152,15 +152,15 @@ export default {
             {as:"json"})
         // Error
         if(newMeta instanceof Error) {
-          //commit("$toast", {text:"i18n:weo-rename-fail", type:"error"})
-          Ti.Toast.Open("i18n:weo-rename-fail", "error")
+          //commit("$toast", {text:"i18n:wn-rename-fail", type:"error"})
+          Ti.Toast.Open("i18n:wn-rename-fail", "error")
           commit("updateItemStatus", 
             {id:it.id, status:{loading:false}})
         }
         // Replace the data
         else {
-          //commit("$toast", "i18n:weo-rename-ok")
-          Ti.Toast.Open("i18n:weo-rename-ok", "success")
+          //commit("$toast", "i18n:wn-rename-ok")
+          Ti.Toast.Open("i18n:wn-rename-ok", "success")
           commit("updateItem", newMeta)
         }
       }  // ~ if(newName)
@@ -174,13 +174,13 @@ export default {
   async download({getters}) {
     let list = getters.selectedItems
     if(_.isEmpty(list)) {
-      return await Ti.Alert('i18n:weo-download-none')
+      return await Ti.Alert('i18n:wn-download-none')
     }
     //let link = Wn.Util.getMetaLinkObj()
     //Ti.Be.Open("http://www.nutzam.com")
     if(list.length > 5) {
       if(!await Ti.Confirm({
-        text : "i18n:weo-download-too-many",
+        text : "i18n:wn-download-too-many",
         vars : {N:list.length}})) {
         return
       }
@@ -189,7 +189,7 @@ export default {
     for(let it of list) {
       if('FILE' != it.race) {
         if(!await Ti.Confirm({
-            text : "i18n:weo-download-dir",
+            text : "i18n:wn-download-dir",
             vars : it
           }, {
             textYes : "i18n:continue",
@@ -251,9 +251,9 @@ export default {
     if(!meta.publish_to) {
       // commit("$toast", {
       //   type : "warning",
-      //   text : "i18n:weo-publish-to-nil"
+      //   text : "i18n:wn-publish-to-nil"
       // })
-      Ti.Toast.Open("i18n:weo-publish-to-nil", "warn")
+      Ti.Toast.Open("i18n:wn-publish-to-nil", "warn")
       return
     }
     // Get the target
@@ -261,9 +261,9 @@ export default {
     if(!ta || !ta.id) {
       // commit("$toast", {
       //   type : "warning",
-      //   text : "i18n:weo-publish-to-noexist"
+      //   text : "i18n:wn-publish-to-noexist"
       // })
-      Ti.Toast.Open("i18n:weo-publish-to-noexist", "warn")
+      Ti.Toast.Open("i18n:wn-publish-to-noexist", "warn")
       return
     }
 
@@ -274,8 +274,8 @@ export default {
 
     // All done
     commit("setStatus", {publishing:false})
-    //commit("$toast", "i18n:weo-publish-done")
-    Ti.Toast.Open("i18n:weo-publish-done", "success")
+    //commit("$toast", "i18n:wn-publish-done")
+    Ti.Toast.Open("i18n:wn-publish-done", "success")
   },
   //---------------------------------------
   /***
@@ -373,11 +373,11 @@ export default {
     if(no && no.name) {
       // Check the newName contains the invalid char
       if(no.name.search(/[%;:"'*?`\t^<>\/\\]/)>=0) {
-        return await Ti.Alert('i18n:weo-create-invalid')
+        return await Ti.Alert('i18n:wn-create-invalid')
       }
       // Check the newName length
       if(no.length > 256) {
-        return await Ti.Alert('i18n:weo-create-too-long')
+        return await Ti.Alert('i18n:wn-create-too-long')
       }      
       // Do the creation
       let json = JSON.stringify({
@@ -390,13 +390,13 @@ export default {
           {as:"json"})
       // Error
       if(newMeta instanceof Error) {
-        //commit("$toast", {text:"i18n:weo-create-fail", type:"error"})
-        Ti.Toast.Open("i18n:weo-create-fail", "error")
+        //commit("$toast", {text:"i18n:wn-create-fail", type:"error"})
+        Ti.Toast.Open("i18n:wn-create-fail", "error")
       }
       // Replace the data
       else {
-        //commit("$toast", "i18n:weo-create-ok")
-        Ti.Toast.Open("i18n:weo-create-ok", "success")
+        //commit("$toast", "i18n:wn-create-ok")
+        Ti.Toast.Open("i18n:wn-create-ok", "success")
         await dispatch("reload")
       }
     }  // ~ if(newName)

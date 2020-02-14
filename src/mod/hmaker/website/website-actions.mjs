@@ -17,7 +17,8 @@ export default {
       if(currentId) {
         meta = await Wn.Io.loadMetaById(currentId)
       }
-      dispatch("current/reload", meta)
+      await dispatch("current/reload", meta)
+      commit("syncStatusChanged")
     }
   },
   //--------------------------------------------
@@ -26,16 +27,12 @@ export default {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async reloadPage({state, commit, dispatch}) {
-    
+  async reloadConfig({state, dispatch}) {
+    await dispatch("config/reload")
   },
   //--------------------------------------------
-  async reloadSite({state, commit, dispatch}) {
-    
-  },
-  //--------------------------------------------
-  async reloadApp({state, commit, dispatch}) {
-    
+  async reloadCurrent({state, commit, dispatch}) {
+    await dispatch("current/reload")
   },
   //--------------------------------------------
   async reloadTree({getters, state, commit, dispatch}) {
@@ -76,9 +73,8 @@ export default {
     commit("setStatus", {reloading:true})
 
     // Reloading
+    await dispatch("reloadConfig")
     await dispatch("reloadTree")
-    await dispatch("reloadApp")
-    await dispatch("reloadSite")
 
     // Auto Select the first item
     // TODO

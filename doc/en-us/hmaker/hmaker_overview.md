@@ -68,6 +68,7 @@ The module hierarchy should be:
 @hmaker/website      # reload,CRUD
 |-- tree    : .mod/site-tree     # mutate: site reource as tree
 |-- current : .mod/site-current  # mutate: current resource content
+|-- setup   : .mod/site-setup    # readonly: current site view routering etc.
 ```
 
 ## site-tree module

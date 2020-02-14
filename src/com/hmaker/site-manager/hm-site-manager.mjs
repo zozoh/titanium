@@ -1,5 +1,42 @@
+/////////////////////////////////////////////
+class HmViewMapping {
+  constructor(mapping) {
+    this.types = new Ti.Mapping(mapping.types)
+    this.mimes = new Ti.Mapping(mapping.mimes)
+    this.races = new Ti.Mapping(mapping.races)
+  }
+  getView(meta, dft) {
+    let view;
+    // Try meta
+    if(meta) {
+      // By Type
+      view = this.types.get(meta.tp)
+      // By Mimes
+      if(_.isUndefined(view)) {
+        view = this.mimes.get(meta.mime)
+      }
+      // By Race
+      if(_.isUndefined(view)) {
+        view = this.races.get(meta.race)
+      }
+    }
+    // By Default
+    if(_.isUndefined(view)) {
+      view = dft
+    }
+    // Done
+    return view
+  }
+}
+/////////////////////////////////////////////
 export default {
   inheritAttrs : false,
+  ///////////////////////////////////////////
+  data : ()=>({
+    myActions : null,
+    myCooling : -1,
+    myCurrentView : null
+  }),
   //////////////////////////////////////////
   props : {
     "className" : null,
@@ -14,10 +51,23 @@ export default {
     "current" : {
       type : Object,
       default : ()=>({})
+    },
+    "config" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    theConfig() {
+      return this.config[this.viewportMode] || {}
+    },
+    //--------------------------------------
+    theViewsMapping() {
+      let mapping = this.theConfig.mapping || {}
+      return new HmViewMapping(mapping)
+    },
     //--------------------------------------
     theLayout() {
       return {
@@ -29,8 +79,8 @@ export default {
           name  : "site-tree",
           body  : "desktop-site-tree"
         }, {
-          name  : "site-item",
-          body  : "desktop-site-item"
+          name  : "site-current",
+          body  : "desktop-site-current"
         }]
       }
     },
@@ -65,9 +115,7 @@ export default {
       })
       //....................................
       // Source Conf
-      let siteItemConf = {
-        value : this.current
-      }
+      // It will watch the myCurrentView
       //....................................
       // Done
       return {
@@ -75,12 +123,25 @@ export default {
           comType : "ti-tree", 
           comConf : siteTreeConf
         },
-        "desktop-site-item" : {
-          comType : "ti-label",
-          comConf : siteItemConf
-        }
+        "desktop-site-current" : this.myCurrentView
       }
       //....................................
+    },
+    //--------------------------------------
+    hasCurrent() {
+      return this.current && this.current.meta
+    },
+    //--------------------------------------
+    theCurrentIcon() {
+      if(this.hasCurrent) {
+        return Wn.Util.getIconObj(this.current.meta)
+      }
+    },
+    //--------------------------------------
+    theCurrentTitle() {
+      if(this.hasCurrent) {
+        return Wn.Util.getObjDisplayName(this.current.meta)
+      }
     }
     //--------------------------------------
   },
@@ -112,8 +173,86 @@ export default {
         Ti.App(this).dispatch("main/setTreeSelected", data)
       }
       //....................................
+      if("site-current.changed" == evKey) {
+        Ti.App(this).dispatch("main/onCurrentChanged", data)
+      }
+      //....................................
+    },
+    //--------------------------------------
+    evalCurrentView() {
+      let view = {
+        comType : "ti-label",
+        comConf : {
+          value : "=current.meta"
+        }
+      }
+      if(this.hasCurrent) {
+        view = this.theViewsMapping.getView(this.current.meta, view)
+      }
+      if(_.isString(view)) {
+        view = {
+          comType : view,
+          comConf : {
+            icon  : "=theCurrentIcon",
+            title : "=theCurrentTitle",
+            meta  : "=current.meta",
+            data  : "=current.data",
+            content : "=current.content",
+            contentIsChanged : "=current.status.changed"
+          }
+        }
+      }
+      this.myCurrentView = Ti.Util.explainObj(this, view)
+    },
+    //--------------------------------------
+    setMyActions(actions) {
+      this.myActions = _.cloneDeep(actions)
+      this.myCooling = Date.now()
+    },
+    //--------------------------------------
+    checkActionsUpdate() {
+      //console.log("checkActionsUpdate")
+      // Not need to check
+      if(this.myCooling < 0) {
+        return
+      }
+      // Wait cooling 1000ms
+      if(Date.now() - this.myCooling > 300) {
+        this.$emit("actions:updated", this.myActions)
+        this.myCooling = -1
+      }
+      // Wait cooling 1000ms
+      else {
+        _.delay(()=>{
+          this.checkActionsUpdate()
+        }, 200)
+      }
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "theConfig.actions" : function(newActions, oldActions) {
+      //console.log("theConfig.actions", this.theConfig.actions)
+      if(!_.isEqual(newActions, oldActions)) {
+        this.setMyActions(newActions)
+      }
+    },
+    // To prevent the action update too often
+    "myCooling" : function(cooling) {
+      if(cooling > 0) {
+        this.checkActionsUpdate()
+      }
+    },
+    // current changed
+    "current.content" : function() {
+      this.evalCurrentView()
+    }
+  },
+  //////////////////////////////////////////
+  mounted : function() {
+    this.setMyActions(this.theConfig.actions)
+    this.evalCurrentView()
   }
   //////////////////////////////////////////
 }

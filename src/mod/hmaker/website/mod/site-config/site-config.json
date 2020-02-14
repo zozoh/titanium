@@ -1,0 +1,23 @@
+{
+  "meta" : null,
+  "desktop" : {
+    "mapping" : {
+      "types" : {
+      },
+      "mimes" : {
+        "text/*" : "ti-text-raw",
+        "application/json" : "ti-obj-json",
+        "application/*" : "ti-text-raw"
+      },
+      "races" : {
+        "DIR"  : "wn-adaptlist",
+        "FILE" : "wn-obj-preview"
+      }
+    }
+  },
+  "tablet" : "desktop",
+  "phone" : "desktop",
+  "status" : {
+    "reloading" : false
+  }
+}

@@ -294,10 +294,10 @@ export default {
   },
   //////////////////////////////////////////////
   watch : {
-    "mainComType" : function(newType){
-      Ti.Shortcut.removeWatch(this)
-      Ti.Shortcut.addWatch(this, this.mainActions)
-    },
+    // "mainComType" : function(newType){
+    //   Ti.Shortcut.removeWatch(this)
+    //   Ti.Shortcut.addWatch(this, this.mainActions)
+    // },
     "obj.meta" : function(meta) {
       // Push history to update the browser address bar
       let his = window.history
@@ -334,7 +334,7 @@ export default {
       },
       fail : ()=>{
         console.log("haha")
-        Ti.Toast.Open("i18n:wnm-view-opening", "warn")
+        Ti.Toast.Open("i18n:wn-view-opening", "warn")
       }
     })
     //......................................

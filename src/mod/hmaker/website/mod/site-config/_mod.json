@@ -1,0 +1,7 @@
+{
+  "name" : "hmaker-site-config",
+  "namespaced" : true,
+  "state" : "./site-config.json",
+  "actions" : "./site-config-actions.mjs",
+  "mixins" : "./site-config.mjs"
+}
