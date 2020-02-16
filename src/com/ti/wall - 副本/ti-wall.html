@@ -1,0 +1,43 @@
+<div class="ti-wall" 
+  :class="topClass"
+  @click="onBlur">
+  <!--
+    Empty Data
+  -->
+  <div v-if="isEmpty" class="is-empty">
+    <ti-icon value="zmdi-alert-circle-o"/>
+    <span>{{"empty-data"|i18n}}</span>
+  </div>
+  <!--
+    Show tiles
+  -->
+  <template v-else>
+    <!--tiles-->
+    <ti-wall-tile
+      v-for="(it, index) in list"
+      v-if="!isHidden(it)"
+      :key="it[idKey]"
+      :id-key="idKey"
+      :class-name="itemClassName"
+      :data="it"
+      :changed-id="changedId"
+      :current-id="p_current_id"
+      :checked-ids="p_checked_ids"
+      :fn-set="fnSet"
+      :transformer="transformer"
+      :width="itemWidth"
+      :height="itemHeight"
+      :com-type="comType"
+      :com-conf="comConf"
+      :index="index"
+      @selected="onTileSelected"
+      @wall:tile:event="onTileEvent"
+      @click.native.stop="onSelected({it, index, $event})"
+      @dblclick.native.stop="onOpen(it, index)"/>
+    <!--Blank Tile-->
+    <div v-for="bc in blankCols"
+      class="wall-tile"
+      :style="bc">
+    </div>
+  </template>
+</div>

@@ -13,15 +13,8 @@
     "count": 0
   },
   "list" : [],
-  "currentId" : null,
-  "checkedIds" : [],
-  "uploadings" : [],
-  "uploadDialog" : false,
   "status" : {
-    "publishing" : false,
     "reloading" : false,
-    "deleting" : false,
-    "exposeHidden" : false,
-    "renaming" : false
+    "exposeHidden" : false
   }
 }

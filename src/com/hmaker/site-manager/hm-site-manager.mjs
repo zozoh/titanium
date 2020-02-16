@@ -55,6 +55,10 @@ export default {
     "config" : {
       type : Object,
       default : ()=>({})
+    },
+    "status" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////
@@ -202,7 +206,9 @@ export default {
           }
         }
       }
-      this.myCurrentView = Ti.Util.explainObj(this, view)
+      this.$nextTick(()=>{
+        this.myCurrentView = Ti.Util.explainObj(this, view)
+      })
     },
     //--------------------------------------
     setMyActions(actions) {
@@ -245,7 +251,8 @@ export default {
       }
     },
     // current changed
-    "current.content" : function() {
+    "current.meta" : function() {
+      console.log("watch current.meta")
       this.evalCurrentView()
     }
   },

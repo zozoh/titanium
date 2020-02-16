@@ -48,7 +48,6 @@ export default {
         "visibility" : "hidden",
         "position"   : "relative"
       }
-      console.log("haha")
       // If ready, then resize to zoom
       if(this.naturalWidth > 0
         && this.naturalHeight > 0) {

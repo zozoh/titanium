@@ -35,7 +35,7 @@
             "icon" : "zmdi-refresh zmdi-hc-spin",
             "text" : "i18n:del-ing"
           },
-          "action" : "dispatch:main/deleteSelected",
+          "action" : "main:doDelete",
           "shortcut" : "CTRL+DELETE"
         },{
           "type":"line"
@@ -47,7 +47,7 @@
           "altDisplay" : {
             "icon" : "zmdi-refresh zmdi-hc-spin"
           },
-          "action" : "dispatch:main/rename",
+          "action" : "main:doRename",
           "shortcut" : "F2"
         },{
           "type":"line"
@@ -56,39 +56,27 @@
           "type" : "action",
           "icon" : "zmdi-check-all",
           "text" : "i18n:select-all",
-          "action" : "commit:main/selectAll",
+          "action" : "main:invokeList(checkRow)",
           "shortcut" : "CTRL+A"
         },{
-          "key"  : "blurAll",
+          "key"  : "cancelAll",
           "type" : "action",
           "icon" : "zmdi-minus",
-          "text" : "i18n:blur-all",
-          "action" : "commit:main/blurAll"
-        },{
-          "type" : "line"
-        },{
-          "key"  : "publishing",
-          "type" : "action",
-          "icon" : "zmdi-mail-send",
-          "text" : "i18n:publish",
-          "altDisplay" : {
-            "icon" : "zmdi-refresh zmdi-hc-spin",
-            "text" : "i18n:publishing"
-          },
-          "action" : "dispatch:main/publish",
-          "shortcut" : "CTRL+SHIFT+P"
+          "text" : "i18n:canel-all",
+          "action" : "main:invokeList(cancelRow)"
         },{
           "type" : "line"
         },{
           "key"  : "exposeHidden",
           "type" : "action",
-          "icon" : "zmdi-eye-off",
-          "text" : "i18n:wn-export-hidden",
+          "icon" : "zmdi-eye",
+          "text" : "i18n:wn-expose-hidden-on",
           "altDisplay" : {
-            "icon" : "zmdi-eye",
+            "icon" : "zmdi-eye-off",
+            "text" : "i18n:wn-expose-hidden-off",
             "capture" : false
           },
-          "action" : "commit:main/toggleExposeHidden",
+          "action" : "main:toggleExposeHidden",
           "shortcut" : "ALT+CTRL+SHIFT+H"
         },{
           "type" : "line"
@@ -106,7 +94,7 @@
           "type" : "action",
           "icon" : "zmdi-download",
           "text" : "i18n:download-to-local",
-          "action" : "dispatch:main/download"
+          "action" : "main:doDownload"
         },{
           "type" : "line"
         },{

@@ -3,7 +3,10 @@
   "globally" : true,
   "template" : "./ti-table.html",
   "methods" : "@com:ti/support/field_display.mjs",
-  "mixins" : ["./ti-table.mjs"],
+  "mixins" : [
+    "@com:ti/support/list_mixins.mjs",
+    "./ti-table.mjs"
+  ],
   "components" : [
     "./com/table-row",
     "./com/table-cell"

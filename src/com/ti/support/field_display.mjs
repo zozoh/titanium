@@ -71,7 +71,8 @@ export default {
     displayItem={}, 
     vars={},
     explainDict=_.identity,
-    autoIgnoreNil=true
+    autoIgnoreNil=true,
+    autoValue="value"
   }={}) {
     let value = displayItem.defaultAs;
     //.....................................
@@ -183,8 +184,8 @@ export default {
     }
     //.....................................
     // Set the default value key
-    if(_.isUndefined(comConf.value)) {
-      comConf.value = value
+    if(autoValue && _.isUndefined(comConf[autoValue])) {
+      comConf[autoValue] = value
     }
     //.....................................
     reDisplayItem.comConf = comConf

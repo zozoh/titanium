@@ -22,6 +22,10 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "changedId" : {
+      type : String,
+      default : null
+    },
     "currentId" : {
       type : String,
       default : null
@@ -76,11 +80,16 @@ export default {
         "is-current" : this.isCurrent,
         "is-checked" : this.isChecked,
         "is-hover"   : this.isHover,
+        "is-changed" : this.isChanged,
       }, this.className, `row-indent-${this.indent}`)
     },
     //-----------------------------------------------
     isCurrent() {
       return this.rowId == this.currentId
+    },
+    //-----------------------------------------------
+    isChanged() {
+      return this.rowId == this.changedId
     },
     //-----------------------------------------------
     isChecked() {

@@ -6,6 +6,7 @@
     "saving"     : false,
     "deleting"   : false,
     "changed"    : false,
-    "publishing" : false
+    "publishing" : false,
+    "exposeHidden" : false
   }
 }

@@ -46,8 +46,7 @@
     Footer for item title text
   -->
   <footer v-if="showFooter">
-    <div class="as-title"
-      @click.stop="onClickTitle">
+    <div class="as-title">
       <a v-if="href"
         :href="href"
         @click.prevent>{{title}}</a>

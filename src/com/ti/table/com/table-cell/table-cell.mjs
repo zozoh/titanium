@@ -101,9 +101,6 @@ export default {
 
       // make table resizing
       this.$parent.$parent.debounceEvalEachColumnSize()
-
-      // Then return
-      return items;
     },
     //-----------------------------------------------
     onItemChanged(item, payload) {

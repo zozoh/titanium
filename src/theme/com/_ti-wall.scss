@@ -24,7 +24,7 @@
   > .wall-tile {
     border:0;
     //----------------------------------
-    &.is-selected {
+    &.is-checked {
       @include color($color-selected, r, c);
     }
     //----------------------------------

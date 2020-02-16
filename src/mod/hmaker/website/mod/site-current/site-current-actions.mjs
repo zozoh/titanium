@@ -5,13 +5,12 @@ export default {
     if(!state.meta) {
       return
     }
-
     // Pure Text
     if(_.isString(payload)) {
       commit("setContent", payload||"");
     }
     // JSON data
-    else if(Wn.Util.isMimeJson(payload.mime)) {
+    else if(Wn.Util.isMimeJson(state.meta.mime)) {
       let json = JSON.stringify(payload, null, '  ');
       commit("setContent", json)
     }
@@ -47,25 +46,40 @@ export default {
       || state.status.saving){
       return
     }
-
+    //......................................
     // Use the default meta
     if(_.isUndefined(meta)) {
       meta = state.meta
     }
-    
+    //......................................
+    // Guard
+    if(!meta) {
+      return
+    }
     // Init content as null
     let content = null
-    
-    // Has meta, may need to be reload content
-    if(meta) {
-      commit("setStatus", {reloading:true})
+    let data = null
+    commit("setStatus", {reloading:true})
+    //......................................
+    // For file
+    if("FILE" == meta.race) {
       // need to be reload content
       content = await Wn.Io.loadContent(meta)
-      commit("setStatus", {reloading:false})
+      if(Wn.Util.isMimeJson(meta.mime)) {
+        data = JSON.parse(content)
+      }
     }
+    //......................................
+    // For dir
+    else if('DIR' == meta.race) {
+      data = await Wn.Io.loadChildren(meta)
+    }
+    //......................................
     // Just update the meta
+    commit("setStatus", {reloading:false})
     commit("setMeta", meta)
     commit("setContent", content)
+    commit("setData", data||{})
     commit("setSavedContent", content)
     commit("syncStatusChanged")
   }

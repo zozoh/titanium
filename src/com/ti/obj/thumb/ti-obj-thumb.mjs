@@ -63,12 +63,11 @@ export default {
   ////////////////////////////////////////////////
   computed : {
     classObject() {
-      let vm = this
       return {
-        "is-removed"    : vm.removed,
-        "is-loading"    : vm.loading,
-        "is-hide" : ('hide' == vm.visibility),
-        "is-weak" : ('weak' == vm.visibility)
+        "is-removed"    : this.removed,
+        "is-loading"    : this.loading,
+        "is-hide" : ('hide' == this.visibility),
+        "is-weak" : ('weak' == this.visibility)
       }
     },
     showProgress() {
@@ -83,15 +82,6 @@ export default {
   },
   ////////////////////////////////////////////////
   methods : {
-    //--------------------------------------------
-    onClickTitle($event) {
-      //console.log("onClickTitle", $event)
-      this.$emit("selected", {
-        index : this.index,
-        id : this.id,
-        $event : $event
-      })
-    },
     //--------------------------------------------
     renderLocalFile() {
       if('localFile' == this.preview.type) {

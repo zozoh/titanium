@@ -107,15 +107,15 @@ export default {
     }
 
     // Append The Current Node
-    if(state.currentId) {
-      // Check if it had already loaded
-      let hie = Ti.Trees.getNodeById(state.root, state.currentId)
-      // Do reload it
-      if(!hie) {
-        let meta = await Wn.Io.loadMetaById(state.currentId)
-        await dispatch("appendNode", meta)
-      }
-    }
+    // if(state.currentId) {
+    //   // Check if it had already loaded
+    //   let hie = Ti.Trees.getNodeById(state.root, state.currentId)
+    //   // Do reload it
+    //   if(!hie) {
+    //     let meta = await Wn.Io.loadMetaById(state.currentId)
+    //     await dispatch("appendNode", meta)
+    //   }
+    // }
   }
   //----------------------------------------
 }

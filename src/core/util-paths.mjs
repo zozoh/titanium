@@ -74,7 +74,7 @@ const TiPaths = {
       var p1 = path.lastIndexOf('/');
       if (-1 == p0 || p0 < p1)
           return "";
-      var sfnm = path.substring(p0 + 1);
+      var sfnm = path.substring(p0);
       return forceLower ? sfnm.toLowerCase() : sfnm;
   },
   /***

@@ -2,31 +2,22 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   data : ()=>({
-    
+    myCom : null
   }),
   ///////////////////////////////////////////////////
   props : {
-    "idKey" : {
-      type : String,
-      default : "id"
-    },
-    "className" : {
-      type : String,
-      default : null
-    },
-    // Wall-Tile width
-    "width" : {
-      type : [String, Number],
-      default : null
-    },
-    // Wall-Tile height
-    "height" : {
-      type : [String, Number],
-      default : null
-    },
+    "className" : null,
     "index" : {
       type : Number,
       default : -1
+    },
+    "rowId" : {
+      type : String,
+      default : null
+    },
+    "display" : {
+      type : Object,
+      default : null
     },
     "data" : {
       type : Object,
@@ -44,52 +35,44 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    // Function set of transform
-    "fnSet" : {
-      type : Object,
-      default : ()=>({})
+    "checkable" : {
+      type : Boolean,
+      default : false
     },
-    // Transform the data
-    "transformer" : {
-      type : [String,Object,Function],
-      default : null
-    },
-    // Item Display Com
-    "comType" : {
-      type : String,
-      default : "ti-label"
-    },
-    "comConf" : {
-      type : Object,
-      default : ()=>({
-        value : "=item"
-      })
-    },
-    "hijackable" : {
+    "selectable" : {
       type : Boolean,
       default : true
+    },
+    "openable" : {
+      type : Boolean,
+      default : true
+    },
+    "explainDict" : {
+      type : Function,
+      default : _.identity
+    },
+    // Wall-Tile width
+    "width" : {
+      type : [String, Number],
+      default : null
+    },
+    // Wall-Tile height
+    "height" : {
+      type : [String, Number],
+      default : null
     }
   },
   ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
     topClass() {
-      let itId = this.data[this.idKey]
-      let klass = []
-      if(this.className) {
-        klass.push(this.className)
-      }
-      if(this.checkedIds && this.checkedIds[itId]) {
-        klass.push("is-selected")
-      }
-      if(this.currentId && this.currentId == itId) {
-        klass.push("is-current")
-      }
-      if(this.changedId && this.changedId == itIds) {
-        klass.push("is-changed")
-      }
-      if(!_.isEmpty(klass))
-        return klass.join(" ")
+      return Ti.Css.mergeClassName({
+        "is-self-actived" : this.isSelfActived,
+        "is-actived" : this.isActived,
+        "is-current" : this.isCurrent,
+        "is-checked" : this.isChecked,
+        "is-changed" : this.isChanged
+      }, this.className)
     },
     //--------------------------------------
     topStyle() {
@@ -102,59 +85,83 @@ export default {
       }
       return Ti.Css.toStyle(css)
     },
-    //--------------------------------------
-    transformerFunction() {
-      return Ti.Types.getFuncBy(this, "transformer", this.fnSet)
+    //-----------------------------------------------
+    isCurrent() {
+      return this.rowId == this.currentId
     },
     //-----------------------------------------------
-    item() {
-      let data = _.assign({}, this.data)
-      // if(data.id == "30a87ogcf6j6jqfcf78r7mj4ha") {
-      //   console.log("wall-tile ", data)
-      // }
-      if(_.isFunction(this.transformerFunction))
-        data = this.transformerFunction(data)
-      data.index = this.index
-      return data
+    isChanged() {
+      return this.rowId == this.changedId
     },
     //-----------------------------------------------
-    itemComConf() {
-      //console.log("wall:", this.comConf)
-      let itConf = Ti.Util.explainObj(this, 
-        this.comConf, {
-          fnSet    : this.fnSet,
-          evalFunc : true
-        })
-      //console.log("wall-tile itemComConf", itConf)
-      return itConf
-    },
-    //-----------------------------------------------
-    tileKey() {
-      let list = []
-      for(let it of this.displayItems) {
-        list.push(it.uniqueKey)
-      }
-      return list.join("+")
+    isChecked() {
+      return this.checkedIds[this.rowId] ? true : false
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
-    async hijackEmit(name, args) {
-      //console.log("ti-wall-tile::hijackEmit->", name, args)
-      // By Pass: "block:show/hide/event"
-      if(/^(selected)$/.test(name)) {
-        await this.$emit(name, ...args)
-      }
-      // Gen Block Event
-      else {
-        await this.$emit("wall:tile:event", {
-          name, args,
-          id : this.data[this.idKey],
-          data : this.data
+    //-----------------------------------------------
+    async evalCellDisplayItems() {
+      this.myCom = await this.evalDataForFieldDisplayItem({
+        itemData : this.data, 
+        displayItem : this.display, 
+        vars : {
+          "isCurrent" : this.isCurrent,
+          "isChecked" : this.isChecked,
+          "isChanged" : this.isChanged,
+          "isActived" : this.isActived,
+          "rowId"     : this.rowId
+        },
+        explainDict : this.explainDict
+      })
+
+      // make table resizing
+      this.$parent.debounceOnWallResize()
+    },
+    //-----------------------------------------------
+    onClickTile($event) {
+      if(this.selectable && !this.isCurrent) {
+        this.$emit("select", {
+          rowId  : this.rowId,
+          shift  : $event.shiftKey,
+          toggle : ($event.ctrlKey || $event.metaKey)
         })
       }
+    },
+    //-----------------------------------------------
+    onDblClickTile($event) {
+      if(this.openable) {
+        $event.stopPropagation()
+        this.$emit("open", {
+          rowId  : this.rowId
+        })
+      }
+    },
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "display" : async function() {
+      await this.evalCellDisplayItems()
+    },
+    "data" : async function() {
+      //console.log("data changed")
+      await this.evalCellDisplayItems()
+    },
+    "isCurrent" : async function() {
+      await this.evalCellDisplayItems()
+    },
+    "isChecked" : async function() {
+      await this.evalCellDisplayItems()
+    },
+    "isHover" : async function() {
+      await this.evalCellDisplayItems()
     }
+  },
+  ///////////////////////////////////////////////////
+  mounted : async function() {
+    await this.evalCellDisplayItems()
   }
   ///////////////////////////////////////////////////
 }

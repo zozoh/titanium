@@ -110,13 +110,9 @@ export default {
     theFiles() {
       return _.assign({}, this.files, {
         routers : {
-          "recoverExposeHidden" : "commit:main/files/recoverExposeHidden",
-          "setCurrentId"        : "dispatch:main/selectCurrentPreviewItem",
-          "setCheckedIds"       : "commit:main/files/setCheckedIds",
-          //"selectItem"          : "dispatch:main/selectCurrentPreviewItem",
-          "blurAll"             : "commit:main/files/blurAll",
-          "clearUploadings"     : "commit:main/files/clearUploadings",
-          "upload"              : "dispatch:main/files/upload"
+          "reload"     : "dispatch:main/files/reload",
+          "updateItem" : "commit:main/files/updateItem",
+          "setExposeHidden" : "commit:main/files/setExposeHidden"
         }
       })
     }
@@ -125,8 +121,12 @@ export default {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    async onUploaded(reo) {
+    async onFileUploaded(reo) {
       await Ti.App(this).dispatch('main/autoSyncCurrentFilesCount')
+    },
+    //--------------------------------------
+    onFileSelected({current}) {
+      Ti.App(this).dispatch('main/selectCurrentPreviewItem', current)
     },
     //--------------------------------------
     async editPreviewInfo() {

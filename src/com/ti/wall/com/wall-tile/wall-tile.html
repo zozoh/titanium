@@ -1,8 +1,12 @@
 <div class="wall-tile"
   :class="topClass"
   :style="topStyle">
-  <component 
-    :is="comType" 
-    v-bind="itemComConf"
-    @selected="$emit('selected', $event)"/>
+  <div v-if="myCom"
+    class="wall-tile-con"
+    @click.left="onClickTile"
+    @dblclick.left="onDblClickTile">
+    <component   
+      :is="myCom.comType" 
+      v-bind="myCom.comConf"/>
+  </div>
 </div>

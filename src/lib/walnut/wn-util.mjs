@@ -78,6 +78,45 @@ export const WnUtil = {
       encoded : true
     })
   },
+  getAppLinkStr(meta, options) {
+    return WnUtil.getAppLink(meta, options).toString()
+  },
+  getObjBadges(meta={}) {
+    return {
+      NW : null,
+      NE : meta.ln ? "zmdi-open-in-new" : null,
+      SW : null,
+      SE : null
+    }
+  },
+  getObjThumbInfo(meta={}, {
+    exposeHidden = false,
+    status = {},
+    progress = {}
+  }={}) {
+    // Guard
+    if(!meta || !meta.nm) {
+      return
+    }
+    // Check the visibility
+    let visibility = "show"
+    if(meta.nm.startsWith(".")) {
+      if(exposeHidden) {
+        visibility = exposeHidden ? "weak" : "hide"
+      }
+    }
+    // Generate new Thumb Item
+    return {
+      id    : meta.id,
+      title : WnUtil.getObjDisplayName(meta),
+      preview : WnUtil.genPreviewObj(meta),
+      href : WnUtil.getAppLinkStr(meta),
+      visibility,
+      status   : status[meta.id],
+      progress : progress[meta.id],
+      badges : WnUtil.getObjBadges(meta)
+    }
+  },
   /***
    * Get object link for download
    */

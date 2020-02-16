@@ -42,6 +42,7 @@ export async function EditObjMeta(pathOrObj="~", {
   //................................................
   // Prepare the DOM
   let html = `<wn-form 
+    class="ti-fill-parent"
     display="tab"
     :current-tab="currentTab"
     :config="config"

@@ -20,7 +20,7 @@
         "objIsHome"        : "isHome",
         "objHasParent"     : "hasParent",
         "objParentIsHome"  : "parentIsHome"
-      }      
+      }
     }
   }],
   "mixins" : ["!mjs:./wn-manager.mjs"],

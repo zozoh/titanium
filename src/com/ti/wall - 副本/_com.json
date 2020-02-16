@@ -2,11 +2,7 @@
   "name" : "ti-wall",
   "globally" : true,
   "template" : "./ti-wall.html",
-  "methods" : "@com:ti/support/field_display.mjs",
-  "mixins" : [
-    "@com:ti/support/list_mixins.mjs",
-    "./ti-wall.mjs"
-  ],
+  "mixins" : ["./ti-wall.mjs"],
   "components" : [
     "./com/wall-tile",
     "@com:ti/label"

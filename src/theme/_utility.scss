@@ -38,9 +38,9 @@
 //...................................................
 // Loading
 .ti-mask-loading {
-  @include pos-abs-full;
+  @include pos-fixed-full;
   @include flex-center;
-  @include color($color-mask, r, weak);
+  @include color($color-mask, r);
   color:map-get($color-secondary, c);
   padding-bottom: 20%;
   z-index: $z-top;

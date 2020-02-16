@@ -7,16 +7,11 @@ export default {
     },
     //----------------------------------------
     setContent(state, content) {
-      // Auto format JSON
-      if(state.meta && Wn.Util.isMimeJson(state.meta.mime)) {
-        state.data = JSON.parse(content)
-      }
-      // If not JSON， clean the data
-      else {
-        state.data = undefined
-      }
-      // Update the content
       state.content = content
+    },
+    //----------------------------------------
+    setData(state, data) {
+      state.data = data
     },
     //----------------------------------------
     setSavedContent(state, content) {

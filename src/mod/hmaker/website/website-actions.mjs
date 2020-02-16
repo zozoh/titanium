@@ -12,6 +12,8 @@ export default {
     if(getters.TREE_SELECTED_KEY) {
       commit("tree/setCurrentId", currentId)
       Ti.Storage.session.set(getters.TREE_SELECTED_KEY, currentId)
+
+      commit("setStatus", {reloading:true})
       // Load current
       let meta = null
       if(currentId) {
@@ -19,6 +21,8 @@ export default {
       }
       await dispatch("current/reload", meta)
       commit("syncStatusChanged")
+
+      commit("setStatus", {reloading:false})
     }
   },
   //--------------------------------------------
@@ -42,14 +46,17 @@ export default {
       commit("tree/setOpenedNodePaths", openeds)
     }
 
+    // Reload the tree root
+    await dispatch("tree/reloadRoot", state.home)
+
     // Restore currentId
     if(getters.TREE_SELECTED_KEY) {
       let currentId = Ti.Storage.session.getString(getters.TREE_SELECTED_KEY)
       commit("tree/setCurrentId", currentId)
+      if(currentId) {
+        await dispatch("setTreeSelected", {currentId})
+      }
     }
-
-    // Reload the tree root
-    await dispatch("tree/reloadRoot", state.home)
   },
   //--------------------------------------------
   async reloadTreeNode({commit, dispatch}, payload) {

@@ -1,0 +1,8 @@
+<div class="wall-tile"
+  :class="topClass"
+  :style="topStyle">
+  <component 
+    :is="comType" 
+    v-bind="itemComConf"
+    @selected="$emit('selected', $event)"/>
+</div>

@@ -2,7 +2,10 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   data : ()=>({
+    myLastIndex: -1,      // The last row index selected by user
+    myCurrentId: null,    // Current row ID
     myHoverId  : null,    // The row mouse hover
+    myCheckedIds: {},     // Which row has been checked
     myViewportWidth : 0,  // Update-in-time, root element width
     myTableWidth: 0,      // Update-in-time, table width
     myColSizes: {
@@ -22,6 +25,14 @@ export default {
   }),
   ///////////////////////////////////////////////////
   props : {
+    "idBy" : {
+      type : [String, Function],
+      default : "id"
+    },
+    "rawDataBy" : {
+      type : [Object, String, Function],
+      default : _.identity
+    },
     "iconBy" : {
       type : [String, Function],
       default : null
@@ -30,9 +41,73 @@ export default {
       type : [String, Function],
       default : null
     },
+    "className" : {
+      type : String,
+      default : null
+    },
     "fields" : {
       type : Array,
       default : ()=>[]
+    },
+    "explainDict" : {
+      type : Function,
+      default : _.identity
+    },
+    "extendFunctionSet" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "data" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "changedId" : {
+      type : String,
+      default : null
+    },
+    "currentId" : {
+      type : String,
+      default : null
+    },
+    "checkedIds" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "multi" : {
+      type : Boolean,
+      default : false
+    },
+    "checkable" : {
+      type : Boolean,
+      default : false
+    },
+    "selectable" : {
+      type : Boolean,
+      default : true
+    },
+    "openable" : {
+      type : Boolean,
+      default : true
+    },
+    "cancelable" : {
+      type : Boolean,
+      default : true
+    },
+    "hoverable" : {
+      type : Boolean,
+      default : false
+    },
+    "puppetMode" : {
+      type : Boolean,
+      default : false
+    },
+    "width" : {
+      type : [Number, String],
+      default : null
+    },
+    "height" : {
+      type : [Number, String],
+      default : null
     },
     "head" : {
       type : String,
@@ -49,6 +124,17 @@ export default {
     "autoScrollIntoView" : {
       type : Boolean,
       default : true
+    },
+    "scrollIndex" : {
+      type : Boolean,
+      default : false
+    },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "zmdi-alert-circle-o",
+        text : "empty-data"
+      })
     }
   },
   ///////////////////////////////////////////////////
@@ -66,12 +152,28 @@ export default {
       ], this.className)
     },
     //--------------------------------------
+    topStyle() {
+      let w = this.width
+      let h = this.height
+      return Ti.Css.toStyle({
+        width  : w,
+        height : h
+      })
+    },
+    //--------------------------------------
     tableStyle() {
       if(this.myTableWidth>0) {
         return Ti.Css.toStyle({
           "width" : this.myTableWidth
         })
       }
+    },
+    //--------------------------------------
+    getRowId() {
+      if(_.isFunction(this.idBy)) {
+        return it => this.idBy(it)
+      }
+      return (it)=>_.get(it, this.idBy)
     },
     //--------------------------------------
     getRowIndent() {
@@ -94,15 +196,61 @@ export default {
       return it => null
     },
     //--------------------------------------
+    getRowData() {
+      if(_.isFunction(this.rawDataBy)) {
+        return it => this.rawDataBy(it)
+      }
+      if(_.isString(this.rawDataBy)) {
+        return it => _.get(it, this.rawDataBy)
+      }
+      if(_.isObject(this.rawDataBy)) {
+        return it => Ti.Util.mapping(it, this.rawDataBy)
+      }
+      return _.identity
+    },
+    //--------------------------------------
     theData() {
-      return this.evalData((it)=>{
-        it.icon = this.getRowIcon(it.item)
-        it.indent = this.getRowIndent(it.item)
+      let list = []
+      _.forEach(this.data, (it, index)=>{
+        list.push({
+          index,
+          id      : this.getRowId(it),
+          icon    : this.getRowIcon(it),
+          indent  : this.getRowIndent(it),
+          rawData : this.getRowData(it)
+        })
       })
+      return list
     },
     //--------------------------------------
     isShowHead() {
       return /^(frozen|normal)$/.test(this.head)
+    },
+    //--------------------------------------
+    isDataEmpty() {
+      return !_.isArray(this.data) || _.isEmpty(this.data)
+    },
+    //--------------------------------------
+    isAllChecked() {
+      // Empty list, nothing checked
+      if(this.isDataEmpty) {
+        return false 
+      }
+      // Checking ...
+      for(let row of this.theData){
+        if(!this.myCheckedIds[row.id])
+          return false;  
+      }
+      return true
+    },
+    //--------------------------------------
+    hasChecked() {
+      for(let it of this.data){
+        let itId = this.getRowId(it)
+        if(this.myCheckedIds[itId])
+          return true  
+      }
+      return false
     },
     //--------------------------------------
     theHeadCheckerIcon() {
@@ -113,6 +261,10 @@ export default {
         return "fas-minus-square"
       }
       return "far-square"
+    },
+    //--------------------------------------
+    fnSet() {
+      return _.assign({}, Ti.Types, this.extendFunctionSet)
     },
     //--------------------------------------
     theDisplayFields() {
@@ -152,6 +304,206 @@ export default {
         return Ti.Css.toStyle({
           "width" : this.myColSizes.amended[index]
         })
+      }
+    },
+    //--------------------------------------
+    findRowIndexById(rowId) {
+      for(let row of this.theData) {
+        if(row.id == rowId) {
+          return row.index
+        }
+      }
+      return -1
+    },
+    //--------------------------------------
+    findRowById(rowId) {
+      for(let row of this.theData) {
+        if(row.id == rowId) {
+          return row
+        }
+      }
+    },
+    //--------------------------------------
+    getEmitContext(
+      currentId, 
+      checkedIds={}
+    ) {
+      let selected = []
+      let current = null
+      for(let row of this.theData) {
+        if(row.id == currentId) {
+          current = row.rawData
+        }
+        if(checkedIds[row.id]) {
+          selected.push(row.rawData)
+        }
+      }
+      return {
+        currentId, checkedIds,
+        selected, current
+      }
+    },
+    //--------------------------------------
+    selectRow(rowId, quiet) {
+      let theCheckedIds = rowId ? {[rowId]:true} : {}
+      let theCurrentId  = rowId
+      let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+      // Private Mode
+      if(!this.puppetMode) {
+        this.myCheckedIds = theCheckedIds
+        this.myCurrentId  = theCurrentId
+        this.myLastIndex  = this.findRowIndexById(rowId)
+      }
+      // Notify Changes
+      if(!quiet) {
+        this.$emit("selected", emitContext)
+      }
+    },
+    //--------------------------------------
+    selectRowByIndex(rowIndex) {
+      //console.log(rowIndex)
+      let index = rowIndex
+      if(this.scrollIndex) {
+        index = Ti.Num.scrollIndex(rowIndex, this.theData.length)
+      }
+      if(_.inRange(index, 0, this.theData.length)) {
+        let row = this.theData[index]
+        this.selectRow(row.id)
+      }
+    },
+    //--------------------------------------
+    selectPrevRow() {
+      this.selectRowByIndex(Math.max(-1, this.myLastIndex-1))
+    },
+    //--------------------------------------
+    selectNextRow() {
+      this.selectRowByIndex(this.myLastIndex+1)
+    },
+    //--------------------------------------
+    selectRowsToCurrent(rowId) {
+      let theCheckedIds = _.cloneDeep(this.myCheckedIds)
+      let theCurrentId  = this.myCurrentId
+      let theIndex = this.findRowIndexById(rowId)
+      if(theIndex >= 0) {
+        let fromIndex = Math.min(theIndex, this.myLastIndex)
+        let toIndex   = Math.max(theIndex, this.myLastIndex)
+        if(fromIndex < 0) {
+          fromIndex = 0
+        }
+        for(let i=fromIndex; i<=toIndex; i++) {
+          let row = this.theData[i]
+          theCheckedIds[row.id] = true
+        }
+        // Eval context
+        let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+        // Private Mode
+        if(!this.puppetMode) {
+          this.myCheckedIds = theCheckedIds
+          this.myCurrentId  = theCurrentId
+          this.myLastIndex  = theIndex
+        }
+        // Notify Changes
+        this.$emit("selected", emitContext)
+      }
+    },
+    //--------------------------------------
+    checkRow(rowId) {
+      let theCheckedIds = _.cloneDeep(this.myCheckedIds)
+      let theCurrentId  = this.myCurrentId
+      let theIndex = 0
+      if(_.isUndefined(rowId)) {
+        theCheckedIds = {}
+        _.forEach(this.theData, (row)=>{
+          theCheckedIds[row.id] = true
+        })
+      }
+      // Single row
+      else {
+        theIndex = this.findRowIndexById(rowId)
+        theCheckedIds[rowId] = true
+      }
+      // Eval context
+      let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+      // Private Mode
+      if(!this.puppetMode) {
+        this.myCheckedIds = theCheckedIds
+        this.myCurrentId  = theCurrentId
+        this.myLastIndex  = theIndex
+      }
+      // Notify Changes
+      this.$emit("selected", emitContext)
+    },
+    //--------------------------------------
+    cancelRow(rowId) {
+      let theCheckedIds = _.cloneDeep(this.myCheckedIds)
+      let theCurrentId  = this.myCurrentId
+      let theIndex = -1
+      if(_.isUndefined(rowId)) {
+        theCheckedIds = {}
+        theCurrentId = null
+      }
+      // Single row
+      else {
+        theIndex = this.findRowIndexById(rowId)
+        theCheckedIds[rowId] = false
+      }
+      // Eval context
+      let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+      // Private Mode
+      if(!this.puppetMode) {
+        this.myCheckedIds = theCheckedIds
+        this.myCurrentId  = theCurrentId
+        this.myLastIndex  = theIndex
+      }
+      // Notify Changes
+      this.$emit("selected", emitContext)
+    },
+    //--------------------------------------
+    toggleRow(rowId) {
+      if(this.myCheckedIds[rowId]) {
+        this.cancelRow(rowId)
+      } else {
+        this.checkRow(rowId)
+      }
+    },
+    //--------------------------------------
+    onRowCheckerClick({rowId, shift}={}) {
+      //console.log(rowId, shift)
+      if(this.multi) {
+        // Shift Mode
+        if(shift) {
+          this.selectRowsToCurrent(rowId)
+        }
+        // Simple Toggle Mode
+        else {
+          this.toggleRow(rowId)
+        }
+      }
+      // Single Mode
+      else {
+        this.selectRow(rowId)
+      }
+    },
+    //--------------------------------------
+    onRowSelect({rowId, shift, toggle}={}) {
+      // Multi + Shift Mode
+      if(shift && this.multi) {
+        this.selectRowsToCurrent(rowId)
+      }
+      // Multi + Toggle Mode
+      else if(toggle && this.multi) {
+        this.toggleRow(rowId)
+      }
+      // Single Mode
+      else {
+        this.selectRow(rowId)
+      }
+    },
+    //--------------------------------------
+    onRowOpen({rowId}={}) {
+      let row = this.findRowById(rowId)
+      if(row) {
+        this.$emit("open", row)
       }
     },
     //--------------------------------------
@@ -349,6 +701,21 @@ export default {
       this.myColSizes.amended = amended
     },
     //--------------------------------------
+    syncCurrentId() {
+      //console.log("syncCurrentId", this.currentId)
+      if(this.myCurrentId != this.currentId) {
+        this.selectRow(this.currentId, this.puppetMode)
+      }
+    },
+    //--------------------------------------
+    syncCheckedIds() {
+      //console.log("syncCheckedIds", this.checkedIds)
+      this.myCheckedIds = {}
+      _.forEach(this.checkedIds, (rowId)=>{
+        this.myCheckedIds[rowId] = true
+      })
+    },
+    //--------------------------------------
     scrollCurrentIntoView() {
       if(this.autoScrollIntoView && this.myLastIndex>=0) {
         let $tbody = this.$refs.body
@@ -388,8 +755,20 @@ export default {
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
+  watch : {
+    "currentId" : function() {
+      this.syncCurrentId()
+    },
+    "checkedIds" : function() {
+      this.syncCheckedIds()
+    }
+  },
+  ///////////////////////////////////////////////////
   mounted : async function() {
-     //.................................
+    //.................................
+    this.syncCheckedIds()
+    this.syncCurrentId()
+    //.................................
     // Define the method for sub-cells up-calling
     this.debounceEvalEachColumnSize = _.debounce(()=>this.evalEachColumnSize(), 100)
     //.................................

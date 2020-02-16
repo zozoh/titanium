@@ -2,6 +2,5 @@
   "name" : "ti-wall-tile",
   "globally" : true,
   "template" : "./wall-tile.html",
-  "methods"  : "@com:ti/support/field_display.mjs",
   "mixins" : ["./wall-tile.mjs"]
 }

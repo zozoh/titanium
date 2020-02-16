@@ -10,7 +10,12 @@
         "application/*" : "ti-text-raw"
       },
       "races" : {
-        "DIR"  : "wn-adaptlist",
+        "DIR"  : {
+          "comType" : "wn-adaptlist",
+          "comConf" : {
+            "list" : "=current.data.list"
+          }
+        },
         "FILE" : "wn-obj-preview"
       }
     }

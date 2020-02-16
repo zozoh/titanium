@@ -14,11 +14,17 @@ export default {
   },
   ////////////////////////////////////////////////
   mutations : {
+    //--------------------------------------------
     setHome(state, home) {
       state.home = home
     },
+    //--------------------------------------------
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)
+    },
+    //--------------------------------------------
+    setExposeHidden(state, exposeHidden) {
+      state.status.exposeHidden = exposeHidden
     },
     //--------------------------------------------
     syncStatusChanged(state){
