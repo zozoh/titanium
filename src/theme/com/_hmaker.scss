@@ -1,0 +1,45 @@
+.hmaker-site-manager {
+  //---------------------------------------------
+  .site-current-view {
+    $cvH : .4rem;
+    //-------------------------------------------
+    padding-top: $cvH;
+    //-------------------------------------------
+    &.is-changed {
+      .current-view-title {
+        > .as-name {
+          @include color($color-secondary, c);
+        }
+      }  
+    }
+    //-------------------------------------------
+    .current-view-title {
+      @include pos-abs($t:0,$l:0,$r:0,$h:$cvH);
+      @include flex-align-nowrap($ai:center);
+      @include border(1px, solid, shallow, bottom);
+      padding: 0 .06rem;
+      //-----------------------------------------
+      > .as-name {
+        @include flex-align-nowrap;
+        @include font-fixed;
+        flex:0 0 auto;
+        > .as-icon {margin:0 .06rem}
+      }
+      //-----------------------------------------
+      > .as-crumb {
+        flex:1 1 auto;
+      }
+      //-----------------------------------------
+      > .as-actions {
+        flex:0 0 auto;
+      }
+      //-----------------------------------------
+    }
+    //-------------------------------------------
+    .current-view-con {
+      position: relative;
+    }
+    //-------------------------------------------
+  }
+  //---------------------------------------------
+}

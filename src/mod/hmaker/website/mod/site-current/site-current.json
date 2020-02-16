@@ -4,8 +4,6 @@
   "data" : null,
   "__saved_content" : null,
   "status" : {
-    "changed"   : false,
-    "saving"    : false,
-    "reloading" : false
+    "changed"   : false
   }
 }

@@ -1,0 +1,33 @@
+<div class="site-current-view"
+  :class="topClass">
+  <!--
+    Title
+  -->
+  <div class="current-view-title">
+    <!-- For Site -->
+    <div class="as-name">
+      <ti-icon 
+        class="as-icon"
+        :value="theTitleIcon"/>
+      <span
+        class="as-text">{{theTitleText|i18n}}</span>
+    </div>
+    <!-- Crumb -->
+    <div class="as-crumb"></div>
+    <!-- Actions -->
+    <div class="as-actions">
+      <ti-menu
+        v-if="theCurrentAction"
+          :data="theCurrentAction"
+          :status="status"/>
+    </div>
+  </div>
+  <!--
+    Main Area
+  -->
+  <current-view-con
+    class="ti-fill-parent"
+    :com-type="theCurrentView.comType"
+    :com-conf="theCurrentView.comConf"
+    @current:event="onCurrentEvent"/>
+</div>

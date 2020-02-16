@@ -48,18 +48,22 @@ class TiMapping {
     this.maps = {}
     this.regexs = []
     this.paths = []
-    _.forEach(mapping, (val, key)=>{
-      // RegExp
-      if(key.startsWith("^")) {
-        this.regexs.push(new MatchRegex(key, val))
-      }
-      // Path
-      else if(key.indexOf("/") >= 0) {
-        this.paths.push(new MatchPath(key, val))
-      }
-      // Normal
-      else {
-        this.maps[key] = val
+    _.forEach(mapping, (val, selector)=>{
+      // Multi selector supported
+      let ks = _.map(selector.split(","), v=>_.trim(v))
+      for(let key of ks) {
+        // RegExp
+        if(key.startsWith("^")) {
+          this.regexs.push(new MatchRegex(key, val))
+        }
+        // Path
+        else if(key.indexOf("/") >= 0) {
+          this.paths.push(new MatchPath(key, val))
+        }
+        // Normal
+        else {
+          this.maps[key] = val
+        }
       }
     })
   }

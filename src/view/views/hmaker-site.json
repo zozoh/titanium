@@ -3,22 +3,21 @@
   "comType" : "@com:hmaker/site-manager",
   "modType" : "@mod:hmaker/website",
   "actions" : [{
-      "key"  : "reloading",
+      "key"  : "publishing",
       "type" : "action",
-      "icon" : "zmdi-refresh",
-      "text" : "i18n:refresh",
+      "icon" : "zmdi-mail-send",
+      "text" : "i18n:publish",
       "altDisplay" : {
         "icon" : "zmdi-refresh zmdi-hc-spin",
-        "text" : "i18n:loading"
+        "text" : "i18n:publishing"
       },
-      "action" : "dispatch:main/reload",
-      "shortcut" : "CTRL+R"
+      "action" : "dispatch:main/publish",
+      "shortcut" : "CTRL+SHIFT+P"
     },{
-      "type":"line"
-    }, {
+      "type" : "line"
+    },{
       "type" : "group",
-      "icon" : "zmdi-settings",
-      "text" : "i18n:more",
+      "icon" : "im-menu",
       "items" : [{
           "key"  : "create",
           "type" : "action",
@@ -40,6 +39,19 @@
         },{
           "type":"line"
         },{
+          "key"  : "reloading",
+          "type" : "action",
+          "icon" : "zmdi-refresh",
+          "text" : "i18n:refresh",
+          "altDisplay" : {
+            "icon" : "zmdi-refresh zmdi-hc-spin",
+            "text" : "i18n:loading"
+          },
+          "action" : "dispatch:main/reload",
+          "shortcut" : "CTRL+R"
+        },{
+          "type":"line"
+        },{
           "key"  : "renaming",
           "type" : "action",
           "icon" : "zmdi-space-bar",
@@ -52,64 +64,6 @@
         },{
           "type":"line"
         },{
-          "key"  : "selectAll",
-          "type" : "action",
-          "icon" : "zmdi-check-all",
-          "text" : "i18n:select-all",
-          "action" : "commit:main/selectAll",
-          "shortcut" : "CTRL+A"
-        },{
-          "key"  : "blurAll",
-          "type" : "action",
-          "icon" : "zmdi-minus",
-          "text" : "i18n:blur-all",
-          "action" : "commit:main/blurAll"
-        },{
-          "type" : "line"
-        },{
-          "key"  : "publishing",
-          "type" : "action",
-          "icon" : "zmdi-mail-send",
-          "text" : "i18n:publish",
-          "altDisplay" : {
-            "icon" : "zmdi-refresh zmdi-hc-spin",
-            "text" : "i18n:publishing"
-          },
-          "action" : "dispatch:main/publish",
-          "shortcut" : "CTRL+SHIFT+P"
-        },{
-          "type" : "line"
-        },{
-          "key"  : "exposeHidden",
-          "type" : "action",
-          "icon" : "zmdi-eye-off",
-          "text" : "i18n:wn-export-hidden",
-          "altDisplay" : {
-            "icon" : "zmdi-eye",
-            "capture" : false
-          },
-          "action" : "commit:main/toggleExposeHidden",
-          "shortcut" : "ALT+CTRL+SHIFT+H"
-        },{
-          "type" : "line"
-        },{
-          "key"  : "upload",
-          "type" : "action",
-          "icon" : "zmdi-cloud-upload",
-          "text" : "i18n:upload-file",
-          "__action" : "commit:main/showUploadFilePicker",
-          "action" : "main:openLocalFileSelectdDialog",
-          "shortcut" : "ALT+CTRL+SHIFT+U"
-        },{
-          "type" : "line"
-        },{
-          "type" : "action",
-          "icon" : "zmdi-download",
-          "text" : "i18n:download-to-local",
-          "action" : "dispatch:main/download"
-        },{
-          "type" : "line"
-        },{
           "type" : "action",
           "icon" : "zmdi-keyboard",
           "text" : "i18n:console",
@@ -119,7 +73,7 @@
           "type" : "action",
           "icon" : "zmdi-info-outline",
           "text" : "i18n:properties",
-          "action" : "main:onOpenProperties",
+          "action" : "dispatch:main/setTreeSelected",
           "shortcut" : "ALT+CTRL+P"
         }]
     }]

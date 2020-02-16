@@ -1,4 +1,17 @@
 {
   "hmaker-site-tree" : "站点结构",
-  "hmaker-site-tree-loading" : "正在加载站点结构..."
+  "hmaker-site-tree-loading" : "正在加载站点结构...",
+  "hmaker-site-prop"  : "站点属性",
+  "hmaker-site-state" : "站点全局配置",
+  "hmaker-site-state-general" : "通用配置",
+  "hmaker-site-state-utils"   : "扩展函数",
+  "hmaker-site-state-apis"    : "接口集",
+  "hmaker-site-state-schema"  : "预定义控件",
+  "hmaker-site-state-blocks"  : "预定义布局",
+  "hmaker-site-state-nav"     : "全局导航条",
+  "hmaker-site-state-router"  : "页面路由",
+  "hmaker-site-state-actions" : "全局动作表",
+  "hmaker-layout-cols" : "列布局",
+  "hmaker-layout-rows" : "行布局",
+  "hmaker-layout-tabs" : "标签布局"
 }

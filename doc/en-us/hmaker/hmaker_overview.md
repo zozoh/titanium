@@ -136,31 +136,32 @@ site-state.json
 |-- apiBase : "/api/demo/"
 |-- captcha : "auth/ca..."
 |-- base : "/www/demo"
+# Editable
+|-- entry   : "page/home.html"  # -> <ti-combo-input>
 #-------------------------------------------------------------
 # private status (non-editable)
 |-- loading : false
 |-- isReady : false
 #-------------------------------------------------------------
-|-- entry   : "page/home.html"  # -> <ti-combo-input>
 |-- utils : {..}            # -> <hmaker-utils-list> {NEW}
 |-- apis  : {..}            # -> <hmaker-api-list> {NEW}
-|   |-- thing/get           # -> <hmaker-api-item> {NEW}
+|   |-- thing/get           # -> <hmaker-api-edit> {NEW}
 |-- schema  : {..}          # -> <hmaker-schema-list> {NEW}
-|   |-- list-desktop        # -> <hmaker-scheme-item> {NEW}
+|   |-- list-desktop        # -> <hmaker-scheme-edit> {NEW}
 |-- blocks  : {..}          # -no-selectable-
 |   |-- desktop             # -> <hmaker-layout-block-list> {NEW}
-|   |   |-- sky             # -> <hmaker-layout-block-item> {NEW}
-|   |       |-- [0]: {..}   # -> <hmaker-layout-block-item>
-|   |       |-- [1]: {..}   # -> <hmaker-layout-block-item>
+|   |   |-- sky             # -> <hmaker-layout-block-edit> {NEW}
+|   |       |-- [0]: {..}   # -> <hmaker-layout-block-edit>
+|   |       |-- [1]: {..}   # -> <hmaker-layout-block-edit>
 |   |-- tablet              # -> <hmaker-layout-block-list> reuse
 |   |-- phone               # -> <hmaker-layout-block-list> desktop
 |-- nav     : [..]          # -> <hmaker-nav-list> {NEW}
-|   |-- [0] : {..}          # -> <hmaker-nav-item> {NEW}
+|   |-- [0] : {..}          # -> <hmaker-nav-edit> {NEW}
 |   |-- [1] : {..}          # -> <hmaker-nav-item>
 |-- router  : [..]          # -> <hmaker-router-list> {NEW}
-|   |-- [0] : {..}          # -> <hmaker-router-item> {NEW}
+|   |-- [0] : {..}          # -> <hmaker-router-edit> {NEW}
 |-- actions : {..}          # -> <hmaker-action-list> {NEW}
-    |-- "@page:ready"       # -> <hmaker-action-item> {NEW}
+    |-- "@page:ready"       # -> <hmaker-action-edit> {NEW}
 ```
 
 ## hmaker-page
@@ -170,19 +171,19 @@ some-page.json
 |-- title   : "xxx"         # -> <ti-input>
 #-------------------------------------------------------------
 |-- apis  : {..}            # -> <hmaker-api-list>
-|   |-- thing/get           # -> <hmaker-api-item>
+|   |-- thing/get           # -> <hmaker-api-edit>
 |-- data    : {..}          # -> <ti-obj-json>
 |-- params  : {..}          # -> <ti-obj-json>
 |-- layout  : {..}          # non-selectable
-|   |-- desktop             # -> <hmaker-layout-block-edit> {NEW}
-|   |   |-- [0]: {..}       # -> <hmaker-layout-block-item>
-|   |   |-- [1]: {..}       # ->  support : "@BLOCK(desktop.sky)"
+|   |-- desktop             # -> <hmaker-layout-block-edit>
+|   |   |-- [0]: {..}       # -> <hmaker-layout-block-edit>
+|   |   |-- [1]: {..}       # ->  support : "@BLOCK(desktop.sky)"  {NEW}
 |   |-- tablet              # -> <hmaker-layout-block-edit> reuse
 |   |-- phone               # -> <hmaker-layout-block-edit> desktop
 |-- schema  : {..}          # -> <hmaker-schema-list>
-|   |-- news-list-desktop   # -> <hmaker-scheme-item>
+|   |-- news-list-desktop   # -> <hmaker-scheme-edit>
 |   |-- news-detail         # -> support: "extends" : "list-desktop"
 |-- shown   : {login:false} # -> <hmaker-shown-list>
 |-- actions : {..}          # -> <hmaker-action-list>
-    |-- "buy-now"           # -> <hmaker-action-item>
+    |-- "buy-now"           # -> <hmaker-action-edit>
 ```

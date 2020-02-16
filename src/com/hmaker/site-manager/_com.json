@@ -5,9 +5,6 @@
   "template" : "./hm-site-manager.html",
   "mixins" : ["./hm-site-manager.mjs"],
   "components" : [
-    "@com:ti/text/raw",
-    "@com:ti/obj/json",
-    "@com:wn/obj/preview",
-    "@com:wn/adaptlist"
+    "@com:hmaker/site-current-view"
   ]
 }

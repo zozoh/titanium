@@ -267,7 +267,7 @@ export default {
       Ti.Be.Open(quitPath, {target:"_self", delay:0})
     },
     //--------------------------------------
-    async editObjMeta() {
+    editObjMeta() {
       let meta = _.get(this.obj, "meta")
 
       if(!meta) {

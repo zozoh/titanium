@@ -93,7 +93,7 @@ const TiPaths = {
         ph = ph.substring(0, m.index)
       }
       // add the middle '/'
-      if(re.length > 0 && !/^\//.test(ph)) {
+      if(re.length > 0 && !(/^\//.test(ph))) {
         re.push("/")
       }
       re.push(ph)
@@ -110,6 +110,62 @@ const TiPaths = {
     if(pos<0)
       return ""
     return path.substring(0, pos+1)
+  },
+  /***
+   * 将两个路径比较，得出相对路径。
+   * 所谓相对路径，就是从基础路径出发，经过相对路径，即可得到目标路径
+   * 
+   * @param base
+   *            基础路径，以 '/' 结束，表示目录
+   * @param path
+   *            目标路径，以 '/' 结束，表示目录
+   * @param equalPath
+   *            如果两个路径相等，返回什么，通常为 "./"。 
+   *            你也可以用 "" 或者 "." 或者随便什么字符串来表示
+   * 
+   * @return 相对于基础路径对象的相对路径
+   */
+  getRelativePath(base="", path="", equalPath=".") {
+    // Guard
+    if(_.isEqual(base, path)) {
+      return equalPath
+    }
+    //............................................
+    let baseIsDir = base.endsWith("/")
+    let pathIsDir = path.endsWith("/")
+    let aryBase = _.without(base.split("/"), "")
+    let aryPath = _.without(path.split("/"), "")
+    //............................................
+    // Compare too paths
+    let len = Math.min(aryBase.length, aryPath.length)
+    let pos = 0;
+    for(; pos<len; pos++) {
+      let ba = aryBase[pos]
+      let ph = aryPath[pos]
+      if(ba != ph) {
+        break
+      }
+    }
+    //............................................
+    let rph = []
+    // Back
+    let baseLen = aryBase.length
+    if(!baseIsDir) {
+      baseLen --
+    }
+    for(let i=pos; i<baseLen; i++) {
+      rph.push("..")
+    }
+    // Go into
+    for(let i=pos; i<aryPath.length; i++) {
+      rph.push(aryPath[i])
+    }
+    //............................................
+    if(pathIsDir) {
+      rph.push("")
+    }
+    //............................................
+    return rph.join("/")
   }
 }
 //-----------------------------------

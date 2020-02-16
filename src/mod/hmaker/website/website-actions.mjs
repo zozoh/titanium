@@ -8,7 +8,7 @@ export default {
     }
   },
   //--------------------------------------------
-  async setTreeSelected({getters, commit, dispatch}, {currentId}={}) {
+  async setTreeSelected({getters, commit, dispatch}, currentId=null) {
     if(getters.TREE_SELECTED_KEY) {
       commit("tree/setCurrentId", currentId)
       Ti.Storage.session.set(getters.TREE_SELECTED_KEY, currentId)
@@ -20,9 +20,9 @@ export default {
         meta = await Wn.Io.loadMetaById(currentId)
       }
       await dispatch("current/reload", meta)
-      commit("syncStatusChanged")
 
       commit("setStatus", {reloading:false})
+      commit("syncStatusChanged")
     }
   },
   //--------------------------------------------
@@ -31,12 +31,21 @@ export default {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async reloadConfig({state, dispatch}) {
-    await dispatch("config/reload")
+  async saveCurrent({state, commit, dispatch}) {
+    if(state.current.meta) {
+      commit("setStatus", {saving:true})
+      await dispatch("current/save")
+      commit("setStatus", {saving:false})
+      commit("syncStatusChanged")
+    }
   },
   //--------------------------------------------
-  async reloadCurrent({state, commit, dispatch}) {
-    await dispatch("current/reload")
+  async reloadCurrent({commit, dispatch}, meta) {
+    await dispatch("current/reload", meta)
+  },
+  //--------------------------------------------
+  async reloadConfig({state, dispatch}) {
+    await dispatch("config/reload")
   },
   //--------------------------------------------
   async reloadTree({getters, state, commit, dispatch}) {
@@ -54,7 +63,7 @@ export default {
       let currentId = Ti.Storage.session.getString(getters.TREE_SELECTED_KEY)
       commit("tree/setCurrentId", currentId)
       if(currentId) {
-        await dispatch("setTreeSelected", {currentId})
+        await dispatch("setTreeSelected", currentId)
       }
     }
   },

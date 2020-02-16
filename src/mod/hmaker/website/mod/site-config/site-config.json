@@ -2,26 +2,124 @@
   "meta" : null,
   "desktop" : {
     "mapping" : {
+      "paths" : {
+        "site-state.json" : "desktopSiteStateView"
+      },
       "types" : {
       },
       "mimes" : {
-        "text/*" : "ti-text-raw",
-        "application/json" : "ti-obj-json",
-        "application/*" : "ti-text-raw"
+        "application/json" : "desktopJsonView",
+        "text/*, application/*" : "desktopTextView"
       },
       "races" : {
-        "DIR"  : {
-          "comType" : "wn-adaptlist",
-          "comConf" : {
-            "list" : "=current.data.list"
-          }
-        },
-        "FILE" : "wn-obj-preview"
+        "DIR"  : "desktopAdaptList",
+        "FILE" : "desktopObjPreview"
       }
     }
   },
   "tablet" : "desktop",
   "phone" : "desktop",
+  "views" : {
+    "desktopSiteStateView" : {
+      "comType" : "hmaker-site-state",
+      "comConf" : {
+        "home" : "=home",
+        "data" : "=currentData"
+      },
+      "actions" : [{
+          "key"  : "saving",
+          "type" : "action",
+          "icon" : "zmdi-floppy",
+          "text" : "i18n:save-change",
+          "altDisplay" : {
+            "icon" : "fas-spinner fa-pulse",
+            "text" : "i18n:saving"
+          },
+          "enableBy" : "changed",
+          "action" : "dispatch:main/saveCurrent",
+          "shortcut" : "CTRL+S"
+        }, {
+          "type" : "Group",
+          "icon" : "zmdi-more-vert",
+          "items" : [{
+              "type" : "action",
+              "icon" : "zmdi-info-outline",
+              "text" : "i18n:properties",
+              "action" : "main:editCurrentObjMeta"
+            }]
+          }]
+    },
+    "desktopTextView" : {
+      "comType" : "ti-text-raw",
+      "comConf" : {
+        "showTitle" : false,
+        "content" : "=currentContent",
+        "contentIsChanged" : "=status.changed"
+      },
+      "actions" : [{
+          "key"  : "saving",
+          "type" : "action",
+          "icon" : "zmdi-floppy",
+          "text" : "i18n:save-change",
+          "altDisplay" : {
+            "icon" : "fas-spinner fa-pulse",
+            "text" : "i18n:saving"
+          },
+          "enableBy" : "changed",
+          "action" : "dispatch:main/saveCurrent",
+          "shortcut" : "CTRL+S"
+        }, {
+          "type" : "Group",
+          "icon" : "zmdi-more-vert",
+          "items" : [{
+              "type" : "action",
+              "icon" : "zmdi-info-outline",
+              "text" : "i18n:properties",
+              "action" : "main:editCurrentObjMeta"
+            }]
+          }]
+    },
+    "desktopJsonView" : {
+      "comType" : "ti-obj-json",
+      "comConf" : {
+        "data" : "=currentData"
+      },
+      "actions" : [{
+          "key"  : "saving",
+          "type" : "action",
+          "icon" : "zmdi-floppy",
+          "text" : "i18n:save-change",
+          "altDisplay" : {
+            "icon" : "fas-spinner fa-pulse",
+            "text" : "i18n:saving"
+          },
+          "enableBy" : "changed",
+          "action" : "dispatch:main/saveCurrent",
+          "shortcut" : "CTRL+S"
+        }, {
+          "type" : "Group",
+          "icon" : "zmdi-more-vert",
+          "items" : [{
+              "type" : "action",
+              "icon" : "zmdi-info-outline",
+              "text" : "i18n:properties",
+              "action" : "main:editCurrentObjMeta"
+            }]
+        }]
+    },
+    "desktopAdaptList" : {
+      "comType" : "wn-adaptlist",
+      "comConf" : {
+        "list" : "=currentData.list"
+      }
+    },
+    "desktopObjPreview" : {
+      "comType" : "wn-obj-preview",
+      "comConf" : {
+        "meta" : "=currentMeta"
+      }
+    }
+  },
   "status" : {
     "reloading" : false
   }

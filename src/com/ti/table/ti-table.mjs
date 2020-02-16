@@ -203,7 +203,7 @@ export default {
       let items = []
       // Loop each items
       for(let li of displayItems) {
-        let item = this.evalFieldDisplayItem(li)
+        let item = this.evalFieldDisplayItem(li, this.fnSet)
         if(item) {
           items.push(item)
         }

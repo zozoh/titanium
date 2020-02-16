@@ -1,0 +1,14 @@
+{
+  "name" : "hmaker-site-current-view",
+  "globally" : true,
+  "template" : "./site-current-view.html",
+  "mixins" : ["./site-current-view.mjs"],
+  "components" : [
+    "./com/current-view-con",
+    "@com:hmaker/site-state",
+    "@com:ti/text/raw",
+    "@com:ti/obj/json",
+    "@com:wn/obj/preview",
+    "@com:wn/adaptlist"
+  ]
+}

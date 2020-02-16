@@ -1,42 +1,5 @@
-/////////////////////////////////////////////
-class HmViewMapping {
-  constructor(mapping) {
-    this.types = new Ti.Mapping(mapping.types)
-    this.mimes = new Ti.Mapping(mapping.mimes)
-    this.races = new Ti.Mapping(mapping.races)
-  }
-  getView(meta, dft) {
-    let view;
-    // Try meta
-    if(meta) {
-      // By Type
-      view = this.types.get(meta.tp)
-      // By Mimes
-      if(_.isUndefined(view)) {
-        view = this.mimes.get(meta.mime)
-      }
-      // By Race
-      if(_.isUndefined(view)) {
-        view = this.races.get(meta.race)
-      }
-    }
-    // By Default
-    if(_.isUndefined(view)) {
-      view = dft
-    }
-    // Done
-    return view
-  }
-}
-/////////////////////////////////////////////
 export default {
   inheritAttrs : false,
-  ///////////////////////////////////////////
-  data : ()=>({
-    myActions : null,
-    myCooling : -1,
-    myCurrentView : null
-  }),
   //////////////////////////////////////////
   props : {
     "className" : null,
@@ -68,11 +31,6 @@ export default {
       return this.config[this.viewportMode] || {}
     },
     //--------------------------------------
-    theViewsMapping() {
-      let mapping = this.theConfig.mapping || {}
-      return new HmViewMapping(mapping)
-    },
-    //--------------------------------------
     theLayout() {
       return {
         type : "cols",
@@ -91,61 +49,51 @@ export default {
     //--------------------------------------
     theSchema() {
       //....................................
-      // Tree Conf
-      let siteTreeConf = _.assign({
-        //=========================
-        data : this.tree.root,
-        //=========================
-        display : [{
-            key : "rawData",
-            type : "Object",
-            transformer : "getIconObj",
-            comType : "ti-icon"
-          },
-          "rawData.title",
-          "name"],
-        //=========================
-        blankAs : {
-          icon : "zmdi-settings zmdi-hc-spin",
-          text : "i18n:hmaker-site-tree-loading"
-        },
-        //=========================
-        currentId : this.tree.currentId,
-        showRoot:false,
-        defaultOpenDepth : 1,
-        extendFunctionSet : Wn.Util,
-        openedNodePaths : this.tree.openedNodePaths
-        //=========================
-      })
-      //....................................
-      // Source Conf
-      // It will watch the myCurrentView
-      //....................................
       // Done
       return {
         "desktop-site-tree" : {
           comType : "ti-tree", 
-          comConf : siteTreeConf
+          comConf : {
+            //=========================
+            data : this.tree.root,
+            //=========================
+            display : [{
+                key : "rawData",
+                type : "Object",
+                transformer : "getIconObj",
+                comType : "ti-icon"
+              },
+              "rawData.title",
+              "name"],
+            //=========================
+            blankAs : {
+              icon : "zmdi-settings zmdi-hc-spin",
+              text : "i18n:hmaker-site-tree-loading"
+            },
+            //=========================
+            currentId : this.tree.currentId,
+            showRoot:false,
+            defaultOpenDepth : 1,
+            extendFunctionSet : Wn.Util,
+            openedNodePaths : this.tree.openedNodePaths
+            //=========================
+          }
         },
-        "desktop-site-current" : this.myCurrentView
+        "desktop-site-current" : {
+          comType : "hmaker-site-current-view",
+          comConf : {
+            home    : this.home,
+            tree    : this.tree,
+            currentMeta    : this.current.meta,
+            currentContent : this.current.content,
+            currentData    : this.current.data,
+            mapping : this.theConfig.mapping,
+            views   : this.config.views,
+            status  : this.status
+          }
+        }
       }
       //....................................
-    },
-    //--------------------------------------
-    hasCurrent() {
-      return this.current && this.current.meta
-    },
-    //--------------------------------------
-    theCurrentIcon() {
-      if(this.hasCurrent) {
-        return Wn.Util.getIconObj(this.current.meta)
-      }
-    },
-    //--------------------------------------
-    theCurrentTitle() {
-      if(this.hasCurrent) {
-        return Wn.Util.getObjDisplayName(this.current.meta)
-      }
     }
     //--------------------------------------
   },
@@ -174,7 +122,12 @@ export default {
       //....................................
       // Save Tree selected Status
       if("site-tree.selected" == evKey) {
-        Ti.App(this).dispatch("main/setTreeSelected", data)
+        Ti.App(this).dispatch("main/setTreeSelected", data.currentId)
+      }
+      //....................................
+      // Save Tree selected Status
+      if("site-current.open" == evKey) {
+        Ti.App(this).dispatch("main/reloadCurrent", data.rawData)
       }
       //....................................
       if("site-current.changed" == evKey) {
@@ -183,83 +136,16 @@ export default {
       //....................................
     },
     //--------------------------------------
-    evalCurrentView() {
-      let view = {
-        comType : "ti-label",
-        comConf : {
-          value : "=current.meta"
-        }
+    editCurrentObjMeta() {
+      let meta = this.current.meta || this.home
+
+      if(!meta) {
+        return Ti.Toast.Open("i18n:nil-obj")
       }
-      if(this.hasCurrent) {
-        view = this.theViewsMapping.getView(this.current.meta, view)
-      }
-      if(_.isString(view)) {
-        view = {
-          comType : view,
-          comConf : {
-            icon  : "=theCurrentIcon",
-            title : "=theCurrentTitle",
-            meta  : "=current.meta",
-            data  : "=current.data",
-            content : "=current.content",
-            contentIsChanged : "=current.status.changed"
-          }
-        }
-      }
-      this.$nextTick(()=>{
-        this.myCurrentView = Ti.Util.explainObj(this, view)
-      })
-    },
-    //--------------------------------------
-    setMyActions(actions) {
-      this.myActions = _.cloneDeep(actions)
-      this.myCooling = Date.now()
-    },
-    //--------------------------------------
-    checkActionsUpdate() {
-      //console.log("checkActionsUpdate")
-      // Not need to check
-      if(this.myCooling < 0) {
-        return
-      }
-      // Wait cooling 1000ms
-      if(Date.now() - this.myCooling > 300) {
-        this.$emit("actions:updated", this.myActions)
-        this.myCooling = -1
-      }
-      // Wait cooling 1000ms
-      else {
-        _.delay(()=>{
-          this.checkActionsUpdate()
-        }, 200)
-      }
+
+      Wn.EditObjMeta(meta)
     }
     //--------------------------------------
-  },
-  //////////////////////////////////////////
-  watch : {
-    "theConfig.actions" : function(newActions, oldActions) {
-      //console.log("theConfig.actions", this.theConfig.actions)
-      if(!_.isEqual(newActions, oldActions)) {
-        this.setMyActions(newActions)
-      }
-    },
-    // To prevent the action update too often
-    "myCooling" : function(cooling) {
-      if(cooling > 0) {
-        this.checkActionsUpdate()
-      }
-    },
-    // current changed
-    "current.meta" : function() {
-      console.log("watch current.meta")
-      this.evalCurrentView()
-    }
-  },
-  //////////////////////////////////////////
-  mounted : function() {
-    this.setMyActions(this.theConfig.actions)
-    this.evalCurrentView()
   }
   //////////////////////////////////////////
 }

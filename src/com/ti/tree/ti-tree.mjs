@@ -248,8 +248,8 @@ export default {
   methods : {
     //--------------------------------------
     async evalTreeTableData() {
-      if(_.get(this.data, "value.title"))
-          console.log("evalTreeTableData", _.get(this.data, "value.title"))
+      // if(_.get(this.data, "value.title"))
+      //     console.log("evalTreeTableData", _.get(this.data, "value.title"))
       let tableData = []
 
       //if(this.showRoot)
@@ -452,7 +452,7 @@ export default {
     },
     "openedNodePaths" : function(newVal, oldVal) {
       if(!_.isEqual(newVal, oldVal)) {
-        console.log("tree openedNodePaths changed")
+        //console.log("tree openedNodePaths changed")
         this.syncOpenedNodePaths()
       }
     }
