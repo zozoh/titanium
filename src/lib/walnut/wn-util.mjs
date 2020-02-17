@@ -56,6 +56,11 @@ export const WnUtil = {
     // return default
     return Ti.Icons.get(meta)
   },
+  getObjIcon(meta, dft="fas-hourglass-half") {
+    if(!meta)
+      return dft
+    return meta.icon || Ti.Icons.get(meta)
+  },
   /***
    * return the object readable name
    */

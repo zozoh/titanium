@@ -4,7 +4,7 @@ export async function EditObjMeta(pathOrObj="~", {
   icon  = "zmdi-info",
   type  = "info",
   className,
-  closer = false,
+  closer = true,
   textOk = "i18n:ok",
   width=640, height="80%",
   currentTab=0,

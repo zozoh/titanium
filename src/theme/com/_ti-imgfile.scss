@@ -5,6 +5,7 @@
     @include border(2px, solid, shallow);
     @include color($color-func, r, c);
     width:1.2rem; height:1.2rem;
+    overflow: hidden;
     cursor:pointer;
     //-------------------------------------------
     &[ti-is-drag] > .ti-drag-mask {
