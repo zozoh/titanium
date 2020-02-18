@@ -4,11 +4,8 @@ export default {
   props : {
     "className" : null,
     "icon" : {
-      type : Object,
-      default : ()=>({
-        type : "font",
-        value : "im-hashtag"
-      })
+      type : [String, Object],
+      default : "im-hashtag"
     },
     "title" : {
       type : String,

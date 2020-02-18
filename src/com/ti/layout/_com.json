@@ -1,8 +1,0 @@
-{
-  "name" : "ti-layout",
-  "globally" : true,
-  "template" : "./ti-layout.html",
-  "methods"  : "@com:ti/gui/ti-gui-methods.mjs",
-  "mixins" : ["./ti-layout.mjs"],
-  "components" : ["./com/block"]
-}

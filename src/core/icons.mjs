@@ -1,87 +1,85 @@
 //-----------------------------------
 const TYPES = {
-  "7z"   : {type:"font",value:"fas-file-archive"},
-  "apk"  : {type:"font",value:"zmdi-android-alt"},
-  "css"  : {type:"font", value:"fab-css3"},
-  "csv"  : {type:"font", value:"fas-file-csv"},
-  "doc"  : {type:"font", value:"far-file-word"},
-  "docx" : {type:"font", value:"fas-file-word"},
-  "gz"   : {type:"font",value:"fas-file-archive"},
-  "hmaker_site" : {type:"font",value:"zmdi-globe-alt"},
-  "html" : {type:"font", value:"fab-html5"},
-  "js"   : {type:"font",value:"fab-node-js"},
-  "json" : {type:"font",value:"fas-quote-right"},
-  "less" : {type:"font",value:"fab-first-order-alt"},
-  "md"   : {type:"font",value:"fab-markdown"},
-  "mjs"  : {type:"font",value:"fab-node-js"},
-  "mkv"  : {type:"font",value:"far-file-video"},
-  "mp3"  : {type:"font",value:"far-file-audio"},
-  "mp4"  : {type:"font",value:"far-file-video"},
-  "pdf"  : {type:"font", value:"far-file-pdf"},
-  "py"   : {type:"font",value:"fab-python"},
-  "rar"  : {type:"font",value:"fas-file-archive"},
-  "rss"  : {type:"font",value:"fas-rss-square"},
-  "sass" : {type:"font",value:"fab-first-order"},
-  "tar"  : {type:"font",value:"far-file-archive"},
-  "tgz"  : {type:"font",value:"fas-file-archive"},
-  "wncom": {type:"font",value:"fas-tools"},
-  //"wncom": {type:"font",value:"im-diamond-o"},
-  "wnml" : {type:"font",value:"fas-file-code"},
-  "xls"  : {type:"font",value:"far-file-excel"},
-  "xlsx" : {type:"font",value:"fas-file-excel"},
-  "xml"  : {type:"font",value:"far-file-code"},
-  "zip"  : {type:"font",value:"fas-file-archive"}
+  "7z"   : "fas-file-archive",
+  "apk"  : "zmdi-android-alt",
+  "css"  : "fab-css3",
+  "csv"  : "fas-file-csv",
+  "doc"  : "far-file-word",
+  "docx" : "fas-file-word",
+  "gz"   : "fas-file-archive",
+  "hmaker_site" : "zmdi-globe-alt",
+  "html" : "fab-html5",
+  "js"   : "fab-node-js",
+  "json" : "fas-quote-right",
+  "less" : "fab-first-order-alt",
+  "md"   : "fab-markdown",
+  "mjs"  : "fab-node-js",
+  "mkv"  : "far-file-video",
+  "mp3"  : "far-file-audio",
+  "mp4"  : "far-file-video",
+  "pdf"  : "far-file-pdf",
+  "py"   : "fab-python",
+  "rar"  : "fas-file-archive",
+  "rss"  : "fas-rss-square",
+  "sass" : "fab-first-order",
+  "tar"  : "far-file-archive",
+  "tgz"  : "fas-file-archive",
+  "wncom": "fas-tools",
+  "wnml" : "fas-file-code",
+  "xls"  : "far-file-excel",
+  "xlsx" : "fas-file-excel",
+  "xml"  : "far-file-code",
+  "zip"  : "fas-file-archive"
 }
 //-----------------------------------
 const MIMES = {
-  "audio"       : {type:"font", value:"far-file-audio"},
-  "image"       : {type:"font", value:"far-file-image"},
-  "text"        : {type:"font", value:"far-file-alt"},
-  "video"       : {type:"font", value:"far-file-video"},
-  "text/css"    : {type:"font", value:"fab-css3"},
-  "text/html"   : {type:"font", value:"fab-html5"},
-  "application/x-zip-compressed" : {type:"font", value:"fas-file-archive"},
-  "application/x-javascript" : {type:"font", value:"fab-js-square"},
-  "text/javascript"          : {type:"font", value:"fab-js-square"},
+  "audio"       : "far-file-audio",
+  "image"       : "far-file-image",
+  "text"        : "far-file-alt",
+  "video"       : "far-file-video",
+  "text/css"    : "fab-css3",
+  "text/html"   : "fab-html5",
+  "application/x-zip-compressed" : "fas-file-archive",
+  "application/x-javascript"     : "fab-js-square",
+  "text/javascript"              : "fab-js-square",
 }
 //-----------------------------------
 const NAMES = {
-  "add"      : {type:"font", value:"zmdi-plus"},
-  "alert"    : {type:"font", value:"zmdi-notifications-none"},
-  "backward" : {type:"font", value:"zmdi-chevron-left"},
-  "close"    : {type:"font", value:"zmdi-close"},
-  "confirm"  : {type:"font", value:"zmdi-help"},
-  "create"   : {type:"font", value:"zmdi-audio"},
-  "del"      : {type:"font", value:"zmdi-delete"},
-  "done"     : {type:"font", value:"fas-thumbs-up"},
-  "download" : {type:"font", value:"zmdi-download"},
-  "edit"     : {type:"font", value:"zmdi-edit"},
-  "error"    : {type:"font", value:"zmdi-alert-octagon"},
-  "forward"  : {type:"font", value:"zmdi-chevron-right"},
-  "help"     : {type:"font", value:"zmdi-help-outline"},
-  "info"     : {type:"font", value:"zmdi-info-outline"},
-  "loading"  : {type:"font", value:"fas-spinner fa-spin"},
-  "ok"       : {type:"font", value:"zmdi-check-circle"},
-  "prompt"   : {type:"font", value:"zmdi-keyboard"},
-  "refresh"  : {type:"font", value:"zmdi-refresh"},
-  "removed"  : {type:"font", value:"far-trash-alt"},
-  "setting"  : {type:"font", value:"zmdi-settings"},
-  "success"  : {type:"font", value:"zmdi-check-circle"},
-  "track"    : {type:"font", value:"zmdi-notifications-none"},
-  "warn"     : {type:"font", value:"zmdi-alert-triangle"}
+  "add"      : "zmdi-plus",
+  "alert"    : "zmdi-notifications-none",
+  "backward" : "zmdi-chevron-left",
+  "close"    : "zmdi-close",
+  "confirm"  : "zmdi-help",
+  "create"   : "zmdi-audio",
+  "del"      : "zmdi-delete",
+  "done"     : "fas-thumbs-up",
+  "download" : "zmdi-download",
+  "edit"     : "zmdi-edit",
+  "error"    : "zmdi-alert-octagon",
+  "forward"  : "zmdi-chevron-right",
+  "help"     : "zmdi-help-outline",
+  "info"     : "zmdi-info-outline",
+  "loading"  : "fas-spinner fa-spin",
+  "ok"       : "zmdi-check-circle",
+  "prompt"   : "zmdi-keyboard",
+  "refresh"  : "zmdi-refresh",
+  "removed"  : "far-trash-alt",
+  "setting"  : "zmdi-settings",
+  "success"  : "zmdi-check-circle",
+  "track"    : "zmdi-notifications-none",
+  "warn"     : "zmdi-alert-triangle"
 }
 //-----------------------------------
 const RACES = {
-  "FILE" : {type:"font", value:"far-file"},
-  //"DIR"  : {type:"font", value:"zmdi-folder-outline"},
-  "DIR"  : {type:"font", value:"fas-folder"},
+  "FILE" : "far-file",
+  "DIR"  : "fas-folder"
 }
 //-----------------------------------
 const ALL = {
   ...TYPES, ...MIMES, ...RACES, ...NAMES
 }
 //-----------------------------------
-const DEFAULT = {type:"font", value:"zmdi-cake"}
+const DEFAULT = "zmdi-cake"
 //-----------------------------------
 export const TiIcons = {
   put({types, mimes, races, names, dft}={}) {
@@ -101,7 +99,7 @@ export const TiIcons = {
       return _.assign({}, ALL[icon] || dft)
     }
     // Base on the type
-    let {tp, mime, race, name} = icon
+    let {tp, type, mime, race, name} = icon
     // fallback to the mime Group Name
     // 'text/plain' will be presented as 'text'
     let mimeGroup = null
@@ -111,12 +109,13 @@ export const TiIcons = {
         mimeGroup = m[1]
       }
     }
-    return _.assign({}, TYPES[tp] 
+    return TYPES[type||tp] 
            || MIMES[mime]
            || MIMES[mimeGroup] 
            || RACES[race]
            || NAMES[name]
-           || dft)
+           || dft
+           || DEFAULT
   },
   parseFontIcon(val, dft={}) {
     if(!val)

@@ -176,7 +176,7 @@ export class OneTiApp {
     return await this.$store().dispatch(nm, payload)
   }
   //---------------------------------------
-  self(nm, payload) {
+  root(nm, payload) {
     if(Ti.IsInfo("TiApp")) {
       console.log("TiApp.self", nm, payload)
     }

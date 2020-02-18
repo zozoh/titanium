@@ -85,11 +85,11 @@ export default {
     },
     //-----------------------------------------------
     isCurrent() {
-      return this.rowId == this.currentId
+      return this.currentId && this.rowId == this.currentId
     },
     //-----------------------------------------------
     isChanged() {
-      return this.rowId == this.changedId
+      return this.changedId && this.rowId == this.changedId
     },
     //-----------------------------------------------
     isChecked() {
@@ -97,7 +97,7 @@ export default {
     },
     //-----------------------------------------------
     isHover() {
-      return this.rowId == this.hoverId
+      return this.hoverId && this.rowId == this.hoverId
     },
     //-----------------------------------------------
     hasRealIcon() {

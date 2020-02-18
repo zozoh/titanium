@@ -5,6 +5,14 @@ export default {
     setMeta(state, meta) {
       state.meta = meta
     },
+    //--------------------------------------------
+    assignMeta(state, meta) {
+      state.meta = _.assign({}, state.meta, meta);
+    },
+    //--------------------------------------------
+    mergeMeta(state, meta) {
+      state.meta = _.merge({}, state.meta, meta);
+    },
     //----------------------------------------
     setContent(state, content) {
       let meta = state.meta;
@@ -69,7 +77,26 @@ export default {
     //----------------------------------------
     syncStatusChanged(state){
       state.status.changed = !_.isEqual(state.content, state.__saved_content)
-    }
+    },
+    //----------------------------------------
+    setFieldStatus(state, {name, message, status}={}) {
+      if(name){
+        let st = status ? {status, message} : null
+        let ukey = _.concat(name).join("-")
+        Vue.set(state.fieldStatus, ukey, st)
+      }
+    },
+    //----------------------------------------
+    clearFieldStatus(state, names=[]) {
+      // Clean All
+      if(_.isEmpty(names)) {
+        state.fieldStatus = {}
+      }
+      // Clear one
+      else {
+        state.fieldStatus = _.omit(state.fieldStatus, names)
+      }
+    },
     //----------------------------------------
   }
   ////////////////////////////////////////////

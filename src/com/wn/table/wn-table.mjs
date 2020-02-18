@@ -93,17 +93,20 @@ export default {
         let f2 = Ti.Util.explainObj(this, fld, {
           iteratee : (obj)=>{
             // Quick: table.field.display:: thumb->icon
-            let m = /^@<thumb(:([^>]*))>$/.exec(obj)
+            let m = /^@<thumb(:([^>]*))?>$/.exec(obj)
             if(m) {
               let defaultIcon = m[2] || undefined
               return {
-                key : ["icon", "thumb", "__updated_time"],
+                key : ["icon", "thumb", "tp", "mime", "race", "__updated_time"],
                 type : "Object",
                 transformer : {
                   name : "toObject",
                   args : {
                     icon  : "icon",
                     thumb : "thumb",
+                    type  : "tp",
+                    mime  : "mime",
+                    race  : "race",
                     timestamp : "__updated_time"
                   }
                 },

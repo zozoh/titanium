@@ -7,7 +7,7 @@
   "modules" : {
     "config" : "./mod/config",
     "search" : "./mod/search",
-    "current" : "./mod/current",
+    "current" : "@mod:wn/obj-current",
     "files"   : "@mod:wn/obj-explorer",
     "preview" : "@mod:wn/obj-as-binary"
   }

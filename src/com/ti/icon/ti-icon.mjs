@@ -58,7 +58,10 @@ export default {
         }
         // Eval it as meta
         else {
-          icn = Ti.Icons.get(this.value)
+          icn = {
+            type  : "font", 
+            value : Ti.Icons.get(this.value)
+          }
         }
       }
       // String

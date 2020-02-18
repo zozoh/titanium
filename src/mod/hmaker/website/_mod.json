@@ -6,7 +6,7 @@
   "mixins" : "./website.mjs",
   "modules" : {
     "tree"    : "./mod/site-tree",
-    "current" : "./mod/site-current",
-    "config"  : "./mod/site-config"
+    "config"  : "./mod/site-config",
+    "current" : "@mod:wn/obj-current"
   }
 }

@@ -38,6 +38,13 @@ export default {
   setCurrentMeta({state, commit}, meta) {
     console.log(" -> setCurrentMeta", meta)
     commit("current/assignMeta", meta)
+    commit("syncStatusChanged")
+    commit("search/updateItem", state.current.meta)
+  },
+  //--------------------------------------------
+  setCurrentContent({state, commit, dispatch}, content) {
+    dispatch("current/onChanged", content)
+    commit("syncStatusChanged")
     commit("search/updateItem", state.current.meta)
   },
   //--------------------------------------------

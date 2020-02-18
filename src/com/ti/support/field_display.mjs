@@ -74,6 +74,9 @@ export default {
     autoIgnoreNil=true,
     autoValue="value"
   }={}) {
+    // if(!itemData.id) {
+    //   console.log("displayItem", itemData)
+    // }
     let value = displayItem.defaultAs;
     //.....................................
     // Array -> Obj

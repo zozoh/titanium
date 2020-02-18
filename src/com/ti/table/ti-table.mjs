@@ -43,7 +43,7 @@ export default {
     },
     "border" : {
       type : String,
-      default : "column",
+      default : "cell",
       validator : v => /^(row|column|cell|none)$/.test(v)
     },
     "autoScrollIntoView" : {

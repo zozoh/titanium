@@ -2,29 +2,48 @@
 ////////////////////////////////////////////////
 export default {
   //--------------------------------------------
-  async save({state, commit}) {
-    if(state.status.saving){
-      return
-    }
-
-    commit("setStatus", {saving:true})
-
-    let meta = state.meta
-    let content = state.content
-    let newMeta = await Wn.Io.saveContentAsText(meta, content)
-
-    commit("setMeta",         newMeta)
-    commit("setSavedContent", content)
-    commit("setStatus",       {saving:false})
-    commit("syncStatusChanged")
-
-    // return the new meta
-    return newMeta
-  },
-  //--------------------------------------------
   changeContent({state, commit}, content) {
     commit("setContent", content)
     commit("syncStatusChanged")
+  },
+  //--------------------------------------------
+  async openContentEditor({state, commit}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let newContent = await Wn.EditObjContent(state.meta, {
+      icon      : Wn.Util.getObjIcon(this.meta, "zmdi-tv"),
+      title     : Wn.Util.getObjDisplayName(state.meta),
+      showEditorTitle : false,
+      content   : state.content
+    })
+
+    // Cancel the editing
+    if(_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    commit("setContent", newContent)
+  },
+  //--------------------------------------------
+  async setCurrent({state, commit,dispatch}, {
+    meta=null, force=false
+  }={}) {
+    //console.log("setCurrent", meta, loadContent)
+
+    // Not need to reload
+    if(state.meta && meta && state.meta.id == meta.id) {
+      if((_.isString(state.content)) && !force) {
+        return
+      }
+    }
+
+    // do reload
+    await dispatch("reload", meta)
+
   },
   //--------------------------------------------
   async updateMeta({state, commit}, {name, value}={}) {
@@ -46,6 +65,26 @@ export default {
 
     commit("setMeta", reo)
     commit("clearFieldStatus", name)
+  },
+  //--------------------------------------------
+  async save({state, commit}) {
+    if(state.status.saving){
+      return
+    }
+
+    commit("setStatus", {saving:true})
+
+    let meta = state.meta
+    let content = state.content
+    let newMeta = await Wn.Io.saveContentAsText(meta, content)
+
+    commit("setMeta",         newMeta)
+    commit("setSavedContent", content)
+    commit("setStatus",       {saving:false})
+    commit("syncStatusChanged")
+
+    // return the new meta
+    return newMeta
   },
   //--------------------------------------------
   async reload({state, commit, rootState}, meta) {
@@ -76,23 +115,6 @@ export default {
     commit("setContent", content)
     commit("setSavedContent", content)
     commit("syncStatusChanged")
-  },
-  //--------------------------------------------
-  async setCurrent({state, commit,dispatch}, {
-    meta=null, force=false
-  }={}) {
-    //console.log("setCurrent", meta, loadContent)
-
-    // Not need to reload
-    if(state.meta && meta && state.meta.id == meta.id) {
-      if((_.isString(state.content)) && !force) {
-        return
-      }
-    }
-
-    // do reload
-    await dispatch("reload", meta)
-
   }
   //--------------------------------------------
 }

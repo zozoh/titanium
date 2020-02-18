@@ -16,7 +16,7 @@ export default {
       default : null
     },
     "icon" : {
-      type : String,
+      type : [String, Object],
       default : null
     },
     "hideTitle" : {
@@ -73,9 +73,13 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "tabAt"      : undefined,
-    "adjustable" : undefined,
-    "border"     : undefined
+    "captureEvents" : {
+      type : Object,
+      default : ()=>({})
+    },
+    // "tabAt"      : undefined,
+    // "adjustable" : undefined,
+    // "border"     : undefined
   },
   //////////////////////////////////////////
   computed : {
@@ -158,10 +162,10 @@ export default {
       if(!_.isEmpty(this.blocks)) {
         let comType = `ti-gui-${this.type||"cols"}`
         let comConf = {
+          // tabAt      : this.tabAt,
+          // border     : this.border,
+          // adjustable : this.adjustable,
           blocks     : this.blocks,
-          tabAt      : this.tabAt,
-          border     : this.border,
-          adjustable : this.adjustable,
           schema : this.schema,
           actionStatus : this.actionStatus,
           shown  : this.shown
@@ -179,10 +183,23 @@ export default {
     //--------------------------------------
     async hijackEmit(name, args) {
       //console.log("ti-gui-block::hijackEmit->", name, args)
+      //....................................
+      // Capture Events
+      let callName = _.get(this.captureEvents, name)
+      if(callName) {
+        //console.log("!captureEvents", name, args)
+        let $body  = _.last(this.$children)
+        let callFn = _.get($body, callName)
+        if(_.isFunction(callFn)) {
+          callFn.apply($body, [{name, args}])
+        }
+      }
+      //....................................
       // By Pass: "block:show/hide/event"
-      if(/^block:(shown?|hide|event)$/.test(name)) {
+      else if(/^block:(shown?|hide|event)$/.test(name)) {
         await this.$emit(name, ...args)
       }
+      //....................................
       // Gen Block Event
       else {
         await this.$emit("block:event", {
@@ -190,6 +207,7 @@ export default {
           name, args
         })
       }
+      //....................................
     }
     //--------------------------------------
   }

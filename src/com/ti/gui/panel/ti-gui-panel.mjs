@@ -2,13 +2,14 @@ export default {
   inheritAttrs : false,
   /////////////////////////////////////////
   props : {
-    "className" : null,
+    "className" : undefined,
+    "captureEvents" : undefined,
     "title" : {
       type : String,
       default : null
     },
     "icon" : {
-      type : String,
+      type : [String, Object],
       default : null
     },
     "hideTitle" : {

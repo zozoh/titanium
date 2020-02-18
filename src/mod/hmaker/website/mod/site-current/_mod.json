@@ -1,7 +1,0 @@
-{
-  "name" : "hmaker-site-current",
-  "namespaced" : true,
-  "state" : "./site-current.json",
-  "actions" : "./site-current-actions.mjs",
-  "mixins" : "./site-current.mjs"
-}

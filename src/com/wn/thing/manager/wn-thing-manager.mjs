@@ -159,9 +159,13 @@ export default {
       })
     },
     //--------------------------------------
-    async onBlockEvent(be={}) {
-      //console.log("onBlockEvent", be)
+    async onBlockEvent({block, name, args}={}) {
+      //....................................
+      let evKey = _.concat(block||[], name||[]).join(".")
+      //console.log("wn-thing-manager:onBlockEvent",evKey, args)
+      //....................................
       let app = Ti.App(this)
+      //....................................
       // Event Handlers
       const fns = {
         //..................................
@@ -206,7 +210,7 @@ export default {
         //..................................
         // Content changed
         "content.changed" : ({content})=>{
-          app.dispatch("main/current/changeContent", content)
+          app.dispatch("main/current/onChanged", content)
           app.commit("main/syncStatusChanged")
         },
         //..................................
@@ -222,16 +226,41 @@ export default {
           app.dispatch("main/search/reload")
         },
         //..................................
-        "tabs:changed" : this.changeTabs
+        "tabs:changed" : this.changeTabs,
+        //..................................
+        "view-current-source" : this.viewCurrentSource
         //..................................
       }
 
-      let fn = fns[`${be.block}.${be.name}`] || fns[be.name]
+      let fn = fns[evKey] || fns[name]
 
       // Run Handler
       if(_.isFunction(fn)) {
-        await fn(...be.args)
+        await fn.apply(this, args)
       }
+    },
+    //--------------------------------------
+    async viewCurrentSource() {
+      // Guard
+      if(!this.current.meta) {
+        return await Ti.Toast.Open("i18n:empty-data", "warn")
+      }
+      // Open Editor
+      let newContent = await Wn.EditObjContent(this.current.meta, {
+        showEditorTitle : false,
+        icon      : Wn.Util.getObjIcon(this.current.meta, "zmdi-tv"),
+        title     : Wn.Util.getObjDisplayName(this.current.meta),
+        content   : this.current.content,
+        saveBy    : null
+      })
+
+      // Cancel the editing
+      if(_.isUndefined(newContent)) {
+        return
+      }
+
+      // Update the current editing
+      Ti.App(this).dispatch("main/setCurrentContent", newContent)
     },
     //--------------------------------------
     // Firefox 33.0, can not watch the click in callback

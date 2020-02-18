@@ -14,10 +14,22 @@ export default {
       type : String,
       default : null
     },
+    "mime" : {
+      type : String,
+      default : null
+    },
+    "type" : {
+      type : String,
+      default : null
+    },
+    "race" : {
+      type : String,
+      default : null
+    },
     // default icon string
     "defaultIcon" : {
       type : String,
-      default : "fas-cube"
+      default : null
     },
     // timestamp
     "timestamp" : {
@@ -27,10 +39,14 @@ export default {
   },
   ///////////////////////////////////////////////////
   computed : {
+    //-----------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName(this.className)
     },
+    //-----------------------------------------------
     theIcon() {
+      if(!this.defaultIcon)
+        console.log("theIcon")
       // Thumb as image
       if(this.thumb) {
         let src = `/o/content?str=${this.thumb}`
@@ -42,16 +58,34 @@ export default {
           value : src
         }
       }
+      //.............................................
       // Icon
-      return {
-        type  : "font",
-        value  : this.icon || this.defaultIcon || "fas-cube"
+      if(this.icon) {
+        return {
+          type  : "font",
+          value  : this.icon
+        }
       }
+      //.............................................
+      // Force Default
+      if(this.defaultIcon) {
+        return this.defaultIcon
+      }
+      //.............................................
+      // Auto
+      let obj = _.pick(this, "type", "mime", "race")
+      if(!_.isEmpty(obj)) {
+        return Ti.Icons.get(obj)
+      }
+      // Default
+      return "fas-cube"
     }
+    //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
-    
+    //-----------------------------------------------
+    //-----------------------------------------------
   }
   ///////////////////////////////////////////////////
 }

@@ -30,7 +30,7 @@
       "type" : "action",
       "icon" : "far-file-alt",
       "text" : "i18n:view-resource",
-      "action" : "self:viewObjContent",
+      "action" : "root:viewObjContent",
       "shortcut" : "ALT+CTRL+V"
     },{
       "type" : "action",
@@ -42,7 +42,7 @@
       "type" : "action",
       "icon" : "zmdi-info-outline",
       "text" : "i18n:properties",
-      "action" : "self:editObjMeta",
+      "action" : "root:editObjMeta",
       "shortcut" : "ALT+CTRL+P"
     }]
 }

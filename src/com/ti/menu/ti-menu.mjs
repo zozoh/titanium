@@ -102,14 +102,16 @@ export default {
         let args = []
         let func, context
         //...............................
+        // Emit
+        if("$emit" == mode) {
+          this.$emit(tanm, arg0)
+          return
+        }
+        //...............................
         // Call parent
         if('parent' == mode) {
           func = this.$parent[tanm]
           context = this.$parent
-        }
-        // Emit
-        else if("$emit" == mode) {
-          this.$emit(tanm, arg0)
         }
         // Call App
         else {
@@ -128,6 +130,7 @@ export default {
           func.apply(context, args)
           return
         }
+        //...............................
       }
       // Fail to found function
       // Then emit the action

@@ -255,6 +255,10 @@ Current tab index of name.
 
 ## body
 
+## captureEvents
+
+pass to contains `TiGuiBlock`
+
 ## adjustable
 
 ## overflow
@@ -328,7 +332,6 @@ If `true`, it will enable mask layer to capture all user mouse operation duratio
 }
 ```
 If `mask==true`, this prop will cause the panel closed when user click the mask area. Default is `false`.
-
 
 -------------------------------------------------
 # Block
@@ -500,44 +503,33 @@ Flex     | Description
 `both`   | as `flex: 1 1 auto;`
 `none`   | as `flex: 0 0 auto;`
 
-## tabAt
-
-```js
-"tabAt" : {
-  type : String,
-  default : "top-left",
-  validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
-}
-```
-If `type="tabs"`, the prop will be used to indicated the tab title bar position. `top-left` as default.
-
-## adjustable
-
-```js
-"adjustable" : {
-  type : Boolean,
-  default : true
-}
-```
-
-User can adjust the size
- - `true` : both x/y
- - `"x"`  : x only
- - `"y"`  : y only
- - `false` : forbid adjust size
-
-Defaultly `true`
-
-## border
-
-```js
-"border" : {
-  type : Boolean,
-  default : false
-}
-```
-
 Show sub block border or not. Default is `false`
+
+## captureEvents
+
+```js
+"captureEvents" : {
+  type : Object,
+  default : ()=>({})
+},
+```
+
+Capture the special event and routed to current `body` component methods.
+
+```
+{
+  "view-current-source" : "onBlockEvent"
+}
+```
+
+It will invoke the method in block body compnent when event `view-current-source` happend:
+
+```js
+onBlockEvent({
+  name : "view-current-source",
+  args : []
+})
+```
 
 -------------------------------------------------
 # Event

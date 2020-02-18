@@ -5,11 +5,15 @@ export async function EditObjContent(pathOrObj="~", {
   type  = "info",
   className,
   closer = true,
-  textOk = "i18n:save",
+  // undefined is auto, null is hidden
+  // if auto, 'i18n:save' for saveBy, else 'i18n:ok'
+  textOk = undefined,  
   textCancel = "i18n:cancel",
   width=640, height="80%",
   readonly=false,
-  showTitle=true,
+  showEditorTitle=true,
+  content=null,
+  saveBy="content/save",
   blankText="i18n:blank"
 }={}){
   //................................................
@@ -19,13 +23,17 @@ export async function EditObjContent(pathOrObj="~", {
     obj = await Wn.Io.loadMeta(pathOrObj)
   }
   //................................................
+  if(_.isUndefined(textOk)) {
+    textOk = this.saveBy ? 'i18n:save' : 'i18n:ok'
+  }
+  //................................................
   // Prepare the DOM
   let html = `<ti-text-raw
     class="ti-fill-parent"
     :icon="theIcon"
     :title="theTitle"
     :readonly="readonly"
-    :show-title="showTitle"
+    :show-title="showEditorTitle"
     :content="content"
     :content-is-changed="theStatusChanged"
     :blank-text="blankText"
@@ -36,12 +44,12 @@ export async function EditObjContent(pathOrObj="~", {
     template : html,
     /////////////////////////////////////////////////
     data : {
-      readonly, showTitle, blankText
+      readonly, showEditorTitle, blankText
     },
     /////////////////////////////////////////////////
     store : {
       modules : {
-        content : "@mod:wn/obj-as-text"
+        content : "@mod:wn/obj-current"
       }
     },
     /////////////////////////////////////////////////
@@ -71,15 +79,24 @@ export async function EditObjContent(pathOrObj="~", {
     /////////////////////////////////////////////////
     methods : {
       //--------------------------------------------
-      async onChangeContent(text) {
-        Ti.App(this).dispatch("content/onChanged", {content:text})
+      async onChangeContent(content) {
+        Ti.App(this).dispatch("content/onChanged", content)
       }
       //--------------------------------------------
     },
     /////////////////////////////////////////////////
     // Load meta at first
     mounted : async function(){
-      Ti.App(this).dispatch("content/reload", obj)
+      let app = Ti.App(this)
+      // Do reload
+      if(Ti.Util.isNil(content)) {
+        app.dispatch("content/reload", obj)
+      }
+      // Do show content
+      else {
+        app.commit("content/setMeta", obj)
+        app.dispatch("content/updateContent", content)
+      }
     },
     /////////////////////////////////////////////////
     components : ["@com:ti/text/raw"]
@@ -89,7 +106,10 @@ export async function EditObjContent(pathOrObj="~", {
     actions : [{
       text : textOk,
       handler : async ({app})=>{
-        await app.dispatch("content/save")
+        // Auto Save
+        if(saveBy) {
+          await app.dispatch(saveBy)
+        }
         return app.$vm().content
       },
     }, {

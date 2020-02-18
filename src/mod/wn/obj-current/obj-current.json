@@ -4,6 +4,9 @@
   "data" : null,
   "__saved_content" : null,
   "status" : {
-    "changed"   : false
-  }
+    "changed"   : false,
+    "saving"    : false,
+    "reloading" : false
+  },
+  "fieldStatus" : {}
 }
