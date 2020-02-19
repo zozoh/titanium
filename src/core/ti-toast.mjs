@@ -37,7 +37,7 @@ class TiToastBox {
     }
     //........................................
 
-    // console.log("icon", icon)
+     console.log("icon", icon)
     //........................................
     // Setup content
     let html = `<div class="ti-toast"

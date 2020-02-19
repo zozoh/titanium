@@ -92,11 +92,11 @@ export const TiIcons = {
   get(icon,dft=DEFAULT) {
     // Default icon
     if(!icon) {
-      return _.assign({}, dft)
+      return dft || DEFAULT
     }
     // String: look up "ALL"
     if(_.isString(icon)) {
-      return _.assign({}, ALL[icon] || dft)
+      return ALL[icon] || dft || DEFAULT
     }
     // Base on the type
     let {tp, type, mime, race, name} = icon
@@ -120,10 +120,10 @@ export const TiIcons = {
   parseFontIcon(val, dft={}) {
     if(!val)
       return dft
-    let font = TiIcons.get(val, null)
-    if(!_.isEmpty(font)) {
-      val = font.value
-    }
+    // let font = TiIcons.get(val, null)
+    // if(!_.isEmpty(font)) {
+    //   val = font.value
+    // }
     let icon = {
       className: "material-icons",
       text : val
