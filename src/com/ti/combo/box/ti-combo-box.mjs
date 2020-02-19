@@ -75,7 +75,7 @@ export default {
     //------------------------------------------------
     topStyle() {
       return Ti.Css.toStyle({
-        width  : this.box.width,
+        //width  : this.box.width,
         height : this.box.height
       })
     },
