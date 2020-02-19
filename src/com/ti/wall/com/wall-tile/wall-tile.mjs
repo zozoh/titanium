@@ -121,11 +121,12 @@ export default {
     },
     //-----------------------------------------------
     onClickTile($event) {
-      if(this.selectable && !this.isCurrent) {
+      let toggle = ($event.ctrlKey || $event.metaKey)
+      if(this.selectable && (!this.isCurrent || toggle)) {
         this.$emit("select", {
           rowId  : this.rowId,
           shift  : $event.shiftKey,
-          toggle : ($event.ctrlKey || $event.metaKey)
+          toggle
         })
       }
     },

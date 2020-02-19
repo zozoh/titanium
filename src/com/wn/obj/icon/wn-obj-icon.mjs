@@ -46,7 +46,6 @@ export default {
     //-----------------------------------------------
     theIcon() {
       if(!this.defaultIcon)
-        console.log("theIcon")
       // Thumb as image
       if(this.thumb) {
         let src = `/o/content?str=${this.thumb}`

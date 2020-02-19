@@ -101,7 +101,7 @@ export default {
   methods : {
     //--------------------------------------
     onBlockEvent({block, name, args}={}) {
-      let evKey = _.concat(block, name).join(".")
+      let evKey = _.concat(block||[], name||[]).join(".")
       let data = _.first(args)
       console.log("hmaker-site-manager:onBlockEvent",evKey, data)
       //....................................

@@ -148,11 +148,12 @@ export default {
     },
     //-----------------------------------------------
     onClickRow($event) {
-      if(this.selectable) {
+      let toggle = ($event.ctrlKey || $event.metaKey)
+      if(this.selectable && (!this.isCurrent || toggle)) {
         this.$emit("select", {
           rowId  : this.rowId,
           shift  : $event.shiftKey,
-          toggle : ($event.ctrlKey || $event.metaKey)
+          toggle
         })
       }
     },

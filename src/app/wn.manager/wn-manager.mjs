@@ -51,33 +51,15 @@ export default {
     },
     //---------------------------------------
     theCrumbData() {
-      let list = []
-      if(this.obj && this.obj.meta) {
-        let ans = _.map(this.obj.ancestors)
-        // Find the first Index from home
-        let i = Ti.Util.fallback(this.setup.firstCrumbIndex, 0)
-        // Show ancestors form Home
-        for(; i<ans.length; i++) {
-          let an = ans[i]
-          list.push({
-            icon  : Wn.Util.getIconObj(an),
-            text  : Wn.Util.getObjDisplayName(an),
-            value : an.id,
-            href  : Wn.Util.getAppLink(an) + ""
-          })
+      return Wn.Obj.evalCrumbData({
+        meta      : _.get(this.obj, "meta"),
+        ancestors : _.get(this.obj, "ancestors"),
+        fromIndex : this.setup.firstCrumbIndex,
+        homePath  : this.setup.skyHomePath,
+        self : (item)=>{
+          item.asterisk = _.get(this.mainStatus, "changed")
         }
-        // Show Self
-        let self = this.obj.meta
-        // Top Item, just show title
-        list.push({
-          icon  : Wn.Util.getIconObj(self),
-          text  : Wn.Util.getObjDisplayName(self),
-          value : self.id,
-          href  : null,
-          asterisk : _.get(this.mainStatus, "changed")
-        })
-      }
-      return list
+      })
     },
     //---------------------------------------
     theCrumb() {
@@ -88,12 +70,6 @@ export default {
       }
       // Return it
       return  {
-        "mode" : "path",
-        "removeIcon" : null,
-        "statusIcons" : {
-          "collapse" : "zmdi-chevron-right",
-          "extended" : "zmdi-chevron-down"
-        },
         "data" : crumbs
       }
     },
@@ -203,9 +179,9 @@ export default {
       this.doChangeShown({[name]:!this.theShown[name]})
     },
     //--------------------------------------
-    async onBlockEvent(be={}) {
-      let evKey = _.concat(be.block, be.name).join(".")
-      //console.log("wn-manager:onBlockEvent",evKey, be)
+    async onBlockEvent({block, name, args}={}) {
+      let evKey = _.concat(block||[], name||[]).join(".")
+      //console.log("wn-manager:onBlockEvent",evKey, args)
       // Find Event Handler
       let FnSet = {
         // sidebar or title
@@ -227,11 +203,11 @@ export default {
         }
       }
 
-      let fn = FnSet[evKey] || FnSet[be.name]
+      let fn = FnSet[evKey] || FnSet[name]
 
       // Invoke Event Handler
       if(_.isFunction(fn)) {
-        await fn(...be.args)
+        await fn.apply(this, args)
       }
     },
     //--------------------------------------

@@ -1,3 +1,5 @@
+import list_mixinsMjs from "../../support/list_mixins.mjs";
+
 export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////
@@ -17,11 +19,8 @@ export default {
     },
     // The URL of thumb
     preview : {
-      type : Object,
-      default : ()=>({
-        type : "icon",
-        value : "broken_image"
-      })
+      type : [String, Object],
+      default : "broken_image"
     },
     href : {
       type : String,

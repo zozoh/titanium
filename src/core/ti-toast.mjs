@@ -115,7 +115,7 @@ class TiToastBox {
     // Mount to body
     app.mountTo($el)
     app.$toast = this
-    app.self("doOpen")
+    app.root("doOpen")
     //........................................
     // Join to runtime
     RTSTACK.push(this)
@@ -123,7 +123,7 @@ class TiToastBox {
     // Delay to remove
     if(duration > 0) {
       _.delay(()=>{
-        app.self("doClose")
+        app.root("doClose")
       }, duration)
     }
     //........................................
@@ -143,7 +143,7 @@ class TiToastBox {
 //////////////////////////////////////////////
 const TiToast = {
   //------------------------------------------
-  Open(options, type, position) {
+  Open(options, type="info", position="top") {
     if(_.isString(options)) {
       // Open("i18n:xxx", {vars})
       if(_.isPlainObject(type)) {

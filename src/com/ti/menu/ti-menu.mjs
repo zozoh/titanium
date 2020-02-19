@@ -109,7 +109,7 @@ export default {
         }
         //...............................
         // Call parent
-        if('parent' == mode) {
+        if('$parent' == mode) {
           func = this.$parent[tanm]
           context = this.$parent
         }

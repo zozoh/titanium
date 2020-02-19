@@ -2,6 +2,7 @@
   "name" : "ti-wall",
   "globally" : true,
   "template" : "./ti-wall.html",
+  "props" : "@com:ti/support/list_props.mjs",
   "methods" : "@com:ti/support/field_display.mjs",
   "mixins" : [
     "@com:ti/support/list_mixins.mjs",

@@ -73,6 +73,13 @@ export default {
       return klass
     },
     //------------------------------------------------
+    topStyle() {
+      return Ti.Css.toStyle({
+        width  : this.box.width,
+        height : this.box.height
+      })
+    },
+    //------------------------------------------------
     theBoxStyle() {
       return Ti.Css.toStyle(this.box)
     },
@@ -103,12 +110,6 @@ export default {
       // to at the top of mask
       if("extended" == this.status) {
         let r_box  = Ti.Rects.createBy($box)
-        //..........................................
-        // Mark parent to hold the place
-        Ti.Dom.setStyle(this.$el, {
-          //width  : r_box.width,
-          height : r_box.height
-        })
         //..........................................
         // Mark box to fixed position
         _.assign(this.box, {position:"fixed"}, r_box.raw())
@@ -145,8 +146,6 @@ export default {
     },
     //------------------------------------------------
     resetBoxStyle() {
-      // Recover the $el width/height
-      Ti.Dom.setStyle(this.$el, {width: "", height: ""})
       // Recover the $box width/height
       _.assign(this.box, {
         position:null, top:null, left:null, 

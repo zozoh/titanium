@@ -84,10 +84,6 @@ export default {
     type : Object,
     default : ()=>({})
   },
-  // "comValueKey" : {
-  //   type : String,
-  //   default : "value"
-  // },
   "serializer" : {
     type : Function,
     default : _.identity

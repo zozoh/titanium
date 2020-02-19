@@ -135,6 +135,91 @@ export const WnObj = {
       }
     }
     return list
+  },
+  //----------------------------------------
+  /***
+   * Create the crumb data for `<ti-crumb>`
+   * 
+   * @param meta{Object} - WnObj to show crumb data
+   * @param ancestors{Array} - parent path object(WnObj[]), top dir at first.
+   * @param showSelf{Boolean} - append self at the end of path
+   * @param fromIndex{Integer} - start index in ancestors to generate data
+   * @param homePath{String} - another way to indicate the `fromIndex`
+   * @param iteratee{Function} - customized iterator `(item, index, an)`
+   *   return `null` to ignore current item
+   * @param self{Function} - customized iterator for self `(item, index, an)`
+   *   return `null` to ignore current item
+   * 
+   * @return JSON array like:
+   * 
+   * ```js
+   * [{
+   *    icon  : Wn.Util.getIconObj(self),
+        text   : Wn.Util.getObjDisplayName(self),
+        value  : self.id,
+        href   : null,
+        asterisk : _.get(this.mainStatus, "changed")
+   * }]
+   * ```
+   */
+  evalCrumbData({
+    meta, 
+    ancestors = [], 
+    fromIndex=0, 
+    homePath=null,
+    iteratee=_.identity,
+    self=_.identity
+  }={}) {
+    let list = []
+    if(meta) {
+      let ans = _.map(ancestors)
+      // Find the first Index from home
+      let i = fromIndex
+
+      // find by homePath
+      if(homePath) {
+        for(; i<ans.length; i++) {
+          let an = ans[i]
+          if(an.ph == homePath) {
+            break
+          }
+        }
+      }
+
+      // Show ancestors form Home
+      for(; i<ans.length; i++) {
+        let an = ans[i]
+        let item = {
+          icon  : Wn.Util.getIconObj(an),
+          text  : Wn.Util.getObjDisplayName(an),
+          value : an.id,
+          href  : Wn.Util.getAppLink(an) + ""
+        }
+        item = iteratee(item, i, meta) || item
+        if(item) {
+          list.push(item)
+        }  
+      }
+      // Top Item, just show title
+      if(self) {
+        let item = {
+          icon  : Wn.Util.getIconObj(meta),
+          text  : Wn.Util.getObjDisplayName(meta),
+          value : meta.id,
+          href  : null,
+          asterisk : _.get(this.mainStatus, "changed")
+        }
+        // Customized
+        if(_.isFunction(self)) {
+          item = self(item, i, meta) || item
+        }
+        // Join to list
+        if(item) {
+          list.push(item)
+        }
+      }
+    }
+    return list
   }
   //----------------------------------------
 }

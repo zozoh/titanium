@@ -300,6 +300,10 @@ export default {
         })
       }
     },
+    "options" : async function() {
+      await this.reloadListData({force:true, val:this.value})
+      await this.reloadRuntime()
+    }
     // "inputing" : function(newVal, oldVal){
     //   console.log("-- inputing: ", {newVal, oldVal})
     // }

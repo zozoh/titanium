@@ -121,7 +121,6 @@ export default {
       if(this.isLoaded && this.cached) {
         return
       }
-      console.log("switcher reload")
       this.loading = true
       let list = []
       // Dynamic value

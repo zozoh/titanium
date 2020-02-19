@@ -127,8 +127,8 @@
                 "name"   : "products",
                 "type"   : "Array",
                 "comType" : "wn-table",
-                "comValueKey" : "list",
                 "comConf" : {
+                  "data" : "${=value}",
                   "selectable" : false,
                   "fields" : [{
                       "title"   : "商品",
@@ -150,8 +150,8 @@
                 "name"   : "coupons",
                 "type"   : "Array",
                 "comType" : "wn-table",
-                "comValueKey" : "list",
                 "comConf" : {
+                  "data" : "${=value}",
                   "selectable" : false,
                   "fields" : [{
                       "title"   : "优惠券名",

@@ -36,6 +36,7 @@
   "drop-file-here-to-upload" : "拖拽文件至此以便上传",
   "e-io-obj-exists" : "但是对象已然存在",
   "e-io-obj-noexists" : "对象其实并不存在",
+  "e-io-obj-noexistsf" : "对象[${nm}]其实并不存在",
   "edit" : "编辑",
   "empty" : "空",
   "empty-data" : "没有任何数据对象",

@@ -2,6 +2,10 @@
   "name" : "ti-table",
   "globally" : true,
   "template" : "./ti-table.html",
+  "props" : [
+    "@com:ti/support/list_props.mjs",
+    "./ti-table-props.mjs"
+  ],
   "methods" : "@com:ti/support/field_display.mjs",
   "mixins" : [
     "@com:ti/support/list_mixins.mjs",

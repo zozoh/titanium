@@ -7,96 +7,7 @@ export default {
     myCheckedIds: {}      // Which row has been checked
   }),
   ///////////////////////////////////////////////////
-  props : {
-    "className" : null,
-    "idBy" : {
-      type : [String, Function],
-      default : "id"
-    },
-    "rawDataBy" : {
-      type : [Object, String, Function],
-      default : _.identity
-    },
-    "className" : {
-      type : String,
-      default : null
-    },
-    "explainDict" : {
-      type : Function,
-      default : _.identity
-    },
-    "extendFunctionSet" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "data" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "changedId" : {
-      type : String,
-      default : null
-    },
-    "currentId" : {
-      type : String,
-      default : null
-    },
-    "checkedIds" : {
-      type : [Array, Object],
-      default : ()=>[]
-    },
-    "multi" : {
-      type : Boolean,
-      default : false
-    },
-    "checkable" : {
-      type : Boolean,
-      default : false
-    },
-    "selectable" : {
-      type : Boolean,
-      default : true
-    },
-    "openable" : {
-      type : Boolean,
-      default : true
-    },
-    "cancelable" : {
-      type : Boolean,
-      default : true
-    },
-    "hoverable" : {
-      type : Boolean,
-      default : false
-    },
-    "puppetMode" : {
-      type : Boolean,
-      default : false
-    },
-    "width" : {
-      type : [Number, String],
-      default : null
-    },
-    "height" : {
-      type : [Number, String],
-      default : null
-    },
-    "scrollIndex" : {
-      type : Boolean,
-      default : false
-    },
-    "blankAs" : {
-      type : Object,
-      default : ()=>({
-        icon : "zmdi-alert-circle-o",
-        text : "empty-data"
-      })
-    },
-    "onReady" : {
-      type : Function,
-      default : null
-    }
-  },
+  // props -> list_props.mjs
   ///////////////////////////////////////////////////
   computed : {
     //--------------------------------------
@@ -140,7 +51,7 @@ export default {
       }
       // Checking ...
       for(let row of this.theData){
-        if(!this.myCheckedIds[row.id])
+        if(!this.theCheckedIds[row.id])
           return false;  
       }
       return true
@@ -149,13 +60,16 @@ export default {
     hasChecked() {
       for(let it of this.data){
         let itId = this.getRowId(it)
-        if(this.myCheckedIds[itId])
+        if(this.theCheckedIds[itId])
           return true  
       }
       return false
     },
     //--------------------------------------
-    theCurrentId()  {return this.puppetMode ? this.currentId : this.myCurrentId},
+    theCurrentId()  {
+      return this.puppetMode ? this.currentId : this.myCurrentId
+    },
+    //--------------------------------------
     theCheckedIds() {
       return this.puppetMode 
         ? this.getCheckedIdsMap(this.checkedIds)
@@ -262,8 +176,8 @@ export default {
     },
     //--------------------------------------
     selectRowsToCurrent(rowId) {
-      let theCheckedIds = _.cloneDeep(this.myCheckedIds)
-      let theCurrentId  = this.myCurrentId
+      let theCheckedIds = _.cloneDeep(this.theCheckedIds)
+      let theCurrentId  = this.theCurrentId
       let theIndex = this.findRowIndexById(rowId)
       if(theIndex >= 0) {
         let fromIndex = Math.min(theIndex, this.myLastIndex)
@@ -327,6 +241,9 @@ export default {
       else {
         theIndex = this.findRowIndexById(rowId)
         theCheckedIds[rowId] = false
+        if(theCurrentId == rowId) {
+          theCurrentId = null
+        }
       }
       // Eval context
       let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
@@ -341,7 +258,7 @@ export default {
     },
     //--------------------------------------
     toggleRow(rowId) {
-      if(this.myCheckedIds[rowId]) {
+      if(this.theCheckedIds[rowId]) {
         this.cancelRow(rowId)
       } else {
         this.checkRow(rowId)
@@ -404,11 +321,15 @@ export default {
           }
         })
       }
+      // Force to check current
+      if(!Ti.Util.isNil(this.theCurrentId)) {
+        idMap[this.theCurrentId] = true
+      }
       return idMap
     },
     //--------------------------------------
     syncCurrentId() {
-      if(!this.puppetMode && this.myCurrentId != this.currentId) {
+      if(!this.puppetMode && this.theCurrentId != this.currentId) {
         //console.log("syncCurrentId", this.currentId)
         this.selectRow(this.currentId, true)
       }

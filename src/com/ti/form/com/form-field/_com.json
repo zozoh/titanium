@@ -1,6 +1,6 @@
 {
-  "name" : "form-field",
-  "globally" : false,
+  "name" : "ti-form-field",
+  "globally" : true,
   "template" : "./form-field.html",
   "methods"  : "@com:ti/support/field_display.mjs",
   "props" : "./form-field-props.mjs",

@@ -19,7 +19,7 @@ export default {
     }
     // Statice Load
     else if(this.hasOptions) {
-      this.listData = _.concat(this.options)
+      this.listData = _.concat([], this.options)
     }
     // Default is Empty
     else {

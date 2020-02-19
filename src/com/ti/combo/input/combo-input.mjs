@@ -246,6 +246,10 @@ export default {
     "value" : async function(){
       //console.log("<-> watch.value")
       await this.reloadRuntime()
+    },
+    "options" : async function() {
+      await this.reloadListData({force:true, val:this.value})
+      await this.reloadRuntime()
     }
   },
   ////////////////////////////////////////////////////

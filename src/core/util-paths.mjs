@@ -20,14 +20,29 @@ const TiPaths = {
     return TiPaths.getMajorName(str)
   },
   /***
+   * Get the file name of a path
+   * 
+   * @param `path{String}` The path
+   * @return The file name of entity (like file ordir) of a path
+   */
+  getFileName(path, dft="") {
+    if(!path)
+      return dft
+    let pos = path.lastIndexOf("/")
+    if(pos>=0) {
+      return path.substring(pos+1)
+    }
+    return path
+  },
+  /***
    * Get the major name of a path
    * 
    * @param `path{String}` The path
-   * @return The major name of entity (like file ordir) in a path
+   * @return The major name of entity (like file ordir) of a path
    */
-  getMajorName(path) {
+  getMajorName(path, dft="") {
       if (!path)
-          return "";
+          return dft;
       var len = path.length;
       var l = 0;
       var r = len;

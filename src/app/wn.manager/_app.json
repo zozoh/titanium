@@ -28,8 +28,8 @@
     "state" : "./store-root.json",
     "mixins" : ["!mjs:./store-root.mjs"],
     "modules" : {
-      "viewport" : "@mod:ti/viewport", 
-      "session"  : "@mod:wn/session", 
+      "viewport" : "@mod:ti/viewport",
+      "session"  : "@mod:wn/session",
       "current"  : "@mod:wn/obj-meta"
     }
   },

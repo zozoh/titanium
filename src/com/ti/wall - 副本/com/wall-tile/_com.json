@@ -1,6 +1,0 @@
-{
-  "name" : "ti-wall-tile",
-  "globally" : true,
-  "template" : "./wall-tile.html",
-  "mixins" : ["./wall-tile.mjs"]
-}

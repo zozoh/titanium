@@ -23,6 +23,17 @@ export default {
     }
   }),
   ///////////////////////////////////////////
+  methods : {
+    onClickTop() {
+      // Guard
+      if(this.isDisabled) {
+        return
+      }
+      // Notify action
+      this.$emit("action", this.action)
+    }
+  },
+  ///////////////////////////////////////////
   mounted : function() {
     if(this.shortcut) {
       Ti.Shortcut.addGuard(this.shortcut, ()=>{

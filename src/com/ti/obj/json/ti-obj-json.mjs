@@ -70,7 +70,7 @@ export default {
   methods : {
     //--------------------------------------
     onBlockEvent({block, name, args}={}) {
-      let evKey = _.concat(block, name).join(".")
+      let evKey = _.concat(block||[], name||[]).join(".")
       let data = _.first(args)
       //console.log("ti-obj-json:onBlockEvent",evKey, args)
       // Ignore the undefined data

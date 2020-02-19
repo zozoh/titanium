@@ -2,88 +2,6 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
-  data : ()=>({
-    explainDict : async function(value, dict){
-      return await Wn.Dict.get(dict, value)
-    }
-  }),
-  ///////////////////////////////////////////////////
-  props : {
-    "idBy" : {
-      type : [String, Function],
-      default : "id"
-    },
-    "className" : {
-      type : String,
-      default : null
-    },
-    "fields" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "extendFunctionSet" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "data" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "changedId" : {
-      type : String,
-      default : null
-    },
-    "currentId" : {
-      type : String,
-      default : null
-    },
-    "checkedIds" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "multi" : {
-      type : Boolean,
-      default : false
-    },
-    "checkable" : {
-      type : Boolean,
-      default : false
-    },
-    // select item
-    "selectable" : {
-      type : Boolean,
-      default : true
-    },
-    "cancelable" : {
-      type : Boolean,
-      default : true
-    },
-    "hoverable" : {
-      type : Boolean,
-      default : true
-  },
-    "width" : {
-      type : [Number, String],
-      default : null
-    },
-    "height" : {
-      type : [Number, String],
-      default : null
-    },
-    "head" : {
-      type : String,
-      default : "frozen",
-      validator : v =>
-        Ti.Util.isNil(v) 
-        || /^(frozen|none|normal)$/.test(v)
-    },
-    "border" : {
-      type : String,
-      default : "column",
-      validator : v => /^(row|column|cell|none)$/.test(v)
-    }
-  },
-  ///////////////////////////////////////////////////
   computed : {
     //----------------------------------------------
     theFields() {
@@ -126,6 +44,13 @@ export default {
         list.push(f2)
       }
       return list
+    },
+    //----------------------------------------------
+    theExplainDict(){
+      return this.explainDict
+        || async function(value, dict){
+          return await Wn.Dict.get(dict, value)
+        }
     }
     //----------------------------------------------
   },

@@ -11,134 +11,170 @@ export async function OpenObjSelector(pathOrObj="~", {
   textCancel = "i18n:cancel",
   width="80%", height="90%",
   multi=false,
-  selected=[],
-  autoOpenDir=false,
-  spacing="xs"}={}){
+  fromIndex=0,
+  homePath=Ti.SessionVar("HOME"),
+  selected=[]
+}={}){
   //................................................
-  // Prepare the DOM
-  let html = `<wn-explorer 
-    :loading="loading"
-    :ancestors="obj.ancestors"
-    :meta="obj.meta"
-    :status="mainStatus"
-    @main:open="onMainViewOpen">
-    <template v-slot:arena>
-      <wn-adaptlist
-        class="ti-fill-parent" 
-        v-bind="mainData"
-        :multi="${multi}"
-        spacing="${spacing}"
-        @open="onMainViewOpen"/>
-    </template>
-  </wn-explorer>`
+  // Load the target object
+  let theObj = await Wn.Io.loadMeta(pathOrObj)
+  // Fail to load
+  if(!theObj) {
+    return Ti.Toast.Open({
+      content : "i18n:e-io-obj-noexistsf",
+      vars : _.isString(pathOrObj)
+              ? { ph: pathOrObj, nm: Ti.Util.getFileName(pathOrObj)}
+              : pathOrObj.ph
+    }, "warn")
+  }
   //................................................
   // Open modal dialog
   let reObj = await Ti.Modal.Open({
-    "template" : html,
+    // Prepare the DOM
+    template : `<ti-gui
+      :class="className"
+      :layout="theLayout"
+      :schema="theSchema"
+      :shown="myShown"
+      :can-loading="true"
+      :loading-as="status.reloading"
+      @block:event="onBlockEvent"/>`,
     /////////////////////////////////////////////////
-    "data" : {
-      loading : true
+    data : {
+      className,
+      mySelected : [],
+      myShown : {}
     },
     /////////////////////////////////////////////////
-    "store" : {
-      "modules" : {
-        "viewport" : "@mod:ti/viewport", 
-        "meta"     : "@mod:wn/obj-meta",
-        "main"     : "@mod:wn/obj-explorer"
+    store : {
+      modules : {
+        viewport : "@mod:ti/viewport",
+        current  : "@mod:wn/obj-meta",
+        main     : "@mod:wn/obj-explorer"
       }
     },
     /////////////////////////////////////////////////
-    "computed" : {
-      ...Vuex.mapGetters("meta", {
-        "obj" : "get"
+    computed : {
+      //---------------------------------------------
+      ...Vuex.mapGetters("current", {
+        "obj"              : "get",
+        "objHome"          : "getHome",
+        "objIsHome"        : "isHome",
+        "objHasParent"     : "hasParent",
+        "objParentIsHome"  : "parentIsHome"
       }),
-      ...Vuex.mapGetters("main", {
-        "selected" : "selectedItems",
-        "actived"  : "currentItem"
-      }),
-      mainStatus() {
-        let status = {}
-        if(this.mainData) {
-          _.assign(status, this.mainData.status)
-        }
-        return status
+      //---------------------------------------------
+      ...Vuex.mapState("main", ["list", "pager", "status"]),
+      //---------------------------------------------
+      theCrumbData() {
+        return Wn.Obj.evalCrumbData({
+          meta      : _.get(this.obj, "meta"),
+          ancestors : _.get(this.obj, "ancestors"),
+          fromIndex : fromIndex,
+          homePath  : homePath,
+        }, (item)=>{
+          item.asterisk = _.get(this.mainStatus, "changed")
+        })
       },
-      mainData() {
-        return _.pickBy(this.$store.state.main, (val, key)=>{
-          return key && !key.startsWith("_")
-        })
+      //---------------------------------------------
+      theLayout(){
+        return {
+          type : "rows",
+          border : true,
+          blocks : [{
+              name : "sky",
+              size : ".5rem",
+              body : "sky"
+            }, {
+              name : "arena",
+              body : "main"
+            }]
+        }
+      },
+      //---------------------------------------------
+      theSchema(){
+        return {
+          "sky" : {
+            comType : "ti-crumb",
+            comConf : {
+              "data" : this.theCrumbData
+            }
+          },
+          "main" : {
+            comType : "wn-adaptlist",
+            comConf : {
+              "meta"   : this.obj,
+              "list"   : this.list,
+              "pager"  : this.pager,
+              "status" : this.status
+            }
+          }
+        }
       }
+      //---------------------------------------------
     },
     /////////////////////////////////////////////////
-    "methods" : {
-      async onMainViewOpen(meta){
-        // console.log("meta", meta)
-        let meta2 = await this.$store.dispatch("meta/reload", meta)
-        return await this.$store.dispatch("main/reload", meta2)
+    methods : {
+      //---------------------------------------------
+      async onBlockEvent({block, name, args}={}) {
+        let evKey = _.concat(block||[], name||[]).join(".")
+        //console.log("wn-open-obj:onBlockEvent",evKey, args)
+        // Find Event Handler
+        let FnSet = {
+          //======================================
+          "sky.item:actived" : async ({value})=>{
+            await this.open(`id:${value}`)
+          },
+          //======================================
+          "arena.open" : async ({item})=>{
+            await this.open(item)
+          },
+          //======================================
+          "arena.selected" : async ({selected})=>{
+            this.mySelected = _.filter(selected, o=>"FILE"==o.race)
+          }
+          //======================================
+        }
+  
+        let fn = FnSet[evKey] || FnSet[name]
+  
+        // Invoke Event Handler
+        if(_.isFunction(fn)) {
+          await fn.apply(this, args)
+        }
+      },
+      //---------------------------------------------
+      async open(obj) {
+        // Guard
+        if(!obj) {
+          return
+        }
+
+        // To WnObj
+        if(_.isString(obj)) {
+          obj = await Wn.Io.loadMeta(obj)
+        }
+
+        // Only can enter DIR
+        if(obj && "DIR" == obj.race) {
+          let app = Ti.App(this)
+          app.dispatch("current/reload", obj)
+          app.dispatch("main/reload", obj)    
+        }
       }
+      //---------------------------------------------
     },
-    //................................................
-    // Load meta at first
-    "mounted" : async function(){
-      let app = Ti.App(this)
-      this.loading = true
-      // Try Load
-      try {
-        // Try get meta
-        let meta
-        if(_.isString(pathOrObj))
-          meta = await Wn.Io.loadMeta(pathOrObj)
-        else
-          meta = pathOrObj
-        
-        // Reloading relatived data
-        if(meta) {
-          // Make sure curretn is directory
-          if(!autoOpenDir || 'DIR' != meta.race) {
-            meta = await Wn.Io.loadMetaById(meta.pid)
-          }
-          // Reload ancestors
-          await app.dispatch("meta/reload", meta)
-          // Reload children
-          await app.dispatch("main/reload", meta)
-          // Then highlight the selection
-          if(!_.isEmpty(selected)) {
-            let checkedIds = _.map(selected, (o)=>o.id)
-            let currentId = _.get(checkedIds, 0)
-            app.commit("main/setCurrentId", currentId)
-            app.commit("main/setCheckedIds", checkedIds)
-          }
-        }
-        // Report Error
-        else {
-          let msg = Ti.I18n.get('e-io-obj-noexists') + " : " + pathOrObj
-          await Ti.Alert(msg, {
-            title : "i18n:warn",
-            type : "warn"
-          })
-        }
-      }
-      // Handle Error
-      catch(err) {
-        console.log(err)
-        let msg = Ti.I18n.get(err.msg, err) + " : " + err.data
-        await Ti.Alert(msg, {
-          title : "i18n:warn",
-          type : "warn"
-        })
-      }
-      // Mark loading done!
-      this.loading = false
+    /////////////////////////////////////////////////
+    mounted : function() {
+      this.open(theObj)
     }
+    /////////////////////////////////////////////////
   }, {
     icon, title, type, width, height, className, closer,
     actions : [{
       text : textOk,
       handler : function({app}){
-        if(multi) {
-          return app.self("selected");
-        }
-        return app.self("actived");
+        return _.cloneDeep(app.$vm().mySelected)
       }
     }, {
       text : textCancel
