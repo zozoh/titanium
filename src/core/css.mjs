@@ -25,23 +25,27 @@ const TiCss = {
     return dft
   },
   //-----------------------------------
-  toSize(sz) {
+  toSize(sz, autoPercent=true) {
     if(_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
-      if(sz>-1 && sz<1)
+      if(autoPercent && sz>-1 && sz<1)
         return sz*100 + "%"
       return sz + "px"
     }
     return sz
   },
   //-----------------------------------
-  toStyle(obj) {
+  toStyle(obj, autoPercent=true) {
     return _.mapValues(obj, (val, key)=>{
       let ck = _.kebabCase(key)
       if(/^(opacity|z-index|order)$/.test(ck)){
         return val
       }
-      return TiCss.toSize(val)
+      return TiCss.toSize(val, autoPercent)
     })
+  },
+  //-----------------------------------
+  toNumStyle(obj) {
+    return TiCss.toStyle(obj, false)
   },
   //-----------------------------------
   mergeClassName(...args) {

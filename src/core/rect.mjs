@@ -321,6 +321,26 @@ export class Rect {
     return this.updateBy("tlwh")
   }
   //--------------------------------------
+  // 移动自己到指定视口的中间
+  centreTo({width,height,top=0,left=0}={}, {xAxis=true,yAxis=true}={}) {
+    // Translate xAxis
+    if(xAxis) {
+      if(width > 0) {
+        let w = width - this.width
+        this.left = left + (w/2)
+      }
+    }
+    // Translate yAxis
+    if(yAxis) {
+      if(height > 0) {
+        let h = height - this.height
+        this.top = top + (h/2)
+      }
+    }
+
+    return this.updateBy("tlwh")
+  }
+  //--------------------------------------
   // 移动矩形
   // - x   : X 轴位移
   // - y   : Y 周位移
