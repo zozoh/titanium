@@ -26,6 +26,13 @@ export default {
           })
         })
       } // ~ if(newVal)
+      // Clean
+      else {
+        Ti.Dom.setStyle(this.$refs.sub, {
+          position:"", top:"", left:"",
+          width:"", height:""
+        })
+      }
     }
   },
   ///////////////////////////////////////
