@@ -77,9 +77,10 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    // "tabAt"      : undefined,
-    // "adjustable" : undefined,
-    // "border"     : undefined
+    // Those 3 props for by-pass to sub-(cols/rows)
+    "tabAt"      : undefined,
+    "adjustable" : undefined,
+    "border"     : undefined
   },
   //////////////////////////////////////////
   computed : {
@@ -162,9 +163,9 @@ export default {
       if(!_.isEmpty(this.blocks)) {
         let comType = `ti-gui-${this.type||"cols"}`
         let comConf = {
-          // tabAt      : this.tabAt,
-          // border     : this.border,
-          // adjustable : this.adjustable,
+          tabAt      : this.tabAt,
+          border     : this.border,
+          adjustable : this.adjustable,
           blocks     : this.blocks,
           schema : this.schema,
           actionStatus : this.actionStatus,

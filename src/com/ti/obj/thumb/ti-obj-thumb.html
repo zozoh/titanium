@@ -47,8 +47,8 @@
   -->
   <footer v-if="showFooter">
     <div class="as-title">
-      <a v-if="href"
-        :href="href"
+      <a v-if="hasHref"
+        :href="theHref"
         @click.prevent>{{title}}</a>
       <span v-else>{{title}}</span>
     </div>

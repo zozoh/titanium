@@ -5,9 +5,11 @@ export default {
     commit("syncStatusChanged");
   },
   //----------------------------------------
-  updateContent({commit}, content) {
+  updateContent({state, commit}, content) {
     commit("setContent", content)
-    commit("setSavedContent", content)
+    if(state.meta && "FILE" == state.meta.race) {
+      commit("setSavedContent", content)
+    }
     commit("syncStatusChanged")
   },
   //--------------------------------------------

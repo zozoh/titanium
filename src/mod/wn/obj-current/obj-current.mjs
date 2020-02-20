@@ -28,6 +28,7 @@ export default {
       // DIR
       if("DIR" == meta.race) {
         state.content = null
+        state.__saved_content = null
         state.data = content
       }
       //......................................

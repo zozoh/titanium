@@ -77,6 +77,12 @@ export default {
     },
     progressStyleObj() {
       return {width:this.progressTip}
+    },
+    hasHref() {
+      return this.href ? true : false
+    },
+    theHref() {
+      return encodeURI(this.href)
     }
   },
   ////////////////////////////////////////////////

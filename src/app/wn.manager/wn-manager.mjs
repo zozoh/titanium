@@ -182,6 +182,7 @@ export default {
     async onBlockEvent({block, name, args}={}) {
       let evKey = _.concat(block||[], name||[]).join(".")
       //console.log("wn-manager:onBlockEvent",evKey, args)
+      let data = _.first(args)
       // Find Event Handler
       let FnSet = {
         // sidebar or title
@@ -196,7 +197,7 @@ export default {
           await this.openView(o.id)
         },
         "arena.changed" : ()=>{
-          this.notifyChange(...be.args)
+          this.notifyChange(data)
         },
         "arena.actions:updated" : (actions)=>{
           this.updateActions(actions)
