@@ -9,7 +9,6 @@
   -->
   <template v-slot:box>
     <ti-input-tags
-      :placeholder="placeholder"
       :prefix-icon="prefixIcon"
       :suffix-icon="theStatusIcon"
       :can-input="canInput"
@@ -17,7 +16,11 @@
       :value="theInputValue"
       :inputing="inputing"
       :value-case="valueCase"
+      
+      :placeholder="placeholder"
+      :hide-border="hideBorder"
       :width="width"
+
       :input-width="inputWidth"
       :input-height="inputHeight"
       :tag-icon="itemIcon"

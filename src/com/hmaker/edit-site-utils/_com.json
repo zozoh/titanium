@@ -1,0 +1,6 @@
+{
+  "name" : "hmaker-edit-site-utils",
+  "globally" : true,
+  "template" : "./edit-site-utils.html",
+  "mixins" : ["./edit-site-utils.mjs"]
+}

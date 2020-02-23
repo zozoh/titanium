@@ -29,11 +29,11 @@ export default {
         type : "tabs",
         tabAt : this.tabAt,
         blocks : [{
-          title : "结构",
+          title : "i18n:structure",
           name  : "tree",
           body  : "desktop-tree"
         }, {
-          title : "源代码",
+          title : "i18n:source-code",
           name  : "source",
           body  : "desktop-source"
         }]

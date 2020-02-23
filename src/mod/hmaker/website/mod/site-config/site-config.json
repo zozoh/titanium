@@ -24,7 +24,7 @@
       "comType" : "hmaker-site-state",
       "comConf" : {
         "home" : "=home",
-        "data" : "=currentData"
+        "content" : "=currentContent"
       },
       "actions" : [{
           "key"  : "saving",

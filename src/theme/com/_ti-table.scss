@@ -146,7 +146,7 @@
       //-----------------------------------------
       > .cell-con {
         @include flex-align-center; flex:1 1 auto;
-        line-height: 2.6em; padding:0 .04rem;
+        line-height: 2.6em;
         min-height:2.6em;
         > .ti-icon {
           width:.24rem;
@@ -159,8 +159,19 @@
         }
       }
       //-----------------------------------------
+      .as-drop .ti-list {
+        line-height: 1.8em;
+      }
+      //-----------------------------------------
       &.is-nowrap > .cell-con {
         flex-wrap: nowrap;
+      }
+      //-----------------------------------------
+      &.is-editing-mode {
+        position: relative;
+        > .cell-con {
+          @include pos-abs-full;
+        }
       }
       //-----------------------------------------
     }

@@ -27,14 +27,11 @@ export default {
     type : String,
     default : null
   },
-  "placeholder" : {
-    type : [String, Number],
-    default : null
-  },
-  "width" : {
-    type : [Number, String],
-    default : null
-  },
+  //---------------------------------
+  "placeholder" : undefined,
+  "hideBorder"  : undefined,
+  "width"       : undefined,
+  //---------------------------------
   "inputWidth" : {
     type : [Number, String],
     default : null

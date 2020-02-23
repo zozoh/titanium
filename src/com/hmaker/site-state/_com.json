@@ -4,6 +4,6 @@
   "template" : "./hm-site-state.html",
   "mixins" : ["./hm-site-state.mjs"],
   "components" : [
-    
+    "./com/site-node-editing"
   ]
 }

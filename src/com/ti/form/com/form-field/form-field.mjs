@@ -50,10 +50,6 @@ export default {
       }
     },
     //----------------------------------------
-    theFieldValue() {
-      return Ti.Util.getOrPick(this.data, this.name)
-    },
-    //----------------------------------------
     theDisplay() {
       // Guard
       if(!this.display) {
@@ -61,7 +57,10 @@ export default {
       }
       // Eval setting
       if(!_.isBoolean(this.display) && this.display) {
-        return this.evalFieldDisplayItem(this.display, this.funcSet)
+        return this.evalFieldDisplayItem(this.display, {
+          funcSet    : this.funcSet,
+          defaultKey : this.name
+        })
       }
       // return default.
       return {

@@ -86,11 +86,13 @@ export default {
       return "far-square"
     },
     //--------------------------------------
-    theDisplayFields() {
+    theTableFields() {
       let fields = []
       for(let i=0; i< this.fields.length; i++) {
         let fld = this.fields[i]
-        let display = this.evalFieldDisplay(fld.display)
+        //..................................
+        let display = this.evalFieldDisplay(fld.display, fld.name)
+        //..................................
         let fldWidth = Ti.Util.fallbackNil(fld.width, "stretch")
         //..................................
         if(_.isString(fldWidth)) {
@@ -108,7 +110,15 @@ export default {
           title  : fld.title,
           nowrap : fld.nowrap,
           width  : fldWidth,
-          display
+          //.....................
+          name : fld.name,
+          display,
+          //.....................
+          type : fld.type,
+          comType : fld.comType,
+          comConf : fld.comConf,
+          transformer : fld.transformer,
+          serializer  : fld.serializer
         })
       }
       return fields
@@ -167,14 +177,17 @@ export default {
       this.$emit("item:changed", payload)
     },
     //--------------------------------------
-    evalFieldDisplay(displayItems=[]) {
+    evalFieldDisplay(displayItems=[], defaultKey) {
       // Force to Array
       displayItems = _.concat(displayItems)
       // Prepare the return list
       let items = []
       // Loop each items
       for(let li of displayItems) {
-        let item = this.evalFieldDisplayItem(li, this.fnSet)
+        let item = this.evalFieldDisplayItem(li, {
+          funcSet: this.fnSet,
+          defaultKey
+        })
         if(item) {
           items.push(item)
         }
@@ -201,7 +214,7 @@ export default {
       }
       //.........................................
       // Eval the fixeds
-      for(let fld of this.theDisplayFields) {
+      for(let fld of this.theTableFields) {
         let fldWidth = fld.width || "stretch"
         // Stretch/Auto
         if(/^(stretch|auto)$/.test(fldWidth)) {
@@ -359,10 +372,13 @@ export default {
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  mounted : async function() {
+  created : function() {
     //.................................
     // Define the method for sub-cells up-calling
-    this.debounceEvalEachColumnSize = _.debounce(()=>this.evalEachColumnSize(), 100)
+    this.debounceEvalEachColumnSize = _.debounce(()=>this.evalEachColumnSize(), 50)
+  },
+  ///////////////////////////////////////////////////
+  mounted : async function() {
     //.................................
     Ti.Viewport.watch(this, {
       resize : _.debounce(()=>this.onTableResize(), 100)

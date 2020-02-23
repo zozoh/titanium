@@ -1,6 +1,9 @@
 export default {
   //------------------------------------------
-  evalFieldDisplayItem(displayItem={}, funcSet){
+  evalFieldDisplayItem(displayItem={}, {
+    funcSet, 
+    defaultKey
+  }={}){
     // Guard it
     if(Ti.Util.isNil(displayItem)) {
       return
@@ -8,6 +11,7 @@ export default {
     // {key:"xxx", comType:"xxx"}
     if(_.isPlainObject(displayItem)){
       let dis = _.assign({
+        key : defaultKey,
         comType : "ti-label",
       }, displayItem)
       if(dis.transformer) {
@@ -19,6 +23,13 @@ export default {
     if(_.isArray(displayItem)) {
       return {
         key : displayItem,
+        comType : "ti-label",
+      }
+    }
+    // Boolean
+    if(true === displayItem) {
+      return {
+        key : defaultKey,
         comType : "ti-label",
       }
     }
@@ -74,7 +85,7 @@ export default {
     autoIgnoreNil=true,
     autoValue="value"
   }={}) {
-    // if(!itemData.id) {
+    // if("ti-input" == displayItem.comType) {
     //   console.log("displayItem", itemData)
     // }
     let value = displayItem.defaultAs;

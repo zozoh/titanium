@@ -42,6 +42,19 @@ Defind each column of the table by `Array{Object}`, the elements in Array like:
   nowrap : false,          // keep items nowrap
   width  : "20%",          // field measure hint
   display : "theName"      // How to display the row data in cell
+  //...................................
+  // In editing mode
+  type : "String",
+  dict : "xxx",
+  comType : "ti-xxx",
+  comConf : {/*..*/},
+  transformer : Function,
+  serializer : Function,
+  //...................................
+  ignoreNil : true,        // If value is nil, ignore it
+  //...................................
+  focusBy : "focus",  // auto set sub-com focus status
+  widthBy : "width"   // auto set sub-com width measure
 }
 ```
 

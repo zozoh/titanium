@@ -3,6 +3,7 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   data: ()=>({
+    isEditingMode : false,
     cellItems : []
   }),
   ///////////////////////////////////////////////////
@@ -16,6 +17,7 @@ export default {
       type : String,
       default : null
     },
+    //..........................
     "cellSize" : {
       type : Number,
       default : 0
@@ -28,14 +30,46 @@ export default {
       type : Boolean,
       default : true
     },
+    //..........................
     "display" : {
       type : Array,
       default : ()=>[]
     },
+    //..........................
+    "name" : {
+      type : [String, Array],
+      default : null
+    },
+    "type" : {
+      type : String,
+      default : "String"
+    },
+    "dict" : {
+      type : String,
+      default : "String"
+    },
+    "comType" : {
+      type : String,
+      default : null
+    },
+    "comConf" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "serializer" : {
+      type : Function,
+      default : _.identity
+    },
+    "transformer" : {
+      type : Function,
+      default : _.identity
+    },
+    //..........................
     "data" : {
       type : Object,
       default : ()=>({})
     },
+    //..........................
     "isCurrent" : {
       type : Boolean,
       default : false
@@ -48,10 +82,26 @@ export default {
       type : Boolean,
       default : false
     },
+    //..........................
+    "ignoreNil" : {
+      type : Boolean,
+      default : true
+    },
+    //..........................
     "explainDict" : {
       type : Function,
       default : _.identity
+    },
+    //..........................
+    "focusBy" : {
+      type : String,
+      default : "focus"
+    },
+    "widthBy" : {
+      type : String,
+      default : "width"
     }
+    //..........................
   },
   ///////////////////////////////////////////////////
   computed : {
@@ -60,7 +110,8 @@ export default {
       return Ti.Css.mergeClassName({
         "is-self-actived" : this.isSelfActived,
         "is-actived" : this.isActived,
-        "is-nowrap" : this.nowrap
+        "is-nowrap" : this.nowrap,
+        "is-editing-mode" : this.isEditingMode
       }, this.className)
     },
     //-----------------------------------------------
@@ -70,7 +121,37 @@ export default {
           "width" : this.cellSize
         })
       }
-    }
+    },
+    //-----------------------------------------------
+    theCurrentDisplayItems() {
+      // Edit Mode
+      if((this.isActived && this.comType) || _.isEmpty(this.display)) {
+        //...........................................
+        this.isEditingMode = true
+        //...........................................
+        let comConf = _.assign({}, this.comConf)
+        if(this.focusBy) {
+          comConf[this.focusBy] = "${=isActived}"
+        }
+        if(this.widthBy) {
+          comConf[this.widthBy] = "${=cellSize}"
+        }
+        //...........................................
+        return [{
+          comType : this.comType,
+          comConf,
+          key  : this.name,
+          type : this.type,
+          dict : this.dict,
+          transformer : this.transformer,
+          ignoreNil : false
+        }]
+        //...........................................
+      }
+      // Display Mode
+      this.isEditingMode = false
+      return this.display
+    },
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
@@ -79,7 +160,7 @@ export default {
     async evalCellDisplayItems() {
       let items = []
       // Eval each items
-      for(let displayItem of this.display) {
+      for(let displayItem of this.theCurrentDisplayItems) {
         let it = await this.evalDataForFieldDisplayItem({
             itemData : this.data, 
             displayItem, 
@@ -88,9 +169,11 @@ export default {
               "isChecked" : this.isChecked,
               "isHover"   : this.isHover,
               "isActived" : this.isActived,
-              "rowId"     : this.rowId
+              "rowId"     : this.rowId,
+              "cellSize"  : this.cellSize
             },
-            explainDict : this.explainDict
+            explainDict : this.explainDict,
+            autoIgnoreNil : true
         })
         if(it) {
           items.push(it)
@@ -125,11 +208,23 @@ export default {
     },
     "isHover" : async function() {
       await this.evalCellDisplayItems()
+    },
+    "isActived" : async function() {
+      await this.evalCellDisplayItems()
+    },
+    "cellSize" : async function() {
+      await this.debounceEvalCellDisplayItems()
     }
   },
   ///////////////////////////////////////////////////
-  mounted : async function() {
-    await this.evalCellDisplayItems()
+  created : function() {
+    this.debounceEvalCellDisplayItems = _.debounce(()=>{
+      this.evalCellDisplayItems()
+    }, 20)
+  },
+  ///////////////////////////////////////////////////
+  mounted : function() {
+    this.debounceEvalCellDisplayItems()
   }
   ///////////////////////////////////////////////////
 }

@@ -58,7 +58,9 @@ export default {
     },
     //--------------------------------------
     theItemDisplay() {
-      return this.evalFieldDisplayItem(this.itemDisplay, this.extendFunctionSet)
+      return this.evalFieldDisplayItem(this.itemDisplay, {
+        funcSet : this.extendFunctionSet
+      })
     },
     //--------------------------------------
     theData() {

@@ -2,9 +2,9 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   data : ()=>({
-    "myTreeTableData" : [],
+    "myTreeTableData"   : [],
     "myOpenedNodePaths" : {},
-    "myCurrentId"   : null
+    "myCurrentId"       : null
   }),
   //////////////////////////////////////////
   props : {
@@ -58,6 +58,10 @@ export default {
     },
     // Local store to save the tree open status
     "keepOpenBy" : {
+      type : String,
+      default : null
+    },
+    "keepCurrentBy" : {
       type : String,
       default : null
     },
@@ -376,6 +380,12 @@ export default {
       else {
         this.myCurrentId = null
       }
+      // Save local status
+      if(this.keepCurrentBy) {
+        if(!this.puppetMode) {
+          Ti.Storage.session.set(this.keepCurrentBy, this.myCurrentId)
+        }
+      }
       // Emit the value
       this.$emit("selected", {
         current, selected,
@@ -478,6 +488,16 @@ export default {
     this.$watch("myOpenedNodePaths", ()=>{
       this.evalTreeTableData()
     }, {deep:true})
+    //................................
+    // Recover the current
+    if(this.keepCurrentBy) {
+      let currentId = Ti.Storage.session.get(this.keepCurrentBy)
+      if(!Ti.Util.isNil(currentId)) {
+        this.$nextTick(()=>{
+          this.$children[0].selectRow(currentId)
+        })
+      }
+    }
     //................................
   },
   //////////////////////////////////////////

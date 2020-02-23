@@ -1,0 +1,16 @@
+<div class="hmaker-site-state-edit">
+  <!--
+    Editing
+  -->
+  <component 
+    v-if="path"
+      class="ti-fill-parent"
+        :is="theCom.comType"
+        v-bind="theCom.comConf"/>
+  <!--
+    Blank
+  -->
+  <ti-loading v-else
+    text="i18n:blank-to-edit"
+    icon="zmdi-arrow-left"/>
+</div>

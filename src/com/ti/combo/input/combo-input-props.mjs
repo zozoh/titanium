@@ -21,18 +21,13 @@ export default {
     type : String,
     default : null
   },
-  "placeholder" : {
-    type : [String, Number],
-    default : null
-  },
-  "width" : {
-    type : [Number, String],
-    default : null
-  },
-  "height" : {
-    type : [Number, String],
-    default : null
-  },
+  //---------------------------------
+  "placeholder" : undefined,
+  "trimed"      : undefined,
+  "hideBorder"  : undefined,
+  "width"       : undefined,
+  "height"      : undefined,
+  //---------------------------------
   "dropWidth" : {
     type : [Number, String],
     default : "box"

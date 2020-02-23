@@ -2,6 +2,7 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   data: ()=>({
+    myCurrent : null,
     myCurrentPathId : null,
     myTreeOpenedStatus : {}
   }),
@@ -11,16 +12,39 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "data" : {
-      type : Object,
-      default : ()=>({})
+    "content" : {
+      type : String,
+      default : null
     }
   },
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
+    theData () {
+      if(Ti.Util.isNil(this.content)) {
+        return {}
+      }
+      return JSON.parse(this.content)
+    },
+    //--------------------------------------
     theTreeDisplay() {
       return ["<icon>","title","tip"]
+    },
+    //--------------------------------------
+    theTreeData() {
+      return {
+        name : "ROOT",
+        children : [
+          this._general,
+          this._nav,
+          this._apis,
+          this._schema,
+          this._blocks,
+          this._router,
+          this._actions,
+          this._utils
+        ]
+      }
     },
     //--------------------------------------
     _general(){
@@ -28,7 +52,7 @@ export default {
         icon  : "fas-sliders-h",
         name  : "general",
         title : "i18n:hmaker-site-state-general",
-        data  : _.pick(this.data, [
+        data  : _.pick(this.theData, [
           "domain",
           "apiBase",
           "captcha",
@@ -43,14 +67,14 @@ export default {
         icon  : "zmdi-card-sd",
         name  : "utils",
         title : "i18n:hmaker-site-state-utils",
-        data  : _.assign({}, this.data.utils)
+        data  : _.assign({}, this.theData.utils)
       }
     },
     //--------------------------------------
     _apis() {
       let children = []
       //....................................
-      _.forEach(this.data.apis, (val, key)=>{
+      _.forEach(this.theData.apis, (val, key)=>{
         children.push({
           icon  : "zmdi-input-power",
           name  : key,
@@ -71,7 +95,7 @@ export default {
     _schema() {
       let children = []
       //....................................
-      _.forEach(this.data.schema, (val, key)=>{
+      _.forEach(this.theData.schema, (val, key)=>{
         children.push({
           icon  : "fas-puzzle-piece",
           name  : key,
@@ -147,7 +171,7 @@ export default {
       }
       //....................................
       let children = []
-      _.forEach(this.data.blocks, (deviceInfo, deviceType)=>{
+      _.forEach(this.theData.blocks, (deviceInfo, deviceType)=>{
         //..................................
         let subs = []
         _.forEach(deviceInfo, (block, key)=>{
@@ -181,7 +205,7 @@ export default {
         icon  : "im-sitemap",
         name  : "nav",
         title : "i18n:hmaker-site-state-nav",
-        data  : this.data.nav || []
+        data  : this.theData.nav || []
       }
     },
     //......................................
@@ -189,7 +213,7 @@ export default {
     _router() {
       let children = []
       //....................................
-      _.forEach(this.data.router, (val, key)=>{
+      _.forEach(this.theData.router, (val, key)=>{
         children.push({
           icon  : "im-share",
           name  : key,
@@ -209,7 +233,7 @@ export default {
     _actions() {
       let children = []
       //....................................
-      _.forEach(this.data.actions, (val, key)=>{
+      _.forEach(this.theData.actions, (val, key)=>{
         children.push({
           icon  : "im-flash",
           name  : key,
@@ -226,56 +250,65 @@ export default {
       }
     },
     //--------------------------------------
-    theTreeData() {
+    theLayout() {
       return {
-        name : "ROOT",
-        children : [
-          this._general,
-          this._nav,
-          this._apis,
-          this._schema,
-          this._blocks,
-          this._router,
-          this._actions,
-          this._utils
-        ]
+        type : "tabs",
+        tabAt : "bottom-left",
+        blocks : [{
+            title : "i18n:structure",
+            type : "cols",
+            border : true,
+            blocks : [{
+                size  : .5,
+                name  : "tree",
+                body  : "desktopStructureTree"
+              }, {
+                name  : "edit",
+                body  : "desktopStructureEdit"
+              }]
+          }, {
+            title : "i18n:source-code",
+            name  : "source",
+            body  : "desktopSourceCode"
+          }]
       }
     },
     //--------------------------------------
-    theLayout() {
+    theSchema() {
       return {
-        type : "cols",
-        border : true,
-        blocks : [{
-          size  : .5,
-          name  : "tree",
-          body  : {
-            comType : "ti-tree",
-            comConf : {
-              mainWidth        : 300,
-              border           : "cell",
-              multi            : false,
-              data             : this.theTreeData,
-              display          : this.theTreeDisplay,
-              autoOpen         : false,
-              currentId        : this.myCurrentPathId,
-              defaultOpenDepth : 0,
-              keepOpenBy       : `hm-site-state-${this.home.id}`,
-              showRoot         : false
-            }
+        // structure: tree
+        "desktopStructureTree" : {
+          comType : "ti-tree",
+          comConf : {
+            mainWidth        : 300,
+            border           : "cell",
+            multi            : false,
+            data             : this.theTreeData,
+            display          : this.theTreeDisplay,
+            autoOpen         : false,
+            currentId        : this.myCurrentPathId,
+            defaultOpenDepth : 0,
+            keepOpenBy       : `hm-site-state-${this.home.id}-opened`,
+            keepCurrentBy    : `hm-site-state-${this.home.id}-current`,
+            showRoot         : false
           }
-        }, {
-          name  : "form",
-          body  : {
-            comType : "ti-label",
-            comConf : {
-              value : {
-                path : this.myCurrentPathId,
-                data : this.myCurrent
-              }
-            }
+        },
+        // structure: edit
+        "desktopStructureEdit" : {
+          comType : "hmaker-site-node-editing",
+          comConf : {
+            path : this.myCurrentPathId,
+            node : this.myCurrent
           }
-        }]
+        },
+        // source code 
+        "desktopSourceCode" : {
+          comType : "ti-text-raw",
+          comConf : {
+            showTitle : false,
+            content   : this.content
+          }
+        }
       }
     }
     //--------------------------------------
@@ -304,7 +337,7 @@ export default {
     },
     //--------------------------------------
     async onSelected({currentId, current}={}) {
-      // console.log("onSelected", currentId, _.cloneDeep(current))
+      console.log("onSelected", currentId, _.cloneDeep(current))
       this.myCurrentPathId = currentId
       this.myCurrent = _.cloneDeep(current)
     },
@@ -314,6 +347,7 @@ export default {
       this.myTreeOpenedStatus = opened
     }
     //--------------------------------------
-  }
+  },
+  //////////////////////////////////////////
   //////////////////////////////////////////
 }

@@ -1,0 +1,6 @@
+{
+  "name" : "hmaker-edit-site-blocks",
+  "globally" : true,
+  "template" : "./edit-site-blocks.html",
+  "mixins" : ["./edit-site-blocks.mjs"]
+}

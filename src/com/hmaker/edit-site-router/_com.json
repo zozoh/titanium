@@ -1,0 +1,6 @@
+{
+  "name" : "hmaker-edit-site-router",
+  "globally" : true,
+  "template" : "./edit-site-router.html",
+  "mixins" : ["./edit-site-router.mjs"]
+}

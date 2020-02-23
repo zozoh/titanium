@@ -30,7 +30,7 @@
       <!--field titles-->
       <ul>
         <li
-          v-for="fld in theDisplayFields"
+          v-for="fld in theTableFields"
             class="table-head-cell"
             :style="headCellStyle(fld.index)"
             :col-index="fld.index">
@@ -51,7 +51,7 @@
           :icon="row.icon"
           :data="row.rawData"
           :indent="row.indent"
-          :fields="theDisplayFields"
+          :fields="theTableFields"
           :sizes="myColSizes.amended"
           :current-id="theCurrentId"
           :checked-ids="theCheckedIds"
