@@ -2,7 +2,6 @@ export default {
   inheritAttrs : false,
   /////////////////////////////////////////
   props : {
-    "className" : undefined,
     "captureEvents" : undefined,
     "title" : {
       type : String,

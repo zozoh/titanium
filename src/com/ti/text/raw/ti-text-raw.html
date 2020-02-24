@@ -12,7 +12,8 @@
       spellcheck="false"
       :placeholder="placeholder"
       :value="content"
-      @keyup="onDebounceChangeTextarea"
+      @keyup="debounceTextareaKeyup"
+      @change="onContentChanged"
     ></textarea>
   </div>
 </div>

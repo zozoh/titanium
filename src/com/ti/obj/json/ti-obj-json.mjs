@@ -2,7 +2,6 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   props : {
-    "className" : null,
     "tabAt" : {
       type : String,
       default : "bottom-left",

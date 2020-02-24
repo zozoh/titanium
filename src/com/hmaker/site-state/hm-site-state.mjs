@@ -2,7 +2,6 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   data: ()=>({
-    myCurrent : null,
     myCurrentPathId : null,
     myTreeOpenedStatus : {}
   }),
@@ -21,10 +20,11 @@ export default {
   computed : {
     //--------------------------------------
     theData () {
-      if(Ti.Util.isNil(this.content)) {
+      let str = _.trim(this.content)
+      if(!str) {
         return {}
       }
-      return JSON.parse(this.content)
+      return JSON.parse(str)
     },
     //--------------------------------------
     theTreeDisplay() {
@@ -259,7 +259,7 @@ export default {
             type : "cols",
             border : true,
             blocks : [{
-                size  : .5,
+                size  : .372,
                 name  : "tree",
                 body  : "desktopStructureTree"
               }, {
@@ -298,7 +298,7 @@ export default {
           comType : "hmaker-site-node-editing",
           comConf : {
             path : this.myCurrentPathId,
-            node : this.myCurrent
+            node : this.theCurrentNode
           }
         },
         // source code 
@@ -306,44 +306,67 @@ export default {
           comType : "ti-text-raw",
           comConf : {
             showTitle : false,
-            content   : this.content
+            content   : this.content,
+            ignoreKeyUp : true
           }
         }
       }
+    },
+    //--------------------------------------
+    theCurrentNode() {
+      if(this.myCurrentPathId) {
+        return Ti.Trees.getNodeByPath(this.theTreeData, this.myCurrentPathId)
+      }
+      return null
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
+    updateByPath({path, payload}={}) {
+      //console.log("udpateByPath", path, payload)
+      let data = _.cloneDeep(this.theData)
+      _.set(data, path, payload)
+      //console.log(JSON.stringify(data, null, '  '))
+      Ti.App(this).dispatch("main/onCurrentChanged", data)
+    },
+    //--------------------------------------
     onBlockEvent({block, name, args}={}) {
       let evKey = _.concat(block||[], name||[]).join(".")
       let data = _.first(args)
-      //console.log("hmaker-site-state:onBlockEvent",evKey, data)
+      console.log("hmaker-site-state:onBlockEvent",evKey, data)
       //....................................
       // Ignore the undefined data
       if(_.isUndefined(data)) {
         return
       }
       //....................................
-      if("tree.selected" == evKey) {
+      else if("tree.selected" == evKey) {
         this.onSelected(data)
       }
       //....................................
-      if("tree.opened-status:changed" == evKey) {
+      else if("tree.opened-status:changed" == evKey) {
         this.onOpenedStatusChanged(data)
+      }
+      //....................................
+      else if("edit.changed" == evKey) {
+        this.updateByPath(data)
+      }
+      //....................................
+      else if("source.changed" == evKey) {
+        Ti.App(this).dispatch("main/onCurrentChanged", data)
       }
       //....................................
     },
     //--------------------------------------
     async onSelected({currentId, current}={}) {
-      console.log("onSelected", currentId, _.cloneDeep(current))
+      //console.log("onSelected", currentId, _.cloneDeep(current))
       this.myCurrentPathId = currentId
-      this.myCurrent = _.cloneDeep(current)
     },
     //--------------------------------------
     onOpenedStatusChanged(opened) {
-      console.log("onOpenedStatusChanged", _.cloneDeep(opened))
+      //console.log("onOpenedStatusChanged", _.cloneDeep(opened))
       this.myTreeOpenedStatus = opened
     }
     //--------------------------------------

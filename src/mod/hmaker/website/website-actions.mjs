@@ -41,7 +41,10 @@ export default {
   },
   //--------------------------------------------
   async reloadCurrent({commit, dispatch}, meta) {
+    commit("setStatus", {reloading:true})
     await dispatch("current/reload", meta)
+    commit("setStatus", {reloading:false})
+    commit("syncStatusChanged")
   },
   //--------------------------------------------
   async reloadConfig({state, dispatch}) {

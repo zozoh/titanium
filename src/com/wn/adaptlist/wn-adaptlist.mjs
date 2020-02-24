@@ -9,7 +9,6 @@ export default {
   }),
   ////////////////////////////////////////////////
   props : {
-    "className" : null,
     "itemClassName" : {
       type : String,
       default : null

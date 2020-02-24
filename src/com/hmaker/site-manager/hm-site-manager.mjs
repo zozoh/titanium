@@ -2,7 +2,6 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   props : {
-    "className" : null,
     "home" : {
       type : Object,
       default : null
@@ -146,6 +145,24 @@ export default {
       Wn.EditObjMeta(meta)
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////
+  mounted : function(){
+    //----------------------------------------
+    Ti.Fuse.getOrCreate().add({
+      key : "hmaker-site-manager",
+      everythingOk : ()=>{
+        return !this.status.changed
+      },
+      fail : ()=>{
+        Ti.Toast.Open("i18n:wn-obj-nosaved", "warn")
+      }
+    })
+    //----------------------------------------
+  },
+  //////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Fuse.get().remove("hmaker-site-manager")
   }
   //////////////////////////////////////////
 }

@@ -9,7 +9,6 @@ export default {
   }),
   ////////////////////////////////////////////////////
   props : {
-    "className" : null,
     "index" : {
       type : Number,
       default : -1

@@ -13,7 +13,6 @@ export default {
   }),
   ///////////////////////////////////
   props : {
-    "className" : null,
     "src" : {
       type : String,
       default : null

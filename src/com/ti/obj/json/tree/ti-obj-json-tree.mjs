@@ -8,7 +8,6 @@ export default {
   }),
   //////////////////////////////////////////
   props : {
-    "className" : null,
     "data" : null,
     "mainWidth" : {
       type : [String, Number],

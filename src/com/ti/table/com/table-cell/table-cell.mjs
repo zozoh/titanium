@@ -4,11 +4,11 @@ export default {
   ///////////////////////////////////////////////////
   data: ()=>({
     isEditingMode : false,
-    cellItems : []
+    cellItems : [],
+    myCellSize : -1
   }),
   ///////////////////////////////////////////////////
   props : {
-    "className" : null,
     "index" : {
       type : Number,
       default : -1
@@ -159,6 +159,9 @@ export default {
     //-----------------------------------------------
     async evalCellDisplayItems() {
       let items = []
+      // if(this.data && this.data.title && this.data.type) {
+      //   console.log("evalCellDisplayItems", this.data)
+      // }
       // Eval each items
       for(let displayItem of this.theCurrentDisplayItems) {
         let it = await this.evalDataForFieldDisplayItem({
@@ -183,7 +186,12 @@ export default {
       this.cellItems = items
 
       // make table resizing
-      this.$parent.$parent.debounceEvalEachColumnSize()
+      if(this.cellSize != this.myCellSize) {
+        this.myCellSize = this.cellSize
+        this.$nextTick(()=>{
+          this.$parent.$parent.debounceEvalEachColumnSize()
+        })
+      }
     },
     //-----------------------------------------------
     onItemChanged(item, payload) {

@@ -2,7 +2,6 @@ export default {
   inheritAttrs : false,
   /////////////////////////////////////////
   props : {
-    "className" : null,
     "type" : {
       type : String,
       default : null,

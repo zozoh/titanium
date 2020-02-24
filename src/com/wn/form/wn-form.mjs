@@ -16,10 +16,6 @@ export default {
       type : String,
       default : null
     },
-    "className" : {
-      type : String,
-      default : null
-    },
     "display" : {
       type : String,
       default : "all"
@@ -51,6 +47,13 @@ export default {
     "autoShowBlank" : {
       type : Boolean,
       default : true
+    },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "zmdi-alert-circle-o",
+        text : "empty-data"
+      })
     }
   },
   //////////////////////////////////////////////////////

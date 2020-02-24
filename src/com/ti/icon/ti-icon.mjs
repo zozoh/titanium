@@ -2,10 +2,6 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////////
   props : {
-    "className" : {
-      type : String,
-      default : null
-    },
     // If image, join the base
     "base" : {
       type : String,
@@ -13,7 +9,11 @@ export default {
     },
     "value" : {
       type : [String,Object],
-      default : ""
+      default : null
+    },
+    "defaultValue" : {
+      type : [String,Object],
+      default : null
     },
     "text" : {
       type : String,
@@ -48,19 +48,23 @@ export default {
         return this.className
     },
     //---------------------------------------------------
+    theValue() {
+      return this.value || this.defaultValue
+    },
+    //---------------------------------------------------
     // formed icon data
     icon() {
       let icn 
-      if(_.isPlainObject(this.value)){
+      if(_.isPlainObject(this.theValue)){
         // Regular icon object, return it directly
-        if(this.value.type && this.value.value) {
-          icn = this.value
+        if(this.theValue.type && this.theValue.value) {
+          icn = this.theValue
         }
         // Eval it as meta
         else {
           icn = {
             type  : "font", 
-            value : Ti.Icons.get(this.value)
+            value : Ti.Icons.get(this.theValue)
           }
         }
       }
@@ -68,10 +72,10 @@ export default {
       else {
         icn = {
           type : "font",
-          value : this.value
+          value : this.theValue
         }
-        if(_.isString(this.value)) {
-          icn.type = Ti.Util.getSuffixName(this.value) || "font"
+        if(_.isString(this.theValue)) {
+          icn.type = Ti.Util.getSuffixName(this.theValue) || "font"
         }
         // for image
         if(/^(jpe?g|gif|png)$/i.test(icn.type)){

@@ -6,7 +6,6 @@ export default {
   }),
   //////////////////////////////////////////
   props : {
-    "className" : null,
     "blankAs" : {
       type : String,
       default : "i18n:nil"

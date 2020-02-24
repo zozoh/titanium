@@ -10,10 +10,6 @@ export default {
       type : String,
       default : null
     },
-    "className" : {
-      type : String,
-      default : null
-    },
     "display" : {
       type : String,
       default : "all"

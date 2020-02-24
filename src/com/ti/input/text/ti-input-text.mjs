@@ -14,7 +14,6 @@ export default {
   },
   ////////////////////////////////////////////////////
   props : {
-    "className" : null,
     "value" : null,
     "format" : {
       type : [String, Array, Object],

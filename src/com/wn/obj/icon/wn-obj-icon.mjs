@@ -3,7 +3,6 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   props : {
-    "className" : null,
     // icon string
     "icon" : {
       type : String,

@@ -3,7 +3,6 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   props : {
-    "className" : null,
     "rowId" : {
       type : String,
       default : null

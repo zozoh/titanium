@@ -1,4 +1,5 @@
 export default {
+  inheritAttrs : false,
   //////////////////////////////////////////
   computed :{
     // Auto PageMode
@@ -21,6 +22,18 @@ export default {
     },
     isSelfActived() {
       return _.last(this.viewportActivedComIds) == this.tiComId
+    }
+  },
+  //////////////////////////////////////////
+  props : {
+    "className" : undefined,
+    "onInit" : {
+      type : Function,
+      default : null
+    },
+    "onReady" : {
+      type : Function,
+      default : null
     }
   },
   //////////////////////////////////////////
@@ -78,8 +91,20 @@ export default {
     }
     // Auto mark self as actived Component in App
     this.__set_actived = ()=>{
-      Ti.App(this).setActivedVm(this)
-      this.$emit("com:actived", this)
+      if(!this.isSelfActived) {
+        Ti.App(this).setActivedVm(this)
+        this.$emit("com:actived", this)
+      }
+    }
+    // Auto invoke the callback
+    if(_.isFunction(this.onInit)) {
+      this.onInit(this)
+    }
+  },
+  //////////////////////////////////////////
+  mounted : function() {
+    if(_.isFunction(this.onReady)) {
+      this.onReady(this)
     }
   },
   //////////////////////////////////////////

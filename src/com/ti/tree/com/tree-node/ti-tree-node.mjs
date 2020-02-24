@@ -2,7 +2,6 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   props : {
-    "className" : null,
     "index" : {
       type : Number,
       default : 0

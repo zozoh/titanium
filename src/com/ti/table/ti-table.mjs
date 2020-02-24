@@ -202,6 +202,7 @@ export default {
     },
     //--------------------------------------
     evalEachColumnSize() {
+      //console.log("evalEachColumnSize")
       // Reset each column size
       this.whenTableLayout = true
       this.myTableWidth = 0

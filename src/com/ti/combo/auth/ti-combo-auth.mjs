@@ -15,10 +15,6 @@ export default {
   }),
   ///////////////////////////////////////////////////////
   props : {
-    "className" : {
-      type : String,
-      default : null
-    },
     // - "login_by_passwd"
     // - "login_by_phone"
     // - "login_by_email"

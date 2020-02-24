@@ -13,6 +13,13 @@
   "hmaker-site-state-router"  : "页面路由",
   "hmaker-site-state-actions" : "全局动作表",
 
+  "hmaker-nav-k-title"   : "链接文字",
+  "hmaker-nav-k-icon"    : "链接图标",
+  "hmaker-nav-k-display" : "链接显示内容",
+  "hmaker-nav-k-type"    : "链接类型",
+  "hmaker-nav-k-value"   : "链接目标",
+  "hmaker-nav-blank-item": "请选择一个导航项目编辑",
+
   "hmaker-site-k-domain"   : "所属域",
   "hmaker-site-k-apiBase"  : "接口路径",
   "hmaker-site-k-captcha"  : "验证码路径",

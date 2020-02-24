@@ -29,8 +29,11 @@ class TiStorageWrapper {
     if(_.isNull(val) || _.isUndefined(val)){
       this.remove(key)
     }
-    let str = val+""
-    this.storage.setItem(key, str)
+    // Force to string
+    else {
+      let str = val+""
+      this.storage.setItem(key, str)
+    }
   }
   setObject(key, obj={}){
     if(_.isNull(obj) || _.isUndefined(obj)){

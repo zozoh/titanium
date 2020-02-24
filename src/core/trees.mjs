@@ -15,7 +15,8 @@ export const TiTrees = {
     }
     if(_.isArray(strOrArray))
       return strOrArray
-    return _.without(strOrArray.split("/"), "")
+    return _.map(_.without(strOrArray.split("/"), ""), 
+      v=>/^\d+$/.test(v)?v*1:v)
   },
   //---------------------------------
   /***
@@ -109,7 +110,7 @@ export const TiTrees = {
           let c2 = {
             index,
             node  : child,
-            path  : _.concat(c.path, child.name),
+            path  : _.concat(c.path, child.name||index),
             ...subC
           }
           let [data, stop] = _.concat(iteratee(c2)||[null,false])

@@ -1,25 +1,27 @@
-<div class="ti-input-color">
+<ti-combo-box class="ti-input-color"
+  :class="topClass"
+  :drop-width="null"
+  :status="status"
+  @collapse="doCollapse">
   <!--
     Box
   -->
-  <div class="as-box" ref="box" :class="boxClass">
-    <span class="as-color" @click="dropOpened=true">
-      <u class="as-bg"></u>
-      <u class="as-fr" :style="colorStyle"></u>
+  <template v-slot:box>
+    <span class="as-color"
+      @click.left="onToggleDrop">
+        <u class="as-bg"></u>
+        <u class="as-fr" :style="colorStyle"></u>
     </span>
     <span class="as-clear" @click="onClearColor">
       <ti-icon value="zmdi-close"/>
     </span>
-  </div>
+  </template>
   <!--
     Drop
   -->
-  <template v-if="dropOpened">
-    <div class="as-mask" @click="dropOpened=false"></div>
-    <div class="as-drop" ref="drop">
-      <ti-color 
-        :value="value"
-        @changed="onColorChanged"/>
-    </div>
+  <template v-slot:drop>
+    <ti-color 
+      :value="value"
+      @changed="onColorChanged"/>
   </template>
-</div>
+</ti-combo-box>

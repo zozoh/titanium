@@ -1,0 +1,7 @@
+{
+  "name" : "ti-input-icon",
+  "globally" : true,
+  "template" : "./ti-input-icon.html",
+  "props" : "./ti-input-icon-props.mjs",
+  "mixins" : ["./ti-input-icon.mjs"]
+}

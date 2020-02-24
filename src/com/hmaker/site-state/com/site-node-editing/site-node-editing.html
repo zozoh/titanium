@@ -1,16 +1,39 @@
-<div class="hmaker-site-state-edit">
-  <!--
-    Editing
-  -->
-  <component 
-    v-if="path"
-      class="ti-fill-parent"
+<div class="hmaker-site-node-editing">
+  <template v-if="hasNode">
+    <!--
+      Heading
+    -->
+    <div class="as-head">
+      <!--Title Bar-->
+      <div class="at-left">
+        <ti-icon :value="node.icon"/>
+        <span>{{node.title | i18n}}</span>
+      </div>
+      <!--Action Menu-->
+      <div 
+        v-if="hasActionMenu"
+          class="at-right">
+          <ti-menu v-bind="myActionMenu"/>
+      </div>
+    </div>
+    <!--
+      Editing
+    -->
+    <div class="as-edit">
+      <component class="ti-fill-parent"
         :is="theCom.comType"
-        v-bind="theCom.comConf"/>
+        v-bind="theCom.comConf"
+        :on-init="onChildInit"
+        @changed="onChanged"
+        @actions:updated="onActionsUpdated"/>
+    </div>
+  </template>
   <!--
     Blank
   -->
-  <ti-loading v-else
-    text="i18n:blank-to-edit"
-    icon="zmdi-arrow-left"/>
+  <template v-else>
+    <ti-loading
+      text="i18n:blank-to-edit"
+      icon="zmdi-arrow-left"/>
+  </template>
 </div>

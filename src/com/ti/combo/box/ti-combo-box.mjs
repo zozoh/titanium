@@ -8,14 +8,11 @@ export default {
       "height" : null,
       "top"    : null,
       "left"   : null
-    }
+    },
+    myDropDockReady : false
   }),
   ////////////////////////////////////////////////////
   props : {
-    "className" : {
-      type : String,
-      default : null
-    },
     "width" : {
       type : [Number, String],
       default : null
@@ -86,7 +83,8 @@ export default {
     //------------------------------------------------
     theDropStyle() {
       return Ti.Css.toStyle({
-        "overflow" : this.dropOverflow
+        "overflow" : this.dropOverflow,
+        "visibility" : this.myDropDockReady ? "visible" : "hidden"
       })
     }
     //------------------------------------------------
@@ -129,9 +127,14 @@ export default {
         //..........................................
         // Dock drop to box
         this.$nextTick(()=>{
+          // Count dock
           Ti.Dom.dockTo($drop, $box, {
             space:{y:2}, posListX:["left", "right"]
           })
+          // Make drop visible
+          _.delay(()=>{
+            this.myDropDockReady = true
+          }, 1)
         })
         //..........................................
       }
@@ -151,6 +154,7 @@ export default {
         position:null, top:null, left:null, 
         width: this.width, height: this.height
       })
+      this.myDropDockReady = false
     }
     //------------------------------------------------
   },

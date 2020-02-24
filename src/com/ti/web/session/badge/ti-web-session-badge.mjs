@@ -2,7 +2,6 @@ export default {
   inheritAttrs : false,
   /////////////////////////////////////////
   props : {
-    "className" : null,
     "me" : {
       type : Object,
       default : null

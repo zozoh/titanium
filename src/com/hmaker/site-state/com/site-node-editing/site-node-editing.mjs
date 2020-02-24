@@ -2,7 +2,7 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   data: ()=>({
-    
+    myActionMenu : null
   }),
   //////////////////////////////////////////
   props : {
@@ -17,6 +17,14 @@ export default {
   },
   //////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    hasNode() {
+      return this.path && !_.isEmpty(this.node)
+    },
+    //--------------------------------------
+    hasActionMenu() {
+      return !_.isEmpty(this.myActionMenu)
+    },
     //--------------------------------------
     theCom() {
       //....................................
@@ -69,8 +77,36 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    
+    onChanged(payload) {
+      //console.log("onChanged", payload)
+      this.$emit("changed", {
+        path : this.path,
+        node : this.node,
+        payload
+      })
+    },
     //--------------------------------------
+    onActionsUpdated(menu={}) {
+      this.myActionMenu = menu
+    },
+    //--------------------------------------
+    callChild(actionName) {
+      console.log(actionName)
+      if(this.$myChildCom) {
+        this.$myChildCom[actionName]()
+      }
+    },
+    //--------------------------------------
+    onChildInit($myChildCom) {
+      this.$myChildCom = $myChildCom
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "path" : function() {
+      this.myActionMenu = null
+    }
   }
   //////////////////////////////////////////
 }

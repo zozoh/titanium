@@ -39,6 +39,16 @@
           "action" : "dispatch:main/saveCurrent",
           "shortcut" : "CTRL+S"
         }, {
+          "key"  : "reloading",
+          "type" : "action",
+          "icon" : "zmdi-rotate-right",
+          "text" : "i18n:revoke-change",
+          "altDisplay" : {
+            "icon" : "zmdi-refresh zmdi-hc-spin",
+            "text" : "i18n:loading"
+          },
+          "action" : "dispatch:main/reloadCurrent"
+        }, {
           "type" : "Group",
           "icon" : "zmdi-more-vert",
           "items" : [{
@@ -69,6 +79,16 @@
           "action" : "dispatch:main/saveCurrent",
           "shortcut" : "CTRL+S"
         }, {
+          "key"  : "reloading",
+          "type" : "action",
+          "icon" : "zmdi-rotate-right",
+          "text" : "i18n:revoke-change",
+          "altDisplay" : {
+            "icon" : "zmdi-refresh zmdi-hc-spin",
+            "text" : "i18n:loading"
+          },
+          "action" : "dispatch:main/reloadCurrent"
+        }, {
           "type" : "Group",
           "icon" : "zmdi-more-vert",
           "items" : [{
@@ -96,6 +116,16 @@
           "enableBy" : "changed",
           "action" : "dispatch:main/saveCurrent",
           "shortcut" : "CTRL+S"
+        }, {
+          "key"  : "reloading",
+          "type" : "action",
+          "icon" : "zmdi-rotate-right",
+          "text" : "i18n:revoke-change",
+          "altDisplay" : {
+            "icon" : "zmdi-refresh zmdi-hc-spin",
+            "text" : "i18n:loading"
+          },
+          "action" : "dispatch:main/reloadCurrent"
         }, {
           "type" : "Group",
           "icon" : "zmdi-more-vert",

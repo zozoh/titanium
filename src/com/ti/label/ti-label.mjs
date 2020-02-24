@@ -2,7 +2,6 @@ export default {
   inheritAttrs : false,
   //////////////////////////////////////////
   props : {
-    "className" : null,
     "blankAs" : {
       type : String,
       default : "i18n:nil"

@@ -7,10 +7,6 @@ export default {
   }),
   ////////////////////////////////////////////////////
   props : {
-    "className" : {
-      type : String,
-      default : null
-    },
     "canInput" : {
       type : Boolean,
       default : true

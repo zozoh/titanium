@@ -68,7 +68,7 @@ export default {
         return !this.status.changed
       },
       fail : ()=>{
-        Ti.Toast.Open("i18n:wn-obj-puretext-nosave", "warn")
+        Ti.Toast.Open("i18n:wn-obj-nosaved", "warn")
       }
     })
     //----------------------------------------

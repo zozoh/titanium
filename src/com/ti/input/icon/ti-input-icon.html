@@ -1,0 +1,57 @@
+<ti-combo-box class="ti-input-icon"
+  :class="topClass"
+  :drop-width="dropWidth"
+  :drop-height="dropHeight"
+  :status="status"
+  @collapse="doCollapse">
+  <!--
+    Box
+  -->
+  <template v-slot:box>
+    <span class="as-value"
+      :style="theValueStyle"
+      @click.left="onToggleDrop">
+      <!--Show Icon-->
+      <ti-icon 
+        v-if="hasValue"
+          :value="value"/>
+      <!--No Icon-->
+      <span 
+        v-else
+          class="no-icon"><i class="zmdi zmdi-cake"></i></span>
+    </span>
+    <span class="as-clear" @click="onClearIcon">
+      <ti-icon value="zmdi-close"/>
+    </span>
+  </template>
+  <!--
+    Drop
+  -->
+  <template v-slot:drop>
+    <div class="icon-input">
+      <input ref="input"
+        :placeholder="'i18n:icon-code-tip'|i18n"
+        @change="onChangedIcon">
+    </div>
+    <div class="icon-options">
+      <ul>
+        <li v-for="li of theOptionIcons"
+          @click.left="onSelectIcon(li)"
+          @dblclick.left="onSelectIconAndCollapse(li)"
+          @mouseenter="onHoverIcon(li)"
+          @mouseleave="onLeaveIcon(li)">
+          <ti-icon :value="li.value"/>
+        </li>
+      </ul>
+    </div>
+    <div class="icon-tip">
+      <template v-if="theTipIcon">
+        <ti-icon :value="theTipIcon"/>
+        <span>{{theTipIcon}}</span>
+      </template>
+      <template v-else>
+        <span>...</span>
+      </template>
+    </div>
+  </template>
+</ti-combo-box>

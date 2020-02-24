@@ -6,16 +6,11 @@ export default {
   }),
   //////////////////////////////////////////////////////
   props : {
-    "className" : null,
     "icon" : {
       type : String,
       default : null
     },
     "title" : {
-      type : String,
-      default : null
-    },
-    "className" : {
       type : String,
       default : null
     },

@@ -3,7 +3,8 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data: ()=>({
-    "dropOpened" : false
+    hideBorder : false,
+    status  : "collapse"
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -13,15 +14,16 @@ export default {
     }
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "dropOpened" : function(){
-      this.$nextTick(()=>{
-        this.dockDrop()
-      })
-    }
-  },
-  ////////////////////////////////////////////////////
   computed : {
+    //------------------------------------------------
+    topClass() {
+      return Ti.Css.mergeClassName({
+        "is-empty"  : !this.hasValue,
+        "is-valued" : this.hasValue,
+        "show-border"  : !this.hideBorder,
+        "hide-border"  : this.hideBorder,
+      }, this.className)
+    },
     //------------------------------------------------
     colorStyle() {
       let color = Ti.Types.toColor(this.value, null)
@@ -30,42 +32,37 @@ export default {
       }
     },
     //------------------------------------------------
-    boxClass() {
-      if(_.isUndefined(this.value) || _.isNull(this.value)) {
-        return "is-empty"
-      }
-      return "is-valued"
+    isCollapse() {return "collapse"==this.status},
+    isExtended() {return "extended"==this.status},
+    //------------------------------------------------
+    hasValue() {
+      return !Ti.Util.isNil(this.value)
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onClearColor() {
-      this.$emit("changed", null)
+    onToggleDrop() {
+      this.status = ({
+        "collapse" : "extended",
+        "extended" : "collapse"
+      })[this.status]
     },
     //------------------------------------------------
-    dockDrop() {
-      if(this.dropOpened) {
-        let $drop = this.$refs.drop
-        let $box = this.$refs.box
-        if($drop && $box) {
-          Ti.Dom.dockTo($drop, $box, {
-            space:{y:2}, posListX:["left", "right"]
-          })
-        }
-      }
+    onClearColor() {
+      this.$emit("changed", null)
     },
     //------------------------------------------------
     onColorChanged(color) {
       let co = Ti.Types.toColor(color)
       this.$emit("changed", co ? co.toString() : null)
+    },
+    //------------------------------------------------
+    doCollapse() {
+      this.status = "collapse"
     }
     //------------------------------------------------
-  },
-  ////////////////////////////////////////////////////
-  mounted : function() {
-    this.dockDrop()
   }
   ////////////////////////////////////////////////////
 }

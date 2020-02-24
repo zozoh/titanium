@@ -8,7 +8,6 @@ export default {
   }),
   /////////////////////////////////////////
   props : {
-    "className" : null,
     "layout" : {
       type : Object,
       default : ()=>({

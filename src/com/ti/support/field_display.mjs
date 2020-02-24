@@ -204,7 +204,8 @@ export default {
     //.....................................
     reDisplayItem.comConf = comConf
     //.....................................
-    reDisplayItem.uniqueKey = _.concat(reDisplayItem.key).join("-")
+    reDisplayItem.uniqueKey = _.concat(
+      reDisplayItem.key, reDisplayItem.comType).join("-")
     //.....................................
     return reDisplayItem
   }

@@ -8,10 +8,6 @@ export default {
   }),
   //////////////////////////////////////////
   props : {
-    "className" : {
-      type : String,
-      default : null
-    },
     "nodeClassName" : {
       type : String,
       default : null

@@ -67,10 +67,15 @@
     }
     //-------------------------------------------
     > ul {
+      @include noselect;
       @include flex-align-nowrap($ai:stretch);
       li {
         @include flex-center; flex:0 0 auto;
+        @include color($color-bar, r, c);
         padding:0 .06rem;
+        .table-head-cell-text {
+          font-size: 0.9em; font-weight: bold;
+        }
         .as-checker{
           cursor:pointer;
         }

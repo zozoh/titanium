@@ -7,10 +7,6 @@ export default {
   }),
   /////////////////////////////////////////
   props : {
-    "className" : {
-      type : String,
-      default : null
-    },
     "by" : {
       type : String,
       default : "tencent"

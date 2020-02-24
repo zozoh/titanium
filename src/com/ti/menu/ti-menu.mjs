@@ -2,10 +2,6 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////
   props : {
-    "className" : {
-      type : String,
-      default : null
-    },
     "data" :{
       type : Array,
       default : ()=>[]

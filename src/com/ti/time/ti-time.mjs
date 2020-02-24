@@ -2,10 +2,6 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   props : {
-    "className" : {
-      type : String,
-      default : null
-    },
     "value" : {
       type : [String, Number, Date, Ti.Types.Time],
       default : null

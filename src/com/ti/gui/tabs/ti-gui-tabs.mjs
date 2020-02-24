@@ -6,7 +6,6 @@ export default {
   }),
   /////////////////////////////////////////
   props : {
-    "className" : null,
     "tabAt" : {
       type : String,
       default : "top-left",

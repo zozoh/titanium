@@ -1,5 +1,4 @@
 export default {
-  "className" : null,
   "idBy" : {
     type : [String, Function],
     default : "id"
@@ -78,9 +77,5 @@ export default {
       icon : "zmdi-alert-circle-o",
       text : "empty-data"
     })
-  },
-  "onReady" : {
-    type : Function,
-    default : null
   }
 }

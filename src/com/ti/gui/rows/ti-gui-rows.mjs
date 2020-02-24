@@ -2,7 +2,6 @@ export default {
   inheritAttrs : false,
   /////////////////////////////////////////
   props : {
-    "className" : null,
     "blocks" : {
       type : Array,
       default : ()=>[]

@@ -6,11 +6,19 @@
           "title" : "最喜爱的颜色",
           "name"  : "favColor",
           "comType" : "ti-input-color"
+        }, {
+          "title" : "标志",
+          "name"  : "myIcon",
+          "comType" : "ti-input-icon",
+          "comConf" : {
+            "hideBorder" : true,
+            "iconSize" : ".4rem",
+            "dropWidth"  : "6.4rem",
+            "dropHeight" : "4.8rem"
+          }
         }]
       },
-    "data" : {
-      "favColor" : "=data.favColor"
-    }
+    "data" : "=data"
   },
   "dispatchActions" : {
     "changed" : "updatePair"

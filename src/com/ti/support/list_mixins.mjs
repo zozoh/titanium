@@ -361,10 +361,6 @@ export default {
     this.syncCheckedIds()
     this.syncCurrentId()
     //.................................
-    if(_.isFunction(this.onReady)) {
-      this.onReady.apply(this, [this])
-    }
-    //.................................
    }
   ///////////////////////////////////////////////////
 }

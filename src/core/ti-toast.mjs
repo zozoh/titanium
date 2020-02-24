@@ -21,7 +21,6 @@ class TiToastBox {
       content = "i18n:empty",  // message content
       vars = {},
       type = "info",           // info|warn|error|success|track
-      className = "",
       spacing=0,          // spacing
       duration = 3000,    // Duration of the toast
       closer = true       // Support close manually
@@ -66,16 +65,18 @@ class TiToastBox {
     let appInfo = {
       template : html,
       data : {
-        position, icon, content, type, className, closer,vars,
+        position, icon, content, type, closer,vars,
         hidden : true
       },
       computed : {
         topClass() {
-          return [
-            this.className||"",
-            ('center'!=this.position?'as-bar':'as-block'),
+          return Ti.Css.mergeClassName({
+            "as-bar"   : "center" != this.position,
+            "as-block" : "center" == this.position,
+          }, [
             `at-${this.position}`,
-            `is-${this.type}`]
+            `is-${this.type}`
+          ])
         },
         topStyle() {
           if('center' != this.position) {

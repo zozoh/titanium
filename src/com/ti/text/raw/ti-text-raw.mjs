@@ -2,7 +2,6 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   props : {
-    "className" : null,
     "icon" : {
       type : [String, Object],
       default : "im-hashtag"
@@ -20,6 +19,10 @@ export default {
       default : ""
     }, 
     "contentIsChanged" : {
+      type : Boolean,
+      default : false
+    },
+    "ignoreKeyUp" : {
       type : Boolean,
       default : false
     },
@@ -49,17 +52,38 @@ export default {
   },
   ///////////////////////////////////////////////////
   methods : {
-    onChangeTextarea() {
+    //-----------------------------------------------
+    checkContentChanged() {
       let vm = this
       let $t = vm.$refs.text
       let txt = $t.value
-      vm.$emit("changed", txt)
+      if(txt != this.content) {
+        vm.$emit("changed", txt)
+      }
+    },
+    //-----------------------------------------------
+    onTextareaKeyup() {
+      if(!this.ignoreKeyUp) {
+        this.checkContentChanged()
+      }
+    },
+    //-----------------------------------------------
+    onContentChanged() {
+      this.checkContentChanged()
+    },
+    //-----------------------------------------------
+    __ti_shortcut(uniqKey) {
+      if("CTRL+ENTER" == uniqKey) {
+        this.checkContentChanged()
+        return {prevent:true}
+      }
     }
+    //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   created : function() {
-    this.onDebounceChangeTextarea = _.debounce(
-      this.onChangeTextarea, 500
+    this.debounceTextareaKeyup = _.debounce(
+      this.onTextareaKeyup, 500
     )
   }
   ///////////////////////////////////////////////////

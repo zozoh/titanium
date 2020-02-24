@@ -1,8 +1,4 @@
 export default {
-  "className" : {
-    type : String,
-    default : null
-  },
   "type" : {
     type : String,
     default : "String"

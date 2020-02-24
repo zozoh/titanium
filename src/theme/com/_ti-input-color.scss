@@ -34,43 +34,43 @@
       }
     }
     //-------------------------------
-    &.is-empty {
-      //-----------------------------
+    &:hover {
+      border-color:map-get($color-secondary, c);
+    }
+    //-------------------------------
+  } // > .as-box
+  //---------------------------------
+  &.is-empty > .as-box {
+    //-------------------------------
+    > .as-color {
+      background-color:#FFF;
+      u.as-bg {
+        background-color:red; 
+        height:.03rem; width:200px;
+        transform:rotate(45deg);
+      }
+      u.as-fr {display: none;}
+    }
+    //-------------------------------
+    //> .as-clear {display: none;}
+    //-------------------------------
+    &:hover {
       > .as-color {
-        background-color:#FFF;
         u.as-bg {
-          background-color:red; 
-          height:.03rem; width:200px;
-          transform:rotate(45deg);
+          transform: rotate(360deg); width:.08rem; height:.08rem;
         }
-        u.as-fr {display: none;}
-      }
-      //-----------------------------
-      > .as-clear {display: none;}
-      //-----------------------------
-      &:hover {
-        border-color:map-get($color-secondary, c);
-        > .as-color {
-          u.as-bg {
-            transform: rotate(360deg); width:.08rem; height:.08rem;
-          }
-        }
-      }
-      //-----------------------------
-    }
-    //-------------------------------
-    &.is-valued {
-      > .as-color {
-        u.as-bg {@include bg-chessboard(#888, .11rem, #FFF);}
-      }
-      &:hover {
-        border-color:map-get($color-secondary, c);
-      }
-      > .as-color:hover {
-        u.as-bg {@include bg-chessboard(#888, .09rem, #FFF);}
       }
     }
     //-------------------------------
+  }
+  //---------------------------------
+  &.is-valued > .as-box {
+    > .as-color {
+      u.as-bg {@include bg-chessboard(#888, .11rem, #FFF);}
+    }
+    > .as-color:hover {
+      u.as-bg {@include bg-chessboard(#888, .09rem, #FFF);}
+    }
   }
   //---------------------------------
   > .as-mask {

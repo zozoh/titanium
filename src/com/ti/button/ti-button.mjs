@@ -12,10 +12,6 @@ export default {
       type : String,
       default : "center"
     },
-    "className" :{
-      type : [String, Object, Array],
-      default : null
-    },
     "setup" : {
       type : [Array, Object],
       default : ()=>[]

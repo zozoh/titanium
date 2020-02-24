@@ -12,6 +12,6 @@
     "@com:hmaker/edit-site-nav",
     "@com:hmaker/edit-site-router",
     "@com:hmaker/edit-site-actions",
-    "@com:ti/form"
+    "@com:wn/form"
   ]
 }

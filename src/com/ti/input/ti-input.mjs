@@ -8,7 +8,6 @@ export default {
   }),
   ////////////////////////////////////////////////////
   props : {
-    "className" : null,
     "value" : null,
     "format" : undefined,
     "readonly" : {
