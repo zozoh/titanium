@@ -35,9 +35,6 @@ class TiToastBox {
       icon = Ti.Icons.get(type)
     }
     //........................................
-
-     console.log("icon", icon)
-    //........................................
     // Setup content
     let html = `<div class="ti-toast"
       :class="topClass"

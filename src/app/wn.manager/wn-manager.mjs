@@ -3,7 +3,7 @@ export default {
   computed : {
     //---------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName(this.className, ()=>{
+      return Ti.Css.mergeClassName(this.appClassName, ()=>{
         let klass = []
         _.forEach(this.theShown, (val, key)=>{
           klass.push(`is-${key}-${val?'shown':'hidden'}`)

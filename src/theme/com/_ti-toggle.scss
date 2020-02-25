@@ -1,6 +1,7 @@
 .ti-toggle {
   @include noselect;
   @include flex-align-nowrap;
+  padding:0 .06rem;
   aside {
     position: relative;
     width:.4rem; padding:1px;
