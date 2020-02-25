@@ -245,7 +245,7 @@ export const TiDom = {
     }
 
     // Dock & Apply
-    let dockedRect = rect.src.dockTo(rect.ta, mode, {
+    let dockMode = rect.src.dockTo(rect.ta, mode, {
       axis, 
       space, 
       viewport : rect.win,
@@ -254,11 +254,8 @@ export const TiDom = {
     })
     //console.log("do DockTo", dockedRect+"")
     _.delay(()=>{
-      TiDom.applyRect($src, dockedRect, "tlwh")
+      TiDom.applyRect($src, rect.src, dockMode)
     }, 0)
-
-    // return
-    return dockedRect
   },
   /**
    * Return HTML string to present the icon/text/tip HTML segment

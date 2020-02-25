@@ -165,7 +165,7 @@ Usually it would been use in `id->displayName` translation for some refer field 
 Indicate the way to get `id` from raw data. The value could be:
 
 - `String`: Key in raw data to pick out the ID
-- `Function`: Cutomized method to pick out the ID from raw data.
+- `Function`: Cutomized method `(itemData, index)` to pick out the ID from raw data.
 
 The `id` of the raw data is the unique identification of each record.
 The value of the `id` should be `String`.

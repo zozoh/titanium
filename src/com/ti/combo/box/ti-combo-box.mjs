@@ -123,7 +123,8 @@ export default {
         if(!Ti.Util.isNil(this.dropHeight)) {
           dropStyle.height = this.dropHeight
         }
-        Ti.Dom.setStyle($drop, Ti.Css.toStyle(dropStyle))
+        //..........................................S
+        Ti.Dom.setStyle($drop, Ti.Css.toStyle(dropStyle))      
         //..........................................
         // Dock drop to box
         this.$nextTick(()=>{

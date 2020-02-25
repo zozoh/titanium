@@ -10,6 +10,7 @@
     "@com:ti/button",
     "@com:ti/table",
     "@com:ti/tree",
+    "@com:ti/transfer",
     "@com:ti/obj/json"
   ]
 }

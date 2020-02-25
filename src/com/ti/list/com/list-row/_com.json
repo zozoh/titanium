@@ -1,0 +1,9 @@
+{
+  "name" : "list-row",
+  "globally" : false,
+  "template" : "./list-row.html",
+  "methods"  : "@com:ti/support/field_display.mjs",
+  "mixins" : [
+    "@com:ti/support/list_item_mixins.mjs",
+    "./list-row.mjs"]
+}

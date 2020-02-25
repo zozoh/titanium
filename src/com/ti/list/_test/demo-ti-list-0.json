@@ -1,0 +1,13 @@
+{
+  "comType" : "ti-list",
+  "comConf" : {
+    "className" : "ti-fill-parent",
+    "display" : ["<icon:fas-user>","'Fox'","name"],
+    "multi" : true,
+    "checkable" : true,
+    "data" : "=data"
+  },
+  "dispatchActions" : {
+    "changed" : "updatePair"
+  }
+}

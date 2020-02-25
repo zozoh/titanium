@@ -230,62 +230,73 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
   icon: "zmdi-steam"
 }
 #---------------------------------------------------------
-@FILE demo/calendar-month.wncom
+@FILE demo/ti-calendar-month.wncom
 {
-  com: "/rs/ti/com/ti/calendar/_test/calendar-month.json"
+  com: "/rs/ti/com/ti/calendar/_test/demo-ti-calendar-month.json"
 }
 #---------------------------------------------------------
-@FILE demo/form-color.wncom
+@FILE demo/ti-form-0.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/form-color.json"
+  com: "/rs/ti/com/ti/form/_test/demo-ti-form-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/form-combo-box.wncom
+@FILE demo/ti-form-color-icon.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/form-combo-box.json"
+  com: "/rs/ti/com/ti/form/_test/demo-ti-form-color-icon.json"
 }
 #---------------------------------------------------------
-@FILE demo/form-datetime.wncom
+@FILE demo/ti-form-combobox.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/form-datetime.json"
+  com: "/rs/ti/com/ti/form/_test/demo-ti-form-combobox.json"
 }
 #---------------------------------------------------------
-@FILE demo/form-input-tags.wncom
+@FILE demo/ti-form-datetime.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/form-input-tags.json"
+  com: "/rs/ti/com/ti/form/_test/demo-ti-form-datetime.json"
 }
 #---------------------------------------------------------
-@FILE demo/form form0.wncom
+@FILE demo/ti-form-input-tags.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/form0.json"
+  com: "/rs/ti/com/ti/form/_test/demo-ti-form-input-tags.json"
 }
 #---------------------------------------------------------
 @FILE demo/wizard-0.wncom
 {
-  com: "/rs/ti/com/ti/wizard/_test/wizard_0.json"
+  com: "/rs/ti/com/ti/wizard/_test/demo-wizard-0.json"
 }
 #---------------------------------------------------------
 @FILE demo/tree-0.wncom
 {
-  ln : "/rs/ti/com/ti/tree/_test/tree_0_data.json", 
-  com: "/rs/ti/com/ti/tree/_test/tree_0.json"
+  ln : "/rs/ti/com/ti/tree/_test/demo-ti-tree-0.data.json", 
+  com: "/rs/ti/com/ti/tree/_test/demo-ti-tree-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/table-0.wncom
+@FILE demo/ti-list-0.wncom
 {
-  ln : "/rs/ti/com/ti/table/_test/table_0_data.json", 
-  com: "/rs/ti/com/ti/table/_test/table_0.json"
+  ln : "/rs/ti/com/ti/list/_test/demo-ti-list-0.data.json", 
+  com: "/rs/ti/com/ti/list/_test/demo-ti-list-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/obj-json-0.wncom
+@FILE demo/ti-table-0.wncom
 {
-  com: "/rs/ti/com/ti/obj/json/_test/obj_json_0.json"
+  ln : "/rs/ti/com/ti/table/_test/demo-ti-table-0.data.json", 
+  com: "/rs/ti/com/ti/table/_test/demo-ti-table-0.json"
 }
-%COPY> /rs/ti/com/ti/obj/json/_test/obj_json_0_data.json
 #---------------------------------------------------------
-@FILE demo/gui-0.wncom
+@FILE demo/ti-obj-json-0.wncom
 {
-  com: "/rs/ti/com/ti/gui/_test/gui_0.json"
+  com: "/rs/ti/com/ti/obj/json/_test/demo-ti-obj-json-0.json"
+}
+%COPY> /rs/ti/com/ti/obj/json/_test/demo-ti-obj-json-0.data.json
+#---------------------------------------------------------
+@FILE demo/ti-gui-0.wncom
+{
+  com: "/rs/ti/com/ti/gui/_test/demo-ti-gui-0.json"
+}
+#---------------------------------------------------------
+@FILE demo/ti-transfer-0.wncom
+{
+  com: "/rs/ti/com/ti/transfer/_test/demo-ti-transfer-0.json"
 }
 ##########################################################
 #

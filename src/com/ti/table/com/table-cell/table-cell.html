@@ -7,11 +7,12 @@
   <slot></slot>
   <!--Fields-->
   <div class="cell-con">
-    <component v-for="(it, index) in cellItems"
-      :class="'item-'+index"
-      :key="it.uniqueKey"
-      :is="it.comType"
-      v-bind="it.comConf"
-      @changed="onItemChanged(it, $event)"/>
+    <component 
+      v-for="(it, index) in cellItems"
+        :class="'item-'+index"
+        :key="it.uniqueKey"
+        :is="it.comType"
+        v-bind="it.comConf"
+        @changed="onItemChanged(it, $event)"/>
   </div>
 </div>

@@ -1,0 +1,12 @@
+{
+  "name" : "wn-table",
+  "globally" : true,
+  "template" : "./wn-table.html",
+  "props" : [
+    "@com:ti/support/list_props.mjs"],
+  "mixins" : [
+    "@com:wn/support/wn_list_wrapper_mixins.mjs",
+    "./wn-table.mjs"],
+  "components" : [
+    "@com:ti/table"]
+}

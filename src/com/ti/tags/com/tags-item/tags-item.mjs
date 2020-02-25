@@ -62,7 +62,7 @@ export default {
     },
     "cancelBubble" : {
       type : Boolean,
-      default : true
+      default : false
     },
     "removeIcon" : {
       type : String,
@@ -173,6 +173,7 @@ export default {
     },
     //------------------------------------------------
     onClickTop($event) {
+      console.log("adafa")
       // Show Drop Down
       if(this.hasOptions) {
         $event.stopPropagation()

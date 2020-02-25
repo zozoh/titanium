@@ -418,7 +418,7 @@ export class Rect {
    * @param viewportBorder{int}
    * @param wrapCut{Boolean}
    * 
-   * @return {Self}
+   * @return {Self} If need to be cut
    */
   dockTo(rect, mode="H", {
     axis={}, 
@@ -499,12 +499,19 @@ export class Rect {
     })[alg]()
 
     // Wrap cut
-    if(wrapCut && !TiRects.isRect(viewport)) {
+    let dockMode = "tl"
+    if(wrapCut && TiRects.isRect(viewport)) {
       let viewport2 = viewport.clone(viewportBorder)
-      viewport2.wrapCut(this)
+      // Wrap at first
+      viewport2.wrap(this)
+      // If still can not contains, overlay it
+      if(!viewport2.contains(this)) {
+        this.overlap(viewport2)
+        dockMode = "tlwh"
+      }
     }
-
-    return this
+    // return
+    return dockMode
   }
   /***
    * Like `dockTo` but dock to target inside
@@ -754,9 +761,8 @@ export const TiRects = {
   //--------------------------------------
   isRect(rect) {
     return rect 
-      && !_.isEmpty(rect) 
-      && _.isPlainObject(rect)
       && rect.__ti_rect__
+      && (rect instanceof Rect)
   }
   //--------------------------------------
 }

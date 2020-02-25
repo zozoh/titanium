@@ -2,7 +2,7 @@
   :class="topClass"
   @click="onClickTop"
   v-ti-actived="__set_actived">
-   <!--
+  <!--
     Blank
   -->
   <div
@@ -15,10 +15,11 @@
   -->
   <template v-else>
     <!--tiles-->
-    <ti-wall-tile
+    <wall-tile
       v-for="row in theData"
         :key="row.id"
         :row-id="row.id"
+        :index="row.index"
         :display="theItemDisplay"
         :data="row.rawData"
         :current-id="theCurrentId"

@@ -6,49 +6,9 @@ export default {
   }),
   ///////////////////////////////////////////////////
   props : {
-    "index" : {
-      type : Number,
-      default : -1
-    },
-    "rowId" : {
-      type : String,
-      default : null
-    },
     "display" : {
       type : Object,
       default : null
-    },
-    "data" : {
-      type : Object,
-      default : null
-    },
-    "changedId" : {
-      type : String,
-      default : null
-    },
-    "currentId" : {
-      type : String,
-      default : null
-    },
-    "checkedIds" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "checkable" : {
-      type : Boolean,
-      default : false
-    },
-    "selectable" : {
-      type : Boolean,
-      default : true
-    },
-    "openable" : {
-      type : Boolean,
-      default : true
-    },
-    "explainDict" : {
-      type : Function,
-      default : _.identity
     },
     // Wall-Tile width
     "width" : {
@@ -65,13 +25,7 @@ export default {
   computed : {
     //-----------------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived" : this.isActived,
-        "is-current" : this.isCurrent,
-        "is-checked" : this.isChecked,
-        "is-changed" : this.isChanged
-      }, this.className)
+      return this.getListItemClass()
     },
     //--------------------------------------
     topStyle() {
@@ -83,25 +37,13 @@ export default {
         css.height = this.height
       }
       return Ti.Css.toStyle(css)
-    },
-    //-----------------------------------------------
-    isCurrent() {
-      return this.rowId == this.currentId
-    },
-    //-----------------------------------------------
-    isChanged() {
-      return this.rowId == this.changedId
-    },
-    //-----------------------------------------------
-    isChecked() {
-      return this.checkedIds[this.rowId] ? true : false
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    async evalCellDisplayItems() {
+    async evalMyDisplayCom() {
       this.myCom = await this.evalDataForFieldDisplayItem({
         itemData : this.data, 
         displayItem : this.display, 
@@ -117,51 +59,28 @@ export default {
 
       // make table resizing
       this.$parent.debounceOnWallResize()
-    },
-    //-----------------------------------------------
-    onClickTile($event) {
-      let toggle = ($event.ctrlKey || $event.metaKey)
-      if(this.selectable && (!this.isCurrent || toggle)) {
-        this.$emit("select", {
-          rowId  : this.rowId,
-          shift  : $event.shiftKey,
-          toggle
-        })
-      }
-    },
-    //-----------------------------------------------
-    onDblClickTile($event) {
-      if(this.openable) {
-        $event.stopPropagation()
-        this.$emit("open", {
-          rowId  : this.rowId
-        })
-      }
-    },
+    }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   watch : {
     "display" : async function() {
-      await this.evalCellDisplayItems()
+      await this.evalMyDisplayCom()
     },
     "data" : async function() {
       //console.log("data changed")
-      await this.evalCellDisplayItems()
+      await this.evalMyDisplayCom()
     },
     "isCurrent" : async function() {
-      await this.evalCellDisplayItems()
+      await this.evalMyDisplayCom()
     },
     "isChecked" : async function() {
-      await this.evalCellDisplayItems()
-    },
-    "isHover" : async function() {
-      await this.evalCellDisplayItems()
+      await this.evalMyDisplayCom()
     }
   },
   ///////////////////////////////////////////////////
   mounted : async function() {
-    await this.evalCellDisplayItems()
+    await this.evalMyDisplayCom()
   }
   ///////////////////////////////////////////////////
 }

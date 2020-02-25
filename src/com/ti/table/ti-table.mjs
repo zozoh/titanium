@@ -26,15 +26,13 @@ export default {
   computed : {
     //--------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived"     : this.isActived,
+      return this.getTopClass({
         "is-when-layout" : this.whenTableLayout,
-        "is-hoverable"   : this.hoverable
+        "is-hoverable"    : this.hoverable
       }, [
         `is-border-${this.border}`,
         `is-head-${this.head||"none"}`,
-      ], this.className)
+      ])
     },
     //--------------------------------------
     tableStyle() {
@@ -192,11 +190,11 @@ export default {
           items.push(item)
         }
       }
-      // Gen transformer for each item
-      for(let it of items) {
-        // Transformer
-        it.transformer = Ti.Types.getFuncBy(it, "transformer", this.fnSet)
-      }
+      // // Gen transformer for each item
+      // for(let it of items) {
+      //   // Transformer
+      //   it.transformer = Ti.Types.getFuncBy(it, "transformer", this.fnSet)
+      // }
       // Array to pick
       return items
     },

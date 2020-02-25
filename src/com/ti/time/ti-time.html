@@ -1,6 +1,11 @@
-<div class="ti-col-data as-time" :class="topClass" :style="topStyle">
+<div class="ti-col-data as-time" 
+  :class="topClass" 
+  :style="topStyle">
   <ti-list v-for="list in theListGroup"
     :key="list.key"
-    v-bind="list"
-    @changed="onListChanged(list.key, $event)"/>
+    :data="list.data"
+    :display="'text'"
+    :current-id="list.currentId"
+    :cancelable="false"
+    @selected="onListSelected(list.key, $event)"/>
 </div>

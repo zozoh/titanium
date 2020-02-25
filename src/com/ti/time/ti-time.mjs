@@ -43,6 +43,17 @@ export default {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
+    topClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    topStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
+    },
+    //------------------------------------------------
     theTime() {
       return Ti.Types.toTime(this.value||0, {
         unit: this.valueUnit
@@ -58,31 +69,21 @@ export default {
         re.push(this.createList("seconds", 0, 60, this.theTime.seconds))
       }
       return re
-    },
-    //------------------------------------------------
-    topClass() {
-      return this.className
-    },
-    //------------------------------------------------
-    topStyle() {
-      return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
-      })
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    createList(key, fromVal, toVal, currentVal) {
+    createList(key, fromVal, toVal, currentVal=0) {
       let list = {
         key,
-        value : currentVal,
-        data  : []
+        currentId : `R-${currentVal}`,
+        data    : []
       }
       for(let i=fromVal; i<toVal; i++) {
         list.data.push({
+          id : `R-${i}`,
           value : i,
           text  : _.padStart(i, 2, '0')
         })
@@ -90,9 +91,9 @@ export default {
       return list
     },
     //------------------------------------------------
-    onListChanged(key, val) {
+    onListSelected(key, {current}={}) {
       let tm = this.theTime.clone()
-      tm[key] = val
+      tm[key] = _.get(current, "value") || 0
       this.$emit("changed", tm)
     }
     //------------------------------------------------

@@ -1,0 +1,6 @@
+{
+  "name" : "ti-transfer",
+  "globally" : true,
+  "template" : "./ti-transfer.html",
+  "mixins" : ["./ti-transfer.mjs"]
+}

@@ -50,27 +50,27 @@ const TiCss = {
   //-----------------------------------
   mergeClassName(...args) {
     let klass = {}
-    for(let arg of args) {
-      let kla = arg
+    //.................................
+    const __join_class = (kla) => {
+      // Guard
       if(Ti.Util.isNil(kla))
-        continue
+        return
       // Function
-      if(_.isFunction(arg)) {
-        kla = arg()
+      if(_.isFunction(kla)) {
+        let re = kla()
+        __join_class(re)
       }
       // String
-      if(_.isString(kla)) {
-        if(kla) {
-          let ss = _.without(_.split(kla, / +/g), "")
-          for(let s of ss) {
-            klass[s] = true
-          }
+      else if(_.isString(kla)) {
+        let ss = _.without(_.split(kla, / +/g), "")
+        for(let s of ss) {
+          klass[s] = true
         }
       }
       // Array
       else if(_.isArray(kla)) {
         for(let a of kla) {
-          klass[a] = true
+          __join_class(a)
         }
       }
       // Object
@@ -82,6 +82,9 @@ const TiCss = {
         })
       }
     }
+    //.................................
+    __join_class(args)
+    //.................................
     return klass
   },
   //-----------------------------------

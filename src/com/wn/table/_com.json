@@ -4,11 +4,10 @@
   "template" : "./wn-table.html",
   "props" : [
     "@com:ti/support/list_props.mjs",
-    "@com:ti/table/ti-table-props.mjs"
-  ],
-  "mixins" : ["./wn-table.mjs"],
+    "@com:ti/table/ti-table-props.mjs"],
+  "mixins" : [
+    "@com:wn/support/wn_list_wrapper_mixins.mjs",
+    "./wn-table.mjs"],
   "components" : [
-    "@com:ti/table",
-    "@com:wn/label"
-  ]
+    "@com:ti/table"]
 }

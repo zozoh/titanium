@@ -107,12 +107,10 @@ export default {
   computed : {
     //-----------------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived" : this.isActived,
+      return this.getTopClass({
         "is-nowrap" : this.nowrap,
         "is-editing-mode" : this.isEditingMode
-      }, this.className)
+      })
     },
     //-----------------------------------------------
     topStyle() {

@@ -1,0 +1,9 @@
+{
+  "comType" : "ti-transfer",
+  "comConf" : {
+    
+  },
+  "dispatchActions" : {
+    "changed" : "updatePair"
+  }
+}

@@ -1,0 +1,38 @@
+<div class="list-row"
+  :class="topClass">
+  <!--current actived row indicator-->
+  <div class="row-actived-indicator"></div>
+  <!-- Indents -->
+  <div v-for="n in indent"
+  class="row-indent"></div>
+  <!--ICON: Handler-->
+  <template v-if="icon">
+    <ti-icon
+      v-if="hasRealIcon"
+        class="row-icon"
+        :value="icon"
+        @click.native.left.stop="onClickIcon"/>
+    <div v-else
+      class="row-icon"></div>
+  </template>
+  <!--ICON: Checker-->
+  <ti-icon v-if="checkable"
+      class="row-checker"
+      :value="theCheckIcon"
+      @click.native.left.stop="onClickChecker"/>
+  <!-- Content -->
+  <div
+    class="row-con"
+    @click.left="onClickRow"
+    @dblclick.left="onDblClickRow"
+    v-ti-actived="__set_actived">
+    <component 
+      v-for="(it, index) in myDisplayItems"
+        :class="'item-'+index"
+        :key="it.uniqueKey"
+        :is="it.comType"
+        v-bind="it.comConf"
+        @changed="onItemChanged(it, $event)"/>
+  </div>
+
+</div>

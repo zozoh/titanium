@@ -1,7 +1,8 @@
 export default {
   inheritAttrs : false,
-  //////////////////////////////////////////
+  ///////////////////////////////////////////////////
   computed :{
+    //-----------------------------------------------
     // Auto PageMode
     ...Vuex.mapGetters("viewport", [
       "viewportMode", 
@@ -12,19 +13,30 @@ export default {
       "isViewportModeDesktopOrTablet", 
       "isViewportModePhoneOrTablet"
     ]),
+    //-----------------------------------------------
     // Auto assign component ID
     tiComId() {
       return `${this._uid}:${this.tiComType}`
     },
+    //-----------------------------------------------
     // Auto detected current com is actived or not.
     isActived() {
       return _.indexOf(this.viewportActivedComIds, this.tiComId) >= 0
     },
+    //-----------------------------------------------
     isSelfActived() {
       return _.last(this.viewportActivedComIds) == this.tiComId
+    },
+    //-----------------------------------------------
+    getTopClass() {
+      return (...klass)=>Ti.Css.mergeClassName({
+        "is-self-actived" : this.isSelfActived,
+        "is-actived" : this.isActived
+      }, klass, this.className)
     }
+    //-----------------------------------------------
   },
-  //////////////////////////////////////////
+  ///////////////////////////////////////////////////
   props : {
     "className" : undefined,
     "onInit" : {
@@ -36,15 +48,15 @@ export default {
       default : null
     }
   },
-  //////////////////////////////////////////
+  ///////////////////////////////////////////////////
   methods : {
-    //--------------------------------------
+    //-----------------------------------------------
     // Auto count my useful id path array
     tiActivableComIdPath() {
       let list = this.tiActivableComPath()
       return _.map(list, (vm)=>vm.tiComId)
     },
-    //--------------------------------------
+    //-----------------------------------------------
     // Auto count my useful id path array
     tiActivableComPath() {
       let list = [this]
@@ -59,7 +71,7 @@ export default {
       }
       return list.reverse()
     },
-    //--------------------------------------
+    //-----------------------------------------------
     // Auto get the parent activable component
     tiParentActivableCom() {
       let $pvm = this.$parent
@@ -68,9 +80,9 @@ export default {
       }
       return $pvm
     }
-    //--------------------------------------
+    //-----------------------------------------------
   },
-  //////////////////////////////////////////
+  ///////////////////////////////////////////////////
   created : async function(){
     // Hijack the emit by $parent
     if(!this.hijackEmit) {
@@ -101,18 +113,18 @@ export default {
       this.onInit(this)
     }
   },
-  //////////////////////////////////////////
+  ///////////////////////////////////////////////////
   mounted : function() {
     if(_.isFunction(this.onReady)) {
       this.onReady(this)
     }
   },
-  //////////////////////////////////////////
+  ///////////////////////////////////////////////////
   destroyed : function(){
     //console.log("destroyed", this.$el)
     if(Ti.App(this).setBlurredVm(this)) {
       this.$emit("com:blurred", this)
     }
   }
-  //////////////////////////////////////////
+  ///////////////////////////////////////////////////
 }

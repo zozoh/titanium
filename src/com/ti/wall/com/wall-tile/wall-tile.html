@@ -2,9 +2,10 @@
   :class="topClass"
   :style="topStyle">
   <div v-if="myCom"
-    class="wall-tile-con"
-    @click.left="onClickTile"
-    @dblclick.left="onDblClickTile">
+    class="tile-con"
+    @click.left="onClickRow"
+    @dblclick.left="onDblClickRow"
+    v-ti-actived="__set_actived">
     <component   
       :is="myCom.comType" 
       v-bind="myCom.comConf"/>

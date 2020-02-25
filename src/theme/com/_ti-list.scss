@@ -1,56 +1,62 @@
 .ti-list {
-  //----------------------------------------------
-  ul {
-    @include raw-list;
-    padding:1px;
+  @include noselect;
+  overflow:auto;
+  //------------------------------------------
+  &.show-border {
+    > .list-row {
+      @include border(1px, solid, shallow, top);
+      &:first-child {border-top:0;}
+    }
   }
-  //----------------------------------------------
-  li {
-    @include flex-align-nowrap($ai:center);
-    @include border(1px, dashed, shallow, top);
-    cursor:pointer;
-    position: relative;
-    padding:.06rem .08rem;
-    //--------------------------------------------
-    &:first-child {border-top:0;}
-    //--------------------------------------------
-    &.is-focused {
-      @include color($color-selected, null, c);
-      &::before {
-        @include pos-abs($t:12px,$b:12px,$l:4px,$w:1px);
-        display:block; content:"";
-        border:1px dotted map-get($color-secondary, c);
-        border-top:0; border-bottom:0;
-      }
-    }
-    //--------------------------------------------
-    &.is-selected {
-      @include color($color-secondary, r, c);
-      &.is-focused {
-        &::before {
-          border-color:map-get($color-secondary, r);
-        }
-      }
-    }
-    //--------------------------------------------
-    > .it-icon {
+  //------------------------------------------
+  > .list-row {
+    @include flex-align-nowrap($ai:stretch);
+    //-----------------------------------------
+    > .row-actived-indicator {
       @include flex-center;
-      width:.32rem;
+      width:8px;
     }
-    //--------------------------------------------
-    > .it-text {
+    //-----------------------------------------
+    .row-indent, .row-icon {
+      @include flex-center;
+      width:.16rem;
+    }
+    //-----------------------------------------
+    .row-icon, .row-checker {
+      cursor: pointer; 
+      &:hover {@include color($color-secondary, c);}
+    }
+    //-----------------------------------------
+    .row-checker {
+      margin:0 .06rem;
+    }
+    //----------------------------------------
+    &.is-current {
+      > .row-actived-indicator:before {
+        display:block; content:"";
+        height:.12rem; width:1px;
+        border-left :1px dotted #FFF;
+        border-right:1px dotted #FFF;
+        opacity: 0.6;
+      }
+    }
+    //----------------------------------------
+    &.is-checked {
+      @include color($color-primary, r, c);
+      a, a:hover {color:inherit;}
+    }
+    //----------------------------------------
+    > .row-con {
+      @include flex-align-center;
       flex:1 1 auto;
-      padding:0 0.1rem 0 .04rem;
-      display: block;
-      white-space: nowrap;
+      line-height: 2.6em; min-height:2.6em;
+      //--------------------------------------
+      .ti-icon.item-0 {
+        width: 1.8em;
+      }
+      //--------------------------------------
     }
-    //--------------------------------------------
-    > .it-tip {
-      @include font-fixed;
-      font-size:.9em; opacity: 0.6;
-      padding:0 .06rem;
-    }
-    //--------------------------------------------
+    //----------------------------------------
   }
-  //----------------------------------------------
+  //------------------------------------------
 }

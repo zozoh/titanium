@@ -150,18 +150,25 @@
       @include flex($ai:stretch, $wp:nowrap);
       //-----------------------------------------
       > .cell-con {
-        @include flex-align-center; flex:1 1 auto;
-        line-height: 2.6em;
-        min-height:2.6em;
-        > .ti-icon {
-          width:.24rem;
+        @include flex-align-center; 
+        flex:1 1 auto;
+        line-height: 2.6em; min-height:2.6em;
+        //---------------------------------------
+        > .ti-icon.item-0 {
+          width:1.8em;
         }
-        > * {
+        //---------------------------------------
+        > *:last-child {
           flex:1 1 auto;
         }
+        > .ti-label.item-0 {
+          padding:0 .3em;
+        }
+        //---------------------------------------
         > .ti-icon {
           flex:0 0 auto;
         }
+        //---------------------------------------
       }
       //-----------------------------------------
       .as-drop .ti-list {

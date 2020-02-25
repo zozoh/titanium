@@ -20,7 +20,11 @@
         "display" : ["@<thumb:far-newspaper>", "th_nm"]
       }, {
         "title" : "标签",
-        "display" : "lbls"
+        "display" : {
+          "key" : "lbls",
+          "comType" : "ti-tags",
+          "comConf" : {"data":"${=value}", "removeIcon":null}
+        }
       }, {
         "title" : "最后修改",
         "type"    : "DateTime",

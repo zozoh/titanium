@@ -1,7 +1,9 @@
 {
-  "name" : "ti-wall-tile",
-  "globally" : true,
+  "name" : "wall-tile",
+  "globally" : false,
   "template" : "./wall-tile.html",
   "methods"  : "@com:ti/support/field_display.mjs",
-  "mixins" : ["./wall-tile.mjs"]
+  "mixins" : [
+    "@com:ti/support/list_item_mixins.mjs",
+    "./wall-tile.mjs"]
 }

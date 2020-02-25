@@ -12,7 +12,7 @@ export default {
     },
     "cancelItemBubble" : {
       type : Boolean,
-      default : true
+      default : false
     },
     "itemOptions" : {
       type : Array,
@@ -46,6 +46,14 @@ export default {
       let list = []
       if(_.isArray(this.data)) {
         _.forEach(this.data, (val, index)=>{
+          // Auto gen object for simple value
+          if(!_.isPlainObject(val)) {
+            val = {
+              text  : val,
+              value : val
+            }
+          }
+          // Join to list
           list.push(_.assign({
             icon    : this.itemIcon,
             options : this.itemOptions

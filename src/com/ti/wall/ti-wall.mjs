@@ -9,26 +9,13 @@ export default {
   }),
   //////////////////////////////////////////
   props : {
-    "itemDisplay" : {
+    "itemClassName" : undefined,
+    "display" : {
       type : [Object, String],
       default : ()=>({
         key : "..",
         comType : "ti-label"
       })
-    },
-    "itemClassName" : {
-      type : String,
-      default : null
-    },
-    // Wall-Tile width
-    "itemWidth" : {
-      type : [String, Number],
-      default : null
-    },
-    // Wall-Tile height
-    "itemHeight" : {
-      type : [String, Number],
-      default : null
     },
     "border" : {
       type : Boolean,
@@ -39,27 +26,35 @@ export default {
     "spacing" : {
       type : String,
       default : "sm"
+    },
+    // Wall-Tile width
+    "itemWidth" : {
+      type : [String, Number],
+      default : null
+    },
+    // Wall-Tile height
+    "itemHeight" : {
+      type : [String, Number],
+      default : null
     }
   },
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived"      : this.isActived,
+      return this.getTopClass({
         "is-hoverable"    : this.hoverable,
         "show-border"     : this.border,
         "is-only-one-row" : this.isOnlyOneRow,
         "is-multi-rows"   : !this.isOnlyOneRow
       }, [
         `spacing-${this.spacing}`
-      ], this.className)
+      ])
     },
     //--------------------------------------
     theItemDisplay() {
-      return this.evalFieldDisplayItem(this.itemDisplay, {
-        funcSet : this.extendFunctionSet
+      return this.evalFieldDisplayItem(this.display, {
+        funcSet : this.fnSet
       })
     },
     //--------------------------------------

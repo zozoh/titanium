@@ -1,32 +1,37 @@
-<div class="ti-list">
+<div class="ti-list"
+  :class="topClass"
+  @click="onClickTop"
+  v-ti-actived="__set_actived">
   <!--
-    Has Data
+    Blank
   -->
-  <ul v-if="hasData">
-    <li v-for="(it, index) in theData" 
-      :class="itemClass(it)"
-      @click.left="onClick(index, $event)"
-      @mousedown.left="onMouseDown(index, $event)">
-      <span v-if="hasIcon"
-        class="it-icon">
-        <ti-icon 
-          v-if="it.icon"
-          :value="it.icon"/>
-      </span>
-      <span
-        v-if="it.text" 
-        class="it-text">{{it.text|i18n}}</span>
-      <span 
-        v-if="it.tip"
-        class="it-tip">{{it.tip|i18n}}</span>
-    </li>
-  </ul>
-  <!--
-    Show black
-  -->
-  <div v-else
-    class="ti-blank is-inline">
-    <ti-icon value="zmdi-alert-circle-o"/>
-    <span>{{'empty-data'|i18n}}</span>
+  <div
+    v-if="isDataEmpty"
+      class="ti-blank is-big">
+      <ti-loading v-bind="blankAs"/>
   </div>
+  <!--
+    Show Items
+  -->
+  <template v-else>
+    <list-row
+      v-for="row in theData"
+        :key="row.id"
+        :row-id="row.id"
+        :index="row.index"
+        :icon="row.icon"
+        :indent="row.indent"
+        :data="row.rawData"
+        :display="theDisplayItems"
+        :current-id="theCurrentId"
+        :checked-ids="theCheckedIds"
+        :changed-id="changedId"
+        :checkable="checkable"
+        :selectable="selectable"
+        :openable="openable"
+        :explain-dict="explainDict"
+        :class-name="itemClassName"
+        @select="onRowSelect"
+        @open="onRowOpen"/>
+  </template>
 </div>

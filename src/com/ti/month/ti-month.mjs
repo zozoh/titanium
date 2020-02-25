@@ -23,6 +23,16 @@ export default {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
+    topClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    topStyle() {
+      return {
+        "height" : Ti.Css.toSize(this.height)
+      }
+    },
+    //------------------------------------------------
     theDate() {
       return Ti.Types.toDate(this.value, null)
     },
@@ -45,16 +55,6 @@ export default {
           }}
         )
       ]
-    },
-    //------------------------------------------------
-    topClass() {
-      return this.className
-    },
-    //------------------------------------------------
-    topStyle() {
-      return {
-        "height" : Ti.Css.toSize(this.height)
-      }
     }
     //------------------------------------------------
   },
@@ -67,11 +67,12 @@ export default {
     }={}) {
       let list = {
         key,
-        value : currentVal,
+        currentId : `R-${currentVal}`,
         data  : []
       }
       for(let i=fromVal; i<toVal; i++) {
         list.data.push({
+          id : `R-${i}`,
           value : i,
           text  : getText(i)
         })
@@ -82,7 +83,9 @@ export default {
       return list
     },
     //------------------------------------------------
-    onListChanged(key, val) {
+    onListSelected(key, {current}={}) {
+      let val = _.get(current, "value") || 0
+
       let theDate = this.theDate || new Date()
 
       let d = ({
