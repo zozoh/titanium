@@ -24,7 +24,7 @@
         @include color($color-primary, r, c);
       }
       &.is-focused {
-        @include color($color-selected, r, c);
+        @include color($color-weaktip, r, c);
       }
       > .it-text {padding:0 .04rem;}
     }

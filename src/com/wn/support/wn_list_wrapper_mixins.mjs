@@ -13,7 +13,7 @@ export default {
         if(_.isString(it)) {
           let m = /^@<thumb(:([^>]*))?>$/.exec(it)
           if(m) {
-            let defaultIcon = m[2] || undefined
+            let candidateIcon = m[2] || undefined
             list.push({
               key : ["icon", "thumb", "tp", "mime", "race", "__updated_time"],
               type : "Object",
@@ -31,8 +31,8 @@ export default {
               comType  : "wn-obj-icon",
               comConf : {
                 "..." : "${=value}",
-                "defaultIcon" : defaultIcon,
-                "className"   : "thing-icon"
+                "candidateIcon" : candidateIcon,
+                //"className"   : "thing-icon"
               }
             })
             return

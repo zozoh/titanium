@@ -1,8 +1,7 @@
-<component
-  :is="theComType"
+<ti-combo-input
   :class="topClass"
 
-  :drop-com-type="dropComType"
+  drop-com-type="wn-list"
   
   :value="value"
   :value-case="valueCase"
@@ -15,7 +14,7 @@
 
   :placeholder="placeholder"
   :hide-border="hideBorder"
-  :prefix-icon="prefixIcon"
+  :prefix-icon="thePrefixIcon"
   :prefix-hover-icon="prefixHoverIcon"
   :prefix-icon-for-clean="prefixIconForClean"
   :prefix-text="prefixText"
@@ -24,20 +23,23 @@
   :width="width"
   :height="height"
 
-  :options="options"
-  :format="format"
-  :value-by="valueBy"
-  :match-by="matchBy"
+  :options="myOptions"
+  :format="theFormat"
+  :value-by="theValueBy"
+  :match-by="theMatchBy"
 
-  :can-input="false"
-  :must-in-list="true"
+  :can-input="canInput"
+  :must-in-list="mustInList"
   :auto-focus-extended="autoFocusExtended"
 
   :status-icons="statusIcons"
-  :drop-display="dropDisplay"
+  :drop-display="theDropDisplay"
   :drop-item-border="dropItemBorder"
 
   :drop-width="dropWidth"
   :drop-height="dropHeight"
   
+  @inputing="onInputInputing"
+  @input:item="onInputItemChagned"
   @changed="$emit('changed', $event)"/>
+  

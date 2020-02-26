@@ -566,12 +566,23 @@ const TiUtil = {
    * @return new obj or value
    */
   getOrPick(obj, key) {
+    // Array to pick
     if(_.isArray(key)) {
       return _.pick(obj, key)
     }
+    // Function to eval
     if(_.isFunction(key)) {
       return key(obj)
     }
+    // String
+    if(_.isString(key)) {
+      // get multi candicate
+      let keys = key.split("|")
+      if(keys.length > 1) {
+        return Ti.Util.getFallbackNil(obj, keys)
+      }
+    }
+    // Get by path
     return _.get(obj, key)
   },
   /***

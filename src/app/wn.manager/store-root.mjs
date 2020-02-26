@@ -11,7 +11,12 @@ export default {
       let data = _.pickBy(state.main, (val, key)=>{
         return key && !key.startsWith("_")
       })
-      return _.assign(data, state.mainCom.conf)
+      return _.assign(data, state.mainCom.conf, {
+        onInit : function(){
+          //console.log("main view init:", this)
+          Ti.App(this).$vmMain(this)
+        }
+      })
     },
     mainActions(state) {
       return state.actions
@@ -134,22 +139,7 @@ export default {
         // Load the main view
         let viewInfo = await Wn.Sys.exec2(cmdText, {as:"json"})
         let $app = Ti.App(this)
-        let view = await $app.loadView("main", viewInfo, {
-          updateStoreConfig : config=>{
-            if(!config.state) {
-              config.state = {}
-            }
-          },
-          // Add hook to get back the mainView instance
-          updateComSetup : conf=>{
-            conf.mixins = [].concat(conf.mixins||[])
-            conf.mixins.push({
-              mounted : function(){
-                $app.$vmMain(this)
-              }
-            })
-          }
-        })
+        let view = await $app.loadView("main", viewInfo)
         //..................................
         if(Ti.IsInfo("app/wn.manager")) {
           console.log("TiView Loaded:", view)

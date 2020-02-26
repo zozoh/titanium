@@ -1,12 +1,12 @@
 {
-  "name" : "ti-droplist",
+  "name" : "wn-droplist",
   "globally" : true,
-  "template" : "./ti-droplist.html",
+  "template" : "./wn-droplist.html",
   "props"    : [
     "@com:ti/input/ti-input-props.mjs",
     "@com:ti/combo/input/ti-combo-input-props.mjs"],
-  "mixins"   : ["./ti-droplist.mjs"],
+  "mixins"   : ["./wn-droplist.mjs"],
   "components" : [
-    "@com:ti/combo/input"
+    "@com:wn/combo/input"
   ]
 }

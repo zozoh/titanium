@@ -101,6 +101,7 @@ Define the schema(`Object`) of  data presentation.
     // Number or String, if Number, it will be taken as "px"
     //  - auto
     //  - stretch
+    //  - full : == "100%"
     //  - 2rem | 100px | 30%
     width : "2rem",
     // If false, it will notify the changed without value equals check

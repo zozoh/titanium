@@ -44,8 +44,7 @@ export default {
   computed : {
     //---------------------------------------------------
     topClass() {
-      if(this.className)
-        return this.className
+      return this.getTopClass()
     },
     //---------------------------------------------------
     theValue() {

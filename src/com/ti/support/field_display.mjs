@@ -106,7 +106,10 @@ export default {
       }
       // Dynamic value
       else {
-        value = Ti.Util.fallback(_.get(itemData, displayItem.key), value)
+        value = Ti.Util.fallback(
+          Ti.Util.getOrPick(itemData, displayItem.key),
+          value
+        )
       }
     }
     //.....................................

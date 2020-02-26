@@ -1,0 +1,13 @@
+{
+  "name" : "wn-combo-input",
+  "globally" : true,
+  "template" : "./wn-combo-input.html",
+  "props"    : [
+    "@com:ti/input/ti-input-props.mjs",
+    "@com:ti/combo/input/ti-combo-input-props.mjs"],
+  "mixins"   : "./wn-combo-input.mjs",
+  "components" : [
+    "@com:ti/combo/input",
+    "@com:wn/list",
+    "@com:wn/obj/icon"]
+}

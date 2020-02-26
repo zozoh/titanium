@@ -7,82 +7,10 @@ export default {
     "pointerHover" : null
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "value" : null,
-    "format" : undefined,
-    "readonly" : {
-      type: Boolean,
-      default : false
-    },
-    "valueCase" : {
-      type : String,
-      default : null,
-      validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
-    },
-    "placeholder" : {
-      type : [String, Number],
-      default : null
-    },
-    "trimed" : {
-      type : Boolean,
-      default : true
-    },
-    "hideBorder" : {
-      type : Boolean,
-      default : false
-    },
-    "width" : {
-      type : [Number, String],
-      default : null
-    },
-    "height" : {
-      type : [Number, String],
-      default : null
-    },
-    "prefixHoverIcon" : {
-      type : String,
-      default : "zmdi-close-circle"
-    },
-    "prefixIconForClean" : {
-      type : Boolean,
-      default : true
-    },
-    "prefixIcon" : {
-      type : String,
-      default : null
-    },
-    "prefixText" : {
-      type : String,
-      default : null
-    },
-    "suffixText" : {
-      type : String,
-      default : null
-    },
-    "suffixIcon" : {
-      type : String,
-      default : null
-    },
-    "focus" : {
-      type : Boolean,
-      default : false
-    },
-    "hover" : {
-      type : [Array, String],
-      default : ()=>["prefixIcon", "suffixIcon"]
-    },
-    "autoSelect" : {
-      type : Boolean,
-      default : true
-    }
-  },
-  ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName(this.className, {
-        "is-self-actived" : this.isSelfActived,
-        "is-actived"   : this.isActived,
+      return this.getTopClass({
         "is-focused"   : this.isFocused,
         "is-blurred"   : !this.isFocused,
         "is-readonly"  : this.readonly,

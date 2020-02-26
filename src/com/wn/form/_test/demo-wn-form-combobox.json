@@ -1,0 +1,69 @@
+{
+  "comType" : "wn-form",
+  "comConf" : {
+    "className" : "ti-fill-parent",
+    "title" : "静态组合框测试",
+    "config" : {
+      "fields" : [{
+          "title" : "普通单选",
+          "tip"   : "只是负责提示，用户随便输入",
+          "width" : "full",
+          "name"  : "f0",
+          "type"  : "String",
+          "comType" : "wn-combo-input",
+          "comConf" : {
+            "placeholder" : "请输入类型",
+            "mustInList" : false,
+            "autoFocusExtended" : true,
+            "options" : "obj ~/* -l -cqn"
+          }
+        }, {
+          "title" : "限制列表",
+          "tip"   : "用户的输入必须限制在给定列表中",
+          "width" : "full",
+          "name"  : "f1",
+          "type"  : "String",
+          "comType" : "wn-combo-input",
+          "comConf" : {
+            "prefixIcon" : "zmdi-car-wash",
+            "statusIcons" : {
+              "collapse" : "zmdi-email",
+              "extended" : "zmdi-email-open"
+            },
+            "placeholder" : "请输入类型",
+            "mustInList" : true,
+            "options" : "obj ~/demo/images/* -l -cqn",
+            "dropDisplay" : ["@<thumb:zmdi-fire>", "title|nm", "id"],
+            "dropItemBorder" : false
+          }
+        }, {
+          "title" : "只读列表",
+          "tip"   : "就是下拉列表的单选实现方式",
+          "width" : "full",
+          "name"  : "f2",
+          "type"  : "String",
+          "comType" : "wn-combo-input",
+          "comConf" : {
+            "readonly" : true,
+            "options" : "obj ~/demo/images/* -l -cqn"
+          }
+        }, {
+          "title" : "下拉列表",
+          "tip"   : "测试下拉列表的包裹",
+          "width" : "full",
+          "name"  : "f3",
+          "type"  : "String",
+          "comType" : "wn-droplist",
+          "comConf" : {
+            "prefixIcon" : "zmdi-car-wash",
+            "placeholder" : "请输入类型",
+            "options" : "obj ~/demo/images/* -l -cqn"
+          }
+        }]
+    },
+    "data" : "=data"
+  },
+  "dispatchActions" : {
+    "changed" : "updatePair"
+  }
+}

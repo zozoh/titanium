@@ -86,7 +86,7 @@
 // For selected
 .is-selected .ti-obj-thumb {
   > footer > .as-title > a {
-    @include color($color-selected, r);
+    @include color($color-weaktip, r);
   }
 }
 //------------------------------------------------

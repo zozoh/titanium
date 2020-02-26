@@ -98,7 +98,7 @@ $ti-cal-width: 2.6rem;
     border-radius: 50%;
     font-size:.12rem; white-space: nowrap;
     &:hover {
-      @include color($color-selected, r, c);
+      @include color($color-weaktip, r, c);
     }
   }
   //---------------------------------

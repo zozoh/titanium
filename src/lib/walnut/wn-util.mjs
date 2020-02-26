@@ -56,10 +56,54 @@ export const WnUtil = {
     // return default
     return Ti.Icons.get(meta)
   },
-  getObjIcon(meta, dft="fas-hourglass-half") {
+  getObjIcon(meta, dft) {
     if(!meta)
       return dft
     return meta.icon || Ti.Icons.get(meta)
+  },
+  /***
+   * Get icon or thumb for a WnObj
+   */
+  getObjThumbIcon({
+    icon,
+    thumb,
+    mime,
+    type,
+    race, 
+    candidateIcon,
+    timestamp=0
+  }={}, dftIcon) {
+    // Thumb as image
+    if(thumb) {
+      let src = `/o/content?str=${thumb}`
+      if(timestamp > 0) {
+        src += `&_t=${timestamp}`
+      }
+      return {
+        type : "image",
+        value : src
+      }
+    }
+    //.............................................
+    // Icon
+    if(icon) {
+      return {
+        type  : "font",
+        value  : icon
+      }
+    }
+    //.............................................
+    // Force Default
+    if(candidateIcon) {
+      return candidateIcon
+    }
+    //.............................................
+    // Auto get by type
+    if(type || mime || race) {
+      return Ti.Icons.get({type, mime, race})
+    }
+    // Default
+    return dftIcon
   },
   /***
    * return the object readable name

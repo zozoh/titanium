@@ -1,10 +1,6 @@
 export default {
   inheritAttrs : false,
   //////////////////////////////////////////
-  data : ()=>({
-    
-  }),
-  //////////////////////////////////////////
   props : {
     "iconBy" : {
       type : [String, Function],

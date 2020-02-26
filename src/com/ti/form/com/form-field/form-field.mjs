@@ -37,8 +37,12 @@ export default {
     },
     //----------------------------------------
     comClass() {
-      if(this.width && /^(auto|stretch)$/.test(this.width)) {
-        return `is-size-${this.width}`
+      let autoSize = "auto" == this.width
+      let fullSize = "full" == this.width
+      return {
+        "is-size-auto"     : autoSize,
+        "is-size-full"     : fullSize,
+        "is-size-stretch"  : !autoSize && !fullSize && !Ti.Util.isNil(this.width),
       }
     },
     //----------------------------------------

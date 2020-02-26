@@ -290,11 +290,11 @@
     }
     //------------------------------------
     &:hover {
-      @include color($color-selected, r, c);
+      @include color($color-weaktip, r, c);
     }
     //------------------------------------
     &.is-current {
-      @include color($color-selected, r, c);
+      @include color($color-weaktip, r, c);
       border-color:map-get($color-primary, c);
     }
     //------------------------------------

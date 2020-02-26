@@ -23,7 +23,7 @@
         padding:0 .06rem 0 0;
       }
       &:hover {
-        @include color($color-selected, r, c);
+        @include color($color-weaktip, r, c);
       }
       &.is-current {
         @include color($color-primary, r, c);
@@ -50,25 +50,32 @@
     //----------------------------------
     > .form-group > .group-fields > .form-field,
     > .form-field {
-      //------------------------
+      //--------------------------------
       > .field-value {
         @include flex-align;
         flex:1 1 auto;
+        //------------------------------
         > .field-component {
           @include flex-align($ai:center);
           &.is-size-stretch {
             flex:1 1 auto;
             > * {width:100%;}
           }
+          &.is-size-full {
+            flex:1 1 auto; width:100%;
+            > * {width:100%;}
+          }
         }
+        //------------------------------
         > .field-tip {
           @include flex-align-center;
           padding:4px;
           font-size:12px; line-height: 1.2em;
           color:map-get($color-track, c);
         }
+        //------------------------------
       }
-      //------------------------
+      //--------------------------------
       &.as-desktop, &.as-tablet {
         @include flex-align-nowrap($ai:stretch,$ac:stretch);
         @include border(1px, dashed, shallow, top);

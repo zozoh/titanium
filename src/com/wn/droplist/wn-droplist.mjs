@@ -6,10 +6,7 @@ export default {
       type : Boolean,
       default : false
     },
-    "options" : {
-      type : Array,
-      default : ()=>[]
-    },
+    "options" : undefined,
     "dropComType" : undefined
   },
   ////////////////////////////////////////////////////
@@ -21,9 +18,9 @@ export default {
     //------------------------------------------------
     theComType() {
       if(this.multi) {
-        return "ti-combo-multi-input"
+        return "wn-combo-multi-input"
       }
-      return "ti-combo-input"
+      return "wn-combo-input"
     }
     //------------------------------------------------
   },

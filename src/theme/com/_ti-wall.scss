@@ -25,7 +25,7 @@
     border:0;
     //----------------------------------
     &.is-checked {
-      @include color($color-selected, r, c);
+      @include color($color-weaktip, r, c);
     }
     //----------------------------------
     &.is-removed {opacity:0.4;}

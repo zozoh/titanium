@@ -7,7 +7,6 @@
   "components" : [
     "./com/form-group",
     "./com/form-field",
-    "@com:ti/box",
     "@com:ti/input",
     "@com:ti/input/num",
     "@com:ti/input/tags",

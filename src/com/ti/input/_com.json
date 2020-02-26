@@ -2,6 +2,7 @@
   "name" : "ti-input",
   "globally" : true,
   "template" : "./ti-input.html",
+  "props" : "./ti-input-props.mjs",
   "mixins" : ["./ti-input.mjs"],
   "components" : []
 }

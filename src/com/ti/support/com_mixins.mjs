@@ -39,14 +39,8 @@ export default {
   ///////////////////////////////////////////////////
   props : {
     "className" : undefined,
-    "onInit" : {
-      type : Function,
-      default : null
-    },
-    "onReady" : {
-      type : Function,
-      default : null
-    }
+    "onInit"    : undefined,
+    "onReady"   : undefined
   },
   ///////////////////////////////////////////////////
   methods : {

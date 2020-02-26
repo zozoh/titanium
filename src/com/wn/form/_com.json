@@ -5,6 +5,7 @@
   "mixins" : ["./wn-form.mjs"],
   "components" : [
     "@com:ti/form",
+    "@com:wn/droplist",
     "@com:wn/obj/picker",
     "@com:wn/imgfile"]
 }

@@ -65,6 +65,11 @@ class TiToastBox {
         position, icon, content, type, closer,vars,
         hidden : true
       },
+      store : {
+        modules : {
+          "viewport" : "@mod:ti/viewport"
+        }
+      },
       computed : {
         topClass() {
           return Ti.Css.mergeClassName({

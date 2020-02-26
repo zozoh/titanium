@@ -50,7 +50,7 @@
   //---------------------------------------------
   &.is-hoverable {
     .table-row.is-hover {
-      @include color($color-selected, r, c);
+      @include color($color-weaktip, r, c);
     }
   }
   //---------------------------------------------
@@ -63,7 +63,7 @@
       @include flex-center;
       @include border(1px, solid, shallow, right);
       cursor: pointer;
-      &:hover {@include color($color-selected, r, c);}
+      &:hover {@include color($color-weaktip, r, c);}
     }
     //-------------------------------------------
     > ul {

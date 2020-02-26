@@ -1,47 +1,21 @@
 {
-  "comType" : "wn-form",
+  "comType" : "ti-form",
   "comConf" : {
     "className" : "ti-fill-parent",
-    "__config" : {
-      "fields" : [{
-        "title" : "动态多选下拉框",
-        "name"  : "f7",
-        "type"  : "Array",
-        "comType" : "ti-combo-multi-input",
-        "comConf" : {
-          "placeholder" : "请输入",
-          "itemIcon" : "zmdi-reddit",
-          "maxValueLen" : -3,
-          "canInput" : false,
-          "getItemBy" : {
-            "method" : "Wn.Dict.get",
-            "args" : ["tmp"]
-          },
-          "options" : {
-            "method" : "Wn.Io.findListInBy",
-            "args"   : ["~"]
-          },
-          "mapping" : {
-            "icon"  : "icon",
-            "text"  : "nm",
-            "tip"   : "title",
-            "value" : "id"
-          }
-        }
-      }]
-    },
+    "title" : "静态组合框测试",
     "config" : {
       "fields" : [{
-        "title" : "静态单选输入框",
+          "title" : "普通单选",
+          "tip"   : "只是负责提示，用户随便输入",
+          "width" : "full",
           "name"  : "f0",
           "type"  : "String",
           "comType" : "ti-combo-input",
           "comConf" : {
             "placeholder" : "请输入类型",
             "valueCase" : "upper",
-            "itemIcon" : "zmdi-reddit",
-            "mustInList" : true,
-            "matchText"  : "starts",
+            "mustInList" : false,
+            "autoFocusExtended" : false,
             "options" : [
               {"value":"A", "text":"甲类"},
               {"value":"B", "text":"乙类"},
@@ -50,165 +24,67 @@
               {"value":"E", "text":"戊类"}]
           }
         }, {
-          "title" : "动态单选输入框",
+          "title" : "限制列表",
+          "tip"   : "用户的输入必须限制在给定列表中",
+          "width" : "full",
           "name"  : "f1",
           "type"  : "String",
           "comType" : "ti-combo-input",
           "comConf" : {
-            "placeholder" : "请选择文件",
-            "cached" : true,
-            "mustInList" : true,
-            "defaultTipKey" : "id",
-            "matchText" : "contains",
-            "itemIcon" : "zmdi-flattr",
-            "getItemBy" : {
-              "method" : "Wn.Dict.get",
-              "args" : ["tmp"]
+            "prefixIcon" : "zmdi-car-wash",
+            "statusIcons" : {
+              "collapse" : "zmdi-email",
+              "extended" : "zmdi-email-open"
             },
-            "options" : {
-              "method" : "Wn.Io.findListInBy",
-              "args"   : ["~"]
-            },
-            "mapping" : {
-              "icon"  : "icon",
-              "text"  : "nm",
-              "value" : "id"
-            }
-          }
-        }, {
-          "title" : "静态多选输入框",
-          "name"  : "f2",
-          "type"  : "Array",
-          "comType" : "ti-combo-multi-input",
-          "comConf" : {
             "placeholder" : "请输入类型",
             "valueCase" : "upper",
-            "itemIcon" : "zmdi-reddit",
-            "matchText"  : "contains",
-            "matchValue" : "starts",
-            "mustInList" : false,
-            "maxValueLen" : -4,
+            "mustInList" : true,
             "options" : [
-              {"value":"AAA", "text":"甲类"},
-              {"value":"BBB", "text":"乙类"},
-              {"value":"CCC", "text":"丙类"},
-              {"value":"DDD", "text":"丁类"},
-              {"value":"EEE", "text":"戊类"}]
+              {"value":"A", "text":"甲类"},
+              {"value":"B", "text":"乙类"},
+              {"value":"C", "text":"丙类", "icon": "zmdi-flag"},
+              {"value":"D", "text":"丁类"},
+              {"value":"E", "text":"戊类"}],
+            "dropDisplay" : ["<icon:zmdi-fire>", "text", "value"],
+            "dropItemBorder" : false
           }
         }, {
-          "title" : "动态多选输入框",
-          "name"  : "f3",
-          "type"  : "Array",
-          "comType" : "ti-combo-multi-input",
-          "comConf" : {
-            "placeholder" : "请输入",
-            "valueCase" : null,
-            "itemIcon" : "zmdi-reddit",
-            "matchText"  : "contains",
-            "matchValue" : "starts",
-            "mustInList" : true,
-            "maxValueLen" : -3,
-            "getItemBy" : {
-              "method" : "Wn.Dict.get",
-              "args" : ["tmp"]
-            },
-            "options" : {
-              "method" : "Wn.Io.findListInBy",
-              "args"   : ["~"]
-            },
-            "queryWhenInput" : true,
-            "reloadWhenChanged" : 500,
-            "mapping" : {
-              "icon"  : "icon",
-              "text"  : "nm",
-              "value" : "id"
-            }
-          }
-      }, {
-        "title" : "静态单选下拉框",
-          "name"  : "f4",
+          "title" : "只读列表",
+          "tip"   : "就是下拉列表的单选实现方式",
+          "width" : "full",
+          "name"  : "f2",
           "type"  : "String",
           "comType" : "ti-combo-input",
           "comConf" : {
+            "prefixIcon" : "zmdi-car-wash",
+            "readonly" : true,
             "placeholder" : "请输入类型",
-            "itemIcon" : "zmdi-reddit",
             "mustInList" : true,
-            "canInput" : false,
             "options" : [
               {"value":"A", "text":"甲类"},
               {"value":"B", "text":"乙类"},
               {"value":"C", "text":"丙类"},
               {"value":"D", "text":"丁类"},
-              {"value":"E", "text":"戊类"}]
+              {"value":"E", "text":"戊类"}],
+            "dropDisplay" : ["<icon:zmdi-fire>", "text", "value"]
           }
         }, {
-          "title" : "动态单选下拉框",
-          "name"  : "f5",
+          "title" : "下拉列表",
+          "tip"   : "测试下拉列表的包裹",
+          "width" : "full",
+          "name"  : "f3",
           "type"  : "String",
-          "comType" : "ti-combo-input",
+          "comType" : "ti-droplist",
           "comConf" : {
-            "placeholder" : "请选择文件",
-            "cached" : false,
-            "mustInList" : true,
-            "defaultTipKey" : "id",
-            "canInput" : false,
-            "matchText" : "contains",
-            "itemIcon" : "zmdi-flattr",
-            "getItemBy" : {
-              "method" : "Wn.Dict.get",
-              "args" : ["tmp"]
-            },
-            "options" : {
-              "method" : "Wn.Io.findListInBy",
-              "args"   : ["~"]
-            },
-            "mapping" : {
-              "icon"  : "icon",
-              "text"  : "nm",
-              "value" : "id"
-            }
-          }
-        }, {
-          "title" : "静态多选下拉框",
-          "name"  : "f6",
-          "type"  : "Array",
-          "comType" : "ti-combo-multi-input",
-          "comConf" : {
+            "prefixIcon" : "zmdi-car-wash",
             "placeholder" : "请输入类型",
-            "itemIcon" : "zmdi-reddit",
-            "canInput" : false,
-            "maxValueLen" : -4,
             "options" : [
-              {"value":"AAA", "text":"甲类"},
-              {"value":"BBB", "text":"乙类"},
-              {"value":"CCC", "text":"丙类"},
-              {"value":"DDD", "text":"丁类"},
-              {"value":"EEE", "text":"戊类"}]
-          }
-        }, {
-          "title" : "动态多选下拉框",
-          "name"  : "f7",
-          "type"  : "Array",
-          "comType" : "ti-combo-multi-input",
-          "comConf" : {
-            "placeholder" : "请输入",
-            "itemIcon" : "zmdi-reddit",
-            "maxValueLen" : -3,
-            "canInput" : false,
-            "getItemBy" : {
-              "method" : "Wn.Dict.get",
-              "args" : ["tmp"]
-            },
-            "options" : {
-              "method" : "Wn.Io.findListInBy",
-              "args"   : ["~"]
-            },
-            "mapping" : {
-              "icon"  : "icon",
-              "text"  : "nm",
-              "tip"   : "title",
-              "value" : "id"
-            }
+              {"value":"A", "text":"甲类"},
+              {"value":"B", "text":"乙类"},
+              {"value":"C", "text":"丙类"},
+              {"value":"D", "text":"丁类"},
+              {"value":"E", "text":"戊类"}],
+            "dropDisplay" : ["<icon:zmdi-fire>", "text", "value"]
           }
         }]
     },

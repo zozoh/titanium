@@ -9,6 +9,12 @@
     }
   }
   //------------------------------------------
+  &.is-hoverable {
+    > .list-row:hover {
+      @include color($color-weaktip, r, c);
+    }
+  }
+  //------------------------------------------
   > .list-row {
     @include flex-align-nowrap($ai:stretch);
     //-----------------------------------------

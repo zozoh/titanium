@@ -63,11 +63,7 @@ export default {
   computed : {
     //------------------------------------------------
     topClass() {
-      let klass = [`is-${this.status}`]
-      if(this.className) {
-        klass.push(this.className)
-      }
-      return klass
+      return this.getTopClass(`is-${this.status}`)
     },
     //------------------------------------------------
     topStyle() {

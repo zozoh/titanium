@@ -1,4 +1,11 @@
 export default {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "data" : {
+    type : Array,
+    default : ()=>[]
+  },
   "idBy" : {
     type : [String, Function],
     default : "id"
@@ -6,22 +13,6 @@ export default {
   "rawDataBy" : {
     type : [Object, String, Function],
     default : _.identity
-  },
-  "explainDict" : {
-    type : Function,
-    default : _.identity
-  },
-  "extendFunctionSet" : {
-    type : Object,
-    default : ()=>({})
-  },
-  "data" : {
-    type : Array,
-    default : ()=>[]
-  },
-  "changedId" : {
-    type : String,
-    default : null
   },
   "currentId" : {
     type : String,
@@ -31,6 +22,21 @@ export default {
     type : [Array, Object],
     default : ()=>[]
   },
+  "changedId" : {
+    type : String,
+    default : null
+  },
+  "explainDict" : {
+    type : Function,
+    default : _.identity
+  },
+  "extendFunctionSet" : {
+    type : Object,
+    default : ()=>({})
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
   "multi" : {
     type : Boolean,
     default : false
@@ -59,6 +65,23 @@ export default {
     type : Boolean,
     default : false
   },
+  "scrollIndex" : {
+    type : Boolean,
+    default : false
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "blankAs" : {
+    type : Object,
+    default : ()=>({
+      icon : "zmdi-alert-circle-o",
+      text : "empty-data"
+    })
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
   "width" : {
     type : [Number, String],
     default : null
@@ -66,16 +89,5 @@ export default {
   "height" : {
     type : [Number, String],
     default : null
-  },
-  "scrollIndex" : {
-    type : Boolean,
-    default : false
-  },
-  "blankAs" : {
-    type : Object,
-    default : ()=>({
-      icon : "zmdi-alert-circle-o",
-      text : "empty-data"
-    })
   }
 }

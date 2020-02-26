@@ -99,16 +99,4 @@
     //-------------------------------------
   }
   ////////////////////////////////////////////////
-  .ti-table .table-cell .cell-con > .ti-icon.thing-icon {
-    @include flex-center;
-    width:36px; height:36px;
-    font-size:.18rem;
-    img {
-      width:32px; height:32px;
-      object-fit: cover;
-      border:1px solid map-get($color-line, shallow);
-      border-radius: 2px;
-    }
-  }
-  ////////////////////////////////////////////////
 }
