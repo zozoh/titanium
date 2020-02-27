@@ -24,7 +24,7 @@
         "text" : "i18n:loading"
       },
       "action" : "dispatch:main/reload",
-      "shortcut" : "CTRL+R"
+      "shortcut" : "CTRL+SHIFT+R"
     }, {
       "key"  : "viewsource",
       "type" : "action",

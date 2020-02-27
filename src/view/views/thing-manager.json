@@ -12,7 +12,7 @@
       "text" : "i18n:loading"
     },
     "action" : "dispatch:main/reloadSearch",
-    "shortcut" : "CTRL+R"
+    "shortcut" : "CTRL+SHIFT+R"
   }, {
     "key"  : "saving",
     "type" : "action",
