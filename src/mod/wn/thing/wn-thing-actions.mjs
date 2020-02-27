@@ -110,8 +110,8 @@ export default {
   /***
    * Search: Remove Checked Items
    */
-  async removeChecked({state, commit, dispatch, getters}) {
-    //console.log("removeChecked", state.search.checkedIds)
+  async removeChecked({state, commit, dispatch, getters}, hard=false) {
+    console.log("removeChecked", hard)
     let ids = state.search.checkedIds
     if(_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
@@ -121,7 +121,7 @@ export default {
 
     // Prepare the cmds
     let th_set = state.meta.id
-    let cmdText = `thing ${th_set} delete -cqn -l ${ids.join(" ")}`
+    let cmdText = `thing ${th_set} delete ${hard?"-hard":""} -cqn -l ${ids.join(" ")}`
     let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
 
     // Remove it from search list
