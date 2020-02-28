@@ -1,16 +1,37 @@
-<div class="ti-transfer" >
+<div class="ti-transfer"
+  :class="topClass"
+  :style="topStyle">
   <!--=========================================
-    Left
+    Left: Candidates
   -->
-  <div class="at-left">
-    <component :is="theLeftComType"
-      v-bind="theLeftComConf"/>
+  <div class="as-box as-candidates">
+    <component :is="theCandidateComType"
+      class="ti-fill-parent"
+      v-bind="theCandidateComConf"
+      :on-init="onCandidateComInit"/>
   </div>
   <!--=========================================
     Buttons
   -->
-  
+  <div class="as-buttons">
+    <!--Add-->
+    <div class="as-btn is-add"
+      @click.left="addCandidates">
+      <ti-icon :value="theAddIcon"/>
+    </div>
+    <!--Remove-->
+    <div class="as-btn is-remove"
+      @click.left="removeFromChecked">
+      <ti-icon :value="theRemoveIcon"/>
+    </div>
+  </div>
   <!--=========================================
-    Right
+    Right: Selecteds
   -->
+  <div class="as-box as-checkeds">
+    <component :is="theCheckedComType"
+      class="ti-fill-parent"
+      v-bind="theCheckedComConf"
+      :on-init="onCheckedComInit"/>
+  </div>
 </div>

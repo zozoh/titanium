@@ -2,5 +2,6 @@
   "name" : "ti-transfer",
   "globally" : true,
   "template" : "./ti-transfer.html",
+  "props" : "./ti-transfer-props.mjs",
   "mixins" : ["./ti-transfer.mjs"]
 }

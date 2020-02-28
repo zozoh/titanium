@@ -1,3 +1,43 @@
 .ti-transfer {
-  
+  @include flex-align-nowrap($ai:stretch);
+  min-height: 2rem;
+  padding:.06rem;
+  //---------------------------------
+  > .as-box {
+    @include border(1px, solid, shallow);
+    flex: 1 1 auto; width:50%;
+  }
+  //---------------------------------
+  > .as-buttons {
+    @include flex-center;
+    flex: 0 0 auto;
+    padding: .1rem;
+    //-------------------------------
+    > .as-btn {
+      @include border(1px, solid, shallow);
+      @include fireable;
+      @include color($color-func, r, c);
+      cursor:pointer;
+      width:100%; font-size:.12rem;
+      margin:.4rem 0; padding:.08rem;
+      //-----------------------------
+      .ti-icon {transition: transform .3s;}
+      //-----------------------------
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
+      //-----------------------------
+      &.is-add:hover .ti-icon {
+        transform: translateX(5px);
+      }
+      //-----------------------------
+      &.is-remove:hover .ti-icon {
+        transform: translateX(-5px);
+      }
+      //-----------------------------
+      //-----------------------------
+    }
+    //-------------------------------
+  }
+  //---------------------------------
 }

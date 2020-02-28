@@ -617,7 +617,7 @@ const TiTypes = {
           return Ti.S.renderVars(val, fmt)
         }
         if(_.isPlainObject(fmt)) {
-          val = Ti.Util.mapping(val, fmt)
+          val = Ti.Util.translate(val, fmt)
         }
       }
       return JSON.stringify(val, null, fmt) 
@@ -720,7 +720,7 @@ const TiTypes = {
       }
     }
     if(_.isPlainObject(fmt)) {
-      obj = Ti.Util.mapping(obj, fmt)
+      obj = Ti.Util.translate(obj, fmt)
     }
     return obj
   },

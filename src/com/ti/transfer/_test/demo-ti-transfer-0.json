@@ -1,7 +1,27 @@
 {
-  "comType" : "ti-transfer",
+  "comType" : "ti-form",
   "comConf" : {
-    
+    "className" : "ti-fill-parent",
+    "title" : "穿梭框测试",
+    "config" : {
+      "fields" : [{
+          "title" : "普通穿梭框",
+          "width" : "full",
+          "name"  : "f0",
+          "type"  : "String",
+          "comType" : "ti-transfer",
+          "comConf" : {
+            "height" : 300,
+            "options" : [
+              {"value":"A", "text":"甲类"},
+              {"value":"B", "text":"乙类"},
+              {"value":"C", "text":"丙类"},
+              {"value":"D", "text":"丁类"},
+              {"value":"E", "text":"戊类"}]
+          }
+        }]
+    },
+    "data" : "=data"
   },
   "dispatchActions" : {
     "changed" : "updatePair"

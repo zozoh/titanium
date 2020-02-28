@@ -45,7 +45,7 @@ export default {
         return it => _.get(it, this.rawDataBy)
       }
       if(_.isObject(this.rawDataBy)) {
-        return it => Ti.Util.mapping(it, this.rawDataBy)
+        return it => Ti.Util.translate(it, this.rawDataBy)
       }
       return _.identity
     },
@@ -125,6 +125,33 @@ export default {
           return row
         }
       }
+    },
+    //------------------------------------------
+    getCurrentRow(currentId=this.theCurrentId) {
+      return this.findRowById(currentId)
+    },
+    //------------------------------------------
+    getCurrent(currentId=this.theCurrentId) {
+      let row = this.getCurrentRow(currentId)
+      return row 
+              ? row.rawData
+              : null
+    },
+    //------------------------------------------
+    getCheckedRow(checkedIds=this.theCheckedIds) {
+      let list = []
+      for(let row of this.theData) {
+        if(checkedIds[row.id]) {
+          list.push(row)
+        }
+      }
+      return list
+    },
+    //------------------------------------------
+    getChecked(checkedIds=this.theCheckedIds) {
+      let rows = this.getCheckedRow(checkedIds)
+      console.log(rows)
+      return _.map(rows, row=>row.rawData)
     },
     //-----------------------------------------------
     getEmitContext(

@@ -1,7 +1,0 @@
-{
-  "name" : "ti-list",
-  "globally" : true,
-  "template" : "./ti-list.html",
-  "methods"  : "@com:ti/support/formed_list_methods.mjs",
-  "mixins" : ["./ti-list.mjs"]
-}

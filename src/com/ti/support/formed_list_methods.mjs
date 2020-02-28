@@ -52,7 +52,7 @@ export default {
           let it2
           // Mapping
           if(theMapping) {
-            it2 = Ti.Util.mapping(it, theMapping)
+            it2 = Ti.Util.translate(it, theMapping)
           }
           // Clone
           else {

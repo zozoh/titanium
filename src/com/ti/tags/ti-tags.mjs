@@ -78,7 +78,7 @@ export default {
           // Auto mapping plain object
           if(_.isPlainObject(val)) {
             tag = this.mapping 
-                    ? Ti.Util.mapping(val, this.mapping)
+                    ? Ti.Util.translate(val, this.mapping)
                     : _.cloneDeep(val)
             // Customized the icon
             if(!tag.icon) {

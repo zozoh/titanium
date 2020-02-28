@@ -2,48 +2,58 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
-  // +1 from the begin
-  // -1 from the last
-  "maxValueLen" : {
-    type : Number,
-    default : 0
+  "value" : undefined,
+  "idBy" : {
+    type : [String, Function],
+    default : "id"
   },
-  "valueUnique" : {
-    type : Boolean,
-    default : true
-  },
-  "tagOptions" : {
-    type : [Array, Function],
-    default : ()=>[]
-  },
-  "tagMapping" : {
-    type : Object,
-    default : undefined
+  "rawDataBy" : {
+    type : [Object, String, Function],
+    default : _.identity
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "canInput" : {
-    type : Boolean,
-    default : true
-  },
-  "cancelTagBubble" : {
-    type : Boolean,
-    default : false
-  },
+  
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "tagItemIconBy" : {
-    type : [String, Function],
+  "display" : {
+    type : [Object, String, Array],
     default : undefined
   },
-  "tagItemDefaultIcon" : {
+  "candidateComType" : {
     type : String,
     default : undefined
   },
-  "tagOptionDefaultIcon" : {
+  "candidateComConf" : {
+    type : Object,
+    default : undefined
+  },
+  "checkedComType" : {
     type : String,
     default : undefined
+  },
+  "checkedComConf" : {
+    type : Object,
+    default : undefined
+  },
+  "assignButtons" : {
+    type : Object,
+    default : ()=>({
+      add    : "fas-angle-double-right",
+      remove : "fas-angle-double-left"
+    })
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+  "width" : {
+    type : [Number, String],
+    default : null
+  },
+  "height" : {
+    type : [Number, String],
+    default : null
   }
 }

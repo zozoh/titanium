@@ -22,7 +22,7 @@ export default {
   computed : {
     //------------------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName(this.className)
+      return this.getTopClass()
     },
     //------------------------------------------------
     isCollapse() {return "collapse"==this.myDropStatus},
@@ -42,32 +42,11 @@ export default {
     },
     //------------------------------------------------
     getItemValue() {
-      if(_.isFunction(this.theValueBy)) {
-        return it => this.theValueBy(it)
-      }
-      if(_.isString(this.theValueBy)) {
-        return it => _.get(it, this.theValueBy)
-      }
-      return it => null
+      return Ti.Util.genValueFunc(this.theValueBy)
     },
     //------------------------------------------------
     isOptionItemMatched() {
-      if(_.isFunction(this.theMatchBy)) {
-        return (it, str)=>this.theMatchBy(it, str)
-      }
-      if(_.isString(this.theMatchBy)) {
-        return (it, str)=>_.isEqual(it[this.theMatchBy], str)
-      }
-      if(_.isArray(this.theMatchBy)) {
-        return (it, str)=>{
-          for(let k of this.theMatchBy) {
-            if(_.isEqual(it[k], str))
-              return true
-          }
-          return false
-        }
-      }
-      return (it, str)=>false
+      return Ti.Util.genMatchFunc(this.theMatchBy)
     },
     //------------------------------------------------
     theValues() {

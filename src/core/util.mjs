@@ -455,7 +455,7 @@ const TiUtil = {
    * 
    * @return `Object|Array`
    */
-  mapping(source={}, mapping={}, customizer=_.identity) {
+  translate(source={}, mapping={}, customizer=_.identity) {
     if(_.isEmpty(source) || _.isEmpty(mapping)) {
       return _.cloneDeep(source)
     }
@@ -714,6 +714,44 @@ const TiUtil = {
     if(_.isArray(input))
       return _.last(input)
     return input
+  },
+  /***
+   * @param valueBy{Function|String|Array}
+   * 
+   * @return Function to pick value
+   */
+  genValueFunc(valueBy) {
+    if(_.isFunction(valueBy)) {
+      return it => valueBy(it)
+    }
+    if(_.isString(valueBy)) {
+      return it => Ti.Util.getOrPick(it, valueBy)
+    }
+    return it => null
+  },
+  /***
+   * @param matchBy{Function|String|Array}
+   * 
+   * @return Function to match value
+   */
+  genMatchFunc(matchBy) {
+    if(_.isFunction(matchBy)) {
+      return (it, str)=>matchBy(it, str)
+    }
+    if(_.isString(matchBy)) {
+      return (it, str)=>_.isEqual(Ti.Util.getOrPick(it, matchBy), str)
+    }
+    if(_.isArray(matchBy)) {
+      return (it, str)=>{
+        for(let k of matchBy) {
+          let v = Ti.Util.getOrPick(it, k)
+          if(_.isEqual(v, str))
+            return true
+        }
+        return false
+      }
+    }
+    return (it, str)=>false
   }
 }
 //-----------------------------------
