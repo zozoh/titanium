@@ -1,7 +1,0 @@
-{
-  "name" : "ti-input-tags",
-  "globally" : true,
-  "template" : "./ti-input-tags.html",
-  "mixins" : ["./ti-input-tags.mjs"],
-  "components" : ["@com:ti/tags"]
-}

@@ -1,7 +1,0 @@
-{
-  "name" : "ti-box",
-  "globally" : true,
-  "template" : "./ti-box.html",
-  "mixins"   : ["./ti-box.mjs"],
-  "components" : []
-}
