@@ -226,7 +226,7 @@ export default {
     onListSelected({current}) {
       this.myCurrentItem = current
       // Auto collapse
-      if(this.readonly) {
+      if(this.readonly || !this.canInput) {
         this.doCollapse()
       }
     }

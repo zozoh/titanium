@@ -44,7 +44,7 @@
     Drop
   -->
   <template v-slot:drop="slotProps">
-    <component
+    <component class="ti-fill-parent"
       :is="dropComType"
       :data="options"
       :current-id="theDropCurrentId"
@@ -54,9 +54,6 @@
 
       :display="theDropDisplay"
       :border="dropItemBorder"
-
-      :width="dropWidth"
-      :height="dropHeight"
 
       :on-init="onListInit"
 

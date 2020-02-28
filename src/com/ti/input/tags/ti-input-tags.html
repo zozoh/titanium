@@ -1,25 +1,35 @@
-<div class="ti-input-tags"
-  :class="topClass"
-  :style="topStyle"
-  @click.left="onClickTop">
-  <!--prefix:icon-->
-  <div v-if="prefixIcon"
-    class="tit-icon at-prefix"
-    :class="getHoverClass('prefixIcon')"
-    @click.left="onClickPrefixIcon"
-    @mouseenter="pointerHover='prefixIcon'"
-    @mouseleave="pointerHover=null">
-    <ti-icon :value="thePrefixIcon"/>
-  </div>
-  <!--prefix:text-->
-  <div v-if="prefixText" 
-    class="tit-text at-prefix"
-    :class="getHoverClass('prefixText')"
-    @click.left="onClickPrefixText"
-    @mouseenter="pointerHover='prefixText'"
-    @mouseleave="pointerHover=null">
-    <span>{{prefixText|i18n}}</span>
-  </div>
+<ti-input
+  class="ti-input-tags"
+  :class-name="className"
+  :value-case="valueCase"
+  :trimed="trimed"
+
+  :readonly="!canInput || readonly"
+  :focus="focus"
+  :hover="hover"
+  :auto-select="autoSelect"
+
+  :placeholder="placeholder"
+  :hide-border="hideBorder"
+  :prefix-icon="prefixIcon"
+  :prefix-hover-icon="prefixHoverIcon"
+  :prefix-icon-for-clean="prefixIconForClean"
+  :prefix-text="prefixText"
+  :suffix-icon="suffixIcon"
+  :suffix-text="suffixText"
+  
+  :width="width"
+  :height="height"
+
+  :on-init="onInputInit"
+  
+  @inputing="onInputInputing"
+  @changed="onInputChanged"
+  @keypress="$emit('keypress', $event)"
+  @input:focused="$emit('input:focused')"
+  @prefix:icon="$emit('prefix:icon')"
+  @input:blurred="$emit('input:blurred')"
+  @suffix:icon="$emit('suffix:icon')">
   <!--
     Tag List
   -->
@@ -29,41 +39,6 @@
       :data="theTags"
       :option-icon="tagIcon"
       :cancel-item-bubble="cancelTagBubble"
-      @changed="onTagChanged"/>
+      @changed="$emit('changed', $event)"/>
   </div>
-  <!--
-    Input Box
-  -->
-  <div class="as-input">
-    <!--Input-->
-    <input v-if="canInput"
-      ref="input" spellcheck="false" :style="inputStyle"
-      :value="theInputValue"
-      :placeholder="placeholder"
-      @compositionstart="onInputCompositionStart"
-      @compositionend="onInputCompositionEnd"
-      @input="onInputing"
-      @keydown="onInputKeyDown"
-      @changed="onInputChanged"
-      @focus="onInputFocus"
-      @blur="onInputBlur">
-    <!--suffix:text-->
-    <div v-if="suffixText"
-      class="tit-text at-suffix"
-      :class="getHoverClass('suffixText')"
-      @click.left="onClickSuffixIcon"
-      @mouseenter="pointerHover='suffixText'"
-      @mouseleave="pointerHover=null">
-      <span>{{suffixText|i18n}}</span>
-    </div>
-    <!--suffix:icon-->
-    <div v-if="suffixIcon"
-      class="tit-icon at-suffix"
-      :class="getHoverClass('suffixIcon')"
-      @click.left="onClickSuffixIcon"
-      @mouseenter="pointerHover='suffixIcon'"
-      @mouseleave="pointerHover=null">
-      <ti-icon :value="suffixIcon"/>
-    </div>
-  </div>
-</div>
+</ti-input>

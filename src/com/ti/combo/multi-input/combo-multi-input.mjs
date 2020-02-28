@@ -2,17 +2,22 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
-    "status"       : "collapse",
-    "loading"      : false,
-    "listData"     : [],
-    "listLoaded"   : false,
-    "listFocusIndex" : -1,
-    "runtimeValues" : [],
-    "runtimeItems"  : [],
-    "inputing" : null
+    "myDropStatus"   : "collapse",
+    "myCurrentItems" : [],
+    "myInputing"     : null
   }),
   ////////////////////////////////////////////////////
-  // props @see ./input-props.mjs
+  // props
+  props : {
+    "options" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "dropComType" : {
+      type : String,
+      default : "ti-list"
+    }
+  },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------

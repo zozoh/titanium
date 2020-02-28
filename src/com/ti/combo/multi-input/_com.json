@@ -2,10 +2,11 @@
   "name" : "ti-combo-multi-input",
   "globally" : true,
   "template" : "./combo-multi-input.html",
-  "props"    : "./combo-multi-input-props.mjs",
-  "methods"  : [
-    "./combo-multi-input-methods.mjs",
-    "@com:ti/support/formed_list_methods.mjs"],
+  "props"    : [
+    "@com:ti/input/ti-input-props.mjs",
+    "@com:ti/input/tags/ti-input-tags-props.mjs",
+    "@com:ti/combo/input/ti-combo-input-props.mjs"],
   "mixins"   : ["./combo-multi-input.mjs"],
-  "components" : ["@com:ti/combo/box"]
+  "components" : [
+    "@com:ti/combo/box"]
 }

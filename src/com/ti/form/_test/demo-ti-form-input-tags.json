@@ -10,7 +10,11 @@
           "comConf" : {
             "placeholder" : "请输入新标签",
             "valueCase" : "upper",
-            "maxValueLen" : -3
+            "maxValueLen" : -3,
+            "prefixIcon" : "zmdi-reddit",
+            "prefixText" : "Tags",
+            "suffixText" : "input",
+            "suffixIcon" : "zmdi-reddit"
           }
         }, {
           "title" : "下拉选择标签（文本）",

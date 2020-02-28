@@ -1,10 +1,10 @@
-<div class="ti-input" 
-  :class="topClass" 
+<div class="ti-input-tags"
+  :class="topClass"
   :style="topStyle"
-  v-ti-actived="__set_actived">
+  @click.left="onClickTop">
   <!--prefix:icon-->
   <div v-if="prefixIcon"
-    class="as-icon at-prefix"
+    class="tit-icon at-prefix"
     :class="getHoverClass('prefixIcon')"
     @click.left="onClickPrefixIcon"
     @mouseenter="pointerHover='prefixIcon'"
@@ -13,34 +13,43 @@
   </div>
   <!--prefix:text-->
   <div v-if="prefixText" 
-    class="as-text at-prefix"
+    class="tit-text at-prefix"
     :class="getHoverClass('prefixText')"
     @click.left="onClickPrefixText"
     @mouseenter="pointerHover='prefixText'"
     @mouseleave="pointerHover=null">
     <span>{{prefixText|i18n}}</span>
   </div>
-  <!--PreSlot-->
-  <slot></slot>
+  <!--
+    Tag List
+  -->
+  <div v-if="hasTags"
+    class="as-tags">
+    <ti-tags
+      :data="theTags"
+      :option-icon="tagIcon"
+      :cancel-item-bubble="cancelTagBubble"
+      @changed="onTagChanged"/>
+  </div>
   <!--
     Input Box
   -->
   <div class="as-input">
-    <input ref="input"
-      spellcheck="false" 
-      :readonly="readonly"
-      :value="theValue"
-      :placeholder="placeholder|i18n"
+    <!--Input-->
+    <input v-if="canInput"
+      ref="input" spellcheck="false" :style="inputStyle"
+      :value="theInputValue"
+      :placeholder="placeholder"
       @compositionstart="onInputCompositionStart"
       @compositionend="onInputCompositionEnd"
       @input="onInputing"
       @keydown="onInputKeyDown"
-      @change="onInputChanged"
+      @changed="onInputChanged"
       @focus="onInputFocus"
       @blur="onInputBlur">
     <!--suffix:text-->
     <div v-if="suffixText"
-      class="as-text at-suffix"
+      class="tit-text at-suffix"
       :class="getHoverClass('suffixText')"
       @click.left="onClickSuffixIcon"
       @mouseenter="pointerHover='suffixText'"
@@ -49,7 +58,7 @@
     </div>
     <!--suffix:icon-->
     <div v-if="suffixIcon"
-      class="as-icon at-suffix"
+      class="tit-icon at-suffix"
       :class="getHoverClass('suffixIcon')"
       @click.left="onClickSuffixIcon"
       @mouseenter="pointerHover='suffixIcon'"

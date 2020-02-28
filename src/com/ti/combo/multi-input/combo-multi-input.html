@@ -38,12 +38,21 @@
     Drop
   -->
   <template v-slot:drop>
-    <ti-list 
-      :data="theListData"
+    <component class="ti-fill-parent"
+      :is="dropComType"
+      :data="options"
+      :current-id="theDropCurrentId"
+      :checked-ids="theDropCheckedIds"
+      :id-by="valueBy"
+
       :multi="true"
-      :value="theListValue"
-      :focus="listFocusIndex"
-      :height="dropHeight"
-      @toggle="doToggleListItem"/>
+      :hoverable="true"
+
+      :display="theDropDisplay"
+      :border="dropItemBorder"
+      
+      :on-init="onListInit"
+
+      @selected="onListSelected"/>
   </template>
 </ti-combo-box>

@@ -1,44 +1,6 @@
+div.ti-input-tags {flex-wrap: wrap;}
 .ti-input-tags {
-  @include noselect;
-  @include flex-align($ai:stretch);
-  @include border(1px, solid, dark);
-  @include color($color-input, c, r);
   //-----------------------------------------
-  &.show-border {
-    @include border(1px, solid, dark);
-  }
-  //-----------------------------------------
-  &.is-focused {
-    border-color: map-get($color-line, highlight);
-  }
-  //-----------------------------------------
-  .tit-icon {
-    @include flex-center;
-    flex:0 0 auto; width:.26rem;
-    //---------------------------------------
-    &.can-hover{cursor: pointer;}
-    &.can-hover:hover{@include color($color-primary,r,c);}
-    //---------------------------------------
-    &.at-prefix.can-hover {
-      > .ti-icon {
-        transition: 0.5s; opacity: 0.4;
-      }
-      &:hover > .ti-icon {
-        transform:scale(1.1) rotate(180deg);
-        opacity: 1;
-      }
-    }
-    //---------------------------------------
-  }
-  //-----------------------------------------
-  .tit-text {
-    @include flex-center;
-    //---------------------------------------
-    &.can-hover{cursor: pointer;}
-    &.can-hover:hover{@include color($color-primary,r,c);}
-    //---------------------------------------
-  }
-    //-----------------------------------------
   // Tag Box
   > .as-tags {
     @include flex-center;

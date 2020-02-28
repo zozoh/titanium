@@ -2,10 +2,6 @@
   "name" : "ti-input-tags",
   "globally" : true,
   "template" : "./ti-input-tags.html",
-  "props" : [
-      "@com:ti/input/ti-input-props.mjs",
-      "./ti-input-tags-props.mjs"
-    ],
   "mixins" : ["./ti-input-tags.mjs"],
   "components" : ["@com:ti/tags"]
 }
