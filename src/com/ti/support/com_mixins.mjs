@@ -46,13 +46,13 @@ export default {
   methods : {
     //-----------------------------------------------
     // Auto count my useful id path array
-    tiActivableComIdPath() {
-      let list = this.tiActivableComPath()
+    tiActivableComIdPath(parentFirst=true) {
+      let list = this.tiActivableComPath(parentFirst)
       return _.map(list, (vm)=>vm.tiComId)
     },
     //-----------------------------------------------
     // Auto count my useful id path array
-    tiActivableComPath() {
+    tiActivableComPath(parentFirst=true) {
       let list = [this]
       let vm = this.$parent
       while(vm) {
@@ -63,7 +63,9 @@ export default {
         // Look up
         vm = vm.$parent
       }
-      return list.reverse()
+      if(parentFirst)
+        list.reverse()
+      return list
     },
     //-----------------------------------------------
     // Auto get the parent activable component
@@ -73,6 +75,10 @@ export default {
         $pvm = $pvm.$parent
       }
       return $pvm
+    },
+    //-----------------------------------------------
+    setActived() {
+      this.__set_actived()
     }
     //-----------------------------------------------
   },
@@ -83,7 +89,7 @@ export default {
       if(this.$parent 
         && this.$parent.hijackable
         && _.isFunction(this.$parent.hijackEmit)) {
-        const __old_emit = this.$emit
+        //const __old_emit = this.$emit
         this.$emit = async (name, ...args) => {
           //await __old_emit.apply(this, [name, ...args])
           // Ignore the VueDevTool Event
@@ -98,6 +104,7 @@ export default {
     // Auto mark self as actived Component in App
     this.__set_actived = ()=>{
       if(!this.isSelfActived) {
+        //console.log("I am actived", this)
         Ti.App(this).setActivedVm(this)
         this.$emit("com:actived", this)
       }

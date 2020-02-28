@@ -41,6 +41,16 @@ export default {
     type : Boolean,
     default : false
   },
+  // in selectRow(), auto check current and drop primary checked rows?
+  "autoCheckCurrent" : {
+    type : Boolean,
+    default : true
+  },
+  // in multi mode, which key to toggle row checker?
+  "rowToggleKey" : {
+    type : [String, Array],
+    default : ()=>["SPACE"]
+  },
   "checkable" : {
     type : Boolean,
     default : false

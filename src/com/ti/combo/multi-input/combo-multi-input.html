@@ -1,37 +1,48 @@
 <ti-combo-box :class="topClass"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
-  :height="null"
-  :status="status"
-  @collapse="doCollapse">
+  :status="myDropStatus"
+  @collapse="doCollapse"
+  v-ti-actived="__set_actived">
   <!--
     Box
   -->
   <template v-slot:box>
     <ti-input-tags
-      :prefix-icon="prefixIcon"
-      :suffix-icon="theStatusIcon"
-      :can-input="canInput"
-      :click-to-focus="!canInput"
-      :value="theInputValue"
-      :inputing="inputing"
+      :value="theInputTags"
       :value-case="valueCase"
-      
+      :trimed="trimed"
+        :max-value-len="maxValueLen"
+        :value-unique="valueUnique"
+        :tag-options="tagOptions"
+
+      :readonly="readonly"
+      :focus="focus"
+      :hover="hover"
+      :auto-select="autoSelect"
+        :can-input="canInput"
+        :cancel-tag-bubble="cancelTagBubble"
+
       :placeholder="placeholder"
       :hide-border="hideBorder"
+      :prefix-icon="prefixIcon"
+      :prefix-hover-icon="prefixHoverIcon"
+      :prefix-icon-for-clean="prefixIconForClean"
+      :prefix-text="prefixText"
+      :suffix-icon="theSuffixIcon"
+      :suffix-text="suffixText"
+        :tag-icon="tagIcon"
+      
       :width="width"
+      :height="height"
 
-      :input-width="inputWidth"
-      :input-height="inputHeight"
-      :tag-icon="itemIcon"
-      :focus="isExtended"
-      :cancel-tag-bubble="cancelTagBubble"
-      :changed-key-name="null"
-      @inputing="onInputing"
-      @keypress="onInputKeyPress"
-      @changed="onInputChanged"
-      @focused="onInputFocused"
-      @blurred="onInputBlurred"
+      :on-init="onInputInit"
+      :input-changed="onInputChanged"
+      
+      @inputing="$emit('inputing', $event)"
+      @input:focused="onInputFocused"
+      @changed="onTagListChanged"
+      @prefix:icon="$emit('prefix:icon')"
       @suffix:icon="onClickStatusIcon"/>
   </template>
   <!--
@@ -43,10 +54,12 @@
       :data="options"
       :current-id="theDropCurrentId"
       :checked-ids="theDropCheckedIds"
-      :id-by="valueBy"
+      :id-by="theValueBy"
 
       :multi="true"
       :hoverable="true"
+      :checkable="true"
+      :auto-check-current="false"
 
       :display="theDropDisplay"
       :border="dropItemBorder"

@@ -51,6 +51,8 @@
   "icon" : "图标",
   "icon-code-tip" : "请输入图标代码，如 zmdi-case",
   "info" : "信息",
+  "input" : "输入",
+  "input-tags" : "输入标签",
   "lat" : "北纬",
   "loading" : "加载中...",
   "login"  : "登录",

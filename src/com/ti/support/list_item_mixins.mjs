@@ -35,6 +35,10 @@ export default {
       type : Boolean,
       default : true
     },
+    "rowToggleKey" : {
+      type : Array,
+      default : ()=>[]
+    },
     "checkIcons" : {
       type : Object,
       default : ()=>({
@@ -81,7 +85,11 @@ export default {
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    onClickChecker($event) {
+    isRowToggleKey(uniqKey) {
+      return _.indexOf(this.rowToggleKey, uniqKey)>=0
+    },
+    //-----------------------------------------------
+    onClickChecker($event={}) {
       if(this.checkable) {
         this.$emit("checker", {
           rowId  : this.rowId,
@@ -91,9 +99,9 @@ export default {
       }
     },
     //-----------------------------------------------
-    onClickRow($event) {
+    onClickRow($event={}) {
       let toggle = ($event.ctrlKey || $event.metaKey)
-      if(this.selectable && (!this.isCurrent || toggle)) {
+      if(this.selectable && (!this.isCurrent || !this.isChecked || toggle)) {
         this.$emit("select", {
           rowId  : this.rowId,
           shift  : $event.shiftKey,
@@ -102,7 +110,7 @@ export default {
       }
     },
     //-----------------------------------------------
-    onDblClickRow($event) {
+    onDblClickRow($event={}) {
       if(this.openable) {
         $event.stopPropagation()
         this.$emit("open", {

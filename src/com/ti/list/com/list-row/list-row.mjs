@@ -75,6 +75,16 @@ export default {
         shift  : $event.shiftKey,
         toggle : ($event.ctrlKey || $event.metaKey)
       })
+    },
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-list-row", uniqKey)
+      if(!_.isEmpty(this.rowToggleKey)){
+        if(this.isRowToggleKey(uniqKey)) {
+          this.onClickChecker({})
+          return {prevent:true, stop:true, quit:true}
+        }
+      }
     }
     //-----------------------------------------------
   },

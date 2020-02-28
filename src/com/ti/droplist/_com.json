@@ -4,6 +4,7 @@
   "template" : "./ti-droplist.html",
   "props"    : [
     "@com:ti/input/ti-input-props.mjs",
+    "@com:ti/input/tags/ti-input-tags-props.mjs",
     "@com:ti/combo/input/ti-combo-input-props.mjs"],
   "mixins"   : ["./ti-droplist.mjs"],
   "components" : [

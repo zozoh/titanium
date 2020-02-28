@@ -217,7 +217,7 @@ class Shortcut {
     let k = Ti.S.toCase($event.key, mode)
 
     if(!/^(ALT|CTRL|CONTROL|SHIFT|META)$/.test(k)) {
-      keys.push(k)
+      keys.push(" " === k ? "SPACE" : k)
     }
 
     return keys.join(sep)

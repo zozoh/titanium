@@ -357,15 +357,19 @@ export default {
     __ti_shortcut(uniqKey) {
       //console.log("ti-table", uniqKey)
       if("ARROWUP" == uniqKey) {
-        this.selectPrevRow()
+        this.selectPrevRow({
+          payload: {byKeyboardArrow: true}
+        })
         this.scrollCurrentIntoView()
-        return {prevent:true}
+        return {prevent:true, stop:true, quit:true}
       }
 
       if("ARROWDOWN" == uniqKey) {
-        this.selectNextRow()
+        this.selectNextRow({
+          payload: {byKeyboardArrow: true}
+        })
         this.scrollCurrentIntoView()
-        return {prevent:true}
+        return {prevent:true, stop:true, quit:true}
       }
     }
     //--------------------------------------

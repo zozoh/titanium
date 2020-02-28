@@ -20,6 +20,14 @@ export default {
       })
     },
     //-----------------------------------------------
+    hasRowToggleKey() {
+      return !_.isEmpty(this.rowToggleKey)
+    },
+    //-----------------------------------------------
+    theRowToggleKey() {
+      return _.without(_.concat(this.rowToggleKey), undefined)
+    },
+    //-----------------------------------------------
     getRowId() {
       if(_.isFunction(this.idBy)) {
         return (it, index) => this.idBy(it, index)
@@ -123,7 +131,7 @@ export default {
       currentId, 
       checkedIds={}
     ) {
-      let selected = []
+      let checked = []
       let current = null
       let currentIndex = -1
       for(let row of this.theData) {
@@ -132,18 +140,34 @@ export default {
           currentIndex = row.index
         }
         if(checkedIds[row.id]) {
-          selected.push(row.rawData)
+          checked.push(row.rawData)
         }
       }
       return {
         currentId, checkedIds, currentIndex,
-        selected, current
+        checked, current
       }
     },
     //-----------------------------------------------
-    selectRow(rowId, quiet) {
-      let theCheckedIds = rowId ? {[rowId]:true} : {}
+    selectRow(rowId, {quiet=false, payload}={}) {
+      let theCheckedIds = {}
       let theCurrentId  = rowId
+      // Indicate a rowId
+      if(rowId) {
+        // autoCheckCurrent
+        if(this.autoCheckCurrent) {
+          theCheckedIds = {[rowId]:true}
+        }
+        // Keep original
+        else {
+          theCheckedIds = _.cloneDeep(this.theCheckedIds)
+          // Not by keyboard, it may fired by user click, so toggle it
+          if(!payload || !payload.byKeyboardArrow) {
+            theCheckedIds[rowId] = theCheckedIds[rowId] ? false : true
+          }
+        }
+      }
+
       let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
       // Private Mode
       if(!this.puppetMode) {
@@ -153,11 +177,12 @@ export default {
       }
       // Notify Changes
       if(!quiet) {
+        _.defaults(emitContext, payload)
         this.$emit("selected", emitContext)
       }
     },
     //-----------------------------------------------
-    selectRowByIndex(rowIndex) {
+    selectRowByIndex(rowIndex, options) {
       //console.log(rowIndex)
       let index = rowIndex
       if(this.scrollIndex) {
@@ -165,16 +190,16 @@ export default {
       }
       if(_.inRange(index, 0, this.theData.length)) {
         let row = this.theData[index]
-        this.selectRow(row.id)
+        this.selectRow(row.id, options)
       }
     },
     //-----------------------------------------------
-    selectPrevRow() {
-      this.selectRowByIndex(Math.max(-1, this.myLastIndex-1))
+    selectPrevRow(options) {
+      this.selectRowByIndex(Math.max(-1, this.myLastIndex-1), options)
     },
     //-----------------------------------------------
-    selectNextRow() {
-      this.selectRowByIndex(this.myLastIndex+1)
+    selectNextRow(options) {
+      this.selectRowByIndex(this.myLastIndex+1, options)
     },
     //-----------------------------------------------
     selectRowsToCurrent(rowId) {
@@ -235,6 +260,7 @@ export default {
       let theCheckedIds = _.cloneDeep(this.theCheckedIds)
       let theCurrentId  = this.theCurrentId
       let theIndex = -1
+      //console.log("cancelRow", rowId)
       if(_.isUndefined(rowId)) {
         theCheckedIds = {}
         theCurrentId = null
@@ -243,7 +269,7 @@ export default {
       else {
         theIndex = this.findRowIndexById(rowId)
         theCheckedIds[rowId] = false
-        if(theCurrentId == rowId) {
+        if(this.autoCheckCurrent && theCurrentId == rowId) {
           theCurrentId = null
         }
       }
@@ -268,7 +294,6 @@ export default {
     },
     //-----------------------------------------------
     onRowCheckerClick({rowId, shift}={}) {
-      //console.log(rowId, shift)
       if(this.multi) {
         // Shift Mode
         if(shift) {
@@ -324,7 +349,7 @@ export default {
         })
       }
       // Force to check current
-      if(!Ti.Util.isNil(this.theCurrentId)) {
+      if(this.autoCheckCurrent && !Ti.Util.isNil(this.theCurrentId)) {
         idMap[this.theCurrentId] = true
       }
       return idMap
@@ -333,7 +358,7 @@ export default {
     syncCurrentId() {
       if(!this.puppetMode && this.theCurrentId != this.currentId) {
         //console.log("syncCurrentId", this.currentId)
-        this.selectRow(this.currentId, true)
+        this.selectRow(this.currentId, {quiet:true})
       }
       // Just update the last
       else {

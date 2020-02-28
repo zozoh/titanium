@@ -1,0 +1,11 @@
+{
+  "name" : "ti-combo-multi-input",
+  "globally" : true,
+  "template" : "./combo-multi-input.html",
+  "props"    : "./combo-multi-input-props.mjs",
+  "methods"  : [
+    "./combo-multi-input-methods.mjs",
+    "@com:ti/support/formed_list_methods.mjs"],
+  "mixins"   : ["./combo-multi-input.mjs"],
+  "components" : ["@com:ti/combo/box"]
+}

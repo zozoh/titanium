@@ -9,7 +9,7 @@
   :hover="hover"
   :auto-select="autoSelect"
 
-  :placeholder="placeholder"
+  :placeholder="thePlaceholder"
   :hide-border="hideBorder"
   :prefix-icon="prefixIcon"
   :prefix-hover-icon="prefixHoverIcon"
@@ -25,7 +25,6 @@
   
   @inputing="onInputInputing"
   @changed="onInputChanged"
-  @keypress="$emit('keypress', $event)"
   @input:focused="$emit('input:focused')"
   @prefix:icon="$emit('prefix:icon')"
   @input:blurred="$emit('input:blurred')"

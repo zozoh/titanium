@@ -2,7 +2,7 @@
   "comType" : "ti-form",
   "comConf" : {
     "className" : "ti-fill-parent",
-    "title" : "静态组合框测试",
+    "title" : "静态单选组合框测试",
     "config" : {
       "fields" : [{
           "title" : "普通单选",
@@ -39,6 +39,7 @@
             "placeholder" : "请输入类型",
             "valueCase" : "upper",
             "mustInList" : true,
+            "maxValueLen" : 3,
             "options" : [
               {"value":"A", "text":"甲类"},
               {"value":"B", "text":"乙类"},
@@ -58,7 +59,7 @@
           "comConf" : {
             "prefixIcon" : "zmdi-car-wash",
             "readonly" : true,
-            "placeholder" : "请输入类型",
+            "placeholder" : "请选择类型",
             "mustInList" : true,
             "options" : [
               {"value":"A", "text":"甲类"},
@@ -77,7 +78,7 @@
           "comType" : "ti-droplist",
           "comConf" : {
             "prefixIcon" : "zmdi-car-wash",
-            "placeholder" : "请输入类型",
+            "placeholder" : "请选择类型",
             "options" : [
               {"value":"A", "text":"甲类"},
               {"value":"B", "text":"乙类"},

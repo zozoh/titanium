@@ -15,10 +15,6 @@ export default {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
-      return this.getTopClass()
-    },
-    //------------------------------------------------
     theComType() {
       if(this.multi) {
         return "ti-combo-multi-input"

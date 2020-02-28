@@ -87,7 +87,7 @@ export default {
     //------------------------------------------------
     doWhenInput(emitName="inputing") {
       if(_.isElement(this.$refs.input)) {
-        //console.log("doWhenInput", emitName)
+        console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         if(this.trimed) {
           val = _.trim(val)
@@ -97,14 +97,14 @@ export default {
       }
     },
     //------------------------------------------------
-    onInputKeyDown($event) {
-      let payload = _.pick($event, 
-        "code","key","keyCode",
-        "altKey","ctrlKey","metaKey","shiftKey")
-      payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
-      payload.$event = $event
-      this.$emit("keypress", payload)
-    },
+    // onInputKeyDown($event) {
+    //   let payload = _.pick($event, 
+    //     "code","key","keyCode",
+    //     "altKey","ctrlKey","metaKey","shiftKey")
+    //   payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
+    //   payload.$event = $event
+    //   this.$emit("keypress", payload)
+    // },
     //------------------------------------------------
     onInputChanged() {
       this.doWhenInput("changed")

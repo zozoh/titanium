@@ -33,11 +33,9 @@
       :on-init="onInputInit"
       
       @inputing="onInputInputing"
-      @keypress="onInputKeyPress"
       @input:focused="onInputFocused"
       @changed="onInputChanged"
       @prefix:icon="$emit('prefix:icon')"
-      __input:blurred="onInputBlurred"
       @suffix:icon="onClickStatusIcon"/>
   </template>
   <!--
@@ -48,7 +46,7 @@
       :is="dropComType"
       :data="options"
       :current-id="theDropCurrentId"
-      :id-by="valueBy"
+      :id-by="theValueBy"
 
       :hoverable="true"
 

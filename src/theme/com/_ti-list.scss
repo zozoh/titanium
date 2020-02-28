@@ -12,6 +12,22 @@
   &.is-hoverable {
     > .list-row:hover {
       @include color($color-weaktip, r, c);
+      //--------------------------------------
+      &.is-current {
+        > .row-actived-indicator {
+          @include color($color-weaktip, c, r);
+          &:before {
+            border-left-color :map-get($color-weaktip, c);
+            border-right-color:map-get($color-weaktip, c);
+            opacity: 1;
+          }
+        }
+      }
+      //--------------------------------------
+      &.is-checked {
+        @include color($color-primary, r, c);
+      }
+      //--------------------------------------
     }
   }
   //------------------------------------------
@@ -20,7 +36,13 @@
     //-----------------------------------------
     > .row-actived-indicator {
       @include flex-center;
-      width:8px;
+      width:8px; padding-right:1px; opacity: 0;
+      &:before {
+        display:block; content:"";
+        height:.12rem; width:1px;
+        border-left :1px dotted map-get($color-primary, r);
+        border-right:1px dotted map-get($color-primary, r);
+      }
     }
     //-----------------------------------------
     .row-indent, .row-icon {
@@ -38,18 +60,21 @@
     }
     //----------------------------------------
     &.is-current {
-      > .row-actived-indicator:before {
-        display:block; content:"";
-        height:.12rem; width:1px;
-        border-left :1px dotted #FFF;
-        border-right:1px dotted #FFF;
-        opacity: 0.6;
+      > .row-actived-indicator {
+        @include color($color-weaktip, r, c);
+        opacity: 1;
       }
     }
     //----------------------------------------
     &.is-checked {
       @include color($color-primary, r, c);
       a, a:hover {color:inherit;}
+      //--------------------------------------
+      &.is-current > .row-actived-indicator {
+        @include color($color-primary, r, c);
+        opacity: 1;
+      }
+      //--------------------------------------
     }
     //----------------------------------------
     > .row-con {

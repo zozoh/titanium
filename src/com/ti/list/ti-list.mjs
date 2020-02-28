@@ -106,6 +106,23 @@ export default {
           }
         }
       }
+    },
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-list", uniqKey)
+      if("ARROWUP" == uniqKey) {
+        this.selectPrevRow({
+          payload: {byKeyboardArrow: true}
+        })
+        this.scrollCurrentIntoView()
+        return {prevent:true, stop:true, quit:true}
+      }
+
+      if("ARROWDOWN" == uniqKey) {
+        this.selectNextRow({payload:{byKeyboardArrow:true}})
+        this.scrollCurrentIntoView()
+        return {prevent:true, stop:true, quit:true}
+      }
     }
     //--------------------------------------
   },

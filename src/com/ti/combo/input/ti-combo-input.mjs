@@ -29,6 +29,22 @@ export default {
     isExtended() {return "extended"==this.myDropStatus},
     hasOptions() {return !_.isEmpty(this.options)},
     //------------------------------------------------
+    theFormat() {
+      return this.format || "${text}"
+    },
+    //------------------------------------------------
+    theValueBy() {
+      return this.valueBy || "value"
+    },
+    //------------------------------------------------
+    theMatchBy() {
+      return this.matchBy || ["text", "value"]
+    },
+    //------------------------------------------------
+    theDropDisplay() {
+      return this.dropDisplay || "text"
+    },
+    //------------------------------------------------
     getOptionItemValue() {
       if(_.isFunction(this.theValueBy)) {
         return it => this.theValueBy(it)
@@ -95,22 +111,6 @@ export default {
       if(this.theInputValue) {
         return this.getOptionItemValue(this.theInputItem)
       }
-    },
-    //------------------------------------------------
-    theFormat() {
-      return this.format || "${text}"
-    },
-    //------------------------------------------------
-    theValueBy() {
-      return this.valueBy || "value"
-    },
-    //------------------------------------------------
-    theMatchBy() {
-      return this.matchBy || ["text", "value"]
-    },
-    //------------------------------------------------
-    theDropDisplay() {
-      return this.dropDisplay || "text"
     }
     //------------------------------------------------
   },
@@ -151,6 +151,12 @@ export default {
       this.myInputing = null
       this.myCurrentItem = null
 
+      // Actived Self
+      this.$nextTick(()=>{
+        this.setActived()
+      })
+      
+
       // Notify
       if(!_.isEqual(val, this.value)) {
         this.$emit("changed", val)
@@ -164,40 +170,8 @@ export default {
       this.$emit("inputing", val)
     },
     //------------------------------------------------
-    onInputKeyPress({uniqueKey}={}) {
-      //console.log(uniqueKey)
-      switch(uniqueKey) {
-        //..................................
-        // Escape: clear the runtime value
-        case "ESCAPE": 
-          this.myInputing = null
-          this.doCollapse()
-          break;
-        //..................................
-        // Enter: auto commit
-        case "ENTER":
-          this.doCollapse()
-          break;
-        //..................................
-        case "ARROWUP":
-          if(this.$list) {
-            this.$list.selectPrevRow()
-          }
-          break
-        //..................................
-        case "ARROWDOWN":
-          if(this.$list && this.isExtended) {
-            this.$list.selectNextRow()
-          } else {
-            this.doExtend()
-          }
-          break
-        //..................................
-      }
-    },
-    //------------------------------------------------
     onInputFocused() {
-      if(this.autoFocusExtended) {
+      if(this.autoFocusExtended && !this.isExtended) {
         this.doExtend()
       }
     },
@@ -212,7 +186,6 @@ export default {
     // },
     //-----------------------------------------------
     onClickStatusIcon() {
-      console.log("haha")
       // extended -> collapse
       if(this.isExtended) {
         this.doCollapse()
@@ -223,11 +196,49 @@ export default {
       }
     },
     //-----------------------------------------------
-    onListSelected({current}) {
+    onListSelected({current, byKeyboardArrow}) {
       this.myCurrentItem = current
       // Auto collapse
-      if(this.readonly || !this.canInput) {
+      if(!byKeyboardArrow) {
+        if(this.readonly || !this.canInput) {
+          this.doCollapse()
+        }
+      }
+    },
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      console.log("ti-combo-input", uniqKey)
+      //....................................
+      if("ESCAPE" == uniqKey) {
+        this.myInputing = null
+        this.myCurrentItem = this.findOptionItem(this.value)
         this.doCollapse()
+        return {prevent:true, stop:true, quit:true}
+      }
+      //....................................
+      if("ENTER" == uniqKey) {
+        this.doCollapse()
+        return {prevent:true, stop:true, quit:true}
+      }
+      //....................................
+      if("ARROWUP" == uniqKey) {
+        if(this.$list) {
+          this.$list.selectPrevRow({
+            payload: {byKeyboardArrow: true}
+          })
+        }
+        return {prevent:true, stop:true, quit:true}
+      }
+      //....................................
+      if("ARROWDOWN" == uniqKey) {
+        if(this.$list && this.isExtended) {
+          this.$list.selectNextRow({
+            payload: {byKeyboardArrow: true}
+          })
+        } else {
+          this.doExtend()
+        }
+        return {prevent:true, stop:true, quit:true}
       }
     }
     //-----------------------------------------------

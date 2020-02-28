@@ -1,17 +1,21 @@
-<component
-  :is="theComType"
-  :class="topClass"
+<component :is="theComType"
+  :class-name="className"
 
   :drop-com-type="dropComType"
   
   :value="value"
   :value-case="valueCase"
   :trimed="trimed"
+    :max-value-len="maxValueLen"
+    :value-unique="valueUnique"
+    :tag-options="tagOptions"
 
   :readonly="readonly"
   :focus="focus"
   :hover="hover"
   :auto-select="autoSelect"
+    :can-input="false"
+    :cancel-tag-bubble="cancelTagBubble"
 
   :placeholder="placeholder"
   :hide-border="hideBorder"
@@ -20,6 +24,7 @@
   :prefix-icon-for-clean="prefixIconForClean"
   :prefix-text="prefixText"
   :suffix-text="suffixText"
+    :tag-icon="tagIcon"
   
   :width="width"
   :height="height"
@@ -29,7 +34,6 @@
   :value-by="valueBy"
   :match-by="matchBy"
 
-  :can-input="false"
   :must-in-list="true"
   :auto-focus-extended="autoFocusExtended"
 

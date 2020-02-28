@@ -245,9 +245,14 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
   com: "/rs/ti/com/ti/form/_test/demo-ti-form-color-icon.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-combobox.wncom
+@FILE demo/ti-form-combo-input.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/demo-ti-form-combobox.json"
+  com: "/rs/ti/com/ti/form/_test/demo-ti-combo-input.json"
+}
+#---------------------------------------------------------
+@FILE demo/ti-form-combo-multi-input.wncom
+{
+  com: "/rs/ti/com/ti/form/_test/demo-ti-combo-multi-input.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-form-datetime.wncom

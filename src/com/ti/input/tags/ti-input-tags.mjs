@@ -36,6 +36,16 @@ export default {
     //------------------------------------------------
     hasTags() {
       return !_.isEmpty(this.theTags)
+    },
+    //------------------------------------------------
+    thePlaceholder() {
+      if(this.placeholder) {
+        return this.placeholder
+      }
+      if(this.readonly || !this.canInput) {
+        return ""
+      }
+      return "i18n:input-tags"
     }
     //------------------------------------------------
   },
@@ -125,6 +135,7 @@ export default {
     },
     //------------------------------------------------
     onInputChanged(val) {
+      //console.log("input changed", val)
       // May click the prefix icon for clean
       if(_.isNull(val)) {
         this.$emit("changed", [])

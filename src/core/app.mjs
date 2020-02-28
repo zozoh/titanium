@@ -128,11 +128,15 @@ export class OneTiApp {
     let vm = this.getActivedVm()
     if(vm) {
       // Try to find the closest actived VM which with the __ti_shortcut
-      let vmPath = vm.tiActivableComPath()
+      let vmPath = vm.tiActivableComPath(false)
       for(let aVm of vmPath) {
         if(_.isFunction(aVm.__ti_shortcut)) {
           // Then to fire
           _.assign(re, aVm.__ti_shortcut(uniqKey))
+          // Break calling-up
+          if(re.quit) {
+            break
+          }
         }
       }
     }
