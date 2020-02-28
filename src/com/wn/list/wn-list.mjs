@@ -5,11 +5,11 @@ export default {
   props : {
     "iconBy" : {
       type : [String, Function],
-      default : null
+      default : undefined
     },
     "indentBy" : {
       type : [String, Function],
-      default : null
+      default : undefined
     },
     "itemClassName" : undefined,
     "display" : {
@@ -47,19 +47,9 @@ export default {
     //----------------------------------------------
     onSubListInit($list) {this.$list = $list},
     //----------------------------------------------
-    onSelected(eventInfo) {
-      //console.log("wn-table onSelected", eventInfo)
-      this.$emit("selected", eventInfo)
-    },
-    //----------------------------------------------
-    onOpen(eventInfo) {
-      //console.log("wn-table onOpen", eventInfo)
-      this.$emit("open", eventInfo)
-    },
-    //----------------------------------------------
     // Delegate methods
-    selectPrevRow(){this.$list.selectPrevRow()},
-    selectNextRow(){this.$list.selectNextRow()}
+    selectPrevRow(options){this.$list.selectPrevRow(options)},
+    selectNextRow(options){this.$list.selectNextRow(options)}
     //----------------------------------------------
   }
   ///////////////////////////////////////////////////

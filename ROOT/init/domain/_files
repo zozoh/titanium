@@ -304,9 +304,14 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
   com: "/rs/ti/com/ti/transfer/_test/demo-ti-transfer-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/wn-form-combobox.wncom
+@FILE demo/wn-combo-input.wncom
 {
-  com: "/rs/ti/com/wn/form/_test/demo-wn-form-combobox.json"
+  com: "/rs/ti/com/wn/form/_test/demo-wn-combo-input.json"
+}
+#---------------------------------------------------------
+@FILE demo/wn-combo-multi-input.wncom
+{
+  com: "/rs/ti/com/wn/form/_test/demo-wn-combo-multi-input.json"
 }
 ##########################################################
 #

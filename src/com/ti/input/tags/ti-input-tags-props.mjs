@@ -16,6 +16,10 @@ export default {
     type : [Array, Function],
     default : ()=>[]
   },
+  "tagMapping" : {
+    type : Object,
+    default : undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -30,8 +34,16 @@ export default {
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "tagIcon" : {
+  "tagItemIconBy" : {
+    type : [String, Function],
+    default : undefined
+  },
+  "tagItemDefaultIcon" : {
     type : String,
-    default : null
+    default : undefined
+  },
+  "tagOptionDefaultIcon" : {
+    type : String,
+    default : undefined
   }
 }

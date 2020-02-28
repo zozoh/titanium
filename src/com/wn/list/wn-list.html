@@ -1,31 +1,39 @@
 <ti-list
   :class-name="className"
+
+  :data="data"
   :id-by="idBy"
   :raw-data-by="rawDataBy"
-  :explain-dict="theExplainDict"
-  :extend-function-set="extendFunctionSet"
-  :data="data"
-  :changed-id="changedId"
   :current-id="currentId"
   :checked-ids="checkedIds"
+  :changed-id="changedId"
+  :explain-dict="theExplainDict"
+  :extend-function-set="extendFunctionSet"
+  
   :multi="multi"
+  :auto-check-current="autoCheckCurrent"
+  :row-toggle-key="rowToggleKey"
   :checkable="checkable"
   :selectable="selectable"
   :openable="openable"
   :cancelable="cancelable"
   :hoverable="hoverable"
   :puppet-mode="puppetMode"
+  :scroll-index="scrollIndex"
+
+  :blank-as="blankAs"
+
   :width="width"
   :height="height"
-  :scroll-index="scrollIndex"
-  :blank-as="blankAs"
 
   :icon-by="iconBy"
   :indent-by="indentBy"
+  :item-class-name="itemClassName"
   :display="theDisplayItems"
+  :border="border"
   :auto-scroll-into-view="autoScrollIntoView"
 
   :on-init="onSubListInit"
 
-  @selected="onSelected"
-  @open="onOpen"/>
+  @selected="$emit('selected', $event)"
+  @open="$emit('open', $event)"/>

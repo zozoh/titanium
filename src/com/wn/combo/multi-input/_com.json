@@ -1,14 +1,14 @@
 {
-  "name" : "ti-droplist",
+  "name" : "wn-combo-multi-input",
   "globally" : true,
-  "template" : "./ti-droplist.html",
+  "template" : "./wn-combo-multi-input.html",
   "props"    : [
     "@com:ti/input/ti-input-props.mjs",
     "@com:ti/input/tags/ti-input-tags-props.mjs",
     "@com:ti/combo/input/ti-combo-input-props.mjs"],
-  "mixins"   : ["./ti-droplist.mjs"],
+  "mixins"   : "./wn-combo-multi-input.mjs",
   "components" : [
-    "@com:ti/combo/input",
-    "@com:ti/combo/multi-input"
-  ]
+    "@com:ti/combo/multi-input",
+    "@com:wn/list",
+    "@com:wn/obj/icon"]
 }

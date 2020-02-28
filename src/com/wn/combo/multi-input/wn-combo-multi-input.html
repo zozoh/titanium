@@ -1,8 +1,7 @@
-<component :is="theComType"
-  :class-name="className"
-  
-  :drop-com-type="dropComType"
-  :multi="multi"
+<ti-combo-multi-input
+  :class="topClass"
+
+  drop-com-type="wn-list"
   
   :value="value"
   :value-case="valueCase"
@@ -10,39 +9,44 @@
     :max-value-len="maxValueLen"
     :value-unique="valueUnique"
     :tag-options="tagOptions"
+    :tag-mapping="theTagMapping"
 
   :readonly="readonly"
   :focus="focus"
   :hover="hover"
   :auto-select="autoSelect"
-    :can-input="false"
+    :can-input="canInput"
     :cancel-tag-bubble="cancelTagBubble"
 
   :placeholder="placeholder"
   :hide-border="hideBorder"
-  :prefix-icon="prefixIcon"
+  :prefix-icon="thePrefixIcon"
   :prefix-hover-icon="prefixHoverIcon"
   :prefix-icon-for-clean="prefixIconForClean"
   :prefix-text="prefixText"
   :suffix-text="suffixText"
-    :tag-icon="tagIcon"
+    :tag-item-icon-by="theTagItemIconBy"
+    :tag-item-default-icon="tagItemDefaultIcon"
+    :tag-option-default-icon="tagOptionDefaultIcon"
   
   :width="width"
   :height="height"
 
-  :options="options"
-  :format="format"
-  :value-by="valueBy"
-  :match-by="matchBy"
+  :options="myOptions"
+  :format="theFormat"
+  :value-by="theValueBy"
+  :match-by="theMatchBy"
 
-  :must-in-list="true"
+  :must-in-list="mustInList"
   :auto-focus-extended="autoFocusExtended"
 
   :status-icons="statusIcons"
-  :drop-display="dropDisplay"
+  :drop-display="theDropDisplay"
   :drop-item-border="dropItemBorder"
 
   :drop-width="dropWidth"
   :drop-height="dropHeight"
   
+  @inputing="onInputInputing"
   @changed="$emit('changed', $event)"/>
+  

@@ -2,25 +2,42 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "data" : {
       type : Array,
       default : ()=>[]
     },
-    "optionIcon" : {
-      type : String,
-      default : null
-    },
-    "cancelItemBubble" : {
-      type : Boolean,
-      default : false
+    "mapping" : {
+      type : Object,
+      default : undefined
     },
     "itemOptions" : {
       type : Array,
       default : ()=>[]
     },
-    "itemIcon" : {
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "cancelItemBubble" : {
+      type : Boolean,
+      default : false
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "itemIconBy" : {
+      type : [String, Function],
+      default : undefined
+    },
+    "optionDefaultIcon" : {
       type : String,
-      default : null
+      default : undefined
+    },
+    "itemDefaultIcon" : {
+      type : String,
+      default : undefined
     },
     "removeIcon" : {
       type : String,
@@ -42,23 +59,46 @@ export default {
         return this.className
     },
     //------------------------------------------------
+    getTagItemIcon() {
+      if(_.isFunction(this.itemIconBy)) {
+        return it => this.itemIconBy(it)
+      }
+      if(_.isString(this.itemIconBy)) {
+        return it => _.get(it, this.itemIconBy)
+      }
+      return it => null
+    },
+    //------------------------------------------------
     theData() {
-      let list = []
+      const list = []
       if(_.isArray(this.data)) {
+        const lastIndex = this.data.length - 1
         _.forEach(this.data, (val, index)=>{
-          // Auto gen object for simple value
-          if(!_.isPlainObject(val)) {
-            val = {
-              text  : val,
-              value : val
+          let tag;
+          // Auto mapping plain object
+          if(_.isPlainObject(val)) {
+            tag = this.mapping 
+                    ? Ti.Util.mapping(val, this.mapping)
+                    : _.cloneDeep(val)
+            // Customized the icon
+            if(!tag.icon) {
+              tag.icon = this.getTagItemIcon(val)
             }
           }
+          // Auto gen object for simple value
+          else {
+            tag = {text: val, value: val}
+          }
+          // Join default value
+          _.defaults(tag, {
+            index,
+            icon    : this.itemDefaultIcon,
+            options : this.itemOptions,
+            atLast  : index == lastIndex
+          })
           // Join to list
-          list.push(_.assign({
-            icon    : this.itemIcon,
-            options : this.itemOptions
-          }, val, {index, atLast:index==this.data.length - 1}))
-        })
+          list.push(tag)
+        }); // _.forEach
       }
       return list
     },

@@ -12,10 +12,6 @@ export default {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
-      return this.getTopClass()
-    },
-    //------------------------------------------------
     theComType() {
       if(this.multi) {
         return "wn-combo-multi-input"

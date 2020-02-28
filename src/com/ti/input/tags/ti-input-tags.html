@@ -36,7 +36,10 @@
     class="as-tags">
     <ti-tags
       :data="theTags"
-      :option-icon="tagIcon"
+      :item-icon-by="tagItemIconBy"
+      :item-default-icon="tagItemDefaultIcon"
+      :option-default-icon="tagOptionDefaultIcon"
+      :mapping="tagMapping"
       :cancel-item-bubble="cancelTagBubble"
       @changed="$emit('changed', $event)"/>
   </div>

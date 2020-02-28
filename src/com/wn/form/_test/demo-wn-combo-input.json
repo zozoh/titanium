@@ -2,7 +2,8 @@
   "comType" : "wn-form",
   "comConf" : {
     "className" : "ti-fill-parent",
-    "title" : "静态组合框测试",
+    "title" : "动态单选组合框测试",
+    "autoShowBlank" : false,
     "config" : {
       "fields" : [{
           "title" : "普通单选",
@@ -30,7 +31,7 @@
               "collapse" : "zmdi-email",
               "extended" : "zmdi-email-open"
             },
-            "placeholder" : "请输入类型",
+            "placeholder" : "请选择对象",
             "mustInList" : true,
             "options" : "obj ~/demo/images/* -l -cqn",
             "dropDisplay" : ["@<thumb:zmdi-fire>", "title|nm", "id"],
@@ -56,7 +57,7 @@
           "comType" : "wn-droplist",
           "comConf" : {
             "prefixIcon" : "zmdi-car-wash",
-            "placeholder" : "请输入类型",
+            "placeholder" : "请选择",
             "options" : "obj ~/demo/images/* -l -cqn"
           }
         }]

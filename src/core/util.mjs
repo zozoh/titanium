@@ -479,9 +479,10 @@ const TiUtil = {
       }
       // Get the value
       else {
-        re[key] = TiUtil.getFallback(source, val, key)
+        re[key] = TiUtil.getOrPick(source, val)
       }
     })
+    // Done
     return re
   },
   /***

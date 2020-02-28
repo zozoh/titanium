@@ -30,10 +30,6 @@ export default {
       return this.evalTagList(this.value)
     },
     //------------------------------------------------
-    theTagValues() {
-      return this.getTagValues(this.theTags)
-    },
-    //------------------------------------------------
     hasTags() {
       return !_.isEmpty(this.theTags)
     },
@@ -99,23 +95,7 @@ export default {
         }
         // String or simple value
         else {
-          // try to find text in options
-          let icon = this.tagIcon
-          let text = li
-          if(_.isArray(this.tagOptions)) {
-            for(let to of this.tagOptions) {
-              if(_.isEqual(li, to.value)) {
-                icon = to.icon || this.tagIcon
-                text = to.text || li
-              }
-            }
-          }
-          // Join to list
-          tags.push({
-            icon, text,
-            value : li,
-            options : this.tagOptions
-          })
+          tags.push(li)
         }
       }
       //...........................................

@@ -1,8 +1,6 @@
 .ti-tags {
   @include noselect;
   @include flex-align($ai:stretch,$ac:stretch);
-  line-height: 1.6em;
-  padding:0 .04rem;
 }
 //---------------------------------------------
 .ti-tags-item {

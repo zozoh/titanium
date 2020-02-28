@@ -56,7 +56,7 @@ export default {
       type : Array,
       default : ()=>[]
     },
-    "optionIcon" : {
+    "optionDefaultIcon" : {
       type : String,
       default : null
     },
@@ -121,13 +121,13 @@ export default {
         let tag
         // Object
         if(_.isPlainObject(li)) {
-          tag = _.assign({icon:this.optionIcon}, li, {index})
+          tag = _.assign({icon:this.optionDefaultIcon}, li, {index})
         }
         // String or simple value
         else {
           tag = {
             index : index,
-            icon  : this.optionIcon,
+            icon  : this.optionDefaultIcon,
             text  : Ti.Types.toStr(li),
             value : li
           }
