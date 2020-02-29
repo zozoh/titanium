@@ -5,12 +5,12 @@
   "mixins" : ["./wn-obj-single-com.mjs"],
   "components" : [
     "@com:wn/form",
+    "@com:wn/transfer",
     "@com:ti/wizard",
     "@com:ti/calendar",
     "@com:ti/button",
     "@com:ti/table",
     "@com:ti/tree",
-    "@com:ti/transfer",
     "@com:ti/obj/json"
   ]
 }

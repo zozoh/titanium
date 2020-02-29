@@ -1,0 +1,26 @@
+{
+  "comType" : "ti-form",
+  "comConf" : {
+    "className" : "ti-fill-parent",
+    "title" : "动态穿梭框测试",
+    "config" : {
+      "fields" : [{
+          "title" : "查询文件内容",
+          "width" : "full",
+          "name"  : "f0",
+          "type"  : "String",
+          "comType" : "wn-transfer",
+          "comConf" : {
+            "height" : 300,
+            "display" : ["@<thumb:zmdi-fire>", "title|nm", "id"],
+            "filterBy" : "obj ~/demo/images -match 'nm:\"^.*${inputing}\"' -sort nm:1 -lcqn",
+            "candidates" : "obj ~/demo/images/* -sort nm:1 -lcqn"
+          }
+        }]
+    },
+    "data" : "=data"
+  },
+  "dispatchActions" : {
+    "changed" : "updatePair"
+  }
+}

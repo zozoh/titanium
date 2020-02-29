@@ -42,9 +42,17 @@ export const TiStr = {
         if(matched.startsWith("$$")) {
           return matched.substring(1)
         }
+        // find default
+        let dft = matched
+        let pos = varName.indexOf('?')
+        if(pos > 0) {
+          dft = _.trim(varName.substring(pos+1))
+          varName = _.trim(varName.substring(0, pos))
+        }
+        // pick value
         return Ti.Util.fallback(
           Ti.Util.getOrPick(vars, varName),
-          matched
+          dft
         )
       }
     }

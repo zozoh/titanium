@@ -33,6 +33,7 @@
   //-----------------------------------------
   > .as-text, > .as-input > .as-text {
     @include flex-center;
+    white-space: nowrap;
     padding:0 .06rem;
     //---------------------------------------
     &.can-hover{cursor: pointer;}

@@ -14,9 +14,11 @@
           "comType" : "wn-combo-input",
           "comConf" : {
             "placeholder" : "请输入类型",
+            "prefixIcon" : "zmdi-roller",
             "mustInList" : false,
             "autoFocusExtended" : true,
-            "options" : "obj ~/* -l -cqn"
+            "query" : "obj ~ -match 'nm:\"^.*${inputing}\"' -sort nm:1 -lcqn",
+            "options" : "obj ~/* -sort nm:1 -lcqn"
           }
         }, {
           "title" : "限制列表",

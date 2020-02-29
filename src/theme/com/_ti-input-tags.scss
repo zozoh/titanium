@@ -4,8 +4,7 @@ div.ti-input-tags {flex-wrap: wrap;}
   // Tag Box
   > .as-tags {
     @include flex-center;
-    white-space: nowrap;
-    padding:0 .04rem; line-height: 2em; font-size:.9em;
+    padding:0 .04rem; font-size:.8em;
   }
   //-----------------------------------------
   // Input Box

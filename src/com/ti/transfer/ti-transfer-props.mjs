@@ -3,25 +3,22 @@ export default {
   // Data
   //-----------------------------------
   "value" : undefined,
-  "idBy" : {
+  "valueBy" : {
     type : [String, Function],
-    default : "id"
+    default : undefined
   },
-  "rawDataBy" : {
-    type : [Object, String, Function],
-    default : _.identity
+  // "$emit:filter" : leave to parent
+  // "text" : match the "text" fields in can-list
+  // "text|value" : in can-list, the valued key will be matched
+  // ["text", "value|name"] : in can-list, any valued key will be matched
+  // F(val):Boolean : callback
+  "filterBy" : {
+    type : [String, Array, Function],
+    default : undefined
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  
-  //-----------------------------------
-  // Aspect
-  //-----------------------------------
-  "display" : {
-    type : [Object, String, Array],
-    default : undefined
-  },
   "candidateComType" : {
     type : String,
     default : undefined
@@ -38,12 +35,31 @@ export default {
     type : Object,
     default : undefined
   },
+  "filterConf" : {
+    type : Object,
+    default : undefined
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "display" : {
+    type : [Object, String, Array],
+    default : undefined
+  },
   "assignButtons" : {
     type : Object,
     default : ()=>({
       add    : "fas-angle-double-right",
       remove : "fas-angle-double-left"
     })
+  },
+  "candidateTitle" : {
+    type : String,
+    default : "i18n:candidate"
+  },
+  "checkedTitle" : {
+    type : String,
+    default : "i18n:checked"
   },
   //-----------------------------------
   // Measure

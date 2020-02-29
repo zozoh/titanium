@@ -18,8 +18,9 @@ const RESP_TRANS = {
     try {
       return JSON.parse(str)
     }catch(E) {
-      console.warn("fail to JSON.parse", str)
-      throw E
+      return Ti.Types.safeParseJson(str, str)
+      // console.warn("fail to JSON.parse", str)
+      // throw E
     }
   },
   jsonOrText($req){

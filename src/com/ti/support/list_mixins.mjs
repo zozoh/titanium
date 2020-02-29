@@ -29,25 +29,11 @@ export default {
     },
     //-----------------------------------------------
     getRowId() {
-      if(_.isFunction(this.idBy)) {
-        return (it, index) => this.idBy(it, index)
-      }
-      return (it, index)=>{
-        return Ti.Util.fallbackNil(_.get(it, this.idBy), `Row-${index}`)
-      }
+      return Ti.Util.genRowIdGetter(this.idBy)
     },
     //-----------------------------------------------
     getRowData() {
-      if(_.isFunction(this.rawDataBy)) {
-        return it => this.rawDataBy(it)
-      }
-      if(_.isString(this.rawDataBy)) {
-        return it => _.get(it, this.rawDataBy)
-      }
-      if(_.isObject(this.rawDataBy)) {
-        return it => Ti.Util.translate(it, this.rawDataBy)
-      }
-      return _.identity
+      return Ti.Util.genRowDataGetter(this.rawDataBy)
     },
     //-----------------------------------------------
     isDataEmpty() {
@@ -150,7 +136,6 @@ export default {
     //------------------------------------------
     getChecked(checkedIds=this.theCheckedIds) {
       let rows = this.getCheckedRow(checkedIds)
-      console.log(rows)
       return _.map(rows, row=>row.rawData)
     },
     //-----------------------------------------------
@@ -178,21 +163,11 @@ export default {
     //-----------------------------------------------
     selectRow(rowId, {quiet=false, payload}={}) {
       let theCheckedIds = {}
-      let theCurrentId  = rowId
+      let theCurrentId  = null
       // Indicate a rowId
       if(rowId) {
-        // autoCheckCurrent
-        if(this.autoCheckCurrent) {
-          theCheckedIds = {[rowId]:true}
-        }
-        // Keep original
-        else {
-          theCheckedIds = _.cloneDeep(this.theCheckedIds)
-          // Not by keyboard, it may fired by user click, so toggle it
-          if(!payload || !payload.byKeyboardArrow) {
-            theCheckedIds[rowId] = theCheckedIds[rowId] ? false : true
-          }
-        }
+        theCheckedIds = {[rowId]:true}
+        theCurrentId  = rowId
       }
 
       let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
@@ -260,11 +235,20 @@ export default {
       let theCheckedIds = _.cloneDeep(this.theCheckedIds)
       let theCurrentId  = this.theCurrentId
       let theIndex = 0
+      // All rows
       if(_.isUndefined(rowId)) {
         theCheckedIds = {}
         _.forEach(this.theData, (row)=>{
           theCheckedIds[row.id] = true
         })
+      }
+      // Multi rows
+      else if(_.isArray(rowId)) {
+        let lastRowId = _.last(rowId)
+        _.forEach(rowId, (r_id)=>{
+          theCheckedIds[r_id] = true
+        })
+        theIndex = this.findRowIndexById(lastRowId)
       }
       // Single row
       else {
@@ -344,6 +328,10 @@ export default {
       }
       // Multi + Toggle Mode
       else if(toggle && this.multi) {
+        this.toggleRow(rowId)
+      }
+      // Toggle Mode
+      else if(!Ti.Util.isNil(rowId) && !this.autoCheckCurrent) {
         this.toggleRow(rowId)
       }
       // Single Mode

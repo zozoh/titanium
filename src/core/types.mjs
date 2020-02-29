@@ -811,7 +811,7 @@ const TiTypes = {
     }
     // Try eval
     catch(E) {
-      let json = str.replace(/function/g, "Function")
+      let json = str.replace(/(function|=>)/g, "Function")
       try {
         return eval('(' + json + ')');
       }catch(E2){}

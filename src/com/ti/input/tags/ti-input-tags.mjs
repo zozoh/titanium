@@ -105,7 +105,12 @@ export default {
     getTagValues(tags=[]) {
       let list = []
       for(let tag of tags) {
-        list.push(Ti.Util.fallback(tag.value, null))
+        let val = _.isPlainObject(tag)
+          ? tag.value
+          : tag
+        if(!Ti.Util.isNil(val)) {
+          list.push(val)
+        }
       }
       return list
     },
@@ -115,7 +120,7 @@ export default {
     },
     //------------------------------------------------
     onInputChanged(val) {
-      //console.log("input changed", val)
+      console.log("input changed", val)
       // May click the prefix icon for clean
       if(_.isNull(val)) {
         this.$emit("changed", [])

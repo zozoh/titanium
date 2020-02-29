@@ -114,6 +114,13 @@
       &.is-checked {
         @include color($color-primary, r, c);
         a, a:hover {color:inherit;}
+        //---------------------------------------
+        .cell-con {
+          .ti-tags-item {
+            @include color($color-weaktip, r, c);
+          }
+        }
+        //---------------------------------------
       }
       //-----------------------------------------
     }
@@ -161,11 +168,15 @@
         > *:last-child {
           flex:1 1 auto;
         }
-        > .ti-label.item-0 {
+        .ti-label.item-0 {
           padding:0 .3em;
         }
         //---------------------------------------
-        > .ti-icon {
+        .ti-tags-item {
+          font-size: .8em;
+        }
+        //---------------------------------------
+        .ti-icon {
           flex:0 0 auto;
         }
         //---------------------------------------

@@ -313,6 +313,11 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
 {
   com: "/rs/ti/com/wn/form/_test/demo-wn-combo-multi-input.json"
 }
+#---------------------------------------------------------
+@FILE demo/wn-transfer-0.wncom
+{
+  com: "/rs/ti/com/wn/transfer/_test/demo-wn-transfer-0.json"
+}
 ##########################################################
 #
 #                     站点·数据部分

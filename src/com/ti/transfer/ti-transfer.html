@@ -5,10 +5,39 @@
     Left: Candidates
   -->
   <div class="as-box as-candidates">
+    <!--
+      Head
+    -->
+    <div class="as-box-head">
+      <div class="as-list-checker"
+        @click.left="onClickHeadChecker(myCandidateCheckStatus, $can)">
+        <ti-icon :value="getHeadCheckerIcon(myCandidateCheckStatus)"/>
+      </div>
+      <!--Title-->
+      <div class="as-title">{{candidateTitle|i18n}}</div>
+      <!--Filter-->
+      <div v-if="hasFilter"
+        class="as-filter">
+          <ti-input
+            v-bind="theFilterConf"
+            :value="myFilterValue"
+            @changed="onFilterChanged"
+            /></div>
+    </div>
+    <!--
+      component
+    -->
     <component :is="theCandidateComType"
-      class="ti-fill-parent"
+      class="as-box-main ti-fill-parent"
       v-bind="theCandidateComConf"
-      :on-init="onCandidateComInit"/>
+      :on-init="onCandidateComInit"
+      @selected="syncCheckStatus"/>
+    <!--
+      Foot
+    -->
+    <div class="as-box-foot">
+      <span>{{'total-count'|i18n({nb:myCandidateCount})}}</span>
+    </div>
   </div>
   <!--=========================================
     Buttons
@@ -26,12 +55,32 @@
     </div>
   </div>
   <!--=========================================
-    Right: Selecteds
+    Right: Checked
   -->
   <div class="as-box as-checkeds">
+    <!--
+      Head
+    -->
+    <div class="as-box-head">
+      <div class="as-list-checker"
+        @click.left="onClickHeadChecker(myCheckedCheckStatus, $checked)">
+        <ti-icon :value="getHeadCheckerIcon(myCheckedCheckStatus)"/>
+      </div>
+      <div class="as-title">{{checkedTitle|i18n}}</div>
+    </div>
+    <!--
+      component
+    -->
     <component :is="theCheckedComType"
-      class="ti-fill-parent"
+      class="as-box-main ti-fill-parent"
       v-bind="theCheckedComConf"
-      :on-init="onCheckedComInit"/>
+      :on-init="onCheckedComInit"
+      @selected="syncCheckStatus"/>
+    <!--
+      Foot
+    -->
+    <div class="as-box-foot">
+      <span>{{'total-count'|i18n({nb:myCheckedCount})}}</span>
+    </div>
   </div>
 </div>

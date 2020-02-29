@@ -1,0 +1,8 @@
+{
+  "name" : "wn-transfer",
+  "globally" : true,
+  "template" : "./wn-transfer.html",
+  "props" : "@com:ti/transfer/ti-transfer-props.mjs",
+  "mixins" : ["./wn-transfer.mjs"],
+  "components" : ["@com:ti/transfer"]
+}

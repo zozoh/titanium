@@ -40,7 +40,11 @@ export default {
           state.content = content
           // JSON
           if(Wn.Util.isMimeJson(meta.mime)) {
-            state.data = JSON.parse(content)
+            try{
+              state.data = JSON.parse(content)
+            } catch(E) {
+              state.data = null
+            }
           }
           // Pure Text
           else if(Wn.Util.isMimeText(meta.mime)) {

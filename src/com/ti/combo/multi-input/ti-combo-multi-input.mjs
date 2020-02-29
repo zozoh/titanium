@@ -42,11 +42,11 @@ export default {
     },
     //------------------------------------------------
     getItemValue() {
-      return Ti.Util.genValueFunc(this.theValueBy)
+      return Ti.Util.genItemValueGetter(this.theValueBy)
     },
     //------------------------------------------------
     isOptionItemMatched() {
-      return Ti.Util.genMatchFunc(this.theMatchBy)
+      return Ti.Util.genItemMatcher(this.theMatchBy)
     },
     //------------------------------------------------
     theValues() {
@@ -210,8 +210,8 @@ export default {
     //-----------------------------------------------
     onListSelected({current, checked}={}) {
       //console.log("current", current, checked)
-      this.myCurrentItem = current
-      this.myCheckedItems = checked
+      this.myCurrentItem = _.cloneDeep(current)
+      this.myCheckedItems = _.cloneDeep(checked)
       this.myValues = this.getItemValueList(checked)
     },
     //--------------------------------------

@@ -62,7 +62,7 @@
           "key"  : "cancelAll",
           "type" : "action",
           "icon" : "zmdi-minus",
-          "text" : "i18n:canel-all",
+          "text" : "i18n:cancel-all",
           "action" : "main:invokeList(cancelRow)"
         },{
           "type" : "line"

@@ -245,6 +245,41 @@ export const WnUtil = {
         return node
       }
     }
+  },
+  /***
+   * Eval the dynamic query list
+   */
+  async queryBy(query, val) {
+    //.............................................
+    // Eval: Array
+    if(_.isArray(query)) {
+      return query
+    }
+    // Eval: Command || Dict
+    if(_.isString(query)) {
+      let m = /^@dict:(.+)$/.exec(query)
+      // Dict
+      if(m) {
+        let dict = _.trim(m[1])
+        return await Wn.Dict.getAll(dict)
+      }
+      // Command
+      else {
+        let cmdText = Ti.S.renderBy(query, {inputing:val})
+        return await Wn.Sys.exec2(cmdText, {
+          as : "json",
+          input : val
+        })
+      }
+    }
+    // Eval: Function
+    if(_.isFunction(query)) {
+      return await query(val)
+    }
+    // Unacceptable
+    throw Ti.Err.make("Wn.Util.queryBy", {
+      query, val
+    })
   }
 }
 ////////////////////////////////////////////

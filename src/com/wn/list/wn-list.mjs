@@ -2,6 +2,13 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
+  data : ()=>({
+    isAllChecked  : false,
+    hasChecked    : false,
+    theCurrentId  : false,
+    theCheckedIds : false
+  }),
+  ///////////////////////////////////////////////////
   props : {
     "iconBy" : {
       type : [String, Function],
@@ -47,9 +54,27 @@ export default {
     //----------------------------------------------
     onSubListInit($list) {this.$list = $list},
     //----------------------------------------------
+    onSelected(payload={}){
+      this.theCheckedIds = payload.checkedIds
+      this.theCurrentId  = payload.currentId
+      this.isAllChecked  = this.$list.isAllChecked
+      this.hasChecked    = this.$list.hasChecked
+      this.$emit('selected', payload)
+    },
+    //----------------------------------------------
     // Delegate methods
     selectPrevRow(options){this.$list.selectPrevRow(options)},
-    selectNextRow(options){this.$list.selectNextRow(options)}
+    selectNextRow(options){this.$list.selectNextRow(options)},
+
+    getCurrentRow(options){return this.$list.getCurrentRow(options)},
+    getCheckedRow(options){return this.$list.getCheckedRow(options)},
+
+    getCurrent(options){return this.$list.getCurrent(options)},
+    getChecked(options){return this.$list.getChecked(options)},
+
+    selectRow(options){this.$list.selectRow(options)},
+    checkRow (options){this.$list.checkRow(options)},
+    cancelRow(options){this.$list.cancelRow(options)}
     //----------------------------------------------
   }
   ///////////////////////////////////////////////////

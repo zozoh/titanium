@@ -1,6 +1,7 @@
 .ti-tags {
   @include noselect;
   @include flex-align($ai:stretch,$ac:stretch);
+  padding:.02rem;
 }
 //---------------------------------------------
 .ti-tags-item {
@@ -8,6 +9,8 @@
   @include color($color-primary, r, c);
   overflow: hidden; padding: 0; 
   border-radius: 6px; margin:.02rem;
+  line-height: 2em; 
+  white-space: nowrap;
   //-------------------------------------------
   &.has-options {
     cursor: pointer;

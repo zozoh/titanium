@@ -207,7 +207,7 @@ export default {
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
-      console.log("ti-combo-input", uniqKey)
+      //console.log("ti-combo-input", uniqKey)
       //....................................
       if("ESCAPE" == uniqKey) {
         this.myInputing = null

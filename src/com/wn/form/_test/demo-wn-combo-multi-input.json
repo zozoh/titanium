@@ -17,7 +17,8 @@
             "tagItemIconBy" : null,
             "mustInList" : false,
             "autoFocusExtended" : true,
-            "options" : "obj ~/* -l -cqn"
+            "query" : "obj ~ -match 'nm:\"^.*${inputing}\"' -sort nm:1 -lcqn",
+            "options" : "obj ~/* -sort nm:1 -lcqn"
           }
         }, {
           "title" : "限制列表",

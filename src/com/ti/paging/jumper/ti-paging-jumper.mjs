@@ -52,7 +52,7 @@ export default {
       if(this.data.pgc <= 1)
         return
       // Ask new pageNumber
-      let msg = Ti.I18n.getf("ti-paging-change-pn", this.data)
+      let msg = Ti.I18n.getf("paging-change-pn", this.data)
       let str = await Ti.Prompt(msg, {
         value : this.data.pn
       })
@@ -62,7 +62,7 @@ export default {
       // verify the str
       let pn = parseInt(str)
       if(isNaN(pn) || pn<=0 || pn>this.data.pgc) {
-        msg = Ti.I18n.getf("ti-paging-change-pn-invalid", this.data)
+        msg = Ti.I18n.getf("paging-change-pn-invalid", this.data)
         await Ti.Alert(msg, {
           title : "i18n:warn",
           type  : "warn",
@@ -76,7 +76,7 @@ export default {
     },
     //--------------------------------------
     async onClickSum(){
-      let msg = Ti.I18n.getf("ti-paging-change-pgsz", this.data)
+      let msg = Ti.I18n.getf("paging-change-pgsz", this.data)
       let str = await Ti.Prompt(msg, {
         value : this.data.pgsz
       })
@@ -86,7 +86,7 @@ export default {
       // verify the str
       let pgsz = parseInt(str)
       if(isNaN(pgsz) || pgsz<=0) {
-        await Ti.Alert("i18n:ti-paging-change-pgsz-invalid", {
+        await Ti.Alert("i18n:paging-change-pgsz-invalid", {
           title : "i18n:warn",
           type  : "warn",
           icon  : "im-warning",

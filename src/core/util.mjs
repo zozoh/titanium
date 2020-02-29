@@ -716,11 +716,44 @@ const TiUtil = {
     return input
   },
   /***
+   * @param matchBy{Function|String|Array}
+   * @param partially {Boolean} 
+   * 
+   * @return Function to match value
+   */
+  genItemMatcher(matchBy, partially=false) {
+    if(_.isFunction(matchBy)) {
+      return (it, str)=>matchBy(it, str)
+    }
+    if(_.isString(matchBy)) {
+      return partially
+        ? (it, str)=>_.indexOf(Ti.Util.getOrPick(it, matchBy), str)>=0
+        : (it, str)=>_.isEqual(Ti.Util.getOrPick(it, matchBy), str)
+    }
+    if(_.isArray(matchBy)) {
+      return (it, str)=>{
+        for(let k of matchBy) {
+          let v = Ti.Util.getOrPick(it, k)
+          if(partially) {
+            if(_.indexOf(v, str)>=0)
+              return true
+          }
+          else {
+            if(_.isEqual(v, str))
+              return true
+          }
+        }
+        return false
+      }
+    }
+    return (it, str)=>false
+  },
+  /***
    * @param valueBy{Function|String|Array}
    * 
    * @return Function to pick value
    */
-  genValueFunc(valueBy) {
+  genItemValueGetter(valueBy) {
     if(_.isFunction(valueBy)) {
       return it => valueBy(it)
     }
@@ -730,28 +763,33 @@ const TiUtil = {
     return it => null
   },
   /***
-   * @param matchBy{Function|String|Array}
-   * 
-   * @return Function to match value
+   * @return Function to get row Id
    */
-  genMatchFunc(matchBy) {
-    if(_.isFunction(matchBy)) {
-      return (it, str)=>matchBy(it, str)
+  genRowIdGetter(idBy) {
+    if(_.isFunction(idBy)) {
+      return (it, index) => idBy(it, index)
     }
-    if(_.isString(matchBy)) {
-      return (it, str)=>_.isEqual(Ti.Util.getOrPick(it, matchBy), str)
-    }
-    if(_.isArray(matchBy)) {
-      return (it, str)=>{
-        for(let k of matchBy) {
-          let v = Ti.Util.getOrPick(it, k)
-          if(_.isEqual(v, str))
-            return true
-        }
-        return false
+    if(_.isString(idBy)) {
+      return (it, index)=>{
+        return Ti.Util.fallbackNil(_.get(it, idBy), `Row-${index}`)
       }
     }
-    return (it, str)=>false
+    return it => null
+  },
+  /***
+   * @return Function to get row data
+   */
+  genRowDataGetter(rawDataBy) {
+    if(_.isFunction(rawDataBy)) {
+      return it => rawDataBy(it)
+    }
+    if(_.isString(rawDataBy)) {
+      return it => _.get(it, rawDataBy)
+    }
+    if(_.isObject(rawDataBy)) {
+      return it => Ti.Util.translate(it, rawDataBy)
+    }
+    return it => it
   }
 }
 //-----------------------------------

@@ -2,7 +2,7 @@
   "comType" : "ti-form",
   "comConf" : {
     "className" : "ti-fill-parent",
-    "title" : "穿梭框测试",
+    "title" : "静态穿梭框测试",
     "config" : {
       "fields" : [{
           "title" : "普通穿梭框",
@@ -12,8 +12,13 @@
           "comType" : "ti-transfer",
           "comConf" : {
             "height" : 300,
-            "options" : [
-              {"value":"A", "text":"甲类"},
+            "display" : ["<icon:im-pizza>", "text"],
+            "filterBy" : ["text", "value"],
+            "filterConf" : {
+              "valueCase" : "upper"
+            },
+            "candidates" : [
+              {"value":"A", "text":"甲类", "icon":"im-plane"},
               {"value":"B", "text":"乙类"},
               {"value":"C", "text":"丙类"},
               {"value":"D", "text":"丁类"},

@@ -36,7 +36,7 @@ export default {
     // If dynamic, eval delay in millisecond
     "delay" : {
       type : Number,
-      default : 500
+      default : 800
     }
   },
   ////////////////////////////////////////////////////
@@ -97,39 +97,8 @@ export default {
     },
     //-----------------------------------------------
     async evalOptions(query, val) {
-      //.............................................
-      // Mark loading
       this.loading = true
-
-      //.............................................
-      // Eval: Array
-      if(_.isArray(query)) {
-        this.myOptions = query
-      }
-      // Eval: Command || Dict
-      else if(_.isString(query)) {
-        let m = /^@dict:(.+)$/.exec(query)
-        // Dict
-        if(m) {
-          let dict = _.trim(m[1])
-          this.myOptions = await Wn.Dict.getAll(dict)
-        }
-        // Command
-        else {
-          let cmdText = Ti.S.renderBy(query, {inputing:val})
-          this.myOptions = await Wn.Sys.exec2(cmdText, {
-            as : "json",
-            input : val
-          })
-        }
-      }
-      // Eval: Function
-      else if(_.isFunction(query)) {
-        this.myOptions = await query(val)
-      }
-
-      //.............................................
-      // Unmark loading
+      this.myOptions = await Wn.Util.queryBy(query, val)
       this.loading = false
     }
     //-----------------------------------------------

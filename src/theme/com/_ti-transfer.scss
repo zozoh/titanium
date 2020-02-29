@@ -4,8 +4,51 @@
   padding:.06rem;
   //---------------------------------
   > .as-box {
+    $boxH : .4rem;
+    $boxF : .24rem;
+    //-------------------------------
     @include border(1px, solid, shallow);
     flex: 1 1 auto; width:50%;
+    position: relative;
+    padding: $boxH 0 $boxF 0;
+    //-------------------------------
+    > .as-box-head {
+      @include pos-abs($t:0, $l:0, $r:0, $h:$boxH);
+      @include flex-align-nowrap;
+      @include border(1px, solid, shallow, bottom);
+      @include color($color-bar, r, c);
+      //-----------------------------
+      > .as-list-checker {
+        @include flex-center;
+        width: $boxH;
+        cursor:pointer;
+        &:hover {@include color($color-secondary, c);}
+      }
+      //-----------------------------
+      > .as-title {
+        white-space: nowrap;
+      }
+      //-----------------------------
+      > .as-filter {
+        flex:1 1 auto; padding: 0 .04rem 0 .1rem;
+        .ti-input {min-height: .32rem;}
+      }
+      //-----------------------------
+    }
+    //-------------------------------
+    > .as-box-main {
+      
+    }
+    //-------------------------------
+    > .as-box-foot {
+      @include flex-align-nowrap;
+      @include pos-abs($b:0, $l:0, $r:0, $h:$boxF);
+      @include border(1px, solid, shallow, top);
+      @include color($color-chip , r, c);
+      @include font-fixed;
+      font-size:.8em; padding: 0 .06rem;
+    }
+    //-------------------------------
   }
   //---------------------------------
   > .as-buttons {
