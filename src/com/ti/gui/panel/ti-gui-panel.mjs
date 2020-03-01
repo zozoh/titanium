@@ -152,7 +152,6 @@ export default {
     },
     //--------------------------------------
     onClickMask() {
-      console.log("haha")
       if(this.clickMaskToClose) {
         this.$emit("block:hide", this.name)
       }

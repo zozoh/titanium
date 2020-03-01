@@ -112,7 +112,6 @@ export class TiAppActionShortcuts {
   }
   //--------------------------------------------
   watch(actions=[], scope) {
-    console.log("watch", actions)
     let list = _.without(_.concat(actions), null)
     _.forEach(list, aIt => {
       // Groups, recur ...

@@ -1,6 +1,9 @@
-import {TiVue}         from "./polyfill-ti-vue.mjs"
-import {LoadTiAppInfo, LoadTiLinkedObj} from "./app-info.mjs"
+import {
+  LoadTiAppInfo, 
+  LoadTiLinkedObj} from "./app-info.mjs"
 import {TiAppActionShortcuts} from "./app-action-shortcuts.mjs"
+import {TiVue}      from "./polyfill-ti-vue.mjs"
+import {TiAppModal} from "./app-modal.mjs"
 //---------------------------------------
 const TI_APP     = Symbol("ti-app")
 const TI_INFO    = Symbol("ti-info")
@@ -119,7 +122,6 @@ export class OneTiApp {
   }
   //---------------------------------------
   reWatchShortcut(actions=[], scope=this) {
-    console.log("haha")
     this.$shortcuts.unwatch(scope)
     this.$shortcuts.watch(actions, scope)
   }
@@ -394,6 +396,19 @@ TiApp.topInstance = function() {
 //---------------------------------------
 TiApp.hasTopInstance = function() {
   return APP_STACK.length > 0
+}
+//---------------------------------------
+TiApp.Open = function(options) {
+  return new Promise((resolve)=>{
+    let $m = new TiAppModal()
+    _.assign($m, options)
+
+    let $stub = Ti.Dom.createElement({
+      $p : document.body,
+      className : "the-stub"
+    })
+    $m.open($stub, resolve)
+  })
 }
 //---------------------------------------
 export default TiApp
