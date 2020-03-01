@@ -51,7 +51,6 @@ export default {
       _.assign(state.mainCom, com)
     },
     setActions(state, actions=[]) {
-      Ti.Shortcut.removeWatch(state)
       if(_.isArray(actions)) {
         let actions2 = []
         _.forEach(actions, (it, key)=>{
@@ -66,7 +65,6 @@ export default {
       else {
         state.actions = []
       }
-      Ti.Shortcut.addWatch(state, state.actions)
     },
     setSidebar(state, sidebar) {
       if(_.isArray(sidebar)) {
@@ -82,8 +80,8 @@ export default {
     },
     //-------------------------------------
     async openProperties({state, dispatch}) {
-      if(state.meta.meta) {
-        let newMeta = await Wn.EditObjMeta(state.meta.meta, {closer:true})
+      if(state.current.meta) {
+        let newMeta = await Wn.EditObjMeta(state.current.meta, {closer:true})
         if(newMeta) {
           dispatch("reload", newMeta)
         }

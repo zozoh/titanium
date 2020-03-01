@@ -72,6 +72,9 @@ a:hover {
   @include color($color-secondary, c);
   text-decoration: underline;
 }
+a:focus {
+  outline: none;
+}
 //...................................................
 @include font-sizes("body > *");
 //...................................................

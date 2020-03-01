@@ -214,7 +214,9 @@ export default {
     //--------------------------------------
     updateActions(actions) {
       if(_.isArray(actions)) {
-        Ti.App(this).commit("setActions", actions)
+        let app = Ti.App(this)
+        app.commit("setActions", actions)
+        app.reWatchShortcut(actions)
       }
     },
     //--------------------------------------
@@ -271,10 +273,6 @@ export default {
   },
   //////////////////////////////////////////////
   watch : {
-    // "mainComType" : function(newType){
-    //   Ti.Shortcut.removeWatch(this)
-    //   Ti.Shortcut.addWatch(this, this.mainActions)
-    // },
     "obj.meta" : function(meta) {
       // Push history to update the browser address bar
       let his = window.history

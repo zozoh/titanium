@@ -399,9 +399,17 @@ const TiUtil = {
     let old = _.get(obj, key) || []
     _.set(obj, key, _.concat(old, val||[]))
   },
+  pushValueBefore(obj, key, val) {
+    let old = _.get(obj, key) || []
+    _.set(obj, key, _.concat(val||[], old))
+  },
   pushUniqValue(obj, key, val) {
     let old = _.get(obj, key) || []
     _.set(obj, key, _.uniq(_.concat(old, val||[])))
+  },
+  pushUniqValueBefre(obj, key, val) {
+    let old = _.get(obj, key) || []
+    _.set(obj, key, _.uniq(_.concat(val||[], old)))
   },
   /***
    * Set value to obj[key] if only val is not undefined
@@ -767,11 +775,12 @@ const TiUtil = {
    */
   genRowIdGetter(idBy) {
     if(_.isFunction(idBy)) {
-      return (it, index) => idBy(it, index)
+      return (it, index) => Ti.Types.toStr(idBy(it, index))
     }
     if(_.isString(idBy)) {
       return (it, index)=>{
-        return Ti.Util.fallbackNil(_.get(it, idBy), `Row-${index}`)
+        return Ti.Util.fallbackNil(
+          Ti.Types.toStr(_.get(it, idBy)), `Row-${index}`)
       }
     }
     return it => null

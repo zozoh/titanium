@@ -231,15 +231,15 @@ export default {
       }
     },
     //--------------------------------------------
-    onSelected({current, selected, currentId, checkedIds, currentIndex}) {
+    onSelected({current, checked, currentId, checkedIds, currentIndex}) {
       //console.log("onSelected", currentIndex, current)
       // For Desktop
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds
 
       this.$emit("selected", {
-        current, selected, 
-        currentId, checkedIds, currentIndex
+        current, currentId, currentIndex,
+        checked, checkedIds
       })
     },
     //--------------------------------------------

@@ -163,15 +163,15 @@ export default {
         if("collapse" == sta) {
           this.resetBoxStyle()
           // Unwatch
-          Ti.Shortcut.removeWatch(this)
+          Ti.App(this).unwatchShortcut(this)
         }
         // try docking
         else {
           this.dockDrop()
-          Ti.Shortcut.addWatch(this, [{
+          Ti.App(this).watchShortcut(this, {
             "shortcut" : "ESCAPE",
             "action"   : ()=>this.notifyCollapse(true)
-          }])
+          })
         }
       })
     }
@@ -191,8 +191,8 @@ export default {
   },
   ////////////////////////////////////////////////////
   beforeDestroy : function() {
+    Ti.App(this).unwatchShortcut(this)
     Ti.Viewport.unwatch(this)
-    Ti.Shortcut.removeWatch(this)
   }
   ////////////////////////////////////////////////////
 }

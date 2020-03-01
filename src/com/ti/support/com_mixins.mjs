@@ -106,7 +106,7 @@ export default {
       if(!this.isSelfActived) {
         //console.log("I am actived", this)
         Ti.App(this).setActivedVm(this)
-        this.$emit("com:actived", this)
+        //this.$emit("com:actived", this)
       }
     }
     // Auto invoke the callback

@@ -1,4 +1,5 @@
 import {fireable} from "../../support/ti-menu-items.mjs"
+import TiShortcut from "../../../../../core/shortcut.mjs"
 //---------------------------------------
 export default {
   inheritAttrs : false,
@@ -36,9 +37,15 @@ export default {
   ///////////////////////////////////////////
   mounted : function() {
     if(this.shortcut) {
-      Ti.Shortcut.addGuard(this.shortcut, ()=>{
+      Ti.App(this).guardShortcut(this.shortcut, ()=>{
         return this.isEnabled
-      })
+      }, this)
+    }
+  },
+  ///////////////////////////////////////////
+  destroyed : function(){
+    if(this.shortcut) {
+      Ti.App(this).unwatchShortcut(this)
     }
   }
   ///////////////////////////////////////////

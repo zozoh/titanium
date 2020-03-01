@@ -1,195 +1,5 @@
-//-----------------------------------
-class Shortcut {
-  constructor(){
-    this.reset()
-  }
-  watch($app, actions=[]) {
-    this.reset($app).addWatch($app, actions)
-  }
-  reset($app=null) {
-    this.$app = $app
-    this.actions = {}
-    this.guards = {}
-    return this
-  }
-  addWatch(scope, actions=[]) {
-    scope = scope || this.$app
-    let as = _.without(_.concat(actions),null)
-    _.forEach(as, (aIt)=>{
-      // Groups, recur ...
-      if('group' == aIt.type 
-         && _.isArray(aIt.items)
-         && aIt.items.length > 0) {
-        this.addWatch(scope, aIt.items)
-      }
-      // Action
-      else if(aIt.action && aIt.shortcut) {
-        // Guarding for duplicated watching
-        if(this.isWatched(scope, aIt.shortcut)) {
-          return
-        }
-        //this.actions[aIt.shortcut] = this.bind(aIt.action)
-        Ti.Util.pushValue(this.actions, aIt.shortcut, {
-          scope,
-          func : this.bind(aIt.action)
-        })
-      }
-    })
-  }
-  isWatched(scope, shortcutKey) {
-    scope = scope || this.$app
-    let as = this.actions[shortcutKey]
-    if(_.isArray(as)) {
-      for(let a of as) {
-        if(a.scope === scope) {
-          return true
-        }
-      }
-    }
-    return false
-  }
-  removeWatch(scope, shortcutKeys=[]) {
-    scope = scope || this.$app
-    // Remove All
-    let keys = shortcutKeys
-    if(_.isEmpty(keys)) {
-      keys = _.keys(this.actions)
-    }
-    // Remove in loop
-    for(let k of keys) {
-      let as = this.actions[k]
-      if(_.isArray(as)) {
-        // Repare the new watch list
-        let as2 = []
-        for(let a of as) {
-          if(a.scope === scope) {
-            // Do Nothing to remove it
-          }
-          // Pick back
-          else {
-            as2.push(a)
-          }
-        }
-        // Clear 
-        if(_.isEmpty(as2)) {
-          delete this.actions[k]
-        }
-        // Or Reset
-        else {
-          this.actions[k] = as2
-        }
-      }
-    }
-  }
-  bind(action) {
-    // Command in Function
-    if(_.isFunction(action)) {
-      return action
-    }
-    // Command In String
-    let m = /^([$a-zA-Z0-9_]+):([^()]+)(\((.*)\))?$/.exec(action)
-    if(m) {
-      let mode = m[1]
-      let tanm = m[2]
-      let arg0 = m[4]
-      let args = []
-      let func = this.$app[mode]
-      //...............................
-      if(_.isFunction(func) && tanm) {
-        args.push(tanm)
-        if(arg0) {
-          let payload = Ti.S.toJsValue(arg0)
-          args.push(payload)
-        }
-        let bindFuncWrapper = ()=>{
-          //console.log("call bindFuncWrapper")
-          return func.apply(this.$app, args)
-        }
-        return _.debounce(bindFuncWrapper, 500, {
-          leading  : true,
-          trailing : false
-        })
-      }
-      //...............................
-      // Fail to found function in current app
-      else {
-        throw Ti.Err.make("e-ti-shortcut-InvalidAction", action)
-      }
-      //...............................
-    }
-    return function(){
-      alert("invalid action: [" + action + "]")
-    }
-  }
-  /***
-   * ComUI can append the guard later for block one process.
-   * 
-   * For example, if we provide the `saving` operation in action menu
-   * with `CTRL+S` shortcut, but we want to fire the action only if 
-   * the `content` changed. So we will detected the content change 
-   * and mark it in UI to present the status to user. When user process
-   * `CTRL+S` we also want to block the action if content without changed.
-   * For the reason most UI was been loaded asynchronous, so we need provide
-   * a way to those UIs to append the `guard` before the action invoking.
-   * 
-   * @param uniqKey{String} : The shortcut key like `CTRL+S`
-   * @param guard{Function} : synchronized function, return false to block
-   */
-  addGuard(uniqKey, guard) {
-    this.guards[uniqKey] = guard
-  }
-  /***
-   * Fire an action
-   *
-   * @param uniqKey{String} : The shortcut key like `CTRL+S`
-   * @param $event{Event} : the native event object
-   */
-  async fire(uniqKey, $event) {
-    // Logging
-    if(!/^(CTRL|SHIFT|ALT)$/.test(uniqKey) && Ti.IsInfo("TiShortcut")) {
-      console.log("TiShortcut.fired", uniqKey)
-    }
-    // Status
-    let stopBubble = 0
-    let preventDefault = 0
-    let quitNow = 0
-
-    // Capture by current Vm
-    if(Ti.App.hasTopInstance()) {
-      let {stop,prevent,quit} = Ti.App.topInstance().fireActivedVmShortcut(uniqKey)
-      //console.log(uniqKey)
-      quitNow        |= quit
-      stopBubble     |= stop
-      preventDefault |= prevent
-    }
-
-    // fire the action list
-    let as = this.actions[uniqKey]
-    if(_.isArray(as) && !quitNow) { 
-      for(let a of as) {
-        if(_.isFunction(a.func)) {
-          stopBubble     = 1
-          preventDefault = 1
-          // ask guard firstly
-          let guard = this.guards[uniqKey]
-          if(_.isFunction(guard)) {
-            if(!guard()) {
-              break
-            }
-          }
-          // invoke the action
-          a.func()
-        } // if(_.isFunction(a.func)) 
-      } // for(let a of as)
-    }
-    // Modify default behaviors
-    if(preventDefault) {
-      $event.preventDefault()
-    }
-    if(stopBubble) {
-      $event.stopPropagation()
-    }
-  }
+///////////////////////////////////////
+export const TiShortcut = {
   /***
    * Get uniquekey for a keyboard event object
    * 
@@ -221,7 +31,10 @@ class Shortcut {
     }
 
     return keys.join(sep)
-  }
+  },
+  /***
+   * Watch the top window keyboard events
+   */
   startListening() {
     // Prevent multiple listening
     if(this.isListening)
@@ -229,16 +42,19 @@ class Shortcut {
     // Do listen
     window.addEventListener("keydown", ($event)=>{
       // get the unify key code
-      let uniqKey = this.getUniqueKey($event)
+      let uniqKey = TiShortcut.getUniqueKey($event)
+
+      // Top App
+      let app = Ti.App.topInstance()
       
       // Then try to find the action
-      this.fire(uniqKey, $event)
+      if(app) {
+        app.fireShortcut(uniqKey, $event)
+      }
     })
     // Mark
     this.isListening = true
   }
 }
-//-----------------------------------
-export const TiShortcut = new Shortcut()
-//-----------------------------------
+///////////////////////////////////////
 export default TiShortcut

@@ -583,7 +583,10 @@ const TiTypes = {
     if(_.isNull(val) || _.isUndefined(val)){
       return Ti.Util.fallback(dft, null)
     }
-    if(_.isString(val) || _.isNumber(val)){
+    if(_.isNumber(val)) {
+      return ""+val
+    }
+    if(_.isString(val)){
       // Mapping
       if(_.isPlainObject(fmt)) {
         return _.get(fmt, val)

@@ -1,5 +1,6 @@
 import {TiVue}         from "./polyfill-ti-vue.mjs"
-import {LoadTiAppInfo, LoadTiLinkedObj} from "./app_info.mjs"
+import {LoadTiAppInfo, LoadTiLinkedObj} from "./app-info.mjs"
+import {TiAppActionShortcuts} from "./app-action-shortcuts.mjs"
 //---------------------------------------
 const TI_APP     = Symbol("ti-app")
 const TI_INFO    = Symbol("ti-info")
@@ -18,6 +19,7 @@ export class OneTiApp {
     this.$conf(null)
     this.$store(null)
     this.$vm(null)
+    this.$shortcuts = new TiAppActionShortcuts()
   }
   //---------------------------------------
   name () {return this.$info().name}
@@ -73,9 +75,6 @@ export class OneTiApp {
     vm[TI_APP] = this
     this.$vm(vm)
 
-    // Reset Watch
-    Ti.Shortcut.watch(this)
-
     // return self for chained operation
     return this
   }
@@ -119,28 +118,63 @@ export class OneTiApp {
     return this[TI_VM_ACTIVED]
   }
   //---------------------------------------
-  fireActivedVmShortcut(uniqKey) {
-    let re = {
-      stop    : false,
+  reWatchShortcut(actions=[], scope=this) {
+    console.log("haha")
+    this.$shortcuts.unwatch(scope)
+    this.$shortcuts.watch(actions, scope)
+  }
+  //---------------------------------------
+  watchShortcut(actions=[], scope=this) {
+    this.$shortcuts.watch(scope, actions)
+  }
+  //---------------------------------------
+  unwatchShortcut(scope, ...uniqueKeys) {
+    this.$shortcuts.unwatch(scope, ...uniqueKeys)
+  }
+  //---------------------------------------
+  guardShortcut(uniqueKey, guard, scope=this) {
+    this.$shortcuts.addGuard(uniqueKey, guard, scope)
+  }
+  //---------------------------------------
+  /***
+   * @param uniqueKey{String} : like "CTRL+S"
+   * @param $event{Event} : DOM Event Object, for prevent or stop 
+   */
+  fireShortcut(uniqueKey, $event) {
+    //......................................
+    let st = {
+      stop    :false,
       prevent : false,
       quit    : false
-    };
+    }
+    //......................................
+    // Actived VM shortcut
     let vm = this.getActivedVm()
     if(vm) {
-      // Try to find the closest actived VM which with the __ti_shortcut
       let vmPath = vm.tiActivableComPath(false)
       for(let aVm of vmPath) {
         if(_.isFunction(aVm.__ti_shortcut)) {
-          // Then to fire
-          _.assign(re, aVm.__ti_shortcut(uniqKey))
-          // Break calling-up
-          if(re.quit) {
+          let re = aVm.__ti_shortcut(uniqueKey) || {}
+          st.stop    |= re.stop
+          st.prevent |= re.prevent
+          st.quit    |= re.quit
+          if(st.quit) {
             break
           }
         }
       }
     }
-    return re
+    //......................................
+    this.$shortcuts.fire(this, uniqueKey, st)
+    //......................................
+    if(st.prevent) {
+      $event.preventDefault()
+    }
+    if(st.stop) {
+      $event.stopPropagation()
+    }
+    //......................................
+    return st
   }
   //---------------------------------------
   /***
@@ -302,7 +336,7 @@ export class OneTiApp {
     })
 
     // watch the shortcut
-    //Ti.Shortcut.watch(this, view.actions)
+    this.reWatchShortcut(view.actions)
     
     return {
       ...view,

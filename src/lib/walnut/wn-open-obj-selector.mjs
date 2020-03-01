@@ -32,7 +32,7 @@ export async function OpenObjSelector(pathOrObj="~", {
   let reObj = await Ti.Modal.Open({
     // Prepare the DOM
     template : `<ti-gui
-      :class="className"
+      :class="myClassName"
       :layout="theLayout"
       :schema="theSchema"
       :shown="myShown"
@@ -41,8 +41,8 @@ export async function OpenObjSelector(pathOrObj="~", {
       @block:event="onBlockEvent"/>`,
     /////////////////////////////////////////////////
     data : {
-      className,
-      mySelected : [],
+      myClassName : className,
+      myChecked : [],
       myShown : {}
     },
     /////////////////////////////////////////////////
@@ -130,8 +130,8 @@ export async function OpenObjSelector(pathOrObj="~", {
             await this.open(item)
           },
           //======================================
-          "arena.selected" : async ({selected})=>{
-            this.mySelected = _.filter(selected, o=>"FILE"==o.race)
+          "arena.selected" : async ({checked})=>{
+            this.myChecked = _.filter(checked, o=>"FILE"==o.race)
           }
           //======================================
         }
@@ -174,7 +174,7 @@ export async function OpenObjSelector(pathOrObj="~", {
     actions : [{
       text : textOk,
       handler : function({app}){
-        return _.cloneDeep(app.$vm().mySelected)
+        return _.cloneDeep(app.$vm().myChecked)
       }
     }, {
       text : textCancel

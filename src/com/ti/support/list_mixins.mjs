@@ -62,8 +62,14 @@ export default {
       return false
     },
     //-----------------------------------------------
+    theCurrentRowId() {
+      return this.wrapRowId(this.currentId)
+    },
+    //-----------------------------------------------
     theCurrentId()  {
-      return this.puppetMode ? this.currentId : this.myCurrentId
+      return this.puppetMode 
+              ? this.theCurrentRowId 
+              : this.myCurrentId
     },
     //-----------------------------------------------
     theCheckedIds() {
@@ -79,6 +85,13 @@ export default {
   },
   ///////////////////////////////////////////////////
   methods : {
+    //-----------------------------------------------
+    wrapRowId(rowId) {
+      if(_.isNumber(rowId)){
+        return ""+rowId
+      }
+      return rowId
+    },
     //-----------------------------------------------
     evalData(iteratee=_.identity) {
       let list = []
@@ -156,8 +169,8 @@ export default {
         }
       }
       return {
-        currentId, checkedIds, currentIndex,
-        checked, current
+        current, currentId, currentIndex,
+        checked, checkedIds
       }
     },
     //-----------------------------------------------
@@ -371,13 +384,13 @@ export default {
     },
     //-----------------------------------------------
     syncCurrentId() {
-      if(!this.puppetMode && this.theCurrentId != this.currentId) {
-        //console.log("syncCurrentId", this.currentId)
-        this.selectRow(this.currentId, {quiet:true})
+      if(!this.puppetMode && this.theCurrentId != this.theCurrentRowId) {
+        //console.log("syncCurrentId", this.theCurrentRowId)
+        this.selectRow(this.theCurrentRowId, {quiet:true})
       }
       // Just update the last
       else {
-        this.myLastIndex = this.findRowIndexById(this.currentId)
+        this.myLastIndex = this.findRowIndexById(this.theCurrentRowId)
       }
     },
     //-----------------------------------------------
