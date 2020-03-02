@@ -1,122 +1,70 @@
 ////////////////////////////////////////////////////
 export async function EditObjContent(pathOrObj="~", {
-  title = "i18n:info", 
-  icon  = "far-file-alt",
-  type  = "info",
-  className,
-  closer = true,
+  title, icon, type = "info", closer = true,
   // undefined is auto, null is hidden
   // if auto, 'i18n:save' for saveBy, else 'i18n:ok'
   textOk = undefined,  
   textCancel = "i18n:cancel",
-  width=640, height="80%",
+  position = "top",
+  width=640, height="80%", spacing,
   readonly=false,
   showEditorTitle=true,
-  content=null,
-  saveBy="content/save",
+  content,
   blankText="i18n:blank"
 }={}){
-  //................................................
+  //............................................
   // Load meta
-  let obj = pathOrObj
-  if(_.isString(pathOrObj)) {
-    obj = await Wn.Io.loadMeta(pathOrObj)
+  let meta = pathOrObj
+  if(_.isString(meta)) {
+    meta = await Wn.Io.loadMeta(pathOrObj)
   }
-  //................................................
+  //............................................
   if(_.isUndefined(textOk)) {
     textOk = this.saveBy ? 'i18n:save' : 'i18n:ok'
   }
-  //................................................
-  // Prepare the DOM
-  let html = `<ti-text-raw
-    class="ti-fill-parent"
-    :icon="theIcon"
-    :title="theTitle"
-    :readonly="readonly"
-    :show-title="showEditorTitle"
-    :content="content"
-    :content-is-changed="theStatusChanged"
-    :blank-text="blankText"
-    @changed="onChangeContent"/>`
-  //................................................
-  // Open modal dialog
-  let reObj = await Ti.Modal.Open({
-    template : html,
-    /////////////////////////////////////////////////
-    data : {
-      readonly, showEditorTitle, blankText
-    },
-    /////////////////////////////////////////////////
-    store : {
-      modules : {
-        content : "@mod:wn/obj-current"
-      }
-    },
-    /////////////////////////////////////////////////
-    computed : {
-      //--------------------------------------------
-      ...Vuex.mapState("content", ["meta", "status", "content"]),
-      //--------------------------------------------
-      theIcon() {
-        if(this.meta) {
-          return Wn.Util.getIconObj(this.meta)
-        }
-        return Ti.Icons.get()
-      },
-      //--------------------------------------------
-      theTitle() {
-        if(this.meta) {
-          return this.meta.title || this.meta.nm
-        }
-        return "no-title"
-      },
-      //--------------------------------------------
-      theStatusChanged() {
-        return this.status ? this.status.changed : false
-      }
-      //--------------------------------------------
-    },
-    /////////////////////////////////////////////////
-    methods : {
-      //--------------------------------------------
-      async onChangeContent(content) {
-        Ti.App(this).dispatch("content/onChanged", content)
-      }
-      //--------------------------------------------
-    },
-    /////////////////////////////////////////////////
-    // Load meta at first
-    mounted : async function(){
-      let app = Ti.App(this)
-      // Do reload
-      if(Ti.Util.isNil(content)) {
-        app.dispatch("content/reload", obj)
-      }
-      // Do show content
-      else {
-        app.commit("content/setMeta", obj)
-        app.dispatch("content/updateContent", content)
-      }
-    },
-    /////////////////////////////////////////////////
-    components : ["@com:ti/text/raw"]
-    /////////////////////////////////////////////////
-  }, {
-    icon, title, type, width, height, className, closer,
+  //............................................
+  let autoSaveContent = Ti.Util.isNil(content)
+  //............................................
+  let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-receipt")
+  let theTitle = title || "i18n:edit"
+  let theContent = autoSaveContent 
+                    ? await Wn.Io.loadContent(meta)
+                    : content;
+  //............................................
+  let newContent = await Ti.App.Open({
+    //------------------------------------------
+    type, width, height, spacing, position, closer,
+    title   : theTitle,
     actions : [{
-      text : textOk,
-      handler : async ({app})=>{
-        // Auto Save
-        if(saveBy) {
-          await app.dispatch(saveBy)
-        }
-        return app.$vm().content
-      },
+      text: textOk,
+      handler : ({$main})=>$main.getContent()
     }, {
-      text : textCancel
-    }]
+      text: textCancel,
+      handler : ()=>undefined
+    }],
+    //------------------------------------------
+    comType : "ti-text-raw",
+    comConf : {
+      readonly, blankText,
+      icon  : theIcon,
+      title : Wn.Util.getObjDisplayName(meta),
+      content : theContent,
+      showTitle : showEditorTitle,
+      ignoreKeyUp : true,
+    },
+    //------------------------------------------
+    components : ["@com:ti/text/raw"]
+    //------------------------------------------
   })
-  //................................................
-  return reObj
+  //............................................
+  //console.log(`newContent: [${newContent}]`)
+  if(autoSaveContent
+    && !_.isUndefined(newContent) 
+    && newContent != theContent) {
+    await Wn.Io.saveContentAsText(meta, newContent)
+    await Ti.Toast.Open("i18n:save-done", "success")
+  }
+  //............................................
+  return newContent
 }
 ////////////////////////////////////////////////////

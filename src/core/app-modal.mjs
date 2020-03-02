@@ -39,7 +39,12 @@ export class TiAppModal {
   spacing  = undefined
   overflow = undefined
   adjustable = false  // true|false|"x"|"y"
-
+  //--------------------------------------------
+  // modules
+  modules = {}
+  //--------------------------------------------
+  // callback
+  ready = function(app){}
   //////////////////////////////////////////////
   // Methods
   //////////////////////////////////////////////
@@ -88,7 +93,7 @@ export class TiAppModal {
             <div class="modal-closer"
               v-if="hasCloser"
                 :class="theCloserClass">
-                  <ti-icon value="zmdi-close" @click.native="close"/>
+                  <ti-icon value="zmdi-close" @click.native="onClose"/>
             </div>
         </div>
     </div></transition>`
@@ -125,9 +130,9 @@ export class TiAppModal {
       },
       //////////////////////////////////////////
       store : {
-        modules : {
+        modules : _.defaults({
           "viewport" : "@mod:ti/viewport"
-        }
+        }, this.modules)
       },
       //////////////////////////////////////////
       computed : {
@@ -211,6 +216,10 @@ export class TiAppModal {
           }
         },
         //--------------------------------------
+        onClose() {
+          this.close()
+        },
+        //--------------------------------------
         close(result) {
           if(!_.isUndefined(result)) {
             this.returnValue = result
@@ -274,6 +283,7 @@ export class TiAppModal {
     })
     app.mountTo($stub)
     //..........................................
+    await this.ready(app)
     // Then it was waiting the `close()` be invoked
     //..........................................
   } // ~ methods

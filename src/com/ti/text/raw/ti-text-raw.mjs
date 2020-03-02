@@ -1,6 +1,10 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
+  data : ()=>({
+    myContent : null
+  }),
+  ///////////////////////////////////////////////////
   props : {
     "icon" : {
       type : [String, Object],
@@ -14,13 +18,19 @@ export default {
       type : Boolean,
       default : true
     },
+    "trimed" : {
+      type : Boolean,
+      default : true
+    },
     "content" : {
       type : String,
       default : ""
     }, 
-    "contentIsChanged" : {
-      type : Boolean,
-      default : false
+    "status" : {
+      type : Object,
+      default : ()=>{
+        changed : false
+      }
     },
     "ignoreKeyUp" : {
       type : Boolean,
@@ -34,42 +44,52 @@ export default {
   ///////////////////////////////////////////////////
   computed : {
     topClass() {
-      return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived"     : this.isActived,
+      return this.getTopClass({
         "show-title" : this.showTitle,
         "hide-title" : !this.showTitle
-      }, this.className)
+      })
     },
     headClass() {
       return {
-        "content-changed" : this.contentIsChanged
+        "content-changed" : this.isContentChanged
       }
     },
     placeholder() {
       return Ti.I18n.text(this.blankText)
+    },
+    isContentChanged() {
+      if(this.ignoreKeyUp) {
+        return this.myContent != this.content
+      }
+      return this.status.changed
     }
   },
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    checkContentChanged() {
+    getContent() {
+      return this.myContent
+    },
+    //-----------------------------------------------
+    checkContentChanged(emit=true) {
       let vm = this
       let $t = vm.$refs.text
       let txt = $t.value
-      if(txt != this.content) {
+      if(this.trimed) {
+        txt = _.trim(txt)
+      }
+      this.myContent = txt
+      if(emit && txt != this.content) {
         vm.$emit("changed", txt)
       }
     },
     //-----------------------------------------------
     onTextareaKeyup() {
-      if(!this.ignoreKeyUp) {
-        this.checkContentChanged()
-      }
+      this.checkContentChanged(!this.ignoreKeyUp)
     },
     //-----------------------------------------------
     onContentChanged() {
-      this.checkContentChanged()
+      this.checkContentChanged(true)
     },
     //-----------------------------------------------
     __ti_shortcut(uniqKey) {
@@ -81,10 +101,20 @@ export default {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
+  watch : {
+    "content" : function() {
+      this.myContent = this.content
+    }
+  },
+  ///////////////////////////////////////////////////
   created : function() {
     this.debounceTextareaKeyup = _.debounce(
       this.onTextareaKeyup, 500
     )
+  },
+  ///////////////////////////////////////////////////
+  mounted : function() {
+    this.myContent = this.content
   }
   ///////////////////////////////////////////////////
 }

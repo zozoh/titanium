@@ -1,15 +1,19 @@
 ////////////////////////////////////////////////////
 export async function EditObjMeta(pathOrObj="~", {
-  title = "i18n:info", 
-  icon  = "zmdi-info",
-  type  = "info",
-  className,
-  closer = true,
+  title, icon, type = "info", closer = true,
   textOk = "i18n:ok",
-  width=640, height="80%",
+  textCancel = "i18n:cancel",
+  position = "top",
+  width=640, height="80%", spacing,
   currentTab=0,
   tabs={}}={}){
-  //................................................
+  //............................................
+  // Load meta
+  let meta = pathOrObj
+  if(_.isString(meta)) {
+    meta = await Wn.Io.loadMeta(pathOrObj)
+  }
+  //............................................
   // Default tabs
   if(_.isEmpty(tabs)) {
     tabs = { 
@@ -17,7 +21,7 @@ export async function EditObjMeta(pathOrObj="~", {
       privilege : ["c","m","g", "md", "pvg"]
     }
   }
-  //................................................
+  //............................................
   // Eval the form config
   let config = {
     fields:[]
@@ -27,7 +31,7 @@ export async function EditObjMeta(pathOrObj="~", {
     // Default use the key as group title
     if(_.isArray(tab)) {
       grp = {
-        title  : `i18n:wn-key-grp-${key}`,
+        title  : Wn.Obj.getGroupTitle(key),
         fields : tab
       }
     }
@@ -39,58 +43,62 @@ export async function EditObjMeta(pathOrObj="~", {
     grp.fields = fields
     config.fields.push(grp)
   });
-  //................................................
-  // Prepare the DOM
-  let html = `<wn-form 
-    class="ti-fill-parent"
-    display="tab"
-    :current-tab="currentTab"
-    :config="config"
-    :data="meta"
-    :fieldStatus="fieldStatus"
-    @changed="onFieldChanged"/>`
-  //................................................
-  // Open modal dialog
-  let reObj = await Ti.Modal.Open({
-    template : html,
-    /////////////////////////////////////////////////
-    data : {
-      config, currentTab
-    },
-    /////////////////////////////////////////////////
-    store : {
-      modules : {
-        meta : "@mod:wn/obj-meta"
-      }
-    },
-    /////////////////////////////////////////////////
-    computed : {
-      ...Vuex.mapState("meta", ["meta", "status", "fieldStatus"])
-    },
-    /////////////////////////////////////////////////
-    methods : {
-      async onFieldChanged({name, value}) {
-        await Ti.App(this).dispatch("meta/updateMeta", {name, value})
-      }
-    },
-    /////////////////////////////////////////////////
-    // Load meta at first
-    mounted : async function(){
-      Ti.App(this).dispatch("meta/reload", pathOrObj)
-    },
-    /////////////////////////////////////////////////
-    components : ["@com:wn/form"]
-    /////////////////////////////////////////////////
-  }, {
-    icon, title, type, width, height, className, closer,
+  //............................................
+  let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-info-outline")
+  let theTitle = title || Wn.Util.getObjDisplayName(meta)
+  //............................................
+  let updateMeta = await Ti.App.Open({
+    //------------------------------------------
+    type, width, height, spacing, position, closer,
+    icon  : theIcon,
+    title : theTitle,
     actions : [{
-      text : textOk,
-      handler : ({app})=>{
-        return app.$vm().meta
+      text: textOk,
+      handler : ({$main})=>_.cloneDeep($main.updates)
+    }, {
+      text: textCancel,
+      handler : ()=>undefined
+    }],
+    //------------------------------------------
+    comType : "modal-inner-body",
+    //------------------------------------------
+    components : [{
+      name : "modal-inner-body",
+      globally : false,
+      data : {
+        currentTab, config, meta,
+        updates : {}
+      },
+      template : `<wn-form
+        display="tab"
+        :current-tab="currentTab"
+        :config="config"
+        :data="theData"
+        @changed="onFieldChanged"
+        />`,
+      computed : {
+        theData() {
+          return _.assign({}, this.meta, this.updates)
+        }
+      },
+      methods : {
+        onFieldChanged({name, value}={}) {
+          let obj = Ti.Types.toObjByPair({name, value})
+          this.updates = _.assign({}, this.updates, obj)
+        }
       }
-    }]
+    }, "@com:wn/form"]
+    //------------------------------------------
   })
-  //................................................
-  return reObj
+  //............................................
+  if(!_.isEmpty(updateMeta)) {
+    let json = JSON.stringify(updateMeta)
+    let cmdText = `obj 'id:${meta.id}' -ocqn -u`
+    let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+    await Ti.Toast.Open("i18n:save-done", "success")
+
+    return newMeta
+  }
+  //............................................
 }
 ////////////////////////////////////////////////////

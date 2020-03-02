@@ -250,9 +250,14 @@ export default {
         showEditorTitle : false,
         icon      : Wn.Util.getObjIcon(this.current.meta, "zmdi-tv"),
         title     : Wn.Util.getObjDisplayName(this.current.meta),
+        width     : "61.8%",
+        height    : "100%",
+        spacing   : ".1rem",
         content   : this.current.content,
         saveBy    : null
       })
+
+      console.log(newContent)
 
       // Cancel the editing
       if(_.isUndefined(newContent)) {

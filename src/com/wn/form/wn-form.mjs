@@ -4,7 +4,8 @@ export default {
   data : ()=>({
     explainDict : async function(value, dict){
       return await Wn.Dict.get(dict, value)
-    }
+    },
+    myData : null
   }),
   ///////////////////////////////////////////////////
   props : {

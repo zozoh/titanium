@@ -63,6 +63,14 @@
     &.is-info    .modal-actions > .as-action {@include color($color-info,    r, c);}
     &.is-error   .modal-actions > .as-action {@include color($color-error,   r, c);}
     &.is-track   .modal-actions > .as-action {@include color($color-track,   r, c);}
+    //-----------------------------------
+    &.is-closer-default {
+      &.is-success .modal-closer {@include color($color-success, r);}
+      &.is-warn    .modal-closer {@include color($color-warn,    r);}
+      &.is-info    .modal-closer {@include color($color-info,    r);}
+      &.is-error   .modal-closer {@include color($color-error,   r);}
+      &.is-track   .modal-closer {@include color($color-track,   r);}
+    }
     //---------------------------------
     > .modal-head {
       //-----------------------------
@@ -187,15 +195,12 @@
       //--------------------------------
       > .ti-icon {
         @include flex-center;
-        @include color($color-func, r, c);
         cursor: pointer;
         width:$header-size; 
         height:$header-size;
         //------------------------------
         > .icon-icon {
-          > i {
-            transition: transform 0.3s;
-          }
+          > i {transition: transform 0.3s;}
         }
         //------------------------------
         &:hover {
@@ -207,9 +212,9 @@
         //------------------------------
       }
       //--------------------------------
-    }
+    } // &.as-default
     //---------------------------------
-  }
+  } // .modal-closer
   //-----------------------------------
 }
 //---------------------------------------

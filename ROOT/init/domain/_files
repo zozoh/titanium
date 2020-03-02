@@ -336,10 +336,10 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
   com: "/rs/ti/test/components/demo-wn-transfer-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/wn-transfer-0.wncom
+@FILE demo/demo-ti-app-modal.wncom
 {
   title : "弹出层测试",
-  com: "/rs/ti/test/components/demo-ti-modal-toast.json"
+  com: "/rs/ti/test/components/demo-ti-app-modal.json"
 }
 ##########################################################
 #

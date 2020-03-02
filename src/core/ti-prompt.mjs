@@ -22,6 +22,7 @@ async function Prompt(msg="", {
     type, width, height, position,
     title   : theTitle,
     closer  : false,
+    //------------------------------------------
     actions : [{
       text: textOk,
       handler : ({$main})=>$main.result

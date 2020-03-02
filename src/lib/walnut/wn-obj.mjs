@@ -111,8 +111,23 @@ const FIELDS = {
 ////////////////////////////////////////////
 export const WnObj = {
   //----------------------------------------
+  getGroupTitle(titleKey) {
+    if(/^(basic|privilege|thumb|more|advance|customized|others)$/.test(titleKey))
+      return `i18n:wn-key-grp-${titleKey}`
+    return titleKey
+  },
+  //----------------------------------------
   getField(key) {
-    return _.cloneDeep(FIELDS[key])
+    let fld = FIELDS[key]
+    if(fld) {
+      return _.cloneDeep(fld)
+    }
+    return {
+      title : key,
+      name  : key,
+      type  : "String",
+      comType : "ti-input"
+    }
   },
   //----------------------------------------
   evalFields(fields=[], iteratee=_.identity) {
