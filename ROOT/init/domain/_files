@@ -232,91 +232,114 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
 #---------------------------------------------------------
 @FILE demo/ti-calendar-month.wncom
 {
-  com: "/rs/ti/com/ti/calendar/_test/demo-ti-calendar-month.json"
+  title : "日历",
+  com: "/rs/ti/test/components/demo-ti-calendar-month.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-form-0.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/demo-ti-form-0.json"
+  title : "表单",
+  com: "/rs/ti/test/components/demo-ti-form-0.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-form-color-icon.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/demo-ti-form-color-icon.json"
+  title : "表单·颜色图标",
+  com: "/rs/ti/test/components/demo-ti-form-color-icon.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-form-combo-input.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/demo-ti-combo-input.json"
+  title : "表单·组合单选",
+  com: "/rs/ti/test/components/demo-ti-combo-input.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-form-combo-multi-input.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/demo-ti-combo-multi-input.json"
+  title : "表单·组合多选",
+  com: "/rs/ti/test/components/demo-ti-combo-multi-input.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-form-datetime.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/demo-ti-form-datetime.json"
+  title : "表单·日期时间",
+  com: "/rs/ti/test/components/demo-ti-form-datetime.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-form-input-tags.wncom
 {
-  com: "/rs/ti/com/ti/form/_test/demo-ti-form-input-tags.json"
+  title : "表单·输入标签",
+  com: "/rs/ti/test/components/demo-ti-form-input-tags.json"
 }
 #---------------------------------------------------------
 @FILE demo/wizard-0.wncom
 {
-  com: "/rs/ti/com/ti/wizard/_test/demo-wizard-0.json"
+  title : "向导·普通",
+  com: "/rs/ti/test/components/demo-wizard-0.json"
 }
 #---------------------------------------------------------
 @FILE demo/tree-0.wncom
 {
-  ln : "/rs/ti/com/ti/tree/_test/demo-ti-tree-0.data.json", 
-  com: "/rs/ti/com/ti/tree/_test/demo-ti-tree-0.json"
+  title : "树",
+  ln : "/rs/ti/test/components/demo-ti-tree-0.data.json", 
+  com: "/rs/ti/test/components/demo-ti-tree-0.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-list-0.wncom
 {
-  ln : "/rs/ti/com/ti/list/_test/demo-ti-list-0.data.json", 
-  com: "/rs/ti/com/ti/list/_test/demo-ti-list-0.json"
+  title : "列表",
+  ln : "/rs/ti/test/components/demo-ti-list-0.data.json", 
+  com: "/rs/ti/test/components/demo-ti-list-0.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-table-0.wncom
 {
-  ln : "/rs/ti/com/ti/table/_test/demo-ti-table-0.data.json", 
-  com: "/rs/ti/com/ti/table/_test/demo-ti-table-0.json"
+  title : "表格",
+  ln : "/rs/ti/test/components/demo-ti-table-0.data.json", 
+  com: "/rs/ti/test/components/demo-ti-table-0.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-obj-json-0.wncom
 {
-  com: "/rs/ti/com/ti/obj/json/_test/demo-ti-obj-json-0.json"
+  title : "JSON对象编辑",
+  com: "/rs/ti/test/components/demo-ti-obj-json-0.json"
 }
-%COPY> /rs/ti/com/ti/obj/json/_test/demo-ti-obj-json-0.data.json
+%COPY> /rs/ti/test/components/demo-ti-obj-json-0.data.json
 #---------------------------------------------------------
 @FILE demo/ti-gui-0.wncom
 {
-  com: "/rs/ti/com/ti/gui/_test/demo-ti-gui-0.json"
+  title : "GUI布局",
+  com: "/rs/ti/test/components/demo-ti-gui-0.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-transfer-0.wncom
 {
-  com: "/rs/ti/com/ti/transfer/_test/demo-ti-transfer-0.json"
+  title : "穿梭框",
+  com: "/rs/ti/test/components/demo-ti-transfer-0.json"
 }
 #---------------------------------------------------------
 @FILE demo/wn-combo-input.wncom
 {
-  com: "/rs/ti/com/wn/form/_test/demo-wn-combo-input.json"
+  title : "动态表单·组合单选框",
+  com: "/rs/ti/test/components/demo-wn-combo-input.json"
 }
 #---------------------------------------------------------
 @FILE demo/wn-combo-multi-input.wncom
 {
-  com: "/rs/ti/com/wn/form/_test/demo-wn-combo-multi-input.json"
+  title : "动态表单·组合多选框",
+  com: "/rs/ti/test/components/demo-wn-combo-multi-input.json"
 }
 #---------------------------------------------------------
 @FILE demo/wn-transfer-0.wncom
 {
-  com: "/rs/ti/com/wn/transfer/_test/demo-wn-transfer-0.json"
+  title : "动态穿梭框",
+  com: "/rs/ti/test/components/demo-wn-transfer-0.json"
+}
+#---------------------------------------------------------
+@FILE demo/wn-transfer-0.wncom
+{
+  title : "弹出层测试",
+  com: "/rs/ti/test/components/demo-ti-modal-toast.json"
 }
 ##########################################################
 #

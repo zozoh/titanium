@@ -1,0 +1,273 @@
+////////////////////////////////////////////////////
+.ti-app-modal {
+  @include pos-fixed-full;
+  @include flex-center;
+  z-index:$z-top;
+  //-----------------------------------
+  &.show-mask {
+    @include color($color-mask, null, thin);
+    @include pos-fixed(0,0,100%,100%);
+    &.at-center {padding-bottom:19%;}
+    &.at-left   {justify-content: flex-start;}
+    &.at-right  {justify-content: flex-end;}
+    &.at-top    {align-content: flex-start;}
+    &.at-bottom {align-content: flex-end;}
+    &.at-left-top     {justify-content: flex-start; align-content: flex-start;}
+    &.at-right-top    {justify-content: flex-end;   align-content: flex-start;}
+    &.at-bottom-left  {justify-content: flex-start; align-content: flex-end;}
+    &.at-bottom-right {justify-content: flex-end;   align-content: flex-end;}
+  }
+  //-----------------------------------
+  &.no-mask {
+    // If center, it should be mask by transparent
+    &.at-center {
+      @include pos-fixed(0,0,100%,100%);
+      @include flex-center;
+      padding-bottom:19%;
+    }
+    //---------------------------------
+    > .modal-con {
+      @include border(1px,solid,dark);
+    }
+    //---------------------------------
+    &.at-left   {@include pos-fixed($l:0,$t:0,$b:0); >.panel-con{border-left:0;}}
+    &.at-right  {@include pos-fixed($r:0,$t:0,$b:0); >.panel-con{border-right:0;}}
+    &.at-top    {@include pos-fixed($l:0,$t:0,$r:0); >.panel-con{border-top:0;}}
+    &.at-bottom {@include pos-fixed($l:0,$b:0,$r:0); >.panel-con{border-bottom:0;}}
+    &.at-left-top     {@include pos-fixed($l:0,$t:0); >.panel-con{border-left:0;border-top:0;}}
+    &.at-right-top    {@include pos-fixed($r:0,$t:0); >.panel-con{border-right:0;border-top:0;}}
+    &.at-bottom-left  {@include pos-fixed($b:0,$l:0); >.panel-con{border-bottom:0;border-left:0;}}
+    &.at-bottom-right {@include pos-fixed($b:0,$r:0); >.panel-con{border-bottom:0;border-right:0;}}
+    //---------------------------------
+  }
+  //-----------------------------------
+  $header-size  : .4rem;
+  $actions-size : .5rem;
+  $closer-size  : .5rem;
+  //-----------------------------------
+  .modal-con {
+    @include color($color-body, r, c);
+    position: relative;
+    //---------------------------------
+    &.is-show-header  {padding-top: $header-size;}
+    &.is-show-actions {padding-bottom: $actions-size;}
+    //-----------------------------------
+    &.is-success .modal-head {@include color($color-success, r, c);}
+    &.is-warn    .modal-head {@include color($color-warn,    r, c);}
+    &.is-info    .modal-head {@include color($color-info,    r, c);}
+    &.is-error   .modal-head {@include color($color-error,   r, c);}
+    &.is-track   .modal-head {@include color($color-track,   r, c);}
+    //-----------------------------------
+    &.is-success .modal-actions > .as-action {@include color($color-success, r, c);}
+    &.is-warn    .modal-actions > .as-action {@include color($color-warn,    r, c);}
+    &.is-info    .modal-actions > .as-action {@include color($color-info,    r, c);}
+    &.is-error   .modal-actions > .as-action {@include color($color-error,   r, c);}
+    &.is-track   .modal-actions > .as-action {@include color($color-track,   r, c);}
+    //---------------------------------
+    > .modal-head {
+      //-----------------------------
+      @include noselect;
+      @include pos-abs($l:0,$r:0,$t:0,$h:$header-size);
+      @include flex-align-nowrap($ai:stretch);
+      @include color($color-bar, r, c);
+      @include border(1px, solid, shallow, bottom);
+      //-----------------------------
+      line-height: $header-size;
+      padding:0 0 0 .06rem;
+      //-----------------------------
+      > .as-icon {
+        @include flex-center;
+        padding-left:.06rem;
+      }
+      //-----------------------------
+      > .as-title {
+        flex:1 0 auto;
+        padding:0 .06rem;
+      }
+      //-----------------------------
+      > .as-actions {
+        @include flex-align-nowrap;
+        padding:0 .04rem 0 0;
+        font-size: .9em;
+      }
+      //-----------------------------
+    } // &.is-show-header
+    //---------------------------------
+    > .modal-main {
+      width:100%; height:100%;
+      min-height: 1rem;
+    }
+    //---------------------------------
+    > .modal-actions {
+      @include noselect;
+      @include pos-abs($l:0,$r:0,$b:0,$h:$actions-size);
+      @include color($color-func, r, c);
+      @include border(1px, solid, shallow, top);
+      @include flex-align-nowrap($jc:flex-end);
+      padding:.08rem;
+      > .as-action {
+        @include color($color-chip, r, c);
+        @include fireable;
+        @include border(1px, solid, dark);
+        margin:.02rem; padding:0 .12rem;
+        font-size:.12rem; line-height:2.4em;
+        min-width:1rem; text-align:center;
+        letter-spacing: .1em;
+        > .as-icon {margin-right:.05rem;}
+      }
+    } // ~ > .mdl-actions
+    //-------------------------------------
+  }
+  //-----------------------------------
+  // If closer is default, make more space
+  // for it in block title bar
+  &.is-closer-default {
+    > .panel-con > .ti-gui-block > .block-head > .as-actions {
+      padding-right: $header-size + .04rem;
+    }
+  }
+  //-----------------------------------
+  .modal-closer {
+    position: absolute;
+    @include flex-center;
+    //--------------------------------------
+    &.as-lamp-cord {
+      > .ti-icon {
+        color:rgba(255,255,255,0.8); 
+        border:1px solid rgba(255,255,255,0.8);
+        background:rgba(50,50,50,0.4);
+        border-radius: 50%;
+        width:32px; height:32px;
+        cursor: pointer;
+        display:block;
+        transition: all 0.8s;
+        > .icon-icon {
+          display: block; width:100%; height:100%;
+          > i {
+            width:100%; height:100%;
+            line-height: 32px; text-align: center;
+            font-size:21px; font-weight: 400;
+            transition: all 0.3s;
+          }
+        }
+        &:hover {
+          @include color($color-secondary, r, c);
+          border-color:transparent;
+          box-shadow:0 0 10px 4px map-get($color-light, c);
+          > .icon-icon > i {
+            transform: rotate(180deg);
+          }
+        }
+      }
+      //--------------------------------------
+      &.at-top {
+        height: $closer-size;
+        top: $closer-size * -1;
+        left:0; right:0;
+      }
+      &.at-bottom {
+        height: $closer-size;
+        bottom: $closer-size * -1;
+        left:0; right:0;
+      }
+      &.at-left {
+        width: $closer-size;
+        left: $closer-size * -1;
+        top:0; bottom:0;
+      }
+      &.at-right {
+        width: $closer-size;
+        right: $closer-size * -1;
+        top:0; bottom:0;
+      }
+    }
+    //----------------------------------
+    &.as-default {
+      top:0; right:0; 
+      //--------------------------------
+      > .ti-icon {
+        @include flex-center;
+        @include color($color-func, r, c);
+        cursor: pointer;
+        width:$header-size; 
+        height:$header-size;
+        //------------------------------
+        > .icon-icon {
+          > i {
+            transition: transform 0.3s;
+          }
+        }
+        //------------------------------
+        &:hover {
+          @include color($color-secondary, r, c);
+          > .icon-icon > i {
+            transform: rotate(180deg) scale(1.2);
+          }
+        }
+        //------------------------------
+      }
+      //--------------------------------
+    }
+    //---------------------------------
+  }
+  //-----------------------------------
+}
+//---------------------------------------
+// Animation
+//---------------------------------------
+@mixin app-modal-trans($name, $trans, $tor:null, $du:.3s) {
+  .app-modal-trans-at-#{$name}-enter-active, 
+  .app-modal-trans-at-#{$name}-leave-active {
+    transition: opacity $du;
+    > .modal-con {
+      transition: transform $du ease;
+      @if $tor != null {
+        transform-origin: $tor;
+      }
+    }
+  }
+  .app-modal-trans-at-#{$name}-enter, 
+  .app-modal-trans-at-#{$name}-leave-to  {
+    opacity: 0;
+    > .modal-con {transform: $trans;}
+  }
+}
+@include app-modal-trans(top,    translateY(-300px));
+@include app-modal-trans(left,   translateX(-300px));
+@include app-modal-trans(right,  translateX(300px));
+@include app-modal-trans(bottom, translateY(300px));
+@include app-modal-trans(center, scale(0));
+@include app-modal-trans(left-top,     scale(0), left top);
+@include app-modal-trans(right-top,    scale(0), right top);
+@include app-modal-trans(bottom-left,  scale(0), bottom left);
+@include app-modal-trans(bottom-right, scale(0), bottom right);
+////////////////////////////////////////////////////
+.ti-msg-body {
+  @include flex-align-nowrap;
+  min-width: 3rem; width:100%;
+  //-----------------------------------
+  &.modal-type-is-success {@include color($color-success, c);}
+  &.modal-type-is-warn    {@include color($color-warn,    r);}
+  &.modal-type-is-info    {@include color($color-info,    c);}
+  &.modal-type-is-error   {@include color($color-error,   c);}
+  &.modal-type-is-track   {@include color($color-track,   c);}
+  //-----------------------------------
+  > .as-icon {
+    @include flex-center;
+    font-size:.5rem; flex:0 0 auto;
+    padding:.2rem;
+  }
+  //-----------------------------------
+  > .as-text {
+    flex:1 1 auto;
+    padding:.1rem;
+  }
+  //-----------------------------------
+  &.as-prompt {
+    > .as-text > .as-tip {
+      padding: .1rem 0;
+    }
+  }
+  //-----------------------------------
+}
+////////////////////////////////////////////////////

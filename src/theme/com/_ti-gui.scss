@@ -303,7 +303,8 @@ $GUI-BLOCK-HEADER-HEIGHT: .4rem;
 // Animation
 //---------------------------------------
 @mixin gui-trans($name, $trans, $tor:null, $du:.3s) {
-  .ti-gui-panel-#{$name}-enter-active, .ti-gui-panel-#{$name}-leave-active {
+  .ti-gui-panel-#{$name}-enter-active, 
+  .ti-gui-panel-#{$name}-leave-active {
     transition: opacity $du;
     > .panel-con {
       transition: transform $du ease;
@@ -312,7 +313,8 @@ $GUI-BLOCK-HEADER-HEIGHT: .4rem;
       }
     }
   }
-  .ti-gui-panel-#{$name}-enter, .ti-gui-panel-#{$name}-leave-to  {
+  .ti-gui-panel-#{$name}-enter, 
+  .ti-gui-panel-#{$name}-leave-to  {
     opacity: 0;
     > .panel-con {transform: $trans;}
   }

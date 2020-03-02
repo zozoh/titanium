@@ -1,0 +1,33 @@
+<div class="test-app-modal" style="padding:.2rem; font-size:.14rem;">
+  <pre>{{result}}</pre>
+  <hr>
+  <!--Basice-->
+  <h2>Basice Modal</h2>
+  <template v-for="mt of theModalTest">
+    | <a @click.prevent="testBasicModal(mt)">{{mt.position}}</a>
+  </template>
+
+  
+  <!--Alert-->
+  <hr>
+  <h2>Alert</h2>
+  <template v-for="mt of theModalTest">
+    | <a @click.prevent="testAlert(mt)">{{mt.position}}</a>
+  </template>
+
+  <!--Confirm-->
+  <hr>
+  <h2>Confirm</h2>
+  <template v-for="mt of theModalTest">
+    | <a @click.prevent="testConfirm(mt)">{{mt.position}}</a>
+  </template>
+
+  <!--Prompt-->
+  <hr>
+  <h2>Prompt</h2>
+  <template v-for="mt of theModalTest">
+    | <a @click.prevent="testPrompt(mt)">{{mt.position}}</a>
+  </template>
+  
+  
+</div>

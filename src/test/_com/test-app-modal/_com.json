@@ -1,0 +1,6 @@
+{
+  "name" : "test-app-modal",
+  "globally" : true,
+  "template" : "./test-app-modal.html",
+  "mixins" : ["./test-app-modal.mjs"]
+}

@@ -1,33 +1,48 @@
+////////////////////////////////////////////////
 async function Confirm(msg="", {
-  title = "i18n:confirm", 
-  icon = "confirm",
+  title, 
+  icon,
   type  = "warn", 
+  position = "center",
   textYes = "i18n:yes",
   textNo  = "i18n:no",
   width, height}={}){
-  // Get the tip text
-  let str = Ti.I18n.text(msg)
-  // Build DOM
-  let html = Ti.Dom.htmlChipITT({
-      icon:icon, text:str
-    },{
-      className : "ti-modal-noti as-confirm",
-      iconClass : "ti-modal-noti-icon",
-      textClass : "ti-modal-noti-text"
-    })
-  // Open modal
-  return Ti.Modal.Open({
-    template : html
-  }, {
-    title, type, width, height, 
+  //............................................
+  let text = Ti.I18n.text(msg)
+  let theIcon  = icon  || "zmdi-help"
+  let theTitle = title || "i18n:confirm"
+  //............................................
+  return Ti.App.Open({
+    //------------------------------------------
+    type, width, height, position,
+    title   : theTitle,
     closer  : false,
-    icon : false,
     actions : [{
-      text: textYes, handler :()=>true
+      text: textYes,
+      handler : ()=>true
     }, {
-      text: textNo,  handler :()=>false
-    }]
+      text: textNo,
+      handler : ()=>false
+    }],
+    //------------------------------------------
+    comType : "modal-inner-body",
+    comConf : {icon:theIcon, text},
+    //------------------------------------------
+    components : {
+      name : "modal-inner-body",
+      globally : false,
+      props : {
+        "icon" : undefined, 
+        "text" : undefined
+      },
+      template : `<div class="ti-msg-body as-confirm">
+        <div class="as-icon"><ti-icon :value="icon"/></div>
+        <div class="as-text">{{text}}</div>
+      </div>`
+    }
+    //------------------------------------------
   })
+  //............................................
 }
-
+////////////////////////////////////////////////
 export default Confirm

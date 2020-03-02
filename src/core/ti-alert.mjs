@@ -1,29 +1,44 @@
+////////////////////////////////////////////////
 async function Alert(msg="", {
-  title = "i18n:info", 
-  icon = "alert",
-  className,
+  title, 
+  icon,
   type  = "track", 
   textOk = "i18n:ok",
+  position = "center",
   width, height}={}){
-  // Get the tip text
-  let str = Ti.I18n.text(msg)
-  // Build DOM
-  let html = Ti.Dom.htmlChipITT({
-      icon:icon, text:str
-    },{
-      className : "ti-modal-noti as-alert",
-      iconClass : "ti-modal-noti-icon",
-      textClass : "ti-modal-noti-text"
-    })
-  // Open modal
-  return Ti.Modal.Open({
-    template : html
-  }, {
-    title, type, width, height, className,
+  //............................................
+  let text = Ti.I18n.text(msg)
+  let theIcon  = icon  || Ti.Icons.get(type, "zmdi-info")
+  let theTitle = title || Ti.I18n.get(type)
+  //............................................
+  return Ti.App.Open({
+    //------------------------------------------
+    type, width, height, position,
+    title   : theTitle,
     closer  : false,
-    icon : false,
-    actions : [{text: textOk}]
+    actions : [{
+      text: textOk,
+      handler : ()=>true
+    }],
+    //------------------------------------------
+    comType : "modal-inner-body",
+    comConf : {icon:theIcon, text},
+    //------------------------------------------
+    components : {
+      name : "modal-inner-body",
+      globally : false,
+      props : {
+        "icon" : undefined, 
+        "text" : undefined
+      },
+      template : `<div class="ti-msg-body as-alert">
+        <div class="as-icon"><ti-icon :value="icon"/></div>
+        <div class="as-text">{{text}}</div>
+      </div>`
+    }
+    //------------------------------------------
   })
+  //............................................
 }
-
+////////////////////////////////////////////////
 export default Alert

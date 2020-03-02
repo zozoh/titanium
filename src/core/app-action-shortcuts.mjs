@@ -99,8 +99,8 @@ export class TiAppActionShortcuts {
     //..........................................
   }
   //--------------------------------------------
-  isWatched(uniqueKey, scope) {
-    let as = this.actions[uniqueKey]
+  isWatched(uniqKey, scope) {
+    let as = this.actions[uniqKey]
     if(_.isArray(as)) {
       for(let a of as) {
         if(a.scope === scope) {
@@ -137,19 +137,19 @@ export class TiAppActionShortcuts {
     })
   }
   //--------------------------------------------
-  addGuard(uniqueKey, guard, scope) {
-    if(uniqueKey && _.isFunction(guard)) {
-      Ti.Util.pushValue(this.guards, uniqueKey, {scope, func:guard})
+  addGuard(uniqKey, guard, scope) {
+    if(uniqKey && _.isFunction(guard)) {
+      Ti.Util.pushValue(this.guards, uniqKey, {scope, func:guard})
     }
   }
   //--------------------------------------------
-  unwatch(scope, ...uniqueKeys) {
-    this.__remove_by(this.actions, scope, uniqueKeys)
-    this.__remove_by(this.guards, scope, uniqueKeys)
+  unwatch(scope, ...uniqKeys) {
+    this.__remove_by(this.actions, scope, uniqKeys)
+    this.__remove_by(this.guards, scope, uniqKeys)
   }
   //--------------------------------------------
-  __remove_by(map, scope, ...uniqueKeys) {
-    let keys = _.flattenDeep(uniqueKeys)
+  __remove_by(map, scope, ...uniqKeys) {
+    let keys = _.flattenDeep(uniqKeys)
     // Remove All
     if(!scope && _.isEmpty(keys)) {
       return {}
@@ -177,17 +177,17 @@ export class TiAppActionShortcuts {
   //--------------------------------------------
   /***
    * @param scope{Any}
-   * @param uniqueKey{String} : like "CTRL+S"
+   * @param uniqKey{String} : like "CTRL+S"
    * @param st{OBject} : return object
    */
-  fire(scope, uniqueKey, st = {
+  fire(scope, uniqKey, st = {
     stop    : false,
     prevent : false,
     quit    : false
   }) {
     //..........................................
-    if("ALT+SHIFT+T" == uniqueKey)
-      console.log("AppActionShortcuts.fired", uniqueKey)
+    if("ALT+SHIFT+T" == uniqKey)
+      console.log("AppActionShortcuts.fired", uniqKey)
     if(st.quit) {
       return st
     }
@@ -195,7 +195,7 @@ export class TiAppActionShortcuts {
     let scopeIsNil = Ti.Util.isNil(scope)
     //..........................................
     // Ask guards
-    let guards = this.guards[uniqueKey]
+    let guards = this.guards[uniqKey]
     if(_.isArray(guards)) {
       for(let g of guards) {
         if(scopeIsNil || g.scope === scope) {
@@ -208,7 +208,7 @@ export class TiAppActionShortcuts {
     }
     //..........................................
     // fire the action list
-    let as = this.actions[uniqueKey]
+    let as = this.actions[uniqKey]
     if(!_.isArray(as)) 
       return st
     //..........................................

@@ -104,8 +104,8 @@
           .row-actived-indicator:before {
             display:block; content:"";
             height:.12rem; width:1px;
-            border-left :1px dotted #FFF;
-            border-right:1px dotted #FFF;
+            border-left :1px dotted map-get($color-primary, r);
+            border-right:1px dotted map-get($color-primary, r);
             opacity: 0.6;
           }
         }

@@ -1,6 +1,6 @@
 export default {
   inheritAttrs : false,
-  ///////////////////////////////////////////////////
+  ////////////////////////////////////////////
   props : {
     "meta" : {
       type : Object,
@@ -31,7 +31,7 @@ export default {
       default : true
     }
   },
-  //////////////////////////////////////////
+  ////////////////////////////////////////////
   computed : {
     comBindObject() {
       let re = Ti.Util.explainObj({
@@ -43,9 +43,13 @@ export default {
       return re      
     }
   },
-  //////////////////////////////////////////
+  ////////////////////////////////////////////
   methods : {
-    //----------------------------------------------
+    //----------------------------------------
+    onTest(payload) {
+      console.log("onTest", payload)
+    },
+    //----------------------------------------
     async hijackEmit(name, args) {
       // Find the serializer function
       let action = this.dispatchActions[name]
@@ -65,6 +69,7 @@ export default {
         })
       }
     }
+    //----------------------------------------
   },
   ////////////////////////////////////////////
   mounted : function(){

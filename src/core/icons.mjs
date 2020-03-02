@@ -117,6 +117,9 @@ export const TiIcons = {
            || dft
            || DEFAULT
   },
+  getByName(iconName, dft=null) {
+    return Ti.Util.fallback(NAMES[iconName], dft, DEFAULT)
+  },
   parseFontIcon(val, dft={}) {
     if(!val)
       return dft

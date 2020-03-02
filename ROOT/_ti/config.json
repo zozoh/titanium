@@ -1,8 +1,10 @@
 {
   "prefix" : {
-    "Home" : "/o/content?str=~/"
+    "Home" : "/o/content?str=~/",
+    "Test" : "/gu/rs/ti/test/_com/"
   },
-  "alias" : {
+  "suffix" : {
+    "^@Test:" : "/_com.json"
   },
   "lang" : "zh-cn",
   "i18n" : "@Home:.ti/i18n/all",

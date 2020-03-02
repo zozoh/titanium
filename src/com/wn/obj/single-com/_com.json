@@ -11,6 +11,7 @@
     "@com:ti/button",
     "@com:ti/table",
     "@com:ti/tree",
-    "@com:ti/obj/json"
+    "@com:ti/obj/json",
+    "@Test:test-app-modal"
   ]
 }

@@ -3,7 +3,7 @@ export class TiAppModal {
   // Attributes
   //////////////////////////////////////////////
   icon   = undefined
-  title  = "i18n:modal"
+  title  = undefined
   // info|warn|error|success|track
   type   = "info"
   //--------------------------------------------
@@ -19,6 +19,7 @@ export class TiAppModal {
   //--------------------------------------------
   comType = "ti-label"
   comConf = {}
+  components = []
   //--------------------------------------------
   // Aspect
   closer = "default"  // true|false | (default|bottom|top|left|right)
@@ -33,7 +34,7 @@ export class TiAppModal {
   position = "center"
   //--------------------------------------------
   // Measure
-  width    = undefined
+  width    = "6.4rem"
   height   = undefined
   spacing  = undefined
   overflow = undefined
@@ -42,19 +43,20 @@ export class TiAppModal {
   //////////////////////////////////////////////
   // Methods
   //////////////////////////////////////////////
-  async open($stub, resolve=_.identity) {
+  async open(resolve=_.identity) {
     //..........................................
     // Setup content
-    let html = `<div class="ti-app-modal"
-      :class="topClass"
-      :style="topStyle"
-      @click.left="onClickTop">
+    let html = `<transition :name="theTransName" @after-leave="onAfterLeave">
+      <div class="ti-app-modal"
+        v-if="!hidden"
+          :class="topClass"
+          :style="topStyle"
+          @click.left="onClickTop"
+          v-ti-actived="__set_actived">
 
-      <transition :name="theTransName"
-        @after-leave="onAfterLeave">
-
-        <div class="modal-con" 
-          v-if="!hidden"
+          <div class="modal-con" 
+            :class="theConClass"
+            :style="theConStyle"
             @click.left.stop>
 
             <div class="modal-head"
@@ -66,6 +68,7 @@ export class TiAppModal {
             <div class="modal-main">
               <component
                 class="ti-fill-parent"
+                :class="theMainClass"
                 :is="comType"
                 v-bind="comConf"
                 :on-init="onMainInit"/>
@@ -85,17 +88,16 @@ export class TiAppModal {
             <div class="modal-closer"
               v-if="hasCloser"
                 :class="theCloserClass">
-                  <ti-icon value="zmdi-close" @click.native="onClose"/>
+                  <ti-icon value="zmdi-close" @click.native="close"/>
             </div>
         </div>
-
-      </transition>
-    </div>`
+    </div></transition>`
     //..........................................
     // Prepare the app info
     let appInfo = {
       //////////////////////////////////////////
       template : html,
+      components : this.components,
       //////////////////////////////////////////
       data : {
         hidden : true,
@@ -131,10 +133,10 @@ export class TiAppModal {
       computed : {
         //--------------------------------------
         topClass() {
-          return this.getTopClass([
-            `at-${this.position}`,
-            `is-${this.type}`
-          ])
+          return this.getTopClass({
+            "show-mask" : this.isShowMask,
+            "no-mask"   : !this.isShowMask,
+          }, `at-${this.position}`)
         },
         //--------------------------------------
         topStyle() {
@@ -146,11 +148,15 @@ export class TiAppModal {
         },
         //--------------------------------------
         theTransName() {
-          return `toast-trans-at-${this.position}`
+          return `app-modal-trans-at-${this.position}`
         },
         //--------------------------------------
         isShowHead() {
           return this.icon || this.title
+        },
+        //--------------------------------------
+        isShowMask() {
+          return this.mask ? true : false
         },
         //--------------------------------------
         hasActions() {
@@ -163,6 +169,26 @@ export class TiAppModal {
         //--------------------------------------
         isCloserDefault() {
           return true === this.closer || "default" == this.closer
+        },
+        //--------------------------------------
+        theConClass() {
+          return Ti.Css.mergeClassName({
+            "is-show-header"  : this.isShowHead,
+            "is-hide-header"  : !this.isShowHead,
+            "is-show-actions" : this.hasActions,
+            "is-hide-actions" : !this.hasActions
+          }, `is-${this.type}`)
+        },
+        //--------------------------------------
+        theConStyle() {
+          return Ti.Css.toStyle({
+            width  : this.width,
+            height : this.height
+          })
+        },
+        //--------------------------------------
+        theMainClass() {
+          return Ti.Css.mergeClassName(`modal-type-is-${this.type}`)
         },
         //--------------------------------------
         theCloserClass() {
@@ -185,36 +211,48 @@ export class TiAppModal {
           }
         },
         //--------------------------------------
-        onClose() {
+        close(result) {
+          if(!_.isUndefined(result)) {
+            this.returnValue = result
+          }
           this.hidden = true
+        },
+        //--------------------------------------
+        setResult(result) {
+          this.returnValue = result
         },
         //--------------------------------------
         async onClickActon(a) {
           if(a.handler) {
             let app = Ti.App(this)
-            this.returnValue = await a.handler({
+            let status = {close:true}
+            let re = await a.handler({
               $app  : app,
-              $main : app.$main,
-              close : ()=>this.onClose()
+              $main : app.$vm().$main,
+              status
             })
+            if(status.close) {
+              this.close(re)
+            } else {
+              this.setResult(re)
+            }
           }
         },
         //--------------------------------------
         onAfterLeave() {
-          Ti.App(this).destroy();
-          Ti.Dom.remove(this.$stub)
+          Ti.App(this).destroy(true);
           resolve(this.returnValue)
         }
         //--------------------------------------
       },
       //////////////////////////////////////////
       mounted : function() {
-        this.$stub = this.$el.parentNode
         this.$nextTick(()=>{
           this.hidden = false
         })
         let app = Ti.App(this)
         Ti.App.pushInstance(app)
+        this.setActived()
       },
       //////////////////////////////////////////
       beforeDestroy : function(){
@@ -230,10 +268,14 @@ export class TiAppModal {
     await app.init()
     //..........................................
     // Mount to stub
+    let $stub = Ti.Dom.createElement({
+      $p : document.body,
+      className : "the-stub"
+    })
     app.mountTo($stub)
     //..........................................
     // Then it was waiting the `close()` be invoked
     //..........................................
-  }
-  //--------------------------------------------
+  } // ~ methods
+  //////////////////////////////////////////
 }

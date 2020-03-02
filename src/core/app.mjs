@@ -402,12 +402,7 @@ TiApp.Open = function(options) {
   return new Promise((resolve)=>{
     let $m = new TiAppModal()
     _.assign($m, options)
-
-    let $stub = Ti.Dom.createElement({
-      $p : document.body,
-      className : "the-stub"
-    })
-    $m.open($stub, resolve)
+    $m.open(resolve)
   })
 }
 //---------------------------------------
