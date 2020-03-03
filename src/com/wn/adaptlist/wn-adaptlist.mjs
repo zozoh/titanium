@@ -186,11 +186,11 @@ export default {
       return this.hasUploading ? "up-show" : "up-hide"
     },
     //--------------------------------------------
-    onListReady() {
-      return ($list)=>{
-        this.$innerList = $list
-      }
-    }
+    // onListReady() {
+    //   return ($list)=>{
+    //     this.$innerList = $list
+    //   }
+    // }
     //--------------------------------------------
   },  // ~ computed
   ////////////////////////////////////////////////
@@ -212,9 +212,9 @@ export default {
       })
     },
     //--------------------------------------------
-    invokeList(methodName) {
-      Ti.InvokeBy(this.$innerList, methodName)
-    },
+    // invokeList(methodName) {
+    //   Ti.InvokeBy(this.$innerList, methodName)
+    // },
     //--------------------------------------------
     isHiddenItem(it) {
       if(it.nm.startsWith(".") && !this.status.exposeHidden) {
@@ -455,6 +455,7 @@ export default {
 
       // Call reload
       await this._run("reload")
+      
 
       // Make it checked
       this.myCheckedIds = newIds

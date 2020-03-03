@@ -25,7 +25,6 @@
       :display="theWallItemDisplay"
       :puppet-mode="true"
       :extend-function-set="theExtendFunctionSet"
-      :on-ready="onListReady"
       @selected="onSelected"
       @open="onOpen"
       />
@@ -53,7 +52,12 @@
           :data="theUploadingList"
           :spacing="spacing"
           :selectable="false"
-          :item-display="theUploadingItemDisplay"/>
+          :multi="false"
+          :checkable="false"
+          :blurable="false"
+          :display="theUploadingItemDisplay"
+          :puppet-mode="true"
+          :extend-function-set="theExtendFunctionSet"/>
       </section>
     </div>
     <!--==================================-->

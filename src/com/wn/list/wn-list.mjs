@@ -57,9 +57,13 @@ export default {
     onSelected(payload={}){
       this.theCheckedIds = payload.checkedIds
       this.theCurrentId  = payload.currentId
-      this.isAllChecked  = this.$list.isAllChecked
-      this.hasChecked    = this.$list.hasChecked
+      this.syncCheckStatus()
       this.$emit('selected', payload)
+    },
+    //----------------------------------------------
+    syncCheckStatus() {
+      this.isAllChecked = this.$list.isAllChecked
+      this.hasChecked   = this.$list.hasChecked
     },
     //----------------------------------------------
     // Delegate methods
@@ -76,6 +80,15 @@ export default {
     checkRow (options){this.$list.checkRow(options)},
     cancelRow(options){this.$list.cancelRow(options)}
     //----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "data" : function(){
+      this.syncCheckStatus()
+    },
+    "checkedIds" : function(){
+      this.syncCheckStatus()
+    }
   }
   ///////////////////////////////////////////////////
 }

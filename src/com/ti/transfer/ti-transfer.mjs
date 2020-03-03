@@ -67,7 +67,7 @@ export default {
     },
     //------------------------------------------------
     hasFilter() {
-      return _.isFunction(this.isMatchedFilter)
+      return this.filterBy ? true : false
     },
     //------------------------------------------------
     theFilterConf() {
@@ -99,7 +99,7 @@ export default {
       let list = []
       _.forEach(this.theCandidates, (it)=>{
         // Apply the filter
-        if(this.hasFilter && this.myFilterValue) {
+        if(_.isFunction(this.isMatchedFilter) && this.myFilterValue) {
           if(!this.isMatchedFilter(it, this.myFilterValue)) {
             return
           }
@@ -217,8 +217,8 @@ export default {
         // Cancel runtime checked
         this.$can.cancelRow()
 
-        // Sync checker status
-        this.syncCheckStatus()
+        // Sync
+        this.syncMe(true)
       }
     },
     //---------------------------------------------------
@@ -240,20 +240,16 @@ export default {
         // Cancel runtime checked
         this.$checked.cancelRow()
 
-        // Sync checker status
-        this.syncCheckStatus()
+        // Sync
+        this.syncMe(true)
       }
     },
     //---------------------------------------------------
     onFilterChanged(val) {
+      this.myFilterValue = val || null
       // Leave to parent
       if(this.theEmitFilterName) {
         this.$emit(this.theEmitFilterName, val)
-      }
-      // Handle be self, update private attribute
-      // then the computed props should auto-updated the can-list
-      else if(this.hasFilter) {
-        this.myFilterValue = val || null
       }
     },
     //---------------------------------------------------
@@ -288,29 +284,53 @@ export default {
     },
     //---------------------------------------------------
     syncCheckStatus() {
-      this.myCandidateCheckStatus = this.$can.isAllChecked
-        ? "all"
-        : (this.$can.hasChecked ? "checked" : "none");
-      
-      this.myCheckedCheckStatus = this.$checked.isAllChecked
-        ? "all"
-        : (this.$checked.hasChecked ? "checked" : "none");
+      this.$nextTick(()=>{
+        this.myCandidateCheckStatus = this.$can.isAllChecked
+          ? "all"
+          : (this.$can.hasChecked ? "checked" : "none");
+        
+        this.myCheckedCheckStatus = this.$checked.isAllChecked
+          ? "all"
+          : (this.$checked.hasChecked ? "checked" : "none");
+      })
     },
     //---------------------------------------------------
-    syncTheValue() {
-      this.myCheckedItems = this.getCandidateItemsBy(this.theValues)
+    syncTheValue(ignoreValue=false) {
+      this.$nextTick(()=>{
+        //console.log("syncTheValue", this.theValues, this.candidates)
+        if(!ignoreValue) {
+          this.myCheckedItems = this.getCandidateItemsBy(this.theValues)
+        }
+        this.myCheckedValMap = this.buildItemValueMap(this.myCheckedItems)
+      })
+    },
+    //---------------------------------------------------
+    syncMe(ignoreValue=false) {
+      this.syncTheValue(ignoreValue)
+      this.syncCheckStatus()
+      this.syncListCount()
     }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   watch : {
     "value" : function() {
-      this.syncTheValue()
-      this.syncCheckStatus()
+      this.syncMe()
     },
-    "myCheckedItems" : function(){
-      this.myCheckedValMap = this.buildItemValueMap(this.myCheckedItems)
-      this.$emit("changed", _.keys(this.myCheckedValMap))
+    "candidates" : function() {
+      this.syncMe()
+    },
+    // "myCheckedItems" : function(newVal, oldVal){
+    //   this.myCheckedValMap = this.buildItemValueMap(this.myCheckedItems)
+    //   console.log("myCheckedItems", {newVal, oldVal})
+    //   this.$emit("changed", _.keys(this.myCheckedValMap))
+    // },
+    "myCheckedValMap" : function() {
+      let vals =  _.keys(this.myCheckedValMap)
+      if(!_.isEqual(vals, this.theValues)) {
+        //console.log("!!! changed")
+        this.$emit("changed", vals)
+      }
     },
     "theShownCandidates" : function() {
       this.syncListCount()
@@ -318,9 +338,7 @@ export default {
   },
   ///////////////////////////////////////////////////////
   mounted : function() {
-    this.syncTheValue()
-    this.syncCheckStatus()
-    this.syncListCount()
+    this.syncMe()
   }
   ///////////////////////////////////////////////////////
 }

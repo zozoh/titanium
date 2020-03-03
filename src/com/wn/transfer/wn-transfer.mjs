@@ -48,14 +48,18 @@ export default {
     //-----------------------------------------------
     async evalCandidates(query, val) {
       this.loading = true
+      console.log(query, val)
       this.myCandidates = await Wn.Util.queryBy(query, val)
+      console.log(this.myCandidates)
       this.loading = false
     },
     //-----------------------------------------------
     async onFilterChanged(val) {
-      this.myCandidates = val 
-        ? await this.evalCandidates(this.filterBy, val)
-        : await this.evalCandidates(this.candidates)
+      if(val) {
+        await this.evalCandidates(this.filterBy, val)
+      } else {
+        await this.evalCandidates(this.candidates)
+      }
     }
     //---------------------------------------------------
   },
