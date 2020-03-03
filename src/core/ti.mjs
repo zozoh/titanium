@@ -33,6 +33,7 @@ import DateTime     from "./datetime.mjs"
 import Num          from "./num.mjs"
 import Css          from "./css.mjs"
 import Mapping      from "./mapping.mjs"
+import {Dict,DictFactory} from "./dict.mjs"
 //---------------------------------------
 const ENV = {
   "version" : "1.0",
@@ -62,7 +63,7 @@ export const Ti = {
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
   WWW, GPS, Validate, DateTime, Num, Websocket, Trees,
-  Mapping,
+  Mapping, Dict, DictFactory,
   //-----------------------------------------------------
   Alert, Confirm, Prompt, Toast, Captcha, Modal,
   //-----------------------------------------------------

@@ -14,10 +14,10 @@
             "height" : 300,
             "display" : ["<icon:im-pizza>", "text"],
             "filterBy" : ["text", "value"],
-            "filterConf" : {
+            "fltComConf" : {
               "valueCase" : "upper"
             },
-            "candidates" : [
+            "options" : [
               {"value":"A", "text":"甲类", "icon":"im-plane"},
               {"value":"B", "text":"乙类"},
               {"value":"C", "text":"丙类"},

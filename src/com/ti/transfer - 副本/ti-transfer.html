@@ -1,6 +1,6 @@
 <div class="ti-transfer"
-  :class="TopClass"
-  :style="TopStyle">
+  :class="topClass"
+  :style="topStyle">
   <!--=========================================
     Left: Candidates
   -->
@@ -10,17 +10,16 @@
     -->
     <div class="as-box-head">
       <div class="as-list-checker"
-        @click.left="onClickHeadChecker(can)">
-        <ti-icon :value="getHeadCheckerIcon(can)"/>
+        @click.left="onClickHeadChecker(myCandidateCheckStatus, $can)">
+        <ti-icon :value="getHeadCheckerIcon(myCandidateCheckStatus)"/>
       </div>
       <!--Title-->
-      <div class="as-title">{{canTitle|i18n}}</div>
+      <div class="as-title">{{candidateTitle|i18n}}</div>
       <!--Filter-->
-      <div v-if="filter"
+      <div v-if="hasFilter"
         class="as-filter">
-          <component 
-            :is="fltComType"
-            v-bind="FilterComConf"
+          <ti-input
+            v-bind="theFilterConf"
             :value="myFilterValue"
             @changed="onFilterChanged"
             /></div>
@@ -28,15 +27,16 @@
     <!--
       component
     -->
-    <component :is="CanListComType"
+    <component :is="theCandidateComType"
       class="as-box-main ti-fill-parent"
-      v-bind="CanListComConf"
-      @selected="OnCanListSelected"/>
+      v-bind="theCandidateComConf"
+      :on-init="onCandidateComInit"
+      @selected="syncCheckStatus"/>
     <!--
       Foot
     -->
     <div class="as-box-foot">
-      <span>{{'total-count'|i18n({nb:can.data.length})}}</span>
+      <span>{{'total-count'|i18n({nb:myCandidateCount})}}</span>
     </div>
   </div>
   <!--=========================================
@@ -45,13 +45,13 @@
   <div class="as-buttons">
     <!--Add-->
     <div class="as-btn is-add"
-      @click.left="canListToSel">
-      <ti-icon :value="assignButtons.add"/>
+      @click.left="addCandidates">
+      <ti-icon :value="theAddIcon"/>
     </div>
     <!--Remove-->
     <div class="as-btn is-remove"
-      @click.left="selListToCan">
-      <ti-icon :value="assignButtons.remove"/>
+      @click.left="removeFromChecked">
+      <ti-icon :value="theRemoveIcon"/>
     </div>
   </div>
   <!--=========================================
@@ -63,23 +63,24 @@
     -->
     <div class="as-box-head">
       <div class="as-list-checker"
-        @click.left="onClickHeadChecker(sel)">
-        <ti-icon :value="getHeadCheckerIcon(sel)"/>
+        @click.left="onClickHeadChecker(myCheckedCheckStatus, $checked)">
+        <ti-icon :value="getHeadCheckerIcon(myCheckedCheckStatus)"/>
       </div>
-      <div class="as-title">{{selTitle|i18n}}</div>
+      <div class="as-title">{{checkedTitle|i18n}}</div>
     </div>
     <!--
       component
     -->
-    <component :is="SelListComType"
+    <component :is="theCheckedComType"
       class="as-box-main ti-fill-parent"
-      v-bind="SelListComConf"
-      @selected="OnSelListSelected"/>
+      v-bind="theCheckedComConf"
+      :on-init="onCheckedComInit"
+      @selected="syncCheckStatus"/>
     <!--
       Foot
     -->
     <div class="as-box-foot">
-      <span>{{'total-count'|i18n({nb:sel.data.length})}}</span>
+      <span>{{'total-count'|i18n({nb:myCheckedCount})}}</span>
     </div>
   </div>
 </div>

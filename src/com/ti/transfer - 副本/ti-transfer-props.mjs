@@ -2,45 +2,40 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
-  // option() -> all list
-  // option(inputing) -> condition list
-  "options" : {
-    type : [Array, Function, Ti.Dict],
-    default : ()=>[]
-  },
+  "value" : undefined,
   "valueBy" : {
     type : [String, Function],
     default : undefined
   },
-  "value" : undefined,
+  // "$emit:filter" : leave to parent
+  // "text" : match the "text" fields in can-list
+  // "text|value" : in can-list, the valued key will be matched
+  // ["text", "value|name"] : in can-list, any valued key will be matched
+  // F(val):Boolean : callback
+  "filterBy" : {
+    type : [String, Array, Function],
+    default : undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "canComType" : {
+  "candidateComType" : {
     type : String,
     default : undefined
   },
-  "canComConf" : {
+  "candidateComConf" : {
     type : Object,
     default : undefined
   },
-  "selComType" : {
+  "checkedComType" : {
     type : String,
     default : undefined
   },
-  "selComConf" : {
+  "checkedComConf" : {
     type : Object,
     default : undefined
   },
-  "filter" : {
-    type : Boolean,
-    default : true
-  },
-  "fltComType" : {
-    type : String,
-    default : "ti-input"
-  },
-  "fltComConf" : {
+  "filterConf" : {
     type : Object,
     default : undefined
   },
@@ -58,11 +53,11 @@ export default {
       remove : "fas-angle-double-left"
     })
   },
-  "canTitle" : {
+  "candidateTitle" : {
     type : String,
     default : "i18n:candidate"
   },
-  "selTitle" : {
+  "checkedTitle" : {
     type : String,
     default : "i18n:checked"
   },
