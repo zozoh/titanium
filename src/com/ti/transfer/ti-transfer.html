@@ -4,14 +4,14 @@
   <!--=========================================
     Left: Candidates
   -->
-  <div class="as-box as-candidates">
+  <div class="as-box as-can-list">
     <!--
       Head
     -->
     <div class="as-box-head">
       <div class="as-list-checker"
-        @click.left="onClickHeadChecker(can)">
-        <ti-icon :value="getHeadCheckerIcon(can)"/>
+        @click.left="OnClickHeadChecker(can)">
+        <ti-icon :value="GetHeadCheckerIcon(can)"/>
       </div>
       <!--Title-->
       <div class="as-title">{{canTitle|i18n}}</div>
@@ -22,7 +22,7 @@
             :is="fltComType"
             v-bind="FilterComConf"
             :value="myFilterValue"
-            @changed="onFilterChanged"
+            @changed="OnFilterChanged"
             /></div>
     </div>
     <!--
@@ -57,14 +57,14 @@
   <!--=========================================
     Right: Checked
   -->
-  <div class="as-box as-checkeds">
+  <div class="as-box as-sel-list">
     <!--
       Head
     -->
     <div class="as-box-head">
       <div class="as-list-checker"
-        @click.left="onClickHeadChecker(sel)">
-        <ti-icon :value="getHeadCheckerIcon(sel)"/>
+        @click.left="OnClickHeadChecker(sel)">
+        <ti-icon :value="GetHeadCheckerIcon(sel)"/>
       </div>
       <div class="as-title">{{selTitle|i18n}}</div>
     </div>

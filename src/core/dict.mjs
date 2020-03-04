@@ -34,6 +34,21 @@ export class Dict {
     this[K.listCache] = null  // last find result for findAll
   }
   //-------------------------------------------
+  invoke(methodName, ...args) {
+    let func = this[K[methodName]]
+    if(_.isFunction(func)){
+      return func.apply(this, [...args, this])
+    }
+  }
+  //-------------------------------------------
+  setFunc(methods) {
+    _.forEach(methods, (func, methodName)=>{
+      if(_.isFunction(func)){
+        this[K[methodName]] = func
+      }
+    })
+  }
+  //-------------------------------------------
   isItemCached(val) {
     return !Ti.Util.isNil(this[K.itemCache][val])
   }
@@ -41,6 +56,9 @@ export class Dict {
   addItemToCache(...items) {
     let list = _.flattenDeep(items)
     _.forEach(list, (it)=>{
+      if(Ti.Util.isNil(it))
+        return
+
       let itV = this.getValue(it)
       if(!Ti.Util.isNil(itV)) {
         this[K.itemCache][itV] = it
@@ -60,7 +78,7 @@ export class Dict {
   async getItem(val) {
     let it = this[K.itemCache][val]
     if(Ti.Util.isNil(it)) {
-      it = await this[K.getItem](this, val)
+      it = await this.invoke("getItem", val)
       this.addItemToCache(it)
     }
     return it
@@ -69,31 +87,23 @@ export class Dict {
   async findAll(force=false){
     let list = this[K.listCache]
     if(force || _.isEmpty(list)) {
-      list = await this[K.findAll](this)
+      list = await this.invoke("findAll")
       this.addItemToCache(list)
       this[K.listCache] = list
     }
-    return list
+    return list || {}
   }
   //-------------------------------------------
   async find(str){
-    let list = await this[K.find](this, str)
+    let list = await this.invoke("find", str)
     this.addItemToCache(list)
-    return list
+    return list || []
   }
   //-------------------------------------------
-  getValue(it)   { return this[K.getValue]  (it, this) }
-  getText(it)    { return this[K.getText]   (it, this) }
-  getIcon(it)    { return this[K.getIcon]   (it, this) }
-  isMatched(it,v){ return this[K.isMatched] (it, v, this) }
-  //-------------------------------------------
-  setFunc(methods) {
-    _.forEach(methods, (func, methodName)=>{
-      if(_.isFunction(func)){
-        this[K[methodName]] = func
-      }
-    })
-  }
+  getValue(it)   { return this.invoke("getValue",  it) }
+  getText(it)    { return this.invoke("getText" ,  it) }
+  getIcon(it)    { return this.invoke("getIcon" ,  it) }
+  isMatched(it,v){ return this.invoke("isMatched", it, v) }
   //-------------------------------------------
 }
 ///////////////////////////////////////////////
@@ -103,34 +113,96 @@ export const DictFactory = {
   //-------------------------------------------
   ArrayDict(aryData=[], {getValue, getText, getIcon, isMatched}={}){
     return DictFactory.CreateDict({
-      getItem : ($dict, val)=>{
-        for(let it of aryData) {
-          let itV = $dict.getValue(it)
-          if(_.isEqual(itV, val)) {
-            return it
-          }
-        }
-      },
       findAll : ()=>aryData,
-      find : ($dict, v)=> {
-        let list = []
-        for(let it of aryData) {
-          if($dict.isMatched(it, v)){
-            list.push(it)
-          }
-        }
-        return list
-      },
       getValue, getText, getIcon, isMatched
     })
   },
   //-------------------------------------------
   CreateDict({getItem, findAll, find, getValue, getText, getIcon, isMatched}={}) {
-    let d = new Dict()
-    d.setFunc({
+    let funcs = {
       getItem, findAll, find, getValue, getText, getIcon, isMatched
-    })
+    }
+    //.........................................
+    if(funcs.findAll) {
+      if(!funcs.getItem) {
+        funcs.getItem = async (val, $dict)=>{
+          let aryData = await $dict.findAll()
+          for(let it of aryData) {
+            let itV = $dict.getValue(it)
+            if(_.isEqual(itV, val)) {
+              return it
+            }
+          }
+        }
+      }
+      //.........................................
+      if(!funcs.find) {
+        funcs.find = async (v, $dict)=> {
+          let aryData = await $dict.findAll()
+          let list = []
+          for(let it of aryData) {
+            if($dict.isMatched(it, v)){
+              list.push(it)
+            }
+          }
+          return list
+        }
+      }
+    }
+    //.........................................
+    let d = new Dict()
+    d.setFunc(funcs)
     return d
+  },
+  //-------------------------------------------
+  CreateDictBy(options, {getValue, getText, getIcon, isMatched}={}) {
+    //.........................................
+    const _any_to_pair = s => {
+      // Object
+      if(_.isPlainObject(s)) {
+        return s
+      }
+
+      // String
+      if(_.isString(s)|| _.isArray(s)) {
+        return Ti.S.toObject(s, {
+          sep  : ":",
+          keys : ["value","text","icon"]
+        })
+      }
+      
+      // Others as value
+      return {text: ""+s, value: s}
+    }
+    //.........................................
+    // Static: Array
+    if(_.isArray(options)) {
+      let list = _.map(options, v => _any_to_pair(v))
+      return DictFactory.ArrayDict(list, {
+        getValue, getText, getIcon, isMatched
+      })
+    }
+    // Static: String
+    if(_.isString(options)) {
+      let ss = options.split(/[,;\t\r]+/g)
+      let list = _.map(ss, v => _any_to_pair(v))
+      return DictFactory.ArrayDict(list, {
+        getValue, getText, getIcon, isMatched
+      })
+    }
+    // Dynamic
+    if(_.isFunction(options)) {
+      return DictFactory.CreateDict({
+        getItem : async (val, $dict)=>{
+          let list = await $dict.findAll()
+          return $dict.findItem(val, list)
+        },
+        findAll  : this.options,
+        find     : this.options,
+        getValue, getText, getIcon, isMatched
+      })
+    }
+    //.........................................
   },
   //-------------------------------------------
   ShadowDict($dict) {
@@ -148,14 +220,18 @@ export const DictFactory = {
   },
   //-------------------------------------------
   GetDict(name, options={}, shadow=false) {
+    if(_.isBoolean(options)) {
+      shadow  = options
+      options = undefined
+    }
     let d = DICTS[name]
-    if(!d) {
+    if(d) {
       d = DictFactory.CreateDict(options)
       DICTS[name] = d
+      return shadow 
+              ? DictFactory.ShadowDict(d)
+              : d
     }
-    return shadow 
-            ? DictFactory.ShadowDict(d)
-            : d
   }
   //-------------------------------------------
 }

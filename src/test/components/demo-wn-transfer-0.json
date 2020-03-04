@@ -12,9 +12,10 @@
           "comType" : "wn-transfer",
           "comConf" : {
             "height" : 300,
-            "display" : ["@<thumb:zmdi-fire>", "title|nm", "id"],
-            "filterBy" : "obj ~/demo/images -match 'nm:\"^.*${inputing}\"' -sort nm:1 -lcqn",
-            "candidates" : "obj ~/demo/images/* -sort nm:1 -lcqn"
+            "display" : ["@<thumb:zmdi-fire>", "title|nm"],
+            "itemBy"  : "obj id:${val} -cqn",
+            "findBy"  : "obj ~/demo/images -match 'nm:\"^.*${val}\"' -sort nm:1 -lcqn",
+            "options" : "obj ~/demo/images/* -sort nm:1 -lcqn"
           }
         }]
     },

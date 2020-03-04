@@ -280,6 +280,22 @@ export const WnUtil = {
     throw Ti.Err.make("Wn.Util.queryBy", {
       query, val
     })
+  },
+  /***
+   * @param query{String|Function}
+   */
+  genQuery(query, {valKey="val"}={}) {
+    // Customized query
+    if(_.isFunction(query)) {
+      return query
+    }
+    // Command template
+    if(_.isString(query)) {
+      return async (v) => {
+        let cmdText = Ti.S.renderBy(query, {[valKey]:v})
+        return await Wn.Sys.exec2(cmdText, {as:"json",input:v})
+      }
+    }
   }
 }
 ////////////////////////////////////////////

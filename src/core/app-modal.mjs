@@ -178,10 +178,11 @@ export class TiAppModal {
         //--------------------------------------
         theConClass() {
           return Ti.Css.mergeClassName({
-            "is-show-header"  : this.isShowHead,
-            "is-hide-header"  : !this.isShowHead,
-            "is-show-actions" : this.hasActions,
-            "is-hide-actions" : !this.hasActions
+            "is-show-header"    : this.isShowHead,
+            "is-hide-header"    : !this.isShowHead,
+            "is-show-actions"   : this.hasActions,
+            "is-hide-actions"   : !this.hasActions,
+            "is-closer-default" : this.isCloserDefault
           }, `is-${this.type}`)
         },
         //--------------------------------------

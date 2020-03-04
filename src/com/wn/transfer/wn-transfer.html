@@ -1,25 +1,23 @@
 <ti-transfer
   :class-name="className"
-
-  :candidates="myCandidates"
+  :options="OptionsDict"
   :value="value"
-  :valueBy="theValueBy"
-  :filterBy="theFilterBy"
 
-  :candidate-com-type="theCandidateComType"
-  :candidate-com-conf="candidateComConf"
-  :checked-com-type="theCheckedComType"
-  :checked-com-conf="checkedComConf"
-  :filter-conf="filterConf"
+  :can-com-type="TheCanComType"
+  :can-com-conf="canComConf"
+  :sel-com-type="TheSelComType"
+  :sel-com-conf="selComConf"
+  :filter="filter"
+  :flt-com-type="fltComType"
+  :flt-com-conf="fltComConf"
 
-  :display="theDisplay"
+  :display="TheDisplay"
   :assign-buttons="assignButtons"
-  :candidate-title="candidateTitle"
-  :checked-title="checkedTitle"
+  :can-title="canTitle"
+  :sel-title="selTitle"
 
   :width="width"
   :height="height"
 
   @changed="$emit('changed', $event)"
-  @filter="onFilterChanged"
   />

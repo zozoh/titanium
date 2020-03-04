@@ -160,6 +160,47 @@ export const TiStr = {
     return str
   },
   /***
+   * Translate "XXX:A:im-pizza" or ["XXX","A","im-pizza"]
+   * 
+   * ```
+   * {text:"XXX",value:"A",icon:"im-pizza"}
+   * ```
+   * 
+   * @param s{String|Array}
+   * @param sep{RegExp|String}
+   * @param keys{Array}
+   */
+  toObject(s, {
+    sep=/[:,;\t\n\/]+/g, 
+    keys=["value","text","icon"],
+    ignoreNil=true
+  }={}) {
+    let vs = []
+    // String
+    if(_.isString(s)) {
+      vs = _.map(s.split(sep), v => _.trim(v))
+    }
+    // Array
+    else if(_.isArray(s)) {
+      vs = _.map(s, v => _.trim(v))
+    }
+    // Others
+    else {
+      vs = [s]
+    }
+    // translate
+    let re = {}
+    _.forEach(keys, (k, i)=>{
+      let v = _.nth(vs, i)
+      if(_.isUndefined(v) && ignoreNil) {
+        return
+      }
+      re[k] = v
+    })
+    // done
+    return re
+  },
+  /***
    * Get the display text for bytes
    */
   sizeText(byte=0, {

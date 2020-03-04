@@ -717,14 +717,25 @@ const TiTypes = {
   //.......................................
   toObject(val, fmt) {
     let obj = val
-    if(_.isString(val)){
-      if(/^\{.*\}$/.test(val)) {
+    
+    // Translate Object
+    if(_.isPlainObject(val) && _.isPlainObject(fmt)) {
+      return Ti.Util.translate(obj, fmt)
+    }
+    // Parse Array
+    if(_.isArray(val)) {
+      return Ti.S.toObject(val, fmt)
+    }
+    // For String
+    if(_.isString(val)) {
+      // Parse JSON
+      if(/^\{.*\}$/.test(val) || /^\[.*\]$/.test(val)) {
         obj = JSON.parse(val)
       }
+      // Parse String
+      return Ti.S.toObject(val, fmt)
     }
-    if(_.isPlainObject(fmt)) {
-      obj = Ti.Util.translate(obj, fmt)
-    }
+
     return obj
   },
   //.......................................

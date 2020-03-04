@@ -5,10 +5,18 @@ export default {
   // option() -> all list
   // option(inputing) -> condition list
   "options" : {
-    type : [Array, Function, Ti.Dict],
+    type : [String, Array, Function, Ti.Dict],
     default : ()=>[]
   },
   "valueBy" : {
+    type : [String, Function],
+    default : undefined
+  },
+  "textBy" : {
+    type : [String, Function],
+    default : undefined
+  },
+  "iconeBy" : {
     type : [String, Function],
     default : undefined
   },

@@ -2,70 +2,48 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////////
   data : ()=>({
-    "loading" : false,
-    "myCandidates" : []
+    
   }),
   ///////////////////////////////////////////////////////
   props : {
-    "candidates" : {
-      type : [String, Array, Function],
-      default : ()=>[]
+    "itemBy" : {
+      type : [String, Function],
+      default : undefined
     },
-    "loadingIcon" : {
-      type : String,
-      default : "zmdi-settings zmdi-hc-spin"
+    "findBy" : {
+      type : [String, Function],
+      default : undefined
     }
   },
   ///////////////////////////////////////////////////////
   computed : {
     //---------------------------------------------------
-    theCandidateComType() {
-      return this.candidateComType || "wn-list"
+    TheCanComType() {
+      return this.canComType || "wn-list"
     },
     //---------------------------------------------------
-    theCheckedComType() {
-      return this.checkedComType || "wn-list"
-    },
-    //---------------------------------------------------
-    theFilterBy() {
-      if(_.isArray(this.filterBy)) {
-        return this.filterBy
-      }
-      return "$emit:filter"
+    TheSelComType() {
+      return this.selComType || "wn-list"
     },
     //------------------------------------------------
-    theValueBy() {
-      return this.valueBy || "id"
+    TheDisplay() {
+      return this.display || ["@<thumb>", "title", "nm"]
     },
-    //------------------------------------------------
-    theDisplay() {
-      return this.dropDisplay || ["@<thumb>", "title", "nm"]
+    //---------------------------------------------------
+    OptionsDict() {
+      return Ti.DictFactory.CreateDict({
+        //...............................................
+        findAll : Wn.Util.genQuery(this.options),
+        getItem : Wn.Util.genQuery(this.itemBy),
+        find    : Wn.Util.genQuery(this.findBy),
+        //...............................................
+        getValue : Ti.Util.genGetter(this.valueBy || "id"),
+        getText  : Ti.Util.genGetter(this.textBy  || "title|nm"),
+        getIcon  : Ti.Util.genGetter(this.textBy  || "icon")
+        //...............................................
+      })
     }
     //---------------------------------------------------
-  },
-  ///////////////////////////////////////////////////////
-  methods : {
-    //-----------------------------------------------
-    async evalCandidates(query, val) {
-      this.loading = true
-      console.log(query, val)
-      this.myCandidates = await Wn.Util.queryBy(query, val)
-      console.log(this.myCandidates)
-      this.loading = false
-    },
-    //-----------------------------------------------
-    async onFilterChanged(val) {
-      if(val) {
-        await this.evalCandidates(this.filterBy, val)
-      } else {
-        await this.evalCandidates(this.candidates)
-      }
-    }
-    //---------------------------------------------------
-  },
-  ////////////////////////////////////////////////////
-  mounted : async function() {
-    await this.evalCandidates(this.candidates)
   }
   ///////////////////////////////////////////////////////
 }

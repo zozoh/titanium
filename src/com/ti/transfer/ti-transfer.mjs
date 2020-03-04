@@ -15,10 +15,6 @@ export default {
     selIdMap : {}
   }),
   ///////////////////////////////////////////////////////
-  props : {
-    
-  },
-  ///////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     TopClass() {
@@ -60,38 +56,20 @@ export default {
     },
     //------------------------------------------------
     GetValueBy() {
-      if(_.isString(this.valueBy)) {
-        return it => it[this.valueBy]
-      }
-      if(_.isFunction(this.valueBy)) {
-        return this.valueBy
-      }
-      return it => Ti.Util.getFallback(it, "value", "id")
+      return it => this.Dict.getValue(it)
     },
     //------------------------------------------------
     Dict() {
-      // Static
-      if (_.isArray(this.options)) {
-        return Ti.DictFactory.ArrayDict(this.options, {
-          getValue : this.GetValueBy
-        })
-      }
-      // Dynamic
-      if(_.isFunction(this.options)) {
-        return Ti.DictFactory.CreateDict({
-          getItem : async (val, $dict)=>{
-            let list = await $dict.findAll()
-            return $dict.findItem(val, list)
-          },
-          findAll  : this.options,
-          find     : this.options,
-          getValue : this.GetValueBy
-        })
-      }
       // Customized
       if(this.options instanceof Ti.Dict) {
         return this.options
       }
+      // Auto Create
+      return Ti.DictFactory.CreateDictBy(this.options, {
+        getValue : Ti.Util.genGetter(this.valueBy || "value"),
+        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
+        getIcon  : Ti.Util.genGetter(this.textBy  || "icon")
+      })
     }
     //---------------------------------------------------
   },
@@ -106,7 +84,7 @@ export default {
       this.sel.checkedIds = this.getIds(checkedIds)
     },
     //---------------------------------------------------
-    onClickHeadChecker(list) {
+    OnClickHeadChecker(list) {
       let {data, checkedIds} = list
       // All -> none
       if(data.length == checkedIds.length) {
@@ -119,17 +97,17 @@ export default {
       }
     },
     //---------------------------------------------------
-    async onFilterChanged(val) {
+    async OnFilterChanged(val) {
       this.myFilterValue = val
       if(!Ti.Util.isNil(val)) {
         this.myOptionsData = await this.Dict.find(val) || []
       } else {
         this.myOptionsData = await this.Dict.findAll() || []
       }
-      this.filterCanList()
+      this.evalShownCanList()
     },
     //---------------------------------------------------
-    getHeadCheckerIcon({data, checkedIds}) {
+    GetHeadCheckerIcon({data, checkedIds}) {
       if(data.length > 0) {
         // All
         if(data.length == checkedIds.length) {
@@ -210,12 +188,12 @@ export default {
     },
     //---------------------------------------------------
     async reloadCanList() {
-      console.log("reloadCanList")
+      //console.log("reloadCanList")
       this.myOptionsData = await this.Dict.findAll()
-      this.filterCanList()
+      this.evalShownCanList()
     },
     //---------------------------------------------------
-    filterCanList() {
+    evalShownCanList() {
       let list = []
       _.forEach(this.myOptionsData, it => {
         let itV = this.Dict.getValue(it)
@@ -228,7 +206,7 @@ export default {
     },
     //---------------------------------------------------
     async reloadSelList(vals=this.Values) {
-      console.log("reloadSelList")
+      //console.log("reloadSelList")
       let list = []
       for(let v of vals) {
         let it = await this.Dict.getItem(v)

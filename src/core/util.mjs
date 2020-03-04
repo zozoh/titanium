@@ -724,6 +724,40 @@ const TiUtil = {
     return input
   },
   /***
+   * @param key{Function|String|Array}
+   * @param dftKeys{Array}: if key without defined, use the default keys to pick
+   * @param indexPrefix{String}: for Index Mode, just like `Row-`
+   * 
+   * @return Function to pick value
+   */
+  genGetter(key, {
+    dftKeys=[],
+    indexPrefix
+  }={}) {
+    // Customized Function
+    if(_.isFunction(key)) {
+      return it => key(it)
+    }
+    // String || Array
+    if(key) {
+      // Index Mode
+      if(indexPrefix) {
+        return (it, index)=>{
+          return Ti.Util.fallbackNil(
+            Ti.Types.toStr(_.get(it, key)), 
+            `${indexPrefix}${index}`
+          )
+        }
+      }
+      // Default Mode
+      return it => Ti.Util.getOrPick(it, key)
+    }
+    // Default Keys
+    if(!_.isEmpty(dftKeys)) {
+      return it => Ti.Util.getFallback(it, ...dftKeys)
+    }
+  },
+  /***
    * @param matchBy{Function|String|Array}
    * @param partially {Boolean} 
    * 
@@ -761,19 +795,21 @@ const TiUtil = {
    * 
    * @return Function to pick value
    */
-  genItemValueGetter(valueBy) {
+  genItemValueGetter(valueBy, dftKeys=["value", "id"]) {
     if(_.isFunction(valueBy)) {
       return it => valueBy(it)
     }
     if(_.isString(valueBy)) {
       return it => Ti.Util.getOrPick(it, valueBy)
     }
-    return it => null
+    if(!_.isEmpty(dftKeys)) {
+      return it => Ti.Util.getFallback(it, ...dftKeys)
+    }
   },
   /***
    * @return Function to get row Id
    */
-  genRowIdGetter(idBy) {
+  genRowIdGetter(idBy, dftKeys=["id", "value"]) {
     if(_.isFunction(idBy)) {
       return (it, index) => Ti.Types.toStr(idBy(it, index))
     }
@@ -783,7 +819,9 @@ const TiUtil = {
           Ti.Types.toStr(_.get(it, idBy)), `Row-${index}`)
       }
     }
-    return it => null
+    if(!_.isEmpty(dftKeys)) {
+      return it => Ti.Util.getFallback(it, ...dftKeys)
+    }
   },
   /***
    * @return Function to get row data
