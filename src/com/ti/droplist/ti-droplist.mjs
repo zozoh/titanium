@@ -5,27 +5,16 @@ export default {
     "multi" : {
       type : Boolean,
       default : false
-    },
-    "options" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "dropComType" : undefined
+    }
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    theComType() {
-      if(this.multi) {
-        return "ti-combo-multi-input"
-      }
-      return "ti-combo-input"
+    ComType() {
+      return this.multi
+        ? "ti-combo-multi-input"
+        : "ti-combo-input"
     }
-    //------------------------------------------------
-  },
-  ////////////////////////////////////////////////////
-  methods : {
-    
   }
   ////////////////////////////////////////////////////
 }

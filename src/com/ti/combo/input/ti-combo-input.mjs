@@ -2,228 +2,226 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
-    "myDropStatus"  : "collapse",
-    "myCurrentItem" : null,
-    "myInputing"    : null
+    myDropStatus   : "collapse",
+    myItem         : null,
+    myFreeValue    : null,
+    myFilterValue  : null,
+    myOptionsData  : [],
+    myCurrentId    : null,
+    myCheckedIds   : {}
   }),
   ////////////////////////////////////////////////////
-  // props 
   props : {
-    "options" : {
-      type : Array,
-      default : ()=>[]
+    "canInput" : {
+      type : Boolean,
+      default : true
     },
-    "dropComType" : {
-      type : String,
-      default : "ti-list"
+    "autoCollapse" : {
+      type : Boolean,
+      default : false
     }
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
+    isCollapse() {return "collapse"==this.myDropStatus},
+    isExtended() {return "extended"==this.myDropStatus},
+    //------------------------------------------------
+    TopClass() {
       return this.getTopClass()
     },
     //------------------------------------------------
-    isCollapse() {return "collapse"==this.myDropStatus},
-    isExtended() {return "extended"==this.myDropStatus},
-    hasOptions() {return !_.isEmpty(this.options)},
-    //------------------------------------------------
-    theFormat() {
-      return this.format || "${text}"
-    },
-    //------------------------------------------------
-    theValueBy() {
-      return this.valueBy || "value"
-    },
-    //------------------------------------------------
-    theMatchBy() {
-      return this.matchBy || ["text", "value"]
-    },
-    //------------------------------------------------
-    theDropDisplay() {
-      return this.dropDisplay || "text"
-    },
-    //------------------------------------------------
-    getOptionItemValue() {
-      if(_.isFunction(this.theValueBy)) {
-        return it => this.theValueBy(it)
+    InputValue() {
+      if(this.myItem) {
+        return this.Dict.getText(this.myItem)
+               || this.Dict.getValue(this.myItem)
       }
-      if(_.isString(this.theValueBy)) {
-        return it => _.get(it, this.theValueBy)
-      }
-      return it => null
+      return this.myFreeValue
     },
     //------------------------------------------------
-    isOptionItemMatched() {
-      if(_.isFunction(this.theMatchBy)) {
-        return (it, str)=>this.theMatchBy(it, str)
-      }
-      if(_.isString(this.theMatchBy)) {
-        return (it, str)=>_.isEqual(it[this.theMatchBy], str)
-      }
-      if(_.isArray(this.theMatchBy)) {
-        return (it, str)=>{
-          for(let k of this.theMatchBy) {
-            if(_.isEqual(it[k], str))
-              return true
-          }
-          return false
-        }
-      }
-      return (it, str)=>false
+    GetValueBy() {
+      return it => this.Dict.getValue(it)
     },
     //------------------------------------------------
-    theInputItem() {
-      // Runtime value
-      if(this.isExtended) {
-        return this.myCurrentItem
-       }
-      // Find in list
-      return this.findOptionItem(this.value)
-    },
-    //------------------------------------------------
-    theInputValue() {
-      if(!Ti.Util.isNil(this.myInputing)) {
-        return this.myInputing
+    ThePrefixIcon() {
+      let icon = this.prefixIcon;
+      if(this.myItem) {
+        icon = this.Dict.getIcon(this.myItem)
       }
-      if(this.theInputItem) {
-        return Ti.Types.toStr(this.theInputItem, this.theFormat)
-      }
-      if(!this.mustInList) {
-        return this.value
-      }
+      return icon || "zmdi-minus"
     },
     //------------------------------------------------
-    thePlaceholder() {
-      return this.placeholder || "i18n:empty"
-    },
-    //------------------------------------------------
-    theInputFormat() {
-      return this.format || "${text}"
-    },
-    //------------------------------------------------
-    theSuffixIcon() {
+    TheSuffixIcon() {
       return this.statusIcons[this.myDropStatus]
     },
     //------------------------------------------------
-    theDropCurrentId() {
-      if(this.theInputValue) {
-        return this.getOptionItemValue(this.theInputItem)
+    DropComType() {return this.dropComType || "ti-list"},
+    DropComConf() {
+      return _.assign({
+        display    : this.dropDisplay || "text",
+        border     : this.dropItemBorder
+      }, this.dropComConf, {
+        data : this.myOptionsData,
+        currentId  : this.myCurrentId,
+        checkedIds : this.myCheckedIds,
+        idBy       : this.GetValueBy,
+        multi      : false,
+        hoverable  : true,
+        checkable  : false,
+        autoCheckCurrent : true
+      })
+    },
+    //------------------------------------------------
+    Dict() {
+      // Customized
+      if(this.options instanceof Ti.Dict) {
+        return this.options
       }
+      // Auto Create
+      return Ti.DictFactory.CreateDictBy(this.options, {
+        getValue : Ti.Util.genGetter(this.valueBy || "value"),
+        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
+        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+      })
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
-    //------------------------------------------------
-    onInputInit($input) {this.$input = $input},
-    onListInit($list)   {this.$list  = $list},
     //-----------------------------------------------
-    findOptionItem(str=null) {
-      if(this.options && !Ti.Util.isNil(str)) {
-        for(let it of this.options) {
-          if(this.isOptionItemMatched(it, str)){
-            return it
-          }
+    OnDropListInit($dropList){this.$dropList=$dropList},
+    //------------------------------------------------
+    async OnCollapse() {this.doCollapse()},
+    //-----------------------------------------------
+    OnInputInputing(val) {
+      if(this.filter) {
+        this.myFilterValue = val
+        this.debReload()
+      }
+    },
+    //-----------------------------------------------
+    async OnInputChanged(val) {
+      // Clean filter
+      this.myFilterValue = null
+      // Clean
+      if(!val) {
+        this.myItem = null
+        this.myFreeValue = null
+      }
+      // Find ...
+      else {
+        let it = await this.Dict.getItem(val)
+        // Matched tag
+        if(it) {
+          this.myItem = it
+          this.myFreeValue = null
+        }
+        else if(!this.mustInList) {
+          this.myItem = null
+          this.myFreeValue = val
         }
       }
-      return null
+      this.tryNotifyChanged()
     },
     //-----------------------------------------------
-    doExtend() {
-      this.myCurrentItem = this.theInputItem
-      this.myDropStatus = "extended"
-    },
-    //-----------------------------------------------
-    doCollapse() {
-      // Apply the inputing
-      if(!Ti.Util.isNil(this.myInputing)) {
-        this.myCurrentItem = this.findOptionItem(this.myInputing)
+    async OnInputFocused() {
+      if(this.autoFocusExtended && !this.isExtended) {
+        await this.doExtend()
       }
-      // Find the new value
-      let val = this.myCurrentItem
-                  ? this.getOptionItemValue(this.myCurrentItem)
-                  : this.myInputing
-      
-      // Reset status
+    },
+    //-----------------------------------------------
+    async OnClickStatusIcon() {
+      if(this.isExtended) {
+        this.doCollapse()
+      } else {
+        await this.doExtend()
+      }
+    },
+    //-----------------------------------------------
+    async OnDropListSelected({currentId}={}) {
+      this.myCurrentId = currentId
+      this.OnInputChanged(currentId)
+      if(this.autoCollapse) {
+        this.doCollapse()
+      }
+    },
+    //-----------------------------------------------
+    // Core Methods
+    //-----------------------------------------------
+    async doExtend() {
+      this.myDropStatus = "extended"
+      // Try reload options again
+      if(_.isEmpty(this.myOptionsData)) {
+        await this.reloadMyOptionData()
+      }
+    },
+    //-----------------------------------------------
+    doCollapse({escaped=false}={}) {
       this.myDropStatus = "collapse"
-      this.myInputing = null
-      this.myCurrentItem = null
-
-      // Actived Self
-      this.$nextTick(()=>{
-        this.setActived()
-      })
-      
-
-      // Notify
-      if(!_.isEqual(val, this.value)) {
+    },
+    //-----------------------------------------------
+    tryNotifyChanged(escaped=false) {
+      let val = this.evalMyValue()
+      if(!escaped && !_.isEqual(val, this.value)) {
         this.$emit("changed", val)
       }
     },
-    //------------------------------------------------
-    onInputInputing(val) {
-      //console.log("inputing", val)
-      this.myInputing = val
-      this.myCurrentItem = this.findOptionItem(val)
-      this.$emit("inputing", val)
-    },
-    //------------------------------------------------
-    onInputFocused() {
-      if(this.autoFocusExtended && !this.isExtended) {
-        this.doExtend()
-      }
-    },
-    //------------------------------------------------
-    onInputChanged(val) {
-      this.myInputing = val
-      this.doCollapse()
-    },
-    //------------------------------------------------
-    // onInputBlurred() {
-    //   this.inputing = null
-    // },
     //-----------------------------------------------
-    onClickStatusIcon() {
-      // extended -> collapse
-      if(this.isExtended) {
-        this.doCollapse()
+    // Utility
+    //-----------------------------------------------
+    evalMyValue(item=this.myItem, freeValue=this.myFreeValue) {
+      // Item
+      if(item) {
+        return this.Dict.getValue(item)
       }
-      // collapse -> extended
-      else {
-        this.doExtend()
+      // Ignore free values
+      return this.mustInList 
+              ? null
+              : freeValue
+    },
+    //-----------------------------------------------
+    async evalMyItem(val=this.value) {
+      let it = await this.Dict.getItem(val)
+      if(it) {
+        let itV = this.Dict.getValue(it)
+        this.myItem = it
+        this.myFreeValue = null
+        this.myCurrentId  = itV
+        this.myCheckedIds = {[itV]: true}
+      }
+      else if(!this.mustInList) {
+        this.myItem = null
+        this.myFreeValue = val
+        this.myCurrentId  = null
+        this.myCheckedIds = {}
       }
     },
     //-----------------------------------------------
-    onListSelected({current, byKeyboardArrow}) {
-      this.myCurrentItem = current
-      // Auto collapse
-      if(!byKeyboardArrow) {
-        if(this.readonly || !this.canInput) {
-          this.doCollapse()
-        }
-      }
+    async reloadMyOptionData() {
+      this.myOptionsData = await this.Dict.find(this.myFilterValue)
     },
-    //--------------------------------------
+    //-----------------------------------------------
+    // Callback
+    //-----------------------------------------------
     __ti_shortcut(uniqKey) {
-      //console.log("ti-combo-input", uniqKey)
+      //console.log("ti-combo-multi-input", uniqKey)
       //....................................
       if("ESCAPE" == uniqKey) {
-        this.myInputing = null
-        this.myCurrentItem = this.findOptionItem(this.value)
-        this.doCollapse()
+        this.doCollapse({escaped:true})
         return {prevent:true, stop:true, quit:true}
       }
       //....................................
+      // If droplist is actived, should collapse it
       if("ENTER" == uniqKey) {
-        this.doCollapse()
-        return {prevent:true, stop:true, quit:true}
+        if(this.$dropList && this.$dropList.isActived) {
+          this.doCollapse()
+          return {stop:true, quit:true}
+        }
       }
       //....................................
       if("ARROWUP" == uniqKey) {
-        if(this.$list) {
-          this.$list.selectPrevRow({
+        if(this.$dropList) {
+          this.$dropList.selectPrevRow({
             payload: {byKeyboardArrow: true}
           })
         }
@@ -231,8 +229,8 @@ export default {
       }
       //....................................
       if("ARROWDOWN" == uniqKey) {
-        if(this.$list && this.isExtended) {
-          this.$list.selectNextRow({
+        if(this.$dropList && this.isExtended) {
+          this.$dropList.selectNextRow({
             payload: {byKeyboardArrow: true}
           })
         } else {
@@ -245,9 +243,31 @@ export default {
   },
   ////////////////////////////////////////////////////
   watch : {
-    "theInputItem" : function(){
-      this.$emit("input:item", this.theInputItem)
+    //-----------------------------------------------
+    "value" : {
+      handler: async function(newVal, oldVal) {
+        await this.evalMyItem()
+      },
+      immediate : true
+    },
+    //-----------------------------------------------
+    "options" : {
+      handler : async function(newVal, oldVal) {
+        if(this.isExtended) {
+          await this.reloadMyOptionData()
+        } else {
+          this.myOptionsData = []
+        }
+      },
+      immediate : true
     }
+    //-----------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+   created : function() {
+    this.debReload = _.debounce(val=>{
+      this.reloadMyOptionData()
+    }, this.delay)
   }
   ////////////////////////////////////////////////////
 }

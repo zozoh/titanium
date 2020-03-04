@@ -15,7 +15,9 @@
             "placeholder" : "请输入类型",
             "valueCase" : "upper",
             "mustInList" : false,
-            "autoFocusExtended" : false,
+            "autoFocusExtended" : true,
+            "autoCollapse" : true,
+            
             "options" : [
               {"value":"A", "text":"甲类"},
               {"value":"B", "text":"乙类"},

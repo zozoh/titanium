@@ -14,10 +14,11 @@
           "comType" : "wn-combo-input",
           "comConf" : {
             "placeholder" : "请输入类型",
-            "prefixIcon" : "zmdi-roller",
             "mustInList" : false,
             "autoFocusExtended" : true,
-            "query" : "obj ~ -match 'nm:\"^.*${inputing}\"' -sort nm:1 -lcqn",
+            "autoCollapse" : true,
+            "filter"  : true,
+            "findBy" : "obj ~ -match 'nm:\"^.*${val}\"' -sort nm:1 -lcqn",
             "options" : "obj ~/* -sort nm:1 -lcqn"
           }
         }, {
@@ -35,6 +36,7 @@
             },
             "placeholder" : "请选择对象",
             "mustInList" : true,
+            "filter"  : false,
             "options" : "obj ~/demo/images/* -l -cqn",
             "dropDisplay" : ["@<thumb:zmdi-fire>", "title|nm", "id"],
             "dropItemBorder" : false

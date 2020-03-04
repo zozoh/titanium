@@ -2,23 +2,32 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
-  // pick value from options item for emit value changed
+  "options" : {
+    type : [String, Array, Function, Ti.Dict],
+    default : ()=>[]
+  },
   "valueBy" : {
     type : [String, Function],
     default : undefined
   },
-  // match options item object by key or customized function
-  // `(it, str):Boolean`, true is matched
-  "matchBy" : {
-    type : [String, Array, Function],
+  "textBy" : {
+    type : [String, Function],
+    default : undefined
+  },
+  "iconeBy" : {
+    type : [String, Function],
     default : undefined
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "canInput" : {
-    type : Boolean,
-    default : true
+  "dropComType" : {
+    type : String,
+    default : undefined
+  },
+  "dropComConf" : {
+    type : Object,
+    default : undefined
   },
   "mustInList" : {
     type : Boolean,
@@ -27,6 +36,14 @@ export default {
   "autoFocusExtended" : {
     type : Boolean,
     default : true
+  },
+  "filter" : {
+    type : Boolean,
+    default : true
+  },
+  "delay" : {
+    type : Number,
+    default : 800
   },
   //-----------------------------------
   // Aspect

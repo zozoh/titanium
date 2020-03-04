@@ -595,6 +595,18 @@ const TiUtil = {
     return _.get(obj, key)
   },
   /***
+   * @param obj{Object}
+   */
+  truthyKeys(obj={}) {
+    let keys = []
+    _.forEach(obj, (v, k)=>{
+      if(v) {
+        keys.push(k)
+      }
+    })
+    return keys
+  },
+  /***
    * Get value from object fallbackly
    * 
    * @param obj{Object} - source object

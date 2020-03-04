@@ -160,6 +160,34 @@ export const TiStr = {
     return str
   },
   /***
+   * @param s{String|Array}
+   * @param sep{RegExp|String}
+   * @param ignoreNil{Boolean}
+   */
+  toArray(s, {
+    sep=/[:,;\t\n\/]+/g,
+    ignoreNil=true
+  }={}){
+    // Array
+    if(_.isArray(s)) {
+      return s
+    }
+    // String to split
+    if(_.isString(s)) {
+      let ss = _.map(s.split(sep), v => _.trim(v))
+      if(ignoreNil) {
+        return _.without(ss, "")
+      }
+      return ss
+    }
+    // Nil
+    if(Ti.Util.isNil(s)) {
+      return []
+    }
+    // Others -> wrap
+    return [s]
+  },
+  /***
    * Translate "XXX:A:im-pizza" or ["XXX","A","im-pizza"]
    * 
    * ```
@@ -168,26 +196,17 @@ export const TiStr = {
    * 
    * @param s{String|Array}
    * @param sep{RegExp|String}
+   * @param ignoreNil{Boolean}
    * @param keys{Array}
    */
   toObject(s, {
     sep=/[:,;\t\n\/]+/g, 
-    keys=["value","text","icon"],
-    ignoreNil=true
+    ignoreNil=true,
+    keys=["value","text","icon"]
   }={}) {
-    let vs = []
-    // String
-    if(_.isString(s)) {
-      vs = _.map(s.split(sep), v => _.trim(v))
-    }
-    // Array
-    else if(_.isArray(s)) {
-      vs = _.map(s, v => _.trim(v))
-    }
-    // Others
-    else {
-      vs = [s]
-    }
+    // Split value to array
+    let vs = TiStr.toArray(s, {sep, ignoreNil})
+    
     // translate
     let re = {}
     _.forEach(keys, (k, i)=>{

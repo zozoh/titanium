@@ -1,15 +1,14 @@
 <ti-combo-multi-input
-  :class="topClass"
+  :class-name="className"
 
-  drop-com-type="wn-list"
-  
   :value="value"
   :value-case="valueCase"
   :trimed="trimed"
     :max-value-len="maxValueLen"
     :value-unique="valueUnique"
     :tag-options="tagOptions"
-    :tag-mapping="theTagMapping"
+    :tag-mapping="TheTagMapping"
+      :options="OptionsDict"
 
   :readonly="readonly"
   :focus="focus"
@@ -17,36 +16,31 @@
   :auto-select="autoSelect"
     :can-input="canInput"
     :cancel-tag-bubble="cancelTagBubble"
+      :drop-com-type="DropComType"
+      :drop-com-conf="dropComConf"
+      :must-in-list="mustInList"
+      :auto-focus-extended="autoFocusExtended"
+      :filter="filter"
+      :delay="delay"
 
   :placeholder="placeholder"
   :hide-border="hideBorder"
-  :prefix-icon="thePrefixIcon"
+  :prefix-icon="ThePrefixIcon"
   :prefix-hover-icon="prefixHoverIcon"
   :prefix-icon-for-clean="prefixIconForClean"
   :prefix-text="prefixText"
   :suffix-text="suffixText"
-    :tag-item-icon-by="theTagItemIconBy"
+    :tag-item-icon-by="TheTagItemIconBy"
     :tag-item-default-icon="tagItemDefaultIcon"
     :tag-option-default-icon="tagOptionDefaultIcon"
+      :status-icons="statusIcons"
+      :drop-display="TheDropDisplay"
+      :drop-item-border="dropItemBorder"
   
   :width="width"
   :height="height"
-
-  :options="myOptions"
-  :format="theFormat"
-  :value-by="theValueBy"
-  :match-by="theMatchBy"
-
-  :must-in-list="mustInList"
-  :auto-focus-extended="autoFocusExtended"
-
-  :status-icons="statusIcons"
-  :drop-display="theDropDisplay"
-  :drop-item-border="dropItemBorder"
-
-  :drop-width="dropWidth"
-  :drop-height="dropHeight"
+    :drop-width="dropWidth"
+    :drop-height="dropHeight"
   
-  @inputing="onInputInputing"
   @changed="$emit('changed', $event)"/>
   

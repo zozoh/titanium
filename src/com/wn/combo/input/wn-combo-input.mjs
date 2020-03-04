@@ -2,118 +2,68 @@ export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
-    "loading" : false,
-    "myOptions"  : [],
-    "myItem" : null
+    loading : false
   }),
   ////////////////////////////////////////////////////
   // props 
   props : {
-    // String: "@dict:xxx" or "obj ~/* -lcqn"
-    // if command, inputing will be take as input
-    //             and ${inputing} was supported
-    // if function, `(inputing):Array`
-    "options" : {
-      type : [String, Array, Function],
-      default : null
-    },
-    // string command or function to handle inputing
-    "query" : {
+    "itemBy" : {
       type : [String, Function],
-      default : null
+      default : undefined
     },
-    // pick icon from options item for emit value changed
-    "itemIconBy" : {
+    "findBy" : {
       type : [String, Function],
-      default : ()=>function(it, dftIcon){
-        return Wn.Util.getObjIcon(it, dftIcon)
-      }
+      default : undefined
     },
     "loadingIcon" : {
       type : String,
       default : "zmdi-settings zmdi-hc-spin"
     },
-    // If dynamic, eval delay in millisecond
-    "delay" : {
-      type : Number,
-      default : 800
+    "canInput" : {
+      type : Boolean,
+      default : true
+    },
+    "autoCollapse" : {
+      type : Boolean,
+      default : false
     }
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
-      return this.getTopClass()
+    DropComType() {
+      return this.dropComType || "wn-list"
     },
     //------------------------------------------------
-    getItemIcon() {
-      if(_.isFunction(this.itemIconBy)) {
-        return it => this.itemIconBy(it)
-      }
-      if(_.isString(this.itemIconBy)) {
-        return it => _.get(it, this.itemIconBy)
-      }
-      return it => null
-    },
-    //------------------------------------------------
-    thePrefixIcon() {
+    ThePrefixIcon() {
       if(this.loading) {
         return this.loadingIcon
       }
-      if(this.myItem) {
-        return this.getItemIcon(this.myItem, this.prefixIcon)
-      }
       return this.prefixIcon
     },
-    //------------------------------------------------
-    theFormat() {
-      return this.format || "${title|nm}"
+    //---------------------------------------------------
+    OptionsDict() {
+      return Ti.DictFactory.CreateDict({
+        //...............................................
+        findAll : Wn.Util.genQuery(this.options),
+        getItem : Wn.Util.genQuery(this.itemBy),
+        find    : Wn.Util.genQuery(this.findBy),
+        //...............................................
+        getValue : Ti.Util.genGetter(this.valueBy || "id"),
+        getText  : Ti.Util.genGetter(this.textBy  || "title|nm"),
+        getIcon  : Ti.Util.genGetter(this.iconBy  || Wn.Util.getObjIcon),
+        //...............................................
+        hooks : loading => {
+          this.loading = loading
+        }
+        //...............................................
+      })
     },
-    //------------------------------------------------
-    theValueBy() {
-      return this.valueBy || "id"
-    },
-    //------------------------------------------------
-    theMatchBy() {
-      return this.matchBy || ["id","nm","title"]
-    },
-    //------------------------------------------------
-    theDropDisplay() {
+    //---------------------------------------------------
+    TheDropDisplay() {
       return this.dropDisplay || ["@<thumb>", "title", "nm"]
     }
     //------------------------------------------------
-  },
-  ////////////////////////////////////////////////////
-  methods : {
-    //-----------------------------------------------
-    onInputItemChagned(item) {
-      this.myItem = item
-    },
-    //-----------------------------------------------
-    onInputInputing(val) {
-      if(_.isFunction(this.debounceEvalOptions)) {
-        this.debounceEvalOptions(val)
-      }
-    },
-    //-----------------------------------------------
-    async evalOptions(query, val) {
-      this.loading = true
-      this.myOptions = await Wn.Util.queryBy(query, val)
-      this.loading = false
-    }
-    //-----------------------------------------------
-  },
-  ////////////////////////////////////////////////////
-  created : function() {
-    if(this.query) {
-      this.debounceEvalOptions = _.debounce(val=>{
-        this.evalOptions(this.query, val)
-      }, this.delay)
-    }
-  },
-  ////////////////////////////////////////////////////
-  mounted : async function() {
-    await this.evalOptions(this.options)
   }
   ////////////////////////////////////////////////////
 }

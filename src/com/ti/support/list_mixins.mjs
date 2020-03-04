@@ -177,9 +177,15 @@ export default {
     selectRow(rowId, {quiet=false, payload}={}) {
       let theCheckedIds = {}
       let theCurrentId  = null
-      // Indicate a rowId
-      if(rowId) {
-        theCheckedIds = {[rowId]:true}
+      
+      // Change the current & checked
+      if(this.autoCheckCurrent) {
+        theCheckedIds = rowId ? {[rowId]:true} : {}
+        theCurrentId  = rowId || null
+      }
+      // Just change to current
+      else {
+        theCheckedIds = _.cloneDeep(this.myCheckedIds)
         theCurrentId  = rowId
       }
 
@@ -247,7 +253,7 @@ export default {
     checkRow(rowId) {
       let theCheckedIds = _.cloneDeep(this.theCheckedIds)
       let theCurrentId  = this.theCurrentId
-      let theIndex = 0
+      let theIndex = this.myLastIndex
       // All rows
       if(_.isUndefined(rowId)) {
         theCheckedIds = {}
@@ -261,12 +267,16 @@ export default {
         _.forEach(rowId, (r_id)=>{
           theCheckedIds[r_id] = true
         })
-        theIndex = this.findRowIndexById(lastRowId)
+        if(this.autoCheckCurrent) {
+          theIndex = this.findRowIndexById(lastRowId)
+        }
       }
       // Single row
       else {
-        theIndex = this.findRowIndexById(rowId)
         theCheckedIds[rowId] = true
+        if(this.autoCheckCurrent) {
+          theIndex = this.findRowIndexById(rowId)
+        }
       }
       // Eval context
       let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)

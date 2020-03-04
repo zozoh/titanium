@@ -14,10 +14,12 @@
           "comType" : "wn-combo-multi-input",
           "comConf" : {
             "placeholder" : "请输入类型",
+            "prefixIcon" : "zmdi-globe-alt",
             "tagItemIconBy" : null,
             "mustInList" : false,
             "autoFocusExtended" : true,
-            "query" : "obj ~ -match 'nm:\"^.*${inputing}\"' -sort nm:1 -lcqn",
+            "filter"  : true,
+            "findBy"  : "obj ~ -match 'nm:\"^.*${val}\"' -sort nm:1 -lcqn",
             "options" : "obj ~/* -sort nm:1 -lcqn"
           }
         }, {
@@ -28,13 +30,13 @@
           "type"  : "String",
           "comType" : "wn-combo-multi-input",
           "comConf" : {
-            "prefixIcon" : "zmdi-globe-alt",
+            "placeholder" : "请输入类型",
             "statusIcons" : {
               "collapse" : "zmdi-email",
               "extended" : "zmdi-email-open"
             },
-            "placeholder" : "请输入类型",
             "mustInList" : true,
+            "filter"  : false,
             "options" : "obj ~/demo/images/* -l -cqn",
             "dropDisplay" : ["@<thumb:zmdi-fire>", "title|nm", "id"],
             "dropItemBorder" : false
@@ -56,9 +58,10 @@
           "width" : "full",
           "name"  : "f3",
           "type"  : "String",
-          "comType" : "wn-combo-multi-input",
+          "comType" : "wn-droplist",
           "comConf" : {
             "prefixIcon" : "zmdi-car-wash",
+            "multi" : true,
             "options" : "obj ~/demo/images/* -l -cqn"
           }
         }]

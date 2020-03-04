@@ -120,7 +120,6 @@ export default {
     },
     //------------------------------------------------
     onInputChanged(val) {
-      console.log("input changed", val)
       // May click the prefix icon for clean
       if(_.isNull(val)) {
         this.$emit("changed", [])

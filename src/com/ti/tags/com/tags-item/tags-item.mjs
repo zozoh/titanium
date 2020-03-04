@@ -173,7 +173,6 @@ export default {
     },
     //------------------------------------------------
     onClickTop($event) {
-      console.log("adafa")
       // Show Drop Down
       if(this.hasOptions) {
         $event.stopPropagation()

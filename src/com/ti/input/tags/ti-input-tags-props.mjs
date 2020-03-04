@@ -2,6 +2,7 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
+  "inputValue" : null,
   // +1 from the begin
   // -1 from the last
   "maxValueLen" : {

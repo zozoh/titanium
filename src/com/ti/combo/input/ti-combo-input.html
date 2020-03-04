@@ -1,15 +1,15 @@
-<ti-combo-box :class="topClass"
+<ti-combo-box :class="TopClass"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
   :status="myDropStatus"
-  @collapse="doCollapse"
+  @collapse="OnCollapse"
   v-ti-actived="__set_actived">
   <!--
     Box
   -->
   <template v-slot:box>
     <ti-input 
-      :value="theInputValue|i18n"
+      :value="InputValue"
       :value-case="valueCase"
       :trimed="trimed"
 
@@ -18,43 +18,33 @@
       :hover="hover"
       :auto-select="autoSelect"
 
-      :placeholder="thePlaceholder"
+      :placeholder="placeholder"
       :hide-border="hideBorder"
-      :prefix-icon="prefixIcon"
+      :prefix-icon="ThePrefixIcon"
       :prefix-hover-icon="prefixHoverIcon"
       :prefix-icon-for-clean="prefixIconForClean"
       :prefix-text="prefixText"
-      :suffix-icon="theSuffixIcon"
+      :suffix-icon="TheSuffixIcon"
       :suffix-text="suffixText"
       
       :width="width"
       :height="height"
 
-      :on-init="onInputInit"
-      
-      @inputing="onInputInputing"
-      @input:focused="onInputFocused"
-      @changed="onInputChanged"
+      @changed="OnInputChanged"
+      @inputing="OnInputInputing"
+      @input:focused="OnInputFocused"
       @prefix:icon="$emit('prefix:icon')"
-      @suffix:icon="onClickStatusIcon"/>
+      @suffix:icon="OnClickStatusIcon"/>
   </template>
   <!--
     Drop
   -->
   <template v-slot:drop="slotProps">
     <component class="ti-fill-parent"
-      :is="dropComType"
-      :data="options"
-      :current-id="theDropCurrentId"
-      :id-by="theValueBy"
+      :is="DropComType"
+      v-bind="DropComConf"
 
-      :hoverable="true"
-
-      :display="theDropDisplay"
-      :border="dropItemBorder"
-
-      :on-init="onListInit"
-
-      @selected="onListSelected"/>
+      :on-init="OnDropListInit"
+      @selected="OnDropListSelected"/>
   </template>
 </ti-combo-box>

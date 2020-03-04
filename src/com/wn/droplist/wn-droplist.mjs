@@ -5,18 +5,15 @@ export default {
     "multi" : {
       type : Boolean,
       default : false
-    },
-    "options" : undefined,
-    "dropComType" : undefined
+    }
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    theComType() {
-      if(this.multi) {
-        return "wn-combo-multi-input"
-      }
-      return "wn-combo-input"
+    ComType() {
+      return this.multi
+        ? "wn-combo-multi-input"
+        : "wn-combo-input"
     }
     //------------------------------------------------
   },

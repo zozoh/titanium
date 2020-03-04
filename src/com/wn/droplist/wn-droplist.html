@@ -1,15 +1,18 @@
-<component :is="theComType"
+<component 
+  :is="ComType"
   :class-name="className"
-  
-  :drop-com-type="dropComType"
-  :multi="multi"
-  
+
   :value="value"
   :value-case="valueCase"
   :trimed="trimed"
     :max-value-len="maxValueLen"
     :value-unique="valueUnique"
     :tag-options="tagOptions"
+    :tag-mapping="tagMapping"
+      :options="options"
+      :value-by="valueBy"
+      :text-by="textBy"
+      :icon-by="iconeBy"
 
   :readonly="readonly"
   :focus="focus"
@@ -17,6 +20,13 @@
   :auto-select="autoSelect"
     :can-input="false"
     :cancel-tag-bubble="cancelTagBubble"
+      :drop-com-type="dropComType"
+      :drop-com-conf="dropComConf"
+      :must-in-list="true"
+      :auto-focus-extended="autoFocusExtended"
+      :filter="filter"
+      :delay="delay"
+      :auto-collapse="true"
 
   :placeholder="placeholder"
   :hide-border="hideBorder"
@@ -28,23 +38,13 @@
     :tag-item-icon-by="tagItemIconBy"
     :tag-item-default-icon="tagItemDefaultIcon"
     :tag-option-default-icon="tagOptionDefaultIcon"
+      :status-icons="statusIcons"
+      :drop-display="dropDisplay"
+      :drop-item-border="dropItemBorder"
   
   :width="width"
   :height="height"
-
-  :options="options"
-  :format="format"
-  :value-by="valueBy"
-  :match-by="matchBy"
-
-  :must-in-list="true"
-  :auto-focus-extended="autoFocusExtended"
-
-  :status-icons="statusIcons"
-  :drop-display="dropDisplay"
-  :drop-item-border="dropItemBorder"
-
-  :drop-width="dropWidth"
-  :drop-height="dropHeight"
+    :drop-width="dropWidth"
+    :drop-height="dropHeight"
   
   @changed="$emit('changed', $event)"/>

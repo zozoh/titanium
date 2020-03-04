@@ -13,6 +13,8 @@ listCache : Symbol("listCache"),
 ///////////////////////////////////////////////
 export class Dict {
   //-------------------------------------------
+  loadingHooks = []
+  //-------------------------------------------
   constructor(){
     this[K.getItem]   = _.idendity
     this[K.findAll]   = ()=>[]
@@ -34,6 +36,27 @@ export class Dict {
     this[K.listCache] = null  // last find result for findAll
   }
   //-------------------------------------------
+  // Funcs
+  //-------------------------------------------
+  addLoadingHooks(...hooks) {
+    let list = _.flattenDeep(hooks)
+    _.forEach(list, hk => {
+      if(_.isFunction(hk)){
+        this.loadingHooks.push(hk)
+      }
+    })
+  }
+  //-------------------------------------------
+  cleatLoadingHooks(){
+    this.loadingHooks = []
+  }
+  //-------------------------------------------
+  doLoadingHooks(loading=false) {
+    for(let hk of this.loadingHooks) {
+      hk(loading)
+    }
+  }
+  //-------------------------------------------
   invoke(methodName, ...args) {
     let func = this[K[methodName]]
     if(_.isFunction(func)){
@@ -48,6 +71,8 @@ export class Dict {
       }
     })
   }
+  //-------------------------------------------
+  // Utility
   //-------------------------------------------
   isItemCached(val) {
     return !Ti.Util.isNil(this[K.itemCache][val])
@@ -75,10 +100,14 @@ export class Dict {
     }
   }
   //-------------------------------------------
+  // Core Methods
+  //-------------------------------------------
   async getItem(val) {
     let it = this[K.itemCache][val]
     if(Ti.Util.isNil(it)) {
+      this.doLoadingHooks(true)
       it = await this.invoke("getItem", val)
+      this.doLoadingHooks(false)
       this.addItemToCache(it)
     }
     return it
@@ -87,15 +116,24 @@ export class Dict {
   async findAll(force=false){
     let list = this[K.listCache]
     if(force || _.isEmpty(list)) {
+      this.doLoadingHooks(true)
       list = await this.invoke("findAll")
+      this.doLoadingHooks(false)
       this.addItemToCache(list)
       this[K.listCache] = list
     }
-    return list || {}
+    return list || []
   }
   //-------------------------------------------
   async find(str){
+    // Empty string will take as find all
+    if(!str) {
+      return await this.findAll()
+    }
+    // Find by string
+    this.doLoadingHooks(true)
     let list = await this.invoke("find", str)
+    this.doLoadingHooks(false)
     this.addItemToCache(list)
     return list || []
   }
@@ -118,7 +156,9 @@ export const DictFactory = {
     })
   },
   //-------------------------------------------
-  CreateDict({getItem, findAll, find, getValue, getText, getIcon, isMatched}={}) {
+  CreateDict({getItem, findAll, find, 
+    getValue, getText, getIcon, isMatched, hooks
+  }={}) {
     let funcs = {
       getItem, findAll, find, getValue, getText, getIcon, isMatched
     }
@@ -152,10 +192,11 @@ export const DictFactory = {
     //.........................................
     let d = new Dict()
     d.setFunc(funcs)
+    d.addLoadingHooks(hooks)
     return d
   },
   //-------------------------------------------
-  CreateDictBy(options, {getValue, getText, getIcon, isMatched}={}) {
+  CreateDictBy(options, {getValue, getText, getIcon, isMatched, hooks}={}) {
     //.........................................
     const _any_to_pair = s => {
       // Object
@@ -199,13 +240,14 @@ export const DictFactory = {
         },
         findAll  : this.options,
         find     : this.options,
-        getValue, getText, getIcon, isMatched
+        getValue, getText, getIcon, isMatched,
+        hooks
       })
     }
     //.........................................
   },
   //-------------------------------------------
-  ShadowDict($dict) {
+  ShadowDict($dict, hooks) {
     let d = new Dict()
     d.setFunc({
       getItem : async (v)=>_.cloneDeep(await $dict.getItem(v)),
@@ -214,8 +256,9 @@ export const DictFactory = {
       getValue  : it => $dict.getValue(it), 
       getText   : it => $dict.getText(it),  
       getIcon   : it => $dict.getIcon(it), 
-      isMatched : (it,v) => $dict.isMatched(it, v)
+      isMatched : (it,v) => $dict.isMatched(it, v),
     })
+    d.addLoadingHooks(hooks)
     return d
   },
   //-------------------------------------------

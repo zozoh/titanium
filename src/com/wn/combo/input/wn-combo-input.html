@@ -1,45 +1,39 @@
 <ti-combo-input
-  :class="topClass"
+  :class-name="className"
 
-  drop-com-type="wn-list"
-  
   :value="value"
   :value-case="valueCase"
   :trimed="trimed"
+    :options="OptionsDict"
 
   :readonly="readonly"
   :focus="focus"
   :hover="hover"
   :auto-select="autoSelect"
+    :can-input="canInput"
+    :drop-com-type="DropComType"
+    :drop-com-conf="dropComConf"
+    :must-in-list="mustInList"
+    :auto-focus-extended="autoFocusExtended"
+    :filter="filter"
+    :delay="delay"
+    :auto-collapse="autoCollapse"
 
   :placeholder="placeholder"
   :hide-border="hideBorder"
-  :prefix-icon="thePrefixIcon"
+  :prefix-icon="ThePrefixIcon"
   :prefix-hover-icon="prefixHoverIcon"
   :prefix-icon-for-clean="prefixIconForClean"
   :prefix-text="prefixText"
   :suffix-text="suffixText"
+    :status-icons="statusIcons"
+    :drop-display="TheDropDisplay"
+    :drop-item-border="dropItemBorder"
   
   :width="width"
   :height="height"
-
-  :options="myOptions"
-  :format="theFormat"
-  :value-by="theValueBy"
-  :match-by="theMatchBy"
-
-  :can-input="canInput"
-  :must-in-list="mustInList"
-  :auto-focus-extended="autoFocusExtended"
-
-  :status-icons="statusIcons"
-  :drop-display="theDropDisplay"
-  :drop-item-border="dropItemBorder"
-
-  :drop-width="dropWidth"
-  :drop-height="dropHeight"
+    :drop-width="dropWidth"
+    :drop-height="dropHeight"
   
-  @inputing="onInputInputing"
-  @input:item="onInputItemChagned"
   @changed="$emit('changed', $event)"/>
   

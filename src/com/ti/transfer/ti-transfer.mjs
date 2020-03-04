@@ -29,10 +29,7 @@ export default {
     },
     //------------------------------------------------
     Values() {
-      if(_.isString(this.value)) {
-        return _.without(this.value.split(/[,;，； \n]+/g), "")
-      }
-      return  _.filter(_.concat(this.value), (v)=>!Ti.Util.isNil(v))
+      return Ti.S.toArray(this.value)
     },
     //------------------------------------------------
     CanListComType() {return this.canComType || "ti-list"},
@@ -99,11 +96,7 @@ export default {
     //---------------------------------------------------
     async OnFilterChanged(val) {
       this.myFilterValue = val
-      if(!Ti.Util.isNil(val)) {
-        this.myOptionsData = await this.Dict.find(val) || []
-      } else {
-        this.myOptionsData = await this.Dict.findAll() || []
-      }
+      this.myOptionsData = await this.Dict.find(val)
       this.evalShownCanList()
     },
     //---------------------------------------------------
@@ -121,7 +114,7 @@ export default {
       return "far-square" // none
     },
     //---------------------------------------------------
-    // Core Actions
+    // Core Methods
     //---------------------------------------------------
     canListToSel() {
       // Guard
@@ -187,12 +180,6 @@ export default {
       })
     },
     //---------------------------------------------------
-    async reloadCanList() {
-      //console.log("reloadCanList")
-      this.myOptionsData = await this.Dict.findAll()
-      this.evalShownCanList()
-    },
-    //---------------------------------------------------
     evalShownCanList() {
       let list = []
       _.forEach(this.myOptionsData, it => {
@@ -203,6 +190,12 @@ export default {
       })
       this.can.data = list
       this.can.checkedIds = []
+    },
+    //---------------------------------------------------
+    async reloadCanList() {
+      //console.log("reloadCanList")
+      this.myOptionsData = await this.Dict.find(this.myFilterValue)
+      this.evalShownCanList()
     },
     //---------------------------------------------------
     async reloadSelList(vals=this.Values) {

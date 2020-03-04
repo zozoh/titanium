@@ -1,15 +1,16 @@
-<ti-combo-box :class="topClass"
+<ti-combo-box :class="TopClass"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
   :status="myDropStatus"
-  @collapse="doCollapse"
+  @collapse="OnCollapse"
   v-ti-actived="__set_actived">
   <!--
     Box
   -->
   <template v-slot:box>
     <ti-input-tags
-      :value="theInputTags"
+      :input-value="myFilterValue"
+      :value="InputTagValues"
       :value-case="valueCase"
       :trimed="trimed"
         :max-value-len="maxValueLen"
@@ -30,7 +31,7 @@
       :prefix-hover-icon="prefixHoverIcon"
       :prefix-icon-for-clean="prefixIconForClean"
       :prefix-text="prefixText"
-      :suffix-icon="theSuffixIcon"
+      :suffix-icon="TheSuffixIcon"
       :suffix-text="suffixText"
         :tag-item-icon-by="tagItemIconBy"
         :tag-item-default-icon="tagItemDefaultIcon"
@@ -39,36 +40,23 @@
       :width="width"
       :height="height"
 
-      :on-init="onInputInit"
-      :input-changed="onInputChanged"
-      
-      @inputing="$emit('inputing', $event)"
-      @input:focused="onInputFocused"
-      @changed="onTagListChanged"
+      :input-changed="OnInputChanged"
+
+      @inputing="OnInputInputing"
+      @input:focused="OnInputFocused"
+      @changed="OnTagListChanged"
       @prefix:icon="$emit('prefix:icon')"
-      @suffix:icon="onClickStatusIcon"/>
+      @suffix:icon="OnClickStatusIcon"/>
   </template>
   <!--
     Drop
   -->
   <template v-slot:drop>
     <component class="ti-fill-parent"
-      :is="dropComType"
-      :data="options"
-      :current-id="theDropCurrentId"
-      :checked-ids="theDropCheckedIds"
-      :id-by="theValueBy"
+      :is="DropComType"
+      v-bind="DropComConf"
 
-      :multi="true"
-      :hoverable="true"
-      :checkable="true"
-      :auto-check-current="false"
-
-      :display="theDropDisplay"
-      :border="dropItemBorder"
-      
-      :on-init="onListInit"
-
-      @selected="onListSelected"/>
+      :on-init="OnDropListInit"
+      @selected="OnDropListSelected"/>
   </template>
 </ti-combo-box>
