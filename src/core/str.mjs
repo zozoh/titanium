@@ -202,22 +202,86 @@ export const TiStr = {
   toObject(s, {
     sep=/[:,;\t\n\/]+/g, 
     ignoreNil=true,
-    keys=["value","text","icon"]
+    keys=["value","text?value","icon"]
   }={}) {
+    // Already Object
+    if(_.isPlainObject(s) || _.isNull(s) || _.isUndefined(s)) {
+      return s
+    }
     // Split value to array
     let vs = TiStr.toArray(s, {sep, ignoreNil})
+
+    // Analyze the keys
+    let a_ks = []   // assign key list
+    let m_ks = []   // those keys must has value
+    _.forEach(keys, k => {
+      let ss = TiStr.toArray(k, {sep:"?"})
+      if(ss.length > 1) {
+        let k2 = ss[0]
+        a_ks.push(k2)
+        m_ks.push({
+          name   : k2,
+          backup : ss[1]
+        })
+      } else {
+        a_ks.push(k)
+      }
+    })
     
     // translate
     let re = {}
-    _.forEach(keys, (k, i)=>{
+    _.forEach(a_ks, (k, i)=>{
       let v = _.nth(vs, i)
       if(_.isUndefined(v) && ignoreNil) {
         return
       }
       re[k] = v
     })
+    // Assign default
+    for(let mk of m_ks) {
+      if(_.isUndefined(re[mk.name])) {
+        re[mk.name] = re[mk.backup]
+      }
+    }
+
     // done
     return re
+  },
+  /***
+   * String (multi-lines) to object list
+   * Translate 
+   * ```
+   * A : Xiaobai : im-pizza
+   * B : Peter
+   * C : Super Man
+   * D
+   * ```
+   * To
+   * ```
+   * [
+   *  {value:"A", text:"Xiaobai", icon:"im-pizza"},
+   *  {value:"B", text:"Peter"},
+   *  {value:"C", text:"Super Man"}
+   *  {value:"D", text:"C"}
+   * ]
+   * ```
+   * 
+   * @param s{String|Array}
+   * @param sep{RegExp|String}
+   * @param ignoreNil{Boolean}
+   * @param keys{Array}
+   */
+  toObjList(s, {
+    sepLine=/[,;\n]+/g, 
+    sepPair=/[:|\/\t]+/g, 
+    ignoreNil=true,
+    keys=["value","text?value","icon"]
+  }={}) {
+    let list = TiStr.toArray(s, {sep:sepLine, ignoreNil})
+    return _.map(list, v => TiStr.toObject(v, {
+      sep : sepPair,
+      ignoreNil, keys
+    }))
   },
   /***
    * Get the display text for bytes

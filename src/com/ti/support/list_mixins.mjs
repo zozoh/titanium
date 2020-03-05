@@ -418,6 +418,11 @@ export default {
     },
     "checkedIds" : function() {
       this.syncCheckedIds()
+    },
+    "data" : function() {
+      if(this.theCurrentId) {
+        this.myLastIndex = this.findRowIndexById(this.theCurrentId)
+      }
     }
   },
   ///////////////////////////////////////////////////

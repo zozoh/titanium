@@ -32,6 +32,9 @@ export default {
     },
     //------------------------------------------------
     InputValue() {
+      if(!Ti.Util.isNil(this.myFilterValue)) {
+        return this.myFilterValue
+      }
       if(this.myItem) {
         return this.Dict.getText(this.myItem)
                || this.Dict.getValue(this.myItem)
@@ -96,7 +99,16 @@ export default {
     OnInputInputing(val) {
       if(this.filter) {
         this.myFilterValue = val
-        this.debReload()
+        // Auto extends
+        if(this.autoFocusExtended) {
+          if(!this.isExtended) {
+            this.doExtend(false)
+          }
+        }
+        // Reload options data
+        if(this.isExtended) {
+          this.debReload()
+        }
       }
     },
     //-----------------------------------------------
@@ -138,20 +150,20 @@ export default {
       }
     },
     //-----------------------------------------------
-    async OnDropListSelected({currentId}={}) {
+    async OnDropListSelected({currentId, byKeyboardArrow}={}) {
       this.myCurrentId = currentId
       this.OnInputChanged(currentId)
-      if(this.autoCollapse) {
+      if(this.autoCollapse && !byKeyboardArrow) {
         this.doCollapse()
       }
     },
     //-----------------------------------------------
     // Core Methods
     //-----------------------------------------------
-    async doExtend() {
+    async doExtend(tryReload=true) {
       this.myDropStatus = "extended"
       // Try reload options again
-      if(_.isEmpty(this.myOptionsData)) {
+      if(tryReload && _.isEmpty(this.myOptionsData)) {
         await this.reloadMyOptionData()
       }
     },
