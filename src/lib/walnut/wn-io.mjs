@@ -1,7 +1,4 @@
-import {WnUtil} from "./wn-util.mjs"
 ////////////////////////////////////////////
-// Ti required(Ti.Http)
-//-----------------------------------------
 function URL(actionName) {
   return "/o/" + actionName
 }
@@ -174,7 +171,7 @@ export const WnIo = {
     // Do load
     let mime = meta.mime || 'application/octet-stream'
     // PureText
-    if(WnUtil.isMimeText(mime)) {
+    if(Wn.Util.isMimeText(mime)) {
       let url = URL("content")
       let content = await Ti.Http.get(url, {
         params: {

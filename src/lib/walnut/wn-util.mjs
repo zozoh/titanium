@@ -1,4 +1,3 @@
-// Ti required(Ti.Icons)
 ////////////////////////////////////////////
 export const WnUtil = {
   isMimeText(mime) {
@@ -104,6 +103,11 @@ export const WnUtil = {
     }
     // Default
     return dftIcon
+  },
+  getObjThumbIcon2(canIcon, meta) {
+    return WnUtil.getObjThumbIcon(_.defaults({
+      candidateIcon : canIcon
+    }, meta))
   },
   /***
    * return the object readable name
@@ -247,53 +251,34 @@ export const WnUtil = {
     }
   },
   /***
-   * Eval the dynamic query list
-   */
-  async queryBy(query, val) {
-    //.............................................
-    // Eval: Array
-    if(_.isArray(query)) {
-      return query
-    }
-    // Eval: Command || Dict
-    if(_.isString(query)) {
-      let m = /^@dict:(.+)$/.exec(query)
-      // Dict
-      if(m) {
-        let dict = _.trim(m[1])
-        return await Wn.Dict.getAll(dict)
-      }
-      // Command
-      else {
-        let cmdText = Ti.S.renderBy(query, {inputing:val})
-        return await Wn.Sys.exec2(cmdText, {
-          as : "json",
-          input : val
-        })
-      }
-    }
-    // Eval: Function
-    if(_.isFunction(query)) {
-      return await query(val)
-    }
-    // Unacceptable
-    throw Ti.Err.make("Wn.Util.queryBy", {
-      query, val
-    })
-  },
-  /***
    * @param query{String|Function}
    */
-  genQuery(query, {valKey="val"}={}) {
+  genQuery(query, {vkey="val", wrapArray=false}={}) {
     // Customized query
     if(_.isFunction(query)) {
       return query
     }
+    // Array
+    if(_.isArray(query)) {
+      if(wrapArray) {
+        return ()=>query
+      }
+      return query
+    }
     // Command template
     if(_.isString(query)) {
-      return async (v) => {
-        let cmdText = Ti.S.renderBy(query, {[valKey]:v})
-        return await Wn.Sys.exec2(cmdText, {as:"json",input:v})
+      // Query by value 
+      if(vkey) {
+        return async (v) => {
+          let cmdText = Ti.S.renderBy(query, {[vkey]:v})
+          return await Wn.Sys.exec2(cmdText, {as:"json",input:v})
+        }
+      }
+      // Query directly
+      else {
+        return async (v) => {
+          return await Wn.Sys.exec2(query, {as:"json"})
+        }
       }
     }
   }
