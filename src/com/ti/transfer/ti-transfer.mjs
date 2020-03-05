@@ -62,7 +62,8 @@ export default {
         return this.options
       }
       // Auto Create
-      return Ti.DictFactory.CreateDictBy(this.options, {
+      return Ti.DictFactory.CreateDict({
+        data: this.options,
         getValue : Ti.Util.genGetter(this.valueBy || "value"),
         getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
         getIcon  : Ti.Util.genGetter(this.textBy  || "icon")
@@ -96,7 +97,7 @@ export default {
     //---------------------------------------------------
     async OnFilterChanged(val) {
       this.myFilterValue = val
-      this.myOptionsData = await this.Dict.find(val)
+      this.myOptionsData = await this.Dict.queryData(val)
       this.evalShownCanList()
     },
     //---------------------------------------------------
@@ -194,7 +195,7 @@ export default {
     //---------------------------------------------------
     async reloadCanList() {
       //console.log("reloadCanList")
-      this.myOptionsData = await this.Dict.find(this.myFilterValue)
+      this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
       this.evalShownCanList()
     },
     //---------------------------------------------------

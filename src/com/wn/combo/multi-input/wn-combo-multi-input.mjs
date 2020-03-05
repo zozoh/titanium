@@ -37,15 +37,15 @@ export default {
     OptionsDict() {
       return Ti.DictFactory.CreateDict({
         //...............................................
-        findAll : Wn.Util.genQuery(this.options),
-        getItem : Wn.Util.genQuery(this.itemBy),
-        find    : Wn.Util.genQuery(this.findBy),
+        data  : Wn.Util.genQuery(this.options),
+        query : Wn.Util.genQuery(this.findBy),
+        item  : Wn.Util.genQuery(this.itemBy),
         //...............................................
         getValue : Ti.Util.genGetter(this.valueBy || "id"),
         getText  : Ti.Util.genGetter(this.textBy  || "title|nm"),
         getIcon  : Ti.Util.genGetter(this.textBy  || "icon"),
         //...............................................
-        hooks : loading => {
+        hooks : ({loading}) => {
           this.loading = loading
         }
         //...............................................
