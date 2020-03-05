@@ -49,7 +49,7 @@ export default {
     ThePrefixIcon() {
       let icon = this.prefixIcon;
       if(this.myItem) {
-        icon = this.Dict.getIcon(this.myItem)
+        icon = this.Dict.getIcon(this.myItem) || icon
       }
       return icon || "zmdi-minus"
     },

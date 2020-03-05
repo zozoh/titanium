@@ -66,7 +66,8 @@ export default {
       let canHover = this.isCanHover(hoverName)
       return {
         "can-hover" : canHover,
-        "for-look"  : !canHover
+        "for-look"  : !canHover,
+        "is-prefix-icon-hover" : "prefixIcon" == hoverName
       }
     },
     //------------------------------------------------

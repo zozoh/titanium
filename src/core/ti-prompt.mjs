@@ -17,7 +17,7 @@ async function Prompt(msg="", {
   let theIcon  = icon  || "zmdi-keyboard"
   let theTitle = title || "i18n:confirm"
   //............................................
-  return Ti.App.Open({
+  return await Ti.App.Open({
     //------------------------------------------
     type, width, height, position,
     title   : theTitle,

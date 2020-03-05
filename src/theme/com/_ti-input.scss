@@ -12,16 +12,21 @@
     border-color: map-get($color-line, highlight);
   }
   //-----------------------------------------
-  > .as-icon, .as-input > .as-icon {
+  .as-input-icon {
     @include flex-center;
     flex:0 0 auto; width:.26rem; min-height:.26rem;
+    overflow: hidden;
     //---------------------------------------
     &.can-hover{cursor: pointer;}
     &.can-hover:hover{@include color($color-primary,r,c);}
     //---------------------------------------
     &.at-prefix.can-hover {
       > .ti-icon {
-        transition: 0.5s; opacity: 0.4;
+        transition: .5s; opacity: .6;
+        img {
+          width:100%; transition: 5s;
+          border-radius: 2px;
+        }
       }
       &:hover > .ti-icon {
         transform:scale(1.1) rotate(180deg);
@@ -31,7 +36,7 @@
     //---------------------------------------
   }
   //-----------------------------------------
-  > .as-text, > .as-input > .as-text {
+  .as-input-text {
     @include flex-center;
     white-space: nowrap;
     padding:0 .06rem;
@@ -50,7 +55,7 @@
       width:100%; 
       flex:1 1 auto;
       outline:none; border:0;
-      padding:0 .1rem;
+      padding:0 .08rem;
       background:transparent;
       color:inherit;
     }
@@ -61,12 +66,12 @@
     > .as-input > input:read-only {cursor:inherit; @include noselect;}
   }
   //-----------------------------------------
-  &.has-prefix-icon {
-    > .as-input > input {padding-left:.04rem;}
-  }
+  // &.has-prefix-icon {
+  //   > .as-input > input {padding-left:.06rem;}
+  // }
   //-----------------------------------------
-  &.has-suffix-icon {
-    > .as-input > input {padding-right:.04rem;}
-  }
+  // &.has-suffix-icon {
+  //   > .as-input > input {padding-right:.06rem;}
+  // }
   //-----------------------------------------
 }

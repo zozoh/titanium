@@ -1,200 +1,119 @@
-import Sys from "./wn-sys.mjs"
-////////////////////////////////////////////
-class DictBuilder {
-  //----------------------------------------
-  constructor({
-    mode="item",   // If list, query will get all items
-    query,         // command to query the objects
-    key="=id", 
-    value="=nm"
-  }) {
-    this.mode  = mode
-    this.query = query
-    this.key   = key
-    this.value = value
-    this.list  = null
-    this.cache = {}
-    this.waitListReloading = null
-  }
-  //----------------------------------------
-  async fetchAll() {
-    // Matched the cache
-    if(_.isArray(this.list))
-      return this.list
-    
-    // List Mode
-    if("list" == this.mode) {
-      // Reloading, join to the queue
-      if(_.isArray(this.waitListReloading)){
-        return new Promise((resolve)=>{
-          this.waitListReloading.push(resolve)
-        })
-      }
-
-      // hijack others reloading
-      this.waitListReloading = []
-
-      // Do reloading
-      let list = await this.reload()
-      //console.log("aaa", list)
-
-      // release the hijacking
-      for(let fn of this.waitListReloading) {
-        fn(this.list)
-      }
-      this.waitListReloading = null
-
-      // Done
-      return list
-    }
-    // Item Mode
-    return _.values(this.cache)
-  }
-  //----------------------------------------
-  async fetch(val) {
-    if(_.isUndefined(val) || _.isNull(val)) {
-      return val
-    }
-
-    // Try cache
-    let obj = this.cache[val]
-    // Matched cache
-    if(!_.isUndefined(obj)) {
-      return obj
-    }
-
-    // List Mode
-    if("list" == this.mode) {
-      let list
-      // Reloading, join to the queue
-      if(_.isArray(this.waitListReloading)){
-        list = await new Promise((resolve)=>{
-          this.waitListReloading.push(resolve)
-        })
-      }
-      // Do reload
-      else {
-        // hijack others reloading
-        this.waitListReloading = []
-
-        // Do reloading
-        list = await this.reload()
-
-        // release the hijacking
-        for(let fn of this.waitListReloading) {
-          fn(this.list)
-        }
-        this.waitListReloading = null
-      }
-    }
-    // Item mode: reload
-    else {
-      await this.reload({val})
-    }
-
-    // Get from cache again
-    obj = this.cache[val]
-    // Fail to look up dictionary
-    // mark it to forbid reload
-    if(_.isUndefined(obj)) {
-      this.cache[val] = val
-      return val
-    }
-    
-    // Done
-    return obj
-  }
-  //----------------------------------------
-  async reload(vars={}) {
-    // Build the obj
-    let cmdText = Ti.S.renderBy(this.query, vars)
-    //console.log(cmdText)
-    try {
-      let re = await Sys.exec(cmdText)
-      let trimed = _.trim(re)
-
-      // Save to cache
-      if(trimed) {
-        let reo = JSON.parse(trimed);
-        // List Mode
-        if("list" == this.mode) {
-          this.cache = {}
-          this.list = [].concat(reo)
-          for(let c of this.list) {
-            let {k, v} = Ti.Util.explainObj(c, {
-              k : this.key,
-              v : this.value
-            })
-            this.cache[k] = v
-          }
-
-          // Return the list
-          return this.list
-        }
-        // Item Mode As Default
-        let {k, v} = Ti.Util.explainObj(reo, {
-          k : this.key,
-          v : this.value
-        })
-        this.cache[k] = v
-      }
-    }
-    // Quiet all error
-    catch(err){
-      if(Ti.IsWarn("Wn.Dict")) {
-        console.warn(err)
-      }
-    }
-  }
-  //----------------------------------------
-}
-////////////////////////////////////////////
-class WnDictionary {
-  constructor(){
-    this.builders = {}
-  }
-  //----------------------------------------
-  async getAll(buName) {
-    // Build the obj
-    let builder = this.builders[buName]
-    if(!builder) {
-      await Ti.Alert(`Invalid builder [${buName}] for dictionary`)
-      return
-    }
-
-    // Building & cached
-    return await builder.fetchAll()
-  }
-  //----------------------------------------
+///////////////////////////////////////////////////////////
+const WnDict = {
   /***
-   * @param buName{String} - The name of builder
-   * @param val{String|Number} = The value to retrive back a object
+   * Get or create a Ti.Dict
    * 
-   * @return the object
+   * @param name{String} : Dictionary name
+   * @param dict{Object} : Dictionary setting for create
+   * ```
+   * {
+   *   data,   // Command | Array | Function
+   *   query,  // Command
+   *   item,   // Command
+   *   value,  // "id"
+   *   text,   // "title|name"
+   *   icon,   // "icon"
+   *   // If defined, it will auto-create the Dict instance when fail 
+   *   // to get dict in cache.
+   *   shadowed : true
+   * }
+   * ```
+   * @param hooks{Array|Function}
+   * 
+   * @return {Ti.Dict}
    */
-  async get(buName, val) {
-    //console.log("dict.get", buName, val)
-    // Build the obj
-    let builder = this.builders[buName]
-    if(!builder) {
-      await Ti.Alert(`Invalid builder [${buName}] for dictionary`)
-      return
+  getOrCreate(name, dict={}, hooks) {
+    let shadowed = Ti.Util.fallback(dict.shadowed, true)
+    let theDict = {}
+    if(!_.isEmpty(dict)){
+      theDict = {
+        //...............................................
+        data  : Wn.Util.genQuery(dict.data, {vkey:null}),
+        query : Wn.Util.genQuery(dict.query),
+        item  : Wn.Util.genQuery(dict.item),
+        //...............................................
+        getValue : Ti.Util.genGetter(dict.value),
+        getText  : Ti.Util.genGetter(dict.text),
+        getIcon  : Ti.Util.genGetter(dict.icon),
+        //...............................................
+      }
     }
 
-    // Building & cached
-    return await builder.fetch(val)
-  }
-  //----------------------------------------
+    return Ti.DictFactory.GetDict(name, theDict, {shadowed, hooks})
+  },
   /***
-   * Setup dictionary
+   * @return {Ti.Dict}
    */
-  setup(dict) {
-    _.forEach(dict, (setting, name)=>{
-      this.builders[name] = new DictBuilder(setting)
+  evalOptionsDict({
+    options, findBy, itemBy,
+    valueBy, textBy, iconBy
+  }, hooks) {
+    // Quck Dict Name
+    let m = /^@Dict:(.+)$/.exec(options)
+    if(m) {
+      return Wn.Dict.checkDict(_.trim(m[1]))
+    }
+
+    // Explaint 
+    return Ti.DictFactory.CreateDict({
+      //...............................................
+      data  : Wn.Util.genQuery(options, {vkey:null}),
+      query : Wn.Util.genQuery(findBy),
+      item  : Wn.Util.genQuery(itemBy),
+      //...............................................
+      getValue : Ti.Util.genGetter(valueBy || "id"),
+      getText  : Ti.Util.genGetter(textBy  || "title|nm"),
+      getIcon  : Ti.Util.genGetter(iconBy  || Wn.Util.getObjThumbIcon),
+      //...............................................
+      hooks
+      //...............................................
     })
+  },
+  /***
+   * Setup dictionary set
+   */
+  setup(dicts) {
+    //console.log(dicts)
+    _.forEach(dicts, (dict, name)=>{
+      WnDict.getOrCreate(name, dict)
+    })
+  },
+  //-------------------------------------------------------
+  checkDict(dictName) {
+    let d = WnDict.getOrCreate(dictName)
+    if(!d) {
+      throw Ti.Err.make(`e.dict.noexists : ${dictName}`, {dictName})
+    }
+    return d
+  },
+  //-------------------------------------------------------
+  async getAll(dictName) {
+    try {
+      let $dict = WnDict.checkDict(dictName)
+      return await $dict.getData()
+    } catch(E) {
+      console.error(`e.wn.dict.getAll : ${dictName}`, E)
+    }
+  },
+  //-------------------------------------------------------
+  async getText(dictName, val) {
+    try {
+      let $dict = WnDict.checkDict(dictName)
+      return await $dict.getItemText(val)
+    } catch(E) {
+      console.error(`e.wn.dict.getAll : ${dictName}`, E)
+    }
+  },
+  //-------------------------------------------------------
+  async getIcon(dictName, val) {
+    try {
+      let $dict = WnDict.checkDict(dictName)
+      return await $dict.getItemIcon(val)
+    } catch(E) {
+      console.error(`e.wn.dict.getAll : ${dictName}`, E)
+    }
   }
+  //-------------------------------------------------------
 }
-////////////////////////////////////////////
-export const WnDict = new WnDictionary()
-////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 export default WnDict;

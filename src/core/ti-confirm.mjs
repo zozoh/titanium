@@ -12,7 +12,7 @@ async function Confirm(msg="", {
   let theIcon  = icon  || "zmdi-help"
   let theTitle = title || "i18n:confirm"
   //............................................
-  return Ti.App.Open({
+  return await Ti.App.Open({
     //------------------------------------------
     type, width, height, position,
     title   : theTitle,

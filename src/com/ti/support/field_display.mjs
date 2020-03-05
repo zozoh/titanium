@@ -85,9 +85,8 @@ export default {
     autoIgnoreNil=true,
     autoValue="value"
   }={}) {
-    // if("ti-input" == displayItem.comType) {
-    //   console.log("displayItem", itemData)
-    // }
+    // if("sex" == displayItem.key) 
+    //   console.log(displayItem)
     let value = displayItem.defaultAs;
     //.....................................
     // Array -> Obj

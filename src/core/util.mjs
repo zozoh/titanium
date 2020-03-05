@@ -746,13 +746,16 @@ const TiUtil = {
     dftKeys=[],
     indexPrefix
   }={}) {
+    //.............................................
     // Customized Function
     if(_.isFunction(key)) {
       return it => key(it)
     }
+    //.............................................
     // String || Array
     if(key) {
-      // Index Mode
+      //...........................................
+      // Index Mode: for `Row-0`, ti-table getRowId
       if(indexPrefix) {
         return (it, index)=>{
           return Ti.Util.fallbackNil(
@@ -761,13 +764,32 @@ const TiUtil = {
           )
         }
       }
+      //...........................................
+      // Invoke mode
+      let m = /^->([^()]+)(\((.+)\))?$/.exec(key)
+      if(m) {
+        let callPath = m[1]
+        let callArgs = m[3]
+        //console.log(callPath, callArgs)
+        let func = _.get(window, callPath)
+        if(_.isFunction(func)) {
+          let args = Ti.S.joinArgs(callArgs)
+          if(!_.isEmpty(args)) {
+            return _.partial(func, ...args)
+          }
+          return func
+        }
+      }
+      //...........................................
       // Default Mode
       return it => Ti.Util.getOrPick(it, key)
     }
+    //.............................................
     // Default Keys
     if(!_.isEmpty(dftKeys)) {
       return it => Ti.Util.getFallback(it, ...dftKeys)
     }
+    //.............................................
   },
   /***
    * @param matchBy{Function|String|Array}

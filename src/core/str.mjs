@@ -160,6 +160,32 @@ export const TiStr = {
     return str
   },
   /***
+   * Join "a,b,c" like string to arguments
+   */
+  joinArgs(s, args=[]) {
+    // String to split
+    if(_.isString(s)) {
+      let list = s.split(",")
+      for(let li of list) {
+        let vs = _.trim(li)
+        if(!vs)
+          continue
+        let v = TiStr.toJsValue(vs)
+        args.push(v)
+      }
+    }
+    // Array
+    else if(_.isArray(s)) {
+      for(let v of s)
+        args.push(v)
+    }
+    // Others
+    else if(!_.isUndefined(s)){
+      args.push(s)
+    }
+    return args
+  },
+  /***
    * @param s{String|Array}
    * @param sep{RegExp|String}
    * @param ignoreNil{Boolean}

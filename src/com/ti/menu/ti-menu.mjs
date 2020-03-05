@@ -95,7 +95,6 @@ export default {
         let mode = m[1]
         let tanm = m[2]
         let arg0 = m[4]
-        let args = []
         let func, context
         //...............................
         // Emit
@@ -114,15 +113,11 @@ export default {
           let $app = Ti.App(vm)
           func = $app[mode]
           context = $app
-          args.push(tanm)
         }
         //...............................
         // Do Invoke
         if(_.isFunction(func) && tanm) {
-          if(arg0) {
-            let payload = Ti.S.toJsValue(arg0)
-            args.push(payload)
-          }
+          let args = Ti.S.joinArgs(arg0, [tanm])
           func.apply(context, args)
           return
         }

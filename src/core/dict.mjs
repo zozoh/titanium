@@ -11,6 +11,10 @@ const K = {
   listCache : Symbol("listCache")
 }
 ///////////////////////////////////////////////
+const __dict_mixin = {
+  
+}
+///////////////////////////////////////////////
 export class Dict {
   //-------------------------------------------
   loadingHooks = []
@@ -64,6 +68,13 @@ export class Dict {
     }
   }
   //-------------------------------------------
+  async invokeAsync(methodName, ...args) {
+    let func = this[K[methodName]]
+    if(_.isFunction(func)){
+      return await func.apply(this, [...args, this])
+    }
+  }
+  //-------------------------------------------
   setFunc(methods) {
     _.forEach(methods, (func, methodName)=>{
       if(_.isFunction(func)){
@@ -106,7 +117,7 @@ export class Dict {
     let it = this[K.itemCache][val]
     if(Ti.Util.isNil(it)) {
       this.doHooks(true)
-      it = await this.invoke("item", val)
+      it = await this.invokeAsync("item", val)
       this.doHooks(false)
       this.addItemToCache(it)
     }
@@ -117,7 +128,7 @@ export class Dict {
     let list = this[K.listCache]
     if(force || _.isEmpty(list)) {
       this.doHooks(true)
-      list = await this.invoke("data")
+      list = await this.invokeAsync("data")
       this.doHooks(false)
       this.addItemToCache(list)
       this[K.listCache] = list
@@ -132,7 +143,7 @@ export class Dict {
     }
     // Find by string
     this.doHooks(true)
-    let list = await this.invoke("query", str)
+    let list = await this.invokeAsync("query", str)
     this.doHooks(false)
     this.addItemToCache(list)
     return list || []
@@ -142,6 +153,29 @@ export class Dict {
   getText(it)    { return this.invoke("getText" ,  it) }
   getIcon(it)    { return this.invoke("getIcon" ,  it) }
   isMatched(it,v){ return this.invoke("isMatched", it, v) }
+  //-------------------------------------------
+  async checkItem(val) {
+    let it = await this.getItem(val)
+    if(!it) {
+      throw Ti.Err.make("e.dict.no-item", {dictName, val})
+    }
+    return it
+  }
+  //-------------------------------------------
+  async getItemText(val) {
+    let it = await this.getItem(val)
+    //console.log("getItemText", {it,val})
+    if(it) {
+      return this.getText(it)
+    }
+  }
+  //-------------------------------------------
+  async getItemIcon(val) {
+    let it = await this.getItem(val)
+    if(it) {
+      return this.getIcon(it)
+    }
+  }
   //-------------------------------------------
 }
 ///////////////////////////////////////////////
@@ -165,6 +199,7 @@ export const DictFactory = {
     getValue, getText, getIcon, 
     isMatched, hooks
   }={}) {
+    //console.log("CreateDict", {data, query, item})
     //.........................................
     if(_.isString(data) || _.isArray(data)) {
       let aryData = Ti.S.toObjList(data)
@@ -235,37 +270,30 @@ export const DictFactory = {
   //-------------------------------------------
   /***
    * @param name{String} : Dict name in cache
-   * @param data{String|Array|Functon}:
-   * @param `item ... isMatched`
-   * @param shadowed{Boolean}
-   * @param hooks{Array|Function}
-   *   If `shadowed`, the hooks of new shadowed dict
-   * 
+   * @param dict{Object} : @see CreateDict
+   * ```
+   * {
+   *   data, query, item,      
+   *   getValue, getText, getIcon,   
+   *   isMatched 
+   * }
+   * ```
+   * @param shadowed{Boolean} : Create the shadown version
+   * @param hooks{Array|Function} :
+   *   If `shadowed`, add hooks for it
+   * ```
    * @return {Ti.Dict}
    */
-  GetDict(name, {
-    // Customized fields
-    data, query, item,
-    getValue, getText, getIcon, 
-    isMatched,
-    // ShadowDict
-    shadowed=false,
-    // Hooks: only useful when shadowed==true
-    hooks
-  }={}) {
-    // Auto adapt arguments
-    if(_.isBoolean(options)) {
-      shadowed = options
-      options  = undefined
-    }
+  GetDict(name, dict={}, {shadowed=true, hooks}={}) {
     // Try get
     let d = name ? DICTS[name] : null
     // Create One
-    if(!d) {
+    if(!d && !_.isEmpty(dict)) {
+      let {data,query,item,getValue,getText,getIcon,isMatched}=dict;
       d = DictFactory.CreateDict({
         data, query, item,
         getValue, getText, getIcon, 
-        isMatched,
+        isMatched
       })
       
       // Add to cache
@@ -274,9 +302,11 @@ export const DictFactory = {
       }
     }
     // Return shadowed ? 
-    return shadowed 
-            ? DictFactory.ShadowDict(d, hooks)
-            : d
+    if(d) {
+      return shadowed 
+              ? DictFactory.ShadowDict(d, hooks)
+              : d
+    }
   }
   //-------------------------------------------
 }

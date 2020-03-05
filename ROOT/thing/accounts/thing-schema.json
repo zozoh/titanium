@@ -21,21 +21,26 @@
         "nowrap" : true,
         "display" : ["@<thumb:zmdi-account>", "nickname", "nm"]
       }, {
+        "title" : "手机",
+        "width" : "auto",
+        "display" : "phone"
+      }, {
+        "title" : "邮箱",
+        "width" : "auto",
+        "display" : "email"
+      }, {
         "title" : "角色",
+        "width" : "auto",
         "display" : {
           "key"  : "role",
-          "dict" : "RoleNames"
+          "dict" : "Roles"
         }
       }, {
         "title" : "性别",
+        "width" : "auto",
         "display" : {
-          "key" : "sex",
-          "transformer" : {
-            "name" : "toStr",
-            "args" : {
-              "1" : "男", "2" : "女"
-            }
-          }
+          "key"  : "sex",
+          "dict" : "Sexes"
         }
       }]
     }
@@ -108,7 +113,7 @@
             "comConf" : {
               "options" : {
                 "method" : "Wn.Dict.getAll",
-                "args" : ["RoleNames"]
+                "args" : ["Roles"]
               },
               "mapping" : {
                 "value" : "nm",
@@ -121,9 +126,10 @@
             "type"    : "Integer",
             "comType" : "ti-switcher",
             "comConf" : {
-              "options" : [
-                {"icon":"fas-mars",  "value":1, "text":"男"},
-                {"icon":"fas-venus", "value":2, "text":"女"}]
+              "options" : {
+                "method" : "Wn.Dict.getAll",
+                "args" : ["Sexes"]
+              }
             }
           },{
             "title"   : "国家",

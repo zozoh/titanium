@@ -3,7 +3,6 @@ import Confirm from "./ti-confirm.mjs"
 import Prompt  from "./ti-prompt.mjs"
 import Captcha from "./ti-captcha.mjs"
 import Toast   from "./ti-toast.mjs"
-import Modal   from "./ti-modal.mjs"
 import Be           from "./behaviors.mjs"
 import Alg          from "./algorithm.mjs"
 import S            from "./str.mjs"
@@ -65,7 +64,7 @@ export const Ti = {
   WWW, GPS, Validate, DateTime, Num, Websocket, Trees,
   Mapping, Dict, DictFactory,
   //-----------------------------------------------------
-  Alert, Confirm, Prompt, Toast, Captcha, Modal,
+  Alert, Confirm, Prompt, Toast, Captcha, 
   //-----------------------------------------------------
   Env(key, val) {
     return Ti.Util.geset(ENV, key, val)

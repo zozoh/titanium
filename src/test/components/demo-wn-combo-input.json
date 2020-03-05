@@ -37,8 +37,8 @@
             "placeholder" : "请选择对象",
             "mustInList" : true,
             "filter"  : false,
-            "options" : "obj ~/demo/images/* -l -cqn",
-            "dropDisplay" : ["@<thumb:zmdi-fire>", "title|nm", "id"],
+            "options" : "@Dict:Accounts",
+            "dropDisplay" : ["@<thumb:zmdi-account>", "nickname|email|phone|nm"],
             "dropItemBorder" : false
           }
         }, {
@@ -50,7 +50,7 @@
           "comType" : "wn-combo-input",
           "comConf" : {
             "readonly" : true,
-            "options" : "obj ~/demo/images/* -l -cqn"
+            "options" : "@Dict:tmp"
           }
         }, {
           "title" : "下拉列表",

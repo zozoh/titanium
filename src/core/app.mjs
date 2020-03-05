@@ -398,6 +398,10 @@ TiApp.hasTopInstance = function() {
   return APP_STACK.length > 0
 }
 //---------------------------------------
+TiApp.eachInstance = function(iteratee=_.identity) {
+  _.forEach(APP_STACK, iteratee)
+}
+//---------------------------------------
 TiApp.Open = function(options) {
   return new Promise((resolve)=>{
     let $m = new TiAppModal()

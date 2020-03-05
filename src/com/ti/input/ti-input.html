@@ -4,7 +4,7 @@
   v-ti-actived="__set_actived">
   <!--prefix:icon-->
   <div v-if="prefixIcon"
-    class="as-icon at-prefix"
+    class="as-input-icon at-prefix"
     :class="getHoverClass('prefixIcon')"
     @click.left="onClickPrefixIcon"
     @mouseenter="pointerHover='prefixIcon'"
@@ -13,7 +13,7 @@
   </div>
   <!--prefix:text-->
   <div v-if="prefixText" 
-    class="as-text at-prefix"
+    class="as-input-text at-prefix"
     :class="getHoverClass('prefixText')"
     @click.left="onClickPrefixText"
     @mouseenter="pointerHover='prefixText'"
@@ -39,7 +39,7 @@
       @blur="onInputBlur">
     <!--suffix:text-->
     <div v-if="suffixText"
-      class="as-text at-suffix"
+      class="as-input-text at-suffix"
       :class="getHoverClass('suffixText')"
       @click.left="onClickSuffixIcon"
       @mouseenter="pointerHover='suffixText'"
@@ -48,7 +48,7 @@
     </div>
     <!--suffix:icon-->
     <div v-if="suffixIcon"
-      class="as-icon at-suffix"
+      class="as-input-icon at-suffix"
       :class="getHoverClass('suffixIcon')"
       @click.left="onClickSuffixIcon"
       @mouseenter="pointerHover='suffixIcon'"

@@ -34,7 +34,7 @@
         "title" : "发放用户",
         "display" : {
           "key" : "owner",
-          "dict" : "AccountName"
+          "dict" : "Accounts"
         }
       }, {
         "title" : "过期时间",
@@ -170,11 +170,7 @@
               "prefixIcon" : "zmdi-account",
               "options" : {
                 "method" : "Wn.Dict.getAll",
-                "args" : ["AccountNames"]
-              },
-              "mapping" : {
-                "value" : "id",
-                "text"  : "nickname"
+                "args" : ["Accounts"]
               }
             }
           },{

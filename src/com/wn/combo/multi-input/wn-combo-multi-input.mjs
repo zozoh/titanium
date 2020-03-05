@@ -35,20 +35,8 @@ export default {
     },
     //---------------------------------------------------
     OptionsDict() {
-      return Ti.DictFactory.CreateDict({
-        //...............................................
-        data  : Wn.Util.genQuery(this.options),
-        query : Wn.Util.genQuery(this.findBy),
-        item  : Wn.Util.genQuery(this.itemBy),
-        //...............................................
-        getValue : Ti.Util.genGetter(this.valueBy || "id"),
-        getText  : Ti.Util.genGetter(this.textBy  || "title|nm"),
-        getIcon  : Ti.Util.genGetter(this.textBy  || "icon"),
-        //...............................................
-        hooks : ({loading}) => {
-          this.loading = loading
-        }
-        //...............................................
+      return Wn.Dict.evalOptionsDict(this, ({loading}) => {
+        this.loading = loading
       })
     },
     //------------------------------------------------

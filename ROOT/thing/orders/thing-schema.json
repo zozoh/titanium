@@ -38,7 +38,7 @@
         "title" : "买家",
         "display" : {
           "key"  : "buyer_id", 
-          "dict" : "AccountName"
+          "dict" : "Accounts"
         }
       }, {
         "title" : "金额",
@@ -115,7 +115,7 @@
                 "title"   : "买家",
                 "name"    : "buyer_id",
                 "comConf" : {
-                  "dict" : "AccountName",
+                  "dict" : "Accounts",
                   "suffixIcon" : "zmdi-help-outline"
                 }
               }]

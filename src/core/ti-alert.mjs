@@ -11,7 +11,7 @@ async function Alert(msg="", {
   let theIcon  = icon  || Ti.Icons.get(type, "zmdi-info")
   let theTitle = title || Ti.I18n.get(type)
   //............................................
-  return Ti.App.Open({
+  return await Ti.App.Open({
     //------------------------------------------
     type, width, height, position,
     title   : theTitle,

@@ -67,9 +67,6 @@ export class TiAppActionShortcuts {
       mode = m[1]
       name = m[2]
       args = m[4]
-      if(_.isString(args)) {
-        args = args.split(",")
-      }
     }
     //..........................................
     // Command in object
@@ -86,12 +83,7 @@ export class TiAppActionShortcuts {
       throw Ti.Err.make("e.invalid.action : " + action, {action})
     }
     //..........................................
-    let __args = [name]
-    _.forEach(args, v => {
-      if(!_.isUndefined(v)) {
-        __args.push(Ti.S.toJsValue(_.trim(v)))
-      }
-    })
+    let __args = Ti.S.joinArgs(args, [name])
     //..........................................
     return _.debounce(function(){
       return func.apply(scope, __args)
@@ -186,8 +178,8 @@ export class TiAppActionShortcuts {
     quit    : false
   }) {
     //..........................................
-    if("ALT+SHIFT+T" == uniqKey)
-      console.log("AppActionShortcuts.fired", uniqKey)
+    // if("ALT+SHIFT+T" == uniqKey)
+    //   console.log("AppActionShortcuts.fired", uniqKey)
     if(st.quit) {
       return st
     }

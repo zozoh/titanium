@@ -16,7 +16,7 @@ export default {
     //----------------------------------------------
     theExplainDict(){
       return async function(value, dict){
-          return await Wn.Dict.get(dict, value)
+          return await Wn.Dict.getText(dict, value)
         }
     }
     //----------------------------------------------

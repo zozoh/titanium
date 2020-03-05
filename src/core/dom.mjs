@@ -78,8 +78,8 @@ export const TiDom = {
     $win=window,
     phoneMaxWidth=540,
     tabletMaxWidth=768,
-    designWidth=800,
-    max=100,min=60,
+    designWidth=1000,
+    max=100,min=80,
     callback
   }={}) {
     const $doc  = window.document
@@ -105,25 +105,13 @@ export const TiDom = {
   unwatchDocument(event, handler) {
     document.removeEventListener(event, handler);
   },
-  watchAutoRootFontSize(app, options={}) {
-    if(_.isString(options) || _.isFunction(options)) {
-      options = {
-        max : 100,
-        min : 80,
-        callback : options
-      }
+  watchAutoRootFontSize(setup={}, callback, $win=window) {
+    if(_.isFunction(setup)) {
+      $win = callback || window
+      callback = setup
+      setup = undefined
     }
-    if(_.isString(options.callback)) {
-      let action = options.callback
-      options.callback = function({$root, mode, fontSize}){
-        // console.log(app.name(), app)
-        $root.style.fontSize = fontSize + "px"
-        $root.setAttribute("as", mode)
-        app.commit(action, mode)
-        Ti.Modal.SetViewportMode(mode)
-      }
-    }
-    let $win = options.$win || window
+    let options = _.assign({}, setup, {$win, callback})
     // Watch the window resizing
     $win.addEventListener("resize", ()=>{
       TiDom.autoRootFontSize(options)

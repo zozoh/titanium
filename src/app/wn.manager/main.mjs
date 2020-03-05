@@ -119,7 +119,15 @@ export async function main({
   let app = Ti.App(appInfo)
   await app.init()
   //---------------------------------------
-  Ti.Dom.watchAutoRootFontSize(app, "viewport/setMode")
+  Ti.Dom.watchAutoRootFontSize({
+    
+  }, ({$root, mode, fontSize})=>{
+    $root.style.fontSize = fontSize + "px"
+    $root.setAttribute("as", mode)
+    Ti.App.eachInstance(app => {
+      app.commit("viewport/setMode", mode)
+    })
+  })
   //---------------------------------------
   // Load session
   app.commit("session/set", _app.session)
