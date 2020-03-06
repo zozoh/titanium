@@ -3,92 +3,90 @@
   "comConf" : {
     "className" : "ti-fill-parent",
     "title" : "静态多选组合框测试",
-    "config" : {
-      "fields" : [{
-          "title" : "普通多选",
-          "tip"   : "只是负责提示，用户随便输入",
-          "width" : "full",
-          "name"  : "f0",
-          "type"  : "Array",
-          "comType" : "ti-combo-multi-input",
-          "comConf" : {
-            "placeholder" : "请输入类型",
-            "valueCase" : "upper",
-            "mustInList" : false,
-            "autoFocusExtended" : true,
-            "options" : [
-              {"value":"A", "text":"甲类"},
-              {"value":"B", "text":"乙类"},
-              {"value":"C", "text":"丙类"},
-              {"value":"D", "text":"丁类"},
-              {"value":"E", "text":"戊类"}]
-          }
-        }, {
-          "title" : "限制列表",
-          "tip"   : "用户的输入必须限制在给定列表中",
-          "width" : "full",
-          "name"  : "f1",
-          "type"  : "String",
-          "comType" : "ti-combo-multi-input",
-          "comConf" : {
-            "prefixIcon" : "zmdi-cocktail",
-            "statusIcons" : {
-              "collapse" : "zmdi-email",
-              "extended" : "zmdi-email-open"
-            },
-            "valueCase" : "upper",
-            "maxValueLen" : -3,
-            "mustInList" : true,
-            "options" : [
-              {"value":"A", "text":"甲类"},
-              {"value":"B", "text":"乙类"},
-              {"value":"C", "text":"丙类", "icon": "zmdi-flag"},
-              {"value":"D", "text":"丁类"},
-              {"value":"E", "text":"戊类"}],
-            "dropDisplay" : ["<icon:zmdi-fire>", "text", "value"],
-            "dropItemBorder" : false
-          }
-        }, {
-          "title" : "只读列表",
-          "tip"   : "就是下拉列表的单选实现方式",
-          "width" : "full",
-          "name"  : "f2",
-          "type"  : "Array",
-          "comType" : "ti-combo-multi-input",
-          "comConf" : {
-            "prefixIcon" : "zmdi-cocktail",
-            "placeholder" : "请选择类型",
-            "readonly" : true,
-            "mustInList" : true,
-            "options" : [
-              {"value":"A", "text":"甲类"},
-              {"value":"B", "text":"乙类"},
-              {"value":"C", "text":"丙类"},
-              {"value":"D", "text":"丁类"},
-              {"value":"E", "text":"戊类"}],
-            "dropDisplay" : ["<icon:zmdi-fire>", "text", "value"]
-          }
-        }, {
-          "title" : "下拉列表",
-          "tip"   : "测试下拉列表的包裹",
-          "width" : "full",
-          "name"  : "f3",
-          "type"  : "String",
-          "comType" : "ti-droplist",
-          "comConf" : {
-            "prefixIcon" : "zmdi-cocktail",
-            "placeholder" : "请选择类型",
-            "multi" : true,
-            "options" : [
-              {"value":"A", "text":"甲类"},
-              {"value":"B", "text":"乙类"},
-              {"value":"C", "text":"丙类"},
-              {"value":"D", "text":"丁类"},
-              {"value":"E", "text":"戊类"}],
-            "dropDisplay" : ["<icon:zmdi-fire>", "text", "value"]
-          }
-        }]
-    },
+    "fields" : [{
+        "title" : "普通多选",
+        "tip"   : "只是负责提示，用户随便输入",
+        "width" : "full",
+        "name"  : "f0",
+        "type"  : "Array",
+        "comType" : "ti-combo-multi-input",
+        "comConf" : {
+          "placeholder" : "请输入类型",
+          "valueCase" : "upper",
+          "mustInList" : false,
+          "autoFocusExtended" : true,
+          "options" : [
+            {"value":"A", "text":"甲类"},
+            {"value":"B", "text":"乙类"},
+            {"value":"C", "text":"丙类"},
+            {"value":"D", "text":"丁类"},
+            {"value":"E", "text":"戊类"}]
+        }
+      }, {
+        "title" : "限制列表",
+        "tip"   : "用户的输入必须限制在给定列表中",
+        "width" : "full",
+        "name"  : "f1",
+        "type"  : "String",
+        "comType" : "ti-combo-multi-input",
+        "comConf" : {
+          "prefixIcon" : "zmdi-cocktail",
+          "statusIcons" : {
+            "collapse" : "zmdi-email",
+            "extended" : "zmdi-email-open"
+          },
+          "valueCase" : "upper",
+          "maxValueLen" : -3,
+          "mustInList" : true,
+          "options" : [
+            {"value":"A", "text":"甲类"},
+            {"value":"B", "text":"乙类"},
+            {"value":"C", "text":"丙类", "icon": "zmdi-flag"},
+            {"value":"D", "text":"丁类"},
+            {"value":"E", "text":"戊类"}],
+          "dropDisplay" : ["<icon:zmdi-fire>", "text", "value"],
+          "dropItemBorder" : false
+        }
+      }, {
+        "title" : "只读列表",
+        "tip"   : "就是下拉列表的单选实现方式",
+        "width" : "full",
+        "name"  : "f2",
+        "type"  : "Array",
+        "comType" : "ti-combo-multi-input",
+        "comConf" : {
+          "prefixIcon" : "zmdi-cocktail",
+          "placeholder" : "请选择类型",
+          "readonly" : true,
+          "mustInList" : true,
+          "options" : [
+            {"value":"A", "text":"甲类"},
+            {"value":"B", "text":"乙类"},
+            {"value":"C", "text":"丙类"},
+            {"value":"D", "text":"丁类"},
+            {"value":"E", "text":"戊类"}],
+          "dropDisplay" : ["<icon:zmdi-fire>", "text", "value"]
+        }
+      }, {
+        "title" : "下拉列表",
+        "tip"   : "测试下拉列表的包裹",
+        "width" : "full",
+        "name"  : "f3",
+        "type"  : "String",
+        "comType" : "ti-droplist",
+        "comConf" : {
+          "prefixIcon" : "zmdi-cocktail",
+          "placeholder" : "请选择类型",
+          "multi" : true,
+          "options" : [
+            {"value":"A", "text":"甲类"},
+            {"value":"B", "text":"乙类"},
+            {"value":"C", "text":"丙类"},
+            {"value":"D", "text":"丁类"},
+            {"value":"E", "text":"戊类"}],
+          "dropDisplay" : ["<icon:zmdi-fire>", "text", "value"]
+        }
+      }],
     "data" : "=data"
   },
   "dispatchActions" : {

@@ -1,77 +1,33 @@
 export default {
   inheritAttrs : false,
   //////////////////////////////////////////
-  props : {
-    "blankAs" : {
-      type : String,
-      default : "i18n:nil"
-    },
-    "value" : null,
-    "autoI18n" : {
-      type : Boolean,
-      default : true
-    },
-    "trim" : {
-      type : Boolean,
-      default : true
-    },
-    "format" : undefined,
-    "prefixIcon" : {
-      type : String,
-      default : null
-    },
-    "prefixText" : {
-      type : String,
-      default : null
-    },
-    "suffixText" : {
-      type : String,
-      default : null
-    },
-    "suffixIcon" : {
-      type : String,
-      default : null
-    },
-    "href" : {
-      type : String,
-      default : null
-    },
-    "newTab" : {
-      type : Boolean,
-      default : false
-    },
-    "breakLine" : {
-      type : Boolean,
-      default : true
-    },
-    "editable" : {
-      type : Boolean,
-      default : false
-    }
-  },
+  data : ()=>({
+    myDisplayIcon : undefined,
+    myDisplayText : undefined,
+    myDictValKey  : undefined
+  }),
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived" : this.isActived,
+    TopClass() {
+      return this.getTopClass({
         "is-break-line" : this.breakLine,
-        "is-blank"   : !_.isNumber(this.theValue) && _.isEmpty(this.theValue)
-      }, this.className)
+        "is-blank"   : !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue)
+      })
     },
     //--------------------------------------
-    theLinkTarget() {
-      if(this.newTab) {
-        return "_blank"
-      }
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
     },
     //--------------------------------------
-    hasHref() {
-      return this.href ? true : false
+    ThePrefixIcon() {
+      return this.myDisplayIcon || this.prefixIcon
     },
     //--------------------------------------
-    theValue() {
+    TheValue() {
       let str = this.value
       // Auto trim
       if(this.trim && _.isString(str)) {
@@ -81,8 +37,38 @@ export default {
       return str
     },
     //--------------------------------------
-    theDisplayValue() {
-      let val = this.theValue
+    Dict() {
+      if(this.dict) {
+        let {name, vKey} = Ti.DictFactory.explainDictName(this.dict)
+        this.myDictValKey = vKey || ".text"
+        return Ti.DictFactory.CheckDict(name)
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnDblClick() {
+      if(this.editable) {
+        Ti.Be.EditIt(this.$el, {
+          text: this.TheValue,
+          ok : (newVal)=> {
+            this.$emit("changed", newVal)
+          }
+        })
+      }
+    },
+    //--------------------------------------
+    async evalDisplay(val) {
+      // By Dict Item
+      if(this.Dict) {
+        let it = await this.Dict.getItem(val)
+        if(it) {
+          this.myDisplayIcon = this.Dict.getIcon(it)
+          val = this.Dict.getBy(this.myDictValKey, it, val)
+        }
+      }
       // Number
       if(_.isNumber(val)) {
         return val
@@ -107,23 +93,19 @@ export default {
       return this.autoI18n 
               ? Ti.I18n.text(val)
               : val
+    },
+    //--------------------------------------
+    async reloadMyDisplay() {
+      this.myDisplayText = await this.evalDisplay(this.TheValue)
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    onDblClick() {
-      if(this.editable) {
-        Ti.Be.EditIt(this.$el, {
-          text: this.value,
-          ok : (newVal)=> {
-            this.$emit("changed", newVal)
-          }
-        })
-      }
+  watch : {
+    "value" : {
+      handler   : "reloadMyDisplay",
+      immediate : true
     }
-    //--------------------------------------
   }
   //////////////////////////////////////////
 }

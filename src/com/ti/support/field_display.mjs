@@ -4,60 +4,75 @@ export default {
     funcSet, 
     defaultKey
   }={}){
+    //........................................
     // Guard it
     if(Ti.Util.isNil(displayItem)) {
-      return
+      return defaultKey 
+        ? { key:defaultKey, comType:"ti-label"}
+        : null
     }
+    //........................................
+    let dis;
+    //........................................
     // {key:"xxx", comType:"xxx"}
     if(_.isPlainObject(displayItem)){
-      let dis = _.assign({
+      dis = _.assign({
         key : defaultKey,
         comType : "ti-label",
       }, displayItem)
       if(dis.transformer) {
         dis.transformer = Ti.Types.evalFunc(dis.transformer, funcSet)
       }
-      return dis
     }
+    //........................................
     // Array to multi key
-    if(_.isArray(displayItem)) {
-      return {
+    else if(_.isArray(displayItem)) {
+      dis = {
         key : displayItem,
         comType : "ti-label",
       }
     }
+    //........................................
     // Boolean
-    if(true === displayItem) {
-      return {
+    else if(true === displayItem) {
+      dis = {
         key : defaultKey,
         comType : "ti-label",
       }
     }
-    // <icon:zmdi-user>
-    let m = /^<([^:>]*)(:([^>]+))?>$/.exec(displayItem)
-    if(m) {
-      return {
-        key       : m[1] || Symbol(displayItem),
-        defaultAs : m[3] || undefined,
-        comType   : "ti-icon"
+    //........................................
+    else if(_.isString(displayItem)){
+      // <icon:zmdi-user>
+      let m = /^<([^:>]*)(:([^>]+))?>$/.exec(displayItem)
+      if(m) {
+        dis = {
+          key       : m[1] || Symbol(displayItem),
+          defaultAs : m[3] || undefined,
+          comType   : "ti-icon"
+        }
+      }
+      //........................................
+      // String -> ti-label
+      // - "name" or ["name", "age"]
+      // - "'Static Text'"
+      // - "text+>/a/link?nm=${name}"
+      // - "'More'->/a/link?id=${id}"
+      else {
+        m = /^([^+-]+)(([+-])>(.+))?$/.exec(displayItem)
+        if(m) {
+          let key  = _.trim(m[1] || m[0])
+          let newTab = m[3] == "+"
+          let href = _.trim(m[4])
+          return {
+            key,
+            comType : "ti-label",
+            comConf : {newTab, href}
+          }
+        }
       }
     }
-    // String -> ti-label
-    // - "name" or ["name", "age"]
-    // - "'Static Text'"
-    // - "text+>/a/link?nm=${name}"
-    // - "'More'->/a/link?id=${id}"
-    m = /^([^+-]+)(([+-])>(.+))?$/.exec(displayItem)
-    if(m) {
-      let key  = _.trim(m[1] || m[0])
-      let newTab = m[3] == "+"
-      let href = _.trim(m[4])
-      return {
-        key,
-        comType : "ti-label",
-        comConf : {newTab, href}
-      }
-    }
+    // Then return
+    return dis
   },
   //------------------------------------------
   /***
@@ -73,15 +88,11 @@ export default {
    *   "rowId"     : this.rowId
    * }
    * ```
-   * @param explainDict{Function} - 
-   *  customized function to explain the dict value.
-   *  Two arguments `(value, dict)`, async allowed.
    */
   async evalDataForFieldDisplayItem({
     itemData={}, 
     displayItem={}, 
     vars={},
-    explainDict=_.identity,
     autoIgnoreNil=true,
     autoValue="value"
   }={}) {
@@ -112,13 +123,6 @@ export default {
       }
     }
     //.....................................
-    // TODO it should be removed
-    if(displayItem.dict) {
-      if(!Ti.Util.isNil(value)) {
-        value = await explainDict(value, displayItem.dict)
-      }
-    }
-    //.....................................
     // Transformer
     if(_.isFunction(displayItem.transformer)) {
       //console.log("do trans")
@@ -132,6 +136,12 @@ export default {
       if(Ti.Util.fallback(displayItem.ignoreNil, true)) {
         return
       }
+    }
+    //.....................................
+    // Translate by dict
+    if(displayItem.dict) {
+      console.log("haha", displayItem.dict, value)
+      value = await Ti.DictFactory.getBy(displayItem.dict, value)
     }
     //.....................................
     // Add value to comConf

@@ -1,55 +1,53 @@
 {
   "comType" : "ti-form",
   "comConf" : {
-    "config" : {
-      "fields" : [{
-          "title" : "时间",
-          "name"  : "time",
-          "comType" : "ti-input-time",
-          "comConf" : {
-            "mode" : "sec"
-          }
-        }, {
-          "title" : "月份",
-          "name"  : "month",
-          "comType" : "ti-input-month",
-          "comConf" : {
-            "format" : "yyyy年M月",
-            "beginYear" : 2000,
-            "endYear" : 2025
-          }
-        }, {
-          "title" : "日期",
-          "name"  : "date",
-          "comType" : "ti-input-date",
-          "comConf" : {
-            "format" : "yyyy年M月d日"
-          }
-        }, {
-          "title" : "日期+时间",
-          "name"  : "datetime",
-          "comType" : "ti-input-datetime",
-          "comConf" : {
-            "format" : "yyyy年M月d日 HH:mm:ss"
-          }
-        }, {
-          "title" : "日期范围",
-          "name"  : "daterange",
-          "type"  : "Array",
-          "comType" : "ti-input-daterange",
-          "comConf" : {
-            
-          }
-        }, {
-          "title" : "时间范围",
-          "name"  : "timerange",
-          "type"  : "Object",
-          "comType" : "ti-input-timerange",
-          "comConf" : {
-            "format" : "H点m分"
-          }
-        }]
-      },
+    "fields" : [{
+        "title" : "时间",
+        "name"  : "time",
+        "comType" : "ti-input-time",
+        "comConf" : {
+          "mode" : "sec"
+        }
+      }, {
+        "title" : "月份",
+        "name"  : "month",
+        "comType" : "ti-input-month",
+        "comConf" : {
+          "format" : "yyyy年M月",
+          "beginYear" : 2000,
+          "endYear" : 2025
+        }
+      }, {
+        "title" : "日期",
+        "name"  : "date",
+        "comType" : "ti-input-date",
+        "comConf" : {
+          "format" : "yyyy年M月d日"
+        }
+      }, {
+        "title" : "日期+时间",
+        "name"  : "datetime",
+        "comType" : "ti-input-datetime",
+        "comConf" : {
+          "format" : "yyyy年M月d日 HH:mm:ss"
+        }
+      }, {
+        "title" : "日期范围",
+        "name"  : "daterange",
+        "type"  : "Array",
+        "comType" : "ti-input-daterange",
+        "comConf" : {
+          
+        }
+      }, {
+        "title" : "时间范围",
+        "name"  : "timerange",
+        "type"  : "Object",
+        "comType" : "ti-input-timerange",
+        "comConf" : {
+          "format" : "H点m分"
+        }
+      }],
     "data" : "=data"
   },
   "dispatchActions" : {

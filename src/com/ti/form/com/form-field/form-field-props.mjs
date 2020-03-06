@@ -64,10 +64,6 @@ export default {
     type : [String, Object, Boolean],
     default : false
   },
-  "explainDict" : {
-    type : Function,
-    default : _.identity
-  },
   "funcSet" : {
     type : Object,
     default : ()=>({})

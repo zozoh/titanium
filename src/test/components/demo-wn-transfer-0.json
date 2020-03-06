@@ -3,22 +3,20 @@
   "comConf" : {
     "className" : "ti-fill-parent",
     "title" : "动态穿梭框测试",
-    "config" : {
-      "fields" : [{
-          "title" : "查询文件内容",
-          "width" : "full",
-          "name"  : "f0",
-          "type"  : "String",
-          "comType" : "wn-transfer",
-          "comConf" : {
-            "height" : 300,
-            "display" : ["@<thumb:zmdi-fire>", "title|nm"],
-            "itemBy"  : "obj id:${val} -cqn",
-            "findBy"  : "obj ~/demo/images -match 'nm:\"^.*${val}\"' -sort nm:1 -lcqn",
-            "options" : "obj ~/demo/images/* -sort nm:1 -lcqn"
-          }
-        }]
-    },
+    "fields" : [{
+        "title" : "查询文件内容",
+        "width" : "full",
+        "name"  : "f0",
+        "type"  : "String",
+        "comType" : "wn-transfer",
+        "comConf" : {
+          "height" : 300,
+          "display" : ["@<thumb:zmdi-fire>", "title|nm"],
+          "itemBy"  : "obj id:${val} -cqn",
+          "findBy"  : "obj ~/demo/images -match 'nm:\"^.*${val}\"' -sort nm:1 -lcqn",
+          "options" : "obj ~/demo/images/* -sort nm:1 -lcqn"
+        }
+      }],
     "data" : "=data"
   },
   "dispatchActions" : {

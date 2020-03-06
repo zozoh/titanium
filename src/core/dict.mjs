@@ -8,7 +8,9 @@ const K = {
   getIcon   : Symbol("getIcon"),
   isMatched : Symbol("isMatched"),
   itemCache : Symbol("itemCache"),
-  listCache : Symbol("listCache")
+  dataCache : Symbol("dataCache"),
+  hooks     : Symbol("hooks"),
+  shadowed  : Symbol("shadowed")
 }
 ///////////////////////////////////////////////
 const __dict_mixin = {
@@ -17,9 +19,9 @@ const __dict_mixin = {
 ///////////////////////////////////////////////
 export class Dict {
   //-------------------------------------------
-  loadingHooks = []
-  //-------------------------------------------
   constructor(){
+    this[K.hooks]     = []
+    this[K.shadowed]  = false
     this[K.item]      = _.idendity
     this[K.data]      = ()=>[]
     this[K.query]     = v =>[]
@@ -37,27 +39,34 @@ export class Dict {
     }
     //-------------------------------------------
     this[K.itemCache] = {}    // {val-item}
-    this[K.listCache] = null  // last query result for data
+    this[K.dataCache] = null  // last query result for data
   }
   //-------------------------------------------
   // Funcs
+  //-------------------------------------------
+  setShadowed(shadowed=false) {
+    this[K.shadowed] = shadowed
+  }
+  isShadowed() {
+    return this[K.shadowed]
+  }
   //-------------------------------------------
   addHooks(...hooks) {
     let list = _.flattenDeep(hooks)
     _.forEach(list, hk => {
       if(_.isFunction(hk)){
-        this.loadingHooks.push(hk)
-      }
+        this[K.hooks].push(hk)
+       }
     })
   }
   //-------------------------------------------
   clearHooks(){
-    this.loadingHooks = []
-  }
+    this[K.hooks] = []
+   }
   //-------------------------------------------
   doHooks(loading=false) {
-    for(let hk of this.loadingHooks) {
-      hk({loading})
+    for(let hk of this[K.hooks]) {
+      hk({loading} )
     }
   }
   //-------------------------------------------
@@ -83,7 +92,21 @@ export class Dict {
     })
   }
   //-------------------------------------------
-  // Utility
+  duplicate({hooks=false, cache=true}) {
+    let d = new Dict()
+    _.forEach(K, (s_key)=>{
+      d[s_key] = this[s_key]
+    })
+    if(!hooks) {
+      d.clearHooks()
+    }
+    if(!cache) {
+      d.clearCache()
+    }
+    return d
+  }
+  //-------------------------------------------
+  // Cache
   //-------------------------------------------
   isItemCached(val) {
     return !Ti.Util.isNil(this[K.itemCache][val])
@@ -102,6 +125,13 @@ export class Dict {
     })
   }
   //-------------------------------------------
+  clearCache() {
+    this[K.itemCache] = {}    // {val-item}
+    this[K.dataCache] = null  // last query result for data
+  }
+  //-------------------------------------------
+  // Utility
+  //-------------------------------------------
   findItem(val, list=[]) {
     for(let it of list) {
       let itV = this.getValue(it)
@@ -114,25 +144,35 @@ export class Dict {
   // Core Methods
   //-------------------------------------------
   async getItem(val) {
+    // Guard
+    if(Ti.Util.isNil(val)) {
+      return null
+    }
+    // Match cache
     let it = this[K.itemCache][val]
+    // Not in cache, try getItem
     if(Ti.Util.isNil(it)) {
       this.doHooks(true)
       it = await this.invokeAsync("item", val)
       this.doHooks(false)
       this.addItemToCache(it)
     }
+    if(this.isShadowed())
+      return _.cloneDeep(it)
     return it
   }
   //-------------------------------------------
   async getData(force=false){
-    let list = this[K.listCache]
+    let list = this[K.dataCache]
     if(force || _.isEmpty(list)) {
       this.doHooks(true)
       list = await this.invokeAsync("data")
       this.doHooks(false)
       this.addItemToCache(list)
-      this[K.listCache] = list
+      this[K.dataCache] = list
     }
+    if(this.isShadowed())
+      return _.cloneDeep(list) || []
     return list || []
   }
   //-------------------------------------------
@@ -146,6 +186,9 @@ export class Dict {
     let list = await this.invokeAsync("query", str)
     this.doHooks(false)
     this.addItemToCache(list)
+
+    if(this.isShadowed())
+      return _.cloneDeep(list) || []
     return list || []
   }
   //-------------------------------------------
@@ -153,6 +196,23 @@ export class Dict {
   getText(it)    { return this.invoke("getText" ,  it) }
   getIcon(it)    { return this.invoke("getIcon" ,  it) }
   isMatched(it,v){ return this.invoke("isMatched", it, v) }
+  //-------------------------------------------
+  getBy(vKey=".text", it, dft) {
+    // Text
+    if(!vKey || ".text" == vKey) {
+      return this.getText(it)
+    }
+    // Icon
+    if(".icon" == vKey) {
+      return this.getIcon(it)
+    }
+    // Value
+    if(".value" == vKey) {
+      return this.getValue(it)
+    }
+    // Other key
+    return Ti.Util.fallback(Ti.Util.getOrPick(it, vKey), dft, this.getValue(it))
+  }
   //-------------------------------------------
   async checkItem(val) {
     let it = await this.getItem(val)
@@ -177,28 +237,58 @@ export class Dict {
     }
   }
   //-------------------------------------------
+  async getItemAs(vKey, val) {
+    let it = await this.getItem(val)
+    if(it) {
+      return this.getBy(vKey, it, val)
+    }
+  }
+  //-------------------------------------------
 }
 ///////////////////////////////////////////////
 const DICTS = {}
 ///////////////////////////////////////////////
 export const DictFactory = {
   //-------------------------------------------
-  ArrayDict(aryData=[], {
-    getValue, getText, getIcon, 
-    isMatched, hooks
-  }={}){
-    return DictFactory.CreateDict({
-      data : ()=>aryData,
-      getValue, getText, getIcon, 
-      isMatched, hooks
-    })
+  DictReferName(str) {
+    if(_.isString(str)) {
+      let m = /^@Dict:(.+)$/.exec(str)
+      if(m) {
+        return _.trim(m[1])
+      }
+    }
+  },
+  //-------------------------------------------
+  GetOrCreate(options={}, {hooks, name}={}){
+    let d;
+    // Aready a dict
+    if(options.data instanceof Dict) {
+      d = options.data
+    }
+    // Pick by Name
+    else {
+      let dictName = name || DictFactory.DictReferName(options.data)
+      if(dictName) {
+        d = DICTS[dictName]
+      }
+    }
+    // Try return 
+    if(d) {
+      if(hooks) {
+        d = d.duplicate({hooks:false})
+        d.addHooks(hooks)
+      }
+      return d
+    }
+    // Create New One
+    return DictFactory.CreateDict(options, {hooks, name})
   },
   //-------------------------------------------
   CreateDict({
     data, query, item,
     getValue, getText, getIcon, 
-    isMatched, hooks
-  }={}) {
+    isMatched, shadowed
+  }={}, {hooks, name}={}) {
     //console.log("CreateDict", {data, query, item})
     //.........................................
     if(_.isString(data) || _.isArray(data)) {
@@ -248,66 +338,98 @@ export const DictFactory = {
       getValue, getText, getIcon, 
       isMatched
     })
-    d.addHooks(hooks)
     //.........................................
-    return d
-  },
-  //-------------------------------------------
-  ShadowDict($dict, hooks) {
-    let d = new Dict()
-    d.setFunc({
-      item  : async (v)=>_.cloneDeep(await $dict.getItem(v)),
-      data  : async (f)=>_.cloneDeep(await $dict.getData(f)), 
-      query : async (s)=>_.cloneDeep(await $dict.queryData(s)), 
-      getValue  : it => $dict.getValue(it), 
-      getText   : it => $dict.getText(it),  
-      getIcon   : it => $dict.getIcon(it), 
-      isMatched : (it,v) => $dict.isMatched(it, v),
-    })
-    d.addHooks(hooks)
+    if(name) {
+      DICTS[name] = d
+    }
+    //.........................................
+    if(shadowed) {
+      d.setShadowed(shadowed)
+    }
+    //.........................................
+    if(hooks) {
+      d.addHooks(hooks)
+    }
     return d
   },
   //-------------------------------------------
   /***
    * @param name{String} : Dict name in cache
-   * @param dict{Object} : @see CreateDict
-   * ```
-   * {
-   *   data, query, item,      
-   *   getValue, getText, getIcon,   
-   *   isMatched 
-   * }
-   * ```
    * @param shadowed{Boolean} : Create the shadown version
-   * @param hooks{Array|Function} :
-   *   If `shadowed`, add hooks for it
+   * @param hooks{Array|Function} : add hooks for it
    * ```
    * @return {Ti.Dict}
    */
-  GetDict(name, dict={}, {shadowed=true, hooks}={}) {
+  GetDict(name, hooks) {
     // Try get
-    let d = name ? DICTS[name] : null
-    // Create One
-    if(!d && !_.isEmpty(dict)) {
-      let {data,query,item,getValue,getText,getIcon,isMatched}=dict;
-      d = DictFactory.CreateDict({
-        data, query, item,
-        getValue, getText, getIcon, 
-        isMatched
-      })
-      
-      // Add to cache
-      if(name) {
-        DICTS[name] = d
-      }
-    }
+    let d = DICTS[name]
+    
     // Return shadowed ? 
-    if(d) {
-      return shadowed 
-              ? DictFactory.ShadowDict(d, hooks)
-              : d
+    if(d && hooks) {
+      d = d.duplicate({hooks:false})
+      d.addHooks(hooks)
     }
-  }
+    return d
+  },
+  //-------------------------------------------
+  CheckDict(name, hooks) {
+    let d = DictFactory.GetDict(name, hooks)
+    if(d) {
+      return d
+    }
+    throw `e.dict.noexists : ${name}`
+  },
+  //-------------------------------------------
+  explainDictName(dictName) {
+    let re = {}
+    let m = /^([^:]+)(:(.+))?$/.exec(dictName)
+    if(m) {
+      re.name = m[1]
+      re.vkey = m[3]
+    }
+    return re
+  },
+  //-------------------------------------------
+  /***
+   * @param dName{String} : like `Sexes:.icon`
+   */
+  async getBy(dName, val) {
+    // Guard 1
+    if(Ti.Util.isNil(val)) {
+      return val
+    }
+    // Check if the name indicate the itemValueKey
+    let {name, vKey} = DictFactory.explainDictName(dName)
+    let $dict = Ti.DictFactory.CheckDict(name)
+    return await $dict.getItemAs(vKey, val)
+  },
+  //-------------------------------------------
+  async getAll(dictName) {
+    try {
+      let $dict = DictFactory.CheckDict(dictName)
+      return await $dict.getData()
+    } catch(E) {
+      console.error(`e.dict.getAll : ${dictName}`, E)
+    }
+  },
+  //-------------------------------------------
+  async getText(dictName, val) {
+    try {
+      let $dict = DictFactory.CheckDict(dictName)
+      return await $dict.getItemText(val)
+    } catch(E) {
+      console.error(`e.dict.getText : ${dictName}`, E)
+    }
+  },
+  //-------------------------------------------
+  async getIcon(dictName, val) {
+    try {
+      let $dict = DictFactory.CheckDict(dictName)
+      return await $dict.getItemIcon(val)
+    } catch(E) {
+      console.error(`e.dict.getIcon : ${dictName}`, E)
+    }
+  },
   //-------------------------------------------
 }
 ///////////////////////////////////////////////

@@ -5,86 +5,39 @@ export default {
     currentTabIndex : 0
   }),
   //////////////////////////////////////////////////////
-  props : {
-    "icon" : {
-      type : String,
-      default : null
-    },
-    "title" : {
-      type : String,
-      default : null
-    },
-    "display" : {
-      type : String,
-      default : "all",
-      validator : (val)=>/^(all|tab)$/.test(val)
-    },
-    "currentTab" : {
-      type : Number,
-      default : 0
-    },
-    "keepTabIndexBy" : {
-      type : String,
-      default : null
-    },
-    "defaultComType" : {
-      type : String,
-      default : "ti-label"
-    },
-    "config" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "explainDict" : {
-      type : Function,
-      default : _.identity
-    },
-    "data" : {
-      type : Object,
-      default : ()=>({})
-    },
-    // "status" : {
-    //   type : Object,
-    //   default : ()=>({
-    //     "changed"   : false,
-    //     "saving"    : false,
-    //     "reloading" : false
-    //   })
-    // },
-    "fieldStatus" : {
-      type : Object,
-      default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////////////////
   computed : {
     //--------------------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived" : this.isActived
-      }, [
-        `as-${this.viewportMode}`
-      ], this.className)
+    TopClass() {
+      return this.getTopClass({
+        "display-as-tab": this.isDisplayAsTab,
+        "display-as-all": this.isDisplayAsAll
+      }, 
+      `as-${this.viewportMode}`,
+      `as-spacing-${this.spacing||"comfy"}`
+      )
+    },
+    //--------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
     },
     //--------------------------------------------------
     hasHeader() {
       return this.title || this.icon ? true : false
     },
     //--------------------------------------------------
-    topClass() {
-      let spacing = this.config.spacing || "comfy"
-      return Ti.Css.mergeClassName(
-        this.className, {
-          ["as-spacing-" + spacing] : true,
-          "display-as-tab": this.isDisplayAsTab,
-          "display-as-all": this.isDisplayAsAll
-        })
+    hasData() {
+      return !Ti.Util.isNil(this.data)
     },
     //--------------------------------------------------
-    theFields() {
+    isDisplayAsTab() {return 'tab' == this.display},
+    isDisplayAsAll() {return 'all' == (this.diaplay||"all")},
+    //--------------------------------------------------
+    TheFields() {
       let list = []
-      _.forEach(this.config.fields, (fld, index)=>{
+      _.forEach(this.fields, (fld, index)=>{
         let fld2 = this.evalFormField(fld, [index])
         if(fld2) {
           list.push(fld2)
@@ -93,19 +46,11 @@ export default {
       return list
     },
     //--------------------------------------------------
-    isDisplayAsTab() {
-      return 'tab' == this.display
-    },
-    //--------------------------------------------------
-    isDisplayAsAll() {
-      return 'all' == (this.diaplay||"all")
-    },
-    //--------------------------------------------------
-    theTabList() {
+    TabList() {
       let list = []
       let otherFields = []
       if(this.isDisplayAsTab) {
-        for(let fld of this.theFields) {
+        for(let fld of this.TheFields) {
           if(fld.type == "Group") {
             list.push(fld)
           }
@@ -127,9 +72,9 @@ export default {
     },
     //--------------------------------------------------
     // add "current" to theTabList
-    theTabItems() {
+    TabItems() {
       let items = []
-      _.forEach(this.theTabList, (li, index)=>{
+      _.forEach(this.TabList, (li, index)=>{
         let isCurrent = (index == this.currentTabIndex)
         items.push(_.assign({}, li, {
           index, isCurrent, className: {
@@ -140,7 +85,7 @@ export default {
       return items
     },
     //--------------------------------------------------
-    theCurrentTab() {
+    CurrentTab() {
       for(let tab of this.theTabItems) {
         if(tab.isCurrent) {
           return tab
@@ -148,17 +93,17 @@ export default {
       }
     },
     //--------------------------------------------------
-    theFieldsInCurrentTab() {
+    FieldsInCurrentTab() {
       // Current Tab
       if(this.isDisplayAsTab) {
-        if(this.theCurrentTab) {
-          return this.theCurrentTab.fields || []
+        if(this.CurrentTab) {
+          return this.CurrentTab.fields || []
         }
         return []
       }
       // Show All
       else {
-        return this.theFields
+        return this.TheFields
       }
     },
     //--------------------------------------------------
@@ -167,11 +112,11 @@ export default {
      * 
      * Defaultly, it will support the function set defined in `Ti.Types`
      */
-    theFuncSet() {
-      return _.assign({}, Ti.Types, this.config.extendFunctionSet)
+    FuncSet() {
+      return _.assign({}, Ti.Types, this.extendFunctionSet)
     },
     //--------------------------------------------------
-    formData() {
+    TheData() {
       return this.data || {}
     }
     //--------------------------------------------------
@@ -193,8 +138,7 @@ export default {
           className   : fld.className,
           icon        : fld.icon,
           title       : fld.title,
-          fields      : [],
-          explainDict : this.explainDict,
+          fields      : []
         }
         // Group fields
         _.forEach(fld.fields, (subfld, index)=>{
@@ -223,10 +167,9 @@ export default {
         }
 
         // Tidy form function
-        field.serializer  = Ti.Types.getFuncBy(field, "serializer", this.theFuncSet)
-        field.transformer = Ti.Types.getFuncBy(field, "transformer", this.theFuncSet)
-        field.explainDict = this.explainDict
-        field.funcSet     = this.theFuncSet
+        field.serializer  = Ti.Types.getFuncBy(field, "serializer", this.FuncSet)
+        field.transformer = Ti.Types.getFuncBy(field, "transformer", this.FuncSet)
+        field.funcSet     = this.FuncSet
 
         // Done
         return field
@@ -276,7 +219,7 @@ export default {
   },
   //////////////////////////////////////////////////////
   watch : {
-    "config.fields" : function(){
+    "fields" : function(){
       this.$nextTick(()=>{
         this.__adjust_fields_width()
       })

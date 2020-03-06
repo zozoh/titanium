@@ -10,13 +10,9 @@ export default {
   computed : {
     //----------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived" : this.isActived,
+      return this.getTopClass({
         "no-status"  : !this.statusIcon
-      }, [
-        `as-${this.viewportMode}`
-      ], this.className)
+      }, `as-${this.viewportMode}`)
     },
     //----------------------------------------
     isShowTitle () {return !Ti.Util.isNil(this.title)},
@@ -37,12 +33,15 @@ export default {
     },
     //----------------------------------------
     comClass() {
-      let autoSize = "auto" == this.width
-      let fullSize = "full" == this.width
+      let auto    = "auto" == this.width
+      let full    = "full" == this.width
+      let stretch = "stretch" == this.width
+      let fixed   = !auto && !full && !stretch && !Ti.Util.isNil(this.width)
       return {
-        "is-size-auto"     : autoSize,
-        "is-size-full"     : fullSize,
-        "is-size-stretch"  : !autoSize && !fullSize && !Ti.Util.isNil(this.width),
+        "is-size-auto"     : auto,
+        "is-size-full"     : full,
+        "is-size-stretch"  : stretch,
+        "is-size-fixed"    : fixed
       }
     },
     //----------------------------------------
@@ -111,7 +110,6 @@ export default {
         vars : {
           "isActived" : this.isActived
         },
-        explainDict: this.explainDict,
         autoIgnoreNil : false
       })
       // console.log("evalTheCom", {

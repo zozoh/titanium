@@ -2,6 +2,6 @@
   "name" : "ti-switcher",
   "globally" : true,
   "template" : "./ti-switcher.html",
-  "methods"  : "@com:ti/support/formed_list_methods.mjs",
+  "props" : "./ti-switcher-props.mjs",
   "mixins" : ["./ti-switcher.mjs"]
 }

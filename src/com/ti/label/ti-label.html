@@ -1,10 +1,11 @@
 <div class="ti-label"
-  :class="topClass"
-  @dblclick.left="onDblClick">
+  :class="TopClass"
+  :style="TopStyle"
+  @dblclick.left="OnDblClick">
   <!--prefix:icon-->
-  <div v-if="prefixIcon"
+  <div v-if="ThePrefixIcon"
     class="as-icon at-prefix">
-    <ti-icon :value="prefixIcon"/>
+    <ti-icon :value="ThePrefixIcon"/>
   </div>
   <!--prefix:text-->
   <div v-if="prefixText" 
@@ -14,12 +15,12 @@
   <!--Text-->
   <div class="as-value">
     <!--Link-->
-    <a v-if="hasHref"
+    <a v-if="href"
         :href="href"
-        :taget="theLinkTarget"
-        @click.left.prevent>{{theDisplayValue}}</a>
+        :taget="newTab ? '_blank' : undefined"
+        @click.left.prevent>{{myDisplayText}}</a>
     <!--Normal Text-->
-    <span v-else>{{theDisplayValue}}</span>
+    <span v-else>{{myDisplayText}}</span>
   </div>
   <!--suffix:text-->
   <div v-if="suffixText"

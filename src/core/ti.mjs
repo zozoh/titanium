@@ -32,7 +32,7 @@ import DateTime     from "./datetime.mjs"
 import Num          from "./num.mjs"
 import Css          from "./css.mjs"
 import Mapping      from "./mapping.mjs"
-import {Dict,DictFactory} from "./dict.mjs"
+import { Dict, DictFactory } from "./dict.mjs"
 //---------------------------------------
 const ENV = {
   "version" : "1.0",

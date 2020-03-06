@@ -4,14 +4,17 @@
   "template" : "./wn-obj-single-com.html",
   "mixins" : ["./wn-obj-single-com.mjs"],
   "components" : [
-    "@com:wn/form",
-    "@com:wn/transfer",
+    "@com:ti/form",
     "@com:ti/wizard",
     "@com:ti/calendar",
     "@com:ti/button",
     "@com:ti/table",
     "@com:ti/tree",
     "@com:ti/obj/json",
+    "@com:wn/transfer",
+    "@com:wn/droplist",
+    "@com:wn/combo/input",
+    "@com:wn/combo/multi-input",
     "@Test:test-app-modal"
   ]
 }

@@ -1,20 +1,20 @@
 <div 
   class="ti-icon" 
-  :class="topClass">
+  :class="TopClass">
   <!--Icon-->
   <span class="icon-icon"
-    :style="icon.outerStyle">
+    :style="Icon.outerStyle">
     <!--Font icon-->
-    <i v-if="'font'==icon.type"
-      :class="icon.className"
-      :style="icon.innerStyle">
+    <i v-if="'font'==Icon.type"
+      :class="Icon.className"
+      :style="Icon.innerStyle">
       <!--ligature font -->
-      <template v-if="icon.text">{{icon.text}}</template>
+      <template v-if="Icon.text">{{Icon.text}}</template>
     </i>
     <!--Svg/Image-->
-    <img v-else-if="'svg'==icon.type || 'image'==icon.type"
-        :src="icon.value"
-        :style="icon.innerStyle"/>
+    <img v-else-if="'svg'==Icon.type || 'image'==Icon.type"
+        :src="Icon.value"
+        :style="Icon.innerStyle"/>
     <!--
       Default output the value
     -->

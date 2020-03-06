@@ -3,6 +3,7 @@
   "globally" : true,
   "template" : "./ti-form.html",
   "methods"  : "@com:ti/support/field_display.mjs",
+  "props" : "./ti-form-props.mjs",
   "mixins" : ["./ti-form.mjs"],
   "components" : [
     "./com/form-group",

@@ -2,47 +2,43 @@
   "comType" : "ti-form",
   "comConf" : {
     "className" : "ti-fill-parent",
-    "config" : {
-      "fields" : [{
-          "icon"    : "zmdi-flattr",
-          "title"   : "ID",
-          "name"    : "id"
-        }, {
-          "title" : "Name",
-          "name"  : "name",
-          "display" : true,
-          "comType" : "ti-input",
+    "fields" : [{
+        "icon"    : "zmdi-flattr",
+        "title"   : "ID",
+        "name"    : "id"
+      }, {
+        "title" : "Name",
+        "name"  : "name",
+        "display" : true,
+        "comType" : "ti-input",
+        "comConf" : {
+          "focus" : "${=isActived}",
+          "autoSelect" : false
+        }
+      }, {
+        "title" : "Brief",
+        "name"  : "brief",
+        "display" : true,
+        "comType" : "ti-input-text",
+        "comConf" : {
+          "focus" : "${=isActived}",
+          "autoSelect" : false
+        }
+      }, {
+        "title" : "Sex",
+        "name" : "sex",
+        "type"    : "Integer",
+        "width"   : "auto",
+        "display" : {
           "comConf" : {
-            "focus" : "${=isActived}",
-            "autoSelect" : false
+            "dict" : "Sexes:icon"
           }
-        }, {
-          "title" : "Brief",
-          "name"  : "brief",
-          "display" : true,
-          "comType" : "ti-input-text",
-          "comConf" : {
-            "focus" : "${=isActived}",
-            "autoSelect" : false
-          }
-        }, {
-          "title" : "Sex",
-          "name" : "sex",
-          "type"    : "Integer",
-          "display" : {
-            "transformer" : {
-              "name" : "toStr",
-              "args" : {"1":"男", "2":"女"}
-            }
-          },
-          "comType" : "ti-switcher",
-          "comConf" : {
-            "options" : [
-              {"icon":"fas-mars",  "value":1, "text":"男"},
-              {"icon":"fas-venus", "value":2, "text":"女"}]
-          }
-        }]
-      },
+        },
+        "comType" : "ti-switcher",
+        "comConf" : {
+          "options" : "@Dict:Sexes"
+        }
+      }],
     "data" : {
       "..."  : "=data"
     }

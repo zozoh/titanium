@@ -1,43 +1,6 @@
 export default {
-  inheritAttrs : false,
   //////////////////////////////////////////////////////
   props : {
-    "icon" : {
-      type : String,
-      default : null
-    },
-    "title" : {
-      type : String,
-      default : null
-    },
-    "display" : {
-      type : String,
-      default : "all"
-    },
-    "currentTab" : {
-      type : Number,
-      default : 0
-    },
-    "keepTabIndexBy" : {
-      type : String,
-      default : null
-    },
-    "config" : {
-      type : Object,
-      default : null
-    },
-    "data" : {
-      type : Object,
-      default : null
-    },
-    // "status" : {
-    //   type : Object,
-    //   default : ()=>({})
-    // },
-    "fieldStatus" : {
-      type : Object,
-      default : ()=>({})
-    },
     "fuse" : {
       type : Object,
       default : ()=>({
@@ -61,13 +24,8 @@ export default {
     }
   },
   //////////////////////////////////////////////////////
-  computed : {
-    hasData() {
-      return !_.isEmpty(this.data)
-    }
-  },
-  //////////////////////////////////////////////////////
   methods : {
+    //--------------------------------------------------
     doAction(emitName, action, payload) {
       if(action) {
         let app = Ti.App(this)
@@ -78,11 +36,13 @@ export default {
         this.$emit(emitName, payload)
       }
     },
-    onChanged(payload) {
+    //--------------------------------------------------
+    OnChanged(payload) {
       //console.log("wn-obj-form.changed", payload)
       this.doAction("changed", this.updateBy, payload)
     },
-    onInvalid(err) {
+    //--------------------------------------------------
+    OnInvalid(err) {
       //console.log("wn-form.invalid", err)
       let payload = {
         name    : err.name,
@@ -91,26 +51,7 @@ export default {
       }
       this.doAction("invalid", this.setFieldStatusBy, payload)
     }
-  },
-  //////////////////////////////////////////////////////
-  mounted : function(){
-    if(this.fuse) {
-      let failBy = this.fuse.failBy || "status.changed"
-      // Watch fuse
-      Ti.Fuse.getOrCreate().add({
-        key : this.fuse.key,
-        everythingOk : ()=>{
-          return !(_.get(this, failBy))
-        },
-        fail : ()=>{
-          Ti.Toast.Open("i18n:no-saved", "warn")
-        }
-      })
-    }
-  },
-  beforeDestroy : function(){
-    if(this.fuse) {
-      Ti.Fuse.get().remove(this.fuse.key)
-    }
+    //--------------------------------------------------
   }
+  //////////////////////////////////////////////////////
 }

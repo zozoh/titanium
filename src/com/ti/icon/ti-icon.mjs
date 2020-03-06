@@ -43,27 +43,27 @@ export default {
   ///////////////////////////////////////////////////////
   computed : {
     //---------------------------------------------------
-    topClass() {
+    TopClass() {
       return this.getTopClass()
     },
     //---------------------------------------------------
-    theValue() {
+    Value() {
       return this.value || this.defaultValue
     },
     //---------------------------------------------------
     // formed icon data
-    icon() {
+    Icon() {
       let icn 
-      if(_.isPlainObject(this.theValue)){
+      if(_.isPlainObject(this.Value)){
         // Regular icon object, return it directly
-        if(this.theValue.type && this.theValue.value) {
-          icn = this.theValue
+        if(this.Value.type && this.Value.value) {
+          icn = this.Value
         }
         // Eval it as meta
         else {
           icn = {
             type  : "font", 
-            value : Ti.Icons.get(this.theValue)
+            value : Ti.Icons.get(this.Value)
           }
         }
       }
@@ -71,10 +71,10 @@ export default {
       else {
         icn = {
           type : "font",
-          value : this.theValue
+          value : this.Value
         }
-        if(_.isString(this.theValue)) {
-          icn.type = Ti.Util.getSuffixName(this.theValue) || "font"
+        if(_.isString(this.Value)) {
+          icn.type = Ti.Util.getSuffixName(this.Value) || "font"
         }
         // for image
         if(/^(jpe?g|gif|png)$/i.test(icn.type)){

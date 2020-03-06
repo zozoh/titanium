@@ -1,12 +1,5 @@
-<wn-form 
-  :icon="icon"
-  :title="title"
+<ti-form 
+  v-bind="this"
   :class-name="className"
-  :display="display"
-  :current-tab="currentTab"
-  :keep-tab-index-by="keepTabIndexBy"
-  :config="config"
-  :data="data"
-  :field-status="fieldStatus"
-  @changed="onChanged"
-  @invalid="onInvalid"/>
+  @changed="OnChanged"
+  @invalid="OnInvalid"/>

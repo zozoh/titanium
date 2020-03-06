@@ -577,19 +577,30 @@ export class TiColor {
 /////////////////////////////////////
 const TiTypes = {
   toStr(val, fmt, dft) {
+    // Dynamic function call
     if(_.isFunction(fmt)) {
       return fmt(val) || dft
     }
-    if(_.isNull(val) || _.isUndefined(val)){
+    // Nil
+    if(Ti.Util.isNil(val)){
       return Ti.Util.fallback(dft, null)
     }
+    // Number : translate by Array/Object or directly
     if(_.isNumber(val)) {
-      return ""+val
+      if(_.isArray(fmt)) {
+        return Ti.Util.fallback(_.nth(fmt, val), val)
+      }
+      let s = "" + val
+      if(_.isPlainObject(fmt)) {
+        return fmt[s]
+      }
+      return s
     }
+    // String to translate
     if(_.isString(val)){
       // Mapping
       if(_.isPlainObject(fmt)) {
-        return _.get(fmt, val)
+        return Ti.Util.getOrPick(fmt, val)
       }
       // Render template val -> {val:val}
       else if(_.isString(fmt)) {
@@ -599,21 +610,27 @@ const TiTypes = {
       // Return directly
       return val
     }
+    // Array to concat
     if(_.isArray(val)) {
       return val.join(fmt || ",")
     }
+    // Boolean to translate
     if(_.isBoolean(val)) {
       return (fmt || ["false", "true"])[val*1]
     }
+    // Date to human looking
     if(_.isDate(val)){
       return TiTypes.formatDateTime(val, fmt)
     }
+    // Time to human looking
     if(val instanceof TiTime) {
       return val.toString(fmt)
     }
+    // Color to human looking
     if(val instanceof TiColor) {
       return val.toString()
     }
+    // Object to render or translate or JSON
     if(_.isPlainObject(val)){
       if(fmt) {
         if(_.isString(fmt)) {
@@ -625,6 +642,7 @@ const TiTypes = {
       }
       return JSON.stringify(val, null, fmt) 
     }
+    // Directly translate
     return ""+val
   },
   //.......................................

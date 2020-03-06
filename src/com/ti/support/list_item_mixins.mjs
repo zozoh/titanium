@@ -45,10 +45,6 @@ export default {
         on  : "fas-check-square",
         off : "far-square"
       })
-    },
-    "explainDict" : {
-      type : Function,
-      default : _.identity
     }
   },
   ///////////////////////////////////////////////////

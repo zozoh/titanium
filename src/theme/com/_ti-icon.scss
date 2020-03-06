@@ -1,6 +1,10 @@
 .ti-icon {
   @include flex-center;
   vertical-align: middle;
+  &.as-inline {
+    display:inline-block;
+    vertical-align: middle;
+  }
   // The Icon
   .icon-icon {
     @include flex-center;

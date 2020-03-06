@@ -2,6 +2,14 @@
   "name" : "wn-obj-form",
   "globally" : true,
   "template" : "./wn-obj-form.html",
+  "props" : "@com:ti/form/ti-form-props.mjs",
   "mixins" : ["./wn-obj-form.mjs"],
-  "components" : ["@com:wn/form"]
+  "components" : [
+    "@com:ti/form",
+    "@com:wn/transfer",
+    "@com:wn/droplist",
+    "@com:wn/combo/input",
+    "@com:wn/imgfile",
+    "@com:wn/combo/multi-input"
+  ]
 }

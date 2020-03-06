@@ -250,13 +250,13 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
 #---------------------------------------------------------
 @FILE demo/ti-form-combo-input.wncom
 {
-  title : "表单·组合单选",
+  title : "组合【单】选框",
   com: "/rs/ti/test/components/demo-ti-combo-input.json"
 }
 #---------------------------------------------------------
 @FILE demo/ti-form-combo-multi-input.wncom
 {
-  title : "表单·组合多选",
+  title : "组合【多】选框",
   com: "/rs/ti/test/components/demo-ti-combo-multi-input.json"
 }
 #---------------------------------------------------------
@@ -285,12 +285,12 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
   com: "/rs/ti/test/components/demo-ti-tree-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-list-0.wncom
-{
-  title : "列表",
-  ln : "/rs/ti/test/components/demo-ti-list-0.data.json", 
-  com: "/rs/ti/test/components/demo-ti-list-0.json"
-}
+#@FILE demo/ti-list-0.wncom
+#{
+#  title : "列表",
+#  ln : "/rs/ti/test/components/demo-ti-list-0.data.json", 
+#  com: "/rs/ti/test/components/demo-ti-list-0.json"
+#}
 #---------------------------------------------------------
 @FILE demo/ti-table-0.wncom
 {
@@ -320,13 +320,13 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
 #---------------------------------------------------------
 @FILE demo/wn-combo-input.wncom
 {
-  title : "动态表单·组合单选框",
+  title : "动态组合【单】选框",
   com: "/rs/ti/test/components/demo-wn-combo-input.json"
 }
 #---------------------------------------------------------
 @FILE demo/wn-combo-multi-input.wncom
 {
-  title : "动态表单·组合多选框",
+  title : "动态组合【多】选框",
   com: "/rs/ti/test/components/demo-wn-combo-multi-input.json"
 }
 #---------------------------------------------------------

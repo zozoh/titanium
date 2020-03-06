@@ -1,54 +1,63 @@
 <div class="ti-form"
-  :class="topClass"
+  :class="TopClass"
+  :style="TopStyle"
   v-ti-actived="__set_actived">
+  <template v-if="hasData || !autoShowBlank">
+    <!--
+      Form Header
+    -->
+    <header class="form-header" v-if="hasHeader">
+      <span v-if="icon"
+        class="it-icon"><ti-icon :value="icon"/></span>
+      <span v-if="title"
+        class="it-text">{{title}}</span>
+    </header>
+    <!--
+      Tabs for display:"tab"
+    -->
+    <div class="form-tab" v-if="isDisplayAsTab">
+      <ul>
+        <li v-for="tab in TabItems" 
+          :class="tab.className"
+          @click.left="onClickTab(tab)">
+          <ti-icon 
+            class="tab-icon" v-if="tab.icon" :value="tab.icon"/>
+          <span 
+            class="tab-text" v-if="tab.title">{{tab.title|i18n}}</span>
+        </li>
+      </ul>
+    </div>
+    <!--
+      Form Fields
+    -->
+    <div class="form-body">
+      <template v-for="fld in FieldsInCurrentTab">
+        <!--
+          For Group
+        -->
+        <form-group v-if="'Group' == fld.type"
+          v-bind="fld"
+          :data="TheData"
+          :status-icons="statusIcons"
+          @changed="onChanged"
+          @invalid="onInvalid"/>
+        <!--
+          For field
+        -->
+        <ti-form-field v-else
+          :key="fld.key"
+          v-bind="fld"
+          :data="TheData"
+          :status-icons="statusIcons"
+          @changed="onChanged"
+          @invalid="onInvalid"/>
+      </template>
+    </div>
+  </template>
   <!--
-    Form Header
+    Show Blank
   -->
-  <header class="form-header" v-if="hasHeader">
-    <span v-if="icon"
-      class="it-icon"><ti-icon :value="icon"/></span>
-    <span v-if="title"
-      class="it-text">{{title}}</span>
-  </header>
-  <!--
-    Tabs for display:"tab"
-  -->
-  <div class="form-tab" v-if="isDisplayAsTab">
-    <ul>
-      <li v-for="tab in theTabItems" 
-        :class="tab.className"
-        @click.left="onClickTab(tab)">
-        <ti-icon 
-          class="tab-icon" v-if="tab.icon" :value="tab.icon"/>
-        <span 
-          class="tab-text" v-if="tab.title">{{tab.title|i18n}}</span>
-      </li>
-    </ul>
-  </div>
-  <!--
-    Form Fields
-  -->
-  <div class="form-body">
-    <template v-for="fld in theFieldsInCurrentTab">
-      <!--
-        For Group
-      -->
-      <form-group v-if="'Group' == fld.type"
-        v-bind="fld"
-        :data="data"
-        :status-icons="config.statusIcons"
-        @changed="onChanged"
-        @invalid="onInvalid"/>
-      <!--
-        For field
-      -->
-      <ti-form-field v-else
-        :key="fld.key"
-        v-bind="fld"
-        :data="formData"
-        :status-icons="config.statusIcons"
-        @changed="onChanged"
-        @invalid="onInvalid"/>
-    </template>
-  </div>
+  <template v-else>
+    <ti-loading v-bind="blankAs"/>
+  </template>
 </div>

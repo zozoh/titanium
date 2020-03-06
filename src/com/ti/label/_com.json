@@ -2,5 +2,6 @@
   "name" : "ti-label",
   "globally" : true,
   "template" : "./ti-label.html",
+  "props" : "./ti-label-props.mjs",
   "mixins" : ["./ti-label.mjs"]
 }

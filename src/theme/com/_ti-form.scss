@@ -57,14 +57,11 @@
         //------------------------------
         > .field-component {
           @include flex-align($ai:center);
-          &.is-size-stretch {
-            flex:1 1 auto;
-            > * {width:100%;}
-          }
-          &.is-size-full {
-            flex:1 1 auto; width:100%;
-            > * {width:100%;}
-          }
+          &.is-size-auto    {flex:0 0 auto;}
+          &.is-size-stretch {flex:1 1 auto;}
+          &.is-size-full    {width:100%;}
+          &.is-size-fixed   {}
+          > * {width:100%;}
         }
         //------------------------------
         > .field-tip {

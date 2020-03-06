@@ -73,85 +73,73 @@
       "data"   : "=current.meta",
       "status" : "=current.status",
       "fieldStatus" : "=current.fieldStatus",
-      "config" : {
-        "fields" : [{
-            "title"  : "ID",
-            "name"   : "id"
-          }, {
-            "title"   : "头像",
-            "name"    : "thumb",
-            "checkEquals" : false,
-            "serializer" : {
-              "name" : "toStr",
-              "args" : "id:${id}"
-            },
-            "comType" : "wn-imgfile",
-            "comConf" : {
-              "target" : "=curentThumbTarget",
-              "filter" : "cover(256,256)"
-            }
-          }, {
-            "title"   : "用户昵称",
-            "name"    : "nickname",
-            "comType" : "ti-input"
-          },{
-            "title"   : "登录名",
-            "name"    : "nm",
-            "comType" : "ti-input"
-          },{
-            "title"   : "手机号",
-            "name"    : "phone",
-            "comType" : "ti-input"
-          },{
-            "title"   : "邮箱",
-            "name"    : "email",
-            "comType" : "ti-input"
-          },{
-            "title"   : "角色",
-            "name"    : "role",
-            "comType" : "ti-switcher",
-            "comConf" : {
-              "options" : {
-                "method" : "Wn.Dict.getAll",
-                "args" : ["Roles"]
-              },
-              "mapping" : {
-                "value" : "nm",
-                "text"  : "th_nm"
-              }
-            }
-          },{
-            "title"   : "性别",
-            "name"    : "sex",
-            "type"    : "Integer",
-            "comType" : "ti-switcher",
-            "comConf" : {
-              "options" : {
-                "method" : "Wn.Dict.getAll",
-                "args" : ["Sexes"]
-              }
-            }
-          },{
-            "title"   : "国家",
-            "name"    : "country",
-            "comType" : "ti-input"
-          },{
-            "title"   : "省/市",
-            "name"    : "province",
-            "comType" : "ti-input"
-          },{
-            "title"   : "城市/区",
-            "name"    : "city",
-            "comType" : "ti-input"
-          },{
-            "title"   : "微信OpenID",
-            "name"    : "wx_gh_strato"
-          },{
-            "title"   : "最后登录",
-            "name"    : "login",
-            "type"    : "DateTime"
-          }]
-      },
+      "fields" : [{
+          "title"  : "ID",
+          "name"   : "id"
+        }, {
+          "title"   : "头像",
+          "name"    : "thumb",
+          "checkEquals" : false,
+          "serializer" : {
+            "name" : "toStr",
+            "args" : "id:${id}"
+          },
+          "comType" : "wn-imgfile",
+          "comConf" : {
+            "target" : "=curentThumbTarget",
+            "filter" : "cover(256,256)"
+          }
+        }, {
+          "title"   : "用户昵称",
+          "name"    : "nickname",
+          "comType" : "ti-input"
+        },{
+          "title"   : "登录名",
+          "name"    : "nm",
+          "comType" : "ti-input"
+        },{
+          "title"   : "手机号",
+          "name"    : "phone",
+          "comType" : "ti-input"
+        },{
+          "title"   : "邮箱",
+          "name"    : "email",
+          "comType" : "ti-input"
+        },{
+          "title"   : "角色",
+          "name"    : "role",
+          "comType" : "ti-switcher",
+          "comConf" : {
+            "options" : "@Dict:Roles"
+          }
+        },{
+          "title"   : "性别",
+          "name"    : "sex",
+          "type"    : "Integer",
+          "comType" : "ti-switcher",
+          "comConf" : {
+            "options" : "@Dict:Sexes"
+          }
+        },{
+          "title"   : "国家",
+          "name"    : "country",
+          "comType" : "ti-input"
+        },{
+          "title"   : "省/市",
+          "name"    : "province",
+          "comType" : "ti-input"
+        },{
+          "title"   : "城市/区",
+          "name"    : "city",
+          "comType" : "ti-input"
+        },{
+          "title"   : "微信OpenID",
+          "name"    : "wx_gh_strato"
+        },{
+          "title"   : "最后登录",
+          "name"    : "login",
+          "type"    : "DateTime"
+        }],
       "updateBy" : {
         "method" : "dispatch",
         "target" : "main/updateCurrent"

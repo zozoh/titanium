@@ -1,4 +1,5 @@
-<div class="ti-switcher">
+<div class="ti-switcher"
+  :class="TopClass">
   <!--
     Show Loading
   -->
@@ -11,11 +12,11 @@
   <div v-else
     class="switcher-con">
     <ul>
-      <li v-for="(it, index) in formedList" 
+      <li v-for="it in TheItems" 
         :key="it.value"
-        :class="itemClass(it)"
-        @click="onClick(index, $event)"
-        @mousedown="onMouseDown(index, $event)">
+        :class="it.className"
+        @click="OnClickItem(it, $event)"
+        @mousedown="myFocusIndex=it.index;">
         <ti-icon class="it-icon"
           size=".8em"
           v-if="it.icon" 

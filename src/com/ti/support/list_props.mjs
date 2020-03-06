@@ -26,10 +26,6 @@ export default {
     type : String,
     default : null
   },
-  "explainDict" : {
-    type : Function,
-    default : _.identity
-  },
   "extendFunctionSet" : {
     type : Object,
     default : ()=>({})

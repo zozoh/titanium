@@ -53,8 +53,7 @@ export default {
           "isChanged" : this.isChanged,
           "isActived" : this.isActived,
           "rowId"     : this.rowId
-        },
-        explainDict : this.explainDict
+        }
       })
 
       // make table resizing

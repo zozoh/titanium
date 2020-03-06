@@ -1,77 +1,74 @@
 {
-  "comType" : "wn-form",
+  "comType" : "ti-form",
   "comConf" : {
     "className" : "ti-fill-parent",
     "title" : "动态多选组合框测试",
-    "autoShowBlank" : false,
-    "config" : {
-      "fields" : [{
-          "title" : "普通多选",
-          "tip"   : "只是负责提示，用户随便输入",
-          "width" : "full",
-          "name"  : "f0",
-          "type"  : "Array",
-          "comType" : "wn-combo-multi-input",
-          "comConf" : {
-            "placeholder" : "请输入类型",
-            "prefixIcon" : "zmdi-globe-alt",
-            "tagItemIconBy" : "icon",
-            "mustInList" : false,
-            "autoFocusExtended" : true,
-            "filter"  : true,
-            "options" : "@Dict:Accounts",
-            "dropDisplay" : ["@<thumb:zmdi-account>", "nickname|email|phone|nm"],
-            "tagMapping" : {
-              "value" : "id",
-              "text"  : "nickname|email|phone|nm",
-              "icon"  : "icon"
-            }
+    "fields" : [{
+        "title" : "普通多选",
+        "tip"   : "只是负责提示，用户随便输入",
+        "width" : "full",
+        "name"  : "f0",
+        "type"  : "Array",
+        "comType" : "wn-combo-multi-input",
+        "comConf" : {
+          "placeholder" : "请输入类型",
+          "prefixIcon" : "zmdi-globe-alt",
+          "tagItemIconBy" : "icon",
+          "mustInList" : false,
+          "autoFocusExtended" : true,
+          "filter"  : true,
+          "options" : "@Dict:Accounts",
+          "dropDisplay" : ["@<thumb:zmdi-account>", "nickname|email|phone|nm"],
+          "tagMapping" : {
+            "value" : "id",
+            "text"  : "nickname|email|phone|nm",
+            "icon"  : "icon"
           }
-        }, {
-          "title" : "限制列表",
-          "tip"   : "用户的输入必须限制在给定列表中",
-          "width" : "full",
-          "name"  : "f1",
-          "type"  : "String",
-          "comType" : "wn-combo-multi-input",
-          "comConf" : {
-            "placeholder" : "请输入类型",
-            "statusIcons" : {
-              "collapse" : "zmdi-email",
-              "extended" : "zmdi-email-open"
-            },
-            "mustInList" : true,
-            "filter"  : false,
-            "options" : "obj ~/demo/images/* -l -cqn",
-            "dropDisplay" : ["@<thumb:zmdi-fire>", "title|nm", "id"],
-            "dropItemBorder" : false
-          }
-        }, {
-          "title" : "只读列表",
-          "tip"   : "就是下拉列表的单选实现方式",
-          "width" : "full",
-          "name"  : "f2",
-          "type"  : "Array",
-          "comType" : "wn-combo-multi-input",
-          "comConf" : {
-            "prefixIcon" : "zmdi-car-wash",
-            "readonly" : true,
-            "options" : "@Dict:tmp"
-          }
-        }, {
-          "title" : "下拉列表",
-          "tip"   : "测试下拉列表的包裹",
-          "width" : "full",
-          "name"  : "f3",
-          "type"  : "String",
-          "comType" : "wn-droplist",
-          "comConf" : {
-            "prefixIcon" : "zmdi-car-wash",
-            "multi" : true,
-            "options" : "obj ~/demo/images/* -l -cqn"
-          }
-        }]
-    },
+        }
+      }, {
+        "title" : "限制列表",
+        "tip"   : "用户的输入必须限制在给定列表中",
+        "width" : "full",
+        "name"  : "f1",
+        "type"  : "String",
+        "comType" : "wn-combo-multi-input",
+        "comConf" : {
+          "placeholder" : "请输入类型",
+          "statusIcons" : {
+            "collapse" : "zmdi-email",
+            "extended" : "zmdi-email-open"
+          },
+          "mustInList" : true,
+          "filter"  : false,
+          "options" : "obj ~/demo/images/* -l -cqn",
+          "dropDisplay" : ["@<thumb:zmdi-fire>", "title|nm", "id"],
+          "dropItemBorder" : false
+        }
+      }, {
+        "title" : "只读列表",
+        "tip"   : "就是下拉列表的单选实现方式",
+        "width" : "full",
+        "name"  : "f2",
+        "type"  : "Array",
+        "comType" : "wn-combo-multi-input",
+        "comConf" : {
+          "prefixIcon" : "zmdi-car-wash",
+          "readonly" : true,
+          "options" : "@Dict:tmp"
+        }
+      }, {
+        "title" : "下拉列表",
+        "tip"   : "测试下拉列表的包裹",
+        "width" : "full",
+        "name"  : "f3",
+        "type"  : "String",
+        "comType" : "wn-droplist",
+        "comConf" : {
+          "prefixIcon" : "zmdi-car-wash",
+          "multi" : true,
+          "options" : "obj ~/demo/images/* -l -cqn"
+        }
+      }],
     "data" : "=data"
   },
   "dispatchActions" : {

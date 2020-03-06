@@ -88,11 +88,6 @@ export default {
       default : true
     },
     //..........................
-    "explainDict" : {
-      type : Function,
-      default : _.identity
-    },
-    //..........................
     "focusBy" : {
       type : String,
       default : "focus"
@@ -173,7 +168,6 @@ export default {
               "rowId"     : this.rowId,
               "cellSize"  : this.cellSize
             },
-            explainDict : this.explainDict,
             autoIgnoreNil : true
         })
         if(it) {

@@ -1,164 +1,151 @@
 export default {
+  /////////////////////////////////////////////////////
   data : ()=>({
-    "loading" : false,
-    "items" : [],
-    "lastIndex"  : 0,
-    "focusIndex" : -1
+    loading : false,
+    myOptionsData : [],
+    myValueMap  : {},
+    myLastIndex : 0,
+    myFocusIndex : -1
   }),
-  /////////////////////////////////////////
-  props : {
-    "value" : null,
-    "multi" : false,
-    "options" : {
-      type : [Array, Function, Object],
-      default : ()=>[]
-    },
-    "mapping" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "defaultIcon" : {
-      type : String,
-      default : null
-    },
-    "cached" : {
-      type : Boolean,
-      default : true
-    },
-    "emptylAs" : {
-      default : null
-    },
-    // In single mode, to keep at least one item selected,
-    // you can set the prop to `false`
-    "allowEmpty" : {
-      type : Boolean,
-      default : true
-    }
-  },
-  //////////////////////////////////////////
+  /////////////////////////////////////////////////////
   computed : {
-    isLoaded() {
-      return !_.isEmpty(this.items)
+    //-------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
     },
-    //......................................
-    formedList() {
-      return this.normalizeData(this.items, {
-        multi   : this.multi,
-        value   : this.value,
-        mapping : this.mapping,
-        defaultIcon : this.defaultIcon,
-        iteratee : (it, index)=>{
-          it.focused = (index == this.focusIndex)
+    //-------------------------------------------------
+    Dict() {
+      return Ti.DictFactory.GetOrCreate({
+        data : this.options,
+        getValue : Ti.Util.genGetter(this.valueBy || "value"),
+        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
+        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+      }, {
+        hooks: ({loading}) => this.loading = loading
+      })
+    },
+    //-------------------------------------------------
+    TheItems() {
+      return _.map(this.myOptionsData, (it, index) => {
+        let itV = this.Dict.getValue(it)
+        return {
+          index,
+          className : {
+            "is-selected" : this.myValueMap[itV],
+            "is-focused"  : index == this.myFocusIndex
+          },
+          text  : this.Dict.getText(it),
+          value : itV,
+          icon  : this.Dict.getIcon(it) || this.defaultIcon
         }
       })
     }
+    //-------------------------------------------------
   },
-  //////////////////////////////////////////
+  /////////////////////////////////////////////////////
   methods : {
-    //......................................
-    onClick(index, eo) {
-      // Multi mode
-      if(this.multi) {
-        let vals = []
-        // Shift mode
-        if(eo.shiftKey) {
-          let minIndex = Math.min(index, this.lastIndex)
-          let maxIndex = Math.max(index, this.lastIndex)
-          _.forEach(this.formedList, (it, i)=>{
-            if(i>=minIndex && i<=maxIndex) {
-              vals.push(it.value)
-            }
-          })
-        }
-        // Toggle mode
-        else {
-          _.forEach(this.formedList, (it, i)=>{
-            // The item which to be click, toggle
-            if(index == i) {
-              if(!it.selected) {
-                vals.push(it.value)
-              }
-            }
-            // Others
-            else if(it.selected) {
-              vals.push(it.value)
-            }
-          })
-        }
-        // Emit the value
-        this.$emit("changed", vals)
+    //-------------------------------------------------
+    OnClickItem({value, index}, $event) {
+      let toggle = ($event.ctrlKey || $event.metaKey)
+      let shift  = $event.shiftKey;
+      // Multi + Shift Mode
+      if(shift && this.multi) {
+        this.selectItemsToCurrent(value, index)
       }
-      // Single mode
+      // Multi + Toggle Mode
+      else if(toggle && this.multi) {
+        this.toggleItem(value)
+      }
+      // Toggle Mode
+      else if(this.allowEmpty) {
+        this.toggleItem(value)
+      }
+      // Single Mode
       else {
-        let it = this.formedList[index]
-        // if can be null, click selected item will cancel it
-        if(it.selected && !_.isUndefined(this.emptyAs)) {
-          // Always keep selected
-          if(!this.allowEmpty) {
-            this.$emit("changed", this.emptyAs)
-          }
+        this.myValueMap = {[value]:true}
+      }
+      // Last Index
+      this.myLastIndex = index
+      // Notify
+      this.tryNotifyChanged()
+    },
+    //-------------------------------------------------
+    // Utility
+    //-------------------------------------------------
+    findItemIndexByValue(val) {
+      for(let it of this.TheItems) {
+        if(it.value == val)
+          return it.index
+      }
+      return -1
+    },
+    //-------------------------------------------------
+    selectItemsToCurrent(val) {
+      let vmap  = _.cloneDeep(this.myValueMap)
+      let index = this.findItemIndexByValue(val)
+      if(index >= 0) {
+        let fromIndex = Math.min(index, this.myLastIndex)
+        let toIndex   = Math.max(index, this.myLastIndex)
+        if(fromIndex < 0) {
+          fromIndex = 0
         }
-        // change value
-        else if(!it.selected) {
-          this.$emit("changed", it.value)
+        for(let i=fromIndex; i<=toIndex; i++) {
+          let it = this.TheItems[i]
+          vmap[it.value] = true
         }
       }
-      // remember the last
-      this.lastIndex = index
+      this.myValueMap = vmap
+    },
+    //-------------------------------------------------
+    toggleItem(val) {
+      if(this.multi) {
+        let oldV = this.myValueMap[val]
+        this.myValueMap = _.assign({}, this.myValueMap, {
+          [val] : !oldV
+        })
+      } else {
+        this.myValueMap = {[val] : true}
+      }
+    },
+    //-------------------------------------------------
+    tryNotifyChanged() {
+      let vals = Ti.Util.truthyKeys(this.myValueMap)
+      if(!_.isEqual(vals, this.Values)) {
+        let v = this.multi ? vals : vals.join(",")
+        this.$emit("changed", v)
+      }
     },
     //......................................
-    itemClass(it) {
-      return {
-        "is-selected" : it.selected,
-        "is-focused"  : it.focused
-      }
+    async reloadMyOptionsData() {
+      this.myOptionsData = await this.Dict.getData()
     },
     //......................................
-    async reload() {
-      if(this.loading) {
-        return
-      }
-      if(this.isLoaded && this.cached) {
-        return
-      }
-      this.loading = true
-      let list = []
-      // Dynamic value
-      if(_.isFunction(this.options)) {
-        list = await this.options()
-        if(!_.isArray(list)){
-          return
-        } 
-      }
-      // Static value
-      else if(_.isArray(this.options)){
-        list = [].concat(this.options)
-      }
-      this.items = list
-      this.loading = false
-    },
-    //......................................
-    onMouseDown(index, eo) {
-      this.focusIndex = index
+    reloadMyValueMap() {
+      let vals = Ti.S.toArray(this.value)
+      let vmap = {}
+      _.forEach(vals, v => vmap[v]=true)
+      this.myValueMap = vmap
     }
     //......................................
   },
   /////////////////////////////////////////
   watch : {
-    "options" : async function(){
-      await this.reload()
+    "options" : {
+      handler : "reloadMyOptionsData",
+      immediate: true
+    },
+    "value" : {
+      handler : "reloadMyValueMap",
+      immediate: true
     }
   },
   /////////////////////////////////////////
   mounted : async function(){
-    await this.reload()
-    let vm = this
-    this.__on_mouseup = function(index){
-      vm.focusIndex = -1
-    }
-    Ti.Dom.watchDocument("mouseup", this.__on_mouseup)
+    Ti.Dom.watchDocument("mouseup", ()=>this.myFocusIndex = -1)
   },
+  /////////////////////////////////////////
   beforeDestroy : function(){
     Ti.Dom.unwatchDocument("mouseup", this.__on_mouseup)
   }
+  /////////////////////////////////////////
 }
