@@ -18,7 +18,8 @@ export default {
                      //  - 'stretch' : it will join to the auto-remains-assignment
       amended : []   // The col-size to display in DOM
     },
-    whenTableLayout: false, 
+    whenTableLayout : undefined,
+    layoutReady : false
   }),
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
@@ -27,8 +28,9 @@ export default {
     //--------------------------------------
     topClass() {
       return this.getTopClass({
-        "is-when-layout" : this.whenTableLayout,
-        "is-hoverable"    : this.hoverable
+        "is-layout-no-ready" : !this.layoutReady,
+        "is-layout-ready" : this.layoutReady,
+        "is-hoverable"   : this.hoverable
       }, [
         `is-border-${this.border}`,
         `is-head-${this.head||"none"}`,
@@ -41,6 +43,10 @@ export default {
           "width" : this.myTableWidth
         })
       }
+    },
+    //--------------------------------------
+    isWhenLayout() {
+      return Ti.Util.fallback(this.whenTableLayout, true)
     },
     //--------------------------------------
     getRowIndent() {
@@ -200,7 +206,12 @@ export default {
     },
     //--------------------------------------
     evalEachColumnSize() {
-      //console.log("evalEachColumnSize")
+      // Guard
+      if(this.whenTableLayout) {
+        return
+      }
+      //console.log("evalEachColumnSize", this, this.tiComType)
+
       // Reset each column size
       this.whenTableLayout = true
       this.myTableWidth = 0
@@ -227,7 +238,6 @@ export default {
       //.........................................
       // Wait reset applied, and ...
       this.$nextTick(()=>{
-        this.whenTableLayout = false
         // Get original size: head
         let $heads = Ti.Dom.findAll(".table-head ul li", this.$el)
         for(let $he of $heads) {
@@ -262,6 +272,11 @@ export default {
 
         // Resize Table
         this.onTableResize()
+
+        _.delay(()=>{
+          this.whenTableLayout = false
+          this.layoutReady = true
+        }, 10)
       })
     },
     //--------------------------------------
@@ -378,7 +393,7 @@ export default {
   created : function() {
     //.................................
     // Define the method for sub-cells up-calling
-    this.debounceEvalEachColumnSize = _.debounce(()=>this.evalEachColumnSize(), 50)
+    this.debounceEvalEachColumnSize = _.debounce(()=>this.evalEachColumnSize(), 100)
   },
   ///////////////////////////////////////////////////
   mounted : async function() {

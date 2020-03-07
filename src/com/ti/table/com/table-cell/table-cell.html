@@ -2,7 +2,7 @@
   :class="topClass"
   :style="topStyle"
   :col-index="index"
-  v-ti-actived="__set_actived">
+  v-ti-actived="__set_actived"><div class="cell-wrapper">
   <!--Slot for first column-->
   <slot></slot>
   <!--Fields-->
@@ -14,5 +14,5 @@
         :is="it.comType"
         v-bind="it.comConf"
         @change="onItemChanged(it, $event)"/>
-  </div>
+  </div></div>
 </div>

@@ -71,6 +71,13 @@ export default {
         }
       }
     }
+    //........................................
+    if(displayItem.dict) {
+      let {name, vKey} = Ti.DictFactory.explainDictName(displayItem.dict)
+      dis.$dict = Ti.DictFactory.CheckDict(name)
+      dis.$dictValueKey = vKey || ".text"
+    }
+    //........................................
     // Then return
     return dis
   },
@@ -96,66 +103,66 @@ export default {
     autoIgnoreNil=true,
     autoValue="value"
   }={}) {
-    // if("sex" == displayItem.key) 
-    //   console.log(displayItem)
-    let value = displayItem.defaultAs;
+    let dis = displayItem;
+    // if("sex" == dis.key) 
+    //   console.log(dis)
+    let value = dis.defaultAs;
     //.....................................
     // Array -> Obj
-    if(_.isArray(displayItem.key)) {
-      value = _.pick(itemData, displayItem.key)
+    if(_.isArray(dis.key)) {
+      value = _.pick(itemData, dis.key)
     }
     // String ...
-    else if(_.isString(displayItem.key)){
+    else if(_.isString(dis.key)){
       // Whole data
-      if(".." == displayItem.key) {
+      if(".." == dis.key) {
         value = itemData
       }
       // Statci value
-      else if(/^'[^']+'$/.test(displayItem.key)) {
-        value = displayItem.key.substring(1, displayItem.key.length-1)
+      else if(/^'[^']+'$/.test(dis.key)) {
+        value = dis.key.substring(1, dis.key.length-1)
       }
       // Dynamic value
       else {
         value = Ti.Util.fallback(
-          Ti.Util.getOrPick(itemData, displayItem.key),
+          Ti.Util.getOrPick(itemData, dis.key),
           value
         )
       }
     }
     //.....................................
     // Transformer
-    if(_.isFunction(displayItem.transformer)) {
+    if(_.isFunction(dis.transformer)) {
       //console.log("do trans")
       // Sometimes, we need transform nil also
-      if(!Ti.Util.isNil(value) || displayItem.transNil) {
-        value = displayItem.transformer(value)
+      if(!Ti.Util.isNil(value) || dis.transNil) {
+        value = dis.transformer(value)
       }
     }
     // Ignore the undefined/null
     if(autoIgnoreNil && Ti.Util.isNil(value)) {
-      if(Ti.Util.fallback(displayItem.ignoreNil, true)) {
+      if(Ti.Util.fallback(dis.ignoreNil, true)) {
         return
       }
     }
     //.....................................
     // Translate by dict
-    if(displayItem.dict) {
-      console.log("haha", displayItem.dict, value)
-      value = await Ti.DictFactory.getBy(displayItem.dict, value)
+    if(dis.$dict) {
+      value = await dis.$dict.getItemAs(dis.$dictValueKey, value)
     }
     //.....................................
     // Add value to comConf
-    let reDisplayItem = _.cloneDeep(displayItem)
+    let reDisplayItem = _.cloneDeep(dis)
     let comConf = {}
     //.....................................
     // Customized comConf
-    if(_.isFunction(displayItem.comConf)) {
-      _.assign(comConf, displayItem.comConf(itemData))
+    if(_.isFunction(dis.comConf)) {
+      _.assign(comConf, dis.comConf(itemData))
     }
     //.....................................
     // Eval comConf
     else {
-      _.forEach(displayItem.comConf || {}, (val, key)=>{
+      _.forEach(dis.comConf || {}, (val, key)=>{
         //
         // VAL: evalue the special value, like:
         let m = /^\$\{=(.+)\}$/.exec(val)

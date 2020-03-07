@@ -4,6 +4,10 @@
   width:100%; 
   position: relative;
   //---------------------------------------------
+  &.is-layout-no-ready {
+    visibility: hidden;
+  }
+  //---------------------------------------------
   &.is-head-frozen {
     padding-top:$thead;
     overflow:hidden;
@@ -56,6 +60,7 @@
   //---------------------------------------------
   > .table-head {
     @include border(1px, solid, shallow, bottom);
+    @include color($color-bar, r, c);
     position: relative;
     //-------------------------------------------
     > .as-checker {
@@ -71,7 +76,6 @@
       @include flex-align-nowrap($ai:stretch);
       li {
         @include flex-center; flex:0 0 auto;
-        @include color($color-bar, r, c);
         padding:0 .06rem;
         .table-head-cell-text {
           font-size: 0.9em; font-weight: bold;
@@ -87,12 +91,6 @@
   > .table-body {
     width:100%; height:100%;
     overflow: auto;
-    //-------------------------------------------
-    &.is-when-layout {
-      display: table; 
-      > .table-row  {display:table-row;}
-      > .table-cell {display:table-cell;}
-    }
     //-------------------------------------------
     // Table Row 
     //-------------------------------------------
@@ -154,50 +152,53 @@
     // Table Cell
     //-------------------------------------------
     .table-cell {
-      @include flex($ai:stretch, $wp:nowrap);
-      //-----------------------------------------
-      > .cell-con {
-        @include flex-align-center; 
-        flex:1 1 auto;
-        line-height: 2.6em; min-height:2.6em;
-        //---------------------------------------
-        > .ti-icon.item-0 {
-          width:1.8em;
-        }
-        //---------------------------------------
-        > *:last-child {
-          flex:1 1 auto;
-        }
-        .ti-label.item-0 {
-          padding:0 .3em;
-        }
-        //---------------------------------------
-        .ti-tags-item {
-          font-size: .8em;
-        }
-        //---------------------------------------
-        .ti-icon {
-          flex:0 0 auto;
-        }
-        //---------------------------------------
-      }
-      //-----------------------------------------
-      .as-drop .ti-list {
-        line-height: 1.8em;
-      }
-      //-----------------------------------------
-      &.is-nowrap > .cell-con {
-        flex-wrap: nowrap;
-      }
-      //-----------------------------------------
-      &.is-editing-mode {
-        position: relative;
+      vertical-align: middle;
+      > .cell-wrapper {
+        @include flex($ai:stretch, $wp:nowrap);
+        //-----------------------------------------
         > .cell-con {
-          @include pos-abs-full;
+          @include flex-align-center; 
+          flex:1 1 auto;
+          line-height: 2.6em; min-height:2.6em;
+          //---------------------------------------
+          > .ti-icon.item-0 {
+            width:1.8em;
+          }
+          //---------------------------------------
+          > *:last-child {
+            flex:1 1 auto;
+          }
+          .ti-label.item-0 {
+            padding:0 .3em;
+          }
+          //---------------------------------------
+          .ti-tags-item {
+            font-size: .8em;
+          }
+          //---------------------------------------
+          .ti-icon {
+            flex:0 0 auto;
+          }
+          //---------------------------------------
         }
+        //-----------------------------------------
+        .as-drop .ti-list {
+          line-height: 1.8em;
+        }
+        //-----------------------------------------
+        &.is-nowrap > .cell-con {
+          flex-wrap: nowrap;
+        }
+        //-----------------------------------------
+        &.is-editing-mode {
+          position: relative;
+          > .cell-con {
+            @include pos-abs-full;
+          }
+        }
+        //-----------------------------------------
       }
-      //-----------------------------------------
-    }
+    } // .table-cell
   } // .table-body
   //---------------------------------------------
 }

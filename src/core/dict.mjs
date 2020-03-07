@@ -400,7 +400,7 @@ export const DictFactory = {
     }
     // Check if the name indicate the itemValueKey
     let {name, vKey} = DictFactory.explainDictName(dName)
-    let $dict = Ti.DictFactory.CheckDict(name)
+    let $dict = DictFactory.CheckDict(name)
     return await $dict.getItemAs(vKey, val)
   },
   //-------------------------------------------
