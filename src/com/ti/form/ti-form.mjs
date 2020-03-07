@@ -9,8 +9,8 @@ export default {
     //--------------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "display-as-tab": this.isDisplayAsTab,
-        "display-as-all": this.isDisplayAsAll
+        "is-tab-mode": this.isTabMode,
+        "is-all-mode": this.isAllMode
       }, 
       `as-${this.viewportMode}`,
       `as-spacing-${this.spacing||"comfy"}`
@@ -32,8 +32,8 @@ export default {
       return !Ti.Util.isNil(this.data)
     },
     //--------------------------------------------------
-    isDisplayAsTab() {return 'tab' == this.display},
-    isDisplayAsAll() {return 'all' == (this.diaplay||"all")},
+    isTabMode() {return 'tab' == this.mode},
+    isAllMode() {return 'all' == (this.mode || "all")},
     //--------------------------------------------------
     TheFields() {
       let list = []
@@ -49,7 +49,7 @@ export default {
     TabList() {
       let list = []
       let otherFields = []
-      if(this.isDisplayAsTab) {
+      if(this.isTabMode) {
         for(let fld of this.TheFields) {
           if(fld.type == "Group") {
             list.push(fld)
@@ -86,7 +86,7 @@ export default {
     },
     //--------------------------------------------------
     CurrentTab() {
-      for(let tab of this.theTabItems) {
+      for(let tab of this.TabItems) {
         if(tab.isCurrent) {
           return tab
         }
@@ -95,7 +95,7 @@ export default {
     //--------------------------------------------------
     FieldsInCurrentTab() {
       // Current Tab
-      if(this.isDisplayAsTab) {
+      if(this.isTabMode) {
         if(this.CurrentTab) {
           return this.CurrentTab.fields || []
         }
@@ -183,7 +183,7 @@ export default {
     //--------------------------------------------------
     onChanged(payload) {
       //console.log("------------------------ti-form changed", payload)
-      this.$emit("changed", payload)
+      this.$emit("change", payload)
     },
     //--------------------------------------------------
     onInvalid(err) {

@@ -383,7 +383,7 @@ export default {
         }
       }
       // Emit the value
-      this.$emit("selected", {
+      this.$emit("select", {
         current, selected,
         currentId, checkedIds
       })

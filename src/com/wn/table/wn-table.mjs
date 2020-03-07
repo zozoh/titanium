@@ -26,7 +26,7 @@ export default {
     //----------------------------------------------
     onSelected(eventInfo) {
       //console.log("wn-table onSelected", eventInfo)
-      this.$emit("selected", eventInfo)
+      this.$emit("select", eventInfo)
     },
     //----------------------------------------------
     onOpen(eventInfo) {

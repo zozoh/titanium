@@ -342,19 +342,19 @@ export default {
         return
       }
       //....................................
-      else if("tree.selected" == evKey) {
+      else if("tree.select" == evKey) {
         this.onSelected(data)
       }
       //....................................
-      else if("tree.opened-status:changed" == evKey) {
+      else if("tree.opened-status:change" == evKey) {
         this.onOpenedStatusChanged(data)
       }
       //....................................
-      else if("edit.changed" == evKey) {
+      else if("edit.change" == evKey) {
         this.updateByPath(data)
       }
       //....................................
-      else if("source.changed" == evKey) {
+      else if("source.change" == evKey) {
         Ti.App(this).dispatch("main/onCurrentChanged", data)
       }
       //....................................
@@ -371,6 +371,5 @@ export default {
     }
     //--------------------------------------
   },
-  //////////////////////////////////////////
   //////////////////////////////////////////
 }

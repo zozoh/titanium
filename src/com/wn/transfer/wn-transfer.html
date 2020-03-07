@@ -1,24 +1,8 @@
-<ti-transfer
-  :class-name="className"
+<ti-transfer v-bind="this"
   
   :options="OptionsDict"
-  :value="value"
-
   :can-com-type="TheCanComType"
-  :can-com-conf="canComConf"
   :sel-com-type="TheSelComType"
-  :sel-com-conf="selComConf"
-  :filter="filter"
-  :flt-com-type="fltComType"
-  :flt-com-conf="fltComConf"
-
   :display="TheDisplay"
-  :assign-buttons="assignButtons"
-  :can-title="canTitle"
-  :sel-title="selTitle"
 
-  :width="width"
-  :height="height"
-
-  @changed="$emit('changed', $event)"
-  />
+  @change="$emit('change', $event)"/>

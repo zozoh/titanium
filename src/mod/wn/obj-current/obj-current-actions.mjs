@@ -62,15 +62,18 @@ export default {
     }
 
     // Do the update
-    commit("setFieldStatus", {name, status:"spinning"})
+    commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
     let json = JSON.stringify(data)
     let th_set = state.meta.th_set
     let th_id  = state.meta.id
     let cmdText = `thing ${th_set} update ${th_id} -fields -cqn`
     let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
+    commit("setFieldStatus", {name, type:"ok", text:"i18n:ok"})
     commit("setMeta", reo)
-    commit("clearFieldStatus", name)
+    _.delay(()=>{
+      commit("clearFieldStatus", name)
+    }, 500)
   },
   //----------------------------------------
   async save({state, commit}) {

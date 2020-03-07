@@ -15,7 +15,7 @@
     <!--
       Tabs for display:"tab"
     -->
-    <div class="form-tab" v-if="isDisplayAsTab">
+    <div class="form-tab" v-if="isTabMode">
       <ul>
         <li v-for="tab in TabItems" 
           :class="tab.className"
@@ -38,8 +38,9 @@
         <form-group v-if="'Group' == fld.type"
           v-bind="fld"
           :data="TheData"
+          :field-status="fieldStatus"
           :status-icons="statusIcons"
-          @changed="onChanged"
+          @change="onChanged"
           @invalid="onInvalid"/>
         <!--
           For field
@@ -48,8 +49,9 @@
           :key="fld.key"
           v-bind="fld"
           :data="TheData"
+          :field-status="fieldStatus"
           :status-icons="statusIcons"
-          @changed="onChanged"
+          @change="onChanged"
           @invalid="onInvalid"/>
       </template>
     </div>

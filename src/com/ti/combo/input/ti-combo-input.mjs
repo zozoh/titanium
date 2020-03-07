@@ -8,7 +8,9 @@ export default {
     myFilterValue  : null,
     myOptionsData  : [],
     myCurrentId    : null,
-    myCheckedIds   : {}
+    myCheckedIds   : {},
+
+    myOldValue : undefined
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -95,7 +97,7 @@ export default {
     //-----------------------------------------------
     OnDropListInit($dropList){this.$dropList=$dropList},
     //------------------------------------------------
-    async OnCollapse() {this.doCollapse()},
+    OnCollapse() {this.doCollapse()},
     //-----------------------------------------------
     OnInputInputing(val) {
       if(this.filter) {
@@ -145,7 +147,7 @@ export default {
     //-----------------------------------------------
     async OnClickStatusIcon() {
       if(this.isExtended) {
-        this.doCollapse()
+        await this.doCollapse()
       } else {
         await this.doExtend()
       }
@@ -155,13 +157,14 @@ export default {
       this.myCurrentId = currentId
       this.OnInputChanged(currentId)
       if(this.autoCollapse && !byKeyboardArrow) {
-        this.doCollapse()
+        await this.doCollapse()
       }
     },
     //-----------------------------------------------
     // Core Methods
     //-----------------------------------------------
     async doExtend(tryReload=true) {
+      this.myOldValue = this.evalMyValue()
       this.myDropStatus = "extended"
       // Try reload options again
       if(tryReload && _.isEmpty(this.myOptionsData)) {
@@ -169,14 +172,18 @@ export default {
       }
     },
     //-----------------------------------------------
-    doCollapse({escaped=false}={}) {
+    async doCollapse({escaped=false}={}) {
+      if(escaped) {
+        this.$emit("change", this.myOldValue)
+      }
       this.myDropStatus = "collapse"
+      this.myOldValue   = undefined
     },
     //-----------------------------------------------
     tryNotifyChanged(escaped=false) {
       let val = this.evalMyValue()
       if(!escaped && !_.isEqual(val, this.value)) {
-        this.$emit("changed", val)
+        this.$emit("change", val)
       }
     },
     //-----------------------------------------------
@@ -211,7 +218,11 @@ export default {
     },
     //-----------------------------------------------
     async reloadMyOptionData() {
-      this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
+      if(this.isExtended) {
+        this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
+      } else {
+        this.myOptionsData = []
+      }
     },
     //-----------------------------------------------
     // Callback
@@ -258,20 +269,12 @@ export default {
   watch : {
     //-----------------------------------------------
     "value" : {
-      handler: async function(newVal, oldVal) {
-        await this.evalMyItem()
-      },
+      handler: "evalMyItem",
       immediate : true
     },
     //-----------------------------------------------
     "options" : {
-      handler : async function(newVal, oldVal) {
-        if(this.isExtended) {
-          await this.reloadMyOptionData()
-        } else {
-          this.myOptionsData = []
-        }
-      },
+      handler : "reloadMyOptionData",
       immediate : true
     }
     //-----------------------------------------------

@@ -26,7 +26,7 @@ export default {
       return !_.isEmpty(this.myActionMenu)
     },
     //--------------------------------------
-    theCom() {
+    Com() {
       //....................................
       // General
       if("general" == this.path) {
@@ -52,19 +52,17 @@ export default {
       return  {
         comType : "ti-form",
         comConf : {
-          config : {
-            fields : [{
-              name  : "path",
-              //comConf : {value:this.path}
-            }, {
-              name : "node",
-              comType : "ti-input-text",
-              comConf : {
-                readonly : true,
-                height: "7rem"
-              }
-            }]
-          },
+          fields : [{
+            name  : "path",
+            //comConf : {value:this.path}
+          }, {
+            name : "node",
+            comType : "ti-input-text",
+            comConf : {
+              readonly : true,
+              height: "7rem"
+            }
+          }],
           data : {
             path : this.path,
             node : JSON.stringify(this.node, null, '  ')
@@ -77,17 +75,21 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onChanged(payload) {
+    OnChanged(payload) {
       //console.log("onChanged", payload)
-      this.$emit("changed", {
+      this.$emit("change", {
         path : this.path,
         node : this.node,
         payload
       })
     },
     //--------------------------------------
-    onActionsUpdated(menu={}) {
+    OnActionsUpdated(menu={}) {
       this.myActionMenu = menu
+    },
+    //--------------------------------------
+    OnChildInit($myChildCom) {
+      this.$myChildCom = $myChildCom
     },
     //--------------------------------------
     callChild(actionName) {
@@ -96,10 +98,6 @@ export default {
         this.$myChildCom[actionName]()
       }
     },
-    //--------------------------------------
-    onChildInit($myChildCom) {
-      this.$myChildCom = $myChildCom
-    }
     //--------------------------------------
   },
   //////////////////////////////////////////

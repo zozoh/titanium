@@ -16,7 +16,7 @@
           "mustInList" : false,
           "autoFocusExtended" : true,
           "autoCollapse" : true,
-          
+          "filter" : false,
           "options" : [
             {"value":"A", "text":"甲类"},
             {"value":"B", "text":"乙类"},
@@ -92,6 +92,6 @@
     "data" : "=data"
   },
   "dispatchActions" : {
-    "changed" : "updatePair"
+    "change" : "updatePair"
   }
 }

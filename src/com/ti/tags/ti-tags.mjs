@@ -120,14 +120,14 @@ export default {
         this.$emit("piece:changed", it)
         let values = _.concat(this.theDataValues)
         values[it.index] = Ti.Util.fallback(it.value, null)
-        this.$emit("changed", values)
+        this.$emit("change", values)
       }
     },
     //------------------------------------------------
     onItemRemoved({index=-1}={}) {
       if(index >= 0) {
         let values = _.remove(this.theDataValues, (v,i)=>i!=index)
-        this.$emit("changed", values)
+        this.$emit("change", values)
       }
     },
     //------------------------------------------------

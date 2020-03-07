@@ -138,7 +138,7 @@ export const TiBehaviors = {
       selectOnFocus : true,  // 当显示输入框，是否全选文字
       // How many css-prop should be copied
       copyStyle : [
-        "letter-spacing", "margin", "padding", "border", 
+        "letter-spacing", "margin", "border", 
         "font-size", "font-family", "line-height", "text-align"],
       // 确认后回调
       ok : function(newVal, oldVal){
@@ -214,9 +214,15 @@ export const TiBehaviors = {
     })
     //.........................................
     jInput.css({
-      width: "100%", height: "100%", 
-      outline: "none", resize: "none", "overflow": "hidden",
-      "line-height" : boxH
+      width      : "100%",
+      height     : "100%", 
+      outline    : "none",
+      resize     : "none", 
+      overflow   : "hidden",
+      padding    : "0 .06rem",
+      background : "rgba(255,255,50,0.8)",
+      color      : "#000",
+      lineHeight : boxH
     }).attr({
       spellcheck : false
     }).val(Editing.oldValue)

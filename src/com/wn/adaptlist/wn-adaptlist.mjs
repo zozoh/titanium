@@ -237,7 +237,7 @@ export default {
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds
 
-      this.$emit("selected", {
+      this.$emit("select", {
         current, currentId, currentIndex,
         checked, checkedIds
       })

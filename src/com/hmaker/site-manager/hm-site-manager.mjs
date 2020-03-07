@@ -115,12 +115,12 @@ export default {
       }
       //....................................
       // Save Tree opened Status
-      if("site-tree.opened-status:changed" == evKey) {
+      if("site-tree.opened-status:change" == evKey) {
         Ti.App(this).dispatch("main/setTreeOpenedNodePaths", data)
       }
       //....................................
       // Save Tree selected Status
-      if("site-tree.selected" == evKey) {
+      if("site-tree.select" == evKey) {
         Ti.App(this).dispatch("main/setTreeSelected", data.currentId)
       }
       //....................................
@@ -129,7 +129,7 @@ export default {
         Ti.App(this).dispatch("main/reloadCurrent", data.rawData)
       }
       //....................................
-      if("site-current.changed" == evKey) {
+      if("site-current.change" == evKey) {
         Ti.App(this).dispatch("main/onCurrentChanged", data)
       }
       //....................................

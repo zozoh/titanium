@@ -77,14 +77,14 @@ export default {
         return
       }
       // Tree Component emit changed
-      if("tree.changed" == evKey) {
-        this.$emit("changed", data)
+      if("tree.change" == evKey) {
+        this.$emit("change", data)
       }
       // Source Component changed, it will try eval json
-      else if("source.changed" == evKey) {
+      else if("source.change" == evKey) {
         let jsonData = Ti.Types.safeParseJson(data)
         if(!_.isUndefined(jsonData)) {
-          this.$emit("changed", jsonData)
+          this.$emit("change", jsonData)
         }
       }
     }

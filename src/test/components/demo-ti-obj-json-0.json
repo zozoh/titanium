@@ -9,6 +9,6 @@
     }
   },
   "dispatchActions" : {
-    "changed" : "updateData"
+    "change" : "updateData"
   }
 }

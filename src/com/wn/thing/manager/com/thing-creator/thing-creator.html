@@ -1,8 +1,8 @@
 <div class="thing-creator ti-box-relative">
-  <wn-form
-    :config="config"
+  <ti-form
+    :fields="fields"
     :data="newObj"
-    @changed="onChanged"/>
+    @change="onChanged"/>
   <hr class="no-space">
   <div class="ti-flex-center ti-padding-10">
     <div class="ti-btn is-big" 

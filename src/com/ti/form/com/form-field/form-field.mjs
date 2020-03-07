@@ -3,28 +3,31 @@ export default {
   //////////////////////////////////////////////
   data : ()=>({
     isComReady : false,
-    theComType : null,
-    theComConf : null
+    myComType : null,
+    myComConf : null
   }),
   //////////////////////////////////////////////
   computed : {
     //----------------------------------------
-    topClass() {
+    TopClass() {
       return this.getTopClass({
-        "no-status"  : !this.statusIcon
-      }, `as-${this.viewportMode}`)
+        "no-status-icons"  : !this.hasStatusIcons,
+        "has-status-icons" : this.hasStatusIcons
+      }, 
+      `as-${this.viewportMode}`,
+      (this.StatusType?`is-${this.StatusType}`:null))
     },
     //----------------------------------------
-    isShowTitle () {return !Ti.Util.isNil(this.title)},
-    isShowStatus() {return this.status ? true : false},
-    isShowIcon  () {return !Ti.Util.isNil(this.icon)},
-    isShowTip   () {return !Ti.Util.isNil(this.tip)},
+    isShowTitle  () {return !Ti.Util.isNil(this.title)},
+    isShowIcon   () {return !Ti.Util.isNil(this.icon)},
+    isShowTip    () {return !Ti.Util.isNil(this.tip)},
+    hasStatusIcons(){return !_.isEmpty(this.statusIcons)},
     //----------------------------------------
     isNumberType() {
       return /^(Number|Integer|Float)$/.test(this.type)
     },
     //----------------------------------------
-    theTitle() {
+    TheTitle() {
       if(this.title)
         return this.title
       if(_.isArray(this.name))
@@ -32,7 +35,7 @@ export default {
       return this.name
     },
     //----------------------------------------
-    comClass() {
+    ComClass() {
       let auto    = "auto" == this.width
       let full    = "full" == this.width
       let stretch = "stretch" == this.width
@@ -45,7 +48,7 @@ export default {
       }
     },
     //----------------------------------------
-    comStyle() {
+    ComStyle() {
       if(this.width && !/^(auto|stretch)$/.test(this.width)) {
         return Ti.Css.toStyle({
           width : this.width
@@ -53,7 +56,7 @@ export default {
       }
     },
     //----------------------------------------
-    theDisplay() {
+    TheDisplay() {
       // Guard
       if(!this.display) {
         return
@@ -72,9 +75,9 @@ export default {
       }
     },
     //----------------------------------------
-    theCurrentDisplayItem() {
+    CurrentDisplayItem() {
       // Display Mode
-      let dis = this.theDisplay || {}
+      let dis = this.TheDisplay || {}
 
       // If Actived reset the display
       if(this.isActived || !this.display) {
@@ -94,11 +97,25 @@ export default {
       })
     },
     //----------------------------------------
-    statusIcon() {
-      if(this.statusIcons) {
-        return this.statusIcons[this.status]
+    Status() {
+      let fstKey = _.concat(this.name).join("-")
+      return _.get(this.fieldStatus, fstKey)
+    },
+    //----------------------------------------
+    StatusType() {
+      return _.get(this.Status, "type")
+    },
+    //----------------------------------------
+    StatusText() {
+      return _.get(this.Status, "text")
+    },
+    //----------------------------------------
+    StatusIcon() {
+      if(this.Status && this.hasStatusIcons) {
+        return this.statusIcons[this.Status.type]
       }
-    }
+    },
+    //----------------------------------------
   },
   ////////////////////////////////////////////////
   methods : {
@@ -106,7 +123,7 @@ export default {
     async evalTheCom() {
       let theCom = await this.evalDataForFieldDisplayItem({
         itemData : this.data, 
-        displayItem : this.theCurrentDisplayItem, 
+        displayItem : this.CurrentDisplayItem, 
         vars : {
           "isActived" : this.isActived
         },
@@ -115,14 +132,14 @@ export default {
       // console.log("evalTheCom", {
       //   myUID      : this._uid,
       //   isActived  : this.isActived,
-      //   oldComType : this.theComType,
-      //   oldComConf : _.cloneDeep(this.theComConf),
+      //   oldComType : this.myComType,
+      //   oldComConf : _.cloneDeep(this.myComConf),
       //   newComType : theCom.comType,
       //   newComConf : _.cloneDeep(theCom.comConf),
       // })
       
-      this.theComType = theCom.comType
-      this.theComConf = theCom.comConf
+      this.myComType = theCom.comType
+      this.myComConf = theCom.comConf
 
       this.isComReady = true
     },
@@ -150,7 +167,7 @@ export default {
 
       // emit event
       if(!this.checkEquals || !_.isEqual(v2, this.fieldValue)) {
-        this.$emit("changed", {
+        this.$emit("change", {
           name  : this.name,
           value : v2
         })
@@ -185,7 +202,7 @@ export default {
   },
   ////////////////////////////////////////////////
   watch : {
-    "theCurrentDisplayItem" : function(){
+    "CurrentDisplayItem" : function(){
       this.evalTheCom()
     },
     "data" : function() {

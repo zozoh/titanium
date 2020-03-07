@@ -1,39 +1,9 @@
-<ti-combo-input
-  :class-name="className"
-
-  :value="value"
-  :value-case="valueCase"
-  :trimed="trimed"
-    :options="OptionsDict"
-
-  :readonly="readonly"
-  :focus="focus"
-  :hover="hover"
-  :auto-select="autoSelect"
-    :can-input="canInput"
-    :drop-com-type="DropComType"
-    :drop-com-conf="dropComConf"
-    :must-in-list="mustInList"
-    :auto-focus-extended="autoFocusExtended"
-    :filter="filter"
-    :delay="delay"
-    :auto-collapse="autoCollapse"
-
-  :placeholder="placeholder"
-  :hide-border="hideBorder"
+<ti-combo-input v-bind="this"
+  
+  :options="OptionsDict"
+  :drop-com-type="DropComType"
   :prefix-icon="ThePrefixIcon"
-  :prefix-hover-icon="prefixHoverIcon"
-  :prefix-icon-for-clean="prefixIconForClean"
-  :prefix-text="prefixText"
-  :suffix-text="suffixText"
-    :status-icons="statusIcons"
-    :drop-display="TheDropDisplay"
-    :drop-item-border="dropItemBorder"
+  :drop-display="TheDropDisplay"
   
-  :width="width"
-  :height="height"
-    :drop-width="dropWidth"
-    :drop-height="dropHeight"
-  
-  @changed="$emit('changed', $event)"/>
+  @change="$emit('change', $event)"/>
   

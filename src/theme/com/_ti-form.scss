@@ -51,6 +51,13 @@
     > .form-group > .group-fields > .form-field,
     > .form-field {
       //--------------------------------
+      transition: all .5s;
+      //--------------------------------
+      &.is-spinning {@include color($color-track,   r, c);}
+      &.is-error    {@include color($color-error,   r, c);}
+      &.is-warn     {@include color($color-warn,    r, c);}
+      &.is-ok       {@include color($color-success, c, r);}
+      //--------------------------------
       > .field-value {
         @include flex-align;
         flex:1 1 auto;
@@ -100,7 +107,7 @@
             text-align: right;
           }
         }
-        &.no-status {
+        &.no-status-icon {
           > .field-name {padding-left:.04rem;}
         }
       }
@@ -149,7 +156,7 @@
     }
   }
   //////////////////////////////////////
-  &.display-as-tab {
+  &.is-tab-mode {
     @include flex-align-v-nowrap;
     width:100%; height:100%;
     padding:0;

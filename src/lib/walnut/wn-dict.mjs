@@ -21,7 +21,7 @@ const WnDict = {
       //...............................................
       data  : Wn.Util.genQuery(options, {vkey:null}),
       query : Wn.Util.genQuery(findBy),
-      item  : Wn.Util.genQuery(itemBy),
+      item  : Wn.Util.genQuery(itemBy, {errorAs:null}),
       //...............................................
       getValue : Ti.Util.genGetter(valueBy || "id"),
       getText  : Ti.Util.genGetter(textBy  || "title|nm"),

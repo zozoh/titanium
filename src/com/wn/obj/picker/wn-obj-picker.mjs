@@ -97,7 +97,7 @@ export default {
       // object or array will be the value
       else {
         //console.log(payload)
-        this.$emit("changed", payload)
+        this.$emit("change", payload)
       }
     },
     //......................................
@@ -110,12 +110,12 @@ export default {
           payload.push(it)
         }
       }
-      this.$emit("changed", payload)
+      this.$emit("change", payload)
     },
     //......................................
     onClearItems() {
       console.log("remove!!")
-      this.$emit("changed", this.multi ? [] : null)
+      this.$emit("change", this.multi ? [] : null)
     },
     //......................................
     async reload(){

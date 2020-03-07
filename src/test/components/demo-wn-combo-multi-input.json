@@ -13,17 +13,10 @@
         "comConf" : {
           "placeholder" : "请输入类型",
           "prefixIcon" : "zmdi-globe-alt",
-          "tagItemIconBy" : "icon",
           "mustInList" : false,
           "autoFocusExtended" : true,
           "filter"  : true,
-          "options" : "@Dict:Accounts",
-          "dropDisplay" : ["@<thumb:zmdi-account>", "nickname|email|phone|nm"],
-          "tagMapping" : {
-            "value" : "id",
-            "text"  : "nickname|email|phone|nm",
-            "icon"  : "icon"
-          }
+          "options" : "@Dict:tmp"
         }
       }, {
         "title" : "限制列表",
@@ -54,7 +47,14 @@
         "comConf" : {
           "prefixIcon" : "zmdi-car-wash",
           "readonly" : true,
-          "options" : "@Dict:tmp"
+          "options" : "@Dict:Accounts",
+          "dropDisplay" : ["@<thumb:zmdi-account>", "nickname|email|phone|nm"],
+          "tagItemIconBy" : "icon",
+          "tagMapping" : {
+            "value" : "id",
+            "text"  : "nickname|email|phone|nm",
+            "icon"  : "icon"
+          }
         }
       }, {
         "title" : "下拉列表",
@@ -72,6 +72,6 @@
     "data" : "=data"
   },
   "dispatchActions" : {
-    "changed" : "updatePair"
+    "change" : "updatePair"
   }
 }

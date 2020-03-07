@@ -1,12 +1,18 @@
 ////////////////////////////////////////////////////
 export async function EditObjMeta(pathOrObj="~", {
-  title, icon, type = "info", closer = true,
+  icon, 
+  title  = "i18n:obj", 
+  type   = "info", 
+  closer = true,
   textOk = "i18n:ok",
   textCancel = "i18n:cancel",
-  position = "top",
-  width=640, height="80%", spacing,
-  currentTab=0,
-  tabs={}}={}){
+  position   = "top",
+  width      = 640,
+  height     = "80%", 
+  spacing,
+  currentTab = 0,
+  tabs       = {}
+}={}){
   //............................................
   // Load meta
   let meta = pathOrObj
@@ -22,10 +28,8 @@ export async function EditObjMeta(pathOrObj="~", {
     }
   }
   //............................................
-  // Eval the form config
-  let config = {
-    fields:[]
-  }
+  // Eval the form fields
+  let myFormFields = []
   _.forEach(tabs, (tab, key)=>{
     let grp = tab
     // Default use the key as group title
@@ -41,7 +45,7 @@ export async function EditObjMeta(pathOrObj="~", {
     // Join to group
     grp.type  = "Group"
     grp.fields = fields
-    config.fields.push(grp)
+    myFormFields.push(grp)
   });
   //............................................
   let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-info-outline")
@@ -66,15 +70,17 @@ export async function EditObjMeta(pathOrObj="~", {
       name : "modal-inner-body",
       globally : false,
       data : {
-        currentTab, config, meta,
+        myFormFields,
+        currentTab, 
+        meta,
         updates : {}
       },
-      template : `<wn-form
-        display="tab"
+      template : `<ti-form
+        mode="tab"
         :current-tab="currentTab"
-        :config="config"
+        :fields="myFormFields"
         :data="theData"
-        @changed="onFieldChanged"
+        @change="onFieldChanged"
         />`,
       computed : {
         theData() {
@@ -87,7 +93,7 @@ export async function EditObjMeta(pathOrObj="~", {
           this.updates = _.assign({}, this.updates, obj)
         }
       }
-    }, "@com:wn/form"]
+    }, "@com:ti/form"]
     //------------------------------------------
   })
   //............................................

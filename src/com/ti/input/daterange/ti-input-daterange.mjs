@@ -187,7 +187,7 @@ export default {
         let rg = this.runtime
         this.runtime = null
         let rg2 = this.formatRangeValue(rg)
-        this.$emit("changed", rg2)
+        this.$emit("change", rg2)
       }
     },
     //-----------------------------------------------
@@ -216,12 +216,12 @@ export default {
       let rg = this.parseDateRange(val)
       // Empty Range
       if(_.isEmpty(rg)) {
-        this.$emit("changed", null);
+        this.$emit("change", null);
       }
       // Format the Range
       else {
         let rg2 = this.formatRangeValue(rg)
-        this.$emit("changed", rg2);
+        this.$emit("change", rg2);
       }
     },
     //------------------------------------------------

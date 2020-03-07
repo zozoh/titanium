@@ -19,8 +19,8 @@
       :value="theTimeText"
       :height="height"
       :focus="isExtended"
-      @changed="onChanged"
-      @input:focused="onInputFocused"
+      @change="onChanged"
+      @input:focus="onInputFocused"
       @suffix:icon="onClickStatusIcon"/>
   </template>
   <!--
@@ -30,6 +30,6 @@
     <ti-time
       :value="theDropTime"
       :height="dropHeight"
-      @changed="onTimeChanged"/>
+      @change="onTimeChanged"/>
   </template>
 </ti-combo-box>

@@ -24,7 +24,7 @@
           }
         },
         "comEvents" : {
-          "changed" : true
+          "change" : true
         },
         "prev" : false,
         "next" : {
@@ -62,7 +62,7 @@
           }
         },
         "comEvents" : {
-          "changed" : {
+          "change" : {
             "emitName"    : "merge",
             "transformer" : "toObjByPair"
           }
@@ -86,7 +86,7 @@
       }]
   },
   "dispatchActions" : {
-    "changed" : "updatePair",
+    "change" : "updatePair",
     "merge" : "update",
     "goto-step" : {
       "action" : "updateComConf",

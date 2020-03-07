@@ -255,7 +255,7 @@ export default {
       this.rebuildSelIdMap()
       let ids = _.keys(this.selIdMap)
       if(!_.isEqual(ids, this.Values)) {
-        this.$emit("changed", ids)
+        this.$emit("change", ids)
       }
     }
   },

@@ -30,9 +30,9 @@
       :width="width"
       :height="height"
 
-      @changed="OnInputChanged"
+      @change="OnInputChanged"
       @inputing="OnInputInputing"
-      @input:focused="OnInputFocused"
+      @input:focus="OnInputFocused"
       @prefix:icon="$emit('prefix:icon')"
       @suffix:icon="OnClickStatusIcon"/>
   </template>
@@ -45,6 +45,6 @@
       v-bind="DropComConf"
 
       :on-init="OnDropListInit"
-      @selected="OnDropListSelected"/>
+      @select="OnDropListSelected"/>
   </template>
 </ti-combo-box>

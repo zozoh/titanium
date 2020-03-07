@@ -17,8 +17,8 @@
       :value="theRangeText"
       :height="height"
       :focus="isExtended"
-      @changed="onChanged"
-      @input:focused="onInputFocused"
+      @change="onChanged"
+      @input:focus="onInputFocused"
       @suffix:icon="onClickStatusIcon"/>
   </template>
   <!--
@@ -28,6 +28,6 @@
     <ti-form
       :data="theDropRange"
       :config="theFormConfig"
-      @changed="onFormChanged"/>
+      @change="onFormChanged"/>
   </template>
 </ti-combo-box>

@@ -18,8 +18,8 @@
       :value="theInputValue"
       :height="height"
       :focus="isExtended"
-      @changed="onChanged"
-      @input:focused="onInputFocused"
+      @change="onChanged"
+      @input:focus="onInputFocused"
       @suffix:icon="onClickStatusIcon"/>
   </template>
   <!--
@@ -31,6 +31,6 @@
       :month-format="monthFormat"
       :begin-year="beginYear"
       :end-year="endYear"
-      @changed="onDateChanged"/>
+      @change="onDateChanged"/>
   </template>
 </ti-combo-box>

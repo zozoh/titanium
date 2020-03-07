@@ -102,7 +102,7 @@ export default {
         let dt = this.runtime
         this.runtime = null
         let str = this.getDateText(dt)
-        this.$emit("changed", str)
+        this.$emit("change", str)
       }
     },
     //-----------------------------------------------
@@ -129,13 +129,13 @@ export default {
     onChanged(val) {
       // Empty value as null
       if(_.isEmpty(val)) {
-        this.$emit("changed", null);
+        this.$emit("change", null);
       }
       // Parsed value
       else {
         let dt  = Ti.Types.toDate(val)
         let str = this.getDateText(dt)
-        this.$emit("changed", str)
+        this.$emit("change", str)
       }
     },
     //------------------------------------------------

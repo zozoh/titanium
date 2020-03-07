@@ -505,7 +505,7 @@ export default {
       }
       //....................................
       // Emit the change
-      this.$emit("changed", newData)
+      this.$emit("change", newData)
     },
     //--------------------------------------
     onOpenedStatusChanged(opened) {

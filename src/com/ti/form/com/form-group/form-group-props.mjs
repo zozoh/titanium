@@ -19,6 +19,10 @@ export default {
     type : Object,
     default : null
   },
+  "fieldStatus" : {
+    type : Object,
+    default : ()=>({})
+  },
   "statusIcons" : {
     spinning : 'fas-spinner fa-spin',
     error    : 'zmdi-alert-polygon',

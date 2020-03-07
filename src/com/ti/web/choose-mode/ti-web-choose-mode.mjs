@@ -34,7 +34,7 @@ export default {
   methods : {
     //......................................
     onClickItem(it) {
-      this.$emit("changed", it.value)
+      this.$emit("change", it.value)
     }
     //......................................
   }

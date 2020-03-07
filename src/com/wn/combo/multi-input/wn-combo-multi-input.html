@@ -1,46 +1,11 @@
-<ti-combo-multi-input
-  :class-name="className"
+<ti-combo-multi-input v-bind="this"
 
-  :value="value"
-  :value-case="valueCase"
-  :trimed="trimed"
-    :max-value-len="maxValueLen"
-    :value-unique="valueUnique"
-    :tag-options="tagOptions"
-    :tag-mapping="TheTagMapping"
-      :options="OptionsDict"
-
-  :readonly="readonly"
-  :focus="focus"
-  :hover="hover"
-  :auto-select="autoSelect"
-    :can-input="canInput"
-    :cancel-tag-bubble="cancelTagBubble"
-      :drop-com-type="DropComType"
-      :drop-com-conf="dropComConf"
-      :must-in-list="mustInList"
-      :auto-focus-extended="autoFocusExtended"
-      :filter="filter"
-      :delay="delay"
-
-  :placeholder="placeholder"
-  :hide-border="hideBorder"
+  :options="OptionsDict"
+  :tag-mapping="TheTagMapping"
+  :drop-com-type="DropComType"
   :prefix-icon="ThePrefixIcon"
-  :prefix-hover-icon="prefixHoverIcon"
-  :prefix-icon-for-clean="prefixIconForClean"
-  :prefix-text="prefixText"
-  :suffix-text="suffixText"
-    :tag-item-icon-by="TheTagItemIconBy"
-    :tag-item-default-icon="tagItemDefaultIcon"
-    :tag-option-default-icon="tagOptionDefaultIcon"
-      :status-icons="statusIcons"
-      :drop-display="TheDropDisplay"
-      :drop-item-border="dropItemBorder"
+  :tag-item-icon-by="TheTagItemIconBy"
+  :drop-display="TheDropDisplay"
   
-  :width="width"
-  :height="height"
-    :drop-width="dropWidth"
-    :drop-height="dropHeight"
-  
-  @changed="$emit('changed', $event)"/>
+  @change="$emit('change', $event)"/>
   

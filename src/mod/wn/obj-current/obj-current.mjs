@@ -84,11 +84,10 @@ export default {
       state.status.changed = !_.isEqual(state.content, state.__saved_content)
     },
     //----------------------------------------
-    setFieldStatus(state, {name, message, status}={}) {
+    setFieldStatus(state, {name, type, text}={}) {
       if(name){
-        let st = status ? {status, message} : null
         let ukey = _.concat(name).join("-")
-        Vue.set(state.fieldStatus, ukey, st)
+        Vue.set(state.fieldStatus, ukey, {type, text})
       }
     },
     //----------------------------------------

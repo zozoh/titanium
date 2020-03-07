@@ -12,6 +12,7 @@ export const WnSys = {
     as = "text",
     macroObjSep = DFT_MACRO_OBJ_SEP,
     autoRunMacro = true,
+    errorAs,
     PWD = (Ti.SessionVar("PWD") || "~")
   }={}) {
     // Eval command
@@ -84,20 +85,26 @@ export const WnSys = {
     })[as]()
   },
   //-------------------------------------
-  async exec2(cmdText, options){
+  async exec2(cmdText, options={}){
+    let errorAs = options.errorAs
     try {
       return await Wn.Sys.exec(cmdText, options)
     }
     // Handle Error
     catch(err) {
-      if(Ti.IsWarn()) {
-        console.warn(err)
+      // Report the Error
+      if(!_.isUndefined(errorAs)) {
+        if(Ti.IsError()) {
+          console.error(err)
+        }
+        await Ti.Alert(err, {
+          title : "i18n:warn",
+          type : "error"
+        })
+        return err
       }
-      await Ti.Alert(err, {
-        title : "i18n:warn",
-        type : "warn"
-      })
-      return err
+      // Return the error
+      return errorAs
     }
   },
   //-------------------------------------

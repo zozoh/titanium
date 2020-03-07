@@ -165,7 +165,7 @@ export default {
     },
     //------------------------------------------------
     onClickOption({value,text,icon}={}) {
-      this.$emit("changed", {
+      this.$emit("change", {
         value,text,icon,
         index: this.index
       })

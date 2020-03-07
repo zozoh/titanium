@@ -8,7 +8,9 @@ export default {
     myFilterValue  : null,
     myOptionsData  : [],
     myCurrentId    : null,
-    myCheckedIds   : {}
+    myCheckedIds   : {},
+
+    myOldValue : undefined
   }),
   ////////////////////////////////////////////////////
   computed : {
@@ -141,6 +143,7 @@ export default {
     // Core Methods
     //-----------------------------------------------
     async doExtend() {
+      this.myOldValue = this.evalMyValues()
       this.myDropStatus = "extended"
       // Try reload options again
       if(_.isEmpty(this.myOptionsData)) {
@@ -149,16 +152,17 @@ export default {
     },
     //-----------------------------------------------
     doCollapse({escaped=false}={}) {
-      this.myDropStatus = "collapse"
-      if(!escaped) {
-        this.tryNotifyChanged(escaped)
+      if(escaped) {
+        this.$emit("change", this.myOldValue)
       }
+      this.myDropStatus = "collapse"
+      this.myOldValue   = undefined
     },
     //-----------------------------------------------
     tryNotifyChanged(escaped=false) {
       let vals = this.evalMyValues()
       if(!escaped && !_.isEqual(vals, this.Values)) {
-        this.$emit("changed", vals)
+        this.$emit("change", vals)
       }
     },
     //-----------------------------------------------
@@ -183,7 +187,8 @@ export default {
       return _.concat(vals, freeValues)
     },
     //-----------------------------------------------
-    async evalMyTags(vals=this.Values) {
+    async evalMyTags(vals=this.value) {
+      vals = Ti.S.toArray(vals)
       let tags  = []
       let ids   = {}
       let frees = []
@@ -202,7 +207,11 @@ export default {
     },
     //-----------------------------------------------
     async reloadMyOptionData() {
-      this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
+      if(this.isExtended) {
+        this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
+      } else {
+        this.myOptionsData = []
+      }
     },
     //-----------------------------------------------
     // Callback
@@ -249,20 +258,12 @@ export default {
   watch : {
     //-----------------------------------------------
     "value" : {
-      handler: async function(newVal, oldVal) {
-        await this.evalMyTags()
-      },
+      handler: "evalMyTags",
       immediate : true
     },
     //-----------------------------------------------
     "options" : {
-      handler : async function(newVal, oldVal) {
-        if(this.isExtended) {
-          await this.reloadMyOptionData()
-        } else {
-          this.myOptionsData = []
-        }
-      },
+      handler : "reloadMyOptionData",
       immediate : true
     }
     //-----------------------------------------------

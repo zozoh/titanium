@@ -1,22 +1,21 @@
 <div class="form-field"
-  :class="topClass"
+  :class="TopClass"
   v-ti-actived="__set_actived">
   <!--========================================
     Field Name
   -->
   <div 
     v-if="isShowTitle"
-      class="field-name">
+      class="field-name"
+      :data-tip="StatusText">
         <!--Status Icon-->
         <span 
-          v-if="statusIcons"
+          v-if="StatusIcon"
             class="name-status">
-            <ti-icon
-              v-if="isShowStatus"
-                :value="statusIcon"/>
+            <ti-icon :value="StatusIcon"/>
         </span>
         <!--Title Text-->
-        <span class="name-title">{{theTitle|i18n}}</span>
+        <span class="name-title">{{TheTitle|i18n}}</span>
         <!--Field Icon-->
         <span 
           v-if="isShowIcon" 
@@ -33,12 +32,12 @@
     -->
     <div v-if="isComReady"
       class="field-component"
-      :class="comClass"
-      :style="comStyle">
+      :class="ComClass"
+      :style="ComStyle">
       <component 
-        :is="theComType"
-          v-bind="theComConf"
-          @changed="onChanged"/>
+        :is="myComType"
+          v-bind="myComConf"
+          @change="onChanged"/>
     </div>
     <!--
       Tips

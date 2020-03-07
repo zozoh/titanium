@@ -40,19 +40,17 @@
   "creator" : {
     "comType" : "wn-thing-creator",
     "comConf" : {
-      "config" : {
-        "fields" : [{
-          "name" : "th_nm",
-          "title" : "角色名",
-          "comType" : "ti-input",
-          "comConf" : {}
-        }, {
-          "name" : "nm",
-          "title" : "角色值",
-          "comType" : "ti-input",
-          "comConf" : {}
-        }]
-      },
+      "fields" : [{
+        "name" : "th_nm",
+        "title" : "角色名",
+        "comType" : "ti-input",
+        "comConf" : {}
+      }, {
+        "name" : "nm",
+        "title" : "角色值",
+        "comType" : "ti-input",
+        "comConf" : {}
+      }],
       "data" : {
         "th_nm" : "普通用户",
         "nm" : "user"
@@ -65,33 +63,31 @@
       "data"   : "=current.meta",
       "status" : "=current.status",
       "fieldStatus" : "=current.fieldStatus",
-      "config" : {
-        "fields" : [{
-            "title"  : "ID",
-            "name"   : "id"
-          }, {
-            "title"   : "角色名",
-            "name"    : "th_nm",
-            "comType" : "ti-input"
-          },{
-            "title"   : "角色值",
-            "name"    : "nm",
-            "comType" : "ti-input"
-          },{
-            "title"   : "默认角色",
-            "name"    : "isdft",
-            "type"    : "Boolean",
-            "comType" : "ti-toggle"
-          },{
-            "title"   : "着陆页",
-            "name"    : "mainpage",
-            "tip"     : "登录后默认跳转的页面",
-            "comType" : "ti-input",
-            "comConf" : {
-              "placeholder" : "例如： page/home"
-            }
-          }]
-      },
+      "fields" : [{
+          "title"  : "ID",
+          "name"   : "id"
+        }, {
+          "title"   : "角色名",
+          "name"    : "th_nm",
+          "comType" : "ti-input"
+        },{
+          "title"   : "角色值",
+          "name"    : "nm",
+          "comType" : "ti-input"
+        },{
+          "title"   : "默认角色",
+          "name"    : "isdft",
+          "type"    : "Boolean",
+          "comType" : "ti-toggle"
+        },{
+          "title"   : "着陆页",
+          "name"    : "mainpage",
+          "tip"     : "登录后默认跳转的页面",
+          "comType" : "ti-input",
+          "comConf" : {
+            "placeholder" : "例如： page/home"
+          }
+        }],
       "updateBy" : {
         "method" : "dispatch",
         "target" : "main/updateCurrent"

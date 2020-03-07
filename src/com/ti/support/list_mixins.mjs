@@ -199,7 +199,7 @@ export default {
       // Notify Changes
       if(!quiet) {
         _.defaults(emitContext, payload)
-        this.$emit("selected", emitContext)
+        this.$emit("select", emitContext)
       }
     },
     //-----------------------------------------------
@@ -246,7 +246,7 @@ export default {
           this.myLastIndex  = theIndex
         }
         // Notify Changes
-        this.$emit("selected", emitContext)
+        this.$emit("select", emitContext)
       }
     },
     //-----------------------------------------------
@@ -287,7 +287,7 @@ export default {
         this.myLastIndex  = theIndex
       }
       // Notify Changes
-      this.$emit("selected", emitContext)
+      this.$emit("select", emitContext)
     },
     //-----------------------------------------------
     cancelRow(rowId) {
@@ -316,7 +316,7 @@ export default {
         this.myLastIndex  = theIndex
       }
       // Notify Changes
-      this.$emit("selected", emitContext)
+      this.$emit("select", emitContext)
     },
     //-----------------------------------------------
     toggleRow(rowId) {

@@ -22,7 +22,7 @@
             :is="fltComType"
             v-bind="FilterComConf"
             :value="myFilterValue"
-            @changed="OnFilterChanged"
+            @change="OnFilterChanged"
             /></div>
     </div>
     <!--
@@ -31,7 +31,7 @@
     <component :is="CanListComType"
       class="as-box-main ti-fill-parent"
       v-bind="CanListComConf"
-      @selected="OnCanListSelected"/>
+      @select="OnCanListSelected"/>
     <!--
       Foot
     -->
@@ -74,7 +74,7 @@
     <component :is="SelListComType"
       class="as-box-main ti-fill-parent"
       v-bind="SelListComConf"
-      @selected="OnSelListSelected"/>
+      @select="OnSelListSelected"/>
     <!--
       Foot
     -->

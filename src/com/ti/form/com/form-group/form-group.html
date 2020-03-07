@@ -13,8 +13,9 @@
         :key="fld.key"
         v-bind="fld"
         :data="data"
+        :field-status="fieldStatus"
         :status-icons="statusIcons"
-        @changed="onChanged"
+        @change="onChanged"
         @invalid="onInvalid"/>
   </div>
 </div>

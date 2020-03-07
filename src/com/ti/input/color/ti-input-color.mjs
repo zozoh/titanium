@@ -51,12 +51,12 @@ export default {
     },
     //------------------------------------------------
     onClearColor() {
-      this.$emit("changed", null)
+      this.$emit("change", null)
     },
     //------------------------------------------------
     onColorChanged(color) {
       let co = Ti.Types.toColor(color)
-      this.$emit("changed", co ? co.toString() : null)
+      this.$emit("change", co ? co.toString() : null)
     },
     //------------------------------------------------
     doCollapse() {

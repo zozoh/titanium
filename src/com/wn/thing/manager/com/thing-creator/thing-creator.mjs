@@ -6,9 +6,9 @@ export default {
   }),
   ///////////////////////////////////////////
   props : {
-    "config" : {
-      type : Object,
-      default : ()=>({})
+    "fields" : {
+      type : Array,
+      default : ()=>[]
     },
     "data" : {
       type : Object,

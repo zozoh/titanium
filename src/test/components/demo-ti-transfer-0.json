@@ -35,6 +35,6 @@
     "data" : "=data"
   },
   "dispatchActions" : {
-    "changed" : "updatePair"
+    "change" : "updatePair"
   }
 }

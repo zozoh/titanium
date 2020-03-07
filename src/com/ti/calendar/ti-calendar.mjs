@@ -451,21 +451,21 @@ export default {
             let msRange = [cell.raw.getTime(), this.theDate.getTime()].sort()
             let dt0 = Ti.Types.toDate(msRange[0])
             let dt1 = Ti.Types.toDate(msRange[1])
-            this.$emit("changed", [dt0, dt1])
+            this.$emit("change", [dt0, dt1])
           }
           // Start a new range
           else {
-            this.$emit("changed", [cell.raw])
+            this.$emit("change", [cell.raw])
           }
         }
         // Has Value
         else {
-          this.$emit("changed", [cell.raw])
+          this.$emit("change", [cell.raw])
         }
       }
       // Single value
       else {
-        this.$emit("changed", cell.raw)
+        this.$emit("change", cell.raw)
       }
     }
     //--------------------------------------

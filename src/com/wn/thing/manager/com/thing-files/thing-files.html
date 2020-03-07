@@ -15,7 +15,7 @@
         :options="dirNameOptions"
         :value="filesName"
         :prefix-icon-for-clean="false"
-        @changed="onFilesNameChanged"/>
+        @change="onFilesNameChanged"/>
     </div>
     <!--Right: Common Actions-->
     <div class="as-menu">
@@ -40,6 +40,6 @@
       class="ti-fill-parent"
       v-bind="theFiles"
       @uploaded="onFileUploaded"
-      @selected="onFileSelected"/>
+      @select="onFileSelected"/>
   </div>
 </div>

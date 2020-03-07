@@ -1,5 +1,9 @@
 export default {
-  inheritAttrs : false,
+  ///////////////////////////////////////////////////
+  model : {
+    prop  : "content",
+    event : "change"
+  },
   ///////////////////////////////////////////////////
   data : ()=>({
     myContent : null
@@ -80,7 +84,7 @@ export default {
       }
       this.myContent = txt
       if(emit && txt != this.content) {
-        vm.$emit("changed", txt)
+        vm.$emit("change", txt)
       }
     },
     //-----------------------------------------------

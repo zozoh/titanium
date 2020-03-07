@@ -40,6 +40,9 @@ export class TiAppModal {
   overflow = undefined
   adjustable = false  // true|false|"x"|"y"
   //--------------------------------------------
+  // data model
+  result = undefined
+  //--------------------------------------------
   // modules
   modules = {}
   //--------------------------------------------
@@ -76,6 +79,7 @@ export class TiAppModal {
                 :class="theMainClass"
                 :is="comType"
                 v-bind="comConf"
+                v-model="result"
                 :on-init="onMainInit"/>
             </div>
 
@@ -126,7 +130,9 @@ export class TiAppModal {
         height     : this.height,
         spacing    : this.spacing,
         overflow   : this.overflow,
-        adjustable : this.adjustable
+        adjustable : this.adjustable,
+        //--------------------------------------
+        result : this.result
       },
       //////////////////////////////////////////
       store : {
@@ -238,6 +244,7 @@ export class TiAppModal {
             let status = {close:true}
             let re = await a.handler({
               $app  : app,
+              $body : app.$vm(),
               $main : app.$vm().$main,
               status
             })

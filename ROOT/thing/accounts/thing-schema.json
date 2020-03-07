@@ -54,14 +54,12 @@
   "creator" : {
     "comType" : "wn-thing-creator",
     "comConf" : {
-      "config" : {
-        "fields" : [{
-          "name" : "nickname",
-          "title" : "用户昵称",
-          "comType" : "ti-input",
-          "comConf" : {}
-        }]
-      },
+      "fields" : [{
+        "name" : "nickname",
+        "title" : "用户昵称",
+        "comType" : "ti-input",
+        "comConf" : {}
+      }],
       "data" : {
         "nickname" : "新用户"
       }

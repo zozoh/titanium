@@ -6,7 +6,7 @@ export default {
   }),
   ////////////////////////////////////////////////////
   props : {
-    "inputChanged" : {
+    "inputChange" : {
       type: Function,
       default : undefined
     }
@@ -122,17 +122,17 @@ export default {
     onInputChanged(val) {
       // May click the prefix icon for clean
       if(_.isNull(val)) {
-        this.$emit("changed", [])
+        this.$emit("change", [])
       }
       // Delegate to parent
-      else if(_.isFunction(this.inputChanged)) {
-        this.inputChanged(val)
+      else if(_.isFunction(this.inputChange)) {
+        this.inputChange(val)
       }
       // Handle by self
       else if(val) {
         let tags = this.evalTagList(this.value, val)
         let vals = this.getTagValues(tags)
-        this.$emit("changed", vals)
+        this.$emit("change", vals)
       }
     }
     //------------------------------------------------

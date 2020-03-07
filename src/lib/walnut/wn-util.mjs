@@ -253,7 +253,7 @@ export const WnUtil = {
   /***
    * @param query{String|Function}
    */
-  genQuery(query, {vkey="val", wrapArray=false}={}) {
+  genQuery(query, {vkey="val", wrapArray=false, errorAs}={}) {
     // Customized query
     if(_.isFunction(query)) {
       return query
@@ -271,13 +271,20 @@ export const WnUtil = {
       if(vkey) {
         return async (v) => {
           let cmdText = Ti.S.renderBy(query, {[vkey]:v})
-          return await Wn.Sys.exec2(cmdText, {as:"json",input:v})
+          return await Wn.Sys.exec2(cmdText, {
+            as : "json",
+            input : v,
+            errorAs
+          })
         }
       }
       // Query directly
       else {
         return async (v) => {
-          return await Wn.Sys.exec2(query, {as:"json"})
+          return await Wn.Sys.exec2(query, {
+            as : "json",
+            errorAs
+          })
         }
       }
     }

@@ -30,7 +30,7 @@ export default {
   },
   "autoSelect" : {
     type : Boolean,
-    default : true
+    default : false
   },
   //-----------------------------------
   // Aspect

@@ -8,7 +8,7 @@
     "matrixCount" : 1
   },
   "dispatchActions" : {
-    "changed" : {
+    "change" : {
       "action" : "updatePair",
       "payload" : {
         "name"  : "current",

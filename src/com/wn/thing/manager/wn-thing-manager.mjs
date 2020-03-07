@@ -170,8 +170,8 @@ export default {
       const fns = {
         //..................................
         // Select item in search list
-        "list.selected" : ({current, currentId, checkedIds})=>{
-          //console.log("list.selected", current)
+        "list.select" : ({current, currentId, checkedIds})=>{
+          //console.log("list.select", current)
           
           // Update Current
           app.dispatch("main/setCurrentThing", {
@@ -209,7 +209,7 @@ export default {
         },
         //..................................
         // Content changed
-        "content.changed" : ({content})=>{
+        "content.change" : ({content})=>{
           app.dispatch("main/current/onChanged", content)
           app.commit("main/syncStatusChanged")
         },
@@ -225,8 +225,6 @@ export default {
           app.commit("main/search/updatePager", {pgsz, pn:1})
           app.dispatch("main/search/reload")
         },
-        //..................................
-        "tabs:changed" : this.changeTabs,
         //..................................
         "view-current-source" : this.viewCurrentSource
         //..................................

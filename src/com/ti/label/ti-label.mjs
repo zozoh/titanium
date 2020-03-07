@@ -54,7 +54,7 @@ export default {
         Ti.Be.EditIt(this.$el, {
           text: this.TheValue,
           ok : (newVal)=> {
-            this.$emit("changed", newVal)
+            this.$emit("change", newVal)
           }
         })
       }

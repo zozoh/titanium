@@ -8,7 +8,7 @@ export default {
   },
   "data" : {
     type : Object,
-    default : ()=>({})
+    default : undefined
   },
   "fieldStatus" : {
     type : Object,

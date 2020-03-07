@@ -20,7 +20,7 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    theTableData() {
+    TableData() {
       let list = []
       _.forEach(this.data, (it, index)=>{
         list.push(_.assign({
@@ -30,11 +30,11 @@ export default {
       return list
     },
     //--------------------------------------
-    theTableLastIndex() {
-      return this.theTableData.length - 1
+    TableLastIndex() {
+      return this.TableData.length - 1
     },
     //--------------------------------------
-    theTableFields() {
+    TableFields() {
       return [{
         title : "i18n:hmaker-nav-k-display",
         display : [{
@@ -72,16 +72,15 @@ export default {
         }]
     },
     //--------------------------------------
-    theFormBlankAs() {
+    FormBlankAs() {
       return {
         icon : "zmdi-long-arrow-return zmdi-hc-rotate-90",
         text : "i18n:hmaker-nav-blank-item"
       }
     },
     //--------------------------------------
-    theFormConfig() {
-      return {
-        fields : [{
+    FormFields() {
+      return [{
           title : "i18n:hmaker-nav-k-title",
           name  : "title",
           comType : "ti-input"
@@ -113,21 +112,39 @@ export default {
           name  : "value",
           comType : "ti-input"
         }]
-      }
     },
     //--------------------------------------
-    theFormData() {
+    FormData() {
       if(this.myCurrentIndex >= 0) {
-        return this.theTableData[this.myCurrentIndex]
+        return this.TableData[this.myCurrentIndex]
       }
-      return {}
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onTableInit($table) {this.$table = $table},
+    OnRowSelected({currentId, checkedIds, currentIndex}) {
+      //console.log(currentId, current)
+      this.myCurrentIndex = currentIndex
+      this.myCurrentId = currentId
+      this.myCheckedIds = checkedIds
+
+      _.assign(this.myActionStatus, {
+        moveUp   : currentIndex > 0,
+        moveDown : currentIndex >= 0 && currentIndex < this.TableLastIndex,
+        remove   : currentIndex >= 0
+      })
+    },
+    //--------------------------------------
+    OnFormChanged({name, value}={}) {
+      //console.log("onFormChanged", {name, value})
+      if(this.myCurrentIndex>=0) {
+        let data = _.cloneDeep(this.data)
+        data[this.myCurrentIndex][name] = value
+        this.notifyChange(data)
+      }
+    },
     //--------------------------------------
     updateParentActionMenu() {
       this.$emit("actions:updated", {
@@ -164,34 +181,12 @@ export default {
       })
     },
     //--------------------------------------
-    onRowSelected({currentId, checkedIds, currentIndex}) {
-      //console.log(currentId, current)
-      this.myCurrentIndex = currentIndex
-      this.myCurrentId = currentId
-      this.myCheckedIds = checkedIds
-
-      _.assign(this.myActionStatus, {
-        moveUp   : currentIndex > 0,
-        moveDown : currentIndex >= 0 && currentIndex < this.theTableLastIndex,
-        remove   : currentIndex >= 0
-      })
-    },
-    //--------------------------------------
     notifyChange(data=[]) {
       let list = []
       _.forEach(data, (it)=>{
         list.push(_.pick(it, "icon", "title", "type", "value"))
       })
-      this.$emit("changed", list)
-    },
-    //--------------------------------------
-    onFormChanged({name, value}={}) {
-      //console.log("onFormChanged", {name, value})
-      if(this.myCurrentIndex>=0) {
-        let data = _.cloneDeep(this.data)
-        data[this.myCurrentIndex][name] = value
-        this.notifyChange(data)
-      }
+      this.$emit("change", list)
     },
     //--------------------------------------
     __recover_selected(pos, len) {
@@ -210,7 +205,7 @@ export default {
     },
     //--------------------------------------
     moveUp() {
-      let data = _.cloneDeep(this.theTableData)
+      let data = _.cloneDeep(this.TableData)
       let items = _.remove(data, ({id})=>this.myCheckedIds[id])
       if(!_.isEmpty(items)) {
         let firstIndex = _.first(items).id.substring(1) * 1
@@ -226,12 +221,12 @@ export default {
     },
     //--------------------------------------
     moveDown() {
-      let data = _.cloneDeep(this.theTableData)
+      let data = _.cloneDeep(this.TableData)
       let items = _.remove(data, ({id})=>this.myCheckedIds[id])
       if(!_.isEmpty(items)) {
         let firstIndex = _.first(items).id.substring(1) * 1
         let pos = firstIndex + 1
-        if(pos<=(this.theTableData.length-items.length)) {
+        if(pos<=(this.TableData.length-items.length)) {
           Ti.Util.insertToArray(data, pos, ...items)
           this.notifyChange(data)
 
@@ -242,7 +237,7 @@ export default {
     },
     //--------------------------------------
     removeChecked() {
-      let data = _.filter(this.theTableData, ({id})=>!this.myCheckedIds[id])
+      let data = _.filter(this.TableData, ({id})=>!this.myCheckedIds[id])
       this.notifyChange(data)
       this.myCurrentIndex = -1
       this.myCurrentId = null
@@ -250,7 +245,7 @@ export default {
     },
     //--------------------------------------
     createNewOne() {
-      let data = _.cloneDeep(this.theTableData)
+      let data = _.cloneDeep(this.TableData)
       Ti.Util.insertToArray(data, this.myCurrentIndex, {
         title : Ti.I18n.get("new-item"),
         type  : "page"

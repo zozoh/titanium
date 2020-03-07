@@ -81,172 +81,170 @@
       "data"   : "=current.meta",
       "status" : "=current.status",
       "fieldStatus" : "=current.fieldStatus",
-      "config" : {
-        "fields" : [{
-            "title"   : "订单标题",
-            "name"    : "title"
-          },{
-            "title"   : "订单状态",
-            "name"    : "st",
-            "transformer" : {
-              "name" : "toStr",
-              "args" : {
-                "NW" : "新建",
-                "WT" : "待支付",
-                "OK" : "支付成功",
-                "FA" : "支付失败",
-                "SD" : "已发货",
-                "DN" : "已完成"
-              }
+      "fields" : [{
+          "title"   : "订单标题",
+          "name"    : "title"
+        },{
+          "title"   : "订单状态",
+          "name"    : "st",
+          "transformer" : {
+            "name" : "toStr",
+            "args" : {
+              "NW" : "新建",
+              "WT" : "待支付",
+              "OK" : "支付成功",
+              "FA" : "支付失败",
+              "SD" : "已发货",
+              "DN" : "已完成"
             }
-          },{
-            "title"   : "摘要信息",
-            "type"    : "Group",
-            "fields"  : [{
-                "title"  : "ID",
-                "name"   : "id"
-              },{
-                "title"   : "卖家",
-                "name"    : "seller"
-              }, {
-                "title"   : "用户库",
-                "name"    : "accounts"
-              }, {
-                "title"   : "买家",
-                "name"    : "buyer_id",
-                "comConf" : {
-                  "dict" : "Accounts",
-                  "suffixIcon" : "zmdi-help-outline"
-                }
-              }]
-          },{
-            "title"   : "商品信息",
-            "type"    : "Group",
-            "fields"  : [{
-                "title"  : null,
-                "name"   : "products",
-                "type"   : "Array",
-                "comType" : "wn-table",
-                "comConf" : {
-                  "data" : "${=value}",
-                  "selectable" : false,
-                  "fields" : [{
-                      "title"   : "商品",
-                      "display" : "title"
-                    }, {
-                      "title"   : "单价/元",
-                      "display" : "price"
-                    }, {
-                      "title"   : "购买数量",
-                      "display" : "amount"
-                    }]
-                }
-              }]
-          },{
-            "title"   : "优惠信息",
-            "type"    : "Group",
-            "fields"  : [{
-                "title"  : null,
-                "name"   : "coupons",
-                "type"   : "Array",
-                "comType" : "wn-table",
-                "comConf" : {
-                  "data" : "${=value}",
-                  "selectable" : false,
-                  "fields" : [{
-                      "title"   : "优惠券名",
-                      "display" : "title"
-                    }, {
-                      "title"   : "类型",
-                      "display" : {
-                        "key" : "value",
-                        "transformer" : {
-                          "name" : "toStr",
-                          "args" : {"1":"代金","2":"折扣"}
-                        }
+          }
+        },{
+          "title"   : "摘要信息",
+          "type"    : "Group",
+          "fields"  : [{
+              "title"  : "ID",
+              "name"   : "id"
+            },{
+              "title"   : "卖家",
+              "name"    : "seller"
+            }, {
+              "title"   : "用户库",
+              "name"    : "accounts"
+            }, {
+              "title"   : "买家",
+              "name"    : "buyer_id",
+              "comConf" : {
+                "dict" : "Accounts",
+                "suffixIcon" : "zmdi-help-outline"
+              }
+            }]
+        },{
+          "title"   : "商品信息",
+          "type"    : "Group",
+          "fields"  : [{
+              "title"  : null,
+              "name"   : "products",
+              "type"   : "Array",
+              "comType" : "wn-table",
+              "comConf" : {
+                "data" : "${=value}",
+                "selectable" : false,
+                "fields" : [{
+                    "title"   : "商品",
+                    "display" : "title"
+                  }, {
+                    "title"   : "单价/元",
+                    "display" : "price"
+                  }, {
+                    "title"   : "购买数量",
+                    "display" : "amount"
+                  }]
+              }
+            }]
+        },{
+          "title"   : "优惠信息",
+          "type"    : "Group",
+          "fields"  : [{
+              "title"  : null,
+              "name"   : "coupons",
+              "type"   : "Array",
+              "comType" : "wn-table",
+              "comConf" : {
+                "data" : "${=value}",
+                "selectable" : false,
+                "fields" : [{
+                    "title"   : "优惠券名",
+                    "display" : "title"
+                  }, {
+                    "title"   : "类型",
+                    "display" : {
+                      "key" : "value",
+                      "transformer" : {
+                        "name" : "toStr",
+                        "args" : {"1":"代金","2":"折扣"}
                       }
-                    }, {
-                      "title"   : "值",
-                      "display" : "value"
-                    }, {
-                      "title"   : "阈",
-                      "display" : "thres"
-                    }]
+                    }
+                  }, {
+                    "title"   : "值",
+                    "display" : "value"
+                  }, {
+                    "title"   : "阈",
+                    "display" : "thres"
+                  }]
+              }
+            }]
+        },{
+          "title"   : "支付信息",
+          "type"    : "Group",
+          "fields"  : [{
+              "title"   : "订单金额",
+              "name"    : "price",
+              "comConf" : {
+                "prefixIcon" : "fas-yen-sign",
+                "suffixText" : "元"
+              }
+            }, {
+              "title"   : "支付金额",
+              "name"    : "fee",
+              "comConf" : {
+                "prefixIcon" : "fas-yen-sign",
+                "suffixText" : "元"
+              }
+            }, {
+              "title"   : "支付类型",
+              "name"    : "pay_tp",
+              "transformer" : {
+                "name" : "toStr",
+                "args" : {
+                  "wx.qrcode"  : "微信扫码",
+                  "wx.scan"    : "微信付款码",
+                  "wx.jsapi"   : "微信JSAPI",
+                  "zfb.qrcode" : "支付宝扫码",
+                  "zfb.scan"   : "支付宝付款码",
+                  "free"       : "免费"
                 }
-              }]
-          },{
-            "title"   : "支付信息",
-            "type"    : "Group",
-            "fields"  : [{
-                "title"   : "订单金额",
-                "name"    : "price",
-                "comConf" : {
-                  "prefixIcon" : "fas-yen-sign",
-                  "suffixText" : "元"
-                }
-              }, {
-                "title"   : "支付金额",
-                "name"    : "fee",
-                "comConf" : {
-                  "prefixIcon" : "fas-yen-sign",
-                  "suffixText" : "元"
-                }
-              }, {
-                "title"   : "支付类型",
-                "name"    : "pay_tp",
-                "transformer" : {
-                  "name" : "toStr",
-                  "args" : {
-                    "wx.qrcode"  : "微信扫码",
-                    "wx.scan"    : "微信付款码",
-                    "wx.jsapi"   : "微信JSAPI",
-                    "zfb.qrcode" : "支付宝扫码",
-                    "zfb.scan"   : "支付宝付款码",
-                    "free"       : "免费"
-                  }
-                }
-              }, {
-                "title"   : "支付单",
-                "name"    : "pay_id"
-              }]
-          },{
-            "title"   : "时间戳",
-            "type"    : "Group",
-            "fields"  : [{
-                "title" : "创建时间",
-                "name"  : "ct",
-                "type"  : "AMS"
-              }, {
-                "title" : "最后变动",
-                "name"  : "lm",
-                "type"  : "AMS"
-              }, {
-                "title" : "过期时间",
-                "name"  : "expi",
-                "type"  : "AMS"
-              }, {
-                "title" : "创建支付单",
-                "name"  : "wt_at",
-                "type"  : "AMS"
-              }, {
-                "title" : "支付成功",
-                "name"  : "ok_at",
-                "type"  : "AMS"
-              }, {
-                "title" : "支付失败",
-                "name"  : "fa_at",
-                "type"  : "AMS"
-              }, {
-                "title" : "发货时间",
-                "name"  : "sp_at",
-                "type"  : "AMS"
-              }, {
-                "title" : "完成时间",
-                "name"  : "dn_at",
-                "type"  : "AMS"
-              }]
-          }]
-      },
+              }
+            }, {
+              "title"   : "支付单",
+              "name"    : "pay_id"
+            }]
+        },{
+          "title"   : "时间戳",
+          "type"    : "Group",
+          "fields"  : [{
+              "title" : "创建时间",
+              "name"  : "ct",
+              "type"  : "AMS"
+            }, {
+              "title" : "最后变动",
+              "name"  : "lm",
+              "type"  : "AMS"
+            }, {
+              "title" : "过期时间",
+              "name"  : "expi",
+              "type"  : "AMS"
+            }, {
+              "title" : "创建支付单",
+              "name"  : "wt_at",
+              "type"  : "AMS"
+            }, {
+              "title" : "支付成功",
+              "name"  : "ok_at",
+              "type"  : "AMS"
+            }, {
+              "title" : "支付失败",
+              "name"  : "fa_at",
+              "type"  : "AMS"
+            }, {
+              "title" : "发货时间",
+              "name"  : "sp_at",
+              "type"  : "AMS"
+            }, {
+              "title" : "完成时间",
+              "name"  : "dn_at",
+              "type"  : "AMS"
+            }]
+        }],
       "updateBy" : {
         "method" : "dispatch",
         "target" : "main/updateCurrent"

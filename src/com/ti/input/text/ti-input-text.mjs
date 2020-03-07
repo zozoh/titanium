@@ -203,7 +203,7 @@ export default {
         }
       }
       this.isFocused = true
-      this.$emit("input:focused")
+      this.$emit("input:focus")
       // Auto Actived
       if(!this.isActived) {
         this.__set_actived()
@@ -212,12 +212,12 @@ export default {
     //------------------------------------------------
     onInputBlur() {
       this.isFocused = false
-      this.$emit("input:blurred")
+      this.$emit("input:blur")
     },
     //------------------------------------------------
     onClickPrefixIcon() {
       if(this.prefixIconForClean) {
-        this.$emit("changed", null)
+        this.$emit("change", null)
       }
       this.$emit("prefix:icon")
     },

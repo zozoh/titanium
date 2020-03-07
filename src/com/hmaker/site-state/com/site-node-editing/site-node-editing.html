@@ -21,11 +21,11 @@
     -->
     <div class="as-edit">
       <component class="ti-fill-parent"
-        :is="theCom.comType"
-        v-bind="theCom.comConf"
-        :on-init="onChildInit"
-        @changed="onChanged"
-        @actions:updated="onActionsUpdated"/>
+        :is="Com.comType"
+        v-bind="Com.comConf"
+        :on-init="OnChildInit"
+        @change="OnChanged"
+        @actions:updated="OnActionsUpdated"/>
     </div>
   </template>
   <!--

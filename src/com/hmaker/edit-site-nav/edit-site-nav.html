@@ -4,25 +4,24 @@
   -->
   <div class="as-table ti-fill-parent">
     <ti-table class="ti-fill-parent"
-      :data="theTableData"
-      :fields="theTableFields"
+      :data="TableData"
+      :fields="TableFields"
       :selectable="true"
       :checkable="true"
       :multi="true"
       :current-id="myCurrentId"
       :checked-ids="myCheckedIds"
-      @selected="onRowSelected"
-      :on-init="onTableInit"/>
+      @select="OnRowSelected"/>
   </div>
   <!--
     Nav Form
   -->
   <div class="as-form">
-    <wn-form
+    <ti-form
       class="ti-fill-parent"
-      :blank-as="theFormBlankAs"
-      :config="theFormConfig"
-      :data="theFormData"
-      @changed="onFormChanged"/>
+      :fields="FormFields"
+      :blank-as="FormBlankAs"
+      :data="FormData"
+      @change="OnFormChanged"/>
   </div>
 </div>

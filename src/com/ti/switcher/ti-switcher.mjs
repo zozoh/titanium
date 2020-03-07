@@ -112,7 +112,7 @@ export default {
       let vals = Ti.Util.truthyKeys(this.myValueMap)
       if(!_.isEqual(vals, this.Values)) {
         let v = this.multi ? vals : vals.join(",")
-        this.$emit("changed", v)
+        this.$emit("change", v)
       }
     },
     //......................................

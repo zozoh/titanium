@@ -151,7 +151,7 @@ export async function OpenObjSelector(pathOrObj="~", {
               await this.open(item)
             },
             //======================================
-            "arena.selected" : async ({checked})=>{
+            "arena.select" : async ({checked})=>{
               this.myChecked = _.filter(checked, o=>"FILE"==o.race)
             }
             //======================================

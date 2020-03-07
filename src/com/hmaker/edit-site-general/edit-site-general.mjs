@@ -14,9 +14,8 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    theConfig() {
-      return {
-        fields : [{
+    TheFields() {
+      return [{
           title : "i18n:hmaker-site-k-domain",
           name : "domain"
         },{
@@ -32,7 +31,6 @@ export default {
           title : "i18n:hmaker-site-k-entry",
           name : "entry"
         }]
-      }
     }
     //--------------------------------------
   },

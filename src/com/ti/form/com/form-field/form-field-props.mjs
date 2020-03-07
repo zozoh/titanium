@@ -19,9 +19,9 @@ export default {
     type : String,
     default : null
   },
-  "status" : {
-    type : String,
-    default : null
+  "fieldStatus" : {
+    type : Object,
+    default : ()=>({})
   },
   "message" : {
     type : String,

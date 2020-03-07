@@ -43,14 +43,12 @@
   "creator" : {
     "comType" : "wn-thing-creator",
     "comConf" : {
-      "config" : {
-        "fields" : [{
-          "name" : "title",
-          "title" : "产品名称",
-          "comType" : "ti-input",
-          "comConf" : {}
-        }]
-      },
+      "fields" : [{
+        "name" : "title",
+        "title" : "产品名称",
+        "comType" : "ti-input",
+        "comConf" : {}
+      }],
       "data" : {
         "title" : "新产品"
       }
@@ -62,61 +60,59 @@
       "data"   : "=current.meta",
       "status" : "=current.status",
       "fieldStatus" : "=current.fieldStatus",
-      "config" : {
-        "fields" : [{
-            "title"  : "ID",
-            "name"   : "id"
-          }, {
-            "title"   : "缩略图",
-            "name"    : "thumb",
-            "checkEquals" : false,
-            "serializer" : {
-              "name" : "toStr",
-              "args" : "id:${id}"
-            },
-            "comType" : "wn-imgfile",
-            "comConf" : {
-              "target" : "=curentThumbTarget",
-              "filter" : "scale(256,256)"
-            }
-          }, {
-            "title"   : "产品名称",
-            "name"    : "title",
-            "comType" : "ti-input"
-          }, {
-            "title"   : "摘要描述",
-            "name"    : "brief",
-            "comType" : "ti-input",
-            "comConf" : {
-              "multi" : true
-            }
-          },{
-            "title"   : "排序",
-            "name"    : "th_sort",
-            "type"    : "Integer",
-            "tip"     : "从1开始，数字越大越靠后",
-            "defaultAs" : 0,
-            "width"   : 60,
-            "comType" : "ti-input",
-            "comConf" : {}
-          },{
-            "title"   : "售价",
-            "name"    : "price",
-            "type"    : "Number",
-            "defaultAs" : 0,
-            "width"   : 120,
-            "comType" : "ti-input",
-            "comConf" : {
-              "prefixIcon" : "fas-yen-sign",
-              "suffixText" : "元"
-            }
-          },{
-            "title"   : "最后修改",
-            "name"    : "lm",
-            "type"    : "DateTime",
-            "comConf" : {"format":"yyyy年MM月dd日 HH:mm:ss"}
-          }]
-      },
+      "fields" : [{
+          "title"  : "ID",
+          "name"   : "id"
+        }, {
+          "title"   : "缩略图",
+          "name"    : "thumb",
+          "checkEquals" : false,
+          "serializer" : {
+            "name" : "toStr",
+            "args" : "id:${id}"
+          },
+          "comType" : "wn-imgfile",
+          "comConf" : {
+            "target" : "=curentThumbTarget",
+            "filter" : "scale(256,256)"
+          }
+        }, {
+          "title"   : "产品名称",
+          "name"    : "title",
+          "comType" : "ti-input"
+        }, {
+          "title"   : "摘要描述",
+          "name"    : "brief",
+          "comType" : "ti-input",
+          "comConf" : {
+            "multi" : true
+          }
+        },{
+          "title"   : "排序",
+          "name"    : "th_sort",
+          "type"    : "Integer",
+          "tip"     : "从1开始，数字越大越靠后",
+          "defaultAs" : 0,
+          "width"   : 60,
+          "comType" : "ti-input",
+          "comConf" : {}
+        },{
+          "title"   : "售价",
+          "name"    : "price",
+          "type"    : "Number",
+          "defaultAs" : 0,
+          "width"   : 120,
+          "comType" : "ti-input",
+          "comConf" : {
+            "prefixIcon" : "fas-yen-sign",
+            "suffixText" : "元"
+          }
+        },{
+          "title"   : "最后修改",
+          "name"    : "lm",
+          "type"    : "DateTime",
+          "comConf" : {"format":"yyyy年MM月dd日 HH:mm:ss"}
+        }],
       "updateBy" : {
         "method" : "dispatch",
         "target" : "main/updateCurrent"
