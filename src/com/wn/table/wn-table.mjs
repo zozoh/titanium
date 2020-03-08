@@ -2,9 +2,16 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
+  data : ()=>({
+    isAllChecked  : false,
+    hasChecked    : false,
+    theCurrentId  : false,
+    theCheckedIds : false
+  }),
+  ///////////////////////////////////////////////////
   computed : {
     //----------------------------------------------
-    theFields() {
+    TheFields() {
       let list = []
       for(let fld of this.fields) {
         let f2 = _.assign({}, fld)
@@ -12,28 +19,49 @@ export default {
         list.push(f2)
       }
       return list
-    },
-    //----------------------------------------------
-    theExplainDict(){
-      return async function(value, dict){
-          return await Wn.Dict.getText(dict, value)
-        }
     }
     //----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
     //----------------------------------------------
-    onSelected(eventInfo) {
-      //console.log("wn-table onSelected", eventInfo)
-      this.$emit("select", eventInfo)
+    OnSubListInit($list) {this.$list = $list},
+    //----------------------------------------------
+    OnSelected(payload={}){
+      this.theCheckedIds = payload.checkedIds
+      this.theCurrentId  = payload.currentId
+      this.syncCheckStatus()
+      this.$emit("select", payload)
     },
     //----------------------------------------------
-    onOpen(eventInfo) {
-      //console.log("wn-table onOpen", eventInfo)
-      this.$emit("open", eventInfo)
-    }
+    syncCheckStatus() {
+      this.isAllChecked = this.$list.isAllChecked
+      this.hasChecked   = this.$list.hasChecked
+    },
     //----------------------------------------------
+    // Delegate methods
+    selectPrevRow(options){this.$list.selectPrevRow(options)},
+    selectNextRow(options){this.$list.selectNextRow(options)},
+
+    getCurrentRow(options){return this.$list.getCurrentRow(options)},
+    getCheckedRow(options){return this.$list.getCheckedRow(options)},
+
+    getCurrent(options){return this.$list.getCurrent(options)},
+    getChecked(options){return this.$list.getChecked(options)},
+
+    selectRow(options){this.$list.selectRow(options)},
+    checkRow (options){this.$list.checkRow(options)},
+    cancelRow(options){this.$list.cancelRow(options)}
+    //----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "data" : function(){
+      this.syncCheckStatus()
+    },
+    "checkedIds" : function(){
+      this.syncCheckStatus()
+    }
   }
   ///////////////////////////////////////////////////
 }

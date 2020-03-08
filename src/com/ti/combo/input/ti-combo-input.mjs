@@ -33,6 +33,8 @@ export default {
       return this.getTopClass()
     },
     //------------------------------------------------
+    TheProps(){return this},
+    //------------------------------------------------
     InputValue() {
       if(!Ti.Util.isNil(this.myFilterValue)) {
         return this.myFilterValue
@@ -190,6 +192,7 @@ export default {
     // Utility
     //-----------------------------------------------
     evalMyValue(item=this.myItem, freeValue=this.myFreeValue) {
+      console.log("evalMyValue", item, freeValue)
       // Item
       if(item) {
         return this.Dict.getValue(item)
@@ -273,9 +276,9 @@ export default {
       immediate : true
     },
     //-----------------------------------------------
-    "options" : {
-      handler : "reloadMyOptionData",
-      immediate : true
+    "options" : async function(){
+      await this.reloadMyOptionData()
+      await this.evalMyItem()
     }
     //-----------------------------------------------
   },

@@ -19,7 +19,7 @@
     padding:0 .08rem;
   }
   > .as-link {
-    @include border(1px,solid,highlight,left);
+    @include border(1px,solid,shallow,left);
     @include flex-align-nowrap;
     white-space: nowrap;
     padding:0 .08rem;

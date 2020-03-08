@@ -5,51 +5,20 @@ export default {
     commit("syncStatusChanged");
   },
   //----------------------------------------
+  changeMeta({state, commit}, {name, value}={}) {
+    if(name) {
+      let meta = _.set({}, name, value)
+      commit("mergeMeta", meta)
+      commit("syncStatusChanged")
+    }
+  },
+  //----------------------------------------
   updateContent({state, commit}, content) {
     commit("setContent", content)
     if(state.meta && "FILE" == state.meta.race) {
       commit("setSavedContent", content)
     }
     commit("syncStatusChanged")
-  },
-  //--------------------------------------------
-  async openContentEditor({state, commit}) {
-    // Guard
-    if(!state.meta) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    // Open Editor
-    let newContent = await Wn.EditObjContent(state.meta, {
-      icon      : Wn.Util.getObjIcon(this.meta, "zmdi-tv"),
-      title     : Wn.Util.getObjDisplayName(state.meta),
-      showEditorTitle : false,
-      content   : state.content
-    })
-
-    // Cancel the editing
-    if(_.isUndefined(newContent)) {
-      return
-    }
-
-    // Update the current editing
-    commit("setContent", newContent)
-  },
-  //--------------------------------------------
-  async setCurrent({state, commit,dispatch}, {
-    meta=null, force=false
-  }={}) {
-    //console.log("setCurrent", meta, loadContent)
-
-    // Not need to reload
-    if(state.meta && meta && state.meta.id == meta.id) {
-      if((_.isString(state.content)) && !force) {
-        return
-      }
-    }
-
-    // do reload
-    await dispatch("reload", meta)
-
   },
   //--------------------------------------------
   async updateMeta({state, commit}, {name, value}={}) {
@@ -74,6 +43,45 @@ export default {
     _.delay(()=>{
       commit("clearFieldStatus", name)
     }, 500)
+  },
+  //--------------------------------------------
+  async setCurrent({state, commit,dispatch}, {
+    meta=null, force=false
+  }={}) {
+    //console.log("setCurrent", meta, loadContent)
+
+    // Not need to reload
+    if(state.meta && meta && state.meta.id == meta.id) {
+      if((_.isString(state.content)) && !force) {
+        return
+      }
+    }
+
+    // do reload
+    await dispatch("reload", meta)
+
+  },
+  //--------------------------------------------
+  async openContentEditor({state, commit}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let newContent = await Wn.EditObjContent(state.meta, {
+      icon      : Wn.Util.getObjIcon(this.meta, "zmdi-tv"),
+      title     : Wn.Util.getObjDisplayName(state.meta),
+      showEditorTitle : false,
+      content   : state.content
+    })
+
+    // Cancel the editing
+    if(_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    commit("setContent", newContent)
   },
   //----------------------------------------
   async save({state, commit}) {

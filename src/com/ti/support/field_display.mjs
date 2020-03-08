@@ -5,59 +5,68 @@ export default {
     defaultKey
   }={}){
     //........................................
-    // Guard it
-    if(Ti.Util.isNil(displayItem)) {
-      return defaultKey 
-        ? { key:defaultKey, comType:"ti-label"}
-        : null
-    }
-    //........................................
-    let dis;
-    //........................................
-    // {key:"xxx", comType:"xxx"}
-    if(_.isPlainObject(displayItem)){
-      dis = _.assign({
-        key : defaultKey,
-        comType : "ti-label",
-      }, displayItem)
-      if(dis.transformer) {
-        dis.transformer = Ti.Types.evalFunc(dis.transformer, funcSet)
+    const __gen_dis = ()=>{
+      //......................................
+      // Guard it
+      if(Ti.Util.isNil(displayItem)) {
+        return defaultKey 
+          ? { key:defaultKey, comType:"ti-label"}
+          : null
       }
-    }
-    //........................................
-    // Array to multi key
-    else if(_.isArray(displayItem)) {
-      dis = {
-        key : displayItem,
-        comType : "ti-label",
+      //......................................
+      // {key:"xxx", comType:"xxx"}
+      if(_.isPlainObject(displayItem)){
+        let dis = _.assign({
+          key : defaultKey,
+          comType : "ti-label",
+        }, displayItem)
+        if(dis.transformer) {
+          dis.transformer = Ti.Types.evalFunc(dis.transformer, funcSet)
+        }
+        return dis
       }
-    }
-    //........................................
-    // Boolean
-    else if(true === displayItem) {
-      dis = {
-        key : defaultKey,
-        comType : "ti-label",
-      }
-    }
-    //........................................
-    else if(_.isString(displayItem)){
-      // <icon:zmdi-user>
-      let m = /^<([^:>]*)(:([^>]+))?>$/.exec(displayItem)
-      if(m) {
-        dis = {
-          key       : m[1] || Symbol(displayItem),
-          defaultAs : m[3] || undefined,
-          comType   : "ti-icon"
+      //......................................
+      // Array to multi key
+      if(_.isArray(displayItem)) {
+        return {
+          key : displayItem,
+          comType : "ti-label",
         }
       }
-      //........................................
-      // String -> ti-label
-      // - "name" or ["name", "age"]
-      // - "'Static Text'"
-      // - "text+>/a/link?nm=${name}"
-      // - "'More'->/a/link?id=${id}"
-      else {
+      //......................................
+      // Boolean
+      if(true === displayItem) {
+        return {
+          key : defaultKey,
+          comType : "ti-label",
+        }
+      }
+      //......................................
+      if(_.isString(displayItem)){
+        // <icon:zmdi-user>
+        let m = /^<([^:>=]*)(:([^>]+))?>$/.exec(displayItem)
+        if(m) {
+          return {
+            key       : m[1] || defaultKey || Symbol(displayItem),
+            defaultAs : m[3] || undefined,
+            comType   : "ti-icon"
+          }
+        }
+        //......................................
+        // "<=ti-label:key>" or ":<=ti-label>"
+        m = /^<=([^:]+)(:(.+))?>$/.exec(displayItem)
+        if(m) {
+          return {
+            key       : m[3] || defaultKey || Symbol(displayItem),
+            comType   : m[1]
+          }
+        }
+        //......................................
+        // String -> ti-label
+        // - "name" or ["name", "age"]
+        // - "'Static Text'"
+        // - "text+>/a/link?nm=${name}"
+        // - "'More'->/a/link?id=${id}"
         m = /^([^+-]+)(([+-])>(.+))?$/.exec(displayItem)
         if(m) {
           let key  = _.trim(m[1] || m[0])
@@ -70,10 +79,13 @@ export default {
           }
         }
       }
+      //......................................
     }
     //........................................
-    if(displayItem.dict) {
-      let {name, vKey} = Ti.DictFactory.explainDictName(displayItem.dict)
+    let dis = __gen_dis()
+    //........................................
+    if(dis.dict) {
+      let {name, vKey} = Ti.DictFactory.explainDictName(dis.dict)
       dis.$dict = Ti.DictFactory.CheckDict(name)
       dis.$dictValueKey = vKey || ".text"
     }

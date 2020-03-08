@@ -6,11 +6,12 @@
   :trimed="trimed"
 
   :readonly="!canInput || readonly"
-  :focus="focus"
+  :focused="focused"
   :hover="hover"
   :auto-select="autoSelect"
 
   :placeholder="thePlaceholder"
+  :auto-i18n="autoI18n"
   :hide-border="hideBorder"
   :prefix-icon="prefixIcon"
   :prefix-hover-icon="prefixHoverIcon"
@@ -36,7 +37,8 @@
   <div v-if="hasTags"
     class="as-tags">
     <ti-tags
-      :data="theTags"
+      :value="theTags"
+      :removable="true"
       :item-options="tagOptions"
       :item-icon-by="tagItemIconBy"
       :item-default-icon="tagItemDefaultIcon"

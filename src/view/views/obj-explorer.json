@@ -1,7 +1,7 @@
 {
   "comIcon" : "im-archive",
   "comType" : "@com:wn/adaptlist",
-  "modType" : "@mod:wn/obj-explorer",
+  "modType" : "@mod:wn/obj-current",
   "actions" : [{
       "key"  : "reloading",
       "type" : "action",
@@ -24,7 +24,7 @@
           "type" : "action",
           "icon" : "zmdi-flare",
           "text" : "i18n:create",
-          "action" : "dispatch:main/create",
+          "action" : "main:doCreate",
           "shortcut" : "ALT+CTRL+N"
         },{
           "key"  : "deleting",
@@ -107,7 +107,7 @@
           "type" : "action",
           "icon" : "zmdi-info-outline",
           "text" : "i18n:properties",
-          "action" : "main:onOpenProperties",
+          "action" : "main:openCurrentMeta",
           "shortcut" : "ALT+CTRL+P"
         }]
     }]

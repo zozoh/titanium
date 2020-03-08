@@ -34,7 +34,7 @@ export default {
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "blankAs" : {
+  "placeholder" : {
     type : String,
     default : "i18n:nil"
   },

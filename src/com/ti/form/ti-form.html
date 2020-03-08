@@ -19,7 +19,7 @@
       <ul>
         <li v-for="tab in TabItems" 
           :class="tab.className"
-          @click.left="onClickTab(tab)">
+          @click.left="OnClickTab(tab)">
           <ti-icon 
             class="tab-icon" v-if="tab.icon" :value="tab.icon"/>
           <span 
@@ -40,8 +40,8 @@
           :data="TheData"
           :field-status="fieldStatus"
           :status-icons="statusIcons"
-          @change="onChanged"
-          @invalid="onInvalid"/>
+          @change="OnFieldChanged"
+          @invalid="OnInvalid"/>
         <!--
           For field
         -->
@@ -51,8 +51,8 @@
           :data="TheData"
           :field-status="fieldStatus"
           :status-icons="statusIcons"
-          @change="onChanged"
-          @invalid="onInvalid"/>
+          @change="OnFieldChanged"
+          @invalid="OnInvalid"/>
       </template>
     </div>
   </template>

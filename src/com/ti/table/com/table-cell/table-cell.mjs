@@ -193,12 +193,11 @@ export default {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "display" : async function() {
-      await this.evalCellDisplayItems()
-    },
-    "data" : async function() {
-      //console.log("data changed")
-      await this.evalCellDisplayItems()
+    "data" : async function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        //console.log(_.isEqual(newVal, oldVal), newVal, oldVal)
+        await this.evalCellDisplayItems()
+      }
     },
     "isCurrent" : async function() {
       await this.evalCellDisplayItems()

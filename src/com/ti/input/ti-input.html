@@ -1,21 +1,21 @@
 <div class="ti-input" 
-  :class="topClass" 
-  :style="topStyle"
+  :class="TopClass" 
+  :style="TopStyle"
   v-ti-actived="__set_actived">
   <!--prefix:icon-->
   <div v-if="prefixIcon"
     class="as-input-icon at-prefix"
     :class="getHoverClass('prefixIcon')"
-    @click.left="onClickPrefixIcon"
+    @click.left="OnClickPrefixIcon"
     @mouseenter="pointerHover='prefixIcon'"
     @mouseleave="pointerHover=null">
-    <ti-icon :value="thePrefixIcon"/>
+    <ti-icon :value="ThePrefixIcon"/>
   </div>
   <!--prefix:text-->
   <div v-if="prefixText" 
     class="as-input-text at-prefix"
     :class="getHoverClass('prefixText')"
-    @click.left="onClickPrefixText"
+    @click.left="OnClickPrefixText"
     @mouseenter="pointerHover='prefixText'"
     @mouseleave="pointerHover=null">
     <span>{{prefixText|i18n}}</span>
@@ -29,19 +29,19 @@
     <input ref="input"
       spellcheck="false" 
       :readonly="readonly"
-      :value="theValue"
+      :value="TheValue"
       :placeholder="placeholder|i18n"
-      @compositionstart="onInputCompositionStart"
-      @compositionend="onInputCompositionEnd"
-      @input="onInputing"
-      @change="onInputChanged"
-      @focus="onInputFocus"
-      @blur="onInputBlur">
+      @compositionstart="OnInputCompositionStart"
+      @compositionend="OnInputCompositionEnd"
+      @input="OnInputing"
+      @change="OnInputChanged"
+      @focus="OnInputFocus"
+      @blur="OnInputBlur">
     <!--suffix:text-->
     <div v-if="suffixText"
       class="as-input-text at-suffix"
       :class="getHoverClass('suffixText')"
-      @click.left="onClickSuffixIcon"
+      @click.left="OnClickSuffixIcon"
       @mouseenter="pointerHover='suffixText'"
       @mouseleave="pointerHover=null">
       <span>{{suffixText|i18n}}</span>
@@ -50,7 +50,7 @@
     <div v-if="suffixIcon"
       class="as-input-icon at-suffix"
       :class="getHoverClass('suffixIcon')"
-      @click.left="onClickSuffixIcon"
+      @click.left="OnClickSuffixIcon"
       @mouseenter="pointerHover='suffixIcon'"
       @mouseleave="pointerHover=null">
       <ti-icon :value="suffixIcon"/>

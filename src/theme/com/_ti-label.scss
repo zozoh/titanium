@@ -19,11 +19,15 @@
     &.can-hover{cursor: pointer;}
     &.can-hover:hover{@include color($color-primary,r,c);}
     //---------------------------------------
-    &.at-prefix.can-hover {
+    &.at-prefix {
       > .ti-icon {
-        transition: 0.5s; opacity: 0.4;
+        transition: .5s; opacity: .6;
+        img {
+          width:100%; transition: 5s;
+          border-radius: 2px;
+        }
       }
-      &:hover > .ti-icon {
+      &.can-hover:hover > .ti-icon {
         transform:scale(1.1) rotate(180deg);
         opacity: 1;
       }

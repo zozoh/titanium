@@ -162,13 +162,11 @@
         },{
           "title"   : "发放用户",
           "name"    : "owner",
-          "comType" : "ti-droplist",
+          "comType" : "wn-droplist",
           "comConf" : {
             "prefixIcon" : "zmdi-account",
-            "options" : {
-              "method" : "Wn.Dict.getAll",
-              "args" : ["Accounts"]
-            }
+            "options" : "@Dict:Accounts",
+            "dropDisplay" : ["@<thumb:zmdi-account>", "nickname|email|phone|nm"]
           }
         },{
           "title"   : "使用时间",

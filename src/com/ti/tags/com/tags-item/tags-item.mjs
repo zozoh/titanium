@@ -64,6 +64,10 @@ export default {
       type : Boolean,
       default : false
     },
+    "removable" : {
+      type : Boolean,
+      default : false
+    },
     "removeIcon" : {
       type : String,
       default : null
@@ -89,7 +93,7 @@ export default {
     //------------------------------------------------
     textClass() {
       return {
-        "without-icon"    : !this.hasIcon && !this.removeIcon,
+        "without-icon"    : !this.hasIcon && !this.removable,
         "without-options" : !this.hasOptions
       }
     },

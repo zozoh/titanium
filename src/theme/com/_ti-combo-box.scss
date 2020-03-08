@@ -19,7 +19,7 @@
   > .as-drop {
     @include noselect;
     @include color($color-body, r, c);
-    border:1px solid map-get($color-primary, c);
+    border:1px solid map-get($color-line, dark);
     z-index:$z-mask + 1;
     position: fixed;
     overflow: auto;

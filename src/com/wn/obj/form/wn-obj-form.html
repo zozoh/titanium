@@ -1,5 +1,6 @@
 <ti-form 
   v-bind="this"
   :class-name="className"
+  @field:change="OnFieldChanged"
   @change="OnChanged"
   @invalid="OnInvalid"/>

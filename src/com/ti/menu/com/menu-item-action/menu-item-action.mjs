@@ -24,11 +24,13 @@ export default {
     InvokeFunc() {
       return Ti.Shortcut.genActionInvoking(this.action, ({mode, name, args})=>{
           if("$emit" == mode) {
-            return ()=>this.$emit(name, ...args)
+            return ()=>{
+              console.log("mode", {mode, name, args})
+              this.$menu.$emit(name, ...args)
+            }
           }
           if("$parent" == mode) {
             let $p = this.$menu.$parent
-            console.log($p.tiComType)
             let fn = _.get($p, name)
             if(_.isFunction(fn)){
               return ()=>fn.apply($p, args)

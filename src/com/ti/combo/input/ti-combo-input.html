@@ -9,26 +9,11 @@
   -->
   <template v-slot:box>
     <ti-input 
+      v-bind="TheProps"
+
       :value="InputValue"
-      :value-case="valueCase"
-      :trimed="trimed"
-
-      :readonly="!canInput || readonly"
-      :focus="focus"
-      :hover="hover"
-      :auto-select="autoSelect"
-
-      :placeholder="placeholder"
-      :hide-border="hideBorder"
       :prefix-icon="ThePrefixIcon"
-      :prefix-hover-icon="prefixHoverIcon"
-      :prefix-icon-for-clean="prefixIconForClean"
-      :prefix-text="prefixText"
       :suffix-icon="TheSuffixIcon"
-      :suffix-text="suffixText"
-      
-      :width="width"
-      :height="height"
 
       @change="OnInputChanged"
       @inputing="OnInputInputing"

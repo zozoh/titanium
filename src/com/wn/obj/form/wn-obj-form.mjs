@@ -8,11 +8,18 @@ export default {
         noti : null
       })
     },
+    "setDataBy" : {
+      type : Object,
+      default : ()=>({
+        method : "dispatch",
+        target : "main/onChanged"
+      })
+    },
     "updateBy" : {
       type : Object,
       default : ()=>({
         method : "dispatch",
-        target : "main/update"
+        target : "main/changeMeta"
       })
     },
     "setFieldStatusBy" : {
@@ -37,9 +44,14 @@ export default {
       }
     },
     //--------------------------------------------------
-    OnChanged(payload) {
-      //console.log("wn-obj-form.changed", payload)
-      this.doAction("changed", this.updateBy, payload)
+    OnFieldChanged({name, value}={}) {
+      //console.log("wn-obj-form.field:changed", {name, value})
+      this.doAction("field:change", this.updateBy, {name, value})
+    },
+    //--------------------------------------------------
+    OnChanged(data) {
+      //console.log("wn-obj-form.changed", data)
+      this.doAction("change", this.setDataBy, data)
     },
     //--------------------------------------------------
     OnInvalid(err) {

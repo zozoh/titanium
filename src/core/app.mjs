@@ -127,22 +127,22 @@ export class OneTiApp {
   }
   //---------------------------------------
   watchShortcut(actions=[], scope=this) {
-    this.$shortcuts.watch(scope, actions)
+    this.$shortcuts.watch(actions, scope)
   }
   //---------------------------------------
-  unwatchShortcut(scope, ...uniqueKeys) {
-    this.$shortcuts.unwatch(scope, ...uniqueKeys)
+  unwatchShortcut(scope, ...uniqKeys) {
+    this.$shortcuts.unwatch(scope, ...uniqKeys)
   }
   //---------------------------------------
-  guardShortcut(uniqueKey, guard, scope=this) {
-    this.$shortcuts.addGuard(uniqueKey, guard, scope)
+  guardShortcut(uniqKey, guard, scope=this) {
+    this.$shortcuts.addGuard(uniqKey, guard, scope)
   }
   //---------------------------------------
   /***
-   * @param uniqueKey{String} : like "CTRL+S"
+   * @param uniqKey{String} : like "CTRL+S"
    * @param $event{Event} : DOM Event Object, for prevent or stop 
    */
-  fireShortcut(uniqueKey, $event) {
+  fireShortcut(uniqKey, $event) {
     //......................................
     let st = {
       stop    :false,
@@ -156,7 +156,7 @@ export class OneTiApp {
       let vmPath = vm.tiActivableComPath(false)
       for(let aVm of vmPath) {
         if(_.isFunction(aVm.__ti_shortcut)) {
-          let re = aVm.__ti_shortcut(uniqueKey) || {}
+          let re = aVm.__ti_shortcut(uniqKey) || {}
           st.stop    |= re.stop
           st.prevent |= re.prevent
           st.quit    |= re.quit
@@ -167,7 +167,7 @@ export class OneTiApp {
       }
     }
     //......................................
-    this.$shortcuts.fire(this, uniqueKey, st)
+    this.$shortcuts.fire(this, uniqKey, st)
     //......................................
     if(st.prevent) {
       $event.preventDefault()
@@ -400,6 +400,10 @@ TiApp.hasTopInstance = function() {
 //---------------------------------------
 TiApp.eachInstance = function(iteratee=_.identity) {
   _.forEach(APP_STACK, iteratee)
+}
+//---------------------------------------
+TiApp.allInstance = function(iteratee=_.identity) {
+  return APP_STACK
 }
 //---------------------------------------
 TiApp.Open = function(options) {

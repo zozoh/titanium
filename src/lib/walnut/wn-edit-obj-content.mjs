@@ -36,13 +36,6 @@ export async function EditObjContent(pathOrObj="~", {
     type, width, height, spacing, position, closer,
     title   : theTitle,
     result  : theContent,
-    actions : [{
-      text: textOk,
-      handler : ({$body})=>$body.result
-    }, {
-      text: textCancel,
-      handler : ()=>undefined
-    }],
     //------------------------------------------
     comType : "ti-text-raw",
     comConf : {

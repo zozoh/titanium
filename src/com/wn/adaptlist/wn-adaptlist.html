@@ -1,19 +1,19 @@
 <div class="wn-adaptlist" 
-  :class="topClass"
+  :class="TopClass"
   v-ti-actived="__set_actived">
   <div class="ti-fill-parent"
-    v-drop-files.mask="onDropFiles">
+    v-drop-files.mask="OnDropFiles">
     <!--==================================
       Show Loading
     -->
-    <ti-loading v-if="status.reloading" 
+    <ti-loading v-if="isReloading" 
       text="i18n:reloading"/>
     <!--==================================
       Data List
     -->
     <ti-wall v-else
       class="ti-fill-parent"
-      :data="theList"
+      :data="TheDataList"
       :spacing="spacing"
       :changed-id="changedId"
       :current-id="myCurrentId"
@@ -22,11 +22,11 @@
       :checkable="checkable"
       :blurable="blurable"
       :selectable="selectable"
-      :display="theWallItemDisplay"
+      :display="WallItemDisplay"
       :puppet-mode="true"
-      :extend-function-set="theExtendFunctionSet"
-      @select="onSelected"
-      @open="onOpen"
+      :extend-function-set="ExtendFunctionSet"
+      @select="OnSelected"
+      @open="OnOpen"
       />
     <!--==================================
       Hidden file upload control
@@ -36,28 +36,28 @@
       ref="file" 
       class="ti-hide"
       multiple
-      @change.stop.seft="onSelectLocalFilesToUpload">
+      @change.stop.seft="OnSelectLocalFilesToUpload">
     <!--==================================
       Uploading Pannel
     -->
     <div
       class="wal-uploading"
-      :class="theUploadingClass">
+      :class="UploadingClass">
       <header>
         <ti-icon value="fas-spinner fa-pulse"/>
         <span>{{'uploading'|i18n}}</span>
       </header>
       <section>
         <ti-wall 
-          :data="theUploadingList"
+          :data="TheUploadingList"
           :spacing="spacing"
           :selectable="false"
           :multi="false"
           :checkable="false"
           :blurable="false"
-          :display="theUploadingItemDisplay"
+          :display="UploadingItemDisplay"
           :puppet-mode="true"
-          :extend-function-set="theExtendFunctionSet"/>
+          :extend-function-set="ExtendFunctionSet"/>
       </section>
     </div>
     <!--==================================-->

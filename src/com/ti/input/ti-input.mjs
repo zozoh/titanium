@@ -9,7 +9,7 @@ export default {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
+    TopClass() {
       return this.getTopClass({
         "is-focused"   : this.isFocused,
         "is-blurred"   : !this.isFocused,
@@ -23,19 +23,23 @@ export default {
       })
     },
     //------------------------------------------------
-    topStyle() {
+    TopStyle() {
       return Ti.Css.toStyle({
         width  : this.width,
         height : this.height
       })
     },
     //------------------------------------------------
-    theValue() {
+    TheValue() {
       //console.log("input value:", this.value)
-      return Ti.Types.toStr(this.value, this.format)
+      let val = Ti.Types.toStr(this.value, this.format)
+      if(this.autoI18n) {
+        return Ti.I18n.text(val)
+      }
+      return val
     },
     //------------------------------------------------
-    thePrefixIcon() {
+    ThePrefixIcon() {
       if("prefixIcon" == this.pointerHover
         && this.isCanHover("prefixIcon")) {
         return this.prefixHoverIcon || this.prefixIcon
@@ -43,7 +47,7 @@ export default {
       return this.prefixIcon
     },
     //------------------------------------------------
-    theHover() {
+    TheHover() {
       let map = {}
       let hos = _.concat(this.hover)
       for(let ho of hos) {
@@ -59,7 +63,7 @@ export default {
   methods : {
     //------------------------------------------------
     isCanHover(hoverName) {
-      return this.theHover[hoverName] ? true : false
+      return this.TheHover[hoverName] ? true : false
     },
     //------------------------------------------------
     getHoverClass(hoverName) {
@@ -71,16 +75,16 @@ export default {
       }
     },
     //------------------------------------------------
-    onInputCompositionStart(){
+    OnInputCompositionStart(){
       this.inputCompositionstart = true
     },
     //------------------------------------------------
-    onInputCompositionEnd(){
+    OnInputCompositionEnd(){
       this.inputCompositionstart = false
       this.doWhenInput()
     },
     //------------------------------------------------
-    onInputing($event) {
+    OnInputing($event) {
       if(!this.inputCompositionstart) {
         this.doWhenInput()
       }
@@ -98,7 +102,7 @@ export default {
       }
     },
     //------------------------------------------------
-    // onInputKeyDown($event) {
+    // OnInputKeyDown($event) {
     //   let payload = _.pick($event, 
     //     "code","key","keyCode",
     //     "altKey","ctrlKey","metaKey","shiftKey")
@@ -107,11 +111,11 @@ export default {
     //   this.$emit("keypress", payload)
     // },
     //------------------------------------------------
-    onInputChanged() {
+    OnInputChanged() {
       this.doWhenInput("change")
     },
     //------------------------------------------------
-    onInputFocus() {
+    OnInputFocus() {
       if(!this.readonly) {
         if(this.autoSelect) {
           this.$refs.input.select()
@@ -127,40 +131,40 @@ export default {
       }
     },
     //------------------------------------------------
-    onInputBlur() {
+    OnInputBlur() {
       this.isFocused = false
       this.$emit("input:blur")
     },
     //------------------------------------------------
-    onClickPrefixIcon() {
+    OnClickPrefixIcon() {
       if(this.prefixIconForClean) {
         this.$emit("change", null)
       }
       this.$emit("prefix:icon")
     },
     //------------------------------------------------
-    onClickPrefixText() {
+    OnClickPrefixText() {
       this.$emit("prefix:text")
     },
     //------------------------------------------------
-    onClickSuffixIcon() {
+    OnClickSuffixIcon() {
       this.$emit("suffix:icon")
     },
     //------------------------------------------------
-    onClickSuffixText() {
+    OnClickSuffixText() {
       this.$emit("suffix:text")
     },
     //------------------------------------------------
     doAutoFocus() {
-      if(this.focus && !this.isFocused) {
-        this.onInputFocus()
+      if(this.focused && !this.isFocused) {
+        this.OnInputFocus()
       }  
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   watch : {
-    "focus" : function() {
+    "focused" : function() {
       this.doAutoFocus()
     }
   },

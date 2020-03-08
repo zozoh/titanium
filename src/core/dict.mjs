@@ -13,7 +13,7 @@ const K = {
   shadowed  : Symbol("shadowed")
 }
 ///////////////////////////////////////////////
-const __dict_mixin = {
+const __item_loading = {
   
 }
 ///////////////////////////////////////////////
@@ -112,17 +112,16 @@ export class Dict {
     return !Ti.Util.isNil(this[K.itemCache][val])
   }
   //-------------------------------------------
-  addItemToCache(...items) {
-    let list = _.flattenDeep(items)
-    _.forEach(list, (it)=>{
-      if(Ti.Util.isNil(it))
-        return
+  addItemToCache(it, val) {
+    it = Ti.Util.fallback(it, null)
+    let itV = val
+    if(Ti.Util.isNil(itV)) {
+      itV = this.getValue(it)
+    }
 
-      let itV = this.getValue(it)
-      if(!Ti.Util.isNil(itV)) {
-        this[K.itemCache][itV] = it
-      }
-    })
+    if(!_.isUndefined(it) && !Ti.Util.isNil(itV)) {
+      this[K.itemCache][itV] = it
+    }
   }
   //-------------------------------------------
   clearCache() {
@@ -151,11 +150,31 @@ export class Dict {
     // Match cache
     let it = this[K.itemCache][val]
     // Not in cache, try getItem
-    if(Ti.Util.isNil(it)) {
+    if(_.isUndefined(it)) {
+      // If is loading, return the promise
+      let loading = __item_loading[val]
+      if(loading) {
+        return await new Promise((resolve)=>{
+          loading.push(resolve)
+        }) 
+      }
+
+      // Setup loading
+      loading = []
+      __item_loading[val] = loading
+
+      // Do load item ...
+      //console.log("getItem", val)
       this.doHooks(true)
       it = await this.invokeAsync("item", val)
       this.doHooks(false)
-      this.addItemToCache(it)
+      this.addItemToCache(it, val)
+
+      // Release loading
+      for(let resolve of loading) {
+        resolve(it || null)
+      }
+      delete __item_loading[val]
     }
     if(this.isShadowed())
       return _.cloneDeep(it)
@@ -168,7 +187,11 @@ export class Dict {
       this.doHooks(true)
       list = await this.invokeAsync("data")
       this.doHooks(false)
-      this.addItemToCache(list)
+      // Cache items
+      _.forEach(list, it => {
+        this.addItemToCache(it)
+      })
+      // Cache list
       this[K.dataCache] = list
     }
     if(this.isShadowed())
@@ -185,7 +208,10 @@ export class Dict {
     this.doHooks(true)
     let list = await this.invokeAsync("query", str)
     this.doHooks(false)
-    this.addItemToCache(list)
+    // Cache items
+    _.forEach(list, it => {
+      this.addItemToCache(it)
+    })
 
     if(this.isShadowed())
       return _.cloneDeep(list) || []

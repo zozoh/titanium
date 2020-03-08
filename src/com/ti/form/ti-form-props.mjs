@@ -2,13 +2,13 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "fields" : {
-    type : Array,
-    default : ()=>[]
-  },
   "data" : {
     type : Object,
     default : undefined
+  },
+  "fields" : {
+    type : Array,
+    default : ()=>[]
   },
   "fieldStatus" : {
     type : Object,

@@ -5,14 +5,18 @@
   > .toc-types {
     flex:0 0 auto;
     ul {
-      @include raw-list;
+      @include noselect;
+      @include color($color-func, r, c);
       height:100%; overflow-y: scroll;
       li {
         @include flex-align($wp:nowrap);
-        @include fireable($color-func);
+        cursor: pointer;
         padding:.08rem; font-size:0.8em;
-        &.as-current {
+        &.as-current, &.as-current:hover {
           @include color($color-primary, r, c);
+        }
+        &:hover {
+          @include color($color-weaktip, r, c);
         }
         > .ti-icon {
           width: .32rem; margin-right:.02rem;
@@ -21,7 +25,7 @@
         }
         > em {
           @include font-fixed(0.8em);
-          @include color($color-disable, c);
+          opacity: 0.618;
           font-style:normal; margin-left:.06rem;
         }
       }

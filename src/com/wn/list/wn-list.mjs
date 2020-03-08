@@ -38,27 +38,21 @@ export default {
   ///////////////////////////////////////////////////
   computed : {
     //----------------------------------------------
-    theDisplayItems() {
+    DisplayItems() {
       return this.explainDisplayItems(this.display)
-    },
-    //----------------------------------------------
-    theExplainDict(){
-      return async function(value, dict){
-          return await Wn.Dict.get(dict, value)
-        }
     }
     //----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
     //----------------------------------------------
-    onSubListInit($list) {this.$list = $list},
+    OnSubListInit($list) {this.$list = $list},
     //----------------------------------------------
-    onSelected(payload={}){
+    OnSelected(payload={}){
       this.theCheckedIds = payload.checkedIds
       this.theCurrentId  = payload.currentId
       this.syncCheckStatus()
-      this.$emit('selected', payload)
+      this.$emit("select", payload)
     },
     //----------------------------------------------
     syncCheckStatus() {

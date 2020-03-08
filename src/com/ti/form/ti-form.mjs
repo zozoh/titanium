@@ -1,5 +1,9 @@
 export default {
-  inheritAttrs : false,
+  //////////////////////////////////////////////////////
+  model : {
+    prop  : "data",
+    event : "change"
+  },
   //////////////////////////////////////////////////////
   data : ()=>({
     currentTabIndex : 0
@@ -124,6 +128,24 @@ export default {
   //////////////////////////////////////////////////////
   methods : {
     //--------------------------------------------------
+    OnClickTab(tab) {
+      this.currentTabIndex = tab.index
+      this.$emit("tab:change", tab)
+    },
+    //--------------------------------------------------
+    OnFieldChanged({name, value}={}) {
+      //console.log("------------------------ti-form changed", payload)      
+      let data = _.cloneDeep(this.TheData)
+      _.set(data, name, value)
+      this.$emit("field:change", {name, value})
+      this.$emit("change", data)
+    },
+    //--------------------------------------------------
+    OnInvalid(err) {
+      //console.log("invalid", err)
+      this.$emit("invalid", err)
+    },
+    //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {
       // The key
       let fldKey = fld.name
@@ -174,21 +196,6 @@ export default {
         // Done
         return field
       }
-    },
-    //--------------------------------------------------
-    onClickTab(tab) {
-      this.currentTabIndex = tab.index
-      this.$emit("tab:changed", tab)
-    },
-    //--------------------------------------------------
-    onChanged(payload) {
-      //console.log("------------------------ti-form changed", payload)
-      this.$emit("change", payload)
-    },
-    //--------------------------------------------------
-    onInvalid(err) {
-      //console.log("invalid", err)
-      this.$emit("invalid", err)
     },
     //--------------------------------------------------
     __adjust_fields_width() {

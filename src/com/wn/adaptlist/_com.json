@@ -2,6 +2,8 @@
   "name" : "wn-adaptlist",
   "globally" : true,
   "template" : "./wn-adaptlist.html",
+  "props" : "./wn-adaptlist-props.mjs",
+  "methods" : "./wn-adaptlist-methods.mjs",
   "mixins" : ["./wn-adaptlist.mjs"],
   "components" : [
     "@com:ti/obj/thumb",

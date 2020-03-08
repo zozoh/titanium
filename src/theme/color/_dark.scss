@@ -33,7 +33,7 @@ $color-mask: (
 );
 //...........................................
 $color-line: (
-  dark      : rgba(200,200,200,0.2),
-  shallow   : rgba(200,200,200,0.1),
-  highlight : map-get($color-primary, c)
+  dark      : rgba(230,230,230,0.3),
+  shallow   : rgba(230,230,230,0.1),
+  highlight : map-get($color-secondary, c)
 );

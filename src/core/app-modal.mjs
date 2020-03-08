@@ -10,11 +10,11 @@ export class TiAppModal {
   // Behavior
   ready  = _.identity
   actions = [{
-      text: 'i18n:ok',
-      handler : _.identity
+      text: "i18n:ok",
+      handler : ({$body})=>$body.result
     }, {
-      text: 'i18n:cancel',
-      handler : _.identity
+      text: "i18n:cancel",
+      handler : ()=>undefined
     }]
   //--------------------------------------------
   comType = "ti-label"
@@ -23,6 +23,7 @@ export class TiAppModal {
   //--------------------------------------------
   // Aspect
   closer = "default"  // true|false | (default|bottom|top|left|right)
+  escape = true
   mask   = true       // !TODO maybe blur or something else
   clickMaskToClose = false
   /*
@@ -78,7 +79,7 @@ export class TiAppModal {
                 class="ti-fill-parent"
                 :class="theMainClass"
                 :is="comType"
-                v-bind="comConf"
+                v-bind="theComConf"
                 v-model="result"
                 :on-init="onMainInit"/>
             </div>
@@ -209,6 +210,10 @@ export class TiAppModal {
             'as-default'   : this.isCloserDefault,
             [`at-${this.closer}`] : !this.isCloserDefault
           })
+        },
+        //--------------------------------------
+        theComConf() {
+          return Ti.Util.explainObj(this, this.comConf)
         }
         //--------------------------------------
       },
@@ -270,6 +275,13 @@ export class TiAppModal {
         let app = Ti.App(this)
         Ti.App.pushInstance(app)
         this.setActived()
+        // Watch escape
+        if(escape) {
+          app.watchShortcut([{
+            action : "root:close",
+            shortcut : "ESCAPE"
+          }])
+        }
       },
       //////////////////////////////////////////
       beforeDestroy : function(){
@@ -294,6 +306,6 @@ export class TiAppModal {
     await this.ready(app)
     // Then it was waiting the `close()` be invoked
     //..........................................
-  } // ~ methods
+  } // ~ open()
   //////////////////////////////////////////
 }

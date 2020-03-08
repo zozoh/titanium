@@ -5,7 +5,7 @@ export default {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "data" : {
+    "value" : {
       type : Array,
       default : ()=>[]
     },
@@ -21,6 +21,10 @@ export default {
     // Behavior
     //-----------------------------------
     "cancelItemBubble" : {
+      type : Boolean,
+      default : false
+    },
+    "removable" : {
       type : Boolean,
       default : false
     },
@@ -71,9 +75,9 @@ export default {
     //------------------------------------------------
     theData() {
       const list = []
-      if(_.isArray(this.data)) {
-        const lastIndex = this.data.length - 1
-        _.forEach(this.data, (val, index)=>{
+      if(_.isArray(this.value)) {
+        const lastIndex = this.value.length - 1
+        _.forEach(this.value, (val, index)=>{
           let tag;
           // Auto mapping plain object
           if(_.isPlainObject(val)) {

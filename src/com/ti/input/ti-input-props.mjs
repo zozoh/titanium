@@ -20,7 +20,7 @@ export default {
     type: Boolean,
     default : false
   },
-  "focus" : {
+  "focused" : {
     type : Boolean,
     default : false
   },
@@ -38,6 +38,10 @@ export default {
   "placeholder" : {
     type : [String, Number],
     default : null
+  },
+  "autoI18n" : {
+    type : Boolean,
+    default : false
   },
   "hideBorder" : {
     type : Boolean,

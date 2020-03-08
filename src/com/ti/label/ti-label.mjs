@@ -67,6 +67,8 @@ export default {
         if(it) {
           this.myDisplayIcon = this.Dict.getIcon(it)
           val = this.Dict.getBy(this.myDictValKey, it, val)
+        } else {
+          this.myDisplayIcon = null
         }
       }
       // Number
@@ -79,7 +81,7 @@ export default {
       }
       // Normal value
       if(Ti.Util.isNil(val)) {
-        return Ti.I18n.text(this.blankAs)
+        return Ti.I18n.text(this.placeholder)
       }
       // Date
       if(_.isDate(val)) {

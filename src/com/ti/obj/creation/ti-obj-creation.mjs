@@ -6,11 +6,11 @@ export default {
     },
     "value" : {
       type : Object,
-      default : {
+      default : ()=>({
         name : "",
         type : "",
         race : ""
-      }
+      })
     },
     "trimed" : {
       type : Boolean,

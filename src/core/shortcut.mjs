@@ -23,10 +23,7 @@ export const TiShortcut = {
     //..........................................
     // Command in Function
     if(_.isFunction(action)) {
-      return __bind_it({
-        func: action, 
-        context: contextBy()||this
-      })
+      return __bind_it(action)
     }
     //..........................................
     let mode, name, args;

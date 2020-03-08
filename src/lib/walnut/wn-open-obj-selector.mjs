@@ -43,7 +43,7 @@ export async function OpenObjSelector(pathOrObj="~", {
     //------------------------------------------
     modules : {
       current  : "@mod:wn/obj-meta",
-      main     : "@mod:wn/obj-explorer"
+      main     : "@mod:wn/obj-current"
     },
     //------------------------------------------
     comType : "modal-inner-body",
@@ -85,7 +85,7 @@ export async function OpenObjSelector(pathOrObj="~", {
           "objParentIsHome"  : "parentIsHome"
         }),
         //--------------------------------------
-        ...Vuex.mapState("main", ["list", "pager", "status"]),
+        ...Vuex.mapState("main", ["data", "status"]),
         //--------------------------------------
         theCrumbData() {
           return Wn.Obj.evalCrumbData({
@@ -125,8 +125,7 @@ export async function OpenObjSelector(pathOrObj="~", {
               comType : "wn-adaptlist",
               comConf : {
                 "meta"   : this.obj,
-                "list"   : this.list,
-                "pager"  : this.pager,
+                "data"   : this.data,
                 "status" : this.status,
                 "multi"  : multi
               }

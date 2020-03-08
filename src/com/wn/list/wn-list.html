@@ -1,39 +1,6 @@
 <ti-list
-  :class-name="className"
-
-  :data="data"
-  :id-by="idBy"
-  :raw-data-by="rawDataBy"
-  :current-id="currentId"
-  :checked-ids="checkedIds"
-  :changed-id="changedId"
-  :explain-dict="theExplainDict"
-  :extend-function-set="extendFunctionSet"
-  
-  :multi="multi"
-  :auto-check-current="autoCheckCurrent"
-  :row-toggle-key="rowToggleKey"
-  :checkable="checkable"
-  :selectable="selectable"
-  :openable="openable"
-  :cancelable="cancelable"
-  :hoverable="hoverable"
-  :puppet-mode="puppetMode"
-  :scroll-index="scrollIndex"
-
-  :blank-as="blankAs"
-
-  :width="width"
-  :height="height"
-
-  :icon-by="iconBy"
-  :indent-by="indentBy"
-  :item-class-name="itemClassName"
-  :display="theDisplayItems"
-  :border="border"
-  :auto-scroll-into-view="autoScrollIntoView"
-
-  :on-init="onSubListInit"
-
-  @select="onSelected"
+  v-bind="this"
+  :display="DisplayItems"
+  :on-init="OnSubListInit"
+  @select="OnSelected"
   @open="$emit('open', $event)"/>
