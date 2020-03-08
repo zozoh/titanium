@@ -1,4 +1,4 @@
-import {fireable} from "../../support/ti-menu-items.mjs"
+import {fireable} from "../../menu-items-support.mjs"
 //---------------------------------------
 export default {
   ///////////////////////////////////////

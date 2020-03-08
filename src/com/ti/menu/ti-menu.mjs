@@ -1,6 +1,12 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////
+  provide : function(){
+    return {
+      "$menu" : this
+    }
+  },
+  ///////////////////////////////////////////
   props : {
     "data" :{
       type : Array,
@@ -16,29 +22,25 @@ export default {
     "status" : {
       type : Object,
       default : ()=>({})
-    },
-    "delay" : {
-      type : Number,
-      default : 0
     }
   },
   ///////////////////////////////////////////
   computed : {
     //---------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName(this.className)
+    TopClass() {
+      return this.getTopClass()
     },
     //---------------------------------------
-    conClass() {
+    ConClass() {
       if(this.align) {
-        return "align-"+this.align
+        return `align-${this.align}`
       }
     },
     //---------------------------------------
-    items() {
+    MenuItems() {
       let list = []
       _.forEach(this.data, (it, index)=>{
-        this.joinActionItem(list, it, "/item"+index)
+        this.joinMenuItem(list, it, "/item"+index)
       })
       return list
     }
@@ -47,7 +49,7 @@ export default {
   ///////////////////////////////////////////
   methods : {
     //---------------------------------------
-    joinActionItem(list=[], {
+    joinMenuItem(list=[], {
       key, type, statusKey,
       icon, text, tip, 
       shortcut,
@@ -70,105 +72,19 @@ export default {
         it.altDisplay = {...altDisplay}
       }
       // set sub comType by type
-      it.comType = "mitem-" + _.kebabCase(it.type)
+      let itType = _.lowerCase(it.type)
+      it.comType = `menu-item-${itType}`
       // If group, recur
       if(_.isArray(items) && items.length > 0) {
         it.items = []
         _.forEach(items, (subIt, index)=>{
-          this.joinActionItem(it.items, subIt, it.key+"/item"+index)
+          this.joinMenuItem(it.items, subIt, it.key+"/item"+index)
         })
       }
       // Join the normalized item
       list.push(it)
-    },
-    //---------------------------------------
-    invokeAction(action){
-      // Invoke directly
-      if(_.isFunction(action)) {
-        action()
-        return
-      }
-      //console.log("invokeAction", action)
-      let vm = this
-      let m = /^([$a-zA-Z0-9_]+):([^()]+)(\((.*)\))?$/.exec(action)
-      if(m) {
-        let mode = m[1]
-        let tanm = m[2]
-        let arg0 = m[4]
-        let func, context
-        //...............................
-        // Emit
-        if("$emit" == mode) {
-          this.$emit(tanm, arg0)
-          return
-        }
-        //...............................
-        // Call parent
-        if('$parent' == mode) {
-          func = this.$parent[tanm]
-          context = this.$parent
-        }
-        // Call App
-        else {
-          let $app = Ti.App(vm)
-          func = $app[mode]
-          context = $app
-        }
-        //...............................
-        // Do Invoke
-        if(_.isFunction(func) && tanm) {
-          let args = Ti.S.joinArgs(arg0, [tanm])
-          func.apply(context, args)
-          return
-        }
-        //...............................
-      }
-      // Fail to found function
-      // Then emit the action
-      // throw Ti.Err.make("e-ti-menu-action-InvalidAction", action)
-      if(_.isString(action)) {
-        this.$emit(action)
-      }
-    },
-    //---------------------------------------
-    onInvokeAction(action) {
-      // Debounce call
-      if(_.isFunction(this.debounceInvokeAction)) {
-        this.debounceInvokeAction(action)
-      }
-      // Directly Call
-      else {
-        this.invokeAction(action)
-      }
-    },
-    //---------------------------------------
-    installActionInvoker() {
-      if(this.delay > 0) {
-        this.debounceInvokeAction = _.debounce((action)=>{
-          this.invokeAction(action)
-        }, this.delay, {
-          leading  : true,
-          trailing : true
-        })
-      }
-      // Invoke action directly
-      else {
-        this.debounceInvokeAction = undefined
-      }
     }
     //---------------------------------------
-  },
-  ///////////////////////////////////////////
-  watch : {
-    "delay" : function() {
-      this.installActionInvoker()
-    }
-  },
-  ///////////////////////////////////////////
-  mounted : function() {
-    this.$nextTick(()=>{
-      this.installActionInvoker()
-    })
   }
   ///////////////////////////////////////////
 }

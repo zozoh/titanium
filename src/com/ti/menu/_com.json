@@ -4,8 +4,8 @@
   "template" : "./ti-menu.html",
   "mixins" : ["./ti-menu.mjs"],
   "components" : [
-    "./com/mitem-action",
-    "./com/mitem-group",
-    "./com/mitem-line"
+    "./com/menu-item-action",
+    "./com/menu-item-group",
+    "./com/menu-item-line"
   ]
 }

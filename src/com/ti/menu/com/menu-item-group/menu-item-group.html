@@ -8,18 +8,18 @@
   <div class="as-info"
       :item-disabled="isDisabled"
       :item-enabled="isEnabled"
-      :tip="theTip"
+      :data-tip="TheTip"
       @click.stop="showChildren">
     <!--Icon-->
     <span v-if="isTop || showIcon"
       class="as-icon">
       <ti-icon v-if="hasIcon" 
         size=".16rem"
-        :value="theIcon"/>
+        :value="TheIcon"/>
     </span>
     <!--Text-->
     <span v-if="hasText"
-      class="as-text">{{theText|i18n}}</span>
+      class="as-text">{{TheText|i18n}}</span>
     <!--Tip Icon-->
     <span v-if="!isTop"
       class="as-more-icon">
@@ -40,8 +40,7 @@
             v-bind="it"
             :show-icon="itemsHasIcon"
             :status="status"
-            :status-key="it.statusKey || it.key"
-            @action="$emit('action', $event)"/>
+            :status-key="it.statusKey || it.key"/>
       </li>
     </ul>
   </div>

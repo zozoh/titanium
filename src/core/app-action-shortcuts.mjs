@@ -51,44 +51,15 @@ export class TiAppActionShortcuts {
   // Methods
   //////////////////////////////////////////////
   bindInvoke(scope, action, wait=100) {
-    //..........................................
-    // Command in Function
-    if(_.isFunction(action)) {
-      return _.debounce(function(){
-        return action.apply(scope, [])
-      }, wait)
-    }
-    //..........................................
-    let mode, name, args;
-    //..........................................
-    // Command in String
-    if(_.isString(action)) {
-      let m = /^([$a-zA-Z0-9_]+):([^()]+)(\((.*)\))?$/.exec(action)
-      mode = m[1]
-      name = m[2]
-      args = m[4]
-    }
-    //..........................................
-    // Command in object
-    else if(_.isPlainObject(action)) {
-      mode = action.mode
-      name = action.name
-      args = action.args
-    }
-    //..........................................
-    let func = _.get(scope, mode)
-    //..........................................
-    // Gurad
-    if(!_.isFunction(func) || !name) {
-      throw Ti.Err.make("e.invalid.action : " + action, {action})
-    }
-    //..........................................
-    let __args = Ti.S.joinArgs(args, [name])
-    //..........................................
-    return _.debounce(function(){
-      return func.apply(scope, __args)
-    }, wait)
-    //..........................................
+    return Ti.Shortcut.genActionInvoking(action, ({mode,name,args})=>{
+      let app = Ti.App.topInstance()
+      let fn = _.get(app, mode)
+      if(_.isFunction(fn)) {
+        let __args = Ti.S.joinArgs(args, [name])
+        return ()=>fn.apply(app, __args)
+      }
+      throw `AppShortcuts.action noexits: ${mode}.${name}(${args.join(",")})`
+    }, {wait})
   }
   //--------------------------------------------
   isWatched(uniqKey, scope) {

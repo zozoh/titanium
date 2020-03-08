@@ -1,8 +1,7 @@
-import {fireable} from "../../support/ti-menu-items.mjs"
-import TiShortcut from "../../../../../core/shortcut.mjs"
+import {fireable} from "../../menu-items-support.mjs"
 //---------------------------------------
 export default {
-  inheritAttrs : false,
+  inject : ["$menu"],
   ///////////////////////////////////////////  
   props : fireable.Props({
     "action" : {
@@ -19,8 +18,34 @@ export default {
     hasShortcut() {
       return this.shortcut ? true : false
     },
-    shortcutText() {
+    ShortcutText() {
       return this.shortcut || ""
+    },
+    InvokeFunc() {
+      return Ti.Shortcut.genActionInvoking(this.action, ({mode, name, args})=>{
+          if("$emit" == mode) {
+            return ()=>this.$emit(name, ...args)
+          }
+          if("$parent" == mode) {
+            let $p = this.$menu.$parent
+            console.log($p.tiComType)
+            let fn = _.get($p, name)
+            if(_.isFunction(fn)){
+              return ()=>fn.apply($p, args)
+            }
+            throw `menu-item.action noexits: ${mode}.${name}(${args.join(",")})`
+          }
+          let app = Ti.App(this)
+          let fn = _.get(app, mode)
+          if(_.isFunction(fn)) {
+            let __args = Ti.S.joinArgs(args, [name])
+            return ()=>fn.apply(app, __args)
+          }
+          throw `menu-item.action noexits: ${mode}.${name}(${args.join(",")})`
+        }
+      ,{
+        wait : this.wait
+      })
     }
   }),
   ///////////////////////////////////////////
@@ -30,8 +55,8 @@ export default {
       if(this.isDisabled) {
         return
       }
-      // Notify action
-      this.$emit("action", this.action)
+      // Call Action
+      this.InvokeFunc()
     }
   },
   ///////////////////////////////////////////

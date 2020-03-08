@@ -1,7 +1,7 @@
 <div class="it-is-action as-info"
      :item-disabled="isDisabled"
      :item-enabled="isEnabled"
-     :tip="theTip"
+     :data-tip="TheTip"
      @click="onClickTop">
   <!--
     Icon
@@ -10,18 +10,18 @@
     class="as-icon">
     <ti-icon v-if="hasIcon" 
       size=".16rem"
-      :value="theIcon"/>
+      :value="TheIcon"/>
   </span>
   <!--
     Text
   -->
   <span v-if="hasText"
-    class="as-text">{{theText|i18n}}</span>
+    class="as-text">{{TheText|i18n}}</span>
   <!--
     Shortcut
   -->
   <span v-if="!isTop && hasShortcut"
-    class="as-tip">{{shortcutText}}</span>
+    class="as-tip">{{ShortcutText}}</span>
   <!--
     Mask
   -->

@@ -1,15 +1,14 @@
 <div class="ti-menu"
-  :class="topClass">
-  <ul class="menu-con" :class="conClass">
-    <li v-for="it in items" 
+  :class="TopClass">
+  <ul class="menu-con" :class="ConClass">
+    <li v-for="it in MenuItems" 
       :key="it.key" 
       class="menu-top-item">
       <component :is="it.comType"
         v-bind="it"
         :is-top="true"
         :status="status"
-        :status-key="it.statusKey || it.key"
-        @action="onInvokeAction"/>
+        :status-key="it.statusKey || it.key"/>
     </li>
   </ul>
 </div>

@@ -196,7 +196,7 @@ export default {
       }
       console.log(ids)
       this.$nextTick(()=>{
-        this.onRowSelected({
+        this.OnRowSelected({
           currentId  : `N${pos}`,
           currentIndex : pos,
           checkedIds : ids

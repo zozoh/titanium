@@ -63,20 +63,28 @@ export const fireable = {
       shortcut : {
         type : String,
         default : null
+      },
+      wait : {
+        type : Number,
+        default : 0
       }
     }, props)
   },
   Computed(isAlt, comp={}) {
     return _.assign({
-      theIcon() {return THE(isAlt, this, "icon")},
-      theText() {return THE(isAlt, this, "text")},
-      theTip () {return THE(isAlt, this, "tip")},
+      //-------------------------------------------------------
+      TheIcon() {return THE(isAlt, this, "icon")},
+      TheText() {return THE(isAlt, this, "text")},
+      TheTip () {return THE(isAlt, this, "tip")},
+      //-------------------------------------------------------
       hasIcon() {return HAS(isAlt, this, "icon")},
       hasText() {return HAS(isAlt, this, "text")},
       hasTip () {return HAS(isAlt, this, "tip")},
+      //-------------------------------------------------------
       isCaptureWhenAltDisplay() {
         return this.altDisplay && this.altDisplay.capture !== false
       },
+      //-------------------------------------------------------
       isEnabled() {
         if(this.enableBy) {
           return this.status[this.enableBy]
@@ -86,6 +94,7 @@ export const fireable = {
         }
         return true
       },
+      //-------------------------------------------------------
       isDisabled() {
         if(this.enableBy) {
           return !this.status[this.enableBy]
@@ -95,6 +104,7 @@ export const fireable = {
         }
         return false
       }
+      //-------------------------------------------------------
     }, comp)
   }
 }

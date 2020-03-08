@@ -1,6 +1,63 @@
 ///////////////////////////////////////
 export const TiShortcut = {
   /***
+   * Get the function from action
+   * 
+   * @param action{String|Object|Function}
+   * @param funcBy{Function} : Cutomized function generator
+   *    with arguments `({mode, name, args}, context):Function`.
+   *    the `context` should be the `contextBy` result.
+   *    If without defined or return undefined, it will get the 
+   *    function from context by {context, mode, name}
+   * @param wait{Number} : If `>0` it will return the debounce version
+   * 
+   * @return {Function} the binded function call.
+   */
+  genActionInvoking(action, funcBy, {wait=0}={}) {
+    //..........................................
+    const __bind_it = fn => {
+      return wait > 0
+        ? _.debounce(fn, wait)
+        : fn
+    }
+    //..........................................
+    // Command in Function
+    if(_.isFunction(action)) {
+      return __bind_it({
+        func: action, 
+        context: contextBy()||this
+      })
+    }
+    //..........................................
+    let mode, name, args;
+    //..........................................
+    // Command in String
+    if(_.isString(action)) {
+      let m = /^([$a-zA-Z0-9_]+):([^()]+)(\((.*)\))?$/.exec(action)
+      mode = m[1]
+      name = m[2]
+      args = m[4]
+    }
+    //..........................................
+    // Command in object
+    else if(_.isPlainObject(action)) {
+      mode = action.mode
+      name = action.name
+      args = action.args
+    }
+    //..........................................
+    let _a0  = {mode, name, args: Ti.S.toArray(args)}
+    let func = Ti.Invoke(funcBy, [_a0])
+    //..........................................
+    // Gurad
+    if(!_.isFunction(func)) {
+      throw Ti.Err.make("e.invalid.action : " + action, {action})
+    }
+    //..........................................
+    return __bind_it(func)
+    //..........................................
+  },
+  /***
    * Get uniquekey for a keyboard event object
    * 
    * @param $event{Event} - the Event like object with

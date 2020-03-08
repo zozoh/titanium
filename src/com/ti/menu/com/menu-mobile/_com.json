@@ -1,5 +1,0 @@
-{
-  "name" : "menu-mobile",
-  "template" : "./menu-mobile.html",
-  "mixins"   : ["./menu-mobile.mjs"]
-}

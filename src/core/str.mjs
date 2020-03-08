@@ -194,6 +194,10 @@ export const TiStr = {
     sep=/[:,;\t\n\/]+/g,
     ignoreNil=true
   }={}){
+    // Nil
+    if(Ti.Util.isNil(s)) {
+      return []
+    }
     // Array
     if(_.isArray(s)) {
       return s
@@ -205,10 +209,6 @@ export const TiStr = {
         return _.without(ss, "")
       }
       return ss
-    }
-    // Nil
-    if(Ti.Util.isNil(s)) {
-      return []
     }
     // Others -> wrap
     return [s]
