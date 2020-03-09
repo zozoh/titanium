@@ -33,6 +33,10 @@ export default {
     type : Boolean,
     default : true
   },
+  "adjustDelay" : {
+    type : Number,
+    default : 0
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

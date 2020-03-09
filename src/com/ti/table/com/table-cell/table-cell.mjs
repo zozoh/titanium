@@ -101,18 +101,22 @@ export default {
   ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
-    topClass() {
-      return this.getTopClass({
-        "is-nowrap" : this.nowrap,
-        "is-editing-mode" : this.isEditingMode
-      })
+    TopClass() {
+      return this.getTopClass()
     },
     //-----------------------------------------------
-    topStyle() {
+    TopStyle() {
       if(this.cellSize > 0) {
         return Ti.Css.toStyle({
           "width" : this.cellSize
         })
+      }
+    },
+    //-----------------------------------------------
+    WrapperClass() {
+      return {
+        "is-nowrap" : this.nowrap,
+        "is-editing-mode" : this.isEditingMode
       }
     },
     //-----------------------------------------------
@@ -181,6 +185,7 @@ export default {
       if(this.cellSize != this.myCellSize) {
         this.myCellSize = this.cellSize
         this.$nextTick(()=>{
+          //console.log("call table resize")
           this.$parent.$parent.debounceEvalEachColumnSize()
         })
       }
@@ -211,9 +216,9 @@ export default {
     "isActived" : async function() {
       await this.evalCellDisplayItems()
     },
-    "cellSize" : async function() {
-      await this.debounceEvalCellDisplayItems()
-    }
+    // "cellSize" : async function() {
+    //   await this.debounceEvalCellDisplayItems()
+    // }
   },
   ///////////////////////////////////////////////////
   created : function() {

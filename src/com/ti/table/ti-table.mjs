@@ -2,6 +2,7 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   data : ()=>({
+    myData : [],
     myHoverId  : null,    // The row mouse hover
     myViewportWidth : 0,  // Update-in-time, root element width
     myTableWidth: 0,      // Update-in-time, table width
@@ -71,10 +72,7 @@ export default {
     },
     //--------------------------------------
     theData() {
-      return this.evalData((it)=>{
-        it.icon = this.getRowIcon(it.item)
-        it.indent = this.getRowIndent(it.item)
-      })
+      return this.myData
     },
     //--------------------------------------
     isShowHead() {
@@ -207,6 +205,13 @@ export default {
     },
     //--------------------------------------
     evalEachColumnSize() {
+      if(this.fields.length==1) {
+        this.whenTableLayout = false
+        this.layoutReady = true
+        return
+      }
+      if(this.fields.length==1)
+        console.log("evalEachColumnSize")
       // Guard
       if(this.whenTableLayout) {
         return
@@ -389,6 +394,16 @@ export default {
       }
     }
     //--------------------------------------
+  },
+  watch : {
+    "data" : function(newVal, oldVal){
+      // if(this.fields.length == 1)
+      // console.log("table data changed", _.isEqual(newVal, oldVal))
+      this.myData = this.evalData((it)=>{
+        it.icon = this.getRowIcon(it.item)
+        it.indent = this.getRowIndent(it.item)
+      })
+    }
   },
   ///////////////////////////////////////////////////
   created : function() {

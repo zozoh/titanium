@@ -1,6 +1,11 @@
 export default {
   inheritAttrs : false,
   /////////////////////////////////////////
+  data : ()=>({
+    myItems : [],
+    myTreeData : []
+  }),
+  /////////////////////////////////////////
   props : {
     "items" : {
       type : Array,
@@ -17,16 +22,6 @@ export default {
   },
   //////////////////////////////////////////
   computed : {
-    //-------------------------------------
-    theTreeData() {
-      let list = []
-      if(_.isArray(this.items)) {
-        for(let it of this.items) {
-          list.push(this.evalItemToTreeNode(it))
-        }
-      }
-      return list;
-    },
     //-------------------------------------
     theHighlightItemId() {
       let list = this.joinHighlightItems([], this.items)
@@ -48,6 +43,18 @@ export default {
   },
   //////////////////////////////////////////
   methods : {
+    //-------------------------------------
+    evalTreeData(items=[]) {
+      this.myItems = _.cloneDeep(items)
+      let list = []
+      if(_.isArray(items)) {
+        for(let it of items) {
+          list.push(this.evalItemToTreeNode(it))
+        }
+      }
+      //console.log("theTreeData", list)
+      this.myTreeData = list
+    },
     //-------------------------------------
     evalItemToTreeNode(it={}) {
       // Children
@@ -100,6 +107,17 @@ export default {
       }
     }
     //-------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "items" : {
+      handler : function(newVal, oldVal){
+        if(!_.isEqual(newVal, this.myItems)) {
+          this.evalTreeData(newVal)
+        }
+      },
+      immediate : true
+    }
   }
   //////////////////////////////////////////
 }

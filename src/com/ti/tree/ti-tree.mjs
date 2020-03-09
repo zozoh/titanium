@@ -235,6 +235,7 @@ export default {
       let mainCol = {
         title   : this.title,
         width   : this.mainWidth,
+        nowrap  : true,
         display : this.display
       }
       if(this.isTable) {

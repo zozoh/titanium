@@ -221,15 +221,25 @@ export default {
       for(let $fldnm of $fldNames) {
         Ti.Dom.setStyle($fldnm, {width:maxWidth})
       }
+    },
+    //--------------------------------------------------
+    adjustFieldsWidth() {
+      if(this.adjustDelay > 0) {
+        _.delay(()=>{
+          this.__adjust_fields_width()
+        }, this.adjustDelay)
+      } else {
+        this.$nextTick(()=>{
+          this.__adjust_fields_width()
+        })
+      }
     }
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
   watch : {
     "fields" : function(){
-      this.$nextTick(()=>{
-        this.__adjust_fields_width()
-      })
+      this.adjustFieldsWidth()
     },
     "currentTab" : function(index){
       this.currentTabIndex = index
@@ -238,9 +248,7 @@ export default {
       if(this.keepTabIndexBy) {
         Ti.Storage.session.set(this.keepTabIndexBy, index)
       }
-      this.$nextTick(()=>{
-        this.__adjust_fields_width()
-      })
+      this.adjustFieldsWidth()
     }
   },
   //////////////////////////////////////////////////////
@@ -261,9 +269,7 @@ export default {
       this.__debounce_adjust_fields_width()
     }})
     //--------------------------------------------------
-    this.$nextTick(()=>{
-      this.__adjust_fields_width()
-    })
+    this.adjustFieldsWidth()
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
