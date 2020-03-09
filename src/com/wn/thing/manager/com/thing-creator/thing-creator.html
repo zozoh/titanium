@@ -1,8 +1,7 @@
 <div class="thing-creator ti-box-relative">
   <ti-form
     :fields="fields"
-    :data="newObj"
-    @change="onChanged"/>
+    v-model="myData"/>
   <hr class="no-space">
   <div class="ti-flex-center ti-padding-10">
     <div class="ti-btn is-big" 

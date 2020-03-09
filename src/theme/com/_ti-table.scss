@@ -4,6 +4,12 @@
   width:100%; 
   position: relative;
   //---------------------------------------------
+  > .ti-blank.is-big {
+    .ti-loading > .tl-con {
+      justify-content: center;
+    }
+  }  
+  //---------------------------------------------
   &.is-layout-no-ready {
     visibility: hidden;
   }

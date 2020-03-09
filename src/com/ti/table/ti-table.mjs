@@ -27,9 +27,10 @@ export default {
   computed : {
     //--------------------------------------
     topClass() {
+      let isLayoutReady = this.isDataEmpty || this.layoutReady;
       return this.getTopClass({
-        "is-layout-no-ready" : !this.layoutReady,
-        "is-layout-ready" : this.layoutReady,
+        "is-layout-no-ready" : !isLayoutReady,
+        "is-layout-ready" : isLayoutReady,
         "is-hoverable"   : this.hoverable
       }, [
         `is-border-${this.border}`,
