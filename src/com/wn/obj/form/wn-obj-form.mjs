@@ -8,26 +8,20 @@ export default {
         noti : null
       })
     },
+    // {method : "dispatch", target : "main/onChanged"}
     "setDataBy" : {
       type : Object,
-      default : ()=>({
-        method : "dispatch",
-        target : "main/onChanged"
-      })
+      default : null
     },
+    // {method : "dispatch", target : "main/changeMeta"}
     "updateBy" : {
       type : Object,
-      default : ()=>({
-        method : "dispatch",
-        target : "main/changeMeta"
-      })
+      default : null
     },
+    // {method : "commit", target : "main/setFieldStatus"}
     "setFieldStatusBy" : {
       type : Object,
-      default : ()=>({
-        method : "commit",
-        target : "main/setFieldStatus"
-      })
+      default : null
     }
   },
   //////////////////////////////////////////////////////

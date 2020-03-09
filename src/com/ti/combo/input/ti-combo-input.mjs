@@ -10,7 +10,8 @@ export default {
     myCurrentId    : null,
     myCheckedIds   : {},
 
-    myOldValue : undefined
+    myOldValue : undefined,
+    loading : false
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -51,6 +52,9 @@ export default {
     },
     //------------------------------------------------
     ThePrefixIcon() {
+      if(this.loading) {
+        return "zmdi-settings zmdi-hc-spin"
+      }
       let icon = this.prefixIcon;
       if(this.myItem) {
         icon = this.Dict.getIcon(this.myItem) || icon
@@ -83,6 +87,15 @@ export default {
       // Customized
       if(this.options instanceof Ti.Dict) {
         return this.options
+      }
+      // Refer dict
+      if(_.isString(this.options)) {
+        let dictName = Ti.DictFactory.DictReferName(this.options)
+        if(dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+            this.loading = loading
+          })
+        }
       }
       // Auto Create
       return Ti.DictFactory.CreateDict({
@@ -124,6 +137,8 @@ export default {
       if(!val) {
         this.myItem = null
         this.myFreeValue = null
+        this.myCheckedIds = {}
+        this.myCurrentId = null
       }
       // Find ...
       else {
@@ -192,7 +207,7 @@ export default {
     // Utility
     //-----------------------------------------------
     evalMyValue(item=this.myItem, freeValue=this.myFreeValue) {
-      console.log("evalMyValue", item, freeValue)
+      //console.log("evalMyValue", item, freeValue)
       // Item
       if(item) {
         return this.Dict.getValue(item)

@@ -127,6 +127,7 @@
   "true" : "是",
   "title" : "标题",
   "type" : "类型",
+  "unknown" : "未知",
   "under-construction" : "正在施工中",
   "upload" : "上传",
   "upload-file" : "上传文件...",

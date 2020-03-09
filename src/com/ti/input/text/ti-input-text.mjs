@@ -191,7 +191,7 @@ export default {
     },
     //------------------------------------------------
     onInputChanged() {
-      this.doWhenInput("changed")
+      this.doWhenInput("change")
     },
     //------------------------------------------------
     onInputFocus() {
