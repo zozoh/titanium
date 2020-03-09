@@ -95,7 +95,7 @@ $GUI-BLOCK-HEADER-HEIGHT: .4rem;
       font-size:.12rem;
       &.is-current {
         @include color($color-body, r, c);
-        border-color:map-get($color-line, dark);
+        border-color:map-get($color-line, shallow);
         border-top-color:map-get($color-primary, c);
         border-bottom-color:map-get($color-primary, c);
         background-color:map-get($color-body, c);
