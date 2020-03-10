@@ -116,6 +116,7 @@ export default {
     },
     //--------------------------------------
     onTableResize() {
+      //console.log("onTableResize")
       // Guard it
       let colN = this.myColSizes.primary.length
       if(colN <= 0) {
@@ -184,16 +185,10 @@ export default {
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  created : function() {
-    //.................................
-    // Define the method for sub-cells up-calling
-    this.debounceEvalEachColumnSize = _.debounce(()=>this.evalEachColumnSize(), 100)
-  },
-  ///////////////////////////////////////////////////
   mounted : async function() {
     //.................................
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.onTableResize(), 100)
+      resize : _.debounce(()=>this.onTableResize(), 200)
     })
     //.................................
   },

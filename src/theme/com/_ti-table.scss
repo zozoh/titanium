@@ -10,7 +10,7 @@
     }
   }  
   //---------------------------------------------
-  transition: opacity 0.5s;
+  transition: opacity .5s;
   &.is-cells-no-ready {
     opacity: 0;
   }
@@ -86,6 +86,7 @@
         padding:0 .06rem;
         .table-head-cell-text {
           font-size: 0.9em; font-weight: bold;
+          display:block; white-space: nowrap;
         }
         .as-checker{
           cursor:pointer;
