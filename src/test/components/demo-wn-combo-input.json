@@ -1,8 +1,9 @@
 {
   "comType" : "ti-form",
   "comConf" : {
-    "className" : "ti-fill-parent",
     "title" : "动态单选组合框测试",
+    "autoShowBlank" : false,
+    "data" : "=data",
     "fields" : [{
         "title" : "普通单选",
         "tip"   : "只是负责提示，用户随便输入",
@@ -62,10 +63,6 @@
           "placeholder" : "请选择",
           "options" : "obj ~/demo/images/* -l -cqn"
         }
-      }],
-    "data" : "=data"
-  },
-  "dispatchActions" : {
-    "change" : "updatePair"
+      }]
   }
 }

@@ -1,8 +1,8 @@
 {
-  "name" : "wn-obj-single-com",
+  "name" : "com-test-case",
   "globally" : true,
-  "template" : "./wn-obj-single-com.html",
-  "mixins" : ["./wn-obj-single-com.mjs"],
+  "template" : "./com-test-case.html",
+  "mixins" : ["./com-test-case.mjs"],
   "components" : [
     "@com:ti/form",
     "@com:ti/wizard",

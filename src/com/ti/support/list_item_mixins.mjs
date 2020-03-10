@@ -85,7 +85,7 @@ export default {
       return _.indexOf(this.rowToggleKey, uniqKey)>=0
     },
     //-----------------------------------------------
-    onClickChecker($event={}) {
+    OnClickChecker($event={}) {
       if(this.checkable) {
         this.$emit("checker", {
           rowId  : this.rowId,
@@ -95,7 +95,7 @@ export default {
       }
     },
     //-----------------------------------------------
-    onClickRow($event={}) {
+    OnClickRow($event={}) {
       let toggle = ($event.ctrlKey || $event.metaKey)
       if(this.selectable && (!this.isCurrent || !this.isChecked || toggle)) {
         this.$emit("select", {
@@ -106,7 +106,7 @@ export default {
       }
     },
     //-----------------------------------------------
-    onDblClickRow($event={}) {
+    OnDblClickRow($event={}) {
       if(this.openable) {
         $event.stopPropagation()
         this.$emit("open", {

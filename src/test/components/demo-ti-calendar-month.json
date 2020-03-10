@@ -1,23 +1,10 @@
 {
   "comType" : "ti-calendar",
   "comConf" : {
-    "value" : "=data.current",
+    "value" : "=content",
     "range" : false,
     "monthFormat" : "yyyy年M月",
     "matrixMode" : "monthly",
     "matrixCount" : 1
-  },
-  "dispatchActions" : {
-    "change" : {
-      "action" : "updatePair",
-      "payload" : {
-        "name"  : "current",
-        "value" : {
-          "__is_calling" : true,
-          "name" : "formatDate",
-          "args" : ["=$args", "yyyy-MM-dd"]
-        }
-      }
-    }
   }
 }

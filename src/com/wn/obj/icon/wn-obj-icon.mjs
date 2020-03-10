@@ -1,5 +1,3 @@
-import WnUtil from "../../../../lib/walnut/wn-util.mjs"
-
 /////////////////////////////////////////////////////
 export default {
   inheritAttrs : false,

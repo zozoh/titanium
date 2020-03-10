@@ -11,8 +11,5 @@
     "display" : ["<icon:zmdi-odnoklassniki>", "name"],
     "width"  : 400,
     "height" : 500
-  },
-  "dispatchActions" : {
-    
   }
 }

@@ -1,11 +1,19 @@
 ////////////////////////////////////////////
 export default {
-  inheritAttrs : false,
+  ///////////////////////////////////////////////////
+  provide : function(){
+    return {
+      "$wall" : this
+    }
+  },
   //////////////////////////////////////////
   data : ()=>({
     myColCount : 0,
     myColWidth : 0,
-    isOnlyOneRow : true
+    isOnlyOneRow : true,
+
+    myCellsReady : false,
+    myCellsReport : {}
   }),
   //////////////////////////////////////////
   props : {
@@ -41,7 +49,7 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
+    TopClass() {
       return this.getTopClass({
         "is-hoverable"    : this.hoverable,
         "show-border"     : this.border,
@@ -52,28 +60,28 @@ export default {
       ])
     },
     //--------------------------------------
-    theItemDisplay() {
+    ItemDisplay() {
       return this.evalFieldDisplayItem(this.display, {
         funcSet : this.fnSet
       })
     },
     //--------------------------------------
-    theData() {
+    TheData() {
       return this.evalData()
     },
     //--------------------------------------
-    theListRealCount() {
-      return this.theData.length
+    ListRealCount() {
+      return this.TheData.length
     },
     //--------------------------------------
-    blankCols() {
+    BlankCols() {
       let list = []
-      if(!_.isEmpty(this.theData) 
+      if(!_.isEmpty(this.TheData) 
         && this.myColCount > 0 
         && this.myColWidth > 1
         && !this.isOnlyOneRow) {
         // get list real count
-        let n = this.theListRealCount % this.myColCount
+        let n = this.ListRealCount % this.myColCount
         if(n > 0) {
           let nr = this.myColCount - n
           for(let i=0; i<nr; i++) {
@@ -91,7 +99,7 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onClickTop($event) {
+    OnClickTop($event) {
       if(this.cancelable) {
         // Click The body or top to cancel the row selection
         if(Ti.Dom.hasOneClass($event.target,
@@ -101,7 +109,7 @@ export default {
       }
     },
     //--------------------------------------
-    onWallResize() {
+    OnWallResize() {
       let $divs = Ti.Dom.findAll(":scope > .wall-tile", this.$el)
       // Guard empty
       if(_.isEmpty($divs)) 
@@ -132,26 +140,39 @@ export default {
         this.myColWidth = width
         this.isOnlyOneRow = isOnlyOneRow
       }
-    }
+    },
+    //--------------------------------------
+    reportReady(rowIndex=-1, isDone=false) {
+      let key = `R${rowIndex}`
+      //console.log(key, isDone)
+      if(isDone) {
+        delete this.myCellsReport[key]
+      } else {
+        this.myCellsReport[key] = isDone
+      }
+      // Check the status
+      _.delay(()=>{
+        this.myCellsReady = _.isEmpty(this.myCellsReport)
+        // Do resize
+        if(this.myCellsReady) {
+          this.OnWallResize()
+        }
+      })
+    },
     //--------------------------------------
   },
   //////////////////////////////////////////
   watch : {
-    "data" : function() {
-      this.onWallResize()
+    "data" : {
+      handler : "OnWallResize",
+      immediate : true
     }
   },
   //////////////////////////////////////////
   mounted : function() {
     //.................................
-    this.$nextTick(()=>{
-      this.onWallResize()
-    })
-    //.................................
-    this.debounceOnWallResize = _.debounce(()=>this.onWallResize(), 100)
-    //.................................
     Ti.Viewport.watch(this, {
-      resize : ()=>this.debounceOnWallResize()
+      resize : _.debounce(()=>this.OnWallResize(), 100)
     })
     //.................................
   },

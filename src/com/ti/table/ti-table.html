@@ -1,6 +1,6 @@
 <div class="ti-table"
-  :class="topClass"
-  @click="onClickTop"
+  :class="TopClass"
+  @click="OnClickTop"
   v-ti-actived="__set_actived">
   <!--
     Blank
@@ -19,20 +19,20 @@
     -->
     <div v-if="isShowHead"
       class="table-head"
-      :style="tableStyle">
+      :style="TableStyle">
       <!--checker-->
       <div
           v-if="checkable && multi"
             class="as-checker"
-            @click.left="onClickHeadChecker">
-            <ti-icon :value="theHeadCheckerIcon"/>
+            @click.left="OnClickHeadChecker">
+            <ti-icon :value="HeadCheckerIcon"/>
       </div>
       <!--field titles-->
       <ul>
         <li
-          v-for="fld in theTableFields"
+          v-for="fld in TableFields"
             class="table-head-cell"
-            :style="headCellStyle(fld.index)"
+            :style="getHeadCellStyle(fld.index)"
             :col-index="fld.index">
           <span class="table-head-cell-text">{{fld.title|i18n}}</span>
         </li>
@@ -43,16 +43,16 @@
     -->
     <div ref="body"
       class="table-body"
-      :style="tableStyle">
+      :style="TableStyle">
       <table-row
-        v-for="row in theData"
+        v-for="row in myData"
           :key="row.id"
           :row-id="row.id"
           :index="row.index"
           :icon="row.icon"
           :indent="row.indent"
           :data="row.rawData"
-          :fields="theTableFields"
+          :fields="TableFields"
           :sizes="myColSizes.amended"
           :current-id="theCurrentId"
           :checked-ids="theCheckedIds"
@@ -62,12 +62,11 @@
           :selectable="selectable"
           :openable="openable"
           @icon="$emit('icon', $event)"
-          @checker="onRowCheckerClick"
-          @select="onRowSelect"
-          @open="onRowOpen"
-          @enter="onRowEnter"
-          @leave="onRowLeave"
-          @item:changed="onItemChanged"/>
+          @checker="OnRowCheckerClick"
+          @select="OnRowSelect"
+          @open="OnRowOpen"
+          @enter="OnRowEnter"
+          @leave="OnRowLeave"/>
     </div>
   </template>
 </div>

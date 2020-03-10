@@ -1,6 +1,8 @@
 {
   "comType" : "ti-form",
   "comConf" : {
+    "autoShowBlank" : false,
+    "data" : "=data",
     "fields" : [{
         "title" : "最喜爱的颜色",
         "name"  : "favColor",
@@ -15,10 +17,6 @@
           "dropWidth"  : "6.4rem",
           "dropHeight" : "4.8rem"
         }
-      }],
-    "data" : "=data"
-  },
-  "dispatchActions" : {
-    "change" : "updatePair"
+      }]
   }
 }

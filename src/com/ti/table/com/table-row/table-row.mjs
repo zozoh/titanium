@@ -27,7 +27,7 @@ export default {
   ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
-    topClass() {
+    TopClass() {
       return this.getListItemClass({
         "is-hover"   : this.isHover
       }, `row-indent-${this.indent}`)
@@ -51,15 +51,7 @@ export default {
       }
     },
     //-----------------------------------------------
-    onItemChanged({name,value}={}) {
-      this.$emit("item:changed", {
-        name, value,
-        rowId : this.rowId,
-        data  : this.data
-      })
-    },
-    //-----------------------------------------------
-    onClickIcon($event) {
+    OnClickIcon($event) {
       this.$emit("icon", {
         rowId  : this.rowId,
         shift  : $event.shiftKey,
@@ -67,13 +59,13 @@ export default {
       })
     },
     //-----------------------------------------------
-    onMouseEnter() {
+    OnMouseEnter() {
       this.$emit("enter", {
         rowId  : this.rowId
       })
     },
     //-----------------------------------------------
-    onMouseLeave() {
+    OnMouseLeave() {
       this.$emit("leave", {
         rowId  : this.rowId
       })

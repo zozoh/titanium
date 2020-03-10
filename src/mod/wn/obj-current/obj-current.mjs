@@ -81,7 +81,11 @@ export default {
     },
     //----------------------------------------
     syncStatusChanged(state){
-      state.status.changed = !_.isEqual(state.content, state.__saved_content)
+      if(Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
+        state.status.changed = false
+      } else {
+        state.status.changed = !_.isEqual(state.content, state.__saved_content)
+      }
     },
     //----------------------------------------
     setFieldStatus(state, {name, type, text}={}) {

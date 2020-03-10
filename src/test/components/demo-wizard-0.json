@@ -6,18 +6,16 @@
     "steps" : [{
         "comType" : "ti-form",
         "comConf" : {
-          "config" : {
-            "fields" : [{
-                "name" : "theName",
-                "comType" : "ti-input"
-              }, {
-                "name" : "theValue",
-                "comType" : "ti-switcher",
-                "comConf" : {
-                  "options" : [1,2,3,5,8]
-                }
-              }]
-          },
+          "fields" : [{
+              "name" : "theName",
+              "comType" : "ti-input"
+            }, {
+              "name" : "theValue",
+              "comType" : "ti-switcher",
+              "comConf" : {
+                "options" : [1,2,3,5,8]
+              }
+            }],
           "data" : {
             "theName"  : "=data.theName",
             "theValue" : "=data.theValue"
@@ -37,25 +35,23 @@
         "dataKey" : "pos",
         "comType" : "ti-form",
         "comConf" : {
-          "config" : {
-            "fields" : [{
-                "name" : "x",
-                "type" : "Integer",
-                "width" : "1.4rem",
-                "comType" : "ti-input-num",
-                "comConf" : {
-                  "step" : 100
-                }
-              }, {
-                "name" : "y",
-                "type" : "Integer",
-                "width" : "1.4rem",
-                "comType" : "ti-input-num",
-                "comConf" : {
-                  "step" : 10
-                }
-              }]
-          },
+          "fields" : [{
+              "name" : "x",
+              "type" : "Integer",
+              "width" : "1.4rem",
+              "comType" : "ti-input-num",
+              "comConf" : {
+                "step" : 100
+              }
+            }, {
+              "name" : "y",
+              "type" : "Integer",
+              "width" : "1.4rem",
+              "comType" : "ti-input-num",
+              "comConf" : {
+                "step" : 10
+              }
+            }],
           "data" : {
             "x"  : "=data.pos.x",
             "y" : "=data.pos.y"

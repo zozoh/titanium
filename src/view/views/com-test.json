@@ -1,7 +1,7 @@
 {
   "comIcon" : "im-flask",
-  "comType" : "@com:wn/obj/single-com",
-  "modType" : "@mod:wn/obj-as-com",
+  "comType" : "@Test:com-test-case",
+  "modType" : "@mod:wn/obj-current",
   "actions" : [{
       "key"  : "saving",
       "type" : "action",
@@ -30,7 +30,7 @@
       "type" : "action",
       "icon" : "far-file-alt",
       "text" : "i18n:view-resource",
-      "action" : "root:viewObjContent",
+      "action" : "dispatch:main/openContentEditor",
       "shortcut" : "ALT+CTRL+V"
     },{
       "type" : "action",
@@ -42,7 +42,7 @@
       "type" : "action",
       "icon" : "zmdi-info-outline",
       "text" : "i18n:properties",
-      "action" : "root:editObjMeta",
+      "action" : "dispatch:main/openMetaEditor",
       "shortcut" : "ALT+CTRL+P"
     }]
 }

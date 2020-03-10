@@ -1,37 +1,24 @@
 export default {
-  inheritAttrs : false,
+  ///////////////////////////////////////////////////
+  provide : function(){
+    return {
+      "$table" : this
+    }
+  },
   ///////////////////////////////////////////////////
   data : ()=>({
     myData : [],
     myHoverId  : null,    // The row mouse hover
-    myViewportWidth : 0,  // Update-in-time, root element width
-    myTableWidth: 0,      // Update-in-time, table width
-    myColSizes: {
-      priHead : [],  // Primary head column sizing
-      priBody : [],  // Primary body column sizing
-      primary : [],  // Primary Max Col-Sizes
-      fixeds  : [],  // Fixed value [480, .23, 'auto', 'stretch']
-                     // Eval when `evalEachColumnSize`
-                     //  - 480 : fixed width
-                     //  - -480 : fixed width and override primary
-                     //  - .23 : as percent eval each time resize
-                     //  - 'auto' : it will keep the primary sizing
-                     //  - 'stretch' : it will join to the auto-remains-assignment
-      amended : []   // The col-size to display in DOM
-    },
-    whenTableLayout : undefined,
-    layoutReady : false
   }),
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
   ///////////////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
-      let isLayoutReady = this.isDataEmpty || this.layoutReady;
+    TopClass() {
       return this.getTopClass({
-        "is-layout-no-ready" : !isLayoutReady,
-        "is-layout-ready" : isLayoutReady,
+        "is-cells-no-ready" : !this.myCellsReady,
+        "is-layout-ready" : this.myCellsReady,
         "is-hoverable"   : this.hoverable
       }, [
         `is-border-${this.border}`,
@@ -39,16 +26,12 @@ export default {
       ])
     },
     //--------------------------------------
-    tableStyle() {
+    TableStyle() {
       if(this.myTableWidth>0) {
         return Ti.Css.toStyle({
           "width" : this.myTableWidth
         })
       }
-    },
-    //--------------------------------------
-    isWhenLayout() {
-      return Ti.Util.fallback(this.whenTableLayout, true)
     },
     //--------------------------------------
     getRowIndent() {
@@ -71,7 +54,7 @@ export default {
       return it => null
     },
     //--------------------------------------
-    theData() {
+    TheData() {
       return this.myData
     },
     //--------------------------------------
@@ -79,7 +62,7 @@ export default {
       return /^(frozen|normal)$/.test(this.head)
     },
     //--------------------------------------
-    theHeadCheckerIcon() {
+    HeadCheckerIcon() {
       if(this.isAllChecked) {
         return "fas-check-square"
       }
@@ -89,7 +72,7 @@ export default {
       return "far-square"
     },
     //--------------------------------------
-    theTableFields() {
+    TableFields() {
       let fields = []
       for(let i=0; i< this.fields.length; i++) {
         let fld = this.fields[i]
@@ -131,21 +114,13 @@ export default {
   ///////////////////////////////////////////////////
   methods : {
     //--------------------------------------
-    headCellStyle(index=-1) {
-      if(this.myColSizes.amended.length > index) {
-        return Ti.Css.toStyle({
-          "width" : this.myColSizes.amended[index]
-        })
-      }
-    },
-    //--------------------------------------
-    onRowEnter({rowId}={}) {
+    OnRowEnter({rowId}={}) {
       if(this.hoverable) {
         this.myHoverId = rowId
       }
     },
     //--------------------------------------
-    onRowLeave({rowId}={}) {
+    OnRowLeave({rowId}={}) {
       if(this.hoverable) {
         if(this.myHoverId == rowId) {
           this.myHoverId = null
@@ -153,7 +128,7 @@ export default {
       }
     },
     //--------------------------------------
-    onClickHeadChecker() {
+    OnClickHeadChecker() {
       // Cancel All
       if(this.isAllChecked) {
         this.cancelRow()
@@ -164,7 +139,7 @@ export default {
       }
     },
     //--------------------------------------
-    onClickTop($event) {
+    OnClickTop($event) {
       if(this.cancelable) {
         // Click The body or top to cancel the row selection
         if(Ti.Dom.hasOneClass($event.target,
@@ -177,7 +152,15 @@ export default {
     },
     //--------------------------------------
     onItemChanged(payload) {
-      this.$emit("item:changed", payload)
+      this.$emit("item:change", payload)
+    },
+    //--------------------------------------
+    getHeadCellStyle(index=-1) {
+      if(this.myColSizes.amended.length > index) {
+        return Ti.Css.toStyle({
+          "width" : this.myColSizes.amended[index]
+        })
+      }
     },
     //--------------------------------------
     evalFieldDisplay(displayItems=[], defaultKey) {
@@ -202,155 +185,6 @@ export default {
       // }
       // Array to pick
       return items
-    },
-    //--------------------------------------
-    evalEachColumnSize() {
-      if(this.fields.length==1) {
-        this.whenTableLayout = false
-        this.layoutReady = true
-        return
-      }
-      if(this.fields.length==1)
-        console.log("evalEachColumnSize")
-      // Guard
-      if(this.whenTableLayout) {
-        return
-      }
-      //console.log("evalEachColumnSize", this, this.tiComType)
-
-      // Reset each column size
-      this.whenTableLayout = true
-      this.myTableWidth = 0
-      this.myColSizes = {
-        priHead : [],
-        priBody : [],
-        primary : [],
-        fixeds  : [],
-        amended : []
-      }
-      //.........................................
-      // Eval the fixeds
-      for(let fld of this.theTableFields) {
-        let fldWidth = fld.width || "stretch"
-        // Stretch/Auto
-        if(/^(stretch|auto)$/.test(fldWidth)) {
-          this.myColSizes.fixeds.push(fldWidth)
-        }
-        // Fixed or percent
-        else {
-          this.myColSizes.fixeds.push(Ti.Css.toPixel(fldWidth, 1))
-        }
-      }
-      //.........................................
-      // Wait reset applied, and ...
-      this.$nextTick(()=>{
-        // Get original size: head
-        let $heads = Ti.Dom.findAll(".table-head ul li", this.$el)
-        for(let $he of $heads) {
-          let rect = Ti.Rects.createBy($he)
-          this.myColSizes.priHead.push(rect.width)
-        }
-
-        // Get original size: body
-        let $rows = Ti.Dom.findAll(".table-body .table-row", this.$el)
-        for(let $row of $rows) {
-          let $cells = Ti.Dom.findAll(":scope > div", $row)
-          for(let x=0; x<$cells.length; x++) {
-            let $cell = $cells[x]
-            let rect = Ti.Rects.createBy($cell)
-            if(x>= this.myColSizes.priBody.length) {
-              this.myColSizes.priBody[x] = rect.width
-            } else {
-              this.myColSizes.priBody[x] = Math.max(
-                rect.width, this.myColSizes.priBody[x]
-              )
-            }
-          }
-        }
-
-        // Count the primary max sizing for each columns
-        for(let i=0; i<this.myColSizes.priHead.length; i++) {
-          let wHeadCell = this.myColSizes.priHead[i]
-          let wBodyCell = this.myColSizes.priBody[i]
-          let w = Math.max(wHeadCell, wBodyCell)
-          this.myColSizes.primary.push(w)
-        }
-
-        // Resize Table
-        this.onTableResize()
-
-        _.delay(()=>{
-          this.whenTableLayout = false
-          this.layoutReady = true
-        }, 10)
-      })
-    },
-    //--------------------------------------
-    onTableResize() {
-      // Guard it
-      let colN = this.myColSizes.primary.length
-      if(colN <= 0) {
-        return
-      }
-
-      // Get the viewport width
-      let viewportWidth = Ti.Rects.createBy(this.$el).width
-
-      // Assign the fixed width
-      // And count how many fields to join the remains-assignment
-      let raIndexs = [];
-      let amended = []
-      for(let i=0; i<this.myColSizes.fixeds.length; i++) {
-        let fxW = this.myColSizes.fixeds[i]
-        // Get the primary width
-        let priW = this.myColSizes.primary[i]
-        // join to auto-remains-assignment
-        if("stretch" == fxW) {
-          raIndexs.push(i)
-          amended.push(priW)
-        }
-        // keep primary
-        else if("auto" == fxW) {
-          amended.push(priW)
-        }
-        // Eval percent
-        else if(fxW <= 1 && fxW > 0) {
-          amended.push(fxW * viewportWidth)
-        }
-        // Eval percent and join remains-assignment
-        else if(fxW < 0 && fxW >= -1) {
-          let w = Math.abs(fxW * viewportWidth)
-          amended.push(Math.max(w, priW))
-        }
-        // Fixed width and join remains-assignment
-        else if(fxW < -1) {
-          let w = Math.abs(fxW)
-          amended.push(Math.max(w, priW))
-        }
-        // Fixed width
-        else {
-          amended.push(fxW)
-        }
-      }
-
-      // Count the tableWidth
-      let sumWidth = _.sum(amended)
-      let tableWidth = Math.max(viewportWidth, sumWidth)
-      this.myTableWidth = tableWidth
-
-      // Assign the remain
-      if(raIndexs.length > 0) {
-        let remain = tableWidth - sumWidth
-        if(remain > 0) {
-          let remainCell = remain / raIndexs.length
-          for(let index of raIndexs) {
-            amended[index] += remainCell
-          }
-        }
-      }
-
-      // apply amended
-      this.myColSizes.amended = amended
     },
     //--------------------------------------
     scrollCurrentIntoView() {
@@ -395,33 +229,21 @@ export default {
     }
     //--------------------------------------
   },
+  ///////////////////////////////////////////////////
   watch : {
-    "data" : function(newVal, oldVal){
-      // if(this.fields.length == 1)
-      // console.log("table data changed", _.isEqual(newVal, oldVal))
-      this.myData = this.evalData((it)=>{
-        it.icon = this.getRowIcon(it.item)
-        it.indent = this.getRowIndent(it.item)
-      })
+    "data" : {
+      handler : function(newVal, oldVal){
+        let isSame = _.isEqual(newVal, oldVal)
+        if(!isSame) {
+          //console.log("!!!table data changed", {newVal, oldVal})
+          this.myData = this.evalData((it)=>{
+            it.icon = this.getRowIcon(it.item)
+            it.indent = this.getRowIndent(it.item)
+          })
+        }
+      },
+      immediate : true
     }
-  },
-  ///////////////////////////////////////////////////
-  created : function() {
-    //.................................
-    // Define the method for sub-cells up-calling
-    this.debounceEvalEachColumnSize = _.debounce(()=>this.evalEachColumnSize(), 100)
-  },
-  ///////////////////////////////////////////////////
-  mounted : async function() {
-    //.................................
-    Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.onTableResize(), 100)
-    })
-    //.................................
-  },
-  ///////////////////////////////////////////////////
-  beforeDestroy : function(){
-    Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////////////////////
 }

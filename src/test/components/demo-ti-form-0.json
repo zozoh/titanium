@@ -1,7 +1,8 @@
 {
   "comType" : "ti-form",
   "comConf" : {
-    "className" : "ti-fill-parent",
+    "autoShowBlank" : false,
+    "data" : "=data",
     "fields" : [{
         "icon"    : "zmdi-flattr",
         "title"   : "ID",
@@ -38,12 +39,6 @@
         "comConf" : {
           "options" : "@Dict:Sexes"
         }
-      }],
-    "data" : {
-      "..."  : "=data"
-    }
-  },
-  "dispatchActions" : {
-    "change" : "updatePair"
+      }]
   }
 }

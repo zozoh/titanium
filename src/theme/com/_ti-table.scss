@@ -10,8 +10,9 @@
     }
   }  
   //---------------------------------------------
-  &.is-layout-no-ready {
-    visibility: hidden;
+  transition: opacity 0.5s;
+  &.is-cells-no-ready {
+    opacity: 0;
   }
   //---------------------------------------------
   &.is-head-frozen {

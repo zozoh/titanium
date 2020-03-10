@@ -22,7 +22,7 @@ export default {
   ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
-    topClass() {
+    TopClass() {
       return this.getListItemClass(`row-indent-${this.indent}`)
     },
     //-----------------------------------------------
@@ -68,7 +68,7 @@ export default {
       })
     },
     //-----------------------------------------------
-    onClickIcon($event) {
+    OnClickIcon($event) {
       this.$emit("icon", {
         rowId  : this.rowId,
         shift  : $event.shiftKey,

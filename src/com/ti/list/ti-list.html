@@ -1,6 +1,6 @@
 <div class="ti-list"
-  :class="topClass"
-  @click="onClickTop"
+  :class="TopClass"
+  @click="OnClickTop"
   v-ti-actived="__set_actived">
   <!--
     Blank
@@ -15,24 +15,24 @@
   -->
   <template v-else>
     <list-row
-      v-for="row in theData"
+      v-for="row in TheData"
         :key="row.id"
         :row-id="row.id"
         :index="row.index"
         :icon="row.icon"
         :indent="row.indent"
         :data="row.rawData"
-        :display="theDisplayItems"
+        :display="DisplayItems"
         :current-id="theCurrentId"
         :checked-ids="theCheckedIds"
         :changed-id="changedId"
         :checkable="checkable"
         :selectable="selectable"
         :openable="openable"
-        :row-toggle-key="theRowToggleKey"
+        :row-toggle-key="TheRowToggleKey"
         :class-name="itemClassName"
-        @checker="onRowCheckerClick"
-        @select="onRowSelect"
-        @open="onRowOpen"/>
+        @checker="OnRowCheckerClick"
+        @select="OnRowSelect"
+        @open="OnRowOpen"/>
   </template>
 </div>

@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////
 export default {
-  inheritAttrs : false,
+  ///////////////////////////////////////////////////
+  inject : ["$table"],
   ///////////////////////////////////////////////////
   data: ()=>({
     isEditingMode : false,
@@ -16,6 +17,10 @@ export default {
     "rowId" : {
       type : String,
       default : null
+    },
+    "rowIndex" : {
+      type : Number,
+      default : -1
     },
     //..........................
     "cellSize" : {
@@ -155,10 +160,8 @@ export default {
   methods : {
     //-----------------------------------------------
     async evalCellDisplayItems() {
+      this.$table.reportReady(this.rowIndex, this.index, !_.isEmpty(this.cellItems))
       let items = []
-      // if(this.data && this.data.title && this.data.type) {
-      //   console.log("evalCellDisplayItems", this.data)
-      // }
       // Eval each items
       for(let displayItem of this.theCurrentDisplayItems) {
         let it = await this.evalDataForFieldDisplayItem({
@@ -178,57 +181,44 @@ export default {
           items.push(it)
         }
       }
+      //if(0 == this.rowIndex && 1==this.index) {
+      //  console.log("evalCellDisplayItems", this.rowIndex, this.index)
+      //}
       // Update and return
-      this.cellItems = items
-
-      // make table resizing
-      if(this.cellSize != this.myCellSize) {
-        this.myCellSize = this.cellSize
-        this.$nextTick(()=>{
-          //console.log("call table resize")
-          this.$parent.$parent.debounceEvalEachColumnSize()
-        })
+      let old = Ti.Util.pureCloneDeep(this.cellItems)
+      let nit = Ti.Util.pureCloneDeep(items)
+      if(!_.isEqual(old, nit)) {
+        //console.log(`-> Cell[${this.rowIndex}-${this.index}]:`, {old, nit})
+        this.cellItems = items
       }
+      // report ready
+      this.$table.reportReady(this.rowIndex, this.index, true)
     },
     //-----------------------------------------------
-    onItemChanged(item, payload) {
-      this.$emit('item:changed', {name:item.key, value:payload})
+    OnItemChanged(item, payload) {
+      this.$table.$emit('item:change', {
+        rowId     : this.rowId,
+        cellIndex : this.index,
+        index     : this.rowIndex,
+        name      : item.key,
+        value     : payload
+      })
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   watch : {
-    "data" : async function(newVal, oldVal) {
-      if(!_.isEqual(newVal, oldVal)) {
-        //console.log(_.isEqual(newVal, oldVal), newVal, oldVal)
-        await this.evalCellDisplayItems()
-      }
+    "data" : {
+      handler : "evalCellDisplayItems",
+      immediate : true
     },
-    "isCurrent" : async function() {
-      await this.evalCellDisplayItems()
-    },
-    "isChecked" : async function() {
-      await this.evalCellDisplayItems()
-    },
-    "isHover" : async function() {
-      await this.evalCellDisplayItems()
-    },
-    "isActived" : async function() {
-      await this.evalCellDisplayItems()
-    },
+    "isCurrent" : "evalCellDisplayItems",
+    "isChecked" : "evalCellDisplayItems",
+    "isHover"   : "evalCellDisplayItems",
+    "isActived" : "evalCellDisplayItems"
     // "cellSize" : async function() {
     //   await this.debounceEvalCellDisplayItems()
     // }
-  },
-  ///////////////////////////////////////////////////
-  created : function() {
-    this.debounceEvalCellDisplayItems = _.debounce(()=>{
-      this.evalCellDisplayItems()
-    }, 20)
-  },
-  ///////////////////////////////////////////////////
-  mounted : function() {
-    this.debounceEvalCellDisplayItems()
   }
   ///////////////////////////////////////////////////
 }

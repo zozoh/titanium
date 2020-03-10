@@ -1,6 +1,8 @@
 {
   "comType" : "ti-form",
   "comConf" : {
+    "autoShowBlank" : false,
+    "data" : "=data",
     "fields" : [{
         "title" : "时间",
         "name"  : "time",
@@ -47,10 +49,6 @@
         "comConf" : {
           "format" : "H点m分"
         }
-      }],
-    "data" : "=data"
-  },
-  "dispatchActions" : {
-    "change" : "updatePair"
+      }]
   }
 }

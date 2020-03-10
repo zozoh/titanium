@@ -1,8 +1,8 @@
 {
   "comType" : "ti-form",
   "comConf" : {
-    "className" : "ti-fill-parent",
     "title" : "动态多选组合框测试",
+    "data" : "=data",
     "fields" : [{
         "title" : "普通多选",
         "tip"   : "只是负责提示，用户随便输入",
@@ -68,10 +68,6 @@
           "multi" : true,
           "options" : "obj ~/demo/images/* -l -cqn"
         }
-      }],
-    "data" : "=data"
-  },
-  "dispatchActions" : {
-    "change" : "updatePair"
+      }]
   }
 }

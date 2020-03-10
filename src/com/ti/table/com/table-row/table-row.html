@@ -1,23 +1,23 @@
 <div class="table-row"
-  :class="topClass"
-  @click.left="onClickRow"
-  @dblclick.left="onDblClickRow"
-  @mouseenter="onMouseEnter"
-  @mouseleave="onMouseLeave"
+  :class="TopClass"
+  @click.left="OnClickRow"
+  @dblclick.left="OnDblClickRow"
+  @mouseenter="OnMouseEnter"
+  @mouseleave="OnMouseLeave"
   v-ti-actived="__set_actived">
   <!--
     Cells
   -->
   <table-cell v-for="fld in fields"
     :key="fld.index"
-    :row-id="rowId"
     v-bind="fld"
+    :row-id="rowId"
+    :row-index="index"
     :cell-size="getCellSize(fld.index)"
     :is-current="isCurrent"
     :is-hover="isHover"
     :is-checked="isChecked"
-    :data="data"
-    @item:changed="onItemChanged">
+    :data="data">
     <template v-if="fld.index == 0">
       <div class="table-row-head">
         <!--current actived row indicator-->
@@ -31,7 +31,7 @@
             v-if="hasRealIcon"
               class="row-icon"
               :value="icon"
-              @click.native.left.stop="onClickIcon"/>
+              @click.native.left.stop="OnClickIcon"/>
           <div v-else
             class="row-icon"></div>
         </template>
@@ -39,7 +39,7 @@
         <ti-icon v-if="checkable"
             class="row-checker"
             :value="theCheckIcon"
-            @click.native.left.stop="onClickChecker"/>
+            @click.native.left.stop="OnClickChecker"/>
       </div>
     </template>
   </table-cell>

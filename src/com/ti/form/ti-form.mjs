@@ -38,6 +38,7 @@ export default {
     //--------------------------------------------------
     isTabMode() {return 'tab' == this.mode},
     isAllMode() {return 'all' == (this.mode || "all")},
+    isAutoShowBlank() {return Ti.Util.fallback(this.autoShowBlank, false)},
     //--------------------------------------------------
     TheFields() {
       let list = []

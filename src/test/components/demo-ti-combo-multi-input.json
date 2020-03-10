@@ -1,8 +1,9 @@
 {
   "comType" : "ti-form",
   "comConf" : {
-    "className" : "ti-fill-parent",
     "title" : "静态多选组合框测试",
+    "autoShowBlank" : false,
+    "data" : "=data",
     "fields" : [{
         "title" : "普通多选",
         "tip"   : "只是负责提示，用户随便输入",
@@ -86,8 +87,7 @@
             {"value":"E", "text":"戊类"}],
           "dropDisplay" : ["<icon:zmdi-fire>", "text", "value"]
         }
-      }],
-    "data" : "=data"
+      }]
   },
   "dispatchActions" : {
     "change" : "updatePair"

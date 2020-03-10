@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////////
 export async function EditObjMeta(pathOrObj="~", {
-  icon, 
-  title  = "i18n:obj", 
+  icon, title, 
   type   = "info", 
   closer = true,
   textOk = "i18n:ok",

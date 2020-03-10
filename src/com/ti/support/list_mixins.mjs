@@ -11,7 +11,7 @@ export default {
   ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
-    topStyle() {
+    TopStyle() {
       let w = this.width
       let h = this.height
       return Ti.Css.toStyle({
@@ -24,7 +24,7 @@ export default {
       return !_.isEmpty(this.rowToggleKey)
     },
     //-----------------------------------------------
-    theRowToggleKey() {
+    TheRowToggleKey() {
       return _.without(_.concat(this.rowToggleKey), undefined)
     },
     //-----------------------------------------------
@@ -46,7 +46,7 @@ export default {
         return false 
       }
       // Checking ...
-      for(let row of this.theData){
+      for(let row of this.TheData){
         if(!this.theCheckedIds[row.id])
           return false;  
       }
@@ -110,7 +110,7 @@ export default {
     },
     //-----------------------------------------------
     findRowIndexById(rowId) {
-      for(let row of this.theData) {
+      for(let row of this.TheData) {
         if(row.id == rowId) {
           return row.index
         }
@@ -119,7 +119,7 @@ export default {
     },
     //-----------------------------------------------
     findRowById(rowId) {
-      for(let row of this.theData) {
+      for(let row of this.TheData) {
         if(row.id == rowId) {
           return row
         }
@@ -137,18 +137,18 @@ export default {
               : null
     },
     //------------------------------------------
-    getCheckedRow(checkedIds=this.theCheckedIds) {
+    getCheckedRow(idMap=this.theCheckedIds) {
       let list = []
-      for(let row of this.theData) {
-        if(checkedIds[row.id]) {
+      for(let row of this.TheData) {
+        if(idMap[row.id]) {
           list.push(row)
         }
       }
       return list
     },
     //------------------------------------------
-    getChecked(checkedIds=this.theCheckedIds) {
-      let rows = this.getCheckedRow(checkedIds)
+    getChecked(idMap=this.theCheckedIds) {
+      let rows = this.getCheckedRow(idMap)
       return _.map(rows, row=>row.rawData)
     },
     //-----------------------------------------------
@@ -159,7 +159,7 @@ export default {
       let checked = []
       let current = null
       let currentIndex = -1
-      for(let row of this.theData) {
+      for(let row of this.TheData) {
         if(row.id == currentId) {
           current = row.rawData
           currentIndex = row.index
@@ -175,25 +175,25 @@ export default {
     },
     //-----------------------------------------------
     selectRow(rowId, {quiet=false, payload}={}) {
-      let theCheckedIds = {}
-      let theCurrentId  = null
+      let idMap = {}
+      let curId = null
       
       // Change the current & checked
       if(this.autoCheckCurrent) {
-        theCheckedIds = rowId ? {[rowId]:true} : {}
-        theCurrentId  = rowId || null
+        idMap = rowId ? {[rowId]:true} : {}
+        curId = rowId || null
       }
       // Just change to current
       else {
-        theCheckedIds = _.cloneDeep(this.myCheckedIds)
-        theCurrentId  = rowId
+        idMap = _.cloneDeep(this.myCheckedIds)
+        curId = rowId
       }
 
-      let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+      let emitContext = this.getEmitContext(curId, idMap)
       // Private Mode
       if(!this.puppetMode) {
-        this.myCheckedIds = theCheckedIds
-        this.myCurrentId  = theCurrentId
+        this.myCheckedIds = idMap
+        this.myCurrentId  = curId
         this.myLastIndex  = this.findRowIndexById(rowId)
       }
       // Notify Changes
@@ -207,10 +207,10 @@ export default {
       //console.log(rowIndex)
       let index = rowIndex
       if(this.scrollIndex) {
-        index = Ti.Num.scrollIndex(rowIndex, this.theData.length)
+        index = Ti.Num.scrollIndex(rowIndex, this.TheData.length)
       }
-      if(_.inRange(index, 0, this.theData.length)) {
-        let row = this.theData[index]
+      if(_.inRange(index, 0, this.TheData.length)) {
+        let row = this.TheData[index]
         this.selectRow(row.id, options)
       }
     },
@@ -224,26 +224,26 @@ export default {
     },
     //-----------------------------------------------
     selectRowsToCurrent(rowId) {
-      let theCheckedIds = _.cloneDeep(this.theCheckedIds)
-      let theCurrentId  = this.theCurrentId
-      let theIndex = this.findRowIndexById(rowId)
-      if(theIndex >= 0) {
-        let fromIndex = Math.min(theIndex, this.myLastIndex)
-        let toIndex   = Math.max(theIndex, this.myLastIndex)
+      let idMap = _.cloneDeep(this.theCheckedIds)
+      let curId = this.theCurrentId
+      let index = this.findRowIndexById(rowId)
+      if(index >= 0) {
+        let fromIndex = Math.min(index, this.myLastIndex)
+        let toIndex   = Math.max(index, this.myLastIndex)
         if(fromIndex < 0) {
           fromIndex = 0
         }
         for(let i=fromIndex; i<=toIndex; i++) {
-          let row = this.theData[i]
-          theCheckedIds[row.id] = true
+          let row = this.TheData[i]
+          idMap[row.id] = true
         }
         // Eval context
-        let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+        let emitContext = this.getEmitContext(curId, idMap)
         // Private Mode
         if(!this.puppetMode) {
-          this.myCheckedIds = theCheckedIds
-          this.myCurrentId  = theCurrentId
-          this.myLastIndex  = theIndex
+          this.myCheckedIds = idMap
+          this.myCurrentId  = curId
+          this.myLastIndex  = index
         }
         // Notify Changes
         this.$emit("select", emitContext)
@@ -251,69 +251,69 @@ export default {
     },
     //-----------------------------------------------
     checkRow(rowId) {
-      let theCheckedIds = _.cloneDeep(this.theCheckedIds)
-      let theCurrentId  = this.theCurrentId
-      let theIndex = this.myLastIndex
+      let idMap = _.cloneDeep(this.theCheckedIds)
+      let curId = this.theCurrentId
+      let index = this.myLastIndex
       // All rows
       if(_.isUndefined(rowId)) {
-        theCheckedIds = {}
-        _.forEach(this.theData, (row)=>{
-          theCheckedIds[row.id] = true
+        idMap = {}
+        _.forEach(this.TheData, (row)=>{
+          idMap[row.id] = true
         })
       }
       // Multi rows
       else if(_.isArray(rowId)) {
         let lastRowId = _.last(rowId)
         _.forEach(rowId, (r_id)=>{
-          theCheckedIds[r_id] = true
+          idMap[r_id] = true
         })
         if(this.autoCheckCurrent) {
-          theIndex = this.findRowIndexById(lastRowId)
+          index = this.findRowIndexById(lastRowId)
         }
       }
       // Single row
       else {
-        theCheckedIds[rowId] = true
+        idMap[rowId] = true
         if(this.autoCheckCurrent) {
-          theIndex = this.findRowIndexById(rowId)
+          index = this.findRowIndexById(rowId)
         }
       }
       // Eval context
-      let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+      let emitContext = this.getEmitContext(curId, idMap)
       // Private Mode
       if(!this.puppetMode) {
-        this.myCheckedIds = theCheckedIds
-        this.myCurrentId  = theCurrentId
-        this.myLastIndex  = theIndex
+        this.myCheckedIds = idMap
+        this.myCurrentId  = curId
+        this.myLastIndex  = index
       }
       // Notify Changes
       this.$emit("select", emitContext)
     },
     //-----------------------------------------------
     cancelRow(rowId) {
-      let theCheckedIds = _.cloneDeep(this.theCheckedIds)
-      let theCurrentId  = this.theCurrentId
-      let theIndex = -1
+      let idMap = _.cloneDeep(this.theCheckedIds)
+      let curId  = this.theCurrentId
+      let index = -1
       //console.log("cancelRow", rowId)
       if(_.isUndefined(rowId)) {
-        theCheckedIds = {}
-        theCurrentId = null
+        idMap = {}
+        curId = null
       }
       // Single row
       else {
-        theIndex = this.findRowIndexById(rowId)
-        theCheckedIds[rowId] = false
-        if(this.autoCheckCurrent && theCurrentId == rowId) {
-          theCurrentId = null
+        index = this.findRowIndexById(rowId)
+        idMap[rowId] = false
+        if(this.autoCheckCurrent && curId == rowId) {
+          curId = null
         }
       }
       // Eval context
-      let emitContext = this.getEmitContext(theCurrentId, theCheckedIds)
+      let emitContext = this.getEmitContext(curId, idMap)
       // Private Mode
       if(!this.puppetMode) {
-        this.myCheckedIds = theCheckedIds
-        this.myCurrentId  = theCurrentId
-        this.myLastIndex  = theIndex
+        this.myCheckedIds = idMap
+        this.myCurrentId  = curId
+        this.myLastIndex  = index
       }
       // Notify Changes
       this.$emit("select", emitContext)
@@ -327,7 +327,7 @@ export default {
       }
     },
     //-----------------------------------------------
-    onRowCheckerClick({rowId, shift}={}) {
+    OnRowCheckerClick({rowId, shift}={}) {
       if(this.multi) {
         // Shift Mode
         if(shift) {
@@ -344,7 +344,7 @@ export default {
       }
     },
     //-----------------------------------------------
-    onRowSelect({rowId, shift, toggle}={}) {
+    OnRowSelect({rowId, shift, toggle}={}) {
       // Multi + Shift Mode
       if(shift && this.multi) {
         this.selectRowsToCurrent(rowId)
@@ -363,7 +363,7 @@ export default {
       }
     },
     //-----------------------------------------------
-    onRowOpen({rowId}={}) {
+    OnRowOpen({rowId}={}) {
       let row = this.findRowById(rowId)
       if(row) {
         this.$emit("open", row)

@@ -1,8 +1,9 @@
 {
   "comType" : "ti-form",
   "comConf" : {
-    "className" : "ti-fill-parent",
     "title" : "静态穿梭框测试",
+    "autoShowBlank" : false,
+    "data" : "=data",
     "fields" : [{
         "title" : "普通穿梭框",
         "width" : "full",
@@ -31,10 +32,6 @@
             {"value":"D", "text":"丁类"},
             {"value":"E", "text":"戊类"}]
         }
-      }],
-    "data" : "=data"
-  },
-  "dispatchActions" : {
-    "change" : "updatePair"
+      }]
   }
 }

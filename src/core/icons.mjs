@@ -24,7 +24,7 @@ const TYPES = {
   "sass" : "fab-first-order",
   "tar"  : "far-file-archive",
   "tgz"  : "fas-file-archive",
-  "wncom": "fas-tools",
+  "comt" : "im-flask",
   "wnml" : "fas-file-code",
   "xls"  : "far-file-excel",
   "xlsx" : "fas-file-excel",

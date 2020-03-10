@@ -1,6 +1,6 @@
 <div class="ti-wall" 
-  :class="topClass"
-  @click="onClickTop"
+  :class="TopClass"
+  @click="OnClickTop"
   v-ti-actived="__set_actived">
   <!--
     Blank
@@ -16,11 +16,11 @@
   <template v-else>
     <!--tiles-->
     <wall-tile
-      v-for="row in theData"
+      v-for="row in TheData"
         :key="row.id"
         :row-id="row.id"
         :index="row.index"
-        :display="theItemDisplay"
+        :display="ItemDisplay"
         :data="row.rawData"
         :current-id="theCurrentId"
         :checked-ids="theCheckedIds"
@@ -31,10 +31,10 @@
         :class-name="itemClassName"
         :width="itemWidth"
         :height="itemHeight"
-        @select="onRowSelect"
-        @open="onRowOpen"/>
+        @select="OnRowSelect"
+        @open="OnRowOpen"/>
     <!--Blank Tile-->
-    <div v-for="bc in blankCols"
+    <div v-for="bc in BlankCols"
       class="wall-tile"
       :style="bc">
     </div>

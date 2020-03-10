@@ -230,113 +230,113 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
   icon: "zmdi-steam"
 }
 #---------------------------------------------------------
-@FILE demo/ti-calendar-month.wncom
+@FILE demo/ti-calendar-month.comt
 {
   title : "日历",
   com: "/rs/ti/test/components/demo-ti-calendar-month.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-0.wncom
+@FILE demo/ti-form-0.comt
 {
   title : "表单",
   com: "/rs/ti/test/components/demo-ti-form-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-color-icon.wncom
+@FILE demo/ti-form-color-icon.comt
 {
   title : "表单·颜色图标",
   com: "/rs/ti/test/components/demo-ti-form-color-icon.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-combo-input.wncom
+@FILE demo/ti-form-combo-input.comt
 {
   title : "组合【单】选框",
   com: "/rs/ti/test/components/demo-ti-combo-input.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-combo-multi-input.wncom
+@FILE demo/ti-form-combo-multi-input.comt
 {
   title : "组合【多】选框",
   com: "/rs/ti/test/components/demo-ti-combo-multi-input.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-datetime.wncom
+@FILE demo/ti-form-datetime.comt
 {
   title : "表单·日期时间",
   com: "/rs/ti/test/components/demo-ti-form-datetime.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-input-tags.wncom
+@FILE demo/ti-form-input-tags.comt
 {
   title : "表单·输入标签",
   com: "/rs/ti/test/components/demo-ti-form-input-tags.json"
 }
 #---------------------------------------------------------
-@FILE demo/wizard-0.wncom
+@FILE demo/wizard-0.comt
 {
   title : "向导·普通",
   com: "/rs/ti/test/components/demo-wizard-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/tree-0.wncom
+@FILE demo/tree-0.comt
 {
   title : "树",
   ln : "/rs/ti/test/components/demo-ti-tree-0.data.json", 
   com: "/rs/ti/test/components/demo-ti-tree-0.json"
 }
 #---------------------------------------------------------
-#@FILE demo/ti-list-0.wncom
+#@FILE demo/ti-list-0.comt
 #{
 #  title : "列表",
 #  ln : "/rs/ti/test/components/demo-ti-list-0.data.json", 
 #  com: "/rs/ti/test/components/demo-ti-list-0.json"
 #}
 #---------------------------------------------------------
-@FILE demo/ti-table-0.wncom
+@FILE demo/ti-table-0.comt
 {
   title : "表格",
   ln : "/rs/ti/test/components/demo-ti-table-0.data.json", 
   com: "/rs/ti/test/components/demo-ti-table-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-obj-json-0.wncom
+@FILE demo/ti-obj-json-0.comt
 {
   title : "JSON对象编辑",
   com: "/rs/ti/test/components/demo-ti-obj-json-0.json"
 }
 %COPY> /rs/ti/test/components/demo-ti-obj-json-0.data.json
 #---------------------------------------------------------
-@FILE demo/ti-gui-0.wncom
+@FILE demo/ti-gui-0.comt
 {
   title : "GUI布局",
   com: "/rs/ti/test/components/demo-ti-gui-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-transfer-0.wncom
+@FILE demo/ti-transfer-0.comt
 {
   title : "穿梭框",
   com: "/rs/ti/test/components/demo-ti-transfer-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/wn-combo-input.wncom
+@FILE demo/wn-combo-input.comt
 {
   title : "动态组合【单】选框",
   com: "/rs/ti/test/components/demo-wn-combo-input.json"
 }
 #---------------------------------------------------------
-@FILE demo/wn-combo-multi-input.wncom
+@FILE demo/wn-combo-multi-input.comt
 {
   title : "动态组合【多】选框",
   com: "/rs/ti/test/components/demo-wn-combo-multi-input.json"
 }
 #---------------------------------------------------------
-@FILE demo/wn-transfer-0.wncom
+@FILE demo/wn-transfer-0.comt
 {
   title : "动态穿梭框",
   com: "/rs/ti/test/components/demo-wn-transfer-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/demo-ti-app-modal.wncom
+@FILE demo/demo-ti-app-modal.comt
 {
   title : "弹出层测试",
   com: "/rs/ti/test/components/demo-ti-app-modal.json"

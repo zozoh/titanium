@@ -3,7 +3,7 @@
     "form"        : "form-view",
     "thing_set"   : "thing-manager",
     "gui"         : "ti-gui",
-    "wncom"       : "wn-com",
+    "comt"        : "com-test",
     "hmaker_site" : "hmaker-site"
   },
   "mimes" : {

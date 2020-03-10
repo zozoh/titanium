@@ -31,7 +31,7 @@ export default {
   },
   "autoShowBlank" : {
     type : Boolean,
-    default : true
+    default : undefined
   },
   "adjustDelay" : {
     type : Number,

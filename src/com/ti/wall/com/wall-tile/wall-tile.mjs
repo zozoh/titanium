@@ -1,5 +1,6 @@
 export default {
-  inheritAttrs : false,
+  ///////////////////////////////////////////////////
+  inject: ["$wall"],
   ///////////////////////////////////////////////////
   data : ()=>({
     myCom : null
@@ -24,11 +25,11 @@ export default {
   ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
-    topClass() {
+    TopClass() {
       return this.getListItemClass()
     },
     //--------------------------------------
-    topStyle() {
+    TopStyle() {
       let css = {}
       if(this.width) {
         css.width = this.width
@@ -44,7 +45,8 @@ export default {
   methods : {
     //-----------------------------------------------
     async evalMyDisplayCom() {
-      this.myCom = await this.evalDataForFieldDisplayItem({
+      this.$wall.reportReady(this.index, ~Ti.Util.isNil(this.myCom))
+      let com = await this.evalDataForFieldDisplayItem({
         itemData : this.data, 
         displayItem : this.display, 
         vars : {
@@ -56,30 +58,26 @@ export default {
         }
       })
 
-      // make table resizing
-      this.$parent.debounceOnWallResize()
+      // Update and return
+      let old = Ti.Util.pureCloneDeep(this.myCom)
+      let nit = Ti.Util.pureCloneDeep(com)
+      if(!_.isEqual(old, nit)) {
+        //console.log(`-> Cell[${this.rowIndex}-${this.index}]:`, {old, nit})
+        this.myCom = com
+      }
+      // report ready
+      this.$wall.reportReady(this.index, true)
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   watch : {
-    "display" : async function() {
-      await this.evalMyDisplayCom()
+    "data" : {
+      handler : "evalMyDisplayCom",
+      immediate : true
     },
-    "data" : async function() {
-      //console.log("data changed")
-      await this.evalMyDisplayCom()
-    },
-    "isCurrent" : async function() {
-      await this.evalMyDisplayCom()
-    },
-    "isChecked" : async function() {
-      await this.evalMyDisplayCom()
-    }
-  },
-  ///////////////////////////////////////////////////
-  mounted : async function() {
-    await this.evalMyDisplayCom()
+    "isCurrent" : "evalMyDisplayCom",
+    "isChecked" : "evalMyDisplayCom"
   }
   ///////////////////////////////////////////////////
 }

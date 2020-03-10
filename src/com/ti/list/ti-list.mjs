@@ -30,7 +30,7 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
+    TopClass() {
       return this.getTopClass({
         "is-hoverable"    : this.hoverable,
         "show-border"     : this.border
@@ -57,13 +57,13 @@ export default {
       return it => null
     },
     //--------------------------------------
-    theDisplayItems() {
-      let displayItems = _.concat(this.display)
+    DisplayItems() {
+      let diss = _.concat(this.display)
       // Prepare the return list
       let items = []
       // Loop each items
-      for(let li of displayItems) {
-        let item = this.evalFieldDisplayItem(li, {
+      for(let dis of diss) {
+        let item = this.evalFieldDisplayItem(dis, {
           funcSet: this.fnSet
         })
         if(item) {
@@ -74,7 +74,7 @@ export default {
       return items
     },
     //--------------------------------------
-    theData() {
+    TheData() {
       return this.evalData((it)=>{
         it.icon = this.getRowIcon(it.item)
         it.indent = this.getRowIndent(it.item)
@@ -85,7 +85,7 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onClickTop($event) {
+    OnClickTop($event) {
       if(this.cancelable) {
         // Click The body or top to cancel the row selection
         if(Ti.Dom.hasOneClass($event.target,

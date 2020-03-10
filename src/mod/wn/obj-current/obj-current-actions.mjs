@@ -1,11 +1,17 @@
 export default {
   //----------------------------------------
-  onChanged({commit}, payload) {
+  // Combin Mutations
+  //----------------------------------------
+  onChanged({dispatch}, payload) {
+    dispatch("changeContent", payload)
+  },
+  //----------------------------------------
+  changeContent({commit}, payload) {
     commit("setContent", payload)
     commit("syncStatusChanged");
   },
   //----------------------------------------
-  changeMeta({state, commit}, {name, value}={}) {
+  changeMeta({commit}, {name, value}={}) {
     if(name) {
       let meta = _.set({}, name, value)
       commit("mergeMeta", meta)
@@ -21,6 +27,46 @@ export default {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
+  // User Interactivity
+  //--------------------------------------------
+  async openMetaEditor({state, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let newMeta = await Wn.EditObjMeta(state.meta)
+
+    // Cancel the editing
+    if(_.isUndefined(newMeta)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("reload", newMeta)
+  },
+  //--------------------------------------------
+  async openContentEditor({state, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let newContent = await Wn.EditObjContent(state.meta, {
+      content : state.content
+    })
+
+    // Cancel the editing
+    if(_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("changeContent", newContent)
+  },
+  //--------------------------------------------
+  // Update to remote
+  //----------------------------------------
   async updateMeta({state, commit}, {name, value}={}) {
     //console.log("I am update", name, value)
     let data = Ti.Types.toObjByPair({name, value})
@@ -60,28 +106,6 @@ export default {
     // do reload
     await dispatch("reload", meta)
 
-  },
-  //--------------------------------------------
-  async openContentEditor({state, commit}) {
-    // Guard
-    if(!state.meta) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    // Open Editor
-    let newContent = await Wn.EditObjContent(state.meta, {
-      icon      : Wn.Util.getObjIcon(this.meta, "zmdi-tv"),
-      title     : Wn.Util.getObjDisplayName(state.meta),
-      showEditorTitle : false,
-      content   : state.content
-    })
-
-    // Cancel the editing
-    if(_.isUndefined(newContent)) {
-      return
-    }
-
-    // Update the current editing
-    commit("setContent", newContent)
   },
   //----------------------------------------
   async save({state, commit}) {

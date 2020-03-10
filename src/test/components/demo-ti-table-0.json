@@ -28,8 +28,5 @@
           "comType" : "ti-toggle"
         }
       }]
-  },
-  "dispatchActions" : {
-    
   }
 }

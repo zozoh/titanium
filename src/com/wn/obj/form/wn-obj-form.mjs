@@ -25,6 +25,10 @@ export default {
     }
   },
   //////////////////////////////////////////////////////
+  computed : {
+    isAutoShowBlank() {return Ti.Util.fallback(this.autoShowBlank, true)},
+  },
+  //////////////////////////////////////////////////////
   methods : {
     //--------------------------------------------------
     doAction(emitName, action, payload) {

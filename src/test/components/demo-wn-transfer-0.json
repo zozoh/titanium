@@ -1,8 +1,8 @@
 {
   "comType" : "ti-form",
   "comConf" : {
-    "className" : "ti-fill-parent",
     "title" : "动态穿梭框测试",
+    "data" : "=data",
     "fields" : [{
         "title" : "查询文件内容",
         "width" : "full",
@@ -16,10 +16,6 @@
           "findBy"  : "obj ~/demo/images -match 'nm:\"^.*${val}\"' -sort nm:1 -lcqn",
           "options" : "obj ~/demo/images/* -sort nm:1 -lcqn"
         }
-      }],
-    "data" : "=data"
-  },
-  "dispatchActions" : {
-    "change" : "updatePair"
+      }]
   }
 }

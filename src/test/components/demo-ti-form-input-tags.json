@@ -1,6 +1,8 @@
 {
   "comType" : "ti-form",
   "comConf" : {
+    "autoShowBlank" : false,
+    "data" : "=data",
     "fields" : [{
         "title" : "静态标签",
         "name"  : "lbls0",
@@ -40,10 +42,6 @@
             {"value":"D", "text":"丁类"},
             {"value":"E", "text":"戊类"}]
         }
-      }],
-    "data" : "=data"
-  },
-  "dispatchActions" : {
-    "change" : "updatePair"
+      }]
   }
 }

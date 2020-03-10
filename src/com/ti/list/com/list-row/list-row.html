@@ -1,5 +1,5 @@
 <div class="list-row"
-  :class="topClass">
+  :class="TopClass">
   <!--current actived row indicator-->
   <div class="row-actived-indicator"></div>
   <!-- Indents -->
@@ -11,7 +11,7 @@
       v-if="hasRealIcon"
         class="row-icon"
         :value="icon"
-        @click.native.left.stop="onClickIcon"/>
+        @click.native.left.stop="OnClickIcon"/>
     <div v-else
       class="row-icon"></div>
   </template>
@@ -19,12 +19,12 @@
   <ti-icon v-if="checkable"
       class="row-checker"
       :value="theCheckIcon"
-      @click.native.left.stop="onClickChecker"/>
+      @click.native.left.stop="OnClickChecker"/>
   <!-- Content -->
   <div
     class="row-con"
-    @click.left="onClickRow"
-    @dblclick.left="onDblClickRow"
+    @click.left="OnClickRow"
+    @dblclick.left="OnDblClickRow"
     v-ti-actived="__set_actived">
     <component 
       v-for="(it, index) in myDisplayItems"

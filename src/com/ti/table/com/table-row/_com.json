@@ -4,5 +4,8 @@
   "template" : "./table-row.html",
   "mixins" : [
     "@com:ti/support/list_item_mixins.mjs",
-    "./table-row.mjs"]
+    "./table-row.mjs"],
+  "components" : [
+      "./com/table-cell"
+    ]
 }

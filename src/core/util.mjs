@@ -494,6 +494,33 @@ const TiUtil = {
     return re
   },
   /***
+   * Clone and omit all function fields
+   */
+  pureCloneDeep(obj) {
+    // Array to recur
+    if(_.isArray(obj)){
+      let re = []
+      _.forEach(obj, (v, i)=>{
+        if(!_.isUndefined(v) && !_.isFunction(v)){
+          re[i] = TiUtil.pureCloneDeep(v)
+        }
+      })
+      return re
+    }
+    // Object to omit the function
+    if(_.isPlainObject(obj)) {
+      let re = {}
+      _.forEach(obj, (v, k)=>{
+        if(!_.isUndefined(v) && !_.isFunction(v)){
+          re[k] = TiUtil.pureCloneDeep(v)
+        }
+      })
+      return re
+    }
+    // Just clone it
+    return _.cloneDeep(obj)
+  },
+  /***
    * Replace one object property key. Only for plaint object.
    * 
    * @param source{Object|Array} - Source to apply mapping
