@@ -69,6 +69,10 @@
     "comType" : "wn-obj-form",
     "comConf" : {
       "data"   : "=current.meta",
+      "blankAs" : {
+        "icon" : "zmdi-arrow-left",
+        "text" : "请选择一个账号查看详情"
+      },
       "status" : "=current.status",
       "fieldStatus" : "=current.fieldStatus",
       "fields" : [{

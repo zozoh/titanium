@@ -18,13 +18,22 @@
       "multi"  : true,
       "fields" : [{
         "title" : "角色名",
+        "width" : -200,
         "display" : ["@<thumb:far-smile>", "th_nm"]
       }, {
         "title" : "角色值",
+        "width" : -80,
         "display" : "nm"
       }, {
         "title" : "默认角色",
-        "display" : "isdft"
+        "width" : -60,
+        "display" : {
+          "key" : "isdft",
+          "transformer" : {
+            "name" : "toStr",
+            "args" : [["--", "是"]]
+          }
+        }
       }, {
         "title" : "着陆页",
         "display" : "mainpage"
@@ -61,6 +70,10 @@
     "comType" : "wn-obj-form",
     "comConf" : {
       "data"   : "=current.meta",
+      "blankAs" : {
+        "icon" : "zmdi-arrow-left",
+        "text" : "请选择一个角色查看详情"
+      },
       "status" : "=current.status",
       "fieldStatus" : "=current.fieldStatus",
       "fields" : [{
@@ -83,6 +96,7 @@
           "title"   : "着陆页",
           "name"    : "mainpage",
           "tip"     : "登录后默认跳转的页面",
+          "width"   : "full",
           "comType" : "ti-input",
           "comConf" : {
             "placeholder" : "例如： page/home"
