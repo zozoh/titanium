@@ -148,6 +148,7 @@ export default {
     },
     //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {
+      console.log(fld)
       // The key
       let fldKey = fld.name
         ? [].concat(fld.name).join("-")

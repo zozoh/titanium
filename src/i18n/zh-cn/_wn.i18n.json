@@ -29,5 +29,10 @@
   "wn-key-width"    : "宽",
   "wn-key-height"   : "高",
   "wn-key-duration" : "时长",
-  "wn-obj-nosaved" : "您有未保存的对象"
+  "wn-obj-nosaved" : "您有未保存的对象",
+  "wn-th-acc-pwd-choose-none" : "请选择要重置密码的账号（可多选）",
+  "wn-th-acc-pwd-reset-tip" : "将密码重置为",
+  "wn-th-acc-pwd-too-short" : "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合",
+  "wn-th-acc-pwd-invalid" : "密码中不得包含单双引号星号等非法字符",
+  "wn-th-acc-pwd-done" : "已经为${n}名用户重置了密码"
 }
