@@ -1,6 +1,10 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////////
+  data : ()=>({
+    myValue : null
+  }),
+  ///////////////////////////////////////////////////////
   props : {
     // If image, join the base
     "base" : {
@@ -8,7 +12,11 @@ export default {
       default : null
     },
     "value" : {
-      type : [String,Object],
+      type : [String,Object,Number],
+      default : null
+    },
+    "dict" : {
+      type : [String, Ti.Dict],
       default : null
     },
     "defaultValue" : {
@@ -47,23 +55,31 @@ export default {
       return this.getTopClass()
     },
     //---------------------------------------------------
-    Value() {
-      return this.value || this.defaultValue
+    Dict() {
+      if(this.dict) {
+        // Already Dict
+        if(this.dict instanceof Ti.Dict) {
+          return this.dict
+        }
+        // Get back
+        let {name} = Ti.DictFactory.explainDictName(this.dict)
+        return Ti.DictFactory.CheckDict(name)
+      }
     },
     //---------------------------------------------------
     // formed icon data
     Icon() {
       let icn 
-      if(_.isPlainObject(this.Value)){
+      if(_.isPlainObject(this.myValue)){
         // Regular icon object, return it directly
-        if(this.Value.type && this.Value.value) {
-          icn = this.Value
+        if(this.myValue.type && this.myValue.value) {
+          icn = this.myValue
         }
         // Eval it as meta
         else {
           icn = {
             type  : "font", 
-            value : Ti.Icons.get(this.Value)
+            value : Ti.Icons.get(this.myValue)
           }
         }
       }
@@ -71,10 +87,10 @@ export default {
       else {
         icn = {
           type : "font",
-          value : this.Value
+          value : this.myValue
         }
-        if(_.isString(this.Value)) {
-          icn.type = Ti.Util.getSuffixName(this.Value) || "font"
+        if(_.isString(this.myValue)) {
+          icn.type = Ti.Util.getSuffixName(this.myValue) || "font"
         }
         // for image
         if(/^(jpe?g|gif|png)$/i.test(icn.type)){
@@ -120,6 +136,26 @@ export default {
       return icn
     },
     //---------------------------------------------------
+  },
+  methods : {
+    async evalMyValue() {
+      let val = Ti.Util.fallbackNil(this.value, this.defaultValue)
+      // Translate by dict
+      if(this.Dict) {
+        this.myValue = await this.Dict.getItemIcon(val)
+      }
+      // Normal value
+      else {
+        this.myValue = val
+      }
+    }
+  },
+  ///////////////////////////////////////////////////////
+  watch : {
+    "value" : {
+      handler : "evalMyValue",
+      immediate : true
+    }
   }
   ///////////////////////////////////////////////////////
 }

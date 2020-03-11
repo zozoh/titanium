@@ -36,6 +36,7 @@
   "components" : [
     "@com:ti/gui",
     "@com:ti/icon",
+    "@com:ti/button",
     "@com:ti/crumb",
     "@com:ti/loading",
     "@com:ti/menu",

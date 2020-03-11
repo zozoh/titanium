@@ -121,7 +121,6 @@ export default {
   methods : {
     //--------------------------------------------
     async evalTheCom() {
-      console.log(this.data, this.CurrentDisplayItem)
       let theCom = await this.evalDataForFieldDisplayItem({
         itemData : this.data, 
         displayItem : this.CurrentDisplayItem, 

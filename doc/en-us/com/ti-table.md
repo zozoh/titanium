@@ -110,7 +110,7 @@ It will be formatted to Array like:
   comConf : {
     "..."  : {..},    // ... will extends all value to comConf
     "val"  : "${=value}",   // value from row data by key
-    "obj"  : "..",          // value for whole row data
+    "obj"  : "${=..}",      // value for whole row data
     "age"  : "${info.age}", // value from row data
     "href" : "(value)?/a/to?id-${value}", // test the value before render
     "isCurrent" : "${=isCurrent}",  // parent row is actived

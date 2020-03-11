@@ -243,10 +243,6 @@ const TiUtil = {
       //....................................
       // String : Check the "@BLOCK(xxx)" 
       if(_.isString(theValue)) {
-        // Whole Context
-        if(".." == theValue) {
-          return context
-        }
         // Find key in context
         let m = /^(:?->|:?=|==|!=)(.+)$/.exec(theValue)
         // Matched
@@ -254,6 +250,10 @@ const TiUtil = {
           let m_type = m[1]
           let m_val  = m[2]
           return ({
+            // =.. The Whole Context
+            ".." : (val)=> {
+              return context
+            },
             // ==xxx  # Get Boolean value now
             "==" : (val)=> {
               return _.get(context, val) ? true : false

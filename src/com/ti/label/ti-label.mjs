@@ -39,6 +39,12 @@ export default {
     //--------------------------------------
     Dict() {
       if(this.dict) {
+        // Already Dict
+        if(this.dict instanceof Ti.Dict) {
+          this.myDictValKey = ".text"
+          return this.dict
+        }
+        // Get back
         let {name, vKey} = Ti.DictFactory.explainDictName(this.dict)
         this.myDictValKey = vKey || ".text"
         return Ti.DictFactory.CheckDict(name)

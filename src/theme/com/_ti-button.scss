@@ -25,32 +25,39 @@
       opacity: 0.8; cursor: default;
     }
     //------------------------------
+    .ti-icon .icon-icon > i {font-size:1em;}
+    //------------------------------
   }
   //---------------------------------------------
   &.is-big {
     li {
-      padding:.1rem .3rem; font-size:1.8em;
-      min-width: 2.4rem;
-      .ti-icon {padding:0 .06rem;}
-      .it-text {padding:0 .06rem;}
+      padding:0 .16rem; font-size:1.6em;
+      min-width: 1.6rem; line-height:.64rem;
+      .it-text {padding:0 .12rem;}
     }
   }
   //---------------------------------------------
   &.is-normal {
     li {
-      padding:.08rem .18rem; font-size:1.2em;
-      min-width: 1.6rem;
-      .ti-icon {padding:0 .04rem;}
-      .it-text {padding:0 .04rem;}
+      padding:0 .1rem; font-size:1.2em;
+      min-width: 1.2rem; line-height:.48rem;
+      .it-text {padding:0 .08rem;}
     }
   }
   //---------------------------------------------
   &.is-small {
     li {
-      padding:.04rem .08rem; font-size:1em;
-      min-width: .8rem;
-      .ti-icon {padding:0 .02rem;}
-      .it-text {padding:0 .02rem;}
+      padding:0 .04rem; font-size:1em;
+      min-width: .8rem; line-height:.32rem;
+      .it-text {padding:0 .04rem;}
+    }
+  }
+  //---------------------------------------------
+  &.is-tiny {
+    li {
+      padding:0 .04rem; font-size:.12rem;
+      min-width: .6rem; line-height:.26rem;
+      .it-text {padding:0 .04rem;}
     }
   }
   //---------------------------------------------

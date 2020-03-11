@@ -53,6 +53,19 @@ export default {
           }
         }
         //......................................
+        // @DictName(xxx) -> ti-label
+        // just like `@RelayStatus(status)`
+        m = /^@([^\(]+)\(([^)]+)\)$/.exec(displayItem)
+        if(m) {
+          return {
+            key : m[2] || defaultKey,
+            comType : "ti-label",
+            comConf : {
+              dict : m[1]
+            }
+          }
+        }
+        //......................................
         // "<=ti-label:key>" or ":<=ti-label>"
         m = /^<=([^:]+)(:(.+))?>$/.exec(displayItem)
         if(m) {
@@ -177,12 +190,20 @@ export default {
     // Eval comConf
     else {
       _.forEach(dis.comConf || {}, (val, key)=>{
-        //
+        //.................................
         // VAL: evalue the special value, like:
+        //  - "${=value}"
+        //  - "${=..}"
+        //  - "${info.age}"
         let m = /^\$\{=(.+)\}$/.exec(val)
         if(m) {
           let varName = _.trim(m[1])
-          if("value" == varName) {
+          // Whole Context
+          if(".." == varName) {
+            val = itemData
+          }
+          // Value
+          else if("value" == varName) {
             val = value
           }
           // In var set
@@ -190,11 +211,8 @@ export default {
             val = Ti.Util.fallback(_.get(vars, varName), val)
           }
         }
-        // ".." : value for whole row data
-        else if(".." == val) {
-          val = itemData
-        }
-        // "${info.age}" : value from row data
+        //.................................
+        // "(value)?/a/to?id=${value}"
         else if(_.isString(val)) {
           let m = /^(\((.+)\)\?)?(.+)$/.exec(val)
           if(m) {
@@ -215,7 +233,7 @@ export default {
             }
           }
         }
-
+        //.................................
         //
         // KEY: Set to `comConf`
         //

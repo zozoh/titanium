@@ -4,7 +4,7 @@ export default {
   //-----------------------------------
   "value" : null,
   "dict" : {
-    type : String,
+    type : [String, Ti.Dict],
     default : null
   },
   "trimed" : {
