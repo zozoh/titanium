@@ -53,9 +53,9 @@ export default {
           }
         }
         //......................................
-        // @DictName(xxx) -> ti-label
+        // #DictName(xxx) -> ti-label
         // just like `@RelayStatus(status)`
-        m = /^@([^\(]+)\(([^)]+)\)$/.exec(displayItem)
+        m = /^[@#]([^\(]+)\(([^)]+)\)$/.exec(displayItem)
         if(m) {
           return {
             key : m[2] || defaultKey,

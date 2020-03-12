@@ -165,7 +165,7 @@ export default {
   methods : {
     //------------------------------------------------
     onClickDel() {
-      this.$emit("removed", this.theData)
+      this.$emit("remove", this.theData)
     },
     //------------------------------------------------
     onClickOption({value,text,icon}={}) {

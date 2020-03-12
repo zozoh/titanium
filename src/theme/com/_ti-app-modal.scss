@@ -114,6 +114,7 @@
       @include flex-align-nowrap($jc:flex-end);
       padding:.08rem;
       > .as-action {
+        @include flex-align-nowrap($jc:center);
         @include color($color-chip, r, c);
         @include fireable;
         @include border(1px, solid, dark);

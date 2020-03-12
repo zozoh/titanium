@@ -9,13 +9,16 @@ export class TiAppModal {
   //--------------------------------------------
   // Behavior
   ready  = _.identity
-  actions = [{
-      text: "i18n:ok",
-      handler : ({$body})=>$body.result
-    }, {
-      text: "i18n:cancel",
-      handler : ()=>undefined
-    }]
+  //--------------------------------------------
+  iconOk = undefined
+  textOk = "i18n:ok"
+  ok = ({result})=>result
+  //--------------------------------------------
+  iconCancel = undefined
+  textCancel = "i18n:cancel"
+  cancel = ()=>undefined
+  //--------------------------------------------
+  actions = null
   //--------------------------------------------
   comType = "ti-label"
   comConf = {}
@@ -53,6 +56,28 @@ export class TiAppModal {
   // Methods
   //////////////////////////////////////////////
   async open(resolve=_.identity) {
+    let TheActions = []
+    // Customized actions
+    if(this.actions) {
+      TheActions = this.actions
+    }
+    // Use OK/Canel
+    else {
+      if(_.isFunction(this.ok) && this.textOk) {
+        TheActions.push({
+          icon : this.iconOk,
+          text : this.textOk,
+          handler : this.ok
+        })
+      }
+      if(_.isFunction(this.cancel) && this.textCancel) {
+        TheActions.push({
+          icon : this.iconCancel,
+          text : this.textCancel,
+          handler : this.cancel
+        })
+      }
+    }
     //..........................................
     // Setup content
     let html = `<transition :name="theTransName" @after-leave="onAfterLeave">
@@ -118,7 +143,7 @@ export class TiAppModal {
         type   : this.type,
         //--------------------------------------
         ready   : this.ready,
-        actions : this.actions,
+        actions : TheActions,
         //--------------------------------------
         comType : this.comType,
         comConf : this.comConf,
@@ -248,10 +273,12 @@ export class TiAppModal {
           if(a.handler) {
             let app = Ti.App(this)
             let status = {close:true}
+            let $body = app.$vm()
             let re = await a.handler({
-              $app  : app,
-              $body : app.$vm(),
-              $main : app.$vm().$main,
+              $app   : app,
+              $body,
+              $main  : $body.$main,
+              result : _.cloneDeep($body.result),
               status
             })
             if(status.close) {

@@ -4,6 +4,7 @@ async function Prompt(msg="", {
   icon,
   type  = "info", 
   position = "center",
+  iconOk, iconCancel,
   textOk = "i18n:ok",
   textCancel  = "i18n:cancel", 
   width = 480, height,
@@ -22,35 +23,26 @@ async function Prompt(msg="", {
     type, width, height, position,
     title   : theTitle,
     closer  : false,
+    result  : value,
     //------------------------------------------
-    actions : [{
-      text: textOk,
-      handler : ({$main})=>$main.result
-    }, {
-      text: textCancel,
-      handler : ()=>undefined
-    }],
+    textOk, textCancel,
+    iconOk, iconCancel,
     //------------------------------------------
     comType : "modal-inner-body",
-    comConf : {
-      icon:theIcon, text, 
-      trimed, placeholder, valueCase,
-      value
-    },
     //------------------------------------------
     components : [{
       name : "modal-inner-body",
       globally : false,
       data : {
-        result : ""
+        // display
+        icon : theIcon, text, 
+        // for input
+        placeholder : placeholder || value,
+        trimed,
+        valueCase
       },
       props : {
-        "icon"   : undefined, 
-        "text"   : undefined,
-        "trimed" : undefined, 
-        "placeholder" : undefined, 
-        "valueCase" : undefined,
-        "value"  : undefined
+        value : null
       },
       template : `<div class="ti-msg-body as-prompt"
         v-ti-actived="__set_actived">
@@ -58,17 +50,18 @@ async function Prompt(msg="", {
         <div class="as-text">
           <div class="as-tip" v-if="text">{{text}}</div>
           <ti-input
-            :value="result || value"
+            :value="value"
             :trimed="trimed"
             :placeholder="placeholder"
             :value-case="valueCase"
-            :focus="true"
+            :focused="true"
+            :auto-select="true"
             @inputing="onInputing"/>
         </div>
       </div>`,
       methods : {
         onInputing(val) {
-          this.result = val
+          this.$emit("change", val)
         },
         __ti_shortcut(uniqKey) {
           if("ENTER" == uniqKey) {

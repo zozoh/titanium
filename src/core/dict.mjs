@@ -278,9 +278,9 @@ export const DictFactory = {
   //-------------------------------------------
   DictReferName(str) {
     if(_.isString(str)) {
-      let m = /^@Dict:(.+)$/.exec(str)
+      let m = /^(@Dict:|#)(.+)$/.exec(str)
       if(m) {
-        return _.trim(m[1])
+        return _.trim(m[2])
       }
     }
   },

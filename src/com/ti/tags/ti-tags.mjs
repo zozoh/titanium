@@ -1,5 +1,9 @@
 export default {
-  inheritAttrs : false,
+  ////////////////////////////////////////////////////
+  data: ()=>({
+    myTags   : [],
+    myValues : []
+  }),
   ////////////////////////////////////////////////////
   props : {
     //-----------------------------------
@@ -8,6 +12,10 @@ export default {
     "value" : {
       type : Array,
       default : ()=>[]
+    },
+    "dict" : {
+      type : [String, Ti.Dict],
+      default : null
     },
     "mapping" : {
       type : Object,
@@ -58,7 +66,7 @@ export default {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
+    TopClass() {
       if(this.className)
         return this.className
     },
@@ -72,12 +80,54 @@ export default {
       }
       return it => null
     },
+    //--------------------------------------
+    Dict() {
+      if(this.dict) {
+        // Already Dict
+        if(this.dict instanceof Ti.Dict) {
+          return this.dict
+        }
+        // Get back
+        let {name} = Ti.DictFactory.explainDictName(this.dict)
+        return Ti.DictFactory.CheckDict(name)
+      }
+    }
     //------------------------------------------------
-    theData() {
-      const list = []
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    OnItemChanged({index, value}={}) {
+      if(it.index >= 0) {
+        let values = this.getMyValues()
+        values[index] = Ti.Util.fallback(value, null)
+        this.$emit("change", values)
+      }
+    },
+    //------------------------------------------------
+    OnItemRemoved({index}={}) {
+      if(index >= 0) {
+        let values = this.getMyValues()
+        _.pullAt(values, index)
+        this.$emit("change", values)
+      }
+    },
+    //------------------------------------------------
+    OnItemFired({index=-1}={}) {
+      if(index >= 0) {
+        let it = _.nth(this.theData, index)
+        if(it) {
+          this.$emit("item:actived", it)
+        }
+      }
+    },
+    //------------------------------------------------
+    async evalMyData() {
+      const tags = []
       if(_.isArray(this.value)) {
         const lastIndex = this.value.length - 1
-        _.forEach(this.value, (val, index)=>{
+        for(let index=0; index<this.value.length; index++){
+          let val = this.value[index]
           let tag;
           // Auto mapping plain object
           if(_.isPlainObject(val)) {
@@ -88,6 +138,15 @@ export default {
             if(!tag.icon) {
               tag.icon = this.getTagItemIcon(val)
             }
+          }
+          // Lookup Dict
+          else if(this.Dict) {
+            let it = await this.Dict.getItem(val)
+            tag = _.defaults({
+              icon  : this.Dict.getIcon(it),
+              text  : this.Dict.getText(it) || val,
+              value : val
+            })
           }
           // Auto gen object for simple value
           else {
@@ -100,50 +159,29 @@ export default {
             options : this.itemOptions,
             atLast  : index == lastIndex
           })
-          // Join to list
-          list.push(tag)
-        }); // _.forEach
+          // Join to tags
+          tags.push(tag)
+        }; // _.forEach
       }
-      return list
+      // assign the tags
+      this.myTags = tags
     },
     //------------------------------------------------
-    theDataValues() {
-      let list = []
-      for(let it of this.theData) {
-        list.push(Ti.Util.fallback(it.value, null))
+    getMyValues() {
+      const vals = []
+      for(let tag of this.myTags) {
+        vals.push(Ti.Util.fallback(tag.value, null))
       }
-      return list
+      return vals
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
-    //------------------------------------------------
-    onItemChanged(it={}) {
-      if(it.index >= 0) {
-        this.$emit("piece:changed", it)
-        let values = _.concat(this.theDataValues)
-        values[it.index] = Ti.Util.fallback(it.value, null)
-        this.$emit("change", values)
-      }
-    },
-    //------------------------------------------------
-    onItemRemoved({index=-1}={}) {
-      if(index >= 0) {
-        let values = _.remove(this.theDataValues, (v,i)=>i!=index)
-        this.$emit("change", values)
-      }
-    },
-    //------------------------------------------------
-    onItemFired({index=-1}={}) {
-      if(index >= 0) {
-        let it = _.nth(this.theData, index)
-        if(it) {
-          this.$emit("item:actived", it)
-        }
-      }
+  watch : {
+    "value" : {
+      handler : "evalMyData",
+      immediate : true
     }
-    //------------------------------------------------
   }
   ////////////////////////////////////////////////////
 }

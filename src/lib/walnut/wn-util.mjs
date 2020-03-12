@@ -105,6 +105,7 @@ export const WnUtil = {
     return dftIcon
   },
   getObjThumbIcon2(canIcon, meta) {
+    console.log(canIcon, meta)
     return WnUtil.getObjThumbIcon(_.defaults({
       candidateIcon : canIcon
     }, meta))
