@@ -98,7 +98,7 @@ export default {
   methods : {
     //------------------------------------------------
     OnItemChanged({index, value}={}) {
-      if(it.index >= 0) {
+      if(index >= 0) {
         let values = this.getMyValues()
         values[index] = Ti.Util.fallback(value, null)
         this.$emit("change", values)

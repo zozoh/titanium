@@ -2,6 +2,10 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
+  "dict" : {
+    type : [String, Ti.Dict],
+    default : null
+  },
   "inputValue" : null,
   // +1 from the begin
   // -1 from the last
