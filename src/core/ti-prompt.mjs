@@ -65,7 +65,7 @@ async function Prompt(msg="", {
         },
         __ti_shortcut(uniqKey) {
           if("ENTER" == uniqKey) {
-            Ti.App(this).$vm().close(this.result)
+            Ti.App(this).$vm().close(this.value)
           }
         }
       }
