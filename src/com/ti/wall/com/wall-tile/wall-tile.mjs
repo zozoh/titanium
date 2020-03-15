@@ -1,6 +1,6 @@
 export default {
   ///////////////////////////////////////////////////
-  inject: ["$wall"],
+  inject: ["$wall", "$vars"],
   ///////////////////////////////////////////////////
   data : ()=>({
     myCom : null
@@ -45,7 +45,7 @@ export default {
   methods : {
     //-----------------------------------------------
     async evalMyDisplayCom() {
-      this.$wall.reportReady(this.index, ~Ti.Util.isNil(this.myCom))
+      this.$wall.reportReady(this.index, !Ti.Util.isNil(this.myCom))
       let com = await this.evalDataForFieldDisplayItem({
         itemData : this.data, 
         displayItem : this.display, 
@@ -54,7 +54,8 @@ export default {
           "isChecked" : this.isChecked,
           "isChanged" : this.isChanged,
           "isActived" : this.isActived,
-          "rowId"     : this.rowId
+          "rowId"     : this.rowId,
+          ... this.$vars
         }
       })
 

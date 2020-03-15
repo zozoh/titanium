@@ -118,7 +118,7 @@ export default {
      * Defaultly, it will support the function set defined in `Ti.Types`
      */
     FuncSet() {
-      return _.assign({}, Ti.Types, this.extendFunctionSet)
+      return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
     },
     //--------------------------------------------------
     TheData() {

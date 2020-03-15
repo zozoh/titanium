@@ -1,6 +1,6 @@
 .ti-wall {
   overflow:auto;
-  @include flex-align($ac:flex-start,$ai:flex-start);
+  @include flex-align($ac:stretch,$ai:stretch);
   // &.is-only-one-row {
   // }
   &.is-multi-rows {
@@ -22,6 +22,7 @@
   }
   //-------------------------------------
   > .wall-tile {
+    @include flex($jc:stretch,$ai:stretch);
     border:0;
     //----------------------------------
     &.is-checked {
@@ -31,6 +32,10 @@
     &.is-removed {opacity:0.4;}
     &.is-weak {opacity:0.4;}
     &.is-hide {display:none;}
+    //----------------------------------
+    .tile-con {
+      flex:1 1 auto;
+    }
     //----------------------------------
     .ti-obj-thumb {
       .as-preview {

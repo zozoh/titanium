@@ -123,6 +123,7 @@
 //-------------------------------------------------------------
 @mixin fireable($color:$color-primary,$hover:$color-secondary) {
   cursor:pointer;
+  @include noselect;
   @include color($color, r, c);
   &:hover {
     @include color($hover, r, c);

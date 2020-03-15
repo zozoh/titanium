@@ -119,9 +119,7 @@ export async function main({
   let app = Ti.App(appInfo)
   await app.init()
   //---------------------------------------
-  Ti.Dom.watchAutoRootFontSize({
-    
-  }, ({$root, mode, fontSize})=>{
+  Ti.Dom.watchAutoRootFontSize(({$root, mode, fontSize})=>{
     $root.style.fontSize = fontSize + "px"
     $root.setAttribute("as", mode)
     Ti.App.eachInstance(app => {

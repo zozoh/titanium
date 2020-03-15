@@ -162,7 +162,7 @@ export const TiStr = {
   /***
    * Join "a,b,c" like string to arguments
    */
-  joinArgs(s, args=[]) {
+  joinArgs(s, args=[], iteratee=TiStr.toJsValue) {
     // String to split
     if(_.isString(s)) {
       let list = s.split(",")
@@ -170,7 +170,7 @@ export const TiStr = {
         let vs = _.trim(li)
         if(!vs)
           continue
-        let v = TiStr.toJsValue(vs)
+        let v = iteratee(vs)
         args.push(v)
       }
     }

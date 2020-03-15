@@ -3,10 +3,12 @@ export default {
   // Generate Preview Object for Item
   genPreviewObj(
     obj={},
-    imgKey="thumb",
-    iconKey="icon",
-    src="/api/thumb",
-    dftIcon="broken_image"
+    src="/api/thumb?id:${id}",
+    dftIcon="broken_image",
+    {
+      imgKey="thumb",
+      iconKey="icon"
+    }= {}
   ) {
     // if("30a87ogcf6j6jqfcf78r7mj4ha" == obj.id) {
     //   console.log("genPreviewObj", obj)

@@ -147,7 +147,7 @@ const LoadModes = {
               : JSON.parse(json)
     } catch(E) {
       if(Ti.IsWarn("TiLoad")) {
-        console.warn("ti.load.json!!", url, json, E)
+        console.warn("ti.load.json!!", url, E)
       }
       throw E
     }

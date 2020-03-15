@@ -1,4 +1,4 @@
-export default {
+const LIST_MIXINS = {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   data : ()=>({
@@ -79,7 +79,7 @@ export default {
     },
     //-----------------------------------------------
     fnSet() {
-      return _.assign({}, Ti.Types, this.extendFunctionSet)
+      return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
     }
     //-----------------------------------------------
   },
@@ -434,3 +434,4 @@ export default {
    }
   ///////////////////////////////////////////////////
 }
+export default LIST_MIXINS

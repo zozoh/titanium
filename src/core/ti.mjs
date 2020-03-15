@@ -58,6 +58,8 @@ const LOG_LEVELS = {
   "trace" : 4,
 }
 //---------------------------------------
+const G_FUNCS = {}
+//---------------------------------------
 export const Ti = {
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
@@ -133,6 +135,14 @@ export const Ti = {
     if(target) {
       return await Ti.DoInvoke(target[funcName], args, context||target)
     }
+  },
+  //-----------------------------------------------------
+  AddGlobalFuncs(funcs){
+    _.assign(G_FUNCS, funcs)
+  },
+  //-----------------------------------------------------
+  GlobalFuncs() {
+    return _.assign({}, Ti.Types, G_FUNCS)
   }
   //-----------------------------------------------------
 }

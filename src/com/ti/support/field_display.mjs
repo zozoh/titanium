@@ -1,4 +1,132 @@
-export default {
+//////////////////////////////////////////////
+function _render_iteratee({
+  varName,
+  vars, 
+  matched
+} = {}) {
+  if(matched.startsWith("$$")) {
+    return matched.substring(1)
+  }
+  // ${=xxx}  get value from vars
+  // ${pos.x} get value from itemData
+  let m = /^(=)?([^?]+)(\?(.*))?$/.exec(varName)
+  let ctx = "=" == m[1]
+    ? vars.vars
+    : vars.itemData;
+  
+  let vkey = _.trim(m[2])
+  let vdft = Ti.Util.fallbackNil(_.trim(m[4]), matched)
+  let rev = Ti.Util.getOrPick(ctx, vkey)
+  return Ti.Util.fallback(rev, vdft)
+}
+//////////////////////////////////////////////
+// cx = {vars, itemData, value, $FuncSet}
+function __eval_com_conf_item(val, cx={}) {
+  // String valu3
+  if(_.isString(val)) {
+    //........................................
+    // Function call
+    //........................................
+    let m = /^\(\)=>([^(]+)\(([^)]*)\)$/.exec(val)
+    if(m) {
+      let name = _.trim(m[1])
+      let __as = _.trim(m[2])
+      let args = Ti.S.joinArgs(__as, [], v => {
+        return __eval_com_conf_item(v, cx)
+      })
+      let func = _.get(cx.$FuncSet, name)
+      return func.apply(cx, args)
+    }
+    //........................................
+    // Quick Value
+    //........................................
+    // VAL: evalue the special value, like:
+    //  - "${=value}"
+    //  - "${=..}"
+    //  - "${=varName}"
+    m = /^\$\{=([^${}=]+)\}$/.exec(val)
+    if(m) {
+      let varName = _.trim(m[1])
+      // Whole Context
+      if(".." == varName) {
+        return cx.itemData
+      }
+      // Value
+      if("value" == varName) {
+        return cx.value
+      }
+      // In var set
+      else {
+        return Ti.Util.fallback(_.get(cx.vars, varName), val)
+      }
+    }
+    //........................................
+    // String Template
+    //........................................
+    // VAL as template (xxx)?xxx${nn}
+    // the placeholder support:
+    //  - "${=varName}"
+    //  - "${info.age}"
+    m = /^(\((.+)\)\?)?(.+)$/.exec(val)
+    if(m){
+      let preKey = _.trim(m[2])
+      let tmpl = _.trim(m[3])
+      //console.log("haha", preKey, tmpl)
+      // Only `itemData` contains the preKey, render the value
+      if(preKey) {
+        // "(age)?xxx"  :: get from itemDAta
+        if(_.get(itemData, preKey)) {
+          return Ti.S.renderBy(tmpl, cx, {
+            iteratee: _render_iteratee
+          })
+        }
+        return null
+      }
+      // Render the value
+      return Ti.S.renderBy(tmpl, cx, {
+        iteratee: _render_iteratee
+      })
+    }
+    //........................................
+    // Primary
+    //........................................
+    return val
+  }
+  // Object Value
+  else if(_.isPlainObject(val)) {
+    //........................................
+    // Function Call
+    //........................................
+    // ... TODO maybe we dont need it
+    // function call has bee supported in string mode
+    //........................................
+    // Nested Objects
+    //........................................
+    let obj = {}
+    _.forEach(val, (v, k)=>{
+      let v2 = __eval_com_conf_item(v, cx)
+      if("..." == k) {
+        _.assign(obj, v2)
+      } else {
+        obj[k] = v2
+      }
+    })
+    return obj
+  }
+  // Array Value
+  else if(_.isArray(val)) {
+    let list = []
+    for(let v of val) {
+      let v2 = __eval_com_conf_item(v, cx)
+      list.push(v2)
+    }
+    return list
+  }
+  // Keep original value
+  return val
+}
+//////////////////////////////////////////////
+const FieldDisplay = {
   //------------------------------------------
   evalFieldDisplayItem(displayItem={}, {
     funcSet, 
@@ -105,6 +233,9 @@ export default {
       dis.$dictValueKey = vKey || ".text"
     }
     //........................................
+    // Save function set
+    dis.$FuncSet = funcSet
+    //........................................
     // Then return
     return dis
   },
@@ -180,71 +311,17 @@ export default {
     //.....................................
     // Add value to comConf
     let reDisplayItem = _.cloneDeep(dis)
-    let comConf = {}
+    let comConf = {};
     //.....................................
     // Customized comConf
     if(_.isFunction(dis.comConf)) {
-      _.assign(comConf, dis.comConf(itemData))
+      comConf = _.assign({}, dis.comConf(itemData))
     }
     //.....................................
     // Eval comConf
-    else {
-      _.forEach(dis.comConf || {}, (val, key)=>{
-        //.................................
-        // VAL: evalue the special value, like:
-        //  - "${=value}"
-        //  - "${=..}"
-        //  - "${info.age}"
-        let m = /^\$\{=(.+)\}$/.exec(val)
-        if(m) {
-          let varName = _.trim(m[1])
-          // Whole Context
-          if(".." == varName) {
-            val = itemData
-          }
-          // Value
-          else if("value" == varName) {
-            val = value
-          }
-          // In var set
-          else {
-            val = Ti.Util.fallback(_.get(vars, varName), val)
-          }
-        }
-        //.................................
-        // "(value)?/a/to?id=${value}"
-        else if(_.isString(val)) {
-          let m = /^(\((.+)\)\?)?(.+)$/.exec(val)
-          if(m) {
-            let preKey = _.trim(m[2])
-            let tmpl = _.trim(m[3])
-            //console.log("haha", preKey, tmpl)
-            // Only `itemData` contains the preKey, render the value
-            if(preKey) {
-              if(_.get(itemData, preKey)) {
-                val = Ti.S.renderBy(tmpl, itemData)
-              } else {
-                val = null
-              }
-            }
-            // Always render the value
-            else {
-              val = Ti.S.renderBy(tmpl, itemData)
-            }
-          }
-        }
-        //.................................
-        //
-        // KEY: Set to `comConf`
-        //
-        // ... will extends all value to comConf
-        if("..." == key) {
-          _.assign(comConf, val)
-        }
-        // Just set the val
-        else {
-          comConf[key] = val
-        }
+    else if(dis.comConf){
+      comConf = __eval_com_conf_item(dis.comConf, {
+        vars, itemData, value, $FuncSet: dis.$FuncSet
       })
     }
     //.....................................
@@ -262,3 +339,5 @@ export default {
   }
   //------------------------------------------
 }
+//////////////////////////////////////////////
+export default FieldDisplay;

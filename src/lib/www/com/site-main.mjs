@@ -62,12 +62,12 @@ export default {
     },
     //-------------------------------------
     pageFnSet() {
-      return _.assign({}, Ti.Types, this.utils)
+      Ti.AddGlobalFuncs(this.utils)
+      return Ti.GlobalFuncs()
     },
     //-------------------------------------
     // Format current pageGUI
     pageGUI() {
-      //console.log("formatedPageGUI")
       let page = this.page
       //.....................................
       // Without current page
@@ -75,32 +75,8 @@ export default {
         return {}
       }
       //.....................................
-      // Gen the GUI object
-      let gui = {
-        schema : {},
-        adjustable : false,
-        border     : false,
-        canLoading : true
-      }
-      //.....................................
       // Get layout be pageMode
-      let mode = this.viewportMode
-      let layout = page.layout[mode]
-      //.....................................
-      // Yes, I know that refer twice may clumsy,
-      // but it was the most simple way I can find to deal with infinity.
-      // Image the case: desktop=phone + phone=desktop
-      // Thrown an Error in browser after all, better then make it crashed responseless
-      // TODO: Maybe later, we will add some smart Error thrown here
-      //.....................................
-      // Refer once
-      if(_.isString(layout)) {
-        layout = page.layout[layout]
-      }
-      // Refer twice
-      if(_.isString(layout)) {
-        layout = page.layout[layout]
-      }
+      let layout = page.layout
       //.....................................
       // Apply "@BLOCK(xxx)" in panels and layout blocks
       if(layout) {
@@ -129,25 +105,24 @@ export default {
         layout = ExplainBlock(layout)
       }
       //.....................................
-      // merge layout to gui
-      _.assign(gui, layout)
-
-      // Empty GUI ...
-      if(!gui.body && _.isEmpty(gui.blocks)) {
-        return gui
+      // Gen the GUI object
+      let gui = {
+        layout, 
+        schema : {},
+        canLoading : true
       }
-      
+     
       //.....................................
       // assign schema
       _.assign(gui.schema, this.schema, page.schema)
       
       //.....................................
-      // format it
-      let formedGUI = Ti.Util.explainObj(this, gui, {
+      // explain it
+      let theGUI = Ti.Util.explainObj(this, gui, {
         fnSet: this.pageFnSet
       })
       //console.log("pageGUI", formedGUI)
-      return formedGUI
+      return theGUI
     }
     //-------------------------------------
   },
