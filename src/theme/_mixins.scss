@@ -39,6 +39,15 @@
   align-content: $ac;
   flex-wrap: $wp;
 }
+@mixin flex-as($j:null,$a:null) {
+  @if $j != null {
+    justify-content: $j;
+  }
+  @if $a != null {
+    align-items: $a;
+    align-content: $a;
+  }
+}
 @mixin flex-center($jc:center,$ai:center,$wp:wrap,$ac:center) {
   @include flex($jc,$ai,$wp,$ac);
 }

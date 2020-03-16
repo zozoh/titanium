@@ -19,6 +19,9 @@ export function importModule(url) {
     };
     script.defer = "defer";
     script.type = "module";
+    // For QQBrowser: if send /a/load/xxx, it will drop the cookie
+    // to cause session losted.
+    // add the "crossOrigin" will force send the cookie
     script.crossOrigin = "use-credentials"
     script.onerror = () => {
       reject(new Error(`Failed to import: ${url}`));

@@ -48,6 +48,9 @@ const MjsLoading = new UnifyResourceLoading(async (url)=>{
   //return import(url).then(m => m.default)
   // use the polyfill method instead
   try {
+    // TODO: QQBrowser will drop cookie when import the module js
+    // I need auto-dected the browser type to decide in runtime
+    // for use the polyfill-dynamic-import or native one
     //return await importModule(url)
     return await import(url)
   }

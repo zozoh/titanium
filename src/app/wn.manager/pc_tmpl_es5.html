@@ -39,7 +39,7 @@ window._app = ${app};
 //---------------------------------------
 System.import("${rs}/ti/core/ti.js").then(function(){
   System.import("${rs}/ti/lib/walnut/walnut.js").then(function(){
-    System.import("/a/load/${appName}/main.js").then(function(M){
+    System.import("${rs}/ti/app/wn.manager/main.js").then(function(M){
       M.main({
         Ti, Wn, rs:"${rs}",
         appName : "${appName}",
