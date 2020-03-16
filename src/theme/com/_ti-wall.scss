@@ -1,8 +1,13 @@
 .ti-wall {
   overflow:auto;
-  @include flex-align($ac:stretch,$ai:stretch);
+  @include flex-align($ac:flex-start,$ai:flex-start);
   // &.is-only-one-row {
   // }
+  //-------------------------------------
+  &.is-stretch {
+    @include flex-align($ac:stretch,$ai:stretch);
+  }
+  //-------------------------------------
   &.is-multi-rows {
     justify-content: space-around;
   }

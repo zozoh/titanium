@@ -3,8 +3,7 @@ export default {
   ///////////////////////////////////////////////////
   provide : function(){
     return {
-      "$wall" : this,
-      "$vars" : this.vars || {}
+      "$wall" : this
     }
   },
   //////////////////////////////////////////
@@ -45,10 +44,6 @@ export default {
     "itemHeight" : {
       type : [String, Number],
       default : null
-    },
-    "vars" : {
-      type : Object,
-      default : ()=>({})
     }
   },
   //////////////////////////////////////////

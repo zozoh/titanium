@@ -106,8 +106,7 @@ export class TiAppModal {
                 :is="comType"
                 v-bind="theComConf"
                 :on-init="onMainInit"
-                :value="result"
-                @change="result=$event"/>
+                v-model="result"/>
             </div>
 
             <div class="modal-actions"

@@ -30,6 +30,10 @@ export default {
     type : Object,
     default : ()=>({})
   },
+  "vars" : {
+    type : Object,
+    default : ()=>({})
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

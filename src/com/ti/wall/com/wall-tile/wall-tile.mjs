@@ -1,6 +1,6 @@
 export default {
   ///////////////////////////////////////////////////
-  inject: ["$wall", "$vars"],
+  inject: ["$wall"],
   ///////////////////////////////////////////////////
   data : ()=>({
     myCom : null
@@ -43,6 +43,10 @@ export default {
   },
   ///////////////////////////////////////////////////
   methods : {
+    //-----------------------------------------------
+    doThis() {
+      console.log(arguments)
+    },
     //-----------------------------------------------
     async evalMyDisplayCom() {
       this.$wall.reportReady(this.index, !Ti.Util.isNil(this.myCom))

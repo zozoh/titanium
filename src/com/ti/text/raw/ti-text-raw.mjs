@@ -78,13 +78,15 @@ export default {
     checkContentChanged(emit=true) {
       let vm = this
       let $t = vm.$refs.text
-      let txt = $t.value
-      if(this.trimed) {
-        txt = _.trim(txt)
-      }
-      this.myContent = txt
-      if(emit && txt != this.content) {
-        vm.$emit("change", txt)
+      if(_.isElement($t)) {
+        let txt = $t.value
+        if(this.trimed) {
+          txt = _.trim(txt)
+        }
+        this.myContent = txt
+        if(emit && txt != this.content) {
+          vm.$emit("change", txt)
+        }
       }
     },
     //-----------------------------------------------

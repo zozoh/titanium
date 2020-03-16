@@ -79,7 +79,7 @@ export default {
         let eventName = this.emitBy.eventName
         let payload = this.emitBy.payload || {}
         //............................
-        //console.log("onClick", eventName, payload)
+        console.log("onClick", eventName, payload)
         this.$emit(eventName, payload)
       }
     }

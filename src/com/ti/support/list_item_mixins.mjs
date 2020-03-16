@@ -1,5 +1,5 @@
 export default {
-  inheritAttrs : false,
+  inject: ["$vars"],
   ///////////////////////////////////////////////////
   props : {
     "index" : {

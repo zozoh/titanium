@@ -255,7 +255,7 @@ export default {
         saveBy    : null
       })
 
-      console.log(newContent)
+      //console.log(newContent)
 
       // Cancel the editing
       if(_.isUndefined(newContent)) {

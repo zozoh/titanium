@@ -1,0 +1,34 @@
+/*
+Declare the events props like:
+
+{
+  // watch "nav:to" and emit "my-nav-to"
+  "nav:to" : "my-nav-to",
+  // watch "abc" and emit customized payload
+  "abc" : {
+    
+  }
+}
+
+*/
+/////////////////////////////////////////////////////
+export default {
+  ///////////////////////////////////////////////////
+  props : {
+    "events" : {
+      type: Object,
+      default: ()=>({})
+    }
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    OnSubEvent(payload) {
+
+    }
+  },
+  ///////////////////////////////////////////////////
+  created : function() {
+
+  }
+  ///////////////////////////////////////////////////
+}

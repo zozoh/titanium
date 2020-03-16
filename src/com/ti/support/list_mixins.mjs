@@ -1,5 +1,10 @@
 const LIST_MIXINS = {
-  inheritAttrs : false,
+  ///////////////////////////////////////////////////
+  provide : function(){
+    return {
+      "$vars" : this.vars || {}
+    }
+  },
   ///////////////////////////////////////////////////
   data : ()=>({
     myLastIndex: -1,      // The last row index selected by user
