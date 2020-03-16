@@ -2,56 +2,58 @@ export class TiAppModal {
   //////////////////////////////////////////////
   // Attributes
   //////////////////////////////////////////////
-  icon   = undefined
-  title  = undefined
-  // info|warn|error|success|track
-  type   = "info"
-  //--------------------------------------------
-  // Behavior
-  ready  = _.identity
-  //--------------------------------------------
-  iconOk = undefined
-  textOk = "i18n:ok"
-  ok = ({result})=>result
-  //--------------------------------------------
-  iconCancel = undefined
-  textCancel = "i18n:cancel"
-  cancel = ()=>undefined
-  //--------------------------------------------
-  actions = null
-  //--------------------------------------------
-  comType = "ti-label"
-  comConf = {}
-  components = []
-  //--------------------------------------------
-  // Aspect
-  closer = "default"  // true|false | (default|bottom|top|left|right)
-  escape = true
-  mask   = true       // !TODO maybe blur or something else
-  clickMaskToClose = false
-  /*
-  validator : (v)=>{
-    return /^(left|right|top|bottom|center)$/.test(v)
-      || /^((left|right)-top|bottom-(left|right))$/.test(v)
+  constructor() {
+    this.icon   = undefined
+    this.title  = undefined
+    // info|warn|error|success|track
+    this.type   = "info"
+    //--------------------------------------------
+    // Behavior
+    this.ready  = _.identity
+    //--------------------------------------------
+    this.iconOk = undefined
+    this.textOk = "i18n:ok"
+    this.ok = ({result})=>result
+    //--------------------------------------------
+    this.iconCancel = undefined
+    this.textCancel = "i18n:cancel"
+    this.cancel = ()=>undefined
+    //--------------------------------------------
+    this.actions = null
+    //--------------------------------------------
+    this.comType = "ti-label"
+    this.comConf = {}
+    this.components = []
+    //--------------------------------------------
+    // Aspect
+    this.closer = "default"  // true|false | (default|bottom|top|left|right)
+    this.escape = true
+    this.mask   = true       // !TODO maybe blur or something else
+    this.clickMaskToClose = false
+    /*
+    validator : (v)=>{
+      return /^(left|right|top|bottom|center)$/.test(v)
+        || /^((left|right)-top|bottom-(left|right))$/.test(v)
+    }
+    */
+   this.position = "center"
+    //--------------------------------------------
+    // Measure
+    this.width    = "6.4rem"
+    this.height   = undefined
+    this.spacing  = undefined
+    this.overflow = undefined
+    this.adjustable = false  // true|false|"x"|"y"
+    //--------------------------------------------
+    // data model
+    this.result = undefined
+    //--------------------------------------------
+    // modules
+    this.modules = {}
+    //--------------------------------------------
+    // callback
+    this.ready = function(app){}
   }
-  */
-  position = "center"
-  //--------------------------------------------
-  // Measure
-  width    = "6.4rem"
-  height   = undefined
-  spacing  = undefined
-  overflow = undefined
-  adjustable = false  // true|false|"x"|"y"
-  //--------------------------------------------
-  // data model
-  result = undefined
-  //--------------------------------------------
-  // modules
-  modules = {}
-  //--------------------------------------------
-  // callback
-  ready = function(app){}
   //////////////////////////////////////////////
   // Methods
   //////////////////////////////////////////////

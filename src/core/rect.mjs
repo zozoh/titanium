@@ -65,8 +65,8 @@ function PickKeys(rect, keys, dft) {
 }
 //--------------------------------------
 export class Rect {
-  __ti_rect__ = true;
   constructor(rect, mode){
+    this.__ti_rect__ = true;
     this.set(rect, mode)
   }
   //--------------------------------------

@@ -2,51 +2,53 @@ export class TiAppActionShortcuts {
   //////////////////////////////////////////////
   // Attributes
   //////////////////////////////////////////////
-  /***
-   * ComUI can append the guard later for block one process.
-   * 
-   * For example, if we provide the `saving` operation in action menu
-   * with `CTRL+S` shortcut, but we want to fire the action only if 
-   * the `content` changed. So we will detected the content change 
-   * and mark it in UI to present the status to user. When user process
-   * `CTRL+S` we also want to block the action if content without changed.
-   * For the reason most UI was been loaded asynchronous, so we need provide
-   * a way to those UIs to append the `guard` before the action invoking.
-   * 
-   * - `key` : The shortcut key like `CTRL+S`
-   * - `value` : synchronized function, return false to block
-   * 
-   * ```
-   * {
-   *   "CTRL+S" : [{
-   *      // object scope, like $app or $com
-   *      // If undefined, take it as $app
-   *      scope : Any,
-   *      // Guard function,
-   *      func  : f():Boolean
-   *   }]
-   * }
-   * ```
-   */
-  guards = {}
-  /***
-   * Save the actions shortcut mapping
-   * 
-   * ```
-   * {
-   *   "CTRL+S" : [{
-   *      // object scope, like $app or $com
-   *      // If undefined, take it as $app
-   *      scope : Any,
-   *      // Binding function to invoke the action
-   *      func  : f():Boolean to quit,
-   *      prevent : true,
-   *      quit    : true
-   *   }]
-   * }
-   * ```
-   */
-  actions = {}
+  constructor() {
+    /***
+     * ComUI can append the guard later for block one process.
+     * 
+     * For example, if we provide the `saving` operation in action menu
+     * with `CTRL+S` shortcut, but we want to fire the action only if 
+     * the `content` changed. So we will detected the content change 
+     * and mark it in UI to present the status to user. When user process
+     * `CTRL+S` we also want to block the action if content without changed.
+     * For the reason most UI was been loaded asynchronous, so we need provide
+     * a way to those UIs to append the `guard` before the action invoking.
+     * 
+     * - `key` : The shortcut key like `CTRL+S`
+     * - `value` : synchronized function, return false to block
+     * 
+     * ```
+     * {
+     *   "CTRL+S" : [{
+     *      // object scope, like $app or $com
+     *      // If undefined, take it as $app
+     *      scope : Any,
+     *      // Guard function,
+     *      func  : f():Boolean
+     *   }]
+     * }
+     * ```
+     */
+    this.guards = {}
+    /***
+     * Save the actions shortcut mapping
+     * 
+     * ```
+     * {
+     *   "CTRL+S" : [{
+     *      // object scope, like $app or $com
+     *      // If undefined, take it as $app
+     *      scope : Any,
+     *      // Binding function to invoke the action
+     *      func  : f():Boolean to quit,
+     *      prevent : true,
+     *      quit    : true
+     *   }]
+     * }
+     * ```
+     */
+    this.actions = {}
+  }
   //////////////////////////////////////////////
   // Methods
   //////////////////////////////////////////////
