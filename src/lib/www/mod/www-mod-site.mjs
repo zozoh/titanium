@@ -101,6 +101,12 @@ export default {
       state.siteId = siteId
     },
     //-------------------------------------
+    setDomain(state, domain) {
+      state.domain = domain
+      state.base = Ti.S.renderBy(state.base||"/www/${domain}/", {domain})
+      state.apiBase = Ti.S.renderBy(state.apiBase||"/api/${domain}/", {domain})
+    },
+    //-------------------------------------
     setLoading(state, loading) {
       state.loading = loading
     },
@@ -228,6 +234,8 @@ export default {
       //console.log("site.reload", state.entry, state.base)
       // Merge Site FuncSet
       //console.log(state.utils)
+
+      // Init the base/apiBase
 
       // Looking for the entry page
       let loc = {
