@@ -244,11 +244,15 @@ const TiUtil = {
       // String : Check the "@BLOCK(xxx)" 
       if(_.isString(theValue)) {
         // Find key in context
-        let m = /^(:?->|:?=|==|!=)(.+)$/.exec(theValue)
+        let m = /^(:?->|:?=|==|!=)([^?]+)(\?(.*))?$/.exec(theValue)
         // Matched
         if(m) {
           let m_type = m[1]
-          let m_val  = m[2]
+          let m_val  = _.trim(m[2])
+          let m_dft  = m[4]
+          if(!Ti.Util.isNil(m_dft)) {
+            m_dft = _.trim(m_dft)
+          }
           return ({
             // =.. The Whole Context
             ".." : (val)=> {
@@ -263,23 +267,23 @@ const TiUtil = {
               return _.get(context, val) ? false : true
             },
             // =xxx   # Get Value Now
-            "=" : (val)=>{
-              return _.get(context, val)
+            "=" : (val, dft)=>{
+              return _.get(context, val) || dft
             },
             // :=xxx  # Get Value Later
-            ":=" : (val)=>{
-              return (c2)=>{return _.get(c2, val)}
-            },
+            // ":=" : (val, dft)=>{
+            //   return (c2)=>{return _.get(c2, val)}
+            // },
             // ->xxx  # Eval Template Result Now
             "->" : (val)=>{
               return Ti.S.renderBy(val, context)
             },
             // :->xxx # Eval Template Result Later
-            ":->" : (val)=>{
-              let tmpl = Ti.S.renderBy(val, context)
-              return (c2)=>{return Ti.S.renderBy(tmpl, c2)}
-            },
-          })[m_type](m_val)
+            // ":->" : (val)=>{
+            //   let tmpl = Ti.S.renderBy(val, context)
+            //   return (c2)=>{return Ti.S.renderBy(tmpl, c2)}
+            // },
+          })[m_type](m_val, m_dft)
         }
         // Simple String
         return iteratee(theValue)

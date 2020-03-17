@@ -98,20 +98,29 @@ export default {
         //..........................................
         // Explain params
         _.forEach(params, (pm, key)=>{
-          pm = {...pm}
+          pm = _.cloneDeep(pm)
+          let pm_val = pm.value;
           //~~~~~~~~~~~~~~~~~~~~~~~~~
           // Eval value
-          let m = /^=(.+)$/.exec(pm.value)
-          // Dynamic get from page state (for user input)
-          if(m) {
-            pm.value = _.bind(function(context, path){
-              return _.get(context, path)
-            }, Papi, rootState, m[1])
+          if(_.isString(pm_val)) {
+            let m = /^=(.+)$/.exec(pm_val)
+            // Dynamic get from page state (for user input)
+            if(m) {
+              pm.value = _.bind(function(context, path){
+                return _.get(context, path)
+              }, Papi, rootState, m[1])
+            }
+            // Just clone it
+            else if(!_.isUndefined(pm.value)){
+              pm.value = ()=>{return pm_val}
+            }
           }
-          // Just clone it
-          else if(!_.isUndefined(pm.value)){
-            let pm_val = pm.value
-            pm.value = ()=>{return pm_val}
+          // Object pm just eval it to JSON
+          // and dynamic
+          else if(_.isPlainObject(pm_val) || _.isArray(pm_val)) {
+            pm.value = _.bind(function(context, obj){
+              return Ti.Util.explainObj(context, obj)
+            }, Papi, rootState, pm_val)
           }
           //~~~~~~~~~~~~~~~~~~~~~~~~~
           // Ignore when invalid value
