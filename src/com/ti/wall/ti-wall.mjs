@@ -3,7 +3,10 @@ export default {
   ///////////////////////////////////////////////////
   provide : function(){
     return {
-      "$wall" : this
+      "$wall" : this,
+      "$NotifyBy" : (name, ...args)=>{
+        this.$emit(name, ...args)
+      }
     }
   },
   //////////////////////////////////////////

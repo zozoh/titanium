@@ -80,14 +80,10 @@ export default {
         let payload = this.emitBy.payload || {}
         //............................
         console.log("onClick", eventName, payload)
-        this.$emit(eventName, payload)
+        this.$notify(eventName, payload)
       }
     }
     //--------------------------------------------
-  },
-  ////////////////////////////////////////////////
-  mounted : function(){
-    
   }
   ////////////////////////////////////////////////
 }

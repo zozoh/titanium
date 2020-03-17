@@ -44,10 +44,6 @@ export default {
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    doThis() {
-      console.log(arguments)
-    },
-    //-----------------------------------------------
     async evalMyDisplayCom() {
       this.$wall.reportReady(this.index, !Ti.Util.isNil(this.myCom))
       let com = await this.evalDataForFieldDisplayItem({

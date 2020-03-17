@@ -244,7 +244,7 @@ const TiUtil = {
       // String : Check the "@BLOCK(xxx)" 
       if(_.isString(theValue)) {
         // Find key in context
-        let m = /^(:?->|:?=|==|!=)([^?]+)(\?(.*))?$/.exec(theValue)
+        let m = /^(->|=|==|!=)([^?]+)(\?(.*))?$/.exec(theValue)
         // Matched
         if(m) {
           let m_type = m[1]
@@ -253,7 +253,8 @@ const TiUtil = {
           if(!Ti.Util.isNil(m_dft)) {
             m_dft = _.trim(m_dft)
           }
-          return ({
+          //................................
+          let fn = ({
             // =.. The Whole Context
             ".." : (val)=> {
               return context
@@ -268,6 +269,9 @@ const TiUtil = {
             },
             // =xxx   # Get Value Now
             "=" : (val, dft)=>{
+              if(".." == val) {
+                return context
+              }
               return _.get(context, val) || dft
             },
             // :=xxx  # Get Value Later
@@ -283,7 +287,15 @@ const TiUtil = {
             //   let tmpl = Ti.S.renderBy(val, context)
             //   return (c2)=>{return Ti.S.renderBy(tmpl, c2)}
             // },
-          })[m_type](m_val, m_dft)
+          })[m_type]
+          //................................
+          // Check Function
+          if(_.isFunction(fn)) {
+            return fn(m_val, m_dft)
+          }
+          //................................
+          // Warn it
+          throw "invalid dynamic value: " + theValue
         }
         // Simple String
         return iteratee(theValue)

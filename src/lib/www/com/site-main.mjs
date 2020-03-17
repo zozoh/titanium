@@ -209,16 +209,18 @@ export default {
   mounted : function(){
     // Watch the browser "Forward/Backward"
     // The state(page) pushed by $store.dispath("navTo")
-    window.onpopstate = ({state})=>{
-      let page = state
-      console.log("window.onpopstate", page)
-      let app = Ti.App(this)
-      app.dispatch("navTo", {
-        type   : "page",
-        value  : page.path,
-        params : page.params,
-        anchor : page.anchor
-      })
+    window.onpopstate = (evt)=>{
+      let page = evt.state
+      if(page && page.path) {
+        console.log("window.onpopstate", page)
+        let app = Ti.App(this)
+        app.dispatch("navTo", {
+          type   : "page",
+          value  : page.path,
+          params : page.params,
+          anchor : page.anchor
+        })
+      }
     }
   }
   /////////////////////////////////////////

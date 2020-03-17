@@ -1,6 +1,10 @@
 export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
+  inject : {
+    '$NotifyBy' : {default:undefined}
+  },
+  ///////////////////////////////////////////////////
   computed :{
     //-----------------------------------------------
     // Auto PageMode
@@ -79,11 +83,23 @@ export default {
     //-----------------------------------------------
     setActived() {
       this.__set_actived()
+    },
+    //-----------------------------------------------
+    $notify(name, ...args) {
+      // Customized notify
+      if(_.isFunction(this.$NotifyBy)) {
+        this.$NotifyBy(name, ...args)
+      }
+      // Primary Emit
+      else {
+        this.$emit(name, ...args)
+      }
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   created : async function(){
+    //...............................................
     // Hijack the emit by $parent
     if(!this.hijackEmit) {
       if(this.$parent 
@@ -101,6 +117,7 @@ export default {
         }
       }
     }
+    //...............................................
     // Auto mark self as actived Component in App
     this.__set_actived = ()=>{
       if(!this.isSelfActived) {
@@ -109,10 +126,12 @@ export default {
         //this.$emit("com:actived", this)
       }
     }
+    //...............................................
     // Auto invoke the callback
     if(_.isFunction(this.onInit)) {
       this.onInit(this)
     }
+    //...............................................
   },
   ///////////////////////////////////////////////////
   mounted : function() {

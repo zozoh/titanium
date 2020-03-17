@@ -160,6 +160,14 @@ export default {
             }
           }
         }
+        // Just replace current
+        else {
+          let his = window.history
+          if(his) {
+            let page = state.page
+            his.replaceState(page, page.title, window.location.pathname)
+          }
+        }
         commit("setLoading", false)
         commit("setPageReady", true)
       }
