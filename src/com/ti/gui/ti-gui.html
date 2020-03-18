@@ -1,4 +1,4 @@
-<div class="ti-gui" :class="topClass">
+<div class="ti-gui" :class="TopClass">
   <!--===========================================
     All normal layout
   -->
@@ -8,45 +8,33 @@
     -->
     <ti-gui-rows v-if="isRowsLayout"
       class="ti-fill-parent"
-      v-bind="theLayout"
+      v-bind="TheLayout"
       :schema="schema"
-      :shown="theShown"
-      :action-status="actionStatus"
-      @block:show="onBlockShow"
-      @block:hide="onBlockHide"
-      @block:shown="onBlockShownUpdate"
-      @block:event="onBlockEvent"/>
+      :shown="TheShown"
+      :action-status="actionStatus"/>
     <!--
       Layout as cols
     -->
     <ti-gui-cols v-else-if="isColsLayout"
       class="ti-fill-parent"
-      v-bind="theLayout"
+      v-bind="TheLayout"
       :schema="schema"
-      :shown="theShown"
-      :action-status="actionStatus"
-      @block:show="onBlockShow"
-      @block:hide="onBlockHide"
-      @block:shown="onBlockShownUpdate"
-      @block:event="onBlockEvent"/>
+      :shown="TheShown"
+      :action-status="actionStatus"/>
     <!--
       Layout as tabs
     -->
     <ti-gui-tabs v-else-if="isTabsLayout"
       class="ti-fill-parent"
-      v-bind="theLayout"
+      v-bind="TheLayout"
       :schema="schema"
-      :shown="theShown"
-      :action-status="actionStatus"
-      @block:show="onBlockShow"
-      @block:hide="onBlockHide"
-      @block:shown="onBlockShownUpdate"
-      @block:event="onBlockEvent"/>
+      :shown="TheShown"
+      :action-status="actionStatus"/>
   </div>
   <!--===========================================
     All float panels
   -->
-  <template v-for="pan in thePanels">
+  <template v-for="pan in ThePanels">
     <transition :name="pan.transName">
       <ti-gui-panel
         v-if="pan.visible"
@@ -55,12 +43,8 @@
           :viewport-width="myViewportWidth"
           :viewport-height="myViewportHeight"
           :schema="schema"
-          :action-status="actionStatus"
-          :shown="theShown"
-          @block:show="onBlockShow"
-          @block:hide="onBlockHide"
-          @block:shown="onBlockShownUpdate"
-          @block:event="onBlockEvent"/>
+          :shown="TheShown"
+          :action-status="actionStatus"/>
     </transition>
   </template>
   <!--===========================================
@@ -68,6 +52,6 @@
   -->
   <div v-if="isLoading"
     class="ti-mask-loading">
-    <ti-loading v-bind="showLoading"/>
+    <ti-loading v-bind="TheLoading"/>
   </div>
 </div>

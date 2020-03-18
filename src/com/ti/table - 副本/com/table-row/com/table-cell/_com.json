@@ -1,0 +1,8 @@
+{
+  "name" : "table-cell",
+  "globally" : false,
+  "template" : "./table-cell.html",
+  "methods"  : "@com:ti/support/field_display.mjs",
+  "mixins"   : ["./table-cell.mjs"],
+  "components" : ["@com:ti/label"]
+}

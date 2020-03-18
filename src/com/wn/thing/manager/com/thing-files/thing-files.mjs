@@ -1,4 +1,4 @@
-export default {
+const _M = {
   inheritAttrs : false,
   ///////////////////////////////////////////
   props : {
@@ -67,7 +67,7 @@ export default {
             "icon" : "zmdi-refresh zmdi-hc-spin",
             "text" : "i18n:del-ing"
           },
-          "action" : "dispatch:main/files/deleteSelected"
+          "action" : "$parent:DoDeleteSelected"
         },{
           "type" : "line"
         },{
@@ -110,9 +110,7 @@ export default {
     theFiles() {
       return _.assign({}, this.files, {
         routers : {
-          "reload"     : "dispatch:main/files/reload",
-          "updateItem" : "commit:main/files/updateItem",
-          "setExposeHidden" : "commit:main/files/setExposeHidden"
+          "reload"     : "dispatch:main/files/reload"
         }
       })
     }
@@ -120,6 +118,13 @@ export default {
   },
   ///////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnAdaptListInit($adaptList){this.$adaptList = $adaptList},
+    //--------------------------------------
+    async DoDeleteSelected(){
+      await this.$adaptList.doDelete()
+
+    },
     //--------------------------------------
     async onFileUploaded(reo) {
       await Ti.App(this).dispatch('main/autoSyncCurrentFilesCount')
@@ -172,3 +177,4 @@ export default {
   }
   ///////////////////////////////////////////
 }
+export default _M

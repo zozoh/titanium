@@ -3,6 +3,14 @@ export default {
   ///////////////////////////////////////////////////
   inject : ["$table"],
   ///////////////////////////////////////////////////
+  provide : function() {
+    return {
+      "$EmitBy" : (name, ...args)=>{
+        console.log("TableCell:", name, args)
+      }
+    }
+  },
+  ///////////////////////////////////////////////////
   data: ()=>({
     isEditingMode : false,
     cellItems : [],
@@ -196,7 +204,7 @@ export default {
     },
     //-----------------------------------------------
     OnItemChanged(item, payload) {
-      this.$table.$emit('item:change', {
+      this.$table.$notify('item:change', {
         rowId     : this.rowId,
         cellIndex : this.index,
         index     : this.rowIndex,

@@ -132,7 +132,7 @@ export default {
       // Emit
       if(link.emit) {
         $event.preventDefault()
-        this.$emit(link.emit)
+        this.$notify(link.emit)
       }
       // Href: do nothing
     }

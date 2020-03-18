@@ -4,39 +4,39 @@
     "comConf" : {
       "width" : "3em", 
       "fontSize" : "1.5em", 
-      "value" : "=theLogo"
+      "value" : "=Logo"
     }
   },
   "pcSkyTitle" : {
     "comType" : "ti-crumb",
-    "comConf" : "=theCrumb"
+    "comConf" : "=Crumb"
   },
   "pcSkyUserInfo" : {
     "comType" : "ti-web-session-badge",
-    "comConf" : "=theSessionBadge"
+    "comConf" : "=SessionBadge"
   },
   "pcSkyMenu" : {
     "comType" : "ti-menu",
-    "comConf" : "=theMenu"
+    "comConf" : "=ActionMenu"
   },
   "pcMainSideBar" : {
     "comType" : "wn-gui-side-nav",
     "comConf" : {
       "items" : "=sidebar",
-      "highlightItemId"   : "=theMetaId",
-      "highlightItemPath" : "=theMetaPath"
+      "highlightItemId"   : "=MetaId",
+      "highlightItemPath" : "=MetaPath"
     }
   },
   "pcMainArena" : {
     "comType" : "wn-gui-arena",
-    "comConf" : "=theArena"
+    "comConf" : "=Arena"
   },
   "pcFooter" : {
     "comType" : "wn-gui-footer",
     "comConf" : {
-      "infoIcon"   : "=mainComIcon",
-      "infoText"   : "=mainComType",
-      "statusText" : "=mainStatusText"
+      "infoIcon"   : "=comIcon",
+      "infoText"   : "=comType",
+      "statusText" : "=StatusText"
     }
   }
 }

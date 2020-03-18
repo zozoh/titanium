@@ -1,5 +1,12 @@
 export default {
-  inheritAttrs : false,
+  ///////////////////////////////////////////
+  provide : function() {
+    return {
+      "$EmitBy" : async (name, ...args)=>{
+        await this.DoEvent(name, args)
+      }
+    }
+  },
   ///////////////////////////////////////////
   data : ()=>({
     myActions : null,
@@ -159,18 +166,29 @@ export default {
       })
     },
     //--------------------------------------
-    async onBlockEvent({block, name, args}={}) {
-      //....................................
-      let evKey = _.concat(block||[], name||[]).join(".")
+    async DoEvent(name, args=[]) {
+      let {block, event} = Ti.Util.explainEventName(name)
+      let data = _.first(args)
+      console.log("thing.DoEvent", {name, block, event, data})
       //console.log("wn-thing-manager:onBlockEvent",evKey, args)
       //....................................
       let app = Ti.App(this)
       //....................................
       // Event Handlers
-      const fns = {
+      const FnSet = {
+        //..................................
+        "block:show" : (name)=>{
+          this.showBlock(name)
+        },
+        "block:hide" : (name)=>{
+          this.hideBlock(name)
+        },
+        "block:shown" : (shown)=>{
+          this.changeShown(shown)
+        },
         //..................................
         // Select item in search list
-        "list.select" : ({current, currentId, checkedIds})=>{
+        "list>select" : ({current, currentId, checkedIds})=>{
           //console.log("list.select", current)
           
           // Update Current
@@ -193,7 +211,7 @@ export default {
         },
         //..................................
         // Select item in search list
-        "list.open" : ({rawData})=>{
+        "list>open" : ({rawData})=>{
           //console.log("list.open", rawData)
           // Open customized block
           // Sometimes, may user want open the both "content" and "file"
@@ -209,19 +227,19 @@ export default {
         },
         //..................................
         // Content changed
-        "content.change" : ({content})=>{
+        "content>change" : ({content})=>{
           app.dispatch("main/current/onChanged", content)
           app.commit("main/syncStatusChanged")
         },
         //..................................
         // PageNumber changed
-        "pager.change:pn" : (pn)=>{
+        "pager>change:pn" : (pn)=>{
           app.commit("main/search/updatePager", {pn})
           app.dispatch("main/search/reload")
         },
         //..................................
         // PageSize changed
-        "pager.change:pgsz" : (pgsz)=>{
+        "pager>change:pgsz" : (pgsz)=>{
           app.commit("main/search/updatePager", {pgsz, pn:1})
           app.dispatch("main/search/reload")
         },
@@ -230,7 +248,7 @@ export default {
         //..................................
       }
 
-      let fn = fns[evKey] || fns[name]
+      let fn = FnSet[name] || FnSet[event]
 
       // Run Handler
       if(_.isFunction(fn)) {

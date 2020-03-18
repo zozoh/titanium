@@ -1,0 +1,21 @@
+<div class="table-cell"
+  :class="TopClass"
+  :style="TopStyle"
+  :col-index="index"
+  v-ti-actived="__set_actived">
+  <div class="cell-wrapper"
+    :class="WrapperClass">
+    <!--Slot for first column-->
+    <slot></slot>
+    <!--Fields-->
+    <div class="cell-con">
+      <component 
+        v-for="(it, index) in cellItems"
+          :class="'item-'+index"
+          :key="it.uniqueKey"
+          :is="it.comType"
+          v-bind="it.comConf"
+          @change="OnItemChanged(it, $event)"/>
+    </div>
+  </div>
+</div>

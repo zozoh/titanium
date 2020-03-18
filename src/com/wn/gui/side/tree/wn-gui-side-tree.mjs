@@ -101,7 +101,7 @@ export default {
     //-------------------------------------
     onItemActived({current={}}={}){
       if(current.value) {
-        this.$emit("item:actived", {
+        this.$notify("item:active", {
           id : current.value
         })
       }

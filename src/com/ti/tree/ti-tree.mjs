@@ -1,5 +1,16 @@
-export default {
-  inheritAttrs : false,
+const TI_TREE = {
+  ///////////////////////////////////////////
+  provide : function() {
+    return {
+      "$EmitBy" : (name, ...args)=>{
+        if("item:change" == name) {
+          this.OnItemChanged(_.first(args))
+        } else {
+          this.$notify(name, ...args)
+        }
+      }
+    }
+  },
   //////////////////////////////////////////
   data : ()=>({
     "myTreeTableData"   : [],
@@ -150,42 +161,11 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
+    TopClass() {
       return Ti.Css.mergeClassName({
         "is-selectable"  : this.selectable,
         "is-hoverable"   : this.hoverable
       }, this.className)
-    },
-    //--------------------------------------
-    topStyle() {
-      return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
-      })
-    },
-    //--------------------------------------
-    theDefaultNodeIcon() {
-      if(this.defaultIcon) {
-        let icons = this.defaultIcon
-        if(_.isPlainObject(icons)) {
-          if(icons.node && icons.leaf) {
-            return icons.node
-          }
-        }
-        return icons
-      }
-    },
-    //--------------------------------------
-    theDefaultLeafIcon() {
-      if(this.defaultIcon) {
-        let icons = this.defaultIcon
-        if(_.isPlainObject(icons)) {
-          if(icons.node && icons.leaf) {
-            return icons.leaf
-          }
-        }
-        return icons
-      }
     },
     //--------------------------------------
     getNodeId() {
@@ -224,14 +204,14 @@ export default {
       return _.isArray(this.fields) && !_.isEmpty(this.fields)
     },
     //--------------------------------------
-    theTableHead() {
+    TableHead() {
       if(this.isTable) {
         return "frozen"
       }
       return "none"
     },
     //--------------------------------------
-    theTableFields() {
+    TableFields() {
       let mainCol = {
         title   : this.title,
         width   : this.mainWidth,
@@ -339,10 +319,10 @@ export default {
       }
     },
     //--------------------------------------
-    onItemChanged({name, value, rowId}={}) {
+    OnItemChanged({name, value, rowId}={}) {
       let row = this.findTableRow(rowId)
       if(row) {
-        this.$emit("item:change", {
+        this.$notify("item:change", {
           name,
           value,
           node   : row,
@@ -352,7 +332,7 @@ export default {
       }
     },
     //--------------------------------------
-    onRowSelected({currentId, checkedIds={}}={}) {
+    OnRowSelected({currentId, checkedIds={}}={}) {
       let current, selected=[]
       // Has selected
       if(currentId) {
@@ -390,7 +370,7 @@ export default {
       })
     },
     //--------------------------------------
-    onRowIconClick({rowId}={}) {
+    OnRowIconClick({rowId}={}) {
       let row = this.findTableRow(rowId)
       // Open it
       if(row && !row.leaf && !row.opened) {
@@ -503,3 +483,4 @@ export default {
   }
   //////////////////////////////////////////
 }
+export default TI_TREE

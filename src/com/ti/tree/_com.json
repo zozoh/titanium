@@ -4,7 +4,5 @@
   "template" : "./ti-tree.html",
   "mixins" : ["./ti-tree.mjs"],
   "components" : [
-    "./com/tree-node",
-    "@com:ti/table"
-  ]
+    "@com:ti/table"]
 }

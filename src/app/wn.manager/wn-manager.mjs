@@ -1,104 +1,105 @@
-export default {
+const WN_MANAGER_MIXINS = {
+  ///////////////////////////////////////////
+  provide : function() {
+    return {
+      "$EmitBy" : async (name, ...args)=>{
+        await this.DoEvent(name, args)
+      }
+    }
+  },
+  ///////////////////////////////////////////
+  data:()=>({
+    loading : false,
+    comIcon : "zmdi-hourglass-alt",
+    comType : "ti-loading",
+    comConf : {},
+    actions : [],
+    sidebar : [],
+    // Current meta anestors
+    ancestors : [],
+    parent : null,
+    // Current view(main) information
+    view : null
+  }),
   ///////////////////////////////////////////
   computed : {
     //---------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName(this.appClassName, ()=>{
-        let klass = []
-        _.forEach(this.theShown, (val, key)=>{
-          klass.push(`is-${key}-${val?'shown':'hidden'}`)
-        })
-        return klass
-      })
+    TopClass() {
+      return this.getTopClass(this.appClassName)
     },
     //---------------------------------------
-    ...Vuex.mapState([
-      "loading", "mainCom", "actions", "sidebar"]),
+    // Status
     //---------------------------------------
-    ...Vuex.mapGetters([
-      "mainActions",
-      "mainComIcon", "mainComType", "mainComConf",
-      "mainStatus", "mainStatusText"]),
+    isLoading() {return this.loading || this.isReloading},
     //---------------------------------------
-    objIsNotHome() {
-      return this.obj && this.obj.meta && !this.objIsHome
-    },
+    isChanged()   {return _.get(this.status, "changed")},
+    isSaving()    {return _.get(this.status, "saving")},
+    isReloading() {return _.get(this.status, "reloading")},
     //---------------------------------------
-    theMetaId() {
-      if(this.obj && this.obj.meta) {
-        return this.obj.meta.id
-      }
-    },
+    hasActions(){return !_.isEmpty(this.actions)},
+    hasView()   {return this.view   ? true : false},
+    hasMeta()   {return this.meta   ? true : false},
+    hasParent() {return this.parent ? true : false},
     //---------------------------------------
-    theMetaPath() {
-      if(this.obj && this.obj.meta) {
-        return this.obj.meta.ph
-      }
-    },
+    // Data
     //---------------------------------------
-    hasMainActions() {
-      return _.isArray(this.mainActions) 
-         && !_.isEmpty(this.mainActions)
-    },
+    MetaId ()   {return _.get(this.meta, "id")},
+    MetaPath()  {return _.get(this.meta, "ph")},
     //---------------------------------------
-    theLogo() {
-      if("<:home>" == this.setup.logo) {
-        let crIt = _.nth(this.theCrumbData, 0)
-        return crIt ? crIt.icon : null
-      }
-      // Then it is the static icon
-      return this.setup.logo
-    },
-    //---------------------------------------
-    theCrumbData() {
-      return Wn.Obj.evalCrumbData({
-        meta      : _.get(this.obj, "meta"),
-        ancestors : _.get(this.obj, "ancestors"),
-        fromIndex : this.setup.firstCrumbIndex,
-        homePath  : this.setup.skyHomePath,
-        self : (item)=>{
-          item.asterisk = _.get(this.mainStatus, "changed")
+    MyHome() {
+      let obj = this.meta
+      let ans = this.ancestors
+      if(!_.isEmpty(ans)) {
+        // for /home/xiaobai
+        if(1 == ans.length) {
+          if("home" == ans[0].nm) {
+            return obj
+          }
         }
-      })
-    },
-    //---------------------------------------
-    theCrumb() {
-      let crumbs = _.cloneDeep(this.theCrumbData)
-      // Remove the first 
-      if(this.theLogo && !_.isEmpty(crumbs)) {
-        crumbs[0].icon = null
-      }
-      // Return it
-      return  {
-        "data" : crumbs
-      }
-    },
-    //---------------------------------------
-    theSessionBadge() {
-      let me = _.get(this.session, "me")
-      if(me) {
-        return {
-          me,
-          avatarKey : "thumb",
-          avatarSrc : null,
-          loginIcon : me.sex == 1 ? "im-user-male" : "im-user-female",
-          nameKeys  : ["nickname", "nm"]
+        // for /home/xiaobai/path/to/file
+        if("home" == ans[0].nm) {
+          return ans[1]
         }
       }
+      // for /root
+      else if(obj && "root" == obj.nm) {
+        return obj
+      }
+      // Dont't known how to find the home
+      return null
     },
     //---------------------------------------
-    theMenu() {
-      if(_.isArray(this.mainActions) && !_.isEmpty(this.mainActions)) {
-        return {
-          className : `wn-${this.viewportMode}-menu`,
-          data   : this.mainActions,
-          status : this.mainStatus,
-          delay  : 500
-        }
+    MyHomeId() {return _.get(this.MyHome, "id")},
+    //---------------------------------------
+    ParentIsHome() {
+      return this.hasParent && this.parent.id == this.MyHomeId
+    },
+    //---------------------------------------
+    CurrentIsHome() {
+      return this.hasMeta && this.MetaId == this.MyHomeId
+    },
+    //---------------------------------------
+    // Tipping
+    //---------------------------------------
+    StatusText(){
+      let st = _.assign({}, this.status)
+      if(st.saving) {
+        return Ti.I18n.text("i18n:saving")
+      }
+      if(st.reloading) {
+        return Ti.I18n.text("i18n:loading")
       }
     },
     //---------------------------------------
-    theShown() {
+    // Main Module
+    //---------------------------------------
+    Main() {
+      return this.$store.state.main
+    },
+    //---------------------------------------
+    // GUI
+    //---------------------------------------
+    GuiShown() {
       let ShownSet = _.get(this.setup, "shown")
       if(_.isPlainObject(ShownSet)) {
         let shown = ShownSet[this.viewportMode]
@@ -115,27 +116,19 @@ export default {
       return {}
     },
     //---------------------------------------
-    theCanLoading() {
+    GuiCanLoading() {
       return _.get(this.setup, "canLoading")
     },
     //---------------------------------------
-    theLoadingAs() {
+    GuiLoadingAs() {
       return _.get(this.setup, "loadingAs")
     },
     //---------------------------------------
-    theArena() {
-      return {
-        meta    : _.get(this.obj, "meta"),
-        comType : this.mainComType || "ti-loading",
-        comConf : this.mainComConf || {}
-      }
-    },
-    //---------------------------------------
-    theLayout() {
+    GuiLayout() {
       return Ti.Util.explainObj(this, this.layout)
     },
     //---------------------------------------
-    theSchema() {
+    GuiSchema() {
       return Ti.Util.explainObj(this, this.schema)
     }
     //---------------------------------------
@@ -143,88 +136,16 @@ export default {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    async invoke(fnName) {
-      //console.log("invoke ", fnName)
-      let fn = _.get(this.schema.methods, fnName)
-      // Invoke the method
-      if(_.isFunction(fn)) {
-        return await fn.apply(this, [])
-      }
-      // Throw the error
-      else {
-        throw Ti.Err.make("e.WnManager.invoke.NoFunction", fnName)
-      }
-    },
-    //--------------------------------------
-    doChangeShown(newShown={}) {
-      let ShownSet = _.get(this.setup, "shown")
-      if(_.isPlainObject(ShownSet)) {
-        ShownSet[this.viewportMode] = _.assign({}, this.theShown, newShown)
-      }
-    },
-    //--------------------------------------
-    showBlock(name) {
-      this.doChangeShown({[name]:true})
-    },
-    //--------------------------------------
-    hideBlock(name) {
-      this.doChangeShown({[name]:false})
-    },
-    //--------------------------------------
-    changeTabsShown(tabs={}) {
-      this.doChangeShown(tabs)
-    },
-    //--------------------------------------
-    toggleBlockShown(name) {
-      this.doChangeShown({[name]:!this.theShown[name]})
-    },
-    //--------------------------------------
-    async onBlockEvent({block, name, args}={}) {
-      let evKey = _.concat(block||[], name||[]).join(".")
-      //console.log("wn-manager:onBlockEvent",evKey, args)
-      let data = _.first(args)
-      // Find Event Handler
-      let FnSet = {
-        // sidebar or title
-        "item:actived" : async (it)=>{
-          await this.openView(it.id || it.path || it.value)
-        },
-        // For uinfo
-        "do:logout" : async ()=>{
-          await this.doLogout()
-        },
-        "arena.open" : async (o)=>{
-          await this.openView(o.id)
-        },
-        "arena.changed" : ()=>{
-          this.notifyChange(data)
-        },
-        "arena.actions:updated" : (actions)=>{
-          this.updateActions(actions)
-        }
-      }
-
-      let fn = FnSet[evKey] || FnSet[name]
-
-      // Invoke Event Handler
-      if(_.isFunction(fn)) {
-        await fn.apply(this, args)
-      }
+    notifyChange(data) {
+      Ti.App(this).dispatch("current/changeContent", data);
     },
     //--------------------------------------
     updateActions(actions) {
-      if(_.isArray(actions)) {
-        let app = Ti.App(this)
-        app.commit("setActions", actions)
-        app.reWatchShortcut(actions)
-      }
-    },
-    //--------------------------------------
-    notifyChange(data) {
-      Ti.App(this).dispatch("main/onChanged", data);
+      this.actions = _.cloneDeep(actions)
     },
     //--------------------------------------
     async openView(oid) {
+      console.log(oid)
       if(!_.isString(oid))
         return
 
@@ -237,7 +158,7 @@ export default {
       let ph = Wn.Io.isFullObjId(oid)
                 ? `id:${oid}`
                 : oid;
-      Ti.App(this).dispatch("reloadMain", ph)
+      await Ti.App(this).dispatch("current/reload", ph)
     },
     //--------------------------------------
     async doLogout() {
@@ -246,77 +167,81 @@ export default {
       Ti.Be.Open(quitPath, {target:"_self", delay:0})
     },
     //--------------------------------------
-    editObjMeta() {
-      let meta = _.get(this.obj, "meta")
-
-      if(!meta) {
-        return Ti.Toast.Open("i18n:nil-obj")
+    async DoEvent(name, args=[]) {
+      let {block, event} = Ti.Util.explainEventName(name)
+      let data = _.first(args)
+      console.log("wn-manager.DoEvent", {name, block, event, data})
+      // Find Event Handler
+      let FnSet = {
+        // sidebar or title
+        "item:active" : async (it)=>{
+          await this.openView(it.id || it.path || it.value)
+        },
+        // For uinfo
+        "do:logout" : async ()=>{
+          await this.doLogout()
+        },
+        "arena>open" : async (o)=>{
+          await this.openView(o.id)
+        },
+        "arena>change" : (content)=>{
+          this.notifyChange(content)
+        },
+        "arena>actions:updated" : (actions)=>{
+          this.updateActions(actions)
+        }
       }
 
-      Wn.EditObjMeta(meta)
-    },
-    //--------------------------------------
-    async viewObjContent() {
-      let meta = _.get(this.obj, "meta")
+      let fn = FnSet[name] || FnSet[event]
 
-      if(!meta) {
-        return Ti.Toast.Open("i18n:nil-obj")
-      }
-
-      let content = await Wn.EditObjContent(meta)
-      
-      if(!_.isUndefined(content)) {
-        Ti.App(this).dispatch("main/reload")
+      // Invoke Event Handler
+      if(_.isFunction(fn)) {
+        await fn.apply(this, args)
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////////
   watch : {
-    "obj.meta" : function(meta) {
-      // Push history to update the browser address bar
-      let his = window.history
-      if(his && meta) {
-        // Done push duplicate state
-        if(his.state && his.state.id == meta.id){
-          return
+    "meta" : async function(newVal, oldVal) {
+      let newId = _.get(newVal, "id")
+      let oldId = _.get(oldVal, "id")
+      if(newVal && !_.isEqual(newId, oldId)) {
+        console.log("metaChanged", newVal, oldVal)
+        await this.reloadAncestors()
+        await this.reloadMain()
+
+        // Push history to update the browser address bar
+        let his = window.history
+        let meta = newVal
+        if(his && meta) {
+          // Done push duplicate state
+          if(his.state && his.state.id == meta.id){
+            return
+          }
+          // Push to history stack
+          let newLink = Wn.Util.getAppLink(meta.id)
+          let title =  Wn.Util.getObjDisplayName(meta)
+          if(Ti.IsInfo("app/wn-manager")) {
+            console.log(title , "->", newLink)
+          }
+          his.pushState(meta, title, newLink)
+          // Update the Title
+          document.title = title;
         }
-        // Push to history stack
-        let newLink = Wn.Util.getAppLink(meta.id)
-        let title =  Wn.Util.getObjDisplayName(meta)
-        if(Ti.IsInfo("app/wn-manager")) {
-          console.log(title , "->", newLink)
-        }
-        his.pushState(meta, title, newLink)
-        // Update the Title
-        document.title = title;
       }
     }
   },
   ///////////////////////////////////////////
-  mounted : function(){
+  mounted : async function(){
     //......................................
-    // Watch the browser "Forward/Backward"
-    window.onpopstate = ({state})=>{
-      Ti.App(this).dispatch("reloadMain", state)
-    }
-    //......................................
-    // Protected loading
-    Ti.Fuse.getOrCreate().add({
-      key : "wn-manager-view-opening",
-      everythingOk : ()=>{
-        return !this.loading
-      },
-      fail : ()=>{
-        console.log("haha")
-        Ti.Toast.Open("i18n:wn-view-opening", "warn")
-      }
-    })
+    await this.reloadSidebar()
     //......................................
   },
   ///////////////////////////////////////////
   beforeDestroy : function(){
-    Ti.Fuse.get().remove("wn-manager-view-opening")
+    
   }
   ///////////////////////////////////////////
 }
+export default WN_MANAGER_MIXINS;

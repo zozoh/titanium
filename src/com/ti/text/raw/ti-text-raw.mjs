@@ -65,7 +65,7 @@ export default {
       if(this.ignoreKeyUp) {
         return this.myContent != this.content
       }
-      return this.status.changed
+      return _.get(this.status, "changed")
     }
   },
   ///////////////////////////////////////////////////

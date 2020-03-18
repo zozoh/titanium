@@ -132,6 +132,7 @@ export class TiAppModal {
     //..........................................
     // Prepare the app info
     let appInfo = {
+      name : "app.modal",
       //////////////////////////////////////////
       template : html,
       components : this.components,

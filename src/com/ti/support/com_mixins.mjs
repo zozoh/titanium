@@ -2,7 +2,7 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   inject : {
-    '$NotifyBy' : {default:undefined}
+    '$EmitBy' : {default:undefined}
   },
   ///////////////////////////////////////////////////
   computed :{
@@ -87,8 +87,8 @@ export default {
     //-----------------------------------------------
     $notify(name, ...args) {
       // Customized notify
-      if(_.isFunction(this.$NotifyBy)) {
-        this.$NotifyBy(name, ...args)
+      if(_.isFunction(this.$EmitBy)) {
+        this.$EmitBy(name, ...args)
       }
       // Primary Emit
       else {
@@ -129,6 +129,7 @@ export default {
     //...............................................
     // Auto invoke the callback
     if(_.isFunction(this.onInit)) {
+      console.log("init!!", this.tiComId)
       this.onInit(this)
     }
     //...............................................

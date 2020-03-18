@@ -1,5 +1,10 @@
 export default {
-  inheritAttrs : false,
+  ///////////////////////////////////////////
+  provide : function() {
+    return {
+      "$gui" : this
+    }
+  },
   /////////////////////////////////////////
   data: ()=>({
     myShown : {},
@@ -45,13 +50,13 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName({
+    TopClass() {
+      return this.getTopClass({
         "is-loading" : this.isLoading
-      }, this.className)
+      })
     },
     //--------------------------------------
-    theLayout() {
+    TheLayout() {
       if(_.isEmpty(this.layout))
         return {}
       //....................................
@@ -73,38 +78,29 @@ export default {
       return lay || {}
     },
     //--------------------------------------
-    isRowsLayout() {
-      return "rows" == this.theLayout.type
-    },
+    isRowsLayout() {return "rows"==this.TheLayout.type},
+    isColsLayout() {return "cols"==this.TheLayout.type},
+    isTabsLayout() {return "tabs"==this.TheLayout.type},
     //--------------------------------------
-    isColsLayout() {
-      return "cols" == this.theLayout.type
-    },
-    //--------------------------------------
-    isTabsLayout() {
-      return "tabs" == this.theLayout.type
-    },
-    //--------------------------------------
-    thePanels() {
+    ThePanels() {
       let list = []
 
       // Join Global Panels
       this.joinThePanels(list, this.layout.panels, "G")
 
       // Join Current Mode Panels
-      if(this.layout != this.theLayout) {
-        this.joinThePanels(list, this.theLayout.panels, this.viewportMode)
+      if(this.layout != this.TheLayout) {
+        this.joinThePanels(list, this.TheLayout.panels, this.viewportMode)
       }
 
       // Done
       return list
     },
     //--------------------------------------
-    theShown() {
-      if(this.keepShownTo) {
-        return this.myShown
-      }
-      return this.shown
+    TheShown() {
+      return this.keepShownTo
+        ? this.myShown
+        : this.shown
     },
     //--------------------------------------
     isLoading() {
@@ -114,7 +110,7 @@ export default {
                   : false
     },
     //--------------------------------------
-    showLoading() {
+    TheLoading() {
       if(_.isPlainObject(this.loadingAs)) {
         return this.loadingAs
       }
@@ -127,7 +123,7 @@ export default {
     //--------------------------------------
     isShown(...names) {
       for(let name of names) {
-        if(this.theShown[name])
+        if(this.TheShown[name])
           return true
       }
       return false
@@ -163,7 +159,7 @@ export default {
       }
       // Leave it to parent
       else {
-        this.$emit("block:show", name)
+        this.$notify("block:show", name)
       }
     },
     //--------------------------------------
@@ -174,7 +170,7 @@ export default {
       }
       // Leave it to parent
       else {
-        this.$emit("block:hide", name)
+        this.$notify("block:hide", name)
       }
     },
     //--------------------------------------
@@ -185,12 +181,12 @@ export default {
       }
       // Leave it to parent
       else {
-        this.$emit("block:shown", shown)
+        this.$notify("block:shown", shown)
       }
     },
     //--------------------------------------
     onBlockEvent(payload) {
-      this.$emit("block:event", payload)
+      this.$notify("block:event", payload)
     },
     //--------------------------------------
     syncMyShown(...showns) {

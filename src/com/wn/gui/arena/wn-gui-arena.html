@@ -1,5 +1,6 @@
-<wn-gui-arena-con
-  :meta="meta"
-  :com-type="comType"
-  :com-conf="comConf"
-  @arena:event="onArenaEvent"/>
+<div class="wn-gui-arena">
+  <component 
+    :is="comType"
+      class="ti-cover-parent"
+      v-bind="comConf"/>
+</div>

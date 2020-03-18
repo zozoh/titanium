@@ -92,7 +92,7 @@ export default {
     },
     //-------------------------------------
     onItemActived(payload={}){
-      this.$emit("item:actived", payload)
+      this.$notify("item:active", payload)
     }
     //-------------------------------------
   }

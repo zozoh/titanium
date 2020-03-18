@@ -1,5 +1,9 @@
 export default {
-  inheritAttrs : false,
+  ////////////////////////////////////////////////////
+  model : {
+    prop : "value",
+    event: "change"
+  },
   ////////////////////////////////////////////////////
   data : ()=>({
     "inputCompositionstart" : false,

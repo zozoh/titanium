@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+  <!--link rel="stylesheet" type="text/css"
+        href="${rs}/core/css/font-md/css/material-design-iconic-font.css"-->
+  <script src="${rs}/ti/deps/jquery.js"></script>
+  <script src="${rs}/ti/deps/lodash.min.js"></script>
+  <script src="${rs}/ti/deps/vue.js"></script>
+  <script src="${rs}/ti/deps/vuex.js"></script>
+
+  <link rel="stylesheet" href="${rs}/ti/deps/md/iconfont/material-icons.css">
+  <link rel="stylesheet" href="${rs}/ti/deps/zmdi/css/material-design-iconic-font.css">
+  <link rel="stylesheet" href="${rs}/ti/deps/fontawesome/5.12.0-web/css/all.css">
+  <link rel="stylesheet" href="${rs}/ti/deps/iconmonstr/css/iconmonstr-iconic-font.css">
+
+  <!--===========Theme============-->
+  <link rel="stylesheet" href="${theme}">
+
+  <!--===========ExtAPIs==========-->
+  ${extlibs?}
+  
+</head>
+<body class="main-body">
+<div id="app" class="app-loading">
+  <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
+</div>
+<script type="module">
+import Ti from "${rs}/ti/core/ti.mjs"
+import Wn from "${rs}/ti/lib/walnut/walnut.mjs"
+import main from "${rs}/ti/app/wn.manager/main.mjs"
+//---------------------------------------
+window._app = ${app};
+//---------------------------------------
+main({
+  Ti, Wn, rs:"${rs}",
+  appName : "${appName}",
+  comMixinPath : "@com:ti/support/com_mixins.mjs"
+}).then(o=>{
+  if(Ti.IsInfo("main")) {
+    console.log("MainLoaded", o)
+  }
+}).catch(err=>{
+  throw err
+})
+//---------------------------------------
+</script>
+</body>
+</html>

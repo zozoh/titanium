@@ -1,5 +1,16 @@
-export default {
-  inheritAttrs : false,
+const _M = {
+  ////////////////////////////////////////////////
+  provide : function() {
+    return {
+      "$EmitBy" : (name, ...args)=>{
+        if("select" == name) {
+          this.OnSelected(...args)
+        } else {
+          this.$notify(name, ...args)
+        }
+      }
+    }
+  },
   ////////////////////////////////////////////////
   data: ()=>({
     myCurrentId  : null,
@@ -121,11 +132,6 @@ export default {
         current, currentId, currentIndex,
         checked, checkedIds
       })
-    },
-    //--------------------------------------------
-    OnOpen(current) {
-      //console.log("onOpen")
-      this.$emit("open", current)
     },
     //--------------------------------------------
     async OnDropFiles(files) {
@@ -261,3 +267,4 @@ export default {
   //--------------------------------------------
   ////////////////////////////////////////////////
 }
+export default _M;

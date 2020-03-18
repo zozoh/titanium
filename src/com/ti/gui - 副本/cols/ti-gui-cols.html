@@ -1,0 +1,15 @@
+<div class="ti-gui-cols" :class="topClass">
+  <template v-if="hasBlocks">
+    <ti-gui-block v-for="(block, index) in blocks"
+      :key="index"
+      embed-in="cols"
+      v-bind="block"
+      :schema="schema"
+      :action-status="actionStatus"
+      :shown="shown"
+      @block:show="$emit('block:show', $event)"
+      @block:hide="$emit('block:hide', $event)"
+      @block:shown="$emit('block:shown', $event)"
+      @block:event="$emit('block:event', $event)"/>
+  </template>
+</div>

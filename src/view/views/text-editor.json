@@ -1,7 +1,11 @@
 {
   "comIcon" : "im-edit",
-  "comType" : "@com:wn/obj/puretext",
-  "modType" : "@mod:wn/obj-as-text",
+  "comType" : "@com:ti/text/raw",
+  "comConf" : {
+    "title"   : "=meta.title|meta.nm",
+    "content" : "=content"
+  },
+  "modType" : "@mod:wn/obj-current",
   "actions" : [{
       "key"  : "saving",
       "type" : "action",

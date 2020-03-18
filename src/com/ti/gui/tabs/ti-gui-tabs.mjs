@@ -108,7 +108,7 @@ export default {
       //   target  : item,
       //   current : this.theCurrentTabItem
       // })
-      this.$emit("block:shown", {
+      this.$notify("block:shown", {
         [item.key] : true,
         [this.theCurrentTabItem.key] : false
       })

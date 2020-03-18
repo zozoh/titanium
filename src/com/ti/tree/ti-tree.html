@@ -1,11 +1,11 @@
 <ti-table
   class="ti-tree"
-  :class="topClass"
+  :class="TopClass"
   id-by="id"
   icon-by="icon"
   indent-by="indent"
   raw-data-by="rawData"
-  :fields="theTableFields"
+  :fields="TableFields"
   :extend-function-set="extendFunctionSet"
   :data="myTreeTableData"
   :changed-id="changedId"
@@ -19,12 +19,10 @@
   :puppet-mode="puppetMode"
   :width="width"
   :height="height"
-  :head="theTableHead"
+  :head="TableHead"
   :border="border"
   :blank-as="blankAs"
   :auto-scroll-into-view="autoScrollIntoView"
-  @icon="onRowIconClick"
-  @select="onRowSelected"
-  @item:change="onItemChanged"
-  />
+  @icon="OnRowIconClick"
+  @select="OnRowSelected"/>
   

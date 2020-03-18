@@ -75,7 +75,7 @@ function __eval_com_conf_item(val, cx={}) {
       // Only `itemData` contains the preKey, render the value
       if(preKey) {
         // "(age)?xxx"  :: get from itemDAta
-        if(_.get(itemData, preKey)) {
+        if(_.get(cx.itemData, preKey)) {
           return Ti.S.renderBy(tmpl, cx, {
             iteratee: _render_iteratee
           })

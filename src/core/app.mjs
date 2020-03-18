@@ -279,23 +279,27 @@ export class OneTiApp {
     return this.$vm()[key]
   }
   //---------------------------------------
-  async loadView(name, view) {
-    // Load the module
-    let moInfo = await Ti.Load(view.modType)
-    let moConf = await LoadTiLinkedObj(moInfo, {
-      dynamicAlias: new Ti.Config.AliasMapping({
-        "^\./": view.modType + "/"
+  async loadView(view) {
+    // [Optional] Load the module
+    //.....................................
+    let mod;
+    if(view.modType) {
+      let moInfo = await Ti.Load(view.modType)
+      let moConf = await LoadTiLinkedObj(moInfo, {
+        dynamicAlias: new Ti.Config.AliasMapping({
+          "^\./": view.modType + "/"
+        })
       })
-    })
-    // Default state
-    if(!moConf.state) {
-      moConf.state = {}
+      // Default state
+      if(!moConf.state) {
+        moConf.state = {}
+      }
+      
+      // Formed
+      mod = TiVue.StoreConfig(moConf, true)
+      // this.$store().registerModule(name, mo)
     }
-    
-    // Formed
-    let mo = TiVue.StoreConfig(moConf, true)
-    this.$store().registerModule(name, mo)
-    
+    //.....................................
     // Load the component
     let comInfo = await Ti.Load(view.comType)
     let comConf = await LoadTiLinkedObj(comInfo, {
@@ -303,30 +307,30 @@ export class OneTiApp {
         "^\./": view.comType + "/"
       })
     })
-
+    //.....................................
     // TODO: shoudl I put this below to LoadTiLinkedObj?
     // It is sames a litter bit violence -_-! so put here for now...
     //Ti.I18n.put(comInfo.i18n)
     // Setup ...
     let setup = TiVue.Setup(comConf)
-
+    //.....................................
     // Get the formed comName
     let comName = setup.options.name 
                   || Ti.Util.getLinkName(view.comType)
-
+    //.....................................
     if(Ti.IsInfo("TiApp")) {
       console.log("TiApp.loadView:", comName)
       console.log(" -- global:", setup.global)
       console.log(" -- options:", setup.options)
     }
-
+    //.....................................
     // Decorate it
     Ti.Config.decorate(setup.options)
-
+    //.....................................
     // Define the com
     //console.log("define com:", comName)
     Vue.component(comName, setup.options)
-    
+    //.....................................
     _.map(setup.global.components, com=>{
       //Ti.I18n.put(com.i18n)
       // Decorate it
@@ -336,14 +340,16 @@ export class OneTiApp {
       //console.log("define com:", com.name)
       Vue.component(com.name, com)
     })
-
+    //.....................................
     // watch the shortcut
     this.reWatchShortcut(view.actions)
-    
+    //.....................................
     return {
       ...view,
-      comName
+      comName,
+      mod
     }
+    //.....................................
   }
 }
 //---------------------------------------

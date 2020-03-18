@@ -1,5 +1,19 @@
 export default {
-  inheritAttrs : false,
+  ///////////////////////////////////////////
+  inject : ["$gui"],
+  ///////////////////////////////////////////
+  provide : function() {
+    return {
+      "$EmitBy" : (name, ...args)=>{
+        console.log("GuiBlock:", name, args)
+        // Append self name
+        let eventName = this.name
+          ? `${this.name}>${name}`
+          : name
+        this.$gui.$notify(eventName, ...args)
+      }
+    }
+  },
   /////////////////////////////////////////
   props : {
     "type" : {
@@ -181,34 +195,34 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    async hijackEmit(name, args) {
-      //console.log("ti-gui-block::hijackEmit->", name, args)
-      //....................................
-      // Capture Events
-      let callName = _.get(this.captureEvents, name)
-      if(callName) {
-        //console.log("!captureEvents", name, args)
-        let $body  = _.last(this.$children)
-        let callFn = _.get($body, callName)
-        if(_.isFunction(callFn)) {
-          callFn.apply($body, [{name, args}])
-        }
-      }
-      //....................................
-      // By Pass: "block:show/hide/event"
-      else if(/^block:(shown?|hide|event)$/.test(name)) {
-        await this.$emit(name, ...args)
-      }
-      //....................................
-      // Gen Block Event
-      else {
-        await this.$emit("block:event", {
-          block : this.name,
-          name, args
-        })
-      }
-      //....................................
-    }
+    // async hijackEmit(name, args) {
+    //   //console.log("ti-gui-block::hijackEmit->", name, args)
+    //   //....................................
+    //   // Capture Events
+    //   let callName = _.get(this.captureEvents, name)
+    //   if(callName) {
+    //     //console.log("!captureEvents", name, args)
+    //     let $body  = _.last(this.$children)
+    //     let callFn = _.get($body, callName)
+    //     if(_.isFunction(callFn)) {
+    //       callFn.apply($body, [{name, args}])
+    //     }
+    //   }
+    //   //....................................
+    //   // By Pass: "block:show/hide/event"
+    //   else if(/^block:(shown?|hide|event)$/.test(name)) {
+    //     await this.$emit(name, ...args)
+    //   }
+    //   //....................................
+    //   // Gen Block Event
+    //   else {
+    //     await this.$emit("block:event", {
+    //       block : this.name,
+    //       name, args
+    //     })
+    //   }
+    //   //....................................
+    // }
     //--------------------------------------
   }
   //////////////////////////////////////////

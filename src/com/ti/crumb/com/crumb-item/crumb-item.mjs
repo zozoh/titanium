@@ -88,7 +88,7 @@ export default {
       }
       // Emit event
       if(this.href) {
-        this.$emit("fire", this.theData)
+        this.$notify("item:active", this.theData)
       }
     }
     //------------------------------------------------

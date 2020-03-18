@@ -4,7 +4,7 @@ export default {
   provide : function(){
     return {
       "$wall" : this,
-      "$NotifyBy" : (name, ...args)=>{
+      "$EmitBy" : (name, ...args)=>{
         this.$emit(name, ...args)
       }
     }

@@ -1,5 +1,6 @@
 export default {
-  inheritAttrs : false,
+  /////////////////////////////////////////
+  inject: ["$gui"],
   /////////////////////////////////////////
   props : {
     "captureEvents" : undefined,
@@ -148,12 +149,13 @@ export default {
   methods : {
     //--------------------------------------
     onClose() {
-      this.$emit("block:hide", this.name)
+      console.log("haha")
+      this.$gui.onBlockHide(this.name)
     },
     //--------------------------------------
     onClickMask() {
       if(this.clickMaskToClose) {
-        this.$emit("block:hide", this.name)
+        this.$gui.onBlockHide(this.name)
       }
     }
     //--------------------------------------

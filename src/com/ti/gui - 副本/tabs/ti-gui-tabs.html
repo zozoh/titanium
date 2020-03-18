@@ -1,0 +1,36 @@
+<div class="ti-gui-tabs" :class="topClass">
+  <!--
+    Tab title bar
+  -->
+  <header :class="tabClass">
+    <ul>
+      <li v-for="it in theTabItems"
+        :key="it.key"
+        :class="it.className"
+        @click="onSetCurrentTabItem(it)">
+        <!--Icon-->
+        <ti-icon
+          v-if="it.icon"
+            class="it-icon"
+            :value="it.icon"/>
+        <!--Text-->
+        <span class="it-text">{{it.title|i18n}}</span>
+      </li>
+    </ul>
+  </header>
+  <!--
+    Current Block
+  -->
+  <section v-if="theCurrentBlock">
+    <ti-gui-block 
+      embed-in="tabs"
+      v-bind="theCurrentBlock"
+      :action-status="actionStatus"
+      :schema="schema"
+      :shown="shown"
+      @block:show="$emit('block:show', $event)"
+      @block:hide="$emit('block:hide', $event)"
+      @block:shown="$emit('block:shown', $event)"
+      @block:event="$emit('block:event', $event)"/>
+  </section>
+</div>

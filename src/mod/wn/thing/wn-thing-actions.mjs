@@ -1,6 +1,4 @@
-// Ti required(Wn)
-////////////////////////////////////////////////
-export default {
+const _M = {
   //--------------------------------------------
   async deleteSelectedFiles({state, commit, dispatch}) {
     await dispatch("files/deleteSelected")
@@ -217,7 +215,7 @@ export default {
         }
       } // ~ if(!oDir || !oDir.ph
       // Try to reload the children
-      await dispatch("files/tryReload", oDir)
+      await dispatch("files/reload", oDir)
       // let cuId = getters["files/autoCurrentItemId"]
       // //commit("files/selectItem", cuId)
       // dispatch("selectCurrentPreviewItem", cuId)
@@ -361,3 +359,4 @@ export default {
   }
   //--------------------------------------------
 }
+export default _M

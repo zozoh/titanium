@@ -6,10 +6,6 @@
       v-bind="block"
       :schema="schema"
       :action-status="actionStatus"
-      :shown="shown"
-      @block:show="$emit('block:show', $event)"
-      @block:hide="$emit('block:hide', $event)"
-      @block:shown="$emit('block:shown', $event)"
-      @block:event="$emit('block:event', $event)"/>
+      :shown="shown"/>
   </template>
 </div>

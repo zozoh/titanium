@@ -1,0 +1,13 @@
+{
+  "name" : "ti-gui",
+  "globally" : true,
+  "template" : "./ti-gui.html",
+  "methods"  : "./ti-gui-methods.mjs",
+  "mixins"   : ["./ti-gui.mjs"],
+  "components" : [
+    "@com:ti/gui/cols",
+    "@com:ti/gui/rows",
+    "@com:ti/gui/tabs",
+    "@com:ti/gui/panel"
+  ]
+}

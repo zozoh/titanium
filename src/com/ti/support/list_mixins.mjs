@@ -204,7 +204,7 @@ const LIST_MIXINS = {
       // Notify Changes
       if(!quiet) {
         _.defaults(emitContext, payload)
-        this.$emit("select", emitContext)
+        this.$notify("select", emitContext)
       }
     },
     //-----------------------------------------------
@@ -251,7 +251,7 @@ const LIST_MIXINS = {
           this.myLastIndex  = index
         }
         // Notify Changes
-        this.$emit("select", emitContext)
+        this.$notify("select", emitContext)
       }
     },
     //-----------------------------------------------
@@ -292,7 +292,7 @@ const LIST_MIXINS = {
         this.myLastIndex  = index
       }
       // Notify Changes
-      this.$emit("select", emitContext)
+      this.$notify("select", emitContext)
     },
     //-----------------------------------------------
     cancelRow(rowId) {
@@ -321,7 +321,7 @@ const LIST_MIXINS = {
         this.myLastIndex  = index
       }
       // Notify Changes
-      this.$emit("select", emitContext)
+      this.$notify("select", emitContext)
     },
     //-----------------------------------------------
     toggleRow(rowId) {
@@ -371,7 +371,7 @@ const LIST_MIXINS = {
     OnRowOpen({rowId}={}) {
       let row = this.findRowById(rowId)
       if(row) {
-        this.$emit("open", row)
+        this.$notify("open", row)
       }
     },
     //-----------------------------------------------

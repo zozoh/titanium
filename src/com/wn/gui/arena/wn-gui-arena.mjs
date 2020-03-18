@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "meta" : {
@@ -13,12 +12,6 @@ export default {
     "comConf" : {
       type : Object,
       default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////
-  methods : {
-    onArenaEvent({name="gui-arena-event", args=[]}={}) {
-      this.$emit(name, ...args)
     }
   }
   //////////////////////////////////////////

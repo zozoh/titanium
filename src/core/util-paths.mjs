@@ -181,6 +181,18 @@ const TiPaths = {
     }
     //............................................
     return rph.join("/")
+  },
+  /***
+   * 'arena>item:change' -> {block:"arena", event:"item:change"} 
+   */
+  explainEventName(name) {
+    let re = {}
+    let m = /^(([^>]+)>)?(.+)$/.exec(name)
+    if(m) {
+      re.block = _.trim(m[2])
+      re.event = _.trim(m[3])
+    }
+    return re
   }
 }
 //-----------------------------------

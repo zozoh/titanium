@@ -1,7 +1,6 @@
 {
   "comIcon" : "im-archive",
   "comType" : "@com:wn/adaptlist",
-  "modType" : "@mod:wn/obj-current",
   "actions" : [{
       "key"  : "reloading",
       "type" : "action",
@@ -11,7 +10,7 @@
         "icon" : "zmdi-refresh zmdi-hc-spin",
         "text" : "i18n:loading"
       },
-      "action" : "dispatch:main/reload",
+      "action" : "dispatch:current/reload",
       "shortcut" : "CTRL+SHIFT+R"
     },{
       "type":"line"

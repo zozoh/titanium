@@ -139,6 +139,10 @@ export default {
       meta = state.meta
     }
     //......................................
+    if(_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+    //......................................
     // Guard
     if(!meta) {
       commit("setMeta", null)

@@ -1,0 +1,72 @@
+<div class="ti-table"
+  :class="TopClass"
+  @click="OnClickTop"
+  v-ti-actived="__set_actived">
+  <!--
+    Blank
+  -->
+  <div
+    v-if="isDataEmpty"
+      class="ti-blank is-big">
+      <ti-loading v-bind="blankAs"/>
+  </div>
+  <!--
+    Show thead/tbody
+  -->
+  <template v-else>
+    <!--
+      Head
+    -->
+    <div v-if="isShowHead"
+      class="table-head"
+      :style="TableStyle">
+      <!--checker-->
+      <div
+          v-if="checkable && multi"
+            class="as-checker"
+            @click.left="OnClickHeadChecker">
+            <ti-icon :value="HeadCheckerIcon"/>
+      </div>
+      <!--field titles-->
+      <ul>
+        <li
+          v-for="fld in TableFields"
+            class="table-head-cell"
+            :style="getHeadCellStyle(fld.index)"
+            :col-index="fld.index">
+          <span class="table-head-cell-text">{{fld.title|i18n}}</span>
+        </li>
+      </ul>
+    </div
+    <!--
+      Body
+    -->
+    <div ref="body"
+      class="table-body"
+      :style="TableStyle">
+      <table-row
+        v-for="row in myData"
+          :key="row.id"
+          :row-id="row.id"
+          :index="row.index"
+          :icon="row.icon"
+          :indent="row.indent"
+          :data="row.rawData"
+          :fields="TableFields"
+          :sizes="myColSizes.amended"
+          :current-id="theCurrentId"
+          :checked-ids="theCheckedIds"
+          :hover-id="myHoverId"
+          :changed-id="changedId"
+          :checkable="checkable"
+          :selectable="selectable"
+          :openable="openable"
+          @icon="$emit('icon', $event)"
+          @checker="OnRowCheckerClick"
+          @select="OnRowSelect"
+          @open="OnRowOpen"
+          @enter="OnRowEnter"
+          @leave="OnRowLeave"/>
+    </div>
+  </template>
+</div>

@@ -1,6 +1,9 @@
 {
   "comIcon" : "fas-cubes",
   "comType" : "@com:wn/thing/manager",
+  "comConf" : {
+    "..." : "=Main"
+  },
   "modType" : "@mod:wn/thing",
   "actions" : [{
     "key"  : "reloading",

@@ -152,7 +152,7 @@ export async function main({
   if(_app.obj) {
     basePath = "id:" + _app.obj.id
   }
-  await app.dispatch("reload", basePath)
+  await app.dispatch("current/reload", basePath)
   //---------------------------------------
   // All Done
   return app.get("obj")

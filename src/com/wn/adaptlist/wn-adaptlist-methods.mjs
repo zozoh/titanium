@@ -1,4 +1,4 @@
-export default {
+const OBJ = {
   //---------------------------------------
   /***
    * Create new object
@@ -259,3 +259,4 @@ export default {
   }
   //--------------------------------------------
 }
+export default OBJ;
