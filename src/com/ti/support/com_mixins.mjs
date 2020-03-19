@@ -95,6 +95,20 @@ export default {
       else {
         this.$emit(name, ...args)
       }
+    },
+    //-----------------------------------------------
+    $receive(name, args=[], FuncSet={}){
+      // Parse Handler
+      let {block, event} = Ti.Util.explainEventName(name)
+      console.log(`${this.tiComId}.$receive`, {name, block, event, args, a0:_.first(args)})
+
+      // Find Event Handler
+      let fn = FuncSet[name] || FuncSet[event]
+
+      // Invoke Event Handler
+      if(_.isFunction(fn)) {
+        fn.apply(this, args)
+      }
     }
     //-----------------------------------------------
   },

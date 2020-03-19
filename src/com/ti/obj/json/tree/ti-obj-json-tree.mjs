@@ -3,7 +3,16 @@ const _M = {
   provide : function() {
     return {
       "$EmitBy" : (name, ...args)=>{
-        this.DoEvent(name, args)
+        this.$receive(name, args, {
+          // Tree Component emit changed
+          "item:change" : (payload)=>{
+            this.OnItemChanged(payload)
+          },
+          // Source Component changed, it will try eval json
+          "opened-status:changed" : (opened)=>{
+            this.OnOpenedStatusChanged(opened)
+          }
+        })
       }
     }
   },
@@ -517,29 +526,6 @@ const _M = {
     //--------------------------------------
     OnOpenedStatusChanged(opened) {
       this.myTreeOpenedStatus = opened
-    },
-    //--------------------------------------
-    DoEvent(name, args=[]) {
-      let {block, event} = Ti.Util.explainEventName(name)
-      console.log("ti-obj-json-tree.DoEvent", {name, block, event, args, a0:_.first(args)})
-      // Find Event Handler
-      let FnSet = {
-        // Tree Component emit changed
-        "item:change" : (payload)=>{
-          this.OnItemChanged(payload)
-        },
-        // Source Component changed, it will try eval json
-        "opened-status:changed" : (opened)=>{
-          this.OnOpenedStatusChanged(opened)
-        }
-      }
-
-      let fn = FnSet[name] || FnSet[event]
-
-      // Invoke Event Handler
-      if(_.isFunction(fn)) {
-        fn.apply(this, args)
-      }
     }
     //--------------------------------------
   },

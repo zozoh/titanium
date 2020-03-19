@@ -2,8 +2,29 @@ const WN_MANAGER_MIXINS = {
   ///////////////////////////////////////////
   provide : function() {
     return {
-      "$EmitBy" : async (name, ...args)=>{
-        await this.DoEvent(name, args)
+      "$EmitBy" : (name, ...args)=>{
+        this.$receive(name, args, {
+          "expose-hidden" : (eh)=>{
+            this.myExposeHidden = eh
+          },
+          // sidebar or title
+          "item:active" : (it)=>{
+            this.openView(it.id || it.path || it.value)
+          },
+          // For uinfo
+          "do:logout" : ()=>{
+            this.doLogout()
+          },
+          "arena>open" : (o)=>{
+            this.openView(o.id)
+          },
+          "arena>change" : (content)=>{
+            this.notifyChange(content)
+          },
+          "arena>actions:update" : (actions)=>{
+            this.updateActions(actions)
+          }
+        })
       }
     }
   },
@@ -171,41 +192,6 @@ const WN_MANAGER_MIXINS = {
       let quitPath = Wn.Session.env("QUIT") || "/"
       await Wn.Sys.exec("exit")
       Ti.Be.Open(quitPath, {target:"_self", delay:0})
-    },
-    //--------------------------------------
-    async DoEvent(name, args=[]) {
-      let {block, event} = Ti.Util.explainEventName(name)
-      console.log("wn-manager.DoEvent", {name, block, event, args, a0:_.first(args)})
-      // Find Event Handler
-      let FnSet = {
-        "expose-hidden" : (eh)=>{
-          this.myExposeHidden = eh
-        },
-        // sidebar or title
-        "item:active" : async (it)=>{
-          await this.openView(it.id || it.path || it.value)
-        },
-        // For uinfo
-        "do:logout" : async ()=>{
-          await this.doLogout()
-        },
-        "arena>open" : async (o)=>{
-          await this.openView(o.id)
-        },
-        "arena>change" : (content)=>{
-          this.notifyChange(content)
-        },
-        "arena>actions:update" : (actions)=>{
-          this.updateActions(actions)
-        }
-      }
-
-      let fn = FnSet[name] || FnSet[event]
-
-      // Invoke Event Handler
-      if(_.isFunction(fn)) {
-        await fn.apply(this, args)
-      }
     }
     //--------------------------------------
   },
