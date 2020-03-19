@@ -33,6 +33,8 @@ export class OneTiApp {
   $vm    (vm)    {return Ti.Util.geset(this, TI_VM   ,   vm)}
   $vmMain(mvm)   {return Ti.Util.geset(this, TI_VM_MAIN, mvm)}
   //---------------------------------------
+  currentData() {return this.$store().state.current}
+  //---------------------------------------
   async init(){
     // App Must has a name
     let info = this.$info()
@@ -122,12 +124,15 @@ export class OneTiApp {
   }
   //---------------------------------------
   reWatchShortcut(actions=[], scope=this) {
-    this.$shortcuts.unwatch(scope)
-    this.$shortcuts.watch(actions, scope)
+    this.unwatchShortcut(scope)
+    this.watchShortcut(actions, scope)
   }
   //---------------------------------------
   watchShortcut(actions=[], scope=this) {
-    this.$shortcuts.watch(actions, scope)
+    this.$shortcuts.watch(actions, scope, {
+      $com: this.$vmMain(),
+      argContext: this.currentData()
+    })
   }
   //---------------------------------------
   unwatchShortcut(scope, ...uniqKeys) {
@@ -186,7 +191,7 @@ export class OneTiApp {
    * ```
    * "commit:xxx"   => {method:"commit",name:"xxx"}
    * "dispatch:xxx" => {method:"dispatch",name:"xxx"}
-   * "self:xxx"     => {method:"self",name:"xxx"}
+   * "root:xxx"     => {method:"root",name:"xxx"}
    * "main:xxx"     => {method:"main",name:"xxx"}
    * ```
    */
@@ -194,7 +199,7 @@ export class OneTiApp {
     let ta = cmd
     //...................
     if(_.isString(ta)) {
-      let m = /^(commit|dispatch|self|main):(.+)$/.exec(ta)
+      let m = /^(commit|dispatch|root|main):(.+)$/.exec(ta)
       if(!m)
         return
       ta = {
@@ -341,9 +346,6 @@ export class OneTiApp {
       Vue.component(com.name, com)
     })
     //.....................................
-    // watch the shortcut
-    this.reWatchShortcut(view.actions)
-    //.....................................
     return {
       ...view,
       comName,
@@ -354,6 +356,10 @@ export class OneTiApp {
 }
 //---------------------------------------
 export const TiApp = function(a0) {
+  // Guard it
+  if(Ti.Util.isNil(a0)) {
+    return null
+  }
   // load the app info 
   if(_.isString(a0)) {
     return Ti.Load(a0).then(info=>{
@@ -379,7 +385,9 @@ export const TiApp = function(a0) {
     return a0[TI_APP]
   }
   // return the app instance directly
-  return new OneTiApp(a0)
+  if(_.isPlainObject(a0)) {
+    return new OneTiApp(a0)
+  }
 }
 //---------------------------------------
 const APP_STACK = []

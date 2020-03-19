@@ -6,10 +6,10 @@
   :keep-open-by="keepOpenBy"
   :multi="true"
   :data="myTreeRoot"
-  :display="theTreeDisplay"
+  :display="TreeDisplay"
   :auto-open="autoOpen"
   :current-id="myTreeCurrentPathId"
   :default-open-depth="2"
-  :fields="theTreeFields"
-  @item:changed="onItemChanged"
-  @opened-status:changed="onOpenedStatusChanged"/>
+  :fields="TreeFields"
+  @item:change="OnItemChanged"
+  @opened-status:changed="OnOpenedStatusChanged"/>

@@ -2,7 +2,8 @@ export default {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   inject : {
-    '$EmitBy' : {default:undefined}
+    "$EmitBy" : {default:undefined},
+    "primaryNotify" : {default:false}
   },
   ///////////////////////////////////////////////////
   computed :{
@@ -87,7 +88,7 @@ export default {
     //-----------------------------------------------
     $notify(name, ...args) {
       // Customized notify
-      if(_.isFunction(this.$EmitBy)) {
+      if(!this.primaryNotify && _.isFunction(this.$EmitBy)) {
         this.$EmitBy(name, ...args)
       }
       // Primary Emit
@@ -129,7 +130,6 @@ export default {
     //...............................................
     // Auto invoke the callback
     if(_.isFunction(this.onInit)) {
-      console.log("init!!", this.tiComId)
       this.onInit(this)
     }
     //...............................................

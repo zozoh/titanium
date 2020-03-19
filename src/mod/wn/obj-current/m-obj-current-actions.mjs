@@ -1,4 +1,4 @@
-export default {
+const _M = {
   //----------------------------------------
   // Combin Mutations
   //----------------------------------------
@@ -91,22 +91,24 @@ export default {
     }, 500)
   },
   //--------------------------------------------
-  async setCurrent({state, commit,dispatch}, {
-    meta=null, force=false
-  }={}) {
-    //console.log("setCurrent", meta, loadContent)
+  // Reload & Save
+  //--------------------------------------------
+  // async setCurrent({state, commit,dispatch}, {
+  //   meta=null, force=false
+  // }={}) {
+  //   //console.log("setCurrent", meta, loadContent)
 
-    // Not need to reload
-    if(state.meta && meta && state.meta.id == meta.id) {
-      if((_.isString(state.content)) && !force) {
-        return
-      }
-    }
+  //   // Not need to reload
+  //   if(state.meta && meta && state.meta.id == meta.id) {
+  //     if((_.isString(state.content)) && !force) {
+  //       return
+  //     }
+  //   }
 
-    // do reload
-    await dispatch("reload", meta)
+  //   // do reload
+  //   await dispatch("reload", meta)
 
-  },
+  // },
   //----------------------------------------
   async save({state, commit}) {
     if(state.status.saving || !state.status.changed){
@@ -172,3 +174,4 @@ export default {
   }
   //----------------------------------------
 }
+export default _M;

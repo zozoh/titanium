@@ -29,7 +29,7 @@ export default {
       let app = Ti.App(this)
       await app.dispatch("main/create", this.myData)
 
-      this.$emit("block:hide", "creator")
+      this.$notify("block:hide", "creator")
     }
     //--------------------------------------
   },

@@ -92,7 +92,9 @@ export default {
       if('localFile' == this.preview.type) {
         let reader = new FileReader();
         reader.onload = (evt)=>{
-          this.$refs.localImage.src = evt.target.result
+          if(this.$refs.localImage) {
+            this.$refs.localImage.src = evt.target.result
+          }
         }
         reader.readAsDataURL(this.preview.value);
       }

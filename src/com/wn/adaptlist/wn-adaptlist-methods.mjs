@@ -218,6 +218,10 @@ const OBJ = {
       this.myUploadigFiles = []
     }, 1000)
 
+    // Tell user ...
+    Ti.Toast.Open("i18n:upload-done", "success")
+
+
     // Call reload
     await this._run("reload")
 

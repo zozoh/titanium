@@ -14,8 +14,11 @@ export default {
     setMeta(state, meta) {
       state.meta = meta
     },
-    setFilesName(state, filesName) {
-      state.filesName = filesName
+    setCurrentDataDir(state, dirName) {
+      state.currentDataDir = dirName
+    },
+    setCurrentDataHome(state, dataHome) {
+      state.currentDataHome = dataHome
     },
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)

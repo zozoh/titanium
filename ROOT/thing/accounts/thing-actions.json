@@ -82,13 +82,13 @@
       "type" : "action",
       "icon" : "zmdi-keyboard",
       "text" : "i18n:console",
-      "action" : "dispatch:openConsole",
+      "action" : "=>Ti.Be.Open('/a/open/wn.console')",
       "shortcut" : "ALT+SHIFT+T"
     }, {
       "type" : "action",
       "icon" : "zmdi-info-outline",
       "text" : "i18n:properties",
-      "action" : "dispatch:openProperties",
+      "action" : "=>Wn.EditObjMeta(meta)",
       "shortcut" : "ALT+CTRL+P"
     }]
 }]

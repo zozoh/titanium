@@ -1,4 +1,4 @@
-export default {
+const _M = {
   ///////////////////////////////////////////
   provide : function() {
     return {
@@ -241,3 +241,4 @@ export default {
   }
   //////////////////////////////////////////
 }
+export default _M;

@@ -57,15 +57,21 @@ const WN_MANAGER_COMPUTED = {
   Arena() {
     if(this.hasView) {
       // explain comConf
+      //console.log("re-arena", this.comConf)
+      // prepare the vars
+      let app = Ti.App(this);
       let comConf = Ti.Util.explainObj(this, this.comConf) || {
         meta    : this.meta,
         content : this.content,
         data    : this.data,
         status  : this.status
       }
+      let actions = this.actions
       // Add init hook to store the $main
       comConf.onInit = function(){
-        Ti.App(this).$vmMain(this)
+        console.log("onInit:", this.tiComId)
+        app.$vmMain(this)
+        app.reWatchShortcut(actions)
       }
       // Done
       return {

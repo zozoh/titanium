@@ -1,116 +1,62 @@
 const _M = {
-  inheritAttrs : false,
   ///////////////////////////////////////////
-  props : {
-    "filesName" : {
-      type : String,
-      default : "media"
-    },
-    "files" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "preview" : {
-      type : Object,
-      default : ()=>({
-        meta   : null,
-        status : {}
-      })
-    },
-    "previewInfo" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "previewInfoEdit" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "dirNameTip" : {
-      type : String,
-      default : "i18n:thing-files"
-    },
-    "dirNameComType" : {
-      type : String,
-      default : "ti-droplist"
-    },
-    "dirNameOptions" : {
-      type : Array,
-      default : ()=>[{
-        icon  :"zmdi-collection-image",
-        text  :"i18n:media",
-        value : "media"
-      }, {
-        icon  :"zmdi-attachment-alt",
-        text  :"i18n:attachment",
-        value : "attachment"
-      }]
-    },
-    "actionMenuData" : {
-      type : Array,
-      default : ()=>[{
-          "key"  : "reloading",
-          "type" : "action",
-          "icon" : "zmdi-refresh",
-          "tip" : "i18n:refresh",
-          "altDisplay" : {
-            "icon" : "zmdi-refresh zmdi-hc-spin"
-          },
-          "action" : "dispatch:main/files/reload"
-        },{
-          "type" : "line"
-        }, {
-          "key"  : "deleting",
-          "type" : "action",
-          "icon" : "zmdi-delete",
-          "text" : "i18n:del",
-          "altDisplay" : {
-            "icon" : "zmdi-refresh zmdi-hc-spin",
-            "text" : "i18n:del-ing"
-          },
-          "action" : "$parent:DoDeleteSelected"
-        },{
-          "type" : "line"
-        },{
-          "key"  : "upload",
-          "type" : "action",
-          "icon" : "zmdi-cloud-upload",
-          "text" : "i18n:upload",
-          //"action" : "commit:main/files/showUploadFilePicker"
-          "action" : "main:openLocalFileSelectdDialogToUploadFiles"
-        }]
-    },
-    "stateLocalKey" : {
-      type : String,
-      default : null
-    }
+  provide : {
+    primaryNotify: true
   },
+  ///////////////////////////////////////////
+  data: ()=>({
+    myHome: null,
+    myData: {},
+    myStatus: {
+      reloading: false
+    },
+    myCurrentId: null
+  }),
   ///////////////////////////////////////////
   computed : {
     //--------------------------------------
-    thePreview() {
-      let theInfo = Ti.Util.getFallback(
-        this.previewInfo, 
-        this.filesName, 
-        "@default")
+    hasDataHome() {
+      return this.dataHome ? true : false
+    },
+    //--------------------------------------
+    CurrentFile(){
+      if(this.myCurrentId && this.myData.list){
+        for(let it of this.myData.list) {
+          if(this.myCurrentId == it.id){
+            return it
+          }
+        }
+      }
+    },
+    //--------------------------------------
+    ThePreview() {
+      let preview = Ti.Util.getFallback(
+        this.preview, 
+        this.dirName, 
+        "@default") || this.preview || {}
 
-      return _.assign({
+      return {
         showInfo  : false,
         floatInfo : false,
         infoPosition  : "left",
         infoNameWidth : 40,
         infoValueWidth : 120,
-        stateLocalKey : this.stateLocalKey
-      }, this.preview, theInfo, {
+        stateLocalKey : this.stateLocalKey,
+        // Customized
+        ...preview,
+        // Edit Info 
         editInfoBy : ()=>{
           this.editPreviewInfo()
         }
-      })
+      }
     },
     //--------------------------------------
-    theFiles() {
+    TheFiles() {
       return _.assign({}, this.files, {
         routers : {
-          "reload"     : "dispatch:main/files/reload"
+          "reload" : async ()=>{
+            await this.reloadData()
+          }
         }
       })
     }
@@ -121,58 +67,110 @@ const _M = {
     //--------------------------------------
     OnAdaptListInit($adaptList){this.$adaptList = $adaptList},
     //--------------------------------------
-    async DoDeleteSelected(){
+    // Events
+    //--------------------------------------
+    OnDirNameChanged(dirName) {
+      let app = Ti.App(this)
+      app.commit("main/setCurrentDataDir", dirName)
+      this.$nextTick(()=>{
+        this.reloadData()
+      })
+    },
+    //--------------------------------------
+    OnFileSelected({currentId}) {
+      this.myCurrentId = currentId
+    },
+    //--------------------------------------
+    OnFileUploaded(files=[]){
+      let f = _.first(files)
+      if(f) {
+        this.$adaptList.myCurrentId = f.id
+        this.myCurrentId = f.id
+      }
+    },
+    //--------------------------------------
+    // Untility
+    //--------------------------------------
+    async doDeleteSelected(){
       await this.$adaptList.doDelete()
-
     },
     //--------------------------------------
-    async onFileUploaded(reo) {
-      await Ti.App(this).dispatch('main/autoSyncCurrentFilesCount')
-    },
-    //--------------------------------------
-    onFileSelected({current}) {
-      Ti.App(this).dispatch('main/selectCurrentPreviewItem', current)
+    async doUploadFiles() {
+      // Guard
+      if(!this.hasDataHome) {
+        return
+      }
+      // If empty data home, create one
+      if(!this.myHome) {
+        let pos = this.dataHome.indexOf('/')
+        let tsDataPh = this.dataHome.substring(0, pos)
+        let dirPath = Ti.Util.appendPath(this.dataHome.substring(pos+1), this.dirName)
+        let newMeta = {
+          race : "DIR",
+          nm   : dirPath
+        }
+        let json = JSON.stringify(newMeta)
+        let cmdText = `obj "${tsDataPh}" -IfNoExists -new '${json}' -cqno`
+        console.log(cmdText)
+        this.myHome = await Wn.Sys.exec2(cmdText, {as:"json"})
+      }
+      
+      // Do upload
+      if(this.myHome) {
+        this.$adaptList.openLocalFileSelectdDialog()
+      }
+      // Impossible
+      else {
+        throw "Impossible!!!"
+      }
     },
     //--------------------------------------
     async editPreviewInfo() {
       //console.log("showPreviewObjInfo:", this.preview)
-      if(this.preview.meta) {
-        let options = _.get(this.previewInfoEdit, this.filesName)
-        let newMeta = await Wn.EditObjMeta(this.preview.meta, options)
+      if(this.CurrentFile) {
+        let options = _.get(this.previewEdit, this.dirName)
+        let newMeta = await Wn.EditObjMeta(this.CurrentFile, options)
         if(newMeta) {
-          let app = Ti.App(this)
-          app.dispatch("main/preview/reload", newMeta)
-          app.commit("main/files/updateItem", newMeta)
+          this.$adaptList.setItem(newMeta)
         }
       }
     },
     //--------------------------------------
-    onFilesNameChanged(dirName) {
-      let app = Ti.App(this)
-      app.commit("main/setFilesName", dirName)
-      app.dispatch("main/reloadFiles", {force:true})
-    },
+    // Reloading
     //--------------------------------------
-    openLocalFileSelectdDialog() {
-      for(let $child of this.$children) {
-        if(Ti.Dom.hasClass($child.$el, "wn-adaptlist")
-           && _.isFunction($child.openLocalFileSelectdDialog)) {
-          $child.openLocalFileSelectdDialog();
+    async reloadData() {
+      if(this.dataHome && this.dirName) {
+        this.myStatus.reloading = true
+        let hmph = Ti.Util.appendPath(this.dataHome, this.dirName)
+        let home = await Wn.Io.loadMeta(hmph)
+        // Guard
+        if(!home) {
+          this.myHome = null
+          this.myData = {}
         }
+        // Update data
+        else {
+          let reo = await Wn.Io.loadChildren(home)
+          this.myHome = home
+          this.myData = reo
+        }
+        _.delay(()=>{
+          this.myStatus.reloading = false
+        }, 100)
+      }
+      // Reset
+      else {
+        this.myHome = null
+        this.myData = {}
       }
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  mounted : function() {
-    let $p = this.$parent
-    // Find the thing root app
-    while($p && !$p.THING_MANAGER_ROOT) {
-      $p = $p.$parent
-    }
-    // append self
-    if($p && $p.THING_MANAGER_ROOT) {
-      $p.$thingFiles = this
+  watch : {
+    "dataHome" : {
+      handler : "reloadData",
+      immediate : true
     }
   }
   ///////////////////////////////////////////

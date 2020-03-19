@@ -13,7 +13,11 @@ export const TiShortcut = {
    * 
    * @return {Function} the binded function call.
    */
-  genActionInvoking(action, funcBy, {wait=0}={}) {
+  genActionInvoking(action, {
+    $com,
+    argContext={},
+    wait=0,
+  }={}) {
     //..........................................
     const __bind_it = fn => {
       return wait > 0
@@ -30,10 +34,10 @@ export const TiShortcut = {
     //..........................................
     // Command in String
     if(_.isString(action)) {
-      let m = /^([$a-zA-Z0-9_]+):([^()]+)(\((.*)\))?$/.exec(action)
-      mode = m[1]
-      name = m[2]
-      args = m[4]
+      let m = /^((commit|dispatch|root|main|\$\w+):|=>)([^()]+)(\((.*)\))?$/.exec(action)
+      mode = m[2] || m[1]
+      name = m[3]
+      args = m[5]
     }
     //..........................................
     // Command in object
@@ -43,8 +47,53 @@ export const TiShortcut = {
       args = action.args
     }
     //..........................................
-    let _a0  = {mode, name, args: Ti.S.toArray(args)}
-    let func = Ti.Invoke(funcBy, [_a0])
+    // explain args
+    let __as = Ti.S.joinArgs(args, [], v=>{
+      return Ti.S.toJsValue(v, {context:argContext})
+    })
+    let func;
+    //..........................................
+    // Arrow invoke
+    if("=>" == mode) {
+      let fn = _.get(window, name)
+      if(!_.isFunction(fn)) {
+        throw Ti.Err.make("e.action.invoke.NotFunc : " + action, {action})
+      }
+      func = ()=>{
+        fn.apply($com, __as)
+      }
+    }
+    //..........................................
+    // $emit:
+    else if("$emit" == mode) {
+      if(!$com) {
+        throw Ti.Err.make("e.action.emit.NoCom : " + action, {action})
+      }
+      func = ()=>{
+        $com.$emit(name, ...__as)
+      }
+    }
+    //..........................................
+    // $parent: method
+    else if("$parent" == mode) {
+      let fn = $com[name]
+      if(!_.isFunction(fn)) {
+        throw Ti.Err.make("e.action.call.NotFunc : " + action, {action})
+      }
+      func = ()=>{
+        fn.apply($com, __as)
+      }
+    }
+    //..........................................
+    // App Methods
+    else {
+      let app  = Ti.App($com)
+      let fn   = app[mode]
+      let _as2 = _.concat(name, __as)
+      func = ()=>{
+        fn.apply(app, _as2)
+      }
+    }
     //..........................................
     // Gurad
     if(!_.isFunction(func)) {

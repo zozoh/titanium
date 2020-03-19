@@ -128,7 +128,7 @@ const _M = {
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds
 
-      this.$emit("select", {
+      this.$notify("select", {
         current, currentId, currentIndex,
         checked, checkedIds
       })
@@ -138,13 +138,25 @@ const _M = {
       if(!this.droppable)
         return
       let fs = [...files]
-      let reo = await this.doUpload(fs)
-      // Emit events
-      this.$emit("uploaded", reo)
+      await this.doUpload(fs)
+      
+      // Wait the computed result and notify
+      this.$nextTick(()=>{
+        // Find my checked files
+        let objs = []
+        for(let it of this.TheDataList){
+          if(this.myCheckedIds[it.id]){
+            objs.push(it)
+          }
+        }
+
+        // Emit events
+        this.$notify("uploaded", objs)
+      })
     },
     //--------------------------------------------
     async OnSelectLocalFilesToUpload(evt){
-      await this.onDropFiles(evt.target.files)
+      await this.OnDropFiles(evt.target.files)
       this.$refs.file.value = ""
     },
     //--------------------------------------------
@@ -192,7 +204,12 @@ const _M = {
     //--------------------------------------------
     async _run(nm, payload) {
       let target = (this.routers||{})[nm]
-      if(target) {
+      // Run by customized function
+      if(_.isFunction(target)) {
+        await target()
+      }
+      // In app
+      else if(target) {
         let app = Ti.App(this)
         return await app.exec(target, payload)
       }
@@ -231,11 +248,6 @@ const _M = {
   ////////////////////////////////////////////////
   watch: {
     //--------------------------------------------
-    "hasUploading" : function(newVal, oldVal) {
-      if(true===oldVal && false===newVal) {
-        Ti.Toast.Open("i18n:upload-done", "success")
-      }
-    },
     "data" : {
       handler : "syncMyData",
       immediate : true

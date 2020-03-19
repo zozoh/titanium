@@ -1,4 +1,4 @@
-export default {
+const _M = {
   ///////////////////////////////////////////
   provide : function() {
     return {
@@ -8,18 +8,17 @@ export default {
     }
   },
   ///////////////////////////////////////////
-  data : ()=>({
-    myActions : null,
-    myCooling : -1
-  }),
-  ///////////////////////////////////////////
   props : {
     // Thing Set Home
     "meta" : {
       type : Object,
       default : ()=>({})
     },
-    "filesName" : {
+    "currentDataHome" : {
+      type : String,
+      default : null
+    },
+    "currentDataDir" : {
       type : String,
       default : "media"
     },
@@ -168,8 +167,7 @@ export default {
     //--------------------------------------
     async DoEvent(name, args=[]) {
       let {block, event} = Ti.Util.explainEventName(name)
-      let data = _.first(args)
-      console.log("thing.DoEvent", {name, block, event, data})
+      console.log("Thing.DoEvent", {name, block, event, args, a0:_.first(args)})
       //console.log("wn-thing-manager:onBlockEvent",evKey, args)
       //....................................
       let app = Ti.App(this)
@@ -193,21 +191,10 @@ export default {
           
           // Update Current
           app.dispatch("main/setCurrentThing", {
-            meta : current, 
-            force : false
+            meta: current, 
+            currentId,
+            checkedIds
           })
-
-          // Update the search status
-          app.commit("main/search/setCurrentId", currentId)
-
-          // checkedIds map -> Array
-          let ckids = []
-          _.forEach(checkedIds, (val, key)=>{
-            if(val)
-              ckids.push(key)
-          })
-          app.commit("main/search/setCheckedIds", ckids)
-
         },
         //..................................
         // Select item in search list
@@ -219,16 +206,15 @@ export default {
           Ti.App(this).dispatch("main/config/updateShown", this.config.listOpen)
           // Update Current
           app.dispatch("main/setCurrentThing", {
-            meta  : rawData, 
-            force : false
+            meta: rawData 
           })
           // Update Checkes/Current to search
           //this.setSeachSelected(current)
         },
         //..................................
         // Content changed
-        "content>change" : ({content})=>{
-          app.dispatch("main/current/onChanged", content)
+        "content>change" : (content)=>{
+          app.dispatch("main/current/changeContent", content)
           app.commit("main/syncStatusChanged")
         },
         //..................................
@@ -284,48 +270,14 @@ export default {
       Ti.App(this).dispatch("main/setCurrentContent", newContent)
     },
     //--------------------------------------
-    // Firefox 33.0, can not watch the click in callback
-    openLocalFileSelectdDialogToUploadFiles(){
-      //console.log(this.$thingFiles)
-      if(this.$thingFiles) {
-        this.$thingFiles.openLocalFileSelectdDialog()
-      }
-    },
-    //--------------------------------------
     checkActionsUpdate() {
-      // Not need to check
-      if(this.myCooling < 0) {
-        return
-      }
-      // Wait cooling 1000ms
-      if(Date.now() - this.myCooling > 300) {
-        this.$emit("actions:updated", this.myActions)
-        this.myCooling = -1
-      }
-      // Wait cooling 1000ms
-      else {
-        _.delay(()=>{
-          this.checkActionsUpdate()
-        }, 200)
+      console.log("checkActionsUpdate")
+      let actions = _.get(this.config, "actions")
+      if(_.isArray(actions)) {
+        this.$notify("actions:update", actions)
       }
     }
     //--------------------------------------
-  },
-  ///////////////////////////////////////////
-  watch : {
-    "config.actions" : function(newActions, oldActions) {
-      //console.log("config.actions", this.config.actions)
-      if(!_.isEqual(newActions, oldActions)) {
-        this.myActions = newActions
-        this.myCooling = Date.now()
-      }
-    },
-    // To prevent the action update too often
-    "myCooling" : function(cooling) {
-      if(cooling > 0) {
-        this.checkActionsUpdate()
-      }
-    }
   },
   ///////////////////////////////////////////
   mounted : function() {
@@ -334,6 +286,10 @@ export default {
     // then `openLocalFileSelectdDialogToUploadFiles`
     // can assess the `thing-files` instance directly.
     this.THING_MANAGER_ROOT = true
+
+    // Update the customized actions
+    this.checkActionsUpdate()
   }
   ///////////////////////////////////////////
 }
+export default _M;

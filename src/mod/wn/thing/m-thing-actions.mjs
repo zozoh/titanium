@@ -1,17 +1,5 @@
 const _M = {
   //--------------------------------------------
-  async deleteSelectedFiles({state, commit, dispatch}) {
-    await dispatch("files/deleteSelected")
-    // Empty to clear the preview
-    if(_.isEmpty(state.files.list)) {
-      dispatch("preview/reload", null)
-    }
-    // Auto-select the first one
-    else {
-      dispatch("selectCurrentPreviewItem", state.files.list[0].id)
-    }
-  },
-  //--------------------------------------------
   /***
    * Save current thing detail
    */
@@ -51,7 +39,7 @@ const _M = {
    */
   async autoSyncCurrentFilesCount({state, commit}) {
     let oTh = state.current.meta
-    let dirName = state.filesName
+    let dirName = state.currentDataDir
     // sync current media count
     if(oTh && oTh.id && dirName) {
       // run command
@@ -251,59 +239,33 @@ const _M = {
     commit("setStatus", {reloading:false})
   },
   //--------------------------------------------
-  selectCurrentPreviewItem({commit, dispatch, getters}, current) {
-    // Reload preview
-    dispatch("preview/reload", current)
-  },
-  //--------------------------------------------
   /***
    * Set Current Thing
    * 
    * It will load content if "content" is shown
    */
-  async setCurrentThing({commit, dispatch}, {
-    meta=null, force=false
+  async setCurrentThing({state, commit, dispatch}, {
+    meta=null, 
+    checkedIds={}
   }={}) {
-    // Current
-    await dispatch("current/setCurrent", {meta, force})
-
+    //..........................................
+    // Reload Current
+    await dispatch("current/reload", meta)
+    //..........................................
     // Update selected item in search list
-    commit("search/selectItem", meta ? meta.id : null)
-
-    // May need to be reload content/files ?
-    await dispatch("tryReloadContentAndFiles")
-  },
-  //--------------------------------------------
-  /***
-   * Try to reload content/files
-   * 
-   * - If `config.shown.content`, reload content
-   * - If `config.shown.files`, reload files
-   * 
-   * @param force{Boolean} - If true, always reload. false, reload when empty
-   */
-  async tryReloadContentAndFiles({state, commit, dispatch}, force=false) {
-    //console.log("tryReloadContentAndFiles")
-    // May need to be reload content?
-    if(state.config.shown.content
-      && (force || !_.isString(state.current.content))
-    ){
-      await dispatch("current/reload")
+    let curId = meta ? meta.id : null
+    let ckIds = Ti.Util.truthyKeys(checkedIds)
+    if(!Ti.Util.isNil(curId)) {
+      ckIds.push(curId)
     }
-
-    // May need to be reload files?
-    if(state.config.shown.files 
-      && state.current.meta
-      && (force 
-         || !state.files.meta 
-         || state.files.meta.id != state.current.meta.id)
-    ){
-      await dispatch("reloadFiles")
-    }
-    // May need reset files ?
-    else if(!state.current || !state.current.meta) {
-      commit("files/reset")
-    }
+    commit("search/setCurrentId", curId)
+    commit("search/setCheckedIds", ckIds)
+    //..........................................
+    // Update the currentDataHome
+    let home = state.meta
+    let dataHome = curId ? `id:${home.id}/data/${curId}` : null
+    commit("setCurrentDataHome", dataHome)
+    //..........................................
   },
   //--------------------------------------------
   /***
@@ -314,9 +276,6 @@ const _M = {
   async doChangeShown({state, commit, dispatch}, shown) {
     // Just mark the shown
     dispatch("config/updateShown", shown)
-
-    // May need to be reload content/files ?
-    await dispatch("tryReloadContentAndFiles")
   },
   //--------------------------------------------
   /***

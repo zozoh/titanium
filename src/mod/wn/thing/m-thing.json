@@ -1,6 +1,7 @@
 {
   "meta": null,
-  "filesName" : "media",
+  "currentDataDir"  : "media",
+  "currentDataHome" : null,
   "status" : {
     "reloading" : false,
     "doing"     : false,

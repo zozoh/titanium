@@ -132,16 +132,27 @@ export const TiStr = {
    */
   toJsValue(v="", {
     autoJson=true,
-    autoDate=true
+    autoDate=true,
+    context={}
   }={}) {
     let str = _.trim(v)
     // Number
     if (/^-?[\d.]+$/.test(str)) {
         return str * 1;
     }
+    // Try to get from context
+    let re = _.get(context, str)
+    if(!_.isUndefined(re)) {
+      return re
+    }
     // Boolean
     if(/^(true|false|yes|no|on|off)$/i.test(str)) {
       return /^(true|yes|on)$/i.test(str)
+    }
+    // JS String
+    let m = /^'([^']*)'$/.exec(str)
+    if(m){
+      return m[1]
     }
     // try JSON
     if(autoJson) {

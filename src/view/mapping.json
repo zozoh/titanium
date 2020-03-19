@@ -1,8 +1,6 @@
 {
   "types" : {
-    "form"        : "form-view",
     "thing_set"   : "thing-manager",
-    "gui"         : "ti-gui",
     "comt"        : "com-test",
     "hmaker_site" : "hmaker-site"
   },
@@ -11,7 +9,7 @@
     "application/json" : "json-editor"
   },
   "races" : {
-    "DIR" : "obj-explorer",
-    "FILE" : "obj-preview"
+    "DIR"  : "dir-explorer",
+    "FILE" : "file-preview"
   }
 }

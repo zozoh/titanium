@@ -15,7 +15,7 @@
       "item"  : "obj 'id:${val}' -cqn",
       "value" : "id",
       "text"  : "title|nm",
-      "icon"  : "->Wn.Util.getObjThumbIcon"
+      "icon"  : "=>Wn.Util.getObjThumbIcon"
     },
     "Accounts" : {
       "data"  : "thing ~/accounts query -sort nickname:1 -lcqn",
@@ -23,13 +23,13 @@
       "item"  : "thing ~/accounts get '${val}' -cqn",
       "value" : "id",
       "text"  : "nickname|email|phone|nm",
-      "icon"  : "->Wn.Util.getObjThumbIcon2(zmdi-account)"
+      "icon"  : "=>Wn.Util.getObjThumbIcon2(zmdi-account)"
     },
     "Roles" : {
       "data"  : "thing ~/roles query -sort 'th_sort:1' -cqn",
       "value" : "nm",
       "text"  : "th_nm",
-      "icon"  : "->Wn.Util.getObjThumbIcon"
+      "icon"  : "=>Wn.Util.getObjThumbIcon"
     },
     "Sexes" : {
       "data" : [

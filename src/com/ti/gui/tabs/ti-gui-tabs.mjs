@@ -1,5 +1,6 @@
 export default {
-  inheritAttrs : false,
+  /////////////////////////////////////////
+  inject: ["$gui"],
   /////////////////////////////////////////
   data: ()=>({
     myCurrentTab : 0
@@ -104,11 +105,7 @@ export default {
   methods : {
     //--------------------------------------
     onSetCurrentTabItem(item) {
-      // console.log("tab:changed", {
-      //   target  : item,
-      //   current : this.theCurrentTabItem
-      // })
-      this.$notify("block:shown", {
+      this.$gui.onBlockShownUpdate({
         [item.key] : true,
         [this.theCurrentTabItem.key] : false
       })

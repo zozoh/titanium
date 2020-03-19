@@ -22,30 +22,11 @@ export default {
       return this.shortcut || ""
     },
     InvokeFunc() {
-      return Ti.Shortcut.genActionInvoking(this.action, ({mode, name, args})=>{
-          if("$emit" == mode) {
-            return ()=>{
-              console.log("mode", {mode, name, args})
-              this.$menu.$emit(name, ...args)
-            }
-          }
-          if("$parent" == mode) {
-            let $p = this.$menu.$parent
-            let fn = _.get($p, name)
-            if(_.isFunction(fn)){
-              return ()=>fn.apply($p, args)
-            }
-            throw `menu-item.action noexits: ${mode}.${name}(${args.join(",")})`
-          }
-          let app = Ti.App(this)
-          let fn = _.get(app, mode)
-          if(_.isFunction(fn)) {
-            let __args = Ti.S.joinArgs(args, [name])
-            return ()=>fn.apply(app, __args)
-          }
-          throw `menu-item.action noexits: ${mode}.${name}(${args.join(",")})`
-        }
-      ,{
+      let app = Ti.App(this)
+      let currentData = app.currentData()
+      return Ti.Shortcut.genActionInvoking(this.action, {
+        $com : this.$menu.$parent,
+        argContext : currentData,
         wait : this.wait
       })
     }

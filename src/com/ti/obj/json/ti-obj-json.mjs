@@ -1,5 +1,12 @@
-export default {
-  inheritAttrs : false,
+const _M = {
+  //////////////////////////////////////////
+  provide : function() {
+    return {
+      "$EmitBy" : (name, ...args)=>{
+        this.DoEvent(name, args)
+      }
+    }
+  },
   //////////////////////////////////////////
   props : {
     "tabAt" : {
@@ -68,27 +75,33 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onBlockEvent({block, name, args}={}) {
-      let evKey = _.concat(block||[], name||[]).join(".")
-      let data = _.first(args)
-      //console.log("ti-obj-json:onBlockEvent",evKey, args)
-      // Ignore the undefined data
-      if(_.isUndefined(data)) {
-        return
-      }
-      // Tree Component emit changed
-      if("tree.change" == evKey) {
-        this.$emit("change", data)
-      }
-      // Source Component changed, it will try eval json
-      else if("source.change" == evKey) {
-        let jsonData = Ti.Types.safeParseJson(data)
-        if(!_.isUndefined(jsonData)) {
-          this.$emit("change", jsonData)
+    DoEvent(name, args=[]) {
+      let {block, event} = Ti.Util.explainEventName(name)
+      console.log("ti-obj-json.DoEvent", {name, block, event, args, a0:_.first(args)})
+      // Find Event Handler
+      let FnSet = {
+        // Tree Component emit changed
+        "tree>change" : (data)=>{
+          this.$notify("change", data)
+        },
+        // Source Component changed, it will try eval json
+        "source>change" : (content)=>{
+          let data = Ti.Types.safeParseJson(content)
+          if(!_.isUndefined(data)) {
+            this.$notify("change", data)
+          }
         }
+      }
+
+      let fn = FnSet[name] || FnSet[event]
+
+      // Invoke Event Handler
+      if(_.isFunction(fn)) {
+        fn.apply(this, args)
       }
     }
     //--------------------------------------
   }
   //////////////////////////////////////////
 }
+export default _M;

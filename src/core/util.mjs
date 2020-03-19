@@ -244,7 +244,7 @@ const TiUtil = {
       // String : Check the "@BLOCK(xxx)" 
       if(_.isString(theValue)) {
         // Find key in context
-        let m = /^(->|=|==|!=)([^?]+)(\?(.*))?$/.exec(theValue)
+        let m = /^(->|=>?|==|!=)([^?]+)(\?(.*))?$/.exec(theValue)
         // Matched
         if(m) {
           let m_type = m[1]
@@ -272,7 +272,16 @@ const TiUtil = {
               if(".." == val) {
                 return context
               }
-              return _.get(context, val) || dft
+              let re = Ti.Util.getOrPick(context, val)
+              if(Ti.Util.isNil(re) && !_.isUndefined(dft)){
+                return dft
+              }
+              return re
+            },
+            // =>Ti.Types.toStr(meta)
+            "=>" : (val) => {
+              let fn = Ti.Util.genInvoking(val, {context})
+              return fn()
             },
             // :=xxx  # Get Value Later
             // ":=" : (val, dft)=>{
@@ -786,8 +795,11 @@ const TiUtil = {
    * @return Function to pick value
    */
   genGetter(key, {
+    indexPrefix,
     dftKeys=[],
-    indexPrefix
+    context={},
+    funcSet = window,
+    partialRight = false  // true | false*
   }={}) {
     //.............................................
     // Customized Function
@@ -809,19 +821,12 @@ const TiUtil = {
       }
       //...........................................
       // Invoke mode
-      let m = /^->([^()]+)(\((.+)\))?$/.exec(key)
+      let m = /^=>(.+)$/.exec(key)
       if(m) {
-        let callPath = m[1]
-        let callArgs = m[3]
-        //console.log(callPath, callArgs)
-        let func = _.get(window, callPath)
-        if(_.isFunction(func)) {
-          let args = Ti.S.joinArgs(callArgs)
-          if(!_.isEmpty(args)) {
-            return _.partial(func, ...args)
-          }
-          return func
-        }
+        let invoke = m[1]
+        return TiUtil.genInvoking(invoke, {
+          context, funcSet, partialRight
+        })
       }
       //...........................................
       // Default Mode
@@ -833,6 +838,36 @@ const TiUtil = {
       return it => Ti.Util.getFallback(it, ...dftKeys)
     }
     //.............................................
+  },
+  /***
+   * "Ti.Types.toStr(abc)" -> Function
+   */
+  genInvoking(str, {
+    context={},
+    funcSet = window,
+    partialRight = false  // true | false*
+  }={}) {
+    let m = /^([^()]+)(\((.+)\))?$/.exec(str)
+    if(m) {
+      let callPath = _.trim(m[1])
+      let callArgs = _.trim(m[3])
+      //console.log(callPath, callArgs)
+      let func = _.get(funcSet, callPath)
+      if(_.isFunction(func)) {
+        let args = Ti.S.joinArgs(callArgs, [], v=>{
+          return Ti.S.toJsValue(v, {context})
+        })
+        if(!_.isEmpty(args)) {
+          if(partialRight) {
+            return _.partialRight(func, ...args)
+          }
+          return _.partial(func, ...args)
+        }
+        return func
+      }
+    }
+    // Not invokeing, just return str self
+    return ()=>str
   },
   /***
    * @param matchBy{Function|String|Array}

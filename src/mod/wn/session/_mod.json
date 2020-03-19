@@ -1,4 +1,4 @@
 {
-  "state" : "./wn-session.json",
-  "mixins" : ["./wn-session.mjs"]
+  "state" : "./m-session.json",
+  "mixins" : ["./m-session.mjs"]
 }

@@ -141,11 +141,11 @@ const WN_MANAGER_MIXINS = {
     },
     //--------------------------------------
     updateActions(actions) {
+      console.log("updateActions", actions)
       this.actions = _.cloneDeep(actions)
     },
     //--------------------------------------
     async openView(oid) {
-      console.log(oid)
       if(!_.isString(oid))
         return
 
@@ -169,8 +169,7 @@ const WN_MANAGER_MIXINS = {
     //--------------------------------------
     async DoEvent(name, args=[]) {
       let {block, event} = Ti.Util.explainEventName(name)
-      let data = _.first(args)
-      console.log("wn-manager.DoEvent", {name, block, event, data})
+      console.log("wn-manager.DoEvent", {name, block, event, args, a0:_.first(args)})
       // Find Event Handler
       let FnSet = {
         // sidebar or title
@@ -187,7 +186,7 @@ const WN_MANAGER_MIXINS = {
         "arena>change" : (content)=>{
           this.notifyChange(content)
         },
-        "arena>actions:updated" : (actions)=>{
+        "arena>actions:update" : (actions)=>{
           this.updateActions(actions)
         }
       }
@@ -206,28 +205,17 @@ const WN_MANAGER_MIXINS = {
     "meta" : async function(newVal, oldVal) {
       let newId = _.get(newVal, "id")
       let oldId = _.get(oldVal, "id")
-      if(newVal && !_.isEqual(newId, oldId)) {
-        console.log("metaChanged", newVal, oldVal)
-        await this.reloadAncestors()
-        await this.reloadMain()
-
-        // Push history to update the browser address bar
-        let his = window.history
-        let meta = newVal
-        if(his && meta) {
-          // Done push duplicate state
-          if(his.state && his.state.id == meta.id){
-            return
-          }
-          // Push to history stack
-          let newLink = Wn.Util.getAppLink(meta.id)
-          let title =  Wn.Util.getObjDisplayName(meta)
-          if(Ti.IsInfo("app/wn-manager")) {
-            console.log(title , "->", newLink)
-          }
-          his.pushState(meta, title, newLink)
-          // Update the Title
-          document.title = title;
+      let isSameId = _.isEqual(newId, oldId) 
+      if(newVal) {
+        //console.log("metaChanged", newVal, oldVal)
+        // Update the ancestors path
+        if(!isSameId) {
+          await this.reloadAncestors()
+        }
+        // Reload Current Main
+        if(!isSameId || this.isChanged) {
+          await this.reloadMain()
+          this.pushHistory(newVal)
         }
       }
     }

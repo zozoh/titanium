@@ -248,8 +248,6 @@ export class TiAppModal {
       //////////////////////////////////////////
       methods : {
         //--------------------------------------
-        onMainInit($main) {this.$main = $main},
-        //--------------------------------------
         onClickTop() {
           if(this.clickMaskToClose) {
             this.hidden = true
@@ -294,24 +292,31 @@ export class TiAppModal {
         onAfterLeave() {
           Ti.App(this).destroy(true);
           resolve(this.returnValue)
+        },
+        //--------------------------------------
+        onMainInit($main) {
+          let app = Ti.App(this)
+          this.$main = $main;
+          app.$vmMain($main);
+          // Watch escape
+          if(escape) {
+            app.watchShortcut([{
+              action : "root:close",
+              shortcut : "ESCAPE"
+            }])
+          }
+          // Active current
+          this.setActived()
         }
         //--------------------------------------
       },
       //////////////////////////////////////////
       mounted : function() {
+        let app = Ti.App(this)
+        Ti.App.pushInstance(app)
         this.$nextTick(()=>{
           this.hidden = false
         })
-        let app = Ti.App(this)
-        Ti.App.pushInstance(app)
-        this.setActived()
-        // Watch escape
-        if(escape) {
-          app.watchShortcut([{
-            action : "root:close",
-            shortcut : "ESCAPE"
-          }])
-        }
       },
       //////////////////////////////////////////
       beforeDestroy : function(){

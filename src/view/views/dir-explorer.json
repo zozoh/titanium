@@ -16,8 +16,7 @@
       "type":"line"
     }, {
       "type" : "group",
-      "icon" : "zmdi-settings",
-      "text" : "i18n:more",
+      "icon" : "im-menu",
       "items" : [{
           "key"  : "create",
           "type" : "action",
@@ -100,7 +99,7 @@
           "type" : "action",
           "icon" : "zmdi-keyboard",
           "text" : "i18n:console",
-          "action" : "dispatch:openConsole",
+          "action" : "=>Ti.Be.Open('/a/open/wn.console')",
           "shortcut" : "ALT+SHIFT+T"
         },{
           "type" : "action",

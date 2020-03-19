@@ -1,5 +1,5 @@
 {
-  "state" : "./obj-meta.json",
-  "actions" : "./obj-meta-actions.mjs",
-  "mixins" : "./obj-meta.mjs"
+  "state" : "./m-obj-meta.json",
+  "actions" : "./m-obj-meta-actions.mjs",
+  "mixins" : "./m-obj-meta.mjs"
 }

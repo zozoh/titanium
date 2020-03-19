@@ -52,7 +52,7 @@ export class TiAppActionShortcuts {
   //////////////////////////////////////////////
   // Methods
   //////////////////////////////////////////////
-  bindInvoke(scope, action, wait=100) {
+  bindInvoke(action, argContext={}, wait=100) {
     return Ti.Shortcut.genActionInvoking(action, ({mode,name,args})=>{
       let app = Ti.App.topInstance()
       let fn = _.get(app, mode)
@@ -76,14 +76,17 @@ export class TiAppActionShortcuts {
     return false
   }
   //--------------------------------------------
-  watch(actions=[], scope) {
+  watch(actions=[], scope, {
+    $com,
+    argContext={}
+  }={}) {
     let list = _.without(_.concat(actions), null)
     _.forEach(list, aIt => {
       // Groups, recur ...
       if('group' == aIt.type 
          && _.isArray(aIt.items)
          && aIt.items.length > 0) {
-        this.watch(aIt.items, scope)
+        this.watch(aIt.items, scope, {$com, argContext})
       }
       // Action
       else if(aIt.action && aIt.shortcut) {
@@ -91,10 +94,13 @@ export class TiAppActionShortcuts {
         if(this.isWatched(aIt.shortcut, scope)) {
           return
         }
+        // Gen invoke function
+        let func = Ti.Shortcut.genActionInvoking(aIt.action, {
+          $com, argContext, wait: aIt.wait
+        })
         // Join to watch list
         Ti.Util.pushValueBefore(this.actions, aIt.shortcut, {
-          scope,
-          func : this.bindInvoke(scope, aIt.action, aIt.wait),
+          scope, func,
           prevent : Ti.Util.fallback(aIt.prevent, true),
           stop    : Ti.Util.fallback(aIt.stop, true)
         })
@@ -151,7 +157,7 @@ export class TiAppActionShortcuts {
     quit    : false
   }) {
     //..........................................
-    // if("ALT+SHIFT+T" == uniqKey)
+    // if("CTRL+A" == uniqKey)
     //   console.log("AppActionShortcuts.fired", uniqKey)
     if(st.quit) {
       return st

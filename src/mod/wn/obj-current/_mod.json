@@ -1,7 +1,7 @@
 {
   "name" : "wn-obj-current",
   "namespaced" : true,
-  "state" : "./obj-current.json",
-  "actions" : "./obj-current-actions.mjs",
-  "mixins" : "./obj-current.mjs"
+  "state" : "./m-obj-current.json",
+  "actions" : "./m-obj-current-actions.mjs",
+  "mixins" : "./m-obj-current.mjs"
 }

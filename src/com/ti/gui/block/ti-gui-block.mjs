@@ -5,7 +5,7 @@ export default {
   provide : function() {
     return {
       "$EmitBy" : (name, ...args)=>{
-        console.log("GuiBlock:", name, args)
+        //console.log("GuiBlock:", name, args)
         // Append self name
         let eventName = this.name
           ? `${this.name}>${name}`

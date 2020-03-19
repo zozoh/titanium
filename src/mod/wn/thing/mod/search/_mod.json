@@ -1,6 +1,6 @@
 {
   "namespaced" : true,
-  "state" : "./thing-search.json",
-  "actions" : "./thing-search-actions.mjs",
-  "mixins" : "./thing-search.mjs"
+  "state" : "./m-thing-search.json",
+  "actions" : "./m-thing-search-actions.mjs",
+  "mixins" : "./m-thing-search.mjs"
 }

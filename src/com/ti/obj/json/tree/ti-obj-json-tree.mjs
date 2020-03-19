@@ -1,5 +1,12 @@
-export default {
-  inheritAttrs : false,
+const _M = {
+  //////////////////////////////////////////
+  provide : function() {
+    return {
+      "$EmitBy" : (name, ...args)=>{
+        this.DoEvent(name, args)
+      }
+    }
+  },
   //////////////////////////////////////////
   data : ()=>({
     myTreeRoot : [],
@@ -38,7 +45,7 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    theTreeDisplay() {
+    TreeDisplay() {
       return {
         key : "name",
         comType : "ti-label",
@@ -53,7 +60,7 @@ export default {
       }
     },
     //--------------------------------------
-    theTreeFields() {
+    TreeFields() {
       return [{
         title : "i18n:value",
         display : {
@@ -430,7 +437,7 @@ export default {
       // Fail to find the converter, return undeinfed to cancel
     },
     //--------------------------------------
-    async onItemChanged({name, value, data, node, nodeId}={}) {
+    async OnItemChanged({name, value, data, node, nodeId}={}) {
       //console.log({name,value, data, node, nodeId})
       //....................................
       // Guard it
@@ -505,11 +512,34 @@ export default {
       }
       //....................................
       // Emit the change
-      this.$emit("change", newData)
+      this.$notify("change", newData)
     },
     //--------------------------------------
-    onOpenedStatusChanged(opened) {
+    OnOpenedStatusChanged(opened) {
       this.myTreeOpenedStatus = opened
+    },
+    //--------------------------------------
+    DoEvent(name, args=[]) {
+      let {block, event} = Ti.Util.explainEventName(name)
+      console.log("ti-obj-json-tree.DoEvent", {name, block, event, args, a0:_.first(args)})
+      // Find Event Handler
+      let FnSet = {
+        // Tree Component emit changed
+        "item:change" : (payload)=>{
+          this.OnItemChanged(payload)
+        },
+        // Source Component changed, it will try eval json
+        "opened-status:changed" : (opened)=>{
+          this.OnOpenedStatusChanged(opened)
+        }
+      }
+
+      let fn = FnSet[name] || FnSet[event]
+
+      // Invoke Event Handler
+      if(_.isFunction(fn)) {
+        fn.apply(this, args)
+      }
     }
     //--------------------------------------
   },
@@ -525,3 +555,4 @@ export default {
   }
   //////////////////////////////////////////
 }
+export default _M;

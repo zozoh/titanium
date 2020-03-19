@@ -2,7 +2,6 @@
   "name" : "wn-thing-files",
   "globally" : true,
   "template" : "./thing-files.html",
-  "props" : "./thing-files-props.mjs",
   "mixins"   : ["./thing-files.mjs"],
   "components" : [
     "@com:wn/adaptlist"

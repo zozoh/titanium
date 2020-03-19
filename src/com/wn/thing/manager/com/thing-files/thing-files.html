@@ -1,46 +1,61 @@
 <div class="thing-files">
   <!--
-    Head bar for switch dir and actions
+    With Data Home
   -->
-  <div class="as-header">
-    <div v-if="dirNameTip"
-      class="as-tip">
-      <span>{{dirNameTip|i18n}}</span>
+  <template v-if="dataHome">
+    <!--
+      Head bar for switch dir and actions
+    -->
+    <div class="as-header">
+      <div v-if="dirNameTip"
+        class="as-tip">
+        <span>{{dirNameTip|i18n}}</span>
+      </div>
+      <!--Left: select files home dirName-->
+      <div class="as-name">
+        <component 
+          :is="dirNameComType"
+          height=".3rem"
+          :options="dirNameOptions"
+          :value="dirName"
+          :prefix-icon-for-clean="false"
+          @change="OnDirNameChanged"/>
+      </div>
+      <!--Right: Common Actions-->
+      <div class="as-menu">
+        <ti-menu 
+          :data="actions"
+          :status="myStatus"/>
+      </div>
     </div>
-    <!--Left: select files home dirName-->
-    <div class="as-name">
-      <component 
-        :is="dirNameComType"
-        height=".3rem"
-        :options="dirNameOptions"
-        :value="filesName"
-        :prefix-icon-for-clean="false"
-        @change="onFilesNameChanged"/>
+    <!--
+      File Preview
+    -->
+    <div class="as-preview">
+      <wn-obj-preview
+        class="ti-fill-parent"
+        v-bind="ThePreview"
+        :meta="CurrentFile"/>
     </div>
-    <!--Right: Common Actions-->
-    <div class="as-menu">
-      <ti-menu 
-        :data="actionMenuData"
-        :status="files.status"/>
+    <!--
+      File List
+    -->
+    <div class="as-list">
+      <wn-adaptlist
+        class="ti-fill-parent"
+        v-bind="TheFiles"
+        :data="myData"
+        :meta="myHome"
+        :status="myStatus"
+        @uploaded="OnFileUploaded"
+        @select="OnFileSelected"
+        :on-init="OnAdaptListInit"/>
     </div>
-  </div>
+  </template>
   <!--
-    File Preview
+    Without Data Home
   -->
-  <div class="as-preview">
-    <wn-obj-preview
-      class="ti-fill-parent"
-      v-bind="thePreview"/>
-  </div>
-  <!--
-    File List
-  -->
-  <div class="as-list">
-    <wn-adaptlist
-      class="ti-fill-parent"
-      v-bind="theFiles"
-      @uploaded="onFileUploaded"
-      @select="onFileSelected"
-      :on-init="OnAdaptListInit"/>
-  </div>
+  <ti-loading v-else
+    text="i18n:empty-data"
+    icon="zmdi-alert-circle-o"/>
 </div>

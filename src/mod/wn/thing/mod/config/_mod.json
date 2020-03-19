@@ -1,6 +1,6 @@
 {
   "namespaced" : true,
-  "state" : "./thing-config.json",
-  "actions" : "./thing-config-actions.mjs",
-  "mixins" : "./thing-config.mjs"
+  "state" : "./m-thing-config.json",
+  "actions" : "./m-thing-config-actions.mjs",
+  "mixins" : "./m-thing-config.mjs"
 }

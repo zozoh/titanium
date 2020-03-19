@@ -85,7 +85,7 @@ export default {
         }
         this.myContent = txt
         if(emit && txt != this.content) {
-          vm.$emit("change", txt)
+          vm.$notify("change", txt)
         }
       }
     },

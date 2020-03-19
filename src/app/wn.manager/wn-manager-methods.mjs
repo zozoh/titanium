@@ -22,7 +22,9 @@ const WN_MANAGER_METHODS = {
       if(this.view && this.view.modType) {
         try{
           this.$store.unregisterModule("main")
-        }catch(Err){}
+        }catch(E){
+          console.error("Error when unregisterModule", E)
+        }
       }
       //..................................
       // Get back the viewName from hash
@@ -61,9 +63,8 @@ const WN_MANAGER_METHODS = {
       this.comType = view.comName
       this.comIcon = view.comIcon
       this.comConf = view.comConf
-      this.actions = view.actions
       this.view = view
-      //..................................
+      this.updateActions(view.actions)
     }
     // Clean
     finally {
@@ -81,6 +82,26 @@ const WN_MANAGER_METHODS = {
   async reloadSidebar() {
     let reo = await Wn.Sys.exec("ti sidebar -cqn", {as:"json"});
     this.sidebar = reo.sidebar
+  },
+  //.........................................
+  pushHistory(meta) {
+    // Push history to update the browser address bar
+    let his = window.history
+    if(his && meta) {
+      // Done push duplicate state
+      if(his.state && his.state.id == meta.id){
+        return
+      }
+      // Push to history stack
+      let newLink = Wn.Util.getAppLink(meta.id)
+      let title =  Wn.Util.getObjDisplayName(meta)
+      if(Ti.IsInfo("app/wn-manager")) {
+        console.log(title , "->", newLink)
+      }
+      his.pushState(meta, title, newLink)
+      // Update the Title
+      document.title = title;
+    }
   }
   //.........................................
 }

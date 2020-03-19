@@ -1,5 +1,5 @@
 {
-  "methods" : "@Home:accounts/accounts-methods.mjs",
+  "methods" : "@lib:walnut/thing/accounts-methods.mjs",
   "filter" : {
     "comType" : "wn-thing-filter",
     "comConf" : {

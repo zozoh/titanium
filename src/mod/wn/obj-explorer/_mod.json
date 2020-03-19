@@ -1,7 +1,0 @@
-{
-  "name" : "wn-obj-explorer",
-  "namespaced" : true,
-  "state" : "./obj-explorer.json",
-  "actions" : "./obj-explorer-actions.mjs",
-  "mixins" : "./obj-explorer.mjs"
-}

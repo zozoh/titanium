@@ -121,10 +121,9 @@
   "files" : {
     "comType" : "wn-thing-files",
     "comConf" : {
-      "filesName" : "=filesName",
-      "files"     : "=files",
+      "dataHome" : "=currentDataHome",
+      "dirName"  : "=currentDataDir",
       "stateLocalKey" : "=meta.id",
-      "preview"   : "=preview",
       "dirNameTip" : null,
       "dirNameComType" : "ti-switcher"
     }

@@ -1,14 +1,14 @@
 {
   "name" : "wn-thing",
   "namespaced" : true,
-  "state" : "./wn-thing.json",
-  "actions" : "./wn-thing-actions.mjs",
-  "mixins" : "./wn-thing.mjs",
+  "state" : "./m-thing.json",
+  "actions" : "./m-thing-actions.mjs",
+  "mixins" : "./m-thing.mjs",
   "modules" : {
     "config" : "./mod/config",
     "search" : "./mod/search",
-    "current" : "@mod:wn/obj-current",
-    "files"   : "@mod:wn/obj-current",
-    "preview" : "@mod:wn/obj-as-binary"
-  }
+    "current" : "@mod:wn/obj-current"
+  },
+  "__files"   : "@mod:wn/obj-current",
+  "__preview" : "@mod:wn/obj-current"
 }
