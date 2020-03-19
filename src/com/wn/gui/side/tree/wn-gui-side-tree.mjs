@@ -1,5 +1,8 @@
 export default {
-  inheritAttrs : false,
+  /////////////////////////////////////////
+  provide : {
+    primaryNotify: true
+  },
   /////////////////////////////////////////
   data : ()=>({
     myItems : [],

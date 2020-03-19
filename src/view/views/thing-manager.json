@@ -96,7 +96,7 @@
         "type" : "action",
         "icon" : "zmdi-info-outline",
         "text" : "i18n:properties",
-        "action" : "=>Wn.EditObjMeta(meta)",
+        "action" : "dispatch:current/openMetaEditor",
         "shortcut" : "ALT+CTRL+P"
       }]
   }]

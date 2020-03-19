@@ -251,6 +251,10 @@ const _M = {
     "data" : {
       handler : "syncMyData",
       immediate : true
+    },
+    //--------------------------------------------
+    "myExposeHidden" : function(eh){
+      this.$notify("expose-hidden", eh)
     }
     //--------------------------------------------
   },

@@ -34,7 +34,10 @@ export const TiShortcut = {
     //..........................................
     // Command in String
     if(_.isString(action)) {
-      let m = /^((commit|dispatch|root|main|\$\w+):|=>)([^()]+)(\((.*)\))?$/.exec(action)
+      let m = /^((global|commit|dispatch|root|main|\$\w+):|=>)([^()]+)(\((.*)\))?$/.exec(action)
+      if(!m){
+        throw Ti.Err.make("e.action.invalid : " + action, {action})
+      }
       mode = m[2] || m[1]
       name = m[3]
       args = m[5]

@@ -9,6 +9,7 @@ const WN_MANAGER_MIXINS = {
   },
   ///////////////////////////////////////////
   data:()=>({
+    myExposeHidden : false,
     loading : false,
     comIcon : "zmdi-hourglass-alt",
     comType : "ti-loading",
@@ -81,6 +82,11 @@ const WN_MANAGER_MIXINS = {
     //---------------------------------------
     // Tipping
     //---------------------------------------
+    TheStatus() {
+      return _.assign({}, this.status, {
+        exposeHidden : this.myExposeHidden
+      })
+    },
     StatusText(){
       let st = _.assign({}, this.status)
       if(st.saving) {
@@ -172,6 +178,9 @@ const WN_MANAGER_MIXINS = {
       console.log("wn-manager.DoEvent", {name, block, event, args, a0:_.first(args)})
       // Find Event Handler
       let FnSet = {
+        "expose-hidden" : (eh)=>{
+          this.myExposeHidden = eh
+        },
         // sidebar or title
         "item:active" : async (it)=>{
           await this.openView(it.id || it.path || it.value)

@@ -48,7 +48,7 @@ const WN_MANAGER_COMPUTED = {
       return {
         className : `wn-${this.viewportMode}-menu`,
         data   : this.actions,
-        status : this.status,
+        status : this.TheStatus,
         delay  : 500
       }
     }

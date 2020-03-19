@@ -11,7 +11,7 @@
         "text" : "i18n:saving"
       },
       "enableBy" : "changed",
-      "action" : "dispatch:main/save",
+      "action" : "dispatch:current/save",
       "shortcut" : "CTRL+S"
     }, {
       "key"  : "reloading",
@@ -22,26 +22,26 @@
         "icon" : "zmdi-refresh zmdi-hc-spin",
         "text" : "i18n:loading"
       },
-      "action" : "dispatch:main/reload",
+      "action" : "dispatch:current/reload",
       "shortcut" : "CTRL+SHIFT+R"
     }, {
       "key"  : "viewsource",
       "type" : "action",
       "icon" : "far-file-alt",
       "text" : "i18n:view-resource",
-      "action" : "dispatch:main/openContentEditor",
+      "action" : "dispatch:current/openContentEditor",
       "shortcut" : "ALT+CTRL+V"
     },{
       "type" : "action",
       "icon" : "zmdi-keyboard",
       "text" : "i18n:console",
-      "action" : "dispatch:openConsole",
+      "action" : "=>Ti.Be.Open('/a/open/wn.console')",
       "shortcut" : "ALT+SHIFT+T"
     },{
       "type" : "action",
       "icon" : "zmdi-info-outline",
       "text" : "i18n:properties",
-      "action" : "dispatch:main/openMetaEditor",
+      "action" : "dispatch:current/openMetaEditor",
       "shortcut" : "ALT+CTRL+P"
     }]
 }
