@@ -148,11 +148,31 @@ export default {
           params : params,
           data   : data
         })
+        // Get primary url
+        let loc = window.location
+        let winPath = loc.pathname
+        if(loc.search)
+          winPath += loc.search
+        if(loc.hash)  
+          winPath += loc.hash
         // Push History
         if(pushHistory) {
           let page = state.page
           let link = Ti.Util.appendPath(state.base, page.path)
-          if(window.location.pathname != link) {
+          // Add Query String
+          if(!_.isEmpty(params)) {
+            let qs = []
+            _.forEach(params, (v, k)=>{
+              qs.push(`${k}=${encodeURIComponent(v)}`)
+            })
+            link += `?${qs.join("&")}`
+          }
+          // Add page anchor
+          if(anchor) {
+            link += `#${anchor}`
+          }
+          // Update addressbar
+          if(winPath != link) {
             console.log("page changed to", link)
             let his = window.history
             if(his) {
@@ -165,7 +185,7 @@ export default {
           let his = window.history
           if(his) {
             let page = state.page
-            his.replaceState(page, page.title, window.location.pathname)
+            his.replaceState(page, page.title, winPath)
           }
         }
         commit("setLoading", false)

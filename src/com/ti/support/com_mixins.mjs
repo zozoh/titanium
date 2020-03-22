@@ -1,4 +1,4 @@
-export default {
+const _M = {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
   inject : {
@@ -87,6 +87,7 @@ export default {
     },
     //-----------------------------------------------
     $notify(name, ...args) {
+      console.log("$notify", name, args)
       // Customized notify
       if(!this.primaryNotify && _.isFunction(this.$EmitBy)) {
         this.$EmitBy(name, ...args)
@@ -163,3 +164,4 @@ export default {
   }
   ///////////////////////////////////////////////////
 }
+export default _M;

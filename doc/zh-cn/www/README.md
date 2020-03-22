@@ -400,6 +400,7 @@ DIV(@app)             # Vue(root) : index.wnml
   // 当前页面特殊的 actions 映射
   // 如果站点级的映射动作是一个数组，则会在尾部叠加这个动作
   // 否则就覆盖站点定义的全局动作
+  // 如果你给定了一个数组，那么无论站点级映射是不是数组，都会被覆盖
   "actions" : {
     "buy-now" : {
       "action"  : "auth/checkme",

@@ -187,6 +187,12 @@
           //---------------------------------------
           .ti-icon {
             flex:0 0 auto;
+            img {
+              width:32px; height:32px;
+              object-fit: cover;
+              border:1px solid map-get($color-line, shallow);
+              border-radius: 2px;
+            }
           }
           //---------------------------------------
         }

@@ -54,7 +54,14 @@ const WN_MANAGER_MIXINS = {
     //---------------------------------------
     isLoading() {return this.loading || this.isReloading},
     //---------------------------------------
-    isChanged()   {return _.get(this.status, "changed")},
+    isChanged() {
+      let modMain = this.$store.state.main
+      if(_.get(modMain, "status.changed")) {
+        return true
+      }
+      return _.get(this.status, "changed")
+    },
+    //---------------------------------------
     isSaving()    {return _.get(this.status, "saving")},
     isReloading() {return _.get(this.status, "reloading")},
     //---------------------------------------
@@ -105,7 +112,8 @@ const WN_MANAGER_MIXINS = {
     //---------------------------------------
     TheStatus() {
       return _.assign({}, this.status, {
-        exposeHidden : this.myExposeHidden
+        exposeHidden : this.myExposeHidden,
+        changed : this.isChanged
       })
     },
     StatusText(){
