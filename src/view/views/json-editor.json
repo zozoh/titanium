@@ -34,6 +34,14 @@
         },{
           "type" : "action",
           "icon" : "zmdi-keyboard",
+          "text" : "i18n:view-resource",
+          "action" : "dispatch:current/openContentEditor",
+          "shortcut" : "ALT+SHIFT+V"
+        },{
+          "type" : "line"
+        },{
+          "type" : "action",
+          "icon" : "zmdi-keyboard",
           "text" : "i18n:console",
           "action" : "=>Ti.Be.Open('/a/open/wn.console')",
           "shortcut" : "ALT+SHIFT+T"
