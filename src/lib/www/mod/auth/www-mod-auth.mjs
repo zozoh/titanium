@@ -97,19 +97,19 @@ export default {
         if(nophone) {
           let me = reo.data.me
           if(!me.phone) {
-            dispatch(nophone.action, nophone.payload, {root:true})
+            await dispatch(nophone.action, nophone.payload, {root:true})
             return
           }
         }
         // Success
         if(success) {
-          dispatch(success.action, success.payload, {root:true})
+          await dispatch(success.action, success.payload, {root:true})
         }
       }
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       // Fail
       else if(fail){
-        dispatch(fail.action, fail.payload, {root:true})
+        await dispatch(fail.action, fail.payload, {root:true})
       }
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     },
@@ -117,19 +117,35 @@ export default {
     async autoCheckmeOrAuthByWxghCode({dispatch}, {
       codeKey = "code",
       force = false,
+      fail, nophone
     }={}) {
       dispatch("doCheckMe", {
         force,
         fail : {
-          action : "auth/doAuthByWxghCode",
+          action : "auth/authByWxghCode",
           payload : {
-            codeKey
+            codeKey,
+            //......................................
+            fail : ()=>{
+              if(fail) {
+                dispatch(fail.action, fail.payload, {root:true})
+              }
+            },
+            //......................................
+            ok : ({me={}}={})=>{
+              if(nophone) {
+                if(!me.phone) {
+                  dispatch(nophone.action, nophone.payload, {root:true})
+                }
+              }
+            }
+            //......................................
           }
         }
       })
     },
     //--------------------------------------------
-    async doAuthByWxghCode({getters, rootState}, {
+    async authByWxghCode({commit, getters, rootState}, {
       codeKey = "code",
       done=_.identity,
       ok=_.identity, 
@@ -143,7 +159,7 @@ export default {
         return
       }
 
-      console.log("doAuthByWxghCode", code)
+      console.log("authByWxghCode", code)
 
       // Guard SiteId
       let siteId = rootState.siteId
@@ -171,6 +187,10 @@ export default {
           `www-ticket-${siteId}`,
           reo.data.ticket
         )
+        // Save session info
+        commit("setTicket", reo.data.ticket)
+        commit("setExpi",   reo.data.expi)
+        commit("setMe",     reo.data.me)
         // Callback
         ok(reo.data)
       }
