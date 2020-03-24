@@ -118,7 +118,7 @@ export default {
         let tm = this.runtime
         this.runtime = null
         let str = this.getTimeText(tm)
-        this.$emit("change", str)
+        this.$notify("change", str)
       }
     },
     //-----------------------------------------------
@@ -146,13 +146,13 @@ export default {
     onChanged(val) {
       // Empty value as null
       if(_.isEmpty(val)) {
-        this.$emit("change", null);
+        this.$notify("change", null);
       }
       // Parsed value
       else {
         let tm  = Ti.Types.toTime(val)
         let str = this.getTimeText(tm)
-        this.$emit("change", str)
+        this.$notify("change", str)
       }
     },
     //------------------------------------------------

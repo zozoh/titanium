@@ -83,18 +83,18 @@ export default {
     },
     //------------------------------------------------
     onSelectIcon({value}={}) {
-      this.$emit("change", value)
+      this.$notify("change", value)
     },
     //------------------------------------------------
     onSelectIconAndCollapse({value}={}) {
-      this.$emit("change", value)
+      this.$notify("change", value)
       this.status = "collapse"
     },
     //------------------------------------------------
     onChangedIcon() {
       let icon = _.trim(this.$refs.input.value)
       console.log("haha", icon)
-      this.$emit("change", icon)
+      this.$notify("change", icon)
     },
     //------------------------------------------------
     onHoverIcon({value}={}) {
@@ -106,7 +106,7 @@ export default {
     },
     //------------------------------------------------
     onClearIcon() {
-      this.$emit("change", null)
+      this.$notify("change", null)
     },
     //------------------------------------------------
     doCollapse() {

@@ -61,7 +61,7 @@
           :checkable="checkable"
           :selectable="selectable"
           :openable="openable"
-          @icon="$emit('icon', $event)"
+          @icon="$notify('icon', $event)"
           @checker="OnRowCheckerClick"
           @select="OnRowSelect"
           @open="OnRowOpen"

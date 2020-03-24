@@ -5,4 +5,13 @@
   :shown="shown"
   :can-loading="true"
   :loading-as="guiLoading"
-  :action-status="status"/>
+  :action-status="status"
+  @block:show="showBlock"
+  @block:hide="hideBlock"
+  @block:shown="changeShown"
+  @list::select="OnListSelect"
+  @list::open="OnListOpen"
+  @content::change="OnContentChange"
+  @pager::change:pn="OnPagerChangePageNumber"
+  @pager::change:pgsz="OnPagerChangePageSize"
+  @view-current-source="OnViewCurrentSource"/>

@@ -54,7 +54,7 @@ export default {
   methods :{
     onClickItem(it) {
       if(!it.disabled) {
-        this.$emit(it.eventName, it.payload)
+        this.$notify(it.eventName, it.payload)
       }
     }
   }

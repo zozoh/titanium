@@ -190,7 +190,7 @@ export default {
       })
 
       // Do Auth
-      this.$emit("auth:send", {
+      this.$notify("auth:send", {
         type   : this.currentMode,
         name   : this.params.name,
         passwd : this.params.passwd,
@@ -206,7 +206,7 @@ export default {
             content : "i18n:auth-ok",
             duration : 2000
           })
-          this.$emit("auth:ok")
+          this.$notify("auth:ok")
         },
         noexist : ()=>{
           this.invalidField = "name"
@@ -271,7 +271,7 @@ export default {
       console.log("vCodeTargetName", vCodeTargetName)
 
       // use the captcha to get code
-      this.$emit("get:vcode", {
+      this.$notify("get:vcode", {
         type    : this.currentMode,
         scene   : this.sceneVcode,
         account : this.data.name,

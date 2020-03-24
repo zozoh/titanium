@@ -1,9 +1,0 @@
-{
-  "name" : "wn-thing-files",
-  "globally" : true,
-  "template" : "./thing-files.html",
-  "mixins"   : ["./thing-files.mjs"],
-  "components" : [
-    "@com:wn/adaptlist"
-  ]
-}

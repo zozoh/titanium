@@ -22,7 +22,7 @@ export default {
   //////////////////////////////////////////
   methods : {
     onClick() {
-      this.$emit("change", !this.isOn)
+      this.$notify("change", !this.isOn)
     }
   },
   //////////////////////////////////////////

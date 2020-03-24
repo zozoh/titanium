@@ -177,7 +177,7 @@ export default {
           val = _.trim(val)
         }
         val = Ti.S.toCase(val, this.valueCase)
-        this.$emit(emitName, val)
+        this.$notify(emitName, val)
       }
     },
     //------------------------------------------------
@@ -187,7 +187,7 @@ export default {
         "altKey","ctrlKey","metaKey","shiftKey")
       payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
       payload.$event = $event
-      this.$emit("keypress", payload)
+      this.$notify("keypress", payload)
     },
     //------------------------------------------------
     onInputChanged() {
@@ -203,7 +203,7 @@ export default {
         }
       }
       this.isFocused = true
-      this.$emit("input:focus")
+      this.$notify("input:focus")
       // Auto Actived
       if(!this.isActived) {
         this.__set_actived()
@@ -212,26 +212,26 @@ export default {
     //------------------------------------------------
     onInputBlur() {
       this.isFocused = false
-      this.$emit("input:blur")
+      this.$notify("input:blur")
     },
     //------------------------------------------------
     onClickPrefixIcon() {
       if(this.prefixIconForClean) {
-        this.$emit("change", null)
+        this.$notify("change", null)
       }
-      this.$emit("prefix:icon")
+      this.$notify("prefix:icon")
     },
     //------------------------------------------------
     onClickPrefixText() {
-      this.$emit("prefix:text")
+      this.$notify("prefix:text")
     },
     //------------------------------------------------
     onClickSuffixIcon() {
-      this.$emit("suffix:icon")
+      this.$notify("suffix:icon")
     },
     //------------------------------------------------
     onClickSuffixText() {
-      this.$emit("suffix:text")
+      this.$notify("suffix:text")
     },
     //------------------------------------------------
     doAutoFocus() {

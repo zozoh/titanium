@@ -35,10 +35,6 @@ export default {
     "comEvents" : {
       type : Object,
       default : ()=>({})
-    },
-    "hijackable" : {
-      type : Boolean,
-      default : true
     }
   },
   ///////////////////////////////////////////////////
@@ -99,7 +95,7 @@ export default {
         }
         //............................
         // Notify
-        this.$emit("step:event", {
+        this.$notify("step:event", {
           emitName, nextStep, payload
         })
         //............................

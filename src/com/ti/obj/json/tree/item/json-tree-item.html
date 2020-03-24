@@ -12,7 +12,7 @@
   <ti-toggle v-else-if="'Boolean' == valueType"
     class="as-editing"
     :value="value"
-    @change="$emit('change', $event)"/>
+    @change="$notify('change', $event)"/>
   <!--
   //  - Integer : Editable integer value
   //  - Float   : Editable float value
@@ -25,7 +25,7 @@
     :class-name="theValueClassName"
     :format="theValueFormat"
     :editable="true"
-    @change="$emit('change', $event)"/>
+    @change="$notify('change', $event)"/>
   <!--
     Action Menu
   -->

@@ -89,7 +89,7 @@ export default {
   methods : {
     //------------------------------------------------
     notifyCollapse(escaped=false) {
-      this.$emit("collapse", {escaped})
+      this.$notify("collapse", {escaped})
     },
     //------------------------------------------------
     dockDrop() {

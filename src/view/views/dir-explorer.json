@@ -11,7 +11,8 @@
         "text" : "i18n:loading"
       },
       "action" : "dispatch:current/reload",
-      "shortcut" : "CTRL+SHIFT+R"
+      "shortcut" : "CTRL+SHIFT+R",
+      "wait" : 500
     },{
       "type":"line"
     }, {

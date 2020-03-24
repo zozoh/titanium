@@ -116,13 +116,13 @@ export default {
     },
     //------------------------------------------------
     onInputInputing(val) {
-      this.$emit("inputing", val)
+      this.$notify("inputing", val)
     },
     //------------------------------------------------
     onInputChanged(val) {
       // May click the prefix icon for clean
       if(_.isNull(val)) {
-        this.$emit("change", [])
+        this.$notify("change", [])
       }
       // Delegate to parent
       else if(_.isFunction(this.inputChange)) {
@@ -132,7 +132,7 @@ export default {
       else if(val) {
         let tags = this.evalTagList(this.value, val)
         let vals = this.getTagValues(tags)
-        this.$emit("change", vals)
+        this.$notify("change", vals)
       }
     }
     //------------------------------------------------

@@ -1,7 +1,0 @@
-{
-  "name" : "ti-gui-rows",
-  "globally" : true,
-  "template" : "./ti-gui-rows.html",
-  "mixins"   : ["./ti-gui-rows.mjs"],
-  "components" : ["@com:ti/gui/block"]
-}

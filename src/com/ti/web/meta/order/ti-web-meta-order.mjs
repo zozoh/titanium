@@ -32,7 +32,7 @@ export default {
   },
   methods : {
     onSubmit() {
-      this.$emit("order:submit", {
+      this.$notify("order:submit", {
         items    : this.items,
         currency : this.currency
       })

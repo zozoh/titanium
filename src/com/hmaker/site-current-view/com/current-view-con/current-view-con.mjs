@@ -9,18 +9,6 @@ export default {
     "comConf" : {
       type : Object,
       default : ()=>({})
-    },
-    "hijackable" : {
-      type : Boolean,
-      default : true
-    }
-  },
-  //////////////////////////////////////////
-  methods : {
-    hijackEmit(name, args) {
-      this.$emit("current:event", {
-        name, args
-      })
     }
   }
   //////////////////////////////////////////

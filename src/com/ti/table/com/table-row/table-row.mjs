@@ -51,7 +51,7 @@ export default {
     },
     //-----------------------------------------------
     OnClickIcon($event) {
-      this.$emit("icon", {
+      this.$notify("icon", {
         rowId  : this.rowId,
         shift  : $event.shiftKey,
         toggle : ($event.ctrlKey || $event.metaKey)
@@ -59,13 +59,13 @@ export default {
     },
     //-----------------------------------------------
     OnMouseEnter() {
-      this.$emit("enter", {
+      this.$notify("enter", {
         rowId  : this.rowId
       })
     },
     //-----------------------------------------------
     OnMouseLeave() {
-      this.$emit("leave", {
+      this.$notify("leave", {
         rowId  : this.rowId
       })
     }

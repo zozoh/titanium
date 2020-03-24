@@ -33,10 +33,6 @@ export default {
     "status" : {
       type : Object,
       default : ()=>({})
-    },
-    "hijackable" : {
-      type : Boolean,
-      default : true
     }
   },
   //////////////////////////////////////////
@@ -93,14 +89,6 @@ export default {
     //--------------------------------------
     theCurrentAction() {
       return this.theCurrentView.actions
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    onCurrentEvent({name, args}) {
-      this.$emit(name, ...args)
     }
     //--------------------------------------
   }

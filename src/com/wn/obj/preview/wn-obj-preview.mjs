@@ -73,7 +73,7 @@ export default {
     //--------------------------------------
     thePreviewComType() {
       if(this.meta) {
-        let mime = this.meta.mime
+        let mime = this.meta.mime || ""
         // Video
         if(mime.startsWith("video/")){
           return "ti-media-video"

@@ -70,7 +70,7 @@ export default {
       dt.setMinutes(tm.minutes)
       dt.setSeconds(tm.seconds)
       dt.setMilliseconds(tm.milliseconds)
-      this.$emit("change", dt)
+      this.$notify("change", dt)
     },
     //------------------------------------------------
     onTimeChanged(tm) {
@@ -80,7 +80,7 @@ export default {
       dt.setMinutes(tm.minutes)
       dt.setSeconds(tm.seconds)
       dt.setMilliseconds(tm.milliseconds)
-      this.$emit("change", dt)
+      this.$notify("change", dt)
     },
     //------------------------------------------------
     getTimeText(tm) {

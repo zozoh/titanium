@@ -45,15 +45,15 @@ export default {
   ///////////////////////////////////////////
   mounted : function() {
     if(this.shortcut) {
-      Ti.App(this).guardShortcut(this.shortcut, ()=>{
+      Ti.App(this).guardShortcut(this, this.shortcut, ()=>{
         return this.isEnabled
-      }, this)
+      })
     }
   },
   ///////////////////////////////////////////
   destroyed : function(){
     if(this.shortcut) {
-      Ti.App(this).unwatchShortcut(this)
+      Ti.App(this).pulloutShortcut(this)
     }
   }
   ///////////////////////////////////////////

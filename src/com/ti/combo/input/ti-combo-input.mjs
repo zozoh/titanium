@@ -191,7 +191,7 @@ export default {
     //-----------------------------------------------
     async doCollapse({escaped=false}={}) {
       if(escaped) {
-        this.$emit("change", this.myOldValue)
+        this.$notify("change", this.myOldValue)
       }
       this.myDropStatus = "collapse"
       this.myOldValue   = undefined
@@ -200,7 +200,7 @@ export default {
     tryNotifyChanged(escaped=false) {
       let val = this.evalMyValue()
       if(!escaped && !_.isEqual(val, this.value)) {
-        this.$emit("change", val)
+        this.$notify("change", val)
       }
     },
     //-----------------------------------------------

@@ -85,7 +85,7 @@ export default {
 
       // Emit change
       if(val != this.value) {
-        this.$emit("change", val)
+        this.$notify("change", val)
       }
     },
     //------------------------------------------------
@@ -95,7 +95,7 @@ export default {
         let str = _.trim($in.value)
         let val = str ? str * 1 : this.defaultValue
         if(!isNaN(val)) {
-          this.$emit("change", val)  
+          this.$notify("change", val)  
         }
       }
     }

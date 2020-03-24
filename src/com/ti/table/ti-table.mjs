@@ -152,7 +152,7 @@ export default {
     },
     //--------------------------------------
     onItemChanged(payload) {
-      this.$emit("item:change", payload)
+      this.$notify("item:change", payload)
     },
     //--------------------------------------
     getHeadCellStyle(index=-1) {

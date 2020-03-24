@@ -5,7 +5,9 @@ export async function main({
   appName="wn.manager",
   comMixinPath="@com:ti/support/com_mixins.mjs"
 }={}) {
-
+  //---------------------------------------
+  Vue.use(Ti.Vue.EventBubble)
+  Vue.use(Ti.Vue.TiCom)
   //---------------------------------------
   Ti.SetForDev(true)
   Ti.SetLogLevel("warn")
@@ -17,7 +19,6 @@ export async function main({
   Ti.SetLogLevel("warn", "WnGui")
   Ti.SetLogLevel("warn", "Wn.Dict")
   //---------------------------------------
-  Ti.Install()
   Ti.Shortcut.startListening()
   Ti.Viewport.startListening()
   //---------------------------------------
@@ -67,7 +68,7 @@ export async function main({
     Ti.Config.set({
       comDecorator : (com)=>{
         //console.log("++++++Decorator", com.name)
-        Ti.Util.pushValue(com, "mixins", comMixins)
+        //Ti.Util.pushValue(com, "mixins", comMixins)
       }
     })
   }

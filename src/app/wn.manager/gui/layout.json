@@ -18,9 +18,9 @@
               "size" : "stretch",
               "body" : "pcSkyTitle"
             }, {
-              "name" : "uinfo",
+              "name" : "session",
               "size" : "auto",
-              "body" : "pcSkyUserInfo"
+              "body" : "pcSkySession"
             }, {
               "name" : "menu",
               "size" : "auto",

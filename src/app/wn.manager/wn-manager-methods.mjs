@@ -55,7 +55,7 @@ const WN_MANAGER_METHODS = {
       //..................................
       // register main module
       if(view && view.modType) {
-        console.log("load main!!!")
+        //console.log("load main!!!")
         this.$store.registerModule("main", view.mod)
         await $app.dispatch("main/reload", meta)
       }
@@ -64,7 +64,7 @@ const WN_MANAGER_METHODS = {
       this.comIcon = view.comIcon
       this.comConf = view.comConf
       this.view = view
-      this.updateActions(view.actions)
+      this.OnUpdateActions(view.actions)
     }
     // Clean
     finally {

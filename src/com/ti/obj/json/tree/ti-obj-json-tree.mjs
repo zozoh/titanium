@@ -1,22 +1,5 @@
 const _M = {
   //////////////////////////////////////////
-  provide : function() {
-    return {
-      "$EmitBy" : (name, ...args)=>{
-        this.$receive(name, args, {
-          // Tree Component emit changed
-          "item:change" : (payload)=>{
-            this.OnItemChanged(payload)
-          },
-          // Source Component changed, it will try eval json
-          "opened-status:changed" : (opened)=>{
-            this.OnOpenedStatusChanged(opened)
-          }
-        })
-      }
-    }
-  },
-  //////////////////////////////////////////
   data : ()=>({
     myTreeRoot : [],
     myTreeCurrentPathId : null,
@@ -446,8 +429,8 @@ const _M = {
       // Fail to find the converter, return undeinfed to cancel
     },
     //--------------------------------------
-    async OnItemChanged({name, value, data, node, nodeId}={}) {
-      //console.log({name,value, data, node, nodeId})
+    async OnNodeItemChange({name, value, data, node, nodeId}={}) {
+      console.log("OnNodeItemChange", {name,value, data, node, nodeId})
       //....................................
       // Guard it
       if(!node.id) {

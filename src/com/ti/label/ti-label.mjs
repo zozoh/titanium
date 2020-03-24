@@ -60,7 +60,7 @@ export default {
         Ti.Be.EditIt(this.$el, {
           text: this.TheValue,
           ok : (newVal)=> {
-            this.$emit("change", newVal)
+            this.$notify("change", newVal)
           }
         })
       }

@@ -1,15 +1,7 @@
 /////////////////////////////////////////////////////
-export default {
+const _M = {
   ///////////////////////////////////////////////////
   inject : ["$table"],
-  ///////////////////////////////////////////////////
-  provide : function() {
-    return {
-      "$EmitBy" : (name, ...args)=>{
-        console.log("TableCell:", name, args)
-      }
-    }
-  },
   ///////////////////////////////////////////////////
   data: ()=>({
     isEditingMode : false,
@@ -204,7 +196,7 @@ export default {
     },
     //-----------------------------------------------
     OnItemChanged(item, payload) {
-      this.$table.$notify('item:change', {
+      this.$table.$notify("cell:item:change", {
         rowId     : this.rowId,
         cellIndex : this.index,
         index     : this.rowIndex,
@@ -230,3 +222,4 @@ export default {
   }
   ///////////////////////////////////////////////////
 }
+export default _M;

@@ -87,7 +87,7 @@ export default {
     //-----------------------------------------------
     OnClickChecker($event={}) {
       if(this.checkable) {
-        this.$emit("checker", {
+        this.$notify("checker", {
           rowId  : this.rowId,
           shift  : $event.shiftKey,
           toggle : ($event.ctrlKey || $event.metaKey)
@@ -98,7 +98,7 @@ export default {
     OnClickRow($event={}) {
       let toggle = ($event.ctrlKey || $event.metaKey)
       if(this.selectable && (!this.isCurrent || !this.isChecked || toggle)) {
-        this.$emit("select", {
+        this.$notify("select", {
           rowId  : this.rowId,
           shift  : $event.shiftKey,
           toggle
@@ -109,7 +109,7 @@ export default {
     OnDblClickRow($event={}) {
       if(this.openable) {
         $event.stopPropagation()
-        this.$emit("open", {
+        this.$notify("open", {
           rowId  : this.rowId
         })
       }

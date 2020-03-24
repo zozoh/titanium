@@ -66,19 +66,14 @@ const WN_MANAGER_COMPUTED = {
         data    : this.data,
         status  : this.status
       }
-      let actions = this.actions
+      //let actions = this.actions
       // Add init hook to store the $main
       comConf.onInit = function(){
-        console.log("onInit:", this.tiComId)
+        //console.log("onInit:", this.tiComId)
         app.$vmMain(this)
-        app.reWatchShortcut(actions)
       }
       // Done
-      return {
-        meta    : this.meta,
-        comType : this.comType,
-        comConf : comConf
-      }
+      return comConf
     }
   }
   //.........................................

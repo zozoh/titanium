@@ -147,7 +147,7 @@ export default {
     },
     //--------------------------------------
     updateParentActionMenu() {
-      this.$emit("actions:updated", {
+      this.$notify("actions:update", {
         data : [{
             key  : "create",
             text : "i18n:add-item",
@@ -186,7 +186,7 @@ export default {
       _.forEach(data, (it)=>{
         list.push(_.pick(it, "icon", "title", "type", "value"))
       })
-      this.$emit("change", list)
+      this.$notify("change", list)
     },
     //--------------------------------------
     __recover_selected(pos, len) {

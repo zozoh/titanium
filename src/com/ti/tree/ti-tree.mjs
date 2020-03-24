@@ -1,16 +1,4 @@
 const TI_TREE = {
-  ///////////////////////////////////////////
-  provide : function() {
-    return {
-      "$EmitBy" : (name, ...args)=>{
-        if("item:change" == name) {
-          this.OnItemChanged(_.first(args))
-        } else {
-          this.$notify(name, ...args)
-        }
-      }
-    }
-  },
   //////////////////////////////////////////
   data : ()=>({
     "myTreeTableData"   : [],
@@ -319,10 +307,11 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
-    OnItemChanged({name, value, rowId}={}) {
+    OnCellItemChange({name, value, rowId}={}) {
+      console.log("OnCellItemChange", {name, value, rowId})
       let row = this.findTableRow(rowId)
       if(row) {
-        this.$notify("item:change", {
+        this.$notify("node:item:change", {
           name,
           value,
           node   : row,
@@ -332,7 +321,7 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
-    OnRowSelected({currentId, checkedIds={}}={}) {
+    OnRowSelect({currentId, checkedIds={}}={}) {
       let current, selected=[]
       // Has selected
       if(currentId) {
@@ -364,7 +353,7 @@ const TI_TREE = {
         }
       }
       // Emit the value
-      this.$emit("select", {
+      this.$notify("select", {
         current, selected,
         currentId, checkedIds
       })
@@ -382,6 +371,13 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
+    OnRowOpen({id}={}) {
+      let row = this.findTableRow(id)
+      if(row && !row.leaf && !row.opened) {
+        this.openRow(row)
+      }
+    },
+    //--------------------------------------
     openRow(rowOrId) {
       let row = _.isString(rowOrId) 
                   ? this.findTableRow(rowOrId)
@@ -389,7 +385,7 @@ const TI_TREE = {
       if(row && !row.leaf && !row.opened) {
         this.$set(this.myOpenedNodePaths, row.pathId, true)
         // Notify status changed
-        this.$emit("opened", row)
+        this.$notify("opened", row)
         // Save to Local
         this.saveNodeOpenStatus()
       }
@@ -402,7 +398,7 @@ const TI_TREE = {
       if(row && !row.leaf && row.opened) {
         this.$set(this.myOpenedNodePaths, row.pathId, false)
         // Notify status changed
-        this.$emit("closed", row)
+        this.$notify("closed", row)
         // Save to Local
         this.saveNodeOpenStatus()
       }
@@ -412,7 +408,7 @@ const TI_TREE = {
       if(this.keepOpenBy) {
         Ti.Storage.session.setObject(this.keepOpenBy, this.myOpenedNodePaths)
       }
-      this.$emit("opened-status:changed", this.myOpenedNodePaths)
+      this.$notify("opened-status:changed", this.myOpenedNodePaths)
     },
     //--------------------------------------
     syncOpenedNodePaths() {
@@ -454,7 +450,7 @@ const TI_TREE = {
     if(this.keepOpenBy) {
       this.myOpenedNodePaths = Ti.Storage.session.getObject(this.keepOpenBy)
       if(!this.puppetMode) {
-        this.$emit("opened-status:changed", this.myOpenedNodePaths)
+        this.$notify("opened-status:changed", this.myOpenedNodePaths)
       }
     }
     //................................

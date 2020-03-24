@@ -1,17 +1,5 @@
 const _M = {
   ////////////////////////////////////////////////
-  provide : function() {
-    return {
-      "$EmitBy" : (name, ...args)=>{
-        if("select" == name) {
-          this.OnSelected(...args)
-        } else {
-          this.$notify(name, ...args)
-        }
-      }
-    }
-  },
-  ////////////////////////////////////////////////
   data: ()=>({
     myCurrentId  : null,
     myCheckedIds : {},
@@ -120,18 +108,17 @@ const _M = {
   ////////////////////////////////////////////////
   methods : {
     //--------------------------------------------
+    OnListInit($list){this.$innerList = $list},
+    //--------------------------------------------
     // Events
     //--------------------------------------------
-    OnSelected({current, checked, currentId, checkedIds, currentIndex}) {
-      //console.log("onSelected", currentIndex, current)
+    OnSelected({currentId, checkedIds}) {
+      console.log("onSelected", currentId, checkedIds)
       // For Desktop
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds
 
-      this.$notify("select", {
-        current, currentId, currentIndex,
-        checked, checkedIds
-      })
+      return {stop:false}
     },
     //--------------------------------------------
     async OnDropFiles(files) {
@@ -189,9 +176,11 @@ const _M = {
       })
     },
     //--------------------------------------------
-    // invokeList(methodName) {
-    //   Ti.InvokeBy(this.$innerList, methodName)
-    // },
+    // For global menu invoke checkAll/cancleAll
+    invokeList(methodName) {
+      console.log("methodName")
+      Ti.InvokeBy(this.$innerList, methodName)
+    },
     //--------------------------------------------
     isHiddenItem(it) {
       if(it.nm.startsWith(".") && !this.myExposeHidden) {

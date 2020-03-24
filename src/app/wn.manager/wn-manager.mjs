@@ -1,34 +1,5 @@
 const WN_MANAGER_MIXINS = {
   ///////////////////////////////////////////
-  provide : function() {
-    return {
-      "$EmitBy" : (name, ...args)=>{
-        this.$receive(name, args, {
-          "expose-hidden" : (eh)=>{
-            this.myExposeHidden = eh
-          },
-          // sidebar or title
-          "item:active" : (it)=>{
-            this.openView(it.id || it.path || it.value)
-          },
-          // For uinfo
-          "do:logout" : ()=>{
-            this.doLogout()
-          },
-          "arena>open" : (o)=>{
-            this.openView(o.id)
-          },
-          "arena>change" : (content)=>{
-            this.notifyChange(content)
-          },
-          "arena>actions:update" : (actions)=>{
-            this.updateActions(actions)
-          }
-        })
-      }
-    }
-  },
-  ///////////////////////////////////////////
   data:()=>({
     myExposeHidden : false,
     loading : false,
@@ -171,13 +142,26 @@ const WN_MANAGER_MIXINS = {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    notifyChange(data) {
+    OnExposeHidden(eh) {
+      this.myExposeHidden = eh
+    },
+    //--------------------------------------
+    OnLogout() {
+      this.doLogout()
+    },
+    //--------------------------------------
+    OnCurrentMetaChange({id, path, value}={}) {
+      this.openView(id || path || value)
+    },
+    //--------------------------------------
+    OnCurrentDataChange(data){
       Ti.App(this).dispatch("current/changeContent", data);
     },
     //--------------------------------------
-    updateActions(actions) {
-      console.log("updateActions", actions)
+    OnUpdateActions(actions) {
+      console.log("OnUpdateAction", actions)
       this.actions = _.cloneDeep(actions)
+      Ti.App(this).reWatchShortcut(actions)
     },
     //--------------------------------------
     async openView(oid) {

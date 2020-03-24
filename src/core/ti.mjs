@@ -16,7 +16,6 @@ import Http         from "./http.mjs"
 import I18n         from "./i18n.mjs"
 import Icons        from "./icons.mjs"
 import Fuse         from "./fuse.mjs"
-import Install      from "./install.mjs"
 import Random       from "./random.mjs"
 import Storage      from "./storage.mjs"
 import Shortcut     from "./shortcut.mjs"
@@ -33,6 +32,8 @@ import Num          from "./num.mjs"
 import Css          from "./css.mjs"
 import Mapping      from "./mapping.mjs"
 import { Dict, DictFactory } from "./dict.mjs"
+import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
+import {VueTiCom} from "./vue/vue-ti-com.mjs"
 //---------------------------------------
 const ENV = {
   "version" : "1.0",
@@ -62,9 +63,14 @@ const G_FUNCS = {}
 //---------------------------------------
 export const Ti = {
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
-  Icons, I18n, Install, Shortcut, Fuse, Random, Storage, Types, Viewport,
+  Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
   WWW, GPS, Validate, DateTime, Num, Websocket, Trees,
   Mapping, Dict, DictFactory,
+  //-----------------------------------------------------
+  Vue: {
+    EventBubble : VueEventBubble,
+    TiCom       : VueTiCom
+  },
   //-----------------------------------------------------
   Alert, Confirm, Prompt, Toast, Captcha, 
   //-----------------------------------------------------

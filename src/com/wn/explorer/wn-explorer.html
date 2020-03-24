@@ -18,7 +18,7 @@
         <ul class="as-address-bar">
           <li v-for="an in ancestors" :key="an.id">
             <a :href="getObjLink(an)"
-              @click.prevent="$emit('main:open', an)">{{getObjTitle(an)}}</a>
+              @click.prevent="$notify('main:open', an)">{{getObjTitle(an)}}</a>
             <ti-icon class="center" value="chevron_right"/>
           </li>
           <li v-if="meta">

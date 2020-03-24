@@ -58,7 +58,7 @@ export default {
         this.value.race = ""
       }
       this.onChange()
-      this.$emit("input", this.value)
+      this.$notify("input", this.value)
     },
     onChange() {
       let name = this.$refs.input.value
@@ -77,7 +77,7 @@ export default {
         }
       }
 
-      this.$emit("input", this.value)
+      this.$notify("input", this.value)
     }
   },
   mounted : function(){

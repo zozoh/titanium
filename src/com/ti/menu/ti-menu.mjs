@@ -56,7 +56,8 @@ export default {
       enableBy, disableBy, 
       altDisplay,
       action, 
-      items
+      items,
+      wait
     }, dftKey){
       let it = {
         key  : key  || dftKey,   // Action item must contains a key
@@ -65,7 +66,7 @@ export default {
         shortcut,
         icon, text, tip,
         enableBy, disableBy, 
-        action
+        action, wait
       }
       // mark altDisplay
       if(_.isPlainObject(altDisplay)) {

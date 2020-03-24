@@ -122,7 +122,7 @@ export default {
         hex = "#" + hex
       }
       let co = Ti.Types.toColor(hex)
-      this.$emit("change", co)
+      this.$notify("change", co)
     },
     //---------------------------------------------------
     onAlphaChanged(a) {
@@ -130,7 +130,7 @@ export default {
                 ? this.theColor.clone()
                 : Ti.Types.toColor("black")
       co.alpha = a / 100
-      this.$emit("change", co)
+      this.$notify("change", co)
     },
     //---------------------------------------------------
     onColorClicked(color) {
@@ -138,7 +138,7 @@ export default {
       if(_.isNumber(this.theAlpha)) {
         co.alpha = this.theAlpha/100
       }
-      this.$emit("change", co)
+      this.$notify("change", co)
     }
     //---------------------------------------------------
   }

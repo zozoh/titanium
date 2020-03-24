@@ -11,5 +11,6 @@
   :current-id="myTreeCurrentPathId"
   :default-open-depth="2"
   :fields="TreeFields"
-  @item:change="OnItemChanged"
+  @select
+  @node:item:change="OnNodeItemChange"
   @opened-status:changed="OnOpenedStatusChanged"/>

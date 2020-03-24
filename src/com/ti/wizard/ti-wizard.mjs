@@ -14,10 +14,6 @@ export default {
       type : [Number, String],
       default : 0
     },
-    "hijackable" : {
-      type : Boolean,
-      default : true
-    },
     "canClickHeadItem" : {
       type : String,
       default : null
@@ -148,7 +144,7 @@ export default {
     gotoStep(keyOrIndex) {
       let step = this.getStepBy(keyOrIndex)
       if(step)
-        this.$emit("goto-step", step)
+        this.$notify("goto-step", step)
     },
     //----------------------------------------------
     gotoPrev(off=-1) {
@@ -209,7 +205,7 @@ export default {
       console.log("wizard:onStepEvent", {emitName, nextStep, payload})
       // Notify Event
       if(emitName) {
-        this.$emit(emitName, payload)
+        this.$notify(emitName, payload)
       }
       // Try auto goto nextStep
       this.gotoStep(nextStep)

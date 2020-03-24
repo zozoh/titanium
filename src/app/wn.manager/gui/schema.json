@@ -11,7 +11,7 @@
     "comType" : "ti-crumb",
     "comConf" : "=Crumb"
   },
-  "pcSkyUserInfo" : {
+  "pcSkySession" : {
     "comType" : "ti-web-session-badge",
     "comConf" : "=SessionBadge"
   },
@@ -28,7 +28,7 @@
     }
   },
   "pcMainArena" : {
-    "comType" : "wn-gui-arena",
+    "comType" : "=comType",
     "comConf" : "=Arena"
   },
   "pcFooter" : {

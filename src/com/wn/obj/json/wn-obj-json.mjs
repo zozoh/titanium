@@ -26,7 +26,7 @@ export default {
   ////////////////////////////////////////////
   methods : {
     onChangeContent(newData) {
-      this.$emit("change", newData)
+      this.$notify("change", newData)
     }
   },
   ////////////////////////////////////////////

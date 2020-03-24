@@ -4,11 +4,8 @@ export const TiShortcut = {
    * Get the function from action
    * 
    * @param action{String|Object|Function}
-   * @param funcBy{Function} : Cutomized function generator
-   *    with arguments `({mode, name, args}, context):Function`.
-   *    the `context` should be the `contextBy` result.
-   *    If without defined or return undefined, it will get the 
-   *    function from context by {context, mode, name}
+   * @param $com{Vue|Function}: function for lazy get Vue instance
+   * @param argContext{Object}
    * @param wait{Number} : If `>0` it will return the debounce version
    * 
    * @return {Function} the binded function call.
@@ -21,8 +18,14 @@ export const TiShortcut = {
     //..........................................
     const __bind_it = fn => {
       return wait > 0
-        ? _.debounce(fn, wait)
+        ? _.debounce(fn, wait, {leading:true})
         : fn
+    }
+    //..........................................
+    const __vm = com => {
+      if(_.isFunction(com))
+        return com()
+      return com
     }
     //..........................................
     // Command in Function
@@ -63,37 +66,41 @@ export const TiShortcut = {
         throw Ti.Err.make("e.action.invoke.NotFunc : " + action, {action})
       }
       func = ()=>{
-        fn.apply($com, __as)
+        let vm = __vm($com)
+        fn.apply(vm, __as)
       }
     }
     //..........................................
     // $emit:
-    else if("$emit" == mode) {
-      if(!$com) {
-        throw Ti.Err.make("e.action.emit.NoCom : " + action, {action})
-      }
+    else if("$emit" == mode || "$notify" == mode) {
       func = ()=>{
-        $com.$emit(name, ...__as)
+        let vm = __vm($com)
+        if(!vm) {
+          throw Ti.Err.make("e.action.emit.NoCom : " + action, {action})
+        }
+        vm[mode](name, ...__as)
       }
     }
     //..........................................
     // $parent: method
     else if("$parent" == mode) {
-      let fn = $com[name]
-      if(!_.isFunction(fn)) {
-        throw Ti.Err.make("e.action.call.NotFunc : " + action, {action})
-      }
       func = ()=>{
-        fn.apply($com, __as)
+        let vm = __vm($com)
+        let fn = vm[name]
+        if(!_.isFunction(fn)) {
+          throw Ti.Err.make("e.action.call.NotFunc : " + action, {action})
+        }
+        fn.apply(vm, __as)
       }
     }
     //..........................................
     // App Methods
     else {
-      let app  = Ti.App($com)
-      let fn   = app[mode]
-      let _as2 = _.concat(name, __as)
       func = ()=>{
+        let vm = __vm($com)
+        let app  = Ti.App(vm)
+        let fn   = app[mode]
+        let _as2 = _.concat(name, __as)
         fn.apply(app, _as2)
       }
     }

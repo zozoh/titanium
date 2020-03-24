@@ -1,11 +1,6 @@
 const _M = {
   inheritAttrs : false,
   ///////////////////////////////////////////////////
-  inject : {
-    "$EmitBy" : {default:undefined},
-    "primaryNotify" : {default:false}
-  },
-  ///////////////////////////////////////////////////
   computed :{
     //-----------------------------------------------
     // Auto PageMode
@@ -84,62 +79,18 @@ const _M = {
     //-----------------------------------------------
     setActived() {
       this.__set_actived()
-    },
-    //-----------------------------------------------
-    $notify(name, ...args) {
-      console.log("$notify", name, args)
-      // Customized notify
-      if(!this.primaryNotify && _.isFunction(this.$EmitBy)) {
-        this.$EmitBy(name, ...args)
-      }
-      // Primary Emit
-      else {
-        this.$emit(name, ...args)
-      }
-    },
-    //-----------------------------------------------
-    $receive(name, args=[], FuncSet={}){
-      // Parse Handler
-      let {block, event} = Ti.Util.explainEventName(name)
-      console.log(`${this.tiComId}.$receive`, {name, block, event, args, a0:_.first(args)})
-
-      // Find Event Handler
-      let fn = FuncSet[name] || FuncSet[event]
-
-      // Invoke Event Handler
-      if(_.isFunction(fn)) {
-        fn.apply(this, args)
-      }
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   created : async function(){
     //...............................................
-    // Hijack the emit by $parent
-    if(!this.hijackEmit) {
-      if(this.$parent 
-        && this.$parent.hijackable
-        && _.isFunction(this.$parent.hijackEmit)) {
-        //const __old_emit = this.$emit
-        this.$emit = async (name, ...args) => {
-          //await __old_emit.apply(this, [name, ...args])
-          // Ignore the VueDevTool Event
-          if(/^hook:/.test(name)) {
-            return
-          }
-          // Do emit hijacking
-          await this.$parent.hijackEmit(name, args)
-        }
-      }
-    }
-    //...............................................
     // Auto mark self as actived Component in App
     this.__set_actived = ()=>{
       if(!this.isSelfActived) {
         //console.log("I am actived", this)
         Ti.App(this).setActivedVm(this)
-        //this.$emit("com:actived", this)
+        //this.$notify("com:actived", this)
       }
     }
     //...............................................
@@ -159,7 +110,7 @@ const _M = {
   destroyed : function(){
     //console.log("destroyed", this.$el)
     if(Ti.App(this).setBlurredVm(this)) {
-      this.$emit("com:blurred", this)
+      this.$notify("com:blurred", this)
     }
   }
   ///////////////////////////////////////////////////

@@ -18,17 +18,6 @@ export default {
       }
     }
     //----------------------------------------
-  },
-  ///////////////////////////////////////////
-  methods : {
-    onChanged(payload) {
-      //console.log("changed", payload)
-      this.$emit("change", payload)
-    },
-    onInvalid(payload) {
-      //console.log("invalid", payload)
-      this.$emit("invalid", payload)
-    }
   }
   ///////////////////////////////////////////
 }

@@ -97,7 +97,7 @@ export default {
         }
       })[key](val)
 
-      this.$emit("change", d)
+      this.$notify("change", d)
     }
     //------------------------------------------------
   }

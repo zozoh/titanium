@@ -131,7 +131,7 @@ export default {
         await Wn.Sys.exec2(`rm id:${this.oImage.id}`)
       }
       // Notify the change
-      this.$emit("change", null)
+      this.$notify("change", null)
     },
     //--------------------------------------
     async onUpload(file) {
@@ -198,7 +198,7 @@ export default {
       // done
       this.src_ts = Date.now()
       this.oImage = data
-      this.$emit("change", data)
+      this.$notify("change", data)
     },
     //--------------------------------------
     async reload() {

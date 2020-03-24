@@ -76,7 +76,7 @@ export default {
   methods : {
     //--------------------------------------
     onClickCheckBtn() {
-      this.$emit("pay-check")
+      this.$notify("pay-check")
     },
     //--------------------------------------
     async watchPaymentChanged() {
@@ -117,7 +117,7 @@ export default {
   watch : {
     "orderData.st" : function() {
       if(/^(OK|FAIL)$/.test(this.orderData.st)) {
-        this.$emit("pay-done")
+        this.$notify("pay-done")
       }
     }
   },

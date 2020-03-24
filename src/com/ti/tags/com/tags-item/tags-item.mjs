@@ -165,11 +165,11 @@ export default {
   methods : {
     //------------------------------------------------
     onClickDel() {
-      this.$emit("remove", this.theData)
+      this.$notify("remove", this.theData)
     },
     //------------------------------------------------
     onClickOption({value,text,icon}={}) {
-      this.$emit("change", {
+      this.$notify("change", {
         value,text,icon,
         index: this.index
       })
@@ -188,7 +188,7 @@ export default {
       }
       // Emit event
       if(this.href) {
-        this.$emit("fire", this.theData)
+        this.$notify("fire", this.theData)
       }
     },
     //------------------------------------------------

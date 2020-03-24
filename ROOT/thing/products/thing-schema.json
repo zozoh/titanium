@@ -113,14 +113,8 @@
           "type"    : "DateTime",
           "comConf" : {"format":"yyyy年MM月dd日 HH:mm:ss"}
         }],
-      "updateBy" : {
-        "method" : "dispatch",
-        "target" : "main/updateCurrent"
-      },
-      "setFieldStatusBy" : {
-        "method" : "commit",
-        "target" : "main/current/setMetaFieldStatus"
-      }
+      "updateBy" : "dispatch:main/updateCurrent",
+      "setFieldStatusBy" : "commit:main/current/setMetaFieldStatus"
     }
   },
   "content" : {

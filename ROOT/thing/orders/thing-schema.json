@@ -245,14 +245,8 @@
               "type"  : "AMS"
             }]
         }],
-      "updateBy" : {
-        "method" : "dispatch",
-        "target" : "main/updateCurrent"
-      },
-      "setFieldStatusBy" : {
-        "method" : "commit",
-        "target" : "main/current/setMetaFieldStatus"
-      }
+      "updateBy" : "dispatch:main/updateCurrent",
+      "setFieldStatusBy" : "commit:main/current/setMetaFieldStatus"
     }
   }
 }

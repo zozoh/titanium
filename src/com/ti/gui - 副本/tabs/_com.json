@@ -1,7 +1,0 @@
-{
-  "name" : "ti-gui-tabs",
-  "globally" : true,
-  "template" : "./ti-gui-tabs.html",
-  "mixins"   : ["./ti-gui-tabs.mjs"],
-  "components" : ["@com:ti/gui/block"]
-}

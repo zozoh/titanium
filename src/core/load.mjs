@@ -51,8 +51,8 @@ const MjsLoading = new UnifyResourceLoading(async (url)=>{
     // TODO: QQBrowser will drop cookie when import the module js
     // I need auto-dected the browser type to decide in runtime
     // for use the polyfill-dynamic-import or native one
-    return await importModule(url)
-    //return await import(url)
+    //return await importModule(url)
+    return await import(url)
   }
   catch(E) {
     if(Ti.IsWarn("TiLoad")) {

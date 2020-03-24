@@ -1,7 +1,0 @@
-{
-  "name" : "ti-gui-panel",
-  "globally" : true,
-  "template" : "./ti-gui-panel.html",
-  "mixins"   : ["./ti-gui-panel.mjs"],
-  "components" : ["@com:ti/gui/block"]
-}

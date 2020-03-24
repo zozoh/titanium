@@ -61,7 +61,7 @@ export default {
     },
     //-----------------------------------------------
     onItemChanged({name,value}={}) {
-      this.$emit("item:changed", {
+      this.$notify("item:changed", {
         name, value,
         rowId : this.rowId,
         data  : this.data
@@ -69,7 +69,7 @@ export default {
     },
     //-----------------------------------------------
     OnClickIcon($event) {
-      this.$emit("icon", {
+      this.$notify("icon", {
         rowId  : this.rowId,
         shift  : $event.shiftKey,
         toggle : ($event.ctrlKey || $event.metaKey)

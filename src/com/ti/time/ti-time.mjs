@@ -94,7 +94,7 @@ export default {
     onListSelected(key, {current}={}) {
       let tm = this.theTime.clone()
       tm[key] = _.get(current, "value") || 0
-      this.$emit("change", tm)
+      this.$notify("change", tm)
     }
     //------------------------------------------------
   }

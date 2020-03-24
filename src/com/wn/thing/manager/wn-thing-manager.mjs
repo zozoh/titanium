@@ -1,13 +1,5 @@
 const _M = {
   ///////////////////////////////////////////
-  provide : function() {
-    return {
-      "$EmitBy" : async (name, ...args)=>{
-        await this.DoEvent(name, args)
-      }
-    }
-  },
-  ///////////////////////////////////////////
   props : {
     // Thing Set Home
     "meta" : {
@@ -114,17 +106,41 @@ const _M = {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    async invoke(fnName) {
-      //console.log("invoke ", fnName)
-      let fn = _.get(this.schemaMethods, fnName)
-      // Invoke the method
-      if(_.isFunction(fn)) {
-        return await fn.apply(this, [])
-      }
-      // Throw the error
-      else {
-        throw Ti.Err.make("e.thing.fail-to-invoke", fnName)
-      }
+    OnListSelect({current, currentId, checkedIds}) {
+      Ti.App(this).dispatch("main/setCurrentThing", {
+        meta: current, 
+        currentId,
+        checkedIds
+      })
+    },
+    //--------------------------------------
+    OnListOpen({rawData}) {
+      let app = Ti.App(this)
+      app.dispatch("main/config/updateShown", this.config.listOpen)
+      // Update Current
+      app.dispatch("main/setCurrentThing", {meta: rawData})
+    },
+    //--------------------------------------
+    OnContentChange(content) {
+      let app = Ti.App(this)
+      app.dispatch("main/current/changeContent", content)
+      app.commit("main/syncStatusChanged")
+    },
+    //--------------------------------------
+    OnPagerChangePageNumber(pn) {
+      let app = Ti.App(this)
+      app.commit("main/search/updatePager", {pn})
+      app.dispatch("main/search/reload")
+    },
+    //--------------------------------------
+    OnPagerChangePageSize(pgsz) {
+      let app = Ti.App(this)
+      app.commit("main/search/updatePager", {pgsz, pn:1})
+      app.dispatch("main/search/reload")
+    },
+    //--------------------------------------
+    OnViewCurrentSource() {
+      this.viewCurrentSource()
     },
     //--------------------------------------
     async changeShown(shown={}) {
@@ -267,6 +283,19 @@ const _M = {
 
       // Update the current editing
       Ti.App(this).dispatch("main/setCurrentContent", newContent)
+    },
+    //--------------------------------------
+    async invoke(fnName) {
+      //console.log("invoke ", fnName)
+      let fn = _.get(this.schemaMethods, fnName)
+      // Invoke the method
+      if(_.isFunction(fn)) {
+        return await fn.apply(this, [])
+      }
+      // Throw the error
+      else {
+        throw Ti.Err.make("e.thing.fail-to-invoke", fnName)
+      }
     },
     //--------------------------------------
     checkActionsUpdate() {

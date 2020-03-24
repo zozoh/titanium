@@ -131,7 +131,7 @@ export default {
         this.runtime = null
         let rg2 = this.formatRangeValue(rg)
         let rg3 = this.formatEmitRangeValue(rg2)
-        this.$emit("change", rg3)
+        this.$notify("change", rg3)
       }
     },
     //-----------------------------------------------
@@ -159,13 +159,13 @@ export default {
       let rg = this.parseTimeRange(val)
       // Empty Range
       if(_.isEmpty(rg)) {
-        this.$emit("change", null);
+        this.$notify("change", null);
       }
       // Format the Range
       else {
         let rg2 = this.formatRangeValue(rg)
         let rg3 = this.formatEmitRangeValue(rg2)
-        this.$emit("change", rg3);
+        this.$notify("change", rg3);
       }
     },
     //------------------------------------------------

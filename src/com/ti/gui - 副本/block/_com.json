@@ -1,6 +1,0 @@
-{
-  "name" : "ti-gui-block",
-  "globally" : true,
-  "template" : "./ti-gui-block.html",
-  "mixins"   : ["./ti-gui-block.mjs"]
-}

@@ -48,7 +48,7 @@ export default {
   methods : {
     onClickBtn() {
       if(this.value) {
-        this.$emit("pay-buy")
+        this.$notify("pay-buy")
       }
     }
   },
@@ -56,7 +56,7 @@ export default {
   watch : {
     "orderStatusOk" : function(){
       if(this.orderStatusOk) {
-        this.$emit("pay-ready")
+        this.$notify("pay-ready")
       }
     }
   }

@@ -1,25 +1,5 @@
 const _M = {
   //////////////////////////////////////////
-  provide : function() {
-    return {
-      "$EmitBy" : (name, ...args)=>{
-        this.$receive(name, args, {
-          // Tree Component emit changed
-          "tree>change" : (data)=>{
-            this.$notify("change", data)
-          },
-          // Source Component changed, it will try eval json
-          "source>change" : (content)=>{
-            let data = Ti.Types.safeParseJson(content)
-            if(!_.isUndefined(data)) {
-              this.$notify("change", data)
-            }
-          }
-        })
-      }
-    }
-  },
-  //////////////////////////////////////////
   props : {
     "tabAt" : {
       type : String,
@@ -87,7 +67,10 @@ const _M = {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    
+    OnChange(payload) {
+      console.log("TiObjJson->OnChange", payload)
+      this.$notify('change', payload)
+    }
     //--------------------------------------
   }
   //////////////////////////////////////////

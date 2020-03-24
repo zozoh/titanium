@@ -23,6 +23,14 @@ export class OneTiApp {
     this.$store(null)
     this.$vm(null)
     this.$shortcuts = new TiAppActionShortcuts()
+    // this.$shortcuts = new Proxy(sc, {
+    //   set: function (target, propKey, value, receiver) {
+    //     if("actions" == propKey) {
+    //       console.log(`!!!setting ${propKey}!`, value, receiver);
+    //     }
+    //     return Reflect.set(target, propKey, value, receiver);
+    //   }
+    // })
   }
   //---------------------------------------
   name () {return this.$info().name}
@@ -123,24 +131,28 @@ export class OneTiApp {
     return this[TI_VM_ACTIVED]
   }
   //---------------------------------------
-  reWatchShortcut(actions=[], scope=this) {
-    this.unwatchShortcut(scope)
-    this.watchShortcut(actions, scope)
+  reWatchShortcut(actions=[]) {
+    this.unwatchShortcut()
+    this.watchShortcut(actions)
   }
   //---------------------------------------
-  watchShortcut(actions=[], scope=this) {
-    this.$shortcuts.watch(actions, scope, {
-      $com: this.$vmMain(),
+  watchShortcut(actions=[]) {
+    this.$shortcuts.watch(this, actions, {
+      $com: ()=>this.$vmMain(),
       argContext: this.currentData()
     })
   }
   //---------------------------------------
-  unwatchShortcut(scope, ...uniqKeys) {
-    this.$shortcuts.unwatch(scope, ...uniqKeys)
+  unwatchShortcut(...uniqKeys) {
+    this.$shortcuts.unwatch(this, ...uniqKeys)
   }
   //---------------------------------------
-  guardShortcut(uniqKey, guard, scope=this) {
-    this.$shortcuts.addGuard(uniqKey, guard, scope)
+  guardShortcut(scope, uniqKey, guard) {
+    this.$shortcuts.addGuard(scope, uniqKey, guard)
+  }
+  //---------------------------------------
+  pulloutShortcut(scope, uniqKey, guard) {
+    this.$shortcuts.removeGuard(scope, uniqKey, guard)
   }
   //---------------------------------------
   /***

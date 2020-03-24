@@ -101,7 +101,7 @@ export default {
       if(index >= 0) {
         let values = this.getMyValues()
         values[index] = Ti.Util.fallback(value, null)
-        this.$emit("change", values)
+        this.$notify("change", values)
       }
     },
     //------------------------------------------------
@@ -109,7 +109,7 @@ export default {
       if(index >= 0) {
         let values = this.getMyValues()
         _.pullAt(values, index)
-        this.$emit("change", values)
+        this.$notify("change", values)
       }
     },
     //------------------------------------------------
@@ -117,7 +117,7 @@ export default {
       if(index >= 0) {
         let it = _.nth(this.theData, index)
         if(it) {
-          this.$emit("item:actived", it)
+          this.$notify("item:actived", it)
         }
       }
     },

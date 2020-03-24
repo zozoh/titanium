@@ -1,3 +1,5 @@
+import _M from "../../../ti/support/com_mixins.mjs"
+
 export default {
   //////////////////////////////////////////////////////
   props : {
@@ -10,17 +12,17 @@ export default {
     },
     // {method : "dispatch", target : "main/onChanged"}
     "setDataBy" : {
-      type : Object,
+      type : [String, Object],
       default : null
     },
     // {method : "dispatch", target : "main/changeMeta"}
     "updateBy" : {
-      type : Object,
+      type : [String, Object],
       default : null
     },
     // {method : "commit", target : "main/setFieldStatus"}
     "setFieldStatusBy" : {
-      type : Object,
+      type : [String, Object],
       default : null
     }
   },
@@ -32,22 +34,26 @@ export default {
   methods : {
     //--------------------------------------------------
     doAction(emitName, action, payload) {
-      if(action) {
-        let app = Ti.App(this)
-        app[action.method](action.target, payload)
+      // {method, target}
+      if(_.isPlainObject(action)) {
+        Ti.App(this)[action.method](action.target, payload)
+      }
+      // "method:target"
+      else if(_.isString(action)) {
+        Ti.App(this).exec(action, payload)
       }
       // Just notify $parent
-      else {
-        this.$emit(emitName, payload)
+      else if(action){
+        this.$notify(emitName, payload)
       }
     },
     //--------------------------------------------------
-    OnFieldChanged({name, value}={}) {
+    OnFieldChange({name, value}={}) {
       //console.log("wn-obj-form.field:changed", {name, value})
       this.doAction("field:change", this.updateBy, {name, value})
     },
     //--------------------------------------------------
-    OnChanged(data) {
+    OnChange(data) {
       //console.log("wn-obj-form.changed", data)
       this.doAction("change", this.setDataBy, data)
     },

@@ -27,12 +27,14 @@ export default {
       return /^(Number|Integer|Float)$/.test(this.type)
     },
     //----------------------------------------
+    UniqName() {
+      return _.isArray(this.name)
+        ? this.name.join("-")
+        : this.name
+    },
+    //----------------------------------------
     TheTitle() {
-      if(this.title)
-        return this.title
-      if(_.isArray(this.name))
-        return this.name.join("-")
-      return this.name
+      return this.title || this.UniqName
     },
     //----------------------------------------
     ComClass() {
@@ -120,6 +122,45 @@ export default {
   ////////////////////////////////////////////////
   methods : {
     //--------------------------------------------
+    __before_bubble({name, args}) {
+      if(this.name) {
+        return {
+          name : `${this.UniqName}::${name}`,
+          args
+        }
+      }
+    },
+    //--------------------------------------------
+    OnChange(val) {
+      // Customized value
+      let v2 = val
+      try {
+        //console.log("this.serializer(val):", val)
+        v2 = this.serializer(val)
+        //console.log("field changed", val, v2)
+      }
+      // Invalid 
+      catch(error) {
+        this.$notify("invalid", {
+          errMessage : ""+error,
+          name  : this.name,
+          value : val
+        })
+        return
+      }
+      
+      // apply default
+      v2 = this.evalInputValue(v2)
+
+      // emit event
+      if(!this.checkEquals || !_.isEqual(v2, this.fieldValue)) {
+        this.$notify("change", {
+          name  : this.name,
+          value : v2
+        })
+      }
+    },
+    //--------------------------------------------
     async evalTheCom() {
       let theCom = await this.evalDataForFieldDisplayItem({
         itemData : this.data, 
@@ -144,37 +185,7 @@ export default {
       this.isComReady = true
     },
     //--------------------------------------------
-    onChanged(val) {
-      // Customized value
-      let v2 = val
-      try {
-        //console.log("this.serializer(val):", val)
-        v2 = this.serializer(val)
-        //console.log("field changed", val, v2)
-      }
-      // Invalid 
-      catch(error) {
-        this.$emit("invalid", {
-          errMessage : ""+error,
-          name  : this.name,
-          value : val
-        })
-        return
-      }
-      
-      // apply default
-      v2 = this.formatInputValue(v2)
-
-      // emit event
-      if(!this.checkEquals || !_.isEqual(v2, this.fieldValue)) {
-        this.$emit("change", {
-          name  : this.name,
-          value : v2
-        })
-      }
-    },
-    //--------------------------------------------
-    formatInputValue(val) {
+    evalInputValue(val) {
       // apply default
       if(_.isUndefined(val)){
         return _.cloneDeep(
@@ -202,16 +213,11 @@ export default {
   },
   ////////////////////////////////////////////////
   watch : {
-    "CurrentDisplayItem" : function(){
-      this.evalTheCom()
-    },
-    "data" : function() {
-      this.evalTheCom()
+    "CurrentDisplayItem" : "evalTheCom",
+    "data" : {
+      handler: "evalTheCom",
+      immediate : true
     }
-  },
-  ////////////////////////////////////////////////
-  mounted: function() {
-    this.evalTheCom()
   }
   ////////////////////////////////////////////////
 }

@@ -84,7 +84,7 @@ export default {
           capture : false
         },
         action : ()=>{
-          this.$emit("change", {jsonMutate:"ChangeValueType", args:"Array"})
+          this.$notify("change", {jsonMutate:"ChangeValueType", args:"Array"})
         }
       }, {
         key   : "jvTypeObject",
@@ -95,7 +95,7 @@ export default {
           capture : false
         },
         action : ()=>{
-          this.$emit("change", {jsonMutate:"ChangeValueType", args:"Object"})
+          this.$notify("change", {jsonMutate:"ChangeValueType", args:"Object"})
         }
       }]
       //................................
@@ -105,7 +105,7 @@ export default {
         type : "action",
         icon : "zmdi-plus",
         action : ()=>{
-          this.$emit("change", {jsonMutate : "Add"})
+          this.$notify("change", {jsonMutate : "Add"})
         }
       }]
       //................................
@@ -120,7 +120,7 @@ export default {
           type : "action",
           icon : "zmdi-delete",
           action : ()=>{
-            this.$emit("change", {jsonMutate : "Remove"})
+            this.$notify("change", {jsonMutate : "Remove"})
           }
         })
         // Add More Types
@@ -137,7 +137,7 @@ export default {
             capture : false
           },
           action : ()=>{
-            this.$emit("change", {jsonMutate:"ChangeValueType", args:"Boolean"})
+            this.$notify("change", {jsonMutate:"ChangeValueType", args:"Boolean"})
           }
         })
         // AddType: Number
@@ -150,7 +150,7 @@ export default {
             capture : false
           },
           action : ()=>{
-            this.$emit("change", {jsonMutate:"ChangeValueType", args:"Number"})
+            this.$notify("change", {jsonMutate:"ChangeValueType", args:"Number"})
           }
         })
         // AddType: String
@@ -163,7 +163,7 @@ export default {
             capture : false
           },
           action : ()=>{
-            this.$emit("change", {jsonMutate:"ChangeValueType", args:"String"})
+            this.$notify("change", {jsonMutate:"ChangeValueType", args:"String"})
           }
         })
         // AddType: Nil
@@ -176,7 +176,7 @@ export default {
             capture : false
           },
           action : ()=>{
-            this.$emit("change", {jsonMutate:"ChangeValueType", args:"Nil"})
+            this.$notify("change", {jsonMutate:"ChangeValueType", args:"Nil"})
           }
         })
       }

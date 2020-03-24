@@ -52,7 +52,7 @@ export default {
       this.theCheckedIds = payload.checkedIds
       this.theCurrentId  = payload.currentId
       this.syncCheckStatus()
-      this.$emit("select", payload)
+      this.$notify("select", payload)
     },
     //----------------------------------------------
     syncCheckStatus() {

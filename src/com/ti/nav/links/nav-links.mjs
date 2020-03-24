@@ -77,7 +77,7 @@ export default {
       if(/^(page|action)$/.test(it.type)) {
         evt.preventDefault()
         console.log("onClickLink", "nav:to", it)
-        this.$emit("nav:to", it)
+        this.$notify("nav:to", it)
       }
     }
     //------------------------------------

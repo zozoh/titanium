@@ -5,4 +5,10 @@
   :schema="GuiSchema"
   :shown="GuiShown"
   :can-loading="GuiCanLoading"
-  :loading-as="GuiLoadingAs"/>
+  :loading-as="GuiLoadingAs"
+  @arena::expose-hidden="OnExposeHidden"
+  @do:logout="OnLogout"
+  @item:active="OnCurrentMetaChange"
+  @arena::open="OnCurrentMetaChange"
+  @arena::change="OnCurrentDataChange"
+  @arena::actions:update="OnUpdateActions"/>

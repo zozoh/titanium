@@ -52,19 +52,18 @@ export class TiAppActionShortcuts {
   //////////////////////////////////////////////
   // Methods
   //////////////////////////////////////////////
-  bindInvoke(action, argContext={}, wait=100) {
-    return Ti.Shortcut.genActionInvoking(action, ({mode,name,args})=>{
-      let app = Ti.App.topInstance()
-      let fn = _.get(app, mode)
-      if(_.isFunction(fn)) {
-        let __args = Ti.S.joinArgs(args, [name])
-        return ()=>fn.apply(app, __args)
-      }
-      throw `AppShortcuts.action noexits: ${mode}.${name}(${args.join(",")})`
-    }, {wait})
+  //--------------------------------------------
+  addGuard(scope, uniqKey, guard) {
+    if(uniqKey && _.isFunction(guard)) {
+      Ti.Util.pushValue(this.guards, uniqKey, {scope, func:guard})
+    }
   }
   //--------------------------------------------
-  isWatched(uniqKey, scope) {
+  removeGuard(scope, ...uniqKeys) {
+    this.guards = this.__remove_by(this.guards, scope, uniqKeys)
+  }
+  //--------------------------------------------
+  isWatched(scope, uniqKey) {
     let as = this.actions[uniqKey]
     if(_.isArray(as)) {
       for(let a of as) {
@@ -76,7 +75,7 @@ export class TiAppActionShortcuts {
     return false
   }
   //--------------------------------------------
-  watch(actions=[], scope, {
+  watch(scope, actions=[], {
     $com,
     argContext={}
   }={}) {
@@ -86,12 +85,12 @@ export class TiAppActionShortcuts {
       if('group' == aIt.type 
          && _.isArray(aIt.items)
          && aIt.items.length > 0) {
-        this.watch(aIt.items, scope, {$com, argContext})
+        this.watch(scope, aIt.items, {$com, argContext})
       }
       // Action
       else if(aIt.action && aIt.shortcut) {
         // Guarding for duplicated watching
-        if(this.isWatched(aIt.shortcut, scope)) {
+        if(this.isWatched(scope, aIt.shortcut)) {
           return
         }
         // Gen invoke function
@@ -108,42 +107,37 @@ export class TiAppActionShortcuts {
     })
   }
   //--------------------------------------------
-  addGuard(uniqKey, guard, scope) {
-    if(uniqKey && _.isFunction(guard)) {
-      Ti.Util.pushValue(this.guards, uniqKey, {scope, func:guard})
-    }
-  }
-  //--------------------------------------------
   unwatch(scope, ...uniqKeys) {
-    this.__remove_by(this.actions, scope, uniqKeys)
-    this.__remove_by(this.guards, scope, uniqKeys)
+    this.actions = this.__remove_by(this.actions, scope, uniqKeys)
   }
   //--------------------------------------------
   __remove_by(map, scope, ...uniqKeys) {
     let keys = _.flattenDeep(uniqKeys)
-    // Remove All
+    // Clean
     if(!scope && _.isEmpty(keys)) {
       return {}
     }
+    // For all keys
+    if(_.isEmpty(keys)) {
+      keys = _.keys(map)
+    }
     // Remove in loop
-    else {
-      let scopeIsNil = Ti.Util.isNil(scope)
-      let map2 = {}
-      _.forEach(keys, k => {
-        let list = []
-        _.forEach(map[k], a => {
-          if(!scopeIsNil && a.scope !== scope) {
-            list.push(a)
-          }
-        })
-
-        // Join back
-        if(!_.isEmpty(list)) {
-          map2[k] = list
+    let scopeIsNil = Ti.Util.isNil(scope)
+    let map2 = {}
+    _.forEach(keys, k => {
+      let list = []
+      _.forEach(map[k], a => {
+        if(!scopeIsNil && a.scope !== scope) {
+          list.push(a)
         }
       })
-      return map2
-    }
+
+      // Join back
+      if(!_.isEmpty(list)) {
+        map2[k] = list
+      }
+    })
+    return map2
   }
   //--------------------------------------------
   /***

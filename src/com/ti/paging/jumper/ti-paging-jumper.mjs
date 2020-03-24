@@ -43,7 +43,7 @@ export default {
     //--------------------------------------
     jumpTo(pageNumber) {
       if(!this.isInvalidPageNumber(pageNumber)) {
-        this.$emit("change:pn", pageNumber)
+        this.$notify("change:pn", pageNumber)
       }
     },
     //--------------------------------------
@@ -72,7 +72,7 @@ export default {
         return 
       }
       // 通知修改
-      this.$emit("change:pn", pn)
+      this.$notify("change:pn", pn)
     },
     //--------------------------------------
     async onClickSum(){
@@ -95,7 +95,7 @@ export default {
         return 
       }
       // 通知修改
-      this.$emit("change:pgsz", pgsz)
+      this.$notify("change:pgsz", pgsz)
     }
   }
   ///////////////////////////////////////////

@@ -1,9 +1,5 @@
 export default {
   //////////////////////////////////////////////////////
-  provide : {
-    primaryNotify: true
-  },
-  //////////////////////////////////////////////////////
   model : {
     prop  : "data",
     event : "change"
@@ -135,20 +131,15 @@ export default {
     //--------------------------------------------------
     OnClickTab(tab) {
       this.currentTabIndex = tab.index
-      this.$emit("tab:change", tab)
+      this.$notify("tab:change", tab)
     },
     //--------------------------------------------------
-    OnFieldChanged({name, value}={}) {
+    OnFieldChange({name, value}={}) {
       //console.log("------------------------ti-form changed", payload)      
       let data = _.cloneDeep(this.TheData)
       _.set(data, name, value)
-      this.$emit("field:change", {name, value})
-      this.$emit("change", data)
-    },
-    //--------------------------------------------------
-    OnInvalid(err) {
-      //console.log("invalid", err)
-      this.$emit("invalid", err)
+      this.$notify("field:change", {name, value})
+      this.$notify("change", data)
     },
     //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {

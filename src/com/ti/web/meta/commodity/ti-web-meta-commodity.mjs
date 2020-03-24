@@ -46,11 +46,11 @@ export default {
   methods : {
     //......................................
     onClickBuyNow() {
-      this.$emit("buy:now")
+      this.$notify("buy:now")
     },
     //......................................
     onFormChanged({name, value}) {
-      this.$emit("meta:changed", {name, value})
+      this.$notify("meta:changed", {name, value})
     }
     //......................................
   }

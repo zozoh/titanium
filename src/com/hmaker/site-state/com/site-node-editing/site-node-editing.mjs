@@ -75,16 +75,16 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    OnChanged(payload) {
+    OnChange(payload) {
       //console.log("onChanged", payload)
-      this.$emit("change", {
+      this.$notify("change", {
         path : this.path,
         node : this.node,
         payload
       })
     },
     //--------------------------------------
-    OnActionsUpdated(menu={}) {
+    OnActionsUpdate(menu={}) {
       this.myActionMenu = menu
     },
     //--------------------------------------

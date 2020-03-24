@@ -3,10 +3,7 @@ export default {
   ///////////////////////////////////////////////////
   provide : function(){
     return {
-      "$wall" : this,
-      "$EmitBy" : (name, ...args)=>{
-        this.$emit(name, ...args)
-      }
+      "$wall" : this
     }
   },
   //////////////////////////////////////////

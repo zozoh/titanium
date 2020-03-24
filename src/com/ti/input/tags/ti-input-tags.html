@@ -27,10 +27,10 @@
   
   @inputing="onInputInputing"
   @change="onInputChanged"
-  @input:focus="$emit('input:focus')"
-  @prefix:icon="$emit('prefix:icon')"
-  @input:blur="$emit('input:blur')"
-  @suffix:icon="$emit('suffix:icon')">
+  @input:focus="$notify('input:focus')"
+  @prefix:icon="$notify('prefix:icon')"
+  @input:blur="$notify('input:blur')"
+  @suffix:icon="$notify('suffix:icon')">
   <!--
     Tag List
   -->
@@ -46,6 +46,6 @@
       :option-default-icon="tagOptionDefaultIcon"
       :mapping="tagMapping"
       :cancel-item-bubble="cancelTagBubble"
-      @change="$emit('change', $event)"/>
+      @change="$notify('change', $event)"/>
   </div>
 </ti-input>

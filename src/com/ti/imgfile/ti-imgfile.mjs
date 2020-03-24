@@ -70,7 +70,7 @@ export default {
     async onDropFiles(files) {
       let file = _.get(files, 0)
       if(file) {
-        this.$emit("upload", file)
+        this.$notify("upload", file)
       }
     },
     //--------------------------------------
@@ -80,11 +80,11 @@ export default {
     },
     //--------------------------------------
     onRemove() {
-      this.$emit("remove")
+      this.$notify("remove")
     },
     //--------------------------------------
     onOpen() {
-      this.$emit("open")
+      this.$notify("open")
     }
     //--------------------------------------
   }
