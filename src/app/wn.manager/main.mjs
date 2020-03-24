@@ -2,8 +2,7 @@
 export async function main({
   Ti, Wn, 
   rs="/gu/rs", 
-  appName="wn.manager",
-  comMixinPath="@com:ti/support/com_mixins.mjs"
+  appName="wn.manager"
 }={}) {
   //---------------------------------------
   Vue.use(Ti.Vue.EventBubble)
@@ -61,17 +60,6 @@ export async function main({
   //---------------------------------------
   // Update Config Setting
   Ti.Config.set(tiConf)
-  //---------------------------------------
-  // Load the com common mixins 
-  if(comMixinPath) {
-    let comMixins = await Ti.Load(comMixinPath)
-    Ti.Config.set({
-      comDecorator : (com)=>{
-        //console.log("++++++Decorator", com.name)
-        //Ti.Util.pushValue(com, "mixins", comMixins)
-      }
-    })
-  }
   //---------------------------------------
   // setup the i18n
   Ti.I18n.put(await Ti.Load(["@i18n:_ti", "@i18n:_wn"]))

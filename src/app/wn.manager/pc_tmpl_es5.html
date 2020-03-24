@@ -42,8 +42,7 @@ System.import("${rs}/ti/core/ti.js").then(function(){
     System.import("${rs}/ti/app/wn.manager/main.js").then(function(M){
       M.main({
         Ti, Wn, rs:"${rs}",
-        appName : "${appName}",
-        comMixinPath : "!mjs:@com:ti/support/com_mixins.js"
+        appName : "${appName}"
       }).then(o=>{
         if(Ti.IsInfo("main")) {
           console.log("MainLoaded", o)
