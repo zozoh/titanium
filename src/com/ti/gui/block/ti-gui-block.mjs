@@ -81,26 +81,24 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName({
+    TopClass() {
+      return this.getTopClass({
         [`gui-block-${this.name}`] : this.name ? true : false,
         "is-show-header"  : this.isShowHeader,
         "is-hide-header"  : !this.isShowHeader,
         "ti-fill-parent" : /^(tabs|panel)$/.test(this.embedIn)
-      }, [
-        `is-flex-${this.theFlexName}`
-      ], this.className)
+      }, `is-flex-${this.FlexName}`)
     },
     //--------------------------------------
-    topStyle() {
+    TopStyle() {
       return Ti.Css.toStyle(({
         //..................................
         rows:()=>({
-          height: this.theSize
+          height: this.TheSize
         }),
         //..................................
         cols:()=>({
-          width : this.theSize
+          width : this.TheSize
         }),
         //..................................
         tabs:()=>({}),
@@ -110,12 +108,19 @@ export default {
       })[this.embedIn]())
     },
     //--------------------------------------
-    theSize() {
+    MainConClass() {
+      return {
+        "can-flex-none"   : this.isFlexNone,
+        "can-flex-shrink" : !this.isFlexNone
+      }
+    },
+    //--------------------------------------
+    TheSize() {
       return /^(auto|stretch)$/.test(this.size) 
         ? null : this.size
     },
     //--------------------------------------
-    theFlexName() {
+    FlexName() {
       if("auto" == this.flex) {
         if("stretch" == this.size || Ti.Util.isNil(this.size)) {
           return "both"
@@ -123,6 +128,10 @@ export default {
         return "none"
       }
       return this.flex || "both"
+    },
+    //--------------------------------------
+    isFlexNone() {
+      return "none" == this.FlexName
     },
     //--------------------------------------
     isShowHeader() {
@@ -139,7 +148,7 @@ export default {
       return !_.isEmpty(this.actions)
     },
     //--------------------------------------
-    theCom() {
+    TheCom() {
       //....................................
       // Body -> Component
       if(this.body) {

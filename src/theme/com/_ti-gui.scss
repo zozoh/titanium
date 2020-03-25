@@ -296,6 +296,16 @@ $GUI-BLOCK-HEADER-HEIGHT: .4rem;
   //-------------------------------------
   > .block-main {
     width:100%; height:100%; 
+    position: relative;
+    > .block-main-con {
+      &.can-flex-none {
+        width:100%; height:100%;
+      }
+      &.can-flex-shrink {
+        @include pos-abs-full;
+        overflow: hidden;
+      }
+    }
   }
   //-------------------------------------
 }

@@ -54,7 +54,7 @@ export default {
       state.pager = pager
     },
     updatePager(state, pg) {
-      state.pager = _.assign({}, state.pager, pg)
+      state.pager = _.defaults({}, pg, state.pager)
     },
     setList(state, list) {
       state.list = list

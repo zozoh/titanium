@@ -14,12 +14,12 @@ export default {
   },
   ///////////////////////////////////////////
   computed : {
-    pnClass() {
+    PageNumberClass() {
       return this.data.pgc > 1
               ? "is-enabled"
               : "is-disabled"
     },
-    sumClass() {
+    SumClass() {
       return this.data.pgsz > 0
               ? "is-enabled"
               : "is-disabled"
@@ -34,20 +34,23 @@ export default {
         || pageNumber == this.data.pn
     },
     //--------------------------------------
-    btnClass(pageNumber) {
+    getBtnClass(pageNumber) {
       if(this.isInvalidPageNumber(pageNumber)) {
         return "is-disabled"
       }
       return "is-enabled"
     },
     //--------------------------------------
-    jumpTo(pageNumber) {
+    OnJumpTo(pageNumber) {
       if(!this.isInvalidPageNumber(pageNumber)) {
-        this.$notify("change:pn", pageNumber)
+        this.$notify("change", {
+          pn   : pageNumber, 
+          pgsz : this.data.pgsz
+        })
       }
     },
     //--------------------------------------
-    async onClickCurrent() {
+    async OnClickCurrent() {
       // No Necessary
       if(this.data.pgc <= 1)
         return
@@ -72,10 +75,13 @@ export default {
         return 
       }
       // 通知修改
-      this.$notify("change:pn", pn)
+      this.$notify("change", {
+        pn   : pageNumber, 
+        pgsz : this.data.pgsz
+      })
     },
     //--------------------------------------
-    async onClickSum(){
+    async OnClickSum(){
       let msg = Ti.I18n.getf("paging-change-pgsz", this.data)
       let str = await Ti.Prompt(msg, {
         value : this.data.pgsz
@@ -96,6 +102,10 @@ export default {
       }
       // 通知修改
       this.$notify("change:pgsz", pgsz)
+      this.$notify("change", {
+        pn   : 1, 
+        pgsz : pgsz
+      })
     }
   }
   ///////////////////////////////////////////

@@ -2,7 +2,12 @@
 ////////////////////////////////////////////////
 export default {
   //--------------------------------------------
-  async reload({state, commit, dispatch}, meta) {
+  async reloadPage({state, commit, dispatch}, pg) {
+    commit("updatePager", pg)
+    await dispatch("reload")
+  },
+  //--------------------------------------------
+  async reload({state, commit}, meta) {
     //console.log("thing-manager-search.reload", meta)
     // Update New Meta
     if(meta) {

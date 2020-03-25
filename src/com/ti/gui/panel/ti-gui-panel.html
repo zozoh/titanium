@@ -1,8 +1,8 @@
 <div class="ti-gui-panel"
-  :class="topClass"
-  @click.left="onClickMask">
+  :class="TopClass"
+  @click.left="OnClickMask">
   <div class="panel-con"
-    :style="conStyle"
+    :style="ConStyle"
     @click.left.stop>
     <!--
       Block
@@ -29,10 +29,10 @@
     <div
       v-if="hasCloser"
         class="panel-closer"
-        :class="closerClass">
+        :class="CloserClass">
         <ti-icon
           value="zmdi-close"
-          @click.native="onClose"/>
+          @click.native="OnClose"/>
     </div>
   </div>
 </div>

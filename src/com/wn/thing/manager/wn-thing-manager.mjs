@@ -128,16 +128,9 @@ const _M = {
       app.commit("main/syncStatusChanged")
     },
     //--------------------------------------
-    OnPagerChangePageNumber(pn) {
-      let app = Ti.App(this)
-      app.commit("main/search/updatePager", {pn})
-      app.dispatch("main/search/reload")
-    },
-    //--------------------------------------
-    OnPagerChangePageSize(pgsz) {
-      let app = Ti.App(this)
-      app.commit("main/search/updatePager", {pgsz, pn:1})
-      app.dispatch("main/search/reload")
+    OnPagerChange({pn, pgsz}={}) {
+      //console.log("OnPagerChange", {pn, pgsz})
+      Ti.App(this).dispatch("main/search/reloadPage", {pn, pgsz})
     },
     //--------------------------------------
     OnViewCurrentSource() {
@@ -149,7 +142,7 @@ const _M = {
     },
     //--------------------------------------
     showBlock(name) {
-      console.log("showBlock", name)
+      //console.log("showBlock", name)
       // If creator, then must leave the recycle bin
       if("creator" == name) {
         if(this.status.inRecycleBin) {

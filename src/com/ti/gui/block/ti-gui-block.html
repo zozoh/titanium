@@ -1,6 +1,6 @@
 <div class="ti-gui-block" 
-  :class="topClass"
-  :style="topStyle">
+  :class="TopClass"
+  :style="TopStyle">
   <!--
     Header
   -->
@@ -23,11 +23,14 @@
   <!--
     Content
   -->
-  <div class="block-main" v-if="theCom">
-    <component 
-      class="ti-fill-parent"
-      :is="theCom.comType"
-      v-bind="theCom.comConf"/>
+  <div class="block-main" v-if="TheCom">
+    <div class="block-main-con"
+      :class="MainConClass">
+      <component 
+        class="ti-fill-parent"
+        :is="TheCom.comType"
+        v-bind="TheCom.comConf"/>
+    </div>
   </div>
   <!--Blank-->
   <div v-else>

@@ -106,17 +106,15 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName({
+    TopClass() {
+      return this.getTopClass({
         "show-mask" : this.mask,
         "no-mask"   : !this.mask,
         "is-closer-default" : this.isCloserDefault
-      },[
-        `at-${this.position}`
-      ], this.className)
+      }, `at-${this.position}`)
     },
     //--------------------------------------
-    conStyle() {
+    ConStyle() {
       let width  = Ti.Css.toPixel(this.width, this.viewportWidth, this.width)
       let height = Ti.Css.toPixel(this.height, this.viewportHeight, this.height)
       return Ti.Css.toStyle({width, height})
@@ -130,7 +128,7 @@ export default {
       return true === this.closer || "default" == this.closer
     },
     //--------------------------------------
-    closerClass() {
+    CloserClass() {
       return Ti.Css.mergeClassName({
         'as-lamp-cord' : !this.isCloserDefault,
         'as-default'   : this.isCloserDefault,
@@ -148,12 +146,11 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onClose() {
-      console.log("haha")
+    OnClose() {
       this.$gui.onBlockHide(this.name)
     },
     //--------------------------------------
-    onClickMask() {
+    OnClickMask() {
       if(this.clickMaskToClose) {
         this.$gui.onBlockHide(this.name)
       }

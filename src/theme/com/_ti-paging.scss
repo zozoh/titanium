@@ -10,6 +10,7 @@
     @include border(1px, solid, dark);
     @include flex-align-nowrap;
     padding:0 .06rem; margin:0 4px;
+    line-height: 2em;
     &.is-disabled {
       opacity: 0.2; cursor: default;
     }
