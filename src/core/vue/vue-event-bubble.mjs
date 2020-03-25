@@ -11,7 +11,7 @@ const TryBubble = function(vm, event, stop=false) {
 }
 ///////////////////////////////////////////////////
 const Notify = function(name, ...args) {
-  // if(name.endsWith("change"))
+  // if(name.endsWith("select"))
   //   console.log("Notify:", 
   //   `${_.padStart(name, 30, '~')} @ <${_.padEnd(this.tiComId, 15, ' ')}>`,
   //   args)

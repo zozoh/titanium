@@ -113,7 +113,7 @@ const _M = {
     // Events
     //--------------------------------------------
     OnSelected({currentId, checkedIds}) {
-      console.log("onSelected", currentId, checkedIds)
+      //console.log("OnSelected", currentId, checkedIds)
       // For Desktop
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds

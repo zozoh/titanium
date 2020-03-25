@@ -73,7 +73,9 @@ export async function OpenObjSelector(pathOrObj="~", {
         :shown="myShown"
         :can-loading="true"
         :loading-as="status.reloading"
-        @block:event="onBlockEvent"/>`,
+        @sky::item:active="OnCurrentMetaChange"
+        @arena::open="OnCurrentMetaChange"
+        @arena::select="OnArenaSelect"/>`,
       //////////////////////////////////////////
       computed : {
         //--------------------------------------
@@ -136,32 +138,12 @@ export async function OpenObjSelector(pathOrObj="~", {
       //////////////////////////////////////////
       methods : {
         //--------------------------------------
-        async onBlockEvent({block, name, args}={}) {
-          let evKey = _.concat(block||[], name||[]).join(".")
-          //console.log("wn-open-obj:onBlockEvent",evKey, args)
-          // Find Event Handler
-          let FnSet = {
-            //======================================
-            "sky.item:actived" : async ({value})=>{
-              await this.open(`id:${value}`)
-            },
-            //======================================
-            "arena.open" : async ({item})=>{
-              await this.open(item)
-            },
-            //======================================
-            "arena.select" : async ({checked})=>{
-              this.myChecked = _.filter(checked, o=>"FILE"==o.race)
-            }
-            //======================================
-          }
-    
-          let fn = FnSet[evKey] || FnSet[name]
-    
-          // Invoke Event Handler
-          if(_.isFunction(fn)) {
-            await fn.apply(this, args)
-          }
+        OnCurrentMetaChange({id, path, value}={}) {
+          this.open(id || path || value)
+        },
+        //--------------------------------------
+        OnArenaSelect({checked}) {
+          this.myChecked = _.filter(checked, o=>"FILE"==o.race)
         },
         //--------------------------------------
         async open(obj) {
@@ -172,7 +154,7 @@ export async function OpenObjSelector(pathOrObj="~", {
   
           // To WnObj
           if(_.isString(obj)) {
-            obj = await Wn.Io.loadMeta(obj)
+            obj = await Wn.Io.loadMetaBy(obj)
           }
   
           // Only can enter DIR

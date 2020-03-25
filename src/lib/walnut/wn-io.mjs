@@ -17,6 +17,15 @@ export const WnIo = {
     return /^[0-9a-v]{26}(:file:.+)?$/.test(id)
   },
   /***
+   * Get object meta by id(fullobjId) or path
+   */
+  async loadMetaBy(idOrPath) {
+    if(WnIo.isFullObjId(idOrPath)) {
+      return await WnIo.loadMetaById(idOrPath)
+    }
+    return await WnIo.loadMeta(idOrPath)
+  },
+  /***
    * Get object meta by id
    */
   async loadMetaById(id) {

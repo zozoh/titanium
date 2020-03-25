@@ -300,7 +300,7 @@ const _M = {
     },
     //--------------------------------------
     checkActionsUpdate() {
-      console.log("checkActionsUpdate")
+      //console.log("checkActionsUpdate")
       let actions = _.get(this.config, "actions")
       if(_.isArray(actions)) {
         this.$notify("actions:update", actions)
