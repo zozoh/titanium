@@ -1,5 +1,3 @@
-import _M from "../../../ti/support/com_mixins.mjs"
-
 export default {
   //////////////////////////////////////////////////////
   props : {

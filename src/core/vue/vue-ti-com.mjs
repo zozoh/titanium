@@ -46,15 +46,6 @@ const TiComMixin = {
   ///////////////////////////////////////////////////
   created : async function(){
     //...............................................
-    // Auto mark self as actived Component in App
-    this.__set_actived = ()=>{
-      if(!this.isSelfActived) {
-        //console.log("I am actived", this)
-        Ti.App(this).setActivedVm(this)
-        //this.$notify("com:actived", this)
-      }
-    }
-    //...............................................
     // Auto invoke the callback
     if(_.isFunction(this.onInit)) {
       this.onInit(this)
@@ -89,7 +80,7 @@ const TiComMethods = {
       let vm = this.$parent
       while(vm) {
         // Only the `v-ti-actived` marked Com join the parent paths
-        if(vm.$el.__ti_activable__) {
+        if(vm.__ti_activable__) {
           list.push(vm)
         }
         // Look up
@@ -103,14 +94,18 @@ const TiComMethods = {
     // Auto get the parent activable component
     tiParentActivableCom() {
       let $pvm = this.$parent
-      while($pvm && !$pvm.$el.__ti_activable__) {
+      while($pvm && !$pvm.__ti_activable__) {
         $pvm = $pvm.$parent
       }
       return $pvm
     },
     //-----------------------------------------------
     setActived() {
-      this.__set_actived()
+      if(!this.isSelfActived) {
+        //console.log("I am actived", this)
+        Ti.App(this).setActivedVm(this)
+        //this.$notify("com:actived", this)
+      }
     }
     //-----------------------------------------------
 }
@@ -244,19 +239,15 @@ export const VueTiCom = {
     })  // ~ Vue.directive("dragOff"
     //...............................................
     // Directive: v-ti-on-actived="this"
-    Vue.directive("tiActived", {
-      bind : function($el, binding, {context}) {
-        $el.__ti_activable__ = true
+    Vue.directive("tiActivable", {
+      bind : function($el, {value}, {context}) {
+        let vm = context
+        vm.__ti_activable__ = true
         $el.addEventListener("click", function(evt){
-          // Only the closest activable COM of eve.target
-          // can be actived
-          let closestEl = _.find(evt.composedPath(), ($pe)=>{
-            return $pe.__ti_activable__ ? true : false
-          })
-          //console.log($el, closestEl)
-          if(closestEl === $el) {
-            //console.log("do invoke")
-            Ti.Invoke(binding.value)
+          if(!evt.__ti_activable_used__) {
+            evt.__ti_activable_used__ = true
+            //console.log(vm.tiComId, evt)
+            vm.setActived()
           }
         })
       }

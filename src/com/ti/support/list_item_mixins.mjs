@@ -117,7 +117,7 @@ export default {
     //-----------------------------------------------
     doAutoActived() {
       if(!this.isActived && this.isCurrent) {
-        this.__set_actived()
+        this.setActived()
       }
     }
     //-----------------------------------------------

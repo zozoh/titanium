@@ -131,7 +131,7 @@ export default {
       this.$notify("input:focus")
       // Auto Actived
       if(!this.isActived) {
-        this.__set_actived()
+        this.setActived()
       }
     },
     //------------------------------------------------
