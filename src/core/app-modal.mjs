@@ -88,7 +88,7 @@ export class TiAppModal {
           :class="topClass"
           :style="topStyle"
           @click.left="onClickTop"
-          v-ti-actived="__set_actived">
+          v-ti-activable>
 
           <div class="modal-con" 
             :class="theConClass"

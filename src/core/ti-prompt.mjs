@@ -45,7 +45,7 @@ async function Prompt(msg="", {
         value : null
       },
       template : `<div class="ti-msg-body as-prompt"
-        v-ti-actived="__set_actived">
+        v-ti-activable>
         <div class="as-icon"><ti-icon :value="icon"/></div>
         <div class="as-text">
           <div class="as-tip" v-if="text">{{text}}</div>

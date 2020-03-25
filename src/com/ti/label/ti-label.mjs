@@ -104,6 +104,7 @@ export default {
     },
     //--------------------------------------
     async reloadMyDisplay() {
+      this.myDisplayIcon = null
       this.myDisplayText = await this.evalDisplay(this.TheValue)
     }
     //--------------------------------------
