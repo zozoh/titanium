@@ -1,9 +1,5 @@
 export default {
   /////////////////////////////////////////
-  data : ()=>({
-
-  }),
-  /////////////////////////////////////////
   props : {
     // The source to display image
     "src" : {
@@ -40,14 +36,25 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    showRemoveIcon() {
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    ThumbStyle(){
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
+    },
+    //--------------------------------------
+    isShowRemoveIcon() {
       if(!this.uploadFile && this.src) {
         return true
       }
       return false
     },
     //--------------------------------------
-    preview() {
+    PreviewThumb() {
       if(this.uploadFile) {
         return {type:"localFile", value:this.uploadFile}
       }
@@ -63,27 +70,27 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onClickToEdit() {
+    OnClickToEdit() {
       this.$refs.file.click()
     },
     //--------------------------------------
-    async onDropFiles(files) {
+    async OnDropFiles(files) {
       let file = _.get(files, 0)
       if(file) {
         this.$notify("upload", file)
       }
     },
     //--------------------------------------
-    async onSelectLocalFilesToUpload(evt) {
-      await this.onDropFiles(evt.target.files)
+    async OnSelectLocalFilesToUpload(evt) {
+      await this.OnDropFiles(evt.target.files)
       this.$refs.file.value = ""
     },
     //--------------------------------------
-    onRemove() {
+    OnRemove() {
       this.$notify("remove")
     },
     //--------------------------------------
-    onOpen() {
+    OnOpen() {
       this.$notify("open")
     }
     //--------------------------------------

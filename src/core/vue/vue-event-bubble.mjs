@@ -11,10 +11,10 @@ const TryBubble = function(vm, event, stop=false) {
 }
 ///////////////////////////////////////////////////
 const Notify = function(name, ...args) {
-  //if(name.endsWith("change"))
-  // console.log("Notify:", 
-  //  `${_.padStart(name, 30, '~')} @ <${_.padEnd(this.tiComId, 15, ' ')}>`,
-  //  args)
+  // if(name.endsWith("change"))
+  //   console.log("Notify:", 
+  //   `${_.padStart(name, 30, '~')} @ <${_.padEnd(this.tiComId, 15, ' ')}>`,
+  //   args)
   // Prepare the return object, if stop=true will cancel the bubble
   let event = {name, args}
   let stop = false

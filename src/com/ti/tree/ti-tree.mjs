@@ -308,7 +308,7 @@ const TI_TREE = {
     },
     //--------------------------------------
     OnCellItemChange({name, value, rowId}={}) {
-      console.log("OnCellItemChange", {name, value, rowId})
+      //console.log("OnCellItemChange", {name, value, rowId})
       let row = this.findTableRow(rowId)
       if(row) {
         this.$notify("node:item:change", {

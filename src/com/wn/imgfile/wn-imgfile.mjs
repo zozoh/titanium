@@ -15,12 +15,12 @@ export default {
     // Display width
     "width" : {
       type : [String, Number],
-      default : 400
+      default : undefined
     },
     // Display height
     "height" : {
       type : [String, Number],
-      default : 400
+      default : undefined
     },
     // support remove the objects
     "removable" : {
