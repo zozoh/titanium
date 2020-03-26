@@ -29,6 +29,11 @@ www payafter ${or_id}
 #                      API 部分
 #
 ##########################################################
+#---------------------------------------------------------
+#
+#                    通用 Thing 接口
+#
+#---------------------------------------------------------
 # API(thing): 缩略图
 @FILE .regapi/api/thumb
 {
@@ -71,6 +76,10 @@ thing ${http-qs-ts} media ${http-qs-id} -cat '${http-qs-fnm}' \
     -UserAgent '${http-header-USER-AGENT?}'
 %END%
 #---------------------------------------------------------
+#
+#                      微信
+#
+#---------------------------------------------------------
 # API(weixin): 微信响应
 @FILE .regapi/api/weixin/in
 %COPY:
@@ -87,6 +96,10 @@ weixin zozoh oauth2 \
   "http://${hostAndPort}/www/${domain}/page/$${http-qs-page?home}" \
   -scope ${http-qs-scope?snsapi_userinfo}
 %END%
+#---------------------------------------------------------
+#
+#                    www 站点
+#
 #---------------------------------------------------------
 # API(auth): 取得当前账户
 @FILE .regapi/api/auth/checkme
@@ -184,6 +197,10 @@ www captcha id:${http-qs-site} ${http-qs-scene?robot} ${http-qs-account?} \
 www logout id:${http-qs-site?unkonw} ${http-qs-ticket?-nil-} -ajax -cqn
 %END%
 #---------------------------------------------------------
+#
+#                      支付
+#
+#---------------------------------------------------------
 # API : 支付:创建订单和支付单
 @FILE .regapi/api/pay/buy
 %COPY:
@@ -208,6 +225,59 @@ httpparam -in id:${id} | pay re -idkey out_trade_no -s
 @FILE .regapi/api/pay/re_wx
 %COPY:
 xml tojson id:${id} | pay re -idkey out_trade_no -s
+%END%
+#---------------------------------------------------------
+#
+#                    信息流
+#
+#---------------------------------------------------------
+# 我的消息流
+@FILE .regapi/api/newsfeed/mine
+{
+  "http-www-home"   : "~/www",
+  "http-www-ticket" : "http-qs-ticket"
+}
+%COPY:
+newsfeed query \
+  'targetId:"${http-www-me-id}"' \
+  -pn ${http-qs-pn?1} \
+  -pgsz ${http-qs-pgsz?20} \
+  -sort '${http-qs-sort?ct:1}' \
+    | ajaxre -cqn
+%END%
+#---------------------------------------------------------
+# 标记消息已读·未读
+@FILE .regapi/api/newsfeed/read
+%COPY:
+httpparam -in id:${id} -out \
+  'newsfeed readed "@{id}" -read @{read?true} -target @{taid?}' \
+    | run | ajaxre -cqn
+%END%
+#---------------------------------------------------------
+# 标记消息加星·去星
+@FILE .regapi/api/newsfeed/star
+%COPY:
+httpparam -in id:${id} -out \
+  'newsfeed stared "@{id}" -star @{star?true}' \
+    | run | ajaxre -cqn
+%END%
+#---------------------------------------------------------
+# 删除消息
+@FILE .regapi/api/newsfeed/remove
+%COPY:
+httpparam -in id:${id} -out \
+  'newsfeed remove "@{id}"' \
+    | run | ajaxre -cqn
+%END%
+#---------------------------------------------------------
+# 清除已读消息
+@FILE .regapi/api/newsfeed/clean
+{
+  "http-www-home"   : "~/www",
+  "http-www-ticket" : "http-qs-ticket"
+}
+%COPY:
+newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
 %END%
 ##########################################################
 #
