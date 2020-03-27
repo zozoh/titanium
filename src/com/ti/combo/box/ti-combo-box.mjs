@@ -152,6 +152,12 @@ export default {
         width: this.width, height: this.height
       })
       this.myDropDockReady = false
+    },
+    //------------------------------------------------
+    __ti_shortcut(uniqKey) {
+      if("ESCAPE" == uniqKey) {
+        this.notifyCollapse(true)
+      }
     }
     //------------------------------------------------
   },
@@ -162,16 +168,10 @@ export default {
         // If collapse, it should clean the box styles
         if("collapse" == sta) {
           this.resetBoxStyle()
-          // Unwatch
-          Ti.App(this).unwatchShortcut(this)
         }
         // try docking
         else {
           this.dockDrop()
-          Ti.App(this).watchShortcut(this, {
-            "shortcut" : "ESCAPE",
-            "action"   : ()=>this.notifyCollapse(true)
-          })
         }
       })
     }
@@ -191,7 +191,6 @@ export default {
   },
   ////////////////////////////////////////////////////
   beforeDestroy : function() {
-    Ti.App(this).unwatchShortcut(this)
     Ti.Viewport.unwatch(this)
   }
   ////////////////////////////////////////////////////

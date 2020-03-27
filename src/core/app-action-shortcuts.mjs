@@ -151,8 +151,8 @@ export class TiAppActionShortcuts {
     quit    : false
   }) {
     //..........................................
-    // if("CTRL+A" == uniqKey)
-    //   console.log("AppActionShortcuts.fired", uniqKey)
+    if("ALT+CTRL+P" == uniqKey)
+       console.log("AppActionShortcuts.fired", uniqKey)
     if(st.quit) {
       return st
     }

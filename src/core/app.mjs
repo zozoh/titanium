@@ -144,6 +144,7 @@ export class OneTiApp {
   }
   //---------------------------------------
   unwatchShortcut(...uniqKeys) {
+    //console.log("unwatchShortcut", uniqKeys)
     this.$shortcuts.unwatch(this, ...uniqKeys)
   }
   //---------------------------------------
