@@ -38,7 +38,7 @@ const WN_MANAGER_COMPUTED = {
         avatarKey : "thumb",
         avatarSrc : null,
         loginIcon : me.sex == 1 ? "im-user-male" : "im-user-female",
-        nameKeys  : ["nickname", "nm"]
+        nameKeys  : "nickname|nm"
       }
     }
   },
