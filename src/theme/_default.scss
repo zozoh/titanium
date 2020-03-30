@@ -4,7 +4,7 @@ html {
 //...................................................
 body {
   @include color($color-body, r, c);
-  font-size:.14rem;
+  @include font-nice(.14rem);
   height: 100%; margin:0;
 }
 //...................................................

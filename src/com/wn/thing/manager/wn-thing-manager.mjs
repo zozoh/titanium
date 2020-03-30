@@ -184,7 +184,7 @@ const _M = {
     //--------------------------------------
     toggleBlock(name) {
       Ti.App(this).dispatch("main/doChangeShown", {
-        [name]: !this.shown[name]
+        [name]: !this.TheShown[name]
       })
     },
     //--------------------------------------

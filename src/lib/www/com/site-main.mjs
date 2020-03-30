@@ -67,7 +67,7 @@ export default {
     },
     //-------------------------------------
     // Format current pageGUI
-    pageGUI() {
+    PageGUI() {
       let page = this.page
       //.....................................
       // Without current page
@@ -107,6 +107,7 @@ export default {
       //.....................................
       // Gen the GUI object
       let gui = {
+        defaultFlex: "none",
         layout, 
         schema : {},
         canLoading : true
@@ -153,13 +154,22 @@ export default {
       Ti.App(this).dispatch("page/hideBlock", name)
     },
     //-------------------------------------
-    async onBlockEvent(be={}) {
-      console.log("site-main::onBlockEvent", be)
-      //....................................
-      // It will routing the event to action
-      // by site.actions|page.actions mapping
-      let name = _.without([be.block, be.name], null).join(".")
-      await this.invokeAction(name, be.args)
+    __on_events(name, ...args) {
+      console.log("site-main.__on_events", name, ...args)
+      // ShowBlock
+      if("block:show" == name) {
+        return blockName => this.showBlock(blockName)
+      }
+      // HideBlock
+      else if("block:hide" == name) {
+        return blockName => this.hideBlock(blockName)
+      }
+      // Dispatch actions
+      else {
+        return (...args)=>{
+          this.invokeAction(name, args)
+        }        
+      }
     },
     //-------------------------------------
     async invokeAction(name, args=[]) {
@@ -170,16 +180,31 @@ export default {
         payload : {} | [] | ...
       } 
       */
-      let act = _.cloneDeep(this.actions[name])
-      if(!act)
+      let AT = _.get(this.actions, name)
+
+      // Try fallback
+      if(!AT) {
+        let canNames = _.split(name, "::")
+        while(canNames.length > 1) {
+          let [, ...names] = canNames
+          let aName = names.join("::")
+          AT = _.get(this.actions, aName)
+          if(AT){
+            break
+          }
+          canNames = names
+        }
+      }
+
+      if(!AT)
         return;
   
       // Prepare
       let app = Ti.App(this)
 
       // Batch call
-      if(_.isArray(act)) {
-        for(let a of act) {
+      if(_.isArray(AT)) {
+        for(let a of AT) {
           await app.dispatch("doAction", {
             action  : a.action,
             payload : a.payload,
@@ -188,17 +213,17 @@ export default {
         }
       }
       // Direct call : String
-      else if(_.isString(act)) {
+      else if(_.isString(AT)) {
         await app.dispatch("doAction", {
-          action: act,
+          action: AT,
           args
         })
       }
       // Direct call : Object
       else {
         await app.dispatch("doAction", {
-          action  : act.action,
-          payload : act.payload,
+          action  : AT.action,
+          payload : AT.payload,
           args
         })
       }

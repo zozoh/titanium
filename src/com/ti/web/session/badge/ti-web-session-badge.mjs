@@ -93,7 +93,7 @@ export default {
     //......................................
     myName() {
       if(this.me) {
-        return Ti.Util.getFallback(this.me, this.nameKeys) 
+        return Ti.Util.getOrPick(this.me, this.nameKeys) 
                || Ti.I18n.get("mine")
       }
     },

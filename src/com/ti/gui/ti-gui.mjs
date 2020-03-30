@@ -13,6 +13,11 @@ const _M = {
   }),
   /////////////////////////////////////////
   props : {
+    "defaultFlex" : {
+      type : String,
+      default : undefined,
+      validator : (v)=>(_.isUndefined(v) || /^(auto|grow|shrink|both|none)$/.test(v))
+    },
     "layout" : {
       type : Object,
       default : ()=>({
@@ -183,10 +188,6 @@ const _M = {
       else {
         this.$notify("block:shown", shown)
       }
-    },
-    //--------------------------------------
-    onBlockEvent(payload) {
-      this.$notify("block:event", payload)
     },
     //--------------------------------------
     syncMyShown(...showns) {

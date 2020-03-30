@@ -243,22 +243,27 @@ const TiUtil = {
       //....................................
       // String : Check the "@BLOCK(xxx)" 
       if(_.isString(theValue)) {
-        // Find key in context
-        let m = /^(->|=>?|==|!=)([^?]+)(\?(.*))?$/.exec(theValue)
-        // Matched
+        let m_type, m_val, m_dft;
+        // Match template
+        let m = /^(==|!=|=>|->)(.+)$/.exec(theValue)
         if(m) {
-          let m_type = m[1]
-          let m_val  = _.trim(m[2])
-          let m_dft  = m[4]
+          m_type = m[1]
+          m_val  = _.trim(m[2])
+        }
+        // Find key in context
+        m = /^(=)([^?]+)(\?(.*))?$/.exec(theValue)
+        if(m) {
+          m_type = m[1]
+          m_val  = _.trim(m[2])
+          m_dft  = m[4]
+        }
+        // Matched
+        if(m_type) {
           if(!Ti.Util.isNil(m_dft)) {
             m_dft = _.trim(m_dft)
           }
           //................................
           let fn = ({
-            // =.. The Whole Context
-            ".." : (val)=> {
-              return context
-            },
             // ==xxx  # Get Boolean value now
             "==" : (val)=> {
               return _.get(context, val) ? true : false
@@ -283,14 +288,15 @@ const TiUtil = {
               let fn = Ti.Util.genInvoking(val, {context})
               return fn()
             },
+            // Render template
+            "->" : (val)=>{
+              return Ti.S.renderBy(val, context)
+            },
             // :=xxx  # Get Value Later
             // ":=" : (val, dft)=>{
             //   return (c2)=>{return _.get(c2, val)}
             // },
             // ->xxx  # Eval Template Result Now
-            "->" : (val)=>{
-              return Ti.S.renderBy(val, context)
-            },
             // :->xxx # Eval Template Result Later
             // ":->" : (val)=>{
             //   let tmpl = Ti.S.renderBy(val, context)

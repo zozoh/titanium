@@ -58,8 +58,8 @@ export default {
     },
     "flex" : {
       type : String,
-      default : "auto",
-      validator : (v)=>/^(auto|grow|shrink|both|none)$/.test(v)
+      default : undefined,
+      validator : (v)=>(_.isUndefined(v) || /^(auto|grow|shrink|both|none)$/.test(v))
     },
     "schema" : {
       type : Object,
@@ -74,9 +74,9 @@ export default {
       default : ()=>({})
     },
     // Those 3 props for by-pass to sub-(cols/rows)
-    "tabAt"      : undefined,
-    "adjustable" : undefined,
-    "border"     : undefined
+    "tabAt"       : undefined,
+    "adjustable"  : undefined,
+    "border"      : undefined
   },
   //////////////////////////////////////////
   computed : {
@@ -94,11 +94,11 @@ export default {
       return Ti.Css.toStyle(({
         //..................................
         rows:()=>({
-          height: this.TheSize
+          height: this.BlockSize
         }),
         //..................................
         cols:()=>({
-          width : this.TheSize
+          width : this.BlockSize
         }),
         //..................................
         tabs:()=>({}),
@@ -115,19 +115,22 @@ export default {
       }
     },
     //--------------------------------------
-    TheSize() {
-      return /^(auto|stretch)$/.test(this.size) 
-        ? null : this.size
+    BlockSize() {
+      let size = this.size
+      return /^(auto|stretch)$/.test(size) 
+        ? null
+        : size
     },
     //--------------------------------------
     FlexName() {
-      if("auto" == this.flex) {
+      let flex = this.flex || this.$gui.defaultFlex || "auto"
+      if("auto" == flex) {
         if("stretch" == this.size || Ti.Util.isNil(this.size)) {
           return "both"
         }
         return "none"
       }
-      return this.flex || "both"
+      return flex || "both"
     },
     //--------------------------------------
     isFlexNone() {
@@ -174,7 +177,8 @@ export default {
           blocks     : this.blocks,
           schema : this.schema,
           actionStatus : this.actionStatus,
-          shown  : this.shown
+          shown  : this.shown,
+          defaultFlex : this.defaultFlex
         }
         return {
           comType, comConf

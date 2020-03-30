@@ -11,6 +11,7 @@
       v-bind="TheLayout"
       :schema="schema"
       :shown="TheShown"
+      :default-flex="defaultFlex"
       :action-status="actionStatus"/>
     <!--
       Layout as cols
@@ -20,6 +21,7 @@
       v-bind="TheLayout"
       :schema="schema"
       :shown="TheShown"
+      :default-flex="defaultFlex"
       :action-status="actionStatus"/>
     <!--
       Layout as tabs
@@ -29,6 +31,7 @@
       v-bind="TheLayout"
       :schema="schema"
       :shown="TheShown"
+      :default-flex="defaultFlex"
       :action-status="actionStatus"/>
   </div>
   <!--===========================================
@@ -44,6 +47,7 @@
           :viewport-height="myViewportHeight"
           :schema="schema"
           :shown="TheShown"
+          :default-flex="defaultFlex"
           :action-status="actionStatus"/>
     </transition>
   </template>

@@ -21,8 +21,8 @@ const Notify = function(name, ...args) {
   let handler;
 
   // Handle by customized dispatcher
-  if(_.isFunction(this.__dispatchEvents)) {
-    handler = this.__dispatchEvents(name, ...args)
+  if(_.isFunction(this.__on_events)) {
+    handler = this.__on_events(name, ...args)
   }
   // Handle by Vue primary listeners
   if(!_.isFunction(handler)) {

@@ -1,106 +1,99 @@
+////////////////////////////////////////////////
 async function Captcha(src="", {
   title = "i18n:captcha-tip", 
-  className,
   type  = "info",
-  width = 320, 
-  height,
+  position = "center",
+
+  iconOk, iconCancel,
+  textOk = "i18n:ok",
+  textCancel  = "i18n:cancel", 
+  width = 320,  height,
+
   imgWidth,
   imgHeight=50,
-  textOk = "i18n:ok",
   textChange = "i18n:captcha-chagne",
-  placeholder = "i18n:captcha",
-  value = null
+  placeholder = "i18n:captcha"
 }={}) {
-  // Build DOM
-  let html = `<div class="ti-simple-form">
-      <header style="padding-bottom:0;">
-        <img v-if="src"
-          :style="captchaStyle"
-          :src="captchaSrc"/>
-      </header>
-      <section>
-        <div class="as-input">
-          <input ref="inbox"
-            spellcheck="false"
-            :placeholder="placeholder|i18n"
-            v-model="value"
-            @keydown="onKeyDown">
-          <span @click="onChangeSrc">
-            <a>{{textChange|i18n}}</a>
-          </span>
-        </div>
-        <div class="as-btn">
-          <button ref="ok"
-            @click="onOk">{{textOk|i18n}}</button>
-        </div>
-      </section>
-    </div>`
-  // Open modal
-  return Ti.Modal.Open({
-    data : {
-      src, value, textOk, textChange, placeholder,
-      timestamp : Date.now(),
-    },
-    template : html,
-    computed : {
-      captchaStyle() {
-        let css = {}
-        if(imgWidth)
-          css.width = imgWidth
-        if(imgHeight)
-          css.height = imgHeight
-        return Ti.Css.toStyle(css)
+  //............................................
+  return await Ti.App.Open({
+    //------------------------------------------
+    type, width, height, position,
+    title,
+    closer  : false,
+    result  : "",
+    //------------------------------------------
+    textOk, textCancel,
+    iconOk, iconCancel,
+    //------------------------------------------
+    comType : "modal-inner-body",
+    //------------------------------------------
+    components : [{
+      name : "modal-inner-body",
+      globally : false,
+      data : {
+        src, timestamp : Date.now(),
+        // display
+        imgWidth, imgHeight, textChange,
+        // for input
+        placeholder : placeholder || value
       },
-      captchaSrc() {
-        if(this.src && this.timestamp>0) {
-          if(this.src.lastIndexOf('?') == -1) {
-            return this.src + "?_t=" + this.timestamp
+      props : {
+        value : null
+      },
+      template : `<div class="ti-simple-form">
+        <header style="padding-bottom:0;">
+          <img ref="pic"
+            v-if="src"
+              :style="CaptchaStyle"
+              :src="CaptchaSrc"
+              @load="OnImgLoaded"/>
+        </header>
+        <section>
+          <div class="as-input">
+            <input ref="input"
+              spellcheck="false"
+              :placeholder="placeholder|i18n"
+              :value="value"
+              @input="$emit('input', $refs.input.value)">
+            <span @click="timestamp = Date.now()">
+              <a>{{textChange|i18n}}</a>
+            </span>
+          </div>
+        </section>
+      </div>`,
+      computed : {
+        CaptchaStyle() {
+          return Ti.Css.toStyle({
+            width  : this.imgWidth,
+            height : this.imgHeight
+          })
+        },
+        CaptchaSrc() {
+          if(this.src && this.timestamp>0) {
+            if(this.src.lastIndexOf('?') == -1) {
+              return this.src + "?_t=" + this.timestamp
+            } else {
+              return this.src + "&_t=" + this.timestamp
+            }
           } else {
-            return this.src + "&_t=" + this.timestamp
+            return this.src
           }
-        } else {
-          return this.src
+        }
+      },
+      methods : {
+        OnImgLoaded() {
+          Ti.Be.BlinkIt(this.$refs.pic)
+        },
+        __ti_shortcut(uniqKey) {
+          if("ENTER" == uniqKey) {
+            Ti.App(this).$vm().close(this.value)
+          }
         }
       }
-    },
-    mounted : function(){
-      this.$refs.inbox.select()
-    },
-    methods : {
-      onKeyDown: function(evt){
-        let app = Ti.App(this)
-        let fn = ({
-          "Escape" : ()=>{
-            evt.preventDefault()
-            evt.stopPropagation()
-            app.$modal.$closer.click()
-          },
-          "Tab" : ()=>{
-            evt.preventDefault()
-            evt.stopPropagation()
-          },
-          "Enter" : ()=>{
-            evt.preventDefault()
-            evt.stopPropagation()
-            this.onOk()
-          }
-        })[evt.key]
-        // Do the func
-        Ti.Invoke(fn)
-      },
-      onChangeSrc() {
-        this.timestamp = Date.now()
-      },
-      onOk() {
-        Ti.App(this).$modal.close(this.value||"")
-      }
-    }
-  }, {
-    title, type, width, height, className,
-    closer  : true,
-    icon : false,
-    actions : []
+    }]
+    //------------------------------------------
   })
+  //............................................
 }
-
+////////////////////////////////////////////////
 export default Captcha
