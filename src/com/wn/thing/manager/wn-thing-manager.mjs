@@ -42,27 +42,24 @@ const _M = {
   ///////////////////////////////////////////
   computed : {
     //--------------------------------------
-    shown() {
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    TheShown() {
       return _.get(this.config, "shown") || {}
     },
     //--------------------------------------
-    theLayout() {
+    TheLayout() {
       return Ti.Util.explainObj(this, this.config.layout)
     },
     //--------------------------------------
-    theSchema() {
+    TheSchema() {
       return Ti.Util.explainObj(this, this.config.schema)
     },
     //--------------------------------------
-    changedRowId() {
-      if(this.current && this.current.meta && this.current.status.changed) {
-        return this.current.meta.id
-      }
-    },
-    //--------------------------------------
-    guiLoading() {
-      let key = _.findKey(this.status, (v)=>v)
-      return ({
+    TheLoadingAs() {
+      return _.assign({
         "reloading" : {
           icon : "fas-spinner fa-spin",
           text : "i18n:loading"
@@ -75,6 +72,10 @@ const _M = {
           icon : "zmdi-refresh fa-spin",
           text : "i18n:del-ing"
         },
+        "publishing" : {
+          icon : "zmdi-settings zmdi-hc-spin",
+          text : "i18n:publishing"
+        },
         "restoring" : {
           icon : "zmdi-time-restore zmdi-hc-spin",
           text : "i18n:thing-restoring"
@@ -83,7 +84,18 @@ const _M = {
           icon : "zmdi-settings zmdi-hc-spin",
           text : "i18n:thing-cleaning"
         }
-      })[key]
+      }, this.TheSchema.loadingAs)
+    },
+    //--------------------------------------
+    ChangedRowId() {
+      if(this.current && this.current.meta && this.current.status.changed) {
+        return this.current.meta.id
+      }
+    },
+    //--------------------------------------
+    GuiLoadingAs() {
+      let key = _.findKey(this.status, (v)=>v)
+      return _.get(this.TheLoadingAs, key)
     },
     //--------------------------------------
     curentThumbTarget() {
@@ -95,10 +107,9 @@ const _M = {
       return ""
     },
     //--------------------------------------
-    //--------------------------------------
-    schemaMethods() {
-      if(this.theSchema && this.theSchema.methods) {
-        return Ti.Util.merge({}, this.theSchema.methods)
+    SchemaMethods() {
+      if(this.TheSchema && this.TheSchema.methods) {
+        return Ti.Util.merge({}, this.TheSchema.methods)
       }
       return {}
     }
@@ -136,6 +147,8 @@ const _M = {
     OnViewCurrentSource() {
       this.viewCurrentSource()
     },
+    //--------------------------------------
+    // Show hide block
     //--------------------------------------
     async changeShown(shown={}) {
       Ti.App(this).dispatch("main/doChangeShown", shown)
@@ -175,82 +188,7 @@ const _M = {
       })
     },
     //--------------------------------------
-    async DoEvent(name, args=[]) {
-      let {block, event} = Ti.Util.explainEventName(name)
-      console.log("Thing.DoEvent", {name, block, event, args, a0:_.first(args)})
-      //console.log("wn-thing-manager:onBlockEvent",evKey, args)
-      //....................................
-      let app = Ti.App(this)
-      //....................................
-      // Event Handlers
-      const FnSet = {
-        //..................................
-        "block:show" : (name)=>{
-          this.showBlock(name)
-        },
-        "block:hide" : (name)=>{
-          this.hideBlock(name)
-        },
-        "block:shown" : (shown)=>{
-          this.changeShown(shown)
-        },
-        //..................................
-        // Select item in search list
-        "list>select" : ({current, currentId, checkedIds})=>{
-          //console.log("list.select", current)
-          
-          // Update Current
-          app.dispatch("main/setCurrentThing", {
-            meta: current, 
-            currentId,
-            checkedIds
-          })
-        },
-        //..................................
-        // Select item in search list
-        "list>open" : ({rawData})=>{
-          //console.log("list.open", rawData)
-          // Open customized block
-          // Sometimes, may user want open the both "content" and "file"
-          // at same time when dbl-click the one row
-          Ti.App(this).dispatch("main/config/updateShown", this.config.listOpen)
-          // Update Current
-          app.dispatch("main/setCurrentThing", {
-            meta: rawData 
-          })
-          // Update Checkes/Current to search
-          //this.setSeachSelected(current)
-        },
-        //..................................
-        // Content changed
-        "content>change" : (content)=>{
-          app.dispatch("main/current/changeContent", content)
-          app.commit("main/syncStatusChanged")
-        },
-        //..................................
-        // PageNumber changed
-        "pager>change:pn" : (pn)=>{
-          app.commit("main/search/updatePager", {pn})
-          app.dispatch("main/search/reload")
-        },
-        //..................................
-        // PageSize changed
-        "pager>change:pgsz" : (pgsz)=>{
-          app.commit("main/search/updatePager", {pgsz, pn:1})
-          app.dispatch("main/search/reload")
-        },
-        //..................................
-        "view-current-source" : this.viewCurrentSource
-        //..................................
-      }
-
-      let fn = FnSet[name] || FnSet[event]
-
-      // Run Handler
-      if(_.isFunction(fn)) {
-        await fn.apply(this, args)
-      }
-    },
+    // Utility
     //--------------------------------------
     async viewCurrentSource() {
       // Guard
@@ -280,8 +218,8 @@ const _M = {
     },
     //--------------------------------------
     async invoke(fnName) {
-      //console.log("invoke ", fnName)
-      let fn = _.get(this.schemaMethods, fnName)
+      console.log("invoke ", fnName)
+      let fn = _.get(this.SchemaMethods, fnName)
       // Invoke the method
       if(_.isFunction(fn)) {
         return await fn.apply(this, [])

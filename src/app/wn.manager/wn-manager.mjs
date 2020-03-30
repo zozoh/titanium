@@ -82,9 +82,12 @@ const WN_MANAGER_MIXINS = {
     // Tipping
     //---------------------------------------
     TheStatus() {
-      return _.assign({}, this.status, {
+      let mainStatus = _.get(this.$store.state, "main.status")
+      let reloading = _.get(mainStatus, "reloading") || this.status.reloading
+      return _.assign({}, mainStatus, this.status, {
         exposeHidden : this.myExposeHidden,
-        changed : this.isChanged
+        changed      : this.isChanged,
+        reloading    : reloading
       })
     },
     StatusText(){
