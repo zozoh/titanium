@@ -6,7 +6,8 @@ const _M = {
       default : "bottom-left",
       validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
     },
-    "data" : null,
+    "data" : undefined,
+    "content" : undefined,
     "tree" : {
       type : Object,
       default : ()=>({})
@@ -15,14 +16,27 @@ const _M = {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    theContent() {
-      if(Ti.Util.isNil(this.data)) {
-        return ""
+    TheContent() {
+      if(!Ti.Util.isNil(this.content)) {
+        return this.content
       }
-      return JSON.stringify(this.data, null, '  ')
+      if(!Ti.Util.isNil(this.data)) {
+        return JSON.stringify(this.data, null, '  ')
+      }
+      return ""
     },
     //--------------------------------------
-    theLayout() {
+    TheData() {
+      if(!Ti.Util.isNil(this.content)) {
+        return Ti.Types.safeParseJson(this.content, null)
+      }
+      if(!Ti.Util.isNil(this.data)) {
+        return this.data
+      }
+      return null
+    },
+    //--------------------------------------
+    TheLayout() {
       return {
         type : "tabs",
         tabAt : this.tabAt,
@@ -38,15 +52,17 @@ const _M = {
       }
     },
     //--------------------------------------
-    theSchema() {
+    TheSchema() {
       //....................................
       // Tree Conf
-      let treeConf = _.assign({}, this.tree, {data: this.data})
+      let treeConf = _.assign({}, this.tree, {
+        data: this.TheData
+      })
       //....................................
       // Source Conf
       let sourceConf = {
         showTitle : false,
-        content   : this.theContent
+        content   : this.content
       }
       //....................................
       // Done

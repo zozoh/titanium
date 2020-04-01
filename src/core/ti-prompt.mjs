@@ -20,7 +20,7 @@ async function Prompt(msg="", {
   return await Ti.App.Open({
     //------------------------------------------
     type, width, height, position,
-    title   : theTitle,
+    title   : title,
     closer  : false,
     result  : value,
     //------------------------------------------

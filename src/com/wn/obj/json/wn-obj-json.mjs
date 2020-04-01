@@ -6,10 +6,8 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "data" : {
-      type : [Array, Object],
-      default : ()=>({})
-    },
+    "data" : undefined,
+    "content" : undefined,
     "status" : {
       type : Object,
       default : ()=>({})
