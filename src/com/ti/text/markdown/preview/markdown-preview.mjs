@@ -32,7 +32,7 @@ export default {
     renderMarkdown() {
       let MdDoc = Cheap.parseMarkdown(this.content)
       console.log(MdDoc)
-      this.myDemo = JSON.stringify(MdDoc.$meta) + "\n\n" + MdDoc.$body.toString()
+      this.myDemo = MdDoc.toString()
     }
     //-----------------------------------------------
   },
