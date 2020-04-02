@@ -1,0 +1,6 @@
+{
+  "name" : "ti-text-markdown-preview",
+  "globally" : true,
+  "template" : "./markdown-preview.html",
+  "mixins" : ["./markdown-preview.mjs"]
+}

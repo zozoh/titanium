@@ -1,0 +1,11 @@
+{
+  "name" : "ti-text-json-tree",
+  "globally" : true,
+  "i18n" : "@i18n:ti-text-json",
+  "template" : "./ti-text-json-tree.html",
+  "mixins" : ["./ti-text-json-tree.mjs"],
+  "components" : [
+    "@com:ti/tree",
+    "@com:ti/text/json/tree/item"
+  ]
+}

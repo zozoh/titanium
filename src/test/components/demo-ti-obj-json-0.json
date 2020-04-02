@@ -1,5 +1,5 @@
 {
-  "comType" : "ti-obj-json",
+  "comType" : "ti-text-json",
   "comConf" : {
     "className" : "ti-fill-parent",
     "data"   : "=data",

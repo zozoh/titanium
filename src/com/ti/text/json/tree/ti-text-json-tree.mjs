@@ -58,7 +58,7 @@ const _M = {
         display : {
           key : "value",
           ignoreNil : false,
-          comType : "ti-obj-json-tree-item",
+          comType : "ti-text-json-tree-item",
           comConf : {
             valueType   : "${valueType}",
             valuePath   : "${=rowId}",

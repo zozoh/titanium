@@ -406,10 +406,17 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
   com: "/rs/ti/test/components/demo-wn-transfer-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/demo-ti-app-modal.comt
+@FILE demo/ti-app-modal.comt
 {
   title : "弹出层测试",
   com: "/rs/ti/test/components/demo-ti-app-modal.json"
+}
+#---------------------------------------------------------
+@FILE demo/ti-markdown-parser.comt
+{
+  title : "Markdown解析测试",
+  ln : "/rs/ti/test/components/demo-ti-markdown-parser.md", 
+  com: "/rs/ti/test/components/demo-ti-markdown-parser.json"
 }
 ##########################################################
 #

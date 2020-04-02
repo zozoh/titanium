@@ -1,0 +1,13 @@
+{
+  "name" : "ti-text-json",
+  "globally" : true,
+  "i18n" : "@i18n:ti-text-json",
+  "template" : "./ti-text-json.html",
+  "mixins" : ["./ti-text-json.mjs"],
+  "components" : [
+    "@com:ti/gui",
+    "@com:ti/text/raw",
+    "@com:ti/toggle",
+    "@com:ti/text/json/tree"
+  ]
+}

@@ -68,7 +68,7 @@ const _M = {
       // Done
       return {
         "desktop-tree" : {
-          comType : "ti-obj-json-tree", 
+          comType : "ti-text-json-tree", 
           comConf : treeConf
         },
         "desktop-source" : {

@@ -100,7 +100,7 @@
           }]
     },
     "desktopJsonView" : {
-      "comType" : "ti-obj-json",
+      "comType" : "ti-text-json",
       "comConf" : {
         "data" : "=currentData"
       },
