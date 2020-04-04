@@ -14,10 +14,8 @@ export default {
     },
     "align" : {
       type : String,
-      default : "center",
-      validator : function(val) {
-        return ["left","right","center"].indexOf(val)!=-1
-      }
+      default : "left",
+      validator : v => /^(left|right|center)$/.test(v)
     },
     "status" : {
       type : Object,
@@ -28,13 +26,7 @@ export default {
   computed : {
     //---------------------------------------
     TopClass() {
-      return this.getTopClass()
-    },
-    //---------------------------------------
-    ConClass() {
-      if(this.align) {
-        return `align-${this.align}`
-      }
+      return this.getTopClass(`align-${this.align}`)
     },
     //---------------------------------------
     MenuItems() {

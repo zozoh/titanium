@@ -1,234 +1,232 @@
 .ti-markdown-preview {
   overflow: auto; padding:1px;
-  ///////////////////////////////////////////
-  // Theme: wiki
-  ///////////////////////////////////////////
-  &.theme-wiki > article {
-    //---------------------------------------
-    padding:0 .2rem;
-    font-size: 16px; line-height: 1.5em;
-    letter-spacing: 1px;
-    max-width: 10rem;
-    margin:.1rem auto;
-    //---------------------------------------
-    hr {
-      height:0px; border:0;
-      @include border(1px, dotted, shallow, top);
-      margin:.1rem 0;
-    }
-    //---------------------------------------
-    // Inline Text
-    code {
-      @include font-fixed;
-      @include color($color-weaktip, r, c);
-      font-size: .9em; 
-      margin:0 .2em; 
-    }
-    b  {color: map-get($color-secondary, c);}
-    i  {color: map-get($color-secondary, c);}
-    em {color: map-get($color-text, c);}
-    strong {color: map-get($color-text, c);}
-    del {color:map-get($color-error, c);}
-    //---------------------------------------
-    // Heading
-    h1 {font-weight:400; font-size:2.0em; line-height:1.6em; margin:1em 0; padding:0; 
-        @include border(1px, solid, shallow, bottom);}
-    h2 {font-weight:600; font-size:1.6em; line-height:2em; margin:1em 0; padding:0 .5em;
-        @include color($color-cloak, r, c);}
-    h3 {font-weight:900; font-size:1.4em; line-height:2em; margin:1em 0; padding:0;}
-    h4 {font-weight:900; font-size:1.3em; line-height:2em; margin:1em 0; padding:0;}
-    h5 {font-weight:900; font-size:1.2em; line-height:2em; margin:1em 0; padding:0;}
-    h6 {font-weight:900; font-size:1.1em; line-height:2em; margin:1em 0; padding:0;}
-    //---------------------------------------
-    // Table
-    table {
-      border:0;
-      border-collapse: collapse;
-      border-spacing: 0;
-      margin:2em 0;
-    }
-    td, th {
-      padding:.4em 1em; font-size:.9em;
-      border-bottom: 1px solid map-get($color-line, shallow);
-    }
-    thead td {
-      border-bottom: 2px solid map-get($color-line, dark);
-      color: map-get($color-track, c);
-      font-weight: 900; text-align: center;
-    }
-    //---------------------------------------
-    // Text
-    blockquote {
-      margin:1em .5em; padding:.3em 1em;
-      font-size: .8em;
-      border-left:4px solid map-get($color-primary, c);
-      color: map-get($color-track, c);
-    }
-    p {
-      margin: 1.2em 0;
-    }
-    //---------------------------------------
-    // Code
-    pre {
-      @include font-fixed(12px);
-      @include color($color-input, r, c);
-      width:100%; overflow-x: auto;
-      padding:.2rem; margin:0;
-      border-radius: .06rem;
-    }
-    //---------------------------------------
-    // UL
-    ul {
-      color: map-get($color-track, c);
-      list-style: disc;
-      font-size:14px; line-height: 1.4em; 
-      padding:0; margin:1.5em 0 1.5em 2.5em;
-      //-------------------------------------
-      li[depth="0"]>ul {list-style: circle;}
-      li[depth="1"]>ul {list-style: square;}
-      //-------------------------------------
-      ol, ul {opacity: 1; margin: 0 0 0 1.5em;}
-      //-------------------------------------
-    }
-    //---------------------------------------
-    // OL
-    ol {
-      color: map-get($color-track, c);
-      list-style: decimal;
-      font-size:14px; line-height: 1.4em; 
-      padding:0; margin:1.5em 0 1.5em 2.5em;
-      //-------------------------------------
-      li[depth="0"]>ol {list-style: upper-alpha;}
-      li[depth="1"]>ol {list-style: upper-roman;}
-      li[depth="2"]>ol {list-style: lower-alpha;}
-      li[depth="3"]>ol {list-style: lower-roman;}
-      //-------------------------------------
-      ol, ul {opacity: 1; margin: 0 0 0 1.5em;}
-      //-------------------------------------
-    }
-    //---------------------------------------
-    // medias
-    img, video {max-width: 100%;}
-    //---------------------------------------
-  }
-  ///////////////////////////////////////////
-  // Theme: nice
-  ///////////////////////////////////////////
-  &.theme-nice > article {
-    //---------------------------------------
-    padding:1em 2em;
-    font-size: 16px; line-height: 1.5em;
-    letter-spacing: 1px;
-    max-width: 12rem;
-    margin:0 auto;
-    //---------------------------------------
-    hr {
-      height:0px; border:0;
-      @include border(1px, dotted, shallow, top);
-      margin:.1rem 0;
-    }
-    //---------------------------------------
-    // Inline Text
-    code {
-      @include font-fixed;
-      @include color($color-secondary, c);
-      margin:0 .5em; 
-    }
-    b  {font-weight: bolder;}
-    i  {opacity: 0.8;}
-    em {opacity: 0.8;}
-    strong {font-weight: bold;}
-    del {color:map-get($color-error, c);}
-    //---------------------------------------
-    // Heading
-    h1 {font-weight:100; font-size:2.0em; line-height:1.6em; }
-    h2 {font-weight:100; font-size:1.7em; line-height:2em;}
-    h3 {font-weight:100; font-size:1.5em; line-height:2em;}
-    h4 {font-weight:100; font-size:1.3em; line-height:2em;}
-    h5 {font-weight:100; font-size:1.2em; line-height:2em;}
-    h6 {font-weight:100; font-size:1.1em; line-height:2em;}
-    h1,h2,h3,h4,h5,h6 {
-      margin:1em 0; padding:0;
-      color: map-get($color-primary, c);
-    }
-    //---------------------------------------
-    // Table
-    table {
-      border:1px solid map-get($color-primary, c);
-      border-collapse: collapse;
-      border-spacing: 0;
-      margin:2em 0;
-    }
-    td, th {
-      border:1px solid map-get($color-primary, c);
-      padding:.4em; font-size:.9em;
-    }
-    thead td {
-      @include color($color-primary, r, c);
-      border-left-color : map-get($color-primary, r);
-      border-right-color: map-get($color-primary, r);
-      &:first-child {
-        border-left-color: map-get($color-primary, c);
-      }
-      &:last-child {
-        border-right-color: map-get($color-primary, c);
-      }
-      font-weight: 900; text-align: center;
-    }
-    //---------------------------------------
-    // Text
-    blockquote {
-      margin:1em .5em; padding:.3em 1em;
-      font-size: .8em;
-      border-left:4px solid map-get($color-primary, c);
-      color: map-get($color-track, c);
-    }
-    p {
-      margin: 1.2em 0;
-    }
-    //---------------------------------------
-    // Code
-    pre {
-      @include font-fixed(12px);
-      @include color($color-chip, r, c);
-      border-left:4px solid map-get($color-secondary, c);
-      width:100%; overflow-x: auto;
-      padding:.2rem; margin:0;
-    }
-    //---------------------------------------
-    // UL
-    ul {
-      color: map-get($color-track, c);
-      list-style: disc;
-      line-height: 1.4em; 
-      padding:0; margin:1.5em 0 1.5em 2.5em;
-      //-------------------------------------
-      li[depth="0"]>ul {list-style: circle;}
-      li[depth="1"]>ul {list-style: square;}
-      //-------------------------------------
-      ol, ul {opacity: 1; margin: 0 0 0 1.5em;}
-      //-------------------------------------
-    }
-    //---------------------------------------
-    // OL
-    ol {
-      color: map-get($color-track, c);
-      list-style: decimal;
-      line-height: 1.4em; 
-      padding:0; margin:1.5em 0 1.5em 2.5em;
-      //-------------------------------------
-      li[depth="0"]>ol {list-style: upper-alpha;}
-      li[depth="1"]>ol {list-style: upper-roman;}
-      li[depth="2"]>ol {list-style: lower-alpha;}
-      li[depth="3"]>ol {list-style: lower-roman;}
-      //-------------------------------------
-      ol, ul {opacity: 1; margin: 0 0 0 1.5em;}
-      //-------------------------------------
-    }
-    //---------------------------------------
-    // medias
-    img, video {max-width: 100%;}
-    //---------------------------------------
-  }
-  //-----------------------------------------
 }
+///////////////////////////////////////////
+// Theme: wiki
+///////////////////////////////////////////
+.ti-markdown-theme-wiki {
+  //---------------------------------------
+  padding:0 .2rem;
+  font-size: 16px; line-height: 1.5em;
+  letter-spacing: 1px;
+  max-width: 10rem;
+  margin:.1rem auto;
+  //---------------------------------------
+  hr {
+    height:0px; border:0;
+    @include border(1px, dotted, shallow, top);
+    margin:.1rem 0;
+  }
+  //---------------------------------------
+  // Inline Text
+  code {
+    @include font-fixed;
+    @include color($color-weaktip, r, c);
+    font-size: .9em; 
+    margin:0 .2em; 
+  }
+  b      {color: map-get($color-secondary, c); font-weight: bolder;}
+  strong {color: map-get($color-text,      c); font-weight: bolder;}
+  i      {color: map-get($color-secondary, c); font-style:italic; opacity: 0.8;}
+  em     {color: map-get($color-text,      c); font-style:italic; opacity: 0.8;}
+  del    {color:map-get($color-error,      c); text-decoration: line-through;}
+  //---------------------------------------
+  // Heading
+  h1 {font-weight:400; font-size:2.0em; line-height:1.6em; margin:1em 0; padding:0; 
+      @include border(1px, solid, shallow, bottom);}
+  h2 {font-weight:600; font-size:1.6em; line-height:2em; margin:1em 0; padding:0 .5em;
+      @include color($color-cloak, r, c);}
+  h3 {font-weight:900; font-size:1.4em; line-height:2em; margin:1em 0; padding:0;}
+  h4 {font-weight:900; font-size:1.3em; line-height:2em; margin:1em 0; padding:0;}
+  h5 {font-weight:900; font-size:1.2em; line-height:2em; margin:1em 0; padding:0;}
+  h6 {font-weight:900; font-size:1.1em; line-height:2em; margin:1em 0; padding:0;}
+  //---------------------------------------
+  // Table
+  table {
+    border:0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin:2em 0;
+  }
+  td, th {
+    padding:.4em 1em; font-size:.9em;
+    border-bottom: 1px solid map-get($color-line, shallow);
+  }
+  thead td {
+    border-bottom: 2px solid map-get($color-line, dark);
+    color: map-get($color-track, c);
+    font-weight: 900; text-align: center;
+  }
+  //---------------------------------------
+  // Text
+  blockquote {
+    margin:1em .5em; padding:.3em 1em;
+    font-size: .8em;
+    border-left:4px solid map-get($color-primary, c);
+    color: map-get($color-track, c);
+  }
+  p {margin: 1.2em 0;}
+  .ql-editor.ql-blank::before {top:1.2em;}
+  //---------------------------------------
+  // Code
+  pre {
+    @include font-fixed(12px);
+    @include color($color-input, r, c);
+    width:100%; overflow-x: auto;
+    padding:.2rem; margin:0;
+    border-radius: .06rem;
+  }
+  //---------------------------------------
+  // UL
+  ul {
+    color: map-get($color-track, c);
+    list-style: disc;
+    font-size:14px; line-height: 1.4em; 
+    padding:0; margin:1.5em 0 1.5em 2.5em;
+    //-------------------------------------
+    li[depth="0"]>ul {list-style: circle;}
+    li[depth="1"]>ul {list-style: square;}
+    //-------------------------------------
+    ol, ul {opacity: 1; margin: 0 0 0 1.5em;}
+    //-------------------------------------
+  }
+  //---------------------------------------
+  // OL
+  ol {
+    color: map-get($color-track, c);
+    list-style: decimal;
+    font-size:14px; line-height: 1.4em; 
+    padding:0; margin:1.5em 0 1.5em 2.5em;
+    //-------------------------------------
+    li[depth="0"]>ol {list-style: upper-alpha;}
+    li[depth="1"]>ol {list-style: upper-roman;}
+    li[depth="2"]>ol {list-style: lower-alpha;}
+    li[depth="3"]>ol {list-style: lower-roman;}
+    //-------------------------------------
+    ol, ul {opacity: 1; margin: 0 0 0 1.5em;}
+    //-------------------------------------
+  }
+  //---------------------------------------
+  // medias
+  img, video {max-width: 100%;}
+  //---------------------------------------
+}
+///////////////////////////////////////////
+// Theme: nice
+///////////////////////////////////////////
+.ti-markdown-theme-nice {
+  //---------------------------------------
+  padding:1em 2em;
+  font-size: 16px; line-height: 1.5em;
+  letter-spacing: 1px;
+  max-width: 12rem;
+  margin:0 auto;
+  //---------------------------------------
+  hr {
+    height:0px; border:0;
+    @include border(1px, dotted, shallow, top);
+    margin:.1rem 0;
+  }
+  //---------------------------------------
+  // Inline Text
+  code {
+    @include font-fixed;
+    @include color($color-secondary, c);
+    margin:0 .5em; 
+  }
+  b      {font-weight: bolder;}
+  strong {font-weight: bolder;}
+  i      {opacity: 0.8; font-style:italic;}
+  em     {opacity: 0.8; font-style:italic;}
+  del    {color:map-get($color-error, c); text-decoration: line-through;}
+  //---------------------------------------
+  // Heading
+  h1 {font-weight:100; font-size:2.0em; line-height:1.6em; }
+  h2 {font-weight:100; font-size:1.7em; line-height:2em;}
+  h3 {font-weight:100; font-size:1.5em; line-height:2em;}
+  h4 {font-weight:100; font-size:1.3em; line-height:2em;}
+  h5 {font-weight:100; font-size:1.2em; line-height:2em;}
+  h6 {font-weight:100; font-size:1.1em; line-height:2em;}
+  h1,h2,h3,h4,h5,h6 {
+    margin:1em 0; padding:0;
+    color: map-get($color-primary, c);
+  }
+  //---------------------------------------
+  // Table
+  table {
+    border:1px solid map-get($color-primary, c);
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin:2em 0;
+  }
+  td, th {
+    border:1px solid map-get($color-primary, c);
+    padding:.4em; font-size:.9em;
+  }
+  thead td {
+    @include color($color-primary, r, c);
+    border-left-color : map-get($color-primary, r);
+    border-right-color: map-get($color-primary, r);
+    &:first-child {
+      border-left-color: map-get($color-primary, c);
+    }
+    &:last-child {
+      border-right-color: map-get($color-primary, c);
+    }
+    font-weight: 900; text-align: center;
+  }
+  //---------------------------------------
+  // Text
+  blockquote {
+    margin:1em .5em; padding:.3em 1em;
+    font-size: .8em;
+    border-left:4px solid map-get($color-primary, c);
+    color: map-get($color-track, c);
+  }
+  p {margin: 1.2em 0;}
+  .ql-editor.ql-blank::before {top:1.2em;}
+  //---------------------------------------
+  // Code
+  pre {
+    @include font-fixed(12px);
+    @include color($color-chip, r, c);
+    border-left:4px solid map-get($color-secondary, c);
+    width:100%; overflow-x: auto;
+    padding:.2rem; margin:0;
+  }
+  //---------------------------------------
+  // UL
+  ul {
+    color: map-get($color-track, c);
+    list-style: disc;
+    line-height: 1.4em; 
+    padding:0; margin:1.5em 0 1.5em 2.5em;
+    //-------------------------------------
+    li[depth="0"]>ul {list-style: circle;}
+    li[depth="1"]>ul {list-style: square;}
+    //-------------------------------------
+    ol, ul {opacity: 1; margin: 0 0 0 1.5em;}
+    //-------------------------------------
+  }
+  //---------------------------------------
+  // OL
+  ol {
+    color: map-get($color-track, c);
+    list-style: decimal;
+    line-height: 1.4em; 
+    padding:0; margin:1.5em 0 1.5em 2.5em;
+    //-------------------------------------
+    li[depth="0"]>ol {list-style: upper-alpha;}
+    li[depth="1"]>ol {list-style: upper-roman;}
+    li[depth="2"]>ol {list-style: lower-alpha;}
+    li[depth="3"]>ol {list-style: lower-roman;}
+    //-------------------------------------
+    ol, ul {opacity: 1; margin: 0 0 0 1.5em;}
+    //-------------------------------------
+  }
+  //---------------------------------------
+  // medias
+  img, video {max-width: 100%;}
+  //---------------------------------------
+}
+//-----------------------------------------

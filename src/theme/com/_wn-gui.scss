@@ -11,7 +11,7 @@
       width:100%; padding:0 .5em; cursor: pointer;
       > .it-info-icon {
         @include flex-center;
-        width:.28rem;
+        width:.28rem; font-size: .16rem;
         margin-right:.06rem;
       }
       > .it-info-text {
@@ -30,13 +30,13 @@
       }
     }
     &.is-group {
+      opacity: 0.8;
       > .it-info {
         @include border(1px, solid, shallow, top);
         @include border(1px, dotted, shallow, bottom);
         font-size:.9em;
         > .it-info-icon {
-          font-size:.12rem;
-          width:.2rem;
+          width:.2rem; font-size:.16rem; 
         }
       }
     }
@@ -67,9 +67,8 @@
     padding:.02rem 0 .02rem .04rem;
   }
   //------------------------------------------
-  .ti-icon .icon-icon i {font-size:1em;}
-  .table-row.row-indent-0 .icon-icon i {font-size:1.2em;}
-  .table-row.row-indent-1 .icon-icon i {font-size:1.2em;}
+    .table-row.row-indent-0 .ti-icon {font-size:1em;}
+  .table-row.row-indent-1 .ti-icon {font-size:1.2em;}
   //------------------------------------------
 }
 //////////////////////////////////////////////

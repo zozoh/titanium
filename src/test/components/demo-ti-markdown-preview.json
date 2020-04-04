@@ -1,7 +1,7 @@
 {
   "comType" : "ti-text-markdown-preview",
   "comConf" : {
-    "mediaBase" : "/gu//rs/ti/test/components",
+    "mediaBase" : "/gu/rs/ti/test/components",
     "theme"     : "nice",
     "content"   : "=content"
   }

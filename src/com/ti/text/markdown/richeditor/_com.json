@@ -1,0 +1,8 @@
+{
+  "name" : "ti-text-markdown-richeditor",
+  "globally" : true,
+  "i18n" : "@i18n:ti-text-editor",
+  "template" : "./markdown-richeditor.html",
+  "mixins" : ["./markdown-richeditor.mjs"],
+  "deps" : "@deps:quill/quill.min.js"
+}

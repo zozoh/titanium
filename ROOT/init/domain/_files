@@ -412,11 +412,17 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
   com: "/rs/ti/test/components/demo-ti-app-modal.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-markdown-parser.comt
+@FILE demo/ti-markdown-preview.comt
 {
-  title : "Markdown解析测试",
-  ln : "/rs/ti/test/components/demo-ti-markdown-parser.md", 
-  com: "/rs/ti/test/components/demo-ti-markdown-parser.json"
+  title : "Markdown解析预览",
+  ln : "/rs/ti/test/components/demo-ti-markdown-preview.md", 
+  com: "/rs/ti/test/components/demo-ti-markdown-preview.json"
+}
+#---------------------------------------------------------
+@FILE demo/ti-markdown-richeditor.comt
+{
+  title : "Markdown富文本编辑",
+  com: "/rs/ti/test/components/demo-ti-markdown-richeditor.json"
 }
 ##########################################################
 #

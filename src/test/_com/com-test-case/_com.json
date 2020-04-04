@@ -12,6 +12,7 @@
     "@com:ti/tree",
     "@com:ti/text/json",
     "@com:ti/text/markdown/preview",
+    "@com:ti/text/markdown/richeditor",
     "@com:wn/transfer",
     "@com:wn/droplist",
     "@com:wn/combo/input",

@@ -1,0 +1,17 @@
+<div class="ti-markdown-richeditor"
+  :class="TopClass">
+  <!--
+    Toolbar
+  -->
+  <ti-menu 
+    v-if="hasToolbar"
+      class="as-toolbar"
+      :data="ToolbarMenuData" 
+      :align="toolbarAlign"/>
+  <!--
+    Stage
+  -->
+  <div ref="stage"
+    class="as-stage"
+    :class="ThemeClass"></div>
+</div>

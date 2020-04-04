@@ -8,13 +8,11 @@
   // The Icon
   .icon-icon {
     @include flex-center;
-    > img {
+    img {
       display: block;
       object-fit: cover;
     }
-    >  i {
-      font-size:1.2em;
-    }
+    i {font-size:inherit;}
   }
 }
 //-------------------------------------------------

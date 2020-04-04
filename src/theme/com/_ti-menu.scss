@@ -1,15 +1,15 @@
 .ti-menu {
   //////////////////////////////////////////////////
   @include noselect;
-  @include flex-center;
+  @include flex-align;
   @include font-nice;
+  &.align-left   {justify-content: flex-start;}
+  &.align-center {justify-content: center;}
+  &.align-right  {justify-content: flex-end;}
   //////////////////////////////////////////////////
   .menu-con {
     @include raw-list;
-    @include flex-align;
-    &.align-left   {justify-content: flex-start;}
-    &.align-center {justify-content: center;}
-    &.align-right  {justify-content: flex-end;}
+    @include flex-align-nowrap;
   }
   //////////////////////////////////////////////////
   .menu-top-item {
@@ -100,7 +100,7 @@
           //---------------------------------------
           .as-icon {
             @include flex-center;
-            width:.24rem; font-size:.12rem;
+            width:.24rem; font-size:.16rem;
           }
           //---------------------------------------
           .as-text {

@@ -14,7 +14,7 @@ export default {
       type : String,
       default : ""
     }, 
-    "blankAs" : {
+    "placeholder" : {
       type : String,
       default : "i18n:blank"
     },
@@ -27,10 +27,14 @@ export default {
   computed : {
     //-----------------------------------------------
     TopClass() {
-      return this.getTopClass({
-        [`theme-${this.myTheme}`] : this.myTheme
-      })
+      return this.getTopClass()
     },
+    //-----------------------------------------------
+    ThemeClass() {
+      if(this.myTheme) {
+        return `ti-markdown-theme-${this.myTheme}`
+      }
+    }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
@@ -60,7 +64,7 @@ export default {
       }
       // Show Blank
       else {
-        this.myHtml = Ti.I18n.text(this.blankAs)
+        this.myHtml = Ti.I18n.text(this.placeholder)
         this.myTheme = this.theme
       }
     }
