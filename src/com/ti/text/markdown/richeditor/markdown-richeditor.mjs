@@ -112,8 +112,11 @@ export default {
     },
     //-----------------------------------------------
     setSelectionAsItalic(){
-      let sel = this.$editor.getSelection()
       this.$editor.format("italic", true)
+    },
+    //-----------------------------------------------
+    setSelectionAsHeading(level=1) {
+      this.$editor.format("header", level)
     },
     //-----------------------------------------------
     async setSelectionAsLink(){
@@ -158,10 +161,28 @@ export default {
       }
     },
     //-----------------------------------------------
+    // Quill
+    //-----------------------------------------------
+    quillChanged(delta) {
+      console.log("changed", delta)
+    },
+    //-----------------------------------------------
     installQuillEditor() {
+      //.............................................
       this.$editor = new Quill(this.$refs.stage, {
         placeholder : Ti.I18n.text(this.placeholder)
       });
+      //.............................................
+      this.debounceQuillChanged = _.debounce((delta)=>this.quillChanged(delta), 1000)
+      //.............................................
+      this.$editor.on("text-change", (newDelta, oldDelta, source)=>{
+        let delta = oldDelta.compose(newDelta)
+        this.debounceQuillChanged(delta)
+      })
+      //.............................................
+      // this.$editor.on("selection-change", (range, oldRange, source)=>{
+      //   console.log("selection-change", source, oldRange, range)
+      // })
     }
     //-----------------------------------------------
   },

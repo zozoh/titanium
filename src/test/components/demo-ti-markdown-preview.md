@@ -1,6 +1,7 @@
 ---
 title  : 测试文档
 author : zozohtnt@gmail.com
+theme : wiki
 tags :
 - A
 - B
