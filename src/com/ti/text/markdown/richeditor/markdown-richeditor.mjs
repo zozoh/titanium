@@ -1,4 +1,25 @@
-export default {
+/////////////////////////////////////////////////////
+function ResetQuillConfig(Quill) {
+  //.................................................
+  // Reset once
+  if(Quill.__has_been_reset) 
+    return
+  //.................................................
+  // hljs.configure({   // optionally configure hljs
+  //   languages: ['javascript', 'ruby', 'python']
+  // });
+  //.................................................
+  // Reset Indent    
+  const Indent = Quill.import('formats/indent')
+  Indent.keyName = "li-indent"
+  Indent.whitelist = [1,2,3,4,5,6]
+  console.log(Indent)
+  //.................................................
+  // Mark it
+  Quill.__has_been_reset = true
+}
+/////////////////////////////////////////////////////
+const _M = {
   ///////////////////////////////////////////////////
   data: ()=>({
     myHtml  : null,
@@ -24,7 +45,10 @@ export default {
     },
     "toolbar" : {
       type : Array,
-      default : ()=>["Heading", "|", "B", "I", "|", "Link"]
+      default : ()=>[
+        "Heading", "|", "B", "I", "|", "Link", "Code", "|",
+        "BlockQuote", "CodeBlock", "|", "Indent", "Outdent", "UL", "OL"
+        ]
     },
     "toolbarAlign" : {
       type : String,
@@ -73,21 +97,68 @@ export default {
             action : "$parent:setSelectionAsLink"
           },
           //.........................................
+          "Code" : {
+            icon : "zmdi-code",
+            action : "$parent:setSelectionAsCode"
+          },
+          //.........................................
           "Heading" : {
             type : "group",
             icon : "fas-hashtag",
-            text : "i18n:editor-heading",
+            text : "i18n:wordp-heading",
             items : [{
-                text: "H1",
+                text: "i18n:wordp-h1",
                 action : "$parent:setSelectionAsHeading(1)"
               }, {
-                text: "H2",
+                text: "i18n:wordp-h2",
                 action : "$parent:setSelectionAsHeading(2)"
               }, {
-                text: "H3",
+                text: "i18n:wordp-h3",
                 action : "$parent:setSelectionAsHeading(3)"
+              }, {
+                text: "i18n:wordp-h4",
+                action : "$parent:setSelectionAsHeading(4)"
+              }, {
+                text: "i18n:wordp-h5",
+                action : "$parent:setSelectionAsHeading(5)"
+              }, {
+                text: "i18n:wordp-h6",
+                action : "$parent:setSelectionAsHeading(6)"
+              }, {
+                text: "i18n:wordp-h0",
+                action : "$parent:setSelectionAsHeading(0)"
               }]
-          }
+          },
+          //.........................................
+          "BlockQuote" : {
+            icon : "fas-quote-right",
+            action : "$parent:setSelectionAsBlockQuote"
+          },
+          //.........................................
+          "CodeBlock" : {
+            icon : "fas-code",
+            action : "$parent:setSelectionAsCodeBlock"
+          },
+          //.........................................
+          "Indent" : {
+            icon : "fas-indent",
+            action : "$parent:setSelectionAsIndent('+1')"
+          },
+          //.........................................
+          "Outdent" : {
+            icon : "fas-outdent",
+            action : "$parent:setSelectionAsIndent('-1')"
+          },
+          //.........................................
+          "UL" : {
+            icon : "fas-list-ul",
+            action : "$parent:setSelectionAsUL"
+          },
+          //.........................................
+          "OL" : {
+            icon : "fas-list-ol",
+            action : "$parent:setSelectionAsOL"
+          },
           //.........................................
           //.........................................
         })[v]
@@ -96,6 +167,10 @@ export default {
           list.push(it)
         }
         //...........................................
+      })
+      list.push({
+        text: "HL",
+        action : "$parent:highlightCode"
       })
       return list;
     }
@@ -120,11 +195,36 @@ export default {
     },
     //-----------------------------------------------
     async setSelectionAsLink(){
-      let href = await Ti.Prompt("i18n:editor-link");
+      let href = await Ti.Prompt("i18n:wordp-link");
       if(!Ti.Util.isNil(href)) {
         let op = this.$editor.format("link", href)
         console.log(op)
       }
+    },
+    //-----------------------------------------------
+    setSelectionAsCode() {
+      this.$editor.format("code", true)
+    },
+    //-----------------------------------------------
+    setSelectionAsBlockQuote() {
+      this.$editor.format("blockquote", true)
+    },
+    //-----------------------------------------------
+    setSelectionAsCodeBlock() {
+      this.$editor.format("code-block", "javascript")
+    },
+    //-----------------------------------------------
+    setSelectionAsIndent(value="+1") {
+      console.log("haha")
+      this.$editor.format("indent", value)
+    },
+    //-----------------------------------------------
+    setSelectionAsUL() {
+      this.$editor.format("list", 'bullet')
+    },
+    //-----------------------------------------------
+    setSelectionAsOL() {
+      this.$editor.format("list", "ordered")
     },
     //-----------------------------------------------
     // Utility
@@ -161,15 +261,45 @@ export default {
       }
     },
     //-----------------------------------------------
+    // Highlight
+    //-----------------------------------------------
+    highlightCode() {
+      for(let $code of this.$refs.stage.querySelectorAll("pre")) {
+        console.log($code)
+        hljs.highlightBlock($code)
+      }
+    },
+    //-----------------------------------------------
     // Quill
     //-----------------------------------------------
     quillChanged(delta) {
-      console.log("changed", delta)
+      console.log("changed", JSON.stringify(delta, null, '  '))
+      let MdDoc = Cheap.parseDelta(delta)
+      window.MdDoc = MdDoc
+      console.log(MdDoc.toString())
+      let markdown = MdDoc.toMarkdown()
+      console.log(markdown)
+
+      this.$notify("change", markdown)
     },
     //-----------------------------------------------
     installQuillEditor() {
       //.............................................
+      // Reset the Quill Default
+      ResetQuillConfig(Quill)
+      //Quill.register(MyIndent)
+      //.............................................
       this.$editor = new Quill(this.$refs.stage, {
+        modules: {
+          syntax: false
+          // toolbar: [
+          //   [{ header: [1, 2, false] }],
+          //   ['bold', 'italic', 'underline'],
+          //   ['image', 'code-block'],
+          //   [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          //   [{ 'indent': '-1'}, { 'indent': '+1' }],
+          // ]
+        },
         placeholder : Ti.I18n.text(this.placeholder)
       });
       //.............................................
@@ -199,3 +329,4 @@ export default {
   }
   ///////////////////////////////////////////////////
 }
+export default _M;

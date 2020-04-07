@@ -3,6 +3,10 @@
   "globally" : true,
   "i18n" : "@i18n:ti-text-editor",
   "template" : "./markdown-richeditor.html",
+  "css" : "@deps:highlight/default.css",
   "mixins" : ["./markdown-richeditor.mjs"],
-  "deps" : "@deps:quill/quill.min.js"
+  "deps" : [
+    "@deps:quill/quill.js",
+    "@deps:highlight/highlight.js"
+  ]
 }
