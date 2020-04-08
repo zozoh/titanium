@@ -13,6 +13,8 @@
   //---------------------------------------------
   // Stage
   > .as-stage {
+    max-width: unset; width:100%; height:100%;
+    padding:0; margin:0;
     //-------------------------------------------
     // Quill Setting
     .ql-editor {
@@ -24,10 +26,12 @@
       tab-size: 4;
       -moz-tab-size: 4;
       text-align: left;
+      padding:1em 2em;
       /*white-space: pre-wrap;
       word-wrap: break-word;*/
+      a[href] {text-decoration: underline;}
     }
-    .ql-editor > * {
+    .ql-editor * {
       cursor: text;
     }
     .ql-editor.ql-blank::before {
@@ -37,6 +41,7 @@
       display: inline;
       pointer-events: none;
       position: absolute;
+      top:2em; left:2em;
     }
     .ql-clipboard {
       left: -100000px;

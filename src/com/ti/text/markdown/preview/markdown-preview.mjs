@@ -56,7 +56,7 @@ export default {
     renderMarkdown() {
       if(!Ti.Util.isBlank(this.content)) {
         let MdDoc = Cheap.parseMarkdown(this.content)
-        //console.log(MdDoc)
+        console.log(MdDoc.toString())
         this.myHtml  = MdDoc.toBodyInnerHtml({
           mediaSrc : src => this.evalMediaSrc(src)
         })

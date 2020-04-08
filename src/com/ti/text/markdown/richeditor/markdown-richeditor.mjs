@@ -13,7 +13,6 @@ function ResetQuillConfig(Quill) {
   const Indent = Quill.import('formats/indent')
   Indent.keyName = "li-indent"
   Indent.whitelist = [1,2,3,4,5,6]
-  console.log(Indent)
   //.................................................
   // Mark it
   Quill.__has_been_reset = true
@@ -22,8 +21,9 @@ function ResetQuillConfig(Quill) {
 const _M = {
   ///////////////////////////////////////////////////
   data: ()=>({
-    myHtml  : null,
-    myTheme : null
+    myMeta : {},
+    syncForbid : 0,
+    myToolbarStatus : {}
   }),
   ///////////////////////////////////////////////////
   props : {
@@ -60,15 +60,17 @@ const _M = {
   computed : {
     //-----------------------------------------------
     TopClass() {
-      return this.getTopClass({
-        [`theme-${this.myTheme}`] : this.myTheme
-      })
+      return this.getTopClass()
     },
     //-----------------------------------------------
     ThemeClass() {
-      if(this.myTheme) {
-        return `ti-markdown-theme-${this.myTheme}`
+      if(this.ThemeName) {
+        return `ti-markdown-theme-${this.ThemeName}`
       }
+    },
+    //-----------------------------------------------
+    ThemeName() {
+      return _.get(this.myMeta, "theme") || this.theme
     },
     //-----------------------------------------------
     hasToolbar() {
@@ -84,17 +86,20 @@ const _M = {
           //.........................................
           "B" : {
             icon : "fas-bold",
-            action : "$parent:setSelectionAsBold"
+            action : "$parent:setSelectionAsBold",
+            disableBy : "bold"
           },
           //.........................................
           "I" : {
             icon : "fas-italic",
-            action : "$parent:setSelectionAsItalic"
+            action : "$parent:setSelectionAsItalic",
+            disableBy : "italic"
           },
           //.........................................
           "Link" : {
             icon : "fas-link",
-            action : "$parent:setSelectionAsLink"
+            action : "$parent:setSelectionAsLink",
+            disableBy : "italic"
           },
           //.........................................
           "Code" : {
@@ -108,22 +113,28 @@ const _M = {
             text : "i18n:wordp-heading",
             items : [{
                 text: "i18n:wordp-h1",
-                action : "$parent:setSelectionAsHeading(1)"
+                action : "$parent:setSelectionAsHeading(1)",
+                disableBy : "h1"
               }, {
                 text: "i18n:wordp-h2",
-                action : "$parent:setSelectionAsHeading(2)"
+                action : "$parent:setSelectionAsHeading(2)",
+                disableBy : "h2"
               }, {
                 text: "i18n:wordp-h3",
-                action : "$parent:setSelectionAsHeading(3)"
+                action : "$parent:setSelectionAsHeading(3)",
+                disableBy : "h3"
               }, {
                 text: "i18n:wordp-h4",
-                action : "$parent:setSelectionAsHeading(4)"
+                action : "$parent:setSelectionAsHeading(4)",
+                disableBy : "h4"
               }, {
                 text: "i18n:wordp-h5",
-                action : "$parent:setSelectionAsHeading(5)"
+                action : "$parent:setSelectionAsHeading(5)",
+                disableBy : "h5"
               }, {
                 text: "i18n:wordp-h6",
-                action : "$parent:setSelectionAsHeading(6)"
+                action : "$parent:setSelectionAsHeading(6)",
+                disableBy : "h6"
               }, {
                 text: "i18n:wordp-h0",
                 action : "$parent:setSelectionAsHeading(0)"
@@ -132,7 +143,12 @@ const _M = {
           //.........................................
           "BlockQuote" : {
             icon : "fas-quote-right",
-            action : "$parent:setSelectionAsBlockQuote"
+            action : "$parent:setSelectionAsBlockQuote",
+            statusKey : "blockquote",
+            altDisplay : {
+              capture : false,
+              icon : "fas-quote-left",
+            }
           },
           //.........................................
           "CodeBlock" : {
@@ -246,19 +262,35 @@ const _M = {
     },
     //-----------------------------------------------
     renderMarkdown() {
+      console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown")
       if(!Ti.Util.isBlank(this.content)) {
+        // Parse markdown
         let MdDoc = Cheap.parseMarkdown(this.content)
-        //console.log(MdDoc)
-        this.myHtml  = MdDoc.toBodyInnerHtml({
-          mediaSrc : src => this.evalMediaSrc(src)
-        })
-        this.myTheme = MdDoc.getMeta("theme", this.theme)
+        console.log(MdDoc.toString())
+        window.MdDoc = MdDoc
+        this.myMeta = _.cloneDeep(MdDoc.getMeta())
+
+        // Get delta
+        let delta = MdDoc.toDelta()
+        console.log(JSON.stringify(delta, null, '   '))
+
+        // Update Quill editor content
+        this.$editor.setContents(delta);
+        
       }
       // Show Blank
       else {
-        this.myHtml = Ti.I18n.text(this.blankAs)
-        this.myTheme = this.theme
+        this.myMeta = {}
       }
+    },
+    //-----------------------------------------------
+    syncMarkdown() {
+      console.log("haha")
+      if(this.syncForbid > 0) {
+        this.syncForbid --
+        return
+      }
+      this.renderMarkdown()
     },
     //-----------------------------------------------
     // Highlight
@@ -273,17 +305,36 @@ const _M = {
     // Quill
     //-----------------------------------------------
     quillChanged(delta) {
-      console.log("changed", JSON.stringify(delta, null, '  '))
+      //console.log("changed", JSON.stringify(delta, null, '  '))
       let MdDoc = Cheap.parseDelta(delta)
-      window.MdDoc = MdDoc
-      console.log(MdDoc.toString())
+      MdDoc.setDefaultMeta(this.myMeta)
+      this.myMeta = MdDoc.getMeta()
+      //console.log(MdDoc.toString())
       let markdown = MdDoc.toMarkdown()
-      console.log(markdown)
-
-      this.$notify("change", markdown)
+      //console.log(markdown)
+      if(markdown != this.content) {
+        this.syncForbid = 1
+        this.$notify("change", markdown)
+      }
+    },
+    //-----------------------------------------------
+    updateQuillStatus() {
+      let fmt = this.$editor.getFormat()
+        console.log(fmt)
+        fmt = _.cloneDeep(fmt)
+        if(fmt.header) {
+          fmt[`h${fmt.header}`] = true
+        }
+        if(!_.isEqual(this.myToolbarStatus, fmt)) {
+          this.myToolbarStatus = fmt
+        }
     },
     //-----------------------------------------------
     installQuillEditor() {
+      // Guard
+      if(this.$editor) {
+        return
+      }
       //.............................................
       // Reset the Quill Default
       ResetQuillConfig(Quill)
@@ -303,29 +354,31 @@ const _M = {
         placeholder : Ti.I18n.text(this.placeholder)
       });
       //.............................................
-      this.debounceQuillChanged = _.debounce((delta)=>this.quillChanged(delta), 1000)
+      this.debounceQuillChanged = _.debounce((newDelta, oldDelta)=>{
+        let delta = oldDelta.compose(newDelta)
+        this.quillChanged(delta)
+      }, 1000)
       //.............................................
       this.$editor.on("text-change", (newDelta, oldDelta, source)=>{
-        let delta = oldDelta.compose(newDelta)
-        this.debounceQuillChanged(delta)
+        this.debounceQuillChanged(newDelta, oldDelta)
       })
       //.............................................
-      // this.$editor.on("selection-change", (range, oldRange, source)=>{
-      //   console.log("selection-change", source, oldRange, range)
-      // })
+      this.$editor.on("selection-change", (range, oldRange, source)=>{
+        this.updateQuillStatus()
+      })
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   watch : {
     "content" : {
-      handler : "renderMarkdown",
-      immediate : true
+      handler : "syncMarkdown"
     }
   },
   ///////////////////////////////////////////////////
   mounted: function() {
     this.installQuillEditor()
+    this.syncMarkdown()
   }
   ///////////////////////////////////////////////////
 }
