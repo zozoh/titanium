@@ -21,7 +21,10 @@ const WN_MANAGER_MIXINS = {
   computed : {
     //---------------------------------------
     TopClass() {
-      return this.getTopClass(this.appClassName)
+      return this.getTopClass({
+        "is-current-as-home" : this.CurrentIsHome,
+        "is-current-no-home" : !this.CurrentIsHome
+      },this.appClassName)
     },
     //---------------------------------------
     // Status

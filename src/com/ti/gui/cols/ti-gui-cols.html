@@ -1,11 +1,13 @@
 <div class="ti-gui-cols" :class="topClass">
   <template v-if="hasBlocks">
-    <ti-gui-block v-for="(block, index) in blocks"
-      :key="index"
-      embed-in="cols"
-      v-bind="block"
-      :schema="schema"
-      :action-status="actionStatus"
-      :shown="shown"/>
+    <template v-for="(block, index) in blocks">
+      <ti-gui-block v-if="!block.hide"
+        :key="index"
+        embed-in="cols"
+        v-bind="block"
+        :schema="schema"
+        :action-status="actionStatus"
+        :shown="shown"/>
+      </template>
   </template>
 </div>

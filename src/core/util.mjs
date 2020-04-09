@@ -251,11 +251,13 @@ const TiUtil = {
           m_val  = _.trim(m[2])
         }
         // Find key in context
-        m = /^(=)([^?]+)(\?(.*))?$/.exec(theValue)
-        if(m) {
-          m_type = m[1]
-          m_val  = _.trim(m[2])
-          m_dft  = m[4]
+        else {
+          m = /^(=)([^?]+)(\?(.*))?$/.exec(theValue)
+          if(m) {
+            m_type = m[1]
+            m_val  = _.trim(m[2])
+            m_dft  = m[4]
+          }
         }
         // Matched
         if(m_type) {

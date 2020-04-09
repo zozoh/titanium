@@ -241,6 +241,10 @@ export default {
             it.indent = this.getRowIndent(it.item)
           })
         }
+        // Check ready 
+        if(_.isEmpty(this.data)) {
+          this.myCellsReady = true
+        }
       },
       immediate : true
     }
