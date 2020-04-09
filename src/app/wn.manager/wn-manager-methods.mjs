@@ -64,6 +64,8 @@ const WN_MANAGER_METHODS = {
       this.comIcon = view.comIcon
       this.comConf = view.comConf
       this.view = view
+      this.myMessage = null
+      this.myIndicator = null
       this.OnUpdateActions(view.actions)
     }
     // Clean

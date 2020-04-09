@@ -83,15 +83,18 @@
 .wn-gui-footer {
   @include flex-align-nowrap;
   @include color($color-track, c);
+  font-size: .8em; padding: 0 1em;
   > .as-info {
     @include flex-center;
-    font-size: .8em;
     flex: 0 0 auto;
-    padding: 0 .06rem;
     > .ti-icon {margin-right:.06rem;}
   }
-  > .as-status {
+  > .as-msg {
     @include flex-center;
     flex: 1 1 auto;
+  }
+  > .as-indi {
+    @include font-fixed;
+    flex: 0 0 auto;
   }
 }

@@ -27,6 +27,9 @@ const _M = {
   }),
   ///////////////////////////////////////////////////
   props : {
+    //...............................................
+    // Data
+    //...............................................
     "mediaBase" : {
       type : String,
       default : undefined
@@ -35,6 +38,9 @@ const _M = {
       type : String,
       default : ""
     }, 
+    //...............................................
+    // Aspact
+    //...............................................
     "placeholder" : {
       type : String,
       default : "i18n:blank"
@@ -46,8 +52,11 @@ const _M = {
     "toolbar" : {
       type : Array,
       default : ()=>[
-        "Heading", "|", "B", "I", "|", "Link", "Code", "|",
-        "BlockQuote", "CodeBlock", "|", "Indent", "Outdent", "UL", "OL"
+        "Heading", "|", "B", "I", "|", "Link", "Code", 
+        "|", "BlockQuote", "CodeBlock", 
+        "|", "Outdent", "Indent",  
+        "|", "UL", "OL",
+        "|", "Media"
         ]
     },
     "toolbarAlign" : {
@@ -99,12 +108,13 @@ const _M = {
           "Link" : {
             icon : "fas-link",
             action : "$parent:setSelectionAsLink",
-            disableBy : "italic"
+            disableBy : "link"
           },
           //.........................................
           "Code" : {
             icon : "zmdi-code",
-            action : "$parent:setSelectionAsCode"
+            action : "$parent:setSelectionAsCode",
+            disableBy : "code"
           },
           //.........................................
           "Heading" : {
@@ -176,6 +186,10 @@ const _M = {
             action : "$parent:setSelectionAsOL"
           },
           //.........................................
+          "Media" : {
+            icon : "fas-photo-video",
+            action : "$parent:OnInsertMedia"
+          },
           //.........................................
         })[v]
         //...........................................
@@ -194,6 +208,76 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   methods : {
+    //-----------------------------------------------
+    // Events
+    //-----------------------------------------------
+    async OnInsertMedia() {
+      let list = await Wn.OpenObjSelector()
+
+      // User cancel
+      if(!list || _.isEmpty(list)) {
+        return
+      }
+      
+      for(let obj of list) {
+        let home = Wn.Session.getHomePath();
+        let rph = Ti.Util.getRelativePath(home, obj.ph, "")
+        let aph = Ti.Util.appendPath("~", rph)
+        let src = `/o/content?str=${aph}`
+        // Video
+        if(obj.mime && obj.mime.startsWith("video")) {
+          this.insertMedia("video", src, {
+            controls : false,
+            autoplay : false
+          })
+        }
+        // Image
+        else {
+          this.insertMedia("image", src)
+        }
+      }
+    },
+    //-----------------------------------------------
+    // Insert Operation
+    //-----------------------------------------------
+    insertMedia(type="image", src, attrs={}) {
+      // Guard
+      if(!src) {
+        return
+      }
+
+      // Prepare the Delta
+      let Delta = Quill.import("delta")
+      let det = new Delta()
+
+      // Insert to current position
+      let sel = this.$editor.getSelection()
+      console.log("selection", sel)
+
+      if(!sel) {
+        this.$editor.setSelection(0)
+        sel = {index:0, length:0}
+      }
+
+      let {index,length} = sel
+
+      // Move to current
+      det.retain(index)
+            
+      // Delete current
+      if(length > 0) {
+          det.delete(length)
+      }
+
+      // Add Media
+      det.insert({[type]: src, attributes: attrs})
+     
+      // Update 
+      this.$editor.updateContents(det)
+
+      // Move cursor
+      this.$editor.setSelection(index+1)
+    },
     //-----------------------------------------------
     // Selection Operation
     //-----------------------------------------------
@@ -248,18 +332,18 @@ const _M = {
     //-----------------------------------------------
     // Rendering
     //-----------------------------------------------
-    evalMediaSrc(src) {
-      // Falsy src or base
-      if(!src || !this.mediaBase) {
-        return src
-      }
-      // Absolute path
-      if(/^(https?:\/\/|\/)/i.test(src)) {
-        return src
-      }
-      // Join the base
-      return Ti.Util.appendPath(this.mediaBase, src)
-    },
+    // evalMediaSrc(src) {
+    //   // Falsy src or base
+    //   if(!src || !this.mediaBase) {
+    //     return src
+    //   }
+    //   // Absolute path
+    //   if(/^(https?:\/\/|\/)/i.test(src)) {
+    //     return src
+    //   }
+    //   // Join the base
+    //   return Ti.Util.appendPath(this.mediaBase, src)
+    // },
     //-----------------------------------------------
     renderMarkdown() {
       console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown")
@@ -285,7 +369,6 @@ const _M = {
     },
     //-----------------------------------------------
     syncMarkdown() {
-      console.log("haha")
       if(this.syncForbid > 0) {
         this.syncForbid --
         return
@@ -318,9 +401,19 @@ const _M = {
       }
     },
     //-----------------------------------------------
-    updateQuillStatus() {
+    quillSelectionChanged() {
+      // Update selection info
+      let sel = this.$editor.getSelection()
+      if(sel) {
+        let ii = [sel.index]
+        if(sel.length > 0) {
+          ii.push(sel.length)
+        }
+        this.$notify("indicate", ii.join(":"))
+      }
+
+      // Update format
       let fmt = this.$editor.getFormat()
-        console.log(fmt)
         fmt = _.cloneDeep(fmt)
         if(fmt.header) {
           fmt[`h${fmt.header}`] = true
@@ -351,6 +444,7 @@ const _M = {
           //   [{ 'indent': '-1'}, { 'indent': '+1' }],
           // ]
         },
+        bounds : this.$refs.stage,
         placeholder : Ti.I18n.text(this.placeholder)
       });
       //.............................................
@@ -364,7 +458,7 @@ const _M = {
       })
       //.............................................
       this.$editor.on("selection-change", (range, oldRange, source)=>{
-        this.updateQuillStatus()
+        this.quillSelectionChanged()
       })
     }
     //-----------------------------------------------

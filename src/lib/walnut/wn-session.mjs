@@ -20,9 +20,13 @@ export const WnSession = {
     return _.cloneDeep(ENVS)
   },
   //----------------------------------------
+  getHomePath() {
+    return WnSession.env("HOME")
+  },
+  //----------------------------------------
   // Analyze the current domain 
   getCurrentDomain() {
-    let home = WnSession.env("HOME")
+    let home = WnSession.getHomePath()
     if(!home) {
       return
     }

@@ -63,6 +63,10 @@ export default {
       "reload" : "dispatch:current/reload"
     })
   },
+  "listConf" : {
+    type : Object,
+    default : undefined
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

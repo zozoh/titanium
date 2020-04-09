@@ -5,6 +5,9 @@
   "template" : "./markdown-richeditor.html",
   "css" : "@deps:highlight/default.css",
   "mixins" : ["./markdown-richeditor.mjs"],
+  "components" : [
+    "@com:wn/adaptlist"
+  ],
   "deps" : [
     "@deps:quill/quill.js",
     "@deps:highlight/highlight.js"

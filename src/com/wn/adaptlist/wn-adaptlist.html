@@ -11,22 +11,24 @@
     <!--==================================
       Data List
     -->
-    <ti-wall v-else
-      class="ti-fill-parent"
-      :data="TheDataList"
-      :spacing="spacing"
-      :changed-id="changedId"
-      :current-id="myCurrentId"
-      :checked-ids="myCheckedIds"
-      :multi="multi"
-      :checkable="checkable"
-      :blurable="blurable"
-      :selectable="selectable"
-      :display="WallItemDisplay"
-      :puppet-mode="true"
-      :extend-function-set="ExtendFunctionSet"
-      :on-init="OnListInit"
-      @select="OnSelected"/>
+    <ti-wall
+      v-else
+        class="ti-fill-parent"
+        :data="TheDataList"
+        :spacing="spacing"
+        :changed-id="changedId"
+        :current-id="myCurrentId"
+        :checked-ids="myCheckedIds"
+        :multi="multi"
+        :checkable="checkable"
+        :blurable="blurable"
+        :selectable="selectable"
+        :display="WallItemDisplay"
+        :puppet-mode="true"
+        :extend-function-set="ExtendFunctionSet"
+        v-bind="listConf"
+        :on-init="OnListInit"
+        @select="OnSelected"/>
     <!--==================================
       Hidden file upload control
     -->

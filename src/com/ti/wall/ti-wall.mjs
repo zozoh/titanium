@@ -12,8 +12,8 @@ export default {
     myColWidth : 0,
     isOnlyOneRow : true,
 
-    myCellsReady : false,
-    myCellsReport : {}
+    myCellsReport : {},
+    myNeedResize : true
   }),
   //////////////////////////////////////////
   props : {
@@ -44,6 +44,10 @@ export default {
     "itemHeight" : {
       type : [String, Number],
       default : null
+    },
+    "resizeDelay" : {
+      type : Number,
+      default : 0
     }
   },
   //////////////////////////////////////////
@@ -110,11 +114,13 @@ export default {
     },
     //--------------------------------------
     OnWallResize() {
+      //console.log("OnWallResize")
       let $divs = Ti.Dom.findAll(":scope > .wall-tile", this.$el)
       // Guard empty
       if(_.isEmpty($divs)) 
         return
       // Eval the cols and width
+      //console.log("  ~~~ do", this.data)
       let cols  = 0
       let width = 1
       let top = -1
@@ -148,26 +154,31 @@ export default {
       if(isDone) {
         delete this.myCellsReport[key]
       } else {
-        this.myCellsReport[key] = isDone
+        this.myCellsReport[key] = false
+        this.myNeedResize = true
       }
       // Check the status
-      _.delay(()=>{
-        this.myCellsReady = _.isEmpty(this.myCellsReport)
-        // Do resize
-        if(this.myCellsReady) {
-          this.OnWallResize()
-        }
-      })
+      if(isDone) {
+        _.delay(()=>{
+          let allReady = _.isEmpty(this.myCellsReport)
+          // Do resize
+          if(allReady && this.myNeedResize) {
+            _.delay(()=>{
+              this.OnWallResize()
+            }, this.resizeDelay)
+            this.myNeedResize = false
+          }
+        })
+      }
     },
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "data" : {
-      handler : "OnWallResize",
-      immediate : true
-    }
-  },
+  // watch : {
+  //   "data" : {
+  //     handler : "OnWallResize"
+  //   }
+  // },
   //////////////////////////////////////////
   mounted : function() {
     //.................................

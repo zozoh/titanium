@@ -12,7 +12,10 @@ const WN_MANAGER_MIXINS = {
     ancestors : [],
     parent : null,
     // Current view(main) information
-    view : null
+    view : null,
+    // Message and Indicator
+    myMessage   : null,
+    myIndicator : null
   }),
   ///////////////////////////////////////////
   computed : {
@@ -165,6 +168,14 @@ const WN_MANAGER_MIXINS = {
       //console.log("OnUpdateAction", actions)
       this.actions = _.cloneDeep(actions)
       Ti.App(this).reWatchShortcut(actions)
+    },
+    //--------------------------------------
+    OnArenaIndicate(info) {
+      this.myIndicator = info
+    },
+    //--------------------------------------
+    OnArenaMessage(msg="") {
+      this.myMessage = msg
     },
     //--------------------------------------
     async openView(oid) {

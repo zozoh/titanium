@@ -4,15 +4,19 @@ export default {
   props : {
     "infoIcon" : {
       type : [String, Object],
-      default : null
+      default : undefined
     },
     "infoText" : {
       type : String,
-      default : null
+      default : undefined
     },
-    "statusText" : {
+    "message" : {
       type : String,
-      default : null
+      default : undefined
+    },
+    "indicator" : {
+      type : String,
+      default : undefined
     }
   }
   //////////////////////////////////////////

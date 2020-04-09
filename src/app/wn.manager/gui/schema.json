@@ -33,10 +33,6 @@
   },
   "pcFooter" : {
     "comType" : "wn-gui-footer",
-    "comConf" : {
-      "infoIcon"   : "=comIcon",
-      "infoText"   : "=comType",
-      "statusText" : "=StatusText"
-    }
+    "comConf" : "=Footer"
   }
 }

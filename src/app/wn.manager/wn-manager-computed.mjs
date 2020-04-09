@@ -75,6 +75,15 @@ const WN_MANAGER_COMPUTED = {
       // Done
       return comConf
     }
+  },
+  //.........................................
+  Footer() {
+    return {
+      infoIcon  : this.comIcon,
+      infoText  : this.comType,
+      message   : this.myMessage || this.StatusText,
+      indicator : this.myIndicator
+    }
   }
   //.........................................
 }

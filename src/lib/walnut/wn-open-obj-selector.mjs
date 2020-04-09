@@ -129,7 +129,10 @@ export async function OpenObjSelector(pathOrObj="~", {
                 "meta"   : this.obj,
                 "data"   : this.data,
                 "status" : this.status,
-                "multi"  : multi
+                "multi"  : multi,
+                "listConf" : {
+                  resizeDelay : 200
+                }
               }
             }
           }
