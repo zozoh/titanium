@@ -175,7 +175,7 @@ const FieldDisplay = {
         let m = /^<([^:>=]*)(:([^>]+))?>$/.exec(displayItem)
         if(m) {
           return {
-            key       : m[1] || defaultKey || Symbol(displayItem),
+            key       : m[1] || defaultKey || ":ti-icon",
             defaultAs : m[3] || undefined,
             comType   : "ti-icon"
           }
