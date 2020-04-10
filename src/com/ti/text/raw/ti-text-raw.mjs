@@ -24,7 +24,7 @@ export default {
     },
     "trimed" : {
       type : Boolean,
-      default : true
+      default : false
     },
     "content" : {
       type : String,
@@ -47,26 +47,35 @@ export default {
   },
   ///////////////////////////////////////////////////
   computed : {
-    topClass() {
+    //-----------------------------------------------
+    TopClass() {
       return this.getTopClass({
         "show-title" : this.showTitle,
         "hide-title" : !this.showTitle
       })
     },
-    headClass() {
+    //-----------------------------------------------
+    HeadClass() {
       return {
         "content-changed" : this.isContentChanged
       }
     },
+    //-----------------------------------------------
+    hasContent() {
+      return !Ti.Util.isNil(this.content)
+    },
+    //-----------------------------------------------
     placeholder() {
       return Ti.I18n.text(this.blankText)
     },
+    //-----------------------------------------------
     isContentChanged() {
       if(this.ignoreKeyUp) {
         return this.myContent != this.content
       }
       return _.get(this.status, "changed")
     }
+    //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
@@ -94,7 +103,7 @@ export default {
       this.checkContentChanged(!this.ignoreKeyUp)
     },
     //-----------------------------------------------
-    onContentChanged() {
+    OnContentChanged() {
       this.checkContentChanged(true)
     },
     //-----------------------------------------------
@@ -114,9 +123,9 @@ export default {
   },
   ///////////////////////////////////////////////////
   created : function() {
-    this.debounceTextareaKeyup = _.debounce(
-      this.onTextareaKeyup, 500
-    )
+    this.OnTextareaKeyup = _.debounce(()=>{
+      this.checkContentChanged(!this.ignoreKeyUp)
+    }, 500)
   },
   ///////////////////////////////////////////////////
   mounted : function() {

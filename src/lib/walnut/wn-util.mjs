@@ -135,18 +135,31 @@ export const WnUtil = {
   getAppLinkStr(meta, options) {
     return WnUtil.getAppLink(meta, options).toString()
   },
-  getObjBadges(meta={}) {
-    return {
-      NW : null,
-      NE : meta.ln ? "zmdi-open-in-new" : null,
-      SW : null,
-      SE : null
-    }
+  getObjBadges(meta={}, {
+    NW= null,
+    NE= ["ln", "zmdi-open-in-new"],
+    SW= null,
+    SE= null
+  }={}) {
+    let bg = {}
+    if(NW && meta[NW[0]])
+      bg.NW = NW[1]
+
+    if(NE && meta[NE[0]])
+      bg.NE = NE[1]
+
+    if(SW && meta[SW[0]])
+      bg.SW = SW[1]
+
+    if(SE && meta[SE[0]])
+      bg.SE = SE[1]
+    return bg
   },
   getObjThumbInfo(meta={}, {
     exposeHidden = false,
     status = {},
-    progress = {}
+    progress = {},
+    badges=undefined
   }={}) {
     // Guard
     if(!meta || !meta.nm) {
@@ -168,7 +181,7 @@ export const WnUtil = {
       visibility,
       status   : status[meta.id],
       progress : progress[meta.id],
-      badges : WnUtil.getObjBadges(meta)
+      badges : WnUtil.getObjBadges(meta, badges)
     }
   },
   /***

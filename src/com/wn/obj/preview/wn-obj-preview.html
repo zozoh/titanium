@@ -1,19 +1,19 @@
-<div class="wn-obj-preview" :class="topClass">
+<div class="wn-obj-preview" :class="TopClass">
   <!--
     With content
   -->
   <div class="wop-con" v-if="hasMeta">
     <!--Main View-->
     <component class="as-main"
-      :is="thePreviewComType"
-      :icon="dataIcon"
-      :title="dataTitle"
-      :src="dataSource"/>
+      :is="PreviewComType"
+      :icon="DataIcon"
+      :title="DataTitle"
+      :src="DataSource"/>
     <!--ActionBar at top-->
     <div class="as-abar">
       <ul>
-        <li v-for="it in theActions"
-          @click.left="onAction(it.action)">
+        <li v-for="it in TheActions"
+          @click.left="OnAction(it.action)">
           <ti-icon class="it-icon" :value="it.icon"/>
         </li>
       </ul>
@@ -26,20 +26,20 @@
       <div class="info-head">
         <!--Pin Status Icon-->
         <span class="it-icon" @click.left="toggleInfoFloat">
-          <ti-icon :value="thePreviewInfoPinIcon"/>
+          <ti-icon :value="PreviewInfoPinIcon"/>
         </span>
         <!--Head text-->
         <span class="it-text">{{'i18n:info'|i18n}}</span>
         <!--Edit Button-->
         <span class="it-edit"
-          @click.left="doEditInfo">{{'i18n:edit'|i18n}}</span>
+          @click.left="OnEditInfo">{{'i18n:edit'|i18n}}</span>
       </div>
       <!--
         Fields
       -->
       <div class="info-field-con">
         <wn-obj-preview-info-field
-          v-for="fld in thePrevewInfoFields"
+          v-for="fld in PrevewInfoFields"
           :key="fld.name"
           v-bind="fld"
           :data="meta"/>

@@ -1,19 +1,32 @@
 <div class="ti-text-raw"
-  :class="topClass"
+  :class="TopClass"
   v-ti-activable>
-  <div v-if="showTitle"
-    class="te-head" :class="headClass">
-    <ti-icon class="center" :value="icon"/>
-    <b>{{title}}</b>
-  </div>
-  <div class="te-main">
-    <textarea 
-      ref="text" 
-      spellcheck="false"
-      :placeholder="placeholder"
-      :value="myContent"
-      @keyup="debounceTextareaKeyup"
-      @change="onContentChanged"
-    ></textarea>
-  </div>
+  <!--
+    Show Editor
+  -->
+  <template v-if="hasContent || showTitle">
+    <div
+      v-if="showTitle"
+        class="te-head"
+        :class="HeadClass">
+        <ti-icon class="center" :value="icon"/>
+        <b>{{title}}</b>
+    </div>
+    <div class="te-main">
+      <textarea ref="text" 
+        spellcheck="false"
+        :placeholder="placeholder"
+        :value="myContent"
+        @keyup="OnTextareaKeyup"
+        @change="OnContentChanged"
+      ></textarea>
+    </div>
+  </template>
+  <!--
+    Show Blank
+  -->
+  <ti-loading 
+    v-else
+      icon="zmdi-alert-circle-o"
+      :text="blankText"/>
 </div>

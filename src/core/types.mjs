@@ -927,7 +927,7 @@ const TiTypes = {
       if(last < ma.index) {
         list.push(fmt.substring(last, ma.index))
       }
-      let it = ma[2] || _c[ma[1]] || ma[1]
+      let it = Ti.Util.fallback(ma[2], _c[ma[1]], ma[1])
       list.push(it)
       last = regex.lastIndex
     }

@@ -10,7 +10,8 @@ export async function EditObjMeta(pathOrObj="~", {
   height     = "80%", 
   spacing,
   currentTab = 0,
-  tabs       = {}
+  tabs       = {},
+  autoSave   = true
 }={}){
   //............................................
   // Load meta
@@ -50,14 +51,17 @@ export async function EditObjMeta(pathOrObj="~", {
   let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-info-outline")
   let theTitle = title || Wn.Util.getObjDisplayName(meta)
   //............................................
-  let updateMeta = await Ti.App.Open({
+  let reo = await Ti.App.Open({
     //------------------------------------------
     type, width, height, spacing, position, closer,
     icon  : theIcon,
     title : theTitle,
     actions : [{
       text: textOk,
-      handler : ({$main})=>_.cloneDeep($main.updates)
+      handler : ({$main})=>_.cloneDeep({
+        updates : $main.updates,
+        data : $main.meta
+      })
     }, {
       text: textCancel,
       handler : ()=>undefined
@@ -78,16 +82,15 @@ export async function EditObjMeta(pathOrObj="~", {
         mode="tab"
         :current-tab="currentTab"
         :fields="myFormFields"
-        :data="theData"
-        @change="onFieldChanged"
+        :data="meta"
+        @field:change="onFieldChange"
+        @change="onChange"
         />`,
-      computed : {
-        theData() {
-          return _.assign({}, this.meta, this.updates)
-        }
-      },
       methods : {
-        onFieldChanged({name, value}={}) {
+        onChange(data){
+          this.meta = data
+        },
+        onFieldChange({name, value}={}) {
           let obj = Ti.Types.toObjByPair({name, value})
           this.updates = _.assign({}, this.updates, obj)
         }
@@ -96,14 +99,21 @@ export async function EditObjMeta(pathOrObj="~", {
     //------------------------------------------
   })
   //............................................
-  if(!_.isEmpty(updateMeta)) {
-    let json = JSON.stringify(updateMeta)
+  // User cancel
+  if(!reo) {
+    return
+  }
+  //............................................
+  let {updates} = reo
+  if(autoSave &&!_.isEmpty(updates)) {
+    let json = JSON.stringify(updates)
     let cmdText = `obj 'id:${meta.id}' -ocqn -u`
     let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
     await Ti.Toast.Open("i18n:save-done", "success")
 
-    return newMeta
+    return {updates, data:newMeta}
   }
   //............................................
+  return reo
 }
 ////////////////////////////////////////////////////

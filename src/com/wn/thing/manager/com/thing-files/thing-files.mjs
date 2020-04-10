@@ -1,8 +1,6 @@
 const _M = {
   ///////////////////////////////////////////
-  provide : {
-    primaryNotify: true
-  },
+  inject: ["$ThingManager"],
   ///////////////////////////////////////////
   data: ()=>({
     myHome: null,
@@ -65,7 +63,7 @@ const _M = {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    OnAdaptListInit($adaptList){this.$adaptList = $adaptList},
+    OnAdaptListInit($adaptlist){this.$adaptlist = $adaptlist},
     //--------------------------------------
     // Events
     //--------------------------------------
@@ -84,7 +82,7 @@ const _M = {
     OnFileUploaded(files=[]){
       let f = _.first(files)
       if(f) {
-        this.$adaptList.myCurrentId = f.id
+        this.$adaptlist.myCurrentId = f.id
         this.myCurrentId = f.id
       }
     },
@@ -92,7 +90,7 @@ const _M = {
     // Untility
     //--------------------------------------
     async doDeleteSelected(){
-      await this.$adaptList.doDelete()
+      await this.$adaptlist.doDelete()
     },
     //--------------------------------------
     async doUploadFiles() {
@@ -117,7 +115,7 @@ const _M = {
       
       // Do upload
       if(this.myHome) {
-        this.$adaptList.openLocalFileSelectdDialog()
+        this.$adaptlist.openLocalFileSelectdDialog()
       }
       // Impossible
       else {
@@ -129,10 +127,18 @@ const _M = {
       //console.log("showPreviewObjInfo:", this.preview)
       if(this.CurrentFile) {
         let options = _.get(this.previewEdit, this.dirName)
-        let newMeta = await Wn.EditObjMeta(this.CurrentFile, options)
-        if(newMeta) {
-          this.$adaptList.setItem(newMeta)
+        let reo = await Wn.EditObjMeta(this.CurrentFile, options)
+        if(reo && reo.data) {
+          this.updateItemInDataList(reo.data)
         }
+      }
+    },
+    //--------------------------------------
+    updateItemInDataList(meta) {
+      if(meta && this.myData && _.isArray(this.myData.list)) {
+        this.myData.list = _.map(
+          this.myData.list,
+          it => it.id == meta.id ? meta : it)
       }
     },
     //--------------------------------------
@@ -172,6 +178,10 @@ const _M = {
       handler : "reloadData",
       immediate : true
     }
+  },
+  ///////////////////////////////////////////
+  mounted : function() {
+    this.$ThingManager.$files = this
   }
   ///////////////////////////////////////////
 }

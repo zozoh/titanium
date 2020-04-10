@@ -1,5 +1,3 @@
-import list_mixinsMjs from "../../support/list_mixins.mjs";
-
 export default {
   inheritAttrs : false,
   ////////////////////////////////////////////////
@@ -61,29 +59,34 @@ export default {
   },
   ////////////////////////////////////////////////
   computed : {
-    classObject() {
-      return {
-        "is-removed"    : this.removed,
-        "is-loading"    : this.loading,
+    //--------------------------------------------
+    TopClass() {
+      return this.getTopClass({
         "is-hide" : ('hide' == this.visibility),
         "is-weak" : ('weak' == this.visibility)
-      }
+      }, ()=>this.status ? `is-status-${this.status}` : null)
     },
-    showProgress() {
+    //--------------------------------------------
+    isShowProgress() {
       return this.progress>=0;
     },
-    progressTip() {
+    //--------------------------------------------
+    ProgressTip() {
       return Ti.S.toPercent(this.progress, {fixed:1, auto:false})
     },
-    progressStyleObj() {
+    //--------------------------------------------
+    ProgressStyle() {
       return {width:this.progressTip}
     },
+    //--------------------------------------------
     hasHref() {
       return this.href ? true : false
     },
-    theHref() {
+    //--------------------------------------------
+    TheHref() {
       return encodeURI(this.href)
     }
+    //--------------------------------------------
   },
   ////////////////////////////////////////////////
   methods : {

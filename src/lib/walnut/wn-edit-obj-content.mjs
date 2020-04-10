@@ -23,11 +23,11 @@ export async function EditObjContent(pathOrObj="~", {
     textOk = this.saveBy ? 'i18n:save' : 'i18n:ok'
   }
   //............................................
-  let autoSaveContent = Ti.Util.isNil(content)
+  let autoSave = Ti.Util.isNil(content)
   //............................................
   let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-receipt")
   let theTitle = title || "i18n:edit"
-  let theContent = autoSaveContent 
+  let theContent = autoSave 
                     ? await Wn.Io.loadContent(meta)
                     : content;
   //............................................
@@ -52,7 +52,7 @@ export async function EditObjContent(pathOrObj="~", {
   })
   //............................................
   //console.log(`newContent: [${newContent}]`)
-  if(autoSaveContent
+  if(autoSave
     && !_.isUndefined(newContent) 
     && newContent != theContent) {
     await Wn.Io.saveContentAsText(meta, newContent)

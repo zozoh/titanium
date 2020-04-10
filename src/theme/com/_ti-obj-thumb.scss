@@ -41,12 +41,20 @@
     //--------------------------------------------
   }
   //----------------------------------------------
-  > section.as-status {
+  > .as-status {
     @include pos-abs-full;
     @include flex-center;
-    @include color($color-mask, r, bushy);
-    font-size:.2rem; 
+    @include color($color-mask, r, thin);
+    opacity: 0.8;
   }
+  //----------------------------------------------
+  &.is-status-done       > .as-status{@include color($color-success, r, c);}
+  &.is-status-loading    > .as-status{@include color($color-primary, r, c);}
+  &.is-status-processing > .as-status{@include color($color-secondary, r, c);}
+  &.is-status-error      > .as-status{@include color($color-error, r, c);}
+  &.is-status-warn       > .as-status{@include color($color-warn, r, c);}
+  &.is-status-removed    > .as-status{@include color($color-text, r, c);}
+  &.is-status-ok         > .as-status{@include color($color-info, r, c);}
   //----------------------------------------------
   > footer {
     padding:.04rem;

@@ -1,5 +1,11 @@
 const _M = {
   ///////////////////////////////////////////
+  provide : function() {
+    return {
+      "$ThingManager" : this
+    }
+  },
+  ///////////////////////////////////////////
   props : {
     // Thing Set Home
     "meta" : {
@@ -236,6 +242,18 @@ const _M = {
       if(_.isArray(actions)) {
         this.$notify("actions:update", actions)
       }
+    },
+    //--------------------------------------
+    async reloadCurrentFiles() {
+      await this.$files.reloadData()
+    },
+    //--------------------------------------
+    async deleteCurrentSelectedFiles() {
+      await this.$files.doDeleteSelected()
+    },
+    //--------------------------------------
+    async uploadFilesToCurrent() {
+      await this.$files.doUploadFiles()
     }
     //--------------------------------------
   },

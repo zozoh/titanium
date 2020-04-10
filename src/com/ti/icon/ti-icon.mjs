@@ -100,7 +100,8 @@ export default {
 
       // Join `className / text` to show icon font
       if('font' == icn.type) {
-        _.assign(icn, Ti.Icons.parseFontIcon(icn.value))
+        let val = Ti.Icons.getByName(icn.value, icn.value)
+        _.assign(icn, Ti.Icons.parseFontIcon(val))
       }
       // Join base
       else if('image' == icn.type) {

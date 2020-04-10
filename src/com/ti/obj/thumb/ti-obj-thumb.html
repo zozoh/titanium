@@ -1,5 +1,5 @@
 <div class="ti-obj-thumb" 
-    :class="classObject">
+    :class="TopClass">
   <!--
     Preview && Process Bar
   -->
@@ -27,12 +27,12 @@
       </template>
     </div>
     <!--Process bar-->
-    <div v-if="showProgress"
+    <div v-if="isShowProgress"
       class="as-progress ti-progress-bar">
-      <span class="bar-tip">{{progressTip}}</span>
+      <span class="bar-tip">{{ProgressTip}}</span>
       <b class="bar-outer">
         <em class="bar-inner" 
-            :style="progressStyleObj"></em>
+            :style="ProgressStyle"></em>
       </b>
     </div>
   </header>
@@ -40,7 +40,11 @@
     Status Mask
   -->
   <section class="as-status" v-if="status">
-    <ti-icon :value="status"/>
+    <ti-icon 
+      :value="status"
+      font-size="2em"
+      width="3em"
+      height="3em"/>
   </section>
   <!--
     Footer for item title text
@@ -48,7 +52,7 @@
   <footer v-if="showFooter">
     <div class="as-title">
       <a v-if="hasHref"
-        :href="theHref"
+        :href="TheHref"
         @click.prevent>{{title}}</a>
       <span v-else>{{title}}</span>
     </div>

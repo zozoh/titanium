@@ -102,13 +102,10 @@
     }
   },
   "content" : {
-    "comType" : "wn-obj-puretext",
+    "comType" : "ti-text-raw",
     "comConf" : {
       "showTitle"    : false,
-      "meta"         : "=current.meta",
       "content"      : "=current.content",
-      "savedContent" : "=current.__saved_content",
-      "contentType"  : "=current.contentType",
       "status"       : "=current.status"
     }
   },

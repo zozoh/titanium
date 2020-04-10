@@ -58,7 +58,14 @@ const _M = {
       if(!this.myData || _.isEmpty(this.myData.list)) {
         return []
       }
-      return _.filter(this.myData.list, it=>!this.isHiddenItem(it))
+      let list = []
+      for(let it of this.myData.list) {
+        if(!this.isHiddenItem(it)) {
+          let status = this.myItemStatus[it.id]
+          list.push(_.assign({$wn$adaptlist$status:status}, it))
+        }
+      }
+      return list
     },
     //--------------------------------------------
     /***

@@ -8,7 +8,5 @@
     "config" : "./mod/config",
     "search" : "./mod/search",
     "current" : "@mod:wn/obj-current"
-  },
-  "__files"   : "@mod:wn/obj-current",
-  "__preview" : "@mod:wn/obj-current"
+  }
 }

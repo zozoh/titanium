@@ -34,7 +34,12 @@ export default {
       return this.getTopClass()
     },
     //------------------------------------------------
-    TheProps(){return this},
+    TheInputProps(){
+      return _.assign({}, this, {
+        readonly : !this.canInput || this.readonly,
+        placeholder : this.placeholder
+      })
+    },
     //------------------------------------------------
     InputValue() {
       if(!Ti.Util.isNil(this.myFilterValue)) {

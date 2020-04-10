@@ -135,7 +135,7 @@ export default {
     },
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
-      //console.log("------------------------ti-form changed", payload)      
+      //console.log("ti-form.OnFieldChange", {name, value})      
       let data = _.cloneDeep(this.TheData)
       _.set(data, name, value)
       this.$notify("field:change", {name, value})

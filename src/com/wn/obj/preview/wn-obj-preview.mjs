@@ -62,7 +62,7 @@ export default {
       return _.isEmpty(this.meta) ? false : true
     },
     //--------------------------------------
-    topClass() {
+    TopClass() {
       return {
         "is-fullscreen" : this.isInFullScreen,
         "is-show-info"  : this.isShowInfo,
@@ -71,7 +71,7 @@ export default {
       }
     },
     //--------------------------------------
-    thePreviewComType() {
+    PreviewComType() {
       if(this.meta) {
         let mime = this.meta.mime || ""
         // Video
@@ -89,13 +89,13 @@ export default {
       }
     },
     //--------------------------------------
-    thePreviewInfoPinIcon() {
+    PreviewInfoPinIcon() {
       return this.isFloatInfo 
         ? 'fas-thumbtack'
         : 'zmdi-layers'
     },
     //--------------------------------------
-    thePrevewInfoFields() {
+    PrevewInfoFields() {
       return Wn.Obj.evalFields(this.infoFields, (fld)=>{
         return _.defaults(fld, {
           nameWidth  : this.infoNameWidth,
@@ -104,7 +104,7 @@ export default {
       })
     },
     //--------------------------------------
-    theActions() {
+    TheActions() {
       let list = []
       if(this.hasMeta) {
         _.forEach(this.actions, (it)=>{
@@ -175,18 +175,18 @@ export default {
       return list
     },
     //--------------------------------------
-    dataSource() {
+    DataSource() {
       if(!this.meta)
         return ""
       let link = Wn.Util.getDownloadLink(this.meta, {mode:"auto"})
       return link.toString();
     },
     //--------------------------------------
-    dataIcon() {
+    DataIcon() {
       return Wn.Util.getIconObj(this.meta)
     },
     //--------------------------------------
-    dataTitle() {
+    DataTitle() {
       return Wn.Util.getObjDisplayName(this.meta)
     }
     //--------------------------------------
@@ -194,7 +194,7 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onAction(action) {
+    OnAction(action) {
       // Exec command
       if(_.isString(action)) {
         Ti.App(this).exec(actionName)
@@ -202,6 +202,23 @@ export default {
       // Call function
       else if(_.isFunction(action)) {
         action()
+      }
+    },
+    //--------------------------------------
+    OnEditInfo() {
+      if(this.meta) {
+        // Command
+        if(_.isString(this.editInfoBy)) {
+          Ti.App(this).exec(this.editInfoBy, this.meta)
+        }
+        // Function Invoking
+        else if(_.isFunction(this.editInfoBy)) {
+          this.editInfoBy(this.meta)
+        }
+        // Default to open the dialog
+        else {
+          Wn.EditObjMeta(this.meta)
+        }
       }
     },
     //--------------------------------------
@@ -251,23 +268,6 @@ export default {
     download() {
       let link = Wn.Util.getDownloadLink(this.meta)
       Ti.Be.OpenLink(link)
-    },
-    //--------------------------------------
-    doEditInfo() {
-      if(this.meta) {
-        // Command
-        if(_.isString(this.editInfoBy)) {
-          Ti.App(this).exec(this.editInfoBy, this.meta)
-        }
-        // Function Invoking
-        else if(_.isFunction(this.editInfoBy)) {
-          this.editInfoBy(this.meta)
-        }
-        // Default to open the dialog
-        else {
-          Wn.EditObjMeta(this.meta)
-        }
-      }
     },
     //--------------------------------------
     saveStateToLocal() {
