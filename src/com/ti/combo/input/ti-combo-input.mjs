@@ -1,4 +1,4 @@
-export default {
+const _M = {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
@@ -135,7 +135,7 @@ export default {
       }
     },
     //-----------------------------------------------
-    async OnInputChanged(val) {
+    async OnInputChanged(val, byKeyboardArrow) {
       // Clean filter
       this.myFilterValue = null
       // Clean
@@ -158,7 +158,8 @@ export default {
           this.myFreeValue = val
         }
       }
-      this.tryNotifyChanged()
+      if(!byKeyboardArrow)
+        this.tryNotifyChanged()
     },
     //-----------------------------------------------
     async OnInputFocused() {
@@ -176,8 +177,9 @@ export default {
     },
     //-----------------------------------------------
     async OnDropListSelected({currentId, byKeyboardArrow}={}) {
+      //console.log({currentId, byKeyboardArrow})
       this.myCurrentId = currentId
-      this.OnInputChanged(currentId)
+      this.OnInputChanged(currentId, byKeyboardArrow)
       if(this.autoCollapse && !byKeyboardArrow) {
         await this.doCollapse()
       }
@@ -187,24 +189,30 @@ export default {
     //-----------------------------------------------
     async doExtend(tryReload=true) {
       this.myOldValue = this.evalMyValue()
-      this.myDropStatus = "extended"
       // Try reload options again
       if(tryReload && _.isEmpty(this.myOptionsData)) {
-        await this.reloadMyOptionData()
+        await this.reloadMyOptionData(true)
       }
+      this.$nextTick(()=>{
+        this.myDropStatus = "extended"
+      })
     },
     //-----------------------------------------------
     async doCollapse({escaped=false}={}) {
       if(escaped) {
-        this.$notify("change", this.myOldValue)
+        this.evalMyItem(this.myOldValue)
+      }
+      // Try notify
+      else  {
+        this.tryNotifyChanged()
       }
       this.myDropStatus = "collapse"
       this.myOldValue   = undefined
     },
     //-----------------------------------------------
-    tryNotifyChanged(escaped=false) {
+    tryNotifyChanged() {
       let val = this.evalMyValue()
-      if(!escaped && !_.isEqual(val, this.value)) {
+      if(!_.isEqual(val, this.value)) {
         this.$notify("change", val)
       }
     },
@@ -240,8 +248,8 @@ export default {
       }
     },
     //-----------------------------------------------
-    async reloadMyOptionData() {
-      if(this.isExtended) {
+    async reloadMyOptionData(force=false) {
+      if(force || this.isExtended) {
         this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
       } else {
         this.myOptionsData = []
@@ -310,3 +318,4 @@ export default {
   }
   ////////////////////////////////////////////////////
 }
+export default _M;

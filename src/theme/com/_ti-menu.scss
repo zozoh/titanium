@@ -74,6 +74,7 @@
       > .menu-sub {
         @include color($color-chip, r, c);
         @include border(1px, solid, primary);
+        box-shadow: 4px 6px 10px map-get($color-shadow, c);
         position:fixed;
         min-width: 1.5rem;
         z-index: $z-menu;

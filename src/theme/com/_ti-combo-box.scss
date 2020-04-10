@@ -19,6 +19,7 @@
   > .as-drop {
     @include noselect;
     @include color($color-body, r, c);
+    box-shadow: 4px 6px 10px map-get($color-shadow, c);
     border:1px solid map-get($color-line, dark);
     z-index:$z-mask + 1;
     position: fixed;

@@ -219,7 +219,7 @@ export const TiDom = {
     _.defaults(axis, {x:"auto", y:"auto"})
     if("auto" == axis.x) {
       let list = posListX || ({
-        "H" : ["left", "center", "right"],
+        "H" : ["left", "right"],
         "V" : ["right", "left"]
       })[mode]
       axis.x = getAxis(rect.ta.x, rect.win.width/list.length, list)
@@ -232,11 +232,23 @@ export const TiDom = {
       axis.y = getAxis(rect.ta.y, rect.win.height/list.length, list)
     }
 
+    // Count the max viewport to wrapCut
+    let viewport = rect.win.clone()
+    if("H" == mode) {
+      if(axis.y == "bottom") {
+        viewport.top = rect.ta.bottom
+      }
+      else if(axis.y == "top") {
+        viewport.bottom = rect.ta.top
+      }
+      viewport.updateBy("tlbr")
+    }
+
     // Dock & Apply
     let dockMode = rect.src.dockTo(rect.ta, mode, {
       axis, 
       space, 
-      viewport : rect.win,
+      viewport,
       viewportBorder,
       wrapCut  : true
     })

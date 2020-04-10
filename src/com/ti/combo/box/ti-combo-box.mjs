@@ -1,4 +1,4 @@
-export default {
+const _M = {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
@@ -126,7 +126,7 @@ export default {
         this.$nextTick(()=>{
           // Count dock
           Ti.Dom.dockTo($drop, $box, {
-            space:{y:2}, posListX:["left", "right"]
+            space:{y:2}
           })
           // Make drop visible
           _.delay(()=>{
@@ -195,3 +195,4 @@ export default {
   }
   ////////////////////////////////////////////////////
 }
+export default _M;

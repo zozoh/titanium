@@ -80,17 +80,17 @@ const _M = {
     let cmdText = `thing ${th_set} create -cqn -fields`
 
     // Do Create
-    let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+    let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
     // Set it as current
-    await dispatch("current/setCurrent", {meta: reo})
+    await dispatch("current/reload", newMeta)
 
     // Append To Search List as the first 
-    commit("search/prependToList", reo)
-    commit("search/selectItem", reo.id)
+    commit("search/prependToList", newMeta)
+    commit("search/selectItem", newMeta.id)
 
     // Return the new object
-    return reo
+    return newMeta
   },
   //--------------------------------------------
   /***
@@ -115,10 +115,7 @@ const _M = {
     let current = getters["search/currentItem"]
     console.log("getback current", current)
     // Update current
-    await dispatch("current/setCurrent", {
-      meta : current,
-      force : false
-    })
+    await dispatch("current/reload", current)
 
     commit("setStatus", {deleting:false})
   },
@@ -146,10 +143,7 @@ const _M = {
     let current = getters["search/currentItem"]
     
     // Update current
-    await dispatch("current/setCurrent", {
-      meta : current, 
-      force : false
-    })
+    await dispatch("current/reload", current)
 
     commit("setStatus", {restoring:false})
   },

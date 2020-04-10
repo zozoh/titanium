@@ -200,6 +200,7 @@ export class Dict {
   }
   //-------------------------------------------
   async queryData(str){
+    //console.log("@Dict.queryData", str)
     // Empty string will take as query all
     if(!str) {
       return await this.getData()
@@ -351,12 +352,12 @@ export const DictFactory = {
       }
     }
     //.........................................
-    if(!isMatched) {
-      isMatched = (it, v, $dict)=>{
-        let itV = $dict.getValue(it)
-        return _.isEqual(itV, v)
-      }
-    }
+    // if(!isMatched) {
+    //   isMatched = (it, v, $dict)=>{
+    //     let itV = $dict.getValue(it)
+    //     return _.isEqual(itV, v)
+    //   }
+    // }
     //.........................................
     let d = new Dict()
     d.setFunc({

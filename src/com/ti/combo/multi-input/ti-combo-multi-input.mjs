@@ -1,4 +1,4 @@
-export default {
+const _M = {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
@@ -144,11 +144,11 @@ export default {
     //-----------------------------------------------
     async doExtend() {
       this.myOldValue = this.evalMyValues()
-      this.myDropStatus = "extended"
       // Try reload options again
       if(_.isEmpty(this.myOptionsData)) {
-        await this.reloadMyOptionData()
+        await this.reloadMyOptionData(true)
       }
+      this.myDropStatus = "extended"
     },
     //-----------------------------------------------
     doCollapse({escaped=false}={}) {
@@ -206,8 +206,8 @@ export default {
       this.myCheckedIds = ids
     },
     //-----------------------------------------------
-    async reloadMyOptionData() {
-      if(this.isExtended) {
+    async reloadMyOptionData(force=false) {
+      if(force || this.isExtended) {
         this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
       } else {
         this.myOptionsData = []
@@ -276,3 +276,4 @@ export default {
   }
   ////////////////////////////////////////////////////
 }
+export default _M;

@@ -78,7 +78,7 @@
     }
     //----------------------------------------
     > .row-con {
-      @include flex-align-center;
+      @include flex-align-center($wp:nowrap);
       flex:1 1 auto;
       line-height: 2.6em; min-height:2.6em;
       //--------------------------------------
