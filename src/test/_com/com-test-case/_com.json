@@ -4,6 +4,7 @@
   "template" : "./com-test-case.html",
   "mixins" : ["./com-test-case.mjs"],
   "components" : [
+    "@com:hmaker/edit/component",
     "@com:ti/form",
     "@com:ti/wizard",
     "@com:ti/calendar",

@@ -1,0 +1,6 @@
+{
+  "name" : "hmaker-edit-component",
+  "globally" : true,
+  "template" : "./edit-component.html",
+  "mixins" : ["./edit-component.mjs"]
+}

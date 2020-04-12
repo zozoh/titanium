@@ -1,0 +1,5 @@
+{
+  "icon"   : "im-task-o",
+  "title"  : "i18n:form",
+  "scenes" : ["desktop", "tablet"]
+}

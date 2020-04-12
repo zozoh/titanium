@@ -1,0 +1,12 @@
+{
+  "icon"   : "im-data",
+  "title"  : "i18n:com-list",
+  "screen" : ["desktop", "tablet"],
+  "manual" : true,
+  "tutorial" : true,
+  "video" : true,
+  "editComType" : "ti-form",
+  "editComConf" : {
+    "fields" : []
+  }
+}

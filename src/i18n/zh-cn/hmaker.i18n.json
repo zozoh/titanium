@@ -32,5 +32,8 @@
 
   "hmaker-layout-cols" : "列布局",
   "hmaker-layout-rows" : "行布局",
-  "hmaker-layout-tabs" : "标签布局"
+  "hmaker-layout-tabs" : "标签布局",
+
+  "com-form" : "表单",
+  "com-list" : "列表"
 }
