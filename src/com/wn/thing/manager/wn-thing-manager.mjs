@@ -224,7 +224,7 @@ const _M = {
     },
     //--------------------------------------
     async invoke(fnName) {
-      console.log("invoke ", fnName)
+      //console.log("invoke ", fnName)
       let fn = _.get(this.SchemaMethods, fnName)
       // Invoke the method
       if(_.isFunction(fn)) {
