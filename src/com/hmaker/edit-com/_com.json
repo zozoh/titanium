@@ -1,0 +1,9 @@
+{
+  "name" : "hmaker-edit-com",
+  "globally" : true,
+  "template" : "./hmaker-edit-com.html",
+  "mixins" : ["./hmaker-edit-com.mjs"],
+  "components" : [
+    "@com:hmaker/edit-com/form"
+  ]
+}

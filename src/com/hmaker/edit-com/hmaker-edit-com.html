@@ -1,0 +1,32 @@
+<div class="hmaker-edit-com">
+  <!--
+    Select Com Type
+  -->
+  <div class="as-com-type">
+    <ti-combo-input 
+      v-bind="ComTypeComboInput"
+      :value="comType"
+      @change="OnComTypeChange"/>
+  </div>
+  <!--
+    Edit Com Conf
+  -->
+  <div class="as-com-conf"><div class="as-con">
+    <!--
+      Show Com Editor
+    -->
+    <component
+      v-if="hasEditCom"
+        class="ti-fill-parent"
+        :is="EditComType"
+        v-bind="EditComConf"
+        @change="OnComConfChange"/>
+    <!--
+      Show Blank
+    -->
+    <ti-loading 
+      v-else
+        icon="fas-hand-pointer"
+        text="i18n:hmaker-com-conf-blank"/>
+  </div></div>
+</div>

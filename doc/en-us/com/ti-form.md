@@ -141,8 +141,6 @@ Define the schema(`Object`) of  data presentation.
     comType : "ti-input",
     // The component properties, default is `undefined`
     comConf : {..},
-    // The component prop to receive field value
-    comValueKey : "value",
     //--------------------------------------------
     // Data
     //--------------------------------------------

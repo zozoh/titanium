@@ -37,6 +37,7 @@ const _M = {
     TheInputProps(){
       return _.assign({}, this, {
         readonly : !this.canInput || this.readonly,
+        autoI18n : this.autoI18n,
         placeholder : this.placeholder
       })
     },

@@ -425,10 +425,10 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
   com: "/rs/ti/test/components/demo-ti-markdown-richeditor.json"
 }
 #---------------------------------------------------------
-@FILE demo/hmaker-edit-component.comt
+@FILE demo/hmaker-edit-com.comt
 {
   title : "hMaker控件编辑",
-  com: "/rs/ti/test/components/demo-hmaker-edit-component.json"
+  com: "/rs/ti/test/components/demo-hmaker-edit-com.json"
 }
 ##########################################################
 #

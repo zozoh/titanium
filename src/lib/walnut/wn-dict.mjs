@@ -32,6 +32,7 @@ const WnDict = {
       hooks
     })
   },
+  //-------------------------------------------------------
   /***
    * Setup dictionary set
    */
@@ -56,6 +57,42 @@ const WnDict = {
         }, {name})
       }
     })
+  },
+  //-------------------------------------------------------
+  /***
+   * 
+   */
+  hMakerComponents() {
+    return Ti.DictFactory.GetOrCreate({
+      //...............................................
+      data  : Wn.Util.genQuery("ti coms -cqn", {vkey:null}),
+      //...............................................
+      getValue : it => it.name,
+      getText  : it => (it.title || it.name),
+      getIcon  : it => (it.icon  || "im-plugin"),
+      //...............................................
+      isMatched : (it, v)=>{
+        if(it.name == v || it.title == v) {
+          return true
+        }
+        if(it.name && it.name.indexOf(v)>=0) {
+          return true
+        }
+        if(it.title) {
+          if(it.title.indexOf(v)>=0) {
+            return true
+          }
+          let text = Ti.I18n.text(it.title)
+          if(text && text.indexOf(v)>=0) {
+            return true
+          }
+        }
+        return false
+      },
+      //...............................................
+      shadowed : true
+      //...............................................
+    }, {name: "hMakerComponents"})
   }
   //-------------------------------------------------------
 }

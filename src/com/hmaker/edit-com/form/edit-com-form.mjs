@@ -1,36 +1,36 @@
 export default {
   //////////////////////////////////////////
-  data: ()=>({
-    
-  }),
-  //////////////////////////////////////////
   props : {
-    "comType" : {
-      type : String,
-      default : undefined
-    },
-    "comConf" : {
+    "value" : {
       type : Object,
-      default : ()=>({})
+      default : undefined
     }
   },
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    
+    FormConf() {
+      return {
+        spacing: "tiny",
+        data : this.value,
+        fields : [{
+          title : "i18n:hmk-data",
+          name : "data",
+          comType : "ti-input"
+        }]
+      }
+    }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    async reloadComDefines() {
-
-    }
+    
     //--------------------------------------
   },
   //////////////////////////////////////////
-  mounted: function() {
-    this.reloadComDefines()
+  created: async function() {
+    Wn.Dict.hMakerComponents()
   }
   //////////////////////////////////////////
 }

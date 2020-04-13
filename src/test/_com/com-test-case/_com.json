@@ -1,10 +1,11 @@
 {
   "name" : "com-test-case",
   "globally" : true,
+  "i18n" : "@i18n:hmaker",
   "template" : "./com-test-case.html",
   "mixins" : ["./com-test-case.mjs"],
   "components" : [
-    "@com:hmaker/edit/component",
+    "@com:hmaker/edit-com",
     "@com:ti/form",
     "@com:ti/wizard",
     "@com:ti/calendar",

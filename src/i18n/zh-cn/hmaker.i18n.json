@@ -34,6 +34,11 @@
   "hmaker-layout-rows" : "行布局",
   "hmaker-layout-tabs" : "标签布局",
 
+  "hmaker-com-type-blank" : "选择一个控件",
+  "hmaker-com-conf-blank" : "请选择一个控件设置其详情",
+
+  "hmk-data" : "数据",
+
   "com-form" : "表单",
   "com-list" : "列表"
 }
