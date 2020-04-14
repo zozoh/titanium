@@ -50,12 +50,20 @@ export default {
       }
     },
     //----------------------------------------
+    ConStyle() {
+      return Ti.Css.toStyle({
+        height: this.height
+      })
+    },
+    //----------------------------------------
     ComStyle() {
-      if(this.width && !/^(auto|stretch)$/.test(this.width)) {
-        return Ti.Css.toStyle({
-          width : this.width
-        })
+      let css = {
+        height: this.height
       }
+      if(this.width && !/^(auto|stretch)$/.test(this.width)) {
+        css.width = Ti.Css.toSize(this.width)
+      }
+      return Ti.Css.toStyle(css)
     },
     //----------------------------------------
     TheDisplay() {

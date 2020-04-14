@@ -1,0 +1,6 @@
+{
+  "name" : "hmaker-edit-form-field",
+  "globally" : true,
+  "template" : "./edit-form-field.html",
+  "mixins" : ["./edit-form-field.mjs"]
+}

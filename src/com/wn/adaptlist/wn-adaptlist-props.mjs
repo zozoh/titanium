@@ -8,7 +8,7 @@ export default {
   },
   // {list:[], pager:{..}}
   "data" : {
-    type : Object,
+    type : [Object, Array],
     default : null
   },
   "changedId" : {

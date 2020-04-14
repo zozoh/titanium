@@ -1,0 +1,6 @@
+{
+  "name" : "hmaker-edit-form-group",
+  "globally" : true,
+  "template" : "./edit-form-group.html",
+  "mixins" : ["./edit-form-group.mjs"]
+}

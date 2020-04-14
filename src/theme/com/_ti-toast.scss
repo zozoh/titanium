@@ -52,13 +52,14 @@
       padding:0 .1rem;
     }
   }
+  //---------------------------------
   &.as-block > .toast-con {
     @include flex-center;
     min-width: 1.2rem; min-height:1.2rem;
     max-width: 4rem;
     padding:.1rem;
     > .toast-icon {
-      font-size:2em;
+      font-size:5em; padding:.1rem;
     }
     > .toast-body {
       width:100%;

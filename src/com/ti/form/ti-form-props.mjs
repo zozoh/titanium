@@ -33,6 +33,15 @@ export default {
     type : Boolean,
     default : undefined
   },
+  "mode" : {
+    type : String,
+    default : "all",
+    validator : (val)=>/^(all|tab)$/.test(val)
+  },
+  "currentTab" : {
+    type : Number,
+    default : 0
+  },
   "adjustDelay" : {
     type : Number,
     default : 0
@@ -54,15 +63,6 @@ export default {
   "title" : {
     type : String,
     default : null
-  },
-  "mode" : {
-    type : String,
-    default : "all",
-    validator : (val)=>/^(all|tab)$/.test(val)
-  },
-  "currentTab" : {
-    type : Number,
-    default : 0
   },
   "statusIcons" : {
     type : Object,

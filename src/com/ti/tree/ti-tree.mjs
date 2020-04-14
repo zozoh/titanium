@@ -226,21 +226,19 @@ const TI_TREE = {
 
       // Array push to root
       if(_.isArray(this.data)) {
-        await this.joinTreeTableRow(tableData, {
-          children : this.data
-        }, null)
+        await this.joinTreeTableRow(tableData, {}, null, this.data)
       }
       // already has root
-      else {
+      else if(this.data){
         await this.joinTreeTableRow(tableData, this.data, null)
       }
 
       this.myTreeTableData = tableData
     },
     //--------------------------------------
-    async joinTreeTableRow(rows=[], item={}, path=[]) {
+    async joinTreeTableRow(rows=[], item={}, path=[], children) {
       // if(this.showRoot)
-      //   console.log("joinTreeTableRow", item)
+      //console.log("joinTreeTableRow", item)
       let self = {}
       //....................................
       // For ROOT
@@ -250,7 +248,7 @@ const TI_TREE = {
         self.pathId = "/"
         self.id = Ti.Util.fallbackNil(this.getNodeId(item), self.pathId)
         self.indent = 0
-        self.leaf   = this.isNodeLeaf(item)
+        self.leaf   = false
         self.opened = !this.showRoot
           ? true 
           : Ti.Util.fallback(
@@ -289,9 +287,13 @@ const TI_TREE = {
       //....................................
       // Join Children
       if(self.opened && !self.leaf) {
-        let children = await this.getNodeChildren(item)
-        for(let child of children) {
-          await this.joinTreeTableRow(rows, child, self.path)
+        if(!children) {
+          children = await this.getNodeChildren(item)
+        }
+        if(_.isArray(children)) {
+          for(let child of children) {
+            await this.joinTreeTableRow(rows, child, self.path)
+          }
         }
       }
       //....................................
@@ -322,7 +324,8 @@ const TI_TREE = {
     },
     //--------------------------------------
     OnRowSelect({currentId, checkedIds={}}={}) {
-      let current, selected=[]
+      let current, node, selected=[]
+      
       // Has selected
       if(currentId) {
         let currentRow;
@@ -341,6 +344,7 @@ const TI_TREE = {
         }
         // Store current Id
         this.myCurrentId = _.get(currentRow, "id")
+        node = currentRow
       }
       // Cancel current row
       else {
@@ -354,6 +358,7 @@ const TI_TREE = {
       }
       // Emit the value
       this.$notify("select", {
+        node,
         current, selected,
         currentId, checkedIds
       })

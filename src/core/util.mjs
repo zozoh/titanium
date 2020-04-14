@@ -485,6 +485,27 @@ const TiUtil = {
 
     return list[x]
   },
+  anyKey(obj, prefix, sep="-") {
+    // Guard
+    if(TiUtil.isNil(obj)) {
+      return obj
+    }
+    // Prefix
+    let ks = []
+    if(prefix){
+      ks.push(prefix)
+    }
+    // Object of Array, join values
+    if(_.isArray(obj) || _.isPlainObject(obj)){
+      _.forEach(obj, v=>ks.push(v))
+      return ks.join("-")
+    }
+    // Others to string
+    else {
+      ks.push(obj)
+    }
+    return ks.join(sep)
+  },
   /***
    * Create new Mapping value
    * 

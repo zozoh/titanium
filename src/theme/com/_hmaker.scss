@@ -109,6 +109,7 @@
     > .as-con {
       @include border(1px, solid, shallow);
       width:100%; height:100%;
+      > .ti-form > .form-body {padding:0;}
     }
   }
   //---------------------------------------------

@@ -1,0 +1,10 @@
+{
+  "name" : "hmaker-edit-form-fieldset",
+  "globally" : true,
+  "template" : "./edit-form-fieldset.html",
+  "mixins" : ["./edit-form-fieldset.mjs"],
+  "components": [
+    "@com:hmaker/edit-com/form/field",
+    "@com:hmaker/edit-com/form/group"
+  ]
+}

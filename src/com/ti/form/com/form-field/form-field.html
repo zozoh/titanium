@@ -1,5 +1,6 @@
 <div class="form-field"
   :class="TopClass"
+  :style="ConStyle"
   v-ti-activable>
   <!--========================================
     Field Name
@@ -26,7 +27,8 @@
   <!--========================================
     Field Value
   -->
-  <div class="field-value">
+  <div class="field-value"
+    :style="ConStyle">
     <!--
       UI Component
     -->

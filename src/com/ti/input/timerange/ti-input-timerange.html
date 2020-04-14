@@ -27,7 +27,7 @@
   <template v-slot:drop>
     <ti-form
       :data="theDropRange"
-      :config="theFormConfig"
+      v-bind="theFormConfig"
       @change="onFormChanged"/>
   </template>
 </ti-combo-box>

@@ -2,5 +2,8 @@
   "name" : "hmaker-edit-com-form",
   "globally" : true,
   "template" : "./edit-com-form.html",
-  "mixins" : ["./edit-com-form.mjs"]
+  "mixins" : ["./edit-com-form.mjs"],
+  "components": [
+    "@com:hmaker/edit-com/form/fieldset"
+  ]
 }

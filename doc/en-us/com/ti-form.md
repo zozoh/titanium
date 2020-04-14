@@ -21,7 +21,7 @@ Form header text, `i18n:xxx` would be supported.
 
 Indicate the special className for the top Element of the DOM tree.
 
-## display
+## mode
 
 The form display mode:
 
@@ -104,6 +104,7 @@ Define the schema(`Object`) of  data presentation.
     //  - full : == "100%"
     //  - 2rem | 100px | 30%
     width : "2rem",
+    height: undefined,
     // If false, it will notify the changed without value equals check
     // Default is true
     checkEquals : true,

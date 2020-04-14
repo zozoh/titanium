@@ -144,9 +144,10 @@ export default {
     //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {
       // The key
-      let fldKey = fld.name
-        ? [].concat(fld.name).join("-")
-        : "ti-fld-" + nbs.join("-")
+      let fldKey = Ti.Util.anyKey(fld.name||nbs, "ti-fld")
+      // let fldKey = fld.name
+      //   ? [].concat(fld.name).join("-")
+      //   : "ti-fld-" + nbs.join("-")
       //............................................
       // For group
       if('Group' == fld.type) {
