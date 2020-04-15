@@ -1,4 +1,4 @@
-export default {
+const _M = {
   inheritAttrs: false,
   //////////////////////////////////////////////
   data : ()=>({
@@ -230,3 +230,4 @@ export default {
   }
   ////////////////////////////////////////////////
 }
+export default _M;

@@ -47,7 +47,7 @@
       padding:.06rem .1rem; 
       margin-bottom:4px;
       line-height: 1.1em; font-size:12px;
-      .it-text {margin-left:.06rem;}
+      .it-text {margin-left:.06rem; white-space: nowrap;}
       &:hover {
         @include color($color-secondary, r, c);
       }

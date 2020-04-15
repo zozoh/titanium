@@ -647,6 +647,9 @@ const TiTypes = {
   },
   //.......................................
   toNumber(val) {
+    if(_.isBoolean(val)) {
+      return val ? 1 : 0
+    }
     if(_.isDate(val)){
       return val.getTime()
     }
@@ -660,6 +663,9 @@ const TiTypes = {
   },
   //.......................................
   toInteger(val, {mode="int", dft=NaN, range=[], border=[true,true]}={}) {
+    if(_.isBoolean(val)) {
+      return val ? 1 : 0
+    }
     if(_.isDate(val)){
       return val.getTime()
     }
