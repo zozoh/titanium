@@ -85,6 +85,18 @@ const LIST_MIXINS = {
     //-----------------------------------------------
     fnSet() {
       return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
+    },
+    //-----------------------------------------------
+    Dict() {
+      if(this.dict) {
+        // Already Dict
+        if(this.dict instanceof Ti.Dict) {
+          return this.dict
+        }
+        // Get back
+        let {name} = Ti.DictFactory.explainDictName(this.dict)
+        return Ti.DictFactory.CheckDict(name)
+      }
     }
     //-----------------------------------------------
   },
@@ -98,9 +110,43 @@ const LIST_MIXINS = {
       return rowId
     },
     //-----------------------------------------------
-    evalData(iteratee=_.identity) {
+    async evalData(iteratee=_.identity) {
+      let data = this.data
+      //............................................
+      // May need translate
+      if(this.Dict) {
+        // Query by value
+        if(_.isString(data)) {
+          data = await this.Dict.queryData(data)
+        }
+        // Check Each data item
+        else if(_.isArray(data)) {
+          let data2 = []
+          for(let i=0; i<data.length; i++) {
+            let it = data[i]
+            // Check the real item
+            if(_.isString(it)) {
+              let it2 = await this.Dict.getItem(it)
+              if(it2) {
+                data2.push(it2)
+              }
+            }
+            // Primary
+            else {
+              data2.push(it)
+            }
+          }
+          data = data2
+        }
+        // All data of Dict
+        else {
+          data = await this.Dict.getData()
+        }
+      }
+      //............................................
+      // Then format the list
       let list = []
-      _.forEach(this.data, (it, index)=>{
+      _.forEach(data, (it, index)=>{
         let item = {
           index,
           id      : this.getRowId(it, index),
@@ -111,6 +157,7 @@ const LIST_MIXINS = {
         // Join
         list.push(item)
       })
+      //............................................
       return list
     },
     //-----------------------------------------------

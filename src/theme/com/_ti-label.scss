@@ -50,9 +50,13 @@
     @include font-fixed;
     @include flex-align-nowrap;
     padding: 0 .04rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width:100%;
+    > a, > span {
+      white-space: nowrap;
+      width:100%;
+      overflow: hidden;
+      text-overflow: ellipsis;      
+    }
   }
   //-----------------------------------------
 }

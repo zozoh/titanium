@@ -3,8 +3,14 @@ export default {
   // Data
   //-----------------------------------
   "data" : {
-    type : Array,
+    type : [Array, String],
     default : ()=>[]
+  },
+  // If input the value(ID) Array
+  // it can translate by this Dict
+  "dict" : {
+    type : [String, Ti.Dict],
+    default : null
   },
   "idBy" : {
     type : [String, Function],

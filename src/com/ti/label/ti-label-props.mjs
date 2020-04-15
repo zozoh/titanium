@@ -5,7 +5,7 @@ export default {
   "value" : null,
   "dict" : {
     type : [String, Ti.Dict],
-    default : null
+    default : undefined
   },
   "trimed" : {
     type : Boolean,
@@ -17,7 +17,7 @@ export default {
   //-----------------------------------
   "href" : {
     type : String,
-    default : null
+    default : undefined
   },
   "newTab" : {
     type : Boolean,
@@ -44,29 +44,33 @@ export default {
   },
   "prefixIcon" : {
     type : String,
-    default : null
+    default : undefined
   },
   "prefixText" : {
     type : String,
-    default : null
+    default : undefined
   },
   "suffixText" : {
     type : String,
-    default : null
+    default : undefined
   },
   "suffixIcon" : {
     type : String,
-    default : null
+    default : undefined
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
   "width" : {
     type : [Number, String],
-    default : null
+    default : undefined
   },
   "height" : {
     type : [Number, String],
-    default : null
+    default : undefined
+  },
+  "valueMaxWidth" : {
+    type : [Number, String],
+    default : undefined
   }
 }

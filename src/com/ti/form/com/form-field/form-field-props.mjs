@@ -80,6 +80,10 @@ export default {
     type : Object,
     default : ()=>({})
   },
+  "autoValue" : {
+    type : String,
+    default : "value"
+  },
   "serializer" : {
     type : Function,
     default : _.identity

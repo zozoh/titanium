@@ -232,11 +232,11 @@ export default {
   ///////////////////////////////////////////////////
   watch : {
     "data" : {
-      handler : function(newVal, oldVal){
+      handler : async function(newVal, oldVal){
         let isSame = _.isEqual(newVal, oldVal)
         if(!isSame) {
           //console.log("!!!table data changed", {newVal, oldVal})
-          this.myData = this.evalData((it)=>{
+          this.myData = await this.evalData((it)=>{
             it.icon = this.getRowIcon(it.item)
             it.indent = this.getRowIndent(it.item)
           })

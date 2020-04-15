@@ -8,6 +8,8 @@ export default {
   },
   //////////////////////////////////////////
   data : ()=>({
+    myData : [],
+
     myColCount : 0,
     myColWidth : 0,
     isOnlyOneRow : true,
@@ -71,7 +73,7 @@ export default {
     },
     //--------------------------------------
     TheData() {
-      return this.evalData()
+      return this.myData
     },
     //--------------------------------------
     ListRealCount() {
@@ -174,11 +176,18 @@ export default {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  // watch : {
-  //   "data" : {
-  //     handler : "OnWallResize"
-  //   }
-  // },
+  watch : {
+    "data" : {
+      handler : async function(newVal, oldVal){
+        let isSame = _.isEqual(newVal, oldVal)
+        if(!isSame) {
+          //console.log("!!!wall data changed", {newVal, oldVal})
+          this.myData = await this.evalData()
+        }
+      },
+      immediate : true
+    }
+  },
   //////////////////////////////////////////
   mounted : function() {
     //.................................

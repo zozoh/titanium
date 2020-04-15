@@ -176,7 +176,8 @@ export default {
         vars : {
           "isActived" : this.isActived
         },
-        autoIgnoreNil : false
+        autoIgnoreNil : false,
+        autoValue : this.autoValue
       })
       // console.log("evalTheCom", {
       //   myUID      : this._uid,

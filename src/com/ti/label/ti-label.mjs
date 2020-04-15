@@ -23,6 +23,12 @@ export default {
       })
     },
     //--------------------------------------
+    ValueStyle() {
+      return Ti.Css.toStyle({
+        maxWidth : this.valueMaxWidth
+      })
+    },
+    //--------------------------------------
     ThePrefixIcon() {
       return this.myDisplayIcon || this.prefixIcon
     },

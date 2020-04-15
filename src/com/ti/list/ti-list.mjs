@@ -1,5 +1,8 @@
 export default {
-  inheritAttrs : false,
+  //////////////////////////////////////////
+  data : ()=>({
+    myData : [],
+  }),
   //////////////////////////////////////////
   props : {
     "iconBy" : {
@@ -75,10 +78,7 @@ export default {
     },
     //--------------------------------------
     TheData() {
-      return this.evalData((it)=>{
-        it.icon = this.getRowIcon(it.item)
-        it.indent = this.getRowIndent(it.item)
-      })
+      return this.myData
     }
     //--------------------------------------
   },
@@ -125,6 +125,22 @@ export default {
       }
     }
     //--------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "data" : {
+      handler : async function(newVal, oldVal){
+        let isSame = _.isEqual(newVal, oldVal)
+        if(!isSame) {
+          //console.log("!!!list data changed", {newVal, oldVal})
+          this.myData = await this.evalData((it)=>{
+            it.icon = this.getRowIcon(it.item)
+            it.indent = this.getRowIndent(it.item)
+          })
+        }
+      },
+      immediate : true
+    }
   },
   //////////////////////////////////////////
   mounted : function() {
