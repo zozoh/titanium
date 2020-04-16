@@ -50,6 +50,43 @@ export default {
                     {value:"tab", text:"i18n:hmk-form-mode-tab"}]
                 }
               }, {
+                name: "tabAt",
+                title: "i18n:hmk-form-tabAt",
+                type : "String",
+                width: 240,
+                hidden: {
+                  "mode" : {
+                    name: "isEqual",
+                    args: "tab",
+                    not: true
+                  }
+                },
+                comType : "ti-droplist",
+                comConf : {
+                  placeholder: "i18n:hmk-form-tabAt-top-center",
+                  options: [
+                    {value:"top-left",   text:"i18n:hmk-form-tabAt-top-left"},
+                    {value:"top-center", text:"i18n:hmk-form-tabAt-top-center"},
+                    {value:"top-right",  text:"i18n:hmk-form-tabAt-top-right"},
+                    {value:"bottom-left",   text:"i18n:hmk-form-tabAt-bottom-left"},
+                    {value:"bottom-center", text:"i18n:hmk-form-tabAt-bottom-center"},
+                    {value:"bottom-right",  text:"i18n:hmk-form-tabAt-bottom-right"}]
+                }
+              }, {
+                name: "currentTab",
+                title: "i18n:hmk-form-currentTab",
+                type : "Integer",
+                defaultAs: 0,
+                width : 120,
+                hidden: {
+                  "mode" : {
+                    name: "isEqual",
+                    args: "tab",
+                    not: true
+                  }
+                },
+                comType : "ti-input-num"
+              }, {
                 name: "spacing",
                 title: "i18n:hmk-form-spacing",
                 type : "String",
@@ -60,27 +97,20 @@ export default {
                     {value:"tiny",  text:"i18n:hmk-form-spacing-tiny"}]
                 }
               }, {
-                name: "currentTab",
-                title: "i18n:hmk-form-current-tab",
-                type : "Integer",
-                defaultAs: 0,
-                width : 120,
-                comType : "ti-input-num"
-              }, {
                 name: "adjustDelay",
-                title: "i18n:hmk-form-adjust-delay",
+                title: "i18n:hmk-form-adjustDelay",
                 type : "Integer",
                 defaultAs: 0,
                 width : 120,
                 comType : "ti-input-num"
               }, {
                 name: "blankAs",
-                title: "i18n:hmk-form-blank-as",
+                title: "i18n:hmk-form-blankAs",
                 type : "Object",
                 comType : "ti-input"
               }, {
                 name: "fieldStatus",
-                title: "i18n:hmk-form-field-status",
+                title: "i18n:hmk-form-fieldStatus",
                 comType: "ti-input"
               }]
           },
@@ -95,7 +125,8 @@ export default {
                 height: "100%",
                 comType: "hmaker-edit-form-fieldset",
                 comConf: {
-                  className: "ti-fill-parent"
+                  className: "ti-fill-parent",
+                  keepTabIndexBy : this.keepTabIndexBy
                 }
               }]
           },

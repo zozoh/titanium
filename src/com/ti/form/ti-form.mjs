@@ -14,7 +14,10 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "is-tab-mode": this.isTabMode,
-        "is-all-mode": this.isAllMode
+        "is-all-mode": this.isAllMode,
+        [`tab-at-${this.tabAt}`]  : this.isTabMode,
+        [`tab-at-${this.TheTabAtX}`] : this.isTabMode,
+        [`tab-at-${this.TheTabAtY}`] : this.isTabMode
       }, 
       `as-${this.viewportMode}`,
       `as-spacing-${this.spacing||"comfy"}`
@@ -39,6 +42,10 @@ const _M = {
     isTabMode() {return 'tab' == this.mode},
     isAllMode() {return 'all' == (this.mode || "all")},
     isAutoShowBlank() {return Ti.Util.fallback(this.autoShowBlank, false)},
+    //--------------------------------------------------
+    TheTabAt() {return this.tabAt.split("-")},
+    TheTabAtX(){return this.TheTabAt[1]},
+    TheTabAtY(){return this.TheTabAt[0]},
     //--------------------------------------------------
     TheFields() {
       let list = []

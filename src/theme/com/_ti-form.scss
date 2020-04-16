@@ -12,7 +12,6 @@
   //////////////////////////////////////
   > .form-tab {
     @include noselect;
-    @include flex-center;
     ul {
       @include flex-align-nowrap;
     }
@@ -144,7 +143,7 @@
     > .form-body {
       //------------------------------
       > .form-group {
-        > .group-title {line-height:2em;padding:0 .08rem;}
+        > .group-title {line-height:2.4em;padding:0 .1rem;}
         > .group-fields {padding:.08rem 0 .16rem 0;}
       }
       //------------------------------
@@ -158,7 +157,7 @@
     > .form-body {
       //------------------------------
       > .form-group {
-        > .group-title {line-height:1.4em;padding:0 .04rem;}
+        > .group-title {line-height:2em;padding:0 .06rem;}
         > .group-fields {padding:.04rem 0 .08rem 0;}
       }
       //------------------------------
@@ -169,13 +168,20 @@
   //////////////////////////////////////
   &.is-tab-mode {
     @include flex-align-v-nowrap;
-    width:100%; height:100%;
-    padding:0;
+    width:100%; height:100%; padding:0;
     //----------------------------------
-    > .form-tab {
+    &.tab-at-top > .form-tab {
       @include border(1px, solid, shallow, bottom);
       padding:.04rem .1rem 0 .1rem;
     }
+    &.tab-at-bottom > .form-tab {
+      @include border(1px, solid, shallow, top);
+      padding:0 .1rem .04rem .1rem; order:2;
+    }
+    //----------------------------------
+    &.tab-at-left   > .form-tab {@include flex($jc:flex-start);}
+    &.tab-at-center > .form-tab {@include flex($jc:center);}
+    &.tab-at-right  > .form-tab {@include flex($jc:fllex-end);}
     //----------------------------------
     > .form-body {
       flex:1 1 auto; height:100px;

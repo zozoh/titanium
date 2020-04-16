@@ -94,14 +94,25 @@ export default {
       }
     },
     //------------------------------------------------
-    doWhenInput(emitName="inputing") {
+    doWhenInput(emitName="inputing", autoJsValue=false) {
       if(_.isElement(this.$refs.input)) {
         //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
-        if(this.trimed) {
+        // Auto js value
+        if(autoJsValue) {
+          val = Ti.S.toJsValue(val, {
+            autoNil  : true,
+            autoDate : false,
+            trimed : this.trimed
+          })
+        }
+        // Trim
+        else if(this.trimed) {
           val = _.trim(val)
         }
+        // case
         val = Ti.S.toCase(val, this.valueCase)
+        // notify
         this.$notify(emitName, val)
       }
     },
@@ -116,7 +127,7 @@ export default {
     // },
     //------------------------------------------------
     OnInputChanged() {
-      this.doWhenInput("change")
+      this.doWhenInput("change", this.autoJsValue)
     },
     //------------------------------------------------
     OnInputFocus() {

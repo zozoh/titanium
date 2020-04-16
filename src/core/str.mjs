@@ -133,9 +133,18 @@ export const TiStr = {
   toJsValue(v="", {
     autoJson=true,
     autoDate=true,
+    autoNil=false,
+    trimed=true,
     context={}
   }={}) {
-    let str = _.trim(v)
+    let str = trimed ? _.trim(v) : v
+    // autoNil
+    if(autoNil) {
+      if("undefined" == str)
+        return undefined
+      if("null" == str)
+        return null
+    }
     // Number
     if (/^-?[\d.]+$/.test(str)) {
         return str * 1;

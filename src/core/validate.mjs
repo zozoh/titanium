@@ -35,14 +35,25 @@ const FnSet = {
 ///////////////////////////////////////
 const TiValidate = {
   //-----------------------------------
-  get(name, args=[]) {
+  get(name, args=[], not) {
     let fn = _.get(FnSet, name)
+    if(!_.isFunction(fn)) {
+      throw `Invalid Validate: ${name}`
+    }
+    let f2;
     if(_.isEmpty(args)) {
-      return fn
+      f2 = fn
     }
-    if(_.isFunction(fn)) {
-      return _.partialRight(fn, ...args)
+    else {
+      f2 = _.partialRight(fn, ...args)
     }
+
+    if(not) {
+      return v => {
+        return !f2(v)
+      }
+    }
+    return f2
   },
   //-----------------------------------
   getBy(fn) {
@@ -55,7 +66,8 @@ const TiValidate = {
     if(_.isPlainObject(fn)) {
       let name = fn.name
       let args = _.isUndefined(fn.args) ? [] : [].concat(fn.args)
-      return TiValidate.get(name, args)
+      let not = fn.not
+      return TiValidate.get(name, args, not)
     }
     if(_.isArray(fn) && fn.length>0) {
       let name = fn[0]

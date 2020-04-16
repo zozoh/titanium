@@ -8,6 +8,10 @@ export default {
     "value" : {
       type : Array,
       default : undefined
+    },
+    "keepTabIndexBy" : {
+      type : String,
+      default : "hMakerEditComForm"
     }
   },
   //////////////////////////////////////////
@@ -21,7 +25,10 @@ export default {
       return {
         comType: "hmaker-edit-form-field",
         comConf: {
-          value: this.CurrentField
+          value: this.CurrentField,
+          keepTabIndexBy: this.keepTabIndexBy
+            ? `${this.keepTabIndexBy}-field`
+            : null
         }
       }
     },
@@ -37,22 +44,22 @@ export default {
     //--------------------------------------
     Layout() {
       return {
-        type: "rows",
+        type: "cols",
         border: true,
         blocks: [{
-            size: 40,
-            body: "actions"
-          },{
-            type: "cols",
+            type: "rows",
+            size: "37%",
             border: true,
             blocks: [{
-                name: "tree",
-                size: 300,
-                body: "tree"
+                size: 40,
+                body: "actions"
               }, {
-                name: "detail",
-                body: "detail"
+                name: "tree",
+                body: "tree"
               }]
+          }, {
+            name: "detail",
+            body: "detail"
           }]
       }
     },
@@ -144,6 +151,24 @@ export default {
     //--------------------------------------
     OnFieldTreeSelect({currentId}) {
       this.myCurrentId = currentId
+    },
+    //--------------------------------------
+    OnFieldChange(newFld) {
+      this.updateCurrentField(newFld)
+    },
+    //--------------------------------------
+    // Utility
+    //--------------------------------------
+    updateCurrentField(newFld) {
+      let list = _.map(this.value, fld => {
+        let fid = this.getFieldId(fld)
+        if(fid == this.myCurrentId) {
+          return newFld
+        }
+        return fld
+      })
+      this.myCurrentId = this.getFieldId(newFld)
+      this.$notify("change", list)
     },
     //--------------------------------------
     addFieldOrGroup(fld) {

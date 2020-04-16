@@ -13,6 +13,10 @@ export default {
     type : Boolean,
     default : true
   },
+  "autoJsValue" : {
+    type : Boolean,
+    default : false
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

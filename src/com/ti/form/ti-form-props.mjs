@@ -33,11 +33,6 @@ export default {
     type : Boolean,
     default : undefined
   },
-  "mode" : {
-    type : String,
-    default : "all",
-    validator : (val)=>/^(all|tab)$/.test(val)
-  },
   "currentTab" : {
     type : Number,
     default : 0
@@ -53,6 +48,16 @@ export default {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "mode" : {
+    type : String,
+    default : "all",
+    validator : (val)=>/^(all|tab)$/.test(val)
+  },
+  "tabAt" : {
+    type : String,
+    default : "top-center",
+    validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
+  },
   "blankAs" : {
     type : Object,
     default : ()=>({

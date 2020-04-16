@@ -1,3 +1,16 @@
-<div class="hmaker-edit-form-field">
-  Field: {{value}}
+<div class="hmaker-edit-form-field ti-scroll-v">
+  <!--
+    Empty
+  -->
+  <ti-loading 
+    v-if="isEmpty"
+      icon="fas-hand-point-left"
+      text="i18n:hmaker-edit-form-field-nil"/>
+  <!--
+    Editing
+  -->
+  <ti-form
+    v-else
+      v-bind="TheForm"
+      :data="value"/>
 </div>
