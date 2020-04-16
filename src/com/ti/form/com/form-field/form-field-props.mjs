@@ -7,9 +7,9 @@ export default {
     type : Boolean,
     default : false
   },
-  "hidden" : {
-    type : Boolean,
-    default : false
+  "uniqKey" : {
+    type : String,
+    default : null
   },
   "name" : {
     type : [String, Array],

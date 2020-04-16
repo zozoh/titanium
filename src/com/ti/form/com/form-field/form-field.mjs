@@ -12,7 +12,8 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "no-status-icons"  : !this.hasStatusIcons,
-        "has-status-icons" : this.hasStatusIcons
+        "has-status-icons" : this.hasStatusIcons,
+        "is-disabled" : this.disabled
       }, 
       `as-${this.viewportMode}`,
       (this.StatusType?`is-${this.StatusType}`:null))
@@ -108,8 +109,7 @@ const _M = {
     },
     //----------------------------------------
     Status() {
-      let fstKey = _.concat(this.name).join("-")
-      return _.get(this.fieldStatus, fstKey)
+      return _.get(this.fieldStatus, this.uniqKey)
     },
     //----------------------------------------
     StatusType() {
@@ -174,7 +174,8 @@ const _M = {
         itemData : this.data, 
         displayItem : this.CurrentDisplayItem, 
         vars : {
-          "isActived" : this.isActived
+          "isActived" : this.isActived,
+          "disabled"  : this.disabled
         },
         autoIgnoreNil : false,
         autoValue : this.autoValue

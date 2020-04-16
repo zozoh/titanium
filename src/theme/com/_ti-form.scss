@@ -58,6 +58,17 @@
       &.is-warn     {@include color($color-warn,    r, c);}
       &.is-ok       {@include color($color-success, c, r);}
       //--------------------------------
+      &.is-disabled {
+        opacity: 0.4;
+        position: relative;
+        &:after {
+          @include pos-abs-full;
+          display:block; content:"";
+          z-index:$z-mask;
+          background:rgba(10,10,10,0.1);
+        }
+      }
+      //--------------------------------
       > .field-value {
         @include flex-align;
         flex:1 1 auto;

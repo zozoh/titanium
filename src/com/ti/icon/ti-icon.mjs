@@ -23,10 +23,6 @@ export default {
       type : [String,Object],
       default : null
     },
-    "text" : {
-      type : String,
-      default : null
-    },
     "fontSize" : {
       type : [Number, String],
       default : null
@@ -52,7 +48,7 @@ export default {
   computed : {
     //---------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass(`is-${this.Icon.type}`)
     },
     //---------------------------------------------------
     Dict() {

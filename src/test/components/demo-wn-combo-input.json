@@ -61,7 +61,7 @@
         "comConf" : {
           "prefixIcon" : "zmdi-car-wash",
           "placeholder" : "请选择",
-          "options" : "obj ~/demo/images/* -l -cqn"
+          "options" : "obj ~/media -match 'race:\"FILE\"' -l -cqn"
         }
       }]
   }

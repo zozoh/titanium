@@ -178,16 +178,7 @@ export default {
           btn = _.assign({}, stepBtn)
           // Eval enabled
           if(_.isPlainObject(btn.enabled)) {
-            let enabled = true
-            for(let key of _.keys(btn.enabled)) {
-              let fn  = _.get(btn.enabled, key)
-              let val = _.get(this.data, key)
-              if(!Ti.Validate.checkBy(fn, val)) {
-                enabled = false
-                break
-              }
-            }
-            btn.enabled = enabled
+            btn.enabled = Ti.Validate.match(this.data, btn.enabled)
           }
         }
         // Setup 

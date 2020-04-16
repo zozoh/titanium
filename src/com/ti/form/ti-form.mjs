@@ -1,4 +1,4 @@
-export default {
+const _M = {
   //////////////////////////////////////////////////////
   model : {
     prop  : "data",
@@ -167,7 +167,7 @@ export default {
           }
         })
         // Done
-        return group
+        return _.isEmpty(group.fields) ? null : group
       }
       //............................................
       // For Normal Field
@@ -177,13 +177,42 @@ export default {
           comType : this.defaultComType
         })
 
-        // field status
-        let fstKey = _.concat(field.name).join("-")
-        let fldsta = _.get(this.fieldStatus, fstKey)
-        if(status) {
-          field.status  = fldsta.status
-          field.message = fldsta.message
+        // The UniqKey of field
+        field.uniqKey = _.concat(field.name).join("-")
+        //console.log(field.uniqKey)
+
+        // Hide or disabled by altFields
+        let alt = _.get(this.altFields, field.uniqKey)
+
+        if("disabled" == alt) {
+          field.disabled = true
         }
+
+        // Hide field
+        if("hidden" == alt)
+          return
+
+        if(fld.hidden) {
+          if(Ti.Validate.match(this.TheData, fld.hidden)) {
+            return
+          }
+        }
+
+        // Disable field
+        if("disabled" == alt) {
+          field.disabled = true
+        }
+        // By fields
+        else if(fld.disabled) {
+          field.disabled = Ti.Validate.match(this.TheData, fld.disabled)
+        }
+
+        // // field status
+        // let fStatus = _.get(this.fieldStatus, funiqKey)
+        // if(fStatus) {
+        //   field.status  = fStatus.status
+        //   field.message = fStatus.message
+        // }
 
         // Tidy form function
         field.serializer  = Ti.Types.getFuncBy(field, "serializer", this.FuncSet)
@@ -275,3 +304,4 @@ export default {
   }
   //////////////////////////////////////////////////////
 }
+export default _M;

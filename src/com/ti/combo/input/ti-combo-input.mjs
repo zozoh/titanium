@@ -250,6 +250,7 @@ const _M = {
     },
     //-----------------------------------------------
     async reloadMyOptionData(force=false) {
+      //console.log("reloadMyOptionData")
       if(force || this.isExtended) {
         this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
       } else {
@@ -303,11 +304,6 @@ const _M = {
     "value" : {
       handler: "evalMyItem",
       immediate : true
-    },
-    //-----------------------------------------------
-    "options" : async function(){
-      await this.reloadMyOptionData()
-      await this.evalMyItem()
     }
     //-----------------------------------------------
   },

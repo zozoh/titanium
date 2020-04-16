@@ -12,6 +12,19 @@ const FnSet = {
   "inRange" : (val, ...args)=>{
     return _.inRange(val, ...args)
   },
+  "isMatch" : (val, src)=> {
+    return _.isMatch(val, src)
+  },
+  "isEqual" : (val, oth)=> {
+    return _.isEqual(val, oth)
+  },
+  "isOf" : (val, ...args) => {
+    for(let a of args) {
+      if(_.isEqual(a, val))
+        return true
+    }
+    return false
+  },
   "matchRegex" : (val, regex)=>{
     if(_.isRegExp(regex)){
       return regex.test(val)
@@ -57,6 +70,27 @@ const TiValidate = {
       return f(val) ? true : false
     }
     return false
+  },
+  //-----------------------------------
+  match(obj={}, validates={}) {
+    // Static value
+    if(!_.isPlainObject(validates)) {
+      return validates ? true : false
+    }
+    // Customized
+    if(_.isFunction(validates)) {
+      return validates(obj) ? true : false
+    }
+    // Check
+    let keys = _.keys(validates)
+    for(let key of keys) {
+      let fn  = _.get(validates, key)
+      let val = _.get(obj, key)
+      if(!TiValidate.checkBy(fn, val)) {
+        return false
+      }
+    }
+    return true
   }
   //-----------------------------------
 }

@@ -1,10 +1,15 @@
+//-------------------------------------------------
+// TiIcon
+//-------------------------------------------------
 .ti-icon {
-  @include flex-center;
+  @include flex-center($ai:stretch, $ac:stretch);
   vertical-align: middle;
+  //-----------------------------------------------
   &.as-inline {
     display:inline-block;
     vertical-align: middle;
   }
+  //-----------------------------------------------
   // The Icon
   .icon-icon {
     @include flex-center;
@@ -14,7 +19,12 @@
     }
     i {font-size:inherit;}
   }
+  //-----------------------------------------------
+  &.is-image .icon-icon {align-items:stretch; align-content: stretch;}
+  //-----------------------------------------------
 }
+//-------------------------------------------------
+// TiIconText
 //-------------------------------------------------
 .ti-icon-text {
   @include flex-align-nowrap;

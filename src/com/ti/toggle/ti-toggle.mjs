@@ -1,12 +1,16 @@
 export default {
-  inheritAttrs : false,
   /////////////////////////////////////////
   data : ()=>({
     isOn : false
   }),
   /////////////////////////////////////////
   props : {
-    "value" : false
+    "value" : false,
+    "readonly" : false,
+    "options" : {
+      type: Array,
+      default: ()=>[false, true]
+    }
   },
   //////////////////////////////////////////
   computed : {
@@ -22,7 +26,10 @@ export default {
   //////////////////////////////////////////
   methods : {
     onClick() {
-      this.$notify("change", !this.isOn)
+      if(!this.readonly) {
+        let v = this.isOn ? 0 : 1
+        this.$notify("change", this.options[v])
+      }
     }
   },
   //////////////////////////////////////////

@@ -87,8 +87,17 @@ Define the schema(`Object`) of  data presentation.
   fields : [{
     // @see `Data Type`
     type  : "Object"
-    // field modes
+
+    // Disable the field
+    // boolean or TiValidate
+    //  - true
+    //  - {ct:"isData", age:{name:"inRange", args:[1,6]}}
     disabled : false,
+
+    // Hide the field
+    // boolean or TiValidate
+    //  - true
+    //  - {ct:"isData", age:{name:"inRange", args:[1,6]}}
     hidden   : false,
     // Key in data, if array, it will pick out a object as the value
     name  : "name",
@@ -237,6 +246,28 @@ The status for each fields
     // Message for current status
     message : "i18n:xxx",
   }
+}
+```
+
+## altFields
+
+Indicate `disabled` or `hidden` for some fields.
+
+```js
+{
+  "altFields" : {
+    type : Object,
+    default : ()=>({})
+  }
+}
+```
+
+The value like:
+
+```js
+{
+  "age"  : "disabled",
+  "live" : "hidden"
 }
 ```
 

@@ -148,7 +148,9 @@ const _M = {
       if(_.isEmpty(this.myOptionsData)) {
         await this.reloadMyOptionData(true)
       }
-      this.myDropStatus = "extended"
+      this.$nextTick(()=>{
+        this.myDropStatus = "extended"
+      })
     },
     //-----------------------------------------------
     doCollapse({escaped=false}={}) {
@@ -259,11 +261,6 @@ const _M = {
     //-----------------------------------------------
     "value" : {
       handler: "evalMyTags",
-      immediate : true
-    },
-    //-----------------------------------------------
-    "options" : {
-      handler : "reloadMyOptionData",
       immediate : true
     }
     //-----------------------------------------------

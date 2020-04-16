@@ -1,6 +1,6 @@
 .ti-input {
   @include noselect;
-  @include flex-align-nowrap($ai:stretch);
+  @include flex-align-nowrap($ai:stretch, $ac:stretch);
   @include color($color-input, c, r);
   min-height:.35rem;
   //-----------------------------------------
@@ -13,7 +13,7 @@
   }
   //-----------------------------------------
   .as-input-icon {
-    @include flex-center;
+    @include flex-center($ai:stretch, $ac:stretch);
     flex:0 0 auto; width:.26rem; min-height:.26rem;
     overflow: hidden;
     //---------------------------------------
@@ -22,11 +22,10 @@
     //---------------------------------------
     &.at-prefix {
       > .ti-icon {
-        transition: .5s; opacity: .6;
-        img {
-          width:100%; transition: 5s;
-          border-radius: 2px;
-        }
+        transition: .5s; 
+        img {width:100%; transition: 5s;}
+        &.is-image {opacity: 1;}
+        &.is-font  {opacity: .6;}
       }
       &.can-hover:hover > .ti-icon {
         transform:scale(1.1) rotate(180deg);

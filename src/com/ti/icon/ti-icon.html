@@ -1,8 +1,7 @@
 <div 
   class="ti-icon" 
   :class="TopClass">
-  <!--Icon-->
-  <span class="icon-icon"
+  <div class="icon-icon"
     :style="Icon.outerStyle">
     <!--Font icon-->
     <i v-if="'font'==Icon.type"
@@ -19,10 +18,5 @@
       Default output the value
     -->
     <em v-else>{{value}}</em>
-  </span>
-  <!--Text-->
-  <span v-if="text"
-    class="icon-text">
-    {{text | i18n}}
-  </span>
+  </div>
 </div>
