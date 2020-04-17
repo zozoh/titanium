@@ -43,6 +43,7 @@ export default {
                 name: "mode",
                 title: "i18n:hmk-mode",
                 type : "String",
+                defaultAs: "all",
                 comType : "ti-switcher",
                 comConf : {
                   options: [
@@ -53,6 +54,7 @@ export default {
                 name: "tabAt",
                 title: "i18n:hmk-tabAt",
                 type : "String",
+                defaultAs: "top-center",
                 width: 240,
                 hidden: {
                   "mode" : {
@@ -64,6 +66,7 @@ export default {
                 comType : "ti-droplist",
                 comConf : {
                   placeholder: "i18n:hmk-tabAt-top-center",
+                  autoI18n:true,
                   options: [
                     {value:"top-left",   text:"i18n:hmk-tabAt-top-left"},
                     {value:"top-center", text:"i18n:hmk-tabAt-top-center"},
@@ -90,6 +93,7 @@ export default {
                 name: "spacing",
                 title: "i18n:hmk-spacing",
                 type : "String",
+                defaultAs: "comfy",
                 comType : "ti-switcher",
                 comConf : {
                   options: [
