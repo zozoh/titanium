@@ -41,10 +41,6 @@ export default {
     type : Number,
     default : 0
   },
-  "altFields" : {
-    type : Object,
-    default : ()=>({})
-  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

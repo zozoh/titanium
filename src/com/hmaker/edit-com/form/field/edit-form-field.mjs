@@ -27,6 +27,7 @@ export default {
         //.................................
         // type
         {
+          hidden : this.isGroup,
           name: "type",
           title: "hmk-field-type",
           defaultAs: "String",
@@ -40,10 +41,10 @@ export default {
           }
         },
         //.................................
-        // name
+        // title
         {
-          name: "name",
-          title: "hmk-field-name",
+          name: "title",
+          title: "hmk-field-title",
           comType: "ti-input"
         },
         //.................................
@@ -54,15 +55,17 @@ export default {
           comType: "ti-input-icon"
         },
         //.................................
-        // title
+        // name
         {
-          name: "title",
-          title: "hmk-field-title",
+          hidden : this.isGroup,
+          name: "name",
+          title: "hmk-field-name",
           comType: "ti-input"
         },
         //.................................
         // tip
         {
+          hidden : this.isGroup,
           name: "tip",
           title: "hmk-field-tip",
           comType: "ti-input"
@@ -70,6 +73,7 @@ export default {
         //.................................
         // width
         {
+          hidden : this.isGroup,
           name: "width",
           title: "hmk-field-width",
           width: 120,
@@ -78,6 +82,7 @@ export default {
         //.................................
         // height
         {
+          hidden : this.isGroup,
           name: "height",
           title: "hmk-field-height",
           width: 120,
@@ -86,6 +91,7 @@ export default {
         //.................................
         // defaultAs
         {
+          hidden : this.isGroup,
           name: "defaultAs",
           title: "hmk-field-defaultAs",
           comType: "ti-input",
@@ -96,6 +102,7 @@ export default {
         //.................................
         // com
         {
+          hidden : this.isGroup,
           name: ["comType","comConf"],
           title: "hmk-field-com",
           type: "Object",
@@ -174,6 +181,7 @@ export default {
           }, {
             type: "Group",
             title: "i18n:hmk-fields-advance",
+            hidden : this.isGroup,
             fields: this.TheFormAdvanceFields
           }]
         //..................................
@@ -184,7 +192,9 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    
+    isGroup(fld) {
+      return _.isArray(fld.fields) || "Group" == fld.type
+    }
     //--------------------------------------
   }
   //////////////////////////////////////////

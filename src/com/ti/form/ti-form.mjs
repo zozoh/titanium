@@ -178,6 +178,19 @@ const _M = {
     },
     //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {
+      // Hide or disabled
+      if(fld.hidden) {
+        if(Ti.Validate.match(this.TheData, fld.hidden)) {
+          return
+        }
+      }
+
+      // Disable
+      let disabled = false
+      if(fld.disabled) {
+        disabled = Ti.Validate.match(this.TheData, fld.disabled)
+      }
+
       // The key
       let fldKey = Ti.Util.anyKey(fld.name||nbs, "ti-fld")
       // let fldKey = fld.name
@@ -187,6 +200,7 @@ const _M = {
       // For group
       if('Group' == fld.type || _.isArray(fld.fields)) {
         let group = {
+          disabled,
           type        : "Group",
           key         : fldKey,
           className   : fld.className,
@@ -209,38 +223,13 @@ const _M = {
       if(fld.name) {
         let field = _.defaults(_.cloneDeep(fld), {
           type : "String",
-          comType : this.defaultComType
+          comType : this.defaultComType,
+          disabled
         })
 
         // The UniqKey of field
         field.uniqKey = _.concat(field.name).join("-")
         //console.log(field.uniqKey)
-
-        // Hide or disabled by altFields
-        let alt = _.get(this.altFields, field.uniqKey)
-
-        if("disabled" == alt) {
-          field.disabled = true
-        }
-
-        // Hide field
-        if("hidden" == alt)
-          return
-
-        if(fld.hidden) {
-          if(Ti.Validate.match(this.TheData, fld.hidden)) {
-            return
-          }
-        }
-
-        // Disable field
-        if("disabled" == alt) {
-          field.disabled = true
-        }
-        // By fields
-        else if(fld.disabled) {
-          field.disabled = Ti.Validate.match(this.TheData, fld.disabled)
-        }
 
         // // field status
         // let fStatus = _.get(this.fieldStatus, funiqKey)
@@ -299,7 +288,7 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   watch : {
-    "fields" : function(){
+    "TheFields" : function(){
       this.adjustFieldsWidth()
     },
     "currentTab" : function(index){

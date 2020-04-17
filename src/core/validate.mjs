@@ -85,13 +85,13 @@ const TiValidate = {
   },
   //-----------------------------------
   match(obj={}, validates={}) {
-    // Static value
-    if(!_.isPlainObject(validates)) {
-      return validates ? true : false
-    }
     // Customized
     if(_.isFunction(validates)) {
       return validates(obj) ? true : false
+    }
+    // Static value
+    if(_.isBoolean(validates)) {
+      return validates ? true : false
     }
     // Check
     let keys = _.keys(validates)
