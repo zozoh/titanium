@@ -60,7 +60,7 @@ async function Prompt(msg="", {
       </div>`,
       methods : {
         onInputing(val) {
-          this.$emit("input", val)
+          this.$emit("change", val)
         },
         __ti_shortcut(uniqKey) {
           if("ENTER" == uniqKey) {

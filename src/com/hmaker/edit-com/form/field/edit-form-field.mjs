@@ -28,7 +28,7 @@ export default {
         // type
         {
           name: "type",
-          title: "hmk-form-field-type",
+          title: "hmk-field-type",
           defaultAs: "String",
           comType: "ti-droplist",
           comConf: {
@@ -43,35 +43,35 @@ export default {
         // name
         {
           name: "name",
-          title: "hmk-form-field-name",
+          title: "hmk-field-name",
           comType: "ti-input"
         },
         //.................................
         // icon
         {
           name: "icon",
-          title: "hmk-form-field-icon",
+          title: "hmk-field-icon",
           comType: "ti-input-icon"
         },
         //.................................
         // title
         {
           name: "title",
-          title: "hmk-form-field-title",
+          title: "hmk-field-title",
           comType: "ti-input"
         },
         //.................................
         // tip
         {
           name: "tip",
-          title: "hmk-form-field-tip",
+          title: "hmk-field-tip",
           comType: "ti-input"
         },
         //.................................
         // width
         {
           name: "width",
-          title: "hmk-form-field-width",
+          title: "hmk-field-width",
           width: 120,
           comType: "ti-input"
         },
@@ -79,7 +79,7 @@ export default {
         // height
         {
           name: "height",
-          title: "hmk-form-field-height",
+          title: "hmk-field-height",
           width: 120,
           comType: "ti-input"
         },
@@ -87,7 +87,7 @@ export default {
         // defaultAs
         {
           name: "defaultAs",
-          title: "hmk-form-field-defaultAs",
+          title: "hmk-field-defaultAs",
           comType: "ti-input",
           comConf: {
             autoJsValue: true
@@ -97,8 +97,10 @@ export default {
         // com
         {
           name: ["comType","comConf"],
-          title: "hmk-form-field-com",
-          comType: "hmaker-edit-com"
+          title: "hmk-field-com",
+          type: "Object",
+          width: "auto",
+          comType: "wn-combo-edit-com"
         }
         //.................................
       ]
@@ -110,7 +112,7 @@ export default {
         // disabled
         {
           name: "disabled",
-          title: "hmk-form-field-disabled",
+          title: "hmk-field-disabled",
           comType: "ti-input",
           comConf: {
             autoJsValue: true
@@ -120,7 +122,7 @@ export default {
         // hidden
         {
           name: "hidden",
-          title: "hmk-form-field-hidden",
+          title: "hmk-field-hidden",
           comType: "ti-input",
           comConf: {
             autoJsValue: true
@@ -130,14 +132,14 @@ export default {
         // checkEquals
         {
           name: "checkEquals",
-          title: "hmk-form-field-checkEquals",
+          title: "hmk-field-checkEquals",
           comType: "ti-toggle"
         },
         //.................................
         // transformer
         {
           name: "transformer",
-          title: "hmk-form-field-transformer",
+          title: "hmk-field-transformer",
           comType: "ti-input-text",
           comConf: {
             autoJsValue: true
@@ -147,7 +149,7 @@ export default {
         // serializer
         {
           name: "serializer",
-          title: "hmk-form-field-serializer",
+          title: "hmk-field-serializer",
           comType: "ti-input-text",
           comConf: {
             autoJsValue: true
@@ -167,11 +169,11 @@ export default {
         //..................................
         fields: [{
             type: "Group",
-            title: "i18n:hmk-form-fields-general",
+            title: "i18n:hmk-fields-general",
             fields: this.TheFormGeneralFields
           }, {
             type: "Group",
-            title: "i18n:hmk-form-fields-advance",
+            title: "i18n:hmk-fields-advance",
             fields: this.TheFormAdvanceFields
           }]
         //..................................

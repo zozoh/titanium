@@ -1,26 +1,25 @@
 export default {
   //////////////////////////////////////////
   data: ()=>({
-    $dict: null,
     myCom: null
   }),
   //////////////////////////////////////////
   props : {
-    "comType" : {
-      type : String,
-      default : undefined
-    },
-    "comConf" : {
+    "value" : {
       type : Object,
       default : ()=>({})
     }
   },
   //////////////////////////////////////////
   computed : {
+    //------------------------------------------------
+    Dict() {
+      return Wn.Dict.hMakerComponents()
+    },
     //--------------------------------------
     ComTypeComboInput() {
       return {
-        options : "@Dict:hMakerComponents",
+        options : this.Dict,
         placeholder : "i18n:hmaker-com-type-blank",
         autoI18n : true,
         mustInList : true,
@@ -33,13 +32,21 @@ export default {
       return this.myCom ? true : false
     },
     //--------------------------------------
+    ComType() {
+      return _.get(this.value, "comType")
+    },
+    //--------------------------------------
+    ComConf() {
+      return _.get(this.value, "comConf")
+    },
+    //--------------------------------------
     EditComType() {
       return _.get(this.myCom, "editComType")
     },
     //--------------------------------------
     EditComConf() {
       let conf = _.get(this.myCom, "editComConf")
-      return Ti.Util.explainObj(this, conf)
+      return Ti.Util.explainObj(this.value, conf)
     }
     //--------------------------------------
   },
@@ -47,30 +54,41 @@ export default {
   methods : {
     //--------------------------------------
     async OnComTypeChange(comType) {
-      this.myCom = await this.$dict.getItem(comType)
+      this.myCom = await this.Dict.getItem(comType)
       this.notifyChange({
         comType,
-        comConf: this.comConf
+        comConf: this.ComConf
       })
     },
     //--------------------------------------
     OnComConfChange(comConf={}) {
       this.notifyChange({
-        comType: this.comType,
+        comType: this.ComType,
         comConf
       })
     },
     //--------------------------------------
     notifyChange(payload={}) {
       this.$notify("change", payload)
+    },
+    //--------------------------------------
+    async reloadMyCom() {
+      if(!_.isEmpty(this.value)) {
+        let {comType} = this.value
+        this.myCom = await this.Dict.getItem(comType)
+      }
+      // Empty
+      else {
+        this.myCom = null
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  created: async function() {
-    this.$dict = Wn.Dict.hMakerComponents()
-    if(this.comType) {
-      this.myCom = await this.$dict.getItem(this.comType)
+  watch: {
+    "value" : {
+      handler: "reloadMyCom",
+      immediate : true
     }
   }
   //////////////////////////////////////////

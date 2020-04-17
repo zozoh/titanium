@@ -4,6 +4,7 @@
   "template" : "./hmaker-edit-com.html",
   "mixins" : ["./hmaker-edit-com.mjs"],
   "components" : [
-    "@com:hmaker/edit-com/form"
+    "@com:hmaker/edit-com/form",
+    "@com:wn/combo/edit-com"
   ]
 }

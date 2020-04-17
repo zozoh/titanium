@@ -32,6 +32,17 @@ export default {
     ThePrefixIcon() {
       return this.myDisplayIcon || this.prefixIcon
     },
+    //------------------------------------------------
+    TheHover() {
+      let map = {}
+      let hos = _.concat(this.hover)
+      for(let ho of hos) {
+        if(ho) {
+          map[ho] = true
+        }
+      }
+      return map
+    },
     //--------------------------------------
     TheValue() {
       let str = this.value
@@ -60,6 +71,19 @@ export default {
   },
   //////////////////////////////////////////
   methods : {
+    //------------------------------------------------
+    isCanHover(hoverName) {
+      return this.TheHover[hoverName] ? true : false
+    },
+    //------------------------------------------------
+    getHoverClass(hoverName) {
+      let canHover = this.isCanHover(hoverName)
+      return {
+        "can-hover" : canHover,
+        "for-look"  : !canHover,
+        "is-prefix-icon-hover" : "prefixIcon" == hoverName
+      }
+    },
     //--------------------------------------
     OnDblClick() {
       if(this.editable) {
@@ -70,6 +94,26 @@ export default {
           }
         })
       }
+    },
+    //------------------------------------------------
+    OnClickPrefixIcon() {
+      this.$notify("prefix:icon")
+    },
+    //------------------------------------------------
+    OnClickPrefixText() {
+      this.$notify("prefix:text")
+    },
+    //------------------------------------------------
+    OnClickValue() {
+      this.$notify("click:value")
+    },
+    //------------------------------------------------
+    OnClickSuffixIcon() {
+      this.$notify("suffix:icon")
+    },
+    //------------------------------------------------
+    OnClickSuffixText() {
+      this.$notify("suffix:text")
     },
     //--------------------------------------
     async evalDisplay(val) {

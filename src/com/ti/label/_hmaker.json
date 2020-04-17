@@ -1,0 +1,104 @@
+{
+  "icon"   : "im-tag",
+  "title"  : "i18n:com-label",
+  "scenes" : ["desktop", "tablet", "phone"],
+  "editComType" : "ti-form",
+  "editComConf" : {
+    "mode" : "tab",
+    "data" : "=comConf",
+    "fields" : [{
+        "title": "i18n:hmk-aspect",
+        "fields": [{
+            "title": "hmk-placeholder",
+            "name": "placeholder",
+            "comType": "ti-input"
+          }, {
+            "title": "hmk-autoI18n",
+            "name": "autoI18n",
+            "type": "Boolean",
+            "defaultAs": true,
+            "comType": "ti-toggle"
+          }, {
+            "title": "hmk-prefixIcon",
+            "name": "prefixIcon",
+            "comType": "ti-input-icon"
+          }, {
+            "title": "hmk-prefixText",
+            "name": "prefixText",
+            "comType": "ti-input"
+          }, {
+            "title": "hmk-suffixIcon",
+            "name": "suffixIcon",
+            "comType": "ti-input-icon"
+          }, {
+            "title": "hmk-suffixText",
+            "name": "suffixText",
+            "comType": "ti-input"
+          }]
+      }, {
+        "title": "i18n:hmk-behavior",
+        "fields": [{
+            "title": "hmk-href",
+            "name": "href",
+            "comType": "ti-input"
+          }, {
+            "title": "hmk-newTab",
+            "name": "newTab",
+            "type": "Boolean",
+            "hidden" : {
+              "href": "NoEmpty"
+            },
+            "comType": "ti-toggle"
+          }, {
+            "title": "hmk-breakLine",
+            "name": "breakLine",
+            "type": "Boolean",
+            "defaultAs": true,
+            "comType": "ti-toggle"
+          }, {
+            "title": "hmk-editable",
+            "name": "editable",
+            "type": "Boolean",
+            "comType": "ti-toggle"
+          }]
+      }, {
+      "title": "i18n:hmk-data",
+      "fields": [{
+          "title": "hmk-value",
+          "name": "value",
+          "comType": "ti-input"
+        }, {
+          "title": "hmk-dict",
+          "name": "dict",
+          "comType": "ti-input"
+        }, {
+          "title": "hmk-trimed",
+          "name": "trimed",
+          "type": "Boolean",
+          "comType": "ti-toggle"
+        }, {
+          "title": "hmk-format",
+          "name": "format",
+          "comType": "ti-input",
+          "comConf": {
+            "autoJsValue": true
+          }
+        }]
+    }, {
+      "title": "i18n:hmk-measure",
+      "fields": [{
+          "title": "hmk-width",
+          "name": "width",
+          "comType": "ti-input"
+        }, {
+          "title": "hmk-height",
+          "name": "height",
+          "comType": "ti-input"
+        }, {
+          "title": "hmk-valueMaxWidth",
+          "name": "valueMaxWidth",
+          "comType": "ti-input"
+        }]
+    }]
+  }
+}

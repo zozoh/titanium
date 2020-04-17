@@ -144,7 +144,35 @@ const _M = {
     OnFieldChange({name, value}={}) {
       //console.log("ti-form.OnFieldChange", {name, value})      
       let data = _.cloneDeep(this.TheData)
-      _.set(data, name, value)
+      // Signle value
+      if(_.isString(name)) {
+        // Whole data
+        if(".." == name) {
+          _.assign(data, value)
+        }
+        // Statci value
+        else if(/^'[^']+'$/.test(name)) {
+          return
+        }
+        // Dynamic value
+        else {
+          _.set(data, name, value)
+        }
+      }
+      // Object
+      else if(_.isArray(name)) {
+        let vo = {}
+        for(let k of name) {
+          vo[k] = _.get(value, k)
+        }
+        _.assign(data, vo)
+      }
+      // Other 
+      else {
+        return
+      }
+
+      // Notify
       this.$notify("field:change", {name, value})
       this.$notify("change", data)
     },
@@ -157,7 +185,7 @@ const _M = {
       //   : "ti-fld-" + nbs.join("-")
       //............................................
       // For group
-      if('Group' == fld.type) {
+      if('Group' == fld.type || _.isArray(fld.fields)) {
         let group = {
           type        : "Group",
           key         : fldKey,

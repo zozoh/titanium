@@ -4,17 +4,22 @@
   @dblclick.left="OnDblClick">
   <!--prefix:icon-->
   <div v-if="ThePrefixIcon"
-    class="as-icon at-prefix">
+    class="as-icon at-prefix"
+    :class="getHoverClass('prefixIcon')"
+    @click.left="OnClickPrefixIcon">
     <ti-icon :value="ThePrefixIcon"/>
   </div>
   <!--prefix:text-->
   <div v-if="prefixText" 
-    class="as-text at-prefix">
+    class="as-text at-prefix"
+    :class="getHoverClass('prefixText')"
+    @click.left="OnClickPrefixText">
     <span>{{prefixText|i18n}}</span>
   </div>
   <!--Text-->
   <div class="as-value"
-    :style="ValueStyle">
+    :style="ValueStyle"
+    @click.left="OnClickValue">
     <!--Link-->
     <a v-if="href"
         :href="href"
@@ -25,12 +30,16 @@
   </div>
   <!--suffix:text-->
   <div v-if="suffixText"
-    class="as-text at-suffix">
+    class="as-text at-suffix"
+    :class="getHoverClass('suffixText')"
+    @click.left="OnClickSuffixIcon">
     <span>{{suffixText|i18n}}</span>
   </div>
   <!--suffix:icon-->
   <div v-if="suffixIcon"
-    class="as-icon at-suffix">
+    class="as-icon at-suffix"
+    :class="getHoverClass('suffixIcon')"
+    @click.left="OnClickSuffixIcon">
     <ti-icon :value="suffixIcon"/>
   </div>
 </div>

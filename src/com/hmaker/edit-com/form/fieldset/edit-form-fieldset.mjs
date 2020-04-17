@@ -354,11 +354,11 @@ export default {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch: {
-    // "value" : {
-    //   handler: "evalFieldTree",
-    //   immediate: true
-    // }
+  mounted: function() {
+    let it = _.first(this.value)
+    if(it) {
+      this.myCurrentId = it.name
+    }
   }
   //////////////////////////////////////////
 }

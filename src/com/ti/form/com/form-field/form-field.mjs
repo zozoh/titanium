@@ -93,6 +93,7 @@ const _M = {
       // If Actived reset the display
       if(this.isActived || !this.display) {
         dis = {
+          defaultAs: this.defaultAs,
           comType : this.comType,
           comConf : this.comConf,
         }

@@ -31,6 +31,10 @@ export default {
     type : Boolean,
     default : false
   },
+  "hover" : {
+    type : [Array, String],
+    default : ()=>["suffixIcon"]
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

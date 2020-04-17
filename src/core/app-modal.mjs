@@ -82,17 +82,17 @@ export class TiAppModal {
     }
     //..........................................
     // Setup content
-    let html = `<transition :name="theTransName" @after-leave="onAfterLeave">
+    let html = `<transition :name="TransName" @after-leave="onAfterLeave">
       <div class="ti-app-modal"
         v-if="!hidden"
-          :class="topClass"
-          :style="topStyle"
-          @click.left="onClickTop"
+          :class="TopClass"
+          :style="TopStyle"
+          @click.left="OnClickTop"
           v-ti-activable>
 
           <div class="modal-con" 
-            :class="theConClass"
-            :style="theConStyle"
+            :class="ConClass"
+            :style="ConStyle"
             @click.left.stop>
 
             <div class="modal-head"
@@ -104,11 +104,12 @@ export class TiAppModal {
             <div class="modal-main">
               <component
                 class="ti-fill-parent"
-                :class="theMainClass"
+                :class="MainClass"
                 :is="comType"
-                v-bind="theComConf"
+                v-bind="TheComConf"
                 :on-init="onMainInit"
-                v-model="result"/>
+                :value="result"
+                @change="OnChange"/>
             </div>
 
             <div class="modal-actions"
@@ -124,8 +125,8 @@ export class TiAppModal {
 
             <div class="modal-closer"
               v-if="hasCloser"
-                :class="theCloserClass">
-                  <ti-icon value="zmdi-close" @click.native="onClose"/>
+                :class="CloserClass">
+                  <ti-icon value="zmdi-close" @click.native="OnClose"/>
             </div>
         </div>
     </div></transition>`
@@ -161,7 +162,7 @@ export class TiAppModal {
         overflow   : this.overflow,
         adjustable : this.adjustable,
         //--------------------------------------
-        result : this.result
+        result : _.cloneDeep(this.result)
       },
       //////////////////////////////////////////
       store : {
@@ -172,14 +173,14 @@ export class TiAppModal {
       //////////////////////////////////////////
       computed : {
         //--------------------------------------
-        topClass() {
+        TopClass() {
           return this.getTopClass({
             "show-mask" : this.isShowMask,
             "no-mask"   : !this.isShowMask,
           }, `at-${this.position}`)
         },
         //--------------------------------------
-        topStyle() {
+        TopStyle() {
           if('center' != this.position) {
             return {
               "padding" : Ti.Css.toSize(this.spacing)
@@ -187,7 +188,7 @@ export class TiAppModal {
           }
         },
         //--------------------------------------
-        theTransName() {
+        TransName() {
           return `app-modal-trans-at-${this.position}`
         },
         //--------------------------------------
@@ -211,7 +212,7 @@ export class TiAppModal {
           return true === this.closer || "default" == this.closer
         },
         //--------------------------------------
-        theConClass() {
+        ConClass() {
           return Ti.Css.mergeClassName({
             "is-show-header"    : this.isShowHead,
             "is-hide-header"    : !this.isShowHead,
@@ -221,18 +222,18 @@ export class TiAppModal {
           }, `is-${this.type}`)
         },
         //--------------------------------------
-        theConStyle() {
+        ConStyle() {
           return Ti.Css.toStyle({
             width  : this.width,
             height : this.height
           })
         },
         //--------------------------------------
-        theMainClass() {
+        MainClass() {
           return Ti.Css.mergeClassName(`modal-type-is-${this.type}`)
         },
         //--------------------------------------
-        theCloserClass() {
+        CloserClass() {
           return Ti.Css.mergeClassName({
             'as-lamp-cord' : !this.isCloserDefault,
             'as-default'   : this.isCloserDefault,
@@ -240,7 +241,7 @@ export class TiAppModal {
           })
         },
         //--------------------------------------
-        theComConf() {
+        TheComConf() {
           return Ti.Util.explainObj(this, this.comConf)
         }
         //--------------------------------------
@@ -248,15 +249,23 @@ export class TiAppModal {
       //////////////////////////////////////////
       methods : {
         //--------------------------------------
-        onClickTop() {
+        // Events
+        //--------------------------------------
+        OnClickTop() {
           if(this.clickMaskToClose) {
             this.hidden = true
           }
         },
         //--------------------------------------
-        onClose() {
+        OnClose() {
           this.close()
         },
+        //--------------------------------------
+        OnChange(newVal) {
+          this.result = newVal
+        },
+        //--------------------------------------
+        // Utility
         //--------------------------------------
         close(result) {
           if(!_.isUndefined(result)) {

@@ -1,0 +1,6 @@
+{
+  "name" : "wn-combo-edit-com",
+  "globally" : true,
+  "template" : "./wn-combo-edit-com.html",
+  "mixins"   : "./wn-combo-edit-com.mjs"
+}
