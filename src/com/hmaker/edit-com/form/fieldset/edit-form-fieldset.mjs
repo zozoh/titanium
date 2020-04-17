@@ -110,7 +110,6 @@ export default {
             border: "row",
             defaultOpenDepth: 2,
             currentId: this.myCurrentId,
-            idBy: it => this.getFieldId(it),
             nameBy: it => this.getFieldId(it),
             childrenBy: it => it.fields,
             leafBy: it => "Group" != it.type,
@@ -169,6 +168,55 @@ export default {
       })
       this.myCurrentId = this.getFieldId(newFld)
       this.$notify("change", list)
+    },
+    //--------------------------------------
+    getMyCurrent(){
+      if(!this.myCurrentId || !_.isArray(this.value)) {
+        return
+      }
+
+      let path  = this.myCurrentId.split("/")
+      let index = []
+      let re = {path, group:null, field:null}
+
+      // Find the top field or group
+      if(path.length > 0) {
+        let fnm = path[0]
+        for(let i=0; i<this.value.length; i++) {
+          let fg = this.value[i]
+          // Is group
+          if(_.isArray(fg.fields) || "Group" == fg.type) {
+            if(fnm == fg.title){
+              re.group = fg
+              index.push(i)
+              break
+            }
+          }
+          // Is field
+          else {
+            if(fnm == fg.name) {
+              re.field = fg
+              index.push(i)
+              break
+            }
+          }
+        }
+      }
+
+      // Find in group
+      if(path.length > 1 && re.group && _.isArray(re.group.fields)) {
+        let fnm = path[1]
+        for(let i=0; i<re.group.fields.length; i++) {
+          let fld = re.group.fields[i]
+          if(fnm == fld.name) {
+            re.field = fld
+            index.push(i)
+          }
+        }
+      }
+
+      // Done
+      return re
     },
     //--------------------------------------
     addFieldOrGroup(fld) {
@@ -336,6 +384,12 @@ export default {
         title  : name,
         fields : []
       })
+    },
+    //--------------------------------------
+    async removeSelectedFieldOrGroup() {
+      if(!this.myCurrentId) {
+        return await Ti.Toast.Open("i18n:")
+      }
     }
     //--------------------------------------
     // evalFieldAsTreeNode(children=[], fld={}) {

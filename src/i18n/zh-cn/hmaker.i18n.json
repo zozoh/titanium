@@ -27,6 +27,7 @@
   "hmaker-edit-form-new-field-tip": "请输入新字段名（只能为小写英文字母数字和下划线）",
   "hmaker-edit-form-new-group": "新分组",
   "hmaker-edit-form-new-group-tip": "请输入新分组名",
+  "hmaker-edit-form-not-current":"请选择一个字段或者字段组",
   "hmaker-layout-cols": "列布局",
   "hmaker-layout-rows": "行布局",
   "hmaker-layout-tabs": "标签布局",
@@ -113,4 +114,5 @@
   "hmk-value": "输入值",
   "hmk-valueMaxWidth": "值最大宽度",
   "hmk-width": "控件宽度"
+  
 }
