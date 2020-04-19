@@ -112,10 +112,6 @@ export default {
                 title: "i18n:hmk-blankAs",
                 type : "Object",
                 comType : "ti-input"
-              }, {
-                name: "fieldStatus",
-                title: "i18n:hmk-fieldStatus",
-                comType: "ti-input"
               }]
           },
           //................................
@@ -140,13 +136,34 @@ export default {
             type : "Group",
             title : "i18n:hmk-data",
             fields : [{
+              title: "i18n:hmk-form-data",
               name: "data",
-              height: "100%",
-              comType: "ti-input-text",
-              comConf: {
-                height: "100%"
-              }
+              comType: "ti-input"
+            }, {
+              name: "fieldStatus",
+              title: "i18n:hmk-fieldStatus",
+              comType: "ti-input"
+            }, {
+              name: "onlyFields",
+              title: "i18n:hmk-form-onlyFields",
+              type: "Boolean",
+              defaultAs: true,
+              comType: "ti-toggle"
             }]
+          },
+          //................................
+          // Measure
+          {
+            title: "i18n:hmk-measure",
+            fields: [{
+                title: "i18n:hmk-form-width",
+                name: "width",
+                comType: "ti-input"
+              }, {
+                title: "i18n:hmk-form-height",
+                name: "height",
+                comType: "ti-input"
+              }]
           }]
       }
     }

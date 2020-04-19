@@ -396,6 +396,13 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
+    isOpened(rowOrId) {
+      let row = _.isString(rowOrId) 
+                  ? this.findTableRow(rowOrId)
+                  : rowOrId
+      return row ? row.opened : false
+    },
+    //--------------------------------------
     closeRow(rowOrId) {
       let row = _.isString(rowOrId) 
                   ? this.findTableRow(rowOrId)

@@ -58,6 +58,28 @@ const _M = {
       return list
     },
     //--------------------------------------------------
+    KeysInFields() {
+      let keys = []
+      for(let fg of this.TheFields) {
+        if(this.isGroup(fg)) {
+          _.forEach(fg.fields, (fld)=>{
+            if(_.isArray(fld.name)) {
+              keys.push(...fld.name)
+            } else {
+              keys.push(fld.name)
+            }
+          })
+        } else {
+          if(_.isArray(fg.name)) {
+            keys.push(...fg.name)
+          } else {
+            keys.push(fg.name)
+          }
+        }
+      }
+      return keys
+    },
+    //--------------------------------------------------
     TabList() {
       let list = []
       let otherFields = []
@@ -129,7 +151,13 @@ const _M = {
     },
     //--------------------------------------------------
     TheData() {
-      return this.data || {}
+      if(this.data) {
+        if(this.onlyFields) {
+          return _.pick(this.data, this.KeysInFields)
+        }
+        return this.data
+      }
+      return {}
     }
     //--------------------------------------------------
   },
@@ -176,11 +204,15 @@ const _M = {
       this.$notify("field:change", {name, value})
       this.$notify("change", data)
     },
+    //--------------------------------------
+    isGroup(fld) {
+      return "Group" == fld.type || _.isArray(fld.fields)
+    },
     //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {
       // Hide or disabled
       if(fld.hidden) {
-        if(Ti.Validate.match(this.TheData, fld.hidden)) {
+        if(Ti.Validate.match(this.data, fld.hidden)) {
           return
         }
       }
@@ -188,7 +220,7 @@ const _M = {
       // Disable
       let disabled = false
       if(fld.disabled) {
-        disabled = Ti.Validate.match(this.TheData, fld.disabled)
+        disabled = Ti.Validate.match(this.data, fld.disabled)
       }
 
       // The key
@@ -198,7 +230,7 @@ const _M = {
       //   : "ti-fld-" + nbs.join("-")
       //............................................
       // For group
-      if('Group' == fld.type || _.isArray(fld.fields)) {
+      if(this.isGroup(fld)) {
         let group = {
           disabled,
           type        : "Group",

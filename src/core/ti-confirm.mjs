@@ -2,6 +2,7 @@
 async function Confirm(msg="", {
   title, 
   icon,
+  closer = false,
   type  = "warn", 
   position = "center",
   textYes = "i18n:yes",
@@ -16,7 +17,7 @@ async function Confirm(msg="", {
     //------------------------------------------
     type, width, height, position,
     title   : theTitle,
-    closer  : false,
+    closer,
     actions : [{
       text: textYes,
       handler : ()=>true

@@ -18,6 +18,10 @@ export default {
     type : Object,
     default : undefined
   },
+  "onlyFields" : {
+    type: Boolean,
+    default: true
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

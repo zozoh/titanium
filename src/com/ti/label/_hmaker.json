@@ -9,40 +9,40 @@
     "fields" : [{
         "title": "i18n:hmk-aspect",
         "fields": [{
-            "title": "hmk-placeholder",
+            "title": "i18n:hmk-placeholder",
             "name": "placeholder",
             "comType": "ti-input"
           }, {
-            "title": "hmk-autoI18n",
+            "title": "i18n:hmk-autoI18n",
             "name": "autoI18n",
             "type": "Boolean",
             "defaultAs": true,
             "comType": "ti-toggle"
           }, {
-            "title": "hmk-prefixIcon",
+            "title": "i18n:hmk-prefixIcon",
             "name": "prefixIcon",
             "comType": "ti-input-icon"
           }, {
-            "title": "hmk-prefixText",
+            "title": "i18n:hmk-prefixText",
             "name": "prefixText",
             "comType": "ti-input"
           }, {
-            "title": "hmk-suffixIcon",
+            "title": "i18n:hmk-suffixIcon",
             "name": "suffixIcon",
             "comType": "ti-input-icon"
           }, {
-            "title": "hmk-suffixText",
+            "title": "i18n:hmk-suffixText",
             "name": "suffixText",
             "comType": "ti-input"
           }]
       }, {
         "title": "i18n:hmk-behavior",
         "fields": [{
-            "title": "hmk-href",
+            "title": "i18n:hmk-href",
             "name": "href",
             "comType": "ti-input"
           }, {
-            "title": "hmk-newTab",
+            "title": "i18n:hmk-newTab",
             "name": "newTab",
             "type": "Boolean",
             "hidden" : {
@@ -50,13 +50,13 @@
             },
             "comType": "ti-toggle"
           }, {
-            "title": "hmk-breakLine",
+            "title": "i18n:hmk-breakLine",
             "name": "breakLine",
             "type": "Boolean",
             "defaultAs": true,
             "comType": "ti-toggle"
           }, {
-            "title": "hmk-editable",
+            "title": "i18n:hmk-editable",
             "name": "editable",
             "type": "Boolean",
             "comType": "ti-toggle"
@@ -64,20 +64,20 @@
       }, {
       "title": "i18n:hmk-data",
       "fields": [{
-          "title": "hmk-value",
+          "title": "i18n:hmk-value",
           "name": "value",
           "comType": "ti-input"
         }, {
-          "title": "hmk-dict",
+          "title": "i18n:hmk-dict",
           "name": "dict",
           "comType": "ti-input"
         }, {
-          "title": "hmk-trimed",
+          "title": "i18n:hmk-trimed",
           "name": "trimed",
           "type": "Boolean",
           "comType": "ti-toggle"
         }, {
-          "title": "hmk-format",
+          "title": "i18n:hmk-format",
           "name": "format",
           "comType": "ti-input",
           "comConf": {
@@ -87,15 +87,15 @@
     }, {
       "title": "i18n:hmk-measure",
       "fields": [{
-          "title": "hmk-width",
+          "title": "i18n:hmk-width",
           "name": "width",
           "comType": "ti-input"
         }, {
-          "title": "hmk-height",
+          "title": "i18n:hmk-height",
           "name": "height",
           "comType": "ti-input"
         }, {
-          "title": "hmk-valueMaxWidth",
+          "title": "i18n:hmk-valueMaxWidth",
           "name": "valueMaxWidth",
           "comType": "ti-input"
         }]

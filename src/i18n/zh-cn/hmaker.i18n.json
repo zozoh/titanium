@@ -20,6 +20,9 @@
   },
   "hmaker-com-conf-blank": "请选择一个控件设置其详情",
   "hmaker-com-type-blank": "选择一个控件",
+  "hmaker-edit-form-del-group-all": "组以及全部字段",
+  "hmaker-edit-form-del-group-confirm": "您是要删除组以及其内的全部字段，还是仅是组？",
+  "hmaker-edit-form-del-group-only": "仅是组",
   "hmaker-edit-form-field-nil": "请选择一个字段编辑详情",
   "hmaker-edit-form-new-field": "新字段",
   "hmaker-edit-form-new-field-e0": "字段名不能以数字开头，内容只能为小写英文字母数字和下划线",
@@ -27,7 +30,8 @@
   "hmaker-edit-form-new-field-tip": "请输入新字段名（只能为小写英文字母数字和下划线）",
   "hmaker-edit-form-new-group": "新分组",
   "hmaker-edit-form-new-group-tip": "请输入新分组名",
-  "hmaker-edit-form-not-current":"请选择一个字段或者字段组",
+  "hmaker-edit-form-nil-field": "请先选择一个字段",
+  "hmaker-edit-form-not-current": "请选择一个字段或者字段组",
   "hmaker-layout-cols": "列布局",
   "hmaker-layout-rows": "行布局",
   "hmaker-layout-tabs": "标签布局",
@@ -85,6 +89,10 @@
   "hmk-fields": "字段",
   "hmk-fields-advance": "高级",
   "hmk-fields-general": "基本",
+  "hmk-form-data": "数据源",
+  "hmk-form-height": "表单高度",
+  "hmk-form-onlyFields": "仅声明字段",
+  "hmk-form-width": "表单宽度",
   "hmk-format": "格式化",
   "hmk-height": "控件高度",
   "hmk-href": "超链接",
@@ -114,5 +122,4 @@
   "hmk-value": "输入值",
   "hmk-valueMaxWidth": "值最大宽度",
   "hmk-width": "控件宽度"
-  
 }

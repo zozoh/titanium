@@ -59,9 +59,9 @@ const TiUtil = {
    * @param list{Array} - target list
    * @param pos{Integer} - 
    *   specific position. 
-   *    0 : the head, 
-   *    -1: the tail, 
-   *    -2: before the last lement
+   *    `0` : the head, 
+   *    `-1`: the tail, 
+   *    `-2`: before the last lement
    * @param items{Array} - one or more elements
    * 
    * @return the index which to insert the items
