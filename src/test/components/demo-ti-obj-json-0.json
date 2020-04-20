@@ -2,7 +2,7 @@
   "comType" : "ti-text-json",
   "comConf" : {
     "className" : "ti-fill-parent",
-    "data"   : "=data",
+    "value"   : "=content",
     "tree" : {
       "keepOpenBy" : "->obj-json-opened-${meta.id}",
       "autoOpen"   : false

@@ -1,0 +1,5 @@
+{
+  "name" : "menu-item-action",
+  "template" : "./menu-item-action.html",
+  "mixins"   : ["./menu-item-action.mjs"]
+}

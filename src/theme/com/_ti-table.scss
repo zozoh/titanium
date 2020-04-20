@@ -147,9 +147,9 @@
         width:.16rem;
       }
       //-----------------------------------------
-      .row-icon, .row-checker {
+      .row-icon.ti-icon, .row-checker {
         cursor: pointer; 
-        &:hover {@include color($color-secondary, c);}
+        &:hover {@include color($color-secondary, r, c);}
       }
       //-----------------------------------------
       .row-checker {

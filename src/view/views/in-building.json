@@ -1,6 +1,6 @@
 {
   "comIcon" : "fas-cat",
-  "comType" : "@com:ti/web/roadblock",
+  "comType" : "@com:ti/roadblock",
   "comConf" : {
     "icon" : "fas-cat",
     "text" : "i18n:under-construction"

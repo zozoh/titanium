@@ -7,7 +7,7 @@ const _M = {
   }),
   //////////////////////////////////////////
   props : {
-    "data" : null,
+    "value" : null,
     "mainWidth" : {
       type : [String, Number],
       default : -200
@@ -75,7 +75,7 @@ const _M = {
     evalTreeData() {
       let list = []
       // Join the top data
-      this.joinTreeTableRow(list, this.data)
+      this.joinTreeTableRow(list, this.value)
 
       // Update Tree Data
       this.myTreeRoot = _.first(list)
@@ -438,7 +438,7 @@ const _M = {
       }
       //....................................
       // Prepare the new Data
-      let newData = _.cloneDeep(this.data)
+      let newData = _.cloneDeep(this.value)
       //....................................
       // Get the target JSON path
       let path = node.path

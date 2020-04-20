@@ -10,7 +10,7 @@ export default {
       type : String,
       default : undefined
     },
-    "content" : {
+    "value" : {
       type : String,
       default : ""
     }, 
@@ -54,8 +54,8 @@ export default {
     },
     //-----------------------------------------------
     renderMarkdown() {
-      if(!Ti.Util.isBlank(this.content)) {
-        let MdDoc = Cheap.parseMarkdown(this.content)
+      if(!Ti.Util.isBlank(this.value)) {
+        let MdDoc = Cheap.parseMarkdown(this.value)
         console.log(MdDoc.toString())
         this.myHtml  = MdDoc.toBodyInnerHtml({
           mediaSrc : src => this.evalMediaSrc(src)
@@ -72,7 +72,7 @@ export default {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "content" : {
+    "value" : {
       handler : "renderMarkdown",
       immediate : true
     }

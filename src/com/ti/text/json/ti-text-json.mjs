@@ -6,8 +6,7 @@ const _M = {
       default : "bottom-left",
       validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
     },
-    "data" : undefined,
-    "content" : undefined,
+    "value" : undefined,
     "tree" : {
       type : Object,
       default : ()=>({})
@@ -17,21 +16,15 @@ const _M = {
   computed : {
     //--------------------------------------
     TheContent() {
-      if(!Ti.Util.isNil(this.content)) {
-        return this.content
-      }
-      if(!Ti.Util.isNil(this.data)) {
-        return JSON.stringify(this.data, null, '  ')
+      if(!Ti.Util.isNil(this.value)) {
+        return this.value
       }
       return ""
     },
     //--------------------------------------
     TheData() {
-      if(!Ti.Util.isNil(this.content)) {
-        return Ti.Types.safeParseJson(this.content, null)
-      }
-      if(!Ti.Util.isNil(this.data)) {
-        return this.data
+      if(!Ti.Util.isNil(this.value)) {
+        return Ti.Types.safeParseJson(this.value, null)
       }
       return null
     },
@@ -56,13 +49,13 @@ const _M = {
       //....................................
       // Tree Conf
       let treeConf = _.assign({}, this.tree, {
-        data: this.TheData
+        value: this.TheData
       })
       //....................................
       // Source Conf
       let sourceConf = {
         showTitle : false,
-        content   : this.content
+        value    : this.value
       }
       //....................................
       // Done

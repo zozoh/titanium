@@ -82,8 +82,7 @@ export class TiAppActionShortcuts {
     let list = _.without(_.concat(actions), null)
     _.forEach(list, aIt => {
       // Groups, recur ...
-      if('group' == aIt.type 
-         && _.isArray(aIt.items)
+      if(_.isArray(aIt.items)
          && aIt.items.length > 0) {
         this.watch(scope, aIt.items, {$com, argContext})
       }

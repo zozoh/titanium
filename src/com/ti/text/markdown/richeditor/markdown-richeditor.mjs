@@ -34,7 +34,7 @@ const _M = {
       type : String,
       default : undefined
     },
-    "content" : {
+    "value" : {
       type : String,
       default : ""
     }, 
@@ -347,9 +347,9 @@ const _M = {
     //-----------------------------------------------
     renderMarkdown() {
       console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown")
-      if(!Ti.Util.isBlank(this.content)) {
+      if(!Ti.Util.isBlank(this.value)) {
         // Parse markdown
-        let MdDoc = Cheap.parseMarkdown(this.content)
+        let MdDoc = Cheap.parseMarkdown(this.value)
         console.log(MdDoc.toString())
         window.MdDoc = MdDoc
         this.myMeta = _.cloneDeep(MdDoc.getMeta())
@@ -395,7 +395,7 @@ const _M = {
       //console.log(MdDoc.toString())
       let markdown = MdDoc.toMarkdown()
       //console.log(markdown)
-      if(markdown != this.content) {
+      if(markdown != this.value) {
         this.syncForbid = 1
         this.$notify("change", markdown)
       }
@@ -465,7 +465,7 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "content" : {
+    "value" : {
       handler : "syncMarkdown"
     }
   },

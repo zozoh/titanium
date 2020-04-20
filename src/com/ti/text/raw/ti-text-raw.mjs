@@ -26,7 +26,7 @@ export default {
       type : Boolean,
       default : false
     },
-    "content" : {
+    "value" : {
       type : String,
       default : ""
     }, 
@@ -62,7 +62,7 @@ export default {
     },
     //-----------------------------------------------
     hasContent() {
-      return !Ti.Util.isNil(this.content)
+      return !Ti.Util.isNil(this.value)
     },
     //-----------------------------------------------
     placeholder() {
@@ -71,7 +71,7 @@ export default {
     //-----------------------------------------------
     isContentChanged() {
       if(this.ignoreKeyUp) {
-        return this.myContent != this.content
+        return this.myContent != this.value
       }
       return _.get(this.status, "changed")
     }
@@ -93,7 +93,7 @@ export default {
           txt = _.trim(txt)
         }
         this.myContent = txt
-        if(emit && txt != this.content) {
+        if(emit && txt != this.value) {
           vm.$notify("change", txt)
         }
       }
@@ -117,8 +117,8 @@ export default {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "content" : function() {
-      this.myContent = this.content
+    "value" : function() {
+      this.myContent = this.value
     }
   },
   ///////////////////////////////////////////////////
@@ -129,7 +129,7 @@ export default {
   },
   ///////////////////////////////////////////////////
   mounted : function() {
-    this.myContent = this.content
+    this.myContent = this.value
   }
   ///////////////////////////////////////////////////
 }

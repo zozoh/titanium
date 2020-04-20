@@ -1,0 +1,7 @@
+{
+  "name" : "ti-roadblock",
+  "globally" : true,
+  "template" : "./ti-roadblock.html",
+  "mixins"   : ["./ti-roadblock.mjs"],
+  "components" : []
+}
