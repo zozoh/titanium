@@ -47,7 +47,7 @@ const WN_MANAGER_COMPUTED = {
     if(_.isArray(this.actions) && !_.isEmpty(this.actions)) {
       return {
         className : `wn-${this.viewportMode}-menu`,
-        data   : this.actions,
+        items  : this.actions,
         status : this.TheStatus,
         delay  : 500
       }

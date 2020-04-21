@@ -46,7 +46,7 @@ author: zozoh(zozohtnt@gmail.com)
 
  Prop   | Comment
 --------|-------------------
-`value` | 动作条配置，数组，每个元素对应一个动作条项目
+`items` | 动作条配置，数组，每个元素对应一个动作条项目
 `align` | 动作条的排布 `*left|right|center`
 `status`| 动作条的各个动作状态集合
 
@@ -73,20 +73,18 @@ author: zozoh(zozohtnt@gmail.com)
 
  Prop     | Example   | Comment
 ----------|-----------|-------
-`type`    | `action`  | 必须为 `action`
 `name`    | `save`    | 【自】全动作条唯一名称
 `value`   | `true`    | 通知事件的值
 `icon`    | `fas-xx`  | 按钮图标
 `text`    | `i18n:xx` | 按钮文字
 `tip`     | `i18n:xx` | 提示说明
 `shortcut`| `CTRL+S`  | 快捷键
-`action`  | `dispath:..` | 执行动作
-`notify`  | `{..}`    | 通知事件
+`action`  | `dispath:..` | 执行动作，详情见下文
+`notify`  | `false`   | 触发后同时发起事件通知，默认 `false`
 `wait`    | `500`     | 在一定的时间内阻止重复执行（毫秒）默认0
-`altDisplay` | `{..}` | 根据不同的状态切换的显示
-`status`   | `{..}` | 动作条的各个动作状态集合
-`enableBy` | `changed` | 指明由哪个状态启用
-`disableBy`| `saving`  | 指明由哪个状态关闭
+`enabled` | `changed` | 指明由哪个状态启用
+`disabled`| `saving`  | 指明由哪个状态关闭
+`altDisplay`| `{..}`  | 根据不同的状态切换的显示
 
 > 不声明`type`的话，只要声明了`action`或`notify`就会被认为是动作按钮
 
@@ -116,10 +114,6 @@ author: zozoh(zozohtnt@gmail.com)
 
 当动作触发后，动作条父控件会截获这个事件，并转发出去：
 
-```js
-vm.$notify("change", {save:true})
-```
-
 ----------------------------------------------------
 ### altDisplay
 
@@ -127,9 +121,11 @@ vm.$notify("change", {save:true})
 
 ```js
 altDisplay: [{
-  text: "xxx",      // 切换文字，默认采用bar-action.text
+  text: "i18n:xxx", // 切换文字，默认采用bar-action.text
   icon: "fas-xx",   // 切换图标，默认采用bar-action.icon
+  tip: "i18n:xxx",  // 切换提示，默认采用bar-action.tip
   match: "saving",  // 切换条件, @see 下面的【状态匹配】详细描述
+  value: false,     // 切换当前的 display 后，再次触发的值
   disable: true,    // 按钮为失效状态，默认 false
   capture: true,    // 本状态将捕获所有鼠据事件阻止用户操作, 默认 false
   highlight: true,  // 高亮显示按钮，默认 false
@@ -152,15 +148,15 @@ Match  | `{saving:true}` | 采用`_.isMatch`匹配状态表
 Validate | `{validate:{..}}` | 采用 `Ti.Validate` 匹配状态表
 
 ----------------------------------------------------
-### enableBy
+### enabled
 
 声明了这个属性后，只有其为`真`才会启用动作，其值的格式参看上文的【状态匹配】
 
 ----------------------------------------------------
-### disableBy
+### disabled
 
 声明了这个属性后，如果其为`真`会失效动作，其值的格式参看上文的【状态匹配】。
-本属性如果与`enableBy`效果重叠，以`enableBy`为准。
+本属性如果与`enabled`效果重叠，以`enabled`为准。
 
 ----------------------------------------------------
 ## bar-action 事件
@@ -174,12 +170,14 @@ Validate | `{validate:{..}}` | 采用 `Ti.Validate` 匹配状态表
 
  Prop     | Example   | Comment
 ----------|-----------|-------
-`type`    | `group`  | 必须为 `group`
 `name`    | `save`    | 【自】全动作条唯一名称
 `icon`    | `fas-xx`  | 按钮图标
 `text`    | `i18n:xx` | 按钮文字
 `tip`     | `i18n:xx` | 提示说明
 `items`   | `[..]`    | 包含的动作和组
+`enabled` | `changed` | 指明由哪个状态启用
+`disabled`| `saving`  | 指明由哪个状态关闭
+`altDisplay`| `{..}`  | 根据不同的状态切换的显示
 `autoExtend`| `false` | 如果有空间可能，自动展开组的内容
 
 > 不声明`type`的话，只要声明了`items`就会被认为是动作按钮
@@ -187,18 +185,7 @@ Validate | `{validate:{..}}` | 采用 `Ti.Validate` 匹配状态表
 ----------------------------------------------------
 ## bar-group 事件
 
-```js
-// 展开子组
-{
-  name  : "Group1",
-  value : "extended"
-}
-// 收缩子组
-{
-  name  : "Group1",
-  value : "collapse"
-}
-```
+*无任何事件*
 
 ----------------------------------------------------
 # 示例

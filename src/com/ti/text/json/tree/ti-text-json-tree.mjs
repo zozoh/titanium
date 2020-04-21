@@ -430,7 +430,7 @@ const _M = {
     },
     //--------------------------------------
     async OnNodeItemChange({name, value, data, node, nodeId}={}) {
-      console.log("OnNodeItemChange", {name,value, data, node, nodeId})
+      //console.log("OnNodeItemChange", {name,value, data, node, nodeId})
       //....................................
       // Guard it
       if(!node.id) {
@@ -514,7 +514,7 @@ const _M = {
   },
   //////////////////////////////////////////
   watch : {
-    "data" : function(){
+    "value" : function(){
       this.evalTreeData()
     }
   },

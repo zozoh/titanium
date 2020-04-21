@@ -1,8 +1,11 @@
 {
   "comIcon" : "im-edit",
-  "comType" : "@com:wn/obj/json",
+  "comType" : "@com:ti/text/json",
+  "comConf" : {
+    "value" : "=content"
+  },
   "actions" : [{
-      "key"  : "saving",
+      "name"  : "saving",
       "type" : "action",
       "icon" : "zmdi-floppy",
       "text" : "i18n:save-change",
@@ -10,7 +13,7 @@
         "icon" : "fas-spinner fa-pulse",
         "text" : "i18n:saving"
       },
-      "enableBy" : "changed",
+      "enabled" : "changed",
       "action" : "dispatch:current/save",
       "shortcut" : "CTRL+S"
     }, {
@@ -19,7 +22,7 @@
       "type" : "group",
       "icon" : "im-menu",
       "items" : [{
-          "key"  : "reloading",
+          "name"  : "reloading",
           "type" : "action",
           "icon" : "zmdi-refresh",
           "text" : "i18n:refresh",

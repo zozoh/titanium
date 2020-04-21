@@ -1,0 +1,12 @@
+{
+  "name" : "ti-actionbar",
+  "globally" : true,
+  "template" : "./ti-actionbar.html",
+  "mixins" : ["./ti-actionbar.mjs"],
+  "components" : [
+    "./com/bar-item-action",
+    "./com/bar-item-group",
+    "./com/bar-item-line",
+    "./com/bar-item-info"
+  ]
+}

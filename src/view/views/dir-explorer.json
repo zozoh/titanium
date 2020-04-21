@@ -2,7 +2,7 @@
   "comIcon" : "im-archive",
   "comType" : "@com:wn/adaptlist",
   "actions" : [{
-      "key"  : "reloading",
+      "name" : "reloading",
       "type" : "action",
       "icon" : "zmdi-refresh",
       "text" : "i18n:refresh",
@@ -19,14 +19,14 @@
       "type" : "group",
       "icon" : "im-menu",
       "items" : [{
-          "key"  : "create",
+          "name" : "create",
           "type" : "action",
           "icon" : "zmdi-flare",
           "text" : "i18n:create",
           "action" : "main:doCreate",
           "shortcut" : "ALT+CTRL+N"
         },{
-          "key"  : "deleting",
+          "name" : "deleting",
           "type" : "action",
           "icon" : "zmdi-delete",
           "text" : "i18n:del",
@@ -39,7 +39,7 @@
         },{
           "type":"line"
         },{
-          "key"  : "renaming",
+          "name" : "renaming",
           "type" : "action",
           "icon" : "zmdi-space-bar",
           "text" : "i18n:rename",
@@ -51,22 +51,22 @@
         },{
           "type":"line"
         },{
-          "key"  : "selectAll",
+          "name" : "selectAll",
           "type" : "action",
           "icon" : "zmdi-check-all",
           "text" : "i18n:select-all",
           "action" : "main:invokeList(checkRow)",
           "shortcut" : "CTRL+A"
         },{
-          "key"  : "cancelAll",
+          "name" : "cancelAll",
           "type" : "action",
-          "icon" : "zmdi-minus",
+          "__icon" : "zmdi-minus",
           "text" : "i18n:cancel-all",
           "action" : "main:invokeList(cancelRow)"
         },{
           "type" : "line"
         },{
-          "key"  : "exposeHidden",
+          "name" : "exposeHidden",
           "type" : "action",
           "icon" : "zmdi-eye",
           "text" : "i18n:wn-expose-hidden-on",
@@ -80,7 +80,7 @@
         },{
           "type" : "line"
         },{
-          "key"  : "upload",
+          "name" : "upload",
           "type" : "action",
           "icon" : "zmdi-cloud-upload",
           "text" : "i18n:upload-file",
@@ -98,7 +98,7 @@
           "type" : "line"
         },{
           "type" : "action",
-          "icon" : "zmdi-keyboard",
+          "icon" : "zmdi-namebard",
           "text" : "i18n:console",
           "action" : "=>Ti.Be.Open('/a/open/wn.console')",
           "shortcut" : "ALT+SHIFT+T"

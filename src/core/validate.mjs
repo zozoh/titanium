@@ -85,6 +85,9 @@ const TiValidate = {
   },
   //-----------------------------------
   match(obj={}, validates={}) {
+    if(!obj || _.isEmpty(obj)) {
+      return false
+    }
     // Customized
     if(_.isFunction(validates)) {
       return validates(obj) ? true : false

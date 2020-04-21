@@ -77,7 +77,7 @@ const _M = {
   methods : {
     //--------------------------------------
     OnChange(payload) {
-      console.log("TiObjJson->OnChange", payload)
+      //console.log("TiObjJson->OnChange", payload)
       this.$notify('change', payload)
     }
     //--------------------------------------

@@ -1,5 +1,0 @@
-{
-  "name" : "menu-item-group",
-  "template" : "./menu-item-group.html",
-  "mixins"   : ["./menu-item-group.mjs"]
-}

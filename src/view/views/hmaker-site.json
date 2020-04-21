@@ -3,7 +3,7 @@
   "comType" : "@com:hmaker/site-manager",
   "modType" : "@mod:hmaker/website",
   "actions" : [{
-      "key"  : "publishing",
+      "name"  : "publishing",
       "type" : "action",
       "icon" : "zmdi-mail-send",
       "text" : "i18n:publish",
@@ -19,14 +19,14 @@
       "type" : "group",
       "icon" : "im-menu",
       "items" : [{
-          "key"  : "create",
+          "name"  : "create",
           "type" : "action",
           "icon" : "zmdi-flare",
           "text" : "i18n:create",
           "action" : "dispatch:main/create",
           "shortcut" : "ALT+CTRL+N"
         },{
-          "key"  : "deleting",
+          "name"  : "deleting",
           "type" : "action",
           "icon" : "zmdi-delete",
           "text" : "i18n:del",
@@ -39,7 +39,7 @@
         },{
           "type":"line"
         },{
-          "key"  : "reloading",
+          "name"  : "reloading",
           "type" : "action",
           "icon" : "zmdi-refresh",
           "text" : "i18n:refresh",
@@ -52,7 +52,7 @@
         },{
           "type":"line"
         },{
-          "key"  : "renaming",
+          "name"  : "renaming",
           "type" : "action",
           "icon" : "zmdi-space-bar",
           "text" : "i18n:rename",

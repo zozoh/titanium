@@ -1,5 +1,5 @@
 [{
-  "key"  : "reloading",
+  "name"  : "reloading",
   "type" : "action",
   "icon" : "zmdi-refresh",
   "text" : "i18n:refresh",
@@ -10,30 +10,30 @@
   "action" : "dispatch:main/reloadSearch",
   "shortcut" : "CTRL+SHIFT+R"
 }, {
-  "key"  : "resetPasswd",
+  "name"  : "resetPasswd",
   "type" : "action",
   "icon" : "zmdi-turning-sign",
   "text" : "i18n:passwd-reset",
   "altDisplay" : {
     "icon" : "fas-spinner fa-pulse",
-    "text" : "i18n:doing"
+    "text" : "i18n:doing",
+    "match" : "doing"
   },
-  "action" : "main:invoke(resetPasswd)",
-  "statusKey" : "doing"
+  "action" : "main:invoke(resetPasswd)"
 }, {
   "type" : "line"
 }, {
   "type" : "group",
   "icon" : "im-menu",
   "items" : [{
-      "key"  : "create",
+      "name"  : "create",
       "type" : "action",
       "icon" : "zmdi-flare",
       "text" : "i18n:create",
       "action" : "main:showBlock(creator)",
       "shortcut" : "ALT+CTRL+N"
     }, {
-      "key"  : "deleting",
+      "name"  : "deleting",
       "type" : "action",
       "icon" : "zmdi-delete",
       "text" : "i18n:del",
@@ -46,7 +46,7 @@
     }, {
       "type" : "line"
     }, {
-      "key"  : "inRecycleBin",
+      "name"  : "inRecycleBin",
       "type" : "action",
       "icon" : "fas-recycle",
       "text" : "i18n:thing-enter-recyclebin",
@@ -57,7 +57,7 @@
       },
       "action" : "dispatch:main/toggleInRecycleBin"
     }, {
-      "key"  : "restoring",
+      "name"  : "restoring",
       "type" : "action",
       "icon" : "zmdi-time-restore",
       "text" : "i18n:thing-restore",
@@ -67,7 +67,7 @@
       },
       "action" : "dispatch:main/restoreRecycleBin"
     }, {
-      "key"  : "cleaning",
+      "name"  : "cleaning",
       "type" : "action",
       "icon" : "fas-trash-restore",
       "text" : "i18n:thing-clean",

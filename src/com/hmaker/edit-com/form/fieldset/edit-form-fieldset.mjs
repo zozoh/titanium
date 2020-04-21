@@ -68,9 +68,9 @@ const _M = {
       return {
         //..................................
         actions: {
-          comType: "ti-menu",
+          comType: "ti-actionbar",
           comConf: {
-            data: [{
+            items: [{
                 type: "action",
                 icon: "im-plus",
                 text: "i18n:hmaker-edit-form-new-field",

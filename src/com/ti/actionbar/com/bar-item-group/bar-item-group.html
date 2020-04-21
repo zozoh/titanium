@@ -1,0 +1,34 @@
+<div class="bar-item-group"
+  :class="TopClass"
+  @mouseenter.stop="OnMouseEnter"
+  @mouseleave.stop="OnMouseLeave">
+  <!--
+    Info
+  -->
+  <bar-item-info
+    v-if="hasInfo"
+      v-bind="this"
+      :value="collapse"
+      :status="status"
+      @fire="OnFired"/>
+  <!--
+    Group Children
+  -->
+  <template v-if="showChildren">
+    <div v-if="isDepth1"
+      class="as-mask"
+      @click="doCollapse"></div>
+    <div class="as-children" ref="children"
+      v-if="showChildren"
+        @click.left="doCollapse">
+          <component 
+            v-for="bi in items"
+              :key="bi.key"
+              :is="bi.comType"
+              v-bind="bi.comConf"
+              :depth="depth+1"
+              :items="bi.items"
+              :status="status"/>
+    </div>
+  </template>
+</div>

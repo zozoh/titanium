@@ -36,25 +36,21 @@
       "title" : "产品属性",
       "icon"  : "zmdi-info",
       "actions" : [{
-          "key" : "show-content",
-          "statusKey" : "content",
+          "name" : "content",
           "type" : "action",
           "text" : "显示产品详情",
           "altDisplay" : {
-            "text" : "隐藏产品详情",
-            "capture" : false
+            "text" : "隐藏产品详情"
           },
-          "action" : "main:toggleBlock(content)"
+          "action" : "main:toggleBlock('content')"
         }, {
-          "key" : "show-files",
-          "statusKey" : "files",
+          "name" : "files",
           "type" : "action",
           "text" : "i18n:thing-files-show",
           "altDisplay" : {
-            "text" : "i18n:thing-files-hide",
-            "capture" : false
+            "text" : "i18n:thing-files-hide"
           },
-          "action" : "main:toggleBlock(files)"
+          "action" : "main:toggleBlock('files')"
         }],
       "size"  : "stretch",
       "body"  : "meta"
@@ -78,7 +74,7 @@
           "icon" : "fas-spinner fa-pulse",
           "text" : "i18n:saving"
         },
-        "enableBy" : "changed",
+        "enabled" : "changed",
         "action" : "dispatch:main/saveCurrent"
       }]
     }, {
@@ -133,23 +129,19 @@
         "body"  : "meta",
         "actionDisplayMode" : "desktop",
         "actions" : [{
-            "key" : "show-content",
-            "statusKey" : "content",
+            "name" : "content",
             "type" : "action",
             "text" : "i18n:thing-content-show",
             "altDisplay" : {
-              "text" : "i18n:thing-content-hide",
-              "capture" : false
+              "text" : "i18n:thing-content-hide"
             },
             "action" : "main:toggleBlock(content)"
           }, {
-            "key" : "show-files",
-            "statusKey" : "files",
+            "name" : "files",
             "type" : "action",
             "text" : "i18n:thing-files-show",
             "altDisplay" : {
-              "text" : "i18n:thing-files-hide",
-              "capture" : false
+              "text" : "i18n:thing-files-hide"
             },
             "action" : "main:toggleBlock(files)"
           }]
@@ -173,7 +165,7 @@
             "icon" : "fas-spinner fa-pulse",
             "text" : "i18n:saving"
           },
-          "enableBy" : "changed",
+          "enabled" : "changed",
           "action" : "dispatch:main/saveCurrent"
         }]
       }, {

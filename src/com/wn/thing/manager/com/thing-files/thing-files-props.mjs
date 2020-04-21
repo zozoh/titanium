@@ -28,7 +28,7 @@ export default {
   "actions" : {
     type : Array,
     default : ()=>[{
-        "key"  : "reloading",
+        "name" : "reloading",
         "type" : "action",
         "icon" : "zmdi-refresh",
         "tip" : "i18n:refresh",
@@ -39,7 +39,7 @@ export default {
       },{
         "type" : "line"
       }, {
-        "key"  : "deleting",
+        "name" : "deleting",
         "type" : "action",
         "icon" : "zmdi-delete",
         "text" : "i18n:del",
@@ -51,7 +51,7 @@ export default {
       },{
         "type" : "line"
       },{
-        "key"  : "upload",
+        "name" : "upload",
         "type" : "action",
         "icon" : "zmdi-cloud-upload",
         "text" : "i18n:upload",

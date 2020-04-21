@@ -1,0 +1,5 @@
+{
+  "name" : "bar-item-info",
+  "template" : "./bar-item-info.html",
+  "mixins"   : ["./bar-item-info.mjs"]
+}

@@ -16,7 +16,7 @@
     "comConf" : "=SessionBadge"
   },
   "pcSkyMenu" : {
-    "comType" : "ti-menu",
+    "comType" : "ti-actionbar",
     "comConf" : "=ActionMenu"
   },
   "pcMainSideBar" : {

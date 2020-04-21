@@ -76,7 +76,7 @@ export default {
     theActionMenuData() {
       //................................
       let jvTypes = [{
-        key   : "jvTypeArray",
+        name  : "jvTypeArray",
         text  : "i18n:json-Array",
         type  : "action",
         altDisplay : {
@@ -87,7 +87,7 @@ export default {
           this.$notify("change", {jsonMutate:"ChangeValueType", args:"Array"})
         }
       }, {
-        key   : "jvTypeObject",
+        name  : "jvTypeObject",
         text  : "i18n:json-Object",
         type  : "action",
         altDisplay : {
@@ -101,7 +101,7 @@ export default {
       //................................
       // Add
       let menuData = [{
-        key  : "jv-add",
+        name : "jv-add",
         type : "action",
         icon : "zmdi-plus",
         action : ()=>{
@@ -116,7 +116,7 @@ export default {
         })
         // Can not remove top node
         menuData.push({
-          key  : "jv-remove",
+          name : "jv-remove",
           type : "action",
           icon : "zmdi-delete",
           action : ()=>{
@@ -129,7 +129,7 @@ export default {
         })
         // AddType: Boolean
         jvTypes.push({
-          key   : "jvTypeBoolean",
+          name  : "jvTypeBoolean",
           text  : "i18n:json-Boolean",
           type  : "action",
           altDisplay : {
@@ -142,7 +142,7 @@ export default {
         })
         // AddType: Number
         jvTypes.push({
-          key   : "jvTypeNumber",
+          name  : "jvTypeNumber",
           text  : "i18n:json-Number",
           type  : "action",
           altDisplay : {
@@ -155,7 +155,7 @@ export default {
         })
         // AddType: String
         jvTypes.push({
-          key   : "jvTypeString",
+          name  : "jvTypeString",
           text  : "i18n:json-String",
           type  : "action",
           altDisplay : {
@@ -168,7 +168,7 @@ export default {
         })
         // AddType: Nil
         jvTypes.push({
-          key   : "jvTypeNil",
+          name  : "jvTypeNil",
           text  : "i18n:json-Nil",
           type  : "action",
           altDisplay : {

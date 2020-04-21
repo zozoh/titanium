@@ -5,7 +5,7 @@
       "type" : "group",
       "icon" : "im-menu",
       "items" : [{
-          "key"  : "reloading",
+          "name"  : "reloading",
           "type" : "action",
           "icon" : "zmdi-refresh",
           "text" : "i18n:refresh",

@@ -1,13 +1,14 @@
 export default {
-  inheritAttrs : true,
   ////////////////////////////////////////////
   props : {
     "meta" : {
       type : Object,
       default : ()=>({})
     },
-    "data" : undefined,
-    "content" : undefined,
+    "value" : {
+      type: String,
+      default: null
+    },
     "status" : {
       type : Object,
       default : ()=>({})

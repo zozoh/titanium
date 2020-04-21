@@ -2,7 +2,7 @@
   "comIcon" : "im-flask",
   "comType" : "@Test:com-test-case",
   "actions" : [{
-      "key"  : "saving",
+      "name"  : "saving",
       "type" : "action",
       "icon" : "zmdi-floppy",
       "text" : "i18n:save-change",
@@ -10,11 +10,11 @@
         "icon" : "fas-spinner fa-pulse",
         "text" : "i18n:saving"
       },
-      "enableBy" : "changed",
+      "enabled" : "changed",
       "action" : "dispatch:current/save",
       "shortcut" : "CTRL+S"
     }, {
-      "key"  : "reloading",
+      "name"  : "reloading",
       "type" : "action",
       "icon" : "zmdi-refresh",
       "text" : "i18n:refresh",
@@ -25,7 +25,7 @@
       "action" : "dispatch:current/reload",
       "shortcut" : "CTRL+SHIFT+R"
     }, {
-      "key"  : "viewsource",
+      "name"  : "viewsource",
       "type" : "action",
       "icon" : "far-file-alt",
       "text" : "i18n:view-resource",

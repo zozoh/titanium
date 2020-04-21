@@ -1,0 +1,26 @@
+<div class="bar-item-info"
+  :class="TopClass"
+  @click.left="OnClickTop">
+  <!--
+    Icon
+  -->
+  <span class="as-icon">
+    <ti-icon
+      v-if="CurrentDisplay.icon" 
+        size=".16rem"
+        :value="CurrentDisplay.icon"/>
+  </span>
+  <!--
+    Text
+  -->
+  <span
+    v-if="CurrentDisplay.text"
+      class="as-text"
+        >{{CurrentDisplay.text|i18n}}</span>
+  <!--
+    Shortcut
+  -->
+  <span
+    v-if="isShowShortcut"
+      class="as-shortcut">{{shortcut}}</span>
+</div>

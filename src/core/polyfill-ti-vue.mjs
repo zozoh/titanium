@@ -31,10 +31,6 @@ function do_extend_setting(store, obj) {
   return is_extendable ? re : obj
 }
 //---------------------------------------
-function $vm($el) {
-
-}
-//---------------------------------------
 export const TiVue = {
   /***
    * Generated a new configuration object for `Vuex.Store` to 
