@@ -1,0 +1,6 @@
+{
+  "name" : "ti-session-badge",
+  "globally" : true,
+  "template" : "./ti-session-badge.html",
+  "mixins" : ["./ti-session-badge.mjs"]
+}

@@ -216,7 +216,6 @@ const _M = {
           return
         }
       }
-
       // Disable
       let disabled = false
       if(fld.disabled) {
@@ -253,7 +252,7 @@ const _M = {
       //............................................
       // For Normal Field
       if(fld.name) {
-        let field = _.defaults(_.cloneDeep(fld), {
+        let field = _.defaults(_.omit(fld, "disabled"), {
           type : "String",
           comType : this.defaultComType,
           disabled

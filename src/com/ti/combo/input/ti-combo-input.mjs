@@ -180,7 +180,7 @@ const _M = {
     async OnDropListSelected({currentId, byKeyboardArrow}={}) {
       //console.log({currentId, byKeyboardArrow})
       this.myCurrentId = currentId
-      this.OnInputChanged(currentId, byKeyboardArrow)
+      await this.OnInputChanged(currentId, byKeyboardArrow)
       if(this.autoCollapse && !byKeyboardArrow) {
         await this.doCollapse()
       }
@@ -212,6 +212,7 @@ const _M = {
     },
     //-----------------------------------------------
     tryNotifyChanged() {
+      //console.log("tryNotifyChanged")
       let val = this.evalMyValue()
       if(!_.isEqual(val, this.value)) {
         this.$notify("change", val)

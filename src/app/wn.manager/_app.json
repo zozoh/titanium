@@ -42,7 +42,7 @@
     "@com:ti/form",
     "@com:ti/obj/thumb",
     "@com:ti/lbs/map",
-    "@com:ti/web/session/badge",
+    "@com:ti/session/badge",
     "@com:wn/gui/arena",
     "@com:wn/gui/side/nav",
     "@com:wn/gui/side/tree",

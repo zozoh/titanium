@@ -12,7 +12,7 @@
     "comConf" : "=Crumb"
   },
   "pcSkySession" : {
-    "comType" : "ti-web-session-badge",
+    "comType" : "ti-session-badge",
     "comConf" : "=SessionBadge"
   },
   "pcSkyMenu" : {

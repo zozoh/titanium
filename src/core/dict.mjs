@@ -148,6 +148,7 @@ export class Dict {
     if(Ti.Util.isNil(val)) {
       return null
     }
+    //console.log("Dict.getItem", val)
     // Match cache
     let it = this[K.itemCache][val]
     // Not in cache, try getItem
@@ -333,7 +334,8 @@ export const DictFactory = {
         let aryData = await $dict.getData()
         for(let it of aryData) {
           let itV = $dict.getValue(it)
-          if(_.isEqual(itV, val)) {
+          //if(_.isEqual(itV, val)) {
+          if(itV == val || _.isEqual(itV, val)) {
             return it
           }
         }
