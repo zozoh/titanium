@@ -3,12 +3,13 @@
   <!--
     Toolbar
   -->
-  <ti-menu 
+  <ti-actionbar 
     v-if="hasToolbar"
       class="as-toolbar"
-      :data="ToolbarMenuData" 
+      :items="ToolbarMenuData" 
       :align="toolbarAlign"
-      :status="myToolbarStatus"/>
+      :status="myToolbarStatus"
+      @change="OnToolbarChange"/>
   <!--
     Stage
   -->

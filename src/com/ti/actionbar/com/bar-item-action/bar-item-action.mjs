@@ -14,6 +14,10 @@ const _M = {
       type: String,
       default: undefined
     },
+    "hideIcon" : {
+      type: Boolean,
+      default: false
+    },
     "text": {
       type: String,
       default: undefined
@@ -34,7 +38,14 @@ const _M = {
       type: [String, Array, Object],
       default: undefined
     },
-    "value" : true,
+    "highlight": {
+      type: [String, Array, Object],
+      default: undefined
+    },
+    "value" : {
+      type: [Boolean, String, Number, Array],
+      default: true
+    },
     "depth": {
       type: Number,
       default: 0
@@ -51,7 +62,7 @@ const _M = {
       default: undefined
     },
     "notify" : {
-      type : Boolean,
+      type : [Boolean, String],
       default: false
     },
     "wait" : {
@@ -61,6 +72,16 @@ const _M = {
     "shortcut": {
       type: String,
       default: undefined
+    }
+  },
+  ///////////////////////////////////////
+  computed: {
+    notifyName() {
+      if(this.notify) {
+        return _.isString(this.notify)
+                ? this.notify
+                : this.name;
+      }
     }
   },
   ///////////////////////////////////////
@@ -80,9 +101,9 @@ const _M = {
       }
 
       // notify
-      if(this.notify && this.name) {
+      if(this.notifyName) {    
         this.$bar.notifyChange({
-          name  : this.name,
+          name  : this.notifyName,
           value : val
         })
       }

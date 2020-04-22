@@ -33,9 +33,15 @@
         border:1px solid map-get($color-primary, c);
         box-shadow: 4px 6px 10px map-get($color-shadow, c);
         z-index: $z-menu;
-        padding:1px; 
+        padding:1px; min-width: 1.5rem;
       }
       //--------------------------------------------
+    }
+    //----------------------------------------------
+    &.is-extended {
+      > .bar-item-info {
+        @include color($color-primary, r, c);
+      }
     }
     //----------------------------------------------
   }
@@ -57,36 +63,38 @@
     //----------------------------------------------
     &.is-disabled {@include disabled;}
     &.is-enabled  {@include fireable(null, $color-primary);}
+    &.is-highlight {@include color($color-weaktip, r, c);}
     //----------------------------------------------
     .as-icon {
       @include flex-center;
-      height:.3rem; line-height:.3rem;
     }
     //----------------------------------------------
     .as-text {
-      padding:0 2px;
-      height:.3rem; line-height:.3rem;
       white-space: nowrap;
     }
     //---------------------------------------
     .as-shortcut {
       flex:1 1 auto;
-      padding-left:.24rem;
+      padding-left:2em;
       text-align:right;
-      font-size:.1rem; opacity: 0.6;
+      font-size:.8em; opacity: 0.6;
     }
     //----------------------------------------------
     &.is-top {
       padding:0 .6em;
-      &.has-icon > .as-text {margin-left:.3em;}
+      height:2.4em; line-height:2.4em;
+      &.has-icon > .as-text {margin-left:.4em;}
     }
     //----------------------------------------------
     &.is-sub {
-      padding:.02rem .1rem;
-      line-height:1.2em;
-      height: .32rem;
+      padding:0 1em 0 .5em;
+      height:2.4em; line-height:2.4em;
       //--------------------------------------------
-      .as-icon {width:.3rem;}
+      &.no-icon.hide-icon {
+        padding-left:1em;
+      }
+      //--------------------------------------------
+      .as-icon {width:2.4em;}
       //--------------------------------------------
     }
     //----------------------------------------------

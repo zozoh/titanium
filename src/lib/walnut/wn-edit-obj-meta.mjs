@@ -105,13 +105,15 @@ export async function EditObjMeta(pathOrObj="~", {
   }
   //............................................
   let {updates} = reo
+  let saved = false
   if(autoSave &&!_.isEmpty(updates)) {
     let json = JSON.stringify(updates)
     let cmdText = `obj 'id:${meta.id}' -ocqn -u`
     let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
     await Ti.Toast.Open("i18n:save-done", "success")
+    saved = true
 
-    return {updates, data:newMeta}
+    return {updates, data:newMeta, saved}
   }
   //............................................
   return reo

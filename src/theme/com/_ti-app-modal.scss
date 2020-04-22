@@ -118,11 +118,11 @@
         @include color($color-chip, r, c);
         @include fireable;
         @include border(1px, solid, dark);
-        margin:.02rem; padding:0 .12rem;
-        font-size:.12rem; line-height:2.4em;
+        margin:0 .25em; padding:0 .5em;
+        line-height:2.3em; font-size:.9em;
         min-width:1rem; text-align:center;
         letter-spacing: .1em;
-        > .as-icon {margin-right:.05rem;}
+        > .as-icon {margin-right:.5em;}
       }
     } // ~ > .mdl-actions
     //-------------------------------------

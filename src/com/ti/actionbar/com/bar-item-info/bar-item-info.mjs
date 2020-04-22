@@ -1,4 +1,4 @@
-export default {
+const _M = {
   ///////////////////////////////////////
   inject: ["$bar"],
   ///////////////////////////////////////
@@ -10,6 +10,10 @@ export default {
     "icon": {
       type: String,
       default: undefined
+    },
+    "hideIcon" : {
+      type: Boolean,
+      default: false
     },
     "text": {
       type: String,
@@ -35,7 +39,14 @@ export default {
       type: [Boolean, String, Array, Object],
       default: undefined
     },
-    "value" : true,
+    "highlight": {
+      type: [Boolean, String, Array, Object],
+      default: undefined
+    },
+    "value" : {
+      type: [Boolean, String, Number, Array],
+      default: undefined
+    },
     "depth": {
       type: Number,
       default: 0
@@ -50,11 +61,15 @@ export default {
     //-----------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-enabled" : this.isEnabled,
-        "is-disabled": this.isDisabled,
+        "is-enabled"  : this.isEnabled,
+        "is-disabled" : this.isDisabled,
+        "is-highlight": this.isHighlight,
         "is-top" : this.depth == 1,
         "is-sub" : this.depth > 1,
-        "has-icon" : this.icon ? true : false
+        "has-icon" : this.icon ? true : false,
+        "no-icon"  : this.icon ? false : true,
+        "show-icon": this.isShowIcon,
+        "hide-icon": !this.isShowIcon
       }, `is-depth-${this.depth}`)
     },
     //-----------------------------------
@@ -83,13 +98,28 @@ export default {
       return !this.isEnabled
     },
     //-----------------------------------
+    isHighlight() {
+      if(!Ti.Util.isNil(this.highlight)) {
+        return this.isMatchStatus(this.highlight)
+      }
+      return false
+    },
+    //-----------------------------------
     isShowShortcut() {
       return this.shortcut && this.depth > 1
     },
     //-----------------------------------
+    isShowIcon() {
+      return !this.hideIcon || this.hasIcon
+    },
+    //-----------------------------------
+    hasIcon() {
+      return this.CurrentDisplay.icon ? true : false
+    },
+    //-----------------------------------
     CurrentDisplay() {
-      // if(this.name)
-      // console.log("CurrentDisplay", this.name)
+      // if("bold" == this.name)
+      //   console.log("CurrentDisplay", this.name)
       // Prepare default
       let dis =  {
         icon : this.icon,
@@ -111,6 +141,19 @@ export default {
       }
       // Done
       return dis
+    },
+    //-----------------------------------
+    TheValues() {
+      let val = this.CurrentDisplay.value
+      // Bool
+      if(_.isBoolean(val)) {
+        return [val, !val]
+      }
+      // Array
+      if(_.isArray(val))
+        return val
+      // Normal value
+      return [val]
     }
     //-----------------------------------
   },
@@ -119,7 +162,10 @@ export default {
     //---------------------------------------
     OnClickTop() {
       if(!this.isDisabled) {
-        let val = this.CurrentDisplay.value
+        let val = this.isHighlight
+          ? _.last(this.TheValues)
+          : _.first(this.TheValues)
+        
         this.$emit('fire', val)
       }
     },
@@ -156,3 +202,4 @@ export default {
   }
   ///////////////////////////////////////
 }
+export default _M;

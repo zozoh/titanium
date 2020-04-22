@@ -95,26 +95,28 @@ const _M = {
           //.........................................
           "B" : {
             icon : "fas-bold",
-            action : "$parent:setSelectionAsBold",
-            disableBy : "bold"
+            notify: "bold",
+            highlight : "bold",
+            disabled : "italic"
           },
           //.........................................
           "I" : {
             icon : "fas-italic",
-            action : "$parent:setSelectionAsItalic",
-            disableBy : "italic"
+            notify : "italic",
+            highlight : "italic",
+            disabled : "bold"
           },
           //.........................................
           "Link" : {
             icon : "fas-link",
             action : "$parent:setSelectionAsLink",
-            disableBy : "link"
+            highlight : "link"
           },
           //.........................................
           "Code" : {
             icon : "zmdi-code",
-            action : "$parent:setSelectionAsCode",
-            disableBy : "code"
+            notify : "code",
+            highlight : "code"
           },
           //.........................................
           "Heading" : {
@@ -123,47 +125,52 @@ const _M = {
             text : "i18n:wordp-heading",
             items : [{
                 text: "i18n:wordp-h1",
-                action : "$parent:setSelectionAsHeading(1)",
-                disableBy : "h1"
+                notify: "header",
+                highlight : "h1",
+                value: 1
               }, {
                 text: "i18n:wordp-h2",
-                action : "$parent:setSelectionAsHeading(2)",
-                disableBy : "h2"
+                notify: "header",
+                highlight : "h2",
+                value: 2
               }, {
                 text: "i18n:wordp-h3",
-                action : "$parent:setSelectionAsHeading(3)",
-                disableBy : "h3"
+                notify: "header",
+                highlight : "h3",
+                value: 3
               }, {
                 text: "i18n:wordp-h4",
-                action : "$parent:setSelectionAsHeading(4)",
-                disableBy : "h4"
+                notify: "header",
+                highlight : "h4",
+                value: 4
               }, {
                 text: "i18n:wordp-h5",
-                action : "$parent:setSelectionAsHeading(5)",
-                disableBy : "h5"
+                notify: "header",
+                highlight : "h5",
+                value: 5
               }, {
                 text: "i18n:wordp-h6",
-                action : "$parent:setSelectionAsHeading(6)",
-                disableBy : "h6"
+                notify: "header",
+                highlight : "h6",
+                value: 6
               }, {
                 text: "i18n:wordp-h0",
-                action : "$parent:setSelectionAsHeading(0)"
+                notify: "header",
+                highlight : "h0",
+                value:  0
               }]
           },
           //.........................................
           "BlockQuote" : {
             icon : "fas-quote-right",
-            action : "$parent:setSelectionAsBlockQuote",
-            statusKey : "blockquote",
-            altDisplay : {
-              capture : false,
-              icon : "fas-quote-left",
-            }
+            notify : "blockquote",
+            highlight : "blockquote"
           },
           //.........................................
           "CodeBlock" : {
             icon : "fas-code",
-            action : "$parent:setSelectionAsCodeBlock"
+            notify : "code_block",
+            highlight : "code-block"
           },
           //.........................................
           "Indent" : {
@@ -198,10 +205,10 @@ const _M = {
         }
         //...........................................
       })
-      list.push({
-        text: "HL",
-        action : "$parent:highlightCode"
-      })
+      // list.push({
+      //   text: "HL",
+      //   action : "$parent:highlightCode"
+      // })
       return list;
     }
     //-----------------------------------------------
@@ -236,6 +243,29 @@ const _M = {
           this.insertMedia("image", src)
         }
       }
+    },
+    //-----------------------------------------------
+    OnToolbarChange({name, value}={}) {
+      console.log({name, value})
+      const fn = ({
+        //...........................................  
+        bold  ($q, val){$q.format("bold", val)},
+        italic($q, val){$q.format("italic", val)},
+        code($q, val){$q.format("code", val)},
+        //...........................................
+        header($q, val) {$q.format("header", val)},
+        //...........................................
+        blockquote($q, val){$q.format("blockquote", val)},
+        code_block($q, val){$q.format("code-block", val)}
+        //...........................................
+      })[name]
+      //.............................................
+      // Invoke
+      if(_.isFunction(fn)) {
+        fn(this.$editor, value)
+        this.quillUpdateFormat()
+      }
+      //.............................................
     },
     //-----------------------------------------------
     // Insert Operation
@@ -413,14 +443,20 @@ const _M = {
       }
 
       // Update format
+      this.quillUpdateFormat()
+    },
+    //-----------------------------------------------
+    quillUpdateFormat() {
       let fmt = this.$editor.getFormat()
-        fmt = _.cloneDeep(fmt)
-        if(fmt.header) {
-          fmt[`h${fmt.header}`] = true
-        }
-        if(!_.isEqual(this.myToolbarStatus, fmt)) {
-          this.myToolbarStatus = fmt
-        }
+      //fmt = _.cloneDeep(fmt)
+      if(fmt.header) {
+        fmt[`h${fmt.header}`] = true
+      } else {
+        fmt["h0"] = true
+      }
+      if(!_.isEqual(this.myToolbarStatus, fmt)) {
+        this.myToolbarStatus = fmt
+      }
     },
     //-----------------------------------------------
     installQuillEditor() {

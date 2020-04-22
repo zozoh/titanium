@@ -23,6 +23,10 @@ const _M = {
       type: String,
       default: undefined
     },
+    "hideIcon" : {
+      type: Boolean,
+      default: false
+    },
     "text": {
       type: String,
       default: undefined
@@ -40,6 +44,10 @@ const _M = {
       default: undefined
     },
     "disabled": {
+      type: [String, Array, Object],
+      default: undefined
+    },
+    "highlight": {
       type: [String, Array, Object],
       default: undefined
     },
@@ -67,7 +75,10 @@ const _M = {
   computed : {
     //---------------------------------------
     TopClass() {
-      return this.getTopClass(`is-depth-${this.depth}`)
+      return this.getTopClass({
+        "is-collapse" : this.collapse,
+        "is-extended" : !this.collapse
+      },`is-depth-${this.depth}`)
     },
     //---------------------------------------
     isDepth0() {return 0 == this.depth},
@@ -76,6 +87,15 @@ const _M = {
     //---------------------------------------
     hasInfo() {
       return this.icon || this.text
+    },
+    //---------------------------------------
+    isChildrenWithoutIcon() {
+      for(let it of this.items) {
+        if(it.comConf && it.comConf.icon) {
+          return false
+        }
+      }
+      return true
     },
     //---------------------------------------
     showChildren() {

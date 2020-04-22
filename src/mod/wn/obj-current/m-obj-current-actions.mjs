@@ -35,15 +35,17 @@ const _M = {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
     // Open Editor
-    let newMeta = await Wn.EditObjMeta(state.meta)
+    let reo = await Wn.EditObjMeta(state.meta)
 
     // Cancel the editing
-    if(_.isUndefined(newMeta)) {
+    if(_.isUndefined(reo)) {
       return
     }
 
     // Update the current editing
-    await dispatch("reload", newMeta)
+    if(reo.saved) {
+      await dispatch("reload", reo.data)
+    }
   },
   //--------------------------------------------
   async openContentEditor({state, dispatch}) {
