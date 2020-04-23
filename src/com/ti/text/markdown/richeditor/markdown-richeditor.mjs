@@ -109,7 +109,7 @@ const _M = {
           //.........................................
           "Link" : {
             icon : "fas-link",
-            action : "$parent:setSelectionAsLink",
+            notify : "link",
             highlight : "link"
           },
           //.........................................
@@ -175,22 +175,26 @@ const _M = {
           //.........................................
           "Indent" : {
             icon : "fas-indent",
-            action : "$parent:setSelectionAsIndent('+1')"
+            notify: "indent"
           },
           //.........................................
           "Outdent" : {
             icon : "fas-outdent",
-            action : "$parent:setSelectionAsIndent('-1')"
+            notify: "outdent"
           },
           //.........................................
           "UL" : {
             icon : "fas-list-ul",
-            action : "$parent:setSelectionAsUL"
+            notify : "list",
+            value : "bullet",
+            highlight: {list:"bullet"}
           },
           //.........................................
           "OL" : {
             icon : "fas-list-ol",
-            action : "$parent:setSelectionAsOL"
+            notify : "list",
+            value : "ordered",
+            highlight: {list:"ordered"}
           },
           //.........................................
           "Media" : {
@@ -218,6 +222,58 @@ const _M = {
     //-----------------------------------------------
     // Events
     //-----------------------------------------------
+    OnToolbarChange({name, value}={}) {
+      console.log({name, value})
+      const fn = ({
+        //...........................................  
+        bold  ($q, val){$q.format("bold", val)},
+        italic($q, val){$q.format("italic", val)},
+        code($q, val){$q.format("code", val)},
+        //...........................................
+        header($q, val) {$q.format("header", val)},
+        //...........................................
+        blockquote($q, val){$q.format("blockquote", val)},
+        code_block($q, val){$q.format("code-block", val)},
+        //..........................................
+        async link($q, val){
+          let range = $q.getSelection()
+          if(!range) {
+            return await Ti.Toast.Open("i18n:wordp-nil-sel", "warn")
+          }
+          // Insert link
+          if(val) {
+            if(range.length > 0) {
+              let href = await Ti.Prompt("i18n:wordp-link");
+              if(!Ti.Util.isNil(href)) {
+                let op = $q.format("link", href)
+              }
+            }
+            // Warn user
+            else {
+              return await Ti.Toast.Open("i18n:wordp-nil-sel", "warn")
+            }
+          }
+          // Remove link
+          else {
+            $q.format("link", false)
+          }
+        },
+        //...........................................
+        indent ($q){$q.format("indent", "+1")},
+        outdent($q){$q.format("indent", "-1")},
+        //...........................................
+        list($q, val="bullet"){$q.format("list", val)}
+        //...........................................
+      })[name]
+      //.............................................
+      // Invoke
+      if(_.isFunction(fn)) {
+        fn(this.$editor, value)
+        this.quillUpdateFormat()
+      }
+      //.............................................
+    },
+    //-----------------------------------------------
     async OnInsertMedia() {
       let list = await Wn.OpenObjSelector()
 
@@ -243,29 +299,6 @@ const _M = {
           this.insertMedia("image", src)
         }
       }
-    },
-    //-----------------------------------------------
-    OnToolbarChange({name, value}={}) {
-      console.log({name, value})
-      const fn = ({
-        //...........................................  
-        bold  ($q, val){$q.format("bold", val)},
-        italic($q, val){$q.format("italic", val)},
-        code($q, val){$q.format("code", val)},
-        //...........................................
-        header($q, val) {$q.format("header", val)},
-        //...........................................
-        blockquote($q, val){$q.format("blockquote", val)},
-        code_block($q, val){$q.format("code-block", val)}
-        //...........................................
-      })[name]
-      //.............................................
-      // Invoke
-      if(_.isFunction(fn)) {
-        fn(this.$editor, value)
-        this.quillUpdateFormat()
-      }
-      //.............................................
     },
     //-----------------------------------------------
     // Insert Operation
@@ -309,54 +342,6 @@ const _M = {
       this.$editor.setSelection(index+1)
     },
     //-----------------------------------------------
-    // Selection Operation
-    //-----------------------------------------------
-    setSelectionAsBold(){
-      let sel = this.$editor.getSelection()
-      this.$editor.format("bold", true)
-    },
-    //-----------------------------------------------
-    setSelectionAsItalic(){
-      this.$editor.format("italic", true)
-    },
-    //-----------------------------------------------
-    setSelectionAsHeading(level=1) {
-      this.$editor.format("header", level)
-    },
-    //-----------------------------------------------
-    async setSelectionAsLink(){
-      let href = await Ti.Prompt("i18n:wordp-link");
-      if(!Ti.Util.isNil(href)) {
-        let op = this.$editor.format("link", href)
-        console.log(op)
-      }
-    },
-    //-----------------------------------------------
-    setSelectionAsCode() {
-      this.$editor.format("code", true)
-    },
-    //-----------------------------------------------
-    setSelectionAsBlockQuote() {
-      this.$editor.format("blockquote", true)
-    },
-    //-----------------------------------------------
-    setSelectionAsCodeBlock() {
-      this.$editor.format("code-block", "javascript")
-    },
-    //-----------------------------------------------
-    setSelectionAsIndent(value="+1") {
-      console.log("haha")
-      this.$editor.format("indent", value)
-    },
-    //-----------------------------------------------
-    setSelectionAsUL() {
-      this.$editor.format("list", 'bullet')
-    },
-    //-----------------------------------------------
-    setSelectionAsOL() {
-      this.$editor.format("list", "ordered")
-    },
-    //-----------------------------------------------
     // Utility
     //-----------------------------------------------
     //-----------------------------------------------
@@ -386,7 +371,7 @@ const _M = {
 
         // Get delta
         let delta = MdDoc.toDelta()
-        console.log(JSON.stringify(delta, null, '   '))
+        //console.log(JSON.stringify(delta, null, '   '))
 
         // Update Quill editor content
         this.$editor.setContents(delta);
@@ -418,13 +403,13 @@ const _M = {
     // Quill
     //-----------------------------------------------
     quillChanged(delta) {
-      //console.log("changed", JSON.stringify(delta, null, '  '))
+      console.log("changed", JSON.stringify(delta, null, '  '))
       let MdDoc = Cheap.parseDelta(delta)
       MdDoc.setDefaultMeta(this.myMeta)
       this.myMeta = MdDoc.getMeta()
-      //console.log(MdDoc.toString())
+      console.log(MdDoc.toString())
       let markdown = MdDoc.toMarkdown()
-      //console.log(markdown)
+      console.log(markdown)
       if(markdown != this.value) {
         this.syncForbid = 1
         this.$notify("change", markdown)
@@ -448,6 +433,7 @@ const _M = {
     //-----------------------------------------------
     quillUpdateFormat(range) {
       let fmt = this.$editor.getFormat(range)
+      //console.log(fmt)
       //fmt = _.cloneDeep(fmt)
       if(fmt.header) {
         fmt[`h${fmt.header}`] = true
@@ -472,13 +458,6 @@ const _M = {
       this.$editor = new Quill(this.$refs.stage, {
         modules: {
           syntax: false
-          // toolbar: [
-          //   [{ header: [1, 2, false] }],
-          //   ['bold', 'italic', 'underline'],
-          //   ['image', 'code-block'],
-          //   [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          //   [{ 'indent': '-1'}, { 'indent': '+1' }],
-          // ]
         },
         bounds : this.$refs.stage,
         placeholder : Ti.I18n.text(this.placeholder)
@@ -496,18 +475,6 @@ const _M = {
       this.$editor.on("selection-change", (range, oldRange, source)=>{
         this.quillSelectionChanged(range)
       })
-      // this.$editor.on('selection-change', (range, oldRange, source) => {
-      //   if (range) {
-      //     if (range.length == 0) {
-      //       console.log('User cursor is on', range.index);
-      //     } else {
-      //       var text = this.$editor.getText(range.index, range.length);
-      //       console.log('User has highlighted', text);
-      //     }
-      //   } else {
-      //     console.log('Cursor not in the editor');
-      //   }
-      // });
     }
     //-----------------------------------------------
   },
