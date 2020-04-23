@@ -1,7 +1,6 @@
 {
-  "name" : "ti-web-footer",
+  "name" : "web-footer",
   "globally" : true,
-  "template" : "./ti-web-footer.html",
-  "mixins"   : ["./ti-web-footer.mjs"],
-  "components" : []
+  "template" : "./web-footer.html",
+  "mixins"   : ["./web-footer.mjs"]
 }

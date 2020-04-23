@@ -1,7 +1,6 @@
 {
-  "name" : "ti-web-preview",
+  "name" : "web-preview",
   "globally" : true,
-  "template" : "./ti-web-preview.html",
-  "mixins"   : ["./ti-web-preview.mjs"],
-  "components" : []
+  "template" : "./web-preview.html",
+  "mixins"   : ["./web-preview.mjs"]
 }

@@ -1,0 +1,7 @@
+{
+  "name" : "web-combo-auth",
+  "globally" : true,
+  "i18n" : "@i18n:web-combo-auth",
+  "template" : "./web-combo-auth.html",
+  "mixins" : ["./web-combo-auth.mjs"]
+}

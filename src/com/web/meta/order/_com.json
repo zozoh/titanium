@@ -1,8 +1,8 @@
 {
-  "name" : "ti-web-meta-order",
+  "name" : "web-meta-order",
   "globally" : true,
-  "template" : "./ti-web-meta-order.html",
-  "mixins"   : ["./ti-web-meta-order.mjs"],
+  "template" : "./web-meta-order.html",
+  "mixins"   : ["./web-meta-order.mjs"],
   "components" : [
     "./com/order-item"
   ]

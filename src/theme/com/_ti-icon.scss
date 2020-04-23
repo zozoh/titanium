@@ -5,6 +5,10 @@
   @include flex-center($ai:stretch, $ac:stretch);
   vertical-align: middle;
   //-----------------------------------------------
+  &.is-image {
+    align-items: center;
+  }
+  //-----------------------------------------------
   &.as-inline {
     display:inline-block;
     vertical-align: middle;

@@ -1,0 +1,7 @@
+{
+  "name" : "web-combo-captcha",
+  "globally" : true,
+  "i18n" : "@i18n:web-combo-auth",
+  "template" : "./web-combo-captcha.html",
+  "mixins" : ["./web-combo-captcha.mjs"]
+}

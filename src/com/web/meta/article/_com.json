@@ -1,7 +1,6 @@
 {
-  "name" : "ti-web-meta-article",
+  "name" : "web-meta-article",
   "globally" : true,
-  "template" : "./ti-web-meta-article.html",
-  "mixins"   : ["./ti-web-meta-article.mjs"],
-  "components" : []
+  "template" : "./web-meta-article.html",
+  "mixins"   : ["./web-meta-article.mjs"]
 }

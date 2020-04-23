@@ -1,7 +1,0 @@
-{
-  "name" : "ti-combo-captcha",
-  "globally" : true,
-  "i18n" : "@i18n:ti-combo-auth",
-  "template" : "./ti-combo-captcha.html",
-  "mixins" : ["./ti-combo-captcha.mjs"]
-}

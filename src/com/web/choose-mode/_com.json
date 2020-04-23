@@ -1,7 +1,6 @@
 {
-  "name" : "ti-web-choose-mode",
+  "name" : "web-choose-mode",
   "globally" : true,
-  "template" : "./ti-web-choose-mode.html",
-  "mixins"   : ["./ti-web-choose-mode.mjs"],
-  "components" : []
+  "template" : "./web-choose-mode.html",
+  "mixins"   : ["./web-choose-mode.mjs"]
 }

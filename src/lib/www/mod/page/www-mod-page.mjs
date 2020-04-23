@@ -138,7 +138,7 @@ export default {
         //..........................................
         // Copy the Setting from page
         Papi.body = Ti.Util.fallback(info.body, Gapi.body, null)
-        Papi.preloaded = Ti.Util.fallback(info.preloaded, Gapi.preloaded, true)
+        Papi.preload = Ti.Util.fallback(info.preload, Gapi.preload, false)
         Papi.dataKey = Ti.Util.fallback(info.dataKey, Gapi.dataKey, key)
         //..........................................
         // Eval api serializer
@@ -314,7 +314,7 @@ export default {
       if(_.isEmpty(keys)) {
         list = []
         _.forEach(apis, (api)=>{
-          if(api.preloaded)
+          if(api.preload)
             list.push(api)
         })
       }

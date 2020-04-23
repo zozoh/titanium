@@ -1,7 +1,7 @@
 {
-  "name" : "ti-web-pay-types",
+  "name" : "web-pay-types",
   "globally" : true,
-  "template" : "./ti-web-pay-types.html",
-  "mixins"   : ["./ti-web-pay-types.mjs"],
-  "components" : ["@com:ti/web/choose-mode"]
+  "template" : "./web-pay-types.html",
+  "mixins"   : ["./web-pay-types.mjs"],
+  "components" : ["@com:web/choose-mode"]
 }
