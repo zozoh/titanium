@@ -431,23 +431,23 @@ const _M = {
       }
     },
     //-----------------------------------------------
-    quillSelectionChanged() {
+    quillSelectionChanged(range) {
       // Update selection info
-      let sel = this.$editor.getSelection()
-      if(sel) {
-        let ii = [sel.index]
-        if(sel.length > 0) {
-          ii.push(sel.length)
+      if(range) {
+        // Indicate row:col
+        let ii = [range.index]
+        if(range.length > 0) {
+          ii.push(range.length)
         }
         this.$notify("indicate", ii.join(":"))
-      }
 
-      // Update format
-      this.quillUpdateFormat()
+        // Update format
+        this.quillUpdateFormat(range)
+      }
     },
     //-----------------------------------------------
-    quillUpdateFormat() {
-      let fmt = this.$editor.getFormat()
+    quillUpdateFormat(range) {
+      let fmt = this.$editor.getFormat(range)
       //fmt = _.cloneDeep(fmt)
       if(fmt.header) {
         fmt[`h${fmt.header}`] = true
@@ -494,8 +494,20 @@ const _M = {
       })
       //.............................................
       this.$editor.on("selection-change", (range, oldRange, source)=>{
-        this.quillSelectionChanged()
+        this.quillSelectionChanged(range)
       })
+      // this.$editor.on('selection-change', (range, oldRange, source) => {
+      //   if (range) {
+      //     if (range.length == 0) {
+      //       console.log('User cursor is on', range.index);
+      //     } else {
+      //       var text = this.$editor.getText(range.index, range.length);
+      //       console.log('User has highlighted', text);
+      //     }
+      //   } else {
+      //     console.log('Cursor not in the editor');
+      //   }
+      // });
     }
     //-----------------------------------------------
   },
