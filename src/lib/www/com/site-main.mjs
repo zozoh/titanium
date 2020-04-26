@@ -10,6 +10,7 @@ export default {
         "domain"     : state=>state.domain,
         "base"       : state=>state.base,
         "apiBase"    : state=>state.apiBase,
+        "cdnBase"    : state=>state.cdnBase,
         "captcha"    : state=>state.captcha,
         "schema"     : state=>state.schema,
         "blocks"     : state=>state.blocks,

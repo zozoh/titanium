@@ -1,0 +1,6 @@
+{
+  "name" : "web-wall",
+  "globally" : true,
+  "template" : "./web-wall.html",
+  "mixins" : ["./web-wall.mjs"]
+}

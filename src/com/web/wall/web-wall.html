@@ -1,0 +1,34 @@
+<div class="web-wall"
+  :class="TopClass">
+  <!--
+    Each rows
+  -->
+  <div v-for="wr in WallList"
+    class="wall-group"
+    :key="wr.key">
+    <!--
+      ===========================================
+      Items in row
+    -->
+    <template v-for="it in wr.items">
+      <!--
+        Blank
+      -->
+      <div
+        v-if="it.blank"
+          class="wall-tile is-blank"
+          :style="ItemStyle"></div>
+      <!--
+        Normal Item
+      -->
+      <div
+        v-else
+          class="wall-tile is-com"
+          :style="ItemStyle">
+          <component
+            :is="it.comType"
+            v-bind="it.comConf"/>
+      </div>
+    </template> <!-- End item-->
+  </div> <!--End Row-->
+</div>

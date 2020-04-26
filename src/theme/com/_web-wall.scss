@@ -1,0 +1,14 @@
+.web-wall {
+  //------------------------------------------
+  .wall-group {
+    @include flex(flex-start, stretch, nowrap, stretch);
+    //----------------------------------------
+    > .wall-tile {
+      @include flex(center, stretch, nowrap, stretch);
+      flex:1 1 auto; 
+      > * {width:100%;}
+    }
+    //----------------------------------------
+  }
+  //------------------------------------------
+}
