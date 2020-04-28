@@ -81,7 +81,10 @@ export class Dict {
   async invokeAsync(methodName, ...args) {
     let func = this[K[methodName]]
     if(_.isFunction(func)){
-      return await func.apply(this, [...args, this])
+      let are = await func.apply(this, [...args, this])
+      // console.log("invokeAsync", methodName, ...args)
+      // console.log(" ==>", are)
+      return are
     }
   }
   //-------------------------------------------

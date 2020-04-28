@@ -279,7 +279,8 @@ export const TiVue = {
         decorator(com)
       }
       // define self
-      Vue.component(com.name, com)
+      //Vue.component(com.name, com)
+      this.registerComponent(com.name, com)
     }
     _.map(setup.global.components, defineComponent)
 
@@ -290,5 +291,11 @@ export const TiVue = {
 
     // return new vm instance
     return new Vue(setup.options)
+  },
+  //---------------------------------------
+  registerComponent(name, config) {
+    let comName = _.upperFirst(_.camelCase(name))
+    Vue.component(comName, config)
   }
+  //---------------------------------------
 }

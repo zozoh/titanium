@@ -1,0 +1,6 @@
+{
+  "name" : "web-text",
+  "globally" : true,
+  "template" : "./web-text.html",
+  "mixins"   : ["./web-text.mjs"]
+}

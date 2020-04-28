@@ -182,7 +182,7 @@ const FieldDisplay = {
         }
         //......................................
         // #DictName(xxx) -> ti-label
-        // just like `@RelayStatus(status)`
+        // just like `#RelayStatus(status)`
         m = /^[@#]([^\(]+)\(([^)]+)\)$/.exec(displayItem)
         if(m) {
           return {

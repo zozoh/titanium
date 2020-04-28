@@ -347,7 +347,8 @@ export class OneTiApp {
     //.....................................
     // Define the com
     //console.log("define com:", comName)
-    Vue.component(comName, setup.options)
+    //Vue.component(comName, setup.options)
+    TiVue.registerComponent(comName, setup.options)
     //.....................................
     _.map(setup.global.components, com=>{
       //Ti.I18n.put(com.i18n)
@@ -356,7 +357,8 @@ export class OneTiApp {
       
       // Regist it
       //console.log("define com:", com.name)
-      Vue.component(com.name, com)
+      //Vue.component(com.name, com)
+      TiVue.registerComponent(com.name, com)
     })
     //.....................................
     return {

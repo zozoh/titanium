@@ -285,6 +285,7 @@ export const WnUtil = {
       if(vkey) {
         return async (v) => {
           let cmdText = Ti.S.renderBy(query, {[vkey]:v})
+          //console.log("exec", cmdText)
           return await Wn.Sys.exec2(cmdText, {
             as : "json",
             input : v,
