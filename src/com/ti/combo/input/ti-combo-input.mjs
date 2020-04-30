@@ -235,6 +235,7 @@ const _M = {
     //-----------------------------------------------
     async evalMyItem(val=this.value) {
       let it = await this.Dict.getItem(val)
+      // Update state
       if(it) {
         let itV = this.Dict.getValue(it)
         this.myItem = it
@@ -242,9 +243,10 @@ const _M = {
         this.myCurrentId  = itV
         this.myCheckedIds = {[itV]: true}
       }
-      else if(!this.mustInList) {
+      // Clean
+      else {
         this.myItem = null
-        this.myFreeValue = val
+        this.myFreeValue = this.mustInList ? null : val
         this.myCurrentId  = null
         this.myCheckedIds = {}
       }

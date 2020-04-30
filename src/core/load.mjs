@@ -90,9 +90,9 @@ const LoadModes = {
         $script = Ti.Dom.createElement({
           tagName : "script",
           props : {
-            charset : "stylesheet",
+            //charset : "stylesheet",
             src     : url,
-            async   : true
+            //async   : true
           }
         })
         $script.addEventListener("load", function(event){

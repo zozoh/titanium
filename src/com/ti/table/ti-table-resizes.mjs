@@ -116,7 +116,6 @@ export default {
     },
     //--------------------------------------
     onTableResize() {
-      //console.log("onTableResize")
       // Guard it
       let colN = this.myColSizes.primary.length
       if(colN <= 0) {
@@ -125,6 +124,7 @@ export default {
 
       // Get the viewport width
       let viewportWidth = Ti.Rects.createBy(this.$el).width
+      console.log("onTableResize")
 
       // Assign the fixed width
       // And count how many fields to join the remains-assignment
@@ -189,7 +189,7 @@ export default {
   mounted : async function() {
     //.................................
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.onTableResize(), 200)
+      resize : _.debounce(()=>this.onTableResize(), 10)
     })
     //.................................
   },

@@ -1,5 +1,4 @@
 const _M = {
-  inheritAttrs: false,
   //////////////////////////////////////////////
   data : ()=>({
     isComReady : false,

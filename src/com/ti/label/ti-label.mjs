@@ -1,5 +1,4 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   //////////////////////////////////////////
   data : ()=>({
     myDisplayIcon : undefined,
@@ -168,3 +167,4 @@ export default {
   }
   //////////////////////////////////////////
 }
+export default _M;

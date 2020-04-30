@@ -20,7 +20,7 @@ const FIELDS = {
     title : "i18n:wn-key-race",
     name  : "race",
     comConf : {
-      format : "i18n:wn-race-${val}"
+      format : "i18n:wn-race-${race}"
     }
   },
   //---------------------------------------------

@@ -321,7 +321,10 @@ const FieldDisplay = {
     // Eval comConf
     else if(dis.comConf){
       comConf = __eval_com_conf_item(dis.comConf, {
-        vars, itemData, value, $FuncSet: dis.$FuncSet
+        vars, 
+        itemData, 
+        value, 
+        $FuncSet: dis.$FuncSet
       })
     }
     //.....................................

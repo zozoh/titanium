@@ -82,7 +82,12 @@ export default {
         let fldWidth = Ti.Util.fallbackNil(fld.width, "stretch")
         //..................................
         if(_.isString(fldWidth)) {
-          if(!/^(auto|stretch)$/.test(fldWidth)) {
+          // Percent
+          if(/^\d+(\.\d+)?%$/.test(fldWidth)) {
+            fldWidth = fldWidth.substring(0, fldWidth.length-1)/100;
+          }
+          // Auto or stretch
+          else if(!/^(auto|stretch)$/.test(fldWidth)) {
             fldWidth = "stretch"
           }
         }
