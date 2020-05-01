@@ -123,6 +123,10 @@ export const TiStr = {
     for(let s of ss) {
       if(_.isUndefined(s) || _.isNull(s))
         continue
+      if(_.isArray(s)) {
+        list.push(...s)
+        continue
+      }
       list.push(s)
     }
     return list.join(sep)
@@ -335,11 +339,12 @@ export const TiStr = {
   sizeText(byte=0, {
     fixed=2, M=1024, 
     units=["Bytes","KB","MB","GB","PB","TB"]}={}) {
+      console.log("sieText", byte)
     let nb = byte
     let i = 0;
     for(; i<units.length; i++) {
       let nb2 = nb / M
-      if(nb2 < M) {
+      if(nb2 < 1) {
         break;
       }
       nb = nb2

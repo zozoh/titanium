@@ -10,7 +10,6 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-break-line" : this.breakLine,
         "is-blank"   : !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue)
       })
     },

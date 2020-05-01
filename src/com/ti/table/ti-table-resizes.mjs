@@ -124,7 +124,7 @@ export default {
 
       // Get the viewport width
       let viewportWidth = Ti.Rects.createBy(this.$el).width
-      console.log("onTableResize")
+      //console.log("onTableResize")
 
       // Assign the fixed width
       // And count how many fields to join the remains-assignment

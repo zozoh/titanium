@@ -13,7 +13,26 @@ const FIELDS = {
   //---------------------------------------------
   "ph" : {
     title : "i18n:wn-key-ph",
-    name  : "ph"
+    name  : "ph",
+    comConf: {
+      className: "is-break-word"
+    }
+  },
+  //---------------------------------------------
+  "thumb" : {
+    title : "i18n:wn-key-thumb",
+    name  : "thumb",
+    checkEquals : false,
+    serializer : {
+      name : "toStr",
+      args : "id:${id}"
+    },
+    comType : "wn-imgfile",
+    comConf : {
+      target : "~/.thumbnail/gen/${id}.jpg",
+      filter : "cover(256,256)",
+      quality : 0.372
+    }
   },
   //---------------------------------------------
   "race" : {
@@ -107,12 +126,19 @@ const FIELDS = {
     name  : "duration"
   },
   //---------------------------------------------
+  "len" : {
+    title : "i18n:wn-key-len",
+    name  : "len",
+    width : "auto",
+    transformer: (v)=>Ti.S.sizeText(v)
+  }
+  //---------------------------------------------
 }
 ////////////////////////////////////////////
 export const WnObj = {
   //----------------------------------------
   getGroupTitle(titleKey) {
-    if(/^(basic|privilege|thumb|more|advance|customized|others)$/.test(titleKey))
+    if(/^(basic|privilege|thumb|timestamp|more|advance|customized|others)$/.test(titleKey))
       return `i18n:wn-key-grp-${titleKey}`
     return titleKey
   },
@@ -125,8 +151,7 @@ export const WnObj = {
     return {
       title : key,
       name  : key,
-      type  : "String",
-      comType : "ti-input"
+      type  : "String"
     }
   },
   //----------------------------------------
@@ -140,13 +165,17 @@ export const WnObj = {
         let f2 = WnObj.getField(fld)
         if(f2) {
           f2 = iteratee(f2)
-          list.push(f2)
+          if(f2) {
+            list.push(f2)
+          }
         }
       }
       // Customized Prop
       else if(_.isPlainObject(fld) && fld.name){
-        fld = iteratee(fld)
-        list.push(fld)
+        let f2 = iteratee(fld)
+        if(f2) {
+          list.push(f2)
+        }
       }
     }
     return list

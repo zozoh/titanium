@@ -1,9 +1,5 @@
 export default {
   /////////////////////////////////////////
-  provide : {
-    primaryNotify: true
-  },
-  /////////////////////////////////////////
   data : ()=>({
     myItems : [],
     myTreeData : []
@@ -26,7 +22,17 @@ export default {
   //////////////////////////////////////////
   computed : {
     //-------------------------------------
-    theHighlightItemId() {
+    TreeDisplay() {
+      return ['<icon>', {
+          key: "text",
+          comConf: {
+            className: "is-nowrap",
+            href: "(value)?/a/open/wn.manager?ph=id:${value}"
+          }
+        }]
+    },
+    //-------------------------------------
+    HighlightItemId() {
       let list = this.joinHighlightItems([], this.items)
       if(list.length > 0) {
         // Sort the list, 0->N, the first one should be the hightlight one
@@ -36,11 +42,11 @@ export default {
       }
     },
     //-------------------------------------
-    theCheckedIds() {
-      if(!this.theHighlightItemId) {
+    CheckedIds() {
+      if(!this.HighlightItemId) {
         return []
       }
-      return [this.theHighlightItemId]
+      return [this.HighlightItemId]
     }
     //-------------------------------------
   },

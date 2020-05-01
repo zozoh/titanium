@@ -10,6 +10,27 @@
     > .as-value {white-space: pre;}
   }
   //-----------------------------------------
+  &.is-break-word {
+    > .as-value {
+      > a, > span {
+        width:100%;
+        word-break: break-all;
+        overflow: hidden;
+      }
+    }
+  }
+  //-----------------------------------------
+   &.is-nowrap {
+    > .as-value {
+      > a, > span {
+        width:100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;      
+      }
+    }
+  }
+  //-----------------------------------------
   > .as-icon {
     @include noselect;
     @include flex-center;
@@ -51,12 +72,6 @@
     @include flex-align-nowrap;
     padding: 0 .04rem;
     width:100%;
-    > a, > span {
-      white-space: nowrap;
-      width:100%;
-      overflow: hidden;
-      text-overflow: ellipsis;      
-    }
   }
   //-----------------------------------------
 }

@@ -23,10 +23,6 @@ export default {
     type : Boolean,
     default : false
   },
-  "breakLine" : {
-    type : Boolean,
-    default : true
-  },
   "editable" : {
     type : Boolean,
     default : false

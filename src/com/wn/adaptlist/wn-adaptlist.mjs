@@ -230,7 +230,15 @@ const _M = {
         return Ti.Toast.Open("i18n:nil-obj")
       }
 
-      Wn.EditObjMeta(meta)
+      let reo = await Wn.EditObjMeta(meta)
+      
+      // Update to current list
+      if(reo) {
+        let {updates, data} = reo
+        // TODO if update the "thumb" may need to force reload the preview
+        // Update to list
+        this.setItem(data)
+      }
     },
     //--------------------------------------------
     syncMyData() {
