@@ -157,7 +157,14 @@ export const TiConfig = {
     // Full-url, just return
     let loadUrl;
     if(/^((https?:)?\/\/)/.test(ph)) {
-      loadUrl = ph
+      // expend suffix
+      if(!/^.+\.(css|js|mjs|json|txt|text|html|xml)$/.test(ph)) {
+        loadUrl = SUFFIX.get(ph)
+      }
+      // Keep orignal
+      else {
+        loadUrl = ph
+      }
     }
     // amend the url statictly
     else {
