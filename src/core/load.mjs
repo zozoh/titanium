@@ -201,6 +201,7 @@ export const TiLoad = async function(url=[], {dynamicPrefix, dynamicAlias}={}) {
 
   // apply url prefix & alias
   let url3 = Ti.Config.url(url2, {dynamicPrefix, dynamicAlias})
+  //console.log("load URL", url3)
   if(Ti.IsInfo("TiLoad")) {
     console.log("url：", url, 
                   "\n  ::", url2, 
