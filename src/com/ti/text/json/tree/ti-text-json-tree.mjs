@@ -10,7 +10,7 @@ const _M = {
     "value" : null,
     "mainWidth" : {
       type : [String, Number],
-      default : -200
+      default : .372
     },
     "border" : {
       type : String,
@@ -55,6 +55,7 @@ const _M = {
     TreeFields() {
       return [{
         title : "i18n:value",
+        width : .618,
         display : {
           key : "value",
           ignoreNil : false,
