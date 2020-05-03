@@ -48,7 +48,7 @@
   "pager" : {
     "comType" : "ti-paging-jumper",
     "comConf" : {
-      "data" : "=search.pager"
+      "value" : "=search.pager"
     }
   },
   "creator" : {

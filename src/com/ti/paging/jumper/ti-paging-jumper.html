@@ -7,30 +7,30 @@
       <span class="it-text">{{'paging-first'|i18n}}</span></div>
   <div 
     class="pj-btn"
-    :class="getBtnClass(data.pn-1)"
-    @click="OnJumpTo(data.pn-1)">
+    :class="getBtnClass(value.pn-1)"
+    @click="OnJumpTo(value.pn-1)">
       <ti-icon value="zmdi-chevron-left"/>
       <span class="it-text">{{'paging-prev'|i18n}}</span></div>
   <div 
     class="pj-current"
     :class="PageNumberClass"
     @click="OnClickCurrent">
-    <b>{{data.pn}}</b>
+    <b>{{value.pn}}</b>
   </div>
   <div 
     class="pj-btn"
-    :class="getBtnClass(data.pn+1)"
-    @click="OnJumpTo(data.pn+1)">
+    :class="getBtnClass(value.pn+1)"
+    @click="OnJumpTo(value.pn+1)">
       <span class="it-text">{{'paging-next'|i18n}}</span>
       <ti-icon value="zmdi-chevron-right"/></div>
   <div 
     class="pj-btn"
-    :class="getBtnClass(data.pgc)"
-    @click="OnJumpTo(data.pgc)">
+    :class="getBtnClass(value.pgc)"
+    @click="OnJumpTo(value.pgc)">
       <span class="it-text">{{'paging-last'|i18n}}</span>
       <ti-icon value="zmdi-skip-next"/></div>
   <div
     class="pj-sum"
     :class="SumClass"
-    @click="OnClickSum">{{'paging-sum'|i18n(data)}}</div>
+    @click="OnClickSum">{{'paging-sum'|i18n(value)}}</div>
 </div>

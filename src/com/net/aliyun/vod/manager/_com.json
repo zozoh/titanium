@@ -1,0 +1,10 @@
+{
+  "name" : "net-aliyun-vod-manager",
+  "globally" : true,
+  "template" : "./vod-manager.html",
+  "mixins" : ["./vod-manager.mjs"],
+  "components": [
+    "@com:ti/wall",
+    "@com:ti/paging/jumper"
+  ]
+}

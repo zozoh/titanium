@@ -1,26 +1,26 @@
 export default {
   ///////////////////////////////////////////
   props : {
-    "data" : {
+    "value" : {
       type : Object,
       default : ()=>({
-        pn : 0,
-        pgsz : 0,
-        pgc : 0,
-        sum : 0,
-        count : 0
+        pn : 0,     // Page Number
+        pgsz : 0,   // PageSize
+        pgc : 0,    // page count
+        sum : 0,    // Total
+        count : 0   // Record in page
       })
     }
   },
   ///////////////////////////////////////////
   computed : {
     PageNumberClass() {
-      return this.data.pgc > 1
+      return this.value.pgc > 1
               ? "is-enabled"
               : "is-disabled"
     },
     SumClass() {
-      return this.data.pgsz > 0
+      return this.value.pgsz > 0
               ? "is-enabled"
               : "is-disabled"
     }
@@ -30,8 +30,8 @@ export default {
     //--------------------------------------
     isInvalidPageNumber(pageNumber) {
       return pageNumber <=0 
-        || pageNumber > this.data.pgc
-        || pageNumber == this.data.pn
+        || pageNumber > this.value.pgc
+        || pageNumber == this.value.pn
     },
     //--------------------------------------
     getBtnClass(pageNumber) {
@@ -45,27 +45,27 @@ export default {
       if(!this.isInvalidPageNumber(pageNumber)) {
         this.$notify("change", {
           pn   : pageNumber, 
-          pgsz : this.data.pgsz
+          pgsz : this.value.pgsz
         })
       }
     },
     //--------------------------------------
     async OnClickCurrent() {
       // No Necessary
-      if(this.data.pgc <= 1)
+      if(this.value.pgc <= 1)
         return
       // Ask new pageNumber
-      let msg = Ti.I18n.getf("paging-change-pn", this.data)
+      let msg = Ti.I18n.getf("paging-change-pn", this.value)
       let str = await Ti.Prompt(msg, {
-        value : this.data.pn
+        value : this.value.pn
       })
       // NoChange
-      if(!str || str == this.data.pn)
+      if(!str || str == this.value.pn)
         return
       // verify the str
       let pn = parseInt(str)
-      if(isNaN(pn) || pn<=0 || pn>this.data.pgc) {
-        msg = Ti.I18n.getf("paging-change-pn-invalid", this.data)
+      if(isNaN(pn) || pn<=0 || pn>this.value.pgc) {
+        msg = Ti.I18n.getf("paging-change-pn-invalid", this.value)
         await Ti.Alert(msg, {
           title : "i18n:warn",
           type  : "warn",
@@ -77,17 +77,17 @@ export default {
       // 通知修改
       this.$notify("change", {
         pn   : pageNumber, 
-        pgsz : this.data.pgsz
+        pgsz : this.value.pgsz
       })
     },
     //--------------------------------------
     async OnClickSum(){
-      let msg = Ti.I18n.getf("paging-change-pgsz", this.data)
+      let msg = Ti.I18n.getf("paging-change-pgsz", this.value)
       let str = await Ti.Prompt(msg, {
-        value : this.data.pgsz
+        value : this.value.pgsz
       })
       // NoChange
-      if(!str || str == this.data.pgsz)
+      if(!str || str == this.value.pgsz)
         return
       // verify the str
       let pgsz = parseInt(str)
