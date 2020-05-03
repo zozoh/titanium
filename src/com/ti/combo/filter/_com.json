@@ -1,0 +1,8 @@
+{
+  "name" : "ti-combo-filter",
+  "globally" : true,
+  "template" : "./ti-combo-filter.html",
+  "props"    : "@com:ti/input/ti-input-props.mjs",
+  "mixins"   : "./ti-combo-filter.mjs",
+  "components" : ["@com:ti/form"]
+}

@@ -1,0 +1,46 @@
+<div class="ti-combo-filter"
+  :class="TopClass">
+  <!--
+    Marjor type
+  -->
+
+  <!--
+    Filter input box
+  -->
+  <ti-combo-box
+    class="as-filter"
+    :drop-width="dropWidth"
+    :drop-height="dropHeight"
+    :status="myDropStatus"
+    @collapse="OnCollapse"
+    v-ti-activable>
+    <!--
+      Box
+    -->
+    <template v-slot:box>
+      <ti-input 
+        v-bind="TheInputProps"
+
+        :value="InputValue"
+        :prefix-icon="ThePrefixIcon"
+        :suffix-icon="TheSuffixIcon"
+
+        @change="OnInputChanged"
+        @input:focus="OnInputFocused"
+        @prefix:icon="$notify('prefix:icon')"
+        @suffix:icon="OnClickStatusIcon"/>
+    </template>
+    <!--
+      Drop
+    -->
+    <template v-slot:drop="slotProps">
+      <ti-form
+        v-bind="form"
+        :data="myFormData"
+        @change="OnFormChange"/>
+    </template>
+  </ti-combo-box>
+  <!--
+    Sorter
+  -->
+</div>

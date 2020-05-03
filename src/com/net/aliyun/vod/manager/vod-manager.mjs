@@ -54,6 +54,7 @@ export default {
         blocks: [{
             type:"rows",
             size:"61.8%",
+            border:true,
             blocks: [{
                 name: "filter",
                 size: 40,
@@ -63,7 +64,7 @@ export default {
                 body: "pcList"
               }, {
                 name: "pager",
-                size: 50,
+                size: 40,
                 body: "pcPager"
               }]
           }, {
@@ -78,8 +79,20 @@ export default {
     GuiSchema() {
       return {
         pcFilter: {
-          comType: "ti-input",
-          comConf: {}
+          comType: "ti-combo-filter",
+          comConf: {
+            className: "as-spacing-tiny",
+            placeholder: "i18n:net-flt-nil",
+            form: {
+              fields: [{
+                title: "i18n:net-ct",
+                name: "createTime",
+                type: "Array",
+                comType: "ti-input-daterange",
+                comConf: {}
+              }]
+            }
+          }
         },
         pcList: {
           comType: "ti-wall",
@@ -108,6 +121,9 @@ export default {
   ///////////////////////////////////////////////////////
   methods :{
     //---------------------------------------------------
+    OnFilterChange(payload) {
+      console.log("FilterChange", payload)
+    },
     //---------------------------------------------------
     async reloadVideos() {
       this.reloading = true

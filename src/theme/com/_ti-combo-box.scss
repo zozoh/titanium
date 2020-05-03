@@ -1,7 +1,9 @@
 .ti-combo-box {
+  @include flex-align-nowrap;
   //---------------------------------
   > .as-box {
     @include noselect;
+    flex:1 1 auto;
   }
   //---------------------------------
   &.is-extended {

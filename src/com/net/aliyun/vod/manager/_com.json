@@ -5,6 +5,7 @@
   "mixins" : ["./vod-manager.mjs"],
   "components": [
     "@com:ti/wall",
+    "@com:ti/combo/filter",
     "@com:ti/paging/jumper"
   ]
 }

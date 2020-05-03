@@ -1,0 +1,11 @@
+.ti-combo-filter {
+  @include flex-align-nowrap;
+  //---------------------------------------------
+  &.as-spacing-comfy {padding: .08rem;}
+  &.as-spacing-tiny  {padding: .04rem;}
+  //---------------------------------------------
+  > .as-filter {
+    flex:1 1 auto;
+  }
+  //---------------------------------------------
+}

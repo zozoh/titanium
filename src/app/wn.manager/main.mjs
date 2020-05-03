@@ -62,7 +62,7 @@ export async function main({
   Ti.Config.set(tiConf)
   //---------------------------------------
   // setup the i18n
-  Ti.I18n.put(await Ti.Load(["@i18n:_ti", "@i18n:_wn"]))
+  Ti.I18n.put(await Ti.Load(["@i18n:_ti", "@i18n:_wn", "@i18n:_net"]))
   //---------------------------------------
   // join customized i18n
   if(tiConf.i18n) {
