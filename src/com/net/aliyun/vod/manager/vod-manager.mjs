@@ -134,12 +134,20 @@ export default {
       console.log("FilterChange", payload)
     },
     //---------------------------------------------------
-    async OnListSelect({currentId}) {
+    async OnListSelect({currentId, current}) {
       this.myCurrentId = currentId
+      // Select some thing
       if(currentId) {
         this.myCurrentVideo = await this.reloadVideoInfo(currentId)
-      } else {
+        this.$notify("change", {
+          currentId : this.myCurrentId,
+          current   : this.myCurrentVideo
+        })
+      }
+      // Select nothing
+      else {
         this.myCurrentVideo = null
+        this.$notify("change", undefined)
       }
     },
     //---------------------------------------------------

@@ -21,6 +21,14 @@ const _M = {
     }
   },
   //--------------------------------------------
+  async updateCurrentMetas({state, commit, dispatch, getters}, data={}) {
+    if(getters.hasCurrent) {
+      //console.log({name, value})
+      await dispatch("current/updateMetas", data)
+      commit("search/updateItem", state.current.meta)
+    }
+  },
+  //--------------------------------------------
   setCurrentMeta({state, commit}, meta) {
     console.log(" -> setCurrentMeta", meta)
     commit("current/assignMeta", meta)
@@ -113,7 +121,7 @@ const _M = {
     // Remove it from search list
     commit("search/removeItems", state.search.checkedIds)
     let current = getters["search/currentItem"]
-    console.log("getback current", current)
+    //console.log("getback current", current)
     // Update current
     await dispatch("current/reload", current)
 

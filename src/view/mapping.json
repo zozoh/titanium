@@ -2,7 +2,8 @@
   "types" : {
     "thing_set"   : "thing-manager",
     "comt"        : "com-test",
-    "hmaker_site" : "hmaker-site"
+    "hmaker_site" : "hmaker-site",
+    "aliyun_vod"  : "aliyun-vod-manager"
   },
   "mimes" : {
     "text" : "text-editor",

@@ -69,10 +69,14 @@ const _M = {
   //--------------------------------------------
   // Update to remote
   //----------------------------------------
-  async updateMeta({state, commit}, {name, value}={}) {
+  async updateMeta({dispatch}, {name, value}={}) {
     //console.log("I am update", name, value)
     let data = Ti.Types.toObjByPair({name, value})
 
+    dispatch("updateMetas", data)
+  },
+  //----------------------------------------
+  async updateMetas({state, commit}, data={}) {
     // Check Necessary
     if(_.isMatchWith(state.meta, data, _.isEqual)) {
       return

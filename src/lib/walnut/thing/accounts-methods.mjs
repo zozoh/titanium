@@ -1,4 +1,5 @@
 export default {
+  //----------------------------------------------------
   async resetPasswd() {
     // 获取当前选择账号
     let accounts = this.$store.getters["main/search/checkedItems"]
@@ -49,4 +50,5 @@ export default {
     // 执行完毕
     Ti.App(this).dispatch("main/reloadSearch")
   }
+  //----------------------------------------------------
 }

@@ -339,7 +339,6 @@ export const TiStr = {
   sizeText(byte=0, {
     fixed=2, M=1024, 
     units=["Bytes","KB","MB","GB","PB","TB"]}={}) {
-      console.log("sieText", byte)
     let nb = byte
     let i = 0;
     for(; i<units.length; i++) {
