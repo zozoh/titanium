@@ -1,8 +1,10 @@
 <ti-gui
-  class="aliyun-vod-manager"
+  class="net-aliyun-vod-manager"
   :class="TopClass"
   :layout="GuiLayout"
   :schema="GuiSchema"
   :can-loading="true"
   :loading-as="reloading"
-  @filter::change="OnFilterChange"/>
+  @filter::change="OnFilterChange"
+  @list::select="OnListSelect"
+  @video::preview="OnVideoPreview"/>

@@ -1,0 +1,34 @@
+<div class="net-aliyun-vod-video-info"
+  :class="TopClass">
+  <!--
+    Blank
+  -->
+  <ti-loading
+    v-if="!hasVideo"
+      icon="fas-hand-point-left"
+      text="i18n:net-vod-video-nil"/>
+  <!--
+    Show Content
+  -->
+  <template v-else>
+    <!--Preview-->
+    <div class="as-preview">
+      <img 
+        class="ti-fill-parent"
+        :src="VideoCoverURL"/>
+      <div class="as-btn" @click.left="OnClickPreview">
+        <i class="fas fa-play-circle"></i>
+      </div>
+    </div>
+    <!--
+      Detail info
+    -->
+    <div class="as-detail">
+      <ti-form
+        class="ti-cover-parent"
+        spacing="tiny"
+        :fields="FormFields"
+        :data="value"/>
+    </div>
+  </template>
+</div>

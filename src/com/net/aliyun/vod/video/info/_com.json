@@ -1,0 +1,9 @@
+{
+  "name" : "NetAliyunVodVideoInfo",
+  "globally" : true,
+  "template" : "./vod-video-info.html",
+  "mixins" : ["./vod-video-info.mjs"],
+  "components": [
+    "@com:ti/form"
+  ]
+}

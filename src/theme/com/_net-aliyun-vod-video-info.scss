@@ -1,0 +1,28 @@
+.net-aliyun-vod-video-info {
+  @include flex-align-v-nowrap;
+  //----------------------------------------------
+  > .as-preview {
+    position: relative;
+    flex:0 0 auto;
+    height: 33%;
+    > img {object-fit: cover; background:#000;}
+    > .as-btn {
+      @include pos-abs-full;
+      @include color($color-mask, r, bushy);
+      @include flex-center;
+      font-size:3em;
+      opacity: 0; 
+      transition: opacity 0.3s;
+      cursor: pointer;
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+  //----------------------------------------------
+  > .as-detail {
+    position: relative;
+    flex:1 1 auto;
+  }
+  //----------------------------------------------
+}

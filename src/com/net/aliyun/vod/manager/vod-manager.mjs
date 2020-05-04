@@ -4,7 +4,9 @@ export default {
     reloading: false,
     list: [],
     pager: {},
-    scrollToken: null
+    scrollToken: null,
+    myCurrentId: null,
+    myCurrentVideo: null
   }),
   ///////////////////////////////////////////////////////
   props : {
@@ -30,6 +32,13 @@ export default {
     //---------------------------------------------------
     ConfName() {
       return _.get(this.meta, "vodConfigName")
+    },
+    //---------------------------------------------------
+    CmdPrefix() {
+      if(this.ConfName) {
+        return `aliyunvod ${this.ConfName}`
+      }
+      return "aliyunvod"
     },
     //---------------------------------------------------
     WallItemDisplay() {
@@ -69,7 +78,7 @@ export default {
               }]
           }, {
             icon: "zmdi-tv-alt-play",
-            title: "i18n:detail",
+            title: "i18n:video",
             name: "video",
             body: "pcVideo"
           }]
@@ -109,9 +118,9 @@ export default {
           }
         },
         pcVideo: {
-          comType: "ti-label",
+          comType: "net-aliyun-vod-video-info",
           comConf: {
-            value: this.scrollToken
+            value: this.myCurrentVideo
           }
         }
       }
@@ -125,13 +134,58 @@ export default {
       console.log("FilterChange", payload)
     },
     //---------------------------------------------------
+    async OnListSelect({currentId}) {
+      this.myCurrentId = currentId
+      if(currentId) {
+        this.myCurrentVideo = await this.reloadVideoInfo(currentId)
+      } else {
+        this.myCurrentVideo = null
+      }
+    },
+    //---------------------------------------------------
+    async OnVideoPreview({title, videoId, coverURL}={}){
+      // Request the playAuth
+      let playAuth = await this.requestPlayAuth(videoId)
+
+      // Open player
+      await Ti.App.Open({
+        icon: "zmdi-tv-alt-play",
+        title: `Preview: ${title}`,
+        textOk: null,
+        textCancel: "i18n:close",
+        position: "top",
+        width: "90%",
+        height: "90%",
+        comType: "NetAliyunVodVideoPlayer",
+        comConf: {
+          videoId, coverURL, playAuth
+        },
+        components: "@com:net/aliyun/vod/video/player"
+      })
+    },
+    //---------------------------------------------------
+    async requestPlayAuth(videoId) {
+      this.reloading = true
+      let cmds = [this.CmdPrefix, "playauth", videoId, "-cqn"]
+      let reo = await Wn.Sys.exec2(cmds.join(" "), {as:"json"})
+      this.reloading = false
+
+      return reo.playAuth
+    },
+    //---------------------------------------------------
+    async reloadVideoInfo(videoId) {
+      this.reloading = true
+      let cmds = [this.CmdPrefix, "video", videoId, "-cqn"]
+      let reo = await Wn.Sys.exec2(cmds.join(" "), {as:"json"})
+      this.reloading = false
+
+      return reo
+    },
+    //---------------------------------------------------
     async reloadVideos() {
       this.reloading = true
       // prepare the command
-      let cmds = ["aliyunvod"]
-      if(this.ConfName) {
-        cmds.push(this.ConfName)
-      }
+      let cmds = [this.CmdPrefix]
       cmds.push("search", "-fields", `'${this.fields}'`)
       cmds.push("-pgsz", this.pageSize)
       cmds.push("-as page -cqn")

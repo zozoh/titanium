@@ -108,16 +108,18 @@ const _M = {
     // Core Methods
     //-----------------------------------------------
     doExtend(tryReload=true) {
-      if(this.hasForm) {
+      if(this.hasForm && !this.isExtended) {
         this.myDropStatus = "extended"
       }
     },
     //-----------------------------------------------
     doCollapse({escaped=false}={}) {
-      if(!escaped) {
-        this.tryNotifyChanged()
+      if(!this.isCollapse) {
+        if(!escaped) {
+          this.tryNotifyChanged()
+        }
+        this.myDropStatus = "collapse"
       }
-      this.myDropStatus = "collapse"
     },
     //-----------------------------------------------
     tryNotifyChanged() {

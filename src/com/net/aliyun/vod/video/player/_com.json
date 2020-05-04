@@ -1,0 +1,9 @@
+{
+  "name" : "NetAliyunVodVideoPlayer",
+  "globally" : true,
+  "template" : "./vod-video-player.html",
+  "mixins" : ["./vod-video-player.mjs"],
+  "components": [
+    
+  ]
+}
