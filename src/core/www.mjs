@@ -22,37 +22,50 @@ const TiWWW = {
     "target" : "_blank"
   }]
   */
-  explainNavigation(navItems=[], base="/") {
+  explainNavigation(navItems=[], base="/", suffix=".html") {
     let list = []
     for(let it of navItems) {
       let li = {
         type : "page",
-        ...it
+        ..._.pick(it, "icon","title","type","value","href","target")
       }
       //..........................................
       // Link to Site Page
-      if('page' == li.type) {
-        li.highlightBy = TiWWW.evalHighlightBy(li.highlightBy || li.value)  
-        if(!li.href)
-          li.href = TiWWW.joinHrefParams(base+li.value, li.params, li.anchor)
-        if(!li.target && li.newTab)
+      if('page' == it.type) {
+        if(!li.href){
+          let path = it.value
+          if(!path.endsWith(suffix)) {
+            path += suffix
+          }
+          let aph = Ti.Util.appendPath(base, path)
+          li.value = path
+          li.href = TiWWW.joinHrefParams(aph, it.params, it.anchor)
+        }
+        li.highlightBy = TiWWW.evalHighlightBy(it.highlightBy || li.value)  
+        if(!li.target && it.newTab) {
           li.target = "_blank"
+        }
       }
       //..........................................
       // Link to URL
       else if('href' == li.type) {
         li.highlightBy = ()=>false
         if(!li.href)
-          li.href = TiWWW.joinHrefParams(li.value, li.params, li.anchor)
-        if(!li.target && li.newTab)
+          li.href = TiWWW.joinHrefParams(it.value, it.params, it.anchor)
+        if(!li.target && it.newTab)
           li.target = "_blank"
       }
       //..........................................
       // Dispatch action
       else {
         li.highlightBy = ()=>false
-        if(!li.href)
-          li.href = "javascript:void(0)"
+        // if(!li.href)
+        //   li.href = "javascript:void(0)"
+      }
+      //..........................................
+      // Children
+      if(_.isArray(it.items)) {
+        li.items = TiWWW.explainNavigation(it.items, base)
       }
       //..........................................
       // Join to list
@@ -77,9 +90,9 @@ const TiWWW = {
         }, regex)
       }
       // Static value
-      return _.bind(function(path) {
-        return this == path
-      }, highlightBy)
+      return path => {
+        return _.isEqual(path, highlightBy)
+      }
     }
     // RegExp
     if(_.isRegExp(highlightBy)) {
@@ -103,8 +116,10 @@ const TiWWW = {
     if(!_.isEmpty(params)) {
       query = []
       _.forEach(params, (val, key)=>{
-        let v2 = encodeURIComponent(val)
-        query.push(`${key}=${v2}`)
+        if(!Ti.Util.isNil(val)) {
+          let v2 = encodeURIComponent(val)
+          query.push(`${key}=${v2}`)
+        }
       })
       if(query.length > 0) {
         href = href + '?' + query.join("&")

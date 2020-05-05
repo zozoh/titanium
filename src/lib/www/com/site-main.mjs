@@ -28,36 +28,30 @@ export default {
       "pageLink"
     ]),
     //-------------------------------------
-    siteLogo() {
+    SiteLogo() {
       if(this.logo && /\.(png|jpe?g)$/.test(this.logo))
         return this.getUrl(this.logo)
       return this.logo || "zmdi-globe"
     },
     //-------------------------------------
     // Page Navigation
-    siteNavigation() {
-      return Ti.WWW.explainNavigation(this.$store.state.nav, this.base)
-    },
-    //-------------------------------------
-    pageNavigation() {
-      let links = this.siteNavigation
-      for(let li of links) {
-        if(li.highlightBy(this.page.path)) {
-          return Ti.WWW.explainNavigation(li.children||[], this.base)
-        }
-      }
-      return []
+    SiteNav() {
+      let nav = {}
+      _.forEach(this.$store.state.nav, (v, k)=>{
+        nav[k] = Ti.WWW.explainNavigation(v, this.base)
+      })
+      return nav
     },
     //-------------------------------------
     // The template of captcha to prevent robot
-    siteCaptcha() {
+    SiteCaptcha() {
       let path = Ti.S.renderBy(this.captcha, {site:this.siteId})
       if(path.startsWith("/"))
         return path
       return this.getApiUrl(path)
     },
     //-------------------------------------
-    siteLoginMode() {
+    SiteLoginMode() {
       // Already login, then bind the phone 
       if(this.auth.me) {
         return "bind_phone"
@@ -65,7 +59,7 @@ export default {
       return "login_by_passwd"
     },
     //-------------------------------------
-    pageFnSet() {
+    PageFnSet() {
       Ti.AddGlobalFuncs(this.utils)
       return Ti.GlobalFuncs()
     },
@@ -124,7 +118,7 @@ export default {
       //.....................................
       // explain it
       let theGUI = Ti.Util.explainObj(this, gui, {
-        fnSet: this.pageFnSet
+        fnSet: this.PageFnSet
       })
       //console.log("pageGUI", formedGUI)
       return theGUI

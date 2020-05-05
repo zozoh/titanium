@@ -1,5 +1,5 @@
 {
-  "name" : "ti-nav-links",
+  "name" : "web-nav-links",
   "globally" : true,
   "template" : "./nav-links.html",
   "mixins"   : ["./nav-links.mjs"],

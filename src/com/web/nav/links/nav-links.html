@@ -1,0 +1,50 @@
+<nav class="web-nav-links"
+  :class="TopClass">
+  <!--=======================================-->
+  <a
+    v-for="it in TheItems"
+      :key="it.index"
+      class="link-item"
+      :class="it.className"
+      :href="it.href"
+      :target="it.target"
+      @click.left="OnClickLink($event, it)"
+      @mouseenter="OnItemMouseEnter(it)"
+      @mouseleave="OnItemMouseLeave(it)">
+      <!--Icon-->
+      <ti-icon
+        v-if="it.icon"
+          :value="it.icon"/>
+      <!--Text-->
+      <span
+        v-if="it.title"
+          class="as-text">{{it.title}}</span>
+      <!--===================================-->
+      <!--SubItems-->
+      <div
+        v-if="mySubItems && mySubIndex == it.index"
+          class="sub-items">
+          <div class="items-con">
+            <a
+              v-for="sub in mySubItems"
+                :key="sub.index"
+                class="sub-item"
+                :class="sub.className"
+                :href="sub.href"
+                :target="sub.target"
+                @click.left="OnClickLink($event, sub)">
+                <!--Icon-->
+                <ti-icon
+                  v-if="sub.icon"
+                    :value="sub.icon"/>
+                <!--Text-->
+                <span
+                  v-if="sub.title"
+                    class="as-text">{{sub.title}}</span>
+            </a>
+          </div>
+      </div>
+      <!--===================================-->
+  </a>
+  <!--=======================================-->
+</nav>

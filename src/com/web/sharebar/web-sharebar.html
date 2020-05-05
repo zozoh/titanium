@@ -1,0 +1,19 @@
+<div class="web-sharebar"
+  :class="TopClass">
+  <!--
+    Title
+  -->
+  <div
+    v-if="title"
+      class="as-title">{{title|i18n}}</div>
+  <!--
+    Items
+  -->
+  <div class="as-items">
+    <a
+      v-for="it in TheItems"
+        class="bar-item">
+      <i :class="it.iconClass"></i>
+    </a>
+  </div>
+</div>

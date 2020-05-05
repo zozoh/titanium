@@ -1,0 +1,39 @@
+.web-nav-columns {
+  @include flex-align-nowrap($ai:stretch);
+  //------------------------------------
+  &.is-border-solid .as-column {
+    @include border(1px, solid, shallow, left);
+    &:first-child {border:0;}
+  }
+  &.is-border-dashed .as-column {
+    @include border(1px, dashed, dark, left);
+    &:first-child {border:0;}
+  }
+  &.is-border-dotted .as-column {
+    @include border(1px, dotted, dark, left);
+    &:first-child {border:0;}
+  }
+  //------------------------------------
+  &.is-align-left   .as-column {text-align: left;}
+  &.is-align-center .as-column {text-align: center;}
+  &.is-align-right  .as-column {text-align: right;}
+  //------------------------------------
+  &.is-spacing-tiny  a {padding:.2em 0.4em;}
+  &.is-spacing-comfy a {padding:.4em 0.8em;}
+  &.is-spacing-wide  a {padding:.6em 1.2em;}
+  //------------------------------------
+  .as-column {
+    @include flex-align-v-nowrap;
+    flex:1 1 auto; width:10%;
+  }
+  //------------------------------------
+  .item-self {
+    @include flex-align-v-nowrap;
+    padding:.6em 0;
+  }
+  //------------------------------------
+  .items-con {
+    @include flex-align-v-nowrap;
+  }
+  //------------------------------------
+}

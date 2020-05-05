@@ -303,7 +303,7 @@ $GUI-BLOCK-HEADER-HEIGHT: .4rem;
       }
       &.can-flex-shrink {
         @include pos-abs-full;
-        overflow: hidden;
+        //overflow: hidden;
       }
     }
   }

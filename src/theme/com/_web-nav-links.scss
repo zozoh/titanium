@@ -1,0 +1,46 @@
+.web-nav-links {
+  @include noselect;
+  @include flex-align-nowrap;
+  //------------------------------------
+  &.is-border-solid a {
+    @include border(1px, solid, shallow, left);
+    &:first-child {border:0;}
+  }
+  &.is-border-dashed a {
+    @include border(1px, dashed, dark, left);
+    &:first-child {border:0;}
+  }
+  &.is-border-dotted a {
+    @include border(1px, dotted, dark, left);
+    &:first-child {border:0;}
+  }
+  //------------------------------------
+  &.is-align-left   {justify-content: flex-start;}
+  &.is-align-center {justify-content: center;}
+  &.is-align-right  {justify-content: flex-end;}
+  //------------------------------------
+  &.is-spacing-tiny  a {padding:.2em 0.4em;}
+  &.is-spacing-comfy a {padding:.4em 0.8em;}
+  &.is-spacing-wide  a {padding:.6em 1.2em;}
+  //------------------------------------
+  a.link-item {
+    @include flex-align-nowrap;
+    position: relative;
+  }
+  //------------------------------------
+  .sub-items {
+    position: absolute;
+  }
+  //------------------------------------
+  .items-con {
+    @include flex-align-v-nowrap;
+    @include color($color-chip, r, c);
+    min-width: 10em;
+    padding: .02rem;
+  }
+  //------------------------------------
+  a.sub-item {
+    @include flex-align-nowrap;
+  }
+  //------------------------------------
+}

@@ -1,0 +1,52 @@
+<nav class="web-nav-columns"
+  :class="TopClass">
+  <!--=======================================-->
+  <div v-for="it in TheItems"
+    class="as-column">
+    <div class="item-self">
+      <a
+        :key="it.index"
+        class="link-item"
+        :class="it.className"
+        :href="it.href"
+        :target="it.target"
+        @click.left="OnClickLink($event, it)">
+        <!--Icon-->
+        <ti-icon
+          v-if="it.icon"
+            :value="it.icon"/>
+        <!--Text-->
+        <span
+          v-if="it.title"
+            class="as-text">{{it.title}}</span>
+        </a>
+      </div>
+      <!--===================================-->
+      <!--SubItems-->
+      <div
+        v-if="it.items"
+          class="sub-items">
+          <div class="items-con">
+            <a
+              v-for="sub in it.items"
+                :key="sub.index"
+                class="sub-item"
+                :class="sub.className"
+                :href="sub.href"
+                :target="sub.target"
+                @click.left="OnClickLink($event, sub)">
+                <!--Icon-->
+                <ti-icon
+                  v-if="sub.icon"
+                    :value="sub.icon"/>
+                <!--Text-->
+                <span
+                  v-if="sub.title"
+                    class="as-text">{{sub.title}}</span>
+            </a>
+          </div>
+      </div>
+      <!--===================================-->
+  </div>
+  <!--=======================================-->
+</nav>

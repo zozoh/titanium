@@ -1,5 +1,3 @@
-import {TiRects} from "./rect.mjs"
-//-----------------------------------
 export const TiDom = {
   createElement({tagName="div", attrs={}, props={}, className="", $p=null}, $doc=document) {
     const $el = $doc.createElement(tagName)
@@ -201,9 +199,9 @@ export const TiDom = {
     //console.log(mode, axis, space, position)
     // Get the rect
     let rect = {
-      src : TiRects.createBy($src),
-      ta  : TiRects.createBy($ta),
-      win : TiRects.createBy($src.ownerDocument.defaultView)
+      src : Ti.Rects.createBy($src),
+      ta  : Ti.Rects.createBy($ta),
+      win : Ti.Rects.createBy($src.ownerDocument.defaultView)
     }
 
     // prepare [W, 2W]

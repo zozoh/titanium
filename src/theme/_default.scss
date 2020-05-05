@@ -68,7 +68,7 @@ a {
   text-decoration: none;
   cursor:pointer;
 }
-a:hover {
+a[href]:hover {
   @include color($color-secondary, c);
   text-decoration: underline;
 }

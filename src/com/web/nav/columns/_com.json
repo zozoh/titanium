@@ -1,0 +1,7 @@
+{
+  "name" : "web-nav-columns",
+  "globally" : true,
+  "template" : "./nav-columns.html",
+  "mixins"   : ["./nav-columns.mjs"],
+  "components" : []
+}
