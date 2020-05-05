@@ -2,6 +2,7 @@
   //------------------------------------------
   .wall-group {
     @include flex(flex-start, stretch, nowrap, stretch);
+    padding: .5em 0;
     //----------------------------------------
     > .wall-tile {
       @include flex(center, stretch, nowrap, stretch);

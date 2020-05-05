@@ -24,6 +24,9 @@ export default {
       "getUrl",
       "getApiUrl"
     ]),
+    ...Vuex.mapGetters("page", [
+      "pageLink"
+    ]),
     //-------------------------------------
     siteLogo() {
       if(this.logo && /\.(png|jpe?g)$/.test(this.logo))
@@ -129,22 +132,6 @@ export default {
     //-------------------------------------
   },
   /////////////////////////////////////////
-  watch : {
-    // Page changd, update document title
-    "page.finger" : function() {
-      document.title = this.page.title
-      // TODO : Maybe here to embed the BaiDu Tongji Code
-    },
-    "isReady" : function(current, old) {
-      //console.log("isReady", old, "->", current)
-      if(true === current && false === old) {
-        this.invokeAction("@page:ready", {
-
-        })
-      }
-    }
-  },
-  /////////////////////////////////////////
   methods : {
     //--------------------------------------
     async showBlock(name) {
@@ -155,6 +142,7 @@ export default {
       Ti.App(this).dispatch("page/hideBlock", name)
     },
     //-------------------------------------
+    // Handle by EventBubble
     __on_events(name, ...args) {
       console.log("site-main.__on_events", name, ...args)
       // ShowBlock
@@ -228,8 +216,44 @@ export default {
           args
         })
       }
+    },
+    //-------------------------------------
+    pushBrowserHistory() {
+      let his = window.history
+      //...................................
+      if(!his) {
+        return
+      }
+      //...................................
+      // Get current location
+      let loc = window.location
+      let loPath = [loc.pathname, loc.search, loc.hash].join("")
+      //...................................
+      let pgLink = this.getUrl(this.pageLink)
+      //...................................
+      if(loPath != pgLink) {
+        his.pushState(this.page, this.page.title, pgLink)
+      }
+      //...................................
     }
     //-------------------------------------
+  },
+  /////////////////////////////////////////
+  watch : {
+    // Page changd, update document title
+    "page.finger" : function() {
+      document.title = this.page.title
+      this.pushBrowserHistory()
+      // TODO : Maybe here to embed the BaiDu Tongji Code
+    },
+    "isReady" : function(current, old) {
+      //console.log("isReady", old, "->", current)
+      if(true === current && false === old) {
+        this.invokeAction("@page:ready", {
+
+        })
+      }
+    }
   },
   /////////////////////////////////////////
   mounted : function(){

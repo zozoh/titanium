@@ -69,11 +69,16 @@ const _M = {
   //--------------------------------------------
   // Update to remote
   //----------------------------------------
-  async updateMeta({dispatch}, {name, value}={}) {
-    //console.log("I am update", name, value)
+  async updateMeta({commit, dispatch}, {name, value}={}) {
+    console.log("I am update", name, value)
     let data = Ti.Types.toObjByPair({name, value})
 
-    dispatch("updateMetas", data)
+    commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
+    await dispatch("updateMetas", data)
+    commit("setFieldStatus", {name, type:"ok", text:"i18n:ok"})
+    _.delay(()=>{
+      commit("clearFieldStatus", name)
+    }, 500)
   },
   //----------------------------------------
   async updateMetas({state, commit}, data={}) {
@@ -83,18 +88,14 @@ const _M = {
     }
 
     // Do the update
-    commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
+    
     let json = JSON.stringify(data)
     let th_set = state.meta.th_set
     let th_id  = state.meta.id
     let cmdText = `thing ${th_set} update ${th_id} -fields -cqn`
     let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
-    commit("setFieldStatus", {name, type:"ok", text:"i18n:ok"})
     commit("setMeta", reo)
-    _.delay(()=>{
-      commit("clearFieldStatus", name)
-    }, 500)
   },
   //--------------------------------------------
   // Reload & Save

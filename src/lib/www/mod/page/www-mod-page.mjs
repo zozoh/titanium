@@ -1,13 +1,35 @@
 //////////////////////////////////////////////////
+// Page finger to indicate the page changed
+// watch the filter can auto update document title
 function appendFinger(obj) {
   let ss = [obj.path, obj.params, obj.anchor]
   let sha1 = Ti.Alg.sha1(ss)
   obj.finger = sha1
 }
 //////////////////////////////////////////////////
-export default {
+const _M = {
   ////////////////////////////////////////////////
   getters : {
+    pageLink({path, params, anchor}) {
+      let link = [path]
+      // Join QueryString
+      if(!_.isEmpty(params)) {
+        let qs = []
+        _.forEach(params, (v, k)=>{
+          if(!Ti.Util.isNil(v)) {
+            qs.push(`${k}=${encodeURIComponent(v)}`)
+          }
+        })
+        if(!_.isEmpty(qs)) {
+          link.push(`?${qs.join("&")}`)
+        }
+      }
+      // Join Anchor
+      if(anchor) {
+        link.push(`#${anchor}`)
+      }
+      return link.join("")
+    },
     // Merget page api and the site api
     pageApis(state, getters, rootState, rootGetters) {
       let apiBase  = rootState.apiBase || "/"
@@ -176,6 +198,12 @@ export default {
       state.params = params
     },
     //--------------------------------------------
+    mergeParams(state, params) {
+      if(!_.isEmpty(params) && _.isPlainObject(params)) {
+        state.params = _.merge({}, state.params, params)
+      }
+    },
+    //--------------------------------------------
     setData(state, data) {
       state.data = data
     },
@@ -228,29 +256,22 @@ export default {
     },
     //--------------------------------------------
     /***
+     * Usage:
+     * 
+     * - OBJ: `changeData({KEY1:VAL1, KEY2:VAL2})
+     * - Array: `changeData([{KEY1:VAL1}, {KEY2:VAL2}])
+     * 
      * @param key{String} : the field name in "page.data", falsy for whole data
      * @param args{Object|Array} : `{name,value}` Object or Array
      */
-    changeDataBy({commit}, {key, args}={}) {
-      console.log("changeDataBy", key, args)
-      if(_.isUndefined(key) && _.isUndefined(args)) {
-        return
-      }
-      // Eval the value
-      let value = args
-      if(_.isArray(value) || _.isPlainObject(value)) {
-        value = {}
-        let list = [].concat(args)
-        for(let li of list) {
-          _.set(value, li.name, li.value)
-        }
-        console.log(" ->", key, value)
-      }
-
-      // Do Update
-      commit("updateData", {
-        key, value
-      })
+    changeData({commit}, args) {
+      let data = Ti.Util.merge({}, args)
+      commit("mergeData", data)
+    },
+    changeParams({commit}, args) {
+      let params = Ti.Util.merge({}, args)
+      commit("mergeParams", params)
+      commit("updateFinger")
     },
     //--------------------------------------------
     /***
@@ -422,26 +443,39 @@ export default {
      */
     async reload({commit, dispatch, rootGetters}, {
       path,
-      anchor=null,
-      params={},
-      data={}
+      anchor,
+      params={}
     }) {
       //console.log(rootGetters.routerList)
       console.log("page.reload", {path,params,anchor})
-      let pageJsonPath = path
+      let pinfo;
       //.....................................
       // Apply routerList
       for(let router of rootGetters.routerList) {
-        let [ph, pms] = router(path)
-        if(ph) {
-          pageJsonPath = ph
-          params = _.assign({}, params, pms)
+        pinfo = router(path)
+        if(pinfo && pinfo.path) {
           break
         }
       }
       //.....................................
+      if(!pinfo || !pinfo.path) {
+        return await Ti.Toast.Open("Page ${path} not found!", {
+          type: "error",
+          position: "center",
+          vars: {path}
+        })
+      }
+      //.....................................
       // Load the page json
-      let json = await Ti.Load(`@Site:${pageJsonPath}.json`)
+      let json = await Ti.Load(`@Site:${pinfo.path}.json`)
+
+      //.....................................
+      // merge info
+      if(anchor) {
+        pinfo.anchor = anchor
+      }
+      pinfo.params = _.merge({}, pinfo.params, params)
+      pinfo.path = path
       let page = _.assign({
         "title" : null,
         "apis" : {},
@@ -451,14 +485,7 @@ export default {
         "shown" : {},
         "schema" : {},
         "actions" : {}
-      }, json, {
-        path, anchor
-      })
-      // Merge params
-      _.assign(page.params, params)
-
-      // Merge data
-      _.assign(page.data, data)
+      }, json, pinfo)
 
       // Add the finger
       appendFinger(page)
@@ -479,3 +506,4 @@ export default {
   }
   ////////////////////////////////////////////////
 }
+export default _M;

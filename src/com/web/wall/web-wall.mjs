@@ -42,7 +42,7 @@ const _M = {
       
       let list = []      
       let items = []
-      let count = 0
+      let count = 1
       for(let i=0; i < this.data.length; i++) {
         let it = this.data[i]
         let comConf = _.assign({}, this.comConf, {
@@ -56,7 +56,7 @@ const _M = {
 
         // Next row
         if(count >= this.cols) {
-          count = 0
+          count = 1
           list.push({
             key: `Row-${list.length}`,
             items

@@ -1,24 +1,33 @@
-export default {
+const _M = {
   /////////////////////////////////////////
   getters : {
     //-------------------------------------
     // Pre-compiled Site Routers
     routerList(state) {
       let list = []
-      _.forEach(state.router, (ro)=>{
+      _.forEach(state.router, ({
+        match, names=[], page={}
+      }={})=>{
+        let regex = new RegExp(match)
         // Pre-compiled
-        let li = _.bind(function(path, regex, roParams, roPage){
-          let page = null
-          let params = {}
+        let li = function(path){
           let m = regex.exec(path)
+          // Match page
           if(m) {
-            _.forEach(roParams, (val, key)=>{
-              params[key] = m[val]
-            })
-            page = Ti.S.renderBy(roPage, params)            
+            // Build Context
+            let context = {}
+            for(let i=0; i<m.length; i++) {
+              let val = m[i]
+              context[i] = val
+              let k = _.nth(names, i)
+              if(k) {
+                _.set(context, key, val)
+              }
+            }
+            // Render page info
+            return Ti.Util.explainObj(context, page)        
           }
-          return [page, params]
-        }, ro, _, new RegExp(ro.match), ro.params, ro.page)
+        }
 
         // Join to list
         list.push(li)
@@ -148,46 +157,6 @@ export default {
           params : params,
           data   : data
         })
-        // Get primary url
-        let loc = window.location
-        let winPath = loc.pathname
-        if(loc.search)
-          winPath += loc.search
-        if(loc.hash)  
-          winPath += loc.hash
-        // Push History
-        if(pushHistory) {
-          let page = state.page
-          let link = Ti.Util.appendPath(state.base, page.path)
-          // Add Query String
-          if(!_.isEmpty(params)) {
-            let qs = []
-            _.forEach(params, (v, k)=>{
-              qs.push(`${k}=${encodeURIComponent(v)}`)
-            })
-            link += `?${qs.join("&")}`
-          }
-          // Add page anchor
-          if(anchor) {
-            link += `#${anchor}`
-          }
-          // Update addressbar
-          if(winPath != link) {
-            console.log("page changed to", link)
-            let his = window.history
-            if(his) {
-              his.pushState(page, page.title, link)
-            }
-          }
-        }
-        // Just replace current
-        else {
-          let his = window.history
-          if(his) {
-            let page = state.page
-            his.replaceState(page, page.title, winPath)
-          }
-        }
         commit("setLoading", false)
         commit("setPageReady", true)
       }
@@ -212,31 +181,17 @@ export default {
      * @param action{String} - action name like `page/showBlock`
      * @param payload{Object|Array} - action payload, defined in `json` file
      * @param args{Array} - the dynamic information emitted by `[Com].$emit`
-     * @param autoDestructArgs{Boolean} - If trusy, one element `args` will be unwrapped.
-     * @param autoJoinArgs{Boolean} - If trusy, 
-     *    it will auto join `args` to `payload` by `payload` type:
-     *   - `null` or `undeinfed` : replace `payload` by `args`
-     *   - `Object` : set `payload.args = args`
-     *   - `Array`  : concat to the tail of `payload`
      * 
      * @return {void}
      */
     async doAction({state, dispatch}, {
       action, 
       payload, 
-      args=[],
-      autoDestructArgs = true
+      args=[]
     }={}){
       //....................................
       if(!action)
         return;
-      //....................................
-      // auto destruc args
-      if(autoDestructArgs 
-        &&_.isArray(args) 
-        && args.length == 1) {
-        args = args[0]
-      }
       //....................................
       // auto join args
       let pld1 = payload;
@@ -312,3 +267,4 @@ export default {
   }
   /////////////////////////////////////////
 }
+export default _M;

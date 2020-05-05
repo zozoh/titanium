@@ -655,25 +655,25 @@ const TiUtil = {
    * 
    * @return new obj or value
    */
-  getOrPick(obj, key) {
+  getOrPick(obj, key, dft) {
     // Array to pick
     if(_.isArray(key)) {
-      return _.pick(obj, key)
+      return Ti.Util.fallback(_.pick(obj, key), dft)
     }
     // Function to eval
     if(_.isFunction(key)) {
-      return key(obj)
+      return Ti.Util.fallback(key(obj), dft)
     }
     // String
     if(_.isString(key)) {
       // get multi candicate
       let keys = key.split("|")
       if(keys.length > 1) {
-        return Ti.Util.getFallbackNil(obj, keys)
+        return Ti.Util.fallback(Ti.Util.getFallbackNil(obj, keys), dft)
       }
     }
     // Get by path
-    return _.get(obj, key)
+    return Ti.Util.fallback(_.get(obj, key), dft)
   },
   /***
    * @param obj{Object}
@@ -936,16 +936,14 @@ const TiUtil = {
    * 
    * @return Function to pick value
    */
-  genItemValueGetter(valueBy, dftKeys=["value", "id"]) {
+  genItemValueGetter(valueBy, dftVal) {
     if(_.isFunction(valueBy)) {
-      return it => valueBy(it)
+      return it => valueBy(it, dftVal)
     }
     if(_.isString(valueBy)) {
-      return it => Ti.Util.getOrPick(it, valueBy)
+      return it => Ti.Util.getOrPick(it, valueBy, dftVal)
     }
-    if(!_.isEmpty(dftKeys)) {
-      return it => Ti.Util.getFallback(it, ...dftKeys)
-    }
+    return function(){return dftVal;}
   },
   /***
    * @return Function to get row Id
