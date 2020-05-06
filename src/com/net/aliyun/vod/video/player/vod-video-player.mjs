@@ -9,7 +9,7 @@ export default {
       type: String,
       default: undefined
     },
-    "coverURL": {
+    "coverUrl": {
       type: String,
       default: undefined
     },
@@ -20,7 +20,7 @@ export default {
     "encryptType": {
       type: Number,
       default: undefined
-    },
+    }
   },
   ///////////////////////////////////////////////////////
   computed : {
@@ -38,23 +38,47 @@ export default {
   ///////////////////////////////////////////////////////
   methods :{
     //---------------------------------------------------
-    showPlayer() {
-      this.$player = new Aliplayer({
-        id: this.PlayerID,
-        width: "100%",
-        height: "100%",
-        autoplay: this.autoplay,
-        vid: this.videoId,
-        cover: this.coverURL,
-        encryptType: this.encryptType,
-        playauth : this.playAuth
-      })
+    initPlayer() {
+      if(!this.$player
+        && this.playAuth
+        && this.videoId
+        && this.coverUrl) {
+
+        // console.log("haha", {
+        //   playAuth: this.playAuth,
+        //   videoId: this.videoId,
+        //   coverUrl: this.coverUrl
+        // })
+
+        this.$player = new Aliplayer({
+          id: this.PlayerID,
+          width: "100%",
+          height: "100%",
+          autoplay: this.autoplay,
+          vid: this.videoId,
+          cover: this.coverUrl,
+          encryptType: this.encryptType,
+          playauth : this.playAuth
+        })
+      }
     }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
-  mounted : function() {
-    _.delay(()=>this.showPlayer(), 0)
+  watch: {
+    // "playAuth": function() {
+    //   this.$nextTick(()=>this.initPlayer())
+    // },
+    // "videoId": function() {
+    //   this.$nextTick(()=>this.initPlayer())
+    // },
+    // "coverUrl": function() {
+    //   this.$nextTick(()=>this.initPlayer())
+    // }
+  },
+  ///////////////////////////////////////////////////////
+  mounted: function(){
+    this.initPlayer();
   }
   ///////////////////////////////////////////////////////
 }

@@ -1,0 +1,26 @@
+.ti-session-badge {
+  @include noselect;
+  @include flex-align-nowrap;
+  > .as-avatar {
+    @include flex-center;
+    > img {
+      border:1px solid rgba(230,230,230,0.8);
+      height:2.6em; width:2.6em;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+  }
+  > .as-icon {
+    font-size:1.2em; padding:0 0.3em;
+  }
+  > .as-name {
+    padding:0 .08rem;
+  }
+  > .as-link {
+    @include border(1px,solid,shallow,left);
+    @include flex-align-nowrap;
+    white-space: nowrap;
+    padding:0 .08rem;
+    > .it-icon {margin-right:.06rem;}
+  }
+}

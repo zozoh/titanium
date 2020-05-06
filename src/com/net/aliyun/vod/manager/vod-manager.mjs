@@ -166,7 +166,8 @@ export default {
         height: "90%",
         comType: "NetAliyunVodVideoPlayer",
         comConf: {
-          videoId, coverURL, playAuth
+          videoId, playAuth,
+          coverUrl: coverURL
         },
         components: "@com:net/aliyun/vod/video/player"
       })

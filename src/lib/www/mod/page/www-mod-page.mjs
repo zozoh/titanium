@@ -1,12 +1,3 @@
-//////////////////////////////////////////////////
-// Page finger to indicate the page changed
-// watch the filter can auto update document title
-function appendFinger(obj) {
-  let ss = [obj.path, obj.params, obj.anchor]
-  let sha1 = Ti.Alg.sha1(ss)
-  obj.finger = sha1
-}
-//////////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////////
   getters : {
@@ -239,8 +230,12 @@ const _M = {
       _.assign(state.shown, shown)
     },
     //--------------------------------------------
+    // Page finger to indicate the page changed
+    // watch the filter can auto update document title
     updateFinger(state) {
-      appendFinger(state)
+      let ss = [state.path, state.params, state.anchor, state.data]
+      let sha1 = Ti.Alg.sha1(ss)
+      state.finger = sha1
     }
     //--------------------------------------------
   },
@@ -428,6 +423,7 @@ const _M = {
       //.......................................
       // Mark root state
       commit("setLoading", false, {root:true})
+      commit("updateFinger")
       //.......................................
       // Get return value
       let reKeys = []
@@ -476,7 +472,7 @@ const _M = {
       }
       pinfo.params = _.merge({}, pinfo.params, params)
       pinfo.path = path
-      let page = _.assign({
+      let page = _.merge({
         "title" : null,
         "apis" : {},
         "data" : {},
@@ -488,7 +484,7 @@ const _M = {
       }, json, pinfo)
 
       // Add the finger
-      appendFinger(page)
+      //appendFinger(page)
       
       //.....................................
       // TODO: update title template here by data

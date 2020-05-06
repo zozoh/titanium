@@ -1,4 +1,7 @@
 export const TiStr = {
+  sBlank(str, dft) {
+    return str || dft
+  },
   renderVars(vars={}, fmt="", {
     iteratee, 
     regex, 

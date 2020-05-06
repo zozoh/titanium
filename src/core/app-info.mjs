@@ -1,15 +1,18 @@
 //---------------------------------------
 function isTiLink(str) {
+  // Remote Link
+  if(/^@https?:\/\//.test(str)){
+    return str.substring(1)
+  }
   // @com:xxx or @mod:xxx
   if(/^(@[A-Za-z0-9_-]+:?|\.\/)/.test(str)) {
-    return true
+    return str
   }
   // !mjs:xxx
   if(/^(!(m?js|json|css|text):)/.test(str)) {
-    return true
+    return str
   }
   // Then it should be normal string
-  return false
 }
 //---------------------------------------
 export async function LoadTiLinkedObj(
@@ -27,12 +30,13 @@ export async function LoadTiLinkedObj(
     // String
     if(_.isString(val)) {
       // only link like value should be respected
-      if(!isTiLink(val)) {
+      let linkURI = isTiLink(val)
+      if(!linkURI) {
         return
       }
       ps.push(new Promise((resolve, reject)=>{
-        Ti.Load(val, {dynamicPrefix, dynamicAlias}).then(async re=>{
-          const v2  = Ti.Config.url(val, {dynamicPrefix, dynamicAlias})
+        Ti.Load(linkURI, {dynamicPrefix, dynamicAlias}).then(async re=>{
+          const v2  = Ti.Config.url(linkURI, {dynamicPrefix, dynamicAlias})
           const re2 = await LoadTiLinkedObj(re, {
             dynamicAlias: new Ti.Config.AliasMapping({
               "^\./": Ti.Util.getParentPath(v2)
@@ -46,14 +50,14 @@ export async function LoadTiLinkedObj(
     // Array recur
     else if(_.isArray(val)){
       for(let i=0; i<val.length; i++) {
-        let v = val[i];
+        let linkURI = isTiLink(val[i]);
         // only link like value should be respected
-        if(!_.isString(v) || !isTiLink(v)) {
+        if(!linkURI) {
           continue
         }
         ps.push(new Promise((resolve, reject)=>{
-          Ti.Load(v, {dynamicPrefix, dynamicAlias}).then(async re=>{
-            const v2  = Ti.Config.url(v, {dynamicPrefix, dynamicAlias})
+          Ti.Load(linkURI, {dynamicPrefix, dynamicAlias}).then(async re=>{
+            const v2  = Ti.Config.url(linkURI, {dynamicPrefix, dynamicAlias})
             const re2 = await LoadTiLinkedObj(re, {
               dynamicAlias: new Ti.Config.AliasMapping({
                 "^\./": Ti.Util.getParentPath(v2)

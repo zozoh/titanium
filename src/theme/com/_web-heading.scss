@@ -1,0 +1,14 @@
+.web-heading {
+  @include flex-align-nowrap;
+  padding: .8em;
+  //-----------------------------------------
+  > .as-title {
+    font-weight: bold; font-size:1.2em;
+  }
+  //-----------------------------------------
+  > .as-comment {
+    color:map-get($color-track, c);
+    padding:0 .5em;
+  }
+  //-----------------------------------------
+}

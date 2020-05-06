@@ -193,24 +193,25 @@ const _M = {
       if(!action)
         return;
       //....................................
-      // auto join args
-      let pld1 = payload;
+      let pld;
 
       // Use args directrly cause payload without defined
       if(_.isUndefined(payload) || _.isNull(payload)) {
-        pld1 = _.cloneDeep(args)
+        pld = _.cloneDeep(_.nth(args, 0))
       }
       //....................................
       // Explain payload
-      let context = _.assign({}, state, {
-        $args : args
-      })
-      let pld2 = Ti.Util.explainObj(context, pld1, {
-        evalFunc : false
-      })
+      else {
+        let context = _.assign({}, state, {
+          $args : args
+        })
+        pld = Ti.Util.explainObj(context, payload, {
+          evalFunc : false
+        })
+      }
       //....................................
-      console.log("invoke->", {action, payload:pld2})
-      await dispatch(action, pld2)
+      console.log("invoke->", action, pld)
+      await dispatch(action, pld)
     },
     //-------------------------------------
     async reload({state, dispatch}) {
