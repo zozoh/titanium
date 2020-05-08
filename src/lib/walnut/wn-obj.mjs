@@ -24,7 +24,7 @@ const FIELDS = {
     name  : "thumb",
     checkEquals : false,
     serializer : {
-      name : "toStr",
+      name : "Ti.Types.toStr",
       args : "id:${id}"
     },
     comType : "wn-imgfile",
@@ -154,32 +154,32 @@ export const WnObj = {
       type  : "String"
     }
   },
-  //----------------------------------------
-  evalFields(fields=[], iteratee=_.identity) {
-    fields = _.pull(_.concat(fields), [null, undefined])
-    // Eval the each field
-    let list = []
-    for(let fld of fields) {
-      // Quick Name
-      if(_.isString(fld)) {
-        let f2 = WnObj.getField(fld)
-        if(f2) {
-          f2 = iteratee(f2)
-          if(f2) {
-            list.push(f2)
-          }
-        }
-      }
-      // Customized Prop
-      else if(_.isPlainObject(fld) && fld.name){
-        let f2 = iteratee(fld)
-        if(f2) {
-          list.push(f2)
-        }
-      }
-    }
-    return list
-  },
+  // //----------------------------------------
+  // evalFields(fields=[], iteratee=_.identity) {
+  //   fields = _.pull(_.concat(fields), [null, undefined])
+  //   // Eval the each field
+  //   let list = []
+  //   for(let fld of fields) {
+  //     // Quick Name
+  //     if(_.isString(fld)) {
+  //       let f2 = WnObj.getField(fld)
+  //       if(f2) {
+  //         f2 = iteratee(f2, {quick:true})
+  //         if(f2) {
+  //           list.push(f2)
+  //         }
+  //       }
+  //     }
+  //     // Customized Prop
+  //     else if(_.isPlainObject(fld) && fld.name){
+  //       let f2 = iteratee(fld, {customized:true})
+  //       if(f2) {
+  //         list.push(f2)
+  //       }
+  //     }
+  //   }
+  //   return list
+  // },
   //----------------------------------------
   /***
    * Create the crumb data for `<ti-crumb>`

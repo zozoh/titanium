@@ -1,23 +1,31 @@
 .wn-adaptlist {
+  position: relative;
+  //---------------------------------------------
   .wal-uploading {
     @include pos-abs($l:0,$r:0,$b:0);
     @include color($color-cloak, r, c);
     max-height: 100%; overflow-y:auto;
     transition: 0.5s;
+    //-------------------------------------------
     &.up-show {
       opacity: 1; bottom:0;
     }
+    //-------------------------------------------
     &.up-hide {
       opacity: 0; bottom:-100%;
     }
+    //-------------------------------------------
     > header {
       @include flex-align-center;
       @include color($color-warn, r, c);
       padding: .04rem .1rem;
       > span {margin-right:.06rem;}
     }
+    //-------------------------------------------
     > section {
       padding: .1rem;
     }
+    //-------------------------------------------
   }
+  //---------------------------------------------
 }

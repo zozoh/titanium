@@ -226,7 +226,7 @@ const _M = {
         return Ti.Toast.Open("i18n:nil-obj")
       }
 
-      let reo = await Wn.EditObjMeta(meta)
+      let reo = await Wn.EditObjMeta(meta, {fields:"auto"})
       
       // Update to current list
       if(reo) {

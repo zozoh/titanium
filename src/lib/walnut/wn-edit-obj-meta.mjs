@@ -10,11 +10,15 @@ export async function EditObjMeta(pathOrObj="~", {
   height     = "80%", 
   spacing,
   currentTab = 0,
-  tabs       = {},
+  // static tabs
+  // if emtpy, apply the default
+  // “auto" will load by `ti editmeta`, it will override the currentTab
+  fields     = [],
   fixedKeys  = ["thumb"],
   saveKeys   = ["thumb"],  // If the key changed, `cancel` same as `OK`
   autoSave   = true
 }={}){
+  console.log("hahah")
   //............................................
   // Load meta
   let meta = pathOrObj
@@ -30,51 +34,75 @@ export async function EditObjMeta(pathOrObj="~", {
   let saves = {}
   _.forEach(saveKeys, k => saves[k]=true)
   //............................................
+  // Auto load 
+  if("auto" == fields) {
+    let reo = await Wn.Sys.exec2(`ti metas id:${meta.id} -cqn`, {as:"json"})
+    if(reo) {
+      fields = reo.fields
+      currentTab = reo.currentTab || currentTab || 0
+    }
+  }
+  //............................................
   // Default tabs
-  if(_.isEmpty(tabs)) {
-    tabs = { 
-      basic : [
+  if(_.isEmpty(fields)) {
+    fields = [{ 
+      title: "basic",
+      fields: [
         "id", "race", "thumb", "nm","ph", "tp", "mime", 
         "width", "height", "len"],
-      privilege : ["c","m","g", "md", "pvg"],
-      timestamp : ["ct", "lm", "expi"]
-    }
+    }, {
+      title: "privilege",
+      fields: ["c","m","g", "md", "pvg"]
+    }, {
+      title: "timestamp",
+      fields: ["ct", "lm", "expi"]
+    }]
+  }
+  //............................................
+  const __join_fields = function(flds=[], outs=[]) {
+    _.forEach(flds, fld => {
+      let f2;
+      let quickName = false
+      // Quick Name
+      if(_.isString(fld)) {
+        quickName = true
+        f2 = Wn.Obj.getField(fld)
+      }
+      // Group
+      else if(_.isArray(fld.fields)) {
+        f2 = {
+          title: Wn.Obj.getGroupTitle(fld.title), 
+          type:"Group", 
+          fields:[]
+        }
+        __join_fields(fld.fields, f2.fields)
+        if(_.isEmpty(f2.fields)) {
+          return
+        }
+      }
+      // Normal field
+      else {
+        f2 = fld
+      }
+      //......................................
+      // Try join
+      // Fixed fields
+      let uniqKey = Ti.S.join("-", f2.name)
+      if(fixeds[uniqKey]) {
+        outs.push(f2)
+        return
+      }
+      // Auto test if join
+      let v = _.get(meta, f2.name)
+      if(!quickName || !_.isUndefined(v)) {
+        outs.push(f2)
+      }
+    });
   }
   //............................................
   // Eval the form fields
   let myFormFields = []
-  _.forEach(tabs, (tab, key)=>{
-    let grp = tab
-    // Default use the key as group title
-    if(_.isArray(tab)) {
-      grp = {
-        title  : Wn.Obj.getGroupTitle(key),
-        fields : tab
-      }
-    }
-    // Eval the each field
-    let fields = Wn.Obj.evalFields(grp.fields, (fld)=>{
-      if(fld) {
-        // Must show
-        let uniqKey = Ti.S.join("-", fld.name)
-        if(fixeds[uniqKey]) {
-          return fld
-        }
-        // Depends on value
-        let v = _.get(meta, fld.name)
-        if(!_.isUndefined(v)) {
-          return fld
-        }
-      }
-    })
-    
-    // Join to group
-    if(_.isArray(grp.fields) && !_.isEmpty(grp.fields)) {
-      grp.type  = "Group"
-      grp.fields = fields
-      myFormFields.push(grp)
-    }
-  });
+  __join_fields(fields, myFormFields);
   //............................................
   let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-info-outline")
   let theTitle = title || Wn.Util.getObjDisplayName(meta)

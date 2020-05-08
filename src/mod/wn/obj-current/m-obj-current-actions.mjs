@@ -35,7 +35,7 @@ const _M = {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
     // Open Editor
-    let reo = await Wn.EditObjMeta(state.meta)
+    let reo = await Wn.EditObjMeta(state.meta, {fields:"auto"})
 
     // Cancel the editing
     if(_.isUndefined(reo)) {
