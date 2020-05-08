@@ -146,9 +146,9 @@ const _M = {
      * 
      * Defaultly, it will support the function set defined in `Ti.Types`
      */
-    FuncSet() {
-      return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
-    },
+    // FuncSet() {
+    //   return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
+    // },
     //--------------------------------------------------
     TheData() {
       if(this.data) {
@@ -269,10 +269,23 @@ const _M = {
         //   field.message = fStatus.message
         // }
 
+        // Default
+        if(!field.serializer) {
+          let fnName = Ti.Types.getFuncByType(field.type||"String", "serializer")
+          field.serializer = `Ti.Types.${fnName}`
+        }
+        if(!field.transformer) {
+          let fnName = Ti.Types.getFuncByType(field.type||"String", "transformer")
+          field.transformer = `Ti.Types.${fnName}`
+        }        
+
         // Tidy form function
-        field.serializer  = Ti.Types.getFuncBy(field, "serializer", this.FuncSet)
-        field.transformer = Ti.Types.getFuncBy(field, "transformer", this.FuncSet)
-        field.funcSet     = this.FuncSet
+        const invokeOpt = {
+          context: this,
+          partialRight: true
+        }
+        field.serializer  = Ti.Util.genInvoking(field.serializer, invokeOpt)
+        field.transformer = Ti.Util.genInvoking(field.transformer,invokeOpt)
 
         // Done
         return field

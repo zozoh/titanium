@@ -18,7 +18,7 @@ export default {
               key : ["icon", "thumb", "tp", "mime", "race", "__updated_time"],
               type : "Object",
               transformer : {
-                name : "toObject",
+                name : "Ti.Types.toObject",
                 args : {
                   icon  : "icon",
                   thumb : "thumb",

@@ -1,4 +1,4 @@
-export default {
+const _M = {
   inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
@@ -176,6 +176,7 @@ export default {
     doWhenInput(emitName="inputing", autoJsValue=false) {
       if(_.isElement(this.$refs.input)) {
         //console.log("doWhenInput", emitName)
+        let val = this.$refs.input.value
         // Auto js value
         if(autoJsValue) {
           val = Ti.S.toJsValue(val, {
@@ -267,3 +268,4 @@ export default {
   }
   ////////////////////////////////////////////////////
 }
+export default _M;

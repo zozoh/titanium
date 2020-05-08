@@ -870,31 +870,45 @@ const TiUtil = {
   },
   /***
    * "Ti.Types.toStr(abc)" -> Function
+   * 
+   * {name:"xxx", args:[..]} -> Function
    */
   genInvoking(str, {
     context={},
     funcSet = window,
     partialRight = false  // true | false*
   }={}) {
-    let m = /^([^()]+)(\((.+)\))?$/.exec(str)
-    if(m) {
-      let callPath = _.trim(m[1])
-      let callArgs = _.trim(m[3])
-      //console.log(callPath, callArgs)
-      let func = _.get(funcSet, callPath)
-      if(_.isFunction(func)) {
-        let args = Ti.S.joinArgs(callArgs, [], v=>{
-          return Ti.S.toJsValue(v, {context})
-        })
-        if(!_.isEmpty(args)) {
-          if(partialRight) {
-            return _.partialRight(func, ...args)
-          }
-          return _.partial(func, ...args)
-        }
-        return func
+    //.............................................
+    let callPath, callArgs;
+    // Object mode
+    if(str.name && str.args) {
+      callPath = str.name
+      callArgs = _.concat(str.args)
+    }
+    // String mode
+    else {
+      let m = /^([^()]+)(\((.+)\))?$/.exec(str)
+      if(m) {
+        callPath = _.trim(m[1])
+        callArgs = _.trim(m[3])
       }
     }
+    //.............................................
+    //console.log(callPath, callArgs)
+    let func = _.get(funcSet, callPath)
+    if(_.isFunction(func)) {
+      let args = Ti.S.joinArgs(callArgs, [], v=>{
+        return Ti.S.toJsValue(v, {context})
+      })
+      if(!_.isEmpty(args)) {
+        if(partialRight) {
+          return _.partialRight(func, ...args)
+        }
+        return _.partial(func, ...args)
+      }
+      return func
+    }
+
     // Not invokeing, just return str self
     return ()=>str
   },

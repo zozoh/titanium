@@ -132,10 +132,10 @@ const TI_TREE = {
       default : "column",
       validator : v => /^(row|column|cell|none)$/.test(v)
     },
-    "extendFunctionSet" : {
-      type : Object,
-      default : ()=>({})
-    },
+    // "extendFunctionSet" : {
+    //   type : Object,
+    //   default : ()=>({})
+    // },
     "fields" : {
       type : Array,
       default : ()=>[]

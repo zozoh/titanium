@@ -32,10 +32,10 @@ export default {
     type : String,
     default : null
   },
-  "extendFunctionSet" : {
-    type : Object,
-    default : ()=>({})
-  },
+  // "extendFunctionSet" : {
+  //   type : Object,
+  //   default : ()=>({})
+  // },
   "vars" : {
     type : Object,
     default : ()=>({})

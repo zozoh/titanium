@@ -1,7 +1,6 @@
 const _M = {
   ////////////////////////////////////////////////
   getters : {
-    //--------------------------------------------
     pageLink({path, params, anchor}) {
       let link = [path]
       // Join QueryString
@@ -22,76 +21,150 @@ const _M = {
       }
       return link.join("")
     },
-    //--------------------------------------------
     // Merget page api and the site api
     pageApis(state, getters, rootState, rootGetters) {
       let apiBase  = rootState.apiBase || "/"
       let SiteApis = rootState.apis || {}
-      let PageApis = {}
+      let map  = {}
+      //............................................
+      const _param_to_plain_object = function(val) {
+        if(_.isUndefined(val)) {
+          return {}
+        }
+        if(!_.isPlainObject(val)) {
+          return {
+            type  : Ti.Types.getJsType(val),
+            value : val
+          }
+        }
+        return val
+      }
       // For each api declared in current page
-      _.forEach(state.apis, (pageApi, key)=>{
+      _.forEach(state.apis, (info, key)=>{
         //..........................................
         // Get SiteApi template
-        let siteApi = _.get(SiteApis, pageApi.apiName || key)
+        let Gapi = SiteApis[info.apiName||key]
         //..........................................
         // Marge the page api
-        let api = _.cloneDeep(siteApi)
-        _.defaults(api, {
-          method  : "GET",
-          headers : {},
-          params  : {},
-          vars    : {},
-          as      : "json"
-        })
+        let Papi = _.assign({
+            title   : key,
+            method  : "GET",
+            headers : {},
+            as      : "json"
+          }, Gapi, {
+            params  : {},
+            vars    : {},
+          })
         // API path is required
-        if(!api.path) {
-          console.warn(`!!!API[${key}] without defined in site!!!`, api)
+        if(!Papi.path) {
+          console.warn(`!!!API[${key}] without defined in site!!!`, info)
           return
         }
         //..........................................
         // Merge vars
-        _.assign(api.vars, pageApi.vars)
-        //..........................................
-        // Merge headers
-        _.assign(api.headers, pageApi.headers)
+        let vars = _.assign({}, Gapi.vars, Papi.vars)
         //..........................................
         // Merge params
-        _.forEach(api.params, (param, name) => {
-          let paramVal = _.get(pageApi.params, name)
-          if(!_.isUndefined(paramVal)) {
-            param.value = paramVal
+        let params = {}  // Plain JSON for gen-finger
+        _.forEach(Gapi.params, (g_pm, key)=>{
+          let p_pm  =  _.get(info.params, key)
+          // The params must declared in global
+          if(_.isUndefined(g_pm)) {
+            return
           }
+          // Support the simple mode
+          g_pm = _param_to_plain_object(g_pm)
+          p_pm = _param_to_plain_object(p_pm)
+          // marge them
+          params[key] = _.assign({
+            type : "String",
+            required : true
+          }, g_pm, p_pm)
         })
         //console.log("params", params)
         //..........................................
+        // Count the params finger & url
+        Papi.finger = Ti.Alg.sha1(params)
         // Absolute URL
-        if(/^(https?:\/\/|\/)/.test(api.path)) {
-          api.url = api.path
+        if(/^(https?:\/\/|\/)/.test(Papi.path)) {
+          Papi.url = Papi.path
         }
         // Join with the apiBase
         else {
-          api.url = Ti.Util.appendPath(apiBase, api.path)
-        }       
+          Papi.url = Ti.Util.appendPath(apiBase, Papi.path)
+        }
         //..........................................
-        // Copy the Setting from page
-        _.assign(api, _.pick(pageApi, "body", "preload","serializer", "dataKey"))
-        // Eval api serializer
-        api.serializer = Ti.Types.getFunc(api, "serializer")
-        //..........................................
-        _.defaults(api, {
-          bodyType : "form",
-          dataKey  : key
+        // Explain vars
+        _.forEach(vars, (val, key)=>{
+          // Dynamic value
+          let m = /^=(.+)$/.exec(val)
+          if(m) {
+            Papi.vars[key] = _.bind(function(context, path){
+              return _.get(context, path)
+            }, Papi, rootState, m[1])
+          }
+          // Static
+          else {
+            Papi.vars[key] = ()=>{return val}
+          }
         })
         //..........................................
+        // Explain params
+        _.forEach(params, (pm, key)=>{
+          pm = _.cloneDeep(pm)
+          let pm_val = pm.value;
+          //~~~~~~~~~~~~~~~~~~~~~~~~~
+          // Eval value
+          if(_.isString(pm_val)) {
+            let m = /^=(.+)$/.exec(pm_val)
+            // Dynamic get from page state (for user input)
+            if(m) {
+              pm.value = _.bind(function(context, path){
+                return _.get(context, path)
+              }, Papi, rootState, m[1])
+            }
+            // Just clone it
+            else if(!_.isUndefined(pm.value)){
+              pm.value = ()=>{return pm_val}
+            }
+          }
+          // Object pm just eval it to JSON
+          // and dynamic
+          else if(_.isPlainObject(pm_val) || _.isArray(pm_val)) {
+            pm.value = _.bind(function(context, obj){
+              return Ti.Util.explainObj(context, obj)
+            }, Papi, rootState, pm_val)
+          }
+          //~~~~~~~~~~~~~~~~~~~~~~~~~
+          // Ignore when invalid value
+          if(!_.isFunction(pm.value)) {
+            return
+          }
+          //~~~~~~~~~~~~~~~~~~~~~~~~~
+          // Eval transformer
+          pm.transformer = Ti.Types.getFunc(pm, "transformer")
+          //~~~~~~~~~~~~~~~~~~~~~~~~~
+          // Join
+          Papi.params[key] = pm
+          //~~~~~~~~~~~~~~~~~~~~~~~~~
+        }) // _.forEach(params, (pm, key)=>{
+        //..........................................
+        // Copy the Setting from page
+        Papi.body = Ti.Util.fallback(info.body, Gapi.body, null)
+        Papi.preload = Ti.Util.fallback(info.preload, Gapi.preload, false)
+        Papi.dataKey = Ti.Util.fallback(info.dataKey, Gapi.dataKey, key)
+        //..........................................
+        // Eval api serializer
+        Papi.serializer = Ti.Types.getFunc(Papi, "serializer")
+        //..........................................
         // Join to map
-        PageApis[key] = api
+        map[key] = Papi
         //..........................................
       })  // _.forEach(state.apis, (info, key)=>{
-      // console.log("APIs", PageApis)
+      // console.log("APIs", map)
       // Return page api-set
-      return PageApis
+      return map
     }
-    //--------------------------------------------
   },
   ////////////////////////////////////////////////
   mutations : {
@@ -139,7 +212,7 @@ const _M = {
       // update field
       else {
         let vobj = _.set({}, key, value)
-        state.data = _.assign({}, state.data, vobj)
+        state.data = _.merge({}, state.data, vobj)
       }
     },
     //--------------------------------------------
@@ -249,56 +322,57 @@ const _M = {
      * Reload page data by given api keys
      */
     async reloadData({state, commit, getters, rootState}, keys=[]) {
-      console.log("reloadData", keys)
+      let apis = getters.pageApis
+      //console.log("reloadData", keys)
       //.......................................
       // The api list to reload
-      let isAll = _.isEmpty(keys)
-      let apis = _.filter(getters.pageApis, (api, k)=>{
-        return (isAll && api.preload) || _.indexOf(keys, k)>=0
-      })
+      let list
+      if(_.isEmpty(keys)) {
+        list = []
+        _.forEach(apis, (api)=>{
+          if(api.preload)
+            list.push(api)
+        })
+      }
+      // Pick specail apis
+      else {
+        list = _.values(_.pick(apis, keys))
+      }
       //.......................................
       // Prepare the Promises
       let ings = []
-      for(let api of apis) {
+      for(let api of list) {
         // prepare http send options
         let url = api.url
         // if("/www/dataocean/cygq/mock/right-b/b-${nm}.json"==url) {
         //   console.log("haha", url)
         // }
         //.....................................
-        // Eval dynamic url
-        if(!_.isEmpty(api.vars)) {
-          let vars = Ti.Util.explainObj(rootState, api.vars)
+        // Eval url
+        let vars = {}
+        _.forEach(api.vars, (fn, key)=>{
+          vars[key] = fn()
+        })
+        if(!_.isEmpty(vars)) {
           url = Ti.S.renderBy(url, vars)
         }
         //.....................................
         // Gen the options
-        let options = _.pick(api, ["method", "as"])
-        // Eval headers
-        options.headers = Ti.Util.explainObj(rootState, api.headers)
+        let options = _.pick(api, ["method", "headers", "as"])
         // Eval the params
         options.params = {}
-        _.forEach(api.params, (param, key)=>{
-          let val = Ti.Util.explainObj(rootState, param.value)
-          // Check required
-          if(param.required && Ti.Util.isNil(val)) {
-            let errMsg = `${url}: lack required param: ${key}`
-            Ti.Toast.Open(errMsg, "error")
-            throw errMsg
-          }
+        _.forEach(api.params, (pm, key)=>{
+          let val = pm.value()
+          val = pm.transformer(val)
           options.params[key] = val
         })
         //.....................................
         // Prepare the body
-        if("POST" == api.method && api.body) {
-          let bodyData = Ti.Util.explainObj(rootState, api.body)
+        if("POST" == api.method && api.body && _.isPlainObject(api.body.data)) {
+          let bodyData = Ti.Util.explainObj(rootState, api.body.data)
           // As JSON
-          if("json" == api.bodyType) {
+          if("json" == api.body.type) {
             options.body = JSON.stringify(bodyData)
-          }
-          // As responseText
-          else if("text" == api.bodyType) {
-            options.body = Ti.Types.toStr(bodyData)
           }
           // Default is form
           else {
@@ -353,7 +427,7 @@ const _M = {
       //.......................................
       // Get return value
       let reKeys = []
-      for(let api of apis) {
+      for(let api of list) {
         reKeys.push(api.dataKey)
       }
       //.......................................
@@ -408,7 +482,13 @@ const _M = {
         "schema" : {},
         "actions" : {}
       }, json, pinfo)
+
+      // Add the finger
+      //appendFinger(page)
       
+      //.....................................
+      // TODO: update title template here by data
+
       //...........................
       // Update page 
       commit("set", page)

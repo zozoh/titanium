@@ -23,7 +23,7 @@
         "display" : {
           "key" : "pay_tp",
           "transformer" : {
-            "name" : "toStr",
+            "name" : "Ti.Types.toStr",
             "args" : {
               "wx.qrcode"  : "微信扫码",
               "wx.scan"    : "微信付款码",
@@ -45,7 +45,7 @@
         "display" : {
           "key" : ["price", "fee"],
           "transformer" : {
-            "name" : "toStr",
+            "name" : "Ti.Types.toStr",
             "args" : "￥${fee}/${price}"
           }
         }
@@ -54,7 +54,7 @@
         "display" : {
           "key" : "st",
           "transformer" : {
-            "name" : "toStr",
+            "name" : "Ti.Types.toStr",
             "args" : {
               "NW" : "新建",
               "WT" : "待支付",
@@ -88,7 +88,7 @@
           "title"   : "订单状态",
           "name"    : "st",
           "transformer" : {
-            "name" : "toStr",
+            "name" : "Ti.Types.toStr",
             "args" : {
               "NW" : "新建",
               "WT" : "待支付",
@@ -160,7 +160,7 @@
                     "display" : {
                       "key" : "value",
                       "transformer" : {
-                        "name" : "toStr",
+                        "name" : "Ti.Types.toStr",
                         "args" : {"1":"代金","2":"折扣"}
                       }
                     }
@@ -194,7 +194,7 @@
               "title"   : "支付类型",
               "name"    : "pay_tp",
               "transformer" : {
-                "name" : "toStr",
+                "name" : "Ti.Types.toStr",
                 "args" : {
                   "wx.qrcode"  : "微信扫码",
                   "wx.scan"    : "微信付款码",

@@ -23,7 +23,7 @@
         "display" : {
           "key" : "type",
           "transformer" : {
-            "name" : "toStr",
+            "name" : "Ti.Types.toStr",
             "args" : {
               "1" : "代金券",
               "2" : "折扣券"

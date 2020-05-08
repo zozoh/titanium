@@ -83,9 +83,9 @@ const LIST_MIXINS = {
         : this.myCheckedIds 
     },
     //-----------------------------------------------
-    fnSet() {
-      return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
-    },
+    // fnSet() {
+    //   return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
+    // },
     //-----------------------------------------------
     Dict() {
       if(this.dict) {

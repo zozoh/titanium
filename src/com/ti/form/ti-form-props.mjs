@@ -14,10 +14,10 @@ export default {
     type : Object,
     default : ()=>({})
   },
-  "extendFunctionSet" : {
-    type : Object,
-    default : undefined
-  },
+  // "extendFunctionSet" : {
+  //   type : Object,
+  //   default : undefined
+  // },
   "onlyFields" : {
     type: Boolean,
     default: true

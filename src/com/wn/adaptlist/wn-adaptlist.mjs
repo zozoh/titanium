@@ -19,15 +19,11 @@ const _M = {
       return _.get(this.status, "reloading")
     },
     //--------------------------------------------
-    ExtendFunctionSet() {
-      return Wn.Util;
-    },
-    //--------------------------------------------
     WallItemDisplay() {
       return {
         key : "..",
         transformer : {
-          name : "getObjThumbInfo",
+          name : "Wn.Util.getObjThumbInfo",
           args : [{
             status : this.myItemStatus,
             exposeHidden : this.myExposeHidden

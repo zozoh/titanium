@@ -24,7 +24,7 @@
         "display" : {
           "key" : "price",
           "transformer" : {
-            "name" : "toStr",
+            "name" : "Ti.Types.toStr",
             "args" : "${val}RMB"
           }
         }
@@ -68,7 +68,7 @@
           "name"    : "thumb",
           "checkEquals" : false,
           "serializer" : {
-            "name" : "toStr",
+            "name" : "Ti.Types.toStr",
             "args" : "id:${id}"
           },
           "comType" : "wn-imgfile",

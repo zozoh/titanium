@@ -46,7 +46,7 @@
             "tip"   : "=page.data.product.brief",
             "className" : "webmc-highlight",
             "transformer" : {
-              "name" : "toStr",
+              "name" : "Ti.Types.toStr",
               "args" : "￥${val}"
             }
           }, {

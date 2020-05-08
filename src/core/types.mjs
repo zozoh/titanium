@@ -739,6 +739,10 @@ const TiTypes = {
     return true
   },
   //.......................................
+  toBoolStr(val, falsy="No", trusy="Yes") {
+    return val ? trusy : falsy
+  },
+  //.......................................
   toObject(val, fmt) {
     let obj = val
     

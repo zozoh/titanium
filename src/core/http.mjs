@@ -12,6 +12,13 @@ const RESP_TRANS = {
   xml($req){
     throw "No implement yet!"
   },
+  ajax($req) {
+    let reo = RESP_TRANS.json($req);
+    if(reo.ok) {
+      return reo.data
+    }
+    throw reo
+  },
   json($req){
     let content = $req.responseText
     let str = _.trim(content) || null
@@ -51,6 +58,7 @@ export const TiHttp = {
       body=null,    // POST BODY, then params -> query string
       file=null,
       headers={},
+      cleanNil=true,  // Clean the params nil fields
       progress=_.identity,
       created=_.identity,
       beforeSend=_.identity,
@@ -59,6 +67,19 @@ export const TiHttp = {
     } = options
     // normalize method
     method = _.upperCase(method)
+
+    // Clean nil
+    if(cleanNil) {
+      let p2 = {}
+      Ti.Util.walk(params, {
+        leaf: (v, path) => {
+          if(!Ti.Util.isNil(v)) {
+            _.set(p2, path, v)
+          }
+        }
+      })
+      params = p2
+    }
 
     // Add the default header to identify the TiHttpClient
     // _.defaults(headers, {

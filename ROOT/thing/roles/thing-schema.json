@@ -30,8 +30,8 @@
         "display" : {
           "key" : "isdft",
           "transformer" : {
-            "name" : "toStr",
-            "args" : [["--", "是"]]
+            "name" : "Ti.Types.toBoolStr",
+            "args" : ["--", "是"]
           }
         }
       }, {

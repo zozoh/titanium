@@ -149,7 +149,11 @@ const FieldDisplay = {
           comType : "ti-label",
         }, displayItem)
         if(dis.transformer) {
-          dis.transformer = Ti.Types.evalFunc(dis.transformer, funcSet)
+          const invokeOpt = {
+            context: this,
+            partialRight: true
+          }
+          dis.transformer = Ti.Util.genInvoking(dis.transformer, invokeOpt)
         }
         return dis
       }

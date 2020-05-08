@@ -31,7 +31,7 @@
         "display" : {
           "key":"lm", 
           "transformer" : {
-            "name" : "formatDate",
+            "name" : "Ti.Types.formatDate",
             "args" : "M月d日H点"
           }
         }
@@ -72,7 +72,7 @@
           "name"    : "thumb",
           "checkEquals" : false,
           "serializer" : {
-            "name" : "toStr",
+            "name" : "Ti.Types.toStr",
             "args" : "id:${id}"
           },
           "comType" : "wn-imgfile",
@@ -89,7 +89,7 @@
           "title"   : "标签",
           "name"    : "lbls",
           "type"    : "Array",
-          "transformer" : "toStr",
+          "transformer" : "Ti.Types.toStr",
           "comType" : "ti-input"
         },{
           "title"   : "最后更新",

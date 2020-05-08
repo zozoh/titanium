@@ -15,7 +15,6 @@ const _M = {
    */
   async updateCurrent({state, commit, dispatch, getters}, {name, value}={}) {
     if(getters.hasCurrent) {
-      console.log({name, value})
       await dispatch("current/updateMeta", {name,value})
       commit("search/updateItem", state.current.meta)
     }

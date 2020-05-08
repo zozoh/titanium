@@ -186,30 +186,23 @@ DIV(@app)             # Vue(root) : index.wnml
       }, 
       "params" : {
         "id" : {
-          "type"  : "String",   // 参数的类型，默认 String
-          "required" : true,    // 是否为必须参数，默认 true
+          "required" : false,   // 是否为必须参数，默认 false
           // `=` 开头为动态获取数据
           // 当然也可以直接是一个静态的值
-          "value" : "=params.id",
-          // 得到参数值以后，是否要转换一把。
-          // 主要是因为控件输出到 data 段的数据格式是固定的
-          // 服务器 api 需要的可能是另外的形式
-          "transformer" : {
-            "name" : "toStr",
-            "args" : "id:${id}"
-          }
+          "value" : "=page.params.id"
         }
       },
       // 仅在 POST 时有效，如果声明这个段，那么 params 则会变成 queryString
+      // 直接使用 "=xxx" 可以将整个 body 动态获取一个值
       "body" : {
-        "data" : {
-          "products" : "=page.data.items",
-          "pay_tp" : "=page.data.payType"
-        },
-        // data 的内容为 json | form
-        "type" : "json"
+        "products" : "=page.data.items",
+        "pay_tp" : "=page.data.payType"
       },
-      "as" : "json"    // 返回的值用什么方式解析
+      // 默认为 form，可以是 form|json|text
+      "bodyType": "form",
+      // 返回的值用什么方式解析
+      // 可选 json | text | ajax
+      "as" : "json",
       // 当获取服务器响应后，在写入到 dataKey 以前，可以做一次转换
       // 以便写入的数据符合控件的预期
       "serializer" : {
@@ -221,13 +214,12 @@ DIV(@app)             # Vue(root) : index.wnml
       // 在页面的 DOM 里寻找对应的节点，恢复回 JSON，这样就节省了一次网络请求
       // 同时也可以利用这个机制做到 SEO
       // 这个机制被封装在 SSR-JSON 里面
-      "preloaded" : true,
+      "preloaded" : false,
       // 得到的数据对象应该存放到 data 段的哪个键下，
       // 可选，如果未定义，则用 API 的键作为 dataKey
       "dataKey" : "article",
       //-----------------------------------
       // 自动计算的值
-      "finger" : SHA1,  // 根据 params 自动计算，以便侦测参数的改动
       "url" : "/xxx"    // 根据 apiBase 和 path 自动拼合完整绝对路径
     }
   },
@@ -360,14 +352,10 @@ DIV(@app)             # Vue(root) : index.wnml
       // 站点全局指定的 API 名称
       // 选，如果不指明，则默认用键值作为 api 的名称去查找对应的API设置
       "apiName" : "apiNameA",
-      // 这里是参数表，与站点的对应API参数表叠加
+      // 这里是参数表，替换站点的对应API参数表中的 value 叠加
       "params" : {
-        "id"  : {
-          /*这里可以重载掉全局api对应的参数设定*/
-          value, transformer
-        } 
-      },
-      
+        "id"  : "=page.params.id"
+      }
     }
   },
   // 页面的数据段，记录每个 API 返回的结果

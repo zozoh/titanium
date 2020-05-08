@@ -70,7 +70,7 @@ const _M = {
   // Update to remote
   //----------------------------------------
   async updateMeta({commit, dispatch}, {name, value}={}) {
-    console.log("I am update", name, value)
+    //console.log("I am update", name, value)
     let data = Ti.Types.toObjByPair({name, value})
 
     commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
