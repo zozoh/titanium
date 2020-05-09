@@ -44,11 +44,11 @@ export async function EditObjMeta(pathOrObj="~", {
   }
   //............................................
   // Default tabs
-  if(_.isEmpty(fields)) {
+  if(_.isEmpty(fields) || !_.isArray(fields)) {
     fields = [{ 
       title: "basic",
       fields: [
-        "id", "race", "thumb", "nm","ph", "tp", "mime", 
+        "id", "nm", "title",  "icon", "thumb","ph", "race", "tp", "mime", 
         "width", "height", "len"],
     }, {
       title: "privilege",
@@ -56,11 +56,19 @@ export async function EditObjMeta(pathOrObj="~", {
     }, {
       title: "timestamp",
       fields: ["ct", "lm", "expi"]
+    }, {
+      title: "others",
+      fields: ["..."]
     }]
   }
   //............................................
-  const __join_fields = function(flds=[], outs=[]) {
+  const __join_fields = function(flds=[], outs=[], keys={}) {
     _.forEach(flds, fld => {
+      // Remains fields
+      // It will be deal with later
+      if("..." == fld) {
+        outs.push(fld)
+      }
       let f2;
       let quickName = false
       // Quick Name
@@ -88,6 +96,7 @@ export async function EditObjMeta(pathOrObj="~", {
       // Try join
       // Fixed fields
       let uniqKey = Ti.S.join("-", f2.name)
+      keys[uniqKey] = true
       if(fixeds[uniqKey]) {
         outs.push(f2)
         return
@@ -102,7 +111,39 @@ export async function EditObjMeta(pathOrObj="~", {
   //............................................
   // Eval the form fields
   let myFormFields = []
-  __join_fields(fields, myFormFields);
+  let usedKeys = {}
+  __join_fields(fields, myFormFields, usedKeys);
+  //............................................
+  // Deal with the remain fields
+  const __deal_with_remain_fields = function(flds=[], outs=[], keys={}) {
+    for(let fld of flds) {
+      if(fld.type == "Group") {
+        fld.fields = __deal_with_remain_fields(fld.fields, [], keys)
+        outs.push(fld)
+      }
+      // Remains
+      else if("..." == fld) {
+        _.forEach(meta, (v, k)=>{
+          // Ignore nil and built-in fields
+          if(Ti.Util.isNil(v) 
+             || Wn.Obj.isBuiltInFields(k)
+             || keys[k]
+             || k.startsWith("_")) {
+            return
+          }
+          // Join
+          outs.push({title: k, name: k})
+        })
+      }
+      // Normal fields
+      else {
+        outs.push(fld)
+      }
+    }
+    return outs
+  }
+  //............................................
+  myFormFields = __deal_with_remain_fields(myFormFields, [], usedKeys)
   //............................................
   let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-info-outline")
   let theTitle = title || Wn.Util.getObjDisplayName(meta)

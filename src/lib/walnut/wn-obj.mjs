@@ -8,7 +8,22 @@ const FIELDS = {
   //---------------------------------------------
   "nm" : {
     title : "i18n:wn-key-nm",
-    name  : "nm"
+    name  : "nm",
+    display: "<=ti-label>",
+    comType: "ti-input"
+  },
+  //---------------------------------------------
+  "title" : {
+    title : "i18n:wn-key-title",
+    name  : "title",
+    comType: "ti-input"
+  },
+  //---------------------------------------------
+  "icon" : {
+    title : "i18n:wn-key-icon",
+    name  : "icon",
+    width : "auto",
+    comType: "ti-input-icon"
   },
   //---------------------------------------------
   "ph" : {
@@ -101,6 +116,16 @@ const FIELDS = {
     name  : "g"
   },
   //---------------------------------------------
+  "data" : {
+    title : "i18n:wn-key-data",
+    name  : "data"
+  },
+  //---------------------------------------------
+  "sha1" : {
+    title : "i18n:wn-key-sha1",
+    name  : "sha1"
+  },
+  //---------------------------------------------
   "md" : {
     title : "i18n:wn-key-md",
     name  : "md"
@@ -136,6 +161,10 @@ const FIELDS = {
 }
 ////////////////////////////////////////////
 export const WnObj = {
+  //----------------------------------------
+  isBuiltInFields(key) {
+    return FIELDS[key] ? true : false
+  },
   //----------------------------------------
   getGroupTitle(titleKey) {
     if(/^(basic|privilege|thumb|timestamp|more|advance|customized|others)$/.test(titleKey))

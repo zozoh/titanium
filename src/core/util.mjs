@@ -879,6 +879,10 @@ const TiUtil = {
     partialRight = false  // true | false*
   }={}) {
     //.............................................
+    if(_.isFunction(str)) {
+      return str
+    }
+    //.............................................
     let callPath, callArgs;
     // Object mode
     if(str.name && str.args) {
