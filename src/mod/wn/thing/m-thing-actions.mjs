@@ -104,7 +104,7 @@ const _M = {
    * Search: Remove Checked Items
    */
   async removeChecked({state, commit, dispatch, getters}, hard=false) {
-    console.log("removeChecked", hard)
+    //console.log("removeChecked", hard)
     let ids = state.search.checkedIds
     if(_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')

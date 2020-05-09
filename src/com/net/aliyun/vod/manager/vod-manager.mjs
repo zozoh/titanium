@@ -16,11 +16,15 @@ export default {
     },
     "fields": {
       type: String,
-      default: "Title,CoverURL,Duration,CateName,Size"
+      default: "Title,CoverURL,Duration,CateName,Size,Description,RegionID"
     },
     "pageSize": {
       type: Number,
       default: 20
+    },
+    "multi": {
+      type: Boolean,
+      default: true
     }
   },
   ///////////////////////////////////////////////////////
@@ -108,6 +112,7 @@ export default {
           comConf: {
             data: this.list,
             idBy: "videoId",
+            multi: this.multi,
             display: this.WallItemDisplay
           }
         },
@@ -134,14 +139,15 @@ export default {
       console.log("FilterChange", payload)
     },
     //---------------------------------------------------
-    async OnListSelect({currentId, current}) {
+    async OnListSelect({currentId, checkedIds, checked}) {
       this.myCurrentId = currentId
       // Select some thing
       if(currentId) {
         this.myCurrentVideo = await this.reloadVideoInfo(currentId)
         this.$notify("change", {
-          currentId : this.myCurrentId,
-          current   : this.myCurrentVideo
+          currentId  : this.myCurrentId,
+          current    : this.myCurrentVideo,
+          checkedIds, checked
         })
       }
       // Select nothing
