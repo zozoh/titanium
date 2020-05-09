@@ -485,6 +485,15 @@ const TiUtil = {
 
     return list[x]
   },
+  /***
+   * Gen unique key for any input object
+   * 
+   * @param obj {Any} - input object
+   * @param prefix{String} - key prefix
+   * @param sep {String} - key separetor
+   * 
+   * @return unique key for input object
+   */
   anyKey(obj, prefix, sep="-") {
     // Guard
     if(TiUtil.isNil(obj)) {
