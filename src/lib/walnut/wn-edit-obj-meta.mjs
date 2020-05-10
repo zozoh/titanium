@@ -18,7 +18,6 @@ export async function EditObjMeta(pathOrObj="~", {
   saveKeys   = ["thumb"],  // If the key changed, `cancel` same as `OK`
   autoSave   = true
 }={}){
-  console.log("hahah")
   //............................................
   // Load meta
   let meta = pathOrObj
@@ -62,88 +61,15 @@ export async function EditObjMeta(pathOrObj="~", {
     }]
   }
   //............................................
-  const __join_fields = function(flds=[], outs=[], keys={}) {
-    _.forEach(flds, fld => {
-      // Remains fields
-      // It will be deal with later
-      if("..." == fld) {
-        outs.push(fld)
-      }
-      let f2;
-      let quickName = false
-      // Quick Name
-      if(_.isString(fld)) {
-        quickName = true
-        f2 = Wn.Obj.getField(fld)
-      }
-      // Group
-      else if(_.isArray(fld.fields)) {
-        f2 = {
-          title: Wn.Obj.getGroupTitle(fld.title), 
-          type:"Group", 
-          fields:[]
-        }
-        __join_fields(fld.fields, f2.fields)
-        if(_.isEmpty(f2.fields)) {
-          return
-        }
-      }
-      // Normal field
-      else {
-        f2 = fld
-      }
-      //......................................
-      // Try join
-      // Fixed fields
-      let uniqKey = Ti.S.join("-", f2.name)
-      keys[uniqKey] = true
-      if(fixeds[uniqKey]) {
-        outs.push(f2)
-        return
-      }
-      // Auto test if join
-      let v = _.get(meta, f2.name)
-      if(!quickName || !_.isUndefined(v)) {
-        outs.push(f2)
-      }
-    });
-  }
-  //............................................
-  // Eval the form fields
-  let myFormFields = []
-  let usedKeys = {}
-  __join_fields(fields, myFormFields, usedKeys);
-  //............................................
-  // Deal with the remain fields
-  const __deal_with_remain_fields = function(flds=[], outs=[], keys={}) {
-    for(let fld of flds) {
-      if(fld.type == "Group") {
-        fld.fields = __deal_with_remain_fields(fld.fields, [], keys)
-        outs.push(fld)
-      }
-      // Remains
-      else if("..." == fld) {
-        _.forEach(meta, (v, k)=>{
-          // Ignore nil and built-in fields
-          if(Ti.Util.isNil(v) 
-             || Wn.Obj.isBuiltInFields(k)
-             || keys[k]
-             || k.startsWith("_")) {
-            return
-          }
-          // Join
-          outs.push({title: k, name: k})
-        })
-      }
-      // Normal fields
-      else {
-        outs.push(fld)
-      }
+  let myFormFields = Wn.Obj.evalFields(meta, fields, (fld)=>{
+    if(fixeds[fld.uniqKey]) {
+      return fld
     }
-    return outs
-  }
-  //............................................
-  myFormFields = __deal_with_remain_fields(myFormFields, [], usedKeys)
+    if(fld.quickName  && _.isUndefined(fld.value)) {
+      return
+    }
+    return fld
+  })
   //............................................
   let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-info-outline")
   let theTitle = title || Wn.Util.getObjDisplayName(meta)

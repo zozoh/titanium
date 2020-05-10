@@ -3,5 +3,5 @@
   "globally" : true,
   "template" : "./web-pay-types.html",
   "mixins"   : ["./web-pay-types.mjs"],
-  "components" : ["@com:web/choose-mode"]
+  "components" : ["@com:web/widget/choose-mode"]
 }

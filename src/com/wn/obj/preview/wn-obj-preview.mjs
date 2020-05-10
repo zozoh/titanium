@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   //////////////////////////////////////////
   data : ()=>({
     isInFullScreen : false,
@@ -47,7 +46,7 @@ export default {
     },
     "infoFields" : {
       type : Array,
-      default : ()=>["id", "race", "nm", "tp", "mime"]
+      default : ()=>["nm", "tp", "mime", "width", "height", "len", "duration"]
     },
     // Store the status in Local
     "stateLocalKey" : {
@@ -96,7 +95,13 @@ export default {
     },
     //--------------------------------------
     PrevewInfoFields() {
-      return Wn.Obj.evalFields(this.infoFields, (fld)=>{
+      return Wn.Obj.evalFields(this.meta, this.infoFields, (fld)=>{
+        if(fld.quickName  && _.isUndefined(fld.value)) {
+          return
+        }
+        if("Group" == fld.type) {
+          return fld
+        }
         return _.defaults(fld, {
           nameWidth  : this.infoNameWidth,
           valueWidth : this.infoValueWidth

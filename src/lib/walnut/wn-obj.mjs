@@ -184,32 +184,104 @@ export const WnObj = {
       type  : "String"
     }
   },
-  // //----------------------------------------
-  // evalFields(fields=[], iteratee=_.identity) {
-  //   fields = _.pull(_.concat(fields), [null, undefined])
-  //   // Eval the each field
-  //   let list = []
-  //   for(let fld of fields) {
-  //     // Quick Name
-  //     if(_.isString(fld)) {
-  //       let f2 = WnObj.getField(fld)
-  //       if(f2) {
-  //         f2 = iteratee(f2, {quick:true})
-  //         if(f2) {
-  //           list.push(f2)
-  //         }
-  //       }
-  //     }
-  //     // Customized Prop
-  //     else if(_.isPlainObject(fld) && fld.name){
-  //       let f2 = iteratee(fld, {customized:true})
-  //       if(f2) {
-  //         list.push(f2)
-  //       }
-  //     }
-  //   }
-  //   return list
-  // },
+  //----------------------------------------
+  evalFields(meta={}, fields=[], iteratee=_.identity) {
+    //......................................
+    const __join_fields = function(flds=[], outs=[], keys={}) {
+      _.forEach(flds, fld => {
+        // Remains fields
+        // It will be deal with later
+        if("..." == fld) {
+          outs.push(fld)
+        }
+        let f2;
+        let quickName = false
+        // Quick Name
+        if(_.isString(fld)) {
+          quickName = true
+          f2 = Wn.Obj.getField(fld)
+        }
+        // Group
+        else if(_.isArray(fld.fields)) {
+          f2 = {
+            title: Wn.Obj.getGroupTitle(fld.title), 
+            type:"Group", 
+            fields:[]
+          }
+          __join_fields(fld.fields, f2.fields, keys)
+          if(_.isEmpty(f2.fields)) {
+            return
+          }
+        }
+        // Normal field
+        else {
+          f2 = fld
+        }
+        //......................................
+        let uniqKey = Ti.S.join("-", f2.name)
+        let value = _.get(meta, f2.name)
+        outs.push(_.assign(f2, {
+          quickName, uniqKey, value
+        }))
+        //......................................
+      });
+      return outs;
+    };
+    //......................................
+    const __deal_with_remain_fields = function(flds=[], outs=[], keys={}) {
+      for(let fld of flds) {
+        let f2;
+        if(fld.type == "Group") {
+          fld.fields = __deal_with_remain_fields(fld.fields, [], keys)
+          f2 = fld
+        }
+        // Remains
+        else if("..." == fld) {
+          _.forEach(meta, (v, k)=>{
+            // Ignore nil and built-in fields
+            if(Ti.Util.isNil(v) 
+               || Wn.Obj.isBuiltInFields(k)
+               || keys[k]
+               || k.startsWith("_")) {
+              return
+            }
+            // Auto com type
+            console.log("haha")
+            let jsType = Ti.Types.getJsType(v, "String");
+            let comType = ({
+              "Integer": "ti-input-num",
+              "Number" : "ti-input",
+              "Boolean" : "ti-toggle",
+              "Array" : "ti-input-tags"
+            })[jsType] || "ti-label"
+            
+            // Join
+            f2 = {title: k, name: k, type: jsType, comType}
+          })
+        }
+        // Normal fields
+        else {
+          f2 = fld
+        }
+        // Ignore empty group
+        if("Grpup" == fld.type && _.isEmpty(fld.fields)) {
+          continue;
+        }
+        // Customized field
+        f2 = iteratee(f2)
+        if(f2) {
+          outs.push(f2)
+        }
+      }
+      return outs
+    }
+    //......................................
+    let usedKeys = {}
+    let myFormFields = __join_fields(fields, [], usedKeys);
+    myFormFields = __deal_with_remain_fields(myFormFields, [], usedKeys)
+    //......................................
+    return myFormFields
+  },
   //----------------------------------------
   /***
    * Create the crumb data for `<ti-crumb>`

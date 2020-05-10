@@ -1,0 +1,6 @@
+{
+  "name" : "web-shelf-free",
+  "globally" : true,
+  "template" : "./web-shelf-free.html",
+  "mixins" : ["./web-shelf-free.mjs"]
+}

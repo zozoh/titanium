@@ -76,9 +76,7 @@ const _M = {
     commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
     await dispatch("updateMetas", data)
     commit("setFieldStatus", {name, type:"ok", text:"i18n:ok"})
-    _.delay(()=>{
-      commit("clearFieldStatus", name)
-    }, 500)
+    _.delay(()=>{commit("clearFieldStatus", name)}, 500)
   },
   //----------------------------------------
   async updateMetas({state, commit}, data={}) {

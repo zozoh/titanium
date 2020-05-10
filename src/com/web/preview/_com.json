@@ -1,6 +1,0 @@
-{
-  "name" : "web-preview",
-  "globally" : true,
-  "template" : "./web-preview.html",
-  "mixins"   : ["./web-preview.mjs"]
-}

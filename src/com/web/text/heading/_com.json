@@ -1,0 +1,6 @@
+{
+  "name" : "web-text-heading",
+  "globally" : true,
+  "template" : "./web-text-heading.html",
+  "mixins"   : ["./web-text-heading.mjs"]
+}

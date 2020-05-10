@@ -1,6 +1,0 @@
-{
-  "name" : "web-image",
-  "globally" : true,
-  "template" : "./web-image.html",
-  "mixins"   : ["./web-image.mjs"]
-}

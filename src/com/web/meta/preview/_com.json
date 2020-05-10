@@ -1,0 +1,6 @@
+{
+  "name" : "web-meta-preview",
+  "globally" : true,
+  "template" : "./web-meta-preview.html",
+  "mixins"   : ["./web-meta-preview.mjs"]
+}

@@ -1,6 +1,0 @@
-{
-  "name" : "web-heading",
-  "globally" : true,
-  "template" : "./web-heading.html",
-  "mixins"   : ["./web-heading.mjs"]
-}

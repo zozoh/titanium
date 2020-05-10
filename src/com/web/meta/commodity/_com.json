@@ -4,6 +4,6 @@
   "template" : "./web-meta-commodity.html",
   "mixins"   : ["./web-meta-commodity.mjs"],
   "components" : [
-    "@com:web/preview"
+    "@com:web/meta/preview"
   ]
 }

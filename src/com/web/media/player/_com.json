@@ -1,0 +1,6 @@
+{
+  "name" : "web-media-image",
+  "globally" : true,
+  "template" : "./web-media-image.html",
+  "mixins"   : ["./web-media-image.mjs"]
+}

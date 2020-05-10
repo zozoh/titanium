@@ -104,9 +104,9 @@
   "content" : {
     "comType" : "ti-text-raw",
     "comConf" : {
-      "showTitle"    : false,
-      "content"      : "=current.content",
-      "status"       : "=current.status"
+      "showTitle" : false,
+      "value" : "=current.content",
+      "status" : "=current.status"
     }
   },
   "files" : {

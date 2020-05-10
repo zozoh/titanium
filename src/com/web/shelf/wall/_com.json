@@ -1,0 +1,6 @@
+{
+  "name" : "web-shelf-wall",
+  "globally" : true,
+  "template" : "./web-shelf-wall.html",
+  "mixins" : ["./web-shelf-wall.mjs"]
+}
