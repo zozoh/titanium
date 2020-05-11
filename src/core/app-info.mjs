@@ -1,7 +1,11 @@
 //---------------------------------------
 function isTiLink(str) {
-  // Remote Link
+  // Remote Link @http://xxx
   if(/^@https?:\/\//.test(str)){
+    return str.substring(1)
+  }
+  // Absolute Link @/xxx
+  if(/^@\/.+/.test(str)){
     return str.substring(1)
   }
   // @com:xxx or @mod:xxx

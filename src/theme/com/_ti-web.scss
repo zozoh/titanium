@@ -36,60 +36,6 @@
 
 /////////////////////////////////////////////////////
 // Meta:commodity
-.ti-web-meta-commodity {
-  padding:.16rem 0;
-  > .as-main {
-    @include flex-align-nowrap($ai:flex-start);
-    @include border(1px, solid, shallow);
-    > .at-left {
-      flex:0 0 auto;
-      width: 37.2%; height:3rem;
-    }
-    > .at-right {
-      flex:0 0 auto;
-      width: 61.8%;
-      padding:0 .1rem;
-      //-------------------------------------------
-      > h1 {
-        padding:.1rem 0; margin:0; 
-        font-weight: bold; font-size:1.2em;
-      }
-      //-------------------------------------------
-      > .as-form {
-        .ti-form {
-          padding:0;
-          .form-field {
-            border:0;
-            padding:.08rem 0;
-            //-----------------------------------
-            &.webmc-highlight {
-              @include color($color-chip, r, c);
-              padding:.1rem .16rem;
-              .field-value {
-                color:map-get($color-secondary, c);
-                font-weight: 900; font-size:2em;
-              }
-            }
-            //-----------------------------------
-            .field-name {
-              padding-left:0;
-              .name-status {
-                padding:0;
-              }
-            }
-            //-----------------------------------
-          }
-        }  // ~ .ti-form
-      }
-      //-------------------------------------------
-      > .as-btns {
-        padding:.1rem 0;
-        .ti-btn {padding:.1rem .16rem;}
-      }
-      //-------------------------------------------
-    }
-  }
-}
 
 /////////////////////////////////////////////////////
 // Preview

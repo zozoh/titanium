@@ -5,6 +5,10 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "previewSrc": {
+      type: String,
+      default: null
+    },
     "titleKey" : {
       type : String,
       default : "title"
@@ -13,30 +17,34 @@ export default {
       type : Number,
       default : 1
     },
-    "fields" : {
-      type : Array,
-      default : ()=>[]
+    "form" : {
+      type : Object,
+      default : ()=>({})
     }
   },
   //////////////////////////////////////////
   computed : {
     //......................................
-    formData() {
+    TopClass() {
+      return this.getTopClass()
+    },
+    //......................................
+    FormData() {
       return {
-        meta   : this.meta,
+        ...this.meta,
         buyAmount : this.buyAmount
       }
     },
     //......................................
-    formConfig() {
-      return {
-        fields : this.fields
+    previewImageSrc() {
+      if(this.previewSrc && this.meta) {
+        return Ti.S.renderBy(this.previewSrc, this.meta)
       }
     },
     //......................................
-    title() {
+    MetaTitle() {
       if(this.titleKey) {
-        return _.get(this, this.titleKey)
+        return _.get(this.meta, this.titleKey)
       }
       return "NoTitle"
     }
@@ -45,11 +53,11 @@ export default {
   //////////////////////////////////////////
   methods : {
     //......................................
-    onClickBuyNow() {
+    OnClickBuyNow() {
       this.$notify("buy:now")
     },
     //......................................
-    onFormChanged({name, value}) {
+    OnFormChanged({name, value}) {
       this.$notify("meta:changed", {name, value})
     }
     //......................................

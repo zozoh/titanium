@@ -1,26 +1,30 @@
-<div class="ti-web-meta-commodity">
+<div class="web-meta-commodity"
+  :class="TopClass">
   <div class="as-main">
     <!--
       Left: Preview
     -->
-    <div class="at-left">
-      <ti-web-preview/>
+    <div
+      v-if="previewImageSrc"
+        class="at-left">
+      <WebMediaImage
+        :src="previewImageSrc"/>
     </div>
     <!--
       Right: Information
     -->
     <div class="at-right">
       <!--Title-->
-      <h1>{{title}}</h1>
+      <h1>{{MetaTitle}}</h1>
       <div class="as-form">
         <ti-form
-          :config="formConfig"
-          :data="formData"
-          @change="onFormChanged"/>
+          v-bind="form"
+          :data="FormData"
+          @change="OnFormChanged"/>
       </div>
       <div class="as-btns">
         <!--Buy Button-->
-        <a class="ti-btn" @click="onClickBuyNow">{{'buy-now'|i18n}}</a>
+        <a class="ti-btn" @click="OnClickBuyNow">{{'buy-now'|i18n}}</a>
       </div>
     </div>
   </div>

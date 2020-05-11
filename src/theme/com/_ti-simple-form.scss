@@ -1,9 +1,10 @@
-.ti-simple-form {
+.web-simple-form {
   @include flex-align-v-nowrap;
   //-------------------------------------
   a {
     @include noselect;
     cursor: pointer;
+    &:hover {text-decoration: underline;}
   }
   //-------------------------------------
   header {

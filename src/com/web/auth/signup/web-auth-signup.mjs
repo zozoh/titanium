@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   ///////////////////////////////////////////////////////
   data : ()=>({
     "data" : {
@@ -29,13 +28,16 @@ export default {
       required : true,
       default : null
     },
-    "sceneCaptcha" : {
-      type : String,
-      default : "robot"
-    },
-    "sceneVcode" : {
-      type : String,
-      default : "auth"
+    "scenes" : {
+      type : Object,
+      default: ()=>({
+        robot  : "robot",
+        bind_phone : "auth",
+        bind_email : "auth",
+        login_by_email   : "auth",
+        login_by_phone   : "auth",
+        login_by_passwd  : "auth"
+      })
     },
     // The interval of get capche to prevent robot
     // (in second)
@@ -244,7 +246,7 @@ export default {
       // Show the image captcha to prevent robot
       console.log("captcha", this.captcha)
       let vars = {
-        scene   : this.sceneCaptcha,
+        scene   : this.scenes.robot,
         account : this.params.name
       }
       //let src = "/api/joysenses/auth/captcha?site=rv340tg5gcigsp6p5hvigc2gjb&account=18501211423"
@@ -262,18 +264,20 @@ export default {
         closer : false
       })
 
-      // 
+      // 验证码发送目标的名称（i18n）
       let vCodeTargetName = ({
         "login_by_phone" : "i18n:auth-ta-phone",
         "bind_phone"     : "i18n:auth-ta-phone",
         "bind_email"     : "i18n:auth-ta-email"
       })[this.currentMode]
-      console.log("vCodeTargetName", vCodeTargetName)
+
+      // 不同模式下的场景
+      let vCodeScene = _.get(this.scenes, this.currentMode) || "auth"
 
       // use the captcha to get code
       this.$notify("get:vcode", {
         type    : this.currentMode,
-        scene   : this.sceneVcode,
+        scene   : vCodeScene,
         account : this.data.name,
         captcha,
         done: ()=>{

@@ -1,0 +1,64 @@
+.web-meta-commodity {
+  padding:.16rem 0;
+  > .as-main {
+    @include flex-align-nowrap($ai:flex-start);
+    @include border(1px, solid, shallow);
+    //---------------------------------------------
+    > .at-left {
+      flex:0 0 auto;
+      width: 37.2%; padding: 1em;
+      margin-right: 2em;
+      .web-media-image {
+        width:100%;
+      }
+    }
+    //---------------------------------------------
+    > .at-right {
+      flex:1 1 auto;
+      padding:1em;
+      //-------------------------------------------
+      > h1 {
+        padding:.1rem 0; margin:0; 
+        font-weight: normal; font-size:2em;
+      }
+      //-------------------------------------------
+      > .as-form {
+        .ti-form {
+          padding:0;
+          .form-field {
+            border:0;
+            padding:.08rem 0;
+            //-----------------------------------
+            &.webmc-highlight {
+              @include color($color-chip, r, c);
+              padding:.1rem .16rem;
+              .field-value {
+                color:map-get($color-secondary, c);
+                font-weight: 900; font-size:2em;
+              }
+            }
+            //-----------------------------------
+            .field-name {
+              padding-left:0;
+              .name-status {
+                padding:0;
+              }
+            }
+            //-----------------------------------
+          }
+        }  // ~ .ti-form
+      }
+      //-------------------------------------------
+      > .as-btns {
+        @include flex-align-nowrap;
+        padding:.1rem 0; 
+        .ti-btn {
+          font-size: 1.5em;
+          min-width: 12em;
+          padding:.5em 1em;
+        }
+      }
+      //-------------------------------------------
+    }
+  }
+}

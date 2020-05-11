@@ -40,7 +40,7 @@ async function Captcha(src="", {
       props : {
         value : null
       },
-      template : `<div class="ti-simple-form">
+      template : `<div class="web-simple-form">
         <header style="padding-bottom:0;">
           <img ref="pic"
             v-if="src"
@@ -54,7 +54,7 @@ async function Captcha(src="", {
               spellcheck="false"
               :placeholder="placeholder|i18n"
               :value="value"
-              @input="$emit('input', $refs.input.value)">
+              @input="$emit('change', $refs.input.value)">
             <span @click="timestamp = Date.now()">
               <a>{{textChange|i18n}}</a>
             </span>

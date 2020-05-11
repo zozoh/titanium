@@ -25,11 +25,11 @@ const _M = {
     },
     "width": {
       type: [String, Number],
-      default: null
+      default: undefined
     },
     "height": {
       type: [String, Number],
-      default: null
+      default: undefined
     },
     "mainBackground": {
       type: String,
@@ -37,11 +37,11 @@ const _M = {
     },
     "mainWidth": {
       type: [String, Number],
-      default: "100%"
+      default: undefined
     },
     "mainHeight": {
       type: [String, Number],
-      default: "100%"
+      default: undefined
     }
   },
   //////////////////////////////////////////

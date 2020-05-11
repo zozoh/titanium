@@ -1,5 +1,6 @@
 .ti-toast {
   @include flex-center;
+  z-index: $z-top + 1;
   //-----------------------------------------------------------
   &.is-success .toast-con {@include color($color-success, r, c);}
   &.is-warn    .toast-con {@include color($color-warn,    r, c);}

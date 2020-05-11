@@ -1,4 +1,4 @@
-export default {
+const _M = {
   ////////////////////////////////////////////////
   getters : {
     //--------------------------------------------
@@ -50,9 +50,6 @@ export default {
   },
   ////////////////////////////////////////////////
   actions : {
-    abc() {
-      console.log("I am abc")
-    },
     //--------------------------------------------
     async doCheckMe({state, commit, dispatch, getters, rootState}, {
       force = false,
@@ -68,7 +65,7 @@ export default {
       }
 
       // Get Back the Ticket
-      let ticket = Ti.Storage.session.getString(`www-ticket-${siteId}`, "")
+      let ticket = Ti.Storage.local.getString(`www-ticket-${siteId}`, "")
 
       // Check to remote
       commit("setLoading", true, {root:true})
@@ -183,7 +180,7 @@ export default {
       // Success
       if(reo.ok && reo.data) {
         // save ticket
-        Ti.Storage.session.set(
+        Ti.Storage.local.set(
           `www-ticket-${siteId}`,
           reo.data.ticket
         )
@@ -232,7 +229,7 @@ export default {
       let url = getters.urls[type]
 
       // Prepare params
-      let ticket = Ti.Storage.session.getString(`www-ticket-${siteId}`, "")
+      let ticket = Ti.Storage.local.getString(`www-ticket-${siteId}`, "")
       let passKey = ({
         "login_by_passwd" : "passwd",
         "login_by_phone"  : "vcode",
@@ -260,7 +257,7 @@ export default {
       // Success
       if(reo.ok && reo.data) {
         // save ticket
-        Ti.Storage.session.set(
+        Ti.Storage.local.set(
           `www-ticket-${siteId}`,
           reo.data.ticket
         )
@@ -351,7 +348,7 @@ export default {
       }
 
       // Always force remove
-      Ti.Storage.session.remove(`www-ticket-${siteId}`)
+      Ti.Storage.local.remove(`www-ticket-${siteId}`)
 
       // No Session, ignore
       if(!getters.hasSession) {
@@ -396,3 +393,4 @@ export default {
   }
   ////////////////////////////////////////////////
 }
+export default _M;
