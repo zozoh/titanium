@@ -1,26 +1,47 @@
 const _M = {
   //////////////////////////////////////////
   props : {
-    "data" : {
+    "base": {
+      type: String,
+      default: undefined
+    },
+    /*
+    Each item should obey the form below:
+    {
+      position: "top|left|bottom|right|center|free",
+      className: "item-class-selector",
+      style: {...},
+      comType: "xxx",
+      comConf: {...}
+    }
+    */
+    "items" : {
       type : Array,
       default : ()=>[]
     },
-    // Item count per-row
-    "cols" : {
-      type : Number,
-      default : 4,
-      validator: v => v>0 && (parseInt(v) == v)
-    },
-    // Item comType
-    "comType": {
+    "background": {
       type: String,
-      default: "ti-label"
+      default: null
     },
-    "comConf": {
-      type: Object,
-      default: ()=>({
-        value: "=.."
-      })
+    "width": {
+      type: [String, Number],
+      default: null
+    },
+    "height": {
+      type: [String, Number],
+      default: null
+    },
+    "mainBackground": {
+      type: String,
+      default: null
+    },
+    "mainWidth": {
+      type: [String, Number],
+      default: "100%"
+    },
+    "mainHeight": {
+      type: [String, Number],
+      default: "100%"
     }
   },
   //////////////////////////////////////////
@@ -30,57 +51,47 @@ const _M = {
       return this.getTopClass()
     },
     //--------------------------------------
-    ItemStyle() {
-      return {
-        "width" : Ti.Types.toPercent(1/this.cols)
-      }
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height,
+        backgroundImage: this.getCssBackgroundUrl(this.background)
+      })
     },
     //--------------------------------------
-    WallList() {
-      if(!_.isArray(this.data))
+    MainStyle() {
+      return Ti.Css.toStyle({
+        width  : this.mainWidth,
+        height : this.mainHeight,
+        backgroundImage: this.getCssBackgroundUrl(this.mainBackground)
+      })
+    },
+    //--------------------------------------
+    TheItems() {
+      if(!_.isArray(this.items))
         return []
       
       let list = []      
-      let items = []
-      let count = 1
-      for(let i=0; i < this.data.length; i++) {
-        let it = this.data[i]
-        let comConf = _.assign({}, this.comConf, {
-          value: it
-        })
-        items.push({
-          key: `It-${i}`,
-          comType: this.comType,
-          comConf
-        })        
+      _.forEach(this.items, (it, index)=>{
+        // Eval the class
+        let klass = [`at-${it.position||"free"}`, `i-${index}`]
+        if(it.className) {
+          klass.push(it.className)
+        }
+          
+        // Eval style
+        let style = Ti.Css.toStyle(it.style)
 
-        // Next row
-        if(count >= this.cols) {
-          count = 1
-          list.push({
-            key: `Row-${list.length}`,
-            items
-          })
-          items = []
-        }
-        // Next item
-        else {
-          count++
-        }
-      }
-      // The last line
-      if(!_.isEmpty(items)) {
-        for(let i=items.length; i<this.cols; i++) {
-          items.push({
-            key: `It-${i}`,
-            blank: true
-          })
-        }
+        // Join
         list.push({
-          key: `Row-${list.length}`,
-          items
-        })
-      }
+          key: `It-${index}`,
+          index,
+          className: Ti.Css.mergeClassName(klass),
+          style,
+          comType: it.comType || "WebTextRaw",
+          comConf: it.comConf
+        })        
+      })
       // Get the result
       return list
     }
@@ -89,6 +100,9 @@ const _M = {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
+    getCssBackgroundUrl(src) {
+      return Ti.Css.toBackgroundUrl(src, this.base)
+    }
     //--------------------------------------
   }
   //////////////////////////////////////////

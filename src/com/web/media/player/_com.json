@@ -1,6 +1,6 @@
 {
-  "name" : "web-media-image",
+  "name" : "web-media-player",
   "globally" : true,
-  "template" : "./web-media-image.html",
-  "mixins"   : ["./web-media-image.mjs"]
+  "template" : "./web-media-player.html",
+  "mixins"   : ["./web-media-player.mjs"]
 }

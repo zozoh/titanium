@@ -46,6 +46,14 @@ const TiCss = {
     })
   },
   //-----------------------------------
+  toBackgroundUrl(src, base="") {
+    if(!src)
+      return
+    if(base)
+      src = Ti.Util.appendPath(base, src)
+    return `url("${src}")`
+  },
+  //-----------------------------------
   toNumStyle(obj) {
     return TiCss.toStyle(obj, false)
   },

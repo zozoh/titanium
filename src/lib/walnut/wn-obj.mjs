@@ -193,6 +193,7 @@ export const WnObj = {
         // It will be deal with later
         if("..." == fld) {
           outs.push(fld)
+          return
         }
         let f2;
         let quickName = false
@@ -219,6 +220,7 @@ export const WnObj = {
         }
         //......................................
         let uniqKey = Ti.S.join("-", f2.name)
+        keys[uniqKey] = true
         let value = _.get(meta, f2.name)
         outs.push(_.assign(f2, {
           quickName, uniqKey, value
@@ -230,13 +232,16 @@ export const WnObj = {
     //......................................
     const __deal_with_remain_fields = function(flds=[], outs=[], keys={}) {
       for(let fld of flds) {
-        let f2;
+        // Group
         if(fld.type == "Group") {
           fld.fields = __deal_with_remain_fields(fld.fields, [], keys)
-          f2 = fld
+          if(!_.isEmpty(fld.fields)) {
+            outs.push(fld)
+          }
+          continue
         }
         // Remains
-        else if("..." == fld) {
+        if("..." == fld) {
           _.forEach(meta, (v, k)=>{
             // Ignore nil and built-in fields
             if(Ti.Util.isNil(v) 
@@ -246,31 +251,39 @@ export const WnObj = {
               return
             }
             // Auto com type
-            console.log("haha")
             let jsType = Ti.Types.getJsType(v, "String");
-            let comType = ({
-              "Integer": "ti-input-num",
-              "Number" : "ti-input",
-              "Boolean" : "ti-toggle",
-              "Array" : "ti-input-tags"
+            let fldConf = ({
+              "Integer": {
+                type: "Number",
+                comType: "ti-input"
+              },
+              "Number" : {
+                comType: "ti-input"
+              },
+              "Boolean" : {
+                comType: "ti-toggle"
+              },
+              "Array" : {
+                comType: "ti-input-tags"
+              }
             })[jsType] || "ti-label"
             
             // Join
-            f2 = {title: k, name: k, type: jsType, comType}
+            let f2 = iteratee({
+              title: k, name: k, type: jsType,
+              ... fldConf
+            })
+            if(f2) {
+              outs.push(f2)
+            }
           })
         }
         // Normal fields
         else {
-          f2 = fld
-        }
-        // Ignore empty group
-        if("Grpup" == fld.type && _.isEmpty(fld.fields)) {
-          continue;
-        }
-        // Customized field
-        f2 = iteratee(f2)
-        if(f2) {
-          outs.push(f2)
+          let f2 = iteratee(fld)
+          if(f2) {
+            outs.push(f2)
+          }
         }
       }
       return outs

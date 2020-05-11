@@ -4,10 +4,6 @@ export default {
     "value": {
       type : [String, Number],
       default : "Web Text"
-    },
-    "cssStyle": {
-      type : Object,
-      default: undefined
     }
   },
   //////////////////////////////////////////
@@ -15,10 +11,6 @@ export default {
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
-    },
-    //--------------------------------------
-    TopStyle() {
-      return Ti.Css.toStyle(this.cssStyle)
     },
     //--------------------------------------
     TheValue() {

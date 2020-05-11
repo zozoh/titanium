@@ -102,6 +102,9 @@ const TiPaths = {
   appendPath(...args) {
     let re = []
     for(let ph of args) {
+      if(_.isEmpty(ph)){
+        continue
+      }
       // remove the last '/'
       let m = /\/*$/.exec(ph)
       if(m) {

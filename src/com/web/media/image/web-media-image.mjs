@@ -1,35 +1,24 @@
 export default {
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
+    "base": {
+      type: String,
+      default: undefined
+    },
     "src" : {
       type : String,
       default : undefined
-    },
-    "value": {
-      type : [String, Number],
-      default : undefined
-    },
-    "bgColor": {
-      type : [String, Number],
-      default: "#000000"
-    },
-    // [{text:"xxx", className:"xxx", cssStyle:""}]
-    // [{src:"xxx",  className:"xxx", cssStyle:""}]
-    "items" : {
-      type : [Array],
-      default : ()=>[]
     }
   },
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    TheItems() {
-      let list = []
-      _.forEach(this.items, it => {
-
-      })
-      return list
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    ImgSrc() {
+      return Ti.Util.appendPath(this.base, this.src)
     }
     //--------------------------------------
   }
