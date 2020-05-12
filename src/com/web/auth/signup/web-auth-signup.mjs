@@ -1,4 +1,4 @@
-export default {
+const _M = {
   ///////////////////////////////////////////////////////
   data : ()=>({
     "data" : {
@@ -22,6 +22,10 @@ export default {
     "mode" : {
       type : String,
       default : "login_by_passwd"
+    },
+    "toggleMode": {
+      type : String,
+      default : "login_by_phone"
     },
     "captcha" : {
       type : String,
@@ -61,19 +65,27 @@ export default {
   ///////////////////////////////////////////////////////
   computed : {
     //---------------------------------------------------
-    topClass() {
-      return this.className
+    TopClass() {
+      return this.getTopClass()
     },
     //---------------------------------------------------
-    msgs() {
+    Msgs() {
       // Login by password
       if("login_by_passwd" == this.currentMode) {
         return {
           "title"     : "i18n:auth-passwd-title",
-          "nameTip"   : "i18n:auth-passwd-name-tip",
+          "nameTip"   : (
+            "login_by_email" == this.toggleMode
+              ? "i18n:auth-passwd-name-email-tip"
+              : "i18n:auth-passwd-name-phone-tip"
+          ),
           "passwdTip" : "i18n:auth-passwd-tip",
           "btnText"   : "i18n:auth-login",
-          "linkLeft"  : "i18n:auth-go-phone",
+          "linkLeft"  : (
+            "login_by_email" == this.toggleMode
+              ? "i18n:auth-go-email"
+              : "i18n:auth-go-phone"
+          ),
           "linkRight" : "i18n:auth-passwd-getback",
           "blankName" : "i18n:auth-blank-name"
         }
@@ -85,10 +97,23 @@ export default {
           "nameTip"   : "i18n:auth-phone-tip",
           "passwdTip" : "i18n:auth-phone-vcode",
           "codeGet"   : "i18n:auth-phone-vcode-get",
-          "btnText"   : "i18n:auth-login",
+          "btnText"   : "i18n:auth-login-or-signup",
           "linkLeft"  : "i18n:auth-go-passwd",
           "linkRight" : "i18n:auth-vcode-lost",
           "blankName" : "i18n:auth-blank-phone"
+        }
+      }
+      // Login by email
+      if("login_by_email" == this.currentMode) {
+        return {
+          "title"     : "i18n:auth-email-title",
+          "nameTip"   : "i18n:auth-email-tip",
+          "passwdTip" : "i18n:auth-email-vcode",
+          "codeGet"   : "i18n:auth-email-vcode-get",
+          "btnText"   : "i18n:auth-login-or-signup",
+          "linkLeft"  : "i18n:auth-go-passwd",
+          "linkRight" : "i18n:auth-vcode-lost",
+          "blankName" : "i18n:auth-blank-email"
         }
       }
       // Bind the phone
@@ -104,7 +129,7 @@ export default {
           "blankName" : "i18n:auth-blank-phone"
         }
       }
-      // Bind the phone
+      // Bind the email
       if("bind_email" == this.currentMode) {
         return {
           "title"     : "i18n:auth-bind-email-title",
@@ -121,35 +146,35 @@ export default {
       throw Ti.Err.make("e.com.combo.auth.invalid-mode", this.currentMode)
     },
     //---------------------------------------------------
-    params() {
+    Params() {
       return _.mapValues(this.data, (str)=>_.trim(str))
     },
     //---------------------------------------------------
     isBlankName() {
-      return this.params.name ? false : true
+      return this.Params.name ? false : true
     },
     //---------------------------------------------------
     isBlankNameOrPasswd() {
-      let {name, passwd} = this.params
+      let {name, passwd} = this.Params
       return !name || !passwd
     },
     //---------------------------------------------------
-    invalid() {
+    Invalid() {
       return {
         name   : this.isInvalid("name"),
         passwd : this.isInvalid("passwd")
       }
     },
     //---------------------------------------------------
-    nameClass() {
+    NameClass() {
       if(this.guarding && 
-        (this.invalid.name || !this.params.name))
+        (this.Invalid.name || !this.Params.name))
         return "is-invalid"
     },
     //---------------------------------------------------
-    passwdClass() {
+    PasswdClass() {
       if(this.guarding && 
-        (this.invalid.passwd || !this.params.passwd))
+        (this.Invalid.passwd || !this.Params.passwd))
         return "is-invalid"
     },
     //---------------------------------------------------
@@ -157,17 +182,10 @@ export default {
   ///////////////////////////////////////////////////////
   methods :{
     //---------------------------------------------------
-    isInvalid(name="") {
-      if(_.isArray(this.invalidField)) {
-        return _.indexOf(this.invalidField, name) >= 0
-      }
-      return name == this.invalidField
-    },
-    //---------------------------------------------------
-    onChangeMode() {
+    OnChangeMode() {
       // -> login-by-vcode
       if("login_by_passwd" == this.currentMode) {
-        this.currentMode = "login_by_phone"
+        this.currentMode = this.toggleMode
       }
       // -> login-by-passwd
       else {
@@ -176,7 +194,7 @@ export default {
       Ti.Be.BlinkIt(this.$el)  
     },
     //---------------------------------------------------
-    onAuthSend() {
+    OnAuthSubmit() {
       this.guarding = true
       // Guarding
       if(this.isBlankNameOrPasswd) {
@@ -194,12 +212,12 @@ export default {
       // Do Auth
       this.$notify("auth:send", {
         type   : this.currentMode,
-        name   : this.params.name,
-        passwd : this.params.passwd,
+        name   : this.Params.name,
+        passwd : this.Params.passwd,
         // Close loading toast
         done : ()=> {
           toast.close()
-          this.invalidField = null
+          this.InvalidField = null
         },
         ok : ()=>{
           Ti.Toast.Open({
@@ -211,13 +229,13 @@ export default {
           this.$notify("auth:ok")
         },
         noexist : ()=>{
-          this.invalidField = "name"
+          this.InvalidField = "name"
         },
         invalid : ()=> {
-          this.invalidField = "passwd"
+          this.InvalidField = "passwd"
         },
         others : ()=> {
-          this.invalidField = ["name", "passwd"]
+          this.InvalidField = ["name", "passwd"]
         },
         fail : ({errCode, data}={})=> {
           Ti.Toast.Open({
@@ -230,24 +248,24 @@ export default {
       })
     },
     //---------------------------------------------------
-    async onGetVcode() {
+    async OnGetVcode() {
       this.guarding = true
       // The Account Name is required
       if(this.isBlankName) {
-        this.invalidField = "name"
-        Ti.Toast.Open(this.msgs["blankName"], "warn")
+        this.InvalidField = "name"
+        Ti.Toast.Open(this.Msgs["blankName"], "warn")
         return
       }
 
       // Reset invalid
       this.guarding = false
-      this.invalidField = null
+      this.InvalidField = null
 
       // Show the image captcha to prevent robot
       console.log("captcha", this.captcha)
       let vars = {
         scene   : this.scenes.robot,
-        account : this.params.name
+        account : this.Params.name
       }
       //let src = "/api/joysenses/auth/captcha?site=rv340tg5gcigsp6p5hvigc2gjb&account=18501211423"
       let src = Ti.S.renderBy(this.captcha, vars)
@@ -267,6 +285,7 @@ export default {
       // 验证码发送目标的名称（i18n）
       let vCodeTargetName = ({
         "login_by_phone" : "i18n:auth-ta-phone",
+        "login_by_email" : "i18n:auth-ta-email",
         "bind_phone"     : "i18n:auth-ta-phone",
         "bind_email"     : "i18n:auth-ta-email"
       })[this.currentMode]
@@ -282,7 +301,7 @@ export default {
         captcha,
         done: ()=>{
           toast.close()
-          this.invalidField = null
+          this.InvalidField = null
           this.data.passwd = ""
         },
         ok : ({duInMin=60}={})=>{
@@ -307,6 +326,13 @@ export default {
           })
         }
       })
+    },
+    //---------------------------------------------------
+    isInvalid(name="") {
+      if(_.isArray(this.InvalidField)) {
+        return _.indexOf(this.InvalidField, name) >= 0
+      }
+      return name == this.InvalidField
     }
     //---------------------------------------------------
   },
@@ -329,3 +355,4 @@ export default {
   }
   ///////////////////////////////////////////////////////
 }
+export default _M;

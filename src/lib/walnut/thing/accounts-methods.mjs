@@ -29,10 +29,13 @@ export default {
       return await Ti.Toast.Open("i18n:wn-th-acc-pwd-invalid", "warn")
     }
 
+    // 寻找一下本库对应的站点
+    let site = this.meta.website || "~/www"
+
     // 准备重置密码的命令列表
     let cmds = []
     for(let acc of accounts) {
-      cmds.push(`www passwd ~/www "${passwd}" -u id:${acc.id}`)
+      cmds.push(`www passwd ${site} "${passwd}" -u id:${acc.id}`)
     }
     let cmdText = cmds.join(";\n")
     

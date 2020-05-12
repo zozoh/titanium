@@ -1,35 +1,35 @@
 <div 
   class="web-auth-signup web-simple-form" 
-  :class="topClass">
-  <header>{{msgs.title|i18n}}</header>
+  :class="TopClass">
+  <header>{{Msgs.title|i18n}}</header>
   <section>
-    <div class="as-input" :class="nameClass">
+    <div class="as-input" :class="NameClass">
       <input 
         spellcheck="false"
-        :placeholder="msgs.nameTip|i18n"
+        :placeholder="Msgs.nameTip|i18n"
         v-model="data.name"></div>
-    <div class="as-input" :class="passwdClass">
+    <div class="as-input" :class="PasswdClass">
       <input 
         spellcheck="false"
-        :placeholder="msgs.passwdTip|i18n"
+        :placeholder="Msgs.passwdTip|i18n"
         v-model="data.passwd">
-      <span v-if="msgs.codeGet">
+      <span v-if="Msgs.codeGet">
         <em v-if="delay>0">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>
         <a v-else
-          @click="onGetVcode">{{msgs.codeGet|i18n}}</a>
+          @click="OnGetVcode">{{Msgs.codeGet|i18n}}</a>
       </span>
     </div>
     <div class="as-btn">
-      <button @click="onAuthSend">{{msgs.btnText|i18n}}</button>
+      <button @click="OnAuthSubmit">{{Msgs.btnText|i18n}}</button>
     </div>
     <ul class="as-links">
-      <li v-if="msgs.linkLeft"
+      <li v-if="Msgs.linkLeft"
         class="at-left">
-        <a @click="onChangeMode">{{msgs.linkLeft   |i18n}}</a>
+        <a @click="OnChangeMode">{{Msgs.linkLeft   |i18n}}</a>
       </li>
-      <li v-if="msgs.linkRight"
+      <li v-if="Msgs.linkRight"
         class="at-right">
-        <a>{{msgs.linkRight |i18n}}</a></li>
+        <a>{{Msgs.linkRight |i18n}}</a></li>
     </ul>
   </section>
 </div>
