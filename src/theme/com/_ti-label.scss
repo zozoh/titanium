@@ -59,6 +59,7 @@
   > .as-text {
     @include noselect;
     @include flex-center;
+    white-space: nowrap;
     padding:0 .04rem;
     opacity: 0.6;
     //---------------------------------------

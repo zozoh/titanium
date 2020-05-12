@@ -20,6 +20,12 @@ export default {
     "form" : {
       type : Object,
       default : ()=>({})
+    },
+    "actions": {
+      type: Object,
+      default: ()=>({
+        "buy" : "i18n:buy-now"
+      })
     }
   },
   //////////////////////////////////////////
