@@ -53,6 +53,56 @@ const TiUtil = {
     })
   },
   /***
+   * Group a given list to map by special key
+   */
+  grouping(list=[], groupKey, {
+    titles=[],
+    otherTitle={value:"Others",text:"Others"},
+    asList=false
+  }={}) {
+    console.log("grouping")
+    let reMap  = {}
+    //...............................................
+    // Build title map
+    let titleMap = []
+    _.forEach(titles, tit => {
+      if(tit.text && !Ti.Util.isNil(tit.value)) {
+        titleMap[tit.value] = tit
+      }
+    })
+    //...............................................
+    let others = []
+    //...............................................
+    _.forEach(list, li => {
+      let gk = _.get(li, groupKey)
+      if(!gk) {
+        others.push(li)
+      } else {
+        let tit = titleMap[gk] || {text:gk, value:gk}
+        let grp = reMap[gk]
+        if(!grp) {
+          grp = {
+            ...tit,
+            list:[]
+          }
+          reMap[gk] = grp
+        }
+        grp.list.push(li)
+      }
+    })
+    //...............................................
+    if(!_.isEmpty(others)) {
+      reMap[otherTitle.value] = {
+        ... otherTitle, list: others
+      }
+    }
+    //...............................................
+    if(asList) {
+      return _.values(reMap)
+    }
+    return reMap
+  },
+  /***
    * Insert one or more elements into specific position of list.
    * It will mutate the given list.
    * 
@@ -532,26 +582,29 @@ const TiUtil = {
     }
     // Array
     if(_.isArray(source)) {
-      let re = []
+      let list = []
       for(let i=0; i<source.length; i++) {
         let it = source[i]
-        let result = TiUtil.mapping(it, mapping)
-        let t2 = customizer(result, i, source)
-        re.push(t2)
+        let result = TiUtil.translate(it, mapping, customizer)
+        list.push(result)
       }
-      return re
+      return list
     }
     // Take as plain object
     let re = {}
     _.forEach(mapping, (val, key)=>{
+      let v2;
       // Whole Context
       if(".." == val) {
-        re[key] = source
+        v2 = source
       }
       // Get the value
       else {
-        re[key] = TiUtil.getOrPick(source, val)
+        v2 = TiUtil.getOrPick(source, val)
       }
+      // Customized and join
+      v2 = customizer(v2)
+      _.set(re, key, v2)
     })
     // Done
     return re
@@ -858,8 +911,14 @@ const TiUtil = {
         }
       }
       //...........................................
+      // Static value
+      let m = /^'(.+)'$/.exec(key)
+      if(m) {
+        return ()=>m[1]
+      }
+      //...........................................
       // Invoke mode
-      let m = /^=>(.+)$/.exec(key)
+      m = /^=>(.+)$/.exec(key)
       if(m) {
         let invoke = m[1]
         return TiUtil.genInvoking(invoke, {

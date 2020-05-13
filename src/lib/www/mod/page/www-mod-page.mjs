@@ -75,8 +75,6 @@ const _M = {
         //..........................................
         // Copy the Setting from page
         _.assign(api, _.pick(pageApi, "body", "preload","serializer", "dataKey"))
-        // Eval api serializer
-        api.serializer = Ti.Types.getFunc(api, "serializer")
         //..........................................
         _.defaults(api, {
           bodyType : "form",
@@ -254,11 +252,15 @@ const _M = {
       // The api list to reload
       let isAll = _.isEmpty(keys)
       let apis = _.filter(getters.pageApis, (api, k)=>{
-        return (isAll && api.preload) || _.indexOf(keys, k)>=0
+        return (isAll && api.preload>0) || _.indexOf(keys, k)>=0
+      })
+      //.......................................
+      // Sort preload
+      apis.sort((a1, a2)=>{
+        return a1.preload - a2.preload
       })
       //.......................................
       // Prepare the Promises
-      let ings = []
       for(let api of apis) {
         // prepare http send options
         let url = api.url
@@ -308,56 +310,64 @@ const _M = {
         //.....................................
         // Join the http send Promise
         //console.log(`will send to "${url}"`, options)
-        ings.push(Ti.Http.sendAndProcess(url, options)
-          .then((reo)=>{
+        let reo = await Ti.Http.sendAndProcess(url, options)
+          
             let data = reo
-            if(_.isFunction(api.serializer)) {
-              data = api.serializer(reo)
+            console.log("haha")
+            // Eval api serializer
+            if(api.serializer) {
+              let serializer = Ti.Util.genInvoking(api.serializer, {
+                context: rootState,
+                partialRight: true
+              })
+              if(_.isFunction(serializer)) {
+                data = serializer(reo)
+              }
             }
             commit("updateData", {
               key   : api.dataKey,
               value : data
             })
-          })
-          .catch(($req)=>{
-            // commit("updateData", {
-            //   key   : api.dataKey,
-            //   value : {
-            //     ok : false,
-            //     errCode : `http.${$req.status}`,
-            //     msg : `http.${$req.status}`,
-            //     data : _.trim($req.responseText)
-            //   }
-            // })
-            // TODO maybe I should emit event here
-            // Then handle the event in actons 
-          })
-        ) // ings.push
+          
+          // .catch(($req)=>{
+          //   console.warn($req)
+          //   // commit("updateData", {
+          //   //   key   : api.dataKey,
+          //   //   value : {
+          //   //     ok : false,
+          //   //     errCode : `http.${$req.status}`,
+          //   //     msg : `http.${$req.status}`,
+          //   //     data : _.trim($req.responseText)
+          //   //   }
+          //   // })
+          //   // TODO maybe I should emit event here
+          //   // Then handle the event in actons 
+          // })
       } // for(let api of list) {
       //.......................................
       // Mark root state
       commit("setLoading", true, {root:true})
       //.......................................
-      // Only one request
-      if(ings.length == 1) {
-        await ings[0]
-      }
-      // Join all request
-      else if(ings.length > 1) {
-        await Promise.all(ings)
-      }
+      // // Only one request
+      // if(ings.length == 1) {
+      //   await ings[0]
+      // }
+      // // Join all request
+      // else if(ings.length > 1) {
+      //   await Promise.all(ings)
+      // }
       //.......................................
       // Mark root state
       commit("setLoading", false, {root:true})
       commit("updateFinger")
       //.......................................
-      // Get return value
-      let reKeys = []
-      for(let api of apis) {
-        reKeys.push(api.dataKey)
-      }
-      //.......................................
-      return _.pick(state.data, reKeys)
+      // // Get return value
+      // let reKeys = []
+      // for(let api of apis) {
+      //   reKeys.push(api.dataKey)
+      // }
+      // //.......................................
+      // return _.pick(state.data, reKeys)
     },
     //--------------------------------------------
     /***

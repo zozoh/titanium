@@ -111,13 +111,13 @@ export default {
     },
     //-------------------------------------------------
     toggleItem(val) {
+      let oldV = this.myValueMap[val]
       if(this.multi) {
-        let oldV = this.myValueMap[val]
         this.myValueMap = _.assign({}, this.myValueMap, {
           [val] : !oldV
         })
       } else {
-        this.myValueMap = {[val] : true}
+        this.myValueMap = {[val] : !oldV}
       }
     },
     //-------------------------------------------------

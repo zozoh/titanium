@@ -18,7 +18,7 @@ export default {
       default : null
     },
     "iconSize" : {
-      type : String,
+      type : [Number,String],
       default : null
     },
     "dropWidth" : {
@@ -42,7 +42,7 @@ export default {
     //------------------------------------------------
     theValueStyle() {
       return {
-        "font-size" : this.iconSize
+        "font-size" : Ti.Css.toSize(this.iconSize)
       }
     },
     //------------------------------------------------

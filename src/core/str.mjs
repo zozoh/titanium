@@ -144,7 +144,41 @@ export const TiStr = {
     trimed=true,
     context={}
   }={}) {
+    //...............................................
+    // Array 
+    if(_.isArray(v)) {
+      let re = []
+      let opt = {autoJson,autoDate,autoNil,trimed,context}
+      for(let it of v) {
+        let v2 = TiStr.toJsValue(it, opt)
+        re.push(v2)
+      }
+      return re
+    }
+    //...............................................
+    // Object
+    if(_.isPlainObject(v)) {
+      let re = {}
+      let opt = {autoJson,autoDate,autoNil,trimed,context}
+      _.forEach(v, (it, key)=>{
+        let v2 = TiStr.toJsValue(it, opt)
+        re[key] = v2
+      })
+      return re
+    }
+    //...............................................
+    // Number
+    // Boolean
+    // Nil
+    if(Ti.Util.isNil(v)
+      || _.isBoolean(v)
+      || _.isNumber(v)) {
+      return v
+    }
+    //...............................................
+    // Must by string
     let str = trimed ? _.trim(v) : v
+    //...............................................
     // autoNil
     if(autoNil) {
       if("undefined" == str)
@@ -152,24 +186,29 @@ export const TiStr = {
       if("null" == str)
         return null
     }
+    //...............................................
     // Number
     if (/^-?[\d.]+$/.test(str)) {
         return str * 1;
     }
+    //...............................................
     // Try to get from context
     let re = _.get(context, str)
     if(!_.isUndefined(re)) {
       return re
     }
+    //...............................................
     // Boolean
     if(/^(true|false|yes|no|on|off)$/i.test(str)) {
       return /^(true|yes|on)$/i.test(str)
     }
+    //...............................................
     // JS String
     let m = /^'([^']*)'$/.exec(str)
     if(m){
       return m[1]
     }
+    //...............................................
     // try JSON
     if(autoJson) {
       let re = Ti.Types.safeParseJson(v)
@@ -177,6 +216,7 @@ export const TiStr = {
         return re
       }
     }
+    //...............................................
     // try Date
     if(autoDate) {
       try {
@@ -200,11 +240,14 @@ export const TiStr = {
         let v = iteratee(vs)
         args.push(v)
       }
+      return args
     }
     // Array
     else if(_.isArray(s)) {
-      for(let v of s)
-        args.push(v)
+      for(let v of s) {
+        let v2 = iteratee(v)
+        args.push(v2)
+      }
     }
     // Others
     else if(!_.isUndefined(s)){

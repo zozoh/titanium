@@ -107,7 +107,6 @@ const _M = {
     curentThumbTarget() {
       if(this.current.meta) {
         let th_set = this.meta.id
-        let thId = this.current.id
         return `id:${th_set}/data/${this.current.meta.id}/thumb.jpg`
       }
       return ""

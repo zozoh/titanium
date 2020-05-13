@@ -206,7 +206,7 @@ DIV(@app)             # Vue(root) : index.wnml
       // 当获取服务器响应后，在写入到 dataKey 以前，可以做一次转换
       // 以便写入的数据符合控件的预期
       "serializer" : {
-        "name" : "toObject",
+        "name" : "Ti.Types.toObject",
         "args" : {...mapping...}
       },
       // 接口的处理结果是否在页面加载时，由服务器渲染到了 DOM 里。
@@ -214,7 +214,9 @@ DIV(@app)             # Vue(root) : index.wnml
       // 在页面的 DOM 里寻找对应的节点，恢复回 JSON，这样就节省了一次网络请求
       // 同时也可以利用这个机制做到 SEO
       // 这个机制被封装在 SSR-JSON 里面
-      "preloaded" : false,
+      // 数字 0 为默认值，表示不预加载
+      // 大于 0 的数字，按从小到大，依次加载
+      "preloaded" : 0,
       // 得到的数据对象应该存放到 data 段的哪个键下，
       // 可选，如果未定义，则用 API 的键作为 dataKey
       "dataKey" : "article",
