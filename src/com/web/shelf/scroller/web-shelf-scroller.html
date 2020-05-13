@@ -1,9 +1,14 @@
 <div class="web-shelf-scroller"
   :class="TopClass">
   <!--=======================================-->
-  <div class="scroller-outer">
+  <div class="scroll-btn at-left" :class="BtnLeftClass">
+    <span @click.left="OnScrollLeft"><ti-icon :value="iconLeft"/></span>
+  </div>
+  <!--=======================================-->
+  <div class="scroller-outer" ref="outer">
     <!--=====================================-->
-    <div class="scroller-inner">
+    <div class="scroller-inner" ref="inner"
+      :style="InnerStyle">
       <!--===================================-->
       <div
         v-for="it in ItemList"
@@ -17,6 +22,10 @@
       <!--===================================-->
     </div>
     <!--=====================================-->
+  </div>
+  <!--=======================================-->
+  <div class="scroll-btn at-right" :class="BtnRightClass">
+    <span @click.left="OnScrollRight"><ti-icon :value="iconRight"/></span>
   </div>
   <!--=======================================-->
 </div>

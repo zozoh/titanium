@@ -1,4 +1,38 @@
 .web-shelf-scroller {
+  position: relative;
+  //-----------------------------------------
+  $btnSZ: .5rem;
+  //-----------------------------------------
+  .scroll-btn {
+    @include pos-abs($t:0,$b:0,$w:$btnSZ);
+    @include flex-center;
+    padding: 0; font-size: .24rem;
+    //---------------------------------------
+    &.at-left  {left :$btnSZ * -1.2;}
+    &.at-right {right:$btnSZ * -1.2;}
+    //---------------------------------------
+    > span {
+      @include flex-center;
+      width:100%; height:$btnSZ;
+      border-radius: .04rem;
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
+    }
+    //---------------------------------------
+    &.is-disabled > span {
+      @include color($color-disable, r, c);
+    }
+    //---------------------------------------
+    &.is-enabled > span {
+      @include color($color-primary, r, c);
+      cursor: pointer; 
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
+    }
+    //---------------------------------------
+  }
   //-----------------------------------------
   .scroller-outer {
     width:100%;
@@ -7,6 +41,9 @@
   //-----------------------------------------
   .scroller-inner {
     @include flex(flex-start, stretch, nowrap, stretch);
+    position: relative;
+    transition: left 0.5s ease-in-out;
+    flex:0 0 auto;
   }
   //-----------------------------------------
   .scroller-tile {

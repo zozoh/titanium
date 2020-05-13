@@ -1,5 +1,6 @@
 .web-text-heading {
   @include flex-align-center;
+  @include noselect;
   padding: 1em 0; margin:0 1em;
   //-----------------------------------------
   .as-icon {
