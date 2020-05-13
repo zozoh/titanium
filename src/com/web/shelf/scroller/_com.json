@@ -1,0 +1,6 @@
+{
+  "name" : "web-shelf-scroller",
+  "globally" : true,
+  "template" : "./web-shelf-scroller.html",
+  "mixins" : ["./web-shelf-scroller.mjs"]
+}

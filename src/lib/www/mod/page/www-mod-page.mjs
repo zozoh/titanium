@@ -310,24 +310,22 @@ const _M = {
         //.....................................
         // Join the http send Promise
         //console.log(`will send to "${url}"`, options)
-        let reo = await Ti.Http.sendAndProcess(url, options)
-          
-            let data = reo
-            console.log("haha")
-            // Eval api serializer
-            if(api.serializer) {
-              let serializer = Ti.Util.genInvoking(api.serializer, {
-                context: rootState,
-                partialRight: true
-              })
-              if(_.isFunction(serializer)) {
-                data = serializer(reo)
-              }
-            }
-            commit("updateData", {
-              key   : api.dataKey,
-              value : data
-            })
+        let reo = await Ti.Http.sendAndProcess(url, options) 
+        let data = reo
+        // Eval api serializer
+        if(api.serializer) {
+          let serializer = Ti.Util.genInvoking(api.serializer, {
+            context: rootState,
+            partialRight: true
+          })
+          if(_.isFunction(serializer)) {
+            data = serializer(reo)
+          }
+        }
+        commit("updateData", {
+          key   : api.dataKey,
+          value : data
+        })
           
           // .catch(($req)=>{
           //   console.warn($req)

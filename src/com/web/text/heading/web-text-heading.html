@@ -1,6 +1,20 @@
 <div class="web-text-heading">
-  <div v-if="title"
-    class="as-title">{{title|i18n}}</div>
-  <div v-if="comment"
-    class="as-comment">{{comment|i18n}}</div>
+  <!--Icon-->
+  <div
+    v-if="icon"
+      class="as-icon"><ti-icon :value="icon"/></div>
+  <!--Title-->
+  <div
+    v-if="title"
+      class="as-title"
+      @click.left="OnClickTitle"><span>{{title|i18n}}</span></div>
+  <!--Comments-->
+  <div
+    v-if="comment"
+      class="as-comment"><span>{{comment|i18n}}</span></div>
+  <!--View more-->
+  <div
+    v-if="more"
+      class="as-more"
+      @click.left="OnClickMore"><span>{{more|i18n}}</span></div>
 </div>

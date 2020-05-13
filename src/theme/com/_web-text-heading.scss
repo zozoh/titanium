@@ -1,14 +1,36 @@
 .web-text-heading {
-  @include flex-align-nowrap;
-  padding: .8em;
+  @include flex-align-center;
+  padding: 1em 0; margin:0 1em;
   //-----------------------------------------
-  > .as-title {
-    font-weight: bold; font-size:1.2em;
+  .as-icon {
+    @include flex-center;
+    flex:0 0 auto;
+    width: 1.4em; font-size:2em;
   }
   //-----------------------------------------
-  > .as-comment {
+  .as-title {
+    flex:0 0 auto;
+    font-size:1.6em;
+  }
+  //-----------------------------------------
+  .as-comment {
+    flex:0 0 auto;
     color:map-get($color-track, c);
     padding:0 .5em;
+  }
+  //-----------------------------------------
+  .as-more {
+    @include flex($jc:flex-end, $ai:center);
+    flex:1 1 auto;
+    padding:0 .5em;
+    font-size:.9em;
+    span {
+      cursor: pointer;
+      &:hover {
+        color: map-get($color-primary, c);
+        text-decoration: underline;
+      }
+    }
   }
   //-----------------------------------------
 }

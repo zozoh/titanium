@@ -35,9 +35,14 @@
     @include noselect;
     @include flex-center;
     flex:0 0 auto; 
-    > .ti-icon.is-image {
-      width:.36rem;
-      padding:.02rem;
+    > .ti-icon {
+      &.is-image {
+        width:.36rem;
+        padding:.02rem;
+      }
+      &.is-font {
+        width:.26rem;
+      }
     }
     //---------------------------------------
     &.can-hover{cursor: pointer;}

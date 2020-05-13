@@ -1,0 +1,22 @@
+<div class="web-shelf-scroller"
+  :class="TopClass">
+  <!--=======================================-->
+  <div class="scroller-outer">
+    <!--=====================================-->
+    <div class="scroller-inner">
+      <!--===================================-->
+      <div
+        v-for="it in ItemList"
+          class="scroller-tile"
+          :key="it.key"
+          :style="ItemStyle">
+          <component
+            :is="it.comType"
+            v-bind="it.comConf"/>
+      </div>
+      <!--===================================-->
+    </div>
+    <!--=====================================-->
+  </div>
+  <!--=======================================-->
+</div>
