@@ -2,6 +2,9 @@ export const TiStr = {
   sBlank(str, dft) {
     return str || dft
   },
+  isBlank(str) {
+    return /^\s*$/.test(str)
+  },
   renderVars(vars={}, fmt="", {
     iteratee, 
     regex, 

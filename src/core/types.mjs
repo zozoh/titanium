@@ -632,7 +632,7 @@ const TiTypes = {
     }
     // Object to render or translate or JSON
     if(_.isPlainObject(val)){
-      if(fmt) {
+      if(!Ti.S.isBlank(fmt)) {
         if(_.isString(fmt)) {
           return Ti.S.renderVars(val, fmt)
         }
@@ -832,6 +832,11 @@ const TiTypes = {
       return dt.getTime()
     return null
   },
+  //.......................................
+  toJson(obj, tabs="  ") {
+    return JSON.stringify(obj, null, tabs)
+  },
+  //.......................................
   /***
    * parse JSON safely. It will support un-quoted key like `{x:100}`.
    * Before eval, it will replace the key-word `function` to `Function`
