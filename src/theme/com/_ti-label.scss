@@ -34,8 +34,11 @@
   > .as-icon {
     @include noselect;
     @include flex-center;
-    flex:0 0 auto; width:.26rem;
-    opacity: 0.6;
+    flex:0 0 auto; 
+    > .ti-icon.is-image {
+      width:.36rem;
+      padding:.02rem;
+    }
     //---------------------------------------
     &.can-hover{cursor: pointer;}
     &.can-hover:hover{@include color($color-primary,r,c);}
