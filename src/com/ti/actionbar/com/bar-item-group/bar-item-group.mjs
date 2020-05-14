@@ -8,6 +8,7 @@ const _M = {
   ///////////////////////////////////////
   data : ()=>({
     collapse : true,
+    isDocked : false,
     barItems : []
   }),
   ///////////////////////////////////////
@@ -100,6 +101,14 @@ const _M = {
     //---------------------------------------
     showChildren() {
       return this.isDepth0 || !this.collapse
+    },
+    //---------------------------------------
+    ChildrenStyle() {
+      if(!this.isDepth0) {
+        if(!this.isDocked) {
+          return {"visibility": "hidden"}
+        }
+      }
     }
     //---------------------------------------
   },
@@ -133,6 +142,7 @@ const _M = {
     //---------------------------------------
     doCollapse() {
       this.collapse = true
+      this.isDocked = false
       //this.$bar.notifyChange({name:this.name, value:false})
     },
     //---------------------------------------
@@ -144,6 +154,9 @@ const _M = {
             position : "fixed",
             space: this.isDepthX ? {x:1} : {y:3}
           })
+          _.delay(()=>{
+            this.isDocked = true
+          }, 5)
         }
       })
     }

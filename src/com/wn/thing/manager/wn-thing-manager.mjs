@@ -43,6 +43,10 @@ const _M = {
     "preview" : {
       type : Object,
       default : ()=>({})
+    },
+    "emitChange": {
+      type : Boolean,
+      default: false
     }
   },
   ///////////////////////////////////////////
@@ -90,7 +94,7 @@ const _M = {
           icon : "zmdi-settings zmdi-hc-spin",
           text : "i18n:thing-cleaning"
         }
-      }, this.TheSchema.loadingAs)
+      }, _.get(this.TheSchema, "loadingAs"))
     },
     //--------------------------------------
     ChangedRowId() {
@@ -123,12 +127,15 @@ const _M = {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    OnListSelect({current, currentId, checkedIds}) {
+    OnListSelect({current, currentId, checkedIds, checked}) {
       Ti.App(this).dispatch("main/setCurrentThing", {
         meta: current, 
         currentId,
         checkedIds
       })
+      if(this.emitChange) {
+        this.$emit("change", {current, currentId, checkedIds, checked})
+      }
     },
     //--------------------------------------
     OnListOpen({rawData}) {

@@ -7,7 +7,7 @@
   &.show-mask {
     @include color($color-mask, null, thin);
     @include pos-fixed(0,0,100%,100%);
-    &.at-center {padding-bottom:19%;}
+    &.at-center.nil-height {padding-bottom:16%;}
     &.at-left   {justify-content: flex-start;}
     &.at-right  {justify-content: flex-end;}
     &.at-top    {align-content: flex-start;}
@@ -23,7 +23,7 @@
     &.at-center {
       @include pos-fixed(0,0,100%,100%);
       @include flex-center;
-      padding-bottom:19%;
+      &.nil-height {padding-bottom:16%;}
     }
     //---------------------------------
     > .modal-con {
@@ -70,6 +70,10 @@
       &.is-info    .modal-closer {@include color($color-info,    r);}
       &.is-error   .modal-closer {@include color($color-error,   r);}
       &.is-track   .modal-closer {@include color($color-track,   r);}
+      //---------------------------------
+      &.has-top-action-bar {
+        > .modal-head {padding-right: $header-size;}
+      }
     }
     //---------------------------------
     > .modal-head {
@@ -93,10 +97,15 @@
         padding:0 .06rem;
       }
       //-----------------------------
-      > .as-actions {
-        @include flex-align-nowrap;
-        padding:0 .04rem 0 0;
-        font-size: .9em;
+      > .as-bar {
+        @include flex-align-center;
+        > .ti-actionbar {
+          width:100%;
+          .bar-item-info.is-top {
+            &.is-enabled   {@include fireable(null, $color-secondary);}
+            &.is-highlight {@include color($color-boldtip, r, c);}
+          }
+        }
       }
       //-----------------------------
     } // &.is-show-header

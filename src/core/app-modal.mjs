@@ -8,9 +8,6 @@ export class TiAppModal {
     // info|warn|error|success|track
     this.type   = "info"
     //--------------------------------------------
-    // Behavior
-    this.ready  = _.identity
-    //--------------------------------------------
     this.iconOk = undefined
     this.textOk = "i18n:ok"
     this.ok = ({result})=>result
@@ -20,6 +17,13 @@ export class TiAppModal {
     this.cancel = ()=>undefined
     //--------------------------------------------
     this.actions = null
+    //--------------------------------------------
+    // Modal open and close, transition duration
+    // I need know the duration, then delay to mount 
+    // the main component.
+    // Some component will auto resize, it need a static
+    // window measurement.
+    this.transDelay = 300,
     //--------------------------------------------
     this.comType = "ti-label"
     this.comConf = {}
@@ -51,8 +55,11 @@ export class TiAppModal {
     // modules
     this.modules = {}
     //--------------------------------------------
+    this.topActions = []
+    //--------------------------------------------
     // callback
-    this.ready = function(app){}
+    this.ready = async function(app){}
+    this.preload = async function(app){}
   }
   //////////////////////////////////////////////
   // Methods
@@ -82,7 +89,7 @@ export class TiAppModal {
     }
     //..........................................
     // Setup content
-    let html = `<transition :name="TransName" @after-leave="onAfterLeave">
+    let html = `<transition :name="TransName" @after-leave="OnAfterLeave">
       <div class="ti-app-modal"
         v-if="!hidden"
           :class="TopClass"
@@ -99,17 +106,27 @@ export class TiAppModal {
               v-if="isShowHead">
                 <div class="as-icon" v-if="icon"><ti-icon :value="icon"/></div>
                 <div class="as-title">{{title|i18n}}</div>
+                <div
+                  v-if="hasTopActionBar"
+                    class="as-bar">
+                      <ti-actionbar
+                        :items="topActions"
+                        align="right"
+                        :status="TopActionBarStatus"/>
+                </div>
             </div>
 
             <div class="modal-main">
               <component
-                class="ti-fill-parent"
-                :class="MainClass"
-                :is="comType"
-                v-bind="TheComConf"
-                :on-init="onMainInit"
-                :value="result"
-                @change="OnChange"/>
+                v-if="comType"
+                  class="ti-fill-parent"
+                  :class="MainClass"
+                  :is="comType"
+                  v-bind="TheComConf"
+                  :on-init="OnMainInit"
+                  :value="result"
+                  @change="OnChange"
+                  @actions:update="OnActionsUpdated"/>
             </div>
 
             <div class="modal-actions"
@@ -146,12 +163,19 @@ export class TiAppModal {
         type   : this.type,
         //--------------------------------------
         ready   : this.ready,
+        //--------------------------------------
         actions : TheActions,
         //--------------------------------------
-        comType : this.comType,
+        topActions : this.topActions,
+        //--------------------------------------
+        // comType : this.comType,
+        // Delay set the comType to mount the main
+        // for the open/close transition duration
+        comType : null,
         comConf : this.comConf,
         //--------------------------------------
         closer   : this.closer,
+        escape   : this.escape,
         mask     : this.mask,
         position : this.position,
         clickMaskToClose : this.clickMaskToClose,
@@ -174,9 +198,12 @@ export class TiAppModal {
       computed : {
         //--------------------------------------
         TopClass() {
+          let nilHeight = Ti.Util.isNil(this.height)
           return this.getTopClass({
-            "show-mask" : this.isShowMask,
-            "no-mask"   : !this.isShowMask,
+            "show-mask"  : this.isShowMask,
+            "no-mask"    : !this.isShowMask,
+            "has-height" : !nilHeight,
+            "nil-height" : nilHeight
           }, `at-${this.position}`)
         },
         //--------------------------------------
@@ -193,7 +220,12 @@ export class TiAppModal {
         },
         //--------------------------------------
         isShowHead() {
-          return this.icon || this.title
+          return this.icon || this.title 
+            || this.hasTopActionBar
+        },
+        //--------------------------------------
+        hasTopActionBar() {
+          return !_.isEmpty(this.topActions)
         },
         //--------------------------------------
         isShowMask() {
@@ -218,7 +250,8 @@ export class TiAppModal {
             "is-hide-header"    : !this.isShowHead,
             "is-show-actions"   : this.hasActions,
             "is-hide-actions"   : !this.hasActions,
-            "is-closer-default" : this.isCloserDefault
+            "is-closer-default" : this.isCloserDefault,
+            "has-top-action-bar" : this.hasTopActionBar
           }, `is-${this.type}`)
         },
         //--------------------------------------
@@ -231,6 +264,14 @@ export class TiAppModal {
         //--------------------------------------
         MainClass() {
           return Ti.Css.mergeClassName(`modal-type-is-${this.type}`)
+        },
+        //--------------------------------------
+        Main() {
+          return this.$store.state.main
+        },
+        //--------------------------------------
+        TopActionBarStatus() {
+          return _.get(this.Main, "status")
         },
         //--------------------------------------
         CloserClass() {
@@ -263,6 +304,11 @@ export class TiAppModal {
         //--------------------------------------
         OnChange(newVal) {
           this.result = newVal
+        },
+        //--------------------------------------
+        OnActionsUpdated(actions=[]) {
+          this.topActions = actions
+          Ti.App(this).reWatchShortcut(actions)
         },
         //--------------------------------------
         // Utility
@@ -298,17 +344,17 @@ export class TiAppModal {
           }
         },
         //--------------------------------------
-        onAfterLeave() {
+        OnAfterLeave() {
           Ti.App(this).destroy(true);
           resolve(this.returnValue)
         },
         //--------------------------------------
-        onMainInit($main) {
+        OnMainInit($main) {
           let app = Ti.App(this)
           this.$main = $main;
           app.$vmMain($main);
           // Watch escape
-          if(escape) {
+          if(this.escape) {
             app.watchShortcut([{
               action : "root:close",
               shortcut : "ESCAPE"
@@ -316,6 +362,8 @@ export class TiAppModal {
           }
           // Active current
           this.setActived()
+          // Report ready
+          this.ready(app)
         }
         //--------------------------------------
       },
@@ -345,9 +393,16 @@ export class TiAppModal {
       $p : document.body,
       className : "the-stub"
     })
-    app.mountTo($stub)
     //..........................................
-    await this.ready(app)
+    await this.preload(app)
+    //..........................................
+    app.mountTo($stub)
+    // The set the main com
+    _.delay(()=>{
+      app.$vm().comType = this.comType
+    }, this.transDelay || 0)
+    //..........................................
+    
     // Then it was waiting the `close()` be invoked
     //..........................................
   } // ~ open()

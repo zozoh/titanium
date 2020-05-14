@@ -79,18 +79,29 @@ const _M = {
       this.myCurrentId = currentId
     },
     //--------------------------------------
-    OnFileUploaded(files=[]){
+    async OnFileUploaded(files=[]){
       let f = _.first(files)
       if(f) {
         this.$adaptlist.myCurrentId = f.id
         this.myCurrentId = f.id
       }
+      await this.doUpdateFilesCount()
     },
     //--------------------------------------
     // Untility
     //--------------------------------------
+    async doUpdateFilesCount() {
+      let meta = _.get(this.$ThingManager, "current.meta")
+      if(meta) {
+        let cmds = ['thing', meta.th_set, 'file', meta.id, "-ufc"]
+        let cmdText = cmds.join(" ")
+        await Wn.Sys.exec2(cmdText)
+      }
+    },
+    //--------------------------------------
     async doDeleteSelected(){
       await this.$adaptlist.doDelete()
+      await this.doUpdateFilesCount()
     },
     //--------------------------------------
     async doUploadFiles() {

@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   ////////////////////////////////////////////
   data: ()=>({
     result : "???"
@@ -11,7 +10,7 @@ export default {
   ////////////////////////////////////////////
   computed : {
     //--------------------------------------
-    theModalTest() {
+    ModalsForTest() {
       return [
         {type: "info",    position : "center", closer: false},
         {type: "warn",    position : "top",    closer: "bottom"},
@@ -27,6 +26,15 @@ export default {
         {type: "warn",    position : "bottom-right"},
         
       ]
+    },
+    //--------------------------------------
+    PreStyle() {
+      return {
+        width: "100%",
+        height: "300px",
+        overflow: "auto",
+        border: "1px solid #CCC"
+      }
     }
     //--------------------------------------
   },
@@ -58,6 +66,16 @@ export default {
           value : title
         }
       }, mod))
+    },
+    //----------------------------------------
+    async testOpenThingSet(ts) {
+      // Open it
+      this.result = await Wn.OpenThingManager(ts, {
+        textOk:"选择",
+        ok: ()=>true
+      })
+
+      console.log(this.result)
     }
     //----------------------------------------
   }

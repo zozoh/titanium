@@ -18,8 +18,10 @@
     <div v-if="isDepth1"
       class="as-mask"
       @click="doCollapse"></div>
-    <div class="as-children" ref="children"
+    <div ref="children"
       v-if="showChildren"
+        class="as-children"
+        :style="ChildrenStyle"
         @click.left="doCollapse">
           <component 
             v-for="bi in items"
