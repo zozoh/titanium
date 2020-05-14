@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     loading : false
@@ -49,7 +48,7 @@ export default {
     },
     //---------------------------------------------------
     TheDropDisplay() {
-      return this.dropDisplay || ["@<thumb>", "title", "nm"]
+      return this.dropDisplay || ["@<thumb>", "title|text"]
     }
     //------------------------------------------------
   }

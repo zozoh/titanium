@@ -794,11 +794,14 @@ const TiTypes = {
       return val
     }
     if(_.isString(val)) {
-      let ss = val.split(sep)
-      for(let i=0; i<ss.length; i++){
-        ss[i] = _.trim(ss[i])
+      if(_.isRegExp(sep)) {
+        let ss = val.split(sep)
+        for(let i=0; i<ss.length; i++){
+          ss[i] = _.trim(ss[i])
+        }
+        return _.without(ss, undefined, null, "")
       }
-      return _.without(ss, undefined, null, "")
+      return [val]
     }
   },
   //.......................................

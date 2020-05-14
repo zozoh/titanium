@@ -1,5 +1,4 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   ////////////////////////////////////////////////////
   props : {
     "multi" : {
@@ -19,3 +18,4 @@ export default {
   }
   ////////////////////////////////////////////////////
 }
+export default _M;

@@ -12,7 +12,7 @@ export const WnSys = {
     as = "text",
     macroObjSep = DFT_MACRO_OBJ_SEP,
     autoRunMacro = true,
-    errorAs,
+    errorBy,
     PWD = (Ti.SessionVar("PWD") || "~")
   }={}) {
     // Eval command
@@ -62,8 +62,16 @@ export const WnSys = {
       let [code, ...datas] = str.split(/ *: */);
       let data = datas.join(" : ")
       let msgKey = code.replace(/[.]/g, "-")
-      let err = Ti.Err.make(msgKey, data)
-      throw err
+      if(_.isFunction(errorBy)) {
+        errorBy({
+          code, msgKey, data
+        })
+      }
+      // Just throw it
+      else {
+        let err = Ti.Err.make(msgKey, data)
+        throw err
+      }
     }
 
     // Evaluate the result

@@ -23,8 +23,8 @@ const WnDict = {
       query : Wn.Util.genQuery(findBy),
       item  : Wn.Util.genQuery(itemBy, {errorAs:null}),
       //...............................................
-      getValue : Ti.Util.genGetter(valueBy || "id"),
-      getText  : Ti.Util.genGetter(textBy  || "title|nm"),
+      getValue : Ti.Util.genGetter(valueBy || "id|value"),
+      getText  : Ti.Util.genGetter(textBy  || "title|text|nm"),
       getIcon  : Ti.Util.genGetter(iconBy  || Wn.Util.getObjThumbIcon),
       //...............................................
     }, {

@@ -193,7 +193,11 @@ export class Dict {
       list = await this.invokeAsync("data")
       this.doHooks(false)
       // Cache items
-      _.forEach(list, it => {
+      _.forEach(list, (it, index) => {
+        if(!_.isPlainObject(it)) {
+          it = {text:it, value:it}
+          list[index] = it
+        }
         this.addItemToCache(it)
       })
       // Cache list
