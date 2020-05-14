@@ -155,7 +155,6 @@ export default {
         // Fixed width and join remains-assignment
         else if(fxW < -1) {
           let w = Math.abs(fxW)
-          raIndexs.push(i)
           amended.push(Math.max(w, priW))
         }
         // Fixed width

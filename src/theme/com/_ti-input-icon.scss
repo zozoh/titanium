@@ -3,6 +3,7 @@
   //------------------------------------------------
   > .as-box {
     @include flex-align-nowrap($ai:stretch);
+    flex:0 0 auto;
     font-size:.14rem;
     //----------------------------------------------
     .as-value {
