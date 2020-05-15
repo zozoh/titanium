@@ -230,7 +230,6 @@ export const TiLoad = async function(url=[], {dynamicPrefix, dynamicAlias}={}) {
     //   console.log("   --> do load", url3)
     // }
     reObj = await LoadModes[type](url3)
-    Ti.PreLoad(url3, reObj)
     return reObj
   }catch(E) {
     if(Ti.IsWarn("TiLoad")) {

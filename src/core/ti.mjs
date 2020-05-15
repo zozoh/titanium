@@ -36,7 +36,7 @@ import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
 import {VueTiCom} from "./vue/vue-ti-com.mjs"
 //---------------------------------------
 const LOAD_CACHE = {}
-function PreLoad(url, anyObj) {
+function Preload(url, anyObj) {
   // if(url.indexOf("label")>0)
   //   console.log("Preloaded", url)
   LOAD_CACHE[url] = anyObj
@@ -78,7 +78,7 @@ export const Ti = {
   WWW, GPS, Validate, DateTime, Num, Websocket, Trees,
   Mapping, Dict, DictFactory,
   //-----------------------------------------------------
-  PreLoad, MatchCache,
+  Preload, MatchCache,
   //-----------------------------------------------------
   Vue: {
     EventBubble : VueEventBubble,

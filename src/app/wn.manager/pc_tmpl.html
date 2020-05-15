@@ -38,7 +38,7 @@ window._app = ${app};
 main({
   Ti, Wn, rs:"${rs}",
   appName : "${appName}",
-  preloads: []
+  preloads: ["@dist:preload-com-test.min.js"]
 }).then(o=>{
   if(Ti.IsInfo("main")) {
     console.log("MainLoaded", o)

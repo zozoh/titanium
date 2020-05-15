@@ -1,13 +1,13 @@
 (function(){
 /////////////////////////////////////////////////////////
-Ti.PreLoad("/gu/rs/ti/com/ti/label/_com.json", {
+Ti.Preload("/gu/rs/ti/com/ti/label/_com.json", {
   "name" : "ti-label",
   "globally" : true,
   "template" : "./ti-label.html",
   "props" : "./ti-label-props.mjs",
   "mixins" : ["./ti-label.mjs"]
 })
-Ti.PreLoad("/gu/rs/ti/com/ti/label/ti-label.html", `<div class="ti-label"
+Ti.Preload("/gu/rs/ti/com/ti/label/ti-label.html", `<div class="ti-label"
   :class="TopClass"
   :style="TopStyle"
   @dblclick.left="OnDblClick">
@@ -218,8 +218,8 @@ const _M = {
       immediate : true
     }
   }
-  //////////////////////////////////////////
+  ////////////////////////////////////////// 
 }
-Ti.PreLoad("/gu/rs/ti/com/ti/label/ti-label.mjs", _M)
+Ti.Preload("/gu/rs/ti/com/ti/label/ti-label.mjs", _M)
 /////////////////////////////////////////////////////////
 })()
