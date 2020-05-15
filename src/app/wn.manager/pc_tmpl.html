@@ -11,7 +11,7 @@
   <script src="${rs}/ti/deps/lodash.min.js"></script>
   <script src="${rs}/ti/deps/vue.js"></script>
   <script src="${rs}/ti/deps/vuex.js"></script>
-
+  
   <link rel="stylesheet" href="${rs}/ti/deps/md/iconfont/material-icons.css">
   <link rel="stylesheet" href="${rs}/ti/deps/zmdi/css/material-design-iconic-font.css">
   <link rel="stylesheet" href="${rs}/ti/deps/fontawesome/5.12.0-web/css/all.css">
@@ -37,7 +37,8 @@ window._app = ${app};
 //---------------------------------------
 main({
   Ti, Wn, rs:"${rs}",
-  appName : "${appName}"
+  appName : "${appName}",
+  preloads: []
 }).then(o=>{
   if(Ti.IsInfo("main")) {
     console.log("MainLoaded", o)

@@ -35,6 +35,16 @@ import { Dict, DictFactory } from "./dict.mjs"
 import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
 import {VueTiCom} from "./vue/vue-ti-com.mjs"
 //---------------------------------------
+const LOAD_CACHE = {}
+function PreLoad(url, anyObj) {
+  // if(url.indexOf("label")>0)
+  //   console.log("Preloaded", url)
+  LOAD_CACHE[url] = anyObj
+}
+function MatchCache(url) {
+  return LOAD_CACHE[url]
+}
+//---------------------------------------
 const ENV = {
   "version" : "1.0",
   "dev" : false,
@@ -62,10 +72,13 @@ const LOG_LEVELS = {
 const G_FUNCS = {}
 //---------------------------------------
 export const Ti = {
+  //-----------------------------------------------------
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
   WWW, GPS, Validate, DateTime, Num, Websocket, Trees,
   Mapping, Dict, DictFactory,
+  //-----------------------------------------------------
+  PreLoad, MatchCache,
   //-----------------------------------------------------
   Vue: {
     EventBubble : VueEventBubble,

@@ -1,4 +1,4 @@
-import {importModule} from "./polyfill-dynamic-import.mjs"
+//import {importModule} from "./polyfill-dynamic-import.mjs"
 /////////////////////////////////////////
 // One resource load only once
 class UnifyResourceLoading {
@@ -42,8 +42,8 @@ class UnifyResourceLoading {
 }
 /////////////////////////////////////////
 const MjsLoading = new UnifyResourceLoading(async (url)=>{
-  window.mjsII = window.mjsII || []
-  window.mjsII.push(url)
+  // window.mjsII = window.mjsII || []
+  // window.mjsII.push(url)
   // TBS browser don't suppor the import() yet by default 
   //return import(url).then(m => m.default)
   // use the polyfill method instead
@@ -63,8 +63,8 @@ const MjsLoading = new UnifyResourceLoading(async (url)=>{
 })
 /////////////////////////////////////////
 const TextLoading = new UnifyResourceLoading(async (url)=>{
-  window.textII = window.textII || []
-  window.textII.push(url)
+  // window.textII = window.textII || []
+  // window.textII.push(url)
   try {
     return await Ti.Http.get(url)
   }
@@ -216,9 +216,22 @@ export const TiLoad = async function(url=[], {dynamicPrefix, dynamicAlias}={}) {
     type = m ? m[1] : "text"
   }
 
+  // Try cache
+  // if(url3.indexOf("label")>0) {
+  //   console.log(url3)
+  // }
+  let reObj = Ti.MatchCache(url3)
+  if(reObj)
+    return reObj
+
   // invoke
   try {
-    return await LoadModes[type](url3)
+    // if(url3.indexOf("label")>0) {
+    //   console.log("   --> do load", url3)
+    // }
+    reObj = await LoadModes[type](url3)
+    Ti.PreLoad(url3, reObj)
+    return reObj
   }catch(E) {
     if(Ti.IsWarn("TiLoad")) {
       console.warn(`TiLoad Fail: [${type}]`, `"${url}" => "${url3}"`)

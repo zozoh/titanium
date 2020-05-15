@@ -123,7 +123,7 @@ const _M = {
   methods : {
     //--------------------------------------------
     renderLocalFile() {
-      console.log(this.LocalFile)
+      //console.log(this.LocalFile)
       if(this.isLocalImage) {
         let reader = new FileReader();
         reader.onload = (evt)=>{

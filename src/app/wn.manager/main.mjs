@@ -2,7 +2,8 @@
 export async function main({
   Ti, Wn, 
   rs="/gu/rs", 
-  appName="wn.manager"
+  appName="wn.manager",
+  preloads=[]
 }={}) {
   //---------------------------------------
   Vue.use(Ti.Vue.EventBubble)
@@ -37,6 +38,7 @@ export async function main({
       "theme" : `${rs}/ti/theme/`,
       "lib"   : `${rs}/ti/lib/`,
       "deps"  : `${rs}/ti/deps/`,
+      "dist"  : `${rs}/ti/dist/`,
       "mod"   : `${rs}/ti/mod/`,
       "com"   : `${rs}/ti/com/`,
       "i18n"  : `${rs}/ti/i18n/`
@@ -60,6 +62,15 @@ export async function main({
   //---------------------------------------
   // Update Config Setting
   Ti.Config.set(tiConf)
+  //---------------------------------------
+  // Preload resources
+  if(!_.isEmpty(preloads)) {
+    let pres = []
+    _.forEach(preloads, url => {
+      pres.push(Ti.Load(url))
+    })
+    await Promise.all(pres)
+  }
   //---------------------------------------
   // setup the i18n
   Ti.I18n.put(await Ti.Load(["@i18n:_ti", "@i18n:_wn", "@i18n:_net"]))
