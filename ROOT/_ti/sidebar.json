@@ -5,6 +5,8 @@
     "title"  : "控件测试",
     "items" : [{
         "path" : "~/demo"
+      }, {
+        "path" : "~/media"
       }]
   }, {
     "key" : "sites",

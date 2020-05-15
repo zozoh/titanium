@@ -1,0 +1,79 @@
+/////////////////////////////////////////////////
+.ti-upload-file {
+  @include flex-align-nowrap($ai:flex-start);
+  //---------------------------------------------
+  &.is-area-xs .ti-obj-thumb {font-size:.24rem;}
+  &.is-area-sm .ti-obj-thumb {font-size:.48rem;}
+  &.is-area-md .ti-obj-thumb {font-size:.72rem;}
+  &.is-area-lg .ti-obj-thumb {font-size:.96rem;}
+  &.is-area-xl .ti-obj-thumb {font-size:1.28rem;}
+  //---------------------------------------------
+  &.is-area-xs .ti-progress-bar .bar-tip {font-size:.10rem;}
+  &.is-area-sm .ti-progress-bar .bar-tip {font-size:.14rem;}
+  &.is-area-md .ti-progress-bar .bar-tip {font-size:.18rem;}
+  &.is-area-lg .ti-progress-bar .bar-tip {font-size:.22rem;}
+  &.is-area-xl .ti-progress-bar .bar-tip {font-size:.3rem;}
+  //---------------------------------------------
+  &.is-area-xs .ti-progress-bar .bar-inner {min-height:.03rem;}
+  &.is-area-sm .ti-progress-bar .bar-inner {min-height:.06rem;}
+  &.is-area-md .ti-progress-bar .bar-inner {min-height:.09rem;}
+  &.is-area-lg .ti-progress-bar .bar-inner {min-height:.12rem;}
+  &.is-area-xl .ti-progress-bar .bar-inner {min-height:.15rem;}
+  //---------------------------------------------
+  &.is-area-xs > .thumb-con > .thumb-actions {padding:0 .06rem;}
+  &.is-area-sm > .thumb-con > .thumb-actions {padding:0 .06rem;}
+  //---------------------------------------------
+  > .thumb-con {
+    position: relative;
+    @include border(2px, dotted, shallow); 
+    @include color($color-chip, r, c);
+    width:1.2rem; height:1.2rem;
+    cursor:pointer;
+    //-------------------------------------------
+    &[ti-is-drag] > .ti-drag-mask {
+      font-size:12px; border-width:2px;
+    }
+    //-------------------------------------------
+    // Override the ti-obj-thumb
+    .ti-obj-thumb {
+      border: 0;
+      width:100%; height:100%; overflow: hidden;
+      > header {
+        padding:0; width:100%; height:100%;
+        .as-preview {
+          padding:0; width:100%; height:100%;
+          .ti-icon .tii-con {
+            transition: transform .3s;
+          }
+        }
+      }
+    }
+    //-------------------------------------------
+    &:hover {
+      border:2px dashed map-get($color-secondary, c);
+      color:map-get($color-secondary, c);
+      .ti-obj-thumb .as-preview .ti-icon .tii-con {
+        transform: scale(1.5) rotate(180deg);
+      }
+    }
+    //-------------------------------------------
+  }
+  //---------------------------------------------
+  > .thumb-con > .thumb-actions {
+    @include pos-abs($r:0, $t:0);
+    padding:.1rem; 
+    > .thumb-opt {
+      @include flex-align-nowrap($jc:center);
+      @include color($color-primary, r, c);
+      cursor:pointer;
+      padding:.06rem .1rem; 
+      margin-bottom:4px;
+      line-height: 1.1em; font-size:12px;
+      .it-text {margin-left:.06rem; white-space: nowrap;}
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
+    }
+  }
+}
+/////////////////////////////////////////////////

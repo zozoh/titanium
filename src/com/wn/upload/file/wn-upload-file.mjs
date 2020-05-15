@@ -2,7 +2,7 @@ const _M = {
   /////////////////////////////////////////
   data : ()=>({
     "src_ts" : null,
-    "oImage"     : null,
+    "oFile"     : null,
     "uploadFile" : null,
     "progress"   : -1
   }),
@@ -11,6 +11,15 @@ const _M = {
     "value" : {
       type : String,
       default : null
+    },
+    // raw value is WnObj
+    // If declare the valueType
+    // It will transform the WnObj
+    // to relaitve value mode
+    "valueType": {
+      type: String,
+      default: "obj",
+      validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
     // Display width
     "width" : {
@@ -40,13 +49,15 @@ const _M = {
     // nulll or empty array will support any types
     "supportTypes" : {
       type : [String, Array],
-      default : ()=>["png","jpg","jpeg","gif"]
+      default : ()=>[]
+      //default : ()=>["png","jpg","jpeg","gif"]
     },
     // which mime supported to upload
     // nulll or empty array will support any mimes
     "supportMimes" : {
       type : [String, Array],
-      default : ()=>["image/png","image/jpeg","image/gif"]
+      default : ()=>[]
+      //default : ()=>["image/png","image/jpeg","image/gif"]
     },
     // Image object only: it will auto apply image filter
     // just like clip the image size etc..
@@ -65,33 +76,55 @@ const _M = {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    acceptTypes() {
+    AcceptTypes() {
       if(_.isString(this.supportTypes))
         return this.supportTypes.split(",")
       return this.supportTypes
     },
     //--------------------------------------
-    acceptMimes() {
+    AcceptMimes() {
       if(_.isString(this.supportMimes))
         return this.supportMimes.split(",")
       return this.supportMimes
     },
     //--------------------------------------
-    imageFilter() {
+    ImageFilter() {
       if(!this.filter)
         return []
       return [].concat(this.filter)
     },
     //--------------------------------------
     // Display image for <ti-thumb>
-    imageSrc() {
-      if(this.oImage) {
-        let ss = ["/o/content?str=id:", this.oImage.id]
-        if(this.src_ts) {
-          ss.push("&_t=")
-          ss.push(this.src_ts)
+    PreviewIcon() {
+      //....................................
+      if(this.oFile) {
+        //..................................
+        // Image
+        if(Wn.Obj.isMime(this.oFile, /^(image\/)/)) {
+          let ss = ["/o/content?str=id:", this.oFile.id]
+          if(this.src_ts) {
+            ss.push("&_t=")
+            ss.push(this.src_ts)
+          }          
+          return {
+            type: "image", value: ss.join("")
+          }
         }
-        return ss.join("")
+        //..................................
+        // Video
+        if(Wn.Obj.isMime(this.oFile, /^(video\/)/)) {
+          let ss = ["/o/content?str=id:", this.oFile.video_cover]
+          if(this.src_ts) {
+            ss.push("&_t=")
+            ss.push(this.src_ts)
+          }          
+          return {
+            type: "image", value: ss.join("")
+          }
+        }
+        //..................................
+        // Others just get the icon font
+        return Wn.Util.getObjIcon(this.oFile)
       }
     }
     //--------------------------------------
@@ -118,8 +151,8 @@ const _M = {
     //--------------------------------------
     async onOpen() {
       // remove the thumb file
-      if(this.oImage) {
-        let link = Wn.Util.getAppLink(this.oImage)
+      if(this.oFile) {
+        let link = Wn.Util.getAppLink(this.oFile)
         //console.log("it will open ", link)
         await Ti.Be.Open(link.url, {params:link.params})
       }
@@ -127,8 +160,8 @@ const _M = {
     //--------------------------------------
     async onRemove() {
       // remove the thumb file
-      if(this.oImage) {
-        await Wn.Sys.exec2(`rm id:${this.oImage.id}`)
+      if(this.oFile) {
+        await Wn.Sys.exec2(`rm id:${this.oFile.id}`)
       }
       // Notify the change
       this.$notify("change", null)
@@ -141,16 +174,16 @@ const _M = {
       // Check for support Types
       let type = Ti.Util.getSuffixName(file.name)
       if(!await this.assertListHas(
-        this.acceptTypes, type, {
+        this.AcceptTypes, type, {
           text : 'i18n:wn-invalid-types',
-          vars : {current:type, supports:this.acceptTypes.join(", ")}
+          vars : {current:type, supports:this.AcceptTypes.join(", ")}
         })) {
         return
       }
       if(!await this.assertListHas(
-        this.acceptMimes, file.type, {
+        this.AcceptMimes, file.type, {
           text : 'i18n:wn-invalid-mimes',
-          vars : {current:file.type, supports:this.acceptMimes.join(", ")}
+          vars : {current:file.type, supports:this.AcceptMimes.join(", ")}
         })) {
         return
       }
@@ -182,10 +215,10 @@ const _M = {
 
       //................................
       // do Filter
-      if(!_.isEmpty(this.imageFilter)) {
+      if(!_.isEmpty(this.ImageFilter)) {
         let cmd = [
           "imagic", `id:${data.id}`, 
-          `-filter "${this.imageFilter.join(" ")}"`]       
+          `-filter "${this.ImageFilter.join(" ")}"`]       
         if(this.quality>0 && this.quality<=1) {
           cmd.push(`-qa ${this.quality}`)
         }
@@ -197,17 +230,32 @@ const _M = {
       //................................
       // done
       this.src_ts = Date.now()
-      this.oImage = data
-      this.$notify("change", data)
+      this.oFile = data
+
+      //................................
+      // Transform value
+      let val = data
+      if ("path" == this.valueType) {
+        val = Wn.Io.getFormedPath(data)
+      } else if ("fullPath" == this.valueType) {
+        val = data.ph
+      } else if ("idPath" == this.valueType) {
+        val = `id:${data.id}` 
+      } else if ("id" == this.valueType) {
+        val = data.id
+      }
+
+      //................................
+      this.$notify("change", val)
     },
     //--------------------------------------
     async reload() {
       if(this.value) {
-        this.oImage = await Wn.Io.loadMeta(this.value)
+        this.oFile = await Wn.Io.loadMeta(this.value)
       }
       // Reset
       else {
-        this.oImage = null
+        this.oFile = null
       }
     }
     //--------------------------------------

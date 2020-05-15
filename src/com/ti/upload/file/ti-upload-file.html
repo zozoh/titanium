@@ -1,0 +1,48 @@
+<div class="ti-upload-file"
+  :class="TopClass">
+  <!--
+    Hidden input file to choose files
+  -->
+  <input 
+    type="file" 
+    ref="file" 
+    class="ti-hide"
+    @change.stop.seft="OnSelectLocalFilesToUpload">
+  <!--
+    Major preview zone
+  -->
+  <div ref="thumb"
+    class="thumb-con"
+    :style="ThumbStyle"
+    @click="OnClickToEdit"
+    v-drop-files.mask="OnDropFiles">
+    <!--
+      Preview
+    -->
+    <ti-obj-thumb 
+      :preview="PreviewIcon"
+      :progress="progress"
+      :footer="false"/>
+    <!--
+      Remove
+    -->
+    <div ref="actions"
+      v-if="isShowRemoveIcon"
+        class="thumb-actions"
+        :style="ActionsStyle">
+        <!--remove-->
+        <div class="thumb-opt as-del"
+          @click.left.stop="OnRemove">
+          <ti-icon value="zmdi-delete"/>
+          <span class="it-text">{{'clear'|i18n}}</span>
+        </div>
+        <!--open-->
+        <div class="thumb-opt as-open"
+          @click.left.stop="OnOpen">
+          <ti-icon value="zmdi-open-in-new"/>
+          <span class="it-text">{{'open'|i18n}}</span>
+        </div>
+    </div>
+    <!--//////-->
+  </div>
+</div>

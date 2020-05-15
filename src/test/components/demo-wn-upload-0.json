@@ -1,0 +1,18 @@
+{
+  "comType" : "ti-form",
+  "comConf" : {
+    "autoShowBlank" : false,
+    "data" : "=data",
+    "fields" : [{
+        "title" : "普通上传",
+        "name"  : "myFile",
+        "comType" : "wn-upload-file",
+        "comConf" : {
+          "target" : "~/media/",
+          "valueType": "idPath",
+          "width": 300,
+          "height": 300
+        }
+      }]
+  }
+}

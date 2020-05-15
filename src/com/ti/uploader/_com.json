@@ -1,6 +1,0 @@
-{
-  "name" : "ti-uploader",
-  "globally" : true,
-  "template" : "./ti-uploader.html",
-  "mixins" : ["./ti-uploader.mjs"]
-}

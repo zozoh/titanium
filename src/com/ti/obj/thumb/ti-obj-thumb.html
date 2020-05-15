@@ -7,8 +7,12 @@
     <!--Preview Part-->
     <div class="as-preview">
       <!-- Local Image -->
-      <template v-if="'localFile'==preview.type">
+      <template v-if="isLocalImage">
         <img ref="localImage" is-local-file>
+      </template>
+      <!-- Local File -->
+      <template v-else-if="isLocalFile">
+        <ti-icon :value="LocalFileIcon"/>
       </template>
       <!-- Remote Image -->
       <template v-else-if="'image'==preview.type">
@@ -16,7 +20,7 @@
       </template>
       <!-- Icon -->
       <template v-else>
-        <ti-icon :value="preview"></ti-icon>
+        <ti-icon :value="preview"/>
       </template>
       <!--Badge-->
       <template v-if="badges">

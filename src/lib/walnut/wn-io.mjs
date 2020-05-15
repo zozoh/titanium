@@ -241,7 +241,21 @@ export const WnIo = {
       as:"json"
     })
     return reo
+  },
+  /***
+   *  Get relative path of WnObj to home
+   *  path will starts by "~/"
+   */
+  async getFormedPath(meta) {
+    // Make sure it is meta
+    if(_.isString(meta)){
+      meta = await WnIo.loadMetaBy(meta)
+    }
+    // Count r-path
+    let homePath = Wn.Session.getHomePath()
+    return Ti.Util.getRelativePath(homePath, meta.ph)
   }
+
 }
 ////////////////////////////////////////////
 export default WnIo;

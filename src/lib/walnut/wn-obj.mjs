@@ -296,6 +296,46 @@ export const WnObj = {
     return myFormFields
   },
   //----------------------------------------
+  isAs(meta={}, key, match) {
+    let val = _.get(meta, key)
+    if(Ti.Util.isNil(val)) {
+      return false
+    }
+    //......................................
+    if(_.isArray(match)) {
+      for(let mi of match) {
+        if(WnObj.isAs(meta, key, mi)){
+          return true
+        }
+      }
+      return false
+    }
+    //......................................
+    if(_.isString(match)) {
+      if(match.startsWith("^")) {
+        return new RegExp(match).test(val)
+      }
+      if(match.startsWith("!^")) {
+        return !new RegExp(match.substring(1)).test(val)
+      }
+      return val == match
+    }
+    //......................................
+    if(_.isRegExp(match)) {
+      return match.test(val)
+    }
+    //......................................
+    return false
+  },
+  //----------------------------------------
+  isMime(meta={}, mime) {
+    return WnObj.isAs(meta, "mime", mime)
+  },
+  //----------------------------------------
+  isType(meta={}, type) {
+    return WnObj.isAs(meta, "type", type)
+  },
+  //----------------------------------------
   /***
    * Create the crumb data for `<ti-crumb>`
    * 

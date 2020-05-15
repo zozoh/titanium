@@ -406,6 +406,12 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
   com: "/rs/ti/test/components/demo-wn-transfer-0.json"
 }
 #---------------------------------------------------------
+@FILE demo/wn-upload-0.comt
+{
+  title : "文件上传",
+  com: "/rs/ti/test/components/demo-wn-upload-0.json"
+}
+#---------------------------------------------------------
 @FILE demo/ti-app-modal.comt
 {
   title : "弹出层测试",

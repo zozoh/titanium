@@ -130,22 +130,3 @@
   font-style:normal; font-weight: bold;
 }
 //...................................................
-.ti-progress-bar {
-  .bar-tip {
-    display:block; text-align:center;
-    padding:0.04rem; line-height:1em;
-    white-space: nowrap;
-    font-size:.1rem;
-    @include color($color-mask, r, thin);
-  }
-  .bar-outer {
-    display:block; border:1px solid map-get($color-line, shallow);
-    @include color($color-success, c, r);
-  }
-  .bar-inner {
-    display:block; 
-    background: map-get($color-success, c);
-    min-height:2px;
-  }
-}
-//...................................................

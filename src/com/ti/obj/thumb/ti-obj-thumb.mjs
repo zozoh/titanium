@@ -1,4 +1,4 @@
-export default {
+const _M = {
   inheritAttrs : false,
   ////////////////////////////////////////////////
   props : {
@@ -67,6 +67,37 @@ export default {
       }, ()=>this.status ? `is-status-${this.status}` : null)
     },
     //--------------------------------------------
+    PreviewType() {
+      return _.get(this.preview, "type") || "auto"
+    },
+    //--------------------------------------------
+    isLocalFile() {
+      return "localFile" == this.PreviewType
+    },
+    //--------------------------------------------
+    isLocalImage() {
+      return this.isLocalFile
+        && /^image\//.test(this.LocalFile.type)
+    },
+    //--------------------------------------------
+    LocalFile() {
+      if(this.isLocalFile) {
+        return this.preview.value
+      }
+    },
+    //--------------------------------------------
+    LocalFileIcon() {
+      if(this.isLocalFile) {
+        let file = this.LocalFile
+        let oF = {
+          type : Ti.Util.getSuffixName(file.name),
+          mime : file.type,
+          race : Ti.Util.isNil(file.type) ? "DIR" : "FILE"
+        }
+        return Ti.Icons.get(oF)
+      }
+    },
+    //--------------------------------------------
     isShowProgress() {
       return this.progress>=0;
     },
@@ -76,7 +107,7 @@ export default {
     },
     //--------------------------------------------
     ProgressStyle() {
-      return {width:this.progressTip}
+      return {width:this.ProgressTip}
     },
     //--------------------------------------------
     hasHref() {
@@ -92,7 +123,8 @@ export default {
   methods : {
     //--------------------------------------------
     renderLocalFile() {
-      if('localFile' == this.preview.type) {
+      console.log(this.LocalFile)
+      if(this.isLocalImage) {
         let reader = new FileReader();
         reader.onload = (evt)=>{
           if(this.$refs.localImage) {
@@ -110,3 +142,4 @@ export default {
   }
   ////////////////////////////////////////////////
 }
+export default _M;

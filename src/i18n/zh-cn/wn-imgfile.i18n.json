@@ -1,4 +1,0 @@
-{
-  "wot-invalid-mimes": "不支持的文件内容类型 \"${current}\"，仅能支持 \"${supports}\"",
-  "wot-invalid-types": "不支持的文件扩展名 \"${current}\"，仅能支持 \"${supports}\""
-}
