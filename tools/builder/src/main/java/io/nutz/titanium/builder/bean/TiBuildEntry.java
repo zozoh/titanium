@@ -12,6 +12,8 @@ public class TiBuildEntry {
 
     private Pattern includes;
 
+    private String target;
+
     public String getPath() {
         return path;
     }
@@ -68,6 +70,14 @@ public class TiBuildEntry {
 
     public boolean isSkip(String rph) {
         return this.isIgnore(rph) || !this.isIncludes(rph);
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
 }

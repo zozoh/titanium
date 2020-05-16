@@ -1,5 +1,5 @@
 ////////////////////////////////////////////
-export const WnUtil = {
+const WnUtil = {
   isMimeText(mime) {
     return /^text\//.test(mime) 
            || "application/x-javascript" == mime

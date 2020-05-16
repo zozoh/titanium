@@ -35,13 +35,39 @@ import { Dict, DictFactory } from "./dict.mjs"
 import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
 import {VueTiCom} from "./vue/vue-ti-com.mjs"
 //---------------------------------------
+import WalnutAppMain from "./ti-walnut-app-main.mjs"
+import WebAppMain from "./ti-web-app-main.mjs"
+//---------------------------------------
 const LOAD_CACHE = {}
 function Preload(url, anyObj) {
   // if(url.indexOf("label")>0)
   //   console.log("Preloaded", url)
   LOAD_CACHE[url] = anyObj
 }
+//---------------------------------------
+let RS_PREFIXs = [];
+function AddResourcePrefix(...prefixes) {
+  for(let prefix of prefixes) {
+    if(prefix) {
+      if(!prefix.endsWith("/")) {
+        RS_PREFIXs.push(prefix + "/")
+      } else {
+        RS_PREFIXs.push(prefix)
+      }
+    }
+  }
+}
+//---------------------------------------
 function MatchCache(url) {
+  if(!url) {
+    return
+  }
+  for(let prefix of RS_PREFIXs) {
+    if(prefix && url.startsWith(prefix)) {
+      url = url.substring(prefix.length)
+      break
+    }
+  }
   return LOAD_CACHE[url]
 }
 //---------------------------------------
@@ -78,7 +104,9 @@ export const Ti = {
   WWW, GPS, Validate, DateTime, Num, Websocket, Trees,
   Mapping, Dict, DictFactory,
   //-----------------------------------------------------
-  Preload, MatchCache,
+  Preload, MatchCache, AddResourcePrefix, RS_PREFIXs,
+  //-----------------------------------------------------
+  WalnutAppMain, WebAppMain,
   //-----------------------------------------------------
   Vue: {
     EventBubble : VueEventBubble,

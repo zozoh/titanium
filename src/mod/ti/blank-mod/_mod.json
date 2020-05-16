@@ -1,5 +1,0 @@
-{
-  "name" : "ti-blank-mod",
-  "namespaced" : true,
-  "mixins" : "./ti-blank-mod.mjs"
-}

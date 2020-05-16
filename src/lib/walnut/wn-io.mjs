@@ -12,7 +12,7 @@ function AJAX_RETURN(reo, invalid) {
   return reo.data;
 }
 ////////////////////////////////////////////
-export const WnIo = {
+const WnIo = {
   isFullObjId(id) {
     return /^[0-9a-v]{26}(:file:.+)?$/.test(id)
   },

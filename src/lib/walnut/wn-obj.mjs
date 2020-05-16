@@ -161,7 +161,7 @@ const FIELDS = {
   //---------------------------------------------
 }
 ////////////////////////////////////////////
-export const WnObj = {
+const WnObj = {
   //----------------------------------------
   isBuiltInFields(key) {
     return FIELDS[key] ? true : false

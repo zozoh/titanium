@@ -1,7 +1,7 @@
 /***
  * Open Modal Dialog to explore one or multi files
  */
-export async function OpenObjSelector(pathOrObj="~", {
+async function OpenObjSelector(pathOrObj="~", {
   title = "i18n:select", 
   icon = "im-folder-open",
   type = "info", closer = true,
@@ -182,3 +182,4 @@ export async function OpenObjSelector(pathOrObj="~", {
   return reObj
 }
 ////////////////////////////////////////////
+export default OpenObjSelector;

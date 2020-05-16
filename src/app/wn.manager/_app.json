@@ -38,7 +38,6 @@
     "@com:ti/button",
     "@com:ti/crumb",
     "@com:ti/loading",
-    "@com:ti/menu",
     "@com:ti/actionbar",
     "@com:ti/form",
     "@com:ti/obj/thumb",

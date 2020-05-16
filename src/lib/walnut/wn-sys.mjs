@@ -1,8 +1,8 @@
-import {WnSysRespParsing} from "./wn-sys-resp-parsing.mjs"
+import WnSysRespParsing from "./wn-sys-resp-parsing.mjs";
 ////////////////////////////////////////////
 const DFT_MACRO_OBJ_SEP = "%%wn.meta." + Ti.Random.str(10) + "%%"
 ////////////////////////////////////////////
-export const WnSys = {
+const WnSys = {
   //-------------------------------------
   async exec(cmdText, {
     vars = {},

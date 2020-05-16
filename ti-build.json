@@ -1,23 +1,26 @@
 {
-  "home": "D:/workspace/git/github/titanium/",
   "entries" : [{
         "path": "src/com",
         "prefix": "ti/com/",
         "includes": "^(ti|wn|net|web)/.+$",
         "ignore": "^hmaker/.+$",
-        "target": "all_i18n_com_mod"
+        "target": "all"
       }, {
         "path": "src/mod",
         "prefix": "ti/mod/",
         "includes": "^(ti|wn)/.+$",
         "ignore": "^hmaker/.+$",
-        "target": "all_i18n_com_mod"
+        "target": "all"
+      }, {
+        "path": "src/lib/www",
+        "prefix": "ti/lib/www/",
+        "target": "all"
       }, {
         "path": "src/i18n",
         "prefix": "ti/i18n/",
-        "target": "all_i18n_com_mod"
+        "target": "all"
       }],
   "targets" : {
-    "all_i18n_com_mod": "src/dist/ti-all-i18n-com-mod.js"
+    "all": "src/dist/ti-all-in-one.js"
   }
 }

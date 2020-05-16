@@ -30,19 +30,28 @@
 </div>
 <script type="module">
 import Ti from "${rs}/ti/core/ti.mjs"
-import Wn from "${rs}/ti/lib/walnut/walnut.mjs"
-import main from "${rs}/ti/app/wn.manager/main.mjs"
 //---------------------------------------
 window._app = ${app};
 //---------------------------------------
-main({
-  Ti, Wn, rs:"${rs}",
+Ti.WalnutAppMain({
+  Ti, rs:"${rs}",
   appName : "${appName}",
-  preloads: ["@dist:preload-com-test.min.js"]
-}).then(o=>{
-  if(Ti.IsInfo("main")) {
-    console.log("MainLoaded", o)
-  }
+  debug: true,
+  logging: {
+    root: "warn",
+    names: {
+      "TiLoad"     : "warn",
+      "TiApp"      : "warn",
+      "TiHttp"     : "warn",
+      "TiShortcut" : "warn",
+      "Wn.Sys"     : "warn",
+      "WnGui"      : "warn",
+      "Wn.Dict"    : "warn"
+    }
+  },
+  shortcute: true,
+  viewport: true,
+  preloads: ["@dist:ti-all-i18n-com-mod.js"],
 }).catch(err=>{
   throw err
 })

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////
-export async function EditObjContent(pathOrObj="~", {
+async function EditObjContent(pathOrObj="~", {
   title, icon, type = "info", closer = true,
   // undefined is auto, null is hidden
   // if auto, 'i18n:save' for saveBy, else 'i18n:ok'
@@ -62,3 +62,4 @@ export async function EditObjContent(pathOrObj="~", {
   return newContent
 }
 ////////////////////////////////////////////////////
+export default EditObjContent;

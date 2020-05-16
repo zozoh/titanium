@@ -1,7 +1,7 @@
 /***
  * Open Modal Dialog to manage a thing set
  */
-export async function OpenThingManager(pathOrObj, {
+async function OpenThingManager(pathOrObj, {
   textOk = "i18n:ok",
   ok = ({result})=>result,
   textCancel = "i18n:close",
@@ -54,3 +54,4 @@ export async function OpenThingManager(pathOrObj, {
   })
 }
 ////////////////////////////////////////////
+export default OpenThingManager;

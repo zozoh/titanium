@@ -1,6 +1,6 @@
 // Ti required(Ti.Util)
 ////////////////////////////////////////////
-export class WnSysRespParsing {
+class WnSysRespParsing {
   constructor({
     macroObjSep, 
     eachLine = _.identity, 
@@ -86,3 +86,4 @@ export class WnSysRespParsing {
   }
 }
 ////////////////////////////////////////////
+export default WnSysRespParsing;

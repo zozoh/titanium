@@ -4,11 +4,13 @@ import Session from "./wn-session.mjs"
 import Sys     from "./wn-sys.mjs"
 import Util    from "./wn-util.mjs"
 import Dict    from "./wn-dict.mjs"
-import {OpenObjSelector}  from "./wn-open-obj-selector.mjs"
-import {OpenThingManager} from "./wn-open-thing-manager.mjs"
-import {EditObjMeta}     from "./wn-edit-obj-meta.mjs"
-import {EditObjContent}  from "./wn-edit-obj-content.mjs"
-import {EditTiComponent} from "./wn-edit-ti-component.mjs"
+import OpenObjSelector  from "./wn-open-obj-selector.mjs"
+import OpenThingManager from "./wn-open-thing-manager.mjs"
+import EditObjMeta      from "./wn-edit-obj-meta.mjs"
+import EditObjContent   from "./wn-edit-obj-content.mjs"
+import EditTiComponent  from "./wn-edit-ti-component.mjs"
+
+
 //---------------------------------------
 const WALNUT_VERSION = "1.0"
 //---------------------------------------

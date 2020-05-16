@@ -1,8 +1,7 @@
 const CONFIG = {
   prefix  : {},
   alias   : {},
-  suffix  : {},
-  comDecorator : null
+  suffix  : {}
 }
 /////////////////////////////////////////////////
 class AliasMapping {
@@ -66,7 +65,7 @@ export const TiConfig = {
     return CONFIG.version
   },
   //.................................
-  set({prefix, alias, suffix, lang, comDecorator}={}) {
+  set({prefix, alias, suffix, lang }={}) {
     if(prefix)
       CONFIG.prefix = prefix
 
@@ -82,12 +81,9 @@ export const TiConfig = {
 
     if(lang)
       CONFIG.lang = lang
-
-    if(comDecorator)
-      CONFIG.comDecorator = comDecorator
   },
   //.................................
-  update({prefix, alias, suffix, lang, comDecorator}={}) {
+  update({prefix, alias, suffix, lang}={}) {
     if(prefix)
       _.assign(CONFIG.prefix, prefix)
 
@@ -103,9 +99,6 @@ export const TiConfig = {
 
     if(lang)
       CONFIG.lang = lang
-
-    if(comDecorator)
-      CONFIG.comDecorator = comDecorator
   },
   //.................................
   get(key=null) {
@@ -124,18 +117,6 @@ export const TiConfig = {
         tiComType : ()=>comName
       }
     })
-    // Customized Decorator
-    if(_.isFunction(CONFIG.comDecorator)) {
-      CONFIG.comDecorator(com)
-    }
-
-    // inner-components
-    if(com && com.components) {
-      _.forEach(com.components, (subCom)=>{
-        //CONFIG.comDecorator(subCom)
-        TiConfig.decorate(subCom)
-      })
-    }
   },
   //...............................
   lang() {

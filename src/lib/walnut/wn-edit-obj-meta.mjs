@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////
-export async function EditObjMeta(pathOrObj="~", {
+async function EditObjMeta(pathOrObj="~", {
   icon, title, 
   type   = "info", 
   closer = true,
@@ -155,3 +155,4 @@ export async function EditObjMeta(pathOrObj="~", {
   return reo
 }
 ////////////////////////////////////////////////////
+export default EditObjMeta;

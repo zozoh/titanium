@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////
-export async function EditTiComponent({comType,comConf}={}, {
+async function EditTiComponent({comType,comConf}={}, {
   icon= "fas-pencil-ruler",
   title= "i18n:edit-com", 
   type   = "info", 
@@ -33,3 +33,4 @@ export async function EditTiComponent({comType,comConf}={}, {
   })
 }
 ////////////////////////////////////////////////////
+export default EditTiComponent;
