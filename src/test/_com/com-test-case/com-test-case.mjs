@@ -1,5 +1,4 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   ////////////////////////////////////////////
   data : ()=>({
     myCom  : null,
@@ -104,3 +103,4 @@ export default {
     Ti.Fuse.get().remove("com-test-case")
   }
 }
+export default _M;

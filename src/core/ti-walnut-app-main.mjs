@@ -1,6 +1,5 @@
 ///////////////////////////////////////////////
 async function WalnutAppMain({
-  Ti, 
   rs = "/gu/rs", 
   appName="wn.manager",
   preloads=[],
@@ -75,8 +74,6 @@ async function WalnutAppMain({
 
   //---------------------------------------
   // Customized Zone
-  //---------------------------------------
-  const Wn = await Ti.Load("@lib:walnut/walnut.mjs")
   //---------------------------------------
   // Load Config
   let tiConf = await Wn.Sys.exec("ti config -cqn", {

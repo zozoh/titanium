@@ -1,4 +1,4 @@
-const WN_MANAGER_METHODS = {
+const _M = {
   //.........................................
   async reloadMain() {
     // Check meta
@@ -107,4 +107,4 @@ const WN_MANAGER_METHODS = {
   }
   //.........................................
 }
-export default WN_MANAGER_METHODS;
+export default _M;

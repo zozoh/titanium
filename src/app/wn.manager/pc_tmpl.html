@@ -28,13 +28,18 @@
 <div id="app" class="app-loading">
   <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
 </div>
+<!--
+<script src="${rs}/ti/dist/ti-core.js"></script>
+<script src="${rs}/ti/dist/walnut.js"></script>
+-->
 <script type="module">
 import Ti from "${rs}/ti/core/ti.mjs"
+import Wn from "${rs}/ti/lib/walnut/walnut.mjs"
 //---------------------------------------
 window._app = ${app};
 //---------------------------------------
 Ti.WalnutAppMain({
-  Ti, rs:"${rs}",
+  rs:"${rs}",
   appName : "${appName}",
   debug: true,
   logging: {
@@ -51,7 +56,7 @@ Ti.WalnutAppMain({
   },
   shortcute: true,
   viewport: true,
-  preloads: ["@dist:ti-all-i18n-com-mod.js"],
+  //preloads: ["@dist:ti-more-all.js"],
 }).catch(err=>{
   throw err
 })

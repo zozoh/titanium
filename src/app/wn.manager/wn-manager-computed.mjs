@@ -1,4 +1,4 @@
-const WN_MANAGER_COMPUTED = {
+const _M = {
   //.........................................
   Logo() {
     if("<:home>" == this.setup.logo) {
@@ -87,4 +87,4 @@ const WN_MANAGER_COMPUTED = {
   }
   //.........................................
 }
-export default WN_MANAGER_COMPUTED;
+export default _M;

@@ -2,18 +2,21 @@
   "entries" : [{
         "path": "src/com",
         "prefix": "ti/com/",
-        "includes": "^(ti|wn|net|web)/.+$",
-        "ignore": "^hmaker/.+$",
+        "includes": "^(hmaker|ti|net|web|wn)/.+$",
         "target": "all"
       }, {
         "path": "src/mod",
         "prefix": "ti/mod/",
-        "includes": "^(ti|wn)/.+$",
-        "ignore": "^hmaker/.+$",
+        "includes": "^(hmaker|ti|wn)/.+$",
         "target": "all"
       }, {
         "path": "src/lib/www",
         "prefix": "ti/lib/www/",
+        "target": "all"
+      }, {
+        "path": "src/app",
+        "prefix": "/a/load/",
+        "ignore": "^.+\/(pc_tmpl.*\\.html|_app.json|init_context)$",
         "target": "all"
       }, {
         "path": "src/i18n",
@@ -21,6 +24,6 @@
         "target": "all"
       }],
   "targets" : {
-    "all": "src/dist/ti-all-in-one.js"
+    "all": "src/dist/ti-more-all.js"
   }
 }

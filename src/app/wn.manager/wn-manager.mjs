@@ -1,4 +1,4 @@
-const WN_MANAGER_MIXINS = {
+const _M = {
   ///////////////////////////////////////////
   data:()=>({
     myExposeHidden : false,
@@ -236,4 +236,4 @@ const WN_MANAGER_MIXINS = {
   }
   ///////////////////////////////////////////
 }
-export default WN_MANAGER_MIXINS;
+export default _M;
