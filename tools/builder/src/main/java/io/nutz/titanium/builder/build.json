@@ -1,0 +1,11 @@
+{
+  "entries" : [{
+    "path": "D:/workspace/git/github/titanium/src/com",
+    "prefix": "@com:",
+    "includes": "^hmaker/.+$",
+    "ignore": "^hmaker/.+$"
+  }],
+  "dist" : {
+    "path": "D:/workspace/git/github/titanium/dist/"
+  }
+}
