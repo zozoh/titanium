@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////
-async function Captcha(src="", {
+async function TiCaptcha(src="", {
   title = "i18n:captcha-tip", 
   type  = "info",
   position = "center",
@@ -96,4 +96,4 @@ async function Captcha(src="", {
   //............................................
 }
 ////////////////////////////////////////////////
-export default Captcha
+export const Captcha = TiCaptcha;

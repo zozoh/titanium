@@ -1,5 +1,5 @@
 /////////////////////////////////////
-export const TiWebSocket = {
+export const TiWebsocket = {
   //---------------------------------
   /***
    * @param watchTo{Object} : The watch target like:
@@ -66,4 +66,3 @@ export const TiWebSocket = {
   //---------------------------------
 }
 /////////////////////////////////////
-export default TiWebSocket

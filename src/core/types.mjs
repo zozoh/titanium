@@ -1114,5 +1114,5 @@ const TiTypes = {
   //.......................................
 }
 //---------------------------------------
-export default TiTypes
+export const Types = TiTypes
 

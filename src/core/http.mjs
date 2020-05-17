@@ -47,7 +47,7 @@ function ProcessResponseData($req, {as="text"}={}) {
   return Ti.InvokeBy(RESP_TRANS, as, [$req])
 }
 //-----------------------------------
-export const TiHttp = {
+const TiHttp = {
   send(url, options={}) {
     if(Ti.IsInfo("TiHttp")) {
       console.log("TiHttp.send", url, options)
@@ -213,4 +213,4 @@ export const TiHttp = {
   }
 }
 //-----------------------------------
-export default TiHttp
+export const Http = TiHttp

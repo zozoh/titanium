@@ -1,13 +1,11 @@
-import {Ti18n} from "./i18n.mjs"
-//-----------------------------------
-export const TiError = {
+const TiError = {
   make(code="",data){
     let er = code
     if(_.isString(code)) {
       er = {code, data}
     }
     let msgKey = er.code.replace(/[.]/g, "-")
-    let errMsg = Ti18n.get(msgKey)
+    let errMsg = Ti.Ii8n.get(msgKey)
     if(data) {
       if(_.isPlainObject(data)) {
         errMsg += " : " + JSON.stringify(data)
@@ -20,4 +18,4 @@ export const TiError = {
   }
 }
 //-----------------------------------
-export default TiError
+export const Err = TiError

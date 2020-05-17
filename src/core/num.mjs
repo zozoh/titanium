@@ -49,5 +49,5 @@ const TiNum = {
   }
 }
 //---------------------------------------
-export default TiNum
+export const Num = TiNum
 

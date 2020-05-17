@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////
-async function WalnutAppMain({
+export async function WalnutAppMain({
   rs = "/gu/rs", 
   appName="wn.manager",
   preloads=[],
@@ -167,4 +167,3 @@ async function WalnutAppMain({
   return app.get("obj")
 }
 ///////////////////////////////////////////////
-export default WalnutAppMain;

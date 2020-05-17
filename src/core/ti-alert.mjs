@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////
-async function Alert(msg="", {
+async function TiAlert(msg="", {
   title, 
   icon,
   type  = "track", 
@@ -41,4 +41,4 @@ async function Alert(msg="", {
   //............................................
 }
 ////////////////////////////////////////////////
-export default Alert
+export const Alert = TiAlert;

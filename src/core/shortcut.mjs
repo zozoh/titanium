@@ -1,5 +1,5 @@
 ///////////////////////////////////////
-export const TiShortcut = {
+const TiShortcut = {
   /***
    * Get the function from action
    * 
@@ -170,4 +170,4 @@ export const TiShortcut = {
   }
 }
 ///////////////////////////////////////
-export default TiShortcut
+export const Shortcut = TiShortcut

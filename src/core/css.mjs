@@ -110,5 +110,5 @@ const TiCss = {
   //-----------------------------------
 }
 ///////////////////////////////////////
-export default TiCss
+export const Css = TiCss
 

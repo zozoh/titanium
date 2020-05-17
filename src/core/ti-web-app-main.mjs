@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////
-async function WebAppMain({
+export async function WebAppMain({
   rs = "/gu/rs", 
   pageBase = "/",
   lang = "zh-cn",
@@ -113,4 +113,3 @@ async function WebAppMain({
   return app
 }
 ///////////////////////////////////////////////
-export default WebAppMain;

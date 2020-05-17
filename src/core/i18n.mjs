@@ -12,7 +12,7 @@ function __MSG(key) {
   return key
 }
 //-----------------------------------
-export const Ti18n = {
+const Ti18n = {
   put(msgs) {
     // Multi set
     if(_.isArray(msgs)) {
@@ -90,5 +90,5 @@ export const Ti18n = {
   }
 }
 //---------------------------------------
-export default Ti18n
+export const I18n = Ti18n
 

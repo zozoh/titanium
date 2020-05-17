@@ -110,4 +110,4 @@ const TiValidate = {
   //-----------------------------------
 }
 ///////////////////////////////////////
-export default TiValidate
+export const Validate = TiValidate;

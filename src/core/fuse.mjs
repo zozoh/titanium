@@ -1,4 +1,4 @@
-class Detonator {
+class TiDetonator {
   constructor({key, everythingOk, fail, once=false}={}){
     _.assign(this, {
       key, everythingOk, fail, once
@@ -16,7 +16,7 @@ class Detonator {
   }
 }
 //-----------------------------------
-class Fuse {
+class TiFuse {
   constructor(){
     this.detonators = []
   }
@@ -45,10 +45,10 @@ class Fuse {
       key : "det-" + this.detonators.length
     })
     // Push to queue
-    if(det instanceof Detonator) {
+    if(det instanceof TiDetonator) {
       this.detonators.push(det)
     } else {
-      this.detonators.push(new Detonator(det))
+      this.detonators.push(new TiDetonator(det))
     }
   }
   remove(...keys) {
@@ -61,7 +61,7 @@ class Fuse {
   }
 }
 //-----------------------------------
-class FuseManager {
+class TiFuseManager {
   constructor(){
     this.fuses = {}
   }
@@ -71,7 +71,7 @@ class FuseManager {
   getOrCreate(key="main") {
     let fu = this.get(key)
     if(!fu) {
-      fu = new Fuse()
+      fu = new TiFuse()
       this.fuses[key] = fu
     }
     return fu
@@ -99,6 +99,4 @@ class FuseManager {
   }
 }
 //-----------------------------------
-export const TiFuse = new FuseManager()
-//-----------------------------------
-export default TiFuse
+export const Fuse = new TiFuseManager()

@@ -96,4 +96,4 @@ const TiDateTime = {
   //---------------------------------------
 }
 ///////////////////////////////////////////
-export default TiDateTime
+export const DateTime = TiDateTime

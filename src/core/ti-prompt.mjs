@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////
-async function Prompt(msg="", {
+async function TiPrompt(msg="", {
   title = "i18n:prompt", 
   icon,
   type  = "info", 
@@ -74,4 +74,4 @@ async function Prompt(msg="", {
   //............................................
 }
 ////////////////////////////////////////////////
-export default Prompt
+export const Prompt = TiPrompt;

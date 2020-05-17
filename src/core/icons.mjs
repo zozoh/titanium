@@ -86,7 +86,7 @@ const ALL = {
 //-----------------------------------
 const DEFAULT = "zmdi-cake"
 //-----------------------------------
-export const TiIcons = {
+const TiIcons = {
   put({types, mimes, races, names, dft}={}) {
     _.assign(TYPES, types)
     _.assign(MIMES, mimes)
@@ -161,4 +161,4 @@ export const TiIcons = {
   }
 }
 //-----------------------------------
-export default TiIcons
+export const Icons = TiIcons

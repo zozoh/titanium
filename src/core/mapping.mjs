@@ -92,4 +92,4 @@ class TiMapping {
   }
 }
 /////////////////////////////////////////////
-export default TiMapping
+export const Mapping = TiMapping

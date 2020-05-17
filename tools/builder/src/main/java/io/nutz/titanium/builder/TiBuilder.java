@@ -11,6 +11,7 @@ import org.nutz.lang.util.Disks;
 
 import io.nutz.titanium.builder.bean.TiBuildConfig;
 import io.nutz.titanium.builder.bean.TiBuildEntry;
+import io.nutz.titanium.builder.bean.TiBuildTarget;
 
 public class TiBuilder {
 
@@ -43,15 +44,29 @@ public class TiBuilder {
         System.out.println("-".repeat(40));
         System.out.printf("OUTPUT: %d targets\n", conf.getTargets().size());
         for (String targetName : conf.getTargets().keySet()) {
-            String targetPath = conf.getTargets().getString(targetName);
-            List<String> outputs = targetOutputs.get(targetName);
-            // 前包裹
-            outputs.add(0, "(function(){");
-            // 结束包裹
-            outputs.add("//".repeat(30));
-            outputs.add("// The End");
-            outputs.add("})();");
+            TiBuildTarget tar = conf.getTargets().get(targetName);
+            String targetPath = tar.getPath();
 
+            // 准备输出
+            List<String> outputs = targetOutputs.get(targetName);
+
+            // 无需输出
+            if (outputs.isEmpty()) {
+                System.out.println("  ~ nil ouput ~");
+                continue;
+            }
+
+            // 需要包裹一下
+            if (tar.isWrap()) {
+                // 前包裹
+                outputs.add(0, "(function(){");
+                // 结束包裹
+                outputs.add("//".repeat(30));
+                outputs.add("// The End");
+                outputs.add("})();");
+            }
+
+            // 准备内容并写入
             String content = Strings.join(System.lineSeparator(), outputs);
 
             String aph = Disks.appendPath(conf.getHome(), targetPath);

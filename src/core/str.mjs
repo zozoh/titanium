@@ -1,4 +1,4 @@
-export const TiStr = {
+const TiStr = {
   sBlank(str, dft) {
     return str || dft
   },
@@ -483,4 +483,4 @@ export const TiStr = {
   }
 }
 //-----------------------------------
-export default TiStr
+export const S = TiStr

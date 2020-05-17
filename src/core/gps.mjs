@@ -147,5 +147,5 @@ const TiGPS = {
   }
 }
 //---------------------------------------
-export default TiGPS
+export const GPS = TiGPS
 

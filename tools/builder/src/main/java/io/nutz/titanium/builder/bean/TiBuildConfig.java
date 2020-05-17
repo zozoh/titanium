@@ -1,6 +1,6 @@
 package io.nutz.titanium.builder.bean;
 
-import org.nutz.lang.util.NutMap;
+import java.util.Map;
 
 public class TiBuildConfig {
 
@@ -8,7 +8,7 @@ public class TiBuildConfig {
 
     private TiBuildEntry[] entries;
 
-    private NutMap targets;
+    private Map<String, TiBuildTarget> targets;
 
     public String getHome() {
         return home;
@@ -26,11 +26,11 @@ public class TiBuildConfig {
         this.entries = coms;
     }
 
-    public NutMap getTargets() {
+    public Map<String, TiBuildTarget> getTargets() {
         return targets;
     }
 
-    public void setTargets(NutMap targets) {
+    public void setTargets(Map<String, TiBuildTarget> targets) {
         this.targets = targets;
     }
 

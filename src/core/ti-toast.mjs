@@ -181,4 +181,4 @@ const TiToast = {
   //------------------------------------------
 }
 //////////////////////////////////////////////
-export default TiToast
+export const Toast = TiToast;

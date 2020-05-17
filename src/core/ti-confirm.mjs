@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////
-async function Confirm(msg="", {
+async function TiConfirm(msg="", {
   title, 
   icon,
   closer = false,
@@ -46,4 +46,4 @@ async function Confirm(msg="", {
   //............................................
 }
 ////////////////////////////////////////////////
-export default Confirm
+export const Confirm = TiConfirm;

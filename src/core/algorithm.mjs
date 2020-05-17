@@ -1,6 +1,6 @@
 // rquired crypto-js
 ///////////////////////////////////////////
-export const TiAlg = {
+const TiAlg = {
   //---------------------------------------
   sha1(str) {
     if(!_.isString(str)) {
@@ -68,4 +68,4 @@ export const TiAlg = {
   //---------------------------------------
 }
 ///////////////////////////////////////////
-export default TiAlg
+export const Alg = TiAlg;

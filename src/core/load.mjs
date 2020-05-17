@@ -167,7 +167,7 @@ const LoadModes = {
   }
 }
 //---------------------------------------
-export const TiLoad = async function(url=[], {dynamicPrefix, dynamicAlias}={}) {
+async function TiLoad(url=[], {dynamicPrefix, dynamicAlias}={}) {
   // dynamic url 
   if(_.isFunction(url)) {
     let u2 = url();
@@ -239,4 +239,4 @@ export const TiLoad = async function(url=[], {dynamicPrefix, dynamicAlias}={}) {
   }
 }
 //-----------------------------------
-export default TiLoad
+export const Load = TiLoad

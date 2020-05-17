@@ -1,6 +1,4 @@
-import {
-  LoadTiAppInfo, 
-  LoadTiLinkedObj} from "./app-info.mjs"
+import {LoadTiAppInfo, LoadTiLinkedObj} from "./app-info.mjs"
 import {TiAppActionShortcuts} from "./app-action-shortcuts.mjs"
 import {TiVue}      from "./polyfill-ti-vue.mjs"
 import {TiAppModal} from "./app-modal.mjs"
@@ -16,7 +14,7 @@ const TI_VM_ACTIVED = Symbol("ti-vm-actived")
 /***
 Encapsulate all stuffs of Titanium Application
 */
-export class OneTiApp {
+class OneTiApp {
   constructor(tinfo={}){
     this.$info(tinfo)
     this.$conf(null)
@@ -370,7 +368,7 @@ export class OneTiApp {
   }
 }
 //---------------------------------------
-export const TiApp = function(a0) {
+const TiApp = function(a0) {
   // Guard it
   if(Ti.Util.isNil(a0)) {
     return null
@@ -443,4 +441,4 @@ TiApp.Open = function(options) {
   })
 }
 //---------------------------------------
-export default TiApp
+export const App = TiApp

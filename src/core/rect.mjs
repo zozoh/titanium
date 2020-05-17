@@ -1,4 +1,3 @@
-import TiUtil from "./util.mjs"
 //--------------------------------------
 class QuickKeyMap {
   constructor() {
@@ -56,7 +55,7 @@ function PickKeys(rect, keys, dft) {
   let re = {};
   let ks = QKM.explainToArray(keys, false)
   for(let key of ks) {
-    let val = TiUtil.fallback(rect[key], dft)
+    let val = Ti.Util.fallback(rect[key], dft)
     if(!_.isUndefined(val)) {
       re[key] = val
     }
@@ -767,4 +766,4 @@ export const TiRects = {
   //--------------------------------------
 }
 //////////////////////////////////////////
-export default TiRects
+export const Rects = TiRects

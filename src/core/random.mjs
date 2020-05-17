@@ -1,6 +1,6 @@
 const CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('')
 //---------------------------------------
-export const TiRandom = {
+const TiRandom = {
   /***
    * Generator `N` length random string
    */
@@ -29,5 +29,5 @@ export const TiRandom = {
   }
 }
 //---------------------------------------
-export default TiRandom
+export const Random = TiRandom
 

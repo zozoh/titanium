@@ -1065,4 +1065,4 @@ const TiUtil = {
   }
 }
 //-----------------------------------
-export default TiUtil
+export const Util = TiUtil

@@ -7,7 +7,7 @@ Tree Node:
 }
 */
 //////////////////////////////////////
-export const TiTrees = {
+const TiTrees = {
   //---------------------------------
   path(strOrArray=[]) {
     if(Ti.Util.isNil(strOrArray)) {
@@ -359,4 +359,4 @@ export const TiTrees = {
   //---------------------------------
 }
 //////////////////////////////////////
-export default TiTrees
+export const Trees = TiTrees

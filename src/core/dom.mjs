@@ -1,4 +1,4 @@
-export const TiDom = {
+const TiDom = {
   createElement({tagName="div", attrs={}, props={}, className="", $p=null}, $doc=document) {
     const $el = $doc.createElement(tagName)
     if(className)
@@ -333,5 +333,5 @@ export const TiDom = {
   }
 }
 //---------------------------------------
-export default TiDom
+export const Dom = TiDom
 

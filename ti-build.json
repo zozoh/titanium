@@ -1,5 +1,11 @@
 {
   "entries" : [{
+        "path": "src/core/ti.mjs",
+        "target": "core"
+      }, {
+        "path": "src/lib/walnut/walnut.mjs",
+        "target": "walnut"
+      }, {
         "path": "src/com",
         "prefix": "ti/com/",
         "includes": "^(hmaker|ti|net|web|wn)/.+$",
@@ -24,6 +30,17 @@
         "target": "all"
       }],
   "targets" : {
-    "all": "src/dist/ti-more-all.js"
+    "core": {
+      "path" : "src/dist/ti-core.js",
+      "wrap" : false
+    },
+    "walnut": {
+      "path" : "src/dist/ti-walnut.js",
+      "wrap" : false
+    },
+    "all": {
+      "path" : "src/dist/ti-more-all.js",
+      "wrap" : true
+    }
   }
 }

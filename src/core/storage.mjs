@@ -55,10 +55,10 @@ class TiStorageWrapper {
   }
 }
 //-----------------------------------
-export const TiStorage = {
+const TiStorage = {
   session : new TiStorageWrapper(window.sessionStorage),
   local   : new TiStorageWrapper(window.localStorage)
 }
 //---------------------------------------
-export default TiStorage
+export const Storage = TiStorage
 

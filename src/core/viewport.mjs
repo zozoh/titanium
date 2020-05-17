@@ -1,4 +1,4 @@
-class Viewport {
+class TiViewport {
   constructor(){
     this.reset()
   }
@@ -45,6 +45,4 @@ class Viewport {
   }
 }
 //-----------------------------------
-const TiViewport = new Viewport()
-//-----------------------------------
-export default TiViewport
+export const Viewport = new TiViewport()

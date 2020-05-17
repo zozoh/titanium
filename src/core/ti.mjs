@@ -1,42 +1,42 @@
-import Alert   from "./ti-alert.mjs"
-import Confirm from "./ti-confirm.mjs"
-import Prompt  from "./ti-prompt.mjs"
-import Captcha from "./ti-captcha.mjs"
-import Toast   from "./ti-toast.mjs"
-import Be           from "./behaviors.mjs"
-import Alg          from "./algorithm.mjs"
-import S            from "./str.mjs"
-import App          from "./app.mjs"
-import Err          from "./err.mjs"
-import Config       from "./config.mjs"
-import Dom          from "./dom.mjs"
-import Rects        from "./rect.mjs"
-import Load         from "./load.mjs"
-import Http         from "./http.mjs"
-import I18n         from "./i18n.mjs"
-import Icons        from "./icons.mjs"
-import Fuse         from "./fuse.mjs"
-import Random       from "./random.mjs"
-import Storage      from "./storage.mjs"
-import Shortcut     from "./shortcut.mjs"
-import Websocket    from "./websocket.mjs"
-import Validate     from "./validate.mjs"
-import Types        from "./types.mjs"
-import Util         from "./util.mjs"
-import Trees        from "./trees.mjs"
-import Viewport     from "./viewport.mjs"
-import WWW          from "./www.mjs"
-import GPS          from "./gps.mjs"
-import DateTime     from "./datetime.mjs"
-import Num          from "./num.mjs"
-import Css          from "./css.mjs"
-import Mapping      from "./mapping.mjs"
-import { Dict, DictFactory } from "./dict.mjs"
+import {Alert}   from "./ti-alert.mjs"
+import {Confirm} from "./ti-confirm.mjs"
+import {Prompt}  from "./ti-prompt.mjs"
+import {Captcha} from "./ti-captcha.mjs"
+import {Toast}   from "./ti-toast.mjs"
+import {Be}           from "./behaviors.mjs"
+import {Alg}          from "./algorithm.mjs"
+import {S}            from "./str.mjs"
+import {App}          from "./app.mjs"
+import {Err}          from "./err.mjs"
+import {Config}       from "./config.mjs"
+import {Dom}          from "./dom.mjs"
+import {Rect,Rects}   from "./rect.mjs"
+import {Load}         from "./load.mjs"
+import {Http}         from "./http.mjs"
+import {I18n}         from "./i18n.mjs"
+import {Icons}        from "./icons.mjs"
+import {Fuse}         from "./fuse.mjs"
+import {Random}       from "./random.mjs"
+import {Storage}      from "./storage.mjs"
+import {Shortcut}     from "./shortcut.mjs"
+import {TiWebsocket}  from "./websocket.mjs"
+import {Validate}     from "./validate.mjs"
+import {Types}        from "./types.mjs"
+import {Util}         from "./util.mjs"
+import {Trees}        from "./trees.mjs"
+import {Viewport}     from "./viewport.mjs"
+import {WWW}          from "./www.mjs"
+import {GPS}          from "./gps.mjs"
+import {DateTime}     from "./datetime.mjs"
+import {Num}          from "./num.mjs"
+import {Css}          from "./css.mjs"
+import {Mapping}      from "./mapping.mjs"
+import {Dict,DictFactory} from "./dict.mjs"
 import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
 import {VueTiCom} from "./vue/vue-ti-com.mjs"
 //---------------------------------------
-import WalnutAppMain from "./ti-walnut-app-main.mjs"
-import WebAppMain from "./ti-web-app-main.mjs"
+import {WalnutAppMain} from "./ti-walnut-app-main.mjs"
+import {WebAppMain} from "./ti-web-app-main.mjs"
 //---------------------------------------
 const LOAD_CACHE = {}
 function Preload(url, anyObj) {
@@ -99,10 +99,12 @@ const G_FUNCS = {}
 //---------------------------------------
 export const Ti = {
   //-----------------------------------------------------
-  Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, Rects,
+  Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, 
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
-  WWW, GPS, Validate, DateTime, Num, Websocket, Trees,
-  Mapping, Dict, DictFactory,
+  WWW, GPS, Validate, DateTime, Num, Trees,
+  Mapping, Dict, DictFactory, Rects, Rect,
+  //-----------------------------------------------------
+  Websocket: TiWebsocket,
   //-----------------------------------------------------
   Preload, MatchCache, AddResourcePrefix, RS_PREFIXs,
   //-----------------------------------------------------

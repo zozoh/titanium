@@ -39,5 +39,3 @@ export function importModule(url) {
     document.head.appendChild(script);
   });
 }
-
-export default importModule;

@@ -58,7 +58,7 @@ class SuffixMapping {
 }
 const SUFFIX = new SuffixMapping().reset()
 /////////////////////////////////////////////////
-export const TiConfig = {
+const TiConfig = {
   AliasMapping,
   //.................................
   version() {
@@ -174,4 +174,4 @@ export const TiConfig = {
   }
 }
 /////////////////////////////////////////////////
-export default TiConfig
+export const Config = TiConfig

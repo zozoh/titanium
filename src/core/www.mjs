@@ -175,4 +175,4 @@ const TiWWW = {
   //---------------------------------------
 }
 ///////////////////////////////////////////
-export default TiWWW
+export const WWW = TiWWW

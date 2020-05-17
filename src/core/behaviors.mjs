@@ -1,4 +1,4 @@
-export const TiBehaviors = {
+const TiBehaviors = {
   /***
    * Open URL, it simulate user behavior by create 
    * undocumented `form` and call its `submit` method.
@@ -269,4 +269,4 @@ export const TiBehaviors = {
   }
 }
 //-----------------------------------
-export default TiBehaviors
+export const Be = TiBehaviors
