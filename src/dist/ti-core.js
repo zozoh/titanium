@@ -10087,7 +10087,7 @@ const {WebAppMain} = (function(){
     viewport=true
   }={}) {
     //---------------------------------------
-    Ti.AddResourcePrefix(rs, pageBase)
+    Ti.AddResourcePrefix(rs, siteRs)
     //---------------------------------------
     Vue.use(Ti.Vue.EventBubble)
     Vue.use(Ti.Vue.TiCom)
