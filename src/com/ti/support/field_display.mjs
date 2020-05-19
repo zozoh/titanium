@@ -193,7 +193,8 @@ const FieldDisplay = {
             key : m[2] || defaultKey,
             comType : "ti-label",
             comConf : {
-              dict : m[1]
+              dict : m[1],
+              className: "is-nowrap"
             }
           }
         }
