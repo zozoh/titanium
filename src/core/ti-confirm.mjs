@@ -7,7 +7,7 @@ async function TiConfirm(msg="", {
   position = "center",
   textYes = "i18n:yes",
   textNo  = "i18n:no",
-  width, height}={}){
+  width=480, height}={}){
   //............................................
   let text = Ti.I18n.text(msg)
   let theIcon  = icon  || "zmdi-help"

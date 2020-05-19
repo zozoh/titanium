@@ -106,7 +106,7 @@ export const Ti = {
   //-----------------------------------------------------
   Websocket: TiWebsocket,
   //-----------------------------------------------------
-  Preload, MatchCache, AddResourcePrefix, RS_PREFIXs,
+  Preload, MatchCache, AddResourcePrefix, RS_PREFIXs, LOAD_CACHE,
   //-----------------------------------------------------
   WalnutAppMain, WebAppMain,
   //-----------------------------------------------------

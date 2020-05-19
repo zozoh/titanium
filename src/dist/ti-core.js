@@ -8,7 +8,7 @@ const {Alert} = (function(){
     type  = "track", 
     textOk = "i18n:ok",
     position = "center",
-    width, height}={}){
+    width=480, height}={}){
     //............................................
     let text = Ti.I18n.text(msg)
     let theIcon  = icon  || Ti.Icons.get(type, "zmdi-info")
@@ -58,7 +58,7 @@ const {Confirm} = (function(){
     position = "center",
     textYes = "i18n:yes",
     textNo  = "i18n:no",
-    width, height}={}){
+    width=480, height}={}){
     //............................................
     let text = Ti.I18n.text(msg)
     let theIcon  = icon  || "zmdi-help"
@@ -10076,7 +10076,7 @@ const {WalnutAppMain} = (function(){
 const {WebAppMain} = (function(){
   ///////////////////////////////////////////////
   async function WebAppMain({
-    rs = "/gu/rs", 
+    rs = "/gu/rs/", 
     pageBase = "/",
     lang = "zh-cn",
     appJson, siteId, domain,
@@ -10109,13 +10109,13 @@ const {WebAppMain} = (function(){
     Ti.Config.set({
       prefix : {
         "Site"  : `${pageBase}`,
-        "theme" : `${rs}/ti/theme/`,
-        "lib"   : `${rs}/ti/lib/`,
-        "deps"  : `${rs}/ti/deps/`,
-        "dist"  : `${rs}/ti/dist/`,
-        "mod"   : `${rs}/ti/mod/`,
-        "com"   : `${rs}/ti/com/`,
-        "i18n"  : `${rs}/ti/i18n/`
+        "theme" : `${rs}ti/theme/`,
+        "lib"   : `${rs}ti/lib/`,
+        "deps"  : `${rs}ti/deps/`,
+        "dist"  : `${rs}ti/dist/`,
+        "mod"   : `${rs}ti/mod/`,
+        "com"   : `${rs}ti/com/`,
+        "i18n"  : `${rs}ti/i18n/`
       },
       alias : {
         "^\./"         : "@Site:",
@@ -10260,7 +10260,7 @@ export const Ti = {
   //-----------------------------------------------------
   Websocket: TiWebsocket,
   //-----------------------------------------------------
-  Preload, MatchCache, AddResourcePrefix, RS_PREFIXs,
+  Preload, MatchCache, AddResourcePrefix, RS_PREFIXs, LOAD_CACHE,
   //-----------------------------------------------------
   WalnutAppMain, WebAppMain,
   //-----------------------------------------------------

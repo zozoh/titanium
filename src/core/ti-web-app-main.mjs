@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////
 export async function WebAppMain({
-  rs = "/gu/rs", 
+  rs = "/gu/rs/", 
   pageBase = "/",
   lang = "zh-cn",
   appJson, siteId, domain,
@@ -33,13 +33,13 @@ export async function WebAppMain({
   Ti.Config.set({
     prefix : {
       "Site"  : `${pageBase}`,
-      "theme" : `${rs}/ti/theme/`,
-      "lib"   : `${rs}/ti/lib/`,
-      "deps"  : `${rs}/ti/deps/`,
-      "dist"  : `${rs}/ti/dist/`,
-      "mod"   : `${rs}/ti/mod/`,
-      "com"   : `${rs}/ti/com/`,
-      "i18n"  : `${rs}/ti/i18n/`
+      "theme" : `${rs}ti/theme/`,
+      "lib"   : `${rs}ti/lib/`,
+      "deps"  : `${rs}ti/deps/`,
+      "dist"  : `${rs}ti/dist/`,
+      "mod"   : `${rs}ti/mod/`,
+      "com"   : `${rs}ti/com/`,
+      "i18n"  : `${rs}ti/i18n/`
     },
     alias : {
       "^\./"         : "@Site:",
