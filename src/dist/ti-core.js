@@ -9902,7 +9902,7 @@ const {VueTiCom} = (function(){
 const {WalnutAppMain} = (function(){
   ///////////////////////////////////////////////
   async function WalnutAppMain({
-    rs = "/gu/rs", 
+    rs = "/gu/rs/", 
     appName="wn.manager",
     preloads=[],
     debug=false,
@@ -9937,13 +9937,13 @@ const {WalnutAppMain} = (function(){
       prefix : {
         "app"   : "/a/load/",
         "MyApp" : `/a/load/${appName}/`,
-        "theme" : `${rs}/ti/theme/`,
-        "lib"   : `${rs}/ti/lib/`,
-        "deps"  : `${rs}/ti/deps/`,
-        "dist"  : `${rs}/ti/dist/`,
-        "mod"   : `${rs}/ti/mod/`,
-        "com"   : `${rs}/ti/com/`,
-        "i18n"  : `${rs}/ti/i18n/`
+        "theme" : `${rs}ti/theme/`,
+        "lib"   : `${rs}ti/lib/`,
+        "deps"  : `${rs}ti/deps/`,
+        "dist"  : `${rs}ti/dist/`,
+        "mod"   : `${rs}ti/mod/`,
+        "com"   : `${rs}ti/com/`,
+        "i18n"  : `${rs}ti/i18n/`
       },
       alias : {
         "^\./"          : "@MyApp:",

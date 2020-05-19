@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="${rs}ti/deps/iconmonstr/css/iconmonstr-iconic-font.css">
 
   <!--===========Theme============-->
-  <link rel="stylesheet" href="${theme}">
+  <link rel="stylesheet" href="${themeCss}">
 
   <!--===========ExtAPIs==========-->
   ${extlibs?}
@@ -31,10 +31,8 @@
 <script type="module">
 import Ti from "${rs}${TiJs?ti/core/ti.mjs}";
 import Wn from "${rs}${WnJs?ti/lib/walnut/walnut.mjs}";
-// import Ti from "${rs}ti/dist/ti-core.js";
-// import Wn from "${rs}ti/dist/ti-walnut.js";
 //---------------------------------------
-window._app = ${app};
+window._app = ${app(json:n)?-obj-};
 //---------------------------------------
 Ti.WalnutAppMain({
   rs:"${rs}",
@@ -54,7 +52,7 @@ Ti.WalnutAppMain({
   },
   shortcute: true,
   viewport: true,
-  preloads: ["@dist:ti-more-all.js"],
+  preloads: ${preloads(json:cqn)?-array-}
 }).catch(err=>{
   throw err
 })
