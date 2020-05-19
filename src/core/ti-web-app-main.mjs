@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////
 export async function WebAppMain({
   rs = "/gu/rs/", 
-  pageBase = "/",
+  siteRs = "/",
   lang = "zh-cn",
   appJson, siteId, domain,
   preloads=[],
@@ -32,7 +32,7 @@ export async function WebAppMain({
   // Set default Config Setting
   Ti.Config.set({
     prefix : {
-      "Site"  : `${pageBase}`,
+      "Site"  : `${siteRs}`,
       "theme" : `${rs}ti/theme/`,
       "lib"   : `${rs}ti/lib/`,
       "deps"  : `${rs}ti/deps/`,
