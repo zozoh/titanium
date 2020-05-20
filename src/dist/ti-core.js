@@ -8826,19 +8826,15 @@ const {Num} = (function(){
      * scrollIndex(-1, 5) => 4
      * scrollIndex(-5, 5) => 0
      * scrollIndex(-6, 5) => 4
+     * scrollIndex(-5, 5) => 0
      * ```
      */
     scrollIndex(index, len=0) {
       if(len > 0) {
-        if(index < 0) {
-          return len + (index%len)
-        }
-  
-        if(index >= len) {
-          return index % len
-        }
-  
-        return index
+        let md = index % len;
+        return md >= 0
+          ? md
+          : len + md
       }
       return -1
     }

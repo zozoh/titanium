@@ -25707,14 +25707,14 @@ const _M = {
         return
       }
       // Do Scroll
-      let remain = this.myMaxScroll - (this.myScrollLeft+this.myScrollWidth)
+      let remain = this.myMaxScroll + this.myScrollLeft - this.myScrollWidth;
       let step = Math.min(this.myScrollWidth, remain)
       this.myScrollLeft -= step
     },
     //--------------------------------------
     evalScrolling() {
       this.myMaxScroll = this.$refs.inner.scrollWidth;
-      this.myScrollWidth = this.$refs.outer.getBoundingClientRect().width;
+      this.myScrollWidth = this.$refs.inner.getBoundingClientRect().width;
       this.myScrollLeft = 0;
     }
     //--------------------------------------
