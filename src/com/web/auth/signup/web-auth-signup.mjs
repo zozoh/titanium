@@ -55,14 +55,6 @@ const _M = {
     // }
   },
   ///////////////////////////////////////////////////////
-  watch : {
-    "currentMode" : function() {
-      this.guarding = false
-      this.data.name = ""
-      this.data.passwd = ""
-    }
-  },
-  ///////////////////////////////////////////////////////
   computed : {
     //---------------------------------------------------
     TopClass() {
@@ -178,6 +170,47 @@ const _M = {
         return "is-invalid"
     },
     //---------------------------------------------------
+    PasswdInputType() {
+      return "login_by_passwd" == this.currentMode
+        ? "password"
+        : "text"
+    },
+    //---------------------------------------------------
+    // 验证码发送目标的名称（i18n）
+    ToggleModetName(){
+      return ({
+        "login_by_phone" : "i18n:auth-ta-phone",
+        "login_by_email" : "i18n:auth-ta-email",
+        "bind_phone"     : "i18n:auth-ta-phone",
+        "bind_email"     : "i18n:auth-ta-email"
+      })[this.toggleMode]
+    },
+    //---------------------------------------------------
+    // 验证码发送目标的名称（i18n）
+    vCodeTargetName(){
+      return ({
+        "login_by_phone" : "i18n:auth-ta-phone",
+        "login_by_email" : "i18n:auth-ta-email",
+        "bind_phone"     : "i18n:auth-ta-phone",
+        "bind_email"     : "i18n:auth-ta-email"
+      })[this.currentMode]
+    },
+    //---------------------------------------------------
+    // 验证码发送目标的名称（i18n）
+    vCodeTargetBy(){
+      return ({
+        "login_by_phone" : "i18n:auth-ta-by-phone",
+        "login_by_email" : "i18n:auth-ta-by-email",
+        "bind_phone"     : "i18n:auth-ta-by-phone",
+        "bind_email"     : "i18n:auth-ta-by-email"
+      })[this.currentMode]
+    },
+    //---------------------------------------------------
+    // 不同模式下的场景
+    vCodeScene() {
+      return _.get(this.scenes, this.currentMode) || "auth"
+    } 
+    //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   methods :{
@@ -238,12 +271,38 @@ const _M = {
           this.InvalidField = ["name", "passwd"]
         },
         fail : ({errCode, data}={})=> {
-          Ti.Toast.Open({
-            type : "warn",
-            position : "top",
-            content : `i18n:${errCode}`,
-            duration : 5000
-          })
+          // VCode Error
+          if("e.auth.captcha.invalid" == errCode) {
+            Ti.Toast.Open({
+              type : "warn",
+              position : "top",
+              content : `i18n:e-www-invalid-captcha`,
+              vars : {
+                ta : Ti.I18n.text(this.vCodeTargetName)
+              },
+              duration : 5000
+            })
+          }
+          // NoSaltedPasswd
+          else if("e.auth.login.NoSaltedPasswd" == errCode) {
+            Ti.Alert("i18n:auth-login-NoSaltedPasswd", {
+              title: "i18n:e-auth-login-NoSaltedPasswd",
+              icon: "zmdi-shield-security",
+              textOk: "i18n:i-known",
+              vars: {
+                ta : Ti.I18n.text(this.ToggleModetName)
+              }
+            })
+          }
+          // Others Error
+          else {
+            Ti.Toast.Open({
+              type : "warn",
+              position : "top",
+              content : `i18n:${errCode}`,
+              duration : 5000
+            })
+          }
         }
       })
     },
@@ -282,21 +341,10 @@ const _M = {
         closer : false
       })
 
-      // 验证码发送目标的名称（i18n）
-      let vCodeTargetName = ({
-        "login_by_phone" : "i18n:auth-ta-phone",
-        "login_by_email" : "i18n:auth-ta-email",
-        "bind_phone"     : "i18n:auth-ta-phone",
-        "bind_email"     : "i18n:auth-ta-email"
-      })[this.currentMode]
-
-      // 不同模式下的场景
-      let vCodeScene = _.get(this.scenes, this.currentMode) || "auth"
-
       // use the captcha to get code
       this.$notify("get:vcode", {
         type    : this.currentMode,
-        scene   : vCodeScene,
+        scene   : this.vCodeScene,
         account : this.data.name,
         captcha,
         done: ()=>{
@@ -311,7 +359,8 @@ const _M = {
             position : "top",
             content : "i18n:auth-sent-ok",
             vars : {
-              ta  : Ti.I18n.text(vCodeTargetName),
+              ta  : Ti.I18n.text(this.vCodeTargetName),
+              by  : Ti.I18n.text(this.vCodeTargetBy),
               min : duInMin
             },
             duration : 5000
@@ -335,6 +384,14 @@ const _M = {
       return name == this.InvalidField
     }
     //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch : {
+    "currentMode" : function() {
+      this.guarding = false
+      //this.data.name = ""
+      this.data.passwd = ""
+    }
   },
   ///////////////////////////////////////////////////////
   mounted : function() {

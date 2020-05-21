@@ -5,9 +5,10 @@ async function TiAlert(msg="", {
   type  = "track", 
   textOk = "i18n:ok",
   position = "center",
-  width=480, height}={}){
+  width=480, height,
+  vars={}}={}){
   //............................................
-  let text = Ti.I18n.text(msg)
+  let text = Ti.I18n.textf(msg, vars)
   let theIcon  = icon  || Ti.Icons.get(type, "zmdi-info")
   let theTitle = title || Ti.I18n.get(type)
   //............................................

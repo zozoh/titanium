@@ -233,6 +233,7 @@ const _M = {
       let passKey = ({
         "login_by_passwd" : "passwd",
         "login_by_phone"  : "vcode",
+        "login_by_email"  : "vcode",
         "bind_phone"      : "vcode",
         "bind_email"      : "vcode"
       })[type]
@@ -295,7 +296,7 @@ const _M = {
       ok=_.identity, 
       fail=_.identity
     }={}) {
-      console.log("getVcode", scene, account, captcha)
+      console.log("getVcode", {type,scene, account, captcha})
 
       // Guard SiteId
       let siteId = rootState.siteId
@@ -307,10 +308,15 @@ const _M = {
       // Eval URL
       let api = ({
         "login_by_phone" : "get_sms_vcode",
+        "login_by_email" : "get_email_vcode",
         "bind_phone"     : "get_sms_vcode",
         "bind_email"     : "get_email_vcode"
       })[type]
       let url = getters.urls[api]
+
+      if(!api || !url) {
+        return await Ti.Toast.Open(`Invalid type: ${type}`, "error");
+      }
 
       // Prepare params
       let params = {

@@ -11,6 +11,7 @@
     <div class="as-input" :class="PasswdClass">
       <input 
         spellcheck="false"
+        :type="PasswdInputType"
         :placeholder="Msgs.passwdTip|i18n"
         v-model="data.passwd">
       <span v-if="Msgs.codeGet">
