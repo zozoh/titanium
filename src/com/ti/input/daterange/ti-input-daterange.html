@@ -1,6 +1,5 @@
 <ti-combo-box class="as-daterange"
   :class="topClass"
-  :width="width"
   :drop-width="null"
   :status="status"
   @collapse="doCollapse">
@@ -15,6 +14,7 @@
       :prefix-icon="icon"
       :suffix-icon="theStatusIcon"
       :value="theInputValue"
+      :width="width"
       :height="height"
       :focus="isExtended"
       @change="onChanged"

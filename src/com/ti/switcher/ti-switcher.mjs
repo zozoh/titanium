@@ -134,7 +134,16 @@ export default {
     },
     //......................................
     reloadMyValueMap() {
-      let vals = Ti.S.toArray(this.value)
+      let sep = null
+      if(this.autoSplitValue) {
+        if(_.isBoolean(this.autoSplitValue)) {
+          sep = /[:,;\t\n\/]+/g;
+        } else {
+          sep = this.autoSplitValue
+        }
+      }
+
+      let vals = Ti.S.toArray(this.value, {sep})
       let vmap = {}
       _.forEach(vals, v => vmap[v]=true)
       this.myValueMap = vmap

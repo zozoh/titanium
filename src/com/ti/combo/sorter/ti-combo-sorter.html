@@ -1,0 +1,61 @@
+<div class="ti-combo-sorter"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    sorter box
+  -->
+  <ti-combo-box
+    class="as-sorter"
+    :drop-width="dropWidth"
+    :drop-height="dropHeight"
+    :drop-float="false"
+    :status="myDropStatus"
+    @collapse="OnCollapse"
+    v-ti-activable>
+    <!--
+      Box
+    -->
+    <template v-slot:box>
+      <!--
+        Current Sort Box
+      -->
+      <div class="as-sort-box"
+        @click.left="OnClickBox">
+        <!--Sort Icon-->
+        <ti-icon
+          v-if="TheSortIcon"
+          class="as-sort-icon"
+            :value="TheSortIcon"/>
+        <!--Preifx Icon-->
+        <ti-icon 
+          v-if="ThePrefixIcon"
+            class="at-prefix"
+            :value="ThePrefixIcon"/>
+        <!--Title-->
+        <div class="as-title">{{SortTitle|i18n}}</div>
+      </div>
+      <!--Status Icon-->
+      <div  
+        v-if="TheSuffixIcon"
+          class="as-sort-btn"
+          @click.left="OnClickSuffixIcon">
+            <ti-icon :value="TheSuffixIcon"/>
+      </div>
+    </template>
+    <!--
+      Drop
+    -->
+    <template v-slot:drop="slotProps">
+      <ti-list
+        id-by="value"
+        :data="myListData"
+        :display="['<icon>', 'text']"
+        :hoverable="true"
+        :current-id="SortBy"
+        @select="OnDropListSelected"/>
+    </template>
+  </ti-combo-box>
+  <!--
+    Sorter
+  -->
+</div>

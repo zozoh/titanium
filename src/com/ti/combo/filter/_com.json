@@ -4,5 +4,7 @@
   "template" : "./ti-combo-filter.html",
   "props"    : "@com:ti/input/ti-input-props.mjs",
   "mixins"   : "./ti-combo-filter.mjs",
-  "components" : ["@com:ti/form"]
+  "components" : [
+    "@com:ti/form",
+    "@com:ti/combo/sorter"]
 }

@@ -76,7 +76,7 @@ export default {
       }
       // 通知修改
       this.$notify("change", {
-        pn   : pageNumber, 
+        pn   : pn, 
         pgsz : this.value.pgsz
       })
     },

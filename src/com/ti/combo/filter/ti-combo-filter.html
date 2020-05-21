@@ -29,6 +29,11 @@
         @input:focus="OnInputFocused"
         @prefix:icon="$notify('prefix:icon')"
         @suffix:icon="OnClickStatusIcon"/>
+      <ti-combo-sorter
+        v-if="sorter"
+          v-bind="sorter"
+          :value="mySort"
+          @change="OnSorterChanged"/>
     </template>
     <!--
       Drop

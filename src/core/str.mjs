@@ -3,7 +3,7 @@ const TiStr = {
     return str || dft
   },
   isBlank(str) {
-    return /^\s*$/.test(str)
+    return !str || /^\s*$/.test(str)
   },
   renderVars(vars={}, fmt="", {
     iteratee, 
@@ -276,7 +276,7 @@ const TiStr = {
       return s
     }
     // String to split
-    if(_.isString(s)) {
+    if(_.isString(s) && sep) {
       let ss = _.map(s.split(sep), v => _.trim(v))
       if(ignoreNil) {
         return _.without(ss, "")

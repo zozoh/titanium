@@ -20,6 +20,10 @@ const _M = {
       type : [Number, String],
       default : null
     },
+    "dropFloat": {
+      type: Boolean,
+      default: true
+    },
     "dropWidth" : {
       type : [Number, String],
       default : "box"
@@ -73,7 +77,9 @@ const _M = {
     },
     //------------------------------------------------
     theBoxStyle() {
-      return Ti.Css.toStyle(this.box)
+      if(this.dropFloat) {
+        return Ti.Css.toStyle(this.box)
+      }
     },
     //------------------------------------------------
     theDropStyle() {

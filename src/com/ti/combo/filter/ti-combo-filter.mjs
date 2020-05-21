@@ -4,17 +4,25 @@ const _M = {
   {
     keyword: "xxx",  -> myFreeValue
     match: {..}      -> myFormData
+    sort : {         -> mySort
+      by:"xx", as:1
+    }
   }
   */
   ////////////////////////////////////////////////////
   data : ()=>({
     myDropStatus : "collapse",
     myFreeValue : null,
-    myFormData  : {}
+    myFormData  : {},
+    mySort : {}
   }),
   ////////////////////////////////////////////////////
   props : {
     "form" : {
+      type : Object,
+      default : null
+    },
+    "sorter" : {
       type : Object,
       default : null
     },
@@ -28,6 +36,10 @@ const _M = {
         collapse : "zmdi-chevron-down",
         extended : "zmdi-chevron-up"
       })
+    },
+    "autoFocusExtended": {
+      type: Boolean,
+      default: true
     },
     "dropWidth" : {
       type : [Number, String],
@@ -82,8 +94,14 @@ const _M = {
     //-----------------------------------------------
     OnInputChanged(val) {
       this.myFreeValue = val
-      if(!this.isExtended)
-        this.tryNotifyChanged()
+      this.myDropStatus = "collapse"
+
+      // Clean all
+      if(Ti.Util.isNil(val)) {
+        this.myFormData  = {}
+      }
+
+      this.tryNotifyChanged()
     },
     //-----------------------------------------------
     OnInputFocused() {
@@ -100,8 +118,14 @@ const _M = {
       }
     },
     //-----------------------------------------------
+    OnSorterChanged(val) {
+      //console.log("filter sorter chanaged", val)
+      this.mySort = val
+      this.tryNotifyChanged()
+    },
+    //-----------------------------------------------
     OnFormChange(formData) {
-      console.log("haha", formData)
+      //console.log("filter form chanaged", formData)
       this.myFormData = formData
     },
     //-----------------------------------------------
@@ -135,7 +159,8 @@ const _M = {
     genValue() {
       return {
         keyword : this.myFreeValue,
-        match   : this.myFormData
+        match   : this.myFormData,
+        sort    : this.mySort
       }
     },
     //-----------------------------------------------
@@ -143,23 +168,34 @@ const _M = {
       let val = _.assign({}, this.value)
       this.myFreeValue = val.keyword
       this.myFormData  = val.match
+      this.mySort      = val.sort
     },
     //-----------------------------------------------
     // Callback
     //-----------------------------------------------
     __ti_shortcut(uniqKey) {
-      //console.log("ti-combo-multi-input", uniqKey)
+      //console.log("ti-combo-filter", uniqKey)
       //....................................
       if("ESCAPE" == uniqKey) {
         this.doCollapse({escaped:true})
         return {prevent:true, stop:true, quit:true}
       }
       //....................................
-      // If droplist is actived, should collapse it
-      if("ENTER" == uniqKey) {
-        this.doCollapse()
-        return {stop:true, quit:true}
+      if("ARROWDOWN" == uniqKey) {
+        this.doExtend()
+        return
       }
+      //....................................
+      if("ARROWUP" == uniqKey) {
+        this.doCollapse()
+        return
+      }
+      // //....................................
+      // // If droplist is actived, should collapse it
+      // if("ENTER" == uniqKey) {
+      //   this.doCollapse()
+      //   return {stop:true, quit:true}
+      // }
       //....................................
     }
     //-----------------------------------------------

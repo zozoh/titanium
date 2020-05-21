@@ -1,0 +1,43 @@
+.ti-combo-sorter {
+  @include noselect;
+  @include flex($ai:stretch,$wp:nowrap);
+  height: .32rem;
+  padding: 0 .04rem;
+  //-------------------------------------
+  .ti-combo-box.as-sorter {
+    width:100%;
+    > .as-box {
+      > .as-sort-box {flex:1 1 auto;}
+      > .as-sort-btn {flex:0 0 auto;}
+    }
+  }
+  //-------------------------------------
+  .as-sort-box {
+    @include flex-align-nowrap;
+    cursor: pointer;
+    //-----------------------------------
+    &:hover {
+      @include color($color-weaktip, r, c);
+    }
+    //-----------------------------------
+    > .ti-icon {width: .24rem; }
+    > .as-title {padding: .04rem;}
+    //-----------------------------------
+  }
+  //-------------------------------------
+  .as-sort-btn {
+    @include flex-center; width:.24rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    .ti-icon {
+      transition: 0.5s;
+    }
+    &:hover {
+      @include color($color-secondary, r, c);
+      .ti-icon {
+        transform: rotate(200deg) scale(1.2);
+      }
+    }
+  }
+  //-------------------------------------
+}

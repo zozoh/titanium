@@ -29,6 +29,10 @@ export default {
     type : Boolean,
     default : true
   },
+  "autoSplitValue": {
+    type: [Boolean, String],
+    default: true
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

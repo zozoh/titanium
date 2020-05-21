@@ -2,5 +2,11 @@
   "net-ct": "创建时间",
   "net-flt-nil": "查找视频名称",
   "net-vod-add-video": "添加视频",
+  "net-vod-cate": "视频分类",
+  "net-vod-du-long": "长视频",
+  "net-vod-du-short": "短视频",
+  "net-vod-du-tv": "剧集视频",
+  "net-vod-duration": "视频时长",
+  "net-vod-size": "视频大小",
   "net-vod-video-nil": "请选择一个视频查看详情"
 }

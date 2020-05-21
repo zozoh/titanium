@@ -4,8 +4,15 @@
   &.as-spacing-comfy {padding: .08rem;}
   &.as-spacing-tiny  {padding: .04rem;}
   //---------------------------------------------
-  > .as-filter {
+  > .ti-combo-box.as-filter {
     flex:1 1 auto;
+    //-------------------------------------------
+    > .as-box {
+      @include flex-align-nowrap;
+      > .ti-input {flex:1 1 auto;}
+      > .ti-combo-sorter {flex:0 0 auto;}
+    }
+    //-------------------------------------------
   }
   //---------------------------------------------
 }

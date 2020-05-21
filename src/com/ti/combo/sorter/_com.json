@@ -1,0 +1,7 @@
+{
+  "name" : "ti-combo-sorter",
+  "globally" : true,
+  "template" : "./ti-combo-sorter.html",
+  "mixins"   : "./ti-combo-sorter.mjs",
+  "components" : ["@com:ti/combo/box"]
+}
