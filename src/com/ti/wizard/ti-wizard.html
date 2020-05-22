@@ -1,14 +1,14 @@
 <div class="ti-wizard ti-fill-parent"
-  :class="topClass">
+  :class="TopClass">
   <!--
     Header Indicators
   -->
   <div class="as-head">
     <ul>
-      <li v-for="(step, index) in displayStepList"
+      <li v-for="(step, index) in StepHeads"
         :key="step.stepKey"
         :class="step.className"
-        @click.left="onClickHeadItem(step, index)">
+        @click.left="OnClickHeadItem(index, step)">
         <span class="as-indicator">
           <span class="as-line at-l"></span>
           <span class="as-dot">{{index+1}}</span>
@@ -22,42 +22,47 @@
     Current Step Component
   -->
   <div class="as-main">
-    <wizard-step 
-      v-bind="currentStep"
-      @step:event="onStepEvent"/>
+    <WizardStep 
+      v-bind="CurrentStep"
+      @data:change="OnDataChange"
+      @step:change="OnStepChange"/>
   </div>
   <!--
     Footer Default Buttons
   -->
-  <div v-if="btnPrev || btnNext"
+  <div v-if="BtnPrev || BtnNext"
     class="as-foot">
-    <ul>
       <!--
         Btn: Prev
       -->
-      <li v-if="btnPrev" 
-        :class="btnPrev.className"
-        @click="onClickBtnPrev">
-        <span v-if="btnPrev.icon"
-          class="as-icon">
-          <ti-icon :value="btnPrev.icon"/>
-        </span>
-        <span class="as-sep"></span>
-        <span class="as-text">{{btnPrev.text|i18n}}</span>
-      </li>
+      <div
+        v-if="BtnPrev" 
+          class="as-btn is-prev"
+          :class="BtnPrev.className"
+          @click="OnClickBtnPrev">
+          <span v-if="BtnPrev.icon"
+            class="as-icon">
+            <ti-icon :value="BtnPrev.icon"/>
+          </span>
+          <span class="as-sep"></span>
+          <span class="as-text">{{BtnPrev.text|i18n}}</span>
+      </div>
+      <!--Sep-->
+      <div class="as-space"></div>
       <!--
         Btn: Next
       -->
-      <li v-if="btnNext" 
-        :class="btnNext.className"
-        @click="onClickBtnNext">
-        <span class="as-text">{{btnNext.text|i18n}}</span>
-        <span class="as-sep"></span>
-        <span v-if="btnNext.icon"
-          class="as-icon">
-          <ti-icon :value="btnNext.icon"/>
-        </span>
-      </li>
-    </ul>
+      <div
+        v-if="BtnNext" 
+          class="as-btn is-next"
+          :class="BtnNext.className"
+          @click="OnClickBtnNext">
+          <span v-if="BtnNext.icon"
+            class="as-icon">
+            <ti-icon :value="BtnNext.icon"/>
+          </span>
+          <span class="as-sep"></span>
+          <span class="as-text">{{BtnNext.text|i18n}}</span>
+      </div>
   </div>
 </div>

@@ -85,8 +85,12 @@ const _M = {
       return
     }
 
+    // Mark field status
+    _.forEach(data, (val, name)=>{
+      commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
+    })
+
     // Do the update
-    
     let json = JSON.stringify(data)
     let th_set = state.meta.th_set
     let th_id  = state.meta.id
@@ -94,6 +98,11 @@ const _M = {
     let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
     commit("setMeta", reo)
+
+    _.forEach(data, (val, name)=>{
+      commit("setFieldStatus", {name, type:"ok", text:"i18n:ok"})
+    })
+    _.delay(()=>{commit("clearFieldStatus", name)}, 500)
   },
   //--------------------------------------------
   // Reload & Save

@@ -172,6 +172,43 @@ const _M = {
   },
   //--------------------------------------------
   /***
+   * Open meta editor, if has current, use it
+   */
+  async openMetaEditor({state, getters, dispatch,}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    //.........................................
+    // For current selected
+    //.........................................
+    if(getters.hasCurrent) {
+      // Edit current meta
+      let reo = await Wn.EditObjMeta(state.current.meta, {
+        fields:"default", autoSave:false
+      })
+
+      // Cancel the editing
+      if(_.isUndefined(reo)) {
+        return
+      }
+
+      // Update the current editing
+      let {updates} = reo
+      if(!_.isEmpty(updates)) {
+        await dispatch("updateCurrentMetas", updates)
+      }
+      return
+    }
+    //.........................................
+    // For Whole thing thing
+    //.........................................
+    await Wn.EditObjMeta(state.meta, {
+      fields:"auto", autoSave:true
+    })
+  },
+  //--------------------------------------------
+  /***
    * Reload files
    */
   async reloadFiles({state,commit,dispatch, getters}, {force=false}={}) {

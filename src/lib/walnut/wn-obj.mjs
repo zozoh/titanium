@@ -255,22 +255,33 @@ const WnObj = {
             let fldConf = ({
               "Integer": {
                 type: "Number",
+                display: k,
                 comType: "ti-input"
               },
               "Number" : {
+                type: "Number",
+                display: k,
                 comType: "ti-input"
               },
               "Boolean" : {
+                type: "Boolean",
                 comType: "ti-toggle"
               },
               "Array" : {
+                type: "Array",
+                display: k,
                 comType: "ti-input-tags"
               }
-            })[jsType] || "ti-label"
+            })[jsType] || {
+              type: "String",
+              display: k,
+              comType: "ti-input"
+            }
             
             // Join
             let f2 = iteratee({
-              title: k, name: k, type: jsType,
+              title: k,
+              name: k,
               ... fldConf
             })
             if(f2) {

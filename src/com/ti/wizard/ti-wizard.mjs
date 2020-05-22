@@ -1,12 +1,15 @@
-export default {
-  inheritAttrs : false,
+const _M = {
+  ///////////////////////////////////////////////////
+  data: () => ({
+    myCurrent: undefined
+  }),
   ///////////////////////////////////////////////////
   props : {
     "steps" : {
       type : Array,
       default : ()=>[]
     },
-    "data" : {
+    "value" : {
       type : Object,
       default : ()=>({})
     },
@@ -22,22 +25,42 @@ export default {
   ///////////////////////////////////////////////////
   computed : {
     //----------------------------------------------
-    topClass() {
-      return this.className
+    TopClass() {
+      return this.getTopClass()
     },
     //----------------------------------------------
-    displayStepList() {
+    StepList() {
       let list = []
       if(_.isArray(this.steps)) {
-        for(let step of this.stepList) {
+        for(let i=0; i<this.steps.length; i++) {
+          let step = this.steps[i]
+          let stepKey = step.key || `step${i}`
+          // Eval comConf
+          let comConf = Ti.Util.explainObj(this.value, step.comConf)
+          // Join to the list
+          list.push({
+            index     : i,
+            stepKey   : stepKey,
+            title     : step.title   || stepKey,
+            comType   : step.comType || "ti-label",
+            comConf,
+            prev : step.prev,
+            next : step.next
+          })
+        }
+      }
+      return list
+    },
+    //----------------------------------------------
+    StepHeads() {
+      let list = []
+      if(_.isArray(this.steps)) {
+        for(let step of this.StepList) {
           let className = []
-          if(step.className) {
-            className = [].concat(step.className)
-          }
-          if(this.currentStepIndex == step.index) {
+          if(this.CurrentStepIndex == step.index) {
             className.push("is-current")
           }
-          else if(step.index > this.currentStepIndex) {
+          else if(step.index > this.CurrentStepIndex) {
             className.push("is-future")
           }
           else {
@@ -50,47 +73,23 @@ export default {
       return list
     },
     //----------------------------------------------
-    stepList() {
-      let list = []
-      if(_.isArray(this.steps)) {
-        for(let i=0; i<this.steps.length; i++) {
-          let step = this.steps[i]
-          let stepKey = step.key || `step${i}`
-          // Join to the list
-          list.push({
-            index     : i,
-            className : step.className,
-            stepKey   : stepKey,
-            title     : step.title   || stepKey,
-            dataKey   : step.dataKey,
-            data      : this.data,
-            comType   : step.comType || "ti-label",
-            comConf   : step.comConf || {value:stepKey},
-            comEvents : step.comEvents  || {},
-            prev : step.prev,
-            next : step.next
-          })
-        }
-      }
-      return list
-    },
-    //----------------------------------------------
-    currentStepIndex() {
-      return this.currentStep
-                ? this.currentStep.index
+    CurrentStepIndex() {
+      return this.CurrentStep
+                ? this.CurrentStep.index
                 : -1
     },
     //----------------------------------------------
     hasCurrentStep() {
-      return this.currentStep ? true : false
+      return this.CurrentStep ? true : false
     },
     //----------------------------------------------
-    currentStep() {
-      return this.getStepBy(this.current)
+    CurrentStep() {
+      let cs = Ti.Util.fallback(this.myCurrent, this.current)
+      return this.getStep(cs)
     },
     //----------------------------------------------
-    btnPrev() {
-      let btn = _.get(this.currentStep, "prev")
+    BtnPrev() {
+      let btn = _.get(this.CurrentStep, "prev")
       return this.getStepAction(btn, {
         icon     : "zmdi-chevron-left",
         text     : "i18n:prev",
@@ -98,12 +97,13 @@ export default {
       })
     },
     //----------------------------------------------
-    btnNext() {
-      let btn = _.get(this.currentStep, "next")
+    BtnNext() {
+      let btn = _.get(this.CurrentStep, "next")
       return this.getStepAction(btn, {
         icon     : "zmdi-chevron-right",
         text     : "i18n:next",
-        enabled  : true
+        enabled  : true,
+        reverse  : btn.icon ? false : true
       })
     }
     //----------------------------------------------
@@ -111,16 +111,61 @@ export default {
   ///////////////////////////////////////////////////
   methods : {
     //----------------------------------------------
-    getStepBy(keyOrIndex) {
+    OnDataChange(payload) {
+      console.log("wizard:OnStepDataChange", payload)
+      let newData = _.assign({}, this.value, payload)
+      this.$notify("change", newData)
+    },
+    //----------------------------------------------
+    OnStepChange(payload) {
+      // Prev
+      if("@prev" == payload) {
+        this.gotoFromCurrent(-1)
+      }
+      // Next
+      else if("@next" == payload) {
+        this.gotoFromCurrent(1)
+      }
+      // absolute step
+      else {
+        this.gotoStep(payload)
+      }
+    },
+    //----------------------------------------------
+    OnClickHeadItem(index) {
+      // Can Click Passed Steps
+      if("passed" == this.canClickHeadItem 
+        && this.CurrentStepIndex > index) {
+        this.gotoStep(index)
+      }
+    },
+    //----------------------------------------------
+    OnClickBtnPrev() {
+      if(this.BtnPrev && this.BtnPrev.enabled) {
+        this.gotoFromCurrent(-1)
+      }
+    },
+    //----------------------------------------------
+    OnClickBtnNext() {
+      if(this.BtnNext && this.BtnNext.enabled) {
+        this.gotoFromCurrent(1)
+      }
+    },
+    //----------------------------------------------
+    //
+    // Utility Methods
+    //
+    //----------------------------------------------
+    getStep(keyOrIndex) {
       // By Index: -1 is the last item
       if(_.isNumber(keyOrIndex)) {
-        let i = Ti.Num.scrollIndex(keyOrIndex, this.stepList.length)
+        let i = Ti.Num.scrollIndex(keyOrIndex, this.StepList.length)
         if(i>=0)
-          return this.stepList[i]
+          return this.StepList[i]
       }
       // By Key
       else {
-        for(let step of this.stepList) {
+        for(let step of this.StepList) {
           if(step.stepKey == keyOrIndex) {
             return step
           }
@@ -129,35 +174,22 @@ export default {
       // Return undefined
     },
     //----------------------------------------------
-    onClickBtnPrev() {
-      if(this.btnPrev && this.btnPrev.enabled) {
-        this.gotoPrev()
-      }
-    },
-    //----------------------------------------------
-    onClickBtnNext() {
-      if(this.btnNext && this.btnNext.enabled) {
-        this.gotoNext()
-      }
-    },
-    //----------------------------------------------
     gotoStep(keyOrIndex) {
-      let step = this.getStepBy(keyOrIndex)
-      if(step)
-        this.$notify("goto-step", step)
-    },
-    //----------------------------------------------
-    gotoPrev(off=-1) {
-      this.gotoFromCurrent(-1)
-    },
-    //----------------------------------------------
-    gotoNext(off=1) {
-      this.gotoFromCurrent(1)
+      let step = this.getStep(keyOrIndex)
+      if(step) {
+        let oldStep = _.cloneDeep(this.CurrentStep)
+        this.myCurrent = step.index
+        this.$notify("step:chanage", {
+          index: step.index,
+          step,
+          oldStep
+        })
+      }
     },
     //----------------------------------------------
     gotoFromCurrent(off=1) {
-      if(this.currentStep) {
-        let nextStepIndex = this.currentStep.index + off
+      if(this.CurrentStep) {
+        let nextStepIndex = this.CurrentStep.index + off
         this.gotoStep(nextStepIndex)
       }
     },
@@ -178,38 +210,27 @@ export default {
           btn = _.assign({}, stepBtn)
           // Eval enabled
           if(_.isPlainObject(btn.enabled)) {
-            btn.enabled = Ti.Validate.match(this.data, btn.enabled)
+            btn.enabled = Ti.Validate.match(this.value, btn.enabled)
           }
         }
         // Setup 
         _.defaults(btn, dftSetting)
+        btn.className = Ti.Css.mergeClassName(btn.className)
         // ClassName
         if(btn.enabled) {
-          btn.className = "is-enabled"
+          btn.className["is-enabled"] = true
         }
+        // Revers
+        if(btn.reverse) {
+          btn.className["is-reverse"] = true
+        }
+
         // Return 
         return btn
-      }
-    }, 
-    //----------------------------------------------
-    onStepEvent({emitName, nextStep, payload}={}) {
-      console.log("wizard:onStepEvent", {emitName, nextStep, payload})
-      // Notify Event
-      if(emitName) {
-        this.$notify(emitName, payload)
-      }
-      // Try auto goto nextStep
-      this.gotoStep(nextStep)
-    },
-    //----------------------------------------------
-    onClickHeadItem(step, index) {
-      // Can Click Passed Steps
-      if("passed" == this.canClickHeadItem 
-        && this.currentStepIndex > index) {
-        this.gotoStep(index)
       }
     }
     //----------------------------------------------
   }
   ///////////////////////////////////////////////////
 }
+export default _M;

@@ -121,6 +121,21 @@ export async function WalnutAppMain({
     window[key] = mod
   }
   //---------------------------------------
+  // Customized preload
+  if(!_.isEmpty(tiConf.preloads)) {
+    let pres = []
+    _.forEach(tiConf.preloads, url => {
+      pres.push(Ti.Load(url))
+    })
+    await Promise.all(pres)
+  }
+
+  if(!_.isEmpty(tiConf.rsPrefixes)) {
+    let pxs = _.concat(tiConf.rsPrefixes)
+    Ti.AddResourcePrefix(...pxs)
+  }
+
+  //---------------------------------------
   // Setup dictionaly
   Wn.Dict.setup(tiConf.dictionary)
   //---------------------------------------

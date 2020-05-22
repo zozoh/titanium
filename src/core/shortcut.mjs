@@ -15,6 +15,8 @@ const TiShortcut = {
     argContext={},
     wait=0,
   }={}) {
+    // if(action.indexOf("projIssuesImport") > 0)
+    //   console.log("genActionInvoking", action)
     //..........................................
     const __bind_it = fn => {
       return wait > 0

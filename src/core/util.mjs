@@ -283,7 +283,6 @@ const TiUtil = {
    * The value `=xxxx` in obj will get the value from context
    */
   explainObj(context={}, obj, {
-    fnSet = Ti.Types,
     evalFunc = false,
     iteratee = _.identity
   }={}) {
@@ -293,9 +292,15 @@ const TiUtil = {
       //....................................
       // String : Check the "@BLOCK(xxx)" 
       if(_.isString(theValue)) {
+        // Escape
+        let m = /^:((=|==|!=|=>|->)(.+))$/.exec(theValue)
+        if(m) {
+          return iteratee(m[1])
+        }
+
         let m_type, m_val, m_dft;
         // Match template
-        let m = /^(==|!=|=>|->)(.+)$/.exec(theValue)
+        m = /^(==|!=|=>|->)(.+)$/.exec(theValue)
         if(m) {
           m_type = m[1]
           m_val  = _.trim(m[2])
@@ -389,49 +394,20 @@ const TiUtil = {
       //....................................
       // Object
       else if(_.isPlainObject(theValue)) {
-        //..................................
-        // Calling
-        if(theValue.__is_calling) {
-          // Find function
-          let fn = theValue.name
-          if(_.isString(fn)) {
-            fn = _.get(fnSet, theValue.name)
+        let o2 = {}
+        _.forEach(theValue, (v2, k2)=>{
+          let v3 = ExplainValue(v2)
+          let v4 = iteratee(v3)
+          // key `...` -> assign o1
+          if("..." == k2) {
+            _.assign(o2, v4)
           }
-          // Prepare arguments
-          let args = _.map(theValue.args||[], ExplainValue)
-          // Do invoke
-          let re = fn.apply(context, args)
-          return iteratee(re)
-        }
-        //..................................
-        // Bind Function
-        else if(theValue.__is_function) {
-          let args = _.map(theValue.args, ExplainValue)
-          let re = {
-            __is_calling : true,
-            name : _.get(fnSet, theValue.name),
-            args
+          // set value
+          else {
+            o2[k2] = v4
           }
-          return re
-        }
-        //..................................
-        // Call-down
-        else {
-          let o2 = {}
-          _.forEach(theValue, (v2, k2)=>{
-            let v3 = ExplainValue(v2)
-            let v4 = iteratee(v3)
-            // key `...` -> assign o1
-            if("..." == k2) {
-              _.assign(o2, v4)
-            }
-            // set value
-            else {
-              o2[k2] = v4
-            }
-          })
-          return o2
-        } // _.isPlainObject(anyValue)
+        })
+        return o2
       }
       //....................................
       // Others return directly

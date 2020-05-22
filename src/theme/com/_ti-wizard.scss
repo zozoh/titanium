@@ -85,30 +85,35 @@
   //----------------------------------------
   > .as-foot {
     @include noselect;
-    @include flex-align-nowrap($jc:flex-end);
+    @include flex-align-nowrap;
     @include border(1px, solid, shallow, top);
-    flex:0 0 auto;
+    padding:.5em;
     //--------------------------------------
-    ul {
-      @include flex-align-nowrap;
-      padding:.1rem .02rem;
-      //------------------------------------
-      li {
-        @include flex-align-nowrap;
-        padding:.04rem .12rem;
-        margin:0 .02rem;
-        opacity: 0.4;
-        //----------------------------------
-        &.is-enabled {
-          @include fireable;
-          opacity: 1;
-        }
-        //----------------------------------
-        > .as-sep {width:.06rem;}
-        //----------------------------------
-      } // li
-      //------------------------------------
-    } // ul
+    > .as-space {flex:1 1 auto;}
+    //--------------------------------------
+    > .as-btn {
+      @include flex-align-nowrap($jc:center);
+      flex:0 0 auto;
+      font-size:.2rem; padding:0 .5em;
+      line-height: 2.4em; min-width: 8em;
+      opacity: 0.4;
+      //----------------------------------
+      &.is-enabled {
+        @include fireable;
+        opacity: 1;
+      }
+      //----------------------------------
+      &.is-reverse {
+        .as-text {order:1;}
+        .as-sep  {order:2;}
+        .as-icon {order:3;}
+      }
+      //----------------------------------
+      > .as-sep {width:.5em;}
+      > .as-icon {font-size:1.4em;}
+      //----------------------------------
+    } // li
+    //--------------------------------------
   } // .as-foot
   //----------------------------------------
 }

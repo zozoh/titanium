@@ -1,11 +1,17 @@
 ///////////////////////////////////////
-const FnSet = {
-  "NoEmpty"       : (val)=>!_.isEmpty(val),
-  "HasValue"      : (val)=>(
-                      !_.isUndefined(val) 
-                      && !_.isNull(val)),
+const VALIDATORS = {
+  "notNil"        : (val)=>!Ti.Util.isNil(val),
+  "notEmpty"      : (val)=>!_.isEmpty(val),
+  "notBlank"      : (val)=>!Ti.S.isBlank(val),
+  "isNil"         : (val)=>Ti.Util.isNil(val),
+  "isEmpty"       : (val)=>_.isEmpty(val),
+  "isBlank"       : (val)=>Ti.S.isBlank(val),
   "isPlainObject" : (val)=>_.isPlainObject(val),
   "isBoolean"     : (val)=>_.isBoolean(val),
+  "isTrue"        : (val)=>(val === true),
+  "isFalse"       : (val)=>(val === false),
+  "isTruthy"      : (val)=>(val ? true  : false),
+  "isFalsy"       : (val)=>(val ? false : true),
   "isNumber"      : (val)=>_.isNumber(val),
   "isString"      : (val)=>_.isString(val),
   "isDate"        : (val)=>_.isDate(val),
@@ -36,7 +42,13 @@ const FnSet = {
 const TiValidate = {
   //-----------------------------------
   get(name, args=[], not) {
-    let fn = _.get(FnSet, name)
+    // Dynamic name
+    if(_.isFunction(name)) {
+      name = name()
+    }
+
+    // Try get the func
+    let fn = _.get(VALIDATORS, name)
     if(!_.isFunction(fn)) {
       throw `Invalid Validate: ${name}`
     }
@@ -49,11 +61,29 @@ const TiValidate = {
     }
 
     if(not) {
-      return v => {
-        return !f2(v)
-      }
+      return v => !f2(v)
     }
     return f2
+  },
+  //-----------------------------------
+  evalBy(str, context={}) {
+    let not = false
+    if(str.startsWith("!")) {
+      not = true
+      str = _.trim(str.substring(1))
+    }
+    let fv = Ti.Util.genInvoking(str, {
+      context,
+      funcSet: VALIDATORS,
+      partialRight: true
+    })
+    if(!_.isFunction(fv)) {
+      throw `Invalid TiValidator: "${str}"`
+    }
+    if(not) {
+      return v => !fv(v)
+    }
+    return fv
   },
   //-----------------------------------
   getBy(fn) {
@@ -61,7 +91,7 @@ const TiValidate = {
       return fn
     }
     if(_.isString(fn)) {
-      return TiValidate.get(fn)
+      return TiValidate.evalBy(fn)
     }
     if(_.isPlainObject(fn)) {
       let name = fn.name

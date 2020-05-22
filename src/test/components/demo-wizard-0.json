@@ -1,84 +1,84 @@
 {
   "comType" : "ti-wizard",
   "comConf" : {
-    "current" : 0,
-    "data"  : "=data",
+    "current" : 1,
+    "value" : "=data",
     "steps" : [{
+        "title": "基本信息",
         "comType" : "ti-form",
         "comConf" : {
           "fields" : [{
-              "name" : "theName",
+              "title": "姓名",
+              "name" : "name",
               "comType" : "ti-input"
             }, {
-              "name" : "theValue",
-              "comType" : "ti-switcher",
-              "comConf" : {
-                "options" : [1,2,3,5,8]
-              }
+              "title": "年龄",
+              "name" : "age",
+              "type" : "Integer",
+              "comType" : "ti-input-num"
+            }, {
+              "title": "伟大",
+              "name" : "great",
+              "type" : "Boolean",
+              "comType" : "ti-toggle"
+            }, {
+              "title": "居所",
+              "name" : "location",
+              "display": "location",
+              "comType" : "ti-input"
             }],
-          "data" : {
-            "theName"  : "=data.theName",
-            "theValue" : "=data.theValue"
-          }
-        },
-        "comEvents" : {
-          "change" : true
+          "data": ":=.."
         },
         "prev" : false,
         "next" : {
           "enabled" : {
-            "theValue" : "isNumber",
-            "theName"  : "NoEmpty"
+            "age"   : "inRange(40,50)",
+            "name"  : "!isBlank",
+            "great" : "isTrue",
+            "location"  : "notBlank"
           }
         }
       }, {
-        "dataKey" : "pos",
+        "title": "联系方式",
         "comType" : "ti-form",
         "comConf" : {
           "fields" : [{
-              "name" : "x",
-              "type" : "Integer",
-              "width" : "1.4rem",
-              "comType" : "ti-input-num",
-              "comConf" : {
-                "step" : 100
-              }
+              "title": "手机",
+              "name" : "phone",
+              "comType" : "ti-input"
             }, {
-              "name" : "y",
-              "type" : "Integer",
-              "width" : "1.4rem",
-              "comType" : "ti-input-num",
-              "comConf" : {
-                "step" : 10
-              }
+              "title": "邮箱",
+              "name" : "email",
+              "comType" : "ti-input"
             }],
-          "data" : {
-            "x"  : "=data.pos.x",
-            "y" : "=data.pos.y"
-          }
-        },
-        "comEvents" : {
-          "change" : {
-            "emitName"    : "merge",
-            "transformer" : "toObjByPair"
-          }
+          "data": ":=.."
         },
         "prev" : true,
         "next" : {
           "enabled" : {
-            "pos.x" : "isNumber",
-            "pos.y" : "isNumber"
+            "phone" : "!isBlank",
+            "email" : "!isBlank"
           }
         }
       }, {
+        "title": "特殊标签",
+        "comType" : "ti-form",
+        "comConf" : {
+          "fields" : [{
+              "name" : "lbls",
+              "type" : "Array",
+              "comType" : "ti-input-tags"
+            }],
+          "data": ":=.."
+        },
         "prev" : true,
-        "next" : true
-      }, {
-        "prev" : true,
-        "next" : true
-      }, {
-        "prev" : true,
-        "next" : true
+        "next" : {
+          "icon" : "far-check-circle",
+          "text" : "完成",
+          "enabled" : {
+            "lbls" : "!isEmpty"
+          }
+        }
       }]
   },
   "dispatchActions" : {

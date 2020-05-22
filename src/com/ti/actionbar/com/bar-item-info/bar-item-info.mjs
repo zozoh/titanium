@@ -191,7 +191,7 @@ const _M = {
       else if(_.isPlainObject(mat)) {
         // Validate | `{validate:{..}}`
         if(mat.validate) {
-          return Ti.Validate(this.status, mat.validate)
+          return Ti.Validate.match(this.status, mat.validate)
         }
         // Match  | `{saving:true}`
         return _.isMatch(this.status, mat)

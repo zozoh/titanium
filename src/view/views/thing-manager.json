@@ -96,7 +96,7 @@
         "type" : "action",
         "icon" : "zmdi-info-outline",
         "text" : "i18n:properties",
-        "action" : "dispatch:current/openMetaEditor",
+        "action" : "dispatch:main/openMetaEditor",
         "shortcut" : "ALT+CTRL+P"
       }]
   }]
