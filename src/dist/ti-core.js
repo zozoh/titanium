@@ -8,9 +8,10 @@ const {Alert} = (function(){
     type  = "track", 
     textOk = "i18n:ok",
     position = "center",
-    width=480, height}={}){
+    width=480, height,
+    vars={}}={}){
     //............................................
-    let text = Ti.I18n.text(msg)
+    let text = Ti.I18n.textf(msg, vars)
     let theIcon  = icon  || Ti.Icons.get(type, "zmdi-info")
     let theTitle = title || Ti.I18n.get(type)
     //............................................
@@ -877,7 +878,7 @@ const {S} = (function(){
       return str || dft
     },
     isBlank(str) {
-      return /^\s*$/.test(str)
+      return !str || /^\s*$/.test(str)
     },
     renderVars(vars={}, fmt="", {
       iteratee, 
@@ -1150,7 +1151,7 @@ const {S} = (function(){
         return s
       }
       // String to split
-      if(_.isString(s)) {
+      if(_.isString(s) && sep) {
         let ss = _.map(s.split(sep), v => _.trim(v))
         if(ignoreNil) {
           return _.without(ss, "")
@@ -5499,10 +5500,9 @@ const {Types} = (function(){
     "^((\\d{4})([/\\\\-])?(\\d{1,2})?([/\\\\-])?(\\d{1,2})?)?"
     + "(([ T])?"
     + "(\\d{1,2})(:)(\\d{1,2})((:)(\\d{1,2}))?"
-    + "(([.])"
-    + "(\\d{1,3}))?)?"
+    + "((\.)(\\d{1,3}))?)?"
     + "(([+-])(\\d{1,2})(:\\d{1,2})?)?"
-    + "$"
+    + "(Z(\\d*))?$"
   )
   //-----------------------------------
   function parseDate(d) {

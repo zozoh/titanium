@@ -2939,7 +2939,8 @@ Ti.Preload("ti/com/net/aliyun/vod/manager/vod-manager.html", `<ti-gui
   :loading-as="reloading"
   @filter::change="OnFilterChange"
   @list::select="OnListSelect"
-  @video::preview="OnVideoPreview"/>`);
+  @video::preview="OnVideoPreview"
+  @pager::change="OnPagerChange"/>`);
 //============================================================
 // JOIN: net/aliyun/vod/manager/vod-manager.mjs
 //============================================================
@@ -2952,7 +2953,11 @@ const _M = {
     pager: {},
     scrollToken: null,
     myCurrentId: null,
-    myCurrentVideo: null
+    myCurrentVideo: null,
+    myFilter: {
+      match: {},
+      sort: {by:"CreationTime", as:-1}
+    }
   }),
   ///////////////////////////////////////////////////////
   props : {
@@ -2963,6 +2968,44 @@ const _M = {
     "fields": {
       type: String,
       default: "Title,CoverURL,Duration,CateName,Size,Description,RegionID"
+    },
+    "form": {
+      type: Object,
+      default: ()=>({
+        fields: [{
+            title: "i18n:net-ct",
+            name: "CreationTime",
+            type: "Array",
+            comType: "ti-input-daterange"
+          // }, {
+          //   title: "i18n:net-vod-cate",
+          //   name : "CateName",
+          //   comType: "ti-input"
+          }, {
+            title: "i18n:net-vod-duration",
+            name: "Duration",
+            comType: "ti-switcher",
+            comConf: {
+              autoSplitValue: false,
+              options: [
+                {value: "[0, 600]",    text:"i18n:net-vod-du-short"},
+                {value: "(600, 4800]", text:"i18n:net-vod-du-tv"},
+                {value: "(4800, )",    text:"i18n:net-vod-du-long"},
+              ]
+            }
+          }]
+      })
+    },
+    "sorter": {
+      type: Object,
+      default: ()=>({
+        text: "i18n:net-ct",
+        __options: [
+          {value:"CreationTime", text:"i18n:net-ct"},
+          {value:"CateName",     text:"i18n:net-vod-cate"},
+          {value:"Duration",     text:"i18n:net-vod-duration"},
+          {value:"Size",         text:"i18n:net-vod-size"},]
+      })
     },
     "pageSize": {
       type: Number,
@@ -2989,6 +3032,14 @@ const _M = {
         return `aliyunvod ${this.ConfName}`
       }
       return "aliyunvod"
+    },
+    //---------------------------------------------------
+    ThePageNumber() {
+      return _.get(this.pager, "pn") || 1
+    },
+    //---------------------------------------------------
+    ThePageSize() {
+      return _.get(this.pager, "pgsz") || this.pageSize
     },
     //---------------------------------------------------
     WallItemDisplay() {
@@ -3042,15 +3093,9 @@ const _M = {
           comConf: {
             className: "as-spacing-tiny",
             placeholder: "i18n:net-flt-nil",
-            form: {
-              fields: [{
-                title: "i18n:net-ct",
-                name: "createTime",
-                type: "Array",
-                comType: "ti-input-daterange",
-                comConf: {}
-              }]
-            }
+            form: this.form,
+            sorter: this.sorter,
+            value: this.myFilter
           }
         },
         pcList: {
@@ -3081,8 +3126,15 @@ const _M = {
   ///////////////////////////////////////////////////////
   methods :{
     //---------------------------------------------------
-    OnFilterChange(payload) {
-      console.log("FilterChange", payload)
+    async OnFilterChange(filter) {
+      this.myFilter = filter
+      this.pager = _.assign({}, this.pager, {pn:1})
+      await this.reloadVideos()
+    },
+    //---------------------------------------------------
+    async OnPagerChange(pg) {
+      this.pager = _.assign({}, this.pager, pg)
+      await this.reloadVideos()
     },
     //---------------------------------------------------
     async OnListSelect({currentId, checkedIds, checked}) {
@@ -3143,14 +3195,100 @@ const _M = {
       return reo
     },
     //---------------------------------------------------
+    toAliyunTime(tm) {
+      return 
+    },
+    //---------------------------------------------------
+    toMatchStr(keyword, match={}) {
+      let ss = []
+      if(!Ti.S.isBlank(keyword)) {
+        ss.push(`Title in ('${keyword.replace(/'/g,"")}')`)
+      }
+
+      // March
+      _.forEach(match, (val, key)=>{
+        if(Ti.Util.isNil(val)) {
+          return
+        }
+        //......................................
+        // Region
+        if(_.isString(val) && /^[\[(].+[)\]]$/.test(val)) {
+          ss.push(`${key}=${val}`)
+        }
+        //......................................
+        // Time
+        else if(/time/i.test(key)) {
+          let tfmt = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+          let times = Ti.Types.formatDateTime(val, tfmt)
+          times = _.concat(times)
+
+          // All day
+          if(times.length == 1) {
+            times.push(times[0])
+          }
+
+          // Move the last date
+          let lastDay = Ti.Types.toDate(times[1]).getTime() + 86400000;
+          times[1] = Ti.Types.formatDateTime(lastDay, tfmt)
+          
+          // Add scope
+          ss.push(`${key}=['${times[0]}', '${times[1]}')`)
+        }
+                //......................................
+        // In list
+        else if(_.isArray(val)) {
+          let vv = _.map(val, v=> {
+            if(_.isString(v))
+              return  v.replace(/'/g,"")
+            return v
+          })
+          ss.push(`${key} in (${vv.join(",")})`)
+        }
+        //......................................
+        // String
+        else if(_.isString(val)) {
+          ss.push(`${key} in ('${val.replace(/'/g,"")}')`)
+        }
+        //......................................
+        // Others
+        else {
+          ss.push(`${key} = ${val}`)
+        }
+      })
+      return ss.join(" and ")
+    },
+    //---------------------------------------------------
     async reloadVideos() {
       this.reloading = true
       // prepare the command
       let cmds = [this.CmdPrefix]
+      //.................................................
       cmds.push("search", "-fields", `'${this.fields}'`)
-      cmds.push("-pgsz", this.pageSize)
+      //.................................................
+      // Join the Filter: Match/keyword
+      let keyword = _.get(this.myFilter, "keyword")
+      let match = _.get(this.myFilter, "match")
+      if(!_.isEmpty(match) || !Ti.Util.isNil(keyword)) {
+        try{
+          cmds.push("-match", `"${this.toMatchStr(keyword, match)}"`)
+        }catch(E) {
+          console.error(E)
+        }
+      }
+      //.................................................
+      // Join the Filter: Sort
+      let sort = _.get(this.myFilter, "sort")
+      if(!_.isEmpty(sort)) {
+        cmds.push("-sort", `'${sort.by}:${sort.as>0?"Asc":"Desc"}'`)
+      }
+      //.................................................
+      // Join paging
+      cmds.push("-pn", this.ThePageNumber)
+      cmds.push("-pgsz", this.ThePageSize)
       cmds.push("-as page -cqn")
 
+      //console.log("reloadVideo", cmds)
+      //.................................................
       // Run
       let reo = await Wn.Sys.exec2(cmds.join(" "), {as:"json"})
       this.list  = reo.list
@@ -5654,6 +5792,10 @@ const _M = {
       type : [Number, String],
       default : null
     },
+    "dropFloat": {
+      type: Boolean,
+      default: true
+    },
     "dropWidth" : {
       type : [Number, String],
       default : "box"
@@ -5707,7 +5849,9 @@ const _M = {
     },
     //------------------------------------------------
     theBoxStyle() {
-      return Ti.Css.toStyle(this.box)
+      if(this.dropFloat) {
+        return Ti.Css.toStyle(this.box)
+      }
     },
     //------------------------------------------------
     theDropStyle() {
@@ -5873,6 +6017,11 @@ Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter.html", `<div class="ti-combo-
         @input:focus="OnInputFocused"
         @prefix:icon="$notify('prefix:icon')"
         @suffix:icon="OnClickStatusIcon"/>
+      <ti-combo-sorter
+        v-if="sorter"
+          v-bind="sorter"
+          :value="mySort"
+          @change="OnSorterChanged"/>
     </template>
     <!--
       Drop
@@ -5898,17 +6047,25 @@ const _M = {
   {
     keyword: "xxx",  -> myFreeValue
     match: {..}      -> myFormData
+    sort : {         -> mySort
+      by:"xx", as:1
+    }
   }
   */
   ////////////////////////////////////////////////////
   data : ()=>({
     myDropStatus : "collapse",
     myFreeValue : null,
-    myFormData  : {}
+    myFormData  : {},
+    mySort : {}
   }),
   ////////////////////////////////////////////////////
   props : {
     "form" : {
+      type : Object,
+      default : null
+    },
+    "sorter" : {
       type : Object,
       default : null
     },
@@ -5922,6 +6079,10 @@ const _M = {
         collapse : "zmdi-chevron-down",
         extended : "zmdi-chevron-up"
       })
+    },
+    "autoFocusExtended": {
+      type: Boolean,
+      default: true
     },
     "dropWidth" : {
       type : [Number, String],
@@ -5976,8 +6137,14 @@ const _M = {
     //-----------------------------------------------
     OnInputChanged(val) {
       this.myFreeValue = val
-      if(!this.isExtended)
-        this.tryNotifyChanged()
+      this.myDropStatus = "collapse"
+
+      // Clean all
+      if(Ti.Util.isNil(val)) {
+        this.myFormData  = {}
+      }
+
+      this.tryNotifyChanged()
     },
     //-----------------------------------------------
     OnInputFocused() {
@@ -5994,8 +6161,14 @@ const _M = {
       }
     },
     //-----------------------------------------------
+    OnSorterChanged(val) {
+      //console.log("filter sorter chanaged", val)
+      this.mySort = val
+      this.tryNotifyChanged()
+    },
+    //-----------------------------------------------
     OnFormChange(formData) {
-      console.log("haha", formData)
+      //console.log("filter form chanaged", formData)
       this.myFormData = formData
     },
     //-----------------------------------------------
@@ -6029,7 +6202,8 @@ const _M = {
     genValue() {
       return {
         keyword : this.myFreeValue,
-        match   : this.myFormData
+        match   : this.myFormData,
+        sort    : this.mySort
       }
     },
     //-----------------------------------------------
@@ -6037,23 +6211,34 @@ const _M = {
       let val = _.assign({}, this.value)
       this.myFreeValue = val.keyword
       this.myFormData  = val.match
+      this.mySort      = val.sort
     },
     //-----------------------------------------------
     // Callback
     //-----------------------------------------------
     __ti_shortcut(uniqKey) {
-      //console.log("ti-combo-multi-input", uniqKey)
+      //console.log("ti-combo-filter", uniqKey)
       //....................................
       if("ESCAPE" == uniqKey) {
         this.doCollapse({escaped:true})
         return {prevent:true, stop:true, quit:true}
       }
       //....................................
-      // If droplist is actived, should collapse it
-      if("ENTER" == uniqKey) {
-        this.doCollapse()
-        return {stop:true, quit:true}
+      if("ARROWDOWN" == uniqKey) {
+        this.doExtend()
+        return
       }
+      //....................................
+      if("ARROWUP" == uniqKey) {
+        this.doCollapse()
+        return
+      }
+      // //....................................
+      // // If droplist is actived, should collapse it
+      // if("ENTER" == uniqKey) {
+      //   this.doCollapse()
+      //   return {stop:true, quit:true}
+      // }
       //....................................
     }
     //-----------------------------------------------
@@ -6080,7 +6265,9 @@ Ti.Preload("ti/com/ti/combo/filter/_com.json", {
   "template" : "./ti-combo-filter.html",
   "props"    : "@com:ti/input/ti-input-props.mjs",
   "mixins"   : "./ti-combo-filter.mjs",
-  "components" : ["@com:ti/form"]
+  "components" : [
+    "@com:ti/form",
+    "@com:ti/combo/sorter"]
 });
 //============================================================
 // JOIN: ti/combo/input/ti-combo-input-props.mjs
@@ -6903,6 +7090,320 @@ Ti.Preload("ti/com/ti/combo/multi-input/_com.json", {
   "mixins"   : ["./ti-combo-multi-input.mjs"],
   "components" : [
     "@com:ti/combo/box"]
+});
+//============================================================
+// JOIN: ti/combo/sorter/ti-combo-sorter.html
+//============================================================
+Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter.html", `<div class="ti-combo-sorter"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    sorter box
+  -->
+  <ti-combo-box
+    class="as-sorter"
+    :drop-width="dropWidth"
+    :drop-height="dropHeight"
+    :drop-float="false"
+    :status="myDropStatus"
+    @collapse="OnCollapse"
+    v-ti-activable>
+    <!--
+      Box
+    -->
+    <template v-slot:box>
+      <!--
+        Current Sort Box
+      -->
+      <div class="as-sort-box"
+        @click.left="OnClickBox">
+        <!--Sort Icon-->
+        <ti-icon
+          v-if="TheSortIcon"
+          class="as-sort-icon"
+            :value="TheSortIcon"/>
+        <!--Preifx Icon-->
+        <ti-icon 
+          v-if="ThePrefixIcon"
+            class="at-prefix"
+            :value="ThePrefixIcon"/>
+        <!--Title-->
+        <div class="as-title">{{SortTitle|i18n}}</div>
+      </div>
+      <!--Status Icon-->
+      <div  
+        v-if="TheSuffixIcon"
+          class="as-sort-btn"
+          @click.left="OnClickSuffixIcon">
+            <ti-icon :value="TheSuffixIcon"/>
+      </div>
+    </template>
+    <!--
+      Drop
+    -->
+    <template v-slot:drop="slotProps">
+      <ti-list
+        id-by="value"
+        :data="myListData"
+        :display="['<icon>', 'text']"
+        :hoverable="true"
+        :current-id="SortBy"
+        @select="OnDropListSelected"/>
+    </template>
+  </ti-combo-box>
+  <!--
+    Sorter
+  -->
+</div>`);
+//============================================================
+// JOIN: ti/combo/sorter/ti-combo-sorter.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data : ()=>({
+    myDropStatus : "collapse",
+    myItem : null,
+    isASC : true,
+    myListData: []
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    "placeholder" : {
+      type : String,
+      default : "i18n:no-title"
+    },
+    "options" : {
+      type : Array,
+      default : ()=>[]
+    },
+    /*
+    {
+      by: "CreateTime",  // Sort key
+      as: 1              // 1:ASC, -1:DESC
+    }
+    */
+    "value" : {
+      type : Object,
+      default : null
+    },
+    "text" : {
+      type: String,
+      default: undefined
+    },
+    "width": {
+      type : [Number, String],
+      default : undefined
+    },
+    "height": {
+      type : [Number, String],
+      default : undefined
+    },
+    "dropWidth" : {
+      type : [Number, String],
+      default : "box"
+    },
+    "dropHeight" : {
+      type : [Number, String],
+      default : null
+    },
+    "sortIcons" : {
+      type : Object,
+      default : ()=>({
+        asc  : "fas-sort-amount-down-alt",
+        desc : "fas-sort-amount-down"
+      })
+    },
+    "suffixIcon" : {
+      type : String,
+      default : "fas-cog"
+    },
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    isCollapse() {return "collapse"==this.myDropStatus},
+    isExtended() {return "extended"==this.myDropStatus},
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //------------------------------------------------
+    SortTitle() {
+      return Ti.Util.getOrPick(this.myItem, "text|value", this.placeholder)
+    },
+    //------------------------------------------------
+    SortBy() {
+      return _.get(this.myItem, "value")
+    },
+    //------------------------------------------------
+    ThePrefixIcon() {
+      return _.get(this.myItem, "icon")
+    },
+    //------------------------------------------------
+    TheSortIcon() {
+      return this.isASC
+        ? this.sortIcons.asc
+        : this.sortIcons.desc
+    },
+    //------------------------------------------------
+    TheSuffixIcon() {
+      if(!_.isEmpty(this.myListData)) {
+        return this.suffixIcon
+      }
+    },
+    //------------------------------------------------
+    Dict() {
+      // Customized
+      if(this.options instanceof Ti.Dict) {
+        return this.options
+      }
+      // Refer dict
+      if(_.isString(this.options)) {
+        let dictName = Ti.DictFactory.DictReferName(this.options)
+        if(dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+            this.loading = loading
+          })
+        }
+      }
+      // Auto Create
+      return Ti.DictFactory.CreateDict({
+        data : this.options,
+        getValue : Ti.Util.genGetter(this.valueBy || "value"),
+        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
+        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+      })
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    OnCollapse() {this.doCollapse()},
+    //-----------------------------------------------
+    OnClickBox() {
+      this.isASC = !this.isASC
+      this.tryNotifyChanged()
+    },
+    //-----------------------------------------------
+    OnClickSuffixIcon() {
+      if(this.isExtended) {
+        this.doCollapse()
+      } else {
+        this.doExtend()
+      }
+    },
+    //-----------------------------------------------
+    OnDropListSelected({current}={}) {
+      this.myItem = current
+      this.doCollapse()
+    },
+    //-----------------------------------------------
+    // Core Methods
+    //-----------------------------------------------
+    doExtend() {
+      this.myDropStatus = "extended"
+    },
+    //-----------------------------------------------
+    doCollapse({escaped=false}={}) {
+      this.myDropStatus = "collapse"
+      if(!escaped) {
+        this.tryNotifyChanged()
+      }
+    },
+    //-----------------------------------------------
+    tryNotifyChanged() {
+      //console.log("tryNotifyChanged")
+      let val = this.genValue()
+      if(!_.isEqual(val, this.value)) {
+        this.$notify("change", val)
+      }
+    },
+    //-----------------------------------------------
+    // Utility
+    //-----------------------------------------------
+    genValue() {
+      return {
+        by : _.get(this.myItem, "value"),
+        as : this.isASC ? 1 : -1
+      }
+    },
+    //-----------------------------------------------
+    async evalMyValue() {
+      let val = {by:null, as:1}
+      // String: "CreateTime:1"
+      if(_.isString(this.value)) {
+        let ss = this.value.split(":")
+        val.by = _.nth(ss, 0)
+        val.as = _.nth(ss, 1) == "1" ? 1 : -1
+      }
+      // Array: ["CreateTime", 1]
+      else if(_.isArray(this.value)) {
+        val.by = _.nth(this.value, 0)
+        val.as = _.nth(this.value, 1) > 0 ? 1 : -1
+      }
+      // Object as default {by:"CreateTime", as:1}
+      else {
+        val.by = _.get(this.value, "by")
+        val.as = _.get(this.value, "as") > 0 ? 1 : -1
+      }
+
+      let it = await this.Dict.getItem(val.by)
+      if(it) {
+        this.myItem = it
+      } else {
+        this.myItem = {text:this.text||val.by, value:val.by}
+      }
+      this.isASC = val.as == 1
+    },
+    //-----------------------------------------------
+    // Callback
+    //-----------------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-combo-multi-input", uniqKey)
+      //....................................
+      if("ESCAPE" == uniqKey) {
+        this.doCollapse({escaped:true})
+        return {prevent:true, stop:true, quit:true}
+      }
+      //....................................
+    }
+    //-----------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    //-----------------------------------------------
+    "value" : {
+      handler: "evalMyValue",
+      immediate : true
+    }
+    //-----------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  mounted: async function() {
+    this.myListData = await this.Dict.getData()
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/combo/sorter/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/combo/sorter/_com.json", {
+  "name" : "ti-combo-sorter",
+  "globally" : true,
+  "template" : "./ti-combo-sorter.html",
+  "mixins"   : "./ti-combo-sorter.mjs",
+  "components" : ["@com:ti/combo/box"]
 });
 //============================================================
 // JOIN: ti/crumb/com/crumb-item/crumb-item.html
@@ -10533,7 +11034,6 @@ Ti.Preload("ti/com/ti/input/date/_com.json", {
 //============================================================
 Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<ti-combo-box class="as-daterange"
   :class="topClass"
-  :width="width"
   :drop-width="null"
   :status="status"
   @collapse="doCollapse">
@@ -10548,6 +11048,7 @@ Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<ti-combo-box c
       :prefix-icon="icon"
       :suffix-icon="theStatusIcon"
       :value="theInputValue"
+      :width="width"
       :height="height"
       :focus="isExtended"
       @change="onChanged"
@@ -15993,7 +16494,7 @@ const _M = {
       }
       // 通知修改
       this.$notify("change", {
-        pn   : pageNumber, 
+        pn   : pn, 
         pgsz : this.value.pgsz
       })
     },
@@ -17626,6 +18127,10 @@ const _M = {
     type : Boolean,
     default : true
   },
+  "autoSplitValue": {
+    type: [Boolean, String],
+    default: true
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -17822,7 +18327,16 @@ const _M = {
     },
     //......................................
     reloadMyValueMap() {
-      let vals = Ti.S.toArray(this.value)
+      let sep = null
+      if(this.autoSplitValue) {
+        if(_.isBoolean(this.autoSplitValue)) {
+          sep = /[:,;\t\n\/]+/g;
+        } else {
+          sep = this.autoSplitValue
+        }
+      }
+
+      let vals = Ti.S.toArray(this.value, {sep})
       let vmap = {}
       _.forEach(vals, v => vmap[v]=true)
       this.myValueMap = vmap
@@ -23615,6 +24129,7 @@ Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", `<div
     <div class="as-input" :class="PasswdClass">
       <input 
         spellcheck="false"
+        :type="PasswdInputType"
         :placeholder="Msgs.passwdTip|i18n"
         v-model="data.passwd">
       <span v-if="Msgs.codeGet">
@@ -23696,14 +24211,6 @@ const _M = {
     //   type : [String, Array],
     //   default : null
     // }
-  },
-  ///////////////////////////////////////////////////////
-  watch : {
-    "currentMode" : function() {
-      this.guarding = false
-      this.data.name = ""
-      this.data.passwd = ""
-    }
   },
   ///////////////////////////////////////////////////////
   computed : {
@@ -23821,6 +24328,47 @@ const _M = {
         return "is-invalid"
     },
     //---------------------------------------------------
+    PasswdInputType() {
+      return "login_by_passwd" == this.currentMode
+        ? "password"
+        : "text"
+    },
+    //---------------------------------------------------
+    // 验证码发送目标的名称（i18n）
+    ToggleModetName(){
+      return ({
+        "login_by_phone" : "i18n:auth-ta-phone",
+        "login_by_email" : "i18n:auth-ta-email",
+        "bind_phone"     : "i18n:auth-ta-phone",
+        "bind_email"     : "i18n:auth-ta-email"
+      })[this.toggleMode]
+    },
+    //---------------------------------------------------
+    // 验证码发送目标的名称（i18n）
+    vCodeTargetName(){
+      return ({
+        "login_by_phone" : "i18n:auth-ta-phone",
+        "login_by_email" : "i18n:auth-ta-email",
+        "bind_phone"     : "i18n:auth-ta-phone",
+        "bind_email"     : "i18n:auth-ta-email"
+      })[this.currentMode]
+    },
+    //---------------------------------------------------
+    // 验证码发送目标的名称（i18n）
+    vCodeTargetBy(){
+      return ({
+        "login_by_phone" : "i18n:auth-ta-by-phone",
+        "login_by_email" : "i18n:auth-ta-by-email",
+        "bind_phone"     : "i18n:auth-ta-by-phone",
+        "bind_email"     : "i18n:auth-ta-by-email"
+      })[this.currentMode]
+    },
+    //---------------------------------------------------
+    // 不同模式下的场景
+    vCodeScene() {
+      return _.get(this.scenes, this.currentMode) || "auth"
+    } 
+    //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   methods :{
@@ -23881,12 +24429,38 @@ const _M = {
           this.InvalidField = ["name", "passwd"]
         },
         fail : ({errCode, data}={})=> {
-          Ti.Toast.Open({
-            type : "warn",
-            position : "top",
-            content : `i18n:${errCode}`,
-            duration : 5000
-          })
+          // VCode Error
+          if("e.auth.captcha.invalid" == errCode) {
+            Ti.Toast.Open({
+              type : "warn",
+              position : "top",
+              content : `i18n:e-www-invalid-captcha`,
+              vars : {
+                ta : Ti.I18n.text(this.vCodeTargetName)
+              },
+              duration : 5000
+            })
+          }
+          // NoSaltedPasswd
+          else if("e.auth.login.NoSaltedPasswd" == errCode) {
+            Ti.Alert("i18n:auth-login-NoSaltedPasswd", {
+              title: "i18n:e-auth-login-NoSaltedPasswd",
+              icon: "zmdi-shield-security",
+              textOk: "i18n:i-known",
+              vars: {
+                ta : Ti.I18n.text(this.ToggleModetName)
+              }
+            })
+          }
+          // Others Error
+          else {
+            Ti.Toast.Open({
+              type : "warn",
+              position : "top",
+              content : `i18n:${errCode}`,
+              duration : 5000
+            })
+          }
         }
       })
     },
@@ -23925,21 +24499,10 @@ const _M = {
         closer : false
       })
 
-      // 验证码发送目标的名称（i18n）
-      let vCodeTargetName = ({
-        "login_by_phone" : "i18n:auth-ta-phone",
-        "login_by_email" : "i18n:auth-ta-email",
-        "bind_phone"     : "i18n:auth-ta-phone",
-        "bind_email"     : "i18n:auth-ta-email"
-      })[this.currentMode]
-
-      // 不同模式下的场景
-      let vCodeScene = _.get(this.scenes, this.currentMode) || "auth"
-
       // use the captcha to get code
       this.$notify("get:vcode", {
         type    : this.currentMode,
-        scene   : vCodeScene,
+        scene   : this.vCodeScene,
         account : this.data.name,
         captcha,
         done: ()=>{
@@ -23954,7 +24517,8 @@ const _M = {
             position : "top",
             content : "i18n:auth-sent-ok",
             vars : {
-              ta  : Ti.I18n.text(vCodeTargetName),
+              ta  : Ti.I18n.text(this.vCodeTargetName),
+              by  : Ti.I18n.text(this.vCodeTargetBy),
               min : duInMin
             },
             duration : 5000
@@ -23978,6 +24542,14 @@ const _M = {
       return name == this.InvalidField
     }
     //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch : {
+    "currentMode" : function() {
+      this.guarding = false
+      //this.data.name = ""
+      this.data.passwd = ""
+    }
   },
   ///////////////////////////////////////////////////////
   mounted : function() {
@@ -33979,6 +34551,7 @@ Ti.Preload("ti/lib/www/mod/auth/www-mod-auth.json", {
     "checkme"         : "auth/checkme",
     "login_by_wxcode" : "auth/login_by_wxcode",
     "login_by_phone"  : "auth/login_by_phone",
+    "login_by_email"  : "auth/login_by_email",
     "login_by_passwd" : "auth/login_by_passwd",
     "bind_phone"      : "auth/bind_account",
     "bind_email"      : "auth/bind_account",
@@ -34228,6 +34801,7 @@ const _M = {
       let passKey = ({
         "login_by_passwd" : "passwd",
         "login_by_phone"  : "vcode",
+        "login_by_email"  : "vcode",
         "bind_phone"      : "vcode",
         "bind_email"      : "vcode"
       })[type]
@@ -34290,7 +34864,7 @@ const _M = {
       ok=_.identity, 
       fail=_.identity
     }={}) {
-      console.log("getVcode", scene, account, captcha)
+      console.log("getVcode", {type,scene, account, captcha})
 
       // Guard SiteId
       let siteId = rootState.siteId
@@ -34302,10 +34876,15 @@ const _M = {
       // Eval URL
       let api = ({
         "login_by_phone" : "get_sms_vcode",
+        "login_by_email" : "get_email_vcode",
         "bind_phone"     : "get_sms_vcode",
         "bind_email"     : "get_email_vcode"
       })[type]
       let url = getters.urls[api]
+
+      if(!api || !url) {
+        return await Ti.Toast.Open(`Invalid type: ${type}`, "error");
+      }
 
       // Prepare params
       let params = {
@@ -35978,11 +36557,12 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-go-passwd": "账号密码登录",
   "auth-go-phone": "短信密码登录/注册",
   "auth-login": "登录",
+  "auth-login-NoSaltedPasswd": "你还未初始化您的登录密码，请切换至【${ta?验证码}】登录，之后前往【用户中心 > 安全设置】初始化您的登录密码，谢谢",
   "auth-login-or-signup": "登录/注册",
   "auth-ok": "账号验证通过",
   "auth-passwd-getback": "找回密码",
-  "auth-passwd-name-phone-tip": "手机号/登录名",
   "auth-passwd-name-email-tip": "邮箱地址/登录名",
+  "auth-passwd-name-phone-tip": "手机号/登录名",
   "auth-passwd-tip": "密码",
   "auth-passwd-title": "账号密码登录",
   "auth-phone-email-get": "获取邮箱验证码",
@@ -35998,12 +36578,14 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-reset-retype": "再次确认",
   "auth-reset-save": "保存",
   "auth-sending-vcode": "正在发送验证码",
-  "auth-sent-ok": "验证码已发出，请在${ta}查收，${min}分钟内有效",
-  "auth-ta-email": "邮箱里",
-  "auth-ta-phone": "手机上",
+  "auth-sent-ok": "${ta?验证码}已发出，请在${by}查收，${min}分钟内有效",
+  "auth-ta-by-email": "邮箱里",
+  "auth-ta-by-phone": "手机上",
+  "auth-ta-email": "邮件密码",
+  "auth-ta-phone": "手机密码",
   "auth-vcode-delay": "${sec} 秒后重新发送",
   "auth-vcode-lost": "收不到验证码？",
-  "e-www-invalid-captcha": "验证码错误",
+  "e-www-invalid-captcha": "${ta?验证码}错误",
   "e-www-login-invalid-passwd": "账号密码错误",
   "e-www-login-noexists": "账号不存在",
   "pay-by-nil": "请选择一个支付方式",
@@ -36095,6 +36677,12 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
   "net-ct": "创建时间",
   "net-flt-nil": "查找视频名称",
   "net-vod-add-video": "添加视频",
+  "net-vod-cate": "视频分类",
+  "net-vod-du-long": "长视频",
+  "net-vod-du-short": "短视频",
+  "net-vod-du-tv": "剧集视频",
+  "net-vod-duration": "视频时长",
+  "net-vod-size": "视频大小",
   "net-vod-video-nil": "请选择一个视频查看详情"
 });
 //============================================================
@@ -36142,6 +36730,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "download-to-local": "下载到本地",
   "drop-file-here-to-upload": "拖拽文件至此以便上传",
   "drop-here": "拖拽文件至此",
+  "e-auth-account-noexists": "账户不存在",
+  "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
+  "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
   "e-io-obj-exists": "但是对象已然存在",
   "e-io-obj-noexists": "对象其实并不存在",
   "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
@@ -36156,6 +36747,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "female": "女",
   "filter": "过滤",
   "home": "主目录",
+  "i-known": "我知道了",
   "icon": "图标",
   "icon-code-tip": "请输入图标代码，如 zmdi-case",
   "info": "信息",
@@ -36258,6 +36850,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-edit-com-nil": "默认为标签控件",
+  "wn-invalid-mimes": "不支持的文件内容类型 \"${current}\"，仅能支持 \"${supports}\"",
+  "wn-invalid-types": "不支持的文件扩展名 \"${current}\"，仅能支持 \"${supports}\"",
   "wn-key-c": "创建者",
   "wn-key-ct": "创建",
   "wn-key-d0": "D0",
@@ -36299,9 +36893,7 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-th-acc-pwd-done": "已经为${n}名用户重置了密码",
   "wn-th-acc-pwd-invalid": "密码中不得包含单双引号星号等非法字符",
   "wn-th-acc-pwd-reset-tip": "将密码重置为",
-  "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合",
-  "wn-invalid-mimes": "不支持的文件内容类型 \"${current}\"，仅能支持 \"${supports}\"",
-  "wn-invalid-types": "不支持的文件扩展名 \"${current}\"，仅能支持 \"${supports}\""
+  "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合"
 });
 ////////////////////////////////////////////////////////////
 // The End
