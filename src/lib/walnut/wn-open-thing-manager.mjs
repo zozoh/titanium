@@ -3,6 +3,8 @@
  */
 async function OpenThingManager(pathOrObj, {
   textOk = "i18n:ok",
+  icon = "fas-database",
+  title,
   ok = ({result})=>result,
   textCancel = "i18n:close",
   position = "top",
@@ -13,7 +15,9 @@ async function OpenThingManager(pathOrObj, {
   }
 
   // Load thing set
-  let oTs = await Wn.Io.loadMeta(pathOrObj)
+  let oTs = _.isString(pathOrObj)
+    ? await Wn.Io.loadMeta(pathOrObj)
+    : pathOrObj
   if(!oTs) {
     return await Ti.Toast.Open(`Fail to found ThingSet: ${pathOrObj}`, "warn");
   }
@@ -26,9 +30,9 @@ async function OpenThingManager(pathOrObj, {
 
   // Open it
   return await Ti.App.Open({
-    icon  : 'zmdi-github-alt',
-    title : oTs.title || oTs.nm,
-    position, width, height: "96%", 
+    icon,
+    title : title || oTs.title || oTs.nm,
+    position, width, height, 
     escape: false,
     topActions: view.actions,
     //------------------------------------------

@@ -125,7 +125,7 @@ const _M = {
   methods : {
     //----------------------------------------------
     OnDataChange(payload) {
-      console.log("wizard:OnStepDataChange", payload)
+      //console.log("wizard:OnStepDataChange", payload)
       let newData = _.assign({}, this.value, payload)
       this.$notify("change", newData)
     },
@@ -155,13 +155,27 @@ const _M = {
     //----------------------------------------------
     OnClickBtnPrev() {
       if(this.BtnPrev && this.BtnPrev.enabled) {
-        this.gotoFromCurrent(-1)
+        if(this.BtnPrev.handler) {
+          let invoking = Ti.Util.genInvoking(this.BtnPrev.handler, {
+            context: this.value
+          })
+          invoking.apply(this)
+        } else {
+          this.gotoFromCurrent(-1)
+        }
       }
     },
     //----------------------------------------------
     OnClickBtnNext() {
       if(this.BtnNext && this.BtnNext.enabled) {
-        this.gotoFromCurrent(1)
+        if(this.BtnNext.handler) {
+          let invoking = Ti.Util.genInvoking(this.BtnNext.handler, {
+            context: this.value
+          })
+          invoking.apply(this)
+        } else {
+          this.gotoFromCurrent(1)
+        }
       }
     },
     //----------------------------------------------

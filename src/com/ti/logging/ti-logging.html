@@ -1,0 +1,8 @@
+<div class="ti-logging"
+  :class="TopClass"
+  :style="TopStyle">
+  <pre ref="pre"><div 
+    v-for="(line, index) in lines"
+      :data-index="index"
+      >{{line || '&nbsp;'}}</div></pre>    
+</div>

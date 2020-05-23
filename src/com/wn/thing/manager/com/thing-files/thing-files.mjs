@@ -93,9 +93,10 @@ const _M = {
     async doUpdateFilesCount() {
       let meta = _.get(this.$ThingManager, "current.meta")
       if(meta) {
-        let cmds = ['thing', meta.th_set, 'file', meta.id, "-ufc"]
+        let cmds = ['thing', meta.th_set, 'file', meta.id, "-ufc -cqn"]
         let cmdText = cmds.join(" ")
-        await Wn.Sys.exec2(cmdText)
+        let newMeta = await Wn.Sys.exec2(cmdText, {as:"json"})
+        Ti.App(this).dispatch("main/setCurrentMeta", newMeta)
       }
     },
     //--------------------------------------

@@ -125,6 +125,8 @@ export class TiAppModal {
                   v-bind="TheComConf"
                   :on-init="OnMainInit"
                   :value="result"
+                  @close="OnClose"
+                  @ok="OnOk"
                   @change="OnChange"
                   @actions:update="OnActionsUpdated"/>
             </div>
@@ -133,7 +135,7 @@ export class TiAppModal {
               v-if="hasActions">
                 <div class="as-action"
                   v-for="a of actions"
-                    @click.left="onClickActon(a)">
+                    @click.left="OnClickActon(a)">
                     <div class="as-icon" v-if="a.icon">
                       <ti-icon :value="a.icon"/></div>
                     <div class="as-text">{{a.text|i18n}}</div>
@@ -302,6 +304,13 @@ export class TiAppModal {
           this.close()
         },
         //--------------------------------------
+        OnOk(re) {
+          if(_.isUndefined(re)) {
+            re = this.result
+          }
+          this.close(re)
+        },
+        //--------------------------------------
         OnChange(newVal) {
           this.result = newVal
         },
@@ -311,20 +320,7 @@ export class TiAppModal {
           Ti.App(this).reWatchShortcut(actions)
         },
         //--------------------------------------
-        // Utility
-        //--------------------------------------
-        close(result) {
-          if(!_.isUndefined(result)) {
-            this.returnValue = result
-          }
-          this.hidden = true
-        },
-        //--------------------------------------
-        setResult(result) {
-          this.returnValue = result
-        },
-        //--------------------------------------
-        async onClickActon(a) {
+        async OnClickActon(a) {
           if(a.handler) {
             let app = Ti.App(this)
             let status = {close:true}
@@ -364,6 +360,19 @@ export class TiAppModal {
           this.setActived()
           // Report ready
           this.ready(app)
+        },
+        //--------------------------------------
+        // Utility
+        //--------------------------------------
+        close(re) {
+          if(!_.isUndefined(re)) {
+            this.returnValue = re
+          }
+          this.hidden = true
+        },
+        //--------------------------------------
+        setResult(result) {
+          this.returnValue = result
         }
         //--------------------------------------
       },

@@ -130,3 +130,16 @@
   font-style:normal; font-weight: bold;
 }
 //...................................................
+//
+// Trans
+//
+//...................................................
+.ti-trans-fade-enter-active, 
+.ti-trans-fade-leave-active {
+  transition: opacity .3s;
+}
+.ti-trans-fade-enter, 
+.ti-trans-fade-leave-to  {
+  opacity: 0;
+}
+//...................................................

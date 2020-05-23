@@ -1,0 +1,6 @@
+{
+  "name" : "ti-logging",
+  "globally" : true,
+  "template" : "./ti-logging.html",
+  "mixins" : ["./ti-logging.mjs"]
+}
