@@ -142,7 +142,12 @@ const _M = {
           }
         }
         if(invalid) {
-          await Ti.Alert(invalidMsg, {type:"warn", icon:"zmdi-alert-triangle"})
+          console.log("haha")
+          await Ti.Alert(invalidMsg, {
+            type:"warn",
+            icon:"zmdi-alert-triangle",
+            vars
+          })
           return false
         }
       }
@@ -174,17 +179,17 @@ const _M = {
       // Check for support Types
       let type = Ti.Util.getSuffixName(file.name)
       if(!await this.assertListHas(
-        this.AcceptTypes, type, {
-          text : 'i18n:wn-invalid-types',
-          vars : {current:type, supports:this.AcceptTypes.join(", ")}
-        })) {
+        this.AcceptTypes, type, 
+        'i18n:wn-invalid-types',
+        {current: type, supports: this.AcceptTypes.join(", ")})
+      ) {
         return
       }
       if(!await this.assertListHas(
-        this.AcceptMimes, file.type, {
-          text : 'i18n:wn-invalid-mimes',
-          vars : {current:file.type, supports:this.AcceptMimes.join(", ")}
-        })) {
+        this.AcceptMimes, file.type, 
+        'i18n:wn-invalid-mimes',
+        {current:file.type, supports:this.AcceptMimes.join(", ")})
+      ) {
         return
       }
 

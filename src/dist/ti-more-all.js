@@ -3671,10 +3671,9 @@ const _M = {
       // Call Action
       if(this.action) {
         let app = Ti.App(this)
-        let currentData = app.currentData()
         let invoking = Ti.Shortcut.genActionInvoking(this.action, {
           $com : this.$bar.$parent,
-          argContext : currentData,
+          argContext: app.$state(),
           wait : this.wait
         })
         // Invoke it
@@ -4176,7 +4175,7 @@ const _M = {
       else if(_.isPlainObject(mat)) {
         // Validate | `{validate:{..}}`
         if(mat.validate) {
-          return Ti.Validate(this.status, mat.validate)
+          return Ti.Validate.match(this.status, mat.validate)
         }
         // Match  | `{saving:true}`
         return _.isMatch(this.status, mat)
@@ -6355,7 +6354,9 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input-props.mjs", _M);
 //============================================================
 // JOIN: ti/combo/input/ti-combo-input.html
 //============================================================
-Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box :class="TopClass"
+Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box 
+  class="ti-combo-input"
+  :class="TopClass"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
   :status="myDropStatus"
@@ -6733,7 +6734,9 @@ Ti.Preload("ti/com/ti/combo/input/_com.json", {
 //============================================================
 // JOIN: ti/combo/multi-input/ti-combo-multi-input.html
 //============================================================
-Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-box :class="TopClass"
+Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-box 
+  class="ti-combo-multi-input"
+  :class="TopClass"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
   :status="myDropStatus"
@@ -16075,7 +16078,6 @@ Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb"
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////
   props : {
     index : {
@@ -22965,7 +22967,7 @@ Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-f
     <ti-obj-thumb 
       :preview="PreviewIcon"
       :progress="progress"
-      :footer="false"/>
+      :show-footer="false"/>
     <!--
       Remove
     -->
@@ -23564,14 +23566,15 @@ Ti.Preload("ti/com/ti/wall/_com.json", {
 // JOIN: ti/wizard/com/wizard-step/wizard-step.html
 //============================================================
 Ti.Preload("ti/com/ti/wizard/com/wizard-step/wizard-step.html", `<component 
+  class="ti-fill-parent"
   :is="comType"
-  v-bind="comBindObject"/>`);
+  v-bind="comConf"
+  @change="OnChange"/>`);
 //============================================================
 // JOIN: ti/wizard/com/wizard-step/wizard-step.mjs
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ///////////////////////////////////////////////////
   props : {
     "index" : {
@@ -23586,13 +23589,9 @@ const _M = {
       type : String,
       default : null
     },
-    "dataKey" : {
-      type : String,
-      default : null
-    },
-    "data" : {
-      type : [Array, Object, Number, Boolean, String],
-      default : null
+    "serializer": {
+      type: Function,
+      default: null
     },
     "comType" : {
       type : String,
@@ -23600,78 +23599,17 @@ const _M = {
     },
     "comConf" : {
       type : Object,
-      default : ()=>({
-        value: "Step Component"
-      })
-    },
-    "comEvents" : {
-      type : Object,
       default : ()=>({})
     }
   },
   ///////////////////////////////////////////////////
-  computed : {
-    //----------------------------------------------
-    comBindObject() {
-      let bind = Ti.Util.explainObj(this.data, this.comConf, {
-        evalFunc : true
-      })
-      return bind      
-    }
-    //----------------------------------------------
-  },
-  ///////////////////////////////////////////////////
   methods : {
     //----------------------------------------------
-    async hijackEmit(name, args) {
-      // Find the serializer function
-      let router = this.comEvents[name]
-      if(!name.startsWith("hook:"))
-        console.log("hijackEmit:", {name, args, router})
-
-      // Do routing
-      if(router) {
-        // Boolean: keep emitName
-        if(_.isBoolean(router)) {
-          router = {emitName:name}
-        }
-        // String/Number: step
-        else if(_.isNumber(router) || /^[+-][0-9]+$/.test(router)) {
-          router = {emitName:name, nextStep:router}
-        }
-        // String for emitName
-        else if(_.isString(router)) {
-          router = {emitName:router}
-        }
-        //............................
-        // Eval emit & next
-        let emitName = router.emitName || name
-        let nextStep = router.nextStep
-        if(/^[+-][0-9]+$/.test(nextStep)) {
-          nextStep = this.index + (nextStep*1)
-        }
-        //............................
-        // Eval Payload
-        let payload = args
-        if(args && _.isArray(args) && args.length == 1) {
-          payload = args[0]
-        }
-        // Transform Payload
-        let trans = Ti.Types.getFuncBy(router, "transformer")
-        if(_.isFunction(trans)) {
-          payload = trans(payload)
-        }
-        // Wrap payload by dataKey
-        if(this.dataKey) {
-          payload = {[this.dataKey] : payload}
-        }
-        //............................
-        // Notify
-        this.$notify("step:event", {
-          emitName, nextStep, payload
-        })
-        //............................
+    OnChange(payload) {
+      if(_.isFunction(this.serializer)) {
+        payload = this.serializer(payload)
       }
+      this.$emit("data:change", payload)
     }
     //----------------------------------------------
   }
@@ -23692,16 +23630,16 @@ Ti.Preload("ti/com/ti/wizard/com/wizard-step/_com.json", {
 // JOIN: ti/wizard/ti-wizard.html
 //============================================================
 Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-parent"
-  :class="topClass">
+  :class="TopClass">
   <!--
     Header Indicators
   -->
   <div class="as-head">
     <ul>
-      <li v-for="(step, index) in displayStepList"
+      <li v-for="(step, index) in StepHeads"
         :key="step.stepKey"
         :class="step.className"
-        @click.left="onClickHeadItem(step, index)">
+        @click.left="OnClickHeadItem(index, step)">
         <span class="as-indicator">
           <span class="as-line at-l"></span>
           <span class="as-dot">{{index+1}}</span>
@@ -23715,43 +23653,48 @@ Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-par
     Current Step Component
   -->
   <div class="as-main">
-    <wizard-step 
-      v-bind="currentStep"
-      @step:event="onStepEvent"/>
+    <WizardStep 
+      v-bind="CurrentStep"
+      @data:change="OnDataChange"
+      @step:change="OnStepChange"/>
   </div>
   <!--
     Footer Default Buttons
   -->
-  <div v-if="btnPrev || btnNext"
+  <div v-if="BtnPrev || BtnNext"
     class="as-foot">
-    <ul>
       <!--
         Btn: Prev
       -->
-      <li v-if="btnPrev" 
-        :class="btnPrev.className"
-        @click="onClickBtnPrev">
-        <span v-if="btnPrev.icon"
-          class="as-icon">
-          <ti-icon :value="btnPrev.icon"/>
-        </span>
-        <span class="as-sep"></span>
-        <span class="as-text">{{btnPrev.text|i18n}}</span>
-      </li>
+      <div
+        v-if="BtnPrev" 
+          class="as-btn is-prev"
+          :class="BtnPrev.className"
+          @click="OnClickBtnPrev">
+          <span v-if="BtnPrev.icon"
+            class="as-icon">
+            <ti-icon :value="BtnPrev.icon"/>
+          </span>
+          <span class="as-sep"></span>
+          <span class="as-text">{{BtnPrev.text|i18n}}</span>
+      </div>
+      <!--Sep-->
+      <div class="as-space"></div>
       <!--
         Btn: Next
       -->
-      <li v-if="btnNext" 
-        :class="btnNext.className"
-        @click="onClickBtnNext">
-        <span class="as-text">{{btnNext.text|i18n}}</span>
-        <span class="as-sep"></span>
-        <span v-if="btnNext.icon"
-          class="as-icon">
-          <ti-icon :value="btnNext.icon"/>
-        </span>
-      </li>
-    </ul>
+      <div
+        v-if="BtnNext" 
+          class="as-btn is-next"
+          :class="BtnNext.className"
+          @click="OnClickBtnNext">
+          <span v-if="BtnNext.icon"
+            class="as-icon">
+            <ti-icon :value="BtnNext.icon"/>
+          </span>
+          <span class="as-sep"></span>
+          <span class="as-text">{{BtnNext.text|i18n}}</span>
+      </div>
   </div>
 </div>`);
 //============================================================
@@ -23759,14 +23702,17 @@ Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-par
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
+  ///////////////////////////////////////////////////
+  data: () => ({
+    myCurrent: undefined
+  }),
   ///////////////////////////////////////////////////
   props : {
     "steps" : {
       type : Array,
       default : ()=>[]
     },
-    "data" : {
+    "value" : {
       type : Object,
       default : ()=>({})
     },
@@ -23782,22 +23728,41 @@ const _M = {
   ///////////////////////////////////////////////////
   computed : {
     //----------------------------------------------
-    topClass() {
-      return this.className
+    TopClass() {
+      return this.getTopClass()
     },
     //----------------------------------------------
-    displayStepList() {
+    StepList() {
       let list = []
       if(_.isArray(this.steps)) {
-        for(let step of this.stepList) {
+        for(let i=0; i<this.steps.length; i++) {
+          let step = this.steps[i]
+          let stepKey = step.key || `step${i}`
+          // Join to the list
+          list.push({
+            index     : i,
+            stepKey   : stepKey,
+            title     : step.title   || stepKey,
+            comType   : step.comType || "ti-label",
+            comConf   : step.comConf,
+            serializer: step.serializer,
+            prev : step.prev,
+            next : step.next
+          })
+        }
+      }
+      return list
+    },
+    //----------------------------------------------
+    StepHeads() {
+      let list = []
+      if(_.isArray(this.steps)) {
+        for(let step of this.StepList) {
           let className = []
-          if(step.className) {
-            className = [].concat(step.className)
-          }
-          if(this.currentStepIndex == step.index) {
+          if(this.CurrentStepIndex == step.index) {
             className.push("is-current")
           }
-          else if(step.index > this.currentStepIndex) {
+          else if(step.index > this.CurrentStepIndex) {
             className.push("is-future")
           }
           else {
@@ -23810,47 +23775,37 @@ const _M = {
       return list
     },
     //----------------------------------------------
-    stepList() {
-      let list = []
-      if(_.isArray(this.steps)) {
-        for(let i=0; i<this.steps.length; i++) {
-          let step = this.steps[i]
-          let stepKey = step.key || `step${i}`
-          // Join to the list
-          list.push({
-            index     : i,
-            className : step.className,
-            stepKey   : stepKey,
-            title     : step.title   || stepKey,
-            dataKey   : step.dataKey,
-            data      : this.data,
-            comType   : step.comType || "ti-label",
-            comConf   : step.comConf || {value:stepKey},
-            comEvents : step.comEvents  || {},
-            prev : step.prev,
-            next : step.next
-          })
-        }
-      }
-      return list
-    },
-    //----------------------------------------------
-    currentStepIndex() {
-      return this.currentStep
-                ? this.currentStep.index
+    CurrentStepIndex() {
+      return this.CurrentStep
+                ? this.CurrentStep.index
                 : -1
     },
     //----------------------------------------------
     hasCurrentStep() {
-      return this.currentStep ? true : false
+      return this.CurrentStep ? true : false
     },
     //----------------------------------------------
-    currentStep() {
-      return this.getStepBy(this.current)
+    CurrentStep() {
+      let cs = Ti.Util.fallback(this.myCurrent, this.current)
+      let step = _.cloneDeep(this.getStep(cs))
+
+      // Eval serializer
+      let serializer = step.serializer
+        ? Ti.Util.genInvoking(step.serializer, {
+            context: this.value,
+            partialRight: true
+          })
+        : _.identity;
+      // Eval comConf
+      let comConf = Ti.Util.explainObj(this.value, step.comConf)
+
+      return _.assign({}, step, {
+        serializer, comConf
+      })
     },
     //----------------------------------------------
-    btnPrev() {
-      let btn = _.get(this.currentStep, "prev")
+    BtnPrev() {
+      let btn = _.get(this.CurrentStep, "prev")
       return this.getStepAction(btn, {
         icon     : "zmdi-chevron-left",
         text     : "i18n:prev",
@@ -23858,12 +23813,13 @@ const _M = {
       })
     },
     //----------------------------------------------
-    btnNext() {
-      let btn = _.get(this.currentStep, "next")
+    BtnNext() {
+      let btn = _.get(this.CurrentStep, "next")
       return this.getStepAction(btn, {
         icon     : "zmdi-chevron-right",
         text     : "i18n:next",
-        enabled  : true
+        enabled  : true,
+        reverse  : btn.icon ? false : true
       })
     }
     //----------------------------------------------
@@ -23871,16 +23827,61 @@ const _M = {
   ///////////////////////////////////////////////////
   methods : {
     //----------------------------------------------
-    getStepBy(keyOrIndex) {
+    OnDataChange(payload) {
+      console.log("wizard:OnStepDataChange", payload)
+      let newData = _.assign({}, this.value, payload)
+      this.$notify("change", newData)
+    },
+    //----------------------------------------------
+    OnStepChange(payload) {
+      // Prev
+      if("@prev" == payload) {
+        this.gotoFromCurrent(-1)
+      }
+      // Next
+      else if("@next" == payload) {
+        this.gotoFromCurrent(1)
+      }
+      // absolute step
+      else {
+        this.gotoStep(payload)
+      }
+    },
+    //----------------------------------------------
+    OnClickHeadItem(index) {
+      // Can Click Passed Steps
+      if("passed" == this.canClickHeadItem 
+        && this.CurrentStepIndex > index) {
+        this.gotoStep(index)
+      }
+    },
+    //----------------------------------------------
+    OnClickBtnPrev() {
+      if(this.BtnPrev && this.BtnPrev.enabled) {
+        this.gotoFromCurrent(-1)
+      }
+    },
+    //----------------------------------------------
+    OnClickBtnNext() {
+      if(this.BtnNext && this.BtnNext.enabled) {
+        this.gotoFromCurrent(1)
+      }
+    },
+    //----------------------------------------------
+    //
+    // Utility Methods
+    //
+    //----------------------------------------------
+    getStep(keyOrIndex) {
       // By Index: -1 is the last item
       if(_.isNumber(keyOrIndex)) {
-        let i = Ti.Num.scrollIndex(keyOrIndex, this.stepList.length)
+        let i = Ti.Num.scrollIndex(keyOrIndex, this.StepList.length)
         if(i>=0)
-          return this.stepList[i]
+          return this.StepList[i]
       }
       // By Key
       else {
-        for(let step of this.stepList) {
+        for(let step of this.StepList) {
           if(step.stepKey == keyOrIndex) {
             return step
           }
@@ -23889,35 +23890,22 @@ const _M = {
       // Return undefined
     },
     //----------------------------------------------
-    onClickBtnPrev() {
-      if(this.btnPrev && this.btnPrev.enabled) {
-        this.gotoPrev()
-      }
-    },
-    //----------------------------------------------
-    onClickBtnNext() {
-      if(this.btnNext && this.btnNext.enabled) {
-        this.gotoNext()
-      }
-    },
-    //----------------------------------------------
     gotoStep(keyOrIndex) {
-      let step = this.getStepBy(keyOrIndex)
-      if(step)
-        this.$notify("goto-step", step)
-    },
-    //----------------------------------------------
-    gotoPrev(off=-1) {
-      this.gotoFromCurrent(-1)
-    },
-    //----------------------------------------------
-    gotoNext(off=1) {
-      this.gotoFromCurrent(1)
+      let step = this.getStep(keyOrIndex)
+      if(step) {
+        let oldStep = _.cloneDeep(this.CurrentStep)
+        this.myCurrent = step.index
+        this.$notify("step:chanage", {
+          index: step.index,
+          step,
+          oldStep
+        })
+      }
     },
     //----------------------------------------------
     gotoFromCurrent(off=1) {
-      if(this.currentStep) {
-        let nextStepIndex = this.currentStep.index + off
+      if(this.CurrentStep) {
+        let nextStepIndex = this.CurrentStep.index + off
         this.gotoStep(nextStepIndex)
       }
     },
@@ -23938,35 +23926,23 @@ const _M = {
           btn = _.assign({}, stepBtn)
           // Eval enabled
           if(_.isPlainObject(btn.enabled)) {
-            btn.enabled = Ti.Validate.match(this.data, btn.enabled)
+            btn.enabled = Ti.Validate.match(this.value, btn.enabled)
           }
         }
         // Setup 
         _.defaults(btn, dftSetting)
+        btn.className = Ti.Css.mergeClassName(btn.className)
         // ClassName
         if(btn.enabled) {
-          btn.className = "is-enabled"
+          btn.className["is-enabled"] = true
         }
+        // Revers
+        if(btn.reverse) {
+          btn.className["is-reverse"] = true
+        }
+
         // Return 
         return btn
-      }
-    }, 
-    //----------------------------------------------
-    onStepEvent({emitName, nextStep, payload}={}) {
-      console.log("wizard:onStepEvent", {emitName, nextStep, payload})
-      // Notify Event
-      if(emitName) {
-        this.$notify(emitName, payload)
-      }
-      // Try auto goto nextStep
-      this.gotoStep(nextStep)
-    },
-    //----------------------------------------------
-    onClickHeadItem(step, index) {
-      // Can Click Passed Steps
-      if("passed" == this.canClickHeadItem 
-        && this.currentStepIndex > index) {
-        this.gotoStep(index)
       }
     }
     //----------------------------------------------
@@ -32064,7 +32040,12 @@ const _M = {
           }
         }
         if(invalid) {
-          await Ti.Alert(invalidMsg, {type:"warn", icon:"zmdi-alert-triangle"})
+          console.log("haha")
+          await Ti.Alert(invalidMsg, {
+            type:"warn",
+            icon:"zmdi-alert-triangle",
+            vars
+          })
           return false
         }
       }
@@ -32096,17 +32077,17 @@ const _M = {
       // Check for support Types
       let type = Ti.Util.getSuffixName(file.name)
       if(!await this.assertListHas(
-        this.AcceptTypes, type, {
-          text : 'i18n:wn-invalid-types',
-          vars : {current:type, supports:this.AcceptTypes.join(", ")}
-        })) {
+        this.AcceptTypes, type, 
+        'i18n:wn-invalid-types',
+        {current: type, supports: this.AcceptTypes.join(", ")})
+      ) {
         return
       }
       if(!await this.assertListHas(
-        this.AcceptMimes, file.type, {
-          text : 'i18n:wn-invalid-mimes',
-          vars : {current:file.type, supports:this.AcceptMimes.join(", ")}
-        })) {
+        this.AcceptMimes, file.type, 
+        'i18n:wn-invalid-mimes',
+        {current:file.type, supports:this.AcceptMimes.join(", ")})
+      ) {
         return
       }
 
@@ -32908,8 +32889,12 @@ const _M = {
       return
     }
 
+    // Mark field status
+    _.forEach(data, (val, name)=>{
+      commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
+    })
+
     // Do the update
-    
     let json = JSON.stringify(data)
     let th_set = state.meta.th_set
     let th_id  = state.meta.id
@@ -32917,6 +32902,11 @@ const _M = {
     let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
     commit("setMeta", reo)
+
+    _.forEach(data, (val, name)=>{
+      commit("setFieldStatus", {name, type:"ok", text:"i18n:ok"})
+    })
+    _.delay(()=>{commit("clearFieldStatus", name)}, 500)
   },
   //--------------------------------------------
   // Reload & Save
@@ -33607,6 +33597,43 @@ const _M = {
     commit("setStatus", {cleaning:false})
 
     await dispatch("reload")
+  },
+  //--------------------------------------------
+  /***
+   * Open meta editor, if has current, use it
+   */
+  async openMetaEditor({state, getters, dispatch,}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    //.........................................
+    // For current selected
+    //.........................................
+    if(getters.hasCurrent) {
+      // Edit current meta
+      let reo = await Wn.EditObjMeta(state.current.meta, {
+        fields:"default", autoSave:false
+      })
+
+      // Cancel the editing
+      if(_.isUndefined(reo)) {
+        return
+      }
+
+      // Update the current editing
+      let {updates} = reo
+      if(!_.isEmpty(updates)) {
+        await dispatch("updateCurrentMetas", updates)
+      }
+      return
+    }
+    //.........................................
+    // For Whole thing thing
+    //.........................................
+    await Wn.EditObjMeta(state.meta, {
+      fields:"auto", autoSave:true
+    })
   },
   //--------------------------------------------
   /***
@@ -36741,6 +36768,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "empty": "空",
   "empty-data": "无数据",
   "error": "错误",
+  "export-data": "导出数据...",
   "fail": "失败",
   "false": "否",
   "favorites": "收藏",
@@ -36750,6 +36778,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "i-known": "我知道了",
   "icon": "图标",
   "icon-code-tip": "请输入图标代码，如 zmdi-case",
+  "import-data": "导入数据...",
   "info": "信息",
   "input": "输入",
   "input-tags": "输入标签",

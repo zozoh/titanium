@@ -35,15 +35,14 @@ const _M = {
         for(let i=0; i<this.steps.length; i++) {
           let step = this.steps[i]
           let stepKey = step.key || `step${i}`
-          // Eval comConf
-          let comConf = Ti.Util.explainObj(this.value, step.comConf)
           // Join to the list
           list.push({
             index     : i,
             stepKey   : stepKey,
             title     : step.title   || stepKey,
             comType   : step.comType || "ti-label",
-            comConf,
+            comConf   : step.comConf,
+            serializer: step.serializer,
             prev : step.prev,
             next : step.next
           })
@@ -85,7 +84,21 @@ const _M = {
     //----------------------------------------------
     CurrentStep() {
       let cs = Ti.Util.fallback(this.myCurrent, this.current)
-      return this.getStep(cs)
+      let step = _.cloneDeep(this.getStep(cs))
+
+      // Eval serializer
+      let serializer = step.serializer
+        ? Ti.Util.genInvoking(step.serializer, {
+            context: this.value,
+            partialRight: true
+          })
+        : _.identity;
+      // Eval comConf
+      let comConf = Ti.Util.explainObj(this.value, step.comConf)
+
+      return _.assign({}, step, {
+        serializer, comConf
+      })
     },
     //----------------------------------------------
     BtnPrev() {

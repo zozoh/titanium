@@ -235,6 +235,14 @@ const TiStr = {
   joinArgs(s, args=[], iteratee=TiStr.toJsValue) {
     // String to split
     if(_.isString(s)) {
+      // Maybe a json object
+      if(/^\{.*\}$/.test(s)) {
+        try{
+          return [eval(`(${s})`)]
+        }catch(E){}
+      }
+
+      // Take it as comma-sep list
       let list = s.split(",")
       for(let li of list) {
         let vs = _.trim(li)

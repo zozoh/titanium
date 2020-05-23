@@ -1110,6 +1110,14 @@ const {S} = (function(){
     joinArgs(s, args=[], iteratee=TiStr.toJsValue) {
       // String to split
       if(_.isString(s)) {
+        // Maybe a json object
+        if(/^\{.*\}$/.test(s)) {
+          try{
+            return [eval(`(${s})`)]
+          }catch(E){}
+        }
+  
+        // Take it as comma-sep list
         let list = s.split(",")
         for(let li of list) {
           let vs = _.trim(li)
@@ -2458,7 +2466,7 @@ const {App} = (function(){
     $vm    (vm)    {return Ti.Util.geset(this, TI_VM   ,   vm)}
     $vmMain(mvm)   {return Ti.Util.geset(this, TI_VM_MAIN, mvm)}
     //---------------------------------------
-    currentData() {return this.$store().state.current}
+    $state() {return this.$store().state}
     //---------------------------------------
     async init(){
       // App Must has a name
@@ -2556,7 +2564,7 @@ const {App} = (function(){
     watchShortcut(actions=[]) {
       this.$shortcuts.watch(this, actions, {
         $com: ()=>this.$vmMain(),
-        argContext: this.currentData()
+        argContext: this.$state()
       })
     }
     //---------------------------------------
@@ -2690,20 +2698,16 @@ const {App} = (function(){
     }
     //---------------------------------------
     // Invoke the function in window object
-    global(nm, payload) {
+    global(nm, ...args) {
       // Find the function in window
       let fn = _.get(window, nm)
       // Fire the function
       if(_.isFunction(fn)) {
-        let args = []
-        if(!_.isUndefined(payload)) {
-          args.push(payload)
-        }
         return fn.apply(this, args)
       }
       // report error
       else {
-        throw Ti.Err.make("e-ti-app-main", {nm, payload})
+        throw Ti.Err.make("e-ti-app-main", {nm, args})
       }
     }
     //---------------------------------------
@@ -5145,6 +5149,8 @@ const {Shortcut} = (function(){
       argContext={},
       wait=0,
     }={}) {
+      // if(action.indexOf("projIssuesImport") > 0)
+      //   console.log("genActionInvoking", action)
       //..........................................
       const __bind_it = fn => {
         return wait > 0
@@ -5379,13 +5385,19 @@ const {TiWebsocket} = (function(){
 // # import {Validate}     from "./validate.mjs"
 const {Validate} = (function(){
   ///////////////////////////////////////
-  const FnSet = {
-    "NoEmpty"       : (val)=>!_.isEmpty(val),
-    "HasValue"      : (val)=>(
-                        !_.isUndefined(val) 
-                        && !_.isNull(val)),
+  const VALIDATORS = {
+    "notNil"        : (val)=>!Ti.Util.isNil(val),
+    "notEmpty"      : (val)=>!_.isEmpty(val),
+    "notBlank"      : (val)=>!Ti.S.isBlank(val),
+    "isNil"         : (val)=>Ti.Util.isNil(val),
+    "isEmpty"       : (val)=>_.isEmpty(val),
+    "isBlank"       : (val)=>Ti.S.isBlank(val),
     "isPlainObject" : (val)=>_.isPlainObject(val),
     "isBoolean"     : (val)=>_.isBoolean(val),
+    "isTrue"        : (val)=>(val === true),
+    "isFalse"       : (val)=>(val === false),
+    "isTruthy"      : (val)=>(val ? true  : false),
+    "isFalsy"       : (val)=>(val ? false : true),
     "isNumber"      : (val)=>_.isNumber(val),
     "isString"      : (val)=>_.isString(val),
     "isDate"        : (val)=>_.isDate(val),
@@ -5416,7 +5428,13 @@ const {Validate} = (function(){
   const TiValidate = {
     //-----------------------------------
     get(name, args=[], not) {
-      let fn = _.get(FnSet, name)
+      // Dynamic name
+      if(_.isFunction(name)) {
+        name = name()
+      }
+  
+      // Try get the func
+      let fn = _.get(VALIDATORS, name)
       if(!_.isFunction(fn)) {
         throw `Invalid Validate: ${name}`
       }
@@ -5429,11 +5447,29 @@ const {Validate} = (function(){
       }
   
       if(not) {
-        return v => {
-          return !f2(v)
-        }
+        return v => !f2(v)
       }
       return f2
+    },
+    //-----------------------------------
+    evalBy(str, context={}) {
+      let not = false
+      if(str.startsWith("!")) {
+        not = true
+        str = _.trim(str.substring(1))
+      }
+      let fv = Ti.Util.genInvoking(str, {
+        context,
+        funcSet: VALIDATORS,
+        partialRight: true
+      })
+      if(!_.isFunction(fv)) {
+        throw `Invalid TiValidator: "${str}"`
+      }
+      if(not) {
+        return v => !fv(v)
+      }
+      return fv
     },
     //-----------------------------------
     getBy(fn) {
@@ -5441,7 +5477,7 @@ const {Validate} = (function(){
         return fn
       }
       if(_.isString(fn)) {
-        return TiValidate.get(fn)
+        return TiValidate.evalBy(fn)
       }
       if(_.isPlainObject(fn)) {
         let name = fn.name
@@ -7148,7 +7184,6 @@ const {Util} = (function(){
      * The value `=xxxx` in obj will get the value from context
      */
     explainObj(context={}, obj, {
-      fnSet = Ti.Types,
       evalFunc = false,
       iteratee = _.identity
     }={}) {
@@ -7158,9 +7193,15 @@ const {Util} = (function(){
         //....................................
         // String : Check the "@BLOCK(xxx)" 
         if(_.isString(theValue)) {
+          // Escape
+          let m = /^:((=|==|!=|=>|->)(.+))$/.exec(theValue)
+          if(m) {
+            return iteratee(m[1])
+          }
+  
           let m_type, m_val, m_dft;
           // Match template
-          let m = /^(==|!=|=>|->)(.+)$/.exec(theValue)
+          m = /^(==|!=|=>|->)(.+)$/.exec(theValue)
           if(m) {
             m_type = m[1]
             m_val  = _.trim(m[2])
@@ -7254,49 +7295,20 @@ const {Util} = (function(){
         //....................................
         // Object
         else if(_.isPlainObject(theValue)) {
-          //..................................
-          // Calling
-          if(theValue.__is_calling) {
-            // Find function
-            let fn = theValue.name
-            if(_.isString(fn)) {
-              fn = _.get(fnSet, theValue.name)
+          let o2 = {}
+          _.forEach(theValue, (v2, k2)=>{
+            let v3 = ExplainValue(v2)
+            let v4 = iteratee(v3)
+            // key `...` -> assign o1
+            if("..." == k2) {
+              _.assign(o2, v4)
             }
-            // Prepare arguments
-            let args = _.map(theValue.args||[], ExplainValue)
-            // Do invoke
-            let re = fn.apply(context, args)
-            return iteratee(re)
-          }
-          //..................................
-          // Bind Function
-          else if(theValue.__is_function) {
-            let args = _.map(theValue.args, ExplainValue)
-            let re = {
-              __is_calling : true,
-              name : _.get(fnSet, theValue.name),
-              args
+            // set value
+            else {
+              o2[k2] = v4
             }
-            return re
-          }
-          //..................................
-          // Call-down
-          else {
-            let o2 = {}
-            _.forEach(theValue, (v2, k2)=>{
-              let v3 = ExplainValue(v2)
-              let v4 = iteratee(v3)
-              // key `...` -> assign o1
-              if("..." == k2) {
-                _.assign(o2, v4)
-              }
-              // set value
-              else {
-                o2[k2] = v4
-              }
-            })
-            return o2
-          } // _.isPlainObject(anyValue)
+          })
+          return o2
         }
         //....................................
         // Others return directly
@@ -10018,6 +10030,21 @@ const {WalnutAppMain} = (function(){
       let mod = await Ti.Load(val) 
       window[key] = mod
     }
+    //---------------------------------------
+    // Customized preload
+    if(!_.isEmpty(tiConf.preloads)) {
+      let pres = []
+      _.forEach(tiConf.preloads, url => {
+        pres.push(Ti.Load(url))
+      })
+      await Promise.all(pres)
+    }
+  
+    if(!_.isEmpty(tiConf.rsPrefixes)) {
+      let pxs = _.concat(tiConf.rsPrefixes)
+      Ti.AddResourcePrefix(...pxs)
+    }
+  
     //---------------------------------------
     // Setup dictionaly
     Wn.Dict.setup(tiConf.dictionary)

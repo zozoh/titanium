@@ -39,7 +39,7 @@ class OneTiApp {
   $vm    (vm)    {return Ti.Util.geset(this, TI_VM   ,   vm)}
   $vmMain(mvm)   {return Ti.Util.geset(this, TI_VM_MAIN, mvm)}
   //---------------------------------------
-  currentData() {return this.$store().state.current}
+  $state() {return this.$store().state}
   //---------------------------------------
   async init(){
     // App Must has a name
@@ -137,7 +137,7 @@ class OneTiApp {
   watchShortcut(actions=[]) {
     this.$shortcuts.watch(this, actions, {
       $com: ()=>this.$vmMain(),
-      argContext: this.currentData()
+      argContext: this.$state()
     })
   }
   //---------------------------------------
@@ -271,20 +271,16 @@ class OneTiApp {
   }
   //---------------------------------------
   // Invoke the function in window object
-  global(nm, payload) {
+  global(nm, ...args) {
     // Find the function in window
     let fn = _.get(window, nm)
     // Fire the function
     if(_.isFunction(fn)) {
-      let args = []
-      if(!_.isUndefined(payload)) {
-        args.push(payload)
-      }
       return fn.apply(this, args)
     }
     // report error
     else {
-      throw Ti.Err.make("e-ti-app-main", {nm, payload})
+      throw Ti.Err.make("e-ti-app-main", {nm, args})
     }
   }
   //---------------------------------------

@@ -1,4 +1,4 @@
-export default {
+const _M = {
   ///////////////////////////////////////////////////
   props : {
     "index" : {
@@ -13,6 +13,10 @@ export default {
       type : String,
       default : null
     },
+    "serializer": {
+      type: Function,
+      default: null
+    },
     "comType" : {
       type : String,
       default : "ti-label"
@@ -26,9 +30,13 @@ export default {
   methods : {
     //----------------------------------------------
     OnChange(payload) {
+      if(_.isFunction(this.serializer)) {
+        payload = this.serializer(payload)
+      }
       this.$emit("data:change", payload)
     }
     //----------------------------------------------
   }
   ///////////////////////////////////////////////////
 }
+export default _M;

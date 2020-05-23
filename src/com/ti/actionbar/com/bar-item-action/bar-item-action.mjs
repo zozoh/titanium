@@ -90,10 +90,9 @@ const _M = {
       // Call Action
       if(this.action) {
         let app = Ti.App(this)
-        let currentData = app.currentData()
         let invoking = Ti.Shortcut.genActionInvoking(this.action, {
           $com : this.$bar.$parent,
-          argContext : currentData,
+          argContext: app.$state(),
           wait : this.wait
         })
         // Invoke it
