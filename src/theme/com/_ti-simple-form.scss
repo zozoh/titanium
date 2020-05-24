@@ -8,30 +8,30 @@
   }
   //-------------------------------------
   header {
-    padding: .2rem; text-align: center;
+    padding: .5em; text-align: center;
     font-size:2em;
   }
   //-------------------------------------
   section {
-    padding:.2rem;
+    padding: .5em;
     //---------------------------------
     div {
       @include flex-align-nowrap;
       &.as-input {
         @include color($color-input,c,r); 
-        margin:.02rem .04rem;
+        margin:.5em 0;
         border:1px solid map-get($color-line, dark);
         &.is-invalid {
           border-color:map-get($color-error, c);
         }
       }
       &.as-btn {
-        margin:.04rem .04rem;
+        margin:.5em 0;
       }
       input {
         flex:1 1 auto;
-        padding: .1rem;
-        font-size: 14px;
+        padding: 1em;
+        font-size: .16rem;
         outline:none; border:0;
       }
       span {
@@ -45,8 +45,8 @@
       button {
         @include fireable;
         flex:1 1 auto;
-        padding:.1rem; width:100%;
-        font-size: 14px;
+        padding:1em; width:100%;
+        font-size: .16rem;
         outline:none; border:0; 
       }
     }

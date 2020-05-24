@@ -48,11 +48,15 @@ const _M = {
     "getDelay" : {
       type : Number,
       default : 60
-    }
+    },
     // "invalidField" : {
     //   type : [String, Array],
     //   default : null
     // }
+    "logo": {
+      type: String,
+      default: undefined
+    }
   },
   ///////////////////////////////////////////////////////
   computed : {

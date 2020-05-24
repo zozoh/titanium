@@ -122,7 +122,7 @@ $GUI-BLOCK-HEADER-HEIGHT: .4rem;
     @include color($color-mask, null, thin);
     @include pos-abs(0,0,100%,100%);
     z-index: $z-mask;
-    &.at-center {padding-bottom:19%;}
+    &.at-center {padding-bottom:10%;}
     &.at-left   {@include flex-as($j:flex-start);}
     &.at-right  {@include flex-as($j:flex-end);}
     &.at-top    {@include flex-as($a:flex-start);}
@@ -158,8 +158,10 @@ $GUI-BLOCK-HEADER-HEIGHT: .4rem;
   }
   //-----------------------------------
   > .panel-con {
-    @include color($color-body, r, c);
     position: relative;
+  }
+  &.is-bg-opaque {
+    > .panel-con {@include color($color-body, r, c);}
   }
   //-----------------------------------
   // If closer is default, make more space

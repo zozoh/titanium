@@ -90,6 +90,10 @@ export default {
       type : Boolean,
       default : false
     },
+    "transparent": {
+      type : Boolean,
+      default : false
+    },
     "clickMaskToClose" : {
       type : Boolean,
       default : false
@@ -110,6 +114,8 @@ export default {
       return this.getTopClass({
         "show-mask" : this.mask,
         "no-mask"   : !this.mask,
+        "is-bg-transparent": this.transparent,
+        "is-bg-opaque": !this.transparent,
         "is-closer-default" : this.isCloserDefault
       }, `at-${this.position}`)
     },

@@ -1,13 +1,33 @@
 <div 
   class="web-auth-signup web-simple-form" 
   :class="TopClass">
+  <!--
+    Top Logo
+  -->
+  <div 
+    v-if="logo"
+      class="as-logo">
+      <ti-icon :value="logo"/>
+  </div>
+  <!--
+    Head text
+  -->
   <header>{{Msgs.title|i18n}}</header>
+  <!--
+    Main Area
+  -->
   <section>
+    <!--
+      Input: Name
+    -->
     <div class="as-input" :class="NameClass">
       <input 
         spellcheck="false"
         :placeholder="Msgs.nameTip|i18n"
         v-model="data.name"></div>
+    <!--
+      Input: Password
+    -->
     <div class="as-input" :class="PasswdClass">
       <input 
         spellcheck="false"
@@ -20,9 +40,15 @@
           @click="OnGetVcode">{{Msgs.codeGet|i18n}}</a>
       </span>
     </div>
+    <!--
+      Submit button
+    -->
     <div class="as-btn">
       <button @click="OnAuthSubmit">{{Msgs.btnText|i18n}}</button>
     </div>
+    <!--
+      Sublinks: switch mode / passwd-back
+    -->
     <ul class="as-links">
       <li v-if="Msgs.linkLeft"
         class="at-left">
