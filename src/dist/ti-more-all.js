@@ -9437,6 +9437,10 @@ const _M = {
       type : Boolean,
       default : false
     },
+    "transparent": {
+      type : Boolean,
+      default : false
+    },
     "clickMaskToClose" : {
       type : Boolean,
       default : false
@@ -9457,6 +9461,8 @@ const _M = {
       return this.getTopClass({
         "show-mask" : this.mask,
         "no-mask"   : !this.mask,
+        "is-bg-transparent": this.transparent,
+        "is-bg-opaque": !this.transparent,
         "is-closer-default" : this.isCloserDefault
       }, `at-${this.position}`)
     },
@@ -15395,6 +15401,73 @@ Ti.Preload("ti/com/ti/loading/_com.json", {
   "globally" : true,
   "template" : "./ti-loading.html",
   "mixins" : ["./ti-loading.mjs"]
+});
+//============================================================
+// JOIN: ti/logging/ti-logging.html
+//============================================================
+Ti.Preload("ti/com/ti/logging/ti-logging.html", `<div class="ti-logging"
+  :class="TopClass"
+  :style="TopStyle">
+  <pre ref="pre"><div 
+    v-for="(line, index) in lines"
+      :data-index="index"
+      >{{line || '&nbsp;'}}</div></pre>    
+</div>`);
+//============================================================
+// JOIN: ti/logging/ti-logging.mjs
+//============================================================
+(function(){
+const _M = {
+  props : {
+    "lines" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "width" : {
+      type : [Number, String],
+      default : null
+    },
+    "height" : {
+      type : [Number, String],
+      default : null
+    }
+  },
+  computed: {
+    TopClass() {
+      return this.getTopClass()
+    },
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    }
+  },
+  methods: {
+    scrollToBottom() {
+      let $pre = this.$refs.pre
+      $pre.scrollTop = $pre.scrollHeight
+    }
+  },
+  watch: {
+    "lines": function() {
+      //console.log(this.lines.length)
+      this.$nextTick(()=>{
+        this.scrollToBottom()
+      })
+    }
+  }
+}
+Ti.Preload("ti/com/ti/logging/ti-logging.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/logging/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/logging/_com.json", {
+  "name" : "ti-logging",
+  "globally" : true,
+  "template" : "./ti-logging.html",
+  "mixins" : ["./ti-logging.mjs"]
 });
 //============================================================
 // JOIN: ti/media/binary/ti-media-binary.html
@@ -23630,7 +23703,7 @@ Ti.Preload("ti/com/ti/wizard/com/wizard-step/_com.json", {
 // JOIN: ti/wizard/ti-wizard.html
 //============================================================
 Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-parent"
-  :class="TopClass">
+  :class="TopClass"><div class="wizard-con">
   <!--
     Header Indicators
   -->
@@ -23696,7 +23769,7 @@ Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-par
           <span class="as-text">{{BtnNext.text|i18n}}</span>
       </div>
   </div>
-</div>`);
+</div></div>`);
 //============================================================
 // JOIN: ti/wizard/ti-wizard.mjs
 //============================================================
@@ -23828,7 +23901,7 @@ const _M = {
   methods : {
     //----------------------------------------------
     OnDataChange(payload) {
-      console.log("wizard:OnStepDataChange", payload)
+      //console.log("wizard:OnStepDataChange", payload)
       let newData = _.assign({}, this.value, payload)
       this.$notify("change", newData)
     },
@@ -23858,13 +23931,27 @@ const _M = {
     //----------------------------------------------
     OnClickBtnPrev() {
       if(this.BtnPrev && this.BtnPrev.enabled) {
-        this.gotoFromCurrent(-1)
+        if(this.BtnPrev.handler) {
+          let invoking = Ti.Util.genInvoking(this.BtnPrev.handler, {
+            context: this.value
+          })
+          invoking.apply(this)
+        } else {
+          this.gotoFromCurrent(-1)
+        }
       }
     },
     //----------------------------------------------
     OnClickBtnNext() {
       if(this.BtnNext && this.BtnNext.enabled) {
-        this.gotoFromCurrent(1)
+        if(this.BtnNext.handler) {
+          let invoking = Ti.Util.genInvoking(this.BtnNext.handler, {
+            context: this.value
+          })
+          invoking.apply(this)
+        } else {
+          this.gotoFromCurrent(1)
+        }
       }
     },
     //----------------------------------------------
@@ -24095,13 +24182,33 @@ Ti.Preload("ti/com/web/auth/captcha/_com.json", {
 Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", `<div 
   class="web-auth-signup web-simple-form" 
   :class="TopClass">
+  <!--
+    Top Logo
+  -->
+  <div 
+    v-if="logo"
+      class="as-logo">
+      <ti-icon :value="logo"/>
+  </div>
+  <!--
+    Head text
+  -->
   <header>{{Msgs.title|i18n}}</header>
+  <!--
+    Main Area
+  -->
   <section>
+    <!--
+      Input: Name
+    -->
     <div class="as-input" :class="NameClass">
       <input 
         spellcheck="false"
         :placeholder="Msgs.nameTip|i18n"
         v-model="data.name"></div>
+    <!--
+      Input: Password
+    -->
     <div class="as-input" :class="PasswdClass">
       <input 
         spellcheck="false"
@@ -24114,9 +24221,15 @@ Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", `<div
           @click="OnGetVcode">{{Msgs.codeGet|i18n}}</a>
       </span>
     </div>
+    <!--
+      Submit button
+    -->
     <div class="as-btn">
       <button @click="OnAuthSubmit">{{Msgs.btnText|i18n}}</button>
     </div>
+    <!--
+      Sublinks: switch mode / passwd-back
+    -->
     <ul class="as-links">
       <li v-if="Msgs.linkLeft"
         class="at-left">
@@ -24182,11 +24295,15 @@ const _M = {
     "getDelay" : {
       type : Number,
       default : 60
-    }
+    },
     // "invalidField" : {
     //   type : [String, Array],
     //   default : null
     // }
+    "logo": {
+      type: String,
+      default: undefined
+    }
   },
   ///////////////////////////////////////////////////////
   computed : {
@@ -30888,9 +31005,10 @@ const _M = {
     async doUpdateFilesCount() {
       let meta = _.get(this.$ThingManager, "current.meta")
       if(meta) {
-        let cmds = ['thing', meta.th_set, 'file', meta.id, "-ufc"]
+        let cmds = ['thing', meta.th_set, 'file', meta.id, "-ufc -cqn"]
         let cmdText = cmds.join(" ")
-        await Wn.Sys.exec2(cmdText)
+        let newMeta = await Wn.Sys.exec2(cmdText, {as:"json"})
+        Ti.App(this).dispatch("main/setCurrentMeta", newMeta)
       }
     },
     //--------------------------------------
