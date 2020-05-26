@@ -10,6 +10,8 @@
   @block:show="showBlock"
   @block:hide="hideBlock"
   @block:shown="changeShown"
+  @filter::change="OnFilterChange"
+  @sorter::change="OnSorterChange"
   @list::select="OnListSelect"
   @list::open="OnListOpen"
   @content::change="OnContentChange"

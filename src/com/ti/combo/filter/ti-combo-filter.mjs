@@ -4,25 +4,17 @@ const _M = {
   {
     keyword: "xxx",  -> myFreeValue
     match: {..}      -> myFormData
-    sort : {         -> mySort
-      by:"xx", as:1
-    }
   }
   */
   ////////////////////////////////////////////////////
   data : ()=>({
     myDropStatus : "collapse",
     myFreeValue : null,
-    myFormData  : {},
-    mySort : {}
+    myFormData  : {}
   }),
   ////////////////////////////////////////////////////
   props : {
     "form" : {
-      type : Object,
-      default : null
-    },
-    "sorter" : {
       type : Object,
       default : null
     },
@@ -41,6 +33,11 @@ const _M = {
       type: Boolean,
       default: true
     },
+    "spacing" : {
+      type : String,
+      default : "tiny",
+      validator : v => /^(none|comfy|tiny)$/.test(v)
+    },
     "dropWidth" : {
       type : [Number, String],
       default : "box"
@@ -53,15 +50,23 @@ const _M = {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+          "is-enabled": this.isFilterEnabled
+        },`as-spacing-${this.spacing}`
+      )
+    },
+    //------------------------------------------------
     isCollapse() {return "collapse"==this.myDropStatus},
     isExtended() {return "extended"==this.myDropStatus},
     //------------------------------------------------
-    TopClass() {
-      return this.getTopClass()
-    },
-    //------------------------------------------------
     hasForm() {
       return !_.isEmpty(this.form)
+    },
+    //------------------------------------------------
+    isFilterEnabled() {
+      return !_.isEmpty(this.myFreeValue)
+        || !_.isEmpty(this.myFormData)
     },
     //------------------------------------------------
     TheInputProps(){
@@ -118,12 +123,6 @@ const _M = {
       }
     },
     //-----------------------------------------------
-    OnSorterChanged(val) {
-      //console.log("filter sorter chanaged", val)
-      this.mySort = val
-      this.tryNotifyChanged()
-    },
-    //-----------------------------------------------
     OnFormChange(formData) {
       //console.log("filter form chanaged", formData)
       this.myFormData = formData
@@ -159,8 +158,7 @@ const _M = {
     genValue() {
       return {
         keyword : this.myFreeValue,
-        match   : this.myFormData,
-        sort    : this.mySort
+        match   : this.myFormData
       }
     },
     //-----------------------------------------------
@@ -168,7 +166,6 @@ const _M = {
       let val = _.assign({}, this.value)
       this.myFreeValue = val.keyword
       this.myFormData  = val.match
-      this.mySort      = val.sort
     },
     //-----------------------------------------------
     // Callback

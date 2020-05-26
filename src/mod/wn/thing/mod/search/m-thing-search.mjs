@@ -1,5 +1,19 @@
+function saveToLocal(meta, key, val) {
+  if(!meta) {
+    return
+  }
+  console.log("saveToLocal", key, val)
+  let local = Ti.Storage.session.getObject(meta.id) || {}
+  _.defaults(local, {
+    filter: {},
+    sorter: {},
+    pager: {}
+  })
+  local[key] = val
+  Ti.Storage.session.setObject(meta.id, local)
+}
 //---------------------------------------
-export default {
+const _M = {
   ////////////////////////////////////////////
   getters : {
     //---------------------------------------------------
@@ -42,16 +56,20 @@ export default {
     },
     setFilter(state, filter={}) {
       state.filter = filter
+      saveToLocal(state.meta, "filter", state.filter)
     },
     updateFilter(state, flt={}) {
       //console.log("updateFilter", JSON.stringify(flt))
       state.filter = _.assign({}, state.filter, flt)
+      saveToLocal(state.meta, "filter", state.filter)
     },
     setSorter(state, sorter) {
       state.sorter = sorter
+      saveToLocal(state.meta, "sorter", state.sorter)
     },
     setPager(state, pager) {
       state.pager = pager
+      saveToLocal(state.meta, "pager", state.pager)
     },
     updatePager(state, pg) {
       state.pager = _.defaults({}, pg, state.pager)
@@ -151,3 +169,4 @@ export default {
   }
   ////////////////////////////////////////////
 }
+export default _M;

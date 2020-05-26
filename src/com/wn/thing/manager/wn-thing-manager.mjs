@@ -131,6 +131,16 @@ const _M = {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
+    async OnFilterChange(filter) {
+      Ti.App(this).commit("main/search/setFilter", filter)
+      await Ti.App(this).dispatch("main/reloadSearch")
+    },
+    //--------------------------------------
+    async OnSorterChange(sort={}) {
+      Ti.App(this).commit("main/search/setSorter", sort)
+      await Ti.App(this).dispatch("main/reloadSearch")
+    },
+    //--------------------------------------
     OnListSelect({current, currentId, checkedIds, checked}) {
       Ti.App(this).dispatch("main/setCurrentThing", {
         meta: current, 

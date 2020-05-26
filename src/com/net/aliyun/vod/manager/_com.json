@@ -6,6 +6,7 @@
   "components": [
     "@com:ti/wall",
     "@com:ti/combo/filter",
+    "@com:ti/combo/sorter",
     "@com:ti/paging/jumper",
     "@com:net/aliyun/vod/video/info"
   ]

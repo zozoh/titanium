@@ -18,17 +18,12 @@ const _M = {
     },
     /*
     {
-      by: "CreateTime",  // Sort key
-      as: 1              // 1:ASC, -1:DESC
+      "CreateTime": 1  // 1:ASC, -1:DESC
     }
     */
     "value" : {
       type : Object,
       default : null
-    },
-    "text" : {
-      type: String,
-      default: undefined
     },
     "width": {
       type : [Number, String],
@@ -49,13 +44,13 @@ const _M = {
     "sortIcons" : {
       type : Object,
       default : ()=>({
-        asc  : "fas-sort-amount-down-alt",
-        desc : "fas-sort-amount-down"
+        asc  : "fas-long-arrow-alt-down",
+        desc : "fas-long-arrow-alt-up"
       })
     },
     "suffixIcon" : {
       type : String,
-      default : "fas-cog"
+      default : "im-menu-list"
     },
   },
   ////////////////////////////////////////////////////
@@ -80,7 +75,11 @@ const _M = {
     },
     //------------------------------------------------
     SortBy() {
-      return _.get(this.myItem, "value")
+      return _.first(_.keys(this.value))
+    },
+    //------------------------------------------------
+    SortAs() {
+      return _.get(this.value, this.SortBy) || 1
     },
     //------------------------------------------------
     ThePrefixIcon() {
@@ -94,7 +93,7 @@ const _M = {
     },
     //------------------------------------------------
     TheSuffixIcon() {
-      if(!_.isEmpty(this.myListData)) {
+      if(!_.isEmpty(this.myListData) && this.myListData.length>1) {
         return this.suffixIcon
       }
     },
@@ -170,10 +169,10 @@ const _M = {
     // Utility
     //-----------------------------------------------
     genValue() {
-      return {
-        by : _.get(this.myItem, "value"),
-        as : this.isASC ? 1 : -1
-      }
+      let by = _.get(this.myItem, "value")
+      let as = this.isASC ? 1 : -1
+      //console.log({by, as})
+      return {[by]:as}
     },
     //-----------------------------------------------
     async evalMyValue() {
@@ -189,10 +188,10 @@ const _M = {
         val.by = _.nth(this.value, 0)
         val.as = _.nth(this.value, 1) > 0 ? 1 : -1
       }
-      // Object as default {by:"CreateTime", as:1}
+      // Object as default {"CreateTime":1}
       else {
-        val.by = _.get(this.value, "by")
-        val.as = _.get(this.value, "as") > 0 ? 1 : -1
+        val.by = this.SortBy
+        val.as = this.SortAs
       }
 
       let it = await this.Dict.getItem(val.by)

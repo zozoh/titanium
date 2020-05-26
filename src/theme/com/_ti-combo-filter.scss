@@ -1,14 +1,24 @@
 .ti-combo-filter {
-  @include flex-align-nowrap;
+  @include flex-align-nowrap($ai:stretch);
   //---------------------------------------------
   &.as-spacing-comfy {padding: .08rem;}
   &.as-spacing-tiny  {padding: .04rem;}
+  //---------------------------------------------
+  &.is-enabled {
+    > .ti-combo-box > .as-box > .ti-input {
+      border-color: map-get($color-success, c);
+      > .as-input-icon.at-prefix {
+        color: map-get($color-success, c);
+        &:hover {color:map-get($color-primary, r);}
+      }
+    }
+  }
   //---------------------------------------------
   > .ti-combo-box.as-filter {
     flex:1 1 auto;
     //-------------------------------------------
     > .as-box {
-      @include flex-align-nowrap;
+      @include flex-align-nowrap($ai:stretch);
       > .ti-input {flex:1 1 auto;}
       > .ti-combo-sorter {flex:0 0 auto;}
     }

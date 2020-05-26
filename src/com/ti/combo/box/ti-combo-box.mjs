@@ -119,7 +119,14 @@ const _M = {
           dropStyle.width = r_box.width
         }
         else if(!Ti.Util.isNil(this.dropWidth)) {
-          dropStyle.width = this.dropWidth
+          // The min drop width
+          if(this.dropWidth < 0) {
+            dropStyle.width = Math.max(r_box.width, Math.abs(this.dropWidth))
+          }
+          // Fix drop width
+          else {
+            dropStyle.width = this.dropWidth
+          }
         }
         if(!Ti.Util.isNil(this.dropHeight)) {
           dropStyle.height = this.dropHeight

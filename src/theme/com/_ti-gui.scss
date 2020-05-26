@@ -1,5 +1,5 @@
 // Define the block header height
-$GUI-BLOCK-HEADER-HEIGHT: .4rem;
+$GUI-BLOCK-HEADER-HEIGHT: .44rem;
 //---------------------------------------
 .ti-gui {
   position: relative;      // For the sub-panles
@@ -15,8 +15,8 @@ $GUI-BLOCK-HEADER-HEIGHT: .4rem;
   //-------------------------------------
   &.show-border {
     > .ti-gui-block {
-      @include border(1px, solid, shallow, top);
-      &:first-child{border:0;}
+      @include border(1px, solid, shallow, bottom);
+      &:last-child{border:0;}
     }
   }
   //-------------------------------------

@@ -1,4 +1,7 @@
-.ti-combo-input,
-.ti-combo-mulit-input {
+.ti-combo-input {
+  > .as-box > .ti-input {flex:1 1 auto;}
+}
+
+.ti-combo-multi-input {
   > .as-box > .ti-input {flex:1 1 auto;}
 }

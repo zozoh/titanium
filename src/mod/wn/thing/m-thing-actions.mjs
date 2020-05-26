@@ -389,6 +389,31 @@ const _M = {
     //console.log("reload config")
     await dispatch("config/reload", meta)
 
+    // Load local status
+    let local = Ti.Storage.session.getObject(meta.id) || {}
+    _.defaults(local, {
+      filter: {},
+      sorter: {},
+      pager: {}
+    })
+
+    // Setup default filter and sorter
+    let filter = _.get(state.config.schema, "behavior.filter") || {}
+    _.assign(filter, local.filter)
+    if(!_.isEmpty(filter)) {
+      commit("search/setFilter", filter)
+    }
+
+    let sorter = _.get(state.config.schema, "behavior.sorter") || {}
+    _.assign(sorter, local.sorter)
+    if(!_.isEmpty(sorter)) {
+      commit("search/setSorter", sorter)
+    }
+
+    if(!_.isEmpty(local.pager)) {
+      commit("search/setPager", local.pager)
+    }
+
     // Reload Search
     //console.log("reload search")
     await dispatch("reloadSearch")

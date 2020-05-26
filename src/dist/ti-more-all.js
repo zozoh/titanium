@@ -2938,6 +2938,7 @@ Ti.Preload("ti/com/net/aliyun/vod/manager/vod-manager.html", `<ti-gui
   :can-loading="true"
   :loading-as="reloading"
   @filter::change="OnFilterChange"
+  @sorter::change="OnSorterChange"
   @list::select="OnListSelect"
   @video::preview="OnVideoPreview"
   @pager::change="OnPagerChange"/>`);
@@ -2955,8 +2956,10 @@ const _M = {
     myCurrentId: null,
     myCurrentVideo: null,
     myFilter: {
-      match: {},
-      sort: {by:"CreationTime", as:-1}
+      match: {}
+    },
+    mySort: {
+      CreationTime:-1
     }
   }),
   ///////////////////////////////////////////////////////
@@ -2969,42 +2972,47 @@ const _M = {
       type: String,
       default: "Title,CoverURL,Duration,CateName,Size,Description,RegionID"
     },
-    "form": {
+    "filter": {
       type: Object,
       default: ()=>({
-        fields: [{
-            title: "i18n:net-ct",
-            name: "CreationTime",
-            type: "Array",
-            comType: "ti-input-daterange"
-          // }, {
-          //   title: "i18n:net-vod-cate",
-          //   name : "CateName",
-          //   comType: "ti-input"
-          }, {
-            title: "i18n:net-vod-duration",
-            name: "Duration",
-            comType: "ti-switcher",
-            comConf: {
-              autoSplitValue: false,
-              options: [
-                {value: "[0, 600]",    text:"i18n:net-vod-du-short"},
-                {value: "(600, 4800]", text:"i18n:net-vod-du-tv"},
-                {value: "(4800, )",    text:"i18n:net-vod-du-long"},
-              ]
-            }
-          }]
+        comType: "ti-combo-filter",
+        comConf: {
+          placeholder: "i18n:net-flt-nil",
+          form: {
+            fields: [{
+                title: "i18n:net-ct",
+                name: "CreationTime",
+                type: "Array",
+                comType: "ti-input-daterange"
+                // }, {
+                //   title: "i18n:net-vod-cate",
+                //   name : "CateName",
+                //   comType: "ti-input"
+              }, {
+                title: "i18n:net-vod-duration",
+                name: "Duration",
+                comType: "ti-switcher",
+                comConf: {
+                  autoSplitValue: false,
+                  options: [
+                    {value: "[0, 600]",    text:"i18n:net-vod-du-short"},
+                    {value: "(600, 4800]", text:"i18n:net-vod-du-tv"},
+                    {value: "(4800, )",    text:"i18n:net-vod-du-long"},
+                  ]
+                }
+              }]
+          }
+        }
       })
     },
     "sorter": {
       type: Object,
       default: ()=>({
-        text: "i18n:net-ct",
-        __options: [
-          {value:"CreationTime", text:"i18n:net-ct"},
-          {value:"CateName",     text:"i18n:net-vod-cate"},
-          {value:"Duration",     text:"i18n:net-vod-duration"},
-          {value:"Size",         text:"i18n:net-vod-size"},]
+        comType: "ti-combo-sorter",
+        comConf: {
+          options: [
+            {value:"CreationTime", text:"i18n:net-ct"}]
+        }
       })
     },
     "pageSize": {
@@ -3066,9 +3074,17 @@ const _M = {
             size:"61.8%",
             border:true,
             blocks: [{
-                name: "filter",
-                size: 40,
-                body: "pcFilter"
+                type: "cols",
+                size: ".44rem",
+                blocks: [{
+                    name: "filter",
+                    flex: "both",
+                    body: "pcFilter"
+                  }, {
+                    name: "sorter",
+                    flex: "none",
+                    body: "pcSorter"
+                  }]
               }, {
                 name: "list",
                 body: "pcList"
@@ -3089,14 +3105,16 @@ const _M = {
     GuiSchema() {
       return {
         pcFilter: {
-          comType: "ti-combo-filter",
-          comConf: {
-            className: "as-spacing-tiny",
-            placeholder: "i18n:net-flt-nil",
-            form: this.form,
-            sorter: this.sorter,
+          comType: this.filter.comType,
+          comConf: _.assign({
             value: this.myFilter
-          }
+          }, this.filter.comConf)
+        },
+        pcSorter: {
+          comType: this.sorter.comType,
+          comConf: _.assign({
+            value: this.mySort
+          }, this.sorter.comConf)
         },
         pcList: {
           comType: "ti-wall",
@@ -3132,8 +3150,22 @@ const _M = {
       await this.reloadVideos()
     },
     //---------------------------------------------------
+    async OnSorterChange(sort) {
+      this.mySort = sort
+      this.pager = _.assign({}, this.pager, {pn:1})
+      await this.reloadVideos()
+    },
+    //---------------------------------------------------
     async OnPagerChange(pg) {
       this.pager = _.assign({}, this.pager, pg)
+      // Save pageSize
+      if(this.meta) {
+        let pgsz = _.get(pg, "pgsz");
+        if(!Ti.Util.isNil(pgsz)) {
+          Ti.Storage.session.setObject(this.meta.id, {pgsz})
+        }
+      }
+
       await this.reloadVideos()
     },
     //---------------------------------------------------
@@ -3202,7 +3234,14 @@ const _M = {
     toMatchStr(keyword, match={}) {
       let ss = []
       if(!Ti.S.isBlank(keyword)) {
-        ss.push(`Title in ('${keyword.replace(/'/g,"")}')`)
+        // ID
+        if(/^[a-z0-9]{32}$/.test(keyword)) {
+          ss.push(`VideoId = '${keyword}'`)
+        }
+        // Title
+        else {
+          ss.push(`Title in ('${keyword.replace(/'/g,"")}')`)
+        }
       }
 
       // March
@@ -3277,9 +3316,12 @@ const _M = {
       }
       //.................................................
       // Join the Filter: Sort
-      let sort = _.get(this.myFilter, "sort")
+      let sort = []
+      _.forEach(this.mySort, (as, by)=>{
+        sort.push(`${by}:${as>0?'ASC':'DESC'}`)
+      })
       if(!_.isEmpty(sort)) {
-        cmds.push("-sort", `'${sort.by}:${sort.as>0?"Asc":"Desc"}'`)
+        cmds.push("-sort ", `${sort.join(" ")}`)
       }
       //.................................................
       // Join paging
@@ -3287,7 +3329,7 @@ const _M = {
       cmds.push("-pgsz", this.ThePageSize)
       cmds.push("-as page -cqn")
 
-      //console.log("reloadVideo", cmds)
+      //console.log("reloadVideo", cmds.join(' '))
       //.................................................
       // Run
       let reo = await Wn.Sys.exec2(cmds.join(" "), {as:"json"})
@@ -3302,6 +3344,13 @@ const _M = {
   },
   ///////////////////////////////////////////////////////
   mounted : function() {
+    if(this.meta) {
+      let pager = Ti.Storage.session.getObject(this.meta.id)
+      if(pager) {
+        let pgsz = _.get(pager, "pgsz");
+        this.pager.pgsz = pgsz
+      }
+    }
     this.reloadVideos()
   }
   ///////////////////////////////////////////////////////
@@ -3319,6 +3368,7 @@ Ti.Preload("ti/com/net/aliyun/vod/manager/_com.json", {
   "components": [
     "@com:ti/wall",
     "@com:ti/combo/filter",
+    "@com:ti/combo/sorter",
     "@com:ti/paging/jumper",
     "@com:net/aliyun/vod/video/info"
   ]
@@ -5890,7 +5940,14 @@ const _M = {
           dropStyle.width = r_box.width
         }
         else if(!Ti.Util.isNil(this.dropWidth)) {
-          dropStyle.width = this.dropWidth
+          // The min drop width
+          if(this.dropWidth < 0) {
+            dropStyle.width = Math.max(r_box.width, Math.abs(this.dropWidth))
+          }
+          // Fix drop width
+          else {
+            dropStyle.width = this.dropWidth
+          }
         }
         if(!Ti.Util.isNil(this.dropHeight)) {
           dropStyle.height = this.dropHeight
@@ -6016,11 +6073,6 @@ Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter.html", `<div class="ti-combo-
         @input:focus="OnInputFocused"
         @prefix:icon="$notify('prefix:icon')"
         @suffix:icon="OnClickStatusIcon"/>
-      <ti-combo-sorter
-        v-if="sorter"
-          v-bind="sorter"
-          :value="mySort"
-          @change="OnSorterChanged"/>
     </template>
     <!--
       Drop
@@ -6046,25 +6098,17 @@ const _M = {
   {
     keyword: "xxx",  -> myFreeValue
     match: {..}      -> myFormData
-    sort : {         -> mySort
-      by:"xx", as:1
-    }
   }
   */
   ////////////////////////////////////////////////////
   data : ()=>({
     myDropStatus : "collapse",
     myFreeValue : null,
-    myFormData  : {},
-    mySort : {}
+    myFormData  : {}
   }),
   ////////////////////////////////////////////////////
   props : {
     "form" : {
-      type : Object,
-      default : null
-    },
-    "sorter" : {
       type : Object,
       default : null
     },
@@ -6083,6 +6127,11 @@ const _M = {
       type: Boolean,
       default: true
     },
+    "spacing" : {
+      type : String,
+      default : "tiny",
+      validator : v => /^(none|comfy|tiny)$/.test(v)
+    },
     "dropWidth" : {
       type : [Number, String],
       default : "box"
@@ -6095,15 +6144,23 @@ const _M = {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+          "is-enabled": this.isFilterEnabled
+        },`as-spacing-${this.spacing}`
+      )
+    },
+    //------------------------------------------------
     isCollapse() {return "collapse"==this.myDropStatus},
     isExtended() {return "extended"==this.myDropStatus},
     //------------------------------------------------
-    TopClass() {
-      return this.getTopClass()
-    },
-    //------------------------------------------------
     hasForm() {
       return !_.isEmpty(this.form)
+    },
+    //------------------------------------------------
+    isFilterEnabled() {
+      return !_.isEmpty(this.myFreeValue)
+        || !_.isEmpty(this.myFormData)
     },
     //------------------------------------------------
     TheInputProps(){
@@ -6160,12 +6217,6 @@ const _M = {
       }
     },
     //-----------------------------------------------
-    OnSorterChanged(val) {
-      //console.log("filter sorter chanaged", val)
-      this.mySort = val
-      this.tryNotifyChanged()
-    },
-    //-----------------------------------------------
     OnFormChange(formData) {
       //console.log("filter form chanaged", formData)
       this.myFormData = formData
@@ -6201,8 +6252,7 @@ const _M = {
     genValue() {
       return {
         keyword : this.myFreeValue,
-        match   : this.myFormData,
-        sort    : this.mySort
+        match   : this.myFormData
       }
     },
     //-----------------------------------------------
@@ -6210,7 +6260,6 @@ const _M = {
       let val = _.assign({}, this.value)
       this.myFreeValue = val.keyword
       this.myFormData  = val.match
-      this.mySort      = val.sort
     },
     //-----------------------------------------------
     // Callback
@@ -6396,7 +6445,6 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     myDropStatus   : "collapse",
@@ -6864,6 +6912,15 @@ const _M = {
       if(this.options instanceof Ti.Dict) {
         return this.options
       }
+      // Refer dict
+      if(_.isString(this.options)) {
+        let dictName = Ti.DictFactory.DictReferName(this.options)
+        if(dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+            this.loading = loading
+          })
+        }
+      }
       // Auto Create
       return Ti.DictFactory.CreateDict({
         data: this.options,
@@ -7182,17 +7239,12 @@ const _M = {
     },
     /*
     {
-      by: "CreateTime",  // Sort key
-      as: 1              // 1:ASC, -1:DESC
+      "CreateTime": 1  // 1:ASC, -1:DESC
     }
     */
     "value" : {
       type : Object,
       default : null
-    },
-    "text" : {
-      type: String,
-      default: undefined
     },
     "width": {
       type : [Number, String],
@@ -7213,13 +7265,13 @@ const _M = {
     "sortIcons" : {
       type : Object,
       default : ()=>({
-        asc  : "fas-sort-amount-down-alt",
-        desc : "fas-sort-amount-down"
+        asc  : "fas-long-arrow-alt-down",
+        desc : "fas-long-arrow-alt-up"
       })
     },
     "suffixIcon" : {
       type : String,
-      default : "fas-cog"
+      default : "im-menu-list"
     },
   },
   ////////////////////////////////////////////////////
@@ -7244,7 +7296,11 @@ const _M = {
     },
     //------------------------------------------------
     SortBy() {
-      return _.get(this.myItem, "value")
+      return _.first(_.keys(this.value))
+    },
+    //------------------------------------------------
+    SortAs() {
+      return _.get(this.value, this.SortBy) || 1
     },
     //------------------------------------------------
     ThePrefixIcon() {
@@ -7258,7 +7314,7 @@ const _M = {
     },
     //------------------------------------------------
     TheSuffixIcon() {
-      if(!_.isEmpty(this.myListData)) {
+      if(!_.isEmpty(this.myListData) && this.myListData.length>1) {
         return this.suffixIcon
       }
     },
@@ -7334,10 +7390,10 @@ const _M = {
     // Utility
     //-----------------------------------------------
     genValue() {
-      return {
-        by : _.get(this.myItem, "value"),
-        as : this.isASC ? 1 : -1
-      }
+      let by = _.get(this.myItem, "value")
+      let as = this.isASC ? 1 : -1
+      //console.log({by, as})
+      return {[by]:as}
     },
     //-----------------------------------------------
     async evalMyValue() {
@@ -7353,10 +7409,10 @@ const _M = {
         val.by = _.nth(this.value, 0)
         val.as = _.nth(this.value, 1) > 0 ? 1 : -1
       }
-      // Object as default {by:"CreateTime", as:1}
+      // Object as default {"CreateTime":1}
       else {
-        val.by = _.get(this.value, "by")
-        val.as = _.get(this.value, "as") > 0 ? 1 : -1
+        val.by = this.SortBy
+        val.as = this.SortAs
       }
 
       let it = await this.Dict.getItem(val.by)
@@ -12587,7 +12643,6 @@ Ti.Preload("ti/com/ti/input/tags/ti-input-tags.html", `<ti-input
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     
@@ -29321,17 +29376,17 @@ const _M = {
     },
     // {method : "dispatch", target : "main/onChanged"}
     "setDataBy" : {
-      type : [String, Object],
+      type : [String, Object, Boolean],
       default : null
     },
     // {method : "dispatch", target : "main/changeMeta"}
     "updateBy" : {
-      type : [String, Object],
+      type : [String, Object, Boolean],
       default : null
     },
     // {method : "commit", target : "main/setFieldStatus"}
     "setFieldStatusBy" : {
-      type : [String, Object],
+      type : [String, Object, Boolean],
       default : null
     }
   },
@@ -31262,6 +31317,8 @@ Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager.html", `<ti-gui
   @block:show="showBlock"
   @block:hide="hideBlock"
   @block:shown="changeShown"
+  @filter::change="OnFilterChange"
+  @sorter::change="OnSorterChange"
   @list::select="OnListSelect"
   @list::open="OnListOpen"
   @content::change="OnContentChange"
@@ -31324,6 +31381,10 @@ const _M = {
   },
   ///////////////////////////////////////////
   computed : {
+    ...Vuex.mapGetters("main/search", [
+      "currentItem", 
+      "checkedItems"
+    ]),
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -31371,8 +31432,8 @@ const _M = {
     },
     //--------------------------------------
     ChangedRowId() {
-      if(this.current && this.current.meta && this.current.status.changed) {
-        return this.current.meta.id
+      if(this.currentItem && this.current.status.changed) {
+        return this.currentItem.id
       }
     },
     //--------------------------------------
@@ -31382,9 +31443,9 @@ const _M = {
     },
     //--------------------------------------
     curentThumbTarget() {
-      if(this.current.meta) {
+      if(this.currentItem) {
         let th_set = this.meta.id
-        return `id:${th_set}/data/${this.current.meta.id}/thumb.jpg`
+        return `id:${th_set}/data/${this.currentItem.id}/thumb.jpg`
       }
       return ""
     },
@@ -31399,6 +31460,16 @@ const _M = {
   },
   ///////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    async OnFilterChange(filter) {
+      Ti.App(this).commit("main/search/setFilter", filter)
+      await Ti.App(this).dispatch("main/reloadSearch")
+    },
+    //--------------------------------------
+    async OnSorterChange(sort={}) {
+      Ti.App(this).commit("main/search/setSorter", sort)
+      await Ti.App(this).dispatch("main/reloadSearch")
+    },
     //--------------------------------------
     OnListSelect({current, currentId, checkedIds, checked}) {
       Ti.App(this).dispatch("main/setCurrentThing", {
@@ -31473,18 +31544,144 @@ const _M = {
       })
     },
     //--------------------------------------
+    // Batch Update
+    //--------------------------------------
+    async batchUpdate() {
+      //....................................
+      // Prepare the data
+      if(_.isEmpty(this.checkedItems)) {
+        return Ti.Toast.Open("i18n:batch-none", "warn")
+      }
+      let current = _.first(this.checkedItems)
+      //....................................
+      let batch = _.get(this.config, "schema.behavior.batch") || {}
+      _.defaults(batch, {
+        "comType" : "wn-obj-form",
+        "comConf" : {},
+        "fields" : "schema.meta.comConf.fields",
+        "names" : null,
+        "valueKey": "data"
+      })
+      batch.comType = _.kebabCase(batch.comType)
+      // Add default setting
+      if(/^(ti-|wn-obj-)(form)$/.test(batch.comType)) {
+        _.defaults(batch.comConf, {
+          autoShowBlank: false,
+          updateBy: true,
+          setDataBy: true
+        })
+      }
+      //....................................
+      let name_filter;
+      if(_.isString(batch.names)) {
+        if(batch.names.startsWith("^")){
+          let regex = new RegExp(batch.names)
+          name_filter = fld => regex.test(fld.name)
+        }
+        else if(batch.names.startsWith("!^")){
+          let regex = new RegExp(batch.names.substring(1))
+          name_filter = fld => !regex.test(fld.name)
+        }
+        else {
+          let list = Ti.S.toArray(batch.names)
+          name_filter = fld => list.indexOf(fld.name)>=0
+        }
+      }
+      // Filter by Array
+      // TODO maybe I should use the validate
+      else if(_.isArray(batch.names) && !_.isEmpty(batch.names)) {
+        name_filter = v => batch.name.indexOf(v)>=0
+      }
+      // Allow all
+      else {
+        name_filter = fld => true
+      }
+
+      //....................................
+      // Prepare the fields
+      let fields = _.get(this.config, batch.fields)
+      //....................................
+      // filter names
+      if(!_.isEmpty(batch.names)) {
+        // Define the filter
+        const filter_names = function(flds=[], filter) {
+          let list = []
+          for(let fld of flds) {
+            // Group
+            if(_.isArray(fld.fields)) {
+              let f2 = _.cloneDeept(fld)
+              f2.fields = filter_names(fld.fields, names)
+              if(!_.isEmpty(f2.fields)) {
+                list.push(f2)
+              }
+            }
+            // Fields
+            else if(filter(fld)) {
+              list.push(fld)
+            }
+          }
+          return list
+        }
+        // Do filter
+        fields = filter_names(fields, name_filter)
+      }
+      //....................................
+      // Open the Modal
+      let updates = await Ti.App.Open({
+        title: "i18n:batch-update",
+        width: 640,
+        height: "90%",
+        position: "top",
+        //............................
+        comType: "inner-body",
+        //............................
+        components: [{
+          name: "inner-body",
+          globally : false,
+          data: {
+            update: {},
+            value: current,
+            innerComConf: {
+              ... batch.comConf,
+              fields
+            }
+          },
+          template: `<${batch.comType}
+            v-bind="innerComConf"
+            :${batch.valueKey}="value"
+            @field:change="OnFieldChange"
+            @change="OnChange"/>`,
+          methods: {
+            OnFieldChange({name, value}){
+              _.set(this.update, name, value)
+              this.$notify("change", this.update)
+            },
+            OnChange(payload) {
+              this.value = payload
+            }
+          }
+        }]
+        //............................
+      })
+      //....................................
+      if(!_.isEmpty(updates)) {
+        // Get all checkes
+        await Ti.App(this).dispatch("main/batchUpdateMetas", updates)
+      }
+    },
+    //--------------------------------------
     // Utility
     //--------------------------------------
     async viewCurrentSource() {
       // Guard
-      if(!this.current.meta) {
+      if(!this.currentItem) {
         return await Ti.Toast.Open("i18n:empty-data", "warn")
       }
       // Open Editor
-      let newContent = await Wn.EditObjContent(this.current.meta, {
+      let newContent = await Wn.EditObjContent(this.currentItem, {
         showEditorTitle : false,
-        icon      : Wn.Util.getObjIcon(this.current.meta, "zmdi-tv"),
-        title     : Wn.Util.getObjDisplayName(this.current.meta),
+        icon      : Wn.Util.getObjIcon(this.currentItem, "zmdi-tv"),
+        title     : Wn.Util.getObjDisplayName(this.currentItem),
         width     : "61.8%",
         height    : "96%",
         content   : this.current.content,
@@ -31566,12 +31763,14 @@ Ti.Preload("ti/com/wn/thing/manager/_com.json", {
     "./com/thing-creator",
     "./com/thing-files",
     "@com:ti/gui",
+    "@com:ti/combo/filter",
     "@com:ti/paging/jumper",
     "@com:wn/table",
     "@com:wn/obj/icon",
     "@com:wn/obj/puretext",
     "@com:wn/obj/preview",
-    "@com:wn/obj/form"]
+    "@com:wn/obj/form",
+    "@com:wn/upload/file"]
 });
 //============================================================
 // JOIN: wn/thing/_test/thing-actions.json
@@ -32058,7 +32257,6 @@ const _M = {
     // it will auto transfrom the image format by `cmd_imagic`
     "target" : {
       type : String,
-      required: true,
       default : null
     },
     // which type supported to upload
@@ -33574,6 +33772,33 @@ const _M = {
     }
   },
   //--------------------------------------------
+  async batchUpdateMetas({state, commit, getters}, updates={}){
+    let checkedItems = getters["search/checkedItems"]
+    // Guard
+    if(_.isEmpty(checkedItems) || _.isEmpty(updates)) {
+      return
+    }
+
+    // Mark loading
+    commit("setStatus", {reloading:true})
+
+    // Gen commands
+    let currentId = _.get(state.current, "meta.id")
+    let input = JSON.stringify(updates)
+    let tsId = state.meta.id
+    for(let it of checkedItems) {
+      let cmdText = `thing ${tsId} update ${it.id} -fields -cqn`
+      let newIt = await Wn.Sys.exec2(cmdText, {as:"json", input})
+      commit("search/updateItem", newIt)
+      if(newIt.id == currentId) {
+        commit("current/setMeta", newIt)
+      }
+    }
+
+    // Mark loading
+    commit("setStatus", {reloading:false})
+  },
+  //--------------------------------------------
   setCurrentMeta({state, commit}, meta) {
     console.log(" -> setCurrentMeta", meta)
     commit("current/assignMeta", meta)
@@ -33627,12 +33852,35 @@ const _M = {
    * Create one new thing
    */
   async create({state, commit, dispatch}, obj={}) {
+    // Special setting for create
+    let beCreate = _.get(state.config, "schema.behavior.create") || {}
+    let {unique,after,fixed} = beCreate
+
     // Prepare the command
     let json = JSON.stringify(obj)
     let th_set = state.meta.id
-    let cmdText = `thing ${th_set} create -cqn -fields`
+    let cmds = [`thing ${th_set} create -cqn -fields`]
+
+    // Join `-unique`
+    if(!_.isEmpty(unique) && _.isString(unique)) {
+      cmds.push(` -unique '${unique}'`)
+    }
+
+    // Join `-fixed`
+    if(!_.isEmpty(fixed) && _.isString(unique)) {
+      cmds.push(` -fixed '${JSON.stringify(fixed)}'`)
+    }
+
+    // Join `-after`
+    if(!_.isEmpty(after) && _.isString(after)) {
+      cmds.push(` -after '${after}'`)
+    }
+
+    // Mark reloading
+    commit("setStatus", {reloading:true})
 
     // Do Create
+    let cmdText = cmds.join(" ")
     let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
     // Set it as current
@@ -33641,6 +33889,9 @@ const _M = {
     // Append To Search List as the first 
     commit("search/prependToList", newMeta)
     commit("search/selectItem", newMeta.id)
+
+    // Mark reloading
+    commit("setStatus", {reloading:false})
 
     // Return the new object
     return newMeta
@@ -33881,6 +34132,31 @@ const _M = {
     // Reload Config
     //console.log("reload config")
     await dispatch("config/reload", meta)
+
+    // Load local status
+    let local = Ti.Storage.session.getObject(meta.id) || {}
+    _.defaults(local, {
+      filter: {},
+      sorter: {},
+      pager: {}
+    })
+
+    // Setup default filter and sorter
+    let filter = _.get(state.config.schema, "behavior.filter") || {}
+    _.assign(filter, local.filter)
+    if(!_.isEmpty(filter)) {
+      commit("search/setFilter", filter)
+    }
+
+    let sorter = _.get(state.config.schema, "behavior.sorter") || {}
+    _.assign(sorter, local.sorter)
+    if(!_.isEmpty(sorter)) {
+      commit("search/setSorter", sorter)
+    }
+
+    if(!_.isEmpty(local.pager)) {
+      commit("search/setPager", local.pager)
+    }
 
     // Reload Search
     //console.log("reload search")
@@ -34137,8 +34413,9 @@ const _M = {
     await dispatch("reload")
   },
   //--------------------------------------------
-  async reload({state, commit}, meta) {
+  async reload({state, commit, rootState}, meta) {
     //console.log("thing-manager-search.reload", meta)
+    //............................................
     // Update New Meta
     if(meta) {
       commit("setMeta", meta)
@@ -34147,15 +34424,47 @@ const _M = {
     else {
       meta = state.meta
     }
+    //............................................
     // Mark reloading
     commit("setStatus", {reloading:true})
-
+    //............................................
     let cmds = [`thing id:${meta.id} query -pager -cqn`]
+    
+    let {keyword, match} = state.filter || {}
+    let flt = {}
+    //............................................
+    // Eval Filter: keyword
+    if(keyword) {
+      if(/^[0-9a-z]{32}$/.test(keyword)) {
+        flt.id = keyword
+      }
+      // Find
+      else {
+        let knm = "title"
+        let beh = _.get(rootState, "main.config.schema.behavior") || {}
+        let keys = _.keys(beh.keyword)
+        for(let k of keys) {
+          let val = beh.keyword[k]
+          if(new RegExp(val).test(keyword)) {
+            knm = k;
+            break;
+          }
+        }
+        flt[knm] = "^.*"+keyword;
+      }
+    }
+    // Eval Filter: match
+    if(!_.isEmpty(match)) {
+      _.assign(flt, match)
+    }
+
+    //............................................
     // Eval Sorter
     if(!_.isEmpty(state.sorter)) {
       let sort = JSON.stringify(state.sorter)
       cmds.push(`-sort '${sort}'`)
     }
+    //............................................
     // Eval Pager
     let pg = state.pager
     if(!_.isEmpty(pg) && pg.pgsz > 0 && pg.pn > 0) {
@@ -34164,20 +34473,13 @@ const _M = {
       cmds.push(`-limit ${limit}`)
       cmds.push(`-skip  ${skip}`)
     }
-    // Eval Filter
-    let flt = {}
-    if(!_.isEmpty(state.filter)) {
-      _.forEach(state.filter, (val, key)=>{
-        if(!_.isNull(val)) {
-          flt[key] = val
-        }
-      })
-    }
+    
+    //............................................
     // Run Command
     let input = _.isEmpty(flt) ? undefined : JSON.stringify(flt)
     let cmdText = cmds.join(" ")
     let reo = await Wn.Sys.exec2(cmdText, {input, as:"json"})
-    
+    //............................................
     // All done
     commit("setPager", reo.pager)
     commit("setList", reo.list)
@@ -34217,6 +34519,20 @@ Ti.Preload("ti/mod/wn/thing/mod/search/m-thing-search.json", {
 // JOIN: wn/thing/mod/search/m-thing-search.mjs
 //============================================================
 (function(){
+function saveToLocal(meta, key, val) {
+  if(!meta) {
+    return
+  }
+  console.log("saveToLocal", key, val)
+  let local = Ti.Storage.session.getObject(meta.id) || {}
+  _.defaults(local, {
+    filter: {},
+    sorter: {},
+    pager: {}
+  })
+  local[key] = val
+  Ti.Storage.session.setObject(meta.id, local)
+}
 //---------------------------------------
 const _M = {
   ////////////////////////////////////////////
@@ -34261,16 +34577,20 @@ const _M = {
     },
     setFilter(state, filter={}) {
       state.filter = filter
+      saveToLocal(state.meta, "filter", state.filter)
     },
     updateFilter(state, flt={}) {
       //console.log("updateFilter", JSON.stringify(flt))
       state.filter = _.assign({}, state.filter, flt)
+      saveToLocal(state.meta, "filter", state.filter)
     },
     setSorter(state, sorter) {
       state.sorter = sorter
+      saveToLocal(state.meta, "sorter", state.sorter)
     },
     setPager(state, pager) {
       state.pager = pager
+      saveToLocal(state.meta, "pager", state.pager)
     },
     updatePager(state, pg) {
       state.pager = _.defaults({}, pg, state.pager)
@@ -34649,6 +34969,7 @@ const _M = {
   watch : {
     // Page changd, update document title
     "page.finger" : function() {
+      //console.log("-> ", this.page.title)
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
       document.title = pageTitle
       this.pushBrowserHistory()
@@ -36838,6 +37159,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "add-item": "添加新项",
   "amount": "数量",
   "attachment": "附件",
+  "batch-none": "请从下面列表中选择至少一个对象进行批量更新",
+  "batch-update": "批量更新...",
   "blank": "空白",
   "blank-to-edit": "请选择要编辑的项目",
   "buy": "购买",
@@ -36962,6 +37285,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "save-done": "保存成功",
   "save-now": "立即保存",
   "saving": "正在保存...",
+  "score": "评分",
+  "score-count": "打分人数",
   "select": "选择",
   "select-all": "全部选中",
   "settings": "设置",

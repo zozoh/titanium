@@ -8,8 +8,10 @@ export default {
     myCurrentId: null,
     myCurrentVideo: null,
     myFilter: {
-      match: {},
-      sort: {by:"CreationTime", as:-1}
+      match: {}
+    },
+    mySort: {
+      CreationTime:-1
     }
   }),
   ///////////////////////////////////////////////////////
@@ -22,42 +24,47 @@ export default {
       type: String,
       default: "Title,CoverURL,Duration,CateName,Size,Description,RegionID"
     },
-    "form": {
+    "filter": {
       type: Object,
       default: ()=>({
-        fields: [{
-            title: "i18n:net-ct",
-            name: "CreationTime",
-            type: "Array",
-            comType: "ti-input-daterange"
-          // }, {
-          //   title: "i18n:net-vod-cate",
-          //   name : "CateName",
-          //   comType: "ti-input"
-          }, {
-            title: "i18n:net-vod-duration",
-            name: "Duration",
-            comType: "ti-switcher",
-            comConf: {
-              autoSplitValue: false,
-              options: [
-                {value: "[0, 600]",    text:"i18n:net-vod-du-short"},
-                {value: "(600, 4800]", text:"i18n:net-vod-du-tv"},
-                {value: "(4800, )",    text:"i18n:net-vod-du-long"},
-              ]
-            }
-          }]
+        comType: "ti-combo-filter",
+        comConf: {
+          placeholder: "i18n:net-flt-nil",
+          form: {
+            fields: [{
+                title: "i18n:net-ct",
+                name: "CreationTime",
+                type: "Array",
+                comType: "ti-input-daterange"
+                // }, {
+                //   title: "i18n:net-vod-cate",
+                //   name : "CateName",
+                //   comType: "ti-input"
+              }, {
+                title: "i18n:net-vod-duration",
+                name: "Duration",
+                comType: "ti-switcher",
+                comConf: {
+                  autoSplitValue: false,
+                  options: [
+                    {value: "[0, 600]",    text:"i18n:net-vod-du-short"},
+                    {value: "(600, 4800]", text:"i18n:net-vod-du-tv"},
+                    {value: "(4800, )",    text:"i18n:net-vod-du-long"},
+                  ]
+                }
+              }]
+          }
+        }
       })
     },
     "sorter": {
       type: Object,
       default: ()=>({
-        text: "i18n:net-ct",
-        __options: [
-          {value:"CreationTime", text:"i18n:net-ct"},
-          {value:"CateName",     text:"i18n:net-vod-cate"},
-          {value:"Duration",     text:"i18n:net-vod-duration"},
-          {value:"Size",         text:"i18n:net-vod-size"},]
+        comType: "ti-combo-sorter",
+        comConf: {
+          options: [
+            {value:"CreationTime", text:"i18n:net-ct"}]
+        }
       })
     },
     "pageSize": {
@@ -119,9 +126,17 @@ export default {
             size:"61.8%",
             border:true,
             blocks: [{
-                name: "filter",
-                size: 40,
-                body: "pcFilter"
+                type: "cols",
+                size: ".44rem",
+                blocks: [{
+                    name: "filter",
+                    flex: "both",
+                    body: "pcFilter"
+                  }, {
+                    name: "sorter",
+                    flex: "none",
+                    body: "pcSorter"
+                  }]
               }, {
                 name: "list",
                 body: "pcList"
@@ -142,14 +157,16 @@ export default {
     GuiSchema() {
       return {
         pcFilter: {
-          comType: "ti-combo-filter",
-          comConf: {
-            className: "as-spacing-tiny",
-            placeholder: "i18n:net-flt-nil",
-            form: this.form,
-            sorter: this.sorter,
+          comType: this.filter.comType,
+          comConf: _.assign({
             value: this.myFilter
-          }
+          }, this.filter.comConf)
+        },
+        pcSorter: {
+          comType: this.sorter.comType,
+          comConf: _.assign({
+            value: this.mySort
+          }, this.sorter.comConf)
         },
         pcList: {
           comType: "ti-wall",
@@ -181,6 +198,12 @@ export default {
     //---------------------------------------------------
     async OnFilterChange(filter) {
       this.myFilter = filter
+      this.pager = _.assign({}, this.pager, {pn:1})
+      await this.reloadVideos()
+    },
+    //---------------------------------------------------
+    async OnSorterChange(sort) {
+      this.mySort = sort
       this.pager = _.assign({}, this.pager, {pn:1})
       await this.reloadVideos()
     },
@@ -263,7 +286,14 @@ export default {
     toMatchStr(keyword, match={}) {
       let ss = []
       if(!Ti.S.isBlank(keyword)) {
-        ss.push(`Title in ('${keyword.replace(/'/g,"")}')`)
+        // ID
+        if(/^[a-z0-9]{32}$/.test(keyword)) {
+          ss.push(`VideoId = '${keyword}'`)
+        }
+        // Title
+        else {
+          ss.push(`Title in ('${keyword.replace(/'/g,"")}')`)
+        }
       }
 
       // March
@@ -338,9 +368,12 @@ export default {
       }
       //.................................................
       // Join the Filter: Sort
-      let sort = _.get(this.myFilter, "sort")
+      let sort = []
+      _.forEach(this.mySort, (as, by)=>{
+        sort.push(`${by}:${as>0?'ASC':'DESC'}`)
+      })
       if(!_.isEmpty(sort)) {
-        cmds.push("-sort", `'${sort.by}:${sort.as>0?"Asc":"Desc"}'`)
+        cmds.push("-sort ", `${sort.join(" ")}`)
       }
       //.................................................
       // Join paging
@@ -348,7 +381,7 @@ export default {
       cmds.push("-pgsz", this.ThePageSize)
       cmds.push("-as page -cqn")
 
-      //console.log("reloadVideo", cmds)
+      //console.log("reloadVideo", cmds.join(' '))
       //.................................................
       // Run
       let reo = await Wn.Sys.exec2(cmds.join(" "), {as:"json"})

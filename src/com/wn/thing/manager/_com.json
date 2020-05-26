@@ -10,6 +10,7 @@
     "./com/thing-creator",
     "./com/thing-files",
     "@com:ti/gui",
+    "@com:ti/combo/filter",
     "@com:ti/paging/jumper",
     "@com:wn/table",
     "@com:wn/obj/icon",

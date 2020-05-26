@@ -60,6 +60,15 @@ const _M = {
       if(this.options instanceof Ti.Dict) {
         return this.options
       }
+      // Refer dict
+      if(_.isString(this.options)) {
+        let dictName = Ti.DictFactory.DictReferName(this.options)
+        if(dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+            this.loading = loading
+          })
+        }
+      }
       // Auto Create
       return Ti.DictFactory.CreateDict({
         data: this.options,
