@@ -34,6 +34,8 @@
         padding: 1em;
         font-size: .16rem;
         outline:none; border:0;
+        color:inherit;
+        background-color: transparent;
       }
       span {
         @include flex-center;
