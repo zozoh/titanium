@@ -63,6 +63,8 @@ ul {
   @include raw-list;
 }
 //...................................................
+button, input {font-family: inherit;}
+//...................................................
 a {
   @include color($color-primary, c);
   text-decoration: none;

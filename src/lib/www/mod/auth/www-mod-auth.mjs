@@ -44,7 +44,11 @@ const _M = {
     },
     //--------------------------------------------
     setPaths(state, paths) {
-      _.assign(state,paths, paths)
+      _.assign(state.paths, paths)
+    },
+    //--------------------------------------------
+    mergePaths(state, paths) {
+      _.merge(state.paths, paths)
     }
     //--------------------------------------------
   },
@@ -252,7 +256,8 @@ const _M = {
         site : siteId,
         name, 
         [passKey] : passwd,
-        ticket
+        ticket,
+        ajax: true
       }
 
       // Call Remote

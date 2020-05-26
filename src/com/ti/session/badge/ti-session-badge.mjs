@@ -1,5 +1,4 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   /////////////////////////////////////////
   props : {
     "me" : {
@@ -56,8 +55,8 @@ export default {
   //////////////////////////////////////////
   computed : {
     //......................................
-    topClass() {
-      return Ti.Css.mergeClassName(this.className)
+    TopClass() {
+      return this.getTopClass()
     },
     //......................................
     theLinks() {
@@ -128,7 +127,7 @@ export default {
   },
   //////////////////////////////////////////
   methods : {
-    onClickLink(link, $event) {
+    OnClickLink(link, $event) {
       // Emit
       if(link.emit) {
         $event.preventDefault()
@@ -139,3 +138,4 @@ export default {
   }
   //////////////////////////////////////////
 }
+export default _M;

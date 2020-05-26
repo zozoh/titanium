@@ -43,6 +43,7 @@
   "drop-file-here-to-upload": "拖拽文件至此以便上传",
   "drop-here": "拖拽文件至此",
   "e-auth-account-noexists": "账户不存在",
+  "e-auth-login-invalid-passwd": "账户密码未通过校验",
   "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
   "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
   "e-io-obj-exists": "但是对象已然存在",

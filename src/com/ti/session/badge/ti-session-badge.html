@@ -1,4 +1,5 @@
-<div class="ti-session-badge">
+<div class="ti-session-badge"
+  :class="TopClass">
   <!--
     Has Session, show account info
   -->
@@ -19,15 +20,15 @@
     <div v-for="li in theLinks"
       class="as-link">
       <!--Icon-->
-      <ti-icon v-if="li.icon"
-      class="it-icon"
-      :value="li.icon"/>
+      <ti-icon
+        v-if="li.icon"
+          class="it-icon"
+          :value="li.icon"/>
       <!--Text-->
-      <a @click.left="onClickLink(li, $event)"
+      <a
+        @click.left="OnClickLink(li, $event)"
         :href="li.href"
-        :target="li.newtab?'_blank':null">
-        {{li.text|i18n}}
-      </a>
+        :target="li.newtab?'_blank':null">{{li.text|i18n}}</a>
     </div>
   </template>
   <!--

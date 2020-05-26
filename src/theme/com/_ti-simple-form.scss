@@ -31,8 +31,8 @@
       }
       input {
         flex:1 1 auto;
-        padding: 1em;
-        font-size: .16rem;
+        padding: .7em;
+        font-size: 1.4em;
         outline:none; border:0;
         color:inherit;
         background-color: transparent;
@@ -48,8 +48,8 @@
       button {
         @include fireable;
         flex:1 1 auto;
-        padding:1em; width:100%;
-        font-size: .16rem;
+        padding:.7em; width:100%;
+        font-size: 1.4em; letter-spacing: .1em;
         outline:none; border:0; 
       }
     }

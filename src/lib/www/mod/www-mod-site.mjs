@@ -98,6 +98,9 @@ const _M = {
     //-------------------------------------
     getApiUrl(state) {
       return (path)=>{
+        if(path.startsWith("/")) {
+          return path
+        }
         return Ti.Util.appendPath(state.apiBase, path)
       }
     }
@@ -132,6 +135,14 @@ const _M = {
       if(window.history) {
         window.history.back()
       }
+    },
+    //-------------------------------------
+    async openUrl({state}, {
+      url, target="_self", method="GET", params={}, delay=0
+    }) {
+      await Ti.Be.Open(url, {
+        target, method, params, delay
+      })
     },
     //-------------------------------------
     // Only handle the "page|dispatch"
@@ -214,8 +225,8 @@ const _M = {
       await dispatch(action, pld)
     },
     //-------------------------------------
-    async reload({state, dispatch}) {
-      //console.log("site.reload", state.entry, state.base)
+    async reload({state, commit, dispatch}) {
+      console.log("site.reload", state.entry, state.base)
       // Merge Site FuncSet
       //console.log(state.utils)
 
@@ -248,6 +259,9 @@ const _M = {
           }
         }
       }
+
+      // Update the auth
+      commit("auth/mergePaths", state.authPaths)
 
       // Eval the entry page
       let entry = state.entry

@@ -16723,7 +16723,8 @@ Ti.Preload("ti/com/ti/roadblock/_com.json", {
 //============================================================
 // JOIN: ti/session/badge/ti-session-badge.html
 //============================================================
-Ti.Preload("ti/com/ti/session/badge/ti-session-badge.html", `<div class="ti-session-badge">
+Ti.Preload("ti/com/ti/session/badge/ti-session-badge.html", `<div class="ti-session-badge"
+  :class="TopClass">
   <!--
     Has Session, show account info
   -->
@@ -16744,15 +16745,15 @@ Ti.Preload("ti/com/ti/session/badge/ti-session-badge.html", `<div class="ti-sess
     <div v-for="li in theLinks"
       class="as-link">
       <!--Icon-->
-      <ti-icon v-if="li.icon"
-      class="it-icon"
-      :value="li.icon"/>
+      <ti-icon
+        v-if="li.icon"
+          class="it-icon"
+          :value="li.icon"/>
       <!--Text-->
-      <a @click.left="onClickLink(li, $event)"
+      <a
+        @click.left="OnClickLink(li, $event)"
         :href="li.href"
-        :target="li.newtab?'_blank':null">
-        {{li.text|i18n}}
-      </a>
+        :target="li.newtab?'_blank':null">{{li.text|i18n}}</a>
     </div>
   </template>
   <!--
@@ -16773,7 +16774,6 @@ Ti.Preload("ti/com/ti/session/badge/ti-session-badge.html", `<div class="ti-sess
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "me" : {
@@ -16830,8 +16830,8 @@ const _M = {
   //////////////////////////////////////////
   computed : {
     //......................................
-    topClass() {
-      return Ti.Css.mergeClassName(this.className)
+    TopClass() {
+      return this.getTopClass()
     },
     //......................................
     theLinks() {
@@ -16902,7 +16902,7 @@ const _M = {
   },
   //////////////////////////////////////////
   methods : {
-    onClickLink(link, $event) {
+    OnClickLink(link, $event) {
       // Emit
       if(link.emit) {
         $event.preventDefault()
@@ -24294,24 +24294,21 @@ Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", `<div
         class="at-right">
         <a>{{Msgs.linkRight |i18n}}</a></li>
     </ul>
-    <!--
-      Bottom link for oauth2
-    -->
-    <temnplate v-if="hasOAuth2">
-      <div class="as-spacing"></div>
-
-      <div class="as-oauth2">
-        <a
-          v-for="it in OAuth2Items"
-            :href="it.href"
-            :title="it.tip">
-            <ti-icon :value="it.icon"/>
-        </a>
-      </div>
-    </temnplate>
-      <!--a href="/api/strato_website/weixin/oauth2_open">微信登陆</a-->
-    </div>
   </section>
+  <!--
+    Bottom link for oauth2
+  -->
+  <template v-if="hasOAuth2">
+    <div class="as-spacing"></div>
+    <footer>
+      <a
+        v-for="it in OAuth2Items"
+          :href="it.href"
+          :title="it.tip">
+          <ti-icon :value="it.icon"/>
+      </a>
+    </footer>
+  </template>
 </div>`);
 //============================================================
 // JOIN: web/auth/signup/web-auth-signup.mjs
@@ -35118,7 +35115,11 @@ const _M = {
     },
     //--------------------------------------------
     setPaths(state, paths) {
-      _.assign(state,paths, paths)
+      _.assign(state.paths, paths)
+    },
+    //--------------------------------------------
+    mergePaths(state, paths) {
+      _.merge(state.paths, paths)
     }
     //--------------------------------------------
   },
@@ -35326,7 +35327,8 @@ const _M = {
         site : siteId,
         name, 
         [passKey] : passwd,
-        ticket
+        ticket,
+        ajax: true
       }
 
       // Call Remote
@@ -36061,6 +36063,9 @@ const _M = {
     //-------------------------------------
     getApiUrl(state) {
       return (path)=>{
+        if(path.startsWith("/")) {
+          return path
+        }
         return Ti.Util.appendPath(state.apiBase, path)
       }
     }
@@ -36095,6 +36100,14 @@ const _M = {
       if(window.history) {
         window.history.back()
       }
+    },
+    //-------------------------------------
+    async openUrl({state}, {
+      url, target="_self", method="GET", params={}, delay=0
+    }) {
+      await Ti.Be.Open(url, {
+        target, method, params, delay
+      })
     },
     //-------------------------------------
     // Only handle the "page|dispatch"
@@ -36177,8 +36190,8 @@ const _M = {
       await dispatch(action, pld)
     },
     //-------------------------------------
-    async reload({state, dispatch}) {
-      //console.log("site.reload", state.entry, state.base)
+    async reload({state, commit, dispatch}) {
+      console.log("site.reload", state.entry, state.base)
       // Merge Site FuncSet
       //console.log(state.utils)
 
@@ -36211,6 +36224,9 @@ const _M = {
           }
         }
       }
+
+      // Update the auth
+      commit("auth/mergePaths", state.authPaths)
 
       // Eval the entry page
       let entry = state.entry
@@ -37245,6 +37261,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "drop-file-here-to-upload": "拖拽文件至此以便上传",
   "drop-here": "拖拽文件至此",
   "e-auth-account-noexists": "账户不存在",
+  "e-auth-login-invalid-passwd": "账户密码未通过校验",
   "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
   "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
   "e-io-obj-exists": "但是对象已然存在",
