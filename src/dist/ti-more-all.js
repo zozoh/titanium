@@ -24294,6 +24294,9 @@ Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", `<div
         class="at-right">
         <a>{{Msgs.linkRight |i18n}}</a></li>
     </ul>
+    <div>
+      <a href="/api/strato_website/weixin/oauth2_open">微信登陆</a>
+    </div>
   </section>
 </div>`);
 //============================================================
