@@ -42,7 +42,6 @@ const _M = {
     // it will auto transfrom the image format by `cmd_imagic`
     "target" : {
       type : String,
-      required: true,
       default : null
     },
     // which type supported to upload

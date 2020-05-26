@@ -28,6 +28,33 @@ const _M = {
     }
   },
   //--------------------------------------------
+  async batchUpdateMetas({state, commit, getters}, updates={}){
+    let checkedItems = getters["search/checkedItems"]
+    // Guard
+    if(_.isEmpty(checkedItems) || _.isEmpty(updates)) {
+      return
+    }
+
+    // Mark loading
+    commit("setStatus", {reloading:true})
+
+    // Gen commands
+    let currentId = _.get(state.current, "meta.id")
+    let input = JSON.stringify(updates)
+    let tsId = state.meta.id
+    for(let it of checkedItems) {
+      let cmdText = `thing ${tsId} update ${it.id} -fields -cqn`
+      let newIt = await Wn.Sys.exec2(cmdText, {as:"json", input})
+      commit("search/updateItem", newIt)
+      if(newIt.id == currentId) {
+        commit("current/setMeta", newIt)
+      }
+    }
+
+    // Mark loading
+    commit("setStatus", {reloading:false})
+  },
+  //--------------------------------------------
   setCurrentMeta({state, commit}, meta) {
     console.log(" -> setCurrentMeta", meta)
     commit("current/assignMeta", meta)
@@ -81,12 +108,35 @@ const _M = {
    * Create one new thing
    */
   async create({state, commit, dispatch}, obj={}) {
+    // Special setting for create
+    let beCreate = _.get(state.config, "schema.behavior.create") || {}
+    let {unique,after,fixed} = beCreate
+
     // Prepare the command
     let json = JSON.stringify(obj)
     let th_set = state.meta.id
-    let cmdText = `thing ${th_set} create -cqn -fields`
+    let cmds = [`thing ${th_set} create -cqn -fields`]
+
+    // Join `-unique`
+    if(!_.isEmpty(unique) && _.isString(unique)) {
+      cmds.push(` -unique '${unique}'`)
+    }
+
+    // Join `-fixed`
+    if(!_.isEmpty(fixed) && _.isString(unique)) {
+      cmds.push(` -fixed '${JSON.stringify(fixed)}'`)
+    }
+
+    // Join `-after`
+    if(!_.isEmpty(after) && _.isString(after)) {
+      cmds.push(` -after '${after}'`)
+    }
+
+    // Mark reloading
+    commit("setStatus", {reloading:true})
 
     // Do Create
+    let cmdText = cmds.join(" ")
     let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
     // Set it as current
@@ -95,6 +145,9 @@ const _M = {
     // Append To Search List as the first 
     commit("search/prependToList", newMeta)
     commit("search/selectItem", newMeta.id)
+
+    // Mark reloading
+    commit("setStatus", {reloading:false})
 
     // Return the new object
     return newMeta

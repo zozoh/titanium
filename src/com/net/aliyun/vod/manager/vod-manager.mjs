@@ -187,6 +187,14 @@ export default {
     //---------------------------------------------------
     async OnPagerChange(pg) {
       this.pager = _.assign({}, this.pager, pg)
+      // Save pageSize
+      if(this.meta) {
+        let pgsz = _.get(pg, "pgsz");
+        if(!Ti.Util.isNil(pgsz)) {
+          Ti.Storage.session.setObject(this.meta.id, {pgsz})
+        }
+      }
+
       await this.reloadVideos()
     },
     //---------------------------------------------------
@@ -355,6 +363,13 @@ export default {
   },
   ///////////////////////////////////////////////////////
   mounted : function() {
+    if(this.meta) {
+      let pager = Ti.Storage.session.getObject(this.meta.id)
+      if(pager) {
+        let pgsz = _.get(pager, "pgsz");
+        this.pager.pgsz = pgsz
+      }
+    }
     this.reloadVideos()
   }
   ///////////////////////////////////////////////////////

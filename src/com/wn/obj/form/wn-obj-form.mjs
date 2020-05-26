@@ -1,4 +1,4 @@
-export default {
+const _M = {
   //////////////////////////////////////////////////////
   props : {
     "fuse" : {
@@ -10,17 +10,17 @@ export default {
     },
     // {method : "dispatch", target : "main/onChanged"}
     "setDataBy" : {
-      type : [String, Object],
+      type : [String, Object, Boolean],
       default : null
     },
     // {method : "dispatch", target : "main/changeMeta"}
     "updateBy" : {
-      type : [String, Object],
+      type : [String, Object, Boolean],
       default : null
     },
     // {method : "commit", target : "main/setFieldStatus"}
     "setFieldStatusBy" : {
-      type : [String, Object],
+      type : [String, Object, Boolean],
       default : null
     }
   },
@@ -69,3 +69,4 @@ export default {
   }
   //////////////////////////////////////////////////////
 }
+export default _M;

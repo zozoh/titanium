@@ -51,6 +51,10 @@ const _M = {
   },
   ///////////////////////////////////////////
   computed : {
+    ...Vuex.mapGetters("main/search", [
+      "currentItem", 
+      "checkedItems"
+    ]),
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -98,8 +102,8 @@ const _M = {
     },
     //--------------------------------------
     ChangedRowId() {
-      if(this.current && this.current.meta && this.current.status.changed) {
-        return this.current.meta.id
+      if(this.currentItem && this.current.status.changed) {
+        return this.currentItem.id
       }
     },
     //--------------------------------------
@@ -109,9 +113,9 @@ const _M = {
     },
     //--------------------------------------
     curentThumbTarget() {
-      if(this.current.meta) {
+      if(this.currentItem) {
         let th_set = this.meta.id
-        return `id:${th_set}/data/${this.current.meta.id}/thumb.jpg`
+        return `id:${th_set}/data/${this.currentItem.id}/thumb.jpg`
       }
       return ""
     },
@@ -200,18 +204,144 @@ const _M = {
       })
     },
     //--------------------------------------
+    // Batch Update
+    //--------------------------------------
+    async batchUpdate() {
+      //....................................
+      // Prepare the data
+      if(_.isEmpty(this.checkedItems)) {
+        return Ti.Toast.Open("i18n:batch-none", "warn")
+      }
+      let current = _.first(this.checkedItems)
+      //....................................
+      let batch = _.get(this.config, "schema.behavior.batch") || {}
+      _.defaults(batch, {
+        "comType" : "wn-obj-form",
+        "comConf" : {},
+        "fields" : "schema.meta.comConf.fields",
+        "names" : null,
+        "valueKey": "data"
+      })
+      batch.comType = _.kebabCase(batch.comType)
+      // Add default setting
+      if(/^(ti-|wn-obj-)(form)$/.test(batch.comType)) {
+        _.defaults(batch.comConf, {
+          autoShowBlank: false,
+          updateBy: true,
+          setDataBy: true
+        })
+      }
+      //....................................
+      let name_filter;
+      if(_.isString(batch.names)) {
+        if(batch.names.startsWith("^")){
+          let regex = new RegExp(batch.names)
+          name_filter = fld => regex.test(fld.name)
+        }
+        else if(batch.names.startsWith("!^")){
+          let regex = new RegExp(batch.names.substring(1))
+          name_filter = fld => !regex.test(fld.name)
+        }
+        else {
+          let list = Ti.S.toArray(batch.names)
+          name_filter = fld => list.indexOf(fld.name)>=0
+        }
+      }
+      // Filter by Array
+      // TODO maybe I should use the validate
+      else if(_.isArray(batch.names) && !_.isEmpty(batch.names)) {
+        name_filter = v => batch.name.indexOf(v)>=0
+      }
+      // Allow all
+      else {
+        name_filter = fld => true
+      }
+
+      //....................................
+      // Prepare the fields
+      let fields = _.get(this.config, batch.fields)
+      //....................................
+      // filter names
+      if(!_.isEmpty(batch.names)) {
+        // Define the filter
+        const filter_names = function(flds=[], filter) {
+          let list = []
+          for(let fld of flds) {
+            // Group
+            if(_.isArray(fld.fields)) {
+              let f2 = _.cloneDeept(fld)
+              f2.fields = filter_names(fld.fields, names)
+              if(!_.isEmpty(f2.fields)) {
+                list.push(f2)
+              }
+            }
+            // Fields
+            else if(filter(fld)) {
+              list.push(fld)
+            }
+          }
+          return list
+        }
+        // Do filter
+        fields = filter_names(fields, name_filter)
+      }
+      //....................................
+      // Open the Modal
+      let updates = await Ti.App.Open({
+        title: "i18n:batch-update",
+        width: 640,
+        height: "90%",
+        position: "top",
+        //............................
+        comType: "inner-body",
+        //............................
+        components: [{
+          name: "inner-body",
+          globally : false,
+          data: {
+            update: {},
+            value: current,
+            innerComConf: {
+              ... batch.comConf,
+              fields
+            }
+          },
+          template: `<${batch.comType}
+            v-bind="innerComConf"
+            :${batch.valueKey}="value"
+            @field:change="OnFieldChange"
+            @change="OnChange"/>`,
+          methods: {
+            OnFieldChange({name, value}){
+              _.set(this.update, name, value)
+              this.$notify("change", this.update)
+            },
+            OnChange(payload) {
+              this.value = payload
+            }
+          }
+        }]
+        //............................
+      })
+      //....................................
+      if(!_.isEmpty(updates)) {
+        // Get all checkes
+        await Ti.App(this).dispatch("main/batchUpdateMetas", updates)
+      }
+    },
+    //--------------------------------------
     // Utility
     //--------------------------------------
     async viewCurrentSource() {
       // Guard
-      if(!this.current.meta) {
+      if(!this.currentItem) {
         return await Ti.Toast.Open("i18n:empty-data", "warn")
       }
       // Open Editor
-      let newContent = await Wn.EditObjContent(this.current.meta, {
+      let newContent = await Wn.EditObjContent(this.currentItem, {
         showEditorTitle : false,
-        icon      : Wn.Util.getObjIcon(this.current.meta, "zmdi-tv"),
-        title     : Wn.Util.getObjDisplayName(this.current.meta),
+        icon      : Wn.Util.getObjIcon(this.currentItem, "zmdi-tv"),
+        title     : Wn.Util.getObjDisplayName(this.currentItem),
         width     : "61.8%",
         height    : "96%",
         content   : this.current.content,

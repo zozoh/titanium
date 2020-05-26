@@ -3,6 +3,8 @@
   "add-item": "添加新项",
   "amount": "数量",
   "attachment": "附件",
+  "batch-update": "批量更新...",
+  "batch-none": "请从下面列表中选择至少一个对象进行批量更新",
   "blank": "空白",
   "blank-to-edit": "请选择要编辑的项目",
   "buy": "购买",

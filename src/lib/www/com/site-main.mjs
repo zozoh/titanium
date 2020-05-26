@@ -236,6 +236,7 @@ export default {
   watch : {
     // Page changd, update document title
     "page.finger" : function() {
+      //console.log("-> ", this.page.title)
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
       document.title = pageTitle
       this.pushBrowserHistory()

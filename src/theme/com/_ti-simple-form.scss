@@ -1,5 +1,6 @@
 .web-simple-form {
   @include flex-align-v-nowrap;
+  padding: 3em;
   //-------------------------------------
   a {
     @include noselect;
@@ -8,12 +9,12 @@
   }
   //-------------------------------------
   header {
-    padding: .5em; text-align: center;
+    margin: 1em 0; text-align: center;
     font-size:2em;
   }
   //-------------------------------------
   section {
-    padding: .5em;
+    margin: 1em 0;
     //---------------------------------
     div {
       @include flex-align-nowrap;
