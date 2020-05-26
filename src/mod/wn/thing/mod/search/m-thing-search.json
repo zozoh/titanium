@@ -4,6 +4,7 @@
   "sorter" : {
     "ct" : -1
   },
+  "inRecycleBin" : false,
   "pager" : {
     "pn"   : 1,
     "pgsz" : 50,

@@ -2,7 +2,7 @@ function saveToLocal(meta, key, val) {
   if(!meta) {
     return
   }
-  console.log("saveToLocal", key, val)
+  //console.log("saveToLocal", key, val)
   let local = Ti.Storage.session.getObject(meta.id) || {}
   _.defaults(local, {
     filter: {},
@@ -14,7 +14,7 @@ function saveToLocal(meta, key, val) {
 }
 //---------------------------------------
 const _M = {
-  ////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
   getters : {
     //---------------------------------------------------
     currentItem(state) {
@@ -46,14 +46,16 @@ const _M = {
     }
     //---------------------------------------------------
   },
-  ////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
   mutations : {
     setMeta(state, meta) {
       state.meta = meta
     },
+    //---------------------------------------------------
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)
     },
+    //---------------------------------------------------
     setFilter(state, filter={}) {
       state.filter = filter
       saveToLocal(state.meta, "filter", state.filter)
@@ -67,6 +69,7 @@ const _M = {
       state.sorter = sorter
       saveToLocal(state.meta, "sorter", state.sorter)
     },
+    //---------------------------------------------------
     setPager(state, pager) {
       state.pager = pager
       saveToLocal(state.meta, "pager", state.pager)
@@ -74,6 +77,11 @@ const _M = {
     updatePager(state, pg) {
       state.pager = _.defaults({}, pg, state.pager)
     },
+    //---------------------------------------------------
+    setInRecycleBin(state, inRecycleBin=false) {
+      state.inRecycleBin = inRecycleBin
+    },
+    //---------------------------------------------------
     setList(state, list) {
       state.list = list
     },
@@ -83,7 +91,7 @@ const _M = {
     },
     //---------------------------------------------------
     setCheckedIds(state, ids=[]) {
-      state.checkedIds = ids
+      state.checkedIds = _.union(ids)
     },
     //---------------------------------------------------
     selectItem(state, id) {
@@ -167,6 +175,6 @@ const _M = {
     }
     //---------------------------------------------------
   }
-  ////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
 }
 export default _M;

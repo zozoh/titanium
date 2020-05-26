@@ -33839,11 +33839,11 @@ const _M = {
    */
   async toggleInRecycleBin({state, commit, dispatch, getters}) {
     //console.log("thing-manager-toggleInRecycleBin")
-    // Update filter
-    let th_live = state.search.filter.th_live == -1 ? 1 : -1
-    commit("search/updateFilter", {th_live})
+    // Update Search
+    let inRecycleBin = !getters.isInRecycleBin
+    commit("search/setInRecycleBin", inRecycleBin)
+
     // Update status
-    let inRecycleBin = getters.isInRecycleBin
     commit("setStatus", {inRecycleBin, reloading:true})
     // Reload List
     await dispatch("search/reload")
@@ -34213,7 +34213,7 @@ const _M = {
       return state.current && state.current.meta
     },
     isInRecycleBin(state) {
-      return state.search.filter.th_live == -1
+      return state.search.inRecycleBin
     }
   },
   ////////////////////////////////////////////
@@ -34460,6 +34460,8 @@ const _M = {
     if(!_.isEmpty(match)) {
       _.assign(flt, match)
     }
+    // InRecycleBin 
+    flt.th_live = state.inRecycleBin ? -1 : 1
 
     //............................................
     // Eval Sorter
@@ -34501,6 +34503,7 @@ Ti.Preload("ti/mod/wn/thing/mod/search/m-thing-search.json", {
   "sorter" : {
     "ct" : -1
   },
+  "inRecycleBin" : false,
   "pager" : {
     "pn"   : 1,
     "pgsz" : 50,
@@ -34526,7 +34529,7 @@ function saveToLocal(meta, key, val) {
   if(!meta) {
     return
   }
-  console.log("saveToLocal", key, val)
+  //console.log("saveToLocal", key, val)
   let local = Ti.Storage.session.getObject(meta.id) || {}
   _.defaults(local, {
     filter: {},
@@ -34538,7 +34541,7 @@ function saveToLocal(meta, key, val) {
 }
 //---------------------------------------
 const _M = {
-  ////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
   getters : {
     //---------------------------------------------------
     currentItem(state) {
@@ -34570,14 +34573,16 @@ const _M = {
     }
     //---------------------------------------------------
   },
-  ////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
   mutations : {
     setMeta(state, meta) {
       state.meta = meta
     },
+    //---------------------------------------------------
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)
     },
+    //---------------------------------------------------
     setFilter(state, filter={}) {
       state.filter = filter
       saveToLocal(state.meta, "filter", state.filter)
@@ -34591,6 +34596,7 @@ const _M = {
       state.sorter = sorter
       saveToLocal(state.meta, "sorter", state.sorter)
     },
+    //---------------------------------------------------
     setPager(state, pager) {
       state.pager = pager
       saveToLocal(state.meta, "pager", state.pager)
@@ -34598,6 +34604,11 @@ const _M = {
     updatePager(state, pg) {
       state.pager = _.defaults({}, pg, state.pager)
     },
+    //---------------------------------------------------
+    setInRecycleBin(state, inRecycleBin=false) {
+      state.inRecycleBin = inRecycleBin
+    },
+    //---------------------------------------------------
     setList(state, list) {
       state.list = list
     },
@@ -34607,7 +34618,7 @@ const _M = {
     },
     //---------------------------------------------------
     setCheckedIds(state, ids=[]) {
-      state.checkedIds = ids
+      state.checkedIds = _.union(ids)
     },
     //---------------------------------------------------
     selectItem(state, id) {
@@ -34691,7 +34702,7 @@ const _M = {
     }
     //---------------------------------------------------
   }
-  ////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
 }
 Ti.Preload("ti/mod/wn/thing/mod/search/m-thing-search.mjs", _M);
 })();
@@ -35150,15 +35161,17 @@ const _M = {
     //--------------------------------------------
     async autoCheckmeOrAuthByWxghCode({dispatch}, {
       codeKey = "code",
+      codeTypeBy = "ct",
       force = false,
       fail, nophone
     }={}) {
+      console.log("autoCheckmeOrAuthByWxghCode")
       dispatch("doCheckMe", {
         force,
         fail : {
           action : "auth/authByWxghCode",
           payload : {
-            codeKey,
+            codeKey, codeTypeBy,
             //......................................
             fail : ()=>{
               if(fail) {
@@ -35181,6 +35194,7 @@ const _M = {
     //--------------------------------------------
     async authByWxghCode({commit, getters, rootState}, {
       codeKey = "code",
+      codeTypeBy = "ct",
       done=_.identity,
       ok=_.identity, 
       fail=_.identity, 
@@ -35193,7 +35207,9 @@ const _M = {
         return
       }
 
-      console.log("authByWxghCode", code)
+      let codeType = rootState.page.params[codeTypeBy]
+
+      console.log("authByWxghCode", {codeType, code})
 
       // Guard SiteId
       let siteId = rootState.siteId
@@ -35206,7 +35222,8 @@ const _M = {
 
       let params = {
         site : siteId,
-        code : code
+        code : code,
+        ct   : codeType
       }
 
       let reo = await Ti.Http.get(url, {params, as:"json"})

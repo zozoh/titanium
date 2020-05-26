@@ -92,11 +92,11 @@ const _M = {
    */
   async toggleInRecycleBin({state, commit, dispatch, getters}) {
     //console.log("thing-manager-toggleInRecycleBin")
-    // Update filter
-    let th_live = state.search.filter.th_live == -1 ? 1 : -1
-    commit("search/updateFilter", {th_live})
+    // Update Search
+    let inRecycleBin = !getters.isInRecycleBin
+    commit("search/setInRecycleBin", inRecycleBin)
+
     // Update status
-    let inRecycleBin = getters.isInRecycleBin
     commit("setStatus", {inRecycleBin, reloading:true})
     // Reload List
     await dispatch("search/reload")

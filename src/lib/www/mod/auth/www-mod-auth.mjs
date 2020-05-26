@@ -113,15 +113,17 @@ const _M = {
     //--------------------------------------------
     async autoCheckmeOrAuthByWxghCode({dispatch}, {
       codeKey = "code",
+      codeTypeBy = "ct",
       force = false,
       fail, nophone
     }={}) {
+      console.log("autoCheckmeOrAuthByWxghCode")
       dispatch("doCheckMe", {
         force,
         fail : {
           action : "auth/authByWxghCode",
           payload : {
-            codeKey,
+            codeKey, codeTypeBy,
             //......................................
             fail : ()=>{
               if(fail) {
@@ -144,6 +146,7 @@ const _M = {
     //--------------------------------------------
     async authByWxghCode({commit, getters, rootState}, {
       codeKey = "code",
+      codeTypeBy = "ct",
       done=_.identity,
       ok=_.identity, 
       fail=_.identity, 
@@ -156,7 +159,9 @@ const _M = {
         return
       }
 
-      console.log("authByWxghCode", code)
+      let codeType = rootState.page.params[codeTypeBy]
+
+      console.log("authByWxghCode", {codeType, code})
 
       // Guard SiteId
       let siteId = rootState.siteId
@@ -169,7 +174,8 @@ const _M = {
 
       let params = {
         site : siteId,
-        code : code
+        code : code,
+        ct   : codeType
       }
 
       let reo = await Ti.Http.get(url, {params, as:"json"})

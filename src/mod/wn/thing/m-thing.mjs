@@ -6,7 +6,7 @@ export default {
       return state.current && state.current.meta
     },
     isInRecycleBin(state) {
-      return state.search.filter.th_live == -1
+      return state.search.inRecycleBin
     }
   },
   ////////////////////////////////////////////

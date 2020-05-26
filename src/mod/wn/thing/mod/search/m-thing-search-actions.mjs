@@ -51,6 +51,8 @@ export default {
     if(!_.isEmpty(match)) {
       _.assign(flt, match)
     }
+    // InRecycleBin 
+    flt.th_live = state.inRecycleBin ? -1 : 1
 
     //............................................
     // Eval Sorter
