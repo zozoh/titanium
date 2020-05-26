@@ -24294,8 +24294,22 @@ Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", `<div
         class="at-right">
         <a>{{Msgs.linkRight |i18n}}</a></li>
     </ul>
-    <div>
-      <a href="/api/strato_website/weixin/oauth2_open">微信登陆</a>
+    <!--
+      Bottom link for oauth2
+    -->
+    <temnplate v-if="hasOAuth2">
+      <div class="as-spacing"></div>
+
+      <div class="as-oauth2">
+        <a
+          v-for="it in OAuth2Items"
+            :href="it.href"
+            :title="it.tip">
+            <ti-icon :value="it.icon"/>
+        </a>
+      </div>
+    </temnplate>
+      <!--a href="/api/strato_website/weixin/oauth2_open">微信登陆</a-->
     </div>
   </section>
 </div>`);
@@ -24361,6 +24375,10 @@ const _M = {
     "logo": {
       type: String,
       default: undefined
+    },
+    "oauth2": {
+      type: Array,
+      default: ()=>[]
     }
   },
   ///////////////////////////////////////////////////////
@@ -24485,6 +24503,14 @@ const _M = {
         : "text"
     },
     //---------------------------------------------------
+    OAuth2Items() {
+      return _.cloneDeep(this.oauth2)
+    },
+    //---------------------------------------------------
+    hasOAuth2() {
+      return !_.isEmpty(this.OAuth2Items)
+    },
+    //---------------------------------------------------
     // 验证码发送目标的名称（i18n）
     ToggleModetName(){
       return ({
@@ -24518,7 +24544,7 @@ const _M = {
     // 不同模式下的场景
     vCodeScene() {
       return _.get(this.scenes, this.currentMode) || "auth"
-    } 
+    }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
