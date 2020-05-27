@@ -1,8 +1,8 @@
 //-------------------------- zIndex
-$z-over : 1;
-$z-mask : 10;
-$z-menu : 100;
-$z-top  : 1000;
+$z-over : 100;
+$z-mask : 1000;
+$z-menu : 10000;
+$z-top  : 999999;
 
 //-------------------------- font
 $f_fixed : Monaco, Consolas, Courier New;
