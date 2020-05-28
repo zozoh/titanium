@@ -91,9 +91,16 @@ export default {
       let $in = $event.target
       if(_.isElement($in)) {
         let str = _.trim($in.value)
-        let val = str ? str * 1 : this.defaultValue
-        if(!isNaN(val)) {
-          this.$notify("change", val)  
+        // Notify nil
+        if(_.isEmpty(str)) {
+          this.$notify("change", null)  
+        }
+        // Notify value
+        else {
+          let val = str ? str * 1 : this.defaultValue
+          if(!isNaN(val)) {
+            this.$notify("change", val)  
+          }
         }
       }
     }
