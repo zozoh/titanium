@@ -8893,25 +8893,39 @@ const {Css} = (function(){
       return dft
     },
     //-----------------------------------
-    toSize(sz, autoPercent=true) {
+    toSize(sz, {autoPercent=true, remBase=0}={}) {
       if(_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
         if(0 == sz)
           return sz
-        if(autoPercent && sz>-1 && sz<1)
+        if(autoPercent && sz>-1 && sz<1) {
           return sz*100 + "%"
+        }
+        if(remBase>0) {
+          return (sz/remBase) + "rem"
+        }
         return sz + "px"
       }
       return sz
     },
     //-----------------------------------
-    toStyle(obj, autoPercent=true) {
+    toSizeRem100(sz, options) {
+      let opt = _.assign({}, options, {remBase:100})
+      return TiCss.toSize(sz, opt);
+    },
+    //-----------------------------------
+    toStyle(obj, options) {
       return _.mapValues(obj, (val, key)=>{
         let ck = _.kebabCase(key)
         if(/^(opacity|z-index|order)$/.test(ck)){
           return val
         }
-        return TiCss.toSize(val, autoPercent)
+        return TiCss.toSize(val, options)
       })
+    },
+    //-----------------------------------
+    toStyleRem100(obj, options) {
+      let opt = _.assign({}, options, {remBase:100})
+      return TiCss.toStyle(obj, opt);
     },
     //-----------------------------------
     toBackgroundUrl(src, base="") {
@@ -9924,7 +9938,12 @@ const {WalnutAppMain} = (function(){
     debug=false,
     logging={root:"warn"},
     shortcute=false,
-    viewport=true
+    viewport = {
+      phoneMaxWidth:540,
+      tabletMaxWidth:768,
+      designWidth:1000,
+      max:100,min:80,
+    }
   }={}) {
     //---------------------------------------
     Ti.AddResourcePrefix(rs)
@@ -10061,7 +10080,7 @@ const {WalnutAppMain} = (function(){
     let app = Ti.App(appInfo)
     await app.init()
     //---------------------------------------
-    Ti.Dom.watchAutoRootFontSize(({$root, mode, fontSize})=>{
+    Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{
       $root.style.fontSize = fontSize + "px"
       $root.setAttribute("as", mode)
       Ti.App.eachInstance(app => {
@@ -10117,7 +10136,12 @@ const {WebAppMain} = (function(){
     debug=false,
     logging={root:"warn"},
     shortcute=false,
-    viewport=true
+    viewport = {
+      phoneMaxWidth:640,
+      tabletMaxWidth:900,
+      designWidth:1200,
+      max:100,min:70,
+    }
   }={}) {
     //---------------------------------------
     Ti.AddResourcePrefix(rs, siteRs)
@@ -10204,7 +10228,7 @@ const {WebAppMain} = (function(){
     app.commit("setDomain", domain)
   
     //---------------------------------------
-    Ti.Dom.watchAutoRootFontSize(({$root, mode, fontSize})=>{
+    Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{
       $root.style.fontSize = fontSize + "px"
       $root.setAttribute("as", mode)
       Ti.App.eachInstance(app => {

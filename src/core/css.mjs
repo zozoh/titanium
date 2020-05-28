@@ -25,25 +25,39 @@ const TiCss = {
     return dft
   },
   //-----------------------------------
-  toSize(sz, autoPercent=true) {
+  toSize(sz, {autoPercent=true, remBase=0}={}) {
     if(_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
       if(0 == sz)
         return sz
-      if(autoPercent && sz>-1 && sz<1)
+      if(autoPercent && sz>-1 && sz<1) {
         return sz*100 + "%"
+      }
+      if(remBase>0) {
+        return (sz/remBase) + "rem"
+      }
       return sz + "px"
     }
     return sz
   },
   //-----------------------------------
-  toStyle(obj, autoPercent=true) {
+  toSizeRem100(sz, options) {
+    let opt = _.assign({}, options, {remBase:100})
+    return TiCss.toSize(sz, opt);
+  },
+  //-----------------------------------
+  toStyle(obj, options) {
     return _.mapValues(obj, (val, key)=>{
       let ck = _.kebabCase(key)
       if(/^(opacity|z-index|order)$/.test(ck)){
         return val
       }
-      return TiCss.toSize(val, autoPercent)
+      return TiCss.toSize(val, options)
     })
+  },
+  //-----------------------------------
+  toStyleRem100(obj, options) {
+    let opt = _.assign({}, options, {remBase:100})
+    return TiCss.toStyle(obj, opt);
   },
   //-----------------------------------
   toBackgroundUrl(src, base="") {

@@ -6,7 +6,12 @@ export async function WalnutAppMain({
   debug=false,
   logging={root:"warn"},
   shortcute=false,
-  viewport=true
+  viewport = {
+    phoneMaxWidth:540,
+    tabletMaxWidth:768,
+    designWidth:1000,
+    max:100,min:80,
+  }
 }={}) {
   //---------------------------------------
   Ti.AddResourcePrefix(rs)
@@ -143,7 +148,7 @@ export async function WalnutAppMain({
   let app = Ti.App(appInfo)
   await app.init()
   //---------------------------------------
-  Ti.Dom.watchAutoRootFontSize(({$root, mode, fontSize})=>{
+  Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{
     $root.style.fontSize = fontSize + "px"
     $root.setAttribute("as", mode)
     Ti.App.eachInstance(app => {

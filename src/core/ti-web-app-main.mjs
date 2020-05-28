@@ -8,7 +8,12 @@ export async function WebAppMain({
   debug=false,
   logging={root:"warn"},
   shortcute=false,
-  viewport=true
+  viewport = {
+    phoneMaxWidth:640,
+    tabletMaxWidth:900,
+    designWidth:1200,
+    max:100,min:70,
+  }
 }={}) {
   //---------------------------------------
   Ti.AddResourcePrefix(rs, siteRs)
@@ -95,7 +100,7 @@ export async function WebAppMain({
   app.commit("setDomain", domain)
 
   //---------------------------------------
-  Ti.Dom.watchAutoRootFontSize(({$root, mode, fontSize})=>{
+  Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{
     $root.style.fontSize = fontSize + "px"
     $root.setAttribute("as", mode)
     Ti.App.eachInstance(app => {
