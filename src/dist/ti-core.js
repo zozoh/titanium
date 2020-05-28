@@ -6970,7 +6970,6 @@ const {Util} = (function(){
       otherTitle={value:"Others",text:"Others"},
       asList=false
     }={}) {
-      console.log("grouping")
       let reMap  = {}
       //...............................................
       // Build title map
