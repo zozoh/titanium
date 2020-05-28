@@ -709,8 +709,14 @@ const Obj = (function(){
 const Session = (function(){
   ////////////////////////////////////////////
   const ENVS = {}
+  const SESSION = {}
   ////////////////////////////////////////////
   const WnSession = {
+    //----------------------------------------
+    setup({id,uid,unm,grp,envs={}}={}) {
+      _.assign(SESSION, {id,uid,unm,grp})
+      WnSession.env(envs)
+    },
     //----------------------------------------
     env(vars) {
       // Set Env
@@ -729,8 +735,16 @@ const Session = (function(){
       return _.cloneDeep(ENVS)
     },
     //----------------------------------------
+    getMyId() {return SESSION.uid},
+    getMyName() {return SESSION.unm},
+    getMyGroup() {return SESSION.grp},
+    //----------------------------------------
     getHomePath() {
       return WnSession.env("HOME")
+    },
+    //----------------------------------------
+    getCurrentPath(dft="~") {
+      return WnSession.env("PWD") || dft
     },
     //----------------------------------------
     // Analyze the current domain 
@@ -874,7 +888,7 @@ const Sys = (function(){
       macroObjSep = DFT_MACRO_OBJ_SEP,
       autoRunMacro = true,
       errorBy,
-      PWD = (Ti.SessionVar("PWD") || "~")
+      PWD = Wn.Session.getCurrentPath()
     }={}) {
       // Eval command
       cmdText = Ti.S.renderBy(cmdText, vars)
@@ -1420,7 +1434,7 @@ const OpenObjSelector = (function(){
     width="80%", height="90%", spacing,
     multi=true,
     fromIndex=0,
-    homePath=Ti.SessionVar("HOME"),
+    homePath=Wn.Session.getHomePath(),
     selected=[]
   }={}){
     //................................................

@@ -193,7 +193,7 @@ const {Captcha} = (function(){
     iconOk, iconCancel,
     textOk = "i18n:ok",
     textCancel  = "i18n:cancel", 
-    width = 320,  height,
+    width = 420,  height,
   
     imgWidth,
     imgHeight=50,
@@ -10071,21 +10071,23 @@ const {WalnutAppMain} = (function(){
     //---------------------------------------
     // Load session
     app.commit("session/set", _app.session)
+    Wn.Session.setup(_app.session)
     // Mount app to DOM 
     app.mountTo("#app")
-    Ti.Session({
-      "id"       : _app.session.id,
-      "name"     : _app.session.unm,
-      "group"    : _app.session.grp,
-      "duration" : _app.session.du,
-      "vars" : _app.session.envs
-    })
+    // Ti.Session({
+    //   "id"       : _app.session.id,
+    //   "uid"      : _app.session.unm,
+    //   "name"     : _app.session.unm,
+    //   "group"    : _app.session.grp,
+    //   "duration" : _app.session.du,
+    //   "vars" : _app.session.envs
+    // })
     //---------------------------------------
     // Hook the session env changing
     // It will unpdate env each time run command by Wn.Sys.exec
-    Wn.addHook("update_envs", (envs)=>{
-      Ti.SessionVar(envs)
-    })
+    // Wn.addHook("update_envs", (envs)=>{
+    //   Ti.SessionVar(envs)
+    // })
     //---------------------------------------
     Ti.App.pushInstance(app)
     //---------------------------------------
@@ -10314,22 +10316,22 @@ export const Ti = {
   SetAppName(appName){Ti.Env({appName})},
   GetAppName(){return Ti.Env("appName")},
   //-----------------------------------------------------
-  Session(session) {
-    return Ti.Util.geset(ENV.session, session)
-  },
-  SessionVar(vars) {
-    // Whole var set
-    if(_.isUndefined(vars)) {
-      return ENV.session.vars || {}
-    }
-    // GET
-    if(_.isString(vars) || _.isArray(vars)){
-      return Ti.Util.geset(ENV.session.vars, vars)
-    }
-    // Setter
-    ENV.session.vars = ENV.session.vars || {}
-    return _.assign(ENV.session.vars, vars)
-  },
+  // Session(session) {
+  //   return Ti.Util.geset(ENV.session, session)
+  // },
+  // SessionVar(vars) {
+  //   // Whole var set
+  //   if(_.isUndefined(vars)) {
+  //     return ENV.session.vars || {}
+  //   }
+  //   // GET
+  //   if(_.isString(vars) || _.isArray(vars)){
+  //     return Ti.Util.geset(ENV.session.vars, vars)
+  //   }
+  //   // Setter
+  //   ENV.session.vars = ENV.session.vars || {}
+  //   return _.assign(ENV.session.vars, vars)
+  // },
   //-----------------------------------------------------
   SetLogLevel(lv=0, cate="ROOT"){
     // Get number by name

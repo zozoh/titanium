@@ -36606,6 +36606,17 @@ Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
 (function(){
 const _M = {
   ///////////////////////////////////////////
+  provider: function() {
+    return {
+      $session: {
+        ticket   : this.session.ticket,
+        userId   : this.session.uid,
+        userName : this.session.unm,
+        group    : this.session.grp
+      }
+    }
+  },
+  ///////////////////////////////////////////
   data:()=>({
     myExposeHidden : false,
     loading : false,
@@ -37267,6 +37278,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "download-to-local": "下载到本地",
   "drop-file-here-to-upload": "拖拽文件至此以便上传",
   "drop-here": "拖拽文件至此",
+  "e-auth-home-forbidden": "账户不具备进入主目录的权限",
   "e-auth-account-noexists": "账户不存在",
   "e-auth-login-invalid-passwd": "账户密码未通过校验",
   "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
