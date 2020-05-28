@@ -13,7 +13,7 @@ const WnSys = {
     macroObjSep = DFT_MACRO_OBJ_SEP,
     autoRunMacro = true,
     errorBy,
-    PWD = (Ti.SessionVar("PWD") || "~")
+    PWD = Wn.Session.getCurrentPath()
   }={}) {
     // Eval command
     cmdText = Ti.S.renderBy(cmdText, vars)

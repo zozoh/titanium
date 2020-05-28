@@ -1,5 +1,16 @@
 const _M = {
   ///////////////////////////////////////////
+  provider: function() {
+    return {
+      $session: {
+        ticket   : this.session.ticket,
+        userId   : this.session.uid,
+        userName : this.session.unm,
+        group    : this.session.grp
+      }
+    }
+  },
+  ///////////////////////////////////////////
   data:()=>({
     myExposeHidden : false,
     loading : false,

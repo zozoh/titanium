@@ -153,21 +153,23 @@ export async function WalnutAppMain({
   //---------------------------------------
   // Load session
   app.commit("session/set", _app.session)
+  Wn.Session.setup(_app.session)
   // Mount app to DOM 
   app.mountTo("#app")
-  Ti.Session({
-    "id"       : _app.session.id,
-    "name"     : _app.session.unm,
-    "group"    : _app.session.grp,
-    "duration" : _app.session.du,
-    "vars" : _app.session.envs
-  })
+  // Ti.Session({
+  //   "id"       : _app.session.id,
+  //   "uid"      : _app.session.unm,
+  //   "name"     : _app.session.unm,
+  //   "group"    : _app.session.grp,
+  //   "duration" : _app.session.du,
+  //   "vars" : _app.session.envs
+  // })
   //---------------------------------------
   // Hook the session env changing
   // It will unpdate env each time run command by Wn.Sys.exec
-  Wn.addHook("update_envs", (envs)=>{
-    Ti.SessionVar(envs)
-  })
+  // Wn.addHook("update_envs", (envs)=>{
+  //   Ti.SessionVar(envs)
+  // })
   //---------------------------------------
   Ti.App.pushInstance(app)
   //---------------------------------------

@@ -1,7 +1,13 @@
 ////////////////////////////////////////////
 const ENVS = {}
+const SESSION = {}
 ////////////////////////////////////////////
 const WnSession = {
+  //----------------------------------------
+  setup({id,uid,unm,grp,envs={}}={}) {
+    _.assign(SESSION, {id,uid,unm,grp})
+    WnSession.env(envs)
+  },
   //----------------------------------------
   env(vars) {
     // Set Env
@@ -20,8 +26,16 @@ const WnSession = {
     return _.cloneDeep(ENVS)
   },
   //----------------------------------------
+  getMyId() {return SESSION.uid},
+  getMyName() {return SESSION.unm},
+  getMyGroup() {return SESSION.grp},
+  //----------------------------------------
   getHomePath() {
     return WnSession.env("HOME")
+  },
+  //----------------------------------------
+  getCurrentPath(dft="~") {
+    return WnSession.env("PWD") || dft
   },
   //----------------------------------------
   // Analyze the current domain 

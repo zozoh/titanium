@@ -7,7 +7,7 @@ async function TiCaptcha(src="", {
   iconOk, iconCancel,
   textOk = "i18n:ok",
   textCancel  = "i18n:cancel", 
-  width = 320,  height,
+  width = 420,  height,
 
   imgWidth,
   imgHeight=50,

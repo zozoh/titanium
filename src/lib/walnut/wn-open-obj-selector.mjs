@@ -11,7 +11,7 @@ async function OpenObjSelector(pathOrObj="~", {
   width="80%", height="90%", spacing,
   multi=true,
   fromIndex=0,
-  homePath=Ti.SessionVar("HOME"),
+  homePath=Wn.Session.getHomePath(),
   selected=[]
 }={}){
   //................................................
