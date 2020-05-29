@@ -6,53 +6,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
   <!--link rel="stylesheet" type="text/css"
-        href="${rs}/core/css/font-md/css/material-design-iconic-font.css"-->
-  <script src="${rs}/ti/deps/jquery.js"></script>
-  <script src="${rs}/ti/deps/lodash.min.js"></script>
-  <script src="${rs}/ti/deps/vue.js"></script>
-  <script src="${rs}/ti/deps/vuex.js"></script>
-
-  <link rel="stylesheet" href="${rs}/ti/deps/md/iconfont/material-icons.css">
-  <link rel="stylesheet" href="${rs}/ti/deps/zmdi/css/material-design-iconic-font.css">
-  <link rel="stylesheet" href="${rs}/ti/deps/fontawesome/5.12.0-web/css/all.css">
-  <link rel="stylesheet" href="${rs}/ti/deps/iconmonstr/css/iconmonstr-iconic-font.css">
+        href="${rs}core/css/font-md/css/material-design-iconic-font.css"-->
+  <script src="${rs}ti/deps/jquery.js"></script>
+  <script src="${rs}ti/deps/lodash.min.js"></script>
+  <script src="${rs}ti/deps/vue.js"></script>
+  <script src="${rs}ti/deps/vuex.js"></script>
+  
+  <link rel="stylesheet" href="${rs}ti/deps/md/iconfont/material-icons.css">
+  <link rel="stylesheet" href="${rs}ti/deps/zmdi/css/material-design-iconic-font.css">
+  <link rel="stylesheet" href="${rs}ti/deps/fontawesome/5.12.0-web/css/all.css">
+  <link rel="stylesheet" href="${rs}ti/deps/iconmonstr/css/iconmonstr-iconic-font.css">
 
   <!--===========Theme============-->
-  <link rel="stylesheet" href="${theme}">
-
+  <link rel="stylesheet" href="${themeCss}">
 
   <!--===========ExtAPIs==========-->
   ${extlibs?}
   
   <!--===========ES5 Support stub==========-->
-  <script src="${rs}/ti/deps/system_es5.js"></script>
-  <script src="${rs}/ti/deps/babel/browser.js"></script>
-  
+  <script src="${rs}ti/deps/babel/browser.js"></script>
 </head>
 <body class="main-body">
 <div id="app" class="app-loading">
   <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
 </div>
 <script>
+  window.exports = {};
+  // Sometimes, preload fail, babal will call require
+  // I need to know which URL is faild.
+  // Add the stub function just in case
+  window.require = function(a0,a1,a2,a3) {
+    console.log("require", {a0,a1,a2,a3})
+  }
+</script>
+<script src="${rs}ti/dist/es5/ti-core.js"></script>
+<script src="${rs}ti/dist/es5/ti-walnut.js"></script>
+<script>
 //---------------------------------------
-window._app = ${app};
+window._app = ${app(json:n)?-obj-};
 //---------------------------------------
-System.import("${rs}/ti/core/ti.js").then(function(){
-  System.import("${rs}/ti/lib/walnut/walnut.js").then(function(){
-    System.import("${rs}/ti/app/wn.manager/main.js").then(function(M){
-      M.main({
-        Ti, Wn, rs:"${rs}",
-        appName : "${appName}"
-      }).then(o=>{
-        if(Ti.IsInfo("main")) {
-          console.log("MainLoaded", o)
-        }
-      }).catch(err=>{
-        throw err
-      })
-    })
-  })
-})
+Ti.WalnutAppMain({
+  rs:"${rs}",
+  appName : "${appName}",
+  debug: true,
+  logging: {
+    root: "warn",
+    names: {
+      "TiLoad"     : "warn",
+      "TiApp"      : "warn",
+      "TiHttp"     : "warn",
+      "TiShortcut" : "warn",
+      "Wn.Sys"     : "warn",
+      "WnGui"      : "warn",
+      "Wn.Dict"    : "warn"
+    }
+  },
+  shortcute: true,
+  viewport: true,
+  preloads: ["${rs}ti/dist/es5/ti-more-all.js"]
+})    
 //---------------------------------------
 </script>
 </body>

@@ -1,4 +1,4 @@
 {
-  "presets": ["@babel/preset-env"],
-  "plugins" : ["@babel/plugin-transform-modules-systemjs"]
+  "compact": false,
+  "presets": ["@babel/preset-env"]
 }

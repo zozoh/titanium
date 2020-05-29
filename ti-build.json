@@ -31,15 +31,15 @@
       }],
   "targets" : {
     "core": {
-      "path" : "src/dist/ti-core.js",
+      "path" : "src/dist/es6/ti-core.js",
       "wrap" : false
     },
     "walnut": {
-      "path" : "src/dist/ti-walnut.js",
+      "path" : "src/dist/es6/ti-walnut.js",
       "wrap" : false
     },
     "all": {
-      "path" : "src/dist/ti-more-all.js",
+      "path" : "src/dist/es6/ti-more-all.js",
       "wrap" : true
     }
   }

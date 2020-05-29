@@ -9128,7 +9128,7 @@ const {Dict,DictFactory} = (function(){
       this[K.getText]   = v =>Ti.Util.getFallback(v, "title", "text", "name", "nm")
       this[K.getIcon]   = v =>_.get(v, "icon")
       this[K.isMatched] = (it, v, $dict) => {
-        console.log("match", it, v)
+        //console.log("match", it, v)
         let itV = $dict.getValue(it)
         if(_.isEqual(v, itV))
           return true
@@ -10051,13 +10051,6 @@ const {WalnutAppMain} = (function(){
       Ti.Util.pushUniqValue(appInfo, "deps", tiConf.deps)
     }
     //---------------------------------------
-    // Load the global util modules
-    for(let key of _.keys(tiConf.global)) {
-      let val = tiConf.global[key]
-      let mod = await Ti.Load(val) 
-      window[key] = mod
-    }
-    //---------------------------------------
     // Customized preload
     if(!_.isEmpty(tiConf.preloads)) {
       let pres = []
@@ -10071,7 +10064,13 @@ const {WalnutAppMain} = (function(){
       let pxs = _.concat(tiConf.rsPrefixes)
       Ti.AddResourcePrefix(...pxs)
     }
-  
+    //---------------------------------------
+    // Load the global util modules
+    for(let key of _.keys(tiConf.global)) {
+      let val = tiConf.global[key]
+      let mod = await Ti.Load(val) 
+      window[key] = mod
+    }
     //---------------------------------------
     // Setup dictionaly
     Wn.Dict.setup(tiConf.dictionary)

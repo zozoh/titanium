@@ -29,7 +29,7 @@ export class Dict {
     this[K.getText]   = v =>Ti.Util.getFallback(v, "title", "text", "name", "nm")
     this[K.getIcon]   = v =>_.get(v, "icon")
     this[K.isMatched] = (it, v, $dict) => {
-      console.log("match", it, v)
+      //console.log("match", it, v)
       let itV = $dict.getValue(it)
       if(_.isEqual(v, itV))
         return true

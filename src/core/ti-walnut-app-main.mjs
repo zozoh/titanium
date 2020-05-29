@@ -119,13 +119,6 @@ export async function WalnutAppMain({
     Ti.Util.pushUniqValue(appInfo, "deps", tiConf.deps)
   }
   //---------------------------------------
-  // Load the global util modules
-  for(let key of _.keys(tiConf.global)) {
-    let val = tiConf.global[key]
-    let mod = await Ti.Load(val) 
-    window[key] = mod
-  }
-  //---------------------------------------
   // Customized preload
   if(!_.isEmpty(tiConf.preloads)) {
     let pres = []
@@ -139,7 +132,13 @@ export async function WalnutAppMain({
     let pxs = _.concat(tiConf.rsPrefixes)
     Ti.AddResourcePrefix(...pxs)
   }
-
+  //---------------------------------------
+  // Load the global util modules
+  for(let key of _.keys(tiConf.global)) {
+    let val = tiConf.global[key]
+    let mod = await Ti.Load(val) 
+    window[key] = mod
+  }
   //---------------------------------------
   // Setup dictionaly
   Wn.Dict.setup(tiConf.dictionary)

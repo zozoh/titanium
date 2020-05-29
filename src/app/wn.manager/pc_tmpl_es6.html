@@ -6,19 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
   <!--link rel="stylesheet" type="text/css"
-        href="${rs}/core/css/font-md/css/material-design-iconic-font.css"-->
-  <script src="${rs}/ti/deps/jquery.js"></script>
-  <script src="${rs}/ti/deps/lodash.min.js"></script>
-  <script src="${rs}/ti/deps/vue.js"></script>
-  <script src="${rs}/ti/deps/vuex.js"></script>
-
-  <link rel="stylesheet" href="${rs}/ti/deps/md/iconfont/material-icons.css">
-  <link rel="stylesheet" href="${rs}/ti/deps/zmdi/css/material-design-iconic-font.css">
-  <link rel="stylesheet" href="${rs}/ti/deps/fontawesome/5.12.0-web/css/all.css">
-  <link rel="stylesheet" href="${rs}/ti/deps/iconmonstr/css/iconmonstr-iconic-font.css">
+        href="${rs}core/css/font-md/css/material-design-iconic-font.css"-->
+  <script src="${rs}ti/deps/jquery.js"></script>
+  <script src="${rs}ti/deps/lodash.min.js"></script>
+  <script src="${rs}ti/deps/vue.js"></script>
+  <script src="${rs}ti/deps/vuex.js"></script>
+  
+  <link rel="stylesheet" href="${rs}ti/deps/md/iconfont/material-icons.css">
+  <link rel="stylesheet" href="${rs}ti/deps/zmdi/css/material-design-iconic-font.css">
+  <link rel="stylesheet" href="${rs}ti/deps/fontawesome/5.12.0-web/css/all.css">
+  <link rel="stylesheet" href="${rs}ti/deps/iconmonstr/css/iconmonstr-iconic-font.css">
 
   <!--===========Theme============-->
-  <link rel="stylesheet" href="${theme}">
+  <link rel="stylesheet" href="${themeCss}">
 
   <!--===========ExtAPIs==========-->
   ${extlibs?}
@@ -29,19 +29,30 @@
   <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
 </div>
 <script type="module">
-import Ti from "${rs}/ti/core/ti.mjs"
-import Wn from "${rs}/ti/lib/walnut/walnut.mjs"
-import main from "${rs}/ti/app/wn.manager/main.mjs"
+import Ti from "${rs}${TiJs?ti/core/ti.mjs}";
+import Wn from "${rs}${WnJs?ti/lib/walnut/walnut.mjs}";
 //---------------------------------------
-window._app = ${app};
+window._app = ${app(json:n)?-obj-};
 //---------------------------------------
-main({
-  Ti, Wn, rs:"${rs}",
-  appName : "${appName}"
-}).then(o=>{
-  if(Ti.IsInfo("main")) {
-    console.log("MainLoaded", o)
-  }
+Ti.WalnutAppMain({
+  rs:"${rs}",
+  appName : "${appName}",
+  debug: true,
+  logging: {
+    root: "warn",
+    names: {
+      "TiLoad"     : "warn",
+      "TiApp"      : "warn",
+      "TiHttp"     : "warn",
+      "TiShortcut" : "warn",
+      "Wn.Sys"     : "warn",
+      "WnGui"      : "warn",
+      "Wn.Dict"    : "warn"
+    }
+  },
+  shortcute: true,
+  viewport: true,
+  preloads: ${preloads(json:cqn)?-array-}
 }).catch(err=>{
   throw err
 })
