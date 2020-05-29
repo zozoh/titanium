@@ -1495,7 +1495,7 @@ var Sys = function () {
     exec: function exec(cmdText) {
       var _arguments8 = arguments;
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15() {
-        var _ref10, _ref10$vars, vars, _ref10$input, input, _ref10$appName, appName, _ref10$eachLine, eachLine, _ref10$as, as, _ref10$macroObjSep, macroObjSep, _ref10$autoRunMacro, autoRunMacro, errorBy, _ref10$PWD, PWD, url, params, ing, parsing, re, str, _str$split, _str$split2, code, datas, data, msgKey, err;
+        var _ref10, _ref10$vars, vars, _ref10$input, input, _ref10$appName, appName, _ref10$eachLine, eachLine, _ref10$as, as, _ref10$macroObjSep, macroObjSep, _ref10$autoRunMacro, autoRunMacro, errorBy, _ref10$PWD, PWD, url, params, ing, parsing, re, str, _str$split, _str$split2, code, datas, data, msgKey;
 
         return regeneratorRuntime.wrap(function _callee15$(_context15) {
           while (1) {
@@ -1555,33 +1555,30 @@ var Sys = function () {
 
 
                 if (!parsing.isError) {
-                  _context15.next = 22;
+                  _context15.next = 21;
                   break;
                 }
 
                 str = re.lines.join("\n");
-                _str$split = str.split(/ *: */), _str$split2 = _toArray(_str$split), code = _str$split2[0], datas = _str$split2.slice(1);
-                data = datas.join(" : ");
-                msgKey = code.replace(/[.]/g, "-");
 
                 if (!_.isFunction(errorBy)) {
                   _context15.next = 20;
                   break;
                 }
 
-                errorBy({
+                _str$split = str.split(/ *: */), _str$split2 = _toArray(_str$split), code = _str$split2[0], datas = _str$split2.slice(1);
+                data = datas.join(" : ");
+                msgKey = code.replace(/[.]/g, "-");
+                return _context15.abrupt("return", errorBy({
                   code: code,
                   msgKey: msgKey,
                   data: data
-                });
-                _context15.next = 22;
-                break;
+                }));
 
               case 20:
-                err = Ti.Err.make(msgKey, data);
-                throw err;
+                throw str;
 
-              case 22:
+              case 21:
                 return _context15.abrupt("return", {
                   raw: function raw() {
                     return re;
@@ -1605,7 +1602,7 @@ var Sys = function () {
                   }
                 }[as]());
 
-              case 23:
+              case 22:
               case "end":
                 return _context15.stop();
             }
@@ -1616,73 +1613,77 @@ var Sys = function () {
     //-------------------------------------
     exec2: function exec2(cmdText) {
       var _arguments9 = arguments;
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16() {
-        var options, errorAs;
-        return regeneratorRuntime.wrap(function _callee16$(_context16) {
-          while (1) {
-            switch (_context16.prev = _context16.next) {
-              case 0:
-                options = _arguments9.length > 1 && _arguments9[1] !== undefined ? _arguments9[1] : {};
-                errorAs = options.errorAs;
-                _context16.prev = 2;
-                _context16.next = 5;
-                return Wn.Sys.exec(cmdText, options);
-
-              case 5:
-                return _context16.abrupt("return", _context16.sent);
-
-              case 8:
-                _context16.prev = 8;
-                _context16.t0 = _context16["catch"](2);
-
-                if (_.isUndefined(errorAs)) {
-                  _context16.next = 15;
-                  break;
-                }
-
-                if (Ti.IsError()) {
-                  console.error(_context16.t0);
-                }
-
-                _context16.next = 14;
-                return Ti.Alert(_context16.t0, {
-                  title: "i18n:warn",
-                  type: "error"
-                });
-
-              case 14:
-                return _context16.abrupt("return", _context16.t0);
-
-              case 15:
-                return _context16.abrupt("return", errorAs);
-
-              case 16:
-              case "end":
-                return _context16.stop();
-            }
-          }
-        }, _callee16, null, [[2, 8]]);
-      }))();
-    },
-    //-------------------------------------
-    execJson: function execJson(cmdText) {
-      var _arguments10 = arguments;
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17() {
         var options;
         return regeneratorRuntime.wrap(function _callee17$(_context17) {
           while (1) {
             switch (_context17.prev = _context17.next) {
               case 0:
-                options = _arguments10.length > 1 && _arguments10[1] !== undefined ? _arguments10[1] : {
-                  as: "json"
-                };
-                _context17.next = 3;
-                return WnSys.exec(cmdText, options);
+                options = _arguments9.length > 1 && _arguments9[1] !== undefined ? _arguments9[1] : {};
 
-              case 3:
-                return _context17.abrupt("return", _context17.sent);
+                // Default error process
+                _.defaults(options, {
+                  errorBy: function () {
+                    var _errorBy = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16(_ref11) {
+                      var code, msgKey, data, msg;
+                      return regeneratorRuntime.wrap(function _callee16$(_context16) {
+                        while (1) {
+                          switch (_context16.prev = _context16.next) {
+                            case 0:
+                              code = _ref11.code, msgKey = _ref11.msgKey, data = _ref11.data;
+                              // Eval error message
+                              msg = Ti.I18n.get(msgKey);
+
+                              if (!Ti.Util.isNil(data)) {
+                                msg += " : " + Ti.Types.toStr(data);
+                              } // Show it to user
+
+
+                              _context16.next = 5;
+                              return Ti.Alert(msg, {
+                                title: "i18n:warn",
+                                type: "error"
+                              });
+
+                            case 5:
+                              if (!_.isFunction(options.errorAs)) {
+                                _context16.next = 7;
+                                break;
+                              }
+
+                              return _context16.abrupt("return", options.errorAs({
+                                code: code,
+                                msgKey: msgKey,
+                                data: data
+                              }));
+
+                            case 7:
+                              return _context16.abrupt("return", Ti.Err.make(code, data));
+
+                            case 8:
+                            case "end":
+                              return _context16.stop();
+                          }
+                        }
+                      }, _callee16);
+                    }));
+
+                    function errorBy(_x) {
+                      return _errorBy.apply(this, arguments);
+                    }
+
+                    return errorBy;
+                  }()
+                }); // Run command
+
+
+                _context17.next = 4;
+                return Wn.Sys.exec(cmdText, options);
 
               case 4:
+                return _context17.abrupt("return", _context17.sent);
+
+              case 5:
               case "end":
                 return _context17.stop();
             }
@@ -1691,19 +1692,19 @@ var Sys = function () {
       }))();
     },
     //-------------------------------------
-    exec2Json: function exec2Json(cmdText) {
-      var _arguments11 = arguments;
+    execJson: function execJson(cmdText) {
+      var _arguments10 = arguments;
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee18() {
         var options;
         return regeneratorRuntime.wrap(function _callee18$(_context18) {
           while (1) {
             switch (_context18.prev = _context18.next) {
               case 0:
-                options = _arguments11.length > 1 && _arguments11[1] !== undefined ? _arguments11[1] : {
+                options = _arguments10.length > 1 && _arguments10[1] !== undefined ? _arguments10[1] : {
                   as: "json"
                 };
                 _context18.next = 3;
-                return WnSys.exec2(cmdText, options);
+                return WnSys.exec(cmdText, options);
 
               case 3:
                 return _context18.abrupt("return", _context18.sent);
@@ -1714,6 +1715,32 @@ var Sys = function () {
             }
           }
         }, _callee18);
+      }))();
+    },
+    //-------------------------------------
+    exec2Json: function exec2Json(cmdText) {
+      var _arguments11 = arguments;
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19() {
+        var options;
+        return regeneratorRuntime.wrap(function _callee19$(_context19) {
+          while (1) {
+            switch (_context19.prev = _context19.next) {
+              case 0:
+                options = _arguments11.length > 1 && _arguments11[1] !== undefined ? _arguments11[1] : {
+                  as: "json"
+                };
+                _context19.next = 3;
+                return WnSys.exec2(cmdText, options);
+
+              case 3:
+                return _context19.abrupt("return", _context19.sent);
+
+              case 4:
+              case "end":
+                return _context19.stop();
+            }
+          }
+        }, _callee19);
       }))();
     } //-------------------------------------
 
@@ -1794,15 +1821,15 @@ var Util = function () {
      * Get icon or thumb for a WnObj
      */
     getObjThumbIcon: function getObjThumbIcon() {
-      var _ref11 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          icon = _ref11.icon,
-          thumb = _ref11.thumb,
-          mime = _ref11.mime,
-          type = _ref11.type,
-          race = _ref11.race,
-          candidateIcon = _ref11.candidateIcon,
-          _ref11$timestamp = _ref11.timestamp,
-          timestamp = _ref11$timestamp === void 0 ? 0 : _ref11$timestamp;
+      var _ref12 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          icon = _ref12.icon,
+          thumb = _ref12.thumb,
+          mime = _ref12.mime,
+          type = _ref12.type,
+          race = _ref12.race,
+          candidateIcon = _ref12.candidateIcon,
+          _ref12$timestamp = _ref12.timestamp,
+          timestamp = _ref12$timestamp === void 0 ? 0 : _ref12$timestamp;
 
       var dftIcon = arguments.length > 1 ? arguments[1] : undefined;
 
@@ -1871,11 +1898,11 @@ var Util = function () {
      * @param options.encoded{Boolean} : Encode the path or not
      */
     getAppLink: function getAppLink(meta) {
-      var _ref12 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref12$appName = _ref12.appName,
-          appName = _ref12$appName === void 0 ? "wn.manager" : _ref12$appName,
-          _ref12$encoded = _ref12.encoded,
-          encoded = _ref12$encoded === void 0 ? true : _ref12$encoded;
+      var _ref13 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref13$appName = _ref13.appName,
+          appName = _ref13$appName === void 0 ? "wn.manager" : _ref13$appName,
+          _ref13$encoded = _ref13.encoded,
+          encoded = _ref13$encoded === void 0 ? true : _ref13$encoded;
 
       return WnUtil.getLink("/a/open/".concat(appName), meta, {
         pathKey: "ph",
@@ -1888,15 +1915,15 @@ var Util = function () {
     getObjBadges: function getObjBadges() {
       var meta = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var _ref13 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref13$NW = _ref13.NW,
-          NW = _ref13$NW === void 0 ? null : _ref13$NW,
-          _ref13$NE = _ref13.NE,
-          NE = _ref13$NE === void 0 ? ["ln", "zmdi-open-in-new"] : _ref13$NE,
-          _ref13$SW = _ref13.SW,
-          SW = _ref13$SW === void 0 ? null : _ref13$SW,
-          _ref13$SE = _ref13.SE,
-          SE = _ref13$SE === void 0 ? null : _ref13$SE;
+      var _ref14 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref14$NW = _ref14.NW,
+          NW = _ref14$NW === void 0 ? null : _ref14$NW,
+          _ref14$NE = _ref14.NE,
+          NE = _ref14$NE === void 0 ? ["ln", "zmdi-open-in-new"] : _ref14$NE,
+          _ref14$SW = _ref14.SW,
+          SW = _ref14$SW === void 0 ? null : _ref14$SW,
+          _ref14$SE = _ref14.SE,
+          SE = _ref14$SE === void 0 ? null : _ref14$SE;
 
       var bg = {};
       if (NW && meta[NW[0]]) bg.NW = NW[1];
@@ -1908,15 +1935,15 @@ var Util = function () {
     getObjThumbInfo: function getObjThumbInfo() {
       var meta = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var _ref14 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref14$exposeHidden = _ref14.exposeHidden,
-          exposeHidden = _ref14$exposeHidden === void 0 ? false : _ref14$exposeHidden,
-          _ref14$status = _ref14.status,
-          status = _ref14$status === void 0 ? {} : _ref14$status,
-          _ref14$progress = _ref14.progress,
-          progress = _ref14$progress === void 0 ? {} : _ref14$progress,
-          _ref14$badges = _ref14.badges,
-          badges = _ref14$badges === void 0 ? undefined : _ref14$badges;
+      var _ref15 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref15$exposeHidden = _ref15.exposeHidden,
+          exposeHidden = _ref15$exposeHidden === void 0 ? false : _ref15$exposeHidden,
+          _ref15$status = _ref15.status,
+          status = _ref15$status === void 0 ? {} : _ref15$status,
+          _ref15$progress = _ref15.progress,
+          progress = _ref15$progress === void 0 ? {} : _ref15$progress,
+          _ref15$badges = _ref15.badges,
+          badges = _ref15$badges === void 0 ? undefined : _ref15$badges;
 
       // Guard
       if (!meta || !meta.nm) {
@@ -1949,9 +1976,9 @@ var Util = function () {
      * Get object link for download
      */
     getDownloadLink: function getDownloadLink(meta) {
-      var _ref15 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref15$mode = _ref15.mode,
-          mode = _ref15$mode === void 0 ? "force" : _ref15$mode;
+      var _ref16 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref16$mode = _ref16.mode,
+          mode = _ref16$mode === void 0 ? "force" : _ref16$mode;
 
       return WnUtil.getLink("/o/content", meta, {
         pathKey: "str",
@@ -1974,13 +2001,13 @@ var Util = function () {
      * @return `TiLinkObj`
      */
     getLink: function getLink(url, meta) {
-      var _ref16 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref16$pathKey = _ref16.pathKey,
-          pathKey = _ref16$pathKey === void 0 ? "ph" : _ref16$pathKey,
-          _ref16$encoded = _ref16.encoded,
-          encoded = _ref16$encoded === void 0 ? false : _ref16$encoded,
-          _ref16$params = _ref16.params,
-          params = _ref16$params === void 0 ? {} : _ref16$params;
+      var _ref17 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref17$pathKey = _ref17.pathKey,
+          pathKey = _ref17$pathKey === void 0 ? "ph" : _ref17$pathKey,
+          _ref17$encoded = _ref17.encoded,
+          encoded = _ref17$encoded === void 0 ? false : _ref17$encoded,
+          _ref17$params = _ref17.params,
+          params = _ref17$params === void 0 ? {} : _ref17$params;
 
       var params2 = _objectSpread({}, params);
 
@@ -2046,12 +2073,12 @@ var Util = function () {
      * @param query{String|Function}
      */
     genQuery: function genQuery(query) {
-      var _ref17 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref17$vkey = _ref17.vkey,
-          vkey = _ref17$vkey === void 0 ? "val" : _ref17$vkey,
-          _ref17$wrapArray = _ref17.wrapArray,
-          wrapArray = _ref17$wrapArray === void 0 ? false : _ref17$wrapArray,
-          errorAs = _ref17.errorAs;
+      var _ref18 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref18$vkey = _ref18.vkey,
+          vkey = _ref18$vkey === void 0 ? "val" : _ref18$vkey,
+          _ref18$wrapArray = _ref18.wrapArray,
+          wrapArray = _ref18$wrapArray === void 0 ? false : _ref18$wrapArray,
+          errorAs = _ref18.errorAs;
 
       // Customized query
       if (_.isFunction(query)) {
@@ -2074,15 +2101,15 @@ var Util = function () {
         // Query by value 
         if (vkey) {
           return /*#__PURE__*/function () {
-            var _ref18 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(v) {
+            var _ref19 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(v) {
               var cmdText;
-              return regeneratorRuntime.wrap(function _callee19$(_context19) {
+              return regeneratorRuntime.wrap(function _callee20$(_context20) {
                 while (1) {
-                  switch (_context19.prev = _context19.next) {
+                  switch (_context20.prev = _context20.next) {
                     case 0:
                       cmdText = Ti.S.renderBy(query, _defineProperty({}, vkey, v)); //console.log("exec", cmdText)
 
-                      _context19.next = 3;
+                      _context20.next = 3;
                       return Wn.Sys.exec2(cmdText, {
                         as: "json",
                         input: v,
@@ -2090,47 +2117,47 @@ var Util = function () {
                       });
 
                     case 3:
-                      return _context19.abrupt("return", _context19.sent);
+                      return _context20.abrupt("return", _context20.sent);
 
                     case 4:
                     case "end":
-                      return _context19.stop();
+                      return _context20.stop();
                   }
                 }
-              }, _callee19);
+              }, _callee20);
             }));
 
-            return function (_x) {
-              return _ref18.apply(this, arguments);
+            return function (_x2) {
+              return _ref19.apply(this, arguments);
             };
           }();
         } // Query directly
         else {
             return /*#__PURE__*/function () {
-              var _ref19 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(v) {
-                return regeneratorRuntime.wrap(function _callee20$(_context20) {
+              var _ref20 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21(v) {
+                return regeneratorRuntime.wrap(function _callee21$(_context21) {
                   while (1) {
-                    switch (_context20.prev = _context20.next) {
+                    switch (_context21.prev = _context21.next) {
                       case 0:
-                        _context20.next = 2;
+                        _context21.next = 2;
                         return Wn.Sys.exec2(query, {
                           as: "json",
                           errorAs: errorAs
                         });
 
                       case 2:
-                        return _context20.abrupt("return", _context20.sent);
+                        return _context21.abrupt("return", _context21.sent);
 
                       case 3:
                       case "end":
-                        return _context20.stop();
+                        return _context21.stop();
                     }
                   }
-                }, _callee20);
+                }, _callee21);
               }));
 
-              return function (_x2) {
-                return _ref19.apply(this, arguments);
+              return function (_x3) {
+                return _ref20.apply(this, arguments);
               };
             }();
           }
@@ -2149,15 +2176,15 @@ var Dict = function () {
     /***
      * @return {Ti.Dict}
      */
-    evalOptionsDict: function evalOptionsDict(_ref20, hooks) {
-      var options = _ref20.options,
-          findBy = _ref20.findBy,
-          itemBy = _ref20.itemBy,
-          valueBy = _ref20.valueBy,
-          textBy = _ref20.textBy,
-          iconBy = _ref20.iconBy,
-          _ref20$dictShadowed = _ref20.dictShadowed,
-          dictShadowed = _ref20$dictShadowed === void 0 ? true : _ref20$dictShadowed;
+    evalOptionsDict: function evalOptionsDict(_ref21, hooks) {
+      var options = _ref21.options,
+          findBy = _ref21.findBy,
+          itemBy = _ref21.itemBy,
+          valueBy = _ref21.valueBy,
+          textBy = _ref21.textBy,
+          iconBy = _ref21.iconBy,
+          _ref21$dictShadowed = _ref21.dictShadowed,
+          dictShadowed = _ref21$dictShadowed === void 0 ? true : _ref21$dictShadowed;
       // Quck Dict Name
       var dictName = Ti.DictFactory.DictReferName(options);
 
@@ -2287,58 +2314,58 @@ var OpenObjSelector = function () {
 
 
   function _OpenObjSelector() {
-    _OpenObjSelector = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22() {
+    _OpenObjSelector = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee23() {
       var pathOrObj,
-          _ref21,
-          _ref21$title,
+          _ref22,
+          _ref22$title,
           title,
-          _ref21$icon,
+          _ref22$icon,
           icon,
-          _ref21$type,
+          _ref22$type,
           type,
-          _ref21$closer,
+          _ref22$closer,
           closer,
-          _ref21$textOk,
+          _ref22$textOk,
           textOk,
-          _ref21$textCancel,
+          _ref22$textCancel,
           textCancel,
-          _ref21$position,
+          _ref22$position,
           position,
-          _ref21$width,
+          _ref22$width,
           width,
-          _ref21$height,
+          _ref22$height,
           height,
           spacing,
-          _ref21$multi,
+          _ref22$multi,
           multi,
-          _ref21$fromIndex,
+          _ref22$fromIndex,
           fromIndex,
-          _ref21$homePath,
+          _ref22$homePath,
           homePath,
-          _ref21$selected,
+          _ref22$selected,
           selected,
           meta,
           reObj,
-          _args22 = arguments;
+          _args23 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee22$(_context22) {
+      return regeneratorRuntime.wrap(function _callee23$(_context23) {
         while (1) {
-          switch (_context22.prev = _context22.next) {
+          switch (_context23.prev = _context23.next) {
             case 0:
-              pathOrObj = _args22.length > 0 && _args22[0] !== undefined ? _args22[0] : "~";
-              _ref21 = _args22.length > 1 && _args22[1] !== undefined ? _args22[1] : {}, _ref21$title = _ref21.title, title = _ref21$title === void 0 ? "i18n:select" : _ref21$title, _ref21$icon = _ref21.icon, icon = _ref21$icon === void 0 ? "im-folder-open" : _ref21$icon, _ref21$type = _ref21.type, type = _ref21$type === void 0 ? "info" : _ref21$type, _ref21$closer = _ref21.closer, closer = _ref21$closer === void 0 ? true : _ref21$closer, _ref21$textOk = _ref21.textOk, textOk = _ref21$textOk === void 0 ? "i18n:ok" : _ref21$textOk, _ref21$textCancel = _ref21.textCancel, textCancel = _ref21$textCancel === void 0 ? "i18n:cancel" : _ref21$textCancel, _ref21$position = _ref21.position, position = _ref21$position === void 0 ? "top" : _ref21$position, _ref21$width = _ref21.width, width = _ref21$width === void 0 ? "80%" : _ref21$width, _ref21$height = _ref21.height, height = _ref21$height === void 0 ? "90%" : _ref21$height, spacing = _ref21.spacing, _ref21$multi = _ref21.multi, multi = _ref21$multi === void 0 ? true : _ref21$multi, _ref21$fromIndex = _ref21.fromIndex, fromIndex = _ref21$fromIndex === void 0 ? 0 : _ref21$fromIndex, _ref21$homePath = _ref21.homePath, homePath = _ref21$homePath === void 0 ? Wn.Session.getHomePath() : _ref21$homePath, _ref21$selected = _ref21.selected, selected = _ref21$selected === void 0 ? [] : _ref21$selected;
-              _context22.next = 4;
+              pathOrObj = _args23.length > 0 && _args23[0] !== undefined ? _args23[0] : "~";
+              _ref22 = _args23.length > 1 && _args23[1] !== undefined ? _args23[1] : {}, _ref22$title = _ref22.title, title = _ref22$title === void 0 ? "i18n:select" : _ref22$title, _ref22$icon = _ref22.icon, icon = _ref22$icon === void 0 ? "im-folder-open" : _ref22$icon, _ref22$type = _ref22.type, type = _ref22$type === void 0 ? "info" : _ref22$type, _ref22$closer = _ref22.closer, closer = _ref22$closer === void 0 ? true : _ref22$closer, _ref22$textOk = _ref22.textOk, textOk = _ref22$textOk === void 0 ? "i18n:ok" : _ref22$textOk, _ref22$textCancel = _ref22.textCancel, textCancel = _ref22$textCancel === void 0 ? "i18n:cancel" : _ref22$textCancel, _ref22$position = _ref22.position, position = _ref22$position === void 0 ? "top" : _ref22$position, _ref22$width = _ref22.width, width = _ref22$width === void 0 ? "80%" : _ref22$width, _ref22$height = _ref22.height, height = _ref22$height === void 0 ? "90%" : _ref22$height, spacing = _ref22.spacing, _ref22$multi = _ref22.multi, multi = _ref22$multi === void 0 ? true : _ref22$multi, _ref22$fromIndex = _ref22.fromIndex, fromIndex = _ref22$fromIndex === void 0 ? 0 : _ref22$fromIndex, _ref22$homePath = _ref22.homePath, homePath = _ref22$homePath === void 0 ? Wn.Session.getHomePath() : _ref22$homePath, _ref22$selected = _ref22.selected, selected = _ref22$selected === void 0 ? [] : _ref22$selected;
+              _context23.next = 4;
               return Wn.Io.loadMeta(pathOrObj);
 
             case 4:
-              meta = _context22.sent;
+              meta = _context23.sent;
 
               if (meta) {
-                _context22.next = 7;
+                _context23.next = 7;
                 break;
               }
 
-              return _context22.abrupt("return", Ti.Toast.Open({
+              return _context23.abrupt("return", Ti.Toast.Open({
                 content: "i18n:e-io-obj-noexistsf",
                 vars: _.isString(pathOrObj) ? {
                   ph: pathOrObj,
@@ -2347,7 +2374,7 @@ var OpenObjSelector = function () {
               }, "warn"));
 
             case 7:
-              _context22.next = 9;
+              _context23.next = 9;
               return Ti.App.Open({
                 //------------------------------------------
                 type: type,
@@ -2361,8 +2388,8 @@ var OpenObjSelector = function () {
                 //------------------------------------------
                 actions: [{
                   text: textOk,
-                  handler: function handler(_ref22) {
-                    var $main = _ref22.$main;
+                  handler: function handler(_ref23) {
+                    var $main = _ref23.$main;
                     return $main.myChecked;
                   }
                 }, {
@@ -2463,16 +2490,16 @@ var OpenObjSelector = function () {
                   methods: {
                     //--------------------------------------
                     OnCurrentMetaChange: function OnCurrentMetaChange() {
-                      var _ref23 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                          id = _ref23.id,
-                          path = _ref23.path,
-                          value = _ref23.value;
+                      var _ref24 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                          id = _ref24.id,
+                          path = _ref24.path,
+                          value = _ref24.value;
 
                       this.open(id || path || value);
                     },
                     //--------------------------------------
-                    OnArenaSelect: function OnArenaSelect(_ref24) {
-                      var checked = _ref24.checked;
+                    OnArenaSelect: function OnArenaSelect(_ref25) {
+                      var checked = _ref25.checked;
                       this.myChecked = _.filter(checked, function (o) {
                         return "FILE" == o.race;
                       });
@@ -2481,30 +2508,30 @@ var OpenObjSelector = function () {
                     open: function open(obj) {
                       var _this3 = this;
 
-                      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21() {
+                      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22() {
                         var app;
-                        return regeneratorRuntime.wrap(function _callee21$(_context21) {
+                        return regeneratorRuntime.wrap(function _callee22$(_context22) {
                           while (1) {
-                            switch (_context21.prev = _context21.next) {
+                            switch (_context22.prev = _context22.next) {
                               case 0:
                                 if (obj) {
-                                  _context21.next = 2;
+                                  _context22.next = 2;
                                   break;
                                 }
 
-                                return _context21.abrupt("return");
+                                return _context22.abrupt("return");
 
                               case 2:
                                 if (!_.isString(obj)) {
-                                  _context21.next = 6;
+                                  _context22.next = 6;
                                   break;
                                 }
 
-                                _context21.next = 5;
+                                _context22.next = 5;
                                 return Wn.Io.loadMetaBy(obj);
 
                               case 5:
-                                obj = _context21.sent;
+                                obj = _context22.sent;
 
                               case 6:
                                 // Only can enter DIR
@@ -2516,10 +2543,10 @@ var OpenObjSelector = function () {
 
                               case 7:
                               case "end":
-                                return _context21.stop();
+                                return _context22.stop();
                             }
                           }
-                        }, _callee21);
+                        }, _callee22);
                       }))();
                     } //--------------------------------------
 
@@ -2534,15 +2561,15 @@ var OpenObjSelector = function () {
               });
 
             case 9:
-              reObj = _context22.sent;
-              return _context22.abrupt("return", reObj);
+              reObj = _context23.sent;
+              return _context23.abrupt("return", reObj);
 
             case 11:
             case "end":
-              return _context22.stop();
+              return _context23.stop();
           }
         }
-      }, _callee22);
+      }, _callee23);
     }));
     return _OpenObjSelector.apply(this, arguments);
   }
@@ -2556,97 +2583,97 @@ var OpenThingManager = function () {
   /***
    * Open Modal Dialog to manage a thing set
    */
-  function OpenThingManager(_x3) {
+  function OpenThingManager(_x4) {
     return _OpenThingManager.apply(this, arguments);
   } ////////////////////////////////////////////
 
 
   function _OpenThingManager() {
-    _OpenThingManager = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee24(pathOrObj) {
-      var _ref25,
-          _ref25$textOk,
+    _OpenThingManager = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee25(pathOrObj) {
+      var _ref26,
+          _ref26$textOk,
           textOk,
-          _ref25$icon,
+          _ref26$icon,
           icon,
           title,
-          _ref25$ok,
+          _ref26$ok,
           ok,
-          _ref25$textCancel,
+          _ref26$textCancel,
           textCancel,
-          _ref25$position,
+          _ref26$position,
           position,
-          _ref25$width,
+          _ref26$width,
           width,
-          _ref25$height,
+          _ref26$height,
           height,
           spacing,
           oTs,
           view,
-          _args24 = arguments;
+          _args25 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee24$(_context24) {
+      return regeneratorRuntime.wrap(function _callee25$(_context25) {
         while (1) {
-          switch (_context24.prev = _context24.next) {
+          switch (_context25.prev = _context25.next) {
             case 0:
-              _ref25 = _args24.length > 1 && _args24[1] !== undefined ? _args24[1] : {}, _ref25$textOk = _ref25.textOk, textOk = _ref25$textOk === void 0 ? "i18n:ok" : _ref25$textOk, _ref25$icon = _ref25.icon, icon = _ref25$icon === void 0 ? "fas-database" : _ref25$icon, title = _ref25.title, _ref25$ok = _ref25.ok, ok = _ref25$ok === void 0 ? function (_ref26) {
-                var result = _ref26.result;
+              _ref26 = _args25.length > 1 && _args25[1] !== undefined ? _args25[1] : {}, _ref26$textOk = _ref26.textOk, textOk = _ref26$textOk === void 0 ? "i18n:ok" : _ref26$textOk, _ref26$icon = _ref26.icon, icon = _ref26$icon === void 0 ? "fas-database" : _ref26$icon, title = _ref26.title, _ref26$ok = _ref26.ok, ok = _ref26$ok === void 0 ? function (_ref27) {
+                var result = _ref27.result;
                 return result;
-              } : _ref25$ok, _ref25$textCancel = _ref25.textCancel, textCancel = _ref25$textCancel === void 0 ? "i18n:close" : _ref25$textCancel, _ref25$position = _ref25.position, position = _ref25$position === void 0 ? "top" : _ref25$position, _ref25$width = _ref25.width, width = _ref25$width === void 0 ? "96%" : _ref25$width, _ref25$height = _ref25.height, height = _ref25$height === void 0 ? "96%" : _ref25$height, spacing = _ref25.spacing;
+              } : _ref26$ok, _ref26$textCancel = _ref26.textCancel, textCancel = _ref26$textCancel === void 0 ? "i18n:close" : _ref26$textCancel, _ref26$position = _ref26.position, position = _ref26$position === void 0 ? "top" : _ref26$position, _ref26$width = _ref26.width, width = _ref26$width === void 0 ? "96%" : _ref26$width, _ref26$height = _ref26.height, height = _ref26$height === void 0 ? "96%" : _ref26$height, spacing = _ref26.spacing;
 
               if (!Ti.Util.isNil(pathOrObj)) {
-                _context24.next = 5;
+                _context25.next = 5;
                 break;
               }
 
-              _context24.next = 4;
+              _context25.next = 4;
               return Ti.Toast.Open("ThingSet path is nil", "warn");
 
             case 4:
-              return _context24.abrupt("return", _context24.sent);
+              return _context25.abrupt("return", _context25.sent);
 
             case 5:
               if (!_.isString(pathOrObj)) {
-                _context24.next = 11;
+                _context25.next = 11;
                 break;
               }
 
-              _context24.next = 8;
+              _context25.next = 8;
               return Wn.Io.loadMeta(pathOrObj);
 
             case 8:
-              _context24.t0 = _context24.sent;
-              _context24.next = 12;
+              _context25.t0 = _context25.sent;
+              _context25.next = 12;
               break;
 
             case 11:
-              _context24.t0 = pathOrObj;
+              _context25.t0 = pathOrObj;
 
             case 12:
-              oTs = _context24.t0;
+              oTs = _context25.t0;
 
               if (oTs) {
-                _context24.next = 17;
+                _context25.next = 17;
                 break;
               }
 
-              _context24.next = 16;
+              _context25.next = 16;
               return Ti.Toast.Open("Fail to found ThingSet: ".concat(pathOrObj), "warn");
 
             case 16:
-              return _context24.abrupt("return", _context24.sent);
+              return _context25.abrupt("return", _context25.sent);
 
             case 17:
               // Forbid the auto select
               oTs.th_auto_select = false; // Load default actions
 
-              _context24.next = 20;
+              _context25.next = 20;
               return Wn.Sys.exec("ti views id:".concat(oTs.id, " -cqn"), {
                 as: "json"
               });
 
             case 20:
-              view = _context24.sent;
-              _context24.next = 23;
+              view = _context25.sent;
+              _context25.next = 23;
               return Ti.App.Open({
                 icon: icon,
                 title: title || oTs.title || oTs.nm,
@@ -2674,24 +2701,24 @@ var OpenThingManager = function () {
                 components: ["@com:wn/thing/manager"],
                 //------------------------------------------
                 preload: function () {
-                  var _preload = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee23(app) {
-                    return regeneratorRuntime.wrap(function _callee23$(_context23) {
+                  var _preload = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee24(app) {
+                    return regeneratorRuntime.wrap(function _callee24$(_context24) {
                       while (1) {
-                        switch (_context23.prev = _context23.next) {
+                        switch (_context24.prev = _context24.next) {
                           case 0:
                             app.commit("current/setMeta", oTs);
-                            _context23.next = 3;
+                            _context24.next = 3;
                             return app.dispatch("main/reload", oTs);
 
                           case 3:
                           case "end":
-                            return _context23.stop();
+                            return _context24.stop();
                         }
                       }
-                    }, _callee23);
+                    }, _callee24);
                   }));
 
-                  function preload(_x4) {
+                  function preload(_x5) {
                     return _preload.apply(this, arguments);
                   }
 
@@ -2700,14 +2727,14 @@ var OpenThingManager = function () {
               });
 
             case 23:
-              return _context24.abrupt("return", _context24.sent);
+              return _context25.abrupt("return", _context25.sent);
 
             case 24:
             case "end":
-              return _context24.stop();
+              return _context25.stop();
           }
         }
-      }, _callee24);
+      }, _callee25);
     }));
     return _OpenThingManager.apply(this, arguments);
   }
@@ -2725,35 +2752,35 @@ var EditObjMeta = function () {
 
 
   function _EditObjMeta() {
-    _EditObjMeta = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee25() {
+    _EditObjMeta = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee26() {
       var pathOrObj,
-          _ref27,
+          _ref28,
           icon,
           title,
-          _ref27$type,
+          _ref28$type,
           type,
-          _ref27$closer,
+          _ref28$closer,
           closer,
-          _ref27$textOk,
+          _ref28$textOk,
           textOk,
-          _ref27$textCancel,
+          _ref28$textCancel,
           textCancel,
-          _ref27$position,
+          _ref28$position,
           position,
-          _ref27$width,
+          _ref28$width,
           width,
-          _ref27$height,
+          _ref28$height,
           height,
           spacing,
-          _ref27$currentTab,
+          _ref28$currentTab,
           currentTab,
-          _ref27$fields,
+          _ref28$fields,
           fields,
-          _ref27$fixedKeys,
+          _ref28$fixedKeys,
           fixedKeys,
-          _ref27$saveKeys,
+          _ref28$saveKeys,
           saveKeys,
-          _ref27$autoSave,
+          _ref28$autoSave,
           autoSave,
           meta,
           fixeds,
@@ -2768,28 +2795,28 @@ var EditObjMeta = function () {
           json,
           cmdText,
           newMeta,
-          _args25 = arguments;
+          _args26 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee25$(_context25) {
+      return regeneratorRuntime.wrap(function _callee26$(_context26) {
         while (1) {
-          switch (_context25.prev = _context25.next) {
+          switch (_context26.prev = _context26.next) {
             case 0:
-              pathOrObj = _args25.length > 0 && _args25[0] !== undefined ? _args25[0] : "~";
-              _ref27 = _args25.length > 1 && _args25[1] !== undefined ? _args25[1] : {}, icon = _ref27.icon, title = _ref27.title, _ref27$type = _ref27.type, type = _ref27$type === void 0 ? "info" : _ref27$type, _ref27$closer = _ref27.closer, closer = _ref27$closer === void 0 ? true : _ref27$closer, _ref27$textOk = _ref27.textOk, textOk = _ref27$textOk === void 0 ? "i18n:ok" : _ref27$textOk, _ref27$textCancel = _ref27.textCancel, textCancel = _ref27$textCancel === void 0 ? "i18n:cancel" : _ref27$textCancel, _ref27$position = _ref27.position, position = _ref27$position === void 0 ? "top" : _ref27$position, _ref27$width = _ref27.width, width = _ref27$width === void 0 ? 640 : _ref27$width, _ref27$height = _ref27.height, height = _ref27$height === void 0 ? "80%" : _ref27$height, spacing = _ref27.spacing, _ref27$currentTab = _ref27.currentTab, currentTab = _ref27$currentTab === void 0 ? 0 : _ref27$currentTab, _ref27$fields = _ref27.fields, fields = _ref27$fields === void 0 ? [] : _ref27$fields, _ref27$fixedKeys = _ref27.fixedKeys, fixedKeys = _ref27$fixedKeys === void 0 ? ["thumb"] : _ref27$fixedKeys, _ref27$saveKeys = _ref27.saveKeys, saveKeys = _ref27$saveKeys === void 0 ? ["thumb"] : _ref27$saveKeys, _ref27$autoSave = _ref27.autoSave, autoSave = _ref27$autoSave === void 0 ? true : _ref27$autoSave;
+              pathOrObj = _args26.length > 0 && _args26[0] !== undefined ? _args26[0] : "~";
+              _ref28 = _args26.length > 1 && _args26[1] !== undefined ? _args26[1] : {}, icon = _ref28.icon, title = _ref28.title, _ref28$type = _ref28.type, type = _ref28$type === void 0 ? "info" : _ref28$type, _ref28$closer = _ref28.closer, closer = _ref28$closer === void 0 ? true : _ref28$closer, _ref28$textOk = _ref28.textOk, textOk = _ref28$textOk === void 0 ? "i18n:ok" : _ref28$textOk, _ref28$textCancel = _ref28.textCancel, textCancel = _ref28$textCancel === void 0 ? "i18n:cancel" : _ref28$textCancel, _ref28$position = _ref28.position, position = _ref28$position === void 0 ? "top" : _ref28$position, _ref28$width = _ref28.width, width = _ref28$width === void 0 ? 640 : _ref28$width, _ref28$height = _ref28.height, height = _ref28$height === void 0 ? "80%" : _ref28$height, spacing = _ref28.spacing, _ref28$currentTab = _ref28.currentTab, currentTab = _ref28$currentTab === void 0 ? 0 : _ref28$currentTab, _ref28$fields = _ref28.fields, fields = _ref28$fields === void 0 ? [] : _ref28$fields, _ref28$fixedKeys = _ref28.fixedKeys, fixedKeys = _ref28$fixedKeys === void 0 ? ["thumb"] : _ref28$fixedKeys, _ref28$saveKeys = _ref28.saveKeys, saveKeys = _ref28$saveKeys === void 0 ? ["thumb"] : _ref28$saveKeys, _ref28$autoSave = _ref28.autoSave, autoSave = _ref28$autoSave === void 0 ? true : _ref28$autoSave;
               //............................................
               // Load meta
               meta = pathOrObj;
 
               if (!_.isString(meta)) {
-                _context25.next = 7;
+                _context26.next = 7;
                 break;
               }
 
-              _context25.next = 6;
+              _context26.next = 6;
               return Wn.Io.loadMeta(pathOrObj);
 
             case 6:
-              meta = _context25.sent;
+              meta = _context26.sent;
 
             case 7:
               //............................................
@@ -2811,17 +2838,17 @@ var EditObjMeta = function () {
 
 
               if (!("auto" == fields)) {
-                _context25.next = 16;
+                _context26.next = 16;
                 break;
               }
 
-              _context25.next = 14;
+              _context26.next = 14;
               return Wn.Sys.exec2("ti metas id:".concat(meta.id, " -cqn"), {
                 as: "json"
               });
 
             case 14:
-              _reo2 = _context25.sent;
+              _reo2 = _context26.sent;
 
               if (_reo2) {
                 fields = _reo2.fields;
@@ -2863,7 +2890,7 @@ var EditObjMeta = function () {
               theIcon = icon || Wn.Util.getObjIcon(meta, "zmdi-info-outline");
               theTitle = title || Wn.Util.getObjDisplayName(meta); //............................................
 
-              _context25.next = 22;
+              _context26.next = 22;
               return Ti.App.Open({
                 //------------------------------------------
                 type: type,
@@ -2877,8 +2904,8 @@ var EditObjMeta = function () {
                 //------------------------------------------
                 actions: [{
                   text: textOk,
-                  handler: function handler(_ref28) {
-                    var $main = _ref28.$main;
+                  handler: function handler(_ref29) {
+                    var $main = _ref29.$main;
                     return _.cloneDeep({
                       updates: $main.updates,
                       data: $main.meta
@@ -2886,8 +2913,8 @@ var EditObjMeta = function () {
                   }
                 }, {
                   text: textCancel,
-                  handler: function handler(_ref29) {
-                    var $main = _ref29.$main;
+                  handler: function handler(_ref30) {
+                    var $main = _ref30.$main;
 
                     // Is in saveKeys
                     var ks = _.keys($main.updates);
@@ -2932,9 +2959,9 @@ var EditObjMeta = function () {
                       this.meta = data;
                     },
                     onFieldChange: function onFieldChange() {
-                      var _ref30 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                          name = _ref30.name,
-                          value = _ref30.value;
+                      var _ref31 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                          name = _ref31.name,
+                          value = _ref31.value;
 
                       var obj = Ti.Types.toObjByPair({
                         name: name,
@@ -2948,14 +2975,14 @@ var EditObjMeta = function () {
               });
 
             case 22:
-              reo = _context25.sent;
+              reo = _context26.sent;
 
               if (reo) {
-                _context25.next = 25;
+                _context26.next = 25;
                 break;
               }
 
-              return _context25.abrupt("return");
+              return _context26.abrupt("return");
 
             case 25:
               //............................................
@@ -2963,40 +2990,40 @@ var EditObjMeta = function () {
               saved = false;
 
               if (!(autoSave && !_.isEmpty(updates))) {
-                _context25.next = 37;
+                _context26.next = 37;
                 break;
               }
 
               json = JSON.stringify(updates);
               cmdText = "obj 'id:".concat(meta.id, "' -ocqn -u");
-              _context25.next = 32;
+              _context26.next = 32;
               return Wn.Sys.exec2(cmdText, {
                 input: json,
                 as: "json"
               });
 
             case 32:
-              newMeta = _context25.sent;
-              _context25.next = 35;
+              newMeta = _context26.sent;
+              _context26.next = 35;
               return Ti.Toast.Open("i18n:save-done", "success");
 
             case 35:
               saved = true;
-              return _context25.abrupt("return", {
+              return _context26.abrupt("return", {
                 updates: updates,
                 data: newMeta,
                 saved: saved
               });
 
             case 37:
-              return _context25.abrupt("return", reo);
+              return _context26.abrupt("return", reo);
 
             case 38:
             case "end":
-              return _context25.stop();
+              return _context26.stop();
           }
         }
-      }, _callee25);
+      }, _callee26);
     }));
     return _EditObjMeta.apply(this, arguments);
   }
@@ -3014,32 +3041,32 @@ var EditObjContent = function () {
 
 
   function _EditObjContent() {
-    _EditObjContent = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee26() {
+    _EditObjContent = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee27() {
       var pathOrObj,
-          _ref31,
+          _ref32,
           title,
           icon,
-          _ref31$type,
+          _ref32$type,
           type,
-          _ref31$closer,
+          _ref32$closer,
           closer,
-          _ref31$textOk,
+          _ref32$textOk,
           textOk,
-          _ref31$textCancel,
+          _ref32$textCancel,
           textCancel,
-          _ref31$position,
+          _ref32$position,
           position,
-          _ref31$width,
+          _ref32$width,
           width,
-          _ref31$height,
+          _ref32$height,
           height,
           spacing,
-          _ref31$readonly,
+          _ref32$readonly,
           readonly,
-          _ref31$showEditorTitl,
+          _ref32$showEditorTitl,
           showEditorTitle,
           content,
-          _ref31$blankText,
+          _ref32$blankText,
           blankText,
           meta,
           autoSave,
@@ -3047,28 +3074,28 @@ var EditObjContent = function () {
           theTitle,
           theContent,
           newContent,
-          _args26 = arguments;
+          _args27 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee26$(_context26) {
+      return regeneratorRuntime.wrap(function _callee27$(_context27) {
         while (1) {
-          switch (_context26.prev = _context26.next) {
+          switch (_context27.prev = _context27.next) {
             case 0:
-              pathOrObj = _args26.length > 0 && _args26[0] !== undefined ? _args26[0] : "~";
-              _ref31 = _args26.length > 1 && _args26[1] !== undefined ? _args26[1] : {}, title = _ref31.title, icon = _ref31.icon, _ref31$type = _ref31.type, type = _ref31$type === void 0 ? "info" : _ref31$type, _ref31$closer = _ref31.closer, closer = _ref31$closer === void 0 ? true : _ref31$closer, _ref31$textOk = _ref31.textOk, textOk = _ref31$textOk === void 0 ? undefined : _ref31$textOk, _ref31$textCancel = _ref31.textCancel, textCancel = _ref31$textCancel === void 0 ? "i18n:cancel" : _ref31$textCancel, _ref31$position = _ref31.position, position = _ref31$position === void 0 ? "top" : _ref31$position, _ref31$width = _ref31.width, width = _ref31$width === void 0 ? 640 : _ref31$width, _ref31$height = _ref31.height, height = _ref31$height === void 0 ? "80%" : _ref31$height, spacing = _ref31.spacing, _ref31$readonly = _ref31.readonly, readonly = _ref31$readonly === void 0 ? false : _ref31$readonly, _ref31$showEditorTitl = _ref31.showEditorTitle, showEditorTitle = _ref31$showEditorTitl === void 0 ? true : _ref31$showEditorTitl, content = _ref31.content, _ref31$blankText = _ref31.blankText, blankText = _ref31$blankText === void 0 ? "i18n:blank" : _ref31$blankText;
+              pathOrObj = _args27.length > 0 && _args27[0] !== undefined ? _args27[0] : "~";
+              _ref32 = _args27.length > 1 && _args27[1] !== undefined ? _args27[1] : {}, title = _ref32.title, icon = _ref32.icon, _ref32$type = _ref32.type, type = _ref32$type === void 0 ? "info" : _ref32$type, _ref32$closer = _ref32.closer, closer = _ref32$closer === void 0 ? true : _ref32$closer, _ref32$textOk = _ref32.textOk, textOk = _ref32$textOk === void 0 ? undefined : _ref32$textOk, _ref32$textCancel = _ref32.textCancel, textCancel = _ref32$textCancel === void 0 ? "i18n:cancel" : _ref32$textCancel, _ref32$position = _ref32.position, position = _ref32$position === void 0 ? "top" : _ref32$position, _ref32$width = _ref32.width, width = _ref32$width === void 0 ? 640 : _ref32$width, _ref32$height = _ref32.height, height = _ref32$height === void 0 ? "80%" : _ref32$height, spacing = _ref32.spacing, _ref32$readonly = _ref32.readonly, readonly = _ref32$readonly === void 0 ? false : _ref32$readonly, _ref32$showEditorTitl = _ref32.showEditorTitle, showEditorTitle = _ref32$showEditorTitl === void 0 ? true : _ref32$showEditorTitl, content = _ref32.content, _ref32$blankText = _ref32.blankText, blankText = _ref32$blankText === void 0 ? "i18n:blank" : _ref32$blankText;
               //............................................
               // Load meta
               meta = pathOrObj;
 
               if (!_.isString(meta)) {
-                _context26.next = 7;
+                _context27.next = 7;
                 break;
               }
 
-              _context26.next = 6;
+              _context27.next = 6;
               return Wn.Io.loadMeta(pathOrObj);
 
             case 6:
-              meta = _context26.sent;
+              meta = _context27.sent;
 
             case 7:
               //............................................
@@ -3083,24 +3110,24 @@ var EditObjContent = function () {
               theTitle = title || "i18n:edit";
 
               if (!autoSave) {
-                _context26.next = 17;
+                _context27.next = 17;
                 break;
               }
 
-              _context26.next = 14;
+              _context27.next = 14;
               return Wn.Io.loadContent(meta);
 
             case 14:
-              _context26.t0 = _context26.sent;
-              _context26.next = 18;
+              _context27.t0 = _context27.sent;
+              _context27.next = 18;
               break;
 
             case 17:
-              _context26.t0 = content;
+              _context27.t0 = content;
 
             case 18:
-              theContent = _context26.t0;
-              _context26.next = 21;
+              theContent = _context27.t0;
+              _context27.next = 21;
               return Ti.App.Open({
                 //------------------------------------------
                 type: type,
@@ -3128,29 +3155,29 @@ var EditObjContent = function () {
               });
 
             case 21:
-              newContent = _context26.sent;
+              newContent = _context27.sent;
 
               if (!(autoSave && !_.isUndefined(newContent) && newContent != theContent)) {
-                _context26.next = 27;
+                _context27.next = 27;
                 break;
               }
 
-              _context26.next = 25;
+              _context27.next = 25;
               return Wn.Io.saveContentAsText(meta, newContent);
 
             case 25:
-              _context26.next = 27;
+              _context27.next = 27;
               return Ti.Toast.Open("i18n:save-done", "success");
 
             case 27:
-              return _context26.abrupt("return", newContent);
+              return _context27.abrupt("return", newContent);
 
             case 28:
             case "end":
-              return _context26.stop();
+              return _context27.stop();
           }
         }
-      }, _callee26, this);
+      }, _callee27, this);
     }));
     return _EditObjContent.apply(this, arguments);
   }
@@ -3168,39 +3195,39 @@ var EditTiComponent = function () {
 
 
   function _EditTiComponent() {
-    _EditTiComponent = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee27() {
-      var _ref32,
+    _EditTiComponent = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee28() {
+      var _ref33,
           comType,
           comConf,
-          _ref33,
-          _ref33$icon,
+          _ref34,
+          _ref34$icon,
           icon,
-          _ref33$title,
+          _ref34$title,
           title,
-          _ref33$type,
+          _ref34$type,
           type,
-          _ref33$closer,
+          _ref34$closer,
           closer,
-          _ref33$textOk,
+          _ref34$textOk,
           textOk,
-          _ref33$textCancel,
+          _ref34$textCancel,
           textCancel,
-          _ref33$position,
+          _ref34$position,
           position,
-          _ref33$width,
+          _ref34$width,
           width,
-          _ref33$height,
+          _ref34$height,
           height,
           spacing,
-          _args27 = arguments;
+          _args28 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee27$(_context27) {
+      return regeneratorRuntime.wrap(function _callee28$(_context28) {
         while (1) {
-          switch (_context27.prev = _context27.next) {
+          switch (_context28.prev = _context28.next) {
             case 0:
-              _ref32 = _args27.length > 0 && _args27[0] !== undefined ? _args27[0] : {}, comType = _ref32.comType, comConf = _ref32.comConf;
-              _ref33 = _args27.length > 1 && _args27[1] !== undefined ? _args27[1] : {}, _ref33$icon = _ref33.icon, icon = _ref33$icon === void 0 ? "fas-pencil-ruler" : _ref33$icon, _ref33$title = _ref33.title, title = _ref33$title === void 0 ? "i18n:edit-com" : _ref33$title, _ref33$type = _ref33.type, type = _ref33$type === void 0 ? "info" : _ref33$type, _ref33$closer = _ref33.closer, closer = _ref33$closer === void 0 ? true : _ref33$closer, _ref33$textOk = _ref33.textOk, textOk = _ref33$textOk === void 0 ? "i18n:ok" : _ref33$textOk, _ref33$textCancel = _ref33.textCancel, textCancel = _ref33$textCancel === void 0 ? "i18n:cancel" : _ref33$textCancel, _ref33$position = _ref33.position, position = _ref33$position === void 0 ? "top" : _ref33$position, _ref33$width = _ref33.width, width = _ref33$width === void 0 ? 800 : _ref33$width, _ref33$height = _ref33.height, height = _ref33$height === void 0 ? "90%" : _ref33$height, spacing = _ref33.spacing;
-              _context27.next = 4;
+              _ref33 = _args28.length > 0 && _args28[0] !== undefined ? _args28[0] : {}, comType = _ref33.comType, comConf = _ref33.comConf;
+              _ref34 = _args28.length > 1 && _args28[1] !== undefined ? _args28[1] : {}, _ref34$icon = _ref34.icon, icon = _ref34$icon === void 0 ? "fas-pencil-ruler" : _ref34$icon, _ref34$title = _ref34.title, title = _ref34$title === void 0 ? "i18n:edit-com" : _ref34$title, _ref34$type = _ref34.type, type = _ref34$type === void 0 ? "info" : _ref34$type, _ref34$closer = _ref34.closer, closer = _ref34$closer === void 0 ? true : _ref34$closer, _ref34$textOk = _ref34.textOk, textOk = _ref34$textOk === void 0 ? "i18n:ok" : _ref34$textOk, _ref34$textCancel = _ref34.textCancel, textCancel = _ref34$textCancel === void 0 ? "i18n:cancel" : _ref34$textCancel, _ref34$position = _ref34.position, position = _ref34$position === void 0 ? "top" : _ref34$position, _ref34$width = _ref34.width, width = _ref34$width === void 0 ? 800 : _ref34$width, _ref34$height = _ref34.height, height = _ref34$height === void 0 ? "90%" : _ref34$height, spacing = _ref34.spacing;
+              _context28.next = 4;
               return Ti.App.Open({
                 //------------------------------------------
                 type: type,
@@ -3232,14 +3259,14 @@ var EditTiComponent = function () {
               });
 
             case 4:
-              return _context27.abrupt("return", _context27.sent);
+              return _context28.abrupt("return", _context28.sent);
 
             case 5:
             case "end":
-              return _context27.stop();
+              return _context28.stop();
           }
         }
-      }, _callee27);
+      }, _callee28);
     }));
     return _EditTiComponent.apply(this, arguments);
   }

@@ -4080,7 +4080,7 @@ var _ref40 = function () {
       }
 
       var msgKey = er.code.replace(/[.]/g, "-");
-      var errMsg = Ti.Ii8n.get(msgKey);
+      var errMsg = Ti.I18n.get(msgKey);
 
       if (data) {
         if (_.isPlainObject(data)) {
@@ -12851,7 +12851,7 @@ var _ref123 = function () {
       };
 
       this[K.isMatched] = function (it, v, $dict) {
-        console.log("match", it, v);
+        //console.log("match", it, v)
         var itV = $dict.getValue(it);
         if (_.isEqual(v, itV)) return true;
         var itT = $dict.getText(it);

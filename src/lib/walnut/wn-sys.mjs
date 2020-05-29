@@ -59,18 +59,17 @@ const WnSys = {
     // Handle error
     if(parsing.isError) {
       let str = re.lines.join("\n")
-      let [code, ...datas] = str.split(/ *: */);
-      let data = datas.join(" : ")
-      let msgKey = code.replace(/[.]/g, "-")
       if(_.isFunction(errorBy)) {
-        errorBy({
+        let [code, ...datas] = str.split(/ *: */);
+        let data = datas.join(" : ")
+        let msgKey = code.replace(/[.]/g, "-")
+        return errorBy({
           code, msgKey, data
         })
       }
       // Just throw it
       else {
-        let err = Ti.Err.make(msgKey, data)
-        throw err
+        throw str
       }
     }
 
@@ -94,26 +93,28 @@ const WnSys = {
   },
   //-------------------------------------
   async exec2(cmdText, options={}){
-    let errorAs = options.errorAs
-    try {
-      return await Wn.Sys.exec(cmdText, options)
-    }
-    // Handle Error
-    catch(err) {
-      // Report the Error
-      if(!_.isUndefined(errorAs)) {
-        if(Ti.IsError()) {
-          console.error(err)
+    // Default error process
+    _.defaults(options, {
+      errorBy: async function({code, msgKey, data}) {
+        // Eval error message
+        let msg = Ti.I18n.get(msgKey)
+        if(!Ti.Util.isNil(data)) {
+          msg += " : " + Ti.Types.toStr(data)
         }
-        await Ti.Alert(err, {
+        // Show it to user
+        await Ti.Alert(msg, {
           title : "i18n:warn",
           type : "error"
         })
-        return err
+        // Customized processing
+        if(_.isFunction(options.errorAs)) {
+          return options.errorAs({code, msgKey, data})
+        }
+        return Ti.Err.make(code, data)
       }
-      // Return the error
-      return errorAs
-    }
+    })
+    // Run command
+    return await Wn.Sys.exec(cmdText, options)
   },
   //-------------------------------------
   async execJson(cmdText, options={as:"json"}) {

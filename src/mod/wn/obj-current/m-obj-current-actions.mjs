@@ -72,11 +72,7 @@ const _M = {
   async updateMeta({commit, dispatch}, {name, value}={}) {
     //console.log("I am update", name, value)
     let data = Ti.Types.toObjByPair({name, value})
-
-    commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
     await dispatch("updateMetas", data)
-    commit("setFieldStatus", {name, type:"ok", text:"i18n:ok"})
-    _.delay(()=>{commit("clearFieldStatus", name)}, 500)
   },
   //----------------------------------------
   async updateMetas({state, commit}, data={}) {
@@ -96,13 +92,28 @@ const _M = {
     let th_id  = state.meta.id
     let cmdText = `thing ${th_set} update ${th_id} -fields -cqn`
     let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+    let isError = reo instanceof Error;
 
-    commit("setMeta", reo)
+    if(!isError && !Ti.Util.isNil(reo)) {
+      commit("setMeta", reo)
+    }
 
     _.forEach(data, (val, name)=>{
-      commit("setFieldStatus", {name, type:"ok", text:"i18n:ok"})
+      if(isError) {
+        commit("setFieldStatus", {
+          name, 
+          type: "warn", 
+          text: reo.message || "i18n:fail"
+        })
+      } else {
+        commit("setFieldStatus", {
+          name, 
+          type: "ok", 
+          text: "i18n:ok"
+        })
+        _.delay(()=>{commit("clearFieldStatus", name)}, 500)
+      }
     })
-    _.delay(()=>{commit("clearFieldStatus", name)}, 500)
   },
   //--------------------------------------------
   // Reload & Save
@@ -183,6 +194,7 @@ const _M = {
     // Just update the meta
     commit("setStatus", {reloading:false})
     commit("setMeta", meta)
+    commit("clearFieldStatus")
     // Update content and sync state
     dispatch("updateContent", content)
   }

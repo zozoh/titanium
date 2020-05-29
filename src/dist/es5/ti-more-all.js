@@ -5352,9 +5352,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               lastDate = Ti.DateTime.createDate(beginDate, index);
               var month = lastDate.getMonth();
               var date = lastDate.getDate();
-
-              var _name = Ti.Types.formatDate(lastDate, "yyyy-MM-dd");
-
+              var name = Ti.Types.formatDate(lastDate, "yyyy-MM-dd");
               var isSelected = false; // Range: match begin/end date
 
               if (this.range) {
@@ -5363,14 +5361,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 isSelected = (_ref16 = _).inRange.apply(_ref16, [lastDate.getTime()].concat(_toConsumableArray(this.theRangeInMs)));
               } // Single: match the date
               else {
-                  isSelected = _name == this.theDateName;
+                  isSelected = name == this.theDateName;
                 }
 
               var type = {
                 "is-prev": month < theMonth,
                 "is-next": month > theMonth,
                 "in-month": month == theMonth,
-                "is-today": this.todayName == _name,
+                "is-today": this.todayName == name,
                 "is-selected": isSelected
               }; // Eval displayText in cell
               // The first day of month should the Abbr
@@ -5388,7 +5386,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 y: y,
                 index: index,
                 type: type,
-                name: _name,
+                name: name,
                 text: text,
                 year: lastDate.getFullYear(),
                 month: month,
@@ -8904,7 +8902,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   //============================================================
 
 
-  Ti.Preload("ti/com/ti/form/com/form-field/form-field.html", "<div class=\"form-field\"\n  :class=\"TopClass\"\n  :style=\"ConStyle\"\n  v-ti-activable>\n  <!--========================================\n    Field Name\n  -->\n  <div \n    v-if=\"isShowTitle\"\n      class=\"field-name\"\n      :data-tip=\"StatusText\">\n        <!--Status Icon-->\n        <span \n          v-if=\"StatusIcon\"\n            class=\"name-status\">\n            <ti-icon :value=\"StatusIcon\"/>\n        </span>\n        <!--Title Text-->\n        <span class=\"name-title\">{{TheTitle|i18n}}</span>\n        <!--Field Icon-->\n        <span \n          v-if=\"isShowIcon\" \n            class=\"name-icon\">\n            <ti-icon :value=\"icon\"/>\n        </span>\n  </div>\n  <!--========================================\n    Field Value\n  -->\n  <div class=\"field-value\"\n    :style=\"ConStyle\">\n    <!--\n      UI Component\n    -->\n    <div v-if=\"isComReady\"\n      class=\"field-component\"\n      :class=\"ComClass\"\n      :style=\"ComStyle\">\n      <component \n        :is=\"myComType\"\n          v-bind=\"myComConf\"\n          @change=\"OnChange\"/>\n    </div>\n    <!--\n      Tips\n    -->\n    <div \n      v-if=\"isShowTip\"\n        class=\"field-tip\">{{tip|i18n}}</div>\n  </div>\n</div>"); //============================================================
+  Ti.Preload("ti/com/ti/form/com/form-field/form-field.html", "<div class=\"form-field\"\n  :class=\"TopClass\"\n  :style=\"ConStyle\"\n  v-ti-activable>\n  <!--========================================\n    Field Name\n  -->\n  <div \n    v-if=\"isShowTitle\"\n      class=\"field-name\"\n      :title=\"StatusText\">\n        <!--Status Icon-->\n        <span \n          v-if=\"StatusIcon\"\n            class=\"name-status\">\n            <ti-icon :value=\"StatusIcon\"/>\n        </span>\n        <!--Title Text-->\n        <span class=\"name-title\">{{TheTitle|i18n}}</span>\n        <!--Field Icon-->\n        <span \n          v-if=\"isShowIcon\" \n            class=\"name-icon\">\n            <ti-icon :value=\"icon\"/>\n        </span>\n  </div>\n  <!--========================================\n    Field Value\n  -->\n  <div class=\"field-value\"\n    :style=\"ConStyle\">\n    <!--\n      UI Component\n    -->\n    <div v-if=\"isComReady\"\n      class=\"field-component\"\n      :class=\"ComClass\"\n      :style=\"ComStyle\">\n      <component \n        :is=\"myComType\"\n          v-bind=\"myComConf\"\n          @change=\"OnChange\"/>\n    </div>\n    <!--\n      Tips\n    -->\n    <div \n      v-if=\"isShowTip\"\n        class=\"field-tip\">{{tip|i18n}}</div>\n  </div>\n</div>"); //============================================================
   // JOIN: ti/form/com/form-field/form-field.mjs
   //============================================================
 
@@ -11137,8 +11135,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
 
           for (var _i3 = 0, _names = names; _i3 < _names.length; _i3++) {
-            var _name2 = _names[_i3];
-            if (this.TheShown[_name2]) return true;
+            var name = _names[_i3];
+            if (this.TheShown[name]) return true;
           }
 
           return false;
@@ -11386,9 +11384,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
             var _Ti$DictFactory$expla = Ti.DictFactory.explainDictName(this.dict),
-                _name3 = _Ti$DictFactory$expla.name;
+                name = _Ti$DictFactory$expla.name;
 
-            return Ti.DictFactory.CheckDict(_name3);
+            return Ti.DictFactory.CheckDict(name);
           }
         },
         //---------------------------------------------------
@@ -14623,11 +14621,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
             var _Ti$DictFactory$expla2 = Ti.DictFactory.explainDictName(this.dict),
-                _name4 = _Ti$DictFactory$expla2.name,
+                name = _Ti$DictFactory$expla2.name,
                 vKey = _Ti$DictFactory$expla2.vKey;
 
             this.myDictValKey = vKey || ".text";
-            return Ti.DictFactory.CheckDict(_name4);
+            return Ti.DictFactory.CheckDict(name);
           }
         } //--------------------------------------
 
@@ -17462,7 +17460,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var m = /^\(\)=>([^(]+)\(([^)]*)\)$/.exec(val);
 
         if (m) {
-          var _name5 = _.trim(m[1]);
+          var name = _.trim(m[1]);
 
           var __as = _.trim(m[2]);
 
@@ -17470,7 +17468,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             return __eval_com_conf_item(v, cx);
           });
 
-          var func = _.get(cx.$FuncSet, _name5);
+          var func = _.get(cx.$FuncSet, name);
 
           return func.apply(cx, args);
         } //........................................
@@ -17726,10 +17724,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         if (dis.dict) {
           var _Ti$DictFactory$expla3 = Ti.DictFactory.explainDictName(dis.dict),
-              _name6 = _Ti$DictFactory$expla3.name,
+              name = _Ti$DictFactory$expla3.name,
               vKey = _Ti$DictFactory$expla3.vKey;
 
-          dis.$dict = Ti.DictFactory.CheckDict(_name6);
+          dis.$dict = Ti.DictFactory.CheckDict(name);
           dis.$dictValueKey = vKey || ".text";
         } //........................................
         // Save function set
@@ -18424,9 +18422,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
             var _Ti$DictFactory$expla4 = Ti.DictFactory.explainDictName(this.dict),
-                _name7 = _Ti$DictFactory$expla4.name;
+                name = _Ti$DictFactory$expla4.name;
 
-            return Ti.DictFactory.CheckDict(_name7);
+            return Ti.DictFactory.CheckDict(name);
           }
         } //-----------------------------------------------
 
@@ -20972,9 +20970,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
             var _Ti$DictFactory$expla5 = Ti.DictFactory.explainDictName(this.dict),
-                _name8 = _Ti$DictFactory$expla5.name;
+                name = _Ti$DictFactory$expla5.name;
 
-            return Ti.DictFactory.CheckDict(_name8);
+            return Ti.DictFactory.CheckDict(name);
           }
         } //------------------------------------------------
 
@@ -32180,7 +32178,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return data;
         }(),
         "name": function () {
-          var _name9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee105() {
+          var _name = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee105() {
             return regeneratorRuntime.wrap(function _callee105$(_context106) {
               while (1) {
                 switch (_context106.prev = _context106.next) {
@@ -32200,7 +32198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }));
 
           function name() {
-            return _name9.apply(this, arguments);
+            return _name.apply(this, arguments);
           }
 
           return name;
@@ -36548,26 +36546,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     name: name,
                     value: value
                   });
-                  commit("setFieldStatus", {
-                    name: name,
-                    type: "spinning",
-                    text: "i18n:saving"
-                  });
-                  _context146.next = 6;
+                  _context146.next = 5;
                   return dispatch("updateMetas", data);
 
-                case 6:
-                  commit("setFieldStatus", {
-                    name: name,
-                    type: "ok",
-                    text: "i18n:ok"
-                  });
-
-                  _.delay(function () {
-                    commit("clearFieldStatus", name);
-                  }, 500);
-
-                case 8:
+                case 5:
                 case "end":
                   return _context146.stop();
               }
@@ -36579,7 +36561,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       updateMetas: function updateMetas(_ref127) {
         var _arguments25 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee146() {
-          var state, commit, data, json, th_set, th_id, cmdText, reo;
+          var state, commit, data, json, th_set, th_id, cmdText, reo, isError;
           return regeneratorRuntime.wrap(function _callee146$(_context147) {
             while (1) {
               switch (_context147.prev = _context147.next) {
@@ -36617,19 +36599,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 11:
                   reo = _context147.sent;
-                  commit("setMeta", reo);
+                  isError = reo instanceof Error;
+
+                  if (!isError && !Ti.Util.isNil(reo)) {
+                    commit("setMeta", reo);
+                  }
 
                   _.forEach(data, function (val, name) {
-                    commit("setFieldStatus", {
-                      name: name,
-                      type: "ok",
-                      text: "i18n:ok"
-                    });
-                  });
+                    if (isError) {
+                      commit("setFieldStatus", {
+                        name: name,
+                        type: "warn",
+                        text: reo.message || "i18n:fail"
+                      });
+                    } else {
+                      commit("setFieldStatus", {
+                        name: name,
+                        type: "ok",
+                        text: "i18n:ok"
+                      });
 
-                  _.delay(function () {
-                    commit("clearFieldStatus", name);
-                  }, 500);
+                      _.delay(function () {
+                        commit("clearFieldStatus", name);
+                      }, 500);
+                    }
+                  });
 
                 case 15:
                 case "end":
@@ -36785,11 +36779,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   commit("setStatus", {
                     reloading: false
                   });
-                  commit("setMeta", meta); // Update content and sync state
+                  commit("setMeta", meta);
+                  commit("clearFieldStatus"); // Update content and sync state
 
                   dispatch("updateContent", content);
 
-                case 27:
+                case 28:
                 case "end":
                   return _context149.stop();
               }
