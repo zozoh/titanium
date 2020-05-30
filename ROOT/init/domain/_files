@@ -26,6 +26,22 @@ www payafter ${or_id}
 %END%
 ##########################################################
 #
+#                   SQL 数据源
+#
+##########################################################
+@FILE .dao/default.dao.json
+%COPY:
+{
+  "url" : "jdbc:mysql://127.0.0.1:3306/walnut_ti",
+  "username" : "root",
+  "password" : "root",
+  "maxActive": 50,
+  "maxWait" : 15000,
+  "testWhileIdle" : true
+}
+%END%
+##########################################################
+#
 #                   通用实体配置
 #
 ##########################################################
@@ -36,8 +52,8 @@ www payafter ${or_id}
   "host"  : "127.0.0.1",
   "port"  : 6379,
   "ssl"   : false,
-  "auth"  : "",
-  "select": 0
+  "password"  : "",
+  "database": 0
 }
 %END%
 #---------------------------------------------------------
@@ -48,8 +64,8 @@ www payafter ${or_id}
   "host"  : "127.0.0.1",
   "port"  : 6379,
   "ssl"   : false,
-  "auth"  : "",
-  "select": 1
+  "password"  : "",
+  "database": 1
 }
 %END%
 #---------------------------------------------------------
@@ -60,8 +76,26 @@ www payafter ${or_id}
   "host"  : "127.0.0.1",
   "port"  : 6379,
   "ssl"   : false,
-  "auth"  : "",
-  "select": 2
+  "password"  : "",
+  "database": 2
+}
+%END%
+#---------------------------------------------------------
+# 消息流
+@FILE .domain/history/_history.json
+%COPY:
+{
+  "dao": "default",
+  "tableName": "t_history"
+}
+%END%
+#---------------------------------------------------------
+# 消息流
+@FILE .domain/newsfeed/_newsfeed.json
+%COPY:
+{
+  "dao": "default",
+  "tableName": "t_newsfeed"
 }
 %END%
 ##########################################################
