@@ -12390,7 +12390,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: ti/input/datetime/ti-input-datetime.html
   //============================================================
 
-  Ti.Preload("ti/com/ti/input/datetime/ti-input-datetime.html", "<ti-combo-box class=\"as-datetime\"\n  :class=\"topClass\"\n  :width=\"width\"\n  :drop-width=\"null\"\n  :drop-overflow=\"'hidden'\"\n  :status=\"status\"\n  @collapse=\"doCollapse\">\n  <!--\n    Box\n  -->\n  <template v-slot:box>\n    <ti-input \n      :readonly=\"!canInput\"\n      :hide-border=\"hideBorder\"\n      :placeholder=\"placeholder|i18n\"\n      :prefix-icon=\"icon\"\n      :suffix-icon=\"theStatusIcon\"\n      :value=\"theInputValue\"\n      :height=\"height\"\n      :focus=\"isExtended\"\n      @change=\"onChanged\"\n      @input:focus=\"onInputFocused\"\n      @suffix:icon=\"onClickStatusIcon\"/>\n  </template>\n  <!--\n    Drop\n  -->\n  <template v-slot:drop>\n    <ti-datetime\n      :value=\"theDropDate\"\n      :month-format=\"monthFormat\"\n      :begin-year=\"beginYear\"\n      :end-year=\"endYear\"\n      @change=\"onDateChanged\"/>\n  </template>\n</ti-combo-box>"); //============================================================
+  Ti.Preload("ti/com/ti/input/datetime/ti-input-datetime.html", "<ti-combo-box class=\"as-datetime\"\n  :class=\"topClass\"\n  :width=\"width\"\n  :drop-width=\"'box'\"\n  :drop-overflow=\"'hidden'\"\n  :status=\"status\"\n  @collapse=\"doCollapse\">\n  <!--\n    Box\n  -->\n  <template v-slot:box>\n    <ti-input \n      :readonly=\"!canInput\"\n      :hide-border=\"hideBorder\"\n      :placeholder=\"placeholder|i18n\"\n      :prefix-icon=\"icon\"\n      :suffix-icon=\"theStatusIcon\"\n      :value=\"theInputValue\"\n      :height=\"height\"\n      :focus=\"isExtended\"\n      @change=\"onChanged\"\n      @input:focus=\"onInputFocused\"\n      @suffix:icon=\"onClickStatusIcon\"/>\n  </template>\n  <!--\n    Drop\n  -->\n  <template v-slot:drop>\n    <ti-datetime\n      :value=\"theDropDate\"\n      :month-format=\"monthFormat\"\n      :begin-year=\"beginYear\"\n      :end-year=\"endYear\"\n      @change=\"onDateChanged\"/>\n  </template>\n</ti-combo-box>"); //============================================================
   // JOIN: ti/input/datetime/ti-input-datetime.mjs
   //============================================================
 
@@ -32193,7 +32193,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   (function () {
     /////////////////////////////////////////////////////
     var _M = {
-      inheritAttrs: false,
       ///////////////////////////////////////////////////
       data: function data() {
         return {
@@ -32299,7 +32298,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ///////////////////////////////////////////////////
       computed: {
         theTransformer: function theTransformer() {
-          return Ti.Types.getFuncBy(this, "transformer");
+          var trans = this.transformer || "Ti.Types." + Ti.Types.getFuncByType(this.type || "String", "transformer");
+          return Ti.Util.genInvoking(trans, {
+            context: this.data,
+            partialRight: true
+          });
         },
         theNameStyle: function theNameStyle() {
           return Ti.Css.toStyle({

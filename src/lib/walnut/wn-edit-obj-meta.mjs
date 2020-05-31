@@ -3,6 +3,7 @@ async function EditObjMeta(pathOrObj="~", {
   icon, title, 
   type   = "info", 
   closer = true,
+  escape = true,
   textOk = "i18n:ok",
   textCancel = "i18n:cancel",
   position   = "top",
@@ -76,7 +77,7 @@ async function EditObjMeta(pathOrObj="~", {
   //............................................
   let reo = await Ti.App.Open({
     //------------------------------------------
-    type, width, height, spacing, position, closer,
+    type, width, height, spacing, position, closer, escape,
     icon  : theIcon,
     title : theTitle,
     //------------------------------------------

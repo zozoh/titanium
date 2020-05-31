@@ -7,6 +7,16 @@
     flex:1 1 auto;
   }
   //---------------------------------
+  &.as-date, 
+  &.as-time,
+  &.as-datetime,
+  &.as-daterange {
+    background:red;
+    > .as-box > .ti-input {
+      flex:1 1 auto;
+    }
+  }
+  //---------------------------------
   &.is-extended {
     > .as-box {
       z-index:$z-mask + 1;  

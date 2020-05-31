@@ -11496,7 +11496,7 @@ Ti.Preload("ti/com/ti/input/daterange/_com.json", {
 Ti.Preload("ti/com/ti/input/datetime/ti-input-datetime.html", `<ti-combo-box class="as-datetime"
   :class="topClass"
   :width="width"
-  :drop-width="null"
+  :drop-width="'box'"
   :drop-overflow="'hidden'"
   :status="status"
   @collapse="doCollapse">
@@ -29937,7 +29937,6 @@ Ti.Preload("ti/com/wn/obj/preview/com/preview-info-field/preview-info-field.html
 (function(){
 /////////////////////////////////////////////////////
 const _M = {
-  inheritAttrs : false,
   ///////////////////////////////////////////////////
   data: ()=>({
     theValue : null
@@ -29993,7 +29992,13 @@ const _M = {
   ///////////////////////////////////////////////////
   computed : {
     theTransformer() {
-      return Ti.Types.getFuncBy(this, "transformer")
+      let trans = this.transformer
+          || "Ti.Types." + Ti.Types.getFuncByType(this.type||"String", "transformer")
+
+      return Ti.Util.genInvoking(trans, {
+        context: this.data,
+        partialRight: true
+      })
     },
     theNameStyle() {
       return Ti.Css.toStyle({
@@ -31093,10 +31098,9 @@ const _M = {
     },
     //--------------------------------------
     ThePreview() {
-      let preview = Ti.Util.getFallback(
-        this.preview, 
-        this.dirName, 
-        "@default") || this.preview || {}
+      let preview = Ti.Util.getFallback(this.preview, this.dirName, "@default") 
+                    || this.preview 
+                    || {}
 
       return {
         showInfo  : false,

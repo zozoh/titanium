@@ -1,6 +1,5 @@
 /////////////////////////////////////////////////////
-export default {
-  inheritAttrs : false,
+const _M = {
   ///////////////////////////////////////////////////
   data: ()=>({
     theValue : null
@@ -56,7 +55,13 @@ export default {
   ///////////////////////////////////////////////////
   computed : {
     theTransformer() {
-      return Ti.Types.getFuncBy(this, "transformer")
+      let trans = this.transformer
+          || "Ti.Types." + Ti.Types.getFuncByType(this.type||"String", "transformer")
+
+      return Ti.Util.genInvoking(trans, {
+        context: this.data,
+        partialRight: true
+      })
     },
     theNameStyle() {
       return Ti.Css.toStyle({
@@ -91,3 +96,4 @@ export default {
   }
   ///////////////////////////////////////////////////
 }
+export default _M;

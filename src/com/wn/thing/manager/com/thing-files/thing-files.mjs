@@ -28,10 +28,9 @@ const _M = {
     },
     //--------------------------------------
     ThePreview() {
-      let preview = Ti.Util.getFallback(
-        this.preview, 
-        this.dirName, 
-        "@default") || this.preview || {}
+      let preview = Ti.Util.getFallback(this.preview, this.dirName, "@default") 
+                    || this.preview 
+                    || {}
 
       return {
         showInfo  : false,

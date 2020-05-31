@@ -2761,6 +2761,8 @@ var EditObjMeta = function () {
           type,
           _ref28$closer,
           closer,
+          _ref28$escape,
+          escape,
           _ref28$textOk,
           textOk,
           _ref28$textCancel,
@@ -2802,7 +2804,7 @@ var EditObjMeta = function () {
           switch (_context26.prev = _context26.next) {
             case 0:
               pathOrObj = _args26.length > 0 && _args26[0] !== undefined ? _args26[0] : "~";
-              _ref28 = _args26.length > 1 && _args26[1] !== undefined ? _args26[1] : {}, icon = _ref28.icon, title = _ref28.title, _ref28$type = _ref28.type, type = _ref28$type === void 0 ? "info" : _ref28$type, _ref28$closer = _ref28.closer, closer = _ref28$closer === void 0 ? true : _ref28$closer, _ref28$textOk = _ref28.textOk, textOk = _ref28$textOk === void 0 ? "i18n:ok" : _ref28$textOk, _ref28$textCancel = _ref28.textCancel, textCancel = _ref28$textCancel === void 0 ? "i18n:cancel" : _ref28$textCancel, _ref28$position = _ref28.position, position = _ref28$position === void 0 ? "top" : _ref28$position, _ref28$width = _ref28.width, width = _ref28$width === void 0 ? 640 : _ref28$width, _ref28$height = _ref28.height, height = _ref28$height === void 0 ? "80%" : _ref28$height, spacing = _ref28.spacing, _ref28$currentTab = _ref28.currentTab, currentTab = _ref28$currentTab === void 0 ? 0 : _ref28$currentTab, _ref28$fields = _ref28.fields, fields = _ref28$fields === void 0 ? [] : _ref28$fields, _ref28$fixedKeys = _ref28.fixedKeys, fixedKeys = _ref28$fixedKeys === void 0 ? ["thumb"] : _ref28$fixedKeys, _ref28$saveKeys = _ref28.saveKeys, saveKeys = _ref28$saveKeys === void 0 ? ["thumb"] : _ref28$saveKeys, _ref28$autoSave = _ref28.autoSave, autoSave = _ref28$autoSave === void 0 ? true : _ref28$autoSave;
+              _ref28 = _args26.length > 1 && _args26[1] !== undefined ? _args26[1] : {}, icon = _ref28.icon, title = _ref28.title, _ref28$type = _ref28.type, type = _ref28$type === void 0 ? "info" : _ref28$type, _ref28$closer = _ref28.closer, closer = _ref28$closer === void 0 ? true : _ref28$closer, _ref28$escape = _ref28.escape, escape = _ref28$escape === void 0 ? true : _ref28$escape, _ref28$textOk = _ref28.textOk, textOk = _ref28$textOk === void 0 ? "i18n:ok" : _ref28$textOk, _ref28$textCancel = _ref28.textCancel, textCancel = _ref28$textCancel === void 0 ? "i18n:cancel" : _ref28$textCancel, _ref28$position = _ref28.position, position = _ref28$position === void 0 ? "top" : _ref28$position, _ref28$width = _ref28.width, width = _ref28$width === void 0 ? 640 : _ref28$width, _ref28$height = _ref28.height, height = _ref28$height === void 0 ? "80%" : _ref28$height, spacing = _ref28.spacing, _ref28$currentTab = _ref28.currentTab, currentTab = _ref28$currentTab === void 0 ? 0 : _ref28$currentTab, _ref28$fields = _ref28.fields, fields = _ref28$fields === void 0 ? [] : _ref28$fields, _ref28$fixedKeys = _ref28.fixedKeys, fixedKeys = _ref28$fixedKeys === void 0 ? ["thumb"] : _ref28$fixedKeys, _ref28$saveKeys = _ref28.saveKeys, saveKeys = _ref28$saveKeys === void 0 ? ["thumb"] : _ref28$saveKeys, _ref28$autoSave = _ref28.autoSave, autoSave = _ref28$autoSave === void 0 ? true : _ref28$autoSave;
               //............................................
               // Load meta
               meta = pathOrObj;
@@ -2899,6 +2901,7 @@ var EditObjMeta = function () {
                 spacing: spacing,
                 position: position,
                 closer: closer,
+                escape: escape,
                 icon: theIcon,
                 title: theTitle,
                 //------------------------------------------

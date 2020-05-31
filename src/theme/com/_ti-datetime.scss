@@ -8,6 +8,7 @@
   //-------------------------------------
   > .is-time {
     @include flex-align-v-nowrap($ai:stretch);
+    flex:1 1 auto;
     > .as-time-text {
       @include flex-center;
       @include border(1px, solid, shallow, bottom);
