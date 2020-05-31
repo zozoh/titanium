@@ -1,5 +1,4 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   ////////////////////////////////////////////////////
   data : ()=>({
     "runtime" : null,
@@ -21,7 +20,12 @@ export default {
     },
     "format" : {
       type : String,
-      default : "yyyy-MM-dd"
+      default : "yyyy-MM-dd HH:mm:ss"
+    },
+    "valueType": {
+      type: String,
+      default: "ms-range",
+      validator: v => /^(ms-(array|range)|ds-(array|range)|date-array)$/.test(v)
     },
     "placeholder" : {
       type : String,
@@ -73,12 +77,32 @@ export default {
     isCollapse() {return "collapse"==this.status},
     isExtended() {return "extended"==this.status},
     //--------------------------------------
-    theDate() {
-      if(_.isArray(this.value) && !_.isEmpty(this.value)) {
-        return Ti.Types.toDate(this.value[0])
+    theValue() {
+      if(_.isEmpty(this.value)) {
+        return null
       }
-      if(this.value) {
+      if(_.isString(this.value)) {
+        let str = _.trim(this.value)
+        let m = /^[[(](.+)[\])]$/.exec(str)
+        if(m) {
+          str = _.trim(m[1])
+        }
+        let ss = Ti.S.toArray(str, {sep:","})
+        if(ss.length > 0) {
+          return Ti.Types.toDate(ss);
+        }
+      }
+      if(_.isString(this.value)) {
         return Ti.Types.toDate(this.value)
+      }
+    },
+    //--------------------------------------
+    theDate() {
+      if(_.isArray(this.theValue) && !_.isEmpty(this.theValue)) {
+        return Ti.Types.toDate(this.theValue[0])
+      }
+      if(this.theValue) {
+        return Ti.Types.toDate(this.theValue)
       }
     },
     //--------------------------------------
@@ -90,8 +114,8 @@ export default {
       let dt0 = new Date(this.theDate)
       // Define the dt1
       let dt1;
-      if(_.isArray(this.value) && this.value.length > 1) {
-        dt1 = Ti.Types.toDate(this.value[1])
+      if(_.isArray(this.theValue) && this.theValue.length > 1) {
+        dt1 = Ti.Types.toDate(this.theValue[1])
       }
       // The End of the Day
       else {
@@ -103,7 +127,7 @@ export default {
       // dt0 start of the day
       dt0 = Ti.DateTime.setTime(new Date(msRange[0]))
       // dt1 end of the day
-      dt1 = Ti.DateTime.setTime(new Date(msRange[1]), [23,59,59,999])
+      dt1 = Ti.DateTime.setDayLastTime(new Date(msRange[1]))
 
       // rebuild the range
       return [dt0.getTime(), dt1.getTime()]
@@ -123,7 +147,11 @@ export default {
     },
     //------------------------------------------------
     theRangeValue() {
-      return this.formatRangeValue(this.theRange).join(",")
+      return this.formatRangeValue(this.theRange, {
+        valueType: "ds-array", 
+        format: "yyyy-MM-dd", 
+        collapse: true
+      }).join(", ")
     },
     //------------------------------------------------
     theRangeText() {
@@ -212,7 +240,6 @@ export default {
     },
     //------------------------------------------------
     onChanged(val) {
-      console.log("haha")
       let rg = this.parseDateRange(val)
       // Empty Range
       if(_.isEmpty(rg)) {
@@ -253,21 +280,60 @@ export default {
       }
       // One date
       if(ss.length == 1) {
-        let dt = Ti.Types.toDate(ss[0])
-        return [dt]
+        let dt0 = Ti.Types.toDate(ss[0])
+        Ti.DateTime.setTime(dt0)
+        let dt1 = new Date(dt0.getTime())
+        Ti.DateTime.setDayLastTime(dt1)
+        return [dt0, dt1]
       }
       // range
       let dt0 = Ti.Types.toDate(ss[0])
+      Ti.DateTime.setTime(dt0)
       let dt1 = Ti.Types.toDate(ss[1])
+      Ti.DateTime.setDayLastTime(dt1)
       return [dt0, dt1].sort((dt0,dt1)=>{
         return dt0.getTime()-dt1.getTime()
       })
     },
     //------------------------------------------------
-    formatRangeValue(range) {
-      return Ti.Types.formatDate(range, this.format)
+    formatRangeValue(range, {
+      valueType, format, collapse=false
+    }={}) {
+      let [d0, d1] = range || []
+      if(!d0) {
+        return []
+      }
+      if(!d1) {
+        d1 = new Date(d0)
+        Ti.DateTime.setDayLastTime(d1)
+      }
+      valueType = valueType || this.valueType
+      format = format || this.format
+      // as range
+      let func = ({
+        "ms-range": ()=>`[${d0.getTime()},${d1.getTime()}]`,
+        "ms-array": ()=>[d0.getTime(), d1.getTime()],
+        "ds-range": ()=>'[' + [
+          Ti.Types.formatDate(d0, format),
+          Ti.Types.formatDate(d1, format),
+        ].join(",") + ']',
+        "ds-array": ()=>[
+          Ti.Types.formatDate(d0, format),
+          Ti.Types.formatDate(d1, format),
+        ],
+        "date-array": ()=>[d0, d1]
+      })[valueType]
+      // As array
+      let re = func()
+
+      if(collapse) {
+        if(re[0] == re[1])
+          return [re[0]]
+      }
+      return re
     }
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
 }
+export default _M;

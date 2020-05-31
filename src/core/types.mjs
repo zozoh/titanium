@@ -29,6 +29,10 @@ function parseDate(d) {
   // String 
   if(_.isString(d)) {
     let str = d
+    // MS 
+    if(/\d{13,}/.test(str)) {
+      return new Date(str * 1)
+    }
     // Try to tidy string 
     let m = P_DATE.exec(d)
     if(m) {
@@ -807,6 +811,13 @@ const TiTypes = {
   toDate(val, dft=null) {
     if(_.isNull(val) || _.isUndefined(val)) {
       return dft
+    }
+    if(_.isArray(val)) {
+      let re = []
+      _.forEach(val, v => {
+        re.push(parseDate(v))
+      })
+      return re
     }
     return parseDate(val)
   },

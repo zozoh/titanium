@@ -5571,6 +5571,10 @@ const {Types} = (function(){
     // String 
     if(_.isString(d)) {
       let str = d
+      // MS 
+      if(/\d{13,}/.test(str)) {
+        return new Date(str * 1)
+      }
       // Try to tidy string 
       let m = P_DATE.exec(d)
       if(m) {
@@ -6349,6 +6353,13 @@ const {Types} = (function(){
     toDate(val, dft=null) {
       if(_.isNull(val) || _.isUndefined(val)) {
         return dft
+      }
+      if(_.isArray(val)) {
+        let re = []
+        _.forEach(val, v => {
+          re.push(parseDate(v))
+        })
+        return re
       }
       return parseDate(val)
     },
@@ -8756,12 +8767,12 @@ const {DateTime} = (function(){
       return MONTH_ABBR[m]
     },
     //---------------------------------------
-    setTime(d, [
+    setTime(d, 
       hours = 0,
       minutes = 0,
       seconds = 0,
       milliseconds = 0
-    ]=[]) {
+    ) {
       if(_.inRange(hours, 0, 24)) {
         d.setHours(hours)
       }
@@ -8775,6 +8786,10 @@ const {DateTime} = (function(){
         d.setMilliseconds(milliseconds)
       }
       return d
+    },
+    //---------------------------------------
+    setDayLastTime(d) {
+      return TiDateTime.setTime(d, 23,59,59,999)
     },
     //---------------------------------------
     moveYear(d, offset=0) {

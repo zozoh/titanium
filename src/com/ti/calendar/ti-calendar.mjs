@@ -135,7 +135,7 @@ export default {
       // dt0 start of the day
       dt0 = Ti.DateTime.setTime(new Date(msRange[0]))
       // dt1 end of the day
-      dt1 = Ti.DateTime.setTime(new Date(msRange[1]), [23,59,59,999])
+      dt1 = Ti.DateTime.setDayLastTime(new Date(msRange[1]))
 
       // rebuild the range
       return [dt0.getTime(), dt1.getTime()]
@@ -163,7 +163,7 @@ export default {
       let dt0 = new Date(c0.raw)
       let dt1 = new Date(c1.raw)
       Ti.DateTime.setTime(dt0)
-      Ti.DateTime.setTime(dt1, [23,59,59,999])
+      Ti.DateTime.setDayLastTime(dt1)
       return [dt0.getTime(), dt1.getTime()]
     },
     //--------------------------------------
@@ -185,7 +185,7 @@ export default {
       let dt0 = new Date(this.theViewDate)
       let dt1 = new Date(c1.raw)
       Ti.DateTime.setTime(dt0)
-      Ti.DateTime.setTime(dt1, [23,59,59,999])
+      Ti.DateTime.setDayLastTime(dt1)
       return [dt0, dt1]
     },
     //--------------------------------------

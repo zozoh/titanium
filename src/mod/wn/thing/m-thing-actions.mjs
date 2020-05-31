@@ -399,13 +399,13 @@ const _M = {
 
     // Setup default filter and sorter
     let filter = _.get(state.config.schema, "behavior.filter") || {}
-    _.assign(filter, local.filter)
+    filter = _.assign({}, filter, local.filter)
     if(!_.isEmpty(filter)) {
       commit("search/setFilter", filter)
     }
 
     let sorter = _.get(state.config.schema, "behavior.sorter") || {}
-    _.assign(sorter, local.sorter)
+    sorter = _.assign({}, sorter, local.sorter)
     if(!_.isEmpty(sorter)) {
       commit("search/setSorter", sorter)
     }

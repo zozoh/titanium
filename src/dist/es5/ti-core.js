@@ -7979,7 +7979,12 @@ var _ref80 = function () {
 
 
     if (_.isString(d)) {
-      var str = d; // Try to tidy string 
+      var str = d; // MS 
+
+      if (/\d{13,}/.test(str)) {
+        return new Date(str * 1);
+      } // Try to tidy string 
+
 
       var _m4 = P_DATE.exec(d);
 
@@ -9014,6 +9019,16 @@ var _ref80 = function () {
 
       if (_.isNull(val) || _.isUndefined(val)) {
         return dft;
+      }
+
+      if (_.isArray(val)) {
+        var _re7 = [];
+
+        _.forEach(val, function (v) {
+          _re7.push(parseDate(v));
+        });
+
+        return _re7;
       }
 
       return parseDate(val);
@@ -10307,9 +10322,9 @@ var _ref94 = function () {
         // Function  
         else if (_.isFunction(theValue)) {
             if (evalFunc) {
-              var _re7 = theValue(context);
+              var _re8 = theValue(context);
 
-              return iteratee(_re7);
+              return iteratee(_re8);
             }
 
             return theValue;
@@ -10597,28 +10612,28 @@ var _ref94 = function () {
     pureCloneDeep: function pureCloneDeep(obj) {
       // Array to recur
       if (_.isArray(obj)) {
-        var _re8 = [];
+        var _re9 = [];
 
         _.forEach(obj, function (v, i) {
           if (!_.isUndefined(v) && !_.isFunction(v)) {
-            _re8[i] = TiUtil.pureCloneDeep(v);
-          }
-        });
-
-        return _re8;
-      } // Object to omit the function
-
-
-      if (_.isPlainObject(obj)) {
-        var _re9 = {};
-
-        _.forEach(obj, function (v, k) {
-          if (!_.isUndefined(v) && !_.isFunction(v)) {
-            _re9[k] = TiUtil.pureCloneDeep(v);
+            _re9[i] = TiUtil.pureCloneDeep(v);
           }
         });
 
         return _re9;
+      } // Object to omit the function
+
+
+      if (_.isPlainObject(obj)) {
+        var _re10 = {};
+
+        _.forEach(obj, function (v, k) {
+          if (!_.isUndefined(v) && !_.isFunction(v)) {
+            _re10[k] = TiUtil.pureCloneDeep(v);
+          }
+        });
+
+        return _re10;
       } // Just clone it
 
 
@@ -12296,16 +12311,10 @@ var _ref115 = function () {
     },
     //---------------------------------------
     setTime: function setTime(d) {
-      var _ref116 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [],
-          _ref117 = _slicedToArray(_ref116, 4),
-          _ref117$ = _ref117[0],
-          hours = _ref117$ === void 0 ? 0 : _ref117$,
-          _ref117$2 = _ref117[1],
-          minutes = _ref117$2 === void 0 ? 0 : _ref117$2,
-          _ref117$3 = _ref117[2],
-          seconds = _ref117$3 === void 0 ? 0 : _ref117$3,
-          _ref117$4 = _ref117[3],
-          milliseconds = _ref117$4 === void 0 ? 0 : _ref117$4;
+      var hours = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var minutes = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+      var seconds = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+      var milliseconds = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
 
       if (_.inRange(hours, 0, 24)) {
         d.setHours(hours);
@@ -12324,6 +12333,10 @@ var _ref115 = function () {
       }
 
       return d;
+    },
+    //---------------------------------------
+    setDayLastTime: function setDayLastTime(d) {
+      return TiDateTime.setTime(d, 23, 59, 59, 999);
     },
     //---------------------------------------
     moveYear: function moveYear(d) {
@@ -12376,7 +12389,7 @@ var _ref115 = function () {
 // # import {Num}          from "./num.mjs"
 
 
-var _ref118 = function () {
+var _ref116 = function () {
   //-----------------------------------
   var TiNum = {
     /***
@@ -12394,11 +12407,11 @@ var _ref118 = function () {
       var startValue = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 
-      var _ref119 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref119$ary = _ref119.ary,
-          ary = _ref119$ary === void 0 ? [] : _ref119$ary,
-          _ref119$step = _ref119.step,
-          step = _ref119$step === void 0 ? 1 : _ref119$step;
+      var _ref117 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref117$ary = _ref117.ary,
+          ary = _ref117$ary === void 0 ? [] : _ref117$ary,
+          _ref117$step = _ref117.step,
+          step = _ref117$step === void 0 ? 1 : _ref117$step;
 
       for (var _i25 = 0; _i25 < len; _i25++) {
         ary[_i25] = startValue + _i25 * step;
@@ -12438,11 +12451,11 @@ var _ref118 = function () {
     Num: TiNum
   };
 }(),
-    Num = _ref118.Num; //##################################################
+    Num = _ref116.Num; //##################################################
 // # import {Css}          from "./css.mjs"
 
 
-var _ref120 = function () {
+var _ref118 = function () {
   ///////////////////////////////////////
   var TiCss = {
     //-----------------------------------
@@ -12479,11 +12492,11 @@ var _ref120 = function () {
     },
     //-----------------------------------
     toSize: function toSize(sz) {
-      var _ref121 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref121$autoPercent = _ref121.autoPercent,
-          autoPercent = _ref121$autoPercent === void 0 ? true : _ref121$autoPercent,
-          _ref121$remBase = _ref121.remBase,
-          remBase = _ref121$remBase === void 0 ? 0 : _ref121$remBase;
+      var _ref119 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref119$autoPercent = _ref119.autoPercent,
+          autoPercent = _ref119$autoPercent === void 0 ? true : _ref119$autoPercent,
+          _ref119$remBase = _ref119.remBase,
+          remBase = _ref119$remBase === void 0 ? 0 : _ref119$remBase;
 
       if (_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
         if (0 == sz) return sz;
@@ -12549,9 +12562,9 @@ var _ref120 = function () {
         if (Ti.Util.isNil(kla)) return; // Function
 
         if (_.isFunction(kla)) {
-          var _re10 = kla();
+          var _re11 = kla();
 
-          __join_class(_re10);
+          __join_class(_re11);
         } // String
         else if (_.isString(kla)) {
             var _ss6 = _.without(_.split(kla, / +/g), "");
@@ -12623,11 +12636,11 @@ var _ref120 = function () {
     Css: TiCss
   };
 }(),
-    Css = _ref120.Css; //##################################################
+    Css = _ref118.Css; //##################################################
 // # import {Mapping}      from "./mapping.mjs"
 
 
-var _ref122 = function () {
+var _ref120 = function () {
   /////////////////////////////////////////////
   var MatchPath = /*#__PURE__*/function () {
     function MatchPath(path, data) {
@@ -12799,11 +12812,11 @@ var _ref122 = function () {
     Mapping: TiMapping
   };
 }(),
-    Mapping = _ref122.Mapping; //##################################################
+    Mapping = _ref120.Mapping; //##################################################
 // # import {Dict,DictFactory} from "./dict.mjs"
 
 
-var _ref123 = function () {
+var _ref121 = function () {
   ///////////////////////////////////////////////
   var K = {
     item: Symbol("item"),
@@ -13002,13 +13015,13 @@ var _ref123 = function () {
 
     }, {
       key: "duplicate",
-      value: function duplicate(_ref124) {
+      value: function duplicate(_ref122) {
         var _this19 = this;
 
-        var _ref124$hooks = _ref124.hooks,
-            hooks = _ref124$hooks === void 0 ? false : _ref124$hooks,
-            _ref124$cache = _ref124.cache,
-            cache = _ref124$cache === void 0 ? true : _ref124$cache;
+        var _ref122$hooks = _ref122.hooks,
+            hooks = _ref122$hooks === void 0 ? false : _ref122$hooks,
+            _ref122$cache = _ref122.cache,
+            cache = _ref122$cache === void 0 ? true : _ref122$cache;
         var d = new Dict();
 
         _.forEach(K, function (s_key) {
@@ -13539,9 +13552,9 @@ var _ref123 = function () {
     GetOrCreate: function GetOrCreate() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var _ref125 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          hooks = _ref125.hooks,
-          name = _ref125.name;
+      var _ref123 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          hooks = _ref123.hooks,
+          name = _ref123.name;
 
       var d; // Aready a dict
 
@@ -13576,19 +13589,19 @@ var _ref123 = function () {
     },
     //-------------------------------------------
     CreateDict: function CreateDict() {
-      var _ref126 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          data = _ref126.data,
-          query = _ref126.query,
-          item = _ref126.item,
-          getValue = _ref126.getValue,
-          getText = _ref126.getText,
-          getIcon = _ref126.getIcon,
-          isMatched = _ref126.isMatched,
-          shadowed = _ref126.shadowed;
+      var _ref124 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          data = _ref124.data,
+          query = _ref124.query,
+          item = _ref124.item,
+          getValue = _ref124.getValue,
+          getText = _ref124.getText,
+          getIcon = _ref124.getIcon,
+          isMatched = _ref124.isMatched,
+          shadowed = _ref124.shadowed;
 
-      var _ref127 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          hooks = _ref127.hooks,
-          name = _ref127.name;
+      var _ref125 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          hooks = _ref125.hooks,
+          name = _ref125.name;
 
       //console.log("CreateDict", {data, query, item})
       //.........................................
@@ -13608,7 +13621,7 @@ var _ref123 = function () {
 
       if (!item) {
         item = /*#__PURE__*/function () {
-          var _ref128 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee35(val, $dict) {
+          var _ref126 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee35(val, $dict) {
             var aryData, _iterator52, _step52, it, itV;
 
             return regeneratorRuntime.wrap(function _callee35$(_context35) {
@@ -13671,7 +13684,7 @@ var _ref123 = function () {
           }));
 
           return function item(_x26, _x27) {
-            return _ref128.apply(this, arguments);
+            return _ref126.apply(this, arguments);
           };
         }();
       } //.........................................
@@ -13679,7 +13692,7 @@ var _ref123 = function () {
 
       if (!query) {
         query = /*#__PURE__*/function () {
-          var _ref129 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee36(v, $dict) {
+          var _ref127 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee36(v, $dict) {
             var aryData, list, _iterator53, _step53, it;
 
             return regeneratorRuntime.wrap(function _callee36$(_context36) {
@@ -13719,7 +13732,7 @@ var _ref123 = function () {
           }));
 
           return function query(_x28, _x29) {
-            return _ref129.apply(this, arguments);
+            return _ref127.apply(this, arguments);
           };
         }();
       } //.........................................
@@ -13936,12 +13949,12 @@ var _ref123 = function () {
     DictFactory: DictFactory
   };
 }(),
-    Dict = _ref123.Dict,
-    DictFactory = _ref123.DictFactory; //##################################################
+    Dict = _ref121.Dict,
+    DictFactory = _ref121.DictFactory; //##################################################
 // # import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
 
 
-var _ref130 = function () {
+var _ref128 = function () {
   ///////////////////////////////////////////////////
   var TryBubble = function TryBubble(vm, event) {
     var stop = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -14035,9 +14048,9 @@ var _ref130 = function () {
 
   var VueEventBubble = {
     install: function install(Vue) {
-      var _ref131 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref131$overrideEmit = _ref131.overrideEmit,
-          overrideEmit = _ref131$overrideEmit === void 0 ? false : _ref131$overrideEmit;
+      var _ref129 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref129$overrideEmit = _ref129.overrideEmit,
+          overrideEmit = _ref129$overrideEmit === void 0 ? false : _ref129$overrideEmit;
 
       // Append the methods
       _.assign(Vue.prototype, {
@@ -14058,11 +14071,11 @@ var _ref130 = function () {
     VueEventBubble: VueEventBubble
   };
 }(),
-    VueEventBubble = _ref130.VueEventBubble; //##################################################
+    VueEventBubble = _ref128.VueEventBubble; //##################################################
 // # import {VueTiCom} from "./vue/vue-ti-com.mjs"
 
 
-var _ref132 = function () {
+var _ref130 = function () {
   /////////////////////////////////////////////////////
   var TiComMixin = {
     inheritAttrs: false,
@@ -14351,9 +14364,9 @@ var _ref132 = function () {
       // Directive: v-ti-on-actived="this"
 
       Vue.directive("tiActivable", {
-        bind: function bind($el, _ref133, _ref134) {
-          var value = _ref133.value;
-          var context = _ref134.context;
+        bind: function bind($el, _ref131, _ref132) {
+          var value = _ref131.value;
+          var context = _ref132.context;
           var vm = context;
           vm.__ti_activable__ = true;
           $el.addEventListener("click", function (evt) {
@@ -14372,12 +14385,12 @@ var _ref132 = function () {
     VueTiCom: VueTiCom
   };
 }(),
-    VueTiCom = _ref132.VueTiCom; //---------------------------------------
+    VueTiCom = _ref130.VueTiCom; //---------------------------------------
 //##################################################
 // # import {WalnutAppMain} from "./ti-walnut-app-main.mjs"
 
 
-var _ref135 = function () {
+var _ref133 = function () {
   ///////////////////////////////////////////////
   function WalnutAppMain() {
     return _WalnutAppMain.apply(this, arguments);
@@ -14386,20 +14399,20 @@ var _ref135 = function () {
 
   function _WalnutAppMain() {
     _WalnutAppMain = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee42() {
-      var _ref136,
-          _ref136$rs,
+      var _ref134,
+          _ref134$rs,
           rs,
-          _ref136$appName,
+          _ref134$appName,
           appName,
-          _ref136$preloads,
+          _ref134$preloads,
           preloads,
-          _ref136$debug,
+          _ref134$debug,
           debug,
-          _ref136$logging,
+          _ref134$logging,
           logging,
-          _ref136$shortcute,
+          _ref134$shortcute,
           shortcute,
-          _ref136$viewport,
+          _ref134$viewport,
           viewport,
           pres,
           tiConf,
@@ -14424,15 +14437,15 @@ var _ref135 = function () {
         while (1) {
           switch (_context42.prev = _context42.next) {
             case 0:
-              _ref136 = _args48.length > 0 && _args48[0] !== undefined ? _args48[0] : {}, _ref136$rs = _ref136.rs, rs = _ref136$rs === void 0 ? "/gu/rs/" : _ref136$rs, _ref136$appName = _ref136.appName, appName = _ref136$appName === void 0 ? "wn.manager" : _ref136$appName, _ref136$preloads = _ref136.preloads, preloads = _ref136$preloads === void 0 ? [] : _ref136$preloads, _ref136$debug = _ref136.debug, debug = _ref136$debug === void 0 ? false : _ref136$debug, _ref136$logging = _ref136.logging, logging = _ref136$logging === void 0 ? {
+              _ref134 = _args48.length > 0 && _args48[0] !== undefined ? _args48[0] : {}, _ref134$rs = _ref134.rs, rs = _ref134$rs === void 0 ? "/gu/rs/" : _ref134$rs, _ref134$appName = _ref134.appName, appName = _ref134$appName === void 0 ? "wn.manager" : _ref134$appName, _ref134$preloads = _ref134.preloads, preloads = _ref134$preloads === void 0 ? [] : _ref134$preloads, _ref134$debug = _ref134.debug, debug = _ref134$debug === void 0 ? false : _ref134$debug, _ref134$logging = _ref134.logging, logging = _ref134$logging === void 0 ? {
                 root: "warn"
-              } : _ref136$logging, _ref136$shortcute = _ref136.shortcute, shortcute = _ref136$shortcute === void 0 ? false : _ref136$shortcute, _ref136$viewport = _ref136.viewport, viewport = _ref136$viewport === void 0 ? {
+              } : _ref134$logging, _ref134$shortcute = _ref134.shortcute, shortcute = _ref134$shortcute === void 0 ? false : _ref134$shortcute, _ref134$viewport = _ref134.viewport, viewport = _ref134$viewport === void 0 ? {
                 phoneMaxWidth: 540,
                 tabletMaxWidth: 768,
                 designWidth: 1000,
                 max: 100,
                 min: 80
-              } : _ref136$viewport;
+              } : _ref134$viewport;
               //---------------------------------------
               Ti.AddResourcePrefix(rs); //---------------------------------------
 
@@ -14691,10 +14704,10 @@ var _ref135 = function () {
 
             case 87:
               //---------------------------------------
-              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref137) {
-                var $root = _ref137.$root,
-                    mode = _ref137.mode,
-                    fontSize = _ref137.fontSize;
+              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref135) {
+                var $root = _ref135.$root,
+                    mode = _ref135.mode,
+                    fontSize = _ref135.fontSize;
                 $root.style.fontSize = fontSize + "px";
                 $root.setAttribute("as", mode);
                 Ti.App.eachInstance(function (app) {
@@ -14751,11 +14764,11 @@ var _ref135 = function () {
     WalnutAppMain: WalnutAppMain
   };
 }(),
-    WalnutAppMain = _ref135.WalnutAppMain; //##################################################
+    WalnutAppMain = _ref133.WalnutAppMain; //##################################################
 // # import {WebAppMain} from "./ti-web-app-main.mjs"
 
 
-var _ref138 = function () {
+var _ref136 = function () {
   ///////////////////////////////////////////////
   function WebAppMain() {
     return _WebAppMain.apply(this, arguments);
@@ -14764,25 +14777,25 @@ var _ref138 = function () {
 
   function _WebAppMain() {
     _WebAppMain = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee43() {
-      var _ref139,
-          _ref139$rs,
+      var _ref137,
+          _ref137$rs,
           rs,
-          _ref139$siteRs,
+          _ref137$siteRs,
           siteRs,
-          _ref139$lang,
+          _ref137$lang,
           lang,
           appJson,
           siteId,
           domain,
-          _ref139$preloads,
+          _ref137$preloads,
           preloads,
-          _ref139$debug,
+          _ref137$debug,
           debug,
-          _ref139$logging,
+          _ref137$logging,
           logging,
-          _ref139$shortcute,
+          _ref137$shortcute,
           shortcute,
-          _ref139$viewport,
+          _ref137$viewport,
           viewport,
           pres,
           exCssList,
@@ -14796,15 +14809,15 @@ var _ref138 = function () {
         while (1) {
           switch (_context43.prev = _context43.next) {
             case 0:
-              _ref139 = _args49.length > 0 && _args49[0] !== undefined ? _args49[0] : {}, _ref139$rs = _ref139.rs, rs = _ref139$rs === void 0 ? "/gu/rs/" : _ref139$rs, _ref139$siteRs = _ref139.siteRs, siteRs = _ref139$siteRs === void 0 ? "/" : _ref139$siteRs, _ref139$lang = _ref139.lang, lang = _ref139$lang === void 0 ? "zh-cn" : _ref139$lang, appJson = _ref139.appJson, siteId = _ref139.siteId, domain = _ref139.domain, _ref139$preloads = _ref139.preloads, preloads = _ref139$preloads === void 0 ? [] : _ref139$preloads, _ref139$debug = _ref139.debug, debug = _ref139$debug === void 0 ? false : _ref139$debug, _ref139$logging = _ref139.logging, logging = _ref139$logging === void 0 ? {
+              _ref137 = _args49.length > 0 && _args49[0] !== undefined ? _args49[0] : {}, _ref137$rs = _ref137.rs, rs = _ref137$rs === void 0 ? "/gu/rs/" : _ref137$rs, _ref137$siteRs = _ref137.siteRs, siteRs = _ref137$siteRs === void 0 ? "/" : _ref137$siteRs, _ref137$lang = _ref137.lang, lang = _ref137$lang === void 0 ? "zh-cn" : _ref137$lang, appJson = _ref137.appJson, siteId = _ref137.siteId, domain = _ref137.domain, _ref137$preloads = _ref137.preloads, preloads = _ref137$preloads === void 0 ? [] : _ref137$preloads, _ref137$debug = _ref137.debug, debug = _ref137$debug === void 0 ? false : _ref137$debug, _ref137$logging = _ref137.logging, logging = _ref137$logging === void 0 ? {
                 root: "warn"
-              } : _ref139$logging, _ref139$shortcute = _ref139.shortcute, shortcute = _ref139$shortcute === void 0 ? false : _ref139$shortcute, _ref139$viewport = _ref139.viewport, viewport = _ref139$viewport === void 0 ? {
+              } : _ref137$logging, _ref137$shortcute = _ref137.shortcute, shortcute = _ref137$shortcute === void 0 ? false : _ref137$shortcute, _ref137$viewport = _ref137.viewport, viewport = _ref137$viewport === void 0 ? {
                 phoneMaxWidth: 640,
                 tabletMaxWidth: 900,
                 designWidth: 1200,
                 max: 100,
                 min: 70
-              } : _ref139$viewport;
+              } : _ref137$viewport;
               //---------------------------------------
               Ti.AddResourcePrefix(rs, siteRs); //---------------------------------------
 
@@ -14948,10 +14961,10 @@ var _ref138 = function () {
               app.commit("setSiteId", siteId);
               app.commit("setDomain", domain); //---------------------------------------
 
-              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref140) {
-                var $root = _ref140.$root,
-                    mode = _ref140.mode,
-                    fontSize = _ref140.fontSize;
+              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref138) {
+                var $root = _ref138.$root,
+                    mode = _ref138.mode,
+                    fontSize = _ref138.fontSize;
                 $root.style.fontSize = fontSize + "px";
                 $root.setAttribute("as", mode);
                 Ti.App.eachInstance(function (app) {
@@ -14981,7 +14994,7 @@ var _ref138 = function () {
     WebAppMain: WebAppMain
   };
 }(),
-    WebAppMain = _ref138.WebAppMain; //---------------------------------------
+    WebAppMain = _ref136.WebAppMain; //---------------------------------------
 
 
 var LOAD_CACHE = {};

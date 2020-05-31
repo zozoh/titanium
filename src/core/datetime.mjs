@@ -44,12 +44,12 @@ const TiDateTime = {
     return MONTH_ABBR[m]
   },
   //---------------------------------------
-  setTime(d, [
+  setTime(d, 
     hours = 0,
     minutes = 0,
     seconds = 0,
     milliseconds = 0
-  ]=[]) {
+  ) {
     if(_.inRange(hours, 0, 24)) {
       d.setHours(hours)
     }
@@ -63,6 +63,10 @@ const TiDateTime = {
       d.setMilliseconds(milliseconds)
     }
     return d
+  },
+  //---------------------------------------
+  setDayLastTime(d) {
+    return TiDateTime.setTime(d, 23,59,59,999)
   },
   //---------------------------------------
   moveYear(d, offset=0) {

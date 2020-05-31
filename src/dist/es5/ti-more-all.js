@@ -5128,7 +5128,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           dt0 = Ti.DateTime.setTime(new Date(msRange[0])); // dt1 end of the day
 
-          dt1 = Ti.DateTime.setTime(new Date(msRange[1]), [23, 59, 59, 999]); // rebuild the range
+          dt1 = Ti.DateTime.setDayLastTime(new Date(msRange[1])); // rebuild the range
 
           return [dt0.getTime(), dt1.getTime()];
         },
@@ -5154,7 +5154,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var dt0 = new Date(c0.raw);
           var dt1 = new Date(c1.raw);
           Ti.DateTime.setTime(dt0);
-          Ti.DateTime.setTime(dt1, [23, 59, 59, 999]);
+          Ti.DateTime.setDayLastTime(dt1);
           return [dt0.getTime(), dt1.getTime()];
         },
         //--------------------------------------
@@ -5177,7 +5177,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var dt0 = new Date(this.theViewDate);
           var dt1 = new Date(c1.raw);
           Ti.DateTime.setTime(dt0);
-          Ti.DateTime.setTime(dt1, [23, 59, 59, 999]);
+          Ti.DateTime.setDayLastTime(dt1);
           return [dt0, dt1];
         },
         //--------------------------------------
@@ -8121,8 +8121,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           type: Object,
           "default": function _default() {
             return {
-              asc: "fas-long-arrow-alt-down",
-              desc: "fas-long-arrow-alt-up"
+              asc: "fas-long-arrow-alt-up",
+              desc: "fas-long-arrow-alt-down"
             };
           }
         },
@@ -11989,7 +11989,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   (function () {
     var _M = {
-      inheritAttrs: false,
       ////////////////////////////////////////////////////
       data: function data() {
         return {
@@ -12013,7 +12012,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         "format": {
           type: String,
-          "default": "yyyy-MM-dd"
+          "default": "yyyy-MM-dd HH:mm:ss"
+        },
+        "valueType": {
+          type: String,
+          "default": "ms-range",
+          validator: function validator(v) {
+            return /^(ms-(array|range)|ds-(array|range)|date-array)$/.test(v);
+          }
         },
         "placeholder": {
           type: String,
@@ -12071,13 +12077,41 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return "extended" == this.status;
         },
         //--------------------------------------
-        theDate: function theDate() {
-          if (_.isArray(this.value) && !_.isEmpty(this.value)) {
-            return Ti.Types.toDate(this.value[0]);
+        theValue: function theValue() {
+          if (_.isEmpty(this.value)) {
+            return null;
           }
 
-          if (this.value) {
+          if (_.isString(this.value)) {
+            var str = _.trim(this.value);
+
+            var m = /^[[(](.+)[\])]$/.exec(str);
+
+            if (m) {
+              str = _.trim(m[1]);
+            }
+
+            var ss = Ti.S.toArray(str, {
+              sep: ","
+            });
+
+            if (ss.length > 0) {
+              return Ti.Types.toDate(ss);
+            }
+          }
+
+          if (_.isString(this.value)) {
             return Ti.Types.toDate(this.value);
+          }
+        },
+        //--------------------------------------
+        theDate: function theDate() {
+          if (_.isArray(this.theValue) && !_.isEmpty(this.theValue)) {
+            return Ti.Types.toDate(this.theValue[0]);
+          }
+
+          if (this.theValue) {
+            return Ti.Types.toDate(this.theValue);
           }
         },
         //--------------------------------------
@@ -12091,8 +12125,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var dt1;
 
-          if (_.isArray(this.value) && this.value.length > 1) {
-            dt1 = Ti.Types.toDate(this.value[1]);
+          if (_.isArray(this.theValue) && this.theValue.length > 1) {
+            dt1 = Ti.Types.toDate(this.theValue[1]);
           } // The End of the Day
           else {
               dt1 = new Date(dt0);
@@ -12103,7 +12137,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           dt0 = Ti.DateTime.setTime(new Date(msRange[0])); // dt1 end of the day
 
-          dt1 = Ti.DateTime.setTime(new Date(msRange[1]), [23, 59, 59, 999]); // rebuild the range
+          dt1 = Ti.DateTime.setDayLastTime(new Date(msRange[1])); // rebuild the range
 
           return [dt0.getTime(), dt1.getTime()];
         },
@@ -12121,7 +12155,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         theRangeValue: function theRangeValue() {
-          return this.formatRangeValue(this.theRange).join(",");
+          return this.formatRangeValue(this.theRange, {
+            valueType: "ds-array",
+            format: "yyyy-MM-dd",
+            collapse: true
+          }).join(", ");
         },
         //------------------------------------------------
         theRangeText: function theRangeText() {
@@ -12222,7 +12260,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onChanged: function onChanged(val) {
-          console.log("haha");
           var rg = this.parseDateRange(val); // Empty Range
 
           if (_.isEmpty(rg)) {
@@ -12263,20 +12300,75 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
           if (ss.length == 1) {
-            var dt = Ti.Types.toDate(ss[0]);
-            return [dt];
+            var _dt = Ti.Types.toDate(ss[0]);
+
+            Ti.DateTime.setTime(_dt);
+
+            var _dt2 = new Date(_dt.getTime());
+
+            Ti.DateTime.setDayLastTime(_dt2);
+            return [_dt, _dt2];
           } // range
 
 
           var dt0 = Ti.Types.toDate(ss[0]);
+          Ti.DateTime.setTime(dt0);
           var dt1 = Ti.Types.toDate(ss[1]);
+          Ti.DateTime.setDayLastTime(dt1);
           return [dt0, dt1].sort(function (dt0, dt1) {
             return dt0.getTime() - dt1.getTime();
           });
         },
         //------------------------------------------------
         formatRangeValue: function formatRangeValue(range) {
-          return Ti.Types.formatDate(range, this.format);
+          var _ref36 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              valueType = _ref36.valueType,
+              format = _ref36.format,
+              _ref36$collapse = _ref36.collapse,
+              collapse = _ref36$collapse === void 0 ? false : _ref36$collapse;
+
+          var _ref37 = range || [],
+              _ref38 = _slicedToArray(_ref37, 2),
+              d0 = _ref38[0],
+              d1 = _ref38[1];
+
+          if (!d0) {
+            return [];
+          }
+
+          if (!d1) {
+            d1 = new Date(d0);
+            Ti.DateTime.setDayLastTime(d1);
+          }
+
+          valueType = valueType || this.valueType;
+          format = format || this.format; // as range
+
+          var func = {
+            "ms-range": function msRange() {
+              return "[".concat(d0.getTime(), ",").concat(d1.getTime(), "]");
+            },
+            "ms-array": function msArray() {
+              return [d0.getTime(), d1.getTime()];
+            },
+            "ds-range": function dsRange() {
+              return '[' + [Ti.Types.formatDate(d0, format), Ti.Types.formatDate(d1, format)].join(",") + ']';
+            },
+            "ds-array": function dsArray() {
+              return [Ti.Types.formatDate(d0, format), Ti.Types.formatDate(d1, format)];
+            },
+            "date-array": function dateArray() {
+              return [d0, d1];
+            }
+          }[valueType]; // As array
+
+          var re = func();
+
+          if (collapse) {
+            if (re[0] == re[1]) return [re[0]];
+          }
+
+          return re;
         } //------------------------------------------------
 
       } ////////////////////////////////////////////////////
@@ -12424,9 +12516,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         doCollapse: function doCollapse() {
-          var _ref36 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref36$escaped = _ref36.escaped,
-              escaped = _ref36$escaped === void 0 ? false : _ref36$escaped;
+          var _ref39 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref39$escaped = _ref39.escaped,
+              escaped = _ref39$escaped === void 0 ? false : _ref39$escaped;
 
           this.status = "collapse"; // Drop runtime
 
@@ -12610,15 +12702,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onSelectIcon: function onSelectIcon() {
-          var _ref37 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              value = _ref37.value;
+          var _ref40 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              value = _ref40.value;
 
           this.$notify("change", value);
         },
         //------------------------------------------------
         onSelectIconAndCollapse: function onSelectIconAndCollapse() {
-          var _ref38 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              value = _ref38.value;
+          var _ref41 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              value = _ref41.value;
 
           this.$notify("change", value);
           this.status = "collapse";
@@ -12632,8 +12724,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onHoverIcon: function onHoverIcon() {
-          var _ref39 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              value = _ref39.value;
+          var _ref42 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              value = _ref42.value;
 
           this.myHoverIcon = value;
         },
@@ -12796,9 +12888,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         doCollapse: function doCollapse() {
-          var _ref40 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref40$escaped = _ref40.escaped,
-              escaped = _ref40$escaped === void 0 ? false : _ref40$escaped;
+          var _ref43 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref43$escaped = _ref43.escaped,
+              escaped = _ref43$escaped === void 0 ? false : _ref43$escaped;
 
           this.status = "collapse"; // Drop runtime
 
@@ -14045,9 +14137,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         doCollapse: function doCollapse() {
-          var _ref41 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref41$escaped = _ref41.escaped,
-              escaped = _ref41$escaped === void 0 ? false : _ref41$escaped;
+          var _ref44 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref44$escaped = _ref44.escaped,
+              escaped = _ref44$escaped === void 0 ? false : _ref44$escaped;
 
           //console.log("time doCollapse", {escaped})
           this.status = "collapse"; // Drop runtime
@@ -14283,9 +14375,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         doCollapse: function doCollapse() {
-          var _ref42 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref42$escaped = _ref42.escaped,
-              escaped = _ref42$escaped === void 0 ? false : _ref42$escaped;
+          var _ref45 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref45$escaped = _ref45.escaped,
+              escaped = _ref45$escaped === void 0 ? false : _ref45$escaped;
 
           this.status = "collapse"; // Drop runtime
 
@@ -15002,9 +15094,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //-------------------------------------
         genLatLng: function genLatLng() {
-          var _ref43 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              lat = _ref43.lat,
-              lng = _ref43.lng;
+          var _ref46 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              lat = _ref46.lat,
+              lng = _ref46.lng;
 
           return new BMap.Point(lng, lat);
         },
@@ -15164,9 +15256,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //-------------------------------------
         genLatLng: function genLatLng() {
-          var _ref44 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              lat = _ref44.lat,
-              lng = _ref44.lng;
+          var _ref47 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              lat = _ref47.lat,
+              lng = _ref47.lng;
 
           return new qq.maps.LatLng(lat, lng);
         },
@@ -15438,9 +15530,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-------------------------------------
         genLatLng: function genLatLng() {
-          var _ref45 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              lat = _ref45.lat,
-              lng = _ref45.lng;
+          var _ref48 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              lat = _ref48.lat,
+              lng = _ref48.lng;
 
           lat = this.autoLatLng(lat);
           lng = this.autoLatLng(lng); // Transform coordinate
@@ -15607,9 +15699,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         onItemChanged: function onItemChanged() {
-          var _ref46 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref46.name,
-              value = _ref46.value;
+          var _ref49 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref49.name,
+              value = _ref49.value;
 
           this.$notify("item:changed", {
             name: name,
@@ -16511,13 +16603,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //------------------------------------------------
         createList: function createList(key, fromVal, toVal, currentVal) {
-          var _ref47 = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {},
-              _ref47$reverse = _ref47.reverse,
-              reverse = _ref47$reverse === void 0 ? false : _ref47$reverse,
-              _ref47$getText = _ref47.getText,
-              getText = _ref47$getText === void 0 ? function (val) {
+          var _ref50 = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {},
+              _ref50$reverse = _ref50.reverse,
+              reverse = _ref50$reverse === void 0 ? false : _ref50$reverse,
+              _ref50$getText = _ref50.getText,
+              getText = _ref50$getText === void 0 ? function (val) {
             return val;
-          } : _ref47$getText;
+          } : _ref50$getText;
 
           var list = {
             key: key,
@@ -16541,8 +16633,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onListSelected: function onListSelected(key) {
-          var _ref48 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              current = _ref48.current;
+          var _ref51 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              current = _ref51.current;
 
           var val = _.get(current, "value") || 0;
           var theDate = this.theDate || new Date();
@@ -17426,10 +17518,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   (function () {
     //////////////////////////////////////////////
     function _render_iteratee() {
-      var _ref49 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          varName = _ref49.varName,
-          vars = _ref49.vars,
-          matched = _ref49.matched;
+      var _ref52 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          varName = _ref52.varName,
+          vars = _ref52.vars,
+          matched = _ref52.matched;
 
       if (matched.startsWith("$$")) {
         return matched.substring(1);
@@ -17595,9 +17687,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         var displayItem = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-        var _ref50 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            funcSet = _ref50.funcSet,
-            defaultKey = _ref50.defaultKey;
+        var _ref53 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            funcSet = _ref53.funcSet,
+            defaultKey = _ref53.defaultKey;
 
         //........................................
         var __gen_dis = function __gen_dis() {
@@ -17757,13 +17849,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       evalDataForFieldDisplayItem: function evalDataForFieldDisplayItem() {
         var _arguments12 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee52() {
-          var _ref51, _ref51$itemData, itemData, _ref51$displayItem, displayItem, _ref51$vars, vars, _ref51$autoIgnoreNil, autoIgnoreNil, _ref51$autoValue, autoValue, dis, value, reDisplayItem, comConf;
+          var _ref54, _ref54$itemData, itemData, _ref54$displayItem, displayItem, _ref54$vars, vars, _ref54$autoIgnoreNil, autoIgnoreNil, _ref54$autoValue, autoValue, dis, value, reDisplayItem, comConf;
 
           return regeneratorRuntime.wrap(function _callee52$(_context52) {
             while (1) {
               switch (_context52.prev = _context52.next) {
                 case 0:
-                  _ref51 = _arguments12.length > 0 && _arguments12[0] !== undefined ? _arguments12[0] : {}, _ref51$itemData = _ref51.itemData, itemData = _ref51$itemData === void 0 ? {} : _ref51$itemData, _ref51$displayItem = _ref51.displayItem, displayItem = _ref51$displayItem === void 0 ? {} : _ref51$displayItem, _ref51$vars = _ref51.vars, vars = _ref51$vars === void 0 ? {} : _ref51$vars, _ref51$autoIgnoreNil = _ref51.autoIgnoreNil, autoIgnoreNil = _ref51$autoIgnoreNil === void 0 ? true : _ref51$autoIgnoreNil, _ref51$autoValue = _ref51.autoValue, autoValue = _ref51$autoValue === void 0 ? "value" : _ref51$autoValue;
+                  _ref54 = _arguments12.length > 0 && _arguments12[0] !== undefined ? _arguments12[0] : {}, _ref54$itemData = _ref54.itemData, itemData = _ref54$itemData === void 0 ? {} : _ref54$itemData, _ref54$displayItem = _ref54.displayItem, displayItem = _ref54$displayItem === void 0 ? {} : _ref54$displayItem, _ref54$vars = _ref54.vars, vars = _ref54$vars === void 0 ? {} : _ref54$vars, _ref54$autoIgnoreNil = _ref54.autoIgnoreNil, autoIgnoreNil = _ref54$autoIgnoreNil === void 0 ? true : _ref54$autoIgnoreNil, _ref54$autoValue = _ref54.autoValue, autoValue = _ref54$autoValue === void 0 ? "value" : _ref54$autoValue;
                   dis = displayItem; // if("sex" == dis.key) 
                   //   console.log(dis)
 
@@ -17878,11 +17970,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       isSelectedItem: function isSelectedItem() {
         var it = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-        var _ref52 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref52$value = _ref52.value,
-            value = _ref52$value === void 0 ? null : _ref52$value,
-            _ref52$multi = _ref52.multi,
-            multi = _ref52$multi === void 0 ? false : _ref52$multi;
+        var _ref55 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref55$value = _ref55.value,
+            value = _ref55$value === void 0 ? null : _ref55$value,
+            _ref55$multi = _ref55.multi,
+            multi = _ref55$multi === void 0 ? false : _ref55$multi;
 
         if (multi) {
           return _.isArray(value) && _.indexOf(value, it.value) >= 0;
@@ -17894,23 +17986,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       normalizeData: function normalizeData() {
         var list = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
-        var _ref53 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref53$emptyItem = _ref53.emptyItem,
-            emptyItem = _ref53$emptyItem === void 0 ? null : _ref53$emptyItem,
-            _ref53$multi = _ref53.multi,
-            multi = _ref53$multi === void 0 ? false : _ref53$multi,
-            _ref53$value = _ref53.value,
-            value = _ref53$value === void 0 ? null : _ref53$value,
-            _ref53$focusIndex = _ref53.focusIndex,
-            focusIndex = _ref53$focusIndex === void 0 ? -1 : _ref53$focusIndex,
-            _ref53$mapping = _ref53.mapping,
-            mapping = _ref53$mapping === void 0 ? null : _ref53$mapping,
-            _ref53$defaultIcon = _ref53.defaultIcon,
-            defaultIcon = _ref53$defaultIcon === void 0 ? null : _ref53$defaultIcon,
-            _ref53$iteratee = _ref53.iteratee,
-            iteratee = _ref53$iteratee === void 0 ? null : _ref53$iteratee,
-            _ref53$defaultTipKey = _ref53.defaultTipKey,
-            defaultTipKey = _ref53$defaultTipKey === void 0 ? null : _ref53$defaultTipKey;
+        var _ref56 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref56$emptyItem = _ref56.emptyItem,
+            emptyItem = _ref56$emptyItem === void 0 ? null : _ref56$emptyItem,
+            _ref56$multi = _ref56.multi,
+            multi = _ref56$multi === void 0 ? false : _ref56$multi,
+            _ref56$value = _ref56.value,
+            value = _ref56$value === void 0 ? null : _ref56$value,
+            _ref56$focusIndex = _ref56.focusIndex,
+            focusIndex = _ref56$focusIndex === void 0 ? -1 : _ref56$focusIndex,
+            _ref56$mapping = _ref56.mapping,
+            mapping = _ref56$mapping === void 0 ? null : _ref56$mapping,
+            _ref56$defaultIcon = _ref56.defaultIcon,
+            defaultIcon = _ref56$defaultIcon === void 0 ? null : _ref56$defaultIcon,
+            _ref56$iteratee = _ref56.iteratee,
+            iteratee = _ref56$iteratee === void 0 ? null : _ref56$iteratee,
+            _ref56$defaultTipKey = _ref56.defaultTipKey,
+            defaultTipKey = _ref56$defaultTipKey === void 0 ? null : _ref56$defaultTipKey;
 
         //console.log("normalizeData", iteratee)
         var index = 0;
@@ -18037,13 +18129,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //------------------------------------------------
       findItemInList: function findItemInList(str) {
-        var _ref54 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref54$list = _ref54.list,
-            list = _ref54$list === void 0 ? [] : _ref54$list,
-            _ref54$matchValue = _ref54.matchValue,
-            matchValue = _ref54$matchValue === void 0 ? "equal" : _ref54$matchValue,
-            _ref54$matchText = _ref54.matchText,
-            matchText = _ref54$matchText === void 0 ? "off" : _ref54$matchText;
+        var _ref57 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref57$list = _ref57.list,
+            list = _ref57$list === void 0 ? [] : _ref57$list,
+            _ref57$matchValue = _ref57.matchValue,
+            matchValue = _ref57$matchValue === void 0 ? "equal" : _ref57$matchValue,
+            _ref57$matchText = _ref57.matchText,
+            matchText = _ref57$matchText === void 0 ? "off" : _ref57$matchText;
 
         if (_.isArray(list) && !_.isEmpty(list)) {
           var _iterator39 = _createForOfIteratorHelper(list),
@@ -18074,11 +18166,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       // multi  : Array
       // single : Number
       getSelectedItemIndex: function getSelectedItemIndex(formedList) {
-        var _ref55 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref55$value = _ref55.value,
-            value = _ref55$value === void 0 ? null : _ref55$value,
-            _ref55$multi = _ref55.multi,
-            multi = _ref55$multi === void 0 ? false : _ref55$multi;
+        var _ref58 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref58$value = _ref58.value,
+            value = _ref58$value === void 0 ? null : _ref58$value,
+            _ref58$multi = _ref58.multi,
+            multi = _ref58$multi === void 0 ? false : _ref58$multi;
 
         var re = [];
         var sls = {
@@ -18677,10 +18769,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         selectRow: function selectRow(rowId) {
-          var _ref56 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              _ref56$quiet = _ref56.quiet,
-              quiet = _ref56$quiet === void 0 ? false : _ref56$quiet,
-              payload = _ref56.payload;
+          var _ref59 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              _ref59$quiet = _ref59.quiet,
+              quiet = _ref59$quiet === void 0 ? false : _ref59$quiet,
+              payload = _ref59.payload;
 
           var idMap = {};
           var curId = null; // Change the current & checked
@@ -18851,9 +18943,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         OnRowCheckerClick: function OnRowCheckerClick() {
-          var _ref58 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref58.rowId,
-              shift = _ref58.shift;
+          var _ref61 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref61.rowId,
+              shift = _ref61.shift;
 
           if (this.multi) {
             // Shift Mode
@@ -18870,10 +18962,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         OnRowSelect: function OnRowSelect() {
-          var _ref59 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref59.rowId,
-              shift = _ref59.shift,
-              toggle = _ref59.toggle;
+          var _ref62 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref62.rowId,
+              shift = _ref62.shift,
+              toggle = _ref62.toggle;
 
           // Multi + Shift Mode
           if (shift && this.multi) {
@@ -18891,8 +18983,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         OnRowOpen: function OnRowOpen() {
-          var _ref60 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref60.rowId;
+          var _ref63 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref63.rowId;
 
           var row = this.findRowById(rowId);
 
@@ -19220,8 +19312,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var dictName = Ti.DictFactory.DictReferName(this.options);
 
             if (dictName) {
-              return Ti.DictFactory.CheckDict(dictName, function (_ref61) {
-                var loading = _ref61.loading;
+              return Ti.DictFactory.CheckDict(dictName, function (_ref64) {
+                var loading = _ref64.loading;
                 _this91.loading = loading;
               });
             }
@@ -19233,8 +19325,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             getText: Ti.Util.genGetter(this.textBy || "text|name"),
             getIcon: Ti.Util.genGetter(this.iconBy || "icon")
           }, {
-            hooks: function hooks(_ref62) {
-              var loading = _ref62.loading;
+            hooks: function hooks(_ref65) {
+              var loading = _ref65.loading;
               return _this91.loading = loading;
             }
           });
@@ -19263,9 +19355,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /////////////////////////////////////////////////////
       methods: {
         //-------------------------------------------------
-        OnClickItem: function OnClickItem(_ref63, $event) {
-          var value = _ref63.value,
-              index = _ref63.index;
+        OnClickItem: function OnClickItem(_ref66, $event) {
+          var value = _ref66.value,
+              index = _ref66.index;
           var toggle = $event.ctrlKey || $event.metaKey;
           var shift = $event.shiftKey; // Multi + Shift Mode
 
@@ -20352,8 +20444,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //--------------------------------------
         OnRowEnter: function OnRowEnter() {
-          var _ref64 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref64.rowId;
+          var _ref67 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref67.rowId;
 
           if (this.hoverable) {
             this.myHoverId = rowId;
@@ -20361,8 +20453,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnRowLeave: function OnRowLeave() {
-          var _ref65 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref65.rowId;
+          var _ref68 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref68.rowId;
 
           if (this.hoverable) {
             if (this.myHoverId == rowId) {
@@ -20759,10 +20851,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onClickOption: function onClickOption() {
-          var _ref66 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              value = _ref66.value,
-              text = _ref66.text,
-              icon = _ref66.icon;
+          var _ref69 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              value = _ref69.value,
+              text = _ref69.text,
+              icon = _ref69.icon;
 
           this.$notify("change", {
             value: value,
@@ -20981,9 +21073,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //------------------------------------------------
         OnItemChanged: function OnItemChanged() {
-          var _ref67 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              index = _ref67.index,
-              value = _ref67.value;
+          var _ref70 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              index = _ref70.index,
+              value = _ref70.value;
 
           if (index >= 0) {
             var values = this.getMyValues();
@@ -20993,8 +21085,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         OnItemRemoved: function OnItemRemoved() {
-          var _ref68 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              index = _ref68.index;
+          var _ref71 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              index = _ref71.index;
 
           if (index >= 0) {
             var values = this.getMyValues();
@@ -21006,9 +21098,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         OnItemFired: function OnItemFired() {
-          var _ref69 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref69$index = _ref69.index,
-              index = _ref69$index === void 0 ? -1 : _ref69$index;
+          var _ref72 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref72$index = _ref72.index,
+              index = _ref72$index === void 0 ? -1 : _ref72$index;
 
           if (index >= 0) {
             var it = _.nth(this.theData, index);
@@ -22084,13 +22176,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               _this110 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee62() {
-            var _ref70, name, value, data, node, nodeId, newData, path, fn, _fn, v2;
+            var _ref73, name, value, data, node, nodeId, newData, path, fn, _fn, v2;
 
             return regeneratorRuntime.wrap(function _callee62$(_context62) {
               while (1) {
                 switch (_context62.prev = _context62.next) {
                   case 0:
-                    _ref70 = _arguments15.length > 0 && _arguments15[0] !== undefined ? _arguments15[0] : {}, name = _ref70.name, value = _ref70.value, data = _ref70.data, node = _ref70.node, nodeId = _ref70.nodeId;
+                    _ref73 = _arguments15.length > 0 && _arguments15[0] !== undefined ? _arguments15[0] : {}, name = _ref73.name, value = _ref73.value, data = _ref73.data, node = _ref73.node, nodeId = _ref73.nodeId;
 
                     if (node.id) {
                       _context62.next = 3;
@@ -22587,9 +22679,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         // Events
         //-----------------------------------------------
         OnToolbarChange: function OnToolbarChange() {
-          var _ref71 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref71.name,
-              value = _ref71.value;
+          var _ref74 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref74.name,
+              value = _ref74.value;
 
           console.log({
             name: name,
@@ -23266,8 +23358,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onListSelected: function onListSelected(key) {
-          var _ref72 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              current = _ref72.current;
+          var _ref75 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              current = _ref75.current;
 
           var tm = this.theTime.clone();
           tm[key] = _.get(current, "value") || 0;
@@ -23548,8 +23640,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var dictName = Ti.DictFactory.DictReferName(this.options);
 
             if (dictName) {
-              return Ti.DictFactory.CheckDict(dictName, function (_ref73) {
-                var loading = _ref73.loading;
+              return Ti.DictFactory.CheckDict(dictName, function (_ref76) {
+                var loading = _ref76.loading;
                 _this116.loading = loading;
               });
             }
@@ -23568,13 +23660,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ///////////////////////////////////////////////////////
       methods: {
         //---------------------------------------------------
-        OnCanListSelected: function OnCanListSelected(_ref74) {
-          var checkedIds = _ref74.checkedIds;
+        OnCanListSelected: function OnCanListSelected(_ref77) {
+          var checkedIds = _ref77.checkedIds;
           this.can.checkedIds = this.getIds(checkedIds);
         },
         //---------------------------------------------------
-        OnSelListSelected: function OnSelListSelected(_ref75) {
-          var checkedIds = _ref75.checkedIds;
+        OnSelListSelected: function OnSelListSelected(_ref78) {
+          var checkedIds = _ref78.checkedIds;
           this.sel.checkedIds = this.getIds(checkedIds);
         },
         //---------------------------------------------------
@@ -23617,9 +23709,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }))();
         },
         //---------------------------------------------------
-        GetHeadCheckerIcon: function GetHeadCheckerIcon(_ref76) {
-          var data = _ref76.data,
-              checkedIds = _ref76.checkedIds;
+        GetHeadCheckerIcon: function GetHeadCheckerIcon(_ref79) {
+          var data = _ref79.data,
+              checkedIds = _ref79.checkedIds;
 
           if (data.length > 0) {
             // All
@@ -23664,11 +23756,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //---------------------------------------------------
         // Utility
         //---------------------------------------------------
-        assignToList: function assignToList(_ref77, ta) {
+        assignToList: function assignToList(_ref80, ta) {
           var _this118 = this;
 
-          var data = _ref77.data,
-              checkedIds = _ref77.checkedIds;
+          var data = _ref80.data,
+              checkedIds = _ref80.checkedIds;
           // Make ids map
           var ids = {};
 
@@ -23708,9 +23800,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           };
         },
         //---------------------------------------------------
-        genComConf: function genComConf(comConf, _ref78) {
-          var data = _ref78.data,
-              checkedIds = _ref78.checkedIds;
+        genComConf: function genComConf(comConf, _ref81) {
+          var data = _ref81.data,
+              checkedIds = _ref81.checkedIds;
           return _.assign({
             idBy: this.GetValueBy,
             display: this.display || "text"
@@ -24399,10 +24491,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnCellItemChange: function OnCellItemChange() {
-          var _ref79 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref79.name,
-              value = _ref79.value,
-              rowId = _ref79.rowId;
+          var _ref82 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref82.name,
+              value = _ref82.value,
+              rowId = _ref82.rowId;
 
           //console.log("OnCellItemChange", {name, value, rowId})
           var row = this.findTableRow(rowId);
@@ -24419,10 +24511,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnRowSelect: function OnRowSelect() {
-          var _ref80 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              currentId = _ref80.currentId,
-              _ref80$checkedIds = _ref80.checkedIds,
-              checkedIds = _ref80$checkedIds === void 0 ? {} : _ref80$checkedIds;
+          var _ref83 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              currentId = _ref83.currentId,
+              _ref83$checkedIds = _ref83.checkedIds,
+              checkedIds = _ref83$checkedIds === void 0 ? {} : _ref83$checkedIds;
 
           var current,
               node,
@@ -24484,8 +24576,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnRowIconClick: function OnRowIconClick() {
-          var _ref81 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref81.rowId;
+          var _ref84 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref84.rowId;
 
           var row = this.findTableRow(rowId); // Open it
 
@@ -24498,8 +24590,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnRowOpen: function OnRowOpen() {
-          var _ref82 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              id = _ref82.id;
+          var _ref85 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              id = _ref85.id;
 
           var row = this.findTableRow(id);
 
@@ -26119,9 +26211,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               _this137.InvalidField = ["name", "passwd"];
             },
             fail: function fail() {
-              var _ref83 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                  errCode = _ref83.errCode,
-                  data = _ref83.data;
+              var _ref86 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                  errCode = _ref86.errCode,
+                  data = _ref86.data;
 
               // VCode Error
               if ("e.auth.captcha.invalid" == errCode) {
@@ -26223,9 +26315,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                         _this138.data.passwd = "";
                       },
                       ok: function ok() {
-                        var _ref84 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                            _ref84$duInMin = _ref84.duInMin,
-                            duInMin = _ref84$duInMin === void 0 ? 60 : _ref84$duInMin;
+                        var _ref87 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                            _ref87$duInMin = _ref87.duInMin,
+                            duInMin = _ref87$duInMin === void 0 ? 60 : _ref87$duInMin;
 
                         _this138.delay = _this138.getDelay;
                         Ti.Toast.Open({
@@ -26241,9 +26333,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                         });
                       },
                       fail: function fail() {
-                        var _ref85 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                            errCode = _ref85.errCode,
-                            data = _ref85.data;
+                        var _ref88 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                            errCode = _ref88.errCode,
+                            data = _ref88.data;
 
                         Ti.Toast.Open({
                           type: "warn",
@@ -26638,9 +26730,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           this.$notify("buy:now");
         },
         //......................................
-        OnFormChanged: function OnFormChanged(_ref86) {
-          var name = _ref86.name,
-              value = _ref86.value;
+        OnFormChanged: function OnFormChanged(_ref89) {
+          var name = _ref89.name,
+              value = _ref89.value;
           this.$notify("meta:changed", {
             name: name,
             value: value
@@ -26926,9 +27018,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //------------------------------------
         OnClickLink: function OnClickLink(evt) {
-          var _ref87 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              type = _ref87.type,
-              value = _ref87.value;
+          var _ref90 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              type = _ref90.type,
+              value = _ref90.value;
 
           if (/^(page|action)$/.test(type)) {
             evt.preventDefault();
@@ -27064,9 +27156,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //------------------------------------
         OnClickLink: function OnClickLink(evt) {
-          var _ref88 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              type = _ref88.type,
-              value = _ref88.value;
+          var _ref91 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              type = _ref91.type,
+              value = _ref91.value;
 
           if (/^(page|action)$/.test(type)) {
             evt.preventDefault();
@@ -27081,11 +27173,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         },
         //------------------------------------
-        OnItemMouseEnter: function OnItemMouseEnter(_ref89) {
+        OnItemMouseEnter: function OnItemMouseEnter(_ref92) {
           var _this143 = this;
 
-          var index = _ref89.index,
-              items = _ref89.items;
+          var index = _ref92.index,
+              items = _ref92.items;
 
           // Guard
           if (_.isEmpty(items)) {
@@ -27103,8 +27195,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           });
         },
         //------------------------------------
-        OnItemMouseLeave: function OnItemMouseLeave(_ref90) {
-          var index = _ref90.index;
+        OnItemMouseLeave: function OnItemMouseLeave(_ref93) {
+          var index = _ref93.index;
 
           if (this.mySubIndex == index) {
             this.mySubIndex = -1;
@@ -29141,9 +29233,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //--------------------------------------------
         // Events
         //--------------------------------------------
-        OnSelected: function OnSelected(_ref91) {
-          var currentId = _ref91.currentId,
-              checkedIds = _ref91.checkedIds;
+        OnSelected: function OnSelected(_ref94) {
+          var currentId = _ref94.currentId,
+              checkedIds = _ref94.checkedIds;
           //console.log("OnSelected", currentId, checkedIds)
           // For Desktop
           this.myCurrentId = currentId;
@@ -29655,8 +29747,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         OptionsDict: function OptionsDict() {
           var _this161 = this;
 
-          return Wn.Dict.evalOptionsDict(this, function (_ref92) {
-            var loading = _ref92.loading;
+          return Wn.Dict.evalOptionsDict(this, function (_ref95) {
+            var loading = _ref95.loading;
             _this161.loading = loading;
           });
         },
@@ -29732,8 +29824,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         OptionsDict: function OptionsDict() {
           var _this162 = this;
 
-          return Wn.Dict.evalOptionsDict(this, function (_ref93) {
-            var loading = _ref93.loading;
+          return Wn.Dict.evalOptionsDict(this, function (_ref96) {
+            var loading = _ref96.loading;
             _this162.loading = loading;
           });
         },
@@ -30471,9 +30563,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-------------------------------------
         onItemActived: function onItemActived() {
-          var _ref94 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref94$current = _ref94.current,
-              current = _ref94$current === void 0 ? {} : _ref94$current;
+          var _ref97 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref97$current = _ref97.current,
+              current = _ref97$current === void 0 ? {} : _ref97$current;
 
           if (current.value) {
             this.$notify("item:active", {
@@ -31538,9 +31630,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------------------
         OnFieldChange: function OnFieldChange() {
-          var _ref95 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref95.name,
-              value = _ref95.value;
+          var _ref98 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref98.name,
+              value = _ref98.value;
 
           //console.log("wn-obj-form.field:changed", {name, value})
           this.doAction("field:change", this.updateBy, {
@@ -33109,9 +33201,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //--------------------------------------
         onChanged: function onChanged() {
-          var _ref97 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref97.name,
-              value = _ref97.value;
+          var _ref100 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref100.name,
+              value = _ref100.value;
 
           //console.log("changed", name, value)
           this.obj = _.assign({}, this.obj, _defineProperty({}, name, value));
@@ -33392,8 +33484,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           });
         },
         //--------------------------------------
-        OnFileSelected: function OnFileSelected(_ref98) {
-          var currentId = _ref98.currentId;
+        OnFileSelected: function OnFileSelected(_ref101) {
+          var currentId = _ref101.currentId;
           this.myCurrentId = currentId;
         },
         //--------------------------------------
@@ -33986,11 +34078,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }))();
         },
         //--------------------------------------
-        OnListSelect: function OnListSelect(_ref99) {
-          var current = _ref99.current,
-              currentId = _ref99.currentId,
-              checkedIds = _ref99.checkedIds,
-              checked = _ref99.checked;
+        OnListSelect: function OnListSelect(_ref102) {
+          var current = _ref102.current,
+              currentId = _ref102.currentId,
+              checkedIds = _ref102.checkedIds,
+              checked = _ref102.checked;
           Ti.App(this).dispatch("main/setCurrentThing", {
             meta: current,
             currentId: currentId,
@@ -34007,8 +34099,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         },
         //--------------------------------------
-        OnListOpen: function OnListOpen(_ref100) {
-          var rawData = _ref100.rawData;
+        OnListOpen: function OnListOpen(_ref103) {
+          var rawData = _ref103.rawData;
           var app = Ti.App(this);
           app.dispatch("main/config/updateShown", this.config.listOpen); // Update Current
 
@@ -34024,9 +34116,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnPagerChange: function OnPagerChange() {
-          var _ref101 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              pn = _ref101.pn,
-              pgsz = _ref101.pgsz;
+          var _ref104 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              pn = _ref104.pn,
+              pgsz = _ref104.pgsz;
 
           //console.log("OnPagerChange", {pn, pgsz})
           Ti.App(this).dispatch("main/search/reloadPage", {
@@ -34241,9 +34333,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                         },
                         template: "<".concat(batch.comType, "\n            v-bind=\"innerComConf\"\n            :").concat(batch.valueKey, "=\"value\"\n            @field:change=\"OnFieldChange\"\n            @change=\"OnChange\"/>"),
                         methods: {
-                          OnFieldChange: function OnFieldChange(_ref102) {
-                            var name = _ref102.name,
-                                value = _ref102.value;
+                          OnFieldChange: function OnFieldChange(_ref105) {
+                            var name = _ref105.name,
+                                value = _ref105.value;
 
                             _.set(this.update, name, value);
 
@@ -35399,14 +35491,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   (function () {
     var _M = {
       //----------------------------------------
-      reload: function reload(_ref103, meta) {
+      reload: function reload(_ref106, meta) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee131() {
           var state, commit;
           return regeneratorRuntime.wrap(function _callee131$(_context132) {
             while (1) {
               switch (_context132.prev = _context132.next) {
                 case 0:
-                  state = _ref103.state, commit = _ref103.commit;
+                  state = _ref106.state, commit = _ref106.commit;
 
                   if (!(state.status.reloading || state.status.saving)) {
                     _context132.next = 3;
@@ -35629,14 +35721,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
        * Append the `meta` to current tree. 
        * It will auto load all the ancestor node of the meta in tree
        */
-      appendNode: function appendNode(_ref104, meta) {
+      appendNode: function appendNode(_ref107, meta) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee132() {
           var state, commit, dispatch;
           return regeneratorRuntime.wrap(function _callee132$(_context133) {
             while (1) {
               switch (_context133.prev = _context133.next) {
                 case 0:
-                  state = _ref104.state, commit = _ref104.commit, dispatch = _ref104.dispatch;
+                  state = _ref107.state, commit = _ref107.commit, dispatch = _ref107.dispatch;
                   console.log("TODO appendNode", meta);
 
                 case 2:
@@ -35659,17 +35751,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
        * @param force{Boolean} - reload again event the children had been loaded.
        * @param depth{Number} - reload the multi hierarchies if great than `1`
        */
-      reloadNode: function reloadNode(_ref105) {
+      reloadNode: function reloadNode(_ref108) {
         var _arguments22 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee134() {
-          var state, commit, dispatch, _ref106, id, path, _ref106$self, self, _ref106$force, force, _ref106$depth, depth, treeRoot, loaded, node, nodeMeta, __load_subs;
+          var state, commit, dispatch, _ref109, id, path, _ref109$self, self, _ref109$force, force, _ref109$depth, depth, treeRoot, loaded, node, nodeMeta, __load_subs;
 
           return regeneratorRuntime.wrap(function _callee134$(_context135) {
             while (1) {
               switch (_context135.prev = _context135.next) {
                 case 0:
-                  state = _ref105.state, commit = _ref105.commit, dispatch = _ref105.dispatch;
-                  _ref106 = _arguments22.length > 1 && _arguments22[1] !== undefined ? _arguments22[1] : {}, id = _ref106.id, path = _ref106.path, _ref106$self = _ref106.self, self = _ref106$self === void 0 ? false : _ref106$self, _ref106$force = _ref106.force, force = _ref106$force === void 0 ? false : _ref106$force, _ref106$depth = _ref106.depth, depth = _ref106$depth === void 0 ? 1 : _ref106$depth;
+                  state = _ref108.state, commit = _ref108.commit, dispatch = _ref108.dispatch;
+                  _ref109 = _arguments22.length > 1 && _arguments22[1] !== undefined ? _arguments22[1] : {}, id = _ref109.id, path = _ref109.path, _ref109$self = _ref109.self, self = _ref109$self === void 0 ? false : _ref109$self, _ref109$force = _ref109.force, force = _ref109$force === void 0 ? false : _ref109$force, _ref109$depth = _ref109.depth, depth = _ref109$depth === void 0 ? 1 : _ref109$depth;
                   //......................................
                   // Clone the tree
                   treeRoot = _.cloneDeep(state.root);
@@ -35710,7 +35802,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   //......................................
                   // Define the loading
                   __load_subs = /*#__PURE__*/function () {
-                    var _ref107 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee133(node, depth) {
+                    var _ref110 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee133(node, depth) {
                       var children, _yield$Wn$Io$loadChil, list, _iterator85, _step85, li, sub;
 
                       return regeneratorRuntime.wrap(function _callee133$(_context134) {
@@ -35792,7 +35884,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     }));
 
                     return function __load_subs(_x9, _x10) {
-                      return _ref107.apply(this, arguments);
+                      return _ref110.apply(this, arguments);
                     };
                   }(); //......................................
                   // Do load
@@ -35824,7 +35916,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Reload site root node, and reload the first leave
        */
-      reloadRoot: function reloadRoot(_ref108, meta) {
+      reloadRoot: function reloadRoot(_ref111, meta) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee135() {
           var state, commit, dispatch, root, keys, _iterator86, _step86, _key6, hie;
 
@@ -35832,7 +35924,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             while (1) {
               switch (_context136.prev = _context136.next) {
                 case 0:
-                  state = _ref108.state, commit = _ref108.commit, dispatch = _ref108.dispatch;
+                  state = _ref111.state, commit = _ref111.commit, dispatch = _ref111.dispatch;
                   root = Wn.Util.wrapTreeNode(meta); // Update Root Node
 
                   commit("setRoot", root); // Reload Root Node
@@ -35961,9 +36053,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   (function () {
     var _M = {
       //--------------------------------------------
-      setTreeOpenedNodePaths: function setTreeOpenedNodePaths(_ref109) {
-        var getters = _ref109.getters,
-            commit = _ref109.commit;
+      setTreeOpenedNodePaths: function setTreeOpenedNodePaths(_ref112) {
+        var getters = _ref112.getters,
+            commit = _ref112.commit;
         var openeds = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
         if (getters.TREE_OPEND_KEY) {
@@ -35975,7 +36067,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       },
       //--------------------------------------------
-      setTreeSelected: function setTreeSelected(_ref110) {
+      setTreeSelected: function setTreeSelected(_ref113) {
         var _arguments23 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee136() {
           var getters, commit, dispatch, currentId, meta;
@@ -35983,7 +36075,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             while (1) {
               switch (_context137.prev = _context137.next) {
                 case 0:
-                  getters = _ref110.getters, commit = _ref110.commit, dispatch = _ref110.dispatch;
+                  getters = _ref113.getters, commit = _ref113.commit, dispatch = _ref113.dispatch;
                   currentId = _arguments23.length > 1 && _arguments23[1] !== undefined ? _arguments23[1] : null;
 
                   if (!getters.TREE_SELECTED_KEY) {
@@ -36029,21 +36121,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      onCurrentChanged: function onCurrentChanged(_ref111, payload) {
-        var commit = _ref111.commit,
-            dispatch = _ref111.dispatch;
+      onCurrentChanged: function onCurrentChanged(_ref114, payload) {
+        var commit = _ref114.commit,
+            dispatch = _ref114.dispatch;
         dispatch("current/onChanged", payload);
         commit("syncStatusChanged");
       },
       //--------------------------------------------
-      saveCurrent: function saveCurrent(_ref112) {
+      saveCurrent: function saveCurrent(_ref115) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee137() {
           var state, commit, dispatch;
           return regeneratorRuntime.wrap(function _callee137$(_context138) {
             while (1) {
               switch (_context138.prev = _context138.next) {
                 case 0:
-                  state = _ref112.state, commit = _ref112.commit, dispatch = _ref112.dispatch;
+                  state = _ref115.state, commit = _ref115.commit, dispatch = _ref115.dispatch;
 
                   if (!state.current.meta) {
                     _context138.next = 7;
@@ -36071,14 +36163,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      reloadCurrent: function reloadCurrent(_ref113, meta) {
+      reloadCurrent: function reloadCurrent(_ref116, meta) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee138() {
           var commit, dispatch;
           return regeneratorRuntime.wrap(function _callee138$(_context139) {
             while (1) {
               switch (_context139.prev = _context139.next) {
                 case 0:
-                  commit = _ref113.commit, dispatch = _ref113.dispatch;
+                  commit = _ref116.commit, dispatch = _ref116.dispatch;
                   commit("setStatus", {
                     reloading: true
                   });
@@ -36100,14 +36192,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      reloadConfig: function reloadConfig(_ref114) {
+      reloadConfig: function reloadConfig(_ref117) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee139() {
           var state, dispatch;
           return regeneratorRuntime.wrap(function _callee139$(_context140) {
             while (1) {
               switch (_context140.prev = _context140.next) {
                 case 0:
-                  state = _ref114.state, dispatch = _ref114.dispatch;
+                  state = _ref117.state, dispatch = _ref117.dispatch;
                   _context140.next = 3;
                   return dispatch("config/reload");
 
@@ -36120,14 +36212,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      reloadTree: function reloadTree(_ref115) {
+      reloadTree: function reloadTree(_ref118) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee140() {
           var getters, state, commit, dispatch, openeds, currentId;
           return regeneratorRuntime.wrap(function _callee140$(_context141) {
             while (1) {
               switch (_context141.prev = _context141.next) {
                 case 0:
-                  getters = _ref115.getters, state = _ref115.state, commit = _ref115.commit, dispatch = _ref115.dispatch;
+                  getters = _ref118.getters, state = _ref118.state, commit = _ref118.commit, dispatch = _ref118.dispatch;
 
                   // Restore openeds
                   if (getters.TREE_OPEND_KEY) {
@@ -36165,14 +36257,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      reloadTreeNode: function reloadTreeNode(_ref116, payload) {
+      reloadTreeNode: function reloadTreeNode(_ref119, payload) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee141() {
           var commit, dispatch;
           return regeneratorRuntime.wrap(function _callee141$(_context142) {
             while (1) {
               switch (_context142.prev = _context142.next) {
                 case 0:
-                  commit = _ref116.commit, dispatch = _ref116.dispatch;
+                  commit = _ref119.commit, dispatch = _ref119.dispatch;
                   commit("setStatus", {
                     reloading: true
                   });
@@ -36193,14 +36285,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      reload: function reload(_ref117, home) {
+      reload: function reload(_ref120, home) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee142() {
           var state, commit, dispatch;
           return regeneratorRuntime.wrap(function _callee142$(_context143) {
             while (1) {
               switch (_context143.prev = _context143.next) {
                 case 0:
-                  state = _ref117.state, commit = _ref117.commit, dispatch = _ref117.dispatch;
+                  state = _ref120.state, commit = _ref120.commit, dispatch = _ref120.dispatch;
 
                   //console.log("thing-manager.reload", state)
                   // Update New Meta
@@ -36385,23 +36477,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //----------------------------------------
       // Combin Mutations
       //----------------------------------------
-      onChanged: function onChanged(_ref118, payload) {
-        var dispatch = _ref118.dispatch;
+      onChanged: function onChanged(_ref121, payload) {
+        var dispatch = _ref121.dispatch;
         dispatch("changeContent", payload);
       },
       //----------------------------------------
-      changeContent: function changeContent(_ref119, payload) {
-        var commit = _ref119.commit;
+      changeContent: function changeContent(_ref122, payload) {
+        var commit = _ref122.commit;
         commit("setContent", payload);
         commit("syncStatusChanged");
       },
       //----------------------------------------
-      changeMeta: function changeMeta(_ref120) {
-        var commit = _ref120.commit;
+      changeMeta: function changeMeta(_ref123) {
+        var commit = _ref123.commit;
 
-        var _ref121 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            name = _ref121.name,
-            value = _ref121.value;
+        var _ref124 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            name = _ref124.name,
+            value = _ref124.value;
 
         if (name) {
           var meta = _.set({}, name, value);
@@ -36411,9 +36503,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       },
       //----------------------------------------
-      updateContent: function updateContent(_ref122, content) {
-        var state = _ref122.state,
-            commit = _ref122.commit;
+      updateContent: function updateContent(_ref125, content) {
+        var state = _ref125.state,
+            commit = _ref125.commit;
         commit("setContent", content);
 
         if (state.meta && "FILE" == state.meta.race) {
@@ -36425,14 +36517,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //--------------------------------------------
       // User Interactivity
       //--------------------------------------------
-      openMetaEditor: function openMetaEditor(_ref123) {
+      openMetaEditor: function openMetaEditor(_ref126) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee143() {
           var state, dispatch, reo;
           return regeneratorRuntime.wrap(function _callee143$(_context144) {
             while (1) {
               switch (_context144.prev = _context144.next) {
                 case 0:
-                  state = _ref123.state, dispatch = _ref123.dispatch;
+                  state = _ref126.state, dispatch = _ref126.dispatch;
 
                   if (state.meta) {
                     _context144.next = 5;
@@ -36479,14 +36571,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      openContentEditor: function openContentEditor(_ref124) {
+      openContentEditor: function openContentEditor(_ref127) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee144() {
           var state, dispatch, newContent;
           return regeneratorRuntime.wrap(function _callee144$(_context145) {
             while (1) {
               switch (_context145.prev = _context145.next) {
                 case 0:
-                  state = _ref124.state, dispatch = _ref124.dispatch;
+                  state = _ref127.state, dispatch = _ref127.dispatch;
 
                   if (state.meta) {
                     _context145.next = 5;
@@ -36530,17 +36622,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //--------------------------------------------
       // Update to remote
       //----------------------------------------
-      updateMeta: function updateMeta(_ref125) {
+      updateMeta: function updateMeta(_ref128) {
         var _arguments24 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee145() {
-          var commit, dispatch, _ref126, name, value, data;
+          var commit, dispatch, _ref129, name, value, data;
 
           return regeneratorRuntime.wrap(function _callee145$(_context146) {
             while (1) {
               switch (_context146.prev = _context146.next) {
                 case 0:
-                  commit = _ref125.commit, dispatch = _ref125.dispatch;
-                  _ref126 = _arguments24.length > 1 && _arguments24[1] !== undefined ? _arguments24[1] : {}, name = _ref126.name, value = _ref126.value;
+                  commit = _ref128.commit, dispatch = _ref128.dispatch;
+                  _ref129 = _arguments24.length > 1 && _arguments24[1] !== undefined ? _arguments24[1] : {}, name = _ref129.name, value = _ref129.value;
                   //console.log("I am update", name, value)
                   data = Ti.Types.toObjByPair({
                     name: name,
@@ -36558,7 +36650,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //----------------------------------------
-      updateMetas: function updateMetas(_ref127) {
+      updateMetas: function updateMetas(_ref130) {
         var _arguments25 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee146() {
           var state, commit, data, json, th_set, th_id, cmdText, reo, isError;
@@ -36566,7 +36658,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             while (1) {
               switch (_context147.prev = _context147.next) {
                 case 0:
-                  state = _ref127.state, commit = _ref127.commit;
+                  state = _ref130.state, commit = _ref130.commit;
                   data = _arguments25.length > 1 && _arguments25[1] !== undefined ? _arguments25[1] : {};
 
                   if (!_.isMatchWith(state.meta, data, _.isEqual)) {
@@ -36650,14 +36742,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //   await dispatch("reload", meta)
       // },
       //----------------------------------------
-      save: function save(_ref128) {
+      save: function save(_ref131) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee147() {
           var state, commit, meta, content, newMeta;
           return regeneratorRuntime.wrap(function _callee147$(_context148) {
             while (1) {
               switch (_context148.prev = _context148.next) {
                 case 0:
-                  state = _ref128.state, commit = _ref128.commit;
+                  state = _ref131.state, commit = _ref131.commit;
 
                   if (!(state.status.saving || !state.status.changed)) {
                     _context148.next = 3;
@@ -36695,14 +36787,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //----------------------------------------
-      reload: function reload(_ref129, meta) {
+      reload: function reload(_ref132, meta) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee148() {
           var state, commit, dispatch, content;
           return regeneratorRuntime.wrap(function _callee148$(_context149) {
             while (1) {
               switch (_context149.prev = _context149.next) {
                 case 0:
-                  state = _ref129.state, commit = _ref129.commit, dispatch = _ref129.dispatch;
+                  state = _ref132.state, commit = _ref132.commit, dispatch = _ref132.dispatch;
 
                   if (!(state.status.reloading || state.status.saving)) {
                     _context149.next = 3;
@@ -36904,10 +36996,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //----------------------------------------
         setFieldStatus: function setFieldStatus(state) {
-          var _ref130 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              name = _ref130.name,
-              type = _ref130.type,
-              text = _ref130.text;
+          var _ref133 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              name = _ref133.name,
+              type = _ref133.type,
+              text = _ref133.text;
 
           if (name) {
             var ukey = _.concat(name).join("-");
@@ -36953,17 +37045,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   (function () {
     var _M = {
       //--------------------------------------------
-      updateMeta: function updateMeta(_ref131) {
+      updateMeta: function updateMeta(_ref134) {
         var _arguments26 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee149() {
-          var state, commit, _ref132, name, value, data, json, oid, cmdText, newMeta;
+          var state, commit, _ref135, name, value, data, json, oid, cmdText, newMeta;
 
           return regeneratorRuntime.wrap(function _callee149$(_context150) {
             while (1) {
               switch (_context150.prev = _context150.next) {
                 case 0:
-                  state = _ref131.state, commit = _ref131.commit;
-                  _ref132 = _arguments26.length > 1 && _arguments26[1] !== undefined ? _arguments26[1] : {}, name = _ref132.name, value = _ref132.value;
+                  state = _ref134.state, commit = _ref134.commit;
+                  _ref135 = _arguments26.length > 1 && _arguments26[1] !== undefined ? _arguments26[1] : {}, name = _ref135.name, value = _ref135.value;
                   //console.log("I am update", name, value)
                   data = Ti.Types.toObjByPair({
                     name: name,
@@ -37017,14 +37109,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Get obj by ID
        */
-      loadMetaById: function loadMetaById(_ref133, id) {
+      loadMetaById: function loadMetaById(_ref136, id) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee150() {
           var dispatch;
           return regeneratorRuntime.wrap(function _callee150$(_context151) {
             while (1) {
               switch (_context151.prev = _context151.next) {
                 case 0:
-                  dispatch = _ref133.dispatch;
+                  dispatch = _ref136.dispatch;
                   dispatch("loadMeta", "id:".concat(id));
 
                 case 2:
@@ -37040,14 +37132,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Get obj meta by path string
        */
-      loadMeta: function loadMeta(_ref134, str) {
+      loadMeta: function loadMeta(_ref137, str) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee151() {
           var state, commit, meta;
           return regeneratorRuntime.wrap(function _callee151$(_context152) {
             while (1) {
               switch (_context152.prev = _context152.next) {
                 case 0:
-                  state = _ref134.state, commit = _ref134.commit;
+                  state = _ref137.state, commit = _ref137.commit;
 
                   if (str) {
                     _context152.next = 5;
@@ -37085,7 +37177,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Get obj ancestors by meta
        */
-      loadAncestors: function loadAncestors(_ref135) {
+      loadAncestors: function loadAncestors(_ref138) {
         var _arguments27 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee152() {
           var state, commit, meta, ancestors, parent;
@@ -37093,7 +37185,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             while (1) {
               switch (_context153.prev = _context153.next) {
                 case 0:
-                  state = _ref135.state, commit = _ref135.commit;
+                  state = _ref138.state, commit = _ref138.commit;
                   meta = _arguments27.length > 1 && _arguments27[1] !== undefined ? _arguments27[1] : state.meta;
                   commit("setStatus", {
                     reloading: true
@@ -37127,14 +37219,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
        * @param str{String|Object} : string as the path,
        *        object is the meta
        */
-      reload: function reload(_ref136, str) {
+      reload: function reload(_ref139, str) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee153() {
           var state, dispatch;
           return regeneratorRuntime.wrap(function _callee153$(_context154) {
             while (1) {
               switch (_context154.prev = _context154.next) {
                 case 0:
-                  state = _ref136.state, dispatch = _ref136.dispatch;
+                  state = _ref139.state, dispatch = _ref139.dispatch;
 
                   if (!_.isString(str)) {
                     _context154.next = 8;
@@ -37286,10 +37378,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------
         setFieldStatus: function setFieldStatus(state) {
-          var _ref137 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              name = _ref137.name,
-              message = _ref137.message,
-              status = _ref137.status;
+          var _ref140 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              name = _ref140.name,
+              message = _ref140.message,
+              status = _ref140.status;
 
           if (name) {
             var st = status ? {
@@ -37407,14 +37499,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Save current thing detail
        */
-      saveCurrent: function saveCurrent(_ref138) {
+      saveCurrent: function saveCurrent(_ref141) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee154() {
           var commit, dispatch;
           return regeneratorRuntime.wrap(function _callee154$(_context155) {
             while (1) {
               switch (_context155.prev = _context155.next) {
                 case 0:
-                  commit = _ref138.commit, dispatch = _ref138.dispatch;
+                  commit = _ref141.commit, dispatch = _ref141.dispatch;
                   commit("setStatus", {
                     saving: true
                   });
@@ -37440,17 +37532,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Update current thing meta data to search/meta
        */
-      updateCurrent: function updateCurrent(_ref139) {
+      updateCurrent: function updateCurrent(_ref142) {
         var _arguments28 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee155() {
-          var state, commit, dispatch, getters, _ref140, name, value;
+          var state, commit, dispatch, getters, _ref143, name, value;
 
           return regeneratorRuntime.wrap(function _callee155$(_context156) {
             while (1) {
               switch (_context156.prev = _context156.next) {
                 case 0:
-                  state = _ref139.state, commit = _ref139.commit, dispatch = _ref139.dispatch, getters = _ref139.getters;
-                  _ref140 = _arguments28.length > 1 && _arguments28[1] !== undefined ? _arguments28[1] : {}, name = _ref140.name, value = _ref140.value;
+                  state = _ref142.state, commit = _ref142.commit, dispatch = _ref142.dispatch, getters = _ref142.getters;
+                  _ref143 = _arguments28.length > 1 && _arguments28[1] !== undefined ? _arguments28[1] : {}, name = _ref143.name, value = _ref143.value;
 
                   if (!getters.hasCurrent) {
                     _context156.next = 6;
@@ -37475,7 +37567,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      updateCurrentMetas: function updateCurrentMetas(_ref141) {
+      updateCurrentMetas: function updateCurrentMetas(_ref144) {
         var _arguments29 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee156() {
           var state, commit, dispatch, getters, data;
@@ -37483,7 +37575,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             while (1) {
               switch (_context157.prev = _context157.next) {
                 case 0:
-                  state = _ref141.state, commit = _ref141.commit, dispatch = _ref141.dispatch, getters = _ref141.getters;
+                  state = _ref144.state, commit = _ref144.commit, dispatch = _ref144.dispatch, getters = _ref144.getters;
                   data = _arguments29.length > 1 && _arguments29[1] !== undefined ? _arguments29[1] : {};
 
                   if (!getters.hasCurrent) {
@@ -37506,7 +37598,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      batchUpdateMetas: function batchUpdateMetas(_ref142) {
+      batchUpdateMetas: function batchUpdateMetas(_ref145) {
         var _arguments30 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee157() {
           var state, commit, getters, updates, checkedItems, currentId, input, tsId, _iterator87, _step87, it, cmdText, newIt;
@@ -37515,7 +37607,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             while (1) {
               switch (_context158.prev = _context158.next) {
                 case 0:
-                  state = _ref142.state, commit = _ref142.commit, getters = _ref142.getters;
+                  state = _ref145.state, commit = _ref145.commit, getters = _ref145.getters;
                   updates = _arguments30.length > 1 && _arguments30[1] !== undefined ? _arguments30[1] : {};
                   checkedItems = getters["search/checkedItems"]; // Guard
 
@@ -37598,19 +37690,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      setCurrentMeta: function setCurrentMeta(_ref143, meta) {
-        var state = _ref143.state,
-            commit = _ref143.commit;
+      setCurrentMeta: function setCurrentMeta(_ref146, meta) {
+        var state = _ref146.state,
+            commit = _ref146.commit;
         console.log(" -> setCurrentMeta", meta);
         commit("current/assignMeta", meta);
         commit("syncStatusChanged");
         commit("search/updateItem", state.current.meta);
       },
       //--------------------------------------------
-      setCurrentContent: function setCurrentContent(_ref144, content) {
-        var state = _ref144.state,
-            commit = _ref144.commit,
-            dispatch = _ref144.dispatch;
+      setCurrentContent: function setCurrentContent(_ref147, content) {
+        var state = _ref147.state,
+            commit = _ref147.commit,
+            dispatch = _ref147.dispatch;
         dispatch("current/onChanged", content);
         commit("syncStatusChanged");
         commit("search/updateItem", state.current.meta);
@@ -37620,14 +37712,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Files: sync the file count and update to search/meta
        */
-      autoSyncCurrentFilesCount: function autoSyncCurrentFilesCount(_ref145) {
+      autoSyncCurrentFilesCount: function autoSyncCurrentFilesCount(_ref148) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee158() {
           var state, commit, oTh, dirName, th_set, cmdText, oNew;
           return regeneratorRuntime.wrap(function _callee158$(_context159) {
             while (1) {
               switch (_context159.prev = _context159.next) {
                 case 0:
-                  state = _ref145.state, commit = _ref145.commit;
+                  state = _ref148.state, commit = _ref148.commit;
                   oTh = state.current.meta;
                   dirName = state.currentDataDir; // sync current media count
 
@@ -37664,14 +37756,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Toggle enter/outer RecycleBin
        */
-      toggleInRecycleBin: function toggleInRecycleBin(_ref146) {
+      toggleInRecycleBin: function toggleInRecycleBin(_ref149) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee159() {
           var state, commit, dispatch, getters, inRecycleBin;
           return regeneratorRuntime.wrap(function _callee159$(_context160) {
             while (1) {
               switch (_context160.prev = _context160.next) {
                 case 0:
-                  state = _ref146.state, commit = _ref146.commit, dispatch = _ref146.dispatch, getters = _ref146.getters;
+                  state = _ref149.state, commit = _ref149.commit, dispatch = _ref149.dispatch, getters = _ref149.getters;
                   //console.log("thing-manager-toggleInRecycleBin")
                   // Update Search
                   inRecycleBin = !getters.isInRecycleBin;
@@ -37703,7 +37795,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Create one new thing
        */
-      create: function create(_ref147) {
+      create: function create(_ref150) {
         var _arguments31 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee160() {
           var state, commit, dispatch, obj, beCreate, unique, after, fixed, json, th_set, cmds, cmdText, newMeta;
@@ -37711,7 +37803,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             while (1) {
               switch (_context161.prev = _context161.next) {
                 case 0:
-                  state = _ref147.state, commit = _ref147.commit, dispatch = _ref147.dispatch;
+                  state = _ref150.state, commit = _ref150.commit, dispatch = _ref150.dispatch;
                   obj = _arguments31.length > 1 && _arguments31[1] !== undefined ? _arguments31[1] : {};
                   // Special setting for create
                   beCreate = _.get(state.config, "schema.behavior.create") || {};
@@ -37776,7 +37868,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Search: Remove Checked Items
        */
-      removeChecked: function removeChecked(_ref148) {
+      removeChecked: function removeChecked(_ref151) {
         var _arguments32 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee161() {
           var state, commit, dispatch, getters, hard, ids, th_set, cmdText, reo, current;
@@ -37784,7 +37876,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             while (1) {
               switch (_context162.prev = _context162.next) {
                 case 0:
-                  state = _ref148.state, commit = _ref148.commit, dispatch = _ref148.dispatch, getters = _ref148.getters;
+                  state = _ref151.state, commit = _ref151.commit, dispatch = _ref151.dispatch, getters = _ref151.getters;
                   hard = _arguments32.length > 1 && _arguments32[1] !== undefined ? _arguments32[1] : false;
                   //console.log("removeChecked", hard)
                   ids = state.search.checkedIds;
@@ -37840,14 +37932,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * RecycleBin: restore
        */
-      restoreRecycleBin: function restoreRecycleBin(_ref149) {
+      restoreRecycleBin: function restoreRecycleBin(_ref152) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee162() {
           var state, commit, dispatch, getters, ids, th_set, cmdText, reo, current;
           return regeneratorRuntime.wrap(function _callee162$(_context163) {
             while (1) {
               switch (_context163.prev = _context163.next) {
                 case 0:
-                  state = _ref149.state, commit = _ref149.commit, dispatch = _ref149.dispatch, getters = _ref149.getters;
+                  state = _ref152.state, commit = _ref152.commit, dispatch = _ref152.dispatch, getters = _ref152.getters;
                   // Require user to select some things at first
                   ids = state.search.checkedIds;
 
@@ -37904,14 +37996,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * RecycleBin: clean
        */
-      cleanRecycleBin: function cleanRecycleBin(_ref150) {
+      cleanRecycleBin: function cleanRecycleBin(_ref153) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee163() {
           var state, commit, dispatch, th_set, cmdText;
           return regeneratorRuntime.wrap(function _callee163$(_context164) {
             while (1) {
               switch (_context164.prev = _context164.next) {
                 case 0:
-                  state = _ref150.state, commit = _ref150.commit, dispatch = _ref150.dispatch;
+                  state = _ref153.state, commit = _ref153.commit, dispatch = _ref153.dispatch;
                   commit("setStatus", {
                     cleaning: true
                   }); // Run command
@@ -37941,14 +38033,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Open meta editor, if has current, use it
        */
-      openMetaEditor: function openMetaEditor(_ref151) {
+      openMetaEditor: function openMetaEditor(_ref154) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee164() {
           var state, getters, dispatch, reo, updates;
           return regeneratorRuntime.wrap(function _callee164$(_context165) {
             while (1) {
               switch (_context165.prev = _context165.next) {
                 case 0:
-                  state = _ref151.state, getters = _ref151.getters, dispatch = _ref151.dispatch;
+                  state = _ref154.state, getters = _ref154.getters, dispatch = _ref154.dispatch;
 
                   if (state.meta) {
                     _context165.next = 5;
@@ -38018,17 +38110,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Reload files
        */
-      reloadFiles: function reloadFiles(_ref152) {
+      reloadFiles: function reloadFiles(_ref155) {
         var _arguments33 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee165() {
-          var state, commit, dispatch, getters, _ref153, _ref153$force, force, current, thingId, dirName, thSetId, oDir, dataHome, dirPath, newMeta, json, cmdText;
+          var state, commit, dispatch, getters, _ref156, _ref156$force, force, current, thingId, dirName, thSetId, oDir, dataHome, dirPath, newMeta, json, cmdText;
 
           return regeneratorRuntime.wrap(function _callee165$(_context166) {
             while (1) {
               switch (_context166.prev = _context166.next) {
                 case 0:
-                  state = _ref152.state, commit = _ref152.commit, dispatch = _ref152.dispatch, getters = _ref152.getters;
-                  _ref153 = _arguments33.length > 1 && _arguments33[1] !== undefined ? _arguments33[1] : {}, _ref153$force = _ref153.force, force = _ref153$force === void 0 ? false : _ref153$force;
+                  state = _ref155.state, commit = _ref155.commit, dispatch = _ref155.dispatch, getters = _ref155.getters;
+                  _ref156 = _arguments33.length > 1 && _arguments33[1] !== undefined ? _arguments33[1] : {}, _ref156$force = _ref156.force, force = _ref156$force === void 0 ? false : _ref156$force;
                   //console.log("reloadFiles")
                   current = _.get(state.current, "meta");
                   thingId = _.get(current, "id");
@@ -38094,7 +38186,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Reload search list
        */
-      reloadSearch: function reloadSearch(_ref154) {
+      reloadSearch: function reloadSearch(_ref157) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee166() {
           var state, commit, dispatch, meta, currentId, current, _iterator88, _step88, it;
 
@@ -38102,7 +38194,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             while (1) {
               switch (_context167.prev = _context167.next) {
                 case 0:
-                  state = _ref154.state, commit = _ref154.commit, dispatch = _ref154.dispatch;
+                  state = _ref157.state, commit = _ref157.commit, dispatch = _ref157.dispatch;
                   meta = state.meta;
                   commit("setStatus", {
                     reloading: true
@@ -38187,17 +38279,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
        * 
        * It will load content if "content" is shown
        */
-      setCurrentThing: function setCurrentThing(_ref155) {
+      setCurrentThing: function setCurrentThing(_ref158) {
         var _arguments34 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee167() {
-          var state, commit, dispatch, _ref156, _ref156$meta, meta, _ref156$checkedIds, checkedIds, curId, ckIds, home, dataHome;
+          var state, commit, dispatch, _ref159, _ref159$meta, meta, _ref159$checkedIds, checkedIds, curId, ckIds, home, dataHome;
 
           return regeneratorRuntime.wrap(function _callee167$(_context168) {
             while (1) {
               switch (_context168.prev = _context168.next) {
                 case 0:
-                  state = _ref155.state, commit = _ref155.commit, dispatch = _ref155.dispatch;
-                  _ref156 = _arguments34.length > 1 && _arguments34[1] !== undefined ? _arguments34[1] : {}, _ref156$meta = _ref156.meta, meta = _ref156$meta === void 0 ? null : _ref156$meta, _ref156$checkedIds = _ref156.checkedIds, checkedIds = _ref156$checkedIds === void 0 ? {} : _ref156$checkedIds;
+                  state = _ref158.state, commit = _ref158.commit, dispatch = _ref158.dispatch;
+                  _ref159 = _arguments34.length > 1 && _arguments34[1] !== undefined ? _arguments34[1] : {}, _ref159$meta = _ref159.meta, meta = _ref159$meta === void 0 ? null : _ref159$meta, _ref159$checkedIds = _ref159.checkedIds, checkedIds = _ref159$checkedIds === void 0 ? {} : _ref159$checkedIds;
                   _context168.next = 4;
                   return dispatch("current/reload", meta);
 
@@ -38234,14 +38326,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
        * 
        * If show content/files, it may check if need to be reload data
        */
-      doChangeShown: function doChangeShown(_ref157, shown) {
+      doChangeShown: function doChangeShown(_ref160, shown) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee168() {
           var state, commit, dispatch;
           return regeneratorRuntime.wrap(function _callee168$(_context169) {
             while (1) {
               switch (_context169.prev = _context169.next) {
                 case 0:
-                  state = _ref157.state, commit = _ref157.commit, dispatch = _ref157.dispatch;
+                  state = _ref160.state, commit = _ref160.commit, dispatch = _ref160.dispatch;
                   // Just mark the shown
                   dispatch("config/updateShown", shown);
 
@@ -38258,14 +38350,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Reload All
        */
-      reload: function reload(_ref158, meta) {
+      reload: function reload(_ref161, meta) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee169() {
           var state, commit, dispatch, local, filter, sorter, current;
           return regeneratorRuntime.wrap(function _callee169$(_context170) {
             while (1) {
               switch (_context170.prev = _context170.next) {
                 case 0:
-                  state = _ref158.state, commit = _ref158.commit, dispatch = _ref158.dispatch;
+                  state = _ref161.state, commit = _ref161.commit, dispatch = _ref161.dispatch;
 
                   //console.log("thing-manager.reload", state)
                   // Update New Meta
@@ -38297,16 +38389,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
                   filter = _.get(state.config.schema, "behavior.filter") || {};
-
-                  _.assign(filter, local.filter);
+                  filter = _.assign({}, filter, local.filter);
 
                   if (!_.isEmpty(filter)) {
                     commit("search/setFilter", filter);
                   }
 
                   sorter = _.get(state.config.schema, "behavior.sorter") || {};
-
-                  _.assign(sorter, local.sorter);
+                  sorter = _.assign({}, sorter, local.sorter);
 
                   if (!_.isEmpty(sorter)) {
                     commit("search/setSorter", sorter);
@@ -38425,20 +38515,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     ////////////////////////////////////////////////
     var _M = {
       //----------------------------------------
-      updateShown: function updateShown(_ref159, shown) {
-        var commit = _ref159.commit;
+      updateShown: function updateShown(_ref162, shown) {
+        var commit = _ref162.commit;
         commit("mergeShown", shown);
         commit("persistShown");
       },
       //----------------------------------------
-      reloadSchema: function reloadSchema(_ref160) {
+      reloadSchema: function reloadSchema(_ref163) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee170() {
           var state, commit, aph, obj, schema, methods;
           return regeneratorRuntime.wrap(function _callee170$(_context171) {
             while (1) {
               switch (_context171.prev = _context171.next) {
                 case 0:
-                  state = _ref160.state, commit = _ref160.commit;
+                  state = _ref163.state, commit = _ref163.commit;
                   //console.log("reloadSchema")
                   aph = "id:".concat(state.meta.id, "/thing-schema.json");
                   _context171.next = 4;
@@ -38485,14 +38575,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //----------------------------------------
-      reloadLayout: function reloadLayout(_ref161) {
+      reloadLayout: function reloadLayout(_ref164) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee171() {
           var state, commit, aph, obj, json;
           return regeneratorRuntime.wrap(function _callee171$(_context172) {
             while (1) {
               switch (_context172.prev = _context172.next) {
                 case 0:
-                  state = _ref161.state, commit = _ref161.commit;
+                  state = _ref164.state, commit = _ref164.commit;
                   //console.log("reloadLayout")
                   aph = "id:".concat(state.meta.id, "/thing-layout.json");
                   _context172.next = 4;
@@ -38522,14 +38612,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //----------------------------------------
-      reloadActions: function reloadActions(_ref162) {
+      reloadActions: function reloadActions(_ref165) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee172() {
           var state, commit, aph, obj, json;
           return regeneratorRuntime.wrap(function _callee172$(_context173) {
             while (1) {
               switch (_context173.prev = _context173.next) {
                 case 0:
-                  state = _ref162.state, commit = _ref162.commit;
+                  state = _ref165.state, commit = _ref165.commit;
                   // console.log("reloadActions")
                   aph = "id:".concat(state.meta.id, "/thing-actions.json");
                   _context173.next = 4;
@@ -38557,14 +38647,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //----------------------------------------
-      reload: function reload(_ref163, meta) {
+      reload: function reload(_ref166, meta) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee173() {
           var state, commit, dispatch;
           return regeneratorRuntime.wrap(function _callee173$(_context174) {
             while (1) {
               switch (_context174.prev = _context174.next) {
                 case 0:
-                  state = _ref163.state, commit = _ref163.commit, dispatch = _ref163.dispatch;
+                  state = _ref166.state, commit = _ref166.commit, dispatch = _ref166.dispatch;
 
                   //console.log("thing-manager-config.reload", state)
                   // Update New Meta
@@ -38699,14 +38789,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     ////////////////////////////////////////////////
     var _M = {
       //--------------------------------------------
-      reloadPage: function reloadPage(_ref164, pg) {
+      reloadPage: function reloadPage(_ref167, pg) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee174() {
           var state, commit, dispatch;
           return regeneratorRuntime.wrap(function _callee174$(_context175) {
             while (1) {
               switch (_context175.prev = _context175.next) {
                 case 0:
-                  state = _ref164.state, commit = _ref164.commit, dispatch = _ref164.dispatch;
+                  state = _ref167.state, commit = _ref167.commit, dispatch = _ref167.dispatch;
                   commit("updatePager", pg);
                   _context175.next = 4;
                   return dispatch("reload");
@@ -38720,15 +38810,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }))();
       },
       //--------------------------------------------
-      reload: function reload(_ref165, meta) {
+      reload: function reload(_ref168, meta) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee175() {
-          var state, commit, rootState, cmds, _ref166, keyword, match, flt, knm, beh, keys, _iterator89, _step89, k, val, sort, pg, limit, skip, input, cmdText, reo;
+          var state, commit, rootState, cmds, _ref169, keyword, match, flt, knm, beh, keys, _iterator89, _step89, k, val, sort, pg, limit, skip, input, cmdText, reo;
 
           return regeneratorRuntime.wrap(function _callee175$(_context176) {
             while (1) {
               switch (_context176.prev = _context176.next) {
                 case 0:
-                  state = _ref165.state, commit = _ref165.commit, rootState = _ref165.rootState;
+                  state = _ref168.state, commit = _ref168.commit, rootState = _ref168.rootState;
 
                   //console.log("thing-manager-search.reload", meta)
                   //............................................
@@ -38747,7 +38837,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }); //............................................
 
                   cmds = ["thing id:".concat(meta.id, " query -pager -cqn")];
-                  _ref166 = state.filter || {}, keyword = _ref166.keyword, match = _ref166.match;
+                  _ref169 = state.filter || {}, keyword = _ref169.keyword, match = _ref169.match;
                   flt = {}; //............................................
                   // Eval Filter: keyword
 
@@ -39729,17 +39819,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ////////////////////////////////////////////////
       actions: {
         //--------------------------------------------
-        doCheckMe: function doCheckMe(_ref167) {
+        doCheckMe: function doCheckMe(_ref170) {
           var _arguments36 = arguments;
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee179() {
-            var state, commit, dispatch, getters, rootState, _ref168, _ref168$force, force, success, fail, nophone, siteId, ticket, reo, me;
+            var state, commit, dispatch, getters, rootState, _ref171, _ref171$force, force, success, fail, nophone, siteId, ticket, reo, me;
 
             return regeneratorRuntime.wrap(function _callee179$(_context180) {
               while (1) {
                 switch (_context180.prev = _context180.next) {
                   case 0:
-                    state = _ref167.state, commit = _ref167.commit, dispatch = _ref167.dispatch, getters = _ref167.getters, rootState = _ref167.rootState;
-                    _ref168 = _arguments36.length > 1 && _arguments36[1] !== undefined ? _arguments36[1] : {}, _ref168$force = _ref168.force, force = _ref168$force === void 0 ? false : _ref168$force, success = _ref168.success, fail = _ref168.fail, nophone = _ref168.nophone;
+                    state = _ref170.state, commit = _ref170.commit, dispatch = _ref170.dispatch, getters = _ref170.getters, rootState = _ref170.rootState;
+                    _ref171 = _arguments36.length > 1 && _arguments36[1] !== undefined ? _arguments36[1] : {}, _ref171$force = _ref171.force, force = _ref171$force === void 0 ? false : _ref171$force, success = _ref171.success, fail = _ref171.fail, nophone = _ref171.nophone;
                     console.log("I am doCheckMe", {
                       force: force,
                       success: success,
@@ -39856,17 +39946,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }))();
         },
         //--------------------------------------------
-        autoCheckmeOrAuthByWxghCode: function autoCheckmeOrAuthByWxghCode(_ref169) {
+        autoCheckmeOrAuthByWxghCode: function autoCheckmeOrAuthByWxghCode(_ref172) {
           var _arguments37 = arguments;
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee180() {
-            var dispatch, _ref170, _ref170$codeKey, codeKey, _ref170$codeTypeBy, codeTypeBy, _ref170$force, force, _fail, nophone;
+            var dispatch, _ref173, _ref173$codeKey, codeKey, _ref173$codeTypeBy, codeTypeBy, _ref173$force, force, _fail, nophone;
 
             return regeneratorRuntime.wrap(function _callee180$(_context181) {
               while (1) {
                 switch (_context181.prev = _context181.next) {
                   case 0:
-                    dispatch = _ref169.dispatch;
-                    _ref170 = _arguments37.length > 1 && _arguments37[1] !== undefined ? _arguments37[1] : {}, _ref170$codeKey = _ref170.codeKey, codeKey = _ref170$codeKey === void 0 ? "code" : _ref170$codeKey, _ref170$codeTypeBy = _ref170.codeTypeBy, codeTypeBy = _ref170$codeTypeBy === void 0 ? "ct" : _ref170$codeTypeBy, _ref170$force = _ref170.force, force = _ref170$force === void 0 ? false : _ref170$force, _fail = _ref170.fail, nophone = _ref170.nophone;
+                    dispatch = _ref172.dispatch;
+                    _ref173 = _arguments37.length > 1 && _arguments37[1] !== undefined ? _arguments37[1] : {}, _ref173$codeKey = _ref173.codeKey, codeKey = _ref173$codeKey === void 0 ? "code" : _ref173$codeKey, _ref173$codeTypeBy = _ref173.codeTypeBy, codeTypeBy = _ref173$codeTypeBy === void 0 ? "ct" : _ref173$codeTypeBy, _ref173$force = _ref173.force, force = _ref173$force === void 0 ? false : _ref173$force, _fail = _ref173.fail, nophone = _ref173.nophone;
                     console.log("autoCheckmeOrAuthByWxghCode");
                     dispatch("doCheckMe", {
                       force: force,
@@ -39885,9 +39975,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                           },
                           //......................................
                           ok: function ok() {
-                            var _ref171 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                                _ref171$me = _ref171.me,
-                                me = _ref171$me === void 0 ? {} : _ref171$me;
+                            var _ref174 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                                _ref174$me = _ref174.me,
+                                me = _ref174$me === void 0 ? {} : _ref174$me;
 
                             if (nophone) {
                               if (!me.phone) {
@@ -39911,17 +40001,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }))();
         },
         //--------------------------------------------
-        authByWxghCode: function authByWxghCode(_ref172) {
+        authByWxghCode: function authByWxghCode(_ref175) {
           var _arguments38 = arguments;
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee181() {
-            var commit, getters, rootState, _ref173, _ref173$codeKey, codeKey, _ref173$codeTypeBy, codeTypeBy, _ref173$done, done, _ref173$ok, ok, _ref173$fail, fail, _ref173$invalid, invalid, _ref173$others, others, code, codeType, siteId, url, params, reo;
+            var commit, getters, rootState, _ref176, _ref176$codeKey, codeKey, _ref176$codeTypeBy, codeTypeBy, _ref176$done, done, _ref176$ok, ok, _ref176$fail, fail, _ref176$invalid, invalid, _ref176$others, others, code, codeType, siteId, url, params, reo;
 
             return regeneratorRuntime.wrap(function _callee181$(_context182) {
               while (1) {
                 switch (_context182.prev = _context182.next) {
                   case 0:
-                    commit = _ref172.commit, getters = _ref172.getters, rootState = _ref172.rootState;
-                    _ref173 = _arguments38.length > 1 && _arguments38[1] !== undefined ? _arguments38[1] : {}, _ref173$codeKey = _ref173.codeKey, codeKey = _ref173$codeKey === void 0 ? "code" : _ref173$codeKey, _ref173$codeTypeBy = _ref173.codeTypeBy, codeTypeBy = _ref173$codeTypeBy === void 0 ? "ct" : _ref173$codeTypeBy, _ref173$done = _ref173.done, done = _ref173$done === void 0 ? _.identity : _ref173$done, _ref173$ok = _ref173.ok, ok = _ref173$ok === void 0 ? _.identity : _ref173$ok, _ref173$fail = _ref173.fail, fail = _ref173$fail === void 0 ? _.identity : _ref173$fail, _ref173$invalid = _ref173.invalid, invalid = _ref173$invalid === void 0 ? _.identity : _ref173$invalid, _ref173$others = _ref173.others, others = _ref173$others === void 0 ? _.identity : _ref173$others;
+                    commit = _ref175.commit, getters = _ref175.getters, rootState = _ref175.rootState;
+                    _ref176 = _arguments38.length > 1 && _arguments38[1] !== undefined ? _arguments38[1] : {}, _ref176$codeKey = _ref176.codeKey, codeKey = _ref176$codeKey === void 0 ? "code" : _ref176$codeKey, _ref176$codeTypeBy = _ref176.codeTypeBy, codeTypeBy = _ref176$codeTypeBy === void 0 ? "ct" : _ref176$codeTypeBy, _ref176$done = _ref176.done, done = _ref176$done === void 0 ? _.identity : _ref176$done, _ref176$ok = _ref176.ok, ok = _ref176$ok === void 0 ? _.identity : _ref176$ok, _ref176$fail = _ref176.fail, fail = _ref176$fail === void 0 ? _.identity : _ref176$fail, _ref176$invalid = _ref176.invalid, invalid = _ref176$invalid === void 0 ? _.identity : _ref176$invalid, _ref176$others = _ref176.others, others = _ref176$others === void 0 ? _.identity : _ref176$others;
                     // Guard code
                     code = rootState.page.params[codeKey];
 
@@ -40000,19 +40090,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }))();
         },
         //--------------------------------------------
-        doAuth: function doAuth(_ref174) {
+        doAuth: function doAuth(_ref177) {
           var _arguments39 = arguments;
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee182() {
             var _params;
 
-            var commit, getters, rootState, _ref175, _ref175$type, type, name, passwd, _ref175$done, done, _ref175$ok, ok, _ref175$fail, fail, _ref175$noexist, noexist, _ref175$invalid, invalid, _ref175$others, others, siteId, url, ticket, passKey, params, reo;
+            var commit, getters, rootState, _ref178, _ref178$type, type, name, passwd, _ref178$done, done, _ref178$ok, ok, _ref178$fail, fail, _ref178$noexist, noexist, _ref178$invalid, invalid, _ref178$others, others, siteId, url, ticket, passKey, params, reo;
 
             return regeneratorRuntime.wrap(function _callee182$(_context183) {
               while (1) {
                 switch (_context183.prev = _context183.next) {
                   case 0:
-                    commit = _ref174.commit, getters = _ref174.getters, rootState = _ref174.rootState;
-                    _ref175 = _arguments39.length > 1 && _arguments39[1] !== undefined ? _arguments39[1] : {}, _ref175$type = _ref175.type, type = _ref175$type === void 0 ? "login_by_passwd" : _ref175$type, name = _ref175.name, passwd = _ref175.passwd, _ref175$done = _ref175.done, done = _ref175$done === void 0 ? _.identity : _ref175$done, _ref175$ok = _ref175.ok, ok = _ref175$ok === void 0 ? _.identity : _ref175$ok, _ref175$fail = _ref175.fail, fail = _ref175$fail === void 0 ? _.identity : _ref175$fail, _ref175$noexist = _ref175.noexist, noexist = _ref175$noexist === void 0 ? _.identity : _ref175$noexist, _ref175$invalid = _ref175.invalid, invalid = _ref175$invalid === void 0 ? _.identity : _ref175$invalid, _ref175$others = _ref175.others, others = _ref175$others === void 0 ? _.identity : _ref175$others;
+                    commit = _ref177.commit, getters = _ref177.getters, rootState = _ref177.rootState;
+                    _ref178 = _arguments39.length > 1 && _arguments39[1] !== undefined ? _arguments39[1] : {}, _ref178$type = _ref178.type, type = _ref178$type === void 0 ? "login_by_passwd" : _ref178$type, name = _ref178.name, passwd = _ref178.passwd, _ref178$done = _ref178.done, done = _ref178$done === void 0 ? _.identity : _ref178$done, _ref178$ok = _ref178.ok, ok = _ref178$ok === void 0 ? _.identity : _ref178$ok, _ref178$fail = _ref178.fail, fail = _ref178$fail === void 0 ? _.identity : _ref178$fail, _ref178$noexist = _ref178.noexist, noexist = _ref178$noexist === void 0 ? _.identity : _ref178$noexist, _ref178$invalid = _ref178.invalid, invalid = _ref178$invalid === void 0 ? _.identity : _ref178$invalid, _ref178$others = _ref178.others, others = _ref178$others === void 0 ? _.identity : _ref178$others;
                     console.log("doAuth", name, passwd); // Guard SiteId
 
                     siteId = rootState.siteId;
@@ -40097,17 +40187,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }))();
         },
         //--------------------------------------------
-        doGetVcode: function doGetVcode(_ref176) {
+        doGetVcode: function doGetVcode(_ref179) {
           var _arguments40 = arguments;
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee183() {
-            var getters, rootState, _ref177, _ref177$type, type, _ref177$scene, scene, account, captcha, _ref177$done, done, _ref177$ok, ok, _ref177$fail, fail, siteId, api, url, params, reo;
+            var getters, rootState, _ref180, _ref180$type, type, _ref180$scene, scene, account, captcha, _ref180$done, done, _ref180$ok, ok, _ref180$fail, fail, siteId, api, url, params, reo;
 
             return regeneratorRuntime.wrap(function _callee183$(_context184) {
               while (1) {
                 switch (_context184.prev = _context184.next) {
                   case 0:
-                    getters = _ref176.getters, rootState = _ref176.rootState;
-                    _ref177 = _arguments40.length > 1 && _arguments40[1] !== undefined ? _arguments40[1] : {}, _ref177$type = _ref177.type, type = _ref177$type === void 0 ? "login_by_phone" : _ref177$type, _ref177$scene = _ref177.scene, scene = _ref177$scene === void 0 ? "auth" : _ref177$scene, account = _ref177.account, captcha = _ref177.captcha, _ref177$done = _ref177.done, done = _ref177$done === void 0 ? _.identity : _ref177$done, _ref177$ok = _ref177.ok, ok = _ref177$ok === void 0 ? _.identity : _ref177$ok, _ref177$fail = _ref177.fail, fail = _ref177$fail === void 0 ? _.identity : _ref177$fail;
+                    getters = _ref179.getters, rootState = _ref179.rootState;
+                    _ref180 = _arguments40.length > 1 && _arguments40[1] !== undefined ? _arguments40[1] : {}, _ref180$type = _ref180.type, type = _ref180$type === void 0 ? "login_by_phone" : _ref180$type, _ref180$scene = _ref180.scene, scene = _ref180$scene === void 0 ? "auth" : _ref180$scene, account = _ref180.account, captcha = _ref180.captcha, _ref180$done = _ref180.done, done = _ref180$done === void 0 ? _.identity : _ref180$done, _ref180$ok = _ref180.ok, ok = _ref180$ok === void 0 ? _.identity : _ref180$ok, _ref180$fail = _ref180.fail, fail = _ref180$fail === void 0 ? _.identity : _ref180$fail;
                     console.log("getVcode", {
                       type: type,
                       scene: scene,
@@ -40182,17 +40272,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }))();
         },
         //--------------------------------------------
-        doLogout: function doLogout(_ref178) {
+        doLogout: function doLogout(_ref181) {
           var _arguments41 = arguments;
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee184() {
-            var commit, getters, rootState, _ref179, _ref179$done, done, _ref179$ok, ok, _ref179$fail, fail, siteId, se, url, params, reo;
+            var commit, getters, rootState, _ref182, _ref182$done, done, _ref182$ok, ok, _ref182$fail, fail, siteId, se, url, params, reo;
 
             return regeneratorRuntime.wrap(function _callee184$(_context185) {
               while (1) {
                 switch (_context185.prev = _context185.next) {
                   case 0:
-                    commit = _ref178.commit, getters = _ref178.getters, rootState = _ref178.rootState;
-                    _ref179 = _arguments41.length > 1 && _arguments41[1] !== undefined ? _arguments41[1] : {}, _ref179$done = _ref179.done, done = _ref179$done === void 0 ? _.identity : _ref179$done, _ref179$ok = _ref179.ok, ok = _ref179$ok === void 0 ? _.identity : _ref179$ok, _ref179$fail = _ref179.fail, fail = _ref179$fail === void 0 ? _.identity : _ref179$fail;
+                    commit = _ref181.commit, getters = _ref181.getters, rootState = _ref181.rootState;
+                    _ref182 = _arguments41.length > 1 && _arguments41[1] !== undefined ? _arguments41[1] : {}, _ref182$done = _ref182.done, done = _ref182$done === void 0 ? _.identity : _ref182$done, _ref182$ok = _ref182.ok, ok = _ref182$ok === void 0 ? _.identity : _ref182$ok, _ref182$fail = _ref182.fail, fail = _ref182$fail === void 0 ? _.identity : _ref182$fail;
                     console.log("doLogout"); // Guard SiteId
 
                     siteId = rootState.siteId;
@@ -40310,10 +40400,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ////////////////////////////////////////////////
       getters: {
         //--------------------------------------------
-        pageLink: function pageLink(_ref180) {
-          var path = _ref180.path,
-              params = _ref180.params,
-              anchor = _ref180.anchor;
+        pageLink: function pageLink(_ref183) {
+          var path = _ref183.path,
+              params = _ref183.params,
+              anchor = _ref183.anchor;
           var link = [path]; // Join QueryString
 
           if (!_.isEmpty(params)) {
@@ -40441,9 +40531,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }), _defineProperty(_mutations, "setData", function setData(state, data) {
         state.data = data;
-      }), _defineProperty(_mutations, "updateData", function updateData(state, _ref181) {
-        var key = _ref181.key,
-            value = _ref181.value;
+      }), _defineProperty(_mutations, "updateData", function updateData(state, _ref184) {
+        var key = _ref184.key,
+            value = _ref184.value;
 
         if (_.isUndefined(value)) {
           return;
@@ -40476,13 +40566,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ////////////////////////////////////////////////
       actions: {
         //--------------------------------------------
-        showBlock: function showBlock(_ref182, name) {
-          var commit = _ref182.commit;
+        showBlock: function showBlock(_ref185, name) {
+          var commit = _ref185.commit;
           commit("setShown", _defineProperty({}, name, true));
         },
         //--------------------------------------------
-        hideBlock: function hideBlock(_ref183, name) {
-          var commit = _ref183.commit;
+        hideBlock: function hideBlock(_ref186, name) {
+          var commit = _ref186.commit;
           commit("setShown", _defineProperty({}, name, false));
         },
         //--------------------------------------------
@@ -40496,13 +40586,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
          * @param key{String} : the field name in "page.data", falsy for whole data
          * @param args{Object|Array} : `{name,value}` Object or Array
          */
-        changeData: function changeData(_ref184, args) {
-          var commit = _ref184.commit;
+        changeData: function changeData(_ref187, args) {
+          var commit = _ref187.commit;
           var data = Ti.Util.merge({}, args);
           commit("mergeData", data);
         },
-        changeParams: function changeParams(_ref185, args) {
-          var commit = _ref185.commit;
+        changeParams: function changeParams(_ref188, args) {
+          var commit = _ref188.commit;
           var params = Ti.Util.merge({}, args);
           commit("mergeParams", params);
           commit("updateFinger");
@@ -40515,9 +40605,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
          * 
          * @param offsets{Object} - the offset number set. "a.b.c" suppored
          */
-        shiftData: function shiftData(_ref186) {
-          var state = _ref186.state,
-              commit = _ref186.commit;
+        shiftData: function shiftData(_ref189) {
+          var state = _ref189.state,
+              commit = _ref189.commit;
           var offsets = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
           if (!_.isEmpty(offsets) && _.isPlainObject(offsets)) {
@@ -40545,15 +40635,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         /***
          * Assert page data under a group of restrictions 
          */
-        assertPage: function assertPage(_ref187) {
-          var rootState = _ref187.rootState,
-              dispatch = _ref187.dispatch;
+        assertPage: function assertPage(_ref190) {
+          var rootState = _ref190.rootState,
+              dispatch = _ref190.dispatch;
 
-          var _ref188 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              _ref188$checkList = _ref188.checkList,
-              checkList = _ref188$checkList === void 0 ? [] : _ref188$checkList,
-              _ref188$fail = _ref188.fail,
-              fail = _ref188$fail === void 0 ? {} : _ref188$fail;
+          var _ref191 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              _ref191$checkList = _ref191.checkList,
+              checkList = _ref191$checkList === void 0 ? [] : _ref191$checkList,
+              _ref191$fail = _ref191.fail,
+              fail = _ref191$fail === void 0 ? {} : _ref191$fail;
 
           // Prepare check result
           var assertFail = false; // Loop the checkList
@@ -40591,7 +40681,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         /***
          * Reload page data by given api keys
          */
-        reloadData: function reloadData(_ref189) {
+        reloadData: function reloadData(_ref192) {
           var _arguments42 = arguments;
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee185() {
             var state, commit, getters, rootState, keys, isAll, apis, _iterator98, _step98, _loop3;
@@ -40600,7 +40690,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               while (1) {
                 switch (_context187.prev = _context187.next) {
                   case 0:
-                    state = _ref189.state, commit = _ref189.commit, getters = _ref189.getters, rootState = _ref189.rootState;
+                    state = _ref192.state, commit = _ref192.commit, getters = _ref192.getters, rootState = _ref192.rootState;
                     keys = _arguments42.length > 1 && _arguments42[1] !== undefined ? _arguments42[1] : [];
                     console.log("reloadData", keys); //.......................................
                     // The api list to reload
@@ -40794,16 +40884,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         /***
          * Reload whole page
          */
-        reload: function reload(_ref190, _ref191) {
+        reload: function reload(_ref193, _ref194) {
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee186() {
-            var commit, dispatch, rootGetters, path, anchor, _ref191$params, params, pinfo, _iterator99, _step99, router, json, page;
+            var commit, dispatch, rootGetters, path, anchor, _ref194$params, params, pinfo, _iterator99, _step99, router, json, page;
 
             return regeneratorRuntime.wrap(function _callee186$(_context188) {
               while (1) {
                 switch (_context188.prev = _context188.next) {
                   case 0:
-                    commit = _ref190.commit, dispatch = _ref190.dispatch, rootGetters = _ref190.rootGetters;
-                    path = _ref191.path, anchor = _ref191.anchor, _ref191$params = _ref191.params, params = _ref191$params === void 0 ? {} : _ref191$params;
+                    commit = _ref193.commit, dispatch = _ref193.dispatch, rootGetters = _ref193.rootGetters;
+                    path = _ref194.path, anchor = _ref194.anchor, _ref194$params = _ref194.params, params = _ref194$params === void 0 ? {} : _ref194$params;
                     //console.log(rootGetters.routerList)
                     console.log("page.reload", {
                       path: path,
@@ -40943,12 +41033,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var list = [];
 
           _.forEach(state.router, function () {
-            var _ref192 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                match = _ref192.match,
-                _ref192$names = _ref192.names,
-                names = _ref192$names === void 0 ? [] : _ref192$names,
-                _ref192$page = _ref192.page,
-                page = _ref192$page === void 0 ? {} : _ref192$page;
+            var _ref195 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                match = _ref195.match,
+                _ref195$names = _ref195.names,
+                names = _ref195$names === void 0 ? [] : _ref195$names,
+                _ref195$page = _ref195.page,
+                page = _ref195$page === void 0 ? {} : _ref195$page;
 
             var regex = new RegExp(match); // Pre-compiled
 
@@ -41090,16 +41180,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         },
         //-------------------------------------
-        openUrl: function openUrl(_ref193, _ref194) {
+        openUrl: function openUrl(_ref196, _ref197) {
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee187() {
-            var state, url, _ref194$target, target, _ref194$method, method, _ref194$params, params, _ref194$delay, delay;
+            var state, url, _ref197$target, target, _ref197$method, method, _ref197$params, params, _ref197$delay, delay;
 
             return regeneratorRuntime.wrap(function _callee187$(_context189) {
               while (1) {
                 switch (_context189.prev = _context189.next) {
                   case 0:
-                    state = _ref193.state;
-                    url = _ref194.url, _ref194$target = _ref194.target, target = _ref194$target === void 0 ? "_self" : _ref194$target, _ref194$method = _ref194.method, method = _ref194$method === void 0 ? "GET" : _ref194$method, _ref194$params = _ref194.params, params = _ref194$params === void 0 ? {} : _ref194$params, _ref194$delay = _ref194.delay, delay = _ref194$delay === void 0 ? 0 : _ref194$delay;
+                    state = _ref196.state;
+                    url = _ref197.url, _ref197$target = _ref197.target, target = _ref197$target === void 0 ? "_self" : _ref197$target, _ref197$method = _ref197.method, method = _ref197$method === void 0 ? "GET" : _ref197$method, _ref197$params = _ref197.params, params = _ref197$params === void 0 ? {} : _ref197$params, _ref197$delay = _ref197.delay, delay = _ref197$delay === void 0 ? 0 : _ref197$delay;
                     _context189.next = 4;
                     return Ti.Be.Open(url, {
                       target: target,
@@ -41118,17 +41208,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-------------------------------------
         // Only handle the "page|dispatch"
-        navTo: function navTo(_ref195) {
+        navTo: function navTo(_ref198) {
           var _arguments43 = arguments;
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee188() {
-            var state, commit, dispatch, _ref196, _ref196$type, type, value, anchor, data, params, _ref196$pushHistory, pushHistory;
+            var state, commit, dispatch, _ref199, _ref199$type, type, value, anchor, data, params, _ref199$pushHistory, pushHistory;
 
             return regeneratorRuntime.wrap(function _callee188$(_context190) {
               while (1) {
                 switch (_context190.prev = _context190.next) {
                   case 0:
-                    state = _ref195.state, commit = _ref195.commit, dispatch = _ref195.dispatch;
-                    _ref196 = _arguments43.length > 1 && _arguments43[1] !== undefined ? _arguments43[1] : {}, _ref196$type = _ref196.type, type = _ref196$type === void 0 ? "page" : _ref196$type, value = _ref196.value, anchor = _ref196.anchor, data = _ref196.data, params = _ref196.params, _ref196$pushHistory = _ref196.pushHistory, pushHistory = _ref196$pushHistory === void 0 ? true : _ref196$pushHistory;
+                    state = _ref198.state, commit = _ref198.commit, dispatch = _ref198.dispatch;
+                    _ref199 = _arguments43.length > 1 && _arguments43[1] !== undefined ? _arguments43[1] : {}, _ref199$type = _ref199.type, type = _ref199$type === void 0 ? "page" : _ref199$type, value = _ref199.value, anchor = _ref199.anchor, data = _ref199.data, params = _ref199.params, _ref199$pushHistory = _ref199.pushHistory, pushHistory = _ref199$pushHistory === void 0 ? true : _ref199$pushHistory;
                     console.log("navToPage::", value); // Guarding
 
                     if (value) {
@@ -41197,17 +41287,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
          * 
          * @return {void}
          */
-        doAction: function doAction(_ref197) {
+        doAction: function doAction(_ref200) {
           var _arguments44 = arguments;
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee189() {
-            var state, dispatch, _ref198, action, payload, _ref198$args, args, pld, context;
+            var state, dispatch, _ref201, action, payload, _ref201$args, args, pld, context;
 
             return regeneratorRuntime.wrap(function _callee189$(_context191) {
               while (1) {
                 switch (_context191.prev = _context191.next) {
                   case 0:
-                    state = _ref197.state, dispatch = _ref197.dispatch;
-                    _ref198 = _arguments44.length > 1 && _arguments44[1] !== undefined ? _arguments44[1] : {}, action = _ref198.action, payload = _ref198.payload, _ref198$args = _ref198.args, args = _ref198$args === void 0 ? [] : _ref198$args;
+                    state = _ref200.state, dispatch = _ref200.dispatch;
+                    _ref201 = _arguments44.length > 1 && _arguments44[1] !== undefined ? _arguments44[1] : {}, action = _ref201.action, payload = _ref201.payload, _ref201$args = _ref201.args, args = _ref201$args === void 0 ? [] : _ref201$args;
 
                     if (action) {
                       _context191.next = 4;
@@ -41245,7 +41335,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }))();
         },
         //-------------------------------------
-        reload: function reload(_ref199) {
+        reload: function reload(_ref202) {
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee190() {
             var state, commit, dispatch, loc, params, ss, _iterator100, _step100, s, pos, k, v, entry;
 
@@ -41253,7 +41343,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               while (1) {
                 switch (_context192.prev = _context192.next) {
                   case 0:
-                    state = _ref199.state, commit = _ref199.commit, dispatch = _ref199.dispatch;
+                    state = _ref202.state, commit = _ref202.commit, dispatch = _ref202.dispatch;
                     console.log("site.reload", state.entry, state.base); // Merge Site FuncSet
                     //console.log(state.utils)
                     // Init the base/apiBase
@@ -41981,10 +42071,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnCurrentMetaChange: function OnCurrentMetaChange() {
-          var _ref200 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              id = _ref200.id,
-              path = _ref200.path,
-              value = _ref200.value;
+          var _ref203 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              id = _ref203.id,
+              path = _ref203.path,
+              value = _ref203.value;
 
           this.openView(id || path || value);
         },
