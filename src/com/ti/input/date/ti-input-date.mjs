@@ -1,5 +1,4 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   ////////////////////////////////////////////////////
   data : ()=>({
     "runtime" : null,
@@ -37,7 +36,7 @@ export default {
     },
     "width" : {
       type : [Number, String],
-      default : "1.8rem"
+      default : "2rem"
     },
     "height" : {
       type : [Number, String],
@@ -164,3 +163,4 @@ export default {
   }
   ////////////////////////////////////////////////////
 }
+export default _M;

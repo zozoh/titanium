@@ -7,7 +7,10 @@
     flex:1 1 auto;
   }
   //---------------------------------
-  &.as-date, 
+  &.as-date {
+    > .as-box {flex: 0 0 auto;}
+  }
+  //---------------------------------
   &.as-time,
   &.as-datetime,
   &.as-daterange {

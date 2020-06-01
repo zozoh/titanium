@@ -10,13 +10,13 @@
   "hm-type-Object": "对象",
   "hm-type-String": "文本",
   "hm-type-icons": {
-    "Group": "zmdi-collection-bookmark",
-    "Object": "zmdi-toys",
-    "Number": "zmdi-input-svideo",
-    "Integer": "zmdi-n-6-square",
+    "Array": "zmdi-format-list-bulleted",
     "Boolean": "zmdi-toll",
-    "String": "zmdi-translate",
-    "Array": "zmdi-format-list-bulleted"
+    "Group": "zmdi-collection-bookmark",
+    "Integer": "zmdi-n-6-square",
+    "Number": "zmdi-input-svideo",
+    "Object": "zmdi-toys",
+    "String": "zmdi-translate"
   },
   "hmaker-com-conf-blank": "请选择一个控件设置其详情",
   "hmaker-com-type-blank": "选择一个控件",
