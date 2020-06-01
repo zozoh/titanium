@@ -327,6 +327,15 @@ const _M = {
           this.__adjust_fields_width()
         })
       }
+    },
+    //--------------------------------------------------
+    // Callback
+    //--------------------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-form", uniqKey)
+      if("ENTER" == uniqKey) {
+        this.$notify("submit")
+      }
     }
     //--------------------------------------------------
   },

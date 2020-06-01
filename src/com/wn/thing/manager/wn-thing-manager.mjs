@@ -400,6 +400,17 @@ const _M = {
     //--------------------------------------
     async uploadFilesToCurrent() {
       await this.$files.doUploadFiles()
+    },
+    //--------------------------------------
+    // Callback
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-form", uniqKey)
+      if("ESCAPE" == uniqKey) {
+        if(this.TheShown.creator) {
+          this.hideBlock("creator")
+        }
+      }
     }
     //--------------------------------------
   },

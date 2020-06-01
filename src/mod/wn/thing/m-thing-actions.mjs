@@ -139,12 +139,14 @@ const _M = {
     let cmdText = cmds.join(" ")
     let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
-    // Set it as current
-    await dispatch("current/reload", newMeta)
+    if(newMeta && !(newMeta instanceof Error)) {
+      // Set it as current
+      await dispatch("current/reload", newMeta)
 
-    // Append To Search List as the first 
-    commit("search/prependToList", newMeta)
-    commit("search/selectItem", newMeta.id)
+      // Append To Search List as the first 
+      commit("search/prependToList", newMeta)
+      commit("search/selectItem", newMeta.id)
+    }
 
     // Mark reloading
     commit("setStatus", {reloading:false})

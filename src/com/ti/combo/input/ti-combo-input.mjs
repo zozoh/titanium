@@ -274,7 +274,7 @@ const _M = {
       if("ENTER" == uniqKey) {
         if(this.$dropList && this.$dropList.isActived) {
           this.doCollapse()
-          return {stop:true, quit:true}
+          return {stop:true, quit:false}
         }
       }
       //....................................

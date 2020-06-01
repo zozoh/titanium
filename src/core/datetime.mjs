@@ -96,6 +96,19 @@ const TiDateTime = {
       d2.setDate(d2.getDate() + offset)
       return d2
     }
+  },
+  //---------------------------------------
+  // - justNow : just now   :  < 10min
+  // - inHour  : 56min      :  < 1hour
+  // - inDay   : 23hour     :  < 1day
+  // - inWeek  : 6day       :  < 1week
+  // - inYear  : Mon Jun 19 : < This Year
+  // - anyTime : 2020/12/32 : Any time
+  timeText(d, {
+    justNow=10,
+    inHour
+  }={}) {
+    
   }
   //---------------------------------------
 }

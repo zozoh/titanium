@@ -18,18 +18,19 @@ export default {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onChanged({name, value}={}) {
-      //console.log("changed", name, value)
-      this.obj = _.assign({}, this.obj, {[name]: value})
-    },
-    //--------------------------------------
-    async onCreate() {
+    async OnCreate() {
       this.creating = true
 
       let app = Ti.App(this)
       await app.dispatch("main/create", this.myData)
 
       this.$notify("block:hide", "creator")
+    },
+    //--------------------------------------
+    async OnSubmit() {
+      this.$nextTick(()=>{
+        this.OnCreate()
+      })
     }
     //--------------------------------------
   },

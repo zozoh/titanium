@@ -174,6 +174,15 @@ const _M = {
       if(this.focused && !this.isFocused) {
         this.OnInputFocus()
       }  
+    },
+    //--------------------------------------------------
+    // Callback
+    //--------------------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-form", uniqKey)
+      if("ENTER" == uniqKey) {
+        this.doWhenInput("change", this.autoJsValue)
+      }
     }
     //------------------------------------------------
   },

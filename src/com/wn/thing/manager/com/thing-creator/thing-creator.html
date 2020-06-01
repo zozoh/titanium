@@ -2,11 +2,12 @@
   <ti-form
     :fields="fields"
     :only-fields="false"
-    v-model="myData"/>
+    v-model="myData"
+    @submit="OnSubmit"/>
   <hr class="no-space">
   <div class="ti-flex-center ti-padding-10">
     <div class="ti-btn is-big" 
-      @click="onCreate">
+      @click="OnCreate">
       <span>{{'create-now'|i18n}}</span>
     </div>
   </div>

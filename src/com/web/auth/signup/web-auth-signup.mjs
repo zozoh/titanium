@@ -192,8 +192,12 @@ const _M = {
       return !_.isEmpty(this.OAuth2Items)
     },
     //---------------------------------------------------
+    hasToggleMode() {
+      return !_.isEmpty(this.toggleMode)
+    },
+    //---------------------------------------------------
     // 验证码发送目标的名称（i18n）
-    ToggleModetName(){
+    ToggleModeName(){
       return ({
         "login_by_phone" : "i18n:auth-ta-phone",
         "login_by_email" : "i18n:auth-ta-email",
@@ -306,7 +310,7 @@ const _M = {
               icon: "zmdi-shield-security",
               textOk: "i18n:i-known",
               vars: {
-                ta : Ti.I18n.text(this.ToggleModetName)
+                ta : Ti.I18n.text(this.ToggleModeName)
               }
             })
           }
@@ -398,6 +402,21 @@ const _M = {
         return _.indexOf(this.InvalidField, name) >= 0
       }
       return name == this.InvalidField
+    },
+    //-----------------------------------------------
+    // Callback
+    //-----------------------------------------------
+    __ti_shortcut(uniqKey) {
+      //....................................
+      // If droplist is actived, should collapse it
+      if("ENTER" == uniqKey) {
+        if(!this.isBlankNameOrPasswd) {
+          this.$nextTick(()=>{
+            this.OnAuthSubmit()
+          })
+          return {stop:true, quit:true}
+        }
+      }
     }
     //---------------------------------------------------
   },

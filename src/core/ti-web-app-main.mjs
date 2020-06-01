@@ -7,7 +7,7 @@ export async function WebAppMain({
   preloads=[],
   debug=false,
   logging={root:"warn"},
-  shortcute=false,
+  shortcute=true,
   viewport = {
     phoneMaxWidth:640,
     tabletMaxWidth:900,
@@ -72,7 +72,11 @@ export async function WebAppMain({
   }
   //---------------------------------------
   // setup the i18n
-  Ti.I18n.put(await Ti.Load(["@i18n:_ti", "@i18n:web"]))
+  Ti.I18n.put(await Ti.Load([
+    "@i18n:_ti",
+    "@i18n:_net",
+    "@i18n:web",
+    "@i18n:ti-datetime"]))
 
   //---------------------------------------
   // Customized Zone

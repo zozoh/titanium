@@ -1,6 +1,7 @@
 <div 
   class="web-auth-signup web-simple-form" 
-  :class="TopClass">
+  :class="TopClass"
+  v-ti-activable>
   <!--
     Top Logo
   -->
@@ -49,14 +50,15 @@
     <!--
       Sublinks: switch mode / passwd-back
     -->
-    <ul class="as-links">
-      <li v-if="Msgs.linkLeft"
-        class="at-left">
-        <a @click="OnChangeMode">{{Msgs.linkLeft   |i18n}}</a>
-      </li>
-      <li v-if="Msgs.linkRight"
-        class="at-right">
-        <a>{{Msgs.linkRight |i18n}}</a></li>
+    <ul 
+      v-if="hasToggleMode"
+        class="as-links">
+        <li v-if="Msgs.linkLeft"
+          class="at-left">
+          <a @click="OnChangeMode">{{Msgs.linkLeft   |i18n}}</a></li>
+        <li v-if="Msgs.linkRight"
+          class="at-right">
+          <a>{{Msgs.linkRight |i18n}}</a></li>
     </ul>
   </section>
   <!--

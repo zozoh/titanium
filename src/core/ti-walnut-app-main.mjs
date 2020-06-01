@@ -5,7 +5,7 @@ export async function WalnutAppMain({
   preloads=[],
   debug=false,
   logging={root:"warn"},
-  shortcute=false,
+  shortcute=true,
   viewport = {
     phoneMaxWidth:540,
     tabletMaxWidth:768,
@@ -75,7 +75,11 @@ export async function WalnutAppMain({
   }
   //---------------------------------------
   // setup the i18n
-  Ti.I18n.put(await Ti.Load(["@i18n:_ti", "@i18n:_wn", "@i18n:_net"]))
+  Ti.I18n.put(await Ti.Load([
+    "@i18n:_ti",
+    "@i18n:_wn",
+    "@i18n:_net",
+    "@i18n:ti-datetime"]))
 
   //---------------------------------------
   // Customized Zone
