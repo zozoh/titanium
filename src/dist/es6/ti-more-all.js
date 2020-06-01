@@ -5100,7 +5100,6 @@ Ti.Preload("ti/com/ti/calendar/ti-calendar.mjs", _M);
 Ti.Preload("ti/com/ti/calendar/_com.json", {
   "name" : "ti-calendar",
   "globally" : true,
-  "i18n" : "@i18n:ti-datetime",
   "template" : "./ti-calendar.html",
   "mixins"   : ["./ti-calendar.mjs"],
   "components" : [
@@ -6720,7 +6719,7 @@ const _M = {
       if("ENTER" == uniqKey) {
         if(this.$dropList && this.$dropList.isActived) {
           this.doCollapse()
-          return {stop:true, quit:true}
+          return {stop:true, quit:false}
         }
       }
       //....................................
@@ -8923,6 +8922,15 @@ const _M = {
           this.__adjust_fields_width()
         })
       }
+    },
+    //--------------------------------------------------
+    // Callback
+    //--------------------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-form", uniqKey)
+      if("ENTER" == uniqKey) {
+        this.$notify("submit")
+      }
     }
     //--------------------------------------------------
   },
@@ -10915,7 +10923,6 @@ Ti.Preload("ti/com/ti/input/date/ti-input-date.html", `<ti-combo-box class="as-d
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     "runtime" : null,
@@ -10953,7 +10960,7 @@ const _M = {
     },
     "width" : {
       type : [Number, String],
-      default : "1.8rem"
+      default : "2rem"
     },
     "height" : {
       type : [Number, String],
@@ -13560,6 +13567,15 @@ const _M = {
       if(this.focused && !this.isFocused) {
         this.OnInputFocus()
       }  
+    },
+    //--------------------------------------------------
+    // Callback
+    //--------------------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-form", uniqKey)
+      if("ENTER" == uniqKey) {
+        this.doWhenInput("change", this.autoJsValue)
+      }
     }
     //------------------------------------------------
   },
@@ -24308,7 +24324,8 @@ Ti.Preload("ti/com/web/auth/captcha/_com.json", {
 //============================================================
 Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", `<div 
   class="web-auth-signup web-simple-form" 
-  :class="TopClass">
+  :class="TopClass"
+  v-ti-activable>
   <!--
     Top Logo
   -->
@@ -24357,14 +24374,15 @@ Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", `<div
     <!--
       Sublinks: switch mode / passwd-back
     -->
-    <ul class="as-links">
-      <li v-if="Msgs.linkLeft"
-        class="at-left">
-        <a @click="OnChangeMode">{{Msgs.linkLeft   |i18n}}</a>
-      </li>
-      <li v-if="Msgs.linkRight"
-        class="at-right">
-        <a>{{Msgs.linkRight |i18n}}</a></li>
+    <ul 
+      v-if="hasToggleMode"
+        class="as-links">
+        <li v-if="Msgs.linkLeft"
+          class="at-left">
+          <a @click="OnChangeMode">{{Msgs.linkLeft   |i18n}}</a></li>
+        <li v-if="Msgs.linkRight"
+          class="at-right">
+          <a>{{Msgs.linkRight |i18n}}</a></li>
     </ul>
   </section>
   <!--
@@ -24580,8 +24598,12 @@ const _M = {
       return !_.isEmpty(this.OAuth2Items)
     },
     //---------------------------------------------------
+    hasToggleMode() {
+      return !_.isEmpty(this.toggleMode)
+    },
+    //---------------------------------------------------
     // 验证码发送目标的名称（i18n）
-    ToggleModetName(){
+    ToggleModeName(){
       return ({
         "login_by_phone" : "i18n:auth-ta-phone",
         "login_by_email" : "i18n:auth-ta-email",
@@ -24694,7 +24716,7 @@ const _M = {
               icon: "zmdi-shield-security",
               textOk: "i18n:i-known",
               vars: {
-                ta : Ti.I18n.text(this.ToggleModetName)
+                ta : Ti.I18n.text(this.ToggleModeName)
               }
             })
           }
@@ -24786,6 +24808,21 @@ const _M = {
         return _.indexOf(this.InvalidField, name) >= 0
       }
       return name == this.InvalidField
+    },
+    //-----------------------------------------------
+    // Callback
+    //-----------------------------------------------
+    __ti_shortcut(uniqKey) {
+      //....................................
+      // If droplist is actived, should collapse it
+      if("ENTER" == uniqKey) {
+        if(!this.isBlankNameOrPasswd) {
+          this.$nextTick(()=>{
+            this.OnAuthSubmit()
+          })
+          return {stop:true, quit:true}
+        }
+      }
     }
     //---------------------------------------------------
   },
@@ -30826,11 +30863,12 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.html", `<div
   <ti-form
     :fields="fields"
     :only-fields="false"
-    v-model="myData"/>
+    v-model="myData"
+    @submit="OnSubmit"/>
   <hr class="no-space">
   <div class="ti-flex-center ti-padding-10">
     <div class="ti-btn is-big" 
-      @click="onCreate">
+      @click="OnCreate">
       <span>{{'create-now'|i18n}}</span>
     </div>
   </div>
@@ -30863,18 +30901,19 @@ const _M = {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onChanged({name, value}={}) {
-      //console.log("changed", name, value)
-      this.obj = _.assign({}, this.obj, {[name]: value})
-    },
-    //--------------------------------------
-    async onCreate() {
+    async OnCreate() {
       this.creating = true
 
       let app = Ti.App(this)
       await app.dispatch("main/create", this.myData)
 
       this.$notify("block:hide", "creator")
+    },
+    //--------------------------------------
+    async OnSubmit() {
+      this.$nextTick(()=>{
+        this.OnCreate()
+      })
     }
     //--------------------------------------
   },
@@ -31410,6 +31449,7 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/_com.json", {
 Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager.html", `<ti-gui
   class="wn-thing"
   :class="TopClass"
+  v-ti-activable
   :layout="TheLayout"
   :schema="TheSchema"
   :shown="TheShown"
@@ -31832,6 +31872,17 @@ const _M = {
     //--------------------------------------
     async uploadFilesToCurrent() {
       await this.$files.doUploadFiles()
+    },
+    //--------------------------------------
+    // Callback
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-form", uniqKey)
+      if("ESCAPE" == uniqKey) {
+        if(this.TheShown.creator) {
+          this.hideBlock("creator")
+        }
+      }
     }
     //--------------------------------------
   },
@@ -33997,12 +34048,14 @@ const _M = {
     let cmdText = cmds.join(" ")
     let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
-    // Set it as current
-    await dispatch("current/reload", newMeta)
+    if(newMeta && !(newMeta instanceof Error)) {
+      // Set it as current
+      await dispatch("current/reload", newMeta)
 
-    // Append To Search List as the first 
-    commit("search/prependToList", newMeta)
-    commit("search/selectItem", newMeta.id)
+      // Append To Search List as the first 
+      commit("search/prependToList", newMeta)
+      commit("search/selectItem", newMeta.id)
+    }
 
     // Mark reloading
     commit("setStatus", {reloading:false})
@@ -36951,13 +37004,13 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hm-type-Object": "对象",
   "hm-type-String": "文本",
   "hm-type-icons": {
-    "Group": "zmdi-collection-bookmark",
-    "Object": "zmdi-toys",
-    "Number": "zmdi-input-svideo",
-    "Integer": "zmdi-n-6-square",
+    "Array": "zmdi-format-list-bulleted",
     "Boolean": "zmdi-toll",
-    "String": "zmdi-translate",
-    "Array": "zmdi-format-list-bulleted"
+    "Group": "zmdi-collection-bookmark",
+    "Integer": "zmdi-n-6-square",
+    "Number": "zmdi-input-svideo",
+    "Object": "zmdi-toys",
+    "String": "zmdi-translate"
   },
   "hmaker-com-conf-blank": "请选择一个控件设置其详情",
   "hmaker-com-type-blank": "选择一个控件",
@@ -37101,27 +37154,39 @@ Ti.Preload("ti/i18n/zh-cn/ti-datetime.i18n.json", {
   "blank-time": "请选择时间",
   "blank-time-range": "请选择时间范围",
   "cal": {
-    "week": ["日", "一", "二", "三", "四", "五", "六"],
-    "m-range-beyond-years": "${yy0}年${MT0}至${yy1}年${MT1}",
-    "m-range-beyond-months": "${yy0}年${MT0}至${MT1}",
-    "d-range-beyond-years": "${yy0}年${MM0}月${dd0}日至${yy1}年${MM1}月${dd1}日",
-    "d-range-beyond-months": "${yy0}年${MM0}月${dd0}日至${MM1}月${dd1}日",
-    "d-range-beyond-days": "${yy0}年${MM0}月${dd0}至${dd1}日",
-    "d-range-in-same-day": "${yy0}年${MM0}月${dd0}日全天",
     "abbr": {
-      "Jan": "一月",
-      "Feb": "二月",
-      "Mar": "三月",
       "Apr": "四月",
-      "May": "五月",
-      "Jun": "六月",
-      "Jul": "七月",
       "Aug": "八月",
-      "Sep": "九月",
-      "Oct": "十月",
+      "Dec": "十二",
+      "Feb": "二月",
+      "Jan": "一月",
+      "Jul": "七月",
+      "Jun": "六月",
+      "Mar": "三月",
+      "May": "五月",
       "Nov": "十一",
-      "Dec": "十二"
-    }
+      "Oct": "十月",
+      "Sep": "九月"
+    },
+    "d-range-beyond-days": "${yy0}年${MM0}月${dd0}至${dd1}日",
+    "d-range-beyond-months": "${yy0}年${MM0}月${dd0}日至${MM1}月${dd1}日",
+    "d-range-beyond-years": "${yy0}年${MM0}月${dd0}日至${yy1}年${MM1}月${dd1}日",
+    "d-range-in-same-day": "${yy0}年${MM0}月${dd0}日全天",
+    "m-range-beyond-months": "${yy0}年${MT0}至${MT1}",
+    "m-range-beyond-years": "${yy0}年${MT0}至${yy1}年${MT1}",
+    "week": ["日", "一", "二", "三", "四", "五", "六"]
+  },
+  "time": {
+    "any-time": "yyyy年M月d日",
+    "in-year": "M月d日",
+    "past-in-min": "刚刚",
+    "past-in-hour": "${min}分钟前",
+    "past-in-day": "${hour}小时前",
+    "past-in-week": "${day}天前",
+    "future-in-min": "即将",
+    "future-in-hour": "${min}分钟后",
+    "future-in-day": "${hour}小时后",
+    "future-in-week": "${day}天后"
   },
   "time-begin": "开始时间",
   "time-end": "结束时间",
@@ -37359,11 +37424,11 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "download-to-local": "下载到本地",
   "drop-file-here-to-upload": "拖拽文件至此以便上传",
   "drop-here": "拖拽文件至此",
-  "e-auth-home-forbidden": "账户不具备进入主目录的权限",
   "e-auth-account-noexists": "账户不存在",
-  "e-auth-login-invalid-passwd": "账户密码未通过校验",
+  "e-auth-home-forbidden": "账户不具备进入主目录的权限",
   "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
   "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
+  "e-auth-login-invalid-passwd": "账户密码未通过校验",
   "e-io-obj-exists": "但是对象已然存在",
   "e-io-obj-noexists": "对象其实并不存在",
   "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
