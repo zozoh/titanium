@@ -6058,6 +6058,9 @@ const {Types} = (function(){
         if(_.isArray(fmt)) {
           return Ti.Util.fallback(_.nth(fmt, val), val)
         }
+        if(_.isString(fmt)) {
+          return Ti.S.renderVars(val, fmt)
+        }
         let s = "" + val
         if(_.isPlainObject(fmt)) {
           return fmt[s]
