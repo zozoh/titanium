@@ -68,10 +68,10 @@ export default {
     type : [String, Object, Boolean],
     default : false
   },
-  "funcSet" : {
-    type : Object,
-    default : ()=>({})
-  },
+  // "funcSet" : {
+  //   type : Object,
+  //   default : ()=>({})
+  // },
   "comType" : {
     type : String,
     default : "ti-label"

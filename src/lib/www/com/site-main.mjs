@@ -185,30 +185,36 @@ export default {
       // Prepare
       let app = Ti.App(this)
 
-      // Batch call
-      if(_.isArray(AT)) {
-        for(let a of AT) {
+      try {
+        // Batch call
+        if(_.isArray(AT)) {
+          for(let a of AT) {
+            await app.dispatch("doAction", {
+              action  : a.action,
+              payload : a.payload,
+              args
+            })
+          }
+        }
+        // Direct call : String
+        else if(_.isString(AT)) {
           await app.dispatch("doAction", {
-            action  : a.action,
-            payload : a.payload,
+            action: AT,
+            args
+          })
+        }
+        // Direct call : Object
+        else {
+          await app.dispatch("doAction", {
+            action  : AT.action,
+            payload : AT.payload,
             args
           })
         }
       }
-      // Direct call : String
-      else if(_.isString(AT)) {
-        await app.dispatch("doAction", {
-          action: AT,
-          args
-        })
-      }
-      // Direct call : Object
-      else {
-        await app.dispatch("doAction", {
-          action  : AT.action,
-          payload : AT.payload,
-          args
-        })
+      // For Error
+      catch(e) {
+        console.error(e)
       }
     },
     //-------------------------------------

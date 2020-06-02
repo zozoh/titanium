@@ -10,7 +10,8 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-blank"   : !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue)
+        "is-blank"   : !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
+        "is-nowrap"  : this.valueMaxWidth>0
       })
     },
     //--------------------------------------
@@ -127,6 +128,9 @@ const _M = {
       }
       // Number
       if(_.isNumber(val)) {
+        if(this.format) {
+          return Ti.Types.toStr(val, this.format)
+        }
         return val
       }
       // Collection

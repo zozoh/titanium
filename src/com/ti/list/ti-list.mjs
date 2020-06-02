@@ -66,9 +66,7 @@ export default {
       let items = []
       // Loop each items
       for(let dis of diss) {
-        let item = this.evalFieldDisplayItem(dis, {
-          funcSet: this.fnSet
-        })
+        let item = this.evalFieldDisplayItem(dis)
         if(item) {
           items.push(item)
         }

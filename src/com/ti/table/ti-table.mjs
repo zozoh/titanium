@@ -175,10 +175,7 @@ export default {
       let items = []
       // Loop each items
       for(let li of displayItems) {
-        let item = this.evalFieldDisplayItem(li, {
-          funcSet: this.fnSet,
-          defaultKey
-        })
+        let item = this.evalFieldDisplayItem(li, {defaultKey})
         if(item) {
           items.push(item)
         }

@@ -74,7 +74,7 @@ const _M = {
       // Eval setting
       if(!_.isBoolean(this.display) && this.display) {
         return this.evalFieldDisplayItem(this.display, {
-          funcSet    : this.funcSet,
+          //funcSet    : this.funcSet,
           defaultKey : this.name
         })
       }

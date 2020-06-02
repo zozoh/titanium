@@ -20,22 +20,22 @@ function _render_iteratee({
   return Ti.Util.fallback(rev, vdft)
 }
 //////////////////////////////////////////////
-// cx = {vars, itemData, value, $FuncSet}
+// cx = {vars, itemData, value}
 function __eval_com_conf_item(val, cx={}) {
   // String valu3
   if(_.isString(val)) {
     //........................................
     // Function call
     //........................................
-    let m = /^\(\)=>([^(]+)\(([^)]*)\)$/.exec(val)
+    let m = /^=>(.+)$/.exec(val)
     if(m) {
-      let name = _.trim(m[1])
-      let __as = _.trim(m[2])
-      let args = Ti.S.joinArgs(__as, [], v => {
-        return __eval_com_conf_item(v, cx)
+      let func = Ti.Util.genInvoking(m[1], {
+        context: {
+          ...cx,
+          item: cx.itemData
+        }
       })
-      let func = _.get(cx.$FuncSet, name)
-      return func.apply(cx, args)
+      return func()
     }
     //........................................
     // Quick Value
@@ -129,7 +129,6 @@ function __eval_com_conf_item(val, cx={}) {
 const FieldDisplay = {
   //------------------------------------------
   evalFieldDisplayItem(displayItem={}, {
-    funcSet, 
     defaultKey
   }={}){
     //........................................
@@ -225,6 +224,12 @@ const FieldDisplay = {
           }
         }
         //......................................
+        // Default as lable
+        return {
+          key:displayItem,
+          comType: "ti-label"
+        }
+        //......................................
       }
       //......................................
       return displayItem
@@ -237,9 +242,6 @@ const FieldDisplay = {
       dis.$dict = Ti.DictFactory.CheckDict(name)
       dis.$dictValueKey = vKey || ".text"
     }
-    //........................................
-    // Save function set
-    dis.$FuncSet = funcSet
     //........................................
     // Then return
     return dis
@@ -285,6 +287,10 @@ const FieldDisplay = {
       else if(/^'[^']+'$/.test(dis.key)) {
         value = dis.key.substring(1, dis.key.length-1)
       }
+      // Template
+      else if(/^->(.+)$/.test(dis.key)) {
+        value = Ti.S.renderBy(dis.key.substring(2), itemData)
+      }
       // Dynamic value
       else {
         value = Ti.Util.fallback(
@@ -328,8 +334,7 @@ const FieldDisplay = {
       comConf = __eval_com_conf_item(dis.comConf, {
         vars, 
         itemData, 
-        value, 
-        $FuncSet: dis.$FuncSet
+        value
       })
     }
     //.....................................

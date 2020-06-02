@@ -66,9 +66,7 @@ const _M = {
     },
     //--------------------------------------
     ItemDisplay() {
-      return this.evalFieldDisplayItem(this.display, {
-        funcSet : this.fnSet
-      })
+      return this.evalFieldDisplayItem(this.display)
     },
     //--------------------------------------
     TheData() {
