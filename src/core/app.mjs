@@ -15,7 +15,8 @@ const TI_VM_ACTIVED = Symbol("ti-vm-actived")
 Encapsulate all stuffs of Titanium Application
 */
 class OneTiApp {
-  constructor(tinfo={}){
+  constructor(tinfo={}, decorator){
+    this.appDecorator = decorator
     this.$info(tinfo)
     this.$conf(null)
     this.$store(null)
@@ -49,6 +50,7 @@ class OneTiApp {
     // }
     // load each fields of info obj
     let conf = await LoadTiAppInfo(info)
+    this.appDecorator(conf)
     this.$conf(conf)
     if(Ti.IsInfo("TiApp")) {
       console.log("Ti.$conf", this.$conf())
@@ -364,7 +366,7 @@ class OneTiApp {
   }
 }
 //---------------------------------------
-const TiApp = function(a0) {
+const TiApp = function(a0, decorator=_.identity) {
   // Guard it
   if(Ti.Util.isNil(a0)) {
     return null
@@ -372,7 +374,7 @@ const TiApp = function(a0) {
   // load the app info 
   if(_.isString(a0)) {
     return Ti.Load(a0).then(info=>{
-      return new OneTiApp(info)
+      return new OneTiApp(info, decorator)
     })
   }
   // Get back App from Element
@@ -395,7 +397,7 @@ const TiApp = function(a0) {
   }
   // return the app instance directly
   if(_.isPlainObject(a0)) {
-    return new OneTiApp(a0)
+    return new OneTiApp(a0, decorator)
   }
 }
 //---------------------------------------

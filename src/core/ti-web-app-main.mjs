@@ -92,16 +92,21 @@ export async function WebAppMain({
   //---------------------------------------
   // Load main app
   // If "i18n" or "deps" declared, it will be loaded too
-  let app = await Ti.App(appJson)
+  let app = await Ti.App(appJson, conf=>{
+    console.log("appConf", conf)
+    _.assign(conf.store.state, {
+      loading   : false,
+      pageReady : 0,
+      siteId,
+      domain,
+    })
+    return conf
+  })
   await app.init()
   Ti.App.pushInstance(app)
 
   // Save current app name
   Ti.SetAppName(app.name())
-
-  // set siteId
-  app.commit("setSiteId", siteId)
-  app.commit("setDomain", domain)
 
   //---------------------------------------
   Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{

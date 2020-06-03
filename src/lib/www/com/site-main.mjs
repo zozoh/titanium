@@ -15,7 +15,7 @@ export default {
         "schema"     : state=>state.schema,
         "blocks"     : state=>state.blocks,
         "loading"    : state=>state.loading,
-        "isReady"    : state=>state.isReady
+        "pageReady"  : state=>state.pageReady
       }),
     //-------------------------------------
     // Mapp The Getters
@@ -156,66 +156,9 @@ export default {
     },
     //-------------------------------------
     async invokeAction(name, args=[]) {
-      /*
-      The action should like
-      {
-        action : "xx/xx",
-        payload : {} | [] | ...
-      } 
-      */
-      let AT = _.get(this.actions, name)
-
-      // Try fallback
-      if(!AT) {
-        let canNames = _.split(name, "::")
-        while(canNames.length > 1) {
-          let [, ...names] = canNames
-          let aName = names.join("::")
-          AT = _.get(this.actions, aName)
-          if(AT){
-            break
-          }
-          canNames = names
-        }
-      }
-
-      if(!AT)
-        return;
-  
-      // Prepare
-      let app = Ti.App(this)
-
-      try {
-        // Batch call
-        if(_.isArray(AT)) {
-          for(let a of AT) {
-            await app.dispatch("doAction", {
-              action  : a.action,
-              payload : a.payload,
-              args
-            })
-          }
-        }
-        // Direct call : String
-        else if(_.isString(AT)) {
-          await app.dispatch("doAction", {
-            action: AT,
-            args
-          })
-        }
-        // Direct call : Object
-        else {
-          await app.dispatch("doAction", {
-            action  : AT.action,
-            payload : AT.payload,
-            args
-          })
-        }
-      }
-      // For Error
-      catch(e) {
-        console.error(e)
-      }
+      await Ti.App(this).dispatch("invokeAction", {
+        name, args
+      })
     },
     //-------------------------------------
     pushBrowserHistory() {
@@ -247,14 +190,6 @@ export default {
       document.title = pageTitle
       this.pushBrowserHistory()
       // TODO : Maybe here to embed the BaiDu Tongji Code
-    },
-    "isReady" : function(current, old) {
-      //console.log("isReady", old, "->", current)
-      if(true === current && false === old) {
-        this.invokeAction("@page:ready", {
-
-        })
-      }
     }
   },
   /////////////////////////////////////////

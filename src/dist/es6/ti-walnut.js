@@ -487,7 +487,7 @@ const Obj = (function(){
             f2 = fld
           }
           //......................................
-          let uniqKey = Ti.S.join("-", f2.name)
+          let uniqKey = Ti.S.join([f2.name], "-")
           keys[uniqKey] = true
           let value = _.get(meta, f2.name)
           outs.push(_.assign(f2, {

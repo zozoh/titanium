@@ -123,8 +123,11 @@ const _M = {
       state.loading = loading
     },
     //-------------------------------------
+    // 0: no ready
+    // 1: before reload   -> @page:prepare
+    // 2: done for reload -> @page:ready
     setPageReady(state, isReady) {
-      state.isReady = isReady
+      state.pageReady = isReady
     }
     //-------------------------------------
   },
@@ -160,16 +163,29 @@ const _M = {
         return
       // navTo::page
       if("page" == type) {
-        commit("setPageReady", false)
+        commit("setPageReady", 0)
         commit("setLoading", true)
+        
+        // Prepare
+        await dispatch("invokeAction", {
+          name:"@page:prepare"
+        })
+        commit("setPageReady", 1)
+
+        // Reload
         await dispatch("page/reload", {
           path   : value,
           anchor : anchor,
           params : params,
           data   : data
         })
+        commit("setPageReady", 2)
+
+        // Ready
+        await dispatch("invokeAction", {
+          name:"@page:ready"
+        })
         commit("setLoading", false)
-        commit("setPageReady", true)
       }
       // navTo::dispatch
       else if("dispatch" == type) {
@@ -223,6 +239,72 @@ const _M = {
       //....................................
       console.log("invoke->", action, pld)
       await dispatch(action, pld)
+    },
+    //-------------------------------------
+    /***
+     * Invoke action by given name
+     */
+    async invokeAction({getters, dispatch}, {name="", args=[]}={}){
+      /*
+      The action should like
+      {
+        action : "xx/xx",
+        payload : {} | [] | ...
+      } 
+      */
+      let actions = getters.actions;
+      let AT = _.get(actions, name)
+
+      // Try fallback
+      if(!AT) {
+        let canNames = _.split(name, "::")
+        while(canNames.length > 1) {
+          let [, ...names] = canNames
+          let aName = names.join("::")
+          AT = _.get(actions, aName)
+          if(AT){
+            break
+          }
+          canNames = names
+        }
+      }
+
+      // Guard
+      if(!AT)
+        return;
+  
+      // Invoke it
+      try {
+        // Batch call
+        if(_.isArray(AT)) {
+          for(let a of AT) {
+            await dispatch("doAction", {
+              action  : a.action,
+              payload : a.payload,
+              args
+            })
+          }
+        }
+        // Direct call : String
+        else if(_.isString(AT)) {
+          await dispatch("doAction", {
+            action: AT,
+            args
+          })
+        }
+        // Direct call : Object
+        else {
+          await dispatch("doAction", {
+            action  : AT.action,
+            payload : AT.payload,
+            args
+          })
+        }
+      }
+      // For Error
+      catch(e) {
+        console.error(e)
+      }
     },
     //-------------------------------------
     async reload({state, commit, dispatch}) {

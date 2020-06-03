@@ -122,20 +122,29 @@ const TiStr = {
     return data
   },
   /***
+   * Join with iteratee
+   */
+  join(list=[], sep="", iteratee=null){
+    let list2 = _.flattenDeep(list)
+    if(_.isFunction(iteratee)) {
+      list2 = _.map(list2, iteratee)
+
+    }
+    return list2.join(sep)
+  },
+  /***
    * Join without `null/undefined`
    */
-  join(sep="", ...ss){
-    let list = []
-    for(let s of ss) {
-      if(_.isUndefined(s) || _.isNull(s))
-        continue
-      if(_.isArray(s)) {
-        list.push(...s)
-        continue
+  joinAs(list=[], sep="", key=null){
+    let iter = null
+    if(key) {
+      iter = li => {
+        if(_.isPlainObject(li))
+          return _.get(li, key)
+        return key
       }
-      list.push(s)
     }
-    return list.join(sep)
+    return TiStr.join(list, sep, iter)
   },
   /***
    * Convert string to Js Object automatictly

@@ -41,7 +41,7 @@ const Ti18n = {
     // Error Object
     if(key instanceof Error) {
       if(key.code) {
-        return Ti.S.join(" : ", Ti18n.get(key.code), key.data)
+        return Ti.S.join([Ti18n.get(key.code), key.data], " : ")
       }
       return key.message
     }

@@ -997,20 +997,29 @@ const {S} = (function(){
       return data
     },
     /***
+     * Join with iteratee
+     */
+    join(list=[], sep="", iteratee=null){
+      let list2 = _.flattenDeep(list)
+      if(_.isFunction(iteratee)) {
+        list2 = _.map(list2, iteratee)
+  
+      }
+      return list2.join(sep)
+    },
+    /***
      * Join without `null/undefined`
      */
-    join(sep="", ...ss){
-      let list = []
-      for(let s of ss) {
-        if(_.isUndefined(s) || _.isNull(s))
-          continue
-        if(_.isArray(s)) {
-          list.push(...s)
-          continue
+    joinAs(list=[], sep="", key=null){
+      let iter = null
+      if(key) {
+        iter = li => {
+          if(_.isPlainObject(li))
+            return _.get(li, key)
+          return key
         }
-        list.push(s)
       }
-      return list.join(sep)
+      return TiStr.join(list, sep, iter)
     },
     /***
      * Convert string to Js Object automatictly
@@ -2451,7 +2460,8 @@ const {App} = (function(){
   Encapsulate all stuffs of Titanium Application
   */
   class OneTiApp {
-    constructor(tinfo={}){
+    constructor(tinfo={}, decorator){
+      this.appDecorator = decorator
       this.$info(tinfo)
       this.$conf(null)
       this.$store(null)
@@ -2485,6 +2495,7 @@ const {App} = (function(){
       // }
       // load each fields of info obj
       let conf = await LoadTiAppInfo(info)
+      this.appDecorator(conf)
       this.$conf(conf)
       if(Ti.IsInfo("TiApp")) {
         console.log("Ti.$conf", this.$conf())
@@ -2800,7 +2811,7 @@ const {App} = (function(){
     }
   }
   //---------------------------------------
-  const TiApp = function(a0) {
+  const TiApp = function(a0, decorator=_.identity) {
     // Guard it
     if(Ti.Util.isNil(a0)) {
       return null
@@ -2808,7 +2819,7 @@ const {App} = (function(){
     // load the app info 
     if(_.isString(a0)) {
       return Ti.Load(a0).then(info=>{
-        return new OneTiApp(info)
+        return new OneTiApp(info, decorator)
       })
     }
     // Get back App from Element
@@ -2831,7 +2842,7 @@ const {App} = (function(){
     }
     // return the app instance directly
     if(_.isPlainObject(a0)) {
-      return new OneTiApp(a0)
+      return new OneTiApp(a0, decorator)
     }
   }
   //---------------------------------------
@@ -4707,7 +4718,7 @@ const {I18n} = (function(){
       // Error Object
       if(key instanceof Error) {
         if(key.code) {
-          return Ti.S.join(" : ", Ti18n.get(key.code), key.data)
+          return Ti.S.join([Ti18n.get(key.code), key.data], " : ")
         }
         return key.message
       }
@@ -10301,16 +10312,21 @@ const {WebAppMain} = (function(){
     //---------------------------------------
     // Load main app
     // If "i18n" or "deps" declared, it will be loaded too
-    let app = await Ti.App(appJson)
+    let app = await Ti.App(appJson, conf=>{
+      console.log("appConf", conf)
+      _.assign(conf.store.state, {
+        loading   : false,
+        pageReady : 0,
+        siteId,
+        domain,
+      })
+      return conf
+    })
     await app.init()
     Ti.App.pushInstance(app)
   
     // Save current app name
     Ti.SetAppName(app.name())
-  
-    // set siteId
-    app.commit("setSiteId", siteId)
-    app.commit("setDomain", domain)
   
     //---------------------------------------
     Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{
