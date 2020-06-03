@@ -17115,11 +17115,6 @@ function __eval_com_conf_item(val, cx={}) {
   // Object Value
   else if(_.isPlainObject(val)) {
     //........................................
-    // Function Call
-    //........................................
-    // ... TODO maybe we dont need it
-    // function call has bee supported in string mode
-    //........................................
     // Nested Objects
     //........................................
     let obj = {}
@@ -25020,62 +25015,95 @@ Ti.Preload("ti/com/web/media/player/_com.json", {
 //============================================================
 // JOIN: web/meta/article/web-meta-article.html
 //============================================================
-Ti.Preload("ti/com/web/meta/article/web-meta-article.html", `<div class="ti-web-meta-article">
+Ti.Preload("ti/com/web/meta/article/web-meta-article.html", `<div class="web-meta-article"
+  :class="TopClass">
   <!--
     Title
   -->
-  <h1>{{title}}</h1>
+  <h1
+    v-if="title"
+      class="as-title">{{title}}</h1>
+  <!--
+    Information
+  -->
+  <div
+    v-if="hasInfo"
+      class="as-info">
+      <!--author-->
+      <div v-if="author" class="as-author">{{author}}</div>
+      <!--PubDateText-->
+      <div v-if="PubDateText" class="as-pub-date">{{PubDateText}}</div>
+      <!--Watch Count-->
+      <div
+        v-if="watchCount > 0"
+          class="as-watch-count">
+            <i class="zmdi zmdi-eye"></i>
+            <span>{{watchCount}}</span></div>
+      <!--PubDateText-->
+      <div v-if="duration" class="as-duration">{{DurationText}}</div>
+  </div>
+  <!--
+    Tags
+  -->
+  <ul 
+  v-if="hasTags"
+    class="as-tags">
+    <li
+      v-for="tag in TheTags">{{tag}}</li></ul>
   <!--
     Brief
   -->
-  <div v-if="brief"
-    class="as-brief">{{brief}}</div>
-  <!--
-    Author/Date
-  -->
-  <div v-if="hasDateOrAuthor"
-    class="as-sub">
-    <ul>
-      <li v-if="author">{{author}}</li>
-      <li v-if="date">{{date}}</li>
-    </ul>
-  </div>
+  <blockquote
+    v-if="brief"
+      class="as-brief">{{brief}}</blockquote>
   <!--
     Bottom line
   -->
-  <hr v-if="bottomLine">
+  <hr v-if="bottomLine" class="as-bottom-line">
 </div>`);
 //============================================================
 // JOIN: web/meta/article/web-meta-article.mjs
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
-    "meta" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "titleKey" : {
+    "title" : {
       type : String,
-      default : "title"
+      default : null
     },
-    "briefKey" : {
+    "brief" : {
       type : String,
-      default : "brief"
+      default : null
     },
-    "dateKey" : {
-      type : String,
-      default : "date"
+    "pubDate" : {
+      type : [String, Number, Date],
+      default : null
+    },
+    "tags" : {
+      type : [String, Array],
+      default : null
     },
     "dateFormat" : {
       type : String,
       default : "yyyy-MM-dd"
     },
-    "authorKey" : {
+    "author" : {
       type : String,
-      default : "author"
+      default : null
+    },
+    "duration" : {
+      type : [String, Number],
+      default : null
+    },
+    "watchCount" : {
+      type : Number,
+      default : 0
+    },
+    "align": {
+      type: String,
+      default: "center",
+      validator: v => /^(left|center|right)$/.test(v)
     },
     "bottomLine" : {
       type : Boolean,
@@ -25085,38 +25113,36 @@ const _M = {
   //////////////////////////////////////////
   computed : {
     //......................................
-    title() {
-      if(this.titleKey) {
-        return this.meta[this.titleKey]
+    TopClass(){
+      return this.getTopClass(`align-${this.align}`)
+    },
+    //......................................
+    TheTags() {
+      return Ti.S.toArray(this.tags)
+    },
+    //......................................
+    hasTags() {
+      return !_.isEmpty(this.TheTags)
+    },
+    //......................................
+    DurationText() {
+      if(_.isNumber(this.duration)) {
+        return Ti.I18n.getf("du-in-min", {n:this.duration})
       }
-      return "NoTitle"
+      return this.duration
     },
     //......................................
-    brief() {
-      if(this.briefKey) {
-        return this.meta[this.briefKey]
-      }
-    },
-    //......................................
-    hasDateOrAuthor() {
-      return (this.date || this.author) ? true : false
-    },
-    //......................................
-    date() {
-      if(this.dateKey) {
-        let ds = this.meta[this.dateKey]
-        if(ds) {
-          try {
-            return Ti.Types.formatDate(ds, this.dateFormat)
-          }catch(E){}
-        }
+    PubDateText() {
+      if(this.pubDate) {
+        return Ti.DateTime.format(this.pubDate, this.dateFormat)
       }
     },
     //......................................
-    author() {
-      if(this.authorKey) {
-        return this.meta[this.authorKey]
-      }
+    hasInfo() {
+      return this.author
+        || this.watchCount > 0
+        || this.author
+        || this.duration
     }
     //......................................
   }
@@ -37184,6 +37210,7 @@ Ti.Preload("ti/i18n/zh-cn/ti-datetime.i18n.json", {
     "m-range-beyond-years": "${yy0}年${MT0}至${yy1}年${MT1}",
     "week": ["日", "一", "二", "三", "四", "五", "六"]
   },
+  "du-in-min": "${n}分钟",
   "time": {
     "any-time": "yyyy年M月d日",
     "in-year": "M月d日",

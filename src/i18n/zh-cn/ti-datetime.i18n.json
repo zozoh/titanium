@@ -54,6 +54,7 @@
     "m-range-beyond-years": "${yy0}年${MT0}至${yy1}年${MT1}",
     "week": ["日", "一", "二", "三", "四", "五", "六"]
   },
+  "du-in-min": "${n}分钟",
   "time": {
     "any-time": "yyyy年M月d日",
     "in-year": "M月d日",

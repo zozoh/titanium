@@ -1,43 +1,4 @@
 /////////////////////////////////////////////////////
-// Meta:Article
-.ti-web-meta-article {
-  text-align: center;
-  padding:.1rem 0;
-  //------------------------------
-  > h1 {
-    margin:0; padding:.08rem;
-    font-weight: bold; font-size:2em;
-  }
-  //------------------------------
-  > .as-brief {
-    @include color($color-info, c);
-    padding:.1rem; font-size:1em;
-  }
-  //------------------------------
-  > .as-sub {
-    ul {
-      @include flex-align-center($jc:center);
-      color: map-get($color-secondary, c);
-      font-size:1em;
-    }
-    li {
-      &:before{
-        content:"/"; display:inline;
-        margin:0 .1rem;
-        color:map-get($color-track, c);
-      }
-      &:first-child:before {
-        content: "";
-      }
-    }
-  }
-  //------------------------------
-}
-
-/////////////////////////////////////////////////////
-// Meta:commodity
-
-/////////////////////////////////////////////////////
 // Preview
 .ti-web-preview {
   > .as-preview {

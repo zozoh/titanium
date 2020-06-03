@@ -1,0 +1,63 @@
+.web-meta-article {
+  margin:2em 0;
+  //------------------------------
+  &.align-left{
+    text-align: left;
+    .as-tags, .as-info {
+      @include flex-align($jc:flex-start);
+    }
+  }
+  //------------------------------
+  &.align-center{
+    text-align: center;
+    .as-tags, .as-info {
+      @include flex-align($jc:center);
+    }
+  }
+  //------------------------------
+  &.align-right{
+    text-align: right;
+    .as-tags, .as-info {
+      @include flex-align($jc:flex-end);
+    }
+  }
+  //------------------------------
+  > div {
+    margin:0 .5em;
+  }
+  //------------------------------
+  .as-title {
+    margin:0; padding:.5em 0;
+    font-weight: bold; font-size:2.4em;
+  }
+  //------------------------------
+  .as-brief {
+    @include color($color-chip, r, c);
+    @include border(1px, dashed, shallow);
+    margin:1em 0; font-size:.9em;
+    padding:2em; font-size:1em;
+    border-radius: .5em;
+  }
+  //------------------------------
+  .as-tags {
+    @include noselect;
+    margin:1em 0;
+    font-size:.8em; 
+    li {
+      border:1px solid map-get($color-info, c);
+      color:map-get($color-info, c);
+      margin:0 .5em; padding:.2em .5em;
+      border-radius: .5em;
+    }
+  }
+  //------------------------------
+  .as-info {
+    color: map-get($color-track, c);
+    div {margin:0 .5em;}
+  }
+  //------------------------------
+  .as-bottom-line {
+    margin:2em 0; border-top-style:dashed;
+  }
+  //------------------------------
+}

@@ -1,30 +1,42 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   /////////////////////////////////////////
   props : {
-    "meta" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "titleKey" : {
+    "title" : {
       type : String,
-      default : "title"
+      default : null
     },
-    "briefKey" : {
+    "brief" : {
       type : String,
-      default : "brief"
+      default : null
     },
-    "dateKey" : {
-      type : String,
-      default : "date"
+    "pubDate" : {
+      type : [String, Number, Date],
+      default : null
+    },
+    "tags" : {
+      type : [String, Array],
+      default : null
     },
     "dateFormat" : {
       type : String,
       default : "yyyy-MM-dd"
     },
-    "authorKey" : {
+    "author" : {
       type : String,
-      default : "author"
+      default : null
+    },
+    "duration" : {
+      type : [String, Number],
+      default : null
+    },
+    "watchCount" : {
+      type : Number,
+      default : 0
+    },
+    "align": {
+      type: String,
+      default: "center",
+      validator: v => /^(left|center|right)$/.test(v)
     },
     "bottomLine" : {
       type : Boolean,
@@ -34,40 +46,39 @@ export default {
   //////////////////////////////////////////
   computed : {
     //......................................
-    title() {
-      if(this.titleKey) {
-        return this.meta[this.titleKey]
+    TopClass(){
+      return this.getTopClass(`align-${this.align}`)
+    },
+    //......................................
+    TheTags() {
+      return Ti.S.toArray(this.tags)
+    },
+    //......................................
+    hasTags() {
+      return !_.isEmpty(this.TheTags)
+    },
+    //......................................
+    DurationText() {
+      if(_.isNumber(this.duration)) {
+        return Ti.I18n.getf("du-in-min", {n:this.duration})
       }
-      return "NoTitle"
+      return this.duration
     },
     //......................................
-    brief() {
-      if(this.briefKey) {
-        return this.meta[this.briefKey]
-      }
-    },
-    //......................................
-    hasDateOrAuthor() {
-      return (this.date || this.author) ? true : false
-    },
-    //......................................
-    date() {
-      if(this.dateKey) {
-        let ds = this.meta[this.dateKey]
-        if(ds) {
-          try {
-            return Ti.Types.formatDate(ds, this.dateFormat)
-          }catch(E){}
-        }
+    PubDateText() {
+      if(this.pubDate) {
+        return Ti.DateTime.format(this.pubDate, this.dateFormat)
       }
     },
     //......................................
-    author() {
-      if(this.authorKey) {
-        return this.meta[this.authorKey]
-      }
+    hasInfo() {
+      return this.author
+        || this.watchCount > 0
+        || this.author
+        || this.duration
     }
     //......................................
   }
   //////////////////////////////////////////
 }
+export default _M;

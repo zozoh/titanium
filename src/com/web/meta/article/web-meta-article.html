@@ -1,25 +1,46 @@
-<div class="ti-web-meta-article">
+<div class="web-meta-article"
+  :class="TopClass">
   <!--
     Title
   -->
-  <h1>{{title}}</h1>
+  <h1
+    v-if="title"
+      class="as-title">{{title}}</h1>
+  <!--
+    Information
+  -->
+  <div
+    v-if="hasInfo"
+      class="as-info">
+      <!--author-->
+      <div v-if="author" class="as-author">{{author}}</div>
+      <!--PubDateText-->
+      <div v-if="PubDateText" class="as-pub-date">{{PubDateText}}</div>
+      <!--Watch Count-->
+      <div
+        v-if="watchCount > 0"
+          class="as-watch-count">
+            <i class="zmdi zmdi-eye"></i>
+            <span>{{watchCount}}</span></div>
+      <!--PubDateText-->
+      <div v-if="duration" class="as-duration">{{DurationText}}</div>
+  </div>
+  <!--
+    Tags
+  -->
+  <ul 
+  v-if="hasTags"
+    class="as-tags">
+    <li
+      v-for="tag in TheTags">{{tag}}</li></ul>
   <!--
     Brief
   -->
-  <div v-if="brief"
-    class="as-brief">{{brief}}</div>
-  <!--
-    Author/Date
-  -->
-  <div v-if="hasDateOrAuthor"
-    class="as-sub">
-    <ul>
-      <li v-if="author">{{author}}</li>
-      <li v-if="date">{{date}}</li>
-    </ul>
-  </div>
+  <blockquote
+    v-if="brief"
+      class="as-brief">{{brief}}</blockquote>
   <!--
     Bottom line
   -->
-  <hr v-if="bottomLine">
+  <hr v-if="bottomLine" class="as-bottom-line">
 </div>
