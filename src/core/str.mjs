@@ -121,6 +121,14 @@ const TiStr = {
     // Others return
     return data
   },
+   /***
+   * Join with iteratee
+   */
+  joinWithoutNil(sep="", ...args){
+    let list2 = _.flattenDeep(args)
+    let list3 = _.filter(list2, li=>!Ti.Util.isNil(li))
+    return list3.join(sep)
+  },
   /***
    * Join with iteratee
    */

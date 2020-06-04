@@ -996,6 +996,14 @@ const {S} = (function(){
       // Others return
       return data
     },
+     /***
+     * Join with iteratee
+     */
+    joinWithoutNil(sep="", ...args){
+      let list2 = _.flattenDeep(args)
+      let list3 = _.filter(list2, li=>!Ti.Util.isNil(li))
+      return list3.join(sep)
+    },
     /***
      * Join with iteratee
      */
@@ -10313,7 +10321,7 @@ const {WebAppMain} = (function(){
     // Load main app
     // If "i18n" or "deps" declared, it will be loaded too
     let app = await Ti.App(appJson, conf=>{
-      console.log("appConf", conf)
+      //console.log("appConf", conf)
       _.assign(conf.store.state, {
         loading   : false,
         pageReady : 0,

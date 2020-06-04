@@ -220,6 +220,14 @@ DIV(@app)             # Vue(root) : index.wnml
       // 得到的数据对象应该存放到 data 段的哪个键下，
       // 可选，如果未定义，则用 API 的键作为 dataKey
       "dataKey" : "article",
+      // 得到的数据，对于 dataKey 对应的键，应该是替换还是 merget
+      // 默认为 false 表示替换
+      "dataMerge" : false
+      // dataKey 存储的数据是被serializer过的（如果你定义了的话）
+      // 有时候，你还想把serializer之前的数据也存起来，方便别的控件使用
+      // 可以声明这个字段，它的意义与dataKey一样，只不过保存的是api的原始数据
+      "rawDataKey": null,
+      "rawDataMerge" : false
       //-----------------------------------
       // 自动计算的值
       "url" : "/xxx"    // 根据 apiBase 和 path 自动拼合完整绝对路径

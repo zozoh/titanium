@@ -33,6 +33,7 @@ const _M = {
         //..........................................
         // Get SiteApi template
         let siteApi = _.get(SiteApis, pageApi.apiName || key)
+        console.log(key, siteApi)
         //..........................................
         // Marge the page api
         let api = _.cloneDeep(siteApi)
@@ -74,7 +75,15 @@ const _M = {
         }       
         //..........................................
         // Copy the Setting from page
-        _.assign(api, _.pick(pageApi, "body", "preload","serializer", "dataKey"))
+        _.assign(api, _.pick(pageApi, 
+          "body", 
+          "preload",
+          "serializer", 
+          "dataKey",
+          "dataMerge",
+          "rawDataKey",
+          "rawDataMerge"
+        ))
         //..........................................
         _.defaults(api, {
           bodyType : "form",
@@ -124,21 +133,13 @@ const _M = {
       state.data = data
     },
     //--------------------------------------------
-    updateData(state, {key, value}) {
-      if(_.isUndefined(value)) {
+    updateData(state, {key, value}={}) {
+      // kay-value pair is required
+      if(!key || _.isUndefined(value)) {
         return
       }
-      // Apply Whole Data
-      if(!key) {
-        if(_.isPlainObject(value)) {
-          state.data = _.assign({}, state.data, value)
-        }
-      }
-      // update field
-      else {
-        let vobj = _.set({}, key, value)
-        state.data = _.assign({}, state.data, vobj)
-      }
+      let vobj = _.set({}, key, value)
+      state.data = _.assign({}, state.data, vobj)
     },
     //--------------------------------------------
     mergeData(state, data) {
@@ -243,6 +244,106 @@ const _M = {
       }
     },
     //--------------------------------------------
+    async doApi({rootState, getters, commit}, {
+      key,        // The Api Key
+      params={},  // params will override the defaults
+      vars={},
+      body=null
+    }={}) {
+      //.....................................
+      let api = _.get(getters.pageApis, key)
+      console.log("doApi", key, params, api)
+      //.....................................
+      // Guard
+      if(!api) {
+        return await Ti.Toast.Open("e.www.page.ApiNotFound: "+key, "warn");
+      }
+      //.....................................
+      // Eval url
+      _.defaults(vars, api.vars)
+      let url = api.url
+      if(!_.isEmpty(vars)) {
+        let vars2 = Ti.Util.explainObj(rootState, vars)
+        url = Ti.S.renderBy(api.url, vars2)
+      }
+      //.....................................
+      // Gen the options
+      let options = _.pick(api, ["method", "as"])
+      options.vars = vars
+      // Eval headers
+      options.headers = Ti.Util.explainObj(rootState, api.headers)
+      // Eval the params
+      options.params = {}
+      _.forEach(api.params, (param, key)=>{
+        let val = _.get(params, key)
+        // Use default
+        if(Ti.Util.isNil(val)) {
+          val = Ti.Util.explainObj(rootState, param.value)
+        }
+        // Check required
+        if(param.required && Ti.Util.isNil(val)) {
+          let errMsg = `${url}: lack required param: ${key}`
+          Ti.Toast.Open(errMsg, "error")
+          throw errMsg
+        }
+        options.params[key] = val
+      })
+      //.....................................
+      // Prepare the body
+      let apiBody = body || api.body
+      if("POST" == api.method && apiBody) {
+        let bodyData = Ti.Util.explainObj(rootState, apiBody)
+        // As JSON
+        if("json" == api.bodyType) {
+          options.body = JSON.stringify(bodyData)
+        }
+        // As responseText
+        else if("text" == api.bodyType) {
+          options.body = Ti.Types.toStr(bodyData)
+        }
+        // Default is form
+        else {
+          options.body = Ti.Http.encodeFormData(bodyData)
+        }
+      }
+      //.......................................
+      // Mark Loading
+      commit("setLoading", true, {root:true})
+      //.....................................
+      // Join the http send Promise
+      //console.log(`will send to "${url}"`, options)
+      let reo = await Ti.Http.sendAndProcess(url, options) 
+      let data = reo
+      //.....................................
+      // Eval api serializer
+      if(api.serializer) {
+        let serializer = Ti.Util.genInvoking(api.serializer, {
+          context: rootState,
+          partialRight: true
+        })
+        if(_.isFunction(serializer)) {
+          data = serializer(reo)
+        }
+      }
+      //.....................................
+      // Update or merge
+      if(api.dataMerge) {
+        commit("mergeData", {
+          [api.dataKey] : data
+        })
+      }
+      // Just update
+      else {
+        commit("updateData", {
+          key   : api.dataKey,
+          value : data
+        })
+      }
+      //.......................................
+      // Mark Loading
+      commit("setLoading", false, {root:true})
+    },
+    //--------------------------------------------
     /***
      * Reload page data by given api keys
      */
@@ -259,6 +360,9 @@ const _M = {
       apis.sort((a1, a2)=>{
         return a1.preload - a2.preload
       })
+      //.......................................
+      // Mark Loading
+      commit("setLoading", true, {root:true})
       //.......................................
       // Prepare the Promises
       for(let api of apis) {
@@ -312,6 +416,7 @@ const _M = {
         //console.log(`will send to "${url}"`, options)
         let reo = await Ti.Http.sendAndProcess(url, options) 
         let data = reo
+        //.....................................
         // Eval api serializer
         if(api.serializer) {
           let serializer = Ti.Util.genInvoking(api.serializer, {
@@ -322,40 +427,39 @@ const _M = {
             data = serializer(reo)
           }
         }
-        commit("updateData", {
-          key   : api.dataKey,
-          value : data
-        })
-          
-          // .catch(($req)=>{
-          //   console.warn($req)
-          //   // commit("updateData", {
-          //   //   key   : api.dataKey,
-          //   //   value : {
-          //   //     ok : false,
-          //   //     errCode : `http.${$req.status}`,
-          //   //     msg : `http.${$req.status}`,
-          //   //     data : _.trim($req.responseText)
-          //   //   }
-          //   // })
-          //   // TODO maybe I should emit event here
-          //   // Then handle the event in actons 
-          // })
-      } // for(let api of list) {
+        //.....................................
+        // Update or merge
+        if(api.dataMerge) {
+          commit("mergeData", {
+            [api.dataKey] : data
+          })
+        }
+        // Just update
+        else {
+          commit("updateData", {
+            key   : api.dataKey,
+            value : data
+          })
+        }
+        //.....................................
+        // Update or merge
+        if(api.rawDataKey) {
+          if(api.rawDataMerge) {
+            commit("mergeData", {
+              [api.rawDataKey] : reo
+            })
+          }
+          // Just update
+          else {
+            commit("updateData", {
+              key   : api.rawDataKey,
+              value : reo
+            })
+          }
+        }
+      }
       //.......................................
-      // Mark root state
-      commit("setLoading", true, {root:true})
-      //.......................................
-      // // Only one request
-      // if(ings.length == 1) {
-      //   await ings[0]
-      // }
-      // // Join all request
-      // else if(ings.length > 1) {
-      //   await Promise.all(ings)
-      // }
-      //.......................................
-      // Mark root state
+      // Unmark loading
       commit("setLoading", false, {root:true})
       commit("updateFinger")
       //.......................................
