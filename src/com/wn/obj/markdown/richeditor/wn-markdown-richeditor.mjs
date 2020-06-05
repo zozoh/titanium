@@ -25,7 +25,8 @@ const _M = {
         if(m) {
           let obj = await Wn.Io.loadMetaById(m[1])
           if(obj) {
-            return Wn.Io.formatObjPath(obj, this.mediaSrcMode, this.meta)
+            let s2 = Wn.Io.formatObjPath(obj, this.mediaSrcMode, this.meta)
+            return s2;
           }
         }
         return src

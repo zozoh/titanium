@@ -29892,7 +29892,8 @@ const _M = {
         if(m) {
           let obj = await Wn.Io.loadMetaById(m[1])
           if(obj) {
-            return Wn.Io.formatObjPath(obj, this.mediaSrcMode, this.meta)
+            let s2 = Wn.Io.formatObjPath(obj, this.mediaSrcMode, this.meta)
+            return s2;
           }
         }
         return src
@@ -31391,7 +31392,7 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", `<div cla
         class="ti-fill-parent"
         v-bind="TheFiles"
         :data="myData"
-        :meta="myDataHomeObj"
+        :meta="myDataDirObj"
         :status="myStatus"
         :before-upload="checkDataDir"
         @uploaded="OnFileUploaded"
@@ -31418,7 +31419,7 @@ const _M = {
   inject: ["$ThingManager"],
   ///////////////////////////////////////////
   data: ()=>({
-    myDataHomeObj: null,
+    myDataDirObj: null,
     myData: {},
     myStatus: {
       reloading: false
@@ -31529,7 +31530,7 @@ const _M = {
         return
       }
       // If empty data home, create one
-      if(!this.myDataHomeObj) {
+      if(!this.myDataDirObj) {
         let pos = this.dataHome.indexOf('/')
         let tsDataPh = this.dataHome.substring(0, pos)
         let dirPath = Ti.Util.appendPath(this.dataHome.substring(pos+1), this.dirName)
@@ -31540,9 +31541,12 @@ const _M = {
         let json = JSON.stringify(newMeta)
         let cmdText = `obj "${tsDataPh}" -IfNoExists -new '${json}' -cqno`
         //console.log(cmdText)
-        let dataHomeObj = await Wn.Sys.exec2(cmdText, {as:"json"})
+        let dataDirObj = await Wn.Sys.exec2(cmdText, {as:"json"})
+        let dataHomeObj = await Wn.Io.loadMetaBy(this.dataHome)
+
+        // Update local state
         Ti.App(this).commit("main/setCurrentDataHomeObj", dataHomeObj)
-        this.myDataHomeObj = dataHomeObj
+        this.myDataDirObj = dataDirObj
       }
     },
     //--------------------------------------
@@ -31551,7 +31555,7 @@ const _M = {
       await this.checkDataDir()
       
       // Do upload
-      if(this.myDataHomeObj) {
+      if(this.myDataDirObj) {
         this.$adaptlist.openLocalFileSelectdDialog()
       }
       // Impossible
@@ -31589,13 +31593,13 @@ const _M = {
         let home = await Wn.Io.loadMeta(hmph)
         // Guard
         if(!home) {
-          this.myDataHomeObj = null
+          this.myDataDirObj = null
           this.myData = {}
         }
         // Update data
         else {
           let reo = await Wn.Io.loadChildren(home)
-          this.myDataHomeObj = home
+          this.myDataDirObj = home
           this.myData = reo
         }
         _.delay(()=>{
@@ -31604,7 +31608,7 @@ const _M = {
       }
       // Reset
       else {
-        this.myDataHomeObj = null
+        this.myDataDirObj = null
         this.myData = {}
       }
     }
@@ -34416,20 +34420,23 @@ const _M = {
       sorter: {},
       pager: {}
     })
-
+    
     // Setup default filter and sorter
     let filter = _.get(state.config.schema, "behavior.filter") || {}
     filter = _.assign({}, filter, local.filter)
     if(!_.isEmpty(filter)) {
       commit("search/setFilter", filter)
     }
-
+    // Sorter
     let sorter = _.get(state.config.schema, "behavior.sorter") || {}
-    sorter = Ti.Util.fallback(local.sorter, sorter)
-    if(!_.isEmpty(sorter)) {
+    if(!_.isEmpty(local.sorter)) {
+      commit("search/setSorter", local.sorter)
+    }
+    else if(!_.isEmpty(sorter)) {
       commit("search/setSorter", sorter)
     }
 
+    // Pager
     if(!_.isEmpty(local.pager)) {
       commit("search/setPager", local.pager)
     }
@@ -34512,9 +34519,11 @@ const _M = {
       state.currentDataDir = dirName
     },
     setCurrentDataHome(state, dataHome) {
+      console.log("setHome", dataHome)
       state.currentDataHome = dataHome
     },
     setCurrentDataHomeObj(state, dataHomeObj) {
+      console.log("setHObj", _.get(dataHomeObj,"ph"))
       state.currentDataHomeObj = _.cloneDeep(dataHomeObj)
     },
     setStatus(state, status) {
