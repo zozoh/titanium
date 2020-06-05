@@ -20,6 +20,10 @@
         "prefix": "ti/lib/www/",
         "target": "all"
       }, {
+        "path": "src/lib/code2a",
+        "prefix": "ti/lib/code2a/",
+        "target": "all"
+      }, {
         "path": "src/app",
         "prefix": "/a/load/",
         "ignore": "^.+\/(pc_tmpl.*\\.html|_app.json|init_context)$",
