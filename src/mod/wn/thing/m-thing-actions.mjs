@@ -445,20 +445,23 @@ const _M = {
       sorter: {},
       pager: {}
     })
-
+    
     // Setup default filter and sorter
     let filter = _.get(state.config.schema, "behavior.filter") || {}
     filter = _.assign({}, filter, local.filter)
     if(!_.isEmpty(filter)) {
       commit("search/setFilter", filter)
     }
-
+    // Sorter
     let sorter = _.get(state.config.schema, "behavior.sorter") || {}
-    sorter = Ti.Util.fallback(local.sorter, sorter)
-    if(!_.isEmpty(sorter)) {
+    if(!_.isEmpty(local.sorter)) {
+      commit("search/setSorter", local.sorter)
+    }
+    else if(!_.isEmpty(sorter)) {
       commit("search/setSorter", sorter)
     }
 
+    // Pager
     if(!_.isEmpty(local.pager)) {
       commit("search/setPager", local.pager)
     }
