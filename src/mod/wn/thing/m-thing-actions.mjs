@@ -140,12 +140,11 @@ const _M = {
     let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
     if(newMeta && !(newMeta instanceof Error)) {
-      // Set it as current
-      await dispatch("current/reload", newMeta)
-
       // Append To Search List as the first 
       commit("search/prependToList", newMeta)
-      commit("search/selectItem", newMeta.id)
+      
+      // Set it as current
+      await dispatch("setCurrentThing", {meta:newMeta})
     }
 
     // Mark reloading
@@ -159,7 +158,7 @@ const _M = {
    * Search: Remove Checked Items
    */
   async removeChecked({state, commit, dispatch, getters}, hard=false) {
-    console.log("removeChecked", hard)
+    //console.log("removeChecked", hard)
     let ids = _.cloneDeep(state.search.checkedIds)
     if(_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
@@ -372,9 +371,6 @@ const _M = {
     checkedIds={}
   }={}) {
     //..........................................
-    // Reload Current
-    await dispatch("current/reload", meta)
-    //..........................................
     // Update selected item in search list
     let curId = meta ? meta.id : null
     let ckIds = Ti.Util.truthyKeys(checkedIds)
@@ -388,6 +384,11 @@ const _M = {
     let home = state.meta
     let dataHome = curId ? `id:${home.id}/data/${curId}` : null
     commit("setCurrentDataHome", dataHome)
+
+    // Try get current dataHomeObj
+    let dataHomeObj = await Wn.Io.loadMeta(dataHome)
+    commit("setCurrentDataHomeObj", dataHomeObj)
+
     //..........................................
     // Keep last
     let lastKey = `${home.id}:currentId`
@@ -398,6 +399,9 @@ const _M = {
     else {
       Ti.Storage.session.remove(lastKey);
     }
+    //..........................................
+    // Reload Current
+    await dispatch("current/reload", meta)
     //..........................................
   },
   //--------------------------------------------

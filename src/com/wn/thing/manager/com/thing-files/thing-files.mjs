@@ -3,7 +3,7 @@ const _M = {
   inject: ["$ThingManager"],
   ///////////////////////////////////////////
   data: ()=>({
-    myHome: null,
+    myDataHomeObj: null,
     myData: {},
     myStatus: {
       reloading: false
@@ -114,7 +114,7 @@ const _M = {
         return
       }
       // If empty data home, create one
-      if(!this.myHome) {
+      if(!this.myDataHomeObj) {
         let pos = this.dataHome.indexOf('/')
         let tsDataPh = this.dataHome.substring(0, pos)
         let dirPath = Ti.Util.appendPath(this.dataHome.substring(pos+1), this.dirName)
@@ -124,8 +124,10 @@ const _M = {
         }
         let json = JSON.stringify(newMeta)
         let cmdText = `obj "${tsDataPh}" -IfNoExists -new '${json}' -cqno`
-        console.log(cmdText)
-        this.myHome = await Wn.Sys.exec2(cmdText, {as:"json"})
+        //console.log(cmdText)
+        let dataHomeObj = await Wn.Sys.exec2(cmdText, {as:"json"})
+        Ti.App(this).commit("main/setCurrentDataHomeObj", dataHomeObj)
+        this.myDataHomeObj = dataHomeObj
       }
     },
     //--------------------------------------
@@ -134,7 +136,7 @@ const _M = {
       await this.checkDataDir()
       
       // Do upload
-      if(this.myHome) {
+      if(this.myDataHomeObj) {
         this.$adaptlist.openLocalFileSelectdDialog()
       }
       // Impossible
@@ -172,13 +174,13 @@ const _M = {
         let home = await Wn.Io.loadMeta(hmph)
         // Guard
         if(!home) {
-          this.myHome = null
+          this.myDataHomeObj = null
           this.myData = {}
         }
         // Update data
         else {
           let reo = await Wn.Io.loadChildren(home)
-          this.myHome = home
+          this.myDataHomeObj = home
           this.myData = reo
         }
         _.delay(()=>{
@@ -187,7 +189,7 @@ const _M = {
       }
       // Reset
       else {
-        this.myHome = null
+        this.myDataHomeObj = null
         this.myData = {}
       }
     }

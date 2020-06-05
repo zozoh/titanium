@@ -18,7 +18,11 @@ const _M = {
     },
     "currentDataHome" : {
       type : String,
-      default : null
+      default : undefined
+    },
+    "currentDataHomeObj" : {
+      type : Object,
+      default : undefined
     },
     "currentDataDir" : {
       type : String,
@@ -226,7 +230,7 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name) {
-      console.log("__on_events", name)
+      //console.log("__on_events", name)
       // Try to get handler
       let fn = _.get(this.EventRouting, name)
       if(!fn) {

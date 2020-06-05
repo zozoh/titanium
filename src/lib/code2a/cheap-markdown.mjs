@@ -588,9 +588,9 @@ class CheapBoldElement extends CheapElement {
   constructor(parentNode=null) {
     super("B", "inline", {}, parentNode)
   }
-  getMarkdown(){return `__${super.getMarkdown()}__`}
-  joinDelta(delta=[], config){
-    let lastOp = super.joinDelta(delta, {autoJoinPrev:false});
+  async getMarkdown(){return `__${await super.getMarkdown()}__`}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
     _.set(lastOp, "attributes.bold", true)
     return lastOp
   }
@@ -599,9 +599,9 @@ class CheapItalicElement extends CheapElement {
   constructor(parentNode=null) {
     super("I", "inline", {}, parentNode)
   }
-  getMarkdown(){return `_${super.getMarkdown()}_`}
-  joinDelta(delta=[], config){
-    let lastOp = super.joinDelta(delta, {autoJoinPrev:false});
+  async getMarkdown(){return `_${await super.getMarkdown()}_`}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
     _.set(lastOp, "attributes.italic", true)
     return lastOp
   }
@@ -610,9 +610,9 @@ class CheapStrongElement extends CheapElement {
   constructor(parentNode=null) {
     super("STRONG", "inline", {}, parentNode)
   }
-  getMarkdown(){return `**${super.getMarkdown()}**`}
-  joinDelta(delta=[], config){
-    let lastOp = super.joinDelta(delta, {autoJoinPrev:false});
+  async getMarkdown(){return `**${await super.getMarkdown()}**`}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
     _.set(lastOp, "attributes.bold", true)
     return lastOp
   }
@@ -621,9 +621,9 @@ class CheapEmphasisElement extends CheapElement {
   constructor(parentNode=null) {
     super("EM", "inline", {}, parentNode)
   }
-  getMarkdown(){return `*${super.getMarkdown()}*`}
-  joinDelta(delta=[], config){
-    let lastOp = super.joinDelta(delta, {autoJoinPrev:false});
+  async getMarkdown(){return `*${await super.getMarkdown()}*`}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
     _.set(lastOp, "attributes.italic", true)
     return lastOp
   }
@@ -632,9 +632,9 @@ class CheapDeletedTextElement extends CheapElement {
   constructor(parentNode=null) {
     super("DEL", "inline", {}, parentNode)
   }
-  getMarkdown(){return `~~${super.getMarkdown()}~~`}
-  joinDelta(delta=[], config){
-    let lastOp = super.joinDelta(delta, {autoJoinPrev:false});
+  async getMarkdown(){return `~~${await super.getMarkdown()}~~`}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
     _.set(lastOp, "attributes.strike", true)
     return lastOp
   }
@@ -643,9 +643,9 @@ class CheapCodeElement extends CheapElement {
   constructor(parentNode=null) {
     super("CODE", "inline", {}, parentNode)
   }
-  getMarkdown(){return `\`${super.getMarkdown()}\``}
-  joinDelta(delta=[], config){
-    let lastOp = super.joinDelta(delta, {autoJoinPrev:false});
+  async getMarkdown(){return `\`${await super.getMarkdown()}\``}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
     _.set(lastOp, "attributes.code", true)
     return lastOp
   }
@@ -674,13 +674,14 @@ class CheapAnchorElement extends CheapElement {
   }
   //---------------------------------------------------
   async joinDelta(delta=[], config){
-    let lastOp = super.joinDelta(delta, {autoJoinPrev:false});
+    console.log("haha", config)
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
     let attrs = await this.getRuntimeAttrs(config)
     _.set(lastOp, "attributes.link", attrs.href)
     return lastOp
   }
   //---------------------------------------------------
-  async getRuntimeAttrs({anchorHref=_.identity}={}) {
+  async getRuntimeAttrs({anchorHref}={}) {
     let attrs = _.assign({}, this.attrs)
     // Explain refers
     if(attrs.refer) {
@@ -688,7 +689,7 @@ class CheapAnchorElement extends CheapElement {
       attrs.href = href
     }
     // Eval to real href
-    if(attrs.href) {
+    if(attrs.href && _.isFunction(anchorHref)) {
       attrs.href = await anchorHref(attrs.href)
     }
     // Done

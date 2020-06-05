@@ -22,6 +22,8 @@ const OBJ = {
       },
       components : ["@com:ti/obj/creation"]
     })
+
+    console.log(no)
     
     // Do Create
     // Check the newName

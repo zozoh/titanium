@@ -1,20 +1,24 @@
 .ti-text-raw {
-  @include flex-align-v;
-  .te-head {
-    @include flex-align($ai:center);
-    @include font-fixed;
+  //---------------------------------------------
+  @include flex-align-v-nowrap;
+  //---------------------------------------------
+  &.is-changed > .as-head {
+    @include color($color-weaktip, r, c);
+  }
+  //---------------------------------------------
+  > .as-head {
+    @include flex-align-nowrap;
     @include color($color-disable, c);
     flex:0 0 auto;
-    padding:.1rem .18rem;
-    &.content-changed {
-      @include color($color-secondary, c);
-    }
-    > .ti-icon {
-      padding:0 .1rem 0 0; font-size:1.4em;
-    }
-    > b {font-weight:normal;}
+    padding:.8em 1em;
+    //-------------------------------------------
+    > .ti-icon {font-size:1.4em; margin-right:.5em;}
+    //-------------------------------------------
+    > span {@include font-fixed;}
+    //-------------------------------------------
   }
-  .te-main {
+  //---------------------------------------------
+  > .as-main {
     @include flex-full;
     padding:0;
     textarea {
@@ -26,4 +30,5 @@
       font-size:.16rem; line-height:.2rem;
     }
   }
+  //---------------------------------------------
 }

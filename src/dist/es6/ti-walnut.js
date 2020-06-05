@@ -282,7 +282,7 @@ const Io = (function(){
       // Make sure it is meta
       let ph = meta.ph ? meta.ph : meta;
       let homePath = Wn.Session.getHomePath()
-      let rph = Ti.Util.getRelativePath(homePh, ph, "")
+      let rph = Ti.Util.getRelativePath(homePath, ph, "")
       return Ti.Util.appendPath("~", rph)
     },
     /***

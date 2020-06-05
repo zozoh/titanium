@@ -1,9 +1,5 @@
 const _M = {
   ///////////////////////////////////////////////////
-  data: ()=>({
-    myMeta: null
-  }),
-  ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
     ToolbarActions() {
@@ -15,30 +11,7 @@ const _M = {
       },  this.actions)
     },
     //-----------------------------------------------
-    isMyMetaMatchedProp() {
-      if(!this.myMeta || !this.meta) {
-        return false
-      }
-      if(_.isString(this.meta)) {
-        // ID Path
-        if(Wn.Io.isFullObjIdPath(this.meta)) {
-          return this.myMeta.id == this.meta.substring(3)
-        }
-        // Path
-        let nm0 = Ti.Util.getFileName(this.meta)
-        return nm0 == this.myMeta.nm
-      }
-      // Object meta
-      return this.meta.id == this.myMeta.id
-    },
-    //-----------------------------------------------
     TheValue() {
-      // Wait myMeta reloaded
-      if(!Ti.Util.isNil(this.value) 
-         && this.meta 
-         && !this.isMyMetaMatchedProp) {
-        return null
-      }
       return this.value
     },
     //-----------------------------------------------
@@ -52,7 +25,7 @@ const _M = {
         if(m) {
           let obj = await Wn.Io.loadMetaById(m[1])
           if(obj) {
-            return Wn.Io.formatObjPath(obj, this.mediaSrcMode, this.myMeta)
+            return Wn.Io.formatObjPath(obj, this.mediaSrcMode, this.meta)
           }
         }
         return src
@@ -68,8 +41,8 @@ const _M = {
         if(/^(https?:)(\/\/)/.test(src))
           return src
 
-        console.log("preview", src)
-        let obj = await Wn.Io.loadMetaBy(src, this.myMeta)
+        //console.log("preview", src)
+        let obj = await Wn.Io.loadMetaBy(src, this.meta)
         if(obj) {
           return `/o/content?str=id:${obj.id}`
         }
@@ -87,7 +60,7 @@ const _M = {
     //-----------------------------------------------
     async OnInsertMedia() {
       // Get the last open
-      let last = this.myMeta || this.defaultMediaDir
+      let last = this.meta || this.defaultMediaDir
       if(this.keepLastBy)
         last = Ti.Storage.local.getString(this.keepLastBy) || last
 
@@ -152,7 +125,6 @@ const _M = {
 
       // Insert to current position
       let sel = this.$editor.getSelection()
-      console.log("selection", sel)
 
       if(!sel) {
         this.$editor.setSelection(0)
@@ -181,18 +153,19 @@ const _M = {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch: {
-    "meta": {
-      handler: async function(pathOrObj){
-        if(_.isString(pathOrObj)) {
-          this.myMeta = await Wn.Io.loadMetaBy(pathOrObj)
-        } else {
-          this.myMeta = pathOrObj
-        }
-      },
-      immediate: true
-    }
-  }
+  // watch: {
+  //   "meta": {
+  //     handler: async function(pathOrObj){
+  //       console.log("meta changed!")
+  //       if(_.isString(pathOrObj)) {
+  //         this.myMeta = await Wn.Io.loadMetaBy(pathOrObj)
+  //       } else {
+  //         this.myMeta = pathOrObj
+  //       }
+  //     },
+  //     immediate: true
+  //   }
+  // }
   ///////////////////////////////////////////////////
 }
 export default _M;

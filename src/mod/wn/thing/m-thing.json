@@ -2,6 +2,7 @@
   "meta": null,
   "currentDataDir"  : "media",
   "currentDataHome" : null,
+  "currentDataHomeObj" : null,
   "status" : {
     "reloading" : false,
     "doing"     : false,

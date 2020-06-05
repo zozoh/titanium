@@ -20,6 +20,9 @@ export default {
     setCurrentDataHome(state, dataHome) {
       state.currentDataHome = dataHome
     },
+    setCurrentDataHomeObj(state, dataHomeObj) {
+      state.currentDataHomeObj = _.cloneDeep(dataHomeObj)
+    },
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)
     },

@@ -16181,8 +16181,7 @@ const _M = {
         this.value.type = ""
         this.value.race = ""
       }
-      this.onChange()
-      this.$notify("input", this.value)
+      this.$notify("change", this.value)
     },
     onChange() {
       let name = this.$refs.input.value
@@ -16201,7 +16200,7 @@ const _M = {
         }
       }
 
-      this.$notify("input", this.value)
+      this.$notify("change", this.value)
     }
   },
   mounted : function(){
@@ -21623,7 +21622,7 @@ const _M = {
         let delta = await MdDoc.toDelta({
           mediaSrc: this.ThePreviewMediaSrc
         })
-        //console.log(JSON.stringify(delta, null, '   '))
+        console.log(JSON.stringify(delta, null, '   '))
 
         // Update Quill editor content
         this.$editor.setContents(delta);
@@ -21638,6 +21637,7 @@ const _M = {
     //-----------------------------------------------
     syncMarkdown() {
       if(this.syncForbid > 0) {
+        console.log("!forbid! syncMarkdown", this.syncForbid)
         this.syncForbid --
         return
       }
@@ -21646,34 +21646,38 @@ const _M = {
     //-----------------------------------------------
     // Highlight
     //-----------------------------------------------
-    highlightCode() {
-      for(let $code of this.$refs.stage.querySelectorAll("pre")) {
-        console.log($code)
-        hljs.highlightBlock($code)
-      }
-    },
+    // highlightCode() {
+    //   for(let $code of this.$refs.stage.querySelectorAll("pre")) {
+    //     console.log($code)
+    //     hljs.highlightBlock($code)
+    //   }
+    // },
     //-----------------------------------------------
     // Quill
     //-----------------------------------------------
-    quillChanged(delta) {
-      console.log("changed", JSON.stringify(delta, null, '  '))
+    async quillChanged(delta) {
+      //console.log("changed", JSON.stringify(delta, null, '  '))
+      //console.log("quillChanged")
+      // Guard
+      if(this.isNilContent) {
+        return
+      }
 
       // Delat => CheapDocument
       let MdDoc = Cheap.parseDelta(delta)
       MdDoc.setDefaultMeta(this.myMeta)
       this.myMeta = MdDoc.getMeta()
-      console.log(MdDoc.toString())
+      //console.log(MdDoc.toString())
       
       // CheapDocument => markdown
-      MdDoc.toMarkdown({
+      let markdown = await MdDoc.toMarkdown({
         mediaSrc: this.TheMarkdownMediaSrc
-      }).then(markdown=>{
-        console.log(markdown)
-        if(markdown != this.value) {
-          this.syncForbid = 1
-          this.$notify("change", markdown)
-        }
       })
+      //console.log(markdown)
+      if(markdown != this.value) {
+        this.syncForbid = 1
+        this.$notify("change", markdown)
+      }
     },
     //-----------------------------------------------
     quillSelectionChanged(range) {
@@ -21729,7 +21733,10 @@ const _M = {
       }, 1000)
       //.............................................
       this.$editor.on("text-change", (newDelta, oldDelta, source)=>{
-        this.debounceQuillChanged(newDelta, oldDelta)
+        //console.log("text-change",this.isNilContent, _.cloneDeep({newDelta, oldDelta}))
+        if(!this.isNilContent) {
+          this.debounceQuillChanged(newDelta, oldDelta)
+        }
       })
       //.............................................
       this.$editor.on("selection-change", (range, oldRange, source)=>{
@@ -21742,12 +21749,23 @@ const _M = {
   watch : {
     "value" : {
       handler : "syncMarkdown"
+    },
+    "isNilContent": function(newVal, oldVal){
+      //console.log("isNilContent", newVal, oldVal)
+      if(newVal) {
+        this.syncForbid = 0
+      }
     }
   },
   ///////////////////////////////////////////////////
-  mounted: function() {
+  mounted() {
+    this.syncForbid = 0;
     this.installQuillEditor()
     this.syncMarkdown()
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy() {
+    this.syncForbid = 0;
   }
   ///////////////////////////////////////////////////
 }
@@ -21780,33 +21798,27 @@ Ti.Preload("ti/com/ti/text/raw/ti-text-raw.html", `<div class="ti-text-raw"
   :class="TopClass"
   v-ti-activable>
   <!--
-    Show Editor
+    Header
   -->
-  <template v-if="hasContent || showTitle">
-    <div
-      v-if="showTitle"
-        class="te-head"
-        :class="HeadClass">
-        <ti-icon class="center" :value="icon"/>
-        <b>{{title}}</b>
-    </div>
-    <div class="te-main">
-      <textarea ref="text" 
-        spellcheck="false"
-        :placeholder="placeholder"
-        :value="myContent"
-        @keyup="OnTextareaKeyup"
-        @change="OnContentChanged"
-      ></textarea>
-    </div>
-  </template>
+  <div
+    v-if="isShowHead"
+      class="as-head">
+      <ti-icon :value="icon"/>
+      <span>{{title}}</span>
+  </div>
   <!--
-    Show Blank
+    Main
   -->
-  <ti-loading 
-    v-else
-      icon="zmdi-alert-circle-o"
-      :text="blankText"/>
+  <div class="as-main">
+    <textarea ref="text" 
+      spellcheck="false"
+      :placeholder="placeholder | i18n"
+      :value="myContent"
+      @compositionstart="OnInputCompositionStart"
+      @compositionend="OnInputCompositionEnd"
+      @input="OnInputing"
+      @change="OnTextChanged"></textarea>
+  </div>
 </div>`);
 //============================================================
 // JOIN: ti/text/raw/ti-text-raw.mjs
@@ -21814,27 +21826,19 @@ Ti.Preload("ti/com/ti/text/raw/ti-text-raw.html", `<div class="ti-text-raw"
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
-  model : {
-    prop  : "content",
-    event : "change"
-  },
-  ///////////////////////////////////////////////////
   data : ()=>({
-    myContent : null
+    myContent : null,
+    inputCompositionstart: false
   }),
   ///////////////////////////////////////////////////
   props : {
     "icon" : {
       type : [String, Object],
-      default : "im-hashtag"
+      default : undefined
     },
     "title" : {
       type : String,
-      default : "No Title"
-    },
-    "showTitle" : {
-      type : Boolean,
-      default : true
+      default : undefined
     },
     "trimed" : {
       type : Boolean,
@@ -21844,19 +21848,13 @@ const _M = {
       type : String,
       default : ""
     }, 
-    "status" : {
-      type : Object,
-      default : ()=>{
-        changed : false
-      }
-    },
-    "ignoreKeyUp" : {
-      type : Boolean,
-      default : false
-    },
-    "blankText" : {
+    "placeholder" : {
       type : String,
       default : "i18n:blank"
+    },
+    "status": {
+      type : Object,
+      default: ()=>({})
     }
   },
   ///////////////////////////////////////////////////
@@ -21865,65 +21863,61 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "show-title" : this.showTitle,
-        "hide-title" : !this.showTitle
+        "hide-title" : !this.showTitle,
+        "is-changed" : _.get(this.status, "changed")
       })
     },
     //-----------------------------------------------
-    HeadClass() {
-      return {
-        "content-changed" : this.isContentChanged
-      }
+    isShowHead() {
+      return this.title || this.icon
     },
     //-----------------------------------------------
     hasContent() {
       return !Ti.Util.isNil(this.value)
-    },
-    //-----------------------------------------------
-    placeholder() {
-      return Ti.I18n.text(this.blankText)
-    },
-    //-----------------------------------------------
-    isContentChanged() {
-      if(this.ignoreKeyUp) {
-        return this.myContent != this.value
-      }
-      return _.get(this.status, "changed")
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
-    //-----------------------------------------------
-    getContent() {
-      return this.myContent
+    //------------------------------------------------
+    OnInputCompositionStart(){
+      this.inputCompositionstart = true
     },
-    //-----------------------------------------------
-    checkContentChanged(emit=true) {
-      let vm = this
-      let $t = vm.$refs.text
-      if(_.isElement($t)) {
-        let txt = $t.value
-        if(this.trimed) {
-          txt = _.trim(txt)
-        }
-        this.myContent = txt
-        if(emit && txt != this.value) {
-          vm.$notify("change", txt)
-        }
+    //------------------------------------------------
+    OnInputCompositionEnd(){
+      this.inputCompositionstart = false
+      this.OnTextChanged()
+    },
+    //------------------------------------------------
+    OnInputing($event) {
+      if(!this.inputCompositionstart) {
+        this.OnTextChanged()
       }
     },
     //-----------------------------------------------
-    onTextareaKeyup() {
-      this.checkContentChanged(!this.ignoreKeyUp)
+    OnTextChanged() {
+      let str = _.get(this.$refs.text, "value")
+      if(this.trimed) {
+        str = _.trim(str)
+      }
+      this.myContent = str
     },
     //-----------------------------------------------
-    OnContentChanged() {
-      this.checkContentChanged(true)
+    syncMyContent() {
+      this.myContent = this.value
+    },
+    //-----------------------------------------------
+    checkMyContent() {
+      if(this.myContent != this.value) {
+        this.$notify("change", this.myContent)
+      }
     },
     //-----------------------------------------------
     __ti_shortcut(uniqKey) {
       if("CTRL+ENTER" == uniqKey) {
-        this.checkContentChanged()
+        if(this.myContent != this.value) {
+          this.$notify("change", this.myContent)
+        }
         return {prevent:true}
       }
     }
@@ -21931,19 +21925,20 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "value" : function() {
-      this.myContent = this.value
+    "value" : "syncMyContent",
+    "myContent": function(){
+      this.debCheckChange()
     }
   },
   ///////////////////////////////////////////////////
   created : function() {
-    this.OnTextareaKeyup = _.debounce(()=>{
-      this.checkContentChanged(!this.ignoreKeyUp)
+    this.debCheckChange = _.debounce(()=>{
+      this.checkMyContent()
     }, 500)
   },
   ///////////////////////////////////////////////////
   mounted : function() {
-    this.myContent = this.value
+    this.syncMyContent()
   }
   ///////////////////////////////////////////////////
 }
@@ -27110,6 +27105,8 @@ const OBJ = {
       },
       components : ["@com:ti/obj/creation"]
     })
+
+    console.log(no)
     
     // Do Create
     // Check the newName
@@ -29870,10 +29867,6 @@ Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.html", `<Ti
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
-  data: ()=>({
-    myMeta: null
-  }),
-  ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
     ToolbarActions() {
@@ -29885,30 +29878,7 @@ const _M = {
       },  this.actions)
     },
     //-----------------------------------------------
-    isMyMetaMatchedProp() {
-      if(!this.myMeta || !this.meta) {
-        return false
-      }
-      if(_.isString(this.meta)) {
-        // ID Path
-        if(Wn.Io.isFullObjIdPath(this.meta)) {
-          return this.myMeta.id == this.meta.substring(3)
-        }
-        // Path
-        let nm0 = Ti.Util.getFileName(this.meta)
-        return nm0 == this.myMeta.nm
-      }
-      // Object meta
-      return this.meta.id == this.myMeta.id
-    },
-    //-----------------------------------------------
     TheValue() {
-      // Wait myMeta reloaded
-      if(!Ti.Util.isNil(this.value) 
-         && this.meta 
-         && !this.isMyMetaMatchedProp) {
-        return null
-      }
       return this.value
     },
     //-----------------------------------------------
@@ -29922,7 +29892,7 @@ const _M = {
         if(m) {
           let obj = await Wn.Io.loadMetaById(m[1])
           if(obj) {
-            return Wn.Io.formatObjPath(obj, this.mediaSrcMode, this.myMeta)
+            return Wn.Io.formatObjPath(obj, this.mediaSrcMode, this.meta)
           }
         }
         return src
@@ -29938,8 +29908,8 @@ const _M = {
         if(/^(https?:)(\/\/)/.test(src))
           return src
 
-        console.log("preview", src)
-        let obj = await Wn.Io.loadMetaBy(src, this.myMeta)
+        //console.log("preview", src)
+        let obj = await Wn.Io.loadMetaBy(src, this.meta)
         if(obj) {
           return `/o/content?str=id:${obj.id}`
         }
@@ -29957,7 +29927,7 @@ const _M = {
     //-----------------------------------------------
     async OnInsertMedia() {
       // Get the last open
-      let last = this.myMeta || this.defaultMediaDir
+      let last = this.meta || this.defaultMediaDir
       if(this.keepLastBy)
         last = Ti.Storage.local.getString(this.keepLastBy) || last
 
@@ -30022,7 +29992,6 @@ const _M = {
 
       // Insert to current position
       let sel = this.$editor.getSelection()
-      console.log("selection", sel)
 
       if(!sel) {
         this.$editor.setSelection(0)
@@ -30051,18 +30020,19 @@ const _M = {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch: {
-    "meta": {
-      handler: async function(pathOrObj){
-        if(_.isString(pathOrObj)) {
-          this.myMeta = await Wn.Io.loadMetaBy(pathOrObj)
-        } else {
-          this.myMeta = pathOrObj
-        }
-      },
-      immediate: true
-    }
-  }
+  // watch: {
+  //   "meta": {
+  //     handler: async function(pathOrObj){
+  //       console.log("meta changed!")
+  //       if(_.isString(pathOrObj)) {
+  //         this.myMeta = await Wn.Io.loadMetaBy(pathOrObj)
+  //       } else {
+  //         this.myMeta = pathOrObj
+  //       }
+  //     },
+  //     immediate: true
+  //   }
+  // }
   ///////////////////////////////////////////////////
 }
 Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.mjs", _M);
@@ -31421,7 +31391,7 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", `<div cla
         class="ti-fill-parent"
         v-bind="TheFiles"
         :data="myData"
-        :meta="myHome"
+        :meta="myDataHomeObj"
         :status="myStatus"
         :before-upload="checkDataDir"
         @uploaded="OnFileUploaded"
@@ -31448,7 +31418,7 @@ const _M = {
   inject: ["$ThingManager"],
   ///////////////////////////////////////////
   data: ()=>({
-    myHome: null,
+    myDataHomeObj: null,
     myData: {},
     myStatus: {
       reloading: false
@@ -31559,7 +31529,7 @@ const _M = {
         return
       }
       // If empty data home, create one
-      if(!this.myHome) {
+      if(!this.myDataHomeObj) {
         let pos = this.dataHome.indexOf('/')
         let tsDataPh = this.dataHome.substring(0, pos)
         let dirPath = Ti.Util.appendPath(this.dataHome.substring(pos+1), this.dirName)
@@ -31569,8 +31539,10 @@ const _M = {
         }
         let json = JSON.stringify(newMeta)
         let cmdText = `obj "${tsDataPh}" -IfNoExists -new '${json}' -cqno`
-        console.log(cmdText)
-        this.myHome = await Wn.Sys.exec2(cmdText, {as:"json"})
+        //console.log(cmdText)
+        let dataHomeObj = await Wn.Sys.exec2(cmdText, {as:"json"})
+        Ti.App(this).commit("main/setCurrentDataHomeObj", dataHomeObj)
+        this.myDataHomeObj = dataHomeObj
       }
     },
     //--------------------------------------
@@ -31579,7 +31551,7 @@ const _M = {
       await this.checkDataDir()
       
       // Do upload
-      if(this.myHome) {
+      if(this.myDataHomeObj) {
         this.$adaptlist.openLocalFileSelectdDialog()
       }
       // Impossible
@@ -31617,13 +31589,13 @@ const _M = {
         let home = await Wn.Io.loadMeta(hmph)
         // Guard
         if(!home) {
-          this.myHome = null
+          this.myDataHomeObj = null
           this.myData = {}
         }
         // Update data
         else {
           let reo = await Wn.Io.loadChildren(home)
-          this.myHome = home
+          this.myDataHomeObj = home
           this.myData = reo
         }
         _.delay(()=>{
@@ -31632,7 +31604,7 @@ const _M = {
       }
       // Reset
       else {
-        this.myHome = null
+        this.myDataHomeObj = null
         this.myData = {}
       }
     }
@@ -32032,7 +32004,11 @@ const _M = {
     },
     "currentDataHome" : {
       type : String,
-      default : null
+      default : undefined
+    },
+    "currentDataHomeObj" : {
+      type : Object,
+      default : undefined
     },
     "currentDataDir" : {
       type : String,
@@ -32240,7 +32216,7 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name) {
-      console.log("__on_events", name)
+      //console.log("__on_events", name)
       // Try to get handler
       let fn = _.get(this.EventRouting, name)
       if(!fn) {
@@ -34135,12 +34111,11 @@ const _M = {
     let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
 
     if(newMeta && !(newMeta instanceof Error)) {
-      // Set it as current
-      await dispatch("current/reload", newMeta)
-
       // Append To Search List as the first 
       commit("search/prependToList", newMeta)
-      commit("search/selectItem", newMeta.id)
+      
+      // Set it as current
+      await dispatch("setCurrentThing", {meta:newMeta})
     }
 
     // Mark reloading
@@ -34154,7 +34129,7 @@ const _M = {
    * Search: Remove Checked Items
    */
   async removeChecked({state, commit, dispatch, getters}, hard=false) {
-    console.log("removeChecked", hard)
+    //console.log("removeChecked", hard)
     let ids = _.cloneDeep(state.search.checkedIds)
     if(_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
@@ -34367,9 +34342,6 @@ const _M = {
     checkedIds={}
   }={}) {
     //..........................................
-    // Reload Current
-    await dispatch("current/reload", meta)
-    //..........................................
     // Update selected item in search list
     let curId = meta ? meta.id : null
     let ckIds = Ti.Util.truthyKeys(checkedIds)
@@ -34383,6 +34355,11 @@ const _M = {
     let home = state.meta
     let dataHome = curId ? `id:${home.id}/data/${curId}` : null
     commit("setCurrentDataHome", dataHome)
+
+    // Try get current dataHomeObj
+    let dataHomeObj = await Wn.Io.loadMeta(dataHome)
+    commit("setCurrentDataHomeObj", dataHomeObj)
+
     //..........................................
     // Keep last
     let lastKey = `${home.id}:currentId`
@@ -34393,6 +34370,9 @@ const _M = {
     else {
       Ti.Storage.session.remove(lastKey);
     }
+    //..........................................
+    // Reload Current
+    await dispatch("current/reload", meta)
     //..........................................
   },
   //--------------------------------------------
@@ -34496,6 +34476,7 @@ Ti.Preload("ti/mod/wn/thing/m-thing.json", {
   "meta": null,
   "currentDataDir"  : "media",
   "currentDataHome" : null,
+  "currentDataHomeObj" : null,
   "status" : {
     "reloading" : false,
     "doing"     : false,
@@ -34532,6 +34513,9 @@ const _M = {
     },
     setCurrentDataHome(state, dataHome) {
       state.currentDataHome = dataHome
+    },
+    setCurrentDataHomeObj(state, dataHomeObj) {
+      state.currentDataHomeObj = _.cloneDeep(dataHomeObj)
     },
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)
@@ -34939,7 +34923,7 @@ const _M = {
     //---------------------------------------------------
     removeItems(state, ids=[]) {
       // Find the current item index, and take as the next Item index
-      console.log("search.remove", ids)
+      //console.log("search.remove", ids)
       let index = -1
       if(state.currentId) {
         for(let i=0; i<state.list.length; i++) {

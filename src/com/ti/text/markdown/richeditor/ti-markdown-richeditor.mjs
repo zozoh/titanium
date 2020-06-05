@@ -281,7 +281,7 @@ const _M = {
         let delta = await MdDoc.toDelta({
           mediaSrc: this.ThePreviewMediaSrc
         })
-        //console.log(JSON.stringify(delta, null, '   '))
+        console.log(JSON.stringify(delta, null, '   '))
 
         // Update Quill editor content
         this.$editor.setContents(delta);
@@ -296,6 +296,7 @@ const _M = {
     //-----------------------------------------------
     syncMarkdown() {
       if(this.syncForbid > 0) {
+        console.log("!forbid! syncMarkdown", this.syncForbid)
         this.syncForbid --
         return
       }
@@ -304,34 +305,38 @@ const _M = {
     //-----------------------------------------------
     // Highlight
     //-----------------------------------------------
-    highlightCode() {
-      for(let $code of this.$refs.stage.querySelectorAll("pre")) {
-        console.log($code)
-        hljs.highlightBlock($code)
-      }
-    },
+    // highlightCode() {
+    //   for(let $code of this.$refs.stage.querySelectorAll("pre")) {
+    //     console.log($code)
+    //     hljs.highlightBlock($code)
+    //   }
+    // },
     //-----------------------------------------------
     // Quill
     //-----------------------------------------------
-    quillChanged(delta) {
-      console.log("changed", JSON.stringify(delta, null, '  '))
+    async quillChanged(delta) {
+      //console.log("changed", JSON.stringify(delta, null, '  '))
+      //console.log("quillChanged")
+      // Guard
+      if(this.isNilContent) {
+        return
+      }
 
       // Delat => CheapDocument
       let MdDoc = Cheap.parseDelta(delta)
       MdDoc.setDefaultMeta(this.myMeta)
       this.myMeta = MdDoc.getMeta()
-      console.log(MdDoc.toString())
+      //console.log(MdDoc.toString())
       
       // CheapDocument => markdown
-      MdDoc.toMarkdown({
+      let markdown = await MdDoc.toMarkdown({
         mediaSrc: this.TheMarkdownMediaSrc
-      }).then(markdown=>{
-        console.log(markdown)
-        if(markdown != this.value) {
-          this.syncForbid = 1
-          this.$notify("change", markdown)
-        }
       })
+      //console.log(markdown)
+      if(markdown != this.value) {
+        this.syncForbid = 1
+        this.$notify("change", markdown)
+      }
     },
     //-----------------------------------------------
     quillSelectionChanged(range) {
@@ -387,7 +392,10 @@ const _M = {
       }, 1000)
       //.............................................
       this.$editor.on("text-change", (newDelta, oldDelta, source)=>{
-        this.debounceQuillChanged(newDelta, oldDelta)
+        //console.log("text-change",this.isNilContent, _.cloneDeep({newDelta, oldDelta}))
+        if(!this.isNilContent) {
+          this.debounceQuillChanged(newDelta, oldDelta)
+        }
       })
       //.............................................
       this.$editor.on("selection-change", (range, oldRange, source)=>{
@@ -400,12 +408,23 @@ const _M = {
   watch : {
     "value" : {
       handler : "syncMarkdown"
+    },
+    "isNilContent": function(newVal, oldVal){
+      //console.log("isNilContent", newVal, oldVal)
+      if(newVal) {
+        this.syncForbid = 0
+      }
     }
   },
   ///////////////////////////////////////////////////
-  mounted: function() {
+  mounted() {
+    this.syncForbid = 0;
     this.installQuillEditor()
     this.syncMarkdown()
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy() {
+    this.syncForbid = 0;
   }
   ///////////////////////////////////////////////////
 }

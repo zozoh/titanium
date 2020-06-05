@@ -1,26 +1,18 @@
-export default {
-  ///////////////////////////////////////////////////
-  model : {
-    prop  : "content",
-    event : "change"
-  },
+const _M = {
   ///////////////////////////////////////////////////
   data : ()=>({
-    myContent : null
+    myContent : null,
+    inputCompositionstart: false
   }),
   ///////////////////////////////////////////////////
   props : {
     "icon" : {
       type : [String, Object],
-      default : "im-hashtag"
+      default : undefined
     },
     "title" : {
       type : String,
-      default : "No Title"
-    },
-    "showTitle" : {
-      type : Boolean,
-      default : true
+      default : undefined
     },
     "trimed" : {
       type : Boolean,
@@ -30,19 +22,13 @@ export default {
       type : String,
       default : ""
     }, 
-    "status" : {
-      type : Object,
-      default : ()=>{
-        changed : false
-      }
-    },
-    "ignoreKeyUp" : {
-      type : Boolean,
-      default : false
-    },
-    "blankText" : {
+    "placeholder" : {
       type : String,
       default : "i18n:blank"
+    },
+    "status": {
+      type : Object,
+      default: ()=>({})
     }
   },
   ///////////////////////////////////////////////////
@@ -51,65 +37,61 @@ export default {
     TopClass() {
       return this.getTopClass({
         "show-title" : this.showTitle,
-        "hide-title" : !this.showTitle
+        "hide-title" : !this.showTitle,
+        "is-changed" : _.get(this.status, "changed")
       })
     },
     //-----------------------------------------------
-    HeadClass() {
-      return {
-        "content-changed" : this.isContentChanged
-      }
+    isShowHead() {
+      return this.title || this.icon
     },
     //-----------------------------------------------
     hasContent() {
       return !Ti.Util.isNil(this.value)
-    },
-    //-----------------------------------------------
-    placeholder() {
-      return Ti.I18n.text(this.blankText)
-    },
-    //-----------------------------------------------
-    isContentChanged() {
-      if(this.ignoreKeyUp) {
-        return this.myContent != this.value
-      }
-      return _.get(this.status, "changed")
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
-    //-----------------------------------------------
-    getContent() {
-      return this.myContent
+    //------------------------------------------------
+    OnInputCompositionStart(){
+      this.inputCompositionstart = true
     },
-    //-----------------------------------------------
-    checkContentChanged(emit=true) {
-      let vm = this
-      let $t = vm.$refs.text
-      if(_.isElement($t)) {
-        let txt = $t.value
-        if(this.trimed) {
-          txt = _.trim(txt)
-        }
-        this.myContent = txt
-        if(emit && txt != this.value) {
-          vm.$notify("change", txt)
-        }
+    //------------------------------------------------
+    OnInputCompositionEnd(){
+      this.inputCompositionstart = false
+      this.OnTextChanged()
+    },
+    //------------------------------------------------
+    OnInputing($event) {
+      if(!this.inputCompositionstart) {
+        this.OnTextChanged()
       }
     },
     //-----------------------------------------------
-    onTextareaKeyup() {
-      this.checkContentChanged(!this.ignoreKeyUp)
+    OnTextChanged() {
+      let str = _.get(this.$refs.text, "value")
+      if(this.trimed) {
+        str = _.trim(str)
+      }
+      this.myContent = str
     },
     //-----------------------------------------------
-    OnContentChanged() {
-      this.checkContentChanged(true)
+    syncMyContent() {
+      this.myContent = this.value
+    },
+    //-----------------------------------------------
+    checkMyContent() {
+      if(this.myContent != this.value) {
+        this.$notify("change", this.myContent)
+      }
     },
     //-----------------------------------------------
     __ti_shortcut(uniqKey) {
       if("CTRL+ENTER" == uniqKey) {
-        this.checkContentChanged()
+        if(this.myContent != this.value) {
+          this.$notify("change", this.myContent)
+        }
         return {prevent:true}
       }
     }
@@ -117,19 +99,21 @@ export default {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "value" : function() {
-      this.myContent = this.value
+    "value" : "syncMyContent",
+    "myContent": function(){
+      this.debCheckChange()
     }
   },
   ///////////////////////////////////////////////////
   created : function() {
-    this.OnTextareaKeyup = _.debounce(()=>{
-      this.checkContentChanged(!this.ignoreKeyUp)
+    this.debCheckChange = _.debounce(()=>{
+      this.checkMyContent()
     }, 500)
   },
   ///////////////////////////////////////////////////
   mounted : function() {
-    this.myContent = this.value
+    this.syncMyContent()
   }
   ///////////////////////////////////////////////////
 }
+export default _M;

@@ -106,7 +106,7 @@ const _M = {
     //---------------------------------------------------
     removeItems(state, ids=[]) {
       // Find the current item index, and take as the next Item index
-      console.log("search.remove", ids)
+      //console.log("search.remove", ids)
       let index = -1
       if(state.currentId) {
         for(let i=0; i<state.list.length; i++) {
