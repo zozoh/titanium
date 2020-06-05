@@ -106,6 +106,7 @@ const _M = {
     //---------------------------------------------------
     removeItems(state, ids=[]) {
       // Find the current item index, and take as the next Item index
+      console.log("search.remove", ids)
       let index = -1
       if(state.currentId) {
         for(let i=0; i<state.list.length; i++) {
@@ -118,8 +119,12 @@ const _M = {
       }
       // Make the idsMap
       let idsMap = {}
-      for(let id of ids) {
-        idsMap[id] = true
+      if(_.isArray(ids)) {
+        for(let id of ids) {
+          idsMap[id] = true
+        }
+      } else if (_.isPlainObject(ids)){
+        idsMap = ids
       }
       // Remove the ids
       let list2 = []

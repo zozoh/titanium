@@ -1,0 +1,7 @@
+{
+  "name" : "wn-thing-markdown-richeditor",
+  "globally" : true,
+  "template" : "./thing-markdown-richeditor.html",
+  "mixins"   : ["./thing-markdown-richeditor.mjs"],
+  "components" : []
+}

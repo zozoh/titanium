@@ -18,6 +18,116 @@ function ResetQuillConfig(Quill) {
   Quill.__has_been_reset = true
 }
 /////////////////////////////////////////////////////
+const BUILTIN_TOOLBAR_ACTIONS = {
+  //.........................................
+  "|" : {type : "line"},
+  //.........................................
+  "B" : {
+    icon : "fas-bold",
+    notify: "bold",
+    highlight : "bold",
+    disabled : "italic"
+  },
+  //.........................................
+  "I" : {
+    icon : "fas-italic",
+    notify : "italic",
+    highlight : "italic",
+    disabled : "bold"
+  },
+  //.........................................
+  "Link" : {
+    icon : "fas-link",
+    notify : "link",
+    highlight : "link"
+  },
+  //.........................................
+  "Code" : {
+    icon : "zmdi-code",
+    notify : "code",
+    highlight : "code"
+  },
+  //.........................................
+  "Heading" : {
+    type : "group",
+    icon : "fas-hashtag",
+    text : "i18n:wordp-heading",
+    items : [{
+        text: "i18n:wordp-h1",
+        notify: "header",
+        highlight : "h1",
+        value: 1
+      }, {
+        text: "i18n:wordp-h2",
+        notify: "header",
+        highlight : "h2",
+        value: 2
+      }, {
+        text: "i18n:wordp-h3",
+        notify: "header",
+        highlight : "h3",
+        value: 3
+      }, {
+        text: "i18n:wordp-h4",
+        notify: "header",
+        highlight : "h4",
+        value: 4
+      }, {
+        text: "i18n:wordp-h5",
+        notify: "header",
+        highlight : "h5",
+        value: 5
+      }, {
+        text: "i18n:wordp-h6",
+        notify: "header",
+        highlight : "h6",
+        value: 6
+      }, {
+        text: "i18n:wordp-h0",
+        notify: "header",
+        highlight : "h0",
+        value:  0
+      }]
+  },
+  //.........................................
+  "BlockQuote" : {
+    icon : "fas-quote-right",
+    notify : "blockquote",
+    highlight : "blockquote"
+  },
+  //.........................................
+  "CodeBlock" : {
+    icon : "fas-code",
+    notify : "code_block",
+    highlight : "code-block"
+  },
+  //.........................................
+  "Indent" : {
+    icon : "fas-indent",
+    notify: "indent"
+  },
+  //.........................................
+  "Outdent" : {
+    icon : "fas-outdent",
+    notify: "outdent"
+  },
+  //.........................................
+  "UL" : {
+    icon : "fas-list-ul",
+    notify : "list",
+    value : "bullet",
+    highlight: {list:"bullet"}
+  },
+  //.........................................
+  "OL" : {
+    icon : "fas-list-ol",
+    notify : "list",
+    value : "ordered",
+    highlight: {list:"ordered"}
+  }
+  //.........................................
+}
+/////////////////////////////////////////////////////
 const _M = {
   ///////////////////////////////////////////////////
   data: ()=>({
@@ -26,50 +136,13 @@ const _M = {
     myToolbarStatus : {}
   }),
   ///////////////////////////////////////////////////
-  props : {
-    //...............................................
-    // Data
-    //...............................................
-    "mediaBase" : {
-      type : String,
-      default : undefined
-    },
-    "value" : {
-      type : String,
-      default : ""
-    }, 
-    //...............................................
-    // Aspact
-    //...............................................
-    "placeholder" : {
-      type : String,
-      default : "i18n:blank"
-    },
-    "theme" : {
-      type : String,
-      default : "nice"
-    },
-    "toolbar" : {
-      type : Array,
-      default : ()=>[
-        "Heading", "|", "B", "I", "|", "Link", "Code", 
-        "|", "BlockQuote", "CodeBlock", 
-        "|", "Outdent", "Indent",  
-        "|", "UL", "OL",
-        "|", "Media"
-        ]
-    },
-    "toolbarAlign" : {
-      type : String,
-      default: "left",
-      validator : v => /^(left|right|center)$/.test(v)
-    }
-  },
-  ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "nil-content" : this.isNilContent,
+        "has-content" : !this.isNilContent
+      })
     },
     //-----------------------------------------------
     ThemeClass() {
@@ -86,123 +159,18 @@ const _M = {
       return !_.isEmpty(this.ToolbarMenuData)
     },
     //-----------------------------------------------
+    isNilContent() {
+      return Ti.Util.isNil(this.value)
+    },
+    //-----------------------------------------------
+    ToolbarActions() {
+      return _.merge({}, BUILTIN_TOOLBAR_ACTIONS, this.actions)
+    },
+    //-----------------------------------------------
     ToolbarMenuData() {
       let list = []
       _.forEach(this.toolbar, v => {
-        let it = ({
-          //.........................................
-          "|" : {type : "line"},
-          //.........................................
-          "B" : {
-            icon : "fas-bold",
-            notify: "bold",
-            highlight : "bold",
-            disabled : "italic"
-          },
-          //.........................................
-          "I" : {
-            icon : "fas-italic",
-            notify : "italic",
-            highlight : "italic",
-            disabled : "bold"
-          },
-          //.........................................
-          "Link" : {
-            icon : "fas-link",
-            notify : "link",
-            highlight : "link"
-          },
-          //.........................................
-          "Code" : {
-            icon : "zmdi-code",
-            notify : "code",
-            highlight : "code"
-          },
-          //.........................................
-          "Heading" : {
-            type : "group",
-            icon : "fas-hashtag",
-            text : "i18n:wordp-heading",
-            items : [{
-                text: "i18n:wordp-h1",
-                notify: "header",
-                highlight : "h1",
-                value: 1
-              }, {
-                text: "i18n:wordp-h2",
-                notify: "header",
-                highlight : "h2",
-                value: 2
-              }, {
-                text: "i18n:wordp-h3",
-                notify: "header",
-                highlight : "h3",
-                value: 3
-              }, {
-                text: "i18n:wordp-h4",
-                notify: "header",
-                highlight : "h4",
-                value: 4
-              }, {
-                text: "i18n:wordp-h5",
-                notify: "header",
-                highlight : "h5",
-                value: 5
-              }, {
-                text: "i18n:wordp-h6",
-                notify: "header",
-                highlight : "h6",
-                value: 6
-              }, {
-                text: "i18n:wordp-h0",
-                notify: "header",
-                highlight : "h0",
-                value:  0
-              }]
-          },
-          //.........................................
-          "BlockQuote" : {
-            icon : "fas-quote-right",
-            notify : "blockquote",
-            highlight : "blockquote"
-          },
-          //.........................................
-          "CodeBlock" : {
-            icon : "fas-code",
-            notify : "code_block",
-            highlight : "code-block"
-          },
-          //.........................................
-          "Indent" : {
-            icon : "fas-indent",
-            notify: "indent"
-          },
-          //.........................................
-          "Outdent" : {
-            icon : "fas-outdent",
-            notify: "outdent"
-          },
-          //.........................................
-          "UL" : {
-            icon : "fas-list-ul",
-            notify : "list",
-            value : "bullet",
-            highlight: {list:"bullet"}
-          },
-          //.........................................
-          "OL" : {
-            icon : "fas-list-ol",
-            notify : "list",
-            value : "ordered",
-            highlight: {list:"ordered"}
-          },
-          //.........................................
-          "Media" : {
-            icon : "fas-photo-video",
-            action : "$parent:OnInsertMedia"
-          },
-          //.........................................
-        })[v]
+        let it = _.get(this.ToolbarActions, v)
         //...........................................
         if(it) {
           list.push(it)
@@ -214,6 +182,30 @@ const _M = {
       //   action : "$parent:highlightCode"
       // })
       return list;
+    },
+    //-----------------------------------------------
+    TheMarkdownMediaSrc() {
+      if(_.isFunction(this.markdownMediaSrc)){
+        return this.markdownMediaSrc
+      }
+
+      if(_.isString(this.markdownMediaSrc)) {
+        return Ti.Util.genInvoking(this.markdownMediaSrc, {
+          partialRight: true
+        })
+      }
+    },
+    //-----------------------------------------------
+    ThePreviewMediaSrc() {
+      if(_.isFunction(this.previewMediaSrc)){
+        return this.previewMediaSrc
+      }
+
+      if(_.isString(this.previewMediaSrc)) {
+        return Ti.Util.genInvoking(this.previewMediaSrc, {
+          partialRight: true
+        })
+      }
     }
     //-----------------------------------------------
   },
@@ -223,7 +215,7 @@ const _M = {
     // Events
     //-----------------------------------------------
     OnToolbarChange({name, value}={}) {
-      console.log({name, value})
+      //console.log("OnToolbarChange", {name, value})
       const fn = ({
         //...........................................  
         bold  ($q, val){$q.format("bold", val)},
@@ -274,93 +266,9 @@ const _M = {
       //.............................................
     },
     //-----------------------------------------------
-    async OnInsertMedia() {
-      let list = await Wn.OpenObjSelector()
-
-      // User cancel
-      if(!list || _.isEmpty(list)) {
-        return
-      }
-      
-      for(let obj of list) {
-        let home = Wn.Session.getHomePath();
-        let rph = Ti.Util.getRelativePath(home, obj.ph, "")
-        let aph = Ti.Util.appendPath("~", rph)
-        let src = `/o/content?str=${aph}`
-        // Video
-        if(obj.mime && obj.mime.startsWith("video")) {
-          this.insertMedia("video", src, {
-            controls : false,
-            autoplay : false
-          })
-        }
-        // Image
-        else {
-          this.insertMedia("image", src)
-        }
-      }
-    },
-    //-----------------------------------------------
-    // Insert Operation
-    //-----------------------------------------------
-    insertMedia(type="image", src, attrs={}) {
-      // Guard
-      if(!src) {
-        return
-      }
-
-      // Prepare the Delta
-      let Delta = Quill.import("delta")
-      let det = new Delta()
-
-      // Insert to current position
-      let sel = this.$editor.getSelection()
-      console.log("selection", sel)
-
-      if(!sel) {
-        this.$editor.setSelection(0)
-        sel = {index:0, length:0}
-      }
-
-      let {index,length} = sel
-
-      // Move to current
-      det.retain(index)
-            
-      // Delete current
-      if(length > 0) {
-          det.delete(length)
-      }
-
-      // Add Media
-      det.insert({[type]: src, attributes: attrs})
-     
-      // Update 
-      this.$editor.updateContents(det)
-
-      // Move cursor
-      this.$editor.setSelection(index+1)
-    },
-    //-----------------------------------------------
     // Utility
     //-----------------------------------------------
-    //-----------------------------------------------
-    // Rendering
-    //-----------------------------------------------
-    // evalMediaSrc(src) {
-    //   // Falsy src or base
-    //   if(!src || !this.mediaBase) {
-    //     return src
-    //   }
-    //   // Absolute path
-    //   if(/^(https?:\/\/|\/)/i.test(src)) {
-    //     return src
-    //   }
-    //   // Join the base
-    //   return Ti.Util.appendPath(this.mediaBase, src)
-    // },
-    //-----------------------------------------------
-    renderMarkdown() {
+    async renderMarkdown() {
       console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown")
       if(!Ti.Util.isBlank(this.value)) {
         // Parse markdown
@@ -370,7 +278,9 @@ const _M = {
         this.myMeta = _.cloneDeep(MdDoc.getMeta())
 
         // Get delta
-        let delta = MdDoc.toDelta()
+        let delta = await MdDoc.toDelta({
+          mediaSrc: this.ThePreviewMediaSrc
+        })
         //console.log(JSON.stringify(delta, null, '   '))
 
         // Update Quill editor content
@@ -380,6 +290,7 @@ const _M = {
       // Show Blank
       else {
         this.myMeta = {}
+        this.$editor.setContents([]);
       }
     },
     //-----------------------------------------------
@@ -404,16 +315,23 @@ const _M = {
     //-----------------------------------------------
     quillChanged(delta) {
       console.log("changed", JSON.stringify(delta, null, '  '))
+
+      // Delat => CheapDocument
       let MdDoc = Cheap.parseDelta(delta)
       MdDoc.setDefaultMeta(this.myMeta)
       this.myMeta = MdDoc.getMeta()
       console.log(MdDoc.toString())
-      let markdown = MdDoc.toMarkdown()
-      console.log(markdown)
-      if(markdown != this.value) {
-        this.syncForbid = 1
-        this.$notify("change", markdown)
-      }
+      
+      // CheapDocument => markdown
+      MdDoc.toMarkdown({
+        mediaSrc: this.TheMarkdownMediaSrc
+      }).then(markdown=>{
+        console.log(markdown)
+        if(markdown != this.value) {
+          this.syncForbid = 1
+          this.$notify("change", markdown)
+        }
+      })
     },
     //-----------------------------------------------
     quillSelectionChanged(range) {

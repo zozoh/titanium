@@ -42,6 +42,6 @@
       "icon" : "zmdi-info-outline",
       "text" : "i18n:properties",
       "action" : "dispatch:current/openMetaEditor",
-      "shortcut" : "ALT+CTRL+P"
+      "shortcut" : "ALT+SHIFT+P"
     }]
 }

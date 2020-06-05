@@ -6,8 +6,8 @@ export default {
   }),
   ///////////////////////////////////////////////////
   props : {
-    "mediaBase" : {
-      type : String,
+    "previewMediaSrc" : {
+      type : [String, Function],
       default : undefined
     },
     "value" : {
@@ -34,31 +34,42 @@ export default {
       if(this.myTheme) {
         return `ti-markdown-theme-${this.myTheme}`
       }
+    },
+    //-----------------------------------------------
+    ThePreviewMediaSrc() {
+      let transSrc = _.identity;
+      // String mode
+      if(_.isString(this.previewMediaSrc)) {
+        transSrc = src => {
+          return Ti.S.renderBy(this.previewMediaSrc, {src})
+        }
+      }
+      // Function Mode
+      else if(_.isFunction(this.previewMediaSrc)){
+        transSrc = this.previewMediaSrc
+      }
+
+      return async src => {
+        //console.log("!!!!src", src)
+        // Outsite link
+        if(/^(https?:)(\/\/)/.test(src))
+          return src
+
+        // translate it
+        return transSrc(src)
+      }
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    evalMediaSrc(src) {
-      // Falsy src or base
-      if(!src || !this.mediaBase) {
-        return src
-      }
-      // Absolute path
-      if(/^(https?:\/\/|\/)/i.test(src)) {
-        return src
-      }
-      // Join the base
-      return Ti.Util.appendPath(this.mediaBase, src)
-    },
-    //-----------------------------------------------
-    renderMarkdown() {
+    async renderMarkdown() {
       if(!Ti.Util.isBlank(this.value)) {
         let MdDoc = Cheap.parseMarkdown(this.value)
         console.log(MdDoc.toString())
-        this.myHtml  = MdDoc.toBodyInnerHtml({
-          mediaSrc : src => this.evalMediaSrc(src)
+        this.myHtml  = await MdDoc.toBodyInnerHtml({
+          mediaSrc : this.ThePreviewMediaSrc
         })
         this.myTheme = MdDoc.getMeta("theme", this.theme)
       }

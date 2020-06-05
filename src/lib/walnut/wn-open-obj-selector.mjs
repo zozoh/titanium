@@ -12,19 +12,38 @@ async function OpenObjSelector(pathOrObj="~", {
   multi=true,
   fromIndex=0,
   homePath=Wn.Session.getHomePath(),
+  fallbackPath=Wn.Session.getHomePath(),
   selected=[]
 }={}){
   //................................................
   // Load the target object
   let meta = await Wn.Io.loadMeta(pathOrObj)
+  // Fallback
+  if(!meta && fallbackPath && pathOrObj!=fallbackPath) {
+    meta = await Wn.Io.loadMeta(fallbackPath)
+  }
   // Fail to load
   if(!meta) {
-    return Ti.Toast.Open({
+    return await Ti.Toast.Open({
       content : "i18n:e-io-obj-noexistsf",
       vars : _.isString(pathOrObj)
               ? { ph: pathOrObj, nm: Ti.Util.getFileName(pathOrObj)}
               : pathOrObj.ph
     }, "warn")
+  }
+  //................................................
+  // Make sure the obj is dir
+  if("DIR" != meta.race) {
+    meta = await Wn.Io.loadMetaById(meta.pid)
+    if(!meta) {
+      return await Ti.Toast.Open({
+        content : "i18n:e-io-obj-noexistsf",
+        vars : {
+          ph : `Parent of id:${meta.id}->pid:${meta.pid}`,
+          nm : `Parent of id:${meta.nm}->pid:${meta.pid}`,
+        }
+      }, "warn")
+    }
   }
   //................................................
   // Open modal dialog

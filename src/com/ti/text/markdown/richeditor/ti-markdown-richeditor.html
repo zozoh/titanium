@@ -17,4 +17,11 @@
     class="as-stage"
     spellcheck="false"
     :class="ThemeClass"></div>
+  <!--
+    Cover when nil
+  -->
+  <ti-loading
+    v-if="isNilContent"
+      class="as-nil-mask as-big-mask"
+      v-bind="blankAs"/>
 </div>

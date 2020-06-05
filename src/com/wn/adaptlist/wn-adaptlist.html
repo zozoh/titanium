@@ -1,13 +1,15 @@
 <div class="wn-adaptlist" 
   :class="TopClass"
   v-ti-activable>
-  <div class="ti-fill-parent"
+  <div
+    class="list-con ti-fill-parent"
     v-drop-files.mask="OnDropFiles">
     <!--==================================
       Show Loading
     -->
     <ti-loading
-      v-if="isReloading" 
+      v-if="isReloading"
+        class="as-reloading as-mid-tip"
         text="i18n:reloading"/>
     <!--==================================
       Data List

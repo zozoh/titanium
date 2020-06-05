@@ -24,7 +24,7 @@
           "icon" : "zmdi-flare",
           "text" : "i18n:create",
           "action" : "dispatch:main/create",
-          "shortcut" : "ALT+CTRL+N"
+          "shortcut" : "ALT+SHIFT+N"
         },{
           "name"  : "deleting",
           "type" : "action",
@@ -74,7 +74,7 @@
           "icon" : "zmdi-info-outline",
           "text" : "i18n:properties",
           "action" : "dispatch:main/setTreeSelected",
-          "shortcut" : "ALT+CTRL+P"
+          "shortcut" : "ALT+SHIFT+P"
         }]
     }]
 }

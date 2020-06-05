@@ -1,0 +1,14 @@
+{
+  "name" : "wn-obj-markdown-richeditor",
+  "globally" : true,
+  "template" : "./wn-markdown-richeditor.html",
+  "props": [
+    "@com:ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs",
+    "./wn-markdown-richeditor-props.mjs"
+  ],
+  "methods": "@com:ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs",
+  "mixins" : ["./wn-markdown-richeditor.mjs"],
+  "components" : [
+    "@com:ti/text/markdown/richeditor"
+  ]
+}

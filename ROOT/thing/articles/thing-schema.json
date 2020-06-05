@@ -1,9 +1,26 @@
 {
+  "behavior" : {
+    "sorter": {"pubat":-1},
+    "keyword": {
+      "title": "^.+"
+    }
+  },
   "filter" : {
-    "comType" : "wn-thing-filter",
+    "comType" : "ti-combo-filter",
     "comConf" : {
       "placeholder" : "请输入文章标题过滤",
       "status" : "=status"
+    },
+    "value": "=search.filter"
+  },
+  "sorter": {
+    "comType": "ti-combo-sorter",
+    "comConf": {
+      "options": [
+        {"value":"pubat",   "text":"发布日期"},
+        {"value":"watch_c", "text":"浏览次数"},
+        {"value":"title",   "text":"文章标题"}],
+      "value": "=search.sorter"
     }
   },
   "list" : {
@@ -17,23 +34,18 @@
       "multi"  : true,
       "fields" : [{
         "title" : "文章标题",
-        "display" : ["@<thumb:far-newspaper>", "th_nm"]
+        "display" : ["@<thumb:far-newspaper>", "title"]
       }, {
-        "title" : "标签",
-        "display" : {
-          "key" : "lbls",
-          "comType" : "ti-tags",
-          "comConf" : {"data":"${=value}", "removeIcon":null}
-        }
+        "title" : "阅读时长",
+        "width" : -80,
+        "display" : ":->${duration?0}min"
       }, {
-        "title" : "最后修改",
-        "type"    : "DateTime",
+        "title" : "发布日期",
+        "type"  : "AMS",
+        "width" : -120,
         "display" : {
-          "key":"lm", 
-          "transformer" : {
-            "name" : "Ti.Types.formatDate",
-            "args" : "M月d日H点"
-          }
+          "key":"pubat", 
+          "transformer" : "Ti.DateTime.timeText"
         }
       }]
     }
@@ -48,13 +60,13 @@
     "comType" : "wn-thing-creator",
     "comConf" : {
       "fields" : [{
-        "name" : "th_nm",
+        "name" : "title",
         "title" : "文章标题",
         "comType" : "ti-input",
         "comConf" : {}
       }],
       "data" : {
-        "th_nm" : "新文章"
+        "title" : "新文章"
       }
     }
   },
@@ -71,42 +83,69 @@
           "title"   : "缩略图",
           "name"    : "thumb",
           "checkEquals" : false,
-          "serializer" : {
-            "name" : "Ti.Types.toStr",
-            "args" : "id:${id}"
-          },
-          "comType" : "wn-imgfile",
+          "comType" : "wn-upload-file",
           "comConf" : {
+            "width"  : "1.8rem",
+            "height" : "1.26rem",
             "target" : "=curentThumbTarget",
-            "filter" : "scale(256,256)"
+            "valueType": "idPath",
+            "filter" : "cover(300,210)"
           }
         }, {
           "title"   : "文章标题",
-          "name"    : "th_nm",
+          "name"    : "title",
           "comType" : "ti-input"
-        },{
+        }, {
           "icon"    : "zmdi-labels",
           "title"   : "标签",
           "name"    : "lbls",
           "type"    : "Array",
-          "transformer" : "Ti.Types.toStr",
-          "comType" : "ti-input"
-        },{
+          "comType" : "ti-input-tags"
+        }, {
+          "title"   : "发布日期",
+          "name"    : "pubat",
+          "type"    : "AMS",
+          "comType" : "ti-input-date"
+        }, {
+          "title"   : "摘要",
+          "name"    : "brief",
+          "comType" : "ti-input-text",
+          "comConf" : {
+            "height": 120
+          }
+        }, {
+          "title"   : "阅读时长",
+          "name"    : "duration",
+          "type"    : "Integer",
+          "width"   : 120,
+          "comType" : "ti-input",
+          "comConf" : {
+            "prefixIcon": "fas-stopwatch",
+            "suffixText": "MIN"
+          }
+        }, {
+          "icon" : "im-eye",
+          "title": "浏览次数",
+          "name": "watch_c",
+          "type": "Integer",
+          "width": "220",
+          "display": "watch_c",
+          "comType": "ti-input-num"
+        }, {
           "title"   : "最后更新",
           "name"    : "lm",
-          "type"    : "DateTime",
-          "comConf" : {"format":"yyyy年MM月dd日 HH:mm:ss"}
+          "type"    : "AMS"
         }],
       "updateBy" : "dispatch:main/updateCurrent",
       "setFieldStatusBy" : "commit:main/current/setMetaFieldStatus"
     }
   },
   "content" : {
-    "comType" : "ti-text-raw",
+    "comType" : "wn-thing-markdown-richeditor",
     "comConf" : {
-      "showTitle" : false,
-      "value" : "=current.content",
-      "status" : "=current.status"
+      "toolbar": ["Media"],
+      "meta"   : "=currentDataHome",
+      "value"  : "=current.content"
     }
   },
   "files" : {
@@ -116,7 +155,11 @@
       "dirName"  : "=currentDataDir",
       "stateLocalKey" : "=meta.id",
       "dirNameTip" : null,
-      "dirNameComType" : "ti-switcher"
+      "dirNameComType" : "ti-switcher",
+      "dirNameOptions" : [{
+          "text"  :"媒体目录",
+          "value" : "media"
+        }]
     }
   }
 }

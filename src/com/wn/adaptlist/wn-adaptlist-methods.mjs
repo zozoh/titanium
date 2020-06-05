@@ -186,6 +186,10 @@ const OBJ = {
   },
   //--------------------------------------------
   async doUpload(files=[]) {
+    if(_.isFunction(this.beforeUpload)) {
+      await this.beforeUpload()
+    }
+
     // Prepare the list
     let ups = _.map(files, (file, index)=>({
       id : `U${index}_${Ti.Random.str(6)}`,

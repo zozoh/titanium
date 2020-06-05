@@ -30,16 +30,7 @@ const Notify = function(name, ...args) {
   }
   // Then try fallback
   if(!_.isFunction(handler)){
-    let canNames = _.split(name, "::")
-    while(canNames.length > 1) {
-      let [, ...names] = canNames
-      let hdName = names.join("::")
-      handler = _.get(this.$listeners, hdName)
-      if(_.isFunction(handler)){
-        break
-      }
-      canNames = names
-    }
+    handler = this.$tiEventTryFallback(name, this.$listeners)
   }
 
   // Invoke handler or bubble the event
@@ -72,7 +63,22 @@ export const VueEventBubble = {
   install(Vue, {overrideEmit=false}={}) {
     // Append the methods
     _.assign(Vue.prototype, {
-      $notify : Notify
+      //...........................................
+      $notify : Notify,
+      //...........................................
+      $tiEventTryFallback(name, routing={}){
+        let canNames = _.split(name, "::")
+        while(canNames.length > 1) {
+          let [, ...names] = canNames
+          let hdName = names.join("::")
+          let handler = _.get(routing, hdName)
+          if(handler){
+            return handler
+          }
+          canNames = names
+        }
+      }
+      //...........................................
     })
 
     // Override emit

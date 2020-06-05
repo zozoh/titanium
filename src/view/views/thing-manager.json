@@ -39,7 +39,7 @@
         "icon" : "zmdi-flare",
         "text" : "i18n:create",
         "action" : "main:showBlock(creator)",
-        "shortcut" : "ALT+CTRL+N"
+        "shortcut" : "ALT+SHIFT+N"
       }, {
         "name" : "deleting",
         "type" : "action",
@@ -84,7 +84,15 @@
           "text" : "i18n:thing-cleaning"
         },
         "action" : "dispatch:main/cleanRecycleBin"
-      }, {
+      },{
+        "type" : "line"
+      },{
+        "type" : "action",
+        "icon" : "zmdi-keyboard",
+        "text" : "i18n:view-resource",
+        "action" : "dispatch:main/openContentEditor",
+        "shortcut" : "ALT+SHIFT+V"
+      },{
         "type" : "line"
       }, {
         "type" : "action",
@@ -97,7 +105,7 @@
         "icon" : "zmdi-info-outline",
         "text" : "i18n:properties",
         "action" : "dispatch:main/openMetaEditor",
-        "shortcut" : "ALT+CTRL+P"
+        "shortcut" : "ALT+SHIFT+P"
       }]
   }]
 }

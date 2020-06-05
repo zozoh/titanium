@@ -73,5 +73,12 @@ export default {
   "itemClassName" : {
     type : String,
     default : null
+  },
+  //-----------------------------------
+  // Callback
+  //-----------------------------------
+  "beforeUpload" : {
+    type: Function,
+    default: undefined
   }
 }

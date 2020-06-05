@@ -74,8 +74,12 @@ const _M = {
       })
     },
     //--------------------------------------
-    OnFileSelected({currentId}) {
+    OnFileSelect({currentId}) {
       this.myCurrentId = currentId
+    },
+    //--------------------------------------
+    OnFileOpen({id, item}) {
+      this.$notify("file:open", item)
     },
     //--------------------------------------
     async OnFileUploaded(files=[]){
@@ -104,7 +108,7 @@ const _M = {
       await this.doUpdateFilesCount()
     },
     //--------------------------------------
-    async doUploadFiles() {
+    async checkDataDir() {
       // Guard
       if(!this.hasDataHome) {
         return
@@ -123,6 +127,11 @@ const _M = {
         console.log(cmdText)
         this.myHome = await Wn.Sys.exec2(cmdText, {as:"json"})
       }
+    },
+    //--------------------------------------
+    async doUploadFiles() {
+      // Guard
+      await this.checkDataDir()
       
       // Do upload
       if(this.myHome) {
@@ -159,6 +168,7 @@ const _M = {
       if(this.dataHome && this.dirName) {
         this.myStatus.reloading = true
         let hmph = Ti.Util.appendPath(this.dataHome, this.dirName)
+        //console.log("reloadData:", hmph)
         let home = await Wn.Io.loadMeta(hmph)
         // Guard
         if(!home) {

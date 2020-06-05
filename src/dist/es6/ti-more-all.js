@@ -8483,8 +8483,8 @@ const _M = {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "zmdi-alert-circle-o",
-      text : "i18n:empty-data"
+      icon : "fas-dna",
+      text : null
     })
   },
   "icon" : {
@@ -8585,9 +8585,10 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
   <!--
     Show Blank
   -->
-  <template v-else>
-    <ti-loading v-bind="blankAs"/>
-  </template>
+  <ti-loading 
+    v-else
+      class="nil-data as-big-mask"
+      v-bind="blankAs"/>
 </div>`);
 //============================================================
 // JOIN: ti/form/ti-form.mjs
@@ -15291,7 +15292,7 @@ Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
   -->
   <div
     v-if="isDataEmpty"
-      class="ti-blank is-big">
+      class="nil-data as-big-mask">
       <ti-loading v-bind="blankAs"/>
   </div>
   <!--
@@ -15515,10 +15516,8 @@ Ti.Preload("ti/com/ti/list/_hmaker.json", {
 // JOIN: ti/loading/ti-loading.html
 //============================================================
 Ti.Preload("ti/com/ti/loading/ti-loading.html", `<div class="ti-loading">
-    <div class="tl-con">
-        <ti-icon :value="icon"/>
-        <span>{{text|i18n}}</span>
-    </div>
+  <ti-icon class="as-loading-icon" :value="icon"/>
+  <span class="as-loading-text">{{text|i18n}}</span>
 </div>`);
 //============================================================
 // JOIN: ti/loading/ti-loading.mjs
@@ -18294,7 +18293,7 @@ const _M = {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "zmdi-alert-circle-o",
+      icon : "fas-caravan",
       text : "empty-data"
     })
   },
@@ -19259,7 +19258,7 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
   -->
   <div
     v-if="isDataEmpty"
-      class="ti-blank is-big">
+      class="nil-data as-big-mask">
       <ti-loading v-bind="blankAs"/>
   </div>
   <!--
@@ -21129,8 +21128,8 @@ const _M = {
   }),
   ///////////////////////////////////////////////////
   props : {
-    "mediaBase" : {
-      type : String,
+    "previewMediaSrc" : {
+      type : [String, Function],
       default : undefined
     },
     "value" : {
@@ -21157,31 +21156,42 @@ const _M = {
       if(this.myTheme) {
         return `ti-markdown-theme-${this.myTheme}`
       }
+    },
+    //-----------------------------------------------
+    ThePreviewMediaSrc() {
+      let transSrc = _.identity;
+      // String mode
+      if(_.isString(this.previewMediaSrc)) {
+        transSrc = src => {
+          return Ti.S.renderBy(this.previewMediaSrc, {src})
+        }
+      }
+      // Function Mode
+      else if(_.isFunction(this.previewMediaSrc)){
+        transSrc = this.previewMediaSrc
+      }
+
+      return async src => {
+        //console.log("!!!!src", src)
+        // Outsite link
+        if(/^(https?:)(\/\/)/.test(src))
+          return src
+
+        // translate it
+        return transSrc(src)
+      }
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    evalMediaSrc(src) {
-      // Falsy src or base
-      if(!src || !this.mediaBase) {
-        return src
-      }
-      // Absolute path
-      if(/^(https?:\/\/|\/)/i.test(src)) {
-        return src
-      }
-      // Join the base
-      return Ti.Util.appendPath(this.mediaBase, src)
-    },
-    //-----------------------------------------------
-    renderMarkdown() {
+    async renderMarkdown() {
       if(!Ti.Util.isBlank(this.value)) {
         let MdDoc = Cheap.parseMarkdown(this.value)
         console.log(MdDoc.toString())
-        this.myHtml  = MdDoc.toBodyInnerHtml({
-          mediaSrc : src => this.evalMediaSrc(src)
+        this.myHtml  = await MdDoc.toBodyInnerHtml({
+          mediaSrc : this.ThePreviewMediaSrc
         })
         this.myTheme = MdDoc.getMeta("theme", this.theme)
       }
@@ -21214,9 +21224,92 @@ Ti.Preload("ti/com/ti/text/markdown/preview/_com.json", {
   "mixins" : ["./markdown-preview.mjs"]
 });
 //============================================================
-// JOIN: ti/text/markdown/richeditor/markdown-richeditor.html
+// JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs
 //============================================================
-Ti.Preload("ti/com/ti/text/markdown/richeditor/markdown-richeditor.html", `<div class="ti-markdown-richeditor"
+(function(){
+const _M = {
+  //-----------------------------------------------
+  // Delegate Quill Methods
+  //-----------------------------------------------
+  getSelection  (...args){return this.$editor.getSelection(...args)},
+  setSelection  (...args){return this.$editor.setSelection(...args)},
+  updateContents(...args){return this.$editor.updateContents(...args)},
+}
+Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs
+//============================================================
+(function(){
+const _M = {
+  //...............................................
+  // Data
+  //...............................................
+  "mediaBase" : {
+    type : String,
+    default : undefined
+  },
+  "value" : {
+    type : String,
+    default : ""
+  }, 
+  //...............................................
+  // Behavior
+  //...............................................
+  // Ext-toolbar item defination
+  "actions": {
+    type: Object,
+    default: ()=>({})
+  },
+  // preview -> markdown -> save
+  "markdownMediaSrc": {
+    type: [String, Function],
+    default: undefined
+  },
+  // load -> markdown -> preview
+  "previewMediaSrc": {
+    type: [String, Function],
+    default: undefined
+  },
+  //...............................................
+  // Aspact
+  //...............................................
+  "placeholder" : {
+    type : String,
+    default : "i18n:blank"
+  },
+  "theme" : {
+    type : String,
+    default : "nice"
+  },
+  "toolbar" : {
+    type : Array,
+    default : ()=>[
+      "Heading", "|", "B", "I", "|", "Link", "Code", 
+      "|", "BlockQuote", "CodeBlock", 
+      "|", "Outdent", "Indent",  
+      "|", "UL", "OL"
+      ]
+  },
+  "toolbarAlign" : {
+    type : String,
+    default: "left",
+    validator : v => /^(left|right|center)$/.test(v)
+  },
+  "blankAs" : {
+    type : Object,
+    default : ()=>({
+      icon : "fas-coffee",
+      text : null
+    })
+  }
+}
+Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor.html
+//============================================================
+Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.html", `<div class="ti-markdown-richeditor"
   :class="TopClass">
   <!--
     Toolbar
@@ -21235,9 +21328,16 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor/markdown-richeditor.html", `<div 
     class="as-stage"
     spellcheck="false"
     :class="ThemeClass"></div>
+  <!--
+    Cover when nil
+  -->
+  <ti-loading
+    v-if="isNilContent"
+      class="as-nil-mask as-big-mask"
+      v-bind="blankAs"/>
 </div>`);
 //============================================================
-// JOIN: ti/text/markdown/richeditor/markdown-richeditor.mjs
+// JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor.mjs
 //============================================================
 (function(){
 /////////////////////////////////////////////////////
@@ -21260,6 +21360,116 @@ function ResetQuillConfig(Quill) {
   Quill.__has_been_reset = true
 }
 /////////////////////////////////////////////////////
+const BUILTIN_TOOLBAR_ACTIONS = {
+  //.........................................
+  "|" : {type : "line"},
+  //.........................................
+  "B" : {
+    icon : "fas-bold",
+    notify: "bold",
+    highlight : "bold",
+    disabled : "italic"
+  },
+  //.........................................
+  "I" : {
+    icon : "fas-italic",
+    notify : "italic",
+    highlight : "italic",
+    disabled : "bold"
+  },
+  //.........................................
+  "Link" : {
+    icon : "fas-link",
+    notify : "link",
+    highlight : "link"
+  },
+  //.........................................
+  "Code" : {
+    icon : "zmdi-code",
+    notify : "code",
+    highlight : "code"
+  },
+  //.........................................
+  "Heading" : {
+    type : "group",
+    icon : "fas-hashtag",
+    text : "i18n:wordp-heading",
+    items : [{
+        text: "i18n:wordp-h1",
+        notify: "header",
+        highlight : "h1",
+        value: 1
+      }, {
+        text: "i18n:wordp-h2",
+        notify: "header",
+        highlight : "h2",
+        value: 2
+      }, {
+        text: "i18n:wordp-h3",
+        notify: "header",
+        highlight : "h3",
+        value: 3
+      }, {
+        text: "i18n:wordp-h4",
+        notify: "header",
+        highlight : "h4",
+        value: 4
+      }, {
+        text: "i18n:wordp-h5",
+        notify: "header",
+        highlight : "h5",
+        value: 5
+      }, {
+        text: "i18n:wordp-h6",
+        notify: "header",
+        highlight : "h6",
+        value: 6
+      }, {
+        text: "i18n:wordp-h0",
+        notify: "header",
+        highlight : "h0",
+        value:  0
+      }]
+  },
+  //.........................................
+  "BlockQuote" : {
+    icon : "fas-quote-right",
+    notify : "blockquote",
+    highlight : "blockquote"
+  },
+  //.........................................
+  "CodeBlock" : {
+    icon : "fas-code",
+    notify : "code_block",
+    highlight : "code-block"
+  },
+  //.........................................
+  "Indent" : {
+    icon : "fas-indent",
+    notify: "indent"
+  },
+  //.........................................
+  "Outdent" : {
+    icon : "fas-outdent",
+    notify: "outdent"
+  },
+  //.........................................
+  "UL" : {
+    icon : "fas-list-ul",
+    notify : "list",
+    value : "bullet",
+    highlight: {list:"bullet"}
+  },
+  //.........................................
+  "OL" : {
+    icon : "fas-list-ol",
+    notify : "list",
+    value : "ordered",
+    highlight: {list:"ordered"}
+  }
+  //.........................................
+}
+/////////////////////////////////////////////////////
 const _M = {
   ///////////////////////////////////////////////////
   data: ()=>({
@@ -21268,50 +21478,13 @@ const _M = {
     myToolbarStatus : {}
   }),
   ///////////////////////////////////////////////////
-  props : {
-    //...............................................
-    // Data
-    //...............................................
-    "mediaBase" : {
-      type : String,
-      default : undefined
-    },
-    "value" : {
-      type : String,
-      default : ""
-    }, 
-    //...............................................
-    // Aspact
-    //...............................................
-    "placeholder" : {
-      type : String,
-      default : "i18n:blank"
-    },
-    "theme" : {
-      type : String,
-      default : "nice"
-    },
-    "toolbar" : {
-      type : Array,
-      default : ()=>[
-        "Heading", "|", "B", "I", "|", "Link", "Code", 
-        "|", "BlockQuote", "CodeBlock", 
-        "|", "Outdent", "Indent",  
-        "|", "UL", "OL",
-        "|", "Media"
-        ]
-    },
-    "toolbarAlign" : {
-      type : String,
-      default: "left",
-      validator : v => /^(left|right|center)$/.test(v)
-    }
-  },
-  ///////////////////////////////////////////////////
   computed : {
     //-----------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "nil-content" : this.isNilContent,
+        "has-content" : !this.isNilContent
+      })
     },
     //-----------------------------------------------
     ThemeClass() {
@@ -21328,123 +21501,18 @@ const _M = {
       return !_.isEmpty(this.ToolbarMenuData)
     },
     //-----------------------------------------------
+    isNilContent() {
+      return Ti.Util.isNil(this.value)
+    },
+    //-----------------------------------------------
+    ToolbarActions() {
+      return _.merge({}, BUILTIN_TOOLBAR_ACTIONS, this.actions)
+    },
+    //-----------------------------------------------
     ToolbarMenuData() {
       let list = []
       _.forEach(this.toolbar, v => {
-        let it = ({
-          //.........................................
-          "|" : {type : "line"},
-          //.........................................
-          "B" : {
-            icon : "fas-bold",
-            notify: "bold",
-            highlight : "bold",
-            disabled : "italic"
-          },
-          //.........................................
-          "I" : {
-            icon : "fas-italic",
-            notify : "italic",
-            highlight : "italic",
-            disabled : "bold"
-          },
-          //.........................................
-          "Link" : {
-            icon : "fas-link",
-            notify : "link",
-            highlight : "link"
-          },
-          //.........................................
-          "Code" : {
-            icon : "zmdi-code",
-            notify : "code",
-            highlight : "code"
-          },
-          //.........................................
-          "Heading" : {
-            type : "group",
-            icon : "fas-hashtag",
-            text : "i18n:wordp-heading",
-            items : [{
-                text: "i18n:wordp-h1",
-                notify: "header",
-                highlight : "h1",
-                value: 1
-              }, {
-                text: "i18n:wordp-h2",
-                notify: "header",
-                highlight : "h2",
-                value: 2
-              }, {
-                text: "i18n:wordp-h3",
-                notify: "header",
-                highlight : "h3",
-                value: 3
-              }, {
-                text: "i18n:wordp-h4",
-                notify: "header",
-                highlight : "h4",
-                value: 4
-              }, {
-                text: "i18n:wordp-h5",
-                notify: "header",
-                highlight : "h5",
-                value: 5
-              }, {
-                text: "i18n:wordp-h6",
-                notify: "header",
-                highlight : "h6",
-                value: 6
-              }, {
-                text: "i18n:wordp-h0",
-                notify: "header",
-                highlight : "h0",
-                value:  0
-              }]
-          },
-          //.........................................
-          "BlockQuote" : {
-            icon : "fas-quote-right",
-            notify : "blockquote",
-            highlight : "blockquote"
-          },
-          //.........................................
-          "CodeBlock" : {
-            icon : "fas-code",
-            notify : "code_block",
-            highlight : "code-block"
-          },
-          //.........................................
-          "Indent" : {
-            icon : "fas-indent",
-            notify: "indent"
-          },
-          //.........................................
-          "Outdent" : {
-            icon : "fas-outdent",
-            notify: "outdent"
-          },
-          //.........................................
-          "UL" : {
-            icon : "fas-list-ul",
-            notify : "list",
-            value : "bullet",
-            highlight: {list:"bullet"}
-          },
-          //.........................................
-          "OL" : {
-            icon : "fas-list-ol",
-            notify : "list",
-            value : "ordered",
-            highlight: {list:"ordered"}
-          },
-          //.........................................
-          "Media" : {
-            icon : "fas-photo-video",
-            action : "$parent:OnInsertMedia"
-          },
-          //.........................................
-        })[v]
+        let it = _.get(this.ToolbarActions, v)
         //...........................................
         if(it) {
           list.push(it)
@@ -21456,6 +21524,30 @@ const _M = {
       //   action : "$parent:highlightCode"
       // })
       return list;
+    },
+    //-----------------------------------------------
+    TheMarkdownMediaSrc() {
+      if(_.isFunction(this.markdownMediaSrc)){
+        return this.markdownMediaSrc
+      }
+
+      if(_.isString(this.markdownMediaSrc)) {
+        return Ti.Util.genInvoking(this.markdownMediaSrc, {
+          partialRight: true
+        })
+      }
+    },
+    //-----------------------------------------------
+    ThePreviewMediaSrc() {
+      if(_.isFunction(this.previewMediaSrc)){
+        return this.previewMediaSrc
+      }
+
+      if(_.isString(this.previewMediaSrc)) {
+        return Ti.Util.genInvoking(this.previewMediaSrc, {
+          partialRight: true
+        })
+      }
     }
     //-----------------------------------------------
   },
@@ -21465,7 +21557,7 @@ const _M = {
     // Events
     //-----------------------------------------------
     OnToolbarChange({name, value}={}) {
-      console.log({name, value})
+      //console.log("OnToolbarChange", {name, value})
       const fn = ({
         //...........................................  
         bold  ($q, val){$q.format("bold", val)},
@@ -21516,93 +21608,9 @@ const _M = {
       //.............................................
     },
     //-----------------------------------------------
-    async OnInsertMedia() {
-      let list = await Wn.OpenObjSelector()
-
-      // User cancel
-      if(!list || _.isEmpty(list)) {
-        return
-      }
-      
-      for(let obj of list) {
-        let home = Wn.Session.getHomePath();
-        let rph = Ti.Util.getRelativePath(home, obj.ph, "")
-        let aph = Ti.Util.appendPath("~", rph)
-        let src = `/o/content?str=${aph}`
-        // Video
-        if(obj.mime && obj.mime.startsWith("video")) {
-          this.insertMedia("video", src, {
-            controls : false,
-            autoplay : false
-          })
-        }
-        // Image
-        else {
-          this.insertMedia("image", src)
-        }
-      }
-    },
-    //-----------------------------------------------
-    // Insert Operation
-    //-----------------------------------------------
-    insertMedia(type="image", src, attrs={}) {
-      // Guard
-      if(!src) {
-        return
-      }
-
-      // Prepare the Delta
-      let Delta = Quill.import("delta")
-      let det = new Delta()
-
-      // Insert to current position
-      let sel = this.$editor.getSelection()
-      console.log("selection", sel)
-
-      if(!sel) {
-        this.$editor.setSelection(0)
-        sel = {index:0, length:0}
-      }
-
-      let {index,length} = sel
-
-      // Move to current
-      det.retain(index)
-            
-      // Delete current
-      if(length > 0) {
-          det.delete(length)
-      }
-
-      // Add Media
-      det.insert({[type]: src, attributes: attrs})
-     
-      // Update 
-      this.$editor.updateContents(det)
-
-      // Move cursor
-      this.$editor.setSelection(index+1)
-    },
-    //-----------------------------------------------
     // Utility
     //-----------------------------------------------
-    //-----------------------------------------------
-    // Rendering
-    //-----------------------------------------------
-    // evalMediaSrc(src) {
-    //   // Falsy src or base
-    //   if(!src || !this.mediaBase) {
-    //     return src
-    //   }
-    //   // Absolute path
-    //   if(/^(https?:\/\/|\/)/i.test(src)) {
-    //     return src
-    //   }
-    //   // Join the base
-    //   return Ti.Util.appendPath(this.mediaBase, src)
-    // },
-    //-----------------------------------------------
-    renderMarkdown() {
+    async renderMarkdown() {
       console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown")
       if(!Ti.Util.isBlank(this.value)) {
         // Parse markdown
@@ -21612,7 +21620,9 @@ const _M = {
         this.myMeta = _.cloneDeep(MdDoc.getMeta())
 
         // Get delta
-        let delta = MdDoc.toDelta()
+        let delta = await MdDoc.toDelta({
+          mediaSrc: this.ThePreviewMediaSrc
+        })
         //console.log(JSON.stringify(delta, null, '   '))
 
         // Update Quill editor content
@@ -21622,6 +21632,7 @@ const _M = {
       // Show Blank
       else {
         this.myMeta = {}
+        this.$editor.setContents([]);
       }
     },
     //-----------------------------------------------
@@ -21646,16 +21657,23 @@ const _M = {
     //-----------------------------------------------
     quillChanged(delta) {
       console.log("changed", JSON.stringify(delta, null, '  '))
+
+      // Delat => CheapDocument
       let MdDoc = Cheap.parseDelta(delta)
       MdDoc.setDefaultMeta(this.myMeta)
       this.myMeta = MdDoc.getMeta()
       console.log(MdDoc.toString())
-      let markdown = MdDoc.toMarkdown()
-      console.log(markdown)
-      if(markdown != this.value) {
-        this.syncForbid = 1
-        this.$notify("change", markdown)
-      }
+      
+      // CheapDocument => markdown
+      MdDoc.toMarkdown({
+        mediaSrc: this.TheMarkdownMediaSrc
+      }).then(markdown=>{
+        console.log(markdown)
+        if(markdown != this.value) {
+          this.syncForbid = 1
+          this.$notify("change", markdown)
+        }
+      })
     },
     //-----------------------------------------------
     quillSelectionChanged(range) {
@@ -21733,7 +21751,7 @@ const _M = {
   }
   ///////////////////////////////////////////////////
 }
-Ti.Preload("ti/com/ti/text/markdown/richeditor/markdown-richeditor.mjs", _M);
+Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.mjs", _M);
 })();
 //============================================================
 // JOIN: ti/text/markdown/richeditor/_com.json
@@ -21742,9 +21760,11 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor/_com.json", {
   "name" : "ti-text-markdown-richeditor",
   "globally" : true,
   "i18n" : "@i18n:ti-text-editor",
-  "template" : "./markdown-richeditor.html",
   "css" : "@deps:highlight/default.css",
-  "mixins" : ["./markdown-richeditor.mjs"],
+  "template" : "./ti-markdown-richeditor.html",
+  "props": "./ti-markdown-richeditor-props.mjs",
+  "methods": "./ti-markdown-richeditor-delegate-methods.mjs",
+  "mixins" : ["./ti-markdown-richeditor.mjs"],
   "components" : [
     "@com:wn/adaptlist"
   ],
@@ -23515,11 +23535,10 @@ Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall"
   <!--
     Blank
   -->
-  <div
+  <ti-loading 
     v-if="isDataEmpty"
-      class="ti-blank is-big">
-      <ti-loading v-bind="blankAs"/>
-  </div>
+      class="nil-data as-big-mask"
+      v-bind="blankAs"/>
   <!--
     Show tiles
   -->
@@ -23567,7 +23586,7 @@ const _M = {
 
     myColCount : 0,
     myColWidth : 0,
-    isOnlyOneRow : true,
+    isOnlyOneRow : false,
 
     myCellsReport : {},
     myNeedResize : true
@@ -23745,7 +23764,7 @@ const _M = {
   mounted : function() {
     //.................................
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.OnWallResize(), 100)
+      resize : _.debounce(()=>this.OnWallResize(), 20)
     })
     //.................................
   },
@@ -27255,6 +27274,10 @@ const OBJ = {
   },
   //--------------------------------------------
   async doUpload(files=[]) {
+    if(_.isFunction(this.beforeUpload)) {
+      await this.beforeUpload()
+    }
+
     // Prepare the list
     let ups = _.map(files, (file, index)=>({
       id : `U${index}_${Ti.Random.str(6)}`,
@@ -27413,6 +27436,13 @@ const _M = {
   "itemClassName" : {
     type : String,
     default : null
+  },
+  //-----------------------------------
+  // Callback
+  //-----------------------------------
+  "beforeUpload" : {
+    type: Function,
+    default: undefined
   }
 }
 Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist-props.mjs", _M);
@@ -27423,13 +27453,15 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist-props.mjs", _M);
 Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist" 
   :class="TopClass"
   v-ti-activable>
-  <div class="ti-fill-parent"
+  <div
+    class="list-con ti-fill-parent"
     v-drop-files.mask="OnDropFiles">
     <!--==================================
       Show Loading
     -->
     <ti-loading
-      v-if="isReloading" 
+      v-if="isReloading"
+        class="as-reloading as-mid-tip"
         text="i18n:reloading"/>
     <!--==================================
       Data List
@@ -27549,7 +27581,8 @@ const _M = {
       for(let it of this.myData.list) {
         if(!this.isHiddenItem(it)) {
           let status = this.myItemStatus[it.id]
-          list.push(_.assign({$wn$adaptlist$status:status}, it))
+          //list.push(_.assign({$wn$adaptlist$status:status}, it))
+          list.push(it)
         }
       }
       return list
@@ -29789,6 +29822,269 @@ Ti.Preload("ti/com/wn/obj/json/_com.json", {
   "components" : ["@com:ti/text/json"]
 });
 //============================================================
+// JOIN: wn/obj/markdown/richeditor/wn-markdown-richeditor-props.mjs
+//============================================================
+(function(){
+const _M = {
+  // Relative meta
+  "meta": {
+    type: [Object, String],
+    default: null
+  },
+  // Delcare the media src mode
+  //  - path : nil meta(~/xxx/xxx); with meta(../xxx/xxx)
+  //  - fullPath : "/home/xiaobai/xxx/xxx"
+  //  - idPath : "id:67u8..98a1"
+  //  - id   : "67u8..98a1"
+  // 'transferMediaSrc' can take more customized form
+  "mediaSrcMode": {
+    type: String,
+    default: "path",
+    validator: v => /^(path|fullPath|idPath|id)$/.test(v)
+  },
+  // Keep the last select media
+  "keepLastBy": {
+    type: String,
+    default: "wn-markdown-richeditor-last-open"
+  },
+  "defaultMediaDir": {
+    type: String,
+    default: "~"
+  }
+}
+Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor-props.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/obj/markdown/richeditor/wn-markdown-richeditor.html
+//============================================================
+Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.html", `<TiTextMarkdownRicheditor
+  v-bind="this"
+  :actions="ToolbarActions"
+  :markdown-media-src="TheMarkdownMediaSrc"
+  :preview-media-src="ThePreviewMediaSrc"
+  :value="TheValue"
+  :on-init="OnEditorInit"/>`);
+//============================================================
+// JOIN: wn/obj/markdown/richeditor/wn-markdown-richeditor.mjs
+//============================================================
+(function(){
+const _M = {
+  ///////////////////////////////////////////////////
+  data: ()=>({
+    myMeta: null
+  }),
+  ///////////////////////////////////////////////////
+  computed : {
+    //-----------------------------------------------
+    ToolbarActions() {
+      return _.merge({
+        "Media" : {
+          icon : "fas-photo-video",
+          action : ()=>this.OnInsertMedia()
+        }
+      },  this.actions)
+    },
+    //-----------------------------------------------
+    isMyMetaMatchedProp() {
+      if(!this.myMeta || !this.meta) {
+        return false
+      }
+      if(_.isString(this.meta)) {
+        // ID Path
+        if(Wn.Io.isFullObjIdPath(this.meta)) {
+          return this.myMeta.id == this.meta.substring(3)
+        }
+        // Path
+        let nm0 = Ti.Util.getFileName(this.meta)
+        return nm0 == this.myMeta.nm
+      }
+      // Object meta
+      return this.meta.id == this.myMeta.id
+    },
+    //-----------------------------------------------
+    TheValue() {
+      // Wait myMeta reloaded
+      if(!Ti.Util.isNil(this.value) 
+         && this.meta 
+         && !this.isMyMetaMatchedProp) {
+        return null
+      }
+      return this.value
+    },
+    //-----------------------------------------------
+    TheMarkdownMediaSrc() {
+      if(this.markdownMediaSrc) {
+        return this.markdownMediaSrc
+      }
+      return async src => {
+        // special media 
+        let m = /^\/o\/content\?str=id:(.+)$/.exec(src)
+        if(m) {
+          let obj = await Wn.Io.loadMetaById(m[1])
+          if(obj) {
+            return Wn.Io.formatObjPath(obj, this.mediaSrcMode, this.myMeta)
+          }
+        }
+        return src
+      }
+    },
+    //-----------------------------------------------
+    ThePreviewMediaSrc() {
+      if(this.previewMediaSrc) {
+        return this.previewMediaSrc
+      }
+      return async src => {
+        // Outsite link
+        if(/^(https?:)(\/\/)/.test(src))
+          return src
+
+        console.log("preview", src)
+        let obj = await Wn.Io.loadMetaBy(src, this.myMeta)
+        if(obj) {
+          return `/o/content?str=id:${obj.id}`
+        }
+        return src
+      }
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    OnEditorInit($editor) {
+      this.$editor = $editor
+    },
+    //-----------------------------------------------
+    async OnInsertMedia() {
+      // Get the last open
+      let last = this.myMeta || this.defaultMediaDir
+      if(this.keepLastBy)
+        last = Ti.Storage.local.getString(this.keepLastBy) || last
+
+      // Open selector to pick list
+      let list = await Wn.OpenObjSelector(last, {
+        fallbackPath: this.defaultMediaDir
+      })
+
+      // User cancel
+      if(!list || _.isEmpty(list)) {
+        return
+      }
+
+      // Save the last open
+      if(this.keepLastBy) {
+        let oFir = _.first(list);
+        let pph = Ti.Util.getParentPath(oFir.ph)
+        let rph = Wn.Session.getFormedPath(pph)
+        Ti.Storage.local.set(this.keepLastBy, rph);
+      }
+      
+      // Batch insert
+      for(let obj of list) {
+        this.insertMediaObj(obj)
+      }
+    },
+    //-----------------------------------------------
+    // Insert Operation
+    //-----------------------------------------------
+    insertMediaObj(obj={}) {
+      let mime = obj.mime
+
+      // Guard
+      if(!mime)
+        return
+
+      // Preview source
+      let src = `/o/content?str=id:${obj.id}`
+
+      // Video
+      if(mime.startsWith("video/")) {
+        this.insertMedia("video", src, {
+          controls : false,
+          autoplay : false
+        })
+      }
+      // Image
+      else if(mime.startsWith("image/")) {
+        this.insertMedia("image", src)
+      }
+    },
+    //-----------------------------------------------
+    insertMedia(type="image", src, attrs={}) {
+      // Guard
+      if(!src) {
+        return
+      }
+
+      // Prepare the Delta
+      let Delta = Quill.import("delta")
+      let det = new Delta()
+
+      // Insert to current position
+      let sel = this.$editor.getSelection()
+      console.log("selection", sel)
+
+      if(!sel) {
+        this.$editor.setSelection(0)
+        sel = {index:0, length:0}
+      }
+
+      let {index,length} = sel
+
+      // Move to current
+      det.retain(index)
+            
+      // Delete current
+      if(length > 0) {
+          det.delete(length)
+      }
+
+      // Add Media
+      det.insert({[type]: src, attributes: attrs})
+     
+      // Update 
+      this.$editor.updateContents(det)
+
+      // Move cursor
+      this.$editor.setSelection(index+1)
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch: {
+    "meta": {
+      handler: async function(pathOrObj){
+        if(_.isString(pathOrObj)) {
+          this.myMeta = await Wn.Io.loadMetaBy(pathOrObj)
+        } else {
+          this.myMeta = pathOrObj
+        }
+      },
+      immediate: true
+    }
+  }
+  ///////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/obj/markdown/richeditor/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/obj/markdown/richeditor/_com.json", {
+  "name" : "wn-obj-markdown-richeditor",
+  "globally" : true,
+  "template" : "./wn-markdown-richeditor.html",
+  "props": [
+    "@com:ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs",
+    "./wn-markdown-richeditor-props.mjs"
+  ],
+  "methods": "@com:ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs",
+  "mixins" : ["./wn-markdown-richeditor.mjs"],
+  "components" : [
+    "@com:ti/text/markdown/richeditor"
+  ]
+});
+//============================================================
 // JOIN: wn/obj/picker/wn-obj-picker.html
 //============================================================
 Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.html", `<div class="wn-obj-picker">
@@ -31060,6 +31356,14 @@ const _M = {
       value : "attachment"
     }]
   },
+  "nilIcon": {
+    type: String,
+    default: "fas-braille"
+  },
+  "nilText": {
+    type: String,
+    default: null
+  }
   //-----------------------------------
   // Measure
   //-----------------------------------
@@ -31119,17 +31423,21 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", `<div cla
         :data="myData"
         :meta="myHome"
         :status="myStatus"
+        :before-upload="checkDataDir"
         @uploaded="OnFileUploaded"
-        @select="OnFileSelected"
+        @select="OnFileSelect"
+        @open="OnFileOpen"
         :on-init="OnAdaptListInit"/>
     </div>
   </template>
   <!--
     Without Data Home
   -->
-  <ti-loading v-else
-    text="i18n:empty-data"
-    icon="zmdi-alert-circle-o"/>
+  <ti-loading
+    v-else
+      class="nil-datahome as-big-mask"
+      :text="nilText"
+      :icon="nilIcon"/>
 </div>`);
 //============================================================
 // JOIN: wn/thing/manager/com/thing-files/thing-files.mjs
@@ -31211,8 +31519,12 @@ const _M = {
       })
     },
     //--------------------------------------
-    OnFileSelected({currentId}) {
+    OnFileSelect({currentId}) {
       this.myCurrentId = currentId
+    },
+    //--------------------------------------
+    OnFileOpen({id, item}) {
+      this.$notify("file:open", item)
     },
     //--------------------------------------
     async OnFileUploaded(files=[]){
@@ -31241,7 +31553,7 @@ const _M = {
       await this.doUpdateFilesCount()
     },
     //--------------------------------------
-    async doUploadFiles() {
+    async checkDataDir() {
       // Guard
       if(!this.hasDataHome) {
         return
@@ -31260,6 +31572,11 @@ const _M = {
         console.log(cmdText)
         this.myHome = await Wn.Sys.exec2(cmdText, {as:"json"})
       }
+    },
+    //--------------------------------------
+    async doUploadFiles() {
+      // Guard
+      await this.checkDataDir()
       
       // Do upload
       if(this.myHome) {
@@ -31296,6 +31613,7 @@ const _M = {
       if(this.dataHome && this.dirName) {
         this.myStatus.reloading = true
         let hmph = Ti.Util.appendPath(this.dataHome, this.dirName)
+        //console.log("reloadData:", hmph)
         let home = await Wn.Io.loadMeta(hmph)
         // Guard
         if(!home) {
@@ -31472,6 +31790,212 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/_com.json", {
   "components" : []
 });
 //============================================================
+// JOIN: wn/thing/manager/com/thing-markdown-editor/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/thing/manager/com/thing-markdown-editor/_com.json", {
+  "name" : "wn-thing-markdown-richeditor",
+  "globally" : true,
+  "template" : "./thing-markdown-richeditor.html",
+  "mixins"   : ["./thing-markdown-richeditor.mjs"],
+  "components" : []
+});
+//============================================================
+// JOIN: wn/thing/manager/wn-thing-manager-methods.mjs
+//============================================================
+(function(){
+const _M = {
+  //--------------------------------------
+  //
+  //           Batch Update
+  //
+  //--------------------------------------
+  async batchUpdate() {
+    //....................................
+    // Prepare the data
+    if(_.isEmpty(this.checkedItems)) {
+      return Ti.Toast.Open("i18n:batch-none", "warn")
+    }
+    let current = _.first(this.checkedItems)
+    //....................................
+    let batch = _.get(this.config, "schema.behavior.batch") || {}
+    _.defaults(batch, {
+      "comType" : "wn-obj-form",
+      "comConf" : {},
+      "fields" : "schema.meta.comConf.fields",
+      "names" : null,
+      "valueKey": "data"
+    })
+    batch.comType = _.kebabCase(batch.comType)
+    // Add default setting
+    if(/^(ti-|wn-obj-)(form)$/.test(batch.comType)) {
+      _.defaults(batch.comConf, {
+        autoShowBlank: false,
+        updateBy: true,
+        setDataBy: true
+      })
+    }
+    //....................................
+    let name_filter;
+    if(_.isString(batch.names)) {
+      if(batch.names.startsWith("^")){
+        let regex = new RegExp(batch.names)
+        name_filter = fld => regex.test(fld.name)
+      }
+      else if(batch.names.startsWith("!^")){
+        let regex = new RegExp(batch.names.substring(1))
+        name_filter = fld => !regex.test(fld.name)
+      }
+      else {
+        let list = Ti.S.toArray(batch.names)
+        name_filter = fld => list.indexOf(fld.name)>=0
+      }
+    }
+    // Filter by Array
+    // TODO maybe I should use the validate
+    else if(_.isArray(batch.names) && !_.isEmpty(batch.names)) {
+      name_filter = v => batch.name.indexOf(v)>=0
+    }
+    // Allow all
+    else {
+      name_filter = fld => true
+    }
+
+    //....................................
+    // Prepare the fields
+    let fields = _.get(this.config, batch.fields)
+    //....................................
+    // filter names
+    if(!_.isEmpty(batch.names)) {
+      // Define the filter
+      const filter_names = function(flds=[], filter) {
+        let list = []
+        for(let fld of flds) {
+          // Group
+          if(_.isArray(fld.fields)) {
+            let f2 = _.cloneDeept(fld)
+            f2.fields = filter_names(fld.fields, names)
+            if(!_.isEmpty(f2.fields)) {
+              list.push(f2)
+            }
+          }
+          // Fields
+          else if(filter(fld)) {
+            list.push(fld)
+          }
+        }
+        return list
+      }
+      // Do filter
+      fields = filter_names(fields, name_filter)
+    }
+    //....................................
+    // Open the Modal
+    let updates = await Ti.App.Open({
+      title: "i18n:batch-update",
+      width: 640,
+      height: "90%",
+      position: "top",
+      //............................
+      comType: "inner-body",
+      //............................
+      components: [{
+        name: "inner-body",
+        globally : false,
+        data: {
+          update: {},
+          value: current,
+          innerComConf: {
+            ... batch.comConf,
+            fields
+          }
+        },
+        template: `<${batch.comType}
+          v-bind="innerComConf"
+          :${batch.valueKey}="value"
+          @field:change="OnFieldChange"
+          @change="OnChange"/>`,
+        methods: {
+          OnFieldChange({name, value}){
+            _.set(this.update, name, value)
+            this.$notify("change", this.update)
+          },
+          OnChange(payload) {
+            this.value = payload
+          }
+        }
+      }]
+      //............................
+    })
+    //....................................
+    if(!_.isEmpty(updates)) {
+      // Get all checkes
+      await Ti.App(this).dispatch("main/batchUpdateMetas", updates)
+    }
+  },
+  //--------------------------------------
+  //
+  //      Utility: show/hide block
+  //
+  //--------------------------------------
+  changeShown(shown={}) {
+    Ti.App(this).dispatch("main/doChangeShown", shown)
+  },
+  //--------------------------------------
+  showBlock(name) {
+    //console.log("showBlock", name)
+    // If creator, then must leave the recycle bin
+    if("creator" == name) {
+      if(this.status.inRecycleBin) {
+        Ti.Alert("i18n:thing-create-in-recyclebin", {
+          title : "i18n:warn",
+          icon  : "im-warning",
+          type  : "warn"
+        })
+        return
+      }
+    }
+    if("files" == name) {
+      Ti.App(this).dispatch("main/reloadFiles")
+    }
+    else if("content" == name) {
+      //Ti.App(this).dispatch("main/reloadFiles")
+      Ti.App(this).dispatch("main/current/reload")
+    }
+    // Mark block
+    Ti.App(this).dispatch("main/doChangeShown", {[name]:true})
+  },
+  //--------------------------------------
+  hideBlock(name) {
+    Ti.App(this).dispatch("main/doChangeShown", {[name]:false})
+  },
+  //--------------------------------------
+  toggleBlock(name) {
+    Ti.App(this).dispatch("main/doChangeShown", {
+      [name]: !this.TheShown[name]
+    })
+  },
+  //--------------------------------------
+  //
+  //           Utility: Others
+  // 
+  //--------------------------------------
+  async invoke(fnName) {
+    //console.log("invoke ", fnName)
+    let fn = _.get(this.SchemaMethods, fnName)
+    // Invoke the method
+    if(_.isFunction(fn)) {
+      return await fn.apply(this, [])
+    }
+    // Throw the error
+    else {
+      throw Ti.Err.make("e.thing.fail-to-invoke", fnName)
+    }
+  }
+  //--------------------------------------
+}
+Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager-methods.mjs", _M);
+})();
+//============================================================
 // JOIN: wn/thing/manager/wn-thing-manager.html
 //============================================================
 Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager.html", `<ti-gui
@@ -31483,17 +32007,7 @@ Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager.html", `<ti-gui
   :shown="TheShown"
   :can-loading="true"
   :loading-as="GuiLoadingAs"
-  :action-status="status"
-  @block:show="showBlock"
-  @block:hide="hideBlock"
-  @block:shown="changeShown"
-  @filter::change="OnFilterChange"
-  @sorter::change="OnSorterChange"
-  @list::select="OnListSelect"
-  @list::open="OnListOpen"
-  @content::change="OnContentChange"
-  @pager::change="OnPagerChange"
-  @view-current-source="OnViewCurrentSource"/>`);
+  :action-status="status"/>`);
 //============================================================
 // JOIN: wn/thing/manager/wn-thing-manager.mjs
 //============================================================
@@ -31505,6 +32019,10 @@ const _M = {
       "$ThingManager" : this
     }
   },
+  ///////////////////////////////////////////
+  data: ()=>({
+    "myRouting": {}
+  }),
   ///////////////////////////////////////////
   props : {
     // Thing Set Home
@@ -31547,6 +32065,10 @@ const _M = {
     "emitChange": {
       type : Boolean,
       default: false
+    },
+    "keepLastSelection": {
+      type: Boolean,
+      default: true
     }
   },
   ///////////////////////////////////////////
@@ -31562,6 +32084,12 @@ const _M = {
     //--------------------------------------
     TheShown() {
       return _.get(this.config, "shown") || {}
+    },
+    //--------------------------------------
+    TheKeepLastKey() {
+      if(this.keepLastSelection) {
+        return _.get(this.meta, "id") + ":currentId";
+      }
     },
     //--------------------------------------
     TheLayout() {
@@ -31625,11 +32153,29 @@ const _M = {
         return Ti.Util.merge({}, this.TheSchema.methods)
       }
       return {}
+    },
+    //--------------------------------------
+    EventRouting() {
+      return _.assign({
+        "block:show"      : "showBlock",
+        "block:hide"      : "hideBlock",
+        "block:shown"     : "changeShown",
+        "filter::change"  : "OnFilterChange",
+        "sorter::change"  : "OnSorterChange",
+        "list::select"    : "OnListSelect",
+        "list::open"      : "OnListOpen",
+        "content::change" : "OnContentChange",
+        "pager::change"   : "OnPagerChange"
+      }, _.get(this.TheSchema, "events"), this.myRouting)
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    //
+    //  Event handler
+    //
     //--------------------------------------
     async OnFilterChange(filter) {
       Ti.App(this).commit("main/search/setFilter", filter)
@@ -31642,11 +32188,13 @@ const _M = {
     },
     //--------------------------------------
     OnListSelect({current, currentId, checkedIds, checked}) {
+      //console.log("OnListSelect", current)
       Ti.App(this).dispatch("main/setCurrentThing", {
         meta: current, 
         currentId,
         checkedIds
       })
+
       if(this.emitChange) {
         this.$emit("change", {current, currentId, checkedIds, checked})
       }
@@ -31674,236 +32222,38 @@ const _M = {
       this.viewCurrentSource()
     },
     //--------------------------------------
-    // Show hide block
+    //
+    //  Utility
+    //
     //--------------------------------------
-    async changeShown(shown={}) {
-      Ti.App(this).dispatch("main/doChangeShown", shown)
+    addEventRouting(eventName, handler) {
+      this.$set(this.myRouting, eventName, handler)
+    },
+    removeEventRouting(...names) {
+      let routing = _.omitBy(this.myRouting, (_, key)=>names.indexOf(key)>=0)
+      this.myRouting = routing
     },
     //--------------------------------------
-    showBlock(name) {
-      //console.log("showBlock", name)
-      // If creator, then must leave the recycle bin
-      if("creator" == name) {
-        if(this.status.inRecycleBin) {
-          Ti.Alert("i18n:thing-create-in-recyclebin", {
-            title : "i18n:warn",
-            icon  : "im-warning",
-            type  : "warn"
-          })
-          return
-        }
-      }
-      if("files" == name) {
-        Ti.App(this).dispatch("main/reloadFiles")
-      }
-      else if("content" == name) {
-        //Ti.App(this).dispatch("main/reloadFiles")
-        Ti.App(this).dispatch("main/current/reload")
-      }
-      // Mark block
-      Ti.App(this).dispatch("main/doChangeShown", {[name]:true})
-    },
-    //--------------------------------------
-    hideBlock(name) {
-      Ti.App(this).dispatch("main/doChangeShown", {[name]:false})
-    },
-    //--------------------------------------
-    toggleBlock(name) {
-      Ti.App(this).dispatch("main/doChangeShown", {
-        [name]: !this.TheShown[name]
-      })
-    },
-    //--------------------------------------
-    // Batch Update
-    //--------------------------------------
-    async batchUpdate() {
-      //....................................
-      // Prepare the data
-      if(_.isEmpty(this.checkedItems)) {
-        return Ti.Toast.Open("i18n:batch-none", "warn")
-      }
-      let current = _.first(this.checkedItems)
-      //....................................
-      let batch = _.get(this.config, "schema.behavior.batch") || {}
-      _.defaults(batch, {
-        "comType" : "wn-obj-form",
-        "comConf" : {},
-        "fields" : "schema.meta.comConf.fields",
-        "names" : null,
-        "valueKey": "data"
-      })
-      batch.comType = _.kebabCase(batch.comType)
-      // Add default setting
-      if(/^(ti-|wn-obj-)(form)$/.test(batch.comType)) {
-        _.defaults(batch.comConf, {
-          autoShowBlank: false,
-          updateBy: true,
-          setDataBy: true
-        })
-      }
-      //....................................
-      let name_filter;
-      if(_.isString(batch.names)) {
-        if(batch.names.startsWith("^")){
-          let regex = new RegExp(batch.names)
-          name_filter = fld => regex.test(fld.name)
-        }
-        else if(batch.names.startsWith("!^")){
-          let regex = new RegExp(batch.names.substring(1))
-          name_filter = fld => !regex.test(fld.name)
-        }
-        else {
-          let list = Ti.S.toArray(batch.names)
-          name_filter = fld => list.indexOf(fld.name)>=0
-        }
-      }
-      // Filter by Array
-      // TODO maybe I should use the validate
-      else if(_.isArray(batch.names) && !_.isEmpty(batch.names)) {
-        name_filter = v => batch.name.indexOf(v)>=0
-      }
-      // Allow all
-      else {
-        name_filter = fld => true
-      }
-
-      //....................................
-      // Prepare the fields
-      let fields = _.get(this.config, batch.fields)
-      //....................................
-      // filter names
-      if(!_.isEmpty(batch.names)) {
-        // Define the filter
-        const filter_names = function(flds=[], filter) {
-          let list = []
-          for(let fld of flds) {
-            // Group
-            if(_.isArray(fld.fields)) {
-              let f2 = _.cloneDeept(fld)
-              f2.fields = filter_names(fld.fields, names)
-              if(!_.isEmpty(f2.fields)) {
-                list.push(f2)
-              }
-            }
-            // Fields
-            else if(filter(fld)) {
-              list.push(fld)
-            }
-          }
-          return list
-        }
-        // Do filter
-        fields = filter_names(fields, name_filter)
-      }
-      //....................................
-      // Open the Modal
-      let updates = await Ti.App.Open({
-        title: "i18n:batch-update",
-        width: 640,
-        height: "90%",
-        position: "top",
-        //............................
-        comType: "inner-body",
-        //............................
-        components: [{
-          name: "inner-body",
-          globally : false,
-          data: {
-            update: {},
-            value: current,
-            innerComConf: {
-              ... batch.comConf,
-              fields
-            }
-          },
-          template: `<${batch.comType}
-            v-bind="innerComConf"
-            :${batch.valueKey}="value"
-            @field:change="OnFieldChange"
-            @change="OnChange"/>`,
-          methods: {
-            OnFieldChange({name, value}){
-              _.set(this.update, name, value)
-              this.$notify("change", this.update)
-            },
-            OnChange(payload) {
-              this.value = payload
-            }
-          }
-        }]
-        //............................
-      })
-      //....................................
-      if(!_.isEmpty(updates)) {
-        // Get all checkes
-        await Ti.App(this).dispatch("main/batchUpdateMetas", updates)
-      }
-    },
-    //--------------------------------------
-    // Utility
-    //--------------------------------------
-    async viewCurrentSource() {
-      // Guard
-      if(!this.currentItem) {
-        return await Ti.Toast.Open("i18n:empty-data", "warn")
-      }
-      // Open Editor
-      let newContent = await Wn.EditObjContent(this.currentItem, {
-        showEditorTitle : false,
-        icon      : Wn.Util.getObjIcon(this.currentItem, "zmdi-tv"),
-        title     : Wn.Util.getObjDisplayName(this.currentItem),
-        width     : "61.8%",
-        height    : "96%",
-        content   : this.current.content,
-        saveBy    : null
-      })
-
-      //console.log(newContent)
-
-      // Cancel the editing
-      if(_.isUndefined(newContent)) {
-        return
-      }
-
-      // Update the current editing
-      Ti.App(this).dispatch("main/setCurrentContent", newContent)
-    },
-    //--------------------------------------
-    async invoke(fnName) {
-      //console.log("invoke ", fnName)
-      let fn = _.get(this.SchemaMethods, fnName)
-      // Invoke the method
-      if(_.isFunction(fn)) {
-        return await fn.apply(this, [])
-      }
-      // Throw the error
-      else {
-        throw Ti.Err.make("e.thing.fail-to-invoke", fnName)
-      }
-    },
-    //--------------------------------------
-    checkActionsUpdate() {
-      //console.log("checkActionsUpdate")
-      let actions = _.get(this.config, "actions")
-      if(_.isArray(actions)) {
-        this.$notify("actions:update", actions)
-      }
-    },
-    //--------------------------------------
-    async reloadCurrentFiles() {
-      await this.$files.reloadData()
-    },
-    //--------------------------------------
-    async deleteCurrentSelectedFiles() {
-      await this.$files.doDeleteSelected()
-    },
-    //--------------------------------------
-    async uploadFilesToCurrent() {
-      await this.$files.doUploadFiles()
-    },
-    //--------------------------------------
+    //
     // Callback
+    //
     //--------------------------------------
+    // For Event Bubble Dispatching
+    __on_events(name) {
+      console.log("__on_events", name)
+      // Try to get handler
+      let fn = _.get(this.EventRouting, name)
+      if(!fn) {
+        fn = this.$tiEventTryFallback(name, this.EventRouting)
+      }
+
+      // callPath -> Function
+      if(_.isString(fn)) {
+        return _.get(this, fn)
+      }
+      return fn
+    },
+    // Shortcut 
     __ti_shortcut(uniqKey) {
       //console.log("ti-form", uniqKey)
       if("ESCAPE" == uniqKey) {
@@ -31923,7 +32273,10 @@ const _M = {
     this.THING_MANAGER_ROOT = true
 
     // Update the customized actions
-    this.checkActionsUpdate()
+    let actions = _.get(this.config, "actions")
+    if(_.isArray(actions)) {
+      this.$notify("actions:update", actions)
+    }
   }
   ///////////////////////////////////////////
 }
@@ -31937,6 +32290,7 @@ Ti.Preload("ti/com/wn/thing/manager/_com.json", {
   "globally" : true,
   "i18n" : "@i18n:wn-thing",
   "template" : "./wn-thing-manager.html",
+  "methods"  : "./wn-thing-manager-methods.mjs",
   "mixins"   : ["./wn-thing-manager.mjs"],
   "components" : [
     "./com/thing-files",
@@ -31954,361 +32308,66 @@ Ti.Preload("ti/com/wn/thing/manager/_com.json", {
     "@com:wn/upload/file"]
 });
 //============================================================
-// JOIN: wn/thing/_test/thing-actions.json
+// JOIN: wn/thing/markdown/richeditor/thing-markdown-richeditor.html
 //============================================================
-Ti.Preload("ti/com/wn/thing/_test/thing-actions.json", '')
+Ti.Preload("ti/com/wn/thing/markdown/richeditor/thing-markdown-richeditor.html", `<WnObjMarkdownRicheditor
+  v-bind="this"
+  :on-init="OnEditorInit"/>`);
 //============================================================
-// JOIN: wn/thing/_test/thing-layout.json
+// JOIN: wn/thing/markdown/richeditor/thing-markdown-richeditor.mjs
 //============================================================
-Ti.Preload("ti/com/wn/thing/_test/thing-layout.json", {
-  "shown" : {
-    "search" : true,
-    "meta" : true,
-    "content" : false,
-    "files" : false
-  },
-  "listOpen" : {
-    "content" : true,
-    "files" : true
-  },
-  "desktop" : {
-    "type" : "cols",
-    "border" : true,
-    "blocks" : [{
-      "name" : "search",
-      "size" : "50%",
-      "type" : "rows",
-      "border" : true,
-      "blocks" : [{
-          "name" : "filter",
-          "size" : 50,
-          "body" : "filter"
-        }, {
-          "name" : "list",
-          "size" : "stretch",
-          "overflow" : "hidden",
-          "body" : "list"
-        }, {
-          "name" : "pager",
-          "size" : "auto",
-          "body" : "pager"
-        }]
-    }, {
-      "name"  : "meta",
-      "title" : "i18n:thing-meta",
-      "icon"  : "zmdi-info",
-      "actions" : [{
-          "key" : "show-content",
-          "statusKey" : "content",
-          "type" : "action",
-          "text" : "i18n:thing-content-show",
-          "altDisplay" : {
-            "text" : "i18n:thing-content-hide",
-            "capture" : false
-          },
-          "action" : "main:toggleBlock(content)"
-        }, {
-          "key" : "show-files",
-          "statusKey" : "files",
-          "type" : "action",
-          "text" : "i18n:thing-files-show",
-          "altDisplay" : {
-            "text" : "i18n:thing-files-hide",
-            "capture" : false
-          },
-          "action" : "main:toggleBlock(files)"
-        }],
-      "size"  : "stretch",
-      "body"  : "meta"
-    }],
-    "panels" : [{
-      "name" : "content",
-      "title" : "i18n:thing-content",
-      "icon"  : "zmdi-file-text",
-      "body" : "content",
-      "position" : "left",
-      "width"  : "50%",
-      "height" : "100%",
-      "closer" : "default",
-      "status" : "=current.status",
-      "actions" : [{
-        "key"  : "saving",
-        "type" : "action",
-        "icon" : "zmdi-floppy",
-        "text" : "i18n:save-change",
-        "altDisplay" : {
-          "icon" : "fas-spinner fa-pulse",
-          "text" : "i18n:saving"
-        },
-        "enableBy" : "changed",
-        "action" : "dispatch:main/saveCurrent"
-      }]
-    }, {
-      "name" : "files",
-      "title" : "i18n:thing-files",
-      "icon"  : "zmdi-collection-image",
-      "body" : "files",
-      "position" : "right",
-      "width"  : "50%",
-      "height" : "100%",
-      "closer" : "default"
-    }, {
-      "name" : "creator",
-      "title" : "i18n:thing-create",
-      "icon"  : "zmdi-flare",
-      "body" : "creator",
-      "position" : "top",
-      "width"  : "61.8%",
-      "mask"   : true,
-      "closer" : "bottom",
-      "status" : "=status"
-    }]
-  },
-  "tablet" : "phone",
-  "phone" : {
-      "name" : "search",
-      "size" : "50%",
-      "type" : "rows",
-      "border" : true,
-      "blocks" : [{
-          "name" : "filter",
-          "size" : 50,
-          "body" : "filter"
-        }, {
-          "name" : "list",
-          "size" : "stretch",
-          "overflow" : "hidden",
-          "body" : "list"
-        }, {
-          "name" : "pager",
-          "size" : "auto",
-          "body" : "pager"
-        }],
-      "panels" : [{
-        "name"  : "meta",
-        "title" : "i18n:thing-meta",
-        "icon"  : "zmdi-info",
-        "position" : "right",
-        "width"  : "100%",
-        "height" : "100%",
-        "closer" : "default",
-        "body"  : "meta",
-        "actionDisplayMode" : "desktop",
-        "actions" : [{
-            "key" : "show-content",
-            "statusKey" : "content",
-            "type" : "action",
-            "text" : "i18n:thing-content-show",
-            "altDisplay" : {
-              "text" : "i18n:thing-content-hide",
-              "capture" : false
-            },
-            "action" : "main:toggleBlock(content)"
-          }, {
-            "key" : "show-files",
-            "statusKey" : "files",
-            "type" : "action",
-            "text" : "i18n:thing-files-show",
-            "altDisplay" : {
-              "text" : "i18n:thing-files-hide",
-              "capture" : false
-            },
-            "action" : "main:toggleBlock(files)"
-          }]
-      }, {
-        "name" : "content",
-        "title" : "i18n:thing-content",
-        "icon"  : "zmdi-file-text",
-        "body" : "content",
-        "position" : "bottom",
-        "width"  : "100%",
-        "height" : "100%",
-        "closer" : "default",
-        "status" : "=current.status",
-        "actionDisplayMode" : "desktop",
-        "actions" : [{
-          "key"  : "saving",
-          "type" : "action",
-          "icon" : "zmdi-floppy",
-          "text" : "i18n:save-change",
-          "altDisplay" : {
-            "icon" : "fas-spinner fa-pulse",
-            "text" : "i18n:saving"
-          },
-          "enableBy" : "changed",
-          "action" : "dispatch:main/saveCurrent"
-        }]
-      }, {
-        "name" : "files",
-        "title" : "i18n:thing-files",
-        "icon"  : "zmdi-collection-image",
-        "body" : "files",
-        "position" : "bottom",
-        "width"  : "100%",
-        "height" : "100%",
-        "closer" : "default",
-        "status" : "=files.status",
-        "actionDisplayMode" : "desktop",
-        "actions" : [{
-            "key"  : "deleting",
-            "type" : "action",
-            "icon" : "zmdi-delete",
-            "text" : "i18n:del-checked",
-            "altDisplay" : {
-              "icon" : "zmdi-refresh zmdi-hc-spin",
-              "text" : "i18n:del-ing"
-            },
-            "action" : "dispatch:main/files/deleteSelected"
-          },{
-            "key"  : "upload",
-            "type" : "action",
-            "icon" : "zmdi-cloud-upload",
-            "text" : "i18n:upload-file",
-            "action" : "commit:main/files/showUploadFilePicker"
-          }]
-      }, {
-        "name" : "creator",
-        "title" : "i18n:thing-create",
-        "icon"  : "zmdi-flare",
-        "body" : "creator",
-        "position" : "top",
-        "width"  : "100%",
-        "mask"   : true,
-        "closer" : "bottom",
-        "status" : "=status"
-      }]
-    }
-});
-//============================================================
-// JOIN: wn/thing/_test/thing-schema.json
-//============================================================
-Ti.Preload("ti/com/wn/thing/_test/thing-schema.json", {
-  "filter" : {
-    "comType" : "wn-thing-filter",
-    "comConf" : {
-      "status" : "=status"
+(function(){
+const _M = {
+  ///////////////////////////////////////////////////
+  inject: ["$ThingManager"],
+  ///////////////////////////////////////////////////
+  props: {
+    "listenMedia": {
+      type: String,
+      default: "file:open"
     }
   },
-  "list" : {
-    "comType" : "ti-table",
-    "comConf" : {
-      "list" : "=search.list",
-      "changedId"  : "=changedRowId",
-      "currentId"  : "=search.currentId",
-      "checkedIds" : "=search.checkedIds",
-      "border" : true,
-      "checkable" : true,
-      "multi"  : true,
-      "fields" : [{
-        "title" : "名称",
-        "display" : ["th_nm", "lbls"]
-      }, {
-        "title" : "标签",
-        "display" : "lbls"
-      }, {
-        "title" : "创建时间",
-        "type"    : "DateTime",
-        "display" : {
-          "key":"ct", 
-          "transformer" : {
-            "name" : "formatDate",
-            "args" : "yyyyMMdd/HH:mm:s"
-          }
-        }
-      }]
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    OnEditorInit($editor) {
+      this.$editor = $editor
+    },
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  mounted() {
+    if(this.listenMedia) {
+      this.$ThingManager.addEventRouting(this.listenMedia, (oMedia)=>{
+        this.$editor.insertMediaObj(oMedia)
+      })
     }
   },
-  "pager" : {
-    "comType" : "ti-paging-jumper",
-    "comConf" : {
-      "data" : "=search.pager"
-    }
-  },
-  "creator" : {
-    "comType" : "wn-thing-creator",
-    "comConf" : {
-      "config" : {
-        "fields" : [{
-          "name" : "th_nm",
-          "comType" : "ti-input",
-          "comConf" : {}
-        }]
-      },
-      "data" : {
-        "th_nm" : "新数据对象"
-      }
-    }
-  },
-  "meta" : {
-    "comType" : "wn-obj-form",
-    "comConf" : {
-      "data"   : "=current.meta",
-      "status" : "=current.status",
-      "fieldStatus" : "=current.fieldStatus",
-      "config" : {
-        "fields" : [{
-            "title"  : "ID",
-            "name"   : "id"
-          }, {
-            "title"   : "名称",
-            "name"    : "th_nm",
-            "comType" : "ti-input"
-          },{
-            "icon"    : "zmdi-labels",
-            "title"   : "标签",
-            "name"    : "lbls",
-            "type"    : "Array",
-            "transformer" : "toStr",
-            "comType" : "ti-input"
-          },{
-            "icon"    : "zmdi-time",
-            "title"   : "最后修改时间",
-            "name"    : "lm",
-            "type"    : "DateTime",
-            "comConf" : {"format":"yyyy年MM月dd日"}
-          }]
-      },
-      "updateBy" : {
-        "method" : "dispatch",
-        "target" : "main/updateCurrent"
-      },
-      "setFieldStatusBy" : {
-        "method" : "commit",
-        "target" : "main/current/setMetaFieldStatus"
-      }
-    }
-  },
-  "content" : {
-    "comType" : "wn-obj-puretext",
-    "comConf" : {
-      "showTitle"    : false,
-      "meta"         : "=current.meta",
-      "content"      : "=current.content",
-      "savedContent" : "=current.__saved_content",
-      "contentType"  : "=current.contentType",
-      "status"       : "=current.status"
-    }
-  },
-  "files" : {
-    "comType" : "wn-thing-files",
-    "comConf" : {
-      "filesName" : "=filesName",
-      "files"     : "=files",
-      "stateLocalKey" : "=meta.id",
-      "preview"   : "=preview",
-      "dirNameTip" : null,
-      "dirNameComType" : "ti-switcher",
-      "dirNameOptions" : [{
-          "icon"  :"fas-camera-retro",
-          "text"  :"实地拍摄",
-          "value" : "media"
-        }, {
-          "icon"  :"fas-paperclip",
-          "text"  :"其他文件",
-          "value" : "attachment"
-        }]
+  ///////////////////////////////////////////////////
+  beforeDestroy() {
+    if(this.listenMedia) {
+      this.$ThingManager.removeEventRouting(this.listenMedia)
     }
   }
+  ///////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/thing/markdown/richeditor/thing-markdown-richeditor.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/thing/markdown/richeditor/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/thing/markdown/richeditor/_com.json", {
+  "name" : "wn-thing-markdown-richeditor",
+  "globally" : true,
+  "template" : "./thing-markdown-richeditor.html",
+  "props": [
+    "@com:ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs",
+    "@com:wn/obj/markdown/richeditor/wn-markdown-richeditor-props.mjs"
+  ],
+  "mixins"   : ["./thing-markdown-richeditor.mjs"],
+  "components" : [
+    "@com:wn/obj/markdown/richeditor"
+  ]
 });
 //============================================================
 // JOIN: wn/transfer/wn-transfer.html
@@ -32633,16 +32692,11 @@ const _M = {
       this.oFile = data
 
       //................................
-      // Transform value
       let val = data
-      if ("path" == this.valueType) {
-        val = Wn.Io.getFormedPath(data)
-      } else if ("fullPath" == this.valueType) {
-        val = data.ph
-      } else if ("idPath" == this.valueType) {
-        val = `id:${data.id}` 
-      } else if ("id" == this.valueType) {
-        val = data.id
+
+      // Transform value
+      if("obj" != this.valueType) {
+        val = Wn.Io.formatObjPath(data, this.valueType)
       }
 
       //................................
@@ -32650,8 +32704,12 @@ const _M = {
     },
     //--------------------------------------
     async reload() {
-      if(this.value) {
-        this.oFile = await Wn.Io.loadMeta(this.value)
+      if(_.isString(this.value)) {
+        this.oFile = await Wn.Io.loadMetaBy(this.value)
+      }
+      // Object
+      else if(_.get(this.value, "race") == "FILE") {
+        this.oFile = _.cloneDeep(this.value)
       }
       // Reset
       else {
@@ -33993,7 +34051,7 @@ const _M = {
   },
   //--------------------------------------------
   setCurrentMeta({state, commit}, meta) {
-    console.log(" -> setCurrentMeta", meta)
+    //console.log(" -> setCurrentMeta", meta)
     commit("current/assignMeta", meta)
     commit("syncStatusChanged")
     commit("search/updateItem", state.current.meta)
@@ -34096,8 +34154,8 @@ const _M = {
    * Search: Remove Checked Items
    */
   async removeChecked({state, commit, dispatch, getters}, hard=false) {
-    //console.log("removeChecked", hard)
-    let ids = state.search.checkedIds
+    console.log("removeChecked", hard)
+    let ids = _.cloneDeep(state.search.checkedIds)
     if(_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
     }
@@ -34110,11 +34168,11 @@ const _M = {
     let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
 
     // Remove it from search list
-    commit("search/removeItems", state.search.checkedIds)
+    commit("search/removeItems", ids)
     let current = getters["search/currentItem"]
     //console.log("getback current", current)
     // Update current
-    await dispatch("current/reload", current)
+    await dispatch("setCurrentThing", {meta:current})
 
     commit("setStatus", {deleting:false})
   },
@@ -34163,10 +34221,12 @@ const _M = {
     await dispatch("reload")
   },
   //--------------------------------------------
+  // User Interactivity
+  //--------------------------------------------
   /***
    * Open meta editor, if has current, use it
    */
-  async openMetaEditor({state, getters, dispatch,}) {
+  async openMetaEditor({state, getters, dispatch}) {
     // Guard
     if(!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -34198,6 +34258,34 @@ const _M = {
     await Wn.EditObjMeta(state.meta, {
       fields:"auto", autoSave:true
     })
+  },
+  //--------------------------------------------
+  /***
+   * Open current object source editor
+   */
+  async openContentEditor({state, getters, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    if(getters.hasCurrent) {
+      // Open Editor
+      let newContent = await Wn.EditObjContent(state.current.meta, {
+        content : state.current.content
+      })
+
+      // Cancel the editing
+      if(_.isUndefined(newContent)) {
+        return
+      }
+
+      // Update the current editing
+      await dispatch("current/changeContent", newContent)
+      return
+    }
+
+    // Warn user
+    return await Ti.Toast.Open("i18n:nil-obj", "warn")
   },
   //--------------------------------------------
   /***
@@ -34296,6 +34384,16 @@ const _M = {
     let dataHome = curId ? `id:${home.id}/data/${curId}` : null
     commit("setCurrentDataHome", dataHome)
     //..........................................
+    // Keep last
+    let lastKey = `${home.id}:currentId`
+    if(!_.get(state.config.schema, "keepLastOff")) {
+      Ti.Storage.session.set(lastKey, curId);
+    }
+    // Clean local storage
+    else {
+      Ti.Storage.session.remove(lastKey);
+    }
+    //..........................................
   },
   //--------------------------------------------
   /***
@@ -34321,6 +34419,9 @@ const _M = {
     else {
       meta = state.meta
     }
+    // meta is home
+    let home = meta
+
     // Mark reloading
     commit("setStatus", {reloading:true})
 
@@ -34344,7 +34445,7 @@ const _M = {
     }
 
     let sorter = _.get(state.config.schema, "behavior.sorter") || {}
-    sorter = _.assign({}, sorter, local.sorter)
+    sorter = Ti.Util.fallback(local.sorter, sorter)
     if(!_.isEmpty(sorter)) {
       commit("search/setSorter", sorter)
     }
@@ -34360,7 +34461,20 @@ const _M = {
     // Auto Select the first item
     if(_.get(state, "meta.th_auto_select")) {
       if(!state.current.meta && !_.isEmpty(state.search.list)) {
-        let current = state.search.list[0]
+        // Get last
+        let lastKey = `${home.id}:currentId`
+        let curId = Ti.Storage.session.getString(lastKey);
+        let current;
+
+        // Find by id
+        if(curId)
+          current = _.find(state.search.list, li=>li.id == curId)
+
+        // use the first one
+        if(!current)
+          current = _.first(state.search.list)
+        
+        // Highlight it
         await dispatch("setCurrentThing", {
           meta : current, 
           force : false
@@ -34825,6 +34939,7 @@ const _M = {
     //---------------------------------------------------
     removeItems(state, ids=[]) {
       // Find the current item index, and take as the next Item index
+      console.log("search.remove", ids)
       let index = -1
       if(state.currentId) {
         for(let i=0; i<state.list.length; i++) {
@@ -34837,8 +34952,12 @@ const _M = {
       }
       // Make the idsMap
       let idsMap = {}
-      for(let id of ids) {
-        idsMap[id] = true
+      if(_.isArray(ids)) {
+        for(let id of ids) {
+          idsMap[id] = true
+        }
+      } else if (_.isPlainObject(ids)){
+        idsMap = ids
       }
       // Remove the ids
       let list2 = []

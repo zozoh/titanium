@@ -267,7 +267,12 @@ const WnUtil = {
   /***
    * @param query{String|Function}
    */
-  genQuery(query, {vkey="val", wrapArray=false, errorAs}={}) {
+  genQuery(query, {
+    vkey="val", 
+    wrapArray=false, 
+    errorAs,
+    blankAs= '[]'
+  }={}) {
     // Customized query
     if(_.isFunction(query)) {
       return query
@@ -289,7 +294,8 @@ const WnUtil = {
           return await Wn.Sys.exec2(cmdText, {
             as : "json",
             input : v,
-            errorAs
+            errorAs,
+            blankAs
           })
         }
       }
@@ -298,7 +304,8 @@ const WnUtil = {
         return async (v) => {
           return await Wn.Sys.exec2(query, {
             as : "json",
-            errorAs
+            errorAs,
+            blankAs
           })
         }
       }

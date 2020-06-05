@@ -3,14 +3,8 @@
   $thead : 32px; 
   width:100%; 
   position: relative;
-  //---------------------------------------------
-  > .ti-blank.is-big {
-    .ti-loading > .tl-con {
-      justify-content: center;
-    }
-  }  
-  //---------------------------------------------
   transition: opacity .5s;
+  //---------------------------------------------
   &.is-cells-no-ready {
     opacity: 0;
   }

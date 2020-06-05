@@ -8,6 +8,9 @@
   },
   "lang" : "zh-cn",
   "i18n" : "@Home:.ti/i18n/all",
+  "components": [
+    "@com:wn/thing/markdown/richeditor"
+  ],
   "dictionary" : {
     "tmp" : {
       "data"  : "obj ~/* -lcqn",

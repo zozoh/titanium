@@ -58,7 +58,8 @@ const _M = {
       for(let it of this.myData.list) {
         if(!this.isHiddenItem(it)) {
           let status = this.myItemStatus[it.id]
-          list.push(_.assign({$wn$adaptlist$status:status}, it))
+          //list.push(_.assign({$wn$adaptlist$status:status}, it))
+          list.push(it)
         }
       }
       return list

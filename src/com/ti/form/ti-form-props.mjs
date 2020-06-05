@@ -61,8 +61,8 @@ export default {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "zmdi-alert-circle-o",
-      text : "i18n:empty-data"
+      icon : "fas-dna",
+      text : null
     })
   },
   "icon" : {

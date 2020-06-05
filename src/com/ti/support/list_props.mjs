@@ -91,7 +91,7 @@ export default {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "zmdi-alert-circle-o",
+      icon : "fas-caravan",
       text : "empty-data"
     })
   },

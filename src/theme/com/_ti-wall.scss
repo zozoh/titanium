@@ -3,6 +3,9 @@
   @include flex-align($ac:flex-start,$ai:flex-start);
   // &.is-only-one-row {
   // }
+  position: relative;
+  //-------------------------------------
+  > div.ti-loading {margin:0;}
   //-------------------------------------
   &.is-stretch {
     @include flex-align($ac:stretch,$ai:stretch);

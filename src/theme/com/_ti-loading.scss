@@ -1,12 +1,31 @@
 .ti-loading {
   @include noselect;
-  //@include color($color-track, c);
-  > .tl-con {
-    @include flex-align($ai:center,$wp:nowrap);
+  @include flex-center;
+  @include color($color-track, c);
+  font-size:.24rem;
+  //------------------------------------------
+  .as-loading-icon {
     font-size:1.2em;
-    padding:.3rem;
-    > .ti-icon {
-      font-size:1.2em; margin-right:.06rem;
+    margin:0 .5em;
+  }
+  //------------------------------------------
+  &.as-big-mask {
+    @include pos-abs-full;
+    @include color($color-bar, r, c);
+    @include flex-center;
+    .as-loading-icon{font-size: .64rem;}
+    .as-loading-text{
+      display:block; padding:.5em;
+      font-size:.16rem;
+      width:100%;
+      text-align:center;
     }
+  }
+  //------------------------------------------
+  &.as-mid-tip {
+    @include color($color-track, c);
+    font-size: .14rem;
+    justify-content: flex-start;
+    padding: 2em;
   }
 }

@@ -13,12 +13,20 @@
 {
   ln : "/mnt/ti/ROOT/_ti/"
 }
+#---------------------------------------------------------
 # 域配置
 @DIR .domain/
 {
   title : "系统设置",
   icon  : "zmdi-settings-square"
 }
+#---------------------------------------------------------
+# 域配置：扩展 JS 库
+@FILE .domain/wn.manager-extlibs.html
+{
+  ln : "/mnt/ti/ROOT/init/domain/wn.manager-extlibs.html"
+}
+#---------------------------------------------------------
 # 支付单完成后的订单同步代码
 @FILE .domain/payment/after
 %COPY:

@@ -86,6 +86,14 @@ export default {
       value : "attachment"
     }]
   },
+  "nilIcon": {
+    type: String,
+    default: "fas-braille"
+  },
+  "nilText": {
+    type: String,
+    default: null
+  }
   //-----------------------------------
   // Measure
   //-----------------------------------

@@ -29,7 +29,7 @@
         }]
     }, {
       "name" : "info",
-      "size" : "40%",
+      "size" : "50%",
       "type" : "tabs",
       "blocks" : [{
           "name"  : "meta",
@@ -44,7 +44,7 @@
         }]
     }, {
       "name"  : "files",
-      "size"  : "30%",
+      "size"  : "20%",
       "body"  : "files"
     }],
     "panels" : [{

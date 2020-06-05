@@ -2,9 +2,11 @@
   "name" : "ti-text-markdown-richeditor",
   "globally" : true,
   "i18n" : "@i18n:ti-text-editor",
-  "template" : "./markdown-richeditor.html",
   "css" : "@deps:highlight/default.css",
-  "mixins" : ["./markdown-richeditor.mjs"],
+  "template" : "./ti-markdown-richeditor.html",
+  "props": "./ti-markdown-richeditor-props.mjs",
+  "methods": "./ti-markdown-richeditor-delegate-methods.mjs",
+  "mixins" : ["./ti-markdown-richeditor.mjs"],
   "components" : [
     "@com:wn/adaptlist"
   ],

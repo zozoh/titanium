@@ -16,14 +16,43 @@ const WnIo = {
   isFullObjId(id) {
     return /^[0-9a-v]{26}(:file:.+)?$/.test(id)
   },
+  isFullObjIdPath(idPath) {
+    return /^id:[0-9a-v]{26}(:file:.+)?$/.test(idPath)
+  },
   /***
    * Get object meta by id(fullobjId) or path
    */
-  async loadMetaBy(idOrPath) {
+  async loadMetaBy(idOrPath, oRefer) {
     if(WnIo.isFullObjId(idOrPath)) {
       return await WnIo.loadMetaById(idOrPath)
     }
-    return await WnIo.loadMeta(idOrPath)
+    // Absolute path
+    if(/^(id:|\/|~)/.test(idOrPath)) {
+      return await WnIo.loadMeta(idOrPath)
+    }
+    // Relative path
+    let base;
+    if(oRefer) {
+      // Refer by path
+      if(_.isString(oRefer)) {
+        base = Ti.Util.getParentPath(oRefer)
+      }
+      // Refer by FILE
+      else if("FILE" == oRefer.race) {
+        base = "id:" + oRefer.pid
+      }
+      // Refer by DIR
+      else {
+        base = "id:" + oRefer.id
+      }
+    }
+    // Refer to home
+    else {
+        base = "~"
+    }
+    // Load the obj by absolute path
+    let aph = Ti.Util.appendPath(base, idOrPath)
+    return await WnIo.loadMeta(aph)
   },
   /***
    * Get object meta by id
@@ -246,16 +275,46 @@ const WnIo = {
    *  Get relative path of WnObj to home
    *  path will starts by "~/"
    */
-  async getFormedPath(meta) {
+  getFormedPath(meta) {
     // Make sure it is meta
-    if(_.isString(meta)){
-      meta = await WnIo.loadMetaBy(meta)
-    }
-    // Count r-path
+    let ph = meta.ph ? meta.ph : meta;
     let homePath = Wn.Session.getHomePath()
-    return Ti.Util.getRelativePath(homePath, meta.ph)
+    let rph = Ti.Util.getRelativePath(homePh, ph, "")
+    return Ti.Util.appendPath("~", rph)
+  },
+  /***
+   * @param meta{WnObj} the source object
+   * @param mode{String}: 
+   *  - path : relative to home like "~/xxx/xxx"
+   *  - fullPath : "/home/xiaobai/xxx/xxx"
+   *  - idPath : "id:67u8..98a1"
+   *  - id   : "67u8..98a1"
+   * @param oRefer{WnObj} - meta refer, may nil
+   */
+  formatObjPath(meta, mode, oRefer) {
+    //console.log("formatObjPath", {meta, mode, oRefer})
+    let fn = ({
+      path() {
+        if(oRefer) {
+          return Ti.Util.getRelativePath(oRefer.ph, meta.ph)
+        }
+        return WnIo.getFormedPath(meta.ph)
+      },
+      fullPath() {
+        return meta.ph
+      },
+      idPath() {
+        return `id:${meta.id}`
+      },
+      id() {
+        return meta.id
+      }
+    })[mode]
+    if(!fn) {
+      throw "Invalid mode : " + mode
+    }
+    return fn()
   }
-
 }
 ////////////////////////////////////////////
 export default WnIo;

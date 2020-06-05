@@ -66,6 +66,7 @@
     color: map-get($color-track, c);
   }
   p {margin: 1.2em 0;}
+  p img {margin:2em auto; display:block;}
   .ql-editor.ql-blank::before {top:1.2em;}
   //---------------------------------------
   // Code
@@ -215,6 +216,7 @@
     color: map-get($color-track, c);
   }
   p {margin: 1.2em 0;}
+  p img {margin:2em auto; display:block;}
   .ql-editor.ql-blank::before {top:1.2em;}
   //---------------------------------------
   // Code

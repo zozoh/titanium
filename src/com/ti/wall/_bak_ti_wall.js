@@ -11,7 +11,7 @@ const _M = {
 
     myColCount : 0,
     myColWidth : 0,
-    isOnlyOneRow : false,
+    isOnlyOneRow : true,
 
     myCellsReport : {},
     myNeedResize : true
@@ -113,6 +113,7 @@ const _M = {
     },
     //--------------------------------------
     OnWallResize() {
+      return
       //console.log("OnWallResize")
       let $divs = Ti.Dom.findAll(":scope > .wall-tile", this.$el)
       // Guard empty
@@ -189,7 +190,7 @@ const _M = {
   mounted : function() {
     //.................................
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.OnWallResize(), 20)
+      resize : _.debounce(()=>this.OnWallResize(), 100)
     })
     //.................................
   },

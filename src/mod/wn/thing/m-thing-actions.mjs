@@ -56,7 +56,7 @@ const _M = {
   },
   //--------------------------------------------
   setCurrentMeta({state, commit}, meta) {
-    console.log(" -> setCurrentMeta", meta)
+    //console.log(" -> setCurrentMeta", meta)
     commit("current/assignMeta", meta)
     commit("syncStatusChanged")
     commit("search/updateItem", state.current.meta)
@@ -159,8 +159,8 @@ const _M = {
    * Search: Remove Checked Items
    */
   async removeChecked({state, commit, dispatch, getters}, hard=false) {
-    //console.log("removeChecked", hard)
-    let ids = state.search.checkedIds
+    console.log("removeChecked", hard)
+    let ids = _.cloneDeep(state.search.checkedIds)
     if(_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
     }
@@ -173,11 +173,11 @@ const _M = {
     let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
 
     // Remove it from search list
-    commit("search/removeItems", state.search.checkedIds)
+    commit("search/removeItems", ids)
     let current = getters["search/currentItem"]
     //console.log("getback current", current)
     // Update current
-    await dispatch("current/reload", current)
+    await dispatch("setCurrentThing", {meta:current})
 
     commit("setStatus", {deleting:false})
   },
@@ -226,10 +226,12 @@ const _M = {
     await dispatch("reload")
   },
   //--------------------------------------------
+  // User Interactivity
+  //--------------------------------------------
   /***
    * Open meta editor, if has current, use it
    */
-  async openMetaEditor({state, getters, dispatch,}) {
+  async openMetaEditor({state, getters, dispatch}) {
     // Guard
     if(!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -261,6 +263,34 @@ const _M = {
     await Wn.EditObjMeta(state.meta, {
       fields:"auto", autoSave:true
     })
+  },
+  //--------------------------------------------
+  /***
+   * Open current object source editor
+   */
+  async openContentEditor({state, getters, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    if(getters.hasCurrent) {
+      // Open Editor
+      let newContent = await Wn.EditObjContent(state.current.meta, {
+        content : state.current.content
+      })
+
+      // Cancel the editing
+      if(_.isUndefined(newContent)) {
+        return
+      }
+
+      // Update the current editing
+      await dispatch("current/changeContent", newContent)
+      return
+    }
+
+    // Warn user
+    return await Ti.Toast.Open("i18n:nil-obj", "warn")
   },
   //--------------------------------------------
   /***
@@ -359,6 +389,16 @@ const _M = {
     let dataHome = curId ? `id:${home.id}/data/${curId}` : null
     commit("setCurrentDataHome", dataHome)
     //..........................................
+    // Keep last
+    let lastKey = `${home.id}:currentId`
+    if(!_.get(state.config.schema, "keepLastOff")) {
+      Ti.Storage.session.set(lastKey, curId);
+    }
+    // Clean local storage
+    else {
+      Ti.Storage.session.remove(lastKey);
+    }
+    //..........................................
   },
   //--------------------------------------------
   /***
@@ -384,6 +424,9 @@ const _M = {
     else {
       meta = state.meta
     }
+    // meta is home
+    let home = meta
+
     // Mark reloading
     commit("setStatus", {reloading:true})
 
@@ -407,7 +450,7 @@ const _M = {
     }
 
     let sorter = _.get(state.config.schema, "behavior.sorter") || {}
-    sorter = _.assign({}, sorter, local.sorter)
+    sorter = Ti.Util.fallback(local.sorter, sorter)
     if(!_.isEmpty(sorter)) {
       commit("search/setSorter", sorter)
     }
@@ -423,7 +466,20 @@ const _M = {
     // Auto Select the first item
     if(_.get(state, "meta.th_auto_select")) {
       if(!state.current.meta && !_.isEmpty(state.search.list)) {
-        let current = state.search.list[0]
+        // Get last
+        let lastKey = `${home.id}:currentId`
+        let curId = Ti.Storage.session.getString(lastKey);
+        let current;
+
+        // Find by id
+        if(curId)
+          current = _.find(state.search.list, li=>li.id == curId)
+
+        // use the first one
+        if(!current)
+          current = _.first(state.search.list)
+        
+        // Highlight it
         await dispatch("setCurrentThing", {
           meta : current, 
           force : false

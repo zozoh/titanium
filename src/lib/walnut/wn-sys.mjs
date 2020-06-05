@@ -10,6 +10,7 @@ const WnSys = {
     appName = Ti.GetAppName(),
     eachLine = _.identity,
     as = "text",
+    blankAs = "",
     macroObjSep = DFT_MACRO_OBJ_SEP,
     autoRunMacro = true,
     errorBy,
@@ -83,11 +84,29 @@ const WnSys = {
       },
       json : ()=>{
         let json = re.lines.join("\n")
-        return JSON.parse(json)
+        if(Ti.S.isBlank(json)) {
+          json = blankAs
+        }
+        // Try parse json
+        try{
+          return JSON.parse(json)
+        } catch(e) {
+          console.error(`Error [${cmdText}] for parse JSON:`, json)
+          throw e
+        }
       },
       jso : ()=>{
         let json = re.lines.join("\n")
-        return eval('('+json+')')
+        if(Ti.S.isBlank(json)) {
+          json = blankAs
+        }
+        // Try eval json
+        try {
+          return eval('('+json+')')
+        } catch(e) {
+          console.error(`Error [${cmdText}] for eval JSO:`, json)
+          throw e
+        }
       }
     })[as]()
   },

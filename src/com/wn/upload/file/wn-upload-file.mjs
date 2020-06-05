@@ -237,16 +237,11 @@ const _M = {
       this.oFile = data
 
       //................................
-      // Transform value
       let val = data
-      if ("path" == this.valueType) {
-        val = Wn.Io.getFormedPath(data)
-      } else if ("fullPath" == this.valueType) {
-        val = data.ph
-      } else if ("idPath" == this.valueType) {
-        val = `id:${data.id}` 
-      } else if ("id" == this.valueType) {
-        val = data.id
+
+      // Transform value
+      if("obj" != this.valueType) {
+        val = Wn.Io.formatObjPath(data, this.valueType)
       }
 
       //................................
@@ -254,8 +249,12 @@ const _M = {
     },
     //--------------------------------------
     async reload() {
-      if(this.value) {
-        this.oFile = await Wn.Io.loadMeta(this.value)
+      if(_.isString(this.value)) {
+        this.oFile = await Wn.Io.loadMetaBy(this.value)
+      }
+      // Object
+      else if(_.get(this.value, "race") == "FILE") {
+        this.oFile = _.cloneDeep(this.value)
       }
       // Reset
       else {

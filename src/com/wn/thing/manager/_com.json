@@ -3,6 +3,7 @@
   "globally" : true,
   "i18n" : "@i18n:wn-thing",
   "template" : "./wn-thing-manager.html",
+  "methods"  : "./wn-thing-manager-methods.mjs",
   "mixins"   : ["./wn-thing-manager.mjs"],
   "components" : [
     "./com/thing-files",

@@ -57,7 +57,8 @@
   <!--
     Show Blank
   -->
-  <template v-else>
-    <ti-loading v-bind="blankAs"/>
-  </template>
+  <ti-loading 
+    v-else
+      class="nil-data as-big-mask"
+      v-bind="blankAs"/>
 </div>

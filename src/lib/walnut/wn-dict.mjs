@@ -17,9 +17,17 @@ const WnDict = {
     // Explaint 
     return Ti.DictFactory.CreateDict({
       //...............................................
-      data  : Wn.Util.genQuery(options, {vkey:null}),
-      query : Wn.Util.genQuery(findBy),
-      item  : Wn.Util.genQuery(itemBy, {errorAs:null}),
+      data  : Wn.Util.genQuery(options, {
+        vkey:null,
+        blankAs: "[]"
+      }),
+      query : Wn.Util.genQuery(findBy, {
+        blankAs: "[]"
+      }),
+      item  : Wn.Util.genQuery(itemBy, {
+        errorAs: null,
+        blankAs: "{}"
+      }),
       //...............................................
       getValue : Ti.Util.genGetter(valueBy || "id|value"),
       getText  : Ti.Util.genGetter(textBy  || "title|text|nm"),

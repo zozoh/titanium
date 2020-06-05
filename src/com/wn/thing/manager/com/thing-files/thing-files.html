@@ -48,15 +48,19 @@
         :data="myData"
         :meta="myHome"
         :status="myStatus"
+        :before-upload="checkDataDir"
         @uploaded="OnFileUploaded"
-        @select="OnFileSelected"
+        @select="OnFileSelect"
+        @open="OnFileOpen"
         :on-init="OnAdaptListInit"/>
     </div>
   </template>
   <!--
     Without Data Home
   -->
-  <ti-loading v-else
-    text="i18n:empty-data"
-    icon="zmdi-alert-circle-o"/>
+  <ti-loading
+    v-else
+      class="nil-datahome as-big-mask"
+      :text="nilText"
+      :icon="nilIcon"/>
 </div>

@@ -19,14 +19,43 @@ const Io = (function(){
     isFullObjId(id) {
       return /^[0-9a-v]{26}(:file:.+)?$/.test(id)
     },
+    isFullObjIdPath(idPath) {
+      return /^id:[0-9a-v]{26}(:file:.+)?$/.test(idPath)
+    },
     /***
      * Get object meta by id(fullobjId) or path
      */
-    async loadMetaBy(idOrPath) {
+    async loadMetaBy(idOrPath, oRefer) {
       if(WnIo.isFullObjId(idOrPath)) {
         return await WnIo.loadMetaById(idOrPath)
       }
-      return await WnIo.loadMeta(idOrPath)
+      // Absolute path
+      if(/^(id:|\/|~)/.test(idOrPath)) {
+        return await WnIo.loadMeta(idOrPath)
+      }
+      // Relative path
+      let base;
+      if(oRefer) {
+        // Refer by path
+        if(_.isString(oRefer)) {
+          base = Ti.Util.getParentPath(oRefer)
+        }
+        // Refer by FILE
+        else if("FILE" == oRefer.race) {
+          base = "id:" + oRefer.pid
+        }
+        // Refer by DIR
+        else {
+          base = "id:" + oRefer.id
+        }
+      }
+      // Refer to home
+      else {
+          base = "~"
+      }
+      // Load the obj by absolute path
+      let aph = Ti.Util.appendPath(base, idOrPath)
+      return await WnIo.loadMeta(aph)
     },
     /***
      * Get object meta by id
@@ -249,16 +278,46 @@ const Io = (function(){
      *  Get relative path of WnObj to home
      *  path will starts by "~/"
      */
-    async getFormedPath(meta) {
+    getFormedPath(meta) {
       // Make sure it is meta
-      if(_.isString(meta)){
-        meta = await WnIo.loadMetaBy(meta)
-      }
-      // Count r-path
+      let ph = meta.ph ? meta.ph : meta;
       let homePath = Wn.Session.getHomePath()
-      return Ti.Util.getRelativePath(homePath, meta.ph)
+      let rph = Ti.Util.getRelativePath(homePh, ph, "")
+      return Ti.Util.appendPath("~", rph)
+    },
+    /***
+     * @param meta{WnObj} the source object
+     * @param mode{String}: 
+     *  - path : relative to home like "~/xxx/xxx"
+     *  - fullPath : "/home/xiaobai/xxx/xxx"
+     *  - idPath : "id:67u8..98a1"
+     *  - id   : "67u8..98a1"
+     * @param oRefer{WnObj} - meta refer, may nil
+     */
+    formatObjPath(meta, mode, oRefer) {
+      //console.log("formatObjPath", {meta, mode, oRefer})
+      let fn = ({
+        path() {
+          if(oRefer) {
+            return Ti.Util.getRelativePath(oRefer.ph, meta.ph)
+          }
+          return WnIo.getFormedPath(meta.ph)
+        },
+        fullPath() {
+          return meta.ph
+        },
+        idPath() {
+          return `id:${meta.id}`
+        },
+        id() {
+          return meta.id
+        }
+      })[mode]
+      if(!fn) {
+        throw "Invalid mode : " + mode
+      }
+      return fn()
     }
-  
   }
   ////////////////////////////////////////////
   return WnIo;
@@ -885,6 +944,7 @@ const Sys = (function(){
       appName = Ti.GetAppName(),
       eachLine = _.identity,
       as = "text",
+      blankAs = "",
       macroObjSep = DFT_MACRO_OBJ_SEP,
       autoRunMacro = true,
       errorBy,
@@ -958,11 +1018,29 @@ const Sys = (function(){
         },
         json : ()=>{
           let json = re.lines.join("\n")
-          return JSON.parse(json)
+          if(Ti.S.isBlank(json)) {
+            json = blankAs
+          }
+          // Try parse json
+          try{
+            return JSON.parse(json)
+          } catch(e) {
+            console.error(`Error [${cmdText}] for parse JSON:`, json)
+            throw e
+          }
         },
         jso : ()=>{
           let json = re.lines.join("\n")
-          return eval('('+json+')')
+          if(Ti.S.isBlank(json)) {
+            json = blankAs
+          }
+          // Try eval json
+          try {
+            return eval('('+json+')')
+          } catch(e) {
+            console.error(`Error [${cmdText}] for eval JSO:`, json)
+            throw e
+          }
         }
       })[as]()
     },
@@ -1276,7 +1354,12 @@ const Util = (function(){
     /***
      * @param query{String|Function}
      */
-    genQuery(query, {vkey="val", wrapArray=false, errorAs}={}) {
+    genQuery(query, {
+      vkey="val", 
+      wrapArray=false, 
+      errorAs,
+      blankAs= '[]'
+    }={}) {
       // Customized query
       if(_.isFunction(query)) {
         return query
@@ -1298,7 +1381,8 @@ const Util = (function(){
             return await Wn.Sys.exec2(cmdText, {
               as : "json",
               input : v,
-              errorAs
+              errorAs,
+              blankAs
             })
           }
         }
@@ -1307,7 +1391,8 @@ const Util = (function(){
           return async (v) => {
             return await Wn.Sys.exec2(query, {
               as : "json",
-              errorAs
+              errorAs,
+              blankAs
             })
           }
         }
@@ -1339,9 +1424,17 @@ const Dict = (function(){
       // Explaint 
       return Ti.DictFactory.CreateDict({
         //...............................................
-        data  : Wn.Util.genQuery(options, {vkey:null}),
-        query : Wn.Util.genQuery(findBy),
-        item  : Wn.Util.genQuery(itemBy, {errorAs:null}),
+        data  : Wn.Util.genQuery(options, {
+          vkey:null,
+          blankAs: "[]"
+        }),
+        query : Wn.Util.genQuery(findBy, {
+          blankAs: "[]"
+        }),
+        item  : Wn.Util.genQuery(itemBy, {
+          errorAs: null,
+          blankAs: "{}"
+        }),
         //...............................................
         getValue : Ti.Util.genGetter(valueBy || "id|value"),
         getText  : Ti.Util.genGetter(textBy  || "title|text|nm"),
@@ -1436,19 +1529,38 @@ const OpenObjSelector = (function(){
     multi=true,
     fromIndex=0,
     homePath=Wn.Session.getHomePath(),
+    fallbackPath=Wn.Session.getHomePath(),
     selected=[]
   }={}){
     //................................................
     // Load the target object
     let meta = await Wn.Io.loadMeta(pathOrObj)
+    // Fallback
+    if(!meta && fallbackPath && pathOrObj!=fallbackPath) {
+      meta = await Wn.Io.loadMeta(fallbackPath)
+    }
     // Fail to load
     if(!meta) {
-      return Ti.Toast.Open({
+      return await Ti.Toast.Open({
         content : "i18n:e-io-obj-noexistsf",
         vars : _.isString(pathOrObj)
                 ? { ph: pathOrObj, nm: Ti.Util.getFileName(pathOrObj)}
                 : pathOrObj.ph
       }, "warn")
+    }
+    //................................................
+    // Make sure the obj is dir
+    if("DIR" != meta.race) {
+      meta = await Wn.Io.loadMetaById(meta.pid)
+      if(!meta) {
+        return await Ti.Toast.Open({
+          content : "i18n:e-io-obj-noexistsf",
+          vars : {
+            ph : `Parent of id:${meta.id}->pid:${meta.pid}`,
+            nm : `Parent of id:${meta.nm}->pid:${meta.pid}`,
+          }
+        }, "warn")
+      }
     }
     //................................................
     // Open modal dialog
