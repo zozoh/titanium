@@ -10327,7 +10327,7 @@ const {WebAppMain} = (function(){
     // Load main app
     // If "i18n" or "deps" declared, it will be loaded too
     let app = await Ti.App(appJson, conf=>{
-      //console.log("appConf", conf)
+      console.log("appConf", conf)
       _.assign(conf.store.state, {
         loading   : false,
         pageReady : 0,
@@ -10341,6 +10341,10 @@ const {WebAppMain} = (function(){
   
     // Save current app name
     Ti.SetAppName(app.name())
+  
+    // Prepare the data,
+    //  - base/apiBase/cdnBase will be explained
+    app.commit("prepare")
   
     //---------------------------------------
     Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{

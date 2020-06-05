@@ -128,6 +128,14 @@ const _M = {
     // 2: done for reload -> @page:ready
     setPageReady(state, isReady) {
       state.pageReady = isReady
+    },
+    //-------------------------------------
+    prepare(state) {
+      state.base = Ti.Util.explainObj(state, state.base)
+      state.apiBase = Ti.Util.explainObj(state, state.apiBase)
+      state.cdnBase = Ti.Util.explainObj(state, state.cdnBase)
+      state.logo = Ti.Util.explainObj(state, state.logo)
+      state.entry = Ti.Util.explainObj(state, state.entry)
     }
     //-------------------------------------
   },
