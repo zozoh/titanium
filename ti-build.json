@@ -1,7 +1,8 @@
 {
   "entries" : [{
         "path": "src/core/ti.mjs",
-        "target": "core"
+        "target": "core",
+        "version": "^( *\"version\" *: *\")([0-9.]+)-dev(\" *, *)$"
       }, {
         "path": "src/lib/walnut/walnut.mjs",
         "target": "walnut"

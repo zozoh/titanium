@@ -2,6 +2,8 @@ package io.nutz.titanium.builder.bean;
 
 import java.util.regex.Pattern;
 
+import org.nutz.lang.util.Regex;
+
 public class TiBuildEntry {
 
     private String path;
@@ -13,6 +15,8 @@ public class TiBuildEntry {
     private Pattern includes;
 
     private String target;
+
+    private Pattern version;
 
     public String getPath() {
         return path;
@@ -78,6 +82,18 @@ public class TiBuildEntry {
 
     public void setTarget(String target) {
         this.target = target;
+    }
+
+    public Pattern getVersion() {
+        return version;
+    }
+
+    public void setVersion(Pattern version) {
+        this.version = version;
+    }
+
+    public void setVersion(String version) {
+        this.version = Regex.getPattern(version);
     }
 
 }

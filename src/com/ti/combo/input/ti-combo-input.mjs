@@ -136,6 +136,7 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputChanged(val, byKeyboardArrow) {
+      //console.log("haha")
       // Clean filter
       this.myFilterValue = null
       // Clean
@@ -181,7 +182,7 @@ const _M = {
       this.myCurrentId = currentId
       await this.OnInputChanged(currentId, byKeyboardArrow)
       if(this.autoCollapse && !byKeyboardArrow) {
-        await this.doCollapse()
+        await this.doCollapse({escaped:true})
       }
     },
     //-----------------------------------------------
@@ -211,8 +212,8 @@ const _M = {
     },
     //-----------------------------------------------
     tryNotifyChanged() {
-      //console.log("tryNotifyChanged")
       let val = this.evalMyValue()
+      //console.log("tryNotifyChanged", val)
       if(!_.isEqual(val, this.value)) {
         this.$notify("change", val)
       }
@@ -272,10 +273,10 @@ const _M = {
       //....................................
       // If droplist is actived, should collapse it
       if("ENTER" == uniqKey) {
-        if(this.$dropList && this.$dropList.isActived) {
+        //if(this.$dropList && this.$dropList.isActived) {
           this.doCollapse()
           return {stop:true, quit:false}
-        }
+        //}
       }
       //....................................
       if("ARROWUP" == uniqKey) {

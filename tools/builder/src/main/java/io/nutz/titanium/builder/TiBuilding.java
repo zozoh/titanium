@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Dumps;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
@@ -99,9 +99,27 @@ public class TiBuilding implements Atom {
         });
 
         // 逐行扫码，遇到 import 的进行分析
+        Matcher m;
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
-            Matcher m = P_I.matcher(line);
+
+            // 替换版本信息
+            if (null != entry.getVersion()) {
+                m = entry.getVersion().matcher(line);
+                if (m.find()) {
+                    String prefix = m.group(1);
+                    String version = m.group(2);
+                    String suffix = m.group(3);
+                    String buildi = Times.format("yyyyMMdd.HHmmss",
+                                                 Times.D(System.currentTimeMillis()));
+                    String line2 = String.format("%s%s-%s%s", prefix, version, buildi, suffix);
+                    outputs.add(line2);
+                    continue;
+                }
+            }
+
+            // 那么久看看是否需要展开 import 咯
+            m = P_I.matcher(line);
             // 导入行 import xxx: 改成赋值模式
             if (m.find()) {
                 String varName = m.group(1).strip();

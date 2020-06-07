@@ -56,8 +56,8 @@
   <template v-slot:drop>
     <component class="ti-fill-parent"
       :is="DropComType"
+      blank-class="mid-tip"
       v-bind="DropComConf"
-
       :on-init="OnDropListInit"
       @select="OnDropListSelected"/>
   </template>

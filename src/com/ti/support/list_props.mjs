@@ -91,9 +91,14 @@ export default {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "fas-caravan",
+      icon : "fas-disease",
       text : "empty-data"
     })
+  },
+  "blankClass": {
+    type: String,
+    default: "big-mask",
+    validator: v=>/^(big-mask|mid-tip)$/.test(v)
   },
   //-----------------------------------
   // Measure

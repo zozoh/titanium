@@ -2,7 +2,10 @@
   "name" : "ti-combo-filter",
   "globally" : true,
   "template" : "./ti-combo-filter.html",
-  "props"    : "@com:ti/input/ti-input-props.mjs",
+  "props"    : [
+    "@com:ti/input/ti-input-props.mjs",
+    "@com:ti/combo/filter/ti-combo-filter-props.mjs"
+  ],
   "mixins"   : "./ti-combo-filter.mjs",
   "components" : [
     "@com:ti/form",

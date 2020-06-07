@@ -47,12 +47,12 @@ const _M = {
     },
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
-      //console.log("wn-obj-form.field:changed", {name, value})
+      //console.log(" <--- @field:changed", {name, value})
       this.doAction("field:change", this.updateBy, {name, value})
     },
     //--------------------------------------------------
     OnChange(data) {
-      //console.log("wn-obj-form.changed", data)
+      //console.log(" <- @changed", data)
       this.doAction("change", this.setDataBy, data)
     },
     //--------------------------------------------------

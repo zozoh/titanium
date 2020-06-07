@@ -94,26 +94,10 @@ const _M = {
       }
     },
     //------------------------------------------------
-    doWhenInput(emitName="inputing", autoJsValue=false) {
-      if(_.isElement(this.$refs.input)) {
-        //console.log("doWhenInput", emitName)
-        let val = this.$refs.input.value
-        // Auto js value
-        if(autoJsValue) {
-          val = Ti.S.toJsValue(val, {
-            autoNil  : true,
-            autoDate : false,
-            trimed : this.trimed
-          })
-        }
-        // Trim
-        else if(this.trimed) {
-          val = _.trim(val)
-        }
-        // case
-        val = Ti.S.toCase(val, this.valueCase)
-        // notify
-        this.$notify(emitName, val)
+    doWhenInput() {
+      let val = this.getInputValue(false)
+      if(!Ti.Util.isNil(val)) {
+        this.$notify("inputing", val)
       }
     },
     //------------------------------------------------
@@ -127,7 +111,8 @@ const _M = {
     // },
     //------------------------------------------------
     OnInputChanged() {
-      this.doWhenInput("change", this.autoJsValue)
+      let val = this.getInputValue(this.autoJsValue)
+      this.$notify("change", val)
     },
     //------------------------------------------------
     OnInputFocus() {
@@ -170,27 +155,41 @@ const _M = {
       this.$notify("suffix:text")
     },
     //------------------------------------------------
+    // Utility
+    //------------------------------------------------
+    getInputValue(autoJsValue=false) {
+      if(_.isElement(this.$refs.input)) {
+        //console.log("doWhenInput", emitName)
+        let val = this.$refs.input.value
+        // Auto js value
+        if(autoJsValue) {
+          val = Ti.S.toJsValue(val, {
+            autoNil  : true,
+            autoDate : false,
+            trimed : this.trimed
+          })
+        }
+        // Trim
+        else if(this.trimed) {
+          val = _.trim(val)
+        }
+        // case
+        val = Ti.S.toCase(val, this.valueCase)
+        // notify
+        return val
+      }
+    },
+    //------------------------------------------------
     doAutoFocus() {
       if(this.focused && !this.isFocused) {
         this.OnInputFocus()
       }  
-    },
-    //--------------------------------------------------
-    // Callback
-    //--------------------------------------------------
-    __ti_shortcut(uniqKey) {
-      //console.log("ti-form", uniqKey)
-      if("ENTER" == uniqKey) {
-        this.doWhenInput("change", this.autoJsValue)
-      }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   watch : {
-    "focused" : function() {
-      this.doAutoFocus()
-    }
+    "focused" : "doAutoFocus"
   },
   ////////////////////////////////////////////////////
   mounted : function(){

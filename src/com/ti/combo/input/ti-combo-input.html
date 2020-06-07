@@ -27,10 +27,11 @@
     Drop
   -->
   <template v-slot:drop="slotProps">
-    <component class="ti-fill-parent"
+    <component 
       :is="DropComType"
+      class="ti-fill-parent"
+      blank-class="mid-tip"
       v-bind="DropComConf"
-
       :on-init="OnDropListInit"
       @select="OnDropListSelected"/>
   </template>

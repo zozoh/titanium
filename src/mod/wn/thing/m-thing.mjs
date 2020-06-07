@@ -18,11 +18,9 @@ export default {
       state.currentDataDir = dirName
     },
     setCurrentDataHome(state, dataHome) {
-      console.log("setHome", dataHome)
       state.currentDataHome = dataHome
     },
     setCurrentDataHomeObj(state, dataHomeObj) {
-      console.log("setHObj", _.get(dataHomeObj,"ph"))
       state.currentDataHomeObj = _.cloneDeep(dataHomeObj)
     },
     setStatus(state, status) {

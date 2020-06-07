@@ -14,6 +14,11 @@ const _M = {
    * Update current thing meta data to search/meta
    */
   async updateCurrent({state, commit, dispatch, getters}, {name, value}={}) {
+    // console.log("hupdateCurrentahah", {name, value})
+    // if(window.lastMS && (Date.now() - window.lastMS) < 5000) {
+    //   console.log("!!!! dup-call", {name, value})
+    // }
+    // window.lastMS = Date.now()
     if(getters.hasCurrent) {
       await dispatch("current/updateMeta", {name,value})
       commit("search/updateItem", state.current.meta)
@@ -158,11 +163,14 @@ const _M = {
    * Search: Remove Checked Items
    */
   async removeChecked({state, commit, dispatch, getters}, hard=false) {
-    //console.log("removeChecked", hard)
     let ids = _.cloneDeep(state.search.checkedIds)
     if(_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
     }
+
+    // Config is hard
+    let beh = _.get(state, "config.schema.behavior") || {}
+    hard |= beh.hardRemove
 
     commit("setStatus", {deleting:true})
 

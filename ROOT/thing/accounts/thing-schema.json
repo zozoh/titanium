@@ -3,8 +3,14 @@
   "filter" : {
     "comType" : "wn-thing-filter",
     "comConf" : {
-      "placeholder" : "请输入账号名过滤",
-      "status" : "=status"
+      "status" : "=status",
+      "value" : "=search",
+      "sorter" : {
+        "options": [
+          {"value":"pubat",   "text":"发布日期"},
+          {"value":"watch_c", "text":"浏览次数"},
+          {"value":"title",   "text":"文章标题"}]
+      }
     }
   },
   "list" : {

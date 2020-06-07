@@ -162,6 +162,7 @@ const _M = {
 
       // emit event
       if(!this.checkEquals || !_.isEqual(v2, this.fieldValue)) {
+        //console.log("  #field.change:", v2)
         this.$notify("change", {
           name  : this.name,
           value : v2

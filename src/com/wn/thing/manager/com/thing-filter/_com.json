@@ -3,5 +3,8 @@
   "globally" : true,
   "template" : "./thing-filter.html",
   "mixins"   : ["./thing-filter.mjs"],
-  "components" : []
+  "components" : [
+    "@com:ti/combo/filter",
+    "@com:ti/combo/sorter"
+  ]
 }

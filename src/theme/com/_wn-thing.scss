@@ -1,102 +1,82 @@
-.wn-thing {
-  ////////////////////////////////////////////////
-  // Thing filter
-  .thing-filter {
-    @include flex-align-nowrap($ai:stretch);
-    padding:.04rem;
-    //----------------------------------------
-    &.in-recycle-bin {
-      @include color($color-secondary, r, c);
-    }
-    //----------------------------------------
-    > .filter-recycle-bin {
-      @include flex-align-v-nowrap($jc:center,$ai:center,$ac:center);
-      padding:0 .1rem; cursor: pointer;
-      opacity: 0.6;
-      > .it-icon {
-        font-size:1.2em;
-        > .ti-icon {
-          &:first-child {display:block;}
-          &:last-child  {display:none;}
-        }
-      }
-      > .it-text {font-size:.1rem; line-height: 1.1em;}
-      &:hover {
-        opacity: 1;
-        > .it-icon > .ti-icon {
-          &:first-child {display:none;}
-          &:last-child  {display:block;}
-        }
-      }
-    }
-    //----------------------------------------
-    // Keywork
-    > .filter-keyword {
-      @include flex-full;
-      position: relative;
-      > input {
-        @include text-input;
-        font-size: .16rem; padding:0 32px 0 .1rem;
-        flex:1 1 auto;
-      }
+////////////////////////////////////////////////
+// Thing filter
+.wn-thing-filter {
+  @include flex-align-nowrap($ai:stretch);
+  //----------------------------------------
+  &.in-recyclebin {
+    @include color($color-secondary, r, c);
+  }
+  //----------------------------------------
+  > .as-recyclebin {
+    @include flex-center;
+    padding:0 .1rem; cursor: pointer;
+    opacity: 0.6;
+    //--------------------------------------
+    .it-icon {
+      font-size:1.2em;
       > .ti-icon {
-        @include pos-abs($t:0,$b:0,$r:0, $w:32px);
-        @include color($color-track,c);
-        @include flex-center;
-        opacity: 0.4;
-        font-size: 20px;
-        transition: 0.5s;
-      }
-      &.is-focus {
-        > .ti-icon {
-          color: map-get($color-secondary, c);
-          opacity: 1;
-        }
+        &:first-child {display:block;}
+        &:last-child  {display:none;}
       }
     }
-    //----------------------------------------
+    //--------------------------------------
+    .it-text {
+      font-size:.1rem; line-height: 1.1em; white-space: nowrap;
+    }
+    //--------------------------------------
+    &:hover {
+      opacity: 1;
+      .it-icon > .ti-icon {
+        &:first-child {display:none;}
+        &:last-child  {display:block;}
+      }
+    }
+    //--------------------------------------
   }
-  ////////////////////////////////////////////////
-  // Thing filter
-  .thing-files {
-    position: relative;
-    padding-top:.4rem;
-    //-------------------------------------
-    // Sizing
-    > .as-header {
-      @include pos-abs($t:0,$l:0,$r:0,$h:.4rem);
-    }
-    > .as-preview {height: 37.2%;}
-    > .as-list {height: 61.8%;}
-    //-------------------------------------
-    // Styling
-    > .as-header {
-      @include flex-align-nowrap;
-      @include color($color-bar, r, c);
-      font-size:.12rem;
-      > .as-tip {
-        @include color($color-track, c);
-        flex:0 0 auto;
-        padding:0 .04rem 0 .1rem;
-      }
-      > .as-name  {
-        flex:1 1 auto;
-        padding-left:.06rem;
-        .ti-droplist {
-          display: block; 
-          line-height: 1.8em;
-        }
-      }
-      > .as-menu {
-        flex:0 0 auto;
-        padding:0 .06rem;
-      }
-    }
-    > .as-preview {
-      @include color($color-paper, r, c);
-      @include border(1px, solid, shallow, bottom);
-    }
-    //-------------------------------------
-  }
-  ////////////////////////////////////////////////
+  //----------------------------------------
+  > .as-filter {flex:1 1 auto}    
+  //----------------------------------------
 }
+////////////////////////////////////////////////
+// Thing filter
+.wn-thing-files {
+  position: relative;
+  padding-top:.4rem;
+  //-------------------------------------
+  // Sizing
+  > .as-header {
+    @include pos-abs($t:0,$l:0,$r:0,$h:.4rem);
+  }
+  > .as-preview {height: 37.2%;}
+  > .as-list {height: 61.8%;}
+  //-------------------------------------
+  // Styling
+  > .as-header {
+    @include flex-align-nowrap;
+    @include color($color-bar, r, c);
+    font-size:.12rem;
+    > .as-tip {
+      @include color($color-track, c);
+      flex:0 0 auto;
+      padding:0 .04rem 0 .1rem;
+    }
+    > .as-name  {
+      flex:1 1 auto;
+      padding-left:.06rem;
+      .ti-droplist {
+        display: block; 
+        line-height: 1.8em;
+      }
+    }
+    > .as-menu {
+      flex:0 0 auto;
+      padding:0 .06rem;
+    }
+  }
+  > .as-preview {
+    @include color($color-paper, r, c);
+    @include border(1px, solid, shallow, bottom);
+  }
+  //-------------------------------------
+}
+////////////////////////////////////////////////

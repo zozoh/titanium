@@ -1,30 +1,34 @@
-<div class="thing-filter"
-  :class="topClass">
+<div class="wn-thing-filter"
+  :class="TopClass">
   <!--
     Icon: Recycle Bin
   -->
-  <div v-if="isInRecycleBin"
-    class="filter-recycle-bin"
-    @click="onLeaveRecycleBin">
-    <span class="it-icon">
-      <ti-icon value="fas-recycle"/>
-      <ti-icon value="far-arrow-alt-circle-left"/>
-    </span>
-    <span class="it-text">{{'i18n:thing-recycle-bin'|i18n}}</span>
-  </div>
+  <div
+    v-if="isInRecycleBin"
+      class="as-recyclebin"
+      @click="OnLeaveRecycleBin"><div>
+        <!--Icon-->
+        <div class="it-icon">
+          <ti-icon value="fas-recycle"/>
+          <ti-icon value="far-arrow-alt-circle-left"/>
+        </div>
+        <!--text-->
+        <div class="it-text">{{'i18n:thing-recycle-bin'|i18n}}</div>
+  </div></div>
   <!--
     Keyword
   -->
-  <div class="filter-keyword"
-    :class="keywordClass">
-    <!--Input Box-->
-    <input ref="input"
-      :placeholder="placeholderText" 
-      spellcheck="false"
-      @change="onInputChanged"
-      @focus="keywordFocus=true"
-      @blur="keywordFocus=false">
-    <!--Search Icon-->
-    <ti-icon v-if="searchIcon" :value="searchIcon"/>
-  </div>
+  <TiComboFilter
+    class="as-filter"
+    v-bind="filter"
+    :placeholder="placeholder"
+    :value="value.filter"/>
+  <!--
+    Sorter
+  -->
+  <TiComboSorter
+    v-if="hasSorter"
+      class="as-sorter"
+      v-bind="sorter"
+      :value="value.sorter"/>
 </div>

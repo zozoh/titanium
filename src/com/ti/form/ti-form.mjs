@@ -334,7 +334,13 @@ const _M = {
     __ti_shortcut(uniqKey) {
       //console.log("ti-form", uniqKey)
       if("ENTER" == uniqKey) {
-        this.$notify("submit")
+        // It should wait a while before submit
+        // <ti-input> will apply change at @change event
+        // And the @change event will be fired when ENTER 
+        // bubble fade away
+        _.delay(()=>{
+          this.$notify("submit")
+        }, 100)
       }
     }
     //--------------------------------------------------

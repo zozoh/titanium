@@ -5,11 +5,11 @@
   <!--
     Blank
   -->
-  <div
+  <ti-loading 
     v-if="isDataEmpty"
-      class="nil-data as-big-mask">
-      <ti-loading v-bind="blankAs"/>
-  </div>
+      class="nil-data"
+      :class="'as-'+blankClass"
+      v-bind="blankAs"/>
   <!--
     Show thead/tbody
   -->

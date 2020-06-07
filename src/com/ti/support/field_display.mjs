@@ -181,14 +181,15 @@ const FieldDisplay = {
         //......................................
         // #DictName(xxx) -> ti-label
         // just like `#RelayStatus(status)`
-        m = /^[@#]([^\(]+)\(([^)]+)\)$/.exec(displayItem)
+        m = /^[@#]([^\(]+)\(([^)]+)\)(:(.+))?$/.exec(displayItem)
         if(m) {
           return {
             key : m[2] || defaultKey,
             comType : "ti-label",
             comConf : {
               dict : m[1],
-              className: "is-nowrap"
+              className: "is-nowrap",
+              format: m[4]
             }
           }
         }
@@ -207,15 +208,17 @@ const FieldDisplay = {
         // - "'Static Text'"
         // - "text+>/a/link?nm=${name}"
         // - "'More'->/a/link?id=${id}"
-        m = /^([^+-]+)(([+-])>(.+))?$/.exec(displayItem)
+        // - "name:【${val}】->/a/link?id=${id}"
+        m = /^([^+-:>]+)(:([^+-]+))?(([+-])>([^%]*))?$/.exec(displayItem)
         if(m) {
           let key  = _.trim(m[1] || m[0])
-          let newTab = m[3] == "+"
-          let href = _.trim(m[4])
+          let format = m[3]
+          let newTab = m[5] == "+"
+          let href = _.trim(m[6])
           return {
             key,
             comType : "ti-label",
-            comConf : {newTab, href}
+            comConf : {newTab, href, format}
           }
         }
         //......................................

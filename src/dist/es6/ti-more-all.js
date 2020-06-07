@@ -6039,6 +6039,46 @@ Ti.Preload("ti/com/ti/combo/box/_com.json", {
   "mixins" : ["./ti-combo-box.mjs"]
 });
 //============================================================
+// JOIN: ti/combo/filter/ti-combo-filter-props.mjs
+//============================================================
+(function(){
+const _M  = {
+  "form" : {
+    type : Object,
+    default : null
+  },
+  "autoCollapse" : {
+    type : Boolean,
+    default : false
+  },
+  "statusIcons" : {
+    type : Object,
+    default : ()=>({
+      collapse : "zmdi-chevron-down",
+      extended : "zmdi-chevron-up"
+    })
+  },
+  "autoFocusExtended": {
+    type: Boolean,
+    default: true
+  },
+  "spacing" : {
+    type : String,
+    default : "tiny",
+    validator : v => /^(none|comfy|tiny)$/.test(v)
+  },
+  "dropWidth" : {
+    type : [Number, String],
+    default : "box"
+  },
+  "dropHeight" : {
+    type : [Number, String],
+    default : null
+  }
+}
+Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter-props.mjs", _M);
+})();
+//============================================================
 // JOIN: ti/combo/filter/ti-combo-filter.html
 //============================================================
 Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter.html", `<div class="ti-combo-filter"
@@ -6105,41 +6145,6 @@ const _M = {
     myFreeValue : null,
     myFormData  : {}
   }),
-  ////////////////////////////////////////////////////
-  props : {
-    "form" : {
-      type : Object,
-      default : null
-    },
-    "autoCollapse" : {
-      type : Boolean,
-      default : false
-    },
-    "statusIcons" : {
-      type : Object,
-      default : ()=>({
-        collapse : "zmdi-chevron-down",
-        extended : "zmdi-chevron-up"
-      })
-    },
-    "autoFocusExtended": {
-      type: Boolean,
-      default: true
-    },
-    "spacing" : {
-      type : String,
-      default : "tiny",
-      validator : v => /^(none|comfy|tiny)$/.test(v)
-    },
-    "dropWidth" : {
-      type : [Number, String],
-      default : "box"
-    },
-    "dropHeight" : {
-      type : [Number, String],
-      default : null
-    }
-  },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
@@ -6310,7 +6315,10 @@ Ti.Preload("ti/com/ti/combo/filter/_com.json", {
   "name" : "ti-combo-filter",
   "globally" : true,
   "template" : "./ti-combo-filter.html",
-  "props"    : "@com:ti/input/ti-input-props.mjs",
+  "props"    : [
+    "@com:ti/input/ti-input-props.mjs",
+    "@com:ti/combo/filter/ti-combo-filter-props.mjs"
+  ],
   "mixins"   : "./ti-combo-filter.mjs",
   "components" : [
     "@com:ti/form",
@@ -6431,10 +6439,11 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box
     Drop
   -->
   <template v-slot:drop="slotProps">
-    <component class="ti-fill-parent"
+    <component 
       :is="DropComType"
+      class="ti-fill-parent"
+      blank-class="mid-tip"
       v-bind="DropComConf"
-
       :on-init="OnDropListInit"
       @select="OnDropListSelected"/>
   </template>
@@ -6581,6 +6590,7 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputChanged(val, byKeyboardArrow) {
+      //console.log("haha")
       // Clean filter
       this.myFilterValue = null
       // Clean
@@ -6626,7 +6636,7 @@ const _M = {
       this.myCurrentId = currentId
       await this.OnInputChanged(currentId, byKeyboardArrow)
       if(this.autoCollapse && !byKeyboardArrow) {
-        await this.doCollapse()
+        await this.doCollapse({escaped:true})
       }
     },
     //-----------------------------------------------
@@ -6656,8 +6666,8 @@ const _M = {
     },
     //-----------------------------------------------
     tryNotifyChanged() {
-      //console.log("tryNotifyChanged")
       let val = this.evalMyValue()
+      //console.log("tryNotifyChanged", val)
       if(!_.isEqual(val, this.value)) {
         this.$notify("change", val)
       }
@@ -6717,10 +6727,10 @@ const _M = {
       //....................................
       // If droplist is actived, should collapse it
       if("ENTER" == uniqKey) {
-        if(this.$dropList && this.$dropList.isActived) {
+        //if(this.$dropList && this.$dropList.isActived) {
           this.doCollapse()
           return {stop:true, quit:false}
-        }
+        //}
       }
       //....................................
       if("ARROWUP" == uniqKey) {
@@ -6839,8 +6849,8 @@ Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-b
   <template v-slot:drop>
     <component class="ti-fill-parent"
       :is="DropComType"
+      blank-class="mid-tip"
       v-bind="DropComConf"
-
       :on-init="OnDropListInit"
       @select="OnDropListSelected"/>
   </template>
@@ -7151,6 +7161,58 @@ Ti.Preload("ti/com/ti/combo/multi-input/_com.json", {
     "@com:ti/combo/box"]
 });
 //============================================================
+// JOIN: ti/combo/sorter/ti-combo-sorter-props.mjs
+//============================================================
+(function(){
+const _M = {
+  "placeholder" : {
+    type : String,
+    default : "i18n:no-title"
+  },
+  "options" : {
+    type : Array,
+    default : ()=>[]
+  },
+  /*
+  {
+    "CreateTime": 1  // 1:ASC, -1:DESC
+  }
+  */
+  "value" : {
+    type : Object,
+    default : null
+  },
+  "width": {
+    type : [Number, String],
+    default : undefined
+  },
+  "height": {
+    type : [Number, String],
+    default : undefined
+  },
+  "dropWidth" : {
+    type : [Number, String],
+    default : "box"
+  },
+  "dropHeight" : {
+    type : [Number, String],
+    default : null
+  },
+  "sortIcons" : {
+    type : Object,
+    default : ()=>({
+      asc  : "fas-long-arrow-alt-up",
+      desc : "fas-long-arrow-alt-down"
+    })
+  },
+  "suffixIcon" : {
+    type : String,
+    default : "im-menu-list"
+  },
+}
+Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter-props.mjs", _M);
+})();
+//============================================================
 // JOIN: ti/combo/sorter/ti-combo-sorter.html
 //============================================================
 Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter.html", `<div class="ti-combo-sorter"
@@ -7226,53 +7288,6 @@ const _M = {
     isASC : true,
     myListData: []
   }),
-  ////////////////////////////////////////////////////
-  props : {
-    "placeholder" : {
-      type : String,
-      default : "i18n:no-title"
-    },
-    "options" : {
-      type : Array,
-      default : ()=>[]
-    },
-    /*
-    {
-      "CreateTime": 1  // 1:ASC, -1:DESC
-    }
-    */
-    "value" : {
-      type : Object,
-      default : null
-    },
-    "width": {
-      type : [Number, String],
-      default : undefined
-    },
-    "height": {
-      type : [Number, String],
-      default : undefined
-    },
-    "dropWidth" : {
-      type : [Number, String],
-      default : "box"
-    },
-    "dropHeight" : {
-      type : [Number, String],
-      default : null
-    },
-    "sortIcons" : {
-      type : Object,
-      default : ()=>({
-        asc  : "fas-long-arrow-alt-up",
-        desc : "fas-long-arrow-alt-down"
-      })
-    },
-    "suffixIcon" : {
-      type : String,
-      default : "im-menu-list"
-    },
-  },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
@@ -7460,6 +7475,7 @@ Ti.Preload("ti/com/ti/combo/sorter/_com.json", {
   "name" : "ti-combo-sorter",
   "globally" : true,
   "template" : "./ti-combo-sorter.html",
+  "props"    : "@com:ti/combo/sorter/ti-combo-sorter-props.mjs",
   "mixins"   : "./ti-combo-sorter.mjs",
   "components" : ["@com:ti/combo/box"]
 });
@@ -8235,6 +8251,7 @@ const _M = {
 
       // emit event
       if(!this.checkEquals || !_.isEqual(v2, this.fieldValue)) {
+        //console.log("  #field.change:", v2)
         this.$notify("change", {
           name  : this.name,
           value : v2
@@ -8930,7 +8947,13 @@ const _M = {
     __ti_shortcut(uniqKey) {
       //console.log("ti-form", uniqKey)
       if("ENTER" == uniqKey) {
-        this.$notify("submit")
+        // It should wait a while before submit
+        // <ti-input> will apply change at @change event
+        // And the @change event will be fired when ENTER 
+        // bubble fade away
+        _.delay(()=>{
+          this.$notify("submit")
+        }, 100)
       }
     }
     //--------------------------------------------------
@@ -13488,26 +13511,10 @@ const _M = {
       }
     },
     //------------------------------------------------
-    doWhenInput(emitName="inputing", autoJsValue=false) {
-      if(_.isElement(this.$refs.input)) {
-        //console.log("doWhenInput", emitName)
-        let val = this.$refs.input.value
-        // Auto js value
-        if(autoJsValue) {
-          val = Ti.S.toJsValue(val, {
-            autoNil  : true,
-            autoDate : false,
-            trimed : this.trimed
-          })
-        }
-        // Trim
-        else if(this.trimed) {
-          val = _.trim(val)
-        }
-        // case
-        val = Ti.S.toCase(val, this.valueCase)
-        // notify
-        this.$notify(emitName, val)
+    doWhenInput() {
+      let val = this.getInputValue(false)
+      if(!Ti.Util.isNil(val)) {
+        this.$notify("inputing", val)
       }
     },
     //------------------------------------------------
@@ -13521,7 +13528,8 @@ const _M = {
     // },
     //------------------------------------------------
     OnInputChanged() {
-      this.doWhenInput("change", this.autoJsValue)
+      let val = this.getInputValue(this.autoJsValue)
+      this.$notify("change", val)
     },
     //------------------------------------------------
     OnInputFocus() {
@@ -13564,27 +13572,41 @@ const _M = {
       this.$notify("suffix:text")
     },
     //------------------------------------------------
+    // Utility
+    //------------------------------------------------
+    getInputValue(autoJsValue=false) {
+      if(_.isElement(this.$refs.input)) {
+        //console.log("doWhenInput", emitName)
+        let val = this.$refs.input.value
+        // Auto js value
+        if(autoJsValue) {
+          val = Ti.S.toJsValue(val, {
+            autoNil  : true,
+            autoDate : false,
+            trimed : this.trimed
+          })
+        }
+        // Trim
+        else if(this.trimed) {
+          val = _.trim(val)
+        }
+        // case
+        val = Ti.S.toCase(val, this.valueCase)
+        // notify
+        return val
+      }
+    },
+    //------------------------------------------------
     doAutoFocus() {
       if(this.focused && !this.isFocused) {
         this.OnInputFocus()
       }  
-    },
-    //--------------------------------------------------
-    // Callback
-    //--------------------------------------------------
-    __ti_shortcut(uniqKey) {
-      //console.log("ti-form", uniqKey)
-      if("ENTER" == uniqKey) {
-        this.doWhenInput("change", this.autoJsValue)
-      }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   watch : {
-    "focused" : function() {
-      this.doAutoFocus()
-    }
+    "focused" : "doAutoFocus"
   },
   ////////////////////////////////////////////////////
   mounted : function(){
@@ -15290,11 +15312,11 @@ Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
   <!--
     Blank
   -->
-  <div
+  <ti-loading 
     v-if="isDataEmpty"
-      class="nil-data as-big-mask">
-      <ti-loading v-bind="blankAs"/>
-  </div>
+      class="nil-data"
+      :class="'as-'+blankClass"
+      v-bind="blankAs"/>
   <!--
     Show Items
   -->
@@ -17199,14 +17221,15 @@ const FieldDisplay = {
         //......................................
         // #DictName(xxx) -> ti-label
         // just like `#RelayStatus(status)`
-        m = /^[@#]([^\(]+)\(([^)]+)\)$/.exec(displayItem)
+        m = /^[@#]([^\(]+)\(([^)]+)\)(:(.+))?$/.exec(displayItem)
         if(m) {
           return {
             key : m[2] || defaultKey,
             comType : "ti-label",
             comConf : {
               dict : m[1],
-              className: "is-nowrap"
+              className: "is-nowrap",
+              format: m[4]
             }
           }
         }
@@ -17225,15 +17248,17 @@ const FieldDisplay = {
         // - "'Static Text'"
         // - "text+>/a/link?nm=${name}"
         // - "'More'->/a/link?id=${id}"
-        m = /^([^+-]+)(([+-])>(.+))?$/.exec(displayItem)
+        // - "name:【${val}】->/a/link?id=${id}"
+        m = /^([^+-:>]+)(:([^+-]+))?(([+-])>([^%]*))?$/.exec(displayItem)
         if(m) {
           let key  = _.trim(m[1] || m[0])
-          let newTab = m[3] == "+"
-          let href = _.trim(m[4])
+          let format = m[3]
+          let newTab = m[5] == "+"
+          let href = _.trim(m[6])
           return {
             key,
             comType : "ti-label",
-            comConf : {newTab, href}
+            comConf : {newTab, href, format}
           }
         }
         //......................................
@@ -18292,9 +18317,14 @@ const _M = {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "fas-caravan",
+      icon : "fas-disease",
       text : "empty-data"
     })
+  },
+  "blankClass": {
+    type: String,
+    default: "big-mask",
+    validator: v=>/^(big-mask|mid-tip)$/.test(v)
   },
   //-----------------------------------
   // Measure
@@ -19255,11 +19285,11 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
   <!--
     Blank
   -->
-  <div
+  <ti-loading 
     v-if="isDataEmpty"
-      class="nil-data as-big-mask">
-      <ti-loading v-bind="blankAs"/>
-  </div>
+      class="nil-data"
+      :class="'as-'+blankClass"
+      v-bind="blankAs"/>
   <!--
     Show thead/tbody
   -->
@@ -23532,7 +23562,8 @@ Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall"
   -->
   <ti-loading 
     v-if="isDataEmpty"
-      class="nil-data as-big-mask"
+      class="nil-data"
+      :class="'as-'+blankClass"
       v-bind="blankAs"/>
   <!--
     Show tiles
@@ -29606,12 +29637,12 @@ const _M = {
     },
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
-      //console.log("wn-obj-form.field:changed", {name, value})
+      //console.log(" <--- @field:changed", {name, value})
       this.doAction("field:change", this.updateBy, {name, value})
     },
     //--------------------------------------------------
     OnChange(data) {
-      //console.log("wn-obj-form.changed", data)
+      //console.log(" <- @changed", data)
       this.doAction("change", this.setDataBy, data)
     },
     //--------------------------------------------------
@@ -31344,7 +31375,7 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files-props.mjs", _M);
 //============================================================
 // JOIN: wn/thing/manager/com/thing-files/thing-files.html
 //============================================================
-Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", `<div class="thing-files">
+Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", `<div class="wn-thing-files">
   <!--
     With Data Home
   -->
@@ -31645,35 +31676,39 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-files/_com.json", {
 //============================================================
 // JOIN: wn/thing/manager/com/thing-filter/thing-filter.html
 //============================================================
-Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/thing-filter.html", `<div class="thing-filter"
-  :class="topClass">
+Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/thing-filter.html", `<div class="wn-thing-filter"
+  :class="TopClass">
   <!--
     Icon: Recycle Bin
   -->
-  <div v-if="isInRecycleBin"
-    class="filter-recycle-bin"
-    @click="onLeaveRecycleBin">
-    <span class="it-icon">
-      <ti-icon value="fas-recycle"/>
-      <ti-icon value="far-arrow-alt-circle-left"/>
-    </span>
-    <span class="it-text">{{'i18n:thing-recycle-bin'|i18n}}</span>
-  </div>
+  <div
+    v-if="isInRecycleBin"
+      class="as-recyclebin"
+      @click="OnLeaveRecycleBin"><div>
+        <!--Icon-->
+        <div class="it-icon">
+          <ti-icon value="fas-recycle"/>
+          <ti-icon value="far-arrow-alt-circle-left"/>
+        </div>
+        <!--text-->
+        <div class="it-text">{{'i18n:thing-recycle-bin'|i18n}}</div>
+  </div></div>
   <!--
     Keyword
   -->
-  <div class="filter-keyword"
-    :class="keywordClass">
-    <!--Input Box-->
-    <input ref="input"
-      :placeholder="placeholderText" 
-      spellcheck="false"
-      @change="onInputChanged"
-      @focus="keywordFocus=true"
-      @blur="keywordFocus=false">
-    <!--Search Icon-->
-    <ti-icon v-if="searchIcon" :value="searchIcon"/>
-  </div>
+  <TiComboFilter
+    class="as-filter"
+    v-bind="filter"
+    :placeholder="placeholder"
+    :value="value.filter"/>
+  <!--
+    Sorter
+  -->
+  <TiComboSorter
+    v-if="hasSorter"
+      class="as-sorter"
+      v-bind="sorter"
+      :value="value.sorter"/>
 </div>`);
 //============================================================
 // JOIN: wn/thing/manager/com/thing-filter/thing-filter.mjs
@@ -31686,67 +31721,58 @@ const _M = {
   }),
   ///////////////////////////////////////////
   props : {
+    "filter" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "sorter" : {
+      type : Object,
+      default : ()=>({})
+    },
     "placeholder" : {
       type : String,
-      default : "i18n:thing-filter-kwdplhd"
-    },
-    "searchIcon" : {
-      type : String,
-      default : "zmdi-search"
+      default : 'i18n:find-data'
     },
     "status" : {
       type : Object,
       default : ()=>({})
-    }
+    },
+    "value" : {
+      type : Object,
+      default : ()=>({})
+    },
   },
   ///////////////////////////////////////////
   computed : {
     //---------------------------------------
-    placeholderText() {
-      if(this.placeholder)
-        return Ti.I18n.text(this.placeholder)
-      return ""
+    TopClass() {
+      return this.getTopClass({
+        "in-recyclebin" : this.isInRecycleBin
+      })
     },
     //---------------------------------------
-    keywordClass() {
-      return {
-        "has-icon" : this.hasSearchIcon,
-        "is-focus" : this.keywordFocus
-      }
+    hasSorter() {
+      return !_.isEmpty(this.sorter)
     },
     //---------------------------------------
     isInRecycleBin() {
       return this.status.inRecycleBin
-    },
-    //---------------------------------------
-    topClass() {
-      return {
-        "in-recycle-bin" : this.isInRecycleBin
-      }      
     }
     //---------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
     //---------------------------------------
-    onInputChanged() {
-      let name = _.trim(this.$refs.input.value)
-      // Empty as undefined
-      if(_.isEmpty(name)) {
-        name = null
-      }
-      // make regex
-      else {
-        name = `^.*${name}.*$`
-      }
-      Ti.App(this).commit("main/search/updateFilter", {
-        th_nm : name
-      })
-      Ti.App(this).dispatch("main/reloadSearch")
+    OnFilterChange(payload) {
+      this.notify("filter::change", payload)
+    },
+    //---------------------------------------
+    OnSorterChange(payload) {
+      this.notify("sorter::change", payload)
     },
     //---------------------------------------
     // When this func be invoked, the recycleBin must be true
-    onLeaveRecycleBin() {
+    OnLeaveRecycleBin() {
       Ti.App(this).dispatch('main/toggleInRecycleBin')
     }
     //---------------------------------------
@@ -31763,7 +31789,10 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/_com.json", {
   "globally" : true,
   "template" : "./thing-filter.html",
   "mixins"   : ["./thing-filter.mjs"],
-  "components" : []
+  "components" : [
+    "@com:ti/combo/filter",
+    "@com:ti/combo/sorter"
+  ]
 });
 //============================================================
 // JOIN: wn/thing/manager/com/thing-markdown-editor/_com.json
@@ -33989,6 +34018,11 @@ const _M = {
    * Update current thing meta data to search/meta
    */
   async updateCurrent({state, commit, dispatch, getters}, {name, value}={}) {
+    // console.log("hupdateCurrentahah", {name, value})
+    // if(window.lastMS && (Date.now() - window.lastMS) < 5000) {
+    //   console.log("!!!! dup-call", {name, value})
+    // }
+    // window.lastMS = Date.now()
     if(getters.hasCurrent) {
       await dispatch("current/updateMeta", {name,value})
       commit("search/updateItem", state.current.meta)
@@ -34133,11 +34167,14 @@ const _M = {
    * Search: Remove Checked Items
    */
   async removeChecked({state, commit, dispatch, getters}, hard=false) {
-    //console.log("removeChecked", hard)
     let ids = _.cloneDeep(state.search.checkedIds)
     if(_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
     }
+
+    // Config is hard
+    let beh = _.get(state, "config.schema.behavior") || {}
+    hard |= beh.hardRemove
 
     commit("setStatus", {deleting:true})
 
@@ -34519,11 +34556,9 @@ const _M = {
       state.currentDataDir = dirName
     },
     setCurrentDataHome(state, dataHome) {
-      console.log("setHome", dataHome)
       state.currentDataHome = dataHome
     },
     setCurrentDataHomeObj(state, dataHomeObj) {
-      console.log("setHObj", _.get(dataHomeObj,"ph"))
       state.currentDataHomeObj = _.cloneDeep(dataHomeObj)
     },
     setStatus(state, status) {
@@ -34745,6 +34780,7 @@ const _M = {
         let knm = "title"
         let beh = _.get(rootState, "main.config.schema.behavior") || {}
         let keys = _.keys(beh.keyword)
+        //........................................
         for(let k of keys) {
           let val = beh.keyword[k]
           if(new RegExp(val).test(keyword)) {
@@ -34752,7 +34788,16 @@ const _M = {
             break;
           }
         }
-        flt[knm] = "^.*"+keyword;
+        //........................................
+        // Accurate equal
+        if(knm.startsWith("=")) {
+          flt[knm.substring(1).trim()] = keyword
+        }
+        // Default is like
+        else {
+          flt[knm] = "^.*"+keyword;
+        }
+        //........................................
       }
     }
     // Eval Filter: match
@@ -37722,6 +37767,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "favorites": "收藏",
   "female": "女",
   "filter": "过滤",
+  "find": "查找",
+  "find-data": "查找数据",
   "home": "主目录",
   "i-known": "我知道了",
   "icon": "图标",
