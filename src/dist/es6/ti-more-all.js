@@ -35818,7 +35818,7 @@ const _M = {
         //..........................................
         // Get SiteApi template
         let siteApi = _.get(SiteApis, pageApi.apiName || key)
-        console.log(key, siteApi)
+        //console.log(key, siteApi)
         //..........................................
         // Marge the page api
         let api = _.cloneDeep(siteApi)

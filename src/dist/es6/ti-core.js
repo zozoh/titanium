@@ -10327,7 +10327,7 @@ const {WebAppMain} = (function(){
     // Load main app
     // If "i18n" or "deps" declared, it will be loaded too
     let app = await Ti.App(appJson, conf=>{
-      console.log("appConf", conf)
+      //console.log("appConf", conf)
       _.assign(conf.store.state, {
         loading   : false,
         pageReady : 0,
@@ -10402,7 +10402,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.9-20200607.085228",
+  "version" : "1.9-20200608.205645",
   "dev" : false,
   "appName" : null,
   "session" : {},
