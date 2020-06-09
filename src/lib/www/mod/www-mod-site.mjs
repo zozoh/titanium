@@ -175,12 +175,14 @@ const _M = {
         commit("setLoading", true)
         
         // Prepare
+        console.log("@page:prepare ...")
         await dispatch("invokeAction", {
           name:"@page:prepare"
         })
         commit("setPageReady", 1)
 
         // Reload
+        console.log("@page:reload ...", _.cloneDeep(state.auth))
         await dispatch("page/reload", {
           path   : value,
           anchor : anchor,
@@ -190,6 +192,7 @@ const _M = {
         commit("setPageReady", 2)
 
         // Ready
+        console.log("@page:ready ...")
         await dispatch("invokeAction", {
           name:"@page:ready"
         })

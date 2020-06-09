@@ -35395,7 +35395,7 @@ const _M = {
     //--------------------------------------------
     async doCheckMe({state, commit, dispatch, getters, rootState}, {
       force = false,
-      success, fail, nophone
+      success, fail, nophone, noemail
     }={}) {
       console.log("I am doCheckMe", {force, success, fail, nophone})
       // console.log(" -urls", getters.urls)
@@ -35436,10 +35436,17 @@ const _M = {
         if(nophone) {
           let me = reo.data.me
           if(!me.phone) {
-            await dispatch(nophone.action, nophone.payload, {root:true})
-            return
+            return await dispatch(nophone.action, nophone.payload, {root:true})
           }
         }
+        // Check Phone
+        if(noemail) {
+          let me = reo.data.me
+          if(!me.email) {
+            return await dispatch(noemail.action, noemail.payload, {root:true})
+          }
+        }
+
         // Success
         if(success) {
           await dispatch(success.action, success.payload, {root:true})
@@ -35457,7 +35464,7 @@ const _M = {
       codeKey = "code",
       codeTypeBy = "ct",
       force = false,
-      fail, nophone
+      fail, nophone, noemail
     }={}) {
       console.log("autoCheckmeOrAuthByWxghCode")
       dispatch("doCheckMe", {
@@ -35467,16 +35474,21 @@ const _M = {
           payload : {
             codeKey, codeTypeBy,
             //......................................
-            fail : ()=>{
+            fail : async ()=>{
               if(fail) {
                 dispatch(fail.action, fail.payload, {root:true})
               }
             },
             //......................................
-            ok : ({me={}}={})=>{
+            ok : async ({me={}}={})=>{
               if(nophone) {
                 if(!me.phone) {
-                  dispatch(nophone.action, nophone.payload, {root:true})
+                  return await dispatch(nophone.action, nophone.payload, {root:true})
+                }
+              }
+              if(noemail) {
+                if(!me.email) {
+                  return await dispatch(noemail.action, noemail.payload, {root:true})
                 }
               }
             }
@@ -35523,7 +35535,7 @@ const _M = {
       let reo = await Ti.Http.get(url, {params, as:"json"})
       console.log(reo)
 
-      done(reo)
+      await done(reo)
 
       // Success
       if(reo.ok && reo.data) {
@@ -35537,20 +35549,20 @@ const _M = {
         commit("setExpi",   reo.data.expi)
         commit("setMe",     reo.data.me)
         // Callback
-        ok(reo.data)
+        await ok(reo.data)
       }
       // Fail 
       else {
         // Fail : invalid
         if(/^e.www.login.invalid/.test(reo.errCode)) {
-          invalid(reo)
+          await invalid(reo)
         }
         // Fail : others
         else {
-          others(reo)
+          await others(reo)
         }
         // Callback
-        fail(reo)
+        await fail(reo)
       }
     },
     //--------------------------------------------
@@ -35602,7 +35614,7 @@ const _M = {
       let reo = await Ti.Http.post(url, {params, as:"json"})
       console.log(reo)
 
-      done(reo)
+      await done(reo)
 
       // Success
       if(reo.ok && reo.data) {
@@ -35616,24 +35628,24 @@ const _M = {
         commit("setExpi",   reo.data.expi)
         commit("setMe",     reo.data.me)
         // Callback
-        ok(reo.data)
+        await ok(reo.data)
       }
       // Fail 
       else {
         // Fail : noexist
         if("e.www.login.noexists" == reo.errCode) {
-          noexist(reo)
+          await noexist(reo)
         }
         // Fail : invalid
         else if(/^e.www.login.invalid/.test(reo.errCode)) {
-          invalid(reo)
+          await invalid(reo)
         }
         // Fail : others
         else {
-          others(reo)
+          await others(reo)
         }
         // Callback
-        fail(reo)
+        await fail(reo)
       }
     },
     //--------------------------------------------
@@ -36133,12 +36145,22 @@ const _M = {
      * Reload page data by given api keys
      */
     async reloadData({state, commit, getters, rootState}, keys=[]) {
-      console.log("reloadData", keys)
+      console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
       let isAll = _.isEmpty(keys)
       let apis = _.filter(getters.pageApis, (api, k)=>{
-        return (isAll && api.preload>0) || _.indexOf(keys, k)>=0
+        // Auto preload
+        if(isAll) {
+          if(api.preload > 0) {
+            if(api.preloadWhen) {
+              return Ti.Validate.match(rootState, api.preloadWhen, false)
+            }
+            return true
+          }
+        }
+        // Specify apis
+        return _.indexOf(keys, k)>=0
       })
       //.......................................
       // Sort preload
@@ -36151,6 +36173,7 @@ const _M = {
       //.......................................
       // Prepare the Promises
       for(let api of apis) {
+        console.log("  # -> page.reloadData -> prepareApi", api)
         // prepare http send options
         let url = api.url
         // if("/www/dataocean/cygq/mock/right-b/b-${nm}.json"==url) {
@@ -36266,7 +36289,7 @@ const _M = {
       params={}
     }) {
       //console.log(rootGetters.routerList)
-      console.log("page.reload", {path,params,anchor})
+      console.log(" # -> page.reload", {path,params,anchor})
       let pinfo;
       //.....................................
       // Apply routerList
@@ -36309,7 +36332,7 @@ const _M = {
       //...........................
       // Update page 
       commit("set", page)
-      console.log(" -->", page)
+      console.log(" #### page.loaded", _.cloneDeep(page))
 
       //.....................................
       // init: data
@@ -36511,12 +36534,14 @@ const _M = {
         commit("setLoading", true)
         
         // Prepare
+        console.log("@page:prepare ...")
         await dispatch("invokeAction", {
           name:"@page:prepare"
         })
         commit("setPageReady", 1)
 
         // Reload
+        console.log("@page:reload ...", _.cloneDeep(state.auth))
         await dispatch("page/reload", {
           path   : value,
           anchor : anchor,
@@ -36526,6 +36551,7 @@ const _M = {
         commit("setPageReady", 2)
 
         // Ready
+        console.log("@page:ready ...")
         await dispatch("invokeAction", {
           name:"@page:ready"
         })

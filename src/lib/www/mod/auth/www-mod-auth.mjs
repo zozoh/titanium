@@ -57,7 +57,7 @@ const _M = {
     //--------------------------------------------
     async doCheckMe({state, commit, dispatch, getters, rootState}, {
       force = false,
-      success, fail, nophone
+      success, fail, nophone, noemail
     }={}) {
       console.log("I am doCheckMe", {force, success, fail, nophone})
       // console.log(" -urls", getters.urls)
@@ -98,10 +98,17 @@ const _M = {
         if(nophone) {
           let me = reo.data.me
           if(!me.phone) {
-            await dispatch(nophone.action, nophone.payload, {root:true})
-            return
+            return await dispatch(nophone.action, nophone.payload, {root:true})
           }
         }
+        // Check Phone
+        if(noemail) {
+          let me = reo.data.me
+          if(!me.email) {
+            return await dispatch(noemail.action, noemail.payload, {root:true})
+          }
+        }
+
         // Success
         if(success) {
           await dispatch(success.action, success.payload, {root:true})
@@ -119,7 +126,7 @@ const _M = {
       codeKey = "code",
       codeTypeBy = "ct",
       force = false,
-      fail, nophone
+      fail, nophone, noemail
     }={}) {
       console.log("autoCheckmeOrAuthByWxghCode")
       dispatch("doCheckMe", {
@@ -129,16 +136,21 @@ const _M = {
           payload : {
             codeKey, codeTypeBy,
             //......................................
-            fail : ()=>{
+            fail : async ()=>{
               if(fail) {
                 dispatch(fail.action, fail.payload, {root:true})
               }
             },
             //......................................
-            ok : ({me={}}={})=>{
+            ok : async ({me={}}={})=>{
               if(nophone) {
                 if(!me.phone) {
-                  dispatch(nophone.action, nophone.payload, {root:true})
+                  return await dispatch(nophone.action, nophone.payload, {root:true})
+                }
+              }
+              if(noemail) {
+                if(!me.email) {
+                  return await dispatch(noemail.action, noemail.payload, {root:true})
                 }
               }
             }
@@ -185,7 +197,7 @@ const _M = {
       let reo = await Ti.Http.get(url, {params, as:"json"})
       console.log(reo)
 
-      done(reo)
+      await done(reo)
 
       // Success
       if(reo.ok && reo.data) {
@@ -199,20 +211,20 @@ const _M = {
         commit("setExpi",   reo.data.expi)
         commit("setMe",     reo.data.me)
         // Callback
-        ok(reo.data)
+        await ok(reo.data)
       }
       // Fail 
       else {
         // Fail : invalid
         if(/^e.www.login.invalid/.test(reo.errCode)) {
-          invalid(reo)
+          await invalid(reo)
         }
         // Fail : others
         else {
-          others(reo)
+          await others(reo)
         }
         // Callback
-        fail(reo)
+        await fail(reo)
       }
     },
     //--------------------------------------------
@@ -264,7 +276,7 @@ const _M = {
       let reo = await Ti.Http.post(url, {params, as:"json"})
       console.log(reo)
 
-      done(reo)
+      await done(reo)
 
       // Success
       if(reo.ok && reo.data) {
@@ -278,24 +290,24 @@ const _M = {
         commit("setExpi",   reo.data.expi)
         commit("setMe",     reo.data.me)
         // Callback
-        ok(reo.data)
+        await ok(reo.data)
       }
       // Fail 
       else {
         // Fail : noexist
         if("e.www.login.noexists" == reo.errCode) {
-          noexist(reo)
+          await noexist(reo)
         }
         // Fail : invalid
         else if(/^e.www.login.invalid/.test(reo.errCode)) {
-          invalid(reo)
+          await invalid(reo)
         }
         // Fail : others
         else {
-          others(reo)
+          await others(reo)
         }
         // Callback
-        fail(reo)
+        await fail(reo)
       }
     },
     //--------------------------------------------

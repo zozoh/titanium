@@ -5540,6 +5540,15 @@ const {Validate} = (function(){
       if(_.isBoolean(validates)) {
         return validates ? true : false
       }
+      // Array mean or
+      if(_.isArray(validates)) {
+        for(let vali of validates) {
+          if(Ti.Validate.match(obj, vali, allowEmpty)) {
+            return true
+          }
+        }
+        return false
+      }
       // Check
       let keys = _.keys(validates)
       for(let key of keys) {
@@ -10402,7 +10411,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.9-20200609.005143",
+  "version" : "1.9-20200609.125243",
   "dev" : false,
   "appName" : null,
   "session" : {},

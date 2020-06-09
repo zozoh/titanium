@@ -348,12 +348,22 @@ const _M = {
      * Reload page data by given api keys
      */
     async reloadData({state, commit, getters, rootState}, keys=[]) {
-      console.log("reloadData", keys)
+      console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
       let isAll = _.isEmpty(keys)
       let apis = _.filter(getters.pageApis, (api, k)=>{
-        return (isAll && api.preload>0) || _.indexOf(keys, k)>=0
+        // Auto preload
+        if(isAll) {
+          if(api.preload > 0) {
+            if(api.preloadWhen) {
+              return Ti.Validate.match(rootState, api.preloadWhen, false)
+            }
+            return true
+          }
+        }
+        // Specify apis
+        return _.indexOf(keys, k)>=0
       })
       //.......................................
       // Sort preload
@@ -366,6 +376,7 @@ const _M = {
       //.......................................
       // Prepare the Promises
       for(let api of apis) {
+        console.log("  # -> page.reloadData -> prepareApi", api)
         // prepare http send options
         let url = api.url
         // if("/www/dataocean/cygq/mock/right-b/b-${nm}.json"==url) {
@@ -481,7 +492,7 @@ const _M = {
       params={}
     }) {
       //console.log(rootGetters.routerList)
-      console.log("page.reload", {path,params,anchor})
+      console.log(" # -> page.reload", {path,params,anchor})
       let pinfo;
       //.....................................
       // Apply routerList
@@ -524,7 +535,7 @@ const _M = {
       //...........................
       // Update page 
       commit("set", page)
-      console.log(" -->", page)
+      console.log(" #### page.loaded", _.cloneDeep(page))
 
       //.....................................
       // init: data
