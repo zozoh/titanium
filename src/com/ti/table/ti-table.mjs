@@ -191,6 +191,7 @@ export default {
     //--------------------------------------
     scrollCurrentIntoView() {
       if(this.autoScrollIntoView && this.myLastIndex>=0) {
+        console.log("scroll")
         let $tbody = this.$refs.body
         let $row = Ti.Dom.find(`.table-row:nth-child(${this.myLastIndex+1})`, $tbody)
 

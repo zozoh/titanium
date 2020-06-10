@@ -52,6 +52,11 @@
         "action" : "dispatch:main/removeChecked",
         "shortcut" : "CTRL+DELETE"
       }, {
+        "key"  : "batch",
+        "type" : "action",
+        "text" : "i18n:batch-update",
+        "action" : "main:batchUpdate"
+      }, {
         "type" : "line"
       }, {
         "name" : "inRecycleBin",

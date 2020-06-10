@@ -52,37 +52,42 @@ const _M = {
     }
     // Allow all
     else {
-      name_filter = fld => true
+      name_filter = fld => {
+        console.log(fld)
+        // It is dangour when batch update
+        // Many thing item may refer to same file
+        if(/^(wn-upload-file|wn-imgfile)$/.test(fld.comType))
+          return false
+        return true
+      }
     }
 
     //....................................
     // Prepare the fields
     let fields = _.get(this.config, batch.fields)
     //....................................
-    // filter names
-    if(!_.isEmpty(batch.names)) {
-      // Define the filter
-      const filter_names = function(flds=[], filter) {
-        let list = []
-        for(let fld of flds) {
-          // Group
-          if(_.isArray(fld.fields)) {
-            let f2 = _.cloneDeept(fld)
-            f2.fields = filter_names(fld.fields, names)
-            if(!_.isEmpty(f2.fields)) {
-              list.push(f2)
-            }
-          }
-          // Fields
-          else if(filter(fld)) {
-            list.push(fld)
+    // Define the filter processing
+    const do_filter_fields = function(flds=[], filter) {
+      let list = []
+      for(let fld of flds) {
+        // Group
+        if(_.isArray(fld.fields)) {
+          let f2 = _.cloneDeep(fld)
+          f2.fields = do_filter_fields(fld.fields, filter)
+          if(!_.isEmpty(f2.fields)) {
+            list.push(f2)
           }
         }
-        return list
+        // Fields
+        else if(filter(fld)) {
+          list.push(fld)
+        }
       }
-      // Do filter
-      fields = filter_names(fields, name_filter)
+      return list
     }
+    //....................................
+    // filter each fields
+    fields = do_filter_fields(fields, name_filter)
     //....................................
     // Open the Modal
     let updates = await Ti.App.Open({

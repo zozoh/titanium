@@ -48,6 +48,9 @@ export default {
       }
       //console.log("evalEachColumnSize", this, this.tiComType)
 
+      // Remember the current scrollTop
+      let oldScrollTop = _.get(this.$refs.body, "scrollTop")
+
       // Reset each column size
       this.I_am_in_resizing = true
       this.myTableWidth = 0
@@ -109,8 +112,11 @@ export default {
         // Resize Table
         this.onTableResize()
 
+        // Mark back the resizing and restore scrollTop
         _.delay(()=>{
           this.I_am_in_resizing = false
+          if(this.$refs.body)
+            this.$refs.body.scrollTop = oldScrollTop
         }, 10)
       })
     },
