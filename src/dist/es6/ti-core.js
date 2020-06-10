@@ -487,8 +487,8 @@ const {Toast} = (function(){
         // Open("i18n:xxx", {vars})
         if(_.isPlainObject(type)) {
           options = _.assign({
-            type     : position || "info", 
-            position : "top",
+            position,
+            type : "info", 
             content  : options,
             vars : type
           }, type)
@@ -10411,7 +10411,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.9-20200609.133056",
+  "version" : "1.9-20200610.202206",
   "dev" : false,
   "appName" : null,
   "session" : {},

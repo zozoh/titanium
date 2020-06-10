@@ -43,5 +43,7 @@
   "wn-th-acc-pwd-done": "已经为${n}名用户重置了密码",
   "wn-th-acc-pwd-invalid": "密码中不得包含单双引号星号等非法字符",
   "wn-th-acc-pwd-reset-tip": "将密码重置为",
-  "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合"
+  "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合",
+  "wn-th-recount-media": "重新计算当前文件数量",
+  "wn-th-recount-media-done": "当前文件数量: ${n}"
 }

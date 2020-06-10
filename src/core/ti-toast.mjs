@@ -151,8 +151,8 @@ const TiToast = {
       // Open("i18n:xxx", {vars})
       if(_.isPlainObject(type)) {
         options = _.assign({
-          type     : position || "info", 
-          position : "top",
+          position,
+          type : "info", 
           content  : options,
           vars : type
         }, type)

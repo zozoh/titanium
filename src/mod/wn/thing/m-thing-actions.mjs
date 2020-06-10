@@ -62,7 +62,7 @@ const _M = {
   //--------------------------------------------
   setCurrentMeta({state, commit}, meta) {
     //console.log(" -> setCurrentMeta", meta)
-    commit("current/assignMeta", meta)
+    commit("current/setMeta", meta)
     commit("syncStatusChanged")
     commit("search/updateItem", state.current.meta)
   },
@@ -76,19 +76,32 @@ const _M = {
   /***
    * Files: sync the file count and update to search/meta
    */
-  async autoSyncCurrentFilesCount({state, commit}) {
+  async autoSyncCurrentFilesCount({state, commit, dispatch}, {quiet=true}={}) {
     let oTh = state.current.meta
     let dirName = state.currentDataDir
+    // Guard
+    if(!dirName) {
+      console.warn("thing file -ufc without 'dirName'");
+      return Ti.Toast.Open("thing file -ufc without 'dirName'")
+    }
     // sync current media count
     if(oTh && oTh.id && dirName) {
+      commit("setStatus", {reloading:true})
+
       // run command
       let th_set = oTh.th_set
-      let cmdText = `thing ${th_set} ${dirName} ${oTh.id} -ufc -cqn`
+      let cmdText = `thing ${th_set} file ${oTh.id} -dir '${dirName}' -ufc -cqn`
       let oNew = await Wn.Sys.exec2(cmdText, {as:"json"})
       // Set current meta
-      commit("current/setMeta", oNew)
-      // Set current to search list
-      commit("search/updateItem", oNew)
+      dispatch("setCurrentMeta", oNew)
+
+      commit("setStatus", {reloading:false})
+
+      if(!quiet) {
+        await Ti.Toast.Open('i18n:wn-th-recount-media-done', {
+          vars: {n: oNew.th_media_nb||0}
+        })
+      }
     }
   },
   //--------------------------------------------

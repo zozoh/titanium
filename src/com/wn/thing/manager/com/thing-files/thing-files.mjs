@@ -88,24 +88,14 @@ const _M = {
         this.$adaptlist.myCurrentId = f.id
         this.myCurrentId = f.id
       }
-      await this.doUpdateFilesCount()
+      await Ti.App(this).dispatch("main/autoSyncCurrentFilesCount")
     },
     //--------------------------------------
     // Untility
     //--------------------------------------
-    async doUpdateFilesCount() {
-      let meta = _.get(this.$ThingManager, "current.meta")
-      if(meta) {
-        let cmds = ['thing', meta.th_set, 'file', meta.id, "-ufc -cqn"]
-        let cmdText = cmds.join(" ")
-        let newMeta = await Wn.Sys.exec2(cmdText, {as:"json"})
-        Ti.App(this).dispatch("main/setCurrentMeta", newMeta)
-      }
-    },
-    //--------------------------------------
     async doDeleteSelected(){
       await this.$adaptlist.doDelete()
-      await this.doUpdateFilesCount()
+      await Ti.App(this).dispatch("main/autoSyncCurrentFilesCount")
     },
     //--------------------------------------
     async checkDataDir() {

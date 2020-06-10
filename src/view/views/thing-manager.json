@@ -52,10 +52,13 @@
         "action" : "dispatch:main/removeChecked",
         "shortcut" : "CTRL+DELETE"
       }, {
+        "type" : "line"
+      }, {
         "key"  : "batch",
         "type" : "action",
         "text" : "i18n:batch-update",
-        "action" : "main:batchUpdate"
+        "action" : "main:batchUpdate",
+        "shortcut" : "ALT+CTRL+SHIFT+U"
       }, {
         "type" : "line"
       }, {
@@ -99,6 +102,10 @@
         "shortcut" : "ALT+SHIFT+V"
       },{
         "type" : "line"
+      }, {
+        "type" : "action",
+        "text" : "i18n:wn-th-recount-media",
+        "action" : "dispatch:main/autoSyncCurrentFilesCount({quiet:false})"
       }, {
         "type" : "action",
         "icon" : "zmdi-keyboard",

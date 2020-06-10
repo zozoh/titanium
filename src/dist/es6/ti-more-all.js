@@ -19123,6 +19123,9 @@ const _M = {
       }
       //console.log("evalEachColumnSize", this, this.tiComType)
 
+      // Remember the current scrollTop
+      let oldScrollTop = _.get(this.$refs.body, "scrollTop")
+
       // Reset each column size
       this.I_am_in_resizing = true
       this.myTableWidth = 0
@@ -19184,8 +19187,11 @@ const _M = {
         // Resize Table
         this.onTableResize()
 
+        // Mark back the resizing and restore scrollTop
         _.delay(()=>{
           this.I_am_in_resizing = false
+          if(this.$refs.body)
+            this.$refs.body.scrollTop = oldScrollTop
         }, 10)
       })
     },
@@ -19547,6 +19553,7 @@ const _M = {
     //--------------------------------------
     scrollCurrentIntoView() {
       if(this.autoScrollIntoView && this.myLastIndex>=0) {
+        console.log("scroll")
         let $tbody = this.$refs.body
         let $row = Ti.Dom.find(`.table-row:nth-child(${this.myLastIndex+1})`, $tbody)
 
@@ -27677,6 +27684,7 @@ const _M = {
     },
     //--------------------------------------------
     async OnDropFiles(files) {
+      // console.log("OnDropFiles", files)
       if(!this.droppable)
         return
       let fs = [...files]
@@ -31535,24 +31543,14 @@ const _M = {
         this.$adaptlist.myCurrentId = f.id
         this.myCurrentId = f.id
       }
-      await this.doUpdateFilesCount()
+      await Ti.App(this).dispatch("main/autoSyncCurrentFilesCount")
     },
     //--------------------------------------
     // Untility
     //--------------------------------------
-    async doUpdateFilesCount() {
-      let meta = _.get(this.$ThingManager, "current.meta")
-      if(meta) {
-        let cmds = ['thing', meta.th_set, 'file', meta.id, "-ufc -cqn"]
-        let cmdText = cmds.join(" ")
-        let newMeta = await Wn.Sys.exec2(cmdText, {as:"json"})
-        Ti.App(this).dispatch("main/setCurrentMeta", newMeta)
-      }
-    },
-    //--------------------------------------
     async doDeleteSelected(){
       await this.$adaptlist.doDelete()
-      await this.doUpdateFilesCount()
+      await Ti.App(this).dispatch("main/autoSyncCurrentFilesCount")
     },
     //--------------------------------------
     async checkDataDir() {
@@ -31862,37 +31860,42 @@ const _M = {
     }
     // Allow all
     else {
-      name_filter = fld => true
+      name_filter = fld => {
+        console.log(fld)
+        // It is dangour when batch update
+        // Many thing item may refer to same file
+        if(/^(wn-upload-file|wn-imgfile)$/.test(fld.comType))
+          return false
+        return true
+      }
     }
 
     //....................................
     // Prepare the fields
     let fields = _.get(this.config, batch.fields)
     //....................................
-    // filter names
-    if(!_.isEmpty(batch.names)) {
-      // Define the filter
-      const filter_names = function(flds=[], filter) {
-        let list = []
-        for(let fld of flds) {
-          // Group
-          if(_.isArray(fld.fields)) {
-            let f2 = _.cloneDeept(fld)
-            f2.fields = filter_names(fld.fields, names)
-            if(!_.isEmpty(f2.fields)) {
-              list.push(f2)
-            }
-          }
-          // Fields
-          else if(filter(fld)) {
-            list.push(fld)
+    // Define the filter processing
+    const do_filter_fields = function(flds=[], filter) {
+      let list = []
+      for(let fld of flds) {
+        // Group
+        if(_.isArray(fld.fields)) {
+          let f2 = _.cloneDeep(fld)
+          f2.fields = do_filter_fields(fld.fields, filter)
+          if(!_.isEmpty(f2.fields)) {
+            list.push(f2)
           }
         }
-        return list
+        // Fields
+        else if(filter(fld)) {
+          list.push(fld)
+        }
       }
-      // Do filter
-      fields = filter_names(fields, name_filter)
+      return list
     }
+    //....................................
+    // filter each fields
+    fields = do_filter_fields(fields, name_filter)
     //....................................
     // Open the Modal
     let updates = await Ti.App.Open({
@@ -34066,7 +34069,7 @@ const _M = {
   //--------------------------------------------
   setCurrentMeta({state, commit}, meta) {
     //console.log(" -> setCurrentMeta", meta)
-    commit("current/assignMeta", meta)
+    commit("current/setMeta", meta)
     commit("syncStatusChanged")
     commit("search/updateItem", state.current.meta)
   },
@@ -34080,19 +34083,32 @@ const _M = {
   /***
    * Files: sync the file count and update to search/meta
    */
-  async autoSyncCurrentFilesCount({state, commit}) {
+  async autoSyncCurrentFilesCount({state, commit, dispatch}, {quiet=true}={}) {
     let oTh = state.current.meta
     let dirName = state.currentDataDir
+    // Guard
+    if(!dirName) {
+      console.warn("thing file -ufc without 'dirName'");
+      return Ti.Toast.Open("thing file -ufc without 'dirName'")
+    }
     // sync current media count
     if(oTh && oTh.id && dirName) {
+      commit("setStatus", {reloading:true})
+
       // run command
       let th_set = oTh.th_set
-      let cmdText = `thing ${th_set} ${dirName} ${oTh.id} -ufc -cqn`
+      let cmdText = `thing ${th_set} file ${oTh.id} -dir '${dirName}' -ufc -cqn`
       let oNew = await Wn.Sys.exec2(cmdText, {as:"json"})
       // Set current meta
-      commit("current/setMeta", oNew)
-      // Set current to search list
-      commit("search/updateItem", oNew)
+      dispatch("setCurrentMeta", oNew)
+
+      commit("setStatus", {reloading:false})
+
+      if(!quiet) {
+        await Ti.Toast.Open('i18n:wn-th-recount-media-done', {
+          vars: {n: oNew.th_media_nb||0}
+        })
+      }
     }
   },
   //--------------------------------------------
@@ -37945,7 +37961,9 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-th-acc-pwd-done": "已经为${n}名用户重置了密码",
   "wn-th-acc-pwd-invalid": "密码中不得包含单双引号星号等非法字符",
   "wn-th-acc-pwd-reset-tip": "将密码重置为",
-  "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合"
+  "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合",
+  "wn-th-recount-media": "重新计算当前文件数量",
+  "wn-th-recount-media-done": "当前文件数量: ${n}"
 });
 ////////////////////////////////////////////////////////////
 // The End
