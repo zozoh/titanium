@@ -88,7 +88,7 @@ export default {
     //---------------------------------------
     getItemType(bi) {
       if(bi.type) {
-        return bi.type
+        return _.toLower(bi.type)
       }
       // Line
       if(_.isEmpty(bi)) {
