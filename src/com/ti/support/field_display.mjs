@@ -264,7 +264,8 @@ const FieldDisplay = {
     displayItem={}, 
     vars={},
     autoIgnoreNil=true,
-    autoValue="value"
+    autoValue="value",
+    uniqueKey
   }={}) {
     let dis = displayItem;
     // if("sex" == dis.key) 
@@ -343,8 +344,12 @@ const FieldDisplay = {
     //.....................................
     reDisplayItem.comConf = comConf
     //.....................................
-    reDisplayItem.uniqueKey = _.concat(
-      reDisplayItem.key, reDisplayItem.comType).join("-")
+    if(uniqueKey) {
+      reDisplayItem.uniqueKey = uniqueKey
+    } else {
+      reDisplayItem.uniqueKey = _.concat(
+        reDisplayItem.key, reDisplayItem.comType).join("-")
+    }
     //.....................................
     return reDisplayItem
   }

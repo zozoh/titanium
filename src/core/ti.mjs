@@ -72,7 +72,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.0-dev",
+  "version" : "2.1-dev",
   "dev" : false,
   "appName" : null,
   "session" : {},

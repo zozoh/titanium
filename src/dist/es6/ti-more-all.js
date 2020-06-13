@@ -17304,7 +17304,8 @@ const FieldDisplay = {
     displayItem={}, 
     vars={},
     autoIgnoreNil=true,
-    autoValue="value"
+    autoValue="value",
+    uniqueKey
   }={}) {
     let dis = displayItem;
     // if("sex" == dis.key) 
@@ -17383,8 +17384,12 @@ const FieldDisplay = {
     //.....................................
     reDisplayItem.comConf = comConf
     //.....................................
-    reDisplayItem.uniqueKey = _.concat(
-      reDisplayItem.key, reDisplayItem.comType).join("-")
+    if(uniqueKey) {
+      reDisplayItem.uniqueKey = uniqueKey
+    } else {
+      reDisplayItem.uniqueKey = _.concat(
+        reDisplayItem.key, reDisplayItem.comType).join("-")
+    }
     //.....................................
     return reDisplayItem
   }
@@ -18817,7 +18822,8 @@ const _M = {
       this.$table.reportReady(this.rowIndex, this.index, !_.isEmpty(this.cellItems))
       let items = []
       // Eval each items
-      for(let displayItem of this.theCurrentDisplayItems) {
+      for(let i=0; i<this.theCurrentDisplayItems.length; i++) {
+        let displayItem = this.theCurrentDisplayItems[i]
         let it = await this.evalDataForFieldDisplayItem({
             itemData : this.data, 
             displayItem, 
@@ -18829,7 +18835,8 @@ const _M = {
               "rowId"     : this.rowId,
               "cellSize"  : this.cellSize
             },
-            autoIgnoreNil : true
+            autoIgnoreNil : true,
+            uniqueKey: `row${this.rowId}-cell${this.index}-${i}`
         })
         if(it) {
           items.push(it)
