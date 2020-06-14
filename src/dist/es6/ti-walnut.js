@@ -1411,7 +1411,7 @@ const Dict = (function(){
      * @return {Ti.Dict}
      */
     evalOptionsDict({
-      options, findBy, itemBy,
+      options, findBy, itemBy, childrenBy,
       valueBy, textBy, iconBy,
       dictShadowed = true
     }, hooks) {
@@ -1434,6 +1434,10 @@ const Dict = (function(){
         item  : Wn.Util.genQuery(itemBy, {
           errorAs: null,
           blankAs: "{}"
+        }),
+        children  : Wn.Util.genQuery(childrenBy, {
+          errorAs: null,
+          blankAs: "[]"
         }),
         //...............................................
         getValue : Ti.Util.genGetter(valueBy || "id|value"),
@@ -1460,6 +1464,7 @@ const Dict = (function(){
             data  : Wn.Util.genQuery(dict.data, {vkey:null}),
             query : Wn.Util.genQuery(dict.query),
             item  : Wn.Util.genQuery(dict.item),
+            children : Wn.Util.genQuery(dict.children),
             //...............................................
             getValue : Ti.Util.genGetter(dict.value),
             getText  : Ti.Util.genGetter(dict.text),

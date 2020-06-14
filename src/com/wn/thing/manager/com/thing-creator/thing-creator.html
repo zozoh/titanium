@@ -1,8 +1,12 @@
 <div class="thing-creator ti-box-relative">
   <ti-form
     :fields="fields"
-    :only-fields="false"
-    v-model="myData"
+    :only-fields="onlyFields"
+    :fixed="fixed"
+    :data="TheData"
+    :on-init="OnFormInit"
+    @field:change="OnFormFieldChange"
+    @change="OnFormChange"
     @submit="OnSubmit"/>
   <hr class="no-space">
   <div class="ti-flex-center ti-padding-10">

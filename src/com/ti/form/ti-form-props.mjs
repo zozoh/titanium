@@ -22,6 +22,11 @@ export default {
     type: Boolean,
     default: true
   },
+  // merge each time data change
+  "fixed": {
+    type: Object,
+    default: undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

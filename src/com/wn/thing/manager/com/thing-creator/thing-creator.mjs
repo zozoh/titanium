@@ -1,7 +1,7 @@
 export default {
   ///////////////////////////////////////////
   data : ()=>({
-    "myData" : {},
+    "myData" : undefined,
     "creating" : false
   }),
   ///////////////////////////////////////////
@@ -13,17 +13,43 @@ export default {
     "data" : {
       type : Object,
       default : ()=>({})
+    },
+    "onlyFields" : {
+      type: Boolean,
+      default: false
+    },
+    "fixed": {
+      type: Object,
+      default: undefined
+    }
+  },
+  ///////////////////////////////////////////
+  computed: {
+    TheData() {
+      return this.myData || this.data
     }
   },
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
+    OnFormInit($form) {
+      this.$form = $form
+    },
+    //--------------------------------------
+    OnFormFieldChange(pair={}) {
+      //console.log("OnFormFieldChange", pair)
+      this.myData = this.$form.getData(pair)
+    },
+    //--------------------------------------
+    OnFormChange(data) {
+      //console.log("OnFormChange", data)
+      this.myData = data
+    },
+    //--------------------------------------
     async OnCreate() {
       this.creating = true
 
-      let app = Ti.App(this)
-      await app.dispatch("main/create", this.myData)
-
+      await Ti.App(this).dispatch("main/create", this.myData)
       this.$notify("block:hide", "creator")
     },
     //--------------------------------------
@@ -35,13 +61,8 @@ export default {
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  watch : {
-    "data": {
-      handler : function(){
-        this.myData = _.assign({}, this.data)
-      },
-      immediate : true
-    }
+  mounted() {
+    this.myData = this.$form.getData()
   }
   ///////////////////////////////////////////
 }

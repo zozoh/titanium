@@ -48,11 +48,11 @@ const _M = {
   methods : {
     //---------------------------------------
     OnFilterChange(payload) {
-      this.notify("filter::change", payload)
+      this.$notify("filter::change", payload)
     },
     //---------------------------------------
     OnSorterChange(payload) {
-      this.notify("sorter::change", payload)
+      this.$notify("sorter::change", payload)
     },
     //---------------------------------------
     // When this func be invoked, the recycleBin must be true

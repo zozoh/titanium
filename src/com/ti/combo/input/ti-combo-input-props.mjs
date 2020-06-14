@@ -18,6 +18,10 @@ export default {
     type : [String, Function],
     default : undefined
   },
+  "childrenBy" : {
+    type : [String, Function],
+    default : undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

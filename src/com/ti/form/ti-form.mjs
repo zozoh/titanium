@@ -6,6 +6,7 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   data : ()=>({
+    myKeysInFields: [],
     currentTabIndex : 0
   }),
   //////////////////////////////////////////////////////
@@ -49,35 +50,33 @@ const _M = {
     //--------------------------------------------------
     TheFields() {
       let list = []
+      let keys = []
+      //................................................
       _.forEach(this.fields, (fld, index)=>{
         let fld2 = this.evalFormField(fld, [index])
         if(fld2) {
           list.push(fld2)
-        }
-      })
-      return list
-    },
-    //--------------------------------------------------
-    KeysInFields() {
-      let keys = []
-      for(let fg of this.TheFields) {
-        if(this.isGroup(fg)) {
-          _.forEach(fg.fields, (fld)=>{
-            if(_.isArray(fld.name)) {
-              keys.push(...fld.name)
-            } else {
-              keys.push(fld.name)
+          // Gather keys
+          if(!fld2.disabled) {
+            // Field group ...
+            if("Group" == fld2.type) {
+              _.forEach(fld2.fields, ({disabled, name})=>{
+                if(!disabled) {
+                  keys.push(name)
+                }
+              })
             }
-          })
-        } else {
-          if(_.isArray(fg.name)) {
-            keys.push(...fg.name)
-          } else {
-            keys.push(fg.name)
+            // The fields
+            else {
+              keys.push(fld2.name)
+            }
           }
         }
-      }
-      return keys
+      })
+      //................................................
+      this.myKeysInFields = _.flattenDeep(keys)
+      //................................................
+      return list
     },
     //--------------------------------------------------
     TabList() {
@@ -153,7 +152,7 @@ const _M = {
     TheData() {
       if(this.data) {
         if(this.onlyFields) {
-          return _.pick(this.data, this.KeysInFields)
+          return _.pick(this.data, this.myKeysInFields)
         }
         return this.data
       }
@@ -170,10 +169,28 @@ const _M = {
     },
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
-      //console.log("ti-form.OnFieldChange", {name, value})      
+      // Notify at first
+      //console.log("notify field")
+      this.$notify("field:change", {name, value})
+
+      // Notify later ...
+      // Wait a tick, give the change parent
+      // Update the data input
+      // The computed field "TheField"
+      // will auto-update the field status 'disabled/hidden'
+      // It may change the notify data
+      this.$nextTick(()=>{
+        //console.log("notify data")
+        let data = this.getData({name, value})
+        this.$notify("change", data)
+      })
+    },
+    //--------------------------------------
+    getData({name, value}={}) {
       let data = _.cloneDeep(this.TheData)
+
       // Signle value
-      if(_.isString(name)) {
+      if(name && _.isString(name)) {
         // Whole data
         if(".." == name) {
           _.assign(data, value)
@@ -195,14 +212,12 @@ const _M = {
         }
         _.assign(data, vo)
       }
-      // Other 
-      else {
-        return
-      }
 
-      // Notify
-      this.$notify("field:change", {name, value})
-      this.$notify("change", data)
+      // Join the fixed data
+      if(this.fixed) {
+        _.assign(data, fixed)
+      }
+      return data
     },
     //--------------------------------------
     isGroup(fld) {

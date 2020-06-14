@@ -307,6 +307,10 @@ const _M = {
     "value" : {
       handler: "evalMyItem",
       immediate : true
+    },
+    //-----------------------------------------------
+    "options" : function() {
+      this.myOptionsData = []
     }
     //-----------------------------------------------
   },

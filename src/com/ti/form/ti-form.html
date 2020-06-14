@@ -37,7 +37,7 @@
         -->
         <form-group v-if="'Group' == fld.type"
           v-bind="fld"
-          :data="TheData"
+          :data="data"
           :field-status="fieldStatus"
           :status-icons="statusIcons"
           @change="OnFieldChange"/>
@@ -47,7 +47,7 @@
         <ti-form-field v-else
           :key="fld.key"
           v-bind="fld"
-          :data="TheData"
+          :data="data"
           :field-status="fieldStatus"
           :status-icons="statusIcons"
           @change="OnFieldChange"/>

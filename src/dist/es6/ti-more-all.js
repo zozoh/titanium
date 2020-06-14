@@ -6348,6 +6348,10 @@ const _M = {
     type : [String, Function],
     default : undefined
   },
+  "childrenBy" : {
+    type : [String, Function],
+    default : undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -6761,6 +6765,10 @@ const _M = {
     "value" : {
       handler: "evalMyItem",
       immediate : true
+    },
+    //-----------------------------------------------
+    "options" : function() {
+      this.myOptionsData = []
     }
     //-----------------------------------------------
   },
@@ -8461,6 +8469,11 @@ const _M = {
     type: Boolean,
     default: true
   },
+  // merge each time data change
+  "fixed": {
+    type: Object,
+    default: undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -8582,7 +8595,7 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
         -->
         <form-group v-if="'Group' == fld.type"
           v-bind="fld"
-          :data="TheData"
+          :data="data"
           :field-status="fieldStatus"
           :status-icons="statusIcons"
           @change="OnFieldChange"/>
@@ -8592,7 +8605,7 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
         <ti-form-field v-else
           :key="fld.key"
           v-bind="fld"
-          :data="TheData"
+          :data="data"
           :field-status="fieldStatus"
           :status-icons="statusIcons"
           @change="OnFieldChange"/>
@@ -8619,6 +8632,7 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   data : ()=>({
+    myKeysInFields: [],
     currentTabIndex : 0
   }),
   //////////////////////////////////////////////////////
@@ -8662,35 +8676,33 @@ const _M = {
     //--------------------------------------------------
     TheFields() {
       let list = []
+      let keys = []
+      //................................................
       _.forEach(this.fields, (fld, index)=>{
         let fld2 = this.evalFormField(fld, [index])
         if(fld2) {
           list.push(fld2)
-        }
-      })
-      return list
-    },
-    //--------------------------------------------------
-    KeysInFields() {
-      let keys = []
-      for(let fg of this.TheFields) {
-        if(this.isGroup(fg)) {
-          _.forEach(fg.fields, (fld)=>{
-            if(_.isArray(fld.name)) {
-              keys.push(...fld.name)
-            } else {
-              keys.push(fld.name)
+          // Gather keys
+          if(!fld2.disabled) {
+            // Field group ...
+            if("Group" == fld2.type) {
+              _.forEach(fld2.fields, ({disabled, name})=>{
+                if(!disabled) {
+                  keys.push(name)
+                }
+              })
             }
-          })
-        } else {
-          if(_.isArray(fg.name)) {
-            keys.push(...fg.name)
-          } else {
-            keys.push(fg.name)
+            // The fields
+            else {
+              keys.push(fld2.name)
+            }
           }
         }
-      }
-      return keys
+      })
+      //................................................
+      this.myKeysInFields = _.flattenDeep(keys)
+      //................................................
+      return list
     },
     //--------------------------------------------------
     TabList() {
@@ -8766,7 +8778,7 @@ const _M = {
     TheData() {
       if(this.data) {
         if(this.onlyFields) {
-          return _.pick(this.data, this.KeysInFields)
+          return _.pick(this.data, this.myKeysInFields)
         }
         return this.data
       }
@@ -8783,10 +8795,28 @@ const _M = {
     },
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
-      //console.log("ti-form.OnFieldChange", {name, value})      
+      // Notify at first
+      //console.log("notify field")
+      this.$notify("field:change", {name, value})
+
+      // Notify later ...
+      // Wait a tick, give the change parent
+      // Update the data input
+      // The computed field "TheField"
+      // will auto-update the field status 'disabled/hidden'
+      // It may change the notify data
+      this.$nextTick(()=>{
+        //console.log("notify data")
+        let data = this.getData({name, value})
+        this.$notify("change", data)
+      })
+    },
+    //--------------------------------------
+    getData({name, value}={}) {
       let data = _.cloneDeep(this.TheData)
+
       // Signle value
-      if(_.isString(name)) {
+      if(name && _.isString(name)) {
         // Whole data
         if(".." == name) {
           _.assign(data, value)
@@ -8808,14 +8838,12 @@ const _M = {
         }
         _.assign(data, vo)
       }
-      // Other 
-      else {
-        return
-      }
 
-      // Notify
-      this.$notify("field:change", {name, value})
-      this.$notify("change", data)
+      // Join the fixed data
+      if(this.fixed) {
+        _.assign(data, fixed)
+      }
+      return data
     },
     //--------------------------------------
     isGroup(fld) {
@@ -14353,6 +14381,8 @@ const _M = {
     },
     //--------------------------------------
     ThePrefixIcon() {
+      if(null === this.prefixIcon)
+        return null
       return this.myDisplayIcon || this.prefixIcon
     },
     //------------------------------------------------
@@ -31203,8 +31233,12 @@ Ti.Preload("ti/com/wn/table/_com.json", {
 Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.html", `<div class="thing-creator ti-box-relative">
   <ti-form
     :fields="fields"
-    :only-fields="false"
-    v-model="myData"
+    :only-fields="onlyFields"
+    :fixed="fixed"
+    :data="TheData"
+    :on-init="OnFormInit"
+    @field:change="OnFormFieldChange"
+    @change="OnFormChange"
     @submit="OnSubmit"/>
   <hr class="no-space">
   <div class="ti-flex-center ti-padding-10">
@@ -31225,7 +31259,7 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.html", `<div
 const _M = {
   ///////////////////////////////////////////
   data : ()=>({
-    "myData" : {},
+    "myData" : undefined,
     "creating" : false
   }),
   ///////////////////////////////////////////
@@ -31237,17 +31271,43 @@ const _M = {
     "data" : {
       type : Object,
       default : ()=>({})
+    },
+    "onlyFields" : {
+      type: Boolean,
+      default: false
+    },
+    "fixed": {
+      type: Object,
+      default: undefined
+    }
+  },
+  ///////////////////////////////////////////
+  computed: {
+    TheData() {
+      return this.myData || this.data
     }
   },
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
+    OnFormInit($form) {
+      this.$form = $form
+    },
+    //--------------------------------------
+    OnFormFieldChange(pair={}) {
+      //console.log("OnFormFieldChange", pair)
+      this.myData = this.$form.getData(pair)
+    },
+    //--------------------------------------
+    OnFormChange(data) {
+      //console.log("OnFormChange", data)
+      this.myData = data
+    },
+    //--------------------------------------
     async OnCreate() {
       this.creating = true
 
-      let app = Ti.App(this)
-      await app.dispatch("main/create", this.myData)
-
+      await Ti.App(this).dispatch("main/create", this.myData)
       this.$notify("block:hide", "creator")
     },
     //--------------------------------------
@@ -31259,13 +31319,8 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  watch : {
-    "data": {
-      handler : function(){
-        this.myData = _.assign({}, this.data)
-      },
-      immediate : true
-    }
+  mounted() {
+    this.myData = this.$form.getData()
   }
   ///////////////////////////////////////////
 }
@@ -31705,7 +31760,8 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/thing-filter.html", `<div c
     class="as-filter"
     v-bind="filter"
     :placeholder="placeholder"
-    :value="value.filter"/>
+    :value="value.filter"
+    @change="OnFilterChange"/>
   <!--
     Sorter
   -->
@@ -31713,7 +31769,8 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/thing-filter.html", `<div c
     v-if="hasSorter"
       class="as-sorter"
       v-bind="sorter"
-      :value="value.sorter"/>
+      :value="value.sorter"
+      @change="OnSorterChange"/>
 </div>`);
 //============================================================
 // JOIN: wn/thing/manager/com/thing-filter/thing-filter.mjs
@@ -31769,11 +31826,11 @@ const _M = {
   methods : {
     //---------------------------------------
     OnFilterChange(payload) {
-      this.notify("filter::change", payload)
+      this.$notify("filter::change", payload)
     },
     //---------------------------------------
     OnSorterChange(payload) {
-      this.notify("sorter::change", payload)
+      this.$notify("sorter::change", payload)
     },
     //---------------------------------------
     // When this func be invoked, the recycleBin must be true
@@ -31868,7 +31925,7 @@ const _M = {
     // Allow all
     else {
       name_filter = fld => {
-        console.log(fld)
+        //console.log(fld)
         // It is dangour when batch update
         // Many thing item may refer to same file
         if(/^(wn-upload-file|wn-imgfile)$/.test(fld.comType))
@@ -35119,6 +35176,10 @@ Ti.Preload("ti/lib/www/com/site-main.html", `<div class="site-main">
 (function(){
 const _M = {
   /////////////////////////////////////////
+  provide : function() {
+    return Ti.Util.explainObj(this.provide, this)
+  },
+  /////////////////////////////////////////
   computed : {
     ...Vuex.mapState({
         "siteId"     : state=>state.siteId,
@@ -35132,6 +35193,7 @@ const _M = {
         "cdnBase"    : state=>state.cdnBase,
         "captcha"    : state=>state.captcha,
         "schema"     : state=>state.schema,
+        "provide"    : state=>state.provide,
         "blocks"     : state=>state.blocks,
         "loading"    : state=>state.loading,
         "pageReady"  : state=>state.pageReady

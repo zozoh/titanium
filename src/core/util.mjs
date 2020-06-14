@@ -453,21 +453,37 @@ const TiUtil = {
       }
     }
   },
-  pushValue(obj, key, val) {
+  pushValue(obj, key, val, rawSet=false) {
     let old = _.get(obj, key) || []
-    _.set(obj, key, _.concat(old, val||[]))
+    if(rawSet) {
+      obj[key] = _.concat(old, val||[])
+    } else {
+      _.set(obj, key, _.concat(old, val||[]))
+    }
   },
-  pushValueBefore(obj, key, val) {
+  pushValueBefore(obj, key, val, rawSet=false) {
     let old = _.get(obj, key) || []
-    _.set(obj, key, _.concat(val||[], old))
+    if(rawSet) {
+      obj[key] = _.concat(val||[], old)
+    } else {
+      _.set(obj, key, _.concat(val||[], old))
+    }
   },
-  pushUniqValue(obj, key, val) {
+  pushUniqValue(obj, key, val, rawSet=false) {
     let old = _.get(obj, key) || []
-    _.set(obj, key, _.uniq(_.concat(old, val||[])))
+    if(rawSet) {
+      obj[key] = _.uniq(_.concat(old, val||[]))
+    } else {
+      _.set(obj, key, _.uniq(_.concat(old, val||[])))
+    }
   },
-  pushUniqValueBefre(obj, key, val) {
+  pushUniqValueBefre(obj, key, val, rawSet=false) {
     let old = _.get(obj, key) || []
-    _.set(obj, key, _.uniq(_.concat(val||[], old)))
+    if(rawSet) {
+      obj[key] = _.uniq(_.concat(val||[], old))
+    } else {
+      _.set(obj, key, _.uniq(_.concat(val||[], old)))
+    }
   },
   /***
    * Set value to obj[key] if only val is not undefined

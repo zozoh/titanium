@@ -29,6 +29,8 @@ const _M = {
     },
     //--------------------------------------
     ThePrefixIcon() {
+      if(null === this.prefixIcon)
+        return null
       return this.myDisplayIcon || this.prefixIcon
     },
     //------------------------------------------------

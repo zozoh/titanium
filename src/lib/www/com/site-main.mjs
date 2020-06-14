@@ -1,4 +1,8 @@
-export default {
+const _M = {
+  /////////////////////////////////////////
+  provide : function() {
+    return Ti.Util.explainObj(this.provide, this)
+  },
   /////////////////////////////////////////
   computed : {
     ...Vuex.mapState({
@@ -13,6 +17,7 @@ export default {
         "cdnBase"    : state=>state.cdnBase,
         "captcha"    : state=>state.captcha,
         "schema"     : state=>state.schema,
+        "provide"    : state=>state.provide,
         "blocks"     : state=>state.blocks,
         "loading"    : state=>state.loading,
         "pageReady"  : state=>state.pageReady
@@ -212,3 +217,4 @@ export default {
   }
   /////////////////////////////////////////
 }
+export default _M;

@@ -171,7 +171,9 @@ export const TiVue = {
       "functional",
       "model",
       "inheritAttrs",
-      "comments"])
+      "comments",
+      "inject", 
+      "provide"])
     //.............................
     // create options
     let options = {

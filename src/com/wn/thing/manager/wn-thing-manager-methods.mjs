@@ -53,7 +53,7 @@ const _M = {
     // Allow all
     else {
       name_filter = fld => {
-        console.log(fld)
+        //console.log(fld)
         // It is dangour when batch update
         // Many thing item may refer to same file
         if(/^(wn-upload-file|wn-imgfile)$/.test(fld.comType))

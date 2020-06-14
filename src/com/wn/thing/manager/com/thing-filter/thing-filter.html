@@ -22,7 +22,8 @@
     class="as-filter"
     v-bind="filter"
     :placeholder="placeholder"
-    :value="value.filter"/>
+    :value="value.filter"
+    @change="OnFilterChange"/>
   <!--
     Sorter
   -->
@@ -30,5 +31,6 @@
     v-if="hasSorter"
       class="as-sorter"
       v-bind="sorter"
-      :value="value.sorter"/>
+      :value="value.sorter"
+      @change="OnSorterChange"/>
 </div>
