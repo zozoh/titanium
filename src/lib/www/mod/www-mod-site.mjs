@@ -156,6 +156,10 @@ const _M = {
       })
     },
     //-------------------------------------
+    async scrollPageToTop({state}) {
+      Ti.Be.ScrollWindowTo({y:0})
+    },
+    //-------------------------------------
     // Only handle the "page|dispatch"
     async navTo({state, commit, dispatch}, {
       type="page",
@@ -190,6 +194,9 @@ const _M = {
           data   : data
         })
         commit("setPageReady", 2)
+
+        // Scroll window
+        dispatch("scrollPageToTop")
 
         // Ready
         console.log("@page:ready ...")

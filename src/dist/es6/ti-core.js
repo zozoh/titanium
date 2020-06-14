@@ -568,6 +568,12 @@ const {Be} = (function(){
         params:link.params
       })
     },
+    /***
+     * Scroll window to ...
+     */
+    ScrollWindowTo({x=0,y=0}={}) {
+      window.scrollTo(x, y);
+    },
     /**
      * !!! jQuery here
      * jq - 要闪烁的对象
@@ -10485,7 +10491,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.1-20200614.132336",
+  "version" : "2.1-20200615.023206",
   "dev" : false,
   "appName" : null,
   "session" : {},

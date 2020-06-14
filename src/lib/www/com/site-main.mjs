@@ -194,6 +194,7 @@ const _M = {
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
       document.title = pageTitle
       this.pushBrowserHistory()
+
       // TODO : Maybe here to embed the BaiDu Tongji Code
     }
   },

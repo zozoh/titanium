@@ -44,6 +44,12 @@ const TiBehaviors = {
       params:link.params
     })
   },
+  /***
+   * Scroll window to ...
+   */
+  ScrollWindowTo({x=0,y=0}={}) {
+    window.scrollTo(x, y);
+  },
   /**
    * !!! jQuery here
    * jq - 要闪烁的对象
