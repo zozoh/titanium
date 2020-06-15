@@ -218,7 +218,12 @@ const FieldDisplay = {
           return {
             key,
             comType : "ti-label",
-            comConf : {newTab, href, format}
+            comConf : {
+              className: "is-nowrap",
+              newTab, 
+              href, 
+              format
+            }
           }
         }
         //......................................

@@ -5928,35 +5928,36 @@ const _M = {
       // If drop opened, make the box position fixed
       // to at the top of mask
       if("extended" == this.status) {
-        let r_box  = Ti.Rects.createBy($box)
-        //..........................................
-        // Mark box to fixed position
-        _.assign(this.box, {position:"fixed"}, r_box.raw())
-        //..........................................
-        // Make drop same width with box
-        let dropStyle = {}
-        if("box" == this.dropWidth) {
-          dropStyle.width = r_box.width
-        }
-        else if(!Ti.Util.isNil(this.dropWidth)) {
-          // The min drop width
-          if(this.dropWidth < 0) {
-            dropStyle.width = Math.max(r_box.width, Math.abs(this.dropWidth))
+        // Wait 1ms for drop content done for drawing
+        _.delay(()=>{
+          let r_box  = Ti.Rects.createBy($box)
+          let r_drop = Ti.Rects.createBy($drop)
+          //..........................................
+          // Mark box to fixed position
+          _.assign(this.box, {position:"fixed"}, r_box.raw())
+          //..........................................
+          // Make drop same width with box
+          let dropStyle = {}
+          if("box" == this.dropWidth) {
+            dropStyle.width = Math.max(r_box.width, r_drop.width)
           }
-          // Fix drop width
-          else {
-            dropStyle.width = this.dropWidth
+          else if(!Ti.Util.isNil(this.dropWidth)) {
+            // The min drop width
+            if(this.dropWidth < 0) {
+              dropStyle.width = Math.max(r_box.width, Math.abs(this.dropWidth))
+            }
+            // Fix drop width
+            else {
+              dropStyle.width = this.dropWidth
+            }
           }
-        }
-        if(!Ti.Util.isNil(this.dropHeight)) {
-          dropStyle.height = this.dropHeight
-        }
-        //..........................................S
-        Ti.Dom.setStyle($drop, Ti.Css.toStyle(dropStyle))      
-        //..........................................
-        // Dock drop to box
-        this.$nextTick(()=>{
-          // Count dock
+          if(!Ti.Util.isNil(this.dropHeight)) {
+            dropStyle.height = this.dropHeight
+          }
+          //..........................................S
+          Ti.Dom.setStyle($drop, Ti.Css.toStyle(dropStyle))
+          //..........................................
+          // Dock drop to box
           Ti.Dom.dockTo($drop, $box, {
             space:{y:2}
           })
@@ -5964,7 +5965,8 @@ const _M = {
           _.delay(()=>{
             this.myDropDockReady = true
           }, 1)
-        })
+
+        }, 1)
         //..........................................
       }
       //............................................
@@ -17288,7 +17290,12 @@ const FieldDisplay = {
           return {
             key,
             comType : "ti-label",
-            comConf : {newTab, href, format}
+            comConf : {
+              className: "is-nowrap",
+              newTab, 
+              href, 
+              format
+            }
           }
         }
         //......................................
