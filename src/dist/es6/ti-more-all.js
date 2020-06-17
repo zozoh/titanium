@@ -38028,7 +38028,7 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-key-m": "修改者",
   "wn-key-md": "基本权限",
   "wn-key-mime": "MIME",
-  "wn-key-nm": "名称",
+  "wn-key-nm": "对象名",
   "wn-key-ph": "路径",
   "wn-key-pid": "父对象",
   "wn-key-pvg": "定制权限",

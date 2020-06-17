@@ -269,8 +269,14 @@ const WnObj = {
               },
               "Array" : {
                 type: "Array",
-                display: k,
-                comType: "ti-input-tags"
+                display: {
+                  key: k
+                },
+                transformer: "JSON.stringify(null, '  ')",
+                comType: "ti-input-text",
+                comConf: {
+                  height: 240
+                }
               }
             })[jsType] || {
               type: "String",
