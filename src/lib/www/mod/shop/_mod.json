@@ -1,0 +1,6 @@
+{
+  "name" : "www-mod-shop",
+  "namespaced" : true,
+  "state" : "./www-mod-shop.json",
+  "mixins" : "./www-mod-shop.mjs"
+}
