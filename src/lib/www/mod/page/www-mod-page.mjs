@@ -156,6 +156,13 @@ const _M = {
       _.assign(state.shown, shown)
     },
     //--------------------------------------------
+    // 0: before reload setting -> @page:init
+    // 1: after reload setting  -> @page:prepare
+    // 2: after preload data    -> @page:ready
+    setReady(state, ready) {
+      state.ready = ready
+    },
+    //--------------------------------------------
     // Page finger to indicate the page changed
     // watch the filter can auto update document title
     updateFinger(state) {
@@ -242,6 +249,10 @@ const _M = {
       if(assertFail && fail.action) {
         dispatch("doAction", fail, {root:true})
       }
+    },
+    //--------------------------------------------
+    async scrollToTop({state}) {
+      Ti.Be.ScrollWindowTo({y:0})
     },
     //--------------------------------------------
     async doApi({rootState, getters, commit}, {
@@ -511,9 +522,13 @@ const _M = {
         })
       }
       //.....................................
+      // Notify: init
+      console.log("@page:init ...")
+      commit("setReady", 0)
+      await dispatch("invokeAction", {name:"@page:init"}, {root:true})
+      //.....................................
       // Load the page json
       let json = await Ti.Load(`@Site:${pinfo.path}.json`)
-
       //.....................................
       // merge info
       if(anchor) {
@@ -531,15 +546,28 @@ const _M = {
         "schema" : {},
         "actions" : {}
       }, json, pinfo)
-      
-      //...........................
+      //.....................................
       // Update page 
       commit("set", page)
       console.log(" #### page.loaded", _.cloneDeep(page))
 
       //.....................................
+      // Notify: Prepare
+      console.log("@page:prepare ...")
+      commit("setReady", 1)
+      await dispatch("invokeAction", {name:"@page:prepare"}, {root:true})
+      //.....................................
       // init: data
       await dispatch("reloadData")
+      //.....................................
+      // Scroll window to top
+      dispatch("scrollToTop")
+      //.....................................
+      // Notify: Ready
+      console.log("@page:ready ...")
+      commit("setReady", 2)
+      await dispatch("invokeAction", {name:"@page:ready"}, {root:true})
+      //.....................................
     }
     //--------------------------------------------
   }

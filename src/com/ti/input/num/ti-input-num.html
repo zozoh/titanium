@@ -1,9 +1,12 @@
-<div class="ti-input-num ti-fill-parent">
+<div
+  class="ti-input-num ti-fill-parent"
+  :class="TopClass"
+  :style="TopStyle">
   <!--
     Button: -
   -->
   <div class="as-btn is-decrease"
-    :class="desreaseClass"
+    :class="DesreaseClass"
     @click="changeByStep(-1)">
     <ti-icon value="zmdi-minus"/>
   </div>
@@ -13,14 +16,14 @@
   <div class="as-input">
     <input 
       spellcheck="false" 
-      :value="theValue"
+      :value="TheValue"
       @change="onChanged">
   </div>
   <!--
     Button: +
   -->
   <div class="as-btn is-increase"
-    :class="increaseClass"
+    :class="IncreaseClass"
     @click="changeByStep(1)">
     <ti-icon value="zmdi-plus"/>
   </div>

@@ -1,4 +1,4 @@
-export default {
+const _M = {
   ////////////////////////////////////////////////////
   props : {
     "value" : null,
@@ -17,39 +17,40 @@ export default {
     "step" : {
       type : Number,
       default : 1
+    },
+    "width" : {
+      type : [Number, String],
+      default : 200
     }
-    // "width" : {
-    //   type : [Number, String],
-    //   default : 200
-    // }
   },
   ////////////////////////////////////////////////////
   computed : {
-    // topStyle() {
-    //   if(_.isNumber(this.width) || this.width) {
-    //     return {
-    //       width : Ti.Css.toSize(this.width)
-    //     }
-    //   }
-    // },
-    theValue() {
-      if(isNaN(this.value) 
-         || !_.isNumber(this.value)) {
-        return
-      }
-      return this.getValue(this.value)
+    TopClass() {
+      return this.getTopClass()
     },
-    desreaseClass() {
+    TopStyle() {
+      return Ti.Css.toStyleRem100({
+        width: this.width
+      })
+    },
+    DesreaseClass() {
       if(!_.isUndefined(this.minValue) && this.value <= this.minValue) {
         return "is-disabled"
       }
       return "is-enabled"
     },
-    increaseClass() {
+    IncreaseClass() {
       if(!_.isUndefined(this.maxValue) && this.value >= this.maxValue) {
         return "is-disabled"
       }
       return "is-enabled"
+    },
+    TheValue() {
+      if(isNaN(this.value) 
+         || !_.isNumber(this.value)) {
+        return
+      }
+      return this.getValue(this.value)
     }
   },
   ////////////////////////////////////////////////////
@@ -69,7 +70,7 @@ export default {
     },
     //------------------------------------------------
     changeByStep(n=0) {
-      let val = this.theValue
+      let val = this.TheValue
       // Start with default value
       if(_.isUndefined(val)) {
         val = this.defaultValue
@@ -108,3 +109,4 @@ export default {
   }
   ////////////////////////////////////////////////////
 }
+export default _M;

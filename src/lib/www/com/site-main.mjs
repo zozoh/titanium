@@ -10,6 +10,7 @@ const _M = {
         "logo"       : state=>state.logo,
         "utils"      : state=>state.utils,
         "page"       : state=>state.page,
+        "shop"       : state=>state.shop,
         "auth"       : state=>state.auth,
         "domain"     : state=>state.domain,
         "base"       : state=>state.base,
@@ -122,6 +123,7 @@ const _M = {
       
       //.....................................
       // explain it
+      console.log("site-main: explain it!", gui);
       let theGUI = Ti.Util.explainObj(this, gui, {
         fnSet: this.PageFnSet
       })

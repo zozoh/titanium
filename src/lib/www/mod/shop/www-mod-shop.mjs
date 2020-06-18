@@ -2,7 +2,7 @@ const _M = {
   ////////////////////////////////////////////////
   getters : {
     //--------------------------------------------
-    urls(state, rootGetters) {
+    urls(state, getters, rootState, rootGetters) {
       let map = {}
       _.forEach(state.paths, (ph, key)=>{
         map[key] = rootGetters.getApiUrl(ph)
@@ -20,10 +20,6 @@ const _M = {
     //--------------------------------------------
     setBasket(state, buyIts=[]) {
       state.basket = buyIts
-    },
-    //--------------------------------------------
-    setLastAdded(state, lastAdded) {
-      state.lastAdded = lastAdded
     },
     //--------------------------------------------
     setPayment(state, pay) {
@@ -88,10 +84,49 @@ const _M = {
       //..........................................
       // Check to remote
       commit("setLoading", true, {root:true})
-      // Current Session ...
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       let reo =  await Ti.Http.get(getters.urls.buyIt, {
         params : {
-          ticket, id, n, reset
+          ticket, id, n, r:reset
+        },
+        as : "json"
+      })
+      // success
+      if(reo.ok) {
+        commit("setBasket", reo.data)
+
+        // Success
+        if(success) {
+          await dispatch(success.action, success.payload, {root:true})
+        }
+      }
+      // Fail
+      else if(fail){
+        await dispatch(fail.action, fail.payload, {root:true})
+      }
+      // Show error
+      else {
+        console.warn("shop.updateBasket fail:", reo)
+      }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      commit("setLoading", false, {root:true})
+    },
+    //--------------------------------------------
+    async cleanBasket({commit, getters, rootState}) {
+      console.log("shop:cleanBasket")
+      //..........................................
+      // Guard Ticket
+      let ticket  = rootState.auth.ticket
+      if(!ticket) {
+        return
+      }
+      //..........................................
+      // Check to remote
+      commit("setLoading", true, {root:true})
+      // Current Session ...
+      let reo =  await Ti.Http.get(getters.urls.buyClean, {
+        params : {
+          ticket
         },
         as : "json"
       })
@@ -99,91 +134,49 @@ const _M = {
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       // success
       if(reo.ok) {
-        console.log("addToBasket OK", reo)
-        let buyIt = reo.data
-        commit("appendBasket", buyIt)
-        commit("setLastAdded", buyIt)
-
-        // Success
-        if(success) {
-          await dispatch(success.action, success.payload, {root:true})
-        }
+        commit("setBasket", [])
       }
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       // Fail
-      else if(fail){
-        await dispatch(fail.action, fail.payload, {root:true})
+      else{
+        console.error("www/shop module: Fail to reloadBasket", reo)
+      }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    },
+    //--------------------------------------------
+    async reloadBasket({commit, getters, rootState}) {
+      console.log("shop:reloadBasket")
+      //..........................................
+      // Guard Ticket
+      let ticket  = rootState.auth.ticket
+      if(!ticket) {
+        return
+      }
+      //..........................................
+      // Check to remote
+      commit("setLoading", true, {root:true})
+      // Current Session ...
+      let reo =  await Ti.Http.get(getters.urls.buyGetAll, {
+        params : {
+          ticket
+        },
+        as : "json"
+      })
+      commit("setLoading", false, {root:true})
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      // success
+      if(reo.ok) {
+        commit("setBasket", reo.data)
+      }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      // Fail
+      else{
+        console.error("www/shop module: Fail to reloadBasket", reo)
       }
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     }
     //--------------------------------------------
-  },
-  //--------------------------------------------
-  async cleanBasket({commit, getters, rootState}) {
-    console.log("shop:cleanBasket")
-    //..........................................
-    // Guard Ticket
-    let ticket  = rootState.auth.ticket
-    if(!ticket) {
-      return
-    }
-    //..........................................
-    // Check to remote
-    commit("setLoading", true, {root:true})
-    // Current Session ...
-    let reo =  await Ti.Http.get(getters.urls.buyClean, {
-      params : {
-        ticket
-      },
-      as : "json"
-    })
-    commit("setLoading", false, {root:true})
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // success
-    if(reo.ok) {
-      commit("setBasket", [])
-      commit("setLastAdded", null)
-    }
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // Fail
-    else{
-      console.error("www/shop module: Fail to reloadBasket", reo)
-    }
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  },
-  //--------------------------------------------
-  async reloadBasket({commit, getters, rootState}) {
-    console.log("shop:reloadBasket")
-    //..........................................
-    // Guard Ticket
-    let ticket  = rootState.auth.ticket
-    if(!ticket) {
-      return
-    }
-    //..........................................
-    // Check to remote
-    commit("setLoading", true, {root:true})
-    // Current Session ...
-    let reo =  await Ti.Http.get(getters.urls.buyGetAll, {
-      params : {
-        ticket
-      },
-      as : "json"
-    })
-    commit("setLoading", false, {root:true})
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // success
-    if(reo.ok) {
-      commit("setBasket", reo.data)
-      commit("setLastAdded", null)
-    }
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // Fail
-    else{
-      console.error("www/shop module: Fail to reloadBasket", reo)
-    }
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  }
+  } // actions : {
   ////////////////////////////////////////////////
 }
 export default _M;

@@ -42,6 +42,19 @@ const TiNum = {
         : len + md
     }
     return -1
+  },
+  /***
+   * @param n{Number} input number
+   * @param p{Number} precise bit
+   * 
+   * @return The number after tidy
+   */
+  precise(n, p=2) {
+    if (p >= 0) {
+        var y = Math.pow(10, p);
+        return Math.round(n * y) / y;
+    }
+    return n;
   }
 }
 //---------------------------------------

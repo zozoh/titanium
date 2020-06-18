@@ -1,7 +1,7 @@
 const _M = {
   /////////////////////////////////////////
   getters : {
-    //-------------------------------------
+    //--------------------------------------------
     // Pre-compiled Site Routers
     routerList(state) {
       let list = []
@@ -34,7 +34,7 @@ const _M = {
       })
       return list
     },
-    //-------------------------------------
+    //--------------------------------------------
     // Site Action Mapping
     actions(state) {
       //console.log("www-mod-site::getters.actions")
@@ -89,13 +89,13 @@ const _M = {
       }
       return map
     },
-    //-------------------------------------
+    //--------------------------------------------
     getUrl(state) {
       return (path)=>{
         return Ti.Util.appendPath(state.base, path)
       }
     },
-    //-------------------------------------
+    //--------------------------------------------
     getApiUrl(state) {
       return (path)=>{
         if(path.startsWith("/")) {
@@ -104,50 +104,43 @@ const _M = {
         return Ti.Util.appendPath(state.apiBase, path)
       }
     }
-    //-------------------------------------
+    //--------------------------------------------
   },
   /////////////////////////////////////////
   mutations : {
-    //-------------------------------------
+    //--------------------------------------------
     setSiteId(state, siteId) {
       state.siteId = siteId
     },
-    //-------------------------------------
+    //--------------------------------------------
     setDomain(state, domain) {
       state.domain = domain
       state.base = Ti.S.renderBy(state.base||"/www/${domain}/", {domain})
       state.apiBase = Ti.S.renderBy(state.apiBase||"/api/${domain}/", {domain})
     },
-    //-------------------------------------
+    //--------------------------------------------
     setLoading(state, loading) {
       state.loading = loading
     },
-    //-------------------------------------
-    // 0: no ready
-    // 1: before reload   -> @page:prepare
-    // 2: done for reload -> @page:ready
-    setPageReady(state, isReady) {
-      state.pageReady = isReady
-    },
-    //-------------------------------------
-    prepare(state) {
+    //--------------------------------------------
+    explainSiteState(state) {
       state.base = Ti.Util.explainObj(state, state.base)
       state.apiBase = Ti.Util.explainObj(state, state.apiBase)
       state.cdnBase = Ti.Util.explainObj(state, state.cdnBase)
       state.logo = Ti.Util.explainObj(state, state.logo)
       state.entry = Ti.Util.explainObj(state, state.entry)
     }
-    //-------------------------------------
+    //--------------------------------------------
   },
   /////////////////////////////////////////
   actions : {
-    //-------------------------------------
+    //--------------------------------------------
     navBackward() {
       if(window.history) {
         window.history.back()
       }
     },
-    //-------------------------------------
+    //--------------------------------------------
     async openUrl({state}, {
       url, target="_self", method="GET", params={}, delay=0
     }) {
@@ -155,11 +148,7 @@ const _M = {
         target, method, params, delay
       })
     },
-    //-------------------------------------
-    async scrollPageToTop({state}) {
-      Ti.Be.ScrollWindowTo({y:0})
-    },
-    //-------------------------------------
+    //--------------------------------------------
     // Only handle the "page|dispatch"
     async navTo({state, commit, dispatch}, {
       type="page",
@@ -175,34 +164,17 @@ const _M = {
         return
       // navTo::page
       if("page" == type) {
-        commit("setPageReady", 0)
         commit("setLoading", true)
-        
-        // Prepare
-        console.log("@page:prepare ...")
-        await dispatch("invokeAction", {
-          name:"@page:prepare"
-        })
-        commit("setPageReady", 1)
 
         // Reload
-        console.log("@page:reload ...", _.cloneDeep(state.auth))
+        //console.log("@page:reload ...", _.cloneDeep(state.auth))
         await dispatch("page/reload", {
           path   : value,
           anchor : anchor,
           params : params,
           data   : data
         })
-        commit("setPageReady", 2)
-
-        // Scroll window
-        dispatch("scrollPageToTop")
-
-        // Ready
-        console.log("@page:ready ...")
-        await dispatch("invokeAction", {
-          name:"@page:ready"
-        })
+        
         commit("setLoading", false)
       }
       // navTo::dispatch
@@ -210,7 +182,7 @@ const _M = {
         await dispatch(value, params)
       }
     },
-    //-------------------------------------
+    //--------------------------------------------
     /***
      * Handle the action dispatching.
      * 
@@ -258,7 +230,7 @@ const _M = {
       console.log("invoke->", action, pld)
       await dispatch(action, pld)
     },
-    //-------------------------------------
+    //--------------------------------------------
     /***
      * Invoke action by given name
      */
@@ -324,7 +296,7 @@ const _M = {
         console.error(e)
       }
     },
-    //-------------------------------------
+    //--------------------------------------------
     async reload({state, commit, dispatch}) {
       console.log("site.reload", state.entry, state.base)
       // Merge Site FuncSet
@@ -378,7 +350,7 @@ const _M = {
         pushHistory : false
       })
     }
-    //-------------------------------------
+    //--------------------------------------------
   }
   /////////////////////////////////////////
 }

@@ -96,7 +96,6 @@ export async function WebAppMain({
     //console.log("appConf", conf)
     _.assign(conf.store.state, {
       loading   : false,
-      pageReady : 0,
       siteId,
       domain,
     })
@@ -110,7 +109,7 @@ export async function WebAppMain({
 
   // Prepare the data,
   //  - base/apiBase/cdnBase will be explained
-  app.commit("prepare")
+  app.commit("explainSiteState")
 
   //---------------------------------------
   Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{
