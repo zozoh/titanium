@@ -1,7 +1,7 @@
 .hmaker-site-manager {
   //---------------------------------------------
   .site-current-view {
-    $cvH : .4rem;
+    $cvH : SZ(40);
     //-------------------------------------------
     padding-top: $cvH;
     //-------------------------------------------
@@ -17,13 +17,13 @@
       @include pos-abs($t:0,$l:0,$r:0,$h:$cvH);
       @include flex-align-nowrap($ai:center);
       @include border(1px, solid, shallow, bottom);
-      padding: 0 .06rem;
+      padding: 0 SZ(6);
       //-----------------------------------------
       > .as-name {
         @include flex-align-nowrap;
         @include font-fixed;
         flex:0 0 auto;
-        > .as-icon {margin:0 .06rem}
+        > .as-icon {margin:0 SZ(6)}
       }
       //-----------------------------------------
       > .as-crumb {
@@ -46,7 +46,7 @@
 /////////////////////////////////////////////////
 .hmaker-site-node-editing {
   //---------------------------------------------
-  $headH : .37rem;
+  $headH : SZ(37);
   //---------------------------------------------
   position: relative;
   padding:$headH 0 0 0;
@@ -57,13 +57,13 @@
     @include color($color-bar, r, c);
     @include flex-align-nowrap;
     @include noselect;
-    padding:0 .08rem;
+    padding:0 SZ(8);
     //-------------------------------------------
     > .at-left {
       @include flex-align-center;
-      flex:1 1 auto; font-size:.14rem;
+      flex:1 1 auto; font-size:SZ(14);
       > i {font-size: 1.2em;}
-      > span {margin:0 .06rem;}
+      > span {margin:0 SZ(6);}
     }
     //-------------------------------------------
   }
@@ -76,7 +76,7 @@
 /////////////////////////////////////////////////
 .hmaker-edit-site-nav {
   //---------------------------------------------
-  $formH : 2.6rem;
+  $formH : SZ(260);
   //---------------------------------------------
   position: relative;
   padding:0 0 $formH 0;
@@ -92,8 +92,8 @@
 }
 /////////////////////////////////////////////////
 .hmaker-edit-com {
-  $ctH : .42rem;
-  $pad : .04rem;
+  $ctH : SZ(42);
+  $pad : SZ(4);
   //---------------------------------------------
   position: relative;
   padding-top: $ctH;

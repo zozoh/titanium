@@ -14,14 +14,14 @@
     font-size:1.2em; padding:0 0.3em;
   }
   > .as-name {
-    padding:0 .08rem;
+    padding:0 SZ(8);
   }
   > .as-link {
     @include border(1px,solid,shallow,left);
     @include flex-align-nowrap;
     white-space: nowrap;
-    padding:0 .08rem;
+    padding:0 SZ(8);
     a:hover {text-decoration: underline;}
-    > .it-icon {margin-right:.06rem;}
+    > .it-icon {margin-right:SZ(6);}
   }
 }

@@ -4,12 +4,12 @@
 .ti-paging-jumper {
   @include flex-center;
   @include noselect;
-  padding:.06rem; font-size:.12rem;
+  padding:SZ(6); font-size:SZ(12);
   //-------------------------------------
   .pj-btn {
     @include border(1px, solid, dark);
     @include flex-align-nowrap;
-    padding:0 .06rem; margin:0 4px;
+    padding:0 SZ(6); margin:0 4px;
     line-height: 2em;
     &.is-disabled {
       opacity: 0.2; cursor: default;
@@ -17,11 +17,11 @@
     &.is-enabled {
       @include fireable;
     }
-    > .it-text {margin:0 .04rem;}
+    > .it-text {margin:0 SZ(4);}
   }
   //-------------------------------------
   .pj-current {
-    min-width: 4em; padding:0 .02rem;
+    min-width: 4em; padding:0 SZ(2);
     text-align: center;
     &.is-disabled {
       opacity: 0.2; cursor: default;
@@ -37,7 +37,7 @@
   //-------------------------------------
   .pj-sum {
     @include color($color-track, c);
-    font-size:.9em; padding:0 .04rem;
+    font-size:.9em; padding:0 SZ(4);
     white-space: nowrap;
     &.is-disabled {
       opacity: 0.2; cursor: default;

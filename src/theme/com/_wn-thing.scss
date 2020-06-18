@@ -9,7 +9,7 @@
   //----------------------------------------
   > .as-recyclebin {
     @include flex-center;
-    padding:0 .1rem; cursor: pointer;
+    padding:0 SZ(10); cursor: pointer;
     opacity: 0.6;
     //--------------------------------------
     .it-icon {
@@ -21,7 +21,7 @@
     }
     //--------------------------------------
     .it-text {
-      font-size:.1rem; line-height: 1.1em; white-space: nowrap;
+      font-size:SZ(10); line-height: 1.1em; white-space: nowrap;
     }
     //--------------------------------------
     &:hover {
@@ -41,11 +41,11 @@
 // Thing filter
 .wn-thing-files {
   position: relative;
-  padding-top:.4rem;
+  padding-top:SZ(40);
   //-------------------------------------
   // Sizing
   > .as-header {
-    @include pos-abs($t:0,$l:0,$r:0,$h:.4rem);
+    @include pos-abs($t:0,$l:0,$r:0,$h:SZ(40));
   }
   > .as-preview {height: 37.2%;}
   > .as-list {height: 61.8%;}
@@ -54,15 +54,15 @@
   > .as-header {
     @include flex-align-nowrap;
     @include color($color-bar, r, c);
-    font-size:.12rem;
+    font-size:SZ(12);
     > .as-tip {
       @include color($color-track, c);
       flex:0 0 auto;
-      padding:0 .04rem 0 .1rem;
+      padding:0 SZ(4) 0 SZ(10);
     }
     > .as-name  {
       flex:1 1 auto;
-      padding-left:.06rem;
+      padding-left:SZ(6);
       .ti-droplist {
         display: block; 
         line-height: 1.8em;
@@ -70,7 +70,7 @@
     }
     > .as-menu {
       flex:0 0 auto;
-      padding:0 .06rem;
+      padding:0 SZ(6);
     }
   }
   > .as-preview {

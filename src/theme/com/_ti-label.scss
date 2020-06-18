@@ -37,11 +37,11 @@
     flex:0 0 auto; 
     > .ti-icon {
       &.is-image {
-        width:.36rem;
-        padding:.02rem;
+        width:SZ(36);
+        padding:SZ(2);
       }
       &.is-font {
-        width:.26rem;
+        width:SZ(26);
       }
     }
     //---------------------------------------
@@ -68,7 +68,7 @@
     @include noselect;
     @include flex-center;
     white-space: nowrap;
-    padding:0 .04rem;
+    padding:0 SZ(4);
     opacity: 0.6;
     //---------------------------------------
     &.can-hover{cursor: pointer;}
@@ -79,7 +79,7 @@
   > .as-value {
     @include font-fixed;
     @include flex-align-nowrap;
-    padding: 0 .04rem;
+    padding: 0 SZ(4);
     width:100%;
   }
   //-----------------------------------------

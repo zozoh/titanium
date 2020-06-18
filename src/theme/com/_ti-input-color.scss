@@ -7,8 +7,8 @@
     //-------------------------------
     > .as-color {
       @include flex-center;
-      width:.24rem; height:.24rem; cursor:pointer;
-      padding:.01rem;
+      width:SZ(24); height:SZ(24); cursor:pointer;
+      padding:SZ(1);
       overflow: hidden; position: relative;
       //-----------------------------
       .as-bg {
@@ -18,7 +18,7 @@
       }
       //-----------------------------
       .as-fr {
-        @include pos-abs-full(.01rem); 
+        @include pos-abs-full(SZ(1)); 
       }
       //-----------------------------
     }
@@ -27,8 +27,8 @@
       @include flex-center;
       @include border(1px, solid, dark, left);
       cursor:pointer;
-      padding:0 .04rem;
-      font-size:.1rem;
+      padding:0 SZ(4);
+      font-size:SZ(10);
       &:hover {
         @include color($color-secondary, r, c);
       }
@@ -46,7 +46,7 @@
       background-color:#FFF;
       u.as-bg {
         background-color:red; 
-        height:.03rem; width:200px;
+        height:SZ(3); width:200px;
         transform:rotate(45deg);
       }
       u.as-fr {display: none;}
@@ -57,7 +57,7 @@
     &:hover {
       > .as-color {
         u.as-bg {
-          transform: rotate(360deg); width:.08rem; height:.08rem;
+          transform: rotate(360deg); width:SZ(8); height:SZ(8);
         }
       }
     }
@@ -66,10 +66,10 @@
   //---------------------------------
   &.is-valued > .as-box {
     > .as-color {
-      u.as-bg {@include bg-chessboard(#888, .11rem, #FFF);}
+      u.as-bg {@include bg-chessboard(#888, SZ(11), #FFF);}
     }
     > .as-color:hover {
-      u.as-bg {@include bg-chessboard(#888, .09rem, #FFF);}
+      u.as-bg {@include bg-chessboard(#888, SZ(9), #FFF);}
     }
   }
   //---------------------------------

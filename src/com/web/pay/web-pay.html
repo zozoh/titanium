@@ -1,5 +1,8 @@
 <div class="web-pay">
   <ti-wizard
+    :current="1"
     :title="title"
-    :steps="PaySteps"/>
+    :steps="PaySteps"
+    :value="myPayment"
+    @change="OnChange"/>
 </div>

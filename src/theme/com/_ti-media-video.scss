@@ -7,7 +7,7 @@
     video {box-shadow: 1px 1px 3px map-get($color-shadow, c);}
   }
   &.as-contain {
-    padding:.02rem;
+    padding:SZ(2);
     video {max-width:100%; max-height:100%;}
   }
   &.as-loading {

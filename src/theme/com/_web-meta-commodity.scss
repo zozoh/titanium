@@ -1,5 +1,5 @@
 .web-meta-commodity {
-  padding:.16rem 0;
+  padding:SZ(16) 0;
   > .as-main {
     @include flex-align-nowrap($ai:flex-start);
     @include border(1px, solid, shallow);
@@ -18,7 +18,7 @@
       padding:1em;
       //-------------------------------------------
       > h1 {
-        padding:.1rem 0; margin:0; 
+        padding:SZ(10) 0; margin:0; 
         font-weight: normal; font-size:2em;
       }
       //-------------------------------------------
@@ -27,11 +27,11 @@
           padding:0;
           .form-field {
             border:0;
-            padding:.08rem 0;
+            padding:SZ(8) 0;
             //-----------------------------------
             &.webmc-highlight {
               @include color($color-chip, r, c);
-              padding:.1rem .16rem;
+              padding:SZ(10) SZ(16);
               .field-value {
                 color:map-get($color-secondary, c);
                 font-weight: 900; font-size:2em;
@@ -51,7 +51,7 @@
       //-------------------------------------------
       > .as-btns {
         @include flex-align-nowrap;
-        padding:.1rem 0; 
+        padding:SZ(10) 0; 
         .ti-btn {
           font-size: 1.5em;
           min-width: 12em;

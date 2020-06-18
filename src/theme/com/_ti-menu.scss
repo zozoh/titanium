@@ -17,8 +17,8 @@
     //----------------------------------------------
     .as-info {
       @include flex-align($ai:center, $wp:nowrap);
-      border-radius:.02rem;
-      padding:0 .06rem;
+      border-radius:SZ(2);
+      padding:0 SZ(6);
       &[item-disabled] {
         @include disabled;
       }
@@ -29,22 +29,22 @@
     //----------------------------------------------
     .as-icon {
       @include flex-center;
-      height:.3rem; line-height:.3rem;
+      height:SZ(30); line-height:SZ(30);
       > .ti-icon {
-        width:.24rem;
+        width:SZ(24);
       }
     }
     //----------------------------------------------
     .as-text {
       padding:0 2px;
-      height:.3rem; line-height:.3rem;
+      height:SZ(30); line-height:SZ(30);
       white-space: nowrap;
     }
     //----------------------------------------------
     > .it-is-line {
       @include color($color-line, null, shallow);
-      width:1px; height:.2rem; overflow:hidden;
-      margin:0 .02rem;
+      width:1px; height:SZ(20); overflow:hidden;
+      margin:0 SZ(2);
     }
     //----------------------------------------------
   }  // .menu-top-item 
@@ -76,19 +76,19 @@
         @include border(1px, solid, primary);
         box-shadow: 4px 6px 10px map-get($color-shadow, c);
         position:fixed;
-        min-width: 1.5rem;
+        min-width: SZ(150);
         z-index: $z-menu;
         padding:1px; 
         //-----------------------------------------
         .it-is-line {
           @include color($color-line, null, shallow);
           height:1px; overflow:hidden;
-          margin:.04rem 0;
+          margin:SZ(4) 0;
         }
         //-----------------------------------------
         .as-info {
-          padding:.02rem .1rem; line-height:1.2em;
-          height: .32rem;
+          padding:SZ(2) SZ(10); line-height:1.2em;
+          height: SZ(32);
           //---------------------------------------
           &:hover {
             .as-tip {opacity: 1; }
@@ -102,18 +102,18 @@
           //---------------------------------------
           .as-icon {
             @include flex-center;
-            width:.24rem; font-size:.16rem;
+            width:SZ(24); font-size:SZ(24);
           }
           //---------------------------------------
           .as-text {
-            padding-left:.1rem;
+            padding-left:SZ(10);
           }
           //---------------------------------------
           .as-tip {
             flex:1 1 auto;
-            padding-left:.24rem;
+            padding-left:SZ(24);
             text-align:right;
-            font-size:.1rem; opacity: 0.6;
+            font-size:SZ(10); opacity: 0.6;
           }
           //---------------------------------------
         } // .as-info 

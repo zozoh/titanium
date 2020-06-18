@@ -6,16 +6,16 @@
       @include flex-align;
       > * {flex:1 1 auto;}
     }
-    &.ti-spacing-xs {padding:.08rem;  >* {margin:.02rem;}}
-    &.ti-spacing-sm {padding:.08rem;  >* {margin:.08rem;}}
-    &.ti-spacing-md {padding:.16rem;  >* {margin:.16rem;}}
-    &.ti-spacing-lg {padding:.24rem;  >* {margin:.24rem;}}
-    &.ti-spacing-xl {padding:.32rem;  >* {margin:.32rem;}}
+    &.ti-spacing-xs {padding:SZ(8);  >* {margin:SZ(8);}}
+    &.ti-spacing-sm {padding:SZ(8);  >* {margin:SZ(8);}}
+    &.ti-spacing-md {padding:SZ(16);  >* {margin:SZ(16);}}
+    &.ti-spacing-lg {padding:SZ(24);  >* {margin:SZ(24);}}
+    &.ti-spacing-xl {padding:SZ(32);  >* {margin:SZ(32);}}
     > .is-empty {
       @include color($color-track, c);
       @include flex-align-center;
-      padding:.3rem; font-size:1.2em;
-      .ti-icon {font-size:2em; margin-right:.06rem;}
+      padding:SZ(30); font-size:1.2em;
+      .ti-icon {font-size:2em; margin-right:SZ(6);}
     }
   } // ~ .list-con
 }

@@ -15,14 +15,14 @@
   //-----------------------------------------
   &.as-desktop {
     .explorer-sky { 
-      .sky-logo   {padding:0 .02rem 0 .12rem;}
-      .sky-action {padding:0 .12rem;
-        > * {padding:0 .08rem;}
+      .sky-logo   {padding:0 SZ(2) 0 SZ(12);}
+      .sky-action {padding:0 SZ(12);
+        > * {padding:0 SZ(8);}
         > *:first-child{padding-left:0;}
         > *:last-child{padding-right:0;}
       }
     }
-    .explorer-footer > * {padding:0 .1rem;}
+    .explorer-footer > * {padding:0 SZ(10);}
   }
   //-----------------------------------------
   &.as-phone {
@@ -32,12 +32,12 @@
         justify-content: center;
         align-content: center;
         align-items: center;
-        height:100%; padding:0 .1rem;
+        height:100%; padding:0 SZ(10);
         b {font-weight: normal;}
       }
     }
     &.is-home {
-      .explorer-sky {padding-left:.2rem;}
+      .explorer-sky {padding-left:SZ(20);}
     }
   }
   //-----------------------------------------
@@ -58,7 +58,7 @@
   .explorer-footer {
     @include color($color-disable, c);
     @include font-nice(.12rem); 
-    .ti-icon {font-size:1.2em; margin:0 .06rem 0 0;}
+    .ti-icon {font-size:1.2em; margin:0 SZ(6) 0 0;}
     > .footer-log {white-space: nowrap;}
   }
 }
@@ -66,8 +66,8 @@
 .wn-explorer {
   $SZ : (
     sky    : 48px,
-    aside  : 1.8rem,
-    footer : .32rem
+    aside  : SZ(180),
+    footer : SZ(32)
   );
   width:100%; height:100%;
   position:relative;
@@ -127,7 +127,7 @@
       }
     } 
     > .sky-title .as-address-bar {
-      @include ul(left, .1rem);
+      @include ul(left, SZ(10));
       > li {
         @include flex-center($wp:nowrap);
         white-space: nowrap;
@@ -138,7 +138,7 @@
     }
     > .sky-action {
       .sky-menu-icon {
-        width:.52rem; height:100%; 
+        width:SZ(52); height:100%; 
       }
     } 
 }

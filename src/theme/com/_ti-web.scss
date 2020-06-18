@@ -12,16 +12,16 @@
 /////////////////////////////////////////////////////
 // 
 .ti-web-meta-order {
-  padding:.2rem;
+  padding:SZ(20);
   //--------------------------------------------
   > h1 {
     font-size:1.6em; font-weight: bold; 
-    padding:.1rem 0; margin:0;
+    padding:SZ(10) 0; margin:0;
     text-align: center;
   }
   //--------------------------------------------
   > .as-items {
-    padding:.1rem;
+    padding:SZ(10);
     //------------------------------------------
     .as-table {
       display: table;
@@ -39,7 +39,7 @@
         li {
           border-bottom:2px solid map-get($color-primary, c);
           display: table-cell;
-          padding:.06rem; text-align: center;
+          padding:SZ(6); text-align: center;
           white-space: nowrap;
           &.as-fee {
             text-align: right;
@@ -52,7 +52,7 @@
         .as-row  {display: table-row;}
         .as-cell {
           display: table-cell; 
-          padding:.1rem;
+          padding:SZ(10);
           vertical-align: middle;
           text-align: center;
         }
@@ -61,7 +61,7 @@
             @include flex-align-nowrap;
             flex:1 1 auto;
             > span.as-text {
-              padding:0 .1rem; white-space: nowrap;
+              padding:0 SZ(10); white-space: nowrap;
             }
           }
           .as-fee {text-align: right;}
@@ -75,18 +75,18 @@
   .as-summary {
     @include color($color-chip, r, c);
     border:1px dashed map-get($color-secondary, c);
-    width:3rem; margin:.2rem 0 .2rem auto;
-    padding:.2rem;
+    width:SZ(300); margin:SZ(20) 0 SZ(20) auto;
+    padding:SZ(20);
     .as-sum-fee {
-      padding:.1rem 0; text-align:right;
+      padding:SZ(10) 0; text-align:right;
       span {font-weight: bold;}
     }
     .as-btns {
       border-top:1px dashed map-get($color-line, dark);
-      padding:.1rem 0;
+      padding:SZ(10) 0;
       a {
         width:100%;
-        padding:.1rem;
+        padding:SZ(10);
       }
     }
   }
@@ -94,90 +94,11 @@
 }
 
 /////////////////////////////////////////////////////
-// Content:Markdown
-.ti-web-content-markdown {
-  
-}
-
-/////////////////////////////////////////////////////
-// Footer
-.ti-web-footer {
-  @include color($color-primary, r, c);
-  text-align: center;
-  padding:.1rem;
-}
-
-/////////////////////////////////////////////////////
-// Tip: Under Construction
-.ti-web-roadblock {
-  @include noselect;
-  @include color($color-disable, c, r);
-  @include flex-center;
-  width:100%; height:100%;
-  padding-bottom: 20%;
-  > .as-main {
-    font-size:.32rem;
-    > .as-icon {
-      font-size:5em; padding:.1em;
-    }
-    > .as-text {
-      font-size:1em; text-align: center;
-    }
-  }
-}
-
-
-/////////////////////////////////////////////////////
-// Choose Mode By Thumbs
-.ti-web-choose-mode {
-  @include noselect;
-  @include flex-center;
-  padding:.2rem;
-  //--------------------------------------
-  > .wcm-item {
-    margin:.1rem; padding:.1rem; cursor:pointer;
-    border:1px solid transparent;
-    width:1.2rem; 
-    //------------------------------------
-    > .as-icon {
-      font-size:.64rem;
-      img {width:.64rem; height:.64rem;}
-    }
-    //------------------------------------
-    > .as-text {
-      text-align:center;
-      padding:.1rem; font-size:1.2em;
-    }
-    //------------------------------------
-    &:hover {
-      @include color($color-weaktip, r, c);
-    }
-    //------------------------------------
-    &.is-current {
-      @include color($color-weaktip, r, c);
-      border-color:map-get($color-primary, c);
-    }
-    //------------------------------------
-  }
-  //--------------------------------------
-}
-
-/////////////////////////////////////////////////////
-// Pay: Choose Types
-.ti-web-pay-types {
-  > .ti-btn {
-    width:2.6rem; margin:0 auto;
-    &.is-disabled {
-      @include color($color-disable, c, r);
-    }
-  }
-}
-/////////////////////////////////////////////////////
 // Pay: wait for scan
 .ti-web-pay-scan {
   text-align: center;
   .scan-con {
-    padding:.2rem 0;
+    padding:SZ(20) 0;
     // QRCode Image: Weixin Scan
     .is-qrcode {
       img {border:0;}
@@ -191,7 +112,7 @@
     }
   }
   .scan-check-btn {
-    width:2.6rem; margin:0 auto;
+    width:SZ(260); margin:0 auto;
     &.is-disabled {
       @include color($color-disable, c, r);
     }
@@ -207,12 +128,12 @@
   &.is-wait {@include color($color-warn, c);}
   //--------------------------------------
   .done-con {
-    padding:.2rem 0;
+    padding:SZ(20) 0;
     .done-icon {
-      font-size: 1rem;
+      font-size: SZ(100);
     }
     .done-tip {
-      font-size:.2rem;
+      font-size:SZ(20);
     }
   }
   //--------------------------------------

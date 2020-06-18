@@ -9,7 +9,7 @@
     cursor: pointer;
     color:map-get($color-line, c);
     flex:0 0  auto;
-    width:.32rem;
+    width:SZ(32);
     border:1px solid map-get($color-line, dark);
     border-top:0; border-bottom:0;
     &.is-enabled:hover {
@@ -29,7 +29,7 @@
       @include text-input;
       width:100%;
       border:0; outline: none;
-      padding:.06rem .14rem;
+      padding:SZ(6) SZ(14);
       font-size:1.2em;
       text-align: center;
     }

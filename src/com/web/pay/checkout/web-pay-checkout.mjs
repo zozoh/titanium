@@ -29,6 +29,10 @@ const _M = {
       return _.isEmpty(this.items)
     },
     //--------------------------------------
+    CurrencyChar(){
+      return Ti.Bank.getCurrencyChar(this.currency)
+    },
+    //--------------------------------------
     TheItems() {
       let list = []
       _.forEach(this.items, it=>{
@@ -40,8 +44,10 @@ const _M = {
       return list
     },
     //--------------------------------------
-    CurrencyChar(){
-      return Ti.Bank.getCurrencyChar(this.currency)
+    TotalFee() {
+      let fee = 0;
+      _.forEach(this.TheItems, it=>fee+=(it.price*it.amount))
+      return Ti.Num.precise(fee)
     }
     //--------------------------------------
   },

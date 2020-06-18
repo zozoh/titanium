@@ -1,18 +1,18 @@
 .ti-color {
   //-------------------------------------
   > .as-table {
-    padding:.12rem .1rem .1rem .1rem;
+    padding:SZ(12) SZ(10) SZ(10) SZ(10);
     table {
       width:100%;
       th {
-        padding:.015rem .015rem .05rem .015rem;
+        padding:SZ(1.5) SZ(1.5) SZ(5) SZ(1.5);
       }
       td {
-        padding:.015rem;
+        padding:SZ(1.5);
       }
       span {
         display: block;
-        width:.2rem; height:.2rem;
+        width:SZ(20); height:SZ(20);
         border-radius: 50%; 
         box-shadow: 0 0 0 1px #dcdee1; 
         cursor: pointer;
@@ -26,24 +26,24 @@
   //-------------------------------------
   > .as-input {
     @include flex-align-nowrap;
-    padding: .04rem;
+    padding: SZ(4);
     //-----------------------------------
     > .as-hex {
       flex:1 1 auto;
       input.as-value {
         @include text-input;
-        width:100%; font-size:.16rem;
-        padding:.06rem;
+        width:100%; font-size:SZ(16);
+        padding:SZ(6);
       }
     }
     //-----------------------------------
     > .as-alpha {
-      flex:0 0 auto; width:.9rem;
-      padding-left:.02rem;
+      flex:0 0 auto; width:SZ(90);
+      padding-left:SZ(2);
       .ti-input-num {
-        .as-btn {width:.2rem; font-size:.1rem;}
+        .as-btn {width:SZ(20); font-size:SZ(20);}
         .as-input {
-          input {padding:.06rem 0; }
+          input {padding:SZ(6) 0; }
         }
       }
     }
@@ -51,8 +51,8 @@
   }
   //-------------------------------------
   > .as-preview {
-    padding:.06rem; text-align: center;
-    @include font($f_fixed, .12rem);
+    padding:SZ(6); text-align: center;
+    @include font($f_fixed, SZ(12));
     @include color($color-disable, c);
   }
   //-------------------------------------

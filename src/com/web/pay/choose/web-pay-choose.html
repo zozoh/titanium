@@ -1,14 +1,17 @@
-<div class="ti-web-pay-types">
+<div class="web-pay-choose"
+  :class="TopClass">
+  <!--Title-->
+  <div class="as-title">{{'pay-step-choose-tip'|i18n}}</div>
   <!--Choosing-->
-  <ti-web-choose-mode
-    :base="base"
-    :options="options"
-    :value="value"
-    @change="$notify('change', $event)"/>
-  <!--Button-->
-  <div class="ti-btn is-huge" 
-    :class="btnClass"
-    @click.left="onClickBtn">
-    <span class="as-text">{{payTypeText|i18n}}</span>
+  <div class="as-options">
+    <div
+      v-for="op in options"
+        class="as-pay-type"
+        :class="getOptionClass(op)"
+        @click.left="OnChooseOption(op)">
+        <ti-icon :value="op.icon"/>
+        <div class="as-text">{{op.text | i18n}}</div>
+    </div>
   </div>
+  <div class="as-tip">{{PayTypeText}}</div>
 </div>

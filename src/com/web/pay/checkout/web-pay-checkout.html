@@ -50,12 +50,9 @@
                     :href="it.href">
                     <img :src="it.thumbSrc"/>
                 </a>
-                <div class="it-info">
-                  <div class="it-title">
-                    <a :href="it.href"
-                      @click.prevent="OnShowProduct(it)">{{it.title}}</a>
-                  </div>
-                  <div class="it-type">{{it.type}}</div>
+                <div class="it-title">
+                  <a :href="it.href"
+                    @click.prevent="OnShowProduct(it)">{{it.title}}</a>
                 </div>
               </td>
               <td class="it-price">
@@ -71,5 +68,19 @@
           </tbody>
       </table>
     </div> <!--~as-list-->
+    <!--
+      Summary
+    -->
+    <div class="as-summary">
+      <div class="at-left">
+        <!--Maybe Coupon here-->
+      </div>
+      <div class="at-right">
+        <div class="as-total">
+          <span>Total:</span>
+          <em>{{CurrencyChar}}{{TotalFee}}</em>
+        </div>
+      </div>
+    </div>
   </template>
 </div>

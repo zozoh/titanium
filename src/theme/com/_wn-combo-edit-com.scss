@@ -4,7 +4,7 @@
   > .as-value {
     @include color($color-primary, c);
     cursor: pointer;
-    padding: .06rem;
+    padding: SZ(6);
     //----------------------------------------
     &:hover {
       @include color($color-secondary, c);

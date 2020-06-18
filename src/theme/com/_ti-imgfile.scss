@@ -4,7 +4,7 @@
   > .thumb-con {
     @include border(2px, solid, shallow);
     @include color($color-func, r, c);
-    width:1.2rem; height:1.2rem;
+    width:SZ(120); height:SZ(120);
     overflow: hidden;
     cursor:pointer;
     //-------------------------------------------
@@ -16,7 +16,7 @@
     .ti-obj-thumb {
       border: 0;
       width:100%; height:100%;
-      font-size: .2rem;
+      font-size: SZ(20);
       > header {
         padding:0; width:100%; height:100%;
         .as-preview {
@@ -44,10 +44,10 @@
       @include flex-align-nowrap($jc:center);
       @include color($color-primary, r, c);
       cursor:pointer;
-      padding:.06rem .1rem; 
+      padding:SZ(6) SZ(10); 
       margin-bottom:4px;
       line-height: 1.1em; font-size:12px;
-      .it-text {margin-left:.06rem; white-space: nowrap;}
+      .it-text {margin-left:SZ(6); white-space: nowrap;}
       &:hover {
         @include color($color-secondary, r, c);
       }

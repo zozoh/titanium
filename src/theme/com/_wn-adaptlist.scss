@@ -18,12 +18,12 @@
     > header {
       @include flex-align-center;
       @include color($color-warn, r, c);
-      padding: .04rem .1rem;
-      > span {margin-right:.06rem;}
+      padding: SZ(4) SZ(10);
+      > span {margin-right:SZ(6);}
     }
     //-------------------------------------------
     > section {
-      padding: .1rem;
+      padding: SZ(10);
     }
     //-------------------------------------------
   }

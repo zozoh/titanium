@@ -16,17 +16,17 @@
   }
   //-------------------------------------
   &.spacing-no >* {margin:0;}
-  &.spacing-xs {padding:.02rem;  >* {margin:.02rem;}}
-  &.spacing-sm {padding:.08rem;  >* {margin:.08rem;}}
-  &.spacing-md {padding:.16rem;  >* {margin:.16rem;}}
-  &.spacing-lg {padding:.24rem;  >* {margin:.24rem;}}
-  &.spacing-xl {padding:.32rem;  >* {margin:.32rem;}}
+  &.spacing-xs {padding:SZ(2);  >* {margin:SZ(2);}}
+  &.spacing-sm {padding:SZ(8);  >* {margin:SZ(8);}}
+  &.spacing-md {padding:SZ(16);  >* {margin:SZ(16);}}
+  &.spacing-lg {padding:SZ(24);  >* {margin:SZ(24);}}
+  &.spacing-xl {padding:SZ(32);  >* {margin:SZ(32);}}
   //-------------------------------------
   > .is-empty {
     @include color($color-track, c);
     @include flex-align-center;
-    padding:.3rem; font-size:1.2em;
-    .ti-icon {font-size:2em; margin-right:.06rem;}
+    padding:SZ(30); font-size:1.2em;
+    .ti-icon {font-size:2em; margin-right:SZ(6);}
   }
   //-------------------------------------
   > .wall-tile {
@@ -47,7 +47,7 @@
     //----------------------------------
     .ti-obj-thumb {
       .as-preview {
-        font-size:.4rem;
+        font-size:SZ(40);
       }
     }
   }

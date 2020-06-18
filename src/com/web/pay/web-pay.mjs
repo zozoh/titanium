@@ -1,13 +1,20 @@
 const _M = {
   ///////////////////////////////////////////////////
   data: ()=>({
-    myValue: {}
+    myPayment: {
+      payType: null
+      //payType: "wx.qrcode"
+    }
   }),
   ///////////////////////////////////////////////////
   props : {
     "title": {
       type: String,
       default: "i18n:pay-title"
+    },
+    "payType": {
+      type: String,
+      default: null
     },
     /**
      * Items Array should like:
@@ -27,7 +34,11 @@ const _M = {
     "currency": {
       type: String,
       default: "RMB"
-    }
+    },
+    "payTypeOptions" : {
+      type : Array,
+      default : undefined
+    },
   },
   ///////////////////////////////////////////////////
   computed : {
@@ -40,17 +51,39 @@ const _M = {
           items: this.items,
           currency: this.currency
         }
+      }, {
+        title: "i18n:pay-step-choose-title",
+        prev : true,
+        next : {
+          enabled: {
+            payType: "!isBlank"
+          }
+        },
+        comType: "WebPayChoose",
+        comConf: {
+          options: this.payTypeOptions,
+          value: "=payType"
+        }
       }]
     }
     //----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
-    
+    //----------------------------------------------
+    OnChange(payment) {
+      _.assign(this.myPayment, payment)
+    }
+    //----------------------------------------------
   },
   ///////////////////////////////////////////////////
   watch: {
-    
+    "payType": {
+      handler: function(){
+        this.myPayment.payType = this.payType
+      },
+      immediate: true
+    }
   }
   ///////////////////////////////////////////////////
 }

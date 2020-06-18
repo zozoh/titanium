@@ -36,7 +36,7 @@
     @include flex-align-v-nowrap;
     @include color($color-chip, r, c);
     min-width: 10em;
-    padding: .02rem;
+    padding: SZ(2);
   }
   //------------------------------------
   a.sub-item {

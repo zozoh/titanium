@@ -14,13 +14,13 @@
       @include border(1px, solid, shallow, bottom);
       @include font-fixed;
       flex:0 0 auto; 
-      height: .45rem;
+      height: SZ(45);
       font-size:1.5em;
       font-weight: bold;
     }
     > .as-time-cols {
-      height:2.5rem;
-      padding:.04rem;
+      height:SZ(250);
+      padding:SZ(4);
       flex:1 1 auto;
       > .ti-col-data.as-time {
         flex:1 1 auto;

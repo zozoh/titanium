@@ -3,15 +3,15 @@
   ul {
     @include raw-list;
     @include flex-align-nowrap;
-    padding:.1rem .1rem 0 .1rem;
+    padding:SZ(10) SZ(10) 0 SZ(10);
     li {
       @include flex-align($ai:center);
-      padding:.06rem .3rem;
-      border-radius:.04rem .04rem 0 0;
+      padding:SZ(6) SZ(30);
+      border-radius:SZ(4) SZ(4) 0 0;
       cursor: pointer;
       opacity: 0.4;
       > .it-icon {
-        margin-right:.08rem;
+        margin-right:SZ(8);
       }
       &.is-current {
         @include color($color-chip, r, c);

@@ -21,7 +21,7 @@
       li {
         @include flex-center;
         cursor: pointer;
-        width:.32rem; height:.32rem; 
+        width:SZ(32); height:SZ(32); 
         .it-icon {
           font-size:1em;
         }
@@ -88,8 +88,8 @@
               @include font-fixed;
               overflow: hidden; white-space: nowrap;
               text-overflow: ellipsis;
-              &.as-name {padding:0 .04rem;}
-              &.as-value{padding:0 .04rem;}
+              &.as-name {padding:0 SZ(4);}
+              &.as-value{padding:0 SZ(4);}
             }
           }
         }
@@ -124,8 +124,8 @@
             > div {
               @include font-fixed;
               word-break: break-all; overflow: hidden;
-              &.as-name {padding:0 .04rem;}
-              &.as-value{padding:0 .04rem;}
+              &.as-name {padding:0 SZ(4);}
+              &.as-value{padding:0 SZ(4);}
             }
           }
         }

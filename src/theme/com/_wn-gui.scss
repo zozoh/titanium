@@ -3,7 +3,7 @@
 .wn-gui-side-nav {
   width:100%; height:100%;
   overflow-x:hidden; overflow-y:auto; 
-  padding: .06rem .02rem; line-height: 2.4em;
+  padding: SZ(6) SZ(6); line-height: 2.4em;
   .side-nav-item {
     .it-info {
       @include noselect;
@@ -11,8 +11,8 @@
       width:100%; padding:0 .5em; cursor: pointer;
       > .it-info-icon {
         @include flex-center;
-        width:.28rem; font-size: .16rem;
-        margin-right:.06rem;
+        width:SZ(28); font-size: SZ(18);
+        margin-right:SZ(6);
       }
       > .it-info-text {
         flex:1 1 auto; 
@@ -36,7 +36,7 @@
         @include border(1px, dotted, shallow, bottom);
         font-size:.9em;
         > .it-info-icon {
-          width:.2rem; font-size:.16rem; 
+          width:SZ(20); font-size:SZ(16); 
         }
       }
     }
@@ -64,7 +64,7 @@
   .table-row.row-indent-0 {
     @include color($color-chip, r, c);
     @include border(1px, solid, shallow, bottom);
-    padding:.02rem 0 .02rem .04rem;
+    padding:SZ(2) 0 SZ(2) SZ(2);
   }
   //------------------------------------------
     .table-row.row-indent-0 .ti-icon {font-size:1em;}
@@ -87,7 +87,7 @@
   > .as-info {
     @include flex-center;
     flex: 0 0 auto;
-    > .ti-icon {margin-right:.06rem;}
+    > .ti-icon {margin-right:SZ(6);}
   }
   > .as-msg {
     @include flex-center;

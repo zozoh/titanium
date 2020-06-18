@@ -2,7 +2,7 @@
   @include noselect;
   @include flex-center;
   @include color($color-track, c);
-  font-size:.24rem;
+  font-size:SZ(24);
   //------------------------------------------
   .as-icon {
     font-size:1.2em;
@@ -11,10 +11,10 @@
   //------------------------------------------
   &.as-big {
     padding: 3em;
-    > .as-icon{font-size: .64rem;}
+    > .as-icon{font-size: SZ(64);}
     > .as-text{
       display:block; padding:.5em;
-      font-size:.16rem;
+      font-size:SZ(16);
       width:100%;
       text-align:center;
     }
@@ -24,10 +24,10 @@
     @include pos-abs-full;
     @include color($color-bar, r, c);
     @include flex-center;
-    > .as-icon{font-size: .64rem;}
+    > .as-icon{font-size: SZ(64);}
     > .as-text{
       display:block; padding:.5em;
-      font-size:.16rem;
+      font-size:SZ(16);
       width:100%;
       text-align:center;
     }
@@ -36,7 +36,7 @@
   &.as-mid-tip {
     @include flex-align;
     @include color($color-track, c);
-    font-size: .14rem;
+    font-size: SZ(14);
     justify-content: flex-start;
     padding: 2em;
   }

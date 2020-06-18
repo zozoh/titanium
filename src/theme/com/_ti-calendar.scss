@@ -1,4 +1,4 @@
-$ti-cal-width: 2.6rem;
+$ti-cal-width: SZ(260);
 .ti-calendar {
   @include flex-align-v-nowrap;
   @include noselect;
@@ -15,7 +15,7 @@ $ti-cal-width: 2.6rem;
       //-------------------------------
       > .go-btn {
         @include flex-center;
-        width:.24rem; white-space: nowrap;
+        width:SZ(24); white-space: nowrap;
         cursor:pointer;
         flex:0 0 auto;
         &:hover {
@@ -24,7 +24,7 @@ $ti-cal-width: 2.6rem;
       }
       //-------------------------------
       > .go-today {
-        padding:0 .06rem; width:unset;
+        padding:0 SZ(6); width:unset;
       }
       //-------------------------------
       > .as-title {
@@ -72,7 +72,7 @@ $ti-cal-width: 2.6rem;
       }
       //-------------------------------
       td {
-        padding:.02rem;
+        padding:SZ(2);
         &.is-prev,
         &.is-next {
           opacity: 0.4;
@@ -94,9 +94,9 @@ $ti-cal-width: 2.6rem;
   //---------------------------------
   .as-date-item {
     @include flex-center; cursor: pointer;
-    width:.32rem; height:.32rem; margin:0 auto; 
+    width:SZ(32); height:SZ(32); margin:0 auto; 
     border-radius: 50%;
-    font-size:.12rem; white-space: nowrap;
+    font-size:SZ(12); white-space: nowrap;
     &:hover {
       @include color($color-weaktip, r, c);
     }

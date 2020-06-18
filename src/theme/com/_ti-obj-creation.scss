@@ -11,7 +11,7 @@
       li {
         @include flex-align($wp:nowrap);
         cursor: pointer;
-        padding:.08rem; font-size:0.8em;
+        padding:SZ(8); font-size:0.8em;
         &.as-current, &.as-current:hover {
           @include color($color-primary, r, c);
         }
@@ -19,27 +19,27 @@
           @include color($color-weaktip, r, c);
         }
         > .ti-icon {
-          width: .32rem; margin-right:.02rem;
+          width: SZ(32); margin-right:SZ(2);
           text-align: center;
           font-size:1.2em;
         }
         > em {
           @include font-fixed(0.8em);
           opacity: 0.618;
-          font-style:normal; margin-left:.06rem;
+          font-style:normal; margin-left:SZ(6);
         }
       }
     }
   }
   > .toc-main {
-    flex:1 1 auto; padding:.12rem;
+    flex:1 1 auto; padding:SZ(12);
     @include flex-align-v;
     > .toc-info {
       flex: 1 1 auto; text-align:center;
       @include flex-align-v;
-      > * {padding:.08rem;}
+      > * {padding:SZ(8);}
       > .toc-thumb {
-        font-size:.8rem;
+        font-size:SZ(80);
       }
       > .toc-name {
         @include font($f_fixed, 1.1em);
@@ -49,7 +49,7 @@
         @include color($color-func, r, c);
         @include border(1px, dashed, shallow);
         text-align: left; font-size:.8em;
-        padding:.1rem; 
+        padding:SZ(10); 
       }
     }
     > .toc-free {
@@ -59,7 +59,7 @@
       flex: 0 0 auto;
       input {
         @include text-input;
-        padding:.12rem;
+        padding:SZ(12);
         font-size:1.2em;
         outline:none; width:100%;
       }

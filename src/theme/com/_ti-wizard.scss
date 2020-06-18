@@ -2,8 +2,8 @@
   width:100%; height:100%;
   position: relative;
   //----------------------------------------
-  $wH: .8rem;
-  $wF: .6rem;
+  $wH: SZ(80);
+  $wF: SZ(80);
   //----------------------------------------
   padding:$wH 0 $wF 0;
   //----------------------------------------
@@ -13,7 +13,7 @@
   > .as-head {
     @include flex-align;
     @include noselect;
-    padding:.1rem 0;
+    padding:SZ(10) 0;
     //--------------------------------------
     .as-title {
       @include flex-center;
@@ -34,20 +34,20 @@
           .as-line {
             flex:1 1 auto;
             background:map-get($color-line, dark);
-            height:.04rem; width:.1rem;
+            height:SZ(4); width:SZ(10);
           }
           .as-dot {
             @include flex-center;
             @include font-fixed;
-            width:.32rem; height:.32rem; margin:0 auto;
+            width:SZ(32); height:SZ(32); margin:0 auto;
             border:2px solid map-get($color-line,dark);
-            font-size:.18rem; 
+            font-size:SZ(18); 
             border-radius: 50%;
           }
         }
         //----------------------------------
         .as-text {
-          display:block; padding:.04rem .2rem;
+          display:block; padding:SZ(4) SZ(20);
           text-align: center;
           line-height: 1.4em;
         }
@@ -112,7 +112,7 @@
     > .as-btn {
       @include flex-align-nowrap($jc:center);
       flex:0 0 auto;
-      font-size:.2rem; padding:0 .5em;
+      font-size:SZ(20); padding:0 .5em;
       line-height: 2.4em; min-width: 8em;
       opacity: 0.4;
       //----------------------------------

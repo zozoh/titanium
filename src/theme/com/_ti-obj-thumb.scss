@@ -1,19 +1,19 @@
 .ti-obj-thumb {
   //----------------------------------------------
   @include noselect();
-  width:1rem; border:1px solid transparent;
+  width:SZ(100); border:1px solid transparent;
   position:relative;
   //----------------------------------------------
   > header {
     @include flex-center;
     position:relative;
-    padding-bottom:.05rem;
+    padding-bottom:SZ(5);
     //--------------------------------------------
     > .as-preview {
       @include flex-full-center;
       position:relative;
-      width:.8rem; height:.8rem;
-      padding:.04rem; border-radius:.04rem;
+      width:SZ(80); height:SZ(80);
+      padding:SZ(4); border-radius:SZ(4);
       //------------------------------------------
       > img {
         object-fit: contain;
@@ -22,9 +22,9 @@
       }
       //------------------------------------------
       > .as-badge {
-        font-size: .12rem; opacity: 0.6;
+        font-size: SZ(12); opacity: 0.6;
         //----------------------------------------
-        $bdgPad : .06rem;
+        $bdgPad : SZ(6);
         //----------------------------------------
         &.at-nw {@include pos-abs($t:$bdgPad, $l:$bdgPad);}
         &.at-ne {@include pos-abs($t:$bdgPad, $r:$bdgPad);}
@@ -57,7 +57,7 @@
   &.is-status-ok         > .as-status{@include color($color-info, r, c);}
   //----------------------------------------------
   > footer {
-    padding:.04rem;
+    padding:SZ(4);
     text-align:center;
     //--------------------------------------------
     > .as-title {

@@ -16,20 +16,20 @@
   }
   //-------------------------------------------
   > .as-icon {
-    padding:0 .04rem; font-size:.16rem;
+    padding:0 SZ(4); font-size:SZ(16);
   }
   //-------------------------------------------
   > .as-text {
     @include flex-center;
-    padding:0 0 .02rem .02rem;
-    &.without-icon    {padding-left:.08rem;}
-    &.without-options {padding-right:.08rem;}
+    padding:0 0 SZ(2) SZ(2);
+    &.without-icon    {padding-left:SZ(8);}
+    &.without-options {padding-right:SZ(8);}
   }
   //-------------------------------------------
   > .as-asterisk {
     @include flex-center;
     @include font-fixed;
-    padding:0 .04rem;
+    padding:0 SZ(4);
     &:before {
       @include color($color-error, c);
       display: inline; content:"*";
@@ -39,7 +39,7 @@
   }
   //-------------------------------------------
   > .as-path-icon {
-    padding:0 .06rem; opacity: 0.6;
+    padding:0 SZ(6); opacity: 0.6;
   }
   //-------------------------------------------
 }

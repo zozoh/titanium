@@ -2,7 +2,7 @@
   @include noselect;
   @include flex-align-nowrap($ai:stretch, $ac:stretch);
   @include color($color-input, c, r);
-  min-height:.35rem;
+  min-height:SZ(35);
   //-----------------------------------------
   &.show-border {
     @include border(1px, solid, dark);
@@ -14,7 +14,7 @@
   //-----------------------------------------
   .as-input-icon {
     @include flex-center($ai:stretch, $ac:stretch);
-    flex:0 0 auto; width:.26rem; min-height:.26rem;
+    flex:0 0 auto; width:SZ(26); min-height:SZ(26);
     overflow: hidden;
     //---------------------------------------
     &.can-hover{cursor: pointer;}
@@ -38,7 +38,7 @@
   .as-input-text {
     @include flex-center;
     white-space: nowrap;
-    padding:0 .06rem;
+    padding:0 SZ(6);
     //---------------------------------------
     &.can-hover{cursor: pointer;}
     &.can-hover:hover{@include color($color-primary,r,c);}
@@ -54,7 +54,7 @@
       width:100%; 
       flex:1 1 auto;
       outline:none; border:0;
-      padding:0 .08rem;
+      padding:0 SZ(8);
       background:transparent;
       color:inherit;
     }
@@ -66,11 +66,11 @@
   }
   //-----------------------------------------
   // &.has-prefix-icon {
-  //   > .as-input > input {padding-left:.06rem;}
+  //   > .as-input > input {padding-left:SZ(6);}
   // }
   //-----------------------------------------
   // &.has-suffix-icon {
-  //   > .as-input > input {padding-right:.06rem;}
+  //   > .as-input > input {padding-right:SZ(6);}
   // }
   //-----------------------------------------
 }

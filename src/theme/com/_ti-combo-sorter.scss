@@ -1,7 +1,7 @@
 .ti-combo-sorter {
   @include noselect;
   @include flex($ai:stretch,$wp:nowrap);
-  padding:.04rem;
+  padding:SZ(4);
   //-------------------------------------
   .ti-combo-box.as-sorter {
     width:100%;
@@ -13,22 +13,22 @@
   //-------------------------------------
   .as-sort-box {
     @include flex-align-nowrap;
-    cursor: pointer; padding:0 .02rem;
+    cursor: pointer; padding:0 SZ(2);
     //-----------------------------------
     &:hover {
       @include color($color-weaktip, r, c);
     }
     //-----------------------------------
     > .ti-icon {
-      width: .24rem; font-size:.16rem; 
+      width: SZ(24); font-size:SZ(24); 
       color: map-get($color-track, c);
     }
-    > .as-title {padding: .04rem;}
+    > .as-title {padding: SZ(4);}
     //-----------------------------------
   }
   //-------------------------------------
   .as-sort-btn {
-    @include flex-center; width:.24rem;
+    @include flex-center; width:SZ(24);
     cursor: pointer;
     &:hover {
       @include color($color-secondary, r, c);

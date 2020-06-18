@@ -46,21 +46,21 @@
   //---------------------------------
   &.as-bar > .toast-con {
     @include flex-align-nowrap;
-    min-width: 4.5rem; max-width:8rem;
-    padding:.1rem .06rem;
+    min-width: SZ(450); max-width:SZ(800);
+    padding:SZ(10) SZ(6);
     > .toast-icon {
-      font-size:.2rem;
-      padding:0 .1rem;
+      font-size:SZ(20);
+      padding:0 SZ(10);
     }
   }
   //---------------------------------
   &.as-block > .toast-con {
     @include flex-center;
-    min-width: 1.2rem; min-height:1.2rem;
-    max-width: 4rem;
-    padding:.1rem;
+    min-width: SZ(120); min-height:SZ(120);
+    max-width: SZ(400);
+    padding:SZ(10);
     > .toast-icon {
-      font-size:5em; padding:.1rem;
+      font-size:5em; padding:SZ(10);
     }
     > .toast-body {
       width:100%;
@@ -76,7 +76,7 @@
     //-----------------------------
     // Show only if as-bar
     > .toast-closer {
-      flex:0 0 auto; padding:0 .1rem;
+      flex:0 0 auto; padding:0 SZ(10);
       a {
         cursor: pointer;
       }

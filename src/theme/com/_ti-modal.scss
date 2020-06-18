@@ -16,8 +16,8 @@
       @include flex-align-v-nowrap;
       //-----------------------------------------------------
       position:relative;
-      min-width: 3.2rem;
-      min-height: 1.8rem;
+      min-width: SZ(320);
+      min-height: SZ(180);
       //-----------------------------------------------------
       > .mdl-closer {}
       //-----------------------------------------------------
@@ -26,14 +26,14 @@
         @include flex-align-nowrap;
         @include color($color-bar, r, c);
         @include border(1px, solid, shallow, bottom);
-        padding:.04rem .08rem; 
+        padding:SZ(4) SZ(4); 
         font-size:12px; 
         > * {
           @include flex-center;
           display:inline; line-height:24px;
         }
         > .mdl-title-icon {
-          margin:0 .06rem 0 0; opacity: 0.4;
+          margin:0 SZ(6) 0 0; opacity: 0.4;
           > i {font-size:1.3em; display:block;}
         }
       }
@@ -48,16 +48,16 @@
         @include border(1px, solid, shallow, top);
         > ul {
           @include raw-list; 
-          padding:.04rem;
+          padding:SZ(4);
           > li {
             @include color($color-chip, r, c);
             @include fireable;
             @include border(1px, solid, dark);
-            margin:.02rem; padding:0 .12rem;
+            margin:SZ(2); padding:0 SZ(12);
             font-size:12px; line-height:2.4em;
-            min-width:1rem; text-align:center;
+            min-width:SZ(100); text-align:center;
             letter-spacing: .1em;
-            .mdl-btn-icon {margin-right:.05rem;}
+            .mdl-btn-icon {margin-right:SZ(5);}
           }
         }
       } // ~ > .mdl-actions
@@ -79,7 +79,7 @@
   $closer-width : 32px;
   > .mdl-con {
     @include flex-center;
-    padding:.2rem;
+    padding:SZ(20);
     z-index: $z-top;
     > .mdl-main {
       //....................................
@@ -192,27 +192,27 @@
 //-----------------------------------------------------------
 .ti-modal-noti {
   position: relative;
-  padding:.12rem .2rem .12rem 1.2rem; 
+  padding:SZ(12) SZ(20) SZ(12) SZ(120); 
   //---------------------------------------------
   > .ti-modal-noti-icon {
-    @include pos-abs($t:0,$l:0,$w:1.2rem,$h:1.2rem);
+    @include pos-abs($t:0,$l:0,$w:SZ(120),$h:SZ(120));
     @include flex-center;
-    padding:.08rem; 
-    font-size:.5rem;
+    padding:SZ(8); 
+    font-size:SZ(50);
     > * {font-size:inherit;}
   }
   //---------------------------------------------
   > .ti-modal-noti-text {
-    padding: .1rem
+    padding: SZ(10)
   }
   //---------------------------------------------
   > .ti-modal-noti-more {
-    padding: 0 .1rem .1rem .1rem;
+    padding: 0 SZ(10) SZ(10) SZ(10);
     &.prompt-input {
       input {
         @include text-input;
         flex:1 1 auto; width:100%;
-        padding:.12rem; font-size:1.2em;
+        padding:SZ(12); font-size:1.2em;
         outline:none;
       }
     }
@@ -222,27 +222,27 @@
 //-----------------------------------------------------------
 .ti-modal.vm-phone .ti-modal-noti {
   position: relative;
-  padding:.2rem; 
+  padding:SZ(20); 
   //---------------------------------------------
   > .ti-modal-noti-icon {
     @include flex-center;
-    padding:.08rem; 
-    font-size:.64rem;
+    padding:SZ(8); 
+    font-size:SZ(64);
     > * {font-size:inherit;}
   }
   //---------------------------------------------
   > .ti-modal-noti-text {
-    padding: .15rem; font-size:.2rem; 
+    padding: SZ(15); font-size:SZ(20); 
     text-align:center;
   }
   //---------------------------------------------
   > .ti-modal-noti-more {
-    padding: 0 .1rem .1rem .1rem;
+    padding: 0 SZ(10) SZ(10) SZ(10);
     &.prompt-input {
       input {
         @include text-input;
         flex:1 1 auto; width:100%;
-        padding:.12rem; font-size:1.2em;
+        padding:SZ(12); font-size:1.2em;
         outline:none;
       }
     }

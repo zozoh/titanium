@@ -39,7 +39,7 @@
       width:8px; padding-right:1px; opacity: 0;
       &:before {
         display:block; content:"";
-        height:.12rem; width:1px;
+        height:SZ(12); width:1px;
         border-left :1px dotted map-get($color-primary, r);
         border-right:1px dotted map-get($color-primary, r);
       }
@@ -47,7 +47,7 @@
     //-----------------------------------------
     .row-indent, .row-icon {
       @include flex-center;
-      width:.16rem;
+      width:SZ(16);
     }
     //-----------------------------------------
     .row-icon, .row-checker {
@@ -56,7 +56,7 @@
     }
     //-----------------------------------------
     .row-checker {
-      margin:0 .06rem;
+      margin:0 SZ(6);
     }
     //----------------------------------------
     &.is-current {

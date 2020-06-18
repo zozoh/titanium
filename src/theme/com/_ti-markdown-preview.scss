@@ -6,16 +6,16 @@
 ///////////////////////////////////////////
 .ti-markdown-theme-wiki {
   //---------------------------------------
-  padding:0 .2rem;
+  padding:0 SZ(20);
   font-size: 16px; line-height: 1.5em;
   letter-spacing: 1px;
-  max-width: 10rem;
-  margin:.1rem auto;
+  max-width: SZ(1000);
+  margin:SZ(10) auto;
   //---------------------------------------
   hr {
     height:0px; border:0;
     @include border(1px, dotted, shallow, top);
-    margin:.1rem 0;
+    margin:SZ(10) 0;
   }
   //---------------------------------------
   // Inline Text
@@ -74,8 +74,8 @@
     @include font-fixed(12px);
     @include color($color-input, r, c);
     width:100%; overflow-x: auto;
-    padding:.2rem; margin:0;
-    border-radius: .06rem;
+    padding:SZ(20); margin:0;
+    border-radius: SZ(6);
   }
   //---------------------------------------
   ul, ol {
@@ -151,13 +151,13 @@
   padding:1em 2em;
   font-size: 16px; line-height: 1.5em;
   letter-spacing: 1px;
-  max-width: 12rem;
+  max-width: SZ(1200);
   margin:0 auto;
   //---------------------------------------
   hr {
     height:0px; border:0;
     @include border(1px, dotted, shallow, top);
-    margin:.1rem 0;
+    margin:SZ(10) 0;
   }
   //---------------------------------------
   // Inline Text
@@ -225,7 +225,7 @@
     @include color($color-chip, r, c);
     border-left:4px solid map-get($color-secondary, c);
     width:100%; overflow-x: auto;
-    padding:.2rem; margin:0;
+    padding:SZ(20); margin:0;
   }
   //---------------------------------------
   ul, ol {

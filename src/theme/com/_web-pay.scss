@@ -20,16 +20,18 @@
     }
     //----------------------------------------
     th {
+      @include border(1px, solid, dark);
+      white-space: nowrap;
+      border-left:0; border-right:0;
       padding: SZ(20); 
-      border-top: 1px solid #ccaf84;
-      border-bottom: 1px solid #ccaf84;
-      color: #888; font-weight: normal;
       font-size: .9em;
     }
     //----------------------------------------
+    tr:last-child td {border:0;}
+    //----------------------------------------
     td {
       padding:SZ(20) SZ(8);
-      border-bottom: 1px solid #F0F0F0;
+      @include border(1px, solid, shallow, bottom);
       text-align: center;
       //--------------------------------------
       em {font-style: normal;}
@@ -39,25 +41,112 @@
         text-align: left;
         img{
           width:SZ(100); height:SZ(100);
-          border:1px solid #bdae8e;
+          @include border(1px, solid, shallow);
         }
-        .it-info {
-          padding: SZ(10);
-          .it-title {
-            font-size:1.2em;
-            margin-bottom:SZ(10);
-            a {color:#000;}
-          }
-          .it-type {font-size:.9em; color:#ccaf84;}
+        .it-title {
+          font-size:1em;
+          padding: 0 SZ(18);
         }
       }
       //--------------------------------------
+      &.it-price {
+        @include color($color-chip, r);
+      }
+      //--------------------------------------
+      &.it-amount {
+        @include color($color-paper, r);
+        font-weight: bold;
+      }
+      //--------------------------------------
       &.it-subtotal {
-        color:#de4549; 
+        @include color($color-number, c);
       }
       //--------------------------------------
     }
     //----------------------------------------
+  } // .as-list {
+  //------------------------------------------
+  //------------------------------------------
+  .as-summary {
+    @include flex-align-nowrap;
+    @include color($color-chip, r);
+    @include border(1px, solid, dark, top);
+    margin-top: SZ(50);
+    padding: SZ(18); 
+    //----------------------------------------
+    .at-left {
+      padding:0 SZ(20); text-align: center;
+      i {font-size: SZ(80);}
+      div {font-size:SZ(12);}
+    }
+    //----------------------------------------
+    .at-right {
+      flex:1 1 auto;
+      font-size: SZ(24);
+      //--------------------------------------
+      > .as-total {
+        @include flex-align($jc:flex-end);
+        padding:SZ(10);
+        em {
+          color:#de4549; font-weight: bold;
+          font-style: normal;
+          margin: 0 SZ(20);
+        }
+      }
+      //--------------------------------------
+    }
+  }
+}
+//////////////////////////////////////////////
+.web-pay-choose {
+  @include noselect;
+  padding:SZ(20);
+  //------------------------------------------
+  .as-title {
+    @include color($color-track, c);
+    @include border(1px, solid, shallow, bottom);
+    padding: SZ(8); text-align: left;
+    font-size: SZ(20);
+  }
+  //------------------------------------------
+  .as-options {
+    @include flex-center;
+    padding: SZ(20); min-height: SZ(300);
+    //----------------------------------------
+    .as-pay-type {
+      margin:SZ(10); cursor:pointer;
+      border:1px solid transparent;
+      min-width:SZ(150); min-height: SZ(200);
+      padding:SZ(20) SZ(10); 
+      //--------------------------------------
+      &.is-disabled {opacity: 0.6;}
+      &.is-enabled  {
+        @include color($color-weaktip, r, c);
+        border-color:map-get($color-primary, c);
+        opacity: 1;
+        &:hover {opacity: 1;}
+      }
+      //--------------------------------------
+      > .ti-icon {
+        font-size:SZ(64);
+        img {width:SZ(64); height:SZ(64);}
+      }
+      //--------------------------------------
+      > .as-text {
+        text-align:center; white-space: nowrap;
+        padding:SZ(10); font-size:1em;
+      }
+      //--------------------------------------
+      &:hover {
+        @include color($color-weaktip, r, c);
+        opacity: 0.8;
+      }
+      //--------------------------------------
+    }  // .as-pay-type {
+  }
+  //------------------------------------------
+  .as-tip {
+    text-align: center; padding: SZ(40);
   }
   //------------------------------------------
 }

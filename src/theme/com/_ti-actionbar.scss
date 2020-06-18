@@ -33,7 +33,7 @@
         border:1px solid map-get($color-primary, c);
         box-shadow: 4px 6px 10px map-get($color-shadow, c);
         z-index: $z-menu;
-        padding:1px; min-width: 1.5rem;
+        padding:1px; min-width: SZ(150);
       }
       //--------------------------------------------
     }
@@ -49,12 +49,12 @@
   .bar-item-line {
     @include color($color-line, null, shallow);
     &.is-top {
-      width:1px; height:.2rem; overflow:hidden;
-      margin:0 .02rem;
+      width:1px; height:SZ(20); overflow:hidden;
+      margin:0 SZ(2);
     }
     &.is-sub {
       height:1px; overflow:hidden;
-      margin:.04rem 0;
+      margin:SZ(4) 0;
     }
   }
   //////////////////////////////////////////////////

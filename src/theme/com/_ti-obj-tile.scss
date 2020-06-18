@@ -1,26 +1,26 @@
 .ti-obj-tile {
-  padding-bottom:.1rem;
+  padding-bottom:SZ(10);
   //--------------------------------------
   > .as-preview {
     background:map-get($color-cloak, c);
     .ti-icon {
       .icon-icon {
         width:100%;
-        font-size: .24rem;
+        font-size: SZ(24);
       } 
       img {display:block; width:100%;}
     }
   }
   //--------------------------------------
   > .as-title {
-    padding:.1rem .06rem; font-size:1.2em;
+    padding:SZ(10) SZ(6); font-size:1.2em;
     text-align: center;
   }
   //--------------------------------------
   > .as-brief {
     @include color($color-track, c);
     cursor: default;
-    padding:.1rem; font-size:1em;
+    padding:SZ(10); font-size:1em;
   }
   //--------------------------------------
   &.as-card {

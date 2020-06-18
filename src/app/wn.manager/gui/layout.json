@@ -35,7 +35,7 @@
       "border" : true,
       "blocks" : [{
           "name"  : "sidebar",
-          "size" : 180,
+          "size" : "1.8rem",
           "body"  : "pcMainSideBar"
         }, {
           "name" : "arena",
@@ -44,7 +44,7 @@
         }]
     }, {
       "name" : "footer",
-      "size" : 32,
+      "size" : ".32rem",
       "body" : "pcFooter"
     }]
   },

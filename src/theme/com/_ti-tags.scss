@@ -1,14 +1,14 @@
 .ti-tags {
   @include noselect;
   @include flex-align($ai:stretch,$ac:stretch);
-  padding:.02rem;
+  padding:SZ(2);
 }
 //---------------------------------------------
 .ti-tags-item {
   @include flex-align-nowrap($ai:stretch);
   @include color($color-primary, r, c);
   overflow: hidden; padding: 0; 
-  border-radius: 6px; margin:.02rem;
+  border-radius: 6px; margin:SZ(2);
   line-height: 2em; 
   white-space: nowrap;
   //-------------------------------------------
@@ -17,17 +17,17 @@
   }
   //-------------------------------------------
   > .as-del {
-    padding:0 .06rem; cursor: pointer;
+    padding:0 SZ(6); cursor: pointer;
     .icon-icon {
       transition: .3s; opacity: .6;
     }
   }
   //-------------------------------------------
   > .as-icon {
-    padding:0 .04rem;
+    padding:0 SZ(4);
     &.ti-icon {
       img {
-        height: .2rem; border-radius: 50%;
+        height: SZ(20); border-radius: 50%;
       }
     }
   }
@@ -35,21 +35,21 @@
   > .as-text {
     @include flex-center;
     color: inherit; text-decoration: inherit;
-    padding:0 0 .02rem .02rem;
+    padding:0 0 SZ(2) SZ(2);
     &:hover {text-decoration: inherit;}
-    &.without-icon    {padding-left:.08rem;}
-    &.without-options {padding-right:.08rem;}
+    &.without-icon    {padding-left:SZ(8);}
+    &.without-options {padding-right:SZ(8);}
   }
   //-------------------------------------------
   > .as-mark {
     @include color($color-secondary, c);
     @include flex-center;
     font-weight: bold;
-    padding:0 .02rem;
+    padding:0 SZ(2);
   }
   //-------------------------------------------
   > .as-status {
-    padding:0 .06rem;
+    padding:0 SZ(6);
   }
   //-------------------------------------------
   &.is-enter-top {
@@ -77,7 +77,7 @@
     > .ti-icon-text {
       @include border(1px, solid, shallow, top);
       &:first-child {border-top:0}
-      padding:.04rem .1rem;
+      padding:SZ(4) SZ(10);
       cursor: pointer;
       &:hover {
         @include color($color-secondary, r, c);

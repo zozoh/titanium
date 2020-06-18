@@ -41,9 +41,9 @@
     //---------------------------------
   }
   //-----------------------------------
-  $header-size  : .5rem;
-  $actions-size : .6rem;
-  $closer-size  : .5rem;
+  $header-size  : SZ(50);
+  $actions-size : SZ(60);
+  $closer-size  : SZ(50);
   //-----------------------------------
   .modal-con {
     @include color($color-body, r, c);
@@ -85,11 +85,11 @@
       @include border(1px, solid, shallow, bottom);
       //-----------------------------
       line-height: $header-size;
-      padding:0 0 0 .06rem;
+      padding:0 0 0 SZ(6);
       //-----------------------------
       > .as-icon {
         @include flex-center;
-        padding-left:.06rem;
+        padding-left:SZ(6);
       }
       //-----------------------------
       > .as-title {
@@ -112,7 +112,7 @@
     //---------------------------------
     > .modal-main {
       width:100%; height:100%;
-      min-height: 1rem;
+      min-height: SZ(100);
     }
     //---------------------------------
     > .modal-actions {
@@ -121,7 +121,7 @@
       @include color($color-func, r, c);
       @include border(1px, solid, shallow, top);
       @include flex-align-nowrap($jc:flex-end);
-      padding:.08rem;
+      padding:SZ(8);
       > .as-action {
         @include flex-align-nowrap($jc:center);
         @include color($color-chip, r, c);
@@ -129,7 +129,7 @@
         @include border(1px, solid, dark);
         margin:0 .25em; padding:0 .5em;
         line-height:2.3em; font-size:.9em;
-        min-width:1rem; text-align:center;
+        min-width:SZ(100); text-align:center;
         letter-spacing: .1em;
         &:first-child {margin-left:0;}
         &:last-child {margin-right:0;}
@@ -143,7 +143,7 @@
   // for it in block title bar
   &.is-closer-default {
     > .panel-con > .ti-gui-block > .block-head > .as-actions {
-      padding-right: $header-size + .04rem;
+      padding-right: $header-size + SZ(4);
     }
   }
   //-----------------------------------
@@ -261,7 +261,7 @@
 ////////////////////////////////////////////////////
 .ti-msg-body {
   @include flex-align-nowrap;
-  min-width: 3rem; width:100%;
+  min-width: SZ(300); width:100%;
   //-----------------------------------
   &.modal-type-is-success {@include color($color-success, c);}
   &.modal-type-is-warn    {@include color($color-warn,    r);}
@@ -271,18 +271,18 @@
   //-----------------------------------
   > .as-icon {
     @include flex-center;
-    font-size:.5rem; flex:0 0 auto;
-    padding:.2rem;
+    font-size:SZ(50); flex:0 0 auto;
+    padding:SZ(20);
   }
   //-----------------------------------
   > .as-text {
     flex:1 1 auto;
-    padding:.1rem;
+    padding:SZ(10);
   }
   //-----------------------------------
   &.as-prompt {
     > .as-text > .as-tip {
-      padding: .1rem 0;
+      padding: SZ(10) 0;
     }
   }
   //-----------------------------------

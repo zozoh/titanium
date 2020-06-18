@@ -2,32 +2,32 @@
 .ti-upload-file {
   @include flex-align-nowrap($ai:flex-start);
   //---------------------------------------------
-  &.is-area-xs .ti-obj-thumb {font-size:.24rem;}
-  &.is-area-sm .ti-obj-thumb {font-size:.48rem;}
-  &.is-area-md .ti-obj-thumb {font-size:.72rem;}
-  &.is-area-lg .ti-obj-thumb {font-size:.96rem;}
+  &.is-area-xs .ti-obj-thumb {font-size:SZ(24);}
+  &.is-area-sm .ti-obj-thumb {font-size:SZ(48);}
+  &.is-area-md .ti-obj-thumb {font-size:SZ(72);}
+  &.is-area-lg .ti-obj-thumb {font-size:SZ(96);}
   &.is-area-xl .ti-obj-thumb {font-size:1.28rem;}
   //---------------------------------------------
-  &.is-area-xs .ti-progress-bar .bar-tip {font-size:.10rem;}
-  &.is-area-sm .ti-progress-bar .bar-tip {font-size:.14rem;}
-  &.is-area-md .ti-progress-bar .bar-tip {font-size:.18rem;}
-  &.is-area-lg .ti-progress-bar .bar-tip {font-size:.22rem;}
-  &.is-area-xl .ti-progress-bar .bar-tip {font-size:.3rem;}
+  &.is-area-xs .ti-progress-bar .bar-tip {font-size:SZ(10);}
+  &.is-area-sm .ti-progress-bar .bar-tip {font-size:SZ(14);}
+  &.is-area-md .ti-progress-bar .bar-tip {font-size:SZ(18);}
+  &.is-area-lg .ti-progress-bar .bar-tip {font-size:SZ(22);}
+  &.is-area-xl .ti-progress-bar .bar-tip {font-size:SZ(30);}
   //---------------------------------------------
-  &.is-area-xs .ti-progress-bar .bar-inner {min-height:.03rem;}
-  &.is-area-sm .ti-progress-bar .bar-inner {min-height:.06rem;}
-  &.is-area-md .ti-progress-bar .bar-inner {min-height:.09rem;}
-  &.is-area-lg .ti-progress-bar .bar-inner {min-height:.12rem;}
-  &.is-area-xl .ti-progress-bar .bar-inner {min-height:.15rem;}
+  &.is-area-xs .ti-progress-bar .bar-inner {min-height:SZ(3);}
+  &.is-area-sm .ti-progress-bar .bar-inner {min-height:SZ(6);}
+  &.is-area-md .ti-progress-bar .bar-inner {min-height:SZ(9);}
+  &.is-area-lg .ti-progress-bar .bar-inner {min-height:SZ(12);}
+  &.is-area-xl .ti-progress-bar .bar-inner {min-height:SZ(15);}
   //---------------------------------------------
-  &.is-area-xs > .thumb-con > .thumb-actions {padding:0 .06rem;}
-  &.is-area-sm > .thumb-con > .thumb-actions {padding:0 .06rem;}
+  &.is-area-xs > .thumb-con > .thumb-actions {padding:0 SZ(6);}
+  &.is-area-sm > .thumb-con > .thumb-actions {padding:0 SZ(6);}
   //---------------------------------------------
   > .thumb-con {
     position: relative;
     @include border(2px, dotted, shallow); 
     @include color($color-chip, r, c);
-    width:1.2rem; height:1.2rem;
+    width:SZ(120); height:SZ(120);
     cursor:pointer;
     //-------------------------------------------
     &[ti-is-drag] > .ti-drag-mask {
@@ -61,15 +61,15 @@
   //---------------------------------------------
   > .thumb-con > .thumb-actions {
     @include pos-abs($r:0, $t:0);
-    padding:.1rem; 
+    padding:SZ(10); 
     > .thumb-opt {
       @include flex-align-nowrap($jc:center);
       @include color($color-primary, r, c);
       cursor:pointer;
-      padding:.06rem .1rem; 
+      padding:SZ(6) SZ(10); 
       margin-bottom:4px;
       line-height: 1.1em; font-size:12px;
-      .it-text {margin-left:.06rem; white-space: nowrap;}
+      .it-text {margin-left:SZ(6); white-space: nowrap;}
       &:hover {
         @include color($color-secondary, r, c);
       }

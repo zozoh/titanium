@@ -31,33 +31,33 @@
   //---------------------------------------------
   &.is-big {
     li {
-      padding:0 .16rem; font-size:1.6em;
-      min-width: 1.6rem; line-height:.64rem;
-      .it-text {padding:0 .12rem;}
+      padding:0 SZ(16); font-size:1.6em;
+      min-width: SZ(160); line-height:SZ(64);
+      .it-text {padding:0 SZ(12);}
     }
   }
   //---------------------------------------------
   &.is-normal {
     li {
-      padding:0 .1rem; font-size:1.2em;
-      min-width: 1.2rem; line-height:.48rem;
-      .it-text {padding:0 .08rem;}
+      padding:0 SZ(10); font-size:1.2em;
+      min-width: SZ(120); line-height:SZ(48);
+      .it-text {padding:0 SZ(8);}
     }
   }
   //---------------------------------------------
   &.is-small {
     li {
-      padding:0 .04rem; font-size:1em;
-      min-width: .8rem; line-height:.32rem;
-      .it-text {padding:0 .04rem;}
+      padding:0 SZ(4); font-size:1em;
+      min-width: SZ(80); line-height:SZ(32);
+      .it-text {padding:0 SZ(4);}
     }
   }
   //---------------------------------------------
   &.is-tiny {
     li {
-      padding:0 .04rem; font-size:.12rem;
-      min-width: .6rem; line-height:.26rem;
-      .it-text {padding:0 .04rem;}
+      padding:0 SZ(4); font-size:SZ(12);
+      min-width: SZ(60); line-height:SZ(26);
+      .it-text {padding:0 SZ(4);}
     }
   }
   //---------------------------------------------

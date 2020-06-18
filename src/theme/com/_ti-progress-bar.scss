@@ -3,7 +3,7 @@
     display:block; text-align:center;
     padding:0.04rem; line-height:1.6em;
     white-space: nowrap;
-    font-size:.1rem;
+    font-size:SZ(10);
     @include color($color-mask, r, thin);
   }
   .bar-outer {

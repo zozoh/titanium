@@ -8,7 +8,7 @@
     @include border(1px, solid, shallow, bottom);
     text-align: center; white-space: nowrap;
     font-size:1.4em; line-height: 2.4em; font-weight: 400;
-    > .it-icon {padding:0 .06rem;}
+    > .it-icon {padding:0 SZ(6);}
   }
   //////////////////////////////////////
   > .form-tab {
@@ -18,9 +18,9 @@
     }
     li {
       @include flex-align-nowrap;
-      padding:.06rem .12rem; cursor: pointer;
+      padding:SZ(6) SZ(12); cursor: pointer;
       > .tab-icon {
-        padding:0 .06rem 0 0;
+        padding:0 SZ(6) 0 0;
       }
       &:hover {
         @include color($color-weaktip, r, c);
@@ -42,7 +42,7 @@
         @include flex-align-nowrap;
         @include border(1px, solid, shallow);
         @include color($color-bar, r, c);
-        > .ti-icon {margin-right:.08rem; opacity: 0.4;}
+        > .ti-icon {margin-right:SZ(8); opacity: 0.4;}
       }
       // .group-fields {
       // }
@@ -100,16 +100,16 @@
           position: relative;
           flex:0 0 auto;
           line-height: 2.6em;
-          padding:0 .1rem 0 .26rem;
+          padding:0 SZ(10) 0 SZ(26);
           > .name-status {
-            @include pos-abs($l:0,$t:0,$w:.24rem);
+            @include pos-abs($l:0,$t:0,$w:SZ(24));
             @include flex-center;
-            padding:.02rem .04rem 0 0;
+            padding:SZ(2) SZ(2) 0 0;
             height: 2.6em;
           }
           > .name-icon {
             @include flex-align($jc:flex-end);
-            padding:0 .04rem 0 .08rem;
+            padding:0 SZ(4) 0 SZ(4);
             height: 2.6em;
           }
           > .name-title {
@@ -119,7 +119,7 @@
           }
         }
         &.no-status-icon {
-          > .field-name {padding-left:.04rem;}
+          > .field-name {padding-left:SZ(4);}
         }
       }
       //------------------------
@@ -127,12 +127,12 @@
         > .field-name {
           @include flex-align-nowrap;
           @include border(1px, solid, shallow, bottom);
-          > .name-icon   {order: 1; padding:0 .06rem;}
+          > .name-icon   {order: 1; padding:0 SZ(6);}
           > .name-title  {order: 2;}
           > .name-status {order: 3;}
         }
         > .field-value {
-          padding:.1rem 0;
+          padding:SZ(10) 0;
         }
       }
       //------------------------
@@ -140,29 +140,29 @@
   } // ~ .form-body
   //////////////////////////////////////
   &.as-spacing-comfy {
-    padding:.2rem;
+    padding:SZ(20);
     > .form-body {
       //------------------------------
       > .form-group {
-        > .group-title {line-height:2.4em;padding:0 .1rem;}
-        > .group-fields {padding:.08rem 0 .16rem 0;}
+        > .group-title {line-height:2.4em;padding:0 SZ(10);}
+        > .group-fields {padding:SZ(8) 0 SZ(16) 0;}
       }
       //------------------------------
-      .form-field {padding:.08rem;}
+      .form-field {padding:SZ(8);}
       //------------------------------
     }
   }
   //////////////////////////////////////
   &.as-spacing-tiny {
-    padding:.1rem;
+    padding:SZ(10);
     > .form-body {
       //------------------------------
       > .form-group {
-        > .group-title {line-height:2em;padding:0 .06rem;}
-        > .group-fields {padding:.04rem 0 .08rem 0;}
+        > .group-title {line-height:2em;padding:0 SZ(6);}
+        > .group-fields {padding:SZ(4) 0 SZ(4) 0;}
       }
       //------------------------------
-      .form-field {padding:.04rem;}
+      .form-field {padding:SZ(4);}
       //------------------------------
     }
   }
@@ -173,11 +173,11 @@
     //----------------------------------
     &.tab-at-top > .form-tab {
       @include border(1px, solid, shallow, bottom);
-      padding:.04rem .1rem 0 .1rem;
+      padding:SZ(4) SZ(10) 0 SZ(10);
     }
     &.tab-at-bottom > .form-tab {
       @include border(1px, solid, shallow, top);
-      padding:0 .1rem .04rem .1rem; order:2;
+      padding:0 SZ(10) SZ(4) SZ(10); order:2;
     }
     //----------------------------------
     &.tab-at-left   > .form-tab {@include flex($jc:flex-start);}
@@ -187,7 +187,7 @@
     > .form-body {
       flex:1 1 auto; height:100px;
       overflow: auto;
-      padding:.1rem;
+      padding:SZ(10);
     }
     //----------------------------------
   }

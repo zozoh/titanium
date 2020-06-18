@@ -1,7 +1,7 @@
 .wn-obj-icon {
   @include flex-center;
   width:36px; height:36px;
-  font-size:.18rem;
+  font-size:SZ(18);
   img {
     width:32px; height:32px;
     object-fit: cover;

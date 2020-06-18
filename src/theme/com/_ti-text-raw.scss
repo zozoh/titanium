@@ -26,8 +26,8 @@
       @include text-input;
       border:1px dotted transparent;
       resize:none; outline:none;
-      padding:.1rem;
-      font-size:.16rem; line-height:.2rem;
+      padding:SZ(10);
+      font-size:SZ(16); line-height:SZ(20);
     }
   }
   //---------------------------------------------

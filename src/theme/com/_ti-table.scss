@@ -77,7 +77,7 @@
       @include flex-align-nowrap($ai:stretch);
       li {
         @include flex-center; flex:0 0 auto;
-        padding:0 .06rem;
+        padding:0 SZ(6);
         .table-head-cell-text {
           font-size: 0.9em; font-weight: bold;
           display:block; white-space: nowrap;
@@ -103,7 +103,7 @@
         .table-row-head {
           .row-actived-indicator:before {
             display:block; content:"";
-            height:.12rem; width:1px;
+            height:SZ(12); width:1px;
             border-left :1px dotted map-get($color-primary, r);
             border-right:1px dotted map-get($color-primary, r);
             opacity: 0.6;
@@ -138,7 +138,7 @@
       //-----------------------------------------
       .row-indent, .row-icon {
         @include flex-center;
-        width:.16rem;
+        width:SZ(16);
       }
       //-----------------------------------------
       .row-icon.ti-icon, .row-checker {
@@ -147,7 +147,7 @@
       }
       //-----------------------------------------
       .row-checker {
-        padding:0 .06rem;
+        padding:0 SZ(6);
       }
       //-----------------------------------------
     }

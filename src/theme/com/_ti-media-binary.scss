@@ -4,14 +4,14 @@
   padding-bottom:10%;
   @include flex-align-v($jc:center, $ai:center,$wp:nowrap);
   .tob-icon {
-    padding:.2rem
+    padding:SZ(20)
   }
   .tob-title {
     @include font-fixed(1.4em);
-    padding:.1rem;
+    padding:SZ(10);
   }
   .tob-actions > a{
     @include flex-align-center;
-    > .ti-icon {margin-right:.06rem;}
+    > .ti-icon {margin-right:SZ(6);}
   }
 }
