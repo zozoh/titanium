@@ -58,5 +58,6 @@
   "pay-tip-wx-qrcode": "请于15分钟内用微信扫一扫付款码",
   "pay-tip-zfb-qrcode": "请于15分钟内用支付宝扫一扫付款码",
   "pay-wx": "微信支付",
-  "pay-zfb": "支付宝"
+  "pay-zfb": "支付宝",
+  "shop-basket-clean-confirm": "您确定要清空购物车内全部商品吗？这是一个不能撤回的操作。"
 }

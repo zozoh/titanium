@@ -311,6 +311,9 @@ const TiStr = {
     // Others -> wrap
     return [s]
   },
+  toArrayBy(s, sep=",") {
+    return TiStr.toArray(s, {sep, ignoreNil:true})
+  },
   /***
    * Translate "XXX:A:im-pizza" or ["XXX","A","im-pizza"]
    * 

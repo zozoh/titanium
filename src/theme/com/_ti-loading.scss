@@ -4,17 +4,28 @@
   @include color($color-track, c);
   font-size:.24rem;
   //------------------------------------------
-  .as-loading-icon {
+  .as-icon {
     font-size:1.2em;
     margin:0 .5em;
+  }
+  //------------------------------------------
+  &.as-big {
+    padding: 3em;
+    > .as-icon{font-size: .64rem;}
+    > .as-text{
+      display:block; padding:.5em;
+      font-size:.16rem;
+      width:100%;
+      text-align:center;
+    }
   }
   //------------------------------------------
   &.as-big-mask {
     @include pos-abs-full;
     @include color($color-bar, r, c);
     @include flex-center;
-    .as-loading-icon{font-size: .64rem;}
-    .as-loading-text{
+    > .as-icon{font-size: .64rem;}
+    > .as-text{
       display:block; padding:.5em;
       font-size:.16rem;
       width:100%;
@@ -23,6 +34,7 @@
   }
   //------------------------------------------
   &.as-mid-tip {
+    @include flex-align;
     @include color($color-track, c);
     font-size: .14rem;
     justify-content: flex-start;

@@ -150,13 +150,12 @@ const _M = {
     },
     //--------------------------------------------
     // Only handle the "page|dispatch"
-    async navTo({state, commit, dispatch}, {
+    async navTo({commit, dispatch}, {
       type="page",
       value,    // page path
       anchor,   // page anchor
       data,     // page.data
-      params,   // page.params
-      pushHistory = true
+      params    // page.params
     }={}) {
       console.log("navToPage::", value)
       // Guarding
@@ -325,7 +324,7 @@ const _M = {
           if(pos > 0) {
             let k = s.substring(0, pos)
             let v = s.substring(pos+1)
-            params[k] = v
+            params[k] = decodeURIComponent(v)
           } else {
             params[s] = true
           }

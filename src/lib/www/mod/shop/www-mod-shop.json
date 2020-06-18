@@ -7,6 +7,7 @@
     "buyIt"     : "entity/buy/it",
     "buyRemove" : "entity/buy/rm",
     "buyGetAll" : "entity/buy/all",
-    "buyClean"  : "entity/buy/clean"
+    "buyClean"  : "entity/buy/clean",
+    "objs" : "objs"
   }
 }
