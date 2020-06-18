@@ -1,6 +1,0 @@
-{
-  "name" : "web-pay-scan",
-  "globally" : true,
-  "template" : "./web-pay-scan.html",
-  "mixins"   : ["./web-pay-scan.mjs"]
-}

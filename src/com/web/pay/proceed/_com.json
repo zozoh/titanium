@@ -1,0 +1,6 @@
+{
+  "name" : "web-pay-proceed",
+  "globally" : true,
+  "template" : "./web-pay-proceed.html",
+  "mixins"   : ["./web-pay-proceed.mjs"]
+}

@@ -1,7 +1,0 @@
-{
-  "name" : "web-pay-types",
-  "globally" : true,
-  "template" : "./web-pay-types.html",
-  "mixins"   : ["./web-pay-types.mjs"],
-  "components" : ["@com:web/widget/choose-mode"]
-}

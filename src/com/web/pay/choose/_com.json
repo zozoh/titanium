@@ -1,0 +1,6 @@
+{
+  "name" : "web-pay-choose",
+  "globally" : true,
+  "template" : "./web-pay-choose.html",
+  "mixins"   : ["./web-pay-choose.mjs"]
+}

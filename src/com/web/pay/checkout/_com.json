@@ -1,0 +1,6 @@
+{
+  "name" : "web-pay-checkout",
+  "globally" : true,
+  "template" : "./web-pay-checkout.html",
+  "mixins"   : ["./web-pay-checkout.mjs"]
+}

@@ -27,6 +27,7 @@ import {Trees}        from "./trees.mjs"
 import {Viewport}     from "./viewport.mjs"
 import {WWW}          from "./www.mjs"
 import {GPS}          from "./gps.mjs"
+import {Bank}         from "./bank.mjs"
 import {DateTime}     from "./datetime.mjs"
 import {Num}          from "./num.mjs"
 import {Css}          from "./css.mjs"
@@ -101,7 +102,7 @@ export const Ti = {
   //-----------------------------------------------------
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, 
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
-  WWW, GPS, Validate, DateTime, Num, Trees,
+  WWW, GPS, Validate, DateTime, Num, Trees, Bank,
   Mapping, Dict, DictFactory, Rects, Rect,
   //-----------------------------------------------------
   Websocket: TiWebsocket,

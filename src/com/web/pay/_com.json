@@ -1,0 +1,13 @@
+{
+  "name" : "web-pay",
+  "globally" : true,
+  "template" : "./web-pay.html",
+  "mixins"   : ["./web-pay.mjs"],
+  "components": [
+    "@com:ti/wizard",
+    "@com:web/pay/checkout",
+    "@com:web/pay/choose",
+    "@com:web/pay/proceed",
+    "@com:web/pay/done"
+  ]
+}

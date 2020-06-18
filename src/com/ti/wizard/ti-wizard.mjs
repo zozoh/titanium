@@ -5,6 +5,10 @@ const _M = {
   }),
   ///////////////////////////////////////////////////
   props : {
+    "title" : {
+      type: String,
+      default: undefined
+    },
     "steps" : {
       type : Array,
       default : ()=>[]
@@ -111,7 +115,7 @@ const _M = {
     },
     //----------------------------------------------
     BtnNext() {
-      let btn = _.get(this.CurrentStep, "next")
+      let btn = _.get(this.CurrentStep, "next") || {}
       return this.getStepAction(btn, {
         icon     : "zmdi-chevron-right",
         text     : "i18n:next",

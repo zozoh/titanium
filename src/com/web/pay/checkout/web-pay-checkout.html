@@ -1,0 +1,75 @@
+<div class="web-pay-checkout"
+  :class="TopClass">
+  <!--
+    Blank
+  -->
+  <div 
+    v-if="isEmpty"
+      class="as-empty">
+    <ti-loading
+      class="as-big"
+      icon="fas-shopping-basket"
+      text="Your shopping cart is empty"/>
+  </div>
+  <!--
+    List table
+  -->
+  <template v-else>
+    <!--
+      Tip
+    -->
+    <div class="as-tip">
+      <ti-icon :value="tipIcon"/>
+      <span>{{tipText | i18n}}</span>
+    </div>
+    <!--
+      List
+    -->
+    <div class="as-list">
+      <!--循环展示商品-->
+      <table>
+        <thead>
+          <tr>
+            <th><span>{{'pay-checkout-it-name'     | i18n}}</span></th>
+            <th>
+              <u>{{CurrencyChar}}</u>
+              <span>{{'pay-checkout-it-price'      | i18n}}</span>
+            </th>
+            <th><span>{{'pay-checkout-it-amount'   | i18n}}</span></th>
+            <th><span>{{'pay-checkout-it-subtotal' | i18n}}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="it of TheItems"
+              class="as-item">
+              <td class="it-thumb">
+                <a
+                  v-if="it.thumbSrc" 
+                    @click.prevent="OnShowProduct(it)" 
+                    :href="it.href">
+                    <img :src="it.thumbSrc"/>
+                </a>
+                <div class="it-info">
+                  <div class="it-title">
+                    <a :href="it.href"
+                      @click.prevent="OnShowProduct(it)">{{it.title}}</a>
+                  </div>
+                  <div class="it-type">{{it.type}}</div>
+                </div>
+              </td>
+              <td class="it-price">
+                <em>{{CurrencyChar}}{{it.price}}</em>
+              </td>
+              <td class="it-amount">
+                <span>{{it.amount}}</span>
+              </td>
+              <td class="it-subtotal">
+                <em>{{CurrencyChar}}{{it.subtotal}}</em>
+              </td>
+            </tr>
+          </tbody>
+      </table>
+    </div> <!--~as-list-->
+  </template>
+</div>

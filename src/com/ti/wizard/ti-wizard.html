@@ -4,6 +4,11 @@
     Header Indicators
   -->
   <div class="as-head">
+    <!--Title-->
+    <div
+      v-if="title" 
+        class="as-title">{{title | i18n}}</div>
+    <!--Step indicators-->
     <ul>
       <li v-for="(step, index) in StepHeads"
         :key="step.stepKey"
@@ -14,7 +19,7 @@
           <span class="as-dot">{{index+1}}</span>
           <span class="as-line at-r"></span>
         </span>
-        <span class="as-text">{{step.title}}</span>
+        <span class="as-text">{{step.title | i18n}}</span>
       </li>
     </ul>
   </div>

@@ -1,3 +1,7 @@
+@function SZ($sz) {
+  @return $sz * .01rem;
+}
+//-------------------------------------------------------------
 @mixin noselect(){
   user-select:none;
 }
