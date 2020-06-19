@@ -1,7 +1,8 @@
 const _M = {
   ///////////////////////////////////////////////////
   data: () => ({
-    myCurrent: undefined
+    myCurrent: undefined,
+    myTitle: undefined
   }),
   ///////////////////////////////////////////////////
   props : {
@@ -86,6 +87,10 @@ const _M = {
       return this.CurrentStep ? true : false
     },
     //----------------------------------------------
+    TheTitle() {
+      return this.myTitle || this.title
+    },
+    //----------------------------------------------
     CurrentStep() {
       let cs = Ti.Util.fallback(this.myCurrent, this.current)
       let step = _.cloneDeep(this.getStep(cs))
@@ -115,18 +120,22 @@ const _M = {
     },
     //----------------------------------------------
     BtnNext() {
-      let btn = _.get(this.CurrentStep, "next") || {}
+      let btn = _.get(this.CurrentStep, "next")
       return this.getStepAction(btn, {
         icon     : "zmdi-chevron-right",
         text     : "i18n:next",
         enabled  : true,
-        reverse  : btn.icon ? false : true
+        reverse  : _.get(btn, "icon") ? false : true
       })
     }
     //----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
+    //----------------------------------------------
+    OnTitleChange(title) {
+      this.myTitle = title
+    },
     //----------------------------------------------
     OnDataChange(payload) {
       //console.log("wizard:OnStepDataChange", payload)

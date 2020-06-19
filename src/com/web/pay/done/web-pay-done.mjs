@@ -1,63 +1,71 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   /////////////////////////////////////////
   props : {
-    "payType" : {
+    "payOk" : {
+      type : Boolean,
+      default : false
+    },
+    "errMsg" : {
       type : String,
-      default : null
+      default : "Name have page personal assume actually study else. Court response"
     },
-    "items" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "orderData" : {
-      type : Object,
-      default : ()=>({})
+    "orderId": {
+      type: String,
+      default: undefined
     }
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   computed : {
-    topClass() {
-      return {
-        "is-ok"   : this.isOK,
-        "is-fail" : this.isFAIL,
-        "is-wait" : this.isWAIT
-      }
+    //----------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-ok": this.payOk,
+        "is-fail": !this.payOk
+      })
     },
-    isOK() {
-      return "OK" == this.orderData.st
+    //----------------------------------------------
+    TheIcon() {
+      return this.payOk
+        ? this.okIcon
+        : this.failIcon
     },
-    isFAIL(){
-      return "FAIL" == this.orderData.st
+    //----------------------------------------------
+    TheText() {
+      return this.payOk
+        ? this.okText
+        : this.failText
     },
-    isWAIT(){
-      return "WAIT" == this.orderData.st
+    //----------------------------------------------
+    TheLinks() {
+      let list = _.cloneDeep(this.payOk
+        ? _.concat(this.okLinks, this.doneLinks)
+        : _.concat(this.failLinks, this.doneLinks))
+
+      let links = []
+      _.forEach(list, li=> {
+        links.push(_.defaults(Ti.Util.explainObj(this, li), {
+          icon: 'zmdi-chevron-right'
+        }))
+      })
+      return links
     },
-    theIcon() {
-      if(this.isOK) {
-        return "zmdi-check-circle"
-      }
-      if(this.isFAIL) {
-        return "zmdi-alert-octagon"
-      }
-      return "zmdi-notifications-active"
-    },
-    theTip() {
-      return ({
-        "OK"   : "pay-re-ok",
-        "FAIL" : "pay-re-fail",
-        "WAIT" : "pay-re-wait"
-      })[this.orderData.st]
-        || "pay-re-nil"
+    //----------------------------------------------
+    hasLinks() {
+      return !_.isEmpty(this.TheLinks)
     }
+    //----------------------------------------------
   },
-  //////////////////////////////////////////
-  methods : {
-    
-  },
-  //////////////////////////////////////////
-  watch : {
-    
+  //////////////////////////////////////////////////
+  methods: {
+    OnClickLink({path, params}={}) {
+      if(path) {
+        this.$notify("nav:to", {
+          value: path,
+          params
+        })
+      }
+    }
   }
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
 }
+export default _M;

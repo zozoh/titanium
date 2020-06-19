@@ -1,18 +1,6 @@
 const _M = {
   /////////////////////////////////////////////////
   props : {
-    "options" : {
-      type : Array,
-      default : ()=>[{
-          "icon":"/gu/rs/ti/icons/png/wxpay256.png",  
-          "value":"wx.qrcode",
-          "text":"i18n:pay-wx"
-        }, {
-          "icon":"/gu/rs/ti/icons/png/alipay256.png",
-          "value":"zfb.qrcode",
-          "text":"i18n:pay-zfb"
-        }]
-    },
     "value" : {
       type : String,
       default : null
@@ -26,26 +14,14 @@ const _M = {
     },
     //----------------------------------------------
     hasPayType() {
-      return !_.isEmpty(this.PayType)
-    },
-    //----------------------------------------------
-    PayType() {
-      return ({
-        "wx.qrcode"  : "pay-by-wx-qrcode",
-        "zfb.qrcode" : "pay-by-zfb-qrcode",
-        "paypal" : "pay-by-paypal"
-      })[this.value]
+      return Ti.Bank.isValidPayType(this.value)
     },
     //----------------------------------------------
     PayTypeText() {
-      if(this.hasPayType) {
-        let ptt = Ti.I18n.get(this.PayType)
-        return Ti.I18n.getf('pay-step-choose-tip2', {
-          val:ptt
-        })
-      }
-      return Ti.I18n.get('pay-step-choose-nil')
-
+      return Ti.Bank.getPayTypeChooseI18nText(this.value, {
+        text:'pay-step-choose-tip2',
+        nil:'pay-step-choose-nil'
+      })
     }
     //----------------------------------------------
   },
@@ -65,6 +41,10 @@ const _M = {
       return "is-disabled"
     }
     //----------------------------------------------
+  },
+  //////////////////////////////////////////////////
+  mounted() {
+    this.$notify("change:title", "pay-step-choose-title2")
   }
   //////////////////////////////////////////////////
 }

@@ -2,6 +2,11 @@
   "name" : "web-pay",
   "globally" : true,
   "template" : "./web-pay.html",
+  "props"    : [
+    "@com:web/pay/checkout/web-pay-checkout-props.mjs",
+    "@com:web/pay/choose/web-pay-choose-props.mjs",
+    "@com:web/pay/done/web-pay-done-props.mjs"
+  ],
   "mixins"   : ["./web-pay.mjs"],
   "components": [
     "@com:ti/wizard",

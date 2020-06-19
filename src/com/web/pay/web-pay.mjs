@@ -2,8 +2,11 @@ const _M = {
   ///////////////////////////////////////////////////
   data: ()=>({
     myPayment: {
-      payType: null
-      //payType: "wx.qrcode"
+      payType: null,
+      //payType: "wx.qrcode",
+      orderId: null,
+      payOk: undefined,
+      errMsg: null
     }
   }),
   ///////////////////////////////////////////////////
@@ -16,25 +19,6 @@ const _M = {
       type: String,
       default: null
     },
-    /**
-     * Items Array should like:
-     * {
-     *   id: "xxx",      // Item ID
-     *   title: "xxx",   // Item display name
-     *   price: 34,      // Item price
-     *   amount: 2,      // Buy number
-     *   thumbSrc        // [optional] Item preview src
-     *   href            // [optional] Item link
-     * }
-     */
-    "items" : {
-      type: Array,
-      default: ()=>[]
-    },
-    "currency": {
-      type: String,
-      default: "RMB"
-    },
     "payTypeOptions" : {
       type : Array,
       default : undefined
@@ -46,8 +30,11 @@ const _M = {
     PaySteps() {
       return [{
         title: "i18n:pay-step-checkout-title",
+        next: true,
         comType: "WebPayCheckout",
         comConf: {
+          tipIcon: this.tipIcon,
+          tipText: this.tipText,
           items: this.items,
           currency: this.currency
         }
@@ -56,13 +43,45 @@ const _M = {
         prev : true,
         next : {
           enabled: {
-            payType: "!isBlank"
+            payType: "notBlank"
           }
         },
         comType: "WebPayChoose",
         comConf: {
-          options: this.payTypeOptions,
+          options: this.options,
           value: "=payType"
+        }
+      }, {
+        title: "i18n:pay-step-proceed-title",
+        prev : true,
+        next : {
+          enabled: {
+            payOk: "isBoolean",
+            orderId: "notBlank"
+          }
+        },
+        comType: "WebPayProceed",
+        comConf: {
+          items: this.items,
+          currency: this.currency,
+          payType: "=payType",
+          orderId: "=orderId",
+          payOk: "=payOk",
+        }
+      }, {
+        title: "pay-step-done-title",
+        comType: "WebPayDone",
+        comConf: {
+          payOk: "=payOk",
+          errMsg: "=errMsg",
+          orderId: "=orderId",
+          okIcon: this.okIcon,
+          okText: this.okText,
+          okLinks: this.okLinks,
+          failIcon: this.failIcon,
+          failText: this.failText,
+          failLinks: this.failLinks,
+          doneLinks: this.doneLinks
         }
       }]
     }

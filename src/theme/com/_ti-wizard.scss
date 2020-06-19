@@ -11,14 +11,16 @@
   > .as-foot{@include pos-abs($b:0,$l:0,$r:0,$h:$wF);}
   //----------------------------------------
   > .as-head {
-    @include flex-align;
+    @include flex-align-center;
     @include noselect;
     padding:SZ(10) 0;
     //--------------------------------------
     .as-title {
       @include flex-center;
-      @include color($color-track, c);
-      padding: 0 .5em;
+      @include color($color-primary, c);
+      font-weight: bold;
+      border-left:5px solid map-get($color-primary, c);
+      padding: 0 .5em; line-height: 1em;
       font-size: 1.1em;
     }
     //--------------------------------------

@@ -1,15 +1,38 @@
-<div class="ti-web-pay-done"
-  :class="topClass">
-  <div class="done-con">
-    <!--
-      Icon
-    -->
-    <div class="done-icon">
-      <ti-icon :value="theIcon"/>
-    </div>
-    <!--
-      Tip
-    -->
-    <div class="done-tip">{{theTip | i18n}}</div>
+<div class="web-pay-done"
+  :class="TopClass">
+  <!--
+    Icon
+  -->
+  <div class="as-icon"><ti-icon :value="TheIcon"/></div>
+  <!--
+    Text
+  -->
+  <div class="as-text">{{TheText | i18n}}</div>
+  <!--
+    errMsg
+  -->
+  <div
+    v-if="errMsg" 
+      class="as-error">{{errMsg | i18n}}</div>
+  <!--
+    Links
+  -->
+  <div
+    v-if="hasLinks"
+      class="as-links">
+      <ul>
+        <li
+          v-for="li in TheLinks">
+          <a
+            class="link-item"
+            :href="li.href"
+            @click.left.prevent="OnClickLink(li)">
+            <ti-icon
+              v-if="li.icon"
+                :value="li.icon"/>
+            <span class="it-text">{{li.text | i18n}}</span>
+          </a>
+        </li>
+      </ul>
   </div>
 </div>

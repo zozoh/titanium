@@ -6,8 +6,8 @@
   <div class="as-head">
     <!--Title-->
     <div
-      v-if="title" 
-        class="as-title">{{title | i18n}}</div>
+      v-if="TheTitle" 
+        class="as-title">{{TheTitle | i18n}}</div>
     <!--Step indicators-->
     <ul>
       <li v-for="(step, index) in StepHeads"
@@ -30,7 +30,8 @@
     <WizardStep 
       v-bind="CurrentStep"
       @data:change="OnDataChange"
-      @step:change="OnStepChange"/>
+      @step:change="OnStepChange"
+      @change:title="OnTitleChange"/>
   </div>
   <!--
     Footer Default Buttons

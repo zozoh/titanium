@@ -1,10 +1,10 @@
-export default {
-  inheritAttrs : false,
-  /////////////////////////////////////////
+const _M = {
+  //////////////////////////////////////////////////
   data : ()=>({
-    __WS : null    // The handle of websocket
+    __WS : null,   // The handle of websocket
+    orderPayment: {}
   }),
-  /////////////////////////////////////////
+  //////////////////////////////////////////////////
   props : {
     "watchUser" : {
       type : String,
@@ -18,25 +18,35 @@ export default {
       type : Array,
       default : ()=>[]
     },
-    "orderStatusOk" : {
+    "orderId" : {
+      type : String,
+      default : undefined
+    },
+    "payOk" : {
       type : Boolean,
-      default : false
-    },
-    "orderPayment" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "orderData" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "qrcodeSize" : {
-      type : Number,
-      default : 200
+      default : undefined
     }
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   computed : {
+    TopClass() {
+      return this.getTopClass({
+        "has-paytype": this.hasPayType,
+        "nil-paytype": !this.hasPayType
+      })
+    },
+    //----------------------------------------------
+    hasPayType() {
+      return Ti.Bank.isValidPayType(this.payType)
+    },
+    //----------------------------------------------
+    PayTypeText() {
+      return Ti.Bank.getPayTypeChooseI18nText(this.payType, {
+        text:'pay-step-proceed-tip',
+        nil:'pay-step-proceed-nil'
+      })
+    },
+    //----------------------------------------------
     isQRCODE() {
       return "QRCODE" == this.orderPayment.dataType
     },
@@ -72,13 +82,13 @@ export default {
       return "i18n:pay-check-do"
     }
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   methods : {
-    //--------------------------------------
+    //----------------------------------------------
     onClickCheckBtn() {
       this.$notify("pay-check")
     },
-    //--------------------------------------
+    //----------------------------------------------
     async watchPaymentChanged() {
       // Guard
       if(this.__WS 
@@ -105,15 +115,15 @@ export default {
         }
       })
     },
-    //--------------------------------------
+    //----------------------------------------------
     unwatchPaymentChanged() {
       if(this.__WS) {
         this.__WS.close();
       }
     }
-    //--------------------------------------
+    //----------------------------------------------
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   watch : {
     "orderData.st" : function() {
       if(/^(OK|FAIL)$/.test(this.orderData.st)) {
@@ -121,13 +131,14 @@ export default {
       }
     }
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   mounted : function() {
-    this.watchPaymentChanged()
+    this.$notify("change:title", this.PayTypeText)
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   beforeDestroy : function(){
     this.unwatchPaymentChanged()
   }
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
 }
+export default _M;

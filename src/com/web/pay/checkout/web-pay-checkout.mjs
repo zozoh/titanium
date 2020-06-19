@@ -1,23 +1,4 @@
 const _M = {
-  /////////////////////////////////////////
-  props : {
-    "tipIcon": {
-      type: String,
-      default: "fas-clipboard-check"
-    },
-    "tipText": {
-      type: String,
-      default: "i18n:pay-checkout-tip"
-    },
-    "items" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "currency": {
-      type: String,
-      default: "RMB"
-    }
-  },
   //////////////////////////////////////////
   computed : {
     //--------------------------------------

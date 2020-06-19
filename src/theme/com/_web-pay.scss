@@ -111,12 +111,12 @@
   //------------------------------------------
   .as-options {
     @include flex-center;
-    padding: SZ(20); min-height: SZ(300);
+    padding: SZ(20); min-height: SZ(280);
     //----------------------------------------
     .as-pay-type {
       margin:SZ(10); cursor:pointer;
       border:1px solid transparent;
-      min-width:SZ(150); min-height: SZ(200);
+      min-width:SZ(150); min-height: SZ(180);
       padding:SZ(20) SZ(10); 
       //--------------------------------------
       &.is-disabled {opacity: 0.6;}
@@ -147,6 +147,46 @@
   //------------------------------------------
   .as-tip {
     text-align: center; padding: SZ(40);
+  }
+  //------------------------------------------
+}
+//////////////////////////////////////////////
+.web-pay-done {
+  padding: SZ(80);
+  //------------------------------------------
+  &.is-ok {@include color($color-success, c);}
+  &.is-fail {@include color($color-error, c);}
+  //------------------------------------------
+  .as-icon {
+    @include flex-center;
+    padding:SZ(10); font-size: SZ(128);
+  }
+  //------------------------------------------
+  .as-text {
+    font-size: SZ(20); text-align: center;
+  }
+  //------------------------------------------
+  .as-error {
+    color: map-get($color-error, c);
+    background: map-get($color-track, r);
+    border:SZ(3) dashed map-get($color-error, c);
+    font-size: SZ(16); padding: 2em; margin: 2em;
+  }
+  //------------------------------------------
+  .as-links {
+    @include flex-center;
+    padding: 3em; line-height: 1.6em;;
+    a {
+      @include flex-align-nowrap;
+      .ti-icon {
+        width:SZ(32);
+      }
+      &:hover {
+        text-decoration: none;
+        .ti-icon {text-decoration: none;}
+        span {text-decoration: underline;}
+      }
+    }
   }
   //------------------------------------------
 }

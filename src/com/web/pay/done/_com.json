@@ -2,5 +2,6 @@
   "name" : "web-pay-done",
   "globally" : true,
   "template" : "./web-pay-done.html",
+  "props"    : "./web-pay-done-props.mjs",
   "mixins"   : ["./web-pay-done.mjs"]
 }

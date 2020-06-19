@@ -2,5 +2,6 @@
   "name" : "web-pay-checkout",
   "globally" : true,
   "template" : "./web-pay-checkout.html",
+  "props"    : "./web-pay-checkout-props.mjs",
   "mixins"   : ["./web-pay-checkout.mjs"]
 }

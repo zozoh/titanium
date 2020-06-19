@@ -1,37 +1,46 @@
-<div class="ti-web-pay-proceed">
-  <div class="scan-con">
+<div class="web-pay-proceed">
+  <!--
+    Main Area
+  -->
+  <div class="as-main">
     <!--
-      QRCODE
+      Wait for create order
     -->
-    <div v-if="isQRCODE"
-      class="is-qrcode">
-      <img :src="paymentDataAsQrcodeUrl">
+    <div 
+      v-if="!orderId"
+        class="as-nil-order">
+      Wait create order ...
     </div>
     <!--
-      IFRAME
+      Show payment
     -->
-    <div v-else-if="isIFRAME"
-      class="is-iframe">
-      <iframe 
-        frameborder="0" 
-        scrolling="no"
-        :src="paymentData"></iframe>
-    </div>
-    <!--
-      Others
-    -->
-    <div v-else>
-      {{paymentData}}
-    </div>
-    <!--
-      Tip
-    -->
-    <div class="scan-tip">{{theTip | i18n}}</div>
+    <template
+      v-else>
+      <!--QRCODE-->
+      <div v-if="isQRCODE"
+        class="is-qrcode">
+        <img :src="paymentDataAsQrcodeUrl">
+      </div>
+      <!--IFRAME-->
+      <div v-else-if="isIFRAME"
+        class="is-iframe">
+        <iframe 
+          frameborder="0" 
+          scrolling="no"
+          :src="paymentData"></iframe>
+      </div>
+      <!--
+        Others
+      -->
+      <div v-else>
+        {{paymentData}}
+      </div>
+    </template>
   </div>
   <!--
     Check Button
   -->
-  <div class="scan-check-btn ti-btn is-huge"
+  <div class="as-check ti-btn is-huge"
     @click.left="onClickCheckBtn">
     <ti-icon class="as-icon" :value="checkBtnIcon"/>
     <span class="as-text">{{checkBtnText|i18n}}</span>
