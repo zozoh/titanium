@@ -304,33 +304,10 @@ const _M = {
       // Init the base/apiBase
 
       // Looking for the entry page
-      let loc = {
-        path   : window.location.pathname,
-        hash   : window.location.hash,
-        search : window.location.search
-      }
+      // {href,protocol,host,port,path,search,query,hash,anchor}
+      let loc = Ti.Util.parseHref(window.location.href)
 
-      // tidy query string
-      if(loc.search && loc.search.startsWith("?")){
-        loc.search = loc.search.substring(1)
-      }
-
-      // Eval params
-      let params = {}
-      if(loc.search) {
-        let ss = loc.search.split('&')
-        for(let s of ss) {
-          let pos = s.indexOf('=')
-          if(pos > 0) {
-            let k = s.substring(0, pos)
-            let v = s.substring(pos+1)
-            params[k] = decodeURIComponent(v)
-          } else {
-            params[s] = true
-          }
-        }
-      }
-
+      
       // Update the auth
       commit("auth/mergePaths", state.authPaths)
 
@@ -344,7 +321,7 @@ const _M = {
       await dispatch("navTo", {
         type   : "page",
         value  : entry,
-        params : params,
+        params : loc.params,
         anchor : loc.hash,
         pushHistory : false
       })

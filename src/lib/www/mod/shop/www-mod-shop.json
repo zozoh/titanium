@@ -8,6 +8,9 @@
     "buyRemove" : "entity/buy/rm",
     "buyGetAll" : "entity/buy/all",
     "buyClean"  : "entity/buy/clean",
-    "objs" : "objs"
+    "objs" : "objs",
+    "buy"  : "pay/buy",
+    "pay"  : "pay/pay",
+    "checkOrder": "pay/check"
   }
 }

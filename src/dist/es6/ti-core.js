@@ -547,12 +547,14 @@ const {Be} = (function(){
             attrs : {name, value, type:"hidden"}
           })
         })
-        // Submit it
-        $form.submit()
-        // Remove it
-        Ti.Dom.remove($form)
         // await for a while
         _.delay(function(){
+          // Submit it
+          $form.submit()
+          // Remove it
+          Ti.Dom.remove($form)
+  
+          // Done
           resolve({
             url, target, method, params
           })
@@ -1191,6 +1193,9 @@ const {S} = (function(){
       }
       // Others -> wrap
       return [s]
+    },
+    toArrayBy(s, sep=",") {
+      return TiStr.toArray(s, {sep, ignoreNil:true})
     },
     /***
      * Translate "XXX:A:im-pizza" or ["XXX","A","im-pizza"]
@@ -6779,6 +6784,43 @@ const {Util} = (function(){
           re.event = _.trim(m[3])
         }
         return re
+      },
+      /***
+       * 'arena>item:change' -> {block:"arena", event:"item:change"} 
+       */
+      parseHref(href="") {
+        let m = /^((https?):)?((\/\/([^/:]+))(:(\d+))?)?([^?]*)(\?([^#]*))?(#(.*))?$/
+                  .exec(href)
+        if(m) {
+          let link = {
+            href,
+            protocol: m[2],
+            host    : m[5],
+            port    : (m[7]||80)*1,
+            path    : m[8],
+            search  : m[9],
+            query   : m[10],
+            hash    : m[11],
+            anchor  : m[12]
+          }
+          if(link.query) {
+            let params = {}
+            let ss = link.query.split('&')
+            for(let s of ss) {
+              let pos = s.indexOf('=')
+              if(pos > 0) {
+                let k = s.substring(0, pos)
+                let v = s.substring(pos+1)
+                params[k] = decodeURIComponent(v)
+              } else {
+                params[s] = true
+              }
+            }
+            link.params = params
+          }
+          return link
+        }
+        return {path:href}
       }
     }
     //-----------------------------------
@@ -8641,6 +8683,55 @@ const {GPS} = (function(){
   return {GPS: TiGPS};
 })();
 //##################################################
+// # import {Bank}         from "./bank.mjs"
+const {Bank} = (function(){
+  ///////////////////////////////////////
+  const TiBank = {
+    //-----------------------------------
+    getCurrencyChar(cur="RMB") {
+      return ({
+        "RMB": "¥",
+        "USD": "$",
+        "GBP": "£"
+      })[cur]
+    },
+    //-----------------------------------
+    isValidPayType(payType) {
+      return ({
+        "wx.qrcode"  : true,
+        "zfb.qrcode" : true,
+        "paypal"     : true,
+      })[payType] || false
+    },
+    //-----------------------------------
+    getPayTypeText(payType, autoI18n=false) {
+      let key = null
+      if(_.isString(payType)) {
+        key = `pay-by-${payType.replace(".", "-")}`
+      }
+      if(key)
+        return autoI18n
+          ? Ti.I18n.get(key)
+          : key
+    },
+    //-----------------------------------
+    getPayTypeChooseI18nText(payType, {
+      text='pay-step-choose-tip2',
+      nil='pay-step-choose-nil'
+    }={}) {
+      let ptt =Ti.Bank.getPayTypeText(payType, true)
+      if(ptt) {
+        return Ti.I18n.getf(text, {val:ptt})
+      }
+      return Ti.I18n.get(nil)
+    }
+    //-----------------------------------
+  }
+  ///////////////////////////////////////
+  
+  return {Bank: TiBank};
+})();
+//##################################################
 // # import {DateTime}     from "./datetime.mjs"
 const {DateTime} = (function(){
   ///////////////////////////////////////////
@@ -8987,6 +9078,19 @@ const {Num} = (function(){
           : len + md
       }
       return -1
+    },
+    /***
+     * @param n{Number} input number
+     * @param p{Number} precise bit
+     * 
+     * @return The number after tidy
+     */
+    precise(n, p=2) {
+      if (p >= 0) {
+          var y = Math.pow(10, p);
+          return Math.round(n * y) / y;
+      }
+      return n;
     }
   }
   //---------------------------------------
@@ -10203,6 +10307,7 @@ const {WalnutAppMain} = (function(){
       "@i18n:_ti",
       "@i18n:_wn",
       "@i18n:_net",
+      "@i18n:web",
       "@i18n:ti-datetime"]))
   
     //---------------------------------------
@@ -10419,7 +10524,6 @@ const {WebAppMain} = (function(){
       //console.log("appConf", conf)
       _.assign(conf.store.state, {
         loading   : false,
-        pageReady : 0,
         siteId,
         domain,
       })
@@ -10433,7 +10537,7 @@ const {WebAppMain} = (function(){
   
     // Prepare the data,
     //  - base/apiBase/cdnBase will be explained
-    app.commit("prepare")
+    app.commit("explainSiteState")
   
     //---------------------------------------
     Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{
@@ -10491,7 +10595,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.1-20200617.175627",
+  "version" : "2.1-20200620.040857",
   "dev" : false,
   "appName" : null,
   "session" : {},
@@ -10520,7 +10624,7 @@ export const Ti = {
   //-----------------------------------------------------
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, 
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
-  WWW, GPS, Validate, DateTime, Num, Trees,
+  WWW, GPS, Validate, DateTime, Num, Trees, Bank,
   Mapping, Dict, DictFactory, Rects, Rect,
   //-----------------------------------------------------
   Websocket: TiWebsocket,

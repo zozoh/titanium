@@ -38,6 +38,77 @@ const _M = {
   ////////////////////////////////////////////////
   actions : {
     //--------------------------------------------
+    async fetchOrder({getters, rootState}, {orderId, payType}={}) {
+      if(!orderId) {
+        return 
+      }
+      let reo = await Ti.Http.get(getters.urls.pay, {
+        params: {
+          ticket: rootState.auth.ticket,
+          id: orderId,
+          pt: payType
+        },
+        as: "json"
+      })
+      // Success
+      if(reo.ok) {
+        return reo.data
+      }
+      // Fail
+      else {
+        console.warn("Fail to loadBuyItems", {items, reo})
+      }
+    },
+    //--------------------------------------------
+    async createOrder({getters, rootState}, {payType, items}={}) {
+      if(!payType || _.isEmpty(items)) {
+        return 
+      }
+      let reo = await Ti.Http.post(getters.urls.buy, {
+        params: {
+          ticket: rootState.auth.ticket
+        },
+        headers: {
+          "Content-Type": "application/json;charset=utf-8"
+        },
+        body: JSON.stringify({
+          pay_tp : payType,
+          products: items,
+        }),
+        as: "json"
+      })
+      // Success
+      if(reo.ok) {
+        return reo.data
+      }
+      // Fail
+      else {
+        console.warn("Fail to loadBuyItems", {items, reo})
+      }
+    },
+    //--------------------------------------------
+    async checkOrder({getters, rootState}, orderId) {
+      console.log("checkOrder")
+      if(!orderId) {
+        return 
+      }
+      let reo = await Ti.Http.get(getters.urls.checkOrder, {
+        params: {
+          ticket: rootState.auth.ticket,
+          id: orderId
+        },
+        as: "json"
+      })
+      // Success
+      if(reo.ok) {
+        return reo.data
+      }
+      // Fail
+      else {
+        console.warn("Fail to loadBuyItems", {items, reo})
+      }
+    },
+    //--------------------------------------------
     async loadBuyItems({getters, commit}, {
       items= [],
       commitDataKey= "goods",
@@ -66,7 +137,7 @@ const _M = {
 
       // ask remote for 
       let reo =  await Ti.Http.get(getters.urls.objs, {
-        params : {ids: ids.join(" ")},
+        params : {phs: ids.join(" ")},
         as : "json"
       })
 

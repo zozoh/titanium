@@ -5,6 +5,7 @@
   "props"    : [
     "@com:web/pay/checkout/web-pay-checkout-props.mjs",
     "@com:web/pay/choose/web-pay-choose-props.mjs",
+    "@com:web/pay/proceed/web-pay-proceed-props.mjs",
     "@com:web/pay/done/web-pay-done-props.mjs"
   ],
   "mixins"   : ["./web-pay.mjs"],

@@ -252,6 +252,10 @@ const _M = {
           if(_.isPlainObject(btn.enabled)) {
             btn.enabled = Ti.Validate.match(this.value, btn.enabled)
           }
+          // Customized
+          else if(_.isFunction(btn.enabled)) {
+            btn.enabled = btn.enabled()
+          }
         }
         // Setup 
         _.defaults(btn, dftSetting)

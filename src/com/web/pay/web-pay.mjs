@@ -4,7 +4,7 @@ const _M = {
     myPayment: {
       payType: null,
       //payType: "wx.qrcode",
-      orderId: null,
+      orderId: undefined,
       payOk: undefined,
       errMsg: null
     }
@@ -30,7 +30,9 @@ const _M = {
     PaySteps() {
       return [{
         title: "i18n:pay-step-checkout-title",
-        next: true,
+        next: {
+          enabled: ()=>!_.isEmpty(this.items)
+        },
         comType: "WebPayCheckout",
         comConf: {
           tipIcon: this.tipIcon,
@@ -67,6 +69,11 @@ const _M = {
           payType: "=payType",
           orderId: "=orderId",
           payOk: "=payOk",
+          watchUser: this.watchUser,
+          qrcodeSize: this.qrcodeSize,
+          getOrder: this.getOrder,
+          createOrder: this.createOrder,
+          checkOrder: this.checkOrder
         }
       }, {
         title: "pay-step-done-title",

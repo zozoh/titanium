@@ -79,6 +79,7 @@ export async function WalnutAppMain({
     "@i18n:_ti",
     "@i18n:_wn",
     "@i18n:_net",
+    "@i18n:web",
     "@i18n:ti-datetime"]))
 
   //---------------------------------------

@@ -12505,12 +12505,15 @@ Ti.Preload("ti/com/ti/input/month/_com.json", {
 //============================================================
 // JOIN: ti/input/num/ti-input-num.html
 //============================================================
-Ti.Preload("ti/com/ti/input/num/ti-input-num.html", `<div class="ti-input-num ti-fill-parent">
+Ti.Preload("ti/com/ti/input/num/ti-input-num.html", `<div
+  class="ti-input-num ti-fill-parent"
+  :class="TopClass"
+  :style="TopStyle">
   <!--
     Button: -
   -->
   <div class="as-btn is-decrease"
-    :class="desreaseClass"
+    :class="DesreaseClass"
     @click="changeByStep(-1)">
     <ti-icon value="zmdi-minus"/>
   </div>
@@ -12520,14 +12523,14 @@ Ti.Preload("ti/com/ti/input/num/ti-input-num.html", `<div class="ti-input-num ti
   <div class="as-input">
     <input 
       spellcheck="false" 
-      :value="theValue"
+      :value="TheValue"
       @change="onChanged">
   </div>
   <!--
     Button: +
   -->
   <div class="as-btn is-increase"
-    :class="increaseClass"
+    :class="IncreaseClass"
     @click="changeByStep(1)">
     <ti-icon value="zmdi-plus"/>
   </div>
@@ -12555,39 +12558,40 @@ const _M = {
     "step" : {
       type : Number,
       default : 1
+    },
+    "width" : {
+      type : [Number, String],
+      default : 200
     }
-    // "width" : {
-    //   type : [Number, String],
-    //   default : 200
-    // }
   },
   ////////////////////////////////////////////////////
   computed : {
-    // topStyle() {
-    //   if(_.isNumber(this.width) || this.width) {
-    //     return {
-    //       width : Ti.Css.toSize(this.width)
-    //     }
-    //   }
-    // },
-    theValue() {
-      if(isNaN(this.value) 
-         || !_.isNumber(this.value)) {
-        return
-      }
-      return this.getValue(this.value)
+    TopClass() {
+      return this.getTopClass()
     },
-    desreaseClass() {
+    TopStyle() {
+      return Ti.Css.toStyleRem100({
+        width: this.width
+      })
+    },
+    DesreaseClass() {
       if(!_.isUndefined(this.minValue) && this.value <= this.minValue) {
         return "is-disabled"
       }
       return "is-enabled"
     },
-    increaseClass() {
+    IncreaseClass() {
       if(!_.isUndefined(this.maxValue) && this.value >= this.maxValue) {
         return "is-disabled"
       }
       return "is-enabled"
+    },
+    TheValue() {
+      if(isNaN(this.value) 
+         || !_.isNumber(this.value)) {
+        return
+      }
+      return this.getValue(this.value)
     }
   },
   ////////////////////////////////////////////////////
@@ -12607,7 +12611,7 @@ const _M = {
     },
     //------------------------------------------------
     changeByStep(n=0) {
-      let val = this.theValue
+      let val = this.TheValue
       // Start with default value
       if(_.isUndefined(val)) {
         val = this.defaultValue
@@ -15570,8 +15574,8 @@ Ti.Preload("ti/com/ti/list/_hmaker.json", {
 // JOIN: ti/loading/ti-loading.html
 //============================================================
 Ti.Preload("ti/com/ti/loading/ti-loading.html", `<div class="ti-loading">
-  <ti-icon class="as-loading-icon" :value="icon"/>
-  <span class="as-loading-text">{{text|i18n}}</span>
+  <ti-icon class="as-icon" :value="icon"/>
+  <div class="as-text">{{text|i18n}}</div>
 </div>`);
 //============================================================
 // JOIN: ti/loading/ti-loading.mjs
@@ -16814,7 +16818,7 @@ Ti.Preload("ti/com/ti/paging/jumper/_com.json", {
 //============================================================
 // JOIN: ti/roadblock/ti-roadblock.html
 //============================================================
-Ti.Preload("ti/com/ti/roadblock/ti-roadblock.html", `<div class="ti-web-roadblock">
+Ti.Preload("ti/com/ti/roadblock/ti-roadblock.html", `<div class="ti-roadblock">
   <div class="as-main">
     <div v-if="icon" class="as-icon">
       <ti-icon :value="icon"/>
@@ -23921,6 +23925,12 @@ const _M = {
       this.$emit("data:change", payload)
     }
     //----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "title": function(){
+      this.$notify("change:title", this.title)
+    }
   }
   ///////////////////////////////////////////////////
 }
@@ -23944,6 +23954,11 @@ Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-par
     Header Indicators
   -->
   <div class="as-head">
+    <!--Title-->
+    <div
+      v-if="TheTitle" 
+        class="as-title">{{TheTitle | i18n}}</div>
+    <!--Step indicators-->
     <ul>
       <li v-for="(step, index) in StepHeads"
         :key="step.stepKey"
@@ -23954,7 +23969,7 @@ Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-par
           <span class="as-dot">{{index+1}}</span>
           <span class="as-line at-r"></span>
         </span>
-        <span class="as-text">{{step.title}}</span>
+        <span class="as-text">{{step.title | i18n}}</span>
       </li>
     </ul>
   </div>
@@ -23965,7 +23980,8 @@ Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-par
     <WizardStep 
       v-bind="CurrentStep"
       @data:change="OnDataChange"
-      @step:change="OnStepChange"/>
+      @step:change="OnStepChange"
+      @change:title="OnTitleChange"/>
   </div>
   <!--
     Footer Default Buttons
@@ -24013,10 +24029,15 @@ Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-par
 const _M = {
   ///////////////////////////////////////////////////
   data: () => ({
-    myCurrent: undefined
+    myCurrent: undefined,
+    myTitle: undefined
   }),
   ///////////////////////////////////////////////////
   props : {
+    "title" : {
+      type: String,
+      default: undefined
+    },
     "steps" : {
       type : Array,
       default : ()=>[]
@@ -24094,6 +24115,10 @@ const _M = {
       return this.CurrentStep ? true : false
     },
     //----------------------------------------------
+    TheTitle() {
+      return this.myTitle || this.title
+    },
+    //----------------------------------------------
     CurrentStep() {
       let cs = Ti.Util.fallback(this.myCurrent, this.current)
       let step = _.cloneDeep(this.getStep(cs))
@@ -24128,13 +24153,17 @@ const _M = {
         icon     : "zmdi-chevron-right",
         text     : "i18n:next",
         enabled  : true,
-        reverse  : btn.icon ? false : true
+        reverse  : _.get(btn, "icon") ? false : true
       })
     }
     //----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
+    //----------------------------------------------
+    OnTitleChange(title) {
+      this.myTitle = title
+    },
     //----------------------------------------------
     OnDataChange(payload) {
       //console.log("wizard:OnStepDataChange", payload)
@@ -24250,6 +24279,10 @@ const _M = {
           // Eval enabled
           if(_.isPlainObject(btn.enabled)) {
             btn.enabled = Ti.Validate.match(this.value, btn.enabled)
+          }
+          // Customized
+          else if(_.isFunction(btn.enabled)) {
+            btn.enabled = btn.enabled()
           }
         }
         // Setup 
@@ -26001,21 +26034,371 @@ Ti.Preload("ti/com/web/nav/links/_com.json", {
   "components" : []
 });
 //============================================================
-// JOIN: web/pay/done/web-pay-done.html
+// JOIN: web/pay/checkout/web-pay-checkout-props.mjs
 //============================================================
-Ti.Preload("ti/com/web/pay/done/web-pay-done.html", `<div class="ti-web-pay-done"
-  :class="topClass">
-  <div class="done-con">
-    <!--
-      Icon
-    -->
-    <div class="done-icon">
-      <ti-icon :value="theIcon"/>
-    </div>
+(function(){
+const _M = {
+  "tipIcon": {
+    type: String,
+    default: "fas-clipboard-check"
+  },
+  "tipText": {
+    type: String,
+    default: "i18n:pay-checkout-tip"
+  },
+  /**
+   * Items Array should like:
+   * {
+   *   id: "xxx",      // Item ID
+   *   title: "xxx",   // Item display name
+   *   price: 34,      // Item price
+   *   amount: 2,      // Buy number
+   *   thumbSrc        // [optional] Item preview src
+   *   href            // [optional] Item link
+   * }
+   */
+  "items" : {
+    type : Array,
+    default : ()=>[]
+  },
+  "currency": {
+    type: String,
+    default: "RMB"
+  }
+}
+Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout-props.mjs", _M);
+})();
+//============================================================
+// JOIN: web/pay/checkout/web-pay-checkout.html
+//============================================================
+Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout.html", `<div class="web-pay-checkout"
+  :class="TopClass">
+  <!--
+    Blank
+  -->
+  <div 
+    v-if="isEmpty"
+      class="as-empty">
+    <ti-loading
+      class="as-big"
+      icon="fas-shopping-basket"
+      text="You should pick something to checkout!"/>
+  </div>
+  <!--
+    List table
+  -->
+  <template v-else>
     <!--
       Tip
     -->
-    <div class="done-tip">{{theTip | i18n}}</div>
+    <div class="as-tip">
+      <ti-icon :value="tipIcon"/>
+      <span>{{tipText | i18n}}</span>
+    </div>
+    <!--
+      List
+    -->
+    <div class="as-list">
+      <!--循环展示商品-->
+      <table>
+        <thead>
+          <tr>
+            <th><span>{{'pay-checkout-it-name'     | i18n}}</span></th>
+            <th>
+              <u>{{CurrencyChar}}</u>
+              <span>{{'pay-checkout-it-price'      | i18n}}</span>
+            </th>
+            <th><span>{{'pay-checkout-it-amount'   | i18n}}</span></th>
+            <th><span>{{'pay-checkout-it-subtotal' | i18n}}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="it of TheItems"
+              class="as-item">
+              <td class="it-thumb">
+                <a
+                  v-if="it.thumbSrc" 
+                    @click.prevent="OnShowProduct(it)" 
+                    :href="it.href">
+                    <img :src="it.thumbSrc"/>
+                </a>
+                <div class="it-title">
+                  <a :href="it.href"
+                    @click.prevent="OnShowProduct(it)">{{it.title}}</a>
+                </div>
+              </td>
+              <td class="it-price">
+                <em>{{CurrencyChar}}{{it.price}}</em>
+              </td>
+              <td class="it-amount">
+                <span>{{it.amount}}</span>
+              </td>
+              <td class="it-subtotal">
+                <em>{{CurrencyChar}}{{it.subtotal}}</em>
+              </td>
+            </tr>
+          </tbody>
+      </table>
+    </div> <!--~as-list-->
+    <!--
+      Summary
+    -->
+    <div class="as-summary">
+      <div class="at-left">
+        <!--Maybe Coupon here-->
+      </div>
+      <div class="at-right">
+        <div class="as-total">
+          <span>Total:</span>
+          <em>{{CurrencyChar}}{{TotalFee}}</em>
+        </div>
+      </div>
+    </div>
+  </template>
+</div>`);
+//============================================================
+// JOIN: web/pay/checkout/web-pay-checkout.mjs
+//============================================================
+(function(){
+const _M = {
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.items)
+    },
+    //--------------------------------------
+    CurrencyChar(){
+      return Ti.Bank.getCurrencyChar(this.currency)
+    },
+    //--------------------------------------
+    TheItems() {
+      let list = []
+      _.forEach(this.items, it=>{
+        list.push({
+          ... it,
+          subtotal: Ti.Num.precise(it.price * it.amount)
+        })
+      })
+      return list
+    },
+    //--------------------------------------
+    TotalFee() {
+      let fee = 0;
+      _.forEach(this.TheItems, it=>fee+=(it.price*it.amount))
+      return Ti.Num.precise(fee)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    OnShowProduct({id}={}) {
+      this.$notify("show:product", id)
+    }
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout.mjs", _M);
+})();
+//============================================================
+// JOIN: web/pay/checkout/_com.json
+//============================================================
+Ti.Preload("ti/com/web/pay/checkout/_com.json", {
+  "name" : "web-pay-checkout",
+  "globally" : true,
+  "template" : "./web-pay-checkout.html",
+  "props"    : "./web-pay-checkout-props.mjs",
+  "mixins"   : ["./web-pay-checkout.mjs"]
+});
+//============================================================
+// JOIN: web/pay/choose/web-pay-choose-props.mjs
+//============================================================
+(function(){
+const _M = {
+  "options" : {
+    type : Array,
+    default : ()=>[{
+        "icon":"/gu/rs/ti/icons/png/wxpay256.png",  
+        "value":"wx.qrcode",
+        "text":"i18n:pay-wx"
+      }, {
+        "icon":"/gu/rs/ti/icons/png/alipay256.png",
+        "value":"zfb.qrcode",
+        "text":"i18n:pay-zfb"
+      }]
+  }
+}
+Ti.Preload("ti/com/web/pay/choose/web-pay-choose-props.mjs", _M);
+})();
+//============================================================
+// JOIN: web/pay/choose/web-pay-choose.html
+//============================================================
+Ti.Preload("ti/com/web/pay/choose/web-pay-choose.html", `<div class="web-pay-choose"
+  :class="TopClass">
+  <!--Title-->
+  <div class="as-title">{{'pay-step-choose-tip'|i18n}}</div>
+  <!--Choosing-->
+  <div class="as-options">
+    <div
+      v-for="op in options"
+        class="as-pay-type"
+        :class="getOptionClass(op)"
+        @click.left="OnChooseOption(op)">
+        <ti-icon :value="op.icon"/>
+        <div class="as-text">{{op.text | i18n}}</div>
+    </div>
+  </div>
+  <div class="as-tip">{{PayTypeText}}</div>
+</div>`);
+//============================================================
+// JOIN: web/pay/choose/web-pay-choose.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////////////
+  props : {
+    "value" : {
+      type : String,
+      default : null
+    }
+  },
+  //////////////////////////////////////////////////
+  computed : {
+    //----------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //----------------------------------------------
+    hasPayType() {
+      return Ti.Bank.isValidPayType(this.value)
+    },
+    //----------------------------------------------
+    PayTypeText() {
+      return Ti.Bank.getPayTypeChooseI18nText(this.value, {
+        text:'pay-step-choose-tip2',
+        nil:'pay-step-choose-nil'
+      })
+    }
+    //----------------------------------------------
+  },
+  //////////////////////////////////////////////////
+  methods : {
+    //----------------------------------------------
+    OnChooseOption({value}={}) {
+      this.$emit("change", {
+        payType: value
+      })
+    },
+    //----------------------------------------------
+    getOptionClass(op) {
+      if(op.value == this.value) {
+        return "is-enabled"
+      }
+      return "is-disabled"
+    }
+    //----------------------------------------------
+  },
+  //////////////////////////////////////////////////
+  mounted() {
+    this.$notify("change:title", "pay-step-choose-title2")
+  }
+  //////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/pay/choose/web-pay-choose.mjs", _M);
+})();
+//============================================================
+// JOIN: web/pay/choose/_com.json
+//============================================================
+Ti.Preload("ti/com/web/pay/choose/_com.json", {
+  "name" : "web-pay-choose",
+  "globally" : true,
+  "template" : "./web-pay-choose.html",
+  "props"    : "./web-pay-choose-props.mjs",
+  "mixins"   : ["./web-pay-choose.mjs"]
+});
+//============================================================
+// JOIN: web/pay/done/web-pay-done-props.mjs
+//============================================================
+(function(){
+const _M = {
+  "okIcon": {
+    type : String,
+    default : "im-check-mark-circle"
+  },
+  "okText": {
+    type : String,
+    default : "i18n:pay-re-ok"
+  },
+  // [{icon, text, href(for newTab), path(for navTo)}]
+  "okLinks": {
+    type: Array,
+    default: ()=>[]
+  },
+  "failIcon": {
+    type : String,
+    default : "im-warning"
+  },
+  "failText": {
+    type : String,
+    default : "i18n:pay-re-fail"
+  },
+  // [{icon, text, href(for newTab), path(for navTo)}]
+  "failLinks": {
+    type: Array,
+    default: ()=>[]
+  },
+  // [{icon, text, href(for newTab), path(for navTo)}]
+  "doneLinks": {
+    type: Array,
+    default: ()=>[]
+  },
+}
+Ti.Preload("ti/com/web/pay/done/web-pay-done-props.mjs", _M);
+})();
+//============================================================
+// JOIN: web/pay/done/web-pay-done.html
+//============================================================
+Ti.Preload("ti/com/web/pay/done/web-pay-done.html", `<div class="web-pay-done"
+  :class="TopClass">
+  <!--
+    Icon
+  -->
+  <div class="as-icon"><ti-icon :value="TheIcon"/></div>
+  <!--
+    Text
+  -->
+  <div class="as-text">{{TheText | i18n}}</div>
+  <!--
+    errMsg
+  -->
+  <div
+    v-if="errMsg" 
+      class="as-error">{{errMsg | i18n}}</div>
+  <!--
+    Links
+  -->
+  <div
+    v-if="hasLinks"
+      class="as-links">
+      <ul>
+        <li
+          v-for="li in TheLinks">
+          <a
+            class="link-item"
+            :href="li.href"
+            @click.left.prevent="OnClickLink(li)">
+            <ti-icon
+              v-if="li.icon"
+                :value="li.icon"/>
+            <span class="it-text">{{li.text | i18n}}</span>
+          </a>
+        </li>
+      </ul>
   </div>
 </div>`);
 //============================================================
@@ -26023,67 +26406,74 @@ Ti.Preload("ti/com/web/pay/done/web-pay-done.html", `<div class="ti-web-pay-done
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
-    "payType" : {
+    "payOk" : {
+      type : Boolean,
+      default : false
+    },
+    "errMsg" : {
       type : String,
-      default : null
+      default : "Name have page personal assume actually study else. Court response"
     },
-    "items" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "orderData" : {
-      type : Object,
-      default : ()=>({})
+    "orderId": {
+      type: String,
+      default: undefined
     }
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   computed : {
-    topClass() {
-      return {
-        "is-ok"   : this.isOK,
-        "is-fail" : this.isFAIL,
-        "is-wait" : this.isWAIT
-      }
+    //----------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-ok": this.payOk,
+        "is-fail": !this.payOk
+      })
     },
-    isOK() {
-      return "OK" == this.orderData.st
+    //----------------------------------------------
+    TheIcon() {
+      return this.payOk
+        ? this.okIcon
+        : this.failIcon
     },
-    isFAIL(){
-      return "FAIL" == this.orderData.st
+    //----------------------------------------------
+    TheText() {
+      return this.payOk
+        ? this.okText
+        : this.failText
     },
-    isWAIT(){
-      return "WAIT" == this.orderData.st
+    //----------------------------------------------
+    TheLinks() {
+      let list = _.cloneDeep(this.payOk
+        ? _.concat(this.okLinks, this.doneLinks)
+        : _.concat(this.failLinks, this.doneLinks))
+
+      let links = []
+      _.forEach(list, li=> {
+        links.push(_.defaults(Ti.Util.explainObj(this, li), {
+          icon: 'zmdi-chevron-right'
+        }))
+      })
+      return links
     },
-    theIcon() {
-      if(this.isOK) {
-        return "zmdi-check-circle"
-      }
-      if(this.isFAIL) {
-        return "zmdi-alert-octagon"
-      }
-      return "zmdi-notifications-active"
-    },
-    theTip() {
-      return ({
-        "OK"   : "pay-re-ok",
-        "FAIL" : "pay-re-fail",
-        "WAIT" : "pay-re-wait"
-      })[this.orderData.st]
-        || "pay-re-nil"
+    //----------------------------------------------
+    hasLinks() {
+      return !_.isEmpty(this.TheLinks)
     }
+    //----------------------------------------------
   },
-  //////////////////////////////////////////
-  methods : {
-    
-  },
-  //////////////////////////////////////////
-  watch : {
-    
+  //////////////////////////////////////////////////
+  methods: {
+    OnClickLink({path, params}={}) {
+      if(path) {
+        this.$notify("nav:to", {
+          value: path,
+          params
+        })
+      }
+    }
   }
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
 }
 Ti.Preload("ti/com/web/pay/done/web-pay-done.mjs", _M);
 })();
@@ -26094,66 +26484,120 @@ Ti.Preload("ti/com/web/pay/done/_com.json", {
   "name" : "web-pay-done",
   "globally" : true,
   "template" : "./web-pay-done.html",
+  "props"    : "./web-pay-done-props.mjs",
   "mixins"   : ["./web-pay-done.mjs"]
 });
 //============================================================
-// JOIN: web/pay/scan/web-pay-scan.html
+// JOIN: web/pay/proceed/web-pay-proceed-props.mjs
 //============================================================
-Ti.Preload("ti/com/web/pay/scan/web-pay-scan.html", `<div class="ti-web-pay-scan">
-  <div class="scan-con">
-    <!--
-      QRCODE
-    -->
+(function(){
+const _M = {
+  "watchUser" : {
+    type : String,
+    default : null
+  },
+  "qrcodeSize": {
+    type: [String, Number],
+    default: 200
+  },
+  "getOrder": {
+    type: Function,
+    default: undefined
+  },
+  "createOrder": {
+    type: Function,
+    default: undefined
+  },
+  "checkOrder": {
+    type: Function,
+    default: undefined
+  }
+}
+Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed-props.mjs", _M);
+})();
+//============================================================
+// JOIN: web/pay/proceed/web-pay-proceed.html
+//============================================================
+Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed.html", `<div class="web-pay-proceed">
+  <!--
+    Wait for create order
+  -->
+  <div 
+    v-if="!hasOrder"
+      class="as-nil-order">
+      <ti-loading
+        class="as-big"
+        :text="OrderLoadText"/>
+  </div>
+  <!--
+    Show payment
+  -->
+  <template
+    v-else>
+    <!--QRCODE-->
     <div v-if="isQRCODE"
-      class="is-qrcode">
-      <img :src="paymentDataAsQrcodeUrl">
+      class="as-main is-qrcode">
+      <img 
+        :style="QrcodeImageStyle"
+        :src="PaymentDataAsQrcodeUrl">
     </div>
-    <!--
-      IFRAME
-    -->
+    <!--IFRAME-->
     <div v-else-if="isIFRAME"
-      class="is-iframe">
+      class="as-main is-iframe">
       <iframe 
         frameborder="0" 
         scrolling="no"
-        :src="paymentData"></iframe>
+        :src="PaymentData"></iframe>
+    </div>
+    <!--
+      JSON
+    -->
+    <div v-else-if="isJSON"
+      class="as-main is-json">
+      <!--The self/approve/update/capture links for PayPal-->
+      <div
+        v-if="'paypal' == payType"
+          class="by-paypal">
+        <!--Logo-->
+        <div class="paypal-logo">
+          <a 
+            :href="PayPalLinksMap.approve.href"
+            target="_blank"><i class="fab fa-paypal"></i></a>
+        </div>
+        <div class="paypal-tip">{{'paypal-approve-tip'|i18n}}</div>
+      </div> <!--End PayPal-->
     </div>
     <!--
       Others
     -->
-    <div v-else>
-      {{paymentData}}
-    </div>
+    <div
+      v-else
+        class="as-main">{{myOrder}}</div>
     <!--
-      Tip
+      Check Button
     -->
-    <div class="scan-tip">{{theTip | i18n}}</div>
-  </div>
-  <!--
-    Check Button
-  -->
-  <div class="scan-check-btn ti-btn is-huge"
-    @click.left="onClickCheckBtn">
-    <ti-icon class="as-icon" :value="checkBtnIcon"/>
-    <span class="as-text">{{checkBtnText|i18n}}</span>
-  </div>
+    <div class="as-check">
+      <div class="ti-btn is-huge"
+        @click.left="OnClickCheckBtn">
+        <ti-icon class="as-icon" :value="CheckBtnIcon"/>
+        <div class="as-text">{{CheckBtnText|i18n}}</div>
+      </div>
+    </div>
+  </template>
 </div>`);
 //============================================================
-// JOIN: web/pay/scan/web-pay-scan.mjs
+// JOIN: web/pay/proceed/web-pay-proceed.mjs
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
-  /////////////////////////////////////////
+  //////////////////////////////////////////////////
   data : ()=>({
-    __WS : null    // The handle of websocket
+    __WS : null,   // The handle of websocket
+    myOrder: null,
+    isChecking: false
   }),
-  /////////////////////////////////////////
+  //////////////////////////////////////////////////
   props : {
-    "watchUser" : {
-      type : String,
-      default : null
-    },
     "payType" : {
       type : String,
       default : null
@@ -26162,226 +26606,424 @@ const _M = {
       type : Array,
       default : ()=>[]
     },
-    "orderStatusOk" : {
+    "orderId" : {
+      type : String,
+      default : undefined
+    },
+    "payOk" : {
       type : Boolean,
-      default : false
+      default : undefined
     },
-    "orderPayment" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "orderData" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "qrcodeSize" : {
-      type : Number,
-      default : 200
+    "currency": {
+      type: String,
+      default: "RMB"
     }
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   computed : {
+    TopClass() {
+      return this.getTopClass({
+        "has-paytype": this.hasPayType,
+        "nil-paytype": !this.hasPayType
+      }, `is-${this.PayTypeName}`)
+    },
+    //----------------------------------------------
+    hasPayType() {
+      return Ti.Bank.isValidPayType(this.payType)
+    },
+    //----------------------------------------------
+    PayTypeName() {
+      if(_.isString(this.payType)) {
+        return this.payType.replace(".", "-");
+      }
+    },
+    //----------------------------------------------
+    PayTypeText() {
+      return Ti.Bank.getPayTypeChooseI18nText(this.payType, {
+        text:'pay-step-proceed-tip',
+        nil:'pay-step-proceed-nil'
+      })
+    },
+    //----------------------------------------------
+    OrderLoadText() {
+      return this.orderId
+        ? "pay-step-proceed-fetch-order"
+        : "pay-step-proceed-create-order"
+    },
+    //----------------------------------------------
+    hasOrder() {
+      return !_.isEmpty(this.myOrder)
+    },
+    //----------------------------------------------
+    Payment() {
+      return _.get(this.myOrder, "pay_re")
+    },
+    //----------------------------------------------
+    PaymentId() {
+      return _.get(this.Payment, "payObjId")
+    },
+    //----------------------------------------------
+    PaymentStatus() {
+      return _.get(this.Payment, "status")
+    },
+    //----------------------------------------------
+    PaymentData() {
+      return _.get(this.Payment, "data")
+    },
+    //----------------------------------------------
+    PaymentDataType() {
+      return _.get(this.Payment, "dataType")
+    },
+    //----------------------------------------------
+    isPaymentCreated() {
+      return _.get(this.Payment, "payObjId") ? true : false
+    },
+    //----------------------------------------------
     isQRCODE() {
-      return "QRCODE" == this.orderPayment.dataType
+      return "QRCODE" == this.PaymentDataType
     },
+    //----------------------------------------------
     isIFRAME() {
-      return "IFRAME" == this.orderPayment.dataType
+      return "IFRAME" == this.PaymentDataType
     },
+    //----------------------------------------------
     isLINK() {
-      return "LINK" == this.orderPayment.dataType
+      return "LINK" == this.PaymentDataType
     },
+    //----------------------------------------------
     isJSON() {
-      return "JSON" == this.orderPayment.dataType
+      return "JSON" == this.PaymentDataType
     },
+    //----------------------------------------------
     isTEXT() {
-      return "TEXT" == this.orderPayment.dataType
+      return "TEXT" == this.PaymentDataType
     },
-    paymentData() {
-      return this.orderPayment.data
+    //----------------------------------------------
+    PaymentDataAsQrcodeUrl() {
+      return `/gu/qrcode?d=${this.PaymentData}&s=${this.qrcodeSize}&_=${Date.now()}`
     },
-    paymentDataAsQrcodeUrl() {
-      return `/gu/qrcode?d=${this.orderPayment.data}&s=${this.qrcodeSize}&_=${Date.now()}`
+    //----------------------------------------------
+    PayPalLinksMap() {
+      let map = {}
+      if(this.hasOrder 
+        && "paypal" == this.myOrder.pay_tp) {
+        _.forEach(this.PaymentData.links, li=> {
+          map[li.rel] = li
+        })
+      }
+      return map;
     },
-    theTip() {
-      return ({
-        "wx.qrcode"  : "pay-tip-wx-qrcode",
-        "zfb.qrcode" : "pay-tip-zfb-qrcode"
-      })[this.payType]
-        || "pay-by-nil"
+    //----------------------------------------------
+    QrcodeImageStyle() {
+      return Ti.Css.toStyleRem100({
+        width: this.qrcodeSize,
+        height: this.qrcodeSize
+      })
     },
-    checkBtnIcon(){
+    //----------------------------------------------
+    CheckBtnIcon(){
+      if(this.isChecking) {
+        return "fas-spinner fa-spin"
+      }
       return "zmdi-assignment-check"
     },
-    checkBtnText(){
-      return "i18n:pay-check-do"
+    //----------------------------------------------
+    CheckBtnText(){
+      if(this.isChecking)
+        return "i18n:pay-proceed-ing"
+      return "i18n:pay-proceed-check"
     }
+    //----------------------------------------------
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   methods : {
-    //--------------------------------------
-    onClickCheckBtn() {
-      this.$notify("pay-check")
+    //----------------------------------------------
+    async OnClickCheckBtn() {
+      if(_.isFunction(this.checkOrder)) {
+        this.isChecking = true
+        this.myOrder = await this.checkOrder(this.orderId)
+        this.isChecking = false
+      }
     },
-    //--------------------------------------
-    async watchPaymentChanged() {
+    //----------------------------------------------
+    async checkOrCreateOrder() {
+      if(this.hasOrder) {
+        return
+      }
+      // Get Back
+      if(this.orderId) {
+        if(_.isFunction(this.getOrder)) {
+          this.myOrder = await this.getOrder(this.orderId, this.payType)
+        }
+      }
+      // Create new one
+      else {
+        if(_.isFunction(this.createOrder)) {
+          let payItems = _.map(this.items, it=>({
+            id: it.id,
+            amount: it.amount || 1,
+            title: it.title,
+            price: it.price
+          }))
+          let order = await this.createOrder({
+            payType: this.payType,
+            items: payItems
+          })
+          this.$emit("change", {orderId: _.get(order, "id")})
+          this.myOrder = order
+        }
+      }
+
+      // Open Link for PayPal approve
+      if("paypal" == this.payType && this.isPaymentCreated) {
+        let href = _.get(this.PayPalLinksMap, "approve.href")
+        let link = Ti.Util.parseHref(href)
+        let url = `${link.protocol}://${link.host}${link.path}`
+        console.log("🤳", {href, link, url})
+        await Ti.Be.Open(url, {
+          params: link.params,
+          delay: 1000
+        })
+      }
+
+      // Finally watch the payment change
+      this.watchPaymentChanged();
+    },
+    //----------------------------------------------
+    watchPaymentChanged() {
       // Guard
       if(this.__WS 
         || !this.watchUser 
-        || !this.orderData 
-        || !this.orderData.pay_id) {
+        || !this.hasOrder
+        || !this.isPaymentCreated) {
         return
       }
       // Watch Remote
+      console.log("【🦅】watchPaymentChanged")
       this.__WS = Ti.Websocket.listenRemote({
         watchTo : {
           method : "watch",
           user   : this.watchUser,
           match  : {
-            id : this.orderData.pay_id
+            id : this.PaymentId
           }
         },
         received : (wso)=>{
-          console.log("websocket", wso)
-          this.onClickCheckBtn()
+          console.log("【🦅】websocket", wso)
+          this.OnClickCheckBtn()
         },
         closed : ()=>{
           this.unwatchPaymentChanged()
         }
       })
     },
-    //--------------------------------------
+    //----------------------------------------------
     unwatchPaymentChanged() {
       if(this.__WS) {
         this.__WS.close();
       }
     }
-    //--------------------------------------
+    //----------------------------------------------
   },
-  //////////////////////////////////////////
-  watch : {
-    "orderData.st" : function() {
-      if(/^(OK|FAIL)$/.test(this.orderData.st)) {
-        this.$notify("pay-done")
+  //////////////////////////////////////////////////
+  watch: {
+    "PaymentStatus": function(status) {
+      // Fail
+      if("FAIL" == status) {
+        this.$emit("change", {
+          payOk: false,
+          errMsg: JSON.stringify(this.PaymentData)
+        })
+        this.$notify("step:change", "@next")
+      }
+      // OK
+      else if("OK" == status) {
+        this.$emit("change", {
+          payOk: true
+        })
+        this.$notify("step:change", "@next")
       }
     }
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   mounted : function() {
-    this.watchPaymentChanged()
+    this.$notify("change:title", this.PayTypeText)
+    this.$nextTick(()=>{
+      this.checkOrCreateOrder()
+    })
   },
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
   beforeDestroy : function(){
     this.unwatchPaymentChanged()
   }
-  //////////////////////////////////////////
+  //////////////////////////////////////////////////
 }
-Ti.Preload("ti/com/web/pay/scan/web-pay-scan.mjs", _M);
+Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed.mjs", _M);
 })();
 //============================================================
-// JOIN: web/pay/scan/_com.json
+// JOIN: web/pay/proceed/_com.json
 //============================================================
-Ti.Preload("ti/com/web/pay/scan/_com.json", {
-  "name" : "web-pay-scan",
+Ti.Preload("ti/com/web/pay/proceed/_com.json", {
+  "name" : "web-pay-proceed",
   "globally" : true,
-  "template" : "./web-pay-scan.html",
-  "mixins"   : ["./web-pay-scan.mjs"]
+  "template" : "./web-pay-proceed.html",
+  "props": "./web-pay-proceed-props.mjs",
+  "mixins"   : ["./web-pay-proceed.mjs"]
 });
 //============================================================
-// JOIN: web/pay/types/web-pay-types.html
+// JOIN: web/pay/web-pay.html
 //============================================================
-Ti.Preload("ti/com/web/pay/types/web-pay-types.html", `<div class="ti-web-pay-types">
-  <!--Choosing-->
-  <ti-web-choose-mode
-    :base="base"
-    :options="options"
-    :value="value"
-    @change="$notify('change', $event)"/>
-  <!--Button-->
-  <div class="ti-btn is-huge" 
-    :class="btnClass"
-    @click.left="onClickBtn">
-    <span class="as-text">{{payTypeText|i18n}}</span>
-  </div>
+Ti.Preload("ti/com/web/pay/web-pay.html", `<div class="web-pay">
+  <ti-wizard
+    :current="1"
+    :title="title"
+    :steps="PaySteps"
+    :value="myPayment"
+    can-click-head-item="passed"
+    @change="OnChange"/>
 </div>`);
 //============================================================
-// JOIN: web/pay/types/web-pay-types.mjs
+// JOIN: web/pay/web-pay.mjs
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
-  /////////////////////////////////////////
+  ///////////////////////////////////////////////////
+  data: ()=>({
+    myPayment: {
+      payType: null,
+      //payType: "wx.qrcode",
+      orderId: undefined,
+      payOk: undefined,
+      errMsg: null
+    }
+  }),
+  ///////////////////////////////////////////////////
   props : {
-    "base" : {
-      type : String,
-      default : "/gu/rs/ti/icons/png/"
+    "title": {
+      type: String,
+      default: "i18n:pay-title"
     },
-    "options" : {
+    "payType": {
+      type: String,
+      default: null
+    },
+    "payTypeOptions" : {
       type : Array,
-      default : ()=>[
-        {"icon":"wxpay256.png",  "value":"wx.qrcode",  "text":"i18n:pay-wx"},
-        {"icon":"alipay256.png", "value":"zfb.qrcode", "text":"i18n:pay-zfb"}]
-      // default : ()=>[
-      //   {"icon":"fab-weixin",  "value":"wx.qrcode",  "text":"i18n:pay-wx"},
-      //   {"icon":"fab-alipay", "value":"zfb.qrcode", "text":"i18n:pay-zfb"}]
+      default : undefined
     },
-    "value" : {
-      type : String,
-      default : null
-    },
-    "apiName" : {
-      type : String,
-      default : null
-    },
-    "orderStatusOk" : {
-      type : Boolean,
-      default : false
-    }
   },
-  //////////////////////////////////////////
+  ///////////////////////////////////////////////////
   computed : {
-    payTypeText() {
-      return ({
-        "wx.qrcode"  : "pay-by-wx-qrcode",
-        "zfb.qrcode" : "pay-by-zfb-qrcode"
-      })[this.value]
-        || "pay-by-nil"
-    },
-    btnClass() {
-      if(this.value) {
-        return "is-enabled"
-      }
-      return "is-disabled"
+    //----------------------------------------------
+    PaySteps() {
+      return [{
+        title: "i18n:pay-step-checkout-title",
+        next: {
+          enabled: ()=>!_.isEmpty(this.items)
+        },
+        comType: "WebPayCheckout",
+        comConf: {
+          tipIcon: this.tipIcon,
+          tipText: this.tipText,
+          items: this.items,
+          currency: this.currency
+        }
+      }, {
+        title: "i18n:pay-step-choose-title",
+        prev : true,
+        next : {
+          enabled: {
+            payType: "notBlank"
+          }
+        },
+        comType: "WebPayChoose",
+        comConf: {
+          options: this.options,
+          value: "=payType"
+        }
+      }, {
+        title: "i18n:pay-step-proceed-title",
+        prev : true,
+        next : {
+          enabled: {
+            payOk: "isBoolean",
+            orderId: "notBlank"
+          }
+        },
+        comType: "WebPayProceed",
+        comConf: {
+          items: this.items,
+          currency: this.currency,
+          payType: "=payType",
+          orderId: "=orderId",
+          payOk: "=payOk",
+          watchUser: this.watchUser,
+          qrcodeSize: this.qrcodeSize,
+          getOrder: this.getOrder,
+          createOrder: this.createOrder,
+          checkOrder: this.checkOrder
+        }
+      }, {
+        title: "pay-step-done-title",
+        comType: "WebPayDone",
+        comConf: {
+          payOk: "=payOk",
+          errMsg: "=errMsg",
+          orderId: "=orderId",
+          okIcon: this.okIcon,
+          okText: this.okText,
+          okLinks: this.okLinks,
+          failIcon: this.failIcon,
+          failText: this.failText,
+          failLinks: this.failLinks,
+          doneLinks: this.doneLinks
+        }
+      }]
     }
+    //----------------------------------------------
   },
-  //////////////////////////////////////////
+  ///////////////////////////////////////////////////
   methods : {
-    onClickBtn() {
-      if(this.value) {
-        this.$notify("pay-buy")
-      }
+    //----------------------------------------------
+    OnChange(payment) {
+      _.assign(this.myPayment, payment)
     }
+    //----------------------------------------------
   },
-  //////////////////////////////////////////
-  watch : {
-    "orderStatusOk" : function(){
-      if(this.orderStatusOk) {
-        this.$notify("pay-ready")
-      }
+  ///////////////////////////////////////////////////
+  watch: {
+    "payType": {
+      handler: function(){
+        this.myPayment.payType = this.payType
+      },
+      immediate: true
     }
   }
-  //////////////////////////////////////////
+  ///////////////////////////////////////////////////
 }
-Ti.Preload("ti/com/web/pay/types/web-pay-types.mjs", _M);
+Ti.Preload("ti/com/web/pay/web-pay.mjs", _M);
 })();
 //============================================================
-// JOIN: web/pay/types/_com.json
+// JOIN: web/pay/_com.json
 //============================================================
-Ti.Preload("ti/com/web/pay/types/_com.json", {
-  "name" : "web-pay-types",
+Ti.Preload("ti/com/web/pay/_com.json", {
+  "name" : "web-pay",
   "globally" : true,
-  "template" : "./web-pay-types.html",
-  "mixins"   : ["./web-pay-types.mjs"],
-  "components" : ["@com:web/widget/choose-mode"]
+  "template" : "./web-pay.html",
+  "props"    : [
+    "@com:web/pay/checkout/web-pay-checkout-props.mjs",
+    "@com:web/pay/choose/web-pay-choose-props.mjs",
+    "@com:web/pay/proceed/web-pay-proceed-props.mjs",
+    "@com:web/pay/done/web-pay-done-props.mjs"
+  ],
+  "mixins"   : ["./web-pay.mjs"],
+  "components": [
+    "@com:ti/wizard",
+    "@com:web/pay/checkout",
+    "@com:web/pay/choose",
+    "@com:web/pay/proceed",
+    "@com:web/pay/done"
+  ]
 });
 //============================================================
 // JOIN: web/shelf/free/web-shelf-free.html
@@ -35193,6 +35835,7 @@ const _M = {
         "logo"       : state=>state.logo,
         "utils"      : state=>state.utils,
         "page"       : state=>state.page,
+        "shop"       : state=>state.shop,
         "auth"       : state=>state.auth,
         "domain"     : state=>state.domain,
         "base"       : state=>state.base,
@@ -35305,6 +35948,7 @@ const _M = {
       
       //.....................................
       // explain it
+      //console.log("site-main: explain it!", gui);
       let theGUI = Ti.Util.explainObj(this, gui, {
         fnSet: this.PageFnSet
       })
@@ -35870,6 +36514,7 @@ Ti.Preload("ti/lib/www/mod/auth/_mod.json", {
 Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "title" : null,
   "path"  : null,
+  "ready" : 0,
   "finger" : null,
   "params" : {},
   "anchor" : null,
@@ -36046,6 +36691,13 @@ const _M = {
       _.assign(state.shown, shown)
     },
     //--------------------------------------------
+    // 0: before reload setting -> @page:init
+    // 1: after reload setting  -> @page:prepare
+    // 2: after preload data    -> @page:ready
+    setReady(state, ready) {
+      state.ready = ready
+    },
+    //--------------------------------------------
     // Page finger to indicate the page changed
     // watch the filter can auto update document title
     updateFinger(state) {
@@ -36132,6 +36784,10 @@ const _M = {
       if(assertFail && fail.action) {
         dispatch("doAction", fail, {root:true})
       }
+    },
+    //--------------------------------------------
+    async scrollToTop({state}) {
+      Ti.Be.ScrollWindowTo({y:0})
     },
     //--------------------------------------------
     async doApi({rootState, getters, commit}, {
@@ -36401,9 +37057,13 @@ const _M = {
         })
       }
       //.....................................
+      // Notify: init
+      console.log("@page:init ...")
+      commit("setReady", 0)
+      await dispatch("invokeAction", {name:"@page:init"}, {root:true})
+      //.....................................
       // Load the page json
       let json = await Ti.Load(`@Site:${pinfo.path}.json`)
-
       //.....................................
       // merge info
       if(anchor) {
@@ -36421,15 +37081,28 @@ const _M = {
         "schema" : {},
         "actions" : {}
       }, json, pinfo)
-      
-      //...........................
+      //.....................................
       // Update page 
       commit("set", page)
       console.log(" #### page.loaded", _.cloneDeep(page))
 
       //.....................................
+      // Notify: Prepare
+      console.log("@page:prepare ...")
+      commit("setReady", 1)
+      await dispatch("invokeAction", {name:"@page:prepare"}, {root:true})
+      //.....................................
       // init: data
       await dispatch("reloadData")
+      //.....................................
+      // Scroll window to top
+      dispatch("scrollToTop")
+      //.....................................
+      // Notify: Ready
+      console.log("@page:ready ...")
+      commit("setReady", 2)
+      await dispatch("invokeAction", {name:"@page:ready"}, {root:true})
+      //.....................................
     }
     //--------------------------------------------
   }
@@ -36447,13 +37120,416 @@ Ti.Preload("ti/lib/www/mod/page/_mod.json", {
   "mixins" : "./www-mod-page.mjs"
 });
 //============================================================
+// JOIN: mod/shop/www-mod-shop.json
+//============================================================
+Ti.Preload("ti/lib/www/mod/shop/www-mod-shop.json", {
+  "basket" : [],
+
+  "payment" : null,
+
+  "paths"  : {
+    "buyIt"     : "entity/buy/it",
+    "buyRemove" : "entity/buy/rm",
+    "buyGetAll" : "entity/buy/all",
+    "buyClean"  : "entity/buy/clean",
+    "objs" : "objs",
+    "buy"  : "pay/buy",
+    "pay"  : "pay/pay",
+    "checkOrder": "pay/check"
+  }
+});
+//============================================================
+// JOIN: mod/shop/www-mod-shop.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////
+  getters : {
+    //--------------------------------------------
+    urls(state, getters, rootState, rootGetters) {
+      let map = {}
+      _.forEach(state.paths, (ph, key)=>{
+        map[key] = rootGetters.getApiUrl(ph)
+      })
+      return map
+    }
+    //--------------------------------------------
+  },
+  ////////////////////////////////////////////////
+  mutations : {
+    //--------------------------------------------
+    appendBasket(state, buyIt) {
+      state.basket = _.concat(state.basket, buyIt)
+    },
+    //--------------------------------------------
+    setBasket(state, buyIts=[]) {
+      state.basket = buyIts
+    },
+    //--------------------------------------------
+    setPayment(state, pay) {
+      state.payment = pay
+    },
+    //--------------------------------------------
+    setPaths(state, paths) {
+      state.paths = _.cloneDeep(paths)
+    },
+    //--------------------------------------------
+    mergePaths(state, paths) {
+      _.assign(state.paths, paths)
+    }
+    //--------------------------------------------
+  },
+  ////////////////////////////////////////////////
+  actions : {
+    //--------------------------------------------
+    async fetchOrder({getters, rootState}, {orderId, payType}={}) {
+      if(!orderId) {
+        return 
+      }
+      let reo = await Ti.Http.get(getters.urls.pay, {
+        params: {
+          ticket: rootState.auth.ticket,
+          id: orderId,
+          pt: payType
+        },
+        as: "json"
+      })
+      // Success
+      if(reo.ok) {
+        return reo.data
+      }
+      // Fail
+      else {
+        console.warn("Fail to loadBuyItems", {items, reo})
+      }
+    },
+    //--------------------------------------------
+    async createOrder({getters, rootState}, {payType, items}={}) {
+      if(!payType || _.isEmpty(items)) {
+        return 
+      }
+      let reo = await Ti.Http.post(getters.urls.buy, {
+        params: {
+          ticket: rootState.auth.ticket
+        },
+        headers: {
+          "Content-Type": "application/json;charset=utf-8"
+        },
+        body: JSON.stringify({
+          pay_tp : payType,
+          products: items,
+        }),
+        as: "json"
+      })
+      // Success
+      if(reo.ok) {
+        return reo.data
+      }
+      // Fail
+      else {
+        console.warn("Fail to loadBuyItems", {items, reo})
+      }
+    },
+    //--------------------------------------------
+    async checkOrder({getters, rootState}, orderId) {
+      console.log("checkOrder")
+      if(!orderId) {
+        return 
+      }
+      let reo = await Ti.Http.get(getters.urls.checkOrder, {
+        params: {
+          ticket: rootState.auth.ticket,
+          id: orderId
+        },
+        as: "json"
+      })
+      // Success
+      if(reo.ok) {
+        return reo.data
+      }
+      // Fail
+      else {
+        console.warn("Fail to loadBuyItems", {items, reo})
+      }
+    },
+    //--------------------------------------------
+    async loadBuyItems({getters, commit}, {
+      items= [],
+      commitDataKey= "goods",
+      commitTarget= "page/updateData"
+    }) {
+      console.log("loadBuyItems", items)
+      // Gether ids
+      let ids = []
+      let amounts = {}
+      _.forEach(items, it=>{
+        let m = /^(\d+):(.+)$/.exec(it)
+        if(m) {
+          let amount = m[1] * 1
+          let id = m[2]
+          if(id && amount > 0) {
+            ids.push(`id:${id}`)
+            amounts[id] = amount
+          }
+        }
+      })
+
+      // Guard
+      if(_.isEmpty(ids)) {
+        return
+      }
+
+      // ask remote for 
+      let reo =  await Ti.Http.get(getters.urls.objs, {
+        params : {phs: ids.join(" ")},
+        as : "json"
+      })
+
+      // OK
+      if(reo.ok) {
+        let its = []
+        _.forEach(reo.data, obj=> {
+          let id = obj.id
+          let amount = amounts[id]
+          its.push({
+            id, amount, obj
+          })
+        })
+
+        commit(commitTarget, {
+          key: commitDataKey,
+          value: its
+        }, {root:true})
+      }
+      // Fail
+      else {
+        console.warn("Fail to loadBuyItems", {items, reo})
+      }
+    },
+    //--------------------------------------------
+    async checkoutBasket({state, dispatch}, {
+      checkoutPage="page/shop/checkout.html"
+    }={}) {
+      // Prepare the list
+      let items = []
+      _.forEach(state.basket, (it)=> {
+        if(it.name && it.count > 0) {
+          items.push({
+            id: it.name,
+            amount: it.count
+          })
+        }
+      })
+
+      // Do the checkout
+      if(!_.isEmpty(items)) {
+        await dispatch("checkout", {
+          items, checkoutPage
+        })
+      }
+      // Just warn it
+      else {
+        console.warn("!checkoutBasket: Empty Basket")
+      }
+    },
+    //--------------------------------------------
+    /***
+     * @param items{Array} - Array with item `{id:xxx, amount:1}`
+     */
+    async checkout({commit, dispatch, getters, rootState}, {
+      items=[],
+      checkoutPage="page/shop/checkout.html"
+    }={}) {
+      console.log("checkout", items)
+
+      // encode the items as params
+      let its = []
+      _.forEach(items, it => {
+        if(it.id && it.amount > 0)
+          its.push(`${it.amount}:${it.id}`)
+      })
+
+      // Guard
+      if(_.isEmpty(its)) {
+        console.warn("!checkout: Empty Item");
+        return
+      }
+
+      // Goto page
+      await dispatch("navTo", {
+        value: checkoutPage,
+        params: {
+          its: its.join(",")
+        }
+      }, {root:true})
+
+    },
+    //--------------------------------------------
+    /***
+     * @param id{String} - Product ID
+     * @param n{Integer} - Product buy count, 1 as default
+     * @param reset{Boolean} If true, `n` will be take as the final buy count.
+     *  else if false, `n` will be take as increasment. Of cause, 
+     *  negative `n` will cause the decreasment.
+     */
+    async updateBasket({commit, dispatch, getters, rootState}, {
+      id, n=1, reset=false, success, fail, invalid, noTicket
+    }={}) {
+      console.log("shop:addToBasket", {id, success, fail})
+      //..........................................
+      // N is 0, do nothing
+      if(n === 0 && !reset) {
+        return
+      }
+      //..........................................
+      // Guard Ticket
+      let ticket  = rootState.auth.ticket
+      if(!ticket) {
+        // Customized exception handler
+        if(noTicket) {
+          return await dispatch(noTicket.action, noTicket.payload, {root:true})
+        }
+        // Default just notify
+        else {
+          Ti.Alert("Without Session Ticket!!!")
+          return          
+        }
+      }
+      //..........................................
+      // Guard id
+      if(!id) {
+        // Customized exception handler
+        if(invalid) {
+          return await dispatch(invalid.action, invalid.payload, {root:true})
+        }
+        // Default just notify
+        else {
+          Ti.Alert("Without Product ID!!!")
+          return
+        }
+      }
+      //..........................................
+      // Check to remote
+      commit("setLoading", true, {root:true})
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      let reo =  await Ti.Http.get(getters.urls.buyIt, {
+        params : {
+          ticket, id, n, r:reset
+        },
+        as : "json"
+      })
+      // success
+      if(reo.ok) {
+        commit("setBasket", reo.data)
+
+        // Success
+        if(success) {
+          await dispatch(success.action, success.payload, {root:true})
+        }
+      }
+      // Fail
+      else if(fail){
+        await dispatch(fail.action, fail.payload, {root:true})
+      }
+      // Show error
+      else {
+        console.warn("shop.updateBasket fail:", reo)
+      }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      commit("setLoading", false, {root:true})
+    },
+    //--------------------------------------------
+    async cleanBasket({commit, getters, rootState}) {
+      console.log("shop:cleanBasket")
+      //..........................................
+      // Guard Ticket
+      let ticket  = rootState.auth.ticket
+      if(!ticket) {
+        return
+      }
+      //..........................................
+      // Confirm
+      if(!await Ti.Confirm("i18n:shop-basket-clean-confirm")) {
+        return
+      }
+      //..........................................
+      // Check to remote
+      commit("setLoading", true, {root:true})
+      // Current Session ...
+      let reo =  await Ti.Http.get(getters.urls.buyClean, {
+        params : {
+          ticket
+        },
+        as : "json"
+      })
+      commit("setLoading", false, {root:true})
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      // success
+      if(reo.ok) {
+        commit("setBasket", [])
+      }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      // Fail
+      else{
+        console.error("www/shop module: Fail to reloadBasket", reo)
+      }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    },
+    //--------------------------------------------
+    async reloadBasket({commit, getters, rootState}) {
+      console.log("shop:reloadBasket")
+      //..........................................
+      // Guard Ticket
+      let ticket  = rootState.auth.ticket
+      if(!ticket) {
+        return
+      }
+      //..........................................
+      // Check to remote
+      commit("setLoading", true, {root:true})
+      // Current Session ...
+      let reo =  await Ti.Http.get(getters.urls.buyGetAll, {
+        params : {
+          ticket
+        },
+        as : "json"
+      })
+      commit("setLoading", false, {root:true})
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      // success
+      if(reo.ok) {
+        commit("setBasket", reo.data)
+      }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      // Fail
+      else{
+        console.error("www/shop module: Fail to reloadBasket", reo)
+      }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    }
+    //--------------------------------------------
+  } // actions : {
+  ////////////////////////////////////////////////
+}
+Ti.Preload("ti/lib/www/mod/shop/www-mod-shop.mjs", _M);
+})();
+//============================================================
+// JOIN: mod/shop/_mod.json
+//============================================================
+Ti.Preload("ti/lib/www/mod/shop/_mod.json", {
+  "name" : "www-mod-shop",
+  "namespaced" : true,
+  "state" : "./www-mod-shop.json",
+  "mixins" : "./www-mod-shop.mjs"
+});
+//============================================================
 // JOIN: mod/www-mod-site.mjs
 //============================================================
 (function(){
 const _M = {
   /////////////////////////////////////////
   getters : {
-    //-------------------------------------
+    //--------------------------------------------
     // Pre-compiled Site Routers
     routerList(state) {
       let list = []
@@ -36486,7 +37562,7 @@ const _M = {
       })
       return list
     },
-    //-------------------------------------
+    //--------------------------------------------
     // Site Action Mapping
     actions(state) {
       //console.log("www-mod-site::getters.actions")
@@ -36541,13 +37617,13 @@ const _M = {
       }
       return map
     },
-    //-------------------------------------
+    //--------------------------------------------
     getUrl(state) {
       return (path)=>{
         return Ti.Util.appendPath(state.base, path)
       }
     },
-    //-------------------------------------
+    //--------------------------------------------
     getApiUrl(state) {
       return (path)=>{
         if(path.startsWith("/")) {
@@ -36556,50 +37632,43 @@ const _M = {
         return Ti.Util.appendPath(state.apiBase, path)
       }
     }
-    //-------------------------------------
+    //--------------------------------------------
   },
   /////////////////////////////////////////
   mutations : {
-    //-------------------------------------
+    //--------------------------------------------
     setSiteId(state, siteId) {
       state.siteId = siteId
     },
-    //-------------------------------------
+    //--------------------------------------------
     setDomain(state, domain) {
       state.domain = domain
       state.base = Ti.S.renderBy(state.base||"/www/${domain}/", {domain})
       state.apiBase = Ti.S.renderBy(state.apiBase||"/api/${domain}/", {domain})
     },
-    //-------------------------------------
+    //--------------------------------------------
     setLoading(state, loading) {
       state.loading = loading
     },
-    //-------------------------------------
-    // 0: no ready
-    // 1: before reload   -> @page:prepare
-    // 2: done for reload -> @page:ready
-    setPageReady(state, isReady) {
-      state.pageReady = isReady
-    },
-    //-------------------------------------
-    prepare(state) {
+    //--------------------------------------------
+    explainSiteState(state) {
       state.base = Ti.Util.explainObj(state, state.base)
       state.apiBase = Ti.Util.explainObj(state, state.apiBase)
       state.cdnBase = Ti.Util.explainObj(state, state.cdnBase)
       state.logo = Ti.Util.explainObj(state, state.logo)
       state.entry = Ti.Util.explainObj(state, state.entry)
     }
-    //-------------------------------------
+    //--------------------------------------------
   },
   /////////////////////////////////////////
   actions : {
-    //-------------------------------------
+    //--------------------------------------------
     navBackward() {
       if(window.history) {
         window.history.back()
       }
     },
-    //-------------------------------------
+    //--------------------------------------------
     async openUrl({state}, {
       url, target="_self", method="GET", params={}, delay=0
     }) {
@@ -36607,19 +37676,14 @@ const _M = {
         target, method, params, delay
       })
     },
-    //-------------------------------------
-    async scrollPageToTop({state}) {
-      Ti.Be.ScrollWindowTo({y:0})
-    },
-    //-------------------------------------
+    //--------------------------------------------
     // Only handle the "page|dispatch"
-    async navTo({state, commit, dispatch}, {
+    async navTo({commit, dispatch}, {
       type="page",
       value,    // page path
       anchor,   // page anchor
       data,     // page.data
-      params,   // page.params
-      pushHistory = true
+      params    // page.params
     }={}) {
       console.log("navToPage::", value)
       // Guarding
@@ -36627,34 +37691,17 @@ const _M = {
         return
       // navTo::page
       if("page" == type) {
-        commit("setPageReady", 0)
         commit("setLoading", true)
-        
-        // Prepare
-        console.log("@page:prepare ...")
-        await dispatch("invokeAction", {
-          name:"@page:prepare"
-        })
-        commit("setPageReady", 1)
 
         // Reload
-        console.log("@page:reload ...", _.cloneDeep(state.auth))
+        //console.log("@page:reload ...", _.cloneDeep(state.auth))
         await dispatch("page/reload", {
           path   : value,
           anchor : anchor,
           params : params,
           data   : data
         })
-        commit("setPageReady", 2)
-
-        // Scroll window
-        dispatch("scrollPageToTop")
-
-        // Ready
-        console.log("@page:ready ...")
-        await dispatch("invokeAction", {
-          name:"@page:ready"
-        })
+        
         commit("setLoading", false)
       }
       // navTo::dispatch
@@ -36662,7 +37709,7 @@ const _M = {
         await dispatch(value, params)
       }
     },
-    //-------------------------------------
+    //--------------------------------------------
     /***
      * Handle the action dispatching.
      * 
@@ -36710,7 +37757,7 @@ const _M = {
       console.log("invoke->", action, pld)
       await dispatch(action, pld)
     },
-    //-------------------------------------
+    //--------------------------------------------
     /***
      * Invoke action by given name
      */
@@ -36776,7 +37823,7 @@ const _M = {
         console.error(e)
       }
     },
-    //-------------------------------------
+    //--------------------------------------------
     async reload({state, commit, dispatch}) {
       console.log("site.reload", state.entry, state.base)
       // Merge Site FuncSet
@@ -36785,33 +37832,10 @@ const _M = {
       // Init the base/apiBase
 
       // Looking for the entry page
-      let loc = {
-        path   : window.location.pathname,
-        hash   : window.location.hash,
-        search : window.location.search
-      }
+      // {href,protocol,host,port,path,search,query,hash,anchor}
+      let loc = Ti.Util.parseHref(window.location.href)
 
-      // tidy query string
-      if(loc.search && loc.search.startsWith("?")){
-        loc.search = loc.search.substring(1)
-      }
-
-      // Eval params
-      let params = {}
-      if(loc.search) {
-        let ss = loc.search.split('&')
-        for(let s of ss) {
-          let pos = s.indexOf('=')
-          if(pos > 0) {
-            let k = s.substring(0, pos)
-            let v = s.substring(pos+1)
-            params[k] = v
-          } else {
-            params[s] = true
-          }
-        }
-      }
-
+      
       // Update the auth
       commit("auth/mergePaths", state.authPaths)
 
@@ -36825,12 +37849,12 @@ const _M = {
       await dispatch("navTo", {
         type   : "page",
         value  : entry,
-        params : params,
+        params : loc.params,
         anchor : loc.hash,
         pushHistory : false
       })
     }
-    //-------------------------------------
+    //--------------------------------------------
   }
   /////////////////////////////////////////
 }
@@ -36879,7 +37903,7 @@ Ti.Preload("/a/load/wn.manager/gui/layout.json", {
       "border" : true,
       "blocks" : [{
           "name"  : "sidebar",
-          "size" : 180,
+          "size" : "1.8rem",
           "body"  : "pcMainSideBar"
         }, {
           "name" : "arena",
@@ -36888,7 +37912,7 @@ Ti.Preload("/a/load/wn.manager/gui/layout.json", {
         }]
     }, {
       "name" : "footer",
-      "size" : 32,
+      "size" : ".32rem",
       "body" : "pcFooter"
     }]
   },
@@ -37730,19 +38754,50 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "e-www-invalid-captcha": "${ta?验证码}错误",
   "e-www-login-invalid-passwd": "账号密码错误",
   "e-www-login-noexists": "账号不存在",
-  "pay-by-nil": "请选择一个支付方式",
-  "pay-by-wx-qrcode": "使用微信扫码支付",
-  "pay-by-zfb-qrcode": "使用支付宝扫码支付",
-  "pay-check-do": "已经支付完成",
-  "pay-check-ing": "正在检查支付结果",
+  "or-st-dn": "已完成",
+  "or-st-fa": "支付失败",
+  "or-st-nw": "新建",
+  "or-st-ok": "支付成功",
+  "or-st-sd": "已发货",
+  "or-st-wt": "待支付",
+  "pay-by-free": "免费",
+  "pay-by-paypal": "PayPal",
+  "pay-by-wx-jsapi": "微信JSAPI",
+  "pay-by-wx-qrcode": "微信扫码",
+  "pay-by-wx-scan": "微信付款码",
+  "pay-by-zfb-qrcode": "支付宝扫码",
+  "pay-by-zfb-scan": "支付宝付款码",
+  "paypal-approve-tip": "已经在新标签里为您打开了PayPal支付页面，如果没有打开，请点击☝上面的图标。支付完毕，页面会自动感知到，如果没有反应，试着点击👇下面的【检查支付结果】按钮。",
+  "pay-checkout-it-amount": "数量",
+  "pay-checkout-it-name": "商品名称",
+  "pay-checkout-it-price": "单价",
+  "pay-checkout-it-subtotal": "小计",
+  "pay-checkout-tip": "请确认你购买的商品数量和金额",
+  "pay-paypal": "PayPal",
+  "pay-proceed-check": "检查支付结果",
+  "pay-proceed-ing": "正在检查...",
   "pay-re-fail": "支付失败",
   "pay-re-nil": "支付结果是一只薛定谔的猫",
   "pay-re-ok": "支付成功",
   "pay-re-wait": "等待支付中",
+  "pay-step-checkout-title": "确认订单",
+  "pay-step-choose-nil": "☝ 请选择上面的一个支付方式 👆",
+  "pay-step-choose-tip": "您可以选择下面任意一种支付方式支付本订单",
+  "pay-step-choose-tip2": "您将使用${val}支付本订单",
+  "pay-step-choose-title": "支付方式",
+  "pay-step-choose-title2": "选择支付方式",
+  "pay-step-done-title": "完成",
+  "pay-step-proceed-create-order": "正在创建订单...",
+  "pay-step-proceed-fetch-order": "正在获取订单...",
+  "pay-step-proceed-nil": "您未选择任何支付方式",
+  "pay-step-proceed-tip": "使用${val}支付本订单",
+  "pay-step-proceed-title": "支付",
   "pay-tip-wx-qrcode": "请于15分钟内用微信扫一扫付款码",
   "pay-tip-zfb-qrcode": "请于15分钟内用支付宝扫一扫付款码",
+  "pay-title": "支付流程",
   "pay-wx": "微信支付",
-  "pay-zfb": "支付宝"
+  "pay-zfb": "支付宝",
+  "shop-basket-clean-confirm": "您确定要清空购物车内全部商品吗？这是一个不能撤回的操作。"
 });
 //============================================================
 // JOIN: zh-cn/wn-manager.i18n.json
@@ -38005,7 +39060,7 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-invalid-mimes": "不支持的文件内容类型 \"${current}\"，仅能支持 \"${supports}\"",
   "wn-invalid-types": "不支持的文件扩展名 \"${current}\"，仅能支持 \"${supports}\"",
   "wn-key-c": "创建者",
-  "wn-key-ct": "创建",
+  "wn-key-ct": "创建时间",
   "wn-key-d0": "D0",
   "wn-key-d1": "D1",
   "wn-key-data": "数据",

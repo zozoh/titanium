@@ -2,14 +2,11 @@ const _M = {
   //////////////////////////////////////////////////
   data : ()=>({
     __WS : null,   // The handle of websocket
-    orderPayment: {}
+    myOrder: null,
+    isChecking: false
   }),
   //////////////////////////////////////////////////
   props : {
-    "watchUser" : {
-      type : String,
-      default : null
-    },
     "payType" : {
       type : String,
       default : null
@@ -25,6 +22,10 @@ const _M = {
     "payOk" : {
       type : Boolean,
       default : undefined
+    },
+    "currency": {
+      type: String,
+      default: "RMB"
     }
   },
   //////////////////////////////////////////////////
@@ -33,11 +34,17 @@ const _M = {
       return this.getTopClass({
         "has-paytype": this.hasPayType,
         "nil-paytype": !this.hasPayType
-      })
+      }, `is-${this.PayTypeName}`)
     },
     //----------------------------------------------
     hasPayType() {
       return Ti.Bank.isValidPayType(this.payType)
+    },
+    //----------------------------------------------
+    PayTypeName() {
+      if(_.isString(this.payType)) {
+        return this.payType.replace(".", "-");
+      }
     },
     //----------------------------------------------
     PayTypeText() {
@@ -47,68 +54,172 @@ const _M = {
       })
     },
     //----------------------------------------------
+    OrderLoadText() {
+      return this.orderId
+        ? "pay-step-proceed-fetch-order"
+        : "pay-step-proceed-create-order"
+    },
+    //----------------------------------------------
+    hasOrder() {
+      return !_.isEmpty(this.myOrder)
+    },
+    //----------------------------------------------
+    Payment() {
+      return _.get(this.myOrder, "pay_re")
+    },
+    //----------------------------------------------
+    PaymentId() {
+      return _.get(this.Payment, "payObjId")
+    },
+    //----------------------------------------------
+    PaymentStatus() {
+      return _.get(this.Payment, "status")
+    },
+    //----------------------------------------------
+    PaymentData() {
+      return _.get(this.Payment, "data")
+    },
+    //----------------------------------------------
+    PaymentDataType() {
+      return _.get(this.Payment, "dataType")
+    },
+    //----------------------------------------------
+    isPaymentCreated() {
+      return _.get(this.Payment, "payObjId") ? true : false
+    },
+    //----------------------------------------------
     isQRCODE() {
-      return "QRCODE" == this.orderPayment.dataType
+      return "QRCODE" == this.PaymentDataType
     },
+    //----------------------------------------------
     isIFRAME() {
-      return "IFRAME" == this.orderPayment.dataType
+      return "IFRAME" == this.PaymentDataType
     },
+    //----------------------------------------------
     isLINK() {
-      return "LINK" == this.orderPayment.dataType
+      return "LINK" == this.PaymentDataType
     },
+    //----------------------------------------------
     isJSON() {
-      return "JSON" == this.orderPayment.dataType
+      return "JSON" == this.PaymentDataType
     },
+    //----------------------------------------------
     isTEXT() {
-      return "TEXT" == this.orderPayment.dataType
+      return "TEXT" == this.PaymentDataType
     },
-    paymentData() {
-      return this.orderPayment.data
+    //----------------------------------------------
+    PaymentDataAsQrcodeUrl() {
+      return `/gu/qrcode?d=${this.PaymentData}&s=${this.qrcodeSize}&_=${Date.now()}`
     },
-    paymentDataAsQrcodeUrl() {
-      return `/gu/qrcode?d=${this.orderPayment.data}&s=${this.qrcodeSize}&_=${Date.now()}`
+    //----------------------------------------------
+    PayPalLinksMap() {
+      let map = {}
+      if(this.hasOrder 
+        && "paypal" == this.myOrder.pay_tp) {
+        _.forEach(this.PaymentData.links, li=> {
+          map[li.rel] = li
+        })
+      }
+      return map;
     },
-    theTip() {
-      return ({
-        "wx.qrcode"  : "pay-tip-wx-qrcode",
-        "zfb.qrcode" : "pay-tip-zfb-qrcode"
-      })[this.payType]
-        || "pay-by-nil"
+    //----------------------------------------------
+    QrcodeImageStyle() {
+      return Ti.Css.toStyleRem100({
+        width: this.qrcodeSize,
+        height: this.qrcodeSize
+      })
     },
-    checkBtnIcon(){
+    //----------------------------------------------
+    CheckBtnIcon(){
+      if(this.isChecking) {
+        return "fas-spinner fa-spin"
+      }
       return "zmdi-assignment-check"
     },
-    checkBtnText(){
-      return "i18n:pay-check-do"
+    //----------------------------------------------
+    CheckBtnText(){
+      if(this.isChecking)
+        return "i18n:pay-proceed-ing"
+      return "i18n:pay-proceed-check"
     }
+    //----------------------------------------------
   },
   //////////////////////////////////////////////////
   methods : {
     //----------------------------------------------
-    onClickCheckBtn() {
-      this.$notify("pay-check")
+    async OnClickCheckBtn() {
+      if(_.isFunction(this.checkOrder)) {
+        this.isChecking = true
+        this.myOrder = await this.checkOrder(this.orderId)
+        this.isChecking = false
+      }
     },
     //----------------------------------------------
-    async watchPaymentChanged() {
+    async checkOrCreateOrder() {
+      if(this.hasOrder) {
+        return
+      }
+      // Get Back
+      if(this.orderId) {
+        if(_.isFunction(this.getOrder)) {
+          this.myOrder = await this.getOrder(this.orderId, this.payType)
+        }
+      }
+      // Create new one
+      else {
+        if(_.isFunction(this.createOrder)) {
+          let payItems = _.map(this.items, it=>({
+            id: it.id,
+            amount: it.amount || 1,
+            title: it.title,
+            price: it.price
+          }))
+          let order = await this.createOrder({
+            payType: this.payType,
+            items: payItems
+          })
+          this.$emit("change", {orderId: _.get(order, "id")})
+          this.myOrder = order
+        }
+      }
+
+      // Open Link for PayPal approve
+      if("paypal" == this.payType && this.isPaymentCreated) {
+        let href = _.get(this.PayPalLinksMap, "approve.href")
+        let link = Ti.Util.parseHref(href)
+        let url = `${link.protocol}://${link.host}${link.path}`
+        console.log("🤳", {href, link, url})
+        await Ti.Be.Open(url, {
+          params: link.params,
+          delay: 1000
+        })
+      }
+
+      // Finally watch the payment change
+      this.watchPaymentChanged();
+    },
+    //----------------------------------------------
+    watchPaymentChanged() {
       // Guard
       if(this.__WS 
         || !this.watchUser 
-        || !this.orderData 
-        || !this.orderData.pay_id) {
+        || !this.hasOrder
+        || !this.isPaymentCreated) {
         return
       }
       // Watch Remote
+      console.log("【🦅】watchPaymentChanged")
       this.__WS = Ti.Websocket.listenRemote({
         watchTo : {
           method : "watch",
           user   : this.watchUser,
           match  : {
-            id : this.orderData.pay_id
+            id : this.PaymentId
           }
         },
         received : (wso)=>{
-          console.log("websocket", wso)
-          this.onClickCheckBtn()
+          console.log("【🦅】websocket", wso)
+          this.OnClickCheckBtn()
         },
         closed : ()=>{
           this.unwatchPaymentChanged()
@@ -124,16 +235,31 @@ const _M = {
     //----------------------------------------------
   },
   //////////////////////////////////////////////////
-  watch : {
-    "orderData.st" : function() {
-      if(/^(OK|FAIL)$/.test(this.orderData.st)) {
-        this.$notify("pay-done")
+  watch: {
+    "PaymentStatus": function(status) {
+      // Fail
+      if("FAIL" == status) {
+        this.$emit("change", {
+          payOk: false,
+          errMsg: JSON.stringify(this.PaymentData)
+        })
+        this.$notify("step:change", "@next")
+      }
+      // OK
+      else if("OK" == status) {
+        this.$emit("change", {
+          payOk: true
+        })
+        this.$notify("step:change", "@next")
       }
     }
   },
   //////////////////////////////////////////////////
   mounted : function() {
     this.$notify("change:title", this.PayTypeText)
+    this.$nextTick(()=>{
+      this.checkOrCreateOrder()
+    })
   },
   //////////////////////////////////////////////////
   beforeDestroy : function(){

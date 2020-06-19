@@ -23,12 +23,14 @@ const TiBehaviors = {
           attrs : {name, value, type:"hidden"}
         })
       })
-      // Submit it
-      $form.submit()
-      // Remove it
-      Ti.Dom.remove($form)
       // await for a while
       _.delay(function(){
+        // Submit it
+        $form.submit()
+        // Remove it
+        Ti.Dom.remove($form)
+
+        // Done
         resolve({
           url, target, method, params
         })

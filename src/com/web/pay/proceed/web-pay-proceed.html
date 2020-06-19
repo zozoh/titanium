@@ -1,48 +1,67 @@
 <div class="web-pay-proceed">
   <!--
-    Main Area
+    Wait for create order
   -->
-  <div class="as-main">
-    <!--
-      Wait for create order
-    -->
-    <div 
-      v-if="!orderId"
-        class="as-nil-order">
-      Wait create order ...
-    </div>
-    <!--
-      Show payment
-    -->
-    <template
-      v-else>
-      <!--QRCODE-->
-      <div v-if="isQRCODE"
-        class="is-qrcode">
-        <img :src="paymentDataAsQrcodeUrl">
-      </div>
-      <!--IFRAME-->
-      <div v-else-if="isIFRAME"
-        class="is-iframe">
-        <iframe 
-          frameborder="0" 
-          scrolling="no"
-          :src="paymentData"></iframe>
-      </div>
-      <!--
-        Others
-      -->
-      <div v-else>
-        {{paymentData}}
-      </div>
-    </template>
+  <div 
+    v-if="!hasOrder"
+      class="as-nil-order">
+      <ti-loading
+        class="as-big"
+        :text="OrderLoadText"/>
   </div>
   <!--
-    Check Button
+    Show payment
   -->
-  <div class="as-check ti-btn is-huge"
-    @click.left="onClickCheckBtn">
-    <ti-icon class="as-icon" :value="checkBtnIcon"/>
-    <span class="as-text">{{checkBtnText|i18n}}</span>
-  </div>
+  <template
+    v-else>
+    <!--QRCODE-->
+    <div v-if="isQRCODE"
+      class="as-main is-qrcode">
+      <img 
+        :style="QrcodeImageStyle"
+        :src="PaymentDataAsQrcodeUrl">
+    </div>
+    <!--IFRAME-->
+    <div v-else-if="isIFRAME"
+      class="as-main is-iframe">
+      <iframe 
+        frameborder="0" 
+        scrolling="no"
+        :src="PaymentData"></iframe>
+    </div>
+    <!--
+      JSON
+    -->
+    <div v-else-if="isJSON"
+      class="as-main is-json">
+      <!--The self/approve/update/capture links for PayPal-->
+      <div
+        v-if="'paypal' == payType"
+          class="by-paypal">
+        <!--Logo-->
+        <div class="paypal-logo">
+          <a 
+            :href="PayPalLinksMap.approve.href"
+            target="_blank"><i class="fab fa-paypal"></i></a>
+        </div>
+        <div class="paypal-tip">{{'paypal-approve-tip'|i18n}}</div>
+      </div> <!--End PayPal-->
+    </div>
+    <!--
+      Others
+    -->
+    <div
+      v-else
+        class="as-main">{{myOrder}}</div>
+    <!--
+      Check Button
+    -->
+    <div class="as-check">
+      <div class="ti-btn is-huge"
+        @click.left="OnClickCheckBtn">
+        <ti-icon class="as-icon" :value="CheckBtnIcon"/>
+        <div class="as-text">{{CheckBtnText|i18n}}</div>
+      </div>
+    </div>
+  </template>
 </div>

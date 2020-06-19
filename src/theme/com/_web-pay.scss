@@ -151,6 +151,65 @@
   //------------------------------------------
 }
 //////////////////////////////////////////////
+.web-pay-proceed {
+  padding:SZ(10);
+  //------------------------------------------
+  .as-nil-order {
+    @include flex-center;
+    height:SZ(420);
+  }
+  //------------------------------------------
+  // QRCode Image: Weixin Scan
+  .is-qrcode {
+    img {border:0;}
+  }
+  //------------------------------------------
+  // IFRAME: Alipay Scan
+  .is-iframe {
+    iframe {
+      width:200px; height:200px;
+      margin:0 auto;
+    }
+  }
+  //------------------------------------------
+  .is-json {
+    .by-paypal {
+      .paypal-logo {
+        @include color($color-track, c);
+        padding:SZ(20); font-size:SZ(180);
+        text-align: center;
+        a {color:inherit; i{transition: .5s;}}
+        &:hover a {
+          color: map-get($color-secondary, c);
+          i {transform: scale(1.2) rotate(-720deg);}
+        }
+      }
+      .paypal-tip {
+        width: 26em; padding:1em 2em;
+        line-height: 2em;
+      }
+    }
+  }
+  //------------------------------------------
+  .as-main {
+    @include flex-center;
+    min-height: SZ(400);
+  }
+  //------------------------------------------
+  .as-check {
+    @include flex-center;
+    padding: SZ(20);
+    .ti-btn {
+      @include flex-align-nowrap($jc:center);
+      min-width: SZ(360);
+      .as-text {
+        padding-left:SZ(8);
+      }
+    }
+  }
+  //------------------------------------------
+}
+//////////////////////////////////////////////
 .web-pay-done {
   padding: SZ(80);
   //------------------------------------------

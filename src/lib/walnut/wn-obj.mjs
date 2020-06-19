@@ -280,7 +280,13 @@ const WnObj = {
               }
             })[jsType] || {
               type: "String",
-              display: k,
+              display: {
+                key: k,
+                comConf: {
+                  width:"100%",
+                  className: _.isString(v)&&v.length>20?"is-break-word":"is-nowrap"
+                }
+              },
               comType: "ti-input"
             }
             

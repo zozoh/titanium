@@ -123,7 +123,7 @@ const _M = {
       
       //.....................................
       // explain it
-      console.log("site-main: explain it!", gui);
+      //console.log("site-main: explain it!", gui);
       let theGUI = Ti.Util.explainObj(this, gui, {
         fnSet: this.PageFnSet
       })

@@ -196,6 +196,43 @@ const TiPaths = {
       re.event = _.trim(m[3])
     }
     return re
+  },
+  /***
+   * 'arena>item:change' -> {block:"arena", event:"item:change"} 
+   */
+  parseHref(href="") {
+    let m = /^((https?):)?((\/\/([^/:]+))(:(\d+))?)?([^?]*)(\?([^#]*))?(#(.*))?$/
+              .exec(href)
+    if(m) {
+      let link = {
+        href,
+        protocol: m[2],
+        host    : m[5],
+        port    : (m[7]||80)*1,
+        path    : m[8],
+        search  : m[9],
+        query   : m[10],
+        hash    : m[11],
+        anchor  : m[12]
+      }
+      if(link.query) {
+        let params = {}
+        let ss = link.query.split('&')
+        for(let s of ss) {
+          let pos = s.indexOf('=')
+          if(pos > 0) {
+            let k = s.substring(0, pos)
+            let v = s.substring(pos+1)
+            params[k] = decodeURIComponent(v)
+          } else {
+            params[s] = true
+          }
+        }
+        link.params = params
+      }
+      return link
+    }
+    return {path:href}
   }
 }
 //-----------------------------------
