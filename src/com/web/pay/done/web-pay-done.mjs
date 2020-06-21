@@ -7,7 +7,7 @@ const _M = {
     },
     "errMsg" : {
       type : String,
-      default : "Name have page personal assume actually study else. Court response"
+      default : undefined
     },
     "orderId": {
       type: String,
