@@ -35841,6 +35841,7 @@ const _M = {
         "shop"       : state=>state.shop,
         "auth"       : state=>state.auth,
         "domain"     : state=>state.domain,
+        "rs"         : state=>state.rs,
         "base"       : state=>state.base,
         "apiBase"    : state=>state.apiBase,
         "cdnBase"    : state=>state.cdnBase,
