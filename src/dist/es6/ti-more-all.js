@@ -23928,8 +23928,11 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "title": function(){
-      this.$notify("change:title", this.title)
+    "title": {
+      handler: function(){
+        this.$notify("change:title", this.title)
+      },
+      immediate: true
     }
   }
   ///////////////////////////////////////////////////
@@ -26875,7 +26878,7 @@ Ti.Preload("ti/com/web/pay/proceed/_com.json", {
 //============================================================
 Ti.Preload("ti/com/web/pay/web-pay.html", `<div class="web-pay">
   <ti-wizard
-    :current="1"
+    :current="0"
     :title="title"
     :steps="PaySteps"
     :value="myPayment"

@@ -39,8 +39,11 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "title": function(){
-      this.$notify("change:title", this.title)
+    "title": {
+      handler: function(){
+        this.$notify("change:title", this.title)
+      },
+      immediate: true
     }
   }
   ///////////////////////////////////////////////////
