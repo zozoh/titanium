@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////
 export async function WebAppMain({
+  www_host="localhost",
+  www_port_suffix=":8080",
   rs = "/gu/rs/", 
   siteRs = "/",
   lang = "zh-cn",
@@ -98,6 +100,9 @@ export async function WebAppMain({
       loading   : false,
       siteId,
       domain,
+      rs,
+      www_host,
+      www_port_suffix
     })
     return conf
   })

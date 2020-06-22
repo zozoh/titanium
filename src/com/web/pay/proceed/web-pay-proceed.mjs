@@ -187,10 +187,19 @@ const _M = {
       if("paypal" == this.payType && this.isPaymentCreated) {
         let href = _.get(this.PayPalLinksMap, "approve.href")
         let link = Ti.Util.parseHref(href)
-        let url = `${link.protocol}://${link.host}${link.path}`
+        let url = `${link.protocol}://${link.host}${link.path}?return=`
         console.log("🤳", {href, link, url})
+
+        let params = _.assign({}, link.params)
+        if(this.returnUrl) {
+          params.returnurl = this.returnurl
+        }
+
         await Ti.Be.Open(url, {
-          params: link.params,
+          // params: _.assign({
+          //     returnurl: "http://onchina.local.io:8080/page/shop/payok.html"
+          //   },link.params),
+          params,
           delay: 1000
         })
       }

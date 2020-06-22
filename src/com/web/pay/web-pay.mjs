@@ -73,7 +73,8 @@ const _M = {
           qrcodeSize: this.qrcodeSize,
           getOrder: this.getOrder,
           createOrder: this.createOrder,
-          checkOrder: this.checkOrder
+          checkOrder: this.checkOrder,
+          returnUrl: this.returnUrl
         }
       }, {
         title: "pay-step-done-title",

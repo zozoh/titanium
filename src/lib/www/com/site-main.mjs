@@ -6,23 +6,23 @@ const _M = {
   /////////////////////////////////////////
   computed : {
     ...Vuex.mapState({
-        "siteId"     : state=>state.siteId,
-        "logo"       : state=>state.logo,
-        "utils"      : state=>state.utils,
-        "page"       : state=>state.page,
-        "shop"       : state=>state.shop,
-        "auth"       : state=>state.auth,
-        "domain"     : state=>state.domain,
-        "rs"         : state=>state.rs,
-        "base"       : state=>state.base,
-        "apiBase"    : state=>state.apiBase,
-        "cdnBase"    : state=>state.cdnBase,
-        "captcha"    : state=>state.captcha,
-        "schema"     : state=>state.schema,
-        "provide"    : state=>state.provide,
-        "blocks"     : state=>state.blocks,
-        "loading"    : state=>state.loading,
-        "pageReady"  : state=>state.pageReady
+        "siteId"    : state=>state.siteId,
+        "logo"      : state=>state.logo,
+        "utils"     : state=>state.utils,
+        "page"      : state=>state.page,
+        "shop"      : state=>state.shop,
+        "auth"      : state=>state.auth,
+        "domain"    : state=>state.domain,
+        "rs"        : state=>state.rs,
+        "base"      : state=>state.base,
+        "apiBase"   : state=>state.apiBase,
+        "cdnBase"   : state=>state.cdnBase,
+        "captcha"   : state=>state.captcha,
+        "schema"    : state=>state.schema,
+        "provide"   : state=>state.provide,
+        "blocks"    : state=>state.blocks,
+        "loading"   : state=>state.loading,
+        "pageReady" : state=>state.pageReady
       }),
     //-------------------------------------
     // Mapp The Getters
@@ -34,6 +34,13 @@ const _M = {
     ...Vuex.mapGetters("page", [
       "pageLink"
     ]),
+    //-------------------------------------
+    PayReturnUrl: function() {
+      let st = this.$store.state
+      if(st.payReturnUrl) {
+        return Ti.Util.explainObj(st, st.payReturnUrl)
+      }
+    },
     //-------------------------------------
     SiteLogo() {
       if(this.logo && /\.(png|jpe?g)$/.test(this.logo))

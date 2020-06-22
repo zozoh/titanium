@@ -18,5 +18,9 @@ export default {
   "checkOrder": {
     type: Function,
     default: undefined
+  },
+  "returnUrl": {
+    type: String,
+    default: undefined
   }
 }
