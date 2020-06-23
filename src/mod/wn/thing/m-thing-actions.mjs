@@ -187,13 +187,28 @@ const _M = {
 
     commit("setStatus", {deleting:true})
 
+    // Prepare the ids which fail to remove
+    let failIds = {}
+
     // Prepare the cmds
     let th_set = state.meta.id
     let cmdText = `thing ${th_set} delete ${hard?"-hard":""} -cqn -l ${ids.join(" ")}`
-    let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
+    let reo = await Wn.Sys.exec2(cmdText, {
+      as:"json",
+      errorAs: ({data})=>{
+        let id = _.trim(data)
+        failIds[id] = true
+      }
+    })
+
+    // Get the removeIds
+    let removeIds = _.filter(ids, id => !failIds[id])
+    console.log("removeIds:", removeIds)
 
     // Remove it from search list
-    commit("search/removeItems", ids)
+    if(!_.isEmpty(removeIds)) {
+      commit("search/removeItems", removeIds)
+    }
     let current = getters["search/currentItem"]
     //console.log("getback current", current)
     // Update current
