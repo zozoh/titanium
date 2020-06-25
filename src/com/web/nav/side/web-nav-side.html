@@ -1,0 +1,8 @@
+<div class="web-nav-side"
+  :class="TopClass"
+  v-ti-activable>
+  <SideItem
+    v-for="it in TheItems"
+      :key="it.key"
+        v-bind="it"/>
+</div>

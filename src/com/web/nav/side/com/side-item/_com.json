@@ -1,0 +1,5 @@
+{
+  "name" : "side-item",
+  "template" : "./side-item.html",
+  "mixins" : ["./side-item.mjs"]
+}

@@ -1,0 +1,35 @@
+<div class="side-item" 
+  :class="TopClass">
+  <!--
+    Self Info
+  -->
+  <div class="it-info" >
+    <!--Icon-->
+    <span
+      v-if="icon"
+        class="it-info-icon">
+        <ti-icon :value="icon"/>
+    </span>
+    <!--Group-->
+    <span
+      v-if="isGroup"
+        class="it-info-text">{{title|i18n}}</span>
+    <!--Item-->
+    <a
+      v-else
+        class="it-info-text"
+        :href="href"
+        @click.stop.prevent="OnClickItemInfo">{{title|i18n}}</a>
+  </div>
+  <!--
+    Sub Container
+  -->
+  <div 
+    v-if="hasSubItems"
+      class="it-con">
+      <SideItem
+        v-for="subIt in items"
+          :key="subIt.key"
+          v-bind="subIt"/>
+  </div>
+</div>

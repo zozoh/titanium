@@ -1,6 +1,0 @@
-{
-  "name" : "web-choose-mode",
-  "globally" : true,
-  "template" : "./web-choose-mode.html",
-  "mixins"   : ["./web-choose-mode.mjs"]
-}

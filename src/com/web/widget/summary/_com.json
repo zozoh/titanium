@@ -1,0 +1,7 @@
+{
+  "name" : "web-widget-summary",
+  "globally" : true,
+  "template" : "./widget-summary.html",
+  "mixins"   : ["./widget-summary.mjs"],
+  "components" : []
+}

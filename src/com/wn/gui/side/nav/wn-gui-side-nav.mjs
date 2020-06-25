@@ -1,5 +1,4 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   /////////////////////////////////////////
   props : {
     "items" : {
@@ -18,14 +17,11 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived" : this.isActived
-      }, this.className)
+    TopClass() {
+      return this.getTopClass()
     },
     //-------------------------------------
-    theItems() {
+    TheItems() {
       let list = []
       if(_.isArray(this.items)) {
         for(let it of this.items) {
@@ -98,3 +94,4 @@ export default {
   }
   //////////////////////////////////////////
 }
+export default _M;

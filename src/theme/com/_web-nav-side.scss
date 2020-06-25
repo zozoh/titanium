@@ -1,0 +1,40 @@
+.web-nav-side {
+  width:100%; height:100%;
+  padding: SZ(6) SZ(6); line-height: 2em;
+  //------------------------------------
+  .side-item {
+    //----------------------------------
+    .it-info {
+      @include noselect;
+      @include flex-align($ai:center, $wp:nowrap);
+      width:100%; cursor: pointer;
+      > .it-info-icon {
+        @include flex-center;
+        width:SZ(28); font-size: SZ(18);
+        margin-right:SZ(6);
+      }
+      > .it-info-text {
+        flex:1 1 auto; 
+        @include text-overflow;
+      }
+    }
+    //----------------------------------
+    .it-con {
+      padding:.2em 0 1em 0;
+    }
+    //----------------------------------
+    &.is-highlight {
+      > .it-info {
+        @include color($color-primary, r, c);
+        a{color:unset;}
+        a:hover {text-decoration: none; color:unset;}
+      }
+    }
+    //----------------------------------
+    &.is-group {
+      padding: .5em;
+      > .it-info {font-weight: bold;}
+    }
+    //----------------------------------
+  } // ~ .side-item
+}

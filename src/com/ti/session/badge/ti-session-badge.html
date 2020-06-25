@@ -15,7 +15,15 @@
       <ti-icon :value="myIcon"/>
     </div>
     <!--User Name-->
-    <div class="as-name">{{myName}}</div>
+    <div class="as-name">
+      <!--Name Event-->
+      <a
+        v-if="nameEvent"
+          @click.left="$notify(nameEvent)">{{myName}}</a>
+      <!--Name display-->
+      <span
+        v-else>{{myName}}</span>
+    </div>
     <!--Links-->
     <div v-for="li in theLinks"
       class="as-link">

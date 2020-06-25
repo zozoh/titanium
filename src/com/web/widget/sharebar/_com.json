@@ -1,7 +1,7 @@
 {
   "name" : "web-widget-sharebar",
   "globally" : true,
-  "template" : "./web-widget-sharebar.html",
-  "mixins"   : ["./web-widget-sharebar.mjs"],
+  "template" : "./widget-sharebar.html",
+  "mixins"   : ["./widget-sharebar.mjs"],
   "components" : []
 }

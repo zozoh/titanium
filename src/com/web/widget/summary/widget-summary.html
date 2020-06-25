@@ -1,0 +1,28 @@
+<div class="web-widget-summary"
+  :class="TopClass">
+  <!--
+    Title
+  -->
+  <div
+    v-if="title"
+      class="as-title">{{title|i18n}}</div>
+  <!--
+    Items
+  -->
+  <div class="as-items">
+    <div
+      v-for="it in TheItems"
+        class="bar-item">
+      <!--Icon-->
+      <ti-icon
+        v-if="it.icon"
+          :value="it.icon"/>
+      <!--Value-->
+      <div class="as-value">{{it.value}}</div>
+      <!--Text-->
+      <div
+        v-if="it.title"
+          class="as-title">{{it.title|i18n}}</div>
+    </div>
+  </div>
+</div>
