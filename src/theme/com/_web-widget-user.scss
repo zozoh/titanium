@@ -1,0 +1,38 @@
+.web-widget-user {
+  //------------------------------------
+  .as-avatar {
+    @include flex-center;
+    padding: SZ(20);
+    //----------------------------------
+    .ti-icon {
+      @include border(SZ(8), solid, shallow);
+      @include color($color-primary, r, c);
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: SZ(5) SZ(5) SZ(10) map-get($color-shadow, c);
+      width: SZ(128); height:SZ(128);
+      font-size: SZ(48);
+      img {width:100%; height:100%;}
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+  .as-title {
+    @include flex-align($jc:center);
+    padding: .5em 0; font-weight: bold;
+  }
+  //------------------------------------
+  .as-actions {
+    @include flex-align-center($jc:space-around);
+    @include color($color-func, r, c);
+    padding:1em 0; margin-top:1em;
+    //----------------------------------
+    .ti-btn {
+      padding: .5em 1em;
+      font-size:.9em;
+      border-radius: .4em;
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+}

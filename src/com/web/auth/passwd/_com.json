@@ -1,0 +1,6 @@
+{
+  "name" : "web-auth-passwd",
+  "globally" : true,
+  "template" : "./auth-passwd.html",
+  "mixins" : ["./auth-passwd.mjs"]
+}

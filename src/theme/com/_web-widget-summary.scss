@@ -1,0 +1,37 @@
+.web-widget-summary {
+  //------------------------------------
+  .as-title {
+    @include border(1px, solid, shallow, bottom);
+    padding:.8em; font-size: SZ(20);
+  }
+  //------------------------------------
+  .as-list {
+    @include flex-align-nowrap($ai:stretch,$ac:stretch,$jc:space-around);
+    padding:SZ(20);
+    //----------------------------------
+    .as-item {
+      @include flex-align-v-nowrap;
+      padding:1em; margin:1em;
+      //--------------------------------
+      .ti-icon {
+        @include color($color-track, c);
+        font-size: SZ(24); 
+      }
+      //--------------------------------
+      .as-value {
+        @include font-fixed;
+        text-align: center;
+        font-size: SZ(48); font-weight: bold;
+        padding: .3em;
+      }
+      //--------------------------------
+      .as-text {
+        @include color($color-track, c);
+        text-align: center;
+      }
+      //--------------------------------
+    } // .as-item 
+    //----------------------------------
+  }
+  //------------------------------------
+}

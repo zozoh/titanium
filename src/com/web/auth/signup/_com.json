@@ -1,6 +1,6 @@
 {
   "name" : "web-auth-signup",
   "globally" : true,
-  "template" : "./web-auth-signup.html",
-  "mixins" : ["./web-auth-signup.mjs"]
+  "template" : "./auth-signup.html",
+  "mixins" : ["./auth-signup.mjs"]
 }

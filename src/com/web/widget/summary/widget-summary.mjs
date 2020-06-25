@@ -24,7 +24,7 @@ export default {
           key: `it-${index}`,
           index,
           icon: it.icon,
-          title: it.title,
+          text: it.text,
           value: it.value || 0
         })
       })

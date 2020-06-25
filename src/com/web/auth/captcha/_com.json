@@ -1,6 +1,0 @@
-{
-  "name" : "web-auth-captcha",
-  "globally" : true,
-  "template" : "./web-auth-captcha.html",
-  "mixins" : ["./web-auth-captcha.mjs"]
-}

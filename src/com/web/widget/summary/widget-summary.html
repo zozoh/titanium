@@ -9,10 +9,10 @@
   <!--
     Items
   -->
-  <div class="as-items">
+  <div class="as-list">
     <div
       v-for="it in TheItems"
-        class="bar-item">
+        class="as-item">
       <!--Icon-->
       <ti-icon
         v-if="it.icon"
@@ -21,8 +21,8 @@
       <div class="as-value">{{it.value}}</div>
       <!--Text-->
       <div
-        v-if="it.title"
-          class="as-title">{{it.title|i18n}}</div>
+        v-if="it.text"
+          class="as-text">{{it.text|i18n}}</div>
     </div>
   </div>
 </div>

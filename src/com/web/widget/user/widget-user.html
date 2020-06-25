@@ -1,4 +1,22 @@
 <div class="web-widget-user"
   :class="TopClass">
-  {{me}}
+  <!--
+    Avatar
+  -->
+  <div class="as-avatar">
+    <ti-icon :value="TheAvatar"/>
+  </div>
+  <!--
+    Nickname
+  -->
+  <div class="as-title">
+    <div class="as-nickname">{{TheNickname}}</div>
+  </div>
+  <!--
+    Action bar
+  -->
+  <div class="as-actions">
+    <div class="ti-btn reset-passwd">{{'passwd-reset'|i18n}}</div>
+    <div class="ti-btn edit-profile">{{'profile-edit'|i18n}}</div>
+  </div>
 </div>

@@ -30,7 +30,7 @@
         margin:.5em 0;
       }
       input {
-        flex:1 1 auto;
+        flex:1 1 auto; width:100%;
         padding: .7em;
         font-size: 1.4em;
         outline:none; border:0;
@@ -39,6 +39,7 @@
       }
       span {
         @include flex-center;
+        flex:0 0 auto;
         display: block; padding:SZ(10);
         white-space: nowrap;
         > em {
@@ -67,6 +68,11 @@
           a {color:map-get($color-track, c);}
         }
       }
+    }
+    //---------------------------------
+    div.as-links {
+      display: block;
+      padding: .5em; line-height: 1.8em;
     }
     //---------------------------------
   } // section {

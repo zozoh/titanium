@@ -1,0 +1,92 @@
+<div 
+  class="web-auth-passwd web-simple-form" 
+  :class="TopClass">
+  <!--
+    Head text
+  -->
+  <header>{{ModeTitle|i18n}}</header>
+  <!--
+    Main Area
+  -->
+  <section>
+    <!--
+      ===================================================
+      Mode: byVCode
+    -->
+    <template v-if="isByVode">
+      <!--
+        Input: name
+      -->
+      <div class="as-input">
+        <input 
+          spellcheck="false"
+          :placeholder="VCodeNameTip|i18n"
+          v-model="myForm.name"></div>
+      <!--
+        Input: vcode
+      -->
+      <div class="as-input">
+        <input 
+          spellcheck="false"
+          :placeholder="VCodeCodeTip|i18n"
+          v-model="myForm.vcode">
+        <span>
+          <em v-if="delay>0">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>
+          <a v-else
+            @click="OnGetVcode">{{VCodeGetTip|i18n}}</a>
+        </span>
+      </div>
+    </template>
+    <!--
+      ===================================================
+      Mode: byPasswd
+    -->
+    <template v-else>
+      <!--
+        Passwd: old
+      -->
+      <div class="as-input">
+        <input 
+          spellcheck="false"
+          :placeholder="'auth-reset-passwd-old'|i18n"
+          v-model="myForm.passwd_old"></div>
+    </template>
+    <!--
+      ===================================================
+    -->
+    <!--
+      Passwd: new
+    -->
+    <div class="as-input" :class="PasswdClass">
+      <input 
+        spellcheck="false"
+        :placeholder="'auth-reset-passwd-new'|i18n"
+        v-model="myForm.passwd_new"></div>
+    <!--
+      Passwd: repeat
+    -->
+    <div class="as-input" :class="PasswdClass">
+      <input 
+        spellcheck="false"
+        :placeholder="'auth-reset-passwd-ren'|i18n"
+        v-model="myForm.passwd_ren"></div>
+    <!--
+      Submit button
+    -->
+    <div class="as-btn">
+      <button @click="OnSubmit">{{'auth-reset-passwd-save'|i18n}}</button>
+    </div>
+    <!--
+      Sublinks: switch mode / passwd-back
+    -->
+    <div 
+      v-if="hasAltModes"
+        class="as-links">
+        <div
+          v-for="it in AltModes"
+            class="as-item">
+            <a @click.left="OnChangeMode(it)">{{it.text|i18n}}</a>
+        </div>
+    </div>
+  </section>
+</div>

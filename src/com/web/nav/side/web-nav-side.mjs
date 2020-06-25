@@ -44,7 +44,7 @@ const _M = {
       if(this.base && !/^(https?)?\/\/?/.test(href)) {
         href = Ti.Util.appendPath(this.base, href)
       }
-      console.log("href", href)
+      //console.log("href", href)
       // Self
       return {
         ...it,
