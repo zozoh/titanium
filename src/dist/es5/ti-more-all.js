@@ -4818,7 +4818,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //---------------------------------------
         getItemType: function getItemType(bi) {
           if (bi.type) {
-            return bi.type;
+            return _.toLower(bi.type);
           } // Line
 
 
@@ -5493,7 +5493,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   Ti.Preload("ti/com/ti/calendar/_com.json", {
     "name": "ti-calendar",
     "globally": true,
-    "i18n": "@i18n:ti-datetime",
     "template": "./ti-calendar.html",
     "mixins": ["./ti-calendar.mjs"],
     "components": ["@com:ti/input/month"]
@@ -6359,39 +6358,40 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
           if ("extended" == this.status) {
-            var r_box = Ti.Rects.createBy($box); //..........................................
-            // Mark box to fixed position
+            // Wait 1ms for drop content done for drawing
+            _.delay(function () {
+              var r_box = Ti.Rects.createBy($box);
+              var r_drop = Ti.Rects.createBy($drop); //..........................................
+              // Mark box to fixed position
 
-            _.assign(this.box, {
-              position: "fixed"
-            }, r_box.raw()); //..........................................
-            // Make drop same width with box
-
-
-            var dropStyle = {};
-
-            if ("box" == this.dropWidth) {
-              dropStyle.width = r_box.width;
-            } else if (!Ti.Util.isNil(this.dropWidth)) {
-              // The min drop width
-              if (this.dropWidth < 0) {
-                dropStyle.width = Math.max(r_box.width, Math.abs(this.dropWidth));
-              } // Fix drop width
-              else {
-                  dropStyle.width = this.dropWidth;
-                }
-            }
-
-            if (!Ti.Util.isNil(this.dropHeight)) {
-              dropStyle.height = this.dropHeight;
-            } //..........................................S
+              _.assign(_this30.box, {
+                position: "fixed"
+              }, r_box.raw()); //..........................................
+              // Make drop same width with box
 
 
-            Ti.Dom.setStyle($drop, Ti.Css.toStyle(dropStyle)); //..........................................
-            // Dock drop to box
+              var dropStyle = {};
 
-            this.$nextTick(function () {
-              // Count dock
+              if ("box" == _this30.dropWidth) {
+                dropStyle.width = Math.max(r_box.width, r_drop.width);
+              } else if (!Ti.Util.isNil(_this30.dropWidth)) {
+                // The min drop width
+                if (_this30.dropWidth < 0) {
+                  dropStyle.width = Math.max(r_box.width, Math.abs(_this30.dropWidth));
+                } // Fix drop width
+                else {
+                    dropStyle.width = _this30.dropWidth;
+                  }
+              }
+
+              if (!Ti.Util.isNil(_this30.dropHeight)) {
+                dropStyle.height = _this30.dropHeight;
+              } //..........................................S
+
+
+              Ti.Dom.setStyle($drop, Ti.Css.toStyle(dropStyle)); //..........................................
+              // Dock drop to box
+
               Ti.Dom.dockTo($drop, $box, {
                 space: {
                   y: 2
@@ -6401,7 +6401,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               _.delay(function () {
                 _this30.myDropDockReady = true;
               }, 1);
-            }); //..........................................
+            }, 1); //..........................................
+
           } //............................................
 
         },
@@ -6486,8 +6487,53 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "template": "./ti-combo-box.html",
     "mixins": ["./ti-combo-box.mjs"]
   }); //============================================================
+  // JOIN: ti/combo/filter/ti-combo-filter-props.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      "form": {
+        type: Object,
+        "default": null
+      },
+      "autoCollapse": {
+        type: Boolean,
+        "default": false
+      },
+      "statusIcons": {
+        type: Object,
+        "default": function _default() {
+          return {
+            collapse: "zmdi-chevron-down",
+            extended: "zmdi-chevron-up"
+          };
+        }
+      },
+      "autoFocusExtended": {
+        type: Boolean,
+        "default": true
+      },
+      "spacing": {
+        type: String,
+        "default": "tiny",
+        validator: function validator(v) {
+          return /^(none|comfy|tiny)$/.test(v);
+        }
+      },
+      "dropWidth": {
+        type: [Number, String],
+        "default": "box"
+      },
+      "dropHeight": {
+        type: [Number, String],
+        "default": null
+      }
+    };
+    Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter-props.mjs", _M);
+  })(); //============================================================
   // JOIN: ti/combo/filter/ti-combo-filter.html
   //============================================================
+
 
   Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter.html", "<div class=\"ti-combo-filter\"\n  :class=\"TopClass\">\n  <!--\n    Marjor type\n  -->\n\n  <!--\n    Filter input box\n  -->\n  <ti-combo-box\n    class=\"as-filter\"\n    :drop-width=\"dropWidth\"\n    :drop-height=\"dropHeight\"\n    :status=\"myDropStatus\"\n    @collapse=\"OnCollapse\"\n    v-ti-activable>\n    <!--\n      Box\n    -->\n    <template v-slot:box>\n      <ti-input \n        v-bind=\"TheInputProps\"\n\n        :value=\"InputValue\"\n        :prefix-icon=\"ThePrefixIcon\"\n        :suffix-icon=\"TheSuffixIcon\"\n\n        @change=\"OnInputChanged\"\n        @input:focus=\"OnInputFocused\"\n        @prefix:icon=\"$notify('prefix:icon')\"\n        @suffix:icon=\"OnClickStatusIcon\"/>\n    </template>\n    <!--\n      Drop\n    -->\n    <template v-slot:drop=\"slotProps\">\n      <ti-form\n        v-bind=\"form\"\n        :data=\"myFormData\"\n        @change=\"OnFormChange\"/>\n    </template>\n  </ti-combo-box>\n  <!--\n    Sorter\n  -->\n</div>"); //============================================================
   // JOIN: ti/combo/filter/ti-combo-filter.mjs
@@ -6510,45 +6556,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           myFreeValue: null,
           myFormData: {}
         };
-      },
-      ////////////////////////////////////////////////////
-      props: {
-        "form": {
-          type: Object,
-          "default": null
-        },
-        "autoCollapse": {
-          type: Boolean,
-          "default": false
-        },
-        "statusIcons": {
-          type: Object,
-          "default": function _default() {
-            return {
-              collapse: "zmdi-chevron-down",
-              extended: "zmdi-chevron-up"
-            };
-          }
-        },
-        "autoFocusExtended": {
-          type: Boolean,
-          "default": true
-        },
-        "spacing": {
-          type: String,
-          "default": "tiny",
-          validator: function validator(v) {
-            return /^(none|comfy|tiny)$/.test(v);
-          }
-        },
-        "dropWidth": {
-          type: [Number, String],
-          "default": "box"
-        },
-        "dropHeight": {
-          type: [Number, String],
-          "default": null
-        }
       },
       ////////////////////////////////////////////////////
       computed: {
@@ -6741,7 +6748,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "name": "ti-combo-filter",
     "globally": true,
     "template": "./ti-combo-filter.html",
-    "props": "@com:ti/input/ti-input-props.mjs",
+    "props": ["@com:ti/input/ti-input-props.mjs", "@com:ti/combo/filter/ti-combo-filter-props.mjs"],
     "mixins": "./ti-combo-filter.mjs",
     "components": ["@com:ti/form", "@com:ti/combo/sorter"]
   }); //============================================================
@@ -6768,6 +6775,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "default": undefined
       },
       "iconeBy": {
+        type: [String, Function],
+        "default": undefined
+      },
+      "childrenBy": {
         type: [String, Function],
         "default": undefined
       },
@@ -6836,7 +6847,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   //============================================================
 
 
-  Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", "<ti-combo-box \n  class=\"ti-combo-input\"\n  :class=\"TopClass\"\n  :drop-width=\"dropWidth\"\n  :drop-height=\"dropHeight\"\n  :status=\"myDropStatus\"\n  @collapse=\"OnCollapse\"\n  v-ti-activable>\n  <!--\n    Box\n  -->\n  <template v-slot:box>\n    <ti-input \n      v-bind=\"TheInputProps\"\n\n      :value=\"InputValue\"\n      :prefix-icon=\"ThePrefixIcon\"\n      :suffix-icon=\"TheSuffixIcon\"\n\n      @change=\"OnInputChanged\"\n      @inputing=\"OnInputInputing\"\n      @input:focus=\"OnInputFocused\"\n      @prefix:icon=\"$notify('prefix:icon')\"\n      @suffix:icon=\"OnClickStatusIcon\"/>\n  </template>\n  <!--\n    Drop\n  -->\n  <template v-slot:drop=\"slotProps\">\n    <component class=\"ti-fill-parent\"\n      :is=\"DropComType\"\n      v-bind=\"DropComConf\"\n\n      :on-init=\"OnDropListInit\"\n      @select=\"OnDropListSelected\"/>\n  </template>\n</ti-combo-box>"); //============================================================
+  Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", "<ti-combo-box \n  class=\"ti-combo-input\"\n  :class=\"TopClass\"\n  :drop-width=\"dropWidth\"\n  :drop-height=\"dropHeight\"\n  :status=\"myDropStatus\"\n  @collapse=\"OnCollapse\"\n  v-ti-activable>\n  <!--\n    Box\n  -->\n  <template v-slot:box>\n    <ti-input \n      v-bind=\"TheInputProps\"\n\n      :value=\"InputValue\"\n      :prefix-icon=\"ThePrefixIcon\"\n      :suffix-icon=\"TheSuffixIcon\"\n\n      @change=\"OnInputChanged\"\n      @inputing=\"OnInputInputing\"\n      @input:focus=\"OnInputFocused\"\n      @prefix:icon=\"$notify('prefix:icon')\"\n      @suffix:icon=\"OnClickStatusIcon\"/>\n  </template>\n  <!--\n    Drop\n  -->\n  <template v-slot:drop=\"slotProps\">\n    <component \n      :is=\"DropComType\"\n      class=\"ti-fill-parent\"\n      blank-class=\"mid-tip\"\n      v-bind=\"DropComConf\"\n      :on-init=\"OnDropListInit\"\n      @select=\"OnDropListSelected\"/>\n  </template>\n</ti-combo-box>"); //============================================================
   // JOIN: ti/combo/input/ti-combo-input.mjs
   //============================================================
 
@@ -7013,6 +7024,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               while (1) {
                 switch (_context16.prev = _context16.next) {
                   case 0:
+                    //console.log("haha")
                     // Clean filter
                     _this36.myFilterValue = null; // Clean
 
@@ -7138,7 +7150,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     }
 
                     _context19.next = 7;
-                    return _this39.doCollapse();
+                    return _this39.doCollapse({
+                      escaped: true
+                    });
 
                   case 7:
                   case "end":
@@ -7219,8 +7233,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         tryNotifyChanged: function tryNotifyChanged() {
-          //console.log("tryNotifyChanged")
-          var val = this.evalMyValue();
+          var val = this.evalMyValue(); //console.log("tryNotifyChanged", val)
 
           if (!_.isEqual(val, this.value)) {
             this.$notify("change", val);
@@ -7340,13 +7353,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
           if ("ENTER" == uniqKey) {
-            if (this.$dropList && this.$dropList.isActived) {
-              this.doCollapse();
-              return {
-                stop: true,
-                quit: true
-              };
-            }
+            //if(this.$dropList && this.$dropList.isActived) {
+            this.doCollapse();
+            return {
+              stop: true,
+              quit: false
+            }; //}
           } //....................................
 
 
@@ -7393,6 +7405,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "value": {
           handler: "evalMyItem",
           immediate: true
+        },
+        //-----------------------------------------------
+        "options": function options() {
+          this.myOptionsData = [];
         } //-----------------------------------------------
 
       },
@@ -7423,7 +7439,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: ti/combo/multi-input/ti-combo-multi-input.html
   //============================================================
 
-  Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", "<ti-combo-box \n  class=\"ti-combo-multi-input\"\n  :class=\"TopClass\"\n  :drop-width=\"dropWidth\"\n  :drop-height=\"dropHeight\"\n  :status=\"myDropStatus\"\n  @collapse=\"OnCollapse\"\n  v-ti-activable>\n  <!--\n    Box\n  -->\n  <template v-slot:box>\n    <ti-input-tags\n      :input-value=\"myFilterValue\"\n      :value=\"InputTagValues\"\n      :value-case=\"valueCase\"\n      :trimed=\"trimed\"\n        :max-value-len=\"maxValueLen\"\n        :value-unique=\"valueUnique\"\n        :tag-options=\"tagOptions\"\n        :tag-mapping=\"tagMapping\"\n\n      :readonly=\"readonly\"\n      :focused=\"focused\"\n      :hover=\"hover\"\n      :auto-select=\"autoSelect\"\n        :can-input=\"canInput\"\n        :cancel-tag-bubble=\"cancelTagBubble\"\n\n      :placeholder=\"placeholder\"\n      :hide-border=\"hideBorder\"\n      :prefix-icon=\"prefixIcon\"\n      :prefix-hover-icon=\"prefixHoverIcon\"\n      :prefix-icon-for-clean=\"prefixIconForClean\"\n      :prefix-text=\"prefixText\"\n      :suffix-icon=\"TheSuffixIcon\"\n      :suffix-text=\"suffixText\"\n        :tag-item-icon-by=\"tagItemIconBy\"\n        :tag-item-default-icon=\"tagItemDefaultIcon\"\n        :tag-option-default-icon=\"tagOptionDefaultIcon\"\n      \n      :width=\"width\"\n      :height=\"height\"\n\n      :input-change=\"OnInputChanged\"\n\n      @inputing=\"OnInputInputing\"\n      @input:focus=\"OnInputFocused\"\n      @change=\"OnTagListChanged\"\n      @prefix:icon=\"$notify('prefix:icon')\"\n      @suffix:icon=\"OnClickStatusIcon\"/>\n  </template>\n  <!--\n    Drop\n  -->\n  <template v-slot:drop>\n    <component class=\"ti-fill-parent\"\n      :is=\"DropComType\"\n      v-bind=\"DropComConf\"\n\n      :on-init=\"OnDropListInit\"\n      @select=\"OnDropListSelected\"/>\n  </template>\n</ti-combo-box>"); //============================================================
+  Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", "<ti-combo-box \n  class=\"ti-combo-multi-input\"\n  :class=\"TopClass\"\n  :drop-width=\"dropWidth\"\n  :drop-height=\"dropHeight\"\n  :status=\"myDropStatus\"\n  @collapse=\"OnCollapse\"\n  v-ti-activable>\n  <!--\n    Box\n  -->\n  <template v-slot:box>\n    <ti-input-tags\n      :input-value=\"myFilterValue\"\n      :value=\"InputTagValues\"\n      :value-case=\"valueCase\"\n      :trimed=\"trimed\"\n        :max-value-len=\"maxValueLen\"\n        :value-unique=\"valueUnique\"\n        :tag-options=\"tagOptions\"\n        :tag-mapping=\"tagMapping\"\n\n      :readonly=\"readonly\"\n      :focused=\"focused\"\n      :hover=\"hover\"\n      :auto-select=\"autoSelect\"\n        :can-input=\"canInput\"\n        :cancel-tag-bubble=\"cancelTagBubble\"\n\n      :placeholder=\"placeholder\"\n      :hide-border=\"hideBorder\"\n      :prefix-icon=\"prefixIcon\"\n      :prefix-hover-icon=\"prefixHoverIcon\"\n      :prefix-icon-for-clean=\"prefixIconForClean\"\n      :prefix-text=\"prefixText\"\n      :suffix-icon=\"TheSuffixIcon\"\n      :suffix-text=\"suffixText\"\n        :tag-item-icon-by=\"tagItemIconBy\"\n        :tag-item-default-icon=\"tagItemDefaultIcon\"\n        :tag-option-default-icon=\"tagOptionDefaultIcon\"\n      \n      :width=\"width\"\n      :height=\"height\"\n\n      :input-change=\"OnInputChanged\"\n\n      @inputing=\"OnInputInputing\"\n      @input:focus=\"OnInputFocused\"\n      @change=\"OnTagListChanged\"\n      @prefix:icon=\"$notify('prefix:icon')\"\n      @suffix:icon=\"OnClickStatusIcon\"/>\n  </template>\n  <!--\n    Drop\n  -->\n  <template v-slot:drop>\n    <component class=\"ti-fill-parent\"\n      :is=\"DropComType\"\n      blank-class=\"mid-tip\"\n      v-bind=\"DropComConf\"\n      :on-init=\"OnDropListInit\"\n      @select=\"OnDropListSelected\"/>\n  </template>\n</ti-combo-box>"); //============================================================
   // JOIN: ti/combo/multi-input/ti-combo-multi-input.mjs
   //============================================================
 
@@ -8061,8 +8077,66 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "mixins": ["./ti-combo-multi-input.mjs"],
     "components": ["@com:ti/combo/box"]
   }); //============================================================
+  // JOIN: ti/combo/sorter/ti-combo-sorter-props.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      "placeholder": {
+        type: String,
+        "default": "i18n:no-title"
+      },
+      "options": {
+        type: Array,
+        "default": function _default() {
+          return [];
+        }
+      },
+
+      /*
+      {
+        "CreateTime": 1  // 1:ASC, -1:DESC
+      }
+      */
+      "value": {
+        type: Object,
+        "default": null
+      },
+      "width": {
+        type: [Number, String],
+        "default": undefined
+      },
+      "height": {
+        type: [Number, String],
+        "default": undefined
+      },
+      "dropWidth": {
+        type: [Number, String],
+        "default": "box"
+      },
+      "dropHeight": {
+        type: [Number, String],
+        "default": null
+      },
+      "sortIcons": {
+        type: Object,
+        "default": function _default() {
+          return {
+            asc: "fas-long-arrow-alt-up",
+            desc: "fas-long-arrow-alt-down"
+          };
+        }
+      },
+      "suffixIcon": {
+        type: String,
+        "default": "im-menu-list"
+      }
+    };
+    Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter-props.mjs", _M);
+  })(); //============================================================
   // JOIN: ti/combo/sorter/ti-combo-sorter.html
   //============================================================
+
 
   Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter.html", "<div class=\"ti-combo-sorter\"\n  :class=\"TopClass\"\n  :style=\"TopStyle\">\n  <!--\n    sorter box\n  -->\n  <ti-combo-box\n    class=\"as-sorter\"\n    :drop-width=\"dropWidth\"\n    :drop-height=\"dropHeight\"\n    :drop-float=\"false\"\n    :status=\"myDropStatus\"\n    @collapse=\"OnCollapse\"\n    v-ti-activable>\n    <!--\n      Box\n    -->\n    <template v-slot:box>\n      <!--\n        Current Sort Box\n      -->\n      <div class=\"as-sort-box\"\n        @click.left=\"OnClickBox\">\n        <!--Sort Icon-->\n        <ti-icon\n          v-if=\"TheSortIcon\"\n          class=\"as-sort-icon\"\n            :value=\"TheSortIcon\"/>\n        <!--Preifx Icon-->\n        <ti-icon \n          v-if=\"ThePrefixIcon\"\n            class=\"at-prefix\"\n            :value=\"ThePrefixIcon\"/>\n        <!--Title-->\n        <div class=\"as-title\">{{SortTitle|i18n}}</div>\n      </div>\n      <!--Status Icon-->\n      <div  \n        v-if=\"TheSuffixIcon\"\n          class=\"as-sort-btn\"\n          @click.left=\"OnClickSuffixIcon\">\n            <ti-icon :value=\"TheSuffixIcon\"/>\n      </div>\n    </template>\n    <!--\n      Drop\n    -->\n    <template v-slot:drop=\"slotProps\">\n      <ti-list\n        id-by=\"value\"\n        :data=\"myListData\"\n        :display=\"['<icon>', 'text']\"\n        :hoverable=\"true\"\n        :current-id=\"SortBy\"\n        @select=\"OnDropListSelected\"/>\n    </template>\n  </ti-combo-box>\n  <!--\n    Sorter\n  -->\n</div>"); //============================================================
   // JOIN: ti/combo/sorter/ti-combo-sorter.mjs
@@ -8078,58 +8152,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           isASC: true,
           myListData: []
         };
-      },
-      ////////////////////////////////////////////////////
-      props: {
-        "placeholder": {
-          type: String,
-          "default": "i18n:no-title"
-        },
-        "options": {
-          type: Array,
-          "default": function _default() {
-            return [];
-          }
-        },
-
-        /*
-        {
-          "CreateTime": 1  // 1:ASC, -1:DESC
-        }
-        */
-        "value": {
-          type: Object,
-          "default": null
-        },
-        "width": {
-          type: [Number, String],
-          "default": undefined
-        },
-        "height": {
-          type: [Number, String],
-          "default": undefined
-        },
-        "dropWidth": {
-          type: [Number, String],
-          "default": "box"
-        },
-        "dropHeight": {
-          type: [Number, String],
-          "default": null
-        },
-        "sortIcons": {
-          type: Object,
-          "default": function _default() {
-            return {
-              asc: "fas-long-arrow-alt-up",
-              desc: "fas-long-arrow-alt-down"
-            };
-          }
-        },
-        "suffixIcon": {
-          type: String,
-          "default": "im-menu-list"
-        }
       },
       ////////////////////////////////////////////////////
       computed: {
@@ -8394,6 +8416,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "name": "ti-combo-sorter",
     "globally": true,
     "template": "./ti-combo-sorter.html",
+    "props": "@com:ti/combo/sorter/ti-combo-sorter-props.mjs",
     "mixins": "./ti-combo-sorter.mjs",
     "components": ["@com:ti/combo/box"]
   }); //============================================================
@@ -8852,12 +8875,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         type: [String, Object, Boolean],
         "default": false
       },
-      "funcSet": {
-        type: Object,
-        "default": function _default() {
-          return {};
-        }
-      },
+      // "funcSet" : {
+      //   type : Object,
+      //   default : ()=>({})
+      // },
       "comType": {
         type: String,
         "default": "ti-label"
@@ -8992,7 +9013,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           if (!_.isBoolean(this.display) && this.display) {
             return this.evalFieldDisplayItem(this.display, {
-              funcSet: this.funcSet,
+              //funcSet    : this.funcSet,
               defaultKey: this.name
             });
           } // return default.
@@ -9081,6 +9102,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           v2 = this.evalInputValue(v2); // emit event
 
           if (!this.checkEquals || !_.isEqual(v2, this.fieldValue)) {
+            //console.log("  #field.change:", v2)
             this.$notify("change", {
               name: this.name,
               value: v2
@@ -9299,6 +9321,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         type: Boolean,
         "default": true
       },
+      // merge each time data change
+      "fixed": {
+        type: Object,
+        "default": undefined
+      },
       //-----------------------------------
       // Behavior
       //-----------------------------------
@@ -9343,8 +9370,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         type: Object,
         "default": function _default() {
           return {
-            icon: "zmdi-alert-circle-o",
-            text: "i18n:empty-data"
+            icon: "fas-dna",
+            text: null
           };
         }
       },
@@ -9392,7 +9419,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   //============================================================
 
 
-  Ti.Preload("ti/com/ti/form/ti-form.html", "<div class=\"ti-form\"\n  :class=\"TopClass\"\n  :style=\"TopStyle\"\n  v-ti-activable>\n  <template v-if=\"hasData || !isAutoShowBlank\">\n    <!--\n      Form Header\n    -->\n    <header class=\"form-header\" v-if=\"hasHeader\">\n      <span v-if=\"icon\"\n        class=\"it-icon\"><ti-icon :value=\"icon\"/></span>\n      <span v-if=\"title\"\n        class=\"it-text\">{{title}}</span>\n    </header>\n    <!--\n      Tabs for display:\"tab\"\n    -->\n    <div class=\"form-tab\" v-if=\"isTabMode\">\n      <ul>\n        <li v-for=\"tab in TabItems\" \n          :class=\"tab.className\"\n          @click.left=\"OnClickTab(tab)\">\n          <ti-icon \n            class=\"tab-icon\" v-if=\"tab.icon\" :value=\"tab.icon\"/>\n          <span \n            class=\"tab-text\" v-if=\"tab.title\">{{tab.title|i18n}}</span>\n        </li>\n      </ul>\n    </div>\n    <!--\n      Form Fields\n    -->\n    <div class=\"form-body\">\n      <template v-for=\"fld in FieldsInCurrentTab\">\n        <!--\n          For Group\n        -->\n        <form-group v-if=\"'Group' == fld.type\"\n          v-bind=\"fld\"\n          :data=\"TheData\"\n          :field-status=\"fieldStatus\"\n          :status-icons=\"statusIcons\"\n          @change=\"OnFieldChange\"/>\n        <!--\n          For field\n        -->\n        <ti-form-field v-else\n          :key=\"fld.key\"\n          v-bind=\"fld\"\n          :data=\"TheData\"\n          :field-status=\"fieldStatus\"\n          :status-icons=\"statusIcons\"\n          @change=\"OnFieldChange\"/>\n      </template>\n    </div>\n  </template>\n  <!--\n    Show Blank\n  -->\n  <template v-else>\n    <ti-loading v-bind=\"blankAs\"/>\n  </template>\n</div>"); //============================================================
+  Ti.Preload("ti/com/ti/form/ti-form.html", "<div class=\"ti-form\"\n  :class=\"TopClass\"\n  :style=\"TopStyle\"\n  v-ti-activable>\n  <template v-if=\"hasData || !isAutoShowBlank\">\n    <!--\n      Form Header\n    -->\n    <header class=\"form-header\" v-if=\"hasHeader\">\n      <span v-if=\"icon\"\n        class=\"it-icon\"><ti-icon :value=\"icon\"/></span>\n      <span v-if=\"title\"\n        class=\"it-text\">{{title}}</span>\n    </header>\n    <!--\n      Tabs for display:\"tab\"\n    -->\n    <div class=\"form-tab\" v-if=\"isTabMode\">\n      <ul>\n        <li v-for=\"tab in TabItems\" \n          :class=\"tab.className\"\n          @click.left=\"OnClickTab(tab)\">\n          <ti-icon \n            class=\"tab-icon\" v-if=\"tab.icon\" :value=\"tab.icon\"/>\n          <span \n            class=\"tab-text\" v-if=\"tab.title\">{{tab.title|i18n}}</span>\n        </li>\n      </ul>\n    </div>\n    <!--\n      Form Fields\n    -->\n    <div class=\"form-body\">\n      <template v-for=\"fld in FieldsInCurrentTab\">\n        <!--\n          For Group\n        -->\n        <form-group v-if=\"'Group' == fld.type\"\n          v-bind=\"fld\"\n          :data=\"data\"\n          :field-status=\"fieldStatus\"\n          :status-icons=\"statusIcons\"\n          @change=\"OnFieldChange\"/>\n        <!--\n          For field\n        -->\n        <ti-form-field v-else\n          :key=\"fld.key\"\n          v-bind=\"fld\"\n          :data=\"data\"\n          :field-status=\"fieldStatus\"\n          :status-icons=\"statusIcons\"\n          @change=\"OnFieldChange\"/>\n      </template>\n    </div>\n  </template>\n  <!--\n    Show Blank\n  -->\n  <ti-loading \n    v-else\n      class=\"nil-data as-big-mask\"\n      v-bind=\"blankAs\"/>\n</div>"); //============================================================
   // JOIN: ti/form/ti-form.mjs
   //============================================================
 
@@ -9406,6 +9433,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //////////////////////////////////////////////////////
       data: function data() {
         return {
+          myKeysInFields: [],
           currentTabIndex: 0
         };
       },
@@ -9460,51 +9488,37 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var _this62 = this;
 
           var list = [];
+          var keys = []; //................................................
 
           _.forEach(this.fields, function (fld, index) {
             var fld2 = _this62.evalFormField(fld, [index]);
 
             if (fld2) {
-              list.push(fld2);
-            }
-          });
+              list.push(fld2); // Gather keys
 
-          return list;
-        },
-        //--------------------------------------------------
-        KeysInFields: function KeysInFields() {
-          var keys = [];
+              if (!fld2.disabled) {
+                // Field group ...
+                if ("Group" == fld2.type) {
+                  _.forEach(fld2.fields, function (_ref31) {
+                    var disabled = _ref31.disabled,
+                        name = _ref31.name;
 
-          var _iterator15 = _createForOfIteratorHelper(this.TheFields),
-              _step15;
-
-          try {
-            for (_iterator15.s(); !(_step15 = _iterator15.n()).done;) {
-              var fg = _step15.value;
-
-              if (this.isGroup(fg)) {
-                _.forEach(fg.fields, function (fld) {
-                  if (_.isArray(fld.name)) {
-                    keys.push.apply(keys, _toConsumableArray(fld.name));
-                  } else {
-                    keys.push(fld.name);
+                    if (!disabled) {
+                      keys.push(name);
+                    }
+                  });
+                } // The fields
+                else {
+                    keys.push(fld2.name);
                   }
-                });
-              } else {
-                if (_.isArray(fg.name)) {
-                  keys.push.apply(keys, _toConsumableArray(fg.name));
-                } else {
-                  keys.push(fg.name);
-                }
               }
             }
-          } catch (err) {
-            _iterator15.e(err);
-          } finally {
-            _iterator15.f();
-          }
+          }); //................................................
 
-          return keys;
+
+          this.myKeysInFields = _.flattenDeep(keys); //................................................
+
+          return list;
         },
         //--------------------------------------------------
         TabList: function TabList() {
@@ -9512,12 +9526,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var otherFields = [];
 
           if (this.isTabMode) {
-            var _iterator16 = _createForOfIteratorHelper(this.TheFields),
-                _step16;
+            var _iterator15 = _createForOfIteratorHelper(this.TheFields),
+                _step15;
 
             try {
-              for (_iterator16.s(); !(_step16 = _iterator16.n()).done;) {
-                var fld = _step16.value;
+              for (_iterator15.s(); !(_step15 = _iterator15.n()).done;) {
+                var fld = _step15.value;
 
                 if (fld.type == "Group") {
                   list.push(fld);
@@ -9528,9 +9542,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               } // Join others
 
             } catch (err) {
-              _iterator16.e(err);
+              _iterator15.e(err);
             } finally {
-              _iterator16.f();
+              _iterator15.f();
             }
 
             if (!_.isEmpty(otherFields)) {
@@ -9566,21 +9580,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------------------
         CurrentTab: function CurrentTab() {
-          var _iterator17 = _createForOfIteratorHelper(this.TabItems),
-              _step17;
+          var _iterator16 = _createForOfIteratorHelper(this.TabItems),
+              _step16;
 
           try {
-            for (_iterator17.s(); !(_step17 = _iterator17.n()).done;) {
-              var tab = _step17.value;
+            for (_iterator16.s(); !(_step16 = _iterator16.n()).done;) {
+              var tab = _step16.value;
 
               if (tab.isCurrent) {
                 return tab;
               }
             }
           } catch (err) {
-            _iterator17.e(err);
+            _iterator16.e(err);
           } finally {
-            _iterator17.f();
+            _iterator16.f();
           }
         },
         //--------------------------------------------------
@@ -9611,7 +9625,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         TheData: function TheData() {
           if (this.data) {
             if (this.onlyFields) {
-              return _.pick(this.data, this.KeysInFields);
+              return _.pick(this.data, this.myKeysInFields);
             }
 
             return this.data;
@@ -9630,15 +9644,44 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------------------
         OnFieldChange: function OnFieldChange() {
-          var _ref31 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref31.name,
-              value = _ref31.value;
+          var _this64 = this;
 
-          //console.log("ti-form.OnFieldChange", {name, value})      
+          var _ref32 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref32.name,
+              value = _ref32.value;
+
+          // Notify at first
+          //console.log("notify field")
+          this.$notify("field:change", {
+            name: name,
+            value: value
+          }); // Notify later ...
+          // Wait a tick, give the change parent
+          // Update the data input
+          // The computed field "TheField"
+          // will auto-update the field status 'disabled/hidden'
+          // It may change the notify data
+
+          this.$nextTick(function () {
+            //console.log("notify data")
+            var data = _this64.getData({
+              name: name,
+              value: value
+            });
+
+            _this64.$notify("change", data);
+          });
+        },
+        //--------------------------------------
+        getData: function getData() {
+          var _ref33 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref33.name,
+              value = _ref33.value;
+
           var data = _.cloneDeep(this.TheData); // Signle value
 
 
-          if (_.isString(name)) {
+          if (name && _.isString(name)) {
             // Whole data
             if (".." == name) {
               _.assign(data, value);
@@ -9653,32 +9696,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           else if (_.isArray(name)) {
               var vo = {};
 
-              var _iterator18 = _createForOfIteratorHelper(name),
-                  _step18;
+              var _iterator17 = _createForOfIteratorHelper(name),
+                  _step17;
 
               try {
-                for (_iterator18.s(); !(_step18 = _iterator18.n()).done;) {
-                  var k = _step18.value;
+                for (_iterator17.s(); !(_step17 = _iterator17.n()).done;) {
+                  var k = _step17.value;
                   vo[k] = _.get(value, k);
                 }
               } catch (err) {
-                _iterator18.e(err);
+                _iterator17.e(err);
               } finally {
-                _iterator18.f();
+                _iterator17.f();
               }
 
               _.assign(data, vo);
-            } // Other 
-            else {
-                return;
-              } // Notify
+            } // Join the fixed data
 
 
-          this.$notify("field:change", {
-            name: name,
-            value: value
-          });
-          this.$notify("change", data);
+          if (this.fixed) {
+            _.assign(data, fixed);
+          }
+
+          return data;
         },
         //--------------------------------------
         isGroup: function isGroup(fld) {
@@ -9686,7 +9726,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------------------
         evalFormField: function evalFormField() {
-          var _this64 = this;
+          var _this65 = this;
 
           var fld = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
           var nbs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
@@ -9724,7 +9764,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }; // Group fields
 
             _.forEach(fld.fields, function (subfld, index) {
-              var newSubFld = _this64.evalFormField(subfld, [].concat(_toConsumableArray(nbs), [index]));
+              var newSubFld = _this65.evalFormField(subfld, [].concat(_toConsumableArray(nbs), [index]));
 
               if (newSubFld) {
                 group.fields.push(newSubFld);
@@ -9783,16 +9823,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el); // Reset them to org-width
 
+          var _iterator18 = _createForOfIteratorHelper($fldNames),
+              _step18;
+
+          try {
+            for (_iterator18.s(); !(_step18 = _iterator18.n()).done;) {
+              var $fldnm = _step18.value;
+              Ti.Dom.setStyle($fldnm, {
+                width: ""
+              });
+            } // Get the max-width of them
+
+          } catch (err) {
+            _iterator18.e(err);
+          } finally {
+            _iterator18.f();
+          }
+
+          var maxWidth = 0;
+
           var _iterator19 = _createForOfIteratorHelper($fldNames),
               _step19;
 
           try {
             for (_iterator19.s(); !(_step19 = _iterator19.n()).done;) {
-              var $fldnm = _step19.value;
-              Ti.Dom.setStyle($fldnm, {
-                width: ""
-              });
-            } // Get the max-width of them
+              var _$fldnm = _step19.value;
+              var rect = Ti.Rects.createBy(_$fldnm);
+              maxWidth = Math.ceil(Math.max(rect.width, maxWidth));
+            } // Wait for whole view rendered, and align the field-name
 
           } catch (err) {
             _iterator19.e(err);
@@ -9800,52 +9858,51 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             _iterator19.f();
           }
 
-          var maxWidth = 0;
-
           var _iterator20 = _createForOfIteratorHelper($fldNames),
               _step20;
 
           try {
             for (_iterator20.s(); !(_step20 = _iterator20.n()).done;) {
-              var _$fldnm = _step20.value;
-              var rect = Ti.Rects.createBy(_$fldnm);
-              maxWidth = Math.ceil(Math.max(rect.width, maxWidth));
-            } // Wait for whole view rendered, and align the field-name
-
-          } catch (err) {
-            _iterator20.e(err);
-          } finally {
-            _iterator20.f();
-          }
-
-          var _iterator21 = _createForOfIteratorHelper($fldNames),
-              _step21;
-
-          try {
-            for (_iterator21.s(); !(_step21 = _iterator21.n()).done;) {
-              var _$fldnm2 = _step21.value;
+              var _$fldnm2 = _step20.value;
               Ti.Dom.setStyle(_$fldnm2, {
                 width: maxWidth
               });
             }
           } catch (err) {
-            _iterator21.e(err);
+            _iterator20.e(err);
           } finally {
-            _iterator21.f();
+            _iterator20.f();
           }
         },
         //--------------------------------------------------
         adjustFieldsWidth: function adjustFieldsWidth() {
-          var _this65 = this;
+          var _this66 = this;
 
           if (this.adjustDelay > 0) {
             _.delay(function () {
-              _this65.__adjust_fields_width();
+              _this66.__adjust_fields_width();
             }, this.adjustDelay);
           } else {
             this.$nextTick(function () {
-              _this65.__adjust_fields_width();
+              _this66.__adjust_fields_width();
             });
+          }
+        },
+        //--------------------------------------------------
+        // Callback
+        //--------------------------------------------------
+        __ti_shortcut: function __ti_shortcut(uniqKey) {
+          var _this67 = this;
+
+          //console.log("ti-form", uniqKey)
+          if ("ENTER" == uniqKey) {
+            // It should wait a while before submit
+            // <ti-input> will apply change at @change event
+            // And the @change event will be fired when ENTER 
+            // bubble fade away
+            _.delay(function () {
+              _this67.$notify("submit");
+            }, 100);
           }
         } //--------------------------------------------------
 
@@ -9868,22 +9925,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //////////////////////////////////////////////////////
       created: function created() {
-        var _this66 = this;
+        var _this68 = this;
 
         this.__debounce_adjust_fields_width = _.debounce(function () {
-          _this66.__adjust_fields_width();
+          _this68.__adjust_fields_width();
         }, 500);
       },
       //////////////////////////////////////////////////////
       mounted: function mounted() {
-        var _this67 = this;
+        var _this69 = this;
 
         //--------------------------------------------------
         this.currentTabIndex = Ti.Storage.session.getInt(this.keepTabIndexBy, this.currentTab); //--------------------------------------------------
 
         Ti.Viewport.watch(this, {
           resize: function resize() {
-            _this67.__debounce_adjust_fields_width();
+            _this69.__debounce_adjust_fields_width();
           }
         }); //--------------------------------------------------
 
@@ -10035,19 +10092,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         TopStyle: function TopStyle() {
-          var _this68 = this;
+          var _this70 = this;
 
           return Ti.Css.toStyle({
             //..................................
             rows: function rows() {
               return {
-                height: _this68.BlockSize
+                height: _this70.BlockSize
               };
             },
             //..................................
             cols: function cols() {
               return {
-                width: _this68.BlockSize
+                width: _this70.BlockSize
               };
             },
             //..................................
@@ -10153,9 +10210,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //////////////////////////////////////////
       methods: {
         //--------------------------------------
-        __before_bubble: function __before_bubble(_ref32) {
-          var name = _ref32.name,
-              args = _ref32.args;
+        __before_bubble: function __before_bubble(_ref34) {
+          var name = _ref34.name,
+              args = _ref34.args;
 
           if (this.name) {
             return {
@@ -10626,12 +10683,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         theTabItems: function theTabItems() {
           var list = [];
 
-          var _iterator22 = _createForOfIteratorHelper(this.theBlockWrapList),
-              _step22;
+          var _iterator21 = _createForOfIteratorHelper(this.theBlockWrapList),
+              _step21;
 
           try {
-            for (_iterator22.s(); !(_step22 = _iterator22.n()).done;) {
-              var wrap = _step22.value;
+            for (_iterator21.s(); !(_step21 = _iterator21.n()).done;) {
+              var wrap = _step21.value;
               var current = this.myCurrentTab == wrap.key;
               var item = {
                 current: current,
@@ -10652,49 +10709,49 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               list.push(item);
             }
           } catch (err) {
-            _iterator22.e(err);
+            _iterator21.e(err);
           } finally {
-            _iterator22.f();
+            _iterator21.f();
           }
 
           return list;
         },
         //--------------------------------------
         theCurrentTabItem: function theCurrentTabItem() {
-          var _iterator23 = _createForOfIteratorHelper(this.theTabItems),
-              _step23;
+          var _iterator22 = _createForOfIteratorHelper(this.theTabItems),
+              _step22;
 
           try {
-            for (_iterator23.s(); !(_step23 = _iterator23.n()).done;) {
-              var item = _step23.value;
+            for (_iterator22.s(); !(_step22 = _iterator22.n()).done;) {
+              var item = _step22.value;
 
               if (item.current) {
                 return item;
               }
             }
           } catch (err) {
-            _iterator23.e(err);
+            _iterator22.e(err);
           } finally {
-            _iterator23.f();
+            _iterator22.f();
           }
         },
         //--------------------------------------
         theCurrentBlock: function theCurrentBlock() {
-          var _iterator24 = _createForOfIteratorHelper(this.theBlockWrapList),
-              _step24;
+          var _iterator23 = _createForOfIteratorHelper(this.theBlockWrapList),
+              _step23;
 
           try {
-            for (_iterator24.s(); !(_step24 = _iterator24.n()).done;) {
-              var wrap = _step24.value;
+            for (_iterator23.s(); !(_step23 = _iterator23.n()).done;) {
+              var wrap = _step23.value;
 
               if (this.myCurrentTab == wrap.key) {
                 return wrap.block;
               }
             }
           } catch (err) {
-            _iterator24.e(err);
+            _iterator23.e(err);
           } finally {
-            _iterator24.f();
+            _iterator23.f();
           }
         } //--------------------------------------
 
@@ -10710,12 +10767,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //--------------------------------------
         syncCurrentTabFromShown: function syncCurrentTabFromShown() {
           //console.log("syncCurrentTabFromShown")
-          var _iterator25 = _createForOfIteratorHelper(this.theBlockWrapList),
-              _step25;
+          var _iterator24 = _createForOfIteratorHelper(this.theBlockWrapList),
+              _step24;
 
           try {
-            for (_iterator25.s(); !(_step25 = _iterator25.n()).done;) {
-              var wrap = _step25.value;
+            for (_iterator24.s(); !(_step24 = _iterator24.n()).done;) {
+              var wrap = _step24.value;
 
               if (this.shown[wrap.key]) {
                 this.myCurrentTab = wrap.key;
@@ -10724,9 +10781,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             } // Default highlight the first tab
 
           } catch (err) {
-            _iterator25.e(err);
+            _iterator24.e(err);
           } finally {
-            _iterator25.f();
+            _iterator24.f();
           }
 
           if (this.theBlockWrapList.length > 0) {
@@ -10910,19 +10967,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var list2 = [];
 
         if (_.isArray(list)) {
-          var _iterator26 = _createForOfIteratorHelper(list),
-              _step26;
+          var _iterator25 = _createForOfIteratorHelper(list),
+              _step25;
 
           try {
-            for (_iterator26.s(); !(_step26 = _iterator26.n()).done;) {
-              var b = _step26.value;
+            for (_iterator25.s(); !(_step25 = _iterator25.n()).done;) {
+              var b = _step25.value;
               var b2 = this.formatGuiBlock(b, shown, _float2);
               list2.push(b2);
             }
           } catch (err) {
-            _iterator26.e(err);
+            _iterator25.e(err);
           } finally {
-            _iterator26.f();
+            _iterator25.f();
           }
         } //console.log(list2)
 
@@ -10954,18 +11011,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           re[name] = value;
         } // Array
         else if (_.isArray(name)) {
-            var _iterator27 = _createForOfIteratorHelper(name),
-                _step27;
+            var _iterator26 = _createForOfIteratorHelper(name),
+                _step26;
 
             try {
-              for (_iterator27.s(); !(_step27 = _iterator27.n()).done;) {
-                var nm = _step27.value;
+              for (_iterator26.s(); !(_step26 = _iterator26.n()).done;) {
+                var nm = _step26.value;
                 re[nm] = value;
               }
             } catch (err) {
-              _iterator27.e(err);
+              _iterator26.e(err);
             } finally {
-              _iterator27.f();
+              _iterator26.f();
             }
           } // Object
           else if (_.isPlainObject(name)) {
@@ -11201,13 +11258,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //--------------------------------------
         syncMyShown: function syncMyShown() {
           if (this.keepShownTo) {
-            var _ref33;
+            var _ref35;
 
             for (var _len2 = arguments.length, showns = new Array(_len2), _key3 = 0; _key3 < _len2; _key3++) {
               showns[_key3] = arguments[_key3];
             }
 
-            this.myShown = (_ref33 = _).assign.apply(_ref33, [{}, this.myShown].concat(showns));
+            this.myShown = (_ref35 = _).assign.apply(_ref35, [{}, this.myShown].concat(showns));
           }
         },
         //--------------------------------------
@@ -11244,12 +11301,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //////////////////////////////////////////
       mounted: function mounted() {
-        var _this69 = this;
+        var _this71 = this;
 
         //......................................
         Ti.Viewport.watch(this, {
           resize: _.debounce(function () {
-            return _this69.syncViewportMeasure();
+            return _this71.syncViewportMeasure();
           }, 100)
         }); //......................................
 
@@ -11460,7 +11517,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       methods: {
         evalMyValue: function evalMyValue() {
-          var _this70 = this;
+          var _this72 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee36() {
             var val;
@@ -11468,23 +11525,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               while (1) {
                 switch (_context36.prev = _context36.next) {
                   case 0:
-                    val = Ti.Util.fallbackNil(_this70.value, _this70.defaultValue); // Translate by dict
+                    val = Ti.Util.fallbackNil(_this72.value, _this72.defaultValue); // Translate by dict
 
-                    if (!_this70.Dict) {
+                    if (!_this72.Dict) {
                       _context36.next = 7;
                       break;
                     }
 
                     _context36.next = 4;
-                    return _this70.Dict.getItemIcon(val);
+                    return _this72.Dict.getItemIcon(val);
 
                   case 4:
-                    _this70.myValue = _context36.sent;
+                    _this72.myValue = _context36.sent;
                     _context36.next = 8;
                     break;
 
                   case 7:
-                    _this70.myValue = val;
+                    _this72.myValue = val;
 
                   case 8:
                   case "end":
@@ -11613,7 +11670,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnDropFiles: function OnDropFiles(files) {
-          var _this71 = this;
+          var _this73 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee37() {
             var file;
@@ -11624,7 +11681,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     file = _.get(files, 0);
 
                     if (file) {
-                      _this71.$notify("upload", file);
+                      _this73.$notify("upload", file);
                     }
 
                   case 2:
@@ -11637,7 +11694,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnSelectLocalFilesToUpload: function OnSelectLocalFilesToUpload(evt) {
-          var _this72 = this;
+          var _this74 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee38() {
             return regeneratorRuntime.wrap(function _callee38$(_context38) {
@@ -11645,10 +11702,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 switch (_context38.prev = _context38.next) {
                   case 0:
                     _context38.next = 2;
-                    return _this72.OnDropFiles(evt.target.files);
+                    return _this74.OnDropFiles(evt.target.files);
 
                   case 2:
-                    _this72.$refs.file.value = "";
+                    _this74.$refs.file.value = "";
 
                   case 3:
                   case "end":
@@ -11790,7 +11847,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   (function () {
     var _M = {
-      inheritAttrs: false,
       ////////////////////////////////////////////////////
       data: function data() {
         return {
@@ -11830,7 +11886,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         "width": {
           type: [Number, String],
-          "default": "1.8rem"
+          "default": "2rem"
         },
         "height": {
           type: [Number, String],
@@ -11910,9 +11966,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         doCollapse: function doCollapse() {
-          var _ref34 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref34$escaped = _ref34.escaped,
-              escaped = _ref34$escaped === void 0 ? false : _ref34$escaped;
+          var _ref36 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref36$escaped = _ref36.escaped,
+              escaped = _ref36$escaped === void 0 ? false : _ref36$escaped;
 
           this.status = "collapse"; // Drop runtime
 
@@ -12241,9 +12297,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         doCollapse: function doCollapse() {
-          var _ref35 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref35$escaped = _ref35.escaped,
-              escaped = _ref35$escaped === void 0 ? false : _ref35$escaped;
+          var _ref37 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref37$escaped = _ref37.escaped,
+              escaped = _ref37$escaped === void 0 ? false : _ref37$escaped;
 
           this.status = "collapse"; // Drop runtime
 
@@ -12321,16 +12377,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         formatRangeValue: function formatRangeValue(range) {
-          var _ref36 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              valueType = _ref36.valueType,
-              format = _ref36.format,
-              _ref36$collapse = _ref36.collapse,
-              collapse = _ref36$collapse === void 0 ? false : _ref36$collapse;
+          var _ref38 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              valueType = _ref38.valueType,
+              format = _ref38.format,
+              _ref38$collapse = _ref38.collapse,
+              collapse = _ref38$collapse === void 0 ? false : _ref38$collapse;
 
-          var _ref37 = range || [],
-              _ref38 = _slicedToArray(_ref37, 2),
-              d0 = _ref38[0],
-              d1 = _ref38[1];
+          var _ref39 = range || [],
+              _ref40 = _slicedToArray(_ref39, 2),
+              d0 = _ref40[0],
+              d1 = _ref40[1];
 
           if (!d0) {
             return [];
@@ -12516,9 +12572,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         doCollapse: function doCollapse() {
-          var _ref39 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref39$escaped = _ref39.escaped,
-              escaped = _ref39$escaped === void 0 ? false : _ref39$escaped;
+          var _ref41 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref41$escaped = _ref41.escaped,
+              escaped = _ref41$escaped === void 0 ? false : _ref41$escaped;
 
           this.status = "collapse"; // Drop runtime
 
@@ -12702,15 +12758,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onSelectIcon: function onSelectIcon() {
-          var _ref40 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              value = _ref40.value;
+          var _ref42 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              value = _ref42.value;
 
           this.$notify("change", value);
         },
         //------------------------------------------------
         onSelectIconAndCollapse: function onSelectIconAndCollapse() {
-          var _ref41 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              value = _ref41.value;
+          var _ref43 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              value = _ref43.value;
 
           this.$notify("change", value);
           this.status = "collapse";
@@ -12724,8 +12780,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onHoverIcon: function onHoverIcon() {
-          var _ref42 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              value = _ref42.value;
+          var _ref44 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              value = _ref44.value;
 
           this.myHoverIcon = value;
         },
@@ -12888,9 +12944,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         doCollapse: function doCollapse() {
-          var _ref43 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref43$escaped = _ref43.escaped,
-              escaped = _ref43$escaped === void 0 ? false : _ref43$escaped;
+          var _ref45 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref45$escaped = _ref45.escaped,
+              escaped = _ref45$escaped === void 0 ? false : _ref45$escaped;
 
           this.status = "collapse"; // Drop runtime
 
@@ -12957,7 +13013,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: ti/input/num/ti-input-num.html
   //============================================================
 
-  Ti.Preload("ti/com/ti/input/num/ti-input-num.html", "<div class=\"ti-input-num ti-fill-parent\">\n  <!--\n    Button: -\n  -->\n  <div class=\"as-btn is-decrease\"\n    :class=\"desreaseClass\"\n    @click=\"changeByStep(-1)\">\n    <ti-icon value=\"zmdi-minus\"/>\n  </div>\n  <!--\n    Input\n  -->\n  <div class=\"as-input\">\n    <input \n      spellcheck=\"false\" \n      :value=\"theValue\"\n      @change=\"onChanged\">\n  </div>\n  <!--\n    Button: +\n  -->\n  <div class=\"as-btn is-increase\"\n    :class=\"increaseClass\"\n    @click=\"changeByStep(1)\">\n    <ti-icon value=\"zmdi-plus\"/>\n  </div>\n</div>"); //============================================================
+  Ti.Preload("ti/com/ti/input/num/ti-input-num.html", "<div\n  class=\"ti-input-num ti-fill-parent\"\n  :class=\"TopClass\"\n  :style=\"TopStyle\">\n  <!--\n    Button: -\n  -->\n  <div class=\"as-btn is-decrease\"\n    :class=\"DesreaseClass\"\n    @click=\"changeByStep(-1)\">\n    <ti-icon value=\"zmdi-minus\"/>\n  </div>\n  <!--\n    Input\n  -->\n  <div class=\"as-input\">\n    <input \n      spellcheck=\"false\" \n      :value=\"TheValue\"\n      @change=\"onChanged\">\n  </div>\n  <!--\n    Button: +\n  -->\n  <div class=\"as-btn is-increase\"\n    :class=\"IncreaseClass\"\n    @click=\"changeByStep(1)\">\n    <ti-icon value=\"zmdi-plus\"/>\n  </div>\n</div>"); //============================================================
   // JOIN: ti/input/num/ti-input-num.mjs
   //============================================================
 
@@ -12981,41 +13037,42 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "step": {
           type: Number,
           "default": 1
-        } // "width" : {
-        //   type : [Number, String],
-        //   default : 200
-        // }
-
+        },
+        "width": {
+          type: [Number, String],
+          "default": 200
+        }
       },
       ////////////////////////////////////////////////////
       computed: {
-        // topStyle() {
-        //   if(_.isNumber(this.width) || this.width) {
-        //     return {
-        //       width : Ti.Css.toSize(this.width)
-        //     }
-        //   }
-        // },
-        theValue: function theValue() {
-          if (isNaN(this.value) || !_.isNumber(this.value)) {
-            return;
-          }
-
-          return this.getValue(this.value);
+        TopClass: function TopClass() {
+          return this.getTopClass();
         },
-        desreaseClass: function desreaseClass() {
+        TopStyle: function TopStyle() {
+          return Ti.Css.toStyleRem100({
+            width: this.width
+          });
+        },
+        DesreaseClass: function DesreaseClass() {
           if (!_.isUndefined(this.minValue) && this.value <= this.minValue) {
             return "is-disabled";
           }
 
           return "is-enabled";
         },
-        increaseClass: function increaseClass() {
+        IncreaseClass: function IncreaseClass() {
           if (!_.isUndefined(this.maxValue) && this.value >= this.maxValue) {
             return "is-disabled";
           }
 
           return "is-enabled";
+        },
+        TheValue: function TheValue() {
+          if (isNaN(this.value) || !_.isNumber(this.value)) {
+            return;
+          }
+
+          return this.getValue(this.value);
         }
       },
       ////////////////////////////////////////////////////
@@ -13039,7 +13096,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //------------------------------------------------
         changeByStep: function changeByStep() {
           var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-          var val = this.theValue; // Start with default value
+          var val = this.TheValue; // Start with default value
 
           if (_.isUndefined(val)) {
             val = this.defaultValue;
@@ -13263,12 +13320,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var tags = [];
 
-          var _iterator28 = _createForOfIteratorHelper(list),
-              _step28;
+          var _iterator27 = _createForOfIteratorHelper(list),
+              _step27;
 
           try {
-            for (_iterator28.s(); !(_step28 = _iterator28.n()).done;) {
-              var li = _step28.value;
+            for (_iterator27.s(); !(_step27 = _iterator27.n()).done;) {
+              var li = _step27.value;
 
               // Object
               if (_.isPlainObject(li)) {
@@ -13283,9 +13340,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             } //...........................................
 
           } catch (err) {
-            _iterator28.e(err);
+            _iterator27.e(err);
           } finally {
-            _iterator28.f();
+            _iterator27.f();
           }
 
           return tags;
@@ -13295,12 +13352,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var tags = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
           var list = [];
 
-          var _iterator29 = _createForOfIteratorHelper(tags),
-              _step29;
+          var _iterator28 = _createForOfIteratorHelper(tags),
+              _step28;
 
           try {
-            for (_iterator29.s(); !(_step29 = _iterator29.n()).done;) {
-              var tag = _step29.value;
+            for (_iterator28.s(); !(_step28 = _iterator28.n()).done;) {
+              var tag = _step28.value;
               var val = _.isPlainObject(tag) ? tag.value : tag;
 
               if (!Ti.Util.isNil(val)) {
@@ -13308,9 +13365,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
             }
           } catch (err) {
-            _iterator29.e(err);
+            _iterator28.e(err);
           } finally {
-            _iterator29.f();
+            _iterator28.f();
           }
 
           return list;
@@ -13506,21 +13563,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var hos = _.concat(this.hover);
 
-          var _iterator30 = _createForOfIteratorHelper(hos),
-              _step30;
+          var _iterator29 = _createForOfIteratorHelper(hos),
+              _step29;
 
           try {
-            for (_iterator30.s(); !(_step30 = _iterator30.n()).done;) {
-              var ho = _step30.value;
+            for (_iterator29.s(); !(_step29 = _iterator29.n()).done;) {
+              var ho = _step29.value;
 
               if (ho) {
                 map[ho] = true;
               }
             }
           } catch (err) {
-            _iterator30.e(err);
+            _iterator29.e(err);
           } finally {
-            _iterator30.f();
+            _iterator29.f();
           }
 
           return map;
@@ -13835,21 +13892,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var hos = _.concat(this.hover);
 
-          var _iterator31 = _createForOfIteratorHelper(hos),
-              _step31;
+          var _iterator30 = _createForOfIteratorHelper(hos),
+              _step30;
 
           try {
-            for (_iterator31.s(); !(_step31 = _iterator31.n()).done;) {
-              var ho = _step31.value;
+            for (_iterator30.s(); !(_step30 = _iterator30.n()).done;) {
+              var ho = _step30.value;
 
               if (ho) {
                 map[ho] = true;
               }
             }
           } catch (err) {
-            _iterator31.e(err);
+            _iterator30.e(err);
           } finally {
-            _iterator31.f();
+            _iterator30.f();
           }
 
           return map;
@@ -13888,28 +13945,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         doWhenInput: function doWhenInput() {
-          var emitName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "inputing";
-          var autoJsValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+          var val = this.getInputValue(false);
 
-          if (_.isElement(this.$refs.input)) {
-            //console.log("doWhenInput", emitName)
-            var val = this.$refs.input.value; // Auto js value
-
-            if (autoJsValue) {
-              val = Ti.S.toJsValue(val, {
-                autoNil: true,
-                autoDate: false,
-                trimed: this.trimed
-              });
-            } // Trim
-            else if (this.trimed) {
-                val = _.trim(val);
-              } // case
-
-
-            val = Ti.S.toCase(val, this.valueCase); // notify
-
-            this.$notify(emitName, val);
+          if (!Ti.Util.isNil(val)) {
+            this.$notify("inputing", val);
           }
         },
         //------------------------------------------------
@@ -13923,7 +13962,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         // },
         //------------------------------------------------
         OnInputChanged: function OnInputChanged() {
-          this.doWhenInput("change", this.autoJsValue);
+          var val = this.getInputValue(this.autoJsValue);
+          this.$notify("change", val);
         },
         //------------------------------------------------
         OnInputFocus: function OnInputFocus() {
@@ -13968,6 +14008,33 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           this.$notify("suffix:text");
         },
         //------------------------------------------------
+        // Utility
+        //------------------------------------------------
+        getInputValue: function getInputValue() {
+          var autoJsValue = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+          if (_.isElement(this.$refs.input)) {
+            //console.log("doWhenInput", emitName)
+            var val = this.$refs.input.value; // Auto js value
+
+            if (autoJsValue) {
+              val = Ti.S.toJsValue(val, {
+                autoNil: true,
+                autoDate: false,
+                trimed: this.trimed
+              });
+            } // Trim
+            else if (this.trimed) {
+                val = _.trim(val);
+              } // case
+
+
+            val = Ti.S.toCase(val, this.valueCase); // notify
+
+            return val;
+          }
+        },
+        //------------------------------------------------
         doAutoFocus: function doAutoFocus() {
           if (this.focused && !this.isFocused) {
             this.OnInputFocus();
@@ -13977,9 +14044,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ////////////////////////////////////////////////////
       watch: {
-        "focused": function focused() {
-          this.doAutoFocus();
-        }
+        "focused": "doAutoFocus"
       },
       ////////////////////////////////////////////////////
       mounted: function mounted() {
@@ -14137,9 +14202,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         doCollapse: function doCollapse() {
-          var _ref44 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref44$escaped = _ref44.escaped,
-              escaped = _ref44$escaped === void 0 ? false : _ref44$escaped;
+          var _ref46 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref46$escaped = _ref46.escaped,
+              escaped = _ref46$escaped === void 0 ? false : _ref46$escaped;
 
           //console.log("time doCollapse", {escaped})
           this.status = "collapse"; // Drop runtime
@@ -14323,7 +14388,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         theRangeText: function theRangeText() {
-          var _this73 = this;
+          var _this75 = this;
 
           var _this$rangeKeys2 = _slicedToArray(this.rangeKeys, 2),
               keyBegin = _this$rangeKeys2[0],
@@ -14334,10 +14399,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           _.forEach(this.theRange, function (val) {
             // Time
             if (val) {
-              ss.push(val.toString(_this73.format));
+              ss.push(val.toString(_this75.format));
             } // Zero
             else {
-                ss.push(Ti.Types.formatTime(0, _this73.format));
+                ss.push(Ti.Types.formatTime(0, _this75.format));
               }
           });
 
@@ -14375,9 +14440,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         doCollapse: function doCollapse() {
-          var _ref45 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref45$escaped = _ref45.escaped,
-              escaped = _ref45$escaped === void 0 ? false : _ref45$escaped;
+          var _ref47 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref47$escaped = _ref47.escaped,
+              escaped = _ref47$escaped === void 0 ? false : _ref47$escaped;
 
           this.status = "collapse"; // Drop runtime
 
@@ -14646,7 +14711,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //--------------------------------------
         TopClass: function TopClass() {
           return this.getTopClass({
-            "is-blank": !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue)
+            "is-blank": !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
+            "is-nowrap": this.valueMaxWidth > 0
           });
         },
         //--------------------------------------
@@ -14664,6 +14730,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         ThePrefixIcon: function ThePrefixIcon() {
+          if (null === this.prefixIcon) return null;
           return this.myDisplayIcon || this.prefixIcon;
         },
         //------------------------------------------------
@@ -14672,21 +14739,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var hos = _.concat(this.hover);
 
-          var _iterator32 = _createForOfIteratorHelper(hos),
-              _step32;
+          var _iterator31 = _createForOfIteratorHelper(hos),
+              _step31;
 
           try {
-            for (_iterator32.s(); !(_step32 = _iterator32.n()).done;) {
-              var ho = _step32.value;
+            for (_iterator31.s(); !(_step31 = _iterator31.n()).done;) {
+              var ho = _step31.value;
 
               if (ho) {
                 map[ho] = true;
               }
             }
           } catch (err) {
-            _iterator32.e(err);
+            _iterator31.e(err);
           } finally {
-            _iterator32.f();
+            _iterator31.f();
           }
 
           return map;
@@ -14739,13 +14806,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnDblClick: function OnDblClick() {
-          var _this74 = this;
+          var _this76 = this;
 
           if (this.editable) {
             Ti.Be.EditIt(this.$el, {
               text: this.TheValue,
               ok: function ok(newVal) {
-                _this74.$notify("change", newVal);
+                _this76.$notify("change", newVal);
               }
             });
           }
@@ -14772,7 +14839,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         evalDisplay: function evalDisplay(val) {
-          var _this75 = this;
+          var _this77 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee39() {
             var it;
@@ -14780,66 +14847,74 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               while (1) {
                 switch (_context39.prev = _context39.next) {
                   case 0:
-                    if (!_this75.Dict) {
+                    if (!_this77.Dict) {
                       _context39.next = 5;
                       break;
                     }
 
                     _context39.next = 3;
-                    return _this75.Dict.getItem(val);
+                    return _this77.Dict.getItem(val);
 
                   case 3:
                     it = _context39.sent;
 
                     if (it) {
-                      _this75.myDisplayIcon = _this75.Dict.getIcon(it);
-                      val = _this75.Dict.getBy(_this75.myDictValKey, it, val);
+                      _this77.myDisplayIcon = _this77.Dict.getIcon(it);
+                      val = _this77.Dict.getBy(_this77.myDictValKey, it, val);
                     } else {
-                      _this75.myDisplayIcon = null;
+                      _this77.myDisplayIcon = null;
                     }
 
                   case 5:
                     if (!_.isNumber(val)) {
-                      _context39.next = 7;
+                      _context39.next = 9;
                       break;
                     }
 
+                    if (!_this77.format) {
+                      _context39.next = 8;
+                      break;
+                    }
+
+                    return _context39.abrupt("return", Ti.Types.toStr(val, _this77.format));
+
+                  case 8:
                     return _context39.abrupt("return", val);
 
-                  case 7:
+                  case 9:
                     if (!(_.isArray(val) || _.isPlainObject(val))) {
-                      _context39.next = 9;
+                      _context39.next = 11;
                       break;
                     }
 
                     return _context39.abrupt("return", JSON.stringify(val, null, '  '));
 
-                  case 9:
-                    if (!Ti.Util.isNil(val)) {
-                      _context39.next = 11;
-                      break;
-                    }
-
-                    return _context39.abrupt("return", Ti.I18n.text(_this75.placeholder));
-
                   case 11:
-                    if (!_.isDate(val)) {
+                    if (!Ti.Util.isNil(val)) {
                       _context39.next = 13;
                       break;
                     }
 
-                    return _context39.abrupt("return", Ti.Types.toStr(val, _this75.format));
+                    return _context39.abrupt("return", Ti.I18n.text(_this77.placeholder));
 
                   case 13:
+                    if (!_.isDate(val)) {
+                      _context39.next = 15;
+                      break;
+                    }
+
+                    return _context39.abrupt("return", Ti.Types.toStr(val, _this77.format));
+
+                  case 15:
                     // Auto format
-                    if (_this75.format) {
-                      val = Ti.Types.toStr(val, _this75.format);
+                    if (_this77.format) {
+                      val = Ti.Types.toStr(val, _this77.format);
                     } // Return & auto-i18n
 
 
-                    return _context39.abrupt("return", _this75.autoI18n ? Ti.I18n.text(val) : val);
+                    return _context39.abrupt("return", _this77.autoI18n ? Ti.I18n.text(val) : val);
 
-                  case 15:
+                  case 17:
                   case "end":
                     return _context39.stop();
                 }
@@ -14849,19 +14924,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         reloadMyDisplay: function reloadMyDisplay() {
-          var _this76 = this;
+          var _this78 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee40() {
             return regeneratorRuntime.wrap(function _callee40$(_context40) {
               while (1) {
                 switch (_context40.prev = _context40.next) {
                   case 0:
-                    _this76.myDisplayIcon = null;
+                    _this78.myDisplayIcon = null;
                     _context40.next = 3;
-                    return _this76.evalDisplay(_this76.TheValue);
+                    return _this78.evalDisplay(_this78.TheValue);
 
                   case 3:
-                    _this76.myDisplayText = _context40.sent;
+                    _this78.myDisplayText = _context40.sent;
 
                   case 4:
                   case "end":
@@ -15094,9 +15169,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //-------------------------------------
         genLatLng: function genLatLng() {
-          var _ref46 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              lat = _ref46.lat,
-              lng = _ref46.lng;
+          var _ref48 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              lat = _ref48.lat,
+              lng = _ref48.lng;
 
           return new BMap.Point(lng, lat);
         },
@@ -15256,9 +15331,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //-------------------------------------
         genLatLng: function genLatLng() {
-          var _ref47 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              lat = _ref47.lat,
-              lng = _ref47.lng;
+          var _ref49 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              lat = _ref49.lat,
+              lng = _ref49.lng;
 
           return new qq.maps.LatLng(lat, lng);
         },
@@ -15530,9 +15605,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-------------------------------------
         genLatLng: function genLatLng() {
-          var _ref48 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              lat = _ref48.lat,
-              lng = _ref48.lng;
+          var _ref50 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              lat = _ref50.lat,
+              lng = _ref50.lng;
 
           lat = this.autoLatLng(lat);
           lng = this.autoLatLng(lng); // Transform coordinate
@@ -15618,10 +15693,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //-----------------------------------------------
         evalMyDisplayItems: function evalMyDisplayItems() {
-          var _this77 = this;
+          var _this79 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee43() {
-            var items, _iterator33, _step33, displayItem, it;
+            var items, _iterator32, _step32, displayItem, it;
 
             return regeneratorRuntime.wrap(function _callee43$(_context43) {
               while (1) {
@@ -15632,28 +15707,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     // }
                     // Eval each items
 
-                    _iterator33 = _createForOfIteratorHelper(_this77.display);
+                    _iterator32 = _createForOfIteratorHelper(_this79.display);
                     _context43.prev = 2;
 
-                    _iterator33.s();
+                    _iterator32.s();
 
                   case 4:
-                    if ((_step33 = _iterator33.n()).done) {
+                    if ((_step32 = _iterator32.n()).done) {
                       _context43.next = 12;
                       break;
                     }
 
-                    displayItem = _step33.value;
+                    displayItem = _step32.value;
                     _context43.next = 8;
-                    return _this77.evalDataForFieldDisplayItem({
-                      itemData: _this77.data,
+                    return _this79.evalDataForFieldDisplayItem({
+                      itemData: _this79.data,
                       displayItem: displayItem,
                       vars: {
-                        "isCurrent": _this77.isCurrent,
-                        "isChecked": _this77.isChecked,
-                        "isChanged": _this77.isChanged,
-                        "isActived": _this77.isActived,
-                        "rowId": _this77.rowId
+                        "isCurrent": _this79.isCurrent,
+                        "isChecked": _this79.isChecked,
+                        "isChanged": _this79.isChanged,
+                        "isActived": _this79.isActived,
+                        "rowId": _this79.rowId
                       }
                     });
 
@@ -15676,18 +15751,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     _context43.prev = 14;
                     _context43.t0 = _context43["catch"](2);
 
-                    _iterator33.e(_context43.t0);
+                    _iterator32.e(_context43.t0);
 
                   case 17:
                     _context43.prev = 17;
 
-                    _iterator33.f();
+                    _iterator32.f();
 
                     return _context43.finish(17);
 
                   case 20:
                     // Update and return
-                    _this77.myDisplayItems = items;
+                    _this79.myDisplayItems = items;
 
                   case 21:
                   case "end":
@@ -15699,9 +15774,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         onItemChanged: function onItemChanged() {
-          var _ref49 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref49.name,
-              value = _ref49.value;
+          var _ref51 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref51.name,
+              value = _ref51.value;
 
           this.$notify("item:changed", {
             name: name,
@@ -15871,7 +15946,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: ti/list/ti-list.html
   //============================================================
 
-  Ti.Preload("ti/com/ti/list/ti-list.html", "<div class=\"ti-list\"\n  :class=\"TopClass\"\n  @click=\"OnClickTop\"\n  v-ti-activable>\n  <!--\n    Blank\n  -->\n  <div\n    v-if=\"isDataEmpty\"\n      class=\"ti-blank is-big\">\n      <ti-loading v-bind=\"blankAs\"/>\n  </div>\n  <!--\n    Show Items\n  -->\n  <template v-else>\n    <list-row\n      v-for=\"row in TheData\"\n        :key=\"row.id\"\n        :row-id=\"row.id\"\n        :index=\"row.index\"\n        :icon=\"row.icon\"\n        :indent=\"row.indent\"\n        :data=\"row.rawData\"\n        :display=\"DisplayItems\"\n        :current-id=\"theCurrentId\"\n        :checked-ids=\"theCheckedIds\"\n        :changed-id=\"changedId\"\n        :checkable=\"checkable\"\n        :selectable=\"selectable\"\n        :openable=\"openable\"\n        :row-toggle-key=\"TheRowToggleKey\"\n        :class-name=\"itemClassName\"\n        @checker=\"OnRowCheckerClick\"\n        @select=\"OnRowSelect\"\n        @open=\"OnRowOpen\"/>\n  </template>\n</div>"); //============================================================
+  Ti.Preload("ti/com/ti/list/ti-list.html", "<div class=\"ti-list\"\n  :class=\"TopClass\"\n  @click=\"OnClickTop\"\n  v-ti-activable>\n  <!--\n    Blank\n  -->\n  <ti-loading \n    v-if=\"isDataEmpty\"\n      class=\"nil-data\"\n      :class=\"'as-'+blankClass\"\n      v-bind=\"blankAs\"/>\n  <!--\n    Show Items\n  -->\n  <template v-else>\n    <list-row\n      v-for=\"row in TheData\"\n        :key=\"row.id\"\n        :row-id=\"row.id\"\n        :index=\"row.index\"\n        :icon=\"row.icon\"\n        :indent=\"row.indent\"\n        :data=\"row.rawData\"\n        :display=\"DisplayItems\"\n        :current-id=\"theCurrentId\"\n        :checked-ids=\"theCheckedIds\"\n        :changed-id=\"changedId\"\n        :checkable=\"checkable\"\n        :selectable=\"selectable\"\n        :openable=\"openable\"\n        :row-toggle-key=\"TheRowToggleKey\"\n        :class-name=\"itemClassName\"\n        @checker=\"OnRowCheckerClick\"\n        @select=\"OnRowSelect\"\n        @open=\"OnRowOpen\"/>\n  </template>\n</div>"); //============================================================
   // JOIN: ti/list/ti-list.mjs
   //============================================================
 
@@ -15923,17 +15998,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         getRowIndent: function getRowIndent() {
-          var _this78 = this;
+          var _this80 = this;
 
           if (_.isFunction(this.indentBy)) {
             return function (it) {
-              return _this78.indentBy(it);
+              return _this80.indentBy(it);
             };
           }
 
           if (_.isString(this.indentBy)) {
             return function (it) {
-              return _.get(it, _this78.indentBy);
+              return _.get(it, _this80.indentBy);
             };
           }
 
@@ -15943,17 +16018,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         getRowIcon: function getRowIcon() {
-          var _this79 = this;
+          var _this81 = this;
 
           if (_.isFunction(this.iconBy)) {
             return function (it) {
-              return _this79.iconBy(it);
+              return _this81.iconBy(it);
             };
           }
 
           if (_.isString(this.iconBy)) {
             return function (it) {
-              return _.get(it, _this79.iconBy);
+              return _.get(it, _this81.iconBy);
             };
           }
 
@@ -15968,15 +16043,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var items = []; // Loop each items
 
-          var _iterator34 = _createForOfIteratorHelper(diss),
-              _step34;
+          var _iterator33 = _createForOfIteratorHelper(diss),
+              _step33;
 
           try {
-            for (_iterator34.s(); !(_step34 = _iterator34.n()).done;) {
-              var dis = _step34.value;
-              var item = this.evalFieldDisplayItem(dis, {
-                funcSet: this.fnSet
-              });
+            for (_iterator33.s(); !(_step33 = _iterator33.n()).done;) {
+              var dis = _step33.value;
+              var item = this.evalFieldDisplayItem(dis);
 
               if (item) {
                 items.push(item);
@@ -15984,9 +16057,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             } // Done
 
           } catch (err) {
-            _iterator34.e(err);
+            _iterator33.e(err);
           } finally {
-            _iterator34.f();
+            _iterator33.f();
           }
 
           return items;
@@ -16063,7 +16136,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "data": {
           handler: function () {
             var _handler = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee49(newVal, oldVal) {
-              var _this80 = this;
+              var _this82 = this;
 
               var isSame;
               return regeneratorRuntime.wrap(function _callee49$(_context49) {
@@ -16079,8 +16152,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                       _context49.next = 4;
                       return this.evalData(function (it) {
-                        it.icon = _this80.getRowIcon(it.item);
-                        it.indent = _this80.getRowIndent(it.item);
+                        it.icon = _this82.getRowIcon(it.item);
+                        it.indent = _this82.getRowIndent(it.item);
                       });
 
                     case 4:
@@ -16105,11 +16178,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //////////////////////////////////////////
       mounted: function mounted() {
-        var _this81 = this;
+        var _this83 = this;
 
         if (this.autoScrollIntoView) {
           this.$nextTick(function () {
-            _this81.scrollCurrentIntoView();
+            _this83.scrollCurrentIntoView();
           });
         }
       } //////////////////////////////////////////
@@ -16148,7 +16221,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: ti/loading/ti-loading.html
   //============================================================
 
-  Ti.Preload("ti/com/ti/loading/ti-loading.html", "<div class=\"ti-loading\">\n    <div class=\"tl-con\">\n        <ti-icon :value=\"icon\"/>\n        <span>{{text|i18n}}</span>\n    </div>\n</div>"); //============================================================
+  Ti.Preload("ti/com/ti/loading/ti-loading.html", "<div class=\"ti-loading\">\n  <ti-icon class=\"as-icon\" :value=\"icon\"/>\n  <div class=\"as-text\">{{text|i18n}}</div>\n</div>"); //============================================================
   // JOIN: ti/loading/ti-loading.mjs
   //============================================================
 
@@ -16221,11 +16294,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       watch: {
         "lines": function lines() {
-          var _this82 = this;
+          var _this84 = this;
 
           //console.log(this.lines.length)
           this.$nextTick(function () {
-            _this82.scrollToBottom();
+            _this84.scrollToBottom();
           });
         }
       }
@@ -16409,11 +16482,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ///////////////////////////////////
       mounted: function mounted() {
-        var _this83 = this;
+        var _this85 = this;
 
         Ti.Viewport.watch(this, {
           resize: function resize() {
-            _this83.onResizeViewport();
+            _this85.onResizeViewport();
           }
         });
         this.onResizeViewport();
@@ -16603,13 +16676,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //------------------------------------------------
         createList: function createList(key, fromVal, toVal, currentVal) {
-          var _ref50 = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {},
-              _ref50$reverse = _ref50.reverse,
-              reverse = _ref50$reverse === void 0 ? false : _ref50$reverse,
-              _ref50$getText = _ref50.getText,
-              getText = _ref50$getText === void 0 ? function (val) {
+          var _ref52 = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {},
+              _ref52$reverse = _ref52.reverse,
+              reverse = _ref52$reverse === void 0 ? false : _ref52$reverse,
+              _ref52$getText = _ref52.getText,
+              getText = _ref52$getText === void 0 ? function (val) {
             return val;
-          } : _ref50$getText;
+          } : _ref52$getText;
 
           var list = {
             key: key,
@@ -16633,8 +16706,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onListSelected: function onListSelected(key) {
-          var _ref51 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              current = _ref51.current;
+          var _ref53 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              current = _ref53.current;
 
           var val = _.get(current, "value") || 0;
           var theDate = this.theDate || new Date();
@@ -16711,21 +16784,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return this.value.type && this.value.race;
         },
         currentType: function currentType() {
-          var _iterator35 = _createForOfIteratorHelper(this.types),
-              _step35;
+          var _iterator34 = _createForOfIteratorHelper(this.types),
+              _step34;
 
           try {
-            for (_iterator35.s(); !(_step35 = _iterator35.n()).done;) {
-              var tp = _step35.value;
+            for (_iterator34.s(); !(_step34 = _iterator34.n()).done;) {
+              var tp = _step34.value;
 
               if (tp.name == this.value.type) {
                 return tp;
               }
             }
           } catch (err) {
-            _iterator35.e(err);
+            _iterator34.e(err);
           } finally {
-            _iterator35.f();
+            _iterator34.f();
           }
         }
       },
@@ -16749,8 +16822,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             this.value.race = "";
           }
 
-          this.onChange();
-          this.$notify("input", this.value);
+          this.$notify("change", this.value);
         },
         onChange: function onChange() {
           var name = this.$refs.input.value;
@@ -16770,7 +16842,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
           }
 
-          this.$notify("input", this.value);
+          this.$notify("change", this.value);
         }
       },
       mounted: function mounted() {
@@ -16867,13 +16939,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       computed: {
         //--------------------------------------------
         TopClass: function TopClass() {
-          var _this84 = this;
+          var _this86 = this;
 
           return this.getTopClass({
             "is-hide": 'hide' == this.visibility,
             "is-weak": 'weak' == this.visibility
           }, function () {
-            return _this84.status ? "is-status-".concat(_this84.status) : null;
+            return _this86.status ? "is-status-".concat(_this86.status) : null;
           });
         },
         //--------------------------------------------
@@ -16937,15 +17009,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //--------------------------------------------
         renderLocalFile: function renderLocalFile() {
-          var _this85 = this;
+          var _this87 = this;
 
           //console.log(this.LocalFile)
           if (this.isLocalImage) {
             var reader = new FileReader();
 
             reader.onload = function (evt) {
-              if (_this85.$refs.localImage) {
-                _this85.$refs.localImage.src = evt.target.result;
+              if (_this87.$refs.localImage) {
+                _this87.$refs.localImage.src = evt.target.result;
               }
             };
 
@@ -17150,7 +17222,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnClickCurrent: function OnClickCurrent() {
-          var _this86 = this;
+          var _this88 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee50() {
             var msg, str, pn;
@@ -17158,7 +17230,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               while (1) {
                 switch (_context50.prev = _context50.next) {
                   case 0:
-                    if (!(_this86.value.pgc <= 1)) {
+                    if (!(_this88.value.pgc <= 1)) {
                       _context50.next = 2;
                       break;
                     }
@@ -17167,16 +17239,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 2:
                     // Ask new pageNumber
-                    msg = Ti.I18n.getf("paging-change-pn", _this86.value);
+                    msg = Ti.I18n.getf("paging-change-pn", _this88.value);
                     _context50.next = 5;
                     return Ti.Prompt(msg, {
-                      value: _this86.value.pn
+                      value: _this88.value.pn
                     });
 
                   case 5:
                     str = _context50.sent;
 
-                    if (!(!str || str == _this86.value.pn)) {
+                    if (!(!str || str == _this88.value.pn)) {
                       _context50.next = 8;
                       break;
                     }
@@ -17187,12 +17259,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     // verify the str
                     pn = parseInt(str);
 
-                    if (!(isNaN(pn) || pn <= 0 || pn > _this86.value.pgc)) {
+                    if (!(isNaN(pn) || pn <= 0 || pn > _this88.value.pgc)) {
                       _context50.next = 14;
                       break;
                     }
 
-                    msg = Ti.I18n.getf("paging-change-pn-invalid", _this86.value);
+                    msg = Ti.I18n.getf("paging-change-pn-invalid", _this88.value);
                     _context50.next = 13;
                     return Ti.Alert(msg, {
                       title: "i18n:warn",
@@ -17206,9 +17278,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 14:
                     // 通知修改
-                    _this86.$notify("change", {
+                    _this88.$notify("change", {
                       pn: pn,
-                      pgsz: _this86.value.pgsz
+                      pgsz: _this88.value.pgsz
                     });
 
                   case 15:
@@ -17221,7 +17293,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnClickSum: function OnClickSum() {
-          var _this87 = this;
+          var _this89 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee51() {
             var msg, str, pgsz;
@@ -17229,16 +17301,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               while (1) {
                 switch (_context51.prev = _context51.next) {
                   case 0:
-                    msg = Ti.I18n.getf("paging-change-pgsz", _this87.value);
+                    msg = Ti.I18n.getf("paging-change-pgsz", _this89.value);
                     _context51.next = 3;
                     return Ti.Prompt(msg, {
-                      value: _this87.value.pgsz
+                      value: _this89.value.pgsz
                     });
 
                   case 3:
                     str = _context51.sent;
 
-                    if (!(!str || str == _this87.value.pgsz)) {
+                    if (!(!str || str == _this89.value.pgsz)) {
                       _context51.next = 6;
                       break;
                     }
@@ -17267,9 +17339,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 11:
                     // 通知修改
-                    _this87.$notify("change:pgsz", pgsz);
+                    _this89.$notify("change:pgsz", pgsz);
 
-                    _this87.$notify("change", {
+                    _this89.$notify("change", {
                       pn: 1,
                       pgsz: pgsz
                     });
@@ -17300,7 +17372,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: ti/roadblock/ti-roadblock.html
   //============================================================
 
-  Ti.Preload("ti/com/ti/roadblock/ti-roadblock.html", "<div class=\"ti-web-roadblock\">\n  <div class=\"as-main\">\n    <div v-if=\"icon\" class=\"as-icon\">\n      <ti-icon :value=\"icon\"/>\n    </div>\n    <div v-if=\"text\" class=\"as-text\">\n      <span>{{text | i18n}}</span>\n    </div>\n  </div>\n</div>"); //============================================================
+  Ti.Preload("ti/com/ti/roadblock/ti-roadblock.html", "<div class=\"ti-roadblock\">\n  <div class=\"as-main\">\n    <div v-if=\"icon\" class=\"as-icon\">\n      <ti-icon :value=\"icon\"/>\n    </div>\n    <div v-if=\"text\" class=\"as-text\">\n      <span>{{text | i18n}}</span>\n    </div>\n  </div>\n</div>"); //============================================================
   // JOIN: ti/roadblock/ti-roadblock.mjs
   //============================================================
 
@@ -17341,7 +17413,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: ti/session/badge/ti-session-badge.html
   //============================================================
 
-  Ti.Preload("ti/com/ti/session/badge/ti-session-badge.html", "<div class=\"ti-session-badge\"\n  :class=\"TopClass\">\n  <!--\n    Has Session, show account info\n  -->\n  <template v-if=\"hasSession\">\n    <!--Avatar-->\n    <div v-if=\"hasAvatar\"\n      class=\"as-avatar\">\n      <img :src=\"myAvatar\"/>\n    </div>\n    <!--User Icon-->\n    <div v-else\n      class=\"as-icon\">\n      <ti-icon :value=\"myIcon\"/>\n    </div>\n    <!--User Name-->\n    <div class=\"as-name\">{{myName}}</div>\n    <!--Links-->\n    <div v-for=\"li in theLinks\"\n      class=\"as-link\">\n      <!--Icon-->\n      <ti-icon\n        v-if=\"li.icon\"\n          class=\"it-icon\"\n          :value=\"li.icon\"/>\n      <!--Text-->\n      <a\n        @click.left=\"OnClickLink(li, $event)\"\n        :href=\"li.href\"\n        :target=\"li.newtab?'_blank':null\">{{li.text|i18n}}</a>\n    </div>\n  </template>\n  <!--\n    Without session, show login link\n  -->\n  <template v-else>\n    <div v-if=\"loginIcon\"\n      class=\"as-icon\">\n      <ti-icon :value=\"loginIcon\"/>\n    </div>\n    <div class=\"as-link\">\n      <a @click=\"$notify(loginEvent)\">{{'login'|i18n}}</a>\n    </div>\n  </template>\n</div>"); //============================================================
+  Ti.Preload("ti/com/ti/session/badge/ti-session-badge.html", "<div class=\"ti-session-badge\"\n  :class=\"TopClass\">\n  <!--\n    Has Session, show account info\n  -->\n  <template v-if=\"hasSession\">\n    <!--Avatar-->\n    <div v-if=\"hasAvatar\"\n      class=\"as-avatar\">\n      <img :src=\"myAvatar\"/>\n    </div>\n    <!--User Icon-->\n    <div v-else\n      class=\"as-icon\">\n      <ti-icon :value=\"myIcon\"/>\n    </div>\n    <!--User Name-->\n    <div class=\"as-name\">\n      <!--Name Event-->\n      <a\n        v-if=\"nameEvent\"\n          @click.left=\"$notify(nameEvent)\">{{myName}}</a>\n      <!--Name display-->\n      <span\n        v-else>{{myName}}</span>\n    </div>\n    <!--Links-->\n    <div v-for=\"li in theLinks\"\n      class=\"as-link\">\n      <!--Icon-->\n      <ti-icon\n        v-if=\"li.icon\"\n          class=\"it-icon\"\n          :value=\"li.icon\"/>\n      <!--Text-->\n      <a\n        @click.left=\"OnClickLink(li, $event)\"\n        :href=\"li.href\"\n        :target=\"li.newtab?'_blank':null\">{{li.text|i18n}}</a>\n    </div>\n  </template>\n  <!--\n    Without session, show login link\n  -->\n  <template v-else>\n    <div v-if=\"loginIcon\"\n      class=\"as-icon\">\n      <ti-icon :value=\"loginIcon\"/>\n    </div>\n    <div class=\"as-link\">\n      <a @click=\"$notify(loginEvent)\">{{'login'|i18n}}</a>\n    </div>\n  </template>\n</div>"); //============================================================
   // JOIN: ti/session/badge/ti-session-badge.mjs
   //============================================================
 
@@ -17372,6 +17444,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "nameKeys": {
           type: [String, Array],
           "default": "name"
+        },
+        "nameEvent": {
+          type: String,
+          "default": "go:dashboard"
         },
         "loginEvent": {
           type: String,
@@ -17405,21 +17481,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //////////////////////////////////////////
       computed: {
-        //......................................
+        //--------------------------------------
         TopClass: function TopClass() {
           return this.getTopClass();
         },
-        //......................................
+        //--------------------------------------
         theLinks: function theLinks() {
           var list = []; //---------------------------
           // Join the links
 
-          var _iterator36 = _createForOfIteratorHelper(this.links),
-              _step36;
+          var _iterator35 = _createForOfIteratorHelper(this.links),
+              _step35;
 
           try {
-            for (_iterator36.s(); !(_step36 = _iterator36.n()).done;) {
-              var li = _step36.value;
+            for (_iterator35.s(); !(_step35 = _iterator35.n()).done;) {
+              var li = _step35.value;
 
               // Ignore out-of-session link
               if (li.inSession && !this.hasSession) {
@@ -17432,9 +17508,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             // Add the Login/Logout link
 
           } catch (err) {
-            _iterator36.e(err);
+            _iterator35.e(err);
           } finally {
-            _iterator36.f();
+            _iterator35.f();
           }
 
           if (this.hasSession) {
@@ -17453,13 +17529,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           return list;
         },
-        //......................................
+        //--------------------------------------
         myName: function myName() {
           if (this.me) {
             return Ti.Util.getOrPick(this.me, this.nameKeys) || Ti.I18n.get("mine");
           }
         },
-        //......................................
+        //--------------------------------------
         myIcon: function myIcon() {
           if (this.me) {
             if (2 == this.me.sex) {
@@ -17471,24 +17547,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           return "far-user";
         },
-        //......................................
+        //--------------------------------------
         myAvatar: function myAvatar() {
           if (this.avatarSrc) {
             return Ti.S.renderBy(this.avatarSrc, this.me);
           }
         },
-        //......................................
+        //--------------------------------------
         hasAvatar: function hasAvatar() {
           return this.avatarSrc && this.avatarKey && this.me && this.me[this.avatarKey];
         },
-        //......................................
+        //--------------------------------------
         hasSession: function hasSession() {
           return this.me ? true : false;
-        } //......................................
+        } //--------------------------------------
 
       },
       //////////////////////////////////////////
       methods: {
+        //--------------------------------------
         OnClickLink: function OnClickLink(link, $event) {
           // Emit
           if (link.emit) {
@@ -17496,7 +17573,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             this.$notify(link.emit);
           } // Href: do nothing
 
-        }
+        } //--------------------------------------
+
       } //////////////////////////////////////////
 
     };
@@ -17518,10 +17596,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   (function () {
     //////////////////////////////////////////////
     function _render_iteratee() {
-      var _ref52 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          varName = _ref52.varName,
-          vars = _ref52.vars,
-          matched = _ref52.matched;
+      var _ref54 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          varName = _ref54.varName,
+          vars = _ref54.vars,
+          matched = _ref54.matched;
 
       if (matched.startsWith("$$")) {
         return matched.substring(1);
@@ -17538,7 +17616,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var rev = Ti.Util.getOrPick(ctx, vkey);
       return Ti.Util.fallback(rev, vdft);
     } //////////////////////////////////////////////
-    // cx = {vars, itemData, value, $FuncSet}
+    // cx = {vars, itemData, value}
 
 
     function __eval_com_conf_item(val) {
@@ -17549,20 +17627,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //........................................
         // Function call
         //........................................
-        var m = /^\(\)=>([^(]+)\(([^)]*)\)$/.exec(val);
+        var m = /^=>(.+)$/.exec(val);
 
         if (m) {
-          var name = _.trim(m[1]);
-
-          var __as = _.trim(m[2]);
-
-          var args = Ti.S.joinArgs(__as, [], function (v) {
-            return __eval_com_conf_item(v, cx);
+          var func = Ti.Util.genInvoking(m[1], {
+            context: _objectSpread({}, cx, {
+              item: cx.itemData
+            })
           });
-
-          var func = _.get(cx.$FuncSet, name);
-
-          return func.apply(cx, args);
+          return func();
         } //........................................
         // Quick Value
         //........................................
@@ -17631,11 +17704,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       } // Object Value
       else if (_.isPlainObject(val)) {
           //........................................
-          // Function Call
-          //........................................
-          // ... TODO maybe we dont need it
-          // function call has bee supported in string mode
-          //........................................
           // Nested Objects
           //........................................
           var obj = {};
@@ -17655,21 +17723,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         else if (_.isArray(val)) {
             var list = [];
 
-            var _iterator37 = _createForOfIteratorHelper(val),
-                _step37;
+            var _iterator36 = _createForOfIteratorHelper(val),
+                _step36;
 
             try {
-              for (_iterator37.s(); !(_step37 = _iterator37.n()).done;) {
-                var v = _step37.value;
+              for (_iterator36.s(); !(_step36 = _iterator36.n()).done;) {
+                var v = _step36.value;
 
                 var v2 = __eval_com_conf_item(v, cx);
 
                 list.push(v2);
               }
             } catch (err) {
-              _iterator37.e(err);
+              _iterator36.e(err);
             } finally {
-              _iterator37.f();
+              _iterator36.f();
             }
 
             return list;
@@ -17683,13 +17751,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var FieldDisplay = {
       //------------------------------------------
       evalFieldDisplayItem: function evalFieldDisplayItem() {
-        var _this88 = this;
+        var _this90 = this;
 
         var displayItem = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-        var _ref53 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            funcSet = _ref53.funcSet,
-            defaultKey = _ref53.defaultKey;
+        var _ref55 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            defaultKey = _ref55.defaultKey;
 
         //........................................
         var __gen_dis = function __gen_dis() {
@@ -17712,7 +17779,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             if (_dis.transformer) {
               var invokeOpt = {
-                context: _this88,
+                context: _this90,
                 partialRight: true
               };
               _dis.transformer = Ti.Util.genInvoking(_dis.transformer, invokeOpt);
@@ -17755,7 +17822,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             // just like `#RelayStatus(status)`
 
 
-            m = /^[@#]([^\(]+)\(([^)]+)\)$/.exec(displayItem);
+            m = /^[@#]([^\(]+)\(([^)]+)\)(:(.+))?$/.exec(displayItem);
 
             if (m) {
               return {
@@ -17763,7 +17830,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 comType: "ti-label",
                 comConf: {
                   dict: m[1],
-                  className: "is-nowrap"
+                  className: "is-nowrap",
+                  format: m[4]
                 }
               };
             } //......................................
@@ -17783,27 +17851,37 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             // - "'Static Text'"
             // - "text+>/a/link?nm=${name}"
             // - "'More'->/a/link?id=${id}"
+            // - "name:【${val}】->/a/link?id=${id}"
 
 
-            m = /^([^+-]+)(([+-])>(.+))?$/.exec(displayItem);
+            m = /^([^+-:>]+)(:([^+-]+))?(([+-])>([^%]*))?$/.exec(displayItem);
 
             if (m) {
               var _key4 = _.trim(m[1] || m[0]);
 
-              var newTab = m[3] == "+";
+              var format = m[3];
+              var newTab = m[5] == "+";
 
-              var href = _.trim(m[4]);
+              var href = _.trim(m[6]);
 
               return {
                 key: _key4,
                 comType: "ti-label",
                 comConf: {
+                  className: "is-nowrap",
                   newTab: newTab,
-                  href: href
+                  href: href,
+                  format: format
                 }
               };
             } //......................................
+            // Default as lable
 
+
+            return {
+              key: displayItem,
+              comType: "ti-label"
+            }; //......................................
           } //......................................
 
 
@@ -17822,11 +17900,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           dis.$dict = Ti.DictFactory.CheckDict(name);
           dis.$dictValueKey = vKey || ".text";
         } //........................................
-        // Save function set
-
-
-        dis.$FuncSet = funcSet; //........................................
         // Then return
+
 
         return dis;
       },
@@ -17849,13 +17924,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       evalDataForFieldDisplayItem: function evalDataForFieldDisplayItem() {
         var _arguments12 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee52() {
-          var _ref54, _ref54$itemData, itemData, _ref54$displayItem, displayItem, _ref54$vars, vars, _ref54$autoIgnoreNil, autoIgnoreNil, _ref54$autoValue, autoValue, dis, value, reDisplayItem, comConf;
+          var _ref56, _ref56$itemData, itemData, _ref56$displayItem, displayItem, _ref56$vars, vars, _ref56$autoIgnoreNil, autoIgnoreNil, _ref56$autoValue, autoValue, uniqueKey, dis, value, reDisplayItem, comConf;
 
           return regeneratorRuntime.wrap(function _callee52$(_context52) {
             while (1) {
               switch (_context52.prev = _context52.next) {
                 case 0:
-                  _ref54 = _arguments12.length > 0 && _arguments12[0] !== undefined ? _arguments12[0] : {}, _ref54$itemData = _ref54.itemData, itemData = _ref54$itemData === void 0 ? {} : _ref54$itemData, _ref54$displayItem = _ref54.displayItem, displayItem = _ref54$displayItem === void 0 ? {} : _ref54$displayItem, _ref54$vars = _ref54.vars, vars = _ref54$vars === void 0 ? {} : _ref54$vars, _ref54$autoIgnoreNil = _ref54.autoIgnoreNil, autoIgnoreNil = _ref54$autoIgnoreNil === void 0 ? true : _ref54$autoIgnoreNil, _ref54$autoValue = _ref54.autoValue, autoValue = _ref54$autoValue === void 0 ? "value" : _ref54$autoValue;
+                  _ref56 = _arguments12.length > 0 && _arguments12[0] !== undefined ? _arguments12[0] : {}, _ref56$itemData = _ref56.itemData, itemData = _ref56$itemData === void 0 ? {} : _ref56$itemData, _ref56$displayItem = _ref56.displayItem, displayItem = _ref56$displayItem === void 0 ? {} : _ref56$displayItem, _ref56$vars = _ref56.vars, vars = _ref56$vars === void 0 ? {} : _ref56$vars, _ref56$autoIgnoreNil = _ref56.autoIgnoreNil, autoIgnoreNil = _ref56$autoIgnoreNil === void 0 ? true : _ref56$autoIgnoreNil, _ref56$autoValue = _ref56.autoValue, autoValue = _ref56$autoValue === void 0 ? "value" : _ref56$autoValue, uniqueKey = _ref56.uniqueKey;
                   dis = displayItem; // if("sex" == dis.key) 
                   //   console.log(dis)
 
@@ -17872,10 +17947,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       } // Statci value
                       else if (/^'[^']+'$/.test(dis.key)) {
                           value = dis.key.substring(1, dis.key.length - 1);
-                        } // Dynamic value
-                        else {
-                            value = Ti.Util.fallback(Ti.Util.getOrPick(itemData, dis.key), value);
-                          }
+                        } // Template
+                        else if (/^->(.+)$/.test(dis.key)) {
+                            value = Ti.S.renderBy(dis.key.substring(2), itemData);
+                          } // Dynamic value
+                          else {
+                              value = Ti.Util.fallback(Ti.Util.getOrPick(itemData, dis.key), value);
+                            }
                     } //.....................................
                   // Transformer
 
@@ -17928,8 +18006,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       comConf = __eval_com_conf_item(dis.comConf, {
                         vars: vars,
                         itemData: itemData,
-                        value: value,
-                        $FuncSet: dis.$FuncSet
+                        value: value
                       });
                     } //.....................................
                   // Set the default value key
@@ -17942,7 +18019,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   reDisplayItem.comConf = comConf; //.....................................
 
-                  reDisplayItem.uniqueKey = _.concat(reDisplayItem.key, reDisplayItem.comType).join("-"); //.....................................
+                  if (uniqueKey) {
+                    reDisplayItem.uniqueKey = uniqueKey;
+                  } else {
+                    reDisplayItem.uniqueKey = _.concat(reDisplayItem.key, reDisplayItem.comType).join("-");
+                  } //.....................................
+
 
                   return _context52.abrupt("return", reDisplayItem);
 
@@ -17970,11 +18052,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       isSelectedItem: function isSelectedItem() {
         var it = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-        var _ref55 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref55$value = _ref55.value,
-            value = _ref55$value === void 0 ? null : _ref55$value,
-            _ref55$multi = _ref55.multi,
-            multi = _ref55$multi === void 0 ? false : _ref55$multi;
+        var _ref57 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref57$value = _ref57.value,
+            value = _ref57$value === void 0 ? null : _ref57$value,
+            _ref57$multi = _ref57.multi,
+            multi = _ref57$multi === void 0 ? false : _ref57$multi;
 
         if (multi) {
           return _.isArray(value) && _.indexOf(value, it.value) >= 0;
@@ -17986,23 +18068,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       normalizeData: function normalizeData() {
         var list = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
-        var _ref56 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref56$emptyItem = _ref56.emptyItem,
-            emptyItem = _ref56$emptyItem === void 0 ? null : _ref56$emptyItem,
-            _ref56$multi = _ref56.multi,
-            multi = _ref56$multi === void 0 ? false : _ref56$multi,
-            _ref56$value = _ref56.value,
-            value = _ref56$value === void 0 ? null : _ref56$value,
-            _ref56$focusIndex = _ref56.focusIndex,
-            focusIndex = _ref56$focusIndex === void 0 ? -1 : _ref56$focusIndex,
-            _ref56$mapping = _ref56.mapping,
-            mapping = _ref56$mapping === void 0 ? null : _ref56$mapping,
-            _ref56$defaultIcon = _ref56.defaultIcon,
-            defaultIcon = _ref56$defaultIcon === void 0 ? null : _ref56$defaultIcon,
-            _ref56$iteratee = _ref56.iteratee,
-            iteratee = _ref56$iteratee === void 0 ? null : _ref56$iteratee,
-            _ref56$defaultTipKey = _ref56.defaultTipKey,
-            defaultTipKey = _ref56$defaultTipKey === void 0 ? null : _ref56$defaultTipKey;
+        var _ref58 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref58$emptyItem = _ref58.emptyItem,
+            emptyItem = _ref58$emptyItem === void 0 ? null : _ref58$emptyItem,
+            _ref58$multi = _ref58.multi,
+            multi = _ref58$multi === void 0 ? false : _ref58$multi,
+            _ref58$value = _ref58.value,
+            value = _ref58$value === void 0 ? null : _ref58$value,
+            _ref58$focusIndex = _ref58.focusIndex,
+            focusIndex = _ref58$focusIndex === void 0 ? -1 : _ref58$focusIndex,
+            _ref58$mapping = _ref58.mapping,
+            mapping = _ref58$mapping === void 0 ? null : _ref58$mapping,
+            _ref58$defaultIcon = _ref58.defaultIcon,
+            defaultIcon = _ref58$defaultIcon === void 0 ? null : _ref58$defaultIcon,
+            _ref58$iteratee = _ref58.iteratee,
+            iteratee = _ref58$iteratee === void 0 ? null : _ref58$iteratee,
+            _ref58$defaultTipKey = _ref58.defaultTipKey,
+            defaultTipKey = _ref58$defaultTipKey === void 0 ? null : _ref58$defaultTipKey;
 
         //console.log("normalizeData", iteratee)
         var index = 0;
@@ -18033,12 +18115,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             tip: "tip"
           }) : null;
 
-          var _iterator38 = _createForOfIteratorHelper(list),
-              _step38;
+          var _iterator37 = _createForOfIteratorHelper(list),
+              _step37;
 
           try {
-            for (_iterator38.s(); !(_step38 = _iterator38.n()).done;) {
-              var it = _step38.value;
+            for (_iterator37.s(); !(_step37 = _iterator37.n()).done;) {
+              var it = _step37.value;
 
               // Plain Object
               if (_.isPlainObject(it)) {
@@ -18068,9 +18150,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
             }
           } catch (err) {
-            _iterator38.e(err);
+            _iterator37.e(err);
           } finally {
-            _iterator38.f();
+            _iterator37.f();
           }
         } //.........................................
         // Tidy it
@@ -18129,21 +18211,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //------------------------------------------------
       findItemInList: function findItemInList(str) {
-        var _ref57 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref57$list = _ref57.list,
-            list = _ref57$list === void 0 ? [] : _ref57$list,
-            _ref57$matchValue = _ref57.matchValue,
-            matchValue = _ref57$matchValue === void 0 ? "equal" : _ref57$matchValue,
-            _ref57$matchText = _ref57.matchText,
-            matchText = _ref57$matchText === void 0 ? "off" : _ref57$matchText;
+        var _ref59 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref59$list = _ref59.list,
+            list = _ref59$list === void 0 ? [] : _ref59$list,
+            _ref59$matchValue = _ref59.matchValue,
+            matchValue = _ref59$matchValue === void 0 ? "equal" : _ref59$matchValue,
+            _ref59$matchText = _ref59.matchText,
+            matchText = _ref59$matchText === void 0 ? "off" : _ref59$matchText;
 
         if (_.isArray(list) && !_.isEmpty(list)) {
-          var _iterator39 = _createForOfIteratorHelper(list),
-              _step39;
+          var _iterator38 = _createForOfIteratorHelper(list),
+              _step38;
 
           try {
-            for (_iterator39.s(); !(_step39 = _iterator39.n()).done;) {
-              var li = _step39.value;
+            for (_iterator38.s(); !(_step38 = _iterator38.n()).done;) {
+              var li = _step38.value;
 
               if (this.matchItemByKey(li, "value", matchValue, str)) {
                 return li;
@@ -18154,9 +18236,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
             }
           } catch (err) {
-            _iterator39.e(err);
+            _iterator38.e(err);
           } finally {
-            _iterator39.f();
+            _iterator38.f();
           }
         }
 
@@ -18166,11 +18248,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       // multi  : Array
       // single : Number
       getSelectedItemIndex: function getSelectedItemIndex(formedList) {
-        var _ref58 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref58$value = _ref58.value,
-            value = _ref58$value === void 0 ? null : _ref58$value,
-            _ref58$multi = _ref58.multi,
-            multi = _ref58$multi === void 0 ? false : _ref58$multi;
+        var _ref60 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref60$value = _ref60.value,
+            value = _ref60$value === void 0 ? null : _ref60$value,
+            _ref60$multi = _ref60.multi,
+            multi = _ref60$multi === void 0 ? false : _ref60$multi;
 
         var re = [];
         var sls = {
@@ -18289,17 +18371,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       computed: {
         //-----------------------------------------------
         getListItemClass: function getListItemClass() {
-          var _this89 = this;
+          var _this91 = this;
 
           return function () {
             for (var _len3 = arguments.length, klass = new Array(_len3), _key5 = 0; _key5 < _len3; _key5++) {
               klass[_key5] = arguments[_key5];
             }
 
-            return _this89.getTopClass({
-              "is-current": _this89.isCurrent,
-              "is-checked": _this89.isChecked,
-              "is-changed": _this89.isChanged
+            return _this91.getTopClass({
+              "is-current": _this91.isCurrent,
+              "is-checked": _this91.isChecked,
+              "is-changed": _this91.isChanged
             }, klass);
           };
         },
@@ -18453,37 +18535,37 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           } // Checking ...
 
 
-          var _iterator40 = _createForOfIteratorHelper(this.TheData),
-              _step40;
+          var _iterator39 = _createForOfIteratorHelper(this.TheData),
+              _step39;
 
           try {
-            for (_iterator40.s(); !(_step40 = _iterator40.n()).done;) {
-              var row = _step40.value;
+            for (_iterator39.s(); !(_step39 = _iterator39.n()).done;) {
+              var row = _step39.value;
               if (!this.theCheckedIds[row.id]) return false;
             }
           } catch (err) {
-            _iterator40.e(err);
+            _iterator39.e(err);
           } finally {
-            _iterator40.f();
+            _iterator39.f();
           }
 
           return true;
         },
         //-----------------------------------------------
         hasChecked: function hasChecked() {
-          var _iterator41 = _createForOfIteratorHelper(this.data),
-              _step41;
+          var _iterator40 = _createForOfIteratorHelper(this.data),
+              _step40;
 
           try {
-            for (_iterator41.s(); !(_step41 = _iterator41.n()).done;) {
-              var it = _step41.value;
+            for (_iterator40.s(); !(_step40 = _iterator40.n()).done;) {
+              var it = _step40.value;
               var itId = this.getRowId(it);
               if (this.theCheckedIds[itId]) return true;
             }
           } catch (err) {
-            _iterator41.e(err);
+            _iterator40.e(err);
           } finally {
-            _iterator41.f();
+            _iterator40.f();
           }
 
           return false;
@@ -18534,7 +18616,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //-----------------------------------------------
         evalData: function evalData() {
           var _arguments13 = arguments,
-              _this90 = this;
+              _this92 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee53() {
             var iteratee, data, data2, i, it, it2, list;
@@ -18543,10 +18625,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 switch (_context53.prev = _context53.next) {
                   case 0:
                     iteratee = _arguments13.length > 0 && _arguments13[0] !== undefined ? _arguments13[0] : _.identity;
-                    data = _this90.data; //............................................
+                    data = _this92.data; //............................................
                     // May need translate
 
-                    if (!_this90.Dict) {
+                    if (!_this92.Dict) {
                       _context53.next = 31;
                       break;
                     }
@@ -18557,7 +18639,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     }
 
                     _context53.next = 6;
-                    return _this90.Dict.queryData(data);
+                    return _this92.Dict.queryData(data);
 
                   case 6:
                     data = _context53.sent;
@@ -18587,7 +18669,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     }
 
                     _context53.next = 17;
-                    return _this90.Dict.getItem(it);
+                    return _this92.Dict.getItem(it);
 
                   case 17:
                     it2 = _context53.sent;
@@ -18614,7 +18696,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 28:
                     _context53.next = 30;
-                    return _this90.Dict.getData();
+                    return _this92.Dict.getData();
 
                   case 30:
                     data = _context53.sent;
@@ -18627,8 +18709,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     _.forEach(data, function (it, index) {
                       var item = {
                         index: index,
-                        id: _this90.getRowId(it, index),
-                        rawData: _this90.getRowData(it),
+                        id: _this92.getRowId(it, index),
+                        rawData: _this92.getRowData(it),
                         item: it
                       };
                       item = iteratee(item) || item; // Join
@@ -18649,6 +18731,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         findRowIndexById: function findRowIndexById(rowId) {
+          var _iterator41 = _createForOfIteratorHelper(this.TheData),
+              _step41;
+
+          try {
+            for (_iterator41.s(); !(_step41 = _iterator41.n()).done;) {
+              var row = _step41.value;
+
+              if (row.id == rowId) {
+                return row.index;
+              }
+            }
+          } catch (err) {
+            _iterator41.e(err);
+          } finally {
+            _iterator41.f();
+          }
+
+          return -1;
+        },
+        //-----------------------------------------------
+        findRowById: function findRowById(rowId) {
           var _iterator42 = _createForOfIteratorHelper(this.TheData),
               _step42;
 
@@ -18657,34 +18760,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               var row = _step42.value;
 
               if (row.id == rowId) {
-                return row.index;
+                return row;
               }
             }
           } catch (err) {
             _iterator42.e(err);
           } finally {
             _iterator42.f();
-          }
-
-          return -1;
-        },
-        //-----------------------------------------------
-        findRowById: function findRowById(rowId) {
-          var _iterator43 = _createForOfIteratorHelper(this.TheData),
-              _step43;
-
-          try {
-            for (_iterator43.s(); !(_step43 = _iterator43.n()).done;) {
-              var row = _step43.value;
-
-              if (row.id == rowId) {
-                return row;
-              }
-            }
-          } catch (err) {
-            _iterator43.e(err);
-          } finally {
-            _iterator43.f();
           }
         },
         //------------------------------------------
@@ -18703,21 +18785,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var idMap = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.theCheckedIds;
           var list = [];
 
-          var _iterator44 = _createForOfIteratorHelper(this.TheData),
-              _step44;
+          var _iterator43 = _createForOfIteratorHelper(this.TheData),
+              _step43;
 
           try {
-            for (_iterator44.s(); !(_step44 = _iterator44.n()).done;) {
-              var row = _step44.value;
+            for (_iterator43.s(); !(_step43 = _iterator43.n()).done;) {
+              var row = _step43.value;
 
               if (idMap[row.id]) {
                 list.push(row);
               }
             }
           } catch (err) {
-            _iterator44.e(err);
+            _iterator43.e(err);
           } finally {
-            _iterator44.f();
+            _iterator43.f();
           }
 
           return list;
@@ -18737,12 +18819,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var current = null;
           var currentIndex = -1;
 
-          var _iterator45 = _createForOfIteratorHelper(this.TheData),
-              _step45;
+          var _iterator44 = _createForOfIteratorHelper(this.TheData),
+              _step44;
 
           try {
-            for (_iterator45.s(); !(_step45 = _iterator45.n()).done;) {
-              var row = _step45.value;
+            for (_iterator44.s(); !(_step44 = _iterator44.n()).done;) {
+              var row = _step44.value;
 
               if (row.id == currentId) {
                 current = row.rawData;
@@ -18754,9 +18836,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
             }
           } catch (err) {
-            _iterator45.e(err);
+            _iterator44.e(err);
           } finally {
-            _iterator45.f();
+            _iterator44.f();
           }
 
           return {
@@ -18769,10 +18851,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         selectRow: function selectRow(rowId) {
-          var _ref59 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              _ref59$quiet = _ref59.quiet,
-              quiet = _ref59$quiet === void 0 ? false : _ref59$quiet,
-              payload = _ref59.payload;
+          var _ref61 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              _ref61$quiet = _ref61.quiet,
+              quiet = _ref61$quiet === void 0 ? false : _ref61$quiet,
+              payload = _ref61.payload;
 
           var idMap = {};
           var curId = null; // Change the current & checked
@@ -18943,9 +19025,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         OnRowCheckerClick: function OnRowCheckerClick() {
-          var _ref61 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref61.rowId,
-              shift = _ref61.shift;
+          var _ref63 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref63.rowId,
+              shift = _ref63.shift;
 
           if (this.multi) {
             // Shift Mode
@@ -18962,10 +19044,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         OnRowSelect: function OnRowSelect() {
-          var _ref62 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref62.rowId,
-              shift = _ref62.shift,
-              toggle = _ref62.toggle;
+          var _ref64 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref64.rowId,
+              shift = _ref64.shift,
+              toggle = _ref64.toggle;
 
           // Multi + Shift Mode
           if (shift && this.multi) {
@@ -18983,8 +19065,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         OnRowOpen: function OnRowOpen() {
-          var _ref63 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref63.rowId;
+          var _ref65 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref65.rowId;
 
           var row = this.findRowById(rowId);
 
@@ -19187,9 +19269,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         type: Object,
         "default": function _default() {
           return {
-            icon: "zmdi-alert-circle-o",
+            icon: "fas-disease",
             text: "empty-data"
           };
+        }
+      },
+      "blankClass": {
+        type: String,
+        "default": "big-mask",
+        validator: function validator(v) {
+          return /^(big-mask|mid-tip)$/.test(v);
         }
       },
       //-----------------------------------
@@ -19300,7 +19389,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-------------------------------------------------
         Dict: function Dict() {
-          var _this91 = this;
+          var _this93 = this;
 
           // Customized
           if (this.options instanceof Ti.Dict) {
@@ -19312,9 +19401,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var dictName = Ti.DictFactory.DictReferName(this.options);
 
             if (dictName) {
-              return Ti.DictFactory.CheckDict(dictName, function (_ref64) {
-                var loading = _ref64.loading;
-                _this91.loading = loading;
+              return Ti.DictFactory.CheckDict(dictName, function (_ref66) {
+                var loading = _ref66.loading;
+                _this93.loading = loading;
               });
             }
           }
@@ -19325,28 +19414,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             getText: Ti.Util.genGetter(this.textBy || "text|name"),
             getIcon: Ti.Util.genGetter(this.iconBy || "icon")
           }, {
-            hooks: function hooks(_ref65) {
-              var loading = _ref65.loading;
-              return _this91.loading = loading;
+            hooks: function hooks(_ref67) {
+              var loading = _ref67.loading;
+              return _this93.loading = loading;
             }
           });
         },
         //-------------------------------------------------
         TheItems: function TheItems() {
-          var _this92 = this;
+          var _this94 = this;
 
           return _.map(this.myOptionsData, function (it, index) {
-            var itV = _this92.Dict.getValue(it);
+            var itV = _this94.Dict.getValue(it);
 
             return {
               index: index,
               className: {
-                "is-selected": _this92.myValueMap[itV],
-                "is-focused": index == _this92.myFocusIndex
+                "is-selected": _this94.myValueMap[itV],
+                "is-focused": index == _this94.myFocusIndex
               },
-              text: _this92.Dict.getText(it),
+              text: _this94.Dict.getText(it),
               value: itV,
-              icon: _this92.Dict.getIcon(it) || _this92.defaultIcon
+              icon: _this94.Dict.getIcon(it) || _this94.defaultIcon
             };
           });
         } //-------------------------------------------------
@@ -19355,9 +19444,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /////////////////////////////////////////////////////
       methods: {
         //-------------------------------------------------
-        OnClickItem: function OnClickItem(_ref66, $event) {
-          var value = _ref66.value,
-              index = _ref66.index;
+        OnClickItem: function OnClickItem(_ref68, $event) {
+          var value = _ref68.value,
+              index = _ref68.index;
           var toggle = $event.ctrlKey || $event.metaKey;
           var shift = $event.shiftKey; // Multi + Shift Mode
 
@@ -19383,18 +19472,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         // Utility
         //-------------------------------------------------
         findItemIndexByValue: function findItemIndexByValue(val) {
-          var _iterator46 = _createForOfIteratorHelper(this.TheItems),
-              _step46;
+          var _iterator45 = _createForOfIteratorHelper(this.TheItems),
+              _step45;
 
           try {
-            for (_iterator46.s(); !(_step46 = _iterator46.n()).done;) {
-              var it = _step46.value;
+            for (_iterator45.s(); !(_step45 = _iterator45.n()).done;) {
+              var it = _step45.value;
               if (it.value == val) return it.index;
             }
           } catch (err) {
-            _iterator46.e(err);
+            _iterator45.e(err);
           } finally {
-            _iterator46.f();
+            _iterator45.f();
           }
 
           return -1;
@@ -19442,7 +19531,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //......................................
         reloadMyOptionsData: function reloadMyOptionsData() {
-          var _this93 = this;
+          var _this95 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee55() {
             return regeneratorRuntime.wrap(function _callee55$(_context55) {
@@ -19450,10 +19539,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 switch (_context55.prev = _context55.next) {
                   case 0:
                     _context55.next = 2;
-                    return _this93.Dict.getData();
+                    return _this95.Dict.getData();
 
                   case 2:
-                    _this93.myOptionsData = _context55.sent;
+                    _this95.myOptionsData = _context55.sent;
 
                   case 3:
                   case "end":
@@ -19502,14 +19591,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /////////////////////////////////////////
       mounted: function () {
         var _mounted6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee56() {
-          var _this94 = this;
+          var _this96 = this;
 
           return regeneratorRuntime.wrap(function _callee56$(_context56) {
             while (1) {
               switch (_context56.prev = _context56.next) {
                 case 0:
                   Ti.Dom.watchDocument("mouseup", function () {
-                    return _this94.myFocusIndex = -1;
+                    return _this96.myFocusIndex = -1;
                   });
 
                 case 1:
@@ -19726,96 +19815,77 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //-----------------------------------------------
         evalCellDisplayItems: function evalCellDisplayItems() {
-          var _this95 = this;
+          var _this97 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee57() {
-            var items, _iterator47, _step47, displayItem, it, old, nit;
-
+            var items, i, displayItem, it, old, nit;
             return regeneratorRuntime.wrap(function _callee57$(_context57) {
               while (1) {
                 switch (_context57.prev = _context57.next) {
                   case 0:
-                    _this95.$table.reportReady(_this95.rowIndex, _this95.index, !_.isEmpty(_this95.cellItems));
+                    _this97.$table.reportReady(_this97.rowIndex, _this97.index, !_.isEmpty(_this97.cellItems));
 
                     items = []; // Eval each items
 
-                    _iterator47 = _createForOfIteratorHelper(_this95.theCurrentDisplayItems);
-                    _context57.prev = 3;
+                    i = 0;
 
-                    _iterator47.s();
-
-                  case 5:
-                    if ((_step47 = _iterator47.n()).done) {
-                      _context57.next = 13;
+                  case 3:
+                    if (!(i < _this97.theCurrentDisplayItems.length)) {
+                      _context57.next = 12;
                       break;
                     }
 
-                    displayItem = _step47.value;
-                    _context57.next = 9;
-                    return _this95.evalDataForFieldDisplayItem({
-                      itemData: _this95.data,
+                    displayItem = _this97.theCurrentDisplayItems[i];
+                    _context57.next = 7;
+                    return _this97.evalDataForFieldDisplayItem({
+                      itemData: _this97.data,
                       displayItem: displayItem,
                       vars: {
-                        "isCurrent": _this95.isCurrent,
-                        "isChecked": _this95.isChecked,
-                        "isHover": _this95.isHover,
-                        "isActived": _this95.isActived,
-                        "rowId": _this95.rowId,
-                        "cellSize": _this95.cellSize
+                        "isCurrent": _this97.isCurrent,
+                        "isChecked": _this97.isChecked,
+                        "isHover": _this97.isHover,
+                        "isActived": _this97.isActived,
+                        "rowId": _this97.rowId,
+                        "cellSize": _this97.cellSize
                       },
-                      autoIgnoreNil: true
+                      autoIgnoreNil: true,
+                      uniqueKey: "row".concat(_this97.rowId, "-cell").concat(_this97.index, "-").concat(i)
                     });
 
-                  case 9:
+                  case 7:
                     it = _context57.sent;
 
                     if (it) {
                       items.push(it);
                     }
 
-                  case 11:
-                    _context57.next = 5;
+                  case 9:
+                    i++;
+                    _context57.next = 3;
                     break;
 
-                  case 13:
-                    _context57.next = 18;
-                    break;
-
-                  case 15:
-                    _context57.prev = 15;
-                    _context57.t0 = _context57["catch"](3);
-
-                    _iterator47.e(_context57.t0);
-
-                  case 18:
-                    _context57.prev = 18;
-
-                    _iterator47.f();
-
-                    return _context57.finish(18);
-
-                  case 21:
+                  case 12:
                     //if(0 == this.rowIndex && 1==this.index) {
                     //  console.log("evalCellDisplayItems", this.rowIndex, this.index)
                     //}
                     // Update and return
-                    old = Ti.Util.pureCloneDeep(_this95.cellItems);
+                    old = Ti.Util.pureCloneDeep(_this97.cellItems);
                     nit = Ti.Util.pureCloneDeep(items);
 
                     if (!_.isEqual(old, nit)) {
                       //console.log(`-> Cell[${this.rowIndex}-${this.index}]:`, {old, nit})
-                      _this95.cellItems = items;
+                      _this97.cellItems = items;
                     } // report ready
 
 
-                    _this95.$table.reportReady(_this95.rowIndex, _this95.index, true);
+                    _this97.$table.reportReady(_this97.rowIndex, _this97.index, true);
 
-                  case 25:
+                  case 16:
                   case "end":
                     return _context57.stop();
                 }
               }
-            }, _callee57, null, [[3, 15, 18, 21]]);
+            }, _callee57);
           }))();
         },
         //-----------------------------------------------
@@ -20040,7 +20110,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //--------------------------------------
         reportReady: function reportReady() {
-          var _this96 = this;
+          var _this98 = this;
 
           var rowIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
           var cellIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
@@ -20055,22 +20125,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
           _.delay(function () {
-            _this96.myCellsReady = _.isEmpty(_this96.myCellsReport); // Do resize
+            _this98.myCellsReady = _.isEmpty(_this98.myCellsReport); // Do resize
 
-            if (_this96.myCellsReady) {
-              _this96.evalEachColumnSize();
+            if (_this98.myCellsReady) {
+              _this98.evalEachColumnSize();
             }
           });
         },
         //--------------------------------------
         evalEachColumnSize: function evalEachColumnSize() {
-          var _this97 = this;
+          var _this99 = this;
 
           // Guard
           if (this.I_am_in_resizing) {
             return;
           } //console.log("evalEachColumnSize", this, this.tiComType)
-          // Reset each column size
+          // Remember the current scrollTop
+
+
+          var oldScrollTop = _.get(this.$refs.body, "scrollTop"); // Reset each column size
 
 
           this.I_am_in_resizing = true;
@@ -20084,12 +20157,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }; //.........................................
           // Eval the fixeds
 
-          var _iterator48 = _createForOfIteratorHelper(this.TableFields),
-              _step48;
+          var _iterator46 = _createForOfIteratorHelper(this.TableFields),
+              _step46;
 
           try {
-            for (_iterator48.s(); !(_step48 = _iterator48.n()).done;) {
-              var fld = _step48.value;
+            for (_iterator46.s(); !(_step46 = _iterator46.n()).done;) {
+              var fld = _step46.value;
               var fldWidth = fld.width || "stretch"; // Stretch/Auto
 
               if (/^(stretch|auto)$/.test(fldWidth)) {
@@ -20102,40 +20175,40 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             // Wait reset applied, and ...
 
           } catch (err) {
-            _iterator48.e(err);
+            _iterator46.e(err);
           } finally {
-            _iterator48.f();
+            _iterator46.f();
           }
 
           this.$nextTick(function () {
             // Get original size: head
-            var $heads = Ti.Dom.findAll(".table-head ul li", _this97.$el);
+            var $heads = Ti.Dom.findAll(".table-head ul li", _this99.$el);
 
-            var _iterator49 = _createForOfIteratorHelper($heads),
-                _step49;
+            var _iterator47 = _createForOfIteratorHelper($heads),
+                _step47;
 
             try {
-              for (_iterator49.s(); !(_step49 = _iterator49.n()).done;) {
-                var $he = _step49.value;
+              for (_iterator47.s(); !(_step47 = _iterator47.n()).done;) {
+                var $he = _step47.value;
                 var rect = Ti.Rects.createBy($he);
 
-                _this97.myColSizes.priHead.push(rect.width);
+                _this99.myColSizes.priHead.push(rect.width);
               } // Get original size: body
 
             } catch (err) {
-              _iterator49.e(err);
+              _iterator47.e(err);
             } finally {
-              _iterator49.f();
+              _iterator47.f();
             }
 
-            var $rows = Ti.Dom.findAll(".table-body .table-row", _this97.$el);
+            var $rows = Ti.Dom.findAll(".table-body .table-row", _this99.$el);
 
-            var _iterator50 = _createForOfIteratorHelper($rows),
-                _step50;
+            var _iterator48 = _createForOfIteratorHelper($rows),
+                _step48;
 
             try {
-              for (_iterator50.s(); !(_step50 = _iterator50.n()).done;) {
-                var $row = _step50.value;
+              for (_iterator48.s(); !(_step48 = _iterator48.n()).done;) {
+                var $row = _step48.value;
                 var $cells = Ti.Dom.findAll(":scope > div", $row);
 
                 for (var x = 0; x < $cells.length; x++) {
@@ -20143,33 +20216,35 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   var _rect = Ti.Rects.createBy($cell);
 
-                  if (x >= _this97.myColSizes.priBody.length) {
-                    _this97.myColSizes.priBody[x] = _rect.width;
+                  if (x >= _this99.myColSizes.priBody.length) {
+                    _this99.myColSizes.priBody[x] = _rect.width;
                   } else {
-                    _this97.myColSizes.priBody[x] = Math.max(_rect.width, _this97.myColSizes.priBody[x]);
+                    _this99.myColSizes.priBody[x] = Math.max(_rect.width, _this99.myColSizes.priBody[x]);
                   }
                 }
               } // Count the primary max sizing for each columns
 
             } catch (err) {
-              _iterator50.e(err);
+              _iterator48.e(err);
             } finally {
-              _iterator50.f();
+              _iterator48.f();
             }
 
-            for (var i = 0; i < _this97.myColSizes.priHead.length; i++) {
-              var wHeadCell = _this97.myColSizes.priHead[i];
-              var wBodyCell = _this97.myColSizes.priBody[i];
+            for (var i = 0; i < _this99.myColSizes.priHead.length; i++) {
+              var wHeadCell = _this99.myColSizes.priHead[i];
+              var wBodyCell = _this99.myColSizes.priBody[i];
               var w = Math.max(wHeadCell, wBodyCell);
 
-              _this97.myColSizes.primary.push(w);
+              _this99.myColSizes.primary.push(w);
             } // Resize Table
 
 
-            _this97.onTableResize();
+            _this99.onTableResize(); // Mark back the resizing and restore scrollTop
+
 
             _.delay(function () {
-              _this97.I_am_in_resizing = false;
+              _this99.I_am_in_resizing = false;
+              if (_this99.$refs.body) _this99.$refs.body.scrollTop = oldScrollTop;
             }, 10);
           });
         },
@@ -20231,18 +20306,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             if (remain > 0) {
               var remainCell = remain / raIndexs.length;
 
-              var _iterator51 = _createForOfIteratorHelper(raIndexs),
-                  _step51;
+              var _iterator49 = _createForOfIteratorHelper(raIndexs),
+                  _step49;
 
               try {
-                for (_iterator51.s(); !(_step51 = _iterator51.n()).done;) {
-                  var index = _step51.value;
+                for (_iterator49.s(); !(_step49 = _iterator49.n()).done;) {
+                  var index = _step49.value;
                   amended[index] += remainCell;
                 }
               } catch (err) {
-                _iterator51.e(err);
+                _iterator49.e(err);
               } finally {
-                _iterator51.f();
+                _iterator49.f();
               }
             }
           } // apply amended
@@ -20255,7 +20330,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ///////////////////////////////////////////////////
       mounted: function () {
         var _mounted7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee58() {
-          var _this98 = this;
+          var _this100 = this;
 
           return regeneratorRuntime.wrap(function _callee58$(_context58) {
             while (1) {
@@ -20264,7 +20339,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   //.................................
                   Ti.Viewport.watch(this, {
                     resize: _.debounce(function () {
-                      return _this98.onTableResize();
+                      return _this100.onTableResize();
                     }, 10)
                   }); //.................................
 
@@ -20294,7 +20369,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   //============================================================
 
 
-  Ti.Preload("ti/com/ti/table/ti-table.html", "<div class=\"ti-table\"\n  :class=\"TopClass\"\n  @click=\"OnClickTop\"\n  v-ti-activable>\n  <!--\n    Blank\n  -->\n  <div\n    v-if=\"isDataEmpty\"\n      class=\"ti-blank is-big\">\n      <ti-loading v-bind=\"blankAs\"/>\n  </div>\n  <!--\n    Show thead/tbody\n  -->\n  <template v-else>\n    <!--\n      Head\n    -->\n    <div v-if=\"isShowHead\"\n      class=\"table-head\"\n      :style=\"TableStyle\">\n      <!--checker-->\n      <div\n          v-if=\"checkable && multi\"\n            class=\"as-checker\"\n            @click.left=\"OnClickHeadChecker\">\n            <ti-icon :value=\"HeadCheckerIcon\"/>\n      </div>\n      <!--field titles-->\n      <ul>\n        <li\n          v-for=\"fld in TableFields\"\n            class=\"table-head-cell\"\n            :style=\"getHeadCellStyle(fld.index)\"\n            :col-index=\"fld.index\">\n          <span class=\"table-head-cell-text\">{{fld.title|i18n}}</span>\n        </li>\n      </ul>\n    </div\n    <!--\n      Body\n    -->\n    <div ref=\"body\"\n      class=\"table-body\"\n      :style=\"TableStyle\">\n      <table-row\n        v-for=\"row in myData\"\n          :key=\"row.id\"\n          :row-id=\"row.id\"\n          :index=\"row.index\"\n          :icon=\"row.icon\"\n          :indent=\"row.indent\"\n          :data=\"row.rawData\"\n          :fields=\"TableFields\"\n          :sizes=\"myColSizes.amended\"\n          :current-id=\"theCurrentId\"\n          :checked-ids=\"theCheckedIds\"\n          :hover-id=\"myHoverId\"\n          :changed-id=\"changedId\"\n          :checkable=\"checkable\"\n          :selectable=\"selectable\"\n          :openable=\"openable\"\n          @icon=\"$notify('icon', $event)\"\n          @checker=\"OnRowCheckerClick\"\n          @select=\"OnRowSelect\"\n          @open=\"OnRowOpen\"\n          @enter=\"OnRowEnter\"\n          @leave=\"OnRowLeave\"/>\n    </div>\n  </template>\n</div>"); //============================================================
+  Ti.Preload("ti/com/ti/table/ti-table.html", "<div class=\"ti-table\"\n  :class=\"TopClass\"\n  @click=\"OnClickTop\"\n  v-ti-activable>\n  <!--\n    Blank\n  -->\n  <ti-loading \n    v-if=\"isDataEmpty\"\n      class=\"nil-data\"\n      :class=\"'as-'+blankClass\"\n      v-bind=\"blankAs\"/>\n  <!--\n    Show thead/tbody\n  -->\n  <template v-else>\n    <!--\n      Head\n    -->\n    <div v-if=\"isShowHead\"\n      class=\"table-head\"\n      :style=\"TableStyle\">\n      <!--checker-->\n      <div\n          v-if=\"checkable && multi\"\n            class=\"as-checker\"\n            @click.left=\"OnClickHeadChecker\">\n            <ti-icon :value=\"HeadCheckerIcon\"/>\n      </div>\n      <!--field titles-->\n      <ul>\n        <li\n          v-for=\"fld in TableFields\"\n            class=\"table-head-cell\"\n            :style=\"getHeadCellStyle(fld.index)\"\n            :col-index=\"fld.index\">\n          <span class=\"table-head-cell-text\">{{fld.title|i18n}}</span>\n        </li>\n      </ul>\n    </div\n    <!--\n      Body\n    -->\n    <div ref=\"body\"\n      class=\"table-body\"\n      :style=\"TableStyle\">\n      <table-row\n        v-for=\"row in myData\"\n          :key=\"row.id\"\n          :row-id=\"row.id\"\n          :index=\"row.index\"\n          :icon=\"row.icon\"\n          :indent=\"row.indent\"\n          :data=\"row.rawData\"\n          :fields=\"TableFields\"\n          :sizes=\"myColSizes.amended\"\n          :current-id=\"theCurrentId\"\n          :checked-ids=\"theCheckedIds\"\n          :hover-id=\"myHoverId\"\n          :changed-id=\"changedId\"\n          :checkable=\"checkable\"\n          :selectable=\"selectable\"\n          :openable=\"openable\"\n          @icon=\"$notify('icon', $event)\"\n          @checker=\"OnRowCheckerClick\"\n          @select=\"OnRowSelect\"\n          @open=\"OnRowOpen\"\n          @enter=\"OnRowEnter\"\n          @leave=\"OnRowLeave\"/>\n    </div>\n  </template>\n</div>"); //============================================================
   // JOIN: ti/table/ti-table.mjs
   //============================================================
 
@@ -20336,17 +20411,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         getRowIndent: function getRowIndent() {
-          var _this99 = this;
+          var _this101 = this;
 
           if (_.isFunction(this.indentBy)) {
             return function (it) {
-              return _this99.indentBy(it);
+              return _this101.indentBy(it);
             };
           }
 
           if (_.isString(this.indentBy)) {
             return function (it) {
-              return _.get(it, _this99.indentBy);
+              return _.get(it, _this101.indentBy);
             };
           }
 
@@ -20356,17 +20431,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         getRowIcon: function getRowIcon() {
-          var _this100 = this;
+          var _this102 = this;
 
           if (_.isFunction(this.iconBy)) {
             return function (it) {
-              return _this100.iconBy(it);
+              return _this102.iconBy(it);
             };
           }
 
           if (_.isString(this.iconBy)) {
             return function (it) {
-              return _.get(it, _this100.iconBy);
+              return _.get(it, _this102.iconBy);
             };
           }
 
@@ -20444,8 +20519,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //--------------------------------------
         OnRowEnter: function OnRowEnter() {
-          var _ref67 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref67.rowId;
+          var _ref69 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref69.rowId;
 
           if (this.hoverable) {
             this.myHoverId = rowId;
@@ -20453,8 +20528,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnRowLeave: function OnRowLeave() {
-          var _ref68 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref68.rowId;
+          var _ref70 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref70.rowId;
 
           if (this.hoverable) {
             if (this.myHoverId == rowId) {
@@ -20504,14 +20579,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var items = []; // Loop each items
 
-          var _iterator52 = _createForOfIteratorHelper(displayItems),
-              _step52;
+          var _iterator50 = _createForOfIteratorHelper(displayItems),
+              _step50;
 
           try {
-            for (_iterator52.s(); !(_step52 = _iterator52.n()).done;) {
-              var li = _step52.value;
+            for (_iterator50.s(); !(_step50 = _iterator50.n()).done;) {
+              var li = _step50.value;
               var item = this.evalFieldDisplayItem(li, {
-                funcSet: this.fnSet,
                 defaultKey: defaultKey
               });
 
@@ -20526,9 +20600,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             // Array to pick
 
           } catch (err) {
-            _iterator52.e(err);
+            _iterator50.e(err);
           } finally {
-            _iterator52.f();
+            _iterator50.f();
           }
 
           return items;
@@ -20536,6 +20610,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //--------------------------------------
         scrollCurrentIntoView: function scrollCurrentIntoView() {
           if (this.autoScrollIntoView && this.myLastIndex >= 0) {
+            console.log("scroll");
             var $tbody = this.$refs.body;
             var $row = Ti.Dom.find(".table-row:nth-child(".concat(this.myLastIndex + 1, ")"), $tbody);
             var tbody = Ti.Rects.createBy($tbody);
@@ -20590,7 +20665,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "data": {
           handler: function () {
             var _handler2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee59(newVal, oldVal) {
-              var _this101 = this;
+              var _this103 = this;
 
               var isSame;
               return regeneratorRuntime.wrap(function _callee59$(_context59) {
@@ -20606,8 +20681,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                       _context59.next = 4;
                       return this.evalData(function (it) {
-                        it.icon = _this101.getRowIcon(it.item);
-                        it.indent = _this101.getRowIndent(it.item);
+                        it.icon = _this103.getRowIcon(it.item);
+                        it.indent = _this103.getRowIndent(it.item);
                       });
 
                     case 4:
@@ -20790,7 +20865,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           * ```
           */
         theOptions: function theOptions() {
-          var _this102 = this;
+          var _this104 = this;
 
           var list = _.filter(_.concat(this.options), function (v) {
             return !Ti.Util.isNil(v);
@@ -20803,7 +20878,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             if (_.isPlainObject(li)) {
               tag = _.assign({
-                icon: _this102.optionDefaultIcon
+                icon: _this104.optionDefaultIcon
               }, li, {
                 index: index
               });
@@ -20811,14 +20886,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             else {
                 tag = {
                   index: index,
-                  icon: _this102.optionDefaultIcon,
+                  icon: _this104.optionDefaultIcon,
                   text: Ti.Types.toStr(li),
                   value: li
                 };
               } // Join to
 
 
-            if (!_.isEqual(tag.value, _this102.value)) {
+            if (!_.isEqual(tag.value, _this104.value)) {
               tags.push(tag);
             }
           });
@@ -20851,10 +20926,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onClickOption: function onClickOption() {
-          var _ref69 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              value = _ref69.value,
-              text = _ref69.text,
-              icon = _ref69.icon;
+          var _ref71 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              value = _ref71.value,
+              text = _ref71.text,
+              icon = _ref71.icon;
 
           this.$notify("change", {
             value: value,
@@ -20882,12 +20957,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         openDrop: function openDrop() {
-          var _this103 = this;
+          var _this105 = this;
 
           if (this.hasOptions) {
             this.status = "extended";
             this.$nextTick(function () {
-              _this103.dockDrop();
+              _this105.dockDrop();
             });
           }
         },
@@ -21034,17 +21109,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         getTagItemIcon: function getTagItemIcon() {
-          var _this104 = this;
+          var _this106 = this;
 
           if (_.isFunction(this.itemIconBy)) {
             return function (it) {
-              return _this104.itemIconBy(it);
+              return _this106.itemIconBy(it);
             };
           }
 
           if (_.isString(this.itemIconBy)) {
             return function (it) {
-              return _.get(it, _this104.itemIconBy);
+              return _.get(it, _this106.itemIconBy);
             };
           }
 
@@ -21073,9 +21148,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //------------------------------------------------
         OnItemChanged: function OnItemChanged() {
-          var _ref70 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              index = _ref70.index,
-              value = _ref70.value;
+          var _ref72 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              index = _ref72.index,
+              value = _ref72.value;
 
           if (index >= 0) {
             var values = this.getMyValues();
@@ -21085,8 +21160,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         OnItemRemoved: function OnItemRemoved() {
-          var _ref71 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              index = _ref71.index;
+          var _ref73 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              index = _ref73.index;
 
           if (index >= 0) {
             var values = this.getMyValues();
@@ -21098,9 +21173,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         OnItemFired: function OnItemFired() {
-          var _ref72 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref72$index = _ref72.index,
-              index = _ref72$index === void 0 ? -1 : _ref72$index;
+          var _ref74 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref74$index = _ref74.index,
+              index = _ref74$index === void 0 ? -1 : _ref74$index;
 
           if (index >= 0) {
             var it = _.nth(this.theData, index);
@@ -21112,7 +21187,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         evalMyData: function evalMyData() {
-          var _this105 = this;
+          var _this107 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee60() {
             var tags, lastIndex, index, val, tag, it;
@@ -21122,21 +21197,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   case 0:
                     tags = [];
 
-                    if (!_.isArray(_this105.value)) {
+                    if (!_.isArray(_this107.value)) {
                       _context60.next = 26;
                       break;
                     }
 
-                    lastIndex = _this105.value.length - 1;
+                    lastIndex = _this107.value.length - 1;
                     index = 0;
 
                   case 4:
-                    if (!(index < _this105.value.length)) {
+                    if (!(index < _this107.value.length)) {
                       _context60.next = 25;
                       break;
                     }
 
-                    val = _this105.value[index];
+                    val = _this107.value[index];
                     tag = void 0; // Auto mapping plain object
 
                     if (!_.isPlainObject(val)) {
@@ -21144,29 +21219,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       break;
                     }
 
-                    tag = _this105.mapping ? Ti.Util.translate(val, _this105.mapping) : _.cloneDeep(val); // Customized the icon
+                    tag = _this107.mapping ? Ti.Util.translate(val, _this107.mapping) : _.cloneDeep(val); // Customized the icon
 
                     if (!tag.icon) {
-                      tag.icon = _this105.getTagItemIcon(val);
+                      tag.icon = _this107.getTagItemIcon(val);
                     }
 
                     _context60.next = 20;
                     break;
 
                   case 12:
-                    if (!_this105.Dict) {
+                    if (!_this107.Dict) {
                       _context60.next = 19;
                       break;
                     }
 
                     _context60.next = 15;
-                    return _this105.Dict.getItem(val);
+                    return _this107.Dict.getItem(val);
 
                   case 15:
                     it = _context60.sent;
                     tag = _.defaults({
-                      icon: _this105.Dict.getIcon(it),
-                      text: _this105.Dict.getText(it) || val,
+                      icon: _this107.Dict.getIcon(it),
+                      text: _this107.Dict.getText(it) || val,
                       value: val
                     });
                     _context60.next = 20;
@@ -21182,8 +21257,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     // Join default value
                     _.defaults(tag, {
                       index: index,
-                      icon: _this105.itemDefaultIcon,
-                      options: _this105.itemOptions,
+                      icon: _this107.itemDefaultIcon,
+                      options: _this107.itemOptions,
                       atLast: index == lastIndex
                     }); // Join to tags
 
@@ -21200,7 +21275,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 26:
                     // assign the tags
-                    _this105.myTags = tags;
+                    _this107.myTags = tags;
 
                   case 27:
                   case "end":
@@ -21214,18 +21289,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         getMyValues: function getMyValues() {
           var vals = [];
 
-          var _iterator53 = _createForOfIteratorHelper(this.myTags),
-              _step53;
+          var _iterator51 = _createForOfIteratorHelper(this.myTags),
+              _step51;
 
           try {
-            for (_iterator53.s(); !(_step53 = _iterator53.n()).done;) {
-              var tag = _step53.value;
+            for (_iterator51.s(); !(_step51 = _iterator51.n()).done;) {
+              var tag = _step51.value;
               vals.push(Ti.Util.fallback(tag.value, null));
             }
           } catch (err) {
-            _iterator53.e(err);
+            _iterator51.e(err);
           } finally {
-            _iterator53.f();
+            _iterator51.f();
           }
 
           return vals;
@@ -21448,7 +21523,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         theActionMenuData: function theActionMenuData() {
-          var _this106 = this;
+          var _this108 = this;
 
           //................................
           var jvTypes = [{
@@ -21460,7 +21535,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               capture: false
             },
             action: function action() {
-              _this106.$notify("change", {
+              _this108.$notify("change", {
                 jsonMutate: "ChangeValueType",
                 args: "Array"
               });
@@ -21474,7 +21549,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               capture: false
             },
             action: function action() {
-              _this106.$notify("change", {
+              _this108.$notify("change", {
                 jsonMutate: "ChangeValueType",
                 args: "Object"
               });
@@ -21487,7 +21562,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             type: "action",
             icon: "zmdi-plus",
             action: function action() {
-              _this106.$notify("change", {
+              _this108.$notify("change", {
                 jsonMutate: "Add"
               });
             }
@@ -21504,7 +21579,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               type: "action",
               icon: "zmdi-delete",
               action: function action() {
-                _this106.$notify("change", {
+                _this108.$notify("change", {
                   jsonMutate: "Remove"
                 });
               }
@@ -21523,7 +21598,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 capture: false
               },
               action: function action() {
-                _this106.$notify("change", {
+                _this108.$notify("change", {
                   jsonMutate: "ChangeValueType",
                   args: "Boolean"
                 });
@@ -21539,7 +21614,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 capture: false
               },
               action: function action() {
-                _this106.$notify("change", {
+                _this108.$notify("change", {
                   jsonMutate: "ChangeValueType",
                   args: "Number"
                 });
@@ -21555,7 +21630,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 capture: false
               },
               action: function action() {
-                _this106.$notify("change", {
+                _this108.$notify("change", {
                   jsonMutate: "ChangeValueType",
                   args: "String"
                 });
@@ -21571,7 +21646,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 capture: false
               },
               action: function action() {
-                _this106.$notify("change", {
+                _this108.$notify("change", {
                   jsonMutate: "ChangeValueType",
                   args: "Nil"
                 });
@@ -21741,7 +21816,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         joinTreeTableRow: function joinTreeTableRow() {
-          var _this107 = this;
+          var _this109 = this;
 
           var list = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
           var item = arguments.length > 1 ? arguments[1] : undefined;
@@ -21813,7 +21888,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }; // Join Children
 
               _.forEach(item, function (v, k) {
-                _this107.joinTreeTableRow(_node.children, v, k);
+                _this109.joinTreeTableRow(_node.children, v, k);
               }); // Join self
 
 
@@ -21850,7 +21925,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //--------------------------------------
         doAdd: function doAdd() {
           var _arguments14 = arguments,
-              _this108 = this;
+              _this110 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee61() {
             var root, path, hie, target, isOpened, newKey, p_ph, parent, keyOrIndex, stub, _newKey;
@@ -21862,9 +21937,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     root = _arguments14.length > 0 && _arguments14[0] !== undefined ? _arguments14[0] : {};
                     path = _arguments14.length > 1 && _arguments14[1] !== undefined ? _arguments14[1] : [];
                     // Looking for the target from data
-                    hie = Ti.Trees.getByPath(_this108.myTreeRoot, path);
+                    hie = Ti.Trees.getByPath(_this110.myTreeRoot, path);
                     target = _.isEmpty(path) ? root : _.get(root, path);
-                    isOpened = _this108.myTreeOpenedStatus[path.join("/")]; //console.log({root, path, target, hie, isOpened})
+                    isOpened = _this110.myTreeOpenedStatus[path.join("/")]; //console.log({root, path, target, hie, isOpened})
                     //.....................................
                     // Guard: Fail to find the target
 
@@ -21982,7 +22057,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         doRemove: function doRemove() {
-          var _this109 = this;
+          var _this111 = this;
 
           var root = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
           var path = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
@@ -22034,7 +22109,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var nextPathId = _.concat(can.path, can.node.name).join("/");
 
             this.$nextTick(function () {
-              _this109.myTreeCurrentPathId = nextPathId;
+              _this111.myTreeCurrentPathId = nextPathId;
             });
           } //...................................
           // If root, return the stub 
@@ -22173,16 +22248,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //--------------------------------------
         OnNodeItemChange: function OnNodeItemChange() {
           var _arguments15 = arguments,
-              _this110 = this;
+              _this112 = this;
 
           return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee62() {
-            var _ref73, name, value, data, node, nodeId, newData, path, fn, _fn, v2;
+            var _ref75, name, value, data, node, nodeId, newData, path, fn, _fn, v2;
 
             return regeneratorRuntime.wrap(function _callee62$(_context62) {
               while (1) {
                 switch (_context62.prev = _context62.next) {
                   case 0:
-                    _ref73 = _arguments15.length > 0 && _arguments15[0] !== undefined ? _arguments15[0] : {}, name = _ref73.name, value = _ref73.value, data = _ref73.data, node = _ref73.node, nodeId = _ref73.nodeId;
+                    _ref75 = _arguments15.length > 0 && _arguments15[0] !== undefined ? _arguments15[0] : {}, name = _ref75.name, value = _ref75.value, data = _ref75.data, node = _ref75.node, nodeId = _ref75.nodeId;
 
                     if (node.id) {
                       _context62.next = 3;
@@ -22194,7 +22269,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   case 3:
                     //....................................
                     // Prepare the new Data
-                    newData = _.cloneDeep(_this110.value); //....................................
+                    newData = _.cloneDeep(_this112.value); //....................................
                     // Get the target JSON path
 
                     path = node.path; //....................................
@@ -22206,13 +22281,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     }
 
                     fn = {
-                      Add: _this110.doAdd,
-                      Remove: _this110.doRemove,
-                      ChangeValueType: _this110.doChangeValueType
+                      Add: _this112.doAdd,
+                      Remove: _this112.doRemove,
+                      ChangeValueType: _this112.doChangeValueType
                     }[value.jsonMutate]; // Invoke it
 
                     _context62.next = 9;
-                    return Ti.DoInvoke(fn, _.concat([newData, path], value.args), _this110);
+                    return Ti.DoInvoke(fn, _.concat([newData, path], value.args), _this112);
 
                   case 9:
                     newData = _context62.sent;
@@ -22277,7 +22352,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   case 15:
                     //....................................
                     // Emit the change
-                    _this110.$notify("change", newData);
+                    _this112.$notify("change", newData);
 
                   case 16:
                   case "end":
@@ -22348,8 +22423,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ///////////////////////////////////////////////////
       props: {
-        "mediaBase": {
-          type: String,
+        "previewMediaSrc": {
+          type: [String, Function],
           "default": undefined
         },
         "value": {
@@ -22376,44 +22451,96 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           if (this.myTheme) {
             return "ti-markdown-theme-".concat(this.myTheme);
           }
+        },
+        //-----------------------------------------------
+        ThePreviewMediaSrc: function ThePreviewMediaSrc() {
+          var _this113 = this;
+
+          var transSrc = _.identity; // String mode
+
+          if (_.isString(this.previewMediaSrc)) {
+            transSrc = function transSrc(src) {
+              return Ti.S.renderBy(_this113.previewMediaSrc, {
+                src: src
+              });
+            };
+          } // Function Mode
+          else if (_.isFunction(this.previewMediaSrc)) {
+              transSrc = this.previewMediaSrc;
+            }
+
+          return /*#__PURE__*/function () {
+            var _ref76 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee63(src) {
+              return regeneratorRuntime.wrap(function _callee63$(_context63) {
+                while (1) {
+                  switch (_context63.prev = _context63.next) {
+                    case 0:
+                      if (!/^(https?:)(\/\/)/.test(src)) {
+                        _context63.next = 2;
+                        break;
+                      }
+
+                      return _context63.abrupt("return", src);
+
+                    case 2:
+                      return _context63.abrupt("return", transSrc(src));
+
+                    case 3:
+                    case "end":
+                      return _context63.stop();
+                  }
+                }
+              }, _callee63);
+            }));
+
+            return function (_x5) {
+              return _ref76.apply(this, arguments);
+            };
+          }();
         } //-----------------------------------------------
 
       },
       ///////////////////////////////////////////////////
       methods: {
         //-----------------------------------------------
-        evalMediaSrc: function evalMediaSrc(src) {
-          // Falsy src or base
-          if (!src || !this.mediaBase) {
-            return src;
-          } // Absolute path
-
-
-          if (/^(https?:\/\/|\/)/i.test(src)) {
-            return src;
-          } // Join the base
-
-
-          return Ti.Util.appendPath(this.mediaBase, src);
-        },
-        //-----------------------------------------------
         renderMarkdown: function renderMarkdown() {
-          var _this111 = this;
+          var _this114 = this;
 
-          if (!Ti.Util.isBlank(this.value)) {
-            var MdDoc = Cheap.parseMarkdown(this.value);
-            console.log(MdDoc.toString());
-            this.myHtml = MdDoc.toBodyInnerHtml({
-              mediaSrc: function mediaSrc(src) {
-                return _this111.evalMediaSrc(src);
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee64() {
+            var MdDoc;
+            return regeneratorRuntime.wrap(function _callee64$(_context64) {
+              while (1) {
+                switch (_context64.prev = _context64.next) {
+                  case 0:
+                    if (Ti.Util.isBlank(_this114.value)) {
+                      _context64.next = 9;
+                      break;
+                    }
+
+                    MdDoc = Cheap.parseMarkdown(_this114.value);
+                    console.log(MdDoc.toString());
+                    _context64.next = 5;
+                    return MdDoc.toBodyInnerHtml({
+                      mediaSrc: _this114.ThePreviewMediaSrc
+                    });
+
+                  case 5:
+                    _this114.myHtml = _context64.sent;
+                    _this114.myTheme = MdDoc.getMeta("theme", _this114.theme);
+                    _context64.next = 11;
+                    break;
+
+                  case 9:
+                    _this114.myHtml = Ti.I18n.text(_this114.placeholder);
+                    _this114.myTheme = _this114.theme;
+
+                  case 11:
+                  case "end":
+                    return _context64.stop();
+                }
               }
-            });
-            this.myTheme = MdDoc.getMeta("theme", this.theme);
-          } // Show Blank
-          else {
-              this.myHtml = Ti.I18n.text(this.placeholder);
-              this.myTheme = this.theme;
-            }
+            }, _callee64);
+          }))();
         } //-----------------------------------------------
 
       },
@@ -22438,11 +22565,111 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "template": "./markdown-preview.html",
     "mixins": ["./markdown-preview.mjs"]
   }); //============================================================
-  // JOIN: ti/text/markdown/richeditor/markdown-richeditor.html
+  // JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs
   //============================================================
 
-  Ti.Preload("ti/com/ti/text/markdown/richeditor/markdown-richeditor.html", "<div class=\"ti-markdown-richeditor\"\n  :class=\"TopClass\">\n  <!--\n    Toolbar\n  -->\n  <ti-actionbar \n    v-if=\"hasToolbar\"\n      class=\"as-toolbar\"\n      :items=\"ToolbarMenuData\" \n      :align=\"toolbarAlign\"\n      :status=\"myToolbarStatus\"\n      @change=\"OnToolbarChange\"/>\n  <!--\n    Stage\n  -->\n  <div ref=\"stage\"\n    class=\"as-stage\"\n    spellcheck=\"false\"\n    :class=\"ThemeClass\"></div>\n</div>"); //============================================================
-  // JOIN: ti/text/markdown/richeditor/markdown-richeditor.mjs
+  (function () {
+    var _M = {
+      //-----------------------------------------------
+      // Delegate Quill Methods
+      //-----------------------------------------------
+      getSelection: function getSelection() {
+        var _this$$editor;
+
+        return (_this$$editor = this.$editor).getSelection.apply(_this$$editor, arguments);
+      },
+      setSelection: function setSelection() {
+        var _this$$editor2;
+
+        return (_this$$editor2 = this.$editor).setSelection.apply(_this$$editor2, arguments);
+      },
+      updateContents: function updateContents() {
+        var _this$$editor3;
+
+        return (_this$$editor3 = this.$editor).updateContents.apply(_this$$editor3, arguments);
+      }
+    };
+    Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs", _M);
+  })(); //============================================================
+  // JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs
+  //============================================================
+
+
+  (function () {
+    var _M = {
+      //...............................................
+      // Data
+      //...............................................
+      "mediaBase": {
+        type: String,
+        "default": undefined
+      },
+      "value": {
+        type: String,
+        "default": ""
+      },
+      //...............................................
+      // Behavior
+      //...............................................
+      // Ext-toolbar item defination
+      "actions": {
+        type: Object,
+        "default": function _default() {
+          return {};
+        }
+      },
+      // preview -> markdown -> save
+      "markdownMediaSrc": {
+        type: [String, Function],
+        "default": undefined
+      },
+      // load -> markdown -> preview
+      "previewMediaSrc": {
+        type: [String, Function],
+        "default": undefined
+      },
+      //...............................................
+      // Aspact
+      //...............................................
+      "placeholder": {
+        type: String,
+        "default": "i18n:blank"
+      },
+      "theme": {
+        type: String,
+        "default": "nice"
+      },
+      "toolbar": {
+        type: Array,
+        "default": function _default() {
+          return ["Heading", "|", "B", "I", "|", "Link", "Code", "|", "BlockQuote", "CodeBlock", "|", "Outdent", "Indent", "|", "UL", "OL"];
+        }
+      },
+      "toolbarAlign": {
+        type: String,
+        "default": "left",
+        validator: function validator(v) {
+          return /^(left|right|center)$/.test(v);
+        }
+      },
+      "blankAs": {
+        type: Object,
+        "default": function _default() {
+          return {
+            icon: "fas-coffee",
+            text: null
+          };
+        }
+      }
+    };
+    Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs", _M);
+  })(); //============================================================
+  // JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor.html
+  //============================================================
+
+
+  Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.html", "<div class=\"ti-markdown-richeditor\"\n  :class=\"TopClass\">\n  <!--\n    Toolbar\n  -->\n  <ti-actionbar \n    v-if=\"hasToolbar\"\n      class=\"as-toolbar\"\n      :items=\"ToolbarMenuData\" \n      :align=\"toolbarAlign\"\n      :status=\"myToolbarStatus\"\n      @change=\"OnToolbarChange\"/>\n  <!--\n    Stage\n  -->\n  <div ref=\"stage\"\n    class=\"as-stage\"\n    spellcheck=\"false\"\n    :class=\"ThemeClass\"></div>\n  <!--\n    Cover when nil\n  -->\n  <ti-loading\n    v-if=\"isNilContent\"\n      class=\"as-nil-mask as-big-mask\"\n      v-bind=\"blankAs\"/>\n</div>"); //============================================================
+  // JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor.mjs
   //============================================================
 
   (function () {
@@ -22466,6 +22693,122 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     } /////////////////////////////////////////////////////
 
 
+    var BUILTIN_TOOLBAR_ACTIONS = {
+      //.........................................
+      "|": {
+        type: "line"
+      },
+      //.........................................
+      "B": {
+        icon: "fas-bold",
+        notify: "bold",
+        highlight: "bold",
+        disabled: "italic"
+      },
+      //.........................................
+      "I": {
+        icon: "fas-italic",
+        notify: "italic",
+        highlight: "italic",
+        disabled: "bold"
+      },
+      //.........................................
+      "Link": {
+        icon: "fas-link",
+        notify: "link",
+        highlight: "link"
+      },
+      //.........................................
+      "Code": {
+        icon: "zmdi-code",
+        notify: "code",
+        highlight: "code"
+      },
+      //.........................................
+      "Heading": {
+        type: "group",
+        icon: "fas-hashtag",
+        text: "i18n:wordp-heading",
+        items: [{
+          text: "i18n:wordp-h1",
+          notify: "header",
+          highlight: "h1",
+          value: 1
+        }, {
+          text: "i18n:wordp-h2",
+          notify: "header",
+          highlight: "h2",
+          value: 2
+        }, {
+          text: "i18n:wordp-h3",
+          notify: "header",
+          highlight: "h3",
+          value: 3
+        }, {
+          text: "i18n:wordp-h4",
+          notify: "header",
+          highlight: "h4",
+          value: 4
+        }, {
+          text: "i18n:wordp-h5",
+          notify: "header",
+          highlight: "h5",
+          value: 5
+        }, {
+          text: "i18n:wordp-h6",
+          notify: "header",
+          highlight: "h6",
+          value: 6
+        }, {
+          text: "i18n:wordp-h0",
+          notify: "header",
+          highlight: "h0",
+          value: 0
+        }]
+      },
+      //.........................................
+      "BlockQuote": {
+        icon: "fas-quote-right",
+        notify: "blockquote",
+        highlight: "blockquote"
+      },
+      //.........................................
+      "CodeBlock": {
+        icon: "fas-code",
+        notify: "code_block",
+        highlight: "code-block"
+      },
+      //.........................................
+      "Indent": {
+        icon: "fas-indent",
+        notify: "indent"
+      },
+      //.........................................
+      "Outdent": {
+        icon: "fas-outdent",
+        notify: "outdent"
+      },
+      //.........................................
+      "UL": {
+        icon: "fas-list-ul",
+        notify: "list",
+        value: "bullet",
+        highlight: {
+          list: "bullet"
+        }
+      },
+      //.........................................
+      "OL": {
+        icon: "fas-list-ol",
+        notify: "list",
+        value: "ordered",
+        highlight: {
+          list: "ordered"
+        }
+      } //.........................................
+
+    }; /////////////////////////////////////////////////////
+
     var _M = {
       ///////////////////////////////////////////////////
       data: function data() {
@@ -22476,48 +22819,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         };
       },
       ///////////////////////////////////////////////////
-      props: {
-        //...............................................
-        // Data
-        //...............................................
-        "mediaBase": {
-          type: String,
-          "default": undefined
-        },
-        "value": {
-          type: String,
-          "default": ""
-        },
-        //...............................................
-        // Aspact
-        //...............................................
-        "placeholder": {
-          type: String,
-          "default": "i18n:blank"
-        },
-        "theme": {
-          type: String,
-          "default": "nice"
-        },
-        "toolbar": {
-          type: Array,
-          "default": function _default() {
-            return ["Heading", "|", "B", "I", "|", "Link", "Code", "|", "BlockQuote", "CodeBlock", "|", "Outdent", "Indent", "|", "UL", "OL", "|", "Media"];
-          }
-        },
-        "toolbarAlign": {
-          type: String,
-          "default": "left",
-          validator: function validator(v) {
-            return /^(left|right|center)$/.test(v);
-          }
-        }
-      },
-      ///////////////////////////////////////////////////
       computed: {
         //-----------------------------------------------
         TopClass: function TopClass() {
-          return this.getTopClass();
+          return this.getTopClass({
+            "nil-content": this.isNilContent,
+            "has-content": !this.isNilContent
+          });
         },
         //-----------------------------------------------
         ThemeClass: function ThemeClass() {
@@ -22534,130 +22842,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return !_.isEmpty(this.ToolbarMenuData);
         },
         //-----------------------------------------------
+        isNilContent: function isNilContent() {
+          return Ti.Util.isNil(this.value);
+        },
+        //-----------------------------------------------
+        ToolbarActions: function ToolbarActions() {
+          return _.merge({}, BUILTIN_TOOLBAR_ACTIONS, this.actions);
+        },
+        //-----------------------------------------------
         ToolbarMenuData: function ToolbarMenuData() {
+          var _this115 = this;
+
           var list = [];
 
           _.forEach(this.toolbar, function (v) {
-            var it = {
-              //.........................................
-              "|": {
-                type: "line"
-              },
-              //.........................................
-              "B": {
-                icon: "fas-bold",
-                notify: "bold",
-                highlight: "bold",
-                disabled: "italic"
-              },
-              //.........................................
-              "I": {
-                icon: "fas-italic",
-                notify: "italic",
-                highlight: "italic",
-                disabled: "bold"
-              },
-              //.........................................
-              "Link": {
-                icon: "fas-link",
-                notify: "link",
-                highlight: "link"
-              },
-              //.........................................
-              "Code": {
-                icon: "zmdi-code",
-                notify: "code",
-                highlight: "code"
-              },
-              //.........................................
-              "Heading": {
-                type: "group",
-                icon: "fas-hashtag",
-                text: "i18n:wordp-heading",
-                items: [{
-                  text: "i18n:wordp-h1",
-                  notify: "header",
-                  highlight: "h1",
-                  value: 1
-                }, {
-                  text: "i18n:wordp-h2",
-                  notify: "header",
-                  highlight: "h2",
-                  value: 2
-                }, {
-                  text: "i18n:wordp-h3",
-                  notify: "header",
-                  highlight: "h3",
-                  value: 3
-                }, {
-                  text: "i18n:wordp-h4",
-                  notify: "header",
-                  highlight: "h4",
-                  value: 4
-                }, {
-                  text: "i18n:wordp-h5",
-                  notify: "header",
-                  highlight: "h5",
-                  value: 5
-                }, {
-                  text: "i18n:wordp-h6",
-                  notify: "header",
-                  highlight: "h6",
-                  value: 6
-                }, {
-                  text: "i18n:wordp-h0",
-                  notify: "header",
-                  highlight: "h0",
-                  value: 0
-                }]
-              },
-              //.........................................
-              "BlockQuote": {
-                icon: "fas-quote-right",
-                notify: "blockquote",
-                highlight: "blockquote"
-              },
-              //.........................................
-              "CodeBlock": {
-                icon: "fas-code",
-                notify: "code_block",
-                highlight: "code-block"
-              },
-              //.........................................
-              "Indent": {
-                icon: "fas-indent",
-                notify: "indent"
-              },
-              //.........................................
-              "Outdent": {
-                icon: "fas-outdent",
-                notify: "outdent"
-              },
-              //.........................................
-              "UL": {
-                icon: "fas-list-ul",
-                notify: "list",
-                value: "bullet",
-                highlight: {
-                  list: "bullet"
-                }
-              },
-              //.........................................
-              "OL": {
-                icon: "fas-list-ol",
-                notify: "list",
-                value: "ordered",
-                highlight: {
-                  list: "ordered"
-                }
-              },
-              //.........................................
-              "Media": {
-                icon: "fas-photo-video",
-                action: "$parent:OnInsertMedia"
-              } //.........................................
+            var it = _.get(_this115.ToolbarActions, v); //...........................................
 
-            }[v]; //...........................................
 
             if (it) {
               list.push(it);
@@ -22670,6 +22870,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
           return list;
+        },
+        //-----------------------------------------------
+        TheMarkdownMediaSrc: function TheMarkdownMediaSrc() {
+          if (_.isFunction(this.markdownMediaSrc)) {
+            return this.markdownMediaSrc;
+          }
+
+          if (_.isString(this.markdownMediaSrc)) {
+            return Ti.Util.genInvoking(this.markdownMediaSrc, {
+              partialRight: true
+            });
+          }
+        },
+        //-----------------------------------------------
+        ThePreviewMediaSrc: function ThePreviewMediaSrc() {
+          if (_.isFunction(this.previewMediaSrc)) {
+            return this.previewMediaSrc;
+          }
+
+          if (_.isString(this.previewMediaSrc)) {
+            return Ti.Util.genInvoking(this.previewMediaSrc, {
+              partialRight: true
+            });
+          }
         } //-----------------------------------------------
 
       },
@@ -22679,14 +22903,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         // Events
         //-----------------------------------------------
         OnToolbarChange: function OnToolbarChange() {
-          var _ref74 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref74.name,
-              value = _ref74.value;
+          var _ref77 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref77.name,
+              value = _ref77.value;
 
-          console.log({
-            name: name,
-            value: value
-          });
+          //console.log("OnToolbarChange", {name, value})
           var fn = {
             //...........................................  
             bold: function bold($q, val) {
@@ -22711,58 +22932,58 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             },
             //..........................................
             link: function link($q, val) {
-              return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee63() {
+              return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee65() {
                 var range, href, op;
-                return regeneratorRuntime.wrap(function _callee63$(_context63) {
+                return regeneratorRuntime.wrap(function _callee65$(_context65) {
                   while (1) {
-                    switch (_context63.prev = _context63.next) {
+                    switch (_context65.prev = _context65.next) {
                       case 0:
                         range = $q.getSelection();
 
                         if (range) {
-                          _context63.next = 5;
+                          _context65.next = 5;
                           break;
                         }
 
-                        _context63.next = 4;
+                        _context65.next = 4;
                         return Ti.Toast.Open("i18n:wordp-nil-sel", "warn");
 
                       case 4:
-                        return _context63.abrupt("return", _context63.sent);
+                        return _context65.abrupt("return", _context65.sent);
 
                       case 5:
                         if (!val) {
-                          _context63.next = 18;
+                          _context65.next = 18;
                           break;
                         }
 
                         if (!(range.length > 0)) {
-                          _context63.next = 13;
+                          _context65.next = 13;
                           break;
                         }
 
-                        _context63.next = 9;
+                        _context65.next = 9;
                         return Ti.Prompt("i18n:wordp-link");
 
                       case 9:
-                        href = _context63.sent;
+                        href = _context65.sent;
 
                         if (!Ti.Util.isNil(href)) {
                           op = $q.format("link", href);
                         }
 
-                        _context63.next = 16;
+                        _context65.next = 16;
                         break;
 
                       case 13:
-                        _context63.next = 15;
+                        _context65.next = 15;
                         return Ti.Toast.Open("i18n:wordp-nil-sel", "warn");
 
                       case 15:
-                        return _context63.abrupt("return", _context63.sent);
+                        return _context65.abrupt("return", _context65.sent);
 
                       case 16:
-                        _context63.next = 19;
+                        _context65.next = 19;
                         break;
 
                       case 18:
@@ -22770,10 +22991,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                       case 19:
                       case "end":
-                        return _context63.stop();
+                        return _context65.stop();
                     }
                   }
-                }, _callee63);
+                }, _callee65);
               }))();
             },
             //...........................................
@@ -22799,152 +23020,61 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         },
         //-----------------------------------------------
-        OnInsertMedia: function OnInsertMedia() {
-          var _this112 = this;
+        // Utility
+        //-----------------------------------------------
+        renderMarkdown: function renderMarkdown() {
+          var _this116 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee64() {
-            var list, _iterator54, _step54, obj, home, rph, aph, src;
-
-            return regeneratorRuntime.wrap(function _callee64$(_context64) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee66() {
+            var MdDoc, delta;
+            return regeneratorRuntime.wrap(function _callee66$(_context66) {
               while (1) {
-                switch (_context64.prev = _context64.next) {
+                switch (_context66.prev = _context66.next) {
                   case 0:
-                    _context64.next = 2;
-                    return Wn.OpenObjSelector();
+                    console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown");
 
-                  case 2:
-                    list = _context64.sent;
-
-                    if (!(!list || _.isEmpty(list))) {
-                      _context64.next = 5;
+                    if (Ti.Util.isBlank(_this116.value)) {
+                      _context66.next = 13;
                       break;
                     }
 
-                    return _context64.abrupt("return");
+                    // Parse markdown
+                    MdDoc = Cheap.parseMarkdown(_this116.value);
+                    console.log(MdDoc.toString());
+                    window.MdDoc = MdDoc;
+                    _this116.myMeta = _.cloneDeep(MdDoc.getMeta()); // Get delta
 
-                  case 5:
-                    _iterator54 = _createForOfIteratorHelper(list);
+                    _context66.next = 8;
+                    return MdDoc.toDelta({
+                      mediaSrc: _this116.ThePreviewMediaSrc
+                    });
 
-                    try {
-                      for (_iterator54.s(); !(_step54 = _iterator54.n()).done;) {
-                        obj = _step54.value;
-                        home = Wn.Session.getHomePath();
-                        rph = Ti.Util.getRelativePath(home, obj.ph, "");
-                        aph = Ti.Util.appendPath("~", rph);
-                        src = "/o/content?str=".concat(aph); // Video
+                  case 8:
+                    delta = _context66.sent;
+                    console.log(JSON.stringify(delta, null, '   ')); // Update Quill editor content
 
-                        if (obj.mime && obj.mime.startsWith("video")) {
-                          _this112.insertMedia("video", src, {
-                            controls: false,
-                            autoplay: false
-                          });
-                        } // Image
-                        else {
-                            _this112.insertMedia("image", src);
-                          }
-                      }
-                    } catch (err) {
-                      _iterator54.e(err);
-                    } finally {
-                      _iterator54.f();
-                    }
+                    _this116.$editor.setContents(delta);
 
-                  case 7:
+                    _context66.next = 15;
+                    break;
+
+                  case 13:
+                    _this116.myMeta = {};
+
+                    _this116.$editor.setContents([]);
+
+                  case 15:
                   case "end":
-                    return _context64.stop();
+                    return _context66.stop();
                 }
               }
-            }, _callee64);
+            }, _callee66);
           }))();
-        },
-        //-----------------------------------------------
-        // Insert Operation
-        //-----------------------------------------------
-        insertMedia: function insertMedia() {
-          var _det$insert;
-
-          var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "image";
-          var src = arguments.length > 1 ? arguments[1] : undefined;
-          var attrs = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-          // Guard
-          if (!src) {
-            return;
-          } // Prepare the Delta
-
-
-          var Delta = Quill["import"]("delta");
-          var det = new Delta(); // Insert to current position
-
-          var sel = this.$editor.getSelection();
-          console.log("selection", sel);
-
-          if (!sel) {
-            this.$editor.setSelection(0);
-            sel = {
-              index: 0,
-              length: 0
-            };
-          }
-
-          var _sel = sel,
-              index = _sel.index,
-              length = _sel.length; // Move to current
-
-          det.retain(index); // Delete current
-
-          if (length > 0) {
-            det["delete"](length);
-          } // Add Media
-
-
-          det.insert((_det$insert = {}, _defineProperty(_det$insert, type, src), _defineProperty(_det$insert, "attributes", attrs), _det$insert)); // Update 
-
-          this.$editor.updateContents(det); // Move cursor
-
-          this.$editor.setSelection(index + 1);
-        },
-        //-----------------------------------------------
-        // Utility
-        //-----------------------------------------------
-        //-----------------------------------------------
-        // Rendering
-        //-----------------------------------------------
-        // evalMediaSrc(src) {
-        //   // Falsy src or base
-        //   if(!src || !this.mediaBase) {
-        //     return src
-        //   }
-        //   // Absolute path
-        //   if(/^(https?:\/\/|\/)/i.test(src)) {
-        //     return src
-        //   }
-        //   // Join the base
-        //   return Ti.Util.appendPath(this.mediaBase, src)
-        // },
-        //-----------------------------------------------
-        renderMarkdown: function renderMarkdown() {
-          console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown");
-
-          if (!Ti.Util.isBlank(this.value)) {
-            // Parse markdown
-            var MdDoc = Cheap.parseMarkdown(this.value);
-            console.log(MdDoc.toString());
-            window.MdDoc = MdDoc;
-            this.myMeta = _.cloneDeep(MdDoc.getMeta()); // Get delta
-
-            var delta = MdDoc.toDelta(); //console.log(JSON.stringify(delta, null, '   '))
-            // Update Quill editor content
-
-            this.$editor.setContents(delta);
-          } // Show Blank
-          else {
-              this.myMeta = {};
-            }
         },
         //-----------------------------------------------
         syncMarkdown: function syncMarkdown() {
           if (this.syncForbid > 0) {
+            console.log("!forbid! syncMarkdown", this.syncForbid);
             this.syncForbid--;
             return;
           }
@@ -22954,38 +23084,60 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //-----------------------------------------------
         // Highlight
         //-----------------------------------------------
-        highlightCode: function highlightCode() {
-          var _iterator55 = _createForOfIteratorHelper(this.$refs.stage.querySelectorAll("pre")),
-              _step55;
-
-          try {
-            for (_iterator55.s(); !(_step55 = _iterator55.n()).done;) {
-              var $code = _step55.value;
-              console.log($code);
-              hljs.highlightBlock($code);
-            }
-          } catch (err) {
-            _iterator55.e(err);
-          } finally {
-            _iterator55.f();
-          }
-        },
+        // highlightCode() {
+        //   for(let $code of this.$refs.stage.querySelectorAll("pre")) {
+        //     console.log($code)
+        //     hljs.highlightBlock($code)
+        //   }
+        // },
         //-----------------------------------------------
         // Quill
         //-----------------------------------------------
         quillChanged: function quillChanged(delta) {
-          console.log("changed", JSON.stringify(delta, null, '  '));
-          var MdDoc = Cheap.parseDelta(delta);
-          MdDoc.setDefaultMeta(this.myMeta);
-          this.myMeta = MdDoc.getMeta();
-          console.log(MdDoc.toString());
-          var markdown = MdDoc.toMarkdown();
-          console.log(markdown);
+          var _this117 = this;
 
-          if (markdown != this.value) {
-            this.syncForbid = 1;
-            this.$notify("change", markdown);
-          }
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee67() {
+            var MdDoc, markdown;
+            return regeneratorRuntime.wrap(function _callee67$(_context67) {
+              while (1) {
+                switch (_context67.prev = _context67.next) {
+                  case 0:
+                    if (!_this117.isNilContent) {
+                      _context67.next = 2;
+                      break;
+                    }
+
+                    return _context67.abrupt("return");
+
+                  case 2:
+                    // Delat => CheapDocument
+                    MdDoc = Cheap.parseDelta(delta);
+                    MdDoc.setDefaultMeta(_this117.myMeta);
+                    _this117.myMeta = MdDoc.getMeta(); //console.log(MdDoc.toString())
+                    // CheapDocument => markdown
+
+                    _context67.next = 7;
+                    return MdDoc.toMarkdown({
+                      mediaSrc: _this117.TheMarkdownMediaSrc
+                    });
+
+                  case 7:
+                    markdown = _context67.sent;
+
+                    //console.log(markdown)
+                    if (markdown != _this117.value) {
+                      _this117.syncForbid = 1;
+
+                      _this117.$notify("change", markdown);
+                    }
+
+                  case 9:
+                  case "end":
+                    return _context67.stop();
+                }
+              }
+            }, _callee67);
+          }))();
         },
         //-----------------------------------------------
         quillSelectionChanged: function quillSelectionChanged(range) {
@@ -23020,7 +23172,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-----------------------------------------------
         installQuillEditor: function installQuillEditor() {
-          var _this113 = this;
+          var _this118 = this;
 
           // Guard
           if (this.$editor) {
@@ -23043,15 +23195,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           this.debounceQuillChanged = _.debounce(function (newDelta, oldDelta) {
             var delta = oldDelta.compose(newDelta);
 
-            _this113.quillChanged(delta);
+            _this118.quillChanged(delta);
           }, 1000); //.............................................
 
           this.$editor.on("text-change", function (newDelta, oldDelta, source) {
-            _this113.debounceQuillChanged(newDelta, oldDelta);
+            //console.log("text-change",this.isNilContent, _.cloneDeep({newDelta, oldDelta}))
+            if (!_this118.isNilContent) {
+              _this118.debounceQuillChanged(newDelta, oldDelta);
+            }
           }); //.............................................
 
           this.$editor.on("selection-change", function (range, oldRange, source) {
-            _this113.quillSelectionChanged(range);
+            _this118.quillSelectionChanged(range);
           });
         } //-----------------------------------------------
 
@@ -23060,16 +23215,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       watch: {
         "value": {
           handler: "syncMarkdown"
+        },
+        "isNilContent": function isNilContent(newVal, oldVal) {
+          //console.log("isNilContent", newVal, oldVal)
+          if (newVal) {
+            this.syncForbid = 0;
+          }
         }
       },
       ///////////////////////////////////////////////////
       mounted: function mounted() {
+        this.syncForbid = 0;
         this.installQuillEditor();
         this.syncMarkdown();
+      },
+      ///////////////////////////////////////////////////
+      beforeDestroy: function beforeDestroy() {
+        this.syncForbid = 0;
       } ///////////////////////////////////////////////////
 
     };
-    Ti.Preload("ti/com/ti/text/markdown/richeditor/markdown-richeditor.mjs", _M);
+    Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.mjs", _M);
   })(); //============================================================
   // JOIN: ti/text/markdown/richeditor/_com.json
   //============================================================
@@ -23079,45 +23245,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "name": "ti-text-markdown-richeditor",
     "globally": true,
     "i18n": "@i18n:ti-text-editor",
-    "template": "./markdown-richeditor.html",
     "css": "@deps:highlight/default.css",
-    "mixins": ["./markdown-richeditor.mjs"],
+    "template": "./ti-markdown-richeditor.html",
+    "props": "./ti-markdown-richeditor-props.mjs",
+    "methods": "./ti-markdown-richeditor-delegate-methods.mjs",
+    "mixins": ["./ti-markdown-richeditor.mjs"],
     "components": ["@com:wn/adaptlist"],
     "deps": ["@deps:quill/quill.js", "@deps:highlight/highlight.js"]
   }); //============================================================
   // JOIN: ti/text/raw/ti-text-raw.html
   //============================================================
 
-  Ti.Preload("ti/com/ti/text/raw/ti-text-raw.html", "<div class=\"ti-text-raw\"\n  :class=\"TopClass\"\n  v-ti-activable>\n  <!--\n    Show Editor\n  -->\n  <template v-if=\"hasContent || showTitle\">\n    <div\n      v-if=\"showTitle\"\n        class=\"te-head\"\n        :class=\"HeadClass\">\n        <ti-icon class=\"center\" :value=\"icon\"/>\n        <b>{{title}}</b>\n    </div>\n    <div class=\"te-main\">\n      <textarea ref=\"text\" \n        spellcheck=\"false\"\n        :placeholder=\"placeholder\"\n        :value=\"myContent\"\n        @keyup=\"OnTextareaKeyup\"\n        @change=\"OnContentChanged\"\n      ></textarea>\n    </div>\n  </template>\n  <!--\n    Show Blank\n  -->\n  <ti-loading \n    v-else\n      icon=\"zmdi-alert-circle-o\"\n      :text=\"blankText\"/>\n</div>"); //============================================================
+  Ti.Preload("ti/com/ti/text/raw/ti-text-raw.html", "<div class=\"ti-text-raw\"\n  :class=\"TopClass\"\n  v-ti-activable>\n  <!--\n    Header\n  -->\n  <div\n    v-if=\"isShowHead\"\n      class=\"as-head\">\n      <ti-icon :value=\"icon\"/>\n      <span>{{title}}</span>\n  </div>\n  <!--\n    Main\n  -->\n  <div class=\"as-main\">\n    <textarea ref=\"text\" \n      spellcheck=\"false\"\n      :placeholder=\"placeholder | i18n\"\n      :value=\"myContent\"\n      @compositionstart=\"OnInputCompositionStart\"\n      @compositionend=\"OnInputCompositionEnd\"\n      @input=\"OnInputing\"\n      @change=\"OnTextChanged\"></textarea>\n  </div>\n</div>"); //============================================================
   // JOIN: ti/text/raw/ti-text-raw.mjs
   //============================================================
 
   (function () {
     var _M = {
       ///////////////////////////////////////////////////
-      model: {
-        prop: "content",
-        event: "change"
-      },
-      ///////////////////////////////////////////////////
       data: function data() {
         return {
-          myContent: null
+          myContent: null,
+          inputCompositionstart: false
         };
       },
       ///////////////////////////////////////////////////
       props: {
         "icon": {
           type: [String, Object],
-          "default": "im-hashtag"
+          "default": undefined
         },
         "title": {
           type: String,
-          "default": "No Title"
-        },
-        "showTitle": {
-          type: Boolean,
-          "default": true
+          "default": undefined
         },
         "trimed": {
           type: Boolean,
@@ -23127,19 +23287,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           type: String,
           "default": ""
         },
+        "placeholder": {
+          type: String,
+          "default": "i18n:blank"
+        },
         "status": {
           type: Object,
           "default": function _default() {
-            changed: false;
+            return {};
           }
-        },
-        "ignoreKeyUp": {
-          type: Boolean,
-          "default": false
-        },
-        "blankText": {
-          type: String,
-          "default": "i18n:blank"
         }
       },
       ///////////////////////////////////////////////////
@@ -23148,71 +23304,64 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         TopClass: function TopClass() {
           return this.getTopClass({
             "show-title": this.showTitle,
-            "hide-title": !this.showTitle
+            "hide-title": !this.showTitle,
+            "is-changed": _.get(this.status, "changed")
           });
         },
         //-----------------------------------------------
-        HeadClass: function HeadClass() {
-          return {
-            "content-changed": this.isContentChanged
-          };
+        isShowHead: function isShowHead() {
+          return this.title || this.icon;
         },
         //-----------------------------------------------
         hasContent: function hasContent() {
           return !Ti.Util.isNil(this.value);
-        },
-        //-----------------------------------------------
-        placeholder: function placeholder() {
-          return Ti.I18n.text(this.blankText);
-        },
-        //-----------------------------------------------
-        isContentChanged: function isContentChanged() {
-          if (this.ignoreKeyUp) {
-            return this.myContent != this.value;
-          }
-
-          return _.get(this.status, "changed");
         } //-----------------------------------------------
 
       },
       ///////////////////////////////////////////////////
       methods: {
-        //-----------------------------------------------
-        getContent: function getContent() {
-          return this.myContent;
+        //------------------------------------------------
+        OnInputCompositionStart: function OnInputCompositionStart() {
+          this.inputCompositionstart = true;
         },
-        //-----------------------------------------------
-        checkContentChanged: function checkContentChanged() {
-          var emit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-          var vm = this;
-          var $t = vm.$refs.text;
-
-          if (_.isElement($t)) {
-            var txt = $t.value;
-
-            if (this.trimed) {
-              txt = _.trim(txt);
-            }
-
-            this.myContent = txt;
-
-            if (emit && txt != this.value) {
-              vm.$notify("change", txt);
-            }
+        //------------------------------------------------
+        OnInputCompositionEnd: function OnInputCompositionEnd() {
+          this.inputCompositionstart = false;
+          this.OnTextChanged();
+        },
+        //------------------------------------------------
+        OnInputing: function OnInputing($event) {
+          if (!this.inputCompositionstart) {
+            this.OnTextChanged();
           }
         },
         //-----------------------------------------------
-        onTextareaKeyup: function onTextareaKeyup() {
-          this.checkContentChanged(!this.ignoreKeyUp);
+        OnTextChanged: function OnTextChanged() {
+          var str = _.get(this.$refs.text, "value");
+
+          if (this.trimed) {
+            str = _.trim(str);
+          }
+
+          this.myContent = str;
         },
         //-----------------------------------------------
-        OnContentChanged: function OnContentChanged() {
-          this.checkContentChanged(true);
+        syncMyContent: function syncMyContent() {
+          this.myContent = this.value;
+        },
+        //-----------------------------------------------
+        checkMyContent: function checkMyContent() {
+          if (this.myContent != this.value) {
+            this.$notify("change", this.myContent);
+          }
         },
         //-----------------------------------------------
         __ti_shortcut: function __ti_shortcut(uniqKey) {
           if ("CTRL+ENTER" == uniqKey) {
-            this.checkContentChanged();
+            if (this.myContent != this.value) {
+              this.$notify("change", this.myContent);
+            }
+
             return {
               prevent: true
             };
@@ -23222,21 +23371,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ///////////////////////////////////////////////////
       watch: {
-        "value": function value() {
-          this.myContent = this.value;
+        "value": "syncMyContent",
+        "myContent": function myContent() {
+          this.debCheckChange();
         }
       },
       ///////////////////////////////////////////////////
       created: function created() {
-        var _this114 = this;
+        var _this119 = this;
 
-        this.OnTextareaKeyup = _.debounce(function () {
-          _this114.checkContentChanged(!_this114.ignoreKeyUp);
+        this.debCheckChange = _.debounce(function () {
+          _this119.checkMyContent();
         }, 500);
       },
       ///////////////////////////////////////////////////
       mounted: function mounted() {
-        this.myContent = this.value;
+        this.syncMyContent();
       } ///////////////////////////////////////////////////
 
     };
@@ -23358,8 +23508,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         onListSelected: function onListSelected(key) {
-          var _ref75 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              current = _ref75.current;
+          var _ref78 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              current = _ref78.current;
 
           var tm = this.theTime.clone();
           tm[key] = _.get(current, "value") || 0;
@@ -23620,15 +23770,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------------
         GetValueBy: function GetValueBy() {
-          var _this115 = this;
+          var _this120 = this;
 
           return function (it) {
-            return _this115.Dict.getValue(it);
+            return _this120.Dict.getValue(it);
           };
         },
         //------------------------------------------------
         Dict: function Dict() {
-          var _this116 = this;
+          var _this121 = this;
 
           // Customized
           if (this.options instanceof Ti.Dict) {
@@ -23640,9 +23790,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var dictName = Ti.DictFactory.DictReferName(this.options);
 
             if (dictName) {
-              return Ti.DictFactory.CheckDict(dictName, function (_ref76) {
-                var loading = _ref76.loading;
-                _this116.loading = loading;
+              return Ti.DictFactory.CheckDict(dictName, function (_ref79) {
+                var loading = _ref79.loading;
+                _this121.loading = loading;
               });
             }
           } // Auto Create
@@ -23660,13 +23810,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ///////////////////////////////////////////////////////
       methods: {
         //---------------------------------------------------
-        OnCanListSelected: function OnCanListSelected(_ref77) {
-          var checkedIds = _ref77.checkedIds;
+        OnCanListSelected: function OnCanListSelected(_ref80) {
+          var checkedIds = _ref80.checkedIds;
           this.can.checkedIds = this.getIds(checkedIds);
         },
         //---------------------------------------------------
-        OnSelListSelected: function OnSelListSelected(_ref78) {
-          var checkedIds = _ref78.checkedIds;
+        OnSelListSelected: function OnSelListSelected(_ref81) {
+          var checkedIds = _ref81.checkedIds;
           this.sel.checkedIds = this.getIds(checkedIds);
         },
         //---------------------------------------------------
@@ -23684,34 +23834,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //---------------------------------------------------
         OnFilterChanged: function OnFilterChanged(val) {
-          var _this117 = this;
+          var _this122 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee65() {
-            return regeneratorRuntime.wrap(function _callee65$(_context65) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee68() {
+            return regeneratorRuntime.wrap(function _callee68$(_context68) {
               while (1) {
-                switch (_context65.prev = _context65.next) {
+                switch (_context68.prev = _context68.next) {
                   case 0:
-                    _this117.myFilterValue = val;
-                    _context65.next = 3;
-                    return _this117.Dict.queryData(val);
+                    _this122.myFilterValue = val;
+                    _context68.next = 3;
+                    return _this122.Dict.queryData(val);
 
                   case 3:
-                    _this117.myOptionsData = _context65.sent;
+                    _this122.myOptionsData = _context68.sent;
 
-                    _this117.evalShownCanList();
+                    _this122.evalShownCanList();
 
                   case 5:
                   case "end":
-                    return _context65.stop();
+                    return _context68.stop();
                 }
               }
-            }, _callee65);
+            }, _callee68);
           }))();
         },
         //---------------------------------------------------
-        GetHeadCheckerIcon: function GetHeadCheckerIcon(_ref79) {
-          var data = _ref79.data,
-              checkedIds = _ref79.checkedIds;
+        GetHeadCheckerIcon: function GetHeadCheckerIcon(_ref82) {
+          var data = _ref82.data,
+              checkedIds = _ref82.checkedIds;
 
           if (data.length > 0) {
             // All
@@ -23756,11 +23906,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //---------------------------------------------------
         // Utility
         //---------------------------------------------------
-        assignToList: function assignToList(_ref80, ta) {
-          var _this118 = this;
+        assignToList: function assignToList(_ref83, ta) {
+          var _this123 = this;
 
-          var data = _ref80.data,
-              checkedIds = _ref80.checkedIds;
+          var data = _ref83.data,
+              checkedIds = _ref83.checkedIds;
           // Make ids map
           var ids = {};
 
@@ -23773,7 +23923,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var joins = [];
 
           _.forEach(data, function (it) {
-            var itV = _this118.Dict.getValue(it);
+            var itV = _this123.Dict.getValue(it);
 
             if (ids[itV]) {
               joins.push(it);
@@ -23800,9 +23950,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           };
         },
         //---------------------------------------------------
-        genComConf: function genComConf(comConf, _ref81) {
-          var data = _ref81.data,
-              checkedIds = _ref81.checkedIds;
+        genComConf: function genComConf(comConf, _ref84) {
+          var data = _ref84.data,
+              checkedIds = _ref84.checkedIds;
           return _.assign({
             idBy: this.GetValueBy,
             display: this.display || "text"
@@ -23817,14 +23967,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //---------------------------------------------------
         evalShownCanList: function evalShownCanList() {
-          var _this119 = this;
+          var _this124 = this;
 
           var list = [];
 
           _.forEach(this.myOptionsData, function (it) {
-            var itV = _this119.Dict.getValue(it);
+            var itV = _this124.Dict.getValue(it);
 
-            if (!_this119.selIdMap[itV]) {
+            if (!_this124.selIdMap[itV]) {
               list.push(it);
             }
           });
@@ -23834,61 +23984,61 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //---------------------------------------------------
         reloadCanList: function reloadCanList() {
-          var _this120 = this;
+          var _this125 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee66() {
-            return regeneratorRuntime.wrap(function _callee66$(_context66) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee69() {
+            return regeneratorRuntime.wrap(function _callee69$(_context69) {
               while (1) {
-                switch (_context66.prev = _context66.next) {
+                switch (_context69.prev = _context69.next) {
                   case 0:
-                    _context66.next = 2;
-                    return _this120.Dict.queryData(_this120.myFilterValue);
+                    _context69.next = 2;
+                    return _this125.Dict.queryData(_this125.myFilterValue);
 
                   case 2:
-                    _this120.myOptionsData = _context66.sent;
+                    _this125.myOptionsData = _context69.sent;
 
-                    _this120.evalShownCanList();
+                    _this125.evalShownCanList();
 
                   case 4:
                   case "end":
-                    return _context66.stop();
+                    return _context69.stop();
                 }
               }
-            }, _callee66);
+            }, _callee69);
           }))();
         },
         //---------------------------------------------------
         reloadSelList: function reloadSelList() {
           var _arguments16 = arguments,
-              _this121 = this;
+              _this126 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee67() {
-            var vals, list, _iterator56, _step56, v, it;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee70() {
+            var vals, list, _iterator52, _step52, v, it;
 
-            return regeneratorRuntime.wrap(function _callee67$(_context67) {
+            return regeneratorRuntime.wrap(function _callee70$(_context70) {
               while (1) {
-                switch (_context67.prev = _context67.next) {
+                switch (_context70.prev = _context70.next) {
                   case 0:
-                    vals = _arguments16.length > 0 && _arguments16[0] !== undefined ? _arguments16[0] : _this121.Values;
+                    vals = _arguments16.length > 0 && _arguments16[0] !== undefined ? _arguments16[0] : _this126.Values;
                     //console.log("reloadSelList")
                     list = [];
-                    _iterator56 = _createForOfIteratorHelper(vals);
-                    _context67.prev = 3;
+                    _iterator52 = _createForOfIteratorHelper(vals);
+                    _context70.prev = 3;
 
-                    _iterator56.s();
+                    _iterator52.s();
 
                   case 5:
-                    if ((_step56 = _iterator56.n()).done) {
-                      _context67.next = 13;
+                    if ((_step52 = _iterator52.n()).done) {
+                      _context70.next = 13;
                       break;
                     }
 
-                    v = _step56.value;
-                    _context67.next = 9;
-                    return _this121.Dict.getItem(v);
+                    v = _step52.value;
+                    _context70.next = 9;
+                    return _this126.Dict.getItem(v);
 
                   case 9:
-                    it = _context67.sent;
+                    it = _context70.sent;
 
                     if (it) {
                       list.push(it);
@@ -23897,48 +24047,48 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     }
 
                   case 11:
-                    _context67.next = 5;
+                    _context70.next = 5;
                     break;
 
                   case 13:
-                    _context67.next = 18;
+                    _context70.next = 18;
                     break;
 
                   case 15:
-                    _context67.prev = 15;
-                    _context67.t0 = _context67["catch"](3);
+                    _context70.prev = 15;
+                    _context70.t0 = _context70["catch"](3);
 
-                    _iterator56.e(_context67.t0);
+                    _iterator52.e(_context70.t0);
 
                   case 18:
-                    _context67.prev = 18;
+                    _context70.prev = 18;
 
-                    _iterator56.f();
+                    _iterator52.f();
 
-                    return _context67.finish(18);
+                    return _context70.finish(18);
 
                   case 21:
-                    _this121.sel = {
+                    _this126.sel = {
                       data: list,
                       checkedIds: []
                     };
 
                   case 22:
                   case "end":
-                    return _context67.stop();
+                    return _context70.stop();
                 }
               }
-            }, _callee67, null, [[3, 15, 18, 21]]);
+            }, _callee70, null, [[3, 15, 18, 21]]);
           }))();
         },
         //---------------------------------------------------
         rebuildIdMap: function rebuildIdMap(data) {
-          var _this122 = this;
+          var _this127 = this;
 
           var ids = {};
 
           _.forEach(data, function (it) {
-            var itV = _this122.Dict.getValue(it);
+            var itV = _this127.Dict.getValue(it);
 
             ids[itV] = true;
           });
@@ -23985,24 +24135,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ///////////////////////////////////////////////////////
       mounted: function () {
-        var _mounted8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee68() {
-          return regeneratorRuntime.wrap(function _callee68$(_context68) {
+        var _mounted8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee71() {
+          return regeneratorRuntime.wrap(function _callee71$(_context71) {
             while (1) {
-              switch (_context68.prev = _context68.next) {
+              switch (_context71.prev = _context71.next) {
                 case 0:
-                  _context68.next = 2;
+                  _context71.next = 2;
                   return this.reloadSelList();
 
                 case 2:
-                  _context68.next = 4;
+                  _context71.next = 4;
                   return this.reloadCanList();
 
                 case 4:
                 case "end":
-                  return _context68.stop();
+                  return _context71.stop();
               }
             }
-          }, _callee68, this);
+          }, _callee71, this);
         }));
 
         function mounted() {
@@ -24203,39 +24353,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         getNodeId: function getNodeId() {
-          var _this123 = this;
+          var _this128 = this;
 
           if (_.isFunction(this.idBy)) {
             return function (it) {
-              return _this123.idBy(it);
+              return _this128.idBy(it);
             };
           }
 
           return function (it) {
-            return _.get(it, _this123.idBy);
+            return _.get(it, _this128.idBy);
           };
         },
         //--------------------------------------
         getNodeName: function getNodeName() {
-          var _this124 = this;
+          var _this129 = this;
 
           if (_.isFunction(this.nameBy)) {
             return function (it) {
-              return _this124.nameBy(it);
+              return _this129.nameBy(it);
             };
           }
 
           return function (it) {
-            return _.get(it, _this124.nameBy);
+            return _.get(it, _this129.nameBy);
           };
         },
         //--------------------------------------
         isNodeLeaf: function isNodeLeaf() {
-          var _this125 = this;
+          var _this130 = this;
 
           if (_.isFunction(this.leafBy)) {
             return function (it) {
-              return _this125.leafBy(it) ? true : false;
+              return _this130.leafBy(it) ? true : false;
             };
           } // Not
 
@@ -24251,16 +24401,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         getNodeChildren: function getNodeChildren() {
-          var _this126 = this;
+          var _this131 = this;
 
           if (_.isFunction(this.childrenBy)) {
             return function (it) {
-              return _this126.childrenBy(it);
+              return _this131.childrenBy(it);
             };
           }
 
           return function (it) {
-            return _.get(it, _this126.childrenBy);
+            return _.get(it, _this131.childrenBy);
           };
         },
         //--------------------------------------
@@ -24296,13 +24446,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //--------------------------------------
         evalTreeTableData: function evalTreeTableData() {
-          var _this127 = this;
+          var _this132 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee69() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee72() {
             var tableData;
-            return regeneratorRuntime.wrap(function _callee69$(_context69) {
+            return regeneratorRuntime.wrap(function _callee72$(_context72) {
               while (1) {
-                switch (_context69.prev = _context69.next) {
+                switch (_context72.prev = _context72.next) {
                   case 0:
                     // if(_.get(this.data, "value.title"))
                     //     console.log("evalTreeTableData", _.get(this.data, "value.title"))
@@ -24310,49 +24460,49 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     //console.log("evalTreeTableData", this.data)
                     // Array push to root
 
-                    if (!_.isArray(_this127.data)) {
-                      _context69.next = 6;
+                    if (!_.isArray(_this132.data)) {
+                      _context72.next = 6;
                       break;
                     }
 
-                    _context69.next = 4;
-                    return _this127.joinTreeTableRow(tableData, {}, null, _this127.data);
+                    _context72.next = 4;
+                    return _this132.joinTreeTableRow(tableData, {}, null, _this132.data);
 
                   case 4:
-                    _context69.next = 9;
+                    _context72.next = 9;
                     break;
 
                   case 6:
-                    if (!_this127.data) {
-                      _context69.next = 9;
+                    if (!_this132.data) {
+                      _context72.next = 9;
                       break;
                     }
 
-                    _context69.next = 9;
-                    return _this127.joinTreeTableRow(tableData, _this127.data, null);
+                    _context72.next = 9;
+                    return _this132.joinTreeTableRow(tableData, _this132.data, null);
 
                   case 9:
-                    _this127.myTreeTableData = tableData;
+                    _this132.myTreeTableData = tableData;
 
                   case 10:
                   case "end":
-                    return _context69.stop();
+                    return _context72.stop();
                 }
               }
-            }, _callee69);
+            }, _callee72);
           }))();
         },
         //--------------------------------------
         joinTreeTableRow: function joinTreeTableRow() {
           var _arguments17 = arguments,
-              _this128 = this;
+              _this133 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee70() {
-            var rows, item, path, children, self, _iterator57, _step57, child;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee73() {
+            var rows, item, path, children, self, _iterator53, _step53, child;
 
-            return regeneratorRuntime.wrap(function _callee70$(_context70) {
+            return regeneratorRuntime.wrap(function _callee73$(_context73) {
               while (1) {
-                switch (_context70.prev = _context70.next) {
+                switch (_context73.prev = _context73.next) {
                   case 0:
                     rows = _arguments17.length > 0 && _arguments17[0] !== undefined ? _arguments17[0] : [];
                     item = _arguments17.length > 1 && _arguments17[1] !== undefined ? _arguments17[1] : {};
@@ -24364,24 +24514,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     // For ROOT
 
                     if (!path) {
-                      self.name = _this128.getNodeName(item) || "$ROOT$";
+                      self.name = _this133.getNodeName(item) || "$ROOT$";
                       self.path = [];
                       self.pathId = "/";
-                      self.id = Ti.Util.fallbackNil(_this128.getNodeId(item), self.pathId);
+                      self.id = Ti.Util.fallbackNil(_this133.getNodeId(item), self.pathId);
                       self.indent = 0;
                       self.leaf = false;
-                      self.opened = !_this128.showRoot ? true : Ti.Util.fallback(_this128.myOpenedNodePaths[self.pathId], self.indent < _this128.defaultOpenDepth);
-                      self.icon = self.leaf ? true : _this128.nodeHandleIcons[self.opened ? 1 : 0];
+                      self.opened = !_this133.showRoot ? true : Ti.Util.fallback(_this133.myOpenedNodePaths[self.pathId], self.indent < _this133.defaultOpenDepth);
+                      self.icon = self.leaf ? true : _this133.nodeHandleIcons[self.opened ? 1 : 0];
                     } // Others node
                     else {
-                        self.name = _this128.getNodeName(item);
+                        self.name = _this133.getNodeName(item);
                         self.path = _.concat(path, self.name);
                         self.pathId = self.path.join("/");
-                        self.id = Ti.Util.fallbackNil(_this128.getNodeId(item), self.pathId);
+                        self.id = Ti.Util.fallbackNil(_this133.getNodeId(item), self.pathId);
                         self.indent = self.path.length;
-                        self.leaf = _this128.isNodeLeaf(item);
-                        self.opened = Ti.Util.fallback(_this128.myOpenedNodePaths[self.pathId], self.indent < _this128.defaultOpenDepth);
-                        self.icon = self.leaf ? true : _this128.nodeHandleIcons[self.opened ? 1 : 0];
+                        self.leaf = _this133.isNodeLeaf(item);
+                        self.opened = Ti.Util.fallback(_this133.myOpenedNodePaths[self.pathId], self.indent < _this133.defaultOpenDepth);
+                        self.icon = self.leaf ? true : _this133.nodeHandleIcons[self.opened ? 1 : 0];
                       } //....................................
                     // Join the rawData
 
@@ -24389,7 +24539,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     self.rawData = item; //....................................
                     // Add root if necesssary
 
-                    if (_this128.showRoot) {
+                    if (_this133.showRoot) {
                       rows.push(self);
                     } // If not show root, minus depth
                     else {
@@ -24403,98 +24553,98 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
                     if (!(self.opened && !self.leaf)) {
-                      _context70.next = 31;
+                      _context73.next = 31;
                       break;
                     }
 
                     if (children) {
-                      _context70.next = 13;
+                      _context73.next = 13;
                       break;
                     }
 
-                    _context70.next = 12;
-                    return _this128.getNodeChildren(item);
+                    _context73.next = 12;
+                    return _this133.getNodeChildren(item);
 
                   case 12:
-                    children = _context70.sent;
+                    children = _context73.sent;
 
                   case 13:
                     if (!_.isArray(children)) {
-                      _context70.next = 31;
+                      _context73.next = 31;
                       break;
                     }
 
-                    _iterator57 = _createForOfIteratorHelper(children);
-                    _context70.prev = 15;
+                    _iterator53 = _createForOfIteratorHelper(children);
+                    _context73.prev = 15;
 
-                    _iterator57.s();
+                    _iterator53.s();
 
                   case 17:
-                    if ((_step57 = _iterator57.n()).done) {
-                      _context70.next = 23;
+                    if ((_step53 = _iterator53.n()).done) {
+                      _context73.next = 23;
                       break;
                     }
 
-                    child = _step57.value;
-                    _context70.next = 21;
-                    return _this128.joinTreeTableRow(rows, child, self.path);
+                    child = _step53.value;
+                    _context73.next = 21;
+                    return _this133.joinTreeTableRow(rows, child, self.path);
 
                   case 21:
-                    _context70.next = 17;
+                    _context73.next = 17;
                     break;
 
                   case 23:
-                    _context70.next = 28;
+                    _context73.next = 28;
                     break;
 
                   case 25:
-                    _context70.prev = 25;
-                    _context70.t0 = _context70["catch"](15);
+                    _context73.prev = 25;
+                    _context73.t0 = _context73["catch"](15);
 
-                    _iterator57.e(_context70.t0);
+                    _iterator53.e(_context73.t0);
 
                   case 28:
-                    _context70.prev = 28;
+                    _context73.prev = 28;
 
-                    _iterator57.f();
+                    _iterator53.f();
 
-                    return _context70.finish(28);
+                    return _context73.finish(28);
 
                   case 31:
                   case "end":
-                    return _context70.stop();
+                    return _context73.stop();
                 }
               }
-            }, _callee70, null, [[15, 25, 28, 31]]);
+            }, _callee73, null, [[15, 25, 28, 31]]);
           }))();
         },
         //--------------------------------------
         findTableRow: function findTableRow(rowId) {
           if (!Ti.Util.isNil(rowId)) {
-            var _iterator58 = _createForOfIteratorHelper(this.myTreeTableData),
-                _step58;
+            var _iterator54 = _createForOfIteratorHelper(this.myTreeTableData),
+                _step54;
 
             try {
-              for (_iterator58.s(); !(_step58 = _iterator58.n()).done;) {
-                var row = _step58.value;
+              for (_iterator54.s(); !(_step54 = _iterator54.n()).done;) {
+                var row = _step54.value;
 
                 if (row.id == rowId) {
                   return row;
                 }
               }
             } catch (err) {
-              _iterator58.e(err);
+              _iterator54.e(err);
             } finally {
-              _iterator58.f();
+              _iterator54.f();
             }
           }
         },
         //--------------------------------------
         OnCellItemChange: function OnCellItemChange() {
-          var _ref82 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref82.name,
-              value = _ref82.value,
-              rowId = _ref82.rowId;
+          var _ref85 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref85.name,
+              value = _ref85.value,
+              rowId = _ref85.rowId;
 
           //console.log("OnCellItemChange", {name, value, rowId})
           var row = this.findTableRow(rowId);
@@ -24511,10 +24661,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnRowSelect: function OnRowSelect() {
-          var _ref83 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              currentId = _ref83.currentId,
-              _ref83$checkedIds = _ref83.checkedIds,
-              checkedIds = _ref83$checkedIds === void 0 ? {} : _ref83$checkedIds;
+          var _ref86 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              currentId = _ref86.currentId,
+              _ref86$checkedIds = _ref86.checkedIds,
+              checkedIds = _ref86$checkedIds === void 0 ? {} : _ref86$checkedIds;
 
           var current,
               node,
@@ -24523,12 +24673,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           if (currentId) {
             var currentRow;
 
-            var _iterator59 = _createForOfIteratorHelper(this.myTreeTableData),
-                _step59;
+            var _iterator55 = _createForOfIteratorHelper(this.myTreeTableData),
+                _step55;
 
             try {
-              for (_iterator59.s(); !(_step59 = _iterator59.n()).done;) {
-                var row = _step59.value;
+              for (_iterator55.s(); !(_step55 = _iterator55.n()).done;) {
+                var row = _step55.value;
 
                 if (row.id == currentId) {
                   currentRow = row;
@@ -24541,9 +24691,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               } // Auto Open
 
             } catch (err) {
-              _iterator59.e(err);
+              _iterator55.e(err);
             } finally {
-              _iterator59.f();
+              _iterator55.f();
             }
 
             if (currentRow && this.autoOpen) {
@@ -24576,8 +24726,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnRowIconClick: function OnRowIconClick() {
-          var _ref84 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              rowId = _ref84.rowId;
+          var _ref87 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              rowId = _ref87.rowId;
 
           var row = this.findTableRow(rowId); // Open it
 
@@ -24590,8 +24740,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnRowOpen: function OnRowOpen() {
-          var _ref85 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              id = _ref85.id;
+          var _ref88 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              id = _ref88.id;
 
           var row = this.findTableRow(id);
 
@@ -24654,28 +24804,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     }, _defineProperty(_TI_TREE, "watch", {
       "data": function () {
-        var _data2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee71(newVal, oldVal) {
-          return regeneratorRuntime.wrap(function _callee71$(_context71) {
+        var _data2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee74(newVal, oldVal) {
+          return regeneratorRuntime.wrap(function _callee74$(_context74) {
             while (1) {
-              switch (_context71.prev = _context71.next) {
+              switch (_context74.prev = _context74.next) {
                 case 0:
                   if (_.isEqual(newVal, oldVal)) {
-                    _context71.next = 3;
+                    _context74.next = 3;
                     break;
                   }
 
-                  _context71.next = 3;
+                  _context74.next = 3;
                   return this.evalTreeTableData();
 
                 case 3:
                 case "end":
-                  return _context71.stop();
+                  return _context74.stop();
               }
             }
-          }, _callee71, this);
+          }, _callee74, this);
         }));
 
-        function data(_x5, _x6) {
+        function data(_x6, _x7) {
           return _data2.apply(this, arguments);
         }
 
@@ -24688,13 +24838,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }
     }), _defineProperty(_TI_TREE, "mounted", function () {
-      var _mounted9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee72() {
-        var _this129 = this;
+      var _mounted9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee75() {
+        var _this134 = this;
 
         var currentId;
-        return regeneratorRuntime.wrap(function _callee72$(_context72) {
+        return regeneratorRuntime.wrap(function _callee75$(_context75) {
           while (1) {
-            switch (_context72.prev = _context72.next) {
+            switch (_context75.prev = _context75.next) {
               case 0:
                 //.................................
                 this.syncOpenedNodePaths(); //.................................
@@ -24711,14 +24861,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 // Eval Data
 
 
-                _context72.next = 4;
+                _context75.next = 4;
                 return this.evalTreeTableData();
 
               case 4:
                 //................................
                 // Watch Deep
                 this.$watch("myOpenedNodePaths", function () {
-                  _this129.evalTreeTableData();
+                  _this134.evalTreeTableData();
                 }, {
                   deep: true
                 }); //................................
@@ -24729,7 +24879,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   if (!Ti.Util.isNil(currentId)) {
                     this.$nextTick(function () {
-                      _this129.$children[0].selectRow(currentId);
+                      _this134.$children[0].selectRow(currentId);
                     });
                   }
                 } //................................
@@ -24737,10 +24887,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 6:
               case "end":
-                return _context72.stop();
+                return _context75.stop();
             }
           }
-        }, _callee72, this);
+        }, _callee75, this);
       }));
 
       function mounted() {
@@ -24901,49 +25051,49 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnDropFiles: function OnDropFiles(files) {
-          var _this130 = this;
+          var _this135 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee73() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee76() {
             var file;
-            return regeneratorRuntime.wrap(function _callee73$(_context73) {
+            return regeneratorRuntime.wrap(function _callee76$(_context76) {
               while (1) {
-                switch (_context73.prev = _context73.next) {
+                switch (_context76.prev = _context76.next) {
                   case 0:
                     file = _.get(files, 0);
 
                     if (file) {
-                      _this130.$notify("upload", file);
+                      _this135.$notify("upload", file);
                     }
 
                   case 2:
                   case "end":
-                    return _context73.stop();
+                    return _context76.stop();
                 }
               }
-            }, _callee73);
+            }, _callee76);
           }))();
         },
         //--------------------------------------
         OnSelectLocalFilesToUpload: function OnSelectLocalFilesToUpload(evt) {
-          var _this131 = this;
+          var _this136 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee74() {
-            return regeneratorRuntime.wrap(function _callee74$(_context74) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee77() {
+            return regeneratorRuntime.wrap(function _callee77$(_context77) {
               while (1) {
-                switch (_context74.prev = _context74.next) {
+                switch (_context77.prev = _context77.next) {
                   case 0:
-                    _context74.next = 2;
-                    return _this131.OnDropFiles(evt.target.files);
+                    _context77.next = 2;
+                    return _this136.OnDropFiles(evt.target.files);
 
                   case 2:
-                    _this131.$refs.file.value = "";
+                    _this136.$refs.file.value = "";
 
                   case 3:
                   case "end":
-                    return _context74.stop();
+                    return _context77.stop();
                 }
               }
-            }, _callee74);
+            }, _callee77);
           }))();
         },
         //--------------------------------------
@@ -24970,19 +25120,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //////////////////////////////////////////
       watch: {
         "preview": function preview() {
-          var _this132 = this;
+          var _this137 = this;
 
           this.$nextTick(function () {
-            return _this132.recountArea();
+            return _this137.recountArea();
           });
         }
       },
       //////////////////////////////////////////
       mounted: function mounted() {
-        var _this133 = this;
+        var _this138 = this;
 
         this.$nextTick(function () {
-          return _this133.recountArea();
+          return _this138.recountArea();
         });
       } //////////////////////////////////////////
 
@@ -25059,50 +25209,50 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //-----------------------------------------------
         evalMyDisplayCom: function evalMyDisplayCom() {
-          var _this134 = this;
+          var _this139 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee75() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee78() {
             var com, old, nit;
-            return regeneratorRuntime.wrap(function _callee75$(_context75) {
+            return regeneratorRuntime.wrap(function _callee78$(_context78) {
               while (1) {
-                switch (_context75.prev = _context75.next) {
+                switch (_context78.prev = _context78.next) {
                   case 0:
                     //console.log("evalMyDisplayCom", this.data)
-                    _this134.$wall.reportReady(_this134.index, !Ti.Util.isNil(_this134.myCom));
+                    _this139.$wall.reportReady(_this139.index, !Ti.Util.isNil(_this139.myCom));
 
-                    _context75.next = 3;
-                    return _this134.evalDataForFieldDisplayItem({
-                      itemData: _this134.data,
-                      displayItem: _this134.display,
+                    _context78.next = 3;
+                    return _this139.evalDataForFieldDisplayItem({
+                      itemData: _this139.data,
+                      displayItem: _this139.display,
                       vars: _objectSpread({
-                        "isCurrent": _this134.isCurrent,
-                        "isChecked": _this134.isChecked,
-                        "isChanged": _this134.isChanged,
-                        "isActived": _this134.isActived,
-                        "rowId": _this134.rowId
-                      }, _this134.$vars)
+                        "isCurrent": _this139.isCurrent,
+                        "isChecked": _this139.isChecked,
+                        "isChanged": _this139.isChanged,
+                        "isActived": _this139.isActived,
+                        "rowId": _this139.rowId
+                      }, _this139.$vars)
                     });
 
                   case 3:
-                    com = _context75.sent;
+                    com = _context78.sent;
                     // Update and return
-                    old = Ti.Util.pureCloneDeep(_this134.myCom);
+                    old = Ti.Util.pureCloneDeep(_this139.myCom);
                     nit = Ti.Util.pureCloneDeep(com);
 
                     if (!_.isEqual(old, nit)) {
                       //console.log(`-> Cell[${this.rowIndex}-${this.index}]:`, {old, nit})
-                      _this134.myCom = com;
+                      _this139.myCom = com;
                     } // report ready
 
 
-                    _this134.$wall.reportReady(_this134.index, true);
+                    _this139.$wall.reportReady(_this139.index, true);
 
                   case 8:
                   case "end":
-                    return _context75.stop();
+                    return _context78.stop();
                 }
               }
-            }, _callee75);
+            }, _callee78);
           }))();
         } //-----------------------------------------------
 
@@ -25134,7 +25284,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: ti/wall/ti-wall.html
   //============================================================
 
-  Ti.Preload("ti/com/ti/wall/ti-wall.html", "<div class=\"ti-wall\" \n  :class=\"TopClass\"\n  @click=\"OnClickTop\"\n  v-ti-activable>\n  <!--\n    Blank\n  -->\n  <div\n    v-if=\"isDataEmpty\"\n      class=\"ti-blank is-big\">\n      <ti-loading v-bind=\"blankAs\"/>\n  </div>\n  <!--\n    Show tiles\n  -->\n  <template v-else>\n    <!--tiles-->\n    <wall-tile\n      v-for=\"row in TheData\"\n        :key=\"row.id\"\n        :row-id=\"row.id\"\n        :index=\"row.index\"\n        :display=\"ItemDisplay\"\n        :data=\"row.rawData\"\n        :current-id=\"theCurrentId\"\n        :checked-ids=\"theCheckedIds\"\n        :changed-id=\"changedId\"\n        :checkable=\"checkable\"\n        :selectable=\"selectable\"\n        :openable=\"openable\"\n        :class-name=\"itemClassName\"\n        :width=\"itemWidth\"\n        :height=\"itemHeight\"\n        @select=\"OnRowSelect\"\n        @open=\"OnRowOpen\"/>\n    <!--Blank Tile-->\n    <div v-for=\"bc in BlankCols\"\n      class=\"wall-tile\"\n      :style=\"bc\">\n    </div>\n  </template>\n</div>"); //============================================================
+  Ti.Preload("ti/com/ti/wall/ti-wall.html", "<div class=\"ti-wall\" \n  :class=\"TopClass\"\n  @click=\"OnClickTop\"\n  v-ti-activable>\n  <!--\n    Blank\n  -->\n  <ti-loading \n    v-if=\"isDataEmpty\"\n      class=\"nil-data\"\n      :class=\"'as-'+blankClass\"\n      v-bind=\"blankAs\"/>\n  <!--\n    Show tiles\n  -->\n  <template v-else>\n    <!--tiles-->\n    <wall-tile\n      v-for=\"row in TheData\"\n        :key=\"row.id\"\n        :row-id=\"row.id\"\n        :index=\"row.index\"\n        :display=\"ItemDisplay\"\n        :data=\"row.rawData\"\n        :current-id=\"theCurrentId\"\n        :checked-ids=\"theCheckedIds\"\n        :changed-id=\"changedId\"\n        :checkable=\"checkable\"\n        :selectable=\"selectable\"\n        :openable=\"openable\"\n        :class-name=\"itemClassName\"\n        :width=\"itemWidth\"\n        :height=\"itemHeight\"\n        @select=\"OnRowSelect\"\n        @open=\"OnRowOpen\"/>\n    <!--Blank Tile-->\n    <div v-for=\"bc in BlankCols\"\n      class=\"wall-tile\"\n      :style=\"bc\">\n    </div>\n  </template>\n</div>"); //============================================================
   // JOIN: ti/wall/ti-wall.mjs
   //============================================================
 
@@ -25152,7 +25302,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           myData: [],
           myColCount: 0,
           myColWidth: 0,
-          isOnlyOneRow: true,
+          isOnlyOneRow: false,
           myCellsReport: {},
           myNeedResize: true
         };
@@ -25207,9 +25357,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         ItemDisplay: function ItemDisplay() {
-          return this.evalFieldDisplayItem(this.display, {
-            funcSet: this.fnSet
-          });
+          return this.evalFieldDisplayItem(this.display);
         },
         //--------------------------------------
         TheData: function TheData() {
@@ -25267,12 +25415,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var top = -1;
           var isOnlyOneRow = true;
 
-          var _iterator60 = _createForOfIteratorHelper($divs),
-              _step60;
+          var _iterator56 = _createForOfIteratorHelper($divs),
+              _step56;
 
           try {
-            for (_iterator60.s(); !(_step60 = _iterator60.n()).done;) {
-              var $div = _step60.value;
+            for (_iterator56.s(); !(_step56 = _iterator56.n()).done;) {
+              var $div = _step56.value;
               var rect = $div.getBoundingClientRect();
 
               if (top < 0) {
@@ -25290,9 +25438,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             } //console.log({cols, width, top})
 
           } catch (err) {
-            _iterator60.e(err);
+            _iterator56.e(err);
           } finally {
-            _iterator60.f();
+            _iterator56.f();
           }
 
           if (width > 1) {
@@ -25303,7 +25451,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         reportReady: function reportReady() {
-          var _this135 = this;
+          var _this140 = this;
 
           var rowIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
           var isDone = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
@@ -25319,15 +25467,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           if (isDone) {
             _.delay(function () {
-              var allReady = _.isEmpty(_this135.myCellsReport); // Do resize
+              var allReady = _.isEmpty(_this140.myCellsReport); // Do resize
 
 
-              if (allReady && _this135.myNeedResize) {
+              if (allReady && _this140.myNeedResize) {
                 _.delay(function () {
-                  _this135.OnWallResize();
-                }, _this135.resizeDelay);
+                  _this140.OnWallResize();
+                }, _this140.resizeDelay);
 
-                _this135.myNeedResize = false;
+                _this140.myNeedResize = false;
               }
             });
           }
@@ -25338,34 +25486,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       watch: {
         "data": {
           handler: function () {
-            var _handler3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee76(newVal, oldVal) {
+            var _handler3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee79(newVal, oldVal) {
               var isSame;
-              return regeneratorRuntime.wrap(function _callee76$(_context76) {
+              return regeneratorRuntime.wrap(function _callee79$(_context79) {
                 while (1) {
-                  switch (_context76.prev = _context76.next) {
+                  switch (_context79.prev = _context79.next) {
                     case 0:
                       isSame = _.isEqual(newVal, oldVal);
 
                       if (isSame) {
-                        _context76.next = 5;
+                        _context79.next = 5;
                         break;
                       }
 
-                      _context76.next = 4;
+                      _context79.next = 4;
                       return this.evalData();
 
                     case 4:
-                      this.myData = _context76.sent;
+                      this.myData = _context79.sent;
 
                     case 5:
                     case "end":
-                      return _context76.stop();
+                      return _context79.stop();
                   }
                 }
-              }, _callee76, this);
+              }, _callee79, this);
             }));
 
-            function handler(_x7, _x8) {
+            function handler(_x8, _x9) {
               return _handler3.apply(this, arguments);
             }
 
@@ -25376,13 +25524,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //////////////////////////////////////////
       mounted: function mounted() {
-        var _this136 = this;
+        var _this141 = this;
 
         //.................................
         Ti.Viewport.watch(this, {
           resize: _.debounce(function () {
-            return _this136.OnWallResize();
-          }, 100)
+            return _this141.OnWallResize();
+          }, 20)
         }); //.................................
       },
       //////////////////////////////////////////
@@ -25455,6 +25603,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           this.$emit("data:change", payload);
         } //----------------------------------------------
 
+      },
+      ///////////////////////////////////////////////////
+      watch: {
+        "title": {
+          handler: function handler() {
+            this.$notify("change:title", this.title);
+          },
+          immediate: true
+        }
       } ///////////////////////////////////////////////////
 
     };
@@ -25473,7 +25630,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: ti/wizard/ti-wizard.html
   //============================================================
 
-  Ti.Preload("ti/com/ti/wizard/ti-wizard.html", "<div class=\"ti-wizard ti-fill-parent\"\n  :class=\"TopClass\"><div class=\"wizard-con\">\n  <!--\n    Header Indicators\n  -->\n  <div class=\"as-head\">\n    <ul>\n      <li v-for=\"(step, index) in StepHeads\"\n        :key=\"step.stepKey\"\n        :class=\"step.className\"\n        @click.left=\"OnClickHeadItem(index, step)\">\n        <span class=\"as-indicator\">\n          <span class=\"as-line at-l\"></span>\n          <span class=\"as-dot\">{{index+1}}</span>\n          <span class=\"as-line at-r\"></span>\n        </span>\n        <span class=\"as-text\">{{step.title}}</span>\n      </li>\n    </ul>\n  </div>\n  <!--\n    Current Step Component\n  -->\n  <div class=\"as-main\">\n    <WizardStep \n      v-bind=\"CurrentStep\"\n      @data:change=\"OnDataChange\"\n      @step:change=\"OnStepChange\"/>\n  </div>\n  <!--\n    Footer Default Buttons\n  -->\n  <div v-if=\"BtnPrev || BtnNext\"\n    class=\"as-foot\">\n      <!--\n        Btn: Prev\n      -->\n      <div\n        v-if=\"BtnPrev\" \n          class=\"as-btn is-prev\"\n          :class=\"BtnPrev.className\"\n          @click=\"OnClickBtnPrev\">\n          <span v-if=\"BtnPrev.icon\"\n            class=\"as-icon\">\n            <ti-icon :value=\"BtnPrev.icon\"/>\n          </span>\n          <span class=\"as-sep\"></span>\n          <span class=\"as-text\">{{BtnPrev.text|i18n}}</span>\n      </div>\n      <!--Sep-->\n      <div class=\"as-space\"></div>\n      <!--\n        Btn: Next\n      -->\n      <div\n        v-if=\"BtnNext\" \n          class=\"as-btn is-next\"\n          :class=\"BtnNext.className\"\n          @click=\"OnClickBtnNext\">\n          <span v-if=\"BtnNext.icon\"\n            class=\"as-icon\">\n            <ti-icon :value=\"BtnNext.icon\"/>\n          </span>\n          <span class=\"as-sep\"></span>\n          <span class=\"as-text\">{{BtnNext.text|i18n}}</span>\n      </div>\n  </div>\n</div></div>"); //============================================================
+  Ti.Preload("ti/com/ti/wizard/ti-wizard.html", "<div class=\"ti-wizard ti-fill-parent\"\n  :class=\"TopClass\"><div class=\"wizard-con\">\n  <!--\n    Header Indicators\n  -->\n  <div class=\"as-head\">\n    <!--Title-->\n    <div\n      v-if=\"TheTitle\" \n        class=\"as-title\">{{TheTitle | i18n}}</div>\n    <!--Step indicators-->\n    <ul>\n      <li v-for=\"(step, index) in StepHeads\"\n        :key=\"step.stepKey\"\n        :class=\"step.className\"\n        @click.left=\"OnClickHeadItem(index, step)\">\n        <span class=\"as-indicator\">\n          <span class=\"as-line at-l\"></span>\n          <span class=\"as-dot\">{{index+1}}</span>\n          <span class=\"as-line at-r\"></span>\n        </span>\n        <span class=\"as-text\">{{step.title | i18n}}</span>\n      </li>\n    </ul>\n  </div>\n  <!--\n    Current Step Component\n  -->\n  <div class=\"as-main\">\n    <WizardStep \n      v-bind=\"CurrentStep\"\n      @data:change=\"OnDataChange\"\n      @step:change=\"OnStepChange\"\n      @change:title=\"OnTitleChange\"/>\n  </div>\n  <!--\n    Footer Default Buttons\n  -->\n  <div v-if=\"BtnPrev || BtnNext\"\n    class=\"as-foot\">\n      <!--\n        Btn: Prev\n      -->\n      <div\n        v-if=\"BtnPrev\" \n          class=\"as-btn is-prev\"\n          :class=\"BtnPrev.className\"\n          @click=\"OnClickBtnPrev\">\n          <span v-if=\"BtnPrev.icon\"\n            class=\"as-icon\">\n            <ti-icon :value=\"BtnPrev.icon\"/>\n          </span>\n          <span class=\"as-sep\"></span>\n          <span class=\"as-text\">{{BtnPrev.text|i18n}}</span>\n      </div>\n      <!--Sep-->\n      <div class=\"as-space\"></div>\n      <!--\n        Btn: Next\n      -->\n      <div\n        v-if=\"BtnNext\" \n          class=\"as-btn is-next\"\n          :class=\"BtnNext.className\"\n          @click=\"OnClickBtnNext\">\n          <span v-if=\"BtnNext.icon\"\n            class=\"as-icon\">\n            <ti-icon :value=\"BtnNext.icon\"/>\n          </span>\n          <span class=\"as-sep\"></span>\n          <span class=\"as-text\">{{BtnNext.text|i18n}}</span>\n      </div>\n  </div>\n</div></div>"); //============================================================
   // JOIN: ti/wizard/ti-wizard.mjs
   //============================================================
 
@@ -25482,11 +25639,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ///////////////////////////////////////////////////
       data: function data() {
         return {
-          myCurrent: undefined
+          myCurrent: undefined,
+          myTitle: undefined
         };
       },
       ///////////////////////////////////////////////////
       props: {
+        "title": {
+          type: String,
+          "default": undefined
+        },
         "steps": {
           type: Array,
           "default": function _default() {
@@ -25543,12 +25705,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var list = [];
 
           if (_.isArray(this.steps)) {
-            var _iterator61 = _createForOfIteratorHelper(this.StepList),
-                _step61;
+            var _iterator57 = _createForOfIteratorHelper(this.StepList),
+                _step57;
 
             try {
-              for (_iterator61.s(); !(_step61 = _iterator61.n()).done;) {
-                var step = _step61.value;
+              for (_iterator57.s(); !(_step57 = _iterator57.n()).done;) {
+                var step = _step57.value;
                 var className = [];
 
                 if (this.CurrentStepIndex == step.index) {
@@ -25565,9 +25727,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }));
               }
             } catch (err) {
-              _iterator61.e(err);
+              _iterator57.e(err);
             } finally {
-              _iterator61.f();
+              _iterator57.f();
             }
           }
 
@@ -25580,6 +25742,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //----------------------------------------------
         hasCurrentStep: function hasCurrentStep() {
           return this.CurrentStep ? true : false;
+        },
+        //----------------------------------------------
+        TheTitle: function TheTitle() {
+          return this.myTitle || this.title;
         },
         //----------------------------------------------
         CurrentStep: function CurrentStep() {
@@ -25617,13 +25783,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             icon: "zmdi-chevron-right",
             text: "i18n:next",
             enabled: true,
-            reverse: btn.icon ? false : true
+            reverse: _.get(btn, "icon") ? false : true
           });
         } //----------------------------------------------
 
       },
       ///////////////////////////////////////////////////
       methods: {
+        //----------------------------------------------
+        OnTitleChange: function OnTitleChange(title) {
+          this.myTitle = title;
+        },
         //----------------------------------------------
         OnDataChange: function OnDataChange(payload) {
           //console.log("wizard:OnStepDataChange", payload)
@@ -25689,21 +25859,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             if (i >= 0) return this.StepList[i];
           } // By Key
           else {
-              var _iterator62 = _createForOfIteratorHelper(this.StepList),
-                  _step62;
+              var _iterator58 = _createForOfIteratorHelper(this.StepList),
+                  _step58;
 
               try {
-                for (_iterator62.s(); !(_step62 = _iterator62.n()).done;) {
-                  var step = _step62.value;
+                for (_iterator58.s(); !(_step58 = _iterator58.n()).done;) {
+                  var step = _step58.value;
 
                   if (step.stepKey == keyOrIndex) {
                     return step;
                   }
                 }
               } catch (err) {
-                _iterator62.e(err);
+                _iterator58.e(err);
               } finally {
-                _iterator62.f();
+                _iterator58.f();
               }
             } // Return undefined
 
@@ -25752,7 +25922,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   if (_.isPlainObject(btn.enabled)) {
                     btn.enabled = Ti.Validate.match(this.value, btn.enabled);
-                  }
+                  } // Customized
+                  else if (_.isFunction(btn.enabled)) {
+                      btn.enabled = btn.enabled();
+                    }
                 } // Setup 
 
 
@@ -25790,131 +25963,205 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "mixins": ["./ti-wizard.mjs"],
     "components": ["./com/wizard-step"]
   }); //============================================================
-  // JOIN: web/auth/captcha/web-auth-captcha.html
+  // JOIN: web/auth/passwd/auth-passwd.html
   //============================================================
 
-  Ti.Preload("ti/com/web/auth/captcha/web-auth-captcha.html", "<div \n  class=\"ti-combo-captcha\" \n  :class=\"topClass\">\n \n</div>"); //============================================================
-  // JOIN: web/auth/captcha/web-auth-captcha.mjs
+  Ti.Preload("ti/com/web/auth/passwd/auth-passwd.html", "<div \n  class=\"web-auth-passwd web-simple-form\" \n  :class=\"TopClass\">\n  <!--\n    Head text\n  -->\n  <header>{{ModeTitle|i18n}}</header>\n  <!--\n    Main Area\n  -->\n  <section>\n    <!--\n      ===================================================\n      Mode: byVCode\n    -->\n    <template v-if=\"isByVode\">\n      <!--\n        Input: name\n      -->\n      <div class=\"as-input\">\n        <input \n          spellcheck=\"false\"\n          :placeholder=\"VCodeNameTip|i18n\"\n          v-model=\"myForm.name\"></div>\n      <!--\n        Input: vcode\n      -->\n      <div class=\"as-input\">\n        <input \n          spellcheck=\"false\"\n          :placeholder=\"VCodeCodeTip|i18n\"\n          v-model=\"myForm.vcode\">\n        <span>\n          <em v-if=\"delay>0\">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>\n          <a v-else\n            @click=\"OnGetVcode\">{{VCodeGetTip|i18n}}</a>\n        </span>\n      </div>\n    </template>\n    <!--\n      ===================================================\n      Mode: byPasswd\n    -->\n    <template v-else>\n      <!--\n        Passwd: old\n      -->\n      <div class=\"as-input\">\n        <input \n          spellcheck=\"false\"\n          :placeholder=\"'auth-reset-passwd-old'|i18n\"\n          v-model=\"myForm.passwd_old\"></div>\n    </template>\n    <!--\n      ===================================================\n    -->\n    <!--\n      Passwd: new\n    -->\n    <div class=\"as-input\" :class=\"PasswdClass\">\n      <input \n        spellcheck=\"false\"\n        :placeholder=\"'auth-reset-passwd-new'|i18n\"\n        v-model=\"myForm.passwd_new\"></div>\n    <!--\n      Passwd: repeat\n    -->\n    <div class=\"as-input\" :class=\"PasswdClass\">\n      <input \n        spellcheck=\"false\"\n        :placeholder=\"'auth-reset-passwd-ren'|i18n\"\n        v-model=\"myForm.passwd_ren\"></div>\n    <!--\n      Submit button\n    -->\n    <div class=\"as-btn\">\n      <button @click=\"OnSubmit\">{{'auth-reset-passwd-save'|i18n}}</button>\n    </div>\n    <!--\n      Sublinks: switch mode / passwd-back\n    -->\n    <div \n      v-if=\"hasAltModes\"\n        class=\"as-links\">\n        <div\n          v-for=\"it in AltModes\"\n            class=\"as-item\">\n            <a @click.left=\"OnChangeMode(it)\">{{it.text|i18n}}</a>\n        </div>\n    </div>\n  </section>\n</div>"); //============================================================
+  // JOIN: web/auth/passwd/auth-passwd.mjs
   //============================================================
 
   (function () {
     var _M = {
-      inheritAttrs: false,
+      ///////////////////////////////////////////////////////
+      data: function data() {
+        return {
+          "myForm": {
+            "name": null,
+            "vcode": null,
+            "passwd_old": null,
+            "passwd_new": null,
+            "passwd_ren": null
+          },
+          "myMode": "by-passwd",
+          // delay to get the next captcha to prevent robot
+          "delay": -1
+        };
+      },
       ///////////////////////////////////////////////////////
       props: {
-        "value": {
-          type: [String, Object],
-          "default": ""
-        },
-        "text": {
+        // - "by-passwd"
+        // - "by-phone"
+        // - "by-email"
+        "mode": {
           type: String,
-          "default": null
+          "default": "by-passwd"
         },
-        "fontSize": {
-          type: [Number, String],
-          "default": null
+        "allowModes": {
+          type: Object,
+          "default": function _default() {
+            return {
+              "by-passwd": true,
+              "by-phone": true,
+              "by-email": true
+            };
+          }
         },
-        "width": {
-          type: [Number, String],
-          "default": null
-        },
-        "height": {
-          type: [Number, String],
-          "default": null
-        },
-        "color": {
+        "captcha": {
           type: String,
-          "default": ""
+          required: true,
+          "default": null
         },
-        "opacity": {
+        // The interval of get capche to prevent robot
+        // (in second)
+        "getDelay": {
           type: Number,
-          "default": -1
+          "default": 60
         }
       },
       ///////////////////////////////////////////////////////
       computed: {
         //---------------------------------------------------
-        topClass: function topClass() {
-          if (this.className) return this.className;
+        TopClass: function TopClass() {
+          return this.getTopClass();
         },
         //---------------------------------------------------
-        // formed icon data
-        icon: function icon() {
-          var icn;
+        PasswdClass: function PasswdClass() {},
+        //---------------------------------------------------
+        isByVode: function isByVode() {
+          return "by-passwd" != this.myMode;
+        },
+        //---------------------------------------------------
+        ModeTitle: function ModeTitle() {
+          return "i18n:auth-reset-passwd-".concat(this.myMode);
+        },
+        //---------------------------------------------------
+        VCodeNameTip: function VCodeNameTip() {
+          return "i18n:auth-reset-passwd-".concat(this.myMode, "-tip");
+        },
+        //---------------------------------------------------
+        VCodeCodeTip: function VCodeCodeTip() {
+          if ("by-email" == this.myMode) {
+            return "i18n:auth-email-vcode";
+          }
 
-          if (_.isPlainObject(this.value)) {
-            // Regular icon object, return it directly
-            if (this.value.type && this.value.value) {
-              icn = this.value;
-            } // Eval it as meta
-            else {
-                icn = Ti.Icons.get(this.value);
+          return "i18n:auth-phone-vcode";
+        },
+        //---------------------------------------------------
+        VCodeGetTip: function VCodeGetTip() {
+          if ("by-email" == this.myMode) {
+            return "i18n:auth-email-vcode-get";
+          }
+
+          return "i18n:auth-phone-vcode-get";
+        },
+        //---------------------------------------------------
+        TheAllowModes: function TheAllowModes() {
+          return Ti.Util.truthyKeys(this.allowModes);
+        },
+        //---------------------------------------------------
+        AltModes: function AltModes() {
+          var list = [];
+
+          var _iterator59 = _createForOfIteratorHelper(this.TheAllowModes),
+              _step59;
+
+          try {
+            for (_iterator59.s(); !(_step59 = _iterator59.n()).done;) {
+              var md = _step59.value;
+
+              if (md != this.myMode) {
+                list.push({
+                  text: "i18n:auth-reset-passwd-".concat(md),
+                  mode: md
+                });
               }
-          } // String
-          else {
-              icn = {
-                type: "font",
-                value: this.value
-              };
-
-              if (_.isString(this.value)) {
-                icn.type = Ti.Util.getSuffixName(this.value) || "font";
-              } // for image
-
-
-              if (/^(jpe?g|gif|png)$/i.test(icn.type)) {
-                icn.type = "img";
-              }
-            } // Join `className / text` to show icon font
-
-
-          if ('font' == icn.type) {
-            _.assign(icn, Ti.Icons.parseFontIcon(icn.value));
-          } // join style:outer
-
-
-          icn.outerStyle = Ti.Css.toStyle({
-            width: this.width,
-            height: this.height,
-            color: this.color,
-            opacity: this.opacity >= 0 ? this.opacity : undefined
-          }); // join style:inner
-
-          if ('img' == icn.type) {
-            icn.innerStyle = {
-              "width": this.width ? "100%" : undefined,
-              "height": this.height ? "100%" : undefined
-            };
-          } // font size
-          else if ('font' == icn.type) {
-              icn.innerStyle = {
-                "font-size": this.fontSize ? Ti.Css.toSize(this.fontSize) : undefined
-              };
             }
+          } catch (err) {
+            _iterator59.e(err);
+          } finally {
+            _iterator59.f();
+          }
 
-          return icn;
+          return list;
+        },
+        //---------------------------------------------------
+        hasAltModes: function hasAltModes() {
+          return !_.isEmpty(this.AltModes);
         } //---------------------------------------------------
 
+      },
+      ///////////////////////////////////////////////////////
+      methods: {
+        //---------------------------------------------------
+        OnChangeMode: function OnChangeMode(_ref89) {
+          var mode = _ref89.mode;
+          this.myMode = mode;
+        },
+        //---------------------------------------------------
+        OnSubmit: function OnSubmit() {},
+        //---------------------------------------------------
+        OnGetVcode: function OnGetVcode() {},
+        //---------------------------------------------------
+        evalCurrentMode: function evalCurrentMode(mode) {
+          // Find the first allowed modes
+          if (!_.get(this.allowModes, mode)) {
+            if (_.isEmpty(this.TheAllowModes)) {
+              throw "mode[".concat(mode, "] push me to corner!");
+            }
+
+            return _.first(this.TheAllowModes);
+          } // The mode seems ok
+
+
+          return mode;
+        },
+        //---------------------------------------------------
+        syncCurrentMode: function syncCurrentMode() {
+          this.myMode = this.evalCurrentMode(this.mode);
+        } //---------------------------------------------------
+
+      },
+      ///////////////////////////////////////////////////////
+      watch: {
+        "mode": {
+          handler: "syncCurrentMode",
+          immediate: true
+        }
+      },
+      ///////////////////////////////////////////////////////
+      mounted: function mounted() {
+        var _this142 = this;
+
+        // count the secound
+        this.__H = window.setInterval(function () {
+          if (_this142.delay >= 0) _this142.delay--;
+        }, 1000);
+      },
+      ///////////////////////////////////////////////////////
+      beforeDestroy: function beforeDestroy() {
+        if (this.__H) {
+          window.clearInterval(this.__H);
+        }
       } ///////////////////////////////////////////////////////
 
     };
-    Ti.Preload("ti/com/web/auth/captcha/web-auth-captcha.mjs", _M);
+    Ti.Preload("ti/com/web/auth/passwd/auth-passwd.mjs", _M);
   })(); //============================================================
-  // JOIN: web/auth/captcha/_com.json
+  // JOIN: web/auth/passwd/_com.json
   //============================================================
 
 
-  Ti.Preload("ti/com/web/auth/captcha/_com.json", {
-    "name": "web-auth-captcha",
+  Ti.Preload("ti/com/web/auth/passwd/_com.json", {
+    "name": "web-auth-passwd",
     "globally": true,
-    "template": "./web-auth-captcha.html",
-    "mixins": ["./web-auth-captcha.mjs"]
+    "template": "./auth-passwd.html",
+    "mixins": ["./auth-passwd.mjs"]
   }); //============================================================
-  // JOIN: web/auth/signup/web-auth-signup.html
+  // JOIN: web/auth/signup/auth-signup.html
   //============================================================
 
-  Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", "<div \n  class=\"web-auth-signup web-simple-form\" \n  :class=\"TopClass\">\n  <!--\n    Top Logo\n  -->\n  <div \n    v-if=\"logo\"\n      class=\"as-logo\">\n      <ti-icon :value=\"logo\"/>\n  </div>\n  <!--\n    Head text\n  -->\n  <header>{{Msgs.title|i18n}}</header>\n  <!--\n    Main Area\n  -->\n  <section>\n    <!--\n      Input: Name\n    -->\n    <div class=\"as-input\" :class=\"NameClass\">\n      <input \n        spellcheck=\"false\"\n        :placeholder=\"Msgs.nameTip|i18n\"\n        v-model=\"data.name\"></div>\n    <!--\n      Input: Password\n    -->\n    <div class=\"as-input\" :class=\"PasswdClass\">\n      <input \n        spellcheck=\"false\"\n        :type=\"PasswdInputType\"\n        :placeholder=\"Msgs.passwdTip|i18n\"\n        v-model=\"data.passwd\">\n      <span v-if=\"Msgs.codeGet\">\n        <em v-if=\"delay>0\">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>\n        <a v-else\n          @click=\"OnGetVcode\">{{Msgs.codeGet|i18n}}</a>\n      </span>\n    </div>\n    <!--\n      Submit button\n    -->\n    <div class=\"as-btn\">\n      <button @click=\"OnAuthSubmit\">{{Msgs.btnText|i18n}}</button>\n    </div>\n    <!--\n      Sublinks: switch mode / passwd-back\n    -->\n    <ul class=\"as-links\">\n      <li v-if=\"Msgs.linkLeft\"\n        class=\"at-left\">\n        <a @click=\"OnChangeMode\">{{Msgs.linkLeft   |i18n}}</a>\n      </li>\n      <li v-if=\"Msgs.linkRight\"\n        class=\"at-right\">\n        <a>{{Msgs.linkRight |i18n}}</a></li>\n    </ul>\n  </section>\n  <!--\n    Bottom link for oauth2\n  -->\n  <template v-if=\"hasOAuth2\">\n    <div class=\"as-spacing\"></div>\n    <footer>\n      <a\n        v-for=\"it in OAuth2Items\"\n          :href=\"it.href\"\n          :title=\"it.tip\">\n          <ti-icon :value=\"it.icon\"/>\n      </a>\n    </footer>\n  </template>\n</div>"); //============================================================
-  // JOIN: web/auth/signup/web-auth-signup.mjs
+  Ti.Preload("ti/com/web/auth/signup/auth-signup.html", "<div \n  class=\"web-auth-signup web-simple-form\" \n  :class=\"TopClass\"\n  v-ti-activable>\n  <!--\n    Top Logo\n  -->\n  <div \n    v-if=\"logo\"\n      class=\"as-logo\">\n      <ti-icon :value=\"logo\"/>\n  </div>\n  <!--\n    Head text\n  -->\n  <header>{{Msgs.title|i18n}}</header>\n  <!--\n    Main Area\n  -->\n  <section>\n    <!--\n      Input: Name\n    -->\n    <div class=\"as-input\" :class=\"NameClass\">\n      <input \n        spellcheck=\"false\"\n        :placeholder=\"Msgs.nameTip|i18n\"\n        v-model=\"data.name\"></div>\n    <!--\n      Input: Password\n    -->\n    <div class=\"as-input\" :class=\"PasswdClass\">\n      <input \n        spellcheck=\"false\"\n        :type=\"PasswdInputType\"\n        :placeholder=\"Msgs.passwdTip|i18n\"\n        v-model=\"data.passwd\">\n      <span v-if=\"Msgs.codeGet\">\n        <em v-if=\"delay>0\">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>\n        <a v-else\n          @click=\"OnGetVcode\">{{Msgs.codeGet|i18n}}</a>\n      </span>\n    </div>\n    <!--\n      Submit button\n    -->\n    <div class=\"as-btn\">\n      <button @click=\"OnAuthSubmit\">{{Msgs.btnText|i18n}}</button>\n    </div>\n    <!--\n      Sublinks: switch mode / passwd-back\n    -->\n    <ul \n      v-if=\"hasToggleMode\"\n        class=\"as-links\">\n        <li v-if=\"Msgs.linkLeft\"\n          class=\"at-left\">\n          <a @click=\"OnChangeMode\">{{Msgs.linkLeft   |i18n}}</a></li>\n        <li v-if=\"Msgs.linkRight\"\n          class=\"at-right\">\n          <a>{{Msgs.linkRight |i18n}}</a></li>\n    </ul>\n  </section>\n  <!--\n    Bottom link for oauth2\n  -->\n  <template v-if=\"hasOAuth2\">\n    <div class=\"as-spacing\"></div>\n    <footer>\n      <a\n        v-for=\"it in OAuth2Items\"\n          :href=\"it.href\"\n          :title=\"it.tip\">\n          <ti-icon :value=\"it.icon\"/>\n      </a>\n    </footer>\n  </template>\n</div>"); //============================================================
+  // JOIN: web/auth/signup/auth-signup.mjs
   //============================================================
 
   (function () {
@@ -26113,8 +26360,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return !_.isEmpty(this.OAuth2Items);
         },
         //---------------------------------------------------
+        hasToggleMode: function hasToggleMode() {
+          return !_.isEmpty(this.toggleMode);
+        },
+        //---------------------------------------------------
         // 验证码发送目标的名称（i18n）
-        ToggleModetName: function ToggleModetName() {
+        ToggleModeName: function ToggleModeName() {
           return {
             "login_by_phone": "i18n:auth-ta-phone",
             "login_by_email": "i18n:auth-ta-email",
@@ -26165,7 +26416,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //---------------------------------------------------
         OnAuthSubmit: function OnAuthSubmit() {
-          var _this137 = this;
+          var _this143 = this;
 
           this.guarding = true; // Guarding
 
@@ -26189,7 +26440,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             // Close loading toast
             done: function done() {
               toast.close();
-              _this137.InvalidField = null;
+              _this143.InvalidField = null;
             },
             ok: function ok() {
               Ti.Toast.Open({
@@ -26199,21 +26450,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 duration: 2000
               });
 
-              _this137.$notify("auth:ok");
+              _this143.$notify("auth:ok");
             },
             noexist: function noexist() {
-              _this137.InvalidField = "name";
+              _this143.InvalidField = "name";
             },
             invalid: function invalid() {
-              _this137.InvalidField = "passwd";
+              _this143.InvalidField = "passwd";
             },
             others: function others() {
-              _this137.InvalidField = ["name", "passwd"];
+              _this143.InvalidField = ["name", "passwd"];
             },
             fail: function fail() {
-              var _ref86 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                  errCode = _ref86.errCode,
-                  data = _ref86.data;
+              var _ref90 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                  errCode = _ref90.errCode,
+                  data = _ref90.data;
 
               // VCode Error
               if ("e.auth.captcha.invalid" == errCode) {
@@ -26222,7 +26473,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   position: "top",
                   content: "i18n:e-www-invalid-captcha",
                   vars: {
-                    ta: Ti.I18n.text(_this137.vCodeTargetName)
+                    ta: Ti.I18n.text(_this143.vCodeTargetName)
                   },
                   duration: 5000
                 });
@@ -26233,7 +26484,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     icon: "zmdi-shield-security",
                     textOk: "i18n:i-known",
                     vars: {
-                      ta: Ti.I18n.text(_this137.ToggleModetName)
+                      ta: Ti.I18n.text(_this143.ToggleModeName)
                     }
                   });
                 } // Others Error
@@ -26250,49 +26501,49 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //---------------------------------------------------
         OnGetVcode: function OnGetVcode() {
-          var _this138 = this;
+          var _this144 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee77() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee80() {
             var vars, src, captcha, toast;
-            return regeneratorRuntime.wrap(function _callee77$(_context77) {
+            return regeneratorRuntime.wrap(function _callee80$(_context80) {
               while (1) {
-                switch (_context77.prev = _context77.next) {
+                switch (_context80.prev = _context80.next) {
                   case 0:
-                    _this138.guarding = true; // The Account Name is required
+                    _this144.guarding = true; // The Account Name is required
 
-                    if (!_this138.isBlankName) {
-                      _context77.next = 5;
+                    if (!_this144.isBlankName) {
+                      _context80.next = 5;
                       break;
                     }
 
-                    _this138.InvalidField = "name";
-                    Ti.Toast.Open(_this138.Msgs["blankName"], "warn");
-                    return _context77.abrupt("return");
+                    _this144.InvalidField = "name";
+                    Ti.Toast.Open(_this144.Msgs["blankName"], "warn");
+                    return _context80.abrupt("return");
 
                   case 5:
                     // Reset invalid
-                    _this138.guarding = false;
-                    _this138.InvalidField = null; // Show the image captcha to prevent robot
+                    _this144.guarding = false;
+                    _this144.InvalidField = null; // Show the image captcha to prevent robot
 
-                    console.log("captcha", _this138.captcha);
+                    console.log("captcha", _this144.captcha);
                     vars = {
-                      scene: _this138.scenes.robot,
-                      account: _this138.Params.name
+                      scene: _this144.scenes.robot,
+                      account: _this144.Params.name
                     }; //let src = "/api/joysenses/auth/captcha?site=rv340tg5gcigsp6p5hvigc2gjb&account=18501211423"
 
-                    src = Ti.S.renderBy(_this138.captcha, vars);
-                    _context77.next = 12;
+                    src = Ti.S.renderBy(_this144.captcha, vars);
+                    _context80.next = 12;
                     return Ti.Captcha(src);
 
                   case 12:
-                    captcha = _context77.sent;
+                    captcha = _context80.sent;
 
                     if (captcha) {
-                      _context77.next = 15;
+                      _context80.next = 15;
                       break;
                     }
 
-                    return _context77.abrupt("return");
+                    return _context80.abrupt("return");
 
                   case 15:
                     // Mask GUI
@@ -26304,38 +26555,38 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       closer: false
                     }); // use the captcha to get code
 
-                    _this138.$notify("get:vcode", {
-                      type: _this138.currentMode,
-                      scene: _this138.vCodeScene,
-                      account: _this138.data.name,
+                    _this144.$notify("get:vcode", {
+                      type: _this144.currentMode,
+                      scene: _this144.vCodeScene,
+                      account: _this144.data.name,
                       captcha: captcha,
                       done: function done() {
                         toast.close();
-                        _this138.InvalidField = null;
-                        _this138.data.passwd = "";
+                        _this144.InvalidField = null;
+                        _this144.data.passwd = "";
                       },
                       ok: function ok() {
-                        var _ref87 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                            _ref87$duInMin = _ref87.duInMin,
-                            duInMin = _ref87$duInMin === void 0 ? 60 : _ref87$duInMin;
+                        var _ref91 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                            _ref91$duInMin = _ref91.duInMin,
+                            duInMin = _ref91$duInMin === void 0 ? 60 : _ref91$duInMin;
 
-                        _this138.delay = _this138.getDelay;
+                        _this144.delay = _this144.getDelay;
                         Ti.Toast.Open({
                           type: "success",
                           position: "top",
                           content: "i18n:auth-sent-ok",
                           vars: {
-                            ta: Ti.I18n.text(_this138.vCodeTargetName),
-                            by: Ti.I18n.text(_this138.vCodeTargetBy),
+                            ta: Ti.I18n.text(_this144.vCodeTargetName),
+                            by: Ti.I18n.text(_this144.vCodeTargetBy),
                             min: duInMin
                           },
                           duration: 5000
                         });
                       },
                       fail: function fail() {
-                        var _ref88 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                            errCode = _ref88.errCode,
-                            data = _ref88.data;
+                        var _ref92 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                            errCode = _ref92.errCode,
+                            data = _ref92.data;
 
                         Ti.Toast.Open({
                           type: "warn",
@@ -26348,10 +26599,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 17:
                   case "end":
-                    return _context77.stop();
+                    return _context80.stop();
                 }
               }
-            }, _callee77);
+            }, _callee80);
           }))();
         },
         //---------------------------------------------------
@@ -26363,6 +26614,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
 
           return name == this.InvalidField;
+        },
+        //-----------------------------------------------
+        // Callback
+        //-----------------------------------------------
+        __ti_shortcut: function __ti_shortcut(uniqKey) {
+          var _this145 = this;
+
+          //....................................
+          // If droplist is actived, should collapse it
+          if ("ENTER" == uniqKey) {
+            if (!this.isBlankNameOrPasswd) {
+              this.$nextTick(function () {
+                _this145.OnAuthSubmit();
+              });
+              return {
+                stop: true,
+                quit: true
+              };
+            }
+          }
         } //---------------------------------------------------
 
       },
@@ -26376,7 +26647,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ///////////////////////////////////////////////////////
       mounted: function mounted() {
-        var _this139 = this;
+        var _this146 = this;
 
         if (this.mode) {
           this.currentMode = this.mode;
@@ -26384,7 +26655,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
         this.__H = window.setInterval(function () {
-          if (_this139.delay >= 0) _this139.delay--;
+          if (_this146.delay >= 0) _this146.delay--;
         }, 1000);
       },
       ///////////////////////////////////////////////////////
@@ -26395,7 +26666,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       } ///////////////////////////////////////////////////////
 
     };
-    Ti.Preload("ti/com/web/auth/signup/web-auth-signup.mjs", _M);
+    Ti.Preload("ti/com/web/auth/signup/auth-signup.mjs", _M);
   })(); //============================================================
   // JOIN: web/auth/signup/_com.json
   //============================================================
@@ -26404,8 +26675,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   Ti.Preload("ti/com/web/auth/signup/_com.json", {
     "name": "web-auth-signup",
     "globally": true,
-    "template": "./web-auth-signup.html",
-    "mixins": ["./web-auth-signup.mjs"]
+    "template": "./auth-signup.html",
+    "mixins": ["./auth-signup.mjs"]
   }); //============================================================
   // JOIN: web/footer/web-footer.html
   //============================================================
@@ -26557,40 +26828,52 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: web/meta/article/web-meta-article.html
   //============================================================
 
-  Ti.Preload("ti/com/web/meta/article/web-meta-article.html", "<div class=\"ti-web-meta-article\">\n  <!--\n    Title\n  -->\n  <h1>{{title}}</h1>\n  <!--\n    Brief\n  -->\n  <div v-if=\"brief\"\n    class=\"as-brief\">{{brief}}</div>\n  <!--\n    Author/Date\n  -->\n  <div v-if=\"hasDateOrAuthor\"\n    class=\"as-sub\">\n    <ul>\n      <li v-if=\"author\">{{author}}</li>\n      <li v-if=\"date\">{{date}}</li>\n    </ul>\n  </div>\n  <!--\n    Bottom line\n  -->\n  <hr v-if=\"bottomLine\">\n</div>"); //============================================================
+  Ti.Preload("ti/com/web/meta/article/web-meta-article.html", "<div class=\"web-meta-article\"\n  :class=\"TopClass\">\n  <!--\n    Title\n  -->\n  <h1\n    v-if=\"title\"\n      class=\"as-title\">{{title}}</h1>\n  <!--\n    Information\n  -->\n  <div\n    v-if=\"hasInfo\"\n      class=\"as-info\">\n      <!--author-->\n      <div v-if=\"author\" class=\"as-author\">{{author}}</div>\n      <!--PubDateText-->\n      <div v-if=\"PubDateText\" class=\"as-pub-date\">{{PubDateText}}</div>\n      <!--Watch Count-->\n      <div\n        v-if=\"watchCount > 0\"\n          class=\"as-watch-count\">\n            <i class=\"zmdi zmdi-eye\"></i>\n            <span>{{watchCount}}</span></div>\n      <!--PubDateText-->\n      <div v-if=\"duration\" class=\"as-duration\">{{DurationText}}</div>\n  </div>\n  <!--\n    Tags\n  -->\n  <ul \n  v-if=\"hasTags\"\n    class=\"as-tags\">\n    <li\n      v-for=\"tag in TheTags\">{{tag}}</li></ul>\n  <!--\n    Brief\n  -->\n  <blockquote\n    v-if=\"brief\"\n      class=\"as-brief\">{{brief}}</blockquote>\n  <!--\n    Bottom line\n  -->\n  <hr v-if=\"bottomLine\" class=\"as-bottom-line\">\n</div>"); //============================================================
   // JOIN: web/meta/article/web-meta-article.mjs
   //============================================================
 
   (function () {
     var _M = {
-      inheritAttrs: false,
       /////////////////////////////////////////
       props: {
-        "meta": {
-          type: Object,
-          "default": function _default() {
-            return {};
-          }
-        },
-        "titleKey": {
+        "title": {
           type: String,
-          "default": "title"
+          "default": null
         },
-        "briefKey": {
+        "brief": {
           type: String,
-          "default": "brief"
+          "default": null
         },
-        "dateKey": {
-          type: String,
-          "default": "date"
+        "pubDate": {
+          type: [String, Number, Date],
+          "default": null
+        },
+        "tags": {
+          type: [String, Array],
+          "default": null
         },
         "dateFormat": {
           type: String,
           "default": "yyyy-MM-dd"
         },
-        "authorKey": {
+        "author": {
           type: String,
-          "default": "author"
+          "default": null
+        },
+        "duration": {
+          type: [String, Number],
+          "default": null
+        },
+        "watchCount": {
+          type: Number,
+          "default": 0
+        },
+        "align": {
+          type: String,
+          "default": "center",
+          validator: function validator(v) {
+            return /^(left|center|right)$/.test(v);
+          }
         },
         "bottomLine": {
           type: Boolean,
@@ -26600,40 +26883,36 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //////////////////////////////////////////
       computed: {
         //......................................
-        title: function title() {
-          if (this.titleKey) {
-            return this.meta[this.titleKey];
+        TopClass: function TopClass() {
+          return this.getTopClass("align-".concat(this.align));
+        },
+        //......................................
+        TheTags: function TheTags() {
+          return Ti.S.toArray(this.tags);
+        },
+        //......................................
+        hasTags: function hasTags() {
+          return !_.isEmpty(this.TheTags);
+        },
+        //......................................
+        DurationText: function DurationText() {
+          if (_.isNumber(this.duration)) {
+            return Ti.I18n.getf("du-in-min", {
+              n: this.duration
+            });
           }
 
-          return "NoTitle";
+          return this.duration;
         },
         //......................................
-        brief: function brief() {
-          if (this.briefKey) {
-            return this.meta[this.briefKey];
+        PubDateText: function PubDateText() {
+          if (this.pubDate) {
+            return Ti.DateTime.format(this.pubDate, this.dateFormat);
           }
         },
         //......................................
-        hasDateOrAuthor: function hasDateOrAuthor() {
-          return this.date || this.author ? true : false;
-        },
-        //......................................
-        date: function date() {
-          if (this.dateKey) {
-            var ds = this.meta[this.dateKey];
-
-            if (ds) {
-              try {
-                return Ti.Types.formatDate(ds, this.dateFormat);
-              } catch (E) {}
-            }
-          }
-        },
-        //......................................
-        author: function author() {
-          if (this.authorKey) {
-            return this.meta[this.authorKey];
-          }
+        hasInfo: function hasInfo() {
+          return this.author || this.watchCount > 0 || this.author || this.duration;
         } //......................................
 
       } //////////////////////////////////////////
@@ -26730,9 +27009,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           this.$notify("buy:now");
         },
         //......................................
-        OnFormChanged: function OnFormChanged(_ref89) {
-          var name = _ref89.name,
-              value = _ref89.value;
+        OnFormChanged: function OnFormChanged(_ref93) {
+          var name = _ref93.name,
+              value = _ref93.value;
           this.$notify("meta:changed", {
             name: name,
             value: value
@@ -26869,18 +27148,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         totalFee: function totalFee() {
           var tot = 0;
 
-          var _iterator63 = _createForOfIteratorHelper(this.items),
-              _step63;
+          var _iterator60 = _createForOfIteratorHelper(this.items),
+              _step60;
 
           try {
-            for (_iterator63.s(); !(_step63 = _iterator63.n()).done;) {
-              var it = _step63.value;
+            for (_iterator60.s(); !(_step60 = _iterator60.n()).done;) {
+              var it = _step60.value;
               tot += Ti.WWW.evalFee(it);
             }
           } catch (err) {
-            _iterator63.e(err);
+            _iterator60.e(err);
           } finally {
-            _iterator63.f();
+            _iterator60.f();
           }
 
           return tot;
@@ -27002,10 +27281,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       computed: {
         //------------------------------------
         TopClass: function TopClass() {
-          var _this140 = this;
+          var _this147 = this;
 
           return this.getTopClass("is-spacing-".concat(this.spacing), "is-align-".concat(this.align), function () {
-            if (_this140.border) return "is-border-".concat(_this140.border);
+            if (_this147.border) return "is-border-".concat(_this147.border);
           });
         },
         //------------------------------------
@@ -27018,9 +27297,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //------------------------------------
         OnClickLink: function OnClickLink(evt) {
-          var _ref90 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              type = _ref90.type,
-              value = _ref90.value;
+          var _ref94 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              type = _ref94.type,
+              value = _ref94.value;
 
           if (/^(page|action)$/.test(type)) {
             evt.preventDefault();
@@ -27036,7 +27315,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------
         evalItems: function evalItems(items) {
-          var _this141 = this;
+          var _this148 = this;
 
           var list = [];
 
@@ -27047,8 +27326,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             li.index = index; //................................
 
-            if (_this141.path) {
-              li.highlight = it.highlightBy(_this141.path);
+            if (_this148.path) {
+              li.highlight = it.highlightBy(_this148.path);
             } //................................
 
 
@@ -27061,7 +27340,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }; //................................
 
             if (it.items) {
-              li.items = _this141.evalItems(it.items);
+              li.items = _this148.evalItems(it.items);
             } //................................
 
 
@@ -27140,10 +27419,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       computed: {
         //------------------------------------
         TopClass: function TopClass() {
-          var _this142 = this;
+          var _this149 = this;
 
           return this.getTopClass("is-spacing-".concat(this.spacing), "is-align-".concat(this.align), function () {
-            if (_this142.border) return "is-border-".concat(_this142.border);
+            if (_this149.border) return "is-border-".concat(_this149.border);
           });
         },
         //------------------------------------
@@ -27156,9 +27435,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //------------------------------------
         OnClickLink: function OnClickLink(evt) {
-          var _ref91 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              type = _ref91.type,
-              value = _ref91.value;
+          var _ref95 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              type = _ref95.type,
+              value = _ref95.value;
 
           if (/^(page|action)$/.test(type)) {
             evt.preventDefault();
@@ -27173,11 +27452,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         },
         //------------------------------------
-        OnItemMouseEnter: function OnItemMouseEnter(_ref92) {
-          var _this143 = this;
+        OnItemMouseEnter: function OnItemMouseEnter(_ref96) {
+          var _this150 = this;
 
-          var index = _ref92.index,
-              items = _ref92.items;
+          var index = _ref96.index,
+              items = _ref96.items;
 
           // Guard
           if (_.isEmpty(items)) {
@@ -27191,12 +27470,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           this.mySubIndex = index; // Dock it
 
           this.$nextTick(function () {
-            return _this143.dockSub();
+            return _this150.dockSub();
           });
         },
         //------------------------------------
-        OnItemMouseLeave: function OnItemMouseLeave(_ref93) {
-          var index = _ref93.index;
+        OnItemMouseLeave: function OnItemMouseLeave(_ref97) {
+          var index = _ref97.index;
 
           if (this.mySubIndex == index) {
             this.mySubIndex = -1;
@@ -27223,7 +27502,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------
         evalItems: function evalItems(items) {
-          var _this144 = this;
+          var _this151 = this;
 
           var list = [];
 
@@ -27234,8 +27513,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             li.index = index; //................................
 
-            if (_this144.path) {
-              li.highlight = it.highlightBy(_this144.path);
+            if (_this151.path) {
+              li.highlight = it.highlightBy(_this151.path);
             } //................................
 
 
@@ -27269,76 +27548,522 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "mixins": ["./nav-links.mjs"],
     "components": []
   }); //============================================================
+  // JOIN: web/nav/side/com/side-item/side-item.html
+  //============================================================
+
+  Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.html", "<div class=\"side-item\" \n  :class=\"TopClass\">\n  <!--\n    Self Info\n  -->\n  <div class=\"it-info\" >\n    <!--Icon-->\n    <span\n      v-if=\"icon\"\n        class=\"it-info-icon\">\n        <ti-icon :value=\"icon\"/>\n    </span>\n    <!--Group-->\n    <span\n      v-if=\"isGroup\"\n        class=\"it-info-text\">{{title|i18n}}</span>\n    <!--Item-->\n    <a\n      v-else\n        class=\"it-info-text\"\n        :href=\"href\"\n        @click.stop.prevent=\"OnClickItemInfo\">{{title|i18n}}</a>\n  </div>\n  <!--\n    Sub Container\n  -->\n  <div \n    v-if=\"hasSubItems\"\n      class=\"it-con\">\n      <SideItem\n        v-for=\"subIt in items\"\n          :key=\"subIt.key\"\n          v-bind=\"subIt\"/>\n  </div>\n</div>"); //============================================================
+  // JOIN: web/nav/side/com/side-item/side-item.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      ///////////////////////////////////////////////////////
+      props: {
+        "depth": {
+          type: Number,
+          "default": 0
+        },
+        "icon": {
+          type: [String, Object],
+          "default": undefined
+        },
+        "title": {
+          type: String,
+          "default": undefined
+        },
+        "page": {
+          type: String,
+          "default": undefined
+        },
+        "href": {
+          type: String,
+          "default": undefined
+        },
+        "items": {
+          type: Array,
+          "default": undefined
+        }
+      },
+      ///////////////////////////////////////////////////////
+      computed: {
+        //---------------------------------------------------
+        TopClass: function TopClass() {
+          return {
+            "is-top": this.isTop,
+            "is-sub": !this.isTop,
+            "is-group": this.isGroup,
+            "is-item": !this.isGroup,
+            "is-highlight": this.isHighlight
+          };
+        },
+        //---------------------------------------------------
+        isTop: function isTop() {
+          return this.depth == 0;
+        },
+        //---------------------------------------------------
+        isGroup: function isGroup() {
+          return _.isArray(this.items);
+        },
+        //---------------------------------------------------
+        isHighlight: function isHighlight() {
+          return this.id && this.id == this.highlightId;
+        },
+        //---------------------------------------------------
+        hasSubItems: function hasSubItems() {
+          return !_.isEmpty(this.items);
+        } //---------------------------------------------------
+
+      },
+      ///////////////////////////////////////////////////////
+      methods: {
+        //---------------------------------------------------
+        OnClickItemInfo: function OnClickItemInfo() {
+          this.$notify("nav:to", {
+            value: this.page
+          });
+        } //---------------------------------------------------
+
+      } ///////////////////////////////////////////////////////
+
+    };
+    Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.mjs", _M);
+  })(); //============================================================
+  // JOIN: web/nav/side/com/side-item/_com.json
+  //============================================================
+
+
+  Ti.Preload("ti/com/web/nav/side/com/side-item/_com.json", {
+    "name": "side-item",
+    "template": "./side-item.html",
+    "mixins": ["./side-item.mjs"]
+  }); //============================================================
+  // JOIN: web/nav/side/web-nav-side.html
+  //============================================================
+
+  Ti.Preload("ti/com/web/nav/side/web-nav-side.html", "<div class=\"web-nav-side\"\n  :class=\"TopClass\"\n  v-ti-activable>\n  <SideItem\n    v-for=\"it in TheItems\"\n      :key=\"it.key\"\n        v-bind=\"it\"/>\n</div>"); //============================================================
+  // JOIN: web/nav/side/web-nav-side.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      /////////////////////////////////////////
+      props: {
+        "base": {
+          type: String,
+          "default": undefined
+        },
+        "items": {
+          type: Array,
+          "default": null
+        }
+      },
+      //////////////////////////////////////////
+      computed: {
+        //--------------------------------------
+        TopClass: function TopClass() {
+          return this.getTopClass();
+        },
+        //-------------------------------------
+        TheItems: function TheItems() {
+          var _this152 = this;
+
+          var list = [];
+
+          _.forEach(this.items, function (it, index) {
+            list.push(_this152.evalItem(it, index, 0));
+          });
+
+          return list;
+        } //-------------------------------------
+
+      },
+      //////////////////////////////////////////
+      methods: {
+        //-------------------------------------
+        evalItem: function evalItem() {
+          var _this153 = this;
+
+          var it = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          var index = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+          var depth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+          // Children
+          var items = undefined;
+
+          if (_.isArray(it.items)) {
+            items = [];
+
+            _.forEach(it.items, function (subIt, subIndex) {
+              items.push(_this153.evalItem(subIt, subIndex, depth + 1));
+            });
+
+            it.items = items;
+          } // href
+
+
+          var href = it.href || it.page;
+
+          if (this.base && !/^(https?)?\/\/?/.test(href)) {
+            href = Ti.Util.appendPath(this.base, href);
+          } //console.log("href", href)
+          // Self
+
+
+          return _objectSpread({}, it, {
+            index: index,
+            href: href,
+            depth: depth,
+            key: "it-".concat(index)
+          });
+        } //-------------------------------------
+
+      } //////////////////////////////////////////
+
+    };
+    Ti.Preload("ti/com/web/nav/side/web-nav-side.mjs", _M);
+  })(); //============================================================
+  // JOIN: web/nav/side/_com.json
+  //============================================================
+
+
+  Ti.Preload("ti/com/web/nav/side/_com.json", {
+    "name": "web-nav-side",
+    "globally": true,
+    "template": "./web-nav-side.html",
+    "mixins": ["./web-nav-side.mjs"],
+    "components": ["./com/side-item"]
+  }); //============================================================
+  // JOIN: web/pay/checkout/web-pay-checkout-props.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      "tipIcon": {
+        type: String,
+        "default": "fas-clipboard-check"
+      },
+      "tipText": {
+        type: String,
+        "default": "i18n:pay-checkout-tip"
+      },
+
+      /**
+       * Items Array should like:
+       * {
+       *   id: "xxx",      // Item ID
+       *   title: "xxx",   // Item display name
+       *   price: 34,      // Item price
+       *   amount: 2,      // Buy number
+       *   thumbSrc        // [optional] Item preview src
+       *   href            // [optional] Item link
+       * }
+       */
+      "items": {
+        type: Array,
+        "default": function _default() {
+          return [];
+        }
+      },
+      "currency": {
+        type: String,
+        "default": "RMB"
+      }
+    };
+    Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout-props.mjs", _M);
+  })(); //============================================================
+  // JOIN: web/pay/checkout/web-pay-checkout.html
+  //============================================================
+
+
+  Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout.html", "<div class=\"web-pay-checkout\"\n  :class=\"TopClass\">\n  <!--\n    Blank\n  -->\n  <div \n    v-if=\"isEmpty\"\n      class=\"as-empty\">\n    <ti-loading\n      class=\"as-big\"\n      icon=\"fas-shopping-basket\"\n      text=\"You should pick something to checkout!\"/>\n  </div>\n  <!--\n    List table\n  -->\n  <template v-else>\n    <!--\n      Tip\n    -->\n    <div class=\"as-tip\">\n      <ti-icon :value=\"tipIcon\"/>\n      <span>{{tipText | i18n}}</span>\n    </div>\n    <!--\n      List\n    -->\n    <div class=\"as-list\">\n      <!--\u5FAA\u73AF\u5C55\u793A\u5546\u54C1-->\n      <table>\n        <thead>\n          <tr>\n            <th><span>{{'pay-checkout-it-name'     | i18n}}</span></th>\n            <th>\n              <u>{{CurrencyChar}}</u>\n              <span>{{'pay-checkout-it-price'      | i18n}}</span>\n            </th>\n            <th><span>{{'pay-checkout-it-amount'   | i18n}}</span></th>\n            <th><span>{{'pay-checkout-it-subtotal' | i18n}}</span></th>\n          </tr>\n        </thead>\n        <tbody>\n          <tr\n            v-for=\"it of TheItems\"\n              class=\"as-item\">\n              <td class=\"it-thumb\">\n                <a\n                  v-if=\"it.thumbSrc\" \n                    @click.prevent=\"OnShowProduct(it)\" \n                    :href=\"it.href\">\n                    <img :src=\"it.thumbSrc\"/>\n                </a>\n                <div class=\"it-title\">\n                  <a :href=\"it.href\"\n                    @click.prevent=\"OnShowProduct(it)\">{{it.title}}</a>\n                </div>\n              </td>\n              <td class=\"it-price\">\n                <em>{{CurrencyChar}}{{it.price}}</em>\n              </td>\n              <td class=\"it-amount\">\n                <span>{{it.amount}}</span>\n              </td>\n              <td class=\"it-subtotal\">\n                <em>{{CurrencyChar}}{{it.subtotal}}</em>\n              </td>\n            </tr>\n          </tbody>\n      </table>\n    </div> <!--~as-list-->\n    <!--\n      Summary\n    -->\n    <div class=\"as-summary\">\n      <div class=\"at-left\">\n        <!--Maybe Coupon here-->\n      </div>\n      <div class=\"at-right\">\n        <div class=\"as-total\">\n          <span>Total:</span>\n          <em>{{CurrencyChar}}{{TotalFee}}</em>\n        </div>\n      </div>\n    </div>\n  </template>\n</div>"); //============================================================
+  // JOIN: web/pay/checkout/web-pay-checkout.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      //////////////////////////////////////////
+      computed: {
+        //--------------------------------------
+        TopClass: function TopClass() {
+          return this.getTopClass();
+        },
+        //--------------------------------------
+        isEmpty: function isEmpty() {
+          return _.isEmpty(this.items);
+        },
+        //--------------------------------------
+        CurrencyChar: function CurrencyChar() {
+          return Ti.Bank.getCurrencyChar(this.currency);
+        },
+        //--------------------------------------
+        TheItems: function TheItems() {
+          var list = [];
+
+          _.forEach(this.items, function (it) {
+            list.push(_objectSpread({}, it, {
+              subtotal: Ti.Num.precise(it.price * it.amount)
+            }));
+          });
+
+          return list;
+        },
+        //--------------------------------------
+        TotalFee: function TotalFee() {
+          var fee = 0;
+
+          _.forEach(this.TheItems, function (it) {
+            return fee += it.price * it.amount;
+          });
+
+          return Ti.Num.precise(fee);
+        } //--------------------------------------
+
+      },
+      //////////////////////////////////////////
+      methods: {
+        OnShowProduct: function OnShowProduct() {
+          var _ref98 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              id = _ref98.id;
+
+          this.$notify("show:product", id);
+        }
+      } //////////////////////////////////////////
+
+    };
+    Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout.mjs", _M);
+  })(); //============================================================
+  // JOIN: web/pay/checkout/_com.json
+  //============================================================
+
+
+  Ti.Preload("ti/com/web/pay/checkout/_com.json", {
+    "name": "web-pay-checkout",
+    "globally": true,
+    "template": "./web-pay-checkout.html",
+    "props": "./web-pay-checkout-props.mjs",
+    "mixins": ["./web-pay-checkout.mjs"]
+  }); //============================================================
+  // JOIN: web/pay/choose/web-pay-choose-props.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      "options": {
+        type: Array,
+        "default": function _default() {
+          return [{
+            "icon": "/gu/rs/ti/icons/png/wxpay256.png",
+            "value": "wx.qrcode",
+            "text": "i18n:pay-wx"
+          }, {
+            "icon": "/gu/rs/ti/icons/png/alipay256.png",
+            "value": "zfb.qrcode",
+            "text": "i18n:pay-zfb"
+          }];
+        }
+      }
+    };
+    Ti.Preload("ti/com/web/pay/choose/web-pay-choose-props.mjs", _M);
+  })(); //============================================================
+  // JOIN: web/pay/choose/web-pay-choose.html
+  //============================================================
+
+
+  Ti.Preload("ti/com/web/pay/choose/web-pay-choose.html", "<div class=\"web-pay-choose\"\n  :class=\"TopClass\">\n  <!--Title-->\n  <div class=\"as-title\">{{'pay-step-choose-tip'|i18n}}</div>\n  <!--Choosing-->\n  <div class=\"as-options\">\n    <div\n      v-for=\"op in options\"\n        class=\"as-pay-type\"\n        :class=\"getOptionClass(op)\"\n        @click.left=\"OnChooseOption(op)\">\n        <ti-icon :value=\"op.icon\"/>\n        <div class=\"as-text\">{{op.text | i18n}}</div>\n    </div>\n  </div>\n  <div class=\"as-tip\">{{PayTypeText}}</div>\n</div>"); //============================================================
+  // JOIN: web/pay/choose/web-pay-choose.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      /////////////////////////////////////////////////
+      props: {
+        "value": {
+          type: String,
+          "default": null
+        }
+      },
+      //////////////////////////////////////////////////
+      computed: {
+        //----------------------------------------------
+        TopClass: function TopClass() {
+          return this.getTopClass();
+        },
+        //----------------------------------------------
+        hasPayType: function hasPayType() {
+          return Ti.Bank.isValidPayType(this.value);
+        },
+        //----------------------------------------------
+        PayTypeText: function PayTypeText() {
+          return Ti.Bank.getPayTypeChooseI18nText(this.value, {
+            text: 'pay-step-choose-tip2',
+            nil: 'pay-step-choose-nil'
+          });
+        } //----------------------------------------------
+
+      },
+      //////////////////////////////////////////////////
+      methods: {
+        //----------------------------------------------
+        OnChooseOption: function OnChooseOption() {
+          var _ref99 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              value = _ref99.value;
+
+          this.$emit("change", {
+            payType: value
+          });
+        },
+        //----------------------------------------------
+        getOptionClass: function getOptionClass(op) {
+          if (op.value == this.value) {
+            return "is-enabled";
+          }
+
+          return "is-disabled";
+        } //----------------------------------------------
+
+      },
+      //////////////////////////////////////////////////
+      mounted: function mounted() {
+        this.$notify("change:title", "pay-step-choose-title2");
+      } //////////////////////////////////////////////////
+
+    };
+    Ti.Preload("ti/com/web/pay/choose/web-pay-choose.mjs", _M);
+  })(); //============================================================
+  // JOIN: web/pay/choose/_com.json
+  //============================================================
+
+
+  Ti.Preload("ti/com/web/pay/choose/_com.json", {
+    "name": "web-pay-choose",
+    "globally": true,
+    "template": "./web-pay-choose.html",
+    "props": "./web-pay-choose-props.mjs",
+    "mixins": ["./web-pay-choose.mjs"]
+  }); //============================================================
+  // JOIN: web/pay/done/web-pay-done-props.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      "okIcon": {
+        type: String,
+        "default": "im-check-mark-circle"
+      },
+      "okText": {
+        type: String,
+        "default": "i18n:pay-re-ok"
+      },
+      // [{icon, text, href(for newTab), path(for navTo)}]
+      "okLinks": {
+        type: Array,
+        "default": function _default() {
+          return [];
+        }
+      },
+      "failIcon": {
+        type: String,
+        "default": "im-warning"
+      },
+      "failText": {
+        type: String,
+        "default": "i18n:pay-re-fail"
+      },
+      // [{icon, text, href(for newTab), path(for navTo)}]
+      "failLinks": {
+        type: Array,
+        "default": function _default() {
+          return [];
+        }
+      },
+      // [{icon, text, href(for newTab), path(for navTo)}]
+      "doneLinks": {
+        type: Array,
+        "default": function _default() {
+          return [];
+        }
+      }
+    };
+    Ti.Preload("ti/com/web/pay/done/web-pay-done-props.mjs", _M);
+  })(); //============================================================
   // JOIN: web/pay/done/web-pay-done.html
   //============================================================
 
-  Ti.Preload("ti/com/web/pay/done/web-pay-done.html", "<div class=\"ti-web-pay-done\"\n  :class=\"topClass\">\n  <div class=\"done-con\">\n    <!--\n      Icon\n    -->\n    <div class=\"done-icon\">\n      <ti-icon :value=\"theIcon\"/>\n    </div>\n    <!--\n      Tip\n    -->\n    <div class=\"done-tip\">{{theTip | i18n}}</div>\n  </div>\n</div>"); //============================================================
+
+  Ti.Preload("ti/com/web/pay/done/web-pay-done.html", "<div class=\"web-pay-done\"\n  :class=\"TopClass\">\n  <!--\n    Icon\n  -->\n  <div class=\"as-icon\"><ti-icon :value=\"TheIcon\"/></div>\n  <!--\n    Text\n  -->\n  <div class=\"as-text\">{{TheText | i18n}}</div>\n  <!--\n    errMsg\n  -->\n  <div\n    v-if=\"errMsg\" \n      class=\"as-error\">{{errMsg | i18n}}</div>\n  <!--\n    Links\n  -->\n  <div\n    v-if=\"hasLinks\"\n      class=\"as-links\">\n      <ul>\n        <li\n          v-for=\"li in TheLinks\">\n          <a\n            class=\"link-item\"\n            :href=\"li.href\"\n            @click.left.prevent=\"OnClickLink(li)\">\n            <ti-icon\n              v-if=\"li.icon\"\n                :value=\"li.icon\"/>\n            <span class=\"it-text\">{{li.text | i18n}}</span>\n          </a>\n        </li>\n      </ul>\n  </div>\n</div>"); //============================================================
   // JOIN: web/pay/done/web-pay-done.mjs
   //============================================================
 
   (function () {
     var _M = {
-      inheritAttrs: false,
       /////////////////////////////////////////
       props: {
-        "payType": {
+        "payOk": {
+          type: Boolean,
+          "default": false
+        },
+        "errMsg": {
           type: String,
-          "default": null
+          "default": undefined
         },
-        "items": {
-          type: Array,
-          "default": function _default() {
-            return [];
-          }
-        },
-        "orderData": {
-          type: Object,
-          "default": function _default() {
-            return {};
-          }
+        "orderId": {
+          type: String,
+          "default": undefined
         }
       },
-      //////////////////////////////////////////
+      //////////////////////////////////////////////////
       computed: {
-        topClass: function topClass() {
-          return {
-            "is-ok": this.isOK,
-            "is-fail": this.isFAIL,
-            "is-wait": this.isWAIT
-          };
+        //----------------------------------------------
+        TopClass: function TopClass() {
+          return this.getTopClass({
+            "is-ok": this.payOk,
+            "is-fail": !this.payOk
+          });
         },
-        isOK: function isOK() {
-          return "OK" == this.orderData.st;
+        //----------------------------------------------
+        TheIcon: function TheIcon() {
+          return this.payOk ? this.okIcon : this.failIcon;
         },
-        isFAIL: function isFAIL() {
-          return "FAIL" == this.orderData.st;
+        //----------------------------------------------
+        TheText: function TheText() {
+          return this.payOk ? this.okText : this.failText;
         },
-        isWAIT: function isWAIT() {
-          return "WAIT" == this.orderData.st;
-        },
-        theIcon: function theIcon() {
-          if (this.isOK) {
-            return "zmdi-check-circle";
-          }
+        //----------------------------------------------
+        TheLinks: function TheLinks() {
+          var _this154 = this;
 
-          if (this.isFAIL) {
-            return "zmdi-alert-octagon";
-          }
+          var list = _.cloneDeep(this.payOk ? _.concat(this.okLinks, this.doneLinks) : _.concat(this.failLinks, this.doneLinks));
 
-          return "zmdi-notifications-active";
+          var links = [];
+
+          _.forEach(list, function (li) {
+            links.push(_.defaults(Ti.Util.explainObj(_this154, li), {
+              icon: 'zmdi-chevron-right'
+            }));
+          });
+
+          return links;
         },
-        theTip: function theTip() {
-          return {
-            "OK": "pay-re-ok",
-            "FAIL": "pay-re-fail",
-            "WAIT": "pay-re-wait"
-          }[this.orderData.st] || "pay-re-nil";
-        }
+        //----------------------------------------------
+        hasLinks: function hasLinks() {
+          return !_.isEmpty(this.TheLinks);
+        } //----------------------------------------------
+
       },
-      //////////////////////////////////////////
-      methods: {},
-      //////////////////////////////////////////
-      watch: {} //////////////////////////////////////////
+      //////////////////////////////////////////////////
+      methods: {
+        OnClickLink: function OnClickLink() {
+          var _ref100 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              path = _ref100.path,
+              params = _ref100.params;
+
+          if (path) {
+            this.$notify("nav:to", {
+              value: path,
+              params: params
+            });
+          }
+        }
+      } //////////////////////////////////////////////////
 
     };
     Ti.Preload("ti/com/web/pay/done/web-pay-done.mjs", _M);
@@ -27351,31 +28076,62 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "name": "web-pay-done",
     "globally": true,
     "template": "./web-pay-done.html",
+    "props": "./web-pay-done-props.mjs",
     "mixins": ["./web-pay-done.mjs"]
   }); //============================================================
-  // JOIN: web/pay/scan/web-pay-scan.html
-  //============================================================
-
-  Ti.Preload("ti/com/web/pay/scan/web-pay-scan.html", "<div class=\"ti-web-pay-scan\">\n  <div class=\"scan-con\">\n    <!--\n      QRCODE\n    -->\n    <div v-if=\"isQRCODE\"\n      class=\"is-qrcode\">\n      <img :src=\"paymentDataAsQrcodeUrl\">\n    </div>\n    <!--\n      IFRAME\n    -->\n    <div v-else-if=\"isIFRAME\"\n      class=\"is-iframe\">\n      <iframe \n        frameborder=\"0\" \n        scrolling=\"no\"\n        :src=\"paymentData\"></iframe>\n    </div>\n    <!--\n      Others\n    -->\n    <div v-else>\n      {{paymentData}}\n    </div>\n    <!--\n      Tip\n    -->\n    <div class=\"scan-tip\">{{theTip | i18n}}</div>\n  </div>\n  <!--\n    Check Button\n  -->\n  <div class=\"scan-check-btn ti-btn is-huge\"\n    @click.left=\"onClickCheckBtn\">\n    <ti-icon class=\"as-icon\" :value=\"checkBtnIcon\"/>\n    <span class=\"as-text\">{{checkBtnText|i18n}}</span>\n  </div>\n</div>"); //============================================================
-  // JOIN: web/pay/scan/web-pay-scan.mjs
+  // JOIN: web/pay/proceed/web-pay-proceed-props.mjs
   //============================================================
 
   (function () {
     var _M = {
-      inheritAttrs: false,
-      /////////////////////////////////////////
+      "watchUser": {
+        type: String,
+        "default": null
+      },
+      "qrcodeSize": {
+        type: [String, Number],
+        "default": 200
+      },
+      "getOrder": {
+        type: Function,
+        "default": undefined
+      },
+      "createOrder": {
+        type: Function,
+        "default": undefined
+      },
+      "checkOrder": {
+        type: Function,
+        "default": undefined
+      },
+      "returnUrl": {
+        type: String,
+        "default": undefined
+      }
+    };
+    Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed-props.mjs", _M);
+  })(); //============================================================
+  // JOIN: web/pay/proceed/web-pay-proceed.html
+  //============================================================
+
+
+  Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed.html", "<div class=\"web-pay-proceed\">\n  <!--\n    Wait for create order\n  -->\n  <div \n    v-if=\"!hasOrder\"\n      class=\"as-nil-order\">\n      <ti-loading\n        class=\"as-big\"\n        :text=\"OrderLoadText\"/>\n  </div>\n  <!--\n    Show payment\n  -->\n  <template\n    v-else>\n    <!--QRCODE-->\n    <div v-if=\"isQRCODE\"\n      class=\"as-main is-qrcode\">\n      <img \n        :style=\"QrcodeImageStyle\"\n        :src=\"PaymentDataAsQrcodeUrl\">\n    </div>\n    <!--IFRAME-->\n    <div v-else-if=\"isIFRAME\"\n      class=\"as-main is-iframe\">\n      <iframe \n        frameborder=\"0\" \n        scrolling=\"no\"\n        :src=\"PaymentData\"></iframe>\n    </div>\n    <!--\n      JSON\n    -->\n    <div v-else-if=\"isJSON\"\n      class=\"as-main is-json\">\n      <!--The self/approve/update/capture links for PayPal-->\n      <div\n        v-if=\"'paypal' == payType\"\n          class=\"by-paypal\">\n        <!--Logo-->\n        <div class=\"paypal-logo\">\n          <a \n            :href=\"PayPalLinksMap.approve.href\"\n            target=\"_blank\"><i class=\"fab fa-paypal\"></i></a>\n        </div>\n        <div class=\"paypal-tip\">{{'paypal-approve-tip'|i18n}}</div>\n      </div> <!--End PayPal-->\n    </div>\n    <!--\n      Others\n    -->\n    <div\n      v-else\n        class=\"as-main\">{{myOrder}}</div>\n    <!--\n      Check Button\n    -->\n    <div class=\"as-check\">\n      <div class=\"ti-btn is-huge\"\n        @click.left=\"OnClickCheckBtn\">\n        <ti-icon class=\"as-icon\" :value=\"CheckBtnIcon\"/>\n        <div class=\"as-text\">{{CheckBtnText|i18n}}</div>\n      </div>\n    </div>\n  </template>\n</div>"); //============================================================
+  // JOIN: web/pay/proceed/web-pay-proceed.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      //////////////////////////////////////////////////
       data: function data() {
         return {
-          __WS: null // The handle of websocket
-
+          __WS: null,
+          // The handle of websocket
+          myOrder: null,
+          isChecking: false
         };
       },
-      /////////////////////////////////////////
+      //////////////////////////////////////////////////
       props: {
-        "watchUser": {
-          type: String,
-          "default": null
-        },
         "payType": {
           type: String,
           "default": null
@@ -27386,243 +28142,501 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             return [];
           }
         },
-        "orderStatusOk": {
+        "orderId": {
+          type: String,
+          "default": undefined
+        },
+        "payOk": {
           type: Boolean,
-          "default": false
+          "default": undefined
         },
-        "orderPayment": {
-          type: Object,
-          "default": function _default() {
-            return {};
-          }
-        },
-        "orderData": {
-          type: Object,
-          "default": function _default() {
-            return {};
-          }
-        },
-        "qrcodeSize": {
-          type: Number,
-          "default": 200
+        "currency": {
+          type: String,
+          "default": "RMB"
         }
       },
-      //////////////////////////////////////////
+      //////////////////////////////////////////////////
       computed: {
+        TopClass: function TopClass() {
+          return this.getTopClass({
+            "has-paytype": this.hasPayType,
+            "nil-paytype": !this.hasPayType
+          }, "is-".concat(this.PayTypeName));
+        },
+        //----------------------------------------------
+        hasPayType: function hasPayType() {
+          return Ti.Bank.isValidPayType(this.payType);
+        },
+        //----------------------------------------------
+        PayTypeName: function PayTypeName() {
+          if (_.isString(this.payType)) {
+            return this.payType.replace(".", "-");
+          }
+        },
+        //----------------------------------------------
+        PayTypeText: function PayTypeText() {
+          return Ti.Bank.getPayTypeChooseI18nText(this.payType, {
+            text: 'pay-step-proceed-tip',
+            nil: 'pay-step-proceed-nil'
+          });
+        },
+        //----------------------------------------------
+        OrderLoadText: function OrderLoadText() {
+          return this.orderId ? "pay-step-proceed-fetch-order" : "pay-step-proceed-create-order";
+        },
+        //----------------------------------------------
+        hasOrder: function hasOrder() {
+          return !_.isEmpty(this.myOrder);
+        },
+        //----------------------------------------------
+        Payment: function Payment() {
+          return _.get(this.myOrder, "pay_re");
+        },
+        //----------------------------------------------
+        PaymentId: function PaymentId() {
+          return _.get(this.Payment, "payObjId");
+        },
+        //----------------------------------------------
+        PaymentStatus: function PaymentStatus() {
+          return _.get(this.Payment, "status");
+        },
+        //----------------------------------------------
+        PaymentData: function PaymentData() {
+          return _.get(this.Payment, "data");
+        },
+        //----------------------------------------------
+        PaymentDataType: function PaymentDataType() {
+          return _.get(this.Payment, "dataType");
+        },
+        //----------------------------------------------
+        isPaymentCreated: function isPaymentCreated() {
+          return _.get(this.Payment, "payObjId") ? true : false;
+        },
+        //----------------------------------------------
         isQRCODE: function isQRCODE() {
-          return "QRCODE" == this.orderPayment.dataType;
+          return "QRCODE" == this.PaymentDataType;
         },
+        //----------------------------------------------
         isIFRAME: function isIFRAME() {
-          return "IFRAME" == this.orderPayment.dataType;
+          return "IFRAME" == this.PaymentDataType;
         },
+        //----------------------------------------------
         isLINK: function isLINK() {
-          return "LINK" == this.orderPayment.dataType;
+          return "LINK" == this.PaymentDataType;
         },
+        //----------------------------------------------
         isJSON: function isJSON() {
-          return "JSON" == this.orderPayment.dataType;
+          return "JSON" == this.PaymentDataType;
         },
+        //----------------------------------------------
         isTEXT: function isTEXT() {
-          return "TEXT" == this.orderPayment.dataType;
+          return "TEXT" == this.PaymentDataType;
         },
-        paymentData: function paymentData() {
-          return this.orderPayment.data;
+        //----------------------------------------------
+        PaymentDataAsQrcodeUrl: function PaymentDataAsQrcodeUrl() {
+          return "/gu/qrcode?d=".concat(this.PaymentData, "&s=").concat(this.qrcodeSize, "&_=").concat(Date.now());
         },
-        paymentDataAsQrcodeUrl: function paymentDataAsQrcodeUrl() {
-          return "/gu/qrcode?d=".concat(this.orderPayment.data, "&s=").concat(this.qrcodeSize, "&_=").concat(Date.now());
+        //----------------------------------------------
+        PayPalLinksMap: function PayPalLinksMap() {
+          var map = {};
+
+          if (this.hasOrder && "paypal" == this.myOrder.pay_tp) {
+            _.forEach(this.PaymentData.links, function (li) {
+              map[li.rel] = li;
+            });
+          }
+
+          return map;
         },
-        theTip: function theTip() {
-          return {
-            "wx.qrcode": "pay-tip-wx-qrcode",
-            "zfb.qrcode": "pay-tip-zfb-qrcode"
-          }[this.payType] || "pay-by-nil";
+        //----------------------------------------------
+        QrcodeImageStyle: function QrcodeImageStyle() {
+          return Ti.Css.toStyleRem100({
+            width: this.qrcodeSize,
+            height: this.qrcodeSize
+          });
         },
-        checkBtnIcon: function checkBtnIcon() {
+        //----------------------------------------------
+        CheckBtnIcon: function CheckBtnIcon() {
+          if (this.isChecking) {
+            return "fas-spinner fa-spin";
+          }
+
           return "zmdi-assignment-check";
         },
-        checkBtnText: function checkBtnText() {
-          return "i18n:pay-check-do";
-        }
-      },
-      //////////////////////////////////////////
-      methods: {
-        //--------------------------------------
-        onClickCheckBtn: function onClickCheckBtn() {
-          this.$notify("pay-check");
-        },
-        //--------------------------------------
-        watchPaymentChanged: function watchPaymentChanged() {
-          var _this145 = this;
+        //----------------------------------------------
+        CheckBtnText: function CheckBtnText() {
+          if (this.isChecking) return "i18n:pay-proceed-ing";
+          return "i18n:pay-proceed-check";
+        } //----------------------------------------------
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee78() {
-            return regeneratorRuntime.wrap(function _callee78$(_context78) {
+      },
+      //////////////////////////////////////////////////
+      methods: {
+        //----------------------------------------------
+        OnClickCheckBtn: function OnClickCheckBtn() {
+          var _this155 = this;
+
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee81() {
+            return regeneratorRuntime.wrap(function _callee81$(_context81) {
               while (1) {
-                switch (_context78.prev = _context78.next) {
+                switch (_context81.prev = _context81.next) {
                   case 0:
-                    if (!(_this145.__WS || !_this145.watchUser || !_this145.orderData || !_this145.orderData.pay_id)) {
-                      _context78.next = 2;
+                    if (!_.isFunction(_this155.checkOrder)) {
+                      _context81.next = 6;
                       break;
                     }
 
-                    return _context78.abrupt("return");
+                    _this155.isChecking = true;
+                    _context81.next = 4;
+                    return _this155.checkOrder(_this155.orderId);
 
-                  case 2:
-                    // Watch Remote
-                    _this145.__WS = Ti.Websocket.listenRemote({
-                      watchTo: {
-                        method: "watch",
-                        user: _this145.watchUser,
-                        match: {
-                          id: _this145.orderData.pay_id
-                        }
-                      },
-                      received: function received(wso) {
-                        console.log("websocket", wso);
+                  case 4:
+                    _this155.myOrder = _context81.sent;
+                    _this155.isChecking = false;
 
-                        _this145.onClickCheckBtn();
-                      },
-                      closed: function closed() {
-                        _this145.unwatchPaymentChanged();
-                      }
-                    });
-
-                  case 3:
+                  case 6:
                   case "end":
-                    return _context78.stop();
+                    return _context81.stop();
                 }
               }
-            }, _callee78);
+            }, _callee81);
           }))();
         },
-        //--------------------------------------
+        //----------------------------------------------
+        checkOrCreateOrder: function checkOrCreateOrder() {
+          var _this156 = this;
+
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee82() {
+            var payItems, order, href, link, url, params;
+            return regeneratorRuntime.wrap(function _callee82$(_context82) {
+              while (1) {
+                switch (_context82.prev = _context82.next) {
+                  case 0:
+                    if (!_this156.hasOrder) {
+                      _context82.next = 2;
+                      break;
+                    }
+
+                    return _context82.abrupt("return");
+
+                  case 2:
+                    if (!_this156.orderId) {
+                      _context82.next = 9;
+                      break;
+                    }
+
+                    if (!_.isFunction(_this156.getOrder)) {
+                      _context82.next = 7;
+                      break;
+                    }
+
+                    _context82.next = 6;
+                    return _this156.getOrder(_this156.orderId, _this156.payType);
+
+                  case 6:
+                    _this156.myOrder = _context82.sent;
+
+                  case 7:
+                    _context82.next = 16;
+                    break;
+
+                  case 9:
+                    if (!_.isFunction(_this156.createOrder)) {
+                      _context82.next = 16;
+                      break;
+                    }
+
+                    payItems = _.map(_this156.items, function (it) {
+                      return {
+                        id: it.id,
+                        amount: it.amount || 1,
+                        title: it.title,
+                        price: it.price
+                      };
+                    });
+                    _context82.next = 13;
+                    return _this156.createOrder({
+                      payType: _this156.payType,
+                      items: payItems
+                    });
+
+                  case 13:
+                    order = _context82.sent;
+
+                    _this156.$emit("change", {
+                      orderId: _.get(order, "id")
+                    });
+
+                    _this156.myOrder = order;
+
+                  case 16:
+                    if (!("paypal" == _this156.payType && _this156.isPaymentCreated)) {
+                      _context82.next = 25;
+                      break;
+                    }
+
+                    href = _.get(_this156.PayPalLinksMap, "approve.href");
+                    link = Ti.Util.parseHref(href);
+                    url = "".concat(link.protocol, "://").concat(link.host).concat(link.path, "?return=");
+                    console.log("🤳", {
+                      href: href,
+                      link: link,
+                      url: url
+                    });
+                    params = _.assign({}, link.params);
+
+                    if (_this156.returnUrl) {
+                      params.returnurl = _this156.returnurl;
+                    }
+
+                    _context82.next = 25;
+                    return Ti.Be.Open(url, {
+                      // params: _.assign({
+                      //     returnurl: "http://onchina.local.io:8080/page/shop/payok.html"
+                      //   },link.params),
+                      params: params,
+                      delay: 1000
+                    });
+
+                  case 25:
+                    // Finally watch the payment change
+                    _this156.watchPaymentChanged();
+
+                  case 26:
+                  case "end":
+                    return _context82.stop();
+                }
+              }
+            }, _callee82);
+          }))();
+        },
+        //----------------------------------------------
+        watchPaymentChanged: function watchPaymentChanged() {
+          var _this157 = this;
+
+          // Guard
+          if (this.__WS || !this.watchUser || !this.hasOrder || !this.isPaymentCreated) {
+            return;
+          } // Watch Remote
+
+
+          console.log("【🦅】watchPaymentChanged");
+          this.__WS = Ti.Websocket.listenRemote({
+            watchTo: {
+              method: "watch",
+              user: this.watchUser,
+              match: {
+                id: this.PaymentId
+              }
+            },
+            received: function received(wso) {
+              console.log("【🦅】websocket", wso);
+
+              _this157.OnClickCheckBtn();
+            },
+            closed: function closed() {
+              _this157.unwatchPaymentChanged();
+            }
+          });
+        },
+        //----------------------------------------------
         unwatchPaymentChanged: function unwatchPaymentChanged() {
           if (this.__WS) {
             this.__WS.close();
           }
-        } //--------------------------------------
+        } //----------------------------------------------
 
       },
-      //////////////////////////////////////////
+      //////////////////////////////////////////////////
       watch: {
-        "orderData.st": function orderDataSt() {
-          if (/^(OK|FAIL)$/.test(this.orderData.st)) {
-            this.$notify("pay-done");
-          }
+        "PaymentStatus": function PaymentStatus(status) {
+          // Fail
+          if ("FAIL" == status) {
+            this.$emit("change", {
+              payOk: false,
+              errMsg: JSON.stringify(this.PaymentData)
+            });
+            this.$notify("step:change", "@next");
+          } // OK
+          else if ("OK" == status) {
+              this.$emit("change", {
+                payOk: true
+              });
+              this.$notify("step:change", "@next");
+            }
         }
       },
-      //////////////////////////////////////////
+      //////////////////////////////////////////////////
       mounted: function mounted() {
-        this.watchPaymentChanged();
+        var _this158 = this;
+
+        this.$notify("change:title", this.PayTypeText);
+        this.$nextTick(function () {
+          _this158.checkOrCreateOrder();
+        });
       },
-      //////////////////////////////////////////
+      //////////////////////////////////////////////////
       beforeDestroy: function beforeDestroy() {
         this.unwatchPaymentChanged();
-      } //////////////////////////////////////////
+      } //////////////////////////////////////////////////
 
     };
-    Ti.Preload("ti/com/web/pay/scan/web-pay-scan.mjs", _M);
+    Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed.mjs", _M);
   })(); //============================================================
-  // JOIN: web/pay/scan/_com.json
+  // JOIN: web/pay/proceed/_com.json
   //============================================================
 
 
-  Ti.Preload("ti/com/web/pay/scan/_com.json", {
-    "name": "web-pay-scan",
+  Ti.Preload("ti/com/web/pay/proceed/_com.json", {
+    "name": "web-pay-proceed",
     "globally": true,
-    "template": "./web-pay-scan.html",
-    "mixins": ["./web-pay-scan.mjs"]
+    "template": "./web-pay-proceed.html",
+    "props": "./web-pay-proceed-props.mjs",
+    "mixins": ["./web-pay-proceed.mjs"]
   }); //============================================================
-  // JOIN: web/pay/types/web-pay-types.html
+  // JOIN: web/pay/web-pay.html
   //============================================================
 
-  Ti.Preload("ti/com/web/pay/types/web-pay-types.html", "<div class=\"ti-web-pay-types\">\n  <!--Choosing-->\n  <ti-web-choose-mode\n    :base=\"base\"\n    :options=\"options\"\n    :value=\"value\"\n    @change=\"$notify('change', $event)\"/>\n  <!--Button-->\n  <div class=\"ti-btn is-huge\" \n    :class=\"btnClass\"\n    @click.left=\"onClickBtn\">\n    <span class=\"as-text\">{{payTypeText|i18n}}</span>\n  </div>\n</div>"); //============================================================
-  // JOIN: web/pay/types/web-pay-types.mjs
+  Ti.Preload("ti/com/web/pay/web-pay.html", "<div class=\"web-pay\">\n  <ti-wizard\n    :current=\"0\"\n    :title=\"title\"\n    :steps=\"PaySteps\"\n    :value=\"myPayment\"\n    can-click-head-item=\"passed\"\n    @change=\"OnChange\"/>\n</div>"); //============================================================
+  // JOIN: web/pay/web-pay.mjs
   //============================================================
 
   (function () {
     var _M = {
-      inheritAttrs: false,
-      /////////////////////////////////////////
+      ///////////////////////////////////////////////////
+      data: function data() {
+        return {
+          myPayment: {
+            payType: null,
+            //payType: "wx.qrcode",
+            orderId: undefined,
+            payOk: undefined,
+            errMsg: null
+          }
+        };
+      },
+      ///////////////////////////////////////////////////
       props: {
-        "base": {
+        "title": {
           type: String,
-          "default": "/gu/rs/ti/icons/png/"
+          "default": "i18n:pay-title"
         },
-        "options": {
+        "payType": {
+          type: String,
+          "default": null
+        },
+        "payTypeOptions": {
           type: Array,
-          "default": function _default() {
-            return [{
-              "icon": "wxpay256.png",
-              "value": "wx.qrcode",
-              "text": "i18n:pay-wx"
-            }, {
-              "icon": "alipay256.png",
-              "value": "zfb.qrcode",
-              "text": "i18n:pay-zfb"
-            }];
-          } // default : ()=>[
-          //   {"icon":"fab-weixin",  "value":"wx.qrcode",  "text":"i18n:pay-wx"},
-          //   {"icon":"fab-alipay", "value":"zfb.qrcode", "text":"i18n:pay-zfb"}]
-
-        },
-        "value": {
-          type: String,
-          "default": null
-        },
-        "apiName": {
-          type: String,
-          "default": null
-        },
-        "orderStatusOk": {
-          type: Boolean,
-          "default": false
+          "default": undefined
         }
       },
-      //////////////////////////////////////////
+      ///////////////////////////////////////////////////
       computed: {
-        payTypeText: function payTypeText() {
-          return {
-            "wx.qrcode": "pay-by-wx-qrcode",
-            "zfb.qrcode": "pay-by-zfb-qrcode"
-          }[this.value] || "pay-by-nil";
-        },
-        btnClass: function btnClass() {
-          if (this.value) {
-            return "is-enabled";
-          }
+        //----------------------------------------------
+        PaySteps: function PaySteps() {
+          var _this159 = this;
 
-          return "is-disabled";
-        }
+          return [{
+            title: "i18n:pay-step-checkout-title",
+            next: {
+              enabled: function enabled() {
+                return !_.isEmpty(_this159.items);
+              }
+            },
+            comType: "WebPayCheckout",
+            comConf: {
+              tipIcon: this.tipIcon,
+              tipText: this.tipText,
+              items: this.items,
+              currency: this.currency
+            }
+          }, {
+            title: "i18n:pay-step-choose-title",
+            prev: true,
+            next: {
+              enabled: {
+                payType: "notBlank"
+              }
+            },
+            comType: "WebPayChoose",
+            comConf: {
+              options: this.options,
+              value: "=payType"
+            }
+          }, {
+            title: "i18n:pay-step-proceed-title",
+            prev: true,
+            next: {
+              enabled: {
+                payOk: "isBoolean",
+                orderId: "notBlank"
+              }
+            },
+            comType: "WebPayProceed",
+            comConf: {
+              items: this.items,
+              currency: this.currency,
+              payType: "=payType",
+              orderId: "=orderId",
+              payOk: "=payOk",
+              watchUser: this.watchUser,
+              qrcodeSize: this.qrcodeSize,
+              getOrder: this.getOrder,
+              createOrder: this.createOrder,
+              checkOrder: this.checkOrder,
+              returnUrl: this.returnUrl
+            }
+          }, {
+            title: "pay-step-done-title",
+            comType: "WebPayDone",
+            comConf: {
+              payOk: "=payOk",
+              errMsg: "=errMsg",
+              orderId: "=orderId",
+              okIcon: this.okIcon,
+              okText: this.okText,
+              okLinks: this.okLinks,
+              failIcon: this.failIcon,
+              failText: this.failText,
+              failLinks: this.failLinks,
+              doneLinks: this.doneLinks
+            }
+          }];
+        } //----------------------------------------------
+
       },
-      //////////////////////////////////////////
+      ///////////////////////////////////////////////////
       methods: {
-        onClickBtn: function onClickBtn() {
-          if (this.value) {
-            this.$notify("pay-buy");
-          }
-        }
+        //----------------------------------------------
+        OnChange: function OnChange(payment) {
+          _.assign(this.myPayment, payment);
+        } //----------------------------------------------
+
       },
-      //////////////////////////////////////////
+      ///////////////////////////////////////////////////
       watch: {
-        "orderStatusOk": function orderStatusOk() {
-          if (this.orderStatusOk) {
-            this.$notify("pay-ready");
-          }
+        "payType": {
+          handler: function handler() {
+            this.myPayment.payType = this.payType;
+          },
+          immediate: true
         }
-      } //////////////////////////////////////////
+      } ///////////////////////////////////////////////////
 
     };
-    Ti.Preload("ti/com/web/pay/types/web-pay-types.mjs", _M);
+    Ti.Preload("ti/com/web/pay/web-pay.mjs", _M);
   })(); //============================================================
-  // JOIN: web/pay/types/_com.json
+  // JOIN: web/pay/_com.json
   //============================================================
 
 
-  Ti.Preload("ti/com/web/pay/types/_com.json", {
-    "name": "web-pay-types",
+  Ti.Preload("ti/com/web/pay/_com.json", {
+    "name": "web-pay",
     "globally": true,
-    "template": "./web-pay-types.html",
-    "mixins": ["./web-pay-types.mjs"],
-    "components": ["@com:web/widget/choose-mode"]
+    "template": "./web-pay.html",
+    "props": ["@com:web/pay/checkout/web-pay-checkout-props.mjs", "@com:web/pay/choose/web-pay-choose-props.mjs", "@com:web/pay/proceed/web-pay-proceed-props.mjs", "@com:web/pay/done/web-pay-done-props.mjs"],
+    "mixins": ["./web-pay.mjs"],
+    "components": ["@com:ti/wizard", "@com:web/pay/checkout", "@com:web/pay/choose", "@com:web/pay/proceed", "@com:web/pay/done"]
   }); //============================================================
   // JOIN: web/shelf/free/web-shelf-free.html
   //============================================================
@@ -27912,10 +28926,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       watch: {
         "data": {
           handler: function handler() {
-            var _this146 = this;
+            var _this160 = this;
 
             this.$nextTick(function () {
-              _this146.evalScrolling();
+              _this160.evalScrolling();
             });
           },
           immediate: true
@@ -28154,86 +29168,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "template": "./web-text-raw.html",
     "mixins": ["./web-text-raw.mjs"]
   }); //============================================================
-  // JOIN: web/widget/choose-mode/web-choose-mode.html
+  // JOIN: web/widget/sharebar/widget-sharebar.html
   //============================================================
 
-  Ti.Preload("ti/com/web/widget/choose-mode/web-choose-mode.html", "<div class=\"ti-web-choose-mode\">\n  <div v-for=\"it in theItems\"\n    class=\"wcm-item\"\n    :class=\"it.className\"\n    @click.left=\"onClickItem(it)\">\n    <!--Icon-->\n    <ti-icon\n      class=\"as-icon\"\n      :base=\"base\"\n      :value=\"it.icon\"/>\n    <!--Text-->\n    <div v-if=\"it.text\"\n      class=\"as-text\">{{it.text|i18n}}</div>\n  </div>\n</div>"); //============================================================
-  // JOIN: web/widget/choose-mode/web-choose-mode.mjs
-  //============================================================
-
-  (function () {
-    var _M = {
-      inheritAttrs: false,
-      /////////////////////////////////////////
-      props: {
-        "base": {
-          type: String,
-          "default": null
-        },
-        "options": {
-          type: Array,
-          "default": function _default() {
-            return [];
-          }
-        },
-        "value": {
-          type: String,
-          "default": null
-        }
-      },
-      //////////////////////////////////////////
-      computed: {
-        //......................................
-        theItems: function theItems() {
-          var list = [];
-
-          var _iterator64 = _createForOfIteratorHelper(this.options),
-              _step64;
-
-          try {
-            for (_iterator64.s(); !(_step64 = _iterator64.n()).done;) {
-              var it = _step64.value;
-              list.push(_.assign({}, it, {
-                className: _.isEqual(this.value, it.value) ? "is-current" : "is-others"
-              }));
-            }
-          } catch (err) {
-            _iterator64.e(err);
-          } finally {
-            _iterator64.f();
-          }
-
-          return list;
-        } //......................................
-
-      },
-      //////////////////////////////////////////
-      methods: {
-        //......................................
-        onClickItem: function onClickItem(it) {
-          this.$notify("change", it.value);
-        } //......................................
-
-      } //////////////////////////////////////////
-
-    };
-    Ti.Preload("ti/com/web/widget/choose-mode/web-choose-mode.mjs", _M);
-  })(); //============================================================
-  // JOIN: web/widget/choose-mode/_com.json
-  //============================================================
-
-
-  Ti.Preload("ti/com/web/widget/choose-mode/_com.json", {
-    "name": "web-choose-mode",
-    "globally": true,
-    "template": "./web-choose-mode.html",
-    "mixins": ["./web-choose-mode.mjs"]
-  }); //============================================================
-  // JOIN: web/widget/sharebar/web-widget-sharebar.html
-  //============================================================
-
-  Ti.Preload("ti/com/web/widget/sharebar/web-widget-sharebar.html", "<div class=\"web-widget-sharebar\"\n  :class=\"TopClass\">\n  <!--\n    Title\n  -->\n  <div\n    v-if=\"title\"\n      class=\"as-title\">{{title|i18n}}</div>\n  <!--\n    Items\n  -->\n  <div class=\"as-items\">\n    <a\n      v-for=\"it in TheItems\"\n        class=\"bar-item\">\n      <i :class=\"it.iconClass\"></i>\n    </a>\n  </div>\n</div>"); //============================================================
-  // JOIN: web/widget/sharebar/web-widget-sharebar.mjs
+  Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.html", "<div class=\"web-widget-sharebar\"\n  :class=\"TopClass\">\n  <!--\n    Title\n  -->\n  <div\n    v-if=\"title\"\n      class=\"as-title\">{{title|i18n}}</div>\n  <!--\n    Items\n  -->\n  <div class=\"as-items\">\n    <a\n      v-for=\"it in TheItems\"\n        class=\"bar-item\">\n      <i :class=\"it.iconClass\"></i>\n    </a>\n  </div>\n</div>"); //============================================================
+  // JOIN: web/widget/sharebar/widget-sharebar.mjs
   //============================================================
 
   (function () {
@@ -28301,7 +29240,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       } /////////////////////////////////////////
 
     };
-    Ti.Preload("ti/com/web/widget/sharebar/web-widget-sharebar.mjs", _M);
+    Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.mjs", _M);
   })(); //============================================================
   // JOIN: web/widget/sharebar/_com.json
   //============================================================
@@ -28310,8 +29249,157 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   Ti.Preload("ti/com/web/widget/sharebar/_com.json", {
     "name": "web-widget-sharebar",
     "globally": true,
-    "template": "./web-widget-sharebar.html",
-    "mixins": ["./web-widget-sharebar.mjs"],
+    "template": "./widget-sharebar.html",
+    "mixins": ["./widget-sharebar.mjs"],
+    "components": []
+  }); //============================================================
+  // JOIN: web/widget/summary/widget-summary.html
+  //============================================================
+
+  Ti.Preload("ti/com/web/widget/summary/widget-summary.html", "<div class=\"web-widget-summary\"\n  :class=\"TopClass\">\n  <!--\n    Title\n  -->\n  <div\n    v-if=\"title\"\n      class=\"as-title\">{{title|i18n}}</div>\n  <!--\n    Items\n  -->\n  <div class=\"as-list\">\n    <div\n      v-for=\"it in TheItems\"\n        class=\"as-item\">\n      <!--Icon-->\n      <ti-icon\n        v-if=\"it.icon\"\n          :value=\"it.icon\"/>\n      <!--Value-->\n      <div class=\"as-value\">{{it.value}}</div>\n      <!--Text-->\n      <div\n        v-if=\"it.text\"\n          class=\"as-text\">{{it.text|i18n}}</div>\n    </div>\n  </div>\n</div>"); //============================================================
+  // JOIN: web/widget/summary/widget-summary.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      /////////////////////////////////////////
+      props: {
+        "title": {
+          type: String,
+          "default": undefined
+        },
+        "items": {
+          type: Array,
+          "default": function _default() {
+            return [];
+          }
+        }
+      },
+      /////////////////////////////////////////
+      computed: {
+        //------------------------------------
+        TopClass: function TopClass() {
+          return this.getTopClass();
+        },
+        //------------------------------------
+        TheItems: function TheItems() {
+          var list = [];
+
+          _.forEach(this.items, function (it, index) {
+            list.push({
+              key: "it-".concat(index),
+              index: index,
+              icon: it.icon,
+              text: it.text,
+              value: it.value || 0
+            });
+          });
+
+          return list;
+        } //------------------------------------
+
+      } /////////////////////////////////////////
+
+    };
+    Ti.Preload("ti/com/web/widget/summary/widget-summary.mjs", _M);
+  })(); //============================================================
+  // JOIN: web/widget/summary/_com.json
+  //============================================================
+
+
+  Ti.Preload("ti/com/web/widget/summary/_com.json", {
+    "name": "web-widget-summary",
+    "globally": true,
+    "template": "./widget-summary.html",
+    "mixins": ["./widget-summary.mjs"],
+    "components": []
+  }); //============================================================
+  // JOIN: web/widget/user/widget-user.html
+  //============================================================
+
+  Ti.Preload("ti/com/web/widget/user/widget-user.html", "<div class=\"web-widget-user\"\n  :class=\"TopClass\">\n  <!--\n    Avatar\n  -->\n  <div class=\"as-avatar\">\n    <ti-icon :value=\"TheAvatar\"/>\n  </div>\n  <!--\n    Nickname\n  -->\n  <div class=\"as-title\">\n    <div class=\"as-nickname\">{{TheNickname}}</div>\n  </div>\n  <!--\n    Action bar\n  -->\n  <div class=\"as-actions\">\n    <div class=\"ti-btn reset-passwd\">{{'passwd-reset'|i18n}}</div>\n    <div class=\"ti-btn edit-profile\">{{'profile-edit'|i18n}}</div>\n  </div>\n</div>"); //============================================================
+  // JOIN: web/widget/user/widget-user.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      /////////////////////////////////////////
+      props: {
+        "me": {
+          type: Object,
+          "default": function _default() {
+            return {};
+          }
+        },
+        "avatarSrc": {
+          type: String,
+          "default": undefined
+        },
+        "avatarIcons": {
+          type: Object,
+          "default": function _default() {
+            return {
+              "unknown": "far-user",
+              "male": "im-user-male",
+              "female": "im-user-female"
+            };
+          }
+        }
+      },
+      /////////////////////////////////////////
+      computed: {
+        //------------------------------------
+        TopClass: function TopClass() {
+          return this.getTopClass();
+        },
+        //------------------------------------
+        TheAvatar: function TheAvatar() {
+          var me = this.me || {};
+
+          if (this.avatarSrc && me.thumb) {
+            return {
+              type: "image",
+              value: Ti.S.renderVars(me.thumb, this.avatarSrc)
+            };
+          } // Icon: male
+
+
+          if (me.sex == 1) {
+            return this.avatarIcons.male;
+          } // Icon: female
+
+
+          if (me.sex == 2) {
+            return this.avatarIcons.female;
+          } // Icon: unknown
+
+
+          return this.avatarIcons.unknown || "far-user";
+        },
+        //------------------------------------
+        TheNickname: function TheNickname() {
+          var me = this.me || {};
+          return me.nickname || me.email || me.phone || me.nm || me.id || "Anonymity";
+        } //------------------------------------
+
+      },
+      /////////////////////////////////////////
+      methods: {} //------------------------------------
+      //------------------------------------
+      /////////////////////////////////////////
+
+    };
+    Ti.Preload("ti/com/web/widget/user/widget-user.mjs", _M);
+  })(); //============================================================
+  // JOIN: web/widget/user/_com.json
+  //============================================================
+
+
+  Ti.Preload("ti/com/web/widget/user/_com.json", {
+    "name": "web-widget-user",
+    "globally": true,
+    "template": "./widget-user.html",
+    "mixins": ["./widget-user.mjs"],
     "components": []
   }); //============================================================
   // JOIN: wn/adaptlist/wn-adaptlist-methods.mjs
@@ -28325,25 +29413,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
        * Create new object
        */
       doCreate: function doCreate() {
-        var _this147 = this;
+        var _this161 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee79() {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee83() {
           var _yield$Wn$Sys$exec, types, freeCreate, no, json, newMeta;
 
-          return regeneratorRuntime.wrap(function _callee79$(_context79) {
+          return regeneratorRuntime.wrap(function _callee83$(_context83) {
             while (1) {
-              switch (_context79.prev = _context79.next) {
+              switch (_context83.prev = _context83.next) {
                 case 0:
-                  _context79.next = 2;
-                  return Wn.Sys.exec("ti creation -cqn id:".concat(_this147.meta.id), {
+                  _context83.next = 2;
+                  return Wn.Sys.exec("ti creation -cqn id:".concat(_this161.meta.id), {
                     as: "json"
                   });
 
                 case 2:
-                  _yield$Wn$Sys$exec = _context79.sent;
+                  _yield$Wn$Sys$exec = _context83.sent;
                   types = _yield$Wn$Sys$exec.types;
                   freeCreate = _yield$Wn$Sys$exec.freeCreate;
-                  _context79.next = 7;
+                  _context83.next = 7;
                   return Ti.App.Open({
                     title: "i18n:create",
                     type: "success",
@@ -28359,106 +29447,108 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   });
 
                 case 7:
-                  no = _context79.sent;
+                  no = _context83.sent;
+                  console.log(no); // Do Create
+                  // Check the newName
 
                   if (!(no && no.name)) {
-                    _context79.next = 30;
+                    _context83.next = 31;
                     break;
                   }
 
                   if (!(no.name.search(/[%;:"'*?`\t^<>\/\\]/) >= 0)) {
-                    _context79.next = 13;
+                    _context83.next = 14;
                     break;
                   }
 
-                  _context79.next = 12;
+                  _context83.next = 13;
                   return Ti.Alert('i18n:wn-create-invalid');
 
-                case 12:
-                  return _context79.abrupt("return", _context79.sent);
-
                 case 13:
+                  return _context83.abrupt("return", _context83.sent);
+
+                case 14:
                   if (!(no.length > 256)) {
-                    _context79.next = 17;
+                    _context83.next = 18;
                     break;
                   }
 
-                  _context79.next = 16;
+                  _context83.next = 17;
                   return Ti.Alert('i18n:wn-create-too-long');
 
-                case 16:
-                  return _context79.abrupt("return", _context79.sent);
-
                 case 17:
+                  return _context83.abrupt("return", _context83.sent);
+
+                case 18:
                   // Do the creation
                   json = JSON.stringify({
                     nm: no.name,
                     tp: no.type == "folder" ? "" : no.type,
                     race: no.race
                   });
-                  _context79.next = 20;
-                  return Wn.Sys.exec2("obj id:".concat(_this147.meta.id, " -cqno -new '").concat(json, "'"), {
+                  _context83.next = 21;
+                  return Wn.Sys.exec2("obj id:".concat(_this161.meta.id, " -cqno -new '").concat(json, "'"), {
                     as: "json"
                   });
 
-                case 20:
-                  newMeta = _context79.sent;
+                case 21:
+                  newMeta = _context83.sent;
 
                   if (!(newMeta instanceof Error)) {
-                    _context79.next = 25;
+                    _context83.next = 26;
                     break;
                   }
 
                   Ti.Toast.Open("i18n:wn-create-fail", "error");
-                  _context79.next = 30;
+                  _context83.next = 31;
                   break;
 
-                case 25:
+                case 26:
                   Ti.Toast.Open("i18n:wn-create-ok", "success");
-                  _context79.next = 28;
-                  return _this147._run("reload");
+                  _context83.next = 29;
+                  return _this161._run("reload");
 
-                case 28:
+                case 29:
                   // Make it checked
-                  _this147.myCheckedIds = [newMeta.id];
-                  _this147.myCurrentId = newMeta.id;
+                  _this161.myCheckedIds = [newMeta.id];
+                  _this161.myCurrentId = newMeta.id;
 
-                case 30:
+                case 31:
                 case "end":
-                  return _context79.stop();
+                  return _context83.stop();
               }
             }
-          }, _callee79);
+          }, _callee83);
         }))();
       },
       //--------------------------------------------
       doRename: function doRename() {
-        var _this148 = this;
+        var _this162 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee80() {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee84() {
           var it, newName, oldSuffix, newSuffix, repair, newMeta;
-          return regeneratorRuntime.wrap(function _callee80$(_context80) {
+          return regeneratorRuntime.wrap(function _callee84$(_context84) {
             while (1) {
-              switch (_context80.prev = _context80.next) {
+              switch (_context84.prev = _context84.next) {
                 case 0:
-                  it = _this148.getCurrentItem();
+                  it = _this162.getCurrentItem();
 
                   if (it) {
-                    _context80.next = 5;
+                    _context84.next = 5;
                     break;
                   }
 
-                  _context80.next = 4;
+                  _context84.next = 4;
                   return Ti.Toast.Open('i18n:wn-rename-none', "warn");
 
                 case 4:
-                  return _context80.abrupt("return", _context80.sent);
+                  return _context84.abrupt("return", _context84.sent);
 
                 case 5:
-                  _this148.setItemStatus(it.id, "renaming");
+                  _this162.setItemStatus(it.id, "renaming");
 
-                  _context80.prev = 6;
-                  _context80.next = 9;
+                  _context84.prev = 6;
+                  _context84.next = 9;
                   return Ti.Prompt({
                     text: 'i18n:wn-rename',
                     vars: {
@@ -28471,35 +29561,35 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   });
 
                 case 9:
-                  newName = _context80.sent;
+                  newName = _context84.sent;
 
                   if (!newName) {
-                    _context80.next = 32;
+                    _context84.next = 32;
                     break;
                   }
 
                   if (!(newName.search(/[%;:"'*?`\t^<>\/\\]/) >= 0)) {
-                    _context80.next = 15;
+                    _context84.next = 15;
                     break;
                   }
 
-                  _context80.next = 14;
+                  _context84.next = 14;
                   return Ti.Alert('i18n:wn-rename-invalid');
 
                 case 14:
-                  return _context80.abrupt("return", _context80.sent);
+                  return _context84.abrupt("return", _context84.sent);
 
                 case 15:
                   if (!(newName.length > 256)) {
-                    _context80.next = 19;
+                    _context84.next = 19;
                     break;
                   }
 
-                  _context80.next = 18;
+                  _context84.next = 18;
                   return Ti.Alert('i18n:wn-rename-too-long');
 
                 case 18:
-                  return _context80.abrupt("return", _context80.sent);
+                  return _context84.abrupt("return", _context84.sent);
 
                 case 19:
                   // Check the suffix Name
@@ -28507,15 +29597,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   newSuffix = Ti.Util.getSuffix(newName);
 
                   if (!(oldSuffix && oldSuffix != newSuffix)) {
-                    _context80.next = 26;
+                    _context84.next = 26;
                     break;
                   }
 
-                  _context80.next = 24;
+                  _context84.next = 24;
                   return Ti.Confirm("i18n:wn-rename-suffix-changed");
 
                 case 24:
-                  repair = _context80.sent;
+                  repair = _context84.sent;
 
                   if (repair) {
                     newName += oldSuffix;
@@ -28523,16 +29613,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 26:
                   // Mark renaming
-                  _this148.setItemStatus(it.id, "loading"); // Do the rename
+                  _this162.setItemStatus(it.id, "loading"); // Do the rename
 
 
-                  _context80.next = 29;
+                  _context84.next = 29;
                   return Wn.Sys.exec2("obj id:".concat(it.id, " -cqno -u 'nm:\"").concat(newName, "\"'"), {
                     as: "json"
                   });
 
                 case 29:
-                  newMeta = _context80.sent;
+                  newMeta = _context84.sent;
 
                   // Error
                   if (newMeta instanceof Error) {
@@ -28541,10 +29631,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   else {
                       Ti.Toast.Open("i18n:wn-rename-ok", "success");
 
-                      _this148.setItem(newMeta);
+                      _this162.setItem(newMeta);
                     }
 
-                  _this148.setItemStatus({
+                  _this162.setItemStatus({
                     id: it.id,
                     status: {
                       loading: false
@@ -28552,43 +29642,43 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   });
 
                 case 32:
-                  _context80.prev = 32;
+                  _context84.prev = 32;
 
-                  _this148.setItemStatus(it.id, null);
+                  _this162.setItemStatus(it.id, null);
 
-                  return _context80.finish(32);
+                  return _context84.finish(32);
 
                 case 35:
                 case "end":
-                  return _context80.stop();
+                  return _context84.stop();
               }
             }
-          }, _callee80, null, [[6,, 32, 35]]);
+          }, _callee84, null, [[6,, 32, 35]]);
         }))();
       },
       //--------------------------------------------
       doDelete: function doDelete() {
-        var _this149 = this;
+        var _this163 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee81() {
-          var list, delCount, exRemovedIds, _iterator65, _step65, it, count, m, vdId;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee85() {
+          var list, delCount, exRemovedIds, _iterator61, _step61, it, count, m, vdId;
 
-          return regeneratorRuntime.wrap(function _callee81$(_context81) {
+          return regeneratorRuntime.wrap(function _callee85$(_context85) {
             while (1) {
-              switch (_context81.prev = _context81.next) {
+              switch (_context85.prev = _context85.next) {
                 case 0:
-                  list = _this149.getCheckedItems(); // Guard
+                  list = _this163.getCheckedItems(); // Guard
 
                   if (!_.isEmpty(list)) {
-                    _context81.next = 5;
+                    _context85.next = 5;
                     break;
                   }
 
-                  _context81.next = 4;
+                  _context85.next = 4;
                   return Ti.Toast.Open('i18n:wn-del-none', "warn");
 
                 case 4:
-                  return _context81.abrupt("return", _context81.sent);
+                  return _context85.abrupt("return", _context85.sent);
 
                 case 5:
                   delCount = 0; // make removed files. it remove a video
@@ -28598,67 +29688,67 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   // match the id set or not, then I will get peace
 
                   exRemovedIds = {};
-                  _context81.prev = 7;
+                  _context85.prev = 7;
                   // Loop items
-                  _iterator65 = _createForOfIteratorHelper(list);
-                  _context81.prev = 9;
+                  _iterator61 = _createForOfIteratorHelper(list);
+                  _context85.prev = 9;
 
-                  _iterator65.s();
+                  _iterator61.s();
 
                 case 11:
-                  if ((_step65 = _iterator65.n()).done) {
-                    _context81.next = 39;
+                  if ((_step61 = _iterator61.n()).done) {
+                    _context85.next = 39;
                     break;
                   }
 
-                  it = _step65.value;
+                  it = _step61.value;
 
                   if (!(!it || !it.id || !it.nm)) {
-                    _context81.next = 15;
+                    _context85.next = 15;
                     break;
                   }
 
-                  return _context81.abrupt("continue", 37);
+                  return _context85.abrupt("continue", 37);
 
                 case 15:
                   if (!(it.__is && (it.__is.loading || it.__is.removed))) {
-                    _context81.next = 17;
+                    _context85.next = 17;
                     break;
                   }
 
-                  return _context81.abrupt("continue", 37);
+                  return _context85.abrupt("continue", 37);
 
                 case 17:
                   if (!exRemovedIds[it.id]) {
-                    _context81.next = 19;
+                    _context85.next = 19;
                     break;
                   }
 
-                  return _context81.abrupt("continue", 37);
+                  return _context85.abrupt("continue", 37);
 
                 case 19:
                   // Mark item is processing
-                  _this149.setItemStatus(it.id, "loading"); // If DIR, check it is empty or not
+                  _this163.setItemStatus(it.id, "loading"); // If DIR, check it is empty or not
 
 
                   if (!('DIR' == it.race)) {
-                    _context81.next = 31;
+                    _context85.next = 31;
                     break;
                   }
 
-                  _context81.next = 23;
+                  _context85.next = 23;
                   return Wn.Sys.exec("count -A id:".concat(it.id));
 
                 case 23:
-                  count = _context81.sent;
+                  count = _context85.sent;
                   count = parseInt(count);
 
                   if (!(count > 0)) {
-                    _context81.next = 31;
+                    _context85.next = 31;
                     break;
                   }
 
-                  _context81.next = 28;
+                  _context85.next = 28;
                   return Ti.Confirm({
                     text: 'i18n:wn-del-no-empty-folder',
                     vars: {
@@ -28667,22 +29757,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   });
 
                 case 28:
-                  if (_context81.sent) {
-                    _context81.next = 31;
+                  if (_context85.sent) {
+                    _context85.next = 31;
                     break;
                   }
 
-                  _this149.setItemStatus(it.id, null);
+                  _this163.setItemStatus(it.id, null);
 
-                  return _context81.abrupt("continue", 37);
+                  return _context85.abrupt("continue", 37);
 
                 case 31:
-                  _context81.next = 33;
+                  _context85.next = 33;
                   return Wn.Sys.exec("rm ".concat('DIR' == it.race ? "-r" : "", " id:").concat(it.id));
 
                 case 33:
                   // Mark item removed
-                  _this149.setItemStatus(it.id, "removed"); // If video result folder, mark it at same time
+                  _this163.setItemStatus(it.id, "removed"); // If video result folder, mark it at same time
 
 
                   m = /^id:(.+)$/.exec(it.videoc_dir);
@@ -28691,65 +29781,75 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     vdId = m[1];
                     exRemovedIds[vdId] = true;
 
-                    _this149.setItemStatus(vdId, "removed");
+                    _this163.setItemStatus(vdId, "removed");
                   } // Counting
 
 
                   delCount++; // Then continue the loop .......^
 
                 case 37:
-                  _context81.next = 11;
+                  _context85.next = 11;
                   break;
 
                 case 39:
-                  _context81.next = 44;
+                  _context85.next = 44;
                   break;
 
                 case 41:
-                  _context81.prev = 41;
-                  _context81.t0 = _context81["catch"](9);
+                  _context85.prev = 41;
+                  _context85.t0 = _context85["catch"](9);
 
-                  _iterator65.e(_context81.t0);
+                  _iterator61.e(_context85.t0);
 
                 case 44:
-                  _context81.prev = 44;
+                  _context85.prev = 44;
 
-                  _iterator65.f();
+                  _iterator61.f();
 
-                  return _context81.finish(44);
+                  return _context85.finish(44);
 
                 case 47:
-                  _context81.next = 49;
-                  return _this149._run("reload");
+                  _context85.next = 49;
+                  return _this163._run("reload");
 
                 case 49:
-                  _context81.prev = 49;
+                  _context85.prev = 49;
                   Ti.Toast.Open("i18n:wn-del-ok", {
                     N: delCount
                   }, "success");
-                  return _context81.finish(49);
+                  return _context85.finish(49);
 
                 case 52:
                 case "end":
-                  return _context81.stop();
+                  return _context85.stop();
               }
             }
-          }, _callee81, null, [[7,, 49, 52], [9, 41, 44, 47]]);
+          }, _callee85, null, [[7,, 49, 52], [9, 41, 44, 47]]);
         }))();
       },
       //--------------------------------------------
       doUpload: function doUpload() {
         var _arguments18 = arguments,
-            _this150 = this;
+            _this164 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee82() {
-          var files, ups, newIds, _iterator66, _step66, _loop;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee86() {
+          var files, ups, newIds, _iterator62, _step62, _loop;
 
-          return regeneratorRuntime.wrap(function _callee82$(_context83) {
+          return regeneratorRuntime.wrap(function _callee86$(_context87) {
             while (1) {
-              switch (_context83.prev = _context83.next) {
+              switch (_context87.prev = _context87.next) {
                 case 0:
                   files = _arguments18.length > 0 && _arguments18[0] !== undefined ? _arguments18[0] : [];
+
+                  if (!_.isFunction(_this164.beforeUpload)) {
+                    _context87.next = 4;
+                    break;
+                  }
+
+                  _context87.next = 4;
+                  return _this164.beforeUpload();
+
+                case 4:
                   // Prepare the list
                   ups = _.map(files, function (file, index) {
                     return {
@@ -28760,31 +29860,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     };
                   }); // Show Uploading
 
-                  _this150.myUploadigFiles = ups; // Prepare the list
+                  _this164.myUploadigFiles = ups; // Prepare the list
 
                   newIds = {}; // Do upload file one by one
 
-                  _iterator66 = _createForOfIteratorHelper(ups);
-                  _context83.prev = 5;
+                  _iterator62 = _createForOfIteratorHelper(ups);
+                  _context87.prev = 8;
                   _loop = /*#__PURE__*/regeneratorRuntime.mark(function _loop() {
                     var up, file, _yield$Wn$Io$uploadFi, ok, data;
 
-                    return regeneratorRuntime.wrap(function _loop$(_context82) {
+                    return regeneratorRuntime.wrap(function _loop$(_context86) {
                       while (1) {
-                        switch (_context82.prev = _context82.next) {
+                        switch (_context86.prev = _context86.next) {
                           case 0:
-                            up = _step66.value;
+                            up = _step62.value;
                             file = up.file;
-                            _context82.next = 4;
+                            _context86.next = 4;
                             return Wn.Io.uploadFile(file, {
-                              target: "id:".concat(_this150.meta.id),
+                              target: "id:".concat(_this164.meta.id),
                               progress: function progress(pe) {
                                 up.current = pe.loaded;
                               }
                             });
 
                           case 4:
-                            _yield$Wn$Io$uploadFi = _context82.sent;
+                            _yield$Wn$Io$uploadFi = _context86.sent;
                             ok = _yield$Wn$Io$uploadFi.ok;
                             data = _yield$Wn$Io$uploadFi.data;
 
@@ -28794,99 +29894,99 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                           case 8:
                           case "end":
-                            return _context82.stop();
+                            return _context86.stop();
                         }
                       }
                     }, _loop);
                   });
 
-                  _iterator66.s();
+                  _iterator62.s();
 
-                case 8:
-                  if ((_step66 = _iterator66.n()).done) {
-                    _context83.next = 12;
+                case 11:
+                  if ((_step62 = _iterator62.n()).done) {
+                    _context87.next = 15;
                     break;
                   }
 
-                  return _context83.delegateYield(_loop(), "t0", 10);
+                  return _context87.delegateYield(_loop(), "t0", 13);
 
-                case 10:
-                  _context83.next = 8;
+                case 13:
+                  _context87.next = 11;
                   break;
 
-                case 12:
-                  _context83.next = 17;
+                case 15:
+                  _context87.next = 20;
                   break;
-
-                case 14:
-                  _context83.prev = 14;
-                  _context83.t1 = _context83["catch"](5);
-
-                  _iterator66.e(_context83.t1);
 
                 case 17:
-                  _context83.prev = 17;
+                  _context87.prev = 17;
+                  _context87.t1 = _context87["catch"](8);
 
-                  _iterator66.f();
-
-                  return _context83.finish(17);
+                  _iterator62.e(_context87.t1);
 
                 case 20:
+                  _context87.prev = 20;
+
+                  _iterator62.f();
+
+                  return _context87.finish(20);
+
+                case 23:
                   // All done, hide upload
                   _.delay(function () {
-                    _this150.myUploadigFiles = [];
+                    _this164.myUploadigFiles = [];
                   }, 1000); // Tell user ...
 
 
                   Ti.Toast.Open("i18n:upload-done", "success"); // Call reload
 
-                  _context83.next = 24;
-                  return _this150._run("reload");
+                  _context87.next = 27;
+                  return _this164._run("reload");
 
-                case 24:
+                case 27:
                   // Make it checked
-                  _this150.myCheckedIds = newIds;
-                  _this150.myCurrentId = null;
+                  _this164.myCheckedIds = newIds;
+                  _this164.myCurrentId = null;
 
-                case 26:
+                case 29:
                 case "end":
-                  return _context83.stop();
+                  return _context87.stop();
               }
             }
-          }, _callee82, null, [[5, 14, 17, 20]]);
+          }, _callee86, null, [[8, 17, 20, 23]]);
         }))();
       },
       //--------------------------------------------
       doDownload: function doDownload() {
-        var _this151 = this;
+        var _this165 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee83() {
-          var list, _iterator67, _step67, it, link;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee87() {
+          var list, _iterator63, _step63, it, link;
 
-          return regeneratorRuntime.wrap(function _callee83$(_context84) {
+          return regeneratorRuntime.wrap(function _callee87$(_context88) {
             while (1) {
-              switch (_context84.prev = _context84.next) {
+              switch (_context88.prev = _context88.next) {
                 case 0:
-                  list = _this151.getCheckedItems();
+                  list = _this165.getCheckedItems();
 
                   if (!_.isEmpty(list)) {
-                    _context84.next = 5;
+                    _context88.next = 5;
                     break;
                   }
 
-                  _context84.next = 4;
+                  _context88.next = 4;
                   return Ti.Toast.Open('i18n:wn-download-none', "warn");
 
                 case 4:
-                  return _context84.abrupt("return", _context84.sent);
+                  return _context88.abrupt("return", _context88.sent);
 
                 case 5:
                   if (!(list.length > 5)) {
-                    _context84.next = 10;
+                    _context88.next = 10;
                     break;
                   }
 
-                  _context84.next = 8;
+                  _context88.next = 8;
                   return Ti.Confirm({
                     text: "i18n:wn-download-too-many",
                     vars: {
@@ -28895,34 +29995,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   });
 
                 case 8:
-                  if (_context84.sent) {
-                    _context84.next = 10;
+                  if (_context88.sent) {
+                    _context88.next = 10;
                     break;
                   }
 
-                  return _context84.abrupt("return");
+                  return _context88.abrupt("return");
 
                 case 10:
                   // Do the download
-                  _iterator67 = _createForOfIteratorHelper(list);
-                  _context84.prev = 11;
+                  _iterator63 = _createForOfIteratorHelper(list);
+                  _context88.prev = 11;
 
-                  _iterator67.s();
+                  _iterator63.s();
 
                 case 13:
-                  if ((_step67 = _iterator67.n()).done) {
-                    _context84.next = 25;
+                  if ((_step63 = _iterator63.n()).done) {
+                    _context88.next = 25;
                     break;
                   }
 
-                  it = _step67.value;
+                  it = _step63.value;
 
                   if (!('FILE' != it.race)) {
-                    _context84.next = 21;
+                    _context88.next = 21;
                     break;
                   }
 
-                  _context84.next = 18;
+                  _context88.next = 18;
                   return Ti.Confirm({
                     text: "i18n:wn-download-dir",
                     vars: it
@@ -28932,47 +30032,47 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   });
 
                 case 18:
-                  if (_context84.sent) {
-                    _context84.next = 20;
+                  if (_context88.sent) {
+                    _context88.next = 20;
                     break;
                   }
 
-                  return _context84.abrupt("return");
+                  return _context88.abrupt("return");
 
                 case 20:
-                  return _context84.abrupt("continue", 23);
+                  return _context88.abrupt("continue", 23);
 
                 case 21:
                   link = Wn.Util.getDownloadLink(it);
                   Ti.Be.OpenLink(link);
 
                 case 23:
-                  _context84.next = 13;
+                  _context88.next = 13;
                   break;
 
                 case 25:
-                  _context84.next = 30;
+                  _context88.next = 30;
                   break;
 
                 case 27:
-                  _context84.prev = 27;
-                  _context84.t0 = _context84["catch"](11);
+                  _context88.prev = 27;
+                  _context88.t0 = _context88["catch"](11);
 
-                  _iterator67.e(_context84.t0);
+                  _iterator63.e(_context88.t0);
 
                 case 30:
-                  _context84.prev = 30;
+                  _context88.prev = 30;
 
-                  _iterator67.f();
+                  _iterator63.f();
 
-                  return _context84.finish(30);
+                  return _context88.finish(30);
 
                 case 33:
                 case "end":
-                  return _context84.stop();
+                  return _context88.stop();
               }
             }
-          }, _callee83, null, [[11, 27, 30, 33]]);
+          }, _callee87, null, [[11, 27, 30, 33]]);
         }))();
       } //--------------------------------------------
 
@@ -29063,6 +30163,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       "itemClassName": {
         type: String,
         "default": null
+      },
+      //-----------------------------------
+      // Callback
+      //-----------------------------------
+      "beforeUpload": {
+        type: Function,
+        "default": undefined
       }
     };
     Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist-props.mjs", _M);
@@ -29071,7 +30178,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   //============================================================
 
 
-  Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", "<div class=\"wn-adaptlist\" \n  :class=\"TopClass\"\n  v-ti-activable>\n  <div class=\"ti-fill-parent\"\n    v-drop-files.mask=\"OnDropFiles\">\n    <!--==================================\n      Show Loading\n    -->\n    <ti-loading\n      v-if=\"isReloading\" \n        text=\"i18n:reloading\"/>\n    <!--==================================\n      Data List\n    -->\n    <ti-wall\n      v-else\n        class=\"ti-fill-parent\"\n        :data=\"TheDataList\"\n        :spacing=\"spacing\"\n        :changed-id=\"changedId\"\n        :current-id=\"myCurrentId\"\n        :checked-ids=\"myCheckedIds\"\n        :multi=\"multi\"\n        :checkable=\"checkable\"\n        :blurable=\"blurable\"\n        :selectable=\"selectable\"\n        :display=\"WallItemDisplay\"\n        :puppet-mode=\"true\"\n        v-bind=\"listConf\"\n        :on-init=\"OnListInit\"\n        @select=\"OnSelected\"/>\n    <!--==================================\n      Hidden file upload control\n    -->\n    <input \n      type=\"file\" \n      ref=\"file\" \n      class=\"ti-hide\"\n      multiple\n      @change.stop.seft=\"OnSelectLocalFilesToUpload\">\n    <!--==================================\n      Uploading Pannel\n    -->\n    <div\n      class=\"wal-uploading\"\n      :class=\"UploadingClass\">\n      <header>\n        <ti-icon value=\"fas-spinner fa-pulse\"/>\n        <span>{{'uploading'|i18n}}</span>\n      </header>\n      <section>\n        <ti-wall \n          :data=\"TheUploadingList\"\n          :spacing=\"spacing\"\n          :selectable=\"false\"\n          :multi=\"false\"\n          :checkable=\"false\"\n          :blurable=\"false\"\n          :display=\"UploadingItemDisplay\"\n          :puppet-mode=\"true\"/>\n      </section>\n    </div>\n    <!--==================================-->\n  </div>\n</div>"); //============================================================
+  Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", "<div class=\"wn-adaptlist\" \n  :class=\"TopClass\"\n  v-ti-activable>\n  <div\n    class=\"list-con ti-fill-parent\"\n    v-drop-files.mask=\"OnDropFiles\">\n    <!--==================================\n      Show Loading\n    -->\n    <ti-loading\n      v-if=\"isReloading\"\n        class=\"as-reloading as-mid-tip\"\n        text=\"i18n:reloading\"/>\n    <!--==================================\n      Data List\n    -->\n    <ti-wall\n      v-else\n        class=\"ti-fill-parent\"\n        :data=\"TheDataList\"\n        :spacing=\"spacing\"\n        :changed-id=\"changedId\"\n        :current-id=\"myCurrentId\"\n        :checked-ids=\"myCheckedIds\"\n        :multi=\"multi\"\n        :checkable=\"checkable\"\n        :blurable=\"blurable\"\n        :selectable=\"selectable\"\n        :display=\"WallItemDisplay\"\n        :puppet-mode=\"true\"\n        v-bind=\"listConf\"\n        :on-init=\"OnListInit\"\n        @select=\"OnSelected\"/>\n    <!--==================================\n      Hidden file upload control\n    -->\n    <input \n      type=\"file\" \n      ref=\"file\" \n      class=\"ti-hide\"\n      multiple\n      @change.stop.seft=\"OnSelectLocalFilesToUpload\">\n    <!--==================================\n      Uploading Pannel\n    -->\n    <div\n      class=\"wal-uploading\"\n      :class=\"UploadingClass\">\n      <header>\n        <ti-icon value=\"fas-spinner fa-pulse\"/>\n        <span>{{'uploading'|i18n}}</span>\n      </header>\n      <section>\n        <ti-wall \n          :data=\"TheUploadingList\"\n          :spacing=\"spacing\"\n          :selectable=\"false\"\n          :multi=\"false\"\n          :checkable=\"false\"\n          :blurable=\"false\"\n          :display=\"UploadingItemDisplay\"\n          :puppet-mode=\"true\"/>\n      </section>\n    </div>\n    <!--==================================-->\n  </div>\n</div>"); //============================================================
   // JOIN: wn/adaptlist/wn-adaptlist.mjs
   //============================================================
 
@@ -29137,24 +30244,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var list = [];
 
-          var _iterator68 = _createForOfIteratorHelper(this.myData.list),
-              _step68;
+          var _iterator64 = _createForOfIteratorHelper(this.myData.list),
+              _step64;
 
           try {
-            for (_iterator68.s(); !(_step68 = _iterator68.n()).done;) {
-              var it = _step68.value;
+            for (_iterator64.s(); !(_step64 = _iterator64.n()).done;) {
+              var it = _step64.value;
 
               if (!this.isHiddenItem(it)) {
-                var status = this.myItemStatus[it.id];
-                list.push(_.assign({
-                  $wn$adaptlist$status: status
-                }, it));
+                var status = this.myItemStatus[it.id]; //list.push(_.assign({$wn$adaptlist$status:status}, it))
+
+                list.push(it);
               }
             }
           } catch (err) {
-            _iterator68.e(err);
+            _iterator64.e(err);
           } finally {
-            _iterator68.f();
+            _iterator64.f();
           }
 
           return list;
@@ -29169,12 +30275,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var re = [];
 
           if (_.isArray(list)) {
-            var _iterator69 = _createForOfIteratorHelper(list),
-                _step69;
+            var _iterator65 = _createForOfIteratorHelper(list),
+                _step65;
 
             try {
-              for (_iterator69.s(); !(_step69 = _iterator69.n()).done;) {
-                var it = _step69.value;
+              for (_iterator65.s(); !(_step65 = _iterator65.n()).done;) {
+                var it = _step65.value;
                 // Gen Preview for local image
                 var mime = it.file.type;
                 var tp = Ti.Util.getSuffixName(it.file.name);
@@ -29201,9 +30307,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 });
               }
             } catch (err) {
-              _iterator69.e(err);
+              _iterator65.e(err);
             } finally {
-              _iterator69.f();
+              _iterator65.f();
             }
           }
 
@@ -29233,9 +30339,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //--------------------------------------------
         // Events
         //--------------------------------------------
-        OnSelected: function OnSelected(_ref94) {
-          var currentId = _ref94.currentId,
-              checkedIds = _ref94.checkedIds;
+        OnSelected: function OnSelected(_ref101) {
+          var currentId = _ref101.currentId,
+              checkedIds = _ref101.checkedIds;
           //console.log("OnSelected", currentId, checkedIds)
           // For Desktop
           this.myCurrentId = currentId;
@@ -29246,102 +30352,102 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------------
         OnDropFiles: function OnDropFiles(files) {
-          var _this152 = this;
+          var _this166 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee84() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee88() {
             var fs;
-            return regeneratorRuntime.wrap(function _callee84$(_context85) {
+            return regeneratorRuntime.wrap(function _callee88$(_context89) {
               while (1) {
-                switch (_context85.prev = _context85.next) {
+                switch (_context89.prev = _context89.next) {
                   case 0:
-                    if (_this152.droppable) {
-                      _context85.next = 2;
+                    if (_this166.droppable) {
+                      _context89.next = 2;
                       break;
                     }
 
-                    return _context85.abrupt("return");
+                    return _context89.abrupt("return");
 
                   case 2:
                     fs = _toConsumableArray(files);
-                    _context85.next = 5;
-                    return _this152.doUpload(fs);
+                    _context89.next = 5;
+                    return _this166.doUpload(fs);
 
                   case 5:
                     // Wait the computed result and notify
-                    _this152.$nextTick(function () {
+                    _this166.$nextTick(function () {
                       // Find my checked files
                       var objs = [];
 
-                      var _iterator70 = _createForOfIteratorHelper(_this152.TheDataList),
-                          _step70;
+                      var _iterator66 = _createForOfIteratorHelper(_this166.TheDataList),
+                          _step66;
 
                       try {
-                        for (_iterator70.s(); !(_step70 = _iterator70.n()).done;) {
-                          var it = _step70.value;
+                        for (_iterator66.s(); !(_step66 = _iterator66.n()).done;) {
+                          var it = _step66.value;
 
-                          if (_this152.myCheckedIds[it.id]) {
+                          if (_this166.myCheckedIds[it.id]) {
                             objs.push(it);
                           }
                         } // Emit events
 
                       } catch (err) {
-                        _iterator70.e(err);
+                        _iterator66.e(err);
                       } finally {
-                        _iterator70.f();
+                        _iterator66.f();
                       }
 
-                      _this152.$notify("uploaded", objs);
+                      _this166.$notify("uploaded", objs);
                     });
 
                   case 6:
                   case "end":
-                    return _context85.stop();
+                    return _context89.stop();
                 }
               }
-            }, _callee84);
+            }, _callee88);
           }))();
         },
         //--------------------------------------------
         OnSelectLocalFilesToUpload: function OnSelectLocalFilesToUpload(evt) {
-          var _this153 = this;
+          var _this167 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee85() {
-            return regeneratorRuntime.wrap(function _callee85$(_context86) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee89() {
+            return regeneratorRuntime.wrap(function _callee89$(_context90) {
               while (1) {
-                switch (_context86.prev = _context86.next) {
+                switch (_context90.prev = _context90.next) {
                   case 0:
-                    _context86.next = 2;
-                    return _this153.OnDropFiles(evt.target.files);
+                    _context90.next = 2;
+                    return _this167.OnDropFiles(evt.target.files);
 
                   case 2:
-                    _this153.$refs.file.value = "";
+                    _this167.$refs.file.value = "";
 
                   case 3:
                   case "end":
-                    return _context86.stop();
+                    return _context90.stop();
                 }
               }
-            }, _callee85);
+            }, _callee89);
           }))();
         },
         //--------------------------------------------
         // Getters
         //--------------------------------------------
         getCurrentItem: function getCurrentItem() {
-          var _this154 = this;
+          var _this168 = this;
 
           if (this.myCurrentId) {
             return _.find(this.TheDataList, function (it) {
-              return it.id == _this154.myCurrentId;
+              return it.id == _this168.myCurrentId;
             });
           }
         },
         //--------------------------------------------
         getCheckedItems: function getCheckedItems() {
-          var _this155 = this;
+          var _this169 = this;
 
           return _.filter(this.TheDataList, function (it) {
-            return _this155.myCheckedIds[it.id];
+            return _this169.myCheckedIds[it.id];
           });
         },
         //--------------------------------------------
@@ -29377,47 +30483,47 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         // Utility
         //--------------------------------------------
         _run: function _run(nm, payload) {
-          var _this156 = this;
+          var _this170 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee86() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee90() {
             var target, app;
-            return regeneratorRuntime.wrap(function _callee86$(_context87) {
+            return regeneratorRuntime.wrap(function _callee90$(_context91) {
               while (1) {
-                switch (_context87.prev = _context87.next) {
+                switch (_context91.prev = _context91.next) {
                   case 0:
-                    target = (_this156.routers || {})[nm]; // Run by customized function
+                    target = (_this170.routers || {})[nm]; // Run by customized function
 
                     if (!_.isFunction(target)) {
-                      _context87.next = 6;
+                      _context91.next = 6;
                       break;
                     }
 
-                    _context87.next = 4;
+                    _context91.next = 4;
                     return target();
 
                   case 4:
-                    _context87.next = 11;
+                    _context91.next = 11;
                     break;
 
                   case 6:
                     if (!target) {
-                      _context87.next = 11;
+                      _context91.next = 11;
                       break;
                     }
 
-                    app = Ti.App(_this156);
-                    _context87.next = 10;
+                    app = Ti.App(_this170);
+                    _context91.next = 10;
                     return app.exec(target, payload);
 
                   case 10:
-                    return _context87.abrupt("return", _context87.sent);
+                    return _context91.abrupt("return", _context91.sent);
 
                   case 11:
                   case "end":
-                    return _context87.stop();
+                    return _context91.stop();
                 }
               }
-            }, _callee86);
+            }, _callee90);
           }))();
         },
         //--------------------------------------------
@@ -29435,46 +30541,46 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------------
         openCurrentMeta: function openCurrentMeta() {
-          var _this157 = this;
+          var _this171 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee87() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee91() {
             var meta, reo, updates, data;
-            return regeneratorRuntime.wrap(function _callee87$(_context88) {
+            return regeneratorRuntime.wrap(function _callee91$(_context92) {
               while (1) {
-                switch (_context88.prev = _context88.next) {
+                switch (_context92.prev = _context92.next) {
                   case 0:
-                    meta = _this157.getCurrentItem() || _this157.meta;
+                    meta = _this171.getCurrentItem() || _this171.meta;
 
                     if (meta) {
-                      _context88.next = 3;
+                      _context92.next = 3;
                       break;
                     }
 
-                    return _context88.abrupt("return", Ti.Toast.Open("i18n:nil-obj"));
+                    return _context92.abrupt("return", Ti.Toast.Open("i18n:nil-obj"));
 
                   case 3:
-                    _context88.next = 5;
+                    _context92.next = 5;
                     return Wn.EditObjMeta(meta, {
                       fields: "auto"
                     });
 
                   case 5:
-                    reo = _context88.sent;
+                    reo = _context92.sent;
 
                     // Update to current list
                     if (reo) {
                       updates = reo.updates, data = reo.data; // TODO if update the "thumb" may need to force reload the preview
                       // Update to list
 
-                      _this157.setItem(data);
+                      _this171.setItem(data);
                     }
 
                   case 7:
                   case "end":
-                    return _context88.stop();
+                    return _context92.stop();
                 }
               }
-            }, _callee87);
+            }, _callee91);
           }))();
         },
         //--------------------------------------------
@@ -29502,14 +30608,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ////////////////////////////////////////////////
       mounted: function mounted() {
-        var _this158 = this;
+        var _this172 = this;
 
         //--------------------------------------------
         // Guart the uploading
         Ti.Fuse.getOrCreate().add({
           key: "wn-list-adaptview-check-uploading",
           everythingOk: function everythingOk() {
-            return !_this158.hasUploading;
+            return !_this172.hasUploading;
           },
           fail: function fail() {
             Ti.Toast.Open("i18n:upload-nofinished", "warn");
@@ -29591,30 +30697,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //------------------------------------------------
         OnClickValue: function OnClickValue() {
-          var _this159 = this;
+          var _this173 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee88() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee92() {
             var com;
-            return regeneratorRuntime.wrap(function _callee88$(_context89) {
+            return regeneratorRuntime.wrap(function _callee92$(_context93) {
               while (1) {
-                switch (_context89.prev = _context89.next) {
+                switch (_context93.prev = _context93.next) {
                   case 0:
-                    _context89.next = 2;
-                    return Wn.EditTiComponent(_this159.value);
+                    _context93.next = 2;
+                    return Wn.EditTiComponent(_this173.value);
 
                   case 2:
-                    com = _context89.sent;
+                    com = _context93.sent;
 
                     if (com) {
-                      _this159.notifyChange(com);
+                      _this173.notifyChange(com);
                     }
 
                   case 4:
                   case "end":
-                    return _context89.stop();
+                    return _context93.stop();
                 }
               }
-            }, _callee88);
+            }, _callee92);
           }))();
         },
         //--------------------------------------
@@ -29634,37 +30740,37 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         reloadMyCom: function reloadMyCom() {
-          var _this160 = this;
+          var _this174 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee89() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee93() {
             var comType;
-            return regeneratorRuntime.wrap(function _callee89$(_context90) {
+            return regeneratorRuntime.wrap(function _callee93$(_context94) {
               while (1) {
-                switch (_context90.prev = _context90.next) {
+                switch (_context94.prev = _context94.next) {
                   case 0:
-                    if (_.isEmpty(_this160.value)) {
-                      _context90.next = 7;
+                    if (_.isEmpty(_this174.value)) {
+                      _context94.next = 7;
                       break;
                     }
 
-                    comType = _this160.value.comType;
-                    _context90.next = 4;
-                    return _this160.Dict.getItem(comType);
+                    comType = _this174.value.comType;
+                    _context94.next = 4;
+                    return _this174.Dict.getItem(comType);
 
                   case 4:
-                    _this160.myCom = _context90.sent;
-                    _context90.next = 8;
+                    _this174.myCom = _context94.sent;
+                    _context94.next = 8;
                     break;
 
                   case 7:
-                    _this160.myCom = null;
+                    _this174.myCom = null;
 
                   case 8:
                   case "end":
-                    return _context90.stop();
+                    return _context94.stop();
                 }
               }
-            }, _callee89);
+            }, _callee93);
           }))();
         } //------------------------------------------------
 
@@ -29745,11 +30851,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //---------------------------------------------------
         OptionsDict: function OptionsDict() {
-          var _this161 = this;
+          var _this175 = this;
 
-          return Wn.Dict.evalOptionsDict(this, function (_ref95) {
-            var loading = _ref95.loading;
-            _this161.loading = loading;
+          return Wn.Dict.evalOptionsDict(this, function (_ref102) {
+            var loading = _ref102.loading;
+            _this175.loading = loading;
           });
         },
         //---------------------------------------------------
@@ -29822,11 +30928,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //---------------------------------------------------
         OptionsDict: function OptionsDict() {
-          var _this162 = this;
+          var _this176 = this;
 
-          return Wn.Dict.evalOptionsDict(this, function (_ref96) {
-            var loading = _ref96.loading;
-            _this162.loading = loading;
+          return Wn.Dict.evalOptionsDict(this, function (_ref103) {
+            var loading = _ref103.loading;
+            _this176.loading = loading;
           });
         },
         //------------------------------------------------
@@ -30225,13 +31331,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: wn/gui/side/nav/wn-gui-side-nav.html
   //============================================================
 
-  Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.html", "<div class=\"wn-gui-side-nav\"\n  :class=\"topClass\"\n  v-ti-activable>\n  <side-nav-item v-for=\"it in theItems\"\n    :key=\"it.key\"\n    v-bind=\"it\"\n    @item:actived=\"onItemActived\"/>\n</div>"); //============================================================
+  Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.html", "<div class=\"wn-gui-side-nav\"\n  :class=\"TopClass\"\n  v-ti-activable>\n  <side-nav-item v-for=\"it in TheItems\"\n    :key=\"it.key\"\n    v-bind=\"it\"\n    @item:actived=\"onItemActived\"/>\n</div>"); //============================================================
   // JOIN: wn/gui/side/nav/wn-gui-side-nav.mjs
   //============================================================
 
   (function () {
     var _M = {
-      inheritAttrs: false,
       /////////////////////////////////////////
       props: {
         "items": {
@@ -30250,29 +31355,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //////////////////////////////////////////
       computed: {
         //--------------------------------------
-        topClass: function topClass() {
-          return Ti.Css.mergeClassName({
-            "is-self-actived": this.isSelfActived,
-            "is-actived": this.isActived
-          }, this.className);
+        TopClass: function TopClass() {
+          return this.getTopClass();
         },
         //-------------------------------------
-        theItems: function theItems() {
+        TheItems: function TheItems() {
           var list = [];
 
           if (_.isArray(this.items)) {
-            var _iterator71 = _createForOfIteratorHelper(this.items),
-                _step71;
+            var _iterator67 = _createForOfIteratorHelper(this.items),
+                _step67;
 
             try {
-              for (_iterator71.s(); !(_step71 = _iterator71.n()).done;) {
-                var it = _step71.value;
+              for (_iterator67.s(); !(_step67 = _iterator67.n()).done;) {
+                var it = _step67.value;
                 list.push(this.evalItem(it));
               }
             } catch (err) {
-              _iterator71.e(err);
+              _iterator67.e(err);
             } finally {
-              _iterator71.f();
+              _iterator67.f();
             }
           }
 
@@ -30304,18 +31406,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           if (_.isArray(it.items)) {
             items = [];
 
-            var _iterator72 = _createForOfIteratorHelper(it.items),
-                _step72;
+            var _iterator68 = _createForOfIteratorHelper(it.items),
+                _step68;
 
             try {
-              for (_iterator72.s(); !(_step72 = _iterator72.n()).done;) {
-                var subIt = _step72.value;
+              for (_iterator68.s(); !(_step68 = _iterator68.n()).done;) {
+                var subIt = _step68.value;
                 items.push(this.evalItem(subIt));
               }
             } catch (err) {
-              _iterator72.e(err);
+              _iterator68.e(err);
             } finally {
-              _iterator72.f();
+              _iterator68.f();
             }
           } // Self
 
@@ -30333,12 +31435,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var items = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
           if (this.highlightItemId && _.isArray(items) && items.length > 0) {
-            var _iterator73 = _createForOfIteratorHelper(items),
-                _step73;
+            var _iterator69 = _createForOfIteratorHelper(items),
+                _step69;
 
             try {
-              for (_iterator73.s(); !(_step73 = _iterator73.n()).done;) {
-                var it = _step73.value;
+              for (_iterator69.s(); !(_step69 = _iterator69.n()).done;) {
+                var it = _step69.value;
 
                 // Match the ID, 0
                 if (it.id == this.highlightItemId) {
@@ -30361,9 +31463,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
               }
             } catch (err) {
-              _iterator73.e(err);
+              _iterator69.e(err);
             } finally {
-              _iterator73.f();
+              _iterator69.f();
             }
           } // Return self
 
@@ -30467,18 +31569,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var list = [];
 
           if (_.isArray(items)) {
-            var _iterator74 = _createForOfIteratorHelper(items),
-                _step74;
+            var _iterator70 = _createForOfIteratorHelper(items),
+                _step70;
 
             try {
-              for (_iterator74.s(); !(_step74 = _iterator74.n()).done;) {
-                var it = _step74.value;
+              for (_iterator70.s(); !(_step70 = _iterator70.n()).done;) {
+                var it = _step70.value;
                 list.push(this.evalItemToTreeNode(it));
               }
             } catch (err) {
-              _iterator74.e(err);
+              _iterator70.e(err);
             } finally {
-              _iterator74.f();
+              _iterator70.f();
             }
           } //console.log("theTreeData", list)
 
@@ -30494,18 +31596,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           if (_.isArray(it.items)) {
             children = [];
 
-            var _iterator75 = _createForOfIteratorHelper(it.items),
-                _step75;
+            var _iterator71 = _createForOfIteratorHelper(it.items),
+                _step71;
 
             try {
-              for (_iterator75.s(); !(_step75 = _iterator75.n()).done;) {
-                var subIt = _step75.value;
+              for (_iterator71.s(); !(_step71 = _iterator71.n()).done;) {
+                var subIt = _step71.value;
                 children.push(this.evalItemToTreeNode(subIt));
               }
             } catch (err) {
-              _iterator75.e(err);
+              _iterator71.e(err);
             } finally {
-              _iterator75.f();
+              _iterator71.f();
             }
           } // Self
 
@@ -30524,12 +31626,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var items = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
           if (this.highlightItemId && _.isArray(items) && items.length > 0) {
-            var _iterator76 = _createForOfIteratorHelper(items),
-                _step76;
+            var _iterator72 = _createForOfIteratorHelper(items),
+                _step72;
 
             try {
-              for (_iterator76.s(); !(_step76 = _iterator76.n()).done;) {
-                var it = _step76.value;
+              for (_iterator72.s(); !(_step72 = _iterator72.n()).done;) {
+                var it = _step72.value;
 
                 // Match the ID, 0
                 if (it.id == this.highlightItemId) {
@@ -30552,9 +31654,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
               }
             } catch (err) {
-              _iterator76.e(err);
+              _iterator72.e(err);
             } finally {
-              _iterator76.f();
+              _iterator72.f();
             }
           } // Return self
 
@@ -30563,9 +31665,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //-------------------------------------
         onItemActived: function onItemActived() {
-          var _ref97 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref97$current = _ref97.current,
-              current = _ref97$current === void 0 ? {} : _ref97$current;
+          var _ref104 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref104$current = _ref104.current,
+              current = _ref104$current === void 0 ? {} : _ref104$current;
 
           if (current.value) {
             this.$notify("item:active", {
@@ -30944,299 +32046,299 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //--------------------------------------
         assertListHas: function assertListHas(list, str, invalidMsg, vars) {
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee90() {
-            var invalid, _iterator77, _step77, li;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee94() {
+            var invalid, _iterator73, _step73, li;
 
-            return regeneratorRuntime.wrap(function _callee90$(_context91) {
+            return regeneratorRuntime.wrap(function _callee94$(_context95) {
               while (1) {
-                switch (_context91.prev = _context91.next) {
+                switch (_context95.prev = _context95.next) {
                   case 0:
                     if (_.isEmpty(list)) {
-                      _context91.next = 24;
+                      _context95.next = 24;
                       break;
                     }
 
                     invalid = true;
-                    _iterator77 = _createForOfIteratorHelper(list);
-                    _context91.prev = 3;
+                    _iterator73 = _createForOfIteratorHelper(list);
+                    _context95.prev = 3;
 
-                    _iterator77.s();
+                    _iterator73.s();
 
                   case 5:
-                    if ((_step77 = _iterator77.n()).done) {
-                      _context91.next = 12;
+                    if ((_step73 = _iterator73.n()).done) {
+                      _context95.next = 12;
                       break;
                     }
 
-                    li = _step77.value;
+                    li = _step73.value;
 
                     if (!(li == str)) {
-                      _context91.next = 10;
+                      _context95.next = 10;
                       break;
                     }
 
                     invalid = false;
-                    return _context91.abrupt("break", 12);
+                    return _context95.abrupt("break", 12);
 
                   case 10:
-                    _context91.next = 5;
+                    _context95.next = 5;
                     break;
 
                   case 12:
-                    _context91.next = 17;
+                    _context95.next = 17;
                     break;
 
                   case 14:
-                    _context91.prev = 14;
-                    _context91.t0 = _context91["catch"](3);
+                    _context95.prev = 14;
+                    _context95.t0 = _context95["catch"](3);
 
-                    _iterator77.e(_context91.t0);
+                    _iterator73.e(_context95.t0);
 
                   case 17:
-                    _context91.prev = 17;
+                    _context95.prev = 17;
 
-                    _iterator77.f();
+                    _iterator73.f();
 
-                    return _context91.finish(17);
+                    return _context95.finish(17);
 
                   case 20:
                     if (!invalid) {
-                      _context91.next = 24;
+                      _context95.next = 24;
                       break;
                     }
 
-                    _context91.next = 23;
+                    _context95.next = 23;
                     return Ti.Alert(invalidMsg, {
                       type: "warn",
                       icon: "zmdi-alert-triangle"
                     });
 
                   case 23:
-                    return _context91.abrupt("return", false);
+                    return _context95.abrupt("return", false);
 
                   case 24:
-                    return _context91.abrupt("return", true);
+                    return _context95.abrupt("return", true);
 
                   case 25:
                   case "end":
-                    return _context91.stop();
+                    return _context95.stop();
                 }
               }
-            }, _callee90, null, [[3, 14, 17, 20]]);
+            }, _callee94, null, [[3, 14, 17, 20]]);
           }))();
         },
         //--------------------------------------
         onOpen: function onOpen() {
-          var _this163 = this;
+          var _this177 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee91() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee95() {
             var link;
-            return regeneratorRuntime.wrap(function _callee91$(_context92) {
+            return regeneratorRuntime.wrap(function _callee95$(_context96) {
               while (1) {
-                switch (_context92.prev = _context92.next) {
+                switch (_context96.prev = _context96.next) {
                   case 0:
-                    if (!_this163.oImage) {
-                      _context92.next = 4;
+                    if (!_this177.oImage) {
+                      _context96.next = 4;
                       break;
                     }
 
-                    link = Wn.Util.getAppLink(_this163.oImage); //console.log("it will open ", link)
+                    link = Wn.Util.getAppLink(_this177.oImage); //console.log("it will open ", link)
 
-                    _context92.next = 4;
+                    _context96.next = 4;
                     return Ti.Be.Open(link.url, {
                       params: link.params
                     });
 
                   case 4:
                   case "end":
-                    return _context92.stop();
+                    return _context96.stop();
                 }
               }
-            }, _callee91);
+            }, _callee95);
           }))();
         },
         //--------------------------------------
         onRemove: function onRemove() {
-          var _this164 = this;
+          var _this178 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee92() {
-            return regeneratorRuntime.wrap(function _callee92$(_context93) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee96() {
+            return regeneratorRuntime.wrap(function _callee96$(_context97) {
               while (1) {
-                switch (_context93.prev = _context93.next) {
+                switch (_context97.prev = _context97.next) {
                   case 0:
-                    if (!_this164.oImage) {
-                      _context93.next = 3;
+                    if (!_this178.oImage) {
+                      _context97.next = 3;
                       break;
                     }
 
-                    _context93.next = 3;
-                    return Wn.Sys.exec2("rm id:".concat(_this164.oImage.id));
+                    _context97.next = 3;
+                    return Wn.Sys.exec2("rm id:".concat(_this178.oImage.id));
 
                   case 3:
                     // Notify the change
-                    _this164.$notify("change", null);
+                    _this178.$notify("change", null);
 
                   case 4:
                   case "end":
-                    return _context93.stop();
+                    return _context97.stop();
                 }
               }
-            }, _callee92);
+            }, _callee96);
           }))();
         },
         //--------------------------------------
         onUpload: function onUpload(file) {
-          var _this165 = this;
+          var _this179 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee93() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee97() {
             var type, _yield$Wn$Io$uploadFi2, ok, msg, data, cmd, cmdText;
 
-            return regeneratorRuntime.wrap(function _callee93$(_context94) {
+            return regeneratorRuntime.wrap(function _callee97$(_context98) {
               while (1) {
-                switch (_context94.prev = _context94.next) {
+                switch (_context98.prev = _context98.next) {
                   case 0:
                     //console.log("it will upload ", file)
                     //................................
                     // Check for support Types
                     type = Ti.Util.getSuffixName(file.name);
-                    _context94.next = 3;
-                    return _this165.assertListHas(_this165.acceptTypes, type, {
+                    _context98.next = 3;
+                    return _this179.assertListHas(_this179.acceptTypes, type, {
                       text: 'i18n:wn-invalid-types',
                       vars: {
                         current: type,
-                        supports: _this165.acceptTypes.join(", ")
+                        supports: _this179.acceptTypes.join(", ")
                       }
                     });
 
                   case 3:
-                    if (_context94.sent) {
-                      _context94.next = 5;
+                    if (_context98.sent) {
+                      _context98.next = 5;
                       break;
                     }
 
-                    return _context94.abrupt("return");
+                    return _context98.abrupt("return");
 
                   case 5:
-                    _context94.next = 7;
-                    return _this165.assertListHas(_this165.acceptMimes, file.type, {
+                    _context98.next = 7;
+                    return _this179.assertListHas(_this179.acceptMimes, file.type, {
                       text: 'i18n:wn-invalid-mimes',
                       vars: {
                         current: file.type,
-                        supports: _this165.acceptMimes.join(", ")
+                        supports: _this179.acceptMimes.join(", ")
                       }
                     });
 
                   case 7:
-                    if (_context94.sent) {
-                      _context94.next = 9;
+                    if (_context98.sent) {
+                      _context98.next = 9;
                       break;
                     }
 
-                    return _context94.abrupt("return");
+                    return _context98.abrupt("return");
 
                   case 9:
                     //................................
                     // Upload file to destination
-                    _this165.uploadFile = file;
-                    _this165.progress = 0;
-                    _context94.next = 13;
+                    _this179.uploadFile = file;
+                    _this179.progress = 0;
+                    _context98.next = 13;
                     return Wn.Io.uploadFile(file, {
-                      target: _this165.target,
+                      target: _this179.target,
                       mode: "r",
                       progress: function progress(pe) {
-                        _this165.progress = pe.loaded / pe.total;
+                        _this179.progress = pe.loaded / pe.total;
                       }
                     });
 
                   case 13:
-                    _yield$Wn$Io$uploadFi2 = _context94.sent;
+                    _yield$Wn$Io$uploadFi2 = _context98.sent;
                     ok = _yield$Wn$Io$uploadFi2.ok;
                     msg = _yield$Wn$Io$uploadFi2.msg;
                     data = _yield$Wn$Io$uploadFi2.data;
                     //................................
                     // Reset upload
-                    _this165.uploadFile = null;
-                    _this165.progress = -1; //................................
+                    _this179.uploadFile = null;
+                    _this179.progress = -1; //................................
                     // Fail to upload
 
                     if (ok) {
-                      _context94.next = 23;
+                      _context98.next = 23;
                       break;
                     }
 
-                    _context94.next = 22;
+                    _context98.next = 22;
                     return Ti.Alert("i18n:".concat(msg), {
                       type: "warn",
                       icon: "zmdi-alert-triangle"
                     });
 
                   case 22:
-                    return _context94.abrupt("return");
+                    return _context98.abrupt("return");
 
                   case 23:
-                    if (_.isEmpty(_this165.imageFilter)) {
-                      _context94.next = 30;
+                    if (_.isEmpty(_this179.imageFilter)) {
+                      _context98.next = 30;
                       break;
                     }
 
-                    cmd = ["imagic", "id:".concat(data.id), "-filter \"".concat(_this165.imageFilter.join(" "), "\"")];
+                    cmd = ["imagic", "id:".concat(data.id), "-filter \"".concat(_this179.imageFilter.join(" "), "\"")];
 
-                    if (_this165.quality > 0 && _this165.quality <= 1) {
-                      cmd.push("-qa ".concat(_this165.quality));
+                    if (_this179.quality > 0 && _this179.quality <= 1) {
+                      cmd.push("-qa ".concat(_this179.quality));
                     }
 
                     cmd.push("-out inplace");
                     cmdText = cmd.join(" ");
-                    _context94.next = 30;
+                    _context98.next = 30;
                     return Wn.Sys.exec2(cmdText);
 
                   case 30:
                     //................................
                     // done
-                    _this165.src_ts = Date.now();
-                    _this165.oImage = data;
+                    _this179.src_ts = Date.now();
+                    _this179.oImage = data;
 
-                    _this165.$notify("change", data);
+                    _this179.$notify("change", data);
 
                   case 33:
                   case "end":
-                    return _context94.stop();
+                    return _context98.stop();
                 }
               }
-            }, _callee93);
+            }, _callee97);
           }))();
         },
         //--------------------------------------
         reload: function reload() {
-          var _this166 = this;
+          var _this180 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee94() {
-            return regeneratorRuntime.wrap(function _callee94$(_context95) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee98() {
+            return regeneratorRuntime.wrap(function _callee98$(_context99) {
               while (1) {
-                switch (_context95.prev = _context95.next) {
+                switch (_context99.prev = _context99.next) {
                   case 0:
-                    if (!_this166.value) {
-                      _context95.next = 6;
+                    if (!_this180.value) {
+                      _context99.next = 6;
                       break;
                     }
 
-                    _context95.next = 3;
-                    return Wn.Io.loadMeta(_this166.value);
+                    _context99.next = 3;
+                    return Wn.Io.loadMeta(_this180.value);
 
                   case 3:
-                    _this166.oImage = _context95.sent;
-                    _context95.next = 7;
+                    _this180.oImage = _context99.sent;
+                    _context99.next = 7;
                     break;
 
                   case 6:
-                    _this166.oImage = null;
+                    _this180.oImage = null;
 
                   case 7:
                   case "end":
-                    return _context95.stop();
+                    return _context99.stop();
                 }
               }
-            }, _callee94);
+            }, _callee98);
           }))();
         } //--------------------------------------
 
@@ -31249,20 +32351,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //////////////////////////////////////////
       mounted: function () {
-        var _mounted10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee95() {
-          return regeneratorRuntime.wrap(function _callee95$(_context96) {
+        var _mounted10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee99() {
+          return regeneratorRuntime.wrap(function _callee99$(_context100) {
             while (1) {
-              switch (_context96.prev = _context96.next) {
+              switch (_context100.prev = _context100.next) {
                 case 0:
-                  _context96.next = 2;
+                  _context100.next = 2;
                   return this.reload();
 
                 case 2:
                 case "end":
-                  return _context96.stop();
+                  return _context100.stop();
               }
             }
-          }, _callee95, this);
+          }, _callee99, this);
         }));
 
         function mounted() {
@@ -31342,20 +32444,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //////////////////////////////////////////
       watch: {
         "value": function () {
-          var _value = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee96() {
-            return regeneratorRuntime.wrap(function _callee96$(_context97) {
+          var _value = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee100() {
+            return regeneratorRuntime.wrap(function _callee100$(_context101) {
               while (1) {
-                switch (_context97.prev = _context97.next) {
+                switch (_context101.prev = _context101.next) {
                   case 0:
-                    _context97.next = 2;
+                    _context101.next = 2;
                     return this.evalTheValue();
 
                   case 2:
                   case "end":
-                    return _context97.stop();
+                    return _context101.stop();
                 }
               }
-            }, _callee96, this);
+            }, _callee100, this);
           }));
 
           function value() {
@@ -31368,54 +32470,54 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //////////////////////////////////////////
       methods: {
         evalTheValue: function evalTheValue() {
-          var _this167 = this;
+          var _this181 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee97() {
-            return regeneratorRuntime.wrap(function _callee97$(_context98) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee101() {
+            return regeneratorRuntime.wrap(function _callee101$(_context102) {
               while (1) {
-                switch (_context98.prev = _context98.next) {
+                switch (_context102.prev = _context102.next) {
                   case 0:
-                    if (!(!Ti.Util.isNil(_this167.value) && _this167.dict)) {
-                      _context98.next = 6;
+                    if (!(!Ti.Util.isNil(_this181.value) && _this181.dict)) {
+                      _context102.next = 6;
                       break;
                     }
 
-                    _context98.next = 3;
-                    return Wn.Dict.get(_this167.dict, _this167.value);
+                    _context102.next = 3;
+                    return Wn.Dict.get(_this181.dict, _this181.value);
 
                   case 3:
-                    _this167.theValue = _context98.sent;
-                    _context98.next = 7;
+                    _this181.theValue = _context102.sent;
+                    _context102.next = 7;
                     break;
 
                   case 6:
-                    _this167.theValue = _this167.value;
+                    _this181.theValue = _this181.value;
 
                   case 7:
                   case "end":
-                    return _context98.stop();
+                    return _context102.stop();
                 }
               }
-            }, _callee97);
+            }, _callee101);
           }))();
         }
       },
       //////////////////////////////////////////
       mounted: function () {
-        var _mounted11 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee98() {
-          return regeneratorRuntime.wrap(function _callee98$(_context99) {
+        var _mounted11 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee102() {
+          return regeneratorRuntime.wrap(function _callee102$(_context103) {
             while (1) {
-              switch (_context99.prev = _context99.next) {
+              switch (_context103.prev = _context103.next) {
                 case 0:
-                  _context99.next = 2;
+                  _context103.next = 2;
                   return this.evalTheValue();
 
                 case 2:
                 case "end":
-                  return _context99.stop();
+                  return _context103.stop();
               }
             }
-          }, _callee98, this);
+          }, _callee102, this);
         }));
 
         function mounted() {
@@ -31630,11 +32732,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------------------
         OnFieldChange: function OnFieldChange() {
-          var _ref98 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref98.name,
-              value = _ref98.value;
+          var _ref105 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              name = _ref105.name,
+              value = _ref105.value;
 
-          //console.log("wn-obj-form.field:changed", {name, value})
+          //console.log(" <--- @field:changed", {name, value})
           this.doAction("field:change", this.updateBy, {
             name: name,
             value: value
@@ -31642,7 +32744,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------------------
         OnChange: function OnChange(data) {
-          //console.log("wn-obj-form.changed", data)
+          //console.log(" <- @changed", data)
           this.doAction("change", this.setDataBy, data);
         },
         //--------------------------------------------------
@@ -31801,13 +32903,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ////////////////////////////////////////////
       mounted: function mounted() {
-        var _this168 = this;
+        var _this182 = this;
 
         //----------------------------------------
         Ti.Fuse.getOrCreate().add({
           key: "wn-obj-json",
           everythingOk: function everythingOk() {
-            return !_this168.status.changed;
+            return !_this182.status.changed;
           },
           fail: function fail() {
             Ti.Toast.Open("i18n:wn-obj-nosaved", "warn");
@@ -31832,6 +32934,343 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "template": "./wn-obj-json.html",
     "mixins": ["./wn-obj-json.mjs"],
     "components": ["@com:ti/text/json"]
+  }); //============================================================
+  // JOIN: wn/obj/markdown/richeditor/wn-markdown-richeditor-props.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      // Relative meta
+      "meta": {
+        type: [Object, String],
+        "default": null
+      },
+      // Delcare the media src mode
+      //  - path : nil meta(~/xxx/xxx); with meta(../xxx/xxx)
+      //  - fullPath : "/home/xiaobai/xxx/xxx"
+      //  - idPath : "id:67u8..98a1"
+      //  - id   : "67u8..98a1"
+      // 'transferMediaSrc' can take more customized form
+      "mediaSrcMode": {
+        type: String,
+        "default": "path",
+        validator: function validator(v) {
+          return /^(path|fullPath|idPath|id)$/.test(v);
+        }
+      },
+      // Keep the last select media
+      "keepLastBy": {
+        type: String,
+        "default": "wn-markdown-richeditor-last-open"
+      },
+      "defaultMediaDir": {
+        type: String,
+        "default": "~"
+      }
+    };
+    Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor-props.mjs", _M);
+  })(); //============================================================
+  // JOIN: wn/obj/markdown/richeditor/wn-markdown-richeditor.html
+  //============================================================
+
+
+  Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.html", "<TiTextMarkdownRicheditor\n  v-bind=\"this\"\n  :actions=\"ToolbarActions\"\n  :markdown-media-src=\"TheMarkdownMediaSrc\"\n  :preview-media-src=\"ThePreviewMediaSrc\"\n  :value=\"TheValue\"\n  :on-init=\"OnEditorInit\"/>"); //============================================================
+  // JOIN: wn/obj/markdown/richeditor/wn-markdown-richeditor.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      ///////////////////////////////////////////////////
+      computed: {
+        //-----------------------------------------------
+        ToolbarActions: function ToolbarActions() {
+          var _this183 = this;
+
+          return _.merge({
+            "Media": {
+              icon: "fas-photo-video",
+              action: function action() {
+                return _this183.OnInsertMedia();
+              }
+            }
+          }, this.actions);
+        },
+        //-----------------------------------------------
+        TheValue: function TheValue() {
+          return this.value;
+        },
+        //-----------------------------------------------
+        TheMarkdownMediaSrc: function TheMarkdownMediaSrc() {
+          var _this184 = this;
+
+          if (this.markdownMediaSrc) {
+            return this.markdownMediaSrc;
+          }
+
+          return /*#__PURE__*/function () {
+            var _ref106 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee103(src) {
+              var m, obj, s2;
+              return regeneratorRuntime.wrap(function _callee103$(_context104) {
+                while (1) {
+                  switch (_context104.prev = _context104.next) {
+                    case 0:
+                      // special media 
+                      m = /^\/o\/content\?str=id:(.+)$/.exec(src);
+
+                      if (!m) {
+                        _context104.next = 8;
+                        break;
+                      }
+
+                      _context104.next = 4;
+                      return Wn.Io.loadMetaById(m[1]);
+
+                    case 4:
+                      obj = _context104.sent;
+
+                      if (!obj) {
+                        _context104.next = 8;
+                        break;
+                      }
+
+                      s2 = Wn.Io.formatObjPath(obj, _this184.mediaSrcMode, _this184.meta);
+                      return _context104.abrupt("return", s2);
+
+                    case 8:
+                      return _context104.abrupt("return", src);
+
+                    case 9:
+                    case "end":
+                      return _context104.stop();
+                  }
+                }
+              }, _callee103);
+            }));
+
+            return function (_x10) {
+              return _ref106.apply(this, arguments);
+            };
+          }();
+        },
+        //-----------------------------------------------
+        ThePreviewMediaSrc: function ThePreviewMediaSrc() {
+          var _this185 = this;
+
+          if (this.previewMediaSrc) {
+            return this.previewMediaSrc;
+          }
+
+          return /*#__PURE__*/function () {
+            var _ref107 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee104(src) {
+              var obj;
+              return regeneratorRuntime.wrap(function _callee104$(_context105) {
+                while (1) {
+                  switch (_context105.prev = _context105.next) {
+                    case 0:
+                      if (!/^(https?:)(\/\/)/.test(src)) {
+                        _context105.next = 2;
+                        break;
+                      }
+
+                      return _context105.abrupt("return", src);
+
+                    case 2:
+                      _context105.next = 4;
+                      return Wn.Io.loadMetaBy(src, _this185.meta);
+
+                    case 4:
+                      obj = _context105.sent;
+
+                      if (!obj) {
+                        _context105.next = 7;
+                        break;
+                      }
+
+                      return _context105.abrupt("return", "/o/content?str=id:".concat(obj.id));
+
+                    case 7:
+                      return _context105.abrupt("return", src);
+
+                    case 8:
+                    case "end":
+                      return _context105.stop();
+                  }
+                }
+              }, _callee104);
+            }));
+
+            return function (_x11) {
+              return _ref107.apply(this, arguments);
+            };
+          }();
+        } //-----------------------------------------------
+
+      },
+      ///////////////////////////////////////////////////
+      methods: {
+        //-----------------------------------------------
+        OnEditorInit: function OnEditorInit($editor) {
+          this.$editor = $editor;
+        },
+        //-----------------------------------------------
+        OnInsertMedia: function OnInsertMedia() {
+          var _this186 = this;
+
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee105() {
+            var last, list, oFir, pph, rph, _iterator74, _step74, obj;
+
+            return regeneratorRuntime.wrap(function _callee105$(_context106) {
+              while (1) {
+                switch (_context106.prev = _context106.next) {
+                  case 0:
+                    // Get the last open
+                    last = _this186.meta || _this186.defaultMediaDir;
+                    if (_this186.keepLastBy) last = Ti.Storage.local.getString(_this186.keepLastBy) || last; // Open selector to pick list
+
+                    _context106.next = 4;
+                    return Wn.OpenObjSelector(last, {
+                      fallbackPath: _this186.defaultMediaDir
+                    });
+
+                  case 4:
+                    list = _context106.sent;
+
+                    if (!(!list || _.isEmpty(list))) {
+                      _context106.next = 7;
+                      break;
+                    }
+
+                    return _context106.abrupt("return");
+
+                  case 7:
+                    // Save the last open
+                    if (_this186.keepLastBy) {
+                      oFir = _.first(list);
+                      pph = Ti.Util.getParentPath(oFir.ph);
+                      rph = Wn.Session.getFormedPath(pph);
+                      Ti.Storage.local.set(_this186.keepLastBy, rph);
+                    } // Batch insert
+
+
+                    _iterator74 = _createForOfIteratorHelper(list);
+
+                    try {
+                      for (_iterator74.s(); !(_step74 = _iterator74.n()).done;) {
+                        obj = _step74.value;
+
+                        _this186.insertMediaObj(obj);
+                      }
+                    } catch (err) {
+                      _iterator74.e(err);
+                    } finally {
+                      _iterator74.f();
+                    }
+
+                  case 10:
+                  case "end":
+                    return _context106.stop();
+                }
+              }
+            }, _callee105);
+          }))();
+        },
+        //-----------------------------------------------
+        // Insert Operation
+        //-----------------------------------------------
+        insertMediaObj: function insertMediaObj() {
+          var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          var mime = obj.mime; // Guard
+
+          if (!mime) return; // Preview source
+
+          var src = "/o/content?str=id:".concat(obj.id); // Video
+
+          if (mime.startsWith("video/")) {
+            this.insertMedia("video", src, {
+              controls: false,
+              autoplay: false
+            });
+          } // Image
+          else if (mime.startsWith("image/")) {
+              this.insertMedia("image", src);
+            }
+        },
+        //-----------------------------------------------
+        insertMedia: function insertMedia() {
+          var _det$insert;
+
+          var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "image";
+          var src = arguments.length > 1 ? arguments[1] : undefined;
+          var attrs = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+          // Guard
+          if (!src) {
+            return;
+          } // Prepare the Delta
+
+
+          var Delta = Quill["import"]("delta");
+          var det = new Delta(); // Insert to current position
+
+          var sel = this.$editor.getSelection();
+
+          if (!sel) {
+            this.$editor.setSelection(0);
+            sel = {
+              index: 0,
+              length: 0
+            };
+          }
+
+          var _sel = sel,
+              index = _sel.index,
+              length = _sel.length; // Move to current
+
+          det.retain(index); // Delete current
+
+          if (length > 0) {
+            det["delete"](length);
+          } // Add Media
+
+
+          det.insert((_det$insert = {}, _defineProperty(_det$insert, type, src), _defineProperty(_det$insert, "attributes", attrs), _det$insert)); // Update 
+
+          this.$editor.updateContents(det); // Move cursor
+
+          this.$editor.setSelection(index + 1);
+        } //-----------------------------------------------
+
+      } ///////////////////////////////////////////////////
+      // watch: {
+      //   "meta": {
+      //     handler: async function(pathOrObj){
+      //       console.log("meta changed!")
+      //       if(_.isString(pathOrObj)) {
+      //         this.myMeta = await Wn.Io.loadMetaBy(pathOrObj)
+      //       } else {
+      //         this.myMeta = pathOrObj
+      //       }
+      //     },
+      //     immediate: true
+      //   }
+      // }
+      ///////////////////////////////////////////////////
+
+    };
+    Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.mjs", _M);
+  })(); //============================================================
+  // JOIN: wn/obj/markdown/richeditor/_com.json
+  //============================================================
+
+
+  Ti.Preload("ti/com/wn/obj/markdown/richeditor/_com.json", {
+    "name": "wn-obj-markdown-richeditor",
+    "globally": true,
+    "template": "./wn-markdown-richeditor.html",
+    "props": ["@com:ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs", "./wn-markdown-richeditor-props.mjs"],
+    "methods": "@com:ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs",
+    "mixins": ["./wn-markdown-richeditor.mjs"],
+    "components": ["@com:ti/text/markdown/richeditor"]
   }); //============================================================
   // JOIN: wn/obj/picker/wn-obj-picker.html
   //============================================================
@@ -31898,12 +33337,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         formedItems: function formedItems() {
           var list = [];
 
-          var _iterator78 = _createForOfIteratorHelper(this.items),
-              _step78;
+          var _iterator75 = _createForOfIteratorHelper(this.items),
+              _step75;
 
           try {
-            for (_iterator78.s(); !(_step78 = _iterator78.n()).done;) {
-              var obj = _step78.value;
+            for (_iterator75.s(); !(_step75 = _iterator75.n()).done;) {
+              var obj = _step75.value;
               var it = {
                 icon: Wn.Util.genPreviewObj(obj),
                 text: Wn.Util.getObjDisplayName(obj, this.textBy),
@@ -31912,9 +33351,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               list.push(it);
             }
           } catch (err) {
-            _iterator78.e(err);
+            _iterator75.e(err);
           } finally {
-            _iterator78.f();
+            _iterator75.f();
           }
 
           return list;
@@ -31931,32 +33370,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //////////////////////////////////////////
       methods: {
         openPicker: function openPicker() {
-          var _this169 = this;
+          var _this187 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee99() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee106() {
             var meta, autoOpenDir, payload;
-            return regeneratorRuntime.wrap(function _callee99$(_context100) {
+            return regeneratorRuntime.wrap(function _callee106$(_context107) {
               while (1) {
-                switch (_context100.prev = _context100.next) {
+                switch (_context107.prev = _context107.next) {
                   case 0:
-                    meta = _this169.oneItem;
+                    meta = _this187.oneItem;
                     autoOpenDir = false; // Use base to open the folder
                     // Then it should be auto-open the folder
 
                     if (!meta || _.isEmpty(meta)) {
-                      meta = _this169.base || "~";
+                      meta = _this187.base || "~";
                       autoOpenDir = true;
                     }
 
-                    _context100.next = 5;
+                    _context107.next = 5;
                     return Wn.OpenObjSelector(meta, {
-                      multi: _this169.multi,
-                      selected: _this169.items,
+                      multi: _this187.multi,
+                      selected: _this187.items,
                       autoOpenDir: autoOpenDir
                     });
 
                   case 5:
-                    payload = _context100.sent;
+                    payload = _context107.sent;
 
                     // take `undefined` as cancel
                     if (_.isUndefined(payload)) {} //console.log("canceled!")        
@@ -31964,15 +33403,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     // object or array will be the value
                     else {
                         //console.log(payload)
-                        _this169.$notify("change", payload);
+                        _this187.$notify("change", payload);
                       }
 
                   case 7:
                   case "end":
-                    return _context100.stop();
+                    return _context107.stop();
                 }
               }
-            }, _callee99);
+            }, _callee106);
           }))();
         },
         //......................................
@@ -31997,170 +33436,170 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //......................................
         reload: function reload() {
-          var _this170 = this;
+          var _this188 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee100() {
-            return regeneratorRuntime.wrap(function _callee100$(_context101) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee107() {
+            return regeneratorRuntime.wrap(function _callee107$(_context108) {
               while (1) {
-                switch (_context101.prev = _context101.next) {
+                switch (_context108.prev = _context108.next) {
                   case 0:
-                    _this170.loading = true;
-                    _context101.next = 3;
-                    return _this170.doReload();
+                    _this188.loading = true;
+                    _context108.next = 3;
+                    return _this188.doReload();
 
                   case 3:
-                    _this170.loading = false;
+                    _this188.loading = false;
 
                   case 4:
                   case "end":
-                    return _context101.stop();
+                    return _context108.stop();
                 }
               }
-            }, _callee100);
+            }, _callee107);
           }))();
         },
         //......................................
         doReload: function doReload() {
-          var _this171 = this;
+          var _this189 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee101() {
-            var vals, items, _iterator79, _step79, it, it2;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee108() {
+            var vals, items, _iterator76, _step76, it, it2;
 
-            return regeneratorRuntime.wrap(function _callee101$(_context102) {
+            return regeneratorRuntime.wrap(function _callee108$(_context109) {
               while (1) {
-                switch (_context102.prev = _context102.next) {
+                switch (_context109.prev = _context109.next) {
                   case 0:
-                    vals = _this171.value ? [].concat(_this171.value) : [];
+                    vals = _this189.value ? [].concat(_this189.value) : [];
                     items = []; // Loop each value item
 
-                    _iterator79 = _createForOfIteratorHelper(vals);
-                    _context102.prev = 3;
+                    _iterator76 = _createForOfIteratorHelper(vals);
+                    _context109.prev = 3;
 
-                    _iterator79.s();
+                    _iterator76.s();
 
                   case 5:
-                    if ((_step79 = _iterator79.n()).done) {
-                      _context102.next = 15;
+                    if ((_step76 = _iterator76.n()).done) {
+                      _context109.next = 15;
                       break;
                     }
 
-                    it = _step79.value;
-                    _context102.next = 9;
-                    return _this171.reloadItem(it);
+                    it = _step76.value;
+                    _context109.next = 9;
+                    return _this189.reloadItem(it);
 
                   case 9:
-                    it2 = _context102.sent;
+                    it2 = _context109.sent;
                     if (it2) items.push(it2);
 
-                    if (!(!_this171.multi && items.length > 0)) {
-                      _context102.next = 13;
+                    if (!(!_this189.multi && items.length > 0)) {
+                      _context109.next = 13;
                       break;
                     }
 
-                    return _context102.abrupt("break", 15);
+                    return _context109.abrupt("break", 15);
 
                   case 13:
-                    _context102.next = 5;
+                    _context109.next = 5;
                     break;
 
                   case 15:
-                    _context102.next = 20;
+                    _context109.next = 20;
                     break;
 
                   case 17:
-                    _context102.prev = 17;
-                    _context102.t0 = _context102["catch"](3);
+                    _context109.prev = 17;
+                    _context109.t0 = _context109["catch"](3);
 
-                    _iterator79.e(_context102.t0);
+                    _iterator76.e(_context109.t0);
 
                   case 20:
-                    _context102.prev = 20;
+                    _context109.prev = 20;
 
-                    _iterator79.f();
+                    _iterator76.f();
 
-                    return _context102.finish(20);
+                    return _context109.finish(20);
 
                   case 23:
                     // Update value, it will be trigger the computed attribute
                     // Then it will be passed to <ti-box> as formed list
                     // the <ti-box> will show it reasonablely obey the `multi` options
-                    _this171.items = items;
+                    _this189.items = items;
 
                   case 24:
                   case "end":
-                    return _context102.stop();
+                    return _context109.stop();
                 }
               }
-            }, _callee101, null, [[3, 17, 20, 23]]);
+            }, _callee108, null, [[3, 17, 20, 23]]);
           }))();
         },
         //......................................
         reloadItem: function reloadItem(it) {
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee102() {
-            return regeneratorRuntime.wrap(function _callee102$(_context103) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee109() {
+            return regeneratorRuntime.wrap(function _callee109$(_context110) {
               while (1) {
-                switch (_context103.prev = _context103.next) {
+                switch (_context110.prev = _context110.next) {
                   case 0:
                     if (!(!it || _.isEmpty(it))) {
-                      _context103.next = 2;
+                      _context110.next = 2;
                       break;
                     }
 
-                    return _context103.abrupt("return", null);
+                    return _context110.abrupt("return", null);
 
                   case 2:
                     if (!_.isString(it)) {
-                      _context103.next = 8;
+                      _context110.next = 8;
                       break;
                     }
 
-                    _context103.next = 5;
+                    _context110.next = 5;
                     return Wn.Io.loadMeta(it);
 
                   case 5:
-                    return _context103.abrupt("return", _context103.sent);
+                    return _context110.abrupt("return", _context110.sent);
 
                   case 8:
                     if (!it.id) {
-                      _context103.next = 14;
+                      _context110.next = 14;
                       break;
                     }
 
-                    _context103.next = 11;
+                    _context110.next = 11;
                     return Wn.Io.loadMetaById(it.id);
 
                   case 11:
-                    return _context103.abrupt("return", _context103.sent);
+                    return _context110.abrupt("return", _context110.sent);
 
                   case 14:
                     throw Ti.Err.make("e-wn-obj-picker-unsupported-value-form", it);
 
                   case 15:
                   case "end":
-                    return _context103.stop();
+                    return _context110.stop();
                 }
               }
-            }, _callee102);
+            }, _callee109);
           }))();
         } //......................................
 
       },
       /////////////////////////////////////////
       mounted: function () {
-        var _mounted12 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee103() {
-          return regeneratorRuntime.wrap(function _callee103$(_context104) {
+        var _mounted12 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee110() {
+          return regeneratorRuntime.wrap(function _callee110$(_context111) {
             while (1) {
-              switch (_context104.prev = _context104.next) {
+              switch (_context111.prev = _context111.next) {
                 case 0:
-                  _context104.next = 2;
+                  _context111.next = 2;
                   return this.reload();
 
                 case 2:
                 case "end":
-                  return _context104.stop();
+                  return _context111.stop();
               }
             }
-          }, _callee103, this);
+          }, _callee110, this);
         }));
 
         function mounted() {
@@ -32243,23 +33682,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ///////////////////////////////////////////////////
       watch: {
         "data": function () {
-          var _data3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee104() {
-            return regeneratorRuntime.wrap(function _callee104$(_context105) {
+          var _data3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee111() {
+            return regeneratorRuntime.wrap(function _callee111$(_context112) {
               while (1) {
-                switch (_context105.prev = _context105.next) {
+                switch (_context112.prev = _context112.next) {
                   case 0:
-                    _context105.next = 2;
+                    _context112.next = 2;
                     return this.evalTheValue();
 
                   case 2:
-                    this.theValue = _context105.sent;
+                    this.theValue = _context112.sent;
 
                   case 3:
                   case "end":
-                    return _context105.stop();
+                    return _context112.stop();
                 }
               }
-            }, _callee104, this);
+            }, _callee111, this);
           }));
 
           function data() {
@@ -32269,23 +33708,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return data;
         }(),
         "name": function () {
-          var _name = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee105() {
-            return regeneratorRuntime.wrap(function _callee105$(_context106) {
+          var _name = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee112() {
+            return regeneratorRuntime.wrap(function _callee112$(_context113) {
               while (1) {
-                switch (_context106.prev = _context106.next) {
+                switch (_context113.prev = _context113.next) {
                   case 0:
-                    _context106.next = 2;
+                    _context113.next = 2;
                     return this.evalTheValue();
 
                   case 2:
-                    this.theValue = _context106.sent;
+                    this.theValue = _context113.sent;
 
                   case 3:
                   case "end":
-                    return _context106.stop();
+                    return _context113.stop();
                 }
               }
-            }, _callee105, this);
+            }, _callee112, this);
           }));
 
           function name() {
@@ -32318,62 +33757,62 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ///////////////////////////////////////////////////
       methods: {
         evalTheValue: function evalTheValue() {
-          var _this172 = this;
+          var _this190 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee106() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee113() {
             var val;
-            return regeneratorRuntime.wrap(function _callee106$(_context107) {
+            return regeneratorRuntime.wrap(function _callee113$(_context114) {
               while (1) {
-                switch (_context107.prev = _context107.next) {
+                switch (_context114.prev = _context114.next) {
                   case 0:
-                    val = _.get(_this172.data, _this172.name);
+                    val = _.get(_this190.data, _this190.name);
 
-                    if (!_this172.dict) {
-                      _context107.next = 5;
+                    if (!_this190.dict) {
+                      _context114.next = 5;
                       break;
                     }
 
-                    _context107.next = 4;
-                    return wn.Dict.get(_this172.dict, val);
+                    _context114.next = 4;
+                    return wn.Dict.get(_this190.dict, val);
 
                   case 4:
-                    val = _context107.sent;
+                    val = _context114.sent;
 
                   case 5:
-                    if (_.isFunction(_this172.theTransformer)) {
-                      val = _this172.theTransformer(val);
+                    if (_.isFunction(_this190.theTransformer)) {
+                      val = _this190.theTransformer(val);
                     }
 
-                    return _context107.abrupt("return", val);
+                    return _context114.abrupt("return", val);
 
                   case 7:
                   case "end":
-                    return _context107.stop();
+                    return _context114.stop();
                 }
               }
-            }, _callee106);
+            }, _callee113);
           }))();
         }
       },
       ///////////////////////////////////////////////////
       mounted: function () {
-        var _mounted13 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee107() {
-          return regeneratorRuntime.wrap(function _callee107$(_context108) {
+        var _mounted13 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee114() {
+          return regeneratorRuntime.wrap(function _callee114$(_context115) {
             while (1) {
-              switch (_context108.prev = _context108.next) {
+              switch (_context115.prev = _context115.next) {
                 case 0:
-                  _context108.next = 2;
+                  _context115.next = 2;
                   return this.evalTheValue();
 
                 case 2:
-                  this.theValue = _context108.sent;
+                  this.theValue = _context115.sent;
 
                 case 3:
                 case "end":
-                  return _context108.stop();
+                  return _context115.stop();
               }
             }
-          }, _callee107, this);
+          }, _callee114, this);
         }));
 
         function mounted() {
@@ -32508,7 +33947,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         PrevewInfoFields: function PrevewInfoFields() {
-          var _this173 = this;
+          var _this191 = this;
 
           return Wn.Obj.evalFields(this.meta, this.infoFields, function (fld) {
             if (fld.quickName && _.isUndefined(fld.value)) {
@@ -32520,14 +33959,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
 
             return _.defaults(fld, {
-              nameWidth: _this173.infoNameWidth,
-              valueWidth: _this173.infoValueWidth
+              nameWidth: _this191.infoNameWidth,
+              valueWidth: _this191.infoValueWidth
             });
           });
         },
         //--------------------------------------
         TheActions: function TheActions() {
-          var _this174 = this;
+          var _this192 = this;
 
           var list = [];
 
@@ -32536,12 +33975,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               //..........................
               // full screen
               if ("fullscreen" == it) {
-                if (!_this174.isInFullScreen) {
+                if (!_this192.isInFullScreen) {
                   list.push({
                     icon: "zmdi-fullscreen",
                     text: "i18n:wop-fullscreen-enter",
                     action: function action() {
-                      return _this174.enterFullscreen();
+                      return _this192.enterFullscreen();
                     }
                   });
                 } // Exit FullScreen
@@ -32550,7 +33989,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       icon: "zmdi-fullscreen-exit",
                       text: "i18n:wop-fullscreen-quit",
                       action: function action() {
-                        return _this174.exitFullscreen();
+                        return _this192.exitFullscreen();
                       }
                     });
                   }
@@ -32561,7 +34000,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     icon: "zmdi-open-in-new",
                     text: "i18n:open-newtab",
                     action: function action() {
-                      return _this174.openInNewTab();
+                      return _this192.openInNewTab();
                     }
                   });
                 } //..........................
@@ -32571,18 +34010,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       icon: "zmdi-download",
                       text: "i18n:download-to-local",
                       action: function action() {
-                        return _this174.download();
+                        return _this192.download();
                       }
                     });
                   } //..........................
                   // Toggle Info
                   else if ("info" == it) {
-                      if (!_this174.isShowInfo) {
+                      if (!_this192.isShowInfo) {
                         list.push({
                           icon: "zmdi-info",
                           text: "i18n:info",
                           action: function action() {
-                            return _this174.doShowInfo();
+                            return _this192.doShowInfo();
                           }
                         });
                       } // Show Info
@@ -32591,7 +34030,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                             icon: "zmdi-info-outline",
                             text: "i18n:info",
                             action: function action() {
-                              return _this174.doHideInfo();
+                              return _this192.doHideInfo();
                             }
                           });
                         }
@@ -32681,29 +34120,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         resizeMediaViewport: function resizeMediaViewport() {
-          var _this175 = this;
+          var _this193 = this;
 
-          var _iterator80 = _createForOfIteratorHelper(this.$children),
-              _step80;
+          var _iterator77 = _createForOfIteratorHelper(this.$children),
+              _step77;
 
           try {
             var _loop2 = function _loop2() {
-              var $child = _step80.value;
+              var $child = _step77.value;
 
               if (_.isFunction($child.onResizeViewport)) {
-                _this175.$nextTick(function () {
+                _this193.$nextTick(function () {
                   $child.onResizeViewport();
                 });
               }
             };
 
-            for (_iterator80.s(); !(_step80 = _iterator80.n()).done;) {
+            for (_iterator77.s(); !(_step77 = _iterator77.n()).done;) {
               _loop2();
             }
           } catch (err) {
-            _iterator80.e(err);
+            _iterator77.e(err);
           } finally {
-            _iterator80.f();
+            _iterator77.f();
           }
         },
         //--------------------------------------
@@ -32755,12 +34194,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //////////////////////////////////////////
       mounted: function mounted() {
-        var _this176 = this;
+        var _this194 = this;
 
         this.isShowInfo = this.showInfo;
         this.isFloatInfo = this.floatInfo;
         this.$nextTick(function () {
-          _this176.loadStateFromLocal();
+          _this194.loadStateFromLocal();
         });
       } //////////////////////////////////////////
 
@@ -32858,13 +34297,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ////////////////////////////////////////////
       mounted: function mounted() {
-        var _this177 = this;
+        var _this195 = this;
 
         //----------------------------------------
         Ti.Fuse.getOrCreate().add({
           key: "wn-obj-puretext",
           everythingOk: function everythingOk() {
-            return !_this177.status.changed;
+            return !_this195.status.changed;
           },
           fail: function fail() {
             Ti.Toast.Open("i18n:wn-obj-nosaved", "warn");
@@ -33072,12 +34511,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         TheFields: function TheFields() {
           var list = [];
 
-          var _iterator81 = _createForOfIteratorHelper(this.fields),
-              _step81;
+          var _iterator78 = _createForOfIteratorHelper(this.fields),
+              _step78;
 
           try {
-            for (_iterator81.s(); !(_step81 = _iterator81.n()).done;) {
-              var fld = _step81.value;
+            for (_iterator78.s(); !(_step78 = _iterator78.n()).done;) {
+              var fld = _step78.value;
 
               var f2 = _.assign({}, fld);
 
@@ -33085,9 +34524,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               list.push(f2);
             }
           } catch (err) {
-            _iterator81.e(err);
+            _iterator78.e(err);
           } finally {
-            _iterator81.f();
+            _iterator78.f();
           }
 
           return list;
@@ -33172,7 +34611,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: wn/thing/manager/com/thing-creator/thing-creator.html
   //============================================================
 
-  Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.html", "<div class=\"thing-creator ti-box-relative\">\n  <ti-form\n    :fields=\"fields\"\n    :only-fields=\"false\"\n    v-model=\"myData\"/>\n  <hr class=\"no-space\">\n  <div class=\"ti-flex-center ti-padding-10\">\n    <div class=\"ti-btn is-big\" \n      @click=\"onCreate\">\n      <span>{{'create-now'|i18n}}</span>\n    </div>\n  </div>\n  <div v-if=\"creating\"\n    class=\"ti-box-mask as-thin ti-flex-center\">\n    <ti-loading text=\"i18n:creating\"/>\n  </div>\n</div>"); //============================================================
+  Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.html", "<div class=\"thing-creator ti-box-relative\">\n  <ti-form\n    :fields=\"fields\"\n    :only-fields=\"onlyFields\"\n    :fixed=\"fixed\"\n    :data=\"TheData\"\n    :on-init=\"OnFormInit\"\n    @field:change=\"OnFormFieldChange\"\n    @change=\"OnFormChange\"\n    @submit=\"OnSubmit\"/>\n  <hr class=\"no-space\">\n  <div class=\"ti-flex-center ti-padding-10\">\n    <div class=\"ti-btn is-big\" \n      @click=\"OnCreate\">\n      <span>{{'create-now'|i18n}}</span>\n    </div>\n  </div>\n  <div v-if=\"creating\"\n    class=\"ti-box-mask as-thin ti-flex-center\">\n    <ti-loading text=\"i18n:creating\"/>\n  </div>\n</div>"); //============================================================
   // JOIN: wn/thing/manager/com/thing-creator/thing-creator.mjs
   //============================================================
 
@@ -33181,7 +34620,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ///////////////////////////////////////////
       data: function data() {
         return {
-          "myData": {},
+          "myData": undefined,
           "creating": false
         };
       },
@@ -33198,55 +34637,89 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           "default": function _default() {
             return {};
           }
+        },
+        "onlyFields": {
+          type: Boolean,
+          "default": false
+        },
+        "fixed": {
+          type: Object,
+          "default": undefined
+        }
+      },
+      ///////////////////////////////////////////
+      computed: {
+        TheData: function TheData() {
+          return this.myData || this.data;
         }
       },
       ///////////////////////////////////////////
       methods: {
         //--------------------------------------
-        onChanged: function onChanged() {
-          var _ref100 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              name = _ref100.name,
-              value = _ref100.value;
-
-          //console.log("changed", name, value)
-          this.obj = _.assign({}, this.obj, _defineProperty({}, name, value));
+        OnFormInit: function OnFormInit($form) {
+          this.$form = $form;
         },
         //--------------------------------------
-        onCreate: function onCreate() {
-          var _this178 = this;
+        OnFormFieldChange: function OnFormFieldChange() {
+          var pair = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          //console.log("OnFormFieldChange", pair)
+          this.myData = this.$form.getData(pair);
+        },
+        //--------------------------------------
+        OnFormChange: function OnFormChange(data) {
+          //console.log("OnFormChange", data)
+          this.myData = data;
+        },
+        //--------------------------------------
+        OnCreate: function OnCreate() {
+          var _this196 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee108() {
-            var app;
-            return regeneratorRuntime.wrap(function _callee108$(_context109) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee115() {
+            return regeneratorRuntime.wrap(function _callee115$(_context116) {
               while (1) {
-                switch (_context109.prev = _context109.next) {
+                switch (_context116.prev = _context116.next) {
                   case 0:
-                    _this178.creating = true;
-                    app = Ti.App(_this178);
-                    _context109.next = 4;
-                    return app.dispatch("main/create", _this178.myData);
+                    _this196.creating = true;
+                    _context116.next = 3;
+                    return Ti.App(_this196).dispatch("main/create", _this196.myData);
+
+                  case 3:
+                    _this196.$notify("block:hide", "creator");
 
                   case 4:
-                    _this178.$notify("block:hide", "creator");
-
-                  case 5:
                   case "end":
-                    return _context109.stop();
+                    return _context116.stop();
                 }
               }
-            }, _callee108);
+            }, _callee115);
+          }))();
+        },
+        //--------------------------------------
+        OnSubmit: function OnSubmit() {
+          var _this197 = this;
+
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee116() {
+            return regeneratorRuntime.wrap(function _callee116$(_context117) {
+              while (1) {
+                switch (_context117.prev = _context117.next) {
+                  case 0:
+                    _this197.$nextTick(function () {
+                      _this197.OnCreate();
+                    });
+
+                  case 1:
+                  case "end":
+                    return _context117.stop();
+                }
+              }
+            }, _callee116);
           }))();
         } //--------------------------------------
 
       },
       ///////////////////////////////////////////
-      watch: {
-        "data": {
-          handler: function handler() {
-            this.myData = _.assign({}, this.data);
-          },
-          immediate: true
-        }
+      mounted: function mounted() {
+        this.myData = this.$form.getData();
       } ///////////////////////////////////////////
 
     };
@@ -33358,6 +34831,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             value: "attachment"
           }];
         }
+      },
+      "nilIcon": {
+        type: String,
+        "default": "fas-braille"
+      },
+      "nilText": {
+        type: String,
+        "default": null
       } //-----------------------------------
       // Measure
       //-----------------------------------
@@ -33369,7 +34850,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   //============================================================
 
 
-  Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", "<div class=\"thing-files\">\n  <!--\n    With Data Home\n  -->\n  <template v-if=\"dataHome\">\n    <!--\n      Head bar for switch dir and actions\n    -->\n    <div class=\"as-header\">\n      <div v-if=\"dirNameTip\"\n        class=\"as-tip\">\n        <span>{{dirNameTip|i18n}}</span>\n      </div>\n      <!--Left: select files home dirName-->\n      <div class=\"as-name\">\n        <component \n          :is=\"dirNameComType\"\n          height=\".3rem\"\n          :allow-empty=\"false\"\n          :options=\"dirNameOptions\"\n          :value=\"dirName\"\n          :prefix-icon-for-clean=\"false\"\n          @change=\"OnDirNameChanged\"/>\n      </div>\n      <!--Right: Common Actions-->\n      <div class=\"as-menu\">\n        <ti-actionbar \n          :items=\"actions\"\n          :status=\"myStatus\"/>\n      </div>\n    </div>\n    <!--\n      File Preview\n    -->\n    <div class=\"as-preview\">\n      <wn-obj-preview\n        class=\"ti-fill-parent\"\n        v-bind=\"ThePreview\"\n        :meta=\"CurrentFile\"/>\n    </div>\n    <!--\n      File List\n    -->\n    <div class=\"as-list\">\n      <wn-adaptlist\n        class=\"ti-fill-parent\"\n        v-bind=\"TheFiles\"\n        :data=\"myData\"\n        :meta=\"myHome\"\n        :status=\"myStatus\"\n        @uploaded=\"OnFileUploaded\"\n        @select=\"OnFileSelected\"\n        :on-init=\"OnAdaptListInit\"/>\n    </div>\n  </template>\n  <!--\n    Without Data Home\n  -->\n  <ti-loading v-else\n    text=\"i18n:empty-data\"\n    icon=\"zmdi-alert-circle-o\"/>\n</div>"); //============================================================
+  Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", "<div class=\"wn-thing-files\">\n  <!--\n    With Data Home\n  -->\n  <template v-if=\"dataHome\">\n    <!--\n      Head bar for switch dir and actions\n    -->\n    <div class=\"as-header\">\n      <div v-if=\"dirNameTip\"\n        class=\"as-tip\">\n        <span>{{dirNameTip|i18n}}</span>\n      </div>\n      <!--Left: select files home dirName-->\n      <div class=\"as-name\">\n        <component \n          :is=\"dirNameComType\"\n          height=\".3rem\"\n          :allow-empty=\"false\"\n          :options=\"dirNameOptions\"\n          :value=\"dirName\"\n          :prefix-icon-for-clean=\"false\"\n          @change=\"OnDirNameChanged\"/>\n      </div>\n      <!--Right: Common Actions-->\n      <div class=\"as-menu\">\n        <ti-actionbar \n          :items=\"actions\"\n          :status=\"myStatus\"/>\n      </div>\n    </div>\n    <!--\n      File Preview\n    -->\n    <div class=\"as-preview\">\n      <wn-obj-preview\n        class=\"ti-fill-parent\"\n        v-bind=\"ThePreview\"\n        :meta=\"CurrentFile\"/>\n    </div>\n    <!--\n      File List\n    -->\n    <div class=\"as-list\">\n      <wn-adaptlist\n        class=\"ti-fill-parent\"\n        v-bind=\"TheFiles\"\n        :data=\"myData\"\n        :meta=\"myDataDirObj\"\n        :status=\"myStatus\"\n        :before-upload=\"checkDataDir\"\n        @uploaded=\"OnFileUploaded\"\n        @select=\"OnFileSelect\"\n        @open=\"OnFileOpen\"\n        :on-init=\"OnAdaptListInit\"/>\n    </div>\n  </template>\n  <!--\n    Without Data Home\n  -->\n  <ti-loading\n    v-else\n      class=\"nil-datahome as-big-mask\"\n      :text=\"nilText\"\n      :icon=\"nilIcon\"/>\n</div>"); //============================================================
   // JOIN: wn/thing/manager/com/thing-files/thing-files.mjs
   //============================================================
 
@@ -33380,7 +34861,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ///////////////////////////////////////////
       data: function data() {
         return {
-          myHome: null,
+          myDataDirObj: null,
           myData: {},
           myStatus: {
             reloading: false
@@ -33397,27 +34878,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //--------------------------------------
         CurrentFile: function CurrentFile() {
           if (this.myCurrentId && this.myData.list) {
-            var _iterator82 = _createForOfIteratorHelper(this.myData.list),
-                _step82;
+            var _iterator79 = _createForOfIteratorHelper(this.myData.list),
+                _step79;
 
             try {
-              for (_iterator82.s(); !(_step82 = _iterator82.n()).done;) {
-                var it = _step82.value;
+              for (_iterator79.s(); !(_step79 = _iterator79.n()).done;) {
+                var it = _step79.value;
 
                 if (this.myCurrentId == it.id) {
                   return it;
                 }
               }
             } catch (err) {
-              _iterator82.e(err);
+              _iterator79.e(err);
             } finally {
-              _iterator82.f();
+              _iterator79.f();
             }
           }
         },
         //--------------------------------------
         ThePreview: function ThePreview() {
-          var _this179 = this;
+          var _this198 = this;
 
           var preview = Ti.Util.getFallback(this.preview, this.dirName, "@default") || this.preview || {};
           return _objectSpread({
@@ -33430,31 +34911,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }, preview, {
             // Edit Info 
             editInfoBy: function editInfoBy() {
-              _this179.editPreviewInfo();
+              _this198.editPreviewInfo();
             }
           });
         },
         //--------------------------------------
         TheFiles: function TheFiles() {
-          var _this180 = this;
+          var _this199 = this;
 
           return _.assign({}, this.files, {
             routers: {
               "reload": function () {
-                var _reload = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee109() {
-                  return regeneratorRuntime.wrap(function _callee109$(_context110) {
+                var _reload = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee117() {
+                  return regeneratorRuntime.wrap(function _callee117$(_context118) {
                     while (1) {
-                      switch (_context110.prev = _context110.next) {
+                      switch (_context118.prev = _context118.next) {
                         case 0:
-                          _context110.next = 2;
-                          return _this180.reloadData();
+                          _context118.next = 2;
+                          return _this199.reloadData();
 
                         case 2:
                         case "end":
-                          return _context110.stop();
+                          return _context118.stop();
                       }
                     }
-                  }, _callee109);
+                  }, _callee117);
                 }));
 
                 function reload() {
@@ -33478,206 +34959,204 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         // Events
         //--------------------------------------
         OnDirNameChanged: function OnDirNameChanged(dirName) {
-          var _this181 = this;
+          var _this200 = this;
 
           var app = Ti.App(this);
           app.commit("main/setCurrentDataDir", dirName);
           this.$nextTick(function () {
-            _this181.reloadData();
+            _this200.reloadData();
           });
         },
         //--------------------------------------
-        OnFileSelected: function OnFileSelected(_ref101) {
-          var currentId = _ref101.currentId;
+        OnFileSelect: function OnFileSelect(_ref109) {
+          var currentId = _ref109.currentId;
           this.myCurrentId = currentId;
+        },
+        //--------------------------------------
+        OnFileOpen: function OnFileOpen(_ref110) {
+          var id = _ref110.id,
+              item = _ref110.item;
+          this.$notify("file:open", item);
         },
         //--------------------------------------
         OnFileUploaded: function OnFileUploaded() {
           var _arguments19 = arguments,
-              _this182 = this;
+              _this201 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee110() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee118() {
             var files, f;
-            return regeneratorRuntime.wrap(function _callee110$(_context111) {
+            return regeneratorRuntime.wrap(function _callee118$(_context119) {
               while (1) {
-                switch (_context111.prev = _context111.next) {
+                switch (_context119.prev = _context119.next) {
                   case 0:
                     files = _arguments19.length > 0 && _arguments19[0] !== undefined ? _arguments19[0] : [];
                     f = _.first(files);
 
                     if (f) {
-                      _this182.$adaptlist.myCurrentId = f.id;
-                      _this182.myCurrentId = f.id;
+                      _this201.$adaptlist.myCurrentId = f.id;
+                      _this201.myCurrentId = f.id;
                     }
 
-                    _context111.next = 5;
-                    return _this182.doUpdateFilesCount();
+                    _context119.next = 5;
+                    return Ti.App(_this201).dispatch("main/autoSyncCurrentFilesCount");
 
                   case 5:
                   case "end":
-                    return _context111.stop();
+                    return _context119.stop();
                 }
               }
-            }, _callee110);
+            }, _callee118);
           }))();
         },
         //--------------------------------------
         // Untility
         //--------------------------------------
-        doUpdateFilesCount: function doUpdateFilesCount() {
-          var _this183 = this;
-
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee111() {
-            var meta, cmds, cmdText, newMeta;
-            return regeneratorRuntime.wrap(function _callee111$(_context112) {
-              while (1) {
-                switch (_context112.prev = _context112.next) {
-                  case 0:
-                    meta = _.get(_this183.$ThingManager, "current.meta");
-
-                    if (!meta) {
-                      _context112.next = 8;
-                      break;
-                    }
-
-                    cmds = ['thing', meta.th_set, 'file', meta.id, "-ufc -cqn"];
-                    cmdText = cmds.join(" ");
-                    _context112.next = 6;
-                    return Wn.Sys.exec2(cmdText, {
-                      as: "json"
-                    });
-
-                  case 6:
-                    newMeta = _context112.sent;
-                    Ti.App(_this183).dispatch("main/setCurrentMeta", newMeta);
-
-                  case 8:
-                  case "end":
-                    return _context112.stop();
-                }
-              }
-            }, _callee111);
-          }))();
-        },
-        //--------------------------------------
         doDeleteSelected: function doDeleteSelected() {
-          var _this184 = this;
+          var _this202 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee112() {
-            return regeneratorRuntime.wrap(function _callee112$(_context113) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee119() {
+            return regeneratorRuntime.wrap(function _callee119$(_context120) {
               while (1) {
-                switch (_context113.prev = _context113.next) {
+                switch (_context120.prev = _context120.next) {
                   case 0:
-                    _context113.next = 2;
-                    return _this184.$adaptlist.doDelete();
+                    _context120.next = 2;
+                    return _this202.$adaptlist.doDelete();
 
                   case 2:
-                    _context113.next = 4;
-                    return _this184.doUpdateFilesCount();
+                    _context120.next = 4;
+                    return Ti.App(_this202).dispatch("main/autoSyncCurrentFilesCount");
 
                   case 4:
                   case "end":
-                    return _context113.stop();
+                    return _context120.stop();
                 }
               }
-            }, _callee112);
+            }, _callee119);
           }))();
         },
         //--------------------------------------
-        doUploadFiles: function doUploadFiles() {
-          var _this185 = this;
+        checkDataDir: function checkDataDir() {
+          var _this203 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee113() {
-            var pos, tsDataPh, dirPath, newMeta, json, cmdText;
-            return regeneratorRuntime.wrap(function _callee113$(_context114) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee120() {
+            var pos, tsDataPh, dirPath, newMeta, json, cmdText, dataDirObj, dataHomeObj;
+            return regeneratorRuntime.wrap(function _callee120$(_context121) {
               while (1) {
-                switch (_context114.prev = _context114.next) {
+                switch (_context121.prev = _context121.next) {
                   case 0:
-                    if (_this185.hasDataHome) {
-                      _context114.next = 2;
+                    if (_this203.hasDataHome) {
+                      _context121.next = 2;
                       break;
                     }
 
-                    return _context114.abrupt("return");
+                    return _context121.abrupt("return");
 
                   case 2:
-                    if (_this185.myHome) {
-                      _context114.next = 13;
+                    if (_this203.myDataDirObj) {
+                      _context121.next = 17;
                       break;
                     }
 
-                    pos = _this185.dataHome.indexOf('/');
-                    tsDataPh = _this185.dataHome.substring(0, pos);
-                    dirPath = Ti.Util.appendPath(_this185.dataHome.substring(pos + 1), _this185.dirName);
+                    pos = _this203.dataHome.indexOf('/');
+                    tsDataPh = _this203.dataHome.substring(0, pos);
+                    dirPath = Ti.Util.appendPath(_this203.dataHome.substring(pos + 1), _this203.dirName);
                     newMeta = {
                       race: "DIR",
                       nm: dirPath
                     };
                     json = JSON.stringify(newMeta);
-                    cmdText = "obj \"".concat(tsDataPh, "\" -IfNoExists -new '").concat(json, "' -cqno");
-                    console.log(cmdText);
-                    _context114.next = 12;
+                    cmdText = "obj \"".concat(tsDataPh, "\" -IfNoExists -new '").concat(json, "' -cqno"); //console.log(cmdText)
+
+                    _context121.next = 11;
                     return Wn.Sys.exec2(cmdText, {
                       as: "json"
                     });
 
-                  case 12:
-                    _this185.myHome = _context114.sent;
+                  case 11:
+                    dataDirObj = _context121.sent;
+                    _context121.next = 14;
+                    return Wn.Io.loadMetaBy(_this203.dataHome);
 
-                  case 13:
-                    if (!_this185.myHome) {
-                      _context114.next = 17;
+                  case 14:
+                    dataHomeObj = _context121.sent;
+                    // Update local state
+                    Ti.App(_this203).commit("main/setCurrentDataHomeObj", dataHomeObj);
+                    _this203.myDataDirObj = dataDirObj;
+
+                  case 17:
+                  case "end":
+                    return _context121.stop();
+                }
+              }
+            }, _callee120);
+          }))();
+        },
+        //--------------------------------------
+        doUploadFiles: function doUploadFiles() {
+          var _this204 = this;
+
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee121() {
+            return regeneratorRuntime.wrap(function _callee121$(_context122) {
+              while (1) {
+                switch (_context122.prev = _context122.next) {
+                  case 0:
+                    _context122.next = 2;
+                    return _this204.checkDataDir();
+
+                  case 2:
+                    if (!_this204.myDataDirObj) {
+                      _context122.next = 6;
                       break;
                     }
 
-                    _this185.$adaptlist.openLocalFileSelectdDialog();
+                    _this204.$adaptlist.openLocalFileSelectdDialog();
 
-                    _context114.next = 18;
+                    _context122.next = 7;
                     break;
 
-                  case 17:
+                  case 6:
                     throw "Impossible!!!";
 
-                  case 18:
+                  case 7:
                   case "end":
-                    return _context114.stop();
+                    return _context122.stop();
                 }
               }
-            }, _callee113);
+            }, _callee121);
           }))();
         },
         //--------------------------------------
         editPreviewInfo: function editPreviewInfo() {
-          var _this186 = this;
+          var _this205 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee114() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee122() {
             var options, reo;
-            return regeneratorRuntime.wrap(function _callee114$(_context115) {
+            return regeneratorRuntime.wrap(function _callee122$(_context123) {
               while (1) {
-                switch (_context115.prev = _context115.next) {
+                switch (_context123.prev = _context123.next) {
                   case 0:
-                    if (!_this186.CurrentFile) {
-                      _context115.next = 6;
+                    if (!_this205.CurrentFile) {
+                      _context123.next = 6;
                       break;
                     }
 
-                    options = _.get(_this186.previewEdit, _this186.dirName);
-                    _context115.next = 4;
-                    return Wn.EditObjMeta(_this186.CurrentFile, options);
+                    options = _.get(_this205.previewEdit, _this205.dirName);
+                    _context123.next = 4;
+                    return Wn.EditObjMeta(_this205.CurrentFile, options);
 
                   case 4:
-                    reo = _context115.sent;
+                    reo = _context123.sent;
 
                     if (reo && reo.data) {
-                      _this186.updateItemInDataList(reo.data);
+                      _this205.updateItemInDataList(reo.data);
                     }
 
                   case 6:
                   case "end":
-                    return _context115.stop();
+                    return _context123.stop();
                 }
               }
-            }, _callee114);
+            }, _callee122);
           }))();
         },
         //--------------------------------------
@@ -33692,64 +35171,65 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         // Reloading
         //--------------------------------------
         reloadData: function reloadData() {
-          var _this187 = this;
+          var _this206 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee115() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee123() {
             var hmph, home, reo;
-            return regeneratorRuntime.wrap(function _callee115$(_context116) {
+            return regeneratorRuntime.wrap(function _callee123$(_context124) {
               while (1) {
-                switch (_context116.prev = _context116.next) {
+                switch (_context124.prev = _context124.next) {
                   case 0:
-                    if (!(_this187.dataHome && _this187.dirName)) {
-                      _context116.next = 19;
+                    if (!(_this206.dataHome && _this206.dirName)) {
+                      _context124.next = 19;
                       break;
                     }
 
-                    _this187.myStatus.reloading = true;
-                    hmph = Ti.Util.appendPath(_this187.dataHome, _this187.dirName);
-                    _context116.next = 5;
+                    _this206.myStatus.reloading = true;
+                    hmph = Ti.Util.appendPath(_this206.dataHome, _this206.dirName); //console.log("reloadData:", hmph)
+
+                    _context124.next = 5;
                     return Wn.Io.loadMeta(hmph);
 
                   case 5:
-                    home = _context116.sent;
+                    home = _context124.sent;
 
                     if (home) {
-                      _context116.next = 11;
+                      _context124.next = 11;
                       break;
                     }
 
-                    _this187.myHome = null;
-                    _this187.myData = {};
-                    _context116.next = 16;
+                    _this206.myDataDirObj = null;
+                    _this206.myData = {};
+                    _context124.next = 16;
                     break;
 
                   case 11:
-                    _context116.next = 13;
+                    _context124.next = 13;
                     return Wn.Io.loadChildren(home);
 
                   case 13:
-                    reo = _context116.sent;
-                    _this187.myHome = home;
-                    _this187.myData = reo;
+                    reo = _context124.sent;
+                    _this206.myDataDirObj = home;
+                    _this206.myData = reo;
 
                   case 16:
                     _.delay(function () {
-                      _this187.myStatus.reloading = false;
+                      _this206.myStatus.reloading = false;
                     }, 100);
 
-                    _context116.next = 21;
+                    _context124.next = 21;
                     break;
 
                   case 19:
-                    _this187.myHome = null;
-                    _this187.myData = {};
+                    _this206.myDataDirObj = null;
+                    _this206.myData = {};
 
                   case 21:
                   case "end":
-                    return _context116.stop();
+                    return _context124.stop();
                 }
               }
-            }, _callee115);
+            }, _callee123);
           }))();
         } //--------------------------------------
 
@@ -33784,7 +35264,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   // JOIN: wn/thing/manager/com/thing-filter/thing-filter.html
   //============================================================
 
-  Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/thing-filter.html", "<div class=\"thing-filter\"\n  :class=\"topClass\">\n  <!--\n    Icon: Recycle Bin\n  -->\n  <div v-if=\"isInRecycleBin\"\n    class=\"filter-recycle-bin\"\n    @click=\"onLeaveRecycleBin\">\n    <span class=\"it-icon\">\n      <ti-icon value=\"fas-recycle\"/>\n      <ti-icon value=\"far-arrow-alt-circle-left\"/>\n    </span>\n    <span class=\"it-text\">{{'i18n:thing-recycle-bin'|i18n}}</span>\n  </div>\n  <!--\n    Keyword\n  -->\n  <div class=\"filter-keyword\"\n    :class=\"keywordClass\">\n    <!--Input Box-->\n    <input ref=\"input\"\n      :placeholder=\"placeholderText\" \n      spellcheck=\"false\"\n      @change=\"onInputChanged\"\n      @focus=\"keywordFocus=true\"\n      @blur=\"keywordFocus=false\">\n    <!--Search Icon-->\n    <ti-icon v-if=\"searchIcon\" :value=\"searchIcon\"/>\n  </div>\n</div>"); //============================================================
+  Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/thing-filter.html", "<div class=\"wn-thing-filter\"\n  :class=\"TopClass\">\n  <!--\n    Icon: Recycle Bin\n  -->\n  <div\n    v-if=\"isInRecycleBin\"\n      class=\"as-recyclebin\"\n      @click=\"OnLeaveRecycleBin\"><div>\n        <!--Icon-->\n        <div class=\"it-icon\">\n          <ti-icon value=\"fas-recycle\"/>\n          <ti-icon value=\"far-arrow-alt-circle-left\"/>\n        </div>\n        <!--text-->\n        <div class=\"it-text\">{{'i18n:thing-recycle-bin'|i18n}}</div>\n  </div></div>\n  <!--\n    Keyword\n  -->\n  <TiComboFilter\n    class=\"as-filter\"\n    v-bind=\"filter\"\n    :placeholder=\"placeholder\"\n    :value=\"value.filter\"\n    @change=\"OnFilterChange\"/>\n  <!--\n    Sorter\n  -->\n  <TiComboSorter\n    v-if=\"hasSorter\"\n      class=\"as-sorter\"\n      v-bind=\"sorter\"\n      :value=\"value.sorter\"\n      @change=\"OnSorterChange\"/>\n</div>"); //============================================================
   // JOIN: wn/thing/manager/com/thing-filter/thing-filter.mjs
   //============================================================
 
@@ -33798,15 +35278,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ///////////////////////////////////////////
       props: {
+        "filter": {
+          type: Object,
+          "default": function _default() {
+            return {};
+          }
+        },
+        "sorter": {
+          type: Object,
+          "default": function _default() {
+            return {};
+          }
+        },
         "placeholder": {
           type: String,
-          "default": "i18n:thing-filter-kwdplhd"
-        },
-        "searchIcon": {
-          type: String,
-          "default": "zmdi-search"
+          "default": 'i18n:find-data'
         },
         "status": {
+          type: Object,
+          "default": function _default() {
+            return {};
+          }
+        },
+        "value": {
           type: Object,
           "default": function _default() {
             return {};
@@ -33816,51 +35310,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ///////////////////////////////////////////
       computed: {
         //---------------------------------------
-        placeholderText: function placeholderText() {
-          if (this.placeholder) return Ti.I18n.text(this.placeholder);
-          return "";
+        TopClass: function TopClass() {
+          return this.getTopClass({
+            "in-recyclebin": this.isInRecycleBin
+          });
         },
         //---------------------------------------
-        keywordClass: function keywordClass() {
-          return {
-            "has-icon": this.hasSearchIcon,
-            "is-focus": this.keywordFocus
-          };
+        hasSorter: function hasSorter() {
+          return !_.isEmpty(this.sorter);
         },
         //---------------------------------------
         isInRecycleBin: function isInRecycleBin() {
           return this.status.inRecycleBin;
-        },
-        //---------------------------------------
-        topClass: function topClass() {
-          return {
-            "in-recycle-bin": this.isInRecycleBin
-          };
         } //---------------------------------------
 
       },
       ///////////////////////////////////////////
       methods: {
         //---------------------------------------
-        onInputChanged: function onInputChanged() {
-          var name = _.trim(this.$refs.input.value); // Empty as undefined
-
-
-          if (_.isEmpty(name)) {
-            name = null;
-          } // make regex
-          else {
-              name = "^.*".concat(name, ".*$");
-            }
-
-          Ti.App(this).commit("main/search/updateFilter", {
-            th_nm: name
-          });
-          Ti.App(this).dispatch("main/reloadSearch");
+        OnFilterChange: function OnFilterChange(payload) {
+          this.$notify("filter::change", payload);
+        },
+        //---------------------------------------
+        OnSorterChange: function OnSorterChange(payload) {
+          this.$notify("sorter::change", payload);
         },
         //---------------------------------------
         // When this func be invoked, the recycleBin must be true
-        onLeaveRecycleBin: function onLeaveRecycleBin() {
+        OnLeaveRecycleBin: function OnLeaveRecycleBin() {
           Ti.App(this).dispatch('main/toggleInRecycleBin');
         } //---------------------------------------
 
@@ -33878,12 +35355,297 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "globally": true,
     "template": "./thing-filter.html",
     "mixins": ["./thing-filter.mjs"],
+    "components": ["@com:ti/combo/filter", "@com:ti/combo/sorter"]
+  }); //============================================================
+  // JOIN: wn/thing/manager/com/thing-markdown-editor/_com.json
+  //============================================================
+
+  Ti.Preload("ti/com/wn/thing/manager/com/thing-markdown-editor/_com.json", {
+    "name": "wn-thing-markdown-richeditor",
+    "globally": true,
+    "template": "./thing-markdown-richeditor.html",
+    "mixins": ["./thing-markdown-richeditor.mjs"],
     "components": []
   }); //============================================================
+  // JOIN: wn/thing/manager/wn-thing-manager-methods.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      //--------------------------------------
+      //
+      //           Batch Update
+      //
+      //--------------------------------------
+      batchUpdate: function batchUpdate() {
+        var _this207 = this;
+
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee124() {
+          var current, batch, name_filter, regex, _regex, list, fields, do_filter_fields, updates;
+
+          return regeneratorRuntime.wrap(function _callee124$(_context125) {
+            while (1) {
+              switch (_context125.prev = _context125.next) {
+                case 0:
+                  if (!_.isEmpty(_this207.checkedItems)) {
+                    _context125.next = 2;
+                    break;
+                  }
+
+                  return _context125.abrupt("return", Ti.Toast.Open("i18n:batch-none", "warn"));
+
+                case 2:
+                  current = _.first(_this207.checkedItems); //....................................
+
+                  batch = _.get(_this207.config, "schema.behavior.batch") || {};
+
+                  _.defaults(batch, {
+                    "comType": "wn-obj-form",
+                    "comConf": {},
+                    "fields": "schema.meta.comConf.fields",
+                    "names": null,
+                    "valueKey": "data"
+                  });
+
+                  batch.comType = _.kebabCase(batch.comType); // Add default setting
+
+                  if (/^(ti-|wn-obj-)(form)$/.test(batch.comType)) {
+                    _.defaults(batch.comConf, {
+                      autoShowBlank: false,
+                      updateBy: true,
+                      setDataBy: true
+                    });
+                  } //....................................
+
+
+                  if (_.isString(batch.names)) {
+                    if (batch.names.startsWith("^")) {
+                      regex = new RegExp(batch.names);
+
+                      name_filter = function name_filter(fld) {
+                        return regex.test(fld.name);
+                      };
+                    } else if (batch.names.startsWith("!^")) {
+                      _regex = new RegExp(batch.names.substring(1));
+
+                      name_filter = function name_filter(fld) {
+                        return !_regex.test(fld.name);
+                      };
+                    } else {
+                      list = Ti.S.toArray(batch.names);
+
+                      name_filter = function name_filter(fld) {
+                        return list.indexOf(fld.name) >= 0;
+                      };
+                    }
+                  } // Filter by Array
+                  // TODO maybe I should use the validate
+                  else if (_.isArray(batch.names) && !_.isEmpty(batch.names)) {
+                      name_filter = function name_filter(v) {
+                        return batch.name.indexOf(v) >= 0;
+                      };
+                    } // Allow all
+                    else {
+                        name_filter = function name_filter(fld) {
+                          //console.log(fld)
+                          // It is dangour when batch update
+                          // Many thing item may refer to same file
+                          if (/^(wn-upload-file|wn-imgfile)$/.test(fld.comType)) return false;
+                          return true;
+                        };
+                      } //....................................
+                  // Prepare the fields
+
+
+                  fields = _.get(_this207.config, batch.fields); //....................................
+                  // Define the filter processing
+
+                  do_filter_fields = function do_filter_fields() {
+                    var flds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+                    var filter = arguments.length > 1 ? arguments[1] : undefined;
+                    var list = [];
+
+                    var _iterator80 = _createForOfIteratorHelper(flds),
+                        _step80;
+
+                    try {
+                      for (_iterator80.s(); !(_step80 = _iterator80.n()).done;) {
+                        var fld = _step80.value;
+
+                        // Group
+                        if (_.isArray(fld.fields)) {
+                          var f2 = _.cloneDeep(fld);
+
+                          f2.fields = do_filter_fields(fld.fields, filter);
+
+                          if (!_.isEmpty(f2.fields)) {
+                            list.push(f2);
+                          }
+                        } // Fields
+                        else if (filter(fld)) {
+                            list.push(fld);
+                          }
+                      }
+                    } catch (err) {
+                      _iterator80.e(err);
+                    } finally {
+                      _iterator80.f();
+                    }
+
+                    return list;
+                  }; //....................................
+                  // filter each fields
+
+
+                  fields = do_filter_fields(fields, name_filter); //....................................
+                  // Open the Modal
+
+                  _context125.next = 13;
+                  return Ti.App.Open({
+                    title: "i18n:batch-update",
+                    width: 640,
+                    height: "90%",
+                    position: "top",
+                    //............................
+                    comType: "inner-body",
+                    //............................
+                    components: [{
+                      name: "inner-body",
+                      globally: false,
+                      data: {
+                        update: {},
+                        value: current,
+                        innerComConf: _objectSpread({}, batch.comConf, {
+                          fields: fields
+                        })
+                      },
+                      template: "<".concat(batch.comType, "\n          v-bind=\"innerComConf\"\n          :").concat(batch.valueKey, "=\"value\"\n          @field:change=\"OnFieldChange\"\n          @change=\"OnChange\"/>"),
+                      methods: {
+                        OnFieldChange: function OnFieldChange(_ref111) {
+                          var name = _ref111.name,
+                              value = _ref111.value;
+
+                          _.set(this.update, name, value);
+
+                          this.$notify("change", this.update);
+                        },
+                        OnChange: function OnChange(payload) {
+                          this.value = payload;
+                        }
+                      }
+                    }] //............................
+
+                  });
+
+                case 13:
+                  updates = _context125.sent;
+
+                  if (_.isEmpty(updates)) {
+                    _context125.next = 17;
+                    break;
+                  }
+
+                  _context125.next = 17;
+                  return Ti.App(_this207).dispatch("main/batchUpdateMetas", updates);
+
+                case 17:
+                case "end":
+                  return _context125.stop();
+              }
+            }
+          }, _callee124);
+        }))();
+      },
+      //--------------------------------------
+      //
+      //      Utility: show/hide block
+      //
+      //--------------------------------------
+      changeShown: function changeShown() {
+        var shown = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+        Ti.App(this).dispatch("main/doChangeShown", shown);
+      },
+      //--------------------------------------
+      showBlock: function showBlock(name) {
+        //console.log("showBlock", name)
+        // If creator, then must leave the recycle bin
+        if ("creator" == name) {
+          if (this.status.inRecycleBin) {
+            Ti.Alert("i18n:thing-create-in-recyclebin", {
+              title: "i18n:warn",
+              icon: "im-warning",
+              type: "warn"
+            });
+            return;
+          }
+        }
+
+        if ("files" == name) {
+          Ti.App(this).dispatch("main/reloadFiles");
+        } else if ("content" == name) {
+          //Ti.App(this).dispatch("main/reloadFiles")
+          Ti.App(this).dispatch("main/current/reload");
+        } // Mark block
+
+
+        Ti.App(this).dispatch("main/doChangeShown", _defineProperty({}, name, true));
+      },
+      //--------------------------------------
+      hideBlock: function hideBlock(name) {
+        Ti.App(this).dispatch("main/doChangeShown", _defineProperty({}, name, false));
+      },
+      //--------------------------------------
+      toggleBlock: function toggleBlock(name) {
+        Ti.App(this).dispatch("main/doChangeShown", _defineProperty({}, name, !this.TheShown[name]));
+      },
+      //--------------------------------------
+      //
+      //           Utility: Others
+      // 
+      //--------------------------------------
+      invoke: function invoke(fnName) {
+        var _this208 = this;
+
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee125() {
+          var fn;
+          return regeneratorRuntime.wrap(function _callee125$(_context126) {
+            while (1) {
+              switch (_context126.prev = _context126.next) {
+                case 0:
+                  //console.log("invoke ", fnName)
+                  fn = _.get(_this208.SchemaMethods, fnName); // Invoke the method
+
+                  if (!_.isFunction(fn)) {
+                    _context126.next = 7;
+                    break;
+                  }
+
+                  _context126.next = 4;
+                  return fn.apply(_this208, []);
+
+                case 4:
+                  return _context126.abrupt("return", _context126.sent);
+
+                case 7:
+                  throw Ti.Err.make("e.thing.fail-to-invoke", fnName);
+
+                case 8:
+                case "end":
+                  return _context126.stop();
+              }
+            }
+          }, _callee125);
+        }))();
+      } //--------------------------------------
+
+    };
+    Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager-methods.mjs", _M);
+  })(); //============================================================
   // JOIN: wn/thing/manager/wn-thing-manager.html
   //============================================================
 
-  Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager.html", "<ti-gui\n  class=\"wn-thing\"\n  :class=\"TopClass\"\n  :layout=\"TheLayout\"\n  :schema=\"TheSchema\"\n  :shown=\"TheShown\"\n  :can-loading=\"true\"\n  :loading-as=\"GuiLoadingAs\"\n  :action-status=\"status\"\n  @block:show=\"showBlock\"\n  @block:hide=\"hideBlock\"\n  @block:shown=\"changeShown\"\n  @filter::change=\"OnFilterChange\"\n  @sorter::change=\"OnSorterChange\"\n  @list::select=\"OnListSelect\"\n  @list::open=\"OnListOpen\"\n  @content::change=\"OnContentChange\"\n  @pager::change=\"OnPagerChange\"\n  @view-current-source=\"OnViewCurrentSource\"/>"); //============================================================
+
+  Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager.html", "<ti-gui\n  class=\"wn-thing\"\n  :class=\"TopClass\"\n  v-ti-activable\n  :layout=\"TheLayout\"\n  :schema=\"TheSchema\"\n  :shown=\"TheShown\"\n  :can-loading=\"true\"\n  :loading-as=\"GuiLoadingAs\"\n  :action-status=\"status\"/>"); //============================================================
   // JOIN: wn/thing/manager/wn-thing-manager.mjs
   //============================================================
 
@@ -33893,6 +35655,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       provide: function provide() {
         return {
           "$ThingManager": this
+        };
+      },
+      ///////////////////////////////////////////
+      data: function data() {
+        return {
+          "myRouting": {}
         };
       },
       ///////////////////////////////////////////
@@ -33906,7 +35674,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         "currentDataHome": {
           type: String,
-          "default": null
+          "default": undefined
+        },
+        "currentDataHomeObj": {
+          type: Object,
+          "default": undefined
         },
         "currentDataDir": {
           type: String,
@@ -33951,6 +35723,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "emitChange": {
           type: Boolean,
           "default": false
+        },
+        "keepLastSelection": {
+          type: Boolean,
+          "default": true
         }
       },
       ///////////////////////////////////////////
@@ -33962,6 +35738,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //--------------------------------------
         TheShown: function TheShown() {
           return _.get(this.config, "shown") || {};
+        },
+        //--------------------------------------
+        TheKeepLastKey: function TheKeepLastKey() {
+          if (this.keepLastSelection) {
+            return _.get(this.meta, "id") + ":currentId";
+          }
         },
         //--------------------------------------
         TheLayout: function TheLayout() {
@@ -34030,62 +35812,81 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
 
           return {};
+        },
+        //--------------------------------------
+        EventRouting: function EventRouting() {
+          return _.assign({
+            "block:show": "showBlock",
+            "block:hide": "hideBlock",
+            "block:shown": "changeShown",
+            "filter::change": "OnFilterChange",
+            "sorter::change": "OnSorterChange",
+            "list::select": "OnListSelect",
+            "list::open": "OnListOpen",
+            "content::change": "OnContentChange",
+            "pager::change": "OnPagerChange"
+          }, _.get(this.TheSchema, "events"), this.myRouting);
         } //--------------------------------------
 
       }),
       ///////////////////////////////////////////
       methods: {
         //--------------------------------------
+        //
+        //  Event handler
+        //
+        //--------------------------------------
         OnFilterChange: function OnFilterChange(filter) {
-          var _this188 = this;
+          var _this209 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee116() {
-            return regeneratorRuntime.wrap(function _callee116$(_context117) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee126() {
+            return regeneratorRuntime.wrap(function _callee126$(_context127) {
               while (1) {
-                switch (_context117.prev = _context117.next) {
+                switch (_context127.prev = _context127.next) {
                   case 0:
-                    Ti.App(_this188).commit("main/search/setFilter", filter);
-                    _context117.next = 3;
-                    return Ti.App(_this188).dispatch("main/reloadSearch");
+                    Ti.App(_this209).commit("main/search/setFilter", filter);
+                    _context127.next = 3;
+                    return Ti.App(_this209).dispatch("main/reloadSearch");
 
                   case 3:
                   case "end":
-                    return _context117.stop();
+                    return _context127.stop();
                 }
               }
-            }, _callee116);
+            }, _callee126);
           }))();
         },
         //--------------------------------------
         OnSorterChange: function OnSorterChange() {
           var _arguments20 = arguments,
-              _this189 = this;
+              _this210 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee117() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee127() {
             var sort;
-            return regeneratorRuntime.wrap(function _callee117$(_context118) {
+            return regeneratorRuntime.wrap(function _callee127$(_context128) {
               while (1) {
-                switch (_context118.prev = _context118.next) {
+                switch (_context128.prev = _context128.next) {
                   case 0:
                     sort = _arguments20.length > 0 && _arguments20[0] !== undefined ? _arguments20[0] : {};
-                    Ti.App(_this189).commit("main/search/setSorter", sort);
-                    _context118.next = 4;
-                    return Ti.App(_this189).dispatch("main/reloadSearch");
+                    Ti.App(_this210).commit("main/search/setSorter", sort);
+                    _context128.next = 4;
+                    return Ti.App(_this210).dispatch("main/reloadSearch");
 
                   case 4:
                   case "end":
-                    return _context118.stop();
+                    return _context128.stop();
                 }
               }
-            }, _callee117);
+            }, _callee127);
           }))();
         },
         //--------------------------------------
-        OnListSelect: function OnListSelect(_ref102) {
-          var current = _ref102.current,
-              currentId = _ref102.currentId,
-              checkedIds = _ref102.checkedIds,
-              checked = _ref102.checked;
+        OnListSelect: function OnListSelect(_ref112) {
+          var current = _ref112.current,
+              currentId = _ref112.currentId,
+              checkedIds = _ref112.checkedIds,
+              checked = _ref112.checked;
+          //console.log("OnListSelect", current)
           Ti.App(this).dispatch("main/setCurrentThing", {
             meta: current,
             currentId: currentId,
@@ -34102,8 +35903,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         },
         //--------------------------------------
-        OnListOpen: function OnListOpen(_ref103) {
-          var rawData = _ref103.rawData;
+        OnListOpen: function OnListOpen(_ref113) {
+          var rawData = _ref113.rawData;
           var app = Ti.App(this);
           app.dispatch("main/config/updateShown", this.config.listOpen); // Update Current
 
@@ -34119,9 +35920,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnPagerChange: function OnPagerChange() {
-          var _ref104 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              pn = _ref104.pn,
-              pgsz = _ref104.pgsz;
+          var _ref114 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              pn = _ref114.pn,
+              pgsz = _ref114.pgsz;
 
           //console.log("OnPagerChange", {pn, pgsz})
           Ti.App(this).dispatch("main/search/reloadPage", {
@@ -34134,403 +35935,54 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           this.viewCurrentSource();
         },
         //--------------------------------------
-        // Show hide block
+        //
+        //  Utility
+        //
         //--------------------------------------
-        changeShown: function changeShown() {
-          var _arguments21 = arguments,
-              _this190 = this;
+        addEventRouting: function addEventRouting(eventName, handler) {
+          this.$set(this.myRouting, eventName, handler);
+        },
+        removeEventRouting: function removeEventRouting() {
+          for (var _len4 = arguments.length, names = new Array(_len4), _key6 = 0; _key6 < _len4; _key6++) {
+            names[_key6] = arguments[_key6];
+          }
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee118() {
-            var shown;
-            return regeneratorRuntime.wrap(function _callee118$(_context119) {
-              while (1) {
-                switch (_context119.prev = _context119.next) {
-                  case 0:
-                    shown = _arguments21.length > 0 && _arguments21[0] !== undefined ? _arguments21[0] : {};
-                    Ti.App(_this190).dispatch("main/doChangeShown", shown);
+          var routing = _.omitBy(this.myRouting, function (_, key) {
+            return names.indexOf(key) >= 0;
+          });
 
-                  case 2:
-                  case "end":
-                    return _context119.stop();
-                }
-              }
-            }, _callee118);
-          }))();
+          this.myRouting = routing;
         },
         //--------------------------------------
-        showBlock: function showBlock(name) {
-          //console.log("showBlock", name)
-          // If creator, then must leave the recycle bin
-          if ("creator" == name) {
-            if (this.status.inRecycleBin) {
-              Ti.Alert("i18n:thing-create-in-recyclebin", {
-                title: "i18n:warn",
-                icon: "im-warning",
-                type: "warn"
-              });
-              return;
+        //
+        // Callback
+        //
+        //--------------------------------------
+        // For Event Bubble Dispatching
+        __on_events: function __on_events(name) {
+          //console.log("__on_events", name)
+          // Try to get handler
+          var fn = _.get(this.EventRouting, name);
+
+          if (!fn) {
+            fn = this.$tiEventTryFallback(name, this.EventRouting);
+          } // callPath -> Function
+
+
+          if (_.isString(fn)) {
+            return _.get(this, fn);
+          }
+
+          return fn;
+        },
+        // Shortcut 
+        __ti_shortcut: function __ti_shortcut(uniqKey) {
+          //console.log("ti-form", uniqKey)
+          if ("ESCAPE" == uniqKey) {
+            if (this.TheShown.creator) {
+              this.hideBlock("creator");
             }
           }
-
-          if ("files" == name) {
-            Ti.App(this).dispatch("main/reloadFiles");
-          } else if ("content" == name) {
-            //Ti.App(this).dispatch("main/reloadFiles")
-            Ti.App(this).dispatch("main/current/reload");
-          } // Mark block
-
-
-          Ti.App(this).dispatch("main/doChangeShown", _defineProperty({}, name, true));
-        },
-        //--------------------------------------
-        hideBlock: function hideBlock(name) {
-          Ti.App(this).dispatch("main/doChangeShown", _defineProperty({}, name, false));
-        },
-        //--------------------------------------
-        toggleBlock: function toggleBlock(name) {
-          Ti.App(this).dispatch("main/doChangeShown", _defineProperty({}, name, !this.TheShown[name]));
-        },
-        //--------------------------------------
-        // Batch Update
-        //--------------------------------------
-        batchUpdate: function batchUpdate() {
-          var _this191 = this;
-
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee119() {
-            var current, batch, name_filter, regex, _regex, list, fields, filter_names, updates;
-
-            return regeneratorRuntime.wrap(function _callee119$(_context120) {
-              while (1) {
-                switch (_context120.prev = _context120.next) {
-                  case 0:
-                    if (!_.isEmpty(_this191.checkedItems)) {
-                      _context120.next = 2;
-                      break;
-                    }
-
-                    return _context120.abrupt("return", Ti.Toast.Open("i18n:batch-none", "warn"));
-
-                  case 2:
-                    current = _.first(_this191.checkedItems); //....................................
-
-                    batch = _.get(_this191.config, "schema.behavior.batch") || {};
-
-                    _.defaults(batch, {
-                      "comType": "wn-obj-form",
-                      "comConf": {},
-                      "fields": "schema.meta.comConf.fields",
-                      "names": null,
-                      "valueKey": "data"
-                    });
-
-                    batch.comType = _.kebabCase(batch.comType); // Add default setting
-
-                    if (/^(ti-|wn-obj-)(form)$/.test(batch.comType)) {
-                      _.defaults(batch.comConf, {
-                        autoShowBlank: false,
-                        updateBy: true,
-                        setDataBy: true
-                      });
-                    } //....................................
-
-
-                    if (_.isString(batch.names)) {
-                      if (batch.names.startsWith("^")) {
-                        regex = new RegExp(batch.names);
-
-                        name_filter = function name_filter(fld) {
-                          return regex.test(fld.name);
-                        };
-                      } else if (batch.names.startsWith("!^")) {
-                        _regex = new RegExp(batch.names.substring(1));
-
-                        name_filter = function name_filter(fld) {
-                          return !_regex.test(fld.name);
-                        };
-                      } else {
-                        list = Ti.S.toArray(batch.names);
-
-                        name_filter = function name_filter(fld) {
-                          return list.indexOf(fld.name) >= 0;
-                        };
-                      }
-                    } // Filter by Array
-                    // TODO maybe I should use the validate
-                    else if (_.isArray(batch.names) && !_.isEmpty(batch.names)) {
-                        name_filter = function name_filter(v) {
-                          return batch.name.indexOf(v) >= 0;
-                        };
-                      } // Allow all
-                      else {
-                          name_filter = function name_filter(fld) {
-                            return true;
-                          };
-                        } //....................................
-                    // Prepare the fields
-
-
-                    fields = _.get(_this191.config, batch.fields); //....................................
-                    // filter names
-
-                    if (!_.isEmpty(batch.names)) {
-                      // Define the filter
-                      filter_names = function filter_names() {
-                        var flds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-                        var filter = arguments.length > 1 ? arguments[1] : undefined;
-                        var list = [];
-
-                        var _iterator83 = _createForOfIteratorHelper(flds),
-                            _step83;
-
-                        try {
-                          for (_iterator83.s(); !(_step83 = _iterator83.n()).done;) {
-                            var fld = _step83.value;
-
-                            // Group
-                            if (_.isArray(fld.fields)) {
-                              var f2 = _.cloneDeept(fld);
-
-                              f2.fields = filter_names(fld.fields, names);
-
-                              if (!_.isEmpty(f2.fields)) {
-                                list.push(f2);
-                              }
-                            } // Fields
-                            else if (filter(fld)) {
-                                list.push(fld);
-                              }
-                          }
-                        } catch (err) {
-                          _iterator83.e(err);
-                        } finally {
-                          _iterator83.f();
-                        }
-
-                        return list;
-                      }; // Do filter
-
-
-                      fields = filter_names(fields, name_filter);
-                    } //....................................
-                    // Open the Modal
-
-
-                    _context120.next = 12;
-                    return Ti.App.Open({
-                      title: "i18n:batch-update",
-                      width: 640,
-                      height: "90%",
-                      position: "top",
-                      //............................
-                      comType: "inner-body",
-                      //............................
-                      components: [{
-                        name: "inner-body",
-                        globally: false,
-                        data: {
-                          update: {},
-                          value: current,
-                          innerComConf: _objectSpread({}, batch.comConf, {
-                            fields: fields
-                          })
-                        },
-                        template: "<".concat(batch.comType, "\n            v-bind=\"innerComConf\"\n            :").concat(batch.valueKey, "=\"value\"\n            @field:change=\"OnFieldChange\"\n            @change=\"OnChange\"/>"),
-                        methods: {
-                          OnFieldChange: function OnFieldChange(_ref105) {
-                            var name = _ref105.name,
-                                value = _ref105.value;
-
-                            _.set(this.update, name, value);
-
-                            this.$notify("change", this.update);
-                          },
-                          OnChange: function OnChange(payload) {
-                            this.value = payload;
-                          }
-                        }
-                      }] //............................
-
-                    });
-
-                  case 12:
-                    updates = _context120.sent;
-
-                    if (_.isEmpty(updates)) {
-                      _context120.next = 16;
-                      break;
-                    }
-
-                    _context120.next = 16;
-                    return Ti.App(_this191).dispatch("main/batchUpdateMetas", updates);
-
-                  case 16:
-                  case "end":
-                    return _context120.stop();
-                }
-              }
-            }, _callee119);
-          }))();
-        },
-        //--------------------------------------
-        // Utility
-        //--------------------------------------
-        viewCurrentSource: function viewCurrentSource() {
-          var _this192 = this;
-
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee120() {
-            var newContent;
-            return regeneratorRuntime.wrap(function _callee120$(_context121) {
-              while (1) {
-                switch (_context121.prev = _context121.next) {
-                  case 0:
-                    if (_this192.currentItem) {
-                      _context121.next = 4;
-                      break;
-                    }
-
-                    _context121.next = 3;
-                    return Ti.Toast.Open("i18n:empty-data", "warn");
-
-                  case 3:
-                    return _context121.abrupt("return", _context121.sent);
-
-                  case 4:
-                    _context121.next = 6;
-                    return Wn.EditObjContent(_this192.currentItem, {
-                      showEditorTitle: false,
-                      icon: Wn.Util.getObjIcon(_this192.currentItem, "zmdi-tv"),
-                      title: Wn.Util.getObjDisplayName(_this192.currentItem),
-                      width: "61.8%",
-                      height: "96%",
-                      content: _this192.current.content,
-                      saveBy: null
-                    });
-
-                  case 6:
-                    newContent = _context121.sent;
-
-                    if (!_.isUndefined(newContent)) {
-                      _context121.next = 9;
-                      break;
-                    }
-
-                    return _context121.abrupt("return");
-
-                  case 9:
-                    // Update the current editing
-                    Ti.App(_this192).dispatch("main/setCurrentContent", newContent);
-
-                  case 10:
-                  case "end":
-                    return _context121.stop();
-                }
-              }
-            }, _callee120);
-          }))();
-        },
-        //--------------------------------------
-        invoke: function invoke(fnName) {
-          var _this193 = this;
-
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee121() {
-            var fn;
-            return regeneratorRuntime.wrap(function _callee121$(_context122) {
-              while (1) {
-                switch (_context122.prev = _context122.next) {
-                  case 0:
-                    //console.log("invoke ", fnName)
-                    fn = _.get(_this193.SchemaMethods, fnName); // Invoke the method
-
-                    if (!_.isFunction(fn)) {
-                      _context122.next = 7;
-                      break;
-                    }
-
-                    _context122.next = 4;
-                    return fn.apply(_this193, []);
-
-                  case 4:
-                    return _context122.abrupt("return", _context122.sent);
-
-                  case 7:
-                    throw Ti.Err.make("e.thing.fail-to-invoke", fnName);
-
-                  case 8:
-                  case "end":
-                    return _context122.stop();
-                }
-              }
-            }, _callee121);
-          }))();
-        },
-        //--------------------------------------
-        checkActionsUpdate: function checkActionsUpdate() {
-          //console.log("checkActionsUpdate")
-          var actions = _.get(this.config, "actions");
-
-          if (_.isArray(actions)) {
-            this.$notify("actions:update", actions);
-          }
-        },
-        //--------------------------------------
-        reloadCurrentFiles: function reloadCurrentFiles() {
-          var _this194 = this;
-
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee122() {
-            return regeneratorRuntime.wrap(function _callee122$(_context123) {
-              while (1) {
-                switch (_context123.prev = _context123.next) {
-                  case 0:
-                    _context123.next = 2;
-                    return _this194.$files.reloadData();
-
-                  case 2:
-                  case "end":
-                    return _context123.stop();
-                }
-              }
-            }, _callee122);
-          }))();
-        },
-        //--------------------------------------
-        deleteCurrentSelectedFiles: function deleteCurrentSelectedFiles() {
-          var _this195 = this;
-
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee123() {
-            return regeneratorRuntime.wrap(function _callee123$(_context124) {
-              while (1) {
-                switch (_context124.prev = _context124.next) {
-                  case 0:
-                    _context124.next = 2;
-                    return _this195.$files.doDeleteSelected();
-
-                  case 2:
-                  case "end":
-                    return _context124.stop();
-                }
-              }
-            }, _callee123);
-          }))();
-        },
-        //--------------------------------------
-        uploadFilesToCurrent: function uploadFilesToCurrent() {
-          var _this196 = this;
-
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee124() {
-            return regeneratorRuntime.wrap(function _callee124$(_context125) {
-              while (1) {
-                switch (_context125.prev = _context125.next) {
-                  case 0:
-                    _context125.next = 2;
-                    return _this196.$files.doUploadFiles();
-
-                  case 2:
-                  case "end":
-                    return _context125.stop();
-                }
-              }
-            }, _callee124);
-          }))();
         } //--------------------------------------
 
       },
@@ -34542,7 +35994,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         // can assess the `thing-files` instance directly.
         this.THING_MANAGER_ROOT = true; // Update the customized actions
 
-        this.checkActionsUpdate();
+        var actions = _.get(this.config, "actions");
+
+        if (_.isArray(actions)) {
+          this.$notify("actions:update", actions);
+        }
       } ///////////////////////////////////////////
 
     };
@@ -34557,367 +36013,67 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "globally": true,
     "i18n": "@i18n:wn-thing",
     "template": "./wn-thing-manager.html",
+    "methods": "./wn-thing-manager-methods.mjs",
     "mixins": ["./wn-thing-manager.mjs"],
     "components": ["./com/thing-files", "./com/thing-filter", "./com/thing-creator", "./com/thing-files", "@com:ti/gui", "@com:ti/combo/filter", "@com:ti/paging/jumper", "@com:wn/table", "@com:wn/obj/icon", "@com:wn/obj/puretext", "@com:wn/obj/preview", "@com:wn/obj/form", "@com:wn/upload/file"]
   }); //============================================================
-  // JOIN: wn/thing/_test/thing-actions.json
+  // JOIN: wn/thing/markdown/richeditor/thing-markdown-richeditor.html
   //============================================================
 
-  Ti.Preload("ti/com/wn/thing/_test/thing-actions.json", ''); //============================================================
-  // JOIN: wn/thing/_test/thing-layout.json
+  Ti.Preload("ti/com/wn/thing/markdown/richeditor/thing-markdown-richeditor.html", "<WnObjMarkdownRicheditor\n  v-bind=\"this\"\n  :on-init=\"OnEditorInit\"/>"); //============================================================
+  // JOIN: wn/thing/markdown/richeditor/thing-markdown-richeditor.mjs
   //============================================================
 
-  Ti.Preload("ti/com/wn/thing/_test/thing-layout.json", {
-    "shown": {
-      "search": true,
-      "meta": true,
-      "content": false,
-      "files": false
-    },
-    "listOpen": {
-      "content": true,
-      "files": true
-    },
-    "desktop": {
-      "type": "cols",
-      "border": true,
-      "blocks": [{
-        "name": "search",
-        "size": "50%",
-        "type": "rows",
-        "border": true,
-        "blocks": [{
-          "name": "filter",
-          "size": 50,
-          "body": "filter"
-        }, {
-          "name": "list",
-          "size": "stretch",
-          "overflow": "hidden",
-          "body": "list"
-        }, {
-          "name": "pager",
-          "size": "auto",
-          "body": "pager"
-        }]
-      }, {
-        "name": "meta",
-        "title": "i18n:thing-meta",
-        "icon": "zmdi-info",
-        "actions": [{
-          "key": "show-content",
-          "statusKey": "content",
-          "type": "action",
-          "text": "i18n:thing-content-show",
-          "altDisplay": {
-            "text": "i18n:thing-content-hide",
-            "capture": false
-          },
-          "action": "main:toggleBlock(content)"
-        }, {
-          "key": "show-files",
-          "statusKey": "files",
-          "type": "action",
-          "text": "i18n:thing-files-show",
-          "altDisplay": {
-            "text": "i18n:thing-files-hide",
-            "capture": false
-          },
-          "action": "main:toggleBlock(files)"
-        }],
-        "size": "stretch",
-        "body": "meta"
-      }],
-      "panels": [{
-        "name": "content",
-        "title": "i18n:thing-content",
-        "icon": "zmdi-file-text",
-        "body": "content",
-        "position": "left",
-        "width": "50%",
-        "height": "100%",
-        "closer": "default",
-        "status": "=current.status",
-        "actions": [{
-          "key": "saving",
-          "type": "action",
-          "icon": "zmdi-floppy",
-          "text": "i18n:save-change",
-          "altDisplay": {
-            "icon": "fas-spinner fa-pulse",
-            "text": "i18n:saving"
-          },
-          "enableBy": "changed",
-          "action": "dispatch:main/saveCurrent"
-        }]
-      }, {
-        "name": "files",
-        "title": "i18n:thing-files",
-        "icon": "zmdi-collection-image",
-        "body": "files",
-        "position": "right",
-        "width": "50%",
-        "height": "100%",
-        "closer": "default"
-      }, {
-        "name": "creator",
-        "title": "i18n:thing-create",
-        "icon": "zmdi-flare",
-        "body": "creator",
-        "position": "top",
-        "width": "61.8%",
-        "mask": true,
-        "closer": "bottom",
-        "status": "=status"
-      }]
-    },
-    "tablet": "phone",
-    "phone": {
-      "name": "search",
-      "size": "50%",
-      "type": "rows",
-      "border": true,
-      "blocks": [{
-        "name": "filter",
-        "size": 50,
-        "body": "filter"
-      }, {
-        "name": "list",
-        "size": "stretch",
-        "overflow": "hidden",
-        "body": "list"
-      }, {
-        "name": "pager",
-        "size": "auto",
-        "body": "pager"
-      }],
-      "panels": [{
-        "name": "meta",
-        "title": "i18n:thing-meta",
-        "icon": "zmdi-info",
-        "position": "right",
-        "width": "100%",
-        "height": "100%",
-        "closer": "default",
-        "body": "meta",
-        "actionDisplayMode": "desktop",
-        "actions": [{
-          "key": "show-content",
-          "statusKey": "content",
-          "type": "action",
-          "text": "i18n:thing-content-show",
-          "altDisplay": {
-            "text": "i18n:thing-content-hide",
-            "capture": false
-          },
-          "action": "main:toggleBlock(content)"
-        }, {
-          "key": "show-files",
-          "statusKey": "files",
-          "type": "action",
-          "text": "i18n:thing-files-show",
-          "altDisplay": {
-            "text": "i18n:thing-files-hide",
-            "capture": false
-          },
-          "action": "main:toggleBlock(files)"
-        }]
-      }, {
-        "name": "content",
-        "title": "i18n:thing-content",
-        "icon": "zmdi-file-text",
-        "body": "content",
-        "position": "bottom",
-        "width": "100%",
-        "height": "100%",
-        "closer": "default",
-        "status": "=current.status",
-        "actionDisplayMode": "desktop",
-        "actions": [{
-          "key": "saving",
-          "type": "action",
-          "icon": "zmdi-floppy",
-          "text": "i18n:save-change",
-          "altDisplay": {
-            "icon": "fas-spinner fa-pulse",
-            "text": "i18n:saving"
-          },
-          "enableBy": "changed",
-          "action": "dispatch:main/saveCurrent"
-        }]
-      }, {
-        "name": "files",
-        "title": "i18n:thing-files",
-        "icon": "zmdi-collection-image",
-        "body": "files",
-        "position": "bottom",
-        "width": "100%",
-        "height": "100%",
-        "closer": "default",
-        "status": "=files.status",
-        "actionDisplayMode": "desktop",
-        "actions": [{
-          "key": "deleting",
-          "type": "action",
-          "icon": "zmdi-delete",
-          "text": "i18n:del-checked",
-          "altDisplay": {
-            "icon": "zmdi-refresh zmdi-hc-spin",
-            "text": "i18n:del-ing"
-          },
-          "action": "dispatch:main/files/deleteSelected"
-        }, {
-          "key": "upload",
-          "type": "action",
-          "icon": "zmdi-cloud-upload",
-          "text": "i18n:upload-file",
-          "action": "commit:main/files/showUploadFilePicker"
-        }]
-      }, {
-        "name": "creator",
-        "title": "i18n:thing-create",
-        "icon": "zmdi-flare",
-        "body": "creator",
-        "position": "top",
-        "width": "100%",
-        "mask": true,
-        "closer": "bottom",
-        "status": "=status"
-      }]
-    }
-  }); //============================================================
-  // JOIN: wn/thing/_test/thing-schema.json
-  //============================================================
-
-  Ti.Preload("ti/com/wn/thing/_test/thing-schema.json", {
-    "filter": {
-      "comType": "wn-thing-filter",
-      "comConf": {
-        "status": "=status"
-      }
-    },
-    "list": {
-      "comType": "ti-table",
-      "comConf": {
-        "list": "=search.list",
-        "changedId": "=changedRowId",
-        "currentId": "=search.currentId",
-        "checkedIds": "=search.checkedIds",
-        "border": true,
-        "checkable": true,
-        "multi": true,
-        "fields": [{
-          "title": "名称",
-          "display": ["th_nm", "lbls"]
-        }, {
-          "title": "标签",
-          "display": "lbls"
-        }, {
-          "title": "创建时间",
-          "type": "DateTime",
-          "display": {
-            "key": "ct",
-            "transformer": {
-              "name": "formatDate",
-              "args": "yyyyMMdd/HH:mm:s"
-            }
-          }
-        }]
-      }
-    },
-    "pager": {
-      "comType": "ti-paging-jumper",
-      "comConf": {
-        "data": "=search.pager"
-      }
-    },
-    "creator": {
-      "comType": "wn-thing-creator",
-      "comConf": {
-        "config": {
-          "fields": [{
-            "name": "th_nm",
-            "comType": "ti-input",
-            "comConf": {}
-          }]
-        },
-        "data": {
-          "th_nm": "新数据对象"
+  (function () {
+    var _M = {
+      ///////////////////////////////////////////////////
+      inject: ["$ThingManager"],
+      ///////////////////////////////////////////////////
+      props: {
+        "listenMedia": {
+          type: String,
+          "default": "file:open"
         }
-      }
-    },
-    "meta": {
-      "comType": "wn-obj-form",
-      "comConf": {
-        "data": "=current.meta",
-        "status": "=current.status",
-        "fieldStatus": "=current.fieldStatus",
-        "config": {
-          "fields": [{
-            "title": "ID",
-            "name": "id"
-          }, {
-            "title": "名称",
-            "name": "th_nm",
-            "comType": "ti-input"
-          }, {
-            "icon": "zmdi-labels",
-            "title": "标签",
-            "name": "lbls",
-            "type": "Array",
-            "transformer": "toStr",
-            "comType": "ti-input"
-          }, {
-            "icon": "zmdi-time",
-            "title": "最后修改时间",
-            "name": "lm",
-            "type": "DateTime",
-            "comConf": {
-              "format": "yyyy年MM月dd日"
-            }
-          }]
-        },
-        "updateBy": {
-          "method": "dispatch",
-          "target": "main/updateCurrent"
-        },
-        "setFieldStatusBy": {
-          "method": "commit",
-          "target": "main/current/setMetaFieldStatus"
+      },
+      ///////////////////////////////////////////////////
+      methods: {
+        //-----------------------------------------------
+        OnEditorInit: function OnEditorInit($editor) {
+          this.$editor = $editor;
+        } //-----------------------------------------------
+
+      },
+      ///////////////////////////////////////////////////
+      mounted: function mounted() {
+        var _this211 = this;
+
+        if (this.listenMedia) {
+          this.$ThingManager.addEventRouting(this.listenMedia, function (oMedia) {
+            _this211.$editor.insertMediaObj(oMedia);
+          });
         }
-      }
-    },
-    "content": {
-      "comType": "wn-obj-puretext",
-      "comConf": {
-        "showTitle": false,
-        "meta": "=current.meta",
-        "content": "=current.content",
-        "savedContent": "=current.__saved_content",
-        "contentType": "=current.contentType",
-        "status": "=current.status"
-      }
-    },
-    "files": {
-      "comType": "wn-thing-files",
-      "comConf": {
-        "filesName": "=filesName",
-        "files": "=files",
-        "stateLocalKey": "=meta.id",
-        "preview": "=preview",
-        "dirNameTip": null,
-        "dirNameComType": "ti-switcher",
-        "dirNameOptions": [{
-          "icon": "fas-camera-retro",
-          "text": "实地拍摄",
-          "value": "media"
-        }, {
-          "icon": "fas-paperclip",
-          "text": "其他文件",
-          "value": "attachment"
-        }]
-      }
-    }
+      },
+      ///////////////////////////////////////////////////
+      beforeDestroy: function beforeDestroy() {
+        if (this.listenMedia) {
+          this.$ThingManager.removeEventRouting(this.listenMedia);
+        }
+      } ///////////////////////////////////////////////////
+
+    };
+    Ti.Preload("ti/com/wn/thing/markdown/richeditor/thing-markdown-richeditor.mjs", _M);
+  })(); //============================================================
+  // JOIN: wn/thing/markdown/richeditor/_com.json
+  //============================================================
+
+
+  Ti.Preload("ti/com/wn/thing/markdown/richeditor/_com.json", {
+    "name": "wn-thing-markdown-richeditor",
+    "globally": true,
+    "template": "./thing-markdown-richeditor.html",
+    "props": ["@com:ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs", "@com:wn/obj/markdown/richeditor/wn-markdown-richeditor-props.mjs"],
+    "mixins": ["./thing-markdown-richeditor.mjs"],
+    "components": ["@com:wn/obj/markdown/richeditor"]
   }); //============================================================
   // JOIN: wn/transfer/wn-transfer.html
   //============================================================
@@ -35136,69 +36292,69 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //--------------------------------------
         assertListHas: function assertListHas(list, str, invalidMsg, vars) {
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee125() {
-            var invalid, _iterator84, _step84, li;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee128() {
+            var invalid, _iterator81, _step81, li;
 
-            return regeneratorRuntime.wrap(function _callee125$(_context126) {
+            return regeneratorRuntime.wrap(function _callee128$(_context129) {
               while (1) {
-                switch (_context126.prev = _context126.next) {
+                switch (_context129.prev = _context129.next) {
                   case 0:
                     if (_.isEmpty(list)) {
-                      _context126.next = 25;
+                      _context129.next = 25;
                       break;
                     }
 
                     invalid = true;
-                    _iterator84 = _createForOfIteratorHelper(list);
-                    _context126.prev = 3;
+                    _iterator81 = _createForOfIteratorHelper(list);
+                    _context129.prev = 3;
 
-                    _iterator84.s();
+                    _iterator81.s();
 
                   case 5:
-                    if ((_step84 = _iterator84.n()).done) {
-                      _context126.next = 12;
+                    if ((_step81 = _iterator81.n()).done) {
+                      _context129.next = 12;
                       break;
                     }
 
-                    li = _step84.value;
+                    li = _step81.value;
 
                     if (!(li == str)) {
-                      _context126.next = 10;
+                      _context129.next = 10;
                       break;
                     }
 
                     invalid = false;
-                    return _context126.abrupt("break", 12);
+                    return _context129.abrupt("break", 12);
 
                   case 10:
-                    _context126.next = 5;
+                    _context129.next = 5;
                     break;
 
                   case 12:
-                    _context126.next = 17;
+                    _context129.next = 17;
                     break;
 
                   case 14:
-                    _context126.prev = 14;
-                    _context126.t0 = _context126["catch"](3);
+                    _context129.prev = 14;
+                    _context129.t0 = _context129["catch"](3);
 
-                    _iterator84.e(_context126.t0);
+                    _iterator81.e(_context129.t0);
 
                   case 17:
-                    _context126.prev = 17;
+                    _context129.prev = 17;
 
-                    _iterator84.f();
+                    _iterator81.f();
 
-                    return _context126.finish(17);
+                    return _context129.finish(17);
 
                   case 20:
                     if (!invalid) {
-                      _context126.next = 25;
+                      _context129.next = 25;
                       break;
                     }
 
                     console.log("haha");
-                    _context126.next = 24;
+                    _context129.next = 24;
                     return Ti.Alert(invalidMsg, {
                       type: "warn",
                       icon: "zmdi-alert-triangle",
@@ -35206,239 +36362,238 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     });
 
                   case 24:
-                    return _context126.abrupt("return", false);
+                    return _context129.abrupt("return", false);
 
                   case 25:
-                    return _context126.abrupt("return", true);
+                    return _context129.abrupt("return", true);
 
                   case 26:
                   case "end":
-                    return _context126.stop();
+                    return _context129.stop();
                 }
               }
-            }, _callee125, null, [[3, 14, 17, 20]]);
+            }, _callee128, null, [[3, 14, 17, 20]]);
           }))();
         },
         //--------------------------------------
         onOpen: function onOpen() {
-          var _this197 = this;
+          var _this212 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee126() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee129() {
             var link;
-            return regeneratorRuntime.wrap(function _callee126$(_context127) {
+            return regeneratorRuntime.wrap(function _callee129$(_context130) {
               while (1) {
-                switch (_context127.prev = _context127.next) {
+                switch (_context130.prev = _context130.next) {
                   case 0:
-                    if (!_this197.oFile) {
-                      _context127.next = 4;
+                    if (!_this212.oFile) {
+                      _context130.next = 4;
                       break;
                     }
 
-                    link = Wn.Util.getAppLink(_this197.oFile); //console.log("it will open ", link)
+                    link = Wn.Util.getAppLink(_this212.oFile); //console.log("it will open ", link)
 
-                    _context127.next = 4;
+                    _context130.next = 4;
                     return Ti.Be.Open(link.url, {
                       params: link.params
                     });
 
                   case 4:
                   case "end":
-                    return _context127.stop();
+                    return _context130.stop();
                 }
               }
-            }, _callee126);
+            }, _callee129);
           }))();
         },
         //--------------------------------------
         onRemove: function onRemove() {
-          var _this198 = this;
+          var _this213 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee127() {
-            return regeneratorRuntime.wrap(function _callee127$(_context128) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee130() {
+            return regeneratorRuntime.wrap(function _callee130$(_context131) {
               while (1) {
-                switch (_context128.prev = _context128.next) {
+                switch (_context131.prev = _context131.next) {
                   case 0:
-                    if (!_this198.oFile) {
-                      _context128.next = 3;
+                    if (!_this213.oFile) {
+                      _context131.next = 3;
                       break;
                     }
 
-                    _context128.next = 3;
-                    return Wn.Sys.exec2("rm id:".concat(_this198.oFile.id));
+                    _context131.next = 3;
+                    return Wn.Sys.exec2("rm id:".concat(_this213.oFile.id));
 
                   case 3:
                     // Notify the change
-                    _this198.$notify("change", null);
+                    _this213.$notify("change", null);
 
                   case 4:
                   case "end":
-                    return _context128.stop();
+                    return _context131.stop();
                 }
               }
-            }, _callee127);
+            }, _callee130);
           }))();
         },
         //--------------------------------------
         onUpload: function onUpload(file) {
-          var _this199 = this;
+          var _this214 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee128() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee131() {
             var type, _yield$Wn$Io$uploadFi3, ok, msg, data, cmd, cmdText, val;
 
-            return regeneratorRuntime.wrap(function _callee128$(_context129) {
+            return regeneratorRuntime.wrap(function _callee131$(_context132) {
               while (1) {
-                switch (_context129.prev = _context129.next) {
+                switch (_context132.prev = _context132.next) {
                   case 0:
                     //console.log("it will upload ", file)
                     //................................
                     // Check for support Types
                     type = Ti.Util.getSuffixName(file.name);
-                    _context129.next = 3;
-                    return _this199.assertListHas(_this199.AcceptTypes, type, 'i18n:wn-invalid-types', {
+                    _context132.next = 3;
+                    return _this214.assertListHas(_this214.AcceptTypes, type, 'i18n:wn-invalid-types', {
                       current: type,
-                      supports: _this199.AcceptTypes.join(", ")
+                      supports: _this214.AcceptTypes.join(", ")
                     });
 
                   case 3:
-                    if (_context129.sent) {
-                      _context129.next = 5;
+                    if (_context132.sent) {
+                      _context132.next = 5;
                       break;
                     }
 
-                    return _context129.abrupt("return");
+                    return _context132.abrupt("return");
 
                   case 5:
-                    _context129.next = 7;
-                    return _this199.assertListHas(_this199.AcceptMimes, file.type, 'i18n:wn-invalid-mimes', {
+                    _context132.next = 7;
+                    return _this214.assertListHas(_this214.AcceptMimes, file.type, 'i18n:wn-invalid-mimes', {
                       current: file.type,
-                      supports: _this199.AcceptMimes.join(", ")
+                      supports: _this214.AcceptMimes.join(", ")
                     });
 
                   case 7:
-                    if (_context129.sent) {
-                      _context129.next = 9;
+                    if (_context132.sent) {
+                      _context132.next = 9;
                       break;
                     }
 
-                    return _context129.abrupt("return");
+                    return _context132.abrupt("return");
 
                   case 9:
                     //................................
                     // Upload file to destination
-                    _this199.uploadFile = file;
-                    _this199.progress = 0;
-                    _context129.next = 13;
+                    _this214.uploadFile = file;
+                    _this214.progress = 0;
+                    _context132.next = 13;
                     return Wn.Io.uploadFile(file, {
-                      target: _this199.target,
+                      target: _this214.target,
                       mode: "r",
                       progress: function progress(pe) {
-                        _this199.progress = pe.loaded / pe.total;
+                        _this214.progress = pe.loaded / pe.total;
                       }
                     });
 
                   case 13:
-                    _yield$Wn$Io$uploadFi3 = _context129.sent;
+                    _yield$Wn$Io$uploadFi3 = _context132.sent;
                     ok = _yield$Wn$Io$uploadFi3.ok;
                     msg = _yield$Wn$Io$uploadFi3.msg;
                     data = _yield$Wn$Io$uploadFi3.data;
                     //................................
                     // Reset upload
-                    _this199.uploadFile = null;
-                    _this199.progress = -1; //................................
+                    _this214.uploadFile = null;
+                    _this214.progress = -1; //................................
                     // Fail to upload
 
                     if (ok) {
-                      _context129.next = 23;
+                      _context132.next = 23;
                       break;
                     }
 
-                    _context129.next = 22;
+                    _context132.next = 22;
                     return Ti.Alert("i18n:".concat(msg), {
                       type: "warn",
                       icon: "zmdi-alert-triangle"
                     });
 
                   case 22:
-                    return _context129.abrupt("return");
+                    return _context132.abrupt("return");
 
                   case 23:
-                    if (_.isEmpty(_this199.ImageFilter)) {
-                      _context129.next = 30;
+                    if (_.isEmpty(_this214.ImageFilter)) {
+                      _context132.next = 30;
                       break;
                     }
 
-                    cmd = ["imagic", "id:".concat(data.id), "-filter \"".concat(_this199.ImageFilter.join(" "), "\"")];
+                    cmd = ["imagic", "id:".concat(data.id), "-filter \"".concat(_this214.ImageFilter.join(" "), "\"")];
 
-                    if (_this199.quality > 0 && _this199.quality <= 1) {
-                      cmd.push("-qa ".concat(_this199.quality));
+                    if (_this214.quality > 0 && _this214.quality <= 1) {
+                      cmd.push("-qa ".concat(_this214.quality));
                     }
 
                     cmd.push("-out inplace");
                     cmdText = cmd.join(" ");
-                    _context129.next = 30;
+                    _context132.next = 30;
                     return Wn.Sys.exec2(cmdText);
 
                   case 30:
                     //................................
                     // done
-                    _this199.src_ts = Date.now();
-                    _this199.oFile = data; //................................
-                    // Transform value
+                    _this214.src_ts = Date.now();
+                    _this214.oFile = data; //................................
 
-                    val = data;
+                    val = data; // Transform value
 
-                    if ("path" == _this199.valueType) {
-                      val = Wn.Io.getFormedPath(data);
-                    } else if ("fullPath" == _this199.valueType) {
-                      val = data.ph;
-                    } else if ("idPath" == _this199.valueType) {
-                      val = "id:".concat(data.id);
-                    } else if ("id" == _this199.valueType) {
-                      val = data.id;
+                    if ("obj" != _this214.valueType) {
+                      val = Wn.Io.formatObjPath(data, _this214.valueType);
                     } //................................
 
 
-                    _this199.$notify("change", val);
+                    _this214.$notify("change", val);
 
                   case 35:
                   case "end":
-                    return _context129.stop();
+                    return _context132.stop();
                 }
               }
-            }, _callee128);
+            }, _callee131);
           }))();
         },
         //--------------------------------------
         reload: function reload() {
-          var _this200 = this;
+          var _this215 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee129() {
-            return regeneratorRuntime.wrap(function _callee129$(_context130) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee132() {
+            return regeneratorRuntime.wrap(function _callee132$(_context133) {
               while (1) {
-                switch (_context130.prev = _context130.next) {
+                switch (_context133.prev = _context133.next) {
                   case 0:
-                    if (!_this200.value) {
-                      _context130.next = 6;
+                    if (!_.isString(_this215.value)) {
+                      _context133.next = 6;
                       break;
                     }
 
-                    _context130.next = 3;
-                    return Wn.Io.loadMeta(_this200.value);
+                    _context133.next = 3;
+                    return Wn.Io.loadMetaBy(_this215.value);
 
                   case 3:
-                    _this200.oFile = _context130.sent;
-                    _context130.next = 7;
+                    _this215.oFile = _context133.sent;
+                    _context133.next = 7;
                     break;
 
                   case 6:
-                    _this200.oFile = null;
+                    // Object
+                    if (_.get(_this215.value, "race") == "FILE") {
+                      _this215.oFile = _.cloneDeep(_this215.value);
+                    } // Reset
+                    else {
+                        _this215.oFile = null;
+                      }
 
                   case 7:
                   case "end":
-                    return _context130.stop();
+                    return _context133.stop();
                 }
               }
-            }, _callee129);
+            }, _callee132);
           }))();
         } //--------------------------------------
 
@@ -35451,20 +36606,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //////////////////////////////////////////
       mounted: function () {
-        var _mounted14 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee130() {
-          return regeneratorRuntime.wrap(function _callee130$(_context131) {
+        var _mounted14 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee133() {
+          return regeneratorRuntime.wrap(function _callee133$(_context134) {
             while (1) {
-              switch (_context131.prev = _context131.next) {
+              switch (_context134.prev = _context134.next) {
                 case 0:
-                  _context131.next = 2;
+                  _context134.next = 2;
                   return this.reload();
 
                 case 2:
                 case "end":
-                  return _context131.stop();
+                  return _context134.stop();
               }
             }
-          }, _callee130, this);
+          }, _callee133, this);
         }));
 
         function mounted() {
@@ -35494,28 +36649,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   (function () {
     var _M = {
       //----------------------------------------
-      reload: function reload(_ref106, meta) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee131() {
+      reload: function reload(_ref115, meta) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee134() {
           var state, commit;
-          return regeneratorRuntime.wrap(function _callee131$(_context132) {
+          return regeneratorRuntime.wrap(function _callee134$(_context135) {
             while (1) {
-              switch (_context132.prev = _context132.next) {
+              switch (_context135.prev = _context135.next) {
                 case 0:
-                  state = _ref106.state, commit = _ref106.commit;
+                  state = _ref115.state, commit = _ref115.commit;
 
                   if (!(state.status.reloading || state.status.saving)) {
-                    _context132.next = 3;
+                    _context135.next = 3;
                     break;
                   }
 
-                  return _context132.abrupt("return");
+                  return _context135.abrupt("return");
 
                 case 3:
                 case "end":
-                  return _context132.stop();
+                  return _context135.stop();
               }
             }
-          }, _callee131);
+          }, _callee134);
         }))();
       } //----------------------------------------
 
@@ -35724,22 +36879,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
        * Append the `meta` to current tree. 
        * It will auto load all the ancestor node of the meta in tree
        */
-      appendNode: function appendNode(_ref107, meta) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee132() {
+      appendNode: function appendNode(_ref116, meta) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee135() {
           var state, commit, dispatch;
-          return regeneratorRuntime.wrap(function _callee132$(_context133) {
+          return regeneratorRuntime.wrap(function _callee135$(_context136) {
             while (1) {
-              switch (_context133.prev = _context133.next) {
+              switch (_context136.prev = _context136.next) {
                 case 0:
-                  state = _ref107.state, commit = _ref107.commit, dispatch = _ref107.dispatch;
+                  state = _ref116.state, commit = _ref116.commit, dispatch = _ref116.dispatch;
                   console.log("TODO appendNode", meta);
 
                 case 2:
                 case "end":
-                  return _context133.stop();
+                  return _context136.stop();
               }
             }
-          }, _callee132);
+          }, _callee135);
         }))();
       },
       //----------------------------------------
@@ -35754,17 +36909,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
        * @param force{Boolean} - reload again event the children had been loaded.
        * @param depth{Number} - reload the multi hierarchies if great than `1`
        */
-      reloadNode: function reloadNode(_ref108) {
-        var _arguments22 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee134() {
-          var state, commit, dispatch, _ref109, id, path, _ref109$self, self, _ref109$force, force, _ref109$depth, depth, treeRoot, loaded, node, nodeMeta, __load_subs;
+      reloadNode: function reloadNode(_ref117) {
+        var _arguments21 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee137() {
+          var state, commit, dispatch, _ref118, id, path, _ref118$self, self, _ref118$force, force, _ref118$depth, depth, treeRoot, loaded, node, nodeMeta, __load_subs;
 
-          return regeneratorRuntime.wrap(function _callee134$(_context135) {
+          return regeneratorRuntime.wrap(function _callee137$(_context138) {
             while (1) {
-              switch (_context135.prev = _context135.next) {
+              switch (_context138.prev = _context138.next) {
                 case 0:
-                  state = _ref108.state, commit = _ref108.commit, dispatch = _ref108.dispatch;
-                  _ref109 = _arguments22.length > 1 && _arguments22[1] !== undefined ? _arguments22[1] : {}, id = _ref109.id, path = _ref109.path, _ref109$self = _ref109.self, self = _ref109$self === void 0 ? false : _ref109$self, _ref109$force = _ref109.force, force = _ref109$force === void 0 ? false : _ref109$force, _ref109$depth = _ref109.depth, depth = _ref109$depth === void 0 ? 1 : _ref109$depth;
+                  state = _ref117.state, commit = _ref117.commit, dispatch = _ref117.dispatch;
+                  _ref118 = _arguments21.length > 1 && _arguments21[1] !== undefined ? _arguments21[1] : {}, id = _ref118.id, path = _ref118.path, _ref118$self = _ref118.self, self = _ref118$self === void 0 ? false : _ref118$self, _ref118$force = _ref118.force, force = _ref118$force === void 0 ? false : _ref118$force, _ref118$depth = _ref118.depth, depth = _ref118$depth === void 0 ? 1 : _ref118$depth;
                   //......................................
                   // Clone the tree
                   treeRoot = _.cloneDeep(state.root);
@@ -35781,23 +36936,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
                   if (node) {
-                    _context135.next = 7;
+                    _context138.next = 7;
                     break;
                   }
 
-                  return _context135.abrupt("return");
+                  return _context138.abrupt("return");
 
                 case 7:
                   if (!self) {
-                    _context135.next = 13;
+                    _context138.next = 13;
                     break;
                   }
 
-                  _context135.next = 10;
+                  _context138.next = 10;
                   return Wn.Io.loadMetaById(node.id);
 
                 case 10:
-                  nodeMeta = _context135.sent;
+                  nodeMeta = _context138.sent;
                   node.rawData = nodeMeta;
                   loaded = true;
 
@@ -35805,100 +36960,100 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   //......................................
                   // Define the loading
                   __load_subs = /*#__PURE__*/function () {
-                    var _ref110 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee133(node, depth) {
-                      var children, _yield$Wn$Io$loadChil, list, _iterator85, _step85, li, sub;
+                    var _ref119 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee136(node, depth) {
+                      var children, _yield$Wn$Io$loadChil, list, _iterator82, _step82, li, sub;
 
-                      return regeneratorRuntime.wrap(function _callee133$(_context134) {
+                      return regeneratorRuntime.wrap(function _callee136$(_context137) {
                         while (1) {
-                          switch (_context134.prev = _context134.next) {
+                          switch (_context137.prev = _context137.next) {
                             case 0:
                               if (!(depth > 0 && !node.leaf)) {
-                                _context134.next = 29;
+                                _context137.next = 29;
                                 break;
                               }
 
                               depth--;
 
                               if (!(force || _.isEmpty(node.children))) {
-                                _context134.next = 29;
+                                _context137.next = 29;
                                 break;
                               }
 
                               children = [];
-                              _context134.next = 6;
+                              _context137.next = 6;
                               return Wn.Io.loadChildren(node.rawData);
 
                             case 6:
-                              _yield$Wn$Io$loadChil = _context134.sent;
+                              _yield$Wn$Io$loadChil = _context137.sent;
                               list = _yield$Wn$Io$loadChil.list;
-                              _iterator85 = _createForOfIteratorHelper(list);
-                              _context134.prev = 9;
+                              _iterator82 = _createForOfIteratorHelper(list);
+                              _context137.prev = 9;
 
-                              _iterator85.s();
+                              _iterator82.s();
 
                             case 11:
-                              if ((_step85 = _iterator85.n()).done) {
-                                _context134.next = 19;
+                              if ((_step82 = _iterator82.n()).done) {
+                                _context137.next = 19;
                                 break;
                               }
 
-                              li = _step85.value;
+                              li = _step82.value;
                               sub = Wn.Util.wrapTreeNode(li);
-                              _context134.next = 16;
+                              _context137.next = 16;
                               return __load_subs(sub, depth);
 
                             case 16:
                               children.push(sub);
 
                             case 17:
-                              _context134.next = 11;
+                              _context137.next = 11;
                               break;
 
                             case 19:
-                              _context134.next = 24;
+                              _context137.next = 24;
                               break;
 
                             case 21:
-                              _context134.prev = 21;
-                              _context134.t0 = _context134["catch"](9);
+                              _context137.prev = 21;
+                              _context137.t0 = _context137["catch"](9);
 
-                              _iterator85.e(_context134.t0);
+                              _iterator82.e(_context137.t0);
 
                             case 24:
-                              _context134.prev = 24;
+                              _context137.prev = 24;
 
-                              _iterator85.f();
+                              _iterator82.f();
 
-                              return _context134.finish(24);
+                              return _context137.finish(24);
 
                             case 27:
                               node.children = children;
-                              return _context134.abrupt("return", true);
+                              return _context137.abrupt("return", true);
 
                             case 29:
-                              return _context134.abrupt("return", false);
+                              return _context137.abrupt("return", false);
 
                             case 30:
                             case "end":
-                              return _context134.stop();
+                              return _context137.stop();
                           }
                         }
-                      }, _callee133, null, [[9, 21, 24, 27]]);
+                      }, _callee136, null, [[9, 21, 24, 27]]);
                     }));
 
-                    return function __load_subs(_x9, _x10) {
-                      return _ref110.apply(this, arguments);
+                    return function __load_subs(_x12, _x13) {
+                      return _ref119.apply(this, arguments);
                     };
                   }(); //......................................
                   // Do load
 
 
-                  _context135.t0 = loaded;
-                  _context135.next = 17;
+                  _context138.t0 = loaded;
+                  _context138.next = 17;
                   return __load_subs(node, depth);
 
                 case 17:
-                  loaded = _context135.t0 |= _context135.sent;
+                  loaded = _context138.t0 |= _context138.sent;
 
                   //......................................
                   // Update the whole tree
@@ -35908,10 +37063,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 19:
                 case "end":
-                  return _context135.stop();
+                  return _context138.stop();
               }
             }
-          }, _callee134);
+          }, _callee137);
         }))();
       },
       //----------------------------------------
@@ -35919,80 +37074,80 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Reload site root node, and reload the first leave
        */
-      reloadRoot: function reloadRoot(_ref111, meta) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee135() {
-          var state, commit, dispatch, root, keys, _iterator86, _step86, _key6, hie;
+      reloadRoot: function reloadRoot(_ref120, meta) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee138() {
+          var state, commit, dispatch, root, keys, _iterator83, _step83, _key7, hie;
 
-          return regeneratorRuntime.wrap(function _callee135$(_context136) {
+          return regeneratorRuntime.wrap(function _callee138$(_context139) {
             while (1) {
-              switch (_context136.prev = _context136.next) {
+              switch (_context139.prev = _context139.next) {
                 case 0:
-                  state = _ref111.state, commit = _ref111.commit, dispatch = _ref111.dispatch;
+                  state = _ref120.state, commit = _ref120.commit, dispatch = _ref120.dispatch;
                   root = Wn.Util.wrapTreeNode(meta); // Update Root Node
 
                   commit("setRoot", root); // Reload Root Node
 
-                  _context136.next = 5;
+                  _context139.next = 5;
                   return dispatch("reloadNode");
 
                 case 5:
                   if (_.isEmpty(state.root.children)) {
-                    _context136.next = 26;
+                    _context139.next = 26;
                     break;
                   }
 
                   keys = _.keys(state.openedNodePaths).sort();
-                  _iterator86 = _createForOfIteratorHelper(keys);
-                  _context136.prev = 8;
+                  _iterator83 = _createForOfIteratorHelper(keys);
+                  _context139.prev = 8;
 
-                  _iterator86.s();
+                  _iterator83.s();
 
                 case 10:
-                  if ((_step86 = _iterator86.n()).done) {
-                    _context136.next = 18;
+                  if ((_step83 = _iterator83.n()).done) {
+                    _context139.next = 18;
                     break;
                   }
 
-                  _key6 = _step86.value;
-                  hie = Ti.Trees.getByPath(state.root, _key6);
+                  _key7 = _step83.value;
+                  hie = Ti.Trees.getByPath(state.root, _key7);
 
                   if (!(hie && !hie.node.leaf)) {
-                    _context136.next = 16;
+                    _context139.next = 16;
                     break;
                   }
 
-                  _context136.next = 16;
+                  _context139.next = 16;
                   return dispatch("reloadNode", {
                     path: hie.path
                   });
 
                 case 16:
-                  _context136.next = 10;
+                  _context139.next = 10;
                   break;
 
                 case 18:
-                  _context136.next = 23;
+                  _context139.next = 23;
                   break;
 
                 case 20:
-                  _context136.prev = 20;
-                  _context136.t0 = _context136["catch"](8);
+                  _context139.prev = 20;
+                  _context139.t0 = _context139["catch"](8);
 
-                  _iterator86.e(_context136.t0);
+                  _iterator83.e(_context139.t0);
 
                 case 23:
-                  _context136.prev = 23;
+                  _context139.prev = 23;
 
-                  _iterator86.f();
+                  _iterator83.f();
 
-                  return _context136.finish(23);
+                  return _context139.finish(23);
 
                 case 26:
                 case "end":
-                  return _context136.stop();
+                  return _context139.stop();
               }
             }
-          }, _callee135, null, [[8, 20, 23, 26]]);
+          }, _callee138, null, [[8, 20, 23, 26]]);
         }))();
       } //----------------------------------------
 
@@ -36056,9 +37211,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   (function () {
     var _M = {
       //--------------------------------------------
-      setTreeOpenedNodePaths: function setTreeOpenedNodePaths(_ref112) {
-        var getters = _ref112.getters,
-            commit = _ref112.commit;
+      setTreeOpenedNodePaths: function setTreeOpenedNodePaths(_ref121) {
+        var getters = _ref121.getters,
+            commit = _ref121.commit;
         var openeds = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
         if (getters.TREE_OPEND_KEY) {
@@ -36070,19 +37225,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       },
       //--------------------------------------------
-      setTreeSelected: function setTreeSelected(_ref113) {
-        var _arguments23 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee136() {
+      setTreeSelected: function setTreeSelected(_ref122) {
+        var _arguments22 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee139() {
           var getters, commit, dispatch, currentId, meta;
-          return regeneratorRuntime.wrap(function _callee136$(_context137) {
+          return regeneratorRuntime.wrap(function _callee139$(_context140) {
             while (1) {
-              switch (_context137.prev = _context137.next) {
+              switch (_context140.prev = _context140.next) {
                 case 0:
-                  getters = _ref113.getters, commit = _ref113.commit, dispatch = _ref113.dispatch;
-                  currentId = _arguments23.length > 1 && _arguments23[1] !== undefined ? _arguments23[1] : null;
+                  getters = _ref122.getters, commit = _ref122.commit, dispatch = _ref122.dispatch;
+                  currentId = _arguments22.length > 1 && _arguments22[1] !== undefined ? _arguments22[1] : null;
 
                   if (!getters.TREE_SELECTED_KEY) {
-                    _context137.next = 15;
+                    _context140.next = 15;
                     break;
                   }
 
@@ -36095,18 +37250,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   meta = null;
 
                   if (!currentId) {
-                    _context137.next = 11;
+                    _context140.next = 11;
                     break;
                   }
 
-                  _context137.next = 10;
+                  _context140.next = 10;
                   return Wn.Io.loadMetaById(currentId);
 
                 case 10:
-                  meta = _context137.sent;
+                  meta = _context140.sent;
 
                 case 11:
-                  _context137.next = 13;
+                  _context140.next = 13;
                   return dispatch("current/reload", meta);
 
                 case 13:
@@ -36117,38 +37272,38 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 15:
                 case "end":
-                  return _context137.stop();
+                  return _context140.stop();
               }
             }
-          }, _callee136);
+          }, _callee139);
         }))();
       },
       //--------------------------------------------
-      onCurrentChanged: function onCurrentChanged(_ref114, payload) {
-        var commit = _ref114.commit,
-            dispatch = _ref114.dispatch;
+      onCurrentChanged: function onCurrentChanged(_ref123, payload) {
+        var commit = _ref123.commit,
+            dispatch = _ref123.dispatch;
         dispatch("current/onChanged", payload);
         commit("syncStatusChanged");
       },
       //--------------------------------------------
-      saveCurrent: function saveCurrent(_ref115) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee137() {
+      saveCurrent: function saveCurrent(_ref124) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee140() {
           var state, commit, dispatch;
-          return regeneratorRuntime.wrap(function _callee137$(_context138) {
+          return regeneratorRuntime.wrap(function _callee140$(_context141) {
             while (1) {
-              switch (_context138.prev = _context138.next) {
+              switch (_context141.prev = _context141.next) {
                 case 0:
-                  state = _ref115.state, commit = _ref115.commit, dispatch = _ref115.dispatch;
+                  state = _ref124.state, commit = _ref124.commit, dispatch = _ref124.dispatch;
 
                   if (!state.current.meta) {
-                    _context138.next = 7;
+                    _context141.next = 7;
                     break;
                   }
 
                   commit("setStatus", {
                     saving: true
                   });
-                  _context138.next = 5;
+                  _context141.next = 5;
                   return dispatch("current/save");
 
                 case 5:
@@ -36159,25 +37314,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 7:
                 case "end":
-                  return _context138.stop();
+                  return _context141.stop();
               }
             }
-          }, _callee137);
+          }, _callee140);
         }))();
       },
       //--------------------------------------------
-      reloadCurrent: function reloadCurrent(_ref116, meta) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee138() {
+      reloadCurrent: function reloadCurrent(_ref125, meta) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee141() {
           var commit, dispatch;
-          return regeneratorRuntime.wrap(function _callee138$(_context139) {
+          return regeneratorRuntime.wrap(function _callee141$(_context142) {
             while (1) {
-              switch (_context139.prev = _context139.next) {
+              switch (_context142.prev = _context142.next) {
                 case 0:
-                  commit = _ref116.commit, dispatch = _ref116.dispatch;
+                  commit = _ref125.commit, dispatch = _ref125.dispatch;
                   commit("setStatus", {
                     reloading: true
                   });
-                  _context139.next = 4;
+                  _context142.next = 4;
                   return dispatch("current/reload", meta);
 
                 case 4:
@@ -36188,41 +37343,41 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 6:
                 case "end":
-                  return _context139.stop();
+                  return _context142.stop();
               }
             }
-          }, _callee138);
+          }, _callee141);
         }))();
       },
       //--------------------------------------------
-      reloadConfig: function reloadConfig(_ref117) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee139() {
+      reloadConfig: function reloadConfig(_ref126) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee142() {
           var state, dispatch;
-          return regeneratorRuntime.wrap(function _callee139$(_context140) {
+          return regeneratorRuntime.wrap(function _callee142$(_context143) {
             while (1) {
-              switch (_context140.prev = _context140.next) {
+              switch (_context143.prev = _context143.next) {
                 case 0:
-                  state = _ref117.state, dispatch = _ref117.dispatch;
-                  _context140.next = 3;
+                  state = _ref126.state, dispatch = _ref126.dispatch;
+                  _context143.next = 3;
                   return dispatch("config/reload");
 
                 case 3:
                 case "end":
-                  return _context140.stop();
+                  return _context143.stop();
               }
             }
-          }, _callee139);
+          }, _callee142);
         }))();
       },
       //--------------------------------------------
-      reloadTree: function reloadTree(_ref118) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee140() {
+      reloadTree: function reloadTree(_ref127) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee143() {
           var getters, state, commit, dispatch, openeds, currentId;
-          return regeneratorRuntime.wrap(function _callee140$(_context141) {
+          return regeneratorRuntime.wrap(function _callee143$(_context144) {
             while (1) {
-              switch (_context141.prev = _context141.next) {
+              switch (_context144.prev = _context144.next) {
                 case 0:
-                  getters = _ref118.getters, state = _ref118.state, commit = _ref118.commit, dispatch = _ref118.dispatch;
+                  getters = _ref127.getters, state = _ref127.state, commit = _ref127.commit, dispatch = _ref127.dispatch;
 
                   // Restore openeds
                   if (getters.TREE_OPEND_KEY) {
@@ -36231,12 +37386,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   } // Reload the tree root
 
 
-                  _context141.next = 4;
+                  _context144.next = 4;
                   return dispatch("tree/reloadRoot", state.home);
 
                 case 4:
                   if (!getters.TREE_SELECTED_KEY) {
-                    _context141.next = 10;
+                    _context144.next = 10;
                     break;
                   }
 
@@ -36244,34 +37399,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   commit("tree/setCurrentId", currentId);
 
                   if (!currentId) {
-                    _context141.next = 10;
+                    _context144.next = 10;
                     break;
                   }
 
-                  _context141.next = 10;
+                  _context144.next = 10;
                   return dispatch("setTreeSelected", currentId);
 
                 case 10:
                 case "end":
-                  return _context141.stop();
+                  return _context144.stop();
               }
             }
-          }, _callee140);
+          }, _callee143);
         }))();
       },
       //--------------------------------------------
-      reloadTreeNode: function reloadTreeNode(_ref119, payload) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee141() {
+      reloadTreeNode: function reloadTreeNode(_ref128, payload) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee144() {
           var commit, dispatch;
-          return regeneratorRuntime.wrap(function _callee141$(_context142) {
+          return regeneratorRuntime.wrap(function _callee144$(_context145) {
             while (1) {
-              switch (_context142.prev = _context142.next) {
+              switch (_context145.prev = _context145.next) {
                 case 0:
-                  commit = _ref119.commit, dispatch = _ref119.dispatch;
+                  commit = _ref128.commit, dispatch = _ref128.dispatch;
                   commit("setStatus", {
                     reloading: true
                   });
-                  _context142.next = 4;
+                  _context145.next = 4;
                   return dispatch("tree/reloadNode", payload);
 
                 case 4:
@@ -36281,21 +37436,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 5:
                 case "end":
-                  return _context142.stop();
+                  return _context145.stop();
               }
             }
-          }, _callee141);
+          }, _callee144);
         }))();
       },
       //--------------------------------------------
-      reload: function reload(_ref120, home) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee142() {
+      reload: function reload(_ref129, home) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee145() {
           var state, commit, dispatch;
-          return regeneratorRuntime.wrap(function _callee142$(_context143) {
+          return regeneratorRuntime.wrap(function _callee145$(_context146) {
             while (1) {
-              switch (_context143.prev = _context143.next) {
+              switch (_context146.prev = _context146.next) {
                 case 0:
-                  state = _ref120.state, commit = _ref120.commit, dispatch = _ref120.dispatch;
+                  state = _ref129.state, commit = _ref129.commit, dispatch = _ref129.dispatch;
 
                   //console.log("thing-manager.reload", state)
                   // Update New Meta
@@ -36311,11 +37466,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     reloading: true
                   }); // Reloading
 
-                  _context143.next = 5;
+                  _context146.next = 5;
                   return dispatch("reloadConfig");
 
                 case 5:
-                  _context143.next = 7;
+                  _context146.next = 7;
                   return dispatch("reloadTree");
 
                 case 7:
@@ -36328,10 +37483,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 8:
                 case "end":
-                  return _context143.stop();
+                  return _context146.stop();
               }
             }
-          }, _callee142);
+          }, _callee145);
         }))();
       } //--------------------------------------------
 
@@ -36480,23 +37635,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //----------------------------------------
       // Combin Mutations
       //----------------------------------------
-      onChanged: function onChanged(_ref121, payload) {
-        var dispatch = _ref121.dispatch;
+      onChanged: function onChanged(_ref130, payload) {
+        var dispatch = _ref130.dispatch;
         dispatch("changeContent", payload);
       },
       //----------------------------------------
-      changeContent: function changeContent(_ref122, payload) {
-        var commit = _ref122.commit;
+      changeContent: function changeContent(_ref131, payload) {
+        var commit = _ref131.commit;
         commit("setContent", payload);
         commit("syncStatusChanged");
       },
       //----------------------------------------
-      changeMeta: function changeMeta(_ref123) {
-        var commit = _ref123.commit;
+      changeMeta: function changeMeta(_ref132) {
+        var commit = _ref132.commit;
 
-        var _ref124 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            name = _ref124.name,
-            value = _ref124.value;
+        var _ref133 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            name = _ref133.name,
+            value = _ref133.value;
 
         if (name) {
           var meta = _.set({}, name, value);
@@ -36506,9 +37661,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       },
       //----------------------------------------
-      updateContent: function updateContent(_ref125, content) {
-        var state = _ref125.state,
-            commit = _ref125.commit;
+      updateContent: function updateContent(_ref134, content) {
+        var state = _ref134.state,
+            commit = _ref134.commit;
         commit("setContent", content);
 
         if (state.meta && "FILE" == state.meta.race) {
@@ -36520,156 +37675,156 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //--------------------------------------------
       // User Interactivity
       //--------------------------------------------
-      openMetaEditor: function openMetaEditor(_ref126) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee143() {
+      openMetaEditor: function openMetaEditor(_ref135) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee146() {
           var state, dispatch, reo;
-          return regeneratorRuntime.wrap(function _callee143$(_context144) {
+          return regeneratorRuntime.wrap(function _callee146$(_context147) {
             while (1) {
-              switch (_context144.prev = _context144.next) {
+              switch (_context147.prev = _context147.next) {
                 case 0:
-                  state = _ref126.state, dispatch = _ref126.dispatch;
+                  state = _ref135.state, dispatch = _ref135.dispatch;
 
                   if (state.meta) {
-                    _context144.next = 5;
+                    _context147.next = 5;
                     break;
                   }
 
-                  _context144.next = 4;
+                  _context147.next = 4;
                   return Ti.Toast.Open("i18n:empty-data", "warn");
 
                 case 4:
-                  return _context144.abrupt("return", _context144.sent);
+                  return _context147.abrupt("return", _context147.sent);
 
                 case 5:
-                  _context144.next = 7;
+                  _context147.next = 7;
                   return Wn.EditObjMeta(state.meta, {
                     fields: "auto"
                   });
 
                 case 7:
-                  reo = _context144.sent;
+                  reo = _context147.sent;
 
                   if (!_.isUndefined(reo)) {
-                    _context144.next = 10;
+                    _context147.next = 10;
                     break;
                   }
 
-                  return _context144.abrupt("return");
+                  return _context147.abrupt("return");
 
                 case 10:
                   if (!reo.saved) {
-                    _context144.next = 13;
+                    _context147.next = 13;
                     break;
                   }
 
-                  _context144.next = 13;
+                  _context147.next = 13;
                   return dispatch("reload", reo.data);
 
                 case 13:
                 case "end":
-                  return _context144.stop();
+                  return _context147.stop();
               }
             }
-          }, _callee143);
+          }, _callee146);
         }))();
       },
       //--------------------------------------------
-      openContentEditor: function openContentEditor(_ref127) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee144() {
+      openContentEditor: function openContentEditor(_ref136) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee147() {
           var state, dispatch, newContent;
-          return regeneratorRuntime.wrap(function _callee144$(_context145) {
+          return regeneratorRuntime.wrap(function _callee147$(_context148) {
             while (1) {
-              switch (_context145.prev = _context145.next) {
+              switch (_context148.prev = _context148.next) {
                 case 0:
-                  state = _ref127.state, dispatch = _ref127.dispatch;
+                  state = _ref136.state, dispatch = _ref136.dispatch;
 
                   if (state.meta) {
-                    _context145.next = 5;
+                    _context148.next = 5;
                     break;
                   }
 
-                  _context145.next = 4;
+                  _context148.next = 4;
                   return Ti.Toast.Open("i18n:empty-data", "warn");
 
                 case 4:
-                  return _context145.abrupt("return", _context145.sent);
+                  return _context148.abrupt("return", _context148.sent);
 
                 case 5:
-                  _context145.next = 7;
+                  _context148.next = 7;
                   return Wn.EditObjContent(state.meta, {
                     content: state.content
                   });
 
                 case 7:
-                  newContent = _context145.sent;
+                  newContent = _context148.sent;
 
                   if (!_.isUndefined(newContent)) {
-                    _context145.next = 10;
+                    _context148.next = 10;
                     break;
                   }
 
-                  return _context145.abrupt("return");
+                  return _context148.abrupt("return");
 
                 case 10:
-                  _context145.next = 12;
+                  _context148.next = 12;
                   return dispatch("changeContent", newContent);
 
                 case 12:
                 case "end":
-                  return _context145.stop();
+                  return _context148.stop();
               }
             }
-          }, _callee144);
+          }, _callee147);
         }))();
       },
       //--------------------------------------------
       // Update to remote
       //----------------------------------------
-      updateMeta: function updateMeta(_ref128) {
-        var _arguments24 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee145() {
-          var commit, dispatch, _ref129, name, value, data;
+      updateMeta: function updateMeta(_ref137) {
+        var _arguments23 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee148() {
+          var commit, dispatch, _ref138, name, value, data;
 
-          return regeneratorRuntime.wrap(function _callee145$(_context146) {
+          return regeneratorRuntime.wrap(function _callee148$(_context149) {
             while (1) {
-              switch (_context146.prev = _context146.next) {
+              switch (_context149.prev = _context149.next) {
                 case 0:
-                  commit = _ref128.commit, dispatch = _ref128.dispatch;
-                  _ref129 = _arguments24.length > 1 && _arguments24[1] !== undefined ? _arguments24[1] : {}, name = _ref129.name, value = _ref129.value;
+                  commit = _ref137.commit, dispatch = _ref137.dispatch;
+                  _ref138 = _arguments23.length > 1 && _arguments23[1] !== undefined ? _arguments23[1] : {}, name = _ref138.name, value = _ref138.value;
                   //console.log("I am update", name, value)
                   data = Ti.Types.toObjByPair({
                     name: name,
                     value: value
                   });
-                  _context146.next = 5;
+                  _context149.next = 5;
                   return dispatch("updateMetas", data);
 
                 case 5:
                 case "end":
-                  return _context146.stop();
+                  return _context149.stop();
               }
             }
-          }, _callee145);
+          }, _callee148);
         }))();
       },
       //----------------------------------------
-      updateMetas: function updateMetas(_ref130) {
-        var _arguments25 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee146() {
+      updateMetas: function updateMetas(_ref139) {
+        var _arguments24 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee149() {
           var state, commit, data, json, th_set, th_id, cmdText, reo, isError;
-          return regeneratorRuntime.wrap(function _callee146$(_context147) {
+          return regeneratorRuntime.wrap(function _callee149$(_context150) {
             while (1) {
-              switch (_context147.prev = _context147.next) {
+              switch (_context150.prev = _context150.next) {
                 case 0:
-                  state = _ref130.state, commit = _ref130.commit;
-                  data = _arguments25.length > 1 && _arguments25[1] !== undefined ? _arguments25[1] : {};
+                  state = _ref139.state, commit = _ref139.commit;
+                  data = _arguments24.length > 1 && _arguments24[1] !== undefined ? _arguments24[1] : {};
 
                   if (!_.isMatchWith(state.meta, data, _.isEqual)) {
-                    _context147.next = 4;
+                    _context150.next = 4;
                     break;
                   }
 
-                  return _context147.abrupt("return");
+                  return _context150.abrupt("return");
 
                 case 4:
                   // Mark field status
@@ -36686,14 +37841,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   th_set = state.meta.th_set;
                   th_id = state.meta.id;
                   cmdText = "thing ".concat(th_set, " update ").concat(th_id, " -fields -cqn");
-                  _context147.next = 11;
+                  _context150.next = 11;
                   return Wn.Sys.exec2(cmdText, {
                     input: json,
                     as: "json"
                   });
 
                 case 11:
-                  reo = _context147.sent;
+                  reo = _context150.sent;
                   isError = reo instanceof Error;
 
                   if (!isError && !Ti.Util.isNil(reo)) {
@@ -36722,10 +37877,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 15:
                 case "end":
-                  return _context147.stop();
+                  return _context150.stop();
               }
             }
-          }, _callee146);
+          }, _callee149);
         }))();
       },
       //--------------------------------------------
@@ -36745,21 +37900,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //   await dispatch("reload", meta)
       // },
       //----------------------------------------
-      save: function save(_ref131) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee147() {
+      save: function save(_ref140) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee150() {
           var state, commit, meta, content, newMeta;
-          return regeneratorRuntime.wrap(function _callee147$(_context148) {
+          return regeneratorRuntime.wrap(function _callee150$(_context151) {
             while (1) {
-              switch (_context148.prev = _context148.next) {
+              switch (_context151.prev = _context151.next) {
                 case 0:
-                  state = _ref131.state, commit = _ref131.commit;
+                  state = _ref140.state, commit = _ref140.commit;
 
                   if (!(state.status.saving || !state.status.changed)) {
-                    _context148.next = 3;
+                    _context151.next = 3;
                     break;
                   }
 
-                  return _context148.abrupt("return");
+                  return _context151.abrupt("return");
 
                 case 3:
                   commit("setStatus", {
@@ -36767,11 +37922,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   });
                   meta = state.meta;
                   content = state.content;
-                  _context148.next = 8;
+                  _context151.next = 8;
                   return Wn.Io.saveContentAsText(meta, content);
 
                 case 8:
-                  newMeta = _context148.sent;
+                  newMeta = _context151.sent;
                   commit("setStatus", {
                     saving: false
                   });
@@ -36779,32 +37934,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   commit("setSavedContent", content);
                   commit("syncStatusChanged"); // return the new meta
 
-                  return _context148.abrupt("return", newMeta);
+                  return _context151.abrupt("return", newMeta);
 
                 case 14:
                 case "end":
-                  return _context148.stop();
+                  return _context151.stop();
               }
             }
-          }, _callee147);
+          }, _callee150);
         }))();
       },
       //----------------------------------------
-      reload: function reload(_ref132, meta) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee148() {
+      reload: function reload(_ref141, meta) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee151() {
           var state, commit, dispatch, content;
-          return regeneratorRuntime.wrap(function _callee148$(_context149) {
+          return regeneratorRuntime.wrap(function _callee151$(_context152) {
             while (1) {
-              switch (_context149.prev = _context149.next) {
+              switch (_context152.prev = _context152.next) {
                 case 0:
-                  state = _ref132.state, commit = _ref132.commit, dispatch = _ref132.dispatch;
+                  state = _ref141.state, commit = _ref141.commit, dispatch = _ref141.dispatch;
 
                   if (!(state.status.reloading || state.status.saving)) {
-                    _context149.next = 3;
+                    _context152.next = 3;
                     break;
                   }
 
-                  return _context149.abrupt("return");
+                  return _context152.abrupt("return");
 
                 case 3:
                   //......................................
@@ -36815,25 +37970,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
                   if (!_.isString(meta)) {
-                    _context149.next = 8;
+                    _context152.next = 8;
                     break;
                   }
 
-                  _context149.next = 7;
+                  _context152.next = 7;
                   return Wn.Io.loadMeta(meta);
 
                 case 7:
-                  meta = _context149.sent;
+                  meta = _context152.sent;
 
                 case 8:
                   if (meta) {
-                    _context149.next = 12;
+                    _context152.next = 12;
                     break;
                   }
 
                   commit("setMeta", null);
                   commit("setContent", null);
-                  return _context149.abrupt("return");
+                  return _context152.abrupt("return");
 
                 case 12:
                   // Init content as null
@@ -36844,29 +37999,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   // For file
 
                   if (!("FILE" == meta.race)) {
-                    _context149.next = 20;
+                    _context152.next = 20;
                     break;
                   }
 
-                  _context149.next = 17;
+                  _context152.next = 17;
                   return Wn.Io.loadContent(meta);
 
                 case 17:
-                  content = _context149.sent;
-                  _context149.next = 24;
+                  content = _context152.sent;
+                  _context152.next = 24;
                   break;
 
                 case 20:
                   if (!('DIR' == meta.race)) {
-                    _context149.next = 24;
+                    _context152.next = 24;
                     break;
                   }
 
-                  _context149.next = 23;
+                  _context152.next = 23;
                   return Wn.Io.loadChildren(meta);
 
                 case 23:
-                  content = _context149.sent;
+                  content = _context152.sent;
 
                 case 24:
                   //......................................
@@ -36881,10 +38036,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 28:
                 case "end":
-                  return _context149.stop();
+                  return _context152.stop();
               }
             }
-          }, _callee148);
+          }, _callee151);
         }))();
       } //----------------------------------------
 
@@ -36999,10 +38154,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //----------------------------------------
         setFieldStatus: function setFieldStatus(state) {
-          var _ref133 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              name = _ref133.name,
-              type = _ref133.type,
-              text = _ref133.text;
+          var _ref142 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              name = _ref142.name,
+              type = _ref142.type,
+              text = _ref142.text;
 
           if (name) {
             var ukey = _.concat(name).join("-");
@@ -37048,17 +38203,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   (function () {
     var _M = {
       //--------------------------------------------
-      updateMeta: function updateMeta(_ref134) {
-        var _arguments26 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee149() {
-          var state, commit, _ref135, name, value, data, json, oid, cmdText, newMeta;
+      updateMeta: function updateMeta(_ref143) {
+        var _arguments25 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee152() {
+          var state, commit, _ref144, name, value, data, json, oid, cmdText, newMeta;
 
-          return regeneratorRuntime.wrap(function _callee149$(_context150) {
+          return regeneratorRuntime.wrap(function _callee152$(_context153) {
             while (1) {
-              switch (_context150.prev = _context150.next) {
+              switch (_context153.prev = _context153.next) {
                 case 0:
-                  state = _ref134.state, commit = _ref134.commit;
-                  _ref135 = _arguments26.length > 1 && _arguments26[1] !== undefined ? _arguments26[1] : {}, name = _ref135.name, value = _ref135.value;
+                  state = _ref143.state, commit = _ref143.commit;
+                  _ref144 = _arguments25.length > 1 && _arguments25[1] !== undefined ? _arguments25[1] : {}, name = _ref144.name, value = _ref144.value;
                   //console.log("I am update", name, value)
                   data = Ti.Types.toObjByPair({
                     name: name,
@@ -37066,11 +38221,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }); // Check Necessary
 
                   if (!_.isMatchWith(state.meta, data, _.isEqual)) {
-                    _context150.next = 5;
+                    _context153.next = 5;
                     break;
                   }
 
-                  return _context150.abrupt("return");
+                  return _context153.abrupt("return");
 
                 case 5:
                   // Do the update
@@ -37084,129 +38239,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   json = JSON.stringify(data);
                   oid = state.meta.id;
                   cmdText = "obj 'id:".concat(oid, "' -ocqn -u");
-                  _context150.next = 12;
+                  _context153.next = 12;
                   return Wn.Sys.exec2(cmdText, {
                     input: json,
                     as: "json"
                   });
 
                 case 12:
-                  newMeta = _context150.sent;
+                  newMeta = _context153.sent;
                   commit("setMeta", newMeta);
                   commit("clearFieldStatus", name);
                   commit("setStatus", {
                     saving: false
                   });
-                  return _context150.abrupt("return", newMeta);
+                  return _context153.abrupt("return", newMeta);
 
                 case 17:
-                case "end":
-                  return _context150.stop();
-              }
-            }
-          }, _callee149);
-        }))();
-      },
-      //--------------------------------------------
-
-      /***
-       * Get obj by ID
-       */
-      loadMetaById: function loadMetaById(_ref136, id) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee150() {
-          var dispatch;
-          return regeneratorRuntime.wrap(function _callee150$(_context151) {
-            while (1) {
-              switch (_context151.prev = _context151.next) {
-                case 0:
-                  dispatch = _ref136.dispatch;
-                  dispatch("loadMeta", "id:".concat(id));
-
-                case 2:
-                case "end":
-                  return _context151.stop();
-              }
-            }
-          }, _callee150);
-        }))();
-      },
-      //--------------------------------------------
-
-      /***
-       * Get obj meta by path string
-       */
-      loadMeta: function loadMeta(_ref137, str) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee151() {
-          var state, commit, meta;
-          return regeneratorRuntime.wrap(function _callee151$(_context152) {
-            while (1) {
-              switch (_context152.prev = _context152.next) {
-                case 0:
-                  state = _ref137.state, commit = _ref137.commit;
-
-                  if (str) {
-                    _context152.next = 5;
-                    break;
-                  }
-
-                  commit("reset");
-                  _context152.next = 11;
-                  break;
-
-                case 5:
-                  commit("setStatus", {
-                    reloading: true
-                  });
-                  _context152.next = 8;
-                  return Wn.Io.loadMeta(str);
-
-                case 8:
-                  meta = _context152.sent;
-                  commit("setMeta", meta);
-                  commit("setStatus", {
-                    reloading: false
-                  });
-
-                case 11:
-                case "end":
-                  return _context152.stop();
-              }
-            }
-          }, _callee151);
-        }))();
-      },
-      //--------------------------------------------
-
-      /***
-       * Get obj ancestors by meta
-       */
-      loadAncestors: function loadAncestors(_ref138) {
-        var _arguments27 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee152() {
-          var state, commit, meta, ancestors, parent;
-          return regeneratorRuntime.wrap(function _callee152$(_context153) {
-            while (1) {
-              switch (_context153.prev = _context153.next) {
-                case 0:
-                  state = _ref138.state, commit = _ref138.commit;
-                  meta = _arguments27.length > 1 && _arguments27[1] !== undefined ? _arguments27[1] : state.meta;
-                  commit("setStatus", {
-                    reloading: true
-                  });
-                  _context153.next = 5;
-                  return Wn.Io.loadAncestors("id:" + meta.id);
-
-                case 5:
-                  ancestors = _context153.sent;
-                  parent = _.last(ancestors);
-                  commit("setMeta", meta);
-                  commit("setParent", parent);
-                  commit("setAncestors", ancestors);
-                  commit("setStatus", {
-                    reloading: false
-                  });
-
-                case 11:
                 case "end":
                   return _context153.stop();
               }
@@ -37217,54 +38265,161 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //--------------------------------------------
 
       /***
-       * Load obj meta/ancestors/children/content
-       * 
-       * @param str{String|Object} : string as the path,
-       *        object is the meta
+       * Get obj by ID
        */
-      reload: function reload(_ref139, str) {
+      loadMetaById: function loadMetaById(_ref145, id) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee153() {
-          var state, dispatch;
+          var dispatch;
           return regeneratorRuntime.wrap(function _callee153$(_context154) {
             while (1) {
               switch (_context154.prev = _context154.next) {
                 case 0:
-                  state = _ref139.state, dispatch = _ref139.dispatch;
+                  dispatch = _ref145.dispatch;
+                  dispatch("loadMeta", "id:".concat(id));
 
-                  if (!_.isString(str)) {
-                    _context154.next = 8;
-                    break;
-                  }
-
-                  _context154.next = 4;
-                  return dispatch("loadMeta", str);
-
-                case 4:
-                  _context154.next = 6;
-                  return dispatch("loadAncestors");
-
-                case 6:
-                  _context154.next = 11;
-                  break;
-
-                case 8:
-                  if (!_.isPlainObject(str)) {
-                    _context154.next = 11;
-                    break;
-                  }
-
-                  _context154.next = 11;
-                  return dispatch("loadAncestors", str);
-
-                case 11:
-                  return _context154.abrupt("return", state.meta);
-
-                case 12:
+                case 2:
                 case "end":
                   return _context154.stop();
               }
             }
           }, _callee153);
+        }))();
+      },
+      //--------------------------------------------
+
+      /***
+       * Get obj meta by path string
+       */
+      loadMeta: function loadMeta(_ref146, str) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee154() {
+          var state, commit, meta;
+          return regeneratorRuntime.wrap(function _callee154$(_context155) {
+            while (1) {
+              switch (_context155.prev = _context155.next) {
+                case 0:
+                  state = _ref146.state, commit = _ref146.commit;
+
+                  if (str) {
+                    _context155.next = 5;
+                    break;
+                  }
+
+                  commit("reset");
+                  _context155.next = 11;
+                  break;
+
+                case 5:
+                  commit("setStatus", {
+                    reloading: true
+                  });
+                  _context155.next = 8;
+                  return Wn.Io.loadMeta(str);
+
+                case 8:
+                  meta = _context155.sent;
+                  commit("setMeta", meta);
+                  commit("setStatus", {
+                    reloading: false
+                  });
+
+                case 11:
+                case "end":
+                  return _context155.stop();
+              }
+            }
+          }, _callee154);
+        }))();
+      },
+      //--------------------------------------------
+
+      /***
+       * Get obj ancestors by meta
+       */
+      loadAncestors: function loadAncestors(_ref147) {
+        var _arguments26 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee155() {
+          var state, commit, meta, ancestors, parent;
+          return regeneratorRuntime.wrap(function _callee155$(_context156) {
+            while (1) {
+              switch (_context156.prev = _context156.next) {
+                case 0:
+                  state = _ref147.state, commit = _ref147.commit;
+                  meta = _arguments26.length > 1 && _arguments26[1] !== undefined ? _arguments26[1] : state.meta;
+                  commit("setStatus", {
+                    reloading: true
+                  });
+                  _context156.next = 5;
+                  return Wn.Io.loadAncestors("id:" + meta.id);
+
+                case 5:
+                  ancestors = _context156.sent;
+                  parent = _.last(ancestors);
+                  commit("setMeta", meta);
+                  commit("setParent", parent);
+                  commit("setAncestors", ancestors);
+                  commit("setStatus", {
+                    reloading: false
+                  });
+
+                case 11:
+                case "end":
+                  return _context156.stop();
+              }
+            }
+          }, _callee155);
+        }))();
+      },
+      //--------------------------------------------
+
+      /***
+       * Load obj meta/ancestors/children/content
+       * 
+       * @param str{String|Object} : string as the path,
+       *        object is the meta
+       */
+      reload: function reload(_ref148, str) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee156() {
+          var state, dispatch;
+          return regeneratorRuntime.wrap(function _callee156$(_context157) {
+            while (1) {
+              switch (_context157.prev = _context157.next) {
+                case 0:
+                  state = _ref148.state, dispatch = _ref148.dispatch;
+
+                  if (!_.isString(str)) {
+                    _context157.next = 8;
+                    break;
+                  }
+
+                  _context157.next = 4;
+                  return dispatch("loadMeta", str);
+
+                case 4:
+                  _context157.next = 6;
+                  return dispatch("loadAncestors");
+
+                case 6:
+                  _context157.next = 11;
+                  break;
+
+                case 8:
+                  if (!_.isPlainObject(str)) {
+                    _context157.next = 11;
+                    break;
+                  }
+
+                  _context157.next = 11;
+                  return dispatch("loadAncestors", str);
+
+                case 11:
+                  return _context157.abrupt("return", state.meta);
+
+                case 12:
+                case "end":
+                  return _context157.stop();
+              }
+            }
+          }, _callee156);
         }))();
       } //--------------------------------------------
 
@@ -37381,10 +38536,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //------------------------------------------
         setFieldStatus: function setFieldStatus(state) {
-          var _ref140 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              name = _ref140.name,
-              message = _ref140.message,
-              status = _ref140.status;
+          var _ref149 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              name = _ref149.name,
+              message = _ref149.message,
+              status = _ref149.status;
 
           if (name) {
             var st = status ? {
@@ -37502,18 +38657,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Save current thing detail
        */
-      saveCurrent: function saveCurrent(_ref141) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee154() {
+      saveCurrent: function saveCurrent(_ref150) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee157() {
           var commit, dispatch;
-          return regeneratorRuntime.wrap(function _callee154$(_context155) {
+          return regeneratorRuntime.wrap(function _callee157$(_context158) {
             while (1) {
-              switch (_context155.prev = _context155.next) {
+              switch (_context158.prev = _context158.next) {
                 case 0:
-                  commit = _ref141.commit, dispatch = _ref141.dispatch;
+                  commit = _ref150.commit, dispatch = _ref150.dispatch;
                   commit("setStatus", {
                     saving: true
                   });
-                  _context155.next = 4;
+                  _context158.next = 4;
                   return dispatch("current/save");
 
                 case 4:
@@ -37524,10 +38679,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 6:
                 case "end":
-                  return _context155.stop();
+                  return _context158.stop();
               }
             }
-          }, _callee154);
+          }, _callee157);
         }))();
       },
       //--------------------------------------------
@@ -37535,24 +38690,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Update current thing meta data to search/meta
        */
-      updateCurrent: function updateCurrent(_ref142) {
-        var _arguments28 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee155() {
-          var state, commit, dispatch, getters, _ref143, name, value;
+      updateCurrent: function updateCurrent(_ref151) {
+        var _arguments27 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee158() {
+          var state, commit, dispatch, getters, _ref152, name, value;
 
-          return regeneratorRuntime.wrap(function _callee155$(_context156) {
+          return regeneratorRuntime.wrap(function _callee158$(_context159) {
             while (1) {
-              switch (_context156.prev = _context156.next) {
+              switch (_context159.prev = _context159.next) {
                 case 0:
-                  state = _ref142.state, commit = _ref142.commit, dispatch = _ref142.dispatch, getters = _ref142.getters;
-                  _ref143 = _arguments28.length > 1 && _arguments28[1] !== undefined ? _arguments28[1] : {}, name = _ref143.name, value = _ref143.value;
+                  state = _ref151.state, commit = _ref151.commit, dispatch = _ref151.dispatch, getters = _ref151.getters;
+                  _ref152 = _arguments27.length > 1 && _arguments27[1] !== undefined ? _arguments27[1] : {}, name = _ref152.name, value = _ref152.value;
 
                   if (!getters.hasCurrent) {
-                    _context156.next = 6;
+                    _context159.next = 6;
                     break;
                   }
 
-                  _context156.next = 5;
+                  _context159.next = 5;
                   return dispatch("current/updateMeta", {
                     name: name,
                     value: value
@@ -37563,30 +38718,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 6:
                 case "end":
-                  return _context156.stop();
+                  return _context159.stop();
               }
             }
-          }, _callee155);
+          }, _callee158);
         }))();
       },
       //--------------------------------------------
-      updateCurrentMetas: function updateCurrentMetas(_ref144) {
-        var _arguments29 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee156() {
+      updateCurrentMetas: function updateCurrentMetas(_ref153) {
+        var _arguments28 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee159() {
           var state, commit, dispatch, getters, data;
-          return regeneratorRuntime.wrap(function _callee156$(_context157) {
+          return regeneratorRuntime.wrap(function _callee159$(_context160) {
             while (1) {
-              switch (_context157.prev = _context157.next) {
+              switch (_context160.prev = _context160.next) {
                 case 0:
-                  state = _ref144.state, commit = _ref144.commit, dispatch = _ref144.dispatch, getters = _ref144.getters;
-                  data = _arguments29.length > 1 && _arguments29[1] !== undefined ? _arguments29[1] : {};
+                  state = _ref153.state, commit = _ref153.commit, dispatch = _ref153.dispatch, getters = _ref153.getters;
+                  data = _arguments28.length > 1 && _arguments28[1] !== undefined ? _arguments28[1] : {};
 
                   if (!getters.hasCurrent) {
-                    _context157.next = 6;
+                    _context160.next = 6;
                     break;
                   }
 
-                  _context157.next = 5;
+                  _context160.next = 5;
                   return dispatch("current/updateMetas", data);
 
                 case 5:
@@ -37594,32 +38749,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 6:
                 case "end":
-                  return _context157.stop();
+                  return _context160.stop();
               }
             }
-          }, _callee156);
+          }, _callee159);
         }))();
       },
       //--------------------------------------------
-      batchUpdateMetas: function batchUpdateMetas(_ref145) {
-        var _arguments30 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee157() {
-          var state, commit, getters, updates, checkedItems, currentId, input, tsId, _iterator87, _step87, it, cmdText, newIt;
+      batchUpdateMetas: function batchUpdateMetas(_ref154) {
+        var _arguments29 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee160() {
+          var state, commit, getters, updates, checkedItems, currentId, input, tsId, _iterator84, _step84, it, cmdText, newIt;
 
-          return regeneratorRuntime.wrap(function _callee157$(_context158) {
+          return regeneratorRuntime.wrap(function _callee160$(_context161) {
             while (1) {
-              switch (_context158.prev = _context158.next) {
+              switch (_context161.prev = _context161.next) {
                 case 0:
-                  state = _ref145.state, commit = _ref145.commit, getters = _ref145.getters;
-                  updates = _arguments30.length > 1 && _arguments30[1] !== undefined ? _arguments30[1] : {};
+                  state = _ref154.state, commit = _ref154.commit, getters = _ref154.getters;
+                  updates = _arguments29.length > 1 && _arguments29[1] !== undefined ? _arguments29[1] : {};
                   checkedItems = getters["search/checkedItems"]; // Guard
 
                   if (!(_.isEmpty(checkedItems) || _.isEmpty(updates))) {
-                    _context158.next = 5;
+                    _context161.next = 5;
                     break;
                   }
 
-                  return _context158.abrupt("return");
+                  return _context161.abrupt("return");
 
                 case 5:
                   // Mark loading
@@ -37630,27 +38785,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   currentId = _.get(state.current, "meta.id");
                   input = JSON.stringify(updates);
                   tsId = state.meta.id;
-                  _iterator87 = _createForOfIteratorHelper(checkedItems);
-                  _context158.prev = 10;
+                  _iterator84 = _createForOfIteratorHelper(checkedItems);
+                  _context161.prev = 10;
 
-                  _iterator87.s();
+                  _iterator84.s();
 
                 case 12:
-                  if ((_step87 = _iterator87.n()).done) {
-                    _context158.next = 22;
+                  if ((_step84 = _iterator84.n()).done) {
+                    _context161.next = 22;
                     break;
                   }
 
-                  it = _step87.value;
+                  it = _step84.value;
                   cmdText = "thing ".concat(tsId, " update ").concat(it.id, " -fields -cqn");
-                  _context158.next = 17;
+                  _context161.next = 17;
                   return Wn.Sys.exec2(cmdText, {
                     as: "json",
                     input: input
                   });
 
                 case 17:
-                  newIt = _context158.sent;
+                  newIt = _context161.sent;
                   commit("search/updateItem", newIt);
 
                   if (newIt.id == currentId) {
@@ -37658,25 +38813,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
 
                 case 20:
-                  _context158.next = 12;
+                  _context161.next = 12;
                   break;
 
                 case 22:
-                  _context158.next = 27;
+                  _context161.next = 27;
                   break;
 
                 case 24:
-                  _context158.prev = 24;
-                  _context158.t0 = _context158["catch"](10);
+                  _context161.prev = 24;
+                  _context161.t0 = _context161["catch"](10);
 
-                  _iterator87.e(_context158.t0);
+                  _iterator84.e(_context161.t0);
 
                 case 27:
-                  _context158.prev = 27;
+                  _context161.prev = 27;
 
-                  _iterator87.f();
+                  _iterator84.f();
 
-                  return _context158.finish(27);
+                  return _context161.finish(27);
 
                 case 30:
                   // Mark loading
@@ -37686,26 +38841,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 31:
                 case "end":
-                  return _context158.stop();
+                  return _context161.stop();
               }
             }
-          }, _callee157, null, [[10, 24, 27, 30]]);
+          }, _callee160, null, [[10, 24, 27, 30]]);
         }))();
       },
       //--------------------------------------------
-      setCurrentMeta: function setCurrentMeta(_ref146, meta) {
-        var state = _ref146.state,
-            commit = _ref146.commit;
-        console.log(" -> setCurrentMeta", meta);
-        commit("current/assignMeta", meta);
+      setCurrentMeta: function setCurrentMeta(_ref155, meta) {
+        var state = _ref155.state,
+            commit = _ref155.commit;
+        //console.log(" -> setCurrentMeta", meta)
+        commit("current/setMeta", meta);
         commit("syncStatusChanged");
         commit("search/updateItem", state.current.meta);
       },
       //--------------------------------------------
-      setCurrentContent: function setCurrentContent(_ref147, content) {
-        var state = _ref147.state,
-            commit = _ref147.commit,
-            dispatch = _ref147.dispatch;
+      setCurrentContent: function setCurrentContent(_ref156, content) {
+        var state = _ref156.state,
+            commit = _ref156.commit,
+            dispatch = _ref156.dispatch;
         dispatch("current/onChanged", content);
         commit("syncStatusChanged");
         commit("search/updateItem", state.current.meta);
@@ -37715,43 +38870,71 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Files: sync the file count and update to search/meta
        */
-      autoSyncCurrentFilesCount: function autoSyncCurrentFilesCount(_ref148) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee158() {
-          var state, commit, oTh, dirName, th_set, cmdText, oNew;
-          return regeneratorRuntime.wrap(function _callee158$(_context159) {
-            while (1) {
-              switch (_context159.prev = _context159.next) {
-                case 0:
-                  state = _ref148.state, commit = _ref148.commit;
-                  oTh = state.current.meta;
-                  dirName = state.currentDataDir; // sync current media count
+      autoSyncCurrentFilesCount: function autoSyncCurrentFilesCount(_ref157) {
+        var _arguments30 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee161() {
+          var state, commit, dispatch, _ref158, _ref158$quiet, quiet, oTh, dirName, th_set, cmdText, oNew;
 
-                  if (!(oTh && oTh.id && dirName)) {
-                    _context159.next = 11;
+          return regeneratorRuntime.wrap(function _callee161$(_context162) {
+            while (1) {
+              switch (_context162.prev = _context162.next) {
+                case 0:
+                  state = _ref157.state, commit = _ref157.commit, dispatch = _ref157.dispatch;
+                  _ref158 = _arguments30.length > 1 && _arguments30[1] !== undefined ? _arguments30[1] : {}, _ref158$quiet = _ref158.quiet, quiet = _ref158$quiet === void 0 ? true : _ref158$quiet;
+                  oTh = state.current.meta;
+                  dirName = state.currentDataDir; // Guard
+
+                  if (dirName) {
+                    _context162.next = 7;
                     break;
                   }
 
-                  // run command
+                  console.warn("thing file -ufc without 'dirName'");
+                  return _context162.abrupt("return", Ti.Toast.Open("thing file -ufc without 'dirName'"));
+
+                case 7:
+                  if (!(oTh && oTh.id && dirName)) {
+                    _context162.next = 19;
+                    break;
+                  }
+
+                  commit("setStatus", {
+                    reloading: true
+                  }); // run command
+
                   th_set = oTh.th_set;
-                  cmdText = "thing ".concat(th_set, " ").concat(dirName, " ").concat(oTh.id, " -ufc -cqn");
-                  _context159.next = 8;
+                  cmdText = "thing ".concat(th_set, " file ").concat(oTh.id, " -dir '").concat(dirName, "' -ufc -cqn");
+                  _context162.next = 13;
                   return Wn.Sys.exec2(cmdText, {
                     as: "json"
                   });
 
-                case 8:
-                  oNew = _context159.sent;
+                case 13:
+                  oNew = _context162.sent;
                   // Set current meta
-                  commit("current/setMeta", oNew); // Set current to search list
+                  dispatch("setCurrentMeta", oNew);
+                  commit("setStatus", {
+                    reloading: false
+                  });
 
-                  commit("search/updateItem", oNew);
+                  if (quiet) {
+                    _context162.next = 19;
+                    break;
+                  }
 
-                case 11:
+                  _context162.next = 19;
+                  return Ti.Toast.Open('i18n:wn-th-recount-media-done', {
+                    vars: {
+                      n: oNew.th_media_nb || 0
+                    }
+                  });
+
+                case 19:
                 case "end":
-                  return _context159.stop();
+                  return _context162.stop();
               }
             }
-          }, _callee158);
+          }, _callee161);
         }))();
       },
       //--------------------------------------------
@@ -37759,14 +38942,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Toggle enter/outer RecycleBin
        */
-      toggleInRecycleBin: function toggleInRecycleBin(_ref149) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee159() {
+      toggleInRecycleBin: function toggleInRecycleBin(_ref159) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee162() {
           var state, commit, dispatch, getters, inRecycleBin;
-          return regeneratorRuntime.wrap(function _callee159$(_context160) {
+          return regeneratorRuntime.wrap(function _callee162$(_context163) {
             while (1) {
-              switch (_context160.prev = _context160.next) {
+              switch (_context163.prev = _context163.next) {
                 case 0:
-                  state = _ref149.state, commit = _ref149.commit, dispatch = _ref149.dispatch, getters = _ref149.getters;
+                  state = _ref159.state, commit = _ref159.commit, dispatch = _ref159.dispatch, getters = _ref159.getters;
                   //console.log("thing-manager-toggleInRecycleBin")
                   // Update Search
                   inRecycleBin = !getters.isInRecycleBin;
@@ -37777,7 +38960,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     reloading: true
                   }); // Reload List
 
-                  _context160.next = 6;
+                  _context163.next = 6;
                   return dispatch("search/reload");
 
                 case 6:
@@ -37787,10 +38970,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 7:
                 case "end":
-                  return _context160.stop();
+                  return _context163.stop();
               }
             }
-          }, _callee159);
+          }, _callee162);
         }))();
       },
       //--------------------------------------------
@@ -37798,15 +38981,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Create one new thing
        */
-      create: function create(_ref150) {
+      create: function create(_ref160) {
         var _arguments31 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee160() {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee163() {
           var state, commit, dispatch, obj, beCreate, unique, after, fixed, json, th_set, cmds, cmdText, newMeta;
-          return regeneratorRuntime.wrap(function _callee160$(_context161) {
+          return regeneratorRuntime.wrap(function _callee163$(_context164) {
             while (1) {
-              switch (_context161.prev = _context161.next) {
+              switch (_context164.prev = _context164.next) {
                 case 0:
-                  state = _ref150.state, commit = _ref150.commit, dispatch = _ref150.dispatch;
+                  state = _ref160.state, commit = _ref160.commit, dispatch = _ref160.dispatch;
                   obj = _arguments31.length > 1 && _arguments31[1] !== undefined ? _arguments31[1] : {};
                   // Special setting for create
                   beCreate = _.get(state.config, "schema.behavior.create") || {};
@@ -37836,194 +39019,37 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }); // Do Create
 
                   cmdText = cmds.join(" ");
-                  _context161.next = 14;
+                  _context164.next = 14;
                   return Wn.Sys.exec2(cmdText, {
                     input: json,
                     as: "json"
                   });
 
                 case 14:
-                  newMeta = _context161.sent;
-                  _context161.next = 17;
-                  return dispatch("current/reload", newMeta);
+                  newMeta = _context164.sent;
 
-                case 17:
+                  if (!(newMeta && !(newMeta instanceof Error))) {
+                    _context164.next = 19;
+                    break;
+                  }
+
                   // Append To Search List as the first 
-                  commit("search/prependToList", newMeta);
-                  commit("search/selectItem", newMeta.id); // Mark reloading
+                  commit("search/prependToList", newMeta); // Set it as current
 
+                  _context164.next = 19;
+                  return dispatch("setCurrentThing", {
+                    meta: newMeta
+                  });
+
+                case 19:
+                  // Mark reloading
                   commit("setStatus", {
                     reloading: false
                   }); // Return the new object
 
-                  return _context161.abrupt("return", newMeta);
+                  return _context164.abrupt("return", newMeta);
 
                 case 21:
-                case "end":
-                  return _context161.stop();
-              }
-            }
-          }, _callee160);
-        }))();
-      },
-      //--------------------------------------------
-
-      /***
-       * Search: Remove Checked Items
-       */
-      removeChecked: function removeChecked(_ref151) {
-        var _arguments32 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee161() {
-          var state, commit, dispatch, getters, hard, ids, th_set, cmdText, reo, current;
-          return regeneratorRuntime.wrap(function _callee161$(_context162) {
-            while (1) {
-              switch (_context162.prev = _context162.next) {
-                case 0:
-                  state = _ref151.state, commit = _ref151.commit, dispatch = _ref151.dispatch, getters = _ref151.getters;
-                  hard = _arguments32.length > 1 && _arguments32[1] !== undefined ? _arguments32[1] : false;
-                  //console.log("removeChecked", hard)
-                  ids = state.search.checkedIds;
-
-                  if (!_.isEmpty(ids)) {
-                    _context162.next = 7;
-                    break;
-                  }
-
-                  _context162.next = 6;
-                  return Ti.Alert('i18n:del-none');
-
-                case 6:
-                  return _context162.abrupt("return", _context162.sent);
-
-                case 7:
-                  commit("setStatus", {
-                    deleting: true
-                  }); // Prepare the cmds
-
-                  th_set = state.meta.id;
-                  cmdText = "thing ".concat(th_set, " delete ").concat(hard ? "-hard" : "", " -cqn -l ").concat(ids.join(" "));
-                  _context162.next = 12;
-                  return Wn.Sys.exec2(cmdText, {
-                    as: "json"
-                  });
-
-                case 12:
-                  reo = _context162.sent;
-                  // Remove it from search list
-                  commit("search/removeItems", state.search.checkedIds);
-                  current = getters["search/currentItem"]; //console.log("getback current", current)
-                  // Update current
-
-                  _context162.next = 17;
-                  return dispatch("current/reload", current);
-
-                case 17:
-                  commit("setStatus", {
-                    deleting: false
-                  });
-
-                case 18:
-                case "end":
-                  return _context162.stop();
-              }
-            }
-          }, _callee161);
-        }))();
-      },
-      //--------------------------------------------
-
-      /***
-       * RecycleBin: restore
-       */
-      restoreRecycleBin: function restoreRecycleBin(_ref152) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee162() {
-          var state, commit, dispatch, getters, ids, th_set, cmdText, reo, current;
-          return regeneratorRuntime.wrap(function _callee162$(_context163) {
-            while (1) {
-              switch (_context163.prev = _context163.next) {
-                case 0:
-                  state = _ref152.state, commit = _ref152.commit, dispatch = _ref152.dispatch, getters = _ref152.getters;
-                  // Require user to select some things at first
-                  ids = state.search.checkedIds;
-
-                  if (!_.isEmpty(ids)) {
-                    _context163.next = 6;
-                    break;
-                  }
-
-                  _context163.next = 5;
-                  return Ti.Alert('i18n:thing-restore-none');
-
-                case 5:
-                  return _context163.abrupt("return", _context163.sent);
-
-                case 6:
-                  commit("setStatus", {
-                    restoring: true
-                  }); // Run command
-
-                  th_set = state.meta.id;
-                  cmdText = "thing ".concat(th_set, " restore -quiet -cqn -l ").concat(ids.join(" "));
-                  _context163.next = 11;
-                  return Wn.Sys.exec2(cmdText, {
-                    as: "json"
-                  });
-
-                case 11:
-                  reo = _context163.sent;
-                  _context163.next = 14;
-                  return dispatch("search/reload");
-
-                case 14:
-                  // Get back current
-                  current = getters["search/currentItem"]; // Update current
-
-                  _context163.next = 17;
-                  return dispatch("current/reload", current);
-
-                case 17:
-                  commit("setStatus", {
-                    restoring: false
-                  });
-
-                case 18:
-                case "end":
-                  return _context163.stop();
-              }
-            }
-          }, _callee162);
-        }))();
-      },
-      //--------------------------------------------
-
-      /***
-       * RecycleBin: clean
-       */
-      cleanRecycleBin: function cleanRecycleBin(_ref153) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee163() {
-          var state, commit, dispatch, th_set, cmdText;
-          return regeneratorRuntime.wrap(function _callee163$(_context164) {
-            while (1) {
-              switch (_context164.prev = _context164.next) {
-                case 0:
-                  state = _ref153.state, commit = _ref153.commit, dispatch = _ref153.dispatch;
-                  commit("setStatus", {
-                    cleaning: true
-                  }); // Run command
-
-                  th_set = state.meta.id;
-                  cmdText = "thing ".concat(th_set, " clean -limit 3000");
-                  _context164.next = 6;
-                  return Wn.Sys.exec2(cmdText);
-
-                case 6:
-                  commit("setStatus", {
-                    cleaning: false
-                  });
-                  _context164.next = 9;
-                  return dispatch("reload");
-
-                case 9:
                 case "end":
                   return _context164.stop();
               }
@@ -38034,73 +39060,81 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //--------------------------------------------
 
       /***
-       * Open meta editor, if has current, use it
+       * Search: Remove Checked Items
        */
-      openMetaEditor: function openMetaEditor(_ref154) {
+      removeChecked: function removeChecked(_ref161) {
+        var _arguments32 = arguments;
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee164() {
-          var state, getters, dispatch, reo, updates;
+          var state, commit, dispatch, getters, hard, ids, beh, failIds, th_set, cmdText, reo, removeIds, current;
           return regeneratorRuntime.wrap(function _callee164$(_context165) {
             while (1) {
               switch (_context165.prev = _context165.next) {
                 case 0:
-                  state = _ref154.state, getters = _ref154.getters, dispatch = _ref154.dispatch;
+                  state = _ref161.state, commit = _ref161.commit, dispatch = _ref161.dispatch, getters = _ref161.getters;
+                  hard = _arguments32.length > 1 && _arguments32[1] !== undefined ? _arguments32[1] : false;
+                  ids = _.cloneDeep(state.search.checkedIds);
 
-                  if (state.meta) {
-                    _context165.next = 5;
+                  if (!_.isEmpty(ids)) {
+                    _context165.next = 7;
                     break;
                   }
 
-                  _context165.next = 4;
-                  return Ti.Toast.Open("i18n:empty-data", "warn");
+                  _context165.next = 6;
+                  return Ti.Alert('i18n:del-none');
 
-                case 4:
+                case 6:
                   return _context165.abrupt("return", _context165.sent);
 
-                case 5:
-                  if (!getters.hasCurrent) {
-                    _context165.next = 16;
-                    break;
-                  }
+                case 7:
+                  // Config is hard
+                  beh = _.get(state, "config.schema.behavior") || {};
+                  hard |= beh.hardRemove;
+                  commit("setStatus", {
+                    deleting: true
+                  }); // Prepare the ids which fail to remove
 
-                  _context165.next = 8;
-                  return Wn.EditObjMeta(state.current.meta, {
-                    fields: "default",
-                    autoSave: false
-                  });
+                  failIds = {}; // Prepare the cmds
 
-                case 8:
-                  reo = _context165.sent;
-
-                  if (!_.isUndefined(reo)) {
-                    _context165.next = 11;
-                    break;
-                  }
-
-                  return _context165.abrupt("return");
-
-                case 11:
-                  // Update the current editing
-                  updates = reo.updates;
-
-                  if (_.isEmpty(updates)) {
-                    _context165.next = 15;
-                    break;
-                  }
-
+                  th_set = state.meta.id;
+                  cmdText = "thing ".concat(th_set, " delete ").concat(hard ? "-hard" : "", " -cqn -l ").concat(ids.join(" "));
                   _context165.next = 15;
-                  return dispatch("updateCurrentMetas", updates);
+                  return Wn.Sys.exec2(cmdText, {
+                    as: "json",
+                    errorAs: function errorAs(_ref162) {
+                      var data = _ref162.data;
+
+                      var id = _.trim(data);
+
+                      failIds[id] = true;
+                    }
+                  });
 
                 case 15:
-                  return _context165.abrupt("return");
+                  reo = _context165.sent;
+                  // Get the removeIds
+                  removeIds = _.filter(ids, function (id) {
+                    return !failIds[id];
+                  });
+                  console.log("removeIds:", removeIds); // Remove it from search list
 
-                case 16:
-                  _context165.next = 18;
-                  return Wn.EditObjMeta(state.meta, {
-                    fields: "auto",
-                    autoSave: true
+                  if (!_.isEmpty(removeIds)) {
+                    commit("search/removeItems", removeIds);
+                  }
+
+                  current = getters["search/currentItem"]; //console.log("getback current", current)
+                  // Update current
+
+                  _context165.next = 22;
+                  return dispatch("setCurrentThing", {
+                    meta: current
                   });
 
-                case 18:
+                case 22:
+                  commit("setStatus", {
+                    deleting: false
+                  });
+
+                case 23:
                 case "end":
                   return _context165.stop();
               }
@@ -38111,31 +39145,279 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //--------------------------------------------
 
       /***
-       * Reload files
+       * RecycleBin: restore
        */
-      reloadFiles: function reloadFiles(_ref155) {
-        var _arguments33 = arguments;
+      restoreRecycleBin: function restoreRecycleBin(_ref163) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee165() {
-          var state, commit, dispatch, getters, _ref156, _ref156$force, force, current, thingId, dirName, thSetId, oDir, dataHome, dirPath, newMeta, json, cmdText;
-
+          var state, commit, dispatch, getters, ids, th_set, cmdText, reo, current;
           return regeneratorRuntime.wrap(function _callee165$(_context166) {
             while (1) {
               switch (_context166.prev = _context166.next) {
                 case 0:
-                  state = _ref155.state, commit = _ref155.commit, dispatch = _ref155.dispatch, getters = _ref155.getters;
-                  _ref156 = _arguments33.length > 1 && _arguments33[1] !== undefined ? _arguments33[1] : {}, _ref156$force = _ref156.force, force = _ref156$force === void 0 ? false : _ref156$force;
+                  state = _ref163.state, commit = _ref163.commit, dispatch = _ref163.dispatch, getters = _ref163.getters;
+                  // Require user to select some things at first
+                  ids = state.search.checkedIds;
+
+                  if (!_.isEmpty(ids)) {
+                    _context166.next = 6;
+                    break;
+                  }
+
+                  _context166.next = 5;
+                  return Ti.Alert('i18n:thing-restore-none');
+
+                case 5:
+                  return _context166.abrupt("return", _context166.sent);
+
+                case 6:
+                  commit("setStatus", {
+                    restoring: true
+                  }); // Run command
+
+                  th_set = state.meta.id;
+                  cmdText = "thing ".concat(th_set, " restore -quiet -cqn -l ").concat(ids.join(" "));
+                  _context166.next = 11;
+                  return Wn.Sys.exec2(cmdText, {
+                    as: "json"
+                  });
+
+                case 11:
+                  reo = _context166.sent;
+                  _context166.next = 14;
+                  return dispatch("search/reload");
+
+                case 14:
+                  // Get back current
+                  current = getters["search/currentItem"]; // Update current
+
+                  _context166.next = 17;
+                  return dispatch("current/reload", current);
+
+                case 17:
+                  commit("setStatus", {
+                    restoring: false
+                  });
+
+                case 18:
+                case "end":
+                  return _context166.stop();
+              }
+            }
+          }, _callee165);
+        }))();
+      },
+      //--------------------------------------------
+
+      /***
+       * RecycleBin: clean
+       */
+      cleanRecycleBin: function cleanRecycleBin(_ref164) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee166() {
+          var state, commit, dispatch, th_set, cmdText;
+          return regeneratorRuntime.wrap(function _callee166$(_context167) {
+            while (1) {
+              switch (_context167.prev = _context167.next) {
+                case 0:
+                  state = _ref164.state, commit = _ref164.commit, dispatch = _ref164.dispatch;
+                  commit("setStatus", {
+                    cleaning: true
+                  }); // Run command
+
+                  th_set = state.meta.id;
+                  cmdText = "thing ".concat(th_set, " clean -limit 3000");
+                  _context167.next = 6;
+                  return Wn.Sys.exec2(cmdText);
+
+                case 6:
+                  commit("setStatus", {
+                    cleaning: false
+                  });
+                  _context167.next = 9;
+                  return dispatch("reload");
+
+                case 9:
+                case "end":
+                  return _context167.stop();
+              }
+            }
+          }, _callee166);
+        }))();
+      },
+      //--------------------------------------------
+      // User Interactivity
+      //--------------------------------------------
+
+      /***
+       * Open meta editor, if has current, use it
+       */
+      openMetaEditor: function openMetaEditor(_ref165) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee167() {
+          var state, getters, dispatch, reo, updates;
+          return regeneratorRuntime.wrap(function _callee167$(_context168) {
+            while (1) {
+              switch (_context168.prev = _context168.next) {
+                case 0:
+                  state = _ref165.state, getters = _ref165.getters, dispatch = _ref165.dispatch;
+
+                  if (state.meta) {
+                    _context168.next = 5;
+                    break;
+                  }
+
+                  _context168.next = 4;
+                  return Ti.Toast.Open("i18n:empty-data", "warn");
+
+                case 4:
+                  return _context168.abrupt("return", _context168.sent);
+
+                case 5:
+                  if (!getters.hasCurrent) {
+                    _context168.next = 16;
+                    break;
+                  }
+
+                  _context168.next = 8;
+                  return Wn.EditObjMeta(state.current.meta, {
+                    fields: "default",
+                    autoSave: false
+                  });
+
+                case 8:
+                  reo = _context168.sent;
+
+                  if (!_.isUndefined(reo)) {
+                    _context168.next = 11;
+                    break;
+                  }
+
+                  return _context168.abrupt("return");
+
+                case 11:
+                  // Update the current editing
+                  updates = reo.updates;
+
+                  if (_.isEmpty(updates)) {
+                    _context168.next = 15;
+                    break;
+                  }
+
+                  _context168.next = 15;
+                  return dispatch("updateCurrentMetas", updates);
+
+                case 15:
+                  return _context168.abrupt("return");
+
+                case 16:
+                  _context168.next = 18;
+                  return Wn.EditObjMeta(state.meta, {
+                    fields: "auto",
+                    autoSave: true
+                  });
+
+                case 18:
+                case "end":
+                  return _context168.stop();
+              }
+            }
+          }, _callee167);
+        }))();
+      },
+      //--------------------------------------------
+
+      /***
+       * Open current object source editor
+       */
+      openContentEditor: function openContentEditor(_ref166) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee168() {
+          var state, getters, dispatch, newContent;
+          return regeneratorRuntime.wrap(function _callee168$(_context169) {
+            while (1) {
+              switch (_context169.prev = _context169.next) {
+                case 0:
+                  state = _ref166.state, getters = _ref166.getters, dispatch = _ref166.dispatch;
+
+                  if (state.meta) {
+                    _context169.next = 5;
+                    break;
+                  }
+
+                  _context169.next = 4;
+                  return Ti.Toast.Open("i18n:empty-data", "warn");
+
+                case 4:
+                  return _context169.abrupt("return", _context169.sent);
+
+                case 5:
+                  if (!getters.hasCurrent) {
+                    _context169.next = 14;
+                    break;
+                  }
+
+                  _context169.next = 8;
+                  return Wn.EditObjContent(state.current.meta, {
+                    content: state.current.content
+                  });
+
+                case 8:
+                  newContent = _context169.sent;
+
+                  if (!_.isUndefined(newContent)) {
+                    _context169.next = 11;
+                    break;
+                  }
+
+                  return _context169.abrupt("return");
+
+                case 11:
+                  _context169.next = 13;
+                  return dispatch("current/changeContent", newContent);
+
+                case 13:
+                  return _context169.abrupt("return");
+
+                case 14:
+                  _context169.next = 16;
+                  return Ti.Toast.Open("i18n:nil-obj", "warn");
+
+                case 16:
+                  return _context169.abrupt("return", _context169.sent);
+
+                case 17:
+                case "end":
+                  return _context169.stop();
+              }
+            }
+          }, _callee168);
+        }))();
+      },
+      //--------------------------------------------
+
+      /***
+       * Reload files
+       */
+      reloadFiles: function reloadFiles(_ref167) {
+        var _arguments33 = arguments;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee169() {
+          var state, commit, dispatch, getters, _ref168, _ref168$force, force, current, thingId, dirName, thSetId, oDir, dataHome, dirPath, newMeta, json, cmdText;
+
+          return regeneratorRuntime.wrap(function _callee169$(_context170) {
+            while (1) {
+              switch (_context170.prev = _context170.next) {
+                case 0:
+                  state = _ref167.state, commit = _ref167.commit, dispatch = _ref167.dispatch, getters = _ref167.getters;
+                  _ref168 = _arguments33.length > 1 && _arguments33[1] !== undefined ? _arguments33[1] : {}, _ref168$force = _ref168.force, force = _ref168$force === void 0 ? false : _ref168$force;
                   //console.log("reloadFiles")
                   current = _.get(state.current, "meta");
                   thingId = _.get(current, "id");
                   dirName = state.filesName; // No current
 
                   if (!(!thingId || !dirName)) {
-                    _context166.next = 9;
+                    _context170.next = 9;
                     break;
                   }
 
                   commit("files/reset");
-                  _context166.next = 24;
+                  _context170.next = 24;
                   break;
 
                 case 9:
@@ -38144,7 +39426,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   oDir = state.files.meta;
 
                   if (!(!oDir || !oDir.ph || !oDir.ph.endsWith("/data/".concat(thingId, "/").concat(dirName)))) {
-                    _context166.next = 22;
+                    _context170.next = 22;
                     break;
                   }
 
@@ -38157,31 +39439,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   };
                   json = JSON.stringify(newMeta);
                   cmdText = "obj \"".concat(dataHome, "\" -IfNoExists -new '").concat(json, "' -cqno");
-                  _context166.next = 19;
+                  _context170.next = 19;
                   return Wn.Sys.exec2(cmdText, {
                     as: "json"
                   });
 
                 case 19:
-                  oDir = _context166.sent;
+                  oDir = _context170.sent;
 
                   if (oDir) {
-                    _context166.next = 22;
+                    _context170.next = 22;
                     break;
                   }
 
-                  return _context166.abrupt("return");
+                  return _context170.abrupt("return");
 
                 case 22:
-                  _context166.next = 24;
+                  _context170.next = 24;
                   return dispatch("files/reload", oDir);
 
                 case 24:
                 case "end":
-                  return _context166.stop();
+                  return _context170.stop();
               }
             }
-          }, _callee165);
+          }, _callee169);
         }))();
       },
       //--------------------------------------------
@@ -38189,75 +39471,75 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Reload search list
        */
-      reloadSearch: function reloadSearch(_ref157) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee166() {
-          var state, commit, dispatch, meta, currentId, current, _iterator88, _step88, it;
+      reloadSearch: function reloadSearch(_ref169) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee170() {
+          var state, commit, dispatch, meta, currentId, current, _iterator85, _step85, it;
 
-          return regeneratorRuntime.wrap(function _callee166$(_context167) {
+          return regeneratorRuntime.wrap(function _callee170$(_context171) {
             while (1) {
-              switch (_context167.prev = _context167.next) {
+              switch (_context171.prev = _context171.next) {
                 case 0:
-                  state = _ref157.state, commit = _ref157.commit, dispatch = _ref157.dispatch;
+                  state = _ref169.state, commit = _ref169.commit, dispatch = _ref169.dispatch;
                   meta = state.meta;
                   commit("setStatus", {
                     reloading: true
                   });
-                  _context167.next = 5;
+                  _context171.next = 5;
                   return dispatch("search/reload", meta);
 
                 case 5:
                   if (!state.current.meta) {
-                    _context167.next = 28;
+                    _context171.next = 28;
                     break;
                   }
 
                   // find new meta
                   currentId = state.current.meta.id;
                   current = null;
-                  _iterator88 = _createForOfIteratorHelper(state.search.list);
-                  _context167.prev = 9;
+                  _iterator85 = _createForOfIteratorHelper(state.search.list);
+                  _context171.prev = 9;
 
-                  _iterator88.s();
+                  _iterator85.s();
 
                 case 11:
-                  if ((_step88 = _iterator88.n()).done) {
-                    _context167.next = 18;
+                  if ((_step85 = _iterator85.n()).done) {
+                    _context171.next = 18;
                     break;
                   }
 
-                  it = _step88.value;
+                  it = _step85.value;
 
                   if (!(it.id == currentId)) {
-                    _context167.next = 16;
+                    _context171.next = 16;
                     break;
                   }
 
                   current = it;
-                  return _context167.abrupt("break", 18);
+                  return _context171.abrupt("break", 18);
 
                 case 16:
-                  _context167.next = 11;
+                  _context171.next = 11;
                   break;
 
                 case 18:
-                  _context167.next = 23;
+                  _context171.next = 23;
                   break;
 
                 case 20:
-                  _context167.prev = 20;
-                  _context167.t0 = _context167["catch"](9);
+                  _context171.prev = 20;
+                  _context171.t0 = _context171["catch"](9);
 
-                  _iterator88.e(_context167.t0);
+                  _iterator85.e(_context171.t0);
 
                 case 23:
-                  _context167.prev = 23;
+                  _context171.prev = 23;
 
-                  _iterator88.f();
+                  _iterator85.f();
 
-                  return _context167.finish(23);
+                  return _context171.finish(23);
 
                 case 26:
-                  _context167.next = 28;
+                  _context171.next = 28;
                   return dispatch("setCurrentThing", {
                     meta: current
                   });
@@ -38269,10 +39551,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 29:
                 case "end":
-                  return _context167.stop();
+                  return _context171.stop();
               }
             }
-          }, _callee166, null, [[9, 20, 23, 26]]);
+          }, _callee170, null, [[9, 20, 23, 26]]);
         }))();
       },
       //--------------------------------------------
@@ -38282,21 +39564,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
        * 
        * It will load content if "content" is shown
        */
-      setCurrentThing: function setCurrentThing(_ref158) {
+      setCurrentThing: function setCurrentThing(_ref170) {
         var _arguments34 = arguments;
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee167() {
-          var state, commit, dispatch, _ref159, _ref159$meta, meta, _ref159$checkedIds, checkedIds, curId, ckIds, home, dataHome;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee171() {
+          var state, commit, dispatch, _ref171, _ref171$meta, meta, _ref171$checkedIds, checkedIds, curId, ckIds, home, dataHome, dataHomeObj, lastKey;
 
-          return regeneratorRuntime.wrap(function _callee167$(_context168) {
+          return regeneratorRuntime.wrap(function _callee171$(_context172) {
             while (1) {
-              switch (_context168.prev = _context168.next) {
+              switch (_context172.prev = _context172.next) {
                 case 0:
-                  state = _ref158.state, commit = _ref158.commit, dispatch = _ref158.dispatch;
-                  _ref159 = _arguments34.length > 1 && _arguments34[1] !== undefined ? _arguments34[1] : {}, _ref159$meta = _ref159.meta, meta = _ref159$meta === void 0 ? null : _ref159$meta, _ref159$checkedIds = _ref159.checkedIds, checkedIds = _ref159$checkedIds === void 0 ? {} : _ref159$checkedIds;
-                  _context168.next = 4;
-                  return dispatch("current/reload", meta);
-
-                case 4:
+                  state = _ref170.state, commit = _ref170.commit, dispatch = _ref170.dispatch;
+                  _ref171 = _arguments34.length > 1 && _arguments34[1] !== undefined ? _arguments34[1] : {}, _ref171$meta = _ref171.meta, meta = _ref171$meta === void 0 ? null : _ref171$meta, _ref171$checkedIds = _ref171.checkedIds, checkedIds = _ref171$checkedIds === void 0 ? {} : _ref171$checkedIds;
                   //..........................................
                   // Update selected item in search list
                   curId = meta ? meta.id : null;
@@ -38312,14 +39590,36 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   home = state.meta;
                   dataHome = curId ? "id:".concat(home.id, "/data/").concat(curId) : null;
-                  commit("setCurrentDataHome", dataHome); //..........................................
+                  commit("setCurrentDataHome", dataHome); // Try get current dataHomeObj
+
+                  _context172.next = 12;
+                  return Wn.Io.loadMeta(dataHome);
 
                 case 12:
+                  dataHomeObj = _context172.sent;
+                  commit("setCurrentDataHomeObj", dataHomeObj); //..........................................
+                  // Keep last
+
+                  lastKey = "".concat(home.id, ":currentId");
+
+                  if (!_.get(state.config.schema, "keepLastOff")) {
+                    Ti.Storage.session.set(lastKey, curId);
+                  } // Clean local storage
+                  else {
+                      Ti.Storage.session.remove(lastKey);
+                    } //..........................................
+                  // Reload Current
+
+
+                  _context172.next = 18;
+                  return dispatch("current/reload", meta);
+
+                case 18:
                 case "end":
-                  return _context168.stop();
+                  return _context172.stop();
               }
             }
-          }, _callee167);
+          }, _callee171);
         }))();
       },
       //--------------------------------------------
@@ -38329,23 +39629,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
        * 
        * If show content/files, it may check if need to be reload data
        */
-      doChangeShown: function doChangeShown(_ref160, shown) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee168() {
+      doChangeShown: function doChangeShown(_ref172, shown) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee172() {
           var state, commit, dispatch;
-          return regeneratorRuntime.wrap(function _callee168$(_context169) {
+          return regeneratorRuntime.wrap(function _callee172$(_context173) {
             while (1) {
-              switch (_context169.prev = _context169.next) {
+              switch (_context173.prev = _context173.next) {
                 case 0:
-                  state = _ref160.state, commit = _ref160.commit, dispatch = _ref160.dispatch;
+                  state = _ref172.state, commit = _ref172.commit, dispatch = _ref172.dispatch;
                   // Just mark the shown
                   dispatch("config/updateShown", shown);
 
                 case 2:
                 case "end":
-                  return _context169.stop();
+                  return _context173.stop();
               }
             }
-          }, _callee168);
+          }, _callee172);
         }))();
       },
       //--------------------------------------------
@@ -38353,14 +39653,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       /***
        * Reload All
        */
-      reload: function reload(_ref161, meta) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee169() {
-          var state, commit, dispatch, local, filter, sorter, current;
-          return regeneratorRuntime.wrap(function _callee169$(_context170) {
+      reload: function reload(_ref173, meta) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee173() {
+          var state, commit, dispatch, home, local, filter, sorter, lastKey, curId, current;
+          return regeneratorRuntime.wrap(function _callee173$(_context174) {
             while (1) {
-              switch (_context170.prev = _context170.next) {
+              switch (_context174.prev = _context174.next) {
                 case 0:
-                  state = _ref161.state, commit = _ref161.commit, dispatch = _ref161.dispatch;
+                  state = _ref173.state, commit = _ref173.commit, dispatch = _ref173.dispatch;
 
                   //console.log("thing-manager.reload", state)
                   // Update New Meta
@@ -38369,18 +39669,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   } // Get meta back
                   else {
                       meta = state.meta;
-                    } // Mark reloading
+                    } // meta is home
 
+
+                  home = meta; // Mark reloading
 
                   commit("setStatus", {
                     reloading: true
                   }); // Reload Config
                   //console.log("reload config")
 
-                  _context170.next = 5;
+                  _context174.next = 6;
                   return dispatch("config/reload", meta);
 
-                case 5:
+                case 6:
                   // Load local status
                   local = Ti.Storage.session.getObject(meta.id) || {};
 
@@ -38396,14 +39698,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   if (!_.isEmpty(filter)) {
                     commit("search/setFilter", filter);
-                  }
+                  } // Sorter
+
 
                   sorter = _.get(state.config.schema, "behavior.sorter") || {};
-                  sorter = _.assign({}, sorter, local.sorter);
 
-                  if (!_.isEmpty(sorter)) {
+                  if (!_.isEmpty(local.sorter)) {
+                    commit("search/setSorter", local.sorter);
+                  } else if (!_.isEmpty(sorter)) {
                     commit("search/setSorter", sorter);
-                  }
+                  } // Pager
+
 
                   if (!_.isEmpty(local.pager)) {
                     commit("search/setPager", local.pager);
@@ -38411,39 +39716,48 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   //console.log("reload search")
 
 
-                  _context170.next = 16;
+                  _context174.next = 16;
                   return dispatch("reloadSearch");
 
                 case 16:
                   if (!_.get(state, "meta.th_auto_select")) {
-                    _context170.next = 21;
+                    _context174.next = 24;
                     break;
                   }
 
                   if (!(!state.current.meta && !_.isEmpty(state.search.list))) {
-                    _context170.next = 21;
+                    _context174.next = 24;
                     break;
                   }
 
-                  current = state.search.list[0];
-                  _context170.next = 21;
+                  // Get last
+                  lastKey = "".concat(home.id, ":currentId");
+                  curId = Ti.Storage.session.getString(lastKey);
+                  // Find by id
+                  if (curId) current = _.find(state.search.list, function (li) {
+                    return li.id == curId;
+                  }); // use the first one
+
+                  if (!current) current = _.first(state.search.list); // Highlight it
+
+                  _context174.next = 24;
                   return dispatch("setCurrentThing", {
                     meta: current,
                     force: false
                   });
 
-                case 21:
+                case 24:
                   // All done
                   commit("setStatus", {
                     reloading: false
                   });
 
-                case 22:
+                case 25:
                 case "end":
-                  return _context170.stop();
+                  return _context174.stop();
               }
             }
-          }, _callee169);
+          }, _callee173);
         }))();
       } //--------------------------------------------
 
@@ -38458,6 +39772,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "meta": null,
     "currentDataDir": "media",
     "currentDataHome": null,
+    "currentDataHomeObj": null,
     "status": {
       "reloading": false,
       "doing": false,
@@ -38495,6 +39810,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         setCurrentDataHome: function setCurrentDataHome(state, dataHome) {
           state.currentDataHome = dataHome;
         },
+        setCurrentDataHomeObj: function setCurrentDataHomeObj(state, dataHomeObj) {
+          state.currentDataHomeObj = _.cloneDeep(dataHomeObj);
+        },
         setStatus: function setStatus(state, status) {
           state.status = _.assign({}, state.status, status);
         },
@@ -38518,45 +39836,45 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     ////////////////////////////////////////////////
     var _M = {
       //----------------------------------------
-      updateShown: function updateShown(_ref162, shown) {
-        var commit = _ref162.commit;
+      updateShown: function updateShown(_ref174, shown) {
+        var commit = _ref174.commit;
         commit("mergeShown", shown);
         commit("persistShown");
       },
       //----------------------------------------
-      reloadSchema: function reloadSchema(_ref163) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee170() {
+      reloadSchema: function reloadSchema(_ref175) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee174() {
           var state, commit, aph, obj, schema, methods;
-          return regeneratorRuntime.wrap(function _callee170$(_context171) {
+          return regeneratorRuntime.wrap(function _callee174$(_context175) {
             while (1) {
-              switch (_context171.prev = _context171.next) {
+              switch (_context175.prev = _context175.next) {
                 case 0:
-                  state = _ref163.state, commit = _ref163.commit;
+                  state = _ref175.state, commit = _ref175.commit;
                   //console.log("reloadSchema")
                   aph = "id:".concat(state.meta.id, "/thing-schema.json");
-                  _context171.next = 4;
+                  _context175.next = 4;
                   return Wn.Io.loadMeta(aph);
 
                 case 4:
-                  obj = _context171.sent;
-                  _context171.next = 7;
+                  obj = _context175.sent;
+                  _context175.next = 7;
                   return Wn.Io.loadContent(obj, {
                     as: "json"
                   });
 
                 case 7:
-                  schema = _context171.sent;
+                  schema = _context175.sent;
 
                   if (!schema.methods) {
-                    _context171.next = 14;
+                    _context175.next = 14;
                     break;
                   }
 
-                  _context171.next = 11;
+                  _context175.next = 11;
                   return Ti.Load(schema.methods);
 
                 case 11:
-                  methods = _context171.sent;
+                  methods = _context175.sent;
 
                   if (!_.isArray(methods)) {
                     methods = [methods];
@@ -38567,97 +39885,97 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 case 14:
                   //console.log("setSchema", schema)
                   commit("setSchema", schema);
-                  return _context171.abrupt("return", schema);
+                  return _context175.abrupt("return", schema);
 
                 case 16:
                 case "end":
-                  return _context171.stop();
+                  return _context175.stop();
               }
             }
-          }, _callee170);
+          }, _callee174);
         }))();
       },
       //----------------------------------------
-      reloadLayout: function reloadLayout(_ref164) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee171() {
+      reloadLayout: function reloadLayout(_ref176) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee175() {
           var state, commit, aph, obj, json;
-          return regeneratorRuntime.wrap(function _callee171$(_context172) {
+          return regeneratorRuntime.wrap(function _callee175$(_context176) {
             while (1) {
-              switch (_context172.prev = _context172.next) {
+              switch (_context176.prev = _context176.next) {
                 case 0:
-                  state = _ref164.state, commit = _ref164.commit;
+                  state = _ref176.state, commit = _ref176.commit;
                   //console.log("reloadLayout")
                   aph = "id:".concat(state.meta.id, "/thing-layout.json");
-                  _context172.next = 4;
+                  _context176.next = 4;
                   return Wn.Io.loadMeta(aph);
 
                 case 4:
-                  obj = _context172.sent;
-                  _context172.next = 7;
+                  obj = _context176.sent;
+                  _context176.next = 7;
                   return Wn.Io.loadContent(obj, {
                     as: "json"
                   });
 
                 case 7:
-                  json = _context172.sent;
+                  json = _context176.sent;
                   //console.log("setLayout", json)
                   commit("setLayout", json); // Load shown from local before reload config
 
                   commit("restoreShown");
-                  return _context172.abrupt("return", json);
+                  return _context176.abrupt("return", json);
 
                 case 11:
                 case "end":
-                  return _context172.stop();
+                  return _context176.stop();
               }
             }
-          }, _callee171);
+          }, _callee175);
         }))();
       },
       //----------------------------------------
-      reloadActions: function reloadActions(_ref165) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee172() {
+      reloadActions: function reloadActions(_ref177) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee176() {
           var state, commit, aph, obj, json;
-          return regeneratorRuntime.wrap(function _callee172$(_context173) {
+          return regeneratorRuntime.wrap(function _callee176$(_context177) {
             while (1) {
-              switch (_context173.prev = _context173.next) {
+              switch (_context177.prev = _context177.next) {
                 case 0:
-                  state = _ref165.state, commit = _ref165.commit;
+                  state = _ref177.state, commit = _ref177.commit;
                   // console.log("reloadActions")
                   aph = "id:".concat(state.meta.id, "/thing-actions.json");
-                  _context173.next = 4;
+                  _context177.next = 4;
                   return Wn.Io.loadMeta(aph);
 
                 case 4:
-                  obj = _context173.sent;
-                  _context173.next = 7;
+                  obj = _context177.sent;
+                  _context177.next = 7;
                   return Wn.Io.loadContent(obj, {
                     as: "json"
                   });
 
                 case 7:
-                  json = _context173.sent;
+                  json = _context177.sent;
                   //console.log("setActions", json)
                   commit("setActions", json);
-                  return _context173.abrupt("return", json);
+                  return _context177.abrupt("return", json);
 
                 case 10:
                 case "end":
-                  return _context173.stop();
+                  return _context177.stop();
               }
             }
-          }, _callee172);
+          }, _callee176);
         }))();
       },
       //----------------------------------------
-      reload: function reload(_ref166, meta) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee173() {
+      reload: function reload(_ref178, meta) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee177() {
           var state, commit, dispatch;
-          return regeneratorRuntime.wrap(function _callee173$(_context174) {
+          return regeneratorRuntime.wrap(function _callee177$(_context178) {
             while (1) {
-              switch (_context174.prev = _context174.next) {
+              switch (_context178.prev = _context178.next) {
                 case 0:
-                  state = _ref166.state, commit = _ref166.commit, dispatch = _ref166.dispatch;
+                  state = _ref178.state, commit = _ref178.commit, dispatch = _ref178.dispatch;
 
                   //console.log("thing-manager-config.reload", state)
                   // Update New Meta
@@ -38672,15 +39990,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   commit("setStatus", {
                     reloading: true
                   });
-                  _context174.next = 5;
+                  _context178.next = 5;
                   return dispatch("reloadSchema");
 
                 case 5:
-                  _context174.next = 7;
+                  _context178.next = 7;
                   return dispatch("reloadLayout");
 
                 case 7:
-                  _context174.next = 9;
+                  _context178.next = 9;
                   return dispatch("reloadActions");
 
                 case 9:
@@ -38691,10 +40009,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 10:
                 case "end":
-                  return _context174.stop();
+                  return _context178.stop();
               }
             }
-          }, _callee173);
+          }, _callee177);
         }))();
       } //----------------------------------------
 
@@ -38792,36 +40110,36 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     ////////////////////////////////////////////////
     var _M = {
       //--------------------------------------------
-      reloadPage: function reloadPage(_ref167, pg) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee174() {
+      reloadPage: function reloadPage(_ref179, pg) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee178() {
           var state, commit, dispatch;
-          return regeneratorRuntime.wrap(function _callee174$(_context175) {
+          return regeneratorRuntime.wrap(function _callee178$(_context179) {
             while (1) {
-              switch (_context175.prev = _context175.next) {
+              switch (_context179.prev = _context179.next) {
                 case 0:
-                  state = _ref167.state, commit = _ref167.commit, dispatch = _ref167.dispatch;
+                  state = _ref179.state, commit = _ref179.commit, dispatch = _ref179.dispatch;
                   commit("updatePager", pg);
-                  _context175.next = 4;
+                  _context179.next = 4;
                   return dispatch("reload");
 
                 case 4:
                 case "end":
-                  return _context175.stop();
+                  return _context179.stop();
               }
             }
-          }, _callee174);
+          }, _callee178);
         }))();
       },
       //--------------------------------------------
-      reload: function reload(_ref168, meta) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee175() {
-          var state, commit, rootState, cmds, _ref169, keyword, match, flt, knm, beh, keys, _iterator89, _step89, k, val, sort, pg, limit, skip, input, cmdText, reo;
+      reload: function reload(_ref180, meta) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee179() {
+          var state, commit, rootState, cmds, _ref181, keyword, match, flt, knm, beh, keys, _iterator86, _step86, k, val, sort, pg, limit, skip, input, cmdText, reo;
 
-          return regeneratorRuntime.wrap(function _callee175$(_context176) {
+          return regeneratorRuntime.wrap(function _callee179$(_context180) {
             while (1) {
-              switch (_context176.prev = _context176.next) {
+              switch (_context180.prev = _context180.next) {
                 case 0:
-                  state = _ref168.state, commit = _ref168.commit, rootState = _ref168.rootState;
+                  state = _ref180.state, commit = _ref180.commit, rootState = _ref180.rootState;
 
                   //console.log("thing-manager-search.reload", meta)
                   //............................................
@@ -38840,73 +40158,82 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }); //............................................
 
                   cmds = ["thing id:".concat(meta.id, " query -pager -cqn")];
-                  _ref169 = state.filter || {}, keyword = _ref169.keyword, match = _ref169.match;
+                  _ref181 = state.filter || {}, keyword = _ref181.keyword, match = _ref181.match;
                   flt = {}; //............................................
                   // Eval Filter: keyword
 
                   if (!keyword) {
-                    _context176.next = 34;
+                    _context180.next = 34;
                     break;
                   }
 
                   if (!/^[0-9a-z]{32}$/.test(keyword)) {
-                    _context176.next = 11;
+                    _context180.next = 11;
                     break;
                   }
 
                   flt.id = keyword;
-                  _context176.next = 34;
+                  _context180.next = 34;
                   break;
 
                 case 11:
                   knm = "title";
                   beh = _.get(rootState, "main.config.schema.behavior") || {};
-                  keys = _.keys(beh.keyword);
-                  _iterator89 = _createForOfIteratorHelper(keys);
-                  _context176.prev = 15;
+                  keys = _.keys(beh.keyword); //........................................
 
-                  _iterator89.s();
+                  _iterator86 = _createForOfIteratorHelper(keys);
+                  _context180.prev = 15;
+
+                  _iterator86.s();
 
                 case 17:
-                  if ((_step89 = _iterator89.n()).done) {
-                    _context176.next = 25;
+                  if ((_step86 = _iterator86.n()).done) {
+                    _context180.next = 25;
                     break;
                   }
 
-                  k = _step89.value;
+                  k = _step86.value;
                   val = beh.keyword[k];
 
                   if (!new RegExp(val).test(keyword)) {
-                    _context176.next = 23;
+                    _context180.next = 23;
                     break;
                   }
 
                   knm = k;
-                  return _context176.abrupt("break", 25);
+                  return _context180.abrupt("break", 25);
 
                 case 23:
-                  _context176.next = 17;
+                  _context180.next = 17;
                   break;
 
                 case 25:
-                  _context176.next = 30;
+                  _context180.next = 30;
                   break;
 
                 case 27:
-                  _context176.prev = 27;
-                  _context176.t0 = _context176["catch"](15);
+                  _context180.prev = 27;
+                  _context180.t0 = _context180["catch"](15);
 
-                  _iterator89.e(_context176.t0);
+                  _iterator86.e(_context180.t0);
 
                 case 30:
-                  _context176.prev = 30;
+                  _context180.prev = 30;
 
-                  _iterator89.f();
+                  _iterator86.f();
 
-                  return _context176.finish(30);
+                  return _context180.finish(30);
 
                 case 33:
-                  flt[knm] = "^.*" + keyword;
+                  //........................................
+                  // Accurate equal
+                  if (knm.startsWith("=")) {
+                    flt[knm.substring(1).trim()] = keyword;
+                  } // Default is like
+                  else {
+                      flt[knm] = "^.*" + keyword;
+                    } //........................................
+
 
                 case 34:
                   // Eval Filter: match
@@ -38938,14 +40265,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   input = _.isEmpty(flt) ? undefined : JSON.stringify(flt);
                   cmdText = cmds.join(" ");
-                  _context176.next = 43;
+                  _context180.next = 43;
                   return Wn.Sys.exec2(cmdText, {
                     input: input,
                     as: "json"
                   });
 
                 case 43:
-                  reo = _context176.sent;
+                  reo = _context180.sent;
                   //............................................
                   // All done
                   commit("setPager", reo.pager);
@@ -38956,10 +40283,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 47:
                 case "end":
-                  return _context176.stop();
+                  return _context180.stop();
               }
             }
-          }, _callee175, null, [[15, 27, 30, 33]]);
+          }, _callee179, null, [[15, 27, 30, 33]]);
         }))();
       } //--------------------------------------------
 
@@ -39023,21 +40350,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //---------------------------------------------------
         currentItem: function currentItem(state) {
           if (state.currentId) {
-            var _iterator90 = _createForOfIteratorHelper(state.list),
-                _step90;
+            var _iterator87 = _createForOfIteratorHelper(state.list),
+                _step87;
 
             try {
-              for (_iterator90.s(); !(_step90 = _iterator90.n()).done;) {
-                var it = _step90.value;
+              for (_iterator87.s(); !(_step87 = _iterator87.n()).done;) {
+                var it = _step87.value;
 
                 if (it.id == state.currentId) {
                   return it;
                 }
               }
             } catch (err) {
-              _iterator90.e(err);
+              _iterator87.e(err);
             } finally {
-              _iterator90.f();
+              _iterator87.f();
             }
           }
 
@@ -39048,29 +40375,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           // Make the idsMap
           var checkedMap = {};
 
-          var _iterator91 = _createForOfIteratorHelper(state.checkedIds),
-              _step91;
+          var _iterator88 = _createForOfIteratorHelper(state.checkedIds),
+              _step88;
 
           try {
-            for (_iterator91.s(); !(_step91 = _iterator91.n()).done;) {
-              var id = _step91.value;
+            for (_iterator88.s(); !(_step88 = _iterator88.n()).done;) {
+              var id = _step88.value;
               checkedMap[id] = true;
             } // Join the items
 
           } catch (err) {
-            _iterator91.e(err);
+            _iterator88.e(err);
           } finally {
-            _iterator91.f();
+            _iterator88.f();
           }
 
           var list = [];
 
-          var _iterator92 = _createForOfIteratorHelper(state.list),
-              _step92;
+          var _iterator89 = _createForOfIteratorHelper(state.list),
+              _step89;
 
           try {
-            for (_iterator92.s(); !(_step92 = _iterator92.n()).done;) {
-              var it = _step92.value;
+            for (_iterator89.s(); !(_step89 = _iterator89.n()).done;) {
+              var it = _step89.value;
 
               if (checkedMap[it.id]) {
                 list.push(it);
@@ -39078,9 +40405,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             } // done
 
           } catch (err) {
-            _iterator92.e(err);
+            _iterator89.e(err);
           } finally {
-            _iterator92.f();
+            _iterator89.f();
           }
 
           return list;
@@ -39153,6 +40480,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         removeItems: function removeItems(state) {
           var ids = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
           // Find the current item index, and take as the next Item index
+          //console.log("search.remove", ids)
           var index = -1;
 
           if (state.currentId) {
@@ -39169,29 +40497,33 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var idsMap = {};
 
-          var _iterator93 = _createForOfIteratorHelper(ids),
-              _step93;
+          if (_.isArray(ids)) {
+            var _iterator90 = _createForOfIteratorHelper(ids),
+                _step90;
 
-          try {
-            for (_iterator93.s(); !(_step93 = _iterator93.n()).done;) {
-              var id = _step93.value;
-              idsMap[id] = true;
-            } // Remove the ids
+            try {
+              for (_iterator90.s(); !(_step90 = _iterator90.n()).done;) {
+                var id = _step90.value;
+                idsMap[id] = true;
+              }
+            } catch (err) {
+              _iterator90.e(err);
+            } finally {
+              _iterator90.f();
+            }
+          } else if (_.isPlainObject(ids)) {
+            idsMap = ids;
+          } // Remove the ids
 
-          } catch (err) {
-            _iterator93.e(err);
-          } finally {
-            _iterator93.f();
-          }
 
           var list2 = [];
 
-          var _iterator94 = _createForOfIteratorHelper(state.list),
-              _step94;
+          var _iterator91 = _createForOfIteratorHelper(state.list),
+              _step91;
 
           try {
-            for (_iterator94.s(); !(_step94 = _iterator94.n()).done;) {
-              var _it = _step94.value;
+            for (_iterator91.s(); !(_step91 = _iterator91.n()).done;) {
+              var _it = _step91.value;
 
               if (!idsMap[_it.id]) {
                 list2.push(_it);
@@ -39199,9 +40531,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             } // Then get back the current
 
           } catch (err) {
-            _iterator94.e(err);
+            _iterator91.e(err);
           } finally {
-            _iterator94.f();
+            _iterator91.f();
           }
 
           index = Math.min(index, list2.length - 1);
@@ -39230,12 +40562,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         updateItem: function updateItem(state, it) {
           var list = [];
 
-          var _iterator95 = _createForOfIteratorHelper(state.list),
-              _step95;
+          var _iterator92 = _createForOfIteratorHelper(state.list),
+              _step92;
 
           try {
-            for (_iterator95.s(); !(_step95 = _iterator95.n()).done;) {
-              var li = _step95.value;
+            for (_iterator92.s(); !(_step92 = _iterator92.n()).done;) {
+              var li = _step92.value;
 
               if (li.id == it.id) {
                 list.push(_objectSpread({}, it, {
@@ -39246,9 +40578,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
             }
           } catch (err) {
-            _iterator95.e(err);
+            _iterator92.e(err);
           } finally {
-            _iterator95.f();
+            _iterator92.f();
           }
 
           state.list = list;
@@ -39306,6 +40638,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   (function () {
     var _M = {
       /////////////////////////////////////////
+      provide: function provide() {
+        return Ti.Util.explainObj(this.provide, this);
+      },
+      /////////////////////////////////////////
       computed: _objectSpread({}, Vuex.mapState({
         "siteId": function siteId(state) {
           return state.siteId;
@@ -39319,11 +40655,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "page": function page(state) {
           return state.page;
         },
+        "shop": function shop(state) {
+          return state.shop;
+        },
         "auth": function auth(state) {
           return state.auth;
         },
         "domain": function domain(state) {
           return state.domain;
+        },
+        "rs": function rs(state) {
+          return state.rs;
         },
         "base": function base(state) {
           return state.base;
@@ -39340,16 +40682,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "schema": function schema(state) {
           return state.schema;
         },
+        "provide": function provide(state) {
+          return state.provide;
+        },
         "blocks": function blocks(state) {
           return state.blocks;
         },
         "loading": function loading(state) {
           return state.loading;
         },
-        "isReady": function isReady(state) {
-          return state.isReady;
+        "pageReady": function pageReady(state) {
+          return state.pageReady;
         }
       }), {}, Vuex.mapGetters(["actions", "getUrl", "getApiUrl"]), {}, Vuex.mapGetters("page", ["pageLink"]), {
+        //-------------------------------------
+        PayReturnUrl: function PayReturnUrl() {
+          var st = this.$store.state;
+
+          if (st.payReturnUrl) {
+            return Ti.Util.explainObj(st, st.payReturnUrl);
+          }
+        },
         //-------------------------------------
         SiteLogo: function SiteLogo() {
           if (this.logo && /\.(png|jpe?g)$/.test(this.logo)) return this.getUrl(this.logo);
@@ -39358,12 +40711,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //-------------------------------------
         // Page Navigation
         SiteNav: function SiteNav() {
-          var _this201 = this;
+          var _this216 = this;
 
           var nav = {};
 
           _.forEach(this.$store.state.nav, function (v, k) {
-            nav[k] = Ti.WWW.explainNavigation(v, _this201.base);
+            nav[k] = Ti.WWW.explainNavigation(v, _this216.base);
           });
 
           return nav;
@@ -39394,7 +40747,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         //-------------------------------------
         // Format current pageGUI
         PageGUI: function PageGUI() {
-          var _this202 = this;
+          var _this217 = this;
 
           var page = this.page; //.....................................
           // Without current page
@@ -39417,7 +40770,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 if (m) {
                   var blockName = m[1];
-                  return _.get(_this202.blocks, blockName);
+                  return _.get(_this217.blocks, blockName);
                 }
               } // Array 
               else if (_.isArray(anyValue)) {
@@ -39447,6 +40800,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           _.assign(gui.schema, this.schema, page.schema); //.....................................
           // explain it
+          //console.log("site-main: explain it!", gui);
 
 
           var theGUI = Ti.Util.explainObj(this, gui, {
@@ -39461,50 +40815,50 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       methods: {
         //--------------------------------------
         showBlock: function showBlock(name) {
-          var _this203 = this;
+          var _this218 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee176() {
-            return regeneratorRuntime.wrap(function _callee176$(_context177) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee180() {
+            return regeneratorRuntime.wrap(function _callee180$(_context181) {
               while (1) {
-                switch (_context177.prev = _context177.next) {
+                switch (_context181.prev = _context181.next) {
                   case 0:
-                    Ti.App(_this203).dispatch("page/showBlock", name);
+                    Ti.App(_this218).dispatch("page/showBlock", name);
 
                   case 1:
                   case "end":
-                    return _context177.stop();
+                    return _context181.stop();
                 }
               }
-            }, _callee176);
+            }, _callee180);
           }))();
         },
         //--------------------------------------
         hideBlock: function hideBlock(name) {
-          var _this204 = this;
+          var _this219 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee177() {
-            return regeneratorRuntime.wrap(function _callee177$(_context178) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee181() {
+            return regeneratorRuntime.wrap(function _callee181$(_context182) {
               while (1) {
-                switch (_context178.prev = _context178.next) {
+                switch (_context182.prev = _context182.next) {
                   case 0:
-                    Ti.App(_this204).dispatch("page/hideBlock", name);
+                    Ti.App(_this219).dispatch("page/hideBlock", name);
 
                   case 1:
                   case "end":
-                    return _context178.stop();
+                    return _context182.stop();
                 }
               }
-            }, _callee177);
+            }, _callee181);
           }))();
         },
         //-------------------------------------
         // Handle by EventBubble
         __on_events: function __on_events(name) {
           var _console,
-              _this205 = this;
+              _this220 = this;
 
-          for (var _len4 = arguments.length, args = new Array(_len4 > 1 ? _len4 - 1 : 0), _key7 = 1; _key7 < _len4; _key7++) {
-            args[_key7 - 1] = arguments[_key7];
+          for (var _len5 = arguments.length, args = new Array(_len5 > 1 ? _len5 - 1 : 0), _key8 = 1; _key8 < _len5; _key8++) {
+            args[_key8 - 1] = arguments[_key8];
           }
 
           (_console = console).log.apply(_console, ["site-main.__on_events", name].concat(args)); // ShowBlock
@@ -39512,167 +40866,48 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           if ("block:show" == name) {
             return function (blockName) {
-              return _this205.showBlock(blockName);
+              return _this220.showBlock(blockName);
             };
           } // HideBlock
           else if ("block:hide" == name) {
               return function (blockName) {
-                return _this205.hideBlock(blockName);
+                return _this220.hideBlock(blockName);
               };
             } // Dispatch actions
             else {
                 return function () {
-                  for (var _len5 = arguments.length, args = new Array(_len5), _key8 = 0; _key8 < _len5; _key8++) {
-                    args[_key8] = arguments[_key8];
+                  for (var _len6 = arguments.length, args = new Array(_len6), _key9 = 0; _key9 < _len6; _key9++) {
+                    args[_key9] = arguments[_key9];
                   }
 
-                  _this205.invokeAction(name, args);
+                  _this220.invokeAction(name, args);
                 };
               }
         },
         //-------------------------------------
         invokeAction: function invokeAction(name) {
           var _arguments35 = arguments,
-              _this206 = this;
+              _this221 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee178() {
-            var args, AT, canNames, _canNames, _canNames2, _names2, aName, app, _iterator96, _step96, a;
-
-            return regeneratorRuntime.wrap(function _callee178$(_context179) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee182() {
+            var args;
+            return regeneratorRuntime.wrap(function _callee182$(_context183) {
               while (1) {
-                switch (_context179.prev = _context179.next) {
+                switch (_context183.prev = _context183.next) {
                   case 0:
                     args = _arguments35.length > 1 && _arguments35[1] !== undefined ? _arguments35[1] : [];
-
-                    /*
-                    The action should like
-                    {
-                      action : "xx/xx",
-                      payload : {} | [] | ...
-                    } 
-                    */
-                    AT = _.get(_this206.actions, name); // Try fallback
-
-                    if (AT) {
-                      _context179.next = 13;
-                      break;
-                    }
-
-                    canNames = _.split(name, "::");
-
-                  case 4:
-                    if (!(canNames.length > 1)) {
-                      _context179.next = 13;
-                      break;
-                    }
-
-                    _canNames = canNames, _canNames2 = _toArray(_canNames), _names2 = _canNames2.slice(1);
-                    aName = _names2.join("::");
-                    AT = _.get(_this206.actions, aName);
-
-                    if (!AT) {
-                      _context179.next = 10;
-                      break;
-                    }
-
-                    return _context179.abrupt("break", 13);
-
-                  case 10:
-                    canNames = _names2;
-                    _context179.next = 4;
-                    break;
-
-                  case 13:
-                    if (AT) {
-                      _context179.next = 15;
-                      break;
-                    }
-
-                    return _context179.abrupt("return");
-
-                  case 15:
-                    // Prepare
-                    app = Ti.App(_this206); // Batch call
-
-                    if (!_.isArray(AT)) {
-                      _context179.next = 36;
-                      break;
-                    }
-
-                    _iterator96 = _createForOfIteratorHelper(AT);
-                    _context179.prev = 18;
-
-                    _iterator96.s();
-
-                  case 20:
-                    if ((_step96 = _iterator96.n()).done) {
-                      _context179.next = 26;
-                      break;
-                    }
-
-                    a = _step96.value;
-                    _context179.next = 24;
-                    return app.dispatch("doAction", {
-                      action: a.action,
-                      payload: a.payload,
+                    _context183.next = 3;
+                    return Ti.App(_this221).dispatch("invokeAction", {
+                      name: name,
                       args: args
                     });
 
-                  case 24:
-                    _context179.next = 20;
-                    break;
-
-                  case 26:
-                    _context179.next = 31;
-                    break;
-
-                  case 28:
-                    _context179.prev = 28;
-                    _context179.t0 = _context179["catch"](18);
-
-                    _iterator96.e(_context179.t0);
-
-                  case 31:
-                    _context179.prev = 31;
-
-                    _iterator96.f();
-
-                    return _context179.finish(31);
-
-                  case 34:
-                    _context179.next = 43;
-                    break;
-
-                  case 36:
-                    if (!_.isString(AT)) {
-                      _context179.next = 41;
-                      break;
-                    }
-
-                    _context179.next = 39;
-                    return app.dispatch("doAction", {
-                      action: AT,
-                      args: args
-                    });
-
-                  case 39:
-                    _context179.next = 43;
-                    break;
-
-                  case 41:
-                    _context179.next = 43;
-                    return app.dispatch("doAction", {
-                      action: AT.action,
-                      payload: AT.payload,
-                      args: args
-                    });
-
-                  case 43:
+                  case 3:
                   case "end":
-                    return _context179.stop();
+                    return _context183.stop();
                 }
               }
-            }, _callee178, null, [[18, 28, 31, 34]]);
+            }, _callee182);
           }))();
         },
         //-------------------------------------
@@ -39705,17 +40940,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var pageTitle = Ti.Util.explainObj(this, this.page.title);
           document.title = pageTitle;
           this.pushBrowserHistory(); // TODO : Maybe here to embed the BaiDu Tongji Code
-        },
-        "isReady": function isReady(current, old) {
-          //console.log("isReady", old, "->", current)
-          if (true === current && false === old) {
-            this.invokeAction("@page:ready", {});
-          }
         }
       },
       /////////////////////////////////////////
       mounted: function mounted() {
-        var _this207 = this;
+        var _this222 = this;
 
         // Watch the browser "Forward/Backward"
         // The state(page) pushed by $store.dispath("navTo")
@@ -39724,7 +40953,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           if (page && page.path) {
             console.log("window.onpopstate", page);
-            var app = Ti.App(_this207);
+            var app = Ti.App(_this222);
             app.dispatch("navTo", {
               type: "page",
               value: page.path,
@@ -39822,17 +41051,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ////////////////////////////////////////////////
       actions: {
         //--------------------------------------------
-        doCheckMe: function doCheckMe(_ref170) {
+        doCheckMe: function doCheckMe(_ref182) {
           var _arguments36 = arguments;
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee179() {
-            var state, commit, dispatch, getters, rootState, _ref171, _ref171$force, force, success, fail, nophone, siteId, ticket, reo, me;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee183() {
+            var state, commit, dispatch, getters, rootState, _ref183, _ref183$force, force, success, fail, nophone, noemail, siteId, ticket, reo, me, _me;
 
-            return regeneratorRuntime.wrap(function _callee179$(_context180) {
+            return regeneratorRuntime.wrap(function _callee183$(_context184) {
               while (1) {
-                switch (_context180.prev = _context180.next) {
+                switch (_context184.prev = _context184.next) {
                   case 0:
-                    state = _ref170.state, commit = _ref170.commit, dispatch = _ref170.dispatch, getters = _ref170.getters, rootState = _ref170.rootState;
-                    _ref171 = _arguments36.length > 1 && _arguments36[1] !== undefined ? _arguments36[1] : {}, _ref171$force = _ref171.force, force = _ref171$force === void 0 ? false : _ref171$force, success = _ref171.success, fail = _ref171.fail, nophone = _ref171.nophone;
+                    state = _ref182.state, commit = _ref182.commit, dispatch = _ref182.dispatch, getters = _ref182.getters, rootState = _ref182.rootState;
+                    _ref183 = _arguments36.length > 1 && _arguments36[1] !== undefined ? _arguments36[1] : {}, _ref183$force = _ref183.force, force = _ref183$force === void 0 ? false : _ref183$force, success = _ref183.success, fail = _ref183.fail, nophone = _ref183.nophone, noemail = _ref183.noemail;
                     console.log("I am doCheckMe", {
                       force: force,
                       success: success,
@@ -39844,12 +41073,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     siteId = rootState.siteId;
 
                     if (siteId) {
-                      _context180.next = 7;
+                      _context184.next = 7;
                       break;
                     }
 
                     Ti.Alert("Without siteId!!!");
-                    return _context180.abrupt("return");
+                    return _context184.abrupt("return");
 
                   case 7:
                     // Get Back the Ticket
@@ -39862,11 +41091,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     reo = getters.sessionState; // Need to re-checkme from remote
 
                     if (!(ticket && (force || !reo.ok))) {
-                      _context180.next = 14;
+                      _context184.next = 14;
                       break;
                     }
 
-                    _context180.next = 13;
+                    _context184.next = 13;
                     return Ti.Http.get(getters.urls["checkme"], {
                       params: {
                         site: siteId,
@@ -39876,7 +41105,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     });
 
                   case 13:
-                    reo = _context180.sent;
+                    reo = _context184.sent;
 
                   case 14:
                     commit("setLoading", false, {
@@ -39885,7 +41114,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     // success
 
                     if (!reo.ok) {
-                      _context180.next = 31;
+                      _context184.next = 37;
                       break;
                     }
 
@@ -39895,71 +41124,92 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     commit("setMe", reo.data.me); // Check Phone
 
                     if (!nophone) {
-                      _context180.next = 26;
+                      _context184.next = 26;
                       break;
                     }
 
                     me = reo.data.me;
 
                     if (me.phone) {
-                      _context180.next = 26;
+                      _context184.next = 26;
                       break;
                     }
 
-                    _context180.next = 25;
+                    _context184.next = 25;
                     return dispatch(nophone.action, nophone.payload, {
                       root: true
                     });
 
                   case 25:
-                    return _context180.abrupt("return");
+                    return _context184.abrupt("return", _context184.sent);
 
                   case 26:
-                    if (!success) {
-                      _context180.next = 29;
+                    if (!noemail) {
+                      _context184.next = 32;
                       break;
                     }
 
-                    _context180.next = 29;
+                    _me = reo.data.me;
+
+                    if (_me.email) {
+                      _context184.next = 32;
+                      break;
+                    }
+
+                    _context184.next = 31;
+                    return dispatch(noemail.action, noemail.payload, {
+                      root: true
+                    });
+
+                  case 31:
+                    return _context184.abrupt("return", _context184.sent);
+
+                  case 32:
+                    if (!success) {
+                      _context184.next = 35;
+                      break;
+                    }
+
+                    _context184.next = 35;
                     return dispatch(success.action, success.payload, {
                       root: true
                     });
 
-                  case 29:
-                    _context180.next = 34;
+                  case 35:
+                    _context184.next = 40;
                     break;
 
-                  case 31:
+                  case 37:
                     if (!fail) {
-                      _context180.next = 34;
+                      _context184.next = 40;
                       break;
                     }
 
-                    _context180.next = 34;
+                    _context184.next = 40;
                     return dispatch(fail.action, fail.payload, {
                       root: true
                     });
 
-                  case 34:
+                  case 40:
                   case "end":
-                    return _context180.stop();
+                    return _context184.stop();
                 }
               }
-            }, _callee179);
+            }, _callee183);
           }))();
         },
         //--------------------------------------------
-        autoCheckmeOrAuthByWxghCode: function autoCheckmeOrAuthByWxghCode(_ref172) {
+        autoCheckmeOrAuthByWxghCode: function autoCheckmeOrAuthByWxghCode(_ref184) {
           var _arguments37 = arguments;
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee180() {
-            var dispatch, _ref173, _ref173$codeKey, codeKey, _ref173$codeTypeBy, codeTypeBy, _ref173$force, force, _fail, nophone;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee186() {
+            var dispatch, _ref185, _ref185$codeKey, codeKey, _ref185$codeTypeBy, codeTypeBy, _ref185$force, force, _fail, nophone, noemail;
 
-            return regeneratorRuntime.wrap(function _callee180$(_context181) {
+            return regeneratorRuntime.wrap(function _callee186$(_context187) {
               while (1) {
-                switch (_context181.prev = _context181.next) {
+                switch (_context187.prev = _context187.next) {
                   case 0:
-                    dispatch = _ref172.dispatch;
-                    _ref173 = _arguments37.length > 1 && _arguments37[1] !== undefined ? _arguments37[1] : {}, _ref173$codeKey = _ref173.codeKey, codeKey = _ref173$codeKey === void 0 ? "code" : _ref173$codeKey, _ref173$codeTypeBy = _ref173.codeTypeBy, codeTypeBy = _ref173$codeTypeBy === void 0 ? "ct" : _ref173$codeTypeBy, _ref173$force = _ref173.force, force = _ref173$force === void 0 ? false : _ref173$force, _fail = _ref173.fail, nophone = _ref173.nophone;
+                    dispatch = _ref184.dispatch;
+                    _ref185 = _arguments37.length > 1 && _arguments37[1] !== undefined ? _arguments37[1] : {}, _ref185$codeKey = _ref185.codeKey, codeKey = _ref185$codeKey === void 0 ? "code" : _ref185$codeKey, _ref185$codeTypeBy = _ref185.codeTypeBy, codeTypeBy = _ref185$codeTypeBy === void 0 ? "ct" : _ref185$codeTypeBy, _ref185$force = _ref185.force, force = _ref185$force === void 0 ? false : _ref185$force, _fail = _ref185.fail, nophone = _ref185.nophone, noemail = _ref185.noemail;
                     console.log("autoCheckmeOrAuthByWxghCode");
                     dispatch("doCheckMe", {
                       force: force,
@@ -39969,27 +41219,97 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                           codeKey: codeKey,
                           codeTypeBy: codeTypeBy,
                           //......................................
-                          fail: function fail() {
-                            if (_fail) {
-                              dispatch(_fail.action, _fail.payload, {
-                                root: true
-                              });
-                            }
-                          },
-                          //......................................
-                          ok: function ok() {
-                            var _ref174 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                                _ref174$me = _ref174.me,
-                                me = _ref174$me === void 0 ? {} : _ref174$me;
+                          fail: function () {
+                            var _fail2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee184() {
+                              return regeneratorRuntime.wrap(function _callee184$(_context185) {
+                                while (1) {
+                                  switch (_context185.prev = _context185.next) {
+                                    case 0:
+                                      if (_fail) {
+                                        dispatch(_fail.action, _fail.payload, {
+                                          root: true
+                                        });
+                                      }
 
-                            if (nophone) {
-                              if (!me.phone) {
-                                dispatch(nophone.action, nophone.payload, {
-                                  root: true
-                                });
-                              }
+                                    case 1:
+                                    case "end":
+                                      return _context185.stop();
+                                  }
+                                }
+                              }, _callee184);
+                            }));
+
+                            function fail() {
+                              return _fail2.apply(this, arguments);
                             }
-                          } //......................................
+
+                            return fail;
+                          }(),
+                          //......................................
+                          ok: function () {
+                            var _ok = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee185() {
+                              var _ref186,
+                                  _ref186$me,
+                                  me,
+                                  _args186 = arguments;
+
+                              return regeneratorRuntime.wrap(function _callee185$(_context186) {
+                                while (1) {
+                                  switch (_context186.prev = _context186.next) {
+                                    case 0:
+                                      _ref186 = _args186.length > 0 && _args186[0] !== undefined ? _args186[0] : {}, _ref186$me = _ref186.me, me = _ref186$me === void 0 ? {} : _ref186$me;
+
+                                      if (!nophone) {
+                                        _context186.next = 6;
+                                        break;
+                                      }
+
+                                      if (me.phone) {
+                                        _context186.next = 6;
+                                        break;
+                                      }
+
+                                      _context186.next = 5;
+                                      return dispatch(nophone.action, nophone.payload, {
+                                        root: true
+                                      });
+
+                                    case 5:
+                                      return _context186.abrupt("return", _context186.sent);
+
+                                    case 6:
+                                      if (!noemail) {
+                                        _context186.next = 11;
+                                        break;
+                                      }
+
+                                      if (me.email) {
+                                        _context186.next = 11;
+                                        break;
+                                      }
+
+                                      _context186.next = 10;
+                                      return dispatch(noemail.action, noemail.payload, {
+                                        root: true
+                                      });
+
+                                    case 10:
+                                      return _context186.abrupt("return", _context186.sent);
+
+                                    case 11:
+                                    case "end":
+                                      return _context186.stop();
+                                  }
+                                }
+                              }, _callee185);
+                            }));
+
+                            function ok() {
+                              return _ok.apply(this, arguments);
+                            }
+
+                            return ok;
+                          }() //......................................
 
                         }
                       }
@@ -39997,33 +41317,33 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 4:
                   case "end":
-                    return _context181.stop();
+                    return _context187.stop();
                 }
               }
-            }, _callee180);
+            }, _callee186);
           }))();
         },
         //--------------------------------------------
-        authByWxghCode: function authByWxghCode(_ref175) {
+        authByWxghCode: function authByWxghCode(_ref187) {
           var _arguments38 = arguments;
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee181() {
-            var commit, getters, rootState, _ref176, _ref176$codeKey, codeKey, _ref176$codeTypeBy, codeTypeBy, _ref176$done, done, _ref176$ok, ok, _ref176$fail, fail, _ref176$invalid, invalid, _ref176$others, others, code, codeType, siteId, url, params, reo;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee187() {
+            var commit, getters, rootState, _ref188, _ref188$codeKey, codeKey, _ref188$codeTypeBy, codeTypeBy, _ref188$done, done, _ref188$ok, ok, _ref188$fail, fail, _ref188$invalid, invalid, _ref188$others, others, code, codeType, siteId, url, params, reo;
 
-            return regeneratorRuntime.wrap(function _callee181$(_context182) {
+            return regeneratorRuntime.wrap(function _callee187$(_context188) {
               while (1) {
-                switch (_context182.prev = _context182.next) {
+                switch (_context188.prev = _context188.next) {
                   case 0:
-                    commit = _ref175.commit, getters = _ref175.getters, rootState = _ref175.rootState;
-                    _ref176 = _arguments38.length > 1 && _arguments38[1] !== undefined ? _arguments38[1] : {}, _ref176$codeKey = _ref176.codeKey, codeKey = _ref176$codeKey === void 0 ? "code" : _ref176$codeKey, _ref176$codeTypeBy = _ref176.codeTypeBy, codeTypeBy = _ref176$codeTypeBy === void 0 ? "ct" : _ref176$codeTypeBy, _ref176$done = _ref176.done, done = _ref176$done === void 0 ? _.identity : _ref176$done, _ref176$ok = _ref176.ok, ok = _ref176$ok === void 0 ? _.identity : _ref176$ok, _ref176$fail = _ref176.fail, fail = _ref176$fail === void 0 ? _.identity : _ref176$fail, _ref176$invalid = _ref176.invalid, invalid = _ref176$invalid === void 0 ? _.identity : _ref176$invalid, _ref176$others = _ref176.others, others = _ref176$others === void 0 ? _.identity : _ref176$others;
+                    commit = _ref187.commit, getters = _ref187.getters, rootState = _ref187.rootState;
+                    _ref188 = _arguments38.length > 1 && _arguments38[1] !== undefined ? _arguments38[1] : {}, _ref188$codeKey = _ref188.codeKey, codeKey = _ref188$codeKey === void 0 ? "code" : _ref188$codeKey, _ref188$codeTypeBy = _ref188.codeTypeBy, codeTypeBy = _ref188$codeTypeBy === void 0 ? "ct" : _ref188$codeTypeBy, _ref188$done = _ref188.done, done = _ref188$done === void 0 ? _.identity : _ref188$done, _ref188$ok = _ref188.ok, ok = _ref188$ok === void 0 ? _.identity : _ref188$ok, _ref188$fail = _ref188.fail, fail = _ref188$fail === void 0 ? _.identity : _ref188$fail, _ref188$invalid = _ref188.invalid, invalid = _ref188$invalid === void 0 ? _.identity : _ref188$invalid, _ref188$others = _ref188.others, others = _ref188$others === void 0 ? _.identity : _ref188$others;
                     // Guard code
                     code = rootState.page.params[codeKey];
 
                     if (code) {
-                      _context182.next = 5;
+                      _context188.next = 5;
                       break;
                     }
 
-                    return _context182.abrupt("return");
+                    return _context188.abrupt("return");
 
                   case 5:
                     codeType = rootState.page.params[codeTypeBy];
@@ -40035,12 +41355,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     siteId = rootState.siteId;
 
                     if (siteId) {
-                      _context182.next = 11;
+                      _context188.next = 11;
                       break;
                     }
 
                     Ti.Alert("Without siteId!!!");
-                    return _context182.abrupt("return");
+                    return _context188.abrupt("return");
 
                   case 11:
                     // Eval URL
@@ -40050,73 +41370,92 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       code: code,
                       ct: codeType
                     };
-                    _context182.next = 15;
+                    _context188.next = 15;
                     return Ti.Http.get(url, {
                       params: params,
                       as: "json"
                     });
 
                   case 15:
-                    reo = _context182.sent;
+                    reo = _context188.sent;
                     console.log(reo);
-                    done(reo); // Success
-
-                    if (reo.ok && reo.data) {
-                      // save ticket
-                      Ti.Storage.local.set("www-ticket-".concat(siteId), reo.data.ticket); // Save session info
-
-                      commit("setTicket", reo.data.ticket);
-                      commit("setExpi", reo.data.expi);
-                      commit("setMe", reo.data.me); // Callback
-
-                      ok(reo.data);
-                    } // Fail 
-                    else {
-                        // Fail : invalid
-                        if (/^e.www.login.invalid/.test(reo.errCode)) {
-                          invalid(reo);
-                        } // Fail : others
-                        else {
-                            others(reo);
-                          } // Callback
-
-
-                        fail(reo);
-                      }
+                    _context188.next = 19;
+                    return done(reo);
 
                   case 19:
+                    if (!(reo.ok && reo.data)) {
+                      _context188.next = 28;
+                      break;
+                    }
+
+                    // save ticket
+                    Ti.Storage.local.set("www-ticket-".concat(siteId), reo.data.ticket); // Save session info
+
+                    commit("setTicket", reo.data.ticket);
+                    commit("setExpi", reo.data.expi);
+                    commit("setMe", reo.data.me); // Callback
+
+                    _context188.next = 26;
+                    return ok(reo.data);
+
+                  case 26:
+                    _context188.next = 37;
+                    break;
+
+                  case 28:
+                    if (!/^e.www.login.invalid/.test(reo.errCode)) {
+                      _context188.next = 33;
+                      break;
+                    }
+
+                    _context188.next = 31;
+                    return invalid(reo);
+
+                  case 31:
+                    _context188.next = 35;
+                    break;
+
+                  case 33:
+                    _context188.next = 35;
+                    return others(reo);
+
+                  case 35:
+                    _context188.next = 37;
+                    return fail(reo);
+
+                  case 37:
                   case "end":
-                    return _context182.stop();
+                    return _context188.stop();
                 }
               }
-            }, _callee181);
+            }, _callee187);
           }))();
         },
         //--------------------------------------------
-        doAuth: function doAuth(_ref177) {
+        doAuth: function doAuth(_ref189) {
           var _arguments39 = arguments;
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee182() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee188() {
             var _params;
 
-            var commit, getters, rootState, _ref178, _ref178$type, type, name, passwd, _ref178$done, done, _ref178$ok, ok, _ref178$fail, fail, _ref178$noexist, noexist, _ref178$invalid, invalid, _ref178$others, others, siteId, url, ticket, passKey, params, reo;
+            var commit, getters, rootState, _ref190, _ref190$type, type, name, passwd, _ref190$done, done, _ref190$ok, ok, _ref190$fail, fail, _ref190$noexist, noexist, _ref190$invalid, invalid, _ref190$others, others, siteId, url, ticket, passKey, params, reo;
 
-            return regeneratorRuntime.wrap(function _callee182$(_context183) {
+            return regeneratorRuntime.wrap(function _callee188$(_context189) {
               while (1) {
-                switch (_context183.prev = _context183.next) {
+                switch (_context189.prev = _context189.next) {
                   case 0:
-                    commit = _ref177.commit, getters = _ref177.getters, rootState = _ref177.rootState;
-                    _ref178 = _arguments39.length > 1 && _arguments39[1] !== undefined ? _arguments39[1] : {}, _ref178$type = _ref178.type, type = _ref178$type === void 0 ? "login_by_passwd" : _ref178$type, name = _ref178.name, passwd = _ref178.passwd, _ref178$done = _ref178.done, done = _ref178$done === void 0 ? _.identity : _ref178$done, _ref178$ok = _ref178.ok, ok = _ref178$ok === void 0 ? _.identity : _ref178$ok, _ref178$fail = _ref178.fail, fail = _ref178$fail === void 0 ? _.identity : _ref178$fail, _ref178$noexist = _ref178.noexist, noexist = _ref178$noexist === void 0 ? _.identity : _ref178$noexist, _ref178$invalid = _ref178.invalid, invalid = _ref178$invalid === void 0 ? _.identity : _ref178$invalid, _ref178$others = _ref178.others, others = _ref178$others === void 0 ? _.identity : _ref178$others;
+                    commit = _ref189.commit, getters = _ref189.getters, rootState = _ref189.rootState;
+                    _ref190 = _arguments39.length > 1 && _arguments39[1] !== undefined ? _arguments39[1] : {}, _ref190$type = _ref190.type, type = _ref190$type === void 0 ? "login_by_passwd" : _ref190$type, name = _ref190.name, passwd = _ref190.passwd, _ref190$done = _ref190.done, done = _ref190$done === void 0 ? _.identity : _ref190$done, _ref190$ok = _ref190.ok, ok = _ref190$ok === void 0 ? _.identity : _ref190$ok, _ref190$fail = _ref190.fail, fail = _ref190$fail === void 0 ? _.identity : _ref190$fail, _ref190$noexist = _ref190.noexist, noexist = _ref190$noexist === void 0 ? _.identity : _ref190$noexist, _ref190$invalid = _ref190.invalid, invalid = _ref190$invalid === void 0 ? _.identity : _ref190$invalid, _ref190$others = _ref190.others, others = _ref190$others === void 0 ? _.identity : _ref190$others;
                     console.log("doAuth", name, passwd); // Guard SiteId
 
                     siteId = rootState.siteId;
 
                     if (siteId) {
-                      _context183.next = 7;
+                      _context189.next = 7;
                       break;
                     }
 
                     Ti.Alert("Without siteId!!!");
-                    return _context183.abrupt("return");
+                    return _context189.abrupt("return");
 
                   case 7:
                     // Eval URL
@@ -40132,7 +41471,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     }[type];
 
                     if (passKey) {
-                      _context183.next = 12;
+                      _context189.next = 12;
                       break;
                     }
 
@@ -40144,63 +41483,92 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       name: name
                     }, _defineProperty(_params, passKey, passwd), _defineProperty(_params, "ticket", ticket), _defineProperty(_params, "ajax", true), _params); // Call Remote
 
-                    _context183.next = 15;
+                    _context189.next = 15;
                     return Ti.Http.post(url, {
                       params: params,
                       as: "json"
                     });
 
                   case 15:
-                    reo = _context183.sent;
+                    reo = _context189.sent;
                     console.log(reo);
-                    done(reo); // Success
-
-                    if (reo.ok && reo.data) {
-                      // save ticket
-                      Ti.Storage.local.set("www-ticket-".concat(siteId), reo.data.ticket); // Commit session to local
-
-                      commit("setTicket", reo.data.ticket);
-                      commit("setExpi", reo.data.expi);
-                      commit("setMe", reo.data.me); // Callback
-
-                      ok(reo.data);
-                    } // Fail 
-                    else {
-                        // Fail : noexist
-                        if ("e.www.login.noexists" == reo.errCode) {
-                          noexist(reo);
-                        } // Fail : invalid
-                        else if (/^e.www.login.invalid/.test(reo.errCode)) {
-                            invalid(reo);
-                          } // Fail : others
-                          else {
-                              others(reo);
-                            } // Callback
-
-
-                        fail(reo);
-                      }
+                    _context189.next = 19;
+                    return done(reo);
 
                   case 19:
+                    if (!(reo.ok && reo.data)) {
+                      _context189.next = 28;
+                      break;
+                    }
+
+                    // save ticket
+                    Ti.Storage.local.set("www-ticket-".concat(siteId), reo.data.ticket); // Commit session to local
+
+                    commit("setTicket", reo.data.ticket);
+                    commit("setExpi", reo.data.expi);
+                    commit("setMe", reo.data.me); // Callback
+
+                    _context189.next = 26;
+                    return ok(reo.data);
+
+                  case 26:
+                    _context189.next = 42;
+                    break;
+
+                  case 28:
+                    if (!("e.www.login.noexists" == reo.errCode)) {
+                      _context189.next = 33;
+                      break;
+                    }
+
+                    _context189.next = 31;
+                    return noexist(reo);
+
+                  case 31:
+                    _context189.next = 40;
+                    break;
+
+                  case 33:
+                    if (!/^e.www.login.invalid/.test(reo.errCode)) {
+                      _context189.next = 38;
+                      break;
+                    }
+
+                    _context189.next = 36;
+                    return invalid(reo);
+
+                  case 36:
+                    _context189.next = 40;
+                    break;
+
+                  case 38:
+                    _context189.next = 40;
+                    return others(reo);
+
+                  case 40:
+                    _context189.next = 42;
+                    return fail(reo);
+
+                  case 42:
                   case "end":
-                    return _context183.stop();
+                    return _context189.stop();
                 }
               }
-            }, _callee182);
+            }, _callee188);
           }))();
         },
         //--------------------------------------------
-        doGetVcode: function doGetVcode(_ref179) {
+        doGetVcode: function doGetVcode(_ref191) {
           var _arguments40 = arguments;
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee183() {
-            var getters, rootState, _ref180, _ref180$type, type, _ref180$scene, scene, account, captcha, _ref180$done, done, _ref180$ok, ok, _ref180$fail, fail, siteId, api, url, params, reo;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee189() {
+            var getters, rootState, _ref192, _ref192$type, type, _ref192$scene, scene, account, captcha, _ref192$done, done, _ref192$ok, ok, _ref192$fail, fail, siteId, api, url, params, reo;
 
-            return regeneratorRuntime.wrap(function _callee183$(_context184) {
+            return regeneratorRuntime.wrap(function _callee189$(_context190) {
               while (1) {
-                switch (_context184.prev = _context184.next) {
+                switch (_context190.prev = _context190.next) {
                   case 0:
-                    getters = _ref179.getters, rootState = _ref179.rootState;
-                    _ref180 = _arguments40.length > 1 && _arguments40[1] !== undefined ? _arguments40[1] : {}, _ref180$type = _ref180.type, type = _ref180$type === void 0 ? "login_by_phone" : _ref180$type, _ref180$scene = _ref180.scene, scene = _ref180$scene === void 0 ? "auth" : _ref180$scene, account = _ref180.account, captcha = _ref180.captcha, _ref180$done = _ref180.done, done = _ref180$done === void 0 ? _.identity : _ref180$done, _ref180$ok = _ref180.ok, ok = _ref180$ok === void 0 ? _.identity : _ref180$ok, _ref180$fail = _ref180.fail, fail = _ref180$fail === void 0 ? _.identity : _ref180$fail;
+                    getters = _ref191.getters, rootState = _ref191.rootState;
+                    _ref192 = _arguments40.length > 1 && _arguments40[1] !== undefined ? _arguments40[1] : {}, _ref192$type = _ref192.type, type = _ref192$type === void 0 ? "login_by_phone" : _ref192$type, _ref192$scene = _ref192.scene, scene = _ref192$scene === void 0 ? "auth" : _ref192$scene, account = _ref192.account, captcha = _ref192.captcha, _ref192$done = _ref192.done, done = _ref192$done === void 0 ? _.identity : _ref192$done, _ref192$ok = _ref192.ok, ok = _ref192$ok === void 0 ? _.identity : _ref192$ok, _ref192$fail = _ref192.fail, fail = _ref192$fail === void 0 ? _.identity : _ref192$fail;
                     console.log("getVcode", {
                       type: type,
                       scene: scene,
@@ -40211,12 +41579,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     siteId = rootState.siteId;
 
                     if (siteId) {
-                      _context184.next = 7;
+                      _context190.next = 7;
                       break;
                     }
 
                     Ti.Alert("Without siteId!!!");
-                    return _context184.abrupt("return");
+                    return _context190.abrupt("return");
 
                   case 7:
                     // Eval URL
@@ -40229,15 +41597,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     url = getters.urls[api];
 
                     if (!(!api || !url)) {
-                      _context184.next = 13;
+                      _context190.next = 13;
                       break;
                     }
 
-                    _context184.next = 12;
+                    _context190.next = 12;
                     return Ti.Toast.Open("Invalid type: ".concat(type), "error");
 
                   case 12:
-                    return _context184.abrupt("return", _context184.sent);
+                    return _context190.abrupt("return", _context190.sent);
 
                   case 13:
                     // Prepare params
@@ -40248,14 +41616,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       captcha: captcha
                     }; // Call Remote
 
-                    _context184.next = 16;
+                    _context190.next = 16;
                     return Ti.Http.get(url, {
                       params: params,
                       as: "json"
                     });
 
                   case 16:
-                    reo = _context184.sent;
+                    reo = _context190.sent;
                     console.log(reo);
                     done(reo); // Success
 
@@ -40268,47 +41636,47 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 20:
                   case "end":
-                    return _context184.stop();
+                    return _context190.stop();
                 }
               }
-            }, _callee183);
+            }, _callee189);
           }))();
         },
         //--------------------------------------------
-        doLogout: function doLogout(_ref181) {
+        doLogout: function doLogout(_ref193) {
           var _arguments41 = arguments;
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee184() {
-            var commit, getters, rootState, _ref182, _ref182$done, done, _ref182$ok, ok, _ref182$fail, fail, siteId, se, url, params, reo;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee190() {
+            var commit, getters, rootState, _ref194, _ref194$done, done, _ref194$ok, ok, _ref194$fail, fail, siteId, se, url, params, reo;
 
-            return regeneratorRuntime.wrap(function _callee184$(_context185) {
+            return regeneratorRuntime.wrap(function _callee190$(_context191) {
               while (1) {
-                switch (_context185.prev = _context185.next) {
+                switch (_context191.prev = _context191.next) {
                   case 0:
-                    commit = _ref181.commit, getters = _ref181.getters, rootState = _ref181.rootState;
-                    _ref182 = _arguments41.length > 1 && _arguments41[1] !== undefined ? _arguments41[1] : {}, _ref182$done = _ref182.done, done = _ref182$done === void 0 ? _.identity : _ref182$done, _ref182$ok = _ref182.ok, ok = _ref182$ok === void 0 ? _.identity : _ref182$ok, _ref182$fail = _ref182.fail, fail = _ref182$fail === void 0 ? _.identity : _ref182$fail;
+                    commit = _ref193.commit, getters = _ref193.getters, rootState = _ref193.rootState;
+                    _ref194 = _arguments41.length > 1 && _arguments41[1] !== undefined ? _arguments41[1] : {}, _ref194$done = _ref194.done, done = _ref194$done === void 0 ? _.identity : _ref194$done, _ref194$ok = _ref194.ok, ok = _ref194$ok === void 0 ? _.identity : _ref194$ok, _ref194$fail = _ref194.fail, fail = _ref194$fail === void 0 ? _.identity : _ref194$fail;
                     console.log("doLogout"); // Guard SiteId
 
                     siteId = rootState.siteId;
 
                     if (siteId) {
-                      _context185.next = 7;
+                      _context191.next = 7;
                       break;
                     }
 
                     Ti.Alert("Without siteId!!!");
-                    return _context185.abrupt("return");
+                    return _context191.abrupt("return");
 
                   case 7:
                     // Always force remove
                     Ti.Storage.local.remove("www-ticket-".concat(siteId)); // No Session, ignore
 
                     if (getters.hasSession) {
-                      _context185.next = 11;
+                      _context191.next = 11;
                       break;
                     }
 
                     fail(getters.sessionState);
-                    return _context185.abrupt("return");
+                    return _context191.abrupt("return");
 
                   case 11:
                     // Session
@@ -40325,14 +41693,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       root: true
                     }); // Call Remote
 
-                    _context185.next = 17;
+                    _context191.next = 17;
                     return Ti.Http.post(url, {
                       params: params,
                       as: "json"
                     });
 
                   case 17:
-                    reo = _context185.sent;
+                    reo = _context191.sent;
                     console.log(reo);
                     commit("setTicket", null);
                     commit("setExpi", 0);
@@ -40351,10 +41719,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 25:
                   case "end":
-                    return _context185.stop();
+                    return _context191.stop();
                 }
               }
-            }, _callee184);
+            }, _callee190);
           }))();
         } //--------------------------------------------
 
@@ -40379,6 +41747,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
     "title": null,
     "path": null,
+    "ready": 0,
     "finger": null,
     "params": {},
     "anchor": null,
@@ -40403,10 +41772,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ////////////////////////////////////////////////
       getters: {
         //--------------------------------------------
-        pageLink: function pageLink(_ref183) {
-          var path = _ref183.path,
-              params = _ref183.params,
-              anchor = _ref183.anchor;
+        pageLink: function pageLink(_ref195) {
+          var path = _ref195.path,
+              params = _ref195.params,
+              anchor = _ref195.anchor;
           var link = [path]; // Join QueryString
 
           if (!_.isEmpty(params)) {
@@ -40440,7 +41809,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           _.forEach(state.apis, function (pageApi, key) {
             //..........................................
             // Get SiteApi template
-            var siteApi = _.get(SiteApis, pageApi.apiName || key); //..........................................
+            var siteApi = _.get(SiteApis, pageApi.apiName || key); //console.log(key, siteApi)
+            //..........................................
             // Marge the page api
 
 
@@ -40490,7 +41860,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             // Copy the Setting from page
 
 
-            _.assign(api, _.pick(pageApi, "body", "preload", "serializer", "dataKey")); //..........................................
+            _.assign(api, _.pick(pageApi, "body", "preload", "serializer", "dataKey", "dataMerge", "rawDataKey", "rawDataMerge")); //..........................................
 
 
             _.defaults(api, {
@@ -40534,25 +41904,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }), _defineProperty(_mutations, "setData", function setData(state, data) {
         state.data = data;
-      }), _defineProperty(_mutations, "updateData", function updateData(state, _ref184) {
-        var key = _ref184.key,
-            value = _ref184.value;
+      }), _defineProperty(_mutations, "updateData", function updateData(state) {
+        var _ref196 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            key = _ref196.key,
+            value = _ref196.value;
 
-        if (_.isUndefined(value)) {
+        // kay-value pair is required
+        if (!key || _.isUndefined(value)) {
           return;
-        } // Apply Whole Data
+        }
 
+        var vobj = _.set({}, key, value);
 
-        if (!key) {
-          if (_.isPlainObject(value)) {
-            state.data = _.assign({}, state.data, value);
-          }
-        } // update field
-        else {
-            var vobj = _.set({}, key, value);
-
-            state.data = _.assign({}, state.data, vobj);
-          }
+        state.data = _.assign({}, state.data, vobj);
       }), _defineProperty(_mutations, "mergeData", function mergeData(state, data) {
         if (!_.isEmpty(data) && _.isPlainObject(data)) {
           state.data = _.merge({}, state.data, data);
@@ -40561,6 +41925,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         state.layout = layout;
       }), _defineProperty(_mutations, "setShown", function setShown(state, shown) {
         _.assign(state.shown, shown);
+      }), _defineProperty(_mutations, "setReady", function setReady(state, ready) {
+        state.ready = ready;
       }), _defineProperty(_mutations, "updateFinger", function updateFinger(state) {
         var ss = [state.path, state.params, state.anchor, state.data];
         var sha1 = Ti.Alg.sha1(ss);
@@ -40569,13 +41935,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ////////////////////////////////////////////////
       actions: {
         //--------------------------------------------
-        showBlock: function showBlock(_ref185, name) {
-          var commit = _ref185.commit;
+        showBlock: function showBlock(_ref197, name) {
+          var commit = _ref197.commit;
           commit("setShown", _defineProperty({}, name, true));
         },
         //--------------------------------------------
-        hideBlock: function hideBlock(_ref186, name) {
-          var commit = _ref186.commit;
+        hideBlock: function hideBlock(_ref198, name) {
+          var commit = _ref198.commit;
           commit("setShown", _defineProperty({}, name, false));
         },
         //--------------------------------------------
@@ -40589,13 +41955,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
          * @param key{String} : the field name in "page.data", falsy for whole data
          * @param args{Object|Array} : `{name,value}` Object or Array
          */
-        changeData: function changeData(_ref187, args) {
-          var commit = _ref187.commit;
+        changeData: function changeData(_ref199, args) {
+          var commit = _ref199.commit;
           var data = Ti.Util.merge({}, args);
           commit("mergeData", data);
         },
-        changeParams: function changeParams(_ref188, args) {
-          var commit = _ref188.commit;
+        changeParams: function changeParams(_ref200, args) {
+          var commit = _ref200.commit;
           var params = Ti.Util.merge({}, args);
           commit("mergeParams", params);
           commit("updateFinger");
@@ -40608,9 +41974,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
          * 
          * @param offsets{Object} - the offset number set. "a.b.c" suppored
          */
-        shiftData: function shiftData(_ref189) {
-          var state = _ref189.state,
-              commit = _ref189.commit;
+        shiftData: function shiftData(_ref201) {
+          var state = _ref201.state,
+              commit = _ref201.commit;
           var offsets = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
           if (!_.isEmpty(offsets) && _.isPlainObject(offsets)) {
@@ -40638,25 +42004,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         /***
          * Assert page data under a group of restrictions 
          */
-        assertPage: function assertPage(_ref190) {
-          var rootState = _ref190.rootState,
-              dispatch = _ref190.dispatch;
+        assertPage: function assertPage(_ref202) {
+          var rootState = _ref202.rootState,
+              dispatch = _ref202.dispatch;
 
-          var _ref191 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-              _ref191$checkList = _ref191.checkList,
-              checkList = _ref191$checkList === void 0 ? [] : _ref191$checkList,
-              _ref191$fail = _ref191.fail,
-              fail = _ref191$fail === void 0 ? {} : _ref191$fail;
+          var _ref203 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              _ref203$checkList = _ref203.checkList,
+              checkList = _ref203$checkList === void 0 ? [] : _ref203$checkList,
+              _ref203$fail = _ref203.fail,
+              fail = _ref203$fail === void 0 ? {} : _ref203$fail;
 
           // Prepare check result
           var assertFail = false; // Loop the checkList
 
-          var _iterator97 = _createForOfIteratorHelper(checkList),
-              _step97;
+          var _iterator93 = _createForOfIteratorHelper(checkList),
+              _step93;
 
           try {
-            for (_iterator97.s(); !(_step97 = _iterator97.n()).done;) {
-              var cl = _step97.value;
+            for (_iterator93.s(); !(_step93 = _iterator93.n()).done;) {
+              var cl = _step93.value;
 
               var val = _.get(rootState, cl.target);
 
@@ -40668,9 +42034,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             // Do Fail
 
           } catch (err) {
-            _iterator97.e(err);
+            _iterator93.e(err);
           } finally {
-            _iterator97.f();
+            _iterator93.f();
           }
 
           if (assertFail && fail.action) {
@@ -40680,45 +42046,222 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         },
         //--------------------------------------------
+        scrollToTop: function scrollToTop(_ref204) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee191() {
+            var state;
+            return regeneratorRuntime.wrap(function _callee191$(_context192) {
+              while (1) {
+                switch (_context192.prev = _context192.next) {
+                  case 0:
+                    state = _ref204.state;
+                    Ti.Be.ScrollWindowTo({
+                      y: 0
+                    });
+
+                  case 2:
+                  case "end":
+                    return _context192.stop();
+                }
+              }
+            }, _callee191);
+          }))();
+        },
+        //--------------------------------------------
+        doApi: function doApi(_ref205) {
+          var _arguments42 = arguments;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee192() {
+            var rootState, getters, commit, _ref206, key, _ref206$params, params, _ref206$vars, vars, _ref206$body, body, api, url, vars2, options, apiBody, bodyData, reo, data, serializer;
+
+            return regeneratorRuntime.wrap(function _callee192$(_context193) {
+              while (1) {
+                switch (_context193.prev = _context193.next) {
+                  case 0:
+                    rootState = _ref205.rootState, getters = _ref205.getters, commit = _ref205.commit;
+                    _ref206 = _arguments42.length > 1 && _arguments42[1] !== undefined ? _arguments42[1] : {}, key = _ref206.key, _ref206$params = _ref206.params, params = _ref206$params === void 0 ? {} : _ref206$params, _ref206$vars = _ref206.vars, vars = _ref206$vars === void 0 ? {} : _ref206$vars, _ref206$body = _ref206.body, body = _ref206$body === void 0 ? null : _ref206$body;
+                    //.....................................
+                    api = _.get(getters.pageApis, key);
+                    console.log("doApi", key, params, api); //.....................................
+                    // Guard
+
+                    if (api) {
+                      _context193.next = 8;
+                      break;
+                    }
+
+                    _context193.next = 7;
+                    return Ti.Toast.Open("e.www.page.ApiNotFound: " + key, "warn");
+
+                  case 7:
+                    return _context193.abrupt("return", _context193.sent);
+
+                  case 8:
+                    //.....................................
+                    // Eval url
+                    _.defaults(vars, api.vars);
+
+                    url = api.url;
+
+                    if (!_.isEmpty(vars)) {
+                      vars2 = Ti.Util.explainObj(rootState, vars);
+                      url = Ti.S.renderBy(api.url, vars2);
+                    } //.....................................
+                    // Gen the options
+
+
+                    options = _.pick(api, ["method", "as"]);
+                    options.vars = vars; // Eval headers
+
+                    options.headers = Ti.Util.explainObj(rootState, api.headers); // Eval the params
+
+                    options.params = {};
+
+                    _.forEach(api.params, function (param, key) {
+                      var val = _.get(params, key); // Use default
+
+
+                      if (Ti.Util.isNil(val)) {
+                        val = Ti.Util.explainObj(rootState, param.value);
+                      } // Check required
+
+
+                      if (param.required && Ti.Util.isNil(val)) {
+                        var errMsg = "".concat(url, ": lack required param: ").concat(key);
+                        Ti.Toast.Open(errMsg, "error");
+                        throw errMsg;
+                      }
+
+                      options.params[key] = val;
+                    }); //.....................................
+                    // Prepare the body
+
+
+                    apiBody = body || api.body;
+
+                    if ("POST" == api.method && apiBody) {
+                      bodyData = Ti.Util.explainObj(rootState, apiBody); // As JSON
+
+                      if ("json" == api.bodyType) {
+                        options.body = JSON.stringify(bodyData);
+                      } // As responseText
+                      else if ("text" == api.bodyType) {
+                          options.body = Ti.Types.toStr(bodyData);
+                        } // Default is form
+                        else {
+                            options.body = Ti.Http.encodeFormData(bodyData);
+                          }
+                    } //.......................................
+                    // Mark Loading
+
+
+                    commit("setLoading", true, {
+                      root: true
+                    }); //.....................................
+                    // Join the http send Promise
+                    //console.log(`will send to "${url}"`, options)
+
+                    _context193.next = 21;
+                    return Ti.Http.sendAndProcess(url, options);
+
+                  case 21:
+                    reo = _context193.sent;
+                    data = reo; //.....................................
+                    // Eval api serializer
+
+                    if (api.serializer) {
+                      serializer = Ti.Util.genInvoking(api.serializer, {
+                        context: rootState,
+                        partialRight: true
+                      });
+
+                      if (_.isFunction(serializer)) {
+                        data = serializer(reo);
+                      }
+                    } //.....................................
+                    // Update or merge
+
+
+                    if (api.dataMerge) {
+                      commit("mergeData", _defineProperty({}, api.dataKey, data));
+                    } // Just update
+                    else {
+                        commit("updateData", {
+                          key: api.dataKey,
+                          value: data
+                        });
+                      } //.......................................
+                    // Mark Loading
+
+
+                    commit("setLoading", false, {
+                      root: true
+                    });
+
+                  case 26:
+                  case "end":
+                    return _context193.stop();
+                }
+              }
+            }, _callee192);
+          }))();
+        },
+        //--------------------------------------------
 
         /***
          * Reload page data by given api keys
          */
-        reloadData: function reloadData(_ref192) {
-          var _arguments42 = arguments;
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee185() {
-            var state, commit, getters, rootState, keys, isAll, apis, _iterator98, _step98, _loop3;
+        reloadData: function reloadData(_ref207) {
+          var _arguments43 = arguments;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee193() {
+            var state, commit, getters, rootState, keys, isAll, apis, _iterator94, _step94, _loop3;
 
-            return regeneratorRuntime.wrap(function _callee185$(_context187) {
+            return regeneratorRuntime.wrap(function _callee193$(_context195) {
               while (1) {
-                switch (_context187.prev = _context187.next) {
+                switch (_context195.prev = _context195.next) {
                   case 0:
-                    state = _ref192.state, commit = _ref192.commit, getters = _ref192.getters, rootState = _ref192.rootState;
-                    keys = _arguments42.length > 1 && _arguments42[1] !== undefined ? _arguments42[1] : [];
-                    console.log("reloadData", keys); //.......................................
+                    state = _ref207.state, commit = _ref207.commit, getters = _ref207.getters, rootState = _ref207.rootState;
+                    keys = _arguments43.length > 1 && _arguments43[1] !== undefined ? _arguments43[1] : [];
+                    console.log(" # -> page.reloadData", keys); //.......................................
                     // The api list to reload
 
                     isAll = _.isEmpty(keys);
                     apis = _.filter(getters.pageApis, function (api, k) {
-                      return isAll && api.preload > 0 || _.indexOf(keys, k) >= 0;
+                      // Auto preload
+                      if (isAll) {
+                        if (api.preload > 0) {
+                          if (api.preloadWhen) {
+                            return Ti.Validate.match(rootState, api.preloadWhen, false);
+                          }
+
+                          return true;
+                        }
+                      } // Specify apis
+
+
+                      return _.indexOf(keys, k) >= 0;
                     }); //.......................................
                     // Sort preload
 
                     apis.sort(function (a1, a2) {
                       return a1.preload - a2.preload;
                     }); //.......................................
+                    // Mark Loading
+
+                    commit("setLoading", true, {
+                      root: true
+                    }); //.......................................
                     // Prepare the Promises
 
-                    _iterator98 = _createForOfIteratorHelper(apis);
-                    _context187.prev = 7;
+                    _iterator94 = _createForOfIteratorHelper(apis);
+                    _context195.prev = 8;
                     _loop3 = /*#__PURE__*/regeneratorRuntime.mark(function _loop3() {
                       var api, url, vars, options, bodyData, reo, data, serializer;
-                      return regeneratorRuntime.wrap(function _loop3$(_context186) {
+                      return regeneratorRuntime.wrap(function _loop3$(_context194) {
                         while (1) {
-                          switch (_context186.prev = _context186.next) {
+                          switch (_context194.prev = _context194.next) {
                             case 0:
-                              api = _step98.value;
-                              // prepare http send options
+                              api = _step94.value;
+                              console.log("  # -> page.reloadData -> prepareApi", api); // prepare http send options
+
                               url = api.url; // if("/www/dataocean/cygq/mock/right-b/b-${nm}.json"==url) {
                               //   console.log("haha", url)
                               // }
@@ -40769,12 +42312,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                               //console.log(`will send to "${url}"`, options)
 
 
-                              _context186.next = 10;
+                              _context194.next = 11;
                               return Ti.Http.sendAndProcess(url, options);
 
-                            case 10:
-                              reo = _context186.sent;
-                              data = reo; // Eval api serializer
+                            case 11:
+                              reo = _context194.sent;
+                              data = reo; //.....................................
+                              // Eval api serializer
 
                               if (api.serializer) {
                                 serializer = Ti.Util.genInvoking(api.serializer, {
@@ -40785,83 +42329,76 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                                 if (_.isFunction(serializer)) {
                                   data = serializer(reo);
                                 }
+                              } //.....................................
+                              // Update or merge
+
+
+                              if (api.dataMerge) {
+                                commit("mergeData", _defineProperty({}, api.dataKey, data));
+                              } // Just update
+                              else {
+                                  commit("updateData", {
+                                    key: api.dataKey,
+                                    value: data
+                                  });
+                                } //.....................................
+                              // Update or merge
+
+
+                              if (api.rawDataKey) {
+                                if (api.rawDataMerge) {
+                                  commit("mergeData", _defineProperty({}, api.rawDataKey, reo));
+                                } // Just update
+                                else {
+                                    commit("updateData", {
+                                      key: api.rawDataKey,
+                                      value: reo
+                                    });
+                                  }
                               }
 
-                              commit("updateData", {
-                                key: api.dataKey,
-                                value: data
-                              }); // .catch(($req)=>{
-                              //   console.warn($req)
-                              //   // commit("updateData", {
-                              //   //   key   : api.dataKey,
-                              //   //   value : {
-                              //   //     ok : false,
-                              //   //     errCode : `http.${$req.status}`,
-                              //   //     msg : `http.${$req.status}`,
-                              //   //     data : _.trim($req.responseText)
-                              //   //   }
-                              //   // })
-                              //   // TODO maybe I should emit event here
-                              //   // Then handle the event in actons 
-                              // })
-
-                            case 14:
+                            case 16:
                             case "end":
-                              return _context186.stop();
+                              return _context194.stop();
                           }
                         }
                       }, _loop3);
                     });
 
-                    _iterator98.s();
+                    _iterator94.s();
 
-                  case 10:
-                    if ((_step98 = _iterator98.n()).done) {
-                      _context187.next = 14;
+                  case 11:
+                    if ((_step94 = _iterator94.n()).done) {
+                      _context195.next = 15;
                       break;
                     }
 
-                    return _context187.delegateYield(_loop3(), "t0", 12);
+                    return _context195.delegateYield(_loop3(), "t0", 13);
 
-                  case 12:
-                    _context187.next = 10;
+                  case 13:
+                    _context195.next = 11;
                     break;
 
-                  case 14:
-                    _context187.next = 19;
+                  case 15:
+                    _context195.next = 20;
                     break;
 
-                  case 16:
-                    _context187.prev = 16;
-                    _context187.t1 = _context187["catch"](7);
+                  case 17:
+                    _context195.prev = 17;
+                    _context195.t1 = _context195["catch"](8);
 
-                    _iterator98.e(_context187.t1);
+                    _iterator94.e(_context195.t1);
 
-                  case 19:
-                    _context187.prev = 19;
+                  case 20:
+                    _context195.prev = 20;
 
-                    _iterator98.f();
+                    _iterator94.f();
 
-                    return _context187.finish(19);
+                    return _context195.finish(20);
 
-                  case 22:
-                    // for(let api of list) {
+                  case 23:
                     //.......................................
-                    // Mark root state
-                    commit("setLoading", true, {
-                      root: true
-                    }); //.......................................
-                    // // Only one request
-                    // if(ings.length == 1) {
-                    //   await ings[0]
-                    // }
-                    // // Join all request
-                    // else if(ings.length > 1) {
-                    //   await Promise.all(ings)
-                    // }
-                    //.......................................
-                    // Mark root state
-
+                    // Unmark loading
                     commit("setLoading", false, {
                       root: true
                     });
@@ -40876,10 +42413,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 25:
                   case "end":
-                    return _context187.stop();
+                    return _context195.stop();
                 }
               }
-            }, _callee185, null, [[7, 16, 19, 22]]);
+            }, _callee193, null, [[8, 17, 20, 23]]);
           }))();
         },
         //--------------------------------------------
@@ -40887,73 +42424,73 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         /***
          * Reload whole page
          */
-        reload: function reload(_ref193, _ref194) {
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee186() {
-            var commit, dispatch, rootGetters, path, anchor, _ref194$params, params, pinfo, _iterator99, _step99, router, json, page;
+        reload: function reload(_ref208, _ref209) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee194() {
+            var commit, dispatch, rootGetters, path, anchor, _ref209$params, params, pinfo, _iterator95, _step95, router, json, page;
 
-            return regeneratorRuntime.wrap(function _callee186$(_context188) {
+            return regeneratorRuntime.wrap(function _callee194$(_context196) {
               while (1) {
-                switch (_context188.prev = _context188.next) {
+                switch (_context196.prev = _context196.next) {
                   case 0:
-                    commit = _ref193.commit, dispatch = _ref193.dispatch, rootGetters = _ref193.rootGetters;
-                    path = _ref194.path, anchor = _ref194.anchor, _ref194$params = _ref194.params, params = _ref194$params === void 0 ? {} : _ref194$params;
+                    commit = _ref208.commit, dispatch = _ref208.dispatch, rootGetters = _ref208.rootGetters;
+                    path = _ref209.path, anchor = _ref209.anchor, _ref209$params = _ref209.params, params = _ref209$params === void 0 ? {} : _ref209$params;
                     //console.log(rootGetters.routerList)
-                    console.log("page.reload", {
+                    console.log(" # -> page.reload", {
                       path: path,
                       params: params,
                       anchor: anchor
                     });
                     //.....................................
                     // Apply routerList
-                    _iterator99 = _createForOfIteratorHelper(rootGetters.routerList);
-                    _context188.prev = 4;
+                    _iterator95 = _createForOfIteratorHelper(rootGetters.routerList);
+                    _context196.prev = 4;
 
-                    _iterator99.s();
+                    _iterator95.s();
 
                   case 6:
-                    if ((_step99 = _iterator99.n()).done) {
-                      _context188.next = 13;
+                    if ((_step95 = _iterator95.n()).done) {
+                      _context196.next = 13;
                       break;
                     }
 
-                    router = _step99.value;
+                    router = _step95.value;
                     pinfo = router(path);
 
                     if (!(pinfo && pinfo.path)) {
-                      _context188.next = 11;
+                      _context196.next = 11;
                       break;
                     }
 
-                    return _context188.abrupt("break", 13);
+                    return _context196.abrupt("break", 13);
 
                   case 11:
-                    _context188.next = 6;
+                    _context196.next = 6;
                     break;
 
                   case 13:
-                    _context188.next = 18;
+                    _context196.next = 18;
                     break;
 
                   case 15:
-                    _context188.prev = 15;
-                    _context188.t0 = _context188["catch"](4);
+                    _context196.prev = 15;
+                    _context196.t0 = _context196["catch"](4);
 
-                    _iterator99.e(_context188.t0);
+                    _iterator95.e(_context196.t0);
 
                   case 18:
-                    _context188.prev = 18;
+                    _context196.prev = 18;
 
-                    _iterator99.f();
+                    _iterator95.f();
 
-                    return _context188.finish(18);
+                    return _context196.finish(18);
 
                   case 21:
                     if (!(!pinfo || !pinfo.path)) {
-                      _context188.next = 25;
+                      _context196.next = 25;
                       break;
                     }
 
-                    _context188.next = 24;
+                    _context196.next = 24;
                     return Ti.Toast.Open("Page ${path} not found!", {
                       type: "error",
                       position: "center",
@@ -40963,14 +42500,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     });
 
                   case 24:
-                    return _context188.abrupt("return", _context188.sent);
+                    return _context196.abrupt("return", _context196.sent);
 
                   case 25:
-                    _context188.next = 27;
+                    //.....................................
+                    // Notify: init
+                    console.log("@page:init ...");
+                    commit("setReady", 0);
+                    _context196.next = 29;
+                    return dispatch("invokeAction", {
+                      name: "@page:init"
+                    }, {
+                      root: true
+                    });
+
+                  case 29:
+                    _context196.next = 31;
                     return Ti.Load("@Site:".concat(pinfo.path, ".json"));
 
-                  case 27:
-                    json = _context188.sent;
+                  case 31:
+                    json = _context196.sent;
 
                     //.....................................
                     // merge info
@@ -40989,22 +42538,47 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       "shown": {},
                       "schema": {},
                       "actions": {}
-                    }, json, pinfo); //...........................
+                    }, json, pinfo); //.....................................
                     // Update page 
 
                     commit("set", page);
-                    console.log(" -->", page); //.....................................
-                    // init: data
+                    console.log(" #### page.loaded", _.cloneDeep(page)); //.....................................
+                    // Notify: Prepare
 
-                    _context188.next = 36;
+                    console.log("@page:prepare ...");
+                    commit("setReady", 1);
+                    _context196.next = 42;
+                    return dispatch("invokeAction", {
+                      name: "@page:prepare"
+                    }, {
+                      root: true
+                    });
+
+                  case 42:
+                    _context196.next = 44;
                     return dispatch("reloadData");
 
-                  case 36:
+                  case 44:
+                    //.....................................
+                    // Scroll window to top
+                    dispatch("scrollToTop"); //.....................................
+                    // Notify: Ready
+
+                    console.log("@page:ready ...");
+                    commit("setReady", 2);
+                    _context196.next = 49;
+                    return dispatch("invokeAction", {
+                      name: "@page:ready"
+                    }, {
+                      root: true
+                    });
+
+                  case 49:
                   case "end":
-                    return _context188.stop();
+                    return _context196.stop();
                 }
               }
-            }, _callee186, null, [[4, 15, 18, 21]]);
+            }, _callee194, null, [[4, 15, 18, 21]]);
           }))();
         } //--------------------------------------------
 
@@ -41023,6 +42597,732 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "state": "./www-mod-page.json",
     "mixins": "./www-mod-page.mjs"
   }); //============================================================
+  // JOIN: mod/shop/www-mod-shop.json
+  //============================================================
+
+  Ti.Preload("ti/lib/www/mod/shop/www-mod-shop.json", {
+    "basket": [],
+    "payment": null,
+    "paths": {
+      "buyIt": "entity/buy/it",
+      "buyRemove": "entity/buy/rm",
+      "buyGetAll": "entity/buy/all",
+      "buyClean": "entity/buy/clean",
+      "objs": "objs",
+      "buy": "pay/buy",
+      "pay": "pay/pay",
+      "checkOrder": "pay/check"
+    }
+  }); //============================================================
+  // JOIN: mod/shop/www-mod-shop.mjs
+  //============================================================
+
+  (function () {
+    var _M = {
+      ////////////////////////////////////////////////
+      getters: {
+        //--------------------------------------------
+        urls: function urls(state, getters, rootState, rootGetters) {
+          var map = {};
+
+          _.forEach(state.paths, function (ph, key) {
+            map[key] = rootGetters.getApiUrl(ph);
+          });
+
+          return map;
+        } //--------------------------------------------
+
+      },
+      ////////////////////////////////////////////////
+      mutations: {
+        //--------------------------------------------
+        appendBasket: function appendBasket(state, buyIt) {
+          state.basket = _.concat(state.basket, buyIt);
+        },
+        //--------------------------------------------
+        setBasket: function setBasket(state) {
+          var buyIts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+          state.basket = buyIts;
+        },
+        //--------------------------------------------
+        setPayment: function setPayment(state, pay) {
+          state.payment = pay;
+        },
+        //--------------------------------------------
+        setPaths: function setPaths(state, paths) {
+          state.paths = _.cloneDeep(paths);
+        },
+        //--------------------------------------------
+        mergePaths: function mergePaths(state, paths) {
+          _.assign(state.paths, paths);
+        } //--------------------------------------------
+
+      },
+      ////////////////////////////////////////////////
+      actions: {
+        //--------------------------------------------
+        fetchOrder: function fetchOrder(_ref210) {
+          var _arguments44 = arguments;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee195() {
+            var getters, rootState, _ref211, orderId, payType, reo;
+
+            return regeneratorRuntime.wrap(function _callee195$(_context197) {
+              while (1) {
+                switch (_context197.prev = _context197.next) {
+                  case 0:
+                    getters = _ref210.getters, rootState = _ref210.rootState;
+                    _ref211 = _arguments44.length > 1 && _arguments44[1] !== undefined ? _arguments44[1] : {}, orderId = _ref211.orderId, payType = _ref211.payType;
+
+                    if (orderId) {
+                      _context197.next = 4;
+                      break;
+                    }
+
+                    return _context197.abrupt("return");
+
+                  case 4:
+                    _context197.next = 6;
+                    return Ti.Http.get(getters.urls.pay, {
+                      params: {
+                        ticket: rootState.auth.ticket,
+                        id: orderId,
+                        pt: payType
+                      },
+                      as: "json"
+                    });
+
+                  case 6:
+                    reo = _context197.sent;
+
+                    if (!reo.ok) {
+                      _context197.next = 11;
+                      break;
+                    }
+
+                    return _context197.abrupt("return", reo.data);
+
+                  case 11:
+                    console.warn("Fail to loadBuyItems", {
+                      items: items,
+                      reo: reo
+                    });
+
+                  case 12:
+                  case "end":
+                    return _context197.stop();
+                }
+              }
+            }, _callee195);
+          }))();
+        },
+        //--------------------------------------------
+        createOrder: function createOrder(_ref212) {
+          var _arguments45 = arguments;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee196() {
+            var getters, rootState, _ref213, payType, items, reo;
+
+            return regeneratorRuntime.wrap(function _callee196$(_context198) {
+              while (1) {
+                switch (_context198.prev = _context198.next) {
+                  case 0:
+                    getters = _ref212.getters, rootState = _ref212.rootState;
+                    _ref213 = _arguments45.length > 1 && _arguments45[1] !== undefined ? _arguments45[1] : {}, payType = _ref213.payType, items = _ref213.items;
+
+                    if (!(!payType || _.isEmpty(items))) {
+                      _context198.next = 4;
+                      break;
+                    }
+
+                    return _context198.abrupt("return");
+
+                  case 4:
+                    _context198.next = 6;
+                    return Ti.Http.post(getters.urls.buy, {
+                      params: {
+                        ticket: rootState.auth.ticket
+                      },
+                      headers: {
+                        "Content-Type": "application/json;charset=utf-8"
+                      },
+                      body: JSON.stringify({
+                        pay_tp: payType,
+                        products: items
+                      }),
+                      as: "json"
+                    });
+
+                  case 6:
+                    reo = _context198.sent;
+
+                    if (!reo.ok) {
+                      _context198.next = 11;
+                      break;
+                    }
+
+                    return _context198.abrupt("return", reo.data);
+
+                  case 11:
+                    console.warn("Fail to loadBuyItems", {
+                      items: items,
+                      reo: reo
+                    });
+
+                  case 12:
+                  case "end":
+                    return _context198.stop();
+                }
+              }
+            }, _callee196);
+          }))();
+        },
+        //--------------------------------------------
+        checkOrder: function checkOrder(_ref214, orderId) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee197() {
+            var getters, rootState, reo;
+            return regeneratorRuntime.wrap(function _callee197$(_context199) {
+              while (1) {
+                switch (_context199.prev = _context199.next) {
+                  case 0:
+                    getters = _ref214.getters, rootState = _ref214.rootState;
+                    console.log("checkOrder");
+
+                    if (orderId) {
+                      _context199.next = 4;
+                      break;
+                    }
+
+                    return _context199.abrupt("return");
+
+                  case 4:
+                    _context199.next = 6;
+                    return Ti.Http.get(getters.urls.checkOrder, {
+                      params: {
+                        ticket: rootState.auth.ticket,
+                        id: orderId
+                      },
+                      as: "json"
+                    });
+
+                  case 6:
+                    reo = _context199.sent;
+
+                    if (!reo.ok) {
+                      _context199.next = 11;
+                      break;
+                    }
+
+                    return _context199.abrupt("return", reo.data);
+
+                  case 11:
+                    console.warn("Fail to loadBuyItems", {
+                      items: items,
+                      reo: reo
+                    });
+
+                  case 12:
+                  case "end":
+                    return _context199.stop();
+                }
+              }
+            }, _callee197);
+          }))();
+        },
+        //--------------------------------------------
+        loadBuyItems: function loadBuyItems(_ref215, _ref216) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee198() {
+            var getters, commit, _ref216$items, items, _ref216$commitDataKey, commitDataKey, _ref216$commitTarget, commitTarget, ids, amounts, reo, its;
+
+            return regeneratorRuntime.wrap(function _callee198$(_context200) {
+              while (1) {
+                switch (_context200.prev = _context200.next) {
+                  case 0:
+                    getters = _ref215.getters, commit = _ref215.commit;
+                    _ref216$items = _ref216.items, items = _ref216$items === void 0 ? [] : _ref216$items, _ref216$commitDataKey = _ref216.commitDataKey, commitDataKey = _ref216$commitDataKey === void 0 ? "goods" : _ref216$commitDataKey, _ref216$commitTarget = _ref216.commitTarget, commitTarget = _ref216$commitTarget === void 0 ? "page/updateData" : _ref216$commitTarget;
+                    console.log("loadBuyItems", items); // Gether ids
+
+                    ids = [];
+                    amounts = {};
+
+                    _.forEach(items, function (it) {
+                      var m = /^(\d+):(.+)$/.exec(it);
+
+                      if (m) {
+                        var amount = m[1] * 1;
+                        var id = m[2];
+
+                        if (id && amount > 0) {
+                          ids.push("id:".concat(id));
+                          amounts[id] = amount;
+                        }
+                      }
+                    }); // Guard
+
+
+                    if (!_.isEmpty(ids)) {
+                      _context200.next = 8;
+                      break;
+                    }
+
+                    return _context200.abrupt("return");
+
+                  case 8:
+                    _context200.next = 10;
+                    return Ti.Http.get(getters.urls.objs, {
+                      params: {
+                        phs: ids.join(" ")
+                      },
+                      as: "json"
+                    });
+
+                  case 10:
+                    reo = _context200.sent;
+
+                    // OK
+                    if (reo.ok) {
+                      its = [];
+
+                      _.forEach(reo.data, function (obj) {
+                        var id = obj.id;
+                        var amount = amounts[id];
+                        its.push({
+                          id: id,
+                          amount: amount,
+                          obj: obj
+                        });
+                      });
+
+                      commit(commitTarget, {
+                        key: commitDataKey,
+                        value: its
+                      }, {
+                        root: true
+                      });
+                    } // Fail
+                    else {
+                        console.warn("Fail to loadBuyItems", {
+                          items: items,
+                          reo: reo
+                        });
+                      }
+
+                  case 12:
+                  case "end":
+                    return _context200.stop();
+                }
+              }
+            }, _callee198);
+          }))();
+        },
+        //--------------------------------------------
+        checkoutBasket: function checkoutBasket(_ref217) {
+          var _arguments46 = arguments;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee199() {
+            var state, dispatch, _ref218, _ref218$checkoutPage, checkoutPage, items;
+
+            return regeneratorRuntime.wrap(function _callee199$(_context201) {
+              while (1) {
+                switch (_context201.prev = _context201.next) {
+                  case 0:
+                    state = _ref217.state, dispatch = _ref217.dispatch;
+                    _ref218 = _arguments46.length > 1 && _arguments46[1] !== undefined ? _arguments46[1] : {}, _ref218$checkoutPage = _ref218.checkoutPage, checkoutPage = _ref218$checkoutPage === void 0 ? "page/shop/checkout.html" : _ref218$checkoutPage;
+                    // Prepare the list
+                    items = [];
+
+                    _.forEach(state.basket, function (it) {
+                      if (it.name && it.count > 0) {
+                        items.push({
+                          id: it.name,
+                          amount: it.count
+                        });
+                      }
+                    }); // Do the checkout
+
+
+                    if (_.isEmpty(items)) {
+                      _context201.next = 9;
+                      break;
+                    }
+
+                    _context201.next = 7;
+                    return dispatch("checkout", {
+                      items: items,
+                      checkoutPage: checkoutPage
+                    });
+
+                  case 7:
+                    _context201.next = 10;
+                    break;
+
+                  case 9:
+                    console.warn("!checkoutBasket: Empty Basket");
+
+                  case 10:
+                  case "end":
+                    return _context201.stop();
+                }
+              }
+            }, _callee199);
+          }))();
+        },
+        //--------------------------------------------
+
+        /***
+         * @param items{Array} - Array with item `{id:xxx, amount:1}`
+         */
+        checkout: function checkout(_ref219) {
+          var _arguments47 = arguments;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee200() {
+            var commit, dispatch, getters, rootState, _ref220, _ref220$items, items, _ref220$checkoutPage, checkoutPage, its;
+
+            return regeneratorRuntime.wrap(function _callee200$(_context202) {
+              while (1) {
+                switch (_context202.prev = _context202.next) {
+                  case 0:
+                    commit = _ref219.commit, dispatch = _ref219.dispatch, getters = _ref219.getters, rootState = _ref219.rootState;
+                    _ref220 = _arguments47.length > 1 && _arguments47[1] !== undefined ? _arguments47[1] : {}, _ref220$items = _ref220.items, items = _ref220$items === void 0 ? [] : _ref220$items, _ref220$checkoutPage = _ref220.checkoutPage, checkoutPage = _ref220$checkoutPage === void 0 ? "page/shop/checkout.html" : _ref220$checkoutPage;
+                    console.log("checkout", items); // encode the items as params
+
+                    its = [];
+
+                    _.forEach(items, function (it) {
+                      if (it.id && it.amount > 0) its.push("".concat(it.amount, ":").concat(it.id));
+                    }); // Guard
+
+
+                    if (!_.isEmpty(its)) {
+                      _context202.next = 8;
+                      break;
+                    }
+
+                    console.warn("!checkout: Empty Item");
+                    return _context202.abrupt("return");
+
+                  case 8:
+                    _context202.next = 10;
+                    return dispatch("navTo", {
+                      value: checkoutPage,
+                      params: {
+                        its: its.join(",")
+                      }
+                    }, {
+                      root: true
+                    });
+
+                  case 10:
+                  case "end":
+                    return _context202.stop();
+                }
+              }
+            }, _callee200);
+          }))();
+        },
+        //--------------------------------------------
+
+        /***
+         * @param id{String} - Product ID
+         * @param n{Integer} - Product buy count, 1 as default
+         * @param reset{Boolean} If true, `n` will be take as the final buy count.
+         *  else if false, `n` will be take as increasment. Of cause, 
+         *  negative `n` will cause the decreasment.
+         */
+        updateBasket: function updateBasket(_ref221) {
+          var _arguments48 = arguments;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee201() {
+            var commit, dispatch, getters, rootState, _ref222, id, _ref222$n, n, _ref222$reset, reset, success, fail, invalid, noTicket, ticket, reo;
+
+            return regeneratorRuntime.wrap(function _callee201$(_context203) {
+              while (1) {
+                switch (_context203.prev = _context203.next) {
+                  case 0:
+                    commit = _ref221.commit, dispatch = _ref221.dispatch, getters = _ref221.getters, rootState = _ref221.rootState;
+                    _ref222 = _arguments48.length > 1 && _arguments48[1] !== undefined ? _arguments48[1] : {}, id = _ref222.id, _ref222$n = _ref222.n, n = _ref222$n === void 0 ? 1 : _ref222$n, _ref222$reset = _ref222.reset, reset = _ref222$reset === void 0 ? false : _ref222$reset, success = _ref222.success, fail = _ref222.fail, invalid = _ref222.invalid, noTicket = _ref222.noTicket;
+                    console.log("shop:addToBasket", {
+                      id: id,
+                      success: success,
+                      fail: fail
+                    }); //..........................................
+                    // N is 0, do nothing
+
+                    if (!(n === 0 && !reset)) {
+                      _context203.next = 5;
+                      break;
+                    }
+
+                    return _context203.abrupt("return");
+
+                  case 5:
+                    //..........................................
+                    // Guard Ticket
+                    ticket = rootState.auth.ticket;
+
+                    if (ticket) {
+                      _context203.next = 15;
+                      break;
+                    }
+
+                    if (!noTicket) {
+                      _context203.next = 13;
+                      break;
+                    }
+
+                    _context203.next = 10;
+                    return dispatch(noTicket.action, noTicket.payload, {
+                      root: true
+                    });
+
+                  case 10:
+                    return _context203.abrupt("return", _context203.sent);
+
+                  case 13:
+                    Ti.Alert("Without Session Ticket!!!");
+                    return _context203.abrupt("return");
+
+                  case 15:
+                    if (id) {
+                      _context203.next = 24;
+                      break;
+                    }
+
+                    if (!invalid) {
+                      _context203.next = 22;
+                      break;
+                    }
+
+                    _context203.next = 19;
+                    return dispatch(invalid.action, invalid.payload, {
+                      root: true
+                    });
+
+                  case 19:
+                    return _context203.abrupt("return", _context203.sent);
+
+                  case 22:
+                    Ti.Alert("Without Product ID!!!");
+                    return _context203.abrupt("return");
+
+                  case 24:
+                    //..........................................
+                    // Check to remote
+                    commit("setLoading", true, {
+                      root: true
+                    }); //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+                    _context203.next = 27;
+                    return Ti.Http.get(getters.urls.buyIt, {
+                      params: {
+                        ticket: ticket,
+                        id: id,
+                        n: n,
+                        r: reset
+                      },
+                      as: "json"
+                    });
+
+                  case 27:
+                    reo = _context203.sent;
+
+                    if (!reo.ok) {
+                      _context203.next = 35;
+                      break;
+                    }
+
+                    commit("setBasket", reo.data); // Success
+
+                    if (!success) {
+                      _context203.next = 33;
+                      break;
+                    }
+
+                    _context203.next = 33;
+                    return dispatch(success.action, success.payload, {
+                      root: true
+                    });
+
+                  case 33:
+                    _context203.next = 41;
+                    break;
+
+                  case 35:
+                    if (!fail) {
+                      _context203.next = 40;
+                      break;
+                    }
+
+                    _context203.next = 38;
+                    return dispatch(fail.action, fail.payload, {
+                      root: true
+                    });
+
+                  case 38:
+                    _context203.next = 41;
+                    break;
+
+                  case 40:
+                    console.warn("shop.updateBasket fail:", reo);
+
+                  case 41:
+                    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                    commit("setLoading", false, {
+                      root: true
+                    });
+
+                  case 42:
+                  case "end":
+                    return _context203.stop();
+                }
+              }
+            }, _callee201);
+          }))();
+        },
+        //--------------------------------------------
+        cleanBasket: function cleanBasket(_ref223) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee202() {
+            var commit, getters, rootState, ticket, reo;
+            return regeneratorRuntime.wrap(function _callee202$(_context204) {
+              while (1) {
+                switch (_context204.prev = _context204.next) {
+                  case 0:
+                    commit = _ref223.commit, getters = _ref223.getters, rootState = _ref223.rootState;
+                    console.log("shop:cleanBasket"); //..........................................
+                    // Guard Ticket
+
+                    ticket = rootState.auth.ticket;
+
+                    if (ticket) {
+                      _context204.next = 5;
+                      break;
+                    }
+
+                    return _context204.abrupt("return");
+
+                  case 5:
+                    _context204.next = 7;
+                    return Ti.Confirm("i18n:shop-basket-clean-confirm");
+
+                  case 7:
+                    if (_context204.sent) {
+                      _context204.next = 9;
+                      break;
+                    }
+
+                    return _context204.abrupt("return");
+
+                  case 9:
+                    //..........................................
+                    // Check to remote
+                    commit("setLoading", true, {
+                      root: true
+                    }); // Current Session ...
+
+                    _context204.next = 12;
+                    return Ti.Http.get(getters.urls.buyClean, {
+                      params: {
+                        ticket: ticket
+                      },
+                      as: "json"
+                    });
+
+                  case 12:
+                    reo = _context204.sent;
+                    commit("setLoading", false, {
+                      root: true
+                    }); //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                    // success
+
+                    if (reo.ok) {
+                      commit("setBasket", []);
+                    } //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                    // Fail
+                    else {
+                        console.error("www/shop module: Fail to reloadBasket", reo);
+                      } //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+                  case 15:
+                  case "end":
+                    return _context204.stop();
+                }
+              }
+            }, _callee202);
+          }))();
+        },
+        //--------------------------------------------
+        reloadBasket: function reloadBasket(_ref224) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee203() {
+            var commit, getters, rootState, ticket, reo;
+            return regeneratorRuntime.wrap(function _callee203$(_context205) {
+              while (1) {
+                switch (_context205.prev = _context205.next) {
+                  case 0:
+                    commit = _ref224.commit, getters = _ref224.getters, rootState = _ref224.rootState;
+                    console.log("shop:reloadBasket"); //..........................................
+                    // Guard Ticket
+
+                    ticket = rootState.auth.ticket;
+
+                    if (ticket) {
+                      _context205.next = 5;
+                      break;
+                    }
+
+                    return _context205.abrupt("return");
+
+                  case 5:
+                    //..........................................
+                    // Check to remote
+                    commit("setLoading", true, {
+                      root: true
+                    }); // Current Session ...
+
+                    _context205.next = 8;
+                    return Ti.Http.get(getters.urls.buyGetAll, {
+                      params: {
+                        ticket: ticket
+                      },
+                      as: "json"
+                    });
+
+                  case 8:
+                    reo = _context205.sent;
+                    commit("setLoading", false, {
+                      root: true
+                    }); //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                    // success
+
+                    if (reo.ok) {
+                      commit("setBasket", reo.data);
+                    } //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                    // Fail
+                    else {
+                        console.error("www/shop module: Fail to reloadBasket", reo);
+                      } //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+                  case 11:
+                  case "end":
+                    return _context205.stop();
+                }
+              }
+            }, _callee203);
+          }))();
+        } //--------------------------------------------
+
+      } // actions : {
+      ////////////////////////////////////////////////
+
+    };
+    Ti.Preload("ti/lib/www/mod/shop/www-mod-shop.mjs", _M);
+  })(); //============================================================
+  // JOIN: mod/shop/_mod.json
+  //============================================================
+
+
+  Ti.Preload("ti/lib/www/mod/shop/_mod.json", {
+    "name": "www-mod-shop",
+    "namespaced": true,
+    "state": "./www-mod-shop.json",
+    "mixins": "./www-mod-shop.mjs"
+  }); //============================================================
   // JOIN: mod/www-mod-site.mjs
   //============================================================
 
@@ -41030,18 +43330,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _M = {
       /////////////////////////////////////////
       getters: {
-        //-------------------------------------
+        //--------------------------------------------
         // Pre-compiled Site Routers
         routerList: function routerList(state) {
           var list = [];
 
           _.forEach(state.router, function () {
-            var _ref195 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                match = _ref195.match,
-                _ref195$names = _ref195.names,
-                names = _ref195$names === void 0 ? [] : _ref195$names,
-                _ref195$page = _ref195.page,
-                page = _ref195$page === void 0 ? {} : _ref195$page;
+            var _ref225 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                match = _ref225.match,
+                _ref225$names = _ref225.names,
+                names = _ref225$names === void 0 ? [] : _ref225$names,
+                _ref225$page = _ref225.page,
+                page = _ref225$page === void 0 ? {} : _ref225$page;
 
             var regex = new RegExp(match); // Pre-compiled
 
@@ -41074,7 +43374,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           return list;
         },
-        //-------------------------------------
+        //--------------------------------------------
         // Site Action Mapping
         actions: function actions(state) {
           //console.log("www-mod-site::getters.actions")
@@ -41130,13 +43430,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           return map;
         },
-        //-------------------------------------
+        //--------------------------------------------
         getUrl: function getUrl(state) {
           return function (path) {
             return Ti.Util.appendPath(state.base, path);
           };
         },
-        //-------------------------------------
+        //--------------------------------------------
         getApiUrl: function getApiUrl(state) {
           return function (path) {
             if (path.startsWith("/")) {
@@ -41145,16 +43445,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             return Ti.Util.appendPath(state.apiBase, path);
           };
-        } //-------------------------------------
+        } //--------------------------------------------
 
       },
       /////////////////////////////////////////
       mutations: {
-        //-------------------------------------
+        //--------------------------------------------
         setSiteId: function setSiteId(state, siteId) {
           state.siteId = siteId;
         },
-        //-------------------------------------
+        //--------------------------------------------
         setDomain: function setDomain(state, domain) {
           state.domain = domain;
           state.base = Ti.S.renderBy(state.base || "/www/${domain}/", {
@@ -41164,36 +43464,40 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             domain: domain
           });
         },
-        //-------------------------------------
+        //--------------------------------------------
         setLoading: function setLoading(state, loading) {
           state.loading = loading;
         },
-        //-------------------------------------
-        setPageReady: function setPageReady(state, isReady) {
-          state.isReady = isReady;
-        } //-------------------------------------
+        //--------------------------------------------
+        explainSiteState: function explainSiteState(state) {
+          state.base = Ti.Util.explainObj(state, state.base);
+          state.apiBase = Ti.Util.explainObj(state, state.apiBase);
+          state.cdnBase = Ti.Util.explainObj(state, state.cdnBase);
+          state.logo = Ti.Util.explainObj(state, state.logo);
+          state.entry = Ti.Util.explainObj(state, state.entry);
+        } //--------------------------------------------
 
       },
       /////////////////////////////////////////
       actions: {
-        //-------------------------------------
+        //--------------------------------------------
         navBackward: function navBackward() {
           if (window.history) {
             window.history.back();
           }
         },
-        //-------------------------------------
-        openUrl: function openUrl(_ref196, _ref197) {
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee187() {
-            var state, url, _ref197$target, target, _ref197$method, method, _ref197$params, params, _ref197$delay, delay;
+        //--------------------------------------------
+        openUrl: function openUrl(_ref226, _ref227) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee204() {
+            var state, url, _ref227$target, target, _ref227$method, method, _ref227$params, params, _ref227$delay, delay;
 
-            return regeneratorRuntime.wrap(function _callee187$(_context189) {
+            return regeneratorRuntime.wrap(function _callee204$(_context206) {
               while (1) {
-                switch (_context189.prev = _context189.next) {
+                switch (_context206.prev = _context206.next) {
                   case 0:
-                    state = _ref196.state;
-                    url = _ref197.url, _ref197$target = _ref197.target, target = _ref197$target === void 0 ? "_self" : _ref197$target, _ref197$method = _ref197.method, method = _ref197$method === void 0 ? "GET" : _ref197$method, _ref197$params = _ref197.params, params = _ref197$params === void 0 ? {} : _ref197$params, _ref197$delay = _ref197.delay, delay = _ref197$delay === void 0 ? 0 : _ref197$delay;
-                    _context189.next = 4;
+                    state = _ref226.state;
+                    url = _ref227.url, _ref227$target = _ref227.target, target = _ref227$target === void 0 ? "_self" : _ref227$target, _ref227$method = _ref227.method, method = _ref227$method === void 0 ? "GET" : _ref227$method, _ref227$params = _ref227.params, params = _ref227$params === void 0 ? {} : _ref227$params, _ref227$delay = _ref227.delay, delay = _ref227$delay === void 0 ? 0 : _ref227$delay;
+                    _context206.next = 4;
                     return Ti.Be.Open(url, {
                       target: target,
                       method: method,
@@ -41203,43 +43507,44 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 4:
                   case "end":
-                    return _context189.stop();
+                    return _context206.stop();
                 }
               }
-            }, _callee187);
+            }, _callee204);
           }))();
         },
-        //-------------------------------------
+        //--------------------------------------------
         // Only handle the "page|dispatch"
-        navTo: function navTo(_ref198) {
-          var _arguments43 = arguments;
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee188() {
-            var state, commit, dispatch, _ref199, _ref199$type, type, value, anchor, data, params, _ref199$pushHistory, pushHistory;
+        navTo: function navTo(_ref228) {
+          var _arguments49 = arguments;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee205() {
+            var commit, dispatch, _ref229, _ref229$type, type, value, anchor, data, params;
 
-            return regeneratorRuntime.wrap(function _callee188$(_context190) {
+            return regeneratorRuntime.wrap(function _callee205$(_context207) {
               while (1) {
-                switch (_context190.prev = _context190.next) {
+                switch (_context207.prev = _context207.next) {
                   case 0:
-                    state = _ref198.state, commit = _ref198.commit, dispatch = _ref198.dispatch;
-                    _ref199 = _arguments43.length > 1 && _arguments43[1] !== undefined ? _arguments43[1] : {}, _ref199$type = _ref199.type, type = _ref199$type === void 0 ? "page" : _ref199$type, value = _ref199.value, anchor = _ref199.anchor, data = _ref199.data, params = _ref199.params, _ref199$pushHistory = _ref199.pushHistory, pushHistory = _ref199$pushHistory === void 0 ? true : _ref199$pushHistory;
+                    commit = _ref228.commit, dispatch = _ref228.dispatch;
+                    _ref229 = _arguments49.length > 1 && _arguments49[1] !== undefined ? _arguments49[1] : {}, _ref229$type = _ref229.type, type = _ref229$type === void 0 ? "page" : _ref229$type, value = _ref229.value, anchor = _ref229.anchor, data = _ref229.data, params = _ref229.params;
                     console.log("navToPage::", value); // Guarding
 
                     if (value) {
-                      _context190.next = 5;
+                      _context207.next = 5;
                       break;
                     }
 
-                    return _context190.abrupt("return");
+                    return _context207.abrupt("return");
 
                   case 5:
                     if (!("page" == type)) {
-                      _context190.next = 14;
+                      _context207.next = 12;
                       break;
                     }
 
-                    commit("setPageReady", false);
-                    commit("setLoading", true);
-                    _context190.next = 10;
+                    commit("setLoading", true); // Reload
+                    //console.log("@page:reload ...", _.cloneDeep(state.auth))
+
+                    _context207.next = 9;
                     return dispatch("page/reload", {
                       path: value,
                       anchor: anchor,
@@ -41247,30 +43552,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       data: data
                     });
 
-                  case 10:
+                  case 9:
                     commit("setLoading", false);
-                    commit("setPageReady", true);
-                    _context190.next = 17;
+                    _context207.next = 15;
                     break;
 
-                  case 14:
+                  case 12:
                     if (!("dispatch" == type)) {
-                      _context190.next = 17;
+                      _context207.next = 15;
                       break;
                     }
 
-                    _context190.next = 17;
+                    _context207.next = 15;
                     return dispatch(value, params);
 
-                  case 17:
+                  case 15:
                   case "end":
-                    return _context190.stop();
+                    return _context207.stop();
                 }
               }
-            }, _callee188);
+            }, _callee205);
           }))();
         },
-        //-------------------------------------
+        //--------------------------------------------
 
         /***
          * Handle the action dispatching.
@@ -41290,24 +43594,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
          * 
          * @return {void}
          */
-        doAction: function doAction(_ref200) {
-          var _arguments44 = arguments;
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee189() {
-            var state, dispatch, _ref201, action, payload, _ref201$args, args, pld, context;
+        doAction: function doAction(_ref230) {
+          var _arguments50 = arguments;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee206() {
+            var state, dispatch, _ref231, action, payload, _ref231$args, args, pld, context;
 
-            return regeneratorRuntime.wrap(function _callee189$(_context191) {
+            return regeneratorRuntime.wrap(function _callee206$(_context208) {
               while (1) {
-                switch (_context191.prev = _context191.next) {
+                switch (_context208.prev = _context208.next) {
                   case 0:
-                    state = _ref200.state, dispatch = _ref200.dispatch;
-                    _ref201 = _arguments44.length > 1 && _arguments44[1] !== undefined ? _arguments44[1] : {}, action = _ref201.action, payload = _ref201.payload, _ref201$args = _ref201.args, args = _ref201$args === void 0 ? [] : _ref201$args;
+                    state = _ref230.state, dispatch = _ref230.dispatch;
+                    _ref231 = _arguments50.length > 1 && _arguments50[1] !== undefined ? _arguments50[1] : {}, action = _ref231.action, payload = _ref231.payload, _ref231$args = _ref231.args, args = _ref231$args === void 0 ? [] : _ref231$args;
 
                     if (action) {
-                      _context191.next = 4;
+                      _context208.next = 4;
                       break;
                     }
 
-                    return _context191.abrupt("return");
+                    return _context208.abrupt("return");
 
                   case 4:
                     // Use args directrly cause payload without defined
@@ -41326,69 +43630,190 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
                     console.log("invoke->", action, pld);
-                    _context191.next = 8;
+                    _context208.next = 8;
                     return dispatch(action, pld);
 
                   case 8:
                   case "end":
-                    return _context191.stop();
+                    return _context208.stop();
                 }
               }
-            }, _callee189);
+            }, _callee206);
           }))();
         },
-        //-------------------------------------
-        reload: function reload(_ref202) {
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee190() {
-            var state, commit, dispatch, loc, params, ss, _iterator100, _step100, s, pos, k, v, entry;
+        //--------------------------------------------
 
-            return regeneratorRuntime.wrap(function _callee190$(_context192) {
+        /***
+         * Invoke action by given name
+         */
+        invokeAction: function invokeAction(_ref232) {
+          var _arguments51 = arguments;
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee207() {
+            var getters, dispatch, _ref233, _ref233$name, name, _ref233$args, args, actions, AT, canNames, _canNames, _canNames2, names, aName, _iterator96, _step96, a;
+
+            return regeneratorRuntime.wrap(function _callee207$(_context209) {
               while (1) {
-                switch (_context192.prev = _context192.next) {
+                switch (_context209.prev = _context209.next) {
                   case 0:
-                    state = _ref202.state, commit = _ref202.commit, dispatch = _ref202.dispatch;
+                    getters = _ref232.getters, dispatch = _ref232.dispatch;
+                    _ref233 = _arguments51.length > 1 && _arguments51[1] !== undefined ? _arguments51[1] : {}, _ref233$name = _ref233.name, name = _ref233$name === void 0 ? "" : _ref233$name, _ref233$args = _ref233.args, args = _ref233$args === void 0 ? [] : _ref233$args;
+
+                    /*
+                    The action should like
+                    {
+                      action : "xx/xx",
+                      payload : {} | [] | ...
+                    } 
+                    */
+                    actions = getters.actions;
+                    AT = _.get(actions, name); // Try fallback
+
+                    if (AT) {
+                      _context209.next = 15;
+                      break;
+                    }
+
+                    canNames = _.split(name, "::");
+
+                  case 6:
+                    if (!(canNames.length > 1)) {
+                      _context209.next = 15;
+                      break;
+                    }
+
+                    _canNames = canNames, _canNames2 = _toArray(_canNames), names = _canNames2.slice(1);
+                    aName = names.join("::");
+                    AT = _.get(actions, aName);
+
+                    if (!AT) {
+                      _context209.next = 12;
+                      break;
+                    }
+
+                    return _context209.abrupt("break", 15);
+
+                  case 12:
+                    canNames = names;
+                    _context209.next = 6;
+                    break;
+
+                  case 15:
+                    if (AT) {
+                      _context209.next = 17;
+                      break;
+                    }
+
+                    return _context209.abrupt("return");
+
+                  case 17:
+                    _context209.prev = 17;
+
+                    if (!_.isArray(AT)) {
+                      _context209.next = 38;
+                      break;
+                    }
+
+                    _iterator96 = _createForOfIteratorHelper(AT);
+                    _context209.prev = 20;
+
+                    _iterator96.s();
+
+                  case 22:
+                    if ((_step96 = _iterator96.n()).done) {
+                      _context209.next = 28;
+                      break;
+                    }
+
+                    a = _step96.value;
+                    _context209.next = 26;
+                    return dispatch("doAction", {
+                      action: a.action,
+                      payload: a.payload,
+                      args: args
+                    });
+
+                  case 26:
+                    _context209.next = 22;
+                    break;
+
+                  case 28:
+                    _context209.next = 33;
+                    break;
+
+                  case 30:
+                    _context209.prev = 30;
+                    _context209.t0 = _context209["catch"](20);
+
+                    _iterator96.e(_context209.t0);
+
+                  case 33:
+                    _context209.prev = 33;
+
+                    _iterator96.f();
+
+                    return _context209.finish(33);
+
+                  case 36:
+                    _context209.next = 45;
+                    break;
+
+                  case 38:
+                    if (!_.isString(AT)) {
+                      _context209.next = 43;
+                      break;
+                    }
+
+                    _context209.next = 41;
+                    return dispatch("doAction", {
+                      action: AT,
+                      args: args
+                    });
+
+                  case 41:
+                    _context209.next = 45;
+                    break;
+
+                  case 43:
+                    _context209.next = 45;
+                    return dispatch("doAction", {
+                      action: AT.action,
+                      payload: AT.payload,
+                      args: args
+                    });
+
+                  case 45:
+                    _context209.next = 50;
+                    break;
+
+                  case 47:
+                    _context209.prev = 47;
+                    _context209.t1 = _context209["catch"](17);
+                    console.error(_context209.t1);
+
+                  case 50:
+                  case "end":
+                    return _context209.stop();
+                }
+              }
+            }, _callee207, null, [[17, 47], [20, 30, 33, 36]]);
+          }))();
+        },
+        //--------------------------------------------
+        reload: function reload(_ref234) {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee208() {
+            var state, commit, dispatch, loc, entry;
+            return regeneratorRuntime.wrap(function _callee208$(_context210) {
+              while (1) {
+                switch (_context210.prev = _context210.next) {
+                  case 0:
+                    state = _ref234.state, commit = _ref234.commit, dispatch = _ref234.dispatch;
                     console.log("site.reload", state.entry, state.base); // Merge Site FuncSet
                     //console.log(state.utils)
                     // Init the base/apiBase
                     // Looking for the entry page
+                    // {href,protocol,host,port,path,search,query,hash,anchor}
 
-                    loc = {
-                      path: window.location.pathname,
-                      hash: window.location.hash,
-                      search: window.location.search
-                    }; // tidy query string
-
-                    if (loc.search && loc.search.startsWith("?")) {
-                      loc.search = loc.search.substring(1);
-                    } // Eval params
-
-
-                    params = {};
-
-                    if (loc.search) {
-                      ss = loc.search.split('&');
-                      _iterator100 = _createForOfIteratorHelper(ss);
-
-                      try {
-                        for (_iterator100.s(); !(_step100 = _iterator100.n()).done;) {
-                          s = _step100.value;
-                          pos = s.indexOf('=');
-
-                          if (pos > 0) {
-                            k = s.substring(0, pos);
-                            v = s.substring(pos + 1);
-                            params[k] = v;
-                          } else {
-                            params[s] = true;
-                          }
-                        }
-                      } catch (err) {
-                        _iterator100.e(err);
-                      } finally {
-                        _iterator100.f();
-                      }
-                    } // Update the auth
-
+                    loc = Ti.Util.parseHref(window.location.href); // Update the auth
 
                     commit("auth/mergePaths", state.authPaths); // Eval the entry page
 
@@ -41399,29 +43824,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     } // nav to page
 
 
-                    _context192.next = 11;
+                    _context210.next = 8;
                     return dispatch("navTo", {
                       type: "page",
                       value: entry,
-                      params: params,
+                      params: loc.params,
                       anchor: loc.hash,
                       pushHistory: false
                     });
 
-                  case 11:
+                  case 8:
                   case "end":
-                    return _context192.stop();
+                    return _context210.stop();
                 }
               }
-            }, _callee190);
+            }, _callee208);
           }))();
-        } //-------------------------------------
+        } //--------------------------------------------
 
       } /////////////////////////////////////////
 
     };
     Ti.Preload("ti/lib/www/mod/www-mod-site.mjs", _M);
   })(); //============================================================
+  // JOIN: cheap-markdown.mjs
+  //============================================================
+  //============================================================
   // JOIN: wn.manager/gui/layout.json
   //============================================================
 
@@ -41463,7 +43891,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "border": true,
         "blocks": [{
           "name": "sidebar",
-          "size": 180,
+          "size": "1.8rem",
           "body": "pcMainSideBar"
         }, {
           "name": "arena",
@@ -41472,7 +43900,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }]
       }, {
         "name": "footer",
-        "size": 32,
+        "size": ".32rem",
         "body": "pcFooter"
       }]
     },
@@ -41556,7 +43984,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       //.........................................
       CrumbData: function CrumbData() {
-        var _this208 = this;
+        var _this223 = this;
 
         return Wn.Obj.evalCrumbData({
           meta: this.meta,
@@ -41564,7 +43992,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           fromIndex: this.setup.firstCrumbIndex,
           homePath: this.setup.skyHomePath,
           self: function self(item) {
-            item.asterisk = _this208.isChanged;
+            item.asterisk = _this223.isChanged;
           }
         });
       },
@@ -41651,53 +44079,53 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _M = {
       //.........................................
       reloadMain: function reloadMain() {
-        var _this209 = this;
+        var _this224 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee191() {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee209() {
           var meta, m, viewName, cmdText, viewInfo, $app, view;
-          return regeneratorRuntime.wrap(function _callee191$(_context193) {
+          return regeneratorRuntime.wrap(function _callee209$(_context211) {
             while (1) {
-              switch (_context193.prev = _context193.next) {
+              switch (_context211.prev = _context211.next) {
                 case 0:
                   // Check meta
-                  meta = _this209.meta;
+                  meta = _this224.meta;
 
                   if (meta) {
-                    _context193.next = 5;
+                    _context211.next = 5;
                     break;
                   }
 
-                  _context193.next = 4;
+                  _context211.next = 4;
                   return Ti.Toast.Open("i18n:wn-manager-no-meta", "warn");
 
                 case 4:
-                  return _context193.abrupt("return", _context193.sent);
+                  return _context211.abrupt("return", _context211.sent);
 
                 case 5:
-                  if (!_this209.isLoading) {
-                    _context193.next = 10;
+                  if (!_this224.isLoading) {
+                    _context211.next = 10;
                     break;
                   }
 
                   console.log("!!!");
-                  _context193.next = 9;
+                  _context211.next = 9;
                   return Ti.Toast.Open("i18n:wn-manager-is-loading", "warn");
 
                 case 9:
-                  return _context193.abrupt("return", _context193.sent);
+                  return _context211.abrupt("return", _context211.sent);
 
                 case 10:
                   // Mark loading
-                  _this209.loading = true;
-                  _this209.comType = "ti-loading";
-                  _this209.comConf = {};
-                  _context193.prev = 13;
+                  _this224.loading = true;
+                  _this224.comType = "ti-loading";
+                  _this224.comConf = {};
+                  _context211.prev = 13;
 
                   //....................................
                   // then try to unregisterModule safely
-                  if (_this209.view && _this209.view.modType) {
+                  if (_this224.view && _this224.view.modType) {
                     try {
-                      _this209.$store.unregisterModule("main");
+                      _this224.$store.unregisterModule("main");
                     } catch (E) {
                       console.error("Error when unregisterModule", E);
                     }
@@ -41719,19 +44147,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   // Load the main view
 
 
-                  _context193.next = 20;
+                  _context211.next = 20;
                   return Wn.Sys.exec2(cmdText, {
                     as: "json"
                   });
 
                 case 20:
-                  viewInfo = _context193.sent;
-                  $app = Ti.App(_this209);
-                  _context193.next = 24;
+                  viewInfo = _context211.sent;
+                  $app = Ti.App(_this224);
+                  _context211.next = 24;
                   return $app.loadView(viewInfo);
 
                 case 24:
-                  view = _context193.sent;
+                  view = _context211.sent;
 
                   //..................................
                   if (Ti.IsInfo("app/wn.manager")) {
@@ -41741,94 +44169,94 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
                   if (!(view && view.modType)) {
-                    _context193.next = 30;
+                    _context211.next = 30;
                     break;
                   }
 
                   //console.log("load main!!!")
-                  _this209.$store.registerModule("main", view.mod);
+                  _this224.$store.registerModule("main", view.mod);
 
-                  _context193.next = 30;
+                  _context211.next = 30;
                   return $app.dispatch("main/reload", meta);
 
                 case 30:
                   //..................................
-                  _this209.comType = view.comName;
-                  _this209.comIcon = view.comIcon;
-                  _this209.comConf = view.comConf;
-                  _this209.view = view;
-                  _this209.myMessage = null;
-                  _this209.myIndicator = null;
+                  _this224.comType = view.comName;
+                  _this224.comIcon = view.comIcon;
+                  _this224.comConf = view.comConf;
+                  _this224.view = view;
+                  _this224.myMessage = null;
+                  _this224.myIndicator = null;
 
-                  _this209.OnUpdateActions(view.actions);
+                  _this224.OnUpdateActions(view.actions);
 
                 case 37:
-                  _context193.prev = 37;
-                  _this209.loading = false;
-                  return _context193.finish(37);
+                  _context211.prev = 37;
+                  _this224.loading = false;
+                  return _context211.finish(37);
 
                 case 40:
                 case "end":
-                  return _context193.stop();
+                  return _context211.stop();
               }
             }
-          }, _callee191, null, [[13,, 37, 40]]);
+          }, _callee209, null, [[13,, 37, 40]]);
         }))();
       },
       //.........................................
       reloadAncestors: function reloadAncestors() {
-        var _this210 = this;
+        var _this225 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee192() {
-          return regeneratorRuntime.wrap(function _callee192$(_context194) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee210() {
+          return regeneratorRuntime.wrap(function _callee210$(_context212) {
             while (1) {
-              switch (_context194.prev = _context194.next) {
+              switch (_context212.prev = _context212.next) {
                 case 0:
-                  if (!_this210.hasMeta) {
-                    _context194.next = 5;
+                  if (!_this225.hasMeta) {
+                    _context212.next = 5;
                     break;
                   }
 
-                  _context194.next = 3;
-                  return Wn.Io.loadAncestors("id:" + _this210.MetaId);
+                  _context212.next = 3;
+                  return Wn.Io.loadAncestors("id:" + _this225.MetaId);
 
                 case 3:
-                  _this210.ancestors = _context194.sent;
-                  _this210.parent = _.last(_this210.ancestors);
+                  _this225.ancestors = _context212.sent;
+                  _this225.parent = _.last(_this225.ancestors);
 
                 case 5:
                 case "end":
-                  return _context194.stop();
+                  return _context212.stop();
               }
             }
-          }, _callee192);
+          }, _callee210);
         }))();
       },
       //.........................................
       reloadSidebar: function reloadSidebar() {
-        var _this211 = this;
+        var _this226 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee193() {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee211() {
           var reo;
-          return regeneratorRuntime.wrap(function _callee193$(_context195) {
+          return regeneratorRuntime.wrap(function _callee211$(_context213) {
             while (1) {
-              switch (_context195.prev = _context195.next) {
+              switch (_context213.prev = _context213.next) {
                 case 0:
-                  _context195.next = 2;
+                  _context213.next = 2;
                   return Wn.Sys.exec("ti sidebar -cqn", {
                     as: "json"
                   });
 
                 case 2:
-                  reo = _context195.sent;
-                  _this211.sidebar = reo.sidebar;
+                  reo = _context213.sent;
+                  _this226.sidebar = reo.sidebar;
 
                 case 4:
                 case "end":
-                  return _context195.stop();
+                  return _context213.stop();
               }
             }
-          }, _callee193);
+          }, _callee211);
         }))();
       },
       //.........................................
@@ -42074,10 +44502,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         OnCurrentMetaChange: function OnCurrentMetaChange() {
-          var _ref203 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              id = _ref203.id,
-              path = _ref203.path,
-              value = _ref203.value;
+          var _ref235 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              id = _ref235.id,
+              path = _ref235.path,
+              value = _ref235.value;
 
           this.openView(id || path || value);
         },
@@ -42102,59 +44530,59 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         },
         //--------------------------------------
         openView: function openView(oid) {
-          var _this212 = this;
+          var _this227 = this;
 
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee194() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee212() {
             var bombed, ph;
-            return regeneratorRuntime.wrap(function _callee194$(_context196) {
+            return regeneratorRuntime.wrap(function _callee212$(_context214) {
               while (1) {
-                switch (_context196.prev = _context196.next) {
+                switch (_context214.prev = _context214.next) {
                   case 0:
                     if (_.isString(oid)) {
-                      _context196.next = 2;
+                      _context214.next = 2;
                       break;
                     }
 
-                    return _context196.abrupt("return");
+                    return _context214.abrupt("return");
 
                   case 2:
-                    _context196.next = 4;
+                    _context214.next = 4;
                     return Ti.Fuse.fire();
 
                   case 4:
-                    bombed = _context196.sent;
+                    bombed = _context214.sent;
 
                     if (bombed) {
-                      _context196.next = 7;
+                      _context214.next = 7;
                       break;
                     }
 
-                    return _context196.abrupt("return");
+                    return _context214.abrupt("return");
 
                   case 7:
                     // Open It
                     ph = Wn.Io.isFullObjId(oid) ? "id:".concat(oid) : oid;
-                    _context196.next = 10;
-                    return Ti.App(_this212).dispatch("current/reload", ph);
+                    _context214.next = 10;
+                    return Ti.App(_this227).dispatch("current/reload", ph);
 
                   case 10:
                   case "end":
-                    return _context196.stop();
+                    return _context214.stop();
                 }
               }
-            }, _callee194);
+            }, _callee212);
           }))();
         },
         //--------------------------------------
         doLogout: function doLogout() {
-          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee195() {
+          return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee213() {
             var quitPath;
-            return regeneratorRuntime.wrap(function _callee195$(_context197) {
+            return regeneratorRuntime.wrap(function _callee213$(_context215) {
               while (1) {
-                switch (_context197.prev = _context197.next) {
+                switch (_context215.prev = _context215.next) {
                   case 0:
                     quitPath = Wn.Session.env("QUIT") || "/";
-                    _context197.next = 3;
+                    _context215.next = 3;
                     return Wn.Sys.exec("exit");
 
                   case 3:
@@ -42165,10 +44593,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 4:
                   case "end":
-                    return _context197.stop();
+                    return _context215.stop();
                 }
               }
-            }, _callee195);
+            }, _callee213);
           }))();
         } //--------------------------------------
 
@@ -42176,36 +44604,36 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //////////////////////////////////////////////
       watch: {
         "meta": function () {
-          var _meta = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee196(newVal, oldVal) {
+          var _meta = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee214(newVal, oldVal) {
             var newId, oldId, isSameId;
-            return regeneratorRuntime.wrap(function _callee196$(_context198) {
+            return regeneratorRuntime.wrap(function _callee214$(_context216) {
               while (1) {
-                switch (_context198.prev = _context198.next) {
+                switch (_context216.prev = _context216.next) {
                   case 0:
                     newId = _.get(newVal, "id");
                     oldId = _.get(oldVal, "id");
                     isSameId = _.isEqual(newId, oldId);
 
                     if (!newVal) {
-                      _context198.next = 11;
+                      _context216.next = 11;
                       break;
                     }
 
                     if (isSameId) {
-                      _context198.next = 7;
+                      _context216.next = 7;
                       break;
                     }
 
-                    _context198.next = 7;
+                    _context216.next = 7;
                     return this.reloadAncestors();
 
                   case 7:
                     if (!(!isSameId || this.isChanged)) {
-                      _context198.next = 11;
+                      _context216.next = 11;
                       break;
                     }
 
-                    _context198.next = 10;
+                    _context216.next = 10;
                     return this.reloadMain();
 
                   case 10:
@@ -42213,13 +44641,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 11:
                   case "end":
-                    return _context198.stop();
+                    return _context216.stop();
                 }
               }
-            }, _callee196, this);
+            }, _callee214, this);
           }));
 
-          function meta(_x11, _x12) {
+          function meta(_x14, _x15) {
             return _meta.apply(this, arguments);
           }
 
@@ -42228,20 +44656,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       ///////////////////////////////////////////
       mounted: function () {
-        var _mounted15 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee197() {
-          return regeneratorRuntime.wrap(function _callee197$(_context199) {
+        var _mounted15 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee215() {
+          return regeneratorRuntime.wrap(function _callee215$(_context217) {
             while (1) {
-              switch (_context199.prev = _context199.next) {
+              switch (_context217.prev = _context217.next) {
                 case 0:
-                  _context199.next = 2;
+                  _context217.next = 2;
                   return this.reloadSidebar();
 
                 case 2:
                 case "end":
-                  return _context199.stop();
+                  return _context217.stop();
               }
             }
-          }, _callee197, this);
+          }, _callee215, this);
         }));
 
         function mounted() {
@@ -42272,13 +44700,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "hm-type-Object": "对象",
     "hm-type-String": "文本",
     "hm-type-icons": {
-      "Group": "zmdi-collection-bookmark",
-      "Object": "zmdi-toys",
-      "Number": "zmdi-input-svideo",
-      "Integer": "zmdi-n-6-square",
+      "Array": "zmdi-format-list-bulleted",
       "Boolean": "zmdi-toll",
-      "String": "zmdi-translate",
-      "Array": "zmdi-format-list-bulleted"
+      "Group": "zmdi-collection-bookmark",
+      "Integer": "zmdi-n-6-square",
+      "Number": "zmdi-input-svideo",
+      "Object": "zmdi-toys",
+      "String": "zmdi-translate"
     },
     "hmaker-com-conf-blank": "请选择一个控件设置其详情",
     "hmaker-com-type-blank": "选择一个控件",
@@ -42422,27 +44850,40 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "blank-time": "请选择时间",
     "blank-time-range": "请选择时间范围",
     "cal": {
-      "week": ["日", "一", "二", "三", "四", "五", "六"],
-      "m-range-beyond-years": "${yy0}年${MT0}至${yy1}年${MT1}",
-      "m-range-beyond-months": "${yy0}年${MT0}至${MT1}",
-      "d-range-beyond-years": "${yy0}年${MM0}月${dd0}日至${yy1}年${MM1}月${dd1}日",
-      "d-range-beyond-months": "${yy0}年${MM0}月${dd0}日至${MM1}月${dd1}日",
-      "d-range-beyond-days": "${yy0}年${MM0}月${dd0}至${dd1}日",
-      "d-range-in-same-day": "${yy0}年${MM0}月${dd0}日全天",
       "abbr": {
-        "Jan": "一月",
-        "Feb": "二月",
-        "Mar": "三月",
         "Apr": "四月",
-        "May": "五月",
-        "Jun": "六月",
-        "Jul": "七月",
         "Aug": "八月",
-        "Sep": "九月",
-        "Oct": "十月",
+        "Dec": "十二",
+        "Feb": "二月",
+        "Jan": "一月",
+        "Jul": "七月",
+        "Jun": "六月",
+        "Mar": "三月",
+        "May": "五月",
         "Nov": "十一",
-        "Dec": "十二"
-      }
+        "Oct": "十月",
+        "Sep": "九月"
+      },
+      "d-range-beyond-days": "${yy0}年${MM0}月${dd0}至${dd1}日",
+      "d-range-beyond-months": "${yy0}年${MM0}月${dd0}日至${MM1}月${dd1}日",
+      "d-range-beyond-years": "${yy0}年${MM0}月${dd0}日至${yy1}年${MM1}月${dd1}日",
+      "d-range-in-same-day": "${yy0}年${MM0}月${dd0}日全天",
+      "m-range-beyond-months": "${yy0}年${MT0}至${MT1}",
+      "m-range-beyond-years": "${yy0}年${MT0}至${yy1}年${MT1}",
+      "week": ["日", "一", "二", "三", "四", "五", "六"]
+    },
+    "du-in-min": "${n}分钟",
+    "time": {
+      "any-time": "yyyy年M月d日",
+      "in-year": "M月d日",
+      "past-in-min": "刚刚",
+      "past-in-hour": "${min}分钟前",
+      "past-in-day": "${hour}小时前",
+      "past-in-week": "${day}天前",
+      "future-in-min": "即将",
+      "future-in-hour": "${min}分钟后",
+      "future-in-day": "${hour}小时后",
+      "future-in-week": "${day}天后"
     },
     "time-begin": "开始时间",
     "time-end": "结束时间",
@@ -42518,13 +44959,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "auth-phone-title": "短信密码登录/注册",
     "auth-phone-vcode": "短信密码",
     "auth-phone-vcode-get": "获取短信密码",
-    "auth-reset-by-phone": "用手机号重置密码",
-    "auth-reset-by-phone-sent": "已经向您的手机 ${phone} 发送了验证码",
-    "auth-reset-by-phone-tip": "请输入您的账号绑定的手机号码",
-    "auth-reset-next": "下一步",
-    "auth-reset-passwd": "新密码（最少6位）",
-    "auth-reset-retype": "再次确认",
-    "auth-reset-save": "保存",
+    "auth-reset-passwd-by-email": "用邮箱重置密码",
+    "auth-reset-passwd-by-email-sent": "已经向您的注册邮箱 ${email} 发送了邮件密码",
+    "auth-reset-passwd-by-email-tip": "请输入注册邮箱地址",
+    "auth-reset-passwd-by-passwd": "用旧密码重置密码",
+    "auth-reset-passwd-by-phone": "用手机重置密码",
+    "auth-reset-passwd-by-phone-sent": "已经向您的手机 ${phone} 发送了短信密码",
+    "auth-reset-passwd-by-phone-tip": "请输入注册手机号码",
+    "auth-reset-passwd-new": "新密码（最少6位）",
+    "auth-reset-passwd-old": "旧密码",
+    "auth-reset-passwd-ren": "再次确认",
+    "auth-reset-passwd-save": "立即重置密码",
     "auth-sending-vcode": "正在发送验证码",
     "auth-sent-ok": "${ta?验证码}已发出，请在${by}查收，${min}分钟内有效",
     "auth-ta-by-email": "邮箱里",
@@ -42536,19 +44981,64 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "e-www-invalid-captcha": "${ta?验证码}错误",
     "e-www-login-invalid-passwd": "账号密码错误",
     "e-www-login-noexists": "账号不存在",
-    "pay-by-nil": "请选择一个支付方式",
-    "pay-by-wx-qrcode": "使用微信扫码支付",
-    "pay-by-zfb-qrcode": "使用支付宝扫码支付",
-    "pay-check-do": "已经支付完成",
-    "pay-check-ing": "正在检查支付结果",
+    "mine": "我的",
+    "my-favors": "我的收藏",
+    "my-favors-blog": "收藏的博客",
+    "my-favors-goods": "收藏的商品",
+    "my-favors-posts": "收藏的文章",
+    "my-favors-spots": "收藏的景点",
+    "my-favors-video": "收藏的视频",
+    "my-orders": "我的订单",
+    "my-orders-shop": "购物订单",
+    "my-orders-video": "视频订单",
+    "my-passwd": "重置密码",
+    "my-profile": "我的资料",
+    "my-shipping-address": "收货地址",
+    "my-shopping-car": "购物车",
+    "or-st-dn": "已完成",
+    "or-st-fa": "支付失败",
+    "or-st-nw": "新建",
+    "or-st-ok": "支付成功",
+    "or-st-sd": "已发货",
+    "or-st-wt": "待支付",
+    "pay-by-free": "免费",
+    "pay-by-paypal": "PayPal",
+    "pay-by-wx-jsapi": "微信JSAPI",
+    "pay-by-wx-qrcode": "微信扫码",
+    "pay-by-wx-scan": "微信付款码",
+    "pay-by-zfb-qrcode": "支付宝扫码",
+    "pay-by-zfb-scan": "支付宝付款码",
+    "pay-checkout-it-amount": "数量",
+    "pay-checkout-it-name": "商品名称",
+    "pay-checkout-it-price": "单价",
+    "pay-checkout-it-subtotal": "小计",
+    "pay-checkout-tip": "请确认你购买的商品数量和金额",
+    "pay-paypal": "PayPal",
+    "pay-proceed-check": "检查支付结果",
+    "pay-proceed-ing": "正在检查...",
     "pay-re-fail": "支付失败",
     "pay-re-nil": "支付结果是一只薛定谔的猫",
     "pay-re-ok": "支付成功",
     "pay-re-wait": "等待支付中",
+    "pay-step-checkout-title": "确认订单",
+    "pay-step-choose-nil": "☝ 请选择上面的一个支付方式 👆",
+    "pay-step-choose-tip": "您可以选择下面任意一种支付方式支付本订单",
+    "pay-step-choose-tip2": "您将使用${val}支付本订单",
+    "pay-step-choose-title": "支付方式",
+    "pay-step-choose-title2": "选择支付方式",
+    "pay-step-done-title": "完成",
+    "pay-step-proceed-create-order": "正在创建订单...",
+    "pay-step-proceed-fetch-order": "正在获取订单...",
+    "pay-step-proceed-nil": "您未选择任何支付方式",
+    "pay-step-proceed-tip": "使用${val}支付本订单",
+    "pay-step-proceed-title": "支付",
     "pay-tip-wx-qrcode": "请于15分钟内用微信扫一扫付款码",
     "pay-tip-zfb-qrcode": "请于15分钟内用支付宝扫一扫付款码",
+    "pay-title": "支付流程",
     "pay-wx": "微信支付",
-    "pay-zfb": "支付宝"
+    "pay-zfb": "支付宝",
+    "paypal-approve-tip": "已经在新标签里为您打开了PayPal支付页面，如果没有打开，请点击☝上面的图标。支付完毕，页面会自动感知到，如果没有反应，试着点击👇下面的【检查支付结果】按钮。",
+    "shop-basket-clean-confirm": "您确定要清空购物车内全部商品吗？这是一个不能撤回的操作。"
   }); //============================================================
   // JOIN: zh-cn/wn-manager.i18n.json
   //============================================================
@@ -42680,11 +45170,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "download-to-local": "下载到本地",
     "drop-file-here-to-upload": "拖拽文件至此以便上传",
     "drop-here": "拖拽文件至此",
-    "e-auth-home-forbidden": "账户不具备进入主目录的权限",
     "e-auth-account-noexists": "账户不存在",
-    "e-auth-login-invalid-passwd": "账户密码未通过校验",
+    "e-auth-home-forbidden": "账户不具备进入主目录的权限",
     "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
     "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
+    "e-auth-login-invalid-passwd": "账户密码未通过校验",
     "e-io-obj-exists": "但是对象已然存在",
     "e-io-obj-noexists": "对象其实并不存在",
     "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
@@ -42699,6 +45189,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "favorites": "收藏",
     "female": "女",
     "filter": "过滤",
+    "find": "查找",
+    "find-data": "查找数据",
     "home": "主目录",
     "i-known": "我知道了",
     "icon": "图标",
@@ -42752,6 +45244,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "phone": "手机",
     "prev": "上一步",
     "price": "价格",
+    "profile": "资料",
+    "profile-edit": "编辑资料",
     "prompt": "询问",
     "properties": "属性",
     "publish": "发布",
@@ -42809,7 +45303,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "wn-invalid-mimes": "不支持的文件内容类型 \"${current}\"，仅能支持 \"${supports}\"",
     "wn-invalid-types": "不支持的文件扩展名 \"${current}\"，仅能支持 \"${supports}\"",
     "wn-key-c": "创建者",
-    "wn-key-ct": "创建",
+    "wn-key-ct": "创建时间",
     "wn-key-d0": "D0",
     "wn-key-d1": "D1",
     "wn-key-data": "数据",
@@ -42832,7 +45326,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "wn-key-m": "修改者",
     "wn-key-md": "基本权限",
     "wn-key-mime": "MIME",
-    "wn-key-nm": "名称",
+    "wn-key-nm": "对象名",
     "wn-key-ph": "路径",
     "wn-key-pid": "父对象",
     "wn-key-pvg": "定制权限",
@@ -42849,7 +45343,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     "wn-th-acc-pwd-done": "已经为${n}名用户重置了密码",
     "wn-th-acc-pwd-invalid": "密码中不得包含单双引号星号等非法字符",
     "wn-th-acc-pwd-reset-tip": "将密码重置为",
-    "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合"
+    "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合",
+    "wn-th-recount-media": "重新计算当前文件数量",
+    "wn-th-recount-media-done": "当前文件数量: ${n}"
   }); ////////////////////////////////////////////////////////////
   // The End
 })();

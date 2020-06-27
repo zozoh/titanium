@@ -23,12 +23,6 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -36,6 +30,12 @@ function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread n
 function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _createForOfIteratorHelper(o) { if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) { var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var it, normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
@@ -769,8 +769,8 @@ var _ref9 = function () {
         // Open("i18n:xxx", {vars})
         if (_.isPlainObject(type)) {
           options = _.assign({
-            type: position || "info",
-            position: "top",
+            position: position,
+            type: "info",
             content: options,
             vars: type
           }, type);
@@ -853,14 +853,15 @@ var _ref12 = function () {
               type: "hidden"
             }
           });
-        }); // Submit it
+        }); // await for a while
 
-
-        $form.submit(); // Remove it
-
-        Ti.Dom.remove($form); // await for a while
 
         _.delay(function () {
+          // Submit it
+          $form.submit(); // Remove it
+
+          Ti.Dom.remove($form); // Done
+
           resolve({
             url: url,
             target: target,
@@ -889,6 +890,19 @@ var _ref12 = function () {
         delay: delay,
         params: link.params
       });
+    },
+
+    /***
+     * Scroll window to ...
+     */
+    ScrollWindowTo: function ScrollWindowTo() {
+      var _ref15 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref15$x = _ref15.x,
+          x = _ref15$x === void 0 ? 0 : _ref15$x,
+          _ref15$y = _ref15.y,
+          y = _ref15$y === void 0 ? 0 : _ref15$y;
+
+      window.scrollTo(x, y);
     },
 
     /**
@@ -1137,7 +1151,7 @@ var _ref12 = function () {
 // # import {Alg}          from "./algorithm.mjs"
 
 
-var _ref15 = function () {
+var _ref16 = function () {
   // rquired crypto-js
   ///////////////////////////////////////////
   var TiAlg = {
@@ -1223,11 +1237,11 @@ var _ref15 = function () {
     Alg: TiAlg
   };
 }(),
-    Alg = _ref15.Alg; //##################################################
+    Alg = _ref16.Alg; //##################################################
 // # import {S}            from "./str.mjs"
 
 
-var _ref16 = function () {
+var _ref17 = function () {
   var TiStr = {
     sBlank: function sBlank(str, dft) {
       return str || dft;
@@ -1239,10 +1253,10 @@ var _ref16 = function () {
       var vars = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       var fmt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
 
-      var _ref17 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          iteratee = _ref17.iteratee,
-          regex = _ref17.regex,
-          safe = _ref17.safe;
+      var _ref18 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          iteratee = _ref18.iteratee,
+          regex = _ref18.regex,
+          safe = _ref18.safe;
 
       if (_.isString(vars) || _.isNumber(vars)) {
         vars = {
@@ -1268,12 +1282,12 @@ var _ref16 = function () {
       var str = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
       var vars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      var _ref18 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          iteratee = _ref18.iteratee,
-          _ref18$regex = _ref18.regex,
-          regex = _ref18$regex === void 0 ? /(\${1,2})\{([^}]+)\}/g : _ref18$regex,
-          _ref18$safe = _ref18.safe,
-          safe = _ref18$safe === void 0 ? false : _ref18$safe;
+      var _ref19 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          iteratee = _ref19.iteratee,
+          _ref19$regex = _ref19.regex,
+          regex = _ref19$regex === void 0 ? /(\${1,2})\{([^}]+)\}/g : _ref19$regex,
+          _ref19$safe = _ref19.safe,
+          safe = _ref19$safe === void 0 ? false : _ref19$safe;
 
       if (!str) {
         return _.isArray(vars) ? [] : "";
@@ -1296,10 +1310,10 @@ var _ref16 = function () {
 
       if (!iteratee) {
         iteratee = function iteratee() {
-          var _ref19 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              varName = _ref19.varName,
-              vars = _ref19.vars,
-              matched = _ref19.matched;
+          var _ref20 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              varName = _ref20.varName,
+              vars = _ref20.vars,
+              matched = _ref20.matched;
 
           if (matched.startsWith("$$")) {
             return matched.substring(1);
@@ -1398,29 +1412,58 @@ var _ref16 = function () {
     },
 
     /***
-     * Join without `null/undefined`
+    * Join with iteratee
+    */
+    joinWithoutNil: function joinWithoutNil() {
+      var sep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      var list2 = _.flattenDeep(args);
+
+      var list3 = _.filter(list2, function (li) {
+        return !Ti.Util.isNil(li);
+      });
+
+      return list3.join(sep);
+    },
+
+    /***
+     * Join with iteratee
      */
     join: function join() {
-      var sep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
-      var list = [];
+      var list = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var sep = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+      var iteratee = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-      for (var _len = arguments.length, ss = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        ss[_key - 1] = arguments[_key];
+      var list2 = _.flattenDeep(list);
+
+      if (_.isFunction(iteratee)) {
+        list2 = _.map(list2, iteratee);
       }
 
-      for (var _i2 = 0, _ss = ss; _i2 < _ss.length; _i2++) {
-        var s = _ss[_i2];
-        if (_.isUndefined(s) || _.isNull(s)) continue;
+      return list2.join(sep);
+    },
 
-        if (_.isArray(s)) {
-          list.push.apply(list, _toConsumableArray(s));
-          continue;
-        }
+    /***
+     * Join without `null/undefined`
+     */
+    joinAs: function joinAs() {
+      var list = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var sep = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+      var key = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var iter = null;
 
-        list.push(s);
+      if (key) {
+        iter = function iter(li) {
+          if (_.isPlainObject(li)) return _.get(li, key);
+          return key;
+        };
       }
 
-      return list.join(sep);
+      return TiStr.join(list, sep, iter);
     },
 
     /***
@@ -1429,17 +1472,17 @@ var _ref16 = function () {
     toJsValue: function toJsValue() {
       var v = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
 
-      var _ref20 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref20$autoJson = _ref20.autoJson,
-          autoJson = _ref20$autoJson === void 0 ? true : _ref20$autoJson,
-          _ref20$autoDate = _ref20.autoDate,
-          autoDate = _ref20$autoDate === void 0 ? true : _ref20$autoDate,
-          _ref20$autoNil = _ref20.autoNil,
-          autoNil = _ref20$autoNil === void 0 ? false : _ref20$autoNil,
-          _ref20$trimed = _ref20.trimed,
-          trimed = _ref20$trimed === void 0 ? true : _ref20$trimed,
-          _ref20$context = _ref20.context,
-          context = _ref20$context === void 0 ? {} : _ref20$context;
+      var _ref21 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref21$autoJson = _ref21.autoJson,
+          autoJson = _ref21$autoJson === void 0 ? true : _ref21$autoJson,
+          _ref21$autoDate = _ref21.autoDate,
+          autoDate = _ref21$autoDate === void 0 ? true : _ref21$autoDate,
+          _ref21$autoNil = _ref21.autoNil,
+          autoNil = _ref21$autoNil === void 0 ? false : _ref21$autoNil,
+          _ref21$trimed = _ref21.trimed,
+          trimed = _ref21$trimed === void 0 ? true : _ref21$trimed,
+          _ref21$context = _ref21.context,
+          context = _ref21$context === void 0 ? {} : _ref21$context;
 
       //...............................................
       // Array 
@@ -1631,11 +1674,11 @@ var _ref16 = function () {
      * @param ignoreNil{Boolean}
      */
     toArray: function toArray(s) {
-      var _ref21 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref21$sep = _ref21.sep,
-          sep = _ref21$sep === void 0 ? /[:,;\t\n\/]+/g : _ref21$sep,
-          _ref21$ignoreNil = _ref21.ignoreNil,
-          ignoreNil = _ref21$ignoreNil === void 0 ? true : _ref21$ignoreNil;
+      var _ref22 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref22$sep = _ref22.sep,
+          sep = _ref22$sep === void 0 ? /[:,;\t\n\/]+/g : _ref22$sep,
+          _ref22$ignoreNil = _ref22.ignoreNil,
+          ignoreNil = _ref22$ignoreNil === void 0 ? true : _ref22$ignoreNil;
 
       // Nil
       if (Ti.Util.isNil(s)) {
@@ -1649,19 +1692,26 @@ var _ref16 = function () {
 
 
       if (_.isString(s) && sep) {
-        var _ss2 = _.map(s.split(sep), function (v) {
+        var _ss = _.map(s.split(sep), function (v) {
           return _.trim(v);
         });
 
         if (ignoreNil) {
-          return _.without(_ss2, "");
+          return _.without(_ss, "");
         }
 
-        return _ss2;
+        return _ss;
       } // Others -> wrap
 
 
       return [s];
+    },
+    toArrayBy: function toArrayBy(s) {
+      var sep = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ",";
+      return TiStr.toArray(s, {
+        sep: sep,
+        ignoreNil: true
+      });
     },
 
     /***
@@ -1677,13 +1727,13 @@ var _ref16 = function () {
      * @param keys{Array}
      */
     toObject: function toObject(s) {
-      var _ref22 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref22$sep = _ref22.sep,
-          sep = _ref22$sep === void 0 ? /[:,;\t\n\/]+/g : _ref22$sep,
-          _ref22$ignoreNil = _ref22.ignoreNil,
-          ignoreNil = _ref22$ignoreNil === void 0 ? true : _ref22$ignoreNil,
-          _ref22$keys = _ref22.keys,
-          keys = _ref22$keys === void 0 ? ["value", "text?value", "icon"] : _ref22$keys;
+      var _ref23 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref23$sep = _ref23.sep,
+          sep = _ref23$sep === void 0 ? /[:,;\t\n\/]+/g : _ref23$sep,
+          _ref23$ignoreNil = _ref23.ignoreNil,
+          ignoreNil = _ref23$ignoreNil === void 0 ? true : _ref23$ignoreNil,
+          _ref23$keys = _ref23.keys,
+          keys = _ref23$keys === void 0 ? ["value", "text?value", "icon"] : _ref23$keys;
 
       // Already Object
       if (_.isPlainObject(s) || _.isNull(s) || _.isUndefined(s)) {
@@ -1731,8 +1781,8 @@ var _ref16 = function () {
       }); // Assign default
 
 
-      for (var _i3 = 0, _m_ks = m_ks; _i3 < _m_ks.length; _i3++) {
-        var mk = _m_ks[_i3];
+      for (var _i2 = 0, _m_ks = m_ks; _i2 < _m_ks.length; _i2++) {
+        var mk = _m_ks[_i2];
 
         if (_.isUndefined(re[mk.name])) {
           re[mk.name] = re[mk.backup];
@@ -1768,15 +1818,15 @@ var _ref16 = function () {
      * @param keys{Array}
      */
     toObjList: function toObjList(s) {
-      var _ref23 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref23$sepLine = _ref23.sepLine,
-          sepLine = _ref23$sepLine === void 0 ? /[,;\n]+/g : _ref23$sepLine,
-          _ref23$sepPair = _ref23.sepPair,
-          sepPair = _ref23$sepPair === void 0 ? /[:|\/\t]+/g : _ref23$sepPair,
-          _ref23$ignoreNil = _ref23.ignoreNil,
-          ignoreNil = _ref23$ignoreNil === void 0 ? true : _ref23$ignoreNil,
-          _ref23$keys = _ref23.keys,
-          keys = _ref23$keys === void 0 ? ["value", "text?value", "icon"] : _ref23$keys;
+      var _ref24 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref24$sepLine = _ref24.sepLine,
+          sepLine = _ref24$sepLine === void 0 ? /[,;\n]+/g : _ref24$sepLine,
+          _ref24$sepPair = _ref24.sepPair,
+          sepPair = _ref24$sepPair === void 0 ? /[:|\/\t]+/g : _ref24$sepPair,
+          _ref24$ignoreNil = _ref24.ignoreNil,
+          ignoreNil = _ref24$ignoreNil === void 0 ? true : _ref24$ignoreNil,
+          _ref24$keys = _ref24.keys,
+          keys = _ref24$keys === void 0 ? ["value", "text?value", "icon"] : _ref24$keys;
 
       var list = TiStr.toArray(s, {
         sep: sepLine,
@@ -1797,13 +1847,13 @@ var _ref16 = function () {
     sizeText: function sizeText() {
       var _byte = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-      var _ref24 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref24$fixed = _ref24.fixed,
-          fixed = _ref24$fixed === void 0 ? 2 : _ref24$fixed,
-          _ref24$M = _ref24.M,
-          M = _ref24$M === void 0 ? 1024 : _ref24$M,
-          _ref24$units = _ref24.units,
-          units = _ref24$units === void 0 ? ["Bytes", "KB", "MB", "GB", "PB", "TB"] : _ref24$units;
+      var _ref25 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref25$fixed = _ref25.fixed,
+          fixed = _ref25$fixed === void 0 ? 2 : _ref25$fixed,
+          _ref25$M = _ref25.M,
+          M = _ref25$M === void 0 ? 1024 : _ref25$M,
+          _ref25$units = _ref25.units,
+          units = _ref25$units === void 0 ? ["Bytes", "KB", "MB", "GB", "PB", "TB"] : _ref25$units;
 
       var nb = _byte;
       var i = 0;
@@ -1832,11 +1882,11 @@ var _ref16 = function () {
      * @param n Float number
      */
     toPercent: function toPercent(n) {
-      var _ref25 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref25$fixed = _ref25.fixed,
-          fixed = _ref25$fixed === void 0 ? 2 : _ref25$fixed,
-          _ref25$auto = _ref25.auto,
-          auto = _ref25$auto === void 0 ? true : _ref25$auto;
+      var _ref26 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref26$fixed = _ref26.fixed,
+          fixed = _ref26$fixed === void 0 ? 2 : _ref26$fixed,
+          _ref26$auto = _ref26.auto,
+          auto = _ref26$auto === void 0 ? true : _ref26$auto;
 
       if (!_.isNumber(n)) return "NaN";
       var nb = n * 100; // Round
@@ -1934,14 +1984,14 @@ var _ref16 = function () {
     S: TiStr
   };
 }(),
-    S = _ref16.S; //##################################################
+    S = _ref17.S; //##################################################
 // # import {App}          from "./app.mjs"
 
 
-var _ref26 = function () {
+var _ref27 = function () {
   //################################################
   // # import {LoadTiAppInfo, LoadTiLinkedObj} from "./app-info.mjs"
-  var _ref27 = function () {
+  var _ref28 = function () {
     //---------------------------------------
     function isTiLink(str) {
       // Remote Link @http://xxx
@@ -1975,7 +2025,7 @@ var _ref26 = function () {
     function _LoadTiLinkedObj() {
       _LoadTiLinkedObj = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
         var obj,
-            _ref29,
+            _ref30,
             dynamicPrefix,
             dynamicAlias,
             ps,
@@ -1986,7 +2036,7 @@ var _ref26 = function () {
             switch (_context8.prev = _context8.next) {
               case 0:
                 obj = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {};
-                _ref29 = _args8.length > 1 && _args8[1] !== undefined ? _args8[1] : {}, dynamicPrefix = _ref29.dynamicPrefix, dynamicAlias = _ref29.dynamicAlias;
+                _ref30 = _args8.length > 1 && _args8[1] !== undefined ? _args8[1] : {}, dynamicPrefix = _ref30.dynamicPrefix, dynamicAlias = _ref30.dynamicAlias;
                 // Promise list
                 ps = []; // walk Object Key shallowly
 
@@ -2010,7 +2060,7 @@ var _ref26 = function () {
                         dynamicPrefix: dynamicPrefix,
                         dynamicAlias: dynamicAlias
                       }).then( /*#__PURE__*/function () {
-                        var _ref30 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(re) {
+                        var _ref31 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(re) {
                           var v2, re2;
                           return regeneratorRuntime.wrap(function _callee6$(_context6) {
                             while (1) {
@@ -2041,14 +2091,14 @@ var _ref26 = function () {
                         }));
 
                         return function (_x) {
-                          return _ref30.apply(this, arguments);
+                          return _ref31.apply(this, arguments);
                         };
                       }());
                     }));
                   } // Array recur
                   else if (_.isArray(val)) {
-                      var _loop = function _loop(_i4) {
-                        var linkURI = isTiLink(val[_i4]); // only link like value should be respected
+                      var _loop = function _loop(_i3) {
+                        var linkURI = isTiLink(val[_i3]); // only link like value should be respected
 
                         if (!linkURI) {
                           return "continue";
@@ -2059,7 +2109,7 @@ var _ref26 = function () {
                             dynamicPrefix: dynamicPrefix,
                             dynamicAlias: dynamicAlias
                           }).then( /*#__PURE__*/function () {
-                            var _ref31 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(re) {
+                            var _ref32 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(re) {
                               var v2, re2;
                               return regeneratorRuntime.wrap(function _callee7$(_context7) {
                                 while (1) {
@@ -2078,7 +2128,7 @@ var _ref26 = function () {
 
                                     case 3:
                                       re2 = _context7.sent;
-                                      val[_i4] = re2; // If modules/components, apply the default name
+                                      val[_i3] = re2; // If modules/components, apply the default name
 
                                       if (!re2.name && /^(modules|components)$/.test(key)) {
                                         re2.name = Ti.Util.getLinkName(v);
@@ -2096,14 +2146,14 @@ var _ref26 = function () {
                             }));
 
                             return function (_x2) {
-                              return _ref31.apply(this, arguments);
+                              return _ref32.apply(this, arguments);
                             };
                           }());
                         }));
                       };
 
-                      for (var _i4 = 0; _i4 < val.length; _i4++) {
-                        var _ret = _loop(_i4);
+                      for (var _i3 = 0; _i3 < val.length; _i3++) {
+                        var _ret = _loop(_i3);
 
                         if (_ret === "continue") continue;
                       }
@@ -2141,11 +2191,11 @@ var _ref26 = function () {
     }
 
     function RemarkCssLink(cssLink) {
-      var _ref28 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref28$key = _ref28.key,
-          key = _ref28$key === void 0 ? "" : _ref28$key,
-          _ref28$val = _ref28.val,
-          val = _ref28$val === void 0 ? "" : _ref28$val;
+      var _ref29 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref29$key = _ref29.key,
+          key = _ref29$key === void 0 ? "" : _ref29$key,
+          _ref29$val = _ref29.val,
+          val = _ref29$val === void 0 ? "" : _ref29$val;
 
       var $doc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : document;
       if (!cssLink) return; // Batch
@@ -2231,12 +2281,12 @@ var _ref26 = function () {
       LoadTiAppInfo: LoadTiAppInfo
     };
   }(),
-      LoadTiAppInfo = _ref27.LoadTiAppInfo,
-      LoadTiLinkedObj = _ref27.LoadTiLinkedObj; //################################################
+      LoadTiAppInfo = _ref28.LoadTiAppInfo,
+      LoadTiLinkedObj = _ref28.LoadTiLinkedObj; //################################################
   // # import {TiAppActionShortcuts} from "./app-action-shortcuts.mjs"
 
 
-  var _ref32 = function () {
+  var _ref33 = function () {
     var TiAppActionShortcuts = /*#__PURE__*/function () {
       //////////////////////////////////////////////
       // Attributes
@@ -2351,10 +2401,10 @@ var _ref26 = function () {
 
           var actions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
-          var _ref33 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-              $com = _ref33.$com,
-              _ref33$argContext = _ref33.argContext,
-              argContext = _ref33$argContext === void 0 ? {} : _ref33$argContext;
+          var _ref34 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+              $com = _ref34.$com,
+              _ref34$argContext = _ref34.argContext,
+              argContext = _ref34$argContext === void 0 ? {} : _ref34$argContext;
 
           var list = _.without(_.concat(actions), null);
 
@@ -2531,11 +2581,11 @@ var _ref26 = function () {
       TiAppActionShortcuts: TiAppActionShortcuts
     };
   }(),
-      TiAppActionShortcuts = _ref32.TiAppActionShortcuts; //################################################
+      TiAppActionShortcuts = _ref33.TiAppActionShortcuts; //################################################
   // # import {TiVue}      from "./polyfill-ti-vue.mjs"
 
 
-  var _ref34 = function () {
+  var _ref35 = function () {
     //---------------------------------------
     function do_map_xxx(modPath, setting) {
       var re = {};
@@ -2635,12 +2685,12 @@ var _ref26 = function () {
       },
       //---------------------------------------
       Options: function Options() {
-        var _ref35 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            _ref35$global = _ref35.global,
-            global = _ref35$global === void 0 ? {} : _ref35$global,
-            _ref35$conf = _ref35.conf,
-            conf = _ref35$conf === void 0 ? {} : _ref35$conf,
-            store = _ref35.store;
+        var _ref36 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            _ref36$global = _ref36.global,
+            global = _ref36$global === void 0 ? {} : _ref36$global,
+            _ref36$conf = _ref36.conf,
+            conf = _ref36$conf === void 0 ? {} : _ref36$conf,
+            store = _ref36.store;
 
         // Install I18n
         if (_.isPlainObject(conf.i18n)) {
@@ -2725,7 +2775,7 @@ var _ref26 = function () {
 
         var Misc = _.pick(conf, ["name",
         /*com only*/
-        "delimiters", "functional", "model", "inheritAttrs", "comments"]); //.............................
+        "delimiters", "functional", "model", "inheritAttrs", "comments", "inject", "provide"]); //.............................
         // create options
 
 
@@ -2862,11 +2912,11 @@ var _ref26 = function () {
       TiVue: TiVue
     };
   }(),
-      TiVue = _ref34.TiVue; //################################################
+      TiVue = _ref35.TiVue; //################################################
   // # import {TiAppModal} from "./app-modal.mjs"
 
 
-  var _ref36 = function () {
+  var _ref37 = function () {
     var TiAppModal = /*#__PURE__*/function () {
       //////////////////////////////////////////////
       // Attributes
@@ -2882,8 +2932,8 @@ var _ref26 = function () {
         this.iconOk = undefined;
         this.textOk = "i18n:ok";
 
-        this.ok = function (_ref37) {
-          var result = _ref37.result;
+        this.ok = function (_ref38) {
+          var result = _ref38.result;
           return result;
         }; //--------------------------------------------
 
@@ -2942,7 +2992,7 @@ var _ref26 = function () {
         // callback
 
         this.ready = /*#__PURE__*/function () {
-          var _ref38 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(app) {
+          var _ref39 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(app) {
             return regeneratorRuntime.wrap(function _callee10$(_context10) {
               while (1) {
                 switch (_context10.prev = _context10.next) {
@@ -2955,12 +3005,12 @@ var _ref26 = function () {
           }));
 
           return function (_x3) {
-            return _ref38.apply(this, arguments);
+            return _ref39.apply(this, arguments);
           };
         }();
 
         this.preload = /*#__PURE__*/function () {
-          var _ref39 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(app) {
+          var _ref40 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(app) {
             return regeneratorRuntime.wrap(function _callee11$(_context11) {
               while (1) {
                 switch (_context11.prev = _context11.next) {
@@ -2973,7 +3023,7 @@ var _ref26 = function () {
           }));
 
           return function (_x4) {
-            return _ref39.apply(this, arguments);
+            return _ref40.apply(this, arguments);
           };
         }();
       } //////////////////////////////////////////////
@@ -3353,7 +3403,7 @@ var _ref26 = function () {
       TiAppModal: TiAppModal
     };
   }(),
-      TiAppModal = _ref36.TiAppModal; //---------------------------------------
+      TiAppModal = _ref37.TiAppModal; //---------------------------------------
 
 
   var TI_APP = Symbol("ti-app");
@@ -3371,9 +3421,11 @@ var _ref26 = function () {
   var OneTiApp = /*#__PURE__*/function () {
     function OneTiApp() {
       var tinfo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var decorator = arguments.length > 1 ? arguments[1] : undefined;
 
       _classCallCheck(this, OneTiApp);
 
+      this.appDecorator = decorator;
       this.$info(tinfo);
       this.$conf(null);
       this.$store(null);
@@ -3447,6 +3499,7 @@ var _ref26 = function () {
 
                 case 3:
                   conf = _context14.sent;
+                  this.appDecorator(conf);
                   this.$conf(conf);
 
                   if (Ti.IsInfo("TiApp")) {
@@ -3490,7 +3543,7 @@ var _ref26 = function () {
 
                   return _context14.abrupt("return", this);
 
-                case 13:
+                case 14:
                 case "end":
                   return _context14.stop();
               }
@@ -3965,6 +4018,8 @@ var _ref26 = function () {
 
 
   var TiApp = function TiApp(a0) {
+    var decorator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _.identity;
+
     // Guard it
     if (Ti.Util.isNil(a0)) {
       return null;
@@ -3973,7 +4028,7 @@ var _ref26 = function () {
 
     if (_.isString(a0)) {
       return Ti.Load(a0).then(function (info) {
-        return new OneTiApp(info);
+        return new OneTiApp(info, decorator);
       });
     } // Get back App from Element
 
@@ -4002,7 +4057,7 @@ var _ref26 = function () {
 
 
     if (_.isPlainObject(a0)) {
-      return new OneTiApp(a0);
+      return new OneTiApp(a0, decorator);
     }
   }; //---------------------------------------
 
@@ -4061,11 +4116,11 @@ var _ref26 = function () {
     App: TiApp
   };
 }(),
-    App = _ref26.App; //##################################################
+    App = _ref27.App; //##################################################
 // # import {Err}          from "./err.mjs"
 
 
-var _ref40 = function () {
+var _ref41 = function () {
   var TiError = {
     make: function make() {
       var code = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
@@ -4099,11 +4154,11 @@ var _ref40 = function () {
     Err: TiError
   };
 }(),
-    Err = _ref40.Err; //##################################################
+    Err = _ref41.Err; //##################################################
 // # import {Config}       from "./config.mjs"
 
 
-var _ref41 = function () {
+var _ref42 = function () {
   var CONFIG = {
     prefix: {},
     alias: {},
@@ -4234,11 +4289,11 @@ var _ref41 = function () {
     },
     //.................................
     set: function set() {
-      var _ref42 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          prefix = _ref42.prefix,
-          alias = _ref42.alias,
-          suffix = _ref42.suffix,
-          lang = _ref42.lang;
+      var _ref43 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          prefix = _ref43.prefix,
+          alias = _ref43.alias,
+          suffix = _ref43.suffix,
+          lang = _ref43.lang;
 
       if (prefix) CONFIG.prefix = prefix;
 
@@ -4256,11 +4311,11 @@ var _ref41 = function () {
     },
     //.................................
     update: function update() {
-      var _ref43 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          prefix = _ref43.prefix,
-          alias = _ref43.alias,
-          suffix = _ref43.suffix,
-          lang = _ref43.lang;
+      var _ref44 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          prefix = _ref44.prefix,
+          alias = _ref44.alias,
+          suffix = _ref44.suffix,
+          lang = _ref44.lang;
 
       if (prefix) _.assign(CONFIG.prefix, prefix);
 
@@ -4309,10 +4364,10 @@ var _ref41 = function () {
     url: function url() {
       var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
 
-      var _ref44 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref44$dynamicPrefix = _ref44.dynamicPrefix,
-          dynamicPrefix = _ref44$dynamicPrefix === void 0 ? {} : _ref44$dynamicPrefix,
-          dynamicAlias = _ref44.dynamicAlias;
+      var _ref45 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref45$dynamicPrefix = _ref45.dynamicPrefix,
+          dynamicPrefix = _ref45$dynamicPrefix === void 0 ? {} : _ref45$dynamicPrefix,
+          dynamicAlias = _ref45.dynamicAlias;
 
       // apply alias
       var ph, m; //.........................................
@@ -4369,23 +4424,23 @@ var _ref41 = function () {
     Config: TiConfig
   };
 }(),
-    Config = _ref41.Config; //##################################################
+    Config = _ref42.Config; //##################################################
 // # import {Dom}          from "./dom.mjs"
 
 
-var _ref45 = function () {
+var _ref46 = function () {
   var TiDom = {
-    createElement: function createElement(_ref46) {
-      var _ref46$tagName = _ref46.tagName,
-          tagName = _ref46$tagName === void 0 ? "div" : _ref46$tagName,
-          _ref46$attrs = _ref46.attrs,
-          attrs = _ref46$attrs === void 0 ? {} : _ref46$attrs,
-          _ref46$props = _ref46.props,
-          props = _ref46$props === void 0 ? {} : _ref46$props,
-          _ref46$className = _ref46.className,
-          className = _ref46$className === void 0 ? "" : _ref46$className,
-          _ref46$$p = _ref46.$p,
-          $p = _ref46$$p === void 0 ? null : _ref46$$p;
+    createElement: function createElement(_ref47) {
+      var _ref47$tagName = _ref47.tagName,
+          tagName = _ref47$tagName === void 0 ? "div" : _ref47$tagName,
+          _ref47$attrs = _ref47.attrs,
+          attrs = _ref47$attrs === void 0 ? {} : _ref47$attrs,
+          _ref47$props = _ref47.props,
+          props = _ref47$props === void 0 ? {} : _ref47$props,
+          _ref47$className = _ref47.className,
+          className = _ref47$className === void 0 ? "" : _ref47$className,
+          _ref47$$p = _ref47.$p,
+          $p = _ref47$$p === void 0 ? null : _ref47$$p;
       var $doc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document;
       var $el = $doc.createElement(tagName);
       if (className) $el.className = Ti.Css.joinClassNames(className);
@@ -4479,20 +4534,20 @@ var _ref45 = function () {
       return $el;
     },
     autoRootFontSize: function autoRootFontSize() {
-      var _ref47 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          _ref47$$win = _ref47.$win,
-          $win = _ref47$$win === void 0 ? window : _ref47$$win,
-          _ref47$phoneMaxWidth = _ref47.phoneMaxWidth,
-          phoneMaxWidth = _ref47$phoneMaxWidth === void 0 ? 540 : _ref47$phoneMaxWidth,
-          _ref47$tabletMaxWidth = _ref47.tabletMaxWidth,
-          tabletMaxWidth = _ref47$tabletMaxWidth === void 0 ? 768 : _ref47$tabletMaxWidth,
-          _ref47$designWidth = _ref47.designWidth,
-          designWidth = _ref47$designWidth === void 0 ? 1000 : _ref47$designWidth,
-          _ref47$max = _ref47.max,
-          max = _ref47$max === void 0 ? 100 : _ref47$max,
-          _ref47$min = _ref47.min,
-          min = _ref47$min === void 0 ? 80 : _ref47$min,
-          callback = _ref47.callback;
+      var _ref48 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref48$$win = _ref48.$win,
+          $win = _ref48$$win === void 0 ? window : _ref48$$win,
+          _ref48$phoneMaxWidth = _ref48.phoneMaxWidth,
+          phoneMaxWidth = _ref48$phoneMaxWidth === void 0 ? 540 : _ref48$phoneMaxWidth,
+          _ref48$tabletMaxWidth = _ref48.tabletMaxWidth,
+          tabletMaxWidth = _ref48$tabletMaxWidth === void 0 ? 768 : _ref48$tabletMaxWidth,
+          _ref48$designWidth = _ref48.designWidth,
+          designWidth = _ref48$designWidth === void 0 ? 1000 : _ref48$designWidth,
+          _ref48$max = _ref48.max,
+          max = _ref48$max === void 0 ? 100 : _ref48$max,
+          _ref48$min = _ref48.min,
+          min = _ref48$min === void 0 ? 80 : _ref48$min,
+          callback = _ref48.callback;
 
       var $doc = window.document;
       var $root = document.documentElement;
@@ -4629,8 +4684,8 @@ var _ref45 = function () {
         classNames[_key10 - 1] = arguments[_key10];
       }
 
-      for (var _i5 = 0, _classNames = classNames; _i5 < _classNames.length; _i5++) {
-        var _klass = _classNames[_i5];
+      for (var _i4 = 0, _classNames = classNames; _i4 < _classNames.length; _i4++) {
+        var _klass = _classNames[_i4];
         if (!$el.classList.contains(_klass)) return false;
       }
 
@@ -4645,8 +4700,8 @@ var _ref45 = function () {
         classNames[_key11 - 1] = arguments[_key11];
       }
 
-      for (var _i6 = 0, _classNames2 = classNames; _i6 < _classNames2.length; _i6++) {
-        var _klass2 = _classNames2[_i6];
+      for (var _i5 = 0, _classNames2 = classNames; _i5 < _classNames2.length; _i5++) {
+        var _klass2 = _classNames2[_i5];
         if ($el.classList.contains(_klass2)) return true;
       }
 
@@ -4666,17 +4721,17 @@ var _ref45 = function () {
       TiDom.setStyle($el, css);
     },
     dockTo: function dockTo($src, $ta) {
-      var _ref48 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref48$mode = _ref48.mode,
-          mode = _ref48$mode === void 0 ? "H" : _ref48$mode,
-          _ref48$axis = _ref48.axis,
-          axis = _ref48$axis === void 0 ? {} : _ref48$axis,
-          posListX = _ref48.posListX,
-          posListY = _ref48.posListY,
-          space = _ref48.space,
-          _ref48$viewportBorder = _ref48.viewportBorder,
-          viewportBorder = _ref48$viewportBorder === void 0 ? 4 : _ref48$viewportBorder,
-          position = _ref48.position;
+      var _ref49 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref49$mode = _ref49.mode,
+          mode = _ref49$mode === void 0 ? "H" : _ref49$mode,
+          _ref49$axis = _ref49.axis,
+          axis = _ref49$axis === void 0 ? {} : _ref49$axis,
+          posListX = _ref49.posListX,
+          posListY = _ref49.posListY,
+          space = _ref49.space,
+          _ref49$viewportBorder = _ref49.viewportBorder,
+          viewportBorder = _ref49$viewportBorder === void 0 ? 4 : _ref49$viewportBorder,
+          position = _ref49.position;
 
       if (position) {
         $src.style.position = position;
@@ -4751,37 +4806,37 @@ var _ref45 = function () {
      * Return HTML string to present the icon/text/tip HTML segment
      */
     htmlChipITT: function htmlChipITT() {
-      var _ref49 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          icon = _ref49.icon,
-          text = _ref49.text,
-          tip = _ref49.tip,
-          more = _ref49.more;
+      var _ref50 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          icon = _ref50.icon,
+          text = _ref50.text,
+          tip = _ref50.tip,
+          more = _ref50.more;
 
-      var _ref50 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref50$tagName = _ref50.tagName,
-          tagName = _ref50$tagName === void 0 ? "div" : _ref50$tagName,
-          _ref50$className = _ref50.className,
-          className = _ref50$className === void 0 ? "" : _ref50$className,
-          _ref50$iconTag = _ref50.iconTag,
-          iconTag = _ref50$iconTag === void 0 ? "div" : _ref50$iconTag,
-          _ref50$iconClass = _ref50.iconClass,
-          iconClass = _ref50$iconClass === void 0 ? "" : _ref50$iconClass,
-          _ref50$textTag = _ref50.textTag,
-          textTag = _ref50$textTag === void 0 ? "div" : _ref50$textTag,
-          _ref50$textClass = _ref50.textClass,
-          textClass = _ref50$textClass === void 0 ? "" : _ref50$textClass,
-          _ref50$textAsHtml = _ref50.textAsHtml,
-          textAsHtml = _ref50$textAsHtml === void 0 ? false : _ref50$textAsHtml,
-          _ref50$moreTag = _ref50.moreTag,
-          moreTag = _ref50$moreTag === void 0 ? "div" : _ref50$moreTag,
-          _ref50$moreClass = _ref50.moreClass,
-          moreClass = _ref50$moreClass === void 0 ? "" : _ref50$moreClass,
-          _ref50$wrapperTag = _ref50.wrapperTag,
-          wrapperTag = _ref50$wrapperTag === void 0 ? "" : _ref50$wrapperTag,
-          _ref50$wrapperClass = _ref50.wrapperClass,
-          wrapperClass = _ref50$wrapperClass === void 0 ? "" : _ref50$wrapperClass,
-          _ref50$attrs = _ref50.attrs,
-          attrs = _ref50$attrs === void 0 ? {} : _ref50$attrs;
+      var _ref51 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref51$tagName = _ref51.tagName,
+          tagName = _ref51$tagName === void 0 ? "div" : _ref51$tagName,
+          _ref51$className = _ref51.className,
+          className = _ref51$className === void 0 ? "" : _ref51$className,
+          _ref51$iconTag = _ref51.iconTag,
+          iconTag = _ref51$iconTag === void 0 ? "div" : _ref51$iconTag,
+          _ref51$iconClass = _ref51.iconClass,
+          iconClass = _ref51$iconClass === void 0 ? "" : _ref51$iconClass,
+          _ref51$textTag = _ref51.textTag,
+          textTag = _ref51$textTag === void 0 ? "div" : _ref51$textTag,
+          _ref51$textClass = _ref51.textClass,
+          textClass = _ref51$textClass === void 0 ? "" : _ref51$textClass,
+          _ref51$textAsHtml = _ref51.textAsHtml,
+          textAsHtml = _ref51$textAsHtml === void 0 ? false : _ref51$textAsHtml,
+          _ref51$moreTag = _ref51.moreTag,
+          moreTag = _ref51$moreTag === void 0 ? "div" : _ref51$moreTag,
+          _ref51$moreClass = _ref51.moreClass,
+          moreClass = _ref51$moreClass === void 0 ? "" : _ref51$moreClass,
+          _ref51$wrapperTag = _ref51.wrapperTag,
+          wrapperTag = _ref51$wrapperTag === void 0 ? "" : _ref51$wrapperTag,
+          _ref51$wrapperClass = _ref51.wrapperClass,
+          wrapperClass = _ref51$wrapperClass === void 0 ? "" : _ref51$wrapperClass,
+          _ref51$attrs = _ref51.attrs,
+          attrs = _ref51$attrs === void 0 ? {} : _ref51$attrs;
 
       var html = "";
 
@@ -4862,11 +4917,11 @@ var _ref45 = function () {
     Dom: TiDom
   };
 }(),
-    Dom = _ref45.Dom; //##################################################
+    Dom = _ref46.Dom; //##################################################
 // # import {Rect,Rects}   from "./rect.mjs"
 
 
-var _ref51 = function () {
+var _ref52 = function () {
   //--------------------------------------
   var QuickKeyMap = /*#__PURE__*/function () {
     function QuickKeyMap() {
@@ -4925,8 +4980,8 @@ var _ref51 = function () {
     var keys = ["bottom", "height", "left", "right", "top", "width", "x", "y"];
     var ms = [];
 
-    for (var _i7 = 0, _keys = keys; _i7 < _keys.length; _i7++) {
-      var key = _keys[_i7];
+    for (var _i6 = 0, _keys = keys; _i6 < _keys.length; _i6++) {
+      var key = _keys[_i6];
 
       if (!_.isUndefined(rect[key])) {
         var k = key.substring(0, 1);
@@ -5223,13 +5278,13 @@ var _ref51 = function () {
     }, {
       key: "zoom",
       value: function zoom() {
-        var _ref52 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            _ref52$x = _ref52.x,
-            x = _ref52$x === void 0 ? 1 : _ref52$x,
-            _ref52$y = _ref52.y,
-            y = _ref52$y === void 0 ? x : _ref52$y,
-            _ref52$centre = _ref52.centre,
-            centre = _ref52$centre === void 0 ? this : _ref52$centre;
+        var _ref53 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            _ref53$x = _ref53.x,
+            x = _ref53$x === void 0 ? 1 : _ref53$x,
+            _ref53$y = _ref53.y,
+            y = _ref53$y === void 0 ? x : _ref53$y,
+            _ref53$centre = _ref53.centre,
+            centre = _ref53$centre === void 0 ? this : _ref53$centre;
 
         this.top = (this.top - centre.y) * y + centre.y;
         this.left = (this.left - centre.x) * x + centre.x;
@@ -5248,11 +5303,11 @@ var _ref51 = function () {
     }, {
       key: "zoomTo",
       value: function zoomTo() {
-        var _ref53 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            width = _ref53.width,
-            height = _ref53.height,
-            _ref53$mode = _ref53.mode,
-            mode = _ref53$mode === void 0 ? "contain" : _ref53$mode;
+        var _ref54 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            width = _ref54.width,
+            height = _ref54.height,
+            _ref54$mode = _ref54.mode,
+            mode = _ref54$mode === void 0 ? "contain" : _ref54$mode;
 
         // zoom scale when necessary
         if ("contain" == mode) {
@@ -5315,19 +5370,19 @@ var _ref51 = function () {
     }, {
       key: "centreTo",
       value: function centreTo() {
-        var _ref54 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            width = _ref54.width,
-            height = _ref54.height,
-            _ref54$top = _ref54.top,
-            top = _ref54$top === void 0 ? 0 : _ref54$top,
-            _ref54$left = _ref54.left,
-            left = _ref54$left === void 0 ? 0 : _ref54$left;
+        var _ref55 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            width = _ref55.width,
+            height = _ref55.height,
+            _ref55$top = _ref55.top,
+            top = _ref55$top === void 0 ? 0 : _ref55$top,
+            _ref55$left = _ref55.left,
+            left = _ref55$left === void 0 ? 0 : _ref55$left;
 
-        var _ref55 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref55$xAxis = _ref55.xAxis,
-            xAxis = _ref55$xAxis === void 0 ? true : _ref55$xAxis,
-            _ref55$yAxis = _ref55.yAxis,
-            yAxis = _ref55$yAxis === void 0 ? true : _ref55$yAxis;
+        var _ref56 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref56$xAxis = _ref56.xAxis,
+            xAxis = _ref56$xAxis === void 0 ? true : _ref56$xAxis,
+            _ref56$yAxis = _ref56.yAxis,
+            yAxis = _ref56$yAxis === void 0 ? true : _ref56$yAxis;
 
         // Translate xAxis
         if (xAxis) {
@@ -5355,11 +5410,11 @@ var _ref51 = function () {
     }, {
       key: "translate",
       value: function translate() {
-        var _ref56 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            _ref56$x = _ref56.x,
-            x = _ref56$x === void 0 ? 0 : _ref56$x,
-            _ref56$y = _ref56.y,
-            y = _ref56$y === void 0 ? 0 : _ref56$y;
+        var _ref57 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            _ref57$x = _ref57.x,
+            x = _ref57$x === void 0 ? 0 : _ref57$x,
+            _ref57$y = _ref57.y,
+            y = _ref57$y === void 0 ? 0 : _ref57$y;
 
         this.y -= y;
         this.x -= x;
@@ -5462,17 +5517,17 @@ var _ref51 = function () {
 
         var mode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "H";
 
-        var _ref57 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-            _ref57$axis = _ref57.axis,
-            axis = _ref57$axis === void 0 ? {} : _ref57$axis,
-            _ref57$space = _ref57.space,
-            space = _ref57$space === void 0 ? {} : _ref57$space,
-            _ref57$viewport = _ref57.viewport,
-            viewport = _ref57$viewport === void 0 ? {} : _ref57$viewport,
-            _ref57$viewportBorder = _ref57.viewportBorder,
-            viewportBorder = _ref57$viewportBorder === void 0 ? 4 : _ref57$viewportBorder,
-            _ref57$wrapCut = _ref57.wrapCut,
-            wrapCut = _ref57$wrapCut === void 0 ? false : _ref57$wrapCut;
+        var _ref58 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+            _ref58$axis = _ref58.axis,
+            axis = _ref58$axis === void 0 ? {} : _ref58$axis,
+            _ref58$space = _ref58.space,
+            space = _ref58$space === void 0 ? {} : _ref58$space,
+            _ref58$viewport = _ref58.viewport,
+            viewport = _ref58$viewport === void 0 ? {} : _ref58$viewport,
+            _ref58$viewportBorder = _ref58.viewportBorder,
+            viewportBorder = _ref58$viewportBorder === void 0 ? 4 : _ref58$viewportBorder,
+            _ref58$wrapCut = _ref58.wrapCut,
+            wrapCut = _ref58$wrapCut === void 0 ? false : _ref58$wrapCut;
 
         if (_.isNumber(space)) {
           space = {
@@ -5763,8 +5818,8 @@ var _ref51 = function () {
           rects[_key13] = arguments[_key13];
         }
 
-        for (var _i8 = 0, _rects = rects; _i8 < _rects.length; _i8++) {
-          var rect = _rects[_i8];
+        for (var _i7 = 0, _rects = rects; _i7 < _rects.length; _i7++) {
+          var rect = _rects[_i7];
           this.top = Math.min(this.top, rect.top);
           this.left = Math.min(this.left, rect.left);
           this.right = Math.max(this.right, rect.right);
@@ -5781,8 +5836,8 @@ var _ref51 = function () {
           rects[_key14] = arguments[_key14];
         }
 
-        for (var _i9 = 0, _rects2 = rects; _i9 < _rects2.length; _i9++) {
-          var rect = _rects2[_i9];
+        for (var _i8 = 0, _rects2 = rects; _i8 < _rects2.length; _i8++) {
+          var rect = _rects2[_i8];
           this.top = Math.max(this.top, rect.top);
           this.left = Math.max(this.left, rect.left);
           this.right = Math.min(this.right, rect.right);
@@ -5908,12 +5963,12 @@ var _ref51 = function () {
     Rects: TiRects
   };
 }(),
-    Rect = _ref51.Rect,
-    Rects = _ref51.Rects; //##################################################
+    Rect = _ref52.Rect,
+    Rects = _ref52.Rects; //##################################################
 // # import {Load}         from "./load.mjs"
 
 
-var _ref58 = function () {
+var _ref59 = function () {
   //import {importModule} from "./polyfill-dynamic-import.mjs"
   /////////////////////////////////////////
   // One resource load only once
@@ -6013,7 +6068,7 @@ var _ref58 = function () {
 
 
   var MjsLoading = new UnifyResourceLoading( /*#__PURE__*/function () {
-    var _ref59 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(url) {
+    var _ref60 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(url) {
       return regeneratorRuntime.wrap(function _callee19$(_context19) {
         while (1) {
           switch (_context19.prev = _context19.next) {
@@ -6046,12 +6101,12 @@ var _ref58 = function () {
     }));
 
     return function (_x12) {
-      return _ref59.apply(this, arguments);
+      return _ref60.apply(this, arguments);
     };
   }()); /////////////////////////////////////////
 
   var TextLoading = new UnifyResourceLoading( /*#__PURE__*/function () {
-    var _ref60 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(url) {
+    var _ref61 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(url) {
       return regeneratorRuntime.wrap(function _callee20$(_context20) {
         while (1) {
           switch (_context20.prev = _context20.next) {
@@ -6082,7 +6137,7 @@ var _ref58 = function () {
     }));
 
     return function (_x13) {
-      return _ref60.apply(this, arguments);
+      return _ref61.apply(this, arguments);
     };
   }()); /////////////////////////////////////////
 
@@ -6212,7 +6267,7 @@ var _ref58 = function () {
   function _TiLoad() {
     _TiLoad = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22() {
       var url,
-          _ref61,
+          _ref62,
           dynamicPrefix,
           dynamicAlias,
           _u,
@@ -6230,7 +6285,7 @@ var _ref58 = function () {
           switch (_context22.prev = _context22.next) {
             case 0:
               url = _args22.length > 0 && _args22[0] !== undefined ? _args22[0] : [];
-              _ref61 = _args22.length > 1 && _args22[1] !== undefined ? _args22[1] : {}, dynamicPrefix = _ref61.dynamicPrefix, dynamicAlias = _ref61.dynamicAlias;
+              _ref62 = _args22.length > 1 && _args22[1] !== undefined ? _args22[1] : {}, dynamicPrefix = _ref62.dynamicPrefix, dynamicAlias = _ref62.dynamicAlias;
 
               if (!_.isFunction(url)) {
                 _context22.next = 5;
@@ -6342,11 +6397,11 @@ var _ref58 = function () {
     Load: TiLoad
   };
 }(),
-    Load = _ref58.Load; //##################################################
+    Load = _ref59.Load; //##################################################
 // # import {Http}         from "./http.mjs"
 
 
-var _ref62 = function () {
+var _ref63 = function () {
   //-----------------------------------
   var RESP_TRANS = {
     arraybuffer: function arraybuffer($req) {
@@ -6397,9 +6452,9 @@ var _ref62 = function () {
   }; //-----------------------------------
 
   function ProcessResponseData($req) {
-    var _ref63 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-        _ref63$as = _ref63.as,
-        as = _ref63$as === void 0 ? "text" : _ref63$as;
+    var _ref64 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+        _ref64$as = _ref64.as,
+        as = _ref64$as === void 0 ? "text" : _ref64$as;
 
     return Ti.InvokeBy(RESP_TRANS, as, [$req]);
   } //-----------------------------------
@@ -6455,7 +6510,7 @@ var _ref62 = function () {
       // Default header for POST
 
 
-      var _ref64 = Ti.Invoke({
+      var _ref65 = Ti.Invoke({
         "GET": function GET() {
           var sendData = TiHttp.encodeFormData(params);
           return {
@@ -6491,8 +6546,8 @@ var _ref62 = function () {
       }[method]) || {
         urlToSend: url
       },
-          urlToSend = _ref64.urlToSend,
-          sendData = _ref64.sendData; // Prepare the Request Object
+          urlToSend = _ref65.urlToSend,
+          sendData = _ref65.sendData; // Prepare the Request Object
 
 
       var $req = new XMLHttpRequest(); // Check upload file supporting
@@ -6593,11 +6648,11 @@ var _ref62 = function () {
     Http: TiHttp
   };
 }(),
-    Http = _ref62.Http; //##################################################
+    Http = _ref63.Http; //##################################################
 // # import {I18n}         from "./i18n.mjs"
 
 
-var _ref65 = function () {
+var _ref66 = function () {
   //-----------------------------------
   var I18N = {}; //-----------------------------------
 
@@ -6656,7 +6711,7 @@ var _ref65 = function () {
 
       if (key instanceof Error) {
         if (key.code) {
-          return Ti.S.join(" : ", Ti18n.get(key.code), key.data);
+          return Ti.S.join([Ti18n.get(key.code), key.data], " : ");
         }
 
         return key.message;
@@ -6723,11 +6778,11 @@ var _ref65 = function () {
     I18n: Ti18n
   };
 }(),
-    I18n = _ref65.I18n; //##################################################
+    I18n = _ref66.I18n; //##################################################
 // # import {Icons}        from "./icons.mjs"
 
 
-var _ref66 = function () {
+var _ref67 = function () {
   //-----------------------------------
   var TYPES = {
     "7z": "fas-file-archive",
@@ -6817,12 +6872,12 @@ var _ref66 = function () {
 
   var TiIcons = {
     put: function put() {
-      var _ref67 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          types = _ref67.types,
-          mimes = _ref67.mimes,
-          races = _ref67.races,
-          names = _ref67.names,
-          dft = _ref67.dft;
+      var _ref68 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          types = _ref68.types,
+          mimes = _ref68.mimes,
+          races = _ref68.races,
+          names = _ref68.names,
+          dft = _ref68.dft;
 
       _.assign(TYPES, types);
 
@@ -6911,19 +6966,19 @@ var _ref66 = function () {
     Icons: TiIcons
   };
 }(),
-    Icons = _ref66.Icons; //##################################################
+    Icons = _ref67.Icons; //##################################################
 // # import {Fuse}         from "./fuse.mjs"
 
 
-var _ref68 = function () {
+var _ref69 = function () {
   var TiDetonator = /*#__PURE__*/function () {
     function TiDetonator() {
-      var _ref69 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          key = _ref69.key,
-          everythingOk = _ref69.everythingOk,
-          fail = _ref69.fail,
-          _ref69$once = _ref69.once,
-          once = _ref69$once === void 0 ? false : _ref69$once;
+      var _ref70 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          key = _ref70.key,
+          everythingOk = _ref70.everythingOk,
+          fail = _ref70.fail,
+          _ref70$once = _ref70.once,
+          once = _ref70$once === void 0 ? false : _ref70$once;
 
       _classCallCheck(this, TiDetonator);
 
@@ -7218,11 +7273,11 @@ var _ref68 = function () {
     Fuse: new TiFuseManager()
   };
 }(),
-    Fuse = _ref68.Fuse; //##################################################
+    Fuse = _ref69.Fuse; //##################################################
 // # import {Random}       from "./random.mjs"
 
 
-var _ref70 = function () {
+var _ref71 = function () {
   var CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split(''); //---------------------------------------
 
   var TiRandom = {
@@ -7234,7 +7289,7 @@ var _ref70 = function () {
       var dict = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : CHARS;
       var s = '';
 
-      for (var _i10 = 0; _i10 < n; _i10++) {
+      for (var _i9 = 0; _i9 < n; _i9++) {
         var index = _.random(0, CHARS.length - 1);
 
         s += dict[index];
@@ -7271,11 +7326,11 @@ var _ref70 = function () {
     Random: TiRandom
   };
 }(),
-    Random = _ref70.Random; //##################################################
+    Random = _ref71.Random; //##################################################
 // # import {Storage}      from "./storage.mjs"
 
 
-var _ref71 = function () {
+var _ref72 = function () {
   //-----------------------------------
   var TiStorageWrapper = /*#__PURE__*/function () {
     function TiStorageWrapper(storage) {
@@ -7392,11 +7447,11 @@ var _ref71 = function () {
     Storage: TiStorage
   };
 }(),
-    Storage = _ref71.Storage; //##################################################
+    Storage = _ref72.Storage; //##################################################
 // # import {Shortcut}     from "./shortcut.mjs"
 
 
-var _ref72 = function () {
+var _ref73 = function () {
   ///////////////////////////////////////
   var TiShortcut = {
     /***
@@ -7410,12 +7465,12 @@ var _ref72 = function () {
      * @return {Function} the binded function call.
      */
     genActionInvoking: function genActionInvoking(action) {
-      var _ref73 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          $com = _ref73.$com,
-          _ref73$argContext = _ref73.argContext,
-          argContext = _ref73$argContext === void 0 ? {} : _ref73$argContext,
-          _ref73$wait = _ref73.wait,
-          wait = _ref73$wait === void 0 ? 0 : _ref73$wait;
+      var _ref74 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          $com = _ref74.$com,
+          _ref74$argContext = _ref74.argContext,
+          argContext = _ref74$argContext === void 0 ? {} : _ref74$argContext,
+          _ref74$wait = _ref74.wait,
+          wait = _ref74$wait === void 0 ? 0 : _ref74$wait;
 
       // if(action.indexOf("projIssuesImport") > 0)
       //   console.log("genActionInvoking", action)
@@ -7562,11 +7617,11 @@ var _ref72 = function () {
      * @return Unique Key as string
      */
     getUniqueKey: function getUniqueKey($event) {
-      var _ref74 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref74$sep = _ref74.sep,
-          sep = _ref74$sep === void 0 ? "+" : _ref74$sep,
-          _ref74$mode = _ref74.mode,
-          mode = _ref74$mode === void 0 ? "upper" : _ref74$mode;
+      var _ref75 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref75$sep = _ref75.sep,
+          sep = _ref75$sep === void 0 ? "+" : _ref75$sep,
+          _ref75$mode = _ref75.mode,
+          mode = _ref75$mode === void 0 ? "upper" : _ref75$mode;
 
       var keys = [];
 
@@ -7621,11 +7676,11 @@ var _ref72 = function () {
     Shortcut: TiShortcut
   };
 }(),
-    Shortcut = _ref72.Shortcut; //##################################################
+    Shortcut = _ref73.Shortcut; //##################################################
 // # import {TiWebsocket}  from "./websocket.mjs"
 
 
-var _ref75 = function () {
+var _ref76 = function () {
   /////////////////////////////////////
   var TiWebsocket = {
     //---------------------------------
@@ -7641,17 +7696,17 @@ var _ref75 = function () {
      * @param error{Function} : callback for socket error raised
      */
     listenRemote: function listenRemote() {
-      var _ref76 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          _ref76$watchTo = _ref76.watchTo,
-          watchTo = _ref76$watchTo === void 0 ? null : _ref76$watchTo,
-          _ref76$watched = _ref76.watched,
-          watched = _ref76$watched === void 0 ? _.identity : _ref76$watched,
-          _ref76$received = _ref76.received,
-          received = _ref76$received === void 0 ? _.identity : _ref76$received,
-          _ref76$closed = _ref76.closed,
-          closed = _ref76$closed === void 0 ? _.identity : _ref76$closed,
-          _ref76$error = _ref76.error,
-          error = _ref76$error === void 0 ? _.identity : _ref76$error;
+      var _ref77 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref77$watchTo = _ref77.watchTo,
+          watchTo = _ref77$watchTo === void 0 ? null : _ref77$watchTo,
+          _ref77$watched = _ref77.watched,
+          watched = _ref77$watched === void 0 ? _.identity : _ref77$watched,
+          _ref77$received = _ref77.received,
+          received = _ref77$received === void 0 ? _.identity : _ref77$received,
+          _ref77$closed = _ref77.closed,
+          closed = _ref77$closed === void 0 ? _.identity : _ref77$closed,
+          _ref77$error = _ref77.error,
+          error = _ref77$error === void 0 ? _.identity : _ref77$error;
 
       //...............................
       // Get System Config
@@ -7707,11 +7762,11 @@ var _ref75 = function () {
     TiWebsocket: TiWebsocket
   };
 }(),
-    TiWebsocket = _ref75.TiWebsocket; //##################################################
+    TiWebsocket = _ref76.TiWebsocket; //##################################################
 // # import {Validate}     from "./validate.mjs"
 
 
-var _ref77 = function () {
+var _ref78 = function () {
   ///////////////////////////////////////
   var VALIDATORS = {
     "notNil": function notNil(val) {
@@ -7760,13 +7815,13 @@ var _ref77 = function () {
       return _.isDate(val);
     },
     "inRange": function inRange(val) {
-      var _ref78;
+      var _ref79;
 
       for (var _len17 = arguments.length, args = new Array(_len17 > 1 ? _len17 - 1 : 0), _key18 = 1; _key18 < _len17; _key18++) {
         args[_key18 - 1] = arguments[_key18];
       }
 
-      return (_ref78 = _).inRange.apply(_ref78, [val].concat(args));
+      return (_ref79 = _).inRange.apply(_ref79, [val].concat(args));
     },
     "isMatch": function isMatch(val, src) {
       return _.isMatch(val, src);
@@ -7779,8 +7834,8 @@ var _ref77 = function () {
         args[_key19 - 1] = arguments[_key19];
       }
 
-      for (var _i11 = 0, _args26 = args; _i11 < _args26.length; _i11++) {
-        var a = _args26[_i11];
+      for (var _i10 = 0, _args26 = args; _i10 < _args26.length; _i10++) {
+        var a = _args26[_i10];
         if (_.isEqual(a, val)) return true;
       }
 
@@ -7818,9 +7873,9 @@ var _ref77 = function () {
       if (_.isEmpty(args)) {
         f2 = fn;
       } else {
-        var _ref79;
+        var _ref80;
 
-        f2 = (_ref79 = _).partialRight.apply(_ref79, [fn].concat(_toConsumableArray(args)));
+        f2 = (_ref80 = _).partialRight.apply(_ref80, [fn].concat(_toConsumableArray(args)));
       }
 
       if (not) {
@@ -7912,17 +7967,39 @@ var _ref77 = function () {
 
       if (_.isBoolean(validates)) {
         return validates ? true : false;
+      } // Array mean or
+
+
+      if (_.isArray(validates)) {
+        var _iterator24 = _createForOfIteratorHelper(validates),
+            _step24;
+
+        try {
+          for (_iterator24.s(); !(_step24 = _iterator24.n()).done;) {
+            var vali = _step24.value;
+
+            if (Ti.Validate.match(obj, vali, allowEmpty)) {
+              return true;
+            }
+          }
+        } catch (err) {
+          _iterator24.e(err);
+        } finally {
+          _iterator24.f();
+        }
+
+        return false;
       } // Check
 
 
       var keys = _.keys(validates);
 
-      var _iterator24 = _createForOfIteratorHelper(keys),
-          _step24;
+      var _iterator25 = _createForOfIteratorHelper(keys),
+          _step25;
 
       try {
-        for (_iterator24.s(); !(_step24 = _iterator24.n()).done;) {
-          var key = _step24.value;
+        for (_iterator25.s(); !(_step25 = _iterator25.n()).done;) {
+          var key = _step25.value;
 
           var fn = _.get(validates, key);
 
@@ -7933,9 +8010,9 @@ var _ref77 = function () {
           }
         }
       } catch (err) {
-        _iterator24.e(err);
+        _iterator25.e(err);
       } finally {
-        _iterator24.f();
+        _iterator25.f();
       }
 
       return true;
@@ -7947,89 +8024,13 @@ var _ref77 = function () {
     Validate: TiValidate
   };
 }(),
-    Validate = _ref77.Validate; //##################################################
+    Validate = _ref78.Validate; //##################################################
 // # import {Types}        from "./types.mjs"
 
 
-var _ref80 = function () {
+var _ref81 = function () {
   /////////////////////////////////////
-  var P_DATE = new RegExp("^((\\d{4})([/\\\\-])?(\\d{1,2})?([/\\\\-])?(\\d{1,2})?)?" + "(([ T])?" + "(\\d{1,2})(:)(\\d{1,2})((:)(\\d{1,2}))?" + "((\.)(\\d{1,3}))?)?" + "(([+-])(\\d{1,2})(:\\d{1,2})?)?" + "(Z(\\d*))?$"); //-----------------------------------
-
-  function parseDate(d) {
-    //console.log("parseDate:", d)
-    // Default return today
-    if (_.isUndefined(d) || "today" === d) {
-      return new Date();
-    } // keep null
-
-
-    if (!d || _.isArray(d) && _.isEmpty(d)) {
-      return null;
-    } // Date
-
-
-    if (_.isDate(d)) {
-      return new Date(d);
-    } // Number as AMS
-
-
-    if (_.isNumber(d)) {
-      return new Date(d);
-    } // String 
-
-
-    if (_.isString(d)) {
-      var str = d; // MS 
-
-      if (/\d{13,}/.test(str)) {
-        return new Date(str * 1);
-      } // Try to tidy string 
-
-
-      var _m4 = P_DATE.exec(d);
-
-      if (_m4) {
-        var _int = function _int(m, index, dft) {
-          var s = m[index];
-
-          if (s) {
-            return parseInt(s);
-          }
-
-          return dft;
-        };
-
-        var today = new Date();
-
-        var yy = _int(_m4, 2, today.getFullYear());
-
-        var MM = _int(_m4, 4, _m4[2] ? 1 : today.getMonth() + 1);
-
-        var dd = _int(_m4, 6, _m4[2] ? 1 : today.getDate());
-
-        var HH = _int(_m4, 9, 0);
-
-        var mm = _int(_m4, 11, 0);
-
-        var _ss3 = _int(_m4, 14, 0);
-
-        var _ms3 = _int(_m4, 17, 0);
-
-        var _list4 = [_.padStart(yy, 4, "0"), "-", _.padStart(MM, 2, "0"), "-", _.padStart(dd, 2, "0"), "T", _.padStart(HH, 2, "0"), ":", _.padStart(mm, 2, "0"), ":", _.padStart(_ss3, 2, "0"), ".", _.padStart(_ms3, 3, "0")];
-        if (_m4[18]) _list4.push(_m4[18]);
-
-        var dateStr = _list4.join("");
-
-        return new Date(dateStr);
-      }
-    } // Invalid date
-
-
-    throw 'i18n:invalid-date';
-  } /////////////////////////////////////
   // Time Object
-
-
   var TiTime = /*#__PURE__*/function () {
     //--------------------------------
     function TiTime(input, unit) {
@@ -8084,11 +8085,11 @@ var _ref80 = function () {
     }, {
       key: "setTimes",
       value: function setTimes() {
-        var _ref81 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            hours = _ref81.hours,
-            minutes = _ref81.minutes,
-            seconds = _ref81.seconds,
-            milliseconds = _ref81.milliseconds;
+        var _ref82 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            hours = _ref82.hours,
+            minutes = _ref82.minutes,
+            seconds = _ref82.seconds,
+            milliseconds = _ref82.milliseconds;
 
         this.__cached = {};
         this.hours = _.clamp(Ti.Util.fallback(hours, this.hours), 0, 23);
@@ -8116,7 +8117,7 @@ var _ref80 = function () {
             this.milliseconds = input.milliseconds;
           } // Number as Seconds
           else if (_.isNumber(input)) {
-              var _ms4 = {
+              var _ms3 = {
                 "ms": function ms(v) {
                   return v;
                 },
@@ -8131,36 +8132,36 @@ var _ref80 = function () {
                 }
               }[unit](input);
 
-              _ms4 = _.clamp(_ms4, 0, 86400000);
-              var sec = parseInt(_ms4 / 1000);
-              this.milliseconds = _ms4 - sec * 1000;
+              _ms3 = _.clamp(_ms3, 0, 86400000);
+              var sec = parseInt(_ms3 / 1000);
+              this.milliseconds = _ms3 - sec * 1000;
               this.hours = parseInt(sec / 3600);
               sec -= this.hours * 3600;
               this.minutes = parseInt(sec / 60);
               this.seconds = sec - this.minutes * 60;
             } // String
             else if (_.isString(input)) {
-                var _m5 = /^([0-9]{1,2}):?([0-9]{1,2})(:?([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/.exec(input);
+                var _m4 = /^([0-9]{1,2}):?([0-9]{1,2})(:?([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/.exec(input);
 
-                if (_m5) {
+                if (_m4) {
                   // Min: 23:59
-                  if (!_m5[3]) {
-                    this.hours = _.clamp(parseInt(_m5[1]), 0, 23);
-                    this.minutes = _.clamp(parseInt(_m5[2]), 0, 59);
+                  if (!_m4[3]) {
+                    this.hours = _.clamp(parseInt(_m4[1]), 0, 23);
+                    this.minutes = _.clamp(parseInt(_m4[2]), 0, 59);
                     this.seconds = 0;
                     this.milliseconds = 0;
                   } // Sec: 23:59:59
-                  else if (!_m5[5]) {
-                      this.hours = _.clamp(parseInt(_m5[1]), 0, 23);
-                      this.minutes = _.clamp(parseInt(_m5[2]), 0, 59);
-                      this.seconds = _.clamp(parseInt(_m5[4]), 0, 59);
+                  else if (!_m4[5]) {
+                      this.hours = _.clamp(parseInt(_m4[1]), 0, 23);
+                      this.minutes = _.clamp(parseInt(_m4[2]), 0, 59);
+                      this.seconds = _.clamp(parseInt(_m4[4]), 0, 59);
                       this.milliseconds = 0;
                     } // Ms: 23:59:59.234
                     else {
-                        this.hours = _.clamp(parseInt(_m5[1]), 0, 23);
-                        this.minutes = _.clamp(parseInt(_m5[2]), 0, 59);
-                        this.seconds = _.clamp(parseInt(_m5[4]), 0, 59);
-                        this.milliseconds = _.clamp(parseInt(_m5[6]), 0, 999);
+                        this.hours = _.clamp(parseInt(_m4[1]), 0, 23);
+                        this.minutes = _.clamp(parseInt(_m4[2]), 0, 59);
+                        this.seconds = _.clamp(parseInt(_m4[4]), 0, 59);
+                        this.milliseconds = _.clamp(parseInt(_m4[6]), 0, 999);
                       }
                 } // if(m)
 
@@ -8346,11 +8347,11 @@ var _ref80 = function () {
     }, {
       key: "setRGBA",
       value: function setRGBA() {
-        var _ref82 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            r = _ref82.r,
-            g = _ref82.g,
-            b = _ref82.b,
-            a = _ref82.a;
+        var _ref83 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            r = _ref83.r,
+            g = _ref83.g,
+            b = _ref83.b,
+            a = _ref83.a;
 
         this.__cached = {};
 
@@ -8400,35 +8401,35 @@ var _ref80 = function () {
           else {
               var str = input.replace(/[ \t\r\n]+/g, "").toUpperCase();
 
-              var _m6; // HEX: #FFF
+              var _m5; // HEX: #FFF
 
 
-              if (_m6 = /^#?([0-9A-F])([0-9A-F])([0-9A-F]);?$/.exec(str)) {
-                this.red = parseInt(_m6[1] + _m6[1], 16);
-                this.green = parseInt(_m6[2] + _m6[2], 16);
-                this.blue = parseInt(_m6[3] + _m6[3], 16);
+              if (_m5 = /^#?([0-9A-F])([0-9A-F])([0-9A-F]);?$/.exec(str)) {
+                this.red = parseInt(_m5[1] + _m5[1], 16);
+                this.green = parseInt(_m5[2] + _m5[2], 16);
+                this.blue = parseInt(_m5[3] + _m5[3], 16);
               } // HEX2: #F0F0F0
-              else if (_m6 = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
-                  this.red = parseInt(_m6[1], 16);
-                  this.green = parseInt(_m6[2], 16);
-                  this.blue = parseInt(_m6[3], 16);
+              else if (_m5 = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
+                  this.red = parseInt(_m5[1], 16);
+                  this.green = parseInt(_m5[2], 16);
+                  this.blue = parseInt(_m5[3], 16);
                 } // RGB: rgb(255,33,89)
-                else if (_m6 = /^RGB\((\d+),(\d+),(\d+)\)$/.exec(str)) {
-                    this.red = parseInt(_m6[1], 10);
-                    this.green = parseInt(_m6[2], 10);
-                    this.blue = parseInt(_m6[3], 10);
+                else if (_m5 = /^RGB\((\d+),(\d+),(\d+)\)$/.exec(str)) {
+                    this.red = parseInt(_m5[1], 10);
+                    this.green = parseInt(_m5[2], 10);
+                    this.blue = parseInt(_m5[3], 10);
                   } // RGBA: rgba(6,6,6,0.9)
-                  else if (_m6 = /^RGBA\((\d+),(\d+),(\d+),([\d.]+)\)$/.exec(str)) {
-                      this.red = parseInt(_m6[1], 10);
-                      this.green = parseInt(_m6[2], 10);
-                      this.blue = parseInt(_m6[3], 10);
-                      this.alpha = _m6[4] * 1;
+                  else if (_m5 = /^RGBA\((\d+),(\d+),(\d+),([\d.]+)\)$/.exec(str)) {
+                      this.red = parseInt(_m5[1], 10);
+                      this.green = parseInt(_m5[2], 10);
+                      this.blue = parseInt(_m5[3], 10);
+                      this.alpha = _m5[4] * 1;
                     } // AARRGGBB : 0xFF000000
-                    else if (_m6 = /^0[xX]([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
-                        this.alpha = parseInt(_m6[1], 16) / 255;
-                        this.red = parseInt(_m6[2], 16);
-                        this.green = parseInt(_m6[3], 16);
-                        this.blue = parseInt(_m6[4], 16);
+                    else if (_m5 = /^0[xX]([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
+                        this.alpha = parseInt(_m5[1], 16) / 255;
+                        this.red = parseInt(_m5[2], 16);
+                        this.green = parseInt(_m5[3], 16);
+                        this.blue = parseInt(_m5[4], 16);
                       }
             }
         } // Number 
@@ -8503,9 +8504,9 @@ var _ref80 = function () {
       value: function between(otherColor) {
         var pos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.5;
 
-        var _ref83 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+        var _ref84 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-        _objectDestructuringEmpty(_ref83);
+        _objectDestructuringEmpty(_ref84);
 
         pos = _.clamp(pos, 0, 1);
         var r0 = otherColor.red - this.red;
@@ -8521,13 +8522,13 @@ var _ref80 = function () {
     }, {
       key: "adjustByHSL",
       value: function adjustByHSL() {
-        var _ref84 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            _ref84$h = _ref84.h,
-            h = _ref84$h === void 0 ? 0 : _ref84$h,
-            _ref84$s = _ref84.s,
-            s = _ref84$s === void 0 ? 0 : _ref84$s,
-            _ref84$l = _ref84.l,
-            l = _ref84$l === void 0 ? 0 : _ref84$l;
+        var _ref85 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            _ref85$h = _ref85.h,
+            h = _ref85$h === void 0 ? 0 : _ref85$h,
+            _ref85$s = _ref85.s,
+            s = _ref85$s === void 0 ? 0 : _ref85$s,
+            _ref85$l = _ref85.l,
+            l = _ref85$l === void 0 ? 0 : _ref85$l;
 
         var hsl = this.toHSL();
         hsl.h = _.clamp(hsl.h + h, 0, 1);
@@ -8582,10 +8583,10 @@ var _ref80 = function () {
     }, {
       key: "fromHSL",
       value: function fromHSL() {
-        var _ref85 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            h = _ref85.h,
-            s = _ref85.s,
-            l = _ref85.l;
+        var _ref86 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            h = _ref86.h,
+            s = _ref86.s,
+            l = _ref86.l;
 
         var r,
             g,
@@ -8707,6 +8708,10 @@ var _ref80 = function () {
           return Ti.Util.fallback(_.nth(fmt, val), val);
         }
 
+        if (_.isString(fmt)) {
+          return Ti.S.renderVars(val, fmt);
+        }
+
         var _s3 = "" + val;
 
         if (_.isPlainObject(fmt)) {
@@ -8796,15 +8801,15 @@ var _ref80 = function () {
     },
     //.......................................
     toInteger: function toInteger(val) {
-      var _ref86 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref86$mode = _ref86.mode,
-          mode = _ref86$mode === void 0 ? "int" : _ref86$mode,
-          _ref86$dft = _ref86.dft,
-          dft = _ref86$dft === void 0 ? NaN : _ref86$dft,
-          _ref86$range = _ref86.range,
-          range = _ref86$range === void 0 ? [] : _ref86$range,
-          _ref86$border = _ref86.border,
-          border = _ref86$border === void 0 ? [true, true] : _ref86$border;
+      var _ref87 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref87$mode = _ref87.mode,
+          mode = _ref87$mode === void 0 ? "int" : _ref87$mode,
+          _ref87$dft = _ref87.dft,
+          dft = _ref87$dft === void 0 ? NaN : _ref87$dft,
+          _ref87$range = _ref87.range,
+          range = _ref87$range === void 0 ? [] : _ref87$range,
+          _ref87$border = _ref87.border,
+          border = _ref87$border === void 0 ? [true, true] : _ref87$border;
 
       if (_.isBoolean(val)) {
         return val ? 1 : 0;
@@ -8874,11 +8879,11 @@ var _ref80 = function () {
     //.......................................
     // precision: if less then 0, keep original
     toFloat: function toFloat(val) {
-      var _ref87 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref87$precision = _ref87.precision,
-          precision = _ref87$precision === void 0 ? 2 : _ref87$precision,
-          _ref87$dft = _ref87.dft,
-          dft = _ref87$dft === void 0 ? NaN : _ref87$dft;
+      var _ref88 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref88$precision = _ref88.precision,
+          precision = _ref88$precision === void 0 ? 2 : _ref88$precision,
+          _ref88$dft = _ref88.dft,
+          dft = _ref88$dft === void 0 ? NaN : _ref88$dft;
 
       var n = val * 1;
 
@@ -8896,11 +8901,11 @@ var _ref80 = function () {
     },
     //.......................................
     toPercent: function toPercent(val) {
-      var _ref88 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref88$fixed = _ref88.fixed,
-          fixed = _ref88$fixed === void 0 ? 2 : _ref88$fixed,
-          _ref88$auto = _ref88.auto,
-          auto = _ref88$auto === void 0 ? true : _ref88$auto;
+      var _ref89 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref89$fixed = _ref89.fixed,
+          fixed = _ref89$fixed === void 0 ? 2 : _ref89$fixed,
+          _ref89$auto = _ref89.auto,
+          auto = _ref89$auto === void 0 ? true : _ref89$auto;
 
       return Ti.S.toPercent(val, {
         fixed: fixed,
@@ -8950,13 +8955,13 @@ var _ref80 = function () {
     toObjByPair: function toObjByPair() {
       var pair = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var _ref89 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref89$nameBy = _ref89.nameBy,
-          nameBy = _ref89$nameBy === void 0 ? "name" : _ref89$nameBy,
-          _ref89$valueBy = _ref89.valueBy,
-          valueBy = _ref89$valueBy === void 0 ? "value" : _ref89$valueBy,
-          _ref89$dft = _ref89.dft,
-          dft = _ref89$dft === void 0 ? {} : _ref89$dft;
+      var _ref90 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref90$nameBy = _ref90.nameBy,
+          nameBy = _ref90$nameBy === void 0 ? "name" : _ref90$nameBy,
+          _ref90$valueBy = _ref90.valueBy,
+          valueBy = _ref90$valueBy === void 0 ? "value" : _ref90$valueBy,
+          _ref90$dft = _ref90.dft,
+          dft = _ref90$dft === void 0 ? {} : _ref90$dft;
 
       var name = pair[nameBy];
       var value = pair[valueBy];
@@ -8968,18 +8973,18 @@ var _ref80 = function () {
         data[name] = value;
       } // Multi fields
       else if (_.isArray(name)) {
-          var _iterator25 = _createForOfIteratorHelper(name),
-              _step25;
+          var _iterator26 = _createForOfIteratorHelper(name),
+              _step26;
 
           try {
-            for (_iterator25.s(); !(_step25 = _iterator25.n()).done;) {
-              var nm = _step25.value;
+            for (_iterator26.s(); !(_step26 = _iterator26.n()).done;) {
+              var nm = _step26.value;
               data[nm] = value[nm];
             }
           } catch (err) {
-            _iterator25.e(err);
+            _iterator26.e(err);
           } finally {
-            _iterator25.f();
+            _iterator26.f();
           }
         }
 
@@ -8987,9 +8992,9 @@ var _ref80 = function () {
     },
     //.......................................
     toArray: function toArray(val) {
-      var _ref90 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref90$sep = _ref90.sep,
-          sep = _ref90$sep === void 0 ? /[ ,;\/、，；\r\n]+/ : _ref90$sep;
+      var _ref91 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref91$sep = _ref91.sep,
+          sep = _ref91$sep === void 0 ? /[ ,;\/、，；\r\n]+/ : _ref91$sep;
 
       if (Ti.Util.isNil(val)) {
         return val;
@@ -9001,13 +9006,13 @@ var _ref80 = function () {
 
       if (_.isString(val)) {
         if (_.isRegExp(sep)) {
-          var _ss4 = val.split(sep);
+          var _ss2 = val.split(sep);
 
-          for (var _i12 = 0; _i12 < _ss4.length; _i12++) {
-            _ss4[_i12] = _.trim(_ss4[_i12]);
+          for (var _i11 = 0; _i11 < _ss2.length; _i11++) {
+            _ss2[_i11] = _.trim(_ss2[_i11]);
           }
 
-          return _.without(_ss4, undefined, null, "");
+          return _.without(_ss2, undefined, null, "");
         }
 
         return [val];
@@ -9025,19 +9030,19 @@ var _ref80 = function () {
         var _re7 = [];
 
         _.forEach(val, function (v) {
-          _re7.push(parseDate(v));
+          _re7.push(Ti.DateTime.parse(v));
         });
 
         return _re7;
       }
 
-      return parseDate(val);
+      return Ti.DateTime.parse(val);
     },
     //.......................................
     toTime: function toTime(val) {
-      var _ref91 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          dft = _ref91.dft,
-          unit = _ref91.unit;
+      var _ref92 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          dft = _ref92.dft,
+          unit = _ref92.unit;
 
       if (_.isNull(val) || _.isUndefined(val)) {
         return dft;
@@ -9061,7 +9066,7 @@ var _ref80 = function () {
     },
     //.......................................
     toAMS: function toAMS(val) {
-      var dt = parseDate(val);
+      var dt = Ti.DateTime.parse(val);
       if (_.isDate(dt)) return dt.getTime();
       return null;
     },
@@ -9115,24 +9120,24 @@ var _ref80 = function () {
 
       if (_.isArray(time)) {
         //console.log("formatDate", date, fmt)
-        var _list5 = [];
+        var _list4 = [];
 
-        var _iterator26 = _createForOfIteratorHelper(time),
-            _step26;
+        var _iterator27 = _createForOfIteratorHelper(time),
+            _step27;
 
         try {
-          for (_iterator26.s(); !(_step26 = _iterator26.n()).done;) {
-            var t = _step26.value;
+          for (_iterator27.s(); !(_step27 = _iterator27.n()).done;) {
+            var t = _step27.value;
 
-            _list5.push(TiTypes.formatTime(t, fmt));
+            _list4.push(TiTypes.formatTime(t, fmt));
           }
         } catch (err) {
-          _iterator26.e(err);
+          _iterator27.e(err);
         } finally {
-          _iterator26.f();
+          _iterator27.f();
         }
 
-        return _list5;
+        return _list4;
       } // Guard time
 
 
@@ -9146,90 +9151,12 @@ var _ref80 = function () {
     //.......................................
     formatDate: function formatDate(date) {
       var fmt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "yyyy-MM-dd";
-      return TiTypes.formatDateTime(date, fmt);
+      return Ti.DateTime.format(date, fmt);
     },
     //.......................................
     formatDateTime: function formatDateTime(date) {
       var fmt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "yyyy-MM-dd HH:mm:ss";
-
-      // Date Range or a group of date
-      if (_.isArray(date)) {
-        //console.log("formatDate", date, fmt)
-        var _list6 = [];
-
-        var _iterator27 = _createForOfIteratorHelper(date),
-            _step27;
-
-        try {
-          for (_iterator27.s(); !(_step27 = _iterator27.n()).done;) {
-            var _d2 = _step27.value;
-
-            _list6.push(TiTypes.formatDate(_d2, fmt));
-          }
-        } catch (err) {
-          _iterator27.e(err);
-        } finally {
-          _iterator27.f();
-        }
-
-        return _list6;
-      }
-
-      if (!_.isDate(date)) {
-        date = parseDate(date);
-      } // Guard it
-
-
-      if (!date) return null; // TODO here add another param
-      // to format the datetime to "in 5min" like string
-      // Maybe the param should named as "shorthand"
-      // Format by pattern
-
-      var yyyy = date.getFullYear();
-      var M = date.getMonth() + 1;
-      var d = date.getDate();
-      var H = date.getHours();
-      var m = date.getMinutes();
-      var s = date.getSeconds();
-      var S = date.getMilliseconds();
-      var _c = {
-        yyyy: yyyy,
-        M: M,
-        d: d,
-        H: H,
-        m: m,
-        s: s,
-        S: S,
-        yyy: yyyy,
-        yy: ("" + yyyy).substring(2, 4),
-        MM: _.padStart(M, 2, '0'),
-        dd: _.padStart(d, 2, '0'),
-        HH: _.padStart(H, 2, '0'),
-        mm: _.padStart(m, 2, '0'),
-        ss: _.padStart(s, 2, '0'),
-        SS: _.padStart(S, 3, '0'),
-        SSS: _.padStart(S, 3, '0')
-      };
-      var regex = /(y{2,4}|M{1,2}|d{1,2}|H{1,2}|m{1,2}|s{1,2}|S{1,3}|'([^']+)')/g;
-      var ma;
-      var list = [];
-      var last = 0;
-
-      while (ma = regex.exec(fmt)) {
-        if (last < ma.index) {
-          list.push(fmt.substring(last, ma.index));
-        }
-
-        var it = Ti.Util.fallback(ma[2], _c[ma[1]], ma[1]);
-        list.push(it);
-        last = regex.lastIndex;
-      }
-
-      if (last < fmt.length) {
-        list.push(fmt.substring(last));
-      }
-
-      return list.join("");
+      return Ti.DateTime.format(date, fmt);
     },
     //.......................................
     toAjaxReturn: function toAjaxReturn(val, dftData) {
@@ -9355,9 +9282,9 @@ var _ref80 = function () {
         if (!_.isFunction(fn2)) return; // Partical args ...
 
         if (_.isArray(fn.args) && fn.args.length > 0) {
-          var _ref92;
+          var _ref93;
 
-          return (_ref92 = _).partialRight.apply(_ref92, [fn2].concat(_toConsumableArray(fn.args)));
+          return (_ref93 = _).partialRight.apply(_ref93, [fn2].concat(_toConsumableArray(fn.args)));
         } // Partical one arg
 
 
@@ -9397,9 +9324,9 @@ var _ref80 = function () {
         if (!_.isFunction(fn2)) return; // Partical args ...
 
         if (_.isArray(fn.args) && fn.args.length > 0) {
-          var _ref93;
+          var _ref94;
 
-          return (_ref93 = _).partialRight.apply(_ref93, [fn2].concat(_toConsumableArray(fn.args)));
+          return (_ref94 = _).partialRight.apply(_ref94, [fn2].concat(_toConsumableArray(fn.args)));
         } // Partical one arg
 
 
@@ -9459,11 +9386,11 @@ var _ref80 = function () {
     Types: TiTypes
   };
 }(),
-    Types = _ref80.Types; //##################################################
+    Types = _ref81.Types; //##################################################
 // # import {Util}         from "./util.mjs"
 
 
-var _ref94 = function () {
+var _ref95 = function () {
   //################################################
   // # import TiPaths from "./util-paths.mjs"
   var TiPaths = function () {
@@ -9578,18 +9505,18 @@ var _ref94 = function () {
           args[_key20] = arguments[_key20];
         }
 
-        for (var _i13 = 0, _args28 = args; _i13 < _args28.length; _i13++) {
-          var ph = _args28[_i13];
+        for (var _i12 = 0, _args28 = args; _i12 < _args28.length; _i12++) {
+          var ph = _args28[_i12];
 
           if (_.isEmpty(ph)) {
             continue;
           } // remove the last '/'
 
 
-          var _m7 = /\/*$/.exec(ph);
+          var _m6 = /\/*$/.exec(ph);
 
-          if (_m7) {
-            ph = ph.substring(0, _m7.index);
+          if (_m6) {
+            ph = ph.substring(0, _m6.index);
           } // add the middle '/'
 
 
@@ -9669,13 +9596,13 @@ var _ref94 = function () {
           baseLen--;
         }
 
-        for (var _i14 = pos; _i14 < baseLen; _i14++) {
+        for (var _i13 = pos; _i13 < baseLen; _i13++) {
           rph.push("..");
         } // Go into
 
 
-        for (var _i15 = pos; _i15 < aryPath.length; _i15++) {
-          rph.push(aryPath[_i15]);
+        for (var _i14 = pos; _i14 < aryPath.length; _i14++) {
+          rph.push(aryPath[_i14]);
         } //............................................
 
 
@@ -9700,6 +9627,67 @@ var _ref94 = function () {
         }
 
         return re;
+      },
+
+      /***
+       * 'arena>item:change' -> {block:"arena", event:"item:change"} 
+       */
+      parseHref: function parseHref() {
+        var href = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+        var m = /^((https?):)?((\/\/([^/:]+))(:(\d+))?)?([^?]*)(\?([^#]*))?(#(.*))?$/.exec(href);
+
+        if (m) {
+          var link = {
+            href: href,
+            protocol: m[2],
+            host: m[5],
+            port: (m[7] || 80) * 1,
+            path: m[8],
+            search: m[9],
+            query: m[10],
+            hash: m[11],
+            anchor: m[12]
+          };
+
+          if (link.query) {
+            var params = {};
+
+            var _ss3 = link.query.split('&');
+
+            var _iterator28 = _createForOfIteratorHelper(_ss3),
+                _step28;
+
+            try {
+              for (_iterator28.s(); !(_step28 = _iterator28.n()).done;) {
+                var _s4 = _step28.value;
+
+                var _pos = _s4.indexOf('=');
+
+                if (_pos > 0) {
+                  var k = _s4.substring(0, _pos);
+
+                  var _v3 = _s4.substring(_pos + 1);
+
+                  params[k] = decodeURIComponent(_v3);
+                } else {
+                  params[_s4] = true;
+                }
+              }
+            } catch (err) {
+              _iterator28.e(err);
+            } finally {
+              _iterator28.f();
+            }
+
+            link.params = params;
+          }
+
+          return link;
+        }
+
+        return {
+          path: href
+        };
       }
     }; //-----------------------------------
 
@@ -9711,9 +9699,9 @@ var _ref94 = function () {
   var TiLink = function () {
     var TiLinkObj = /*#__PURE__*/function () {
       function TiLinkObj() {
-        var _ref95 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            url = _ref95.url,
-            params = _ref95.params;
+        var _ref96 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            url = _ref96.url,
+            params = _ref96.params;
 
         _classCallCheck(this, TiLinkObj);
 
@@ -9729,11 +9717,11 @@ var _ref94 = function () {
       _createClass(TiLinkObj, [{
         key: "set",
         value: function set() {
-          var _ref96 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref96$url = _ref96.url,
-              url = _ref96$url === void 0 ? "" : _ref96$url,
-              _ref96$params = _ref96.params,
-              params = _ref96$params === void 0 ? {} : _ref96$params;
+          var _ref97 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref97$url = _ref97.url,
+              url = _ref97$url === void 0 ? "" : _ref97$url,
+              _ref97$params = _ref97.params,
+              params = _ref97$params === void 0 ? {} : _ref97$params;
 
           this.url = url;
           this.params = params;
@@ -9749,7 +9737,7 @@ var _ref94 = function () {
         key: "toString",
         value: function toString() {
           if (!this.__S) {
-            var _ss5 = [this.url];
+            var _ss4 = [this.url];
             var qs = [];
 
             _.forEach(this.params, function (val, key) {
@@ -9757,10 +9745,10 @@ var _ref94 = function () {
             });
 
             if (qs.length > 0) {
-              _ss5.push(qs.join("&"));
+              _ss4.push(qs.join("&"));
             }
 
-            this.__S = _ss5.join("?");
+            this.__S = _ss4.join("?");
           }
 
           return this.__S;
@@ -9773,9 +9761,9 @@ var _ref94 = function () {
 
     var TiLink = {
       Link: function Link() {
-        var _ref97 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            url = _ref97.url,
-            params = _ref97.params;
+        var _ref98 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            url = _ref98.url,
+            params = _ref98.params;
 
         return new TiLinkObj({
           url: url,
@@ -9821,12 +9809,12 @@ var _ref94 = function () {
 
       var list = _.flattenDeep(args);
 
-      var _iterator28 = _createForOfIteratorHelper(list),
-          _step28;
+      var _iterator29 = _createForOfIteratorHelper(list),
+          _step29;
 
       try {
-        for (_iterator28.s(); !(_step28 = _iterator28.n()).done;) {
-          var arg = _step28.value;
+        for (_iterator29.s(); !(_step29 = _iterator29.n()).done;) {
+          var arg = _step29.value;
 
           if (!arg) {
             continue;
@@ -9846,9 +9834,9 @@ var _ref94 = function () {
 
         }
       } catch (err) {
-        _iterator28.e(err);
+        _iterator29.e(err);
       } finally {
-        _iterator28.f();
+        _iterator29.f();
       }
 
       return obj;
@@ -9858,7 +9846,7 @@ var _ref94 = function () {
      * Unlike the `_.merge`, it will replace `Array` value
      */
     deepMergeObj: function deepMergeObj() {
-      var _ref98;
+      var _ref99;
 
       var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -9866,7 +9854,7 @@ var _ref94 = function () {
         others[_key23 - 1] = arguments[_key23];
       }
 
-      return (_ref98 = _).mergeWith.apply(_ref98, [obj].concat(others, [function (objValue, srcValue) {
+      return (_ref99 = _).mergeWith.apply(_ref99, [obj].concat(others, [function (objValue, srcValue) {
         if (_.isArray(objValue) || _.isArray(srcValue)) {
           return srcValue;
         }
@@ -9880,16 +9868,16 @@ var _ref94 = function () {
       var list = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var groupKey = arguments.length > 1 ? arguments[1] : undefined;
 
-      var _ref99 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref99$titles = _ref99.titles,
-          titles = _ref99$titles === void 0 ? [] : _ref99$titles,
-          _ref99$otherTitle = _ref99.otherTitle,
-          otherTitle = _ref99$otherTitle === void 0 ? {
+      var _ref100 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref100$titles = _ref100.titles,
+          titles = _ref100$titles === void 0 ? [] : _ref100$titles,
+          _ref100$otherTitle = _ref100.otherTitle,
+          otherTitle = _ref100$otherTitle === void 0 ? {
         value: "Others",
         text: "Others"
-      } : _ref99$otherTitle,
-          _ref99$asList = _ref99.asList,
-          asList = _ref99$asList === void 0 ? false : _ref99$asList;
+      } : _ref100$otherTitle,
+          _ref100$asList = _ref100.asList,
+          asList = _ref100$asList === void 0 ? false : _ref100$asList;
 
       var reMap = {}; //...............................................
       // Build title map
@@ -9985,13 +9973,13 @@ var _ref94 = function () {
         else {
             var size = items.length; // More for room
 
-            for (var _i16 = list.length - 1; _i16 >= index; _i16--) {
-              list[_i16 + size] = list[_i16];
+            for (var _i15 = list.length - 1; _i15 >= index; _i15--) {
+              list[_i15 + size] = list[_i15];
             } // Copy the items
 
 
-            for (var _i17 = 0; _i17 < size; _i17++) {
-              list[index + _i17] = items[_i17];
+            for (var _i16 = 0; _i16 < size; _i16++) {
+              list[index + _i16] = items[_i16];
             }
           } // done
 
@@ -10033,15 +10021,15 @@ var _ref94 = function () {
     walk: function walk() {
       var input = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var _ref100 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref100$root = _ref100.root,
-          root = _ref100$root === void 0 ? _.identity : _ref100$root,
-          _ref100$all = _ref100.all,
-          all = _ref100$all === void 0 ? _.identity : _ref100$all,
-          _ref100$leaf = _ref100.leaf,
-          leaf = _ref100$leaf === void 0 ? _.identity : _ref100$leaf,
-          _ref100$node = _ref100.node,
-          node = _ref100$node === void 0 ? _.identity : _ref100$node;
+      var _ref101 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref101$root = _ref101.root,
+          root = _ref101$root === void 0 ? _.identity : _ref101$root,
+          _ref101$all = _ref101.all,
+          all = _ref101$all === void 0 ? _.identity : _ref101$all,
+          _ref101$leaf = _ref101.leaf,
+          leaf = _ref101$leaf === void 0 ? _.identity : _ref101$leaf,
+          _ref101$node = _ref101.node,
+          node = _ref101$node === void 0 ? _.identity : _ref101$node;
 
       //..............................
       var WalkAny = function WalkAny(input) {
@@ -10066,21 +10054,21 @@ var _ref94 = function () {
 
 
         if (isArray) {
-          for (var _i18 = 0; _i18 < input.length; _i18++) {
-            var val = input[_i18];
-            var ph = path.concat(_i18);
+          for (var _i17 = 0; _i17 < input.length; _i17++) {
+            var val = input[_i17];
+            var ph = path.concat(_i17);
             WalkAny(val, ph);
           }
         } // Object
         else if (isPojo) {
             var _keys2 = _.keys(input);
 
-            var _iterator29 = _createForOfIteratorHelper(_keys2),
-                _step29;
+            var _iterator30 = _createForOfIteratorHelper(_keys2),
+                _step30;
 
             try {
-              for (_iterator29.s(); !(_step29 = _iterator29.n()).done;) {
-                var k = _step29.value;
+              for (_iterator30.s(); !(_step30 = _iterator30.n()).done;) {
+                var k = _step30.value;
                 var _val2 = input[k];
 
                 var _ph = path.concat(k);
@@ -10088,9 +10076,9 @@ var _ref94 = function () {
                 WalkAny(_val2, _ph);
               }
             } catch (err) {
-              _iterator29.e(err);
+              _iterator30.e(err);
             } finally {
-              _iterator29.f();
+              _iterator30.f();
             }
           }
       }; //..............................
@@ -10138,27 +10126,27 @@ var _ref94 = function () {
       var iteratee = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _.identity;
       var list2 = [];
 
-      var _iterator30 = _createForOfIteratorHelper(list),
-          _step30;
+      var _iterator31 = _createForOfIteratorHelper(list),
+          _step31;
 
       try {
-        for (_iterator30.s(); !(_step30 = _iterator30.n()).done;) {
-          var li = _step30.value;
+        for (_iterator31.s(); !(_step31 = _iterator31.n()).done;) {
+          var li = _step31.value;
           var li2 = iteratee(li); // Multi values returned
 
           if (_.isArray(li2) && !_.isEmpty(li2)) {
-            var _iterator31 = _createForOfIteratorHelper(li2),
-                _step31;
+            var _iterator32 = _createForOfIteratorHelper(li2),
+                _step32;
 
             try {
-              for (_iterator31.s(); !(_step31 = _iterator31.n()).done;) {
-                var li22 = _step31.value;
+              for (_iterator32.s(); !(_step32 = _iterator32.n()).done;) {
+                var li22 = _step32.value;
                 list2.push(li22);
               }
             } catch (err) {
-              _iterator31.e(err);
+              _iterator32.e(err);
             } finally {
-              _iterator31.f();
+              _iterator32.f();
             }
           } // value returned
 
@@ -10168,9 +10156,9 @@ var _ref94 = function () {
           }
         }
       } catch (err) {
-        _iterator30.e(err);
+        _iterator31.e(err);
       } finally {
-        _iterator30.f();
+        _iterator31.f();
       }
 
       return list2;
@@ -10186,11 +10174,11 @@ var _ref94 = function () {
       var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       var obj = arguments.length > 1 ? arguments[1] : undefined;
 
-      var _ref101 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref101$evalFunc = _ref101.evalFunc,
-          evalFunc = _ref101$evalFunc === void 0 ? false : _ref101$evalFunc,
-          _ref101$iteratee = _ref101.iteratee,
-          iteratee = _ref101$iteratee === void 0 ? _.identity : _ref101$iteratee;
+      var _ref102 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref102$evalFunc = _ref102.evalFunc,
+          evalFunc = _ref102$evalFunc === void 0 ? false : _ref102$evalFunc,
+          _ref102$iteratee = _ref102.iteratee,
+          iteratee = _ref102$iteratee === void 0 ? _.identity : _ref102$iteratee;
 
       //......................................
       var ExplainValue = function ExplainValue(anyValue) {
@@ -10199,27 +10187,27 @@ var _ref94 = function () {
 
         if (_.isString(theValue)) {
           // Escape
-          var _m8 = /^:((=|==|!=|=>|->)(.+))$/.exec(theValue);
+          var _m7 = /^:((=|==|!=|=>|->)(.+))$/.exec(theValue);
 
-          if (_m8) {
-            return iteratee(_m8[1]);
+          if (_m7) {
+            return iteratee(_m7[1]);
           }
 
           var m_type, m_val, m_dft; // Match template
 
-          _m8 = /^(==|!=|=>|->)(.+)$/.exec(theValue);
+          _m7 = /^(==|!=|=>|->)(.+)$/.exec(theValue);
 
-          if (_m8) {
-            m_type = _m8[1];
-            m_val = _.trim(_m8[2]);
+          if (_m7) {
+            m_type = _m7[1];
+            m_val = _.trim(_m7[2]);
           } // Find key in context
           else {
-              _m8 = /^(=)([^?]+)(\?(.*))?$/.exec(theValue);
+              _m7 = /^(=)([^?]+)(\?(.*))?$/.exec(theValue);
 
-              if (_m8) {
-                m_type = _m8[1];
-                m_val = _.trim(_m8[2]);
-                m_dft = _m8[4];
+              if (_m7) {
+                m_type = _m7[1];
+                m_val = _.trim(_m7[2]);
+                m_dft = _m7[4];
               }
             } // Matched
 
@@ -10331,25 +10319,25 @@ var _ref94 = function () {
           } //....................................
           // Array 
           else if (_.isArray(theValue)) {
-              var _list7 = [];
+              var _list5 = [];
 
-              var _iterator32 = _createForOfIteratorHelper(theValue),
-                  _step32;
+              var _iterator33 = _createForOfIteratorHelper(theValue),
+                  _step33;
 
               try {
-                for (_iterator32.s(); !(_step32 = _iterator32.n()).done;) {
-                  var li = _step32.value;
+                for (_iterator33.s(); !(_step33 = _iterator33.n()).done;) {
+                  var li = _step33.value;
                   var v2 = ExplainValue(li);
 
-                  _list7.push(iteratee(v2));
+                  _list5.push(iteratee(v2));
                 }
               } catch (err) {
-                _iterator32.e(err);
+                _iterator33.e(err);
               } finally {
-                _iterator32.f();
+                _iterator33.f();
               }
 
-              return _list7;
+              return _list5;
             } //....................................
             // Object
             else if (_.isPlainObject(theValue)) {
@@ -10426,40 +10414,60 @@ var _ref94 = function () {
           args[_key26] = arguments[_key26];
         }
 
-        var _iterator33 = _createForOfIteratorHelper(list),
-            _step33;
+        var _iterator34 = _createForOfIteratorHelper(list),
+            _step34;
 
         try {
-          for (_iterator33.s(); !(_step33 = _iterator33.n()).done;) {
-            var fn = _step33.value;
+          for (_iterator34.s(); !(_step34 = _iterator34.n()).done;) {
+            var fn = _step34.value;
             fn.apply(this, args);
           }
         } catch (err) {
-          _iterator33.e(err);
+          _iterator34.e(err);
         } finally {
-          _iterator33.f();
+          _iterator34.f();
         }
       };
     },
     pushValue: function pushValue(obj, key, val) {
+      var rawSet = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       var old = _.get(obj, key) || [];
 
-      _.set(obj, key, _.concat(old, val || []));
+      if (rawSet) {
+        obj[key] = _.concat(old, val || []);
+      } else {
+        _.set(obj, key, _.concat(old, val || []));
+      }
     },
     pushValueBefore: function pushValueBefore(obj, key, val) {
+      var rawSet = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       var old = _.get(obj, key) || [];
 
-      _.set(obj, key, _.concat(val || [], old));
+      if (rawSet) {
+        obj[key] = _.concat(val || [], old);
+      } else {
+        _.set(obj, key, _.concat(val || [], old));
+      }
     },
     pushUniqValue: function pushUniqValue(obj, key, val) {
+      var rawSet = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       var old = _.get(obj, key) || [];
 
-      _.set(obj, key, _.uniq(_.concat(old, val || [])));
+      if (rawSet) {
+        obj[key] = _.uniq(_.concat(old, val || []));
+      } else {
+        _.set(obj, key, _.uniq(_.concat(old, val || [])));
+      }
     },
     pushUniqValueBefre: function pushUniqValueBefre(obj, key, val) {
+      var rawSet = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       var old = _.get(obj, key) || [];
 
-      _.set(obj, key, _.uniq(_.concat(val || [], old)));
+      if (rawSet) {
+        obj[key] = _.uniq(_.concat(val || [], old));
+      } else {
+        _.set(obj, key, _.uniq(_.concat(val || [], old)));
+      }
     },
 
     /***
@@ -10571,16 +10579,16 @@ var _ref94 = function () {
 
 
       if (_.isArray(source)) {
-        var _list8 = [];
+        var _list6 = [];
 
-        for (var _i19 = 0; _i19 < source.length; _i19++) {
-          var it = source[_i19];
+        for (var _i18 = 0; _i18 < source.length; _i18++) {
+          var it = source[_i18];
           var result = TiUtil.translate(it, mapping, customizer);
 
-          _list8.push(result);
+          _list6.push(result);
         }
 
-        return _list8;
+        return _list6;
       } // Take as plain object
 
 
@@ -10668,22 +10676,22 @@ var _ref94 = function () {
 
 
         if (_.isArray(src)) {
-          var _list9 = [];
+          var _list7 = [];
           var theIndex = parseInt(keys[offset]);
 
-          for (var _i20 = 0; _i20 < src.length; _i20++) {
+          for (var _i19 = 0; _i19 < src.length; _i19++) {
             // call-down
-            if (_i20 == theIndex) {
-              var val = set_key_by(src[_i20], keys, offset + 1, newKey);
+            if (_i19 == theIndex) {
+              var val = set_key_by(src[_i19], keys, offset + 1, newKey);
 
-              _list9.push(val);
+              _list7.push(val);
             } // Just copy it
             else {
-                _list9.push(src[_i20]);
+                _list7.push(src[_i19]);
               }
           }
 
-          return _list9;
+          return _list7;
         } //.....................................
         // For Object
 
@@ -10697,12 +10705,12 @@ var _ref94 = function () {
           if (keys.length == offset + 1) {
             var theKey = keys[offset];
 
-            var _iterator34 = _createForOfIteratorHelper(srcKeys),
-                _step34;
+            var _iterator35 = _createForOfIteratorHelper(srcKeys),
+                _step35;
 
             try {
-              for (_iterator34.s(); !(_step34 = _iterator34.n()).done;) {
-                var key = _step34.value;
+              for (_iterator35.s(); !(_step35 = _iterator35.n()).done;) {
+                var key = _step35.value;
                 var _val3 = src[key]; // Now replace it
 
                 if (theKey == key) {
@@ -10713,26 +10721,26 @@ var _ref94 = function () {
                   }
               }
             } catch (err) {
-              _iterator34.e(err);
+              _iterator35.e(err);
             } finally {
-              _iterator34.f();
+              _iterator35.f();
             }
           } // Call-down
           else {
-              var _iterator35 = _createForOfIteratorHelper(srcKeys),
-                  _step35;
+              var _iterator36 = _createForOfIteratorHelper(srcKeys),
+                  _step36;
 
               try {
-                for (_iterator35.s(); !(_step35 = _iterator35.n()).done;) {
-                  var _key27 = _step35.value;
+                for (_iterator36.s(); !(_step36 = _iterator36.n()).done;) {
+                  var _key27 = _step36.value;
                   var _val4 = src[_key27];
                   var v2 = set_key_by(_val4, keys, offset + 1, newKey);
                   _reo[_key27] = v2;
                 }
               } catch (err) {
-                _iterator35.e(err);
+                _iterator36.e(err);
               } finally {
-                _iterator35.f();
+                _iterator36.f();
               }
             }
 
@@ -10815,32 +10823,6 @@ var _ref94 = function () {
 
       var ks = _.flattenDeep(keys);
 
-      var _iterator36 = _createForOfIteratorHelper(ks),
-          _step36;
-
-      try {
-        for (_iterator36.s(); !(_step36 = _iterator36.n()).done;) {
-          var k = _step36.value;
-
-          if (k) {
-            var _v3 = _.get(obj, k);
-
-            if (!_.isUndefined(_v3)) return _v3;
-          }
-        }
-      } catch (err) {
-        _iterator36.e(err);
-      } finally {
-        _iterator36.f();
-      }
-    },
-    getFallbackNil: function getFallbackNil(obj) {
-      for (var _len27 = arguments.length, keys = new Array(_len27 > 1 ? _len27 - 1 : 0), _key29 = 1; _key29 < _len27; _key29++) {
-        keys[_key29 - 1] = arguments[_key29];
-      }
-
-      var ks = _.flattenDeep(keys);
-
       var _iterator37 = _createForOfIteratorHelper(ks),
           _step37;
 
@@ -10851,13 +10833,39 @@ var _ref94 = function () {
           if (k) {
             var _v4 = _.get(obj, k);
 
-            if (!TiUtil.isNil(_v4)) return _v4;
+            if (!_.isUndefined(_v4)) return _v4;
           }
         }
       } catch (err) {
         _iterator37.e(err);
       } finally {
         _iterator37.f();
+      }
+    },
+    getFallbackNil: function getFallbackNil(obj) {
+      for (var _len27 = arguments.length, keys = new Array(_len27 > 1 ? _len27 - 1 : 0), _key29 = 1; _key29 < _len27; _key29++) {
+        keys[_key29 - 1] = arguments[_key29];
+      }
+
+      var ks = _.flattenDeep(keys);
+
+      var _iterator38 = _createForOfIteratorHelper(ks),
+          _step38;
+
+      try {
+        for (_iterator38.s(); !(_step38 = _iterator38.n()).done;) {
+          var k = _step38.value;
+
+          if (k) {
+            var _v5 = _.get(obj, k);
+
+            if (!TiUtil.isNil(_v5)) return _v5;
+          }
+        }
+      } catch (err) {
+        _iterator38.e(err);
+      } finally {
+        _iterator38.f();
       }
     },
 
@@ -10871,8 +10879,8 @@ var _ref94 = function () {
         args[_key30] = arguments[_key30];
       }
 
-      for (var _i21 = 0, _args29 = args; _i21 < _args29.length; _i21++) {
-        var arg = _args29[_i21];
+      for (var _i20 = 0, _args29 = args; _i20 < _args29.length; _i20++) {
+        var arg = _args29[_i20];
         if (!_.isUndefined(arg)) return arg;
       }
     },
@@ -10881,8 +10889,8 @@ var _ref94 = function () {
         args[_key31] = arguments[_key31];
       }
 
-      for (var _i22 = 0, _args30 = args; _i22 < _args30.length; _i22++) {
-        var arg = _args30[_i22];
+      for (var _i21 = 0, _args30 = args; _i21 < _args30.length; _i21++) {
+        var arg = _args30[_i21];
         if (!TiUtil.isNil(arg)) return arg;
       }
     },
@@ -10891,8 +10899,8 @@ var _ref94 = function () {
         args[_key32] = arguments[_key32];
       }
 
-      for (var _i23 = 0, _args31 = args; _i23 < _args31.length; _i23++) {
-        var arg = _args31[_i23];
+      for (var _i22 = 0, _args31 = args; _i22 < _args31.length; _i22++) {
+        var arg = _args31[_i22];
         if (!isNaN(arg)) return arg;
       }
     },
@@ -11015,16 +11023,16 @@ var _ref94 = function () {
      * @return Function to pick value
      */
     genGetter: function genGetter(key) {
-      var _ref102 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          indexPrefix = _ref102.indexPrefix,
-          _ref102$dftKeys = _ref102.dftKeys,
-          dftKeys = _ref102$dftKeys === void 0 ? [] : _ref102$dftKeys,
-          _ref102$context = _ref102.context,
-          context = _ref102$context === void 0 ? {} : _ref102$context,
-          _ref102$funcSet = _ref102.funcSet,
-          funcSet = _ref102$funcSet === void 0 ? window : _ref102$funcSet,
-          _ref102$partialRight = _ref102.partialRight,
-          partialRight = _ref102$partialRight === void 0 ? false : _ref102$partialRight;
+      var _ref103 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          indexPrefix = _ref103.indexPrefix,
+          _ref103$dftKeys = _ref103.dftKeys,
+          dftKeys = _ref103$dftKeys === void 0 ? [] : _ref103$dftKeys,
+          _ref103$context = _ref103.context,
+          context = _ref103$context === void 0 ? {} : _ref103$context,
+          _ref103$funcSet = _ref103.funcSet,
+          funcSet = _ref103$funcSet === void 0 ? window : _ref103$funcSet,
+          _ref103$partialRight = _ref103.partialRight,
+          partialRight = _ref103$partialRight === void 0 ? false : _ref103$partialRight;
 
       //.............................................
       // Customized Function
@@ -11047,20 +11055,20 @@ var _ref94 = function () {
         // Static value
 
 
-        var _m9 = /^'(.+)'$/.exec(key);
+        var _m8 = /^'(.+)'$/.exec(key);
 
-        if (_m9) {
+        if (_m8) {
           return function () {
-            return _m9[1];
+            return _m8[1];
           };
         } //...........................................
         // Invoke mode
 
 
-        _m9 = /^=>(.+)$/.exec(key);
+        _m8 = /^=>(.+)$/.exec(key);
 
-        if (_m9) {
-          var invoke = _m9[1];
+        if (_m8) {
+          var invoke = _m8[1];
           return TiUtil.genInvoking(invoke, {
             context: context,
             funcSet: funcSet,
@@ -11093,13 +11101,13 @@ var _ref94 = function () {
      * {name:"xxx", args:[..]} -> Function
      */
     genInvoking: function genInvoking(str) {
-      var _ref103 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref103$context = _ref103.context,
-          context = _ref103$context === void 0 ? {} : _ref103$context,
-          _ref103$funcSet = _ref103.funcSet,
-          funcSet = _ref103$funcSet === void 0 ? window : _ref103$funcSet,
-          _ref103$partialRight = _ref103.partialRight,
-          partialRight = _ref103$partialRight === void 0 ? false : _ref103$partialRight;
+      var _ref104 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref104$context = _ref104.context,
+          context = _ref104$context === void 0 ? {} : _ref104$context,
+          _ref104$funcSet = _ref104.funcSet,
+          funcSet = _ref104$funcSet === void 0 ? window : _ref104$funcSet,
+          _ref104$partialRight = _ref104.partialRight,
+          partialRight = _ref104$partialRight === void 0 ? false : _ref104$partialRight;
 
       //.............................................
       if (_.isFunction(str)) {
@@ -11114,11 +11122,11 @@ var _ref94 = function () {
         callArgs = _.concat(str.args);
       } // String mode
       else {
-          var _m10 = /^([^()]+)(\((.+)\))?$/.exec(str);
+          var _m9 = /^([^()]+)(\((.+)\))?$/.exec(str);
 
-          if (_m10) {
-            callPath = _.trim(_m10[1]);
-            callArgs = _.trim(_m10[3]);
+          if (_m9) {
+            callPath = _.trim(_m9[1]);
+            callArgs = _.trim(_m9[3]);
           }
         } //.............................................
       //console.log(callPath, callArgs)
@@ -11134,15 +11142,15 @@ var _ref94 = function () {
         });
 
         if (!_.isEmpty(args)) {
-          var _ref105;
+          var _ref106;
 
           if (partialRight) {
-            var _ref104;
+            var _ref105;
 
-            return (_ref104 = _).partialRight.apply(_ref104, [func].concat(_toConsumableArray(args)));
+            return (_ref105 = _).partialRight.apply(_ref105, [func].concat(_toConsumableArray(args)));
           }
 
-          return (_ref105 = _).partial.apply(_ref105, [func].concat(_toConsumableArray(args)));
+          return (_ref106 = _).partial.apply(_ref106, [func].concat(_toConsumableArray(args)));
         }
 
         return func;
@@ -11179,25 +11187,25 @@ var _ref94 = function () {
 
       if (_.isArray(matchBy)) {
         return function (it, str) {
-          var _iterator38 = _createForOfIteratorHelper(matchBy),
-              _step38;
+          var _iterator39 = _createForOfIteratorHelper(matchBy),
+              _step39;
 
           try {
-            for (_iterator38.s(); !(_step38 = _iterator38.n()).done;) {
-              var k = _step38.value;
+            for (_iterator39.s(); !(_step39 = _iterator39.n()).done;) {
+              var k = _step39.value;
 
-              var _v5 = Ti.Util.getOrPick(it, k);
+              var _v6 = Ti.Util.getOrPick(it, k);
 
               if (partially) {
-                if (_.indexOf(_v5, str) >= 0) return true;
+                if (_.indexOf(_v6, str) >= 0) return true;
               } else {
-                if (_.isEqual(_v5, str)) return true;
+                if (_.isEqual(_v6, str)) return true;
               }
             }
           } catch (err) {
-            _iterator38.e(err);
+            _iterator39.e(err);
           } finally {
-            _iterator38.f();
+            _iterator39.f();
           }
 
           return false;
@@ -11292,11 +11300,11 @@ var _ref94 = function () {
     Util: TiUtil
   };
 }(),
-    Util = _ref94.Util; //##################################################
+    Util = _ref95.Util; //##################################################
 // # import {Trees}        from "./trees.mjs"
 
 
-var _ref106 = function () {
+var _ref107 = function () {
   /*
   Tree Node: 
   {
@@ -11367,12 +11375,12 @@ var _ref106 = function () {
           };
           var index = 0;
 
-          var _iterator39 = _createForOfIteratorHelper(c.node.children),
-              _step39;
+          var _iterator40 = _createForOfIteratorHelper(c.node.children),
+              _step40;
 
           try {
-            for (_iterator39.s(); !(_step39 = _iterator39.n()).done;) {
-              var child = _step39.value;
+            for (_iterator40.s(); !(_step40 = _iterator40.n()).done;) {
+              var child = _step40.value;
 
               var _walking = walking(_objectSpread({
                 index: index,
@@ -11388,9 +11396,9 @@ var _ref106 = function () {
               if (stop) return [data, stop];
             }
           } catch (err) {
-            _iterator39.e(err);
+            _iterator40.e(err);
           } finally {
-            _iterator39.f();
+            _iterator40.f();
           }
         } // Default return
 
@@ -11442,12 +11450,12 @@ var _ref106 = function () {
           };
           var index = 0; // For Children Check
 
-          var _iterator40 = _createForOfIteratorHelper(c.node.children),
-              _step40;
+          var _iterator41 = _createForOfIteratorHelper(c.node.children),
+              _step41;
 
           try {
-            for (_iterator40.s(); !(_step40 = _iterator40.n()).done;) {
-              var child = _step40.value;
+            for (_iterator41.s(); !(_step41 = _iterator41.n()).done;) {
+              var child = _step41.value;
 
               var _c2 = _objectSpread({
                 index: index,
@@ -11467,13 +11475,13 @@ var _ref106 = function () {
             } // For Children Deep
 
           } catch (err) {
-            _iterator40.e(err);
+            _iterator41.e(err);
           } finally {
-            _iterator40.f();
+            _iterator41.f();
           }
 
-          for (var _i24 = 0, _cs = cs; _i24 < _cs.length; _i24++) {
-            var c2 = _cs[_i24];
+          for (var _i23 = 0, _cs = cs; _i23 < _cs.length; _i23++) {
+            var c2 = _cs[_i23];
 
             var _walking5 = walking(c2),
                 _walking6 = _slicedToArray(_walking5, 2),
@@ -11724,11 +11732,11 @@ var _ref106 = function () {
     Trees: TiTrees
   };
 }(),
-    Trees = _ref106.Trees; //##################################################
+    Trees = _ref107.Trees; //##################################################
 // # import {Viewport}     from "./viewport.mjs"
 
 
-var _ref107 = function () {
+var _ref108 = function () {
   var TiViewport = /*#__PURE__*/function () {
     function TiViewport() {
       _classCallCheck(this, TiViewport);
@@ -11747,9 +11755,9 @@ var _ref107 = function () {
     }, {
       key: "watch",
       value: function watch(context) {
-        var _ref108 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            scroll = _ref108.scroll,
-            resize = _ref108.resize;
+        var _ref109 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            scroll = _ref109.scroll,
+            resize = _ref109.resize;
 
         if (_.isFunction(scroll)) {
           this.scrolling.push({
@@ -11768,13 +11776,13 @@ var _ref107 = function () {
     }, {
       key: "unwatch",
       value: function unwatch(theContext) {
-        _.remove(this.scrolling, function (_ref109) {
-          var context = _ref109.context;
+        _.remove(this.scrolling, function (_ref110) {
+          var context = _ref110.context;
           return context === theContext;
         });
 
-        _.remove(this.resizing, function (_ref110) {
-          var context = _ref110.context;
+        _.remove(this.resizing, function (_ref111) {
+          var context = _ref111.context;
           return context === theContext;
         });
       }
@@ -11786,23 +11794,7 @@ var _ref107 = function () {
         if (this.isListening) return; // Do listen: resize
 
         window.addEventListener("resize", function (evt) {
-          var _iterator41 = _createForOfIteratorHelper(vp.resizing),
-              _step41;
-
-          try {
-            for (_iterator41.s(); !(_step41 = _iterator41.n()).done;) {
-              var call = _step41.value;
-              call.handler.apply(call.context, [evt]);
-            }
-          } catch (err) {
-            _iterator41.e(err);
-          } finally {
-            _iterator41.f();
-          }
-        }); // Do listen: scroll
-
-        window.addEventListener("scroll", function (evt) {
-          var _iterator42 = _createForOfIteratorHelper(vp.scrolling),
+          var _iterator42 = _createForOfIteratorHelper(vp.resizing),
               _step42;
 
           try {
@@ -11814,6 +11806,22 @@ var _ref107 = function () {
             _iterator42.e(err);
           } finally {
             _iterator42.f();
+          }
+        }); // Do listen: scroll
+
+        window.addEventListener("scroll", function (evt) {
+          var _iterator43 = _createForOfIteratorHelper(vp.scrolling),
+              _step43;
+
+          try {
+            for (_iterator43.s(); !(_step43 = _iterator43.n()).done;) {
+              var call = _step43.value;
+              call.handler.apply(call.context, [evt]);
+            }
+          } catch (err) {
+            _iterator43.e(err);
+          } finally {
+            _iterator43.f();
           }
         }); // Mark
 
@@ -11829,11 +11837,11 @@ var _ref107 = function () {
     Viewport: new TiViewport()
   };
 }(),
-    Viewport = _ref107.Viewport; //##################################################
+    Viewport = _ref108.Viewport; //##################################################
 // # import {WWW}          from "./www.mjs"
 
 
-var _ref111 = function () {
+var _ref112 = function () {
   ///////////////////////////////////////////
   var TiWWW = {
     //---------------------------------------
@@ -11865,12 +11873,12 @@ var _ref111 = function () {
       var suffix = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ".html";
       var list = [];
 
-      var _iterator43 = _createForOfIteratorHelper(navItems),
-          _step43;
+      var _iterator44 = _createForOfIteratorHelper(navItems),
+          _step44;
 
       try {
-        for (_iterator43.s(); !(_step43 = _iterator43.n()).done;) {
-          var it = _step43.value;
+        for (_iterator44.s(); !(_step44 = _iterator44.n()).done;) {
+          var it = _step44.value;
 
           var li = _objectSpread({
             type: "page"
@@ -11926,9 +11934,9 @@ var _ref111 = function () {
           list.push(li);
         }
       } catch (err) {
-        _iterator43.e(err);
+        _iterator44.e(err);
       } finally {
-        _iterator43.f();
+        _iterator44.f();
       }
 
       return list;
@@ -11946,11 +11954,10 @@ var _ref111 = function () {
       if (_.isString(highlightBy)) {
         // REGEX 
         if (highlightBy.startsWith("^") || highlightBy.endsWith("$")) {
-          var _regex = new RegExp(highlightBy);
-
+          var regex = new RegExp(highlightBy);
           return _.bind(function (path) {
             return this.test(path);
-          }, _regex);
+          }, regex);
         } // Static value
 
 
@@ -12017,11 +12024,11 @@ var _ref111 = function () {
      * Evaluate the order item real fee
      */
     evalFee: function evalFee() {
-      var _ref112 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          _ref112$price = _ref112.price,
-          price = _ref112$price === void 0 ? 0 : _ref112$price,
-          _ref112$amount = _ref112.amount,
-          amount = _ref112$amount === void 0 ? 1 : _ref112$amount;
+      var _ref113 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref113$price = _ref113.price,
+          price = _ref113$price === void 0 ? 0 : _ref113$price,
+          _ref113$amount = _ref113.amount,
+          amount = _ref113$amount === void 0 ? 1 : _ref113$amount;
 
       return price * amount;
     },
@@ -12045,9 +12052,9 @@ var _ref111 = function () {
       var fee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       var currency = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "RMB";
 
-      var _ref113 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref113$autoSuffix = _ref113.autoSuffix,
-          autoSuffix = _ref113$autoSuffix === void 0 ? true : _ref113$autoSuffix;
+      var _ref114 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref114$autoSuffix = _ref114.autoSuffix,
+          autoSuffix = _ref114$autoSuffix === void 0 ? true : _ref114$autoSuffix;
 
       var cu = _.upperCase(currency);
 
@@ -12073,11 +12080,11 @@ var _ref111 = function () {
     WWW: TiWWW
   };
 }(),
-    WWW = _ref111.WWW; //##################################################
+    WWW = _ref112.WWW; //##################################################
 // # import {GPS}          from "./gps.mjs"
 
 
-var _ref114 = function () {
+var _ref115 = function () {
   //const BAIDU_LBS_TYPE = "bd09ll";
   var pi = 3.1415926535897932384626;
   var a = 6378245.0;
@@ -12248,11 +12255,71 @@ var _ref114 = function () {
     GPS: TiGPS
   };
 }(),
-    GPS = _ref114.GPS; //##################################################
+    GPS = _ref115.GPS; //##################################################
+// # import {Bank}         from "./bank.mjs"
+
+
+var _ref116 = function () {
+  ///////////////////////////////////////
+  var TiBank = {
+    //-----------------------------------
+    getCurrencyChar: function getCurrencyChar() {
+      var cur = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "RMB";
+      return {
+        "RMB": "¥",
+        "USD": "$",
+        "GBP": "£"
+      }[cur];
+    },
+    //-----------------------------------
+    isValidPayType: function isValidPayType(payType) {
+      return {
+        "wx.qrcode": true,
+        "zfb.qrcode": true,
+        "paypal": true
+      }[payType] || false;
+    },
+    //-----------------------------------
+    getPayTypeText: function getPayTypeText(payType) {
+      var autoI18n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      var key = null;
+
+      if (_.isString(payType)) {
+        key = "pay-by-".concat(payType.replace(".", "-"));
+      }
+
+      if (key) return autoI18n ? Ti.I18n.get(key) : key;
+    },
+    //-----------------------------------
+    getPayTypeChooseI18nText: function getPayTypeChooseI18nText(payType) {
+      var _ref117 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref117$text = _ref117.text,
+          text = _ref117$text === void 0 ? 'pay-step-choose-tip2' : _ref117$text,
+          _ref117$nil = _ref117.nil,
+          nil = _ref117$nil === void 0 ? 'pay-step-choose-nil' : _ref117$nil;
+
+      var ptt = Ti.Bank.getPayTypeText(payType, true);
+
+      if (ptt) {
+        return Ti.I18n.getf(text, {
+          val: ptt
+        });
+      }
+
+      return Ti.I18n.get(nil);
+    } //-----------------------------------
+
+  }; ///////////////////////////////////////
+
+  return {
+    Bank: TiBank
+  };
+}(),
+    Bank = _ref116.Bank; //##################################################
 // # import {DateTime}     from "./datetime.mjs"
 
 
-var _ref115 = function () {
+var _ref118 = function () {
   ///////////////////////////////////////////
   var I_DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
   var I_WEEK = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -12274,7 +12341,165 @@ var _ref115 = function () {
   };
   var MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; ///////////////////////////////////////////
 
+  var P_DATE = new RegExp("^((\\d{4})([/\\\\-])?(\\d{1,2})?([/\\\\-])?(\\d{1,2})?)?" + "(([ T])?" + "(\\d{1,2})(:)(\\d{1,2})((:)(\\d{1,2}))?" + "((\.)(\\d{1,3}))?)?" + "(([+-])(\\d{1,2})(:\\d{1,2})?)?" + "(Z(\\d*))?$"); ///////////////////////////////////////////
+
   var TiDateTime = {
+    //---------------------------------------
+    parse: function parse(d) {
+      //console.log("parseDate:", d)
+      // Default return today
+      if (_.isUndefined(d) || "today" === d) {
+        return new Date();
+      } // keep null
+
+
+      if (!d || _.isArray(d) && _.isEmpty(d)) {
+        return null;
+      } // Date
+
+
+      if (_.isDate(d)) {
+        return new Date(d);
+      } // Number as AMS
+
+
+      if (_.isNumber(d)) {
+        return new Date(d);
+      } // String 
+
+
+      if (_.isString(d)) {
+        var str = d; // MS 
+
+        if (/\d{13,}/.test(str)) {
+          return new Date(str * 1);
+        } // Try to tidy string 
+
+
+        var _m10 = P_DATE.exec(d);
+
+        if (_m10) {
+          var _int = function _int(m, index, dft) {
+            var s = m[index];
+
+            if (s) {
+              return parseInt(s);
+            }
+
+            return dft;
+          };
+
+          var today = new Date();
+
+          var yy = _int(_m10, 2, today.getFullYear());
+
+          var MM = _int(_m10, 4, _m10[2] ? 1 : today.getMonth() + 1);
+
+          var dd = _int(_m10, 6, _m10[2] ? 1 : today.getDate());
+
+          var HH = _int(_m10, 9, 0);
+
+          var mm = _int(_m10, 11, 0);
+
+          var _ss5 = _int(_m10, 14, 0);
+
+          var _ms4 = _int(_m10, 17, 0);
+
+          var _list8 = [_.padStart(yy, 4, "0"), "-", _.padStart(MM, 2, "0"), "-", _.padStart(dd, 2, "0"), "T", _.padStart(HH, 2, "0"), ":", _.padStart(mm, 2, "0"), ":", _.padStart(_ss5, 2, "0"), ".", _.padStart(_ms4, 3, "0")];
+          if (_m10[18]) _list8.push(_m10[18]);
+
+          var dateStr = _list8.join("");
+
+          return new Date(dateStr);
+        }
+      } // Invalid date
+
+
+      throw 'i18n:invalid-date';
+    },
+    //---------------------------------------
+    format: function format(date) {
+      var fmt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "yyyy-MM-dd HH:mm:ss";
+
+      // Date Range or a group of date
+      if (_.isArray(date)) {
+        //console.log("formatDate", date, fmt)
+        var _list9 = [];
+
+        var _iterator45 = _createForOfIteratorHelper(date),
+            _step45;
+
+        try {
+          for (_iterator45.s(); !(_step45 = _iterator45.n()).done;) {
+            var _d2 = _step45.value;
+
+            _list9.push(TiDateTime.format(_d2, fmt));
+          }
+        } catch (err) {
+          _iterator45.e(err);
+        } finally {
+          _iterator45.f();
+        }
+
+        return _list9;
+      }
+
+      if (!_.isDate(date)) {
+        date = TiDateTime.parse(date);
+      } // Guard it
+
+
+      if (!date) return null; // TODO here add another param
+      // to format the datetime to "in 5min" like string
+      // Maybe the param should named as "shorthand"
+      // Format by pattern
+
+      var yyyy = date.getFullYear();
+      var M = date.getMonth() + 1;
+      var d = date.getDate();
+      var H = date.getHours();
+      var m = date.getMinutes();
+      var s = date.getSeconds();
+      var S = date.getMilliseconds();
+      var _c = {
+        yyyy: yyyy,
+        M: M,
+        d: d,
+        H: H,
+        m: m,
+        s: s,
+        S: S,
+        yyy: yyyy,
+        yy: ("" + yyyy).substring(2, 4),
+        MM: _.padStart(M, 2, '0'),
+        dd: _.padStart(d, 2, '0'),
+        HH: _.padStart(H, 2, '0'),
+        mm: _.padStart(m, 2, '0'),
+        ss: _.padStart(s, 2, '0'),
+        SS: _.padStart(S, 3, '0'),
+        SSS: _.padStart(S, 3, '0')
+      };
+      var regex = /(y{2,4}|M{1,2}|d{1,2}|H{1,2}|m{1,2}|s{1,2}|S{1,3}|'([^']+)')/g;
+      var ma;
+      var list = [];
+      var last = 0;
+
+      while (ma = regex.exec(fmt)) {
+        if (last < ma.index) {
+          list.push(fmt.substring(last, ma.index));
+        }
+
+        var it = Ti.Util.fallback(ma[2], _c[ma[1]], ma[1]);
+        list.push(it);
+        last = regex.lastIndex;
+      }
+
+      if (last < fmt.length) {
+        list.push(fmt.substring(last));
+      }
+
+      return list.join("");
+    },
     //---------------------------------------
     getWeekDayAbbr: function getWeekDayAbbr(day) {
       var i = _.clamp(day, 0, I_DAYS.length - 1);
@@ -12377,6 +12602,78 @@ var _ref115 = function () {
         d2.setDate(d2.getDate() + offset);
         return d2;
       }
+    },
+    //---------------------------------------
+    // - inMin   : just now   : < 10min
+    // - inHour  : 56min      : < 1hour
+    // - inDay   : 23hour     : < 1day
+    // - inWeek  : 6day       : < 1week
+    // - inYear  : Jun 19     : < This Year
+    // - anyTime : 2020/12/32 : Any time
+    timeText: function timeText(d) {
+      var _ref119 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref119$justNow = _ref119.justNow,
+          justNow = _ref119$justNow === void 0 ? 10 : _ref119$justNow,
+          _ref119$i18n = _ref119.i18n,
+          i18n = _ref119$i18n === void 0 ? Ti.I18n.get("time") : _ref119$i18n;
+
+      d = TiDateTime.parse(d);
+      var ams = d.getTime();
+      var now = Date.now();
+      var du_ms = now - ams; //.....................................
+
+      var prefix = du_ms > 0 ? "past-" : "future-";
+      du_ms = Math.abs(du_ms); //.....................................
+      // Just now
+
+      var du_min = Math.round(du_ms / 60000);
+
+      if (du_min < justNow) {
+        return i18n["".concat(prefix, "in-min")];
+      } // in-hour
+
+
+      if (du_min < 60) {
+        return Ti.S.renderBy(i18n["".concat(prefix, "in-hour")], {
+          min: du_min
+        });
+      } //.....................................
+      // in-day
+
+
+      var du_hr = Math.round(du_ms / 3600000);
+
+      if (du_hr < 24) {
+        return Ti.S.renderBy(i18n["".concat(prefix, "in-day")], {
+          min: du_min,
+          hour: du_hr
+        });
+      } //.....................................
+      // in-week
+
+
+      var du_day = Math.round(du_hr / 24);
+
+      if (du_day < 7) {
+        return Ti.S.renderBy(i18n["".concat(prefix, "in-week")], {
+          min: du_min,
+          hour: du_hr,
+          day: du_day
+        });
+      } //.....................................
+      // in-year
+
+
+      var year = d.getFullYear();
+      var toYear = new Date().getFullYear();
+
+      if (year == toYear) {
+        return TiDateTime.format(d, i18n["in-year"]);
+      } //.....................................
+      // any-time
+
+
+      return TiDateTime.format(d, i18n["any-time"]); //.....................................
     } //---------------------------------------
 
   }; ///////////////////////////////////////////
@@ -12385,11 +12682,11 @@ var _ref115 = function () {
     DateTime: TiDateTime
   };
 }(),
-    DateTime = _ref115.DateTime; //##################################################
+    DateTime = _ref118.DateTime; //##################################################
 // # import {Num}          from "./num.mjs"
 
 
-var _ref116 = function () {
+var _ref120 = function () {
   //-----------------------------------
   var TiNum = {
     /***
@@ -12407,14 +12704,14 @@ var _ref116 = function () {
       var startValue = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 
-      var _ref117 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref117$ary = _ref117.ary,
-          ary = _ref117$ary === void 0 ? [] : _ref117$ary,
-          _ref117$step = _ref117.step,
-          step = _ref117$step === void 0 ? 1 : _ref117$step;
+      var _ref121 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref121$ary = _ref121.ary,
+          ary = _ref121$ary === void 0 ? [] : _ref121$ary,
+          _ref121$step = _ref121.step,
+          step = _ref121$step === void 0 ? 1 : _ref121$step;
 
-      for (var _i25 = 0; _i25 < len; _i25++) {
-        ary[_i25] = startValue + _i25 * step;
+      for (var _i24 = 0; _i24 < len; _i24++) {
+        ary[_i24] = startValue + _i24 * step;
       }
 
       return ary;
@@ -12444,6 +12741,23 @@ var _ref116 = function () {
       }
 
       return -1;
+    },
+
+    /***
+     * @param n{Number} input number
+     * @param p{Number} precise bit
+     * 
+     * @return The number after tidy
+     */
+    precise: function precise(n) {
+      var p = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
+
+      if (p >= 0) {
+        var y = Math.pow(10, p);
+        return Math.round(n * y) / y;
+      }
+
+      return n;
     }
   }; //---------------------------------------
 
@@ -12451,11 +12765,11 @@ var _ref116 = function () {
     Num: TiNum
   };
 }(),
-    Num = _ref116.Num; //##################################################
+    Num = _ref120.Num; //##################################################
 // # import {Css}          from "./css.mjs"
 
 
-var _ref118 = function () {
+var _ref122 = function () {
   ///////////////////////////////////////
   var TiCss = {
     //-----------------------------------
@@ -12492,11 +12806,11 @@ var _ref118 = function () {
     },
     //-----------------------------------
     toSize: function toSize(sz) {
-      var _ref119 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref119$autoPercent = _ref119.autoPercent,
-          autoPercent = _ref119$autoPercent === void 0 ? true : _ref119$autoPercent,
-          _ref119$remBase = _ref119.remBase,
-          remBase = _ref119$remBase === void 0 ? 0 : _ref119$remBase;
+      var _ref123 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref123$autoPercent = _ref123.autoPercent,
+          autoPercent = _ref123$autoPercent === void 0 ? true : _ref123$autoPercent,
+          _ref123$remBase = _ref123.remBase,
+          remBase = _ref123$remBase === void 0 ? 0 : _ref123$remBase;
 
       if (_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
         if (0 == sz) return sz;
@@ -12569,34 +12883,34 @@ var _ref118 = function () {
         else if (_.isString(kla)) {
             var _ss6 = _.without(_.split(kla, / +/g), "");
 
-            var _iterator44 = _createForOfIteratorHelper(_ss6),
-                _step44;
+            var _iterator46 = _createForOfIteratorHelper(_ss6),
+                _step46;
 
             try {
-              for (_iterator44.s(); !(_step44 = _iterator44.n()).done;) {
-                var _s4 = _step44.value;
-                klass[_s4] = true;
+              for (_iterator46.s(); !(_step46 = _iterator46.n()).done;) {
+                var _s5 = _step46.value;
+                klass[_s5] = true;
               }
             } catch (err) {
-              _iterator44.e(err);
+              _iterator46.e(err);
             } finally {
-              _iterator44.f();
+              _iterator46.f();
             }
           } // Array
           else if (_.isArray(kla)) {
-              var _iterator45 = _createForOfIteratorHelper(kla),
-                  _step45;
+              var _iterator47 = _createForOfIteratorHelper(kla),
+                  _step47;
 
               try {
-                for (_iterator45.s(); !(_step45 = _iterator45.n()).done;) {
-                  var a = _step45.value;
+                for (_iterator47.s(); !(_step47 = _iterator47.n()).done;) {
+                  var a = _step47.value;
 
                   __join_class(a);
                 }
               } catch (err) {
-                _iterator45.e(err);
+                _iterator47.e(err);
               } finally {
-                _iterator45.f();
+                _iterator47.f();
               }
             } // Object
             else if (_.isPlainObject(kla)) {
@@ -12636,11 +12950,11 @@ var _ref118 = function () {
     Css: TiCss
   };
 }(),
-    Css = _ref118.Css; //##################################################
+    Css = _ref122.Css; //##################################################
 // # import {Mapping}      from "./mapping.mjs"
 
 
-var _ref120 = function () {
+var _ref124 = function () {
   /////////////////////////////////////////////
   var MatchPath = /*#__PURE__*/function () {
     function MatchPath(path, data) {
@@ -12661,9 +12975,9 @@ var _ref120 = function () {
       value: function match(str) {
         var list = _.isArray(str) ? str : _.without(str.split("/"), "");
 
-        for (var _i26 = 0; _i26 < list.length; _i26++) {
-          var li = list[_i26];
-          var ph = this.path[_i26]; // Wildcard
+        for (var _i25 = 0; _i25 < list.length; _i25++) {
+          var li = list[_i25];
+          var ph = this.path[_i25]; // Wildcard
 
           if ("*" == ph) {
             continue;
@@ -12725,12 +13039,12 @@ var _ref120 = function () {
             return _.trim(v);
           });
 
-          var _iterator46 = _createForOfIteratorHelper(ks),
-              _step46;
+          var _iterator48 = _createForOfIteratorHelper(ks),
+              _step48;
 
           try {
-            for (_iterator46.s(); !(_step46 = _iterator46.n()).done;) {
-              var key = _step46.value;
+            for (_iterator48.s(); !(_step48 = _iterator48.n()).done;) {
+              var key = _step48.value;
 
               // RegExp
               if (key.startsWith("^")) {
@@ -12744,9 +13058,9 @@ var _ref120 = function () {
                   }
             }
           } catch (err) {
-            _iterator46.e(err);
+            _iterator48.e(err);
           } finally {
-            _iterator46.f();
+            _iterator48.f();
           }
         });
       }
@@ -12761,12 +13075,12 @@ var _ref120 = function () {
           } // Find by path
 
 
-          var _iterator47 = _createForOfIteratorHelper(this.paths),
-              _step47;
+          var _iterator49 = _createForOfIteratorHelper(this.paths),
+              _step49;
 
           try {
-            for (_iterator47.s(); !(_step47 = _iterator47.n()).done;) {
-              var _m11 = _step47.value;
+            for (_iterator49.s(); !(_step49 = _iterator49.n()).done;) {
+              var _m11 = _step49.value;
 
               var _list10 = _.without(key.split("/"), "");
 
@@ -12776,26 +13090,26 @@ var _ref120 = function () {
             } // Find by Regexp
 
           } catch (err) {
-            _iterator47.e(err);
+            _iterator49.e(err);
           } finally {
-            _iterator47.f();
+            _iterator49.f();
           }
 
-          var _iterator48 = _createForOfIteratorHelper(this.regexs),
-              _step48;
+          var _iterator50 = _createForOfIteratorHelper(this.regexs),
+              _step50;
 
           try {
-            for (_iterator48.s(); !(_step48 = _iterator48.n()).done;) {
-              var _m12 = _step48.value;
+            for (_iterator50.s(); !(_step50 = _iterator50.n()).done;) {
+              var _m12 = _step50.value;
 
               if (_m12.match(key)) {
                 return _m12.data;
               }
             }
           } catch (err) {
-            _iterator48.e(err);
+            _iterator50.e(err);
           } finally {
-            _iterator48.f();
+            _iterator50.f();
           }
         } // Find nothing
 
@@ -12812,16 +13126,17 @@ var _ref120 = function () {
     Mapping: TiMapping
   };
 }(),
-    Mapping = _ref120.Mapping; //##################################################
+    Mapping = _ref124.Mapping; //##################################################
 // # import {Dict,DictFactory} from "./dict.mjs"
 
 
-var _ref121 = function () {
+var _ref125 = function () {
   ///////////////////////////////////////////////
   var K = {
     item: Symbol("item"),
     data: Symbol("data"),
     query: Symbol("query"),
+    children: Symbol("children"),
     getValue: Symbol("getValue"),
     getText: Symbol("getText"),
     getIcon: Symbol("getIcon"),
@@ -12848,6 +13163,10 @@ var _ref121 = function () {
       };
 
       this[K.query] = function (v) {
+        return [];
+      };
+
+      this[K.children] = function (v) {
         return [];
       };
 
@@ -12922,20 +13241,20 @@ var _ref121 = function () {
       value: function doHooks() {
         var loading = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
-        var _iterator49 = _createForOfIteratorHelper(this[K.hooks]),
-            _step49;
+        var _iterator51 = _createForOfIteratorHelper(this[K.hooks]),
+            _step51;
 
         try {
-          for (_iterator49.s(); !(_step49 = _iterator49.n()).done;) {
-            var hk = _step49.value;
+          for (_iterator51.s(); !(_step51 = _iterator51.n()).done;) {
+            var hk = _step51.value;
             hk({
               loading: loading
             });
           }
         } catch (err) {
-          _iterator49.e(err);
+          _iterator51.e(err);
         } finally {
-          _iterator49.f();
+          _iterator51.f();
         }
       } //-------------------------------------------
 
@@ -13015,13 +13334,17 @@ var _ref121 = function () {
 
     }, {
       key: "duplicate",
-      value: function duplicate(_ref122) {
+      value: function duplicate(_ref126) {
         var _this19 = this;
 
-        var _ref122$hooks = _ref122.hooks,
-            hooks = _ref122$hooks === void 0 ? false : _ref122$hooks,
-            _ref122$cache = _ref122.cache,
-            cache = _ref122$cache === void 0 ? true : _ref122$cache;
+        var _ref126$hooks = _ref126.hooks,
+            hooks = _ref126$hooks === void 0 ? false : _ref126$hooks,
+            _ref126$cache = _ref126.cache,
+            cache = _ref126$cache === void 0 ? true : _ref126$cache,
+            _ref126$dataCache = _ref126.dataCache,
+            dataCache = _ref126$dataCache === void 0 ? true : _ref126$dataCache,
+            _ref126$itemCache = _ref126.itemCache,
+            itemCache = _ref126$itemCache === void 0 ? true : _ref126$itemCache;
         var d = new Dict();
 
         _.forEach(K, function (s_key) {
@@ -13029,11 +13352,20 @@ var _ref121 = function () {
         });
 
         if (!hooks) {
-          d.clearHooks();
+          d[K.hooks] = [];
         }
 
         if (!cache) {
-          d.clearCache();
+          d[K.itemCache] = {};
+          d[K.dataCache] = null;
+        }
+
+        if (!dataCache) {
+          d[K.dataCache] = null;
+        }
+
+        if (!itemCache) {
+          d[K.itemCache] = {};
         }
 
         return d;
@@ -13077,12 +13409,12 @@ var _ref121 = function () {
       value: function findItem(val) {
         var list = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
-        var _iterator50 = _createForOfIteratorHelper(list),
-            _step50;
+        var _iterator52 = _createForOfIteratorHelper(list),
+            _step52;
 
         try {
-          for (_iterator50.s(); !(_step50 = _iterator50.n()).done;) {
-            var it = _step50.value;
+          for (_iterator52.s(); !(_step52 = _iterator52.n()).done;) {
+            var it = _step52.value;
             var itV = this.getValue(it);
 
             if (_.isEqual(val, itV)) {
@@ -13090,9 +13422,9 @@ var _ref121 = function () {
             }
           }
         } catch (err) {
-          _iterator50.e(err);
+          _iterator52.e(err);
         } finally {
-          _iterator50.f();
+          _iterator52.f();
         }
       } //-------------------------------------------
       // Core Methods
@@ -13102,7 +13434,7 @@ var _ref121 = function () {
       key: "getItem",
       value: function () {
         var _getItem = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee28(val) {
-          var it, loading, _iterator51, _step51, resolve;
+          var it, loading, _iterator53, _step53, resolve;
 
           return regeneratorRuntime.wrap(function _callee28$(_context28) {
             while (1) {
@@ -13156,17 +13488,17 @@ var _ref121 = function () {
                   this.doHooks(false);
                   this.addItemToCache(it, val); // Release loading
 
-                  _iterator51 = _createForOfIteratorHelper(loading);
+                  _iterator53 = _createForOfIteratorHelper(loading);
 
                   try {
-                    for (_iterator51.s(); !(_step51 = _iterator51.n()).done;) {
-                      resolve = _step51.value;
+                    for (_iterator53.s(); !(_step53 = _iterator53.n()).done;) {
+                      resolve = _step53.value;
                       resolve(it || null);
                     }
                   } catch (err) {
-                    _iterator51.e(err);
+                    _iterator53.e(err);
                   } finally {
-                    _iterator51.f();
+                    _iterator53.f();
                   }
 
                   delete __item_loading[val];
@@ -13329,6 +13661,67 @@ var _ref121 = function () {
       }() //-------------------------------------------
 
     }, {
+      key: "getChildren",
+      value: function () {
+        var _getChildren = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee31(val) {
+          var _this22 = this;
+
+          var list;
+          return regeneratorRuntime.wrap(function _callee31$(_context31) {
+            while (1) {
+              switch (_context31.prev = _context31.next) {
+                case 0:
+                  if (val) {
+                    _context31.next = 4;
+                    break;
+                  }
+
+                  _context31.next = 3;
+                  return this.getData();
+
+                case 3:
+                  return _context31.abrupt("return", _context31.sent);
+
+                case 4:
+                  // Find by string
+                  this.doHooks(true);
+                  _context31.next = 7;
+                  return this.invokeAsync("children", val);
+
+                case 7:
+                  list = _context31.sent;
+                  this.doHooks(false); // Cache items
+
+                  _.forEach(list, function (it) {
+                    _this22.addItemToCache(it);
+                  });
+
+                  if (!this.isShadowed()) {
+                    _context31.next = 12;
+                    break;
+                  }
+
+                  return _context31.abrupt("return", _.cloneDeep(list) || []);
+
+                case 12:
+                  return _context31.abrupt("return", list || []);
+
+                case 13:
+                case "end":
+                  return _context31.stop();
+              }
+            }
+          }, _callee31, this);
+        }));
+
+        function getChildren(_x21) {
+          return _getChildren.apply(this, arguments);
+        }
+
+        return getChildren;
+      }() //-------------------------------------------
+
+    }, {
       key: "getValue",
       value: function getValue(it) {
         return this.invoke("getValue", it);
@@ -13378,50 +13771,7 @@ var _ref121 = function () {
     }, {
       key: "checkItem",
       value: function () {
-        var _checkItem = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee31(val) {
-          var it;
-          return regeneratorRuntime.wrap(function _callee31$(_context31) {
-            while (1) {
-              switch (_context31.prev = _context31.next) {
-                case 0:
-                  _context31.next = 2;
-                  return this.getItem(val);
-
-                case 2:
-                  it = _context31.sent;
-
-                  if (it) {
-                    _context31.next = 5;
-                    break;
-                  }
-
-                  throw Ti.Err.make("e.dict.no-item", {
-                    dictName: dictName,
-                    val: val
-                  });
-
-                case 5:
-                  return _context31.abrupt("return", it);
-
-                case 6:
-                case "end":
-                  return _context31.stop();
-              }
-            }
-          }, _callee31, this);
-        }));
-
-        function checkItem(_x21) {
-          return _checkItem.apply(this, arguments);
-        }
-
-        return checkItem;
-      }() //-------------------------------------------
-
-    }, {
-      key: "getItemText",
-      value: function () {
-        var _getItemText = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee32(val) {
+        var _checkItem = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee32(val) {
           var it;
           return regeneratorRuntime.wrap(function _callee32$(_context32) {
             while (1) {
@@ -13433,14 +13783,20 @@ var _ref121 = function () {
                 case 2:
                   it = _context32.sent;
 
-                  if (!it) {
+                  if (it) {
                     _context32.next = 5;
                     break;
                   }
 
-                  return _context32.abrupt("return", this.getText(it));
+                  throw Ti.Err.make("e.dict.no-item", {
+                    dictName: dictName,
+                    val: val
+                  });
 
                 case 5:
+                  return _context32.abrupt("return", it);
+
+                case 6:
                 case "end":
                   return _context32.stop();
               }
@@ -13448,17 +13804,17 @@ var _ref121 = function () {
           }, _callee32, this);
         }));
 
-        function getItemText(_x22) {
-          return _getItemText.apply(this, arguments);
+        function checkItem(_x22) {
+          return _checkItem.apply(this, arguments);
         }
 
-        return getItemText;
+        return checkItem;
       }() //-------------------------------------------
 
     }, {
-      key: "getItemIcon",
+      key: "getItemText",
       value: function () {
-        var _getItemIcon = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee33(val) {
+        var _getItemText = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee33(val) {
           var it;
           return regeneratorRuntime.wrap(function _callee33$(_context33) {
             while (1) {
@@ -13475,7 +13831,7 @@ var _ref121 = function () {
                     break;
                   }
 
-                  return _context33.abrupt("return", this.getIcon(it));
+                  return _context33.abrupt("return", this.getText(it));
 
                 case 5:
                 case "end":
@@ -13485,17 +13841,17 @@ var _ref121 = function () {
           }, _callee33, this);
         }));
 
-        function getItemIcon(_x23) {
-          return _getItemIcon.apply(this, arguments);
+        function getItemText(_x23) {
+          return _getItemText.apply(this, arguments);
         }
 
-        return getItemIcon;
+        return getItemText;
       }() //-------------------------------------------
 
     }, {
-      key: "getItemAs",
+      key: "getItemIcon",
       value: function () {
-        var _getItemAs = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee34(vKey, val) {
+        var _getItemIcon = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee34(val) {
           var it;
           return regeneratorRuntime.wrap(function _callee34$(_context34) {
             while (1) {
@@ -13512,7 +13868,7 @@ var _ref121 = function () {
                     break;
                   }
 
-                  return _context34.abrupt("return", this.getBy(vKey, it, val));
+                  return _context34.abrupt("return", this.getIcon(it));
 
                 case 5:
                 case "end":
@@ -13522,7 +13878,44 @@ var _ref121 = function () {
           }, _callee34, this);
         }));
 
-        function getItemAs(_x24, _x25) {
+        function getItemIcon(_x24) {
+          return _getItemIcon.apply(this, arguments);
+        }
+
+        return getItemIcon;
+      }() //-------------------------------------------
+
+    }, {
+      key: "getItemAs",
+      value: function () {
+        var _getItemAs = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee35(vKey, val) {
+          var it;
+          return regeneratorRuntime.wrap(function _callee35$(_context35) {
+            while (1) {
+              switch (_context35.prev = _context35.next) {
+                case 0:
+                  _context35.next = 2;
+                  return this.getItem(val);
+
+                case 2:
+                  it = _context35.sent;
+
+                  if (!it) {
+                    _context35.next = 5;
+                    break;
+                  }
+
+                  return _context35.abrupt("return", this.getBy(vKey, it, val));
+
+                case 5:
+                case "end":
+                  return _context35.stop();
+              }
+            }
+          }, _callee35, this);
+        }));
+
+        function getItemAs(_x25, _x26) {
           return _getItemAs.apply(this, arguments);
         }
 
@@ -13552,9 +13945,9 @@ var _ref121 = function () {
     GetOrCreate: function GetOrCreate() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var _ref123 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          hooks = _ref123.hooks,
-          name = _ref123.name;
+      var _ref127 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          hooks = _ref127.hooks,
+          name = _ref127.name;
 
       var d; // Aready a dict
 
@@ -13589,19 +13982,20 @@ var _ref121 = function () {
     },
     //-------------------------------------------
     CreateDict: function CreateDict() {
-      var _ref124 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          data = _ref124.data,
-          query = _ref124.query,
-          item = _ref124.item,
-          getValue = _ref124.getValue,
-          getText = _ref124.getText,
-          getIcon = _ref124.getIcon,
-          isMatched = _ref124.isMatched,
-          shadowed = _ref124.shadowed;
+      var _ref128 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          data = _ref128.data,
+          query = _ref128.query,
+          item = _ref128.item,
+          children = _ref128.children,
+          getValue = _ref128.getValue,
+          getText = _ref128.getText,
+          getIcon = _ref128.getIcon,
+          isMatched = _ref128.isMatched,
+          shadowed = _ref128.shadowed;
 
-      var _ref125 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          hooks = _ref125.hooks,
-          name = _ref125.name;
+      var _ref129 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          hooks = _ref129.hooks,
+          name = _ref129.name;
 
       //console.log("CreateDict", {data, query, item})
       //.........................................
@@ -13621,79 +14015,8 @@ var _ref121 = function () {
 
       if (!item) {
         item = /*#__PURE__*/function () {
-          var _ref126 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee35(val, $dict) {
-            var aryData, _iterator52, _step52, it, itV;
-
-            return regeneratorRuntime.wrap(function _callee35$(_context35) {
-              while (1) {
-                switch (_context35.prev = _context35.next) {
-                  case 0:
-                    _context35.next = 2;
-                    return $dict.getData();
-
-                  case 2:
-                    aryData = _context35.sent;
-                    _iterator52 = _createForOfIteratorHelper(aryData);
-                    _context35.prev = 4;
-
-                    _iterator52.s();
-
-                  case 6:
-                    if ((_step52 = _iterator52.n()).done) {
-                      _context35.next = 13;
-                      break;
-                    }
-
-                    it = _step52.value;
-                    itV = $dict.getValue(it); //if(_.isEqual(itV, val)) {
-
-                    if (!(itV == val || _.isEqual(itV, val))) {
-                      _context35.next = 11;
-                      break;
-                    }
-
-                    return _context35.abrupt("return", it);
-
-                  case 11:
-                    _context35.next = 6;
-                    break;
-
-                  case 13:
-                    _context35.next = 18;
-                    break;
-
-                  case 15:
-                    _context35.prev = 15;
-                    _context35.t0 = _context35["catch"](4);
-
-                    _iterator52.e(_context35.t0);
-
-                  case 18:
-                    _context35.prev = 18;
-
-                    _iterator52.f();
-
-                    return _context35.finish(18);
-
-                  case 21:
-                  case "end":
-                    return _context35.stop();
-                }
-              }
-            }, _callee35, null, [[4, 15, 18, 21]]);
-          }));
-
-          return function item(_x26, _x27) {
-            return _ref126.apply(this, arguments);
-          };
-        }();
-      } //.........................................
-
-
-      if (!query) {
-        query = /*#__PURE__*/function () {
-          var _ref127 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee36(v, $dict) {
-            var aryData, list, _iterator53, _step53, it;
+          var _ref130 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee36(val, $dict) {
+            var aryData, _iterator54, _step54, it, itV;
 
             return regeneratorRuntime.wrap(function _callee36$(_context36) {
               while (1) {
@@ -13704,37 +14027,115 @@ var _ref121 = function () {
 
                   case 2:
                     aryData = _context36.sent;
+                    _iterator54 = _createForOfIteratorHelper(aryData);
+                    _context36.prev = 4;
+
+                    _iterator54.s();
+
+                  case 6:
+                    if ((_step54 = _iterator54.n()).done) {
+                      _context36.next = 13;
+                      break;
+                    }
+
+                    it = _step54.value;
+                    itV = $dict.getValue(it); //if(_.isEqual(itV, val)) {
+
+                    if (!(itV == val || _.isEqual(itV, val))) {
+                      _context36.next = 11;
+                      break;
+                    }
+
+                    return _context36.abrupt("return", it);
+
+                  case 11:
+                    _context36.next = 6;
+                    break;
+
+                  case 13:
+                    _context36.next = 18;
+                    break;
+
+                  case 15:
+                    _context36.prev = 15;
+                    _context36.t0 = _context36["catch"](4);
+
+                    _iterator54.e(_context36.t0);
+
+                  case 18:
+                    _context36.prev = 18;
+
+                    _iterator54.f();
+
+                    return _context36.finish(18);
+
+                  case 21:
+                  case "end":
+                    return _context36.stop();
+                }
+              }
+            }, _callee36, null, [[4, 15, 18, 21]]);
+          }));
+
+          return function item(_x27, _x28) {
+            return _ref130.apply(this, arguments);
+          };
+        }();
+      } //.........................................
+
+
+      if (!query) {
+        query = /*#__PURE__*/function () {
+          var _ref131 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee37(v, $dict) {
+            var aryData, list, _iterator55, _step55, it;
+
+            return regeneratorRuntime.wrap(function _callee37$(_context37) {
+              while (1) {
+                switch (_context37.prev = _context37.next) {
+                  case 0:
+                    _context37.next = 2;
+                    return $dict.getData();
+
+                  case 2:
+                    aryData = _context37.sent;
                     list = [];
-                    _iterator53 = _createForOfIteratorHelper(aryData);
+                    _iterator55 = _createForOfIteratorHelper(aryData);
 
                     try {
-                      for (_iterator53.s(); !(_step53 = _iterator53.n()).done;) {
-                        it = _step53.value;
+                      for (_iterator55.s(); !(_step55 = _iterator55.n()).done;) {
+                        it = _step55.value;
 
                         if ($dict.isMatched(it, v)) {
                           list.push(it);
                         }
                       }
                     } catch (err) {
-                      _iterator53.e(err);
+                      _iterator55.e(err);
                     } finally {
-                      _iterator53.f();
+                      _iterator55.f();
                     }
 
-                    return _context36.abrupt("return", list);
+                    return _context37.abrupt("return", list);
 
                   case 7:
                   case "end":
-                    return _context36.stop();
+                    return _context37.stop();
                 }
               }
-            }, _callee36);
+            }, _callee37);
           }));
 
-          return function query(_x28, _x29) {
-            return _ref127.apply(this, arguments);
+          return function query(_x29, _x30) {
+            return _ref131.apply(this, arguments);
           };
         }();
+      } //.........................................
+
+
+      if (!children) {
+        children = function children() {
+          return [];
+        };
       } //.........................................
       // if(!isMatched) {
       //   isMatched = (it, v, $dict)=>{
@@ -13750,6 +14151,7 @@ var _ref121 = function () {
         data: data,
         query: query,
         item: item,
+        children: children,
         getValue: getValue,
         getText: getText,
         getIcon: getIcon,
@@ -13795,23 +14197,54 @@ var _ref121 = function () {
       return d;
     },
     //-------------------------------------------
-    CheckDict: function CheckDict(name, hooks) {
-      var d = DictFactory.GetDict(name, hooks);
+    CheckDict: function CheckDict(dictName, hooks) {
+      // Already in cache
+      var d = DictFactory.GetDict(dictName, hooks);
 
       if (d) {
         return d;
+      } // Maybe should create a shadow one.
+
+
+      var _DictFactory$explainD = DictFactory.explainDictName(dictName),
+          name = _DictFactory$explainD.name,
+          args = _DictFactory$explainD.args;
+
+      d = DictFactory.GetDict(name, hooks);
+
+      if (d) {
+        // Return the mask dict
+        // args[0] will -> getData -> getChildren(args[0])
+        if (!_.isEmpty(args)) {
+          var d2 = d.duplicate({
+            hooks: true,
+            dataCache: false
+          });
+          d2.setFunc({
+            data: function data() {
+              return this.getChildren.apply(this, _toConsumableArray(args));
+            }
+          }); // Cache D2
+
+          DICTS[dictName] = d2; // Then Return
+
+          return d2;
+        }
+
+        return d;
       }
 
-      throw "e.dict.noexists : ".concat(name);
+      throw "e.dict.noexists : ".concat(dictName);
     },
     //-------------------------------------------
     explainDictName: function explainDictName(dictName) {
       var re = {};
-      var m = /^([^:]+)(:(.+))?$/.exec(dictName);
+      var m = /^([^:()]+)(\(([^)]*)\))?(:(.+))?$/.exec(dictName);
 
       if (m) {
         re.name = m[1];
-        re.vkey = m[3];
+        re.args = Ti.S.joinArgs(m[3]);
+        re.vkey = m[5];
       }
 
       return re;
@@ -13822,69 +14255,40 @@ var _ref121 = function () {
      * @param dName{String} : like `Sexes:.icon`
      */
     getBy: function getBy(dName, val) {
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee37() {
-        var _DictFactory$explainD, name, vKey, $dict;
-
-        return regeneratorRuntime.wrap(function _callee37$(_context37) {
-          while (1) {
-            switch (_context37.prev = _context37.next) {
-              case 0:
-                if (!Ti.Util.isNil(val)) {
-                  _context37.next = 2;
-                  break;
-                }
-
-                return _context37.abrupt("return", val);
-
-              case 2:
-                // Check if the name indicate the itemValueKey
-                _DictFactory$explainD = DictFactory.explainDictName(dName), name = _DictFactory$explainD.name, vKey = _DictFactory$explainD.vKey;
-                $dict = DictFactory.CheckDict(name);
-                _context37.next = 6;
-                return $dict.getItemAs(vKey, val);
-
-              case 6:
-                return _context37.abrupt("return", _context37.sent);
-
-              case 7:
-              case "end":
-                return _context37.stop();
-            }
-          }
-        }, _callee37);
-      }))();
-    },
-    //-------------------------------------------
-    getAll: function getAll(dictName) {
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee38() {
-        var $dict;
+        var _DictFactory$explainD2, name, vKey, $dict;
+
         return regeneratorRuntime.wrap(function _callee38$(_context38) {
           while (1) {
             switch (_context38.prev = _context38.next) {
               case 0:
-                _context38.prev = 0;
-                $dict = DictFactory.CheckDict(dictName);
-                _context38.next = 4;
-                return $dict.getData();
+                if (!Ti.Util.isNil(val)) {
+                  _context38.next = 2;
+                  break;
+                }
 
-              case 4:
+                return _context38.abrupt("return", val);
+
+              case 2:
+                // Check if the name indicate the itemValueKey
+                _DictFactory$explainD2 = DictFactory.explainDictName(dName), name = _DictFactory$explainD2.name, vKey = _DictFactory$explainD2.vKey;
+                $dict = DictFactory.CheckDict(name);
+                _context38.next = 6;
+                return $dict.getItemAs(vKey, val);
+
+              case 6:
                 return _context38.abrupt("return", _context38.sent);
 
               case 7:
-                _context38.prev = 7;
-                _context38.t0 = _context38["catch"](0);
-                console.error("e.dict.getAll : ".concat(dictName), _context38.t0);
-
-              case 10:
               case "end":
                 return _context38.stop();
             }
           }
-        }, _callee38, null, [[0, 7]]);
+        }, _callee38);
       }))();
     },
     //-------------------------------------------
-    getText: function getText(dictName, val) {
+    getAll: function getAll(dictName) {
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee39() {
         var $dict;
         return regeneratorRuntime.wrap(function _callee39$(_context39) {
@@ -13894,7 +14298,7 @@ var _ref121 = function () {
                 _context39.prev = 0;
                 $dict = DictFactory.CheckDict(dictName);
                 _context39.next = 4;
-                return $dict.getItemText(val);
+                return $dict.getData();
 
               case 4:
                 return _context39.abrupt("return", _context39.sent);
@@ -13902,7 +14306,7 @@ var _ref121 = function () {
               case 7:
                 _context39.prev = 7;
                 _context39.t0 = _context39["catch"](0);
-                console.error("e.dict.getText : ".concat(dictName), _context39.t0);
+                console.error("e.dict.getAll : ".concat(dictName), _context39.t0);
 
               case 10:
               case "end":
@@ -13913,7 +14317,7 @@ var _ref121 = function () {
       }))();
     },
     //-------------------------------------------
-    getIcon: function getIcon(dictName, val) {
+    getText: function getText(dictName, val) {
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee40() {
         var $dict;
         return regeneratorRuntime.wrap(function _callee40$(_context40) {
@@ -13923,7 +14327,7 @@ var _ref121 = function () {
                 _context40.prev = 0;
                 $dict = DictFactory.CheckDict(dictName);
                 _context40.next = 4;
-                return $dict.getItemIcon(val);
+                return $dict.getItemText(val);
 
               case 4:
                 return _context40.abrupt("return", _context40.sent);
@@ -13931,7 +14335,7 @@ var _ref121 = function () {
               case 7:
                 _context40.prev = 7;
                 _context40.t0 = _context40["catch"](0);
-                console.error("e.dict.getIcon : ".concat(dictName), _context40.t0);
+                console.error("e.dict.getText : ".concat(dictName), _context40.t0);
 
               case 10:
               case "end":
@@ -13939,6 +14343,35 @@ var _ref121 = function () {
             }
           }
         }, _callee40, null, [[0, 7]]);
+      }))();
+    },
+    //-------------------------------------------
+    getIcon: function getIcon(dictName, val) {
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee41() {
+        var $dict;
+        return regeneratorRuntime.wrap(function _callee41$(_context41) {
+          while (1) {
+            switch (_context41.prev = _context41.next) {
+              case 0:
+                _context41.prev = 0;
+                $dict = DictFactory.CheckDict(dictName);
+                _context41.next = 4;
+                return $dict.getItemIcon(val);
+
+              case 4:
+                return _context41.abrupt("return", _context41.sent);
+
+              case 7:
+                _context41.prev = 7;
+                _context41.t0 = _context41["catch"](0);
+                console.error("e.dict.getIcon : ".concat(dictName), _context41.t0);
+
+              case 10:
+              case "end":
+                return _context41.stop();
+            }
+          }
+        }, _callee41, null, [[0, 7]]);
       }))();
     } //-------------------------------------------
 
@@ -13949,12 +14382,12 @@ var _ref121 = function () {
     DictFactory: DictFactory
   };
 }(),
-    Dict = _ref121.Dict,
-    DictFactory = _ref121.DictFactory; //##################################################
+    Dict = _ref125.Dict,
+    DictFactory = _ref125.DictFactory; //##################################################
 // # import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
 
 
-var _ref128 = function () {
+var _ref132 = function () {
   ///////////////////////////////////////////////////
   var TryBubble = function TryBubble(vm, event) {
     var stop = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -14001,22 +14434,7 @@ var _ref128 = function () {
 
 
     if (!_.isFunction(handler)) {
-      var canNames = _.split(name, "::");
-
-      while (canNames.length > 1) {
-        var _canNames = canNames,
-            _canNames2 = _toArray(_canNames),
-            names = _canNames2.slice(1);
-
-        var hdName = names.join("::");
-        handler = _.get(this.$listeners, hdName);
-
-        if (_.isFunction(handler)) {
-          break;
-        }
-
-        canNames = names;
-      }
+      handler = this.$tiEventTryFallback(name, this.$listeners);
     } // Invoke handler or bubble the event
 
 
@@ -14048,13 +14466,37 @@ var _ref128 = function () {
 
   var VueEventBubble = {
     install: function install(Vue) {
-      var _ref129 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref129$overrideEmit = _ref129.overrideEmit,
-          overrideEmit = _ref129$overrideEmit === void 0 ? false : _ref129$overrideEmit;
+      var _ref133 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref133$overrideEmit = _ref133.overrideEmit,
+          overrideEmit = _ref133$overrideEmit === void 0 ? false : _ref133$overrideEmit;
 
       // Append the methods
       _.assign(Vue.prototype, {
-        $notify: Notify
+        //...........................................
+        $notify: Notify,
+        //...........................................
+        $tiEventTryFallback: function $tiEventTryFallback(name) {
+          var routing = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+          var canNames = _.split(name, "::");
+
+          while (canNames.length > 1) {
+            var _canNames = canNames,
+                _canNames2 = _toArray(_canNames),
+                names = _canNames2.slice(1);
+
+            var hdName = names.join("::");
+
+            var handler = _.get(routing, hdName);
+
+            if (handler) {
+              return handler;
+            }
+
+            canNames = names;
+          }
+        } //...........................................
+
       }); // Override emit
 
 
@@ -14071,11 +14513,11 @@ var _ref128 = function () {
     VueEventBubble: VueEventBubble
   };
 }(),
-    VueEventBubble = _ref128.VueEventBubble; //##################################################
+    VueEventBubble = _ref132.VueEventBubble; //##################################################
 // # import {VueTiCom} from "./vue/vue-ti-com.mjs"
 
 
-var _ref130 = function () {
+var _ref134 = function () {
   /////////////////////////////////////////////////////
   var TiComMixin = {
     inheritAttrs: false,
@@ -14097,7 +14539,7 @@ var _ref130 = function () {
       },
       //-----------------------------------------------
       getTopClass: function getTopClass() {
-        var _this22 = this;
+        var _this23 = this;
 
         return function () {
           for (var _len36 = arguments.length, klass = new Array(_len36), _key38 = 0; _key38 < _len36; _key38++) {
@@ -14105,9 +14547,9 @@ var _ref130 = function () {
           }
 
           return Ti.Css.mergeClassName({
-            "is-self-actived": _this22.isSelfActived,
-            "is-actived": _this22.isActived
-          }, klass, _this22.className);
+            "is-self-actived": _this23.isSelfActived,
+            "is-actived": _this23.isActived
+          }, klass, _this23.className);
         };
       } //-----------------------------------------------
 
@@ -14120,10 +14562,10 @@ var _ref130 = function () {
     },
     ///////////////////////////////////////////////////
     created: function () {
-      var _created = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee41() {
-        return regeneratorRuntime.wrap(function _callee41$(_context41) {
+      var _created = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee42() {
+        return regeneratorRuntime.wrap(function _callee42$(_context42) {
           while (1) {
-            switch (_context41.prev = _context41.next) {
+            switch (_context42.prev = _context42.next) {
               case 0:
                 //...............................................
                 // Auto invoke the callback
@@ -14134,10 +14576,10 @@ var _ref130 = function () {
 
               case 1:
               case "end":
-                return _context41.stop();
+                return _context42.stop();
             }
           }
-        }, _callee41, this);
+        }, _callee42, this);
       }));
 
       function created() {
@@ -14364,9 +14806,9 @@ var _ref130 = function () {
       // Directive: v-ti-on-actived="this"
 
       Vue.directive("tiActivable", {
-        bind: function bind($el, _ref131, _ref132) {
-          var value = _ref131.value;
-          var context = _ref132.context;
+        bind: function bind($el, _ref135, _ref136) {
+          var value = _ref135.value;
+          var context = _ref136.context;
           var vm = context;
           vm.__ti_activable__ = true;
           $el.addEventListener("click", function (evt) {
@@ -14385,12 +14827,12 @@ var _ref130 = function () {
     VueTiCom: VueTiCom
   };
 }(),
-    VueTiCom = _ref130.VueTiCom; //---------------------------------------
+    VueTiCom = _ref134.VueTiCom; //---------------------------------------
 //##################################################
 // # import {WalnutAppMain} from "./ti-walnut-app-main.mjs"
 
 
-var _ref133 = function () {
+var _ref137 = function () {
   ///////////////////////////////////////////////
   function WalnutAppMain() {
     return _WalnutAppMain.apply(this, arguments);
@@ -14398,54 +14840,54 @@ var _ref133 = function () {
 
 
   function _WalnutAppMain() {
-    _WalnutAppMain = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee42() {
-      var _ref134,
-          _ref134$rs,
+    _WalnutAppMain = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee43() {
+      var _ref138,
+          _ref138$rs,
           rs,
-          _ref134$appName,
+          _ref138$appName,
           appName,
-          _ref134$preloads,
+          _ref138$preloads,
           preloads,
-          _ref134$debug,
+          _ref138$debug,
           debug,
-          _ref134$logging,
+          _ref138$logging,
           logging,
-          _ref134$shortcute,
+          _ref138$shortcute,
           shortcute,
-          _ref134$viewport,
+          _ref138$viewport,
           viewport,
           pres,
           tiConf,
           exCssList,
-          _iterator54,
-          _step54,
+          _iterator56,
+          _step56,
           css,
           cssPath,
           appInfo,
           _pres,
           pxs,
-          _iterator55,
-          _step55,
+          _iterator57,
+          _step57,
           key,
           val,
           mod,
           app,
           basePath,
-          _args48 = arguments;
+          _args49 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee42$(_context42) {
+      return regeneratorRuntime.wrap(function _callee43$(_context43) {
         while (1) {
-          switch (_context42.prev = _context42.next) {
+          switch (_context43.prev = _context43.next) {
             case 0:
-              _ref134 = _args48.length > 0 && _args48[0] !== undefined ? _args48[0] : {}, _ref134$rs = _ref134.rs, rs = _ref134$rs === void 0 ? "/gu/rs/" : _ref134$rs, _ref134$appName = _ref134.appName, appName = _ref134$appName === void 0 ? "wn.manager" : _ref134$appName, _ref134$preloads = _ref134.preloads, preloads = _ref134$preloads === void 0 ? [] : _ref134$preloads, _ref134$debug = _ref134.debug, debug = _ref134$debug === void 0 ? false : _ref134$debug, _ref134$logging = _ref134.logging, logging = _ref134$logging === void 0 ? {
+              _ref138 = _args49.length > 0 && _args49[0] !== undefined ? _args49[0] : {}, _ref138$rs = _ref138.rs, rs = _ref138$rs === void 0 ? "/gu/rs/" : _ref138$rs, _ref138$appName = _ref138.appName, appName = _ref138$appName === void 0 ? "wn.manager" : _ref138$appName, _ref138$preloads = _ref138.preloads, preloads = _ref138$preloads === void 0 ? [] : _ref138$preloads, _ref138$debug = _ref138.debug, debug = _ref138$debug === void 0 ? false : _ref138$debug, _ref138$logging = _ref138.logging, logging = _ref138$logging === void 0 ? {
                 root: "warn"
-              } : _ref134$logging, _ref134$shortcute = _ref134.shortcute, shortcute = _ref134$shortcute === void 0 ? false : _ref134$shortcute, _ref134$viewport = _ref134.viewport, viewport = _ref134$viewport === void 0 ? {
+              } : _ref138$logging, _ref138$shortcute = _ref138.shortcute, shortcute = _ref138$shortcute === void 0 ? true : _ref138$shortcute, _ref138$viewport = _ref138.viewport, viewport = _ref138$viewport === void 0 ? {
                 phoneMaxWidth: 540,
                 tabletMaxWidth: 768,
                 designWidth: 1000,
                 max: 100,
                 min: 80
-              } : _ref134$viewport;
+              } : _ref138$viewport;
               //---------------------------------------
               Ti.AddResourcePrefix(rs); //---------------------------------------
 
@@ -14506,7 +14948,7 @@ var _ref133 = function () {
               // Preload resources
 
               if (_.isEmpty(preloads)) {
-                _context42.next = 16;
+                _context43.next = 16;
                 break;
               }
 
@@ -14516,27 +14958,27 @@ var _ref133 = function () {
                 pres.push(Ti.Load(url));
               });
 
-              _context42.next = 16;
+              _context43.next = 16;
               return Promise.all(pres);
 
             case 16:
-              _context42.t0 = Ti.I18n;
-              _context42.next = 19;
-              return Ti.Load(["@i18n:_ti", "@i18n:_wn", "@i18n:_net"]);
+              _context43.t0 = Ti.I18n;
+              _context43.next = 19;
+              return Ti.Load(["@i18n:_ti", "@i18n:_wn", "@i18n:_net", "@i18n:web", "@i18n:ti-datetime"]);
 
             case 19:
-              _context42.t1 = _context42.sent;
+              _context43.t1 = _context43.sent;
 
-              _context42.t0.put.call(_context42.t0, _context42.t1);
+              _context43.t0.put.call(_context43.t0, _context43.t1);
 
-              _context42.next = 23;
+              _context43.next = 23;
               return Wn.Sys.exec("ti config -cqn", {
                 appName: appName,
                 as: "json"
               });
 
             case 23:
-              tiConf = _context42.sent;
+              tiConf = _context43.sent;
 
               if (!_.isEmpty(tiConf)) {
                 Ti.Config.update(tiConf);
@@ -14545,71 +14987,71 @@ var _ref133 = function () {
 
 
               if (!tiConf.i18n) {
-                _context42.next = 31;
+                _context43.next = 31;
                 break;
               }
 
-              _context42.t2 = Ti.I18n;
-              _context42.next = 29;
+              _context43.t2 = Ti.I18n;
+              _context43.next = 29;
               return Ti.Load(tiConf.i18n);
 
             case 29:
-              _context42.t3 = _context42.sent;
+              _context43.t3 = _context43.sent;
 
-              _context42.t2.put.call(_context42.t2, _context42.t3);
+              _context43.t2.put.call(_context43.t2, _context43.t3);
 
             case 31:
               if (!tiConf.css) {
-                _context42.next = 51;
+                _context43.next = 51;
                 break;
               }
 
               exCssList = [].concat(tiConf.css);
-              _iterator54 = _createForOfIteratorHelper(exCssList);
-              _context42.prev = 34;
+              _iterator56 = _createForOfIteratorHelper(exCssList);
+              _context43.prev = 34;
 
-              _iterator54.s();
+              _iterator56.s();
 
             case 36:
-              if ((_step54 = _iterator54.n()).done) {
-                _context42.next = 43;
+              if ((_step56 = _iterator56.n()).done) {
+                _context43.next = 43;
                 break;
               }
 
-              css = _step54.value;
+              css = _step56.value;
               cssPath = _.template(css)({
                 theme: "${theme}"
               });
-              _context42.next = 41;
+              _context43.next = 41;
               return Ti.Load(cssPath);
 
             case 41:
-              _context42.next = 36;
+              _context43.next = 36;
               break;
 
             case 43:
-              _context42.next = 48;
+              _context43.next = 48;
               break;
 
             case 45:
-              _context42.prev = 45;
-              _context42.t4 = _context42["catch"](34);
+              _context43.prev = 45;
+              _context43.t4 = _context43["catch"](34);
 
-              _iterator54.e(_context42.t4);
+              _iterator56.e(_context43.t4);
 
             case 48:
-              _context42.prev = 48;
+              _context43.prev = 48;
 
-              _iterator54.f();
+              _iterator56.f();
 
-              return _context42.finish(48);
+              return _context43.finish(48);
 
             case 51:
-              _context42.next = 53;
+              _context43.next = 53;
               return Ti.Load("@MyApp");
 
             case 53:
-              appInfo = _context42.sent;
+              appInfo = _context43.sent;
 
               //---------------------------------------
               // Merge customized GUI setting in "data"
@@ -14630,7 +15072,7 @@ var _ref133 = function () {
 
 
               if (_.isEmpty(tiConf.preloads)) {
-                _context42.next = 62;
+                _context43.next = 62;
                 break;
               }
 
@@ -14640,7 +15082,7 @@ var _ref133 = function () {
                 _pres.push(Ti.Load(url));
               });
 
-              _context42.next = 62;
+              _context43.next = 62;
               return Promise.all(_pres);
 
             case 62:
@@ -14651,46 +15093,46 @@ var _ref133 = function () {
               // Load the global util modules
 
 
-              _iterator55 = _createForOfIteratorHelper(_.keys(tiConf.global));
-              _context42.prev = 64;
+              _iterator57 = _createForOfIteratorHelper(_.keys(tiConf.global));
+              _context43.prev = 64;
 
-              _iterator55.s();
+              _iterator57.s();
 
             case 66:
-              if ((_step55 = _iterator55.n()).done) {
-                _context42.next = 75;
+              if ((_step57 = _iterator57.n()).done) {
+                _context43.next = 75;
                 break;
               }
 
-              key = _step55.value;
+              key = _step57.value;
               val = tiConf.global[key];
-              _context42.next = 71;
+              _context43.next = 71;
               return Ti.Load(val);
 
             case 71:
-              mod = _context42.sent;
+              mod = _context43.sent;
               window[key] = mod;
 
             case 73:
-              _context42.next = 66;
+              _context43.next = 66;
               break;
 
             case 75:
-              _context42.next = 80;
+              _context43.next = 80;
               break;
 
             case 77:
-              _context42.prev = 77;
-              _context42.t5 = _context42["catch"](64);
+              _context43.prev = 77;
+              _context43.t5 = _context43["catch"](64);
 
-              _iterator55.e(_context42.t5);
+              _iterator57.e(_context43.t5);
 
             case 80:
-              _context42.prev = 80;
+              _context43.prev = 80;
 
-              _iterator55.f();
+              _iterator57.f();
 
-              return _context42.finish(80);
+              return _context43.finish(80);
 
             case 83:
               //---------------------------------------
@@ -14699,15 +15141,15 @@ var _ref133 = function () {
               // Initialize the App
 
               app = Ti.App(appInfo);
-              _context42.next = 87;
+              _context43.next = 87;
               return app.init();
 
             case 87:
               //---------------------------------------
-              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref135) {
-                var $root = _ref135.$root,
-                    mode = _ref135.mode,
-                    fontSize = _ref135.fontSize;
+              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref139) {
+                var $root = _ref139.$root,
+                    mode = _ref139.mode,
+                    fontSize = _ref139.fontSize;
                 $root.style.fontSize = fontSize + "px";
                 $root.setAttribute("as", mode);
                 Ti.App.eachInstance(function (app) {
@@ -14744,18 +15186,18 @@ var _ref133 = function () {
                 basePath = "id:" + _app.obj.id;
               }
 
-              _context42.next = 96;
+              _context43.next = 96;
               return app.dispatch("current/reload", basePath);
 
             case 96:
-              return _context42.abrupt("return", app.get("obj"));
+              return _context43.abrupt("return", app.get("obj"));
 
             case 97:
             case "end":
-              return _context42.stop();
+              return _context43.stop();
           }
         }
-      }, _callee42, null, [[34, 45, 48, 51], [64, 77, 80, 83]]);
+      }, _callee43, null, [[34, 45, 48, 51], [64, 77, 80, 83]]);
     }));
     return _WalnutAppMain.apply(this, arguments);
   }
@@ -14764,11 +15206,11 @@ var _ref133 = function () {
     WalnutAppMain: WalnutAppMain
   };
 }(),
-    WalnutAppMain = _ref133.WalnutAppMain; //##################################################
+    WalnutAppMain = _ref137.WalnutAppMain; //##################################################
 // # import {WebAppMain} from "./ti-web-app-main.mjs"
 
 
-var _ref136 = function () {
+var _ref140 = function () {
   ///////////////////////////////////////////////
   function WebAppMain() {
     return _WebAppMain.apply(this, arguments);
@@ -14776,48 +15218,52 @@ var _ref136 = function () {
 
 
   function _WebAppMain() {
-    _WebAppMain = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee43() {
-      var _ref137,
-          _ref137$rs,
+    _WebAppMain = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee44() {
+      var _ref141,
+          _ref141$www_host,
+          www_host,
+          _ref141$www_port_suff,
+          www_port_suffix,
+          _ref141$rs,
           rs,
-          _ref137$siteRs,
+          _ref141$siteRs,
           siteRs,
-          _ref137$lang,
+          _ref141$lang,
           lang,
           appJson,
           siteId,
           domain,
-          _ref137$preloads,
+          _ref141$preloads,
           preloads,
-          _ref137$debug,
+          _ref141$debug,
           debug,
-          _ref137$logging,
+          _ref141$logging,
           logging,
-          _ref137$shortcute,
+          _ref141$shortcute,
           shortcute,
-          _ref137$viewport,
+          _ref141$viewport,
           viewport,
           pres,
           exCssList,
-          _iterator56,
-          _step56,
+          _iterator58,
+          _step58,
           css,
           app,
-          _args49 = arguments;
+          _args50 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee43$(_context43) {
+      return regeneratorRuntime.wrap(function _callee44$(_context44) {
         while (1) {
-          switch (_context43.prev = _context43.next) {
+          switch (_context44.prev = _context44.next) {
             case 0:
-              _ref137 = _args49.length > 0 && _args49[0] !== undefined ? _args49[0] : {}, _ref137$rs = _ref137.rs, rs = _ref137$rs === void 0 ? "/gu/rs/" : _ref137$rs, _ref137$siteRs = _ref137.siteRs, siteRs = _ref137$siteRs === void 0 ? "/" : _ref137$siteRs, _ref137$lang = _ref137.lang, lang = _ref137$lang === void 0 ? "zh-cn" : _ref137$lang, appJson = _ref137.appJson, siteId = _ref137.siteId, domain = _ref137.domain, _ref137$preloads = _ref137.preloads, preloads = _ref137$preloads === void 0 ? [] : _ref137$preloads, _ref137$debug = _ref137.debug, debug = _ref137$debug === void 0 ? false : _ref137$debug, _ref137$logging = _ref137.logging, logging = _ref137$logging === void 0 ? {
+              _ref141 = _args50.length > 0 && _args50[0] !== undefined ? _args50[0] : {}, _ref141$www_host = _ref141.www_host, www_host = _ref141$www_host === void 0 ? "localhost" : _ref141$www_host, _ref141$www_port_suff = _ref141.www_port_suffix, www_port_suffix = _ref141$www_port_suff === void 0 ? ":8080" : _ref141$www_port_suff, _ref141$rs = _ref141.rs, rs = _ref141$rs === void 0 ? "/gu/rs/" : _ref141$rs, _ref141$siteRs = _ref141.siteRs, siteRs = _ref141$siteRs === void 0 ? "/" : _ref141$siteRs, _ref141$lang = _ref141.lang, lang = _ref141$lang === void 0 ? "zh-cn" : _ref141$lang, appJson = _ref141.appJson, siteId = _ref141.siteId, domain = _ref141.domain, _ref141$preloads = _ref141.preloads, preloads = _ref141$preloads === void 0 ? [] : _ref141$preloads, _ref141$debug = _ref141.debug, debug = _ref141$debug === void 0 ? false : _ref141$debug, _ref141$logging = _ref141.logging, logging = _ref141$logging === void 0 ? {
                 root: "warn"
-              } : _ref137$logging, _ref137$shortcute = _ref137.shortcute, shortcute = _ref137$shortcute === void 0 ? false : _ref137$shortcute, _ref137$viewport = _ref137.viewport, viewport = _ref137$viewport === void 0 ? {
+              } : _ref141$logging, _ref141$shortcute = _ref141.shortcute, shortcute = _ref141$shortcute === void 0 ? true : _ref141$shortcute, _ref141$viewport = _ref141.viewport, viewport = _ref141$viewport === void 0 ? {
                 phoneMaxWidth: 640,
                 tabletMaxWidth: 900,
                 designWidth: 1200,
                 max: 100,
                 min: 70
-              } : _ref137$viewport;
+              } : _ref141$viewport;
               //---------------------------------------
               Ti.AddResourcePrefix(rs, siteRs); //---------------------------------------
 
@@ -14873,7 +15319,7 @@ var _ref136 = function () {
               // Preload resources
 
               if (_.isEmpty(preloads)) {
-                _context43.next = 15;
+                _context44.next = 15;
                 break;
               }
 
@@ -14883,88 +15329,100 @@ var _ref136 = function () {
                 pres.push(Ti.Load(url));
               });
 
-              _context43.next = 15;
+              _context44.next = 15;
               return Promise.all(pres);
 
             case 15:
-              _context43.t0 = Ti.I18n;
-              _context43.next = 18;
-              return Ti.Load(["@i18n:_ti", "@i18n:web"]);
+              _context44.t0 = Ti.I18n;
+              _context44.next = 18;
+              return Ti.Load(["@i18n:_ti", "@i18n:_net", "@i18n:web", "@i18n:ti-datetime"]);
 
             case 18:
-              _context43.t1 = _context43.sent;
+              _context44.t1 = _context44.sent;
 
-              _context43.t0.put.call(_context43.t0, _context43.t1);
+              _context44.t0.put.call(_context44.t0, _context44.t1);
 
               if (!appJson.css) {
-                _context43.next = 40;
+                _context44.next = 40;
                 break;
               }
 
               exCssList = _.concat(appJson.css);
-              _iterator56 = _createForOfIteratorHelper(exCssList);
-              _context43.prev = 23;
+              _iterator58 = _createForOfIteratorHelper(exCssList);
+              _context44.prev = 23;
 
-              _iterator56.s();
+              _iterator58.s();
 
             case 25:
-              if ((_step56 = _iterator56.n()).done) {
-                _context43.next = 32;
+              if ((_step58 = _iterator58.n()).done) {
+                _context44.next = 32;
                 break;
               }
 
-              css = _step56.value;
+              css = _step58.value;
 
               if (!css) {
-                _context43.next = 30;
+                _context44.next = 30;
                 break;
               }
 
-              _context43.next = 30;
+              _context44.next = 30;
               return Ti.Load(css);
 
             case 30:
-              _context43.next = 25;
+              _context44.next = 25;
               break;
 
             case 32:
-              _context43.next = 37;
+              _context44.next = 37;
               break;
 
             case 34:
-              _context43.prev = 34;
-              _context43.t2 = _context43["catch"](23);
+              _context44.prev = 34;
+              _context44.t2 = _context44["catch"](23);
 
-              _iterator56.e(_context43.t2);
+              _iterator58.e(_context44.t2);
 
             case 37:
-              _context43.prev = 37;
+              _context44.prev = 37;
 
-              _iterator56.f();
+              _iterator58.f();
 
-              return _context43.finish(37);
+              return _context44.finish(37);
 
             case 40:
-              _context43.next = 42;
-              return Ti.App(appJson);
+              _context44.next = 42;
+              return Ti.App(appJson, function (conf) {
+                //console.log("appConf", conf)
+                _.assign(conf.store.state, {
+                  loading: false,
+                  siteId: siteId,
+                  domain: domain,
+                  rs: rs,
+                  www_host: www_host,
+                  www_port_suffix: www_port_suffix
+                });
+
+                return conf;
+              });
 
             case 42:
-              app = _context43.sent;
-              _context43.next = 45;
+              app = _context44.sent;
+              _context44.next = 45;
               return app.init();
 
             case 45:
               Ti.App.pushInstance(app); // Save current app name
 
-              Ti.SetAppName(app.name()); // set siteId
+              Ti.SetAppName(app.name()); // Prepare the data,
+              //  - base/apiBase/cdnBase will be explained
 
-              app.commit("setSiteId", siteId);
-              app.commit("setDomain", domain); //---------------------------------------
+              app.commit("explainSiteState"); //---------------------------------------
 
-              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref138) {
-                var $root = _ref138.$root,
-                    mode = _ref138.mode,
-                    fontSize = _ref138.fontSize;
+              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref142) {
+                var $root = _ref142.$root,
+                    mode = _ref142.mode,
+                    fontSize = _ref142.fontSize;
                 $root.style.fontSize = fontSize + "px";
                 $root.setAttribute("as", mode);
                 Ti.App.eachInstance(function (app) {
@@ -14974,18 +15432,18 @@ var _ref136 = function () {
 
               app.mountTo("#app"); // Reload the page data
 
-              _context43.next = 53;
+              _context44.next = 52;
               return app.dispatch("reload");
 
-            case 53:
-              return _context43.abrupt("return", app);
+            case 52:
+              return _context44.abrupt("return", app);
 
-            case 54:
+            case 53:
             case "end":
-              return _context43.stop();
+              return _context44.stop();
           }
         }
-      }, _callee43, null, [[23, 34, 37, 40]]);
+      }, _callee44, null, [[23, 34, 37, 40]]);
     }));
     return _WebAppMain.apply(this, arguments);
   }
@@ -14994,7 +15452,7 @@ var _ref136 = function () {
     WebAppMain: WebAppMain
   };
 }(),
-    WebAppMain = _ref136.WebAppMain; //---------------------------------------
+    WebAppMain = _ref140.WebAppMain; //---------------------------------------
 
 
 var LOAD_CACHE = {};
@@ -15013,8 +15471,8 @@ function AddResourcePrefix() {
     prefixes[_key39] = arguments[_key39];
   }
 
-  for (var _i27 = 0, _prefixes = prefixes; _i27 < _prefixes.length; _i27++) {
-    var prefix = _prefixes[_i27];
+  for (var _i26 = 0, _prefixes = prefixes; _i26 < _prefixes.length; _i26++) {
+    var prefix = _prefixes[_i26];
 
     if (prefix) {
       if (!prefix.endsWith("/")) {
@@ -15032,12 +15490,12 @@ function MatchCache(url) {
     return;
   }
 
-  var _iterator57 = _createForOfIteratorHelper(RS_PREFIXs),
-      _step57;
+  var _iterator59 = _createForOfIteratorHelper(RS_PREFIXs),
+      _step59;
 
   try {
-    for (_iterator57.s(); !(_step57 = _iterator57.n()).done;) {
-      var prefix = _step57.value;
+    for (_iterator59.s(); !(_step59 = _iterator59.n()).done;) {
+      var prefix = _step59.value;
 
       if (prefix && url.startsWith(prefix)) {
         url = url.substring(prefix.length);
@@ -15045,9 +15503,9 @@ function MatchCache(url) {
       }
     }
   } catch (err) {
-    _iterator57.e(err);
+    _iterator59.e(err);
   } finally {
-    _iterator57.f();
+    _iterator59.f();
   }
 
   return LOAD_CACHE[url];
@@ -15055,7 +15513,7 @@ function MatchCache(url) {
 
 
 var ENV = {
-  "version": "1.0",
+  "version": "2.2-20200627.185053",
   "dev": false,
   "appName": null,
   "session": {},
@@ -15110,6 +15568,7 @@ var Ti = {
   DateTime: DateTime,
   Num: Num,
   Trees: Trees,
+  Bank: Bank,
   Mapping: Mapping,
   Dict: Dict,
   DictFactory: DictFactory,
@@ -15229,45 +15688,45 @@ var Ti = {
   //-----------------------------------------------------
   DoInvoke: function DoInvoke(fn) {
     var _arguments2 = arguments,
-        _this23 = this;
+        _this24 = this;
 
-    return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee44() {
+    return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee45() {
       var args, context;
-      return regeneratorRuntime.wrap(function _callee44$(_context44) {
+      return regeneratorRuntime.wrap(function _callee45$(_context45) {
         while (1) {
-          switch (_context44.prev = _context44.next) {
+          switch (_context45.prev = _context45.next) {
             case 0:
               args = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : [];
               context = _arguments2.length > 2 ? _arguments2[2] : undefined;
 
               if (!_.isFunction(fn)) {
-                _context44.next = 7;
+                _context45.next = 7;
                 break;
               }
 
-              context = context || _this23;
-              _context44.next = 6;
+              context = context || _this24;
+              _context45.next = 6;
               return fn.apply(context, args);
 
             case 6:
-              return _context44.abrupt("return", _context44.sent);
+              return _context45.abrupt("return", _context45.sent);
 
             case 7:
             case "end":
-              return _context44.stop();
+              return _context45.stop();
           }
         }
-      }, _callee44);
+      }, _callee45);
     }))();
   },
   //-----------------------------------------------------
   DoInvokeBy: function DoInvokeBy() {
     var _arguments3 = arguments;
-    return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee45() {
+    return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee46() {
       var target, funcName, args, context;
-      return regeneratorRuntime.wrap(function _callee45$(_context45) {
+      return regeneratorRuntime.wrap(function _callee46$(_context46) {
         while (1) {
-          switch (_context45.prev = _context45.next) {
+          switch (_context46.prev = _context46.next) {
             case 0:
               target = _arguments3.length > 0 && _arguments3[0] !== undefined ? _arguments3[0] : {};
               funcName = _arguments3.length > 1 ? _arguments3[1] : undefined;
@@ -15275,22 +15734,22 @@ var Ti = {
               context = _arguments3.length > 3 ? _arguments3[3] : undefined;
 
               if (!target) {
-                _context45.next = 8;
+                _context46.next = 8;
                 break;
               }
 
-              _context45.next = 7;
+              _context46.next = 7;
               return Ti.DoInvoke(target[funcName], args, context || target);
 
             case 7:
-              return _context45.abrupt("return", _context45.sent);
+              return _context46.abrupt("return", _context46.sent);
 
             case 8:
             case "end":
-              return _context45.stop();
+              return _context46.stop();
           }
         }
-      }, _callee45);
+      }, _callee46);
     }))();
   },
   //-----------------------------------------------------

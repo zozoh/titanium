@@ -62,12 +62,16 @@ var Io = function () {
     isFullObjId: function isFullObjId(id) {
       return /^[0-9a-v]{26}(:file:.+)?$/.test(id);
     },
+    isFullObjIdPath: function isFullObjIdPath(idPath) {
+      return /^id:[0-9a-v]{26}(:file:.+)?$/.test(idPath);
+    },
 
     /***
      * Get object meta by id(fullobjId) or path
      */
-    loadMetaBy: function loadMetaBy(idOrPath) {
+    loadMetaBy: function loadMetaBy(idOrPath, oRefer) {
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var base, aph;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -84,13 +88,43 @@ var Io = function () {
                 return _context.abrupt("return", _context.sent);
 
               case 4:
-                _context.next = 6;
+                if (!/^(id:|\/|~)/.test(idOrPath)) {
+                  _context.next = 8;
+                  break;
+                }
+
+                _context.next = 7;
                 return WnIo.loadMeta(idOrPath);
 
-              case 6:
+              case 7:
                 return _context.abrupt("return", _context.sent);
 
-              case 7:
+              case 8:
+                if (oRefer) {
+                  // Refer by path
+                  if (_.isString(oRefer)) {
+                    base = Ti.Util.getParentPath(oRefer);
+                  } // Refer by FILE
+                  else if ("FILE" == oRefer.race) {
+                      base = "id:" + oRefer.pid;
+                    } // Refer by DIR
+                    else {
+                        base = "id:" + oRefer.id;
+                      }
+                } // Refer to home
+                else {
+                    base = "~";
+                  } // Load the obj by absolute path
+
+
+                aph = Ti.Util.appendPath(base, idOrPath);
+                _context.next = 12;
+                return WnIo.loadMeta(aph);
+
+              case 12:
+                return _context.abrupt("return", _context.sent);
+
+              case 13:
               case "end":
                 return _context.stop();
             }
@@ -698,35 +732,48 @@ var Io = function () {
      *  path will starts by "~/"
      */
     getFormedPath: function getFormedPath(meta) {
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14() {
-        var homePath;
-        return regeneratorRuntime.wrap(function _callee14$(_context14) {
-          while (1) {
-            switch (_context14.prev = _context14.next) {
-              case 0:
-                if (!_.isString(meta)) {
-                  _context14.next = 4;
-                  break;
-                }
+      // Make sure it is meta
+      var ph = meta.ph ? meta.ph : meta;
+      var homePath = Wn.Session.getHomePath();
+      var rph = Ti.Util.getRelativePath(homePath, ph, "");
+      return Ti.Util.appendPath("~", rph);
+    },
 
-                _context14.next = 3;
-                return WnIo.loadMetaBy(meta);
-
-              case 3:
-                meta = _context14.sent;
-
-              case 4:
-                // Count r-path
-                homePath = Wn.Session.getHomePath();
-                return _context14.abrupt("return", Ti.Util.getRelativePath(homePath, meta.ph));
-
-              case 6:
-              case "end":
-                return _context14.stop();
-            }
+    /***
+     * @param meta{WnObj} the source object
+     * @param mode{String}: 
+     *  - path : relative to home like "~/xxx/xxx"
+     *  - fullPath : "/home/xiaobai/xxx/xxx"
+     *  - idPath : "id:67u8..98a1"
+     *  - id   : "67u8..98a1"
+     * @param oRefer{WnObj} - meta refer, may nil
+     */
+    formatObjPath: function formatObjPath(meta, mode, oRefer) {
+      //console.log("formatObjPath", {meta, mode, oRefer})
+      var fn = {
+        path: function path() {
+          if (oRefer) {
+            return Ti.Util.getRelativePath(oRefer.ph, meta.ph);
           }
-        }, _callee14);
-      }))();
+
+          return WnIo.getFormedPath(meta.ph);
+        },
+        fullPath: function fullPath() {
+          return meta.ph;
+        },
+        idPath: function idPath() {
+          return "id:".concat(meta.id);
+        },
+        id: function id() {
+          return meta.id;
+        }
+      }[mode];
+
+      if (!fn) {
+        throw "Invalid mode : " + mode;
+      }
+
+      return fn();
     }
   }; ////////////////////////////////////////////
 
@@ -970,7 +1017,7 @@ var Obj = function () {
               } //......................................
 
 
-          var uniqKey = Ti.S.join("-", f2.name);
+          var uniqKey = Ti.S.join([f2.name], "-");
           keys[uniqKey] = true;
 
           var value = _.get(meta, f2.name);
@@ -1036,12 +1083,24 @@ var Obj = function () {
                   },
                   "Array": {
                     type: "Array",
-                    display: k,
-                    comType: "ti-input-tags"
+                    display: {
+                      key: k
+                    },
+                    transformer: "JSON.stringify(null, '  ')",
+                    comType: "ti-input-text",
+                    comConf: {
+                      height: 240
+                    }
                   }
                 }[jsType] || {
                   type: "String",
-                  display: k,
+                  display: {
+                    key: k,
+                    comConf: {
+                      width: "100%",
+                      className: _.isString(v) && v.length > 20 ? "is-break-word" : "is-nowrap"
+                    }
+                  },
                   comType: "ti-input"
                 }; // Join
 
@@ -1494,14 +1553,14 @@ var Sys = function () {
     //-------------------------------------
     exec: function exec(cmdText) {
       var _arguments8 = arguments;
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15() {
-        var _ref10, _ref10$vars, vars, _ref10$input, input, _ref10$appName, appName, _ref10$eachLine, eachLine, _ref10$as, as, _ref10$macroObjSep, macroObjSep, _ref10$autoRunMacro, autoRunMacro, errorBy, _ref10$PWD, PWD, url, params, ing, parsing, re, str, _str$split, _str$split2, code, datas, data, msgKey;
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14() {
+        var _ref10, _ref10$vars, vars, _ref10$input, input, _ref10$appName, appName, _ref10$eachLine, eachLine, _ref10$as, as, _ref10$blankAs, blankAs, _ref10$macroObjSep, macroObjSep, _ref10$autoRunMacro, autoRunMacro, errorBy, _ref10$PWD, PWD, url, params, ing, parsing, re, str, _str$split, _str$split2, code, datas, data, msgKey;
 
-        return regeneratorRuntime.wrap(function _callee15$(_context15) {
+        return regeneratorRuntime.wrap(function _callee14$(_context14) {
           while (1) {
-            switch (_context15.prev = _context15.next) {
+            switch (_context14.prev = _context14.next) {
               case 0:
-                _ref10 = _arguments8.length > 1 && _arguments8[1] !== undefined ? _arguments8[1] : {}, _ref10$vars = _ref10.vars, vars = _ref10$vars === void 0 ? {} : _ref10$vars, _ref10$input = _ref10.input, input = _ref10$input === void 0 ? "" : _ref10$input, _ref10$appName = _ref10.appName, appName = _ref10$appName === void 0 ? Ti.GetAppName() : _ref10$appName, _ref10$eachLine = _ref10.eachLine, eachLine = _ref10$eachLine === void 0 ? _.identity : _ref10$eachLine, _ref10$as = _ref10.as, as = _ref10$as === void 0 ? "text" : _ref10$as, _ref10$macroObjSep = _ref10.macroObjSep, macroObjSep = _ref10$macroObjSep === void 0 ? DFT_MACRO_OBJ_SEP : _ref10$macroObjSep, _ref10$autoRunMacro = _ref10.autoRunMacro, autoRunMacro = _ref10$autoRunMacro === void 0 ? true : _ref10$autoRunMacro, errorBy = _ref10.errorBy, _ref10$PWD = _ref10.PWD, PWD = _ref10$PWD === void 0 ? Wn.Session.getCurrentPath() : _ref10$PWD;
+                _ref10 = _arguments8.length > 1 && _arguments8[1] !== undefined ? _arguments8[1] : {}, _ref10$vars = _ref10.vars, vars = _ref10$vars === void 0 ? {} : _ref10$vars, _ref10$input = _ref10.input, input = _ref10$input === void 0 ? "" : _ref10$input, _ref10$appName = _ref10.appName, appName = _ref10$appName === void 0 ? Ti.GetAppName() : _ref10$appName, _ref10$eachLine = _ref10.eachLine, eachLine = _ref10$eachLine === void 0 ? _.identity : _ref10$eachLine, _ref10$as = _ref10.as, as = _ref10$as === void 0 ? "text" : _ref10$as, _ref10$blankAs = _ref10.blankAs, blankAs = _ref10$blankAs === void 0 ? "" : _ref10$blankAs, _ref10$macroObjSep = _ref10.macroObjSep, macroObjSep = _ref10$macroObjSep === void 0 ? DFT_MACRO_OBJ_SEP : _ref10$macroObjSep, _ref10$autoRunMacro = _ref10.autoRunMacro, autoRunMacro = _ref10$autoRunMacro === void 0 ? true : _ref10$autoRunMacro, errorBy = _ref10.errorBy, _ref10$PWD = _ref10.PWD, PWD = _ref10$PWD === void 0 ? Wn.Session.getCurrentPath() : _ref10$PWD;
                 // Eval command
                 cmdText = Ti.S.renderBy(cmdText, vars); // Prepare
 
@@ -1529,7 +1588,7 @@ var Sys = function () {
 
                 parsing = new WnSysRespParsing(ing); // Request remote
 
-                _context15.next = 9;
+                _context14.next = 9;
                 return Ti.Http.send(url, {
                   method: "POST",
                   params: params,
@@ -1555,21 +1614,21 @@ var Sys = function () {
 
 
                 if (!parsing.isError) {
-                  _context15.next = 21;
+                  _context14.next = 21;
                   break;
                 }
 
                 str = re.lines.join("\n");
 
                 if (!_.isFunction(errorBy)) {
-                  _context15.next = 20;
+                  _context14.next = 20;
                   break;
                 }
 
                 _str$split = str.split(/ *: */), _str$split2 = _toArray(_str$split), code = _str$split2[0], datas = _str$split2.slice(1);
                 data = datas.join(" : ");
                 msgKey = code.replace(/[.]/g, "-");
-                return _context15.abrupt("return", errorBy({
+                return _context14.abrupt("return", errorBy({
                   code: code,
                   msgKey: msgKey,
                   data: data
@@ -1579,7 +1638,7 @@ var Sys = function () {
                 throw str;
 
               case 21:
-                return _context15.abrupt("return", {
+                return _context14.abrupt("return", {
                   raw: function raw() {
                     return re;
                   },
@@ -1594,41 +1653,63 @@ var Sys = function () {
                   },
                   json: function json() {
                     var json = re.lines.join("\n");
-                    return JSON.parse(json);
+
+                    if (Ti.S.isBlank(json)) {
+                      json = blankAs;
+                    } // Try parse json
+
+
+                    try {
+                      return JSON.parse(json);
+                    } catch (e) {
+                      console.error("Error [".concat(cmdText, "] for parse JSON:"), json);
+                      throw e;
+                    }
                   },
                   jso: function jso() {
                     var json = re.lines.join("\n");
-                    return eval('(' + json + ')');
+
+                    if (Ti.S.isBlank(json)) {
+                      json = blankAs;
+                    } // Try eval json
+
+
+                    try {
+                      return eval('(' + json + ')');
+                    } catch (e) {
+                      console.error("Error [".concat(cmdText, "] for eval JSO:"), json);
+                      throw e;
+                    }
                   }
                 }[as]());
 
               case 22:
               case "end":
-                return _context15.stop();
+                return _context14.stop();
             }
           }
-        }, _callee15);
+        }, _callee14);
       }))();
     },
     //-------------------------------------
     exec2: function exec2(cmdText) {
       var _arguments9 = arguments;
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17() {
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16() {
         var options;
-        return regeneratorRuntime.wrap(function _callee17$(_context17) {
+        return regeneratorRuntime.wrap(function _callee16$(_context16) {
           while (1) {
-            switch (_context17.prev = _context17.next) {
+            switch (_context16.prev = _context16.next) {
               case 0:
                 options = _arguments9.length > 1 && _arguments9[1] !== undefined ? _arguments9[1] : {};
 
                 // Default error process
                 _.defaults(options, {
                   errorBy: function () {
-                    var _errorBy = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16(_ref11) {
+                    var _errorBy = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(_ref11) {
                       var code, msgKey, data, msg;
-                      return regeneratorRuntime.wrap(function _callee16$(_context16) {
+                      return regeneratorRuntime.wrap(function _callee15$(_context15) {
                         while (1) {
-                          switch (_context16.prev = _context16.next) {
+                          switch (_context15.prev = _context15.next) {
                             case 0:
                               code = _ref11.code, msgKey = _ref11.msgKey, data = _ref11.data;
                               // Eval error message
@@ -1639,7 +1720,7 @@ var Sys = function () {
                               } // Show it to user
 
 
-                              _context16.next = 5;
+                              _context15.next = 5;
                               return Ti.Alert(msg, {
                                 title: "i18n:warn",
                                 type: "error"
@@ -1647,25 +1728,25 @@ var Sys = function () {
 
                             case 5:
                               if (!_.isFunction(options.errorAs)) {
-                                _context16.next = 7;
+                                _context15.next = 7;
                                 break;
                               }
 
-                              return _context16.abrupt("return", options.errorAs({
+                              return _context15.abrupt("return", options.errorAs({
                                 code: code,
                                 msgKey: msgKey,
                                 data: data
                               }));
 
                             case 7:
-                              return _context16.abrupt("return", Ti.Err.make(code, data));
+                              return _context15.abrupt("return", Ti.Err.make(code, data));
 
                             case 8:
                             case "end":
-                              return _context16.stop();
+                              return _context15.stop();
                           }
                         }
-                      }, _callee16);
+                      }, _callee15);
                     }));
 
                     function errorBy(_x) {
@@ -1677,13 +1758,39 @@ var Sys = function () {
                 }); // Run command
 
 
-                _context17.next = 4;
+                _context16.next = 4;
                 return Wn.Sys.exec(cmdText, options);
 
               case 4:
-                return _context17.abrupt("return", _context17.sent);
+                return _context16.abrupt("return", _context16.sent);
 
               case 5:
+              case "end":
+                return _context16.stop();
+            }
+          }
+        }, _callee16);
+      }))();
+    },
+    //-------------------------------------
+    execJson: function execJson(cmdText) {
+      var _arguments10 = arguments;
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17() {
+        var options;
+        return regeneratorRuntime.wrap(function _callee17$(_context17) {
+          while (1) {
+            switch (_context17.prev = _context17.next) {
+              case 0:
+                options = _arguments10.length > 1 && _arguments10[1] !== undefined ? _arguments10[1] : {
+                  as: "json"
+                };
+                _context17.next = 3;
+                return WnSys.exec(cmdText, options);
+
+              case 3:
+                return _context17.abrupt("return", _context17.sent);
+
+              case 4:
               case "end":
                 return _context17.stop();
             }
@@ -1692,19 +1799,19 @@ var Sys = function () {
       }))();
     },
     //-------------------------------------
-    execJson: function execJson(cmdText) {
-      var _arguments10 = arguments;
+    exec2Json: function exec2Json(cmdText) {
+      var _arguments11 = arguments;
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee18() {
         var options;
         return regeneratorRuntime.wrap(function _callee18$(_context18) {
           while (1) {
             switch (_context18.prev = _context18.next) {
               case 0:
-                options = _arguments10.length > 1 && _arguments10[1] !== undefined ? _arguments10[1] : {
+                options = _arguments11.length > 1 && _arguments11[1] !== undefined ? _arguments11[1] : {
                   as: "json"
                 };
                 _context18.next = 3;
-                return WnSys.exec(cmdText, options);
+                return WnSys.exec2(cmdText, options);
 
               case 3:
                 return _context18.abrupt("return", _context18.sent);
@@ -1715,32 +1822,6 @@ var Sys = function () {
             }
           }
         }, _callee18);
-      }))();
-    },
-    //-------------------------------------
-    exec2Json: function exec2Json(cmdText) {
-      var _arguments11 = arguments;
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19() {
-        var options;
-        return regeneratorRuntime.wrap(function _callee19$(_context19) {
-          while (1) {
-            switch (_context19.prev = _context19.next) {
-              case 0:
-                options = _arguments11.length > 1 && _arguments11[1] !== undefined ? _arguments11[1] : {
-                  as: "json"
-                };
-                _context19.next = 3;
-                return WnSys.exec2(cmdText, options);
-
-              case 3:
-                return _context19.abrupt("return", _context19.sent);
-
-              case 4:
-              case "end":
-                return _context19.stop();
-            }
-          }
-        }, _callee19);
       }))();
     } //-------------------------------------
 
@@ -2078,7 +2159,9 @@ var Util = function () {
           vkey = _ref18$vkey === void 0 ? "val" : _ref18$vkey,
           _ref18$wrapArray = _ref18.wrapArray,
           wrapArray = _ref18$wrapArray === void 0 ? false : _ref18$wrapArray,
-          errorAs = _ref18.errorAs;
+          errorAs = _ref18.errorAs,
+          _ref18$blankAs = _ref18.blankAs,
+          blankAs = _ref18$blankAs === void 0 ? '[]' : _ref18$blankAs;
 
       // Customized query
       if (_.isFunction(query)) {
@@ -2101,30 +2184,31 @@ var Util = function () {
         // Query by value 
         if (vkey) {
           return /*#__PURE__*/function () {
-            var _ref19 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(v) {
+            var _ref19 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(v) {
               var cmdText;
-              return regeneratorRuntime.wrap(function _callee20$(_context20) {
+              return regeneratorRuntime.wrap(function _callee19$(_context19) {
                 while (1) {
-                  switch (_context20.prev = _context20.next) {
+                  switch (_context19.prev = _context19.next) {
                     case 0:
                       cmdText = Ti.S.renderBy(query, _defineProperty({}, vkey, v)); //console.log("exec", cmdText)
 
-                      _context20.next = 3;
+                      _context19.next = 3;
                       return Wn.Sys.exec2(cmdText, {
                         as: "json",
                         input: v,
-                        errorAs: errorAs
+                        errorAs: errorAs,
+                        blankAs: blankAs
                       });
 
                     case 3:
-                      return _context20.abrupt("return", _context20.sent);
+                      return _context19.abrupt("return", _context19.sent);
 
                     case 4:
                     case "end":
-                      return _context20.stop();
+                      return _context19.stop();
                   }
                 }
-              }, _callee20);
+              }, _callee19);
             }));
 
             return function (_x2) {
@@ -2134,26 +2218,27 @@ var Util = function () {
         } // Query directly
         else {
             return /*#__PURE__*/function () {
-              var _ref20 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21(v) {
-                return regeneratorRuntime.wrap(function _callee21$(_context21) {
+              var _ref20 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(v) {
+                return regeneratorRuntime.wrap(function _callee20$(_context20) {
                   while (1) {
-                    switch (_context21.prev = _context21.next) {
+                    switch (_context20.prev = _context20.next) {
                       case 0:
-                        _context21.next = 2;
+                        _context20.next = 2;
                         return Wn.Sys.exec2(query, {
                           as: "json",
-                          errorAs: errorAs
+                          errorAs: errorAs,
+                          blankAs: blankAs
                         });
 
                       case 2:
-                        return _context21.abrupt("return", _context21.sent);
+                        return _context20.abrupt("return", _context20.sent);
 
                       case 3:
                       case "end":
-                        return _context21.stop();
+                        return _context20.stop();
                     }
                   }
-                }, _callee21);
+                }, _callee20);
               }));
 
               return function (_x3) {
@@ -2180,6 +2265,7 @@ var Dict = function () {
       var options = _ref21.options,
           findBy = _ref21.findBy,
           itemBy = _ref21.itemBy,
+          childrenBy = _ref21.childrenBy,
           valueBy = _ref21.valueBy,
           textBy = _ref21.textBy,
           iconBy = _ref21.iconBy,
@@ -2196,11 +2282,19 @@ var Dict = function () {
       return Ti.DictFactory.CreateDict({
         //...............................................
         data: Wn.Util.genQuery(options, {
-          vkey: null
+          vkey: null,
+          blankAs: "[]"
         }),
-        query: Wn.Util.genQuery(findBy),
+        query: Wn.Util.genQuery(findBy, {
+          blankAs: "[]"
+        }),
         item: Wn.Util.genQuery(itemBy, {
-          errorAs: null
+          errorAs: null,
+          blankAs: "{}"
+        }),
+        children: Wn.Util.genQuery(childrenBy, {
+          errorAs: null,
+          blankAs: "[]"
         }),
         //...............................................
         getValue: Ti.Util.genGetter(valueBy || "id|value"),
@@ -2231,6 +2325,7 @@ var Dict = function () {
             }),
             query: Wn.Util.genQuery(dict.query),
             item: Wn.Util.genQuery(dict.item),
+            children: Wn.Util.genQuery(dict.children),
             //...............................................
             getValue: Ti.Util.genGetter(dict.value),
             getText: Ti.Util.genGetter(dict.text),
@@ -2314,7 +2409,7 @@ var OpenObjSelector = function () {
 
 
   function _OpenObjSelector() {
-    _OpenObjSelector = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee23() {
+    _OpenObjSelector = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22() {
       var pathOrObj,
           _ref22,
           _ref22$title,
@@ -2342,39 +2437,86 @@ var OpenObjSelector = function () {
           fromIndex,
           _ref22$homePath,
           homePath,
+          _ref22$fallbackPath,
+          fallbackPath,
           _ref22$selected,
           selected,
           meta,
           reObj,
-          _args23 = arguments;
+          _args22 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee23$(_context23) {
+      return regeneratorRuntime.wrap(function _callee22$(_context22) {
         while (1) {
-          switch (_context23.prev = _context23.next) {
+          switch (_context22.prev = _context22.next) {
             case 0:
-              pathOrObj = _args23.length > 0 && _args23[0] !== undefined ? _args23[0] : "~";
-              _ref22 = _args23.length > 1 && _args23[1] !== undefined ? _args23[1] : {}, _ref22$title = _ref22.title, title = _ref22$title === void 0 ? "i18n:select" : _ref22$title, _ref22$icon = _ref22.icon, icon = _ref22$icon === void 0 ? "im-folder-open" : _ref22$icon, _ref22$type = _ref22.type, type = _ref22$type === void 0 ? "info" : _ref22$type, _ref22$closer = _ref22.closer, closer = _ref22$closer === void 0 ? true : _ref22$closer, _ref22$textOk = _ref22.textOk, textOk = _ref22$textOk === void 0 ? "i18n:ok" : _ref22$textOk, _ref22$textCancel = _ref22.textCancel, textCancel = _ref22$textCancel === void 0 ? "i18n:cancel" : _ref22$textCancel, _ref22$position = _ref22.position, position = _ref22$position === void 0 ? "top" : _ref22$position, _ref22$width = _ref22.width, width = _ref22$width === void 0 ? "80%" : _ref22$width, _ref22$height = _ref22.height, height = _ref22$height === void 0 ? "90%" : _ref22$height, spacing = _ref22.spacing, _ref22$multi = _ref22.multi, multi = _ref22$multi === void 0 ? true : _ref22$multi, _ref22$fromIndex = _ref22.fromIndex, fromIndex = _ref22$fromIndex === void 0 ? 0 : _ref22$fromIndex, _ref22$homePath = _ref22.homePath, homePath = _ref22$homePath === void 0 ? Wn.Session.getHomePath() : _ref22$homePath, _ref22$selected = _ref22.selected, selected = _ref22$selected === void 0 ? [] : _ref22$selected;
-              _context23.next = 4;
+              pathOrObj = _args22.length > 0 && _args22[0] !== undefined ? _args22[0] : "~";
+              _ref22 = _args22.length > 1 && _args22[1] !== undefined ? _args22[1] : {}, _ref22$title = _ref22.title, title = _ref22$title === void 0 ? "i18n:select" : _ref22$title, _ref22$icon = _ref22.icon, icon = _ref22$icon === void 0 ? "im-folder-open" : _ref22$icon, _ref22$type = _ref22.type, type = _ref22$type === void 0 ? "info" : _ref22$type, _ref22$closer = _ref22.closer, closer = _ref22$closer === void 0 ? true : _ref22$closer, _ref22$textOk = _ref22.textOk, textOk = _ref22$textOk === void 0 ? "i18n:ok" : _ref22$textOk, _ref22$textCancel = _ref22.textCancel, textCancel = _ref22$textCancel === void 0 ? "i18n:cancel" : _ref22$textCancel, _ref22$position = _ref22.position, position = _ref22$position === void 0 ? "top" : _ref22$position, _ref22$width = _ref22.width, width = _ref22$width === void 0 ? "80%" : _ref22$width, _ref22$height = _ref22.height, height = _ref22$height === void 0 ? "90%" : _ref22$height, spacing = _ref22.spacing, _ref22$multi = _ref22.multi, multi = _ref22$multi === void 0 ? true : _ref22$multi, _ref22$fromIndex = _ref22.fromIndex, fromIndex = _ref22$fromIndex === void 0 ? 0 : _ref22$fromIndex, _ref22$homePath = _ref22.homePath, homePath = _ref22$homePath === void 0 ? Wn.Session.getHomePath() : _ref22$homePath, _ref22$fallbackPath = _ref22.fallbackPath, fallbackPath = _ref22$fallbackPath === void 0 ? Wn.Session.getHomePath() : _ref22$fallbackPath, _ref22$selected = _ref22.selected, selected = _ref22$selected === void 0 ? [] : _ref22$selected;
+              _context22.next = 4;
               return Wn.Io.loadMeta(pathOrObj);
 
             case 4:
-              meta = _context23.sent;
+              meta = _context22.sent;
 
-              if (meta) {
-                _context23.next = 7;
+              if (!(!meta && fallbackPath && pathOrObj != fallbackPath)) {
+                _context22.next = 9;
                 break;
               }
 
-              return _context23.abrupt("return", Ti.Toast.Open({
+              _context22.next = 8;
+              return Wn.Io.loadMeta(fallbackPath);
+
+            case 8:
+              meta = _context22.sent;
+
+            case 9:
+              if (meta) {
+                _context22.next = 13;
+                break;
+              }
+
+              _context22.next = 12;
+              return Ti.Toast.Open({
                 content: "i18n:e-io-obj-noexistsf",
                 vars: _.isString(pathOrObj) ? {
                   ph: pathOrObj,
                   nm: Ti.Util.getFileName(pathOrObj)
                 } : pathOrObj.ph
-              }, "warn"));
+              }, "warn");
 
-            case 7:
-              _context23.next = 9;
+            case 12:
+              return _context22.abrupt("return", _context22.sent);
+
+            case 13:
+              if (!("DIR" != meta.race)) {
+                _context22.next = 21;
+                break;
+              }
+
+              _context22.next = 16;
+              return Wn.Io.loadMetaById(meta.pid);
+
+            case 16:
+              meta = _context22.sent;
+
+              if (meta) {
+                _context22.next = 21;
+                break;
+              }
+
+              _context22.next = 20;
+              return Ti.Toast.Open({
+                content: "i18n:e-io-obj-noexistsf",
+                vars: {
+                  ph: "Parent of id:".concat(meta.id, "->pid:").concat(meta.pid),
+                  nm: "Parent of id:".concat(meta.nm, "->pid:").concat(meta.pid)
+                }
+              }, "warn");
+
+            case 20:
+              return _context22.abrupt("return", _context22.sent);
+
+            case 21:
+              _context22.next = 23;
               return Ti.App.Open({
                 //------------------------------------------
                 type: type,
@@ -2508,30 +2650,30 @@ var OpenObjSelector = function () {
                     open: function open(obj) {
                       var _this3 = this;
 
-                      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22() {
+                      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21() {
                         var app;
-                        return regeneratorRuntime.wrap(function _callee22$(_context22) {
+                        return regeneratorRuntime.wrap(function _callee21$(_context21) {
                           while (1) {
-                            switch (_context22.prev = _context22.next) {
+                            switch (_context21.prev = _context21.next) {
                               case 0:
                                 if (obj) {
-                                  _context22.next = 2;
+                                  _context21.next = 2;
                                   break;
                                 }
 
-                                return _context22.abrupt("return");
+                                return _context21.abrupt("return");
 
                               case 2:
                                 if (!_.isString(obj)) {
-                                  _context22.next = 6;
+                                  _context21.next = 6;
                                   break;
                                 }
 
-                                _context22.next = 5;
+                                _context21.next = 5;
                                 return Wn.Io.loadMetaBy(obj);
 
                               case 5:
-                                obj = _context22.sent;
+                                obj = _context21.sent;
 
                               case 6:
                                 // Only can enter DIR
@@ -2543,10 +2685,10 @@ var OpenObjSelector = function () {
 
                               case 7:
                               case "end":
-                                return _context22.stop();
+                                return _context21.stop();
                             }
                           }
-                        }, _callee22);
+                        }, _callee21);
                       }))();
                     } //--------------------------------------
 
@@ -2560,16 +2702,16 @@ var OpenObjSelector = function () {
 
               });
 
-            case 9:
-              reObj = _context23.sent;
-              return _context23.abrupt("return", reObj);
+            case 23:
+              reObj = _context22.sent;
+              return _context22.abrupt("return", reObj);
 
-            case 11:
+            case 25:
             case "end":
-              return _context23.stop();
+              return _context22.stop();
           }
         }
-      }, _callee23);
+      }, _callee22);
     }));
     return _OpenObjSelector.apply(this, arguments);
   }
@@ -2589,7 +2731,7 @@ var OpenThingManager = function () {
 
 
   function _OpenThingManager() {
-    _OpenThingManager = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee25(pathOrObj) {
+    _OpenThingManager = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee24(pathOrObj) {
       var _ref26,
           _ref26$textOk,
           textOk,
@@ -2609,71 +2751,71 @@ var OpenThingManager = function () {
           spacing,
           oTs,
           view,
-          _args25 = arguments;
+          _args24 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee25$(_context25) {
+      return regeneratorRuntime.wrap(function _callee24$(_context24) {
         while (1) {
-          switch (_context25.prev = _context25.next) {
+          switch (_context24.prev = _context24.next) {
             case 0:
-              _ref26 = _args25.length > 1 && _args25[1] !== undefined ? _args25[1] : {}, _ref26$textOk = _ref26.textOk, textOk = _ref26$textOk === void 0 ? "i18n:ok" : _ref26$textOk, _ref26$icon = _ref26.icon, icon = _ref26$icon === void 0 ? "fas-database" : _ref26$icon, title = _ref26.title, _ref26$ok = _ref26.ok, ok = _ref26$ok === void 0 ? function (_ref27) {
+              _ref26 = _args24.length > 1 && _args24[1] !== undefined ? _args24[1] : {}, _ref26$textOk = _ref26.textOk, textOk = _ref26$textOk === void 0 ? "i18n:ok" : _ref26$textOk, _ref26$icon = _ref26.icon, icon = _ref26$icon === void 0 ? "fas-database" : _ref26$icon, title = _ref26.title, _ref26$ok = _ref26.ok, ok = _ref26$ok === void 0 ? function (_ref27) {
                 var result = _ref27.result;
                 return result;
               } : _ref26$ok, _ref26$textCancel = _ref26.textCancel, textCancel = _ref26$textCancel === void 0 ? "i18n:close" : _ref26$textCancel, _ref26$position = _ref26.position, position = _ref26$position === void 0 ? "top" : _ref26$position, _ref26$width = _ref26.width, width = _ref26$width === void 0 ? "96%" : _ref26$width, _ref26$height = _ref26.height, height = _ref26$height === void 0 ? "96%" : _ref26$height, spacing = _ref26.spacing;
 
               if (!Ti.Util.isNil(pathOrObj)) {
-                _context25.next = 5;
+                _context24.next = 5;
                 break;
               }
 
-              _context25.next = 4;
+              _context24.next = 4;
               return Ti.Toast.Open("ThingSet path is nil", "warn");
 
             case 4:
-              return _context25.abrupt("return", _context25.sent);
+              return _context24.abrupt("return", _context24.sent);
 
             case 5:
               if (!_.isString(pathOrObj)) {
-                _context25.next = 11;
+                _context24.next = 11;
                 break;
               }
 
-              _context25.next = 8;
+              _context24.next = 8;
               return Wn.Io.loadMeta(pathOrObj);
 
             case 8:
-              _context25.t0 = _context25.sent;
-              _context25.next = 12;
+              _context24.t0 = _context24.sent;
+              _context24.next = 12;
               break;
 
             case 11:
-              _context25.t0 = pathOrObj;
+              _context24.t0 = pathOrObj;
 
             case 12:
-              oTs = _context25.t0;
+              oTs = _context24.t0;
 
               if (oTs) {
-                _context25.next = 17;
+                _context24.next = 17;
                 break;
               }
 
-              _context25.next = 16;
+              _context24.next = 16;
               return Ti.Toast.Open("Fail to found ThingSet: ".concat(pathOrObj), "warn");
 
             case 16:
-              return _context25.abrupt("return", _context25.sent);
+              return _context24.abrupt("return", _context24.sent);
 
             case 17:
               // Forbid the auto select
               oTs.th_auto_select = false; // Load default actions
 
-              _context25.next = 20;
+              _context24.next = 20;
               return Wn.Sys.exec("ti views id:".concat(oTs.id, " -cqn"), {
                 as: "json"
               });
 
             case 20:
-              view = _context25.sent;
-              _context25.next = 23;
+              view = _context24.sent;
+              _context24.next = 23;
               return Ti.App.Open({
                 icon: icon,
                 title: title || oTs.title || oTs.nm,
@@ -2701,21 +2843,21 @@ var OpenThingManager = function () {
                 components: ["@com:wn/thing/manager"],
                 //------------------------------------------
                 preload: function () {
-                  var _preload = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee24(app) {
-                    return regeneratorRuntime.wrap(function _callee24$(_context24) {
+                  var _preload = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee23(app) {
+                    return regeneratorRuntime.wrap(function _callee23$(_context23) {
                       while (1) {
-                        switch (_context24.prev = _context24.next) {
+                        switch (_context23.prev = _context23.next) {
                           case 0:
                             app.commit("current/setMeta", oTs);
-                            _context24.next = 3;
+                            _context23.next = 3;
                             return app.dispatch("main/reload", oTs);
 
                           case 3:
                           case "end":
-                            return _context24.stop();
+                            return _context23.stop();
                         }
                       }
-                    }, _callee24);
+                    }, _callee23);
                   }));
 
                   function preload(_x5) {
@@ -2727,14 +2869,14 @@ var OpenThingManager = function () {
               });
 
             case 23:
-              return _context25.abrupt("return", _context25.sent);
+              return _context24.abrupt("return", _context24.sent);
 
             case 24:
             case "end":
-              return _context25.stop();
+              return _context24.stop();
           }
         }
-      }, _callee25);
+      }, _callee24);
     }));
     return _OpenThingManager.apply(this, arguments);
   }
@@ -2752,7 +2894,7 @@ var EditObjMeta = function () {
 
 
   function _EditObjMeta() {
-    _EditObjMeta = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee26() {
+    _EditObjMeta = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee25() {
       var pathOrObj,
           _ref28,
           icon,
@@ -2797,28 +2939,28 @@ var EditObjMeta = function () {
           json,
           cmdText,
           newMeta,
-          _args26 = arguments;
+          _args25 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee26$(_context26) {
+      return regeneratorRuntime.wrap(function _callee25$(_context25) {
         while (1) {
-          switch (_context26.prev = _context26.next) {
+          switch (_context25.prev = _context25.next) {
             case 0:
-              pathOrObj = _args26.length > 0 && _args26[0] !== undefined ? _args26[0] : "~";
-              _ref28 = _args26.length > 1 && _args26[1] !== undefined ? _args26[1] : {}, icon = _ref28.icon, title = _ref28.title, _ref28$type = _ref28.type, type = _ref28$type === void 0 ? "info" : _ref28$type, _ref28$closer = _ref28.closer, closer = _ref28$closer === void 0 ? true : _ref28$closer, _ref28$escape = _ref28.escape, escape = _ref28$escape === void 0 ? true : _ref28$escape, _ref28$textOk = _ref28.textOk, textOk = _ref28$textOk === void 0 ? "i18n:ok" : _ref28$textOk, _ref28$textCancel = _ref28.textCancel, textCancel = _ref28$textCancel === void 0 ? "i18n:cancel" : _ref28$textCancel, _ref28$position = _ref28.position, position = _ref28$position === void 0 ? "top" : _ref28$position, _ref28$width = _ref28.width, width = _ref28$width === void 0 ? 640 : _ref28$width, _ref28$height = _ref28.height, height = _ref28$height === void 0 ? "80%" : _ref28$height, spacing = _ref28.spacing, _ref28$currentTab = _ref28.currentTab, currentTab = _ref28$currentTab === void 0 ? 0 : _ref28$currentTab, _ref28$fields = _ref28.fields, fields = _ref28$fields === void 0 ? [] : _ref28$fields, _ref28$fixedKeys = _ref28.fixedKeys, fixedKeys = _ref28$fixedKeys === void 0 ? ["thumb"] : _ref28$fixedKeys, _ref28$saveKeys = _ref28.saveKeys, saveKeys = _ref28$saveKeys === void 0 ? ["thumb"] : _ref28$saveKeys, _ref28$autoSave = _ref28.autoSave, autoSave = _ref28$autoSave === void 0 ? true : _ref28$autoSave;
+              pathOrObj = _args25.length > 0 && _args25[0] !== undefined ? _args25[0] : "~";
+              _ref28 = _args25.length > 1 && _args25[1] !== undefined ? _args25[1] : {}, icon = _ref28.icon, title = _ref28.title, _ref28$type = _ref28.type, type = _ref28$type === void 0 ? "info" : _ref28$type, _ref28$closer = _ref28.closer, closer = _ref28$closer === void 0 ? true : _ref28$closer, _ref28$escape = _ref28.escape, escape = _ref28$escape === void 0 ? true : _ref28$escape, _ref28$textOk = _ref28.textOk, textOk = _ref28$textOk === void 0 ? "i18n:ok" : _ref28$textOk, _ref28$textCancel = _ref28.textCancel, textCancel = _ref28$textCancel === void 0 ? "i18n:cancel" : _ref28$textCancel, _ref28$position = _ref28.position, position = _ref28$position === void 0 ? "top" : _ref28$position, _ref28$width = _ref28.width, width = _ref28$width === void 0 ? 640 : _ref28$width, _ref28$height = _ref28.height, height = _ref28$height === void 0 ? "80%" : _ref28$height, spacing = _ref28.spacing, _ref28$currentTab = _ref28.currentTab, currentTab = _ref28$currentTab === void 0 ? 0 : _ref28$currentTab, _ref28$fields = _ref28.fields, fields = _ref28$fields === void 0 ? [] : _ref28$fields, _ref28$fixedKeys = _ref28.fixedKeys, fixedKeys = _ref28$fixedKeys === void 0 ? ["thumb"] : _ref28$fixedKeys, _ref28$saveKeys = _ref28.saveKeys, saveKeys = _ref28$saveKeys === void 0 ? ["thumb"] : _ref28$saveKeys, _ref28$autoSave = _ref28.autoSave, autoSave = _ref28$autoSave === void 0 ? true : _ref28$autoSave;
               //............................................
               // Load meta
               meta = pathOrObj;
 
               if (!_.isString(meta)) {
-                _context26.next = 7;
+                _context25.next = 7;
                 break;
               }
 
-              _context26.next = 6;
+              _context25.next = 6;
               return Wn.Io.loadMeta(pathOrObj);
 
             case 6:
-              meta = _context26.sent;
+              meta = _context25.sent;
 
             case 7:
               //............................................
@@ -2840,17 +2982,17 @@ var EditObjMeta = function () {
 
 
               if (!("auto" == fields)) {
-                _context26.next = 16;
+                _context25.next = 16;
                 break;
               }
 
-              _context26.next = 14;
+              _context25.next = 14;
               return Wn.Sys.exec2("ti metas id:".concat(meta.id, " -cqn"), {
                 as: "json"
               });
 
             case 14:
-              _reo2 = _context26.sent;
+              _reo2 = _context25.sent;
 
               if (_reo2) {
                 fields = _reo2.fields;
@@ -2892,7 +3034,7 @@ var EditObjMeta = function () {
               theIcon = icon || Wn.Util.getObjIcon(meta, "zmdi-info-outline");
               theTitle = title || Wn.Util.getObjDisplayName(meta); //............................................
 
-              _context26.next = 22;
+              _context25.next = 22;
               return Ti.App.Open({
                 //------------------------------------------
                 type: type,
@@ -2978,14 +3120,14 @@ var EditObjMeta = function () {
               });
 
             case 22:
-              reo = _context26.sent;
+              reo = _context25.sent;
 
               if (reo) {
-                _context26.next = 25;
+                _context25.next = 25;
                 break;
               }
 
-              return _context26.abrupt("return");
+              return _context25.abrupt("return");
 
             case 25:
               //............................................
@@ -2993,40 +3135,40 @@ var EditObjMeta = function () {
               saved = false;
 
               if (!(autoSave && !_.isEmpty(updates))) {
-                _context26.next = 37;
+                _context25.next = 37;
                 break;
               }
 
               json = JSON.stringify(updates);
               cmdText = "obj 'id:".concat(meta.id, "' -ocqn -u");
-              _context26.next = 32;
+              _context25.next = 32;
               return Wn.Sys.exec2(cmdText, {
                 input: json,
                 as: "json"
               });
 
             case 32:
-              newMeta = _context26.sent;
-              _context26.next = 35;
+              newMeta = _context25.sent;
+              _context25.next = 35;
               return Ti.Toast.Open("i18n:save-done", "success");
 
             case 35:
               saved = true;
-              return _context26.abrupt("return", {
+              return _context25.abrupt("return", {
                 updates: updates,
                 data: newMeta,
                 saved: saved
               });
 
             case 37:
-              return _context26.abrupt("return", reo);
+              return _context25.abrupt("return", reo);
 
             case 38:
             case "end":
-              return _context26.stop();
+              return _context25.stop();
           }
         }
-      }, _callee26);
+      }, _callee25);
     }));
     return _EditObjMeta.apply(this, arguments);
   }
@@ -3044,7 +3186,7 @@ var EditObjContent = function () {
 
 
   function _EditObjContent() {
-    _EditObjContent = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee27() {
+    _EditObjContent = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee26() {
       var pathOrObj,
           _ref32,
           title,
@@ -3077,28 +3219,28 @@ var EditObjContent = function () {
           theTitle,
           theContent,
           newContent,
-          _args27 = arguments;
+          _args26 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee27$(_context27) {
+      return regeneratorRuntime.wrap(function _callee26$(_context26) {
         while (1) {
-          switch (_context27.prev = _context27.next) {
+          switch (_context26.prev = _context26.next) {
             case 0:
-              pathOrObj = _args27.length > 0 && _args27[0] !== undefined ? _args27[0] : "~";
-              _ref32 = _args27.length > 1 && _args27[1] !== undefined ? _args27[1] : {}, title = _ref32.title, icon = _ref32.icon, _ref32$type = _ref32.type, type = _ref32$type === void 0 ? "info" : _ref32$type, _ref32$closer = _ref32.closer, closer = _ref32$closer === void 0 ? true : _ref32$closer, _ref32$textOk = _ref32.textOk, textOk = _ref32$textOk === void 0 ? undefined : _ref32$textOk, _ref32$textCancel = _ref32.textCancel, textCancel = _ref32$textCancel === void 0 ? "i18n:cancel" : _ref32$textCancel, _ref32$position = _ref32.position, position = _ref32$position === void 0 ? "top" : _ref32$position, _ref32$width = _ref32.width, width = _ref32$width === void 0 ? 640 : _ref32$width, _ref32$height = _ref32.height, height = _ref32$height === void 0 ? "80%" : _ref32$height, spacing = _ref32.spacing, _ref32$readonly = _ref32.readonly, readonly = _ref32$readonly === void 0 ? false : _ref32$readonly, _ref32$showEditorTitl = _ref32.showEditorTitle, showEditorTitle = _ref32$showEditorTitl === void 0 ? true : _ref32$showEditorTitl, content = _ref32.content, _ref32$blankText = _ref32.blankText, blankText = _ref32$blankText === void 0 ? "i18n:blank" : _ref32$blankText;
+              pathOrObj = _args26.length > 0 && _args26[0] !== undefined ? _args26[0] : "~";
+              _ref32 = _args26.length > 1 && _args26[1] !== undefined ? _args26[1] : {}, title = _ref32.title, icon = _ref32.icon, _ref32$type = _ref32.type, type = _ref32$type === void 0 ? "info" : _ref32$type, _ref32$closer = _ref32.closer, closer = _ref32$closer === void 0 ? true : _ref32$closer, _ref32$textOk = _ref32.textOk, textOk = _ref32$textOk === void 0 ? undefined : _ref32$textOk, _ref32$textCancel = _ref32.textCancel, textCancel = _ref32$textCancel === void 0 ? "i18n:cancel" : _ref32$textCancel, _ref32$position = _ref32.position, position = _ref32$position === void 0 ? "top" : _ref32$position, _ref32$width = _ref32.width, width = _ref32$width === void 0 ? 640 : _ref32$width, _ref32$height = _ref32.height, height = _ref32$height === void 0 ? "80%" : _ref32$height, spacing = _ref32.spacing, _ref32$readonly = _ref32.readonly, readonly = _ref32$readonly === void 0 ? false : _ref32$readonly, _ref32$showEditorTitl = _ref32.showEditorTitle, showEditorTitle = _ref32$showEditorTitl === void 0 ? true : _ref32$showEditorTitl, content = _ref32.content, _ref32$blankText = _ref32.blankText, blankText = _ref32$blankText === void 0 ? "i18n:blank" : _ref32$blankText;
               //............................................
               // Load meta
               meta = pathOrObj;
 
               if (!_.isString(meta)) {
-                _context27.next = 7;
+                _context26.next = 7;
                 break;
               }
 
-              _context27.next = 6;
+              _context26.next = 6;
               return Wn.Io.loadMeta(pathOrObj);
 
             case 6:
-              meta = _context27.sent;
+              meta = _context26.sent;
 
             case 7:
               //............................................
@@ -3113,24 +3255,24 @@ var EditObjContent = function () {
               theTitle = title || "i18n:edit";
 
               if (!autoSave) {
-                _context27.next = 17;
+                _context26.next = 17;
                 break;
               }
 
-              _context27.next = 14;
+              _context26.next = 14;
               return Wn.Io.loadContent(meta);
 
             case 14:
-              _context27.t0 = _context27.sent;
-              _context27.next = 18;
+              _context26.t0 = _context26.sent;
+              _context26.next = 18;
               break;
 
             case 17:
-              _context27.t0 = content;
+              _context26.t0 = content;
 
             case 18:
-              theContent = _context27.t0;
-              _context27.next = 21;
+              theContent = _context26.t0;
+              _context26.next = 21;
               return Ti.App.Open({
                 //------------------------------------------
                 type: type,
@@ -3158,29 +3300,29 @@ var EditObjContent = function () {
               });
 
             case 21:
-              newContent = _context27.sent;
+              newContent = _context26.sent;
 
               if (!(autoSave && !_.isUndefined(newContent) && newContent != theContent)) {
-                _context27.next = 27;
+                _context26.next = 27;
                 break;
               }
 
-              _context27.next = 25;
+              _context26.next = 25;
               return Wn.Io.saveContentAsText(meta, newContent);
 
             case 25:
-              _context27.next = 27;
+              _context26.next = 27;
               return Ti.Toast.Open("i18n:save-done", "success");
 
             case 27:
-              return _context27.abrupt("return", newContent);
+              return _context26.abrupt("return", newContent);
 
             case 28:
             case "end":
-              return _context27.stop();
+              return _context26.stop();
           }
         }
-      }, _callee27, this);
+      }, _callee26, this);
     }));
     return _EditObjContent.apply(this, arguments);
   }
@@ -3198,7 +3340,7 @@ var EditTiComponent = function () {
 
 
   function _EditTiComponent() {
-    _EditTiComponent = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee28() {
+    _EditTiComponent = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee27() {
       var _ref33,
           comType,
           comConf,
@@ -3222,15 +3364,15 @@ var EditTiComponent = function () {
           _ref34$height,
           height,
           spacing,
-          _args28 = arguments;
+          _args27 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee28$(_context28) {
+      return regeneratorRuntime.wrap(function _callee27$(_context27) {
         while (1) {
-          switch (_context28.prev = _context28.next) {
+          switch (_context27.prev = _context27.next) {
             case 0:
-              _ref33 = _args28.length > 0 && _args28[0] !== undefined ? _args28[0] : {}, comType = _ref33.comType, comConf = _ref33.comConf;
-              _ref34 = _args28.length > 1 && _args28[1] !== undefined ? _args28[1] : {}, _ref34$icon = _ref34.icon, icon = _ref34$icon === void 0 ? "fas-pencil-ruler" : _ref34$icon, _ref34$title = _ref34.title, title = _ref34$title === void 0 ? "i18n:edit-com" : _ref34$title, _ref34$type = _ref34.type, type = _ref34$type === void 0 ? "info" : _ref34$type, _ref34$closer = _ref34.closer, closer = _ref34$closer === void 0 ? true : _ref34$closer, _ref34$textOk = _ref34.textOk, textOk = _ref34$textOk === void 0 ? "i18n:ok" : _ref34$textOk, _ref34$textCancel = _ref34.textCancel, textCancel = _ref34$textCancel === void 0 ? "i18n:cancel" : _ref34$textCancel, _ref34$position = _ref34.position, position = _ref34$position === void 0 ? "top" : _ref34$position, _ref34$width = _ref34.width, width = _ref34$width === void 0 ? 800 : _ref34$width, _ref34$height = _ref34.height, height = _ref34$height === void 0 ? "90%" : _ref34$height, spacing = _ref34.spacing;
-              _context28.next = 4;
+              _ref33 = _args27.length > 0 && _args27[0] !== undefined ? _args27[0] : {}, comType = _ref33.comType, comConf = _ref33.comConf;
+              _ref34 = _args27.length > 1 && _args27[1] !== undefined ? _args27[1] : {}, _ref34$icon = _ref34.icon, icon = _ref34$icon === void 0 ? "fas-pencil-ruler" : _ref34$icon, _ref34$title = _ref34.title, title = _ref34$title === void 0 ? "i18n:edit-com" : _ref34$title, _ref34$type = _ref34.type, type = _ref34$type === void 0 ? "info" : _ref34$type, _ref34$closer = _ref34.closer, closer = _ref34$closer === void 0 ? true : _ref34$closer, _ref34$textOk = _ref34.textOk, textOk = _ref34$textOk === void 0 ? "i18n:ok" : _ref34$textOk, _ref34$textCancel = _ref34.textCancel, textCancel = _ref34$textCancel === void 0 ? "i18n:cancel" : _ref34$textCancel, _ref34$position = _ref34.position, position = _ref34$position === void 0 ? "top" : _ref34$position, _ref34$width = _ref34.width, width = _ref34$width === void 0 ? 800 : _ref34$width, _ref34$height = _ref34.height, height = _ref34$height === void 0 ? "90%" : _ref34$height, spacing = _ref34.spacing;
+              _context27.next = 4;
               return Ti.App.Open({
                 //------------------------------------------
                 type: type,
@@ -3262,14 +3404,14 @@ var EditTiComponent = function () {
               });
 
             case 4:
-              return _context28.abrupt("return", _context28.sent);
+              return _context27.abrupt("return", _context27.sent);
 
             case 5:
             case "end":
-              return _context28.stop();
+              return _context27.stop();
           }
         }
-      }, _callee28);
+      }, _callee27);
     }));
     return _EditTiComponent.apply(this, arguments);
   }
