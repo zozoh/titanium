@@ -16886,7 +16886,15 @@ Ti.Preload("ti/com/ti/session/badge/ti-session-badge.html", `<div class="ti-sess
       <ti-icon :value="myIcon"/>
     </div>
     <!--User Name-->
-    <div class="as-name">{{myName}}</div>
+    <div class="as-name">
+      <!--Name Event-->
+      <a
+        v-if="nameEvent"
+          @click.left="$notify(nameEvent)">{{myName}}</a>
+      <!--Name display-->
+      <span
+        v-else>{{myName}}</span>
+    </div>
     <!--Links-->
     <div v-for="li in theLinks"
       class="as-link">
@@ -16946,6 +16954,10 @@ const _M = {
       type : [String, Array],
       default : "name"
     },
+    "nameEvent": {
+      type: String,
+      default: "go:dashboard"
+    },
     "loginEvent" : {
       type : String,
       default : "do:login"
@@ -16975,11 +16987,11 @@ const _M = {
   },
   //////////////////////////////////////////
   computed : {
-    //......................................
+    //--------------------------------------
     TopClass() {
       return this.getTopClass()
     },
-    //......................................
+    //--------------------------------------
     theLinks() {
       let list = []
       //---------------------------
@@ -17010,14 +17022,14 @@ const _M = {
       //---------------------------
       return list
     },
-    //......................................
+    //--------------------------------------
     myName() {
       if(this.me) {
         return Ti.Util.getOrPick(this.me, this.nameKeys) 
                || Ti.I18n.get("mine")
       }
     },
-    //......................................
+    //--------------------------------------
     myIcon() {
       if(this.me) {
         if(2 == this.me.sex) {
@@ -17027,27 +17039,28 @@ const _M = {
       }
       return "far-user"
     },
-    //......................................
+    //--------------------------------------
     myAvatar() {
       if(this.avatarSrc) {
         return Ti.S.renderBy(this.avatarSrc, this.me)
       }
     },
-    //......................................
+    //--------------------------------------
     hasAvatar() {
       return this.avatarSrc
         && this.avatarKey
         && this.me
         && this.me[this.avatarKey]
     },
-    //......................................
+    //--------------------------------------
     hasSession() {
       return this.me ? true : false
     }
-    //......................................
+    //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
     OnClickLink(link, $event) {
       // Emit
       if(link.emit) {
@@ -17056,6 +17069,7 @@ const _M = {
       }
       // Href: do nothing
     }
+    //--------------------------------------
   }
   //////////////////////////////////////////
 }
@@ -24322,136 +24336,276 @@ Ti.Preload("ti/com/ti/wizard/_com.json", {
     "./com/wizard-step"]
 });
 //============================================================
-// JOIN: web/auth/captcha/web-auth-captcha.html
+// JOIN: web/auth/passwd/auth-passwd.html
 //============================================================
-Ti.Preload("ti/com/web/auth/captcha/web-auth-captcha.html", `<div 
-  class="ti-combo-captcha" 
-  :class="topClass">
- 
+Ti.Preload("ti/com/web/auth/passwd/auth-passwd.html", `<div 
+  class="web-auth-passwd web-simple-form" 
+  :class="TopClass">
+  <!--
+    Head text
+  -->
+  <header>{{ModeTitle|i18n}}</header>
+  <!--
+    Main Area
+  -->
+  <section>
+    <!--
+      ===================================================
+      Mode: byVCode
+    -->
+    <template v-if="isByVode">
+      <!--
+        Input: name
+      -->
+      <div class="as-input">
+        <input 
+          spellcheck="false"
+          :placeholder="VCodeNameTip|i18n"
+          v-model="myForm.name"></div>
+      <!--
+        Input: vcode
+      -->
+      <div class="as-input">
+        <input 
+          spellcheck="false"
+          :placeholder="VCodeCodeTip|i18n"
+          v-model="myForm.vcode">
+        <span>
+          <em v-if="delay>0">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>
+          <a v-else
+            @click="OnGetVcode">{{VCodeGetTip|i18n}}</a>
+        </span>
+      </div>
+    </template>
+    <!--
+      ===================================================
+      Mode: byPasswd
+    -->
+    <template v-else>
+      <!--
+        Passwd: old
+      -->
+      <div class="as-input">
+        <input 
+          spellcheck="false"
+          :placeholder="'auth-reset-passwd-old'|i18n"
+          v-model="myForm.passwd_old"></div>
+    </template>
+    <!--
+      ===================================================
+    -->
+    <!--
+      Passwd: new
+    -->
+    <div class="as-input" :class="PasswdClass">
+      <input 
+        spellcheck="false"
+        :placeholder="'auth-reset-passwd-new'|i18n"
+        v-model="myForm.passwd_new"></div>
+    <!--
+      Passwd: repeat
+    -->
+    <div class="as-input" :class="PasswdClass">
+      <input 
+        spellcheck="false"
+        :placeholder="'auth-reset-passwd-ren'|i18n"
+        v-model="myForm.passwd_ren"></div>
+    <!--
+      Submit button
+    -->
+    <div class="as-btn">
+      <button @click="OnSubmit">{{'auth-reset-passwd-save'|i18n}}</button>
+    </div>
+    <!--
+      Sublinks: switch mode / passwd-back
+    -->
+    <div 
+      v-if="hasAltModes"
+        class="as-links">
+        <div
+          v-for="it in AltModes"
+            class="as-item">
+            <a @click.left="OnChangeMode(it)">{{it.text|i18n}}</a>
+        </div>
+    </div>
+  </section>
 </div>`);
 //============================================================
-// JOIN: web/auth/captcha/web-auth-captcha.mjs
+// JOIN: web/auth/passwd/auth-passwd.mjs
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
+  ///////////////////////////////////////////////////////
+  data : ()=>({
+    "myForm" : {
+      "name"  : null,
+      "vcode" : null,
+      "passwd_old" : null,
+      "passwd_new" : null,
+      "passwd_ren" : null
+    },
+    "myMode"  : "by-passwd",
+    // delay to get the next captcha to prevent robot
+    "delay" : -1
+  }),
   ///////////////////////////////////////////////////////
   props : {
-    "value" : {
-      type : [String,Object],
-      default : ""
-    },
-    "text" : {
+    // - "by-passwd"
+    // - "by-phone"
+    // - "by-email"
+    "mode" : {
       type : String,
-      default : null
+      default : "by-passwd"
     },
-    "fontSize" : {
-      type : [Number, String],
-      default : null
+    "allowModes": {
+      type: Object,
+      default: ()=>({
+        "by-passwd" : true,
+        "by-phone"  : true,
+        "by-email"  : true
+      })
     },
-    "width" : {
-      type : [Number, String],
-      default : null
-    },
-    "height" : {
-      type : [Number, String],
-      default : null
-    },
-    "color" : {
+    "captcha" : {
       type : String,
-      default : ""
+      required : true,
+      default : null
     },
-    "opacity" : {
+    // The interval of get capche to prevent robot
+    // (in second)
+    "getDelay" : {
       type : Number,
-      default : -1
+      default : 60
     }
   },
   ///////////////////////////////////////////////////////
   computed : {
     //---------------------------------------------------
-    topClass() {
-      if(this.className)
-        return this.className
+    TopClass() {
+      return this.getTopClass()
     },
     //---------------------------------------------------
-    // formed icon data
-    icon() {
-      let icn 
-      if(_.isPlainObject(this.value)){
-        // Regular icon object, return it directly
-        if(this.value.type && this.value.value) {
-          icn = this.value
-        }
-        // Eval it as meta
-        else {
-          icn = Ti.Icons.get(this.value)
-        }
-      }
-      // String
-      else {
-        icn = {
-          type : "font",
-          value : this.value
-        }
-        if(_.isString(this.value)) {
-          icn.type = Ti.Util.getSuffixName(this.value) || "font"
-        }
-        // for image
-        if(/^(jpe?g|gif|png)$/i.test(icn.type)){
-          icn.type = "img"
-        }
-      }
+    PasswdClass() {
 
-      // Join `className / text` to show icon font
-      if('font' == icn.type) {
-        _.assign(icn, Ti.Icons.parseFontIcon(icn.value))
-      }
-
-      // join style:outer
-      icn.outerStyle = Ti.Css.toStyle({
-        width   : this.width,
-        height  : this.height,
-        color   : this.color,
-        opacity : this.opacity >= 0 ? this.opacity : undefined
-      })
-
-      // join style:inner
-      if('img' == icn.type) {
-        icn.innerStyle = {
-          "width"  : this.width  ? "100%" : undefined,
-          "height" : this.height ? "100%" : undefined
-        }
-      }
-      // font size
-      else if('font' == icn.type) {
-        icn.innerStyle = {
-          "font-size" : this.fontSize 
-                          ? Ti.Css.toSize(this.fontSize) 
-                          : undefined
-        }
-      }
-
-      return icn
     },
     //---------------------------------------------------
+    isByVode() {
+      return "by-passwd" != this.myMode
+    },
+    //---------------------------------------------------
+    ModeTitle() {
+      return `i18n:auth-reset-passwd-${this.myMode}`
+    },
+    //---------------------------------------------------
+    VCodeNameTip() {
+      return `i18n:auth-reset-passwd-${this.myMode}-tip`
+    },
+    //---------------------------------------------------
+    VCodeCodeTip() {
+      if("by-email" == this.myMode) {
+        return "i18n:auth-email-vcode"
+      }
+      return "i18n:auth-phone-vcode"
+    },
+    //---------------------------------------------------
+    VCodeGetTip() {
+      if("by-email" == this.myMode) {
+        return "i18n:auth-email-vcode-get"
+      }
+      return "i18n:auth-phone-vcode-get"
+    },
+    //---------------------------------------------------
+    TheAllowModes() {
+      return Ti.Util.truthyKeys(this.allowModes)
+    },
+    //---------------------------------------------------
+    AltModes() {
+      let list = []
+      for(let md of this.TheAllowModes) {
+        if(md != this.myMode) {
+          list.push({
+            text : `i18n:auth-reset-passwd-${md}`,
+            mode : md
+          })
+        }
+      }
+      return list
+    },
+    //---------------------------------------------------
+    hasAltModes() {
+      return !_.isEmpty(this.AltModes)
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods :{
+    //---------------------------------------------------
+    OnChangeMode({mode}) {
+      this.myMode = mode
+    },
+    //---------------------------------------------------
+    OnSubmit() {
+
+    },
+    //---------------------------------------------------
+    OnGetVcode() {
+
+    },
+    //---------------------------------------------------
+    evalCurrentMode(mode) {
+      // Find the first allowed modes
+      if(!_.get(this.allowModes, mode)) {
+        if(_.isEmpty(this.TheAllowModes)) {
+          throw `mode[${mode}] push me to corner!`
+        }
+        return _.first(this.TheAllowModes)
+      }
+      // The mode seems ok
+      return mode
+    },
+    //---------------------------------------------------
+    syncCurrentMode() {
+      this.myMode = this.evalCurrentMode(this.mode)
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch: {
+    "mode": {
+      handler: "syncCurrentMode",
+      immediate: true
+    }
+  },
+  ///////////////////////////////////////////////////////
+  mounted : function() {
+    // count the secound
+    this.__H = window.setInterval(()=>{
+      if(this.delay>=0)
+        this.delay --
+    }, 1000)
+  },
+  ///////////////////////////////////////////////////////
+  beforeDestroy : function() {
+    if(this.__H) {
+      window.clearInterval(this.__H)
+    }
   }
   ///////////////////////////////////////////////////////
 }
-Ti.Preload("ti/com/web/auth/captcha/web-auth-captcha.mjs", _M);
+Ti.Preload("ti/com/web/auth/passwd/auth-passwd.mjs", _M);
 })();
 //============================================================
-// JOIN: web/auth/captcha/_com.json
+// JOIN: web/auth/passwd/_com.json
 //============================================================
-Ti.Preload("ti/com/web/auth/captcha/_com.json", {
-  "name" : "web-auth-captcha",
+Ti.Preload("ti/com/web/auth/passwd/_com.json", {
+  "name" : "web-auth-passwd",
   "globally" : true,
-  "template" : "./web-auth-captcha.html",
-  "mixins" : ["./web-auth-captcha.mjs"]
+  "template" : "./auth-passwd.html",
+  "mixins" : ["./auth-passwd.mjs"]
 });
 //============================================================
-// JOIN: web/auth/signup/web-auth-signup.html
+// JOIN: web/auth/signup/auth-signup.html
 //============================================================
-Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", `<div 
+Ti.Preload("ti/com/web/auth/signup/auth-signup.html", `<div 
   class="web-auth-signup web-simple-form" 
   :class="TopClass"
   v-ti-activable>
@@ -24530,7 +24684,7 @@ Ti.Preload("ti/com/web/auth/signup/web-auth-signup.html", `<div
   </template>
 </div>`);
 //============================================================
-// JOIN: web/auth/signup/web-auth-signup.mjs
+// JOIN: web/auth/signup/auth-signup.mjs
 //============================================================
 (function(){
 const _M = {
@@ -24982,7 +25136,7 @@ const _M = {
   }
   ///////////////////////////////////////////////////////
 }
-Ti.Preload("ti/com/web/auth/signup/web-auth-signup.mjs", _M);
+Ti.Preload("ti/com/web/auth/signup/auth-signup.mjs", _M);
 })();
 //============================================================
 // JOIN: web/auth/signup/_com.json
@@ -24990,8 +25144,8 @@ Ti.Preload("ti/com/web/auth/signup/web-auth-signup.mjs", _M);
 Ti.Preload("ti/com/web/auth/signup/_com.json", {
   "name" : "web-auth-signup",
   "globally" : true,
-  "template" : "./web-auth-signup.html",
-  "mixins" : ["./web-auth-signup.mjs"]
+  "template" : "./auth-signup.html",
+  "mixins" : ["./auth-signup.mjs"]
 });
 //============================================================
 // JOIN: web/footer/web-footer.html
@@ -26037,6 +26191,215 @@ Ti.Preload("ti/com/web/nav/links/_com.json", {
   "components" : []
 });
 //============================================================
+// JOIN: web/nav/side/com/side-item/side-item.html
+//============================================================
+Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.html", `<div class="side-item" 
+  :class="TopClass">
+  <!--
+    Self Info
+  -->
+  <div class="it-info" >
+    <!--Icon-->
+    <span
+      v-if="icon"
+        class="it-info-icon">
+        <ti-icon :value="icon"/>
+    </span>
+    <!--Group-->
+    <span
+      v-if="isGroup"
+        class="it-info-text">{{title|i18n}}</span>
+    <!--Item-->
+    <a
+      v-else
+        class="it-info-text"
+        :href="href"
+        @click.stop.prevent="OnClickItemInfo">{{title|i18n}}</a>
+  </div>
+  <!--
+    Sub Container
+  -->
+  <div 
+    v-if="hasSubItems"
+      class="it-con">
+      <SideItem
+        v-for="subIt in items"
+          :key="subIt.key"
+          v-bind="subIt"/>
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/nav/side/com/side-item/side-item.mjs
+//============================================================
+(function(){
+const _M = {
+  ///////////////////////////////////////////////////////
+  props : {
+    "depth" : {
+      type:Number, 
+      default:0
+    },
+    "icon"  : {
+      type:[String,Object], 
+      default:undefined
+    },
+    "title" : {
+      type:String, 
+      default:undefined
+    },
+    "page"  : {
+      type:String, 
+      default:undefined
+    },
+    "href"  : {
+      type:String, 
+      default:undefined
+    },
+    "items" : {
+      type : Array,
+      default : undefined
+    }
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return {
+        "is-top"   : this.isTop,
+        "is-sub"   : !this.isTop,
+        "is-group" : this.isGroup,
+        "is-item"  : !this.isGroup,
+        "is-highlight" : this.isHighlight
+      }
+    },
+    //---------------------------------------------------
+    isTop() {
+      return this.depth == 0
+    },
+    //---------------------------------------------------
+    isGroup() {
+      return _.isArray(this.items)
+    },
+    //---------------------------------------------------
+    isHighlight() {
+      return this.id && this.id == this.highlightId
+    },
+    //---------------------------------------------------
+    hasSubItems() {
+      return !_.isEmpty(this.items)
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods : {
+    //---------------------------------------------------
+    OnClickItemInfo() {
+      this.$notify("nav:to", {
+        value: this.page
+      })
+    }
+    //---------------------------------------------------
+  }
+  ///////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.mjs", _M);
+})();
+//============================================================
+// JOIN: web/nav/side/com/side-item/_com.json
+//============================================================
+Ti.Preload("ti/com/web/nav/side/com/side-item/_com.json", {
+  "name" : "side-item",
+  "template" : "./side-item.html",
+  "mixins" : ["./side-item.mjs"]
+});
+//============================================================
+// JOIN: web/nav/side/web-nav-side.html
+//============================================================
+Ti.Preload("ti/com/web/nav/side/web-nav-side.html", `<div class="web-nav-side"
+  :class="TopClass"
+  v-ti-activable>
+  <SideItem
+    v-for="it in TheItems"
+      :key="it.key"
+        v-bind="it"/>
+</div>`);
+//============================================================
+// JOIN: web/nav/side/web-nav-side.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  props : {
+    "base": {
+      type: String,
+      default: undefined
+    },
+    "items" : {
+      type : Array,
+      default : null
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //-------------------------------------
+    TheItems() {
+      let list = []
+      _.forEach(this.items, (it, index)=> {
+        list.push(this.evalItem(it, index, 0))
+      })
+      return list;
+    }
+    //-------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //-------------------------------------
+    evalItem(it={}, index=0, depth=0) {
+      // Children
+      let items = undefined
+      if(_.isArray(it.items)) {
+        items = []
+        _.forEach(it.items, (subIt, subIndex)=>{
+          items.push(this.evalItem(subIt, subIndex, depth+1))
+        })
+        it.items = items
+      }
+      // href
+      let href = it.href || it.page
+      if(this.base && !/^(https?)?\/\/?/.test(href)) {
+        href = Ti.Util.appendPath(this.base, href)
+      }
+      //console.log("href", href)
+      // Self
+      return {
+        ...it,
+        index,
+        href,
+        depth,
+        key: `it-${index}`
+      }
+    }
+    //-------------------------------------
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/nav/side/web-nav-side.mjs", _M);
+})();
+//============================================================
+// JOIN: web/nav/side/_com.json
+//============================================================
+Ti.Preload("ti/com/web/nav/side/_com.json", {
+  "name" : "web-nav-side",
+  "globally" : true,
+  "template" : "./web-nav-side.html",
+  "mixins"   : ["./web-nav-side.mjs"],
+  "components" : ["./com/side-item"]
+});
+//============================================================
 // JOIN: web/pay/checkout/web-pay-checkout-props.mjs
 //============================================================
 (function(){
@@ -26514,6 +26877,10 @@ const _M = {
   "checkOrder": {
     type: Function,
     default: undefined
+  },
+  "returnUrl": {
+    type: String,
+    default: undefined
   }
 }
 Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed-props.mjs", _M);
@@ -26781,10 +27148,19 @@ const _M = {
       if("paypal" == this.payType && this.isPaymentCreated) {
         let href = _.get(this.PayPalLinksMap, "approve.href")
         let link = Ti.Util.parseHref(href)
-        let url = `${link.protocol}://${link.host}${link.path}`
+        let url = `${link.protocol}://${link.host}${link.path}?return=`
         console.log("🤳", {href, link, url})
+
+        let params = _.assign({}, link.params)
+        if(this.returnUrl) {
+          params.returnurl = this.returnurl
+        }
+
         await Ti.Be.Open(url, {
-          params: link.params,
+          // params: _.assign({
+          //     returnurl: "http://onchina.local.io:8080/page/shop/payok.html"
+          //   },link.params),
+          params,
           delay: 1000
         })
       }
@@ -26964,7 +27340,8 @@ const _M = {
           qrcodeSize: this.qrcodeSize,
           getOrder: this.getOrder,
           createOrder: this.createOrder,
-          checkOrder: this.checkOrder
+          checkOrder: this.checkOrder,
+          returnUrl: this.returnUrl
         }
       }, {
         title: "pay-step-done-title",
@@ -27630,84 +28007,9 @@ Ti.Preload("ti/com/web/text/raw/_com.json", {
   "mixins"   : ["./web-text-raw.mjs"]
 });
 //============================================================
-// JOIN: web/widget/choose-mode/web-choose-mode.html
+// JOIN: web/widget/sharebar/widget-sharebar.html
 //============================================================
-Ti.Preload("ti/com/web/widget/choose-mode/web-choose-mode.html", `<div class="ti-web-choose-mode">
-  <div v-for="it in theItems"
-    class="wcm-item"
-    :class="it.className"
-    @click.left="onClickItem(it)">
-    <!--Icon-->
-    <ti-icon
-      class="as-icon"
-      :base="base"
-      :value="it.icon"/>
-    <!--Text-->
-    <div v-if="it.text"
-      class="as-text">{{it.text|i18n}}</div>
-  </div>
-</div>`);
-//============================================================
-// JOIN: web/widget/choose-mode/web-choose-mode.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  /////////////////////////////////////////
-  props : {
-    "base" : {
-      type : String,
-      default : null
-    },
-    "options" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "value" : {
-      type : String,
-      default : null
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //......................................
-    theItems() {
-      let list = []
-      for(let it of this.options) {
-        list.push(_.assign({}, it, {
-          className : _.isEqual(this.value, it.value)
-            ? "is-current" : "is-others"
-        }))
-      }
-      return list
-    }
-    //......................................
-  },
-  //////////////////////////////////////////
-  methods : {
-    //......................................
-    onClickItem(it) {
-      this.$notify("change", it.value)
-    }
-    //......................................
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/web/widget/choose-mode/web-choose-mode.mjs", _M);
-})();
-//============================================================
-// JOIN: web/widget/choose-mode/_com.json
-//============================================================
-Ti.Preload("ti/com/web/widget/choose-mode/_com.json", {
-  "name" : "web-choose-mode",
-  "globally" : true,
-  "template" : "./web-choose-mode.html",
-  "mixins"   : ["./web-choose-mode.mjs"]
-});
-//============================================================
-// JOIN: web/widget/sharebar/web-widget-sharebar.html
-//============================================================
-Ti.Preload("ti/com/web/widget/sharebar/web-widget-sharebar.html", `<div class="web-widget-sharebar"
+Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.html", `<div class="web-widget-sharebar"
   :class="TopClass">
   <!--
     Title
@@ -27727,7 +28029,7 @@ Ti.Preload("ti/com/web/widget/sharebar/web-widget-sharebar.html", `<div class="w
   </div>
 </div>`);
 //============================================================
-// JOIN: web/widget/sharebar/web-widget-sharebar.mjs
+// JOIN: web/widget/sharebar/widget-sharebar.mjs
 //============================================================
 (function(){
 const _M = {
@@ -27792,7 +28094,7 @@ const _M = {
   }
   /////////////////////////////////////////
 }
-Ti.Preload("ti/com/web/widget/sharebar/web-widget-sharebar.mjs", _M);
+Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.mjs", _M);
 })();
 //============================================================
 // JOIN: web/widget/sharebar/_com.json
@@ -27800,8 +28102,198 @@ Ti.Preload("ti/com/web/widget/sharebar/web-widget-sharebar.mjs", _M);
 Ti.Preload("ti/com/web/widget/sharebar/_com.json", {
   "name" : "web-widget-sharebar",
   "globally" : true,
-  "template" : "./web-widget-sharebar.html",
-  "mixins"   : ["./web-widget-sharebar.mjs"],
+  "template" : "./widget-sharebar.html",
+  "mixins"   : ["./widget-sharebar.mjs"],
+  "components" : []
+});
+//============================================================
+// JOIN: web/widget/summary/widget-summary.html
+//============================================================
+Ti.Preload("ti/com/web/widget/summary/widget-summary.html", `<div class="web-widget-summary"
+  :class="TopClass">
+  <!--
+    Title
+  -->
+  <div
+    v-if="title"
+      class="as-title">{{title|i18n}}</div>
+  <!--
+    Items
+  -->
+  <div class="as-list">
+    <div
+      v-for="it in TheItems"
+        class="as-item">
+      <!--Icon-->
+      <ti-icon
+        v-if="it.icon"
+          :value="it.icon"/>
+      <!--Value-->
+      <div class="as-value">{{it.value}}</div>
+      <!--Text-->
+      <div
+        v-if="it.text"
+          class="as-text">{{it.text|i18n}}</div>
+    </div>
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/widget/summary/widget-summary.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  props : {
+    "title": {
+      type: String,
+      default: undefined
+    },
+    "items" : {
+      type : Array,
+      default : ()=>[]
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------
+    TheItems() {
+      let list = []
+      _.forEach(this.items, (it, index)=>{
+        list.push({
+          key: `it-${index}`,
+          index,
+          icon: it.icon,
+          text: it.text,
+          value: it.value || 0
+        })
+      })
+      return list
+    }
+    //------------------------------------
+  }
+  /////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/widget/summary/widget-summary.mjs", _M);
+})();
+//============================================================
+// JOIN: web/widget/summary/_com.json
+//============================================================
+Ti.Preload("ti/com/web/widget/summary/_com.json", {
+  "name" : "web-widget-summary",
+  "globally" : true,
+  "template" : "./widget-summary.html",
+  "mixins"   : ["./widget-summary.mjs"],
+  "components" : []
+});
+//============================================================
+// JOIN: web/widget/user/widget-user.html
+//============================================================
+Ti.Preload("ti/com/web/widget/user/widget-user.html", `<div class="web-widget-user"
+  :class="TopClass">
+  <!--
+    Avatar
+  -->
+  <div class="as-avatar">
+    <ti-icon :value="TheAvatar"/>
+  </div>
+  <!--
+    Nickname
+  -->
+  <div class="as-title">
+    <div class="as-nickname">{{TheNickname}}</div>
+  </div>
+  <!--
+    Action bar
+  -->
+  <div class="as-actions">
+    <div class="ti-btn reset-passwd">{{'passwd-reset'|i18n}}</div>
+    <div class="ti-btn edit-profile">{{'profile-edit'|i18n}}</div>
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/widget/user/widget-user.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  props : {
+    "me": {
+      type: Object,
+      default: ()=>({})
+    },
+    "avatarSrc": {
+      type: String,
+      default: undefined
+    },
+    "avatarIcons": {
+      type: Object,
+      default: ()=>({
+        "unknown": "far-user",
+        "male": "im-user-male",
+        "female": "im-user-female"
+      })
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------
+    TheAvatar() {
+      let me = this.me || {}
+      if(this.avatarSrc && me.thumb) {
+        return {
+          type: "image",
+          value: Ti.S.renderVars(me.thumb, this.avatarSrc)
+        }
+      }
+      // Icon: male
+      if(me.sex == 1) {
+        return this.avatarIcons.male
+      }
+      // Icon: female
+      if(me.sex == 2) {
+        return this.avatarIcons.female
+      }
+      // Icon: unknown
+      return this.avatarIcons.unknown || "far-user"
+    },
+    //------------------------------------
+    TheNickname() {
+      let me = this.me || {}
+      return me.nickname 
+             || me.email
+             || me.phone
+             || me.nm
+             || me.id
+             || "Anonymity"
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //------------------------------------
+    
+    //------------------------------------
+  }
+  /////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/widget/user/widget-user.mjs", _M);
+})();
+//============================================================
+// JOIN: web/widget/user/_com.json
+//============================================================
+Ti.Preload("ti/com/web/widget/user/_com.json", {
+  "name" : "web-widget-user",
+  "globally" : true,
+  "template" : "./widget-user.html",
+  "mixins"   : ["./widget-user.mjs"],
   "components" : []
 });
 //============================================================
@@ -29291,9 +29783,9 @@ Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/_com.json", {
 // JOIN: wn/gui/side/nav/wn-gui-side-nav.html
 //============================================================
 Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.html", `<div class="wn-gui-side-nav"
-  :class="topClass"
+  :class="TopClass"
   v-ti-activable>
-  <side-nav-item v-for="it in theItems"
+  <side-nav-item v-for="it in TheItems"
     :key="it.key"
     v-bind="it"
     @item:actived="onItemActived"/>
@@ -29303,7 +29795,6 @@ Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.html", `<div class="wn-gui-si
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "items" : {
@@ -29322,14 +29813,11 @@ const _M = {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived" : this.isActived
-      }, this.className)
+    TopClass() {
+      return this.getTopClass()
     },
     //-------------------------------------
-    theItems() {
+    TheItems() {
       let list = []
       if(_.isArray(this.items)) {
         for(let it of this.items) {
@@ -34910,13 +35398,28 @@ const _M = {
 
     commit("setStatus", {deleting:true})
 
+    // Prepare the ids which fail to remove
+    let failIds = {}
+
     // Prepare the cmds
     let th_set = state.meta.id
     let cmdText = `thing ${th_set} delete ${hard?"-hard":""} -cqn -l ${ids.join(" ")}`
-    let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
+    let reo = await Wn.Sys.exec2(cmdText, {
+      as:"json",
+      errorAs: ({data})=>{
+        let id = _.trim(data)
+        failIds[id] = true
+      }
+    })
+
+    // Get the removeIds
+    let removeIds = _.filter(ids, id => !failIds[id])
+    console.log("removeIds:", removeIds)
 
     // Remove it from search list
-    commit("search/removeItems", ids)
+    if(!_.isEmpty(removeIds)) {
+      commit("search/removeItems", removeIds)
+    }
     let current = getters["search/currentItem"]
     //console.log("getback current", current)
     // Update current
@@ -35834,23 +36337,23 @@ const _M = {
   /////////////////////////////////////////
   computed : {
     ...Vuex.mapState({
-        "siteId"     : state=>state.siteId,
-        "logo"       : state=>state.logo,
-        "utils"      : state=>state.utils,
-        "page"       : state=>state.page,
-        "shop"       : state=>state.shop,
-        "auth"       : state=>state.auth,
-        "domain"     : state=>state.domain,
-        "rs"         : state=>state.rs,
-        "base"       : state=>state.base,
-        "apiBase"    : state=>state.apiBase,
-        "cdnBase"    : state=>state.cdnBase,
-        "captcha"    : state=>state.captcha,
-        "schema"     : state=>state.schema,
-        "provide"    : state=>state.provide,
-        "blocks"     : state=>state.blocks,
-        "loading"    : state=>state.loading,
-        "pageReady"  : state=>state.pageReady
+        "siteId"    : state=>state.siteId,
+        "logo"      : state=>state.logo,
+        "utils"     : state=>state.utils,
+        "page"      : state=>state.page,
+        "shop"      : state=>state.shop,
+        "auth"      : state=>state.auth,
+        "domain"    : state=>state.domain,
+        "rs"        : state=>state.rs,
+        "base"      : state=>state.base,
+        "apiBase"   : state=>state.apiBase,
+        "cdnBase"   : state=>state.cdnBase,
+        "captcha"   : state=>state.captcha,
+        "schema"    : state=>state.schema,
+        "provide"   : state=>state.provide,
+        "blocks"    : state=>state.blocks,
+        "loading"   : state=>state.loading,
+        "pageReady" : state=>state.pageReady
       }),
     //-------------------------------------
     // Mapp The Getters
@@ -35862,6 +36365,13 @@ const _M = {
     ...Vuex.mapGetters("page", [
       "pageLink"
     ]),
+    //-------------------------------------
+    PayReturnUrl: function() {
+      let st = this.$store.state
+      if(st.payReturnUrl) {
+        return Ti.Util.explainObj(st, st.payReturnUrl)
+      }
+    },
     //-------------------------------------
     SiteLogo() {
       if(this.logo && /\.(png|jpe?g)$/.test(this.logo))
@@ -38740,13 +39250,17 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-phone-title": "短信密码登录/注册",
   "auth-phone-vcode": "短信密码",
   "auth-phone-vcode-get": "获取短信密码",
-  "auth-reset-by-phone": "用手机号重置密码",
-  "auth-reset-by-phone-sent": "已经向您的手机 ${phone} 发送了验证码",
-  "auth-reset-by-phone-tip": "请输入您的账号绑定的手机号码",
-  "auth-reset-next": "下一步",
-  "auth-reset-passwd": "新密码（最少6位）",
-  "auth-reset-retype": "再次确认",
-  "auth-reset-save": "保存",
+  "auth-reset-passwd-by-email": "用邮箱重置密码",
+  "auth-reset-passwd-by-email-sent": "已经向您的注册邮箱 ${email} 发送了邮件密码",
+  "auth-reset-passwd-by-email-tip": "请输入注册邮箱地址",
+  "auth-reset-passwd-by-passwd": "用旧密码重置密码",
+  "auth-reset-passwd-by-phone": "用手机重置密码",
+  "auth-reset-passwd-by-phone-sent": "已经向您的手机 ${phone} 发送了短信密码",
+  "auth-reset-passwd-by-phone-tip": "请输入注册手机号码",
+  "auth-reset-passwd-new": "新密码（最少6位）",
+  "auth-reset-passwd-old": "旧密码",
+  "auth-reset-passwd-ren": "再次确认",
+  "auth-reset-passwd-save": "立即重置密码",
   "auth-sending-vcode": "正在发送验证码",
   "auth-sent-ok": "${ta?验证码}已发出，请在${by}查收，${min}分钟内有效",
   "auth-ta-by-email": "邮箱里",
@@ -38758,6 +39272,20 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "e-www-invalid-captcha": "${ta?验证码}错误",
   "e-www-login-invalid-passwd": "账号密码错误",
   "e-www-login-noexists": "账号不存在",
+  "mine": "我的",
+  "my-favors": "我的收藏",
+  "my-favors-blog": "收藏的博客",
+  "my-favors-goods": "收藏的商品",
+  "my-favors-posts": "收藏的文章",
+  "my-favors-spots": "收藏的景点",
+  "my-favors-video": "收藏的视频",
+  "my-orders": "我的订单",
+  "my-orders-shop": "购物订单",
+  "my-orders-video": "视频订单",
+  "my-passwd": "重置密码",
+  "my-profile": "我的资料",
+  "my-shipping-address": "收货地址",
+  "my-shopping-car": "购物车",
   "or-st-dn": "已完成",
   "or-st-fa": "支付失败",
   "or-st-nw": "新建",
@@ -39007,6 +39535,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "phone": "手机",
   "prev": "上一步",
   "price": "价格",
+  "profile": "资料",
+  "profile-edit": "编辑资料",
   "prompt": "询问",
   "properties": "属性",
   "publish": "发布",

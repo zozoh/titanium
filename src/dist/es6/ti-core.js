@@ -10428,6 +10428,8 @@ const {WalnutAppMain} = (function(){
 const {WebAppMain} = (function(){
   ///////////////////////////////////////////////
   async function WebAppMain({
+    www_host="localhost",
+    www_port_suffix=":8080",
     rs = "/gu/rs/", 
     siteRs = "/",
     lang = "zh-cn",
@@ -10526,6 +10528,9 @@ const {WebAppMain} = (function(){
         loading   : false,
         siteId,
         domain,
+        rs,
+        www_host,
+        www_port_suffix
       })
       return conf
     })
@@ -10595,7 +10600,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.2-20200621.160012",
+  "version" : "2.2-20200627.185053",
   "dev" : false,
   "appName" : null,
   "session" : {},
