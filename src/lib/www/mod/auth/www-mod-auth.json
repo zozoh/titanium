@@ -14,6 +14,7 @@
     "get_email_vcode" : "auth/get_email_vcode",
     "check_name"      : "auth/check_name",
     "check_phone"     : "auth/check_phone",
-    "logout"          : "auth/logout"
+    "logout"          : "auth/logout",
+    "resetpasswd"     : "auth/resetpasswd"
   }
 }

@@ -55,11 +55,11 @@ const _M = {
   ////////////////////////////////////////////////
   actions : {
     //--------------------------------------------
-    async doCheckMe({state, commit, dispatch, getters, rootState}, {
+    async doCheckMe({commit, dispatch, getters, rootState}, {
       force = false,
-      success, fail, nophone, noemail
+      ok, fail, nophone, noemail
     }={}) {
-      console.log("I am doCheckMe", {force, success, fail, nophone})
+      console.log("I am doCheckMe", {force, ok, fail, nophone})
       // console.log(" -urls", getters.urls)
       // Guard SiteId
       let siteId  = rootState.siteId
@@ -98,26 +98,26 @@ const _M = {
         if(nophone) {
           let me = reo.data.me
           if(!me.phone) {
-            return await dispatch(nophone.action, nophone.payload, {root:true})
+            return await dispatch("doAction", [nophone,reo], {root:true})
           }
         }
         // Check Phone
         if(noemail) {
           let me = reo.data.me
           if(!me.email) {
-            return await dispatch(noemail.action, noemail.payload, {root:true})
+            return await dispatch("doAction", [noemail,reo], {root:true})
           }
         }
 
         // Success
-        if(success) {
-          await dispatch(success.action, success.payload, {root:true})
+        if(ok) {
+          return await dispatch("doAction", [ok,reo], {root:true})
         }
       }
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       // Fail
       else if(fail){
-        await dispatch(fail.action, fail.payload, {root:true})
+        return await dispatch("doAction", [fail,reo], {root:true})
       }
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     },
@@ -136,21 +136,19 @@ const _M = {
           payload : {
             codeKey, codeTypeBy,
             //......................................
-            fail : async ()=>{
-              if(fail) {
-                dispatch(fail.action, fail.payload, {root:true})
-              }
-            },
+            fail,
             //......................................
-            ok : async ({me={}}={})=>{
+            ok : async (reo={})=>{
+              let me = reo.data
+              console.log("autoCheckmeOrAuthByWxghCode->ok:me", me)
               if(nophone) {
                 if(!me.phone) {
-                  return await dispatch(nophone.action, nophone.payload, {root:true})
+                  return await dispatch("doAction", [nophone,reo], {root:true})
                 }
               }
               if(noemail) {
                 if(!me.email) {
-                  return await dispatch(noemail.action, noemail.payload, {root:true})
+                  return await dispatch("doAction", [noemail,reo], {root:true})
                 }
               }
             }
@@ -160,14 +158,10 @@ const _M = {
       })
     },
     //--------------------------------------------
-    async authByWxghCode({commit, getters, rootState}, {
+    async authByWxghCode({commit, dispatch, getters, rootState}, {
       codeKey = "code",
       codeTypeBy = "ct",
-      done=_.identity,
-      ok=_.identity, 
-      fail=_.identity, 
-      invalid=_.identity, 
-      others=_.identity 
+      done, ok, fail, invalid, others
     }={}) {
       // Guard code
       let code = rootState.page.params[codeKey]
@@ -197,7 +191,8 @@ const _M = {
       let reo = await Ti.Http.get(url, {params, as:"json"})
       console.log(reo)
 
-      await done(reo)
+      // Callback: done
+      await dispatch("doAction", [done, reo], {root:true})
 
       // Success
       if(reo.ok && reo.data) {
@@ -211,32 +206,27 @@ const _M = {
         commit("setExpi",   reo.data.expi)
         commit("setMe",     reo.data.me)
         // Callback
-        await ok(reo.data)
+        await dispatch("doAction", [ok, reo], {root:true})
       }
       // Fail 
       else {
         // Fail : invalid
         if(/^e.www.login.invalid/.test(reo.errCode)) {
-          await invalid(reo)
+          await dispatch("doAction", [invalid, reo], {root:true})
         }
         // Fail : others
         else {
-          await others(reo)
+          await dispatch("doAction", [others, reo], {root:true})
         }
         // Callback
-        await fail(reo)
+        await dispatch("doAction", [fail, reo], {root:true})
       }
     },
     //--------------------------------------------
-    async doAuth({commit, getters, rootState}, {
+    async doAuth({commit, dispatch, getters, rootState}, {
       type="login_by_passwd",
       name, passwd,
-      done=_.identity,
-      ok=_.identity, 
-      fail=_.identity, 
-      noexist=_.identity, 
-      invalid=_.identity, 
-      others=_.identity 
+      done, ok, fail, noexist, invalid, others
     }={}) {
       console.log("doAuth", name, passwd)
 
@@ -276,7 +266,8 @@ const _M = {
       let reo = await Ti.Http.post(url, {params, as:"json"})
       console.log(reo)
 
-      await done(reo)
+      // Callback: done
+      await dispatch("doAction", [done, reo], {root:true})
 
       // Success
       if(reo.ok && reo.data) {
@@ -290,34 +281,32 @@ const _M = {
         commit("setExpi",   reo.data.expi)
         commit("setMe",     reo.data.me)
         // Callback
-        await ok(reo.data)
+        await dispatch("doAction", [ok, reo], {root:true})
       }
       // Fail 
       else {
         // Fail : noexist
         if("e.www.login.noexists" == reo.errCode) {
-          await noexist(reo)
+          await dispatch("doAction", [noexist, reo], {root:true})
         }
         // Fail : invalid
         else if(/^e.www.login.invalid/.test(reo.errCode)) {
-          await invalid(reo)
+          await dispatch("doAction", [invalid, reo], {root:true})
         }
         // Fail : others
         else {
-          await others(reo)
+          await dispatch("doAction", [others, reo], {root:true})
         }
         // Callback
-        await fail(reo)
+        await dispatch("doAction", [fail, reo], {root:true})
       }
     },
     //--------------------------------------------
-    async doGetVcode({getters, rootState}, {
+    async doGetVcode({getters, dispatch, rootState}, {
       type="login_by_phone",
       scene="auth",
       account, captcha,
-      done=_.identity,
-      ok=_.identity, 
-      fail=_.identity
+      done, ok, fail
     }={}) {
       console.log("getVcode", {type,scene, account, captcha})
 
@@ -333,7 +322,9 @@ const _M = {
         "login_by_phone" : "get_sms_vcode",
         "login_by_email" : "get_email_vcode",
         "bind_phone"     : "get_sms_vcode",
-        "bind_email"     : "get_email_vcode"
+        "bind_email"     : "get_email_vcode",
+        "phone"          : "get_sms_vcode",
+        "email"          : "get_email_vcode"
       })[type]
       let url = getters.urls[api]
 
@@ -351,22 +342,83 @@ const _M = {
       let reo = await Ti.Http.get(url, {params, as:"json"})
       console.log(reo)
 
-      done(reo)
+      // Callback: done
+      await dispatch("doAction", [done, reo], {root:true})
 
       // Success
       if(reo.ok && reo.data) {
-        ok(reo.data)
+        await dispatch("doAction", [ok, reo], {root:true})
       }
       // Fail 
       else {
-        fail(reo)
+        await dispatch("doAction", [fail, reo], {root:true})
       }
     },
     //--------------------------------------------
-    async doLogout({commit, getters, rootState}, {
-      done=_.identity,
-      ok=_.identity, 
-      fail=_.identity
+    async doResetPasswd({getters, dispatch, rootState}, {
+      scene="resetpasswd",
+      account, vcode, newpwd, oldpwd,
+      done, ok, fail
+    }={}) {
+      console.log("doResetPasswd", {scene, account, vcode, newpwd, oldpwd})
+
+      // Guard SiteId
+      let siteId = rootState.siteId
+      if(!siteId) {
+        Ti.Alert("Without siteId!!!")
+        return
+      }
+
+      // Guard Ticket
+      let ticket = rootState.auth.ticket
+      let me =  rootState.auth.me
+      if(!me) {
+        Ti.Alert("Without Login!!!")
+        return
+      }
+
+      // Eval URL
+      let url = getters.urls.resetpasswd
+
+      if(!url) {
+        console.error("doResetPasswd url is nil")
+        return
+      }
+
+      // Prepare params
+      let params = {
+        site : siteId,
+        ticket
+      }
+      let body = {
+        account, vcode, newpwd, oldpwd,
+      }
+
+      // Call Remote
+      let reo = await Ti.Http.post(url, {
+        params, 
+        body: JSON.stringify(body),
+        as:"json"
+      }).catch(({responseText})=>{
+        return {ok:false, errCode:_.trim(responseText)}
+      })
+      //console.log(reo)
+
+      // Callback: done
+      await dispatch("doAction", [done, reo], {root:true})
+
+      // Success
+      if(reo.ok) {
+        await dispatch("doAction", [ok, reo], {root:true})
+      }
+      // Fail 
+      else {
+        await dispatch("doAction", [fail, reo], {root:true})
+      }
+    },
+    //--------------------------------------------
+    async doLogout({state, commit, dispatch, getters, rootState}, {
+      done, ok, fail
     }={}) {
       console.log("doLogout")
       // Guard SiteId
@@ -381,24 +433,21 @@ const _M = {
 
       // No Session, ignore
       if(!getters.hasSession) {
-        fail(getters.sessionState)
+        dispatch("invokeAction", fail, {root:true})
         return
       }
-
-      // Session
-      let se = getters.sessionState
 
       // Eval URL
       let url = getters.urls["logout"]
       let params = {
         site   : siteId,
-        ticket : se.ticket
+        ticket : state.ticket
       }
 
       commit("setLoading", {text:"i18n:logout-ing"}, {root:true})
 
       // Call Remote
-      let reo = await Ti.Http.post(url, {params, as:"json"})
+      let reo = await Ti.Http.get(url, {params, as:"json"})
       console.log(reo)
 
       commit("setTicket", null)
@@ -407,15 +456,16 @@ const _M = {
 
       commit("setLoading", false, {root:true})
 
-      done(reo)
+      // Callback: done
+      await dispatch("doAction", [done, reo], {root:true})
 
       // Success
       if(reo.ok) {
-        ok(reo.data)
+        dispatch("doAction", [ok, reo], {root:true})
       }
       // Fail 
       else {
-        fail(reo)
+        dispatch("doAction", [fail, reo], {root:true})
       }
     }
     //--------------------------------------------

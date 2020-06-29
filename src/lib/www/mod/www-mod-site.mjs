@@ -200,14 +200,49 @@ const _M = {
      * 
      * @return {void}
      */
-    async doAction({state, dispatch}, {
-      action, 
-      payload, 
-      args=[]
-    }={}){
+    async doAction({state, dispatch}, AT){
+      // Guard nil
+      if(!AT) {
+        return
+      }
+
+      //....................................
+      // Raw function
+      //....................................
+      if(_.isFunction(AT)) {
+        return await AT()
+      }
+
+      //....................................
+      // Combo: [F(), args] or [{action}, args]
+      //....................................
+      if(_.isArray(AT) && AT.length == 2) {
+        let actn = AT[0]
+        let args = AT[1]
+        if(!_.isUndefined(args) && !_.isArray(args)) {
+          args = [args]
+        }
+        if(_.isFunction(actn)) {
+          AT = {
+            action: actn,
+            args
+          }
+        }
+        // Merge
+        else {
+          AT = _.assign({}, actn, {args})
+        }
+      }
+
+      //....................................
+      // Action object
+      //....................................
+      let {action,payload,args}=AT
       //....................................
       if(!action)
         return;
+
+      args = args || []
       //....................................
       let pld;
 
@@ -227,7 +262,14 @@ const _M = {
       }
       //....................................
       console.log("invoke->", action, pld)
-      await dispatch(action, pld)
+      //....................................
+      if(_.isFunction(action)) {
+        await action(pld)
+      }
+      // Action
+      else {
+        await dispatch(action, pld)
+      }
     },
     //--------------------------------------------
     /***

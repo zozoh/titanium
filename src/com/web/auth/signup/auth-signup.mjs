@@ -341,7 +341,7 @@ const _M = {
       this.InvalidField = null
 
       // Show the image captcha to prevent robot
-      console.log("captcha", this.captcha)
+      //console.log("captcha", this.captcha)
       let vars = {
         scene   : this.scenes.robot,
         account : this.Params.name

@@ -18,6 +18,7 @@
     //---------------------------------
     div {
       @include flex-align-nowrap;
+      //-------------------------------
       &.as-input {
         @include color($color-input,c,r); 
         margin:.5em 0;
@@ -26,9 +27,38 @@
           border-color:map-get($color-error, c);
         }
       }
+      //-------------------------------
       &.as-btn {
         margin:.5em 0;
       }
+      //-------------------------------
+      .is-tipbar {
+        @include noselect;
+        @include flex-align-nowrap;
+        cursor: pointer;
+        padding: 0 .5em; width:100%;
+        //-----------------------------
+        > span {
+          margin:0 .5em; 
+          &.is-weak {font-size:.9em;}
+          &.is-strong{ font-size: 1.2em; font-weight: bold;}
+        }
+        //-----------------------------
+        > u {
+          @include border(1px, solid, shallow);
+          @include color($color-disable, null, c);
+          margin:1px; flex:1 1 auto;
+          text-decoration: none;
+          display:block;
+          width:25%; text-align: center;
+          padding: .5em;
+          &.is-on {
+            @include color($color-success, null, c);
+          }
+        }
+        //-----------------------------  
+      }
+      //-------------------------------
       input {
         flex:1 1 auto; width:100%;
         padding: .7em;
@@ -37,6 +67,7 @@
         color:inherit;
         background-color: transparent;
       }
+      //-------------------------------
       span {
         @include flex-center;
         flex:0 0 auto;
@@ -46,13 +77,35 @@
           font-style:normal;
         }
       }
+      //-------------------------------
       button {
         @include fireable;
         flex:1 1 auto;
         padding:.7em; width:100%;
         font-size: 1.4em; letter-spacing: .1em;
         outline:none; border:0; 
+        //-----------------------------
+        &.is-lack {
+          @include color($color-disable, r, c);
+          cursor: not-allowed;
+          &:hover {@include color($color-disable, r, c);}
+        }
+        //-----------------------------
+        &.is-short {
+          @include color($color-warn, r, c);
+          cursor: no-drop;
+          &:hover {@include color($color-warn, r, c);}
+        }
+        //-----------------------------
+        &.is-unmatch {
+          @include color($color-error, r, c);
+          cursor: no-drop;
+          &:hover {@include color($color-error, r, c);}
+        }
+        //-----------------------------
+        //-----------------------------
       }
+      //-------------------------------
     }
     //---------------------------------
     ul.as-links {

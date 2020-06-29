@@ -2,91 +2,156 @@
   class="web-auth-passwd web-simple-form" 
   :class="TopClass">
   <!--
-    Head text
+    Reset Success
   -->
-  <header>{{ModeTitle|i18n}}</header>
+  <template v-if="doing">
+    <div class="as-ing">
+      <ti-loading class="as-hug" text="auth-reset-passwd-ing"/>
+    </div>
+  </template>
   <!--
-    Main Area
+    Reset Success
   -->
-  <section>
+  <template v-else-if="myResetResult">
+    <div
+      class="as-done"
+      :class="ResetDoneClass">
+      <!--Loading Icon-->
+      <ti-loading
+        class="as-hug"
+        :icon="ResetDoneIcon"
+        :text="ResetDoneText"/>
+      <!--Links-->
+      <div class="as-links">
+        <a @click.left="OnResetAgain">{{'auth-reset-passwd-again'|i18n}}</a>
+      </div>
+    </div>
+  </template>
+  <!--
+    Reset form
+  -->
+  <template v-else>
     <!--
-      ===================================================
-      Mode: byVCode
+      Head text
     -->
-    <template v-if="isByVode">
+    <header>{{ModeTitle|i18n}}</header>
+    <!--
+      Main Area
+    -->
+    <section>
       <!--
-        Input: name
+        ===================================================
+        Mode: byVCode
       -->
-      <div class="as-input">
+      <template v-if="isByVode">
+        <!--
+          Input: name
+        -->
+        <div class="as-input">
+          <input 
+            spellcheck="false"
+            :placeholder="VCodeNameTip|i18n"
+            v-model="myForm.name"></div>
+        <!--
+          Input: vcode
+        -->
+        <div class="as-input">
+          <input 
+            spellcheck="false"
+            :placeholder="VCodeCodeTip|i18n"
+            v-model="myForm.vcode">
+          <span>
+            <em v-if="delay>0">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>
+            <a v-else
+              @click="OnGetVcode">{{VCodeGetTip|i18n}}</a>
+          </span>
+        </div>
+      </template>
+      <!--
+        ===================================================
+        Mode: byPasswd
+      -->
+      <template v-else>
+        <!--
+          Passwd: old
+        -->
+        <div class="as-input">
+          <input 
+            spellcheck="false"
+            :type="myPassInputType"
+            :placeholder="'auth-reset-passwd-old'|i18n"
+            v-model="myForm.passwd_old"></div>
+      </template>
+      <!--
+        ===================================================
+      -->
+      <!--
+        Passwd: new
+      -->
+      <div class="as-input" :class="PasswdClass">
         <input 
           spellcheck="false"
-          :placeholder="VCodeNameTip|i18n"
-          v-model="myForm.name"></div>
-      <!--
-        Input: vcode
-      -->
-      <div class="as-input">
-        <input 
-          spellcheck="false"
-          :placeholder="VCodeCodeTip|i18n"
-          v-model="myForm.vcode">
-        <span>
-          <em v-if="delay>0">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>
-          <a v-else
-            @click="OnGetVcode">{{VCodeGetTip|i18n}}</a>
+          :type="myPassInputType"
+          :placeholder="'auth-reset-passwd-new'|i18n"
+          v-model="myForm.passwd_new">
+        <span 
+          class="as-passwd-type-toggle"
+          @click="OnTogglePasswdInputType">
+          <ti-icon :value="PasswdInputTypeIcon"/>
         </span>
       </div>
-    </template>
-    <!--
-      ===================================================
-      Mode: byPasswd
-    -->
-    <template v-else>
       <!--
-        Passwd: old
+        Passwd: Indicator
       -->
-      <div class="as-input">
+      <div class="as-passtip">
+        <!--Invalid pass-->
+        <div 
+          v-if="-2 == myPassTip"
+            class="is-invalid">{{'passwd-invalid-char'|i18n}}</div>
+        <!--No password-->
+        <div 
+          v-else-if="-1 == myPassTip"
+            class="is-tip">{{'passwd-tip'|i18n}}</div>
+        <!--Show tip bar-->
+        <div 
+          v-else
+            class="is-tipbar">
+            <span class="is-weak">{{'i18n:passwd-sl-1' | i18n}}</span>
+            <u
+              v-for="it in PasswdTipBar"
+                :class="it.className"></u>
+            <span class="is-strong">{{'i18n:passwd-sl-5' | i18n}}</span>
+        </div>
+      </div>
+      <!--
+        Passwd: repeat
+      -->
+      <div class="as-input" :class="PasswdClass">
         <input 
           spellcheck="false"
-          :placeholder="'auth-reset-passwd-old'|i18n"
-          v-model="myForm.passwd_old"></div>
-    </template>
-    <!--
-      ===================================================
-    -->
-    <!--
-      Passwd: new
-    -->
-    <div class="as-input" :class="PasswdClass">
-      <input 
-        spellcheck="false"
-        :placeholder="'auth-reset-passwd-new'|i18n"
-        v-model="myForm.passwd_new"></div>
-    <!--
-      Passwd: repeat
-    -->
-    <div class="as-input" :class="PasswdClass">
-      <input 
-        spellcheck="false"
-        :placeholder="'auth-reset-passwd-ren'|i18n"
-        v-model="myForm.passwd_ren"></div>
-    <!--
-      Submit button
-    -->
-    <div class="as-btn">
-      <button @click="OnSubmit">{{'auth-reset-passwd-save'|i18n}}</button>
-    </div>
-    <!--
-      Sublinks: switch mode / passwd-back
-    -->
-    <div 
-      v-if="hasAltModes"
-        class="as-links">
-        <div
-          v-for="it in AltModes"
-            class="as-item">
-            <a @click.left="OnChangeMode(it)">{{it.text|i18n}}</a>
-        </div>
-    </div>
-  </section>
+          :type="myPassInputType"
+          :placeholder="'auth-reset-passwd-ren'|i18n"
+          v-model="myForm.passwd_ren"></div>
+      <!--
+        Submit button
+      -->
+      <div class="as-btn">
+        <button 
+          :class="SubmitBtnClass"
+          @click="OnSubmit">{{SubmitBtnText|i18n}}</button>
+      </div>
+      <!--
+        Sublinks: switch mode / passwd-back
+      -->
+      <div 
+        v-if="hasAltModes"
+          class="as-links">
+          <div
+            v-for="it in AltModes"
+              class="as-item">
+              <a @click.left="OnChangeMode(it)">{{it.text|i18n}}</a>
+          </div>
+      </div>
+    </section>
+  </template>
 </div>

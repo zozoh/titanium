@@ -9,6 +9,17 @@
     margin:0 .5em;
   }
   //------------------------------------------
+  &.as-hug {
+    padding: 3em 1em;
+    > .as-icon{font-size: SZ(128);}
+    > .as-text{
+      display:block; padding:.5em;
+      font-size:SZ(20);
+      width:100%;
+      text-align:center;
+    }
+  }
+  //------------------------------------------
   &.as-big {
     padding: 3em;
     > .as-icon{font-size: SZ(64);}
