@@ -4,6 +4,7 @@
   "me"     : null,
   "countries"  : null,
   "countryMap" : null,
+  "addresses": [],
   "paths"  : {
     "checkme"         : "auth/checkme",
     "login_by_wxcode" : "auth/login_by_wxcode",
@@ -18,6 +19,10 @@
     "check_phone"     : "auth/check_phone",
     "logout"          : "auth/logout",
     "resetpasswd"     : "auth/resetpasswd",
-    "countries"       : "lbs/countries"
+    "countries"       : "lbs/countries",
+    "addr_mine"       : "address/mine",
+    "addr_create"     : "address/create",
+    "addr_update"     : "address/update",
+    "addr_delete"     : "address/delete"
   }
 }

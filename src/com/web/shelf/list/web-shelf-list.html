@@ -1,14 +1,23 @@
 <div class="web-shelf-list"
   :class="TopClass">
   <!--
+    Blank
+  -->
+  <ti-loading
+    v-if="isEmpty"
+      class="as-big"
+      v-bind="blankAs"/>
+  <!--
     Each Item
   -->
-  <div
-    v-for="it in ItemList"
-      class="list-item"
-      :key="it.key">
-      <component
-        :is="it.comType"
-        v-bind="it.comConf"/>    
-  </div>
+  <template v-else>
+    <div
+      v-for="it in ItemList"
+        class="list-item"
+        :key="it.key">
+        <component
+          :is="it.comType"
+          v-bind="it.comConf"/>    
+    </div>
+  </template>
 </div>

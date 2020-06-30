@@ -112,7 +112,7 @@ export default {
       if(!this.isFlexNil) {
         return {
           "can-flex-none"   : this.isFlexNone,
-          "can-flex-shrink" : !this.isFlexNone
+          "can-flex-shrink" : /^(both|shrink)$/.test(this.FlexName)
         }
       }
     },

@@ -82,9 +82,10 @@ const _M = {
       let list = []      
       for(let i=0; i < this.data.length; i++) {
         let it = this.data[i]
-        let comConf = _.assign({}, this.comConf, {
-          value: it
-        })
+        // let comConf = _.assign({}, this.comConf, {
+        //   value: it
+        // })
+        let comConf = Ti.Util.explainObj(it, this.comConf)
         list.push({
           key: `It-${i}`,
           comType: this.comType,

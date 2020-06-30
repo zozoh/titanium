@@ -51,6 +51,10 @@ const _M = {
       _.merge(state.paths, paths)
     },
     //--------------------------------------------
+    setAddresses(state, addresses) {
+      state.addresses = addresses
+    },
+    //--------------------------------------------
     setCountries(state, countries) {
       state.countries = countries
       let map = {}

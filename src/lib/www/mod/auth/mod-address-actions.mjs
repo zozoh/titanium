@@ -1,16 +1,37 @@
 const _M = {
   //--------------------------------------------
-  async openAddressEditor({state}, addr={}) {
+  async reloadMyAddresses({state, commit, getters}){
+    let url = getters.urls.addr_mine
+
+    commit("setLoading", true, {root:true})
+    let reo = await Ti.Http.get(url, {
+      params: {
+        ticket: state.ticket 
+      },
+      as:"json"
+    })
+    commit("setLoading", false, {root:true})
+    commit("setAddresses", reo)
+  },
+  //--------------------------------------------
+  async editOrCreateAddress({state, getters, commit, dispatch}, addr={}) {
     console.log("openAddressEditor", addr)
+    // Pick the data
+    let result = _.pick(addr, 
+        "id", "country", "postcode",
+        "province", "city", "street", "dftaddr",
+        "consignee", "phone", "email")
+
     // Prepare the Edit form
     let newAddr = await Ti.App.Open({
       title: "i18n:edit",
       position: "top",
       width: 640,
       height: 640,
-      result: _.cloneDeep(addr),
+      result: result,
       comType: "TiForm",
       comConf: {
+        onlyFields: false,
         data: "=result",
         fields: [{
             "title"   : "i18n:address-k-country",
@@ -64,17 +85,94 @@ const _M = {
     if(_.isUndefined(newAddr)) {
       return
     }
-    // Get the data
-    console.log(newAddr)
 
+    // No change
+    if(_.isEqual(newAddr, result)) {
+      return
+    }
+
+    console.log("!!!", newAddr)
+    // Eval the url
+    let url;
+    // Create
+    if(!newAddr.id) {
+      url = getters.urls.addr_create
+    }
+    // Update
+    else {
+      url = getters.urls.addr_update
+    }
+
+    // Prepare http options
+    let params = {
+      ticket: state.ticket,
+      id: newAddr.id
+    }
+    let body = JSON.stringify(newAddr)
+
+    commit("setLoading", true, {root:true})
+
+    // Send request
+    await Ti.Http.post(url, {
+      params, body, as:"json"
+    })
+
+    // Then reload
+    await dispatch("reloadMyAddresses")
+
+    commit("setLoading", false, {root:true})
   },
   //--------------------------------------------
-  async removeAddress({state}, addr){
-    console.log("removeAddress", addr)
+  async removeAddress({state, commit, getters, dispatch}, {id}={}){
+    // Guard
+    if(!id) {
+      return
+    }
+
+    commit("setLoading", true, {root:true})
+
+    // Process delete
+    let url = getters.urls.addr_delete
+    await Ti.Http.get(url, {
+      params: {
+        ticket: state.ticket,
+        id: id
+      },
+      as:"json"
+    })
+    
+    // Then reload
+    await dispatch("reloadMyAddresses")
+
+    commit("setLoading", false, {root:true})
   },
   //--------------------------------------------
-  async setAddressDefault({state}, addr){
-    console.log("setAddressDefault", addr)
+  async setAddressDefault({state, commit, getters, dispatch}, {id}={}){
+    // Guard
+    if(!id) {
+      return
+    }
+
+    // Process delete
+    let url = getters.urls.addr_update
+    // Prepare http options
+    let params = {
+      ticket: state.ticket,
+      id: id
+    }
+    let body = JSON.stringify({dftaddr:true})
+
+    commit("setLoading", true, {root:true})
+
+    // Send request
+    await Ti.Http.post(url, {
+      params, body, as:"json"
+    })
+    
+    // Then reload
+    await dispatch("reloadMyAddresses")
+
+    commit("setLoading", false, {root:true})
   },
   //--------------------------------------------
   async initCountries({state, getters, commit}) {
