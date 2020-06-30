@@ -1,0 +1,6 @@
+{
+  "name" : "web-shelf-list",
+  "globally" : true,
+  "template" : "./web-shelf-list.html",
+  "mixins" : ["./web-shelf-list.mjs"]
+}

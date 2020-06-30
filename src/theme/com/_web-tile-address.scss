@@ -1,0 +1,52 @@
+.web-tile-address {
+  @include border(1px, solid, shallow);
+  position: relative;
+  padding:2em .2em;
+  //-----------------------------------------
+  &.is-highlight {
+    @include color($color-boldtip, r, c);
+  }
+  //-----------------------------------------
+  a {
+    &:hover {text-decoration: underline;}
+  }
+  //-----------------------------------------
+  .is-float {
+    line-height: 1.2em; padding:1em; 
+    span, a {margin:0 .3em;}
+    span.is-bold {
+      font-weight: bold;
+    }
+  }
+  //-----------------------------------------
+  .at-left-top {
+    @include pos-abs($l:0,$t:0);
+  }
+  //-----------------------------------------
+  .at-right-top {
+    @include pos-abs($r:0,$t:0);
+  }
+  //-----------------------------------------
+  .at-left-bottom {
+    @include pos-abs($l:0,$b:0);
+  }
+  //-----------------------------------------
+  .at-right-bottom {
+    @include pos-abs($r:0,$b:0);
+  }
+  //-----------------------------------------
+  .at-center {
+    @include flex-align($ai:center,$ac:center);
+    padding:1em;
+    .is-big {
+      font-size: 1.5em;margin:1em; width:100%;
+      text-align: center;
+    }
+    .is-info {
+      @include flex-align;
+      div{margin:0 1em;}
+    }
+    em {font-style: normal; font-weight: bold;}
+  }
+  //-----------------------------------------
+}

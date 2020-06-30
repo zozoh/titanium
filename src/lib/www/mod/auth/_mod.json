@@ -2,5 +2,10 @@
   "name" : "www-mod-auth",
   "namespaced" : true,
   "state" : "./www-mod-auth.json",
+  "actions": [
+      "./mod-auth-actions.mjs",
+      "./mod-address-actions.mjs",
+      "./mod-profile-actions.mjs"
+    ],
   "mixins" : "./www-mod-auth.mjs"
 }

@@ -1,0 +1,28 @@
+.web-shelf-list {
+  //------------------------------------------
+  > .list-item {
+    padding: .5em;
+  }
+  //------------------------------------------
+  &.with-solid-border {
+    > .list-item {
+      @include border(1px, solid, shallow, top);
+      &:first-child {border-top:0;}
+    }
+  }
+  //------------------------------------------
+  &.with-dashed-border {
+    > .list-item {
+      @include border(1px, dashed, shallow, top);
+      &:first-child {border-top:0;}
+    }
+  }
+  //------------------------------------------
+  &.with-dotted-border {
+    > .list-item {
+      @include border(1px, dotted, shallow, top);
+      &:first-child {border-top:0;}
+    }
+  }
+  //------------------------------------------
+}

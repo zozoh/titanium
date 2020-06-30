@@ -220,12 +220,14 @@ export class Dict {
   async queryData(str){
     //console.log("@Dict.queryData", str)
     // Empty string will take as query all
+    let list;
     if(!str) {
-      return await this.getData()
+      list = await this.getData()
+      return list
     }
     // Find by string
     this.doHooks(true)
-    let list = await this.invokeAsync("query", str)
+    list = await this.invokeAsync("query", str)
     this.doHooks(false)
     // Cache items
     _.forEach(list, it => {
@@ -354,7 +356,7 @@ export const DictFactory = {
     getValue, getText, getIcon, 
     isMatched, shadowed
   }={}, {hooks, name}={}) {
-    //console.log("CreateDict", {data, query, item})
+    console.log("CreateDict", {data, query, item})
     //.........................................
     if(_.isString(data) || _.isArray(data)) {
       let aryData = Ti.S.toObjList(data)

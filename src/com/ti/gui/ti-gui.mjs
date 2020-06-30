@@ -16,7 +16,7 @@ const _M = {
     "defaultFlex" : {
       type : String,
       default : undefined,
-      validator : (v)=>(_.isUndefined(v) || /^(auto|grow|shrink|both|none)$/.test(v))
+      validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
     },
     "layout" : {
       type : Object,

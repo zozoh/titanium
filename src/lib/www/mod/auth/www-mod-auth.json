@@ -2,6 +2,8 @@
   "ticket" : null,
   "expi"   : 0,
   "me"     : null,
+  "countries"  : null,
+  "countryMap" : null,
   "paths"  : {
     "checkme"         : "auth/checkme",
     "login_by_wxcode" : "auth/login_by_wxcode",
@@ -15,6 +17,7 @@
     "check_name"      : "auth/check_name",
     "check_phone"     : "auth/check_phone",
     "logout"          : "auth/logout",
-    "resetpasswd"     : "auth/resetpasswd"
+    "resetpasswd"     : "auth/resetpasswd",
+    "countries"       : "lbs/countries"
   }
 }

@@ -59,7 +59,7 @@ export default {
     "flex" : {
       type : String,
       default : undefined,
-      validator : (v)=>(_.isUndefined(v) || /^(auto|grow|shrink|both|none)$/.test(v))
+      validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
     },
     "schema" : {
       type : Object,
@@ -109,9 +109,11 @@ export default {
     },
     //--------------------------------------
     MainConClass() {
-      return {
-        "can-flex-none"   : this.isFlexNone,
-        "can-flex-shrink" : !this.isFlexNone
+      if(!this.isFlexNil) {
+        return {
+          "can-flex-none"   : this.isFlexNone,
+          "can-flex-shrink" : !this.isFlexNone
+        }
       }
     },
     //--------------------------------------
@@ -131,6 +133,10 @@ export default {
         return "none"
       }
       return flex || "both"
+    },
+    //--------------------------------------
+    isFlexNil() {
+      return "nil" == this.FlexName
     },
     //--------------------------------------
     isFlexNone() {

@@ -1,0 +1,54 @@
+<div class="web-tile-address"
+  :class="TopClass">
+  <!--
+    Center
+  -->
+  <div class="at-center">
+    <div class="is-info">
+      <div
+        v-if="Item.consignee">
+          <span>{{'address-consignee'|i18n}}:</span>
+          <em>{{Item.consignee}}</em></div>
+      <div
+        v-if="Item.phone">
+          <span>{{'address-k-phone'|i18n}}:</span>
+          <em>{{Item.phone}}</em></div>
+      <div
+        v-if="Item.email">
+          <span>{{'address-k-email'|i18n}}:</span>
+          <em>{{Item.email}}</em></div>
+    </div>
+    <div class="is-big">{{Item.street}}</div>
+  </div>
+  <!--
+    Left top
+  -->
+  <div class="at-left-top is-float">
+      <a 
+        v-if="can.default && !Item.dftaddr"
+          @click="OnSetDefault">{{'address-set-dft'|i18n}}</a>
+      <span
+        v-else-if="Item.dftaddr"
+          class="is-bold">{{'address-is-dft'|i18n}}</span>
+  </div>
+  <!--
+    Left-bottom
+  -->
+  <div class="at-left-bottom is-float">
+    <span
+      v-if="Item.city">{{Item.city}}</span>
+    <span
+      v-if="Item.province">{{Item.province}}</span>
+    <span
+      v-if="showCountry && Item.countryName">{{Item.countryName}}</span>
+  </div>
+  <!--
+    Right-top
+  -->
+  <div
+    v-if="can.remove || can.edit" 
+      class="at-right-top is-float">
+      <a v-if="can.remove" @click="OnRemove">{{'remove'|i18n}}</a>
+      <a v-if="can.edit" @click="OnEdit">{{'edit'|i18n}}</a>
+  </div>  
+</div>

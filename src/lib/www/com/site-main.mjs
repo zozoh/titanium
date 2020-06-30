@@ -119,7 +119,7 @@ const _M = {
       //.....................................
       // Gen the GUI object
       let gui = {
-        defaultFlex: "none",
+        defaultFlex: "nil",
         layout, 
         schema : {},
         canLoading : true

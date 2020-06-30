@@ -1,0 +1,14 @@
+<div class="web-shelf-list"
+  :class="TopClass">
+  <!--
+    Each Item
+  -->
+  <div
+    v-for="it in ItemList"
+      class="list-item"
+      :key="it.key">
+      <component
+        :is="it.comType"
+        v-bind="it.comConf"/>    
+  </div>
+</div>
