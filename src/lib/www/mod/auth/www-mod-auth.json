@@ -2,6 +2,7 @@
   "ticket" : null,
   "expi"   : 0,
   "me"     : null,
+  "profile": null,
   "countries"  : null,
   "countryMap" : null,
   "addresses": [],
@@ -23,6 +24,7 @@
     "addr_mine"       : "address/mine",
     "addr_create"     : "address/create",
     "addr_update"     : "address/update",
-    "addr_delete"     : "address/delete"
+    "addr_delete"     : "address/delete",
+    "profile_save"    : "auth/setme"
   }
 }

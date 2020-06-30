@@ -183,6 +183,10 @@ const _M = {
       commit("setShown", {[name]:false})
     },
     //--------------------------------------------
+    resetData({commit}, data={}) {
+      commit("setData", data)
+    },
+    //--------------------------------------------
     /***
      * Usage:
      * 

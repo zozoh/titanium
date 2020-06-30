@@ -8,7 +8,7 @@
     @include border(1px, solid, shallow, bottom);
     text-align: center; white-space: nowrap;
     font-size:1.4em; line-height: 2.4em; font-weight: 400;
-    > .it-icon {padding:0 SZ(6);}
+    > .it-icon {padding:0 .5em;}
   }
   //////////////////////////////////////
   > .form-tab {
