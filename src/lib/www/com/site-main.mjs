@@ -120,6 +120,7 @@ const _M = {
       // Gen the GUI object
       let gui = {
         defaultFlex: "nil",
+        defaultOverflow: "none",
         layout, 
         schema : {},
         canLoading : true

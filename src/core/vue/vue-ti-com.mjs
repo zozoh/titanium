@@ -130,9 +130,13 @@ export const VueTiCom = {
     Vue.filter("percent", function(val, fixed=2, auto=true){
       return Ti.S.toPercent(val*1, {fixed, auto})
     })
-    // Filter: percent
+    // Filter: float
     Vue.filter("float", function(val, precision=2, dft=0.0){
       return Ti.Types.toFloat(val, {precision, dft})
+    })
+    // Filter: datetime
+    Vue.filter("datetime", function(val, fmt="yyyy-MM-dd"){
+      return Ti.DateTime.format(val, fmt)
     })
     //...............................................
     // Directive: v-drop-files

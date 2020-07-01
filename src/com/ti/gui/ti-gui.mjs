@@ -18,6 +18,11 @@ const _M = {
       default : undefined,
       validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
     },
+    "defaultOverflow" : {
+      type : String,
+      default : undefined,
+      validator : (v)=>(_.isUndefined(v) || /^(auto|none|fill|cover)$/.test(v))
+    },
     "layout" : {
       type : Object,
       default : ()=>({

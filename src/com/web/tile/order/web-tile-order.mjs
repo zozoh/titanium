@@ -12,6 +12,10 @@ const _M = {
     "proHref": {
       type : String,
       default : undefined
+    },
+    "href": {
+      type : String,
+      default : undefined
     }
   },
   //////////////////////////////////////////
@@ -29,6 +33,12 @@ const _M = {
     //--------------------------------------
     OrderStatus() {
       return `or-st-${_.toLower(this.Order.st)}`
+    },
+    //--------------------------------------
+    OrderHref() {
+      if(this.href) {
+        return Ti.S.renderBy(this.href, this.Order)
+      }
     },
     //--------------------------------------
     CurrencyChar() {
@@ -49,61 +59,20 @@ const _M = {
         list.push(pro)
       })
       return list
-    },
-    //--------------------------------------
-    Timestamps() {
-      let list = []
-      list.push(this.genTimestampItem(
-        "fas-file-invoice-dollar","i18n:or-st-nw", this.Order.ct))
-      list.push(this.genTimestampLine(this.Order.ok_at))
-      list.push(this.genTimestampItem(
-        "far-credit-card","i18n:or-st-ok", this.Order.ok_at))
-      list.push(this.genTimestampLine(this.Order.sp_at))
-      list.push(this.genTimestampItem(
-        "fas-shipping-fast","i18n:or-st-sp", this.Order.sp_at))
-      list.push(this.genTimestampLine(this.Order.dn_at))
-      list.push(this.genTimestampItem(
-        "fas-clipboard-check","i18n:or-st-dn", this.Order.dn_at, true))
-      return list
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
+    OnClickOrder() {
+      if(this.Order.id)
+        this.$notify("show:order", this.Order.id)
+    },
+    //--------------------------------------
     OnClickProduct({id}) {
-      this.$notify("open:product", id)
-    },
-    //--------------------------------------
-    genTimestampItem(icon, title, t, atLast=false) {
-      let it = {type:"item", icon, title, time:t}
-      let isOn = (t && t>0)
-      it.className =  {
-        "is-item": true,
-        "is-on": isOn,
-        "is-off": !isOn,
-        "at-last": atLast
-      }
-      if(isOn) {
-        it.dateText = Ti.DateTime.format(t, "yyyy-MM-dd")
-        it.timeText = Ti.DateTime.format(t, "HH:mm:ss")
-      }
-      return it
-    },
-    //--------------------------------------
-    genTimestampLine(t) {
-      let isOn = (t && t>0)
-      return {
-        type:"line",
-        isOn,
-        icon: isOn
-          ? "fas-chevron-right"
-          : "fas-circle",
-        className : {
-          "is-line": true,
-          "is-on": isOn,
-          "is-off": !isOn
-        }
+      if(id) {
+        this.$notify("open:product", id);
       }
     }
     //--------------------------------------

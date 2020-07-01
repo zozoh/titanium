@@ -1,0 +1,66 @@
+.web-tile-order {
+  @include border(1px, solid, shallow);
+  //------------------------------------
+  &.is-or-st-ok {
+    .or-field.as-st em {
+      font-weight: bold; color:map-get($color-success, c);
+    }
+  }
+  //------------------------------------
+  em {
+    @include font-fixed;
+    font-style:normal; margin:0 .5em;
+  }
+  //------------------------------------
+  .as-summary {
+    @include flex-align($jc:space-between);
+    @include border(1px, solid, shallow, bottom);
+    @include color($color-chip, r, c);
+    padding: .5em;
+    //----------------------------------
+    .or-field {
+      margin:0 1em; padding:.5em 0;
+      &.as-price em {
+        color:map-get($color-secondary, c);
+        font-weight: bold;
+      }
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+  .as-products {
+    padding:1em;
+    //----------------------------------
+    table {
+      width:100%;
+    }
+    //----------------------------------
+    tr {
+      td{@include border(1px, solid, shallow, bottom);}
+      &:last-child td {border:0;}
+    }
+    //----------------------------------
+    td {
+      padding:.5em;
+      //--------------------------------
+      &.as-price {color:map-get($color-track, c);}
+      //--------------------------------
+      &.as-amount {color:map-get($color-text, c);}
+      //--------------------------------
+      &.as-subtotal {color:map-get($color-secondary, c);}
+      //--------------------------------
+    }
+    //----------------------------------
+    img {
+      @include border(1px, solid, dark);
+      width: SZ(64); height:SZ(64);
+      object-fit: cover;
+      border-radius: SZ(6);
+      &:hover {
+        border-color:map-get($color-primary, c);
+      }
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+}

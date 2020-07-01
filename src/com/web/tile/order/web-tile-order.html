@@ -1,0 +1,65 @@
+<div class="web-tile-order"
+  :class="TopClass">
+  <!--
+    Summary
+  -->
+  <div class="as-summary">
+    <!--ID-->
+    <div class="or-field as-id">
+      <span>{{'order-k-id'|i18n}}</span>
+      <a 
+        v-if="OrderHref"
+          :href="OrderHref"
+          @click.left.prevent="OnClickOrder">{{Order.id}}</a>
+      <em
+        v-else>{{Order.id}}</em>
+    </div>
+    <!--Date-->
+    <div class="or-field as-datetime">
+      <span>{{'wn-key-ct'|i18n}}</span>
+      <em>{{Order.ct|datetime}}</em>
+    </div>
+    <!--Fee-->
+    <div class="or-field as-price">
+      <span>{{'order-k-fee'|i18n}}</span>
+      <em>{{CurrencyChar}}{{Order.fee}}</em>
+    </div>
+    <!--Payment-->
+    <div class="or-field as-pay_tp">
+      <span>{{'order-k-pay_tp'|i18n}}</span>
+      <em>{{'pay-by-'+Order.pay_tp|i18n}}</em>
+    </div>
+    <!--Status-->
+    <div class="or-field as-st">
+      <span>{{'order-k-st'|i18n}}</span>
+      <em>{{OrderStatus|i18n}}</em>
+    </div>
+  </div>
+  <!--
+    Product list
+  -->
+  <div class="as-products">
+    <table>
+      <tr
+        v-for="it in Products"
+          class="as-pro-it">
+          <!--Thumb-->
+          <td><a 
+              :href="it.href"
+              @click.left.prevent="OnClickProduct(it)"><img :src="it.src"/></a></td>
+          <!--Title-->
+          <td>
+              <a 
+                :href="it.href"
+                @click.left.prevent="OnClickProduct(it)">{{it.title}}</a>
+          </td>
+          <!--Price-->
+          <td class="as-price">{{CurrencyChar}}{{it.price}}</td>
+          <!--Amount-->
+          <td class="as-amount">x{{it.amount}}</td>
+          <!--Subtotal-->
+          <td class="as-subtotal">{{CurrencyChar}}{{it.subtotal}}</td>
+      </tr>
+    </table>
+  </div>
+</div>

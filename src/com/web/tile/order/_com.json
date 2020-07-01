@@ -1,0 +1,6 @@
+{
+  "name" : "web-tile-order",
+  "globally" : true,
+  "template" : "./web-tile-order.html",
+  "mixins" : ["./web-tile-order.mjs"]
+}

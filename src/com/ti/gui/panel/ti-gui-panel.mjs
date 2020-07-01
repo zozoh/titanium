@@ -53,7 +53,7 @@ export default {
     },
     "overflow" : {
       type : String,
-      default : null
+      default : undefined
     },
     "width" : {
       type : [String,Number],

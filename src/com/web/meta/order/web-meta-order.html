@@ -1,41 +1,96 @@
-<div class="ti-web-meta-order">
+<div class="web-meta-order"
+  :class="TopClass">
   <!--
-    Title
+    Head： Status
   -->
-  <h1>确认订单信息</h1>
-  <!--
-    Item list
-  -->
-  <div class="as-items">
-    <div class="as-table">
-      <div class="as-head">
-        <ul>
-          <li class="as-title">商品</li>
-          <li class="as-price">单价</li>
-          <li class="as-amount">数量</li>
-          <li class="as-fee">小计</li>
-        </ul>
+  <div class="as-or-box is-head">
+    <!--
+      Left: ID/status
+    -->
+    <div class="at-left is-status">
+      <!--ID-->
+      <div class="as-or-id">
+        <span>{{'order-k-id'|i18n}}:</span>
+        <em>{{Order.id}}</em>
       </div>
-      <div class="as-body">
-        <order-item v-for="it in items"
-          :key="it.id"
-          v-bind="it"
-          :src="itemThumbSrc"
-          :currency="currency"/>
+      <!--Status-->
+      <div class="as-or-st">
+        <span :class="OrderStatus">{{OrderStatus|i18n}}</span>
       </div>
     </div>
+    <!--
+      Right: Timestamp
+    -->
+    <div class="at-right is-timestamp">
+      <div
+        v-for="it in Timestamps"
+          :class="it.className">
+          <!--Item-->
+          <template v-if="'item' == it.type">
+            <ti-icon :value="it.icon"/>
+            <div class="as-t-title">{{it.title|i18n}}</div>
+            <div class="as-t-date">{{it.dateText}}</div>
+            <div class="as-t-time">{{it.timeText}}</div>
+          </template>
+          <!--Line-->
+          <template v-else>
+            <ti-icon :value="it.icon"/>
+          </template>
+      </div>
+    </div>
+  </div>
+  <!--
+    TODO shipping address & physical distribution
+  -->
+  <!--
+    Product list
+  -->
+  <div class="as-or-box is-products">
+    <table>
+      <thead>
+        <tr>
+          <th>{{'order-k-pro-title'|i18n}}</th>
+          <th>{{'order-k-pro-price'|i18n}}</th>
+          <th>{{'order-k-pro-amount'|i18n}}</th>
+          <th>{{'order-k-pro-subtotal'|i18n}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="it in Products"
+            class="as-pro-it">
+            <!--Title-->
+            <td class="as-pro-title">
+              <a 
+                :href="it.href"
+                @click.left.prevent="OnClickProduct(it)"><img :src="it.src"/></a>
+              <a 
+                :href="it.href"
+                @click.left.prevent="OnClickProduct(it)">{{it.title}}</a>
+            </td>
+            <!--Price-->
+            <td class="as-price">{{CurrencyChar}}{{it.price}}</td>
+            <!--Amount-->
+            <td class="as-amount">{{it.amount}}</td>
+            <!--Subtotal-->
+            <td class="as-subtotal">{{CurrencyChar}}{{it.subtotal}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   <!--
     Summary
   -->
-  <div class="as-summary">
-    <div class="as-sum-fee">
-      <span>实际支付</span>
-      <em class="ti-num is-xl">{{totalFeeText}}</em>
-    </div>
-    <div class="as-btns">
-      <a class="ti-btn" @click="onSubmit">提交订单</a>
-    </div>
+  <div class="as-or-box is-summary">
+    <table>
+      <tr class="as-sum-price">
+        <td class="as-s-key">{{'order-k-price'|i18n}}:</td>
+        <td class="as-s-val">{{CurrencyChar}}{{Order.price}}</td>
+      </tr>
+      <tr class="as-sum-fee">
+        <td class="as-s-key">{{'order-k-fee'|i18n}}:</td>
+        <td class="as-s-val">{{CurrencyChar}}{{Order.fee}}</td>
+      </tr>
+    </table>
   </div>
-
 </div>

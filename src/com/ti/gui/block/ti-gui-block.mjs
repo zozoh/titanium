@@ -54,7 +54,8 @@ export default {
     },
     "overflow" : {
       type : String,
-      default : null
+      default : undefined,
+      validator: v=>(_.isUndefined(v) || (/^(auto|none|fill|cover)$/.test(v)))
     },
     "flex" : {
       type : String,
@@ -111,10 +112,23 @@ export default {
     MainConClass() {
       if(!this.isFlexNil) {
         return {
-          "can-flex-none"   : this.isFlexNone,
-          "can-flex-shrink" : /^(both|shrink)$/.test(this.FlexName)
+          "fill-parent"  : "fill"==this.TheOverflow,
+          "cover-parent" : "cover"==this.TheOverflow
         }
       }
+    },
+    //--------------------------------------
+    TheOverflow() {
+      let ov = this.overflow || this.$gui.defaultOverflow || "auto"
+      if("auto" == ov) {
+        if(this.isFlexNone) {
+          return "fill"
+        }
+        if(/^(both|shrink)$/.test(this.FlexName)) {
+          return "cover"
+        }
+      }
+      return ov
     },
     //--------------------------------------
     BlockSize() {

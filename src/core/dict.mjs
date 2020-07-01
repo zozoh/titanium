@@ -356,7 +356,7 @@ export const DictFactory = {
     getValue, getText, getIcon, 
     isMatched, shadowed
   }={}, {hooks, name}={}) {
-    console.log("CreateDict", {data, query, item})
+    //console.log("CreateDict", {data, query, item})
     //.........................................
     if(_.isString(data) || _.isArray(data)) {
       let aryData = Ti.S.toObjList(data)

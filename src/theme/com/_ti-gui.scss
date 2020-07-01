@@ -302,10 +302,10 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(44);
     width:100%; height:100%; 
     position: relative;
     > .block-main-con {
-      &.can-flex-none {
+      &.fill-parent {
         width:100%; height:100%;
       }
-      &.can-flex-shrink {
+      &.cover-parent {
         @include pos-abs-full;
         //overflow: hidden;
       }

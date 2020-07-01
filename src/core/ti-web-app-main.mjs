@@ -77,6 +77,7 @@ export async function WebAppMain({
   Ti.I18n.put(await Ti.Load([
     "@i18n:_ti",
     "@i18n:_net",
+    "@i18n:_wn",
     "@i18n:web",
     "@i18n:ti-datetime"]))
 
