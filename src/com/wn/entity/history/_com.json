@@ -1,0 +1,6 @@
+{
+  "name" : "wn-entity-history",
+  "globally" : true,
+  "template" : "./wn-entity-history.html",
+  "mixins"   : ["./wn-entity-history.mjs"]
+}

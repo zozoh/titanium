@@ -1,4 +1,7 @@
 {
+  "paths" : {
+    "~/.domain/history/": "view-history"
+  },
   "types" : {
     "thing_set"   : "thing-manager",
     "comt"        : "com-test",
