@@ -21,6 +21,13 @@ const _M = {
       default: ()=>({
         value: "=.."
       })
+    },
+    "blankAs": {
+      type: Object,
+      default: ()=>({
+        text: "i18n:empty",
+        icon: "fas-box-open"
+      })
     }
   },
   //////////////////////////////////////////
@@ -84,6 +91,10 @@ const _M = {
       }
       // Get the result
       return list
+    },
+    //--------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.WallList)
     }
     //--------------------------------------
   },
