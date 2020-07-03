@@ -3,7 +3,8 @@ const _M = {
   data : ()=>({
     __WS : null,   // The handle of websocket
     myOrder: null,
-    isChecking: false
+    isChecking: false,
+    myPaypalUrl: ""
   }),
   //////////////////////////////////////////////////
   props : {
@@ -187,19 +188,20 @@ const _M = {
       if("paypal" == this.payType && this.isPaymentCreated) {
         let href = _.get(this.PayPalLinksMap, "approve.href")
         let link = Ti.Util.parseHref(href)
-        let url = `${link.protocol}://${link.host}${link.path}?return=`
+        let url = `${link.protocol}://${link.host}${link.path}`
         console.log("🤳", {href, link, url})
 
-        let params = _.assign({}, link.params)
         if(this.returnUrl) {
-          params.returnurl = this.returnUrl
+          link.params.returnurl = this.returnUrl
         }
+
+        this.myPaypalUrl = link.toString()
 
         await Ti.Be.Open(url, {
           // params: _.assign({
           //     returnurl: "http://onchina.local.io:8080/page/shop/payok.html"
           //   },link.params),
-          params,
+          params: link.params,
           delay: 1000
         })
       }

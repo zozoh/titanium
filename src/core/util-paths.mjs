@@ -213,7 +213,21 @@ const TiPaths = {
         search  : m[9],
         query   : m[10],
         hash    : m[11],
-        anchor  : m[12]
+        anchor  : m[12],
+        toString() {
+          let s = `${this.protocol}://${this.host}${this.path}`
+          if(!_.isEmpty(this.params)) {
+            let pp = []
+            _.forEach(this.params, (v, k)=>{
+              pp.push(`${k}=${v}`)
+            })
+            s += '?'+pp.join("&")
+          }
+          if(this.hash) {
+            s += this.hash
+          }
+          return s
+        }
       }
       if(link.query) {
         let params = {}

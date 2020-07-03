@@ -1,4 +1,4 @@
-// Pack At: 2020-07-03 20:26:00
+// Pack At: 2020-07-03 21:04:20
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -6802,7 +6802,21 @@ const {Util} = (function(){
             search  : m[9],
             query   : m[10],
             hash    : m[11],
-            anchor  : m[12]
+            anchor  : m[12],
+            toString() {
+              let s = `${this.protocol}://${this.host}${this.path}`
+              if(!_.isEmpty(this.params)) {
+                let pp = []
+                _.forEach(this.params, (v, k)=>{
+                  pp.push(`${k}=${v}`)
+                })
+                s += '?'+pp.join("&")
+              }
+              if(this.hash) {
+                s += this.hash
+              }
+              return s
+            }
           }
           if(link.query) {
             let params = {}
@@ -10608,7 +10622,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.3-20200703.202600",
+  "version" : "2.3-20200703.210420",
   "dev" : false,
   "appName" : null,
   "session" : {},
