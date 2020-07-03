@@ -1,4 +1,5 @@
 .web-widget-user {
+  @include flex-align-v-nowrap;
   //------------------------------------
   .as-avatar {
     @include flex-center;
@@ -19,13 +20,14 @@
   //------------------------------------
   .as-title {
     @include flex-align($jc:center);
+    flex:1 1 auto;
     padding: .5em 0; font-weight: bold;
   }
   //------------------------------------
   .as-actions {
     @include flex-align-center($jc:space-around);
     @include color($color-func, r, c);
-    padding:1em 0; margin-top:1em;
+    padding:1em 0; 
     //----------------------------------
     .ti-btn {
       padding: .5em 1em;

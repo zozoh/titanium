@@ -299,9 +299,11 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(44);
   }
   //-------------------------------------
   > .block-main {
+    @include flex-align-nowrap($ai:stretch);
     width:100%; height:100%; 
     position: relative;
     > .block-main-con {
+      flex:1 1 auto; width:100%;
       &.fill-parent {
         width:100%; height:100%;
       }
