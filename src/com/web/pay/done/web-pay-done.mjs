@@ -3,7 +3,7 @@ const _M = {
   props : {
     "payOk" : {
       type : Boolean,
-      default : false
+      default : undefined
     },
     "errMsg" : {
       type : String,
@@ -19,18 +19,29 @@ const _M = {
     //----------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-ok": this.payOk,
-        "is-fail": !this.payOk
+        "is-wait" : this.isWait,
+        "is-ok"   : !this.isWait && this.payOk,
+        "is-fail" : !this.isWait && !this.payOk
       })
     },
     //----------------------------------------------
+    isWait() {
+      return _.isUndefined(this.payOk)
+    },
+    //----------------------------------------------
     TheIcon() {
+      if(_.isUndefined(this.payOk)) {
+        return this.waitIcon
+      }
       return this.payOk
         ? this.okIcon
         : this.failIcon
     },
     //----------------------------------------------
     TheText() {
+      if(_.isUndefined(this.payOk)) {
+        return this.waitText
+      }
       return this.payOk
         ? this.okText
         : this.failText

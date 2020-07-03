@@ -1,4 +1,12 @@
 export default {
+  "waitIcon": {
+    type : String,
+    default : "fas-spinner fa-spin"
+  },
+  "waitText": {
+    type : String,
+    default : "i18n:loading"
+  },
   "okIcon": {
     type : String,
     default : "im-check-mark-circle"

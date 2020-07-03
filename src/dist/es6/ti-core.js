@@ -9553,12 +9553,14 @@ const {Dict,DictFactory} = (function(){
     async queryData(str){
       //console.log("@Dict.queryData", str)
       // Empty string will take as query all
+      let list;
       if(!str) {
-        return await this.getData()
+        list = await this.getData()
+        return list
       }
       // Find by string
       this.doHooks(true)
-      let list = await this.invokeAsync("query", str)
+      list = await this.invokeAsync("query", str)
       this.doHooks(false)
       // Cache items
       _.forEach(list, it => {
@@ -10094,9 +10096,13 @@ const {VueTiCom} = (function(){
       Vue.filter("percent", function(val, fixed=2, auto=true){
         return Ti.S.toPercent(val*1, {fixed, auto})
       })
-      // Filter: percent
+      // Filter: float
       Vue.filter("float", function(val, precision=2, dft=0.0){
         return Ti.Types.toFloat(val, {precision, dft})
+      })
+      // Filter: datetime
+      Vue.filter("datetime", function(val, fmt="yyyy-MM-dd"){
+        return Ti.DateTime.format(val, fmt)
       })
       //...............................................
       // Directive: v-drop-files
@@ -10505,6 +10511,7 @@ const {WebAppMain} = (function(){
     Ti.I18n.put(await Ti.Load([
       "@i18n:_ti",
       "@i18n:_net",
+      "@i18n:_wn",
       "@i18n:web",
       "@i18n:ti-datetime"]))
   
@@ -10600,7 +10607,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.2-20200627.185053",
+  "version" : "2.3-20200703.182035",
   "dev" : false,
   "appName" : null,
   "session" : {},

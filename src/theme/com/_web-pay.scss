@@ -215,6 +215,7 @@
   //------------------------------------------
   &.is-ok {@include color($color-success, c);}
   &.is-fail {@include color($color-error, c);}
+  &.is-wait {@include color($color-track, c);}
   //------------------------------------------
   .as-icon {
     @include flex-center;

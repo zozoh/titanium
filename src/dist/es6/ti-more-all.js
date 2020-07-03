@@ -6465,11 +6465,12 @@ const _M = {
     myItem         : null,
     myFreeValue    : null,
     myFilterValue  : null,
-    myOptionsData  : [],
+    myOptionsData  : null,
     myCurrentId    : null,
     myCheckedIds   : {},
 
     myOldValue : undefined,
+    myDict : undefined,
     loading : false
   }),
   ////////////////////////////////////////////////////
@@ -6549,26 +6550,10 @@ const _M = {
     },
     //------------------------------------------------
     Dict() {
-      // Customized
-      if(this.options instanceof Ti.Dict) {
-        return this.options
+      if(!this.myDict) {
+        this.myDict = this.createDict()
       }
-      // Refer dict
-      if(_.isString(this.options)) {
-        let dictName = Ti.DictFactory.DictReferName(this.options)
-        if(dictName) {
-          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
-            this.loading = loading
-          })
-        }
-      }
-      // Auto Create
-      return Ti.DictFactory.CreateDict({
-        data : this.options,
-        getValue : Ti.Util.genGetter(this.valueBy || "value"),
-        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
-        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
-      })
+      return this.myDict
     }
     //------------------------------------------------
   },
@@ -6711,11 +6696,35 @@ const _M = {
         this.myCheckedIds = {}
       }
     },
+    //------------------------------------------------
+    createDict() {
+      // Customized
+      if(this.options instanceof Ti.Dict) {
+        return this.options
+      }
+      // Refer dict
+      if(_.isString(this.options)) {
+        let dictName = Ti.DictFactory.DictReferName(this.options)
+        if(dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+            this.loading = loading
+          })
+        }
+      }
+      // Auto Create
+      return Ti.DictFactory.CreateDict({
+        data : this.options,
+        getValue : Ti.Util.genGetter(this.valueBy || "value"),
+        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
+        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+      })
+    },
     //-----------------------------------------------
     async reloadMyOptionData(force=false) {
-      //console.log("reloadMyOptionData")
+      console.log("reloadMyOptionData")
       if(force || this.isExtended) {
-        this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
+        let list = await this.Dict.queryData(this.myFilterValue)
+        this.myOptionsData = list
       } else {
         this.myOptionsData = []
       }
@@ -6769,13 +6778,21 @@ const _M = {
       immediate : true
     },
     //-----------------------------------------------
-    "options" : function() {
-      this.myOptionsData = []
+    "options" : function(newval, oldval) {
+      if(!_.isEqual(newval, oldval)) {
+        this.myDict = this.createDict()
+        this.myOptionsData = []
+        if(this.isExtended) {
+          this.$nextTick(()=>{
+            this.reloadMyOptionData(true)
+          })
+        }
+      }
     }
     //-----------------------------------------------
   },
   ////////////////////////////////////////////////////
-   created : function() {
+  created : function() {
     this.debReload = _.debounce(val=>{
       this.reloadMyOptionData()
     }, this.delay)
@@ -8570,7 +8587,7 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
       <span v-if="icon"
         class="it-icon"><ti-icon :value="icon"/></span>
       <span v-if="title"
-        class="it-text">{{title}}</span>
+        class="it-text">{{title|i18n}}</span>
     </header>
     <!--
       Tabs for display:"tab"
@@ -9175,12 +9192,13 @@ const _M = {
     },
     "overflow" : {
       type : String,
-      default : null
+      default : undefined,
+      validator: v=>(_.isUndefined(v) || (/^(auto|none|fill|cover)$/.test(v)))
     },
     "flex" : {
       type : String,
       default : undefined,
-      validator : (v)=>(_.isUndefined(v) || /^(auto|grow|shrink|both|none)$/.test(v))
+      validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
     },
     "schema" : {
       type : Object,
@@ -9230,10 +9248,25 @@ const _M = {
     },
     //--------------------------------------
     MainConClass() {
-      return {
-        "can-flex-none"   : this.isFlexNone,
-        "can-flex-shrink" : !this.isFlexNone
+      if(!this.isFlexNil) {
+        return {
+          "fill-parent"  : "fill"==this.TheOverflow,
+          "cover-parent" : "cover"==this.TheOverflow
+        }
       }
+    },
+    //--------------------------------------
+    TheOverflow() {
+      let ov = this.overflow || this.$gui.defaultOverflow || "auto"
+      if("auto" == ov) {
+        if(this.isFlexNone) {
+          return "fill"
+        }
+        if(/^(both|shrink)$/.test(this.FlexName)) {
+          return "cover"
+        }
+      }
+      return ov
     },
     //--------------------------------------
     BlockSize() {
@@ -9252,6 +9285,10 @@ const _M = {
         return "none"
       }
       return flex || "both"
+    },
+    //--------------------------------------
+    isFlexNil() {
+      return "nil" == this.FlexName
     },
     //--------------------------------------
     isFlexNone() {
@@ -9518,7 +9555,7 @@ const _M = {
     },
     "overflow" : {
       type : String,
-      default : null
+      default : undefined
     },
     "width" : {
       type : [String,Number],
@@ -10175,7 +10212,12 @@ const _M = {
     "defaultFlex" : {
       type : String,
       default : undefined,
-      validator : (v)=>(_.isUndefined(v) || /^(auto|grow|shrink|both|none)$/.test(v))
+      validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
+    },
+    "defaultOverflow" : {
+      type : String,
+      default : undefined,
+      validator : (v)=>(_.isUndefined(v) || /^(auto|none|fill|cover)$/.test(v))
     },
     "layout" : {
       type : Object,
@@ -24342,93 +24384,158 @@ Ti.Preload("ti/com/web/auth/passwd/auth-passwd.html", `<div
   class="web-auth-passwd web-simple-form" 
   :class="TopClass">
   <!--
-    Head text
+    Reset Success
   -->
-  <header>{{ModeTitle|i18n}}</header>
+  <template v-if="doing">
+    <div class="as-ing">
+      <ti-loading class="as-hug" text="auth-reset-passwd-ing"/>
+    </div>
+  </template>
   <!--
-    Main Area
+    Reset Success
   -->
-  <section>
+  <template v-else-if="myResetResult">
+    <div
+      class="as-done"
+      :class="ResetDoneClass">
+      <!--Loading Icon-->
+      <ti-loading
+        class="as-hug"
+        :icon="ResetDoneIcon"
+        :text="ResetDoneText"/>
+      <!--Links-->
+      <div class="as-links">
+        <a @click.left="OnResetAgain">{{'auth-reset-passwd-again'|i18n}}</a>
+      </div>
+    </div>
+  </template>
+  <!--
+    Reset form
+  -->
+  <template v-else>
     <!--
-      ===================================================
-      Mode: byVCode
+      Head text
     -->
-    <template v-if="isByVode">
+    <header>{{ModeTitle|i18n}}</header>
+    <!--
+      Main Area
+    -->
+    <section>
       <!--
-        Input: name
+        ===================================================
+        Mode: byVCode
       -->
-      <div class="as-input">
+      <template v-if="isByVode">
+        <!--
+          Input: name
+        -->
+        <div class="as-input">
+          <input 
+            spellcheck="false"
+            :placeholder="VCodeNameTip|i18n"
+            v-model="myForm.name"></div>
+        <!--
+          Input: vcode
+        -->
+        <div class="as-input">
+          <input 
+            spellcheck="false"
+            :placeholder="VCodeCodeTip|i18n"
+            v-model="myForm.vcode">
+          <span>
+            <em v-if="delay>0">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>
+            <a v-else
+              @click="OnGetVcode">{{VCodeGetTip|i18n}}</a>
+          </span>
+        </div>
+      </template>
+      <!--
+        ===================================================
+        Mode: byPasswd
+      -->
+      <template v-else>
+        <!--
+          Passwd: old
+        -->
+        <div class="as-input">
+          <input 
+            spellcheck="false"
+            :type="myPassInputType"
+            :placeholder="'auth-reset-passwd-old'|i18n"
+            v-model="myForm.passwd_old"></div>
+      </template>
+      <!--
+        ===================================================
+      -->
+      <!--
+        Passwd: new
+      -->
+      <div class="as-input" :class="PasswdClass">
         <input 
           spellcheck="false"
-          :placeholder="VCodeNameTip|i18n"
-          v-model="myForm.name"></div>
-      <!--
-        Input: vcode
-      -->
-      <div class="as-input">
-        <input 
-          spellcheck="false"
-          :placeholder="VCodeCodeTip|i18n"
-          v-model="myForm.vcode">
-        <span>
-          <em v-if="delay>0">{{'auth-vcode-delay'|i18n({sec:delay})}}</em>
-          <a v-else
-            @click="OnGetVcode">{{VCodeGetTip|i18n}}</a>
+          :type="myPassInputType"
+          :placeholder="'auth-reset-passwd-new'|i18n"
+          v-model="myForm.passwd_new">
+        <span 
+          class="as-passwd-type-toggle"
+          @click="OnTogglePasswdInputType">
+          <ti-icon :value="PasswdInputTypeIcon"/>
         </span>
       </div>
-    </template>
-    <!--
-      ===================================================
-      Mode: byPasswd
-    -->
-    <template v-else>
       <!--
-        Passwd: old
+        Passwd: Indicator
       -->
-      <div class="as-input">
+      <div class="as-passtip">
+        <!--Invalid pass-->
+        <div 
+          v-if="-2 == myPassTip"
+            class="is-invalid">{{'passwd-invalid-char'|i18n}}</div>
+        <!--No password-->
+        <div 
+          v-else-if="-1 == myPassTip"
+            class="is-tip">{{'passwd-tip'|i18n}}</div>
+        <!--Show tip bar-->
+        <div 
+          v-else
+            class="is-tipbar">
+            <span class="is-weak">{{'i18n:passwd-sl-1' | i18n}}</span>
+            <u
+              v-for="it in PasswdTipBar"
+                :class="it.className"></u>
+            <span class="is-strong">{{'i18n:passwd-sl-5' | i18n}}</span>
+        </div>
+      </div>
+      <!--
+        Passwd: repeat
+      -->
+      <div class="as-input" :class="PasswdClass">
         <input 
           spellcheck="false"
-          :placeholder="'auth-reset-passwd-old'|i18n"
-          v-model="myForm.passwd_old"></div>
-    </template>
-    <!--
-      ===================================================
-    -->
-    <!--
-      Passwd: new
-    -->
-    <div class="as-input" :class="PasswdClass">
-      <input 
-        spellcheck="false"
-        :placeholder="'auth-reset-passwd-new'|i18n"
-        v-model="myForm.passwd_new"></div>
-    <!--
-      Passwd: repeat
-    -->
-    <div class="as-input" :class="PasswdClass">
-      <input 
-        spellcheck="false"
-        :placeholder="'auth-reset-passwd-ren'|i18n"
-        v-model="myForm.passwd_ren"></div>
-    <!--
-      Submit button
-    -->
-    <div class="as-btn">
-      <button @click="OnSubmit">{{'auth-reset-passwd-save'|i18n}}</button>
-    </div>
-    <!--
-      Sublinks: switch mode / passwd-back
-    -->
-    <div 
-      v-if="hasAltModes"
-        class="as-links">
-        <div
-          v-for="it in AltModes"
-            class="as-item">
-            <a @click.left="OnChangeMode(it)">{{it.text|i18n}}</a>
-        </div>
-    </div>
-  </section>
+          :type="myPassInputType"
+          :placeholder="'auth-reset-passwd-ren'|i18n"
+          v-model="myForm.passwd_ren"></div>
+      <!--
+        Submit button
+      -->
+      <div class="as-btn">
+        <button 
+          :class="SubmitBtnClass"
+          @click="OnSubmit">{{SubmitBtnText|i18n}}</button>
+      </div>
+      <!--
+        Sublinks: switch mode / passwd-back
+      -->
+      <div 
+        v-if="hasAltModes"
+          class="as-links">
+          <div
+            v-for="it in AltModes"
+              class="as-item">
+              <a @click.left="OnChangeMode(it)">{{it.text|i18n}}</a>
+          </div>
+      </div>
+    </section>
+  </template>
 </div>`);
 //============================================================
 // JOIN: web/auth/passwd/auth-passwd.mjs
@@ -24437,6 +24544,7 @@ Ti.Preload("ti/com/web/auth/passwd/auth-passwd.html", `<div
 const _M = {
   ///////////////////////////////////////////////////////
   data : ()=>({
+    "myPassInputType": "password",
     "myForm" : {
       "name"  : null,
       "vcode" : null,
@@ -24444,31 +24552,43 @@ const _M = {
       "passwd_new" : null,
       "passwd_ren" : null
     },
-    "myMode"  : "by-passwd",
+    "myPassTip": -1,
+    "myMode"  : "passwd",
     // delay to get the next captcha to prevent robot
-    "delay" : -1
+    "delay" : -1,
+    "myResetResult": null,
+    "doing": false
   }),
   ///////////////////////////////////////////////////////
   props : {
-    // - "by-passwd"
-    // - "by-phone"
-    // - "by-email"
+    // - "passwd"
+    // - "phone"
+    // - "email"
     "mode" : {
       type : String,
-      default : "by-passwd"
+      default : "passwd"
     },
     "allowModes": {
       type: Object,
       default: ()=>({
-        "by-passwd" : true,
-        "by-phone"  : true,
-        "by-email"  : true
+        "passwd" : true,
+        "phone"  : true,
+        "email"  : true
       })
     },
     "captcha" : {
       type : String,
       required : true,
       default : null
+    },
+    "scenes" : {
+      type : Object,
+      default: ()=>({
+        "robot"  : "robot",
+        "passwd" : "resetpasswd",
+        "email"  : "resetpasswd",
+        "phone"  : "resetpasswd"
+      })
     },
     // The interval of get capche to prevent robot
     // (in second)
@@ -24488,34 +24608,41 @@ const _M = {
 
     },
     //---------------------------------------------------
+    TheAllowModes() {
+      return Ti.Util.truthyKeys(this.allowModes)
+    },
+    //---------------------------------------------------
     isByVode() {
-      return "by-passwd" != this.myMode
+      return "passwd" != this.myMode
     },
     //---------------------------------------------------
     ModeTitle() {
-      return `i18n:auth-reset-passwd-${this.myMode}`
+      return `i18n:auth-reset-passwd-by-${this.myMode}`
     },
     //---------------------------------------------------
     VCodeNameTip() {
-      return `i18n:auth-reset-passwd-${this.myMode}-tip`
+      return `i18n:auth-reset-passwd-by-${this.myMode}-tip`
     },
     //---------------------------------------------------
     VCodeCodeTip() {
-      if("by-email" == this.myMode) {
+      if("email" == this.myMode) {
         return "i18n:auth-email-vcode"
       }
       return "i18n:auth-phone-vcode"
     },
     //---------------------------------------------------
     VCodeGetTip() {
-      if("by-email" == this.myMode) {
+      if("email" == this.myMode) {
         return "i18n:auth-email-vcode-get"
       }
       return "i18n:auth-phone-vcode-get"
     },
     //---------------------------------------------------
-    TheAllowModes() {
-      return Ti.Util.truthyKeys(this.allowModes)
+    PasswdInputTypeIcon() {
+      return ({
+        "password": "fas-eye-slash",
+        "text": "fas-eye"
+      })[this.myPassInputType]
     },
     //---------------------------------------------------
     AltModes() {
@@ -24523,7 +24650,7 @@ const _M = {
       for(let md of this.TheAllowModes) {
         if(md != this.myMode) {
           list.push({
-            text : `i18n:auth-reset-passwd-${md}`,
+            text : `i18n:auth-reset-passwd-by-${md}`,
             mode : md
           })
         }
@@ -24533,6 +24660,77 @@ const _M = {
     //---------------------------------------------------
     hasAltModes() {
       return !_.isEmpty(this.AltModes)
+    },
+    //---------------------------------------------------
+    PasswdTipBar() {
+      let items = []
+      for(let i=1; i<=5; i++) {
+        items.push({
+          text: `i18n:passwd-sl-${i}`,
+          className: (i>this.myPassTip?"is-off":"is-on")
+        })
+      }
+      return items;
+    },
+    //---------------------------------------------------
+    FormStatus() {
+      // passwd: Lake params
+      if("passwd" == this.myMode) {
+        if(!_.trim(this.myForm.passwd_old)
+          || !_.trim(this.myForm.passwd_new)
+          || !_.trim(this.myForm.passwd_ren)) {
+          return "lack"
+        }
+      }
+      // vcode: Lake params
+      else if(!_.trim(this.myForm.name)
+          || !_.trim(this.myForm.vcode)
+          || !_.trim(this.myForm.passwd_new)
+          || !_.trim(this.myForm.passwd_ren)) {
+        return "lack"
+      }
+
+      // vcode: new password too short
+      if(this.myForm.passwd_new.length < 6) {
+        return "short"
+      }
+
+      // 2 password unmatched
+      if(this.myForm.passwd_new != this.myForm.passwd_ren) {
+        return "unmatch"
+      }
+
+      return "ready"
+    },
+    //---------------------------------------------------
+    SubmitBtnText() {
+      return `i18n:auth-reset-passwd-btn-${this.FormStatus}`
+    },
+    //---------------------------------------------------
+    SubmitBtnClass() {
+      return `is-${this.FormStatus}`
+    },
+    //---------------------------------------------------
+    ResetOK() {
+      return _.get(this.myResetResult, "ok") ? true : false
+    },
+    //---------------------------------------------------
+    ResetDoneClass() {
+      return this.ResetOK
+        ? 'is-ok'
+        : 'is-fail'
+    },
+    //---------------------------------------------------
+    ResetDoneIcon() {
+      return this.ResetOK
+        ? "im-check-mark-circle"
+        : "im-warning"
+    },
+    //---------------------------------------------------
+    ResetDoneText() {
+      return this.ResetOK
+        ? "i18n:auth-reset-passwd-ok"
+        : _.get(this.myResetResult, "errCode")
     }
     //---------------------------------------------------
   },
@@ -24543,15 +24741,105 @@ const _M = {
       this.myMode = mode
     },
     //---------------------------------------------------
-    OnSubmit() {
-
+    OnTogglePasswdInputType() {
+      this.myPassInputType = ({
+        "password": "text",
+        "text": "password"
+      })[this.myPassInputType]
     },
     //---------------------------------------------------
-    OnGetVcode() {
+    OnResetAgain() {
+      this.myResetResult=null
+      _.assign(this.myForm, {
+        "name"  : null,
+        "vcode" : null,
+        "passwd_old" : null,
+        "passwd_new" : null,
+        "passwd_ren" : null
+      })
+    },
+    //---------------------------------------------------
+    OnSubmit() {
+      if("ready" == this.FormStatus) {
+        this.doing = true
+        this.$notify("passwd:reset", {
+          scene:  _.get(this.scenes, this.myMode),
+          account : _.trim(this.myForm.name),
+          vcode   : _.trim(this.myForm.vcode),
+          oldpwd  : _.trim(this.myForm.passwd_old),
+          newpwd  : _.trim(this.myForm.passwd_new),
+          done: (reo)=>{
+            this.doing = false
+            this.myResetResult = reo
+          }
+        })
+      }
+    },
+    //---------------------------------------------------
+    async OnGetVcode() {
+      let name = _.trim(this.myForm.name)
+      if(!name) {
+        Ti.Toast.Open(`i18n:auth-reset-passwd-lack-${this.myMode}`, "warn")
+        return 
+      }
 
+      let vars = {
+        scene   : this.scenes.robot,
+        account : name
+      }
+
+      // Get the captcha
+      let src = Ti.S.renderBy(this.captcha, vars)
+      let captcha = await Ti.Captcha(src)
+      if(!captcha)
+        return
+
+      // Mask GUI
+      let toast = Ti.Toast.Open({
+        icon : "fas-spinner fa-spin",
+        content : "i18n:auth-sending-vcode",
+        position : "center",
+        duration : 0,
+        closer : false
+      })
+
+      // Process to get vcode
+      this.$notify("get:vcode", {
+        type: this.myMode,
+        scene: _.get(this.scenes, this.myMode),
+        account: name,
+        captcha,
+        done: ()=>{
+          toast.close()
+          this.myForm.vcode = null
+        },
+        ok : ({duInMin=60}={})=>{
+          this.delay = this.getDelay
+          Ti.Toast.Open({
+            type : "success",
+            position : "top",
+            content : "i18n:auth-sent-ok",
+            vars : {
+              ta  : Ti.I18n.get(`auth-ta-${this.myMode}`),
+              by  : Ti.I18n.get(`auth-ta-by-${this.myMode}`),
+              min : duInMin
+            },
+            duration : 5000
+          })
+        },
+        fail : ({errCode, data}={})=> {
+          Ti.Toast.Open({
+            type : "warn",
+            position : "top",
+            content : `i18n:${errCode}`,
+            duration : 5000
+          })
+        }
+      })
     },
     //---------------------------------------------------
     evalCurrentMode(mode) {
+      console.log("evalCurrentMode", mode)
       // Find the first allowed modes
       if(!_.get(this.allowModes, mode)) {
         if(_.isEmpty(this.TheAllowModes)) {
@@ -24563,6 +24851,54 @@ const _M = {
       return mode
     },
     //---------------------------------------------------
+    updatePasswordTip(passwd=this.myForm.passwd_new) {
+      if(_.isEmpty(passwd) || !_.isString(passwd) || passwd.length < 6) {
+        this.myPassTip = -1
+        return
+      }
+      // Score the passwd
+      let score = 0
+      //  > 8
+      if(passwd.length > 8) {
+        score += 1
+      }
+      // Count char type
+      let map = {
+        a_z: 0,
+        A_Z: 0,
+        dig: 0,
+        spe: 0
+      }
+      for(let i=0; i<passwd.length; i++) {
+        let code = passwd.charCodeAt(i)
+        // a-z
+        if(code>=97 && code<=122) {
+          map.a_z = 1
+        }
+        // A-Z
+        else if(code>=65 && code<=90) {
+          map.A_Z = 1
+        }
+        // 0-9
+        else if(code>=48 && code<=57) {
+          map.dig = 1
+        }
+        // Special char
+        else if(code>=20 && code<=128){
+          map.spe = 1
+        }
+        // Invalid char
+        else {
+          this.myPassTip = -2
+          return
+        }
+      }
+      // Count score
+      score += _.sum(_.values(map))
+
+      this.myPassTip = score
+    },
+    //---------------------------------------------------
     syncCurrentMode() {
       this.myMode = this.evalCurrentMode(this.mode)
     }
@@ -24571,12 +24907,16 @@ const _M = {
   ///////////////////////////////////////////////////////
   watch: {
     "mode": {
-      handler: "syncCurrentMode",
-      immediate: true
-    }
+      handler: "syncCurrentMode"
+    },
+    "allowModes": {
+      handler: "syncCurrentMode"
+    },
+    "myForm.passwd_new": "updatePasswordTip"
   },
   ///////////////////////////////////////////////////////
   mounted : function() {
+    this.syncCurrentMode()
     // count the secound
     this.__H = window.setInterval(()=>{
       if(this.delay>=0)
@@ -25030,7 +25370,7 @@ const _M = {
       this.InvalidField = null
 
       // Show the image captcha to prevent robot
-      console.log("captcha", this.captcha)
+      //console.log("captcha", this.captcha)
       let vars = {
         scene   : this.scenes.robot,
         account : this.Params.name
@@ -25672,90 +26012,215 @@ Ti.Preload("ti/com/web/meta/order/com/order-item/_com.json", {
 //============================================================
 // JOIN: web/meta/order/web-meta-order.html
 //============================================================
-Ti.Preload("ti/com/web/meta/order/web-meta-order.html", `<div class="ti-web-meta-order">
+Ti.Preload("ti/com/web/meta/order/web-meta-order.html", `<div class="web-meta-order"
+  :class="TopClass">
   <!--
-    Title
+    Head： Status
   -->
-  <h1>确认订单信息</h1>
-  <!--
-    Item list
-  -->
-  <div class="as-items">
-    <div class="as-table">
-      <div class="as-head">
-        <ul>
-          <li class="as-title">商品</li>
-          <li class="as-price">单价</li>
-          <li class="as-amount">数量</li>
-          <li class="as-fee">小计</li>
-        </ul>
+  <div class="as-or-box is-head">
+    <!--
+      Left: ID/status
+    -->
+    <div class="at-left is-status">
+      <!--ID-->
+      <div class="as-or-id">
+        <span>{{'order-k-id'|i18n}}:</span>
+        <em>{{Order.id}}</em>
       </div>
-      <div class="as-body">
-        <order-item v-for="it in items"
-          :key="it.id"
-          v-bind="it"
-          :src="itemThumbSrc"
-          :currency="currency"/>
+      <!--Status-->
+      <div class="as-or-st">
+        <span :class="OrderStatus">{{OrderStatus|i18n}}</span>
       </div>
     </div>
+    <!--
+      Right: Timestamp
+    -->
+    <div class="at-right is-timestamp">
+      <div
+        v-for="it in Timestamps"
+          :class="it.className">
+          <!--Item-->
+          <template v-if="'item' == it.type">
+            <ti-icon :value="it.icon"/>
+            <div class="as-t-title">{{it.title|i18n}}</div>
+            <div class="as-t-date">{{it.dateText}}</div>
+            <div class="as-t-time">{{it.timeText}}</div>
+          </template>
+          <!--Line-->
+          <template v-else>
+            <ti-icon :value="it.icon"/>
+          </template>
+      </div>
+    </div>
+  </div>
+  <!--
+    TODO shipping address & physical distribution
+  -->
+  <!--
+    Product list
+  -->
+  <div class="as-or-box is-products">
+    <table>
+      <thead>
+        <tr>
+          <th>{{'order-k-pro-title'|i18n}}</th>
+          <th>{{'order-k-pro-price'|i18n}}</th>
+          <th>{{'order-k-pro-amount'|i18n}}</th>
+          <th>{{'order-k-pro-subtotal'|i18n}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="it in Products"
+            class="as-pro-it">
+            <!--Title-->
+            <td class="as-pro-title">
+              <a 
+                :href="it.href"
+                @click.left.prevent="OnClickProduct(it)"><img :src="it.src"/></a>
+              <a 
+                :href="it.href"
+                @click.left.prevent="OnClickProduct(it)">{{it.title}}</a>
+            </td>
+            <!--Price-->
+            <td class="as-price">{{CurrencyChar}}{{it.price}}</td>
+            <!--Amount-->
+            <td class="as-amount">{{it.amount}}</td>
+            <!--Subtotal-->
+            <td class="as-subtotal">{{CurrencyChar}}{{it.subtotal}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   <!--
     Summary
   -->
-  <div class="as-summary">
-    <div class="as-sum-fee">
-      <span>实际支付</span>
-      <em class="ti-num is-xl">{{totalFeeText}}</em>
-    </div>
-    <div class="as-btns">
-      <a class="ti-btn" @click="onSubmit">提交订单</a>
-    </div>
+  <div class="as-or-box is-summary">
+    <table>
+      <tr class="as-sum-price">
+        <td class="as-s-key">{{'order-k-price'|i18n}}:</td>
+        <td class="as-s-val">{{CurrencyChar}}{{Order.price}}</td>
+      </tr>
+      <tr class="as-sum-fee">
+        <td class="as-s-key">{{'order-k-fee'|i18n}}:</td>
+        <td class="as-s-val">{{CurrencyChar}}{{Order.fee}}</td>
+      </tr>
+    </table>
   </div>
-
 </div>`);
 //============================================================
 // JOIN: web/meta/order/web-meta-order.mjs
 //============================================================
 (function(){
 const _M = {
-  /////////////////////////////////////////
+  //////////////////////////////////////////
   props : {
-    "items" : {
-      type : Array,
-      default : ()=>[]
+    "value" : {
+      type : Object,
+      default : ()=>({})
     },
-    "itemThumbSrc" : {
+    "proThumbSrc": {
       type : String,
-      default : "/api/thumb?id:${id}"
+      default : undefined
     },
-    "currency" : {
+    "proHref": {
       type : String,
-      default : "RMB"
+      default : undefined
     }
   },
   //////////////////////////////////////////
   computed : {
-    //......................................
-    totalFee() {
-      let tot = 0
-      for(let it of this.items) {
-        tot += Ti.WWW.evalFee(it)
-      }
-      return tot
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass(
+        `is-${this.OrderStatus}`
+      )
     },
-    //......................................
-    totalFeeText() {
-      return Ti.WWW.feeText(this.totalFee, this.currency)
-    }
-    //......................................
-  },
-  methods : {
-    onSubmit() {
-      this.$notify("order:submit", {
-        items    : this.items,
-        currency : this.currency
+    //--------------------------------------
+    Order() {
+      return this.value || {}
+    },
+    //--------------------------------------
+    OrderStatus() {
+      return `or-st-${_.toLower(this.Order.st)}`
+    },
+    //--------------------------------------
+    CurrencyChar() {
+      return Ti.Bank.getCurrencyChar(this.Order.currency||"RMB")
+    },
+    //--------------------------------------
+    Products() {
+      let list = []
+      _.forEach(this.value.products, it=>{
+        let pro = {...it}
+        if(this.proThumbSrc) {
+          pro.src = Ti.S.renderBy(this.proThumbSrc, it)
+        }
+        if(this.proHref) {
+          pro.href = Ti.S.renderBy(this.proHref, it)
+        }
+        pro.subtotal = Ti.Num.precise(it.price * it.amount)
+        list.push(pro)
       })
+      return list
+    },
+    //--------------------------------------
+    Timestamps() {
+      let list = []
+      list.push(this.genTimestampItem(
+        "fas-file-invoice-dollar","i18n:or-st-nw", this.Order.ct))
+      list.push(this.genTimestampLine(this.Order.ok_at))
+      list.push(this.genTimestampItem(
+        "far-credit-card","i18n:or-st-ok", this.Order.ok_at))
+      list.push(this.genTimestampLine(this.Order.sp_at))
+      list.push(this.genTimestampItem(
+        "fas-shipping-fast","i18n:or-st-sp", this.Order.sp_at))
+      list.push(this.genTimestampLine(this.Order.dn_at))
+      list.push(this.genTimestampItem(
+        "fas-clipboard-check","i18n:or-st-dn", this.Order.dn_at, true))
+      return list
     }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnClickProduct({id}) {
+      this.$notify("open:product", id)
+    },
+    //--------------------------------------
+    genTimestampItem(icon, title, t, atLast=false) {
+      let it = {type:"item", icon, title, time:t}
+      let isOn = (t && t>0)
+      it.className =  {
+        "is-item": true,
+        "is-on": isOn,
+        "is-off": !isOn,
+        "at-last": atLast
+      }
+      if(isOn) {
+        it.dateText = Ti.DateTime.format(t, "yyyy-MM-dd")
+        it.timeText = Ti.DateTime.format(t, "HH:mm:ss")
+      }
+      return it
+    },
+    //--------------------------------------
+    genTimestampLine(t) {
+      let isOn = (t && t>0)
+      return {
+        type:"line",
+        isOn,
+        icon: isOn
+          ? "fas-chevron-right"
+          : "fas-circle",
+        className : {
+          "is-line": true,
+          "is-on": isOn,
+          "is-off": !isOn
+        }
+      }
+    }
+    //--------------------------------------
   }
   //////////////////////////////////////////
 }
@@ -26692,6 +27157,14 @@ Ti.Preload("ti/com/web/pay/choose/_com.json", {
 //============================================================
 (function(){
 const _M = {
+  "waitIcon": {
+    type : String,
+    default : "fas-spinner fa-spin"
+  },
+  "waitText": {
+    type : String,
+    default : "i18n:loading"
+  },
   "okIcon": {
     type : String,
     default : "im-check-mark-circle"
@@ -26776,7 +27249,7 @@ const _M = {
   props : {
     "payOk" : {
       type : Boolean,
-      default : false
+      default : undefined
     },
     "errMsg" : {
       type : String,
@@ -26792,18 +27265,29 @@ const _M = {
     //----------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-ok": this.payOk,
-        "is-fail": !this.payOk
+        "is-wait" : this.isWait,
+        "is-ok"   : !this.isWait && this.payOk,
+        "is-fail" : !this.isWait && !this.payOk
       })
     },
     //----------------------------------------------
+    isWait() {
+      return _.isUndefined(this.payOk)
+    },
+    //----------------------------------------------
     TheIcon() {
+      if(_.isUndefined(this.payOk)) {
+        return this.waitIcon
+      }
       return this.payOk
         ? this.okIcon
         : this.failIcon
     },
     //----------------------------------------------
     TheText() {
+      if(_.isUndefined(this.payOk)) {
+        return this.waitText
+      }
       return this.payOk
         ? this.okText
         : this.failText
@@ -27552,6 +28036,110 @@ Ti.Preload("ti/com/web/shelf/free/_com.json", {
   "mixins" : ["./web-shelf-free.mjs"]
 });
 //============================================================
+// JOIN: web/shelf/list/web-shelf-list.html
+//============================================================
+Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-list"
+  :class="TopClass">
+  <!--
+    Blank
+  -->
+  <ti-loading
+    v-if="isEmpty"
+      class="as-big"
+      v-bind="blankAs"/>
+  <!--
+    Each Items
+  -->
+  <template v-else>
+    <div
+      v-for="it in ItemList"
+        class="list-item"
+        :key="it.key">
+        <component
+          :is="it.comType"
+          v-bind="it.comConf"/>    
+    </div>
+  </template>
+</div>`);
+//============================================================
+// JOIN: web/shelf/list/web-shelf-list.mjs
+//============================================================
+(function(){
+const _M = {
+  //////////////////////////////////////////
+  props : {
+    "data" : {
+      type : Array,
+      default : ()=>[]
+    },
+    // Item comType
+    "comType": {
+      type: String,
+      default: "ti-label"
+    },
+    "comConf": {
+      type: Object,
+      default: ()=>({
+        value: "=.."
+      })
+    },
+    "blankAs": {
+      type: Object,
+      default: ()=>({
+        text: "i18n:empty",
+        icon: "fas-box-open"
+      })
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    ItemList() {
+      if(!_.isArray(this.data))
+        return []
+      
+      let list = []      
+      for(let i=0; i < this.data.length; i++) {
+        let it = this.data[i]
+        let comConf = Ti.Util.explainObj(it, this.comConf)
+        list.push({
+          key: `It-${i}`,
+          comType: this.comType,
+          comConf
+        })        
+      }
+      // Get the result
+      return list
+    },
+    //--------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.ItemList)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/shelf/list/web-shelf-list.mjs", _M);
+})();
+//============================================================
+// JOIN: web/shelf/list/_com.json
+//============================================================
+Ti.Preload("ti/com/web/shelf/list/_com.json", {
+  "name" : "web-shelf-list",
+  "globally" : true,
+  "template" : "./web-shelf-list.html",
+  "mixins" : ["./web-shelf-list.mjs"]
+});
+//============================================================
 // JOIN: web/shelf/scroller/web-shelf-scroller.html
 //============================================================
 Ti.Preload("ti/com/web/shelf/scroller/web-shelf-scroller.html", `<div class="web-shelf-scroller"
@@ -27673,9 +28261,10 @@ const _M = {
       let list = []      
       for(let i=0; i < this.data.length; i++) {
         let it = this.data[i]
-        let comConf = _.assign({}, this.comConf, {
-          value: it
-        })
+        // let comConf = _.assign({}, this.comConf, {
+        //   value: it
+        // })
+        let comConf = Ti.Util.explainObj(it, this.comConf)
         list.push({
           key: `It-${i}`,
           comType: this.comType,
@@ -27750,36 +28339,45 @@ Ti.Preload("ti/com/web/shelf/scroller/_com.json", {
 Ti.Preload("ti/com/web/shelf/wall/web-shelf-wall.html", `<div class="web-shelf-wall"
   :class="TopClass">
   <!--
-    Each rows
+    Blank
   -->
-  <div v-for="wr in WallList"
-    class="wall-group"
-    :key="wr.key">
-    <!--
-      ===========================================
-      Items in row
-    -->
-    <template v-for="it in wr.items">
+  <ti-loading
+    v-if="isEmpty"
+      class="as-big"
+      v-bind="blankAs"/>
+  <!--
+    Each Items
+  -->
+  <template v-else>
+    <div v-for="wr in WallList"
+      class="wall-group"
+      :key="wr.key">
       <!--
-        Blank
+        ===========================================
+        Items in row
       -->
-      <div
-        v-if="it.blank"
-          class="wall-tile is-blank"
-          :style="ItemStyle"></div>
-      <!--
-        Normal Item
-      -->
-      <div
-        v-else
-          class="wall-tile is-com"
-          :style="ItemStyle">
-          <component
-            :is="it.comType"
-            v-bind="it.comConf"/>
-      </div>
-    </template> <!-- End item-->
-  </div> <!--End Row-->
+      <template v-for="it in wr.items">
+        <!--
+          Blank
+        -->
+        <div
+          v-if="it.blank"
+            class="wall-tile is-blank"
+            :style="ItemStyle"></div>
+        <!--
+          Normal Item
+        -->
+        <div
+          v-else
+            class="wall-tile is-com"
+            :style="ItemStyle">
+            <component
+              :is="it.comType"
+              v-bind="it.comConf"/>
+        </div>
+      </template> <!-- End item-->
+    </div> <!--End Row-->
+  </template>
 </div>`);
 //============================================================
 // JOIN: web/shelf/wall/web-shelf-wall.mjs
@@ -27808,6 +28406,13 @@ const _M = {
       default: ()=>({
         value: "=.."
       })
+    },
+    "blankAs": {
+      type: Object,
+      default: ()=>({
+        text: "i18n:empty",
+        icon: "fas-box-open"
+      })
     }
   },
   //////////////////////////////////////////
@@ -27832,9 +28437,10 @@ const _M = {
       let count = 1
       for(let i=0; i < this.data.length; i++) {
         let it = this.data[i]
-        let comConf = _.assign({}, this.comConf, {
-          value: it
-        })
+        // let comConf = _.assign({}, this.comConf, {
+        //   value: it
+        // })
+        let comConf = Ti.Util.explainObj(it, this.comConf)
         items.push({
           key: `It-${i}`,
           comType: this.comType,
@@ -27870,6 +28476,10 @@ const _M = {
       }
       // Get the result
       return list
+    },
+    //--------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.WallList)
     }
     //--------------------------------------
   },
@@ -28005,6 +28615,333 @@ Ti.Preload("ti/com/web/text/raw/_com.json", {
   "globally" : true,
   "template" : "./web-text-raw.html",
   "mixins"   : ["./web-text-raw.mjs"]
+});
+//============================================================
+// JOIN: web/tile/address/web-tile-address.html
+//============================================================
+Ti.Preload("ti/com/web/tile/address/web-tile-address.html", `<div class="web-tile-address"
+  :class="TopClass">
+  <!--
+    Center
+  -->
+  <div class="at-center">
+    <div class="is-info">
+      <div
+        v-if="Item.consignee">
+          <span>{{'address-consignee'|i18n}}:</span>
+          <em>{{Item.consignee}}</em></div>
+      <div
+        v-if="Item.phone">
+          <span>{{'address-k-phone'|i18n}}:</span>
+          <em>{{Item.phone}}</em></div>
+      <div
+        v-if="Item.email">
+          <span>{{'address-k-email'|i18n}}:</span>
+          <em>{{Item.email}}</em></div>
+    </div>
+    <div class="is-big">{{Item.street}}</div>
+  </div>
+  <!--
+    Left top
+  -->
+  <div class="at-left-top is-float">
+      <a 
+        v-if="can.default && !Item.dftaddr"
+          @click="OnSetDefault">{{'address-set-dft'|i18n}}</a>
+      <span
+        v-else-if="Item.dftaddr"
+          class="is-bold">{{'address-is-dft'|i18n}}</span>
+  </div>
+  <!--
+    Left-bottom
+  -->
+  <div class="at-left-bottom is-float">
+    <span
+      v-if="Item.city">{{Item.city}}</span>
+    <span
+      v-if="Item.province">{{Item.province}}</span>
+    <span
+      v-if="showCountry && Item.countryName">{{Item.countryName}}</span>
+  </div>
+  <!--
+    Right-top
+  -->
+  <div
+    v-if="can.remove || can.edit" 
+      class="at-right-top is-float">
+      <a v-if="can.remove" @click="OnRemove">{{'remove'|i18n}}</a>
+      <a v-if="can.edit" @click="OnEdit">{{'edit'|i18n}}</a>
+  </div>  
+</div>`);
+//============================================================
+// JOIN: web/tile/address/web-tile-address.mjs
+//============================================================
+(function(){
+const _M = {
+  //////////////////////////////////////////
+  props : {
+    "value" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "mapping": {
+      type: Object,
+      default: ()=>({
+        id : "id",
+        country  : "country",
+        postcode : "postcode",
+        province: "province",
+        city: "city",
+        street: "street",
+        consignee: "consignee",
+        phone: "phone",
+        email: "email",
+        dftaddr: "dftaddr"
+      })
+    },
+    // {"HK":"Hong Kong","TW":"Taiwan","MO":"Macao"}
+    "countries": {
+      type: Object,
+      default: undefined
+    },
+    "showCountry": {
+      type: Boolean,
+      default:true
+    },
+    "can": {
+      type: Object,
+      default: ()=>({
+        remove  : true,
+        edit    : true,
+        default : true
+      })
+    },
+    // If false emit the item after mapping
+    "emitRawValue": {
+      type: Boolean,
+      default: true
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-highlight": this.Item.dftaddr
+      })
+    },
+    //--------------------------------------
+    Item() {
+      let it = Ti.Util.translate(this.value, this.mapping)
+      if(this.countries) {
+        it.countryName = this.countries[it.country]
+      } else {
+        it.countryName = it.country
+      }
+      return it
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnRemove(){
+      let v = this.getEmitValue()
+      this.$notify('remove', v)
+    },
+    //--------------------------------------
+    OnSetDefault(){
+      let v = this.getEmitValue()
+      this.$notify('set:default', v)
+    },
+    //--------------------------------------
+    OnEdit(){
+      let v = this.getEmitValue()
+      this.$notify('edit', v)
+    },
+    //--------------------------------------
+    getEmitValue() {
+      let v = this.emitRawValue ? this.value : this.Item
+      return _.cloneDeep(v)
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/tile/address/web-tile-address.mjs", _M);
+})();
+//============================================================
+// JOIN: web/tile/address/_com.json
+//============================================================
+Ti.Preload("ti/com/web/tile/address/_com.json", {
+  "name" : "web-tile-address",
+  "globally" : true,
+  "template" : "./web-tile-address.html",
+  "mixins" : ["./web-tile-address.mjs"]
+});
+//============================================================
+// JOIN: web/tile/order/web-tile-order.html
+//============================================================
+Ti.Preload("ti/com/web/tile/order/web-tile-order.html", `<div class="web-tile-order"
+  :class="TopClass">
+  <!--
+    Summary
+  -->
+  <div class="as-summary">
+    <!--ID-->
+    <div class="or-field as-id">
+      <span>{{'order-k-id'|i18n}}</span>
+      <a 
+        v-if="OrderHref"
+          :href="OrderHref"
+          @click.left.prevent="OnClickOrder">{{Order.id}}</a>
+      <em
+        v-else>{{Order.id}}</em>
+    </div>
+    <!--Date-->
+    <div class="or-field as-datetime">
+      <span>{{'wn-key-ct'|i18n}}</span>
+      <em>{{Order.ct|datetime}}</em>
+    </div>
+    <!--Fee-->
+    <div class="or-field as-price">
+      <span>{{'order-k-fee'|i18n}}</span>
+      <em>{{CurrencyChar}}{{Order.fee}}</em>
+    </div>
+    <!--Payment-->
+    <div class="or-field as-pay_tp">
+      <span>{{'order-k-pay_tp'|i18n}}</span>
+      <em>{{'pay-by-'+Order.pay_tp|i18n}}</em>
+    </div>
+    <!--Status-->
+    <div class="or-field as-st">
+      <span>{{'order-k-st'|i18n}}</span>
+      <em>{{OrderStatus|i18n}}</em>
+    </div>
+  </div>
+  <!--
+    Product list
+  -->
+  <div class="as-products">
+    <table>
+      <tr
+        v-for="it in Products"
+          class="as-pro-it">
+          <!--Thumb-->
+          <td><a 
+              :href="it.href"
+              @click.left.prevent="OnClickProduct(it)"><img :src="it.src"/></a></td>
+          <!--Title-->
+          <td>
+              <a 
+                :href="it.href"
+                @click.left.prevent="OnClickProduct(it)">{{it.title}}</a>
+          </td>
+          <!--Price-->
+          <td class="as-price">{{CurrencyChar}}{{it.price}}</td>
+          <!--Amount-->
+          <td class="as-amount">x{{it.amount}}</td>
+          <!--Subtotal-->
+          <td class="as-subtotal">{{CurrencyChar}}{{it.subtotal}}</td>
+      </tr>
+    </table>
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/tile/order/web-tile-order.mjs
+//============================================================
+(function(){
+const _M = {
+  //////////////////////////////////////////
+  props : {
+    "value" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "proThumbSrc": {
+      type : String,
+      default : undefined
+    },
+    "proHref": {
+      type : String,
+      default : undefined
+    },
+    "href": {
+      type : String,
+      default : undefined
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass(
+        `is-${this.OrderStatus}`
+      )
+    },
+    //--------------------------------------
+    Order() {
+      return this.value || {}
+    },
+    //--------------------------------------
+    OrderStatus() {
+      return `or-st-${_.toLower(this.Order.st)}`
+    },
+    //--------------------------------------
+    OrderHref() {
+      if(this.href) {
+        return Ti.S.renderBy(this.href, this.Order)
+      }
+    },
+    //--------------------------------------
+    CurrencyChar() {
+      return Ti.Bank.getCurrencyChar(this.Order.currency||"RMB")
+    },
+    //--------------------------------------
+    Products() {
+      let list = []
+      _.forEach(this.value.products, it=>{
+        let pro = {...it}
+        if(this.proThumbSrc) {
+          pro.src = Ti.S.renderBy(this.proThumbSrc, it)
+        }
+        if(this.proHref) {
+          pro.href = Ti.S.renderBy(this.proHref, it)
+        }
+        pro.subtotal = Ti.Num.precise(it.price * it.amount)
+        list.push(pro)
+      })
+      return list
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnClickOrder() {
+      if(this.Order.id)
+        this.$notify("show:order", this.Order.id)
+    },
+    //--------------------------------------
+    OnClickProduct({id}) {
+      if(id) {
+        this.$notify("open:product", id);
+      }
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/tile/order/web-tile-order.mjs", _M);
+})();
+//============================================================
+// JOIN: web/tile/order/_com.json
+//============================================================
+Ti.Preload("ti/com/web/tile/order/_com.json", {
+  "name" : "web-tile-order",
+  "globally" : true,
+  "template" : "./web-tile-order.html",
+  "mixins" : ["./web-tile-order.mjs"]
 });
 //============================================================
 // JOIN: web/widget/sharebar/widget-sharebar.html
@@ -28210,8 +29147,12 @@ Ti.Preload("ti/com/web/widget/user/widget-user.html", `<div class="web-widget-us
     Action bar
   -->
   <div class="as-actions">
-    <div class="ti-btn reset-passwd">{{'passwd-reset'|i18n}}</div>
-    <div class="ti-btn edit-profile">{{'profile-edit'|i18n}}</div>
+    <div 
+      class="ti-btn reset-passwd"
+      @click="$notify('go:passwd:reset')">{{'passwd-reset'|i18n}}</div>
+    <div
+      class="ti-btn edit-profile"
+      @click="$notify('go:my:profile')">{{'profile-edit'|i18n}}</div>
   </div>
 </div>`);
 //============================================================
@@ -29388,6 +30329,359 @@ Ti.Preload("ti/com/wn/droplist/_com.json", {
   "components" : [
     "@com:wn/combo/input",
     "@com:wn/combo/multi-input"
+  ]
+});
+//============================================================
+// JOIN: wn/entity/history/wn-entity-history.html
+//============================================================
+Ti.Preload("ti/com/wn/entity/history/wn-entity-history.html", `<ti-gui
+  class="wn-entity-history"
+  :class="TopClass"
+  :layout="Layout"
+  :schema="Schema"
+  :shown="myShown"
+  :can-loading="true"
+  :loading-as="loading"
+  @block:shown="OnShownChange"
+  @filter::change="OnFilterChange"
+  @sorter::change="OnSorterChange"
+  @pager::change="OnPagerChange"
+  @list::select="OnSelect"/>`);
+//============================================================
+// JOIN: wn/entity/history/wn-entity-history.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data: ()=>({
+    "myShown": {},
+    "myList": [],
+    "myHisRecord": null,
+    "myFilterKeyword": null,
+    "myFilterMatch": {},
+    "mySort": {
+      createTime: -1
+    },
+    "myPager": {
+      pn: 1,
+      pgsz: 20
+    },
+    "loading": false
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    "meta": {
+      type: Object,
+      default: ()=>({})
+    },
+    "data": {
+      type: Object,
+      default: ()=>({})
+    },
+    "status": {
+      type: Object,
+      default: ()=>({})
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    HistoryItems() {
+      let items = []
+      _.forEach(this.data.list, it=> {
+        let name  = Ti.Util.getMajorName(it.nm)
+        let title = it.title
+        if(!title) {
+          title =  "_history" == name
+            ? "i18n:default"
+            : name
+        }
+        items.push({name, title})
+      })
+      // Update shown
+      if(!_.isEmpty(items)) {
+        this.myShown = _.assign({
+          [_.first(items).name] : true
+        }, this.myShown)
+      }
+      // Return
+      return items
+    },
+    //------------------------------------------------
+    CurrentHistory() {
+      return _.first(Ti.Util.truthyKeys(this.myShown))
+    },
+    //------------------------------------------------
+    Layout() {
+      let blocks = []
+      for(let hi of this.HistoryItems) {
+        blocks.push({
+          type: "cols",
+          title: hi.title,
+          name : hi.name,
+          border: true,
+          blocks: [{
+            type: "rows",
+            size: "65%",
+            blocks: [{
+              "type": "cols",
+              "size": ".44rem",
+              "blocks": [{
+                  "name": "filter",
+                  "flex": "both",
+                  "body": "filter"
+                }, {
+                  "name": "sorter",
+                  "flex": "none",
+                  "body": "sorter"
+                }]
+              }, {
+                "name" : "list",
+                "size" : "stretch",
+                "overflow" : "cover",
+                "body" : "list"
+              }, {
+                "name" : "pager",
+                "size" : "auto",
+                "body" : "pager"
+              }]
+          }, {
+            name: "form",
+            body: "form"
+          }]
+        })
+      }
+      return {type: "tabs", blocks}
+    },
+    //------------------------------------------------
+    Schema() {
+      return {
+        //............................................
+        filter : {
+          comType : "TiComboFilter",
+          comConf : {
+            placeholder : "i18n:wn-en-his-flt-tip",
+            dropWidth: -500,
+            form: {
+              fields: [{
+                  title: "i18n:wn-en-his-ct",
+                  name: "createTime",
+                  comType: "ti-input-daterange",
+                  comConf: {
+                    valueType: "ms-range"
+                  }
+                },{
+                  title: "i18n:wn-en-his-utp",
+                  name: "userType",
+                  comType: "ti-input"
+                },{
+                  title: "i18n:wn-en-his-tid",
+                  name: "targetId",
+                  comType: "ti-input"
+                },{
+                  title: "i18n:wn-en-his-tnm",
+                  name: "targetName",
+                  comType: "ti-input"
+                },{
+                  title: "i18n:wn-en-his-ttp",
+                  name: "targetType",
+                  comType: "ti-input"
+                },{
+                  title: "i18n:wn-en-his-opt",
+                  name: "operation",
+                  comType: "ti-input"
+                }]
+            },
+            value: {
+              keyword: this.myFilterKeyword,
+              match: this.myFilterMatch
+            }
+          }
+        },
+        //............................................
+        sorter: {
+          comType: "TiComboSorter",
+          comConf: {
+            dropWidth : 200,
+            options: [
+              {value:"createTime",   text:"i18n:wn-en-his-ct"},
+              {value:"userType",     text:"i18n:wn-en-his-utp"},
+              {value:"targetType",   text:"i18n:wn-en-his-ttp"}],
+            value: this.mySort
+          }
+        },
+        //............................................
+        list: {
+          comType: "TiTable",
+          comConf: {
+            data: this.myList,
+            fields: [{
+              title:"i18n:wn-en-his-usr",
+              display: ["userName","userType:[${val}]"]
+            },{
+              title:"i18n:wn-en-his-ct",
+              display: {
+                key:"createTime",
+                transformer: "Ti.DateTime.format"
+              }
+            },{
+              title:"i18n:wn-en-his-tar",
+              display: ["targetName","targetType:[${val}]"]
+            },{
+              title:"i18n:wn-en-his-opt",
+              display: "operation"
+            }]
+          }
+        },
+        //............................................
+        pager : {
+          comType : "TiPagingJumper",
+          comConf : {
+            value : this.myPager
+          }
+        },
+        //............................................
+        form: {
+          comType: "TiForm",
+          comConf: {
+            data: this.myHisRecord,
+            autoShowBlank: true,
+            fields: [{
+                title:"ID",
+                name: "id"
+              },{
+                title:"i18n:wn-en-his-uid",
+                name: "userId"
+              },{
+                title:"i18n:wn-en-his-unm",
+                name: "userName"
+              },{
+                title:"i18n:wn-en-his-utp",
+                name: "userType"
+              },{
+                title:"i18n:wn-en-his-ct",
+                name: "createTime",
+                type: "AMS"
+              },{
+                title:"i18n:wn-en-his-tid",
+                name: "targetId"
+              },{
+                title:"i18n:wn-en-his-tnm",
+                name: "targetName"
+              },{
+                title:"i18n:wn-en-his-ttp",
+                name: "targetType"
+              },{
+                title:"i18n:wn-en-his-opt",
+                name: "operation"
+              },{
+                title:"i18n:wn-en-his-mor",
+                name: "more"
+              }]
+          }
+        }
+        //............................................
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    OnShownChange(shown) {
+      this.myShown = shown
+    },
+    //------------------------------------------------
+    OnSelect({current}) {
+
+      this.myHisRecord = current
+    },
+    //------------------------------------------------
+    async OnFilterChange({match,keyword}={}) {
+      this.myFilterMatch = match
+      this.myFilterKeyword = keyword
+      await this.reloadList()
+    },
+    //------------------------------------------------
+    async OnSorterChange(sort) {
+      this.mySort = sort
+      await this.reloadList()
+    },
+    //------------------------------------------------
+    async OnPagerChange(page) {
+      _.assign(this.myPager, page)
+      await this.reloadList()
+    },
+    //------------------------------------------------
+    async reloadList() {
+      // Prepare the command
+      let hisName = this.CurrentHistory
+      if("_history" == hisName) {
+        hisName = ""
+      }
+      let cmds = [`history ${hisName} query`]
+
+      // Sort
+      if(!_.isEmpty(this.mySort)) {
+        let sort = JSON.stringify(this.mySort)
+        cmds.push(`-sort '${sort}'`)
+      }
+      
+      // Pager
+      cmds.push(`-pn ${this.myPager.pn}`)
+      cmds.push(`-pgsz ${this.myPager.pgsz}`)
+      cmds.push("-cqn")
+
+      // Filter
+      let flt = _.assign({}, this.myFilterMatch)
+      if(this.myFilterKeyword) {
+        if(Wn.Io.isFullObjId(this.myFilterKeyword)) {
+          flt.userId = this.myFilterKeyword
+        } else {
+          flt.userName = this.myFilterKeyword
+        }
+      }
+      let input = JSON.stringify(flt)
+
+      // Load
+      this.loading = true
+      let reo = await Wn.Sys.exec2(cmds.join(" "), {
+        input, as:"json"
+      })
+
+      // Update
+      this.myList = reo.list
+      this.myPager = reo.pager
+      this.loading = false
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "CurrentHistory": function(){
+      this.reloadList()
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/entity/history/wn-entity-history.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/entity/history/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/entity/history/_com.json", {
+  "name" : "wn-entity-history",
+  "globally" : true,
+  "template" : "./wn-entity-history.html",
+  "mixins"   : ["./wn-entity-history.mjs"],
+  "components": [
+    "@com:ti/input/daterange",
+    "@com:ti/combo/filter",
+    "@com:ti/paging/jumper"
   ]
 });
 //============================================================
@@ -36450,7 +37744,8 @@ const _M = {
       //.....................................
       // Gen the GUI object
       let gui = {
-        defaultFlex: "none",
+        defaultFlex: "nil",
+        defaultOverflow: "none",
         layout, 
         schema : {},
         canLoading : true
@@ -36562,12 +37857,675 @@ const _M = {
 Ti.Preload("ti/lib/www/com/site-main.mjs", _M);
 })();
 //============================================================
+// JOIN: mod/auth/mod-address-actions.mjs
+//============================================================
+(function(){
+const _M = {
+  //--------------------------------------------
+  async reloadMyAddresses({state, commit, getters}){
+    let url = getters.urls.addr_mine
+
+    commit("setLoading", true, {root:true})
+    let reo = await Ti.Http.get(url, {
+      params: {
+        ticket: state.ticket 
+      },
+      as:"json"
+    })
+    commit("setLoading", false, {root:true})
+    commit("setAddresses", reo)
+  },
+  //--------------------------------------------
+  async editOrCreateAddress({state, getters, commit, dispatch}, addr={}) {
+    console.log("openAddressEditor", addr)
+    // Pick the data
+    let result = _.pick(addr, 
+        "id", "country", "postcode",
+        "province", "city", "street", "dftaddr",
+        "consignee", "phone", "email")
+
+    // Prepare the Edit form
+    let newAddr = await Ti.App.Open({
+      title: "i18n:edit",
+      position: "top",
+      width: 640,
+      height: 640,
+      result: result,
+      comType: "TiForm",
+      comConf: {
+        onlyFields: false,
+        data: "=result",
+        fields: [{
+            "title"   : "i18n:address-k-country",
+            "name"    : "country",
+            "comType" : "ti-combo-input",
+            "comConf" : {
+              "mustInList": true,
+              "autoCollapse": true,
+              "valueCase": "upper",
+              "dropDisplay": "name",
+              "options": state.countries,
+              "valueBy": "key",
+              "textBy" : "name"
+            }
+          },{
+            "title"   : "i18n:address-k-postcode",
+            "name"    : "postcode",
+            "comType" : "ti-input",
+            "comConf" : {
+              "valueCase": "upper"
+            }
+          },{
+            "title"   : "i18n:address-k-city",
+            "name"    : "city",
+            "comType" : "ti-input"
+          },{
+            "title"   : "i18n:address-k-street",
+            "name"    : "street",
+            "comType" : "ti-input"
+          },{
+            "title"   : "i18n:address-k-dftaddr",
+            "name"    : "dftaddr",
+            "type"    : "Boolean",
+            "comType" : "ti-toggle"
+          },{
+            "title"   : "i18n:address-k-consignee",
+            "name"    : "consignee",
+            "comType" : "ti-input"
+          },{
+            "title"   : "i18n:address-k-phone",
+            "name"    : "phone",
+            "comType" : "ti-input"
+          },{
+            "title"   : "i18n:address-k-email",
+            "name"    : "email",
+            "comType" : "ti-input"
+          }]
+      }
+    })
+    // User cancel
+    if(_.isUndefined(newAddr)) {
+      return
+    }
+
+    // No change
+    if(_.isEqual(newAddr, result)) {
+      return
+    }
+
+    console.log("!!!", newAddr)
+    // Eval the url
+    let url;
+    // Create
+    if(!newAddr.id) {
+      url = getters.urls.addr_create
+    }
+    // Update
+    else {
+      url = getters.urls.addr_update
+    }
+
+    // Prepare http options
+    let params = {
+      ticket: state.ticket,
+      id: newAddr.id
+    }
+    let body = JSON.stringify(newAddr)
+
+    commit("setLoading", true, {root:true})
+
+    // Send request
+    await Ti.Http.post(url, {
+      params, body, as:"json"
+    })
+
+    // Then reload
+    await dispatch("reloadMyAddresses")
+
+    commit("setLoading", false, {root:true})
+  },
+  //--------------------------------------------
+  async removeAddress({state, commit, getters, dispatch}, {id}={}){
+    // Guard
+    if(!id) {
+      return
+    }
+
+    commit("setLoading", true, {root:true})
+
+    // Process delete
+    let url = getters.urls.addr_delete
+    await Ti.Http.get(url, {
+      params: {
+        ticket: state.ticket,
+        id: id
+      },
+      as:"json"
+    })
+    
+    // Then reload
+    await dispatch("reloadMyAddresses")
+
+    commit("setLoading", false, {root:true})
+  },
+  //--------------------------------------------
+  async setAddressDefault({state, commit, getters, dispatch}, {id}={}){
+    // Guard
+    if(!id) {
+      return
+    }
+
+    // Process delete
+    let url = getters.urls.addr_update
+    // Prepare http options
+    let params = {
+      ticket: state.ticket,
+      id: id
+    }
+    let body = JSON.stringify({dftaddr:true})
+
+    commit("setLoading", true, {root:true})
+
+    // Send request
+    await Ti.Http.post(url, {
+      params, body, as:"json"
+    })
+    
+    // Then reload
+    await dispatch("reloadMyAddresses")
+
+    commit("setLoading", false, {root:true})
+  },
+  //--------------------------------------------
+  async initCountries({state, getters, commit}) {
+    if(!state.countries) {
+      let url = getters.urls.countries
+      let reo = await Ti.Http.get(url, {as:"json"})
+      commit("setCountries", reo)
+    }
+  }
+  //--------------------------------------------
+}
+Ti.Preload("ti/lib/www/mod/auth/mod-address-actions.mjs", _M);
+})();
+//============================================================
+// JOIN: mod/auth/mod-auth-actions.mjs
+//============================================================
+(function(){
+const _M = {
+  //--------------------------------------------
+  async doCheckMe({commit, dispatch, getters, rootState}, {
+    force = false,
+    ok, fail, nophone, noemail
+  }={}) {
+    console.log("I am doCheckMe", {force, ok, fail, nophone})
+    // console.log(" -urls", getters.urls)
+    // Guard SiteId
+    let siteId  = rootState.siteId
+    if(!siteId) {
+      Ti.Alert("Without siteId!!!")
+      return
+    }
+
+    // Get Back the Ticket
+    let ticket = Ti.Storage.local.getString(`www-ticket-${siteId}`, "")
+
+    // Check to remote
+    commit("setLoading", true, {root:true})
+    // Current Session ...
+    let reo = getters.sessionState
+    // Need to re-checkme from remote
+    if(ticket && (force || !reo.ok)) {
+      reo = await Ti.Http.get(getters.urls["checkme"], {
+        params : {
+          site : siteId,
+          ticket 
+        },
+        as : "json"
+      })
+    }
+    commit("setLoading", false, {root:true})
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // success
+    if(reo.ok) {
+      console.log("checkme OK", reo)
+      commit("setTicket", reo.data.ticket)
+      commit("setExpi",   reo.data.expi)
+      commit("setMe",     reo.data.me)
+
+      // Check Phone
+      if(nophone) {
+        let me = reo.data.me
+        if(!me.phone) {
+          return await dispatch("doAction", [nophone,reo], {root:true})
+        }
+      }
+      // Check Phone
+      if(noemail) {
+        let me = reo.data.me
+        if(!me.email) {
+          return await dispatch("doAction", [noemail,reo], {root:true})
+        }
+      }
+
+      // Success
+      if(ok) {
+        return await dispatch("doAction", [ok,reo], {root:true})
+      }
+    }
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // Fail
+    else if(fail){
+      return await dispatch("doAction", [fail,reo], {root:true})
+    }
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  },
+  //--------------------------------------------
+  async autoCheckmeOrAuthByWxghCode({dispatch}, {
+    codeKey = "code",
+    codeTypeBy = "ct",
+    force = false,
+    fail, nophone, noemail
+  }={}) {
+    console.log("autoCheckmeOrAuthByWxghCode")
+    dispatch("doCheckMe", {
+      force,
+      fail : {
+        action : "auth/authByWxghCode",
+        payload : {
+          codeKey, codeTypeBy,
+          //......................................
+          fail,
+          //......................................
+          ok : async (reo={})=>{
+            let me = reo.data
+            console.log("autoCheckmeOrAuthByWxghCode->ok:me", me)
+            if(nophone) {
+              if(!me.phone) {
+                return await dispatch("doAction", [nophone,reo], {root:true})
+              }
+            }
+            if(noemail) {
+              if(!me.email) {
+                return await dispatch("doAction", [noemail,reo], {root:true})
+              }
+            }
+          }
+          //......................................
+        }
+      }
+    })
+  },
+  //--------------------------------------------
+  async authByWxghCode({commit, dispatch, getters, rootState}, {
+    codeKey = "code",
+    codeTypeBy = "ct",
+    done, ok, fail, invalid, others
+  }={}) {
+    // Guard code
+    let code = rootState.page.params[codeKey]
+    if(!code) {
+      return
+    }
+
+    let codeType = rootState.page.params[codeTypeBy]
+
+    console.log("authByWxghCode", {codeType, code})
+
+    // Guard SiteId
+    let siteId = rootState.siteId
+    if(!siteId) {
+      Ti.Alert("Without siteId!!!")
+      return
+    }
+    // Eval URL
+    let url = getters.urls["login_by_wxcode"]
+
+    let params = {
+      site : siteId,
+      code : code,
+      ct   : codeType
+    }
+
+    let reo = await Ti.Http.get(url, {params, as:"json"})
+    console.log(reo)
+
+    // Callback: done
+    await dispatch("doAction", [done, reo], {root:true})
+
+    // Success
+    if(reo.ok && reo.data) {
+      // save ticket
+      Ti.Storage.local.set(
+        `www-ticket-${siteId}`,
+        reo.data.ticket
+      )
+      // Save session info
+      commit("setTicket", reo.data.ticket)
+      commit("setExpi",   reo.data.expi)
+      commit("setMe",     reo.data.me)
+      // Callback
+      await dispatch("doAction", [ok, reo], {root:true})
+    }
+    // Fail 
+    else {
+      // Fail : invalid
+      if(/^e.www.login.invalid/.test(reo.errCode)) {
+        await dispatch("doAction", [invalid, reo], {root:true})
+      }
+      // Fail : others
+      else {
+        await dispatch("doAction", [others, reo], {root:true})
+      }
+      // Callback
+      await dispatch("doAction", [fail, reo], {root:true})
+    }
+  },
+  //--------------------------------------------
+  async doAuth({commit, dispatch, getters, rootState}, {
+    type="login_by_passwd",
+    name, passwd,
+    done, ok, fail, noexist, invalid, others
+  }={}) {
+    console.log("doAuth", name, passwd)
+
+    // Guard SiteId
+    let siteId = rootState.siteId
+    if(!siteId) {
+      Ti.Alert("Without siteId!!!")
+      return
+    }
+
+    // Eval URL
+    let url = getters.urls[type]
+
+    // Prepare params
+    let ticket = Ti.Storage.local.getString(`www-ticket-${siteId}`, "")
+    let passKey = ({
+      "login_by_passwd" : "passwd",
+      "login_by_phone"  : "vcode",
+      "login_by_email"  : "vcode",
+      "bind_phone"      : "vcode",
+      "bind_email"      : "vcode"
+    })[type]
+
+    if(!passKey) {
+      throw "Unknown auth type: " + type
+    }
+
+    let params = {
+      site : siteId,
+      name, 
+      [passKey] : passwd,
+      ticket,
+      ajax: true
+    }
+
+    // Call Remote
+    let reo = await Ti.Http.post(url, {params, as:"json"})
+    console.log(reo)
+
+    // Callback: done
+    await dispatch("doAction", [done, reo], {root:true})
+
+    // Success
+    if(reo.ok && reo.data) {
+      // save ticket
+      Ti.Storage.local.set(
+        `www-ticket-${siteId}`,
+        reo.data.ticket
+      )
+      // Commit session to local
+      commit("setTicket", reo.data.ticket)
+      commit("setExpi",   reo.data.expi)
+      commit("setMe",     reo.data.me)
+      // Callback
+      await dispatch("doAction", [ok, reo], {root:true})
+    }
+    // Fail 
+    else {
+      // Fail : noexist
+      if("e.www.login.noexists" == reo.errCode) {
+        await dispatch("doAction", [noexist, reo], {root:true})
+      }
+      // Fail : invalid
+      else if(/^e.www.login.invalid/.test(reo.errCode)) {
+        await dispatch("doAction", [invalid, reo], {root:true})
+      }
+      // Fail : others
+      else {
+        await dispatch("doAction", [others, reo], {root:true})
+      }
+      // Callback
+      await dispatch("doAction", [fail, reo], {root:true})
+    }
+  },
+  //--------------------------------------------
+  async doGetVcode({getters, dispatch, rootState}, {
+    type="login_by_phone",
+    scene="auth",
+    account, captcha,
+    done, ok, fail
+  }={}) {
+    console.log("getVcode", {type,scene, account, captcha})
+
+    // Guard SiteId
+    let siteId = rootState.siteId
+    if(!siteId) {
+      Ti.Alert("Without siteId!!!")
+      return
+    }
+
+    // Eval URL
+    let api = ({
+      "login_by_phone" : "get_sms_vcode",
+      "login_by_email" : "get_email_vcode",
+      "bind_phone"     : "get_sms_vcode",
+      "bind_email"     : "get_email_vcode",
+      "phone"          : "get_sms_vcode",
+      "email"          : "get_email_vcode"
+    })[type]
+    let url = getters.urls[api]
+
+    if(!api || !url) {
+      return await Ti.Toast.Open(`Invalid type: ${type}`, "error");
+    }
+
+    // Prepare params
+    let params = {
+      site : siteId,
+      scene, account, captcha
+    }
+
+    // Call Remote
+    let reo = await Ti.Http.get(url, {params, as:"json"})
+    console.log(reo)
+
+    // Callback: done
+    await dispatch("doAction", [done, reo], {root:true})
+
+    // Success
+    if(reo.ok && reo.data) {
+      await dispatch("doAction", [ok, reo], {root:true})
+    }
+    // Fail 
+    else {
+      await dispatch("doAction", [fail, reo], {root:true})
+    }
+  },
+  //--------------------------------------------
+  async doResetPasswd({getters, dispatch, rootState}, {
+    scene="resetpasswd",
+    account, vcode, newpwd, oldpwd,
+    done, ok, fail
+  }={}) {
+    console.log("doResetPasswd", {scene, account, vcode, newpwd, oldpwd})
+
+    // Guard SiteId
+    let siteId = rootState.siteId
+    if(!siteId) {
+      Ti.Alert("Without siteId!!!")
+      return
+    }
+
+    // Guard Ticket
+    let ticket = rootState.auth.ticket
+    let me =  rootState.auth.me
+    if(!me) {
+      Ti.Alert("Without Login!!!")
+      return
+    }
+
+    // Eval URL
+    let url = getters.urls.resetpasswd
+
+    if(!url) {
+      console.error("doResetPasswd url is nil")
+      return
+    }
+
+    // Prepare params
+    let params = {
+      site : siteId,
+      ticket
+    }
+    let body = {
+      account, vcode, newpwd, oldpwd,
+    }
+
+    // Call Remote
+    let reo = await Ti.Http.post(url, {
+      params, 
+      body: JSON.stringify(body),
+      as:"json"
+    }).catch(({responseText})=>{
+      return {ok:false, errCode:_.trim(responseText)}
+    })
+    //console.log(reo)
+
+    // Callback: done
+    await dispatch("doAction", [done, reo], {root:true})
+
+    // Success
+    if(reo.ok) {
+      await dispatch("doAction", [ok, reo], {root:true})
+    }
+    // Fail 
+    else {
+      await dispatch("doAction", [fail, reo], {root:true})
+    }
+  },
+  //--------------------------------------------
+  async doLogout({state, commit, dispatch, getters, rootState}, {
+    done, ok, fail
+  }={}) {
+    console.log("doLogout")
+    // Guard SiteId
+    let siteId = rootState.siteId
+    if(!siteId) {
+      Ti.Alert("Without siteId!!!")
+      return
+    }
+
+    // Always force remove
+    Ti.Storage.local.remove(`www-ticket-${siteId}`)
+
+    // No Session, ignore
+    if(!getters.hasSession) {
+      dispatch("invokeAction", fail, {root:true})
+      return
+    }
+
+    // Eval URL
+    let url = getters.urls["logout"]
+    let params = {
+      site   : siteId,
+      ticket : state.ticket
+    }
+
+    commit("setLoading", {text:"i18n:logout-ing"}, {root:true})
+
+    // Call Remote
+    let reo = await Ti.Http.get(url, {params, as:"json"})
+    console.log(reo)
+
+    commit("setTicket", null)
+    commit("setExpi",   0)
+    commit("setMe",     null)
+
+    commit("setLoading", false, {root:true})
+
+    // Callback: done
+    await dispatch("doAction", [done, reo], {root:true})
+
+    // Success
+    if(reo.ok) {
+      dispatch("doAction", [ok, reo], {root:true})
+    }
+    // Fail 
+    else {
+      dispatch("doAction", [fail, reo], {root:true})
+    }
+  }
+  //--------------------------------------------
+}
+Ti.Preload("ti/lib/www/mod/auth/mod-auth-actions.mjs", _M);
+})();
+//============================================================
+// JOIN: mod/auth/mod-profile-actions.mjs
+//============================================================
+(function(){
+const _M = {
+  //--------------------------------------------
+  async saveProfile({state, getters, commit, dispatch,rootState}, profile={}) {
+    //console.log("profile", profile)
+    // Can not update email/phone/nm through this method
+    profile = _.omit(profile, "email", "phone", "nm")
+    // Guard Empty
+    if(_.isEmpty(profile)) {
+      return
+    }
+    // Guard No Change
+    if(_.isMatch(state.me, profile)) {
+      return
+    }
+
+    // Prepare http options
+    let params = {
+      site : rootState.siteId,
+      ticket: state.ticket
+    }
+    let body = JSON.stringify(profile)
+    
+    commit("setLoading", true, {root:true})
+
+    // Send request
+    let url = getters.urls.profile_save
+    await Ti.Http.post(url, {
+      params, body, as:"json"
+    })
+
+    // Then reload
+    await dispatch("doCheckMe", {force:true})
+
+    commit("setLoading", false, {root:true})
+
+  }
+  //--------------------------------------------
+}
+Ti.Preload("ti/lib/www/mod/auth/mod-profile-actions.mjs", _M);
+})();
+//============================================================
 // JOIN: mod/auth/www-mod-auth.json
 //============================================================
 Ti.Preload("ti/lib/www/mod/auth/www-mod-auth.json", {
   "ticket" : null,
   "expi"   : 0,
   "me"     : null,
+  "profile": null,
+  "countries"  : null,
+  "countryMap" : null,
+  "addresses": [],
   "paths"  : {
     "checkme"         : "auth/checkme",
     "login_by_wxcode" : "auth/login_by_wxcode",
@@ -36580,7 +38538,14 @@ Ti.Preload("ti/lib/www/mod/auth/www-mod-auth.json", {
     "get_email_vcode" : "auth/get_email_vcode",
     "check_name"      : "auth/check_name",
     "check_phone"     : "auth/check_phone",
-    "logout"          : "auth/logout"
+    "logout"          : "auth/logout",
+    "resetpasswd"     : "auth/resetpasswd",
+    "countries"       : "lbs/countries",
+    "addr_mine"       : "address/mine",
+    "addr_create"     : "address/create",
+    "addr_update"     : "address/update",
+    "addr_delete"     : "address/delete",
+    "profile_save"    : "auth/setme"
   }
 });
 //============================================================
@@ -36638,374 +38603,19 @@ const _M = {
     //--------------------------------------------
     mergePaths(state, paths) {
       _.merge(state.paths, paths)
-    }
-    //--------------------------------------------
-  },
-  ////////////////////////////////////////////////
-  actions : {
-    //--------------------------------------------
-    async doCheckMe({state, commit, dispatch, getters, rootState}, {
-      force = false,
-      success, fail, nophone, noemail
-    }={}) {
-      console.log("I am doCheckMe", {force, success, fail, nophone})
-      // console.log(" -urls", getters.urls)
-      // Guard SiteId
-      let siteId  = rootState.siteId
-      if(!siteId) {
-        Ti.Alert("Without siteId!!!")
-        return
-      }
-
-      // Get Back the Ticket
-      let ticket = Ti.Storage.local.getString(`www-ticket-${siteId}`, "")
-
-      // Check to remote
-      commit("setLoading", true, {root:true})
-      // Current Session ...
-      let reo = getters.sessionState
-      // Need to re-checkme from remote
-      if(ticket && (force || !reo.ok)) {
-        reo = await Ti.Http.get(getters.urls["checkme"], {
-          params : {
-            site : siteId,
-            ticket 
-          },
-          as : "json"
-        })
-      }
-      commit("setLoading", false, {root:true})
-      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      // success
-      if(reo.ok) {
-        console.log("checkme OK", reo)
-        commit("setTicket", reo.data.ticket)
-        commit("setExpi",   reo.data.expi)
-        commit("setMe",     reo.data.me)
-
-        // Check Phone
-        if(nophone) {
-          let me = reo.data.me
-          if(!me.phone) {
-            return await dispatch(nophone.action, nophone.payload, {root:true})
-          }
-        }
-        // Check Phone
-        if(noemail) {
-          let me = reo.data.me
-          if(!me.email) {
-            return await dispatch(noemail.action, noemail.payload, {root:true})
-          }
-        }
-
-        // Success
-        if(success) {
-          await dispatch(success.action, success.payload, {root:true})
-        }
-      }
-      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      // Fail
-      else if(fail){
-        await dispatch(fail.action, fail.payload, {root:true})
-      }
-      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     },
     //--------------------------------------------
-    async autoCheckmeOrAuthByWxghCode({dispatch}, {
-      codeKey = "code",
-      codeTypeBy = "ct",
-      force = false,
-      fail, nophone, noemail
-    }={}) {
-      console.log("autoCheckmeOrAuthByWxghCode")
-      dispatch("doCheckMe", {
-        force,
-        fail : {
-          action : "auth/authByWxghCode",
-          payload : {
-            codeKey, codeTypeBy,
-            //......................................
-            fail : async ()=>{
-              if(fail) {
-                dispatch(fail.action, fail.payload, {root:true})
-              }
-            },
-            //......................................
-            ok : async ({me={}}={})=>{
-              if(nophone) {
-                if(!me.phone) {
-                  return await dispatch(nophone.action, nophone.payload, {root:true})
-                }
-              }
-              if(noemail) {
-                if(!me.email) {
-                  return await dispatch(noemail.action, noemail.payload, {root:true})
-                }
-              }
-            }
-            //......................................
-          }
-        }
+    setAddresses(state, addresses) {
+      state.addresses = addresses
+    },
+    //--------------------------------------------
+    setCountries(state, countries) {
+      state.countries = countries
+      let map = {}
+      _.forEach(countries, it=> {
+        map[it.key] = it.name
       })
-    },
-    //--------------------------------------------
-    async authByWxghCode({commit, getters, rootState}, {
-      codeKey = "code",
-      codeTypeBy = "ct",
-      done=_.identity,
-      ok=_.identity, 
-      fail=_.identity, 
-      invalid=_.identity, 
-      others=_.identity 
-    }={}) {
-      // Guard code
-      let code = rootState.page.params[codeKey]
-      if(!code) {
-        return
-      }
-
-      let codeType = rootState.page.params[codeTypeBy]
-
-      console.log("authByWxghCode", {codeType, code})
-
-      // Guard SiteId
-      let siteId = rootState.siteId
-      if(!siteId) {
-        Ti.Alert("Without siteId!!!")
-        return
-      }
-      // Eval URL
-      let url = getters.urls["login_by_wxcode"]
-
-      let params = {
-        site : siteId,
-        code : code,
-        ct   : codeType
-      }
-
-      let reo = await Ti.Http.get(url, {params, as:"json"})
-      console.log(reo)
-
-      await done(reo)
-
-      // Success
-      if(reo.ok && reo.data) {
-        // save ticket
-        Ti.Storage.local.set(
-          `www-ticket-${siteId}`,
-          reo.data.ticket
-        )
-        // Save session info
-        commit("setTicket", reo.data.ticket)
-        commit("setExpi",   reo.data.expi)
-        commit("setMe",     reo.data.me)
-        // Callback
-        await ok(reo.data)
-      }
-      // Fail 
-      else {
-        // Fail : invalid
-        if(/^e.www.login.invalid/.test(reo.errCode)) {
-          await invalid(reo)
-        }
-        // Fail : others
-        else {
-          await others(reo)
-        }
-        // Callback
-        await fail(reo)
-      }
-    },
-    //--------------------------------------------
-    async doAuth({commit, getters, rootState}, {
-      type="login_by_passwd",
-      name, passwd,
-      done=_.identity,
-      ok=_.identity, 
-      fail=_.identity, 
-      noexist=_.identity, 
-      invalid=_.identity, 
-      others=_.identity 
-    }={}) {
-      console.log("doAuth", name, passwd)
-
-      // Guard SiteId
-      let siteId = rootState.siteId
-      if(!siteId) {
-        Ti.Alert("Without siteId!!!")
-        return
-      }
-
-      // Eval URL
-      let url = getters.urls[type]
-
-      // Prepare params
-      let ticket = Ti.Storage.local.getString(`www-ticket-${siteId}`, "")
-      let passKey = ({
-        "login_by_passwd" : "passwd",
-        "login_by_phone"  : "vcode",
-        "login_by_email"  : "vcode",
-        "bind_phone"      : "vcode",
-        "bind_email"      : "vcode"
-      })[type]
-
-      if(!passKey) {
-        throw "Unknown auth type: " + type
-      }
-
-      let params = {
-        site : siteId,
-        name, 
-        [passKey] : passwd,
-        ticket,
-        ajax: true
-      }
-
-      // Call Remote
-      let reo = await Ti.Http.post(url, {params, as:"json"})
-      console.log(reo)
-
-      await done(reo)
-
-      // Success
-      if(reo.ok && reo.data) {
-        // save ticket
-        Ti.Storage.local.set(
-          `www-ticket-${siteId}`,
-          reo.data.ticket
-        )
-        // Commit session to local
-        commit("setTicket", reo.data.ticket)
-        commit("setExpi",   reo.data.expi)
-        commit("setMe",     reo.data.me)
-        // Callback
-        await ok(reo.data)
-      }
-      // Fail 
-      else {
-        // Fail : noexist
-        if("e.www.login.noexists" == reo.errCode) {
-          await noexist(reo)
-        }
-        // Fail : invalid
-        else if(/^e.www.login.invalid/.test(reo.errCode)) {
-          await invalid(reo)
-        }
-        // Fail : others
-        else {
-          await others(reo)
-        }
-        // Callback
-        await fail(reo)
-      }
-    },
-    //--------------------------------------------
-    async doGetVcode({getters, rootState}, {
-      type="login_by_phone",
-      scene="auth",
-      account, captcha,
-      done=_.identity,
-      ok=_.identity, 
-      fail=_.identity
-    }={}) {
-      console.log("getVcode", {type,scene, account, captcha})
-
-      // Guard SiteId
-      let siteId = rootState.siteId
-      if(!siteId) {
-        Ti.Alert("Without siteId!!!")
-        return
-      }
-
-      // Eval URL
-      let api = ({
-        "login_by_phone" : "get_sms_vcode",
-        "login_by_email" : "get_email_vcode",
-        "bind_phone"     : "get_sms_vcode",
-        "bind_email"     : "get_email_vcode"
-      })[type]
-      let url = getters.urls[api]
-
-      if(!api || !url) {
-        return await Ti.Toast.Open(`Invalid type: ${type}`, "error");
-      }
-
-      // Prepare params
-      let params = {
-        site : siteId,
-        scene, account, captcha
-      }
-
-      // Call Remote
-      let reo = await Ti.Http.get(url, {params, as:"json"})
-      console.log(reo)
-
-      done(reo)
-
-      // Success
-      if(reo.ok && reo.data) {
-        ok(reo.data)
-      }
-      // Fail 
-      else {
-        fail(reo)
-      }
-    },
-    //--------------------------------------------
-    async doLogout({commit, getters, rootState}, {
-      done=_.identity,
-      ok=_.identity, 
-      fail=_.identity
-    }={}) {
-      console.log("doLogout")
-      // Guard SiteId
-      let siteId = rootState.siteId
-      if(!siteId) {
-        Ti.Alert("Without siteId!!!")
-        return
-      }
-
-      // Always force remove
-      Ti.Storage.local.remove(`www-ticket-${siteId}`)
-
-      // No Session, ignore
-      if(!getters.hasSession) {
-        fail(getters.sessionState)
-        return
-      }
-
-      // Session
-      let se = getters.sessionState
-
-      // Eval URL
-      let url = getters.urls["logout"]
-      let params = {
-        site   : siteId,
-        ticket : se.ticket
-      }
-
-      commit("setLoading", {text:"i18n:logout-ing"}, {root:true})
-
-      // Call Remote
-      let reo = await Ti.Http.post(url, {params, as:"json"})
-      console.log(reo)
-
-      commit("setTicket", null)
-      commit("setExpi",   0)
-      commit("setMe",     null)
-
-      commit("setLoading", false, {root:true})
-
-      done(reo)
-
-      // Success
-      if(reo.ok) {
-        ok(reo.data)
-      }
-      // Fail 
-      else {
-        fail(reo)
-      }
+      state.countryMap = map
     }
     //--------------------------------------------
   }
@@ -37020,6 +38630,11 @@ Ti.Preload("ti/lib/www/mod/auth/_mod.json", {
   "name" : "www-mod-auth",
   "namespaced" : true,
   "state" : "./www-mod-auth.json",
+  "actions": [
+      "./mod-auth-actions.mjs",
+      "./mod-address-actions.mjs",
+      "./mod-profile-actions.mjs"
+    ],
   "mixins" : "./www-mod-auth.mjs"
 });
 //============================================================
@@ -37230,6 +38845,10 @@ const _M = {
     //--------------------------------------------
     hideBlock({commit}, name) {
       commit("setShown", {[name]:false})
+    },
+    //--------------------------------------------
+    resetData({commit}, data={}) {
+      commit("setData", data)
     },
     //--------------------------------------------
     /***
@@ -38242,14 +39861,49 @@ const _M = {
      * 
      * @return {void}
      */
-    async doAction({state, dispatch}, {
-      action, 
-      payload, 
-      args=[]
-    }={}){
+    async doAction({state, dispatch}, AT){
+      // Guard nil
+      if(!AT) {
+        return
+      }
+
+      //....................................
+      // Raw function
+      //....................................
+      if(_.isFunction(AT)) {
+        return await AT()
+      }
+
+      //....................................
+      // Combo: [F(), args] or [{action}, args]
+      //....................................
+      if(_.isArray(AT) && AT.length == 2) {
+        let actn = AT[0]
+        let args = AT[1]
+        if(!_.isUndefined(args) && !_.isArray(args)) {
+          args = [args]
+        }
+        if(_.isFunction(actn)) {
+          AT = {
+            action: actn,
+            args
+          }
+        }
+        // Merge
+        else {
+          AT = _.assign({}, actn, {args})
+        }
+      }
+
+      //....................................
+      // Action object
+      //....................................
+      let {action,payload,args}=AT
       //....................................
       if(!action)
         return;
+
+      args = args || []
       //....................................
       let pld;
 
@@ -38269,7 +39923,14 @@ const _M = {
       }
       //....................................
       console.log("invoke->", action, pld)
-      await dispatch(action, pld)
+      //....................................
+      if(_.isFunction(action)) {
+        await action(pld)
+      }
+      // Action
+      else {
+        await dispatch(action, pld)
+      }
     },
     //--------------------------------------------
     /***
@@ -39221,6 +40882,23 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-json.i18n.json", {
 // JOIN: zh-cn/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
+  "account-filter-tip": "请输入账号名过滤",
+  "account-meta-tip": "请选择一个账号查看详情",
+  "address-consignee": "收货人",
+  "address-empty-list": "未设置任何收货地址",
+  "address-is-dft": "默认收货地址",
+  "address-k-city": "城市/区",
+  "address-k-consignee": "收货人姓名",
+  "address-k-country": "国家",
+  "address-k-dftaddr": "默认地址",
+  "address-k-email": "邮箱",
+  "address-k-phone": "电话",
+  "address-k-postcode": "邮编",
+  "address-k-street": "街道",
+  "address-k-title": "地址",
+  "address-k-uid": "用户",
+  "address-set-dft": "设为默认地址",
+  "address-shipping-add": "添加收货地址",
   "auth-bind": "绑定",
   "auth-bind-email-title": "绑定邮箱",
   "auth-bind-phone-title": "绑定手机",
@@ -39250,6 +40928,11 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-phone-title": "短信密码登录/注册",
   "auth-phone-vcode": "短信密码",
   "auth-phone-vcode-get": "获取短信密码",
+  "auth-reset-passwd-again": "再次重置密码",
+  "auth-reset-passwd-btn-lack": "请填写必要信息",
+  "auth-reset-passwd-btn-ready": "立即重置密码",
+  "auth-reset-passwd-btn-short": "密码至少6位",
+  "auth-reset-passwd-btn-unmatch": "密码两次输入不一致",
   "auth-reset-passwd-by-email": "用邮箱重置密码",
   "auth-reset-passwd-by-email-sent": "已经向您的注册邮箱 ${email} 发送了邮件密码",
   "auth-reset-passwd-by-email-tip": "请输入注册邮箱地址",
@@ -39257,10 +40940,13 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-reset-passwd-by-phone": "用手机重置密码",
   "auth-reset-passwd-by-phone-sent": "已经向您的手机 ${phone} 发送了短信密码",
   "auth-reset-passwd-by-phone-tip": "请输入注册手机号码",
+  "auth-reset-passwd-ing": "正在重置密码...",
+  "auth-reset-passwd-lack-email": "请输入注册邮箱地址",
+  "auth-reset-passwd-lack-phone": "请输入注册手机号",
   "auth-reset-passwd-new": "新密码（最少6位）",
+  "auth-reset-passwd-ok": "密码已经重置，下次登录时生效",
   "auth-reset-passwd-old": "旧密码",
   "auth-reset-passwd-ren": "再次确认",
-  "auth-reset-passwd-save": "立即重置密码",
   "auth-sending-vcode": "正在发送验证码",
   "auth-sent-ok": "${ta?验证码}已发出，请在${by}查收，${min}分钟内有效",
   "auth-ta-by-email": "邮箱里",
@@ -39269,9 +40955,29 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-ta-phone": "手机密码",
   "auth-vcode-delay": "${sec} 秒后重新发送",
   "auth-vcode-lost": "收不到验证码？",
+  "e-cmd-www_passwd-Blank": "新密码为空",
+  "e-cmd-www_passwd-CheckBlankAccount": "空账户",
+  "e-cmd-www_passwd-CheckBlankCode": "空验证码",
+  "e-cmd-www_passwd-CheckCodeFail": "验证码错误",
+  "e-cmd-www_passwd-CheckFailed": "校验错误",
+  "e-cmd-www_passwd-CheckWeirdAccount": "诡异的账户",
+  "e-cmd-www_passwd-InvalidNewPasswd": "新密码无效",
+  "e-cmd-www_passwd-LackTarget": "缺少重置目标",
+  "e-cmd-www_passwd-TooShort": "新密码太短",
+  "e-cmd-www_passwd-nopvg": "没有重置密码的权限",
   "e-www-invalid-captcha": "${ta?验证码}错误",
   "e-www-login-invalid-passwd": "账号密码错误",
   "e-www-login-noexists": "账号不存在",
+  "me-k-account": "账户",
+  "me-k-avatar": "头像",
+  "me-k-city": "城市",
+  "me-k-country": "国家",
+  "me-k-email": "邮箱",
+  "me-k-login": "最后登录",
+  "me-k-nickname": "用户昵称",
+  "me-k-nm": "登录名",
+  "me-k-phone": "手机号",
+  "me-k-sex": "性别",
   "mine": "我的",
   "my-favors": "我的收藏",
   "my-favors-blog": "收藏的博客",
@@ -39286,12 +40992,42 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "my-profile": "我的资料",
   "my-shipping-address": "收货地址",
   "my-shopping-car": "购物车",
-  "or-st-dn": "已完成",
+  "or-st-dn": "完成",
   "or-st-fa": "支付失败",
-  "or-st-nw": "新建",
+  "or-st-nw": "提交订单",
   "or-st-ok": "支付成功",
-  "or-st-sd": "已发货",
+  "or-st-sp": "已发货",
   "or-st-wt": "待支付",
+  "order-filter-tip": "请输入订单ID查询",
+  "order-k-accounts": "用户库",
+  "order-k-buyer_id": "买家",
+  "order-k-currency": "货币单位",
+  "order-k-dn_at": "完成时间",
+  "order-k-fa_at": "支付失败",
+  "order-k-fee": "支付金额",
+  "order-k-id": "订单号",
+  "order-k-ok_at": "支付成功",
+  "order-k-pay_id": "支付单",
+  "order-k-pay_tp": "支付类型",
+  "order-k-payment": "支付信息",
+  "order-k-price": "订单金额",
+  "order-k-pro-amount": "购买数量",
+  "order-k-pro-price": "单价",
+  "order-k-pro-subtotal": "小计",
+  "order-k-pro-title": "商品",
+  "order-k-products": "商品信息",
+  "order-k-seller": "卖家",
+  "order-k-sp_at": "发货时间",
+  "order-k-st": "订单状态",
+  "order-k-title": "订单标题",
+  "order-k-wt_at": "支付时间",
+  "passwd-invalid-char": "密码只能包括英文数字/大小写字母/以及特殊字符",
+  "passwd-sl-1": "弱",
+  "passwd-sl-2": "较弱",
+  "passwd-sl-3": "中",
+  "passwd-sl-4": "较强",
+  "passwd-sl-5": "强",
+  "passwd-tip": "请输入最少6位的英文数字/大小写字母/特殊字符的组合",
   "pay-by-free": "免费",
   "pay-by-paypal": "PayPal",
   "pay-by-wx-jsapi": "微信JSAPI",
@@ -39329,6 +41065,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "pay-wx": "微信支付",
   "pay-zfb": "支付宝",
   "paypal-approve-tip": "已经在新标签里为您打开了PayPal支付页面，如果没有打开，请点击☝上面的图标。支付完毕，页面会自动感知到，如果没有反应，试着点击👇下面的【检查支付结果】按钮。",
+  "profile-title": "我的基本信息",
   "shop-basket-clean-confirm": "您确定要清空购物车内全部商品吗？这是一个不能撤回的操作。"
 });
 //============================================================
@@ -39426,6 +41163,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "batch-update": "批量更新...",
   "blank": "空白",
   "blank-to-edit": "请选择要编辑的项目",
+  "brief": "摘要",
   "buy": "购买",
   "buy-now": "立即购买",
   "cancel": "取消",
@@ -39567,6 +41305,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "terminal": "终端",
   "terminate": "终止",
   "text": "文字",
+  "timestamp": "时间戳",
   "title": "标题",
   "total-count": "共 ${nb?0} ${unit?项}",
   "trace": "跟踪",
@@ -39591,6 +41330,18 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-edit-com-nil": "默认为标签控件",
+  "wn-en-his-ct": "创建时间",
+  "wn-en-his-flt-tip": "请输入用户ID或者名称过滤",
+  "wn-en-his-mor": "操作细节",
+  "wn-en-his-opt": "操作",
+  "wn-en-his-tar": "目标",
+  "wn-en-his-tid": "目标ID",
+  "wn-en-his-tnm": "目标名",
+  "wn-en-his-ttp": "目标类型",
+  "wn-en-his-uid": "用户ID",
+  "wn-en-his-unm": "用户名",
+  "wn-en-his-usr": "用户",
+  "wn-en-his-utp": "用户类型",
   "wn-invalid-mimes": "不支持的文件内容类型 \"${current}\"，仅能支持 \"${supports}\"",
   "wn-invalid-types": "不支持的文件扩展名 \"${current}\"，仅能支持 \"${supports}\"",
   "wn-key-c": "创建者",
