@@ -2,5 +2,10 @@
   "name" : "wn-entity-history",
   "globally" : true,
   "template" : "./wn-entity-history.html",
-  "mixins"   : ["./wn-entity-history.mjs"]
+  "mixins"   : ["./wn-entity-history.mjs"],
+  "components": [
+    "@com:ti/input/daterange",
+    "@com:ti/combo/filter",
+    "@com:ti/paging/jumper"
+  ]
 }

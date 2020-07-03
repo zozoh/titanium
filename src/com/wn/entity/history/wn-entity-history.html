@@ -1,8 +1,13 @@
-<div class="wn-entity-history"
-  :class="TopClass">
-  I am history
-  <hr>
-  {{meta}}
-  <hr>
-  {{data}}
-</div>
+<ti-gui
+  class="wn-entity-history"
+  :class="TopClass"
+  :layout="Layout"
+  :schema="Schema"
+  :shown="myShown"
+  :can-loading="true"
+  :loading-as="loading"
+  @block:shown="OnShownChange"
+  @filter::change="OnFilterChange"
+  @sorter::change="OnSorterChange"
+  @pager::change="OnPagerChange"
+  @list::select="OnSelect"/>
