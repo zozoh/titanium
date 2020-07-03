@@ -12,7 +12,7 @@ import EditTiComponent  from "./wn-edit-ti-component.mjs"
 
 
 //---------------------------------------
-const WALNUT_VERSION = "1.0"
+const WALNUT_VERSION = "2.1-dev"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

@@ -5,7 +5,8 @@
         "version": "^( *\"version\" *: *\")([0-9.]+)-dev(\" *, *)$"
       }, {
         "path": "src/lib/walnut/walnut.mjs",
-        "target": "walnut"
+        "target": "walnut",
+        "version": "^(const WALNUT_VERSION = \")([0-9.]+)-dev(\")$"
       }, {
         "path": "src/com",
         "prefix": "ti/com/",

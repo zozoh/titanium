@@ -1,5 +1,6 @@
 package io.nutz.titanium.builder;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.lang.util.Disks;
 
 import io.nutz.titanium.builder.bean.TiBuildConfig;
@@ -18,6 +20,8 @@ public class TiBuilder {
     public static void build(String buildFilePath) {
         var fConf = Files.findFile(buildFilePath);
         var conf = Json.fromJsonFile(TiBuildConfig.class, fConf);
+        Date now = Times.now();
+        String packTime = Times.format("yyyy-MM-dd HH:mm:ss", now);
 
         // Auto Set home path
         if (Strings.isBlank(conf.getHome())) {
@@ -65,6 +69,9 @@ public class TiBuilder {
                 outputs.add("// The End");
                 outputs.add("})();");
             }
+
+            // 再加一个打包日期
+            outputs.add(0, "// Pack At: " + packTime);
 
             // 准备内容并写入
             String content = Strings.join(System.lineSeparator(), outputs);
