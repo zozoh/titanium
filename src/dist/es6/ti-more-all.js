@@ -1,4 +1,4 @@
-// Pack At: 2020-07-03 19:51:22
+// Pack At: 2020-07-03 20:26:00
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -27638,7 +27638,7 @@ const _M = {
 
         let params = _.assign({}, link.params)
         if(this.returnUrl) {
-          params.returnurl = this.returnurl
+          params.returnurl = this.returnUrl
         }
 
         await Ti.Be.Open(url, {
@@ -27651,7 +27651,7 @@ const _M = {
       }
 
       // Finally watch the payment change
-      this.watchPaymentChanged();
+      //this.watchPaymentChanged();
     },
     //----------------------------------------------
     watchPaymentChanged() {

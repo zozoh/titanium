@@ -192,7 +192,7 @@ const _M = {
 
         let params = _.assign({}, link.params)
         if(this.returnUrl) {
-          params.returnurl = this.returnurl
+          params.returnurl = this.returnUrl
         }
 
         await Ti.Be.Open(url, {
@@ -205,7 +205,7 @@ const _M = {
       }
 
       // Finally watch the payment change
-      this.watchPaymentChanged();
+      //this.watchPaymentChanged();
     },
     //----------------------------------------------
     watchPaymentChanged() {
