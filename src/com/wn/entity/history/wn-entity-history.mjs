@@ -7,7 +7,7 @@ const _M = {
     "myFilterKeyword": null,
     "myFilterMatch": {},
     "mySort": {
-      createTime: -1
+      ct: -1
     },
     "myPager": {
       pn: 1,
@@ -17,6 +17,10 @@ const _M = {
   }),
   ////////////////////////////////////////////////////
   props : {
+    "prefix": {
+      type: String,
+      default: "~/.domain/history"
+    },
     "meta": {
       type: Object,
       default: ()=>({})
@@ -38,6 +42,14 @@ const _M = {
     },
     //------------------------------------------------
     HistoryItems() {
+      // Make sure in history folder
+      if(this.prefix) {
+        let fph = Wn.Io.getFormedPath(this.meta)
+        if(!fph.startsWith(this.prefix)) {
+          return []
+        }
+      }
+
       let items = []
       _.forEach(this.data.list, it=> {
         let name  = Ti.Util.getMajorName(it.nm)
@@ -116,30 +128,30 @@ const _M = {
             form: {
               fields: [{
                   title: "i18n:wn-en-his-ct",
-                  name: "createTime",
+                  name: "ct",
                   comType: "ti-input-daterange",
                   comConf: {
                     valueType: "ms-range"
                   }
                 },{
                   title: "i18n:wn-en-his-utp",
-                  name: "userType",
+                  name: "utp",
                   comType: "ti-input"
                 },{
                   title: "i18n:wn-en-his-tid",
-                  name: "targetId",
+                  name: "tid",
                   comType: "ti-input"
                 },{
                   title: "i18n:wn-en-his-tnm",
-                  name: "targetName",
+                  name: "tnm",
                   comType: "ti-input"
                 },{
                   title: "i18n:wn-en-his-ttp",
-                  name: "targetType",
+                  name: "ttp",
                   comType: "ti-input"
                 },{
                   title: "i18n:wn-en-his-opt",
-                  name: "operation",
+                  name: "opt",
                   comType: "ti-input"
                 }]
             },
@@ -155,9 +167,9 @@ const _M = {
           comConf: {
             dropWidth : 200,
             options: [
-              {value:"createTime",   text:"i18n:wn-en-his-ct"},
-              {value:"userType",     text:"i18n:wn-en-his-utp"},
-              {value:"targetType",   text:"i18n:wn-en-his-ttp"}],
+              {value:"ct",   text:"i18n:wn-en-his-ct"},
+              {value:"utp",     text:"i18n:wn-en-his-utp"},
+              {value:"ttp",   text:"i18n:wn-en-his-ttp"}],
             value: this.mySort
           }
         },
@@ -167,20 +179,20 @@ const _M = {
           comConf: {
             data: this.myList,
             fields: [{
-              title:"i18n:wn-en-his-usr",
-              display: ["userName","userType:[${val}]"]
-            },{
               title:"i18n:wn-en-his-ct",
               display: {
-                key:"createTime",
+                key:"ct",
                 transformer: "Ti.DateTime.format"
               }
             },{
-              title:"i18n:wn-en-his-tar",
-              display: ["targetName","targetType:[${val}]"]
+              title:"i18n:wn-en-his-usr",
+              display: ["utp:$${val}:", "unm|uid"]
             },{
               title:"i18n:wn-en-his-opt",
-              display: "operation"
+              display: "opt"
+            },{
+              title:"i18n:wn-en-his-tar",
+              display: ["ttp:$${val}:", "tnm|tid"]
             }]
           }
         },
@@ -202,32 +214,32 @@ const _M = {
                 name: "id"
               },{
                 title:"i18n:wn-en-his-uid",
-                name: "userId"
+                name: "uid"
               },{
                 title:"i18n:wn-en-his-unm",
-                name: "userName"
+                name: "unm"
               },{
                 title:"i18n:wn-en-his-utp",
-                name: "userType"
+                name: "utp"
               },{
                 title:"i18n:wn-en-his-ct",
-                name: "createTime",
+                name: "ct",
                 type: "AMS"
               },{
                 title:"i18n:wn-en-his-tid",
-                name: "targetId"
+                name: "tid"
               },{
                 title:"i18n:wn-en-his-tnm",
-                name: "targetName"
+                name: "tnm"
               },{
                 title:"i18n:wn-en-his-ttp",
-                name: "targetType"
+                name: "ttp"
               },{
                 title:"i18n:wn-en-his-opt",
-                name: "operation"
+                name: "opt"
               },{
                 title:"i18n:wn-en-his-mor",
-                name: "more"
+                name: "mor"
               }]
           }
         }
@@ -265,8 +277,14 @@ const _M = {
     },
     //------------------------------------------------
     async reloadList() {
-      // Prepare the command
       let hisName = this.CurrentHistory
+      if(!hisName) {
+        this.myList = []
+        this.myPager = {}
+        return
+      }
+
+      // Prepare the command
       if("_history" == hisName) {
         hisName = ""
       }
@@ -287,9 +305,9 @@ const _M = {
       let flt = _.assign({}, this.myFilterMatch)
       if(this.myFilterKeyword) {
         if(Wn.Io.isFullObjId(this.myFilterKeyword)) {
-          flt.userId = this.myFilterKeyword
+          flt.uid = this.myFilterKeyword
         } else {
-          flt.userName = this.myFilterKeyword
+          flt.unm = this.myFilterKeyword
         }
       }
       let input = JSON.stringify(flt)
