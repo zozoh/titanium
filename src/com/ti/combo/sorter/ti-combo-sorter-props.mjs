@@ -35,8 +35,8 @@ const _M = {
   "sortIcons" : {
     type : Object,
     default : ()=>({
-      asc  : "fas-long-arrow-alt-up",
-      desc : "fas-long-arrow-alt-down"
+      asc  : "im-arrow-up",
+      desc : "im-arrow-down"
     })
   },
   "suffixIcon" : {
