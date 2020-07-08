@@ -1,0 +1,7 @@
+{
+  "name" : "ti-combo-pair-text",
+  "globally" : true,
+  "template" : "./ti-combo-pair-text.html",
+  "props"    : ["./ti-combo-pair-text-props.mjs"],
+  "mixins"   : "./ti-combo-pair-text.mjs"
+}

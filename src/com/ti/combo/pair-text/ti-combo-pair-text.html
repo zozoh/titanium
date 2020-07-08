@@ -1,0 +1,27 @@
+<div class="ti-combo-pair-text">
+  <div
+    v-for="it in Items"
+      class="as-pair">
+      <!--title-->
+      <div class="as-title">
+        <!--Icon-->
+        <ti-icon
+          v-if="it.icon" 
+            :value="it.icon"/>
+        <!--Text-->
+        <div
+          v-if="it.text" 
+            class="as-text">{{it.text}}</div>
+      </div>
+      <!--Textarea-->
+      <div
+        class="as-textarea">
+          <textarea 
+            spellcheck="false"
+            :style="TextStyle"
+            :placeholder="it.placeholder"
+            :value="it.value"
+            :readonly="readonly"
+            @change="OnTextChange(it.key, $event)"></textarea></div>
+  </div>
+</div>
