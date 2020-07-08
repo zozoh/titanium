@@ -1,0 +1,7 @@
+{
+  "name" : "ti-lbs-map-google",
+  "globally" : true,
+  "template" : "./ti-lbs-map-google.html",
+  "mixins"   : ["./ti-lbs-map-google.mjs"],
+  "components" : []
+}

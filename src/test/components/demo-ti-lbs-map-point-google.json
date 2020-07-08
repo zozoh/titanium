@@ -1,0 +1,10 @@
+{
+  "comType" : "ti-lbs-map",
+  "comConf" : {
+    "value" : "=data",
+    "by": "google",
+    "width": "100%",
+    "height": "100%",
+    "keepStateBy": "demo-google-map-0"
+  }
+}

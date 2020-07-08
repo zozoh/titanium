@@ -1,26 +1,30 @@
 <div class="ti-lbs-map" 
-  :class="topClass"
-  :style="topStyle">
+  :class="TopClass"
+  :style="TopStyle">
   <div class="map-con">
     <!--
       Map Main
     -->
     <div class="as-main">
       <component 
-        :is="mapComType"
-        v-bind="mapComConf"/>
+        :is="MapComType"
+          v-bind="MapComConf"
+          @center:change="OnCenterChange"
+          @zoom:change="OnZoomChange"/>
     </div>
     <!--
       Map Info
     -->
-    <div class="as-info">
-      <div class="as-toggle" @click="fullScreen=!fullScreen">
-        <ti-icon :value="toggleIcon"/>
-      </div>
-      <ul class="as-laln">
-        <li><span>{{'lat'|i18n}}:</span><em>{{lalnCenter.lat|float(8)}}</em></li>
-        <li><span>{{'lng'|i18n}}:</span><em>{{lalnCenter.lng|float(8)}}</em></li>
-      </ul>
-    </div>
+    <div
+      v-if="MapCenter"
+        class="as-info">
+        <div class="as-toggle" @click="fullScreen=!fullScreen">
+          <ti-icon :value="ToggleIcon"/>
+        </div>
+        <ul class="as-laln">
+          <li><span>{{'lat'|i18n}}:</span><em>{{MapCenter.lat|float(8)}}</em></li>
+          <li><span>{{'lng'|i18n}}:</span><em>{{MapCenter.lng|float(8)}}</em></li>
+        </ul>
+      </div> <!--as-info-->
   </div>
 </div>

@@ -518,6 +518,12 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
   title : "hMaker控件编辑",
   com: "/rs/ti/test/components/demo-hmaker-edit-com.json"
 }
+#---------------------------------------------------------
+@FILE demo/lbs-map-point-google.comt
+{
+  title : "lbs地图·点·Google",
+  com: "/rs/ti/test/components/demo-ti-lbs-map-point-google.json"
+}
 ##########################################################
 #
 #                     站点·数据部分
