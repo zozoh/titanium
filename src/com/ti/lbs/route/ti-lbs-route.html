@@ -1,0 +1,33 @@
+<div class="ti-lbs-route" 
+  :class="TopClass"
+  :style="TopStyle">
+  <!--Map-->
+  <TiLbsMap
+    v-bind="this"
+    :value="ValueItems"
+    mode="path"/>
+  <!--
+    Route List
+  -->
+  <transition name="ti-trans-fade">
+    <div
+      v-if="isShowList"
+        class="as-list">
+          <TiList
+            :data="ValueItems"
+            v-bind="ListConf"
+            blank-class="as-big"
+            :current-id="myCurrentId"
+            :checked-ids="myCheckedIds"
+            :puppet-mode="true"
+            @select="OnListSelect"/>
+    </div>
+  </transition>
+  <!--
+    Actions
+  -->
+  <div class="as-actions">
+    <TiButton
+      :setup="ActionButtons"/>
+  </div>
+</div>

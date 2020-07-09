@@ -126,6 +126,12 @@ const _M = {
       }
     },
     //--------------------------------------------------
+    FormBodyClass() {
+      if(this.CurrentTab) {
+        return `tab-body-${this.CurrentTab.index}`
+      }
+    },
+    //--------------------------------------------------
     FieldsInCurrentTab() {
       // Current Tab
       if(this.isTabMode) {

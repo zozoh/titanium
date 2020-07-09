@@ -1,5 +1,4 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   ///////////////////////////////////////////////////////
   data : ()=>({
     myFilterValue : null,
@@ -275,3 +274,4 @@ export default {
   }
   ///////////////////////////////////////////////////////
 }
+export default _M;

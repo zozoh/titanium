@@ -53,6 +53,8 @@
       //--------------------------------
       transition: all .5s;
       //--------------------------------
+      &.no-padding {padding:0;}
+      //--------------------------------
       &.is-spinning {@include color($color-track,   r, c);}
       &.is-error    {@include color($color-error,   r, c);}
       &.is-warn     {@include color($color-warn,    r, c);}
@@ -148,7 +150,10 @@
         > .group-fields {padding:SZ(8) 0 SZ(16) 0;}
       }
       //------------------------------
-      .form-field {padding:SZ(8);}
+      .form-field {
+        padding:SZ(8);
+        &.no-padding {padding:0;}
+      }
       //------------------------------
     }
   }
@@ -162,7 +167,10 @@
         > .group-fields {padding:SZ(4) 0 SZ(4) 0;}
       }
       //------------------------------
-      .form-field {padding:SZ(4);}
+      .form-field {
+        padding:SZ(4);
+        &.no-padding {padding:0;}
+      }
       //------------------------------
     }
   }

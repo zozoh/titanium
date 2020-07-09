@@ -220,14 +220,15 @@ export class Dict {
   async queryData(str){
     //console.log("@Dict.queryData", str)
     // Empty string will take as query all
+    let s = _.trim(str)
     let list;
-    if(!str) {
+    if(!s) {
       list = await this.getData()
       return list
     }
     // Find by string
     this.doHooks(true)
-    list = await this.invokeAsync("query", str)
+    list = await this.invokeAsync("query", s)
     this.doHooks(false)
     // Cache items
     _.forEach(list, it => {

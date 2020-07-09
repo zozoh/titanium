@@ -17,6 +17,7 @@
     "@com:ti/text/markdown/richeditor",
     "@com:wn/transfer",
     "@com:wn/droplist",
+    "@com:ti/lbs/route",
     "@com:wn/combo/input",
     "@com:wn/combo/multi-input",
     "@com:wn/upload/file",

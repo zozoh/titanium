@@ -13,6 +13,12 @@
           @zoom:change="OnZoomChange"/>
     </div>
     <!--
+      Wait cooling
+    -->
+    <div
+      v-if="CoolingIcon"
+        class="as-wait-cooling"><ti-icon :value="CoolingIcon"/></div>
+    <!--
       Map Info
     -->
     <div
@@ -24,6 +30,7 @@
         <ul class="as-laln">
           <li><span>{{'lat'|i18n}}:</span><em>{{MapCenter.lat|float(8)}}</em></li>
           <li><span>{{'lng'|i18n}}:</span><em>{{MapCenter.lng|float(8)}}</em></li>
+          <li><span>ZOOM</span><em>{{myZoom || zoom}}</em></li>
         </ul>
       </div> <!--as-info-->
   </div>

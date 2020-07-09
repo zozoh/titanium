@@ -41,7 +41,6 @@
     "@com:ti/actionbar",
     "@com:ti/form",
     "@com:ti/obj/thumb",
-    "@com:ti/lbs/map",
     "@com:ti/session/badge",
     "@com:wn/gui/arena",
     "@com:wn/gui/side/nav",

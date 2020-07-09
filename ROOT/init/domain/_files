@@ -519,11 +519,25 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
   com: "/rs/ti/test/components/demo-hmaker-edit-com.json"
 }
 #---------------------------------------------------------
-@FILE demo/lbs-map-point-google.comt
+@FILE demo/lbs/map-point-google.comt
 {
   title : "lbs地图·点·Google",
-  com: "/rs/ti/test/components/demo-ti-lbs-map-point-google.json"
+  com: "/rs/ti/test/components/lbs/demo-ti-lbs-map-point-google.json"
 }
+#---------------------------------------------------------
+@FILE demo/lbs/map-path-google.comt
+{
+  title : "lbs地图·路径·Google",
+  com: "/rs/ti/test/components/lbs/demo-ti-lbs-map-path-google.json"
+}
+%COPY> lbs/demo-ti-lbs-map-path.data.json
+#---------------------------------------------------------
+@FILE demo/lbs/route-google.comt
+{
+  title : "线路编辑·Google",
+  com: "/rs/ti/test/components/lbs/demo-ti-lbs-route-path-google.json"
+}
+%COPY> lbs/demo-ti-lbs-map-path.data.json
 ##########################################################
 #
 #                     站点·数据部分

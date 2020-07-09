@@ -1,5 +1,4 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   /////////////////////////////////////////
   props : {
     "size" :{
@@ -38,6 +37,7 @@ export default {
         it.icon = li.icon
         it.text = li.text
         it.disabled = li.disabled
+        it.handler = li.handler
         it.buttonClass = {
           [`as-do-${it.name}`] : true,
           "is-enabled"      : !li.disabled  ? true : false,
@@ -52,11 +52,17 @@ export default {
   },
   //////////////////////////////////////////
   methods :{
-    onClickItem(it) {
+    OnClickItem(it) {
       if(!it.disabled) {
-        this.$notify(it.eventName, it.payload)
+        if(_.isFunction(it.handler)) {
+          it.handler()
+        }
+        if(_.isString(it.eventName)) {
+          this.$notify(it.eventName, it.payload)
+        }
       }
     }
   }
   //////////////////////////////////////////
 }
+export default _M;

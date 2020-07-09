@@ -6,6 +6,7 @@ export async function WalnutAppMain({
   debug=false,
   logging={root:"warn"},
   shortcute=true,
+  theme,
   viewport = {
     phoneMaxWidth:540,
     tabletMaxWidth:768,
@@ -103,7 +104,7 @@ export async function WalnutAppMain({
   if(tiConf.css) {
     let exCssList = [].concat(tiConf.css)
     for(let css of exCssList) {
-      let cssPath = _.template(css)({theme:"${theme}"})
+      let cssPath = _.template(css)({theme})
       await Ti.Load(cssPath)
     }
   }

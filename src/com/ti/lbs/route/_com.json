@@ -1,0 +1,8 @@
+{
+  "name" : "ti-lbs-route",
+  "globally" : true,
+  "template" : "./ti-lbs-route.html",
+  "mixins"   : ["./ti-lbs-route.mjs"],
+  "components" : [
+    "@com:ti/lbs/map"]
+}

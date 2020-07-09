@@ -7,7 +7,9 @@
   }
   //---------------------------------------------
   li {
-    flex:0 0 auto;
+    flex:0 0 auto; 
+    padding:0 1em;
+    min-width: 8em; height: 2.6em;
     @include flex-align-nowrap($jc:center); 
     //------------------------------
     > span {display: block;}
@@ -25,38 +27,34 @@
       opacity: 0.8; cursor: default;
     }
     //------------------------------
-    .ti-icon .icon-icon > i {font-size:1em;}
+    .ti-icon .icon-icon > i {font-size:1.2em;}
     //------------------------------
   }
   //---------------------------------------------
   &.is-big {
     li {
-      padding:0 1em; font-size:1.6em;
-      min-width: 8em; line-height:2.6em;
+      font-size:1.6em;
       .it-text {padding:0 SZ(12);}
     }
   }
   //---------------------------------------------
   &.is-normal {
     li {
-      padding:0 SZ(10); font-size:1.2em;
-      min-width: SZ(120); line-height:SZ(48);
+      font-size:1.2em;
       .it-text {padding:0 SZ(8);}
     }
   }
   //---------------------------------------------
   &.is-small {
     li {
-      padding:0 SZ(4); font-size:1em;
-      min-width: SZ(80); line-height:SZ(32);
+      font-size:1em;
       .it-text {padding:0 SZ(4);}
     }
   }
   //---------------------------------------------
   &.is-tiny {
     li {
-      padding:0 SZ(4); font-size:SZ(12);
-      min-width: SZ(60); line-height:SZ(26);
+      font-size:.8em;
       .it-text {padding:0 SZ(4);}
     }
   }

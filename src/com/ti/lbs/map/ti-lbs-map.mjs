@@ -1,7 +1,10 @@
 const _M = {
   /////////////////////////////////////////
   data : ()=>({
+    myUpTime: undefined,  
+    myWaitCooling: false,  
     fullScreen : false,
+    myMapCenter: undefined,
     myZoom: undefined,
     myMapType: undefined
   }),
@@ -66,6 +69,10 @@ const _M = {
     "keepStateBy": {
       type: String,
       default: undefined
+    },
+    "cooling": {
+      type: Number,
+      default: 1200
     }
   },
   //////////////////////////////////////////
@@ -128,7 +135,7 @@ const _M = {
         },
         //.........................
         path(val) {
-          if(!this.LalValue)
+          if(!val)
             return {}
           return {
             pinCenter: false,
@@ -140,7 +147,7 @@ const _M = {
         },
         //.........................
         area(val) {
-          if(!this.LalValue)
+          if(!val)
             return {}
           return {
             pinCenter: false,
@@ -165,7 +172,7 @@ const _M = {
     //-------------------------------------
     LalValue() {
       // Guard
-      if(!this.value) {
+      if(_.isEmpty(this.value)) {
         return {lat:39.908765655793395, lng:116.39748860418158}
       }
       // Polygon
@@ -183,28 +190,28 @@ const _M = {
     },
     //-------------------------------------
     MapCenter() {
+      if(this.myMapCenter) {
+        return this.myMapCenter
+      }
       // Guard
       if(!this.LalValue) {
         return
       }
       // Polygon
       if(_.isArray(this.LalValue)) {
-        let lng_max = 0;
-        let lng_min = 0;
-        let lat_max = 0;
-        let lat_min = 0;
-        for(let lal of this.LalValue) {
-          lng_max = Math.max(lng_max, lal.lng)
-          lng_min = Math.min(lng_min, lal.lng)
-          lat_max = Math.max(lat_max, lal.lat)
-          lat_min = Math.min(lat_min, lal.lat)
-        }
-        let lng = (lng_max-lng_min)/2
-        let lat = (lat_max-lat_min)/2
-        return {lng, lat}
+        return this.getBounds(this.LalValue)
       }
       // Point
       return _.pick(this.LalValue, "lng", "lat")
+    },
+    //-------------------------------------
+    CoolingIcon() {
+      if(this.myUpTime > 0) {
+        if(this.myWaitCooling){
+          return "fas-spinner fa-spin"
+        }
+        return "zmdi-check-circle"
+      }
     }
     //-------------------------------------
   },
@@ -212,11 +219,95 @@ const _M = {
   methods : {
     //-------------------------------------
     OnCenterChange(lal) {
-      this.$notify("change", lal)
+      this.myMapCenter = lal
+      this.myUpTime = Date.now()
+      if(this.MapComConfByMode.pinCenter && !this.myWaitCooling) {
+        this.checkUpdate()
+      }
     },
     //-------------------------------------
     OnZoomChange(zoom) {
+      this.myZoom = zoom
       this.saveState({zoom})
+    },
+    //-------------------------------------
+    isCoolDown() {
+      if(!this.myUpTime) {
+        return true
+      }
+      let du = Date.now() - this.myUpTime
+      return du > this.cooling
+    },
+    //-------------------------------------
+    checkUpdate() {
+      if(this.isCoolDown()) {
+        let lal = _.pick(this.myMapCenter, "lng", "lat")
+        //console.log("notify change", lal)
+        this.$notify("change", lal)
+        this.myWaitCooling = false
+        _.delay(()=>{
+          this.myUpTime = undefined
+        }, 1000)
+      }
+      // Wait
+      else {
+        this.myWaitCooling = true
+        let du = Date.now() - this.myUpTime
+        //console.log("wait cooling", this.cooling, du)
+        _.delay(()=>{
+          this.checkUpdate()
+        }, this.cooling)
+      }
+    },
+    //-------------------------------------
+    /*
+    CROSS MODE:
+          lng:180        360:0                 180
+          +----------------+------------------NE  lat:90
+          |                |           lng_min|lat_max
+          |                |                  |
+          +----------------+------------------+-- lat:0
+          |                |                  |
+   lat_min|lng_max         |                  |
+          SW---------------+------------------+   lat:-90
+    
+    SIDE MODE:
+          lng:0           180                360
+          +----------------+------------------NE  lat:90
+          |                |           lng_max|lat_max
+          |                |                  |
+          +----------------+------------------+-- lat:0
+          |                |                  |
+   lat_min|lng_min         |                  |
+          SW---------------+------------------+   lat:-90
+    
+    @return [SW, NE]
+    */
+    getBounds(lalList=[]) {
+      let lng_max = undefined;
+      let lng_min = undefined;
+      let lat_max = undefined;
+      let lat_min = undefined;
+      for(let lal of this.LalValue) {
+        lng_max = _.isUndefined(lng_max)
+                    ? lal.lng : Math.max(lng_max, lal.lng)
+        lng_min = _.isUndefined(lng_min)
+                    ? lal.lng : Math.min(lng_min, lal.lng)
+        lat_max = _.isUndefined(lat_max)
+                    ? lal.lat : Math.max(lat_max, lal.lat)
+        lat_min = _.isUndefined(lat_min)
+                    ? lal.lat : Math.min(lat_min, lal.lat)
+      }
+      // Cross mode
+      if((lng_max-lng_min) > 180) {
+        return [
+          {lat: lat_min, lng:lng_max},
+          {lat: lat_max, lng:lng_min}]
+      }
+      // Side mode
+      return [
+        {lat: lat_min, lng:lng_min},
+        {lat: lat_max, lng:lng_max}]      
     },
     //-------------------------------------
     autoLatLng(val) {
@@ -258,9 +349,11 @@ const _M = {
   },
   //////////////////////////////////////////
   watch: {
-    // "value": function(newVal, oldVal) {
-    //   console.log("value is changed")
-    // }
+    "value": function() {
+      if(_.isUndefined(this.myUpTime)) {
+        this.myMapCenter = undefined
+      }
+    }
   },
   //////////////////////////////////////////
   created: function() {

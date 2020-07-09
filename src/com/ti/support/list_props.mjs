@@ -97,8 +97,8 @@ export default {
   },
   "blankClass": {
     type: String,
-    default: "big-mask",
-    validator: v=>/^(big-mask|mid-tip)$/.test(v)
+    default: "as-big-mask",
+    validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
   },
   //-----------------------------------
   // Measure
