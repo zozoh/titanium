@@ -43,11 +43,11 @@
   &.is-fullscreen {
     > .as-actions {
       @include pos-fixed($t:0,$r:0);
-      z-index: $z-menu+10;
+      z-index: $z-menu + 10;
     }
     > .as-list {
       @include pos-fixed($t:0,$r:0,$b:0);
-      z-index: $z-menu+10;
+      z-index: $z-menu + 10;
     }
   }
   //---------------------------------
