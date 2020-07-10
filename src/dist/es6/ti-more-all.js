@@ -1,4 +1,4 @@
-// Pack At: 2020-07-10 10:07:15
+// Pack At: 2020-07-10 16:11:37
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -3715,6 +3715,12 @@ const _M = {
                 ? this.notify
                 : this.name;
       }
+    },
+    TheAction() {
+      if(_.isFunction(this.action) && this.wait > 0) {
+        return _.debounce(this.action, this.wait, {leading:true})
+      }
+      return this.action
     }
   },
   ///////////////////////////////////////
@@ -3723,10 +3729,9 @@ const _M = {
       // Call Action
       if(this.action) {
         let app = Ti.App(this)
-        let invoking = Ti.Shortcut.genActionInvoking(this.action, {
+        let invoking = Ti.Shortcut.genActionInvoking(this.TheAction, {
           $com : this.$bar.$parent,
-          argContext: app.$state(),
-          wait : this.wait
+          argContext: app.$state()
         })
         // Invoke it
         invoking()
@@ -6455,7 +6460,7 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box
     <component 
       :is="DropComType"
       class="ti-fill-parent"
-      blank-class="mid-tip"
+      blank-class="as-mid-tip"
       v-bind="DropComConf"
       :on-init="OnDropListInit"
       @select="OnDropListSelected"/>
@@ -6883,7 +6888,7 @@ Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-b
   <template v-slot:drop>
     <component class="ti-fill-parent"
       :is="DropComType"
-      blank-class="mid-tip"
+      blank-class="as-mid-tip"
       v-bind="DropComConf"
       :on-init="OnDropListInit"
       @select="OnDropListSelected"/>
@@ -15145,8 +15150,7 @@ const _M = {
   computed : {
     //-------------------------------------
     MapTypeId() {
-      return (google.maps.MapTypeId[this.mapType]) 
-             || google.maps.MapTypeId.ROADMAP
+      return this.getMapTypeId(this.mapType)
     },
     //-------------------------------------
     MapCenter() {
@@ -15180,6 +15184,11 @@ const _M = {
       }
       let du = Date.now() - this.mySyncTime
       return du < this.cooling
+    },
+    //-------------------------------------
+    getMapTypeId(mapType="ROADMAP") {
+      return (google.maps.MapTypeId[mapType]) 
+             || google.maps.MapTypeId.ROADMAP
     },
     //-------------------------------------
     draw_center_marker(lalCenter) {
@@ -15290,7 +15299,7 @@ const _M = {
     },
     //-------------------------------------
     cleanLayers(name) {
-      console.log("cleanLayers")
+      //console.log("cleanLayers")
       if(name) {
         let lay = this.myLayers[name]
         this.clearLayer(lay)
@@ -15309,6 +15318,10 @@ const _M = {
   },
   //////////////////////////////////////////
   watch : {
+    "mapType": function(newVal) {
+      let mapType = this.getMapTypeId(newVal)
+      this.$map.setMapTypeId(mapType)
+    },
     //"value" : function(){this.drawValue()}
     "layers": function(newVal, oldVal) {
       if(!_.isEqual(newVal, oldVal)) {
@@ -15321,7 +15334,7 @@ const _M = {
         this.mySyncTime = Date.now()
         // Bounds
         if(_.isArray(newVal)) {
-          console.log("google bounds changed", {newVal, oldVal})
+          //console.log("google bounds changed", {newVal, oldVal})
           let sw = new google.maps.LatLng(newVal[0])
           let ne = new google.maps.LatLng(newVal[1])
           let bounds = new google.maps.LatLngBounds(sw, ne)
@@ -15329,7 +15342,7 @@ const _M = {
         }
         // Pointer
         else if(_.isNumber(newVal.lat) && _.isNumber(newVal.lng)) {
-          console.log("google center changed", {newVal, oldVal})
+          //console.log("google center changed", {newVal, oldVal})
           this.$map.panTo(newVal)
         }
         
@@ -15350,15 +15363,10 @@ const _M = {
       center: this.MapCenter,
       mapTypeId: this.MapTypeId,
       //...................................
-      fullscreenControlOptions: {
-        position: google.maps.ControlPosition.TOP_LEFT
-      },
-      //...................................
-      zoomControlOptions: {
-        position: google.maps.ControlPosition.LEFT_TOP
-      },
-      //...................................
+      fullscreenControl: false,
+      mapTypeControl: false,
       streetViewControl: false,
+      zoomControl: false,
       //...................................
       center_changed: ()=>{
         let lal = this.$map.getCenter()
@@ -15563,16 +15571,19 @@ Ti.Preload("ti/com/ti/lbs/map/ti-lbs-map.html", `<div class="ti-lbs-map"
     -->
     <div
       v-if="CoolingIcon"
-        class="as-wait-cooling"><ti-icon :value="CoolingIcon"/></div>
+        class="as-wait-cooling"><TiIcon :value="CoolingIcon"/></div>
+    <!--
+      Map Controls
+    -->
+    <div class="as-controls">
+      <TiActionbar v-bind="MapActionBar"/>
+    </div>
     <!--
       Map Info
     -->
     <div
       v-if="MapCenter"
         class="as-info">
-        <div class="as-toggle" @click="fullScreen=!fullScreen">
-          <ti-icon :value="ToggleIcon"/>
-        </div>
         <ul class="as-laln">
           <li><span>{{'lat'|i18n}}:</span><em>{{MapCenter.lat|float(8)}}</em></li>
           <li><span>{{'lng'|i18n}}:</span><em>{{MapCenter.lng|float(8)}}</em></li>
@@ -15590,7 +15601,7 @@ const _M = {
   data : ()=>({
     myUpTime: undefined,  
     myWaitCooling: false,  
-    fullScreen : false,
+    myFullscreen : false,
     myMapCenter: undefined,
     myZoom: undefined,
     myMapType: undefined
@@ -15660,24 +15671,27 @@ const _M = {
     "cooling": {
       type: Number,
       default: 1200
+    },
+    "maxZoom": {
+      type: Number,
+      default: 22
+    },
+    "minZoom": {
+      type: Number,
+      default: 1
     }
   },
   //////////////////////////////////////////
   computed : {
     //-------------------------------------
     TopClass() {
-      let klass = []
-      if(this.fullScreen) {
-        klass.push("is-fullscreen")
-      }
-      if(this.className) {
-        klass.push(this.className)
-      }
-      return klass
+      return this.getTopClass({
+        "is-fullscreen": this.myFullscreen
+      })
     },
     //-------------------------------------
     TopStyle() {
-      if(!this.fullScreen) {
+      if(!this.myFullscreen) {
         return Ti.Css.toStyle({
           width  : this.width,
           height : this.height
@@ -15686,7 +15700,7 @@ const _M = {
     },
     //-------------------------------------
     ToggleIcon() {
-      return this.fullScreen
+      return this.myFullscreen
         ? "zmdi-fullscreen-exit"
         : "zmdi-fullscreen"
     },
@@ -15698,8 +15712,8 @@ const _M = {
     MapComConf() {
       return {
         "center"  : this.MapCenter,
-        "mapType" : Ti.Util.fallback(this.myMapType, this.mapType),
-        "zoom"    : Ti.Util.fallback(this.myZoom, this.zoom),
+        "mapType" : this.myMapType,
+        "zoom"    : this.myZoom,
         ...this.MapComConfByMode
       }
     },
@@ -15792,6 +15806,70 @@ const _M = {
       return _.pick(this.LalValue, "lng", "lat")
     },
     //-------------------------------------
+    MapActionBar() {
+      return {
+        items: [{
+            className: "big-icon",
+            icon: this.myFullscreen
+              ? "im-minimize"
+              : "im-maximize",
+            action: ()=>this.myFullscreen = !this.myFullscreen
+          }, {
+            icon: "far-map",
+            text: "i18n:map-type",
+            altDisplay: [{
+                icon: "fas-road",
+                text: "i18n:map-roadmap",
+                match: {myMapType:"ROADMAP"}
+              }, {
+                icon: "fas-satellite",
+                text: "i18n:map-satellite",
+                match: {myMapType:"SATELLITE"}
+              }, {
+                icon: "fas-globe-asia",
+                text: "i18n:map-hybrid",
+                match: {myMapType:"HYBRID"}
+              }, {
+                icon: "fas-drafting-compass",
+                text: "i18n:map-terrain",
+                match: {myMapType:"TERRAIN"}
+              }],
+            items: [{
+                icon: "fas-road",
+                text: "i18n:map-roadmap",
+                highlight: {myMapType:"ROADMAP"},
+                action: ()=>this.myMapType = "ROADMAP"
+              }, {
+                icon: "fas-globe-asia",
+                text: "i18n:map-hybrid",
+                highlight: {myMapType:"HYBRID"},
+                action: ()=>this.myMapType = "HYBRID"
+              }, {
+                icon: "fas-satellite",
+                text: "i18n:map-satellite",
+                highlight: {myMapType:"SATELLITE"},
+                action: ()=>this.myMapType = "SATELLITE"
+              }, {
+                icon: "fas-drafting-compass",
+                text: "i18n:map-terrain",
+                highlight: {myMapType:"TERRAIN"},
+                action: ()=>this.myMapType = "TERRAIN"
+              }]
+          }, {
+            className: "big-icon",
+            icon: "im-plus",
+            wait: 1200,
+            action: ()=>this.zoomMap(1)
+          }, {
+            className: "big-icon",
+            icon: "im-minus",
+            wait: 1200,
+            action: ()=>this.zoomMap(-1)
+          }],
+        status: this
+      }
+    },
+    //-------------------------------------
     CoolingIcon() {
       if(this.myUpTime > 0) {
         if(this.myWaitCooling){
@@ -15807,15 +15885,25 @@ const _M = {
     //-------------------------------------
     OnCenterChange(lal) {
       this.myMapCenter = lal
-      this.myUpTime = Date.now()
-      if(this.MapComConfByMode.pinCenter && !this.myWaitCooling) {
-        this.checkUpdate()
+      if(this.MapComConfByMode.pinCenter) {
+        this.myUpTime = Date.now()
+        if(!this.myWaitCooling) {
+          this.checkUpdate()
+        }
       }
     },
     //-------------------------------------
     OnZoomChange(zoom) {
       this.myZoom = zoom
       this.saveState({zoom})
+    },
+    //-------------------------------------
+    zoomMap(offset) {
+      let zoom = this.myZoom + offset
+      if(_.inRange(zoom, this.minZoom, this.maxZoom+1)) {
+        this.myZoom = zoom
+        this.saveState({zoom})
+      }
     },
     //-------------------------------------
     isCoolDown() {
@@ -15940,14 +16028,21 @@ const _M = {
       if(_.isUndefined(this.myUpTime)) {
         this.myMapCenter = undefined
       }
+    },
+    "myFullscreen": function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        this.$notify("change:fullscreen", newVal)
+      }
     }
   },
   //////////////////////////////////////////
   created: function() {
+    this.myMapType = this.mapType
+    this.myZoom = this.zoom
     if(this.keepStateBy) {
       let state = Ti.Storage.session.getObject(this.keepStateBy)
-      this.myMapType = state.mapType
-      this.myZoom = state.zoom
+      this.myMapType = state.mapType || this.mapType
+      this.myZoom = state.zoom || this.zoom
     }
   }
   //////////////////////////////////////////
@@ -15965,7 +16060,8 @@ Ti.Preload("ti/com/ti/lbs/map/_com.json", {
   "components" : [
     "./tencent/_com.json",
     "./baidu/_com.json",
-    "./google/_com.json"
+    "./google/_com.json",
+    "@com:ti/button"
   ]
 });
 //============================================================
@@ -15978,7 +16074,8 @@ Ti.Preload("ti/com/ti/lbs/route/ti-lbs-route.html", `<div class="ti-lbs-route"
   <TiLbsMap
     v-bind="this"
     :value="ValueItems"
-    mode="path"/>
+    mode="path"
+    @change:fullscreen="OnFullscreenChange"/>
   <!--
     Route List
   -->
@@ -15993,7 +16090,8 @@ Ti.Preload("ti/com/ti/lbs/route/ti-lbs-route.html", `<div class="ti-lbs-route"
             :current-id="myCurrentId"
             :checked-ids="myCheckedIds"
             :puppet-mode="true"
-            @select="OnListSelect"/>
+            @select="OnListSelect"
+            @open="OnListOpen"/>
     </div>
   </transition>
   <!--
@@ -16013,7 +16111,8 @@ const _M = {
   data : ()=>({
     myShowList: undefined,
     myCurrentId: undefined,
-    myCheckedIds: undefined
+    myCheckedIds: undefined,
+    myFullscreen: false
   }),
   /////////////////////////////////////////
   props : {
@@ -16071,27 +16170,29 @@ const _M = {
       type: Boolean,
       default: true
     },
-    "query": {
-      type: [Function, Ti.Dict],
-      default: null
+    /*
+    Open Modal-> ti-transer 
+    whatever, you need gen the result like:
+    [{
+      id, title, lng, lat, label[Optional]
+    }]
+    */
+    "addBy": {
+      type: Object,
+      default: undefined
     }
   },
   //////////////////////////////////////////
   computed : {
     //-------------------------------------
     TopClass() {
-      let klass = []
-      if(this.fullScreen) {
-        klass.push("is-fullscreen")
-      }
-      if(this.className) {
-        klass.push(this.className)
-      }
-      return klass
+      return this.getTopClass({
+        "is-fullscreen": this.myFullscreen
+      })
     },
     //-------------------------------------
     TopStyle() {
-      if(!this.fullScreen) {
+      if(!this.myFullscreen) {
         return Ti.Css.toStyle({
           width  : this.width,
           height : this.height
@@ -16126,13 +16227,20 @@ const _M = {
     //-------------------------------------
     ActionButtons() {
       let list = [{
+        icon: "zmdi-edit",
+        disabled: !this.hasCurrentId,
+        handler: ()=>this.editCurrent()
+      }, {
         icon: "zmdi-long-arrow-up",
+        disabled: !this.hasCheckedIds,
         handler: ()=>this.moveCheckedUp()
       }, {
         icon: "zmdi-long-arrow-down",
+        disabled: !this.hasCheckedIds,
         handler: ()=>this.moveCheckedDown()
       }, {
         icon: "zmdi-delete",
+        disabled: !this.hasCheckedIds,
         handler: ()=>this.removeChecked()
       }, {
         icon: "zmdi-format-list-bulleted",
@@ -16140,7 +16248,7 @@ const _M = {
           this.myShowList = !this.isShowList
         }
       }]
-      if(this.query) {
+      if(this.addBy) {
         return _.concat({
           icon: "zmdi-plus",
           text: "i18n:lbs-place-add",
@@ -16150,36 +16258,119 @@ const _M = {
       return list
     },
     //-------------------------------------
-    isShowList() {
-      return Ti.Util.fallback(this.myShowList, this.showList)
+    hasCurrentId() {
+      return !Ti.Util.isNil(this.myCurrentId)
     },
     //-------------------------------------
-    QueryItems() {
-      if(this.query instanceof Ti.Dict) {
-        return async (str)=>{
-          return await this.query.queryData(_.trim(str))
-        }
-      }
-      if(_.isFunction(this.query)) {
-        return async (str)=>{
-          return await this.query(_.trim(str))
-        }
-      }
-      return ()=>[]
+    hasCheckedIds() {
+      return !_.isEmpty(this.myCheckedIds)
+    },
+    //-------------------------------------
+    isShowList() {
+      return Ti.Util.fallback(this.myShowList, this.showList)
     }
     //-------------------------------------
   },
   //////////////////////////////////////////
   methods : {
     //-------------------------------------
+    OnFullscreenChange(fullscreen) {
+      console.log("OnFullscreenChange", fullscreen)
+      this.myFullscreen = fullscreen
+    },
+    //-------------------------------------
     OnListSelect({currentId, checkedIds}) {
       this.myCurrentId = currentId
       this.myCheckedIds = checkedIds
     },
     //-------------------------------------
+    async OnListOpen({index, item}) {
+      let reo = await Ti.App.Open({
+        title: "i18n:edit",
+        position: "right",
+        result: item,
+        comType: "TiForm",
+        comConf: {
+          data: "=result",
+          fields: [{
+            title: "i18n:title",
+            name: "title",
+            comType: "ti-input"
+          }, {
+            title: "i18n:label",
+            name: "label",
+            comType: "ti-input"
+          }]
+        }
+      })
+      // User cancel
+      if(_.isEmpty(reo))
+        return
+
+      // Update
+      let list = _.cloneDeep(this.ValueItems)
+      _.assign(list[index], reo)
+      this.$notify("change", list)
+    },
+    //-------------------------------------
+    async editCurrent() {
+      if(!this.myCurrentId) {
+        return
+      }
+      // Find the index
+      let index=0, item=null;
+      for(let it of this.ValueItems) {
+        if(this.myCurrentId == it.id) {
+          item = it
+          break;
+        }
+        index++
+      }
+      // Then open editor
+      await this.OnListOpen({index, item})
+    },
+    //-------------------------------------
     async openNewItemSelector() {
-      let list = await this.QueryItems()
-      console.log(list)
+      // Guard
+      if(!this.addBy)
+        return
+      let diaConf = _.merge({
+        icon: "zmdi-plus-circle-o",
+        title: "add-item",
+        width: "80%",
+        height: "80%",
+        position: "top",
+        result: this.ValueItems,
+        comType: "TiTransfer",
+        comConf: {}
+      }, this.addBy)
+
+      let reo = await Ti.App.Open(diaConf)
+
+      // User canceled
+      if(_.isEmpty(reo))
+        return
+      
+      // Remove dup
+      let list = []
+      let memo = {}
+
+      // Remember old
+      _.forEach(list, it => memo[it.id] = true)
+      
+      // Join new
+      _.forEach(reo, it => {
+        if(!memo[it.id]) {
+          memo[it.id] = true
+          if(Ti.Util.isNil(it.label)) {
+            it.label = (list.length+1)+""
+          }
+          list.push(it)
+        }
+      })
+
+      // Notify change
+      this.$notify("change", list)
     },
     //-------------------------------------
     moveCheckedUp() {
@@ -16192,13 +16383,15 @@ const _M = {
         let pos = mc.firstIndex - 1
         Ti.Util.insertToArray(list, pos, ...mc.checkeds)
 
-        // Auto Update
-        let checkeds = {}
-        for(let i=0; i<mc.checkeds.length;i++) {
-          checkeds[`R${i+pos}`] = true
+        // Update the auto-generated ID
+        if(Ti.Util.isNil(_.first(mc.checkeds).id)) {
+          let checkeds = {}
+          for(let i=0; i<mc.checkeds.length;i++) {
+            checkeds[`R${i+pos}`] = true
+          }
+          this.myCurrentId = null
+          this.myCheckedIds = checkeds
         }
-        this.myCurrentId = null
-        this.myCheckedIds = checkeds
 
         this.$notify("change", list)
       }
@@ -16210,32 +16403,36 @@ const _M = {
         return Ti.Toast.Open("i18n:nil-obj", "warn")
       }
 
-      if(mc.lastIndex < (mc.remains.length - 1)) {
+      if(mc.lastIndex < mc.remains.length) {
         let list = mc.remains;
         let pos = mc.lastIndex+1
         Ti.Util.insertToArray(list, pos, ...mc.checkeds)
 
-        // Auto Update
-        let checkeds = {}
-        for(let i=0; i<mc.checkeds.length;i++) {
-          checkeds[`R${i+pos}`] = true
+        // Update the auto-generated ID
+        if(Ti.Util.isNil(_.first(mc.checkeds).id)) {
+          let checkeds = {}
+          for(let i=0; i<mc.checkeds.length;i++) {
+            checkeds[`R${i+pos}`] = true
+          }
+          this.myCurrentId = null
+          this.myCheckedIds = checkeds
         }
-        this.myCurrentId = null
-        this.myCheckedIds = checkeds
 
         this.$notify("change", list)
       }
     },
     //-------------------------------------
     removeChecked() {
-      let mc = this.genMoveContext(true)
+      let mc = this.genMoveContext()
       if(_.isEmpty(mc.checkeds)) {
         return Ti.Toast.Open("i18n:del-none", "warn")
       }
+      this.myCheckedIds = {}
+      this.myCurrentId = null
       this.$notify("change", mc.remains)
     },
     //-------------------------------------
-    genMoveContext(forceCleanCheckeds=false) {
+    genMoveContext() {
       let mc = {
         firstIndex: -1,
         lastIndex : -1,
@@ -16261,12 +16458,7 @@ const _M = {
         }
       })
 
-      // autoCleanCheckeds
-      if(forceCleanCheckeds || mc.checkeds.length > 1) {
-        this.myCheckedIds = {}
-      }
-
-      console.log(mc)
+      //console.log(mc)
       return mc
     }
     //-------------------------------------
@@ -23397,6 +23589,27 @@ const _M = {
     default : undefined
   },
   "value" : undefined,
+  // Value format
+  // If declare the valueType
+  // It will transform the WnObj
+  // to relaitve value mode
+  "valueType": {
+    type: String,
+    default: "id",
+    validator: v => /^(id|obj|item)$/.test(v)
+  },
+  // for valueType=="obj", which key is id => value
+  // The key is for the primary obj, not the result
+  // of mapping translate if you declare the mapping option.
+  "idBy": {
+    type: String,
+    default: "id"
+  },
+  // for valueType=="obj|item", translate the value
+  "mapping": {
+    type: Object,
+    default: undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -23497,10 +23710,12 @@ Ti.Preload("ti/com/ti/transfer/ti-transfer.html", `<div class="ti-transfer"
     <!--
       component
     -->
-    <component :is="CanListComType"
-      class="as-box-main ti-fill-parent"
-      v-bind="CanListComConf"
-      @select="OnCanListSelected"/>
+    <div class="as-box-list">
+      <component :is="CanListComType"
+        class="as-box-main ti-fill-parent"
+        v-bind="CanListComConf"
+        @select="OnCanListSelected"/>
+    </div>
     <!--
       Foot
     -->
@@ -23540,10 +23755,12 @@ Ti.Preload("ti/com/ti/transfer/ti-transfer.html", `<div class="ti-transfer"
     <!--
       component
     -->
-    <component :is="SelListComType"
-      class="as-box-main ti-fill-parent"
-      v-bind="SelListComConf"
-      @select="OnSelListSelected"/>
+    <div class="as-box-list">
+      <component :is="SelListComType"
+        class="as-box-main ti-cover-parent"
+        v-bind="SelListComConf"
+        @select="OnSelListSelected"/>
+    </div>
     <!--
       Foot
     -->
@@ -23569,7 +23786,8 @@ const _M = {
       data : [],
       checkedIds : []
     },
-    selIdMap : {}
+    selIdMap : {},
+    loading: true
   }),
   ///////////////////////////////////////////////////////
   computed : {
@@ -23603,9 +23821,12 @@ const _M = {
       return _.assign({
         trimed      : true,
         width       : "100%",
-        prefixIcon  : "zmdi-filter-list",
+        prefixIcon  : this.loading
+          ? "fas-spinner fa-spin"
+          : "zmdi-filter-list",
         placeholder : "i18n:filter",
-        hover       : ['prefixIcon','suffixText','suffixIcon']
+        hover       : ['prefixIcon','suffixText','suffixIcon'],
+        loading     : this.loading
       }, this.fltComConf)
     },
     //------------------------------------------------
@@ -23613,18 +23834,32 @@ const _M = {
       return it => this.Dict.getValue(it)
     },
     //------------------------------------------------
+    ReverMapping() {
+      if(this.mapping) {
+        let re = {}
+        _.forEach(this.mapping, (v, k)=>{
+          re[v] = k
+        })
+        return re
+      }
+    },
+    //------------------------------------------------
     Dict() {
+      // Define the loading hook
+      const _hook_loading = ({loading}) => {
+        this.loading = loading
+      }
       // Customized
       if(this.options instanceof Ti.Dict) {
-        return this.options
+        let d = this.options.duplicate()
+        d.addHooks(_hook_loading)
+        return d
       }
       // Refer dict
       if(_.isString(this.options)) {
         let dictName = Ti.DictFactory.DictReferName(this.options)
         if(dictName) {
-          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
-            this.loading = loading
-          })
+          return Ti.DictFactory.CheckDict(dictName, _hook_loading)
         }
       }
       // Auto Create
@@ -23633,6 +23868,8 @@ const _M = {
         getValue : Ti.Util.genGetter(this.valueBy || "value"),
         getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
         getIcon  : Ti.Util.genGetter(this.textBy  || "icon")
+      }, {
+        hooks: _hook_loading
       })
     }
     //---------------------------------------------------
@@ -23641,11 +23878,11 @@ const _M = {
   methods : {
     //---------------------------------------------------
     OnCanListSelected({checkedIds}) {
-      this.can.checkedIds = this.getIds(checkedIds)
+      this.can.checkedIds = Ti.Util.truthyKeys(checkedIds)
     },
     //---------------------------------------------------
     OnSelListSelected({checkedIds}) {
-      this.sel.checkedIds = this.getIds(checkedIds)
+      this.sel.checkedIds = Ti.Util.truthyKeys(checkedIds)
     },
     //---------------------------------------------------
     OnClickHeadChecker(list) {
@@ -23657,11 +23894,12 @@ const _M = {
       // Others to All
       else {
         let idMap = this.rebuildIdMap(data)
-        list.checkedIds = this.getIds(idMap)
+        list.checkedIds = Ti.Util.truthyKeys(idMap)
       }
     },
     //---------------------------------------------------
     async OnFilterChanged(val) {
+      console.log("OnFilterChanged", val)
       this.myFilterValue = val
       this.myOptionsData = await this.Dict.queryData(val)
       this.evalShownCanList()
@@ -23768,7 +24006,8 @@ const _M = {
     async reloadSelList(vals=this.Values) {
       //console.log("reloadSelList")
       let list = []
-      for(let v of vals) {
+      for(let val of vals) {
+        let v = this.evalValue(val)
         let it = await this.Dict.getItem(v)
         if(it) {
           list.push(it)
@@ -23795,13 +24034,69 @@ const _M = {
       this.selIdMap = this.rebuildIdMap(this.sel.data)
     },
     //---------------------------------------------------
-    getIds(idMap) {
-      let ids = []
-      _.forEach(idMap, (v, id)=>{
-        if(v)
-          ids.push(id)
-      })
-      return ids
+    evalValue(val) {
+      // Guard
+      if(Ti.Util.isNil(val)){
+        return val
+      }
+      // Cases
+      return ({
+        id: v => v,
+        obj: v => {
+          if(this.ReverMapping) {
+            v = Ti.Util.translate(v, this.ReverMapping)
+          }
+          return _.get(v, this.idBy)
+        },
+        item: v => {
+          if(this.ReverMapping) {
+            v = Ti.Util.translate(v, this.ReverMapping)
+          }
+          return _.get(v, "value")
+        }
+      })[this.valueType](val)
+    },
+    //---------------------------------------------------
+    async genValue() {
+      let ids = _.keys(this.selIdMap)
+      // Guard
+      if(_.isEmpty(ids))
+        return []
+      // Parse
+      return await ({
+        id: ids => {
+          return ids
+        },
+        obj: async ids => {
+          let list = []
+          for(let id of ids) {
+            let it = await this.Dict.getItem(id)
+            if(it)
+              if(this.mapping) {
+                it = Ti.Util.translate(it, this.mapping)
+              }
+              list.push(it)
+          }
+          return list
+        },
+        item: async ids => {
+          let list = []
+          for(let id of ids) {
+            let obj = await this.Dict.getItem(id)
+            let it = {
+              text  : this.Dict.getText(obj),
+              value : this.Dict.getValue(obj)
+            }
+            if(it) {
+              if(this.mapping) {
+                it = Ti.Util.translate(it, this.mapping)
+              }
+              list.push(it)
+            }
+          }
+          return list
+        }
+      })[this.valueType](ids)
     }
     //---------------------------------------------------
   },
@@ -23817,11 +24112,11 @@ const _M = {
         this.reloadCanList()
       }
     },
-    "sel.data" : function() {
+    "sel.data" : async function() {
       this.rebuildSelIdMap()
-      let ids = _.keys(this.selIdMap)
-      if(!_.isEqual(ids, this.Values)) {
-        this.$notify("change", ids)
+      let val = await this.genValue()
+      if(!_.isEqual(val, this.Values)) {
+        this.$notify("change", val)
       }
     }
   },
@@ -35990,7 +36285,6 @@ Ti.Preload("ti/com/wn/transfer/wn-transfer.html", `<ti-transfer v-bind="this"
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ///////////////////////////////////////////////////////
   data : ()=>({
     
@@ -36025,7 +36319,9 @@ const _M = {
       return Wn.Dict.evalOptionsDict(this)
     }
     //---------------------------------------------------
-  }
+  },
+  ///////////////////////////////////////////////////////
+
   ///////////////////////////////////////////////////////
 }
 Ti.Preload("ti/com/wn/transfer/wn-transfer.mjs", _M);
@@ -42320,9 +42616,11 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "icon": "图标",
   "icon-code-tip": "请输入图标代码，如 zmdi-case",
   "import-data": "导入数据...",
+  "index": "索引",
   "info": "信息",
   "input": "输入",
   "input-tags": "输入标签",
+  "label": "标签",
   "lat": "纬度",
   "lbs-place-add": "添加地点",
   "lng": "经度",
@@ -42419,7 +42717,12 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "view": "查看",
   "view-resource": "查看源代码",
   "warn": "警告",
-  "yes": "是"
+  "yes": "是",
+  "map-type": "地图类型",
+  "map-roadmap": "道路地图",
+  "map-satellite": "卫星照片",
+  "map-hybrid": "俯瞰地图",
+  "map-terrain": "地形地图"
 });
 //============================================================
 // JOIN: zh-cn/_wn.i18n.json

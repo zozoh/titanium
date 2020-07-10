@@ -1,4 +1,4 @@
-// Pack At: 2020-07-10 10:07:15
+// Pack At: 2020-07-10 16:11:37
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9446,7 +9446,7 @@ const {Dict,DictFactory} = (function(){
       })
     }
     //-------------------------------------------
-    duplicate({hooks=false, cache=true, dataCache=true, itemCache=true}) {
+    duplicate({hooks=false, cache=true, dataCache=true, itemCache=true}={}) {
       let d = new Dict()
       _.forEach(K, (s_key)=>{
         d[s_key] = this[s_key]
@@ -9566,7 +9566,7 @@ const {Dict,DictFactory} = (function(){
     }
     //-------------------------------------------
     async queryData(str){
-      //console.log("@Dict.queryData", str)
+      console.log("@Dict.queryData", str)
       // Empty string will take as query all
       let s = _.trim(str)
       let list;
@@ -10624,7 +10624,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.3-20200710.100715",
+  "version" : "2.4-20200710.161137",
   "dev" : false,
   "appName" : null,
   "session" : {},
