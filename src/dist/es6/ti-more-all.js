@@ -1,4 +1,4 @@
-// Pack At: 2020-07-03 21:04:20
+// Pack At: 2020-07-10 10:07:15
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -3384,6 +3384,7 @@ Ti.Preload("ti/com/net/aliyun/vod/video/info/vod-video-info.html", `<div class="
   -->
   <ti-loading
     v-if="!hasVideo"
+      class="as-big"
       icon="fas-hand-point-left"
       text="i18n:net-vod-video-nil"/>
   <!--
@@ -4460,7 +4461,7 @@ Ti.Preload("ti/com/ti/button/ti-button.html", `<div class="ti-button"
     <li v-for="it in items"
       :key="it.name"
       :class="it.buttonClass"
-      @click="onClickItem(it)">
+      @click="OnClickItem(it)">
       <!--
         Icon
       -->
@@ -4479,7 +4480,6 @@ Ti.Preload("ti/com/ti/button/ti-button.html", `<div class="ti-button"
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "size" :{
@@ -4518,6 +4518,7 @@ const _M = {
         it.icon = li.icon
         it.text = li.text
         it.disabled = li.disabled
+        it.handler = li.handler
         it.buttonClass = {
           [`as-do-${it.name}`] : true,
           "is-enabled"      : !li.disabled  ? true : false,
@@ -4532,9 +4533,14 @@ const _M = {
   },
   //////////////////////////////////////////
   methods :{
-    onClickItem(it) {
+    OnClickItem(it) {
       if(!it.disabled) {
-        this.$notify(it.eventName, it.payload)
+        if(_.isFunction(it.handler)) {
+          it.handler()
+        }
+        if(_.isString(it.eventName)) {
+          this.$notify(it.eventName, it.payload)
+        }
       }
     }
   }
@@ -7189,6 +7195,232 @@ Ti.Preload("ti/com/ti/combo/multi-input/_com.json", {
     "@com:ti/combo/box"]
 });
 //============================================================
+// JOIN: ti/combo/pair-text/ti-combo-pair-text-props.mjs
+//============================================================
+(function(){
+const _M = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "value": {
+    type: Object,
+    default: undefined
+  },
+  "options" : {
+    type : [String, Array, Function, Ti.Dict],
+    default : ()=>[]
+  },
+  "valueBy" : {
+    type : [String, Function],
+    default : undefined
+  },
+  "textBy" : {
+    type : [String, Function],
+    default : undefined
+  },
+  "iconeBy" : {
+    type : [String, Function],
+    default : undefined
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "trimed" : {
+    type : Boolean,
+    default : true
+  },
+  "readonly" : {
+    type: Boolean,
+    default : false
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "placeholder" : {
+    type : String,
+    default : undefined
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+  "textWidth" : {
+    type : [Number, String],
+    default : undefined
+  },
+  "textHeight" : {
+    type : [Number, String],
+    default : undefined
+  }
+}
+Ti.Preload("ti/com/ti/combo/pair-text/ti-combo-pair-text-props.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/combo/pair-text/ti-combo-pair-text.html
+//============================================================
+Ti.Preload("ti/com/ti/combo/pair-text/ti-combo-pair-text.html", `<div class="ti-combo-pair-text">
+  <div
+    v-for="it in Items"
+      class="as-pair">
+      <!--title-->
+      <div class="as-title">
+        <!--Icon-->
+        <ti-icon
+          v-if="it.icon" 
+            :value="it.icon"/>
+        <!--Text-->
+        <div
+          v-if="it.text" 
+            class="as-text">{{it.text}}</div>
+      </div>
+      <!--Textarea-->
+      <div
+        class="as-textarea">
+          <textarea 
+            spellcheck="false"
+            :style="TextStyle"
+            :placeholder="it.placeholder"
+            :value="it.value"
+            :readonly="readonly"
+            @change="OnTextChange(it.key, $event)"></textarea></div>
+  </div>
+</div>`);
+//============================================================
+// JOIN: ti/combo/pair-text/ti-combo-pair-text.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data : ()=>({
+    myOptionsData  : null,
+    myDict : undefined,
+    myValue: {}
+  }),
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    Items() {
+      let list = []
+      _.forEach(this.myOptionsData, it=>{
+        let text  = this.Dict.getText(it)
+        let key   = this.Dict.getValue(it)
+        let icon  = this.Dict.getIcon(it)
+        let value = _.get(this.myValue, key)
+        let placeholder = it.placeholder || this.placeholder
+        list.push({value, text, icon, key, placeholder})
+      })
+      return list
+    },
+    //------------------------------------------------
+    TextStyle() {
+      return Ti.Css.toStyleRem100({
+        width: this.textWidth,
+        height: this.textHeight
+      })
+    },
+    //------------------------------------------------
+    Dict() {
+      if(!this.myDict) {
+        this.myDict = this.createDict()
+      }
+      return this.myDict
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    OnTextChange(key, $evn) {
+      let $text = $evn.srcElement
+      let val = $text.value
+      if(this.trimed) {
+        val = _.trim(val)
+      }
+      //console.log({key, val})
+      this.updateValue({[key]: val})
+    },
+    //------------------------------------------------
+    updateValue(obj) {
+      this.myValue = _.assign({}, this.myValue, obj)
+    },
+    //------------------------------------------------
+    createDict() {
+      // Customized
+      if(this.options instanceof Ti.Dict) {
+        return this.options
+      }
+      // Refer dict
+      if(_.isString(this.options)) {
+        let dictName = Ti.DictFactory.DictReferName(this.options)
+        if(dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+            this.loading = loading
+          })
+        }
+      }
+      // Auto Create
+      return Ti.DictFactory.CreateDict({
+        data : this.options || [],
+        getValue : Ti.Util.genGetter(this.valueBy || "value"),
+        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
+        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+      })
+    },
+    //-----------------------------------------------
+    async reloadMyOptionData() {
+      //console.log("reloadMyOptionData")
+      this.myOptionsData = await this.Dict.getData()
+    }
+    //-----------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    //-----------------------------------------------
+    "value": {
+      handler: function(newVal, oldVal){
+        if(!_.isEqual(newVal, oldVal)) {
+          this.myValue = _.cloneDeep(newVal)
+        }
+      },
+      immediate: true
+    },
+    //-----------------------------------------------
+    "options" : async function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        this.myDict = this.createDict()
+        await this.reloadMyOptionData()
+      }
+    },
+    //-----------------------------------------------
+    "myValue": function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        this.$notify("change", this.myValue)
+      }
+    }
+    //-----------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  mounted: async function() {
+    await this.reloadMyOptionData()
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/combo/pair-text/ti-combo-pair-text.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/combo/pair-text/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/combo/pair-text/_com.json", {
+  "name" : "ti-combo-pair-text",
+  "globally" : true,
+  "template" : "./ti-combo-pair-text.html",
+  "props"    : ["./ti-combo-pair-text-props.mjs"],
+  "mixins"   : "./ti-combo-pair-text.mjs"
+});
+//============================================================
 // JOIN: ti/combo/sorter/ti-combo-sorter-props.mjs
 //============================================================
 (function(){
@@ -7229,8 +7461,8 @@ const _M = {
   "sortIcons" : {
     type : Object,
     default : ()=>({
-      asc  : "fas-long-arrow-alt-up",
-      desc : "fas-long-arrow-alt-down"
+      asc  : "im-arrow-up",
+      desc : "im-arrow-down"
     })
   },
   "suffixIcon" : {
@@ -8608,7 +8840,7 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
     <!--
       Form Fields
     -->
-    <div class="form-body">
+    <div class="form-body" :class="FormBodyClass">
       <template v-for="fld in FieldsInCurrentTab">
         <!--
           For Group
@@ -8769,6 +9001,12 @@ const _M = {
         if(tab.isCurrent) {
           return tab
         }
+      }
+    },
+    //--------------------------------------------------
+    FormBodyClass() {
+      if(this.CurrentTab) {
+        return `tab-body-${this.CurrentTab.index}`
       }
     },
     //--------------------------------------------------
@@ -14834,6 +15072,329 @@ Ti.Preload("ti/com/ti/lbs/map/baidu/_com.json", {
   "components" : []
 });
 //============================================================
+// JOIN: ti/lbs/map/google/ti-lbs-map-google.html
+//============================================================
+Ti.Preload("ti/com/ti/lbs/map/google/ti-lbs-map-google.html", `<div class="ti-lbs-map by-google ti-fill-parent">
+  <div ref="arena" class="map-arena ti-fill-parent"></div>
+</div>`);
+//============================================================
+// JOIN: ti/lbs/map/google/ti-lbs-map-google.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  data : ()=>({
+    mySyncTime : undefined,
+    myUpTime: undefined,
+    myLayers: {}
+  }),
+  /////////////////////////////////////////
+  props : {
+    // @see https://developers.google.com/maps/documentation/javascript/maptypes?hl=zh_CN
+    // ROADMAP | SATELLITE | HYBRID | TERRAIN
+    "mapType" : {
+      type : String,
+      default : "ROADMAP"
+    },
+    // Map center : {"lat":39.9042, "lng":116.4074}
+    // If null, it will auto sync with the value
+    // If Array, mean bounds
+    // [sw, ne]
+    //  sw: LatLng, ne: LatLng
+    "center" : {
+      type : [Object, Array],
+      default : undefined
+    },
+    "zoom" : {
+      type : Number,
+      default : undefined
+    },
+    "bounds": {
+      type: Array,
+      default: undefined
+    },
+    /*
+    [{
+      name:"xxx",
+      type:"point|path|area"
+      items: [{lat,lng,title,icon}]
+    }]
+    */
+    "layers": {
+      type: Array,
+      default: ()=>[]
+    },
+    "pinCenter": {
+      type: Boolean,
+      default: false
+    },
+    "cooling": {
+      type: Number,
+      default: 1000
+    },
+    "stroke": {
+      type: Object,
+      default: ()=>({
+        color: "#08F",
+        opacity: 0.8,
+        weight: 8
+      })
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //-------------------------------------
+    MapTypeId() {
+      return (google.maps.MapTypeId[this.mapType]) 
+             || google.maps.MapTypeId.ROADMAP
+    },
+    //-------------------------------------
+    MapCenter() {
+      // Bound
+      if(_.isArray(this.center)) {
+        let [sw, ne] = this.center
+        return {
+          lat: (sw.lat - ne.lat)/2 + ne.lat,
+          lng: (sw.lng - ne.lng)/2 + ne.lng
+        }
+      }
+      // Point
+      return this.center
+    }
+    //-------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //-------------------------------------
+    isCoolDown() {
+      if(!this.myUpTime) {
+        return true
+      }
+      let du = Date.now() - this.myUpTime
+      return du > this.cooling
+    },
+    //-------------------------------------
+    isInSync() {
+      if(!this.mySyncTime) {
+        return false
+      }
+      let du = Date.now() - this.mySyncTime
+      return du < this.cooling
+    },
+    //-------------------------------------
+    draw_center_marker(lalCenter) {
+      if(!lalCenter)
+        lalCenter = this.$map.getCenter()
+      // Update
+      if(this.myCenterMarker) {
+        this.myCenterMarker.setPosition(lalCenter)
+      }
+      // Drop one
+      else {
+        this.myCenterMarker = new google.maps.Marker({
+          position: lalCenter,
+          map: this.$map
+        })
+      }
+      return lalCenter
+    },
+    //-------------------------------------
+    draw_as_point(name, items=[]) {
+      if(!name) {
+        throw "draw_as_point without layer name!"
+      }
+      // Draw in loop
+      let list = []
+      for(let it of items) {
+        if(it && _.isNumber(it.lat) && _.isNumber(it.lng)) {
+          let label = it.label;
+          if(_.isString(label)) {
+            label = {
+              color: "#FFF",
+              text: label
+            }
+          }
+          let marker = new google.maps.Marker({
+            position: it,
+            map: this.$map,
+            title: it.title,
+            label
+          })
+          list.push(marker)
+        }
+      }
+      this.myLayers[name] = list
+    },
+    //-------------------------------------
+    draw_as_path(name, items=[]) {
+      if(!name) {
+        throw "draw_as_path without layer name!"
+      }
+      // Draw points
+      this.draw_as_point(name, items)
+
+      // Draw Path
+      if(_.isArray(items) && items.length>1) {
+        let it = _.first(items)
+        if(it && _.isNumber(it.lat) && _.isNumber(it.lng)) {
+          this.myLayers[`${name}-path`] = new google.maps.Polyline({
+            map: this.$map,
+            path: items,
+            strokeColor   : this.stroke.color,
+            strokeOpacity : this.stroke.opacity,
+            strokeWeight  : this.stroke.weight
+          })
+        }
+      }
+    },
+    //-------------------------------------
+    drawLayers() {
+      //console.log("drawLayers")
+      //...................................
+      // Pin Center
+      if(this.pinCenter) {
+        this.draw_center_marker()
+      }
+      //...................................
+      // Guard
+      if(_.isEmpty(this.layers)){
+        return
+      }
+      //...................................
+      // Loop layer
+      let i = 0;
+      for(let lay of this.layers) {
+        //console.log(lay)
+        let name = lay.name || `Layer-${i}`
+        i++
+        this[`draw_as_${lay.type}`](name, lay.items)
+      }
+      //...................................
+    },
+    //-------------------------------------
+    clearLayer(lay) {
+      // Guard
+      if(!lay) {
+        return
+      }
+      // Only one map items
+      if(_.isFunction(lay.setMap)) {
+        lay.setMap(null)
+      }
+      // A group of map items
+      else {
+        _.forEach(lay, li=>{
+          li.setMap(null)
+        })
+      }
+    },
+    //-------------------------------------
+    cleanLayers(name) {
+      console.log("cleanLayers")
+      if(name) {
+        let lay = this.myLayers[name]
+        this.clearLayer(lay)
+        this.myLayers[name] = undefined
+      }
+      // Clean all
+      else {
+        _.forEach(this.myLayers, lay => {
+          this.clearLayer(lay)
+        })
+        // Reset
+        this.myLayers = {}
+      }
+    }
+    //-------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    //"value" : function(){this.drawValue()}
+    "layers": function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        this.cleanLayers()
+        this.drawLayers()
+      }
+    },
+    "center": function(newVal, oldVal) {
+      if(this.isCoolDown() && newVal) {
+        this.mySyncTime = Date.now()
+        // Bounds
+        if(_.isArray(newVal)) {
+          console.log("google bounds changed", {newVal, oldVal})
+          let sw = new google.maps.LatLng(newVal[0])
+          let ne = new google.maps.LatLng(newVal[1])
+          let bounds = new google.maps.LatLngBounds(sw, ne)
+          this.$map.fitBounds(bounds, 20)
+        }
+        // Pointer
+        else if(_.isNumber(newVal.lat) && _.isNumber(newVal.lng)) {
+          console.log("google center changed", {newVal, oldVal})
+          this.$map.panTo(newVal)
+        }
+        
+      }
+    },
+    "zoom": function(newVal) {
+      if(this.isCoolDown() && _.isNumber(newVal) && newVal>0) {
+        this.$map.setZoom(newVal)
+      }
+    }
+  },
+  //////////////////////////////////////////
+  mounted : async function() {
+    // Init Map
+    //console.log("mounted", this.zoom, this.center)
+    this.$map = new google.maps.Map(this.$refs.arena, {
+      zoom: this.zoom,
+      center: this.MapCenter,
+      mapTypeId: this.MapTypeId,
+      //...................................
+      fullscreenControlOptions: {
+        position: google.maps.ControlPosition.TOP_LEFT
+      },
+      //...................................
+      zoomControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP
+      },
+      //...................................
+      streetViewControl: false,
+      //...................................
+      center_changed: ()=>{
+        let lal = this.$map.getCenter()
+        if(this.pinCenter) {
+          this.draw_center_marker(lal)
+        }
+        if(!this.isInSync()) {
+          this.myUpTime = Date.now()
+          this.$emit("center:change", lal.toJSON())
+        }
+      },
+      //...................................
+      zoom_changed: ()=> {
+        this.myUpTime = Date.now()
+        this.$emit("zoom:change", this.$map.getZoom())
+      }
+      //...................................
+    })
+    // Draw Value
+    this.drawLayers()
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/lbs/map/google/ti-lbs-map-google.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/lbs/map/google/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/lbs/map/google/_com.json", {
+  "name" : "ti-lbs-map-google",
+  "globally" : true,
+  "template" : "./ti-lbs-map-google.html",
+  "mixins"   : ["./ti-lbs-map-google.mjs"],
+  "components" : []
+});
+//============================================================
 // JOIN: ti/lbs/map/tencent/ti-lbs-map-tencent.html
 //============================================================
 Ti.Preload("ti/com/ti/lbs/map/tencent/ti-lbs-map-tencent.html", `<div class="ti-lbs-map by-tencent ti-fill-parent">
@@ -14984,29 +15545,40 @@ Ti.Preload("ti/com/ti/lbs/map/tencent/_com.json", {
 // JOIN: ti/lbs/map/ti-lbs-map.html
 //============================================================
 Ti.Preload("ti/com/ti/lbs/map/ti-lbs-map.html", `<div class="ti-lbs-map" 
-  :class="topClass"
-  :style="topStyle">
+  :class="TopClass"
+  :style="TopStyle">
   <div class="map-con">
     <!--
       Map Main
     -->
     <div class="as-main">
       <component 
-        :is="mapComType"
-        v-bind="mapComConf"/>
+        :is="MapComType"
+          v-bind="MapComConf"
+          @center:change="OnCenterChange"
+          @zoom:change="OnZoomChange"/>
     </div>
+    <!--
+      Wait cooling
+    -->
+    <div
+      v-if="CoolingIcon"
+        class="as-wait-cooling"><ti-icon :value="CoolingIcon"/></div>
     <!--
       Map Info
     -->
-    <div class="as-info">
-      <div class="as-toggle" @click="fullScreen=!fullScreen">
-        <ti-icon :value="toggleIcon"/>
-      </div>
-      <ul class="as-laln">
-        <li><span>{{'lat'|i18n}}:</span><em>{{lalnCenter.lat|float(8)}}</em></li>
-        <li><span>{{'lng'|i18n}}:</span><em>{{lalnCenter.lng|float(8)}}</em></li>
-      </ul>
-    </div>
+    <div
+      v-if="MapCenter"
+        class="as-info">
+        <div class="as-toggle" @click="fullScreen=!fullScreen">
+          <ti-icon :value="ToggleIcon"/>
+        </div>
+        <ul class="as-laln">
+          <li><span>{{'lat'|i18n}}:</span><em>{{MapCenter.lat|float(8)}}</em></li>
+          <li><span>{{'lng'|i18n}}:</span><em>{{MapCenter.lng|float(8)}}</em></li>
+          <li><span>ZOOM</span><em>{{myZoom || zoom}}</em></li>
+        </ul>
+      </div> <!--as-info-->
   </div>
 </div>`);
 //============================================================
@@ -15015,10 +15587,13 @@ Ti.Preload("ti/com/ti/lbs/map/ti-lbs-map.html", `<div class="ti-lbs-map"
 (function(){
 const _M = {
   /////////////////////////////////////////
-  inheritAttrs : false,
-  /////////////////////////////////////////
   data : ()=>({
-    fullScreen : false
+    myUpTime: undefined,  
+    myWaitCooling: false,  
+    fullScreen : false,
+    myMapCenter: undefined,
+    myZoom: undefined,
+    myMapType: undefined
   }),
   /////////////////////////////////////////
   props : {
@@ -15028,19 +15603,10 @@ const _M = {
     },
     // @see https://lbs.qq.com/javascript_v2/doc/maptypeid.html
     // @see http://lbsyun.baidu.com/cms/jsapi/reference/jsapi_reference_3_0.html#a5b0
-    // ROADMAP | SATELLITE | HYBRID
+    // ROADMAP | SATELLITE | HYBRID | TERRAIN(google only)
     "mapType" : {
       type : String,
       default : "ROADMAP"
-    },
-    // Map center : {"lat":39.9042, "lng":116.4074}
-    // If null, it will auto sync with the value
-    "center" : {
-      type : Object,
-      // default : ()=>({
-      //   {"lat":39.9042, "lng":116.4074}
-      // })
-      default : null
     },
     // Sometime, the lat/lng valued by integer
     // this prop defined how to translate them to float
@@ -15070,22 +15636,36 @@ const _M = {
       type : String,
       default : "WGS84"
     },
-    // A LatLng Point in map, which react the changing
+    // A LatLng Point Object or Polygon Array in map
+    // Point - Map center will be it
+    // Polygon - Auto count the map center
     "value" : {
-      type : Object,
+      type : [Object, Array],
       default : null
     },
-    // The layout which cover to the map
-    // TODO think about it
-    "layers" : {
-      type : Object,
-      default : ()=>({})
+    // Display mode
+    //  - auto  : base on the value
+    //  - point : show marker on map by value
+    //  - path  : show path on map by value
+    //  - area  : show polygon on map by value
+    "mode" : {
+      type: String,
+      default: "auto",
+      validator: v=>/^(auto|point|path|area)$/.test(v)
+    },
+    "keepStateBy": {
+      type: String,
+      default: undefined
+    },
+    "cooling": {
+      type: Number,
+      default: 1200
     }
   },
   //////////////////////////////////////////
   computed : {
     //-------------------------------------
-    topClass() {
+    TopClass() {
       let klass = []
       if(this.fullScreen) {
         klass.push("is-fullscreen")
@@ -15096,7 +15676,7 @@ const _M = {
       return klass
     },
     //-------------------------------------
-    topStyle() {
+    TopStyle() {
       if(!this.fullScreen) {
         return Ti.Css.toStyle({
           width  : this.width,
@@ -15105,27 +15685,71 @@ const _M = {
       }
     },
     //-------------------------------------
-    toggleIcon() {
+    ToggleIcon() {
       return this.fullScreen
         ? "zmdi-fullscreen-exit"
         : "zmdi-fullscreen"
     },
     //-------------------------------------
-    mapComType() {
+    MapComType() {
       return `ti-lbs-map-${this.by}`
     },
     //-------------------------------------
-    mapComConf() {
+    MapComConf() {
       return {
-        "mapType" : this.mapType,
-        "center"  : this.lalnCenter,
-        "zoom"    : this.zoom,
-        "value"   : this.lalnValue,
-        "valueOptions" : this.valueOptions
+        "center"  : this.MapCenter,
+        "mapType" : Ti.Util.fallback(this.myMapType, this.mapType),
+        "zoom"    : Ti.Util.fallback(this.myZoom, this.zoom),
+        ...this.MapComConfByMode
       }
     },
     //-------------------------------------
-    targetCoordinate() {
+    MapComConfByMode() {
+      // Prepare mode functions
+      let fns = {
+        //.........................
+        auto(val) {
+          if(_.isArray(val)) {
+            return fns.path(val)
+          }
+          return fns.point(val)
+        },
+        //.........................
+        point(val) {
+          return {
+            pinCenter: true
+          }
+        },
+        //.........................
+        path(val) {
+          if(!val)
+            return {}
+          return {
+            pinCenter: false,
+            layers: [{
+              type: "path",
+              items: _.concat(val)
+            }]
+          }
+        },
+        //.........................
+        area(val) {
+          if(!val)
+            return {}
+          return {
+            pinCenter: false,
+            layers: [{
+              type: "area",
+              items: _.concat(val)
+            }]
+          }
+        }
+        //.........................
+      }
+      return fns[this.mode](this.LalValue)
+    },
+    //-------------------------------------
+    TargetCoordinate() {
       return ({
         "tencent" : "GCJ02",
         "baidu"   : "BD09",
@@ -15133,38 +15757,145 @@ const _M = {
       })[this.by] || "WGS84"
     },
     //-------------------------------------
-    arenaStyle() {
-      return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
-      })
+    LalValue() {
+      // Guard
+      if(_.isEmpty(this.value)) {
+        return {lat:39.908765655793395, lng:116.39748860418158}
+      }
+      // Polygon
+      if(_.isArray(this.value)) {
+        let list = []
+        for(let it of this.value) {
+          let lal = this.genLngLat(it)
+          list.push(_.assign({}, it, lal))
+        }
+        return list
+      }
+      // Point
+      let lal = this.genLngLat(this.value)
+      return _.assign({}, this.value, lal)
     },
     //-------------------------------------
-    lalnValue() {
-      if(!_.isEmpty(this.center)) {
-        return this.genLatLng(this.center)
+    MapCenter() {
+      if(this.myMapCenter) {
+        return this.myMapCenter
       }
-      if(!_.isEmpty(this.value)) {
-        return this.genLatLng(this.value)
+      // Guard
+      if(!this.LalValue) {
+        return
       }
-      // Default center to beijing
-      return new qq.maps.LatLng({lat:39.9042, lng:116.4074})
+      // Polygon
+      if(_.isArray(this.LalValue)) {
+        return this.getBounds(this.LalValue)
+      }
+      // Point
+      return _.pick(this.LalValue, "lng", "lat")
     },
     //-------------------------------------
-    lalnCenter() {
-      if(!_.isEmpty(this.center)) {
-        return this.genLatLng(this.center)
+    CoolingIcon() {
+      if(this.myUpTime > 0) {
+        if(this.myWaitCooling){
+          return "fas-spinner fa-spin"
+        }
+        return "zmdi-check-circle"
       }
-      if(!_.isEmpty(this.value)) {
-        return this.genLatLng(this.value)
-      }
-      // Default center to beijing
-      return new qq.maps.LatLng({lat:39.9042, lng:116.4074})
     }
     //-------------------------------------
   },
   //////////////////////////////////////////
   methods : {
+    //-------------------------------------
+    OnCenterChange(lal) {
+      this.myMapCenter = lal
+      this.myUpTime = Date.now()
+      if(this.MapComConfByMode.pinCenter && !this.myWaitCooling) {
+        this.checkUpdate()
+      }
+    },
+    //-------------------------------------
+    OnZoomChange(zoom) {
+      this.myZoom = zoom
+      this.saveState({zoom})
+    },
+    //-------------------------------------
+    isCoolDown() {
+      if(!this.myUpTime) {
+        return true
+      }
+      let du = Date.now() - this.myUpTime
+      return du > this.cooling
+    },
+    //-------------------------------------
+    checkUpdate() {
+      if(this.isCoolDown()) {
+        let lal = _.pick(this.myMapCenter, "lng", "lat")
+        //console.log("notify change", lal)
+        this.$notify("change", lal)
+        this.myWaitCooling = false
+        _.delay(()=>{
+          this.myUpTime = undefined
+        }, 1000)
+      }
+      // Wait
+      else {
+        this.myWaitCooling = true
+        let du = Date.now() - this.myUpTime
+        //console.log("wait cooling", this.cooling, du)
+        _.delay(()=>{
+          this.checkUpdate()
+        }, this.cooling)
+      }
+    },
+    //-------------------------------------
+    /*
+    CROSS MODE:
+          lng:180        360:0                 180
+          +----------------+------------------NE  lat:90
+          |                |           lng_min|lat_max
+          |                |                  |
+          +----------------+------------------+-- lat:0
+          |                |                  |
+   lat_min|lng_max         |                  |
+          SW---------------+------------------+   lat:-90
+    
+    SIDE MODE:
+          lng:0           180                360
+          +----------------+------------------NE  lat:90
+          |                |           lng_max|lat_max
+          |                |                  |
+          +----------------+------------------+-- lat:0
+          |                |                  |
+   lat_min|lng_min         |                  |
+          SW---------------+------------------+   lat:-90
+    
+    @return [SW, NE]
+    */
+    getBounds(lalList=[]) {
+      let lng_max = undefined;
+      let lng_min = undefined;
+      let lat_max = undefined;
+      let lat_min = undefined;
+      for(let lal of this.LalValue) {
+        lng_max = _.isUndefined(lng_max)
+                    ? lal.lng : Math.max(lng_max, lal.lng)
+        lng_min = _.isUndefined(lng_min)
+                    ? lal.lng : Math.min(lng_min, lal.lng)
+        lat_max = _.isUndefined(lat_max)
+                    ? lal.lat : Math.max(lat_max, lal.lat)
+        lat_min = _.isUndefined(lat_min)
+                    ? lal.lat : Math.min(lat_min, lal.lat)
+      }
+      // Cross mode
+      if((lng_max-lng_min) > 180) {
+        return [
+          {lat: lat_min, lng:lng_max},
+          {lat: lat_max, lng:lng_min}]
+      }
+      // Side mode
+      return [
+        {lat: lat_min, lng:lng_min},
+        {lat: lat_max, lng:lng_max}]      
+    },
     //-------------------------------------
     autoLatLng(val) {
       if(val > 360) {
@@ -15173,13 +15904,13 @@ const _M = {
       return val
     },
     //-------------------------------------
-    genLatLng({lat, lng}={}) {
+    genLngLat({lat, lng}={}) {
       lat = this.autoLatLng(lat)
       lng = this.autoLatLng(lng)
 
       // Transform coordinate
       let from = this.coordinate
-      let to   = this.targetCoordinate
+      let to   = this.TargetCoordinate
 
       if(from == to) {
         return {lat, lng}
@@ -15192,6 +15923,31 @@ const _M = {
       let fn = Ti.GPS[methodName]
 
       return fn(lat, lng)
+    },
+    //-------------------------------------
+    saveState(st) {
+      if(this.keepStateBy) {
+        let state = Ti.Storage.session.getObject(this.keepStateBy)
+        _.assign(state, st)
+        Ti.Storage.session.setObject(this.keepStateBy, state)
+      }
+    }
+    //-------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "value": function() {
+      if(_.isUndefined(this.myUpTime)) {
+        this.myMapCenter = undefined
+      }
+    }
+  },
+  //////////////////////////////////////////
+  created: function() {
+    if(this.keepStateBy) {
+      let state = Ti.Storage.session.getObject(this.keepStateBy)
+      this.myMapType = state.mapType
+      this.myZoom = state.zoom
     }
   }
   //////////////////////////////////////////
@@ -15208,8 +15964,327 @@ Ti.Preload("ti/com/ti/lbs/map/_com.json", {
   "mixins"   : ["./ti-lbs-map.mjs"],
   "components" : [
     "./tencent/_com.json",
-    "./baidu/_com.json"
+    "./baidu/_com.json",
+    "./google/_com.json"
   ]
+});
+//============================================================
+// JOIN: ti/lbs/route/ti-lbs-route.html
+//============================================================
+Ti.Preload("ti/com/ti/lbs/route/ti-lbs-route.html", `<div class="ti-lbs-route" 
+  :class="TopClass"
+  :style="TopStyle">
+  <!--Map-->
+  <TiLbsMap
+    v-bind="this"
+    :value="ValueItems"
+    mode="path"/>
+  <!--
+    Route List
+  -->
+  <transition name="ti-trans-fade">
+    <div
+      v-if="isShowList"
+        class="as-list">
+          <TiList
+            :data="ValueItems"
+            v-bind="ListConf"
+            blank-class="as-big"
+            :current-id="myCurrentId"
+            :checked-ids="myCheckedIds"
+            :puppet-mode="true"
+            @select="OnListSelect"/>
+    </div>
+  </transition>
+  <!--
+    Actions
+  -->
+  <div class="as-actions">
+    <TiButton
+      :setup="ActionButtons"/>
+  </div>
+</div>`);
+//============================================================
+// JOIN: ti/lbs/route/ti-lbs-route.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  data : ()=>({
+    myShowList: undefined,
+    myCurrentId: undefined,
+    myCheckedIds: undefined
+  }),
+  /////////////////////////////////////////
+  props : {
+    "by" : {
+      type : String,
+      default : "tencent"
+    },
+    // @see https://lbs.qq.com/javascript_v2/doc/maptypeid.html
+    // @see http://lbsyun.baidu.com/cms/jsapi/reference/jsapi_reference_3_0.html#a5b0
+    // ROADMAP | SATELLITE | HYBRID | TERRAIN(google only)
+    "mapType" : {
+      type : String,
+      default : "ROADMAP"
+    },
+    // Sometime, the lat/lng valued by integer
+    // this prop defined how to translate them to float
+    "autoFloat" : {
+      type : Number,
+      default : 10000000
+    },
+    // Map width
+    "width" : {
+      type : [String, Number],
+      default : 400
+    },
+    // Map height
+    "height" : {
+      type : [String, Number],
+      default : 400
+    },
+    "zoom" : {
+      type : Number,
+      default : 8
+    },
+    // The Coordinate System for input LatLng (center/value...)
+    //  - WGS84 : Standard GPS 
+    //  - BD09  : for Baidu Map
+    //  - GCJ02 : (Mars) QQ/GaoDe/AliYun ...
+    "coordinate" : {
+      type : String,
+      default : "WGS84"
+    },
+    // A LatLng Point Object or Polygon Array in map
+    // Point - Map center will be it
+    // Polygon - Auto count the map center
+    "value" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "keepStateBy": {
+      type: String,
+      default: undefined
+    },
+    "showList" :{
+      type: Boolean,
+      default: true
+    },
+    "query": {
+      type: [Function, Ti.Dict],
+      default: null
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //-------------------------------------
+    TopClass() {
+      let klass = []
+      if(this.fullScreen) {
+        klass.push("is-fullscreen")
+      }
+      if(this.className) {
+        klass.push(this.className)
+      }
+      return klass
+    },
+    //-------------------------------------
+    TopStyle() {
+      if(!this.fullScreen) {
+        return Ti.Css.toStyle({
+          width  : this.width,
+          height : this.height
+        })
+      }
+    },
+    //-------------------------------------
+    ValueItems() {
+      let list = []
+      _.forEach(this.value, (it, index)=>{
+          let li = _.cloneDeep(it)
+          // Default Label
+          if(!li.label) {
+            li.label = ""+(index+1)
+          }
+          // Default ID
+          if(!li.id) {
+            li.id = `R${index}`
+          }
+          // Join it
+          list.push(li)
+      })
+      return list
+    },
+    //-------------------------------------
+    ListConf() {
+      return {
+        display: ["<icon:zmdi-pin>", "label:[$${val}]", "title"],
+        multi: true
+      }
+    },
+    //-------------------------------------
+    ActionButtons() {
+      let list = [{
+        icon: "zmdi-long-arrow-up",
+        handler: ()=>this.moveCheckedUp()
+      }, {
+        icon: "zmdi-long-arrow-down",
+        handler: ()=>this.moveCheckedDown()
+      }, {
+        icon: "zmdi-delete",
+        handler: ()=>this.removeChecked()
+      }, {
+        icon: "zmdi-format-list-bulleted",
+        handler: ()=> {
+          this.myShowList = !this.isShowList
+        }
+      }]
+      if(this.query) {
+        return _.concat({
+          icon: "zmdi-plus",
+          text: "i18n:lbs-place-add",
+          handler: ()=>this.openNewItemSelector()
+        }, list)
+      }
+      return list
+    },
+    //-------------------------------------
+    isShowList() {
+      return Ti.Util.fallback(this.myShowList, this.showList)
+    },
+    //-------------------------------------
+    QueryItems() {
+      if(this.query instanceof Ti.Dict) {
+        return async (str)=>{
+          return await this.query.queryData(_.trim(str))
+        }
+      }
+      if(_.isFunction(this.query)) {
+        return async (str)=>{
+          return await this.query(_.trim(str))
+        }
+      }
+      return ()=>[]
+    }
+    //-------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //-------------------------------------
+    OnListSelect({currentId, checkedIds}) {
+      this.myCurrentId = currentId
+      this.myCheckedIds = checkedIds
+    },
+    //-------------------------------------
+    async openNewItemSelector() {
+      let list = await this.QueryItems()
+      console.log(list)
+    },
+    //-------------------------------------
+    moveCheckedUp() {
+      let mc = this.genMoveContext()
+      if(_.isEmpty(mc.checkeds)) {
+        return Ti.Toast.Open("i18n:nil-obj", "warn")
+      }
+      if(mc.firstIndex > 0) {
+        let list = mc.remains;
+        let pos = mc.firstIndex - 1
+        Ti.Util.insertToArray(list, pos, ...mc.checkeds)
+
+        // Auto Update
+        let checkeds = {}
+        for(let i=0; i<mc.checkeds.length;i++) {
+          checkeds[`R${i+pos}`] = true
+        }
+        this.myCurrentId = null
+        this.myCheckedIds = checkeds
+
+        this.$notify("change", list)
+      }
+    },
+    //-------------------------------------
+    moveCheckedDown() {
+      let mc = this.genMoveContext()
+      if(_.isEmpty(mc.checkeds)) {
+        return Ti.Toast.Open("i18n:nil-obj", "warn")
+      }
+
+      if(mc.lastIndex < (mc.remains.length - 1)) {
+        let list = mc.remains;
+        let pos = mc.lastIndex+1
+        Ti.Util.insertToArray(list, pos, ...mc.checkeds)
+
+        // Auto Update
+        let checkeds = {}
+        for(let i=0; i<mc.checkeds.length;i++) {
+          checkeds[`R${i+pos}`] = true
+        }
+        this.myCurrentId = null
+        this.myCheckedIds = checkeds
+
+        this.$notify("change", list)
+      }
+    },
+    //-------------------------------------
+    removeChecked() {
+      let mc = this.genMoveContext(true)
+      if(_.isEmpty(mc.checkeds)) {
+        return Ti.Toast.Open("i18n:del-none", "warn")
+      }
+      this.$notify("change", mc.remains)
+    },
+    //-------------------------------------
+    genMoveContext(forceCleanCheckeds=false) {
+      let mc = {
+        firstIndex: -1,
+        lastIndex : -1,
+        checkeds: [],
+        remains: []
+      }
+      _.forEach(this.ValueItems, (it, index)=>{
+        let isChecked = _.get(this.myCheckedIds, it.id)
+        let priIt = this.value[index]
+        // Checked
+        if(isChecked) {
+          mc.checkeds.push(priIt)
+          if(mc.firstIndex<0) {
+            mc.firstIndex = index
+            mc.lastIndex  = index
+          }else {
+            mc.lastIndex = mc.remains.length
+          }
+        }
+        // Remain
+        else {
+          mc.remains.push(priIt)
+        }
+      })
+
+      // autoCleanCheckeds
+      if(forceCleanCheckeds || mc.checkeds.length > 1) {
+        this.myCheckedIds = {}
+      }
+
+      console.log(mc)
+      return mc
+    }
+    //-------------------------------------
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/lbs/route/ti-lbs-route.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/lbs/route/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/lbs/route/_com.json", {
+  "name" : "ti-lbs-route",
+  "globally" : true,
+  "template" : "./ti-lbs-route.html",
+  "mixins"   : ["./ti-lbs-route.mjs"],
+  "components" : [
+    "@com:ti/lbs/map"]
 });
 //============================================================
 // JOIN: ti/list/com/list-row/list-row.html
@@ -15394,7 +16469,7 @@ Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
   <ti-loading 
     v-if="isDataEmpty"
       class="nil-data"
-      :class="'as-'+blankClass"
+      :class="blankClass"
       v-bind="blankAs"/>
   <!--
     Show Items
@@ -18426,8 +19501,8 @@ const _M = {
   },
   "blankClass": {
     type: String,
-    default: "big-mask",
-    validator: v=>/^(big-mask|mid-tip)$/.test(v)
+    default: "as-big-mask",
+    validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
   },
   //-----------------------------------
   // Measure
@@ -19399,7 +20474,7 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
   <ti-loading 
     v-if="isDataEmpty"
       class="nil-data"
-      :class="'as-'+blankClass"
+      :class="blankClass"
       v-bind="blankAs"/>
   <!--
     Show thead/tbody
@@ -22482,7 +23557,6 @@ Ti.Preload("ti/com/ti/transfer/ti-transfer.html", `<div class="ti-transfer"
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ///////////////////////////////////////////////////////
   data : ()=>({
     myFilterValue : null,
@@ -23675,7 +24749,7 @@ Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall"
   <ti-loading 
     v-if="isDataEmpty"
       class="nil-data"
-      :class="'as-'+blankClass"
+      :class="blankClass"
       v-bind="blankAs"/>
   <!--
     Show tiles
@@ -30363,7 +31437,7 @@ const _M = {
     "myFilterKeyword": null,
     "myFilterMatch": {},
     "mySort": {
-      createTime: -1
+      ct: -1
     },
     "myPager": {
       pn: 1,
@@ -30373,6 +31447,10 @@ const _M = {
   }),
   ////////////////////////////////////////////////////
   props : {
+    "prefix": {
+      type: String,
+      default: "~/.domain/history"
+    },
     "meta": {
       type: Object,
       default: ()=>({})
@@ -30394,6 +31472,14 @@ const _M = {
     },
     //------------------------------------------------
     HistoryItems() {
+      // Make sure in history folder
+      if(this.prefix) {
+        let fph = Wn.Io.getFormedPath(this.meta)
+        if(!fph.startsWith(this.prefix)) {
+          return []
+        }
+      }
+
       let items = []
       _.forEach(this.data.list, it=> {
         let name  = Ti.Util.getMajorName(it.nm)
@@ -30472,30 +31558,30 @@ const _M = {
             form: {
               fields: [{
                   title: "i18n:wn-en-his-ct",
-                  name: "createTime",
+                  name: "ct",
                   comType: "ti-input-daterange",
                   comConf: {
                     valueType: "ms-range"
                   }
                 },{
                   title: "i18n:wn-en-his-utp",
-                  name: "userType",
+                  name: "utp",
                   comType: "ti-input"
                 },{
                   title: "i18n:wn-en-his-tid",
-                  name: "targetId",
+                  name: "tid",
                   comType: "ti-input"
                 },{
                   title: "i18n:wn-en-his-tnm",
-                  name: "targetName",
+                  name: "tnm",
                   comType: "ti-input"
                 },{
                   title: "i18n:wn-en-his-ttp",
-                  name: "targetType",
+                  name: "ttp",
                   comType: "ti-input"
                 },{
                   title: "i18n:wn-en-his-opt",
-                  name: "operation",
+                  name: "opt",
                   comType: "ti-input"
                 }]
             },
@@ -30511,9 +31597,9 @@ const _M = {
           comConf: {
             dropWidth : 200,
             options: [
-              {value:"createTime",   text:"i18n:wn-en-his-ct"},
-              {value:"userType",     text:"i18n:wn-en-his-utp"},
-              {value:"targetType",   text:"i18n:wn-en-his-ttp"}],
+              {value:"ct",   text:"i18n:wn-en-his-ct"},
+              {value:"utp",     text:"i18n:wn-en-his-utp"},
+              {value:"ttp",   text:"i18n:wn-en-his-ttp"}],
             value: this.mySort
           }
         },
@@ -30523,20 +31609,20 @@ const _M = {
           comConf: {
             data: this.myList,
             fields: [{
-              title:"i18n:wn-en-his-usr",
-              display: ["userName","userType:[${val}]"]
-            },{
               title:"i18n:wn-en-his-ct",
               display: {
-                key:"createTime",
+                key:"ct",
                 transformer: "Ti.DateTime.format"
               }
             },{
-              title:"i18n:wn-en-his-tar",
-              display: ["targetName","targetType:[${val}]"]
+              title:"i18n:wn-en-his-usr",
+              display: ["utp:$${val}:", "unm|uid"]
             },{
               title:"i18n:wn-en-his-opt",
-              display: "operation"
+              display: "opt"
+            },{
+              title:"i18n:wn-en-his-tar",
+              display: ["ttp:$${val}:", "tnm|tid"]
             }]
           }
         },
@@ -30558,32 +31644,32 @@ const _M = {
                 name: "id"
               },{
                 title:"i18n:wn-en-his-uid",
-                name: "userId"
+                name: "uid"
               },{
                 title:"i18n:wn-en-his-unm",
-                name: "userName"
+                name: "unm"
               },{
                 title:"i18n:wn-en-his-utp",
-                name: "userType"
+                name: "utp"
               },{
                 title:"i18n:wn-en-his-ct",
-                name: "createTime",
+                name: "ct",
                 type: "AMS"
               },{
                 title:"i18n:wn-en-his-tid",
-                name: "targetId"
+                name: "tid"
               },{
                 title:"i18n:wn-en-his-tnm",
-                name: "targetName"
+                name: "tnm"
               },{
                 title:"i18n:wn-en-his-ttp",
-                name: "targetType"
+                name: "ttp"
               },{
                 title:"i18n:wn-en-his-opt",
-                name: "operation"
+                name: "opt"
               },{
                 title:"i18n:wn-en-his-mor",
-                name: "more"
+                name: "mor"
               }]
           }
         }
@@ -30621,8 +31707,14 @@ const _M = {
     },
     //------------------------------------------------
     async reloadList() {
-      // Prepare the command
       let hisName = this.CurrentHistory
+      if(!hisName) {
+        this.myList = []
+        this.myPager = {}
+        return
+      }
+
+      // Prepare the command
       if("_history" == hisName) {
         hisName = ""
       }
@@ -30643,9 +31735,9 @@ const _M = {
       let flt = _.assign({}, this.myFilterMatch)
       if(this.myFilterKeyword) {
         if(Wn.Io.isFullObjId(this.myFilterKeyword)) {
-          flt.userId = this.myFilterKeyword
+          flt.uid = this.myFilterKeyword
         } else {
-          flt.userName = this.myFilterKeyword
+          flt.unm = this.myFilterKeyword
         }
       }
       let input = JSON.stringify(flt)
@@ -41231,8 +42323,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "info": "信息",
   "input": "输入",
   "input-tags": "输入标签",
-  "lat": "北纬",
-  "lng": "东经",
+  "lat": "纬度",
+  "lbs-place-add": "添加地点",
+  "lng": "经度",
   "loading": "加载中...",
   "login": "登录",
   "logout": "退出",

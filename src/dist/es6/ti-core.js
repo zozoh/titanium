@@ -1,4 +1,4 @@
-// Pack At: 2020-07-03 21:04:20
+// Pack At: 2020-07-10 10:07:15
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9568,14 +9568,15 @@ const {Dict,DictFactory} = (function(){
     async queryData(str){
       //console.log("@Dict.queryData", str)
       // Empty string will take as query all
+      let s = _.trim(str)
       let list;
-      if(!str) {
+      if(!s) {
         list = await this.getData()
         return list
       }
       // Find by string
       this.doHooks(true)
-      list = await this.invokeAsync("query", str)
+      list = await this.invokeAsync("query", s)
       this.doHooks(false)
       // Cache items
       _.forEach(list, it => {
@@ -10255,6 +10256,7 @@ const {WalnutAppMain} = (function(){
     debug=false,
     logging={root:"warn"},
     shortcute=true,
+    theme,
     viewport = {
       phoneMaxWidth:540,
       tabletMaxWidth:768,
@@ -10352,7 +10354,7 @@ const {WalnutAppMain} = (function(){
     if(tiConf.css) {
       let exCssList = [].concat(tiConf.css)
       for(let css of exCssList) {
-        let cssPath = _.template(css)({theme:"${theme}"})
+        let cssPath = _.template(css)({theme})
         await Ti.Load(cssPath)
       }
     }
@@ -10622,7 +10624,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.3-20200703.210420",
+  "version" : "2.3-20200710.100715",
   "dev" : false,
   "appName" : null,
   "session" : {},
