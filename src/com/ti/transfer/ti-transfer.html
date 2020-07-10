@@ -28,10 +28,12 @@
     <!--
       component
     -->
-    <component :is="CanListComType"
-      class="as-box-main ti-fill-parent"
-      v-bind="CanListComConf"
-      @select="OnCanListSelected"/>
+    <div class="as-box-list">
+      <component :is="CanListComType"
+        class="as-box-main ti-fill-parent"
+        v-bind="CanListComConf"
+        @select="OnCanListSelected"/>
+    </div>
     <!--
       Foot
     -->
@@ -71,10 +73,12 @@
     <!--
       component
     -->
-    <component :is="SelListComType"
-      class="as-box-main ti-fill-parent"
-      v-bind="SelListComConf"
-      @select="OnSelListSelected"/>
+    <div class="as-box-list">
+      <component :is="SelListComType"
+        class="as-box-main ti-cover-parent"
+        v-bind="SelListComConf"
+        @select="OnSelListSelected"/>
+    </div>
     <!--
       Foot
     -->

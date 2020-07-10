@@ -82,6 +82,12 @@ const _M = {
                 ? this.notify
                 : this.name;
       }
+    },
+    TheAction() {
+      if(_.isFunction(this.action) && this.wait > 0) {
+        return _.debounce(this.action, this.wait, {leading:true})
+      }
+      return this.action
     }
   },
   ///////////////////////////////////////
@@ -90,10 +96,9 @@ const _M = {
       // Call Action
       if(this.action) {
         let app = Ti.App(this)
-        let invoking = Ti.Shortcut.genActionInvoking(this.action, {
+        let invoking = Ti.Shortcut.genActionInvoking(this.TheAction, {
           $com : this.$bar.$parent,
-          argContext: app.$state(),
-          wait : this.wait
+          argContext: app.$state()
         })
         // Invoke it
         invoking()

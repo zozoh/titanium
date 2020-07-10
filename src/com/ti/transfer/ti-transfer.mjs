@@ -11,7 +11,8 @@ const _M = {
       data : [],
       checkedIds : []
     },
-    selIdMap : {}
+    selIdMap : {},
+    loading: true
   }),
   ///////////////////////////////////////////////////////
   computed : {
@@ -45,9 +46,12 @@ const _M = {
       return _.assign({
         trimed      : true,
         width       : "100%",
-        prefixIcon  : "zmdi-filter-list",
+        prefixIcon  : this.loading
+          ? "fas-spinner fa-spin"
+          : "zmdi-filter-list",
         placeholder : "i18n:filter",
-        hover       : ['prefixIcon','suffixText','suffixIcon']
+        hover       : ['prefixIcon','suffixText','suffixIcon'],
+        loading     : this.loading
       }, this.fltComConf)
     },
     //------------------------------------------------
@@ -55,18 +59,32 @@ const _M = {
       return it => this.Dict.getValue(it)
     },
     //------------------------------------------------
+    ReverMapping() {
+      if(this.mapping) {
+        let re = {}
+        _.forEach(this.mapping, (v, k)=>{
+          re[v] = k
+        })
+        return re
+      }
+    },
+    //------------------------------------------------
     Dict() {
+      // Define the loading hook
+      const _hook_loading = ({loading}) => {
+        this.loading = loading
+      }
       // Customized
       if(this.options instanceof Ti.Dict) {
-        return this.options
+        let d = this.options.duplicate()
+        d.addHooks(_hook_loading)
+        return d
       }
       // Refer dict
       if(_.isString(this.options)) {
         let dictName = Ti.DictFactory.DictReferName(this.options)
         if(dictName) {
-          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
-            this.loading = loading
-          })
+          return Ti.DictFactory.CheckDict(dictName, _hook_loading)
         }
       }
       // Auto Create
@@ -75,6 +93,8 @@ const _M = {
         getValue : Ti.Util.genGetter(this.valueBy || "value"),
         getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
         getIcon  : Ti.Util.genGetter(this.textBy  || "icon")
+      }, {
+        hooks: _hook_loading
       })
     }
     //---------------------------------------------------
@@ -83,11 +103,11 @@ const _M = {
   methods : {
     //---------------------------------------------------
     OnCanListSelected({checkedIds}) {
-      this.can.checkedIds = this.getIds(checkedIds)
+      this.can.checkedIds = Ti.Util.truthyKeys(checkedIds)
     },
     //---------------------------------------------------
     OnSelListSelected({checkedIds}) {
-      this.sel.checkedIds = this.getIds(checkedIds)
+      this.sel.checkedIds = Ti.Util.truthyKeys(checkedIds)
     },
     //---------------------------------------------------
     OnClickHeadChecker(list) {
@@ -99,11 +119,12 @@ const _M = {
       // Others to All
       else {
         let idMap = this.rebuildIdMap(data)
-        list.checkedIds = this.getIds(idMap)
+        list.checkedIds = Ti.Util.truthyKeys(idMap)
       }
     },
     //---------------------------------------------------
     async OnFilterChanged(val) {
+      console.log("OnFilterChanged", val)
       this.myFilterValue = val
       this.myOptionsData = await this.Dict.queryData(val)
       this.evalShownCanList()
@@ -210,7 +231,8 @@ const _M = {
     async reloadSelList(vals=this.Values) {
       //console.log("reloadSelList")
       let list = []
-      for(let v of vals) {
+      for(let val of vals) {
+        let v = this.evalValue(val)
         let it = await this.Dict.getItem(v)
         if(it) {
           list.push(it)
@@ -237,13 +259,69 @@ const _M = {
       this.selIdMap = this.rebuildIdMap(this.sel.data)
     },
     //---------------------------------------------------
-    getIds(idMap) {
-      let ids = []
-      _.forEach(idMap, (v, id)=>{
-        if(v)
-          ids.push(id)
-      })
-      return ids
+    evalValue(val) {
+      // Guard
+      if(Ti.Util.isNil(val)){
+        return val
+      }
+      // Cases
+      return ({
+        id: v => v,
+        obj: v => {
+          if(this.ReverMapping) {
+            v = Ti.Util.translate(v, this.ReverMapping)
+          }
+          return _.get(v, this.idBy)
+        },
+        item: v => {
+          if(this.ReverMapping) {
+            v = Ti.Util.translate(v, this.ReverMapping)
+          }
+          return _.get(v, "value")
+        }
+      })[this.valueType](val)
+    },
+    //---------------------------------------------------
+    async genValue() {
+      let ids = _.keys(this.selIdMap)
+      // Guard
+      if(_.isEmpty(ids))
+        return []
+      // Parse
+      return await ({
+        id: ids => {
+          return ids
+        },
+        obj: async ids => {
+          let list = []
+          for(let id of ids) {
+            let it = await this.Dict.getItem(id)
+            if(it)
+              if(this.mapping) {
+                it = Ti.Util.translate(it, this.mapping)
+              }
+              list.push(it)
+          }
+          return list
+        },
+        item: async ids => {
+          let list = []
+          for(let id of ids) {
+            let obj = await this.Dict.getItem(id)
+            let it = {
+              text  : this.Dict.getText(obj),
+              value : this.Dict.getValue(obj)
+            }
+            if(it) {
+              if(this.mapping) {
+                it = Ti.Util.translate(it, this.mapping)
+              }
+              list.push(it)
+            }
+          }
+          return list
+        }
+      })[this.valueType](ids)
     }
     //---------------------------------------------------
   },
@@ -259,11 +337,11 @@ const _M = {
         this.reloadCanList()
       }
     },
-    "sel.data" : function() {
+    "sel.data" : async function() {
       this.rebuildSelIdMap()
-      let ids = _.keys(this.selIdMap)
-      if(!_.isEqual(ids, this.Values)) {
-        this.$notify("change", ids)
+      let val = await this.genValue()
+      if(!_.isEqual(val, this.Values)) {
+        this.$notify("change", val)
       }
     }
   },

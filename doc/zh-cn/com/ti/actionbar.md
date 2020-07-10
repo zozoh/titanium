@@ -71,20 +71,21 @@ author: zozoh(zozohtnt@gmail.com)
 ----------------------------------------------------
 ## bar-action 属性
 
- Prop     | Example   | Comment
-----------|-----------|-------
-`name`    | `save`    | 【自】全动作条唯一名称
-`value`   | `true`    | 通知事件的值
-`icon`    | `fas-xx`  | 按钮图标
-`text`    | `i18n:xx` | 按钮文字
-`tip`     | `i18n:xx` | 提示说明
-`shortcut`| `CTRL+S`  | 快捷键
-`action`  | `dispath:..` | 执行动作，详情见下文
-`notify`  | `false`   | 触发后同时发起事件通知，默认 `false`
-`wait`    | `500`     | 在一定的时间内阻止重复执行（毫秒）默认0
-`enabled` | `changed` | 指明由哪个状态启用
-`disabled`| `saving`  | 指明由哪个状态关闭
-`altDisplay`| `{..}`  | 根据不同的状态切换的显示
+ Prop       | Example   | Comment
+------------|-----------|-------
+`name`      |`save`     | 【自】全动作条唯一名称
+`value`     |`true`     | 通知事件的值
+`icon`      |`fas-xx`   | 按钮图标
+`text`      |`i18n:xx`  | 按钮文字
+`tip`       |`i18n:xx`  | 提示说明
+`shortcut`  |`CTRL+S`   | 快捷键
+`action`    |`dispath:..` | 执行动作，详情见下文
+`notify`    |`false`    | 触发后同时发起事件通知，默认 `false`
+`wait`      |`500`      | 在一定的时间内阻止重复执行（毫秒）默认0
+`enabled`   |`"changed"`| 指明由哪个状态启用
+`disabled`  |`"saving"` | 指明由哪个状态关闭
+`highlight` |`"bold"`   | 指明由哪个状态关闭
+`altDisplay`|`{..}`     | 根据不同的状态切换的显示
 
 > 不声明`type`的话，只要声明了`action`或`notify`就会被认为是动作按钮
 
@@ -137,15 +138,15 @@ altDisplay: [{
 ----------------------------------------------------
 ### 状态匹配
 
-对于 `altDisplay|enableBy|disableBy` 三个属性，会用到状态的动态匹配。
+对于 `altDisplay|enabled|disabled` 三个属性，会用到状态的动态匹配。
 动态匹配可以是下面几种形式
 
-Type | Example | Comment
------|---------|--------------
-Key    | `"saving"` | 状态表某个字段段为`truthy`
-KeySet | `["saving","changed"]` | 状态表多个字段同时为`truthy`
-Match  | `{saving:true}` | 采用`_.isMatch`匹配状态表
-Validate | `{validate:{..}}` | 采用 `Ti.Validate` 匹配状态表
+Type     | Example                | Comment
+---------|------------------------|--------------
+Key      | `"saving"`             | 状态表某个字段段为`truthy`
+KeySet   | `["saving","changed"]` | 状态表多个字段同时为`truthy`
+Match    | `{saving:true}`        | 采用`_.isMatch`匹配状态表
+Validate | `{validate:{..}}`      | 采用 `Ti.Validate` 匹配状态表
 
 ----------------------------------------------------
 ### enabled
@@ -157,6 +158,11 @@ Validate | `{validate:{..}}` | 采用 `Ti.Validate` 匹配状态表
 
 声明了这个属性后，如果其为`真`会失效动作，其值的格式参看上文的【状态匹配】。
 本属性如果与`enabled`效果重叠，以`enabled`为准。
+
+----------------------------------------------------
+### highlight
+
+声明了这个属性后，只有其为`真`才会启用动作，其值的格式参看上文的【状态匹配】
 
 ----------------------------------------------------
 ## bar-action 事件

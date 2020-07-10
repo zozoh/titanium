@@ -5,7 +5,8 @@
   <TiLbsMap
     v-bind="this"
     :value="ValueItems"
-    mode="path"/>
+    mode="path"
+    @change:fullscreen="OnFullscreenChange"/>
   <!--
     Route List
   -->
@@ -20,7 +21,8 @@
             :current-id="myCurrentId"
             :checked-ids="myCheckedIds"
             :puppet-mode="true"
-            @select="OnListSelect"/>
+            @select="OnListSelect"
+            @open="OnListOpen"/>
     </div>
   </transition>
   <!--

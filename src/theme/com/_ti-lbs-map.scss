@@ -11,10 +11,58 @@
     }
     //-------------------------------
     // Info bar
+    > .as-controls {
+      @include pos-abs($t:0,$l:0);
+      padding:SZ(8); 
+      //-----------------------------
+      .ti-actionbar .bar-item-info.is-top {
+        @include color($color-body, r, c);
+        @include border(1px, solid, shallow);
+        @include flex-center;
+        height: SZ(40); padding:0 1em;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-right: SZ(8);
+        //---------------------------
+        &.is-enabled {
+          &:hover {
+            @include color($color-primary, r, c);
+            border-color: map-get($color-primary, c);
+          }
+        }
+        //---------------------------
+        &.is-disabled {
+          @include color($color-disable, r, c);
+          opacity: .9;
+        }
+        //---------------------------
+        &.big-icon {
+          padding:0; min-width: SZ(40);
+          .as-icon {font-size:SZ(16);}
+        }
+        //---------------------------
+        .as-text {
+          font-size: SZ(12); padding:0 .5em;
+        }
+        //---------------------------
+      }
+      //-----------------------------
+      .ti-actionbar .bar-item-info.is-sub {
+        &.is-highlight {
+          @include color($color-primary, r, c);
+          &:hover {@include color($color-primary, r, c);}
+        }
+        &:hover {
+          @include color($color-weaktip, r, c);
+        }
+      }
+      //-----------------------------
+    }
+    //-------------------------------
+    // Info bar
     > .as-info {
       @include flex-align-nowrap;
-      @include pos-abs($b:SZ(8),$l:SZ(8));
-      @include color($color-mask, r, bushy);
+      @include pos-abs($b:SZ(2),$l:SZ(2)); 
+      @include color($color-body, r, c);
       line-height: 2.4em; min-width: SZ(380);
       padding:0 SZ(8); 
       //-----------------------------
@@ -28,13 +76,6 @@
         li {padding:0 SZ(4);}
         span {margin-right:SZ(2); opacity: 0.6;}
         em {font-style: normal; user-select:text;}
-      }
-      //-----------------------------
-      // Toggle Icon
-      .as-toggle {
-        cursor: pointer; padding:0 SZ(4);
-        flex:0 0 auto;
-        font-size: SZ(16);
       }
       //-----------------------------
     } // ~ > .as-info

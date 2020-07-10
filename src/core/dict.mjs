@@ -98,7 +98,7 @@ export class Dict {
     })
   }
   //-------------------------------------------
-  duplicate({hooks=false, cache=true, dataCache=true, itemCache=true}) {
+  duplicate({hooks=false, cache=true, dataCache=true, itemCache=true}={}) {
     let d = new Dict()
     _.forEach(K, (s_key)=>{
       d[s_key] = this[s_key]
@@ -218,7 +218,7 @@ export class Dict {
   }
   //-------------------------------------------
   async queryData(str){
-    //console.log("@Dict.queryData", str)
+    console.log("@Dict.queryData", str)
     // Empty string will take as query all
     let s = _.trim(str)
     let list;

@@ -6,6 +6,7 @@
   "components" : [
     "./tencent/_com.json",
     "./baidu/_com.json",
-    "./google/_com.json"
+    "./google/_com.json",
+    "@com:ti/button"
   ]
 }

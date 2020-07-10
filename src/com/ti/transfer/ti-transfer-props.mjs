@@ -21,6 +21,27 @@ export default {
     default : undefined
   },
   "value" : undefined,
+  // Value format
+  // If declare the valueType
+  // It will transform the WnObj
+  // to relaitve value mode
+  "valueType": {
+    type: String,
+    default: "id",
+    validator: v => /^(id|obj|item)$/.test(v)
+  },
+  // for valueType=="obj", which key is id => value
+  // The key is for the primary obj, not the result
+  // of mapping translate if you declare the mapping option.
+  "idBy": {
+    type: String,
+    default: "id"
+  },
+  // for valueType=="obj|item", translate the value
+  "mapping": {
+    type: Object,
+    default: undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

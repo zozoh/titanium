@@ -69,9 +69,11 @@
   "icon": "图标",
   "icon-code-tip": "请输入图标代码，如 zmdi-case",
   "import-data": "导入数据...",
+  "index": "索引",
   "info": "信息",
   "input": "输入",
   "input-tags": "输入标签",
+  "label": "标签",
   "lat": "纬度",
   "lbs-place-add": "添加地点",
   "lng": "经度",
@@ -168,5 +170,10 @@
   "view": "查看",
   "view-resource": "查看源代码",
   "warn": "警告",
-  "yes": "是"
+  "yes": "是",
+  "map-type": "地图类型",
+  "map-roadmap": "道路地图",
+  "map-satellite": "卫星照片",
+  "map-hybrid": "俯瞰地图",
+  "map-terrain": "地形地图"
 }

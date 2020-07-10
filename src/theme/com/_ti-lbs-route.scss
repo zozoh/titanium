@@ -4,7 +4,23 @@
   > .as-actions {
     @include pos-abs($t:0,$r:0);
     padding: SZ(10);
+    //-------------------------------
     .ti-button li {
+      @include color($color-body, r, c);
+      @include border(1px, solid, shallow);
+      //-----------------------------
+      &.is-enabled {
+        &:hover {
+          @include color($color-primary, r, c);
+          border-color: map-get($color-primary, c);
+        }
+      }
+      //-----------------------------
+      &.is-disabled {
+        @include color($color-disable, r, c);
+        opacity: .9;
+      }
+      //-----------------------------
       min-width: unset; 
       padding:0 .8em; font-size:SZ(14);
     }
@@ -15,13 +31,24 @@
     padding: SZ(50) SZ(10) SZ(10) SZ(10);
     //-------------------------------
     > .ti-list {
-      @include color($color-cloak, r, c);
+      @include color($color-ground-glass, r, c);
       @include border(1px, solid, shallow);
       
-      width:SZ(240); height:100%;
+      width:SZ(280); height:100%;
       overflow: hidden;
     }
     //-------------------------------
+  }
+  //---------------------------------
+  &.is-fullscreen {
+    > .as-actions {
+      @include pos-fixed($t:0,$r:0);
+      z-index: $z-menu+10;
+    }
+    > .as-list {
+      @include pos-fixed($t:0,$r:0,$b:0);
+      z-index: $z-menu+10;
+    }
   }
   //---------------------------------
 }

@@ -62,8 +62,7 @@ const _M = {
   computed : {
     //-------------------------------------
     MapTypeId() {
-      return (google.maps.MapTypeId[this.mapType]) 
-             || google.maps.MapTypeId.ROADMAP
+      return this.getMapTypeId(this.mapType)
     },
     //-------------------------------------
     MapCenter() {
@@ -97,6 +96,11 @@ const _M = {
       }
       let du = Date.now() - this.mySyncTime
       return du < this.cooling
+    },
+    //-------------------------------------
+    getMapTypeId(mapType="ROADMAP") {
+      return (google.maps.MapTypeId[mapType]) 
+             || google.maps.MapTypeId.ROADMAP
     },
     //-------------------------------------
     draw_center_marker(lalCenter) {
@@ -207,7 +211,7 @@ const _M = {
     },
     //-------------------------------------
     cleanLayers(name) {
-      console.log("cleanLayers")
+      //console.log("cleanLayers")
       if(name) {
         let lay = this.myLayers[name]
         this.clearLayer(lay)
@@ -226,6 +230,10 @@ const _M = {
   },
   //////////////////////////////////////////
   watch : {
+    "mapType": function(newVal) {
+      let mapType = this.getMapTypeId(newVal)
+      this.$map.setMapTypeId(mapType)
+    },
     //"value" : function(){this.drawValue()}
     "layers": function(newVal, oldVal) {
       if(!_.isEqual(newVal, oldVal)) {
@@ -238,7 +246,7 @@ const _M = {
         this.mySyncTime = Date.now()
         // Bounds
         if(_.isArray(newVal)) {
-          console.log("google bounds changed", {newVal, oldVal})
+          //console.log("google bounds changed", {newVal, oldVal})
           let sw = new google.maps.LatLng(newVal[0])
           let ne = new google.maps.LatLng(newVal[1])
           let bounds = new google.maps.LatLngBounds(sw, ne)
@@ -246,7 +254,7 @@ const _M = {
         }
         // Pointer
         else if(_.isNumber(newVal.lat) && _.isNumber(newVal.lng)) {
-          console.log("google center changed", {newVal, oldVal})
+          //console.log("google center changed", {newVal, oldVal})
           this.$map.panTo(newVal)
         }
         
@@ -267,15 +275,10 @@ const _M = {
       center: this.MapCenter,
       mapTypeId: this.MapTypeId,
       //...................................
-      fullscreenControlOptions: {
-        position: google.maps.ControlPosition.TOP_LEFT
-      },
-      //...................................
-      zoomControlOptions: {
-        position: google.maps.ControlPosition.LEFT_TOP
-      },
-      //...................................
+      fullscreenControl: false,
+      mapTypeControl: false,
       streetViewControl: false,
+      zoomControl: false,
       //...................................
       center_changed: ()=>{
         let lal = this.$map.getCenter()

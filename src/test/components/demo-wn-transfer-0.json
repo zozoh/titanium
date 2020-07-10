@@ -7,14 +7,19 @@
         "title" : "查询文件内容",
         "width" : "full",
         "name"  : "f0",
-        "type"  : "String",
+        "type"  : "Array",
         "comType" : "wn-transfer",
         "comConf" : {
-          "height" : 300,
+          "height" : 600,
           "display" : ["@<thumb:zmdi-fire>", "title|nm"],
-          "itemBy"  : "obj id:${val} -cqn",
-          "findBy"  : "obj ~/demo/images -match 'nm:\"^.*${val}\"' -sort nm:1 -lcqn",
-          "options" : "obj ~/demo/images/* -sort nm:1 -lcqn"
+          "valueType": "item",
+          "mapping" : {
+            "val": "value",
+            "name": "text"
+          },
+          "itemBy"  : "obj 'id:$${val}' -cqn",
+          "findBy"  : "obj ~/media -match 'nm:\"^.*$${val}\"' -sort nm:1 -lcqn",
+          "options" : "obj ~/media -match 'race:\"FILE\"' -sort nm:1 -lcqn"
         }
       }]
   }

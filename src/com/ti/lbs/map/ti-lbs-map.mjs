@@ -3,7 +3,7 @@ const _M = {
   data : ()=>({
     myUpTime: undefined,  
     myWaitCooling: false,  
-    fullScreen : false,
+    myFullscreen : false,
     myMapCenter: undefined,
     myZoom: undefined,
     myMapType: undefined
@@ -73,24 +73,27 @@ const _M = {
     "cooling": {
       type: Number,
       default: 1200
+    },
+    "maxZoom": {
+      type: Number,
+      default: 22
+    },
+    "minZoom": {
+      type: Number,
+      default: 1
     }
   },
   //////////////////////////////////////////
   computed : {
     //-------------------------------------
     TopClass() {
-      let klass = []
-      if(this.fullScreen) {
-        klass.push("is-fullscreen")
-      }
-      if(this.className) {
-        klass.push(this.className)
-      }
-      return klass
+      return this.getTopClass({
+        "is-fullscreen": this.myFullscreen
+      })
     },
     //-------------------------------------
     TopStyle() {
-      if(!this.fullScreen) {
+      if(!this.myFullscreen) {
         return Ti.Css.toStyle({
           width  : this.width,
           height : this.height
@@ -99,7 +102,7 @@ const _M = {
     },
     //-------------------------------------
     ToggleIcon() {
-      return this.fullScreen
+      return this.myFullscreen
         ? "zmdi-fullscreen-exit"
         : "zmdi-fullscreen"
     },
@@ -111,8 +114,8 @@ const _M = {
     MapComConf() {
       return {
         "center"  : this.MapCenter,
-        "mapType" : Ti.Util.fallback(this.myMapType, this.mapType),
-        "zoom"    : Ti.Util.fallback(this.myZoom, this.zoom),
+        "mapType" : this.myMapType,
+        "zoom"    : this.myZoom,
         ...this.MapComConfByMode
       }
     },
@@ -205,6 +208,70 @@ const _M = {
       return _.pick(this.LalValue, "lng", "lat")
     },
     //-------------------------------------
+    MapActionBar() {
+      return {
+        items: [{
+            className: "big-icon",
+            icon: this.myFullscreen
+              ? "im-minimize"
+              : "im-maximize",
+            action: ()=>this.myFullscreen = !this.myFullscreen
+          }, {
+            icon: "far-map",
+            text: "i18n:map-type",
+            altDisplay: [{
+                icon: "fas-road",
+                text: "i18n:map-roadmap",
+                match: {myMapType:"ROADMAP"}
+              }, {
+                icon: "fas-satellite",
+                text: "i18n:map-satellite",
+                match: {myMapType:"SATELLITE"}
+              }, {
+                icon: "fas-globe-asia",
+                text: "i18n:map-hybrid",
+                match: {myMapType:"HYBRID"}
+              }, {
+                icon: "fas-drafting-compass",
+                text: "i18n:map-terrain",
+                match: {myMapType:"TERRAIN"}
+              }],
+            items: [{
+                icon: "fas-road",
+                text: "i18n:map-roadmap",
+                highlight: {myMapType:"ROADMAP"},
+                action: ()=>this.myMapType = "ROADMAP"
+              }, {
+                icon: "fas-globe-asia",
+                text: "i18n:map-hybrid",
+                highlight: {myMapType:"HYBRID"},
+                action: ()=>this.myMapType = "HYBRID"
+              }, {
+                icon: "fas-satellite",
+                text: "i18n:map-satellite",
+                highlight: {myMapType:"SATELLITE"},
+                action: ()=>this.myMapType = "SATELLITE"
+              }, {
+                icon: "fas-drafting-compass",
+                text: "i18n:map-terrain",
+                highlight: {myMapType:"TERRAIN"},
+                action: ()=>this.myMapType = "TERRAIN"
+              }]
+          }, {
+            className: "big-icon",
+            icon: "im-plus",
+            wait: 1200,
+            action: ()=>this.zoomMap(1)
+          }, {
+            className: "big-icon",
+            icon: "im-minus",
+            wait: 1200,
+            action: ()=>this.zoomMap(-1)
+          }],
+        status: this
+      }
+    },
+    //-------------------------------------
     CoolingIcon() {
       if(this.myUpTime > 0) {
         if(this.myWaitCooling){
@@ -220,15 +287,25 @@ const _M = {
     //-------------------------------------
     OnCenterChange(lal) {
       this.myMapCenter = lal
-      this.myUpTime = Date.now()
-      if(this.MapComConfByMode.pinCenter && !this.myWaitCooling) {
-        this.checkUpdate()
+      if(this.MapComConfByMode.pinCenter) {
+        this.myUpTime = Date.now()
+        if(!this.myWaitCooling) {
+          this.checkUpdate()
+        }
       }
     },
     //-------------------------------------
     OnZoomChange(zoom) {
       this.myZoom = zoom
       this.saveState({zoom})
+    },
+    //-------------------------------------
+    zoomMap(offset) {
+      let zoom = this.myZoom + offset
+      if(_.inRange(zoom, this.minZoom, this.maxZoom+1)) {
+        this.myZoom = zoom
+        this.saveState({zoom})
+      }
     },
     //-------------------------------------
     isCoolDown() {
@@ -353,14 +430,21 @@ const _M = {
       if(_.isUndefined(this.myUpTime)) {
         this.myMapCenter = undefined
       }
+    },
+    "myFullscreen": function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        this.$notify("change:fullscreen", newVal)
+      }
     }
   },
   //////////////////////////////////////////
   created: function() {
+    this.myMapType = this.mapType
+    this.myZoom = this.zoom
     if(this.keepStateBy) {
       let state = Ti.Storage.session.getObject(this.keepStateBy)
-      this.myMapType = state.mapType
-      this.myZoom = state.zoom
+      this.myMapType = state.mapType || this.mapType
+      this.myZoom = state.zoom || this.zoom
     }
   }
   //////////////////////////////////////////

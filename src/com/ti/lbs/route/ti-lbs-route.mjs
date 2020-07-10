@@ -3,7 +3,8 @@ const _M = {
   data : ()=>({
     myShowList: undefined,
     myCurrentId: undefined,
-    myCheckedIds: undefined
+    myCheckedIds: undefined,
+    myFullscreen: false
   }),
   /////////////////////////////////////////
   props : {
@@ -61,27 +62,29 @@ const _M = {
       type: Boolean,
       default: true
     },
-    "query": {
-      type: [Function, Ti.Dict],
-      default: null
+    /*
+    Open Modal-> ti-transer 
+    whatever, you need gen the result like:
+    [{
+      id, title, lng, lat, label[Optional]
+    }]
+    */
+    "addBy": {
+      type: Object,
+      default: undefined
     }
   },
   //////////////////////////////////////////
   computed : {
     //-------------------------------------
     TopClass() {
-      let klass = []
-      if(this.fullScreen) {
-        klass.push("is-fullscreen")
-      }
-      if(this.className) {
-        klass.push(this.className)
-      }
-      return klass
+      return this.getTopClass({
+        "is-fullscreen": this.myFullscreen
+      })
     },
     //-------------------------------------
     TopStyle() {
-      if(!this.fullScreen) {
+      if(!this.myFullscreen) {
         return Ti.Css.toStyle({
           width  : this.width,
           height : this.height
@@ -116,13 +119,20 @@ const _M = {
     //-------------------------------------
     ActionButtons() {
       let list = [{
+        icon: "zmdi-edit",
+        disabled: !this.hasCurrentId,
+        handler: ()=>this.editCurrent()
+      }, {
         icon: "zmdi-long-arrow-up",
+        disabled: !this.hasCheckedIds,
         handler: ()=>this.moveCheckedUp()
       }, {
         icon: "zmdi-long-arrow-down",
+        disabled: !this.hasCheckedIds,
         handler: ()=>this.moveCheckedDown()
       }, {
         icon: "zmdi-delete",
+        disabled: !this.hasCheckedIds,
         handler: ()=>this.removeChecked()
       }, {
         icon: "zmdi-format-list-bulleted",
@@ -130,7 +140,7 @@ const _M = {
           this.myShowList = !this.isShowList
         }
       }]
-      if(this.query) {
+      if(this.addBy) {
         return _.concat({
           icon: "zmdi-plus",
           text: "i18n:lbs-place-add",
@@ -140,36 +150,119 @@ const _M = {
       return list
     },
     //-------------------------------------
-    isShowList() {
-      return Ti.Util.fallback(this.myShowList, this.showList)
+    hasCurrentId() {
+      return !Ti.Util.isNil(this.myCurrentId)
     },
     //-------------------------------------
-    QueryItems() {
-      if(this.query instanceof Ti.Dict) {
-        return async (str)=>{
-          return await this.query.queryData(_.trim(str))
-        }
-      }
-      if(_.isFunction(this.query)) {
-        return async (str)=>{
-          return await this.query(_.trim(str))
-        }
-      }
-      return ()=>[]
+    hasCheckedIds() {
+      return !_.isEmpty(this.myCheckedIds)
+    },
+    //-------------------------------------
+    isShowList() {
+      return Ti.Util.fallback(this.myShowList, this.showList)
     }
     //-------------------------------------
   },
   //////////////////////////////////////////
   methods : {
     //-------------------------------------
+    OnFullscreenChange(fullscreen) {
+      console.log("OnFullscreenChange", fullscreen)
+      this.myFullscreen = fullscreen
+    },
+    //-------------------------------------
     OnListSelect({currentId, checkedIds}) {
       this.myCurrentId = currentId
       this.myCheckedIds = checkedIds
     },
     //-------------------------------------
+    async OnListOpen({index, item}) {
+      let reo = await Ti.App.Open({
+        title: "i18n:edit",
+        position: "right",
+        result: item,
+        comType: "TiForm",
+        comConf: {
+          data: "=result",
+          fields: [{
+            title: "i18n:title",
+            name: "title",
+            comType: "ti-input"
+          }, {
+            title: "i18n:label",
+            name: "label",
+            comType: "ti-input"
+          }]
+        }
+      })
+      // User cancel
+      if(_.isEmpty(reo))
+        return
+
+      // Update
+      let list = _.cloneDeep(this.ValueItems)
+      _.assign(list[index], reo)
+      this.$notify("change", list)
+    },
+    //-------------------------------------
+    async editCurrent() {
+      if(!this.myCurrentId) {
+        return
+      }
+      // Find the index
+      let index=0, item=null;
+      for(let it of this.ValueItems) {
+        if(this.myCurrentId == it.id) {
+          item = it
+          break;
+        }
+        index++
+      }
+      // Then open editor
+      await this.OnListOpen({index, item})
+    },
+    //-------------------------------------
     async openNewItemSelector() {
-      let list = await this.QueryItems()
-      console.log(list)
+      // Guard
+      if(!this.addBy)
+        return
+      let diaConf = _.merge({
+        icon: "zmdi-plus-circle-o",
+        title: "add-item",
+        width: "80%",
+        height: "80%",
+        position: "top",
+        result: this.ValueItems,
+        comType: "TiTransfer",
+        comConf: {}
+      }, this.addBy)
+
+      let reo = await Ti.App.Open(diaConf)
+
+      // User canceled
+      if(_.isEmpty(reo))
+        return
+      
+      // Remove dup
+      let list = []
+      let memo = {}
+
+      // Remember old
+      _.forEach(list, it => memo[it.id] = true)
+      
+      // Join new
+      _.forEach(reo, it => {
+        if(!memo[it.id]) {
+          memo[it.id] = true
+          if(Ti.Util.isNil(it.label)) {
+            it.label = (list.length+1)+""
+          }
+          list.push(it)
+        }
+      })
+
+      // Notify change
+      this.$notify("change", list)
     },
     //-------------------------------------
     moveCheckedUp() {
@@ -182,13 +275,15 @@ const _M = {
         let pos = mc.firstIndex - 1
         Ti.Util.insertToArray(list, pos, ...mc.checkeds)
 
-        // Auto Update
-        let checkeds = {}
-        for(let i=0; i<mc.checkeds.length;i++) {
-          checkeds[`R${i+pos}`] = true
+        // Update the auto-generated ID
+        if(Ti.Util.isNil(_.first(mc.checkeds).id)) {
+          let checkeds = {}
+          for(let i=0; i<mc.checkeds.length;i++) {
+            checkeds[`R${i+pos}`] = true
+          }
+          this.myCurrentId = null
+          this.myCheckedIds = checkeds
         }
-        this.myCurrentId = null
-        this.myCheckedIds = checkeds
 
         this.$notify("change", list)
       }
@@ -200,32 +295,36 @@ const _M = {
         return Ti.Toast.Open("i18n:nil-obj", "warn")
       }
 
-      if(mc.lastIndex < (mc.remains.length - 1)) {
+      if(mc.lastIndex < mc.remains.length) {
         let list = mc.remains;
         let pos = mc.lastIndex+1
         Ti.Util.insertToArray(list, pos, ...mc.checkeds)
 
-        // Auto Update
-        let checkeds = {}
-        for(let i=0; i<mc.checkeds.length;i++) {
-          checkeds[`R${i+pos}`] = true
+        // Update the auto-generated ID
+        if(Ti.Util.isNil(_.first(mc.checkeds).id)) {
+          let checkeds = {}
+          for(let i=0; i<mc.checkeds.length;i++) {
+            checkeds[`R${i+pos}`] = true
+          }
+          this.myCurrentId = null
+          this.myCheckedIds = checkeds
         }
-        this.myCurrentId = null
-        this.myCheckedIds = checkeds
 
         this.$notify("change", list)
       }
     },
     //-------------------------------------
     removeChecked() {
-      let mc = this.genMoveContext(true)
+      let mc = this.genMoveContext()
       if(_.isEmpty(mc.checkeds)) {
         return Ti.Toast.Open("i18n:del-none", "warn")
       }
+      this.myCheckedIds = {}
+      this.myCurrentId = null
       this.$notify("change", mc.remains)
     },
     //-------------------------------------
-    genMoveContext(forceCleanCheckeds=false) {
+    genMoveContext() {
       let mc = {
         firstIndex: -1,
         lastIndex : -1,
@@ -251,12 +350,7 @@ const _M = {
         }
       })
 
-      // autoCleanCheckeds
-      if(forceCleanCheckeds || mc.checkeds.length > 1) {
-        this.myCheckedIds = {}
-      }
-
-      console.log(mc)
+      //console.log(mc)
       return mc
     }
     //-------------------------------------
