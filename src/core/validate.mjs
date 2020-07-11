@@ -75,7 +75,7 @@ const TiValidate = {
     let fv = Ti.Util.genInvoking(str, {
       context,
       funcSet: VALIDATORS,
-      partialRight: true
+      partial: "right"
     })
     if(!_.isFunction(fv)) {
       throw `Invalid TiValidator: "${str}"`

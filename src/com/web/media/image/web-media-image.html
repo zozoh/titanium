@@ -1,4 +1,11 @@
-<img
-  :class="TopClass"
-  class="web-media-image"
-  :src="ImgSrc"/>
+<div class="web-media-image"
+  :class="TopClass">
+  <!--Image-->
+  <img :src="src || dftSrc"/>
+  <!--Text-->
+  <div
+    v-if="TheText"
+      class="as-text">
+      <span>{{TheText}}</span>
+  </div>
+</div>

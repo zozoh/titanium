@@ -134,6 +134,10 @@ const TiConfig = {
                     : new AliasMapping().reset(dynamicAlias)
       ph = a_map.get(path, null)
     }
+    // Keep original
+    else {
+      ph = path
+    }
     //.........................................
     // Full-url, just return
     let loadUrl;

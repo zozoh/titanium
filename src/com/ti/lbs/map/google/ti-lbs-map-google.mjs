@@ -3,6 +3,7 @@ const _M = {
   data : ()=>({
     mySyncTime : undefined,
     myUpTime: undefined,
+    myCenterMarker: undefined,
     myLayers: {}
   }),
   /////////////////////////////////////////
@@ -48,6 +49,18 @@ const _M = {
     "cooling": {
       type: Number,
       default: 1000
+    },
+    "maxZoom": {
+      type: Number,
+      default: 22
+    },
+    "minZoom": {
+      type: Number,
+      default: 1
+    },
+    "boundPadding": {
+      type: [Object, Number],
+      default: 10
     },
     "stroke": {
       type: Object,
@@ -120,7 +133,7 @@ const _M = {
       return lalCenter
     },
     //-------------------------------------
-    draw_as_point(name, items=[]) {
+    draw_as_point({name, items=[], iconSize, clickable}={}) {
       if(!name) {
         throw "draw_as_point without layer name!"
       }
@@ -128,6 +141,7 @@ const _M = {
       let list = []
       for(let it of items) {
         if(it && _.isNumber(it.lat) && _.isNumber(it.lng)) {
+          // Label
           let label = it.label;
           if(_.isString(label)) {
             label = {
@@ -135,24 +149,42 @@ const _M = {
               text: label
             }
           }
+          // Icon
+          let icon;
+          if(it.src) {
+            icon = {url:it.src, scaledSize:iconSize}
+          }
+          // Draw to map
           let marker = new google.maps.Marker({
             position: it,
             map: this.$map,
             title: it.title,
-            label
+            label, icon,
+            clickable
           })
           list.push(marker)
+          // Event
+          if(clickable) {
+            marker.addListener("click", ()=>{
+              this.$notify("point:click", it)
+            });
+          }
         }
       }
       this.myLayers[name] = list
     },
     //-------------------------------------
-    draw_as_path(name, items=[]) {
+    draw_as_path({name, items=[], iconSize, clickable}={}) {
       if(!name) {
         throw "draw_as_path without layer name!"
       }
       // Draw points
-      this.draw_as_point(name, items)
+      this.draw_as_point({
+        name, 
+        items, 
+        iconSize,
+        clickable
+      })
 
       // Draw Path
       if(_.isArray(items) && items.length>1) {
@@ -170,7 +202,7 @@ const _M = {
     },
     //-------------------------------------
     drawLayers() {
-      //console.log("drawLayers")
+      console.log("drawLayers")
       //...................................
       // Pin Center
       if(this.pinCenter) {
@@ -186,9 +218,10 @@ const _M = {
       let i = 0;
       for(let lay of this.layers) {
         //console.log(lay)
-        let name = lay.name || `Layer-${i}`
         i++
-        this[`draw_as_${lay.type}`](name, lay.items)
+        if(!lay.name)
+          lay.name = `Layer-${i}`
+        this[`draw_as_${lay.type}`](lay)
       }
       //...................................
     },
@@ -211,7 +244,13 @@ const _M = {
     },
     //-------------------------------------
     cleanLayers(name) {
-      //console.log("cleanLayers")
+      console.log("cleanLayers")
+      // Clean center
+      if(this.myCenterMarker) {
+        this.myCenterMarker.setMap(null)
+        this.myCenterMarker = undefined
+      }
+      // Clean layers
       if(name) {
         let lay = this.myLayers[name]
         this.clearLayer(lay)
@@ -250,7 +289,7 @@ const _M = {
           let sw = new google.maps.LatLng(newVal[0])
           let ne = new google.maps.LatLng(newVal[1])
           let bounds = new google.maps.LatLngBounds(sw, ne)
-          this.$map.fitBounds(bounds, 20)
+          this.$map.fitBounds(bounds, this.boundPadding)
         }
         // Pointer
         else if(_.isNumber(newVal.lat) && _.isNumber(newVal.lng)) {
@@ -270,10 +309,14 @@ const _M = {
   mounted : async function() {
     // Init Map
     //console.log("mounted", this.zoom, this.center)
+    //......................................
     this.$map = new google.maps.Map(this.$refs.arena, {
       zoom: this.zoom,
       center: this.MapCenter,
       mapTypeId: this.MapTypeId,
+      //...................................
+      maxZoom : this.maxZoom,
+      minZoom : this.minZoom,
       //...................................
       fullscreenControl: false,
       mapTypeControl: false,
@@ -297,6 +340,7 @@ const _M = {
       }
       //...................................
     })
+    //......................................
     // Draw Value
     this.drawLayers()
   }

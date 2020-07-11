@@ -60,7 +60,7 @@ const _M = {
 
       return Ti.Util.genInvoking(trans, {
         context: this.data,
-        partialRight: true
+        partial: "right"
       })
     },
     theNameStyle() {

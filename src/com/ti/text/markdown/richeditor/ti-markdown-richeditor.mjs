@@ -191,7 +191,7 @@ const _M = {
 
       if(_.isString(this.markdownMediaSrc)) {
         return Ti.Util.genInvoking(this.markdownMediaSrc, {
-          partialRight: true
+          partial: "right"
         })
       }
     },
@@ -203,7 +203,7 @@ const _M = {
 
       if(_.isString(this.previewMediaSrc)) {
         return Ti.Util.genInvoking(this.previewMediaSrc, {
-          partialRight: true
+          partial: "right"
         })
       }
     }

@@ -99,7 +99,7 @@ const _M = {
       let serializer = step.serializer
         ? Ti.Util.genInvoking(step.serializer, {
             context: this.value,
-            partialRight: true
+            partial: "right"
           })
         : _.identity;
       // Eval comConf
@@ -170,7 +170,8 @@ const _M = {
       if(this.BtnPrev && this.BtnPrev.enabled) {
         if(this.BtnPrev.handler) {
           let invoking = Ti.Util.genInvoking(this.BtnPrev.handler, {
-            context: this.value
+            context: this.value,
+            partial: false
           })
           invoking.apply(this)
         } else {
@@ -183,7 +184,8 @@ const _M = {
       if(this.BtnNext && this.BtnNext.enabled) {
         if(this.BtnNext.handler) {
           let invoking = Ti.Util.genInvoking(this.BtnNext.handler, {
-            context: this.value
+            context: this.value,
+            partial: false
           })
           invoking.apply(this)
         } else {

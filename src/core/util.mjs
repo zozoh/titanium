@@ -341,12 +341,20 @@ const TiUtil = {
             },
             // =>Ti.Types.toStr(meta)
             "=>" : (val) => {
-              let fn = Ti.Util.genInvoking(val, {context})
+              let fn = Ti.Util.genInvoking(val, {context, partial: false})
               return fn()
             },
             // Render template
             "->" : (val)=>{
-              return Ti.S.renderBy(val, context)
+              let m2 = /^(([\w\d_.]+)\?\?)?(.+)$/.exec(val)
+              let test = m2[2]
+              let tmpl = m2[3]
+              if(test) {
+                if(Ti.Util.isNil(_.get(context, test))) {
+                  return
+                }
+              }
+              return Ti.S.renderBy(tmpl, context)
             },
             // :=xxx  # Get Value Later
             // ":=" : (val, dft)=>{
@@ -418,6 +426,21 @@ const TiUtil = {
     return ExplainValue(obj)
   },
   /***
+   * Call explainObj for each element if input is Array
+   */
+  explainObjs(context=[], obj={}, options) {
+    if(_.isArray(context)){
+      let re = []
+      for(let li of context) {
+        let it = TiUtil.explainObj(li, obj, options)
+        re.push(it)
+      }
+      return re
+    }
+    // Take input as normal POJO
+    return TiUtil.explainObj(context, obj, options)
+  },
+  /***
    * Create a function to return a given object's copy.
    * It just return the simple object like (`Number|String|Boolean`) directly,
    * and deep clone complex object like `Object|Array|Date|RegExp`
@@ -477,7 +500,7 @@ const TiUtil = {
       _.set(obj, key, _.uniq(_.concat(old, val||[])))
     }
   },
-  pushUniqValueBefre(obj, key, val, rawSet=false) {
+  pushUniqValueBefore(obj, key, val, rawSet=false) {
     let old = _.get(obj, key) || []
     if(rawSet) {
       obj[key] = _.uniq(_.concat(val||[], old))
@@ -881,7 +904,7 @@ const TiUtil = {
     dftKeys=[],
     context={},
     funcSet = window,
-    partialRight = false  // true | false*
+    partial = "right"  // "left" | "right" | Falsy
   }={}) {
     //.............................................
     // Customized Function
@@ -913,7 +936,7 @@ const TiUtil = {
       if(m) {
         let invoke = m[1]
         return TiUtil.genInvoking(invoke, {
-          context, funcSet, partialRight
+          context, funcSet, partial
         })
       }
       //...........................................
@@ -935,7 +958,7 @@ const TiUtil = {
   genInvoking(str, {
     context={},
     funcSet = window,
-    partialRight = false  // true | false*
+    partial = "left"  // "left" | "right" | Falsy
   }={}) {
     //.............................................
     if(_.isFunction(str)) {
@@ -944,7 +967,7 @@ const TiUtil = {
     //.............................................
     let callPath, callArgs;
     // Object mode
-    if(str.name && str.args) {
+    if(str.name && !_.isUndefined(str.args)) {
       callPath = str.name
       callArgs = _.concat(str.args)
     }
@@ -964,10 +987,16 @@ const TiUtil = {
         return Ti.S.toJsValue(v, {context})
       })
       if(!_.isEmpty(args)) {
-        if(partialRight) {
+        // [ ? --> ... ]
+        if("right" == partial) {
           return _.partialRight(func, ...args)
         }
-        return _.partial(func, ...args)
+        // [ ... <-- ?]
+        else if("left" == partial) {
+          return _.partial(func, ...args)
+        }
+        // [..]
+        return ()=>func(...args)
       }
       return func
     }

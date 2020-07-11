@@ -28,7 +28,7 @@
       Map Info
     -->
     <div
-      v-if="MapCenter"
+      v-if="infoBar && MapCenter"
         class="as-info">
         <ul class="as-laln">
           <li><span>{{'lat'|i18n}}:</span><em>{{MapCenter.lat|float(8)}}</em></li>

@@ -1,9 +1,8 @@
 ///////////////////////////////////////////////
 export async function WebAppMain({
-  www_host="localhost",
-  www_port_suffix=":8080",
   rs = "/gu/rs/", 
   siteRs = "/",
+  vars = {},
   lang = "zh-cn",
   appJson, siteId, domain,
   preloads=[],
@@ -93,17 +92,21 @@ export async function WebAppMain({
     }
   }
   //---------------------------------------
+  // Append extra deps
+  //console.log("Append extra deps")
+  if(_.isArray(vars.deps)) {
+    Ti.Util.pushUniqValue(appJson, "deps", vars.deps)
+  }
+  //---------------------------------------
   // Load main app
   // If "i18n" or "deps" declared, it will be loaded too
   let app = await Ti.App(appJson, conf=>{
     //console.log("appConf", conf)
-    _.assign(conf.store.state, {
+    _.assign(conf.store.state, vars, {
       loading   : false,
       siteId,
       domain,
-      rs,
-      www_host,
-      www_port_suffix
+      rs
     })
     return conf
   })

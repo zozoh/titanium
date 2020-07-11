@@ -303,7 +303,7 @@ const _M = {
         // Tidy form function
         const invokeOpt = {
           context: this,
-          partialRight: true
+          partial: "right"
         }
         field.serializer  = Ti.Util.genInvoking(field.serializer, invokeOpt)
         field.transformer = Ti.Util.genInvoking(field.transformer,invokeOpt)

@@ -1,13 +1,21 @@
 export default {
   /////////////////////////////////////////
   props : {
-    "base": {
-      type: String,
-      default: undefined
-    },
     "src" : {
       type : String,
       default : undefined
+    },
+    "dftSrc" : {
+      type : String,
+      default : undefined
+    },
+    "text": {
+      type: String,
+      default: undefined
+    },
+    "i18n": {
+      type: Boolean,
+      default: true
     }
   },
   //////////////////////////////////////////
@@ -17,8 +25,12 @@ export default {
       return this.getTopClass()
     },
     //--------------------------------------
-    ImgSrc() {
-      return Ti.Util.appendPath(this.base, this.src)
+    TheText() {
+      if(this.text) {
+        return this.i18n
+          ? Ti.I18n.text(this.text)
+          : this.text
+      }
     }
     //--------------------------------------
   }

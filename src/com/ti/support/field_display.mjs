@@ -33,7 +33,8 @@ function __eval_com_conf_item(val, cx={}) {
         context: {
           ...cx,
           item: cx.itemData
-        }
+        },
+        partial: "left"
       })
       return func()
     }
@@ -145,7 +146,7 @@ const FieldDisplay = {
         if(dis.transformer) {
           const invokeOpt = {
             context: this,
-            partialRight: true
+            partial: "right"
           }
           dis.transformer = Ti.Util.genInvoking(dis.transformer, invokeOpt)
         }

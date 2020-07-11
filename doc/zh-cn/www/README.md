@@ -169,7 +169,7 @@ DIV(@app)             # Vue(root) : index.wnml
     //  - params     : 合并
     //  - preloaded  : 替换
     //  - dataKey    : 替换
-    //  - serializer : 替换
+    //  - transformer : 替换
     "apiNameA" : {
       // 支持 "i18n:xxx" 形态
       "title" : "注记名",
@@ -205,9 +205,22 @@ DIV(@app)             # Vue(root) : index.wnml
       "as" : "json",
       // 当获取服务器响应后，在写入到 dataKey 以前，可以做一次转换
       // 以便写入的数据符合控件的预期
-      "serializer" : {
-        "name" : "Ti.Types.toObject",
-        "args" : {...mapping...}
+      // 转换器的上下文对象为 rootState
+      // 如果只有调用名，可以简写为一个字符串
+      "transformer" : {
+        "name" : "Ti.Types.toObject",    // 调用函数（全局）
+        "args" : [{..}],                 // 对象或者数组
+        // 是否生成 partial 调用, 可以有以下三个选项
+        //  - Falsy : 关闭 partila, args 提供的就是完备参数表
+        //  - "left" : 左排参数
+        //  - "right": 右排参数
+        // 默认 "right"
+        "partial": "right",
+        // 预先解析
+        // 默写需要将数据对象填充为资源路径时，需要 apiBase, base 等
+        // 全局信息，这里需要预先解一下，以便填充 rootState 相关信息
+        // 默认 false
+        "explain": false  
       },
       // 接口的处理结果是否在页面加载时，由服务器渲染到了 DOM 里。
       // 如果是的话，会根据 params 的结果计算一个 SHA1 值
@@ -223,8 +236,8 @@ DIV(@app)             # Vue(root) : index.wnml
       // 得到的数据，对于 dataKey 对应的键，应该是替换还是 merget
       // 默认为 false 表示替换
       "dataMerge" : false
-      // dataKey 存储的数据是被serializer过的（如果你定义了的话）
-      // 有时候，你还想把serializer之前的数据也存起来，方便别的控件使用
+      // dataKey 存储的数据是被transformer过的（如果你定义了的话）
+      // 有时候，你还想把transformer之前的数据也存起来，方便别的控件使用
       // 可以声明这个字段，它的意义与dataKey一样，只不过保存的是api的原始数据
       "rawDataKey": null,
       "rawDataMerge" : false

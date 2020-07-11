@@ -78,7 +78,7 @@ const _M = {
         _.assign(api, _.pick(pageApi, 
           "body", 
           "preload",
-          "serializer", 
+          "transformer", 
           "dataKey",
           "dataMerge",
           "rawDataKey",
@@ -259,7 +259,7 @@ const _M = {
       Ti.Be.ScrollWindowTo({y:0})
     },
     //--------------------------------------------
-    async doApi({rootState, getters, commit}, {
+    async doApi({rootState, getters, commit, dispatch}, {
       key,        // The Api Key
       params={},  // params will override the defaults
       vars={},
@@ -273,28 +273,44 @@ const _M = {
       if(!api) {
         return await Ti.Toast.Open("e.www.page.ApiNotFound: "+key, "warn");
       }
+      //.......................................
+      commit("setLoading", true, {root:true})
+      dispatch("__run_api", {api,params,vars,body})     
+      commit("setLoading", false, {root:true})
+    },
+    //--------------------------------------------
+    async __run_api({commit, rootState}, {api, vars, params, headers, body}) {
+      //.....................................
+      // Override api
+      api = _.cloneDeep(api)
+      _.assign(api.vars, vars)
+      _.assign(api.params, params)
+      _.assign(api.headers, headers)
+      if(Ti.Util.isNil(api.body)) {
+        api.body = body
+      }
       //.....................................
       // Eval url
       _.defaults(vars, api.vars)
       let url = api.url
-      if(!_.isEmpty(vars)) {
-        let vars2 = Ti.Util.explainObj(rootState, vars)
-        url = Ti.S.renderBy(api.url, vars2)
+      //.....................................
+      // Eval dynamic url
+      if(!_.isEmpty(api.vars)) {
+        let vs2 = Ti.Util.explainObj(rootState, api.vars)
+        url = Ti.S.renderBy(url, vs2)
       }
       //.....................................
       // Gen the options
       let options = _.pick(api, ["method", "as"])
-      options.vars = vars
+      //options.vars = api.vars
+      //.....................................
       // Eval headers
       options.headers = Ti.Util.explainObj(rootState, api.headers)
+      //.....................................
       // Eval the params
       options.params = {}
       _.forEach(api.params, (param, key)=>{
-        let val = _.get(params, key)
-        // Use default
-        if(Ti.Util.isNil(val)) {
-          val = Ti.Util.explainObj(rootState, param.value)
-        }
+        let val = Ti.Util.explainObj(rootState, param.value)
         // Check required
         if(param.required && Ti.Util.isNil(val)) {
           let errMsg = `${url}: lack required param: ${key}`
@@ -305,9 +321,8 @@ const _M = {
       })
       //.....................................
       // Prepare the body
-      let apiBody = body || api.body
-      if("POST" == api.method && apiBody) {
-        let bodyData = Ti.Util.explainObj(rootState, apiBody)
+      if("POST" == api.method && api.body) {
+        let bodyData = Ti.Util.explainObj(rootState, api.body)
         // As JSON
         if("json" == api.bodyType) {
           options.body = JSON.stringify(bodyData)
@@ -321,23 +336,28 @@ const _M = {
           options.body = Ti.Http.encodeFormData(bodyData)
         }
       }
-      //.......................................
-      // Mark Loading
-      commit("setLoading", true, {root:true})
       //.....................................
       // Join the http send Promise
       //console.log(`will send to "${url}"`, options)
       let reo = await Ti.Http.sendAndProcess(url, options) 
       let data = reo
       //.....................................
-      // Eval api serializer
-      if(api.serializer) {
-        let serializer = Ti.Util.genInvoking(api.serializer, {
+      // Eval api transformer
+      if(api.transformer) {
+        let trans = _.cloneDeep(api.transformer)
+        let partial = Ti.Util.fallback(trans.partial, "right")
+        // PreExplain args
+        if(trans.explain) {
+          let tro = _.pick(trans, "name", "args")
+          trans = Ti.Util.explainObjs(rootState, tro)
+        }
+        let fnTrans = Ti.Util.genInvoking(trans, {
           context: rootState,
-          partialRight: true
+          partial
         })
-        if(_.isFunction(serializer)) {
-          data = serializer(reo)
+        if(_.isFunction(fnTrans)) {
+          //console.log("transformer", reo)
+          data = fnTrans(reo)
         }
       }
       //.....................................
@@ -354,15 +374,30 @@ const _M = {
           value : data
         })
       }
-      //.......................................
-      // Mark Loading
-      commit("setLoading", false, {root:true})
+      //.....................................
+      // Update or merge raw
+      if(api.rawDataKey) {
+        if(api.rawDataMerge) {
+          commit("mergeData", {
+            [api.rawDataKey] : reo
+          })
+        }
+        // Just update
+        else {
+          commit("updateData", {
+            key   : api.rawDataKey,
+            value : reo
+          })
+        }
+      }
+      //.....................................
+      // All done
     },
     //--------------------------------------------
     /***
      * Reload page data by given api keys
      */
-    async reloadData({state, commit, getters, rootState}, keys=[]) {
+    async reloadData({commit, getters, dispatch, rootState}, keys=[]) {
       console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
@@ -392,97 +427,7 @@ const _M = {
       // Prepare the Promises
       for(let api of apis) {
         console.log("  # -> page.reloadData -> prepareApi", api)
-        // prepare http send options
-        let url = api.url
-        // if("/www/dataocean/cygq/mock/right-b/b-${nm}.json"==url) {
-        //   console.log("haha", url)
-        // }
-        //.....................................
-        // Eval dynamic url
-        if(!_.isEmpty(api.vars)) {
-          let vars = Ti.Util.explainObj(rootState, api.vars)
-          url = Ti.S.renderBy(url, vars)
-        }
-        //.....................................
-        // Gen the options
-        let options = _.pick(api, ["method", "as"])
-        // Eval headers
-        options.headers = Ti.Util.explainObj(rootState, api.headers)
-        // Eval the params
-        options.params = {}
-        _.forEach(api.params, (param, key)=>{
-          let val = Ti.Util.explainObj(rootState, param.value)
-          // Check required
-          if(param.required && Ti.Util.isNil(val)) {
-            let errMsg = `${url}: lack required param: ${key}`
-            Ti.Toast.Open(errMsg, "error")
-            throw errMsg
-          }
-          options.params[key] = val
-        })
-        //.....................................
-        // Prepare the body
-        if("POST" == api.method && api.body) {
-          let bodyData = Ti.Util.explainObj(rootState, api.body)
-          // As JSON
-          if("json" == api.bodyType) {
-            options.body = JSON.stringify(bodyData)
-          }
-          // As responseText
-          else if("text" == api.bodyType) {
-            options.body = Ti.Types.toStr(bodyData)
-          }
-          // Default is form
-          else {
-            options.body = Ti.Http.encodeFormData(bodyData)
-          }
-        }
-        //.....................................
-        // Join the http send Promise
-        //console.log(`will send to "${url}"`, options)
-        let reo = await Ti.Http.sendAndProcess(url, options) 
-        let data = reo
-        //.....................................
-        // Eval api serializer
-        if(api.serializer) {
-          let serializer = Ti.Util.genInvoking(api.serializer, {
-            context: rootState,
-            partialRight: true
-          })
-          if(_.isFunction(serializer)) {
-            data = serializer(reo)
-          }
-        }
-        //.....................................
-        // Update or merge
-        if(api.dataMerge) {
-          commit("mergeData", {
-            [api.dataKey] : data
-          })
-        }
-        // Just update
-        else {
-          commit("updateData", {
-            key   : api.dataKey,
-            value : data
-          })
-        }
-        //.....................................
-        // Update or merge
-        if(api.rawDataKey) {
-          if(api.rawDataMerge) {
-            commit("mergeData", {
-              [api.rawDataKey] : reo
-            })
-          }
-          // Just update
-          else {
-            commit("updateData", {
-              key   : api.rawDataKey,
-              value : reo
-            })
-          }
-        }
+        await dispatch("__run_api", {api})
       }
       //.......................................
       // Unmark loading

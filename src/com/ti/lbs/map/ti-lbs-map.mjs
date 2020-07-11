@@ -81,6 +81,22 @@ const _M = {
     "minZoom": {
       type: Number,
       default: 1
+    },
+    "infoBar": {
+      type: Boolean,
+      default: true
+    },
+    "iconSize": {
+      type: Object,
+      default: undefined
+    },
+    "boundPadding": {
+      type: [Object, Number],
+      default: 10
+    },
+    "pointClickable": {
+      type: Boolean,
+      default: true
     }
   },
   //////////////////////////////////////////
@@ -88,7 +104,8 @@ const _M = {
     //-------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-fullscreen": this.myFullscreen
+        "is-fullscreen": this.myFullscreen,
+        "is-embed": !this.myFullscreen
       })
     },
     //-------------------------------------
@@ -116,6 +133,9 @@ const _M = {
         "center"  : this.MapCenter,
         "mapType" : this.myMapType,
         "zoom"    : this.myZoom,
+        "maxZoom" : this.maxZoom,
+        "minZoom" : this.minZoom,
+        "boundPadding": this.boundPadding,
         ...this.MapComConfByMode
       }
     },
@@ -124,39 +144,51 @@ const _M = {
       // Prepare mode functions
       let fns = {
         //.........................
-        auto(val) {
+        auto:(val)=>{
           if(_.isArray(val)) {
             return fns.path(val)
           }
           return fns.point(val)
         },
         //.........................
-        point(val) {
+        point:(val)=>{
+          // Show markers
+          if(_.isArray(val)) {
+            return {
+              layers: [{
+                type: "point",
+                items: _.concat(val),
+                iconSize: this.iconSize,
+                clickable: this.pointClickable
+              }]
+            }
+          }
+          // Edit mode
           return {
             pinCenter: true
           }
         },
         //.........................
-        path(val) {
+        path:(val)=>{
           if(!val)
             return {}
           return {
-            pinCenter: false,
             layers: [{
               type: "path",
-              items: _.concat(val)
+              items: _.concat(val),
+              iconSize: this.iconSize
             }]
           }
         },
         //.........................
-        area(val) {
+        area:(val)=>{
           if(!val)
             return {}
           return {
-            pinCenter: false,
             layers: [{
               type: "area",
-              items: _.concat(val)
+              items: _.concat(val),
+              iconSize: this.iconSize
             }]
           }
         }
