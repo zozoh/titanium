@@ -2,10 +2,16 @@
 $GUI-BLOCK-HEADER-HEIGHT: SZ(44);
 //---------------------------------------
 .ti-gui {
+  @include flex-align-v-nowrap;
   position: relative;      // For the sub-panles
   width:100%; height:100%; // Always fit the parent
   > .gui-con {
+    @include flex-align-v-nowrap;
+    flex: 1 1 auto;
     width:100%; height:100%;
+    > div {
+      flex: 1 1 auto;
+    }
   }
 }
 //---------------------------------------
@@ -303,7 +309,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(44);
     width:100%; height:100%; 
     position: relative;
     > .block-main-con {
-      flex:1 1 auto; width:100%;
+      flex:1 1 auto; width:100%; height:100%;
       &.fill-parent {
         width:100%; height:100%;
       }

@@ -14,6 +14,7 @@ const _M = {
         "auth"      : state=>state.auth,
         "domain"    : state=>state.domain,
         "rs"        : state=>state.rs,
+        "nav"       : state=>state.nav,
         "base"      : state=>state.base,
         "apiBase"   : state=>state.apiBase,
         "cdnBase"   : state=>state.cdnBase,
@@ -49,13 +50,13 @@ const _M = {
     },
     //-------------------------------------
     // Page Navigation
-    SiteNav() {
-      let nav = {}
-      _.forEach(this.$store.state.nav, (v, k)=>{
-        nav[k] = Ti.WWW.explainNavigation(v, this.base)
-      })
-      return nav
-    },
+    // SiteNav() {
+    //   let nav = {}
+    //   _.forEach(this.$store.state.nav, (v, k)=>{
+    //     nav[k] = Ti.WWW.explainNavigation(v, this.base)
+    //   })
+    //   return nav
+    // },
     //-------------------------------------
     // The template of captcha to prevent robot
     SiteCaptcha() {
@@ -119,6 +120,7 @@ const _M = {
       //.....................................
       // Gen the GUI object
       let gui = {
+        className: page.className,
         defaultFlex: "nil",
         defaultOverflow: "none",
         layout, 

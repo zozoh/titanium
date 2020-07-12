@@ -443,6 +443,21 @@ const _M = {
       // return _.pick(state.data, reKeys)
     },
     //--------------------------------------------
+    explainData({commit, state, rootState}, keys) {
+      keys = keys || state.explainDataKey
+      // Guard
+      if(_.isEmpty(keys) || !_.isArray(keys))
+        return
+      // Explain one be one
+      let data = {}
+      for(let key of keys) {
+        let val = _.get(state.data, key)
+        let v2 = Ti.Util.explainObj(rootState, val)
+        _.set(data, key, v2)
+      }
+      commit("mergeData", data)
+    },
+    //--------------------------------------------
     /***
      * Reload whole page
      */
@@ -486,9 +501,11 @@ const _M = {
       pinfo.params = _.merge({}, pinfo.params, params)
       pinfo.path = path
       let page = _.merge({
+        "className" : null,
         "title" : null,
         "apis" : {},
         "data" : {},
+        "explainDataKey": [],
         "layout" : {},
         "params" : {},
         "shown" : {},
@@ -508,6 +525,8 @@ const _M = {
       //.....................................
       // init: data
       await dispatch("reloadData")
+      // explain data
+      await dispatch("explainData")
       //.....................................
       // Scroll window to top
       dispatch("scrollToTop")

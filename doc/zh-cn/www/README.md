@@ -388,6 +388,9 @@ DIV(@app)             # Vue(root) : index.wnml
     "article" : Any,
     "info" : Any
   },
+  // 声明了一组 data 段的键，页面加载后，
+  // 也要自动 explain 这些键，支持 "."
+  "explainDataKey": [],
   // 页面布局
   "layout" : {
     // 桌面布局

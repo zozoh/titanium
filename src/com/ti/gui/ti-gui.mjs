@@ -23,6 +23,10 @@ const _M = {
       default : undefined,
       validator : (v)=>(_.isUndefined(v) || /^(auto|none|fill|cover)$/.test(v))
     },
+    "defaultComClass": {
+      type: String,
+      default: "ti-fill-parent"
+    },
     "layout" : {
       type : Object,
       default : ()=>({

@@ -27,7 +27,7 @@
     <div class="block-main-con"
       :class="MainConClass">
       <component 
-        class="ti-fill-parent"
+        :class="MainComponentClass"
         :is="TheCom.comType"
         v-bind="TheCom.comConf"/>
     </div>

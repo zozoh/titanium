@@ -27,7 +27,7 @@ const TiWWW = {
     for(let it of navItems) {
       let li = {
         type : "page",
-        ..._.pick(it, "icon","title","type","value","href","target")
+        ..._.pick(it, "icon","title","type","value","href","target","params")
       }
       //..........................................
       // Link to Site Page

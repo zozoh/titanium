@@ -39,6 +39,10 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "comClass": {
+      type: String,
+      default: undefined
+    },
     "body" : {
       type : [String, Object],
       default : null
@@ -116,6 +120,10 @@ export default {
           "cover-parent" : "cover"==this.TheOverflow
         }
       }
+    },
+    //--------------------------------------
+    MainComponentClass() {
+      return this.comClass || this.$gui.defaultComClass
     },
     //--------------------------------------
     TheOverflow() {

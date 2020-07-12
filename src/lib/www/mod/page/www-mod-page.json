@@ -1,4 +1,5 @@
 {
+  "className": null,
   "title" : null,
   "path"  : null,
   "ready" : 0,
@@ -7,6 +8,7 @@
   "anchor" : null,
   "apis" : {},
   "data" : {},
+  "explainDataKey": [],
   "layout" : {
     "desktop" : {},
     "tablet"  : "desktop",

@@ -6,6 +6,10 @@ export default {
   }),
   /////////////////////////////////////////
   props : {
+    "base" : {
+      type: String,
+      default: "/"
+    },
     "items" : {
       type : Array,
       default : ()=>[]
@@ -51,11 +55,11 @@ export default {
   /////////////////////////////////////////
   methods : {
     //------------------------------------
-    OnClickLink(evt, {type,value}={}) {
+    OnClickLink(evt, {type,value,params}={}) {
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
-        console.log("onClickLink", "nav:to", {type,value})
-        this.$notify("nav:to", {type,value})
+        console.log("onClickLink", "nav:to", {type,value,params})
+        this.$notify("nav:to", {type,value,params})
       }
     },
     //------------------------------------
@@ -99,11 +103,15 @@ export default {
     },
     //------------------------------------
     evalItems(items) {
+      // Explain first
+      items = Ti.WWW.explainNavigation(items, this.base)
+
+      // The Eval
       let list = []
       _.forEach(items, (it, index)=>{
         //................................
         let li = _.pick(it, [
-          "icon", "title", "type",
+          "icon", "title", "type", "params",
           "href", "target", "value",
           "items"])
         //................................
