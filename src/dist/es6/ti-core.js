@@ -1,4 +1,4 @@
-// Pack At: 2020-07-10 16:33:55
+// Pack At: 2020-07-13 03:28:52
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1409,8 +1409,13 @@ const {App} = (function(){
       if(/^@https?:\/\//.test(str)){
         return str.substring(1)
       }
+      // Remote Link @js://xxx
+      if(/^@!(js|css|html|mjs|text|json):\/\//.test(str)){
+        return str.substring(1)
+      }
+      // Remote Link @//xxx
       // Absolute Link @/xxx
-      if(/^@\/.+/.test(str)){
+      if(/^@\/{1,2}/.test(str)){
         return str.substring(1)
       }
       // @com:xxx or @mod:xxx
@@ -3071,6 +3076,10 @@ const {Config} = (function(){
                       ? dynamicAlias 
                       : new AliasMapping().reset(dynamicAlias)
         ph = a_map.get(path, null)
+      }
+      // Keep original
+      else {
+        ph = path
       }
       //.........................................
       // Full-url, just return
@@ -5503,7 +5512,7 @@ const {Validate} = (function(){
       let fv = Ti.Util.genInvoking(str, {
         context,
         funcSet: VALIDATORS,
-        partialRight: true
+        partial: "right"
       })
       if(!_.isFunction(fv)) {
         throw `Invalid TiValidator: "${str}"`
@@ -7225,12 +7234,20 @@ const {Util} = (function(){
               },
               // =>Ti.Types.toStr(meta)
               "=>" : (val) => {
-                let fn = Ti.Util.genInvoking(val, {context})
+                let fn = Ti.Util.genInvoking(val, {context, partial: false})
                 return fn()
               },
               // Render template
               "->" : (val)=>{
-                return Ti.S.renderBy(val, context)
+                let m2 = /^(([\w\d_.]+)\?\?)?(.+)$/.exec(val)
+                let test = m2[2]
+                let tmpl = m2[3]
+                if(test) {
+                  if(Ti.Util.isNil(_.get(context, test))) {
+                    return
+                  }
+                }
+                return Ti.S.renderBy(tmpl, context)
               },
               // :=xxx  # Get Value Later
               // ":=" : (val, dft)=>{
@@ -7285,6 +7302,10 @@ const {Util} = (function(){
             if("..." == k2) {
               _.assign(o2, v4)
             }
+            // escape the "..."
+            else if(/^\.{3,}$/.test(k2)) {
+              o2[k2.substring(1)] = v4
+            }
             // set value
             else {
               o2[k2] = v4
@@ -7300,6 +7321,21 @@ const {Util} = (function(){
       // ^---- const ExplainValue = (anyValue)=>{
       //......................................
       return ExplainValue(obj)
+    },
+    /***
+     * Call explainObj for each element if input is Array
+     */
+    explainObjs(context=[], obj={}, options) {
+      if(_.isArray(context)){
+        let re = []
+        for(let li of context) {
+          let it = TiUtil.explainObj(li, obj, options)
+          re.push(it)
+        }
+        return re
+      }
+      // Take input as normal POJO
+      return TiUtil.explainObj(context, obj, options)
     },
     /***
      * Create a function to return a given object's copy.
@@ -7361,7 +7397,7 @@ const {Util} = (function(){
         _.set(obj, key, _.uniq(_.concat(old, val||[])))
       }
     },
-    pushUniqValueBefre(obj, key, val, rawSet=false) {
+    pushUniqValueBefore(obj, key, val, rawSet=false) {
       let old = _.get(obj, key) || []
       if(rawSet) {
         obj[key] = _.uniq(_.concat(val||[], old))
@@ -7765,7 +7801,7 @@ const {Util} = (function(){
       dftKeys=[],
       context={},
       funcSet = window,
-      partialRight = false  // true | false*
+      partial = "right"  // "left" | "right" | Falsy
     }={}) {
       //.............................................
       // Customized Function
@@ -7797,7 +7833,7 @@ const {Util} = (function(){
         if(m) {
           let invoke = m[1]
           return TiUtil.genInvoking(invoke, {
-            context, funcSet, partialRight
+            context, funcSet, partial
           })
         }
         //...........................................
@@ -7819,7 +7855,7 @@ const {Util} = (function(){
     genInvoking(str, {
       context={},
       funcSet = window,
-      partialRight = false  // true | false*
+      partial = "left"  // "left" | "right" | Falsy
     }={}) {
       //.............................................
       if(_.isFunction(str)) {
@@ -7828,7 +7864,7 @@ const {Util} = (function(){
       //.............................................
       let callPath, callArgs;
       // Object mode
-      if(str.name && str.args) {
+      if(str.name && !_.isUndefined(str.args)) {
         callPath = str.name
         callArgs = _.concat(str.args)
       }
@@ -7848,10 +7884,16 @@ const {Util} = (function(){
           return Ti.S.toJsValue(v, {context})
         })
         if(!_.isEmpty(args)) {
-          if(partialRight) {
+          // [ ? --> ... ]
+          if("right" == partial) {
             return _.partialRight(func, ...args)
           }
-          return _.partial(func, ...args)
+          // [ ... <-- ?]
+          else if("left" == partial) {
+            return _.partial(func, ...args)
+          }
+          // [..]
+          return ()=>func(...args)
         }
         return func
       }
@@ -8392,7 +8434,7 @@ const {WWW} = (function(){
       for(let it of navItems) {
         let li = {
           type : "page",
-          ..._.pick(it, "icon","title","type","value","href","target")
+          ..._.pick(it, "icon","title","type","value","href","target","params")
         }
         //..........................................
         // Link to Site Page
@@ -10451,10 +10493,9 @@ const {WalnutAppMain} = (function(){
 const {WebAppMain} = (function(){
   ///////////////////////////////////////////////
   async function WebAppMain({
-    www_host="localhost",
-    www_port_suffix=":8080",
     rs = "/gu/rs/", 
     siteRs = "/",
+    vars = {},
     lang = "zh-cn",
     appJson, siteId, domain,
     preloads=[],
@@ -10544,17 +10585,21 @@ const {WebAppMain} = (function(){
       }
     }
     //---------------------------------------
+    // Append extra deps
+    //console.log("Append extra deps")
+    if(_.isArray(vars.deps)) {
+      Ti.Util.pushUniqValue(appJson, "deps", vars.deps)
+    }
+    //---------------------------------------
     // Load main app
     // If "i18n" or "deps" declared, it will be loaded too
     let app = await Ti.App(appJson, conf=>{
       //console.log("appConf", conf)
-      _.assign(conf.store.state, {
+      _.assign(conf.store.state, vars, {
         loading   : false,
         siteId,
         domain,
-        rs,
-        www_host,
-        www_port_suffix
+        rs
       })
       return conf
     })
@@ -10624,7 +10669,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.4-20200710.163355",
+  "version" : "2.5-20200713.032852",
   "dev" : false,
   "appName" : null,
   "session" : {},

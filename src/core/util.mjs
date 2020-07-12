@@ -409,6 +409,10 @@ const TiUtil = {
           if("..." == k2) {
             _.assign(o2, v4)
           }
+          // escape the "..."
+          else if(/^\.{3,}$/.test(k2)) {
+            o2[k2.substring(1)] = v4
+          }
           // set value
           else {
             o2[k2] = v4

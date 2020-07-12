@@ -1,4 +1,4 @@
-// Pack At: 2020-07-10 16:33:55
+// Pack At: 2020-07-13 03:28:52
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -9186,7 +9186,7 @@ const _M = {
         // Tidy form function
         const invokeOpt = {
           context: this,
-          partialRight: true
+          partial: "right"
         }
         field.serializer  = Ti.Util.genInvoking(field.serializer, invokeOpt)
         field.transformer = Ti.Util.genInvoking(field.transformer,invokeOpt)
@@ -9369,7 +9369,7 @@ Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block"
     <div class="block-main-con"
       :class="MainConClass">
       <component 
-        class="ti-fill-parent"
+        :class="MainComponentClass"
         :is="TheCom.comType"
         v-bind="TheCom.comConf"/>
     </div>
@@ -9420,6 +9420,10 @@ const _M = {
     "blocks" : {
       type : Array,
       default : ()=>[]
+    },
+    "comClass": {
+      type: String,
+      default: undefined
     },
     "body" : {
       type : [String, Object],
@@ -9498,6 +9502,10 @@ const _M = {
           "cover-parent" : "cover"==this.TheOverflow
         }
       }
+    },
+    //--------------------------------------
+    MainComponentClass() {
+      return this.comClass || this.$gui.defaultComClass
     },
     //--------------------------------------
     TheOverflow() {
@@ -10463,6 +10471,10 @@ const _M = {
       default : undefined,
       validator : (v)=>(_.isUndefined(v) || /^(auto|none|fill|cover)$/.test(v))
     },
+    "defaultComClass": {
+      type: String,
+      default: "ti-fill-parent"
+    },
     "layout" : {
       type : Object,
       default : ()=>({
@@ -10750,7 +10762,8 @@ Ti.Preload("ti/com/ti/icon/text/_com.json", {
 //============================================================
 Ti.Preload("ti/com/ti/icon/ti-icon.html", `<div 
   class="ti-icon" 
-  :class="TopClass">
+  :class="TopClass"
+  @click.left="OnClickTop">
   <div class="icon-icon"
     :style="Icon.outerStyle">
     <!--Font icon-->
@@ -10775,7 +10788,6 @@ Ti.Preload("ti/com/ti/icon/ti-icon.html", `<div
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ///////////////////////////////////////////////////////
   data : ()=>({
     myValue : null
@@ -10818,13 +10830,23 @@ const _M = {
     "opacity" : {
       type : Number,
       default : -1
+    },
+    "notifyName": {
+      type: String,
+      default: undefined
+    },
+    "notifyConf": {
+      type: [Object, String, Number, Boolean, Array],
+      default: undefined
     }
   },
   ///////////////////////////////////////////////////////
   computed : {
     //---------------------------------------------------
     TopClass() {
-      return this.getTopClass(`is-${this.Icon.type}`)
+      return this.getTopClass({
+        "can-click": this.notifyName ? true : false
+      }, `is-${this.Icon.type}`)
     },
     //---------------------------------------------------
     Dict() {
@@ -10911,6 +10933,13 @@ const _M = {
     //---------------------------------------------------
   },
   methods : {
+    //---------------------------------------------------
+    OnClickTop() {
+      if(this.notifyName) {
+        this.$notify(this.notifyName, this.notifyConf)
+      }
+    },
+    //---------------------------------------------------
     async evalMyValue() {
       let val = Ti.Util.fallbackNil(this.value, this.defaultValue)
       // Translate by dict
@@ -10922,6 +10951,7 @@ const _M = {
         this.myValue = val
       }
     }
+    //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   watch : {
@@ -15091,6 +15121,7 @@ const _M = {
   data : ()=>({
     mySyncTime : undefined,
     myUpTime: undefined,
+    myCenterMarker: undefined,
     myLayers: {}
   }),
   /////////////////////////////////////////
@@ -15136,6 +15167,18 @@ const _M = {
     "cooling": {
       type: Number,
       default: 1000
+    },
+    "maxZoom": {
+      type: Number,
+      default: 22
+    },
+    "minZoom": {
+      type: Number,
+      default: 1
+    },
+    "boundPadding": {
+      type: [Object, Number],
+      default: 10
     },
     "stroke": {
       type: Object,
@@ -15208,7 +15251,7 @@ const _M = {
       return lalCenter
     },
     //-------------------------------------
-    draw_as_point(name, items=[]) {
+    draw_as_point({name, items=[], iconSize, clickable}={}) {
       if(!name) {
         throw "draw_as_point without layer name!"
       }
@@ -15216,6 +15259,7 @@ const _M = {
       let list = []
       for(let it of items) {
         if(it && _.isNumber(it.lat) && _.isNumber(it.lng)) {
+          // Label
           let label = it.label;
           if(_.isString(label)) {
             label = {
@@ -15223,24 +15267,42 @@ const _M = {
               text: label
             }
           }
+          // Icon
+          let icon;
+          if(it.src) {
+            icon = {url:it.src, scaledSize:iconSize}
+          }
+          // Draw to map
           let marker = new google.maps.Marker({
             position: it,
             map: this.$map,
             title: it.title,
-            label
+            label, icon,
+            clickable
           })
           list.push(marker)
+          // Event
+          if(clickable) {
+            marker.addListener("click", ()=>{
+              this.$notify("point:click", it)
+            });
+          }
         }
       }
       this.myLayers[name] = list
     },
     //-------------------------------------
-    draw_as_path(name, items=[]) {
+    draw_as_path({name, items=[], iconSize, clickable}={}) {
       if(!name) {
         throw "draw_as_path without layer name!"
       }
       // Draw points
-      this.draw_as_point(name, items)
+      this.draw_as_point({
+        name, 
+        items, 
+        iconSize,
+        clickable
+      })
 
       // Draw Path
       if(_.isArray(items) && items.length>1) {
@@ -15274,9 +15336,10 @@ const _M = {
       let i = 0;
       for(let lay of this.layers) {
         //console.log(lay)
-        let name = lay.name || `Layer-${i}`
         i++
-        this[`draw_as_${lay.type}`](name, lay.items)
+        if(!lay.name)
+          lay.name = `Layer-${i}`
+        this[`draw_as_${lay.type}`](lay)
       }
       //...................................
     },
@@ -15300,6 +15363,12 @@ const _M = {
     //-------------------------------------
     cleanLayers(name) {
       //console.log("cleanLayers")
+      // Clean center
+      if(this.myCenterMarker) {
+        this.myCenterMarker.setMap(null)
+        this.myCenterMarker = undefined
+      }
+      // Clean layers
       if(name) {
         let lay = this.myLayers[name]
         this.clearLayer(lay)
@@ -15338,7 +15407,7 @@ const _M = {
           let sw = new google.maps.LatLng(newVal[0])
           let ne = new google.maps.LatLng(newVal[1])
           let bounds = new google.maps.LatLngBounds(sw, ne)
-          this.$map.fitBounds(bounds, 20)
+          this.$map.fitBounds(bounds, this.boundPadding)
         }
         // Pointer
         else if(_.isNumber(newVal.lat) && _.isNumber(newVal.lng)) {
@@ -15358,10 +15427,14 @@ const _M = {
   mounted : async function() {
     // Init Map
     //console.log("mounted", this.zoom, this.center)
+    //......................................
     this.$map = new google.maps.Map(this.$refs.arena, {
       zoom: this.zoom,
       center: this.MapCenter,
       mapTypeId: this.MapTypeId,
+      //...................................
+      maxZoom : this.maxZoom,
+      minZoom : this.minZoom,
       //...................................
       fullscreenControl: false,
       mapTypeControl: false,
@@ -15385,6 +15458,7 @@ const _M = {
       }
       //...................................
     })
+    //......................................
     // Draw Value
     this.drawLayers()
   }
@@ -15582,7 +15656,7 @@ Ti.Preload("ti/com/ti/lbs/map/ti-lbs-map.html", `<div class="ti-lbs-map"
       Map Info
     -->
     <div
-      v-if="MapCenter"
+      v-if="infoBar && MapCenter"
         class="as-info">
         <ul class="as-laln">
           <li><span>{{'lat'|i18n}}:</span><em>{{MapCenter.lat|float(8)}}</em></li>
@@ -15679,6 +15753,22 @@ const _M = {
     "minZoom": {
       type: Number,
       default: 1
+    },
+    "infoBar": {
+      type: Boolean,
+      default: true
+    },
+    "iconSize": {
+      type: Object,
+      default: undefined
+    },
+    "boundPadding": {
+      type: [Object, Number],
+      default: 10
+    },
+    "pointClickable": {
+      type: Boolean,
+      default: true
     }
   },
   //////////////////////////////////////////
@@ -15686,7 +15776,8 @@ const _M = {
     //-------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-fullscreen": this.myFullscreen
+        "is-fullscreen": this.myFullscreen,
+        "is-embed": !this.myFullscreen
       })
     },
     //-------------------------------------
@@ -15714,6 +15805,9 @@ const _M = {
         "center"  : this.MapCenter,
         "mapType" : this.myMapType,
         "zoom"    : this.myZoom,
+        "maxZoom" : this.maxZoom,
+        "minZoom" : this.minZoom,
+        "boundPadding": this.boundPadding,
         ...this.MapComConfByMode
       }
     },
@@ -15722,39 +15816,51 @@ const _M = {
       // Prepare mode functions
       let fns = {
         //.........................
-        auto(val) {
+        auto:(val)=>{
           if(_.isArray(val)) {
             return fns.path(val)
           }
           return fns.point(val)
         },
         //.........................
-        point(val) {
+        point:(val)=>{
+          // Show markers
+          if(_.isArray(val)) {
+            return {
+              layers: [{
+                type: "point",
+                items: _.concat(val),
+                iconSize: this.iconSize,
+                clickable: this.pointClickable
+              }]
+            }
+          }
+          // Edit mode
           return {
             pinCenter: true
           }
         },
         //.........................
-        path(val) {
+        path:(val)=>{
           if(!val)
             return {}
           return {
-            pinCenter: false,
             layers: [{
               type: "path",
-              items: _.concat(val)
+              items: _.concat(val),
+              iconSize: this.iconSize
             }]
           }
         },
         //.........................
-        area(val) {
+        area:(val)=>{
           if(!val)
             return {}
           return {
-            pinCenter: false,
             layers: [{
               type: "area",
-              items: _.concat(val)
+              items: _.concat(val),
+              iconSize: this.iconSize
             }]
           }
         }
@@ -16077,30 +16183,35 @@ Ti.Preload("ti/com/ti/lbs/route/ti-lbs-route.html", `<div class="ti-lbs-route"
     mode="path"
     @change:fullscreen="OnFullscreenChange"/>
   <!--
-    Route List
+    Edit Panel
   -->
-  <transition name="ti-trans-fade">
-    <div
-      v-if="isShowList"
-        class="as-list">
-          <TiList
-            :data="ValueItems"
-            v-bind="ListConf"
-            blank-class="as-big"
-            :current-id="myCurrentId"
-            :checked-ids="myCheckedIds"
-            :puppet-mode="true"
-            @select="OnListSelect"
-            @open="OnListOpen"/>
+  <template v-if="editable">
+    <!--
+      Route List
+    -->
+    <transition name="ti-trans-fade">
+      <div
+        v-if="isShowList"
+          class="as-list">
+            <TiList
+              :data="ValueItems"
+              v-bind="ListConf"
+              blank-class="as-big"
+              :current-id="myCurrentId"
+              :checked-ids="myCheckedIds"
+              :puppet-mode="true"
+              @select="OnListSelect"
+              @open="OnListOpen"/>
+      </div>
+    </transition>
+    <!--
+      Actions
+    -->
+    <div class="as-actions">
+      <TiButton
+        :setup="ActionButtons"/>
     </div>
-  </transition>
-  <!--
-    Actions
-  -->
-  <div class="as-actions">
-    <TiButton
-      :setup="ActionButtons"/>
-  </div>
+  </template>
 </div>`);
 //============================================================
 // JOIN: ti/lbs/route/ti-lbs-route.mjs
@@ -16154,6 +16265,26 @@ const _M = {
     "coordinate" : {
       type : String,
       default : "WGS84"
+    },
+    "maxZoom": {
+      type: Number,
+      default: 22
+    },
+    "minZoom": {
+      type: Number,
+      default: 1
+    },
+    "infoBar": {
+      type: Boolean,
+      default: true
+    },
+    "editable": {
+      type: Boolean,
+      default: false
+    },
+    "iconSize": {
+      type: Object,
+      default: undefined
     },
     // A LatLng Point Object or Polygon Array in map
     // Point - Map center will be it
@@ -18433,7 +18564,8 @@ function __eval_com_conf_item(val, cx={}) {
         context: {
           ...cx,
           item: cx.itemData
-        }
+        },
+        partial: "left"
       })
       return func()
     }
@@ -18545,7 +18677,7 @@ const FieldDisplay = {
         if(dis.transformer) {
           const invokeOpt = {
             context: this,
-            partialRight: true
+            partial: "right"
           }
           dis.transformer = Ti.Util.genInvoking(dis.transformer, invokeOpt)
         }
@@ -22597,7 +22729,7 @@ const _M = {
     async renderMarkdown() {
       if(!Ti.Util.isBlank(this.value)) {
         let MdDoc = Cheap.parseMarkdown(this.value)
-        console.log(MdDoc.toString())
+        //console.log(MdDoc.toString())
         this.myHtml  = await MdDoc.toBodyInnerHtml({
           mediaSrc : this.ThePreviewMediaSrc
         })
@@ -22941,7 +23073,7 @@ const _M = {
 
       if(_.isString(this.markdownMediaSrc)) {
         return Ti.Util.genInvoking(this.markdownMediaSrc, {
-          partialRight: true
+          partial: "right"
         })
       }
     },
@@ -22953,7 +23085,7 @@ const _M = {
 
       if(_.isString(this.previewMediaSrc)) {
         return Ti.Util.genInvoking(this.previewMediaSrc, {
-          partialRight: true
+          partial: "right"
         })
       }
     }
@@ -25556,7 +25688,7 @@ const _M = {
       let serializer = step.serializer
         ? Ti.Util.genInvoking(step.serializer, {
             context: this.value,
-            partialRight: true
+            partial: "right"
           })
         : _.identity;
       // Eval comConf
@@ -25627,7 +25759,8 @@ const _M = {
       if(this.BtnPrev && this.BtnPrev.enabled) {
         if(this.BtnPrev.handler) {
           let invoking = Ti.Util.genInvoking(this.BtnPrev.handler, {
-            context: this.value
+            context: this.value,
+            partial: false
           })
           invoking.apply(this)
         } else {
@@ -25640,7 +25773,8 @@ const _M = {
       if(this.BtnNext && this.BtnNext.enabled) {
         if(this.BtnNext.handler) {
           let invoking = Ti.Util.genInvoking(this.BtnNext.handler, {
-            context: this.value
+            context: this.value,
+            partial: false
           })
           invoking.apply(this)
         } else {
@@ -26905,10 +27039,17 @@ Ti.Preload("ti/com/web/footer/_com.json", {
 //============================================================
 // JOIN: web/media/image/web-media-image.html
 //============================================================
-Ti.Preload("ti/com/web/media/image/web-media-image.html", `<img
-  :class="TopClass"
-  class="web-media-image"
-  :src="ImgSrc"/>`);
+Ti.Preload("ti/com/web/media/image/web-media-image.html", `<div class="web-media-image"
+  :class="TopClass">
+  <!--Image-->
+  <img :src="src || dftSrc"/>
+  <!--Text-->
+  <div
+    v-if="TheText"
+      class="as-text">
+      <span>{{TheText}}</span>
+  </div>
+</div>`);
 //============================================================
 // JOIN: web/media/image/web-media-image.mjs
 //============================================================
@@ -26916,13 +27057,21 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<img
 const _M = {
   /////////////////////////////////////////
   props : {
-    "base": {
-      type: String,
-      default: undefined
-    },
     "src" : {
       type : String,
       default : undefined
+    },
+    "dftSrc" : {
+      type : String,
+      default : undefined
+    },
+    "text": {
+      type: String,
+      default: undefined
+    },
+    "i18n": {
+      type: Boolean,
+      default: true
     }
   },
   //////////////////////////////////////////
@@ -26932,8 +27081,12 @@ const _M = {
       return this.getTopClass()
     },
     //--------------------------------------
-    ImgSrc() {
-      return Ti.Util.appendPath(this.base, this.src)
+    TheText() {
+      if(this.text) {
+        return this.i18n
+          ? Ti.I18n.text(this.text)
+          : this.text
+      }
     }
     //--------------------------------------
   }
@@ -27769,20 +27922,24 @@ const _M = {
   /////////////////////////////////////////
   methods : {
     //------------------------------------
-    OnClickLink(evt, {type,value}={}) {
+    OnClickLink(evt, {type,value,params}={}) {
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
-        console.log("onClickLink", "nav:to", {type,value})
-        this.$notify("nav:to", {type,value})
+        console.log("onClickLink", "nav:to", {type,value,params})
+        this.$notify("nav:to", {type,value,params})
       }
     },
     //------------------------------------
     evalItems(items) {
+      // Explain first
+      items = Ti.WWW.explainNavigation(items, this.base)
+
+      // The Eval
       let list = []
       _.forEach(items, (it, index)=>{
         //................................
         let li = _.pick(it, [
-          "icon", "title", "type",
+          "icon", "title", "type", "params",
           "href", "target", "value"])
         //................................
         li.index = index
@@ -27889,6 +28046,10 @@ const _M = {
   }),
   /////////////////////////////////////////
   props : {
+    "base" : {
+      type: String,
+      default: "/"
+    },
     "items" : {
       type : Array,
       default : ()=>[]
@@ -27934,11 +28095,11 @@ const _M = {
   /////////////////////////////////////////
   methods : {
     //------------------------------------
-    OnClickLink(evt, {type,value}={}) {
+    OnClickLink(evt, {type,value,params}={}) {
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
-        console.log("onClickLink", "nav:to", {type,value})
-        this.$notify("nav:to", {type,value})
+        console.log("onClickLink", "nav:to", {type,value,params})
+        this.$notify("nav:to", {type,value,params})
       }
     },
     //------------------------------------
@@ -27982,11 +28143,15 @@ const _M = {
     },
     //------------------------------------
     evalItems(items) {
+      // Explain first
+      items = Ti.WWW.explainNavigation(items, this.base)
+
+      // The Eval
       let list = []
       _.forEach(items, (it, index)=>{
         //................................
         let li = _.pick(it, [
-          "icon", "title", "type",
+          "icon", "title", "type", "params",
           "href", "target", "value",
           "items"])
         //................................
@@ -29450,7 +29615,7 @@ const _M = {
       default: "ti-label"
     },
     "comConf": {
-      type: Object,
+      type: [Object, String],
       default: ()=>({
         value: "=.."
       })
@@ -29574,7 +29739,7 @@ const _M = {
       default: "ti-label"
     },
     "comConf": {
-      type: Object,
+      type: [Object, String],
       default: ()=>({
         value: "=.."
       })
@@ -29774,7 +29939,7 @@ const _M = {
       default: "ti-label"
     },
     "comConf": {
-      type: Object,
+      type: [Object, String],
       default: ()=>({
         value: "=.."
       })
@@ -30496,117 +30661,6 @@ Ti.Preload("ti/com/web/widget/summary/_com.json", {
   "globally" : true,
   "template" : "./widget-summary.html",
   "mixins"   : ["./widget-summary.mjs"],
-  "components" : []
-});
-//============================================================
-// JOIN: web/widget/user/widget-user.html
-//============================================================
-Ti.Preload("ti/com/web/widget/user/widget-user.html", `<div class="web-widget-user"
-  :class="TopClass">
-  <!--
-    Avatar
-  -->
-  <div class="as-avatar">
-    <ti-icon :value="TheAvatar"/>
-  </div>
-  <!--
-    Nickname
-  -->
-  <div class="as-title">
-    <div class="as-nickname">{{TheNickname}}</div>
-  </div>
-  <!--
-    Action bar
-  -->
-  <div class="as-actions">
-    <div 
-      class="ti-btn reset-passwd"
-      @click="$notify('go:passwd:reset')">{{'passwd-reset'|i18n}}</div>
-    <div
-      class="ti-btn edit-profile"
-      @click="$notify('go:my:profile')">{{'profile-edit'|i18n}}</div>
-  </div>
-</div>`);
-//============================================================
-// JOIN: web/widget/user/widget-user.mjs
-//============================================================
-(function(){
-const _M = {
-  /////////////////////////////////////////
-  props : {
-    "me": {
-      type: Object,
-      default: ()=>({})
-    },
-    "avatarSrc": {
-      type: String,
-      default: undefined
-    },
-    "avatarIcons": {
-      type: Object,
-      default: ()=>({
-        "unknown": "far-user",
-        "male": "im-user-male",
-        "female": "im-user-female"
-      })
-    }
-  },
-  /////////////////////////////////////////
-  computed : {
-    //------------------------------------
-    TopClass() {
-      return this.getTopClass()
-    },
-    //------------------------------------
-    TheAvatar() {
-      let me = this.me || {}
-      if(this.avatarSrc && me.thumb) {
-        return {
-          type: "image",
-          value: Ti.S.renderVars(me.thumb, this.avatarSrc)
-        }
-      }
-      // Icon: male
-      if(me.sex == 1) {
-        return this.avatarIcons.male
-      }
-      // Icon: female
-      if(me.sex == 2) {
-        return this.avatarIcons.female
-      }
-      // Icon: unknown
-      return this.avatarIcons.unknown || "far-user"
-    },
-    //------------------------------------
-    TheNickname() {
-      let me = this.me || {}
-      return me.nickname 
-             || me.email
-             || me.phone
-             || me.nm
-             || me.id
-             || "Anonymity"
-    }
-    //------------------------------------
-  },
-  /////////////////////////////////////////
-  methods : {
-    //------------------------------------
-    
-    //------------------------------------
-  }
-  /////////////////////////////////////////
-}
-Ti.Preload("ti/com/web/widget/user/widget-user.mjs", _M);
-})();
-//============================================================
-// JOIN: web/widget/user/_com.json
-//============================================================
-Ti.Preload("ti/com/web/widget/user/_com.json", {
-  "name" : "web-widget-user",
-  "globally" : true,
-  "template" : "./widget-user.html",
-  "mixins"   : ["./widget-user.mjs"],
   "components" : []
 });
 //============================================================
@@ -34229,7 +34283,7 @@ const _M = {
 
       return Ti.Util.genInvoking(trans, {
         context: this.data,
-        partialRight: true
+        partial: "right"
       })
     },
     theNameStyle() {
@@ -39030,6 +39084,7 @@ const _M = {
         "auth"      : state=>state.auth,
         "domain"    : state=>state.domain,
         "rs"        : state=>state.rs,
+        "nav"       : state=>state.nav,
         "base"      : state=>state.base,
         "apiBase"   : state=>state.apiBase,
         "cdnBase"   : state=>state.cdnBase,
@@ -39065,13 +39120,13 @@ const _M = {
     },
     //-------------------------------------
     // Page Navigation
-    SiteNav() {
-      let nav = {}
-      _.forEach(this.$store.state.nav, (v, k)=>{
-        nav[k] = Ti.WWW.explainNavigation(v, this.base)
-      })
-      return nav
-    },
+    // SiteNav() {
+    //   let nav = {}
+    //   _.forEach(this.$store.state.nav, (v, k)=>{
+    //     nav[k] = Ti.WWW.explainNavigation(v, this.base)
+    //   })
+    //   return nav
+    // },
     //-------------------------------------
     // The template of captcha to prevent robot
     SiteCaptcha() {
@@ -39135,6 +39190,7 @@ const _M = {
       //.....................................
       // Gen the GUI object
       let gui = {
+        className: page.className,
         defaultFlex: "nil",
         defaultOverflow: "none",
         layout, 
@@ -40032,6 +40088,7 @@ Ti.Preload("ti/lib/www/mod/auth/_mod.json", {
 // JOIN: mod/page/www-mod-page.json
 //============================================================
 Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
+  "className": null,
   "title" : null,
   "path"  : null,
   "ready" : 0,
@@ -40040,6 +40097,7 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "anchor" : null,
   "apis" : {},
   "data" : {},
+  "explainDataKey": [],
   "layout" : {
     "desktop" : {},
     "tablet"  : "desktop",
@@ -40133,7 +40191,7 @@ const _M = {
         _.assign(api, _.pick(pageApi, 
           "body", 
           "preload",
-          "serializer", 
+          "transformer", 
           "dataKey",
           "dataMerge",
           "rawDataKey",
@@ -40314,7 +40372,7 @@ const _M = {
       Ti.Be.ScrollWindowTo({y:0})
     },
     //--------------------------------------------
-    async doApi({rootState, getters, commit}, {
+    async doApi({rootState, getters, commit, dispatch}, {
       key,        // The Api Key
       params={},  // params will override the defaults
       vars={},
@@ -40328,28 +40386,44 @@ const _M = {
       if(!api) {
         return await Ti.Toast.Open("e.www.page.ApiNotFound: "+key, "warn");
       }
+      //.......................................
+      commit("setLoading", true, {root:true})
+      dispatch("__run_api", {api,params,vars,body})     
+      commit("setLoading", false, {root:true})
+    },
+    //--------------------------------------------
+    async __run_api({commit, rootState}, {api, vars, params, headers, body}) {
+      //.....................................
+      // Override api
+      api = _.cloneDeep(api)
+      _.assign(api.vars, vars)
+      _.assign(api.params, params)
+      _.assign(api.headers, headers)
+      if(Ti.Util.isNil(api.body)) {
+        api.body = body
+      }
       //.....................................
       // Eval url
       _.defaults(vars, api.vars)
       let url = api.url
-      if(!_.isEmpty(vars)) {
-        let vars2 = Ti.Util.explainObj(rootState, vars)
-        url = Ti.S.renderBy(api.url, vars2)
+      //.....................................
+      // Eval dynamic url
+      if(!_.isEmpty(api.vars)) {
+        let vs2 = Ti.Util.explainObj(rootState, api.vars)
+        url = Ti.S.renderBy(url, vs2)
       }
       //.....................................
       // Gen the options
       let options = _.pick(api, ["method", "as"])
-      options.vars = vars
+      //options.vars = api.vars
+      //.....................................
       // Eval headers
       options.headers = Ti.Util.explainObj(rootState, api.headers)
+      //.....................................
       // Eval the params
       options.params = {}
       _.forEach(api.params, (param, key)=>{
-        let val = _.get(params, key)
-        // Use default
-        if(Ti.Util.isNil(val)) {
-          val = Ti.Util.explainObj(rootState, param.value)
-        }
+        let val = Ti.Util.explainObj(rootState, param.value)
         // Check required
         if(param.required && Ti.Util.isNil(val)) {
           let errMsg = `${url}: lack required param: ${key}`
@@ -40360,9 +40434,8 @@ const _M = {
       })
       //.....................................
       // Prepare the body
-      let apiBody = body || api.body
-      if("POST" == api.method && apiBody) {
-        let bodyData = Ti.Util.explainObj(rootState, apiBody)
+      if("POST" == api.method && api.body) {
+        let bodyData = Ti.Util.explainObj(rootState, api.body)
         // As JSON
         if("json" == api.bodyType) {
           options.body = JSON.stringify(bodyData)
@@ -40376,23 +40449,28 @@ const _M = {
           options.body = Ti.Http.encodeFormData(bodyData)
         }
       }
-      //.......................................
-      // Mark Loading
-      commit("setLoading", true, {root:true})
       //.....................................
       // Join the http send Promise
       //console.log(`will send to "${url}"`, options)
       let reo = await Ti.Http.sendAndProcess(url, options) 
       let data = reo
       //.....................................
-      // Eval api serializer
-      if(api.serializer) {
-        let serializer = Ti.Util.genInvoking(api.serializer, {
+      // Eval api transformer
+      if(api.transformer) {
+        let trans = _.cloneDeep(api.transformer)
+        let partial = Ti.Util.fallback(trans.partial, "right")
+        // PreExplain args
+        if(trans.explain) {
+          let tro = _.pick(trans, "name", "args")
+          trans = Ti.Util.explainObjs(rootState, tro)
+        }
+        let fnTrans = Ti.Util.genInvoking(trans, {
           context: rootState,
-          partialRight: true
+          partial
         })
-        if(_.isFunction(serializer)) {
-          data = serializer(reo)
+        if(_.isFunction(fnTrans)) {
+          //console.log("transformer", reo)
+          data = fnTrans(reo)
         }
       }
       //.....................................
@@ -40409,15 +40487,30 @@ const _M = {
           value : data
         })
       }
-      //.......................................
-      // Mark Loading
-      commit("setLoading", false, {root:true})
+      //.....................................
+      // Update or merge raw
+      if(api.rawDataKey) {
+        if(api.rawDataMerge) {
+          commit("mergeData", {
+            [api.rawDataKey] : reo
+          })
+        }
+        // Just update
+        else {
+          commit("updateData", {
+            key   : api.rawDataKey,
+            value : reo
+          })
+        }
+      }
+      //.....................................
+      // All done
     },
     //--------------------------------------------
     /***
      * Reload page data by given api keys
      */
-    async reloadData({state, commit, getters, rootState}, keys=[]) {
+    async reloadData({commit, getters, dispatch, rootState}, keys=[]) {
       console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
@@ -40447,97 +40540,7 @@ const _M = {
       // Prepare the Promises
       for(let api of apis) {
         console.log("  # -> page.reloadData -> prepareApi", api)
-        // prepare http send options
-        let url = api.url
-        // if("/www/dataocean/cygq/mock/right-b/b-${nm}.json"==url) {
-        //   console.log("haha", url)
-        // }
-        //.....................................
-        // Eval dynamic url
-        if(!_.isEmpty(api.vars)) {
-          let vars = Ti.Util.explainObj(rootState, api.vars)
-          url = Ti.S.renderBy(url, vars)
-        }
-        //.....................................
-        // Gen the options
-        let options = _.pick(api, ["method", "as"])
-        // Eval headers
-        options.headers = Ti.Util.explainObj(rootState, api.headers)
-        // Eval the params
-        options.params = {}
-        _.forEach(api.params, (param, key)=>{
-          let val = Ti.Util.explainObj(rootState, param.value)
-          // Check required
-          if(param.required && Ti.Util.isNil(val)) {
-            let errMsg = `${url}: lack required param: ${key}`
-            Ti.Toast.Open(errMsg, "error")
-            throw errMsg
-          }
-          options.params[key] = val
-        })
-        //.....................................
-        // Prepare the body
-        if("POST" == api.method && api.body) {
-          let bodyData = Ti.Util.explainObj(rootState, api.body)
-          // As JSON
-          if("json" == api.bodyType) {
-            options.body = JSON.stringify(bodyData)
-          }
-          // As responseText
-          else if("text" == api.bodyType) {
-            options.body = Ti.Types.toStr(bodyData)
-          }
-          // Default is form
-          else {
-            options.body = Ti.Http.encodeFormData(bodyData)
-          }
-        }
-        //.....................................
-        // Join the http send Promise
-        //console.log(`will send to "${url}"`, options)
-        let reo = await Ti.Http.sendAndProcess(url, options) 
-        let data = reo
-        //.....................................
-        // Eval api serializer
-        if(api.serializer) {
-          let serializer = Ti.Util.genInvoking(api.serializer, {
-            context: rootState,
-            partialRight: true
-          })
-          if(_.isFunction(serializer)) {
-            data = serializer(reo)
-          }
-        }
-        //.....................................
-        // Update or merge
-        if(api.dataMerge) {
-          commit("mergeData", {
-            [api.dataKey] : data
-          })
-        }
-        // Just update
-        else {
-          commit("updateData", {
-            key   : api.dataKey,
-            value : data
-          })
-        }
-        //.....................................
-        // Update or merge
-        if(api.rawDataKey) {
-          if(api.rawDataMerge) {
-            commit("mergeData", {
-              [api.rawDataKey] : reo
-            })
-          }
-          // Just update
-          else {
-            commit("updateData", {
-              key   : api.rawDataKey,
-              value : reo
-            })
-          }
-        }
+        await dispatch("__run_api", {api})
       }
       //.......................................
       // Unmark loading
@@ -40551,6 +40554,21 @@ const _M = {
       // }
       // //.......................................
       // return _.pick(state.data, reKeys)
+    },
+    //--------------------------------------------
+    explainData({commit, state, rootState}, keys) {
+      keys = keys || state.explainDataKey
+      // Guard
+      if(_.isEmpty(keys) || !_.isArray(keys))
+        return
+      // Explain one be one
+      let data = {}
+      for(let key of keys) {
+        let val = _.get(state.data, key)
+        let v2 = Ti.Util.explainObj(rootState, val)
+        _.set(data, key, v2)
+      }
+      commit("mergeData", data)
     },
     //--------------------------------------------
     /***
@@ -40596,9 +40614,11 @@ const _M = {
       pinfo.params = _.merge({}, pinfo.params, params)
       pinfo.path = path
       let page = _.merge({
+        "className" : null,
         "title" : null,
         "apis" : {},
         "data" : {},
+        "explainDataKey": [],
         "layout" : {},
         "params" : {},
         "shown" : {},
@@ -40618,6 +40638,8 @@ const _M = {
       //.....................................
       // init: data
       await dispatch("reloadData")
+      // explain data
+      await dispatch("explainData")
       //.....................................
       // Scroll window to top
       dispatch("scrollToTop")
@@ -42629,6 +42651,11 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "logout": "退出",
   "logout-ing": "正在注销...",
   "male": "男",
+  "map-hybrid": "俯瞰地图",
+  "map-roadmap": "道路地图",
+  "map-satellite": "卫星照片",
+  "map-terrain": "地形地图",
+  "map-type": "地图类型",
   "me": "我",
   "media": "媒体",
   "meta": "元数据",
@@ -42717,12 +42744,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "view": "查看",
   "view-resource": "查看源代码",
   "warn": "警告",
-  "yes": "是",
-  "map-type": "地图类型",
-  "map-roadmap": "道路地图",
-  "map-satellite": "卫星照片",
-  "map-hybrid": "俯瞰地图",
-  "map-terrain": "地形地图"
+  "yes": "是"
 });
 //============================================================
 // JOIN: zh-cn/_wn.i18n.json

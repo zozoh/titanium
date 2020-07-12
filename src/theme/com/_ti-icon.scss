@@ -5,6 +5,14 @@
   @include flex-center($ai:stretch, $ac:stretch);
   vertical-align: middle;
   //-----------------------------------------------
+  &.can-click {
+    cursor: pointer;
+    .icon-icon{transition: .3s;}
+    &:hover{
+      .icon-icon {transform: scale(1.1);}
+    }
+  }
+  //-----------------------------------------------
   &.is-image {
     align-items: center;
   }
@@ -27,19 +35,3 @@
   &.is-image .icon-icon {align-items:stretch; align-content: stretch;}
   //-----------------------------------------------
 }
-//-------------------------------------------------
-// TiIconText
-//-------------------------------------------------
-.ti-icon-text {
-  @include flex-align-nowrap;
-  //-----------------------------------------------
-  > .as-icon {
-    width:1.2em;
-  }
-  //-----------------------------------------------
-  > .as-text {
-    padding:0 .5em;
-  }
-  //-----------------------------------------------
-}
-//-------------------------------------------------

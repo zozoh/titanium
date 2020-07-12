@@ -17,7 +17,7 @@ const _M = {
       default: "ti-label"
     },
     "comConf": {
-      type: Object,
+      type: [Object, String],
       default: ()=>({
         value: "=.."
       })

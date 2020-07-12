@@ -82,6 +82,11 @@
   "logout": "退出",
   "logout-ing": "正在注销...",
   "male": "男",
+  "map-hybrid": "俯瞰地图",
+  "map-roadmap": "道路地图",
+  "map-satellite": "卫星照片",
+  "map-terrain": "地形地图",
+  "map-type": "地图类型",
   "me": "我",
   "media": "媒体",
   "meta": "元数据",
@@ -170,10 +175,5 @@
   "view": "查看",
   "view-resource": "查看源代码",
   "warn": "警告",
-  "yes": "是",
-  "map-type": "地图类型",
-  "map-roadmap": "道路地图",
-  "map-satellite": "卫星照片",
-  "map-hybrid": "俯瞰地图",
-  "map-terrain": "地形地图"
+  "yes": "是"
 }

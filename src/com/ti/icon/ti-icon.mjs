@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   ///////////////////////////////////////////////////////
   data : ()=>({
     myValue : null
@@ -42,13 +41,23 @@ export default {
     "opacity" : {
       type : Number,
       default : -1
+    },
+    "notifyName": {
+      type: String,
+      default: undefined
+    },
+    "notifyConf": {
+      type: [Object, String, Number, Boolean, Array],
+      default: undefined
     }
   },
   ///////////////////////////////////////////////////////
   computed : {
     //---------------------------------------------------
     TopClass() {
-      return this.getTopClass(`is-${this.Icon.type}`)
+      return this.getTopClass({
+        "can-click": this.notifyName ? true : false
+      }, `is-${this.Icon.type}`)
     },
     //---------------------------------------------------
     Dict() {
@@ -135,6 +144,13 @@ export default {
     //---------------------------------------------------
   },
   methods : {
+    //---------------------------------------------------
+    OnClickTop() {
+      if(this.notifyName) {
+        this.$notify(this.notifyName, this.notifyConf)
+      }
+    },
+    //---------------------------------------------------
     async evalMyValue() {
       let val = Ti.Util.fallbackNil(this.value, this.defaultValue)
       // Translate by dict
@@ -146,6 +162,7 @@ export default {
         this.myValue = val
       }
     }
+    //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   watch : {
