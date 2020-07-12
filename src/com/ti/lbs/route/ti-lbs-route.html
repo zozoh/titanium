@@ -8,28 +8,33 @@
     mode="path"
     @change:fullscreen="OnFullscreenChange"/>
   <!--
-    Route List
+    Edit Panel
   -->
-  <transition name="ti-trans-fade">
-    <div
-      v-if="isShowList"
-        class="as-list">
-          <TiList
-            :data="ValueItems"
-            v-bind="ListConf"
-            blank-class="as-big"
-            :current-id="myCurrentId"
-            :checked-ids="myCheckedIds"
-            :puppet-mode="true"
-            @select="OnListSelect"
-            @open="OnListOpen"/>
+  <template v-if="editable">
+    <!--
+      Route List
+    -->
+    <transition name="ti-trans-fade">
+      <div
+        v-if="isShowList"
+          class="as-list">
+            <TiList
+              :data="ValueItems"
+              v-bind="ListConf"
+              blank-class="as-big"
+              :current-id="myCurrentId"
+              :checked-ids="myCheckedIds"
+              :puppet-mode="true"
+              @select="OnListSelect"
+              @open="OnListOpen"/>
+      </div>
+    </transition>
+    <!--
+      Actions
+    -->
+    <div class="as-actions">
+      <TiButton
+        :setup="ActionButtons"/>
     </div>
-  </transition>
-  <!--
-    Actions
-  -->
-  <div class="as-actions">
-    <TiButton
-      :setup="ActionButtons"/>
-  </div>
+  </template>
 </div>

@@ -47,6 +47,26 @@ const _M = {
       type : String,
       default : "WGS84"
     },
+    "maxZoom": {
+      type: Number,
+      default: 22
+    },
+    "minZoom": {
+      type: Number,
+      default: 1
+    },
+    "infoBar": {
+      type: Boolean,
+      default: true
+    },
+    "editable": {
+      type: Boolean,
+      default: false
+    },
+    "iconSize": {
+      type: Object,
+      default: undefined
+    },
     // A LatLng Point Object or Polygon Array in map
     // Point - Map center will be it
     // Polygon - Auto count the map center

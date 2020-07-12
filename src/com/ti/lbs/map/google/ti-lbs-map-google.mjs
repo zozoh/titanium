@@ -202,7 +202,7 @@ const _M = {
     },
     //-------------------------------------
     drawLayers() {
-      console.log("drawLayers")
+      //console.log("drawLayers")
       //...................................
       // Pin Center
       if(this.pinCenter) {
@@ -244,7 +244,7 @@ const _M = {
     },
     //-------------------------------------
     cleanLayers(name) {
-      console.log("cleanLayers")
+      //console.log("cleanLayers")
       // Clean center
       if(this.myCenterMarker) {
         this.myCenterMarker.setMap(null)

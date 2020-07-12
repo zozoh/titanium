@@ -67,7 +67,7 @@ export default {
     async renderMarkdown() {
       if(!Ti.Util.isBlank(this.value)) {
         let MdDoc = Cheap.parseMarkdown(this.value)
-        console.log(MdDoc.toString())
+        //console.log(MdDoc.toString())
         this.myHtml  = await MdDoc.toBodyInnerHtml({
           mediaSrc : this.ThePreviewMediaSrc
         })
