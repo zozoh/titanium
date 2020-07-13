@@ -109,6 +109,17 @@ const _M = {
       }
     },
     //--------------------------------------------
+    /***
+     * Load a group of item by `urls.objs`, and set the result
+     * to `Store` by `@commitTarget` and `commitDataKey`
+     * 
+     * @param items{Array}: each element is string, whicn in form
+     * `AMOUNT:ID` like `"4:4r..7a"`
+     * 
+     * @param commitDataKey{String} after loaded, which key in `page.data`
+     * should be updated
+     * @param commitTarget{String} after loaded, where to update
+     */
     async loadBuyItems({getters, commit}, {
       items= [],
       commitDataKey= "goods",

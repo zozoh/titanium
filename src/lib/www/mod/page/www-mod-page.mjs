@@ -284,7 +284,14 @@ const _M = {
       // Override api
       api = _.cloneDeep(api)
       _.assign(api.vars, vars)
-      _.assign(api.params, params)
+      if(!_.isEmpty(params)) {
+        _.forEach(api.params, (pa, k) => {
+          let v = _.get(params, k)
+          if(!Ti.Util.isNil(v)) {
+            pa.value = v
+          }
+        })
+      }
       _.assign(api.headers, headers)
       if(Ti.Util.isNil(api.body)) {
         api.body = body
