@@ -1,4 +1,4 @@
-// Pack At: 2020-07-13 17:31:38
+// Pack At: 2020-07-14 03:35:19
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9546,6 +9546,9 @@ const {Dict,DictFactory} = (function(){
     // Core Methods
     //-------------------------------------------
     async getItem(val) {
+      // if("7dq8t02lo8hh2rjknlrudufeka" == val) {
+      //   console.log("!!! getItem")
+      // }
       // Guard
       if(Ti.Util.isNil(val)) {
         return null
@@ -9580,6 +9583,13 @@ const {Dict,DictFactory} = (function(){
         }
         delete __item_loading[val]
       }
+      // Warn !!
+      // 不知道什么时候，在 anju 项目，总出现返回值为空数组 `[]`
+      // 诡异啊，加个 log 观察一下
+      if(_.isArray(it)) {
+        console.warn("!!!! Dict.getItem=>[] !!! 靠，又出现了")
+      }
+  
       if(this.isShadowed())
         return _.cloneDeep(it)
       return it
@@ -9608,7 +9618,7 @@ const {Dict,DictFactory} = (function(){
     }
     //-------------------------------------------
     async queryData(str){
-      console.log("@Dict.queryData", str)
+      //console.log("@Dict.queryData", str)
       // Empty string will take as query all
       let s = _.trim(str)
       let list;
@@ -10669,7 +10679,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200713.173138",
+  "version" : "2.5-20200714.033520",
   "dev" : false,
   "appName" : null,
   "session" : {},

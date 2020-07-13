@@ -220,6 +220,10 @@ const _M = {
     //-----------------------------------------------
     async evalMyItem(val=this.value) {
       let it = await this.Dict.getItem(val)
+      if(_.isArray(it)) {
+        console.error("!!!!!!! kao ~~~~~~~")
+        it = null
+      }
       // Update state
       if(it) {
         let itV = this.Dict.getValue(it)
@@ -261,7 +265,7 @@ const _M = {
     },
     //-----------------------------------------------
     async reloadMyOptionData(force=false) {
-      console.log("reloadMyOptionData")
+      //console.log("reloadMyOptionData")
       if(force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue)
         this.myOptionsData = list

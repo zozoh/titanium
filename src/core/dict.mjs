@@ -156,6 +156,9 @@ export class Dict {
   // Core Methods
   //-------------------------------------------
   async getItem(val) {
+    // if("7dq8t02lo8hh2rjknlrudufeka" == val) {
+    //   console.log("!!! getItem")
+    // }
     // Guard
     if(Ti.Util.isNil(val)) {
       return null
@@ -190,6 +193,13 @@ export class Dict {
       }
       delete __item_loading[val]
     }
+    // Warn !!
+    // 不知道什么时候，在 anju 项目，总出现返回值为空数组 `[]`
+    // 诡异啊，加个 log 观察一下
+    if(_.isArray(it)) {
+      console.warn("!!!! Dict.getItem=>[] !!! 靠，又出现了")
+    }
+
     if(this.isShadowed())
       return _.cloneDeep(it)
     return it
@@ -218,7 +228,7 @@ export class Dict {
   }
   //-------------------------------------------
   async queryData(str){
-    console.log("@Dict.queryData", str)
+    //console.log("@Dict.queryData", str)
     // Empty string will take as query all
     let s = _.trim(str)
     let list;

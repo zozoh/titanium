@@ -1,4 +1,4 @@
-// Pack At: 2020-07-13 17:31:38
+// Pack At: 2020-07-14 03:35:19
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -6692,6 +6692,10 @@ const _M = {
     //-----------------------------------------------
     async evalMyItem(val=this.value) {
       let it = await this.Dict.getItem(val)
+      if(_.isArray(it)) {
+        console.error("!!!!!!! kao ~~~~~~~")
+        it = null
+      }
       // Update state
       if(it) {
         let itV = this.Dict.getValue(it)
@@ -6733,7 +6737,7 @@ const _M = {
     },
     //-----------------------------------------------
     async reloadMyOptionData(force=false) {
-      console.log("reloadMyOptionData")
+      //console.log("reloadMyOptionData")
       if(force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue)
         this.myOptionsData = list
@@ -40397,7 +40401,14 @@ const _M = {
       // Override api
       api = _.cloneDeep(api)
       _.assign(api.vars, vars)
-      _.assign(api.params, params)
+      if(!_.isEmpty(params)) {
+        _.forEach(api.params, (pa, k) => {
+          let v = _.get(params, k)
+          if(!Ti.Util.isNil(v)) {
+            pa.value = v
+          }
+        })
+      }
       _.assign(api.headers, headers)
       if(Ti.Util.isNil(api.body)) {
         api.body = body
@@ -40799,6 +40810,17 @@ const _M = {
       }
     },
     //--------------------------------------------
+    /***
+     * Load a group of item by `urls.objs`, and set the result
+     * to `Store` by `@commitTarget` and `commitDataKey`
+     * 
+     * @param items{Array}: each element is string, whicn in form
+     * `AMOUNT:ID` like `"4:4r..7a"`
+     * 
+     * @param commitDataKey{String} after loaded, which key in `page.data`
+     * should be updated
+     * @param commitTarget{String} after loaded, where to update
+     */
     async loadBuyItems({getters, commit}, {
       items= [],
       commitDataKey= "goods",
