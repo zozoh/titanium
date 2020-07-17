@@ -124,8 +124,14 @@ const TiConfig = {
   },
   //...............................
   url(path="", {dynamicPrefix={}, dynamicAlias}={}) {
+    //.........................................
+    // Full-url, just return
+    if(/^((https?:)?\/\/)/.test(path)) {
+      return path
+    }
+    //.........................................
     // apply alias
-    let ph, m
+    let ph = path
     //.........................................
     // amend the url dynamically
     if(dynamicAlias) {
@@ -134,44 +140,25 @@ const TiConfig = {
                     : new AliasMapping().reset(dynamicAlias)
       ph = a_map.get(path, null)
     }
-    // Keep original
-    else {
-      ph = path
+    // amend the url statictly
+    ph = ALIAS.get(ph || path)
+    //.........................................
+    // expend suffix
+    if(!/^.+\.(css|js|mjs|json|txt|text|html|xml)$/.test(ph)) {
+      ph = SUFFIX.get(ph)
     }
     //.........................................
-    // Full-url, just return
-    let loadUrl;
-    if(/^((https?:)?\/\/)/.test(ph)) {
-      // expend suffix
-      if(!/^.+\.(css|js|mjs|json|txt|text|html|xml)$/.test(ph)) {
-        loadUrl = SUFFIX.get(ph)
-      }
-      // Keep orignal
-      else {
-        loadUrl = ph
-      }
-    }
-    // amend the url statictly
-    else {
-      ph = ALIAS.get(ph || path)
-      //.........................................
-      // expend suffix
-      if(!/^.+\.(css|js|mjs|json|txt|text|html|xml)$/.test(ph)) {
-        ph = SUFFIX.get(ph)
-      }
-      //.........................................
-      // expend prefix
-      m = /^(@([^:]+):?)(.*)/.exec(ph)
-      if(!m)
-        return ph;
-      let [prefixName, url] = m.slice(2)
-      let prefix = dynamicPrefix[prefixName] || CONFIG.prefix[prefixName]
+    // expend prefix
+    let m = /^(@([^:]+):?)(.*)/.exec(ph)
+    if(!m)
+      return ph;
+    let [prefixName, url] = m.slice(2)
+    let prefix = dynamicPrefix[prefixName] || CONFIG.prefix[prefixName]
 
-      if(!prefix)
-        throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
-      //.........................................
-      loadUrl = prefix + url
-    }
+    if(!prefix)
+      throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
+    //.........................................
+    let loadUrl = prefix + url
     //console.log("load::", loadUrl)
     return loadUrl
     //...........................................
