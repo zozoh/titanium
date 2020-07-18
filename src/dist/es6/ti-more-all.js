@@ -1,4 +1,4 @@
-// Pack At: 2020-07-18 03:16:07
+// Pack At: 2020-07-18 14:08:54
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -30665,6 +30665,117 @@ Ti.Preload("ti/com/web/widget/summary/_com.json", {
   "globally" : true,
   "template" : "./widget-summary.html",
   "mixins"   : ["./widget-summary.mjs"],
+  "components" : []
+});
+//============================================================
+// JOIN: web/widget/user/widget-user.html
+//============================================================
+Ti.Preload("ti/com/web/widget/user/widget-user.html", `<div class="web-widget-user"
+  :class="TopClass">
+  <!--
+    Avatar
+  -->
+  <div class="as-avatar">
+    <ti-icon :value="TheAvatar"/>
+  </div>
+  <!--
+    Nickname
+  -->
+  <div class="as-title">
+    <div class="as-nickname">{{TheNickname}}</div>
+  </div>
+  <!--
+    Action bar
+  -->
+  <div class="as-actions">
+    <div 
+      class="ti-btn reset-passwd"
+      @click="$notify('go:passwd:reset')">{{'passwd-reset'|i18n}}</div>
+    <div
+      class="ti-btn edit-profile"
+      @click="$notify('go:my:profile')">{{'profile-edit'|i18n}}</div>
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/widget/user/widget-user.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  props : {
+    "me": {
+      type: Object,
+      default: ()=>({})
+    },
+    "avatarSrc": {
+      type: String,
+      default: undefined
+    },
+    "avatarIcons": {
+      type: Object,
+      default: ()=>({
+        "unknown": "far-user",
+        "male": "im-user-male",
+        "female": "im-user-female"
+      })
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------
+    TheAvatar() {
+      let me = this.me || {}
+      if(this.avatarSrc && me.thumb) {
+        return {
+          type: "image",
+          value: Ti.S.renderVars(me.thumb, this.avatarSrc)
+        }
+      }
+      // Icon: male
+      if(me.sex == 1) {
+        return this.avatarIcons.male
+      }
+      // Icon: female
+      if(me.sex == 2) {
+        return this.avatarIcons.female
+      }
+      // Icon: unknown
+      return this.avatarIcons.unknown || "far-user"
+    },
+    //------------------------------------
+    TheNickname() {
+      let me = this.me || {}
+      return me.nickname 
+             || me.email
+             || me.phone
+             || me.nm
+             || me.id
+             || "Anonymity"
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //------------------------------------
+    
+    //------------------------------------
+  }
+  /////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/widget/user/widget-user.mjs", _M);
+})();
+//============================================================
+// JOIN: web/widget/user/_com.json
+//============================================================
+Ti.Preload("ti/com/web/widget/user/_com.json", {
+  "name" : "web-widget-user",
+  "globally" : true,
+  "template" : "./widget-user.html",
+  "mixins"   : ["./widget-user.mjs"],
   "components" : []
 });
 //============================================================

@@ -1,0 +1,7 @@
+{
+  "name" : "web-widget-user",
+  "globally" : true,
+  "template" : "./widget-user.html",
+  "mixins"   : ["./widget-user.mjs"],
+  "components" : []
+}
