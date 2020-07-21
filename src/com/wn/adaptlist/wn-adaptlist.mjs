@@ -22,13 +22,6 @@ const _M = {
     WallItemDisplay() {
       return {
         key : "..",
-        transformer : {
-          name : "Wn.Util.getObjThumbInfo",
-          args : [{
-            status : this.myItemStatus,
-            exposeHidden : this.myExposeHidden
-          }]
-        },
         comType : 'ti-obj-thumb',
         comConf : {
           "..." : "${=value}"
@@ -57,9 +50,11 @@ const _M = {
       let list = []
       for(let it of this.myData.list) {
         if(!this.isHiddenItem(it)) {
-          let status = this.myItemStatus[it.id]
-          //list.push(_.assign({$wn$adaptlist$status:status}, it))
-          list.push(it)
+          let li = Wn.Util.getObjThumbInfo(it, {
+            status : this.myItemStatus,
+            exposeHidden : this.myExposeHidden
+          })
+          list.push(li)
         }
       }
       return list

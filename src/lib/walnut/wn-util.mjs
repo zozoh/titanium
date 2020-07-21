@@ -175,6 +175,7 @@ const WnUtil = {
     // Generate new Thumb Item
     return {
       id    : meta.id,
+      nm    : meta.nm,
       title : WnUtil.getObjDisplayName(meta),
       preview : WnUtil.genPreviewObj(meta),
       href : WnUtil.getAppLinkStr(meta),
