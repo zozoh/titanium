@@ -1,4 +1,4 @@
-// Pack At: 2020-07-18 14:08:54
+// Pack At: 2020-07-26 22:32:30
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -17,6 +17,7 @@ const {Alert} = (function(){
     let theTitle = title || Ti.I18n.get(type)
     //............................................
     return await Ti.App.Open({
+      className: "is-alert in-top-z-index",
       //------------------------------------------
       type, width, height, position,
       title   : theTitle,
@@ -2058,6 +2059,7 @@ const {App} = (function(){
       // Attributes
       //////////////////////////////////////////////
       constructor() {
+        this.className = undefined
         this.icon   = undefined
         this.title  = undefined
         // info|warn|error|success|track
@@ -2145,7 +2147,7 @@ const {App} = (function(){
         //..........................................
         // Setup content
         let html = `<transition :name="TransName" @after-leave="OnAfterLeave">
-          <div class="ti-app-modal"
+          <div class="ti-app-modal ${this.className||''}"
             v-if="!hidden"
               :class="TopClass"
               :style="TopStyle"
@@ -8426,7 +8428,7 @@ const {WWW} = (function(){
         //..........................................
         // Link to Site Page
         if('page' == it.type) {
-          if(!li.href){
+          if(!li.href && it.value){
             let path = it.value
             if(!path.endsWith(suffix)) {
               path += suffix
@@ -8435,7 +8437,7 @@ const {WWW} = (function(){
             li.value = path
             li.href = TiWWW.joinHrefParams(aph, it.params, it.anchor)
           }
-          li.highlightBy = TiWWW.evalHighlightBy(it.highlightBy || li.value)  
+          li.highlightBy = TiWWW.evalHighlightBy(it.highlightBy || li.value, it)  
           if(!li.target && it.newTab) {
             li.target = "_blank"
           }
@@ -8459,7 +8461,7 @@ const {WWW} = (function(){
         //..........................................
         // Children
         if(_.isArray(it.items)) {
-          li.items = TiWWW.explainNavigation(it.items, base)
+          li.items = TiWWW.explainNavigation(it.items, base, suffix)
         }
         //..........................................
         // Join to list
@@ -8468,7 +8470,7 @@ const {WWW} = (function(){
       return list
     },
     //---------------------------------------
-    evalHighlightBy(highlightBy=false) {
+    evalHighlightBy(highlightBy=false, it={}) {
       // Function ... skip
       if(_.isFunction(highlightBy)) {
         return highlightBy
@@ -8484,8 +8486,16 @@ const {WWW} = (function(){
           }, regex)
         }
         // Static value
-        return path => {
-          return _.isEqual(path, highlightBy)
+        return (path, params) => {
+          if(!_.isEqual(path, highlightBy))
+            return false
+          // Need check the params
+          if(!_.isEmpty(it.params) && params) {
+            if(!_.isEqual(it.params, params))
+              return false
+          }
+          // Then ok
+          return true
         }
       }
       // RegExp
@@ -10666,7 +10676,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200718.140854",
+  "version" : "2.5-20200726.223230",
   "dev" : false,
   "appName" : null,
   "session" : {},

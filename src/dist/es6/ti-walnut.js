@@ -1,4 +1,4 @@
-// Pack At: 2020-07-18 14:08:54
+// Pack At: 2020-07-26 22:32:30
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1275,6 +1275,7 @@ const Util = (function(){
       // Generate new Thumb Item
       return {
         id    : meta.id,
+        nm    : meta.nm,
         title : WnUtil.getObjDisplayName(meta),
         preview : WnUtil.genPreviewObj(meta),
         href : WnUtil.getAppLinkStr(meta),
@@ -2078,7 +2079,7 @@ const EditTiComponent = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200718.140854"
+const WALNUT_VERSION = "2.1-20200726.223230"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

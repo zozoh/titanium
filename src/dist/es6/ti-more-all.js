@@ -1,4 +1,4 @@
-// Pack At: 2020-07-18 14:08:54
+// Pack At: 2020-07-26 22:32:30
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -15191,6 +15191,13 @@ const _M = {
         opacity: 0.8,
         weight: 8
       })
+    },
+    // Refer by goole map api: gestureHandling
+    // https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions
+    "gestureHandling": {
+      type: String,
+      default: "auto",
+      validator: v=>/^(cooperative|greedy|none|auto)$/.test(v)
     }
   },
   //////////////////////////////////////////
@@ -15255,7 +15262,11 @@ const _M = {
       return lalCenter
     },
     //-------------------------------------
-    draw_as_point({name, items=[], iconSize, clickable}={}) {
+    draw_as_point({
+      name, items=[], 
+      iconSize, iconSizeHoverScale,
+      clickable
+    }={}) {
       if(!name) {
         throw "draw_as_point without layer name!"
       }
@@ -15273,8 +15284,17 @@ const _M = {
           }
           // Icon
           let icon;
+          let size;
+          let size2;
           if(it.src) {
-            icon = {url:it.src, scaledSize:iconSize}
+            size = iconSize || {width:100, height:100}
+            icon = {url:it.src, scaledSize:size}
+            if(iconSizeHoverScale) {
+              size2 = {
+                width : size.width  * iconSizeHoverScale,
+                height: size.height * iconSizeHoverScale
+              }
+            }
           }
           // Draw to map
           let marker = new google.maps.Marker({
@@ -15290,6 +15310,17 @@ const _M = {
             marker.addListener("click", ()=>{
               this.$notify("point:click", it)
             });
+            // Hover to change the size
+            if(size2) {
+              marker.addListener("mouseover", function(){
+                marker.setAnimation(google.maps.Animation.BOUNCE)
+                //marker.setIcon({url: it.src, scaledSize: size2})
+              });
+              marker.addListener("mouseout", function(){
+                marker.setAnimation(null)
+                //marker.setIcon({url:it.src, scaledSize:size})
+              });
+            }
           }
         }
       }
@@ -15425,6 +15456,11 @@ const _M = {
       if(this.isCoolDown() && _.isNumber(newVal) && newVal>0) {
         this.$map.setZoom(newVal)
       }
+    },
+    "gestureHandling": function(newVal) {
+      this.$map.setOptions({
+        gestureHandling: newVal
+      })
     }
   },
   //////////////////////////////////////////
@@ -15444,6 +15480,7 @@ const _M = {
       mapTypeControl: false,
       streetViewControl: false,
       zoomControl: false,
+      gestureHandling : this.gestureHandling,
       //...................................
       center_changed: ()=>{
         let lal = this.$map.getCenter()
@@ -15766,6 +15803,10 @@ const _M = {
       type: Object,
       default: undefined
     },
+    "iconSizeHoverScale": {
+      type: Number,
+      default: 1.3
+    },
     "boundPadding": {
       type: [Object, Number],
       default: 10
@@ -15773,6 +15814,13 @@ const _M = {
     "pointClickable": {
       type: Boolean,
       default: true
+    },
+    // Refer by goole map api: gestureHandling
+    // https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions
+    "gestureHandling": {
+      type: String,
+      default: "auto",
+      validator: v=>/^(cooperative|greedy|none|auto)$/.test(v)
     }
   },
   //////////////////////////////////////////
@@ -15794,6 +15842,13 @@ const _M = {
       }
     },
     //-------------------------------------
+    TheGestureHandling() {
+      if(this.myFullscreen){
+        return "greedy"
+      }
+      return this.gestureHandling
+    },
+    //-------------------------------------
     ToggleIcon() {
       return this.myFullscreen
         ? "zmdi-fullscreen-exit"
@@ -15812,6 +15867,7 @@ const _M = {
         "maxZoom" : this.maxZoom,
         "minZoom" : this.minZoom,
         "boundPadding": this.boundPadding,
+        "gestureHandling" : this.TheGestureHandling,
         ...this.MapComConfByMode
       }
     },
@@ -15835,6 +15891,7 @@ const _M = {
                 type: "point",
                 items: _.concat(val),
                 iconSize: this.iconSize,
+                iconSizeHoverScale: this.iconSizeHoverScale,
                 clickable: this.pointClickable
               }]
             }
@@ -16183,6 +16240,7 @@ Ti.Preload("ti/com/ti/lbs/route/ti-lbs-route.html", `<div class="ti-lbs-route"
   <!--Map-->
   <TiLbsMap
     v-bind="this"
+    :gesture-handling="TheGestureHandling"
     :value="ValueItems"
     mode="path"
     @change:fullscreen="OnFullscreenChange"/>
@@ -16315,6 +16373,13 @@ const _M = {
     "addBy": {
       type: Object,
       default: undefined
+    },
+    // Refer by goole map api: gestureHandling
+    // https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions
+    "gestureHandling": {
+      type: String,
+      default: "auto",
+      validator: v=>/^(cooperative|greedy|none|auto)$/.test(v)
     }
   },
   //////////////////////////////////////////
@@ -16333,6 +16398,13 @@ const _M = {
           height : this.height
         })
       }
+    },
+    //-------------------------------------
+    TheGestureHandling() {
+      if(this.myFullscreen){
+        return "greedy"
+      }
+      return this.gestureHandling
     },
     //-------------------------------------
     ValueItems() {
@@ -28058,9 +28130,15 @@ const _M = {
       type : Array,
       default : ()=>[]
     },
+    // for highlight
     "path" : {
       type : String,
-      default: null
+      default: undefined
+    },
+    // for highlight
+    "params": {
+      type : Object,
+      default: undefined
     },
     "align" : {
       type : String,
@@ -28162,7 +28240,7 @@ const _M = {
         li.index = index
         //................................
         if(this.path) {
-          li.highlight = it.highlightBy(this.path)
+          li.highlight = it.highlightBy(this.path, this.params)
         }
         //................................
         let hasHref = li.href ? true : false;
@@ -30910,7 +30988,7 @@ const OBJ = {
     if(_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:wn-del-none', "warn")
     }
-
+    console.log("haha!!!")
     let delCount = 0
     // make removed files. it remove a video
     // it will auto-remove the `videoc_dir` in serverside also
@@ -31243,13 +31321,6 @@ const _M = {
     WallItemDisplay() {
       return {
         key : "..",
-        transformer : {
-          name : "Wn.Util.getObjThumbInfo",
-          args : [{
-            status : this.myItemStatus,
-            exposeHidden : this.myExposeHidden
-          }]
-        },
         comType : 'ti-obj-thumb',
         comConf : {
           "..." : "${=value}"
@@ -31278,9 +31349,11 @@ const _M = {
       let list = []
       for(let it of this.myData.list) {
         if(!this.isHiddenItem(it)) {
-          let status = this.myItemStatus[it.id]
-          //list.push(_.assign({$wn$adaptlist$status:status}, it))
-          list.push(it)
+          let li = Wn.Util.getObjThumbInfo(it, {
+            status : this.myItemStatus,
+            exposeHidden : this.myExposeHidden
+          })
+          list.push(li)
         }
       }
       return list
@@ -39867,7 +39940,7 @@ const _M = {
     type="login_by_phone",
     scene="auth",
     account, captcha,
-    done, ok, fail
+    done, ok, fail, error
   }={}) {
     console.log("getVcode", {type,scene, account, captcha})
 
@@ -39900,19 +39973,34 @@ const _M = {
     }
 
     // Call Remote
-    let reo = await Ti.Http.get(url, {params, as:"json"})
-    console.log(reo)
+    let reo;
+    try{
+      reo = await Ti.Http.get(url, {params, as:"json"})
+      //console.log(reo)
 
-    // Callback: done
-    await dispatch("doAction", [done, reo], {root:true})
-
-    // Success
-    if(reo.ok && reo.data) {
-      await dispatch("doAction", [ok, reo], {root:true})
+      // Success
+      if(reo.ok && reo.data) {
+        await dispatch("doAction", [ok, reo], {root:true})
+      }
+      // Fail 
+      else {
+        await dispatch("doAction", [fail, reo], {root:true})
+      }
     }
-    // Fail 
-    else {
-      await dispatch("doAction", [fail, reo], {root:true})
+    // Error
+    catch(err) {
+      reo = err
+      // Customized error handling
+      if(error) {
+        await dispatch("doAction", [error, err], {root:true})
+      } else {
+        await Ti.Alert(err.responseText, "error");
+      }
+    }
+    // Done
+    finally {
+      // Callback: done
+      await dispatch("doAction", [done, reo], {root:true})
     }
   },
   //--------------------------------------------
@@ -40413,6 +40501,16 @@ const _M = {
     //--------------------------------------------
     resetData({commit}, data={}) {
       commit("setData", data)
+    },
+    //--------------------------------------------
+    resetDataByKey({state, commit}, data={}) {
+      if(!_.isEmpty(data)) {
+        let d2 = _.cloneDeep(state.data)
+        _.forEach(data, (v, k)=>{
+          _.set(d2, k, v);
+        })
+        commit("setData", d2)
+      }
     },
     //--------------------------------------------
     /***
@@ -41468,7 +41566,7 @@ const _M = {
         })
       }
       //....................................
-      console.log("invoke->", action, pld)
+      //console.log("invoke->", action, pld)
       //....................................
       if(_.isFunction(action)) {
         await action(pld)
