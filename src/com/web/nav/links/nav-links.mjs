@@ -64,8 +64,10 @@ export default {
     OnClickLink(evt, {type,value,params}={}) {
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
-        console.log("onClickLink", "nav:to", {type,value,params})
-        this.$notify("nav:to", {type,value,params})
+        if(value) {
+          console.log("onClickLink", "nav:to", {type,value,params})
+          this.$notify("nav:to", {type,value,params})
+        }
       }
     },
     //------------------------------------
