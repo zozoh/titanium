@@ -69,6 +69,13 @@ const _M = {
         opacity: 0.8,
         weight: 8
       })
+    },
+    // Refer by goole map api: gestureHandling
+    // https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions
+    "gestureHandling": {
+      type: String,
+      default: "auto",
+      validator: v=>/^(cooperative|greedy|none|auto)$/.test(v)
     }
   },
   //////////////////////////////////////////
@@ -133,7 +140,11 @@ const _M = {
       return lalCenter
     },
     //-------------------------------------
-    draw_as_point({name, items=[], iconSize, clickable}={}) {
+    draw_as_point({
+      name, items=[], 
+      iconSize, iconSizeHoverScale,
+      clickable
+    }={}) {
       if(!name) {
         throw "draw_as_point without layer name!"
       }
@@ -151,8 +162,17 @@ const _M = {
           }
           // Icon
           let icon;
+          let size;
+          let size2;
           if(it.src) {
-            icon = {url:it.src, scaledSize:iconSize}
+            size = iconSize || {width:100, height:100}
+            icon = {url:it.src, scaledSize:size}
+            if(iconSizeHoverScale) {
+              size2 = {
+                width : size.width  * iconSizeHoverScale,
+                height: size.height * iconSizeHoverScale
+              }
+            }
           }
           // Draw to map
           let marker = new google.maps.Marker({
@@ -168,6 +188,17 @@ const _M = {
             marker.addListener("click", ()=>{
               this.$notify("point:click", it)
             });
+            // Hover to change the size
+            if(size2) {
+              marker.addListener("mouseover", function(){
+                marker.setAnimation(google.maps.Animation.BOUNCE)
+                //marker.setIcon({url: it.src, scaledSize: size2})
+              });
+              marker.addListener("mouseout", function(){
+                marker.setAnimation(null)
+                //marker.setIcon({url:it.src, scaledSize:size})
+              });
+            }
           }
         }
       }
@@ -303,6 +334,11 @@ const _M = {
       if(this.isCoolDown() && _.isNumber(newVal) && newVal>0) {
         this.$map.setZoom(newVal)
       }
+    },
+    "gestureHandling": function(newVal) {
+      this.$map.setOptions({
+        gestureHandling: newVal
+      })
     }
   },
   //////////////////////////////////////////
@@ -322,6 +358,7 @@ const _M = {
       mapTypeControl: false,
       streetViewControl: false,
       zoomControl: false,
+      gestureHandling : this.gestureHandling,
       //...................................
       center_changed: ()=>{
         let lal = this.$map.getCenter()

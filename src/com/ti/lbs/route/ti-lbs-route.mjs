@@ -92,6 +92,13 @@ const _M = {
     "addBy": {
       type: Object,
       default: undefined
+    },
+    // Refer by goole map api: gestureHandling
+    // https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions
+    "gestureHandling": {
+      type: String,
+      default: "auto",
+      validator: v=>/^(cooperative|greedy|none|auto)$/.test(v)
     }
   },
   //////////////////////////////////////////
@@ -110,6 +117,13 @@ const _M = {
           height : this.height
         })
       }
+    },
+    //-------------------------------------
+    TheGestureHandling() {
+      if(this.myFullscreen){
+        return "greedy"
+      }
+      return this.gestureHandling
     },
     //-------------------------------------
     ValueItems() {

@@ -14,9 +14,15 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    // for highlight
     "path" : {
       type : String,
-      default: null
+      default: undefined
+    },
+    // for highlight
+    "params": {
+      type : Object,
+      default: undefined
     },
     "align" : {
       type : String,
@@ -118,7 +124,7 @@ export default {
         li.index = index
         //................................
         if(this.path) {
-          li.highlight = it.highlightBy(this.path)
+          li.highlight = it.highlightBy(this.path, this.params)
         }
         //................................
         let hasHref = li.href ? true : false;

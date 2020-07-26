@@ -4,6 +4,7 @@
   <!--Map-->
   <TiLbsMap
     v-bind="this"
+    :gesture-handling="TheGestureHandling"
     :value="ValueItems"
     mode="path"
     @change:fullscreen="OnFullscreenChange"/>

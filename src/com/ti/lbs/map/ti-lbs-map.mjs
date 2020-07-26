@@ -90,6 +90,10 @@ const _M = {
       type: Object,
       default: undefined
     },
+    "iconSizeHoverScale": {
+      type: Number,
+      default: 1.3
+    },
     "boundPadding": {
       type: [Object, Number],
       default: 10
@@ -97,6 +101,13 @@ const _M = {
     "pointClickable": {
       type: Boolean,
       default: true
+    },
+    // Refer by goole map api: gestureHandling
+    // https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions
+    "gestureHandling": {
+      type: String,
+      default: "auto",
+      validator: v=>/^(cooperative|greedy|none|auto)$/.test(v)
     }
   },
   //////////////////////////////////////////
@@ -118,6 +129,13 @@ const _M = {
       }
     },
     //-------------------------------------
+    TheGestureHandling() {
+      if(this.myFullscreen){
+        return "greedy"
+      }
+      return this.gestureHandling
+    },
+    //-------------------------------------
     ToggleIcon() {
       return this.myFullscreen
         ? "zmdi-fullscreen-exit"
@@ -136,6 +154,7 @@ const _M = {
         "maxZoom" : this.maxZoom,
         "minZoom" : this.minZoom,
         "boundPadding": this.boundPadding,
+        "gestureHandling" : this.TheGestureHandling,
         ...this.MapComConfByMode
       }
     },
@@ -159,6 +178,7 @@ const _M = {
                 type: "point",
                 items: _.concat(val),
                 iconSize: this.iconSize,
+                iconSizeHoverScale: this.iconSizeHoverScale,
                 clickable: this.pointClickable
               }]
             }

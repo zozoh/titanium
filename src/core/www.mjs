@@ -32,7 +32,7 @@ const TiWWW = {
       //..........................................
       // Link to Site Page
       if('page' == it.type) {
-        if(!li.href){
+        if(!li.href && it.value){
           let path = it.value
           if(!path.endsWith(suffix)) {
             path += suffix
@@ -41,7 +41,7 @@ const TiWWW = {
           li.value = path
           li.href = TiWWW.joinHrefParams(aph, it.params, it.anchor)
         }
-        li.highlightBy = TiWWW.evalHighlightBy(it.highlightBy || li.value)  
+        li.highlightBy = TiWWW.evalHighlightBy(it.highlightBy || li.value, it)  
         if(!li.target && it.newTab) {
           li.target = "_blank"
         }
@@ -65,7 +65,7 @@ const TiWWW = {
       //..........................................
       // Children
       if(_.isArray(it.items)) {
-        li.items = TiWWW.explainNavigation(it.items, base)
+        li.items = TiWWW.explainNavigation(it.items, base, suffix)
       }
       //..........................................
       // Join to list
@@ -74,7 +74,7 @@ const TiWWW = {
     return list
   },
   //---------------------------------------
-  evalHighlightBy(highlightBy=false) {
+  evalHighlightBy(highlightBy=false, it={}) {
     // Function ... skip
     if(_.isFunction(highlightBy)) {
       return highlightBy
@@ -90,8 +90,16 @@ const TiWWW = {
         }, regex)
       }
       // Static value
-      return path => {
-        return _.isEqual(path, highlightBy)
+      return (path, params) => {
+        if(!_.isEqual(path, highlightBy))
+          return false
+        // Need check the params
+        if(!_.isEmpty(it.params) && params) {
+          if(!_.isEqual(it.params, params))
+            return false
+        }
+        // Then ok
+        return true
       }
     }
     // RegExp
