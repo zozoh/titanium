@@ -4,6 +4,10 @@
   @include flex-center;
   z-index:$z-top;
   //-----------------------------------
+  &.in-top-z-index {
+    z-index:$z-top * 2;
+  }
+  //-----------------------------------
   &.show-mask {
     @include color($color-mask, null, thin);
     @include pos-fixed(0,0,100%,100%);

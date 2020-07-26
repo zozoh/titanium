@@ -13,6 +13,7 @@ async function TiAlert(msg="", {
   let theTitle = title || Ti.I18n.get(type)
   //............................................
   return await Ti.App.Open({
+    className: "is-alert in-top-z-index",
     //------------------------------------------
     type, width, height, position,
     title   : theTitle,

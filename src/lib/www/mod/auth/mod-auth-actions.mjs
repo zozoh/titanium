@@ -251,7 +251,7 @@ const _M = {
     type="login_by_phone",
     scene="auth",
     account, captcha,
-    done, ok, fail
+    done, ok, fail, error
   }={}) {
     console.log("getVcode", {type,scene, account, captcha})
 
@@ -284,19 +284,34 @@ const _M = {
     }
 
     // Call Remote
-    let reo = await Ti.Http.get(url, {params, as:"json"})
-    console.log(reo)
+    let reo;
+    try{
+      reo = await Ti.Http.get(url, {params, as:"json"})
+      //console.log(reo)
 
-    // Callback: done
-    await dispatch("doAction", [done, reo], {root:true})
-
-    // Success
-    if(reo.ok && reo.data) {
-      await dispatch("doAction", [ok, reo], {root:true})
+      // Success
+      if(reo.ok && reo.data) {
+        await dispatch("doAction", [ok, reo], {root:true})
+      }
+      // Fail 
+      else {
+        await dispatch("doAction", [fail, reo], {root:true})
+      }
     }
-    // Fail 
-    else {
-      await dispatch("doAction", [fail, reo], {root:true})
+    // Error
+    catch(err) {
+      reo = err
+      // Customized error handling
+      if(error) {
+        await dispatch("doAction", [error, err], {root:true})
+      } else {
+        await Ti.Alert(err.responseText, "error");
+      }
+    }
+    // Done
+    finally {
+      // Callback: done
+      await dispatch("doAction", [done, reo], {root:true})
     }
   },
   //--------------------------------------------

@@ -187,6 +187,16 @@ const _M = {
       commit("setData", data)
     },
     //--------------------------------------------
+    resetDataByKey({state, commit}, data={}) {
+      if(!_.isEmpty(data)) {
+        let d2 = _.cloneDeep(state.data)
+        _.forEach(data, (v, k)=>{
+          _.set(d2, k, v);
+        })
+        commit("setData", d2)
+      }
+    },
+    //--------------------------------------------
     /***
      * Usage:
      * 

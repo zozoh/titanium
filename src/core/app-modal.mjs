@@ -3,6 +3,7 @@ export class TiAppModal {
   // Attributes
   //////////////////////////////////////////////
   constructor() {
+    this.className = undefined
     this.icon   = undefined
     this.title  = undefined
     // info|warn|error|success|track
@@ -90,7 +91,7 @@ export class TiAppModal {
     //..........................................
     // Setup content
     let html = `<transition :name="TransName" @after-leave="OnAfterLeave">
-      <div class="ti-app-modal"
+      <div class="ti-app-modal ${this.className||''}"
         v-if="!hidden"
           :class="TopClass"
           :style="TopStyle"
