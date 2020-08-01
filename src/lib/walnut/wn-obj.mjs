@@ -156,7 +156,7 @@ const FIELDS = {
     title : "i18n:wn-key-len",
     name  : "len",
     width : "auto",
-    transformer: (v)=>Ti.S.sizeText(v)
+    transformer: (v)=>Ti.S.sizeText(v, {bytes:true})
   }
   //---------------------------------------------
 }

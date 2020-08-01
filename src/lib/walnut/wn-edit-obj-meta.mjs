@@ -49,7 +49,7 @@ async function EditObjMeta(pathOrObj="~", {
       title: "basic",
       fields: [
         "id", "nm", "title",  "icon", "thumb","ph", "race", "tp", "mime", 
-        "width", "height", "len"],
+        "width", "height", "len", "sha1"],
     }, {
       title: "privilege",
       fields: ["c","m","g", "md", "pvg"]

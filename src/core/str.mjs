@@ -414,7 +414,7 @@ const TiStr = {
    * Get the display text for bytes
    */
   sizeText(byte=0, {
-    fixed=2, M=1024, 
+    fixed=2, M=1024, bytes=false,
     units=["Bytes","KB","MB","GB","PB","TB"]}={}) {
     let nb = byte
     let i = 0;
@@ -426,10 +426,17 @@ const TiStr = {
       nb = nb2
     }
     let unit = units[i]
+    let re
     if(nb == parseInt(nb)) {
-      return nb + unit
+      re = (nb + unit)
+    } else {
+      re = nb.toFixed(fixed)+unit
     }
-    return nb.toFixed(fixed)+unit
+    
+    if(bytes) {
+      return re + ` (${byte} bytes)`
+    }
+    return re
   },
   /***
    * Get the display percent text for a float number

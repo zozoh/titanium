@@ -43,7 +43,7 @@ const _M = {
       return this.myData && _.isArray(this.myData.list)
     },
     //--------------------------------------------
-    TheDataList() {
+    WallDataList() {
       if(!this.myData || _.isEmpty(this.myData.list)) {
         return []
       }
@@ -131,10 +131,12 @@ const _M = {
       this.$nextTick(()=>{
         // Find my checked files
         let objs = []
-        for(let it of this.TheDataList){
-          if(this.myCheckedIds[it.id]){
-            objs.push(it)
-          }
+        if(this.hasDataList){
+          _.forEach(this.myData.list, it=>{
+            if(this.myCheckedIds[it.id]){
+              objs.push(it)
+            }
+          })
         }
 
         // Emit events
@@ -150,18 +152,20 @@ const _M = {
     // Getters
     //--------------------------------------------
     getCurrentItem() {
-      if(this.myCurrentId) {
-        return _.find(this.TheDataList, it=>it.id == this.myCurrentId)
+      if(this.myCurrentId && this.hasDataList) {
+        return _.find(this.myData.list, it=>it.id == this.myCurrentId)
       }
     },
     //--------------------------------------------
     getCheckedItems() {
-      return _.filter(this.TheDataList, it=>this.myCheckedIds[it.id])
+      if(this.hasDataList)
+        return _.filter(this.myData.list, it=>this.myCheckedIds[it.id])
+      return []
     },
     //--------------------------------------------
     setItem(newItem) {
       if(newItem && this.hasDataList) {
-        let list = _.map(this.TheDataList, it => {
+        let list = _.map(this.myData.list, it => {
           return it.id == newItem.id
             ? newItem
             : it
