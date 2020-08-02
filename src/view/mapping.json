@@ -10,6 +10,7 @@
   },
   "mimes" : {
     "text" : "text-editor",
+    "text/json" : "json-editor",
     "application/json" : "json-editor"
   },
   "races" : {

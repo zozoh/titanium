@@ -121,14 +121,6 @@ const _M = {
     //--------------------------------------------
     setLoading(state, loading) {
       state.loading = loading
-    },
-    //--------------------------------------------
-    explainSiteState(state) {
-      state.base = Ti.Util.explainObj(state, state.base)
-      state.apiBase = Ti.Util.explainObj(state, state.apiBase)
-      state.cdnBase = Ti.Util.explainObj(state, state.cdnBase)
-      state.logo = Ti.Util.explainObj(state, state.logo)
-      state.entry = Ti.Util.explainObj(state, state.entry)
     }
     //--------------------------------------------
   },

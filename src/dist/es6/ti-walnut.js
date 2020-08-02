@@ -1,4 +1,4 @@
-// Pack At: 2020-07-26 22:59:46
+// Pack At: 2020-08-03 04:46:20
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -484,7 +484,7 @@ const Obj = (function(){
       title : "i18n:wn-key-len",
       name  : "len",
       width : "auto",
-      transformer: (v)=>Ti.S.sizeText(v)
+      transformer: (v)=>Ti.S.sizeText(v, {bytes:true})
     }
     //---------------------------------------------
   }
@@ -1858,7 +1858,7 @@ const EditObjMeta = (function(){
         title: "basic",
         fields: [
           "id", "nm", "title",  "icon", "thumb","ph", "race", "tp", "mime", 
-          "width", "height", "len"],
+          "width", "height", "len", "sha1"],
       }, {
         title: "privilege",
         fields: ["c","m","g", "md", "pvg"]
@@ -2079,7 +2079,7 @@ const EditTiComponent = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200726.225946"
+const WALNUT_VERSION = "2.1-20200803.044620"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

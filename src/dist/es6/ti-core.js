@@ -1,4 +1,4 @@
-// Pack At: 2020-07-26 22:59:46
+// Pack At: 2020-08-03 04:46:20
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1299,7 +1299,7 @@ const {S} = (function(){
      * Get the display text for bytes
      */
     sizeText(byte=0, {
-      fixed=2, M=1024, 
+      fixed=2, M=1024, bytes=false,
       units=["Bytes","KB","MB","GB","PB","TB"]}={}) {
       let nb = byte
       let i = 0;
@@ -1311,10 +1311,17 @@ const {S} = (function(){
         nb = nb2
       }
       let unit = units[i]
+      let re
       if(nb == parseInt(nb)) {
-        return nb + unit
+        re = (nb + unit)
+      } else {
+        re = nb.toFixed(fixed)+unit
       }
-      return nb.toFixed(fixed)+unit
+      
+      if(bytes) {
+        return re + ` (${byte} bytes)`
+      }
+      return re
     },
     /***
      * Get the display percent text for a float number
@@ -2524,7 +2531,7 @@ const {App} = (function(){
       // }
       // load each fields of info obj
       let conf = await LoadTiAppInfo(info)
-      this.appDecorator(conf)
+      await this.appDecorator(conf)
       this.$conf(conf)
       if(Ti.IsInfo("TiApp")) {
         console.log("Ti.$conf", this.$conf())
@@ -10449,7 +10456,16 @@ const {WalnutAppMain} = (function(){
     Wn.Dict.setup(tiConf.dictionary)
     //---------------------------------------
     // Initialize the App
-    let app = Ti.App(appInfo)
+    // Load app extends vars (Map)
+    // You can put your secretive information in it.
+    // Sucn as api key, password...
+    // The vars should be a runtime file of your domain files
+    let app = Ti.App(appInfo, async conf => {
+      if(conf.varLoadPath) {
+        let vars = await  Wn.Io.loadContent(conf.varLoadPath, {as:"json"})
+        _.set(conf, "data.vars", vars)
+      }
+    })
     await app.init()
     //---------------------------------------
     Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{
@@ -10616,10 +10632,6 @@ const {WebAppMain} = (function(){
     // Save current app name
     Ti.SetAppName(app.name())
   
-    // Prepare the data,
-    //  - base/apiBase/cdnBase will be explained
-    app.commit("explainSiteState")
-  
     //---------------------------------------
     Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{
       $root.style.fontSize = fontSize + "px"
@@ -10676,7 +10688,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200726.225946",
+  "version" : "2.5-20200803.044620",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -1,18 +1,39 @@
 const _M = {
   /////////////////////////////////////////
+  inject: {
+    '$vars': {default: {}}
+  },
+  /////////////////////////////////////////
   data : ()=>({
     myUpTime: undefined,  
     myWaitCooling: false,  
     myFullscreen : false,
     myMapCenter: undefined,
     myZoom: undefined,
-    myMapType: undefined
+    myMapType: undefined,
+    apiLoaded: false
   }),
   /////////////////////////////////////////
   props : {
+    // tencent|baidu|google ...
     "by" : {
       type : String,
       default : "tencent"
+    },
+    // Map security key pattern 
+    // it will find the key from "$vars" which injected to the com.
+    // default, if by=google, the mapKey in "$vars" should be "googleMapKey"
+    "secretKey": {
+      type: String,
+      default: "${by}MapKey"
+    },
+    // All Map api support URL
+    // key by 'by' prop
+    "apiUrls": {
+      type: Object,
+      default: ()=>({
+        "google": '!js://maps.googleapis.com/maps/api/js?key=${key}'
+      })
     },
     // @see https://lbs.qq.com/javascript_v2/doc/maptypeid.html
     // @see http://lbsyun.baidu.com/cms/jsapi/reference/jsapi_reference_3_0.html#a5b0
@@ -129,6 +150,17 @@ const _M = {
       }
     },
     //-------------------------------------
+    TheMapSecretKey() {
+      let vnm = Ti.S.renderBy(this.secretKey, this)
+      return _.get(this.$vars, vnm)
+    },
+    //-------------------------------------
+    TheMapApiUrl() {
+      let url = _.get(this.apiUrls, this.by)
+      url = Ti.S.renderBy(url, {key:this.TheMapSecretKey})
+      return url
+    },
+    //-------------------------------------
     TheGestureHandling() {
       if(this.myFullscreen){
         return "greedy"
@@ -148,6 +180,7 @@ const _M = {
     //-------------------------------------
     MapComConf() {
       return {
+        "secretKey": this.TheMapSecretKey,
         "center"  : this.MapCenter,
         "mapType" : this.myMapType,
         "zoom"    : this.myZoom,
@@ -491,12 +524,23 @@ const _M = {
   },
   //////////////////////////////////////////
   created: function() {
+    // Init private data
     this.myMapType = this.mapType
     this.myZoom = this.zoom
     if(this.keepStateBy) {
       let state = Ti.Storage.session.getObject(this.keepStateBy)
       this.myMapType = state.mapType || this.mapType
       this.myZoom = state.zoom || this.zoom
+    }
+  },
+  //////////////////////////////////////////
+  mounted: async function() {
+    // Load Map API
+    let url = this.TheMapApiUrl
+    if(url) {
+      //console.log("TiLoad", url)
+      await Ti.Load(url)
+      this.apiLoaded = true
     }
   }
   //////////////////////////////////////////

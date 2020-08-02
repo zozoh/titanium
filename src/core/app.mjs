@@ -50,7 +50,7 @@ class OneTiApp {
     // }
     // load each fields of info obj
     let conf = await LoadTiAppInfo(info)
-    this.appDecorator(conf)
+    await this.appDecorator(conf)
     this.$conf(conf)
     if(Ti.IsInfo("TiApp")) {
       console.log("Ti.$conf", this.$conf())

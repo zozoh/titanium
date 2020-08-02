@@ -116,10 +116,6 @@ export async function WebAppMain({
   // Save current app name
   Ti.SetAppName(app.name())
 
-  // Prepare the data,
-  //  - base/apiBase/cdnBase will be explained
-  app.commit("explainSiteState")
-
   //---------------------------------------
   Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{
     $root.style.fontSize = fontSize + "px"

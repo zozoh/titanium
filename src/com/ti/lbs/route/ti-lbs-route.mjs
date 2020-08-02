@@ -1,16 +1,37 @@
 const _M = {
   /////////////////////////////////////////
+  inject: {
+    '$vars': {default: {}}
+  },
+  /////////////////////////////////////////
   data : ()=>({
     myShowList: undefined,
     myCurrentId: undefined,
     myCheckedIds: undefined,
-    myFullscreen: false
+    myFullscreen: false,
+    apiLoaded: false
   }),
   /////////////////////////////////////////
   props : {
+    // tencent|baidu|google ...
     "by" : {
       type : String,
       default : "tencent"
+    },
+    // Map security key pattern 
+    // it will find the key from "$vars" which injected to the com.
+    // default, if by=google, the mapKey in "$vars" should be "googleMapKey"
+    "secretKey": {
+      type: String,
+      default: "${by}MapKey"
+    },
+    // All Map api support URL
+    // key by 'by' prop
+    "apiUrls": {
+      type: Object,
+      default: ()=>({
+        "google": '!js://maps.googleapis.com/maps/api/js?key=${key}'
+      })
     },
     // @see https://lbs.qq.com/javascript_v2/doc/maptypeid.html
     // @see http://lbsyun.baidu.com/cms/jsapi/reference/jsapi_reference_3_0.html#a5b0
@@ -117,6 +138,17 @@ const _M = {
           height : this.height
         })
       }
+    },
+    //-------------------------------------
+    TheMapSecretKey() {
+      let vnm = Ti.S.renderBy(this.secretKey, this)
+      return _.get(this.$vars, vnm)
+    },
+    //-------------------------------------
+    TheMapApiUrl() {
+      let url = _.get(this.apiUrls, this.by)
+      url = Ti.S.renderBy(url, {key:this.TheMapSecretKey})
+      return url
     },
     //-------------------------------------
     TheGestureHandling() {
@@ -388,6 +420,16 @@ const _M = {
       return mc
     }
     //-------------------------------------
+  },
+  //////////////////////////////////////////
+  mounted: async function() {
+    // Load Map API
+    let url = this.TheMapApiUrl
+    if(url) {
+      //console.log("TiLoad", url)
+      await Ti.Load(url)
+      this.apiLoaded = true
+    }
   }
   //////////////////////////////////////////
 }

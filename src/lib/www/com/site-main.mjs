@@ -1,7 +1,7 @@
 const _M = {
   /////////////////////////////////////////
   provide : function() {
-    return Ti.Util.explainObj(this.provide, this)
+    return Ti.Util.explainObj(this.$store.state, this.provide)
   },
   /////////////////////////////////////////
   computed : {
@@ -17,7 +17,7 @@ const _M = {
         "nav"       : state=>state.nav,
         "base"      : state=>state.base,
         "apiBase"   : state=>state.apiBase,
-        "cdnBase"   : state=>state.cdnBase,
+        "cdnTmpl"   : state=>state.cdnTmpl,
         "captcha"   : state=>state.captcha,
         "schema"    : state=>state.schema,
         "provide"   : state=>state.provide,

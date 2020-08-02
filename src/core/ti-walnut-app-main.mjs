@@ -150,7 +150,16 @@ export async function WalnutAppMain({
   Wn.Dict.setup(tiConf.dictionary)
   //---------------------------------------
   // Initialize the App
-  let app = Ti.App(appInfo)
+  // Load app extends vars (Map)
+  // You can put your secretive information in it.
+  // Sucn as api key, password...
+  // The vars should be a runtime file of your domain files
+  let app = Ti.App(appInfo, async conf => {
+    if(conf.varLoadPath) {
+      let vars = await  Wn.Io.loadContent(conf.varLoadPath, {as:"json"})
+      _.set(conf, "data.vars", vars)
+    }
+  })
   await app.init()
   //---------------------------------------
   Ti.Dom.watchAutoRootFontSize(viewport, ({$root, mode, fontSize})=>{

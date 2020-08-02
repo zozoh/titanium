@@ -1,13 +1,14 @@
 const _M = {
   ///////////////////////////////////////////
-  provider: function() {
+  provide: function() {
     return {
       $session: {
         ticket   : this.session.ticket,
         userId   : this.session.uid,
         userName : this.session.unm,
         group    : this.session.grp
-      }
+      },
+      $vars: this.vars
     }
   },
   ///////////////////////////////////////////

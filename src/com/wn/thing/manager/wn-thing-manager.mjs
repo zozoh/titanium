@@ -2,7 +2,7 @@ const _M = {
   ///////////////////////////////////////////
   provide : function() {
     return {
-      "$ThingManager" : this
+      $ThingManager : this
     }
   },
   ///////////////////////////////////////////

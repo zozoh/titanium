@@ -1,4 +1,4 @@
-// Pack At: 2020-07-26 22:59:46
+// Pack At: 2020-08-03 04:46:20
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -15670,42 +15670,53 @@ Ti.Preload("ti/com/ti/lbs/map/tencent/_com.json", {
 Ti.Preload("ti/com/ti/lbs/map/ti-lbs-map.html", `<div class="ti-lbs-map" 
   :class="TopClass"
   :style="TopStyle">
-  <div class="map-con">
-    <!--
-      Map Main
-    -->
-    <div class="as-main">
-      <component 
-        :is="MapComType"
-          v-bind="MapComConf"
-          @center:change="OnCenterChange"
-          @zoom:change="OnZoomChange"/>
-    </div>
-    <!--
-      Wait cooling
-    -->
-    <div
-      v-if="CoolingIcon"
-        class="as-wait-cooling"><TiIcon :value="CoolingIcon"/></div>
-    <!--
-      Map Controls
-    -->
-    <div class="as-controls">
-      <TiActionbar v-bind="MapActionBar"/>
-    </div>
-    <!--
-      Map Info
-    -->
-    <div
-      v-if="infoBar && MapCenter"
-        class="as-info">
-        <ul class="as-laln">
-          <li><span>{{'lat'|i18n}}:</span><em>{{MapCenter.lat|float(8)}}</em></li>
-          <li><span>{{'lng'|i18n}}:</span><em>{{MapCenter.lng|float(8)}}</em></li>
-          <li><span>ZOOM</span><em>{{myZoom || zoom}}</em></li>
-        </ul>
+  <!--
+    Show Map
+  -->
+  <div 
+    v-if="apiLoaded"
+      class="map-con">
+      <!--
+        Map Main
+      -->
+      <div class="as-main">
+        <component 
+          :is="MapComType"
+            v-bind="MapComConf"
+            @center:change="OnCenterChange"
+            @zoom:change="OnZoomChange"/>
+      </div>
+      <!--
+        Wait cooling
+      -->
+      <div
+        v-if="CoolingIcon"
+          class="as-wait-cooling"><TiIcon :value="CoolingIcon"/></div>
+      <!--
+        Map Controls
+      -->
+      <div class="as-controls">
+        <TiActionbar v-bind="MapActionBar"/>
+      </div>
+      <!--
+        Map Info
+      -->
+      <div
+        v-if="infoBar && MapCenter"
+          class="as-info">
+          <ul class="as-laln">
+            <li><span>{{'lat'|i18n}}:</span><em>{{MapCenter.lat|float(8)}}</em></li>
+            <li><span>{{'lng'|i18n}}:</span><em>{{MapCenter.lng|float(8)}}</em></li>
+            <li><span>ZOOM</span><em>{{myZoom || zoom}}</em></li>
+          </ul>
       </div> <!--as-info-->
   </div>
+  <!--
+    Show Loading 
+  -->
+  <ti-loading
+    v-else
+      class="as-big-mask"/>
 </div>`);
 //============================================================
 // JOIN: ti/lbs/map/ti-lbs-map.mjs
@@ -15713,19 +15724,40 @@ Ti.Preload("ti/com/ti/lbs/map/ti-lbs-map.html", `<div class="ti-lbs-map"
 (function(){
 const _M = {
   /////////////////////////////////////////
+  inject: {
+    '$vars': {default: {}}
+  },
+  /////////////////////////////////////////
   data : ()=>({
     myUpTime: undefined,  
     myWaitCooling: false,  
     myFullscreen : false,
     myMapCenter: undefined,
     myZoom: undefined,
-    myMapType: undefined
+    myMapType: undefined,
+    apiLoaded: false
   }),
   /////////////////////////////////////////
   props : {
+    // tencent|baidu|google ...
     "by" : {
       type : String,
       default : "tencent"
+    },
+    // Map security key pattern 
+    // it will find the key from "$vars" which injected to the com.
+    // default, if by=google, the mapKey in "$vars" should be "googleMapKey"
+    "secretKey": {
+      type: String,
+      default: "${by}MapKey"
+    },
+    // All Map api support URL
+    // key by 'by' prop
+    "apiUrls": {
+      type: Object,
+      default: ()=>({
+        "google": '!js://maps.googleapis.com/maps/api/js?key=${key}'
+      })
     },
     // @see https://lbs.qq.com/javascript_v2/doc/maptypeid.html
     // @see http://lbsyun.baidu.com/cms/jsapi/reference/jsapi_reference_3_0.html#a5b0
@@ -15842,6 +15874,17 @@ const _M = {
       }
     },
     //-------------------------------------
+    TheMapSecretKey() {
+      let vnm = Ti.S.renderBy(this.secretKey, this)
+      return _.get(this.$vars, vnm)
+    },
+    //-------------------------------------
+    TheMapApiUrl() {
+      let url = _.get(this.apiUrls, this.by)
+      url = Ti.S.renderBy(url, {key:this.TheMapSecretKey})
+      return url
+    },
+    //-------------------------------------
     TheGestureHandling() {
       if(this.myFullscreen){
         return "greedy"
@@ -15861,6 +15904,7 @@ const _M = {
     //-------------------------------------
     MapComConf() {
       return {
+        "secretKey": this.TheMapSecretKey,
         "center"  : this.MapCenter,
         "mapType" : this.myMapType,
         "zoom"    : this.myZoom,
@@ -16204,12 +16248,23 @@ const _M = {
   },
   //////////////////////////////////////////
   created: function() {
+    // Init private data
     this.myMapType = this.mapType
     this.myZoom = this.zoom
     if(this.keepStateBy) {
       let state = Ti.Storage.session.getObject(this.keepStateBy)
       this.myMapType = state.mapType || this.mapType
       this.myZoom = state.zoom || this.zoom
+    }
+  },
+  //////////////////////////////////////////
+  mounted: async function() {
+    // Load Map API
+    let url = this.TheMapApiUrl
+    if(url) {
+      //console.log("TiLoad", url)
+      await Ti.Load(url)
+      this.apiLoaded = true
     }
   }
   //////////////////////////////////////////
@@ -16281,17 +16336,38 @@ Ti.Preload("ti/com/ti/lbs/route/ti-lbs-route.html", `<div class="ti-lbs-route"
 (function(){
 const _M = {
   /////////////////////////////////////////
+  inject: {
+    '$vars': {default: {}}
+  },
+  /////////////////////////////////////////
   data : ()=>({
     myShowList: undefined,
     myCurrentId: undefined,
     myCheckedIds: undefined,
-    myFullscreen: false
+    myFullscreen: false,
+    apiLoaded: false
   }),
   /////////////////////////////////////////
   props : {
+    // tencent|baidu|google ...
     "by" : {
       type : String,
       default : "tencent"
+    },
+    // Map security key pattern 
+    // it will find the key from "$vars" which injected to the com.
+    // default, if by=google, the mapKey in "$vars" should be "googleMapKey"
+    "secretKey": {
+      type: String,
+      default: "${by}MapKey"
+    },
+    // All Map api support URL
+    // key by 'by' prop
+    "apiUrls": {
+      type: Object,
+      default: ()=>({
+        "google": '!js://maps.googleapis.com/maps/api/js?key=${key}'
+      })
     },
     // @see https://lbs.qq.com/javascript_v2/doc/maptypeid.html
     // @see http://lbsyun.baidu.com/cms/jsapi/reference/jsapi_reference_3_0.html#a5b0
@@ -16398,6 +16474,17 @@ const _M = {
           height : this.height
         })
       }
+    },
+    //-------------------------------------
+    TheMapSecretKey() {
+      let vnm = Ti.S.renderBy(this.secretKey, this)
+      return _.get(this.$vars, vnm)
+    },
+    //-------------------------------------
+    TheMapApiUrl() {
+      let url = _.get(this.apiUrls, this.by)
+      url = Ti.S.renderBy(url, {key:this.TheMapSecretKey})
+      return url
     },
     //-------------------------------------
     TheGestureHandling() {
@@ -16669,6 +16756,16 @@ const _M = {
       return mc
     }
     //-------------------------------------
+  },
+  //////////////////////////////////////////
+  mounted: async function() {
+    // Load Map API
+    let url = this.TheMapApiUrl
+    if(url) {
+      //console.log("TiLoad", url)
+      await Ti.Load(url)
+      this.apiLoaded = true
+    }
   }
   //////////////////////////////////////////
 }
@@ -31247,7 +31344,7 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist"
     <ti-wall
       v-else
         class="ti-fill-parent"
-        :data="TheDataList"
+        :data="WallDataList"
         :spacing="spacing"
         :changed-id="changedId"
         :current-id="myCurrentId"
@@ -31344,7 +31441,7 @@ const _M = {
       return this.myData && _.isArray(this.myData.list)
     },
     //--------------------------------------------
-    TheDataList() {
+    WallDataList() {
       if(!this.myData || _.isEmpty(this.myData.list)) {
         return []
       }
@@ -31432,10 +31529,12 @@ const _M = {
       this.$nextTick(()=>{
         // Find my checked files
         let objs = []
-        for(let it of this.TheDataList){
-          if(this.myCheckedIds[it.id]){
-            objs.push(it)
-          }
+        if(this.hasDataList){
+          _.forEach(this.myData.list, it=>{
+            if(this.myCheckedIds[it.id]){
+              objs.push(it)
+            }
+          })
         }
 
         // Emit events
@@ -31451,18 +31550,20 @@ const _M = {
     // Getters
     //--------------------------------------------
     getCurrentItem() {
-      if(this.myCurrentId) {
-        return _.find(this.TheDataList, it=>it.id == this.myCurrentId)
+      if(this.myCurrentId && this.hasDataList) {
+        return _.find(this.myData.list, it=>it.id == this.myCurrentId)
       }
     },
     //--------------------------------------------
     getCheckedItems() {
-      return _.filter(this.TheDataList, it=>this.myCheckedIds[it.id])
+      if(this.hasDataList)
+        return _.filter(this.myData.list, it=>this.myCheckedIds[it.id])
+      return []
     },
     //--------------------------------------------
     setItem(newItem) {
       if(newItem && this.hasDataList) {
-        let list = _.map(this.TheDataList, it => {
+        let list = _.map(this.myData.list, it => {
           return it.id == newItem.id
             ? newItem
             : it
@@ -36156,7 +36257,7 @@ const _M = {
   ///////////////////////////////////////////
   provide : function() {
     return {
-      "$ThingManager" : this
+      $ThingManager : this
     }
   },
   ///////////////////////////////////////////
@@ -39261,7 +39362,7 @@ Ti.Preload("ti/lib/www/com/site-main.html", `<div class="site-main">
 const _M = {
   /////////////////////////////////////////
   provide : function() {
-    return Ti.Util.explainObj(this.provide, this)
+    return Ti.Util.explainObj(this.$store.state, this.provide)
   },
   /////////////////////////////////////////
   computed : {
@@ -39277,7 +39378,7 @@ const _M = {
         "nav"       : state=>state.nav,
         "base"      : state=>state.base,
         "apiBase"   : state=>state.apiBase,
-        "cdnBase"   : state=>state.cdnBase,
+        "cdnTmpl"   : state=>state.cdnTmpl,
         "captcha"   : state=>state.captcha,
         "schema"    : state=>state.schema,
         "provide"   : state=>state.provide,
@@ -41428,14 +41529,6 @@ const _M = {
     //--------------------------------------------
     setLoading(state, loading) {
       state.loading = loading
-    },
-    //--------------------------------------------
-    explainSiteState(state) {
-      state.base = Ti.Util.explainObj(state, state.base)
-      state.apiBase = Ti.Util.explainObj(state, state.apiBase)
-      state.cdnBase = Ti.Util.explainObj(state, state.cdnBase)
-      state.logo = Ti.Util.explainObj(state, state.logo)
-      state.entry = Ti.Util.explainObj(state, state.entry)
     }
     //--------------------------------------------
   },
@@ -42034,14 +42127,15 @@ Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
 (function(){
 const _M = {
   ///////////////////////////////////////////
-  provider: function() {
+  provide: function() {
     return {
       $session: {
         ticket   : this.session.ticket,
         userId   : this.session.uid,
         userName : this.session.unm,
         group    : this.session.grp
-      }
+      },
+      $vars: this.vars
     }
   },
   ///////////////////////////////////////////
@@ -43021,13 +43115,13 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-key-lm": "修改",
   "wn-key-m": "修改者",
   "wn-key-md": "基本权限",
-  "wn-key-mime": "MIME",
+  "wn-key-mime": "内容类型",
   "wn-key-nm": "对象名",
   "wn-key-ph": "路径",
   "wn-key-pid": "父对象",
   "wn-key-pvg": "定制权限",
   "wn-key-race": "族类",
-  "wn-key-sha1": "SHA1",
+  "wn-key-sha1": "内容签名",
   "wn-key-thumb": "缩略图",
   "wn-key-title": "标题",
   "wn-key-tp": "类型",
