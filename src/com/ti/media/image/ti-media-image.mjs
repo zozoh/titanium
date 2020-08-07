@@ -1,7 +1,5 @@
 export default {
   ///////////////////////////////////
-  inheritAttrs : false,
-  ///////////////////////////////////
   data: ()=>({
     naturalWidth  : -1,
     naturalHeight : -1,

@@ -268,7 +268,12 @@ const _M = {
         let list = []
         for(let it of this.value) {
           let lal = this.genLngLat(it)
-          list.push(_.assign({}, it, lal))
+          // Transform preview src
+          let src = it.src
+          if(it.obj, it.preview) {
+            src = Ti.WWW.evalObjPreviewSrc(it.obj, it.preview)
+          }
+          list.push(_.assign({}, it, lal, {src}))
         }
         return list
       }
