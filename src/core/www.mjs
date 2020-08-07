@@ -179,8 +179,43 @@ const TiWWW = {
       ss.push(cu)
     }
     return ss.join("")
-  }
+  },
   //---------------------------------------
+  evalObjPreviewSrc(obj, {
+    previewKey,     // Which key in obj for preview obj path
+    previewObj,     // Which key in obj for preview obj (sha1)
+    sha1Path = 4,   // how to convert the sha1 to preview path
+    apiTmpl,        // the api url tmpl for previewKey
+    cdnTmpl,        // the cdn url tmpl for previewObj
+    dftSrc,
+  }={}) {
+    // preview obj for sha1
+    if(cdnTmpl) {
+      let po = _.get(obj, previewObj)
+      if(po && po.sha1) {
+        po = _.cloneDeep(po)
+        // sha1 path
+        if(sha1Path > 0) {
+          po.sha1Path = po.sha1.substring(0,sha1Path)+"/"+po.sha1.substring(sha1Path)
+        } else {
+          po.sha1Path = po.sha1
+        }
+        return Ti.S.renderBy(cdnTmpl, po)
+      }
+    }
+
+    // preview obj for id
+    if(apiTmpl) {
+      // 看看有木有对象
+      let oph = _.get(obj, previewKey)
+      if(oph) {
+        return Ti.S.renderBy(apiTmpl, obj)
+      }
+    }
+    // The Default
+    return dftSrc
+  }
+  
 }
 ///////////////////////////////////////////
 export const WWW = TiWWW
