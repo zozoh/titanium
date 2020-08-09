@@ -1,4 +1,4 @@
-// Pack At: 2020-08-03 18:38:48
+// Pack At: 2020-08-09 08:08:23
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -546,7 +546,11 @@ const {Be} = (function(){
           let $in = Ti.Dom.createElement({
             $p : $form,
             tagName : 'input',
-            attrs : {name, value, type:"hidden"}
+            props : {
+              name, 
+              value, 
+              type:"hidden"
+            }
           })
         })
         // await for a while
@@ -554,7 +558,7 @@ const {Be} = (function(){
           // Submit it
           $form.submit()
           // Remove it
-          Ti.Dom.remove($form)
+          //Ti.Dom.remove($form)
   
           // Done
           resolve({
@@ -6850,15 +6854,17 @@ const {Util} = (function(){
   // # import TiLink from "./util-link.mjs"
   const TiLink = (function(){
     class TiLinkObj {
-      constructor({url, params}={}){
+      constructor({url, params, anchor}={}){
         this.url = url
         this.params = params
+        this.anchor = anchor
         this.__S = null
         this.set({url, params})
       }
-      set({url="", params={}}={}) {
+      set({url="", params={}, anchor}={}) {
         this.url = url
         this.params = params
+        this.anchor = anchor
         this.__S = null
         return this
       }
@@ -6875,15 +6881,24 @@ const {Util} = (function(){
           if(qs.length > 0) {
             ss.push(qs.join("&"))
           }
-          this.__S = ss.join("?")
+          let url = ss.join("?")
+          if(this.anchor) {
+            if(/^#/.test(this.anchor)){
+              url += this.anchor
+            } else {
+              url += "#"+this.anchor
+            }
+          }
+          // cache it
+          this.__S = url
         }
         return this.__S
       }
     }
     //-----------------------------------
     const TiLink = {
-      Link({url, params}={}){
-        return new TiLinkObj({url, params})
+      Link({url, params, anchor}={}){
+        return new TiLinkObj({url, params, anchor})
       }
     }
     //-----------------------------------
@@ -8582,8 +8597,43 @@ const {WWW} = (function(){
         ss.push(cu)
       }
       return ss.join("")
-    }
+    },
     //---------------------------------------
+    evalObjPreviewSrc(obj, {
+      previewKey,     // Which key in obj for preview obj path
+      previewObj,     // Which key in obj for preview obj (sha1)
+      sha1Path = 4,   // how to convert the sha1 to preview path
+      apiTmpl,        // the api url tmpl for previewKey
+      cdnTmpl,        // the cdn url tmpl for previewObj
+      dftSrc,
+    }={}) {
+      // preview obj for sha1
+      if(cdnTmpl) {
+        let po = _.get(obj, previewObj)
+        if(po && po.sha1) {
+          po = _.cloneDeep(po)
+          // sha1 path
+          if(sha1Path > 0) {
+            po.sha1Path = po.sha1.substring(0,sha1Path)+"/"+po.sha1.substring(sha1Path)
+          } else {
+            po.sha1Path = po.sha1
+          }
+          return Ti.S.renderBy(cdnTmpl, po)
+        }
+      }
+  
+      // preview obj for id
+      if(apiTmpl) {
+        // 看看有木有对象
+        let oph = _.get(obj, previewKey)
+        if(oph) {
+          return Ti.S.renderBy(apiTmpl, obj)
+        }
+      }
+      // The Default
+      return dftSrc
+    }
+    
   }
   ///////////////////////////////////////////
   return {WWW: TiWWW};
@@ -10688,7 +10738,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200803.183848",
+  "version" : "2.5-20200809.080823",
   "dev" : false,
   "appName" : null,
   "session" : {},

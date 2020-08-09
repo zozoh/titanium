@@ -1,4 +1,4 @@
-// Pack At: 2020-08-03 18:38:48
+// Pack At: 2020-08-09 08:08:23
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -3467,15 +3467,15 @@ const _M = {
       }, {
         title : "Tags",
         name  : "tags"
-      }, {
-        title : "AuditStatus",
-        name  : "auditStatus"
-      }, {
-        title : "DownloadSwitch",
-        name  : "downloadSwitch"
-      }, {
-        title : "PreprocessStatus",
-        name  : "preprocessStatus"
+      // }, {
+      //   title : "AuditStatus",
+      //   name  : "auditStatus"
+      // }, {
+      //   title : "DownloadSwitch",
+      //   name  : "downloadSwitch"
+      // }, {
+      //   title : "PreprocessStatus",
+      //   name  : "preprocessStatus"
       }, {
         title : "CreateTime",
         name  : "createTime"
@@ -3526,7 +3526,7 @@ const _M = {
   props : {
     "autoplay": {
       type: Boolean,
-      default: true
+      default: false
     },
     "videoId": {
       type: String,
@@ -15992,7 +15992,12 @@ const _M = {
         let list = []
         for(let it of this.value) {
           let lal = this.genLngLat(it)
-          list.push(_.assign({}, it, lal))
+          // Transform preview src
+          let src = it.src
+          if(it.obj, it.preview) {
+            src = Ti.WWW.evalObjPreviewSrc(it.obj, it.preview)
+          }
+          list.push(_.assign({}, it, lal, {src}))
         }
         return list
       }
@@ -17369,8 +17374,6 @@ Ti.Preload("ti/com/ti/media/image/ti-media-image.html", `<div class="ti-media-im
 //============================================================
 (function(){
 const _M = {
-  ///////////////////////////////////
-  inheritAttrs : false,
   ///////////////////////////////////
   data: ()=>({
     naturalWidth  : -1,
@@ -22885,7 +22888,7 @@ const _M = {
       }
 
       return async src => {
-        //console.log("!!!!src", src)
+        // console.log("!!!!src", src)
         // Outsite link
         if(/^(https?:)(\/\/)/.test(src))
           return src
@@ -27215,7 +27218,7 @@ Ti.Preload("ti/com/web/footer/_com.json", {
 Ti.Preload("ti/com/web/media/image/web-media-image.html", `<div class="web-media-image"
   :class="TopClass">
   <!--Image-->
-  <img :src="src || dftSrc"/>
+  <img :src="TheSrc"/>
   <!--Text-->
   <div
     v-if="TheText"
@@ -27233,6 +27236,14 @@ const _M = {
     "src" : {
       type : String,
       default : undefined
+    },
+    "preview": {
+      type: Object,
+      default: null
+    },
+    "value": {
+      type: Object,
+      default: null
     },
     "dftSrc" : {
       type : String,
@@ -27252,6 +27263,17 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
+    },
+    //--------------------------------------
+    TheSrc() {
+      if(this.value && this.preview) {
+        let po = _.cloneDeep(this.preview)
+        _.defaults(po, {
+          dftSrc: this.dftSrc
+        })
+        return Ti.WWW.evalObjPreviewSrc(this.value, po)
+      }
+      return this.src || this.dftSrc
     },
     //--------------------------------------
     TheText() {
@@ -29081,6 +29103,14 @@ const _M = {
   "returnUrl": {
     type: String,
     default: undefined
+  },
+  "orderTitle": {
+    type: String,
+    default: undefined
+  },
+  "orderType": {
+    type: String,
+    default: "A"
   }
 }
 Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed-props.mjs", _M);
@@ -29338,7 +29368,9 @@ const _M = {
           }))
           let order = await this.createOrder({
             payType: this.payType,
-            items: payItems
+            items: payItems,
+            orderType: this.orderType,
+            orderTitle: this.orderTitle
           })
           this.$emit("change", {orderId: _.get(order, "id")})
           this.myOrder = order
@@ -29538,6 +29570,8 @@ const _M = {
           payType: "=payType",
           orderId: "=orderId",
           payOk: "=payOk",
+          orderType: this.orderType,
+          orderTitle: this.orderTitle,
           watchUser: this.watchUser,
           qrcodeSize: this.qrcodeSize,
           getOrder: this.getOrder,
@@ -39065,13 +39099,20 @@ const _M = {
         //........................................
       }
     }
+    //............................................
     // Eval Filter: match
     if(!_.isEmpty(match)) {
       _.assign(flt, match)
     }
+    //............................................
+    // Fix filter
+    let beMatch = _.get(rootState, "main.config.schema.behavior.match")
+    if(!_.isEmpty(beMatch)) {
+      _.assign(flt, beMatch)
+    }
+    //............................................
     // InRecycleBin 
     flt.th_live = state.inRecycleBin ? -1 : 1
-
     //............................................
     // Eval Sorter
     if(!_.isEmpty(state.sorter)) {
@@ -39517,7 +39558,7 @@ const _M = {
     //-------------------------------------
     // Handle by EventBubble
     __on_events(name, ...args) {
-      console.log("site-main.__on_events", name, ...args)
+      //console.log("site-main.__on_events", name, ...args)
       // ShowBlock
       if("block:show" == name) {
         return blockName => this.showBlock(blockName)
@@ -39540,7 +39581,7 @@ const _M = {
       })
     },
     //-------------------------------------
-    pushBrowserHistory() {
+    pushBrowserHistory(pageTitle) {
       let his = window.history
       //...................................
       if(!his) {
@@ -39553,8 +39594,12 @@ const _M = {
       //...................................
       let pgLink = this.getUrl(this.pageLink)
       //...................................
-      if(loPath != pgLink) {
-        his.pushState(this.page, this.page.title, pgLink)
+      if(loPath != pgLink || !his.state) {
+        let pg = _.cloneDeep(_.pick(this.page, "path", "params", "anchor"))
+        // console.log("pg", JSON.stringify(pg))
+        // console.log("pageTitle", pageTitle)
+        // console.log("pgLink", pgLink)
+        his.pushState(pg, pageTitle, pgLink)
       }
       //...................................
     }
@@ -39567,7 +39612,7 @@ const _M = {
       //console.log("-> ", this.page.title)
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
       document.title = pageTitle
-      this.pushBrowserHistory()
+      this.pushBrowserHistory(pageTitle)
 
       // TODO : Maybe here to embed the BaiDu Tongji Code
     }
@@ -39578,6 +39623,7 @@ const _M = {
     // The state(page) pushed by $store.dispath("navTo")
     window.onpopstate = (evt)=>{
       let page = evt.state
+      console.log("popstate", page)
       if(page && page.path) {
         console.log("window.onpopstate", page)
         let app = Ti.App(this)
@@ -39796,7 +39842,7 @@ const _M = {
     force = false,
     ok, fail, nophone, noemail
   }={}) {
-    console.log("I am doCheckMe", {force, ok, fail, nophone})
+    //console.log("I am doCheckMe", {force, ok, fail, nophone})
     // console.log(" -urls", getters.urls)
     // Guard SiteId
     let siteId  = rootState.siteId
@@ -39826,7 +39872,7 @@ const _M = {
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // success
     if(reo.ok) {
-      console.log("checkme OK", reo)
+      //console.log("checkme OK", reo)
       commit("setTicket", reo.data.ticket)
       commit("setExpi",   reo.data.expi)
       commit("setMe",     reo.data.me)
@@ -39865,7 +39911,7 @@ const _M = {
     force = false,
     fail, nophone, noemail
   }={}) {
-    console.log("autoCheckmeOrAuthByWxghCode")
+    //console.log("autoCheckmeOrAuthByWxghCode")
     dispatch("doCheckMe", {
       force,
       fail : {
@@ -39908,7 +39954,7 @@ const _M = {
 
     let codeType = rootState.page.params[codeTypeBy]
 
-    console.log("authByWxghCode", {codeType, code})
+    //console.log("authByWxghCode", {codeType, code})
 
     // Guard SiteId
     let siteId = rootState.siteId
@@ -39965,7 +40011,7 @@ const _M = {
     name, passwd,
     done, ok, fail, noexist, invalid, others
   }={}) {
-    console.log("doAuth", name, passwd)
+    //console.log("doAuth", name, passwd)
 
     // Guard SiteId
     let siteId = rootState.siteId
@@ -40001,7 +40047,7 @@ const _M = {
 
     // Call Remote
     let reo = await Ti.Http.post(url, {params, as:"json"})
-    console.log(reo)
+    //console.log(reo)
 
     // Callback: done
     await dispatch("doAction", [done, reo], {root:true})
@@ -40045,7 +40091,7 @@ const _M = {
     account, captcha,
     done, ok, fail, error
   }={}) {
-    console.log("getVcode", {type,scene, account, captcha})
+    //console.log("getVcode", {type,scene, account, captcha})
 
     // Guard SiteId
     let siteId = rootState.siteId
@@ -40112,7 +40158,7 @@ const _M = {
     account, vcode, newpwd, oldpwd,
     done, ok, fail
   }={}) {
-    console.log("doResetPasswd", {scene, account, vcode, newpwd, oldpwd})
+    //console.log("doResetPasswd", {scene, account, vcode, newpwd, oldpwd})
 
     // Guard SiteId
     let siteId = rootState.siteId
@@ -40172,7 +40218,7 @@ const _M = {
   async doLogout({state, commit, dispatch, getters, rootState}, {
     done, ok, fail
   }={}) {
-    console.log("doLogout")
+    //console.log("doLogout")
     // Guard SiteId
     let siteId = rootState.siteId
     if(!siteId) {
@@ -40200,7 +40246,7 @@ const _M = {
 
     // Call Remote
     let reo = await Ti.Http.get(url, {params, as:"json"})
-    console.log(reo)
+    //console.log(reo)
 
     commit("setTicket", null)
     commit("setExpi",   0)
@@ -40397,6 +40443,7 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "className": null,
   "title" : null,
   "path"  : null,
+  "pageUri": null,
   "ready" : 0,
   "finger" : null,
   "params" : {},
@@ -40536,6 +40583,10 @@ const _M = {
     //--------------------------------------------
     setPath(state, path) {
       state.path = path
+    },
+    //--------------------------------------------
+    setPageUri(state, uri) {
+      state.pageUri = uri
     },
     //--------------------------------------------
     setParams(state, params) {
@@ -40834,7 +40885,7 @@ const _M = {
      * Reload page data by given api keys
      */
     async reloadData({commit, getters, dispatch, rootState}, keys=[]) {
-      console.log(" # -> page.reloadData", keys)
+      //console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
       let isAll = _.isEmpty(keys)
@@ -40862,7 +40913,7 @@ const _M = {
       //.......................................
       // Prepare the Promises
       for(let api of apis) {
-        console.log("  # -> page.reloadData -> prepareApi", api)
+        //console.log("  # -> page.reloadData -> prepareApi", api)
         await dispatch("__run_api", {api})
       }
       //.......................................
@@ -40903,7 +40954,7 @@ const _M = {
       params={}
     }) {
       //console.log(rootGetters.routerList)
-      console.log(" # -> page.reload", {path,params,anchor})
+      //console.log(" # -> page.reload", {path,params,anchor})
       let pinfo;
       //.....................................
       // Apply routerList
@@ -40923,7 +40974,7 @@ const _M = {
       }
       //.....................................
       // Notify: init
-      console.log("@page:init ...")
+      //console.log("@page:init ...")
       commit("setReady", 0)
       await dispatch("invokeAction", {name:"@page:init"}, {root:true})
       //.....................................
@@ -40936,6 +40987,11 @@ const _M = {
       }
       pinfo.params = _.merge({}, pinfo.params, params)
       pinfo.path = path
+      //.....................................
+      // Update Path url
+      let link = Ti.Util.Link({url:path, params, anchor})
+      pinfo.pageUri = link.toString()
+      //.....................................
       let page = _.merge({
         "className" : null,
         "title" : null,
@@ -40951,11 +41007,11 @@ const _M = {
       //.....................................
       // Update page 
       commit("set", page)
-      console.log(" #### page.loaded", _.cloneDeep(page))
+      //console.log(" #### page.loaded", _.cloneDeep(page))
 
       //.....................................
       // Notify: Prepare
-      console.log("@page:prepare ...")
+      //console.log("@page:prepare ...")
       commit("setReady", 1)
       await dispatch("invokeAction", {name:"@page:prepare"}, {root:true})
       //.....................................
@@ -40968,7 +41024,7 @@ const _M = {
       dispatch("scrollToTop")
       //.....................................
       // Notify: Ready
-      console.log("@page:ready ...")
+      //console.log("@page:ready ...")
       commit("setReady", 2)
       await dispatch("invokeAction", {name:"@page:ready"}, {root:true})
       //.....................................
@@ -41073,7 +41129,12 @@ const _M = {
       }
     },
     //--------------------------------------------
-    async createOrder({getters, rootState}, {payType, items}={}) {
+    async createOrder({getters, rootState}, {
+      payType, 
+      items,
+      orderType,
+      orderTitle
+    }={}) {
       if(!payType || _.isEmpty(items)) {
         return 
       }
@@ -41085,8 +41146,10 @@ const _M = {
           "Content-Type": "application/json;charset=utf-8"
         },
         body: JSON.stringify({
-          pay_tp : payType,
-          products: items,
+          title: orderTitle,
+          tp: orderType,
+          pay_tp: payType,
+          products: items
         }),
         as: "json"
       })
@@ -41187,8 +41250,36 @@ const _M = {
       }
     },
     //--------------------------------------------
+    async checkoutItems({dispatch}, {
+      items=[],
+      checkoutPage="page/shop/checkout.html",
+      newtab=false,
+      orderType="A",
+      orderTitle
+    }={}) {
+      // Prepare the list
+      let list = []
+      _.forEach(items, (it)=> {
+        if(it.id && it.amount > 0) {
+          list.push(_.pick(it, "id", "amount"))
+        }
+      })
+
+      // Do the checkout
+      if(!_.isEmpty(items)) {
+        await dispatch("checkout", {
+          items, checkoutPage, newtab, orderType, orderTitle
+        })
+      }
+      // Just warn it
+      else {
+        console.warn("!checkoutItems: Empty Item List!")
+      }
+    },
+    //--------------------------------------------
     async checkoutBasket({state, dispatch}, {
-      checkoutPage="page/shop/checkout.html"
+      checkoutPage="page/shop/checkout.html",
+      newtab=false
     }={}) {
       // Prepare the list
       let items = []
@@ -41204,7 +41295,7 @@ const _M = {
       // Do the checkout
       if(!_.isEmpty(items)) {
         await dispatch("checkout", {
-          items, checkoutPage
+          items, checkoutPage, newtab
         })
       }
       // Just warn it
@@ -41216,11 +41307,14 @@ const _M = {
     /***
      * @param items{Array} - Array with item `{id:xxx, amount:1}`
      */
-    async checkout({commit, dispatch, getters, rootState}, {
+    async checkout({dispatch, rootGetters}, {
       items=[],
-      checkoutPage="page/shop/checkout.html"
+      checkoutPage="page/shop/checkout.html",
+      newtab=false,
+      orderType="A",
+      orderTitle
     }={}) {
-      console.log("checkout", items)
+      //console.log("checkout", items)
 
       // encode the items as params
       let its = []
@@ -41235,13 +41329,29 @@ const _M = {
         return
       }
 
+      // Params
+      let params= {
+        its: its.join(","),
+        tp: orderType,
+        ot: orderTitle
+      }
+
+      // Open page in new tab
+      if(newtab) {
+        let url = rootGetters.getUrl(checkoutPage)
+        await dispatch("openUrl", {
+          url, 
+          target:"_blank",
+          params
+        }, {root:true})
+      }
       // Goto page
-      await dispatch("navTo", {
-        value: checkoutPage,
-        params: {
-          its: its.join(",")
-        }
-      }, {root:true})
+      else {
+        await dispatch("navTo", {
+          value: checkoutPage,
+          params
+        }, {root:true})
+      }
 
     },
     //--------------------------------------------
@@ -41557,7 +41667,7 @@ const _M = {
       data,     // page.data
       params    // page.params
     }={}) {
-      console.log("navToPage::", value)
+      //console.log("navToPage::", value)
       // Guarding
       if(!value)
         return
@@ -41565,14 +41675,15 @@ const _M = {
       if("page" == type) {
         commit("setLoading", true)
 
+        // maybe value is  full url with query string and hash
+        let href = Ti.Util.parseHref(value)
+        href.anchor = anchor || href.anchor
+        href.params = params || href.params
+        href.data = data
+
         // Reload
         //console.log("@page:reload ...", _.cloneDeep(state.auth))
-        await dispatch("page/reload", {
-          path   : value,
-          anchor : anchor,
-          params : params,
-          data   : data
-        })
+        await dispatch("page/reload", href)
         
         commit("setLoading", false)
       }
@@ -41739,7 +41850,7 @@ const _M = {
     },
     //--------------------------------------------
     async reload({state, commit, dispatch}) {
-      console.log("site.reload", state.entry, state.base)
+      //console.log("site.reload", state.entry, state.base)
       // Merge Site FuncSet
       //console.log(state.utils)
 
