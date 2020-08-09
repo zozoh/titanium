@@ -156,7 +156,7 @@ const _M = {
     //-------------------------------------
     // Handle by EventBubble
     __on_events(name, ...args) {
-      console.log("site-main.__on_events", name, ...args)
+      //console.log("site-main.__on_events", name, ...args)
       // ShowBlock
       if("block:show" == name) {
         return blockName => this.showBlock(blockName)
@@ -179,7 +179,7 @@ const _M = {
       })
     },
     //-------------------------------------
-    pushBrowserHistory() {
+    pushBrowserHistory(pageTitle) {
       let his = window.history
       //...................................
       if(!his) {
@@ -192,8 +192,12 @@ const _M = {
       //...................................
       let pgLink = this.getUrl(this.pageLink)
       //...................................
-      if(loPath != pgLink) {
-        his.pushState(this.page, this.page.title, pgLink)
+      if(loPath != pgLink || !his.state) {
+        let pg = _.cloneDeep(_.pick(this.page, "path", "params", "anchor"))
+        // console.log("pg", JSON.stringify(pg))
+        // console.log("pageTitle", pageTitle)
+        // console.log("pgLink", pgLink)
+        his.pushState(pg, pageTitle, pgLink)
       }
       //...................................
     }
@@ -206,7 +210,7 @@ const _M = {
       //console.log("-> ", this.page.title)
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
       document.title = pageTitle
-      this.pushBrowserHistory()
+      this.pushBrowserHistory(pageTitle)
 
       // TODO : Maybe here to embed the BaiDu Tongji Code
     }
@@ -217,6 +221,7 @@ const _M = {
     // The state(page) pushed by $store.dispath("navTo")
     window.onpopstate = (evt)=>{
       let page = evt.state
+      console.log("popstate", page)
       if(page && page.path) {
         console.log("window.onpopstate", page)
         let app = Ti.App(this)

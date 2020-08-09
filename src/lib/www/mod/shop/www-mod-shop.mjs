@@ -60,7 +60,12 @@ const _M = {
       }
     },
     //--------------------------------------------
-    async createOrder({getters, rootState}, {payType, items}={}) {
+    async createOrder({getters, rootState}, {
+      payType, 
+      items,
+      orderType,
+      orderTitle
+    }={}) {
       if(!payType || _.isEmpty(items)) {
         return 
       }
@@ -72,8 +77,10 @@ const _M = {
           "Content-Type": "application/json;charset=utf-8"
         },
         body: JSON.stringify({
-          pay_tp : payType,
-          products: items,
+          title: orderTitle,
+          tp: orderType,
+          pay_tp: payType,
+          products: items
         }),
         as: "json"
       })
@@ -174,8 +181,36 @@ const _M = {
       }
     },
     //--------------------------------------------
+    async checkoutItems({dispatch}, {
+      items=[],
+      checkoutPage="page/shop/checkout.html",
+      newtab=false,
+      orderType="A",
+      orderTitle
+    }={}) {
+      // Prepare the list
+      let list = []
+      _.forEach(items, (it)=> {
+        if(it.id && it.amount > 0) {
+          list.push(_.pick(it, "id", "amount"))
+        }
+      })
+
+      // Do the checkout
+      if(!_.isEmpty(items)) {
+        await dispatch("checkout", {
+          items, checkoutPage, newtab, orderType, orderTitle
+        })
+      }
+      // Just warn it
+      else {
+        console.warn("!checkoutItems: Empty Item List!")
+      }
+    },
+    //--------------------------------------------
     async checkoutBasket({state, dispatch}, {
-      checkoutPage="page/shop/checkout.html"
+      checkoutPage="page/shop/checkout.html",
+      newtab=false
     }={}) {
       // Prepare the list
       let items = []
@@ -191,7 +226,7 @@ const _M = {
       // Do the checkout
       if(!_.isEmpty(items)) {
         await dispatch("checkout", {
-          items, checkoutPage
+          items, checkoutPage, newtab
         })
       }
       // Just warn it
@@ -203,11 +238,14 @@ const _M = {
     /***
      * @param items{Array} - Array with item `{id:xxx, amount:1}`
      */
-    async checkout({commit, dispatch, getters, rootState}, {
+    async checkout({dispatch, rootGetters}, {
       items=[],
-      checkoutPage="page/shop/checkout.html"
+      checkoutPage="page/shop/checkout.html",
+      newtab=false,
+      orderType="A",
+      orderTitle
     }={}) {
-      console.log("checkout", items)
+      //console.log("checkout", items)
 
       // encode the items as params
       let its = []
@@ -222,13 +260,29 @@ const _M = {
         return
       }
 
+      // Params
+      let params= {
+        its: its.join(","),
+        tp: orderType,
+        ot: orderTitle
+      }
+
+      // Open page in new tab
+      if(newtab) {
+        let url = rootGetters.getUrl(checkoutPage)
+        await dispatch("openUrl", {
+          url, 
+          target:"_blank",
+          params
+        }, {root:true})
+      }
       // Goto page
-      await dispatch("navTo", {
-        value: checkoutPage,
-        params: {
-          its: its.join(",")
-        }
-      }, {root:true})
+      else {
+        await dispatch("navTo", {
+          value: checkoutPage,
+          params
+        }, {root:true})
+      }
 
     },
     //--------------------------------------------

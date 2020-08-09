@@ -1,13 +1,15 @@
 class TiLinkObj {
-  constructor({url, params}={}){
+  constructor({url, params, anchor}={}){
     this.url = url
     this.params = params
+    this.anchor = anchor
     this.__S = null
     this.set({url, params})
   }
-  set({url="", params={}}={}) {
+  set({url="", params={}, anchor}={}) {
     this.url = url
     this.params = params
+    this.anchor = anchor
     this.__S = null
     return this
   }
@@ -24,15 +26,24 @@ class TiLinkObj {
       if(qs.length > 0) {
         ss.push(qs.join("&"))
       }
-      this.__S = ss.join("?")
+      let url = ss.join("?")
+      if(this.anchor) {
+        if(/^#/.test(this.anchor)){
+          url += this.anchor
+        } else {
+          url += "#"+this.anchor
+        }
+      }
+      // cache it
+      this.__S = url
     }
     return this.__S
   }
 }
 //-----------------------------------
 const TiLink = {
-  Link({url, params}={}){
-    return new TiLinkObj({url, params})
+  Link({url, params, anchor}={}){
+    return new TiLinkObj({url, params, anchor})
   }
 }
 //-----------------------------------

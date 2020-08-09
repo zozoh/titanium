@@ -149,7 +149,7 @@ const _M = {
       data,     // page.data
       params    // page.params
     }={}) {
-      console.log("navToPage::", value)
+      //console.log("navToPage::", value)
       // Guarding
       if(!value)
         return
@@ -157,14 +157,15 @@ const _M = {
       if("page" == type) {
         commit("setLoading", true)
 
+        // maybe value is  full url with query string and hash
+        let href = Ti.Util.parseHref(value)
+        href.anchor = anchor || href.anchor
+        href.params = params || href.params
+        href.data = data
+
         // Reload
         //console.log("@page:reload ...", _.cloneDeep(state.auth))
-        await dispatch("page/reload", {
-          path   : value,
-          anchor : anchor,
-          params : params,
-          data   : data
-        })
+        await dispatch("page/reload", href)
         
         commit("setLoading", false)
       }
@@ -331,7 +332,7 @@ const _M = {
     },
     //--------------------------------------------
     async reload({state, commit, dispatch}) {
-      console.log("site.reload", state.entry, state.base)
+      //console.log("site.reload", state.entry, state.base)
       // Merge Site FuncSet
       //console.log(state.utils)
 

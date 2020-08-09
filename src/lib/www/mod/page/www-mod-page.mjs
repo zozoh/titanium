@@ -119,6 +119,10 @@ const _M = {
       state.path = path
     },
     //--------------------------------------------
+    setPageUri(state, uri) {
+      state.pageUri = uri
+    },
+    //--------------------------------------------
     setParams(state, params) {
       state.params = params
     },
@@ -415,7 +419,7 @@ const _M = {
      * Reload page data by given api keys
      */
     async reloadData({commit, getters, dispatch, rootState}, keys=[]) {
-      console.log(" # -> page.reloadData", keys)
+      //console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
       let isAll = _.isEmpty(keys)
@@ -443,7 +447,7 @@ const _M = {
       //.......................................
       // Prepare the Promises
       for(let api of apis) {
-        console.log("  # -> page.reloadData -> prepareApi", api)
+        //console.log("  # -> page.reloadData -> prepareApi", api)
         await dispatch("__run_api", {api})
       }
       //.......................................
@@ -484,7 +488,7 @@ const _M = {
       params={}
     }) {
       //console.log(rootGetters.routerList)
-      console.log(" # -> page.reload", {path,params,anchor})
+      //console.log(" # -> page.reload", {path,params,anchor})
       let pinfo;
       //.....................................
       // Apply routerList
@@ -504,7 +508,7 @@ const _M = {
       }
       //.....................................
       // Notify: init
-      console.log("@page:init ...")
+      //console.log("@page:init ...")
       commit("setReady", 0)
       await dispatch("invokeAction", {name:"@page:init"}, {root:true})
       //.....................................
@@ -517,6 +521,11 @@ const _M = {
       }
       pinfo.params = _.merge({}, pinfo.params, params)
       pinfo.path = path
+      //.....................................
+      // Update Path url
+      let link = Ti.Util.Link({url:path, params, anchor})
+      pinfo.pageUri = link.toString()
+      //.....................................
       let page = _.merge({
         "className" : null,
         "title" : null,
@@ -532,11 +541,11 @@ const _M = {
       //.....................................
       // Update page 
       commit("set", page)
-      console.log(" #### page.loaded", _.cloneDeep(page))
+      //console.log(" #### page.loaded", _.cloneDeep(page))
 
       //.....................................
       // Notify: Prepare
-      console.log("@page:prepare ...")
+      //console.log("@page:prepare ...")
       commit("setReady", 1)
       await dispatch("invokeAction", {name:"@page:prepare"}, {root:true})
       //.....................................
@@ -549,7 +558,7 @@ const _M = {
       dispatch("scrollToTop")
       //.....................................
       // Notify: Ready
-      console.log("@page:ready ...")
+      //console.log("@page:ready ...")
       commit("setReady", 2)
       await dispatch("invokeAction", {name:"@page:ready"}, {root:true})
       //.....................................

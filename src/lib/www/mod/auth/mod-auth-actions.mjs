@@ -4,7 +4,7 @@ const _M = {
     force = false,
     ok, fail, nophone, noemail
   }={}) {
-    console.log("I am doCheckMe", {force, ok, fail, nophone})
+    //console.log("I am doCheckMe", {force, ok, fail, nophone})
     // console.log(" -urls", getters.urls)
     // Guard SiteId
     let siteId  = rootState.siteId
@@ -34,7 +34,7 @@ const _M = {
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // success
     if(reo.ok) {
-      console.log("checkme OK", reo)
+      //console.log("checkme OK", reo)
       commit("setTicket", reo.data.ticket)
       commit("setExpi",   reo.data.expi)
       commit("setMe",     reo.data.me)
@@ -73,7 +73,7 @@ const _M = {
     force = false,
     fail, nophone, noemail
   }={}) {
-    console.log("autoCheckmeOrAuthByWxghCode")
+    //console.log("autoCheckmeOrAuthByWxghCode")
     dispatch("doCheckMe", {
       force,
       fail : {
@@ -116,7 +116,7 @@ const _M = {
 
     let codeType = rootState.page.params[codeTypeBy]
 
-    console.log("authByWxghCode", {codeType, code})
+    //console.log("authByWxghCode", {codeType, code})
 
     // Guard SiteId
     let siteId = rootState.siteId
@@ -173,7 +173,7 @@ const _M = {
     name, passwd,
     done, ok, fail, noexist, invalid, others
   }={}) {
-    console.log("doAuth", name, passwd)
+    //console.log("doAuth", name, passwd)
 
     // Guard SiteId
     let siteId = rootState.siteId
@@ -209,7 +209,7 @@ const _M = {
 
     // Call Remote
     let reo = await Ti.Http.post(url, {params, as:"json"})
-    console.log(reo)
+    //console.log(reo)
 
     // Callback: done
     await dispatch("doAction", [done, reo], {root:true})
@@ -253,7 +253,7 @@ const _M = {
     account, captcha,
     done, ok, fail, error
   }={}) {
-    console.log("getVcode", {type,scene, account, captcha})
+    //console.log("getVcode", {type,scene, account, captcha})
 
     // Guard SiteId
     let siteId = rootState.siteId
@@ -320,7 +320,7 @@ const _M = {
     account, vcode, newpwd, oldpwd,
     done, ok, fail
   }={}) {
-    console.log("doResetPasswd", {scene, account, vcode, newpwd, oldpwd})
+    //console.log("doResetPasswd", {scene, account, vcode, newpwd, oldpwd})
 
     // Guard SiteId
     let siteId = rootState.siteId
@@ -380,7 +380,7 @@ const _M = {
   async doLogout({state, commit, dispatch, getters, rootState}, {
     done, ok, fail
   }={}) {
-    console.log("doLogout")
+    //console.log("doLogout")
     // Guard SiteId
     let siteId = rootState.siteId
     if(!siteId) {
@@ -408,7 +408,7 @@ const _M = {
 
     // Call Remote
     let reo = await Ti.Http.get(url, {params, as:"json"})
-    console.log(reo)
+    //console.log(reo)
 
     commit("setTicket", null)
     commit("setExpi",   0)

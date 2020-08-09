@@ -20,7 +20,11 @@ const TiBehaviors = {
         let $in = Ti.Dom.createElement({
           $p : $form,
           tagName : 'input',
-          attrs : {name, value, type:"hidden"}
+          props : {
+            name, 
+            value, 
+            type:"hidden"
+          }
         })
       })
       // await for a while
@@ -28,7 +32,7 @@ const TiBehaviors = {
         // Submit it
         $form.submit()
         // Remove it
-        Ti.Dom.remove($form)
+        //Ti.Dom.remove($form)
 
         // Done
         resolve({

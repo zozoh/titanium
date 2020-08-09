@@ -57,13 +57,20 @@ export default {
         //........................................
       }
     }
+    //............................................
     // Eval Filter: match
     if(!_.isEmpty(match)) {
       _.assign(flt, match)
     }
+    //............................................
+    // Fix filter
+    let beMatch = _.get(rootState, "main.config.schema.behavior.match")
+    if(!_.isEmpty(beMatch)) {
+      _.assign(flt, beMatch)
+    }
+    //............................................
     // InRecycleBin 
     flt.th_live = state.inRecycleBin ? -1 : 1
-
     //............................................
     // Eval Sorter
     if(!_.isEmpty(state.sorter)) {

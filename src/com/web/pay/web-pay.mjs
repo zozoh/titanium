@@ -69,6 +69,8 @@ const _M = {
           payType: "=payType",
           orderId: "=orderId",
           payOk: "=payOk",
+          orderType: this.orderType,
+          orderTitle: this.orderTitle,
           watchUser: this.watchUser,
           qrcodeSize: this.qrcodeSize,
           getOrder: this.getOrder,

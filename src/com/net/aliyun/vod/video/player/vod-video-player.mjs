@@ -3,7 +3,7 @@ export default {
   props : {
     "autoplay": {
       type: Boolean,
-      default: true
+      default: false
     },
     "videoId": {
       type: String,

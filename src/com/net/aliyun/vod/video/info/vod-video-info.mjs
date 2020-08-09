@@ -49,15 +49,15 @@ export default {
       }, {
         title : "Tags",
         name  : "tags"
-      }, {
-        title : "AuditStatus",
-        name  : "auditStatus"
-      }, {
-        title : "DownloadSwitch",
-        name  : "downloadSwitch"
-      }, {
-        title : "PreprocessStatus",
-        name  : "preprocessStatus"
+      // }, {
+      //   title : "AuditStatus",
+      //   name  : "auditStatus"
+      // }, {
+      //   title : "DownloadSwitch",
+      //   name  : "downloadSwitch"
+      // }, {
+      //   title : "PreprocessStatus",
+      //   name  : "preprocessStatus"
       }, {
         title : "CreateTime",
         name  : "createTime"

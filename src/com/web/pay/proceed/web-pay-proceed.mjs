@@ -177,7 +177,9 @@ const _M = {
           }))
           let order = await this.createOrder({
             payType: this.payType,
-            items: payItems
+            items: payItems,
+            orderType: this.orderType,
+            orderTitle: this.orderTitle
           })
           this.$emit("change", {orderId: _.get(order, "id")})
           this.myOrder = order

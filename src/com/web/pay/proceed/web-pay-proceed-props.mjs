@@ -22,5 +22,13 @@ export default {
   "returnUrl": {
     type: String,
     default: undefined
+  },
+  "orderTitle": {
+    type: String,
+    default: undefined
+  },
+  "orderType": {
+    type: String,
+    default: "A"
   }
 }
