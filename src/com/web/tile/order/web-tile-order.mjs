@@ -32,7 +32,7 @@ const _M = {
     },
     //--------------------------------------
     OrderStatus() {
-      return `or-st-${_.toLower(this.Order.st)}`
+      return `or-st-${_.toLower(this.Order.or_st)}`
     },
     //--------------------------------------
     OrderHref() {
