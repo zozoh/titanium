@@ -17,4 +17,8 @@
       text-align:center;
     }
   }
+
+  &.is-big > .as-main {font-size: SZ(32);}
+  &.is-normal > .as-main {font-size: SZ(24);}
+  &.is-small > .as-main {font-size: SZ(18);}
 }

@@ -292,14 +292,14 @@ const TiUtil = {
       // String : Check the "@BLOCK(xxx)" 
       if(_.isString(theValue)) {
         // Escape
-        let m = /^:((=|==|!=|=>|->)(.+))$/.exec(theValue)
+        let m = /^:(:*(=|==|!=|=>>?|->)(.+))$/.exec(theValue)
         if(m) {
           return iteratee(m[1])
         }
 
         let m_type, m_val, m_dft;
         // Match template
-        m = /^(==|!=|=>|->)(.+)$/.exec(theValue)
+        m = /^(==|!=|=>>?|->)(.+)$/.exec(theValue)
         if(m) {
           m_type = m[1]
           m_val  = _.trim(m[2])
@@ -340,8 +340,13 @@ const TiUtil = {
               return re
             },
             // =>Ti.Types.toStr(meta)
+            "=>>" : (val) => {
+              let fn = Ti.Util.genInvoking(val, {context, partial: "right"})
+              return fn()
+            },
+            // =>Ti.Types.toStr(meta)
             "=>" : (val) => {
-              let fn = Ti.Util.genInvoking(val, {context, partial: false})
+              let fn = Ti.Util.genInvoking(val, {context, partial: "left"})
               return fn()
             },
             // Render template
@@ -993,11 +998,19 @@ const TiUtil = {
       if(!_.isEmpty(args)) {
         // [ ? --> ... ]
         if("right" == partial) {
-          return _.partialRight(func, ...args)
+          return  function(input){
+            let as = _.isUndefined(input)
+                      ? args
+                      : _.concat(input, args);
+            return func.apply(this, as)
+          }
         }
         // [ ... <-- ?]
         else if("left" == partial) {
-          return _.partial(func, ...args)
+          return  function(input){
+            let as = _.concat(args, input)
+            return func.apply(this, as)
+          }
         }
         // [..]
         return ()=>func(...args)

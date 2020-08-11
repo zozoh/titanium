@@ -2,11 +2,11 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "value" : null,
+  "value" : undefined,
   "format" : undefined,
   "valueCase" : {
     type : String,
-    default : null,
+    default : undefined,
     validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
   },
   "trimed" : {
@@ -41,7 +41,7 @@ export default {
   //-----------------------------------
   "placeholder" : {
     type : [String, Number],
-    default : null
+    default : undefined
   },
   "autoI18n" : {
     type : Boolean,
@@ -53,7 +53,7 @@ export default {
   },
   "prefixIcon" : {
     type : [String, Object],
-    default : null
+    default : undefined
   },
   "prefixHoverIcon" : {
     type : String,
@@ -65,25 +65,25 @@ export default {
   },
   "prefixText" : {
     type : String,
-    default : null
+    default : undefined
   },
   "suffixIcon" : {
     type : [String, Object],
-    default : null
+    default : undefined
   },
   "suffixText" : {
     type : String,
-    default : null
+    default : undefined
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
   "width" : {
     type : [Number, String],
-    default : null
+    default : undefined
   },
   "height" : {
     type : [Number, String],
-    default : null
+    default : undefined
   }
 }

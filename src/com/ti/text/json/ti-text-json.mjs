@@ -7,6 +7,15 @@ const _M = {
       validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
     },
     "value" : undefined,
+    "valueType": {
+      type: String,
+      default: "text",
+      validator: v => /^(text|obj)$/.test(v)
+    },
+    "jsonIndent": {
+      type: String,
+      default: '   '
+    },
     "tree" : {
       type : Object,
       default : ()=>({})
@@ -27,6 +36,13 @@ const _M = {
         return Ti.Types.safeParseJson(this.value, null)
       }
       return null
+    },
+    //--------------------------------------
+    TheSource() {
+      if(this.TheData){
+        return JSON.stringify(this.TheData, null, '   ')
+      }
+      return ""
     },
     //--------------------------------------
     TheLayout() {
@@ -55,7 +71,7 @@ const _M = {
       // Source Conf
       let sourceConf = {
         showTitle : false,
-        value    : this.value
+        value    : this.TheSource
       }
       //....................................
       // Done
@@ -78,7 +94,25 @@ const _M = {
     //--------------------------------------
     OnChange(payload) {
       //console.log("TiObjJson->OnChange", payload)
-      this.$notify('change', payload)
+      // If string, try parse
+      let val = payload
+      if(_.isString(payload)) {
+        try{
+          val = JSON.parse(payload)
+        }catch(E){
+          // wait for valid input
+          return
+        }
+      }
+      // obey the valueType
+      if("text" == this.valueType) {
+        if(this.jsonIndent) {
+          val = JSON.stringify(val, null, this.jsonIndent)
+        } else {
+          val = JSON.stringify(val)
+        }
+      }
+      this.$notify('change', val)
     }
     //--------------------------------------
   }

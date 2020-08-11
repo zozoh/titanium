@@ -2,7 +2,6 @@
  * In Building ....
  */
 export default {
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "icon" : {
@@ -16,7 +15,9 @@ export default {
   },
   //////////////////////////////////////////
   computed : {
-    
+    TopClass() {
+      return this.getTopClass()
+    }
   }
   //////////////////////////////////////////
 }

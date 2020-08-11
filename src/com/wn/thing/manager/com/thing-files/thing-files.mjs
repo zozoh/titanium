@@ -38,7 +38,7 @@ const _M = {
         infoPosition  : "left",
         infoNameWidth : 40,
         infoValueWidth : 120,
-        stateLocalKey : this.stateLocalKey,
+        stateLocalKey : this.getStateLocalKey("preview"),
         // Customized
         ...preview,
         // Edit Info 
@@ -67,8 +67,13 @@ const _M = {
     // Events
     //--------------------------------------
     OnDirNameChanged(dirName) {
-      let app = Ti.App(this)
-      app.commit("main/setCurrentDataDir", dirName)
+      Ti.App(this).commit("main/setCurrentDataDir", dirName)
+      
+      let skey = this.getStateLocalKey("dirname");
+      if(skey) {
+        Ti.Storage.session.set(skey, dirName)
+      }
+
       this.$nextTick(()=>{
         this.reloadData()
       })
@@ -92,6 +97,12 @@ const _M = {
     },
     //--------------------------------------
     // Untility
+    //--------------------------------------
+    getStateLocalKey(name) {
+      if(this.stateLocalKey && name) {
+        return  `${this.stateLocalKey}_${name}`
+      }
+    },
     //--------------------------------------
     async doDeleteSelected(){
       await this.$adaptlist.doDelete()
@@ -193,6 +204,16 @@ const _M = {
     "dataHome" : {
       handler : "reloadData",
       immediate : true
+    }
+  },
+  ///////////////////////////////////////////
+  created: function() {
+    let skey = this.getStateLocalKey("dirname");
+    if(skey) {
+      let dirName = Ti.Storage.session.getString(skey)
+      if(dirName) {
+        Ti.App(this).commit("main/setCurrentDataDir", dirName)
+      }
     }
   },
   ///////////////////////////////////////////

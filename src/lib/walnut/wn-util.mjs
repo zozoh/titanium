@@ -104,11 +104,24 @@ const WnUtil = {
     // Default
     return dftIcon
   },
-  getObjThumbIcon2(canIcon, meta) {
-    //console.log(canIcon, meta)
-    return WnUtil.getObjThumbIcon(_.defaults({
-      candidateIcon : canIcon
-    }, meta))
+  getObjThumbIcon2(meta, canIcon) {
+    //console.log(meta, canIcon)
+    if(meta.thumb) {
+      let src = `/o/content?str=${meta.thumb}`
+      return {
+        type : "image",
+        value : src
+      }
+    }
+
+    if(meta.icon) {
+      return meta.icon
+    }
+
+    if(canIcon)
+      return canIcon
+
+    return Ti.Icons.get(meta)
   },
   /***
    * return the object readable name
