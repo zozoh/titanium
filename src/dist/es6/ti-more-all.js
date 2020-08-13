@@ -1,4 +1,4 @@
-// Pack At: 2020-08-09 08:08:23
+// Pack At: 2020-08-13 09:58:02
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -13616,11 +13616,11 @@ const _M = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "value" : null,
+  "value" : undefined,
   "format" : undefined,
   "valueCase" : {
     type : String,
-    default : null,
+    default : undefined,
     validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
   },
   "trimed" : {
@@ -13655,7 +13655,7 @@ const _M = {
   //-----------------------------------
   "placeholder" : {
     type : [String, Number],
-    default : null
+    default : undefined
   },
   "autoI18n" : {
     type : Boolean,
@@ -13667,7 +13667,7 @@ const _M = {
   },
   "prefixIcon" : {
     type : [String, Object],
-    default : null
+    default : undefined
   },
   "prefixHoverIcon" : {
     type : String,
@@ -13679,26 +13679,26 @@ const _M = {
   },
   "prefixText" : {
     type : String,
-    default : null
+    default : undefined
   },
   "suffixIcon" : {
     type : [String, Object],
-    default : null
+    default : undefined
   },
   "suffixText" : {
     type : String,
-    default : null
+    default : undefined
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
   "width" : {
     type : [Number, String],
-    default : null
+    default : undefined
   },
   "height" : {
     type : [Number, String],
-    default : null
+    default : undefined
   }
 }
 Ti.Preload("ti/com/ti/input/ti-input-props.mjs", _M);
@@ -18435,7 +18435,8 @@ Ti.Preload("ti/com/ti/paging/jumper/_com.json", {
 //============================================================
 // JOIN: ti/roadblock/ti-roadblock.html
 //============================================================
-Ti.Preload("ti/com/ti/roadblock/ti-roadblock.html", `<div class="ti-roadblock">
+Ti.Preload("ti/com/ti/roadblock/ti-roadblock.html", `<div class="ti-roadblock"
+  :class="TopClass">
   <div class="as-main">
     <div v-if="icon" class="as-icon">
       <ti-icon :value="icon"/>
@@ -18453,7 +18454,6 @@ Ti.Preload("ti/com/ti/roadblock/ti-roadblock.html", `<div class="ti-roadblock">
  * In Building ....
  */
 const _M = {
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "icon" : {
@@ -18467,7 +18467,9 @@ const _M = {
   },
   //////////////////////////////////////////
   computed : {
-    
+    TopClass() {
+      return this.getTopClass()
+    }
   }
   //////////////////////////////////////////
 }
@@ -21880,6 +21882,15 @@ const _M = {
       validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
     },
     "value" : undefined,
+    "valueType": {
+      type: String,
+      default: "text",
+      validator: v => /^(text|obj)$/.test(v)
+    },
+    "jsonIndent": {
+      type: String,
+      default: '   '
+    },
     "tree" : {
       type : Object,
       default : ()=>({})
@@ -21900,6 +21911,13 @@ const _M = {
         return Ti.Types.safeParseJson(this.value, null)
       }
       return null
+    },
+    //--------------------------------------
+    TheSource() {
+      if(this.TheData){
+        return JSON.stringify(this.TheData, null, '   ')
+      }
+      return ""
     },
     //--------------------------------------
     TheLayout() {
@@ -21928,7 +21946,7 @@ const _M = {
       // Source Conf
       let sourceConf = {
         showTitle : false,
-        value    : this.value
+        value    : this.TheSource
       }
       //....................................
       // Done
@@ -21951,7 +21969,25 @@ const _M = {
     //--------------------------------------
     OnChange(payload) {
       //console.log("TiObjJson->OnChange", payload)
-      this.$notify('change', payload)
+      // If string, try parse
+      let val = payload
+      if(_.isString(payload)) {
+        try{
+          val = JSON.parse(payload)
+        }catch(E){
+          // wait for valid input
+          return
+        }
+      }
+      // obey the valueType
+      if("text" == this.valueType) {
+        if(this.jsonIndent) {
+          val = JSON.stringify(val, null, this.jsonIndent)
+        } else {
+          val = JSON.stringify(val)
+        }
+      }
+      this.$notify('change', val)
     }
     //--------------------------------------
   }
@@ -27860,7 +27896,7 @@ const _M = {
     },
     //--------------------------------------
     OrderStatus() {
-      return `or-st-${_.toLower(this.Order.st)}`
+      return `or-st-${_.toLower(this.Order.or_st)}`
     },
     //--------------------------------------
     CurrencyChar() {
@@ -30637,7 +30673,7 @@ const _M = {
     },
     //--------------------------------------
     OrderStatus() {
-      return `or-st-${_.toLower(this.Order.st)}`
+      return `or-st-${_.toLower(this.Order.or_st)}`
     },
     //--------------------------------------
     OrderHref() {
@@ -35758,7 +35794,7 @@ const _M = {
         infoPosition  : "left",
         infoNameWidth : 40,
         infoValueWidth : 120,
-        stateLocalKey : this.stateLocalKey,
+        stateLocalKey : this.getStateLocalKey("preview"),
         // Customized
         ...preview,
         // Edit Info 
@@ -35787,8 +35823,13 @@ const _M = {
     // Events
     //--------------------------------------
     OnDirNameChanged(dirName) {
-      let app = Ti.App(this)
-      app.commit("main/setCurrentDataDir", dirName)
+      Ti.App(this).commit("main/setCurrentDataDir", dirName)
+      
+      let skey = this.getStateLocalKey("dirname");
+      if(skey) {
+        Ti.Storage.session.set(skey, dirName)
+      }
+
       this.$nextTick(()=>{
         this.reloadData()
       })
@@ -35812,6 +35853,12 @@ const _M = {
     },
     //--------------------------------------
     // Untility
+    //--------------------------------------
+    getStateLocalKey(name) {
+      if(this.stateLocalKey && name) {
+        return  `${this.stateLocalKey}_${name}`
+      }
+    },
     //--------------------------------------
     async doDeleteSelected(){
       await this.$adaptlist.doDelete()
@@ -35913,6 +35960,16 @@ const _M = {
     "dataHome" : {
       handler : "reloadData",
       immediate : true
+    }
+  },
+  ///////////////////////////////////////////
+  created: function() {
+    let skey = this.getStateLocalKey("dirname");
+    if(skey) {
+      let dirName = Ti.Storage.session.getString(skey)
+      if(dirName) {
+        Ti.App(this).commit("main/setCurrentDataDir", dirName)
+      }
     }
   },
   ///////////////////////////////////////////

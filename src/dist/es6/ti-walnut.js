@@ -1,4 +1,4 @@
-// Pack At: 2020-08-09 08:08:23
+// Pack At: 2020-08-13 09:58:02
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1204,11 +1204,24 @@ const Util = (function(){
       // Default
       return dftIcon
     },
-    getObjThumbIcon2(canIcon, meta) {
-      //console.log(canIcon, meta)
-      return WnUtil.getObjThumbIcon(_.defaults({
-        candidateIcon : canIcon
-      }, meta))
+    getObjThumbIcon2(meta, canIcon) {
+      //console.log(meta, canIcon)
+      if(meta.thumb) {
+        let src = `/o/content?str=${meta.thumb}`
+        return {
+          type : "image",
+          value : src
+        }
+      }
+  
+      if(meta.icon) {
+        return meta.icon
+      }
+  
+      if(canIcon)
+        return canIcon
+  
+      return Ti.Icons.get(meta)
     },
     /***
      * return the object readable name
@@ -2079,7 +2092,7 @@ const EditTiComponent = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200809.080823"
+const WALNUT_VERSION = "2.1-20200813.095803"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

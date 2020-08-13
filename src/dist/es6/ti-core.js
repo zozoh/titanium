@@ -1,4 +1,4 @@
-// Pack At: 2020-08-09 08:08:23
+// Pack At: 2020-08-13 09:58:02
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -7196,14 +7196,14 @@ const {Util} = (function(){
         // String : Check the "@BLOCK(xxx)" 
         if(_.isString(theValue)) {
           // Escape
-          let m = /^:((=|==|!=|=>|->)(.+))$/.exec(theValue)
+          let m = /^:(:*(=|==|!=|=>>?|->)(.+))$/.exec(theValue)
           if(m) {
             return iteratee(m[1])
           }
   
           let m_type, m_val, m_dft;
           // Match template
-          m = /^(==|!=|=>|->)(.+)$/.exec(theValue)
+          m = /^(==|!=|=>>?|->)(.+)$/.exec(theValue)
           if(m) {
             m_type = m[1]
             m_val  = _.trim(m[2])
@@ -7244,8 +7244,13 @@ const {Util} = (function(){
                 return re
               },
               // =>Ti.Types.toStr(meta)
+              "=>>" : (val) => {
+                let fn = Ti.Util.genInvoking(val, {context, partial: "right"})
+                return fn()
+              },
+              // =>Ti.Types.toStr(meta)
               "=>" : (val) => {
-                let fn = Ti.Util.genInvoking(val, {context, partial: false})
+                let fn = Ti.Util.genInvoking(val, {context, partial: "left"})
                 return fn()
               },
               // Render template
@@ -7897,11 +7902,19 @@ const {Util} = (function(){
         if(!_.isEmpty(args)) {
           // [ ? --> ... ]
           if("right" == partial) {
-            return _.partialRight(func, ...args)
+            return  function(input){
+              let as = _.isUndefined(input)
+                        ? args
+                        : _.concat(input, args);
+              return func.apply(this, as)
+            }
           }
           // [ ... <-- ?]
           else if("left" == partial) {
-            return _.partial(func, ...args)
+            return  function(input){
+              let as = _.concat(args, input)
+              return func.apply(this, as)
+            }
           }
           // [..]
           return ()=>func(...args)
@@ -10738,7 +10751,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200809.080823",
+  "version" : "2.5-20200813.095803",
   "dev" : false,
   "appName" : null,
   "session" : {},
