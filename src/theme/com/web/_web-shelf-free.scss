@@ -27,4 +27,18 @@
     //---------------------------------------
   }
   //-----------------------------------------
+  &.as-flex {
+    .free-main {@include flex-align;}
+    .free-item {position: unset;}
+    //---------------------------------------
+    &.is-wrap    .free-main {flex-wrap: nowrap;}
+    &.is-nowrap  .free-main {flex-wrap: nowrap;}
+    &.is-between .free-main {justify-content: space-between;}
+    &.is-around  .free-main {justify-content: space-around;}
+    &.is-left    .free-main {justify-content: flex-start;}
+    &.is-center  .free-main {justify-content: center;}
+    &.is-right   .free-main {justify-content: flex-end;}
+    //---------------------------------------
+  }
+  //-----------------------------------------
 }

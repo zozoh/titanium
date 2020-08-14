@@ -1,8 +1,13 @@
 const _M = {
   //////////////////////////////////////////
+  data : ()=>({
+    itemStyles: {},
+    itemList: []
+  }),
+  //////////////////////////////////////////
   props : {
-    "base": {
-      type: String,
+    "preview": {
+      type: Object,
       default: undefined
     },
     /*
@@ -21,7 +26,11 @@ const _M = {
     },
     "background": {
       type: String,
-      default: null
+      default: undefined
+    },
+    "color": {
+      type: String,
+      default: undefined
     },
     "width": {
       type: [String, Number],
@@ -33,7 +42,7 @@ const _M = {
     },
     "mainBackground": {
       type: String,
-      default: null
+      default: undefined
     },
     "mainWidth": {
       type: [String, Number],
@@ -55,7 +64,8 @@ const _M = {
       return Ti.Css.toStyle({
         width  : this.width,
         height : this.height,
-        backgroundImage: this.getCssBackgroundUrl(this.background)
+        color: this.color,
+        ...this.evalBackgroundStyle(this.background)
       })
     },
     //--------------------------------------
@@ -63,14 +73,21 @@ const _M = {
       return Ti.Css.toStyle({
         width  : this.mainWidth,
         height : this.mainHeight,
-        backgroundImage: this.getCssBackgroundUrl(this.mainBackground)
+        ...this.evalBackgroundStyle(this.mainBackground)
       })
-    },
+    }
     //--------------------------------------
-    TheItems() {
-      if(!_.isArray(this.items))
-        return []
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    evalItemList() {
+      if(!_.isArray(this.items)) {
+        this.itemList = []
+        return
+      }
       
+      let vm = this;
       let list = []      
       _.forEach(this.items, (it, index)=>{
         // Eval the class
@@ -78,32 +95,65 @@ const _M = {
         if(it.className) {
           klass.push(it.className)
         }
-          
-        // Eval style
-        let style = Ti.Css.toStyle(it.style)
 
+        // Gen Key
+        let itKey = `It-${index}`
+
+        // Style
+        let self = Ti.Css.toStyle(it.style)
+        let appear = Ti.Css.toStyle(it.appear)
+
+        // Transition
+        if(!_.isEmpty(appear)) {
+          _.delay(()=>{
+            let it = _.cloneDeep(this.itemList[index])
+            it.style = self
+            vm.$set(this.itemList, index, it)
+          }, 0)
+        }
+        
         // Join
         list.push({
-          key: `It-${index}`,
+          key: itKey,
           index,
           className: Ti.Css.mergeClassName(klass),
-          style,
+          style: _.assign({}, self, appear),
           comType: it.comType || "WebTextRaw",
           comConf: it.comConf
-        })        
+        })
       })
       // Get the result
-      return list
+      this.itemList = list
+    },
+    //--------------------------------------
+    evalBackgroundStyle(bg) {
+      // Background image
+      if(_.isObject(bg)) {
+        return {
+          backgroundImage: `url("${Ti.WWW.evalObjPreviewSrc(bg, this.preview)}")`
+        }
+      }
+
+      // Backgrund color
+      if(/^(#[0-9A-F]{3,6}|rgba?\([0-9, ]+\))$/.test(bg)) {
+        return {backgroundColor: bg}
+      }
+
+      // Default as background Image
+      return {
+        backgroundImage: `url("${bg}")`
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    getCssBackgroundUrl(src) {
-      return Ti.Css.toBackgroundUrl(src, this.base)
+  watch: {
+    "items": {
+      handler: function() {
+        this.evalItemList()    
+      },
+      immediate: true
     }
-    //--------------------------------------
   }
   //////////////////////////////////////////
 }

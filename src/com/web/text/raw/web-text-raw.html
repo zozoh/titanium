@@ -1,1 +1,19 @@
-<div class="web-text-raw" :class="TopClass"><span>{{TheValue}}</span></div>
+<div class="web-text-raw" :class="TopClass">
+  <!--
+    Icon
+  -->
+  <ti-icon 
+    v-if="icon"
+      :value="icon"/>
+  <!--
+    Value As Text
+  -->
+  <template v-if="hasValue">
+    <template v-if="i18n">
+      <div v-for="li in TheValue">{{li | i18n}}</div>
+    </template>
+    <template v-else>
+      <div v-for="li in TheValue">{{li}}</div>
+    </template>
+  </template>
+</div>

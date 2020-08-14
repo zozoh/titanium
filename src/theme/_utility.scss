@@ -82,6 +82,10 @@
   &.is-xl {font-size:2em;}
 }
 //...................................................
+.ti-noselect {
+  @include noselect;
+}
+//...................................................
 .ti-btn {
   @include noselect;
   @include fireable; 

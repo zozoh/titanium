@@ -189,6 +189,10 @@ const TiWWW = {
     cdnTmpl,        // the cdn url tmpl for previewObj
     dftSrc,
   }={}) {
+    // obj is the src
+    if(_.isString(obj)) {
+      return obj
+    }
     // preview obj for sha1
     if(cdnTmpl) {
       let po = _.get(obj, previewObj)

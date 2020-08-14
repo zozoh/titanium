@@ -1001,14 +1001,14 @@ const TiUtil = {
           return  function(input){
             let as = _.isUndefined(input)
                       ? args
-                      : _.concat(input, args);
+                      : _.concat([input], args);
             return func.apply(this, as)
           }
         }
         // [ ... <-- ?]
         else if("left" == partial) {
           return  function(input){
-            let as = _.concat(args, input)
+            let as = _.concat(args, [input])
             return func.apply(this, as)
           }
         }

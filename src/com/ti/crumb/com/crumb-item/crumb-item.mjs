@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   props : {
     "index" : {
@@ -42,7 +41,7 @@ export default {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
+    TopClass() {
       return Ti.Css.mergeClassName({
         "at-tail" : this.atLast,
         "at-path" : !this.atLast,
@@ -50,7 +49,7 @@ export default {
       }, this.className)
     },
     //------------------------------------------------
-    textClass() {
+    TextClass() {
       return {
         "without-icon"    : !this.hasIcon && !this.removeIcon
       }
@@ -60,7 +59,11 @@ export default {
       return this.icon ? true : false
     },
     //------------------------------------------------
-    theData() {
+    TheText() {
+      return Ti.I18n.text(this.text);
+    },
+    //------------------------------------------------
+    TheData() {
       return {
         index    : this.index,
         icon     : this.icon,
@@ -76,7 +79,7 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onClickTop($event) {
+    OnClickTop($event) {
       // Show Drop Down
       if(this.hasOptions) {
         $event.stopPropagation()
@@ -88,7 +91,7 @@ export default {
       }
       // Emit event
       if(this.href) {
-        this.$notify("item:active", this.theData)
+        this.$notify("item:active", this.TheData)
       }
     }
     //------------------------------------------------

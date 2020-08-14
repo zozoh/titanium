@@ -1,4 +1,5 @@
-<div class="web-text-heading">
+<div class="web-text-heading"
+  :class="TopClass">
   <!--Icon-->
   <div
     v-if="icon"
@@ -7,6 +8,8 @@
   <div
     v-if="title"
       class="as-title"
+      :class="TitleClass"
+      :style="TitleStyle"
       @click.left="OnClickTitle"><span>{{title|i18n}}</span></div>
   <!--Comments-->
   <div

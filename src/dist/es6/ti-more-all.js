@@ -1,4 +1,4 @@
-// Pack At: 2020-08-13 09:58:02
+// Pack At: 2020-08-15 04:15:59
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -7752,8 +7752,8 @@ Ti.Preload("ti/com/ti/combo/sorter/_com.json", {
 // JOIN: ti/crumb/com/crumb-item/crumb-item.html
 //============================================================
 Ti.Preload("ti/com/ti/crumb/com/crumb-item/crumb-item.html", `<div class="ti-crumb-item" 
-  :class="topClass"
-  @click.left="onClickTop">
+  :class="TopClass"
+  @click.left="OnClickTop">
   <!--
     Icon
   -->
@@ -7768,10 +7768,10 @@ Ti.Preload("ti/com/ti/crumb/com/crumb-item/crumb-item.html", `<div class="ti-cru
       class="as-text"
       @click.prevent
       :href="href"
-      :class="textClass">{{text|i18n}}</a>
+      :class="TextClass">{{TheText}}</a>
     <span v-else
       class="as-text"
-      :class="textClass">{{text|i18n}}</span>
+      :class="TextClass">{{TheText}}</span>
   </template>
   <!--
     Asterisk
@@ -7791,7 +7791,6 @@ Ti.Preload("ti/com/ti/crumb/com/crumb-item/crumb-item.html", `<div class="ti-cru
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   props : {
     "index" : {
@@ -7834,7 +7833,7 @@ const _M = {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
+    TopClass() {
       return Ti.Css.mergeClassName({
         "at-tail" : this.atLast,
         "at-path" : !this.atLast,
@@ -7842,7 +7841,7 @@ const _M = {
       }, this.className)
     },
     //------------------------------------------------
-    textClass() {
+    TextClass() {
       return {
         "without-icon"    : !this.hasIcon && !this.removeIcon
       }
@@ -7852,7 +7851,11 @@ const _M = {
       return this.icon ? true : false
     },
     //------------------------------------------------
-    theData() {
+    TheText() {
+      return Ti.I18n.text(this.text);
+    },
+    //------------------------------------------------
+    TheData() {
       return {
         index    : this.index,
         icon     : this.icon,
@@ -7868,7 +7871,7 @@ const _M = {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onClickTop($event) {
+    OnClickTop($event) {
       // Show Drop Down
       if(this.hasOptions) {
         $event.stopPropagation()
@@ -7880,7 +7883,7 @@ const _M = {
       }
       // Emit event
       if(this.href) {
-        this.$notify("item:active", this.theData)
+        this.$notify("item:active", this.TheData)
       }
     }
     //------------------------------------------------
@@ -27252,7 +27255,8 @@ Ti.Preload("ti/com/web/footer/_com.json", {
 // JOIN: web/media/image/web-media-image.html
 //============================================================
 Ti.Preload("ti/com/web/media/image/web-media-image.html", `<div class="web-media-image"
-  :class="TopClass">
+  :class="TopClass"
+  :style="TopStyle">
   <!--Image-->
   <img :src="TheSrc"/>
   <!--Text-->
@@ -27270,20 +27274,12 @@ const _M = {
   /////////////////////////////////////////
   props : {
     "src" : {
-      type : String,
+      type : [String, Object],
       default : undefined
     },
     "preview": {
       type: Object,
-      default: null
-    },
-    "value": {
-      type: Object,
-      default: null
-    },
-    "dftSrc" : {
-      type : String,
-      default : undefined
+      default: undefined
     },
     "text": {
       type: String,
@@ -27292,6 +27288,14 @@ const _M = {
     "i18n": {
       type: Boolean,
       default: true
+    },
+    "width": {
+      type: [String, Number],
+      default: undefined
+    },
+    "height": {
+      type: [String, Number],
+      default: undefined
     }
   },
   //////////////////////////////////////////
@@ -27301,15 +27305,15 @@ const _M = {
       return this.getTopClass()
     },
     //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
+    },
+    //--------------------------------------
     TheSrc() {
-      if(this.value && this.preview) {
-        let po = _.cloneDeep(this.preview)
-        _.defaults(po, {
-          dftSrc: this.dftSrc
-        })
-        return Ti.WWW.evalObjPreviewSrc(this.value, po)
-      }
-      return this.src || this.dftSrc
+      return Ti.WWW.evalObjPreviewSrc(this.src, this.preview)
     },
     //--------------------------------------
     TheText() {
@@ -27779,7 +27783,7 @@ Ti.Preload("ti/com/web/meta/order/web-meta-order.html", `<div class="web-meta-or
       <!--ID-->
       <div class="as-or-id">
         <span>{{'order-k-id'|i18n}}:</span>
-        <em>{{Order.id}}</em>
+        <em>{{OrderId}}</em>
       </div>
       <!--Status-->
       <div class="as-or-st">
@@ -27893,6 +27897,17 @@ const _M = {
     //--------------------------------------
     Order() {
       return this.value || {}
+    },
+    //--------------------------------------
+    OrderId() {
+      let orId = this.Order.id;
+      if(orId) {
+        let pos = orId.indexOf(':')
+        if(pos > 0) {
+          return _.trim(orId.substring(pos+1))
+        }
+      }
+      return '- unknown -'
     },
     //--------------------------------------
     OrderStatus() {
@@ -29687,14 +29702,14 @@ Ti.Preload("ti/com/web/shelf/free/web-shelf-free.html", `<div class="web-shelf-f
   <div class="free-main"
     :style="MainStyle">
     <div 
-      v-for="it in TheItems"
+      v-for="it in itemList"
         :key="it.key"
         class="free-item"
         :class="it.className"
         :style="it.style">
-      <component
-        :is="it.comType"
-        v-bind="it.comConf"/>
+        <component
+          :is="it.comType"
+          v-bind="it.comConf"/>
     </div>
   </div>
   <!--=============================-->
@@ -29705,9 +29720,14 @@ Ti.Preload("ti/com/web/shelf/free/web-shelf-free.html", `<div class="web-shelf-f
 (function(){
 const _M = {
   //////////////////////////////////////////
+  data : ()=>({
+    itemStyles: {},
+    itemList: []
+  }),
+  //////////////////////////////////////////
   props : {
-    "base": {
-      type: String,
+    "preview": {
+      type: Object,
       default: undefined
     },
     /*
@@ -29726,7 +29746,11 @@ const _M = {
     },
     "background": {
       type: String,
-      default: null
+      default: undefined
+    },
+    "color": {
+      type: String,
+      default: undefined
     },
     "width": {
       type: [String, Number],
@@ -29738,7 +29762,7 @@ const _M = {
     },
     "mainBackground": {
       type: String,
-      default: null
+      default: undefined
     },
     "mainWidth": {
       type: [String, Number],
@@ -29760,7 +29784,8 @@ const _M = {
       return Ti.Css.toStyle({
         width  : this.width,
         height : this.height,
-        backgroundImage: this.getCssBackgroundUrl(this.background)
+        color: this.color,
+        ...this.evalBackgroundStyle(this.background)
       })
     },
     //--------------------------------------
@@ -29768,14 +29793,21 @@ const _M = {
       return Ti.Css.toStyle({
         width  : this.mainWidth,
         height : this.mainHeight,
-        backgroundImage: this.getCssBackgroundUrl(this.mainBackground)
+        ...this.evalBackgroundStyle(this.mainBackground)
       })
-    },
+    }
     //--------------------------------------
-    TheItems() {
-      if(!_.isArray(this.items))
-        return []
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    evalItemList() {
+      if(!_.isArray(this.items)) {
+        this.itemList = []
+        return
+      }
       
+      let vm = this;
       let list = []      
       _.forEach(this.items, (it, index)=>{
         // Eval the class
@@ -29783,32 +29815,65 @@ const _M = {
         if(it.className) {
           klass.push(it.className)
         }
-          
-        // Eval style
-        let style = Ti.Css.toStyle(it.style)
 
+        // Gen Key
+        let itKey = `It-${index}`
+
+        // Style
+        let self = Ti.Css.toStyle(it.style)
+        let appear = Ti.Css.toStyle(it.appear)
+
+        // Transition
+        if(!_.isEmpty(appear)) {
+          _.delay(()=>{
+            let it = _.cloneDeep(this.itemList[index])
+            it.style = self
+            vm.$set(this.itemList, index, it)
+          }, 0)
+        }
+        
         // Join
         list.push({
-          key: `It-${index}`,
+          key: itKey,
           index,
           className: Ti.Css.mergeClassName(klass),
-          style,
+          style: _.assign({}, self, appear),
           comType: it.comType || "WebTextRaw",
           comConf: it.comConf
-        })        
+        })
       })
       // Get the result
-      return list
+      this.itemList = list
+    },
+    //--------------------------------------
+    evalBackgroundStyle(bg) {
+      // Background image
+      if(_.isObject(bg)) {
+        return {
+          backgroundImage: `url("${Ti.WWW.evalObjPreviewSrc(bg, this.preview)}")`
+        }
+      }
+
+      // Backgrund color
+      if(/^(#[0-9A-F]{3,6}|rgba?\([0-9, ]+\))$/.test(bg)) {
+        return {backgroundColor: bg}
+      }
+
+      // Default as background Image
+      return {
+        backgroundImage: `url("${bg}")`
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    getCssBackgroundUrl(src) {
-      return Ti.Css.toBackgroundUrl(src, this.base)
+  watch: {
+    "items": {
+      handler: function() {
+        this.evalItemList()    
+      },
+      immediate: true
     }
-    //--------------------------------------
   }
   //////////////////////////////////////////
 }
@@ -30292,7 +30357,8 @@ Ti.Preload("ti/com/web/shelf/wall/_com.json", {
 //============================================================
 // JOIN: web/text/heading/web-text-heading.html
 //============================================================
-Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-text-heading">
+Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-text-heading"
+  :class="TopClass">
   <!--Icon-->
   <div
     v-if="icon"
@@ -30301,6 +30367,8 @@ Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-tex
   <div
     v-if="title"
       class="as-title"
+      :class="TitleClass"
+      :style="TitleStyle"
       @click.left="OnClickTitle"><span>{{title|i18n}}</span></div>
   <!--Comments-->
   <div
@@ -30327,6 +30395,14 @@ const _M = {
       type : String,
       default : null
     },
+    "titleClass": {
+      type: [String, Array, Object],
+      default: undefined
+    },
+    "titleStyle": {
+      type: Object,
+      default: undefined
+    },
     "comment" : {
       type : String,
       default : null
@@ -30336,6 +30412,21 @@ const _M = {
       default: null
     },
     "value": null
+  },
+  //////////////////////////////////////////
+  computed: {
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    TitleClass() {
+      return Ti.Css.mergeClassName(this.titleClass)
+    },
+    //--------------------------------------
+    TitleStyle() {
+      return Ti.Css.toStyle(this.titleStyle)
+    }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
@@ -30365,8 +30456,25 @@ Ti.Preload("ti/com/web/text/heading/_com.json", {
 //============================================================
 // JOIN: web/text/raw/web-text-raw.html
 //============================================================
-Ti.Preload("ti/com/web/text/raw/web-text-raw.html", `<div class="web-text-raw" :class="TopClass"><span>{{TheValue}}</span></div>
-<div class="web-text-raw" :class="TopClass"><span>{{TheValue}}</span></div>`);
+Ti.Preload("ti/com/web/text/raw/web-text-raw.html", `<div class="web-text-raw" :class="TopClass">
+  <!--
+    Icon
+  -->
+  <ti-icon 
+    v-if="icon"
+      :value="icon"/>
+  <!--
+    Value As Text
+  -->
+  <template v-if="hasValue">
+    <template v-if="i18n">
+      <div v-for="li in TheValue">{{li | i18n}}</div>
+    </template>
+    <template v-else>
+      <div v-for="li in TheValue">{{li}}</div>
+    </template>
+  </template>
+</div>`);
 //============================================================
 // JOIN: web/text/raw/web-text-raw.mjs
 //============================================================
@@ -30374,9 +30482,21 @@ Ti.Preload("ti/com/web/text/raw/web-text-raw.html", `<div class="web-text-raw" :
 const _M = {
   /////////////////////////////////////////
   props : {
+    "icon": {
+      type: [String, Object],
+      default: undefined
+    },
     "value": {
-      type : [String, Number],
-      default : "Web Text"
+      type : [String, Number, Boolean, Array],
+      default : undefined
+    },
+    "lineSeperater": {
+      type : String,
+      default: "\n"
+    },
+    "i18n": {
+      type: Boolean,
+      default: false
     }
   },
   //////////////////////////////////////////
@@ -30386,8 +30506,26 @@ const _M = {
       return this.getTopClass()
     },
     //--------------------------------------
+    hasValue() {
+      return Ti.Util.isNil(this.value) ? false : true;
+    },
+    //--------------------------------------
     TheValue() {
-      return this.value
+      // Split String
+      if(_.isString(this.value)) {
+        if(this.lineSeperater) {
+          let ss = this.value.split(this.lineSeperater)
+          _.map(ss, s => _.trim(s))
+          return ss
+        }
+        return [this.value]
+      }
+      // Already Array
+      if(_.isArray(this.value))
+        return this.value
+      
+      // Others
+      return [this.value]
     }
     //--------------------------------------
   }

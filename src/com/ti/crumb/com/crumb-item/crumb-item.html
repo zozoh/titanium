@@ -1,6 +1,6 @@
 <div class="ti-crumb-item" 
-  :class="topClass"
-  @click.left="onClickTop">
+  :class="TopClass"
+  @click.left="OnClickTop">
   <!--
     Icon
   -->
@@ -15,10 +15,10 @@
       class="as-text"
       @click.prevent
       :href="href"
-      :class="textClass">{{text|i18n}}</a>
+      :class="TextClass">{{TheText}}</a>
     <span v-else
       class="as-text"
-      :class="textClass">{{text|i18n}}</span>
+      :class="TextClass">{{TheText}}</span>
   </template>
   <!--
     Asterisk

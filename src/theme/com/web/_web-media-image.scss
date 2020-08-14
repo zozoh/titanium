@@ -1,0 +1,53 @@
+.web-media-image {
+  width:100%; height:100%;
+  position: relative;
+  //-----------------------------------------
+  img {
+    flex:1 1 auto;
+    width:100%; height:100%;
+    object-fit: cover;
+    display:block;
+  }
+  //-----------------------------------------
+  .as-text {
+    @include flex-center; 
+    padding:1em;
+    //---------------------------------------
+  }
+  //-----------------------------------------
+  &.primary-img-size {
+    img {
+      width:auto; height:auto; flex:0 0 auto;
+      margin:0 auto;
+    }
+  }
+  //-----------------------------------------
+  &.text-in-center .as-text {@include pos-abs-full;}
+  &.text-in-top    .as-text {@include pos-abs($l:0,$r:0,$t:0);}
+  &.text-in-bottom .as-text {@include pos-abs($l:0,$r:0,$b:0);}
+  &.text-in-left   .as-text {@include pos-abs($l:0,$t:0,$b:0);}
+  &.text-in-right  .as-text {@include pos-abs($r:0,$t:0,$b:0);}
+
+  &.text-in-bottom-left  .as-text {@include pos-abs($l:0,$b:0);}
+  &.text-in-bottom-right .as-text {@include pos-abs($r:0,$b:0);}
+  &.text-in-left-top     .as-text {@include pos-abs($l:0,$t:0);}
+  &.text-in-right-top    .as-text {@include pos-abs($r:0,$t:0);}
+  //-----------------------------------------
+  &.text-at-top {
+    @include flex-align-v-nowrap;
+    .as-text {order: -1; display: block; text-align: center;}
+  }
+  &.text-at-bottom {
+    @include flex-align-v-nowrap;
+    .as-text {display: block; text-align: center;}
+  }
+  &.text-at-left {
+    @include flex-align-nowrap($ai:stretch);
+    .as-text {order: -1;}
+  }
+  &.text-at-right {
+    @include flex-align-nowrap($ai:stretch);
+    .as-text {}
+  }
+  //-----------------------------------------
+}

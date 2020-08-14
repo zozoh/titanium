@@ -1,4 +1,4 @@
-// Pack At: 2020-08-13 09:58:02
+// Pack At: 2020-08-15 04:15:59
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -7905,14 +7905,14 @@ const {Util} = (function(){
             return  function(input){
               let as = _.isUndefined(input)
                         ? args
-                        : _.concat(input, args);
+                        : _.concat([input], args);
               return func.apply(this, as)
             }
           }
           // [ ... <-- ?]
           else if("left" == partial) {
             return  function(input){
-              let as = _.concat(args, input)
+              let as = _.concat(args, [input])
               return func.apply(this, as)
             }
           }
@@ -8620,6 +8620,10 @@ const {WWW} = (function(){
       cdnTmpl,        // the cdn url tmpl for previewObj
       dftSrc,
     }={}) {
+      // obj is the src
+      if(_.isString(obj)) {
+        return obj
+      }
       // preview obj for sha1
       if(cdnTmpl) {
         let po = _.get(obj, previewObj)
@@ -10751,7 +10755,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200813.095803",
+  "version" : "2.5-20200815.041559",
   "dev" : false,
   "appName" : null,
   "session" : {},

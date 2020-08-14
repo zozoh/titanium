@@ -2,20 +2,12 @@ export default {
   /////////////////////////////////////////
   props : {
     "src" : {
-      type : String,
+      type : [String, Object],
       default : undefined
     },
     "preview": {
       type: Object,
-      default: null
-    },
-    "value": {
-      type: Object,
-      default: null
-    },
-    "dftSrc" : {
-      type : String,
-      default : undefined
+      default: undefined
     },
     "text": {
       type: String,
@@ -24,6 +16,14 @@ export default {
     "i18n": {
       type: Boolean,
       default: true
+    },
+    "width": {
+      type: [String, Number],
+      default: undefined
+    },
+    "height": {
+      type: [String, Number],
+      default: undefined
     }
   },
   //////////////////////////////////////////
@@ -33,15 +33,15 @@ export default {
       return this.getTopClass()
     },
     //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
+    },
+    //--------------------------------------
     TheSrc() {
-      if(this.value && this.preview) {
-        let po = _.cloneDeep(this.preview)
-        _.defaults(po, {
-          dftSrc: this.dftSrc
-        })
-        return Ti.WWW.evalObjPreviewSrc(this.value, po)
-      }
-      return this.src || this.dftSrc
+      return Ti.WWW.evalObjPreviewSrc(this.src, this.preview)
     },
     //--------------------------------------
     TheText() {

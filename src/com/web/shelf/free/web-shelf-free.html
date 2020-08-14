@@ -5,14 +5,14 @@
   <div class="free-main"
     :style="MainStyle">
     <div 
-      v-for="it in TheItems"
+      v-for="it in itemList"
         :key="it.key"
         class="free-item"
         :class="it.className"
         :style="it.style">
-      <component
-        :is="it.comType"
-        v-bind="it.comConf"/>
+        <component
+          :is="it.comType"
+          v-bind="it.comConf"/>
     </div>
   </div>
   <!--=============================-->
