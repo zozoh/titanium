@@ -17,6 +17,11 @@ export async function WebAppMain({
   }
 }={}) {
   //---------------------------------------
+  // Override the rs/siteRs by vars
+  rs = _.get(vars, "rs") || rs
+  siteRs = _.get(vars, "siteRs") || siteRs
+  lang = _.get(vars, "lang") || lang
+  //---------------------------------------
   Ti.AddResourcePrefix(rs, siteRs)
   //---------------------------------------
   Vue.use(Ti.Vue.EventBubble)

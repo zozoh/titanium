@@ -1,4 +1,4 @@
-// Pack At: 2020-08-15 17:30:01
+// Pack At: 2020-08-15 18:24:41
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10600,6 +10600,11 @@ const {WebAppMain} = (function(){
     }
   }={}) {
     //---------------------------------------
+    // Override the rs/siteRs by vars
+    rs = _.get(vars, "rs") || rs
+    siteRs = _.get(vars, "siteRs") || siteRs
+    lang = _.get(vars, "lang") || lang
+    //---------------------------------------
     Ti.AddResourcePrefix(rs, siteRs)
     //---------------------------------------
     Vue.use(Ti.Vue.EventBubble)
@@ -10755,7 +10760,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200815.173001",
+  "version" : "2.5-20200815.182441",
   "dev" : false,
   "appName" : null,
   "session" : {},
