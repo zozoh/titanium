@@ -1,4 +1,4 @@
-// Pack At: 2020-08-15 04:15:59
+// Pack At: 2020-08-15 17:30:01
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -30466,14 +30466,16 @@ Ti.Preload("ti/com/web/text/raw/web-text-raw.html", `<div class="web-text-raw" :
   <!--
     Value As Text
   -->
-  <template v-if="hasValue">
-    <template v-if="i18n">
-      <div v-for="li in TheValue">{{li | i18n}}</div>
-    </template>
-    <template v-else>
-      <div v-for="li in TheValue">{{li}}</div>
-    </template>
-  </template>
+  <div
+    v-if="hasValue"
+      class="as-text">
+      <template v-if="i18n">
+        <div v-for="li in TheValue">{{li | i18n}}</div>
+      </template>
+      <template v-else>
+        <div v-for="li in TheValue">{{li}}</div>
+      </template>
+  </div>
 </div>`);
 //============================================================
 // JOIN: web/text/raw/web-text-raw.mjs

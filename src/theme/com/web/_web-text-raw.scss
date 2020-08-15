@@ -1,25 +1,14 @@
 .web-text-raw {
-  font-size:SZ(20); line-height: 2em;
+  font-size:SZ(16); line-height: 2.4em;
   //-----------------------------------------
   .ti-icon {margin:0 .5em;}
   //-----------------------------------------
   &.as-align {
     //-----------------------------------------
-    &.is-left    {text-align: left;}
-    &.is-center  {text-align: center;}
-    &.is-right   {text-align: right;}
-    &.is-justify {text-align: justify;}
-  }
-  //-----------------------------------------
-  &.as-flex {
-    @include flex-align-nowrap($ai:stretch,$ac:stretch);
-    //-----------------------------------------
-    &.is-left    {justify-content: flex-start;}
-    &.is-center  {justify-content: center;}
-    &.is-right   {justify-content: flex-end;}
-    &.is-justify div {
-      width: 100%; text-align: justify;
-    }
+    &.is-left    .as-text {text-align: left;}
+    &.is-center  .as-text {text-align: center;}
+    &.is-right   .as-text {text-align: right;}
+    &.is-justify .as-text {text-align: justify;}
   }
   //-----------------------------------------
   &.is-tiny   div {font-size: .6em;}

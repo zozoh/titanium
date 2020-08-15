@@ -1,6 +1,7 @@
 .web-media-image {
   width:100%; height:100%;
   position: relative;
+  font-size:SZ(20);
   //-----------------------------------------
   img {
     flex:1 1 auto;
@@ -49,5 +50,11 @@
     @include flex-align-nowrap($ai:stretch);
     .as-text {}
   }
+  //-----------------------------------------
+  &.is-tiny   .as-text {font-size: .6em;}
+  &.is-small  .as-text {font-size: .8em;}
+  &.is-normal .as-text {font-size: 1em;}
+  &.is-big    .as-text {font-size: 1.2em;}
+  &.is-hug    .as-text {font-size: 1.5em;}
   //-----------------------------------------
 }
