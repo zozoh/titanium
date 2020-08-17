@@ -1,4 +1,4 @@
-// Pack At: 2020-08-15 18:24:41
+// Pack At: 2020-08-17 17:48:48
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -35685,9 +35685,11 @@ const _M = {
     //--------------------------------------
     async OnCreate() {
       this.creating = true
-
-      await Ti.App(this).dispatch("main/create", this.myData)
-      this.$notify("block:hide", "creator")
+      let reo = await Ti.App(this).dispatch("main/create", this.myData)
+      this.creating = false
+      if(reo && !(reo instanceof Error)) {
+        this.$notify("block:hide", "creator")
+      }
     },
     //--------------------------------------
     async OnSubmit() {
