@@ -48,9 +48,11 @@ export default {
     //--------------------------------------
     async OnCreate() {
       this.creating = true
-
-      await Ti.App(this).dispatch("main/create", this.myData)
-      this.$notify("block:hide", "creator")
+      let reo = await Ti.App(this).dispatch("main/create", this.myData)
+      this.creating = false
+      if(reo && !(reo instanceof Error)) {
+        this.$notify("block:hide", "creator")
+      }
     },
     //--------------------------------------
     async OnSubmit() {
