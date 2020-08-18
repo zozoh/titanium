@@ -6,6 +6,13 @@ const _M = {
     myDictValKey  : undefined
   }),
   //////////////////////////////////////////
+  props: {
+    "autoLoadDictIcon": {
+      type : Boolean,
+      default: true
+    }
+  },
+  //////////////////////////////////////////
   computed : {
     //--------------------------------------
     TopClass() {
@@ -122,7 +129,9 @@ const _M = {
       if(this.Dict) {
         let it = await this.Dict.getItem(val)
         if(it) {
-          this.myDisplayIcon = this.Dict.getIcon(it)
+          if(this.autoLoadDictIcon) {
+            this.myDisplayIcon = this.Dict.getIcon(it)
+          }
           val = this.Dict.getBy(this.myDictValKey, it, val)
         } else {
           this.myDisplayIcon = null

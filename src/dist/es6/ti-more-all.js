@@ -1,4 +1,4 @@
-// Pack At: 2020-08-17 17:48:48
+// Pack At: 2020-08-19 00:43:37
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -14687,6 +14687,13 @@ const _M = {
     myDictValKey  : undefined
   }),
   //////////////////////////////////////////
+  props: {
+    "autoLoadDictIcon": {
+      type : Boolean,
+      default: true
+    }
+  },
+  //////////////////////////////////////////
   computed : {
     //--------------------------------------
     TopClass() {
@@ -14803,7 +14810,9 @@ const _M = {
       if(this.Dict) {
         let it = await this.Dict.getItem(val)
         if(it) {
-          this.myDisplayIcon = this.Dict.getIcon(it)
+          if(this.autoLoadDictIcon) {
+            this.myDisplayIcon = this.Dict.getIcon(it)
+          }
           val = this.Dict.getBy(this.myDictValKey, it, val)
         } else {
           this.myDisplayIcon = null
@@ -18894,15 +18903,16 @@ const FieldDisplay = {
         //......................................
         // #DictName(xxx) -> ti-label
         // just like `#RelayStatus(status)`
-        m = /^[@#]([^\(]+)\(([^)]+)\)(:(.+))?$/.exec(displayItem)
+        m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:(.+))?$/.exec(displayItem)
         if(m) {
           return {
-            key : m[2] || defaultKey,
+            key : m[3] || defaultKey,
             comType : "ti-label",
             comConf : {
-              dict : m[1],
+              dict : m[2],
               className: "is-nowrap",
-              format: m[4]
+              format: m[5],
+              autoLoadDictIcon : m[1]!="!"
             }
           }
         }

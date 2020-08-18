@@ -182,15 +182,16 @@ const FieldDisplay = {
         //......................................
         // #DictName(xxx) -> ti-label
         // just like `#RelayStatus(status)`
-        m = /^[@#]([^\(]+)\(([^)]+)\)(:(.+))?$/.exec(displayItem)
+        m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:(.+))?$/.exec(displayItem)
         if(m) {
           return {
-            key : m[2] || defaultKey,
+            key : m[3] || defaultKey,
             comType : "ti-label",
             comConf : {
-              dict : m[1],
+              dict : m[2],
               className: "is-nowrap",
-              format: m[4]
+              format: m[5],
+              autoLoadDictIcon : m[1]!="!"
             }
           }
         }
