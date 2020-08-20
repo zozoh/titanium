@@ -38,7 +38,28 @@ const _M = {
   ////////////////////////////////////////////////
   actions : {
     //--------------------------------------------
-    async fetchOrder({getters, rootState}, {orderId, payType}={}) {
+    async fetchOrder({getters, rootState}, {orderId}={}) {
+      if(!orderId) {
+        return 
+      }
+      let reo = await Ti.Http.get(getters.urls.fetchOrder, {
+        params: {
+          ticket: rootState.auth.ticket,
+          id: orderId
+        },
+        as: "json"
+      })
+      // Success
+      if(reo.ok) {
+        return reo.data
+      }
+      // Fail
+      else {
+        console.warn("Fail to loadOrder", {items, reo})
+      }
+    },
+    //--------------------------------------------
+    async payOrder({getters, rootState}, {orderId, payType}={}) {
       if(!orderId) {
         return 
       }
@@ -56,7 +77,7 @@ const _M = {
       }
       // Fail
       else {
-        console.warn("Fail to loadBuyItems", {items, reo})
+        console.warn("Fail to payOrder", {items, reo})
       }
     },
     //--------------------------------------------
@@ -90,7 +111,7 @@ const _M = {
       }
       // Fail
       else {
-        console.warn("Fail to loadBuyItems", {items, reo})
+        console.warn("Fail to createOrder", {items, reo})
       }
     },
     //--------------------------------------------
@@ -112,7 +133,7 @@ const _M = {
       }
       // Fail
       else {
-        console.warn("Fail to loadBuyItems", {items, reo})
+        console.warn("Fail to checkOrder", {items, reo})
       }
     },
     //--------------------------------------------

@@ -11,6 +11,7 @@
     "objs" : "objs",
     "buy"  : "pay/buy",
     "pay"  : "pay/pay",
-    "checkOrder": "pay/check"
+    "checkOrder": "pay/check",
+    "fetchOrder": "pay/order"
   }
 }

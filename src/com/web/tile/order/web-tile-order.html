@@ -10,9 +10,9 @@
       <a 
         v-if="OrderHref"
           :href="OrderHref"
-          @click.left.prevent="OnClickOrder">{{Order.id}}</a>
+          @click.left.prevent="OnClickOrder">{{OrderId}}</a>
       <em
-        v-else>{{Order.id}}</em>
+        v-else>{{OrderId}}</em>
     </div>
     <!--Date-->
     <div class="or-field as-datetime">

@@ -7,7 +7,15 @@ export default {
     type: [String, Number],
     default: 200
   },
-  "getOrder": {
+  "checkPaymentInterval": {
+    type: Number,
+    default: 3000
+  },
+  "fetchOrder": {
+    type: Function,
+    default: undefined
+  },
+  "payOrder": {
     type: Function,
     default: undefined
   },

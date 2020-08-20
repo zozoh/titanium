@@ -156,14 +156,33 @@ const _M = {
       }
     },
     //----------------------------------------------
+    // Wait for payment be created
+    // Maybe the processing still in the MessageQueue
+    async checkPayment() {
+      if(!this.Payment) {
+        _.delay(async ()=>{
+          this.myOrder = await this.fetchOrder(this.orderId)
+          
+          this.$nextTick(()=>{
+            this.checkPayment()
+          })
+
+        }, this.checkPaymentInterval)
+      }
+      // With payment, do something special for PayPal
+      else {
+        this.tryEvalPayPal()
+      }
+    },
+    //----------------------------------------------
     async checkOrCreateOrder() {
       if(this.hasOrder) {
-        return
+        return await this.checkPayment()
       }
       // Get Back
       if(this.orderId) {
-        if(_.isFunction(this.getOrder)) {
-          this.myOrder = await this.getOrder(this.orderId, this.payType)
+        if(_.isFunction(this.fetchOrder)) {
+          this.myOrder = await this.payOrder(this.orderId, this.payType)
         }
       }
       // Create new one
@@ -186,6 +205,15 @@ const _M = {
         }
       }
 
+      // If without payment, check it by remote
+      return await this.checkPayment()
+
+      // Finally watch the payment change
+      //this.watchPaymentChanged();
+    },
+    //----------------------------------------------
+    // PayPal need open a new link
+    async tryEvalPayPal() {
       // Open Link for PayPal approve
       if("paypal" == this.payType && this.isPaymentCreated) {
         let href = _.get(this.PayPalLinksMap, "approve.href")
@@ -207,9 +235,6 @@ const _M = {
           delay: 1000
         })
       }
-
-      // Finally watch the payment change
-      //this.watchPaymentChanged();
     },
     //----------------------------------------------
     watchPaymentChanged() {

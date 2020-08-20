@@ -31,6 +31,17 @@ const _M = {
       return this.value || {}
     },
     //--------------------------------------
+    OrderId() {
+      let orId = this.Order.id;
+      if(orId) {
+        let pos = orId.indexOf(':')
+        if(pos > 0) {
+          return _.trim(orId.substring(pos+1))
+        }
+      }
+      return '- unknown -'
+    },
+    //--------------------------------------
     OrderStatus() {
       return `or-st-${_.toLower(this.Order.or_st)}`
     },

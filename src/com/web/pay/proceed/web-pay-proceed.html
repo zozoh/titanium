@@ -3,7 +3,7 @@
     Wait for create order
   -->
   <div 
-    v-if="!hasOrder"
+    v-if="!hasOrder || !Payment"
       class="as-nil-order">
       <ti-loading
         class="as-big"
