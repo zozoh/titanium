@@ -1,5 +1,4 @@
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     myDropStatus   : "collapse",
@@ -10,7 +9,9 @@ const _M = {
     myCurrentId    : null,
     myCheckedIds   : {},
 
-    myOldValue : undefined
+    myOldValue : undefined,
+    myDict : undefined,
+    loading : false
   }),
   ////////////////////////////////////////////////////
   computed : {
@@ -56,26 +57,10 @@ const _M = {
     },
     //------------------------------------------------
     Dict() {
-      // Customized
-      if(this.options instanceof Ti.Dict) {
-        return this.options
+      if(!this.myDict) {
+        this.myDict = this.createDict()
       }
-      // Refer dict
-      if(_.isString(this.options)) {
-        let dictName = Ti.DictFactory.DictReferName(this.options)
-        if(dictName) {
-          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
-            this.loading = loading
-          })
-        }
-      }
-      // Auto Create
-      return Ti.DictFactory.CreateDict({
-        data: this.options,
-        getValue : Ti.Util.genGetter(this.valueBy || "value"),
-        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
-        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
-      })
+      return this.myDict
     }
     //------------------------------------------------
   },
@@ -216,6 +201,29 @@ const _M = {
       this.myFreeValues = frees
       this.myCheckedIds = ids
     },
+    //------------------------------------------------
+    createDict() {
+      // Customized
+      if(this.options instanceof Ti.Dict) {
+        return this.options
+      }
+      // Refer dict
+      if(_.isString(this.options)) {
+        let dictName = Ti.DictFactory.DictReferName(this.options)
+        if(dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+            this.loading = loading
+          })
+        }
+      }
+      // Auto Create
+      return Ti.DictFactory.CreateDict({
+        data : this.options,
+        getValue : Ti.Util.genGetter(this.valueBy || "value"),
+        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
+        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+      })
+    },
     //-----------------------------------------------
     async reloadMyOptionData(force=false) {
       if(force || this.isExtended) {
@@ -271,6 +279,18 @@ const _M = {
     "value" : {
       handler: "evalMyTags",
       immediate : true
+    },
+    //-----------------------------------------------
+    "options" : function(newval, oldval) {
+      if(!_.isEqual(newval, oldval)) {
+        this.myDict = this.createDict()
+        this.myOptionsData = []
+        if(this.isExtended) {
+          this.$nextTick(()=>{
+            this.reloadMyOptionData(true)
+          })
+        }
+      }
     }
     //-----------------------------------------------
   },
