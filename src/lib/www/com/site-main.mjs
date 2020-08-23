@@ -146,6 +146,18 @@ const _M = {
   /////////////////////////////////////////
   methods : {
     //--------------------------------------
+    OnMouseRightClick($evn) {
+      // Forbid context menu
+      if(false === this.page.contextMenu) {
+        $evn.preventDefault();
+      }
+      // Forbid context menu and show alert
+      else if(_.isString(this.page.contextMenu)) {
+        $evn.preventDefault();
+        Ti.Toast.Open(this.page.contextMenu, "warn");
+      }
+    },
+    //--------------------------------------
     async showBlock(name) {
       Ti.App(this).dispatch("page/showBlock", name)
     },

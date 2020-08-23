@@ -531,6 +531,7 @@ const _M = {
         "title" : null,
         "apis" : {},
         "data" : {},
+        "contextMenu" : true,
         "explainDataKey": [],
         "layout" : {},
         "params" : {},

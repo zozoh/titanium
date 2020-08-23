@@ -79,6 +79,10 @@ export default {
           || /^((left|right)-top|bottom-(left|right))$/.test(v)
       }
     },
+    "fixed" : {
+      type : Boolean,
+      default: false
+    },
     "closer" : {
       type : String,
       default : "default",
@@ -116,7 +120,8 @@ export default {
         "no-mask"   : !this.mask,
         "is-bg-transparent": this.transparent,
         "is-bg-opaque": !this.transparent,
-        "is-closer-default" : this.isCloserDefault
+        "is-closer-default" : this.isCloserDefault,
+        "is-fixed" : this.fixed
       }, `at-${this.position}`)
     },
     //--------------------------------------

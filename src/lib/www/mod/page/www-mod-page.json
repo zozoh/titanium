@@ -9,6 +9,7 @@
   "anchor" : null,
   "apis" : {},
   "data" : {},
+  "contextMenu": true,
   "explainDataKey": [],
   "layout" : {
     "desktop" : {},
