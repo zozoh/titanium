@@ -1,4 +1,4 @@
-// Pack At: 2020-08-20 23:00:48
+// Pack At: 2020-08-24 14:28:55
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -9860,6 +9860,10 @@ const _M = {
           || /^((left|right)-top|bottom-(left|right))$/.test(v)
       }
     },
+    "fixed" : {
+      type : Boolean,
+      default: false
+    },
     "closer" : {
       type : String,
       default : "default",
@@ -9897,7 +9901,8 @@ const _M = {
         "no-mask"   : !this.mask,
         "is-bg-transparent": this.transparent,
         "is-bg-opaque": !this.transparent,
-        "is-closer-default" : this.isCloserDefault
+        "is-closer-default" : this.isCloserDefault,
+        "is-fixed" : this.fixed
       }, `at-${this.position}`)
     },
     //--------------------------------------
@@ -29169,7 +29174,15 @@ const _M = {
     type: [String, Number],
     default: 200
   },
-  "getOrder": {
+  "checkPaymentInterval": {
+    type: Number,
+    default: 3000
+  },
+  "fetchOrder": {
+    type: Function,
+    default: undefined
+  },
+  "payOrder": {
     type: Function,
     default: undefined
   },
@@ -29204,7 +29217,7 @@ Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed.html", `<div class="web-pay-p
     Wait for create order
   -->
   <div 
-    v-if="!hasOrder"
+    v-if="!hasOrder || !Payment"
       class="as-nil-order">
       <ti-loading
         class="as-big"
@@ -29428,14 +29441,33 @@ const _M = {
       }
     },
     //----------------------------------------------
+    // Wait for payment be created
+    // Maybe the processing still in the MessageQueue
+    async checkPayment() {
+      if(!this.Payment) {
+        _.delay(async ()=>{
+          this.myOrder = await this.fetchOrder(this.orderId)
+          
+          this.$nextTick(()=>{
+            this.checkPayment()
+          })
+
+        }, this.checkPaymentInterval)
+      }
+      // With payment, do something special for PayPal
+      else {
+        this.tryEvalPayPal()
+      }
+    },
+    //----------------------------------------------
     async checkOrCreateOrder() {
       if(this.hasOrder) {
-        return
+        return await this.checkPayment()
       }
       // Get Back
       if(this.orderId) {
-        if(_.isFunction(this.getOrder)) {
-          this.myOrder = await this.getOrder(this.orderId, this.payType)
+        if(_.isFunction(this.fetchOrder)) {
+          this.myOrder = await this.payOrder(this.orderId, this.payType)
         }
       }
       // Create new one
@@ -29458,6 +29490,15 @@ const _M = {
         }
       }
 
+      // If without payment, check it by remote
+      return await this.checkPayment()
+
+      // Finally watch the payment change
+      //this.watchPaymentChanged();
+    },
+    //----------------------------------------------
+    // PayPal need open a new link
+    async tryEvalPayPal() {
       // Open Link for PayPal approve
       if("paypal" == this.payType && this.isPaymentCreated) {
         let href = _.get(this.PayPalLinksMap, "approve.href")
@@ -29479,9 +29520,6 @@ const _M = {
           delay: 1000
         })
       }
-
-      // Finally watch the payment change
-      //this.watchPaymentChanged();
     },
     //----------------------------------------------
     watchPaymentChanged() {
@@ -29651,11 +29689,13 @@ const _M = {
           payType: "=payType",
           orderId: "=orderId",
           payOk: "=payOk",
+          checkPaymentInterval: this.checkPaymentInterval,
           orderType: this.orderType,
           orderTitle: this.orderTitle,
           watchUser: this.watchUser,
           qrcodeSize: this.qrcodeSize,
-          getOrder: this.getOrder,
+          fetchOrder: this.fetchOrder,
+          payOrder: this.payOrder,
           createOrder: this.createOrder,
           checkOrder: this.checkOrder,
           returnUrl: this.returnUrl
@@ -30752,9 +30792,9 @@ Ti.Preload("ti/com/web/tile/order/web-tile-order.html", `<div class="web-tile-or
       <a 
         v-if="OrderHref"
           :href="OrderHref"
-          @click.left.prevent="OnClickOrder">{{Order.id}}</a>
+          @click.left.prevent="OnClickOrder">{{OrderId}}</a>
       <em
-        v-else>{{Order.id}}</em>
+        v-else>{{OrderId}}</em>
     </div>
     <!--Date-->
     <div class="or-field as-datetime">
@@ -30840,6 +30880,17 @@ const _M = {
     //--------------------------------------
     Order() {
       return this.value || {}
+    },
+    //--------------------------------------
+    OrderId() {
+      let orId = this.Order.id;
+      if(orId) {
+        let pos = orId.indexOf(':')
+        if(pos > 0) {
+          return _.trim(orId.substring(pos+1))
+        }
+      }
+      return '- unknown -'
     },
     //--------------------------------------
     OrderStatus() {
@@ -39617,7 +39668,7 @@ Ti.Preload("ti/mod/wn/thing/_mod.json", {
 //============================================================
 // JOIN: com/site-main.html
 //============================================================
-Ti.Preload("ti/lib/www/com/site-main.html", `<div class="site-main">
+Ti.Preload("ti/lib/www/com/site-main.html", `<div class="site-main" @click.right="OnMouseRightClick">
   <ti-gui 
     class="site-page"
     v-bind="PageGUI"
@@ -39776,6 +39827,18 @@ const _M = {
   },
   /////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnMouseRightClick($evn) {
+      // Forbid context menu
+      if(false === this.page.contextMenu) {
+        $evn.preventDefault();
+      }
+      // Forbid context menu and show alert
+      else if(_.isString(this.page.contextMenu)) {
+        $evn.preventDefault();
+        Ti.Toast.Open(this.page.contextMenu, "warn");
+      }
+    },
     //--------------------------------------
     async showBlock(name) {
       Ti.App(this).dispatch("page/showBlock", name)
@@ -40679,6 +40742,7 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "anchor" : null,
   "apis" : {},
   "data" : {},
+  "contextMenu": true,
   "explainDataKey": [],
   "layout" : {
     "desktop" : {},
@@ -41226,6 +41290,7 @@ const _M = {
         "title" : null,
         "apis" : {},
         "data" : {},
+        "contextMenu" : true,
         "explainDataKey": [],
         "layout" : {},
         "params" : {},
@@ -41289,7 +41354,8 @@ Ti.Preload("ti/lib/www/mod/shop/www-mod-shop.json", {
     "objs" : "objs",
     "buy"  : "pay/buy",
     "pay"  : "pay/pay",
-    "checkOrder": "pay/check"
+    "checkOrder": "pay/check",
+    "fetchOrder": "pay/order"
   }
 });
 //============================================================
@@ -41336,7 +41402,28 @@ const _M = {
   ////////////////////////////////////////////////
   actions : {
     //--------------------------------------------
-    async fetchOrder({getters, rootState}, {orderId, payType}={}) {
+    async fetchOrder({getters, rootState}, {orderId}={}) {
+      if(!orderId) {
+        return 
+      }
+      let reo = await Ti.Http.get(getters.urls.fetchOrder, {
+        params: {
+          ticket: rootState.auth.ticket,
+          id: orderId
+        },
+        as: "json"
+      })
+      // Success
+      if(reo.ok) {
+        return reo.data
+      }
+      // Fail
+      else {
+        console.warn("Fail to loadOrder", {items, reo})
+      }
+    },
+    //--------------------------------------------
+    async payOrder({getters, rootState}, {orderId, payType}={}) {
       if(!orderId) {
         return 
       }
@@ -41354,7 +41441,7 @@ const _M = {
       }
       // Fail
       else {
-        console.warn("Fail to loadBuyItems", {items, reo})
+        console.warn("Fail to payOrder", {items, reo})
       }
     },
     //--------------------------------------------
@@ -41388,7 +41475,7 @@ const _M = {
       }
       // Fail
       else {
-        console.warn("Fail to loadBuyItems", {items, reo})
+        console.warn("Fail to createOrder", {items, reo})
       }
     },
     //--------------------------------------------
@@ -41410,7 +41497,7 @@ const _M = {
       }
       // Fail
       else {
-        console.warn("Fail to loadBuyItems", {items, reo})
+        console.warn("Fail to checkOrder", {items, reo})
       }
     },
     //--------------------------------------------
@@ -42717,6 +42804,766 @@ const _M = {
 }
 Ti.Preload("/a/load/wn.manager/wn-manager.mjs", _M);
 })();
+//============================================================
+// JOIN: en-us/hmaker.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
+  "com-form": "表单",
+  "com-label": "标签",
+  "com-list": "列表",
+  "hm-type-Array": "数组",
+  "hm-type-Boolean": "布尔",
+  "hm-type-Group": "字段分组",
+  "hm-type-Integer": "整数",
+  "hm-type-Number": "数字",
+  "hm-type-Object": "对象",
+  "hm-type-String": "文本",
+  "hm-type-icons": {
+    "Array": "zmdi-format-list-bulleted",
+    "Boolean": "zmdi-toll",
+    "Group": "zmdi-collection-bookmark",
+    "Integer": "zmdi-n-6-square",
+    "Number": "zmdi-input-svideo",
+    "Object": "zmdi-toys",
+    "String": "zmdi-translate"
+  },
+  "hmaker-com-conf-blank": "请选择一个控件设置其详情",
+  "hmaker-com-type-blank": "选择一个控件",
+  "hmaker-edit-form-del-group-all": "组以及全部字段",
+  "hmaker-edit-form-del-group-confirm": "您是要删除组以及其内的全部字段，还是仅是组？",
+  "hmaker-edit-form-del-group-only": "仅是组",
+  "hmaker-edit-form-field-nil": "请选择一个字段编辑详情",
+  "hmaker-edit-form-new-field": "新字段",
+  "hmaker-edit-form-new-field-e0": "字段名不能以数字开头，内容只能为小写英文字母数字和下划线",
+  "hmaker-edit-form-new-field-e1": "字段【${val}】已存在，请另选一个名称",
+  "hmaker-edit-form-new-field-tip": "请输入新字段名（只能为小写英文字母数字和下划线）",
+  "hmaker-edit-form-new-group": "新分组",
+  "hmaker-edit-form-new-group-tip": "请输入新分组名",
+  "hmaker-edit-form-nil-field": "请先选择一个字段",
+  "hmaker-edit-form-not-current": "请选择一个字段或者字段组",
+  "hmaker-layout-cols": "列布局",
+  "hmaker-layout-rows": "行布局",
+  "hmaker-layout-tabs": "标签布局",
+  "hmaker-nav-blank-item": "请选择一个导航项目编辑",
+  "hmaker-nav-k-display": "链接显示内容",
+  "hmaker-nav-k-icon": "链接图标",
+  "hmaker-nav-k-title": "链接文字",
+  "hmaker-nav-k-type": "链接类型",
+  "hmaker-nav-k-value": "链接目标",
+  "hmaker-nav-tp-dispatch": "方法调用",
+  "hmaker-nav-tp-href": "外部链接",
+  "hmaker-nav-tp-page": "站点页面",
+  "hmaker-site-k-apiBase": "接口路径",
+  "hmaker-site-k-base": "资源路径",
+  "hmaker-site-k-captcha": "验证码路径",
+  "hmaker-site-k-domain": "所属域",
+  "hmaker-site-k-entry": "着陆页",
+  "hmaker-site-prop": "站点属性",
+  "hmaker-site-state": "站点全局配置",
+  "hmaker-site-state-actions": "全局动作表",
+  "hmaker-site-state-apis": "接口集",
+  "hmaker-site-state-blocks": "预定义布局",
+  "hmaker-site-state-general": "通用配置",
+  "hmaker-site-state-nav": "全局导航条",
+  "hmaker-site-state-router": "页面路由",
+  "hmaker-site-state-schema": "预定义控件",
+  "hmaker-site-state-utils": "扩展函数",
+  "hmaker-site-tree": "站点结构",
+  "hmaker-site-tree-loading": "正在加载站点结构...",
+  "hmk-adjustDelay": "调整延迟",
+  "hmk-aspect": "外观",
+  "hmk-autoI18n": "国际化",
+  "hmk-behavior": "行为",
+  "hmk-blankAs": "空白样式",
+  "hmk-breakLine": "维持换行",
+  "hmk-currentTab": "当前标签",
+  "hmk-data": "数据",
+  "hmk-dict": "数据字典",
+  "hmk-editable": "可编辑",
+  "hmk-field-checkEquals": "检查相等",
+  "hmk-field-com": "编辑控件",
+  "hmk-field-defaultAs": "默认值",
+  "hmk-field-disabled": "失效条件",
+  "hmk-field-height": "高度",
+  "hmk-field-hidden": "隐藏条件",
+  "hmk-field-icon": "图标",
+  "hmk-field-name": "键名",
+  "hmk-field-serializer": "自定义保存",
+  "hmk-field-tip": "提示说明",
+  "hmk-field-title": "显示名",
+  "hmk-field-transformer": "自定义转换",
+  "hmk-field-type": "类型",
+  "hmk-field-width": "宽度",
+  "hmk-fieldStatus": "字段状态",
+  "hmk-fields": "字段",
+  "hmk-fields-advance": "高级",
+  "hmk-fields-general": "基本",
+  "hmk-form-data": "数据源",
+  "hmk-form-height": "表单高度",
+  "hmk-form-onlyFields": "仅声明字段",
+  "hmk-form-width": "表单宽度",
+  "hmk-format": "格式化",
+  "hmk-height": "控件高度",
+  "hmk-href": "超链接",
+  "hmk-icon": "表单图标",
+  "hmk-measure": "尺寸",
+  "hmk-mode": "显示方式",
+  "hmk-mode-all": "全部",
+  "hmk-mode-tab": "标签",
+  "hmk-newTab": "新窗口",
+  "hmk-placeholder": "占位文本",
+  "hmk-prefixIcon": "前缀图标",
+  "hmk-prefixText": "前缀文字",
+  "hmk-spacing": "间距",
+  "hmk-spacing-comfy": "舒适",
+  "hmk-spacing-tiny": "紧凑",
+  "hmk-suffixIcon": "后缀图标",
+  "hmk-suffixText": "后缀文字",
+  "hmk-tabAt": "标签位置",
+  "hmk-tabAt-bottom-center": "下部居中",
+  "hmk-tabAt-bottom-left": "下部居左",
+  "hmk-tabAt-bottom-right": "下部居右",
+  "hmk-tabAt-top-center": "上部居中",
+  "hmk-tabAt-top-left": "上部居左",
+  "hmk-tabAt-top-right": "上部居右",
+  "hmk-title": "表单标题",
+  "hmk-trimed": "修剪空白",
+  "hmk-value": "输入值",
+  "hmk-valueMaxWidth": "值最大宽度",
+  "hmk-width": "控件宽度"
+});
+//============================================================
+// JOIN: en-us/ti-datetime.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/ti-datetime.i18n.json", {
+  "Apr": "四月",
+  "Aug": "八月",
+  "Dec": "十二月",
+  "Feb": "二月",
+  "Fri": "周五",
+  "Friday": "星期五",
+  "Jan": "一月",
+  "Jul": "七月",
+  "Jun": "六月",
+  "Mar": "三月",
+  "May": "五月",
+  "Mon": "周一",
+  "Monday": "星期一",
+  "Nov": "十一月",
+  "Oct": "十月",
+  "Sat": "周六",
+  "Saturday": "星期六",
+  "Sep": "九月",
+  "Sun": "周日",
+  "Sunday": "星期日",
+  "Thu": "周四",
+  "Thursday": "星期四",
+  "Tue": "周二",
+  "Tuesday": "星期二",
+  "Wed": "周三",
+  "Wednesday": "星期三",
+  "blank-date": "请选择日期",
+  "blank-date-range": "请选择日期范围",
+  "blank-datetime": "请选择日期时间",
+  "blank-month": "请选择月份",
+  "blank-time": "请选择时间",
+  "blank-time-range": "请选择时间范围",
+  "cal": {
+    "abbr": {
+      "Apr": "四月",
+      "Aug": "八月",
+      "Dec": "十二",
+      "Feb": "二月",
+      "Jan": "一月",
+      "Jul": "七月",
+      "Jun": "六月",
+      "Mar": "三月",
+      "May": "五月",
+      "Nov": "十一",
+      "Oct": "十月",
+      "Sep": "九月"
+    },
+    "d-range-beyond-days": "${yy0}年${MM0}月${dd0}至${dd1}日",
+    "d-range-beyond-months": "${yy0}年${MM0}月${dd0}日至${MM1}月${dd1}日",
+    "d-range-beyond-years": "${yy0}年${MM0}月${dd0}日至${yy1}年${MM1}月${dd1}日",
+    "d-range-in-same-day": "${yy0}年${MM0}月${dd0}日全天",
+    "m-range-beyond-months": "${yy0}年${MT0}至${MT1}",
+    "m-range-beyond-years": "${yy0}年${MT0}至${yy1}年${MT1}",
+    "week": ["日", "一", "二", "三", "四", "五", "六"]
+  },
+  "du-in-min": "${n}分钟",
+  "time": {
+    "any-time": "yyyy年M月d日",
+    "in-year": "M月d日",
+    "past-in-min": "刚刚",
+    "past-in-hour": "${min}分钟前",
+    "past-in-day": "${hour}小时前",
+    "past-in-week": "${day}天前",
+    "future-in-min": "即将",
+    "future-in-hour": "${min}分钟后",
+    "future-in-day": "${hour}小时后",
+    "future-in-week": "${day}天后"
+  },
+  "time-begin": "开始时间",
+  "time-end": "结束时间",
+  "today": "今天"
+});
+//============================================================
+// JOIN: en-us/ti-obj-creation.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/ti-obj-creation.i18n.json", {
+  "toc-auto-type": "全部类型",
+  "toc-free": "请输入对象完整名称，包括扩展名，譬如 `myfile.xml`",
+  "toc-tip": "新对象名称"
+});
+//============================================================
+// JOIN: en-us/ti-text-editor.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
+  "wordp-h0": "正文",
+  "wordp-h1": "标题 1",
+  "wordp-h2": "标题 2",
+  "wordp-h3": "标题 3",
+  "wordp-h4": "标题 4",
+  "wordp-h5": "标题 5",
+  "wordp-h6": "标题 6",
+  "wordp-heading": "标题级别",
+  "wordp-link": "超链接",
+  "wordp-nil-sel": "请先选择一段文字"
+});
+//============================================================
+// JOIN: en-us/ti-text-json.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/ti-text-json.i18n.json", {
+  "json-Array": "数组",
+  "json-Boolean": "布尔",
+  "json-Float": "小数",
+  "json-Integer": "整数",
+  "json-Nil": "空值",
+  "json-Number": "数字",
+  "json-Object": "对象",
+  "json-String": "字符串",
+  "json-new-key": "请输入一个新键名"
+});
+//============================================================
+// JOIN: en-us/web.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/web.i18n.json", {
+  "account-filter-tip": "请输入账号名过滤",
+  "account-meta-tip": "请选择一个账号查看详情",
+  "address-consignee": "收货人",
+  "address-empty-list": "未设置任何收货地址",
+  "address-is-dft": "默认收货地址",
+  "address-k-city": "城市/区",
+  "address-k-consignee": "收货人姓名",
+  "address-k-country": "国家",
+  "address-k-dftaddr": "默认地址",
+  "address-k-email": "邮箱",
+  "address-k-phone": "电话",
+  "address-k-postcode": "邮编",
+  "address-k-street": "街道",
+  "address-k-title": "地址",
+  "address-k-uid": "用户",
+  "address-set-dft": "设为默认地址",
+  "address-shipping-add": "添加收货地址",
+  "auth-bind": "绑定",
+  "auth-bind-email-title": "绑定邮箱",
+  "auth-bind-phone-title": "绑定手机",
+  "auth-blank-email": "邮箱不能为空",
+  "auth-blank-name": "名称不能为空",
+  "auth-blank-name-passwd": "名称或者密码不能为空",
+  "auth-blank-phone": "手机号不能为空",
+  "auth-doing": "正在验证",
+  "auth-email-tip": "邮箱地址",
+  "auth-email-title": "邮件密码登录/注册",
+  "auth-email-vcode": "邮件密码",
+  "auth-email-vcode-get": "获取邮件密码",
+  "auth-go-email": "邮件密码登录/注册",
+  "auth-go-passwd": "账号密码登录",
+  "auth-go-phone": "短信密码登录/注册",
+  "auth-login": "登录",
+  "auth-login-NoSaltedPasswd": "你还未初始化您的登录密码，请切换至【${ta?验证码}】登录，之后前往【用户中心 > 安全设置】初始化您的登录密码，谢谢",
+  "auth-login-or-signup": "登录/注册",
+  "auth-ok": "账号验证通过",
+  "auth-passwd-getback": "找回密码",
+  "auth-passwd-name-email-tip": "邮箱地址/登录名",
+  "auth-passwd-name-phone-tip": "手机号/登录名",
+  "auth-passwd-tip": "密码",
+  "auth-passwd-title": "账号密码登录",
+  "auth-phone-email-get": "获取邮箱验证码",
+  "auth-phone-tip": "手机号",
+  "auth-phone-title": "短信密码登录/注册",
+  "auth-phone-vcode": "短信密码",
+  "auth-phone-vcode-get": "获取短信密码",
+  "auth-reset-passwd-again": "再次重置密码",
+  "auth-reset-passwd-btn-lack": "请填写必要信息",
+  "auth-reset-passwd-btn-ready": "立即重置密码",
+  "auth-reset-passwd-btn-short": "密码至少6位",
+  "auth-reset-passwd-btn-unmatch": "密码两次输入不一致",
+  "auth-reset-passwd-by-email": "用邮箱重置密码",
+  "auth-reset-passwd-by-email-sent": "已经向您的注册邮箱 ${email} 发送了邮件密码",
+  "auth-reset-passwd-by-email-tip": "请输入注册邮箱地址",
+  "auth-reset-passwd-by-passwd": "用旧密码重置密码",
+  "auth-reset-passwd-by-phone": "用手机重置密码",
+  "auth-reset-passwd-by-phone-sent": "已经向您的手机 ${phone} 发送了短信密码",
+  "auth-reset-passwd-by-phone-tip": "请输入注册手机号码",
+  "auth-reset-passwd-ing": "正在重置密码...",
+  "auth-reset-passwd-lack-email": "请输入注册邮箱地址",
+  "auth-reset-passwd-lack-phone": "请输入注册手机号",
+  "auth-reset-passwd-new": "新密码（最少6位）",
+  "auth-reset-passwd-ok": "密码已经重置，下次登录时生效",
+  "auth-reset-passwd-old": "旧密码",
+  "auth-reset-passwd-ren": "再次确认",
+  "auth-sending-vcode": "正在发送验证码",
+  "auth-sent-ok": "${ta?验证码}已发出，请在${by}查收，${min}分钟内有效",
+  "auth-ta-by-email": "邮箱里",
+  "auth-ta-by-phone": "手机上",
+  "auth-ta-email": "邮件密码",
+  "auth-ta-phone": "手机密码",
+  "auth-vcode-delay": "${sec} 秒后重新发送",
+  "auth-vcode-lost": "收不到验证码？",
+  "e-cmd-www_passwd-Blank": "新密码为空",
+  "e-cmd-www_passwd-CheckBlankAccount": "空账户",
+  "e-cmd-www_passwd-CheckBlankCode": "空验证码",
+  "e-cmd-www_passwd-CheckCodeFail": "验证码错误",
+  "e-cmd-www_passwd-CheckFailed": "校验错误",
+  "e-cmd-www_passwd-CheckWeirdAccount": "诡异的账户",
+  "e-cmd-www_passwd-InvalidNewPasswd": "新密码无效",
+  "e-cmd-www_passwd-LackTarget": "缺少重置目标",
+  "e-cmd-www_passwd-TooShort": "新密码太短",
+  "e-cmd-www_passwd-nopvg": "没有重置密码的权限",
+  "e-www-invalid-captcha": "${ta?验证码}错误",
+  "e-www-login-invalid-passwd": "账号密码错误",
+  "e-www-login-noexists": "账号不存在",
+  "me-k-account": "账户",
+  "me-k-avatar": "头像",
+  "me-k-city": "城市",
+  "me-k-country": "国家",
+  "me-k-email": "邮箱",
+  "me-k-login": "最后登录",
+  "me-k-nickname": "用户昵称",
+  "me-k-nm": "登录名",
+  "me-k-phone": "手机号",
+  "me-k-sex": "性别",
+  "mine": "我的",
+  "my-favors": "我的收藏",
+  "my-favors-blog": "收藏的博客",
+  "my-favors-goods": "收藏的商品",
+  "my-favors-posts": "收藏的文章",
+  "my-favors-spots": "收藏的景点",
+  "my-favors-video": "收藏的视频",
+  "my-orders": "我的订单",
+  "my-orders-shop": "购物订单",
+  "my-orders-video": "视频订单",
+  "my-passwd": "重置密码",
+  "my-profile": "我的资料",
+  "my-shipping-address": "收货地址",
+  "my-shopping-car": "购物车",
+  "or-st-dn": "完成",
+  "or-st-fa": "支付失败",
+  "or-st-nw": "提交订单",
+  "or-st-ok": "支付成功",
+  "or-st-sp": "已发货",
+  "or-st-wt": "待支付",
+  "order-filter-tip": "请输入订单ID查询",
+  "order-k-accounts": "用户库",
+  "order-k-buyer_id": "买家",
+  "order-k-currency": "货币单位",
+  "order-k-dn_at": "完成时间",
+  "order-k-fa_at": "支付失败",
+  "order-k-fee": "支付金额",
+  "order-k-id": "订单号",
+  "order-k-ok_at": "支付成功",
+  "order-k-pay_id": "支付单",
+  "order-k-pay_tp": "支付类型",
+  "order-k-payment": "支付信息",
+  "order-k-price": "订单金额",
+  "order-k-pro-amount": "购买数量",
+  "order-k-pro-price": "单价",
+  "order-k-pro-subtotal": "小计",
+  "order-k-pro-title": "商品",
+  "order-k-products": "商品信息",
+  "order-k-seller": "卖家",
+  "order-k-sp_at": "发货时间",
+  "order-k-st": "订单状态",
+  "order-k-title": "订单标题",
+  "order-k-wt_at": "支付时间",
+  "passwd-invalid-char": "密码只能包括英文数字/大小写字母/以及特殊字符",
+  "passwd-sl-1": "弱",
+  "passwd-sl-2": "较弱",
+  "passwd-sl-3": "中",
+  "passwd-sl-4": "较强",
+  "passwd-sl-5": "强",
+  "passwd-tip": "请输入最少6位的英文数字/大小写字母/特殊字符的组合",
+  "pay-by-free": "免费",
+  "pay-by-paypal": "PayPal",
+  "pay-by-wx-jsapi": "微信JSAPI",
+  "pay-by-wx-qrcode": "微信扫码",
+  "pay-by-wx-scan": "微信付款码",
+  "pay-by-zfb-qrcode": "支付宝扫码",
+  "pay-by-zfb-scan": "支付宝付款码",
+  "pay-checkout-it-amount": "数量",
+  "pay-checkout-it-name": "商品名称",
+  "pay-checkout-it-price": "单价",
+  "pay-checkout-it-subtotal": "小计",
+  "pay-checkout-tip": "请确认你购买的商品数量和金额",
+  "pay-paypal": "PayPal",
+  "pay-proceed-check": "检查支付结果",
+  "pay-proceed-ing": "正在检查...",
+  "pay-re-fail": "支付失败",
+  "pay-re-nil": "支付结果是一只薛定谔的猫",
+  "pay-re-ok": "支付成功",
+  "pay-re-wait": "等待支付中",
+  "pay-step-checkout-title": "确认订单",
+  "pay-step-choose-nil": "☝ 请选择上面的一个支付方式 👆",
+  "pay-step-choose-tip": "您可以选择下面任意一种支付方式支付本订单",
+  "pay-step-choose-tip2": "您将使用${val}支付本订单",
+  "pay-step-choose-title": "支付方式",
+  "pay-step-choose-title2": "选择支付方式",
+  "pay-step-done-title": "完成",
+  "pay-step-proceed-create-order": "正在创建订单...",
+  "pay-step-proceed-fetch-order": "正在获取订单...",
+  "pay-step-proceed-nil": "您未选择任何支付方式",
+  "pay-step-proceed-tip": "使用${val}支付本订单",
+  "pay-step-proceed-title": "支付",
+  "pay-tip-wx-qrcode": "请于15分钟内用微信扫一扫付款码",
+  "pay-tip-zfb-qrcode": "请于15分钟内用支付宝扫一扫付款码",
+  "pay-title": "支付流程",
+  "pay-wx": "微信支付",
+  "pay-zfb": "支付宝",
+  "paypal-approve-tip": "已经在新标签里为您打开了PayPal支付页面，如果没有打开，请点击☝上面的图标。支付完毕，页面会自动感知到，如果没有反应，试着点击👇下面的【检查支付结果】按钮。",
+  "profile-title": "我的基本信息",
+  "shop-basket-clean-confirm": "您确定要清空购物车内全部商品吗？这是一个不能撤回的操作。"
+});
+//============================================================
+// JOIN: en-us/wn-manager.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/wn-manager.i18n.json", {
+  "ti-loading": "加载中...",
+  "wn-adaptlist": "对象浏览器",
+  "wn-create-fail": "创建失败",
+  "wn-create-invalid": "新对象名称不能包括非法字符",
+  "wn-create-ok": "创建成功",
+  "wn-create-too-long": "新对象名称过长",
+  "wn-del-item": "正在删除: \"${name}\"",
+  "wn-del-no-empty-folder": "目录\"${nm}\"不是空的，您是否要全部删除？点击\"否\"跳过",
+  "wn-del-none": "请选择至少一个文件进行删除!",
+  "wn-del-ok": "已有 ${N} 个对象被移除",
+  "wn-download-dir": "对象 \"${nm}\" 是一个目录，点击\"继续\"将跳过它并下载下一个文件，点击\"终止\"将结束本次操作!",
+  "wn-download-none": "请选择至少一个文件进行下载!",
+  "wn-download-too-many": "即将逐个下载 ${N} 个文件，继续吗？",
+  "wn-expose-hidden-off": "不显示隐藏的对象",
+  "wn-expose-hidden-on": "显示隐藏的对象",
+  "wn-gui": "通用布局界面",
+  "wn-obj-preview": "对象预览",
+  "wn-obj-puretext": "纯文本编辑器",
+  "wn-obj-single-com": "单控件测试套",
+  "wn-publish-done": "发布成功",
+  "wn-publish-to-nil": "未设置发布目标",
+  "wn-publish-to-noexist": "发布目标不存在",
+  "wn-rename": "重命名对象 \"${name}\"",
+  "wn-rename-fail": "重命名失败",
+  "wn-rename-invalid": "名称不能包括非法字符",
+  "wn-rename-none": "请选择一个文件重命名!",
+  "wn-rename-ok": "重命名成功",
+  "wn-rename-suffix-changed": "您的文件后缀名发生变化，您需要自动为您补全原来的后缀吗？",
+  "wn-rename-too-long": "名称过长",
+  "wn-thing-manager": "数据管理器",
+  "wn-view-opening": "正在加载界面..."
+});
+//============================================================
+// JOIN: en-us/wn-obj-preview.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/wn-obj-preview.i18n.json", {
+  "wop-fullscreen-enter": "进入全屏",
+  "wop-fullscreen-quit": "退出全屏"
+});
+//============================================================
+// JOIN: en-us/wn-thing.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/wn-thing.i18n.json", {
+  "thing-clean": "清空回收站",
+  "thing-cleaning": "正在清空...",
+  "thing-content": "对象内容",
+  "thing-content-hide": "隐藏内容",
+  "thing-content-show": "显示内容",
+  "thing-create": "创建新对象",
+  "thing-create-in-recyclebin": "请先退出回收站，再创建新对象",
+  "thing-enter-recyclebin": "打开回收站",
+  "thing-files": "对象文件表",
+  "thing-files-hide": "隐藏文件表",
+  "thing-files-show": "显示文件表",
+  "thing-filter-kwdplhd": "请输入查询条件",
+  "thing-leave-recyclebin": "退出回收站",
+  "thing-meta": "对象属性",
+  "thing-meta-hide": "隐藏属性",
+  "thing-meta-show": "显示属性",
+  "thing-recycle-bin": "回收站",
+  "thing-restore": "恢复选中",
+  "thing-restore-none": "请先选择要恢复的数据",
+  "thing-restoring": "正在恢复..."
+});
+//============================================================
+// JOIN: en-us/_net.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
+  "net-ct": "Created",
+  "net-flt-nil": "Query By Name",
+  "net-vod-add-video": "Add Video",
+  "net-vod-cate": "Category",
+  "net-vod-du-long": "Long Video",
+  "net-vod-du-short": "Short Video",
+  "net-vod-du-tv": "TV",
+  "net-vod-duration": "Duration",
+  "net-vod-size": "Video Size",
+  "net-vod-video-nil": "Please choose one video for detail"
+});
+//============================================================
+// JOIN: en-us/_ti.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "add": "Add",
+  "add-item": "New Item",
+  "amount": "Amount",
+  "attachment": "Attachment",
+  "batch-none": "Please choose at least one item for batch updating",
+  "batch-update": "Batch Update...",
+  "blank": "BLANK",
+  "blank-to-edit": "Please choose item for editing",
+  "brief": "Brief",
+  "buy": "Buy",
+  "buy-now": "Buy Now",
+  "cancel": "Cancel",
+  "cancel-all": "Cancel All",
+  "candidate": "Candidations",
+  "captcha": "Captcha",
+  "captcha-chagne": "Next",
+  "captcha-tip": "Please key in the captcha",
+  "checked": "Checked",
+  "choose": "Select",
+  "choose-file": "Select File",
+  "choose-obj": "Select Object",
+  "clean": "Clean",
+  "clear": "Clear",
+  "close": "Close",
+  "confirm": "Confirm",
+  "console": "Console",
+  "content": "Content",
+  "continue": "Continue",
+  "create": "New",
+  "create-now": "Create Now",
+  "creating": "Creating",
+  "debug": "Debug",
+  "default": "Default",
+  "del": "Delete",
+  "del-checked": "Delete Selected",
+  "del-ing": "Deleting...",
+  "del-none": "Please choose at least one item for deleting",
+  "desktop": "Desktop",
+  "detail": "Detail",
+  "doing": "Processing...",
+  "download": "Download",
+  "download-to-local": "Download to local",
+  "drop-file-here-to-upload": "Drop file here to upload",
+  "drop-here": "Drop Here",
+  "e-auth-account-noexists": "Account Not Exists",
+  "e-auth-home-forbidden": "账户不具备进入主目录的权限",
+  "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
+  "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
+  "e-auth-login-invalid-passwd": "账户密码未通过校验",
+  "e-io-obj-exists": "但是对象已然存在",
+  "e-io-obj-noexists": "对象其实并不存在",
+  "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
+  "edit": "编辑",
+  "edit-com": "编辑控件",
+  "empty": "空",
+  "empty-data": "无数据",
+  "error": "错误",
+  "export-data": "导出数据...",
+  "fail": "失败",
+  "false": "否",
+  "favorites": "收藏",
+  "female": "女",
+  "filter": "过滤",
+  "find": "查找",
+  "find-data": "查找数据",
+  "home": "主目录",
+  "i-known": "我知道了",
+  "icon": "图标",
+  "icon-code-tip": "请输入图标代码，如 zmdi-case",
+  "import-data": "导入数据...",
+  "index": "索引",
+  "info": "信息",
+  "input": "输入",
+  "input-tags": "输入标签",
+  "label": "标签",
+  "lat": "纬度",
+  "lbs-place-add": "添加地点",
+  "lng": "经度",
+  "loading": "加载中...",
+  "login": "登录",
+  "logout": "退出",
+  "logout-ing": "正在注销...",
+  "male": "男",
+  "map-hybrid": "俯瞰地图",
+  "map-roadmap": "道路地图",
+  "map-satellite": "卫星照片",
+  "map-terrain": "地形地图",
+  "map-type": "地图类型",
+  "me": "我",
+  "media": "媒体",
+  "meta": "元数据",
+  "mine": "我的",
+  "modal": "模式",
+  "more": "更多",
+  "msg": "消息",
+  "name": "名称",
+  "new-item": "新项目",
+  "next": "下一步",
+  "nil": "无",
+  "nil-obj": "请选择一个对象",
+  "no": "否",
+  "no-saved": "您有未保存的数据",
+  "no-selected": "未选择",
+  "no-title": "无标题",
+  "obj": "对象",
+  "off": "关",
+  "ok": "确定",
+  "on": "开",
+  "open": "打开",
+  "open-newtab": "在新标签打开",
+  "others": "其他",
+  "paging-change-pgsz": "当前每页有${pgsz}条记录，您想修改为：",
+  "paging-change-pgsz-invalid": "页大小必须是整数数字，而且必须大于0，可您... -_-!",
+  "paging-change-pn": "当前第${pn}页，您想跳转到：（请输入 1 至 ${pgc} 之间的数字）",
+  "paging-change-pn-invalid": "页码必须是整数数字，而且必须为 1 至 ${pgc} 之间的数字",
+  "paging-first": "首页",
+  "paging-last": "尾页",
+  "paging-next": "后一页",
+  "paging-prev": "前一页",
+  "paging-sum": "共${pgc}页${sum}条记录，当前${count}/${pgsz}",
+  "passwd": "密码",
+  "passwd-reset": "重置密码",
+  "path": "路径",
+  "phone": "手机",
+  "prev": "上一步",
+  "price": "价格",
+  "profile": "资料",
+  "profile-edit": "编辑资料",
+  "prompt": "询问",
+  "properties": "属性",
+  "publish": "发布",
+  "publishing": "正在发布...",
+  "refresh": "刷新",
+  "reloading": "重新加载数据...",
+  "remove": "移除",
+  "removing": "正在移除...",
+  "rename": "重命名...",
+  "renaming": "正在重命名...",
+  "revoke": "撤销",
+  "revoke-change": "撤销修改",
+  "save": "保存",
+  "save-change": "保存修改",
+  "save-done": "保存成功",
+  "save-now": "立即保存",
+  "saving": "正在保存...",
+  "score": "评分",
+  "score-count": "打分人数",
+  "select": "选择",
+  "select-all": "全部选中",
+  "settings": "设置",
+  "source-code": "源代码",
+  "stop": "停止",
+  "structure": "结构",
+  "success": "成功",
+  "tablet": "平板",
+  "terminal": "终端",
+  "terminate": "终止",
+  "text": "文字",
+  "timestamp": "时间戳",
+  "title": "标题",
+  "total-count": "共 ${nb?0} ${unit?项}",
+  "trace": "跟踪",
+  "track": "消息",
+  "true": "是",
+  "type": "类型",
+  "under-construction": "正在施工中",
+  "unknown": "未知",
+  "upload": "上传",
+  "upload-done": "文件上传已完成",
+  "upload-file": "上传文件...",
+  "upload-nofinished": "文件上传还没有完成",
+  "uploading": "正在上传",
+  "value": "值",
+  "view": "查看",
+  "view-resource": "查看源代码",
+  "warn": "警告",
+  "yes": "是"
+});
+//============================================================
+// JOIN: en-us/_wn.i18n.json
+//============================================================
+Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
+  "wn-edit-com-nil": "默认为标签控件",
+  "wn-en-his-ct": "创建时间",
+  "wn-en-his-flt-tip": "请输入用户ID或者名称过滤",
+  "wn-en-his-mor": "操作细节",
+  "wn-en-his-opt": "操作",
+  "wn-en-his-tar": "目标",
+  "wn-en-his-tid": "目标ID",
+  "wn-en-his-tnm": "目标名",
+  "wn-en-his-ttp": "目标类型",
+  "wn-en-his-uid": "用户ID",
+  "wn-en-his-unm": "用户名",
+  "wn-en-his-usr": "用户",
+  "wn-en-his-utp": "用户类型",
+  "wn-invalid-mimes": "不支持的文件内容类型 \"${current}\"，仅能支持 \"${supports}\"",
+  "wn-invalid-types": "不支持的文件扩展名 \"${current}\"，仅能支持 \"${supports}\"",
+  "wn-key-c": "创建者",
+  "wn-key-ct": "创建时间",
+  "wn-key-d0": "D0",
+  "wn-key-d1": "D1",
+  "wn-key-data": "数据",
+  "wn-key-duration": "时长",
+  "wn-key-expi": "过期时间",
+  "wn-key-g": "主组",
+  "wn-key-grp-advance": "高级",
+  "wn-key-grp-basic": "基本",
+  "wn-key-grp-customized": "自定义",
+  "wn-key-grp-more": "更多",
+  "wn-key-grp-others": "其他",
+  "wn-key-grp-privilege": "权限",
+  "wn-key-grp-thumb": "缩略图",
+  "wn-key-grp-timestamp": "时间戳",
+  "wn-key-height": "高",
+  "wn-key-icon": "图标",
+  "wn-key-id": "ID",
+  "wn-key-len": "大小",
+  "wn-key-lm": "修改",
+  "wn-key-m": "修改者",
+  "wn-key-md": "基本权限",
+  "wn-key-mime": "内容类型",
+  "wn-key-nm": "对象名",
+  "wn-key-ph": "路径",
+  "wn-key-pid": "父对象",
+  "wn-key-pvg": "定制权限",
+  "wn-key-race": "族类",
+  "wn-key-sha1": "内容签名",
+  "wn-key-thumb": "缩略图",
+  "wn-key-title": "标题",
+  "wn-key-tp": "类型",
+  "wn-key-width": "宽",
+  "wn-obj-nosaved": "您有未保存的对象",
+  "wn-race-DIR": "目录",
+  "wn-race-FILE": "文件",
+  "wn-th-acc-pwd-choose-none": "请选择要重置密码的账号（可多选）",
+  "wn-th-acc-pwd-done": "已经为${n}名用户重置了密码",
+  "wn-th-acc-pwd-invalid": "密码中不得包含单双引号星号等非法字符",
+  "wn-th-acc-pwd-reset-tip": "将密码重置为",
+  "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合",
+  "wn-th-recount-media": "重新计算当前文件数量",
+  "wn-th-recount-media-done": "当前文件数量: ${n}"
+});
 //============================================================
 // JOIN: zh-cn/hmaker.i18n.json
 //============================================================
