@@ -246,8 +246,8 @@ const LIST_MIXINS = {
       if(!this.puppetMode) {
         this.myCheckedIds = idMap
         this.myCurrentId  = curId
-        this.myLastIndex  = this.findRowIndexById(rowId)
       }
+      this.myLastIndex  = this.findRowIndexById(rowId)
       // Notify Changes
       if(!quiet) {
         _.defaults(emitContext, payload)
@@ -295,8 +295,8 @@ const LIST_MIXINS = {
         if(!this.puppetMode) {
           this.myCheckedIds = idMap
           this.myCurrentId  = curId
-          this.myLastIndex  = index
         }
+        this.myLastIndex  = index
         // Notify Changes
         this.$notify("select", emitContext)
       }
@@ -306,6 +306,7 @@ const LIST_MIXINS = {
       let idMap = _.cloneDeep(this.theCheckedIds)
       let curId = this.theCurrentId
       let index = this.myLastIndex
+      let rowIndex = this.findRowIndexById(rowId)
       // All rows
       if(_.isUndefined(rowId)) {
         idMap = {}
@@ -327,7 +328,7 @@ const LIST_MIXINS = {
       else {
         idMap[rowId] = true
         if(this.autoCheckCurrent) {
-          index = this.findRowIndexById(rowId)
+          index = rowIndex
         }
       }
       // Eval context
@@ -336,8 +337,8 @@ const LIST_MIXINS = {
       if(!this.puppetMode) {
         this.myCheckedIds = idMap
         this.myCurrentId  = curId
-        this.myLastIndex  = index
       }
+      this.myLastIndex  = rowIndex
       // Notify Changes
       this.$notify("select", emitContext)
     },

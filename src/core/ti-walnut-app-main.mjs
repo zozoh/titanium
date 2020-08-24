@@ -7,6 +7,7 @@ export async function WalnutAppMain({
   logging={root:"warn"},
   shortcute=true,
   theme,
+  lang = "zh-cn",
   viewport = {
     phoneMaxWidth:540,
     tabletMaxWidth:768,
@@ -52,9 +53,9 @@ export async function WalnutAppMain({
     alias : {
       "^\./"          : "@MyApp:",
       "^@MyApp:?$"    : "@MyApp:_app.json",
-      "^@i18n:(.+)$"  : "@i18n:zh-cn/$1",
-      "\/i18n\/"      : "\/i18n\/zh-cn/",
-      "^(@[A-Za-z]+):i18n/(.+)$" : "$1:i18n/zh-cn/$2"
+      "^@i18n:(.+)$"  : `@i18n:${lang}/$1`,
+      "\/i18n\/"      : `\/i18n\/${lang}/`,
+      "^(@[A-Za-z]+):i18n/(.+)$" : `$1:i18n/${lang}/$2`
     },
     suffix : {
       "^@theme:"              : ".css",
@@ -63,7 +64,7 @@ export async function WalnutAppMain({
       "(^@com:|[\/:]com\/)"   : "/_com.json",
       "(^@i18n:|[\/:]i18n\/)" : ".i18n.json"
     },
-    lang : "zh-cn"
+    lang
   })
   //---------------------------------------
   // Preload resources

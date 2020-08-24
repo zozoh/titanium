@@ -42,6 +42,26 @@ const _M = {
       return this.genComConf(this.selComConf, this.sel)
     },
     //------------------------------------------------
+    SelActions() {
+      return {
+        items: [{
+          name : "moveUp",
+          type : "action",
+          icon : "zmdi-long-arrow-up",
+          action : ()=>{
+            this.selMoveUp()
+          }
+        }, {
+          name : "moveDown",
+          type : "action",
+          icon : "zmdi-long-arrow-down",
+          action : ()=>{
+            this.selMoveDown()
+          }
+        }]
+      }
+    },
+    //------------------------------------------------
     FilterComConf() {
       return _.assign({
         trimed      : true,
@@ -166,7 +186,69 @@ const _M = {
       this.sel = src
     },
     //---------------------------------------------------
+    selMoveUp() {
+      let {
+        remains, checks, minIndex, maxIndex, checkedIds
+      } = this.evalTheList(this.sel)
+      if(!_.isEmpty(checks) && minIndex > 0) {
+        Ti.Util.insertToArray(remains, minIndex - 1, ...checks)
+        this.sel = {
+          data : remains,
+          checkedIds
+        }
+      }
+    },
+    //---------------------------------------------------
+    selMoveDown() {
+      let {
+        remains, checks, minIndex, maxIndex, checkedIds
+      } = this.evalTheList(this.sel)
+      if(!_.isEmpty(checks)) {
+        if(maxIndex < remains.length) {
+          maxIndex ++
+        }
+        Ti.Util.insertToArray(remains, maxIndex, ...checks)
+        this.sel = {
+          data : remains,
+          checkedIds
+        }
+      }
+    },
+    //---------------------------------------------------
     // Utility
+    //---------------------------------------------------
+    // Eval the can/sel List 
+    evalTheList(list={}) {
+      let remains = []
+      let checks  = []
+      let checkedIds = []
+      let idMap   = {}
+      let minIndex = list.data.length
+      let maxIndex = -1
+      // Build ID map
+      _.forEach(list.checkedIds, id => {
+        idMap[id] = true
+      })
+      // Eval checked and remains
+      _.forEach(list.data, (li, index) => {
+        let id = this.GetValueBy(li)
+        if(idMap[id]) {
+          minIndex = Math.min(index, minIndex)
+          maxIndex = Math.max(index, maxIndex)
+          checkedIds.push(id)
+          checks.push(li)
+        } else {
+          remains.push(li)
+        }
+      })
+      // Done for eval
+      return {
+        remains, checks,
+        minIndex,
+        maxIndex : maxIndex - checks.length + 1,
+        checkedIds
+      }
+    },
     //---------------------------------------------------
     assignToList({data, checkedIds}, ta) {
       // Make ids map
@@ -242,7 +324,7 @@ const _M = {
       }
       this.sel = {
         data: list,
-        checkedIds : []
+        checkedIds : _.get(this.sel, "checkedIds") || []
       }
     },
     //---------------------------------------------------
