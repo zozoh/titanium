@@ -38,6 +38,7 @@ const _M = {
         if(pos > 0) {
           return _.trim(orId.substring(pos+1))
         }
+        return orId
       }
       return '- unknown -'
     },
