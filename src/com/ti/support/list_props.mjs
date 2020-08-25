@@ -85,6 +85,14 @@ export default {
     type : Boolean,
     default : false
   },
+  "onSelect": {
+    type : Function,
+    default: undefined
+  },
+  "onOpen": {
+    type : Function,
+    default: undefined
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

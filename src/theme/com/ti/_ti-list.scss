@@ -1,6 +1,6 @@
 .ti-list {
   @include noselect;
-  overflow:auto;
+  overflow:auto; position: relative;
   //------------------------------------------
   &.show-border {
     > .list-row {

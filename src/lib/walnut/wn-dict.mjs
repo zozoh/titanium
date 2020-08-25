@@ -56,7 +56,9 @@ const WnDict = {
           //...............................................
           data  : Wn.Util.genQuery(dict.data, {vkey:null}),
           query : Wn.Util.genQuery(dict.query),
-          item  : Wn.Util.genQuery(dict.item),
+          item  : Wn.Util.genQuery(dict.item, {
+            blankAs: "{}"
+          }),
           children : Wn.Util.genQuery(dict.children),
           //...............................................
           getValue : Ti.Util.genGetter(dict.value),

@@ -185,7 +185,9 @@ export class Dict {
       this.doHooks(true)
       it = await this.invokeAsync("item", val)
       this.doHooks(false)
-      this.addItemToCache(it, val)
+      if(it && _.isPlainObject(it)) {
+        this.addItemToCache(it, val)
+      }
 
       // Release loading
       for(let resolve of loading) {
@@ -197,7 +199,7 @@ export class Dict {
     // 不知道什么时候，在 anju 项目，总出现返回值为空数组 `[]`
     // 诡异啊，加个 log 观察一下
     if(_.isArray(it)) {
-      console.warn("!!!! Dict.getItem=>[] !!! 靠，又出现了")
+      console.warn("!!!! Dict.getItem=>[] !!! 靠，又出现了 val=", val)
     }
 
     if(this.isShadowed())
