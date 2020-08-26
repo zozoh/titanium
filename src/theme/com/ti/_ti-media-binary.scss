@@ -4,7 +4,7 @@
   padding-bottom:10%;
   @include flex-align-v($jc:center, $ai:center,$wp:nowrap);
   .tob-icon {
-    padding:SZ(20)
+    padding:SZ(20); font-size: SZ(96);
   }
   .tob-title {
     @include font-fixed(1.4em);

@@ -141,7 +141,6 @@ const _M = {
           }
         }
         if(invalid) {
-          console.log("haha")
           await Ti.Alert(invalidMsg, {
             type:"warn",
             icon:"zmdi-alert-triangle",
@@ -193,12 +192,20 @@ const _M = {
       }
 
       //................................
+      // Eval the target
+      let taPath = Ti.S.renderBy(this.target, {
+        type, 
+        name : file.name,
+        majorName : Ti.Util.getMajorName(file.name)
+      })
+
+      //................................
       // Upload file to destination
       this.uploadFile = file
       this.progress = 0
 
       let {ok, msg, data} = await Wn.Io.uploadFile(file, {
-        target : this.target,
+        target : taPath,
         mode   : "r",
         progress : (pe)=> {
           this.progress = pe.loaded / pe.total

@@ -83,4 +83,8 @@
     width:100%;
   }
   //-----------------------------------------
+  &.align-left   > .as-value {justify-content: flex-start;}
+  &.align-center > .as-value {justify-content: center;}
+  &.align-right  > .as-value {justify-content: flex-end;}
+  //-----------------------------------------
 }
