@@ -1,4 +1,4 @@
-// Pack At: 2020-08-24 16:45:46
+// Pack At: 2020-08-26 12:47:26
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -19696,12 +19696,12 @@ const LIST_MIXINS = {
       if(!this.puppetMode) {
         this.myCheckedIds = idMap
         this.myCurrentId  = curId
-        this.myLastIndex  = this.findRowIndexById(rowId)
       }
+      this.myLastIndex  = this.findRowIndexById(rowId)
       // Notify Changes
       if(!quiet) {
         _.defaults(emitContext, payload)
-        this.$notify("select", emitContext)
+        this.doNotifySelect(emitContext)
       }
     },
     //-----------------------------------------------
@@ -19745,10 +19745,10 @@ const LIST_MIXINS = {
         if(!this.puppetMode) {
           this.myCheckedIds = idMap
           this.myCurrentId  = curId
-          this.myLastIndex  = index
         }
+        this.myLastIndex  = index
         // Notify Changes
-        this.$notify("select", emitContext)
+        this.doNotifySelect(emitContext)
       }
     },
     //-----------------------------------------------
@@ -19756,6 +19756,7 @@ const LIST_MIXINS = {
       let idMap = _.cloneDeep(this.theCheckedIds)
       let curId = this.theCurrentId
       let index = this.myLastIndex
+      let rowIndex = this.findRowIndexById(rowId)
       // All rows
       if(_.isUndefined(rowId)) {
         idMap = {}
@@ -19777,7 +19778,7 @@ const LIST_MIXINS = {
       else {
         idMap[rowId] = true
         if(this.autoCheckCurrent) {
-          index = this.findRowIndexById(rowId)
+          index = rowIndex
         }
       }
       // Eval context
@@ -19786,10 +19787,10 @@ const LIST_MIXINS = {
       if(!this.puppetMode) {
         this.myCheckedIds = idMap
         this.myCurrentId  = curId
-        this.myLastIndex  = index
       }
+      this.myLastIndex  = rowIndex
       // Notify Changes
-      this.$notify("select", emitContext)
+      this.doNotifySelect(emitContext)
     },
     //-----------------------------------------------
     cancelRow(rowId) {
@@ -19818,7 +19819,7 @@ const LIST_MIXINS = {
         this.myLastIndex  = index
       }
       // Notify Changes
-      this.$notify("select", emitContext)
+      this.doNotifySelect(emitContext)
     },
     //-----------------------------------------------
     toggleRow(rowId) {
@@ -19826,6 +19827,13 @@ const LIST_MIXINS = {
         this.cancelRow(rowId)
       } else {
         this.checkRow(rowId)
+      }
+    },
+    //-----------------------------------------------
+    doNotifySelect(emitContext) {
+      this.$notify("select", emitContext)
+      if(_.isFunction(this.onSelect)) {
+        this.onSelect(emitContext)
       }
     },
     //-----------------------------------------------
@@ -19869,6 +19877,9 @@ const LIST_MIXINS = {
       let row = this.findRowById(rowId)
       if(row) {
         this.$notify("open", row)
+        if(_.isFunction(this.onOpen)) {
+          this.onOpen(row)
+        }
       }
     },
     //-----------------------------------------------
@@ -20028,6 +20039,14 @@ const _M = {
   "scrollIndex" : {
     type : Boolean,
     default : false
+  },
+  "onSelect": {
+    type : Function,
+    default: undefined
+  },
+  "onOpen": {
+    type : Function,
+    default: undefined
   },
   //-----------------------------------
   // Aspect
@@ -24133,6 +24152,9 @@ Ti.Preload("ti/com/ti/transfer/ti-transfer.html", `<div class="ti-transfer"
         <ti-icon :value="GetHeadCheckerIcon(sel)"/>
       </div>
       <div class="as-title">{{selTitle|i18n}}</div>
+      <div class="as-actions">
+        <ti-actionbar v-bind="SelActions"/>
+      </div>
     </div>
     <!--
       component
@@ -24197,6 +24219,26 @@ const _M = {
     },
     SelListComConf() {
       return this.genComConf(this.selComConf, this.sel)
+    },
+    //------------------------------------------------
+    SelActions() {
+      return {
+        items: [{
+          name : "moveUp",
+          type : "action",
+          icon : "zmdi-long-arrow-up",
+          action : ()=>{
+            this.selMoveUp()
+          }
+        }, {
+          name : "moveDown",
+          type : "action",
+          icon : "zmdi-long-arrow-down",
+          action : ()=>{
+            this.selMoveDown()
+          }
+        }]
+      }
     },
     //------------------------------------------------
     FilterComConf() {
@@ -24323,7 +24365,69 @@ const _M = {
       this.sel = src
     },
     //---------------------------------------------------
+    selMoveUp() {
+      let {
+        remains, checks, minIndex, maxIndex, checkedIds
+      } = this.evalTheList(this.sel)
+      if(!_.isEmpty(checks) && minIndex > 0) {
+        Ti.Util.insertToArray(remains, minIndex - 1, ...checks)
+        this.sel = {
+          data : remains,
+          checkedIds
+        }
+      }
+    },
+    //---------------------------------------------------
+    selMoveDown() {
+      let {
+        remains, checks, minIndex, maxIndex, checkedIds
+      } = this.evalTheList(this.sel)
+      if(!_.isEmpty(checks)) {
+        if(maxIndex < remains.length) {
+          maxIndex ++
+        }
+        Ti.Util.insertToArray(remains, maxIndex, ...checks)
+        this.sel = {
+          data : remains,
+          checkedIds
+        }
+      }
+    },
+    //---------------------------------------------------
     // Utility
+    //---------------------------------------------------
+    // Eval the can/sel List 
+    evalTheList(list={}) {
+      let remains = []
+      let checks  = []
+      let checkedIds = []
+      let idMap   = {}
+      let minIndex = list.data.length
+      let maxIndex = -1
+      // Build ID map
+      _.forEach(list.checkedIds, id => {
+        idMap[id] = true
+      })
+      // Eval checked and remains
+      _.forEach(list.data, (li, index) => {
+        let id = this.GetValueBy(li)
+        if(idMap[id]) {
+          minIndex = Math.min(index, minIndex)
+          maxIndex = Math.max(index, maxIndex)
+          checkedIds.push(id)
+          checks.push(li)
+        } else {
+          remains.push(li)
+        }
+      })
+      // Done for eval
+      return {
+        remains, checks,
+        minIndex,
+        maxIndex : maxIndex - checks.length + 1,
+        checkedIds
+      }
+    },
     //---------------------------------------------------
     assignToList({data, checkedIds}, ta) {
       // Make ids map
@@ -24399,7 +24503,7 @@ const _M = {
       }
       this.sel = {
         data: list,
-        checkedIds : []
+        checkedIds : _.get(this.sel, "checkedIds") || []
       }
     },
     //---------------------------------------------------
@@ -33978,7 +34082,6 @@ Ti.Preload("ti/com/wn/list/wn-list.html", `<ti-list
 (function(){
 /////////////////////////////////////////////////////
 const _M = {
-  inheritAttrs : false,
   ///////////////////////////////////////////////////
   data : ()=>({
     isAllChecked  : false,
@@ -43051,115 +43154,114 @@ Ti.Preload("ti/i18n/en-us/ti-text-json.i18n.json", {
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
-  "account-filter-tip": "请输入账号名过滤",
-  "account-meta-tip": "请选择一个账号查看详情",
-  "address-consignee": "收货人",
-  "address-empty-list": "未设置任何收货地址",
-  "address-is-dft": "默认收货地址",
-  "address-k-city": "城市/区",
-  "address-k-consignee": "收货人姓名",
-  "address-k-country": "国家",
-  "address-k-dftaddr": "默认地址",
-  "address-k-email": "邮箱",
-  "address-k-phone": "电话",
-  "address-k-postcode": "邮编",
-  "address-k-street": "街道",
-  "address-k-title": "地址",
-  "address-k-uid": "用户",
-  "address-set-dft": "设为默认地址",
-  "address-shipping-add": "添加收货地址",
-  "auth-bind": "绑定",
-  "auth-bind-email-title": "绑定邮箱",
-  "auth-bind-phone-title": "绑定手机",
-  "auth-blank-email": "邮箱不能为空",
-  "auth-blank-name": "名称不能为空",
-  "auth-blank-name-passwd": "名称或者密码不能为空",
-  "auth-blank-phone": "手机号不能为空",
-  "auth-doing": "正在验证",
-  "auth-email-tip": "邮箱地址",
-  "auth-email-title": "邮件密码登录/注册",
-  "auth-email-vcode": "邮件密码",
-  "auth-email-vcode-get": "获取邮件密码",
-  "auth-go-email": "邮件密码登录/注册",
-  "auth-go-passwd": "账号密码登录",
-  "auth-go-phone": "短信密码登录/注册",
-  "auth-login": "登录",
-  "auth-login-NoSaltedPasswd": "你还未初始化您的登录密码，请切换至【${ta?验证码}】登录，之后前往【用户中心 > 安全设置】初始化您的登录密码，谢谢",
-  "auth-login-or-signup": "登录/注册",
-  "auth-ok": "账号验证通过",
-  "auth-passwd-getback": "找回密码",
-  "auth-passwd-name-email-tip": "邮箱地址/登录名",
-  "auth-passwd-name-phone-tip": "手机号/登录名",
-  "auth-passwd-tip": "密码",
-  "auth-passwd-title": "账号密码登录",
-  "auth-phone-email-get": "获取邮箱验证码",
-  "auth-phone-tip": "手机号",
-  "auth-phone-title": "短信密码登录/注册",
-  "auth-phone-vcode": "短信密码",
-  "auth-phone-vcode-get": "获取短信密码",
-  "auth-reset-passwd-again": "再次重置密码",
-  "auth-reset-passwd-btn-lack": "请填写必要信息",
-  "auth-reset-passwd-btn-ready": "立即重置密码",
-  "auth-reset-passwd-btn-short": "密码至少6位",
-  "auth-reset-passwd-btn-unmatch": "密码两次输入不一致",
-  "auth-reset-passwd-by-email": "用邮箱重置密码",
-  "auth-reset-passwd-by-email-sent": "已经向您的注册邮箱 ${email} 发送了邮件密码",
-  "auth-reset-passwd-by-email-tip": "请输入注册邮箱地址",
-  "auth-reset-passwd-by-passwd": "用旧密码重置密码",
-  "auth-reset-passwd-by-phone": "用手机重置密码",
-  "auth-reset-passwd-by-phone-sent": "已经向您的手机 ${phone} 发送了短信密码",
-  "auth-reset-passwd-by-phone-tip": "请输入注册手机号码",
-  "auth-reset-passwd-ing": "正在重置密码...",
-  "auth-reset-passwd-lack-email": "请输入注册邮箱地址",
-  "auth-reset-passwd-lack-phone": "请输入注册手机号",
-  "auth-reset-passwd-new": "新密码（最少6位）",
-  "auth-reset-passwd-ok": "密码已经重置，下次登录时生效",
-  "auth-reset-passwd-old": "旧密码",
-  "auth-reset-passwd-ren": "再次确认",
-  "auth-sending-vcode": "正在发送验证码",
-  "auth-sent-ok": "${ta?验证码}已发出，请在${by}查收，${min}分钟内有效",
-  "auth-ta-by-email": "邮箱里",
-  "auth-ta-by-phone": "手机上",
-  "auth-ta-email": "邮件密码",
-  "auth-ta-phone": "手机密码",
-  "auth-vcode-delay": "${sec} 秒后重新发送",
-  "auth-vcode-lost": "收不到验证码？",
-  "e-cmd-www_passwd-Blank": "新密码为空",
-  "e-cmd-www_passwd-CheckBlankAccount": "空账户",
-  "e-cmd-www_passwd-CheckBlankCode": "空验证码",
-  "e-cmd-www_passwd-CheckCodeFail": "验证码错误",
-  "e-cmd-www_passwd-CheckFailed": "校验错误",
-  "e-cmd-www_passwd-CheckWeirdAccount": "诡异的账户",
-  "e-cmd-www_passwd-InvalidNewPasswd": "新密码无效",
-  "e-cmd-www_passwd-LackTarget": "缺少重置目标",
-  "e-cmd-www_passwd-TooShort": "新密码太短",
-  "e-cmd-www_passwd-nopvg": "没有重置密码的权限",
-  "e-www-invalid-captcha": "${ta?验证码}错误",
-  "e-www-login-invalid-passwd": "账号密码错误",
-  "e-www-login-noexists": "账号不存在",
-  "me-k-account": "账户",
-  "me-k-avatar": "头像",
-  "me-k-city": "城市",
-  "me-k-country": "国家",
-  "me-k-email": "邮箱",
-  "me-k-login": "最后登录",
-  "me-k-nickname": "用户昵称",
-  "me-k-nm": "登录名",
-  "me-k-phone": "手机号",
-  "me-k-sex": "性别",
-  "mine": "我的",
-  "my-favors": "我的收藏",
-  "my-favors-blog": "收藏的博客",
-  "my-favors-goods": "收藏的商品",
-  "my-favors-posts": "收藏的文章",
-  "my-favors-spots": "收藏的景点",
-  "my-favors-video": "收藏的视频",
-  "my-orders": "我的订单",
-  "my-orders-shop": "购物订单",
+  "account-filter-tip": "Filter by Account Name",
+  "account-meta-tip": "Choose one account for detail",
+  "address-consignee": "Consignee",
+  "address-empty-list": "No Shipping Address",
+  "address-is-dft": "Default Shipping Address",
+  "address-k-city": "City",
+  "address-k-consignee": "Consignee",
+  "address-k-country": "Country",
+  "address-k-dftaddr": "Default Address",
+  "address-k-email": "Email",
+  "address-k-phone": "Phone",
+  "address-k-postcode": "Postcode",
+  "address-k-street": "Street",
+  "address-k-title": "Address",
+  "address-k-uid": "User",
+  "address-set-dft": "Set as Default Address",
+  "address-shipping-add": "Add Shipping Address",
+  "auth-bind": "Bind",
+  "auth-bind-email-title": "Bind Email",
+  "auth-bind-phone-title": "Bind Phone",
+  "auth-blank-email": "Blank email address not allowed",
+  "auth-blank-name": "Blank name not allowed",
+  "auth-blank-name-passwd": "Blank name or password",
+  "auth-blank-phone": "Blank phone number not allowd",
+  "auth-doing": "Verifying",
+  "auth-email-tip": "Email Address",
+  "auth-email-title": "Sign by Email",
+  "auth-email-vcode": "Email Password",
+  "auth-email-vcode-get": "Get Email Password",
+  "auth-go-email": "Sign by Email",
+  "auth-go-passwd": "Sign in by password",
+  "auth-go-phone": "Sign by SMS",
+  "auth-login": "Sign in",
+  "auth-login-NoSaltedPasswd": "Please switch to Sign by [${ta?password}]，after sign in, go to [Profile > Reset password] to setup your password, thanks.",
+  "auth-login-or-signup": "Sign Up or Sign In",
+  "auth-ok": "Verify Successful",
+  "auth-passwd-getback": "Retrieve Password",
+  "auth-passwd-name-email-tip": "Email/Name",
+  "auth-passwd-name-phone-tip": "Phone/Name",
+  "auth-passwd-tip": "Password",
+  "auth-passwd-title": "Sign In by Password",
+  "auth-phone-tip": "Phone Number",
+  "auth-phone-title": "Sign by SMS",
+  "auth-phone-vcode": "SMS password",
+  "auth-phone-vcode-get": "Get SMS Password",
+  "auth-reset-passwd-again": "Reset Password Again",
+  "auth-reset-passwd-btn-lack": "Lack Information",
+  "auth-reset-passwd-btn-ready": "Reset Password",
+  "auth-reset-passwd-btn-short": "Password too short (at least 6 chars)",
+  "auth-reset-passwd-btn-unmatch": "The password is not consistent",
+  "auth-reset-passwd-by-email": "Reset password by Email",
+  "auth-reset-passwd-by-email-sent": "The email password has been sent to your registered email address ${email}",
+  "auth-reset-passwd-by-email-tip": "Registered Email Address",
+  "auth-reset-passwd-by-passwd": "Reset by old password",
+  "auth-reset-passwd-by-phone": "Reset by SMS",
+  "auth-reset-passwd-by-phone-sent": "The SMS password has been sent to your mobile phone ${phone}",
+  "auth-reset-passwd-by-phone-tip": "Registered Phone Number",
+  "auth-reset-passwd-ing": "Reseting password ...",
+  "auth-reset-passwd-lack-email": "Please enter your registered email address",
+  "auth-reset-passwd-lack-phone": "Please enter your registered mobile phone number",
+  "auth-reset-passwd-new": "New Password (at least 6 chars)",
+  "auth-reset-passwd-ok": "The password has been reset and will take effect the next time you log in",
+  "auth-reset-passwd-old": "Old Password",
+  "auth-reset-passwd-ren": "Reconfirm",
+  "auth-sending-vcode": "Sending verification code",
+  "auth-sent-ok": "${ta?Password} has been sent, please check in ${by} in ${min} minutes",
+  "auth-ta-by-email": "Your Email",
+  "auth-ta-by-phone": "Your SMS",
+  "auth-ta-email": "Email Password",
+  "auth-ta-phone": "SMS Password",
+  "auth-vcode-delay": "Resend after ${sec}s",
+  "auth-vcode-lost": "Can't get password?",
+  "e-cmd-www_passwd-Blank": "Blank New Password not allowed",
+  "e-cmd-www_passwd-CheckBlankAccount": "Blank Account",
+  "e-cmd-www_passwd-CheckBlankCode": "Blank Code",
+  "e-cmd-www_passwd-CheckCodeFail": "Invalid Code",
+  "e-cmd-www_passwd-CheckFailed": "Verify Failed",
+  "e-cmd-www_passwd-CheckWeirdAccount": "Weird Account",
+  "e-cmd-www_passwd-InvalidNewPasswd": "Invalid New Password",
+  "e-cmd-www_passwd-LackTarget": "Missing Target",
+  "e-cmd-www_passwd-TooShort": "The new password is too short",
+  "e-cmd-www_passwd-nopvg": "No permission to reset passwords",
+  "e-www-invalid-captcha": "Invalid ${ta?Captcha}",
+  "e-www-login-invalid-passwd": "Invalid password",
+  "e-www-login-noexists": "Account Not Exists",
+  "me-k-account": "Account",
+  "me-k-avatar": "Avatar",
+  "me-k-city": "City",
+  "me-k-country": "Country",
+  "me-k-email": "Email",
+  "me-k-login": "Login",
+  "me-k-nickname": "Nickname",
+  "me-k-nm": "Login Name",
+  "me-k-phone": "Phone",
+  "me-k-sex": "Gender",
+  "mine": "Mine",
+  "my-favors": "My Favorite",
+  "my-favors-blog": "Favorite Blog",
+  "my-favors-goods": "Favorite Goods",
+  "my-favors-posts": "Favorite Posts",
+  "my-favors-spots": "Favorite Spots",
+  "my-favors-video": "Favorite Video",
+  "my-orders": "My Orders",
+  "my-orders-shop": "Shopping Orders",
   "my-orders-video": "视频订单",
-  "my-passwd": "重置密码",
-  "my-profile": "我的资料",
-  "my-shipping-address": "收货地址",
+  "my-passwd": "Reset Password",
+  "my-profile": "My Profile",
+  "my-shipping-address": "Shipping Address",
   "my-shopping-car": "购物车",
   "or-st-dn": "完成",
   "or-st-fa": "支付失败",
@@ -43190,52 +43292,52 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-st": "订单状态",
   "order-k-title": "订单标题",
   "order-k-wt_at": "支付时间",
-  "passwd-invalid-char": "密码只能包括英文数字/大小写字母/以及特殊字符",
-  "passwd-sl-1": "弱",
-  "passwd-sl-2": "较弱",
-  "passwd-sl-3": "中",
-  "passwd-sl-4": "较强",
-  "passwd-sl-5": "强",
-  "passwd-tip": "请输入最少6位的英文数字/大小写字母/特殊字符的组合",
-  "pay-by-free": "免费",
+  "passwd-invalid-char": "Passwords can only include English Numbers/upper and lower case letters/and special characters",
+  "passwd-sl-1": "Weak",
+  "passwd-sl-2": "Weaker",
+  "passwd-sl-3": "Normal",
+  "passwd-sl-4": "Stronger",
+  "passwd-sl-5": "Strong",
+  "passwd-tip": "Please enter a combination of English numerals/upper and lower case letters/special characters with a minimum of 6 characters",
+  "pay-by-free": "Free",
   "pay-by-paypal": "PayPal",
-  "pay-by-wx-jsapi": "微信JSAPI",
-  "pay-by-wx-qrcode": "微信扫码",
-  "pay-by-wx-scan": "微信付款码",
-  "pay-by-zfb-qrcode": "支付宝扫码",
-  "pay-by-zfb-scan": "支付宝付款码",
-  "pay-checkout-it-amount": "数量",
-  "pay-checkout-it-name": "商品名称",
-  "pay-checkout-it-price": "单价",
-  "pay-checkout-it-subtotal": "小计",
-  "pay-checkout-tip": "请确认你购买的商品数量和金额",
+  "pay-by-wx-jsapi": "WeChat JSAPI",
+  "pay-by-wx-qrcode": "WeChat scan code",
+  "pay-by-wx-scan": "WeChat payment code",
+  "pay-by-zfb-qrcode": "Alipay scan code",
+  "pay-by-zfb-scan": "Alipay payment code",
+  "pay-checkout-it-amount": "Amount",
+  "pay-checkout-it-name": "Name",
+  "pay-checkout-it-price": "Price",
+  "pay-checkout-it-subtotal": "Subtotal",
+  "pay-checkout-tip": "Please confirm the quantity and amount of your purchase",
   "pay-paypal": "PayPal",
-  "pay-proceed-check": "检查支付结果",
-  "pay-proceed-ing": "正在检查...",
-  "pay-re-fail": "支付失败",
-  "pay-re-nil": "支付结果是一只薛定谔的猫",
-  "pay-re-ok": "支付成功",
-  "pay-re-wait": "等待支付中",
-  "pay-step-checkout-title": "确认订单",
-  "pay-step-choose-nil": "☝ 请选择上面的一个支付方式 👆",
-  "pay-step-choose-tip": "您可以选择下面任意一种支付方式支付本订单",
-  "pay-step-choose-tip2": "您将使用${val}支付本订单",
-  "pay-step-choose-title": "支付方式",
-  "pay-step-choose-title2": "选择支付方式",
-  "pay-step-done-title": "完成",
-  "pay-step-proceed-create-order": "正在创建订单...",
-  "pay-step-proceed-fetch-order": "正在获取订单...",
-  "pay-step-proceed-nil": "您未选择任何支付方式",
-  "pay-step-proceed-tip": "使用${val}支付本订单",
-  "pay-step-proceed-title": "支付",
-  "pay-tip-wx-qrcode": "请于15分钟内用微信扫一扫付款码",
-  "pay-tip-zfb-qrcode": "请于15分钟内用支付宝扫一扫付款码",
-  "pay-title": "支付流程",
-  "pay-wx": "微信支付",
-  "pay-zfb": "支付宝",
-  "paypal-approve-tip": "已经在新标签里为您打开了PayPal支付页面，如果没有打开，请点击☝上面的图标。支付完毕，页面会自动感知到，如果没有反应，试着点击👇下面的【检查支付结果】按钮。",
-  "profile-title": "我的基本信息",
-  "shop-basket-clean-confirm": "您确定要清空购物车内全部商品吗？这是一个不能撤回的操作。"
+  "pay-proceed-check": "Check Payment",
+  "pay-proceed-ing": "Checking for...",
+  "pay-re-fail": "payment failure",
+  "pay-re-nil": "The payoff is a Schrodinger's cat",
+  "pay-re-ok": "Payment Success",
+  "pay-re-wait": "Pending payment",
+  "pay-step-checkout-title": "Confirm Order",
+  "pay-step-choose-nil": "☝ Please select one of the above payment methods 👆",
+  "pay-step-choose-tip": "You may choose any of the following payment methods to pay for this order",
+  "pay-step-choose-tip2": "You will pay for this order using ${val}",
+  "pay-step-choose-title": "Mode of payment",
+  "pay-step-choose-title2": "Choose payment",
+  "pay-step-done-title": "Done",
+  "pay-step-proceed-create-order": "Creating order ...",
+  "pay-step-proceed-fetch-order": "Getting order ...",
+  "pay-step-proceed-nil": "Please choose a method of payment",
+  "pay-step-proceed-tip": "Pay for this order with ${val}",
+  "pay-step-proceed-title": "Pay",
+  "pay-tip-wx-qrcode": "Please pay in WeChat scan within 15 minutes",
+  "pay-tip-zfb-qrcode": "Please pay by Alipay scan code within 15 minutes",
+  "pay-title": "Payment",
+  "pay-wx": "WeChat",
+  "pay-zfb": "Alipay",
+  "paypal-approve-tip": "Already in the new TAB for you to open the PayPal payment page, if there is no open, please click on ☝ the icon above. After payment, the page will automatically perceive, if there is no response, try to click 👇 [Check Payment] button below.",
+  "profile-title": "My Profile",
+  "shop-basket-clean-confirm": "Are you sure you want to empty the shopping cart? This is an operation that cannot be undone."
 });
 //============================================================
 // JOIN: en-us/wn-manager.i18n.json
@@ -43340,7 +43442,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "candidate": "Candidations",
   "captcha": "Captcha",
   "captcha-chagne": "Next",
-  "captcha-tip": "Please key in the captcha",
+  "captcha-tip": "Please enter the captcha",
   "checked": "Checked",
   "choose": "Select",
   "choose-file": "Select File",
@@ -43403,8 +43505,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "lbs-place-add": "Add Place",
   "lng": "Longitude",
   "loading": "Loading...",
-  "login": "Sign In",
-  "logout": "Sign Out",
+  "login": "Sign in",
+  "logout": "Sign out",
   "logout-ing": "Log out ...",
   "male": "Male",
   "map-hybrid": "HYBIRD",
@@ -43437,7 +43539,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "others": "Others",
   "paging-change-pgsz": "Current page contains ${pgsz} records maximumly, you want to change it to：",
   "paging-change-pgsz-invalid": "Page size must be integer, and great than 0, but ... -_-!",
-  "paging-change-pn": "Current page number is ${pn}, please key in number between 1 to ${pgc}:",
+  "paging-change-pn": "Current page number is ${pn}, please enter number between 1 to ${pgc}:",
   "paging-change-pn-invalid": "Page number must be integer, and must between 1 to ${pgc}",
   "paging-first": "Head",
   "paging-last": "Tail",
@@ -43844,7 +43946,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-go-passwd": "账号密码登录",
   "auth-go-phone": "短信密码登录/注册",
   "auth-login": "登录",
-  "auth-login-NoSaltedPasswd": "你还未初始化您的登录密码，请切换至【${ta?验证码}】登录，之后前往【用户中心 > 安全设置】初始化您的登录密码，谢谢",
+  "auth-login-NoSaltedPasswd": "你还未初始化您的登录密码，请切换至【${ta?验证码}】登录，之后前往【用户中心 > 重置密码】初始化您的登录密码，谢谢",
   "auth-login-or-signup": "登录/注册",
   "auth-ok": "账号验证通过",
   "auth-passwd-getback": "找回密码",
@@ -43852,7 +43954,6 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-passwd-name-phone-tip": "手机号/登录名",
   "auth-passwd-tip": "密码",
   "auth-passwd-title": "账号密码登录",
-  "auth-phone-email-get": "获取邮箱验证码",
   "auth-phone-tip": "手机号",
   "auth-phone-title": "短信密码登录/注册",
   "auth-phone-vcode": "短信密码",

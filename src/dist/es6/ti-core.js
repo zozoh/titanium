@@ -1,4 +1,4 @@
-// Pack At: 2020-08-24 16:45:46
+// Pack At: 2020-08-26 12:47:26
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9646,7 +9646,9 @@ const {Dict,DictFactory} = (function(){
         this.doHooks(true)
         it = await this.invokeAsync("item", val)
         this.doHooks(false)
-        this.addItemToCache(it, val)
+        if(it && _.isPlainObject(it)) {
+          this.addItemToCache(it, val)
+        }
   
         // Release loading
         for(let resolve of loading) {
@@ -9658,7 +9660,7 @@ const {Dict,DictFactory} = (function(){
       // 不知道什么时候，在 anju 项目，总出现返回值为空数组 `[]`
       // 诡异啊，加个 log 观察一下
       if(_.isArray(it)) {
-        console.warn("!!!! Dict.getItem=>[] !!! 靠，又出现了")
+        console.warn("!!!! Dict.getItem=>[] !!! 靠，又出现了 val=", val)
       }
   
       if(this.isShadowed())
@@ -10380,6 +10382,7 @@ const {WalnutAppMain} = (function(){
     logging={root:"warn"},
     shortcute=true,
     theme,
+    lang = "zh-cn",
     viewport = {
       phoneMaxWidth:540,
       tabletMaxWidth:768,
@@ -10425,9 +10428,9 @@ const {WalnutAppMain} = (function(){
       alias : {
         "^\./"          : "@MyApp:",
         "^@MyApp:?$"    : "@MyApp:_app.json",
-        "^@i18n:(.+)$"  : "@i18n:zh-cn/$1",
-        "\/i18n\/"      : "\/i18n\/zh-cn/",
-        "^(@[A-Za-z]+):i18n/(.+)$" : "$1:i18n/zh-cn/$2"
+        "^@i18n:(.+)$"  : `@i18n:${lang}/$1`,
+        "\/i18n\/"      : `\/i18n\/${lang}/`,
+        "^(@[A-Za-z]+):i18n/(.+)$" : `$1:i18n/${lang}/$2`
       },
       suffix : {
         "^@theme:"              : ".css",
@@ -10436,7 +10439,7 @@ const {WalnutAppMain} = (function(){
         "(^@com:|[\/:]com\/)"   : "/_com.json",
         "(^@i18n:|[\/:]i18n\/)" : ".i18n.json"
       },
-      lang : "zh-cn"
+      lang
     })
     //---------------------------------------
     // Preload resources
@@ -10760,7 +10763,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200824.164546",
+  "version" : "2.5-20200826.124726",
   "dev" : false,
   "appName" : null,
   "session" : {},

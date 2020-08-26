@@ -1,4 +1,4 @@
-// Pack At: 2020-08-24 16:45:46
+// Pack At: 2020-08-26 12:47:26
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1490,7 +1490,9 @@ const Dict = (function(){
             //...............................................
             data  : Wn.Util.genQuery(dict.data, {vkey:null}),
             query : Wn.Util.genQuery(dict.query),
-            item  : Wn.Util.genQuery(dict.item),
+            item  : Wn.Util.genQuery(dict.item, {
+              blankAs: "{}"
+            }),
             children : Wn.Util.genQuery(dict.children),
             //...............................................
             getValue : Ti.Util.genGetter(dict.value),
@@ -2092,7 +2094,7 @@ const EditTiComponent = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200824.164546"
+const WALNUT_VERSION = "2.1-20200826.124726"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
