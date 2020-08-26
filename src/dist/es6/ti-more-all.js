@@ -1,4 +1,4 @@
-// Pack At: 2020-08-26 12:47:26
+// Pack At: 2020-08-27 07:33:03
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -37261,7 +37261,6 @@ const _M = {
           }
         }
         if(invalid) {
-          console.log("haha")
           await Ti.Alert(invalidMsg, {
             type:"warn",
             icon:"zmdi-alert-triangle",
@@ -37313,12 +37312,20 @@ const _M = {
       }
 
       //................................
+      // Eval the target
+      let taPath = Ti.S.renderBy(this.target, {
+        type, 
+        name : file.name,
+        majorName : Ti.Util.getMajorName(file.name)
+      })
+
+      //................................
       // Upload file to destination
       this.uploadFile = file
       this.progress = 0
 
       let {ok, msg, data} = await Wn.Io.uploadFile(file, {
-        target : this.target,
+        target : taPath,
         mode   : "r",
         progress : (pe)=> {
           this.progress = pe.loaded / pe.total
@@ -43248,6 +43255,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "me-k-nickname": "Nickname",
   "me-k-nm": "Login Name",
   "me-k-phone": "Phone",
+  "me-k-role": "Role",
   "me-k-sex": "Gender",
   "mine": "Mine",
   "my-favors": "My Favorite",
@@ -44007,6 +44015,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "me-k-nickname": "用户昵称",
   "me-k-nm": "登录名",
   "me-k-phone": "手机号",
+  "me-k-role": "角色",
   "me-k-sex": "性别",
   "mine": "我的",
   "my-favors": "我的收藏",
