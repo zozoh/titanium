@@ -171,10 +171,6 @@
           > .ti-icon {
             margin: 0 .2em;
           }
-          //---------------------------------------
-          > *:last-child {
-            flex:1 1 auto;
-          }
           .ti-label.item-0 {
             padding:0 .3em;
           }
@@ -211,6 +207,13 @@
         }
         //-----------------------------------------
       }
+      //-------------------------------------------
+      &.align-left   > .cell-wrapper > .cell-con {justify-content: flex-start;}
+      &.align-center > .cell-wrapper > .cell-con {justify-content: center;}
+      &.align-right  > .cell-wrapper > .cell-con {justify-content: flex-end;}
+      //-------------------------------------------
+      &.not-align  > .cell-wrapper > .cell-con > *:last-child {flex:1 1 auto;}
+      //-------------------------------------------
     } // .table-cell
   } // .table-body
   //---------------------------------------------

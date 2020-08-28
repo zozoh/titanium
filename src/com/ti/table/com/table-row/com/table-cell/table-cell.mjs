@@ -107,7 +107,11 @@ const _M = {
   computed : {
     //-----------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      let hasAlign = this.className && this.className.indexOf("align-")>=0
+      return this.getTopClass({
+        "has-align" : hasAlign,
+        "not-align" : !hasAlign
+      })
     },
     //-----------------------------------------------
     TopStyle() {

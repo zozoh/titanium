@@ -101,6 +101,7 @@ const _M = {
           title  : fld.title,
           nowrap : fld.nowrap,
           width  : fldWidth,
+          className : fld.className,
           //.....................
           name : fld.name,
           display,

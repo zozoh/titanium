@@ -1,4 +1,4 @@
-// Pack At: 2020-08-27 07:33:03
+// Pack At: 2020-08-28 17:26:46
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -20498,7 +20498,11 @@ const _M = {
   computed : {
     //-----------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      let hasAlign = this.className && this.className.indexOf("align-")>=0
+      return this.getTopClass({
+        "has-align" : hasAlign,
+        "not-align" : !hasAlign
+      })
     },
     //-----------------------------------------------
     TopStyle() {
@@ -21202,6 +21206,7 @@ const _M = {
           title  : fld.title,
           nowrap : fld.nowrap,
           width  : fldWidth,
+          className : fld.className,
           //.....................
           name : fld.name,
           display,
@@ -43575,7 +43580,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "revoke": "Revoke",
   "revoke-change": "Revoke Change",
   "save": "Save",
-  "save-change": "Save Modification",
+  "save-change": "Save Change",
   "save-done": "Save Success",
   "save-now": "Save Now",
   "saving": "Saving ...",
