@@ -1,4 +1,4 @@
-// Pack At: 2020-08-29 01:57:58
+// Pack At: 2020-08-29 02:52:07
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -12673,7 +12673,6 @@ Ti.Preload("ti/com/ti/input/month/ti-input-month.html", `<ti-combo-box class="as
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     "runtime" : null,
@@ -17135,14 +17134,17 @@ const _M = {
     },
     //--------------------------------------
     scrollCurrentIntoView() {
-      if(this.autoScrollIntoView && this.myLastIndex>=0) {
-        let [$first] = Ti.Dom.findAll(".list-row.is-current", this.$el)
-        if($first) {
-          let rect = Ti.Rects.createBy($first)
-          let view = Ti.Rects.createBy(this.$el)
-          if(!view.contains(rect)) {
-            this.$el.scrollTop += rect.top - view.top
-          }
+      // Guard
+      if(!this.autoScrollIntoView || Ti.Util.isNil(this.myCurrentId)) {
+        return;
+      }
+      
+      let [$first] = Ti.Dom.findAll(".list-row.is-current", this.$el)
+      if($first) {
+        let rect = Ti.Rects.createBy($first)
+        let view = Ti.Rects.createBy(this.$el)
+        if(!view.contains(rect)) {
+          this.$el.scrollTop += rect.top - view.top
         }
       }
     },
@@ -17176,14 +17178,15 @@ const _M = {
             it.icon = this.getRowIcon(it.item)
             it.indent = this.getRowIndent(it.item)
           })
+
+          this.$nextTick(()=>{
+            this.scrollCurrentIntoView()
+          })
         }
       },
       immediate : true
-    }
-  },
-  //////////////////////////////////////////
-  mounted : function() {
-    if(this.autoScrollIntoView) {
+    },
+    "myCurrentId" : function() {
       this.$nextTick(()=>{
         this.scrollCurrentIntoView()
       })

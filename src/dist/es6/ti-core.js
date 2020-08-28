@@ -1,4 +1,4 @@
-// Pack At: 2020-08-29 01:57:58
+// Pack At: 2020-08-29 02:52:07
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2091,7 +2091,7 @@ const {App} = (function(){
         // the main component.
         // Some component will auto resize, it need a static
         // window measurement.
-        this.transDelay = 300,
+        this.transDelay = 350,
         //--------------------------------------------
         this.comType = "ti-label"
         this.comConf = {}
@@ -10765,7 +10765,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200829.015758",
+  "version" : "2.5-20200829.025207",
   "dev" : false,
   "appName" : null,
   "session" : {},

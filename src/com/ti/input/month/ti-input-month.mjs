@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     "runtime" : null,

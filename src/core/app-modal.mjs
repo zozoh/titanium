@@ -24,7 +24,7 @@ export class TiAppModal {
     // the main component.
     // Some component will auto resize, it need a static
     // window measurement.
-    this.transDelay = 300,
+    this.transDelay = 350,
     //--------------------------------------------
     this.comType = "ti-label"
     this.comConf = {}

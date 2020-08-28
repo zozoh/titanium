@@ -94,14 +94,17 @@ export default {
     },
     //--------------------------------------
     scrollCurrentIntoView() {
-      if(this.autoScrollIntoView && this.myLastIndex>=0) {
-        let [$first] = Ti.Dom.findAll(".list-row.is-current", this.$el)
-        if($first) {
-          let rect = Ti.Rects.createBy($first)
-          let view = Ti.Rects.createBy(this.$el)
-          if(!view.contains(rect)) {
-            this.$el.scrollTop += rect.top - view.top
-          }
+      // Guard
+      if(!this.autoScrollIntoView || Ti.Util.isNil(this.myCurrentId)) {
+        return;
+      }
+      
+      let [$first] = Ti.Dom.findAll(".list-row.is-current", this.$el)
+      if($first) {
+        let rect = Ti.Rects.createBy($first)
+        let view = Ti.Rects.createBy(this.$el)
+        if(!view.contains(rect)) {
+          this.$el.scrollTop += rect.top - view.top
         }
       }
     },
@@ -135,14 +138,15 @@ export default {
             it.icon = this.getRowIcon(it.item)
             it.indent = this.getRowIndent(it.item)
           })
+
+          this.$nextTick(()=>{
+            this.scrollCurrentIntoView()
+          })
         }
       },
       immediate : true
-    }
-  },
-  //////////////////////////////////////////
-  mounted : function() {
-    if(this.autoScrollIntoView) {
+    },
+    "myCurrentId" : function() {
       this.$nextTick(()=>{
         this.scrollCurrentIntoView()
       })
