@@ -185,6 +185,13 @@ const _M = {
     let beh = _.get(state, "config.schema.behavior") || {}
     hard |= beh.hardRemove
 
+    // If hard, warn at first
+    if(hard) {
+      if(! (await Ti.Confirm('i18n:del-hard'))) {
+        return
+      }
+    }
+
     commit("setStatus", {deleting:true})
 
     // Prepare the ids which fail to remove
@@ -473,6 +480,12 @@ const _M = {
     // Reload Config
     //console.log("reload config")
     await dispatch("config/reload", meta)
+
+    // Update the default filesDirName
+    let dirName = _.get(state.config, "schema.behavior.filesDirName")
+    if(dirName) {
+      commit("setCurrentDataDir", dirName)
+    }
 
     // Load local status
     let local = Ti.Storage.session.getObject(meta.id) || {}

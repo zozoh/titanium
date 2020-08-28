@@ -52,6 +52,7 @@ export class TiAppModal {
     //--------------------------------------------
     // data model
     this.result = undefined
+    this.model = {prop:"value", event:"change"}
     //--------------------------------------------
     // modules
     this.modules = {}
@@ -89,6 +90,8 @@ export class TiAppModal {
       }
     }
     //..........................................
+    let model = `@${this.model.event}="OnChange" :${this.model.prop}="result"`
+    //..........................................
     // Setup content
     let html = `<transition :name="TransName" @after-leave="OnAfterLeave">
       <div class="ti-app-modal ${this.className||''}"
@@ -125,10 +128,9 @@ export class TiAppModal {
                   :is="comType"
                   v-bind="TheComConf"
                   :on-init="OnMainInit"
-                  :value="result"
+                  ${model}
                   @close="OnClose"
                   @ok="OnOk"
-                  @change="OnChange"
                   @actions:update="OnActionsUpdated"/>
             </div>
 

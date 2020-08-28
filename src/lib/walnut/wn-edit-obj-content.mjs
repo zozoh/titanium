@@ -10,7 +10,7 @@ async function EditObjContent(pathOrObj="~", {
   readonly=false,
   showEditorTitle=true,
   content,
-  blankText="i18n:blank"
+  placeholder="i18n:blank"
 }={}){
   //............................................
   // Load meta
@@ -39,7 +39,7 @@ async function EditObjContent(pathOrObj="~", {
     //------------------------------------------
     comType : "ti-text-raw",
     comConf : {
-      readonly, blankText,
+      readonly, placeholder,
       icon  : theIcon,
       title : Wn.Util.getObjDisplayName(meta),
       content : theContent,

@@ -1,4 +1,4 @@
-// Pack At: 2020-08-28 17:26:46
+// Pack At: 2020-08-29 01:57:58
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -38857,6 +38857,13 @@ const _M = {
     let beh = _.get(state, "config.schema.behavior") || {}
     hard |= beh.hardRemove
 
+    // If hard, warn at first
+    if(hard) {
+      if(! (await Ti.Confirm('i18n:del-hard'))) {
+        return
+      }
+    }
+
     commit("setStatus", {deleting:true})
 
     // Prepare the ids which fail to remove
@@ -39145,6 +39152,12 @@ const _M = {
     // Reload Config
     //console.log("reload config")
     await dispatch("config/reload", meta)
+
+    // Update the default filesDirName
+    let dirName = _.get(state.config, "schema.behavior.filesDirName")
+    if(dirName) {
+      commit("setCurrentDataDir", dirName)
+    }
 
     // Load local status
     let local = Ti.Storage.session.getObject(meta.id) || {}
@@ -43474,6 +43487,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "default": "Default",
   "del": "Delete",
   "del-checked": "Delete Selected",
+  "del-hard": "The selected item will be deleted directly. This operation is irrevocable. Are you sure you want to continue?",
   "del-ing": "Deleting...",
   "del-none": "Please choose at least one item for deleting",
   "desktop": "Desktop",
@@ -43577,6 +43591,10 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "removing": "Removing ...",
   "rename": "Rename ...",
   "renaming": "Renameing ...",
+  "reset": "Reset",
+  "reset-change": "Reset Change",
+  "reset-data": "Reset Data",
+  "restore": "Restore",
   "revoke": "Revoke",
   "revoke-change": "Revoke Change",
   "save": "Save",
@@ -44234,6 +44252,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "default": "默认",
   "del": "删除",
   "del-checked": "删除选中",
+  "del-hard": "选中项目即将被直接删除，此操作不可撤销，您确定要继续吗？",
   "del-ing": "正在删除...",
   "del-none": "请从下面列表中选择至少一个对象进行删除",
   "desktop": "桌面",
@@ -44337,6 +44356,10 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "removing": "正在移除...",
   "rename": "重命名...",
   "renaming": "正在重命名...",
+  "reset": "重置",
+  "reset-change": "撤销修改",
+  "reset-data": "重置数据",
+  "restore": "恢复",
   "revoke": "撤销",
   "revoke-change": "撤销修改",
   "save": "保存",

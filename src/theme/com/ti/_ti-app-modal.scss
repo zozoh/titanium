@@ -268,7 +268,7 @@
   min-width: SZ(300); width:100%;
   //-----------------------------------
   &.modal-type-is-success {@include color($color-success, c);}
-  &.modal-type-is-warn    {@include color($color-warn,    r);}
+  &.modal-type-is-warn    {@include color($color-warn,    c);}
   &.modal-type-is-info    {@include color($color-info,    c);}
   &.modal-type-is-error   {@include color($color-error,   c);}
   &.modal-type-is-track   {@include color($color-track,   c);}

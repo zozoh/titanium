@@ -1,4 +1,4 @@
-// Pack At: 2020-08-28 17:26:46
+// Pack At: 2020-08-29 01:57:58
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1997,7 +1997,7 @@ const EditObjContent = (function(){
     readonly=false,
     showEditorTitle=true,
     content,
-    blankText="i18n:blank"
+    placeholder="i18n:blank"
   }={}){
     //............................................
     // Load meta
@@ -2026,7 +2026,7 @@ const EditObjContent = (function(){
       //------------------------------------------
       comType : "ti-text-raw",
       comConf : {
-        readonly, blankText,
+        readonly, placeholder,
         icon  : theIcon,
         title : Wn.Util.getObjDisplayName(meta),
         content : theContent,
@@ -2094,7 +2094,7 @@ const EditTiComponent = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200828.172647"
+const WALNUT_VERSION = "2.1-20200829.015758"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

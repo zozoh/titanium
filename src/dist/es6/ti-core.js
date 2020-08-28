@@ -1,4 +1,4 @@
-// Pack At: 2020-08-28 17:26:46
+// Pack At: 2020-08-29 01:57:58
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2119,6 +2119,7 @@ const {App} = (function(){
         //--------------------------------------------
         // data model
         this.result = undefined
+        this.model = {prop:"value", event:"change"}
         //--------------------------------------------
         // modules
         this.modules = {}
@@ -2156,6 +2157,8 @@ const {App} = (function(){
           }
         }
         //..........................................
+        let model = `@${this.model.event}="OnChange" :${this.model.prop}="result"`
+        //..........................................
         // Setup content
         let html = `<transition :name="TransName" @after-leave="OnAfterLeave">
           <div class="ti-app-modal ${this.className||''}"
@@ -2192,10 +2195,9 @@ const {App} = (function(){
                       :is="comType"
                       v-bind="TheComConf"
                       :on-init="OnMainInit"
-                      :value="result"
+                      ${model}
                       @close="OnClose"
                       @ok="OnOk"
-                      @change="OnChange"
                       @actions:update="OnActionsUpdated"/>
                 </div>
     
@@ -10763,7 +10765,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200828.172647",
+  "version" : "2.5-20200829.015758",
   "dev" : false,
   "appName" : null,
   "session" : {},

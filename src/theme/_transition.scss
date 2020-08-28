@@ -1,0 +1,17 @@
+/*------------------------------------*/
+//
+// VList Trans
+//
+/*------------------------------------*/
+// Declear this selector to list item element
+.ti-trans-vlist-item {
+  transition: all .5s;
+}
+.ti-trans-vlist-enter,
+.ti-trans-vlist-leave-to {
+  opacity: 0;
+  transform: translateX(SZ(50));
+}
+.ti-trans-vlist-leave-active {
+  position: absolute;
+}
