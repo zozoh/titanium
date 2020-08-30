@@ -1,11 +1,11 @@
 {
-  "json-Array": "数组",
-  "json-Boolean": "布尔",
-  "json-Float": "小数",
-  "json-Integer": "整数",
-  "json-Nil": "空值",
-  "json-Number": "数字",
-  "json-Object": "对象",
-  "json-String": "字符串",
-  "json-new-key": "请输入一个新键名"
+  "json-Array": "Array",
+  "json-Boolean": "Boolean",
+  "json-Float": "Decimal",
+  "json-Integer": "Integer",
+  "json-Nil": "Nil",
+  "json-Number": "Number",
+  "json-Object": "Object",
+  "json-String": "String",
+  "json-new-key": "Enter a new key"
 }

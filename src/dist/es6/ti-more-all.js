@@ -1,4 +1,4 @@
-// Pack At: 2020-08-29 02:52:07
+// Pack At: 2020-08-31 05:52:06
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -12438,7 +12438,7 @@ Ti.Preload("ti/com/ti/input/icon/ti-input-icon-props.mjs", _M);
 // JOIN: ti/input/icon/ti-input-icon.html
 //============================================================
 Ti.Preload("ti/com/ti/input/icon/ti-input-icon.html", `<ti-combo-box class="ti-input-icon"
-  :class="topClass"
+  :class="TopClass"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
   :status="status"
@@ -12448,8 +12448,8 @@ Ti.Preload("ti/com/ti/input/icon/ti-input-icon.html", `<ti-combo-box class="ti-i
   -->
   <template v-slot:box>
     <span class="as-value"
-      :style="theValueStyle"
-      @click.left="onToggleDrop">
+      :style="ValueStyle"
+      @click.left="OnToggleDrop">
       <!--Show Icon-->
       <ti-icon 
         v-if="hasValue"
@@ -12459,7 +12459,7 @@ Ti.Preload("ti/com/ti/input/icon/ti-input-icon.html", `<ti-combo-box class="ti-i
         v-else
           class="no-icon"><i class="zmdi zmdi-cake"></i></span>
     </span>
-    <span class="as-clear" @click="onClearIcon">
+    <span class="as-clear" @click="OnClearIcon">
       <ti-icon value="zmdi-close"/>
     </span>
   </template>
@@ -12470,23 +12470,23 @@ Ti.Preload("ti/com/ti/input/icon/ti-input-icon.html", `<ti-combo-box class="ti-i
     <div class="icon-input">
       <input ref="input"
         :placeholder="'i18n:icon-code-tip'|i18n"
-        @change="onChangedIcon">
+        @change="OnChangedIcon">
     </div>
     <div class="icon-options">
       <ul>
-        <li v-for="li of theOptionIcons"
-          @click.left="onSelectIcon(li)"
-          @dblclick.left="onSelectIconAndCollapse(li)"
-          @mouseenter="onHoverIcon(li)"
-          @mouseleave="onLeaveIcon(li)">
+        <li v-for="li of OptionIcons"
+          @click.left="OnSelectIcon(li)"
+          @dblclick.left="OnSelectIconAndCollapse(li)"
+          @mouseenter="OnHoverIcon(li)"
+          @mouseleave="OnLeaveIcon(li)">
           <ti-icon :value="li.value"/>
         </li>
       </ul>
     </div>
     <div class="icon-tip">
-      <template v-if="theTipIcon">
-        <ti-icon :value="theTipIcon"/>
-        <span>{{theTipIcon}}</span>
+      <template v-if="TipIcon">
+        <ti-icon :value="TipIcon"/>
+        <span>{{TipIcon}}</span>
       </template>
       <template v-else>
         <span>...</span>
@@ -12499,8 +12499,6 @@ Ti.Preload("ti/com/ti/input/icon/ti-input-icon.html", `<ti-combo-box class="ti-i
 //============================================================
 (function(){
 const _M = {
-  ////////////////////////////////////////////////////
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data: ()=>({
     hideBorder : false,
@@ -12533,14 +12531,14 @@ const _M = {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
+    TopClass() {
       return Ti.Css.mergeClassName({
         "show-border"  : !this.hideBorder,
         "hide-border"  : this.hideBorder,
       }, this.className)
     },
     //------------------------------------------------
-    theValueStyle() {
+    ValueStyle() {
       return {
         "font-size" : Ti.Css.toSize(this.iconSize)
       }
@@ -12553,11 +12551,11 @@ const _M = {
       return !Ti.Util.isNil(this.value)
     },
     //------------------------------------------------
-    theTipIcon () {
+    TipIcon () {
       return  this.myHoverIcon || this.value
     },
     //------------------------------------------------
-    theOptionIcons() {
+    OptionIcons() {
       let list = []
       _.forEach(this.options, (icon, index)=>{
         let m = /^([a-z]+)-(.+)$/.exec(icon)
@@ -12575,37 +12573,37 @@ const _M = {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onToggleDrop() {
+    OnToggleDrop() {
       this.status = ({
         "collapse" : "extended",
         "extended" : "collapse"
       })[this.status]
     },
     //------------------------------------------------
-    onSelectIcon({value}={}) {
+    OnSelectIcon({value}={}) {
       this.$notify("change", value)
     },
     //------------------------------------------------
-    onSelectIconAndCollapse({value}={}) {
+    OnSelectIconAndCollapse({value}={}) {
       this.$notify("change", value)
       this.status = "collapse"
     },
     //------------------------------------------------
-    onChangedIcon() {
+    OnChangedIcon() {
       let icon = _.trim(this.$refs.input.value)
       console.log("haha", icon)
       this.$notify("change", icon)
     },
     //------------------------------------------------
-    onHoverIcon({value}={}) {
+    OnHoverIcon({value}={}) {
       this.myHoverIcon = value
     },
     //------------------------------------------------
-    onLeaveIcon() {
+    OnLeaveIcon() {
       this.myHoverIcon = null
     },
     //------------------------------------------------
-    onClearIcon() {
+    OnClearIcon() {
       this.$notify("change", null)
     },
     //------------------------------------------------
@@ -17999,8 +17997,8 @@ Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb"
     <div class="as-title">
       <a v-if="hasHref"
         :href="TheHref"
-        @click.prevent>{{title}}</a>
-      <span v-else>{{title}}</span>
+        @click.prevent>{{TheTitle}}</a>
+      <span v-else>{{TheTitle}}</span>
     </div>
   </footer>
 </div>`);
@@ -18125,6 +18123,10 @@ const _M = {
     //--------------------------------------------
     TheHref() {
       return encodeURI(this.href)
+    },
+    //--------------------------------------------
+    TheTitle() {
+      return Ti.I18n.text(this.title)
     }
     //--------------------------------------------
   },
@@ -18742,6 +18744,126 @@ Ti.Preload("ti/com/ti/session/badge/_com.json", {
   "globally" : true,
   "template" : "./ti-session-badge.html",
   "mixins" : ["./ti-session-badge.mjs"]
+});
+//============================================================
+// JOIN: ti/sheet/emoji/ti-sheet-emoji.html
+//============================================================
+Ti.Preload("ti/com/ti/sheet/emoji/ti-sheet-emoji.html", `<div  class="ti-sheet-emoji" 
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Candidate List
+  -->
+  <div class="as-list">
+    <div
+      v-for="li in TheDataSheet"
+        class="emoji-item"
+        @click.left="myValue=li.value">
+        <span>{{li.value}}</span>
+    </div>
+  </div>
+</div>`);
+//============================================================
+// JOIN: ti/sheet/emoji/ti-sheet-emoji.mjs
+//============================================================
+(function(){
+const _M = {
+  ///////////////////////////////////////////////////////
+  data : ()=>({
+    myValue : null
+  }),
+  ///////////////////////////////////////////////////////
+  props : {
+    "value" : {
+      type : [String,Object,Number],
+      default : null
+    },
+    "width" : {
+      type : [Number, String],
+      default : "100%"
+    },
+    "height" : {
+      type : [Number, String],
+      default : "100%"
+    },
+    "data" : {
+      type : [String, Array],
+      default : ()=>[
+        "😀 😃 😄 😁 😆 😅 🤣 😂 🙂 🙃 😉 😊 😇",
+        "🥰 😍 🤩 😘 😗 😚 😙 😋 😛 😜 🤪 😝 🤑",
+        "🤗 🤭 🤫 🤔 🤐 🤨 😐 😑 😶 😏 😒 🙄 😬",
+        "🤥 😌 😔 😪 🤤 😴 😷 🤒 🤕 🤢 🤮 🤧 🥵",
+        "🥶 🥴 😵 🤯 🤠 🥳 😎 🤓 🧐 😕 😟 🙁 ☹️",
+        "😮 😯 😲 😳 🥺 😦 😧 😨 😰 😥 😢 😭 😱",
+        "😖 😣 😞 😓 😩 😫 🥱 😤 😡 😠 🤬 😈 👿",
+        "💀 ☠️ 💩 🤡 👹 👺 👻 👽 👾 🤖 😺 😸 😹",
+        "😻 😼 😽 🙀 😿 😾 🙈 🙉 🙊 "
+      ]
+    }
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //---------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //---------------------------------------------------
+    hasValue() {
+      return this.TheValue ? true : false
+    },
+    //---------------------------------------------------
+    TheValue() {
+      return this.myValue || this.value
+    },
+    //---------------------------------------------------
+    TheDataSheet() {
+      let list = []
+      let sheet = _.flattenDeep(this.data).join("").replace(/[ ]/g, "")
+      // 逐字解析
+      for(let i=0; i<sheet.length; i+=2) {
+        let c = sheet.substring(i, i+2);
+        list.push({
+          value : c
+        })
+      }
+      return list
+    }
+    //---------------------------------------------------
+  },
+  methods : {
+    //---------------------------------------------------
+    OnClickTop() {
+      if(this.notifyName) {
+        this.$notify(this.notifyName, this.notifyConf)
+      }
+    }
+    //---------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "myValue" : function() {
+      this.$notify("change", this.myValue)
+    }
+  }
+  ///////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/sheet/emoji/ti-sheet-emoji.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/sheet/emoji/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/sheet/emoji/_com.json", {
+  "name" : "ti-sheet-emoji",
+  "globally" : true,
+  "template" : "./ti-sheet-emoji.html",
+  "mixins" : ["./ti-sheet-emoji.mjs"]
 });
 //============================================================
 // JOIN: ti/support/field_display.mjs
@@ -30079,10 +30201,13 @@ Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-l
   <!--
     Blank
   -->
-  <ti-loading
-    v-if="isEmpty"
-      class="as-big"
-      v-bind="blankAs"/>
+  <template 
+    v-if="isEmpty">
+    <ti-loading
+      v-if="showBlank"
+        class="as-big"
+        v-bind="blankAs"/>
+  </template>
   <!--
     Each Items
   -->
@@ -30120,7 +30245,7 @@ const _M = {
       })
     },
     "blankAs": {
-      type: Object,
+      type: [Object, Boolean],
       default: ()=>({
         text: "i18n:empty",
         icon: "fas-box-open"
@@ -30150,6 +30275,10 @@ const _M = {
       }
       // Get the result
       return list
+    },
+    //--------------------------------------
+    showBlank() {
+      return this.blankAs ? true : false
     },
     //--------------------------------------
     isEmpty() {
@@ -30750,7 +30879,10 @@ Ti.Preload("ti/com/web/tile/address/web-tile-address.html", `<div class="web-til
           <span>{{'address-k-email'|i18n}}:</span>
           <em>{{Item.email}}</em></div>
     </div>
-    <div class="is-big">{{Item.street}}</div>
+    <div class="is-big">
+      <span class="as-street">{{Item.street}}</span>
+      <span class="as-door">{{Item.door}}</span>
+    </div>
   </div>
   <!--
     Left top
@@ -30804,6 +30936,7 @@ const _M = {
         province: "province",
         city: "city",
         street: "street",
+        door: "door",
         consignee: "consignee",
         phone: "phone",
         email: "email",
@@ -30889,6 +31022,107 @@ Ti.Preload("ti/com/web/tile/address/_com.json", {
   "globally" : true,
   "template" : "./web-tile-address.html",
   "mixins" : ["./web-tile-address.mjs"]
+});
+//============================================================
+// JOIN: web/tile/comment/web-tile-comment.html
+//============================================================
+Ti.Preload("ti/com/web/tile/comment/web-tile-comment.html", `<div class="web-tile-comment"
+  :class="TopClass">
+  <!--
+    Left: User Avator
+  -->
+  <div class="at-left">
+    <ti-icon :value="AvatarIcon"/>
+  </div>
+  <!--
+    Right: Comment
+  -->
+  <div class="at-right">
+      <!--Head-->
+      <div class="as-head">
+        <span class="as-u-name">{{Post.userName}}</span>
+        <span class="as-time">{{CreateTimeText}}</span>
+      </div>
+      <!--Content-->
+      <div class="as-content">{{Post.content}}</div>
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/tile/comment/web-tile-comment.mjs
+//============================================================
+(function(){
+const _M = {
+  //////////////////////////////////////////
+  props : {
+    "value" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "mapping": {
+      type: Object,
+      default: ()=>({
+        userId     : "uid",
+        userName   : "unm",
+        avatar     : "avatar",
+        content    : "brief",
+        createTime : "ct"
+      })
+    },
+    "avatarSrc": {
+      type: String,
+      default: undefined
+    },
+    "userIcon" : {
+      type : [String,Object],
+      default: "fas-user"
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    Post() {
+      let it = Ti.Util.translate(this.value, this.mapping)
+      return it || {}
+    },
+    //--------------------------------------
+    AvatarIcon() {
+      let avatar = _.get(this.Post, "avatar")
+      if(avatar && this.avatarSrc) {
+        return {
+          type  : "image",
+          value : Ti.S.renderBy(this.avatarSrc, this.Post)
+        }
+      }
+      return this.userIcon
+    },
+    //--------------------------------------
+    CreateTimeText() {
+      if(this.Post.createTime)
+        return Ti.DateTime.timeText(this.Post.createTime)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/tile/comment/web-tile-comment.mjs", _M);
+})();
+//============================================================
+// JOIN: web/tile/comment/_com.json
+//============================================================
+Ti.Preload("ti/com/web/tile/comment/_com.json", {
+  "name" : "web-tile-comment",
+  "globally" : true,
+  "template" : "./web-tile-comment.html",
+  "mixins" : ["./web-tile-comment.mjs"]
 });
 //============================================================
 // JOIN: web/tile/order/web-tile-order.html
@@ -31065,6 +31299,242 @@ Ti.Preload("ti/com/web/tile/order/_com.json", {
   "globally" : true,
   "template" : "./web-tile-order.html",
   "mixins" : ["./web-tile-order.mjs"]
+});
+//============================================================
+// JOIN: web/widget/input/text/widget-input-text.html
+//============================================================
+Ti.Preload("ti/com/web/widget/input/text/widget-input-text.html", `<div class="web-widget-input-text" 
+  :class="TopClass" 
+  :style="TopStyle"
+  v-ti-activable>
+  <!--
+    Title
+  -->
+  <div
+    v-if="hasTitle"
+      class="as-title">
+      <span>{{title|i18n}}</span>
+      <template v-if="total">
+        <i class="far fa-comments"></i>
+        <em>{{total}}</em>
+      </template>
+  </div>
+  <!--
+    Text
+  -->
+  <div class="as-text">
+    <textarea
+      ref="text"
+      spellcheck="false"
+      :placeholder="placeholder | i18n"
+      :value="TextValue"
+      @change="OnTextChange"></textarea>
+    <!--
+      Bottom Bar
+    -->
+    <div class="as-bar">
+      <!--
+        Left
+      -->
+      <div class="at-left">
+        <div class="as-btn btn-emoji"
+          @click.left="OnBtnEmojiClick">
+          <ti-icon 
+            v-if="emojiBtnIcon"
+              :value="emojiBtnIcon"/>
+          <span>{{emojiBtnText|i18n}}</span>
+        </div>
+      </div> <!--Left-->
+      <!--
+        Right
+      -->
+      <div class="at-right">
+        <div class="as-btn btn-post"
+          @click.left="OnBtnPostClick">
+          <ti-icon 
+            v-if="postBtnIcon"
+              :value="postBtnIcon"/>
+          <span>{{postBtnText|i18n}}</span>
+        </div>
+      </div> <!-- Right -->
+    </div> <!-- Bottom Bar-->
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/widget/input/text/widget-input-text.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data : ()=>({
+    myText : undefined
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "title" : {
+      type : String,
+      default : "i18n:comments"
+    },
+    "value" : {
+      type : String,
+      default : undefined
+    },
+    "total" : {
+      type : Number,
+      default : undefined
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "trimed" : {
+      type : Boolean,
+      default : true
+    },
+    "resetAfterPost" : {
+      type : Boolean,
+      default : false
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "placeholder" : {
+      type : [String, Number],
+      default : undefined
+    },
+    "hideBorder" : {
+      type : Boolean,
+      default : false
+    },
+    "emojiBtnIcon" : {
+      type : String,
+      default : "far-smile"
+    },
+    "emojiBtnText" : {
+      type : String,
+      default : "i18n:emoji"
+    },
+    "postBtnIcon" : {
+      type : String,
+      default : "fas-paper-plane"
+    },
+    "postBtnText" : {
+      type : String,
+      default : "i18n:post"
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "width" : {
+      type : [Number, String],
+      default : "100%"
+    },
+    "height" : {
+      type : [Number, String],
+      default : "2.6rem"
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return Ti.Css.mergeClassName(this.className, {
+        "is-self-actived" : this.isSelfActived,
+        "show-border"  : !this.hideBorder,
+        "hide-border"  : this.hideBorder
+      })
+    },
+    //------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
+    },
+    //------------------------------------------------
+    hasTitle() {
+      return this.title ? true : false
+    },
+    //------------------------------------------------
+    TextValue() {
+      return Ti.Util.fallbackNil(this.myText, this.value)
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    OnTextChange() {
+      let str = this.$refs.text.value
+      this.myText = this.formatValue(str)
+    },
+    //------------------------------------------------
+    async OnBtnEmojiClick() {
+      // Get Text Range
+      let i_start = this.$refs.text.selectionStart
+      let i_end = this.$refs.text.selectionEnd
+
+      let emoji = await Ti.App.Open({
+        title  : "i18n:emoji",
+        width  : "6.4rem",
+        height : "4.8rem",
+        textOk : null,
+        changeToClose : true,
+        comType : "TiSheetEmoji",
+        comConf : {
+
+        }
+      })
+
+      // User Cancel
+      if(!emoji)
+        return
+      
+      // Insert emoji
+      let str = this.$refs.text.value
+      let s_0 = str.substring(0, i_start)
+      let s_1 = str.substring(i_end)
+      this.myText = s_0 + emoji + s_1;
+    },
+    //------------------------------------------------
+    OnBtnPostClick() {
+      let str = this.formatValue(this.$refs.text.value)
+      if(str && str.length > 10) {
+        this.$notify("post", str)
+        if(this.resetAfterPost) {
+          this.myText = ""
+        }
+      }
+      // Blank text or content too short
+      else {
+        Ti.Toast.Open('i18n:post-content-blank', "warn")
+      }
+    },
+    //------------------------------------------------
+    formatValue(val) {
+      if(val && this.trimed) {
+        return _.trim(val)
+      }
+      return val
+    }
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/widget/input/text/widget-input-text.mjs", _M);
+})();
+//============================================================
+// JOIN: web/widget/input/text/_com.json
+//============================================================
+Ti.Preload("ti/com/web/widget/input/text/_com.json", {
+  "name" : "web-widget-input-text",
+  "globally" : true,
+  "template" : "./widget-input-text.html",
+  "mixins" : ["./widget-input-text.mjs"],
+  "components" : [
+    "@com:ti/sheet/emoji"]
 });
 //============================================================
 // JOIN: web/widget/sharebar/widget-sharebar.html
@@ -40133,6 +40603,10 @@ const _M = {
             "name"    : "street",
             "comType" : "ti-input"
           },{
+            "title"   : "i18n:address-k-door",
+            "name"    : "door",
+            "comType" : "ti-input"
+          },{
             "title"   : "i18n:address-k-dftaddr",
             "name"    : "dftaddr",
             "type"    : "Boolean",
@@ -41169,7 +41643,8 @@ const _M = {
       key,        // The Api Key
       params={},  // params will override the defaults
       vars={},
-      body=null
+      body=null,
+      ok, fail
     }={}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
@@ -41181,11 +41656,17 @@ const _M = {
       }
       //.......................................
       commit("setLoading", true, {root:true})
-      dispatch("__run_api", {api,params,vars,body})     
+      await dispatch("__run_api", {api,params,vars,body, ok, fail})     
       commit("setLoading", false, {root:true})
     },
     //--------------------------------------------
-    async __run_api({commit, rootState}, {api, vars, params, headers, body}) {
+    async __run_api({commit, dispatch, rootState}, {
+      api, 
+      vars, 
+      params, 
+      headers, 
+      body,
+      ok, fail}) {
       //.....................................
       // Override api
       api = _.cloneDeep(api)
@@ -41199,7 +41680,7 @@ const _M = {
         })
       }
       _.assign(api.headers, headers)
-      if(Ti.Util.isNil(api.body)) {
+      if(!Ti.Util.isNil(body)) {
         api.body = body
       }
       //.....................................
@@ -41252,7 +41733,16 @@ const _M = {
       //.....................................
       // Join the http send Promise
       //console.log(`will send to "${url}"`, options)
-      let reo = await Ti.Http.sendAndProcess(url, options) 
+      let reo;
+      try{
+        reo = await Ti.Http.sendAndProcess(url, options);
+      }
+      // Cache the Error
+      catch (err) {
+        console.warn(E)
+        dispatch("doAction", fail, {root:true})
+         return
+      }
       let data = reo
       //.....................................
       // Eval api transformer
@@ -41305,6 +41795,7 @@ const _M = {
       }
       //.....................................
       // All done
+      dispatch("doAction", ok, {root:true})
     },
     //--------------------------------------------
     /***
@@ -42193,7 +42684,11 @@ const _M = {
           AT = _.assign({}, actn, {args})
         }
       }
-
+      //....................................
+      // String
+      if(_.isString(AT)) {
+        AT = {action: AT}
+      }
       //....................................
       // Action object
       //....................................
@@ -43069,114 +43564,114 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
 // JOIN: en-us/ti-datetime.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/ti-datetime.i18n.json", {
-  "Apr": "四月",
-  "Aug": "八月",
-  "Dec": "十二月",
-  "Feb": "二月",
-  "Fri": "周五",
-  "Friday": "星期五",
-  "Jan": "一月",
-  "Jul": "七月",
-  "Jun": "六月",
-  "Mar": "三月",
-  "May": "五月",
-  "Mon": "周一",
-  "Monday": "星期一",
-  "Nov": "十一月",
-  "Oct": "十月",
-  "Sat": "周六",
-  "Saturday": "星期六",
-  "Sep": "九月",
-  "Sun": "周日",
-  "Sunday": "星期日",
-  "Thu": "周四",
-  "Thursday": "星期四",
-  "Tue": "周二",
-  "Tuesday": "星期二",
-  "Wed": "周三",
-  "Wednesday": "星期三",
-  "blank-date": "请选择日期",
-  "blank-date-range": "请选择日期范围",
-  "blank-datetime": "请选择日期时间",
-  "blank-month": "请选择月份",
-  "blank-time": "请选择时间",
-  "blank-time-range": "请选择时间范围",
+  "Apr": "April",
+  "Aug": "August",
+  "Dec": "December",
+  "Feb": "February",
+  "Fri": "Fri",
+  "Friday": "Friday",
+  "Jan": "January",
+  "Jul": "July",
+  "Jun": "June",
+  "Mar": "March",
+  "May": "May",
+  "Mon": "Mon",
+  "Monday": "Monday",
+  "Nov": "November",
+  "Oct": "October",
+  "Sat": "Sat",
+  "Saturday": "Saturday",
+  "Sep": "September",
+  "Sun": "Sun",
+  "Sunday": "Sunday",
+  "Thu": "Thu",
+  "Thursday": "Thursday",
+  "Tue": "Tue",
+  "Tuesday": "Tuesday",
+  "Wed": "Wed",
+  "Wednesday": "Wednesday",
+  "blank-date": "Select a date",
+  "blank-date-range": "Select a date range",
+  "blank-datetime": "Select the date and time",
+  "blank-month": "Select month",
+  "blank-time": "Select time",
+  "blank-time-range": "Select a time range",
   "cal": {
     "abbr": {
-      "Apr": "四月",
-      "Aug": "八月",
-      "Dec": "十二",
-      "Feb": "二月",
-      "Jan": "一月",
-      "Jul": "七月",
-      "Jun": "六月",
-      "Mar": "三月",
-      "May": "五月",
-      "Nov": "十一",
-      "Oct": "十月",
-      "Sep": "九月"
+      "Apr": "Apr",
+      "Aug": "Aug",
+      "Dec": "Dec",
+      "Feb": "Feb",
+      "Jan": "Jan",
+      "Jul": "Jul",
+      "Jun": "Jun",
+      "Mar": "Mar",
+      "May": "May",
+      "Nov": "Nov",
+      "Oct": "Oct",
+      "Sep": "Sep"
     },
-    "d-range-beyond-days": "${yy0}年${MM0}月${dd0}至${dd1}日",
-    "d-range-beyond-months": "${yy0}年${MM0}月${dd0}日至${MM1}月${dd1}日",
-    "d-range-beyond-years": "${yy0}年${MM0}月${dd0}日至${yy1}年${MM1}月${dd1}日",
-    "d-range-in-same-day": "${yy0}年${MM0}月${dd0}日全天",
-    "m-range-beyond-months": "${yy0}年${MT0}至${MT1}",
-    "m-range-beyond-years": "${yy0}年${MT0}至${yy1}年${MT1}",
-    "week": ["日", "一", "二", "三", "四", "五", "六"]
+    "d-range-beyond-days": "${yy0}-${MM0}-${dd0} to ${dd1}",
+    "d-range-beyond-months": "${yy0}-${MM0}-${dd0} to ${MM1}-${dd1}",
+    "d-range-beyond-years": "${yy0}-${MM0}-${dd0} to ${yy1}-${MM1}-${dd1}",
+    "d-range-in-same-day": "${yy0}-${MM0}-${dd0} whole day",
+    "m-range-beyond-months": "${yy0}-${MT0} to ${MT1}",
+    "m-range-beyond-years": "${yy0}-${MT0} to ${yy1}-${MT1}",
+    "week": ["S", "M", "T", "W", "T", "F", "S"]
   },
-  "du-in-min": "${n}分钟",
+  "du-in-min": "${n}Min",
   "time": {
-    "any-time": "yyyy年M月d日",
-    "in-year": "M月d日",
-    "past-in-min": "刚刚",
-    "past-in-hour": "${min}分钟前",
-    "past-in-day": "${hour}小时前",
-    "past-in-week": "${day}天前",
-    "future-in-min": "即将",
-    "future-in-hour": "${min}分钟后",
-    "future-in-day": "${hour}小时后",
-    "future-in-week": "${day}天后"
+    "any-time": "yyyy-M-d",
+    "in-year": "M-dd",
+    "past-in-min": "just now",
+    "past-in-hour": "in ${min}mins",
+    "past-in-day": "in ${hour}hours",
+    "past-in-week": "in ${day}days",
+    "future-in-min": "soon",
+    "future-in-hour": "after ${min}mins",
+    "future-in-day": "after ${hour}hours",
+    "future-in-week": "after ${day}days"
   },
-  "time-begin": "开始时间",
-  "time-end": "结束时间",
-  "today": "今天"
+  "time-begin": "Begin Time",
+  "time-end": "End Time",
+  "today": "Today"
 });
 //============================================================
 // JOIN: en-us/ti-obj-creation.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/ti-obj-creation.i18n.json", {
-  "toc-auto-type": "全部类型",
-  "toc-free": "请输入对象完整名称，包括扩展名，譬如 `myfile.xml`",
-  "toc-tip": "新对象名称"
+  "toc-auto-type": "All types",
+  "toc-free": "Please enter the full name, including the extension, such as `myfile.xml`",
+  "toc-tip": "New object name"
 });
 //============================================================
 // JOIN: en-us/ti-text-editor.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
-  "wordp-h0": "正文",
-  "wordp-h1": "标题 1",
-  "wordp-h2": "标题 2",
-  "wordp-h3": "标题 3",
-  "wordp-h4": "标题 4",
-  "wordp-h5": "标题 5",
-  "wordp-h6": "标题 6",
-  "wordp-heading": "标题级别",
-  "wordp-link": "超链接",
-  "wordp-nil-sel": "请先选择一段文字"
+  "wordp-h0": "Main",
+  "wordp-h1": "Heading 1",
+  "wordp-h2": "Heading 2",
+  "wordp-h3": "Heading 3",
+  "wordp-h4": "Heading 4",
+  "wordp-h5": "Heading 5",
+  "wordp-h6": "Heading 6",
+  "wordp-heading": "Heading levels",
+  "wordp-link": "Hyperlink",
+  "wordp-nil-sel": "Please select a paragraph first"
 });
 //============================================================
 // JOIN: en-us/ti-text-json.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/ti-text-json.i18n.json", {
-  "json-Array": "数组",
-  "json-Boolean": "布尔",
-  "json-Float": "小数",
-  "json-Integer": "整数",
-  "json-Nil": "空值",
-  "json-Number": "数字",
-  "json-Object": "对象",
-  "json-String": "字符串",
-  "json-new-key": "请输入一个新键名"
+  "json-Array": "Array",
+  "json-Boolean": "Boolean",
+  "json-Float": "Decimal",
+  "json-Integer": "Integer",
+  "json-Nil": "Nil",
+  "json-Number": "Number",
+  "json-Object": "Object",
+  "json-String": "String",
+  "json-new-key": "Enter a new key"
 });
 //============================================================
 // JOIN: en-us/web.i18n.json
@@ -43188,15 +43683,18 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "address-empty-list": "No Shipping Address",
   "address-is-dft": "Default Shipping Address",
   "address-k-city": "City",
+  "address-k-code": "Addr Code",
   "address-k-consignee": "Consignee",
   "address-k-country": "Country",
   "address-k-dftaddr": "Default Address",
+  "address-k-door": "Door",
   "address-k-email": "Email",
   "address-k-phone": "Phone",
   "address-k-postcode": "Postcode",
   "address-k-street": "Street",
   "address-k-title": "Address",
   "address-k-uid": "User",
+  "address-k-uid-tip": "Filter by username",
   "address-set-dft": "Set as Default Address",
   "address-shipping-add": "Add Shipping Address",
   "auth-bind": "Bind",
@@ -43254,6 +43752,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "auth-ta-phone": "SMS Password",
   "auth-vcode-delay": "Resend after ${sec}s",
   "auth-vcode-lost": "Can't get password?",
+  "comments": "COMMENTS",
   "e-cmd-www_passwd-Blank": "Blank New Password not allowed",
   "e-cmd-www_passwd-CheckBlankAccount": "Blank Account",
   "e-cmd-www_passwd-CheckBlankCode": "Blank Code",
@@ -43267,6 +43766,22 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "e-www-invalid-captcha": "Invalid ${ta?Captcha}",
   "e-www-login-invalid-passwd": "Invalid password",
   "e-www-login-noexists": "Account Not Exists",
+  "invoice-k-bankaccount": "银行账号",
+  "invoice-k-bankname": "开户行",
+  "invoice-k-busiaddr": "企业地址",
+  "invoice-k-busiphone": "企业电话",
+  "invoice-k-invdft": "默认抬头",
+  "invoice-k-invtfn": "发票税号",
+  "invoice-k-invtitle": "发票抬头",
+  "invoice-k-uemail": "收票人邮箱",
+  "invoice-k-uid": "关联账户",
+  "invoice-k-uid-tip": "Filter by username",
+  "invoice-k-uname": "收票人名称",
+  "invoice-k-uphone": "收票人电话",
+  "invoice-kg-bank": "银行信息",
+  "invoice-kg-busi": "企业信息",
+  "invoice-kg-inv": "发票信息",
+  "invoice-kg-u": "收票人信息",
   "me-k-account": "Account",
   "me-k-avatar": "Avatar",
   "me-k-city": "City",
@@ -43287,40 +43802,40 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "my-favors-video": "Favorite Video",
   "my-orders": "My Orders",
   "my-orders-shop": "Shopping Orders",
-  "my-orders-video": "视频订单",
+  "my-orders-video": "VOD Order",
   "my-passwd": "Reset Password",
   "my-profile": "My Profile",
   "my-shipping-address": "Shipping Address",
-  "my-shopping-car": "购物车",
-  "or-st-dn": "完成",
-  "or-st-fa": "支付失败",
-  "or-st-nw": "提交订单",
-  "or-st-ok": "支付成功",
-  "or-st-sp": "已发货",
-  "or-st-wt": "待支付",
-  "order-filter-tip": "请输入订单ID查询",
-  "order-k-accounts": "用户库",
-  "order-k-buyer_id": "买家",
-  "order-k-currency": "货币单位",
-  "order-k-dn_at": "完成时间",
-  "order-k-fa_at": "支付失败",
-  "order-k-fee": "支付金额",
-  "order-k-id": "订单号",
-  "order-k-ok_at": "支付成功",
-  "order-k-pay_id": "支付单",
-  "order-k-pay_tp": "支付类型",
-  "order-k-payment": "支付信息",
-  "order-k-price": "订单金额",
-  "order-k-pro-amount": "购买数量",
-  "order-k-pro-price": "单价",
-  "order-k-pro-subtotal": "小计",
-  "order-k-pro-title": "商品",
-  "order-k-products": "商品信息",
-  "order-k-seller": "卖家",
-  "order-k-sp_at": "发货时间",
-  "order-k-st": "订单状态",
-  "order-k-title": "订单标题",
-  "order-k-wt_at": "支付时间",
+  "my-shopping-car": "Shopping Car",
+  "or-st-dn": "Done",
+  "or-st-fa": "Fail",
+  "or-st-nw": "New Order",
+  "or-st-ok": "Pay OK",
+  "or-st-sp": "Shipped",
+  "or-st-wt": "Wait for Pay",
+  "order-filter-tip": "Query by order ID",
+  "order-k-accounts": "Accounts",
+  "order-k-buyer_id": "Buyer",
+  "order-k-currency": "Currency",
+  "order-k-dn_at": "Done At",
+  "order-k-fa_at": "Fail At",
+  "order-k-fee": "Payment Amount ",
+  "order-k-id": "Order ID",
+  "order-k-ok_at": "OK At",
+  "order-k-pay_id": "Payment ID",
+  "order-k-pay_tp": "Pay Type",
+  "order-k-payment": "Total",
+  "order-k-price": "Order Price",
+  "order-k-pro-amount": "Amount",
+  "order-k-pro-price": "Price",
+  "order-k-pro-subtotal": "Subtotal",
+  "order-k-pro-title": "Title",
+  "order-k-products": "Goods",
+  "order-k-seller": "Seller",
+  "order-k-sp_at": "Shipping At",
+  "order-k-st": "Order Status",
+  "order-k-title": "Order Title",
+  "order-k-wt_at": "Pay At",
   "passwd-invalid-char": "Passwords can only include English Numbers/upper and lower case letters/and special characters",
   "passwd-sl-1": "Weak",
   "passwd-sl-2": "Weaker",
@@ -43365,6 +43880,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "pay-wx": "WeChat",
   "pay-zfb": "Alipay",
   "paypal-approve-tip": "Already in the new TAB for you to open the PayPal payment page, if there is no open, please click on ☝ the icon above. After payment, the page will automatically perceive, if there is no response, try to click 👇 [Check Payment] button below.",
+  "post-content-blank": "The content you post cannot be empty or less than 10 words",
   "profile-title": "My Profile",
   "shop-basket-clean-confirm": "Are you sure you want to empty the shopping cart? This is an operation that cannot be undone."
 });
@@ -43372,69 +43888,69 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
 // JOIN: en-us/wn-manager.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/wn-manager.i18n.json", {
-  "ti-loading": "加载中...",
-  "wn-adaptlist": "对象浏览器",
-  "wn-create-fail": "创建失败",
-  "wn-create-invalid": "新对象名称不能包括非法字符",
-  "wn-create-ok": "创建成功",
-  "wn-create-too-long": "新对象名称过长",
-  "wn-del-item": "正在删除: \"${name}\"",
-  "wn-del-no-empty-folder": "目录\"${nm}\"不是空的，您是否要全部删除？点击\"否\"跳过",
-  "wn-del-none": "请选择至少一个文件进行删除!",
-  "wn-del-ok": "已有 ${N} 个对象被移除",
-  "wn-download-dir": "对象 \"${nm}\" 是一个目录，点击\"继续\"将跳过它并下载下一个文件，点击\"终止\"将结束本次操作!",
-  "wn-download-none": "请选择至少一个文件进行下载!",
-  "wn-download-too-many": "即将逐个下载 ${N} 个文件，继续吗？",
-  "wn-expose-hidden-off": "不显示隐藏的对象",
-  "wn-expose-hidden-on": "显示隐藏的对象",
-  "wn-gui": "通用布局界面",
-  "wn-obj-preview": "对象预览",
-  "wn-obj-puretext": "纯文本编辑器",
-  "wn-obj-single-com": "单控件测试套",
-  "wn-publish-done": "发布成功",
-  "wn-publish-to-nil": "未设置发布目标",
-  "wn-publish-to-noexist": "发布目标不存在",
-  "wn-rename": "重命名对象 \"${name}\"",
-  "wn-rename-fail": "重命名失败",
-  "wn-rename-invalid": "名称不能包括非法字符",
-  "wn-rename-none": "请选择一个文件重命名!",
-  "wn-rename-ok": "重命名成功",
-  "wn-rename-suffix-changed": "您的文件后缀名发生变化，您需要自动为您补全原来的后缀吗？",
-  "wn-rename-too-long": "名称过长",
-  "wn-thing-manager": "数据管理器",
-  "wn-view-opening": "正在加载界面..."
+  "ti-loading": "Load...",
+  "wn-adaptlist": "Object explorer",
+  "wn-create-fail": "Fail to create",
+  "wn-create-invalid": "Illegal characters in object name",
+  "wn-create-ok": "Create OK",
+  "wn-create-too-long": "Object name too long",
+  "wn-del-item": "Deleting: \"${name}\"",
+  "wn-del-no-empty-folder": "The directory \"${nm}\" is not empty, do you want to delete all? Click \"No\" to skip",
+  "wn-del-none": "Please select at least one file to delete!",
+  "wn-del-ok": "${N} objects have been removed",
+  "wn-download-dir": "Object \"${nm}\" is a directory, click \"Continue\" to skip it and download the next file, and click \"Terminate\" to end this operation!",
+  "wn-download-none": "Please select at least one file to download!",
+  "wn-download-too-many": "We are going to download ${N} files one by one. Continue?",
+  "wn-expose-hidden-off": "Not show hidden objects",
+  "wn-expose-hidden-on": "Show hidden objects",
+  "wn-gui": "General GUI",
+  "wn-obj-preview": "Object preview",
+  "wn-obj-puretext": "Plain text editor",
+  "wn-obj-single-com": "Single control test suite",
+  "wn-publish-done": "Publish success",
+  "wn-publish-to-nil": "No publish target is set",
+  "wn-publish-to-noexist": "The publish target does not exist",
+  "wn-rename": "Rename object \"${name}\"",
+  "wn-rename-fail": "Rename failed",
+  "wn-rename-invalid": "The name cannot contain illegal characters",
+  "wn-rename-none": "Please select a file to rename!",
+  "wn-rename-ok": "Rename successful",
+  "wn-rename-suffix-changed": "Your file suffix name has changed. Do you need to complete the original suffix for you automatically?",
+  "wn-rename-too-long": "The name is too long",
+  "wn-thing-manager": "Data manager",
+  "wn-view-opening": "Loading GUI..."
 });
 //============================================================
 // JOIN: en-us/wn-obj-preview.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/wn-obj-preview.i18n.json", {
-  "wop-fullscreen-enter": "进入全屏",
-  "wop-fullscreen-quit": "退出全屏"
+  "wop-fullscreen-enter": "Enter Fullscreen",
+  "wop-fullscreen-quit": "Exit Fullscreen"
 });
 //============================================================
 // JOIN: en-us/wn-thing.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/wn-thing.i18n.json", {
-  "thing-clean": "清空回收站",
-  "thing-cleaning": "正在清空...",
-  "thing-content": "对象内容",
-  "thing-content-hide": "隐藏内容",
-  "thing-content-show": "显示内容",
-  "thing-create": "创建新对象",
-  "thing-create-in-recyclebin": "请先退出回收站，再创建新对象",
-  "thing-enter-recyclebin": "打开回收站",
-  "thing-files": "对象文件表",
-  "thing-files-hide": "隐藏文件表",
-  "thing-files-show": "显示文件表",
-  "thing-filter-kwdplhd": "请输入查询条件",
-  "thing-leave-recyclebin": "退出回收站",
-  "thing-meta": "对象属性",
-  "thing-meta-hide": "隐藏属性",
-  "thing-meta-show": "显示属性",
-  "thing-recycle-bin": "回收站",
-  "thing-restore": "恢复选中",
-  "thing-restore-none": "请先选择要恢复的数据",
-  "thing-restoring": "正在恢复..."
+  "thing-clean": "Empty the recycle bin",
+  "thing-cleaning": "Cleaning...",
+  "thing-content": "Object Content",
+  "thing-content-hide": "Hide content",
+  "thing-content-show": "Show content",
+  "thing-create": "New Object",
+  "thing-create-in-recyclebin": "Exit recycle bin before create object",
+  "thing-enter-recyclebin": "Enter recyclebin",
+  "thing-files": "Object files",
+  "thing-files-hide": "Hide files",
+  "thing-files-show": "Show files",
+  "thing-filter-kwdplhd": "Enter the query criteria",
+  "thing-leave-recyclebin": "Leave recyclebin",
+  "thing-meta": "Object properties",
+  "thing-meta-hide": "Hide properties",
+  "thing-meta-show": "Show properties",
+  "thing-recycle-bin": "Recycle bin",
+  "thing-restore": "Restore",
+  "thing-restore-none": "Select the data you want to recover first",
+  "thing-restoring": "Restoring..."
 });
 //============================================================
 // JOIN: en-us/_net.i18n.json
@@ -43510,6 +44026,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-io-obj-noexistsf": "Object[${nm}] does't exists",
   "edit": "Edit",
   "edit-com": "Edit Control",
+  "emoji": "Emoji",
   "empty": "Empty",
   "empty-data": "Empty Data",
   "error": "Error",
@@ -43580,6 +44097,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "passwd-reset": "Reset password",
   "path": "Path",
   "phone": "Phone",
+  "post": "Post",
   "prev": "Prev",
   "price": "Price",
   "profile": "Profile",
@@ -43609,11 +44127,13 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "score-count": "Score Count",
   "select": "Select",
   "select-all": "Select All",
+  "send": "Send",
   "settings": "Setting",
   "source-code": "Source Code",
   "stop": "Stop",
   "structure": "Structure",
   "success": "Success",
+  "sys-settings": "System Settings",
   "tablet": "Tablet",
   "terminal": "Terminal",
   "terminate": "Terminate",
@@ -43670,37 +44190,37 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-key-grp-customized": "Customized",
   "wn-key-grp-more": "More",
   "wn-key-grp-others": "Others",
-  "wn-key-grp-privilege": "权限",
-  "wn-key-grp-thumb": "缩略图",
-  "wn-key-grp-timestamp": "时间戳",
-  "wn-key-height": "高",
-  "wn-key-icon": "图标",
+  "wn-key-grp-privilege": "Privilege",
+  "wn-key-grp-thumb": "Thumb",
+  "wn-key-grp-timestamp": "Timestamp",
+  "wn-key-height": "Height",
+  "wn-key-icon": "Icon",
   "wn-key-id": "ID",
-  "wn-key-len": "大小",
-  "wn-key-lm": "修改",
-  "wn-key-m": "修改者",
-  "wn-key-md": "基本权限",
-  "wn-key-mime": "内容类型",
-  "wn-key-nm": "对象名",
-  "wn-key-ph": "路径",
-  "wn-key-pid": "父对象",
-  "wn-key-pvg": "定制权限",
-  "wn-key-race": "族类",
-  "wn-key-sha1": "内容签名",
-  "wn-key-thumb": "缩略图",
-  "wn-key-title": "标题",
-  "wn-key-tp": "类型",
-  "wn-key-width": "宽",
-  "wn-obj-nosaved": "您有未保存的对象",
-  "wn-race-DIR": "目录",
-  "wn-race-FILE": "文件",
-  "wn-th-acc-pwd-choose-none": "请选择要重置密码的账号（可多选）",
-  "wn-th-acc-pwd-done": "已经为${n}名用户重置了密码",
-  "wn-th-acc-pwd-invalid": "密码中不得包含单双引号星号等非法字符",
-  "wn-th-acc-pwd-reset-tip": "将密码重置为",
-  "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合",
-  "wn-th-recount-media": "重新计算当前文件数量",
-  "wn-th-recount-media-done": "当前文件数量: ${n}"
+  "wn-key-len": "Length",
+  "wn-key-lm": "Last Modified",
+  "wn-key-m": "Mender",
+  "wn-key-md": "Mode",
+  "wn-key-mime": "MIME",
+  "wn-key-nm": "Name",
+  "wn-key-ph": "Path",
+  "wn-key-pid": "Parent",
+  "wn-key-pvg": "Biz PVG",
+  "wn-key-race": "Race",
+  "wn-key-sha1": "SHA1",
+  "wn-key-thumb": "Thumb",
+  "wn-key-title": "Title",
+  "wn-key-tp": "Type",
+  "wn-key-width": "Width",
+  "wn-obj-nosaved": "You have unsaved objects",
+  "wn-race-DIR": "DIRECTORY",
+  "wn-race-FILE": "FILE",
+  "wn-th-acc-pwd-choose-none": "Select the account to reset password (multiple allowed)",
+  "wn-th-acc-pwd-done": "Password has been reset for ${n} users",
+  "wn-th-acc-pwd-invalid": "Illegal characters found in password",
+  "wn-th-acc-pwd-reset-tip": "Reset password to",
+  "wn-th-acc-pwd-too-short": "Password too short, no less than 6 digits, better contains alphanumeric & special chars",
+  "wn-th-recount-media": "Recalculate file number",
+  "wn-th-recount-media-done": "Current number of files: ${n}"
 });
 //============================================================
 // JOIN: zh-cn/hmaker.i18n.json
@@ -43953,15 +44473,18 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "address-empty-list": "未设置任何收货地址",
   "address-is-dft": "默认收货地址",
   "address-k-city": "城市/区",
+  "address-k-code": "地址编码",
   "address-k-consignee": "收货人姓名",
   "address-k-country": "国家",
   "address-k-dftaddr": "默认地址",
+  "address-k-door": "门牌",
   "address-k-email": "邮箱",
   "address-k-phone": "电话",
   "address-k-postcode": "邮编",
   "address-k-street": "街道",
   "address-k-title": "地址",
   "address-k-uid": "用户",
+  "address-k-uid-tip": "输入关联用户名过滤",
   "address-set-dft": "设为默认地址",
   "address-shipping-add": "添加收货地址",
   "auth-bind": "绑定",
@@ -44019,6 +44542,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-ta-phone": "手机密码",
   "auth-vcode-delay": "${sec} 秒后重新发送",
   "auth-vcode-lost": "收不到验证码？",
+  "comments": "评论",
   "e-cmd-www_passwd-Blank": "新密码为空",
   "e-cmd-www_passwd-CheckBlankAccount": "空账户",
   "e-cmd-www_passwd-CheckBlankCode": "空验证码",
@@ -44032,6 +44556,22 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "e-www-invalid-captcha": "${ta?验证码}错误",
   "e-www-login-invalid-passwd": "账号密码错误",
   "e-www-login-noexists": "账号不存在",
+  "invoice-k-bankaccount": "银行账号",
+  "invoice-k-bankname": "开户行",
+  "invoice-k-busiaddr": "企业地址",
+  "invoice-k-busiphone": "企业电话",
+  "invoice-k-invdft": "默认抬头",
+  "invoice-k-invtfn": "发票税号",
+  "invoice-k-invtitle": "发票抬头",
+  "invoice-k-uemail": "收票人邮箱",
+  "invoice-k-uid": "关联账户",
+  "invoice-k-uid-tip": "输入关联用户名过滤",
+  "invoice-k-uname": "收票人名称",
+  "invoice-k-uphone": "收票人电话",
+  "invoice-kg-bank": "银行信息",
+  "invoice-kg-busi": "企业信息",
+  "invoice-kg-inv": "发票信息",
+  "invoice-kg-u": "收票人信息",
   "me-k-account": "账户",
   "me-k-avatar": "头像",
   "me-k-city": "城市",
@@ -44130,6 +44670,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "pay-wx": "微信支付",
   "pay-zfb": "支付宝",
   "paypal-approve-tip": "已经在新标签里为您打开了PayPal支付页面，如果没有打开，请点击☝上面的图标。支付完毕，页面会自动感知到，如果没有反应，试着点击👇下面的【检查支付结果】按钮。",
+  "post-content-blank": "您提交的内容不能为空，也不能少于10个字",
   "profile-title": "我的基本信息",
   "shop-basket-clean-confirm": "您确定要清空购物车内全部商品吗？这是一个不能撤回的操作。"
 });
@@ -44275,6 +44816,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
   "edit": "编辑",
   "edit-com": "编辑控件",
+  "emoji": "表情符合",
   "empty": "空",
   "empty-data": "无数据",
   "error": "错误",
@@ -44345,6 +44887,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "passwd-reset": "重置密码",
   "path": "路径",
   "phone": "手机",
+  "post": "提交",
   "prev": "上一步",
   "price": "价格",
   "profile": "资料",
@@ -44374,11 +44917,13 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "score-count": "打分人数",
   "select": "选择",
   "select-all": "全部选中",
+  "send": "发送",
   "settings": "设置",
   "source-code": "源代码",
   "stop": "停止",
   "structure": "结构",
   "success": "成功",
+  "sys-settings": "系统设置",
   "tablet": "平板",
   "terminal": "终端",
   "terminate": "终止",

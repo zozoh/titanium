@@ -1,4 +1,4 @@
-// Pack At: 2020-08-29 02:52:07
+// Pack At: 2020-08-31 05:52:06
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2102,6 +2102,7 @@ const {App} = (function(){
         this.escape = true
         this.mask   = true       // !TODO maybe blur or something else
         this.clickMaskToClose = false
+        this.changeToClose = false
         /*
         validator : (v)=>{
           return /^(left|right|top|bottom|center)$/.test(v)
@@ -2251,6 +2252,7 @@ const {App} = (function(){
             mask     : this.mask,
             position : this.position,
             clickMaskToClose : this.clickMaskToClose,
+            changeToClose : this.changeToClose,
             //--------------------------------------
             width      : this.width,
             height     : this.height,
@@ -2383,6 +2385,9 @@ const {App} = (function(){
             //--------------------------------------
             OnChange(newVal) {
               this.result = newVal
+              if(this.changeToClose) {
+                this.close(this.result)
+              }
             },
             //--------------------------------------
             OnActionsUpdated(actions=[]) {
@@ -2921,6 +2926,7 @@ const {App} = (function(){
   TiApp.Open = function(options) {
     return new Promise((resolve)=>{
       let $m = new TiAppModal()
+      console.log("haha")
       _.assign($m, options)
       $m.open(resolve)
     })
@@ -10765,7 +10771,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200829.025207",
+  "version" : "2.5-20200831.055207",
   "dev" : false,
   "appName" : null,
   "session" : {},
