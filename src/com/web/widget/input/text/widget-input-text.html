@@ -1,0 +1,57 @@
+<div class="web-widget-input-text" 
+  :class="TopClass" 
+  :style="TopStyle"
+  v-ti-activable>
+  <!--
+    Title
+  -->
+  <div
+    v-if="hasTitle"
+      class="as-title">
+      <span>{{title|i18n}}</span>
+      <template v-if="total">
+        <i class="far fa-comments"></i>
+        <em>{{total}}</em>
+      </template>
+  </div>
+  <!--
+    Text
+  -->
+  <div class="as-text">
+    <textarea
+      ref="text"
+      spellcheck="false"
+      :placeholder="placeholder | i18n"
+      :value="TextValue"
+      @change="OnTextChange"></textarea>
+    <!--
+      Bottom Bar
+    -->
+    <div class="as-bar">
+      <!--
+        Left
+      -->
+      <div class="at-left">
+        <div class="as-btn btn-emoji"
+          @click.left="OnBtnEmojiClick">
+          <ti-icon 
+            v-if="emojiBtnIcon"
+              :value="emojiBtnIcon"/>
+          <span>{{emojiBtnText|i18n}}</span>
+        </div>
+      </div> <!--Left-->
+      <!--
+        Right
+      -->
+      <div class="at-right">
+        <div class="as-btn btn-post"
+          @click.left="OnBtnPostClick">
+          <ti-icon 
+            v-if="postBtnIcon"
+              :value="postBtnIcon"/>
+          <span>{{postBtnText|i18n}}</span>
+        </div>
+      </div> <!-- Right -->
+    </div> <!-- Bottom Bar-->
+  </div>
+</div>

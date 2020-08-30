@@ -1,0 +1,60 @@
+.web-widget-input-text {
+  @include flex-align-v-nowrap;
+  font-size: 1.2em; padding: SZ(30) SZ(15);
+  //-----------------------------------------
+  > .as-title {
+    flex:0 0 auto; padding: .5em 0;
+    span {font-weight: bold; font-size:1.2em;}
+  }
+  //-----------------------------------------
+  > .as-text {
+    @include flex-align-v-nowrap;
+    @include border(1px, solid, dark);
+    border-radius: SZ(5);
+    flex:1 1 auto; 
+    //---------------------------------------
+    textarea {
+      @include font-nice;
+      flex: 1 1 auto; width:100%; height: SZ(100);
+      outline: none;
+      resize: none;
+      border:0;
+      background: transparent;
+      color: inherit;
+      padding: 1em; font-size: 1em;
+    }
+    //---------------------------------------
+    .as-bar {
+      @include flex-align-nowrap($jc:space-between);
+      flex: 0 0 auto; padding: .4em;
+      //-------------------------------------
+      .as-btn {
+        @include flex-align-nowrap($jc:center);
+        cursor: pointer;
+        font-size: .8em; padding: .6em 1em;
+        .ti-icon {
+          margin-right:.3em; font-size:1.3em;
+        }
+      }
+      //-------------------------------------
+      .btn-emoji {
+        .ti-icon {color: map-get($color-primary, c);}
+        &:hover {
+          color: map-get($color-secondary, c);
+          .ti-icon {color: inherit}
+        }
+      }
+      //-------------------------------------
+      .btn-post {
+        @include color($color-primary, r, c);
+        border-radius: SZ(10);  min-width: 8em;
+        &:hover {
+          @include color($color-secondary, r, c);
+        }
+      }
+      //-------------------------------------
+    } // .as-bar
+    //---------------------------------------
+  }
+  //-----------------------------------------
+}

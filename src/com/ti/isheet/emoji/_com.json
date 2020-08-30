@@ -1,0 +1,6 @@
+{
+  "name" : "ti-isheet-emoji",
+  "globally" : true,
+  "template" : "./ti-isheet-emoji.html",
+  "mixins" : ["./ti-isheet-emoji.mjs"]
+}

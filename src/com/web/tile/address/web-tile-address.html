@@ -18,7 +18,10 @@
           <span>{{'address-k-email'|i18n}}:</span>
           <em>{{Item.email}}</em></div>
     </div>
-    <div class="is-big">{{Item.street}}</div>
+    <div class="is-big">
+      <span class="as-street">{{Item.street}}</span>
+      <span class="as-door">{{Item.door}}</span>
+    </div>
   </div>
   <!--
     Left top

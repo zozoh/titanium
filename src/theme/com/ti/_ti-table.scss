@@ -160,7 +160,7 @@
         @include flex($ai:stretch, $wp:nowrap);
         //-----------------------------------------
         > .cell-con {
-          @include flex-align-center; 
+          @include flex-align; 
           flex:1 1 auto;
           line-height: 2.6em; min-height:2.6em;
           //---------------------------------------

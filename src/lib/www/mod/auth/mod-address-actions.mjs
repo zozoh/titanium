@@ -62,6 +62,10 @@ const _M = {
             "name"    : "street",
             "comType" : "ti-input"
           },{
+            "title"   : "i18n:address-k-door",
+            "name"    : "door",
+            "comType" : "ti-input"
+          },{
             "title"   : "i18n:address-k-dftaddr",
             "name"    : "dftaddr",
             "type"    : "Boolean",

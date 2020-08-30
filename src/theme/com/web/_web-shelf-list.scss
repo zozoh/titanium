@@ -3,6 +3,7 @@
   > .list-item {
     @include flex($ai:stretch, $ac:stretch);
     padding: .5em;
+    > * {flex:1 1 auto;}
   }
   //------------------------------------------
   &.with-solid-border {

@@ -1,7 +1,5 @@
 export default {
   ////////////////////////////////////////////////////
-  inheritAttrs : false,
-  ////////////////////////////////////////////////////
   data: ()=>({
     hideBorder : false,
     myHoverIcon : null,
@@ -33,14 +31,14 @@ export default {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
+    TopClass() {
       return Ti.Css.mergeClassName({
         "show-border"  : !this.hideBorder,
         "hide-border"  : this.hideBorder,
       }, this.className)
     },
     //------------------------------------------------
-    theValueStyle() {
+    ValueStyle() {
       return {
         "font-size" : Ti.Css.toSize(this.iconSize)
       }
@@ -53,11 +51,11 @@ export default {
       return !Ti.Util.isNil(this.value)
     },
     //------------------------------------------------
-    theTipIcon () {
+    TipIcon () {
       return  this.myHoverIcon || this.value
     },
     //------------------------------------------------
-    theOptionIcons() {
+    OptionIcons() {
       let list = []
       _.forEach(this.options, (icon, index)=>{
         let m = /^([a-z]+)-(.+)$/.exec(icon)
@@ -75,37 +73,37 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onToggleDrop() {
+    OnToggleDrop() {
       this.status = ({
         "collapse" : "extended",
         "extended" : "collapse"
       })[this.status]
     },
     //------------------------------------------------
-    onSelectIcon({value}={}) {
+    OnSelectIcon({value}={}) {
       this.$notify("change", value)
     },
     //------------------------------------------------
-    onSelectIconAndCollapse({value}={}) {
+    OnSelectIconAndCollapse({value}={}) {
       this.$notify("change", value)
       this.status = "collapse"
     },
     //------------------------------------------------
-    onChangedIcon() {
+    OnChangedIcon() {
       let icon = _.trim(this.$refs.input.value)
       console.log("haha", icon)
       this.$notify("change", icon)
     },
     //------------------------------------------------
-    onHoverIcon({value}={}) {
+    OnHoverIcon({value}={}) {
       this.myHoverIcon = value
     },
     //------------------------------------------------
-    onLeaveIcon() {
+    OnLeaveIcon() {
       this.myHoverIcon = null
     },
     //------------------------------------------------
-    onClearIcon() {
+    OnClearIcon() {
       this.$notify("change", null)
     },
     //------------------------------------------------

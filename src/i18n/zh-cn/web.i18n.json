@@ -74,6 +74,7 @@
   "auth-ta-phone": "手机密码",
   "auth-vcode-delay": "${sec} 秒后重新发送",
   "auth-vcode-lost": "收不到验证码？",
+  "comments": "评论",
   "e-cmd-www_passwd-Blank": "新密码为空",
   "e-cmd-www_passwd-CheckBlankAccount": "空账户",
   "e-cmd-www_passwd-CheckBlankCode": "空验证码",

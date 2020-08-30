@@ -1,0 +1,8 @@
+{
+  "name" : "web-widget-input-text",
+  "globally" : true,
+  "template" : "./widget-input-text.html",
+  "mixins" : ["./widget-input-text.mjs"],
+  "components" : [
+    "@com:ti/isheet/emoji"]
+}

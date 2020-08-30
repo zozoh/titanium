@@ -14,6 +14,7 @@ const _M = {
         province: "province",
         city: "city",
         street: "street",
+        door: "door",
         consignee: "consignee",
         phone: "phone",
         email: "email",

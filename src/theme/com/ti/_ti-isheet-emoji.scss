@@ -1,0 +1,32 @@
+.ti-isheet-emoji {
+  @include noselect;
+  $EMSZ : SZ(50);
+  //------------------------------------------
+  > .as-list {
+    @include flex-align;
+    width: 100%; height:100%;
+    padding: SZ(15); overflow: auto;
+    //----------------------------------------
+    .emoji-item {
+      @include flex-align-nowrap($ai:stretch);
+      width:$EMSZ; height:$EMSZ; line-height:$EMSZ;
+      font-size:$EMSZ / 1.4; text-align: center;
+      margin: .2em; cursor: pointer;
+      //--------------------------------------
+      span {
+        @include flex-center;
+        flex:1 1 auto;
+        display: block; transition: .3s; 
+        
+      }
+      //--------------------------------------
+      &:hover span {
+        transform: scale(2)  rotate3d(0, 1, 1, 360deg);
+        text-shadow: 0 0 SZ(10) map-get($color-shadow, c); 
+      }
+      //--------------------------------------
+    }
+    //----------------------------------------
+  }
+  //------------------------------------------
+}

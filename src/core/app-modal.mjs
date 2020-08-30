@@ -35,6 +35,7 @@ export class TiAppModal {
     this.escape = true
     this.mask   = true       // !TODO maybe blur or something else
     this.clickMaskToClose = false
+    this.changeToClose = false
     /*
     validator : (v)=>{
       return /^(left|right|top|bottom|center)$/.test(v)
@@ -184,6 +185,7 @@ export class TiAppModal {
         mask     : this.mask,
         position : this.position,
         clickMaskToClose : this.clickMaskToClose,
+        changeToClose : this.changeToClose,
         //--------------------------------------
         width      : this.width,
         height     : this.height,
@@ -316,6 +318,9 @@ export class TiAppModal {
         //--------------------------------------
         OnChange(newVal) {
           this.result = newVal
+          if(this.changeToClose) {
+            this.close(this.result)
+          }
         },
         //--------------------------------------
         OnActionsUpdated(actions=[]) {
