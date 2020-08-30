@@ -113,7 +113,7 @@ const _M = {
         height : "4.8rem",
         textOk : null,
         changeToClose : true,
-        comType : "TiIsheetEmoji",
+        comType : "TiSheetEmoji",
         comConf : {
 
         }

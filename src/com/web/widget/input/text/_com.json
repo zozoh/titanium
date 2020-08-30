@@ -4,5 +4,5 @@
   "template" : "./widget-input-text.html",
   "mixins" : ["./widget-input-text.mjs"],
   "components" : [
-    "@com:ti/isheet/emoji"]
+    "@com:ti/sheet/emoji"]
 }
