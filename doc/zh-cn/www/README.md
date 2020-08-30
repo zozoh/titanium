@@ -167,7 +167,7 @@ DIV(@app)             # Vue(root) : index.wnml
     // 每个页面根据名字引用，并且如果需要的话，可以覆盖掉如下字段
     //  - vars       : 合并
     //  - params     : 合并
-    //  - preloaded  : 替换
+    //  - preload    : 替换
     //  - dataKey    : 替换
     //  - transformer : 替换
     "apiNameA" : {
@@ -229,7 +229,10 @@ DIV(@app)             # Vue(root) : index.wnml
       // 这个机制被封装在 SSR-JSON 里面
       // 数字 0 为默认值，表示不预加载
       // 大于 0 的数字，按从小到大，依次加载
-      "preloaded" : 0,
+      "preload" : 0,
+      // 如果开启了 preload, 这个选项可以根据 rootState 动态判断是否需要加载
+      // Ti.Validate.match(rootState, api.preloadWhen, false)
+      "preloadWhen" : {..}
       // 得到的数据对象应该存放到 data 段的哪个键下，
       // 可选，如果未定义，则用 API 的键作为 dataKey
       "dataKey" : "article",

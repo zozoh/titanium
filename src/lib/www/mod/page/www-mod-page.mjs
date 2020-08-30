@@ -277,7 +277,8 @@ const _M = {
       key,        // The Api Key
       params={},  // params will override the defaults
       vars={},
-      body=null
+      body=null,
+      ok, fail
     }={}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
@@ -289,11 +290,17 @@ const _M = {
       }
       //.......................................
       commit("setLoading", true, {root:true})
-      dispatch("__run_api", {api,params,vars,body})     
+      await dispatch("__run_api", {api,params,vars,body, ok, fail})     
       commit("setLoading", false, {root:true})
     },
     //--------------------------------------------
-    async __run_api({commit, rootState}, {api, vars, params, headers, body}) {
+    async __run_api({commit, dispatch, rootState}, {
+      api, 
+      vars, 
+      params, 
+      headers, 
+      body,
+      ok, fail}) {
       //.....................................
       // Override api
       api = _.cloneDeep(api)
@@ -307,7 +314,7 @@ const _M = {
         })
       }
       _.assign(api.headers, headers)
-      if(Ti.Util.isNil(api.body)) {
+      if(!Ti.Util.isNil(body)) {
         api.body = body
       }
       //.....................................
@@ -360,7 +367,16 @@ const _M = {
       //.....................................
       // Join the http send Promise
       //console.log(`will send to "${url}"`, options)
-      let reo = await Ti.Http.sendAndProcess(url, options) 
+      let reo;
+      try{
+        reo = await Ti.Http.sendAndProcess(url, options);
+      }
+      // Cache the Error
+      catch (err) {
+        console.warn(E)
+        dispatch("doAction", fail, {root:true})
+         return
+      }
       let data = reo
       //.....................................
       // Eval api transformer
@@ -413,6 +429,7 @@ const _M = {
       }
       //.....................................
       // All done
+      dispatch("doAction", ok, {root:true})
     },
     //--------------------------------------------
     /***

@@ -27,6 +27,10 @@ const _M = {
       type : Boolean,
       default : true
     },
+    "resetAfterPost" : {
+      type : Boolean,
+      default : false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -105,7 +109,6 @@ const _M = {
       // Get Text Range
       let i_start = this.$refs.text.selectionStart
       let i_end = this.$refs.text.selectionEnd
-      console.log({i_start, i_end})
 
       let emoji = await Ti.App.Open({
         title  : "i18n:emoji",
@@ -131,7 +134,17 @@ const _M = {
     },
     //------------------------------------------------
     OnBtnPostClick() {
-
+      let str = this.formatValue(this.$refs.text.value)
+      if(str && str.length > 10) {
+        this.$notify("post", str)
+        if(this.resetAfterPost) {
+          this.myText = ""
+        }
+      }
+      // Blank text or content too short
+      else {
+        Ti.Toast.Open('i18n:post-content-blank', "warn")
+      }
     },
     //------------------------------------------------
     formatValue(val) {

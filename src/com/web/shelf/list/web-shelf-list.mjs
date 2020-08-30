@@ -17,7 +17,7 @@ const _M = {
       })
     },
     "blankAs": {
-      type: Object,
+      type: [Object, Boolean],
       default: ()=>({
         text: "i18n:empty",
         icon: "fas-box-open"
@@ -47,6 +47,10 @@ const _M = {
       }
       // Get the result
       return list
+    },
+    //--------------------------------------
+    showBlank() {
+      return this.blankAs ? true : false
     },
     //--------------------------------------
     isEmpty() {

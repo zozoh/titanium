@@ -25,6 +25,7 @@
     }
     //---------------------------------------
     .as-bar {
+      @include noselect;
       @include flex-align-nowrap($jc:space-between);
       flex: 0 0 auto; padding: .4em;
       //-------------------------------------
@@ -48,6 +49,7 @@
       .btn-post {
         @include color($color-primary, r, c);
         border-radius: SZ(10);  min-width: 8em;
+        .ti-icon {margin-right: .5em;}
         &:hover {
           @include color($color-secondary, r, c);
         }

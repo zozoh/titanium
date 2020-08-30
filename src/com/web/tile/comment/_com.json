@@ -1,0 +1,6 @@
+{
+  "name" : "web-tile-comment",
+  "globally" : true,
+  "template" : "./web-tile-comment.html",
+  "mixins" : ["./web-tile-comment.mjs"]
+}

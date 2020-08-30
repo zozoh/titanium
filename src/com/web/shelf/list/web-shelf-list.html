@@ -3,10 +3,13 @@
   <!--
     Blank
   -->
-  <ti-loading
-    v-if="isEmpty"
-      class="as-big"
-      v-bind="blankAs"/>
+  <template 
+    v-if="isEmpty">
+    <ti-loading
+      v-if="showBlank"
+        class="as-big"
+        v-bind="blankAs"/>
+  </template>
   <!--
     Each Items
   -->

@@ -202,6 +202,7 @@
   "pay-wx": "WeChat",
   "pay-zfb": "Alipay",
   "paypal-approve-tip": "Already in the new TAB for you to open the PayPal payment page, if there is no open, please click on ☝ the icon above. After payment, the page will automatically perceive, if there is no response, try to click 👇 [Check Payment] button below.",
+  "post-content-blank": "The content you post cannot be empty or less than 10 words",
   "profile-title": "My Profile",
   "shop-basket-clean-confirm": "Are you sure you want to empty the shopping cart? This is an operation that cannot be undone."
 }

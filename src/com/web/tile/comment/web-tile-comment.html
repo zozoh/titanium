@@ -1,0 +1,21 @@
+<div class="web-tile-comment"
+  :class="TopClass">
+  <!--
+    Left: User Avator
+  -->
+  <div class="at-left">
+    <ti-icon :value="AvatarIcon"/>
+  </div>
+  <!--
+    Right: Comment
+  -->
+  <div class="at-right">
+      <!--Head-->
+      <div class="as-head">
+        <span class="as-u-name">{{Post.userName}}</span>
+        <span class="as-time">{{CreateTimeText}}</span>
+      </div>
+      <!--Content-->
+      <div class="as-content">{{Post.content}}</div>
+  </div>
+</div>
