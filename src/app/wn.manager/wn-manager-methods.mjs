@@ -102,7 +102,7 @@ const _M = {
       }
       his.pushState(meta, title, newLink)
       // Update the Title
-      document.title = title;
+      document.title = Ti.I18n.text(title);
     }
   }
   //.........................................

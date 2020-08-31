@@ -1,4 +1,4 @@
-// Pack At: 2020-08-31 05:52:06
+// Pack At: 2020-08-31 18:59:49
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -43150,7 +43150,7 @@ const _M = {
       }
       his.pushState(meta, title, newLink)
       // Update the Title
-      document.title = title;
+      document.title = Ti.I18n.text(title);
     }
   }
   //.........................................
