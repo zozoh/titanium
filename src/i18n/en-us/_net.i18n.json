@@ -1,12 +1,12 @@
 {
-  "net-ct": "Created",
-  "net-flt-nil": "Query By Name",
-  "net-vod-add-video": "Add Video",
-  "net-vod-cate": "Category",
-  "net-vod-du-long": "Long Video",
-  "net-vod-du-short": "Short Video",
-  "net-vod-du-tv": "TV",
-  "net-vod-duration": "Duration",
-  "net-vod-size": "Video Size",
-  "net-vod-video-nil": "Please choose one video for detail"
+   "net-ct": "Created",
+   "net-flt-nil": "Query by name",
+   "net-vod-add-video": "Add video",
+   "net-vod-cate": "Category",
+   "net-vod-du-long": "Long video",
+   "net-vod-du-short": "Short video",
+   "net-vod-du-tv": "TV",
+   "net-vod-duration": "Duration",
+   "net-vod-size": "Video size",
+   "net-vod-video-nil": "Please choose one video for detail"
 }

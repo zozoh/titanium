@@ -58,14 +58,14 @@
   "time": {
     "any-time": "yyyy-M-d",
     "in-year": "M-dd",
-    "past-in-min": "just now",
-    "past-in-hour": "in ${min}mins",
-    "past-in-day": "in ${hour}hours",
-    "past-in-week": "in ${day}days",
-    "future-in-min": "soon",
-    "future-in-hour": "after ${min}mins",
-    "future-in-day": "after ${hour}hours",
-    "future-in-week": "after ${day}days"
+    "past-in-min": "Just now",
+    "past-in-hour": "In ${min}mins",
+    "past-in-day": "In ${hour}hours",
+    "past-in-week": "In ${day}days",
+    "future-in-min": "Soon",
+    "future-in-hour": "After ${min}mins",
+    "future-in-day": "After ${hour}hours",
+    "future-in-week": "After ${day}days"
   },
   "time-begin": "Begin Time",
   "time-end": "End Time",
