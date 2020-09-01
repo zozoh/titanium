@@ -82,6 +82,16 @@ const _M = {
       }
     },
     //--------------------------------------
+    CurrentIsDead() {
+      return -1 == _.get(this.current, "meta.th_live")
+    },
+    //--------------------------------------
+    CurrentHeadClass() {
+      if(this.CurrentIsDead) {
+        return "current-in-recyclebin"
+      }
+    },
+    //--------------------------------------
     TheLayout() {
       return Ti.Util.explainObj(this, this.config.layout)
     },

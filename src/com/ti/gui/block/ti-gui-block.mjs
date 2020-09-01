@@ -123,7 +123,10 @@ export default {
     },
     //--------------------------------------
     MainComponentClass() {
-      return this.comClass || this.$gui.defaultComClass
+      return Ti.Css.mergeClassName(
+        this.$gui.defaultComClass,
+        this.comClass
+      )
     },
     //--------------------------------------
     TheOverflow() {

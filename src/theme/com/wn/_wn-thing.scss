@@ -45,7 +45,7 @@
   //-------------------------------------
   // Sizing
   > .as-header {
-    @include pos-abs($t:0,$l:0,$r:0,$h:SZ(40));
+    @include pos-abs($t:0,$l:0,$r:0,$h:SZ(43));
   }
   > .as-preview {height: 37.2%;}
   > .as-list {height: 61.8%;}
@@ -73,9 +73,14 @@
       padding:0 SZ(6);
     }
   }
+  //-------------------------------------
   > .as-preview {
     @include color($color-paper, r, c);
     @include border(1px, solid, shallow, bottom);
+  }
+  //-------------------------------------
+  &.current-in-recyclebin > .as-header {
+    @include color($color-secondary, r, c);
   }
   //-------------------------------------
 }

@@ -1,5 +1,5 @@
 // Define the block header height
-$GUI-BLOCK-HEADER-HEIGHT: SZ(44);
+$GUI-BLOCK-HEADER-HEIGHT: SZ(43);
 //---------------------------------------
 .ti-gui {
   @include flex-align-v-nowrap;
@@ -45,7 +45,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(44);
 .ti-gui-tabs {
   position: relative;
   //-------------------------------------
-  $tabH : SZ(40);
+  $tabH : SZ(43);
   $tabPad: SZ(8);
   //-------------------------------------
   // Docking Position
@@ -62,6 +62,8 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(44);
       }
     }
   }
+  //-------------------------------------
+  
   &.at-bottom {
     padding-bottom: $tabH;
     > header {
@@ -75,6 +77,9 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(44);
       }
     }
   }
+  //-------------------------------------
+  &.head-highlight-1 > header {@include color($color-primary, r, c);}
+  &.head-highlight-2 > header {@include color($color-secondary, r, c);}
   //-------------------------------------
   // Tab Bar 
   > header {
@@ -278,6 +283,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(44);
   //-------------------------------------
   &.is-show-header {
     padding-top: $GUI-BLOCK-HEADER-HEIGHT;
+    //-------------------------------------
     > .block-head {
       //---------------------------------
       @include noselect;
@@ -306,6 +312,10 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(44);
       }
       //---------------------------------
     }
+    //-------------------------------------
+    &.head-highlight-1 > .block-head {@include color($color-primary, r, c);}
+    &.head-highlight-2 > .block-head {@include color($color-secondary, r, c);}
+    //-------------------------------------
   }
   //-------------------------------------
   > .block-main {

@@ -13,6 +13,10 @@ const _M = {
   ///////////////////////////////////////////
   computed : {
     //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
     hasDataHome() {
       return this.dataHome ? true : false
     },
