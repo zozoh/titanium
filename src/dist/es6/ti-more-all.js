@@ -1,4 +1,4 @@
-// Pack At: 2020-09-01 04:43:57
+// Pack At: 2020-09-01 20:41:39
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -9532,7 +9532,10 @@ const _M = {
     },
     //--------------------------------------
     MainComponentClass() {
-      return this.comClass || this.$gui.defaultComClass
+      return Ti.Css.mergeClassName(
+        this.$gui.defaultComClass,
+        this.comClass
+      )
     },
     //--------------------------------------
     TheOverflow() {
@@ -36490,7 +36493,8 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files-props.mjs", _M);
 //============================================================
 // JOIN: wn/thing/manager/com/thing-files/thing-files.html
 //============================================================
-Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", `<div class="wn-thing-files">
+Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", `<div class="wn-thing-files"
+  :class="TopClass">
   <!--
     With Data Home
   -->
@@ -36574,6 +36578,10 @@ const _M = {
   }),
   ///////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
     //--------------------------------------
     hasDataHome() {
       return this.dataHome ? true : false
@@ -37231,6 +37239,16 @@ const _M = {
     TheKeepLastKey() {
       if(this.keepLastSelection) {
         return _.get(this.meta, "id") + ":currentId";
+      }
+    },
+    //--------------------------------------
+    CurrentIsDead() {
+      return -1 == _.get(this.current, "meta.th_live")
+    },
+    //--------------------------------------
+    CurrentHeadClass() {
+      if(this.CurrentIsDead) {
+        return "current-in-recyclebin"
       }
     },
     //--------------------------------------
