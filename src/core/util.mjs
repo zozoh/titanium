@@ -613,6 +613,24 @@ const TiUtil = {
       }
       return list
     }
+    // Mapping String like:
+    // "A=a;B=2;"
+    if(_.isString(mapping)) {
+      let ss = mapping.split(/[:;]/g)
+      let map = {}
+      for(let s of ss) {
+        s = _.trim(s)
+        let m = /^([^=]+)=(.+)$/.exec(s)
+        if(m) {
+          map[m[1]] = m[2]
+        }
+      }
+      mapping = map
+    }
+    // If source is string, just get the value
+    if(_.isString(source)) {
+      return _.get(mapping, source)
+    }
     // Take as plain object
     let re = {}
     _.forEach(mapping, (val, key)=>{
