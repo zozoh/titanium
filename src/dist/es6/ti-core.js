@@ -1,4 +1,4 @@
-// Pack At: 2020-09-01 20:41:39
+// Pack At: 2020-09-05 03:49:46
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -7525,6 +7525,24 @@ const {Util} = (function(){
         }
         return list
       }
+      // Mapping String like:
+      // "A=a;B=2;"
+      if(_.isString(mapping)) {
+        let ss = mapping.split(/[:;]/g)
+        let map = {}
+        for(let s of ss) {
+          s = _.trim(s)
+          let m = /^([^=]+)=(.+)$/.exec(s)
+          if(m) {
+            map[m[1]] = m[2]
+          }
+        }
+        mapping = map
+      }
+      // If source is string, just get the value
+      if(_.isString(source)) {
+        return _.get(mapping, source)
+      }
       // Take as plain object
       let re = {}
       _.forEach(mapping, (val, key)=>{
@@ -10771,7 +10789,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200901.204139",
+  "version" : "2.5-20200905.034947",
   "dev" : false,
   "appName" : null,
   "session" : {},
