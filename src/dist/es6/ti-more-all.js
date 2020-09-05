@@ -1,4 +1,4 @@
-// Pack At: 2020-09-05 03:49:46
+// Pack At: 2020-09-05 20:06:12
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -43702,6 +43702,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "address-empty-list": "No shipping address",
   "address-flt-tip": "Filter by address name",
   "address-is-dft": "Default shipping address",
+  "address-k-area": "Area",
   "address-k-city": "City",
   "address-k-code": "Addr code",
   "address-k-consignee": "Consignee",
@@ -44569,7 +44570,8 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "address-empty-list": "未设置任何收货地址",
   "address-flt-tip": "请输入地址名过滤",
   "address-is-dft": "默认收货地址",
-  "address-k-city": "城市/区",
+  "address-k-area": "区县",
+  "address-k-city": "城市",
   "address-k-code": "地址编码",
   "address-k-consignee": "收货人姓名",
   "address-k-country": "国家",
@@ -44578,8 +44580,8 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "address-k-email": "邮箱",
   "address-k-phone": "电话",
   "address-k-postcode": "邮编",
-  "address-k-province": "省",
-  "address-k-street": "街道",
+  "address-k-province": "省/直辖市",
+  "address-k-street": "乡镇/街道",
   "address-k-title": "地址",
   "address-k-tp": "地址类型",
   "address-k-tp-s": "卖家地址",

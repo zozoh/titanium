@@ -6,6 +6,7 @@
   "address-empty-list": "No shipping address",
   "address-flt-tip": "Filter by address name",
   "address-is-dft": "Default shipping address",
+  "address-k-area": "Area",
   "address-k-city": "City",
   "address-k-code": "Addr code",
   "address-k-consignee": "Consignee",
