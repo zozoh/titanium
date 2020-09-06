@@ -1,4 +1,4 @@
-// Pack At: 2020-09-05 20:06:12
+// Pack At: 2020-09-07 03:09:09
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -43886,6 +43886,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-fa_at": "Fail at",
   "order-k-fee": "Payment amount",
   "order-k-id": "Order id",
+  "order-k-note": "Note",
   "order-k-ok_at": "OK at",
   "order-k-pay_id": "Payment id",
   "order-k-pay_tp": "Pay type",
@@ -44754,6 +44755,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-fa_at": "支付失败",
   "order-k-fee": "支付金额",
   "order-k-id": "订单号",
+  "order-k-note": "备注",
   "order-k-ok_at": "支付成功",
   "order-k-pay_id": "支付单",
   "order-k-pay_tp": "支付类型",

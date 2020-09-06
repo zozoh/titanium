@@ -190,6 +190,7 @@
   "order-k-fa_at": "支付失败",
   "order-k-fee": "支付金额",
   "order-k-id": "订单号",
+  "order-k-note": "备注",
   "order-k-ok_at": "支付成功",
   "order-k-pay_id": "支付单",
   "order-k-pay_tp": "支付类型",
