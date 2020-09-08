@@ -434,7 +434,6 @@ TiApp.allInstance = function(iteratee=_.identity) {
 TiApp.Open = function(options) {
   return new Promise((resolve)=>{
     let $m = new TiAppModal()
-    console.log("haha")
     _.assign($m, options)
     $m.open(resolve)
   })

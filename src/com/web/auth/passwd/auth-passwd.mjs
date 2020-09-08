@@ -35,7 +35,7 @@ const _M = {
     },
     "captcha" : {
       type : String,
-      required : true,
+      //required : true,
       default : null
     },
     "scenes" : {
@@ -220,7 +220,8 @@ const _M = {
       if("ready" == this.FormStatus) {
         this.doing = true
         this.$notify("passwd:reset", {
-          scene:  _.get(this.scenes, this.myMode),
+          mode  : this.myMode,
+          scene :  _.get(this.scenes, this.myMode),
           account : _.trim(this.myForm.name),
           vcode   : _.trim(this.myForm.vcode),
           oldpwd  : _.trim(this.myForm.passwd_old),

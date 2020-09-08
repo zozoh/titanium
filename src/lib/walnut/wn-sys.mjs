@@ -63,6 +63,7 @@ const WnSys = {
       if(_.isFunction(errorBy)) {
         let [code, ...datas] = str.split(/ *: */);
         let data = datas.join(" : ")
+        code = _.trim(code)
         let msgKey = code.replace(/[.]/g, "-")
         return errorBy({
           code, msgKey, data
@@ -115,9 +116,10 @@ const WnSys = {
     // Default error process
     _.defaults(options, {
       errorBy: async function({code, msgKey, data}) {
+        //console.log(code, msgKey, data)
         // Eval error message
         let msg = Ti.I18n.get(msgKey)
-        if(!Ti.Util.isNil(data)) {
+        if(!Ti.Util.isNil(data) && (!_.isString(data) || data)) {
           msg += " : " + Ti.Types.toStr(data)
         }
         // Show it to user

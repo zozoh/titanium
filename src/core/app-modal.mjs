@@ -58,6 +58,9 @@ export class TiAppModal {
     // modules
     this.modules = {}
     //--------------------------------------------
+    // Events
+    this.events = {}
+    //--------------------------------------------
     this.topActions = []
     //--------------------------------------------
     // callback
@@ -92,6 +95,12 @@ export class TiAppModal {
     }
     //..........................................
     let model = `@${this.model.event}="OnChange" :${this.model.prop}="result"`
+    //..........................................
+    let AppModalEvents = _.cloneDeep(this.events)
+    let eventStub = []
+    _.forEach(AppModalEvents, (fn, key)=>{
+      eventStub.push(`@${key}="OnEvent('${key}', $event)"`)
+    })
     //..........................................
     // Setup content
     let html = `<transition :name="TransName" @after-leave="OnAfterLeave">
@@ -130,6 +139,7 @@ export class TiAppModal {
                   v-bind="TheComConf"
                   :on-init="OnMainInit"
                   ${model}
+                  ${eventStub.join(" ")}
                   @close="OnClose"
                   @ok="OnOk"
                   @actions:update="OnActionsUpdated"/>
@@ -328,6 +338,11 @@ export class TiAppModal {
           Ti.App(this).reWatchShortcut(actions)
         },
         //--------------------------------------
+        OnEvent(key, payload) {
+          let fn = _.get(AppModalEvents, key)
+          fn(payload)
+        },
+        //--------------------------------------
         async OnClickActon(a) {
           if(a.handler) {
             let app = Ti.App(this)
@@ -376,7 +391,7 @@ export class TiAppModal {
           if(!_.isUndefined(re)) {
             this.returnValue = re
           }
-          this.hidden = true
+          this.hidden = true // -> trans -> beforeDestroy
         },
         //--------------------------------------
         setResult(result) {
