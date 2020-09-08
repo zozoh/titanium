@@ -1,0 +1,7 @@
+{
+  "name" : "ti-combo-pair-group",
+  "globally" : true,
+  "template" : "./ti-combo-pair-group.html",
+  "props"    : ["./ti-combo-pair-group-props.mjs"],
+  "mixins"   : "./ti-combo-pair-group.mjs"
+}

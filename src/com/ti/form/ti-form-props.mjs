@@ -32,7 +32,7 @@ export default {
   //-----------------------------------
   "keepTabIndexBy" : {
     type : String,
-    default : null
+    default : undefined
   },
   "defaultComType" : {
     type : String,
@@ -67,16 +67,16 @@ export default {
     type : Object,
     default : ()=>({
       icon : "fas-dna",
-      text : null
+      default : undefined
     })
   },
   "icon" : {
     type : String,
-    default : null
+    default : undefined
   },
   "title" : {
     type : String,
-    default : null
+    default : undefined
   },
   "statusIcons" : {
     type : Object,
@@ -97,10 +97,10 @@ export default {
   //-----------------------------------
   "width" : {
     type : [Number, String],
-    default : null
+    default : undefined
   },
   "height" : {
     type : [Number, String],
-    default : null
+    default : undefined
   }
 }

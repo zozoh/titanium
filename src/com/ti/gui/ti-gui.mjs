@@ -41,7 +41,7 @@ const _M = {
     },
     "keepShownTo" : {
       type : String,
-      default : null
+      default : undefined
     },
     "actionStatus" : {
       type : Object,
@@ -58,7 +58,7 @@ const _M = {
     // value should be prop of ti-loading
     "loadingAs" : {
       type : [Boolean, Object],
-      default : null
+      default : undefined
     }
   },
   //////////////////////////////////////////
@@ -166,7 +166,7 @@ const _M = {
       this.persistMyStatus()
     },
     //--------------------------------------
-    onBlockShow(name) {
+    OnBlockShow(name) {
       // Update privated status
       if(this.keepShownTo) {
         this.updateShown({[name]:true})
@@ -177,7 +177,7 @@ const _M = {
       }
     },
     //--------------------------------------
-    onBlockHide(name) {
+    OnBlockHide(name) {
       // Update privated status
       if(this.keepShownTo) {
         this.updateShown({[name]:false})
@@ -188,7 +188,7 @@ const _M = {
       }
     },
     //--------------------------------------
-    onBlockShownUpdate(shown) {
+    OnBlockShownUpdate(shown) {
       // Update privated status
       if(this.keepShownTo) {
         this.updateShown(shown)
@@ -229,7 +229,7 @@ const _M = {
   //////////////////////////////////////////
   watch : {
     "shown" : function(shown) {
-      //console.log("ti-gui shown changed", shown)
+      console.log("ti-gui shown changed", shown)
       this.syncMyShown(shown)
     }
   },

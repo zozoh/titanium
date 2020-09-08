@@ -32,24 +32,19 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName([
-        `at-${this.theTabAt[0]}`
-      ], this.className)
+    TopClass() {
+      return this.getTopClass(`at-${this.TheTabAt[0]}`)
     },
     //--------------------------------------
-    theTabAt() {
+    TheTabAt() {
       return this.tabAt.split("-")
     },
     //--------------------------------------
-    tabClass() {
-      return `as-${this.theTabAt[1]}`
-    },
-    theSchema() {
-      return this.schema
+    TabClass() {
+      return `as-${this.TheTabAt[1]}`
     },
     //--------------------------------------
-    theBlockWrapList() {
+    BlockWrapList() {
       let list = []
       for(let i=0; i<this.blocks.length; i++) {
         let block = this.blocks[i]
@@ -62,9 +57,9 @@ export default {
       return list
     },
     //--------------------------------------
-    theTabItems() {
+    TabItems() {
       let list = []
-      for(let wrap of this.theBlockWrapList) {
+      for(let wrap of this.BlockWrapList) {
         let current = this.myCurrentTab == wrap.key
         let item = {
           current,
@@ -84,16 +79,16 @@ export default {
       return list
     },
     //--------------------------------------
-    theCurrentTabItem() {
-      for(let item of this.theTabItems) {
+    CurrentTabItem() {
+      for(let item of this.TabItems) {
         if(item.current) {
           return item
         }
       }
     },
     //--------------------------------------
-    theCurrentBlock() {
-      for(let wrap of this.theBlockWrapList) {
+    CurrentBlock() {
+      for(let wrap of this.BlockWrapList) {
         if(this.myCurrentTab == wrap.key) {
           return wrap.block
         }
@@ -104,24 +99,24 @@ export default {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onSetCurrentTabItem(item) {
-      this.$gui.onBlockShownUpdate({
+    OnSetCurrentTabItem(item) {
+      this.$gui.OnBlockShownUpdate({
         [item.key] : true,
-        [this.theCurrentTabItem.key] : false
+        [this.CurrentTabItem.key] : false
       })
     },
     //--------------------------------------
     syncCurrentTabFromShown() {
       //console.log("syncCurrentTabFromShown")
-      for(let wrap of this.theBlockWrapList) {
+      for(let wrap of this.BlockWrapList) {
         if(this.shown[wrap.key]) {
           this.myCurrentTab = wrap.key
           return
         }
       }
       // Default highlight the first tab
-      if(this.theBlockWrapList.length>0) {
-        this.myCurrentTab = this.theBlockWrapList[0].key
+      if(this.BlockWrapList.length>0) {
+        this.myCurrentTab = this.BlockWrapList[0].key
       }
     }
     //--------------------------------------

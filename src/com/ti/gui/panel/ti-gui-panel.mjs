@@ -158,12 +158,12 @@ export default {
   methods : {
     //--------------------------------------
     OnClose() {
-      this.$gui.onBlockHide(this.name)
+      this.$gui.OnBlockHide(this.name)
     },
     //--------------------------------------
     OnClickMask() {
       if(this.clickMaskToClose) {
-        this.$gui.onBlockHide(this.name)
+        this.$gui.OnBlockHide(this.name)
       }
     }
     //--------------------------------------

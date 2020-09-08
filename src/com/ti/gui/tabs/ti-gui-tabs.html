@@ -1,13 +1,13 @@
-<div class="ti-gui-tabs" :class="topClass">
+<div class="ti-gui-tabs" :class="TopClass">
   <!--
     Tab title bar
   -->
-  <header :class="tabClass">
+  <header :class="TabClass">
     <ul>
-      <li v-for="it in theTabItems"
+      <li v-for="it in TabItems"
         :key="it.key"
         :class="it.className"
-        @click="onSetCurrentTabItem(it)">
+        @click="OnSetCurrentTabItem(it)">
         <!--Icon-->
         <ti-icon
           v-if="it.icon"
@@ -21,10 +21,10 @@
   <!--
     Current Block
   -->
-  <section v-if="theCurrentBlock">
+  <section v-if="CurrentBlock">
     <ti-gui-block 
       embed-in="tabs"
-      v-bind="theCurrentBlock"
+      v-bind="CurrentBlock"
       :action-status="actionStatus"
       :schema="schema"
       :shown="shown"/>
