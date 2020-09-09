@@ -229,7 +229,7 @@ const _M = {
   //////////////////////////////////////////
   watch : {
     "shown" : function(shown) {
-      console.log("ti-gui shown changed", shown)
+      //console.log("ti-gui shown changed", shown)
       this.syncMyShown(shown)
     }
   },

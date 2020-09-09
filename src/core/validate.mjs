@@ -96,13 +96,22 @@ const TiValidate = {
     if(_.isPlainObject(fn)) {
       let name = fn.name
       let args = _.isUndefined(fn.args) ? [] : [].concat(fn.args)
-      let not = fn.not
+      let not = fn.not ? true : false
+      if(/^!/.test(name)) {
+        name = name.substring(1).trim()
+        not = true
+      }
       return TiValidate.get(name, args, not)
     }
     if(_.isArray(fn) && fn.length>0) {
       let name = fn[0]
       let args = fn.slice(1, fn.length)
-      return TiValidate.get(name, args)
+      let not = false
+      if(/^!/.test(name)) {
+        name = name.substring(1).trim()
+        not = true
+      }
+      return TiValidate.get(name, args, not)
     }
   },
   //-----------------------------------

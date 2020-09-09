@@ -80,7 +80,7 @@ const _M = {
     //------------------------------------------------
     __on_events(eventFullName, payload) {
       let [key, eventName] = eventFullName.split("::")
-      console.log(key, eventName, payload)
+      //console.log(key, eventName, payload)
       // For Change
       if("change" == eventName && this.$parent) {
         return ()=>{

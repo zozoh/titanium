@@ -155,17 +155,24 @@ const WnUtil = {
     SE= null
   }={}) {
     let bg = {}
-    if(NW && meta[NW[0]])
-      bg.NW = NW[1]
+    let badge = function(name, BD){
+      if(!BD) return;
+      if(_.isString(BD)) {
+        bg[name] = BD
+      }
+      if(BD.length == 1){
+        bg[name] = BD[0]
+      }
+      else if(BD.length > 1 && meta[BD[0]]) {
+        bg[name] = BD[1]
+      }
+    }
 
-    if(NE && meta[NE[0]])
-      bg.NE = NE[1]
-
-    if(SW && meta[SW[0]])
-      bg.SW = SW[1]
-
-    if(SE && meta[SE[0]])
-      bg.SE = SE[1]
+    badge("NW", NW);
+    badge("NE", NE);
+    badge("SW", SW);
+    badge("SE", SE);
+    
     return bg
   },
   getObjThumbInfo(meta={}, {

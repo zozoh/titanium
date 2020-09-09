@@ -89,6 +89,24 @@
   &.is-weak {opacity:0.4;}
   &.is-hide {display:none;}
   //----------------------------------------------
+  $ICONSZ : SZ(24);
+  > .as-remove {
+    @include pos-abs($t:$ICONSZ/-2,$r:$ICONSZ/-2,$w:$ICONSZ,$h:$ICONSZ);
+    @include color($color-primary, r, c);
+    @include flex-center;
+    cursor:pointer; font-size:SZ(8);
+    border-radius: 50%; opacity: 0.6;
+    //--------------------------------------------
+    .ti-icon {transition: 0.3s;}
+    //--------------------------------------------
+    &:hover {
+      @include color($color-error, r, c);
+      opacity: 1;
+      .ti-icon {transform: rotate(180deg) scale(1.2);}
+    }
+    //--------------------------------------------
+  }
+  //----------------------------------------------
 }
 //------------------------------------------------
 // For selected

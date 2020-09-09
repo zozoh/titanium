@@ -1,4 +1,4 @@
-// Pack At: 2020-09-07 03:09:09
+// Pack At: 2020-09-09 23:45:39
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2125,6 +2125,9 @@ const {App} = (function(){
         // modules
         this.modules = {}
         //--------------------------------------------
+        // Events
+        this.events = {}
+        //--------------------------------------------
         this.topActions = []
         //--------------------------------------------
         // callback
@@ -2159,6 +2162,12 @@ const {App} = (function(){
         }
         //..........................................
         let model = `@${this.model.event}="OnChange" :${this.model.prop}="result"`
+        //..........................................
+        let AppModalEvents = _.cloneDeep(this.events)
+        let eventStub = []
+        _.forEach(AppModalEvents, (fn, key)=>{
+          eventStub.push(`@${key}="OnEvent('${key}', $event)"`)
+        })
         //..........................................
         // Setup content
         let html = `<transition :name="TransName" @after-leave="OnAfterLeave">
@@ -2197,6 +2206,7 @@ const {App} = (function(){
                       v-bind="TheComConf"
                       :on-init="OnMainInit"
                       ${model}
+                      ${eventStub.join(" ")}
                       @close="OnClose"
                       @ok="OnOk"
                       @actions:update="OnActionsUpdated"/>
@@ -2395,6 +2405,11 @@ const {App} = (function(){
               Ti.App(this).reWatchShortcut(actions)
             },
             //--------------------------------------
+            OnEvent(key, payload) {
+              let fn = _.get(AppModalEvents, key)
+              fn(payload)
+            },
+            //--------------------------------------
             async OnClickActon(a) {
               if(a.handler) {
                 let app = Ti.App(this)
@@ -2443,7 +2458,7 @@ const {App} = (function(){
               if(!_.isUndefined(re)) {
                 this.returnValue = re
               }
-              this.hidden = true
+              this.hidden = true // -> trans -> beforeDestroy
             },
             //--------------------------------------
             setResult(result) {
@@ -2808,6 +2823,11 @@ const {App} = (function(){
       //.....................................
       // Load the component
       let comInfo = await Ti.Load(view.comType)
+      //.....................................
+      // Push View dependance components
+      Ti.Util.pushValue(comInfo, "components", view.components)
+      //.....................................
+      // Load all relative stuff
       let comConf = await LoadTiLinkedObj(comInfo, {
         dynamicAlias: new Ti.Config.AliasMapping({
           "^\./": view.comType + "/"
@@ -2816,7 +2836,7 @@ const {App} = (function(){
       //.....................................
       // TODO: shoudl I put this below to LoadTiLinkedObj?
       // It is sames a litter bit violence -_-! so put here for now...
-      //Ti.I18n.put(comInfo.i18n)
+      // Ti.I18n.put(comInfo.i18n)
       // Setup ...
       let setup = TiVue.Setup(comConf)
       //.....................................
@@ -2926,7 +2946,6 @@ const {App} = (function(){
   TiApp.Open = function(options) {
     return new Promise((resolve)=>{
       let $m = new TiAppModal()
-      console.log("haha")
       _.assign($m, options)
       $m.open(resolve)
     })
@@ -5541,13 +5560,22 @@ const {Validate} = (function(){
       if(_.isPlainObject(fn)) {
         let name = fn.name
         let args = _.isUndefined(fn.args) ? [] : [].concat(fn.args)
-        let not = fn.not
+        let not = fn.not ? true : false
+        if(/^!/.test(name)) {
+          name = name.substring(1).trim()
+          not = true
+        }
         return TiValidate.get(name, args, not)
       }
       if(_.isArray(fn) && fn.length>0) {
         let name = fn[0]
         let args = fn.slice(1, fn.length)
-        return TiValidate.get(name, args)
+        let not = false
+        if(/^!/.test(name)) {
+          name = name.substring(1).trim()
+          not = true
+        }
+        return TiValidate.get(name, args, not)
       }
     },
     //-----------------------------------
@@ -10789,7 +10817,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200907.030910",
+  "version" : "2.5-20200909.234539",
   "dev" : false,
   "appName" : null,
   "session" : {},

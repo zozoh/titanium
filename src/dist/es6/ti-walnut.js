@@ -1,4 +1,4 @@
-// Pack At: 2020-09-07 03:09:09
+// Pack At: 2020-09-09 23:45:39
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -312,6 +312,9 @@ const Io = (function(){
         },
         id() {
           return meta.id
+        },
+        obj() {
+          return _.pick(meta, 'id','nm','thumb','title','mime','tp','sha1','len')
         }
       })[mode]
       if(!fn) {
@@ -1010,6 +1013,7 @@ const Sys = (function(){
         if(_.isFunction(errorBy)) {
           let [code, ...datas] = str.split(/ *: */);
           let data = datas.join(" : ")
+          code = _.trim(code)
           let msgKey = code.replace(/[.]/g, "-")
           return errorBy({
             code, msgKey, data
@@ -1062,9 +1066,10 @@ const Sys = (function(){
       // Default error process
       _.defaults(options, {
         errorBy: async function({code, msgKey, data}) {
+          //console.log(code, msgKey, data)
           // Eval error message
           let msg = Ti.I18n.get(msgKey)
-          if(!Ti.Util.isNil(data)) {
+          if(!Ti.Util.isNil(data) && (!_.isString(data) || data)) {
             msg += " : " + Ti.Types.toStr(data)
           }
           // Show it to user
@@ -1255,17 +1260,24 @@ const Util = (function(){
       SE= null
     }={}) {
       let bg = {}
-      if(NW && meta[NW[0]])
-        bg.NW = NW[1]
+      let badge = function(name, BD){
+        if(!BD) return;
+        if(_.isString(BD)) {
+          bg[name] = BD
+        }
+        if(BD.length == 1){
+          bg[name] = BD[0]
+        }
+        else if(BD.length > 1 && meta[BD[0]]) {
+          bg[name] = BD[1]
+        }
+      }
   
-      if(NE && meta[NE[0]])
-        bg.NE = NE[1]
-  
-      if(SW && meta[SW[0]])
-        bg.SW = SW[1]
-  
-      if(SE && meta[SE[0]])
-        bg.SE = SE[1]
+      badge("NW", NW);
+      badge("NE", NE);
+      badge("SW", SW);
+      badge("SE", SE);
+      
       return bg
     },
     getObjThumbInfo(meta={}, {
@@ -1568,7 +1580,9 @@ const OpenObjSelector = (function(){
   }={}){
     //................................................
     // Load the target object
-    let meta = await Wn.Io.loadMeta(pathOrObj)
+    let meta = pathOrObj;
+    if(_.isString(pathOrObj))
+      meta = await Wn.Io.loadMeta(pathOrObj)
     // Fallback
     if(!meta && fallbackPath && pathOrObj!=fallbackPath) {
       meta = await Wn.Io.loadMeta(fallbackPath)
@@ -1690,6 +1704,7 @@ const OpenObjSelector = (function(){
               "sky" : {
                 comType : "ti-crumb",
                 comConf : {
+                  "style" : {padding: "0 .1rem"},
                   "data" : this.theCrumbData
                 }
               },
@@ -1716,6 +1731,7 @@ const OpenObjSelector = (function(){
           },
           //--------------------------------------
           OnArenaSelect({checked}) {
+            //console.log("OnArenaSelect", checked)
             this.myChecked = _.filter(checked, o=>"FILE"==o.race)
           },
           //--------------------------------------
@@ -2094,7 +2110,7 @@ const EditTiComponent = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200907.030910"
+const WALNUT_VERSION = "2.1-20200909.234539"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

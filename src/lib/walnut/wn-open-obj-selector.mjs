@@ -17,7 +17,9 @@ async function OpenObjSelector(pathOrObj="~", {
 }={}){
   //................................................
   // Load the target object
-  let meta = await Wn.Io.loadMeta(pathOrObj)
+  let meta = pathOrObj;
+  if(_.isString(pathOrObj))
+    meta = await Wn.Io.loadMeta(pathOrObj)
   // Fallback
   if(!meta && fallbackPath && pathOrObj!=fallbackPath) {
     meta = await Wn.Io.loadMeta(fallbackPath)
@@ -139,6 +141,7 @@ async function OpenObjSelector(pathOrObj="~", {
             "sky" : {
               comType : "ti-crumb",
               comConf : {
+                "style" : {padding: "0 .1rem"},
                 "data" : this.theCrumbData
               }
             },
@@ -165,6 +168,7 @@ async function OpenObjSelector(pathOrObj="~", {
         },
         //--------------------------------------
         OnArenaSelect({checked}) {
+          //console.log("OnArenaSelect", checked)
           this.myChecked = _.filter(checked, o=>"FILE"==o.race)
         },
         //--------------------------------------

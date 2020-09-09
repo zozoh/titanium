@@ -22,6 +22,13 @@ const _M = {
     WallItemDisplay() {
       return {
         key : "..",
+        // transformer : {
+        //   name : "Wn.Util.getObjThumbInfo",
+        //   args : [{
+        //       status : this.myItemStatus,
+        //       exposeHidden : this.myExposeHidden
+        //     }]
+        // },
         comType : 'ti-obj-thumb',
         comConf : {
           "..." : "${=value}"
@@ -55,6 +62,7 @@ const _M = {
             exposeHidden : this.myExposeHidden
           })
           list.push(li)
+          //list.push(it)
         }
       }
       return list
@@ -111,13 +119,22 @@ const _M = {
     //--------------------------------------------
     // Events
     //--------------------------------------------
-    OnSelected({currentId, checkedIds}) {
+    OnSelected({currentId, checkedIds, currentIndex}) {
       //console.log("OnSelected", currentId, checkedIds)
       // For Desktop
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds
 
-      return {stop:false}
+      let context = {
+        current : this.getCurrentItem(),
+        checked : this.getCheckedItems(),
+        checkedIds, currentId, currentIndex,
+      }
+
+      // Notify the real objects
+      this.$notify("select", context)
+
+      return {stop:true}
     },
     //--------------------------------------------
     async OnDropFiles(files) {

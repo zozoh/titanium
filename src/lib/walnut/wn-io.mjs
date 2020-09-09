@@ -308,6 +308,9 @@ const WnIo = {
       },
       id() {
         return meta.id
+      },
+      obj() {
+        return _.pick(meta, 'id','nm','thumb','title','mime','tp','sha1','len')
       }
     })[mode]
     if(!fn) {

@@ -17,7 +17,13 @@ $color-cloak : (c:rgba(20,20,20,0.95), r:#DDD);
 $color-body  : (c:#444, r:#DDD);
 $color-bar   : (c:rgba(50,50,50,0.6), r:#EEE);
 $color-func  : (c:rgba(80,80,80,0.4), r:#EEE);
-$color-shadow : (c:rgba(0,0,0,0.8), r:#888);
+$color-shadow : (
+  c:rgba(0,0,0,0.8), r:#888,
+  heavy : rgba(0,0,0,1.0),
+  bushy : rgba(0,0,0,0.6),
+  thin  : rgba(0,0,0,0.4),
+  weak  : rgba(0,0,0,0.2)
+);
 $color-light  : (c:rgba(255,255,10,0.6), r:#444);
 $color-input  : (c:#CCC, r:rgba(50,50,50,0.8));
 $color-ground-glass : (c:rgba(0,0,0,0.85), r:#EEE);

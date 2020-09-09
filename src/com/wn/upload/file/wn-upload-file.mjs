@@ -244,12 +244,8 @@ const _M = {
       this.oFile = data
 
       //................................
-      let val = data
-
       // Transform value
-      if("obj" != this.valueType) {
-        val = Wn.Io.formatObjPath(data, this.valueType)
-      }
+      let val = Wn.Io.formatObjPath(data, this.valueType)
 
       //................................
       this.$notify("change", val)

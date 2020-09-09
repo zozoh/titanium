@@ -2,7 +2,7 @@ export default {
   /////////////////////////////////////////
   data : ()=>({
     "loading" : false,
-    "items" : []
+    "myItems" : []
   }),
   /////////////////////////////////////////
   props : {
@@ -16,6 +16,15 @@ export default {
     "value" : {
       type : [Object, String, Array],
       default : null
+    },
+    // raw value is WnObj
+    // If declare the valueType
+    // It will transform the WnObj
+    // to relaitve value mode
+    "valueType": {
+      type: String,
+      default: "idPath",
+      validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
     "base" : {
       type : [Object, String],
@@ -41,41 +50,48 @@ export default {
     }
   },
   //////////////////////////////////////////
-  watch : {
-    "value" : function(){
-      this.reload()
-    }
-  },
-  //////////////////////////////////////////
   computed : {
-    formedItems() {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-multi"  : this.multi,
+        "is-single" : !this.multi
+      })
+    },
+    //--------------------------------------
+    DisplayItems() {
       let list = []
-      for(let obj of this.items) {
-        let it = {
-          icon : Wn.Util.genPreviewObj(obj),
-          text : Wn.Util.getObjDisplayName(obj, this.textBy),
-          value : obj.id
-        }
+      for(let i=0; i < this.myItems.length; i++) {
+        let obj = this.myItems[i]
+        let it = Wn.Util.getObjThumbInfo(obj, {
+          exposeHidden : true
+        })
+        it.index = i;
+        it.removeIcon = "im-x-mark"
+        //it.removeIcon = "im-trash-can"
         list.push(it)
       }
       return list
     },
-    oneItem() {
-      let it = _.isArray(this.value) 
-        ? _.get(this.value, 0)
-        : this.value
-      if("id:" == it || !it || _.isEmpty(it))
-        return null
-      return it
+    //--------------------------------------
+    FirstItem() {
+      return _.first(this.myItems)
     },
+    //--------------------------------------
+    hasItems() {
+      return !_.isEmpty(this.myItems)
+    },
+    //--------------------------------------
     theChooseIcon() {
-      return _.isEmpty(this.items) ? this.chooseIcon : null
+      return _.isEmpty(this.myItems) ? this.chooseIcon : null
     }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
-    async openPicker() {
-      let meta = this.oneItem
+    //--------------------------------------
+    async OnPickItem() {
+      let meta = this.FirstItem
       let autoOpenDir = false
       // Use base to open the folder
       // Then it should be auto-open the folder
@@ -84,46 +100,73 @@ export default {
         autoOpenDir = true
       }
 
-      let payload = await Wn.OpenObjSelector(meta, {
+      let objs = await Wn.OpenObjSelector(meta, {
         multi    : this.multi,
-        selected : this.items,
+        selected : this.myItems,
         autoOpenDir
       })
-      // take `undefined` as cancel
-      if(_.isUndefined(payload)) {
-        //console.log("canceled!")        
+      // user cancel
+      if(_.isEmpty(objs)) {
+        return
       }
-      // take `null` as empty
-      // object or array will be the value
+
+      // format value
+      let items;
+      if(this.multi) {
+        items = _.concat(this.myItems, objs)
+      }
+      // Single value
       else {
-        //console.log(payload)
-        this.$notify("change", payload)
+        items = objs
+      }
+
+      this.notifyChange(items)
+    },
+    //--------------------------------------
+    OnClickItemsCon() {
+      if(!this.multi) {
+        this.OnPickItem()
       }
     },
-    //......................................
-    onRemoveItem(rmIt) {
-      let payload = []
-      for(let i=0; i<this.items.length; i++) {
-        let it = this.items[i]
-        let iv = this.formedItems[i]
-        if(!_.isEqual(iv.value, rmIt.value)){
-          payload.push(it)
+    //--------------------------------------
+    OnRemoveItem({id, index}={}) {
+      let items = []
+      for(let i=0; i<this.myItems.length; i++) {
+        let it = this.myItems[i]
+        if(index != i){
+          items.push(it)
         }
       }
-      this.$notify("change", payload)
+      this.notifyChange(items)
     },
-    //......................................
-    onClearItems() {
-      console.log("remove!!")
-      this.$notify("change", this.multi ? [] : null)
+    //--------------------------------------
+    OnClearItems() {
+      this.notifyChange([])
     },
-    //......................................
+    //--------------------------------------
+    notifyChange(items = this.myItems) {
+      let value = null;
+      if(this.multi) {
+        value = []
+        for(let it of items) {
+          let v = Wn.Io.formatObjPath(it, this.valueType)
+          value.push(v)
+        }
+      }
+      // Single value
+      else if (!_.isEmpty(items)) {
+        value = Wn.Io.formatObjPath(items[0], this.valueType)
+      }
+
+      this.$notify("change", value)
+    },
+    //--------------------------------------
     async reload(){
       this.loading = true
       await this.doReload()
       this.loading = false
     },
-    //......................................
+    //--------------------------------------
     async doReload() {
       let vals = this.value ? [].concat(this.value) : []
       let items = []
@@ -138,15 +181,15 @@ export default {
       // Update value, it will be trigger the computed attribute
       // Then it will be passed to <ti-box> as formed list
       // the <ti-box> will show it reasonablely obey the `multi` options
-      this.items = items
+      this.myItems = items
     },
-    //......................................
+    //--------------------------------------
     async reloadItem(it) {
       if(!it || _.isEmpty(it))
         return null
       // path id:xxxx
       if(_.isString(it)){
-        return await Wn.Io.loadMeta(it)
+        return await Wn.Io.loadMetaBy(it)
       }
       // object {id:xxx}
       else if(it.id){
@@ -157,10 +200,17 @@ export default {
          throw Ti.Err.make("e-wn-obj-picker-unsupported-value-form", it)
       }
     }
-    //......................................
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "value" : function(){
+      this.reload()
+    }
   },
   /////////////////////////////////////////
   mounted : async function(){
     await this.reload()
   }
+  /////////////////////////////////////////
 }

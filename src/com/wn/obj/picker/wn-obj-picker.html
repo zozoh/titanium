@@ -1,12 +1,43 @@
-<div class="wn-obj-picker">
-  <ti-box ref="box"
-    :empty="empty"
-    :items="formedItems"
-    :loading="loading"
-    :multi="multi"
-    :icon="theChooseIcon"
-    :clear-icon="clearIcon"
-    @open="openPicker"
-    @remove="onRemoveItem"
-    @clear="onClearItems"/>
+<div class="wn-obj-picker"
+  :class="TopClass">
+  <!--
+    Empty Items
+  -->
+  <div
+    v-if="!hasItems"
+      class="as-empty">
+      <div class="as-empty-item"
+        @click.left.stop="OnPickItem">
+        <i class="im im-plus"></i>
+      </div>
+  </div>
+  <!--
+    Show Items
+  -->
+  <div
+    v-else
+      class="as-items-con"
+      @click.left="OnClickItemsCon">
+      <div 
+        v-for="(it, index) in DisplayItems"
+          :key="index"
+          class="as-item">
+        <TiObjThumb 
+            v-bind="it"
+            @remove="OnRemoveItem"/>        
+      </div>
+      <!--For multi-->
+      <div
+        v-if="multi" 
+          class="as-empty-item"
+          @click.left.stop="OnPickItem">
+          <i class="im im-plus"></i>
+      </div>
+  </div>
+  <!--
+    Loading
+  -->
+  <ti-loading
+    v-if="loading"
+      class="as-mid-tip-mask"/>
 </div>

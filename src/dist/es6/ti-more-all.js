@@ -1,4 +1,4 @@
-// Pack At: 2020-09-07 03:09:09
+// Pack At: 2020-09-09 23:45:39
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -7224,6 +7224,342 @@ Ti.Preload("ti/com/ti/combo/multi-input/_com.json", {
     "@com:ti/combo/box"]
 });
 //============================================================
+// JOIN: ti/combo/pair-auto/ti-combo-pair-auto-props.mjs
+//============================================================
+(function(){
+const _M = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "value": {
+    type: Object,
+    default: undefined
+  },
+  "group" : {
+    type : Boolean,
+    default : true
+  },
+  "fields" : {
+    type : Object,
+    default : ()=>({})
+  },
+  "onlyFields" : {
+    type: Boolean,
+    default: true
+  },
+  // merge each time data change
+  "fixed": {
+    type: Object,
+    default: undefined
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "defaultComType" : {
+    type : String,
+    default : "ti-input"
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "spacing" : {
+    type : String,
+    default : undefined
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+  "width" : {
+    type : [Number, String],
+    default : undefined
+  },
+  "height" : {
+    type : [Number, String],
+    default : undefined
+  }
+}
+Ti.Preload("ti/com/ti/combo/pair-auto/ti-combo-pair-auto-props.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/combo/pair-auto/ti-combo-pair-auto.html
+//============================================================
+Ti.Preload("ti/com/ti/combo/pair-auto/ti-combo-pair-auto.html", `<ti-form
+  :class="TopClass"
+  :data="value"
+  :fields="FormFields"
+  :only-fields="onlyFields"
+  :fixed="fixed"
+  :default-com-type="defaultComType"
+  :spacing="spacing"
+  :width="width"
+  :height="height"/>`);
+//============================================================
+// JOIN: ti/combo/pair-auto/ti-combo-pair-auto.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    FormFields() {
+      if(this.group) {
+        return this.genFormFieldsByGroup()
+      }
+      return this.genFormFields(this.value)
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    genFormFieldsByGroup(){
+      console.log("haha")
+      let list = []
+      _.forEach(this.value, (val, key)=>{
+        let grp = _.defaults(this.getFieldDefine(key), {
+          title : key,
+          name  : key,
+          fields : this.genFormFields(val, key)
+        })
+        list.push(grp)
+      })
+      return list
+    },
+    //-----------------------------------------------
+    genFormFields(data={}, groupName) {
+      let list = []
+      let keys = groupName ? [groupName] : []
+      _.forEach(data, (v, k) => {
+        let fld = _.defaults(this.getFieldDefine(k, groupName), {
+          title : k,
+          name  : _.concat(keys, k).join(".")
+        })
+        list.push(fld)
+      })
+      return list
+    },
+    //-----------------------------------------------
+    getFieldDefine(name, group) {
+      let keys = []
+      if(group) {
+        keys.push(`${group}.${name}`)
+      }
+      keys.push(name)
+      keys.push("@default")
+
+      let fld = Ti.Util.getFallbackNil(this.fields, ...keys)
+      if(fld && fld.title) {
+        fld = _.cloneDeep(fld)
+        fld.title = Ti.S.renderBy(fld.title, {name, group})
+      }
+      return fld
+    }
+    //-----------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/combo/pair-auto/ti-combo-pair-auto.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/combo/pair-auto/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/combo/pair-auto/_com.json", {
+  "name" : "ti-combo-pair-auto",
+  "globally" : true,
+  "template" : "./ti-combo-pair-auto.html",
+  "props"    : ["./ti-combo-pair-auto-props.mjs"],
+  "mixins"   : "./ti-combo-pair-auto.mjs"
+});
+//============================================================
+// JOIN: ti/combo/pair-group/ti-combo-pair-group-props.mjs
+//============================================================
+(function(){
+const _M = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "value": undefined,
+  "fields" : {
+    type : Array,
+    default : ()=>[]
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  // ...
+  "keepShownTo" : {
+    type : String,
+    default : undefined
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "tabAt" : {
+    type : String,
+    default : undefined
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+  // ...
+}
+Ti.Preload("ti/com/ti/combo/pair-group/ti-combo-pair-group-props.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/combo/pair-group/ti-combo-pair-group.html
+//============================================================
+Ti.Preload("ti/com/ti/combo/pair-group/ti-combo-pair-group.html", `<ti-gui
+  class="ti-fill-parent"
+  :class="TopClass"
+  :layout="TheLayout"
+  :shown="TheShown"
+  :keep-shown-to="keepShownTo"
+  @block:shown="OnShownUpdate"/>`);
+//============================================================
+// JOIN: ti/combo/pair-group/ti-combo-pair-group.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data : ()=>({
+    myFieldNames : [],
+    myFieldMap  : {},
+    myCurrentTabName : null
+  }),
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    ValueObj() {
+      if(Ti.Util.isNil(this.value)) {
+        return {}
+      }
+      if(_.isString(this.value)) {
+        return JSON.parse(this.value)
+      }
+      if(_.isPlainObject(this.value)) {
+        return this.value
+      }
+      console.warn("Unsupported value object:", this.value)
+    },
+    //------------------------------------------------
+    TheBlocks() {
+      // Update Block Keys, add the key noexists in map
+      let names = _.cloneDeep(this.myFieldNames)
+      _.forEach(this.ValueObj, (block, key)=>{
+        if(_.indexOf(names, key) < 0) {
+          names.push(key)
+        }
+      })
+      this.myFieldNames = names
+
+      // Gen-block by keys
+      let list = []
+      for(let name of names) {
+        let val = _.get(this.ValueObj, name)
+        let field = _.get(this.myFieldMap, name) || {}
+        // Explain block
+        let b2 = Ti.Util.explainObj(val, {
+          title : name,
+          name  : name,
+          ... _.pick(field, "title", "name", "icon"),
+          body : {
+            comType : field.comType || "ti-input-text",
+            comConf : field.comConf || { value: "=.." }
+          }
+        })
+        list.push(b2)
+      }
+      return list
+    },
+    //------------------------------------------------
+    TheLayout() {
+      return {
+        type  : "tabs",
+        tabAt : this.tabAt,
+        blocks : this.TheBlocks
+      }
+    },
+    //------------------------------------------------
+    TheShown() {
+      if(this.keepShownTo) {
+        return
+      }
+      let shown = {}
+      _.forEach(this.myFieldNames, name => {
+        shown[name] = (name == this.myCurrentTabName)
+      })
+      return shown
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    __on_events(eventFullName, payload) {
+      let [key, eventName] = eventFullName.split("::")
+      //console.log(key, eventName, payload)
+      // For Change
+      if("change" == eventName && this.$parent) {
+        return ()=>{
+          let data = _.cloneDeep(this.ValueObj)
+          _.set(data, key, payload)
+          this.$parent.$notify("change", data)
+          return true
+        }
+      }
+      // Cancel others bubble
+      return ()=>true
+    },
+    //------------------------------------------------
+    OnShownUpdate(shown) {
+      let keys = Ti.Util.truthyKeys(shown)
+      this.myCurrentTabName = _.first(keys)
+    },
+    //------------------------------------------------
+    evalBlocks() {
+      let map = {}
+      let keys = []
+      _.forEach(this.fields, block => {
+        map[block.name] = block
+        keys.push(block.name)
+      })
+      this.myFieldNames = keys
+      this.myFieldMap = map
+    }
+    //-----------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    //-----------------------------------------------
+    "blocks" : {
+      handler : "evalBlocks",
+      immediate : true
+    }
+    //-----------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/combo/pair-group/ti-combo-pair-group.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/combo/pair-group/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/combo/pair-group/_com.json", {
+  "name" : "ti-combo-pair-group",
+  "globally" : true,
+  "template" : "./ti-combo-pair-group.html",
+  "props"    : ["./ti-combo-pair-group-props.mjs"],
+  "mixins"   : "./ti-combo-pair-group.mjs"
+});
+//============================================================
 // JOIN: ti/combo/pair-text/ti-combo-pair-text-props.mjs
 //============================================================
 (function(){
@@ -8763,7 +9099,7 @@ const _M = {
   //-----------------------------------
   "keepTabIndexBy" : {
     type : String,
-    default : null
+    default : undefined
   },
   "defaultComType" : {
     type : String,
@@ -8798,16 +9134,16 @@ const _M = {
     type : Object,
     default : ()=>({
       icon : "fas-dna",
-      text : null
+      default : undefined
     })
   },
   "icon" : {
     type : String,
-    default : null
+    default : undefined
   },
   "title" : {
     type : String,
-    default : null
+    default : undefined
   },
   "statusIcons" : {
     type : Object,
@@ -8828,11 +9164,11 @@ const _M = {
   //-----------------------------------
   "width" : {
     type : [Number, String],
-    default : null
+    default : undefined
   },
   "height" : {
     type : [Number, String],
-    default : null
+    default : undefined
   }
 }
 Ti.Preload("ti/com/ti/form/ti-form-props.mjs", _M);
@@ -9942,12 +10278,12 @@ const _M = {
   methods : {
     //--------------------------------------
     OnClose() {
-      this.$gui.onBlockHide(this.name)
+      this.$gui.OnBlockHide(this.name)
     },
     //--------------------------------------
     OnClickMask() {
       if(this.clickMaskToClose) {
-        this.$gui.onBlockHide(this.name)
+        this.$gui.OnBlockHide(this.name)
       }
     }
     //--------------------------------------
@@ -10052,16 +10388,16 @@ Ti.Preload("ti/com/ti/gui/rows/_com.json", {
 //============================================================
 // JOIN: ti/gui/tabs/ti-gui-tabs.html
 //============================================================
-Ti.Preload("ti/com/ti/gui/tabs/ti-gui-tabs.html", `<div class="ti-gui-tabs" :class="topClass">
+Ti.Preload("ti/com/ti/gui/tabs/ti-gui-tabs.html", `<div class="ti-gui-tabs" :class="TopClass">
   <!--
     Tab title bar
   -->
-  <header :class="tabClass">
+  <header :class="TabClass">
     <ul>
-      <li v-for="it in theTabItems"
+      <li v-for="it in TabItems"
         :key="it.key"
         :class="it.className"
-        @click="onSetCurrentTabItem(it)">
+        @click="OnSetCurrentTabItem(it)">
         <!--Icon-->
         <ti-icon
           v-if="it.icon"
@@ -10075,10 +10411,10 @@ Ti.Preload("ti/com/ti/gui/tabs/ti-gui-tabs.html", `<div class="ti-gui-tabs" :cla
   <!--
     Current Block
   -->
-  <section v-if="theCurrentBlock">
+  <section v-if="CurrentBlock">
     <ti-gui-block 
       embed-in="tabs"
-      v-bind="theCurrentBlock"
+      v-bind="CurrentBlock"
       :action-status="actionStatus"
       :schema="schema"
       :shown="shown"/>
@@ -10122,24 +10458,19 @@ const _M = {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName([
-        `at-${this.theTabAt[0]}`
-      ], this.className)
+    TopClass() {
+      return this.getTopClass(`at-${this.TheTabAt[0]}`)
     },
     //--------------------------------------
-    theTabAt() {
+    TheTabAt() {
       return this.tabAt.split("-")
     },
     //--------------------------------------
-    tabClass() {
-      return `as-${this.theTabAt[1]}`
-    },
-    theSchema() {
-      return this.schema
+    TabClass() {
+      return `as-${this.TheTabAt[1]}`
     },
     //--------------------------------------
-    theBlockWrapList() {
+    BlockWrapList() {
       let list = []
       for(let i=0; i<this.blocks.length; i++) {
         let block = this.blocks[i]
@@ -10152,9 +10483,9 @@ const _M = {
       return list
     },
     //--------------------------------------
-    theTabItems() {
+    TabItems() {
       let list = []
-      for(let wrap of this.theBlockWrapList) {
+      for(let wrap of this.BlockWrapList) {
         let current = this.myCurrentTab == wrap.key
         let item = {
           current,
@@ -10174,16 +10505,16 @@ const _M = {
       return list
     },
     //--------------------------------------
-    theCurrentTabItem() {
-      for(let item of this.theTabItems) {
+    CurrentTabItem() {
+      for(let item of this.TabItems) {
         if(item.current) {
           return item
         }
       }
     },
     //--------------------------------------
-    theCurrentBlock() {
-      for(let wrap of this.theBlockWrapList) {
+    CurrentBlock() {
+      for(let wrap of this.BlockWrapList) {
         if(this.myCurrentTab == wrap.key) {
           return wrap.block
         }
@@ -10194,24 +10525,24 @@ const _M = {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    onSetCurrentTabItem(item) {
-      this.$gui.onBlockShownUpdate({
+    OnSetCurrentTabItem(item) {
+      this.$gui.OnBlockShownUpdate({
         [item.key] : true,
-        [this.theCurrentTabItem.key] : false
+        [this.CurrentTabItem.key] : false
       })
     },
     //--------------------------------------
     syncCurrentTabFromShown() {
       //console.log("syncCurrentTabFromShown")
-      for(let wrap of this.theBlockWrapList) {
+      for(let wrap of this.BlockWrapList) {
         if(this.shown[wrap.key]) {
           this.myCurrentTab = wrap.key
           return
         }
       }
       // Default highlight the first tab
-      if(this.theBlockWrapList.length>0) {
-        this.myCurrentTab = this.theBlockWrapList[0].key
+      if(this.BlockWrapList.length>0) {
+        this.myCurrentTab = this.BlockWrapList[0].key
       }
     }
     //--------------------------------------
@@ -10524,7 +10855,7 @@ const _M = {
     },
     "keepShownTo" : {
       type : String,
-      default : null
+      default : undefined
     },
     "actionStatus" : {
       type : Object,
@@ -10541,7 +10872,7 @@ const _M = {
     // value should be prop of ti-loading
     "loadingAs" : {
       type : [Boolean, Object],
-      default : null
+      default : undefined
     }
   },
   //////////////////////////////////////////
@@ -10649,7 +10980,7 @@ const _M = {
       this.persistMyStatus()
     },
     //--------------------------------------
-    onBlockShow(name) {
+    OnBlockShow(name) {
       // Update privated status
       if(this.keepShownTo) {
         this.updateShown({[name]:true})
@@ -10660,7 +10991,7 @@ const _M = {
       }
     },
     //--------------------------------------
-    onBlockHide(name) {
+    OnBlockHide(name) {
       // Update privated status
       if(this.keepShownTo) {
         this.updateShown({[name]:false})
@@ -10671,7 +11002,7 @@ const _M = {
       }
     },
     //--------------------------------------
-    onBlockShownUpdate(shown) {
+    OnBlockShownUpdate(shown) {
       // Update privated status
       if(this.keepShownTo) {
         this.updateShown(shown)
@@ -18004,6 +18335,15 @@ Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb"
       <span v-else>{{TheTitle}}</span>
     </div>
   </footer>
+  <!--
+    Remove Icon
+  -->
+  <div 
+    v-if="removeIcon"
+      class="as-remove"
+      @click.left.stop="OnRemove">
+      <ti-icon :value="removeIcon"/>
+  </div>
 </div>`);
 //============================================================
 // JOIN: ti/obj/thumb/ti-obj-thumb.mjs
@@ -18018,12 +18358,12 @@ const _M = {
     },
     id : {
       type : String,
-      default : null
+      default : undefined
     },
     // The text to present the object
     title : {
       type : String,
-      default : null
+      default : undefined
     },
     // The URL of thumb
     preview : {
@@ -18032,11 +18372,11 @@ const _M = {
     },
     href : {
       type : String,
-      default : null
+      default : undefined
     },
     status : {
       type : [String, Object],
-      default : null
+      default : undefined
     },
     progress : {
       type : Number,
@@ -18059,6 +18399,10 @@ const _M = {
         "SW" : null,
         "SE" : null
       })
+    },
+    removeIcon : {
+      type : [String, Object],
+      default : undefined
     }
   },
   ////////////////////////////////////////////////
@@ -18135,6 +18479,14 @@ const _M = {
   },
   ////////////////////////////////////////////////
   methods : {
+    //--------------------------------------------
+    OnRemove() {
+      this.$notify("remove", {
+        index: this.index,
+        id: this.id,
+        title: this.title
+      })
+    },
     //--------------------------------------------
     renderLocalFile() {
       //console.log(this.LocalFile)
@@ -26569,7 +26921,7 @@ const _M = {
     },
     "captcha" : {
       type : String,
-      required : true,
+      //required : true,
       default : null
     },
     "scenes" : {
@@ -26754,7 +27106,8 @@ const _M = {
       if("ready" == this.FormStatus) {
         this.doing = true
         this.$notify("passwd:reset", {
-          scene:  _.get(this.scenes, this.myMode),
+          mode  : this.myMode,
+          scene :  _.get(this.scenes, this.myMode),
           account : _.trim(this.myForm.name),
           vcode   : _.trim(this.myForm.vcode),
           oldpwd  : _.trim(this.myForm.passwd_old),
@@ -32298,6 +32651,13 @@ const _M = {
     WallItemDisplay() {
       return {
         key : "..",
+        // transformer : {
+        //   name : "Wn.Util.getObjThumbInfo",
+        //   args : [{
+        //       status : this.myItemStatus,
+        //       exposeHidden : this.myExposeHidden
+        //     }]
+        // },
         comType : 'ti-obj-thumb',
         comConf : {
           "..." : "${=value}"
@@ -32331,6 +32691,7 @@ const _M = {
             exposeHidden : this.myExposeHidden
           })
           list.push(li)
+          //list.push(it)
         }
       }
       return list
@@ -32387,13 +32748,22 @@ const _M = {
     //--------------------------------------------
     // Events
     //--------------------------------------------
-    OnSelected({currentId, checkedIds}) {
+    OnSelected({currentId, checkedIds, currentIndex}) {
       //console.log("OnSelected", currentId, checkedIds)
       // For Desktop
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds
 
-      return {stop:false}
+      let context = {
+        current : this.getCurrentItem(),
+        checked : this.getCheckedItems(),
+        checkedIds, currentId, currentIndex,
+      }
+
+      // Notify the real objects
+      this.$notify("select", context)
+
+      return {stop:true}
     },
     //--------------------------------------------
     async OnDropFiles(files) {
@@ -35180,17 +35550,48 @@ Ti.Preload("ti/com/wn/obj/markdown/richeditor/_com.json", {
 //============================================================
 // JOIN: wn/obj/picker/wn-obj-picker.html
 //============================================================
-Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.html", `<div class="wn-obj-picker">
-  <ti-box ref="box"
-    :empty="empty"
-    :items="formedItems"
-    :loading="loading"
-    :multi="multi"
-    :icon="theChooseIcon"
-    :clear-icon="clearIcon"
-    @open="openPicker"
-    @remove="onRemoveItem"
-    @clear="onClearItems"/>
+Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.html", `<div class="wn-obj-picker"
+  :class="TopClass">
+  <!--
+    Empty Items
+  -->
+  <div
+    v-if="!hasItems"
+      class="as-empty">
+      <div class="as-empty-item"
+        @click.left.stop="OnPickItem">
+        <i class="im im-plus"></i>
+      </div>
+  </div>
+  <!--
+    Show Items
+  -->
+  <div
+    v-else
+      class="as-items-con"
+      @click.left="OnClickItemsCon">
+      <div 
+        v-for="(it, index) in DisplayItems"
+          :key="index"
+          class="as-item">
+        <TiObjThumb 
+            v-bind="it"
+            @remove="OnRemoveItem"/>        
+      </div>
+      <!--For multi-->
+      <div
+        v-if="multi" 
+          class="as-empty-item"
+          @click.left.stop="OnPickItem">
+          <i class="im im-plus"></i>
+      </div>
+  </div>
+  <!--
+    Loading
+  -->
+  <ti-loading
+    v-if="loading"
+      class="as-mid-tip-mask"/>
 </div>`);
 //============================================================
 // JOIN: wn/obj/picker/wn-obj-picker.mjs
@@ -35200,7 +35601,7 @@ const _M = {
   /////////////////////////////////////////
   data : ()=>({
     "loading" : false,
-    "items" : []
+    "myItems" : []
   }),
   /////////////////////////////////////////
   props : {
@@ -35214,6 +35615,15 @@ const _M = {
     "value" : {
       type : [Object, String, Array],
       default : null
+    },
+    // raw value is WnObj
+    // If declare the valueType
+    // It will transform the WnObj
+    // to relaitve value mode
+    "valueType": {
+      type: String,
+      default: "idPath",
+      validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
     "base" : {
       type : [Object, String],
@@ -35239,41 +35649,48 @@ const _M = {
     }
   },
   //////////////////////////////////////////
-  watch : {
-    "value" : function(){
-      this.reload()
-    }
-  },
-  //////////////////////////////////////////
   computed : {
-    formedItems() {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-multi"  : this.multi,
+        "is-single" : !this.multi
+      })
+    },
+    //--------------------------------------
+    DisplayItems() {
       let list = []
-      for(let obj of this.items) {
-        let it = {
-          icon : Wn.Util.genPreviewObj(obj),
-          text : Wn.Util.getObjDisplayName(obj, this.textBy),
-          value : obj.id
-        }
+      for(let i=0; i < this.myItems.length; i++) {
+        let obj = this.myItems[i]
+        let it = Wn.Util.getObjThumbInfo(obj, {
+          exposeHidden : true
+        })
+        it.index = i;
+        it.removeIcon = "im-x-mark"
+        //it.removeIcon = "im-trash-can"
         list.push(it)
       }
       return list
     },
-    oneItem() {
-      let it = _.isArray(this.value) 
-        ? _.get(this.value, 0)
-        : this.value
-      if("id:" == it || !it || _.isEmpty(it))
-        return null
-      return it
+    //--------------------------------------
+    FirstItem() {
+      return _.first(this.myItems)
     },
+    //--------------------------------------
+    hasItems() {
+      return !_.isEmpty(this.myItems)
+    },
+    //--------------------------------------
     theChooseIcon() {
-      return _.isEmpty(this.items) ? this.chooseIcon : null
+      return _.isEmpty(this.myItems) ? this.chooseIcon : null
     }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
-    async openPicker() {
-      let meta = this.oneItem
+    //--------------------------------------
+    async OnPickItem() {
+      let meta = this.FirstItem
       let autoOpenDir = false
       // Use base to open the folder
       // Then it should be auto-open the folder
@@ -35282,46 +35699,73 @@ const _M = {
         autoOpenDir = true
       }
 
-      let payload = await Wn.OpenObjSelector(meta, {
+      let objs = await Wn.OpenObjSelector(meta, {
         multi    : this.multi,
-        selected : this.items,
+        selected : this.myItems,
         autoOpenDir
       })
-      // take `undefined` as cancel
-      if(_.isUndefined(payload)) {
-        //console.log("canceled!")        
+      // user cancel
+      if(_.isEmpty(objs)) {
+        return
       }
-      // take `null` as empty
-      // object or array will be the value
+
+      // format value
+      let items;
+      if(this.multi) {
+        items = _.concat(this.myItems, objs)
+      }
+      // Single value
       else {
-        //console.log(payload)
-        this.$notify("change", payload)
+        items = objs
+      }
+
+      this.notifyChange(items)
+    },
+    //--------------------------------------
+    OnClickItemsCon() {
+      if(!this.multi) {
+        this.OnPickItem()
       }
     },
-    //......................................
-    onRemoveItem(rmIt) {
-      let payload = []
-      for(let i=0; i<this.items.length; i++) {
-        let it = this.items[i]
-        let iv = this.formedItems[i]
-        if(!_.isEqual(iv.value, rmIt.value)){
-          payload.push(it)
+    //--------------------------------------
+    OnRemoveItem({id, index}={}) {
+      let items = []
+      for(let i=0; i<this.myItems.length; i++) {
+        let it = this.myItems[i]
+        if(index != i){
+          items.push(it)
         }
       }
-      this.$notify("change", payload)
+      this.notifyChange(items)
     },
-    //......................................
-    onClearItems() {
-      console.log("remove!!")
-      this.$notify("change", this.multi ? [] : null)
+    //--------------------------------------
+    OnClearItems() {
+      this.notifyChange([])
     },
-    //......................................
+    //--------------------------------------
+    notifyChange(items = this.myItems) {
+      let value = null;
+      if(this.multi) {
+        value = []
+        for(let it of items) {
+          let v = Wn.Io.formatObjPath(it, this.valueType)
+          value.push(v)
+        }
+      }
+      // Single value
+      else if (!_.isEmpty(items)) {
+        value = Wn.Io.formatObjPath(items[0], this.valueType)
+      }
+
+      this.$notify("change", value)
+    },
+    //--------------------------------------
     async reload(){
       this.loading = true
       await this.doReload()
       this.loading = false
     },
-    //......................................
+    //--------------------------------------
     async doReload() {
       let vals = this.value ? [].concat(this.value) : []
       let items = []
@@ -35336,15 +35780,15 @@ const _M = {
       // Update value, it will be trigger the computed attribute
       // Then it will be passed to <ti-box> as formed list
       // the <ti-box> will show it reasonablely obey the `multi` options
-      this.items = items
+      this.myItems = items
     },
-    //......................................
+    //--------------------------------------
     async reloadItem(it) {
       if(!it || _.isEmpty(it))
         return null
       // path id:xxxx
       if(_.isString(it)){
-        return await Wn.Io.loadMeta(it)
+        return await Wn.Io.loadMetaBy(it)
       }
       // object {id:xxx}
       else if(it.id){
@@ -35355,12 +35799,19 @@ const _M = {
          throw Ti.Err.make("e-wn-obj-picker-unsupported-value-form", it)
       }
     }
-    //......................................
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "value" : function(){
+      this.reload()
+    }
   },
   /////////////////////////////////////////
   mounted : async function(){
     await this.reload()
   }
+  /////////////////////////////////////////
 }
 Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.mjs", _M);
 })();
@@ -37860,12 +38311,8 @@ const _M = {
       this.oFile = data
 
       //................................
-      let val = data
-
       // Transform value
-      if("obj" != this.valueType) {
-        val = Wn.Io.formatObjPath(data, this.valueType)
-      }
+      let val = Wn.Io.formatObjPath(data, this.valueType)
 
       //................................
       this.$notify("change", val)
@@ -39138,12 +39585,65 @@ const _M = {
   },
   ////////////////////////////////////////////////
   actions : {
+    //--------------------------------------------
+    async openResetPasswd({dispatch}) {
+      await Ti.App.Open({
+        icon  : "fas-key",
+        title : "i18n:my-passwd",
+        position : "top",
+        width  : 480,
+        height : 640,
+        textOk : null, textCancel : null,
+        comType : "WebAuthPasswd",
+        comConf : {
+          allowModes: {
+            "passwd" : true
+          }
+        },
+        events : {
+          "passwd:reset" : (payload)=> {
+            console.log("passwd:reset", payload)
+            dispatch("resetPasswd", payload)
+          }
+        },
+        components : "@com:web/auth/passwd"
+      })
+    },
+    //--------------------------------------------
+    // pwd = {newpwd, oldpwd, done}
+    async resetPasswd({}, pwd) {
+      // User Cancels
+      if(!pwd)
+        return
+      
+      console.log(pwd)
+      // Reset By old password
+      if("passwd" == pwd.mode) {
+        let cmdText = `passwd '${pwd.newpwd}' -old '${pwd.oldpwd}'`
+        let doneRe = {ok: true}
+        await Wn.Sys.exec(cmdText,  {
+          errorBy : ({code}) => {
+            doneRe.ok = false
+            doneRe.errCode = code
+          }
+        })
+        // Callback to show reset status
+        pwd.done(doneRe)
+      }
+      // Not support for now
+      else {
+        throw  "Unsupport passwd-reset mode: " + pwd.mode
+      }
+
+    },
+    //--------------------------------------------
     reload() {
       // TODO 这里需要想想，如何刷新会话，得到新票据的问题
       _.delay(()=>{
         console.log("hahah")
       }, 1000)
     }
+    //--------------------------------------------
   }
   ////////////////////////////////////////////////
 }
@@ -43762,6 +44262,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "auth-phone-title": "Sign by sms",
   "auth-phone-vcode": "SMS password",
   "auth-phone-vcode-get": "Get sms password",
+  "auth-reset-passwd": "Reset password ...",
   "auth-reset-passwd-again": "Reset password again",
   "auth-reset-passwd-btn-lack": "Lack information",
   "auth-reset-passwd-btn-ready": "Reset password",
@@ -43815,6 +44316,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "cover-pic": "Cover pic",
   "detail-info": "Detail info",
   "dir-media": "Media dir",
+  "e-cmd-passwd-old_invalid": "Old Password Invalid",
   "e-cmd-www_passwd-Blank": "Blank new password not allowed",
   "e-cmd-www_passwd-CheckBlankAccount": "Blank account",
   "e-cmd-www_passwd-CheckBlankCode": "Blank code",
@@ -44564,6 +45066,13 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-json.i18n.json", {
 // JOIN: zh-cn/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
+  "order-k-total": "商品总价",
+  "order-k-freight": "运费",
+  "order-k-total-m": "修改总价",
+  "order-k-total-m-tip": "为用户输入新的协商后的商品总价",
+  "order-k-freight-m": "修改运费",
+  "order-k-freight-m-tip": "可以在这里输入0为客户免去运费",
+  "order-k-discount": "优惠",
   "account-filter-tip": "请输入账号名过滤",
   "account-meta": "账户属性",
   "account-meta-tip": "请选择一个账号查看详情",
@@ -44631,6 +45140,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-phone-title": "短信密码登录/注册",
   "auth-phone-vcode": "短信密码",
   "auth-phone-vcode-get": "获取短信密码",
+  "auth-reset-passwd": "重置密码 ...",
   "auth-reset-passwd-again": "再次重置密码",
   "auth-reset-passwd-btn-lack": "请填写必要信息",
   "auth-reset-passwd-btn-ready": "立即重置密码",
@@ -44684,6 +45194,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "cover-pic": "封面图片",
   "detail-info": "详细信息",
   "dir-media": "媒体目录",
+  "e-cmd-passwd-old_invalid": "旧密码错误",
   "e-cmd-www_passwd-Blank": "新密码为空",
   "e-cmd-www_passwd-CheckBlankAccount": "空账户",
   "e-cmd-www_passwd-CheckBlankCode": "空验证码",

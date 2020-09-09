@@ -61,4 +61,13 @@
       <span v-else>{{TheTitle}}</span>
     </div>
   </footer>
+  <!--
+    Remove Icon
+  -->
+  <div 
+    v-if="removeIcon"
+      class="as-remove"
+      @click.left.stop="OnRemove">
+      <ti-icon :value="removeIcon"/>
+  </div>
 </div>

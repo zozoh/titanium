@@ -1,0 +1,67 @@
+.wn-obj-picker {
+  padding: SZ(4); position: relative;
+  //----------------------------------------
+  .as-empty-item {
+    @include flex-center;
+    color: map-get($color-primary, c);
+    border:1px dashed map-get($color-primary, c);
+    width: SZ(64); height: SZ(64);
+    cursor: pointer; font-size: SZ(18);
+    //--------------------------------------
+    i {
+      transition: .3s; font-size:1em;
+    }
+    //--------------------------------------
+    &:hover {
+      border:1px solid map-get($color-secondary, c);
+      color: map-get($color-secondary, c);
+      i {transform: scale(1.2);}
+    }
+    //--------------------------------------
+  }
+  //----------------------------------------
+  > .as-items-con {
+    border:1px dashed transparent;
+    //--------------------------------------
+    > .as-item {
+      @include border(1px, solid, shallow);
+      box-shadow: SZ(2) SZ(2) SZ(4) map-get($color-shadow, weak);
+    }
+    //--------------------------------------
+  }
+  //----------------------------------------
+  &.is-multi {
+    > .as-items-con {
+      @include flex-align;
+      padding: SZ(6);
+      //------------------------------------
+      > .as-item {
+        margin: SZ(6);
+      }
+      //------------------------------------
+      &:hover {
+        border-color: map-get($color-primary, c);
+      }
+      //------------------------------------
+      .as-empty-item {
+        margin: SZ(6) 0 SZ(6) SZ(12); 
+        align-self: stretch;
+        height: unset; width: SZ(92);
+        min-height: SZ(64);
+      }
+    }
+  }
+  //----------------------------------------
+  &.is-single {
+    @include flex-align;
+    //--------------------------------------
+    > .as-items-con > .as-item:hover {
+      border-style: dashed;
+      border-color: map-get($color-secondary, c);
+    }
+    //--------------------------------------
+  }
+  //----------------------------------------
+
+  //----------------------------------------
+}

@@ -9,6 +9,10 @@
     margin:0 .5em;
   }
   //------------------------------------------
+  .as-text {
+    @include flex-align($ai:center);
+  }
+  //------------------------------------------
   &.as-hug {
     padding: 3em 1em;
     > .as-icon{font-size: SZ(128);}
@@ -47,6 +51,15 @@
   &.as-mid-tip {
     @include flex-align;
     @include color($color-track, c);
+    font-size: SZ(14);
+    justify-content: flex-start;
+    padding: 2em;
+  }
+  //------------------------------------------
+  &.as-mid-tip-mask {
+    @include pos-abs-full;
+    @include color($color-bar, r, c);
+    @include flex-align;
     font-size: SZ(14);
     justify-content: flex-start;
     padding: 2em;

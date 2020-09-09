@@ -7,12 +7,12 @@ const _M = {
     },
     id : {
       type : String,
-      default : null
+      default : undefined
     },
     // The text to present the object
     title : {
       type : String,
-      default : null
+      default : undefined
     },
     // The URL of thumb
     preview : {
@@ -21,11 +21,11 @@ const _M = {
     },
     href : {
       type : String,
-      default : null
+      default : undefined
     },
     status : {
       type : [String, Object],
-      default : null
+      default : undefined
     },
     progress : {
       type : Number,
@@ -48,6 +48,10 @@ const _M = {
         "SW" : null,
         "SE" : null
       })
+    },
+    removeIcon : {
+      type : [String, Object],
+      default : undefined
     }
   },
   ////////////////////////////////////////////////
@@ -124,6 +128,14 @@ const _M = {
   },
   ////////////////////////////////////////////////
   methods : {
+    //--------------------------------------------
+    OnRemove() {
+      this.$notify("remove", {
+        index: this.index,
+        id: this.id,
+        title: this.title
+      })
+    },
     //--------------------------------------------
     renderLocalFile() {
       //console.log(this.LocalFile)
