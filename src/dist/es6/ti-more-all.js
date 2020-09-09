@@ -1,4 +1,4 @@
-// Pack At: 2020-09-09 23:45:39
+// Pack At: 2020-09-10 01:35:51
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -44382,12 +44382,21 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "ord-detail": "Order detail",
   "order-flt-tip": "Query by order id",
   "order-k-accounts": "Accounts",
+  "order-k-addr_ship": "Ship address",
+  "order-k-addr_ship_code": "Ship code",
+  "order-k-addr_ship_country": "Ship country",
+  "order-k-addr_ship_door": "Ship door",
+  "order-k-addr_user": "User address",
+  "order-k-addr_user_code": "User code",
+  "order-k-addr_user_country": "User country",
+  "order-k-addr_user_door": "User door",
   "order-k-buyer_id": "Buyer",
   "order-k-currency": "Currency",
   "order-k-dn_at": "Done at",
   "order-k-fa_at": "Fail at",
   "order-k-fee": "Payment amount",
   "order-k-id": "Order id",
+  "order-k-invoice": "Invoice",
   "order-k-note": "Note",
   "order-k-ok_at": "OK at",
   "order-k-pay_id": "Payment id",
@@ -44403,6 +44412,9 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-sp_at": "Shipping at",
   "order-k-st": "Order status",
   "order-k-title": "Order title",
+  "order-k-waybil": "Waybil",
+  "order-k-waybil_com": "Waybil COM",
+  "order-k-waybil_nb": "Waybil NB",
   "order-k-wt_at": "Pay at",
   "passwd-invalid-char": "Passwords can only include english numbers/upper and lower case letters/and special characters",
   "passwd-sl-1": "Weak",
@@ -44470,7 +44482,14 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "type": "Type",
   "type-new": "New type",
   "video-title": "Video title",
-  "watch_c": "View count"
+  "watch_c": "View count",
+  "waybil-com-bs": "BAI SHI",
+  "waybil-com-jd": "JING DONG",
+  "waybil-com-sf": "SHUN FENG",
+  "waybil-com-st": "SHEN TONG",
+  "waybil-com-yd": "YUN DA",
+  "waybil-com-yt": "YUAN TONG",
+  "waybil-com-zt": "ZHONG TONG"
 });
 //============================================================
 // JOIN: en-us/wn-manager.i18n.json
@@ -45066,13 +45085,6 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-json.i18n.json", {
 // JOIN: zh-cn/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
-  "order-k-total": "商品总价",
-  "order-k-freight": "运费",
-  "order-k-total-m": "修改总价",
-  "order-k-total-m-tip": "为用户输入新的协商后的商品总价",
-  "order-k-freight-m": "修改运费",
-  "order-k-freight-m-tip": "可以在这里输入0为客户免去运费",
-  "order-k-discount": "优惠",
   "account-filter-tip": "请输入账号名过滤",
   "account-meta": "账户属性",
   "account-meta-tip": "请选择一个账号查看详情",
@@ -45260,12 +45272,25 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "ord-detail": "订单详情",
   "order-flt-tip": "请输入订单ID查询",
   "order-k-accounts": "用户库",
+  "order-k-addr_ship": "发货地址",
+  "order-k-addr_ship_code": "发货地址编码",
+  "order-k-addr_ship_country": "发货国家",
+  "order-k-addr_ship_door": "发货门牌",
+  "order-k-addr_user": "收货地址",
+  "order-k-addr_user_code": "收货地址编码",
+  "order-k-addr_user_country": "收货国家",
+  "order-k-addr_user_door": "收货门牌",
   "order-k-buyer_id": "买家",
   "order-k-currency": "货币单位",
+  "order-k-discount": "优惠",
   "order-k-dn_at": "完成时间",
   "order-k-fa_at": "支付失败",
   "order-k-fee": "支付金额",
+  "order-k-freight": "运费",
+  "order-k-freight-m": "修改运费",
+  "order-k-freight-m-tip": "可以在这里输入0为客户免去运费",
   "order-k-id": "订单号",
+  "order-k-invoice": "发票信息",
   "order-k-note": "备注",
   "order-k-ok_at": "支付成功",
   "order-k-pay_id": "支付单",
@@ -45281,6 +45306,12 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-sp_at": "发货时间",
   "order-k-st": "订单状态",
   "order-k-title": "订单标题",
+  "order-k-total": "商品总价",
+  "order-k-total-m": "修改总价",
+  "order-k-total-m-tip": "为用户输入新的协商后的商品总价",
+  "order-k-waybil": "物流信息",
+  "order-k-waybil_com": "物流公司",
+  "order-k-waybil_nb": "运单号",
   "order-k-wt_at": "支付时间",
   "passwd-invalid-char": "密码只能包括英文数字/大小写字母/以及特殊字符",
   "passwd-sl-1": "弱",
@@ -45348,7 +45379,14 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "type": "类型",
   "type-new": "新类型",
   "video-title": "视频标题",
-  "watch_c": "浏览次数"
+  "watch_c": "浏览次数",
+  "waybil-com-bs": "百世快递",
+  "waybil-com-jd": "京东物流",
+  "waybil-com-sf": "顺丰快递",
+  "waybil-com-st": "申通快递",
+  "waybil-com-yd": "韵达快递",
+  "waybil-com-yt": "圆通快递",
+  "waybil-com-zt": "中通快递"
 });
 //============================================================
 // JOIN: zh-cn/wn-manager.i18n.json
