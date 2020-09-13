@@ -28,6 +28,17 @@
       box-shadow: SZ(2) SZ(2) SZ(4) map-get($color-shadow, weak);
     }
     //--------------------------------------
+    .ti-obj-thumb {
+      .as-badge {
+        @include color($color-weaktip, r, c); opacity: 1;
+        padding: .5em;
+        &.at-nw {left:0; top:0;}
+        &.at-sw {left:0; bottom:0;}
+        &.at-ne {right:0; top:0;}
+        &.at-se {right:0; bottom:0;}
+      }
+    }
+    //--------------------------------------
   }
   //----------------------------------------
   &.is-multi {
@@ -37,6 +48,9 @@
       //------------------------------------
       > .as-item {
         margin: SZ(6);
+        &.sortable-ghost {
+          opacity: 0.1;
+        }
       }
       //------------------------------------
       &:hover {
@@ -62,6 +76,8 @@
     //--------------------------------------
   }
   //----------------------------------------
-
+  &.is-dragging {
+    .as-items-con .as-empty-item {display: none;}
+  }
   //----------------------------------------
 }

@@ -1,0 +1,6 @@
+{
+  "name" : "web-shelf-slide",
+  "globally" : true,
+  "template" : "./web-shelf-slide.html",
+  "mixins" : ["./web-shelf-slide.mjs"]
+}

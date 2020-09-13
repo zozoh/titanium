@@ -4,5 +4,6 @@
   "template" : "./wn-obj-picker.html",
   "mixins"   : ["./wn-obj-picker.mjs"],
   "components" : [
-    "@com:wn/adaptlist"]
+    "@com:wn/adaptlist"],
+  "deps": ["@deps:sortable.js"]
 }

@@ -14,13 +14,13 @@
   <!--
     Show Items
   -->
-  <div
+  <div ref="itemsCon"
     v-else
       class="as-items-con"
       @click.left="OnClickItemsCon">
       <div 
         v-for="(it, index) in DisplayItems"
-          :key="index"
+          :key="it._key"
           class="as-item">
         <TiObjThumb 
             v-bind="it"

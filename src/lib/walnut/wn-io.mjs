@@ -310,7 +310,8 @@ const WnIo = {
         return meta.id
       },
       obj() {
-        return _.pick(meta, 'id','nm','thumb','title','mime','tp','sha1','len')
+        let keys = oRefer || ['id','nm','thumb','title','mime','tp','sha1','len'] 
+        return _.pick(meta, keys)
       }
     })[mode]
     if(!fn) {

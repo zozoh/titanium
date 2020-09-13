@@ -195,7 +195,7 @@ const TiWWW = {
     }
     // preview obj for sha1
     if(cdnTmpl) {
-      let po = _.get(obj, previewObj)
+      let po = ".." == previewObj ? obj : _.get(obj, previewObj)
       if(po && po.sha1) {
         po = _.cloneDeep(po)
         // sha1 path

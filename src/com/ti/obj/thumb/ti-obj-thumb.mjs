@@ -52,6 +52,10 @@ const _M = {
     removeIcon : {
       type : [String, Object],
       default : undefined
+    },
+    onTitle : {
+      type : [String, Function],
+      default : undefined
     }
   },
   ////////////////////////////////////////////////
@@ -130,11 +134,28 @@ const _M = {
   methods : {
     //--------------------------------------------
     OnRemove() {
-      this.$notify("remove", {
+      let context = this.genEventContext()
+      this.$notify("remove", context)
+    },
+    //--------------------------------------------
+    OnClickTitle() {
+      let context = this.genEventContext()
+      // String -> Emit event
+      if(_.isString(this.onTitle)) {
+        this.$notify(this.onTitle, context)
+      }
+      // Function -> Handle
+      if(_.isFunction(this.onTitle)) {
+        this.onTitle(context)
+      }
+    },
+    //--------------------------------------------
+    genEventContext() {
+      return {
         index: this.index,
         id: this.id,
         title: this.title
-      })
+      }
     },
     //--------------------------------------------
     renderLocalFile() {

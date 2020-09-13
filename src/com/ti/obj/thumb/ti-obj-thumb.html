@@ -57,7 +57,7 @@
     <div class="as-title">
       <a v-if="hasHref"
         :href="TheHref"
-        @click.prevent>{{TheTitle}}</a>
+        @click.left.prevent="OnClickTitle">{{TheTitle}}</a>
       <span v-else>{{TheTitle}}</span>
     </div>
   </footer>

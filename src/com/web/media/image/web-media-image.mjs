@@ -13,6 +13,14 @@ export default {
       type: String,
       default: undefined
     },
+    "href": {
+      type: String,
+      default: undefined
+    },
+    "newtab": {
+      type: [String, Boolean],
+      default: undefined
+    },
     "i18n": {
       type: Boolean,
       default: true
@@ -30,7 +38,10 @@ export default {
   computed : {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "has-href" : this.TheHref ? true : false,
+        "no-href"  : this.TheHref ? false : true
+      })
     },
     //--------------------------------------
     TopStyle() {
@@ -46,10 +57,35 @@ export default {
     //--------------------------------------
     TheText() {
       if(this.text) {
-        return this.i18n
-          ? Ti.I18n.text(this.text)
-          : this.text
+        let str = this.text
+        if(_.isPlainObject(this.src)) {
+          str = Ti.Util.explainObj(this.src, this.text)
+        }
+        if(this.i18n) {
+          str = Ti.I18n.text(str)
+        }
+        return str
       }
+    },
+    //--------------------------------------
+    TheHref() {
+      if(this.href) {
+        let href = this.href
+        if(_.isPlainObject(this.src)) {
+          href = Ti.Util.explainObj(this.src, this.href)
+        }
+        return href
+      }
+    },
+    //--------------------------------------
+    isNewTab() {
+      let newtab = this.newtab
+      if(_.isString(newtab)) {
+        if(_.isPlainObject(this.src)) {
+          newtab = Ti.Util.explainObj(this.src, this.newtab)
+        }
+      }
+      return newtab ? true : false
     }
     //--------------------------------------
   }

@@ -1,7 +1,9 @@
 export default {
   /////////////////////////////////////////
   data : ()=>({
-    "loading" : false,
+    "loading"  : false,
+    "dragging" : false,
+    "skipReload" : false,
     "myItems" : []
   }),
   /////////////////////////////////////////
@@ -54,8 +56,9 @@ export default {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-multi"  : this.multi,
-        "is-single" : !this.multi
+        "is-multi"    : this.multi,
+        "is-single"   : !this.multi,
+        "is-dragging" : this.dragging
       })
     },
     //--------------------------------------
@@ -64,10 +67,18 @@ export default {
       for(let i=0; i < this.myItems.length; i++) {
         let obj = this.myItems[i]
         let it = Wn.Util.getObjThumbInfo(obj, {
-          exposeHidden : true
+          exposeHidden : true,
+          badges: {
+            NW : ["href", "fas-link"],
+            SE : ["newtab", "fas-external-link-alt"]
+          }
         })
         it.index = i;
+        it._key = `${it.id}_${it.index}`
         it.removeIcon = "im-x-mark"
+        it.onTitle = (payload)=>{
+          this.OnEditItem(payload)
+        }
         //it.removeIcon = "im-trash-can"
         list.push(it)
       }
@@ -98,6 +109,11 @@ export default {
       if(!meta || _.isEmpty(meta)) {
         meta = this.base || "~"
         autoOpenDir = true
+      }
+
+      // Reload Meta
+      if(_.isPlainObject(meta) && !meta.pid) {
+        meta = await await Wn.Io.loadMetaById(meta.id)
       }
 
       let objs = await Wn.OpenObjSelector(meta, {
@@ -144,21 +160,106 @@ export default {
       this.notifyChange([])
     },
     //--------------------------------------
+    async OnEditItem({index}) {
+      let it = this.myItems[index]
+
+      let reo = await Ti.App.Open({
+        title : "i18n:edit",
+        width  : 640,
+        height : 480,
+        result : _.pick(it, "title", "href", "newtab"),
+        model : {prop:"data", event:"change"},
+        comType : "ti-form",
+        comConf : {
+          fields: [{
+            title : "i18n:title",
+            name  : "title",
+            comType : "ti-input"
+          }, {
+            title : "i18n:href",
+            name  : "href",
+            comType : "ti-input"
+          }, {
+            title : "i18n:newtab",
+            name  : "newtab",
+            type  : "Boolean",
+            comType : "ti-toggle"
+          }]
+        }
+      })
+
+      console.log(reo)
+      // User Cancel
+      if(_.isUndefined(reo)) {
+        return 
+      }
+
+      it = _.cloneDeep(it)
+      it.title = reo.title
+      it.href  = reo.href
+      it.newtab = reo.newtab
+
+      let items = _.cloneDeep(this.myItems)
+      items.splice(index, 1, it)
+      this.myItems = items
+      this.skipReload = true
+
+      this.notifyChange()
+      _.delay(()=>{
+        this.skipReload = false
+      }, 100)
+    },
+    //--------------------------------------
     notifyChange(items = this.myItems) {
       let value = null;
+      let keys = [
+        'id','nm','thumb','title','mime','tp','sha1','len',
+        'href', 'newtab'
+      ]
       if(this.multi) {
         value = []
         for(let it of items) {
-          let v = Wn.Io.formatObjPath(it, this.valueType)
+          let v = Wn.Io.formatObjPath(it, this.valueType, keys)
           value.push(v)
         }
       }
       // Single value
       else if (!_.isEmpty(items)) {
-        value = Wn.Io.formatObjPath(items[0], this.valueType)
+        value = Wn.Io.formatObjPath(items[0], this.valueType, keys)
       }
 
       this.$notify("change", value)
+    },
+    //--------------------------------------
+    switchItem(fromIndex, toIndex) {
+      if(fromIndex != toIndex) {
+        let items = _.cloneDeep(this.myItems)
+        let it = items[fromIndex]
+        items = _.filter(items, (v, i)=>i!=fromIndex)
+        items.splice(toIndex, 0, it)
+        this.myItems = items
+        this.notifyChange()
+      }
+    },
+    //--------------------------------------
+    initSortable() {
+      if(this.multi && this.$refs.itemsCon) {
+        new Sortable(this.$refs.itemsCon, {
+          animation: 300,
+          filter : ".as-empty-item",
+          onStart: ()=>{
+            this.dragging = true
+          },
+          onEnd: ({oldIndex, newIndex})=> {
+            this.dragging = false
+            this.skipReload = true
+            this.switchItem(oldIndex, newIndex)
+            _.delay(()=>{
+              this.skipReload = false
+            }, 100)
+          }
+        })
+      }
     },
     //--------------------------------------
     async reload(){
@@ -193,7 +294,11 @@ export default {
       }
       // object {id:xxx}
       else if(it.id){
-        return await Wn.Io.loadMetaById(it.id)
+        // let obj = await Wn.Io.loadMetaById(it.id)
+        // obj.title = it.title || obj.title || obj.nm
+        // obj.href = it.href
+        // obj.newtab = it.newtab
+        return it
       }
       // Unsupported form of value
       else {
@@ -204,8 +309,17 @@ export default {
   },
   //////////////////////////////////////////
   watch : {
-    "value" : function(){
-      this.reload()
+    "value" : function(newVal, oldVal){
+      if(!_.isEqual(newVal, oldVal) && !this.skipReload) {
+        this.reload()
+      }
+    },
+    "hasItems" : function(newVal, oldVal) {
+      if(newVal && !oldVal) {
+        this.$nextTick(()=>{
+          this.initSortable()
+        })
+      }
     }
   },
   /////////////////////////////////////////

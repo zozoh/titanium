@@ -1,0 +1,39 @@
+<div class="web-shelf-slide"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Main
+  -->
+  <div class="as-main">
+    <div
+      v-for="it in ItemList"
+        :key="it.key"
+        class="as-con"
+        :class="it.className">
+        <component :is="it.comType" v-bind="it.comConf"/>
+    </div>
+  </div>
+  <!--
+    Item List
+  -->
+  <div class="as-indicator">
+    <div
+      v-for="it in ItemList"
+        class="as-item"
+        :class="it.className"
+        @click.left.stop="OnClickIndicator(it)">
+    </div>
+  </div>
+  <!--
+    Btn: Prev
+  -->
+  <div class="as-btn is-prev" @click.left="prevItem">
+    <i class="im im-angle-left"></i>
+  </div>
+  <!--
+    Btn: Next
+  -->
+  <div class="as-btn is-next" @click.left="nextItem">
+    <i class="im im-angle-right"></i>
+  </div>
+</div>

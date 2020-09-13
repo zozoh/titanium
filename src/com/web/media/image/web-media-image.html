@@ -1,6 +1,8 @@
-<div class="web-media-image"
+<a class="web-media-image"
   :class="TopClass"
-  :style="TopStyle">
+  :style="TopStyle"
+  :href="TheHref"
+  :target="isNewTab ? '_blank' : '_self'">
   <!--Image-->
   <img :src="TheSrc"/>
   <!--Text-->
@@ -9,4 +11,4 @@
       class="as-text">
       <span>{{TheText}}</span>
   </div>
-</div>
+</a>

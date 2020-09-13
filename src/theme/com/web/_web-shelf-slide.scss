@@ -1,0 +1,63 @@
+.web-shelf-slide {
+  @include noselect;
+  position: relative;
+  width: 100%; height: SZ(200);
+  //-----------------------------------------
+  > .as-main {
+    position: relative;
+    width:100%; height:100%; 
+    > .as-con {
+      @include pos-abs-full;
+      opacity: 0; transition: 0.3s;
+      &.is-current {
+        opacity: 1; z-index:1;
+      }
+    }
+  }
+  //-----------------------------------------
+  > .as-indicator {
+    @include pos-abs($l:0,$b:0,$r:0);
+    @include flex-center;
+    padding: SZ(40); z-index: 2;
+    //--------------------------------------
+    .as-item {
+      width: SZ(40); height: SZ(8);
+      transition: .3s;
+      background: rgba(0,0,0,0.4);
+      border:1px solid rgba(255,255,255,0.4);
+      margin: SZ(10);
+      cursor:pointer;
+      //------------------------------------
+      &.is-current  {
+        background:#000; 
+        border-color:#FFF; 
+      }
+      //------------------------------------
+    }
+    //--------------------------------------
+  }
+  //-----------------------------------------
+  $BTNSZ: SZ(50);
+  //-----------------------------------------
+  > .as-btn {
+    @include flex-center; 
+    position: absolute; z-index: 2;
+    top: 50%; width: $BTNSZ; height: $BTNSZ;
+    font-size: $BTNSZ / 2;
+    margin-top: $BTNSZ / -2;
+    cursor: pointer;
+    background: #EEE; color:#222; border-radius: SZ(6);
+    opacity: 0.3;
+    //---------------------------------------
+    &:hover {opacity: 0.8;}
+    //---------------------------------------
+    &.is-prev {left: SZ(20);}
+    &.is-next {right: SZ(20);}
+    //---------------------------------------  
+  }
+  //-----------------------------------------
+  &.no-btn > .as-btn {display:none;}
+  //-----------------------------------------
+  &.indicator-at-top > .as-indicator {top:0; bottom:unset;}
+  //-----------------------------------------
+}
