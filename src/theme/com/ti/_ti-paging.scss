@@ -53,3 +53,38 @@
   //-------------------------------------
 }
 /////////////////////////////////////////////////////
+// Buttons
+/////////////////////////////////////////////////////
+.ti-paging-button {
+  @include noselect;
+  @include flex-center;
+  padding: .5em;
+  //-------------------------------------
+  .as-pg-btn {
+    @include color($color-primary, r, c);
+    cursor: pointer; padding: .5em .6em;
+    margin:0 .2em;
+    &:hover {
+      @include color($color-secondary, r, c);
+    }
+    &.is-current {
+      @include color($color-primary, c, r);
+      cursor: default;
+      font-weight: bold; font-size: 1.2em;
+    }
+  }
+  //-------------------------------------
+  .as-ellipsis {
+    margin:0 1em;
+  }
+  //-------------------------------------
+  &.is-first .as-pg-btn.is-prev {
+    @include color($color-disable, r, c); cursor: default;
+  }
+  //-------------------------------------
+  &.is-last .as-pg-btn.is-next {
+    @include color($color-disable, r, c); cursor: default;
+  }
+  //-------------------------------------
+}
+/////////////////////////////////////////////////////

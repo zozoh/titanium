@@ -14,16 +14,23 @@ export default {
   },
   ///////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
     PageNumberClass() {
       return this.value.pgc > 1
               ? "is-enabled"
               : "is-disabled"
     },
+    //--------------------------------------
     SumClass() {
       return this.value.pgsz > 0
               ? "is-enabled"
               : "is-disabled"
     }
+    //--------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
@@ -44,6 +51,8 @@ export default {
     OnJumpTo(pageNumber) {
       if(!this.isInvalidPageNumber(pageNumber)) {
         this.$notify("change", {
+          skip :  this.value.pgsz * (pageNumber-1),
+          limit :  this.value.pgsz, 
           pn   : pageNumber, 
           pgsz : this.value.pgsz
         })
@@ -76,6 +85,8 @@ export default {
       }
       // 通知修改
       this.$notify("change", {
+        skip :  this.value.pgsz * (pn-1),
+        limit :  this.value.pgsz, 
         pn   : pn, 
         pgsz : this.value.pgsz
       })

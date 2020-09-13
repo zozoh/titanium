@@ -1,4 +1,4 @@
-// Pack At: 2020-09-10 01:35:51
+// Pack At: 2020-09-13 16:07:04
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -314,7 +314,8 @@ const Io = (function(){
           return meta.id
         },
         obj() {
-          return _.pick(meta, 'id','nm','thumb','title','mime','tp','sha1','len')
+          let keys = oRefer || ['id','nm','thumb','title','mime','tp','sha1','len'] 
+          return _.pick(meta, keys)
         }
       })[mode]
       if(!fn) {
@@ -731,6 +732,9 @@ const Obj = (function(){
   
         // find by homePath
         if(homePath) {
+          if(homePath.endsWith("/")) {
+            homePath = homePath.substring(0, homePath.length - 1)
+          }
           for(; i<ans.length; i++) {
             let an = ans[i]
             if(an.ph == homePath) {
@@ -1674,6 +1678,7 @@ const OpenObjSelector = (function(){
           ...Vuex.mapState("main", ["data", "status"]),
           //--------------------------------------
           theCrumbData() {
+            console.log("haha")
             return Wn.Obj.evalCrumbData({
               meta      : _.get(this.obj, "meta"),
               ancestors : _.get(this.obj, "ancestors"),
@@ -2110,7 +2115,7 @@ const EditTiComponent = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200910.013551"
+const WALNUT_VERSION = "2.1-20200913.160704"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

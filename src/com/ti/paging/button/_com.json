@@ -1,0 +1,6 @@
+{
+  "name" : "ti-paging-button",
+  "globally" : true,
+  "template" : "./ti-paging-button.html",
+  "mixins" : ["./ti-paging-button.mjs"]
+}

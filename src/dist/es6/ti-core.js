@@ -1,4 +1,4 @@
-// Pack At: 2020-09-10 01:35:51
+// Pack At: 2020-09-13 16:07:04
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -8680,7 +8680,7 @@ const {WWW} = (function(){
       }
       // preview obj for sha1
       if(cdnTmpl) {
-        let po = _.get(obj, previewObj)
+        let po = ".." == previewObj ? obj : _.get(obj, previewObj)
         if(po && po.sha1) {
           po = _.cloneDeep(po)
           // sha1 path
@@ -10817,7 +10817,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200910.013551",
+  "version" : "2.5-20200913.160704",
   "dev" : false,
   "appName" : null,
   "session" : {},

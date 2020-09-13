@@ -400,6 +400,9 @@ const WnObj = {
 
       // find by homePath
       if(homePath) {
+        if(homePath.endsWith("/")) {
+          homePath = homePath.substring(0, homePath.length - 1)
+        }
         for(; i<ans.length; i++) {
           let an = ans[i]
           if(an.ph == homePath) {

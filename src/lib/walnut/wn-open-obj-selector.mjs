@@ -111,6 +111,7 @@ async function OpenObjSelector(pathOrObj="~", {
         ...Vuex.mapState("main", ["data", "status"]),
         //--------------------------------------
         theCrumbData() {
+          console.log("haha")
           return Wn.Obj.evalCrumbData({
             meta      : _.get(this.obj, "meta"),
             ancestors : _.get(this.obj, "ancestors"),

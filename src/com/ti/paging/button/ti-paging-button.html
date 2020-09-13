@@ -1,0 +1,24 @@
+<div class="ti-paging-button"
+  :class="TopClass">
+  <div class="as-pg-btn is-prev" @click.left="JumpTo(PN-1)">
+    <i class="im im-angle-left"></i>
+    <span>{{'i18n:prev'|i18n}}</span>
+  </div>
+  <template 
+    v-for="btn of BtnList">
+      <div
+        v-if="btn.ellipsis"
+          class="as-ellipsis">
+          <span>...</span></div>
+      <div
+        v-else
+          class="as-pg-btn"
+          :class="btn.className"
+          @click.left="JumpTo(btn.value)">
+          <span>{{btn.value}}</span></div>
+  </template>
+  <div class="as-pg-btn is-next" @click.left="JumpTo(PN+1)">
+    <span>{{'i18n:next'|i18n}}</span>
+    <i class="im im-angle-right"></i>
+  </div>
+</div>

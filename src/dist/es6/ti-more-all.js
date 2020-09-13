@@ -1,4 +1,4 @@
-// Pack At: 2020-09-10 01:35:51
+// Pack At: 2020-09-13 16:07:04
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -18331,7 +18331,7 @@ Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb"
     <div class="as-title">
       <a v-if="hasHref"
         :href="TheHref"
-        @click.prevent>{{TheTitle}}</a>
+        @click.left.prevent="OnClickTitle">{{TheTitle}}</a>
       <span v-else>{{TheTitle}}</span>
     </div>
   </footer>
@@ -18402,6 +18402,10 @@ const _M = {
     },
     removeIcon : {
       type : [String, Object],
+      default : undefined
+    },
+    onTitle : {
+      type : [String, Function],
       default : undefined
     }
   },
@@ -18481,11 +18485,28 @@ const _M = {
   methods : {
     //--------------------------------------------
     OnRemove() {
-      this.$notify("remove", {
+      let context = this.genEventContext()
+      this.$notify("remove", context)
+    },
+    //--------------------------------------------
+    OnClickTitle() {
+      let context = this.genEventContext()
+      // String -> Emit event
+      if(_.isString(this.onTitle)) {
+        this.$notify(this.onTitle, context)
+      }
+      // Function -> Handle
+      if(_.isFunction(this.onTitle)) {
+        this.onTitle(context)
+      }
+    },
+    //--------------------------------------------
+    genEventContext() {
+      return {
         index: this.index,
         id: this.id,
         title: this.title
-      })
+      }
     },
     //--------------------------------------------
     renderLocalFile() {
@@ -18664,9 +18685,167 @@ Ti.Preload("ti/com/ti/obj/tile/_com.json", {
   "mixins" : ["./ti-obj-tile.mjs"]
 });
 //============================================================
+// JOIN: ti/paging/button/ti-paging-button.html
+//============================================================
+Ti.Preload("ti/com/ti/paging/button/ti-paging-button.html", `<div class="ti-paging-button"
+  :class="TopClass">
+  <div class="as-pg-btn is-prev" @click.left="JumpTo(PN-1)">
+    <i class="im im-angle-left"></i>
+    <span>{{'i18n:prev'|i18n}}</span>
+  </div>
+  <template 
+    v-for="btn of BtnList">
+      <div
+        v-if="btn.ellipsis"
+          class="as-ellipsis">
+          <span>...</span></div>
+      <div
+        v-else
+          class="as-pg-btn"
+          :class="btn.className"
+          @click.left="JumpTo(btn.value)">
+          <span>{{btn.value}}</span></div>
+  </template>
+  <div class="as-pg-btn is-next" @click.left="JumpTo(PN+1)">
+    <span>{{'i18n:next'|i18n}}</span>
+    <i class="im im-angle-right"></i>
+  </div>
+</div>`);
+//============================================================
+// JOIN: ti/paging/button/ti-paging-button.mjs
+//============================================================
+(function(){
+const _M = {
+  ///////////////////////////////////////////
+  props : {
+    "value" : {
+      type : Object,
+      default : ()=>({
+        pn : 0,     // Page Number
+        pgsz : 0,   // PageSize
+        pgc : 0,    // page count
+        sum : 0,    // Total
+        count : 0   // Record in page
+      })
+    },
+    "maxNumber": {
+      type : Number,
+      default : 10
+    }
+  },
+  ///////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-first" : 1 == this.PN,
+        "is-last"  : this.PN == this.LastPN
+      })
+    },
+    //--------------------------------------
+    // 1base
+    PN() {
+      return _.get(this.value, "pn")
+    },
+    //--------------------------------------
+    // 1base
+    LastPN() {
+      return _.get(this.value, "pgc")
+    },
+    //--------------------------------------
+    isFirstPage() {
+      return 1 == this.PN
+    },
+    //--------------------------------------
+    isLastPage() {
+      return this.LastPN == this.PN
+    },
+    //--------------------------------------
+    BtnList() {
+      let fullnb = this.maxNumber-2
+      let remain = this.LastPN - 2
+      let list = []
+      if(remain < fullnb) {
+        for(let pn = 1; pn<=this.LastPN; pn++) {
+          list.push(this.genBtn(pn))
+        }
+      }
+      // Move view port
+      else {
+        let half = fullnb / 2
+        let from = Math.round(this.PN - half)
+        let to   = Math.round(this.PN + half)
+        if(from<=1) {
+          to += (1-from)
+          from = 2
+        } else if(to>=this.LastPN){
+          from -= (to - this.LastPN)
+          to = this.LastPN - 1
+        }
+        else {
+          to --
+        }
+        list.push(this.genBtn(1))
+        if(from>2) {
+          list.push(this.genBtn(".."))
+        }
+        for(let i=from; i<=to; i++) {
+          list.push(this.genBtn(i))
+        }
+        if(to < (this.LastPN-2)) {
+          list.push(this.genBtn(".."))
+        }
+        list.push(this.genBtn(this.LastPN))
+      }
+
+      return list
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    genBtn(pn) {
+      if(".." == pn) {
+        return {ellipsis:true}
+      }
+      return {
+        value: pn, 
+        className: {
+          "is-current" : this.PN == pn
+        }
+      }
+    },
+    //--------------------------------------
+    JumpTo(pn) {
+      if(pn!=this.PN && pn>=1 && pn<=this.LastPN) {
+        this.$notify("change", {
+          skip :  this.value.pgsz * (pn-1),
+          limit :  this.value.pgsz, 
+          pn   : pn, 
+          pgsz : this.value.pgsz
+        })
+      }
+    }
+  }
+  ///////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/paging/button/ti-paging-button.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/paging/button/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/paging/button/_com.json", {
+  "name" : "ti-paging-button",
+  "globally" : true,
+  "template" : "./ti-paging-button.html",
+  "mixins" : ["./ti-paging-button.mjs"]
+});
+//============================================================
 // JOIN: ti/paging/jumper/ti-paging-jumper.html
 //============================================================
-Ti.Preload("ti/com/ti/paging/jumper/ti-paging-jumper.html", `<div class="ti-paging-jumper">
+Ti.Preload("ti/com/ti/paging/jumper/ti-paging-jumper.html", `<div class="ti-paging-jumper"
+  :class="TopClass">
   <div 
     class="pj-btn"
     :class="getBtnClass(1)"
@@ -18722,16 +18901,23 @@ const _M = {
   },
   ///////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
     PageNumberClass() {
       return this.value.pgc > 1
               ? "is-enabled"
               : "is-disabled"
     },
+    //--------------------------------------
     SumClass() {
       return this.value.pgsz > 0
               ? "is-enabled"
               : "is-disabled"
     }
+    //--------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
@@ -18752,6 +18938,8 @@ const _M = {
     OnJumpTo(pageNumber) {
       if(!this.isInvalidPageNumber(pageNumber)) {
         this.$notify("change", {
+          skip :  this.value.pgsz * (pageNumber-1),
+          limit :  this.value.pgsz, 
           pn   : pageNumber, 
           pgsz : this.value.pgsz
         })
@@ -18784,6 +18972,8 @@ const _M = {
       }
       // 通知修改
       this.$notify("change", {
+        skip :  this.value.pgsz * (pn-1),
+        limit :  this.value.pgsz, 
         pn   : pn, 
         pgsz : this.value.pgsz
       })
@@ -27879,9 +28069,11 @@ Ti.Preload("ti/com/web/footer/_com.json", {
 //============================================================
 // JOIN: web/media/image/web-media-image.html
 //============================================================
-Ti.Preload("ti/com/web/media/image/web-media-image.html", `<div class="web-media-image"
+Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-image"
   :class="TopClass"
-  :style="TopStyle">
+  :style="TopStyle"
+  :href="TheHref"
+  :target="isNewTab ? '_blank' : '_self'">
   <!--Image-->
   <img :src="TheSrc"/>
   <!--Text-->
@@ -27890,7 +28082,7 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<div class="web-media
       class="as-text">
       <span>{{TheText}}</span>
   </div>
-</div>`);
+</a>`);
 //============================================================
 // JOIN: web/media/image/web-media-image.mjs
 //============================================================
@@ -27910,6 +28102,14 @@ const _M = {
       type: String,
       default: undefined
     },
+    "href": {
+      type: String,
+      default: undefined
+    },
+    "newtab": {
+      type: [String, Boolean],
+      default: undefined
+    },
     "i18n": {
       type: Boolean,
       default: true
@@ -27927,7 +28127,10 @@ const _M = {
   computed : {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "has-href" : this.TheHref ? true : false,
+        "no-href"  : this.TheHref ? false : true
+      })
     },
     //--------------------------------------
     TopStyle() {
@@ -27943,10 +28146,35 @@ const _M = {
     //--------------------------------------
     TheText() {
       if(this.text) {
-        return this.i18n
-          ? Ti.I18n.text(this.text)
-          : this.text
+        let str = this.text
+        if(_.isPlainObject(this.src)) {
+          str = Ti.Util.explainObj(this.src, this.text)
+        }
+        if(this.i18n) {
+          str = Ti.I18n.text(str)
+        }
+        return str
       }
+    },
+    //--------------------------------------
+    TheHref() {
+      if(this.href) {
+        let href = this.href
+        if(_.isPlainObject(this.src)) {
+          href = Ti.Util.explainObj(this.src, this.href)
+        }
+        return href
+      }
+    },
+    //--------------------------------------
+    isNewTab() {
+      let newtab = this.newtab
+      if(_.isString(newtab)) {
+        if(_.isPlainObject(this.src)) {
+          newtab = Ti.Util.explainObj(this.src, this.newtab)
+        }
+      }
+      return newtab ? true : false
     }
     //--------------------------------------
   }
@@ -30853,6 +31081,197 @@ Ti.Preload("ti/com/web/shelf/scroller/_com.json", {
   "globally" : true,
   "template" : "./web-shelf-scroller.html",
   "mixins" : ["./web-shelf-scroller.mjs"]
+});
+//============================================================
+// JOIN: web/shelf/slide/web-shelf-slide.html
+//============================================================
+Ti.Preload("ti/com/web/shelf/slide/web-shelf-slide.html", `<div class="web-shelf-slide"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Main
+  -->
+  <div class="as-main">
+    <div
+      v-for="it in ItemList"
+        :key="it.key"
+        class="as-con"
+        :class="it.className">
+        <component :is="it.comType" v-bind="it.comConf"/>
+    </div>
+  </div>
+  <!--
+    Item List
+  -->
+  <div class="as-indicator">
+    <div
+      v-for="it in ItemList"
+        class="as-item"
+        :class="it.className"
+        @click.left.stop="OnClickIndicator(it)">
+    </div>
+  </div>
+  <!--
+    Btn: Prev
+  -->
+  <div class="as-btn is-prev" @click.left="prevItem">
+    <i class="im im-angle-left"></i>
+  </div>
+  <!--
+    Btn: Next
+  -->
+  <div class="as-btn is-next" @click.left="nextItem">
+    <i class="im im-angle-right"></i>
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/shelf/slide/web-shelf-slide.mjs
+//============================================================
+(function(){
+const _M = {
+  //////////////////////////////////////////
+  data: ()=>({
+    myCurrentIndex: 0
+  }),
+  //////////////////////////////////////////
+  props : {
+    "data" : {
+      type : Array,
+      default : ()=>[]
+    },
+    // Item comType
+    "comType": {
+      type: String,
+      default: "ti-label"
+    },
+    "comConf": {
+      type: [Object, String],
+      default: ()=>({
+        value: "=.."
+      })
+    },
+    "interval": {
+      type: Number,
+      default: 10000
+    },
+    "idBy" : {
+      type: String,
+      default : "id"
+    },
+    "width" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "height" : {
+      type : [Number, String],
+      default : undefined
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
+    },
+    //--------------------------------------
+    isLeftEnabled() {return true;},
+    isRightEnabled() {return true},
+    //--------------------------------------
+    BtnLeftClass() {
+      return {
+        "is-enabled"  : this.isLeftEnabled,
+        "is-disabled" : !this.isLeftEnabled
+      }
+    },
+    //--------------------------------------
+    BtnRightClass() {
+      return {
+        "is-enabled"  : this.isRightEnabled,
+        "is-disabled" : !this.isRightEnabled
+      }
+    },
+    //--------------------------------------
+    ItemList() {
+      if(!_.isArray(this.data))
+        return []
+      
+      let list = []      
+      for(let i=0; i < this.data.length; i++) {
+        let it = this.data[i]
+        let current = i == this.myCurrentIndex
+        let className = current ? "is-current" : null
+        let comConf = Ti.Util.explainObj(it, this.comConf)
+        list.push({
+          key: this.getItemKey(it, i),
+          index : i,
+          className,
+          comType: this.comType,
+          comConf
+        })
+      }
+      
+      // Get the result
+      return list
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnClickIndicator({index}) {
+      this.myCurrentIndex = index
+    },
+    //--------------------------------------
+    getItemKey(it, index) {
+      let key = _.get(it, this.idBy)
+      return key || `It-${index}`
+    },
+    //--------------------------------------
+    prevItem() {
+      let index = Ti.Num.scrollIndex(this.myCurrentIndex-1, this.ItemList.length)
+      this.myCurrentIndex = index
+    },
+    //--------------------------------------
+    nextItem() {
+      let index = Ti.Num.scrollIndex(this.myCurrentIndex+1, this.ItemList.length)
+      this.myCurrentIndex = index
+    },
+    //--------------------------------------
+    autoPlayNextItem() {
+      if(this.interval > 1000) {
+        _.delay(()=>{
+          if(!this.mousein) {
+            this.nextItem()
+          }
+          this.autoPlayNextItem()
+        }, this.interval)
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  mounted() {
+    this.autoPlayNextItem();
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/shelf/slide/web-shelf-slide.mjs", _M);
+})();
+//============================================================
+// JOIN: web/shelf/slide/_com.json
+//============================================================
+Ti.Preload("ti/com/web/shelf/slide/_com.json", {
+  "name" : "web-shelf-slide",
+  "globally" : true,
+  "template" : "./web-shelf-slide.html",
+  "mixins" : ["./web-shelf-slide.mjs"]
 });
 //============================================================
 // JOIN: web/shelf/wall/web-shelf-wall.html
@@ -35566,13 +35985,13 @@ Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.html", `<div class="wn-obj-picker
   <!--
     Show Items
   -->
-  <div
+  <div ref="itemsCon"
     v-else
       class="as-items-con"
       @click.left="OnClickItemsCon">
       <div 
         v-for="(it, index) in DisplayItems"
-          :key="index"
+          :key="it._key"
           class="as-item">
         <TiObjThumb 
             v-bind="it"
@@ -35600,7 +36019,9 @@ Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.html", `<div class="wn-obj-picker
 const _M = {
   /////////////////////////////////////////
   data : ()=>({
-    "loading" : false,
+    "loading"  : false,
+    "dragging" : false,
+    "skipReload" : false,
     "myItems" : []
   }),
   /////////////////////////////////////////
@@ -35653,8 +36074,9 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-multi"  : this.multi,
-        "is-single" : !this.multi
+        "is-multi"    : this.multi,
+        "is-single"   : !this.multi,
+        "is-dragging" : this.dragging
       })
     },
     //--------------------------------------
@@ -35663,10 +36085,18 @@ const _M = {
       for(let i=0; i < this.myItems.length; i++) {
         let obj = this.myItems[i]
         let it = Wn.Util.getObjThumbInfo(obj, {
-          exposeHidden : true
+          exposeHidden : true,
+          badges: {
+            NW : ["href", "fas-link"],
+            SE : ["newtab", "fas-external-link-alt"]
+          }
         })
         it.index = i;
+        it._key = `${it.id}_${it.index}`
         it.removeIcon = "im-x-mark"
+        it.onTitle = (payload)=>{
+          this.OnEditItem(payload)
+        }
         //it.removeIcon = "im-trash-can"
         list.push(it)
       }
@@ -35697,6 +36127,11 @@ const _M = {
       if(!meta || _.isEmpty(meta)) {
         meta = this.base || "~"
         autoOpenDir = true
+      }
+
+      // Reload Meta
+      if(_.isPlainObject(meta) && !meta.pid) {
+        meta = await await Wn.Io.loadMetaById(meta.id)
       }
 
       let objs = await Wn.OpenObjSelector(meta, {
@@ -35743,21 +36178,106 @@ const _M = {
       this.notifyChange([])
     },
     //--------------------------------------
+    async OnEditItem({index}) {
+      let it = this.myItems[index]
+
+      let reo = await Ti.App.Open({
+        title : "i18n:edit",
+        width  : 640,
+        height : 480,
+        result : _.pick(it, "title", "href", "newtab"),
+        model : {prop:"data", event:"change"},
+        comType : "ti-form",
+        comConf : {
+          fields: [{
+            title : "i18n:title",
+            name  : "title",
+            comType : "ti-input"
+          }, {
+            title : "i18n:href",
+            name  : "href",
+            comType : "ti-input"
+          }, {
+            title : "i18n:newtab",
+            name  : "newtab",
+            type  : "Boolean",
+            comType : "ti-toggle"
+          }]
+        }
+      })
+
+      console.log(reo)
+      // User Cancel
+      if(_.isUndefined(reo)) {
+        return 
+      }
+
+      it = _.cloneDeep(it)
+      it.title = reo.title
+      it.href  = reo.href
+      it.newtab = reo.newtab
+
+      let items = _.cloneDeep(this.myItems)
+      items.splice(index, 1, it)
+      this.myItems = items
+      this.skipReload = true
+
+      this.notifyChange()
+      _.delay(()=>{
+        this.skipReload = false
+      }, 100)
+    },
+    //--------------------------------------
     notifyChange(items = this.myItems) {
       let value = null;
+      let keys = [
+        'id','nm','thumb','title','mime','tp','sha1','len',
+        'href', 'newtab'
+      ]
       if(this.multi) {
         value = []
         for(let it of items) {
-          let v = Wn.Io.formatObjPath(it, this.valueType)
+          let v = Wn.Io.formatObjPath(it, this.valueType, keys)
           value.push(v)
         }
       }
       // Single value
       else if (!_.isEmpty(items)) {
-        value = Wn.Io.formatObjPath(items[0], this.valueType)
+        value = Wn.Io.formatObjPath(items[0], this.valueType, keys)
       }
 
       this.$notify("change", value)
+    },
+    //--------------------------------------
+    switchItem(fromIndex, toIndex) {
+      if(fromIndex != toIndex) {
+        let items = _.cloneDeep(this.myItems)
+        let it = items[fromIndex]
+        items = _.filter(items, (v, i)=>i!=fromIndex)
+        items.splice(toIndex, 0, it)
+        this.myItems = items
+        this.notifyChange()
+      }
+    },
+    //--------------------------------------
+    initSortable() {
+      if(this.multi && this.$refs.itemsCon) {
+        new Sortable(this.$refs.itemsCon, {
+          animation: 300,
+          filter : ".as-empty-item",
+          onStart: ()=>{
+            this.dragging = true
+          },
+          onEnd: ({oldIndex, newIndex})=> {
+            this.dragging = false
+            this.skipReload = true
+            this.switchItem(oldIndex, newIndex)
+            _.delay(()=>{
+              this.skipReload = false
+            }, 100)
+          }
+        })
+      }
     },
     //--------------------------------------
     async reload(){
@@ -35792,7 +36312,11 @@ const _M = {
       }
       // object {id:xxx}
       else if(it.id){
-        return await Wn.Io.loadMetaById(it.id)
+        // let obj = await Wn.Io.loadMetaById(it.id)
+        // obj.title = it.title || obj.title || obj.nm
+        // obj.href = it.href
+        // obj.newtab = it.newtab
+        return it
       }
       // Unsupported form of value
       else {
@@ -35803,8 +36327,17 @@ const _M = {
   },
   //////////////////////////////////////////
   watch : {
-    "value" : function(){
-      this.reload()
+    "value" : function(newVal, oldVal){
+      if(!_.isEqual(newVal, oldVal) && !this.skipReload) {
+        this.reload()
+      }
+    },
+    "hasItems" : function(newVal, oldVal) {
+      if(newVal && !oldVal) {
+        this.$nextTick(()=>{
+          this.initSortable()
+        })
+      }
     }
   },
   /////////////////////////////////////////
@@ -35824,7 +36357,8 @@ Ti.Preload("ti/com/wn/obj/picker/_com.json", {
   "template" : "./wn-obj-picker.html",
   "mixins"   : ["./wn-obj-picker.mjs"],
   "components" : [
-    "@com:wn/adaptlist"]
+    "@com:wn/adaptlist"],
+  "deps": ["@deps:sortable.js"]
 });
 //============================================================
 // JOIN: wn/obj/preview/com/preview-info-field/preview-info-field.html
