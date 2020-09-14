@@ -197,17 +197,16 @@ export default {
         let MM0 = dt0.getMonth()
         let yy1 = dt1.getFullYear()
         let MM1 = dt1.getMonth()
-        let MA0 = Ti.DateTime.getMonthAbbr(MM0)
-        let MA1 = Ti.DateTime.getMonthAbbr(MM1)
-        let MT0 = Ti.I18n.get(MA0)
-        let MT1 = Ti.I18n.get(MA1)
+        let abbr0 = Ti.DateTime.getMonthAbbr(MM0)
+        let abbr1 = Ti.DateTime.getMonthAbbr(MM1)
+        let MT0 = Ti.I18n.get(`cal.abbr.${abbr0}`)
+        let MT1 = Ti.I18n.get(`cal.abbr.${abbr1}`)
 
         MM0++;  MM1++;  // Month change to 1 base
 
         let vars = {
           yy0, yy1,
           MM0, MM1,
-          MA0, MA1,
           MT0, MT1
         }
         // Beyound year
@@ -440,6 +439,7 @@ export default {
       if(this.range) {
         // If array ...
         if(_.isArray(this.value)) {
+          //console.log(this.value)
           // Finish the range
           if(this.value.length == 1) {
             let msRange = [cell.raw.getTime(), this.theDate.getTime()].sort()

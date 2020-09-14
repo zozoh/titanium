@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     "runtime" : null,
@@ -52,7 +51,7 @@ export default {
     },
     "width" : {
       type : [Number, String],
-      default : "1.4rem"
+      default : "1.6rem"
     },
     "height" : {
       type : [Number, String],

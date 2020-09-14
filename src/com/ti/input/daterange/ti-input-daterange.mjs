@@ -91,10 +91,9 @@ const _M = {
         if(ss.length > 0) {
           return Ti.Types.toDate(ss);
         }
+        return Ti.Types.toDate(str)
       }
-      if(_.isString(this.value)) {
-        return Ti.Types.toDate(this.value)
-      }
+      return Ti.Types.toDate(this.value)
     },
     //--------------------------------------
     theDate() {

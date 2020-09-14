@@ -81,7 +81,7 @@
           &.is-size-stretch {flex:1 1 auto;}
           &.is-size-full    {width:100%;}
           &.is-size-fixed   {}
-          > * {width:100%;}
+          > .full-field {width:100%;} 
         }
         //------------------------------
         > .field-tip {

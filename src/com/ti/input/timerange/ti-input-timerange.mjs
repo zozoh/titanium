@@ -1,5 +1,4 @@
-export default {
-  inheritAttrs : false,
+const _M = {
   ////////////////////////////////////////////////////
   data : ()=>({
     "runtime" : null,
@@ -19,9 +18,12 @@ export default {
       type : Array,
       default : ()=>["beginTime", "endTime"]
     },
-    "valueMode" : {
+    // TODO only str-array supported now
+    // please fix it refer by ti-input-daterange.mjs
+    "valueType" : {
       type : String,
-      default : "Array"
+      default : "str-array",
+      validator: v => /^((str|ms|sec)-(array|obj))$/.test(v)
     },
     "dftValue" : {
       type : Array,
@@ -127,6 +129,7 @@ export default {
     //------------------------------------------------
     applyRuntime() {
       if(this.runtime) {
+        console.log("hah")
         let rg = this.parseTimeRange(this.runtime)
         this.runtime = null
         let rg2 = this.formatRangeValue(rg)
@@ -183,7 +186,7 @@ export default {
     formatEmitRangeValue(rg) {
       let [keyBegin, keyEnd] = this.rangeKeys
       // Format the value to array
-      if(rg && "Array" == this.valueMode) {
+      if(rg && "Array" == this.valueType) {
         let re = [rg[keyBegin], rg[keyEnd]]
         return _.filter(re, (v)=>(v && _.isString(v)))
       }
@@ -191,10 +194,8 @@ export default {
       return rg
     },
     //------------------------------------------------
-    onFormChanged(pair) {
-      let rg = _.assign({}, this.theRangeValue, this.runtime)
-      rg[pair.name] = pair.value
-      this.runtime = rg
+    onFormChanged(payload) {
+      this.runtime = _.cloneDeep(payload)
     },
     //------------------------------------------------
     parseTimeRange(val) {
@@ -237,7 +238,15 @@ export default {
     // Then make sure the range beignTime is the less one
     normalizeRange(rg) {
       let [keyBegin, keyEnd] = this.rangeKeys
-      if(rg && rg[keyBegin] && rg[keyEnd]) {
+      if(rg && (rg[keyBegin] || rg[keyEnd]) ) {
+        if(!rg[keyBegin]) {
+          let tBegin = Ti.Types.toTime(0)
+          rg[keyBegin] = tBegin.toString()
+        }
+        if(!rg[keyEnd]) {
+          let tEnd = Ti.Types.toTime(86400000-1)
+          rg[keyEnd] = tEnd.toString()
+        }
         let tmBegin = Ti.Types.toTime(rg[keyBegin])
         let tmEnd   = Ti.Types.toTime(rg[keyEnd])
         if(tmBegin.valueInMilliseconds > tmEnd.valueInMilliseconds) {
@@ -267,3 +276,4 @@ export default {
   }
   ////////////////////////////////////////////////////
 }
+export default _M;

@@ -13,10 +13,14 @@ const _M = {
     },
     //------------------------------------------------
     ValueObj() {
-      if(Ti.Util.isNil(this.value)) {
+      if(Ti.Util.isNil(this.value) || _.isEmpty(this.value)) {
         return {}
       }
       if(_.isString(this.value)) {
+        let str = _.trim(this.value)
+        if(!str) {
+          return {}
+        }
         return JSON.parse(this.value)
       }
       if(_.isPlainObject(this.value)) {

@@ -20,7 +20,7 @@ const _M = {
         "is-readonly"  : this.readonly,
         "show-border"  : !this.hideBorder,
         "hide-border"  : this.hideBorder,
-        "has-prefix-icon" : this.thePrefixIcon,
+        "has-prefix-icon" : this.prefixIcon,
         "has-prefix-text" : this.prefixText,
         "has-suffix-icon" : this.suffixIcon,
         "has-suffix-text" : this.suffixText,

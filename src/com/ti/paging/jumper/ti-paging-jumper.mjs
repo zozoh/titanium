@@ -19,14 +19,18 @@ export default {
       return this.getTopClass()
     },
     //--------------------------------------
+    hasValue() {
+      return !_.isEmpty(this.value) && this.value.pn > 0
+    },
+    //--------------------------------------
     PageNumberClass() {
-      return this.value.pgc > 1
+      return this.hasValue && this.value.pgc > 1
               ? "is-enabled"
               : "is-disabled"
     },
     //--------------------------------------
     SumClass() {
-      return this.value.pgsz > 0
+      return this.hasValue && this.value.pgsz > 0
               ? "is-enabled"
               : "is-disabled"
     }
@@ -42,7 +46,7 @@ export default {
     },
     //--------------------------------------
     getBtnClass(pageNumber) {
-      if(this.isInvalidPageNumber(pageNumber)) {
+      if(!this.hasValue || this.isInvalidPageNumber(pageNumber)) {
         return "is-disabled"
       }
       return "is-enabled"

@@ -12,7 +12,11 @@ export default {
     },
     "value" : {
       type : [String, Number, Date],
-      default : null
+      default : undefined
+    },
+    "text" : {
+      type : String,
+      default : undefined
     },
     "icon" : {
       type : String,
@@ -32,7 +36,7 @@ export default {
     },
     "width" : {
       type : [Number, String],
-      default : "1.4rem"
+      default : "1.6rem"
     },
     "height" : {
       type : [Number, String],
@@ -83,9 +87,9 @@ export default {
     //------------------------------------------------
     theInputValue() {
       if(this.isExtended) {
-        return this.getDateText(this.theDropDate)
+        return this.getDateText(this.theDropDate, this.format)
       }
-      return this.getDateText(this.theDropDate, this.format)
+      return this.text || this.getDateText(this.theDropDate, this.format)
     },
     //------------------------------------------------
     theStatusIcon() {

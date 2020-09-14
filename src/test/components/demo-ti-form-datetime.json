@@ -24,7 +24,7 @@
         "name"  : "date",
         "comType" : "ti-input-date",
         "comConf" : {
-          "format" : "yyyy年M月d日"
+          "format" : "yyyy年 MMM d日"
         }
       }, {
         "title" : "日期+时间",
@@ -39,12 +39,12 @@
         "type"  : "Array",
         "comType" : "ti-input-daterange",
         "comConf" : {
-          
+          "valueType" : "ms-array"
         }
       }, {
         "title" : "时间范围",
         "name"  : "timerange",
-        "type"  : "Object",
+        "type"  : "Array",
         "comType" : "ti-input-timerange",
         "comConf" : {
           "format" : "H点m分"

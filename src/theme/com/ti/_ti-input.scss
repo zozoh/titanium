@@ -65,12 +65,12 @@
     > .as-input > input:read-only {cursor:inherit; @include noselect;}
   }
   //-----------------------------------------
-  // &.has-prefix-icon {
-  //   > .as-input > input {padding-left:SZ(6);}
-  // }
+  &.has-prefix-icon, &.has-prefix-text {
+    > .as-input > input {padding-left:SZ(2);}
+  }
   //-----------------------------------------
-  // &.has-suffix-icon {
-  //   > .as-input > input {padding-right:SZ(6);}
-  // }
+  &.has-suffix-icon, &.has-suffix-text {
+    > .as-input > input {padding-right:SZ(2);}
+  }
   //-----------------------------------------
 }

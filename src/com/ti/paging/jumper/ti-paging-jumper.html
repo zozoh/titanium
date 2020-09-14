@@ -31,7 +31,8 @@
       <span class="it-text">{{'paging-last'|i18n}}</span>
       <ti-icon value="zmdi-skip-next"/></div>
   <div
-    class="pj-sum"
-    :class="SumClass"
-    @click="OnClickSum">{{'paging-sum'|i18n(value)}}</div>
+    v-if="hasValue"
+      class="pj-sum"
+      :class="SumClass"
+      @click="OnClickSum">{{'paging-sum'|i18n(value)}}</div>
 </div>

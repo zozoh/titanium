@@ -40,6 +40,7 @@ const _M = {
   methods : {
     //----------------------------------------
     OnChanged(val) {
+      console.log("Com Test Case:", val)
       this.setDataValue(val)
     },
     //----------------------------------------

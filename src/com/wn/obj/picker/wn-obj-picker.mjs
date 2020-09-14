@@ -188,7 +188,7 @@ export default {
         }
       })
 
-      console.log(reo)
+      //console.log(reo)
       // User Cancel
       if(_.isUndefined(reo)) {
         return 
