@@ -36,19 +36,17 @@ export default {
       type : Boolean,
       default : false
     },
-    "clearIcon" : {
-      type : [String, Object],
-      default : "zmdi-close-circle"
-    },
-    "chooseIcon" : {
-      type : String,
-      default : "zmdi-folder-outline"
-    },
     // Key of meta to show as text
     // If undefined, use "title -> nm"
     "textBy" : {
       type : [String, Array],
       default : null
+    },
+    "filterBy" : {
+      type : [Object, String, Function, Boolean],
+      default : ()=>({
+        "race" : ["isEqual", "FILE"]
+      })
     }
   },
   //////////////////////////////////////////
@@ -103,12 +101,12 @@ export default {
     //--------------------------------------
     async OnPickItem() {
       let meta = this.FirstItem
-      let autoOpenDir = false
       // Use base to open the folder
       // Then it should be auto-open the folder
       if(!meta || _.isEmpty(meta)) {
         meta = this.base || "~"
-        autoOpenDir = true
+      } else {
+        meta = `id:${meta.pid}`
       }
 
       // Reload Meta
@@ -116,11 +114,19 @@ export default {
         meta = await await Wn.Io.loadMetaById(meta.id)
       }
 
+      // Eval Filter
+      console.log("hahha")
+      let filter;
+      if(this.filterBy) {
+        filter = Ti.Validate.compile(this.filterBy)
+      }
+
       let objs = await Wn.OpenObjSelector(meta, {
         multi    : this.multi,
         selected : this.myItems,
-        autoOpenDir
+        filter
       })
+      console.log(objs)
       // user cancel
       if(_.isEmpty(objs)) {
         return

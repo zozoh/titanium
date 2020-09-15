@@ -1,4 +1,4 @@
-// Pack At: 2020-09-13 16:07:04
+// Pack At: 2020-09-15 23:25:59
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -4582,7 +4582,7 @@ Ti.Preload("ti/com/ti/calendar/ti-calendar.html", `<div class="ti-calendar">
           icon="far-calendar-alt"
           :hide-border="true"
           :value="theViewDate"
-          :format="theViewRangeText"
+          :text="theViewRangeText"
           :editable="monthEditable"
           :begin-year="beginYear"
           :end-year="endYear"
@@ -4831,17 +4831,16 @@ const _M = {
         let MM0 = dt0.getMonth()
         let yy1 = dt1.getFullYear()
         let MM1 = dt1.getMonth()
-        let MA0 = Ti.DateTime.getMonthAbbr(MM0)
-        let MA1 = Ti.DateTime.getMonthAbbr(MM1)
-        let MT0 = Ti.I18n.get(MA0)
-        let MT1 = Ti.I18n.get(MA1)
+        let abbr0 = Ti.DateTime.getMonthAbbr(MM0)
+        let abbr1 = Ti.DateTime.getMonthAbbr(MM1)
+        let MT0 = Ti.I18n.get(`cal.abbr.${abbr0}`)
+        let MT1 = Ti.I18n.get(`cal.abbr.${abbr1}`)
 
         MM0++;  MM1++;  // Month change to 1 base
 
         let vars = {
           yy0, yy1,
           MM0, MM1,
-          MA0, MA1,
           MT0, MT1
         }
         // Beyound year
@@ -5074,6 +5073,7 @@ const _M = {
       if(this.range) {
         // If array ...
         if(_.isArray(this.value)) {
+          //console.log(this.value)
           // Finish the range
           if(this.value.length == 1) {
             let msRange = [cell.raw.getTime(), this.theDate.getTime()].sort()
@@ -6429,7 +6429,7 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input-props.mjs", _M);
 // JOIN: ti/combo/input/ti-combo-input.html
 //============================================================
 Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box 
-  class="ti-combo-input"
+  class="ti-combo-input full-field"
   :class="TopClass"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
@@ -6835,7 +6835,7 @@ Ti.Preload("ti/com/ti/combo/input/_com.json", {
 // JOIN: ti/combo/multi-input/ti-combo-multi-input.html
 //============================================================
 Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-box 
-  class="ti-combo-multi-input"
+  class="ti-combo-multi-input full-field"
   :class="TopClass"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
@@ -7438,10 +7438,14 @@ const _M = {
     },
     //------------------------------------------------
     ValueObj() {
-      if(Ti.Util.isNil(this.value)) {
+      if(Ti.Util.isNil(this.value) || _.isEmpty(this.value)) {
         return {}
       }
       if(_.isString(this.value)) {
+        let str = _.trim(this.value)
+        if(!str) {
+          return {}
+        }
         return JSON.parse(this.value)
       }
       if(_.isPlainObject(this.value)) {
@@ -9422,7 +9426,7 @@ const _M = {
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
       // Notify at first
-      //console.log("notify field")
+      console.log("notify field")
       this.$notify("field:change", {name, value})
 
       // Notify later ...
@@ -11974,10 +11978,9 @@ const _M = {
         if(ss.length > 0) {
           return Ti.Types.toDate(ss);
         }
+        return Ti.Types.toDate(str)
       }
-      if(_.isString(this.value)) {
-        return Ti.Types.toDate(this.value)
-      }
+      return Ti.Types.toDate(this.value)
     },
     //--------------------------------------
     theDate() {
@@ -13018,7 +13021,11 @@ const _M = {
     },
     "value" : {
       type : [String, Number, Date],
-      default : null
+      default : undefined
+    },
+    "text" : {
+      type : String,
+      default : undefined
     },
     "icon" : {
       type : String,
@@ -13038,7 +13045,7 @@ const _M = {
     },
     "width" : {
       type : [Number, String],
-      default : "1.4rem"
+      default : "1.6rem"
     },
     "height" : {
       type : [Number, String],
@@ -13089,9 +13096,9 @@ const _M = {
     //------------------------------------------------
     theInputValue() {
       if(this.isExtended) {
-        return this.getDateText(this.theDropDate)
+        return this.getDateText(this.theDropDate, this.format)
       }
-      return this.getDateText(this.theDropDate, this.format)
+      return this.text || this.getDateText(this.theDropDate, this.format)
     },
     //------------------------------------------------
     theStatusIcon() {
@@ -13617,7 +13624,7 @@ Ti.Preload("ti/com/ti/input/tags/_com.json", {
 //============================================================
 // JOIN: ti/input/text/ti-input-text.html
 //============================================================
-Ti.Preload("ti/com/ti/input/text/ti-input-text.html", `<div class="ti-input-text" 
+Ti.Preload("ti/com/ti/input/text/ti-input-text.html", `<div class="ti-input-text full-field" 
   :class="topClass" 
   :style="topStyle"
   v-ti-activable>
@@ -13686,7 +13693,6 @@ Ti.Preload("ti/com/ti/input/text/ti-input-text.html", `<div class="ti-input-text
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     "inputCompositionstart" : false,
@@ -14065,7 +14071,7 @@ Ti.Preload("ti/com/ti/input/ti-input-props.mjs", _M);
 //============================================================
 // JOIN: ti/input/ti-input.html
 //============================================================
-Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input" 
+Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input full-field" 
   :class="TopClass" 
   :style="TopStyle"
   v-ti-activable>
@@ -14150,7 +14156,7 @@ const _M = {
         "is-readonly"  : this.readonly,
         "show-border"  : !this.hideBorder,
         "hide-border"  : this.hideBorder,
-        "has-prefix-icon" : this.thePrefixIcon,
+        "has-prefix-icon" : this.prefixIcon,
         "has-prefix-text" : this.prefixText,
         "has-suffix-icon" : this.suffixIcon,
         "has-suffix-text" : this.suffixText,
@@ -14373,7 +14379,6 @@ Ti.Preload("ti/com/ti/input/time/ti-input-time.html", `<ti-combo-box class="as-t
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     "runtime" : null,
@@ -14426,7 +14431,7 @@ const _M = {
     },
     "width" : {
       type : [Number, String],
-      default : "1.4rem"
+      default : "1.6rem"
     },
     "height" : {
       type : [Number, String],
@@ -14609,7 +14614,6 @@ Ti.Preload("ti/com/ti/input/timerange/ti-input-timerange.html", `<ti-combo-box c
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   data : ()=>({
     "runtime" : null,
@@ -14629,9 +14633,12 @@ const _M = {
       type : Array,
       default : ()=>["beginTime", "endTime"]
     },
-    "valueMode" : {
+    // TODO only str-array supported now
+    // please fix it refer by ti-input-daterange.mjs
+    "valueType" : {
       type : String,
-      default : "Array"
+      default : "str-array",
+      validator: v => /^((str|ms|sec)-(array|obj))$/.test(v)
     },
     "dftValue" : {
       type : Array,
@@ -14737,6 +14744,7 @@ const _M = {
     //------------------------------------------------
     applyRuntime() {
       if(this.runtime) {
+        console.log("hah")
         let rg = this.parseTimeRange(this.runtime)
         this.runtime = null
         let rg2 = this.formatRangeValue(rg)
@@ -14793,7 +14801,7 @@ const _M = {
     formatEmitRangeValue(rg) {
       let [keyBegin, keyEnd] = this.rangeKeys
       // Format the value to array
-      if(rg && "Array" == this.valueMode) {
+      if(rg && "Array" == this.valueType) {
         let re = [rg[keyBegin], rg[keyEnd]]
         return _.filter(re, (v)=>(v && _.isString(v)))
       }
@@ -14801,10 +14809,8 @@ const _M = {
       return rg
     },
     //------------------------------------------------
-    onFormChanged(pair) {
-      let rg = _.assign({}, this.theRangeValue, this.runtime)
-      rg[pair.name] = pair.value
-      this.runtime = rg
+    onFormChanged(payload) {
+      this.runtime = _.cloneDeep(payload)
     },
     //------------------------------------------------
     parseTimeRange(val) {
@@ -14847,7 +14853,15 @@ const _M = {
     // Then make sure the range beignTime is the less one
     normalizeRange(rg) {
       let [keyBegin, keyEnd] = this.rangeKeys
-      if(rg && rg[keyBegin] && rg[keyEnd]) {
+      if(rg && (rg[keyBegin] || rg[keyEnd]) ) {
+        if(!rg[keyBegin]) {
+          let tBegin = Ti.Types.toTime(0)
+          rg[keyBegin] = tBegin.toString()
+        }
+        if(!rg[keyEnd]) {
+          let tEnd = Ti.Types.toTime(86400000-1)
+          rg[keyEnd] = tEnd.toString()
+        }
         let tmBegin = Ti.Types.toTime(rg[keyBegin])
         let tmEnd   = Ti.Types.toTime(rg[keyEnd])
         if(tmBegin.valueInMilliseconds > tmEnd.valueInMilliseconds) {
@@ -14986,7 +15000,7 @@ Ti.Preload("ti/com/ti/label/ti-label-props.mjs", _M);
 //============================================================
 // JOIN: ti/label/ti-label.html
 //============================================================
-Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
+Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label full-field"
   :class="TopClass"
   :style="TopStyle"
   @dblclick.left="OnDblClick">
@@ -18877,9 +18891,10 @@ Ti.Preload("ti/com/ti/paging/jumper/ti-paging-jumper.html", `<div class="ti-pagi
       <span class="it-text">{{'paging-last'|i18n}}</span>
       <ti-icon value="zmdi-skip-next"/></div>
   <div
-    class="pj-sum"
-    :class="SumClass"
-    @click="OnClickSum">{{'paging-sum'|i18n(value)}}</div>
+    v-if="hasValue"
+      class="pj-sum"
+      :class="SumClass"
+      @click="OnClickSum">{{'paging-sum'|i18n(value)}}</div>
 </div>`);
 //============================================================
 // JOIN: ti/paging/jumper/ti-paging-jumper.mjs
@@ -18906,14 +18921,18 @@ const _M = {
       return this.getTopClass()
     },
     //--------------------------------------
+    hasValue() {
+      return !_.isEmpty(this.value) && this.value.pn > 0
+    },
+    //--------------------------------------
     PageNumberClass() {
-      return this.value.pgc > 1
+      return this.hasValue && this.value.pgc > 1
               ? "is-enabled"
               : "is-disabled"
     },
     //--------------------------------------
     SumClass() {
-      return this.value.pgsz > 0
+      return this.hasValue && this.value.pgsz > 0
               ? "is-enabled"
               : "is-disabled"
     }
@@ -18929,7 +18948,7 @@ const _M = {
     },
     //--------------------------------------
     getBtnClass(pageNumber) {
-      if(this.isInvalidPageNumber(pageNumber)) {
+      if(!this.hasValue || this.isInvalidPageNumber(pageNumber)) {
         return "is-disabled"
       }
       return "is-enabled"
@@ -36054,19 +36073,17 @@ const _M = {
       type : Boolean,
       default : false
     },
-    "clearIcon" : {
-      type : [String, Object],
-      default : "zmdi-close-circle"
-    },
-    "chooseIcon" : {
-      type : String,
-      default : "zmdi-folder-outline"
-    },
     // Key of meta to show as text
     // If undefined, use "title -> nm"
     "textBy" : {
       type : [String, Array],
       default : null
+    },
+    "filterBy" : {
+      type : [Object, String, Function, Boolean],
+      default : ()=>({
+        "race" : ["isEqual", "FILE"]
+      })
     }
   },
   //////////////////////////////////////////
@@ -36121,12 +36138,12 @@ const _M = {
     //--------------------------------------
     async OnPickItem() {
       let meta = this.FirstItem
-      let autoOpenDir = false
       // Use base to open the folder
       // Then it should be auto-open the folder
       if(!meta || _.isEmpty(meta)) {
         meta = this.base || "~"
-        autoOpenDir = true
+      } else {
+        meta = `id:${meta.pid}`
       }
 
       // Reload Meta
@@ -36134,11 +36151,19 @@ const _M = {
         meta = await await Wn.Io.loadMetaById(meta.id)
       }
 
+      // Eval Filter
+      console.log("hahha")
+      let filter;
+      if(this.filterBy) {
+        filter = Ti.Validate.compile(this.filterBy)
+      }
+
       let objs = await Wn.OpenObjSelector(meta, {
         multi    : this.multi,
         selected : this.myItems,
-        autoOpenDir
+        filter
       })
+      console.log(objs)
       // user cancel
       if(_.isEmpty(objs)) {
         return
@@ -36206,7 +36231,7 @@ const _M = {
         }
       })
 
-      console.log(reo)
+      //console.log(reo)
       // User Cancel
       if(_.isUndefined(reo)) {
         return 
@@ -44644,7 +44669,7 @@ Ti.Preload("ti/i18n/en-us/ti-datetime.i18n.json", {
   "Wednesday": "Wednesday",
   "blank-date": "Select a date",
   "blank-date-range": "Select a date range",
-  "blank-datetime": "Select the date and time",
+  "blank-datetime": "Select datetime",
   "blank-month": "Select month",
   "blank-time": "Select time",
   "blank-time-range": "Select a time range",

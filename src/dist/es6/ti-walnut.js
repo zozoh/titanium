@@ -1,4 +1,4 @@
-// Pack At: 2020-09-13 16:07:04
+// Pack At: 2020-09-15 23:25:59
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1580,6 +1580,7 @@ const OpenObjSelector = (function(){
     fromIndex=0,
     homePath=Wn.Session.getHomePath(),
     fallbackPath=Wn.Session.getHomePath(),
+    filter= o => "FILE" == o.race,
     selected=[]
   }={}){
     //................................................
@@ -1623,7 +1624,9 @@ const OpenObjSelector = (function(){
       //------------------------------------------
       actions : [{
         text: textOk,
-        handler : ({$main})=>$main.myChecked
+        handler : ({$main})=>{
+          return $main.myChecked
+        }
       }, {
         text: textCancel,
         handler : ()=>undefined
@@ -1678,7 +1681,6 @@ const OpenObjSelector = (function(){
           ...Vuex.mapState("main", ["data", "status"]),
           //--------------------------------------
           theCrumbData() {
-            console.log("haha")
             return Wn.Obj.evalCrumbData({
               meta      : _.get(this.obj, "meta"),
               ancestors : _.get(this.obj, "ancestors"),
@@ -1737,7 +1739,10 @@ const OpenObjSelector = (function(){
           //--------------------------------------
           OnArenaSelect({checked}) {
             //console.log("OnArenaSelect", checked)
-            this.myChecked = _.filter(checked, o=>"FILE"==o.race)
+            if(_.isFunction(filter))
+              this.myChecked = _.filter(checked, filter)
+            else
+              this.myChecked = checked
           },
           //--------------------------------------
           async open(obj) {
@@ -2115,7 +2120,7 @@ const EditTiComponent = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200913.160704"
+const WALNUT_VERSION = "2.1-20200915.232559"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

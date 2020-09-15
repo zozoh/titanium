@@ -176,7 +176,7 @@ const _M = {
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
       // Notify at first
-      //console.log("notify field")
+      console.log("notify field")
       this.$notify("field:change", {name, value})
 
       // Notify later ...

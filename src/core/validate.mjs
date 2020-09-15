@@ -87,6 +87,9 @@ const TiValidate = {
   },
   //-----------------------------------
   getBy(fn) {
+    if(_.isBoolean(fn)) {
+      return () => fn
+    }
     if(_.isFunction(fn)) {
       return fn
     }
@@ -154,6 +157,12 @@ const TiValidate = {
       }
     }
     return true
+  },
+  //-----------------------------------
+  compile(validates, allowEmpty) {
+    return (obj)=>{
+      return TiValidate.match(obj, validates, allowEmpty)
+    }
   }
   //-----------------------------------
 }

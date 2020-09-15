@@ -1,4 +1,4 @@
-// Pack At: 2020-09-13 16:07:04
+// Pack At: 2020-09-15 23:25:59
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2993,6 +2993,7 @@ const {Config} = (function(){
       this.reset(alias)
     }
     reset(alias={}) {
+      this.list = []
       _.forOwn(alias, (val, key)=>{
         this.list.push({
           regex  : new RegExp(key),
@@ -5551,6 +5552,9 @@ const {Validate} = (function(){
     },
     //-----------------------------------
     getBy(fn) {
+      if(_.isBoolean(fn)) {
+        return () => fn
+      }
       if(_.isFunction(fn)) {
         return fn
       }
@@ -5618,6 +5622,12 @@ const {Validate} = (function(){
         }
       }
       return true
+    },
+    //-----------------------------------
+    compile(validates, allowEmpty) {
+      return (obj)=>{
+        return TiValidate.match(obj, validates, allowEmpty)
+      }
     }
     //-----------------------------------
   }
@@ -9032,7 +9042,16 @@ const {DateTime} = (function(){
       // TODO here add another param
       // to format the datetime to "in 5min" like string
       // Maybe the param should named as "shorthand"
-      
+      /*
+      E   :Mon
+      EE  :Mon
+      EEE :Mon
+      EEEE:Monday
+      M   :9
+      MM  :09
+      MMM :Sep
+      MMMM:September
+      */
       // Format by pattern
       let yyyy = date.getFullYear()
       let M = date.getMonth() + 1
@@ -9041,6 +9060,16 @@ const {DateTime} = (function(){
       let m = date.getMinutes()
       let s = date.getSeconds()
       let S = date.getMilliseconds()
+  
+      let mkey = MONTH_ABBR[date.getMonth()]
+      let MMM = Ti.I18n.get(`cal.abbr.${mkey}`)
+      let MMMM = Ti.I18n.get(mkey)
+  
+      let day = date.getDay()
+      let dayK0 = _.upperFirst(I_DAYS[day])
+      let dayK1 = _.upperFirst(I_WEEK[day])
+      let E = Ti.I18n.get(dayK0)
+      let EEEE = Ti.I18n.get(dayK1)
       let _c = {
         yyyy, M, d, H, m, s, S,
         yyy : yyyy,
@@ -9052,8 +9081,10 @@ const {DateTime} = (function(){
         ss  : _.padStart(s, 2, '0'),
         SS  : _.padStart(S, 3, '0'),
         SSS : _.padStart(S, 3, '0'),
+        E, EE:E, EEE:E, EEEE,
+        MMM, MMMM
       }
-      let regex = /(y{2,4}|M{1,2}|d{1,2}|H{1,2}|m{1,2}|s{1,2}|S{1,3}|'([^']+)')/g;
+      let regex = /(y{2,4}|M{1,4}|dd?|HH?|mm?|ss?|S{1,3}|E{1,4}|'([^']+)')/g;
       let ma;
       let list = []
       let last = 0
@@ -10817,7 +10848,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200913.160704",
+  "version" : "2.5-20200915.232559",
   "dev" : false,
   "appName" : null,
   "session" : {},

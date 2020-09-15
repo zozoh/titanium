@@ -13,6 +13,7 @@ async function OpenObjSelector(pathOrObj="~", {
   fromIndex=0,
   homePath=Wn.Session.getHomePath(),
   fallbackPath=Wn.Session.getHomePath(),
+  filter= o => "FILE" == o.race,
   selected=[]
 }={}){
   //................................................
@@ -56,7 +57,9 @@ async function OpenObjSelector(pathOrObj="~", {
     //------------------------------------------
     actions : [{
       text: textOk,
-      handler : ({$main})=>$main.myChecked
+      handler : ({$main})=>{
+        return $main.myChecked
+      }
     }, {
       text: textCancel,
       handler : ()=>undefined
@@ -169,7 +172,10 @@ async function OpenObjSelector(pathOrObj="~", {
         //--------------------------------------
         OnArenaSelect({checked}) {
           //console.log("OnArenaSelect", checked)
-          this.myChecked = _.filter(checked, o=>"FILE"==o.race)
+          if(_.isFunction(filter))
+            this.myChecked = _.filter(checked, filter)
+          else
+            this.myChecked = checked
         },
         //--------------------------------------
         async open(obj) {

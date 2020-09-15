@@ -10,6 +10,7 @@ class AliasMapping {
     this.reset(alias)
   }
   reset(alias={}) {
+    this.list = []
     _.forOwn(alias, (val, key)=>{
       this.list.push({
         regex  : new RegExp(key),
