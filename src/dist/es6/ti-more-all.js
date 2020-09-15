@@ -1,4 +1,4 @@
-// Pack At: 2020-09-15 23:25:59
+// Pack At: 2020-09-16 00:44:52
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -9426,7 +9426,7 @@ const _M = {
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
       // Notify at first
-      console.log("notify field")
+      //console.log("notify field")
       this.$notify("field:change", {name, value})
 
       // Notify later ...
@@ -44896,6 +44896,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "invoice-k-invdft": "Default title",
   "invoice-k-invtfn": "TFN",
   "invoice-k-invtitle": "Invoice title",
+  "invoice-k-type": "Invoice Type",
   "invoice-k-uemail": "Taker email",
   "invoice-k-uid": "Owner account",
   "invoice-k-uid-tip": "Filter by username",
@@ -44940,6 +44941,9 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "or-st-wt": "Wait for pay",
   "ord-detail": "Order detail",
   "order-flt-tip": "Query by order id",
+  "order-k-user_name": "User name",
+  "order-k-user_phone": "User phone",
+  "order-k-user_email": "User email",
   "order-k-accounts": "Accounts",
   "order-k-addr_ship": "Ship address",
   "order-k-addr_ship_code": "Ship code",
@@ -45042,13 +45046,18 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "type-new": "New type",
   "video-title": "Video title",
   "watch_c": "View count",
-  "waybil-com-bs": "BAI SHI",
-  "waybil-com-jd": "JING DONG",
-  "waybil-com-sf": "SHUN FENG",
-  "waybil-com-st": "SHEN TONG",
-  "waybil-com-yd": "YUN DA",
-  "waybil-com-yt": "YUAN TONG",
-  "waybil-com-zt": "ZHONG TONG"
+  "waybil-com-ane": "AN NENG Logistics",
+  "waybil-com-best": "BAISHI Express",
+  "waybil-com-db": "DE BANG Express",
+  "waybil-com-ems": "EMS Logistics",
+  "waybil-com-jdl": "JING DONG Logistics",
+  "waybil-com-pj": "PIN JUN Express",
+  "waybil-com-sf": "SHUN FENG Express",
+  "waybil-com-sto": "SHEN TONG Express",
+  "waybil-com-uce": "YOU SU Express",
+  "waybil-com-yto": "YUAN TONG Express",
+  "waybil-com-yunda": "YUN DA Express",
+  "waybil-com-zto": "ZHONG TONG Express"
 });
 //============================================================
 // JOIN: en-us/wn-manager.i18n.json
@@ -45765,6 +45774,9 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "cover-pic": "封面图片",
   "detail-info": "详细信息",
   "dir-media": "媒体目录",
+  "order-k-user_name": "收货人姓名",
+  "order-k-user_phone": "收货人手机",
+  "order-k-user_email": "收货人邮箱",
   "e-cmd-passwd-old_invalid": "旧密码错误",
   "e-cmd-www_passwd-Blank": "新密码为空",
   "e-cmd-www_passwd-CheckBlankAccount": "空账户",
@@ -45786,6 +45798,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "invoice-k-invdft": "默认抬头",
   "invoice-k-invtfn": "发票税号",
   "invoice-k-invtitle": "发票抬头",
+  "invoice-k-type": "发票类型",
   "invoice-k-uemail": "收票人邮箱",
   "invoice-k-uid": "关联账户",
   "invoice-k-uid-tip": "输入关联用户名过滤",
@@ -45939,13 +45952,18 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "type-new": "新类型",
   "video-title": "视频标题",
   "watch_c": "浏览次数",
-  "waybil-com-bs": "百世快递",
-  "waybil-com-jd": "京东物流",
+  "waybil-com-ane": "安能物流",
+  "waybil-com-best": "百世快递",
+  "waybil-com-db": "德邦快递",
+  "waybil-com-ems": "中国邮政速递物流",
+  "waybil-com-jdl": "京东物流",
+  "waybil-com-pj": "品骏快递",
   "waybil-com-sf": "顺丰快递",
-  "waybil-com-st": "申通快递",
-  "waybil-com-yd": "韵达快递",
-  "waybil-com-yt": "圆通快递",
-  "waybil-com-zt": "中通快递"
+  "waybil-com-sto": "申通快递",
+  "waybil-com-uce": "优速快递",
+  "waybil-com-yto": "圆通速递",
+  "waybil-com-yunda": "韵达快递",
+  "waybil-com-zto": "中通快递"
 });
 //============================================================
 // JOIN: zh-cn/wn-manager.i18n.json
