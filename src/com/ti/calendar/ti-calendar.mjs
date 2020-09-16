@@ -73,9 +73,9 @@ export default {
     // If the value changed outside,
     // and if the value our-of-view
     // It should auto switch the viewDate
-    "value" : function(val) {
-      if(val) {
-        let [v0] = [].concat(val)
+    "value" : function(newVal, oldVal) {
+      if(!_.isEmpty(newVal) && !_.isEqual(newVal, oldVal)) {
+        let [v0] = [].concat(newVal)
         let dt = Ti.Types.toDate(v0)
         let ms = dt.getTime()
         if(!_.inRange(ms, ...this.theMatrixRangeInMs)) {

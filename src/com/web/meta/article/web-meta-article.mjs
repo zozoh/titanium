@@ -3,19 +3,19 @@ const _M = {
   props : {
     "title" : {
       type : String,
-      default : null
+      default : undefined
     },
     "brief" : {
       type : String,
-      default : null
+      default : undefined
     },
     "pubDate" : {
       type : [String, Number, Date],
-      default : null
+      default : undefined
     },
     "tags" : {
       type : [String, Array],
-      default : null
+      default : undefined
     },
     "dateFormat" : {
       type : String,
@@ -23,11 +23,11 @@ const _M = {
     },
     "author" : {
       type : String,
-      default : null
+      default : undefined
     },
     "duration" : {
       type : [String, Number],
-      default : null
+      default : undefined
     },
     "watchCount" : {
       type : Number,

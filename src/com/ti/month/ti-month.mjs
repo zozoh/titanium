@@ -96,7 +96,6 @@ export default {
           return new Date(y, theDate.getMonth())
         }
       })[key](val)
-
       this.$notify("change", d)
     }
     //------------------------------------------------

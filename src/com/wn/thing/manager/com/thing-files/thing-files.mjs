@@ -87,8 +87,8 @@ const _M = {
       this.myCurrentId = currentId
     },
     //--------------------------------------
-    OnFileOpen({id, item}) {
-      this.$notify("file:open", item)
+    OnFileOpen(obj) {
+      this.$notify("file:open", obj)
     },
     //--------------------------------------
     async OnFileUploaded(files=[]){

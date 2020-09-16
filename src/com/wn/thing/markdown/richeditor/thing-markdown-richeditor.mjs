@@ -20,6 +20,7 @@ const _M = {
   mounted() {
     if(this.listenMedia) {
       this.$ThingManager.addEventRouting(this.listenMedia, (oMedia)=>{
+        console.log("oMedia", oMedia)
         this.$editor.insertMediaObj(oMedia)
       })
     }

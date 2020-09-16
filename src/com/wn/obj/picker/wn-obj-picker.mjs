@@ -126,7 +126,7 @@ export default {
         selected : this.myItems,
         filter
       })
-      console.log(objs)
+      //console.log(objs)
       // user cancel
       if(_.isEmpty(objs)) {
         return

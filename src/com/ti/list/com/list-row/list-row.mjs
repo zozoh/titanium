@@ -89,23 +89,23 @@ export default {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "display" : async function() {
-      await this.evalMyDisplayItems()
+    "display" : function() {
+      this.evalMyDisplayItems()
     },
-    "data" : async function() {
+    "data" : function() {
       //console.log("data changed")
-      await this.evalMyDisplayItems()
+      this.evalMyDisplayItems()
     },
-    "isCurrent" : async function() {
-      await this.evalMyDisplayItems()
+    "isCurrent" : function() {
+      this.evalMyDisplayItems()
     },
-    "isChecked" : async function() {
-      await this.evalMyDisplayItems()
+    "isChecked" : function() {
+      this.evalMyDisplayItems()
     }
   },
   ///////////////////////////////////////////////////
-  mounted : async function() {
-    await this.evalMyDisplayItems()
+  mounted : function() {
+    this.evalMyDisplayItems()
   }
   ///////////////////////////////////////////////////
 }

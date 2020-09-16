@@ -306,7 +306,7 @@ const _M = {
       let reo = await Ti.App.Open(diaConf)
 
       // User canceled
-      if(_.isEmpty(reo))
+      if(Ti.Util.isNil(reo))
         return
       
       // Remove dup

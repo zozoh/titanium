@@ -119,7 +119,7 @@ const _M = {
     //--------------------------------------------
     // Events
     //--------------------------------------------
-    OnSelected({currentId, checkedIds, currentIndex}) {
+    OnItemSelecteItem({currentId, checkedIds, currentIndex}) {
       //console.log("OnSelected", currentId, checkedIds)
       // For Desktop
       this.myCurrentId  = currentId
@@ -135,6 +135,13 @@ const _M = {
       this.$notify("select", context)
 
       return {stop:true}
+    },
+    //--------------------------------------------
+    OnItemOpen() {
+      let obj = this.getCurrentItem()
+      if(obj) {
+        this.$notify("open", obj)
+      }
     },
     //--------------------------------------------
     async OnDropFiles(files) {
