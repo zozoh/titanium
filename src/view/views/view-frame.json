@@ -1,0 +1,20 @@
+{
+  "comIcon" : "im-firefox",
+  "comType" : "@com:web/widget/frame",
+  "comConf" : {
+    "src" : "=content"
+  },
+  "actions" : [{
+      "name" : "reloading",
+      "type" : "action",
+      "icon" : "zmdi-refresh",
+      "text" : "i18n:refresh",
+      "altDisplay" : {
+        "icon" : "zmdi-refresh zmdi-hc-spin",
+        "text" : "i18n:loading"
+      },
+      "action" : "main:reloadList",
+      "shortcut" : "CTRL+SHIFT+R",
+      "wait" : 500
+    }]
+}

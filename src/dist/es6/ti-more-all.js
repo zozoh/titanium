@@ -1,4 +1,4 @@
-// Pack At: 2020-09-16 00:44:52
+// Pack At: 2020-09-16 21:55:09
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -4707,9 +4707,9 @@ const _M = {
     // If the value changed outside,
     // and if the value our-of-view
     // It should auto switch the viewDate
-    "value" : function(val) {
-      if(val) {
-        let [v0] = [].concat(val)
+    "value" : function(newVal, oldVal) {
+      if(!_.isEmpty(newVal) && !_.isEqual(newVal, oldVal)) {
+        let [v0] = [].concat(newVal)
         let dt = Ti.Types.toDate(v0)
         let ms = dt.getTime()
         if(!_.inRange(ms, ...this.theMatrixRangeInMs)) {
@@ -17029,7 +17029,7 @@ const _M = {
       let reo = await Ti.App.Open(diaConf)
 
       // User canceled
-      if(_.isEmpty(reo))
+      if(Ti.Util.isNil(reo))
         return
       
       // Remove dup
@@ -17305,23 +17305,23 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "display" : async function() {
-      await this.evalMyDisplayItems()
+    "display" : function() {
+      this.evalMyDisplayItems()
     },
-    "data" : async function() {
+    "data" : function() {
       //console.log("data changed")
-      await this.evalMyDisplayItems()
+      this.evalMyDisplayItems()
     },
-    "isCurrent" : async function() {
-      await this.evalMyDisplayItems()
+    "isCurrent" : function() {
+      this.evalMyDisplayItems()
     },
-    "isChecked" : async function() {
-      await this.evalMyDisplayItems()
+    "isChecked" : function() {
+      this.evalMyDisplayItems()
     }
   },
   ///////////////////////////////////////////////////
-  mounted : async function() {
-    await this.evalMyDisplayItems()
+  mounted : function() {
+    this.evalMyDisplayItems()
   }
   ///////////////////////////////////////////////////
 }
@@ -18113,7 +18113,6 @@ const _M = {
           return new Date(y, theDate.getMonth())
         }
       })[key](val)
-
       this.$notify("change", d)
     }
     //------------------------------------------------
@@ -18282,6 +18281,157 @@ Ti.Preload("ti/com/ti/obj/creation/_com.json", {
   "i18n" : "@i18n:ti-obj-creation",
   "template" : "./ti-obj-creation.html",
   "mixins" : ["./ti-obj-creation.mjs"]
+});
+//============================================================
+// JOIN: ti/obj/pair/ti-obj-pair.html
+//============================================================
+Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair" 
+    :class="TopClass">
+  <!--
+    Empty
+  -->
+  <ti-loading
+    v-if="isEmpty"
+      v-bind="blankAs"/>
+  <!--
+    Show Pair
+  -->
+  <template v-else>
+    <table>
+      <thead v-if="showHead">
+        <tr>
+          <th class="as-name" >{{nameText  | i18n}}</th>
+          <th class="as-value">{{valueText | i18n}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="pa in ThePairList">
+          <td class="as-name" >{{pa.title}}</td>
+          <td class="as-value">{{pa.value}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </template>
+</div>`);
+//============================================================
+// JOIN: ti/obj/pair/ti-obj-pair.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value" : {
+      type : [String, Object],
+      default : undefined
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "nameText": {
+      type : String,
+      default : "i18n:name"
+    },
+    "valueText": {
+      type : String,
+      default : "i18n:value"
+    },
+    "titles" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "im-plug",
+        default : undefined
+      })
+    },
+    "showHead" : {
+      type : Boolean,
+      default : true
+    },
+    "autoI18n" : {
+      type : Boolean,
+      default : true
+    }
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+  },
+  ////////////////////////////////////////////////
+  computed : {
+    //--------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------------
+    TheData() {
+      if(!this.value) {
+        return {}
+      }
+      if(_.isString(this.value)) {
+        return JSON.parse(this.value)
+      }
+      if(_.isPlainObject(this.value))
+        return this.value
+      return {}
+    },
+    //--------------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.TheData)
+    },
+    //--------------------------------------------
+    ThePairList() {
+      let list = []
+      this.joinPairs(list, [], this.TheData)
+      return list
+    }
+    //--------------------------------------------
+  },
+  ////////////////////////////////////////////////
+  methods : {
+    //--------------------------------------------
+    joinPairs(list=[], path=[], obj) {
+      // recursion
+      if(_.isPlainObject(obj)){
+        _.forEach(obj, (val, key)=>{
+          this.joinPairs(list, _.concat(path, key), val)
+        })
+      }
+      // join pair
+      else {
+        let name  = path.join(".")
+        let value = Ti.Types.toStr(obj)
+        let title = this.titles[name] || name
+        if(this.autoI18n) {
+          title = Ti.I18n.text(title)
+        }
+        list.push({
+          name, value, title
+        })
+      }
+    }
+    //--------------------------------------------
+  }
+  ////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/obj/pair/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/obj/pair/_com.json", {
+  "name" : "ti-obj-pair",
+  "globally" : true,
+  "template" : "./ti-obj-pair.html",
+  "mixins" : ["./ti-obj-pair.mjs"]
 });
 //============================================================
 // JOIN: ti/obj/thumb/ti-obj-thumb.html
@@ -28326,19 +28476,19 @@ const _M = {
   props : {
     "title" : {
       type : String,
-      default : null
+      default : undefined
     },
     "brief" : {
       type : String,
-      default : null
+      default : undefined
     },
     "pubDate" : {
       type : [String, Number, Date],
-      default : null
+      default : undefined
     },
     "tags" : {
       type : [String, Array],
-      default : null
+      default : undefined
     },
     "dateFormat" : {
       type : String,
@@ -28346,11 +28496,11 @@ const _M = {
     },
     "author" : {
       type : String,
-      default : null
+      default : undefined
     },
     "duration" : {
       type : [String, Number],
-      default : null
+      default : undefined
     },
     "watchCount" : {
       type : Number,
@@ -32095,6 +32245,66 @@ Ti.Preload("ti/com/web/tile/order/_com.json", {
   "mixins" : ["./web-tile-order.mjs"]
 });
 //============================================================
+// JOIN: web/widget/frame/widget-frame.html
+//============================================================
+Ti.Preload("ti/com/web/widget/frame/widget-frame.html", `<div class="web-widget-frame"
+  :class="TopClass">
+  <template v-if="hasFrameSrce">
+    <iframe :src="FrameSrce" class="ti-fill-parent" :style="FrameStyle"></iframe>
+  </template>
+</div>`);
+//============================================================
+// JOIN: web/widget/frame/widget-frame.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  props : {
+    "src": {
+      type: String,
+      default: undefined
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------
+    FrameSrce() {
+      return _.trim(this.src)
+    },
+    //------------------------------------
+    hasFrameSrce() {
+      return this.FrameSrce ? true : false
+    },
+    //------------------------------------
+    FrameStyle() {
+      return {border: 0}
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //------------------------------------
+    //------------------------------------
+  }
+  /////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/widget/frame/widget-frame.mjs", _M);
+})();
+//============================================================
+// JOIN: web/widget/frame/_com.json
+//============================================================
+Ti.Preload("ti/com/web/widget/frame/_com.json", {
+  "name" : "web-widget-frame",
+  "globally" : true,
+  "template" : "./widget-frame.html",
+  "mixins"   : ["./widget-frame.mjs"],
+  "components" : []
+});
+//============================================================
 // JOIN: web/widget/input/text/widget-input-text.html
 //============================================================
 Ti.Preload("ti/com/web/widget/input/text/widget-input-text.html", `<div class="web-widget-input-text" 
@@ -33026,7 +33236,8 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist"
         :puppet-mode="true"
         v-bind="listConf"
         :on-init="OnListInit"
-        @select="OnSelected"/>
+        @select="OnItemSelecteItem"
+        @open="OnItemOpen"/>
     <!--==================================
       Hidden file upload control
     -->
@@ -33186,7 +33397,7 @@ const _M = {
     //--------------------------------------------
     // Events
     //--------------------------------------------
-    OnSelected({currentId, checkedIds, currentIndex}) {
+    OnItemSelecteItem({currentId, checkedIds, currentIndex}) {
       //console.log("OnSelected", currentId, checkedIds)
       // For Desktop
       this.myCurrentId  = currentId
@@ -33202,6 +33413,13 @@ const _M = {
       this.$notify("select", context)
 
       return {stop:true}
+    },
+    //--------------------------------------------
+    OnItemOpen() {
+      let obj = this.getCurrentItem()
+      if(obj) {
+        this.$notify("open", obj)
+      }
     },
     //--------------------------------------------
     async OnDropFiles(files) {
@@ -36163,7 +36381,7 @@ const _M = {
         selected : this.myItems,
         filter
       })
-      console.log(objs)
+      //console.log(objs)
       // user cancel
       if(_.isEmpty(objs)) {
         return
@@ -37663,8 +37881,8 @@ const _M = {
       this.myCurrentId = currentId
     },
     //--------------------------------------
-    OnFileOpen({id, item}) {
-      this.$notify("file:open", item)
+    OnFileOpen(obj) {
+      this.$notify("file:open", obj)
     },
     //--------------------------------------
     async OnFileUploaded(files=[]){
@@ -38509,6 +38727,7 @@ const _M = {
   mounted() {
     if(this.listenMedia) {
       this.$ThingManager.addEventRouting(this.listenMedia, (oMedia)=>{
+        console.log("oMedia", oMedia)
         this.$editor.insertMediaObj(oMedia)
       })
     }
@@ -42816,7 +43035,7 @@ const _M = {
       }
       // Cache the Error
       catch (err) {
-        console.warn(E)
+        console.warn(err)
         dispatch("doAction", fail, {root:true})
          return
       }

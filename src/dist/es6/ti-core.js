@@ -1,4 +1,4 @@
-// Pack At: 2020-09-16 00:44:52
+// Pack At: 2020-09-16 21:55:09
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4823,6 +4823,10 @@ const {I18n} = (function(){
         return Ti18n.getf(m[1], vars)
       }
       return Ti.S.renderBy(str, vars)
+    },
+    render(vars={}, str) {
+      console.log("haha")
+      return Ti18n.textf(str, vars)
     }
   }
   //---------------------------------------
@@ -10848,7 +10852,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200916.004452",
+  "version" : "2.5-20200916.215509",
   "dev" : false,
   "appName" : null,
   "session" : {},

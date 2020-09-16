@@ -1,0 +1,7 @@
+{
+  "name" : "web-widget-frame",
+  "globally" : true,
+  "template" : "./widget-frame.html",
+  "mixins"   : ["./widget-frame.mjs"],
+  "components" : []
+}
