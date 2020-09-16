@@ -1,0 +1,6 @@
+{
+  "name" : "ti-obj-pair",
+  "globally" : true,
+  "template" : "./ti-obj-pair.html",
+  "mixins" : ["./ti-obj-pair.mjs"]
+}

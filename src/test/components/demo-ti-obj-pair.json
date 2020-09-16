@@ -1,0 +1,15 @@
+{
+  "comType" : "ti-obj-pair",
+  "comConf" : {
+    "className" : "ti-fill-parent",
+    "value"    : "=content",
+    "showHead" : false,
+    "titles" : {
+      "pos.x" : "左",
+      "pos.y" : "右"
+    }
+  },
+  "dispatchActions" : {
+    "change" : "updateData"
+  }
+}

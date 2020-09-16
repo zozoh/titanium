@@ -437,6 +437,12 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
   com: "/rs/ti/test/components/demo-ti-tree-0.json"
 }
 #---------------------------------------------------------
+@FILE demo/ti-obj-pair.comt
+{
+  title : "对象值表",
+  com: "/rs/ti/test/components/demo-ti-obj-pair.json"
+}
+#---------------------------------------------------------
 #@FILE demo/ti-list-0.comt
 #{
 #  title : "列表",

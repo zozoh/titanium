@@ -1,0 +1,29 @@
+<div class="ti-obj-pair" 
+    :class="TopClass">
+  <!--
+    Empty
+  -->
+  <ti-loading
+    v-if="isEmpty"
+      v-bind="blankAs"/>
+  <!--
+    Show Pair
+  -->
+  <template v-else>
+    <table>
+      <thead v-if="showHead">
+        <tr>
+          <th class="as-name" >{{nameText  | i18n}}</th>
+          <th class="as-value">{{valueText | i18n}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="pa in ThePairList">
+          <td class="as-name" >{{pa.title}}</td>
+          <td class="as-value">{{pa.value}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </template>
+</div>
