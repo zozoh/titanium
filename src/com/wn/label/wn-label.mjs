@@ -1,68 +1,41 @@
 export default {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  data: ()=>({
-    "theValue" : null
-  }),
   //////////////////////////////////////////
   props : {
-    "blankAs" : {
-      type : String,
-      default : "i18n:nil"
-    },
-    "value" : null,
-    "format" : undefined,
-    "prefixIcon" : {
-      type : String,
-      default : null
-    },
-    "prefixText" : {
-      type : String,
-      default : null
-    },
-    "suffixText" : {
-      type : String,
-      default : null
-    },
-    "suffixIcon" : {
-      type : String,
-      default : null
-    },
-    "dict" : {
-      type : String,
-      default : null
-    },
-    "href" : {
-      type : String,
-      default : null
-    },
-    "newTab" : {
-      type : Boolean,
-      default : false
+    "openRefer": {
+      type : Object,
+      default: undefined
     }
   },
   //////////////////////////////////////////
-  watch : {
-    "value" : async function() {
-      await this.evalTheValue()
+  computed : {
+    ValueClickable() {
+      return this.openRefer ? true : false
     }
   },
   //////////////////////////////////////////
   methods : {
-    async evalTheValue() {
-      // Blank value
-      if(!Ti.Util.isNil(this.value) && this.dict) {
-        this.theValue = await Wn.Dict.get(this.dict, this.value)
-      }
-      // Keep primary
-      else {
-        this.theValue = this.value
-      }
+    //--------------------------------------
+    async OnClickValue() {
+      if(!this.openRefer || !this.value)
+        return
+
+      // Load refer obj
+      let obj = await Wn.Io.loadMetaBy(this.value)
+      console.log(obj)
+      // prepare conf
+      let conf = _.assign({
+        title: "i18n:info",
+        width: 640,
+        height: 480,
+        textOk : null,
+        textCancel : "i18n:close",
+        result : obj
+      }, this.openRefer)
+
+      // Show Dialog
+      await Ti.App.Open(conf)
     }
-  },
-  //////////////////////////////////////////
-  mounted : async function() {
-    await this.evalTheValue()
+    //--------------------------------------
   }
   //////////////////////////////////////////
 }

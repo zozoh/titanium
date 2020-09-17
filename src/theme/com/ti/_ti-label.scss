@@ -81,6 +81,7 @@
     @include flex-align-nowrap;
     padding: 0 SZ(4);
     width:100%;
+    a:hover {text-decoration: underline;}
   }
   //-----------------------------------------
   &.align-left   > .as-value {justify-content: flex-start;}

@@ -19,9 +19,9 @@
       </thead>
       <tbody>
         <tr
-          v-for="pa in ThePairList">
+          v-for="pa in myPairList">
           <td class="as-name" >{{pa.title}}</td>
-          <td class="as-value">{{pa.value}}</td>
+          <td class="as-value">{{pa.text || pa.value}}</td>
         </tr>
       </tbody>
     </table>

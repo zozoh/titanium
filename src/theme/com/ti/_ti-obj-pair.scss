@@ -9,7 +9,7 @@
   //-----------------------------------
   td, th {
     @include border(1px, solid, shallow, bottom);
-    padding: .2em .4em;
+    padding: .3em .5em;
     //---------------------------------
     &.as-name {@include border(1px, solid, shallow, right);}
     //---------------------------------
@@ -19,6 +19,13 @@
     @include border(1px, solid, shallow, bottom);
   }
   //-----------------------------------
-  &.as-comfy { td, th {padding: .5em .8em;}}
+  &.as-comfy {
+    padding: 1em;
+    td, th {padding: .5em .8em;}
+  }
+  //-----------------------------------
+  &.as-full {
+    table {width: 100%;}
+  }
   //-----------------------------------
 }

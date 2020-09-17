@@ -1,11 +1,5 @@
 <ti-label
   :class-name="className"
-  :blank-as="blankAs"
-  :value="theValue"
-  :format="format"
-  :prefix-icon="prefixIcon"
-  :prefix-text="prefixText"
-  :suffix-text="suffixText"
-  :suffix-icon="suffixIcon"
-  :href="href"
-  :new-tab="newTab"/>
+  v-bind="this"
+  :value-clickable="ValueClickable"
+  @click:value="OnClickValue"/>

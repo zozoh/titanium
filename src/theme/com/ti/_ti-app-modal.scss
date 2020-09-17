@@ -265,13 +265,13 @@
 ////////////////////////////////////////////////////
 .ti-msg-body {
   @include flex-align-nowrap;
-  min-width: SZ(300); width:100%;
+  min-width: SZ(300); width:100%; min-height:1rem;
   //-----------------------------------
-  &.modal-type-is-success {@include color($color-success, c);}
-  &.modal-type-is-warn    {@include color($color-warn,    c);}
-  &.modal-type-is-info    {@include color($color-info,    c);}
-  &.modal-type-is-error   {@include color($color-error,   c);}
-  &.modal-type-is-track   {@include color($color-track,   c);}
+  &.modal-type-is-success {@include color($color-success, c, r);}
+  &.modal-type-is-warn    {@include color($color-warn,    c, r);}
+  &.modal-type-is-info    {@include color($color-info,    c, r);}
+  &.modal-type-is-error   {@include color($color-error,   c, r);}
+  &.modal-type-is-track   {@include color($color-track,   c, r);}
   //-----------------------------------
   > .as-icon {
     @include flex-center;

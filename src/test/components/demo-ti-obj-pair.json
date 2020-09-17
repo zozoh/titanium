@@ -4,10 +4,14 @@
     "className" : "ti-fill-parent",
     "value"    : "=content",
     "showHead" : false,
-    "titles" : {
-      "pos.x" : "左",
-      "pos.y" : "右"
-    }
+    "fields" : [{
+        "title" : "右",
+        "name" : "pos.y"
+      }, {
+        "title" : "左",
+        "name" : "pos.x"
+      }],
+      "onlyFields" : false
   },
   "dispatchActions" : {
     "change" : "updateData"

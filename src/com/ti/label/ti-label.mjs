@@ -10,6 +10,10 @@ const _M = {
     "autoLoadDictIcon": {
       type : Boolean,
       default: true
+    },
+    "valueClickable" : {
+      type : Boolean,
+      default: false
     }
   },
   //////////////////////////////////////////
@@ -113,7 +117,9 @@ const _M = {
     },
     //------------------------------------------------
     OnClickValue() {
-      this.$notify("click:value")
+      if(this.valueClickable) {
+        this.$notify("click:value")
+      }
     },
     //------------------------------------------------
     OnClickSuffixIcon() {

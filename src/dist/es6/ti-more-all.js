@@ -1,4 +1,4 @@
-// Pack At: 2020-09-16 21:55:09
+// Pack At: 2020-09-17 18:01:15
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -15023,7 +15023,7 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label full-field"
     :style="ValueStyle"
     @click.left="OnClickValue">
     <!--Link-->
-    <a v-if="href"
+    <a v-if="href || valueClickable"
         :href="href"
         :taget="newTab ? '_blank' : undefined"
         @click.left.prevent>{{myDisplayText}}</a>
@@ -15061,6 +15061,10 @@ const _M = {
     "autoLoadDictIcon": {
       type : Boolean,
       default: true
+    },
+    "valueClickable" : {
+      type : Boolean,
+      default: false
     }
   },
   //////////////////////////////////////////
@@ -15164,7 +15168,9 @@ const _M = {
     },
     //------------------------------------------------
     OnClickValue() {
-      this.$notify("click:value")
+      if(this.valueClickable) {
+        this.$notify("click:value")
+      }
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
@@ -18306,9 +18312,9 @@ Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair"
       </thead>
       <tbody>
         <tr
-          v-for="pa in ThePairList">
+          v-for="pa in myPairList">
           <td class="as-name" >{{pa.title}}</td>
-          <td class="as-value">{{pa.value}}</td>
+          <td class="as-value">{{pa.text || pa.value}}</td>
         </tr>
       </tbody>
     </table>
@@ -18319,6 +18325,10 @@ Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair"
 //============================================================
 (function(){
 const _M = {
+  ////////////////////////////////////////////////
+  data : ()=>({
+    myPairList : []
+  }),
   ////////////////////////////////////////////////
   props : {
     //-----------------------------------
@@ -18342,9 +18352,13 @@ const _M = {
       type : String,
       default : "i18n:value"
     },
-    "titles" : {
-      type : Object,
-      default : ()=>({})
+    "fields" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "onlyFields" : {
+      type: Boolean,
+      default: false
     },
     "blankAs" : {
       type : Object,
@@ -18372,6 +18386,15 @@ const _M = {
       return this.getTopClass()
     },
     //--------------------------------------------
+    FieldsMap() {
+      let map = {}
+      for(let fld of this.fields) {
+        if(fld.name)
+          map[fld.name] = fld
+      }
+      return map
+    },
+    //--------------------------------------------
     TheData() {
       if(!this.value) {
         return {}
@@ -18386,39 +18409,76 @@ const _M = {
     //--------------------------------------------
     isEmpty() {
       return _.isEmpty(this.TheData)
-    },
-    //--------------------------------------------
-    ThePairList() {
-      let list = []
-      this.joinPairs(list, [], this.TheData)
-      return list
     }
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
   methods : {
     //--------------------------------------------
-    joinPairs(list=[], path=[], obj) {
+    async evalThePairList() {
+      // Flat pairs  [keyPath] : [pairValue]
+      let pairs = {}
+      this.joinPairs(pairs, [], this.TheData)
+
+      // format list
+      let list = []
+      for(let fld  of this.fields) {
+        let pa = pairs[fld.name]
+        if(pa) {
+          // Title
+          let title = fld.title || fld.name
+          if(this.autoI18n){
+            title = Ti.I18n.text(title)
+          }
+          pa.title = title
+          // Mapping Value
+          if(fld.dict) {
+            let d = Ti.DictFactory.CheckDict(fld.dict)
+            pa.text = await d.getItemText(pa.value)
+          }
+          // Push
+          list.push(pa)
+        }
+      }
+
+      // find remain
+      if(!this.onlyFields) {
+        let remains = []
+        _.forEach(pairs, (pa)=>{
+          if(pa.name && !this.FieldsMap[pa.name]) {
+            pa.title = pa.name
+            remains.push(pa)
+          }
+        })
+        list.push(...remains)
+      }
+
+      this.myPairList = list
+    },
+    //--------------------------------------------
+    joinPairs(pairs=[], path=[], obj) {
       // recursion
       if(_.isPlainObject(obj)){
         _.forEach(obj, (val, key)=>{
-          this.joinPairs(list, _.concat(path, key), val)
+          this.joinPairs(pairs, _.concat(path, key), val)
         })
       }
       // join pair
       else {
         let name  = path.join(".")
         let value = Ti.Types.toStr(obj)
-        let title = this.titles[name] || name
-        if(this.autoI18n) {
-          title = Ti.I18n.text(title)
-        }
-        list.push({
-          name, value, title
-        })
+        pairs[name] = {name, value}
       }
     }
     //--------------------------------------------
+  },
+  ////////////////////////////////////////////////
+  watch : {
+    "value" : "evalThePairList"
+  },
+  ////////////////////////////////////////////////
+  mounted() {
+    this.evalThePairList()
   }
   ////////////////////////////////////////////////
 }
@@ -35481,84 +35541,51 @@ Ti.Preload("ti/com/wn/imgfile/_com.json", {
 //============================================================
 Ti.Preload("ti/com/wn/label/wn-label.html", `<ti-label
   :class-name="className"
-  :blank-as="blankAs"
-  :value="theValue"
-  :format="format"
-  :prefix-icon="prefixIcon"
-  :prefix-text="prefixText"
-  :suffix-text="suffixText"
-  :suffix-icon="suffixIcon"
-  :href="href"
-  :new-tab="newTab"/>`);
+  v-bind="this"
+  :value-clickable="ValueClickable"
+  @click:value="OnClickValue"/>`);
 //============================================================
 // JOIN: wn/label/wn-label.mjs
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  data: ()=>({
-    "theValue" : null
-  }),
   //////////////////////////////////////////
   props : {
-    "blankAs" : {
-      type : String,
-      default : "i18n:nil"
-    },
-    "value" : null,
-    "format" : undefined,
-    "prefixIcon" : {
-      type : String,
-      default : null
-    },
-    "prefixText" : {
-      type : String,
-      default : null
-    },
-    "suffixText" : {
-      type : String,
-      default : null
-    },
-    "suffixIcon" : {
-      type : String,
-      default : null
-    },
-    "dict" : {
-      type : String,
-      default : null
-    },
-    "href" : {
-      type : String,
-      default : null
-    },
-    "newTab" : {
-      type : Boolean,
-      default : false
+    "openRefer": {
+      type : Object,
+      default: undefined
     }
   },
   //////////////////////////////////////////
-  watch : {
-    "value" : async function() {
-      await this.evalTheValue()
+  computed : {
+    ValueClickable() {
+      return this.openRefer ? true : false
     }
   },
   //////////////////////////////////////////
   methods : {
-    async evalTheValue() {
-      // Blank value
-      if(!Ti.Util.isNil(this.value) && this.dict) {
-        this.theValue = await Wn.Dict.get(this.dict, this.value)
-      }
-      // Keep primary
-      else {
-        this.theValue = this.value
-      }
+    //--------------------------------------
+    async OnClickValue() {
+      if(!this.openRefer || !this.value)
+        return
+
+      // Load refer obj
+      let obj = await Wn.Io.loadMetaBy(this.value)
+      console.log(obj)
+      // prepare conf
+      let conf = _.assign({
+        title: "i18n:info",
+        width: 640,
+        height: 480,
+        textOk : null,
+        textCancel : "i18n:close",
+        result : obj
+      }, this.openRefer)
+
+      // Show Dialog
+      await Ti.App.Open(conf)
     }
-  },
-  //////////////////////////////////////////
-  mounted : async function() {
-    await this.evalTheValue()
+    //--------------------------------------
   }
   //////////////////////////////////////////
 }
@@ -35571,6 +35598,8 @@ Ti.Preload("ti/com/wn/label/_com.json", {
   "name" : "wn-label",
   "globally" : true,
   "template" : "./wn-label.html",
+  "props"    : [
+    "@com:ti/label/ti-label-props.mjs"],
   "mixins" : ["./wn-label.mjs"],
   "components" : ["@com:ti/label"]
 });

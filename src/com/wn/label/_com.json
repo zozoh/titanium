@@ -2,6 +2,8 @@
   "name" : "wn-label",
   "globally" : true,
   "template" : "./wn-label.html",
+  "props"    : [
+    "@com:ti/label/ti-label-props.mjs"],
   "mixins" : ["./wn-label.mjs"],
   "components" : ["@com:ti/label"]
 }

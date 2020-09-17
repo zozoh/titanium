@@ -21,7 +21,7 @@
     :style="ValueStyle"
     @click.left="OnClickValue">
     <!--Link-->
-    <a v-if="href"
+    <a v-if="href || valueClickable"
         :href="href"
         :taget="newTab ? '_blank' : undefined"
         @click.left.prevent>{{myDisplayText}}</a>

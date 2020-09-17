@@ -1,4 +1,4 @@
-// Pack At: 2020-09-16 21:55:09
+// Pack At: 2020-09-17 18:01:15
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2120,7 +2120,7 @@ const EditTiComponent = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200916.215509"
+const WALNUT_VERSION = "2.1-20200917.180115"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
