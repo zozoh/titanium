@@ -1,4 +1,4 @@
-// Pack At: 2020-09-17 18:01:15
+// Pack At: 2020-09-18 13:14:09
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -7284,6 +7284,7 @@ Ti.Preload("ti/com/ti/combo/pair-auto/ti-combo-pair-auto-props.mjs", _M);
 // JOIN: ti/combo/pair-auto/ti-combo-pair-auto.html
 //============================================================
 Ti.Preload("ti/com/ti/combo/pair-auto/ti-combo-pair-auto.html", `<ti-form
+  class="full-field"
   :class="TopClass"
   :data="value"
   :fields="FormFields"
@@ -7413,7 +7414,7 @@ Ti.Preload("ti/com/ti/combo/pair-group/ti-combo-pair-group-props.mjs", _M);
 // JOIN: ti/combo/pair-group/ti-combo-pair-group.html
 //============================================================
 Ti.Preload("ti/com/ti/combo/pair-group/ti-combo-pair-group.html", `<ti-gui
-  class="ti-fill-parent"
+  class="ti-fill-parent full-field"
   :class="TopClass"
   :layout="TheLayout"
   :shown="TheShown"
@@ -7626,7 +7627,7 @@ Ti.Preload("ti/com/ti/combo/pair-text/ti-combo-pair-text-props.mjs", _M);
 //============================================================
 // JOIN: ti/combo/pair-text/ti-combo-pair-text.html
 //============================================================
-Ti.Preload("ti/com/ti/combo/pair-text/ti-combo-pair-text.html", `<div class="ti-combo-pair-text">
+Ti.Preload("ti/com/ti/combo/pair-text/ti-combo-pair-text.html", `<div class="ti-combo-pair-text full-field">
   <div
     v-for="it in Items"
       class="as-pair">
@@ -26074,7 +26075,7 @@ Ti.Preload("ti/com/ti/tree/_com.json", {
 //============================================================
 // JOIN: ti/upload/file/ti-upload-file.html
 //============================================================
-Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-file"
+Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-file full-field"
   :class="TopClass">
   <!--
     Hidden input file to choose files
@@ -26276,18 +26277,38 @@ const _M = {
       } else {
         this.myActionsWidth = 0
       }
+    },
+    //--------------------------------------
+    shouldRecountArea() {
+      _.delay(()=>{
+        this.recountArea()
+      }, 10)
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   watch: {
-    "preview": function() {
-      this.$nextTick(()=>this.recountArea())
-    }
+    "preview": "shouldRecountArea",
+    "width": "shouldRecountArea",
+    "height": "shouldRecountArea",
+    "removable": "shouldRecountArea",
+    "areaSize": "shouldRecountArea"
+  },
+  //////////////////////////////////////////
+  created: function() {
+    Ti.Viewport.watch(this, {
+      resize:()=>{
+        this.recountArea()
+      }
+    })
   },
   //////////////////////////////////////////
   mounted: function() {
     this.$nextTick(()=>this.recountArea())
+  },
+  //////////////////////////////////////////
+  beforeDestroy: function(){
+    Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////
 }

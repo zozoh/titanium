@@ -148,18 +148,38 @@ const _M = {
       } else {
         this.myActionsWidth = 0
       }
+    },
+    //--------------------------------------
+    shouldRecountArea() {
+      _.delay(()=>{
+        this.recountArea()
+      }, 10)
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   watch: {
-    "preview": function() {
-      this.$nextTick(()=>this.recountArea())
-    }
+    "preview": "shouldRecountArea",
+    "width": "shouldRecountArea",
+    "height": "shouldRecountArea",
+    "removable": "shouldRecountArea",
+    "areaSize": "shouldRecountArea"
+  },
+  //////////////////////////////////////////
+  created: function() {
+    Ti.Viewport.watch(this, {
+      resize:()=>{
+        this.recountArea()
+      }
+    })
   },
   //////////////////////////////////////////
   mounted: function() {
     this.$nextTick(()=>this.recountArea())
+  },
+  //////////////////////////////////////////
+  beforeDestroy: function(){
+    Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////
 }
