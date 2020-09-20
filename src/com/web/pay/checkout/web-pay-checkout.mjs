@@ -1,5 +1,16 @@
 const _M = {
   //////////////////////////////////////////
+  data: ()=>({
+    showAddrCanList : false
+  }),
+  //////////////////////////////////////////
+  props : {
+    "currentAddr": {
+      type: Object,
+      default: undefined
+    },
+  },
+  //////////////////////////////////////////
   computed : {
     //--------------------------------------
     TopClass() {
@@ -29,14 +40,54 @@ const _M = {
       let fee = 0;
       _.forEach(this.TheItems, it=>fee+=(it.price*it.amount))
       return Ti.Num.precise(fee)
+    },
+    //--------------------------------------
+    AddrCanList() {
+      return {
+        data : this.addresses,
+        blankAs : {
+          "icon": "fas-map",
+          "text": "i18n:address-empty-list"
+        },
+        comType : "WebTileAddress",
+        comConf : {
+          value : "=..",
+          countries: this.countries,
+          can: {
+            remove: false,
+            edit: false,
+            select: false,
+            default: false
+          },
+          selectable : true,
+          currentId: _.get(this.currentAddr, "id")
+        }
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
     OnShowProduct({id}={}) {
       this.$notify("show:product", id)
+    },
+    //--------------------------------------
+    OnChooseAddr() {
+      this.showAddrCanList = true
+    },
+    //--------------------------------------
+    OnHideAddrCanList() {
+      this.showAddrCanList = false
+    },
+    //--------------------------------------
+    OnSelectAddr(addr) {
+      this.showAddrCanList = false
+      this.$emit("change", {
+        address: addr
+      })
     }
+    //--------------------------------------
   }
   //////////////////////////////////////////
 }

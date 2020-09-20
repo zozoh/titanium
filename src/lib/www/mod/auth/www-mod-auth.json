@@ -6,6 +6,7 @@
   "countries"  : null,
   "countryMap" : null,
   "addresses": [],
+  "defaultAddr": null,
   "paths"  : {
     "checkme"         : "auth/checkme",
     "login_by_wxcode" : "auth/login_by_wxcode",

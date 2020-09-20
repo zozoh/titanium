@@ -30,31 +30,71 @@ const _M = {
       type: Boolean,
       default:true
     },
+    // If indicate this prop, it will replace the left-top title display
+    "title" : {
+      type: String,
+      default: undefined
+    },
     "can": {
       type: Object,
       default: ()=>({
         remove  : true,
         edit    : true,
-        default : true
+        default : true,
+        choose  : false
       })
     },
     // If false emit the item after mapping
     "emitRawValue": {
       type: Boolean,
       default: true
+    },
+    // Auto highlight the default address
+    "autoHighlight" : {
+      type: Boolean,
+      default: true
+    },
+    // Indicate the highlight ID
+    "currentId" : {
+      type: String,
+      default: undefined
+    },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "im-location",
+        text : "i18n:address-nil"
+      })
+    },
+    "selectable": {
+      type: Boolean,
+      default: false
     }
   },
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
     TopClass() {
+      let high = false
+      if(_.isUndefined(this.currentId)) {
+        if(this.autoHighlight && this.Item.dftaddr) {
+          high = true
+        }
+      } else {
+        high = this.currentId == this.Item.id
+      }
       return this.getTopClass({
-        "is-highlight": this.Item.dftaddr
+        "is-highlight": high,
+        "is-selectable" : this.selectable
       })
     },
     //--------------------------------------
+    hasValue() {
+      return !_.isEmpty(this.value)
+    },
+    //--------------------------------------
     Item() {
-      let it = Ti.Util.translate(this.value, this.mapping)
+      let it = Ti.Util.translate(this.value, this.mapping) || {}
       if(this.countries) {
         it.countryName = this.countries[it.country]
       } else {
@@ -66,6 +106,13 @@ const _M = {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnClickTop() {
+      if(this.selectable) {
+        let v = this.getEmitValue()
+        this.$notify('select', v)  
+      }
+    },
     //--------------------------------------
     OnRemove(){
       let v = this.getEmitValue()
@@ -80,6 +127,11 @@ const _M = {
     OnEdit(){
       let v = this.getEmitValue()
       this.$notify('edit', v)
+    },
+    //--------------------------------------
+    OnChoose(){
+      let v = this.getEmitValue()
+      this.$notify('choose', v)
     },
     //--------------------------------------
     getEmitValue() {

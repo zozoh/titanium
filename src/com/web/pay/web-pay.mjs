@@ -6,7 +6,8 @@ const _M = {
       //payType: "wx.qrcode",
       orderId: undefined,
       payOk: undefined,
-      errMsg: null
+      errMsg: null,
+      address: null
     }
   }),
   ///////////////////////////////////////////////////
@@ -23,6 +24,10 @@ const _M = {
       type : Array,
       default : undefined
     },
+    "defaultAddr": {
+      type: Object,
+      default: undefined
+    }
   },
   ///////////////////////////////////////////////////
   computed : {
@@ -31,14 +36,26 @@ const _M = {
       return [{
         title: "i18n:pay-step-checkout-title",
         next: {
-          enabled: ()=>!_.isEmpty(this.items)
+          enabled: ()=>{
+            if(_.isEmpty(this.items))
+              return false
+
+            if("A" == this.orderType)
+              return !_.isEmpty(this.myPayment.address)
+
+            return true
+          }
         },
         comType: "WebPayCheckout",
         comConf: {
           tipIcon: this.tipIcon,
           tipText: this.tipText,
           items: this.items,
-          currency: this.currency
+          currency: this.currency,
+          orderType: this.orderType,
+          addresses: this.addresses,
+          currentAddr: this.myPayment.address,
+          countries : this.countries
         }
       }, {
         title: "i18n:pay-step-choose-title",
@@ -114,6 +131,14 @@ const _M = {
         this.myPayment.payType = this.payType
       },
       immediate: true
+    },
+    "defaultAddr" : {
+      handler : function(addr) {
+        if(addr && !this.myPayment.address) {
+          this.myPayment.address = _.cloneDeep(addr)
+        }
+      },
+      immediate : true
     }
   }
   ///////////////////////////////////////////////////

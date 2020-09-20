@@ -221,6 +221,13 @@ const _M = {
             args
           }
         }
+        // Grouping Action
+        else if(_.isArray(actn)) {
+          AT = []
+          for(let an of actn) {
+            AT.push(_.assign({}, an, {args}))
+          }
+        }
         // Merge
         else {
           AT = _.assign({}, actn, {args})
@@ -231,10 +238,21 @@ const _M = {
       if(_.isString(AT)) {
         AT = {action: AT}
       }
+
       //....................................
-      // Action object
-      //....................................
-      let {action,payload,args}=AT
+      // Groupping
+      if(_.isArray(AT)) {
+        for(let a of AT) {
+          await dispatch("runAction", a)  
+        }
+      }
+      // Run action
+      else {
+        await dispatch("runAction", AT)
+      }
+    },
+    //--------------------------------------------
+    async runAction({state, dispatch}, {action,payload,args}={}) {
       //....................................
       if(!action)
         return;
@@ -258,7 +276,7 @@ const _M = {
         })
       }
       //....................................
-      //console.log("invoke->", action, pld)
+      console.log("invoke->", action, pld)
       //....................................
       if(_.isFunction(action)) {
         await action(pld)

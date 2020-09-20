@@ -26,7 +26,7 @@
       List
     -->
     <div class="as-list">
-      <!--循环展示商品-->
+      <!--Show product in loop-->
       <table>
         <thead>
           <tr>
@@ -81,6 +81,44 @@
           <em>{{CurrencyChar}}{{TotalFee}}</em>
         </div>
       </div>
+    </div>
+    <!--
+      Address
+    -->
+    <div
+      v-if="'A' == orderType"
+        class="as-address">
+        <!--
+          Current Address
+        -->
+        <div class="as-addr-current">
+          <WebTileAddress 
+            :value="currentAddr"
+            title="订单收货地址"
+            :countries="countries"
+            :auto-highlight="false"
+            :can="{remove:0,edit:0,default:0,choose:1}"
+            :blank-as="{text:'i18n:order-shipaddr-nil',icon:'im-location'}"
+            @choose="OnChooseAddr"/>
+        </div>
+        <!--
+          Address can-list
+        -->
+        <transition name="ti-trans-fade">
+          <div
+            v-if="showAddrCanList"
+              class="as-can-list">
+              <WebShelfList
+                v-bind="AddrCanList"
+                @select="OnSelectAddr"/>
+              <div
+                class="as-can-hide">
+                <a @click.left="OnHideAddrCanList">
+                  <i class="fas fa-angle-double-up"></i><br>
+                  <span>{{'i18n:close'|i18n}}</span></a>
+                </div>
+          </div>
+        </transition>
     </div>
   </template>
 </div>

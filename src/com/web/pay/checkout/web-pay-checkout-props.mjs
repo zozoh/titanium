@@ -25,5 +25,18 @@ export default {
   "currency": {
     type: String,
     default: "RMB"
+  },
+  "orderType": {
+    type: String,
+    default: "A"
+  },
+  "addresses": {
+    type: Array,
+    default: ()=>[]
+  },
+  // The country map
+  "countries" : {
+    type: Object,
+    default: undefined
   }
 }

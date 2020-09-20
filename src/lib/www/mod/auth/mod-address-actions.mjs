@@ -15,12 +15,18 @@ const _M = {
   },
   //--------------------------------------------
   async editOrCreateAddress({state, getters, commit, dispatch}, addr={}) {
-    console.log("openAddressEditor", addr)
+    //console.log("openAddressEditor", addr)
     // Pick the data
     let result = _.pick(addr, 
-        "id", "country", "postcode",
-        "province", "city", "street", "dftaddr",
+        "id", "country", "code",
+        "province", "city", "street", "door", "dftaddr",
         "consignee", "phone", "email")
+    // Add Default Value
+    _.defaults(result, {
+      country : "CN",
+      tp : "U",
+      dftaddr : false
+    })
 
     // Prepare the Edit form
     let newAddr = await Ti.App.Open({
@@ -47,12 +53,17 @@ const _M = {
               "textBy" : "name"
             }
           },{
-            "title"   : "i18n:address-k-postcode",
-            "name"    : "postcode",
+            "title"   : "i18n:address-k-code",
+            "name"    : "code",
+            "tip"     : "i18n:address-k-code-tip",
             "comType" : "ti-input",
             "comConf" : {
               "valueCase": "upper"
             }
+          },{
+            "title"   : "i18n:address-k-province",
+            "name"    : "province",
+            "comType" : "ti-input"
           },{
             "title"   : "i18n:address-k-city",
             "name"    : "city",
@@ -95,7 +106,7 @@ const _M = {
       return
     }
 
-    console.log("!!!", newAddr)
+    //console.log("!!!", newAddr)
     // Eval the url
     let url;
     // Create

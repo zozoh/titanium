@@ -7,6 +7,14 @@
     @include color($color-boldtip, r, c);
   }
   //-----------------------------------------
+  &.is-selectable {
+    cursor: pointer;
+    &:hover {
+      border-color: map-get($color-boldtip, c);
+      @include color($color-weaktip, r, c);
+    }
+  }
+  //-----------------------------------------
   a {
     @include noselect;
     &:hover {text-decoration: underline;}

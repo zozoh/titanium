@@ -89,7 +89,6 @@ const Ti18n = {
     return Ti.S.renderBy(str, vars)
   },
   render(vars={}, str) {
-    console.log("haha")
     return Ti18n.textf(str, vars)
   }
 }

@@ -66,7 +66,6 @@
     //----------------------------------------
   } // .as-list {
   //------------------------------------------
-  //------------------------------------------
   .as-summary {
     @include flex-align-nowrap;
     @include color($color-chip, r);
@@ -96,6 +95,31 @@
       //--------------------------------------
     }
   }
+  //------------------------------------------
+  .as-can-list {
+    @include border(1px, dashed, dark);
+    @include color($color-paper, r, c);
+    padding:1em; margin: 1em 0;
+    //----------------------------------------
+    .web-shelf-list {
+      @include flex-align;
+      font-size: SZ(12);
+      .list-item {
+        width: 50%;
+      }
+    }
+    //----------------------------------------
+    .as-can-hide {
+      @include border(1px, dotted, shallow, top);
+      padding-top: 1em; text-align: center;
+      a:hover {
+        @include color($color-secondary, c);
+        text-decoration: none;
+      }
+    }
+    //----------------------------------------
+  }
+  //------------------------------------------
 }
 //////////////////////////////////////////////
 .web-pay-choose {

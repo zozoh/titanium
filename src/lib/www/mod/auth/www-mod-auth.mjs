@@ -53,6 +53,17 @@ const _M = {
     //--------------------------------------------
     setAddresses(state, addresses) {
       state.addresses = addresses
+      // Get default address
+      if(_.isArray(addresses)) {
+        let dfta = null
+        for(let addr of addresses) {
+          if(addr.dftaddr) {
+            dfta = addr
+            break
+          }
+        }
+        state.defaultAddr = dfta
+      }
     },
     //--------------------------------------------
     setCountries(state, countries) {
