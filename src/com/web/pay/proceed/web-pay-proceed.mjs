@@ -27,6 +27,10 @@ const _M = {
     "currency": {
       type: String,
       default: "RMB"
+    },
+    "address": {
+      type: Object,
+      default: undefined
     }
   },
   //////////////////////////////////////////////////
@@ -198,7 +202,15 @@ const _M = {
             payType: this.payType,
             items: payItems,
             orderType: this.orderType,
-            orderTitle: this.orderTitle
+            orderTitle: this.orderTitle,
+            address: this.address,
+            fail: (msg)=>{
+              this.$emit("change", {
+                payOk  : false,
+                errMsg : msg
+              })
+              this.$notify("step:change", "@next")
+            }
           })
           this.$emit("change", {orderId: _.get(order, "id")})
           this.myOrder = order

@@ -19,7 +19,7 @@ const _M = {
     // Pick the data
     let result = _.pick(addr, 
         "id", "country", "code",
-        "province", "city", "street", "door", "dftaddr",
+        "province", "city", "area", "street", "door", "dftaddr",
         "consignee", "phone", "email")
     // Add Default Value
     _.defaults(result, {
@@ -69,6 +69,10 @@ const _M = {
             "name"    : "city",
             "comType" : "ti-input"
           },{
+            "title"   : "i18n:address-k-area",
+            "name"    : "area",
+            "comType" : "ti-input"
+          },{
             "title"   : "i18n:address-k-street",
             "name"    : "street",
             "comType" : "ti-input"
@@ -106,7 +110,7 @@ const _M = {
       return
     }
 
-    //console.log("!!!", newAddr)
+    console.log("!!!", newAddr)
     // Eval the url
     let url;
     // Create

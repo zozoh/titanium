@@ -86,6 +86,7 @@ const _M = {
           payType: "=payType",
           orderId: "=orderId",
           payOk: "=payOk",
+          address: "=address",
           checkPaymentInterval: this.checkPaymentInterval,
           orderType: this.orderType,
           orderTitle: this.orderTitle,

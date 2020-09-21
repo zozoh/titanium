@@ -90,6 +90,16 @@ const Ti18n = {
   },
   render(vars={}, str) {
     return Ti18n.textf(str, vars)
+  },
+  explain(str) {
+    let s = _.trim(str)
+    let pos = s.indexOf(':')
+    if(pos>0) {
+      let code = _.trim(s.substring(0, pos))
+      let data = _.trim(s.substring(pos+1))
+      return Ti18n.getf(code, {val:data})
+    }
+    return Ti18n.get(s)
   }
 }
 //---------------------------------------

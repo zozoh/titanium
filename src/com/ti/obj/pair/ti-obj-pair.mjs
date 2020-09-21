@@ -137,6 +137,13 @@ const _M = {
           this.joinPairs(pairs, _.concat(path, key), val)
         })
       }
+      // Array
+      else if(_.isArray(obj)) {
+        for(let i=0; i<obj.length; i++) {
+          let val = obj[i]
+          this.joinPairs(pairs, _.concat(path, i+""), val)
+        }
+      }
       // join pair
       else {
         let name  = path.join(".")

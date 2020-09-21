@@ -85,33 +85,62 @@ const _M = {
       payType, 
       items,
       orderType,
-      orderTitle
+      orderTitle,
+      address,
+      fail
     }={}) {
       if(!payType || _.isEmpty(items)) {
         return 
       }
-      let reo = await Ti.Http.post(getters.urls.buy, {
-        params: {
-          ticket: rootState.auth.ticket
-        },
-        headers: {
-          "Content-Type": "application/json;charset=utf-8"
-        },
-        body: JSON.stringify({
-          title: orderTitle,
-          tp: orderType,
-          pay_tp: payType,
-          products: items
-        }),
-        as: "json"
-      })
-      // Success
-      if(reo.ok) {
-        return reo.data
+
+      // Prepare the post obj
+      let postObj = {
+        title: orderTitle,
+        tp: orderType,
+        pay_tp: payType,
+        products: items,
+        // Address
       }
-      // Fail
-      else {
-        console.warn("Fail to createOrder", {items, reo})
+      if(address) {
+        postObj.addr_user_country = _.get(address, "country")
+        postObj.addr_user_code    = _.get(address, "code")
+        postObj.addr_user_door    = _.get(address, "door")
+        postObj.user_name  = _.get(address, "consignee")
+        postObj.user_phone = _.get(address, "phone")
+        postObj.user_email = _.get(address, "email")
+        postObj.addr_user_province = _.get(address, "province")
+        postObj.addr_user_city     = _.get(address, "city")
+        postObj.addr_user_area     = _.get(address, "area")
+        postObj.addr_user_street   = _.get(address, "street")
+      }
+      try{
+        let reo = await Ti.Http.post(getters.urls.buy, {
+          params: {
+            ticket: rootState.auth.ticket
+          },
+          headers: {
+            "Content-Type": "application/json;charset=utf-8"
+          },
+          body: JSON.stringify(postObj),
+          as: "json"
+        })
+        // Success
+        if(reo.ok) {
+          return reo.data
+        }
+        // Fail
+        else {
+          console.warn("Fail to createOrder", {items, reo})
+        }
+      }
+      // Handle error
+      catch(resp) {
+        let txt = _.trim(resp.responseText)
+        let msg = Ti.I18n.explain(txt)
+        Ti.Toast.Open(msg, 'error')
+        if(_.isFunction(fail)) {
+          fail(msg)
+        }
       }
     },
     //--------------------------------------------
