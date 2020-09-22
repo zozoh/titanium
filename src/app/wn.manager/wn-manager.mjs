@@ -210,8 +210,11 @@ const _M = {
     },
     //--------------------------------------
     async doLogout() {
-      let quitPath = Wn.Session.env("QUIT") || "/"
-      await Wn.Sys.exec("exit")
+      let quitPath = Wn.Session.env("QUIT") || "/a/login/"
+      let reo = await Ti.Http.get("/a/sys_logout", {
+        params:{ajax:true}
+      })
+      console.log(reo)
       Ti.Be.Open(quitPath, {target:"_self", delay:0})
     }
     //--------------------------------------
