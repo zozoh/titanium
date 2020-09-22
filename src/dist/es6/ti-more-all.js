@@ -1,4 +1,4 @@
-// Pack At: 2020-09-18 13:14:09
+// Pack At: 2020-09-22 19:59:24
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -18464,6 +18464,13 @@ const _M = {
           this.joinPairs(pairs, _.concat(path, key), val)
         })
       }
+      // Array
+      else if(_.isArray(obj)) {
+        for(let i=0; i<obj.length; i++) {
+          let val = obj[i]
+          this.joinPairs(pairs, _.concat(path, i+""), val)
+        }
+      }
       // join pair
       else {
         let name  = path.join(".")
@@ -29788,6 +29795,19 @@ const _M = {
   "currency": {
     type: String,
     default: "RMB"
+  },
+  "orderType": {
+    type: String,
+    default: "A"
+  },
+  "addresses": {
+    type: Array,
+    default: ()=>[]
+  },
+  // The country map
+  "countries" : {
+    type: Object,
+    default: undefined
   }
 }
 Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout-props.mjs", _M);
@@ -29823,7 +29843,7 @@ Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout.html", `<div class="web-pay
       List
     -->
     <div class="as-list">
-      <!--循环展示商品-->
+      <!--Show product in loop-->
       <table>
         <thead>
           <tr>
@@ -29879,6 +29899,44 @@ Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout.html", `<div class="web-pay
         </div>
       </div>
     </div>
+    <!--
+      Address
+    -->
+    <div
+      v-if="'A' == orderType"
+        class="as-address">
+        <!--
+          Current Address
+        -->
+        <div class="as-addr-current">
+          <WebTileAddress 
+            :value="currentAddr"
+            title="订单收货地址"
+            :countries="countries"
+            :auto-highlight="false"
+            :can="{remove:0,edit:0,default:0,choose:1}"
+            :blank-as="{text:'i18n:order-shipaddr-nil',icon:'im-location'}"
+            @choose="OnChooseAddr"/>
+        </div>
+        <!--
+          Address can-list
+        -->
+        <transition name="ti-trans-fade">
+          <div
+            v-if="showAddrCanList"
+              class="as-can-list">
+              <WebShelfList
+                v-bind="AddrCanList"
+                @select="OnSelectAddr"/>
+              <div
+                class="as-can-hide">
+                <a @click.left="OnHideAddrCanList">
+                  <i class="fas fa-angle-double-up"></i><br>
+                  <span>{{'i18n:close'|i18n}}</span></a>
+                </div>
+          </div>
+        </transition>
+    </div>
   </template>
 </div>`);
 //============================================================
@@ -29886,6 +29944,17 @@ Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout.html", `<div class="web-pay
 //============================================================
 (function(){
 const _M = {
+  //////////////////////////////////////////
+  data: ()=>({
+    showAddrCanList : false
+  }),
+  //////////////////////////////////////////
+  props : {
+    "currentAddr": {
+      type: Object,
+      default: undefined
+    },
+  },
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
@@ -29916,14 +29985,54 @@ const _M = {
       let fee = 0;
       _.forEach(this.TheItems, it=>fee+=(it.price*it.amount))
       return Ti.Num.precise(fee)
+    },
+    //--------------------------------------
+    AddrCanList() {
+      return {
+        data : this.addresses,
+        blankAs : {
+          "icon": "fas-map",
+          "text": "i18n:address-empty-list"
+        },
+        comType : "WebTileAddress",
+        comConf : {
+          value : "=..",
+          countries: this.countries,
+          can: {
+            remove: false,
+            edit: false,
+            select: false,
+            default: false
+          },
+          selectable : true,
+          currentId: _.get(this.currentAddr, "id")
+        }
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
     OnShowProduct({id}={}) {
       this.$notify("show:product", id)
+    },
+    //--------------------------------------
+    OnChooseAddr() {
+      this.showAddrCanList = true
+    },
+    //--------------------------------------
+    OnHideAddrCanList() {
+      this.showAddrCanList = false
+    },
+    //--------------------------------------
+    OnSelectAddr(addr) {
+      this.showAddrCanList = false
+      this.$emit("change", {
+        address: addr
+      })
     }
+    //--------------------------------------
   }
   //////////////////////////////////////////
 }
@@ -30381,6 +30490,10 @@ const _M = {
     "currency": {
       type: String,
       default: "RMB"
+    },
+    "address": {
+      type: Object,
+      default: undefined
     }
   },
   //////////////////////////////////////////////////
@@ -30552,7 +30665,15 @@ const _M = {
             payType: this.payType,
             items: payItems,
             orderType: this.orderType,
-            orderTitle: this.orderTitle
+            orderTitle: this.orderTitle,
+            address: this.address,
+            fail: (msg)=>{
+              this.$emit("change", {
+                payOk  : false,
+                errMsg : msg
+              })
+              this.$notify("step:change", "@next")
+            }
           })
           this.$emit("change", {orderId: _.get(order, "id")})
           this.myOrder = order
@@ -30695,7 +30816,8 @@ const _M = {
       //payType: "wx.qrcode",
       orderId: undefined,
       payOk: undefined,
-      errMsg: null
+      errMsg: null,
+      address: null
     }
   }),
   ///////////////////////////////////////////////////
@@ -30712,6 +30834,10 @@ const _M = {
       type : Array,
       default : undefined
     },
+    "defaultAddr": {
+      type: Object,
+      default: undefined
+    }
   },
   ///////////////////////////////////////////////////
   computed : {
@@ -30720,14 +30846,26 @@ const _M = {
       return [{
         title: "i18n:pay-step-checkout-title",
         next: {
-          enabled: ()=>!_.isEmpty(this.items)
+          enabled: ()=>{
+            if(_.isEmpty(this.items))
+              return false
+
+            if("A" == this.orderType)
+              return !_.isEmpty(this.myPayment.address)
+
+            return true
+          }
         },
         comType: "WebPayCheckout",
         comConf: {
           tipIcon: this.tipIcon,
           tipText: this.tipText,
           items: this.items,
-          currency: this.currency
+          currency: this.currency,
+          orderType: this.orderType,
+          addresses: this.addresses,
+          currentAddr: this.myPayment.address,
+          countries : this.countries
         }
       }, {
         title: "i18n:pay-step-choose-title",
@@ -30758,6 +30896,7 @@ const _M = {
           payType: "=payType",
           orderId: "=orderId",
           payOk: "=payOk",
+          address: "=address",
           checkPaymentInterval: this.checkPaymentInterval,
           orderType: this.orderType,
           orderTitle: this.orderTitle,
@@ -30803,6 +30942,14 @@ const _M = {
         this.myPayment.payType = this.payType
       },
       immediate: true
+    },
+    "defaultAddr" : {
+      handler : function(addr) {
+        if(addr && !this.myPayment.address) {
+          this.myPayment.address = _.cloneDeep(addr)
+        }
+      },
+      immediate : true
     }
   }
   ///////////////////////////////////////////////////
@@ -31885,40 +32032,55 @@ Ti.Preload("ti/com/web/text/raw/_com.json", {
 // JOIN: web/tile/address/web-tile-address.html
 //============================================================
 Ti.Preload("ti/com/web/tile/address/web-tile-address.html", `<div class="web-tile-address"
-  :class="TopClass">
+  :class="TopClass"
+  @click.left="OnClickTop">
   <!--
     Center
   -->
   <div class="at-center">
-    <div class="is-info">
-      <div
-        v-if="Item.consignee">
-          <span>{{'address-consignee'|i18n}}:</span>
-          <em>{{Item.consignee}}</em></div>
-      <div
-        v-if="Item.phone">
-          <span>{{'address-k-phone'|i18n}}:</span>
-          <em>{{Item.phone}}</em></div>
-      <div
-        v-if="Item.email">
-          <span>{{'address-k-email'|i18n}}:</span>
-          <em>{{Item.email}}</em></div>
-    </div>
-    <div class="is-big">
-      <span class="as-street">{{Item.street}}</span>
-      <span class="as-door">{{Item.door}}</span>
-    </div>
+    <!--Has Value-->
+    <template v-if="hasValue">
+      <div class="is-info">
+        <div
+          v-if="Item.consignee">
+            <span>{{'address-consignee'|i18n}}:</span>
+            <em>{{Item.consignee}}</em></div>
+        <div
+          v-if="Item.phone">
+            <span>{{'address-k-phone'|i18n}}:</span>
+            <em>{{Item.phone}}</em></div>
+        <div
+          v-if="Item.email">
+            <span>{{'address-k-email'|i18n}}:</span>
+            <em>{{Item.email}}</em></div>
+      </div>
+      <div class="is-big">
+        <span class="as-street">{{Item.street}}</span>
+        <span class="as-door">{{Item.door}}</span>
+      </div>
+    </template>
+    <!--Blank-->
+    <ti-loading
+      v-else 
+        class="as-big ti-fill-parent"
+        style="padding:0"
+        v-bind="blankAs"/>
   </div>
   <!--
     Left top
   -->
   <div class="at-left-top is-float">
+    <template v-if="title">
+      <span class="is-bold">{{title | i18n}}</span>
+    </template>
+    <template v-else>
       <a 
         v-if="can.default && !Item.dftaddr"
           @click="OnSetDefault">{{'address-set-dft'|i18n}}</a>
       <span
         v-else-if="Item.dftaddr"
           class="is-bold">{{'address-is-dft'|i18n}}</span>
+    </template>
   </div>
   <!--
     Left-bottom
@@ -31935,10 +32097,11 @@ Ti.Preload("ti/com/web/tile/address/web-tile-address.html", `<div class="web-til
     Right-top
   -->
   <div
-    v-if="can.remove || can.edit" 
+    v-if="can.remove || can.edit || can.choose" 
       class="at-right-top is-float">
       <a v-if="can.remove" @click="OnRemove">{{'remove'|i18n}}</a>
       <a v-if="can.edit" @click="OnEdit">{{'edit'|i18n}}</a>
+      <a v-if="can.choose" @click="OnChoose">{{'choose'|i18n}}</a>
   </div>  
 </div>`);
 //============================================================
@@ -31977,31 +32140,71 @@ const _M = {
       type: Boolean,
       default:true
     },
+    // If indicate this prop, it will replace the left-top title display
+    "title" : {
+      type: String,
+      default: undefined
+    },
     "can": {
       type: Object,
       default: ()=>({
         remove  : true,
         edit    : true,
-        default : true
+        default : true,
+        choose  : false
       })
     },
     // If false emit the item after mapping
     "emitRawValue": {
       type: Boolean,
       default: true
+    },
+    // Auto highlight the default address
+    "autoHighlight" : {
+      type: Boolean,
+      default: true
+    },
+    // Indicate the highlight ID
+    "currentId" : {
+      type: String,
+      default: undefined
+    },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "im-location",
+        text : "i18n:address-nil"
+      })
+    },
+    "selectable": {
+      type: Boolean,
+      default: false
     }
   },
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
     TopClass() {
+      let high = false
+      if(_.isUndefined(this.currentId)) {
+        if(this.autoHighlight && this.Item.dftaddr) {
+          high = true
+        }
+      } else {
+        high = this.currentId == this.Item.id
+      }
       return this.getTopClass({
-        "is-highlight": this.Item.dftaddr
+        "is-highlight": high,
+        "is-selectable" : this.selectable
       })
     },
     //--------------------------------------
+    hasValue() {
+      return !_.isEmpty(this.value)
+    },
+    //--------------------------------------
     Item() {
-      let it = Ti.Util.translate(this.value, this.mapping)
+      let it = Ti.Util.translate(this.value, this.mapping) || {}
       if(this.countries) {
         it.countryName = this.countries[it.country]
       } else {
@@ -32013,6 +32216,13 @@ const _M = {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnClickTop() {
+      if(this.selectable) {
+        let v = this.getEmitValue()
+        this.$notify('select', v)  
+      }
+    },
     //--------------------------------------
     OnRemove(){
       let v = this.getEmitValue()
@@ -32027,6 +32237,11 @@ const _M = {
     OnEdit(){
       let v = this.getEmitValue()
       this.$notify('edit', v)
+    },
+    //--------------------------------------
+    OnChoose(){
+      let v = this.getEmitValue()
+      this.$notify('choose', v)
     },
     //--------------------------------------
     getEmitValue() {
@@ -41902,12 +42117,18 @@ const _M = {
   },
   //--------------------------------------------
   async editOrCreateAddress({state, getters, commit, dispatch}, addr={}) {
-    console.log("openAddressEditor", addr)
+    //console.log("openAddressEditor", addr)
     // Pick the data
     let result = _.pick(addr, 
-        "id", "country", "postcode",
-        "province", "city", "street", "dftaddr",
+        "id", "country", "code",
+        "province", "city", "area", "street", "door", "dftaddr",
         "consignee", "phone", "email")
+    // Add Default Value
+    _.defaults(result, {
+      country : "CN",
+      tp : "U",
+      dftaddr : false
+    })
 
     // Prepare the Edit form
     let newAddr = await Ti.App.Open({
@@ -41934,15 +42155,24 @@ const _M = {
               "textBy" : "name"
             }
           },{
-            "title"   : "i18n:address-k-postcode",
-            "name"    : "postcode",
+            "title"   : "i18n:address-k-code",
+            "name"    : "code",
+            "tip"     : "i18n:address-k-code-tip",
             "comType" : "ti-input",
             "comConf" : {
               "valueCase": "upper"
             }
           },{
+            "title"   : "i18n:address-k-province",
+            "name"    : "province",
+            "comType" : "ti-input"
+          },{
             "title"   : "i18n:address-k-city",
             "name"    : "city",
+            "comType" : "ti-input"
+          },{
+            "title"   : "i18n:address-k-area",
+            "name"    : "area",
             "comType" : "ti-input"
           },{
             "title"   : "i18n:address-k-street",
@@ -42570,6 +42800,7 @@ Ti.Preload("ti/lib/www/mod/auth/www-mod-auth.json", {
   "countries"  : null,
   "countryMap" : null,
   "addresses": [],
+  "defaultAddr": null,
   "paths"  : {
     "checkme"         : "auth/checkme",
     "login_by_wxcode" : "auth/login_by_wxcode",
@@ -42651,6 +42882,17 @@ const _M = {
     //--------------------------------------------
     setAddresses(state, addresses) {
       state.addresses = addresses
+      // Get default address
+      if(_.isArray(addresses)) {
+        let dfta = null
+        for(let addr of addresses) {
+          if(addr.dftaddr) {
+            dfta = addr
+            break
+          }
+        }
+        state.defaultAddr = dfta
+      }
     },
     //--------------------------------------------
     setCountries(state, countries) {
@@ -43419,33 +43661,62 @@ const _M = {
       payType, 
       items,
       orderType,
-      orderTitle
+      orderTitle,
+      address,
+      fail
     }={}) {
       if(!payType || _.isEmpty(items)) {
         return 
       }
-      let reo = await Ti.Http.post(getters.urls.buy, {
-        params: {
-          ticket: rootState.auth.ticket
-        },
-        headers: {
-          "Content-Type": "application/json;charset=utf-8"
-        },
-        body: JSON.stringify({
-          title: orderTitle,
-          tp: orderType,
-          pay_tp: payType,
-          products: items
-        }),
-        as: "json"
-      })
-      // Success
-      if(reo.ok) {
-        return reo.data
+
+      // Prepare the post obj
+      let postObj = {
+        title: orderTitle,
+        tp: orderType,
+        pay_tp: payType,
+        products: items,
+        // Address
       }
-      // Fail
-      else {
-        console.warn("Fail to createOrder", {items, reo})
+      if(address) {
+        postObj.addr_user_country = _.get(address, "country")
+        postObj.addr_user_code    = _.get(address, "code")
+        postObj.addr_user_door    = _.get(address, "door")
+        postObj.user_name  = _.get(address, "consignee")
+        postObj.user_phone = _.get(address, "phone")
+        postObj.user_email = _.get(address, "email")
+        postObj.addr_user_province = _.get(address, "province")
+        postObj.addr_user_city     = _.get(address, "city")
+        postObj.addr_user_area     = _.get(address, "area")
+        postObj.addr_user_street   = _.get(address, "street")
+      }
+      try{
+        let reo = await Ti.Http.post(getters.urls.buy, {
+          params: {
+            ticket: rootState.auth.ticket
+          },
+          headers: {
+            "Content-Type": "application/json;charset=utf-8"
+          },
+          body: JSON.stringify(postObj),
+          as: "json"
+        })
+        // Success
+        if(reo.ok) {
+          return reo.data
+        }
+        // Fail
+        else {
+          console.warn("Fail to createOrder", {items, reo})
+        }
+      }
+      // Handle error
+      catch(resp) {
+        let txt = _.trim(resp.responseText)
+        let msg = Ti.I18n.explain(txt)
+        Ti.Toast.Open(msg, 'error')
+        if(_.isFunction(fail)) {
+          fail(msg)
+        }
       }
     },
     //--------------------------------------------
@@ -44025,6 +44296,13 @@ const _M = {
             args
           }
         }
+        // Grouping Action
+        else if(_.isArray(actn)) {
+          AT = []
+          for(let an of actn) {
+            AT.push(_.assign({}, an, {args}))
+          }
+        }
         // Merge
         else {
           AT = _.assign({}, actn, {args})
@@ -44035,10 +44313,21 @@ const _M = {
       if(_.isString(AT)) {
         AT = {action: AT}
       }
+
       //....................................
-      // Action object
-      //....................................
-      let {action,payload,args}=AT
+      // Groupping
+      if(_.isArray(AT)) {
+        for(let a of AT) {
+          await dispatch("runAction", a)  
+        }
+      }
+      // Run action
+      else {
+        await dispatch("runAction", AT)
+      }
+    },
+    //--------------------------------------------
+    async runAction({state, dispatch}, {action,payload,args}={}) {
       //....................................
       if(!action)
         return;
@@ -44062,7 +44351,7 @@ const _M = {
         })
       }
       //....................................
-      //console.log("invoke->", action, pld)
+      console.log("invoke->", action, pld)
       //....................................
       if(_.isFunction(action)) {
         await action(pld)
@@ -44738,8 +45027,11 @@ const _M = {
     },
     //--------------------------------------
     async doLogout() {
-      let quitPath = Wn.Session.env("QUIT") || "/"
-      await Wn.Sys.exec("exit")
+      let quitPath = Wn.Session.env("QUIT") || "/a/login/"
+      let reo = await Ti.Http.get("/a/sys_logout", {
+        params:{ajax:true}
+      })
+      console.log(reo)
       Ti.Be.Open(quitPath, {target:"_self", delay:0})
     }
     //--------------------------------------
@@ -45023,6 +45315,16 @@ Ti.Preload("ti/i18n/en-us/ti-text-json.i18n.json", {
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
+  "order-pay-id" : "Pay ID",
+  "paypal-id" : "PayPal TID",
+  "paypal-payer_id" : "Payer ID",
+  "paypal-payer_email" : "Payer email",
+  "paypal-amount_value" : "Payment Amount",
+  "paypal-currency" : "Currency",
+  "paypal-cap-id" : "Capture ID",
+  "paypal-cap-status" : "Capture status",
+  "order-pay-status" : "Payment status",
+
   "account-filter-tip": "Filter by account name",
   "account-meta": "Account properties",
   "account-meta-tip": "Choose one account for detail",
@@ -45033,6 +45335,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "address-k-area": "Area",
   "address-k-city": "City",
   "address-k-code": "Addr code",
+  "address-k-code-tip": "Your postcode",
   "address-k-consignee": "Consignee",
   "address-k-country": "Country",
   "address-k-dftaddr": "Default address",
@@ -45048,7 +45351,8 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "address-k-tp-u": "USER",
   "address-k-uid": "User",
   "address-k-uid-tip": "Filter by username",
-  "address-meta": "Addr. properties",
+  "address-meta": "Address properties",
+  "address-nil": "Address blank",
   "address-nil-detail": "Select an address for details",
   "address-set-dft": "Set as default address",
   "address-shipping-add": "Add shipping address",
@@ -45158,6 +45462,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "e-www-invalid-captcha": "Invalid ${ta?captcha}",
   "e-www-login-invalid-passwd": "Invalid password",
   "e-www-login-noexists": "Account not exists",
+  "e-www-order-OutOfStore": "Goods ${val?} insufficient stock",
   "invoice-k-bankaccount": "Bank account",
   "invoice-k-bankname": "Bank",
   "invoice-k-busiaddr": "Biz address",
@@ -45203,30 +45508,35 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "my-shipping-address": "Shipping address",
   "my-shopping-car": "Shopping car",
   "or-st-dn": "Done",
-  "or-st-fa": "Fail",
+  "or-st-fa": "Fail to create order",
   "or-st-nw": "New order",
   "or-st-ok": "Pay ok",
   "or-st-sp": "Shipped",
   "or-st-wt": "Wait for pay",
   "ord-detail": "Order detail",
   "order-flt-tip": "Query by order id",
-  "order-k-user_name": "User name",
-  "order-k-user_phone": "User phone",
-  "order-k-user_email": "User email",
   "order-k-accounts": "Accounts",
   "order-k-addr_ship": "Ship address",
   "order-k-addr_ship_code": "Ship code",
   "order-k-addr_ship_country": "Ship country",
   "order-k-addr_ship_door": "Ship door",
   "order-k-addr_user": "User address",
+  "order-k-addr_user_area": "Area",
+  "order-k-addr_user_city": "City",
   "order-k-addr_user_code": "User code",
   "order-k-addr_user_country": "User country",
   "order-k-addr_user_door": "User door",
+  "order-k-addr_user_province": "Province",
+  "order-k-addr_user_street": "Street",
   "order-k-buyer_id": "Buyer",
   "order-k-currency": "Currency",
+  "order-k-discount": "Discount",
   "order-k-dn_at": "Done at",
   "order-k-fa_at": "Fail at",
   "order-k-fee": "Payment amount",
+  "order-k-freight": "Freight",
+  "order-k-freight-m": "Alt Freight",
+  "order-k-freight-m-tip": "Enter 0 to waive shipping costs",
   "order-k-id": "Order id",
   "order-k-invoice": "Invoice",
   "order-k-note": "Note",
@@ -45244,10 +45554,18 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-sp_at": "Shipping at",
   "order-k-st": "Order status",
   "order-k-title": "Order title",
+  "order-k-total": "Total",
+  "order-k-total-m": "Alt Total",
+  "order-k-total-m-tip": "Enter the new total price",
+  "order-k-user_email": "User email",
+  "order-k-user_name": "User name",
+  "order-k-user_phone": "User phone",
   "order-k-waybil": "Waybil",
   "order-k-waybil_com": "Waybil COM",
   "order-k-waybil_nb": "Waybil NB",
   "order-k-wt_at": "Pay at",
+  "order-nil-detail": "Please select an order for details",
+  "order-shipaddr-nil": "Please specify a shipping address",
   "passwd-invalid-char": "Passwords can only include english numbers/upper and lower case letters/and special characters",
   "passwd-sl-1": "Weak",
   "passwd-sl-2": "Weaker",
@@ -45932,6 +46250,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "address-k-area": "区县",
   "address-k-city": "城市",
   "address-k-code": "地址编码",
+  "address-k-code-tip": "12位国家地址编码",
   "address-k-consignee": "收货人姓名",
   "address-k-country": "国家",
   "address-k-dftaddr": "默认地址",
@@ -45948,6 +46267,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "address-k-uid": "用户",
   "address-k-uid-tip": "输入关联用户名过滤",
   "address-meta": "地址属性",
+  "address-nil": "空地址",
   "address-nil-detail": "请选择一个地址查看详情",
   "address-set-dft": "设为默认地址",
   "address-shipping-add": "添加收货地址",
@@ -46043,9 +46363,6 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "cover-pic": "封面图片",
   "detail-info": "详细信息",
   "dir-media": "媒体目录",
-  "order-k-user_name": "收货人姓名",
-  "order-k-user_phone": "收货人手机",
-  "order-k-user_email": "收货人邮箱",
   "e-cmd-passwd-old_invalid": "旧密码错误",
   "e-cmd-www_passwd-Blank": "新密码为空",
   "e-cmd-www_passwd-CheckBlankAccount": "空账户",
@@ -46060,6 +46377,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "e-www-invalid-captcha": "${ta?验证码}错误",
   "e-www-login-invalid-passwd": "账号密码错误",
   "e-www-login-noexists": "账号不存在",
+  "e-www-order-OutOfStore": "商品${val?}库存不足",
   "invoice-k-bankaccount": "银行账号",
   "invoice-k-bankname": "开户行",
   "invoice-k-busiaddr": "企业地址",
@@ -46105,7 +46423,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "my-shipping-address": "收货地址",
   "my-shopping-car": "购物车",
   "or-st-dn": "完成",
-  "or-st-fa": "支付失败",
+  "or-st-fa": "创建订单失败",
   "or-st-nw": "提交订单",
   "or-st-ok": "支付成功",
   "or-st-sp": "已发货",
@@ -46118,9 +46436,13 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-addr_ship_country": "发货国家",
   "order-k-addr_ship_door": "发货门牌",
   "order-k-addr_user": "收货地址",
+  "order-k-addr_user_area": "地区",
+  "order-k-addr_user_city": "城市",
   "order-k-addr_user_code": "收货地址编码",
   "order-k-addr_user_country": "收货国家",
   "order-k-addr_user_door": "收货门牌",
+  "order-k-addr_user_province": "省",
+  "order-k-addr_user_street": "街道",
   "order-k-buyer_id": "买家",
   "order-k-currency": "货币单位",
   "order-k-discount": "优惠",
@@ -46150,10 +46472,27 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-total": "商品总价",
   "order-k-total-m": "修改总价",
   "order-k-total-m-tip": "为用户输入新的协商后的商品总价",
+  "order-k-user_email": "收货人邮箱",
+  "order-k-user_name": "收货人姓名",
+  "order-k-user_phone": "收货人手机",
   "order-k-waybil": "物流信息",
   "order-k-waybil_com": "物流公司",
   "order-k-waybil_nb": "运单号",
   "order-k-wt_at": "支付时间",
+
+  "order-pay-id" : "支付单号",
+  "paypal-id" : "PayPal交易号",
+  "paypal-payer_id" : "交易账户ID",
+  "paypal-payer_email" : "交易账户邮箱",
+  "paypal-amount_value" : "交易金额",
+  "paypal-currency" : "货币单位",
+  "paypal-cap-id" : "记录ID",
+  "paypal-cap-status" : "记录状态",
+  "order-pay-status" : "交易状态",
+  
+
+  "order-nil-detail": "请选择一个订单查看详情",
+  "order-shipaddr-nil": "请指定一个收货地址",
   "passwd-invalid-char": "密码只能包括英文数字/大小写字母/以及特殊字符",
   "passwd-sl-1": "弱",
   "passwd-sl-2": "较弱",
