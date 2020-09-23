@@ -14,6 +14,9 @@ function ResetQuillConfig(Quill) {
   Indent.keyName = "li-indent"
   Indent.whitelist = [1,2,3,4,5,6]
   //.................................................
+  // New format
+  // ...
+  //.................................................
   // Mark it
   Quill.__has_been_reset = true
 }
@@ -232,23 +235,71 @@ const _M = {
           if(!range) {
             return await Ti.Toast.Open("i18n:wordp-nil-sel", "warn")
           }
-          // Insert link
-          if(val) {
-            if(range.length > 0) {
-              let href = await Ti.Prompt("i18n:wordp-link");
-              if(!Ti.Util.isNil(href)) {
-                let op = $q.format("link", href)
-              }
-            }
-            // Warn user
-            else {
-              return await Ti.Toast.Open("i18n:wordp-nil-sel", "warn")
-            }
+          // Eval Format
+          let {link} = $q.getFormat(range)
+          
+          // Adjust range
+          let text;
+          if(link) {
+            let [bolt, offset] = $q.getLeaf(range.index)
+            text = bolt.text
+            let index = range.index - offset;
+            let length = text.length
+            range = {index, length}
           }
-          // Remove link
           else {
-            $q.format("link", false)
+            text = $q.getText(range)
           }
+          // Eval new tab
+          let newtab  = false
+          if(/^\+/.test(text)) {
+            text = text.substring(1)
+            newtab = true
+          }
+          
+          // Get link information
+          let reo = await Ti.App.Open({
+            icon  : "fas-link",
+            title : "i18n:wordp-link",
+            height : "3.2rem",
+            result : {
+              text, newtab, link
+            },
+            model : {prop: "data", event: "change"},
+            comType: "TiForm",
+            comConf: {
+              fields: [{
+                title : "i18n:link-href",
+                name  : "link",
+                comType : "ti-input"
+              }, {
+                title : "i18n:link-text",
+                name  : "text",
+                comType : "ti-input"
+              }, {
+                title : "i18n:open-newtab",
+                name  : "newtab",
+                type  : "Boolean",
+                comType : "ti-toggle"
+              }]
+            }
+          })
+          
+          // User Cancel
+          if(!reo)
+            return
+
+          let newText = reo.text
+          if(reo.link && reo.newtab)
+            newText = "+" + newText
+          $q.updateContents({
+            ops: [
+              {retain: range.index},
+              {delete: range.length},
+              {insert: newText, attributes: {
+                link: reo.link, newtab: true
+              }}]
+          })
         },
         //...........................................
         indent ($q){$q.format("indent", "+1")},
@@ -269,11 +320,11 @@ const _M = {
     // Utility
     //-----------------------------------------------
     async renderMarkdown() {
-      console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown")
+      //console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown")
       if(!Ti.Util.isBlank(this.value)) {
         // Parse markdown
         let MdDoc = Cheap.parseMarkdown(this.value)
-        console.log(MdDoc.toString())
+        //console.log(MdDoc.toString())
         window.MdDoc = MdDoc
         this.myMeta = _.cloneDeep(MdDoc.getMeta())
 
@@ -281,7 +332,7 @@ const _M = {
         let delta = await MdDoc.toDelta({
           mediaSrc: this.ThePreviewMediaSrc
         })
-        console.log(JSON.stringify(delta, null, '   '))
+        //console.log(JSON.stringify(delta, null, '   '))
 
         // Update Quill editor content
         this.$editor.setContents(delta);
@@ -296,7 +347,7 @@ const _M = {
     //-----------------------------------------------
     syncMarkdown() {
       if(this.syncForbid > 0) {
-        console.log("!forbid! syncMarkdown", this.syncForbid)
+        //console.log("!forbid! syncMarkdown", this.syncForbid)
         this.syncForbid --
         return
       }

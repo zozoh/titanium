@@ -674,10 +674,13 @@ class CheapAnchorElement extends CheapElement {
   }
   //---------------------------------------------------
   async joinDelta(delta=[], config){
-    console.log("haha", config)
+    //console.log("haha", config)
     let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
     let attrs = await this.getRuntimeAttrs(config)
     _.set(lastOp, "attributes.link", attrs.href)
+    if(attrs.target == "_blank") {
+      lastOp.insert = '+' + lastOp.insert
+    }
     return lastOp
   }
   //---------------------------------------------------
