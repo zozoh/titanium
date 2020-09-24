@@ -78,7 +78,8 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "is-collapse" : this.collapse,
-        "is-extended" : !this.collapse
+        "is-extended" : !this.collapse,
+        "is-depth-x"  : this.isDepthX,
       },`is-depth-${this.depth}`)
     },
     //---------------------------------------
@@ -101,6 +102,12 @@ const _M = {
     //---------------------------------------
     showChildren() {
       return this.isDepth0 || !this.collapse
+    },
+    //---------------------------------------
+    ItemSuffixIcon() {
+      if(this.isDepthX){
+        return "im-angle-right"
+      }
     },
     //---------------------------------------
     ChildrenStyle() {
@@ -152,7 +159,7 @@ const _M = {
           Ti.Dom.dockTo(this.$refs.children, this.$el, {
             mode : this.isDepthX ? "V" : "H",
             position : "fixed",
-            space: this.isDepthX ? {x:1} : {y:3}
+            space: this.isDepthX ? {x:-1} : {y:3}
           })
           _.delay(()=>{
             this.isDocked = true

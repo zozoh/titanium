@@ -193,6 +193,12 @@ const _M = {
       this.myMessage = msg
     },
     //--------------------------------------
+    doCheckDomainObjThumb() {
+      let domain = Wn.Session.getMyGroup();
+      let cmdText = `hookx @query 'd0:"home",d1:"${domain}",thumb_src:null,mime:"^image"' @invoke write -v`
+      Wn.OpenCmdPanel(cmdText)
+    },
+    //--------------------------------------
     async openView(oid) {
       if(!_.isString(oid))
         return

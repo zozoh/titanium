@@ -1,4 +1,4 @@
-// Pack At: 2020-09-22 19:59:24
+// Pack At: 2020-09-24 14:00:46
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2161,7 +2161,15 @@ const {App} = (function(){
           }
         }
         //..........................................
-        let model = `@${this.model.event}="OnChange" :${this.model.prop}="result"`
+        let model = "";
+        if(this.model) {
+          if(this.model.event) {
+            mode += ` @${this.model.event}="OnChange"`
+          }
+          if(this.model.prop) {
+            mode += ` :${this.model.prop}="result"`
+          }
+        }
         //..........................................
         let AppModalEvents = _.cloneDeep(this.events)
         let eventStub = []
@@ -10861,7 +10869,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200922.195924",
+  "version" : "2.5-20200924.140046",
   "dev" : false,
   "appName" : null,
   "session" : {},

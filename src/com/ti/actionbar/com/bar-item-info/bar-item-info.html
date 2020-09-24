@@ -19,9 +19,15 @@
       class="as-text"
         >{{CurrentDisplay.text|i18n}}</span>
   <!--
+    Suffix Icon
+  -->
+  <span
+    v-if="suffixIcon"
+      class="as-suffix-icon"><ti-icon :value="suffixIcon"/></span>
+  <!--
     Shortcut
   -->
   <span
-    v-if="isShowShortcut"
+    v-else-if="isShowShortcut"
       class="as-shortcut">{{shortcut}}</span>
 </div>

@@ -1,4 +1,4 @@
-// Pack At: 2020-09-22 19:59:24
+// Pack At: 2020-09-24 14:00:46
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2117,10 +2117,48 @@ const EditTiComponent = (function(){
   ////////////////////////////////////////////////////
   return EditTiComponent;
 })();
+//##################################################
+// # import OpenCmdPanel     from "./wn-run-cmd-panel.mjs"
+const OpenCmdPanel = (function(){
+  /***
+   * Open Modal Dialog to explore one or multi files
+   */
+  async function OpenCmdPanel(cmdText, {
+    title = "i18n:run", 
+    icon = "fas-running",
+    type = "info", closer = true,
+    textCancel = "i18n:close",
+    position = "top",
+    width="80%", height="90%", spacing,
+    vars
+  }={}){
+    //................................................
+    // Open modal dialog
+    await Ti.App.Open({
+      //------------------------------------------
+      type, width, height, spacing, position, closer,
+      icon, title, textCancel,
+      textOk: null,
+      //------------------------------------------
+      model : null,
+      //------------------------------------------
+      comType : "WnCmdPanel",
+      comConf : {
+        "value" : cmdText,
+        "vars"  : vars
+      },
+      //------------------------------------------
+      components : ["@com:wn/cmd/panel"]
+      //------------------------------------------
+    })
+  }
+  ////////////////////////////////////////////
+  return OpenCmdPanel;
+})();
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200922.195924"
+const WALNUT_VERSION = "2.1-20200924.140046"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
@@ -2131,7 +2169,7 @@ export const Wn = {
   Version: WALNUT_VERSION,
   Io, Obj, Session, Sys, Util, Dict, 
   OpenObjSelector, EditObjMeta, EditObjContent,
-  EditTiComponent, OpenThingManager,
+  EditTiComponent, OpenThingManager, OpenCmdPanel,
   //-------------------------------------
   addHook(key, fn) {
     Ti.Util.pushValue(HOOKs, key, fn)

@@ -1,0 +1,6 @@
+{
+  "name" : "wn-cmd-panel",
+  "globally" : true,
+  "template" : "./wn-cmd-panel.html",
+  "mixins"   : ["./wn-cmd-panel.mjs"]
+}

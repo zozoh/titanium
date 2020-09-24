@@ -94,7 +94,15 @@ export class TiAppModal {
       }
     }
     //..........................................
-    let model = `@${this.model.event}="OnChange" :${this.model.prop}="result"`
+    let model = "";
+    if(this.model) {
+      if(this.model.event) {
+        mode += ` @${this.model.event}="OnChange"`
+      }
+      if(this.model.prop) {
+        mode += ` :${this.model.prop}="result"`
+      }
+    }
     //..........................................
     let AppModalEvents = _.cloneDeep(this.events)
     let eventStub = []

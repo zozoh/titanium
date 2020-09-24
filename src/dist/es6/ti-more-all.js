@@ -1,4 +1,4 @@
-// Pack At: 2020-09-22 19:59:24
+// Pack At: 2020-09-24 14:00:46
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -2984,7 +2984,10 @@ const _M = {
                 title: "i18n:net-ct",
                 name: "CreationTime",
                 type: "Array",
-                comType: "ti-input-daterange"
+                comType: "ti-input-daterange",
+                comConf: {
+                  "valueType" : "ms-array"
+                }
                 // }, {
                 //   title: "i18n:net-vod-cate",
                 //   name : "CateName",
@@ -3787,6 +3790,7 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-group/bar-item-group.html", `<div c
       v-bind="this"
       :value="collapse"
       :status="status"
+      :suffix-icon="ItemSuffixIcon"
       @fire="OnFired"/>
   <!--
     Group Children
@@ -3896,7 +3900,8 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "is-collapse" : this.collapse,
-        "is-extended" : !this.collapse
+        "is-extended" : !this.collapse,
+        "is-depth-x"  : this.isDepthX,
       },`is-depth-${this.depth}`)
     },
     //---------------------------------------
@@ -3919,6 +3924,12 @@ const _M = {
     //---------------------------------------
     showChildren() {
       return this.isDepth0 || !this.collapse
+    },
+    //---------------------------------------
+    ItemSuffixIcon() {
+      if(this.isDepthX){
+        return "im-angle-right"
+      }
     },
     //---------------------------------------
     ChildrenStyle() {
@@ -3970,7 +3981,7 @@ const _M = {
           Ti.Dom.dockTo(this.$refs.children, this.$el, {
             mode : this.isDepthX ? "V" : "H",
             position : "fixed",
-            space: this.isDepthX ? {x:1} : {y:3}
+            space: this.isDepthX ? {x:-1} : {y:3}
           })
           _.delay(()=>{
             this.isDocked = true
@@ -4029,10 +4040,16 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-info/bar-item-info.html", `<div cla
       class="as-text"
         >{{CurrentDisplay.text|i18n}}</span>
   <!--
+    Suffix Icon
+  -->
+  <span
+    v-if="suffixIcon"
+      class="as-suffix-icon"><ti-icon :value="suffixIcon"/></span>
+  <!--
     Shortcut
   -->
   <span
-    v-if="isShowShortcut"
+    v-else-if="isShowShortcut"
       class="as-shortcut">{{shortcut}}</span>
 </div>`);
 //============================================================
@@ -4065,6 +4082,10 @@ const _M = {
       default: undefined
     },
     "shortcut": {
+      type: String,
+      default: undefined
+    },
+    "suffixIcon" : {
       type: String,
       default: undefined
     },
@@ -24077,6 +24098,9 @@ function ResetQuillConfig(Quill) {
   Indent.keyName = "li-indent"
   Indent.whitelist = [1,2,3,4,5,6]
   //.................................................
+  // New format
+  // ...
+  //.................................................
   // Mark it
   Quill.__has_been_reset = true
 }
@@ -24295,23 +24319,71 @@ const _M = {
           if(!range) {
             return await Ti.Toast.Open("i18n:wordp-nil-sel", "warn")
           }
-          // Insert link
-          if(val) {
-            if(range.length > 0) {
-              let href = await Ti.Prompt("i18n:wordp-link");
-              if(!Ti.Util.isNil(href)) {
-                let op = $q.format("link", href)
-              }
-            }
-            // Warn user
-            else {
-              return await Ti.Toast.Open("i18n:wordp-nil-sel", "warn")
-            }
+          // Eval Format
+          let {link} = $q.getFormat(range)
+          
+          // Adjust range
+          let text;
+          if(link) {
+            let [bolt, offset] = $q.getLeaf(range.index)
+            text = bolt.text
+            let index = range.index - offset;
+            let length = text.length
+            range = {index, length}
           }
-          // Remove link
           else {
-            $q.format("link", false)
+            text = $q.getText(range)
           }
+          // Eval new tab
+          let newtab  = false
+          if(/^\+/.test(text)) {
+            text = text.substring(1)
+            newtab = true
+          }
+          
+          // Get link information
+          let reo = await Ti.App.Open({
+            icon  : "fas-link",
+            title : "i18n:wordp-link",
+            height : "3.2rem",
+            result : {
+              text, newtab, link
+            },
+            model : {prop: "data", event: "change"},
+            comType: "TiForm",
+            comConf: {
+              fields: [{
+                title : "i18n:link-href",
+                name  : "link",
+                comType : "ti-input"
+              }, {
+                title : "i18n:link-text",
+                name  : "text",
+                comType : "ti-input"
+              }, {
+                title : "i18n:open-newtab",
+                name  : "newtab",
+                type  : "Boolean",
+                comType : "ti-toggle"
+              }]
+            }
+          })
+          
+          // User Cancel
+          if(!reo)
+            return
+
+          let newText = reo.text
+          if(reo.link && reo.newtab)
+            newText = "+" + newText
+          $q.updateContents({
+            ops: [
+              {retain: range.index},
+              {delete: range.length},
+              {insert: newText, attributes: {
+                link: reo.link, newtab: true
+              }}]
+          })
         },
         //...........................................
         indent ($q){$q.format("indent", "+1")},
@@ -24332,11 +24404,11 @@ const _M = {
     // Utility
     //-----------------------------------------------
     async renderMarkdown() {
-      console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown")
+      //console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown")
       if(!Ti.Util.isBlank(this.value)) {
         // Parse markdown
         let MdDoc = Cheap.parseMarkdown(this.value)
-        console.log(MdDoc.toString())
+        //console.log(MdDoc.toString())
         window.MdDoc = MdDoc
         this.myMeta = _.cloneDeep(MdDoc.getMeta())
 
@@ -24344,7 +24416,7 @@ const _M = {
         let delta = await MdDoc.toDelta({
           mediaSrc: this.ThePreviewMediaSrc
         })
-        console.log(JSON.stringify(delta, null, '   '))
+        //console.log(JSON.stringify(delta, null, '   '))
 
         // Update Quill editor content
         this.$editor.setContents(delta);
@@ -24359,7 +24431,7 @@ const _M = {
     //-----------------------------------------------
     syncMarkdown() {
       if(this.syncForbid > 0) {
-        console.log("!forbid! syncMarkdown", this.syncForbid)
+        //console.log("!forbid! syncMarkdown", this.syncForbid)
         this.syncForbid --
         return
       }
@@ -33897,6 +33969,93 @@ Ti.Preload("ti/com/wn/adaptlist/_com.json", {
   "components" : [
     "@com:ti/obj/thumb",
     "@com:ti/wall"]
+});
+//============================================================
+// JOIN: wn/cmd/panel/wn-cmd-panel.html
+//============================================================
+Ti.Preload("ti/com/wn/cmd/panel/wn-cmd-panel.html", `<pre class="wn-cmd-panel"
+  :class="TopClass"><div  
+    v-for="(line, index) in lines"
+      :key="index"
+      class="as-line">{{line}}</div>
+</pre>`);
+//============================================================
+// JOIN: wn/cmd/panel/wn-cmd-panel.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data : ()=>({
+    lines : []
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    "value" : {
+      type : String,
+      default : undefined
+    },
+    "vars" : {
+      type : Object,
+      default: undefined
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    clear() {
+      this.lines = []
+    },
+    //------------------------------------------------
+    async runCommand() {
+      if(!this.value)
+        return
+      
+      this.lines.push("---------------------------------")
+      this.lines.push(Ti.I18n.get("run-welcome"))
+      this.lines.push("> " + this.value)
+      this.lines.push("---------------------------------")
+
+      await Wn.Sys.exec(this.value, {
+        vars : this.vars,
+        eachLine : (line)=>{
+          this.lines.push(line)
+        }
+      })
+
+      this.lines.push("---------------------------------")
+      this.lines.push("> " + this.value)
+      this.lines.push(Ti.I18n.get("run-finished"))
+      this.lines.push("---------------------------------")
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    "value" : {
+      handler: "runCommand",
+      immediate : true
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/cmd/panel/wn-cmd-panel.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/cmd/panel/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/cmd/panel/_com.json", {
+  "name" : "wn-cmd-panel",
+  "globally" : true,
+  "template" : "./wn-cmd-panel.html",
+  "mixins"   : ["./wn-cmd-panel.mjs"]
 });
 //============================================================
 // JOIN: wn/combo/edit-com/wn-combo-edit-com.html
@@ -45010,6 +45169,12 @@ const _M = {
       this.myMessage = msg
     },
     //--------------------------------------
+    doCheckDomainObjThumb() {
+      let domain = Wn.Session.getMyGroup();
+      let cmdText = `hookx @query 'd0:"home",d1:"${domain}",thumb_src:null,mime:"^image"' @invoke write -v`
+      Wn.OpenCmdPanel(cmdText)
+    },
+    //--------------------------------------
     async openView(oid) {
       if(!_.isString(oid))
         return
@@ -45315,16 +45480,6 @@ Ti.Preload("ti/i18n/en-us/ti-text-json.i18n.json", {
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
-  "order-pay-id" : "Pay ID",
-  "paypal-id" : "PayPal TID",
-  "paypal-payer_id" : "Payer ID",
-  "paypal-payer_email" : "Payer email",
-  "paypal-amount_value" : "Payment Amount",
-  "paypal-currency" : "Currency",
-  "paypal-cap-id" : "Capture ID",
-  "paypal-cap-status" : "Capture status",
-  "order-pay-status" : "Payment status",
-
   "account-filter-tip": "Filter by account name",
   "account-meta": "Account properties",
   "account-meta-tip": "Choose one account for detail",
@@ -45565,6 +45720,8 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-waybil_nb": "Waybil NB",
   "order-k-wt_at": "Pay at",
   "order-nil-detail": "Please select an order for details",
+  "order-pay-id": "Pay ID",
+  "order-pay-status": "Payment status",
   "order-shipaddr-nil": "Please specify a shipping address",
   "passwd-invalid-char": "Passwords can only include english numbers/upper and lower case letters/and special characters",
   "passwd-sl-1": "Weak",
@@ -45609,7 +45766,14 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "pay-title": "Payment",
   "pay-wx": "WeChat",
   "pay-zfb": "Alipay",
+  "paypal-amount_value": "Payment Amount",
   "paypal-approve-tip": "Already in the new tab for you to open the paypal payment page, if there is no open, please click on ☝ the icon above. after payment, the page will automatically perceive, if there is no response, try to click 👇 [check payment] button below.",
+  "paypal-cap-id": "Capture ID",
+  "paypal-cap-status": "Capture status",
+  "paypal-currency": "Currency",
+  "paypal-id": "PayPal TID",
+  "paypal-payer_email": "Payer email",
+  "paypal-payer_id": "Payer ID",
   "photo": "Photo",
   "post-content-blank": "The content you post cannot be empty or less than 10 words",
   "profile-title": "My profile",
@@ -45819,6 +45983,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "label": "Label",
   "lat": "Latitude",
   "lbs-place-add": "Add place",
+  "link": "Link",
+  "link-href": "Link target",
+  "link-text": "Link text",
   "lng": "Longitude",
   "loading": "Loading...",
   "login": "Sign in",
@@ -45889,6 +46056,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "restore": "Restore",
   "revoke": "Revoke",
   "revoke-change": "Revoke change",
+  "run": "Run",
+  "run-finished": "Done for running script",
+  "run-welcome": "Run script, please wait for a while ...",
   "save": "Save",
   "save-change": "Save change",
   "save-done": "Save success",
@@ -45935,6 +46105,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
 // JOIN: en-us/_wn.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
+  "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
+  "wn-admin-tools": "Admin tools",
   "wn-edit-com-nil": "Default as label control",
   "wn-en-his-ct": "Created",
   "wn-en-his-flt-tip": "Please input user id or name to filtering",
@@ -46479,19 +46651,9 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-waybil_com": "物流公司",
   "order-k-waybil_nb": "运单号",
   "order-k-wt_at": "支付时间",
-
-  "order-pay-id" : "支付单号",
-  "paypal-id" : "PayPal交易号",
-  "paypal-payer_id" : "交易账户ID",
-  "paypal-payer_email" : "交易账户邮箱",
-  "paypal-amount_value" : "交易金额",
-  "paypal-currency" : "货币单位",
-  "paypal-cap-id" : "记录ID",
-  "paypal-cap-status" : "记录状态",
-  "order-pay-status" : "交易状态",
-  
-
   "order-nil-detail": "请选择一个订单查看详情",
+  "order-pay-id": "支付单号",
+  "order-pay-status": "交易状态",
   "order-shipaddr-nil": "请指定一个收货地址",
   "passwd-invalid-char": "密码只能包括英文数字/大小写字母/以及特殊字符",
   "passwd-sl-1": "弱",
@@ -46536,7 +46698,14 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "pay-title": "支付流程",
   "pay-wx": "微信支付",
   "pay-zfb": "支付宝",
+  "paypal-amount_value": "交易金额",
   "paypal-approve-tip": "已经在新标签里为您打开了PayPal支付页面，如果没有打开，请点击☝上面的图标。支付完毕，页面会自动感知到，如果没有反应，试着点击👇下面的【检查支付结果】按钮。",
+  "paypal-cap-id": "记录ID",
+  "paypal-cap-status": "记录状态",
+  "paypal-currency": "货币单位",
+  "paypal-id": "PayPal交易号",
+  "paypal-payer_email": "交易账户邮箱",
+  "paypal-payer_id": "交易账户ID",
   "photo": "照片",
   "post-content-blank": "您提交的内容不能为空，也不能少于10个字",
   "profile-title": "我的基本信息",
@@ -46746,6 +46915,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "label": "标签",
   "lat": "纬度",
   "lbs-place-add": "添加地点",
+  "link": "链接",
+  "link-href": "链接目标",
+  "link-text": "链接文字",
   "lng": "经度",
   "loading": "加载中...",
   "login": "登录",
@@ -46816,6 +46988,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "restore": "恢复",
   "revoke": "撤销",
   "revoke-change": "撤销修改",
+  "run": "运行",
+  "run-finished": "脚本执行结束",
+  "run-welcome": "正在运行脚本，请稍后 ...",
   "save": "保存",
   "save-change": "保存修改",
   "save-done": "保存成功",
@@ -46862,6 +47037,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
 // JOIN: zh-cn/_wn.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
+  "wn-admin-check-obj-thumb": "检查图像缩略图...",
+  "wn-admin-tools": "管理工具",
   "wn-edit-com-nil": "默认为标签控件",
   "wn-en-his-ct": "创建时间",
   "wn-en-his-flt-tip": "请输入用户ID或者名称过滤",

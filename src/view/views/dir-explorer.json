@@ -104,6 +104,16 @@
         },{
           "type" : "line"
         },{
+          "type" : "group",
+          "text" : "i18n:wn-admin-tools",
+          "items" : [{
+              "type" : "action",
+              "text" : "i18n:wn-admin-check-obj-thumb",
+              "action" : "root:doCheckDomainObjThumb"
+            }]
+        },{
+          "type" : "line"
+        },{
           "type" : "action",
           "icon" : "fas-keyboard",
           "text" : "i18n:console",

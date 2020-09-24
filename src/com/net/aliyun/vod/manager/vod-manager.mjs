@@ -35,7 +35,10 @@ export default {
                 title: "i18n:net-ct",
                 name: "CreationTime",
                 type: "Array",
-                comType: "ti-input-daterange"
+                comType: "ti-input-daterange",
+                comConf: {
+                  "valueType" : "ms-array"
+                }
                 // }, {
                 //   title: "i18n:net-vod-cate",
                 //   name : "CateName",

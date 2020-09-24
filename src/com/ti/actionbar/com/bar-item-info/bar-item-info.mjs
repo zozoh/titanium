@@ -27,6 +27,10 @@ const _M = {
       type: String,
       default: undefined
     },
+    "suffixIcon" : {
+      type: String,
+      default: undefined
+    },
     "altDisplay" : {
       type: [Object, Array],
       default: ()=>[]
