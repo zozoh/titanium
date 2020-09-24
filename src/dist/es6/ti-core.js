@@ -1,4 +1,4 @@
-// Pack At: 2020-09-24 14:00:46
+// Pack At: 2020-09-25 01:56:40
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1108,8 +1108,8 @@ const {S} = (function(){
       }
       //...............................................
       // Boolean
-      if(/^(true|false|yes|no|on|off)$/i.test(str)) {
-        return /^(true|yes|on)$/i.test(str)
+      if(/^(true|false|yes|no|on|off)$/.test(str)) {
+        return /^(true|yes|on)$/.test(str)
       }
       //...............................................
       // JS String
@@ -2164,10 +2164,10 @@ const {App} = (function(){
         let model = "";
         if(this.model) {
           if(this.model.event) {
-            mode += ` @${this.model.event}="OnChange"`
+            model += ` @${this.model.event}="OnChange"`
           }
           if(this.model.prop) {
-            mode += ` :${this.model.prop}="result"`
+            model += ` :${this.model.prop}="result"`
           }
         }
         //..........................................
@@ -6329,6 +6329,7 @@ const {Types} = (function(){
     },
     //.......................................
     toBoolStr(val, falsy="No", trusy="Yes") {
+      console.log("haha")
       return val ? trusy : falsy
     },
     //.......................................
@@ -10869,7 +10870,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200924.140046",
+  "version" : "2.5-20200925.015640",
   "dev" : false,
   "appName" : null,
   "session" : {},

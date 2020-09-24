@@ -1,4 +1,4 @@
-// Pack At: 2020-09-24 14:00:46
+// Pack At: 2020-09-25 01:56:40
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -19447,6 +19447,10 @@ const _M = {
     "links" : {
       type : Array,
       default : ()=>[]
+    },
+    "autoSignLink" : {
+      type : Boolean,
+      default : true
     }
   },
   //////////////////////////////////////////
@@ -19470,18 +19474,20 @@ const _M = {
       }
       //---------------------------
       // Add the Login/Logout link
-      if(this.hasSession) {
-        list.push({
-          text : "i18n:logout",
-          emit : this.logoutEvent
-        })
-      }
-      // Login 
-      else {
-        list.push({
-          text : "i18n:login",
-          emit : this.loginEvent
-        })
+      if(this.autoSignLink) {
+        if(this.hasSession) {
+          list.push({
+            text : "i18n:logout",
+            emit : this.logoutEvent
+          })
+        }
+        // Login 
+        else {
+          list.push({
+            text : "i18n:login",
+            emit : this.loginEvent
+          })
+        }
       }
       //---------------------------
       return list
@@ -27702,7 +27708,7 @@ const _M = {
     },
     //---------------------------------------------------
     evalCurrentMode(mode) {
-      console.log("evalCurrentMode", mode)
+      //console.log("evalCurrentMode", mode)
       // Find the first allowed modes
       if(!_.get(this.allowModes, mode)) {
         if(_.isEmpty(this.TheAllowModes)) {
@@ -37776,6 +37782,203 @@ Ti.Preload("ti/com/wn/obj/uploader/_com.json", {
   ]
 });
 //============================================================
+// JOIN: wn/session/badge/wn-session-badge.html
+//============================================================
+Ti.Preload("ti/com/wn/session/badge/wn-session-badge.html", `<div class="wn-session-badge"
+  :class="TopClass">
+  <!--
+    Ti Session Badge
+  -->
+  <div class="as-info" ref="info">
+    <TiSessionBadge
+      :me="me"
+      :login-icon="TheLoginIcon"
+      avatar-key="thumb"
+      name-keys="nickname|nm"
+      name-event="show:more"
+      :auto-sign-link="false"
+      @show:more="OnShowMore"/>
+  </div>
+  <!--
+    More Information
+  -->
+  <template v-if="!collapse">
+    <!--Mask-->
+    <div class="as-mask" @click="collapse=true"></div>
+    <!--Drop-->
+    <div ref="drop" class="as-drop" :style="DropStyle">
+      <!--
+        Avatar
+      -->
+      <div class="as-avatar">
+        <ti-icon :value="TheLoginIcon"/>
+        <div class="as-name">
+          <span>{{me.nickname}}</span>
+          <span>{{me.nm}}</span>
+        </div>
+      </div>
+      <!--
+        Language
+      -->
+      <div class="as-lang">
+        <div
+          v-for="la in LangList"
+            class="lang-item"
+            :class="la.className"
+            @click.left="OnChangeLang(la.lang)">
+            <img :src="la.src"/>
+            <div>{{la.text}}</div>
+        </div>
+      </div>
+      <!--
+        Foot: resetpasswd + logout
+      -->
+      <div class="as-foot">
+        <a @click.left="OnResetPassword">{{'passwd-reset' | i18n}}</a>
+        <a @click.left="$notify('do:logout')">{{'logout' | i18n}}</a>
+      </div>
+    </div>
+  </template>
+</div>`);
+//============================================================
+// JOIN: wn/session/badge/wn-session-badge.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  data : ()=>({
+    collapse : true,
+    dropReady : false
+  }),
+  /////////////////////////////////////////
+  props : {
+    "me" : {
+      type : Object,
+      default : null
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    MySex() {
+      return _.get(this.me, "sex") || 0
+    },
+    //--------------------------------------
+    MyLang() {
+      return _.get(this.me, "LANG") || "zh-cn"
+    },
+    //--------------------------------------
+    hasSession() {
+      return this.me ? true : false
+    },
+    //--------------------------------------
+    LangList() {
+      return [{
+        lang : "zh-cn",
+        text : "中文",
+        className: {"is-current" : "zh-cn" == this.MyLang},
+        src  : "/gu/rs/ti/icons/png/lang-zh-cn.png"
+      }, {
+        lang : "en-us",
+        text : "English",
+        className: {"is-current" : "en-us" == this.MyLang},
+        src  : "/gu/rs/ti/icons/png/lang-en-us.png"
+      }]
+    },
+    //--------------------------------------
+    TheLoginIcon() {
+      if(2 == this.MySex)
+        return "im-user-female"
+      
+      if(1 == this.MySex)
+        return "im-user-male"
+
+      return "im-user-circle"
+    },
+    //--------------------------------------
+    DropStyle() {
+      if(this.dropReady){
+        return {
+          "visibility": "visible"
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnResetPassword() {
+      this.collapse = true
+      Ti.App(this).dispatch("session/openResetPasswd")
+    },
+    //--------------------------------------
+    OnShowMore() {
+      this.collapse = false
+    },
+    //--------------------------------------
+    async OnChangeLang(lang) {
+      if(this.MyLang != lang) {
+        await Wn.Sys.exec(`me -set LANG=${lang}`)
+        window.location.reload()
+      }
+    },
+    //--------------------------------------
+    dockDrop() {
+      let $drop = this.$refs.drop
+      let $info = this.$refs.info
+      // Guard the elements
+      if(!_.isElement($drop) || !_.isElement($info) || this.collapse){
+        return
+      }
+      // Dock
+      Ti.Dom.dockTo($drop, $info, {
+        space: {y:2}
+      })
+      _.delay(()=>{
+        this.dropReady = true
+      }, 10)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "collapse" : {
+      handler : function(newVal, oldVal) {
+        if(!newVal && newVal!=oldVal) {
+          _.delay(()=>{
+            this.dockDrop()
+          }, 0)
+        }
+        // Collapse
+        else if(newVal) {
+          this.dropReady = false
+        }
+      },
+      immediate: true
+    }
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/session/badge/wn-session-badge.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/session/badge/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/session/badge/_com.json", {
+  "name" : "wn-session-badge",
+  "globally" : true,
+  "template" : "./wn-session-badge.html",
+  "mixins" : ["./wn-session-badge.mjs"],
+  "components" : [
+    "@com:ti/session/badge"
+  ]
+});
+//============================================================
 // JOIN: wn/support/wn_list_wrapper_mixins.mjs
 //============================================================
 (function(){
@@ -44699,7 +44902,7 @@ Ti.Preload("/a/load/wn.manager/gui/schema.json", {
     "comConf" : "=Crumb"
   },
   "pcSkySession" : {
-    "comType" : "ti-session-badge",
+    "comType" : "wn-session-badge",
     "comConf" : "=SessionBadge"
   },
   "pcSkyMenu" : {
@@ -45480,9 +45683,11 @@ Ti.Preload("ti/i18n/en-us/ti-text-json.i18n.json", {
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
-  "account-filter-tip": "Filter by account name",
+  "account": "Account",
+  "account-flt-tip": "Filter by account name",
+  "account-manage": "Accounts",
   "account-meta": "Account properties",
-  "account-meta-tip": "Choose one account for detail",
+  "account-meta-tip": "Choose an account for detail",
   "address-consignee": "Consignee",
   "address-empty-list": "No shipping address",
   "address-flt-tip": "Filter by address name",
@@ -45779,18 +45984,22 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "profile-title": "My profile",
   "pubat": "Release date",
   "read-du": "Reading spend",
+  "role": "Role",
   "role-as-guest": "Guest",
   "role-as-normal": "Normal",
   "role-as-vip": "VIP",
   "role-dft": "Default role",
   "role-flt-tip": "Filter by role name",
+  "role-manage": "Roles",
   "role-meta": "Role propery",
+  "role-meta-tip": "Choose an role for detail",
   "role-name": "Role name",
+  "role-select-tip": "Select role",
   "role-val": "Role value",
   "shop-basket-clean-confirm": "Are you sure you want to empty the shopping cart? this is an operation that cannot be undone.",
   "sort": "Sort",
-  "sort-tip-asc": "The smaller, at first",
-  "sort-tip-desc": "The bigger, at first",
+  "sort-tip-asc": "The smaller at first",
+  "sort-tip-desc": "The bigger at first",
   "sort-val": "Sort value",
   "topic": "Topic",
   "type": "Type",
@@ -45971,6 +46180,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "find": "Find",
   "find-data": "Find data",
   "gender": "Gender",
+  "global-settings": "Global settings",
+  "history-record": "History record",
   "home": "HOME",
   "i-known": "I known",
   "icon": "Icon",
@@ -46007,6 +46218,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "msg": "Message",
   "name": "Name",
   "new-item": "New item",
+  "newsfeed": "Newfeed",
   "next": "Next",
   "nil": "Nil",
   "nil-obj": "Please choose one object",
@@ -46069,7 +46281,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "select": "Select",
   "select-all": "Select all",
   "send": "Send",
-  "settings": "Setting",
+  "settings": "Settings",
   "slogan": "Slogan",
   "source-code": "Source code",
   "stop": "Stop",
@@ -46099,6 +46311,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "view": "View",
   "view-resource": "View source code",
   "warn": "Warn",
+  "website": "Website",
   "yes": "Yes"
 });
 //============================================================
@@ -46412,7 +46625,9 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-json.i18n.json", {
 // JOIN: zh-cn/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
-  "account-filter-tip": "请输入账号名过滤",
+  "account": "账户",
+  "account-flt-tip": "请输入账号名过滤",
+  "account-manage": "账户管理",
   "account-meta": "账户属性",
   "account-meta-tip": "请选择一个账号查看详情",
   "address-consignee": "收货人",
@@ -46711,13 +46926,17 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "profile-title": "我的基本信息",
   "pubat": "发布日期",
   "read-du": "阅读时长",
+  "role": "角色",
   "role-as-guest": "访客",
   "role-as-normal": "普通用户",
   "role-as-vip": "VIP用户",
   "role-dft": "默认角色",
   "role-flt-tip": "请输入角色名过滤",
+  "role-manage": "角色管理",
   "role-meta": "角色属性",
+  "role-meta-tip": "请选择一个角色查看详情",
   "role-name": "角色名",
+  "role-select-tip": "请选择角色",
   "role-val": "角色值",
   "shop-basket-clean-confirm": "您确定要清空购物车内全部商品吗？这是一个不能撤回的操作。",
   "sort": "排序",
@@ -46903,6 +47122,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "find": "查找",
   "find-data": "查找数据",
   "gender": "性别",
+  "global-settings": "全局设置",
+  "history-record": "历史记录",
   "home": "主目录",
   "i-known": "我知道了",
   "icon": "图标",
@@ -46939,6 +47160,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "msg": "消息",
   "name": "名称",
   "new-item": "新项目",
+  "newsfeed": "消息流",
   "next": "下一步",
   "nil": "无",
   "nil-obj": "请选择一个对象",
@@ -47031,6 +47253,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "view": "查看",
   "view-resource": "查看源代码",
   "warn": "警告",
+  "website": "网站",
   "yes": "是"
 });
 //============================================================
