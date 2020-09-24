@@ -97,10 +97,10 @@ export class TiAppModal {
     let model = "";
     if(this.model) {
       if(this.model.event) {
-        mode += ` @${this.model.event}="OnChange"`
+        model += ` @${this.model.event}="OnChange"`
       }
       if(this.model.prop) {
-        mode += ` :${this.model.prop}="result"`
+        model += ` :${this.model.prop}="result"`
       }
     }
     //..........................................

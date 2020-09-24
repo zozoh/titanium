@@ -73,6 +73,8 @@
   "find": "查找",
   "find-data": "查找数据",
   "gender": "性别",
+  "global-settings": "全局设置",
+  "history-record": "历史记录",
   "home": "主目录",
   "i-known": "我知道了",
   "icon": "图标",
@@ -109,6 +111,7 @@
   "msg": "消息",
   "name": "名称",
   "new-item": "新项目",
+  "newsfeed": "消息流",
   "next": "下一步",
   "nil": "无",
   "nil-obj": "请选择一个对象",
@@ -201,5 +204,6 @@
   "view": "查看",
   "view-resource": "查看源代码",
   "warn": "警告",
+  "website": "网站",
   "yes": "是"
 }

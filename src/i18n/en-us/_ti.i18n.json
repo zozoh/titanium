@@ -73,6 +73,8 @@
   "find": "Find",
   "find-data": "Find data",
   "gender": "Gender",
+  "global-settings": "Global settings",
+  "history-record": "History record",
   "home": "HOME",
   "i-known": "I known",
   "icon": "Icon",
@@ -109,6 +111,7 @@
   "msg": "Message",
   "name": "Name",
   "new-item": "New item",
+  "newsfeed": "Newfeed",
   "next": "Next",
   "nil": "Nil",
   "nil-obj": "Please choose one object",
@@ -171,7 +174,7 @@
   "select": "Select",
   "select-all": "Select all",
   "send": "Send",
-  "settings": "Setting",
+  "settings": "Settings",
   "slogan": "Slogan",
   "source-code": "Source code",
   "stop": "Stop",
@@ -201,5 +204,6 @@
   "view": "View",
   "view-resource": "View source code",
   "warn": "Warn",
+  "website": "Website",
   "yes": "Yes"
 }

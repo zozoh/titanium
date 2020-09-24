@@ -1,0 +1,9 @@
+{
+  "name" : "wn-session-badge",
+  "globally" : true,
+  "template" : "./wn-session-badge.html",
+  "mixins" : ["./wn-session-badge.mjs"],
+  "components" : [
+    "@com:ti/session/badge"
+  ]
+}

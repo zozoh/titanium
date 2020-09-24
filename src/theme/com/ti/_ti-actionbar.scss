@@ -31,7 +31,7 @@
       > .as-children {
         @include color($color-chip, r, c);
         border:1px solid map-get($color-primary, c);
-        box-shadow: 4px 6px 10px map-get($color-shadow, c);
+        box-shadow: SZ(4) SZ(6) SZ(10) map-get($color-shadow, c);
         z-index: $z-menu;
         padding:1px; min-width: SZ(150);
       }

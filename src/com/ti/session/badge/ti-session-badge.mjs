@@ -54,6 +54,10 @@ const _M = {
     "links" : {
       type : Array,
       default : ()=>[]
+    },
+    "autoSignLink" : {
+      type : Boolean,
+      default : true
     }
   },
   //////////////////////////////////////////
@@ -77,18 +81,20 @@ const _M = {
       }
       //---------------------------
       // Add the Login/Logout link
-      if(this.hasSession) {
-        list.push({
-          text : "i18n:logout",
-          emit : this.logoutEvent
-        })
-      }
-      // Login 
-      else {
-        list.push({
-          text : "i18n:login",
-          emit : this.loginEvent
-        })
+      if(this.autoSignLink) {
+        if(this.hasSession) {
+          list.push({
+            text : "i18n:logout",
+            emit : this.logoutEvent
+          })
+        }
+        // Login 
+        else {
+          list.push({
+            text : "i18n:login",
+            emit : this.loginEvent
+          })
+        }
       }
       //---------------------------
       return list

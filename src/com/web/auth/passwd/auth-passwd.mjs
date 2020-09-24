@@ -297,7 +297,7 @@ const _M = {
     },
     //---------------------------------------------------
     evalCurrentMode(mode) {
-      console.log("evalCurrentMode", mode)
+      //console.log("evalCurrentMode", mode)
       // Find the first allowed modes
       if(!_.get(this.allowModes, mode)) {
         if(_.isEmpty(this.TheAllowModes)) {

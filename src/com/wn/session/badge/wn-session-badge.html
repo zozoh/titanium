@@ -1,0 +1,56 @@
+<div class="wn-session-badge"
+  :class="TopClass">
+  <!--
+    Ti Session Badge
+  -->
+  <div class="as-info" ref="info">
+    <TiSessionBadge
+      :me="me"
+      :login-icon="TheLoginIcon"
+      avatar-key="thumb"
+      name-keys="nickname|nm"
+      name-event="show:more"
+      :auto-sign-link="false"
+      @show:more="OnShowMore"/>
+  </div>
+  <!--
+    More Information
+  -->
+  <template v-if="!collapse">
+    <!--Mask-->
+    <div class="as-mask" @click="collapse=true"></div>
+    <!--Drop-->
+    <div ref="drop" class="as-drop" :style="DropStyle">
+      <!--
+        Avatar
+      -->
+      <div class="as-avatar">
+        <ti-icon :value="TheLoginIcon"/>
+        <div class="as-name">
+          <span>{{me.nickname}}</span>
+          <span>{{me.nm}}</span>
+        </div>
+      </div>
+      <!--
+        Language
+      -->
+      <div class="as-lang">
+        <div
+          v-for="la in LangList"
+            class="lang-item"
+            :class="la.className"
+            @click.left="OnChangeLang(la.lang)">
+            <img :src="la.src"/>
+            <div>{{la.text}}</div>
+        </div>
+      </div>
+      <!--
+        Foot: resetpasswd + logout
+      -->
+      <div class="as-foot">
+        <a @click.left="OnResetPassword">{{'passwd-reset' | i18n}}</a>
+        <a @click.left="$notify('do:logout')">{{'logout' | i18n}}</a>
+      </div>
+    </div>
+  </template>
+</div>

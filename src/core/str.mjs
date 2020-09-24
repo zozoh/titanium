@@ -219,8 +219,8 @@ const TiStr = {
     }
     //...............................................
     // Boolean
-    if(/^(true|false|yes|no|on|off)$/i.test(str)) {
-      return /^(true|yes|on)$/i.test(str)
+    if(/^(true|false|yes|no|on|off)$/.test(str)) {
+      return /^(true|yes|on)$/.test(str)
     }
     //...............................................
     // JS String
