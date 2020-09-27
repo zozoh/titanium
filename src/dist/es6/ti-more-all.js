@@ -1,4 +1,4 @@
-// Pack At: 2020-09-28 00:06:42
+// Pack At: 2020-09-28 03:25:02
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -18196,157 +18196,6 @@ Ti.Preload("ti/com/ti/month/_com.json", {
   "components" : ["@com:ti/list"]
 });
 //============================================================
-// JOIN: ti/obj/creation/ti-obj-creation.html
-//============================================================
-Ti.Preload("ti/com/ti/obj/creation/ti-obj-creation.html", `<div class="ti-obj-creation">
-  <div class="toc-types"
-    v-if="hasTypes">
-    <ul>
-      <li v-if="freeCreate"
-        @click="setCurrentType(null)">
-        <span class="ti-icon"></span>
-        <span class="ti-text">{{'toc-auto-type'|i18n}}</span>
-      </li>
-      <li v-for="tp of types"
-        :class="getTypeItemClassName(tp)"
-        @click="setCurrentType(tp)">
-        <ti-icon :value="tp.icon"/>
-        <span class="ti-text">{{tp.text}}</span>
-        <em v-if="'DIR' != tp.race">(*.{{tp.name}})</em>
-      </li>
-    </ul>
-  </div>
-  <div class="toc-main">
-    <div v-if="hasCurrentType"
-      class="toc-info">
-      <div class="toc-thumb">
-        <ti-icon :value="currentType.thumb"/>
-      </div>
-      <div class="toc-text">{{currentType.text}}</div>
-      <div v-if="!currentIsDir"
-        class="toc-name">*.{{currentType.name}}</div>
-      <div class="toc-brief"
-        v-if="currentType.brief">{{currentType.brief}}</div>
-    </div>
-    <div v-else
-      class="toc-free">
-      <span>{{'toc-free'|i18n}}</span>
-    </div>
-    <div class="toc-input">
-      <input
-        ref="input" 
-        :value="value.name"
-        :placeholder="'toc-tip'|i18n" 
-        @change="onChange" 
-        spellcheck="false">
-    </div>
-  </div>
-</div>`);
-//============================================================
-// JOIN: ti/obj/creation/ti-obj-creation.mjs
-//============================================================
-(function(){
-const _M = {
-  props : {
-    "types" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "value" : {
-      type : Object,
-      default : ()=>({
-        name : "",
-        type : "",
-        race : ""
-      })
-    },
-    "trimed" : {
-      type : Boolean,
-      default : true
-    },
-    "freeCreate" : {
-      type : Boolean,
-      default : false
-    }
-  },
-  computed : {
-    hasTypes() {
-      return !_.isEmpty(this.types)
-    },
-    currentIsDir(){
-      return 'DIR' == this.value.race
-    },
-    hasCurrentType() {
-      return this.value.type && this.value.race
-    },
-    currentType() {
-      for(let tp of this.types) {
-        if(tp.name == this.value.type){
-          return tp
-        }
-      }
-    }
-  },
-  methods : {
-    isCurrent(tp) {
-      return this.value.type == tp.name
-    },
-    getTypeItemClassName(tp) {
-      if(this.isCurrent(tp)){
-        return "as-current"
-      }
-      return ""
-    },
-    setCurrentType(tp){
-      if(tp) {
-        this.value.type = tp.name
-        this.value.race = tp.race
-      } else {
-        this.value.type = ""
-        this.value.race = ""
-      }
-      this.$notify("change", this.value)
-    },
-    onChange() {
-      let name = this.$refs.input.value
-      if(this.trimed) {
-        name = _.trim(name)
-      }
-      this.value.name = name
-
-      if('DIR'!=this.value.race 
-        && this.value.type
-        && this.value.name){
-        let suffix = `.${this.value.type}`
-        if(!this.value.name.endsWith(suffix)){
-          let majorName = Ti.Util.getMajorName(this.value.name)
-          this.value.name = majorName + suffix
-        }
-      }
-
-      this.$notify("change", this.value)
-    }
-  },
-  mounted : function(){
-    if(this.hasTypes) {
-      this.setCurrentType(this.types[0])
-    }
-    this.$refs.input.focus()
-  }
-}
-Ti.Preload("ti/com/ti/obj/creation/ti-obj-creation.mjs", _M);
-})();
-//============================================================
-// JOIN: ti/obj/creation/_com.json
-//============================================================
-Ti.Preload("ti/com/ti/obj/creation/_com.json", {
-  "name" : "ti-obj-creation",
-  "globally" : true,
-  "i18n" : "@i18n:ti-obj-creation",
-  "template" : "./ti-obj-creation.html",
-  "mixins" : ["./ti-obj-creation.mjs"]
-});
-//============================================================
 // JOIN: ti/obj/pair/ti-obj-pair.html
 //============================================================
 Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair" 
@@ -18641,46 +18490,46 @@ Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb"
 const _M = {
   ////////////////////////////////////////////////
   props : {
-    index : {
+    "index" : {
       type : Number,
       default : -1
     },
-    id : {
+    "id" : {
       type : String,
       default : undefined
     },
     // The text to present the object
-    title : {
+    "title" : {
       type : String,
       default : undefined
     },
     // The URL of thumb
-    preview : {
+    "preview" : {
       type : [String, Object],
       default : "broken_image"
     },
-    href : {
+    "href" : {
       type : String,
       default : undefined
     },
-    status : {
+    "status" : {
       type : [String, Object],
       default : undefined
     },
-    progress : {
+    "progress" : {
       type : Number,
       default : -1
     },
-    visibility : {
+    "visibility" : {
       type : String,
       default : "show"  // `show|weak|hide`
     },
     // true - alwasy show the footer part
-    showFooter : {
+    "showFooter" : {
       type : Boolean,
       default : true
     },
-    badges : {
+    "badges" : {
       type : Object,
       default: ()=>({
         "NW" : null,
@@ -18689,12 +18538,12 @@ const _M = {
         "SE" : null
       })
     },
-    removeIcon : {
+    "removeIcon" : {
       type : [String, Object],
       default : undefined
     },
-    onTitle : {
-      type : [String, Function],
+    "onTitle" : {
+      type : [String, Function, Boolean],
       default : undefined
     }
   },
@@ -18778,14 +18627,19 @@ const _M = {
       this.$notify("remove", context)
     },
     //--------------------------------------------
-    OnClickTitle() {
+    OnClickTitle($event) {
       let context = this.genEventContext()
       // String -> Emit event
-      if(_.isString(this.onTitle)) {
+      if(false === this.onTitle) {
+        $event.stopPropagation()
+      }
+      // Notify
+      else if(_.isString(this.onTitle)) {
         this.$notify(this.onTitle, context)
       }
       // Function -> Handle
-      if(_.isFunction(this.onTitle)) {
+      else if(_.isFunction(this.onTitle)) {
+        $event.stopPropagation()
         this.onTitle(context)
       }
     },
@@ -33266,7 +33120,8 @@ const OBJ = {
   async doCreate() {
     // Load the creation setting
     let {
-      types, 
+      types,
+      typeNames,
       freeCreate
     } = await Wn.Sys.exec(`ti creation -cqn id:${this.meta.id}`, {as:"json"})
 
@@ -33276,14 +33131,12 @@ const OBJ = {
       position: "top",
       width  : 640,
       height : "61.8%",
-      comType : "ti-obj-creation",
+      comType : "wn-obj-creation",
       comConf : {
         types, freeCreate
       },
-      components : ["@com:ti/obj/creation"]
+      components : ["@com:wn/obj/creation"]
     })
-
-    console.log(no)
     
     // Do Create
     // Check the newName
@@ -33295,12 +33148,33 @@ const OBJ = {
       // Check the newName length
       if(no.length > 256) {
         return await Ti.Alert('i18n:wn-create-too-long')
-      }      
+      }
+
+      // Default Race
+      no.race = no.race || "FILE"
+
+      if("folder" == no.type) {
+        no.type = undefined
+      }
+      
+      // Auto type
+      if("FILE" == no.race) {
+        if(!no.type) {
+          no.type = Ti.Util.getSuffixName(no.name)
+        }
+
+        // Auto append suffix name
+        if(!no.name.endsWith(no.type)) {
+          no.name += `.${no.type}`
+        }
+      }
+      
       // Do the creation
       let json = JSON.stringify({
-        nm   : no.name, 
-        tp   : no.type=="folder"?"":no.type, 
-        race : no.race
+        nm : no.name,
+        tp : no.type,
+        race : no.race,
+        mime : no.mime
       })
       let newMeta = await Wn.Sys.exec2(
           `obj id:${this.meta.id} -cqno -new '${json}'`,
@@ -36168,6 +36042,221 @@ Ti.Preload("ti/com/wn/list/_com.json", {
     "@com:ti/table"]
 });
 //============================================================
+// JOIN: wn/obj/creation/wn-obj-creation.html
+//============================================================
+Ti.Preload("ti/com/wn/obj/creation/wn-obj-creation.html", `<div class="wn-obj-creation"
+  :class="TopClass">
+  <!--
+    Side type list
+  -->
+  <div class="oc-types"
+    v-if="hasTypes">
+    <ul>
+      <li
+        v-for="li of TypeList"
+          :class="li.className"
+          @click="setCurrentType(li.name)">
+          <!--Icon-->
+          <ti-icon
+            v-if="li.icon"
+              :value="li.icon"/>
+          <!--Text-->
+          <span class="as-text">{{li.text|i18n}}</span>
+          <!--Suffix-->
+          <em v-if="li.suffix">({{li.suffix}})</em>
+      </li>
+    </ul>
+  </div>
+  <!--
+    Main Area
+  -->
+  <div class="oc-main">
+    <!--
+      Type Brief
+    -->
+    <div v-if="hasCurrentType"
+      class="oc-info">
+      <div class="oc-thumb">
+        <ti-icon :value="CurrentType.thumb"/>
+      </div>
+      <div class="oc-text">{{CurrentType.text | i18n}}</div>
+      <div v-if="!CurrentIsDIR"
+        class="oc-name">*.{{CurrentType.name}}</div>
+      <div class="oc-brief"
+        v-if="CurrentType.brief">{{CurrentType.brief}}</div>
+    </div>
+    <!--
+      Free create
+    -->
+    <div v-else
+      class="oc-free">
+      <span>{{'wn-oc-free'|i18n}}</span>
+    </div>
+    <!--
+      Input value
+    -->
+    <div class="oc-input">
+      <input
+        ref="input" 
+        :value="value.name"
+        :placeholder="'wn-oc-tip'|i18n" 
+        @change="OnInputChange" 
+        spellcheck="false">
+    </div>
+  </div>
+</div>`);
+//============================================================
+// JOIN: wn/obj/creation/wn-obj-creation.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  data : ()=>({
+    myCurrentType: undefined
+  }),
+  /////////////////////////////////////////
+  props : {
+    "types" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "value" : {
+      type : Object,
+      default : ()=>({
+        // name : "xxxx",
+        // type : "txt",
+        // race : "FILE",
+        // mime : "text/plain"
+      })
+    },
+    "trimed" : {
+      type : Boolean,
+      default : true
+    },
+    "freeCreate" : {
+      type : Boolean,
+      default : false
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    hasTypes() {
+      return !_.isEmpty(this.types)
+    },
+    //--------------------------------------
+    CurrentTypeName() {
+      let tp = this.myCurrentType || this.value.type
+      if(!tp && !this.freeCreate){
+        return _.get(_.first(this.types), "name")
+      }
+      return tp
+    },
+    //--------------------------------------
+    TypeList() {
+      let list = []
+      if(this.freeCreate) {
+        let currentIsNull = Ti.Util.isNil(this.CurrentTypeName)
+        list.push({
+          name : null,
+          text : "i18n:wn-oc-auto-type",
+          type : null,
+          icon  : "far-file",
+          thumb : "far-file",
+          suffix : "*.*",
+          current : currentIsNull,
+          className : {
+            "is-current" : currentIsNull
+          },
+          race : "FILE",
+          mime : "text/plain"
+        })
+      }
+      _.forEach(this.types, type => {
+        let li = _.cloneDeep(type)
+        li.thumb = li.thumb || li.icon
+        li.suffix = `*.${li.name}`
+        li.current = li.name == this.CurrentTypeName
+        li.className = {
+          "is-current" : li.current
+        }
+        list.push(li)
+      })
+      return list
+    },
+    //--------------------------------------
+    CurrentType() {
+      return _.find(this.TypeList, li=>li.current)
+    },
+    //--------------------------------------
+    CurrentIsDIR(){
+      return 'DIR' == _.get(this.CurrentType, "race")
+    },
+    //--------------------------------------
+    hasCurrentType() {
+      return this.CurrentType ? true : false
+    }
+    //--------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    setCurrentType(name){
+      this.myCurrentType = name
+    },
+    //--------------------------------------
+    OnInputChange() {
+      let name = this.$refs.input.value
+      if(this.trimed) {
+        name = _.trim(name)
+      }
+      
+      let type = _.assign({
+        name : "txt",
+        mime : "text/plain",
+        race : "FILE"
+      }, this.CurrentType)
+
+      // Try to find suffix name in type list
+      if(Ti.Util.isNil(type.name)) {
+        let typeName = Ti.Util.getSuffixName(name)
+        if(typeName) {
+          for(let li of this.types) {
+            if(typeName == li.name) {
+              type = li
+              break
+            }
+          }
+        }
+      }
+
+      this.$notify("change", {
+        name,
+        type : type.name,
+        mime : type.mime,
+        race : type.race
+      })
+    }
+    //--------------------------------------
+  }
+  /////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/obj/creation/wn-obj-creation.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/obj/creation/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/obj/creation/_com.json", {
+  "name" : "wn-obj-creation",
+  "globally" : true,
+  "template" : "./wn-obj-creation.html",
+  "mixins" : ["./wn-obj-creation.mjs"]
+});
+//============================================================
 // JOIN: wn/obj/form/wn-obj-form.html
 //============================================================
 Ti.Preload("ti/com/wn/obj/form/wn-obj-form.html", `<ti-form 
@@ -36834,10 +36923,11 @@ const _M = {
       let meta = this.FirstItem
       // Use base to open the folder
       // Then it should be auto-open the folder
+      console.log("haha")
       if(!meta || _.isEmpty(meta)) {
         meta = this.base || "~"
       } else {
-        meta = `id:${meta.pid}`
+        meta = `id:${meta.id}`
       }
 
       // Reload Meta
@@ -45706,14 +45796,6 @@ Ti.Preload("ti/i18n/en-us/ti-datetime.i18n.json", {
   "today": "Today"
 });
 //============================================================
-// JOIN: en-us/ti-obj-creation.i18n.json
-//============================================================
-Ti.Preload("ti/i18n/en-us/ti-obj-creation.i18n.json", {
-  "toc-auto-type": "All types",
-  "toc-free": "Please enter the full name, including the extension, such as `myfile.xml`",
-  "toc-tip": "New object name"
-});
-//============================================================
 // JOIN: en-us/ti-text-editor.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
@@ -46386,6 +46468,19 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
 Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
   "wn-admin-tools": "Admin tools",
+  "wn-ctt-css-text": "CSS File",
+  "wn-ctt-folder-text": "Folder",
+  "wn-ctt-html-text": "HTML FILE",
+  "wn-ctt-js-text": "Javascript",
+  "wn-ctt-json-text": "JSON File",
+  "wn-ctt-less-text": "LESS File",
+  "wn-ctt-md-text": "Markdown",
+  "wn-ctt-mjs-text": "Module Javascript",
+  "wn-ctt-sass-text": "SASS File",
+  "wn-ctt-thing_set-text": "Thing Set",
+  "wn-ctt-txt-text": "Pure text",
+  "wn-ctt-wnml-text": "WNML File",
+  "wn-ctt-xml-text": "XML File",
   "wn-edit-com-nil": "Default as label control",
   "wn-en-his-ct": "Created",
   "wn-en-his-flt-tip": "Please input user id or name to filtering",
@@ -46436,6 +46531,9 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-key-tp": "Type",
   "wn-key-width": "Width",
   "wn-obj-nosaved": "You have unsaved objects",
+  "wn-oc-auto-type": "All types",
+  "wn-oc-free": "Please enter the full name, including the extension, such as `myfile.xml`",
+  "wn-oc-tip": "New object name",
   "wn-race-DIR": "DIRECTORY",
   "wn-race-FILE": "FILE",
   "wn-th-acc-pwd-choose-none": "Select the account to reset password (multiple allowed)",
@@ -46649,14 +46747,6 @@ Ti.Preload("ti/i18n/zh-cn/ti-datetime.i18n.json", {
   "time-begin": "开始时间",
   "time-end": "结束时间",
   "today": "今天"
-});
-//============================================================
-// JOIN: zh-cn/ti-obj-creation.i18n.json
-//============================================================
-Ti.Preload("ti/i18n/zh-cn/ti-obj-creation.i18n.json", {
-  "toc-auto-type": "全部类型",
-  "toc-free": "请输入对象完整名称，包括扩展名，譬如 `myfile.xml`",
-  "toc-tip": "新对象名称"
 });
 //============================================================
 // JOIN: zh-cn/ti-text-editor.i18n.json
@@ -47331,6 +47421,19 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-admin-check-obj-thumb": "检查图像缩略图...",
   "wn-admin-tools": "管理工具",
+  "wn-ctt-css-text": "CSS样式文件",
+  "wn-ctt-folder-text": "文件夹",
+  "wn-ctt-html-text": "HTML文本",
+  "wn-ctt-js-text": "JS脚本",
+  "wn-ctt-json-text": "JSON文本",
+  "wn-ctt-less-text": "LESS文本",
+  "wn-ctt-md-text": "Markdown文本",
+  "wn-ctt-mjs-text": "模块化JS脚本",
+  "wn-ctt-sass-text": "SASS文本",
+  "wn-ctt-thing_set-text": "数据集合",
+  "wn-ctt-txt-text": "纯文本",
+  "wn-ctt-wnml-text": "WNML源文件",
+  "wn-ctt-xml-text": "XML文本",
   "wn-edit-com-nil": "默认为标签控件",
   "wn-en-his-ct": "创建时间",
   "wn-en-his-flt-tip": "请输入用户ID或者名称过滤",
@@ -47381,6 +47484,9 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-key-tp": "类型",
   "wn-key-width": "宽",
   "wn-obj-nosaved": "您有未保存的对象",
+  "wn-oc-auto-type": "全部类型",
+  "wn-oc-free": "请输入对象完整名称，包括扩展名，譬如 `myfile.xml`",
+  "wn-oc-tip": "新对象名称",
   "wn-race-DIR": "目录",
   "wn-race-FILE": "文件",
   "wn-th-acc-pwd-choose-none": "请选择要重置密码的账号（可多选）",

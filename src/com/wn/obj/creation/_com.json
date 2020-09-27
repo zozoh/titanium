@@ -1,0 +1,6 @@
+{
+  "name" : "wn-obj-creation",
+  "globally" : true,
+  "template" : "./wn-obj-creation.html",
+  "mixins" : ["./wn-obj-creation.mjs"]
+}

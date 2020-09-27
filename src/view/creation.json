@@ -1,8 +1,5 @@
 {
-  "mapping" :{
-    "folder" : []
-  },
-  "types" : {
-    "zh-cn" : "types/zh-cn/_types.json"
+  "races" : {
+    "DIR"  : "folder"
   }
 }

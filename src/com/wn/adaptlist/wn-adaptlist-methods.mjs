@@ -6,7 +6,8 @@ const OBJ = {
   async doCreate() {
     // Load the creation setting
     let {
-      types, 
+      types,
+      typeNames,
       freeCreate
     } = await Wn.Sys.exec(`ti creation -cqn id:${this.meta.id}`, {as:"json"})
 
@@ -16,14 +17,12 @@ const OBJ = {
       position: "top",
       width  : 640,
       height : "61.8%",
-      comType : "ti-obj-creation",
+      comType : "wn-obj-creation",
       comConf : {
         types, freeCreate
       },
-      components : ["@com:ti/obj/creation"]
+      components : ["@com:wn/obj/creation"]
     })
-
-    console.log(no)
     
     // Do Create
     // Check the newName
@@ -35,12 +34,33 @@ const OBJ = {
       // Check the newName length
       if(no.length > 256) {
         return await Ti.Alert('i18n:wn-create-too-long')
-      }      
+      }
+
+      // Default Race
+      no.race = no.race || "FILE"
+
+      if("folder" == no.type) {
+        no.type = undefined
+      }
+      
+      // Auto type
+      if("FILE" == no.race) {
+        if(!no.type) {
+          no.type = Ti.Util.getSuffixName(no.name)
+        }
+
+        // Auto append suffix name
+        if(!no.name.endsWith(no.type)) {
+          no.name += `.${no.type}`
+        }
+      }
+      
       // Do the creation
       let json = JSON.stringify({
-        nm   : no.name, 
-        tp   : no.type=="folder"?"":no.type, 
-        race : no.race
+        nm : no.name,
+        tp : no.type,
+        race : no.race,
+        mime : no.mime
       })
       let newMeta = await Wn.Sys.exec2(
           `obj id:${this.meta.id} -cqno -new '${json}'`,

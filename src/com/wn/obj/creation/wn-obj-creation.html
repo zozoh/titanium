@@ -1,0 +1,61 @@
+<div class="wn-obj-creation"
+  :class="TopClass">
+  <!--
+    Side type list
+  -->
+  <div class="oc-types"
+    v-if="hasTypes">
+    <ul>
+      <li
+        v-for="li of TypeList"
+          :class="li.className"
+          @click="setCurrentType(li.name)">
+          <!--Icon-->
+          <ti-icon
+            v-if="li.icon"
+              :value="li.icon"/>
+          <!--Text-->
+          <span class="as-text">{{li.text|i18n}}</span>
+          <!--Suffix-->
+          <em v-if="li.suffix">({{li.suffix}})</em>
+      </li>
+    </ul>
+  </div>
+  <!--
+    Main Area
+  -->
+  <div class="oc-main">
+    <!--
+      Type Brief
+    -->
+    <div v-if="hasCurrentType"
+      class="oc-info">
+      <div class="oc-thumb">
+        <ti-icon :value="CurrentType.thumb"/>
+      </div>
+      <div class="oc-text">{{CurrentType.text | i18n}}</div>
+      <div v-if="!CurrentIsDIR"
+        class="oc-name">*.{{CurrentType.name}}</div>
+      <div class="oc-brief"
+        v-if="CurrentType.brief">{{CurrentType.brief}}</div>
+    </div>
+    <!--
+      Free create
+    -->
+    <div v-else
+      class="oc-free">
+      <span>{{'wn-oc-free'|i18n}}</span>
+    </div>
+    <!--
+      Input value
+    -->
+    <div class="oc-input">
+      <input
+        ref="input" 
+        :value="value.name"
+        :placeholder="'wn-oc-tip'|i18n" 
+        @change="OnInputChange" 
+        spellcheck="false">
+    </div>
+  </div>
+</div>

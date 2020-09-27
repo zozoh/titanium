@@ -1,7 +1,0 @@
-{
-  "name" : "ti-obj-creation",
-  "globally" : true,
-  "i18n" : "@i18n:ti-obj-creation",
-  "template" : "./ti-obj-creation.html",
-  "mixins" : ["./ti-obj-creation.mjs"]
-}

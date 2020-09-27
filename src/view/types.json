@@ -1,0 +1,77 @@
+[{
+  "name": "folder",
+  "race": "DIR",
+  "icon": "fas-folder",
+  "text": "i18n:wn-ctt-folder-text"
+}, {
+  "name": "css",
+  "race": "FILE",
+  "mime": "text/css",
+  "icon": "fab-css3",
+  "text": "i18n:wn-ctt-css-text"
+}, {
+  "name": "html",
+  "race": "FILE",
+  "mime": "text/html",
+  "icon": "fab-html5",
+  "text": "i18n:wn-ctt-html-text"
+}, {
+  "name": "js",
+  "race": "FILE",
+  "mime": "application/x-javascript",
+  "icon": "fab-node-js",
+  "text": "i18n:wn-ctt-js-text"
+}, {
+  "name": "json",
+  "race": "FILE",
+  "mime": "application/json",
+  "icon": "fas-quote-right",
+  "text": "i18n:wn-ctt-json-text"
+}, {
+  "name": "less",
+  "race": "FILE",
+  "mime": "text/less",
+  "icon": "fab-first-order-alt",
+  "text": "i18n:wn-ctt-less-text"
+}, {
+  "name": "md",
+  "race": "FILE",
+  "mime": "text/markdown",
+  "icon": "fab-markdown",
+  "text": "i18n:wn-ctt-md-text"
+}, {
+  "name": "mjs",
+  "race": "FILE",
+  "mime": "application/x-javascript",
+  "icon": "fab-node-js",
+  "text": "i18n:wn-ctt-mjs-text"
+}, {
+  "name": "sass",
+  "race": "FILE",
+  "mime": "text/sass",
+  "icon": "fab-first-order",
+  "text": "i18n:wn-ctt-sass-text"
+}, {
+  "name": "thing_set",
+  "race": "DIR",
+  "icon": "fas-cubes",
+  "text": "i18n:wn-ctt-thing_set-text"
+}, {
+  "name": "txt",
+  "race": "FILE",
+  "mime": "text/plain",
+  "icon": "far-file-alt",
+  "text": "i18n:wn-ctt-txt-text"
+}, {
+  "name": "wnml",
+  "race": "FILE",
+  "mime": "text/wnml",
+  "icon": "fas-file-code",
+  "text": "i18n:wn-ctt-wnml-text"
+}, {
+  "name": "xml",
+  "race": "FILE",
+  "mime": "text/xml",
+  "icon": "far-file-code",
+  "text": "i18n:wn-ctt-xml-text"
+}]

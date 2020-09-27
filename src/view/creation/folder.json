@@ -1,0 +1,7 @@
+{
+  "freeCreate" : true,
+  "typeNames" : [
+    "folder", "thing_set", 
+    "txt", "js", "json", "md", 
+    "html", "xml", "wnml", "css"]
+}

@@ -1,46 +1,46 @@
 const _M = {
   ////////////////////////////////////////////////
   props : {
-    index : {
+    "index" : {
       type : Number,
       default : -1
     },
-    id : {
+    "id" : {
       type : String,
       default : undefined
     },
     // The text to present the object
-    title : {
+    "title" : {
       type : String,
       default : undefined
     },
     // The URL of thumb
-    preview : {
+    "preview" : {
       type : [String, Object],
       default : "broken_image"
     },
-    href : {
+    "href" : {
       type : String,
       default : undefined
     },
-    status : {
+    "status" : {
       type : [String, Object],
       default : undefined
     },
-    progress : {
+    "progress" : {
       type : Number,
       default : -1
     },
-    visibility : {
+    "visibility" : {
       type : String,
       default : "show"  // `show|weak|hide`
     },
     // true - alwasy show the footer part
-    showFooter : {
+    "showFooter" : {
       type : Boolean,
       default : true
     },
-    badges : {
+    "badges" : {
       type : Object,
       default: ()=>({
         "NW" : null,
@@ -49,12 +49,12 @@ const _M = {
         "SE" : null
       })
     },
-    removeIcon : {
+    "removeIcon" : {
       type : [String, Object],
       default : undefined
     },
-    onTitle : {
-      type : [String, Function],
+    "onTitle" : {
+      type : [String, Function, Boolean],
       default : undefined
     }
   },
@@ -138,14 +138,19 @@ const _M = {
       this.$notify("remove", context)
     },
     //--------------------------------------------
-    OnClickTitle() {
+    OnClickTitle($event) {
       let context = this.genEventContext()
       // String -> Emit event
-      if(_.isString(this.onTitle)) {
+      if(false === this.onTitle) {
+        $event.stopPropagation()
+      }
+      // Notify
+      else if(_.isString(this.onTitle)) {
         this.$notify(this.onTitle, context)
       }
       // Function -> Handle
-      if(_.isFunction(this.onTitle)) {
+      else if(_.isFunction(this.onTitle)) {
+        $event.stopPropagation()
         this.onTitle(context)
       }
     },

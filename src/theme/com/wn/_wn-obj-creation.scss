@@ -1,68 +1,92 @@
-.ti-obj-creation {
+.wn-obj-creation {
   @include flex-align($wp:nowrap);
   width:100%; height:100%;
+  //------------------------------------------
   > * {height:100%;}
-  > .toc-types {
+  //------------------------------------------
+  > .oc-types {
     flex:0 0 auto;
+    //----------------------------------------
     ul {
       @include noselect;
       @include color($color-func, r, c);
       height:100%; overflow-y: scroll;
+      //--------------------------------------
       li {
         @include flex-align($wp:nowrap);
         cursor: pointer;
         padding:SZ(8); font-size:0.8em;
-        &.as-current, &.as-current:hover {
+        //------------------------------------
+        &.is-current, &.is-current:hover {
           @include color($color-primary, r, c);
         }
+        //------------------------------------
         &:hover {
           @include color($color-weaktip, r, c);
         }
+        //------------------------------------
         > .ti-icon {
           width: SZ(32); margin-right:SZ(2);
           text-align: center;
           font-size:1.2em;
         }
+        //------------------------------------
         > em {
           @include font-fixed(0.8em);
           opacity: 0.618;
           font-style:normal; margin-left:SZ(6);
         }
+        //------------------------------------
       }
+      //--------------------------------------
     }
+    //----------------------------------------
   }
-  > .toc-main {
+  //------------------------------------------
+  > .oc-main {
     flex:1 1 auto; padding:SZ(12);
     @include flex-align-v;
-    > .toc-info {
+    //----------------------------------------
+    > .oc-info {
       flex: 1 1 auto; text-align:center;
       @include flex-align-v;
+      //--------------------------------------
       > * {padding:SZ(8);}
-      > .toc-thumb {
+      //--------------------------------------
+      > .oc-thumb {
         font-size:SZ(80);
       }
-      > .toc-name {
+      //--------------------------------------
+      > .oc-name {
         @include font($f_fixed, 1.1em);
         @include color($color-track, c);
       }
-      > .toc-brief {
+      //--------------------------------------
+      > .oc-brief {
         @include color($color-func, r, c);
         @include border(1px, dashed, shallow);
         text-align: left; font-size:.8em;
         padding:SZ(10); 
       }
+      //--------------------------------------
     }
-    > .toc-free {
+    //----------------------------------------
+    > .oc-free {
       @include flex-full-center;
     }
-    > .toc-input {
+    //----------------------------------------
+    > .oc-input {
       flex: 0 0 auto;
+      //--------------------------------------
       input {
         @include text-input;
         padding:SZ(12);
         font-size:1.2em;
         outline:none; width:100%;
       }
+      //--------------------------------------
     }
+    //----------------------------------------
   }
+  //------------------------------------------
 }
