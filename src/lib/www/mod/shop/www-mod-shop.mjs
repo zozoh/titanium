@@ -259,19 +259,26 @@ const _M = {
     },
     //--------------------------------------------
     async checkoutBasket({state, dispatch}, {
+      checkedNames = {},
       checkoutPage="page/shop/checkout.html",
       newtab=false
     }={}) {
       // Prepare the list
       let items = []
       _.forEach(state.basket, (it)=> {
-        if(it.name && it.count > 0) {
+        if(it.name && it.count > 0 && checkedNames[it.name]) {
           items.push({
             id: it.name,
             amount: it.count
           })
         }
       })
+
+      // Nil to buy
+      if(_.isEmpty(items)) {
+        Ti.Toast.Open('i18n:buy-checkout-nil', "warn")
+        return
+      }
 
       // Do the checkout
       if(!_.isEmpty(items)) {

@@ -4,7 +4,9 @@
   :href="TheHref"
   :target="isNewTab ? '_blank' : '_self'">
   <!--Image-->
-  <img :src="TheSrc"/>
+  <img
+    v-if="TheSrc" 
+      :src="TheSrc"/>
   <!--Text-->
   <div
     v-if="TheText"

@@ -388,6 +388,11 @@ const _M = {
       return
     }
 
+    // Confirm with user
+    if(!(Ti.Confirm("i18n:auth-logout-confirm"))) {
+      return
+    }
+
     // Always force remove
     Ti.Storage.local.remove(`www-ticket-${siteId}`)
 

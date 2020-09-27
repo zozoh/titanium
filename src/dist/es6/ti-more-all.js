@@ -1,4 +1,4 @@
-// Pack At: 2020-09-25 22:28:48
+// Pack At: 2020-09-28 00:06:42
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -3524,6 +3524,13 @@ Ti.Preload("ti/com/net/aliyun/vod/video/player/vod-video-player.html", `<div cla
 // JOIN: net/aliyun/vod/video/player/vod-video-player.mjs
 //============================================================
 (function(){
+/*
+Aliyun Player JS SDK properties and API:
+https://help.aliyun.com/document_detail/125572.html?spm=a2c4g.11186623.6.1101.19dc1c4cAXr5Cs
+
+Aliyun VOD get play address api:
+https://help.aliyun.com/document_detail/56124.html?spm=a2c4g.11186623.2.31.6c797fbfuEVYDi
+*/
 const _M = {
   ///////////////////////////////////////////////////////
   props : {
@@ -3546,6 +3553,22 @@ const _M = {
     "encryptType": {
       type: Number,
       default: undefined
+    },
+    "lang" : {
+      type : String,
+      default: undefined
+    },
+    "format" : {
+      type : String,
+      default: "m3u8"
+    },
+    "definition" : {
+      type : String,
+      default: "FD,LD,SD,HD,OD,2K,4K"
+    },
+    "defaultDefinition" : {
+      type : String,
+      default: "FD"
     }
   },
   ///////////////////////////////////////////////////////
@@ -3576,11 +3599,18 @@ const _M = {
         //   coverUrl: this.coverUrl
         // })
 
+        let lang = this.lang || Ti.Config.lang()
+
         this.$player = new Aliplayer({
           id: this.PlayerID,
           width: "100%",
           height: "100%",
           autoplay: this.autoplay,
+          useH5Prism: true,
+          format : this.format,
+          definition : this.definition,
+          defaultDefinition: this.defaultDefinition,
+          language: lang,
           vid: this.videoId,
           cover: this.coverUrl,
           encryptType: this.encryptType,
@@ -3603,8 +3633,14 @@ const _M = {
     // }
   },
   ///////////////////////////////////////////////////////
-  mounted: function(){
+  mounted(){
     this.initPlayer();
+  },
+  ///////////////////////////////////////////////////////
+  beforeDestroy() {
+    if(this.$player) {
+      this.$player.dispose();
+    }
   }
   ///////////////////////////////////////////////////////
 }
@@ -28410,7 +28446,9 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   :href="TheHref"
   :target="isNewTab ? '_blank' : '_self'">
   <!--Image-->
-  <img :src="TheSrc"/>
+  <img
+    v-if="TheSrc" 
+      :src="TheSrc"/>
   <!--Text-->
   <div
     v-if="TheText"
@@ -31627,7 +31665,7 @@ const _M = {
     },
     "interval": {
       type: Number,
-      default: 10000
+      default: 0
     },
     "idBy" : {
       type: String,
@@ -31720,16 +31758,24 @@ const _M = {
     },
     //--------------------------------------
     autoPlayNextItem() {
-      if(this.interval > 1000) {
+      if(this.interval > 0) {
         _.delay(()=>{
           if(!this.mousein) {
             this.nextItem()
           }
           this.autoPlayNextItem()
-        }, this.interval)
+        }, this.interval * 1000)
       }
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "interval" : function(interv) {
+      if(interv > 0) {
+        this.autoPlayNextItem()
+      }
+    }
   },
   //////////////////////////////////////////
   mounted() {
@@ -42497,7 +42543,7 @@ const _M = {
       title: "i18n:edit",
       position: "top",
       width: 640,
-      height: 640,
+      height: "90%",
       result: result,
       comType: "TiForm",
       comConf: {
@@ -42609,6 +42655,11 @@ const _M = {
   async removeAddress({state, commit, getters, dispatch}, {id}={}){
     // Guard
     if(!id) {
+      return
+    }
+
+    // Confirm
+    if(!(await Ti.Confirm("i18n:address-rm-confirm"))) {
       return
     }
 
@@ -43060,6 +43111,11 @@ const _M = {
     let siteId = rootState.siteId
     if(!siteId) {
       Ti.Alert("Without siteId!!!")
+      return
+    }
+
+    // Confirm with user
+    if(!(Ti.Confirm("i18n:auth-logout-confirm"))) {
       return
     }
 
@@ -44197,19 +44253,26 @@ const _M = {
     },
     //--------------------------------------------
     async checkoutBasket({state, dispatch}, {
+      checkedNames = {},
       checkoutPage="page/shop/checkout.html",
       newtab=false
     }={}) {
       // Prepare the list
       let items = []
       _.forEach(state.basket, (it)=> {
-        if(it.name && it.count > 0) {
+        if(it.name && it.count > 0 && checkedNames[it.name]) {
           items.push({
             id: it.name,
             amount: it.count
           })
         }
       })
+
+      // Nil to buy
+      if(_.isEmpty(items)) {
+        Ti.Toast.Open('i18n:buy-checkout-nil', "warn")
+        return
+      }
 
       // Do the checkout
       if(!_.isEmpty(items)) {
@@ -45714,6 +45777,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "address-meta": "Address properties",
   "address-nil": "Address blank",
   "address-nil-detail": "Select an address for details",
+  "address-rm-confirm": "Are you sure you want to delete this address?",
   "address-set-dft": "Set as default address",
   "address-shipping-add": "Add shipping address",
   "admin-flt-tip": "Filter by admin name",
@@ -45744,6 +45808,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "auth-login": "Sign in",
   "auth-login-NoSaltedPasswd": "Please switch to sign by [${ta?password}]，after sign in, go to [profile > reset password] to setup your password, thanks.",
   "auth-login-or-signup": "Sign up or sign in",
+  "auth-logout-confirm": "Are you sure you want to log out?",
   "auth-ok": "Verify successful",
   "auth-passwd-getback": "Retrieve password",
   "auth-passwd-name-email-tip": "Email/Name",
@@ -45783,6 +45848,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "auth-vcode-delay": "Resend after ${sec}s",
   "auth-vcode-lost": "Can't get password?",
   "base-info": "Base info",
+  "buy-checkout-nil": "You have nothing to checkout",
   "cate": "Category",
   "cate-flt-tip": "Filter by category name",
   "cate-maj": "Major category",
@@ -46656,6 +46722,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "address-meta": "地址属性",
   "address-nil": "空地址",
   "address-nil-detail": "请选择一个地址查看详情",
+  "address-rm-confirm": "您确定要删除这个地址吗？",
   "address-set-dft": "设为默认地址",
   "address-shipping-add": "添加收货地址",
   "admin-flt-tip": "请输入管理员名过滤",
@@ -46686,6 +46753,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-login": "登录",
   "auth-login-NoSaltedPasswd": "你还未初始化您的登录密码，请切换至【${ta?验证码}】登录，之后前往【用户中心 > 重置密码】初始化您的登录密码，谢谢",
   "auth-login-or-signup": "登录/注册",
+  "auth-logout-confirm": "您确定要退出登录吗？",
   "auth-ok": "账号验证通过",
   "auth-passwd-getback": "找回密码",
   "auth-passwd-name-email-tip": "邮箱地址/登录名",
@@ -46725,6 +46793,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-vcode-delay": "${sec} 秒后重新发送",
   "auth-vcode-lost": "收不到验证码？",
   "base-info": "基本信息",
+  "buy-checkout-nil": "请选择要付款的商品",
   "cate": "分类",
   "cate-flt-tip": "请输入分类名过滤",
   "cate-maj": "主分类",

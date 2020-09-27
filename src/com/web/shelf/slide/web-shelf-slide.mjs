@@ -22,7 +22,7 @@ const _M = {
     },
     "interval": {
       type: Number,
-      default: 10000
+      default: 0
     },
     "idBy" : {
       type: String,
@@ -115,16 +115,24 @@ const _M = {
     },
     //--------------------------------------
     autoPlayNextItem() {
-      if(this.interval > 1000) {
+      if(this.interval > 0) {
         _.delay(()=>{
           if(!this.mousein) {
             this.nextItem()
           }
           this.autoPlayNextItem()
-        }, this.interval)
+        }, this.interval * 1000)
       }
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "interval" : function(interv) {
+      if(interv > 0) {
+        this.autoPlayNextItem()
+      }
+    }
   },
   //////////////////////////////////////////
   mounted() {

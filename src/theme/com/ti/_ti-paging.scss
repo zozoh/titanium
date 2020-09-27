@@ -62,6 +62,7 @@
   //-------------------------------------
   .as-pg-btn {
     @include color($color-primary, r, c);
+    @include flex-center;
     cursor: pointer; padding: .5em .6em;
     margin:0 .2em;
     &:hover {

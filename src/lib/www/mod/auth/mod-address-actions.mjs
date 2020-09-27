@@ -33,7 +33,7 @@ const _M = {
       title: "i18n:edit",
       position: "top",
       width: 640,
-      height: 640,
+      height: "90%",
       result: result,
       comType: "TiForm",
       comConf: {
@@ -145,6 +145,11 @@ const _M = {
   async removeAddress({state, commit, getters, dispatch}, {id}={}){
     // Guard
     if(!id) {
+      return
+    }
+
+    // Confirm
+    if(!(await Ti.Confirm("i18n:address-rm-confirm"))) {
       return
     }
 

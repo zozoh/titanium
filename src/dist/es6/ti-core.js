@@ -1,4 +1,4 @@
-// Pack At: 2020-09-25 22:28:48
+// Pack At: 2020-09-28 00:06:42
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -57,7 +57,7 @@ const {Confirm} = (function(){
     title, 
     icon,
     closer = false,
-    type  = "warn", 
+    type  = "info", 
     position = "center",
     textYes = "i18n:yes",
     textNo  = "i18n:no",
@@ -6329,7 +6329,6 @@ const {Types} = (function(){
     },
     //.......................................
     toBoolStr(val, falsy="No", trusy="Yes") {
-      console.log("haha")
       return val ? trusy : falsy
     },
     //.......................................
@@ -10870,7 +10869,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200925.222848",
+  "version" : "2.5-20200928.000642",
   "dev" : false,
   "appName" : null,
   "session" : {},

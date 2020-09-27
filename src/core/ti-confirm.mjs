@@ -3,7 +3,7 @@ async function TiConfirm(msg="", {
   title, 
   icon,
   closer = false,
-  type  = "warn", 
+  type  = "info", 
   position = "center",
   textYes = "i18n:yes",
   textNo  = "i18n:no",
