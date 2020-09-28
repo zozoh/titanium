@@ -1,4 +1,4 @@
-// Pack At: 2020-09-28 03:25:02
+// Pack At: 2020-09-29 01:10:57
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -13714,7 +13714,7 @@ Ti.Preload("ti/com/ti/input/text/ti-input-text.html", `<div class="ti-input-text
     spellcheck="false" 
     :readonly="readonly"
     :value="theValue"
-    :placeholder="placeholder"
+    :placeholder="placeholder | i18n"
     @compositionstart="onInputCompositionStart"
     @compositionend="onInputCompositionEnd"
     @input="onInputing"
@@ -46299,6 +46299,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "desktop": "Desktop",
   "detail": "Detail",
   "dis-name": "Display name",
+  "disable": "Disable",
+  "disabled": "Disabled",
   "doing": "Processing...",
   "download": "Download",
   "download-to-local": "Download to local",
@@ -46318,6 +46320,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "emoji": "Emoji",
   "empty": "Empty",
   "empty-data": "Empty data",
+  "enable": "Enable",
+  "enabled": "Enabled",
   "error": "Error",
   "export-data": "Export data...",
   "fail": "Failed",
@@ -47252,6 +47256,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "desktop": "桌面",
   "detail": "详情",
   "dis-name": "显示名",
+  "disable": "禁用",
+  "disabled": "禁用的",
   "doing": "正在执行...",
   "download": "下载",
   "download-to-local": "下载到本地",
@@ -47271,6 +47277,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "emoji": "表情符合",
   "empty": "空",
   "empty-data": "无数据",
+  "enable": "启用",
+  "enabled": "启用的",
   "error": "错误",
   "export-data": "导出数据...",
   "fail": "失败",

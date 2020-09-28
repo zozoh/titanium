@@ -1,4 +1,4 @@
-// Pack At: 2020-09-28 03:25:02
+// Pack At: 2020-09-29 01:10:57
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4857,6 +4857,7 @@ const {Icons} = (function(){
   const TYPES = {
     "7z"   : "fas-file-archive",
     "apk"  : "zmdi-android",
+    "bin"  : "fas-file",
     "css"  : "fab-css3",
     "csv"  : "fas-file-csv",
     "doc"  : "far-file-word",
@@ -7789,6 +7790,26 @@ const {Util} = (function(){
         }
       }
     },
+    getFallbackEmpty(obj, ...keys) {
+      let ks = _.flattenDeep(keys)
+      for(let k of ks) {
+        if(k) {
+          let v = _.get(obj, k)
+          if(!_.isEmpty(v))
+            return v
+        }
+      }
+    },
+    getFallbackNaN(obj, ...keys) {
+      let ks = _.flattenDeep(keys)
+      for(let k of ks) {
+        if(k) {
+          let v = _.get(obj, k)
+          if(!isNaN(v))
+            return v
+        }
+      }
+    },
     /***
      * Fallback a group value
      * 
@@ -7803,6 +7824,12 @@ const {Util} = (function(){
     fallbackNil(...args) {
       for(let arg of args) {
         if(!TiUtil.isNil(arg))
+          return arg
+      }
+    },
+    fallbackEmpty(...args) {
+      for(let arg of args) {
+        if(!_.isEmpty(arg))
           return arg
       }
     },
@@ -10869,7 +10896,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200928.032502",
+  "version" : "2.5-20200929.011057",
   "dev" : false,
   "appName" : null,
   "session" : {},

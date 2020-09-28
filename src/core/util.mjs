@@ -818,6 +818,26 @@ const TiUtil = {
       }
     }
   },
+  getFallbackEmpty(obj, ...keys) {
+    let ks = _.flattenDeep(keys)
+    for(let k of ks) {
+      if(k) {
+        let v = _.get(obj, k)
+        if(!_.isEmpty(v))
+          return v
+      }
+    }
+  },
+  getFallbackNaN(obj, ...keys) {
+    let ks = _.flattenDeep(keys)
+    for(let k of ks) {
+      if(k) {
+        let v = _.get(obj, k)
+        if(!isNaN(v))
+          return v
+      }
+    }
+  },
   /***
    * Fallback a group value
    * 
@@ -832,6 +852,12 @@ const TiUtil = {
   fallbackNil(...args) {
     for(let arg of args) {
       if(!TiUtil.isNil(arg))
+        return arg
+    }
+  },
+  fallbackEmpty(...args) {
+    for(let arg of args) {
+      if(!_.isEmpty(arg))
         return arg
     }
   },

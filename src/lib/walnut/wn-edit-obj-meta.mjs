@@ -8,7 +8,7 @@ async function EditObjMeta(pathOrObj="~", {
   textCancel = "i18n:cancel",
   position   = "top",
   width      = 640,
-  height     = "80%", 
+  height     = "90%", 
   spacing,
   currentTab = 0,
   // static tabs

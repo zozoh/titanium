@@ -1,4 +1,4 @@
-// Pack At: 2020-09-28 03:25:02
+// Pack At: 2020-09-29 01:10:57
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1236,7 +1236,7 @@ const Util = (function(){
      * return the object readable name
      */
     getObjDisplayName(meta, keys=[]) {
-      return Ti.Util.getFallback(meta, keys, "title", "nm")
+      return Ti.Util.getFallbackEmpty(meta, keys, "title", "nm")
     },
     /***
      * Get Object link as `String`
@@ -1858,7 +1858,7 @@ const EditObjMeta = (function(){
     textCancel = "i18n:cancel",
     position   = "top",
     width      = 640,
-    height     = "80%", 
+    height     = "90%", 
     spacing,
     currentTab = 0,
     // static tabs
@@ -2158,7 +2158,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20200928.032502"
+const WALNUT_VERSION = "2.1-20200929.011057"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

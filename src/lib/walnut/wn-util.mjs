@@ -127,7 +127,7 @@ const WnUtil = {
    * return the object readable name
    */
   getObjDisplayName(meta, keys=[]) {
-    return Ti.Util.getFallback(meta, keys, "title", "nm")
+    return Ti.Util.getFallbackEmpty(meta, keys, "title", "nm")
   },
   /***
    * Get Object link as `String`

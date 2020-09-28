@@ -30,7 +30,7 @@
     spellcheck="false" 
     :readonly="readonly"
     :value="theValue"
-    :placeholder="placeholder"
+    :placeholder="placeholder | i18n"
     @compositionstart="onInputCompositionStart"
     @compositionend="onInputCompositionEnd"
     @input="onInputing"

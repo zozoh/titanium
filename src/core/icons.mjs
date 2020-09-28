@@ -2,6 +2,7 @@
 const TYPES = {
   "7z"   : "fas-file-archive",
   "apk"  : "zmdi-android",
+  "bin"  : "fas-file",
   "css"  : "fab-css3",
   "csv"  : "fas-file-csv",
   "doc"  : "far-file-word",
