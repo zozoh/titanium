@@ -1,4 +1,4 @@
-// Pack At: 2020-09-29 01:10:57
+// Pack At: 2020-09-30 00:13:03
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -26708,15 +26708,19 @@ const _M = {
     },
     "stepKey" : {
       type : String,
-      default : null
+      default : undefined
+    },
+    "dataKey" : {
+      type : String,
+      default : undefined
     },
     "title" : {
       type : String,
-      default : null
+      default : undefined
     },
     "serializer": {
       type: Function,
-      default: null
+      default: undefined
     },
     "comType" : {
       type : String,
@@ -26733,6 +26737,9 @@ const _M = {
     OnChange(payload) {
       if(_.isFunction(this.serializer)) {
         payload = this.serializer(payload)
+      }
+      if(this.dataKey) {
+        payload = _.set({}, this.dataKey, payload)
       }
       this.$emit("data:change", payload)
     }
@@ -26867,7 +26874,7 @@ const _M = {
     },
     "canClickHeadItem" : {
       type : String,
-      default : null
+      default : undefined
     }
   },
   ///////////////////////////////////////////////////
@@ -26887,6 +26894,7 @@ const _M = {
           list.push({
             index     : i,
             stepKey   : stepKey,
+            dataKey   : step.dataKey,
             title     : step.title   || stepKey,
             comType   : step.comType || "ti-label",
             comConf   : step.comConf,
@@ -26946,7 +26954,9 @@ const _M = {
           })
         : _.identity;
       // Eval comConf
-      let comConf = Ti.Util.explainObj(this.value, step.comConf)
+      let comConf = Ti.Util.explainObj(this.value, step.comConf, {
+        evalFunc : true
+      })
 
       return _.assign({}, step, {
         serializer, comConf
@@ -27016,7 +27026,7 @@ const _M = {
             context: this.value,
             partial: false
           })
-          invoking.apply(this)
+          invoking.apply(this, [this.value])
         } else {
           this.gotoFromCurrent(-1)
         }
@@ -27030,7 +27040,7 @@ const _M = {
             context: this.value,
             partial: false
           })
-          invoking.apply(this)
+          invoking.apply(this, [this.value])
         } else {
           this.gotoFromCurrent(1)
         }
@@ -33923,6 +33933,14 @@ const _M = {
     "vars" : {
       type : Object,
       default: undefined
+    },
+    "as": {
+      type : String,
+      default: "text"
+    },
+    "emitName": {
+      type : String,
+      default: undefined
     }
   },
   ////////////////////////////////////////////////////
@@ -33949,7 +33967,8 @@ const _M = {
       this.lines.push("> " + this.value)
       this.lines.push("---------------------------------")
 
-      await Wn.Sys.exec(this.value, {
+      let re = await Wn.Sys.exec(this.value, {
+        as : this.as,
         vars : this.vars,
         eachLine : (line)=>{
           this.lines.push(line)
@@ -33960,6 +33979,10 @@ const _M = {
       this.lines.push("> " + this.value)
       this.lines.push(Ti.I18n.get("run-finished"))
       this.lines.push("---------------------------------")
+
+      if(this.emitName) {
+        this.$notify(this.emitName, re)
+      }
     }
     //------------------------------------------------
   },
@@ -33968,6 +33991,9 @@ const _M = {
     "value" : {
       handler: "runCommand",
       immediate : true
+    }, 
+    "lines" : function() {
+      this.$el.scrollTop = this.$el.scrollHeight * 2
     }
   }
   ////////////////////////////////////////////////////
@@ -36795,9 +36821,9 @@ Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.html", `<div class="wn-obj-picker
         v-for="(it, index) in DisplayItems"
           :key="it._key"
           class="as-item">
-        <TiObjThumb 
-            v-bind="it"
-            @remove="OnRemoveItem"/>        
+          <TiObjThumb 
+              v-bind="it"
+              @remove="OnRemoveItem"/>        
       </div>
       <!--For multi-->
       <div
@@ -36923,7 +36949,6 @@ const _M = {
       let meta = this.FirstItem
       // Use base to open the folder
       // Then it should be auto-open the folder
-      console.log("haha")
       if(!meta || _.isEmpty(meta)) {
         meta = this.base || "~"
       } else {
@@ -36967,9 +36992,7 @@ const _M = {
     },
     //--------------------------------------
     OnClickItemsCon() {
-      if(!this.multi) {
-        this.OnPickItem()
-      }
+      this.OnPickItem()
     },
     //--------------------------------------
     OnRemoveItem({id, index}={}) {

@@ -453,7 +453,6 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
 @FILE demo/ti-table-0.comt
 {
   title : "表格",
-  ln : "/rs/ti/test/components/demo-ti-table-0.data.json", 
   com: "/rs/ti/test/components/demo-ti-table-0.json"
 }
 #---------------------------------------------------------

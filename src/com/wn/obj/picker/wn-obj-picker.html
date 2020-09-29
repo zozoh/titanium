@@ -22,9 +22,9 @@
         v-for="(it, index) in DisplayItems"
           :key="it._key"
           class="as-item">
-        <TiObjThumb 
-            v-bind="it"
-            @remove="OnRemoveItem"/>        
+          <TiObjThumb 
+              v-bind="it"
+              @remove="OnRemoveItem"/>        
       </div>
       <!--For multi-->
       <div

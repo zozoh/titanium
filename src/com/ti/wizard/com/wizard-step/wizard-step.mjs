@@ -7,15 +7,19 @@ const _M = {
     },
     "stepKey" : {
       type : String,
-      default : null
+      default : undefined
+    },
+    "dataKey" : {
+      type : String,
+      default : undefined
     },
     "title" : {
       type : String,
-      default : null
+      default : undefined
     },
     "serializer": {
       type: Function,
-      default: null
+      default: undefined
     },
     "comType" : {
       type : String,
@@ -32,6 +36,9 @@ const _M = {
     OnChange(payload) {
       if(_.isFunction(this.serializer)) {
         payload = this.serializer(payload)
+      }
+      if(this.dataKey) {
+        payload = _.set({}, this.dataKey, payload)
       }
       this.$emit("data:change", payload)
     }

@@ -1,6 +1,7 @@
 .wn-cmd-panel {
   @include font-fixed;
   @include color($color-mask, r, heavy);
+  overflow: auto;
   padding: SZ(20); margin:0;
   tab-size: 4; line-height: 1.6em;
 }

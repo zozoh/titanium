@@ -12,6 +12,14 @@ const _M = {
     "vars" : {
       type : Object,
       default: undefined
+    },
+    "as": {
+      type : String,
+      default: "text"
+    },
+    "emitName": {
+      type : String,
+      default: undefined
     }
   },
   ////////////////////////////////////////////////////
@@ -38,7 +46,8 @@ const _M = {
       this.lines.push("> " + this.value)
       this.lines.push("---------------------------------")
 
-      await Wn.Sys.exec(this.value, {
+      let re = await Wn.Sys.exec(this.value, {
+        as : this.as,
         vars : this.vars,
         eachLine : (line)=>{
           this.lines.push(line)
@@ -49,6 +58,10 @@ const _M = {
       this.lines.push("> " + this.value)
       this.lines.push(Ti.I18n.get("run-finished"))
       this.lines.push("---------------------------------")
+
+      if(this.emitName) {
+        this.$notify(this.emitName, re)
+      }
     }
     //------------------------------------------------
   },
@@ -57,6 +70,9 @@ const _M = {
     "value" : {
       handler: "runCommand",
       immediate : true
+    }, 
+    "lines" : function() {
+      this.$el.scrollTop = this.$el.scrollHeight * 2
     }
   }
   ////////////////////////////////////////////////////

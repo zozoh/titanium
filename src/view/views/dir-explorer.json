@@ -91,13 +91,6 @@
           "type" : "line"
         },{
           "type" : "action",
-          "icon" : "fas-key",
-          "text" : "i18n:auth-reset-passwd",
-          "action" : "dispatch:session/openResetPasswd"
-        },{
-          "type" : "line"
-        },{
-          "type" : "action",
           "icon" : "zmdi-download",
           "text" : "i18n:download-to-local",
           "action" : "main:doDownload"

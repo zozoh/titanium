@@ -24,7 +24,7 @@ const _M = {
     },
     "canClickHeadItem" : {
       type : String,
-      default : null
+      default : undefined
     }
   },
   ///////////////////////////////////////////////////
@@ -44,6 +44,7 @@ const _M = {
           list.push({
             index     : i,
             stepKey   : stepKey,
+            dataKey   : step.dataKey,
             title     : step.title   || stepKey,
             comType   : step.comType || "ti-label",
             comConf   : step.comConf,
@@ -103,7 +104,9 @@ const _M = {
           })
         : _.identity;
       // Eval comConf
-      let comConf = Ti.Util.explainObj(this.value, step.comConf)
+      let comConf = Ti.Util.explainObj(this.value, step.comConf, {
+        evalFunc : true
+      })
 
       return _.assign({}, step, {
         serializer, comConf
@@ -173,7 +176,7 @@ const _M = {
             context: this.value,
             partial: false
           })
-          invoking.apply(this)
+          invoking.apply(this, [this.value])
         } else {
           this.gotoFromCurrent(-1)
         }
@@ -187,7 +190,7 @@ const _M = {
             context: this.value,
             partial: false
           })
-          invoking.apply(this)
+          invoking.apply(this, [this.value])
         } else {
           this.gotoFromCurrent(1)
         }

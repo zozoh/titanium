@@ -103,7 +103,6 @@ export default {
       let meta = this.FirstItem
       // Use base to open the folder
       // Then it should be auto-open the folder
-      console.log("haha")
       if(!meta || _.isEmpty(meta)) {
         meta = this.base || "~"
       } else {
@@ -147,9 +146,7 @@ export default {
     },
     //--------------------------------------
     OnClickItemsCon() {
-      if(!this.multi) {
-        this.OnPickItem()
-      }
+      this.OnPickItem()
     },
     //--------------------------------------
     OnRemoveItem({id, index}={}) {
