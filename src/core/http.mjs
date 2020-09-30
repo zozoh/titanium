@@ -52,6 +52,8 @@ const TiHttp = {
     if(Ti.IsInfo("TiHttp")) {
       console.log("TiHttp.send", url, options)
     }
+    if(!url)
+      return
     let {
       method="GET", 
       params={},

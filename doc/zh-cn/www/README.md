@@ -176,7 +176,11 @@ DIV(@app)             # Vue(root) : index.wnml
       // 前面不加 `/`，支持模板形态 `${xx}` 为占位符，值来自 vars 段
       // 占位符在 vars 段声明
       "path"  : "path/to/api",
-      "method" : "GET",         // 选，默认为GET，可为 GET|POST
+      // 选，默认为GET，可为 GET|POST|INVOKE
+      // 如果值为 "INVOKE" 那么本 api 则表示调用 www 模块的方法
+      // path 则表示方法路径，譬如 "auth/doCheckMe"
+      // 而 params 则表示调用这个方法的 payload
+      "method" : "GET",
       "headers" : {
         // 请求头，默认为空
       },
@@ -230,6 +234,9 @@ DIV(@app)             # Vue(root) : index.wnml
       // 数字 0 为默认值，表示不预加载
       // 大于 0 的数字，按从小到大，依次加载
       "preload" : 0,
+      // 本选项表示即使页面不声明本 api，也加入页面
+      // 通常用作全局的数据检查，譬如 auth/doCheckMe
+      "pages" : true,
       // 如果开启了 preload, 这个选项可以根据 rootState 动态判断是否需要加载
       // Ti.Validate.match(rootState, api.preloadWhen, false)
       "preloadWhen" : {..}
@@ -244,9 +251,6 @@ DIV(@app)             # Vue(root) : index.wnml
       // 可以声明这个字段，它的意义与dataKey一样，只不过保存的是api的原始数据
       "rawDataKey": null,
       "rawDataMerge" : false
-      //-----------------------------------
-      // 自动计算的值
-      "url" : "/xxx"    // 根据 apiBase 和 path 自动拼合完整绝对路径
     }
   },
   //-----------------------------------------

@@ -248,7 +248,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       //--------------------------------
       > .ti-icon {
         @include flex-center;
-        @include color($color-func, r, c);
+        @include color($color-body, r);
         cursor: pointer;
         width:$GUI-BLOCK-HEADER-HEIGHT; 
         height:$GUI-BLOCK-HEADER-HEIGHT;

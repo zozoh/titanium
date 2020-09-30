@@ -46,6 +46,7 @@ const _M = {
       return {
         data : this.addresses,
         blankAs : {
+          "className" : "ti-fill-parent",
           "icon": "fas-map",
           "text": "i18n:address-empty-list"
         },
@@ -79,6 +80,10 @@ const _M = {
     //--------------------------------------
     OnHideAddrCanList() {
       this.showAddrCanList = false
+    },
+    //--------------------------------------
+    OnAddAddr() {
+      this.$notify("add:address")
     },
     //--------------------------------------
     OnSelectAddr(addr) {

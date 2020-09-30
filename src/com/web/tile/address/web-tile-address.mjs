@@ -41,7 +41,8 @@ const _M = {
         remove  : true,
         edit    : true,
         default : true,
-        choose  : false
+        choose  : false,
+        add     : false
       })
     },
     // If false emit the item after mapping
@@ -132,6 +133,11 @@ const _M = {
     OnChoose(){
       let v = this.getEmitValue()
       this.$notify('choose', v)
+    },
+    //--------------------------------------
+    OnAdd(){
+      let v = this.getEmitValue()
+      this.$notify('add', v)
     },
     //--------------------------------------
     getEmitValue() {

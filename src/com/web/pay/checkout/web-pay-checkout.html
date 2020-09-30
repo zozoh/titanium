@@ -97,9 +97,10 @@
             title="订单收货地址"
             :countries="countries"
             :auto-highlight="false"
-            :can="{remove:0,edit:0,default:0,choose:1}"
+            :can="{remove:0,edit:0,default:0,choose:1,add:1}"
             :blank-as="{text:'i18n:order-shipaddr-nil',icon:'im-location'}"
-            @choose="OnChooseAddr"/>
+            @choose="OnChooseAddr"
+            @add="OnAddAddr"/>
         </div>
         <!--
           Address can-list

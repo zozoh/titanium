@@ -266,7 +266,8 @@ const _M = {
       // Prepare the list
       let items = []
       _.forEach(state.basket, (it)=> {
-        if(it.name && it.count > 0 && checkedNames[it.name]) {
+        if(it.name && it.count > 0 && 
+          (!checkedNames || checkedNames[it.name])) {
           items.push({
             id: it.name,
             amount: it.count

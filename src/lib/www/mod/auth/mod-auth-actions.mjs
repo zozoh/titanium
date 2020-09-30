@@ -389,7 +389,7 @@ const _M = {
     }
 
     // Confirm with user
-    if(!(Ti.Confirm("i18n:auth-logout-confirm"))) {
+    if(!(await Ti.Confirm("i18n:auth-logout-confirm"))) {
       return
     }
 

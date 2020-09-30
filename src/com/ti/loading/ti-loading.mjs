@@ -8,5 +8,10 @@ export default {
       type : String,
       default : "i18n:loading"
     }
+  },
+  computed : {
+    TopClass() {
+      return this.getTopClass()
+    }
   }
 }

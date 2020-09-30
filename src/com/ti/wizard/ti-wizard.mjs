@@ -25,6 +25,10 @@ const _M = {
     "canClickHeadItem" : {
       type : String,
       default : undefined
+    },
+    "evalStepConfFunc" : {
+      type : Boolean,
+      default : false
     }
   },
   ///////////////////////////////////////////////////
@@ -105,7 +109,7 @@ const _M = {
         : _.identity;
       // Eval comConf
       let comConf = Ti.Util.explainObj(this.value, step.comConf, {
-        evalFunc : true
+        evalFunc : this.evalStepConfFunc
       })
 
       return _.assign({}, step, {

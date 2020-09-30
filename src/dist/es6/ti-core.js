@@ -1,4 +1,4 @@
-// Pack At: 2020-09-30 00:13:03
+// Pack At: 2020-09-30 19:53:31
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4576,6 +4576,8 @@ const {Http} = (function(){
       if(Ti.IsInfo("TiHttp")) {
         console.log("TiHttp.send", url, options)
       }
+      if(!url)
+        return
       let {
         method="GET", 
         params={},
@@ -10896,7 +10898,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20200930.001303",
+  "version" : "2.5-20200930.195331",
   "dev" : false,
   "appName" : null,
   "session" : {},

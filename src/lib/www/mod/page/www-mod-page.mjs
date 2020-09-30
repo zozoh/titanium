@@ -28,6 +28,13 @@ const _M = {
       let apiBase  = rootState.apiBase || "/"
       let SiteApis = rootState.apis || {}
       let PageApis = {}
+      // Join site apis
+      _.forEach(SiteApis, (api, key)=>{
+        if(api.pages) {
+          api = _.cloneDeep(api)
+          PageApis[key] = api
+        }
+      })
       // For each api declared in current page
       _.forEach(state.apis, (pageApi, key)=>{
         //..........................................
@@ -273,7 +280,7 @@ const _M = {
       Ti.Be.ScrollWindowTo({y:0})
     },
     //--------------------------------------------
-    async doApi({rootState, getters, commit, dispatch}, {
+    async doApi({getters, commit, dispatch}, {
       key,        // The Api Key
       params={},  // params will override the defaults
       vars={},
@@ -293,6 +300,10 @@ const _M = {
       await dispatch("__run_api", {api,params,vars,body, ok, fail})     
       commit("setLoading", false, {root:true})
     },
+    //--------------------------------------------
+    //
+    // Run One Page API
+    //
     //--------------------------------------------
     async __run_api({commit, dispatch, rootState}, {
       api, 
@@ -366,10 +377,17 @@ const _M = {
       }
       //.....................................
       // Join the http send Promise
-      //console.log(`will send to "${url}"`, options)
+      console.log(`will send to "${url}"`, options)
       let reo;
       try{
-        reo = await Ti.Http.sendAndProcess(url, options);
+        // Invoke Action
+        if(api.method == "INVOKE") {
+          reo = await dispatch(api.path, options.params, {root:true})
+        }
+        // Send HTTP Request
+        else {
+          reo = await Ti.Http.sendAndProcess(url, options);
+        }
       }
       // Cache the Error
       catch (err) {
@@ -405,7 +423,7 @@ const _M = {
         })
       }
       // Just update
-      else {
+      else if(api.dataKey) {
         commit("updateData", {
           key   : api.dataKey,
           value : data
@@ -455,18 +473,22 @@ const _M = {
       })
       //.......................................
       // Sort preload
-      apis.sort((a1, a2)=>{
-        return a1.preload - a2.preload
-      })
+      // apis.sort((a1, a2)=>{
+      //   return a1.preload - a2.preload
+      // })
       //.......................................
       // Mark Loading
       commit("setLoading", true, {root:true})
       //.......................................
       // Prepare the Promises
+      let allApis = []
       for(let api of apis) {
         //console.log("  # -> page.reloadData -> prepareApi", api)
-        await dispatch("__run_api", {api})
+        allApis.push(dispatch("__run_api", {api}))
       }
+      //.......................................
+      // Run all
+      await Promise.all(allApis)
       //.......................................
       // Unmark loading
       commit("setLoading", false, {root:true})
@@ -499,7 +521,7 @@ const _M = {
     /***
      * Reload whole page
      */
-    async reload({commit, dispatch, rootGetters}, {
+    async reload({commit, dispatch, getters, rootGetters}, {
       path,
       anchor,
       params={}
@@ -567,8 +589,30 @@ const _M = {
       commit("setReady", 1)
       await dispatch("invokeAction", {name:"@page:prepare"}, {root:true})
       //.....................................
+      // Conclude the api loading keys
+      let keyGroups = []
+      _.forEach(getters.pageApis, (api, k)=>{
+        let preload = api.preload
+        if(!_.isNumber(preload)) {
+          preload = preload ? 1 : -1
+        }
+        if(preload > 0) {
+          let keys = _.nth(keyGroups, preload)
+          if(!_.isArray(keys)){
+            keys = []
+            keyGroups[preload] = keys
+          }
+          keys.push(k)
+        }
+      })
+      console.log(keyGroups)
+      //.....................................
       // init: data
-      await dispatch("reloadData")
+      for(let keys of keyGroups) {
+        if(!_.isEmpty(keys)) {
+          await dispatch("reloadData", keys)
+        }
+      }
       // explain data
       await dispatch("explainData")
       //.....................................
