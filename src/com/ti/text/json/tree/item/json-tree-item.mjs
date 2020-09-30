@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   //////////////////////////////////////////
   data : ()=>({
     
@@ -23,7 +22,7 @@ export default {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
+    TopClass() {
       return Ti.Css.mergeClassName({
         "is-self-actived" : this.isSelfActived,
         "is-actived" : this.isActived

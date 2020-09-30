@@ -1,5 +1,5 @@
 <div class="json-value"
-  :class="topClass"
+  :class="TopClass"
   v-ti-activable>
   <!--
   //  - Label   : Readonly
@@ -20,7 +20,7 @@
   //  - Nil     : Edtiable any value
   -->
   <ti-label v-else
-    class="as-editing"
+    class="as-editing is-nowrap ti-fill-parent"
     :value="value"
     :class-name="theValueClassName"
     :format="theValueFormat"
@@ -29,8 +29,9 @@
   <!--
     Action Menu
   -->
-  <ti-actionbar v-if="showActions"
-    class="as-actions"
-    :items="theActionMenuData"
-    :status="theActionMenuStatus"/>
+  <ti-actionbar
+    v-if="showActions"
+      class="as-actions"
+      :items="theActionMenuData"
+      :status="theActionMenuStatus"/>
 </div>

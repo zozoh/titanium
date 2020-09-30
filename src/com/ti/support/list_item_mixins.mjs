@@ -54,7 +54,8 @@ export default {
       return (...klass)=>this.getTopClass({
         "is-current" : this.isCurrent,
         "is-checked" : this.isChecked,
-        "is-changed" : this.isChanged
+        "is-changed" : this.isChanged,
+        "no-checked" : !this.isChecked
       }, klass)
     },
     //-----------------------------------------------

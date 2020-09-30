@@ -9,20 +9,32 @@
     "selectable" : true,
     "hoverable"  : true,
     "cancelable" : true,
+    "currentId"  : "072",
     "fields"  : [{
         "title"   : "Name",
+        "width"   : 200,
         "display" : ["<icon:zmdi-account-o>", "name"]
       }, {
         "title" : "Age",
+        "width"   : 50,
         "display" : "age"
       }, {
+        "title" : "Labels",
+        "width"   : 150,
+        "display" : {
+          "key" : "lbls",
+          "comType" : "TiTags"
+        }
+      }, {
         "title" : "Birthday",
+        "width"   : 150,
         "display" : {
           "key" : "birthday",
-          "transformer" : "formatDate"
+          "transformer" : "Ti.DateTime.format('yyyy-MM-dd HH:mm')"
         }
       }, {
         "title"   : "Dead",
+        "width"   : 50,
         "display" : {
           "key" : "dead",
           "comType" : "ti-toggle"

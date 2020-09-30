@@ -13,14 +13,6 @@ export default {
     "fields" : {
       type : Array,
       default : ()=>[]
-    },
-    "sizes" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "hoverId" : {
-      type : String,
-      default : null
     }
   },
   ///////////////////////////////////////////////////
@@ -44,29 +36,11 @@ export default {
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    getCellSize(index) {
-      if(this.sizes.length > index) {
-        return this.sizes[index]
-      }
-    },
-    //-----------------------------------------------
     OnClickIcon($event) {
       this.$notify("icon", {
         rowId  : this.rowId,
         shift  : $event.shiftKey,
         toggle : ($event.ctrlKey || $event.metaKey)
-      })
-    },
-    //-----------------------------------------------
-    OnMouseEnter() {
-      this.$notify("enter", {
-        rowId  : this.rowId
-      })
-    },
-    //-----------------------------------------------
-    OnMouseLeave() {
-      this.$notify("leave", {
-        rowId  : this.rowId
       })
     }
     //-----------------------------------------------

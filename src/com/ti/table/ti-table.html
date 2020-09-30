@@ -14,59 +14,59 @@
     Show thead/tbody
   -->
   <template v-else>
-    <!--
-      Head
-    -->
-    <div v-if="isShowHead"
-      class="table-head"
-      :style="TableStyle">
-      <!--checker-->
-      <div
-          v-if="checkable && multi"
-            class="as-checker"
-            @click.left="OnClickHeadChecker">
-            <ti-icon :value="HeadCheckerIcon"/>
-      </div>
-      <!--field titles-->
-      <ul>
-        <li
-          v-for="fld in TableFields"
-            class="table-head-cell"
-            :style="getHeadCellStyle(fld.index)"
-            :col-index="fld.index">
-          <span class="table-head-cell-text">{{fld.title|i18n}}</span>
-        </li>
-      </ul>
-    </div
-    <!--
-      Body
-    -->
-    <div ref="body"
-      class="table-body"
-      :style="TableStyle">
-      <table-row
-        v-for="row in myData"
-          :key="row.id"
-          :row-id="row.id"
-          :index="row.index"
-          :icon="row.icon"
-          :indent="row.indent"
-          :data="row.rawData"
-          :fields="TableFields"
-          :sizes="myColSizes.amended"
-          :current-id="theCurrentId"
-          :checked-ids="theCheckedIds"
-          :hover-id="myHoverId"
-          :changed-id="changedId"
-          :checkable="checkable"
-          :selectable="selectable"
-          :openable="openable"
-          @icon="$notify('icon', $event)"
-          @checker="OnRowCheckerClick"
-          @select="OnRowSelect"
-          @open="OnRowOpen"
-          @enter="OnRowEnter"
-          @leave="OnRowLeave"/>
+    <!--checker-->
+    <div
+      v-if="checkable && multi && isShowHead"
+        class="as-checker"
+        @click.left="OnClickHeadChecker">
+        <ti-icon :value="HeadCheckerIcon"/>
     </div>
+    <!--
+      Table
+    -->
+    <table ref="table">
+      <!--
+        Head
+      -->
+      <thead v-if="isShowHead"
+        class="table-head"
+        :style="TableStyle">
+        <!--field titles-->
+        <tr>
+          <th
+            v-for="fld in TableFields"
+              :style="getHeadCellStyle(fld)"
+              :col-index="fld.index">
+            <span class="table-head-cell-text">{{fld.title|i18n}}</span>
+          </th>
+        </tr>
+      </thead>
+      <!--
+        Body
+      -->
+      <tbody
+        class="table-body"
+        :style="TableStyle">
+        <table-row
+          v-for="row in myData"
+            :key="row.id"
+            :row-id="row.id"
+            :index="row.index"
+            :icon="row.icon"
+            :indent="row.indent"
+            :data="row.rawData"
+            :fields="TableFields"
+            :current-id="theCurrentId"
+            :checked-ids="theCheckedIds"
+            :changed-id="changedId"
+            :checkable="checkable"
+            :selectable="selectable"
+            :openable="openable"
+            @icon="$notify('icon', $event)"
+            @checker="OnRowCheckerClick"
+            @select="OnRowSelect"
+            @open="OnRowOpen"/>
+        </tbody>
+    </table>
   </template>
 </div>

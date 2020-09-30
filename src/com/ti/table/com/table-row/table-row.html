@@ -1,9 +1,7 @@
-<div class="table-row"
+<tr class="table-row"
   :class="TopClass"
   @click.left="OnClickRow"
   @dblclick.left="OnDblClickRow"
-  @mouseenter="OnMouseEnter"
-  @mouseleave="OnMouseLeave"
   v-ti-activable>
   <!--
     Cells
@@ -13,7 +11,6 @@
     v-bind="fld"
     :row-id="rowId"
     :row-index="index"
-    :cell-size="getCellSize(fld.index)"
     :is-current="isCurrent"
     :is-hover="isHover"
     :is-checked="isChecked"
@@ -43,4 +40,4 @@
       </div>
     </template>
   </table-cell>
-</div>
+</tr>

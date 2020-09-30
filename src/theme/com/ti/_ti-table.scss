@@ -1,20 +1,14 @@
 .ti-table {
   @include noselect;
   $thead : 32px; 
-  width:100%; 
+  width:100%;  overflow: auto;
   position: relative;
-  transition: opacity .5s;
-  //---------------------------------------------
-  &.is-cells-no-ready {
-    opacity: 0;
-  }
   //---------------------------------------------
   &.is-head-frozen {
-    padding-top:$thead;
-    overflow:hidden;
-    > .table-head {
-      @include pos-abs($l:0,$r:0,$t:0,$h:$thead);
-      ul {width:100%; height:100%;}
+    th {
+      z-index: 1;
+      position: sticky; top:0; 
+      height: $thead; line-height: $thead;
     }
   }
   //---------------------------------------------
@@ -27,194 +21,203 @@
   }
   //---------------------------------------------
   &.is-border-row {
-    .table-row {
+    td {
       @include border(1px, solid, shallow, bottom);
-      &:last-child {border-bottom:0;}
     }
+    tbody tr:last-child td{border-bottom:0;}
   }
   //---------------------------------------------
   &.is-border-column {
-    .table-head li,
-    .table-cell {
+    td {
       @include border(1px, solid, shallow, right);
       &:last-child {border-right:0;}
     }
   }
   //---------------------------------------------
   &.is-border-cell {
-    .table-row {
-      @include border(1px, solid, shallow, bottom);
-      &:last-child {border-bottom:0;}
-    }
-    .table-head li,
-    .table-cell {
+    td {
       @include border(1px, solid, shallow, right);
+      @include border(1px, solid, shallow, bottom);
       &:last-child {border-right:0;}
     }
+    tbody tr:last-child td{border-bottom:0;}
   }
   //---------------------------------------------
   &.is-hoverable {
-    .table-row.is-hover {
+    tr.no-checked:hover {
       @include color($color-weaktip, r, c);
     }
   }
+  //-------------------------------------------
+  > .as-checker {
+    @include pos-abs($t:0,$l:0,$w:$thead, $h:$thead);
+    @include flex-center;
+    @include border(1px, solid, shallow, right);
+    cursor: pointer;
+    &:hover {@include color($color-weaktip, r, c);}
+  }
   //---------------------------------------------
-  > .table-head {
-    @include border(1px, solid, shallow, bottom);
-    @include color($color-bar, r, c);
-    position: relative;
+  //
+  //                The Table Part
+  //
+  //---------------------------------------------
+  > table {
+    width:100%; table-layout: fixed;
+    border-spacing:0; 
     //-------------------------------------------
-    > .as-checker {
-      @include pos-abs($t:0,$b:0,$l:0,$w:$thead);
-      @include flex-center;
-      @include border(1px, solid, shallow, right);
-      cursor: pointer;
-      &:hover {@include color($color-weaktip, r, c);}
-    }
-    //-------------------------------------------
-    > ul {
+    > thead {
       @include noselect;
-      @include flex-align-nowrap($ai:stretch);
-      li {
-        @include flex-center; flex:0 0 auto;
-        padding:0 SZ(6);
+      //-----------------------------------------
+      th {
+        @include color($color-body, r, c);
+        @include border(1px, solid, shallow, right);
+        @include border(1px, solid, shallow, bottom);
+        //---------------------------------------
+        padding:0 SZ(6); font-weight: normal;
+        //---------------------------------------
+        &:last-child {border-right:0;}
+        //---------------------------------------
         .table-head-cell-text {
           font-size: 0.9em; font-weight: bold;
           display:block; white-space: nowrap;
         }
-        .as-checker{
-          cursor:pointer;
-        }
-      }
-    }
-    //-------------------------------------------
-  }
-  //---------------------------------------------
-  > .table-body {
-    width:100%; height:100%;
-    overflow: auto;
-    //-------------------------------------------
-    // Table Row 
-    //-------------------------------------------
-    .table-row {
-      @include flex-align-nowrap($ai:stretch);
-      //-----------------------------------------
-      &.is-current {
-        .table-row-head {
-          .row-actived-indicator:before {
-            display:block; content:"";
-            height:SZ(12); width:1px;
-            border-left :1px dotted map-get($color-primary, r);
-            border-right:1px dotted map-get($color-primary, r);
-            opacity: 0.6;
-          }
-        }
-      }
-      //-----------------------------------------
-      transition: background-color 0.1s, color 0.1s;
-      &.is-checked {
-        @include color($color-primary, r, c);
-        a, a:hover {color:inherit;}
-        //---------------------------------------
-        .cell-con {
-          .ti-tags-item {
-            @include color($color-weaktip, r, c);
-          }
-        }
         //---------------------------------------
       }
       //-----------------------------------------
     }
-    //-------------------------------------------
-    // Table Row Header
-    //-------------------------------------------
-    .table-row-head {
-      @include flex-align-nowrap($ai:stretch);
-      //-----------------------------------------
-      .row-actived-indicator {
-        @include flex-center;
-        width:8px;
-      }
-      //-----------------------------------------
-      .row-indent, .row-icon {
-        @include flex-center;
-        width:SZ(16);
-      }
-      //-----------------------------------------
-      .row-icon.ti-icon, .row-checker {
-        cursor: pointer; 
-        &:hover {@include color($color-secondary, r, c);}
-      }
-      //-----------------------------------------
-      .row-checker {
-        padding:0 SZ(6);
-      }
-      //-----------------------------------------
-    }
-    //-------------------------------------------
-    // Table Cell
-    //-------------------------------------------
-    .table-cell {
-      vertical-align: middle;
-      > .cell-wrapper {
-        @include flex($ai:stretch, $wp:nowrap);
+    //---------------------------------------------
+    > tbody {
+      //-------------------------------------------
+      // Table Row 
+      //-------------------------------------------
+      > tr {
         //-----------------------------------------
-        > .cell-con {
-          @include flex-align; 
-          flex:1 1 auto;
-          line-height: 2.6em; min-height:2.6em;
+        &.is-current {
+          .table-row-head {
+            .row-actived-indicator:before {
+              display:block; content:"";
+              height:SZ(12); width:1px;
+              border-left :1px dotted map-get($color-primary, r);
+              border-right:1px dotted map-get($color-primary, r);
+              opacity: 0.6;
+            }
+          }
+        }
+        //-----------------------------------------
+        &.is-checked {
+          @include color($color-primary, r, c);
+          a, a:hover {color:inherit;}
           //---------------------------------------
-          > .ti-icon.item-0 {
-            width:1.8em; margin-left:0;
+          td {
+            border-color: map-get($color-primary, r);
           }
           //---------------------------------------
-          > .ti-icon {
-            margin: 0 .2em;
-          }
-          .ti-label.item-0 {
-            padding:0 .3em;
-          }
-          //---------------------------------------
-          .ti-tags-item {
-            font-size: .8em;
-          }
-          //---------------------------------------
-          .ti-icon {
-            flex:0 0 auto;
-            img {
-              width:32px; height:32px;
-              object-fit: cover;
-              border:1px solid map-get($color-line, shallow);
-              border-radius: 2px;
+          .cell-con {
+            .ti-tags-item {
+              @include color($color-weaktip, r, c);
             }
           }
           //---------------------------------------
         }
         //-----------------------------------------
-        .as-drop .ti-list {
-          line-height: 1.8em;
-        }
-        //-----------------------------------------
-        &.is-nowrap > .cell-con {
-          flex-wrap: nowrap;
-        }
-        //-----------------------------------------
-        &.is-editing-mode {
-          position: relative;
-          > .cell-con {
-            @include pos-abs-full;
-          }
-        }
-        //-----------------------------------------
       }
       //-------------------------------------------
-      &.align-left   > .cell-wrapper > .cell-con {justify-content: flex-start;}
-      &.align-center > .cell-wrapper > .cell-con {justify-content: center;}
-      &.align-right  > .cell-wrapper > .cell-con {justify-content: flex-end;}
+      // Table Cell
       //-------------------------------------------
-      &.not-align  > .cell-wrapper > .cell-con > *:last-child {flex:1 1 auto;}
-      //-------------------------------------------
-    } // .table-cell
+      td {
+        vertical-align: middle;
+        > .cell-wrapper {
+          @include flex($ai:stretch, $wp:nowrap);
+          //-------------------------------------------
+          // Table Row Header
+          //-------------------------------------------
+          .table-row-head {
+            @include flex-align-nowrap;
+            //-----------------------------------------
+            .row-actived-indicator {
+              @include flex-center;
+              width:8px;
+            }
+            //-----------------------------------------
+            .row-indent, .row-icon {
+              @include flex-center;
+              width:SZ(16);
+            }
+            //-----------------------------------------
+            .row-icon.ti-icon, .row-checker {
+              cursor: pointer; 
+              &:hover {@include color($color-secondary, r, c);}
+            }
+            //-----------------------------------------
+            .row-checker {
+              padding:SZ(6);
+            }
+            //-----------------------------------------
+          }
+          //-----------------------------------------
+          &.is-nowrap {overflow: hidden;}
+          //-----------------------------------------
+          // Cell Container
+          //-----------------------------------------
+          > .cell-con {
+            @include flex-align; 
+            flex:1 1 auto;
+            line-height: 2.6em; min-height:2.6em;
+            //---------------------------------------
+            > .ti-icon.item-0 {
+              width:1.8em; margin-left:0;
+            }
+            //---------------------------------------
+            > .ti-icon {
+              margin: 0 .2em;
+            }
+            .ti-label.item-0 {
+              padding:0 .3em;
+            }
+            //---------------------------------------
+            .ti-tags-item {
+              font-size: .8em;
+            }
+            //---------------------------------------
+            .ti-icon {
+              flex:0 0 auto;
+              img {
+                width:32px; height:32px;
+                object-fit: cover;
+                border:1px solid map-get($color-line, shallow);
+                border-radius: 2px;
+              }
+            }
+            //---------------------------------------
+          }
+          //-----------------------------------------
+          .as-drop .ti-list {
+            line-height: 1.8em;
+          }
+          //-----------------------------------------
+          &.is-nowrap > .cell-con {
+            flex-wrap: nowrap;
+          }
+          //-----------------------------------------
+          &.is-editing-mode {
+            position: relative;
+            > .cell-con {
+              @include pos-abs-full;
+            }
+          }
+          //-----------------------------------------
+        }
+        //-------------------------------------------
+        &.align-left   > .cell-wrapper > .cell-con {justify-content: flex-start;}
+        &.align-center > .cell-wrapper > .cell-con {justify-content: center;}
+        &.align-right  > .cell-wrapper > .cell-con {justify-content: flex-end;}
+        //-------------------------------------------
+        &.not-align  > .cell-wrapper > .cell-con > *:last-child {
+          flex:1 1 auto; width:100px;
+        }
+        //-------------------------------------------
+      } // .table-cell
+    }
   } // .table-body
   //---------------------------------------------
 }

@@ -6,15 +6,16 @@
   }
   //-----------------------------------------------
   .json-value {
-    @include flex-align-nowrap($ai:stretch,$jc:flex-start);
     @include font-fixed;
+    position: relative; 
     //---------------------------------------------
     > .as-editing {
-      flex:1 1 auto;
+      flex:1 1 auto; 
     }
     //---------------------------------------------
     > .as-actions {
-      flex:0 0 auto;
+      @include pos-abs($t:0,$b:0,$r:0);
+      @include color($color-primary, r, c);
       padding:SZ(4) SZ(4);
       font-size:.8em; 
       .bar-item-info {

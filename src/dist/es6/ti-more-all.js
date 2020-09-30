@@ -1,4 +1,4 @@
-// Pack At: 2020-09-30 19:53:31
+// Pack At: 2020-10-01 00:57:26
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -20192,7 +20192,8 @@ const _M = {
       return (...klass)=>this.getTopClass({
         "is-current" : this.isCurrent,
         "is-checked" : this.isChecked,
-        "is-changed" : this.isChanged
+        "is-changed" : this.isChanged,
+        "no-checked" : !this.isChecked
       }, klass)
     },
     //-----------------------------------------------
@@ -21194,9 +21195,8 @@ Ti.Preload("ti/com/ti/switcher/_com.json", {
 //============================================================
 // JOIN: ti/table/com/table-row/com/table-cell/table-cell.html
 //============================================================
-Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/table-cell.html", `<div class="table-cell"
+Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/table-cell.html", `<td class="table-cell"
   :class="TopClass"
-  :style="TopStyle"
   :col-index="index"
   v-ti-activable>
   <div class="cell-wrapper"
@@ -21214,7 +21214,7 @@ Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/table-cell.html", `<div
           @change="OnItemChanged(it, $event)"/>
     </div>
   </div>
-</div>`);
+</td>`);
 //============================================================
 // JOIN: ti/table/com/table-row/com/table-cell/table-cell.mjs
 //============================================================
@@ -21244,10 +21244,6 @@ const _M = {
       default : -1
     },
     //..........................
-    "cellSize" : {
-      type : Number,
-      default : 0
-    },
     "title" : {
       type : String,
       default : null
@@ -21317,10 +21313,6 @@ const _M = {
     "focusBy" : {
       type : String,
       default : "focus"
-    },
-    "widthBy" : {
-      type : String,
-      default : "width"
     }
     //..........................
   },
@@ -21333,14 +21325,6 @@ const _M = {
         "has-align" : hasAlign,
         "not-align" : !hasAlign
       })
-    },
-    //-----------------------------------------------
-    TopStyle() {
-      if(this.cellSize > 0) {
-        return Ti.Css.toStyle({
-          "width" : this.cellSize
-        })
-      }
     },
     //-----------------------------------------------
     WrapperClass() {
@@ -21359,9 +21343,6 @@ const _M = {
         let comConf = _.assign({}, this.comConf)
         if(this.focusBy) {
           comConf[this.focusBy] = "${=isActived}"
-        }
-        if(this.widthBy) {
-          comConf[this.widthBy] = "${=cellSize}"
         }
         //...........................................
         return [{
@@ -21385,7 +21366,6 @@ const _M = {
   methods : {
     //-----------------------------------------------
     async evalCellDisplayItems() {
-      this.$table.reportReady(this.rowIndex, this.index, !_.isEmpty(this.cellItems))
       let items = []
       // Eval each items
       for(let i=0; i<this.theCurrentDisplayItems.length; i++) {
@@ -21394,12 +21374,8 @@ const _M = {
             itemData : this.data, 
             displayItem, 
             vars : {
-              "isCurrent" : this.isCurrent,
-              "isChecked" : this.isChecked,
-              "isHover"   : this.isHover,
-              "isActived" : this.isActived,
               "rowId"     : this.rowId,
-              "cellSize"  : this.cellSize
+              "isCurrent" : this.isCurrent
             },
             autoIgnoreNil : true,
             uniqueKey: `row${this.rowId}-cell${this.index}-${i}`
@@ -21409,7 +21385,7 @@ const _M = {
         }
       }
       //if(0 == this.rowIndex && 1==this.index) {
-      //  console.log("evalCellDisplayItems", this.rowIndex, this.index)
+      //console.log("evalCellDisplayItems", this.rowIndex, this.index)
       //}
       // Update and return
       let old = Ti.Util.pureCloneDeep(this.cellItems)
@@ -21418,8 +21394,6 @@ const _M = {
         //console.log(`-> Cell[${this.rowIndex}-${this.index}]:`, {old, nit})
         this.cellItems = items
       }
-      // report ready
-      this.$table.reportReady(this.rowIndex, this.index, true)
     },
     //-----------------------------------------------
     OnItemChanged(item, payload) {
@@ -21439,13 +21413,7 @@ const _M = {
       handler : "evalCellDisplayItems",
       immediate : true
     },
-    "isCurrent" : "evalCellDisplayItems",
-    "isChecked" : "evalCellDisplayItems",
-    "isHover"   : "evalCellDisplayItems",
-    "isActived" : "evalCellDisplayItems"
-    // "cellSize" : async function() {
-    //   await this.debounceEvalCellDisplayItems()
-    // }
+    "isCurrent" : "evalCellDisplayItems"
   }
   ///////////////////////////////////////////////////
 }
@@ -21465,12 +21433,10 @@ Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/_com.json", {
 //============================================================
 // JOIN: ti/table/com/table-row/table-row.html
 //============================================================
-Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<div class="table-row"
+Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<tr class="table-row"
   :class="TopClass"
   @click.left="OnClickRow"
   @dblclick.left="OnDblClickRow"
-  @mouseenter="OnMouseEnter"
-  @mouseleave="OnMouseLeave"
   v-ti-activable>
   <!--
     Cells
@@ -21480,7 +21446,6 @@ Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<div class="table-ro
     v-bind="fld"
     :row-id="rowId"
     :row-index="index"
-    :cell-size="getCellSize(fld.index)"
     :is-current="isCurrent"
     :is-hover="isHover"
     :is-checked="isChecked"
@@ -21510,7 +21475,7 @@ Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<div class="table-ro
       </div>
     </template>
   </table-cell>
-</div>`);
+</tr>`);
 //============================================================
 // JOIN: ti/table/com/table-row/table-row.mjs
 //============================================================
@@ -21530,14 +21495,6 @@ const _M = {
     "fields" : {
       type : Array,
       default : ()=>[]
-    },
-    "sizes" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "hoverId" : {
-      type : String,
-      default : null
     }
   },
   ///////////////////////////////////////////////////
@@ -21561,29 +21518,11 @@ const _M = {
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    getCellSize(index) {
-      if(this.sizes.length > index) {
-        return this.sizes[index]
-      }
-    },
-    //-----------------------------------------------
     OnClickIcon($event) {
       this.$notify("icon", {
         rowId  : this.rowId,
         shift  : $event.shiftKey,
         toggle : ($event.ctrlKey || $event.metaKey)
-      })
-    },
-    //-----------------------------------------------
-    OnMouseEnter() {
-      this.$notify("enter", {
-        rowId  : this.rowId
-      })
-    },
-    //-----------------------------------------------
-    OnMouseLeave() {
-      this.$notify("leave", {
-        rowId  : this.rowId
       })
     }
     //-----------------------------------------------
@@ -21873,60 +21812,60 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
     Show thead/tbody
   -->
   <template v-else>
-    <!--
-      Head
-    -->
-    <div v-if="isShowHead"
-      class="table-head"
-      :style="TableStyle">
-      <!--checker-->
-      <div
-          v-if="checkable && multi"
-            class="as-checker"
-            @click.left="OnClickHeadChecker">
-            <ti-icon :value="HeadCheckerIcon"/>
-      </div>
-      <!--field titles-->
-      <ul>
-        <li
-          v-for="fld in TableFields"
-            class="table-head-cell"
-            :style="getHeadCellStyle(fld.index)"
-            :col-index="fld.index">
-          <span class="table-head-cell-text">{{fld.title|i18n}}</span>
-        </li>
-      </ul>
-    </div
-    <!--
-      Body
-    -->
-    <div ref="body"
-      class="table-body"
-      :style="TableStyle">
-      <table-row
-        v-for="row in myData"
-          :key="row.id"
-          :row-id="row.id"
-          :index="row.index"
-          :icon="row.icon"
-          :indent="row.indent"
-          :data="row.rawData"
-          :fields="TableFields"
-          :sizes="myColSizes.amended"
-          :current-id="theCurrentId"
-          :checked-ids="theCheckedIds"
-          :hover-id="myHoverId"
-          :changed-id="changedId"
-          :checkable="checkable"
-          :selectable="selectable"
-          :openable="openable"
-          @icon="$notify('icon', $event)"
-          @checker="OnRowCheckerClick"
-          @select="OnRowSelect"
-          @open="OnRowOpen"
-          @enter="OnRowEnter"
-          @leave="OnRowLeave"/>
+    <!--checker-->
+    <div
+      v-if="checkable && multi && isShowHead"
+        class="as-checker"
+        @click.left="OnClickHeadChecker">
+        <ti-icon :value="HeadCheckerIcon"/>
     </div>
+    <!--
+      Table
+    -->
+    <table ref="table">
+      <!--
+        Head
+      -->
+      <thead v-if="isShowHead"
+        class="table-head"
+        :style="TableStyle">
+        <!--field titles-->
+        <tr>
+          <th
+            v-for="fld in TableFields"
+              :style="getHeadCellStyle(fld)"
+              :col-index="fld.index">
+            <span class="table-head-cell-text">{{fld.title|i18n}}</span>
+          </th>
+        </tr>
+      </thead>
+      <!--
+        Body
+      -->
+      <tbody
+        class="table-body"
+        :style="TableStyle">
+        <table-row
+          v-for="row in myData"
+            :key="row.id"
+            :row-id="row.id"
+            :index="row.index"
+            :icon="row.icon"
+            :indent="row.indent"
+            :data="row.rawData"
+            :fields="TableFields"
+            :current-id="theCurrentId"
+            :checked-ids="theCheckedIds"
+            :changed-id="changedId"
+            :checkable="checkable"
+            :selectable="selectable"
+            :openable="openable"
+            @icon="$notify('icon', $event)"
+            @checker="OnRowCheckerClick"
+            @select="OnRowSelect"
+            @open="OnRowOpen"/>
+        </tbody>
+    </table>
   </template>
 </div>`);
 //============================================================
@@ -21942,8 +21881,8 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   data : ()=>({
-    myData : [],
-    myHoverId  : null,    // The row mouse hover
+    myTableRect: null,
+    myData : []
   }),
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
@@ -21952,8 +21891,8 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-cells-no-ready" : !this.myCellsReady,
-        "is-layout-ready" : this.myCellsReady,
+        // "is-cells-no-ready" : !this.myCellsReady,
+        // "is-layout-ready" : this.myCellsReady,
         "is-hoverable"   : this.hoverable
       }, [
         `is-border-${this.border}`,
@@ -22055,20 +21994,6 @@ const _M = {
   ///////////////////////////////////////////////////
   methods : {
     //--------------------------------------
-    OnRowEnter({rowId}={}) {
-      if(this.hoverable) {
-        this.myHoverId = rowId
-      }
-    },
-    //--------------------------------------
-    OnRowLeave({rowId}={}) {
-      if(this.hoverable) {
-        if(this.myHoverId == rowId) {
-          this.myHoverId = null
-        }
-      }
-    },
-    //--------------------------------------
     OnClickHeadChecker() {
       // Cancel All
       if(this.isAllChecked) {
@@ -22096,11 +22021,30 @@ const _M = {
       this.$notify("item:change", payload)
     },
     //--------------------------------------
-    getHeadCellStyle(index=-1) {
-      if(this.myColSizes.amended.length > index) {
-        return Ti.Css.toStyle({
-          "width" : this.myColSizes.amended[index]
-        })
+    getHeadCellStyle(fld) {
+      if(fld && !Ti.Util.isNil(fld.width) 
+          && this.myTableRect && this.myTableRect.width > 0) {
+          // Copy width
+          let width = fld.width
+
+          // Number
+          if(_.isNumber(width)) {
+            // -100: it will conver to percent
+            if(width < 0) {
+              let per = Math.abs(width / this.myTableRect.width)
+              width = Math.round(per * 100) + "%"
+            }
+            // 0-1: => Percent
+            else if(width>=0 && width < 1) {
+              width = Math.round(width * 100) + "%"
+            }
+            // 100: => pixcel
+            else {
+              width = `${width}px`
+            }
+          }
+
+          return {width}
       }
     },
     //--------------------------------------
@@ -22126,25 +22070,38 @@ const _M = {
     },
     //--------------------------------------
     scrollCurrentIntoView() {
-      if(this.autoScrollIntoView && this.myLastIndex>=0) {
-        console.log("scroll")
-        let $tbody = this.$refs.body
-        let $row = Ti.Dom.find(`.table-row:nth-child(${this.myLastIndex+1})`, $tbody)
+      //console.log("scrollCurrentIntoView", this.myLastIndex)
+      if(this.autoScrollIntoView && this.theCurrentId) {
+        let index = this.findRowIndexById(this.theCurrentId)
+        //console.log("scroll", index)
+        let $view = this.$el
+        let $row  = Ti.Dom.find(`.table-row:nth-child(${index+1})`, $view)
 
-        let tbody = Ti.Rects.createBy($tbody)
-        let row = Ti.Rects.createBy($row)
+        if(!_.isElement($view) || !_.isElement($row)) {
+          return
+        }
+
+        let r_view = Ti.Rects.createBy($view)
+        let r_row = Ti.Rects.createBy($row)
 
         // test it need to scroll or not
-        if(!tbody.contains(row)) {
+        if(!r_view.contains(r_row)) {
           // at bottom
-          if(row.bottom > tbody.bottom) {
-            $tbody.scrollTop += row.bottom - tbody.bottom
+          if(r_row.bottom > r_view.bottom) {
+            $view.scrollTop += r_row.bottom - r_view.bottom
           }
           // at top
           else {
-            $tbody.scrollTop += row.top - tbody.top
+            $view.scrollTop += r_row.top - r_view.top
           }
         }
+      }
+    },
+    //--------------------------------------
+    OnResize() {
+      if(this.$refs.table) {
+        this.myTableRect = Ti.Rects.createBy(this.$refs.table)
+        //console.log("OnResize", this.myTableRect.width)
       }
     },
     //--------------------------------------
@@ -22187,6 +22144,22 @@ const _M = {
       },
       immediate : true
     }
+  },
+  ///////////////////////////////////////////////////
+  mounted : function() {
+    Ti.Viewport.watch(this, {
+      resize : _.debounce(()=>this.OnResize(), 10)
+    })
+    this.$nextTick(()=>this.OnResize())
+    if(this.autoScrollIntoView) {
+      _.delay(()=>{
+        this.scrollCurrentIntoView()
+      }, 0)
+    }
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////////////////////
 }
@@ -22206,7 +22179,6 @@ Ti.Preload("ti/com/ti/table/_com.json", {
   "methods" : "@com:ti/support/field_display.mjs",
   "mixins" : [
     "@com:ti/support/list_mixins.mjs",
-    "./ti-table-resizes.mjs",
     "./ti-table.mjs"
   ],
   "components" : [
@@ -22891,7 +22863,7 @@ Ti.Preload("ti/com/ti/text/json/ti-text-json.mjs", _M);
 // JOIN: ti/text/json/tree/item/json-tree-item.html
 //============================================================
 Ti.Preload("ti/com/ti/text/json/tree/item/json-tree-item.html", `<div class="json-value"
-  :class="topClass"
+  :class="TopClass"
   v-ti-activable>
   <!--
   //  - Label   : Readonly
@@ -22912,7 +22884,7 @@ Ti.Preload("ti/com/ti/text/json/tree/item/json-tree-item.html", `<div class="jso
   //  - Nil     : Edtiable any value
   -->
   <ti-label v-else
-    class="as-editing"
+    class="as-editing is-nowrap ti-fill-parent"
     :value="value"
     :class-name="theValueClassName"
     :format="theValueFormat"
@@ -22921,17 +22893,17 @@ Ti.Preload("ti/com/ti/text/json/tree/item/json-tree-item.html", `<div class="jso
   <!--
     Action Menu
   -->
-  <ti-actionbar v-if="showActions"
-    class="as-actions"
-    :items="theActionMenuData"
-    :status="theActionMenuStatus"/>
+  <ti-actionbar
+    v-if="showActions"
+      class="as-actions"
+      :items="theActionMenuData"
+      :status="theActionMenuStatus"/>
 </div>`);
 //============================================================
 // JOIN: ti/text/json/tree/item/json-tree-item.mjs
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   //////////////////////////////////////////
   data : ()=>({
     
@@ -22955,7 +22927,7 @@ const _M = {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    topClass() {
+    TopClass() {
       return Ti.Css.mergeClassName({
         "is-self-actived" : this.isSelfActived,
         "is-actived" : this.isActived

@@ -23,10 +23,6 @@ const _M = {
       default : -1
     },
     //..........................
-    "cellSize" : {
-      type : Number,
-      default : 0
-    },
     "title" : {
       type : String,
       default : null
@@ -96,10 +92,6 @@ const _M = {
     "focusBy" : {
       type : String,
       default : "focus"
-    },
-    "widthBy" : {
-      type : String,
-      default : "width"
     }
     //..........................
   },
@@ -112,14 +104,6 @@ const _M = {
         "has-align" : hasAlign,
         "not-align" : !hasAlign
       })
-    },
-    //-----------------------------------------------
-    TopStyle() {
-      if(this.cellSize > 0) {
-        return Ti.Css.toStyle({
-          "width" : this.cellSize
-        })
-      }
     },
     //-----------------------------------------------
     WrapperClass() {
@@ -138,9 +122,6 @@ const _M = {
         let comConf = _.assign({}, this.comConf)
         if(this.focusBy) {
           comConf[this.focusBy] = "${=isActived}"
-        }
-        if(this.widthBy) {
-          comConf[this.widthBy] = "${=cellSize}"
         }
         //...........................................
         return [{
@@ -164,7 +145,6 @@ const _M = {
   methods : {
     //-----------------------------------------------
     async evalCellDisplayItems() {
-      this.$table.reportReady(this.rowIndex, this.index, !_.isEmpty(this.cellItems))
       let items = []
       // Eval each items
       for(let i=0; i<this.theCurrentDisplayItems.length; i++) {
@@ -173,12 +153,8 @@ const _M = {
             itemData : this.data, 
             displayItem, 
             vars : {
-              "isCurrent" : this.isCurrent,
-              "isChecked" : this.isChecked,
-              "isHover"   : this.isHover,
-              "isActived" : this.isActived,
               "rowId"     : this.rowId,
-              "cellSize"  : this.cellSize
+              "isCurrent" : this.isCurrent
             },
             autoIgnoreNil : true,
             uniqueKey: `row${this.rowId}-cell${this.index}-${i}`
@@ -188,7 +164,7 @@ const _M = {
         }
       }
       //if(0 == this.rowIndex && 1==this.index) {
-      //  console.log("evalCellDisplayItems", this.rowIndex, this.index)
+      //console.log("evalCellDisplayItems", this.rowIndex, this.index)
       //}
       // Update and return
       let old = Ti.Util.pureCloneDeep(this.cellItems)
@@ -197,8 +173,6 @@ const _M = {
         //console.log(`-> Cell[${this.rowIndex}-${this.index}]:`, {old, nit})
         this.cellItems = items
       }
-      // report ready
-      this.$table.reportReady(this.rowIndex, this.index, true)
     },
     //-----------------------------------------------
     OnItemChanged(item, payload) {
@@ -218,13 +192,7 @@ const _M = {
       handler : "evalCellDisplayItems",
       immediate : true
     },
-    "isCurrent" : "evalCellDisplayItems",
-    "isChecked" : "evalCellDisplayItems",
-    "isHover"   : "evalCellDisplayItems",
-    "isActived" : "evalCellDisplayItems"
-    // "cellSize" : async function() {
-    //   await this.debounceEvalCellDisplayItems()
-    // }
+    "isCurrent" : "evalCellDisplayItems"
   }
   ///////////////////////////////////////////////////
 }

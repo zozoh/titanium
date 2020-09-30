@@ -7,8 +7,8 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   data : ()=>({
-    myData : [],
-    myHoverId  : null,    // The row mouse hover
+    myTableRect: null,
+    myData : []
   }),
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
@@ -17,8 +17,8 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-cells-no-ready" : !this.myCellsReady,
-        "is-layout-ready" : this.myCellsReady,
+        // "is-cells-no-ready" : !this.myCellsReady,
+        // "is-layout-ready" : this.myCellsReady,
         "is-hoverable"   : this.hoverable
       }, [
         `is-border-${this.border}`,
@@ -120,20 +120,6 @@ const _M = {
   ///////////////////////////////////////////////////
   methods : {
     //--------------------------------------
-    OnRowEnter({rowId}={}) {
-      if(this.hoverable) {
-        this.myHoverId = rowId
-      }
-    },
-    //--------------------------------------
-    OnRowLeave({rowId}={}) {
-      if(this.hoverable) {
-        if(this.myHoverId == rowId) {
-          this.myHoverId = null
-        }
-      }
-    },
-    //--------------------------------------
     OnClickHeadChecker() {
       // Cancel All
       if(this.isAllChecked) {
@@ -161,11 +147,30 @@ const _M = {
       this.$notify("item:change", payload)
     },
     //--------------------------------------
-    getHeadCellStyle(index=-1) {
-      if(this.myColSizes.amended.length > index) {
-        return Ti.Css.toStyle({
-          "width" : this.myColSizes.amended[index]
-        })
+    getHeadCellStyle(fld) {
+      if(fld && !Ti.Util.isNil(fld.width) 
+          && this.myTableRect && this.myTableRect.width > 0) {
+          // Copy width
+          let width = fld.width
+
+          // Number
+          if(_.isNumber(width)) {
+            // -100: it will conver to percent
+            if(width < 0) {
+              let per = Math.abs(width / this.myTableRect.width)
+              width = Math.round(per * 100) + "%"
+            }
+            // 0-1: => Percent
+            else if(width>=0 && width < 1) {
+              width = Math.round(width * 100) + "%"
+            }
+            // 100: => pixcel
+            else {
+              width = `${width}px`
+            }
+          }
+
+          return {width}
       }
     },
     //--------------------------------------
@@ -191,25 +196,38 @@ const _M = {
     },
     //--------------------------------------
     scrollCurrentIntoView() {
-      if(this.autoScrollIntoView && this.myLastIndex>=0) {
-        console.log("scroll")
-        let $tbody = this.$refs.body
-        let $row = Ti.Dom.find(`.table-row:nth-child(${this.myLastIndex+1})`, $tbody)
+      //console.log("scrollCurrentIntoView", this.myLastIndex)
+      if(this.autoScrollIntoView && this.theCurrentId) {
+        let index = this.findRowIndexById(this.theCurrentId)
+        //console.log("scroll", index)
+        let $view = this.$el
+        let $row  = Ti.Dom.find(`.table-row:nth-child(${index+1})`, $view)
 
-        let tbody = Ti.Rects.createBy($tbody)
-        let row = Ti.Rects.createBy($row)
+        if(!_.isElement($view) || !_.isElement($row)) {
+          return
+        }
+
+        let r_view = Ti.Rects.createBy($view)
+        let r_row = Ti.Rects.createBy($row)
 
         // test it need to scroll or not
-        if(!tbody.contains(row)) {
+        if(!r_view.contains(r_row)) {
           // at bottom
-          if(row.bottom > tbody.bottom) {
-            $tbody.scrollTop += row.bottom - tbody.bottom
+          if(r_row.bottom > r_view.bottom) {
+            $view.scrollTop += r_row.bottom - r_view.bottom
           }
           // at top
           else {
-            $tbody.scrollTop += row.top - tbody.top
+            $view.scrollTop += r_row.top - r_view.top
           }
         }
+      }
+    },
+    //--------------------------------------
+    OnResize() {
+      if(this.$refs.table) {
+        this.myTableRect = Ti.Rects.createBy(this.$refs.table)
+        //console.log("OnResize", this.myTableRect.width)
       }
     },
     //--------------------------------------
@@ -252,6 +270,22 @@ const _M = {
       },
       immediate : true
     }
+  },
+  ///////////////////////////////////////////////////
+  mounted : function() {
+    Ti.Viewport.watch(this, {
+      resize : _.debounce(()=>this.OnResize(), 10)
+    })
+    this.$nextTick(()=>this.OnResize())
+    if(this.autoScrollIntoView) {
+      _.delay(()=>{
+        this.scrollCurrentIntoView()
+      }, 0)
+    }
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////////////////////
 }
