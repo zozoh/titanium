@@ -14,7 +14,10 @@
         v-for="it in ItemList"
           class="scroller-tile"
           :key="it.key"
-          :style="ItemStyle">
+          :style="ItemStyle"
+          :class="it.className"
+          @mouseenter="OnEnterTile(it.rawData)"
+          @mouseleave="OnLeaveTile(it.rawData)">
           <component
             :is="it.comType"
             v-bind="it.comConf"/>

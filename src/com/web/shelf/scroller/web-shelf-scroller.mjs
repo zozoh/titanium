@@ -14,8 +14,11 @@ const _M = {
     // Item count per-row
     "cols" : {
       type : Number,
-      default : 4,
-      validator: v => v > 0
+      default : 4
+    },
+    "itemWidth" : {
+      type : [String, Number],
+      default: undefined
     },
     // Item comType
     "comType": {
@@ -35,6 +38,18 @@ const _M = {
     "iconRight": {
       type: String,
       default: "zmdi-chevron-right"
+    },
+    "enterItem" : {
+      type: [String, Function],
+      default: undefined
+    },
+    "leaveItem" : {
+      type: [String, Function],
+      default: undefined
+    },
+    "keepScrolling" : {
+      type : Boolean,
+      default : false
     }
   },
   //////////////////////////////////////////
@@ -51,8 +66,15 @@ const _M = {
     },
     //--------------------------------------
     ItemStyle() {
-      return {
-        "width" : Ti.Types.toPercent(1/this.cols)
+      if(!Ti.Util.isNil(this.itemWidth)) {
+        return Ti.Css.toSizeRem100({
+          "width" : this.itemWidth
+        })
+      }
+      if(this.cols > 0) {
+        return {
+          "width" : Ti.Types.toPercent(1/this.cols)
+        }
       }
     },
     //--------------------------------------
@@ -88,7 +110,9 @@ const _M = {
         let comConf = Ti.Util.explainObj(it, this.comConf)
         list.push({
           key: `It-${i}`,
-          comType: this.comType,
+          className: it.className,
+          rawData : it,
+          comType : this.comType,
           comConf
         })
       }
@@ -123,6 +147,24 @@ const _M = {
       this.myScrollLeft -= step
     },
     //--------------------------------------
+    OnEnterTile(it) {
+      if(_.isFunction(this.enterItem)) {
+        this.enterItem(it)
+      }
+      else if(_.isString(this.enterItem)) {
+        this.$notify(this.enterItem, it)
+      }
+    },
+    //--------------------------------------
+    OnLeaveTile(it) {
+      if(_.isFunction(this.leaveItem)) {
+        this.leaveItem(it)
+      }
+      else if(_.isString(this.leaveItem)) {
+        this.$notify(this.leaveItem, it)
+      }
+    },
+    //--------------------------------------
     evalScrolling() {
       this.myMaxScroll = this.$refs.inner.scrollWidth;
       this.myScrollWidth = this.$refs.inner.getBoundingClientRect().width;
@@ -133,10 +175,14 @@ const _M = {
   //////////////////////////////////////////
   watch: {
     "data": {
-      handler: function(){
-        this.$nextTick(()=>{
-          this.evalScrolling()
-        })
+      handler: function(newData, oldData){
+        let lenNew = _.size(newData)
+        let lenOld = _.size(oldData)
+        if(!this.keepScrolling || !this.myScrollWidth || lenNew != lenOld) {
+          this.$nextTick(()=>{
+            this.evalScrolling()
+          })
+        }
       },
       immediate: true
     }

@@ -14,6 +14,10 @@
     display:block;
   }
   //-----------------------------------------
+  &.is-fit-none    img {object-fit: unset;}
+  &.is-fit-contain img {object-fit: contain;}
+  &.is-fit-cover   img {object-fit: cover; }
+  //-----------------------------------------
   .as-text {
     @include flex-center; 
     @include font-nice;
@@ -21,6 +25,18 @@
     font-size: 1.5em;
     text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
     //---------------------------------------
+  }
+  //-----------------------------------------
+  .as-zoom-pick {
+    position: absolute;
+    border:1px solid #DDD;
+    background: rgba(255,255,0, 0.4);
+    cursor: move;
+  }
+  //-----------------------------------------
+  .as-zoom-dock {
+    position: fixed; background: #000;
+    background-repeat: no-repeat;
   }
   //-----------------------------------------
   &.primary-img-size {

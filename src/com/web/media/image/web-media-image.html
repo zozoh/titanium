@@ -2,15 +2,30 @@
   :class="TopClass"
   :style="TopStyle"
   :href="TheHref"
-  :target="isNewTab ? '_blank' : '_self'">
+  :target="isNewTab ? '_blank' : '_self'"
+  @mousemove="OnMouseMove"
+  @mouseleave="OnMouseLeave">
   <!--Image-->
-  <img
+  <img ref="img"
     v-if="TheSrc" 
-      :src="TheSrc"/>
+      :src="TheSrc"
+      @load="OnImageLoaded"/>
   <!--Text-->
   <div
     v-if="TheText"
       class="as-text">
       <span>{{TheText}}</span>
   </div>
+  <!--Zoom len-->
+  <template v-if="zoomLens">
+    <!--Picker-->
+    <div ref="pick"
+      class="as-zoom-pick"
+      :style="ZoomLenPickStyle"></div>
+    <!--Docker-->
+    <div ref="dock"
+      v-if="showZoomPick"
+        class="as-zoom-dock"
+        :style="ZoomLenDockStyle"></div>
+  </template>
 </a>
