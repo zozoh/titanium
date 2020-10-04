@@ -1,7 +1,8 @@
-<div class="ti-label full-field"
+<div class="ti-label"
   :class="TopClass"
   :style="TopStyle"
-  @dblclick.left="OnDblClick">
+  @dblclick.left="OnDblClick"
+  :title="myDisplayText">
   <!--prefix:icon-->
   <div v-if="ThePrefixIcon"
     class="as-icon at-prefix"

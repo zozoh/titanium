@@ -14,6 +14,10 @@ const _M = {
     "valueClickable" : {
       type : Boolean,
       default: false
+    },
+    "fullField": {
+      type : Boolean,
+      default : true
     }
   },
   //////////////////////////////////////////
@@ -22,7 +26,8 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "is-blank"   : !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
-        "is-nowrap"  : this.valueMaxWidth>0
+        "is-nowrap"  : this.valueMaxWidth>0,
+        "full-field" : this.fullField
       })
     },
     //--------------------------------------

@@ -33,6 +33,10 @@ const _M = {
       type : String,
       default : "zmdi-time-interval"
     },
+    "unit" : {
+      type : String,
+      default : "ms"
+    },
     "format" : {
       type : String,
       default : "HH:mm"
@@ -105,7 +109,7 @@ const _M = {
         }
         // Zero
         else {
-          ss.push(Ti.Types.formatTime(0, this.format))
+          ss.push(Ti.Types.formatTime(0, this.unit, this.format))
         }
       })
       return ss.join(" ~ ")

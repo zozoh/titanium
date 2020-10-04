@@ -66,7 +66,7 @@
   <div
     v-if="can.remove || can.edit || can.choose" 
       class="at-right-top is-float">
-      <a v-if="can.remove" @click="OnRemove">{{'remove'|i18n}}</a>
+      <a v-if="can.remove" @click="OnRemove">{{'del'|i18n}}</a>
       <a v-if="can.edit" @click="OnEdit">{{'edit'|i18n}}</a>
       <a v-if="can.choose" @click="OnChoose">{{'choose'|i18n}}</a>
       <a v-if="can.add" @click="OnAdd">{{'address-shipping-add'|i18n}}</a>

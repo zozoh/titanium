@@ -186,7 +186,7 @@ const _M = {
     hard |= beh.hardRemove
 
     // If hard, warn at first
-    if(hard) {
+    if(hard || state.status.inRecycleBin) {
       if(! (await Ti.Confirm('i18n:del-hard'))) {
         return
       }

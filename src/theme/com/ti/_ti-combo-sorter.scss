@@ -21,9 +21,9 @@
     //-----------------------------------
     > .ti-icon {
       width: SZ(16); font-size:SZ(16); 
-      color: map-get($color-track, c);
+      opacity: 0.7;
     }
-    > .as-title {padding: SZ(4);}
+    > .as-title {padding: SZ(4); white-space: nowrap;}
     //-----------------------------------
   }
   //-------------------------------------

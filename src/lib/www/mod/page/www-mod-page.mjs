@@ -377,7 +377,7 @@ const _M = {
       }
       //.....................................
       // Join the http send Promise
-      console.log(`will send to "${url}"`, options)
+      //console.log(`will send to "${url}"`, options)
       let reo;
       try{
         // Invoke Action
@@ -559,7 +559,7 @@ const _M = {
         pinfo.anchor = anchor
       }
       pinfo.params = _.merge({}, pinfo.params, params)
-      pinfo.path = path
+      pinfo.path = pinfo.path || path
       //.....................................
       // Update Path url
       let link = Ti.Util.Link({url:path, params, anchor})
@@ -605,7 +605,7 @@ const _M = {
           keys.push(k)
         }
       })
-      console.log(keyGroups)
+      //console.log(keyGroups)
       //.....................................
       // init: data
       for(let keys of keyGroups) {

@@ -48,6 +48,14 @@
       @include color($color-weaktip, r, c);
     }
   }
+  //---------------------------------------------
+  &.is-layout-fixed > table {
+    table-layout: fixed;
+  }
+  //---------------------------------------------
+  &.is-layout-auto > table {
+    table-layout: auto;
+  }
   //-------------------------------------------
   > .as-checker {
     @include pos-abs($t:0,$l:0,$w:$thead, $h:$thead);
@@ -62,7 +70,7 @@
   //
   //---------------------------------------------
   > table {
-    width:100%; table-layout: fixed;
+    width:100%; 
     border-spacing:0; 
     //-------------------------------------------
     > thead {

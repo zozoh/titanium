@@ -388,6 +388,13 @@ const _M = {
         }
       }
       //..........................................
+      // Warn user for remove
+      if(reset && n <= 0) {
+        if(! (await Ti.Confirm("i18n:shop-basket-remove-confirm"))) {
+          return
+        }
+      }
+      //..........................................
       // Check to remote
       commit("setLoading", true, {root:true})
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -456,7 +463,7 @@ const _M = {
     },
     //--------------------------------------------
     async reloadBasket({commit, getters, rootState}) {
-      console.log("shop:reloadBasket")
+      //console.log("shop:reloadBasket")
       //..........................................
       // Guard Ticket
       let ticket  = rootState.auth.ticket

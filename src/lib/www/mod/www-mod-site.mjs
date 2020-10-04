@@ -19,8 +19,8 @@ const _M = {
             for(let i=0; i<m.length; i++) {
               let val = m[i]
               context[i] = val
-              let k = _.nth(names, i)
-              if(k) {
+              let key = _.nth(names, i)
+              if(key) {
                 _.set(context, key, val)
               }
             }

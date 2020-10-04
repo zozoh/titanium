@@ -69,7 +69,7 @@ export class TiTime {
     // Number as Seconds
     else if(_.isNumber(input)) {
       let ms = ({
-        "ms"  : (v)=>v,
+        "ms"  : (v)=>Math.round(v),
         "s"   : (v)=>Math.round(v*1000),
         "min" : (v)=>Math.round(v*1000*60),
         "hr"  : (v)=>Math.round(v*1000*60*60)
@@ -806,7 +806,7 @@ const TiTypes = {
     return dft
   },
   //.......................................
-  formatTime(time, fmt="auto") {
+  formatTime(time, unit="ms", fmt="auto") {
     if(_.isUndefined(time) || _.isNull(time)) {
       return ""
     }
@@ -821,7 +821,7 @@ const TiTypes = {
     }
     // Guard time
     if(!(time instanceof TiTime)) {
-      time = new TiTime(time)
+      time = new TiTime(time, unit)
     }
     // Format it
     return time.toString(fmt)

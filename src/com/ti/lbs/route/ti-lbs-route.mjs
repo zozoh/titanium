@@ -176,6 +176,10 @@ const _M = {
       return list
     },
     //-------------------------------------
+    hasItems() {
+      return !_.isEmpty(this.ValueItems)
+    },
+    //-------------------------------------
     ListConf() {
       return {
         display: ["<icon:zmdi-pin>", "label:[$${val}]", "title"],
@@ -188,6 +192,10 @@ const _M = {
         icon: "zmdi-edit",
         disabled: !this.hasCurrentId,
         handler: ()=>this.editCurrent()
+      }, {
+        icon: "fas-sort-numeric-down",
+        disabled: !this.hasItems,
+        handler: ()=>this.renumberItems()
       }, {
         icon: "zmdi-long-arrow-up",
         disabled: !this.hasCheckedIds,
@@ -268,6 +276,65 @@ const _M = {
       // Update
       let list = _.cloneDeep(this.ValueItems)
       _.assign(list[index], reo)
+      this.$notify("change", list)
+    },
+    //-------------------------------------
+    async renumberItems() {
+      // Get renumber setting
+      let reo = await Ti.App.Open({
+        title : "i18n:lbs-ro-rnb-title",
+        position: "right",
+        result: {
+          first : 1,
+          type  : "capital"
+        },
+        model: {prop:"data", event:"change"},
+        comType : "TiForm",
+        comConf : {
+          fields: [{
+              title: "i18n:lbs-ro-rnb-k-first",
+              name : "first",
+              type : "Integer",
+              comType: "ti-input-num"
+            }, {
+              title: "i18n:lbs-ro-rnb-k-type",
+              name : "type",
+              comType: "ti-switcher",
+              comConf: {
+                options: [
+                  {value:"capital", text:"i18n:lbs-ro-rnb-k-type-capital"},
+                  {value:"alpha",   text:"i18n:lbs-ro-rnb-k-type-alpha"},
+                  {value:"number",  text:"i18n:lbs-ro-rnb-k-type-number"}]
+              }
+            }]
+        }
+      })
+
+      // User Cancel
+      if(!reo)
+        return
+
+      // Prepare the number list
+      let nbList = ({
+        "alpha" : "abcdefghijklmnopqrstuvwxyz".split(""),
+        "capital" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+      })[reo.type]
+
+      // Assign the label
+      let list = _.cloneDeep(this.ValueItems)
+      _.forEach(list, (li, index)=>{
+        let i = reo.first + index
+        if(nbList) {
+          let ni = Ti.Num.scrollIndex(i-1, nbList.length)
+          li.label = _.nth(nbList, ni)
+        }
+        // Just use number
+        else {
+          li.label = ""+i
+        }
+      })
+
+      // Update
       this.$notify("change", list)
     },
     //-------------------------------------

@@ -16,14 +16,27 @@ const _M = {
   computed : {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass({
+      let klass = this.getTopClass({
         // "is-cells-no-ready" : !this.myCellsReady,
         // "is-layout-ready" : this.myCellsReady,
         "is-hoverable"   : this.hoverable
       }, [
         `is-border-${this.border}`,
-        `is-head-${this.head||"none"}`,
+        `is-head-${this.head||"none"}`
       ])
+      // Auto judgement table layout
+      if(!klass['is-layout-fixed'] && !klass['is-layout-auto']) {
+        let tableLayout = "auto"
+        for(let i=0; i< this.fields.length; i++) {
+          let fld = this.fields[i]
+          if(!Ti.Util.isNil(fld.width)){
+            tableLayout = "fixed"
+            break
+          }
+        }
+        klass[`is-layout-${tableLayout}`] = true
+      }
+      return klass
     },
     //--------------------------------------
     TableStyle() {

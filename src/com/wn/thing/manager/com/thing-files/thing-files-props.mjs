@@ -68,7 +68,8 @@ export default {
   //-----------------------------------
   "dirNameTip" : {
     type : String,
-    default : "i18n:thing-files"
+    default : undefined
+    //default : "i18n:thing-files"
   },
   "dirNameComType" : {
     type : String,
