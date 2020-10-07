@@ -552,7 +552,9 @@ const _M = {
       await dispatch("invokeAction", {name:"@page:init"}, {root:true})
       //.....................................
       // Load the page json
-      let json = await Ti.Load(`@Site:${pinfo.path}.json`)
+      let m = /^([^.]+)(\.html?)?$/.exec(pinfo.path)
+      let jsonPath = m[1] + ".json"
+      let json = await Ti.Load(`@Site:${jsonPath}`)
       //.....................................
       // merge info
       if(anchor) {

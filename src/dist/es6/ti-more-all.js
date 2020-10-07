@@ -1,4 +1,4 @@
-// Pack At: 2020-10-07 20:00:19
+// Pack At: 2020-10-07 22:26:56
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -44327,7 +44327,9 @@ const _M = {
       await dispatch("invokeAction", {name:"@page:init"}, {root:true})
       //.....................................
       // Load the page json
-      let json = await Ti.Load(`@Site:${pinfo.path}.json`)
+      let m = /^([^.]+)(\.html?)?$/.exec(pinfo.path)
+      let jsonPath = m[1] + ".json"
+      let json = await Ti.Load(`@Site:${jsonPath}`)
       //.....................................
       // merge info
       if(anchor) {
