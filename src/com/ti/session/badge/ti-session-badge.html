@@ -36,7 +36,7 @@
       <a
         @click.left="OnClickLink(li, $event)"
         :href="li.href"
-        :target="li.newtab?'_blank':null">{{li.text|i18n}}</a>
+        :target="li.newtab?'_blank':null">{{li.title|i18n}}</a>
     </div>
   </template>
   <!--

@@ -127,6 +127,9 @@ const _M = {
     },
     //--------------------------------------
     evalBackgroundStyle(bg) {
+      if(_.isEmpty(bg)){
+        return {}
+      }
       // Background image
       if(_.isObject(bg)) {
         return {

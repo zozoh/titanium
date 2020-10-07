@@ -1,4 +1,4 @@
-// Pack At: 2020-10-01 00:57:26
+// Pack At: 2020-10-07 20:00:19
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -5732,7 +5732,7 @@ const {Types} = (function(){
       // Number as Seconds
       else if(_.isNumber(input)) {
         let ms = ({
-          "ms"  : (v)=>v,
+          "ms"  : (v)=>Math.round(v),
           "s"   : (v)=>Math.round(v*1000),
           "min" : (v)=>Math.round(v*1000*60),
           "hr"  : (v)=>Math.round(v*1000*60*60)
@@ -6469,7 +6469,7 @@ const {Types} = (function(){
       return dft
     },
     //.......................................
-    formatTime(time, fmt="auto") {
+    formatTime(time, unit="ms", fmt="auto") {
       if(_.isUndefined(time) || _.isNull(time)) {
         return ""
       }
@@ -6484,7 +6484,7 @@ const {Types} = (function(){
       }
       // Guard time
       if(!(time instanceof TiTime)) {
-        time = new TiTime(time)
+        time = new TiTime(time, unit)
       }
       // Format it
       return time.toString(fmt)
@@ -10898,7 +10898,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201001.005726",
+  "version" : "2.5-20201007.200019",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -1,4 +1,4 @@
-// Pack At: 2020-10-01 00:57:26
+// Pack At: 2020-10-07 20:00:19
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -14706,6 +14706,10 @@ const _M = {
       type : String,
       default : "zmdi-time-interval"
     },
+    "unit" : {
+      type : String,
+      default : "ms"
+    },
     "format" : {
       type : String,
       default : "HH:mm"
@@ -14778,7 +14782,7 @@ const _M = {
         }
         // Zero
         else {
-          ss.push(Ti.Types.formatTime(0, this.format))
+          ss.push(Ti.Types.formatTime(0, this.unit, this.format))
         }
       })
       return ss.join(" ~ ")
@@ -15058,10 +15062,11 @@ Ti.Preload("ti/com/ti/label/ti-label-props.mjs", _M);
 //============================================================
 // JOIN: ti/label/ti-label.html
 //============================================================
-Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label full-field"
+Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
   :class="TopClass"
   :style="TopStyle"
-  @dblclick.left="OnDblClick">
+  @dblclick.left="OnDblClick"
+  :title="myDisplayText">
   <!--prefix:icon-->
   <div v-if="ThePrefixIcon"
     class="as-icon at-prefix"
@@ -15123,6 +15128,10 @@ const _M = {
     "valueClickable" : {
       type : Boolean,
       default: false
+    },
+    "fullField": {
+      type : Boolean,
+      default : true
     }
   },
   //////////////////////////////////////////
@@ -15131,7 +15140,8 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "is-blank"   : !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
-        "is-nowrap"  : this.valueMaxWidth>0
+        "is-nowrap"  : this.valueMaxWidth>0,
+        "full-field" : this.fullField
       })
     },
     //--------------------------------------
@@ -16963,6 +16973,10 @@ const _M = {
       return list
     },
     //-------------------------------------
+    hasItems() {
+      return !_.isEmpty(this.ValueItems)
+    },
+    //-------------------------------------
     ListConf() {
       return {
         display: ["<icon:zmdi-pin>", "label:[$${val}]", "title"],
@@ -16975,6 +16989,10 @@ const _M = {
         icon: "zmdi-edit",
         disabled: !this.hasCurrentId,
         handler: ()=>this.editCurrent()
+      }, {
+        icon: "fas-sort-numeric-down",
+        disabled: !this.hasItems,
+        handler: ()=>this.renumberItems()
       }, {
         icon: "zmdi-long-arrow-up",
         disabled: !this.hasCheckedIds,
@@ -17055,6 +17073,65 @@ const _M = {
       // Update
       let list = _.cloneDeep(this.ValueItems)
       _.assign(list[index], reo)
+      this.$notify("change", list)
+    },
+    //-------------------------------------
+    async renumberItems() {
+      // Get renumber setting
+      let reo = await Ti.App.Open({
+        title : "i18n:lbs-ro-rnb-title",
+        position: "right",
+        result: {
+          first : 1,
+          type  : "capital"
+        },
+        model: {prop:"data", event:"change"},
+        comType : "TiForm",
+        comConf : {
+          fields: [{
+              title: "i18n:lbs-ro-rnb-k-first",
+              name : "first",
+              type : "Integer",
+              comType: "ti-input-num"
+            }, {
+              title: "i18n:lbs-ro-rnb-k-type",
+              name : "type",
+              comType: "ti-switcher",
+              comConf: {
+                options: [
+                  {value:"capital", text:"i18n:lbs-ro-rnb-k-type-capital"},
+                  {value:"alpha",   text:"i18n:lbs-ro-rnb-k-type-alpha"},
+                  {value:"number",  text:"i18n:lbs-ro-rnb-k-type-number"}]
+              }
+            }]
+        }
+      })
+
+      // User Cancel
+      if(!reo)
+        return
+
+      // Prepare the number list
+      let nbList = ({
+        "alpha" : "abcdefghijklmnopqrstuvwxyz".split(""),
+        "capital" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+      })[reo.type]
+
+      // Assign the label
+      let list = _.cloneDeep(this.ValueItems)
+      _.forEach(list, (li, index)=>{
+        let i = reo.first + index
+        if(nbList) {
+          let ni = Ti.Num.scrollIndex(i-1, nbList.length)
+          li.label = _.nth(nbList, ni)
+        }
+        // Just use number
+        else {
+          li.label = ""+i
+        }
+      })
+
+      // Update
       this.$notify("change", list)
     },
     //-------------------------------------
@@ -19267,7 +19344,7 @@ Ti.Preload("ti/com/ti/session/badge/ti-session-badge.html", `<div class="ti-sess
       <a
         @click.left="OnClickLink(li, $event)"
         :href="li.href"
-        :target="li.newtab?'_blank':null">{{li.text|i18n}}</a>
+        :target="li.newtab?'_blank':null">{{li.title|i18n}}</a>
     </div>
   </template>
   <!--
@@ -19336,7 +19413,6 @@ const _M = {
      *    href   : "/path/to/uri"  // The <a href>
      *    newtab : false,        // if href, the open target
      *    emit   : "do:login"      // Mutex(href)
-     *    inSession : true       // Show only in session
      * }
      * ```
      */
@@ -19357,31 +19433,31 @@ const _M = {
     },
     //--------------------------------------
     theLinks() {
-      let list = []
+      let list = _.cloneDeep(this.links) || []
       //---------------------------
-      // Join the links
-      for(let li of this.links) {
-        // Ignore out-of-session link
-        if(li.inSession && !this.hasSession) {
-          continue;
-        }
-        // Join
-        list.push(li)
-      }
+      // // Join the links
+      // for(let li of this.links) {
+      //   // Ignore out-of-session link
+      //   if(li.inSession && !this.hasSession) {
+      //     continue;
+      //   }
+      //   // Join
+      //   list.push(li)
+      // }
       //---------------------------
       // Add the Login/Logout link
       if(this.autoSignLink) {
         if(this.hasSession) {
           list.push({
-            text : "i18n:logout",
-            emit : this.logoutEvent
+            title : "i18n:logout",
+            emit  : this.logoutEvent
           })
         }
         // Login 
         else {
           list.push({
-            text : "i18n:login",
-            emit : this.loginEvent
+            title : "i18n:login",
+            emit  : this.loginEvent
           })
         }
       }
@@ -21890,14 +21966,27 @@ const _M = {
   computed : {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass({
+      let klass = this.getTopClass({
         // "is-cells-no-ready" : !this.myCellsReady,
         // "is-layout-ready" : this.myCellsReady,
         "is-hoverable"   : this.hoverable
       }, [
         `is-border-${this.border}`,
-        `is-head-${this.head||"none"}`,
+        `is-head-${this.head||"none"}`
       ])
+      // Auto judgement table layout
+      if(!klass['is-layout-fixed'] && !klass['is-layout-auto']) {
+        let tableLayout = "auto"
+        for(let i=0; i< this.fields.length; i++) {
+          let fld = this.fields[i]
+          if(!Ti.Util.isNil(fld.width)){
+            tableLayout = "fixed"
+            break
+          }
+        }
+        klass[`is-layout-${tableLayout}`] = true
+      }
+      return klass
     },
     //--------------------------------------
     TableStyle() {
@@ -28290,23 +28379,49 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   :class="TopClass"
   :style="TopStyle"
   :href="TheHref"
-  :target="isNewTab ? '_blank' : '_self'">
+  :target="isNewTab ? '_blank' : '_self'"
+  @mousemove="OnMouseMove"
+  @mouseleave="OnMouseLeave">
   <!--Image-->
-  <img
+  <img ref="img"
     v-if="TheSrc" 
-      :src="TheSrc"/>
+      :src="TheSrc"
+      @load="OnImageLoaded"/>
   <!--Text-->
   <div
     v-if="TheText"
       class="as-text">
       <span>{{TheText}}</span>
   </div>
+  <!--Zoom len-->
+  <template v-if="zoomLens">
+    <!--Picker-->
+    <div ref="pick"
+      class="as-zoom-pick"
+      :style="ZoomLenPickStyle"></div>
+    <!--Docker-->
+    <div ref="dock"
+      v-if="showZoomPick"
+        class="as-zoom-dock"
+        :style="ZoomLenDockStyle"></div>
+  </template>
 </a>`);
 //============================================================
 // JOIN: web/media/image/web-media-image.mjs
 //============================================================
 (function(){
 const _M = {
+  ///////////////////////////////////
+  data: ()=>({
+    showZoomPick  : false,
+    showZoomDock  : false,
+    naturalWidth  : -1,
+    naturalHeight : -1,
+    clientWidth  : -1,
+    clientHeight : -1,
+    imgLoading : true,
+    pickRect : {}
+  }),
   /////////////////////////////////////////
   props : {
     "src" : {
@@ -28340,6 +28455,17 @@ const _M = {
     "height": {
       type: [String, Number],
       default: undefined
+    },
+    /*
+    Show zoom lens and dock aside to the image
+    - pickWidth : (0-1) percent | >1 for pixcle
+    - scale : 2 zoome leave base on pick zoomLens
+    - dockMode  : "V"
+    - dockSpace : 10
+    */
+    "zoomLens" : {
+      type : Object,
+      default : undefined
     }
   },
   //////////////////////////////////////////
@@ -28357,6 +28483,64 @@ const _M = {
         width  : this.width,
         height : this.height
       })
+    },
+    //--------------------------------------
+    TheZoomLens() {
+      if(!this.zoomLens || this.clientWidth<=0 || this.clientHeight<=0)
+        return
+      
+      let pickW = _.get(this.zoomLens, "pickWidth", .618)
+      let pickH = _.get(this.zoomLens, "pickHeight", -1)
+
+      let zl = {}
+      zl.pickWidth = pickW < 1 
+            ? this.clientWidth * pickW
+            : pickW;
+      zl.pickHeight = pickH <= 0
+            ? zl.pickWidth
+            : (pickH < 1 ? this.clientHeight*pickH : pickH)
+      
+      let scale = _.get(this.zoomLens, "scale", 2)
+      zl.dockWidth  = zl.pickWidth  * scale
+      zl.dockHeight = zl.pickHeight * scale
+
+      _.defaults(zl, {
+        dockMode  : "V",
+        dockSpace : {x: 10, y:0},
+        dockPosListY: ["top", "bottom"]
+      })
+
+      return zl
+    },
+    //--------------------------------------
+    ZoomLenPickStyle() {
+      if(this.zoomLens && !_.isEmpty(this.pickRect)){
+        return Ti.Css.toStyle({
+          visibility : this.showZoomPick ? "visible" : "hidden",
+          top    : this.pickRect.top,
+          left   : this.pickRect.left,
+          width  : this.TheZoomLens.pickWidth,
+          height : this.TheZoomLens.pickHeight
+        })
+      }
+    },
+    //--------------------------------------
+    ZoomLenDockStyle() {
+      if(this.zoomLens && !_.isEmpty(this.pickRect)) {
+        let scale = _.get(this.zoomLens, "scale", 2)
+        let cW = this.clientWidth
+        let cH = this.clientHeight
+        let pLeft = this.pickRect.left
+        let pTop  = this.pickRect.top
+        return Ti.Css.toStyle({
+          visibility : this.showZoomDock ? "visible" : "hidden",
+          width  : this.TheZoomLens.dockWidth,
+          height : this.TheZoomLens.dockHeight,
+          backgroundImage: `url("${this.TheSrc}")`,
+          backgroundSize : `${cW*scale}px ${cH*scale}px`,
+          backgroundPosition: `${pLeft*scale*-1}px ${pTop*scale*-1}px`
+        })
+      }
     },
     //--------------------------------------
     TheSrc() {
@@ -28396,6 +28580,64 @@ const _M = {
       return newtab ? true : false
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnImageLoaded() {
+      let $img = this.$refs.img
+      if($img) {
+        this.naturalWidth  = $img.naturalWidth
+        this.naturalHeight = $img.naturalHeight
+        this.clientWidth  = $img.clientWidth
+        this.clientHeight = $img.clientHeight
+        this.imgLoading = false
+      }
+    },
+    //--------------------------------------
+    OnMouseMove($event) {
+      if(!_.isElement(this.$refs.img) || !_.isElement(this.$refs.pick)) {
+        return
+      }
+      let imRect = Ti.Rects.createBy(this.$refs.img)
+      let pkRect = Ti.Rects.createBy(this.$refs.pick)
+      let {clientX, clientY} = $event
+
+      let rect = Ti.Rects.create({
+        x: clientX, y: clientY,
+        width  : pkRect.width, 
+        height : pkRect.height
+      })
+      imRect.wrap(rect)
+      rect.relative(imRect)
+
+      this.pickRect = rect
+      this.showZoomPick = true
+    },
+    //--------------------------------------
+    OnMouseLeave() {
+      this.showZoomPick = false
+      this.showZoomDock = false
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "showZoomPick" : function(newVal) {
+      if(newVal && this.zoomLens) {
+        this.$nextTick(()=>{
+          Ti.Dom.dockTo(this.$refs.dock, this.$refs.img, {
+            mode  : this.TheZoomLens.dockMode,
+            space : this.TheZoomLens.dockSpace,
+            posListX : this.TheZoomLens.dockPosListX,
+            posListY : this.TheZoomLens.dockPosListY
+          })
+          _.delay(()=>{
+            this.showZoomDock = true
+          }, 100)
+        })
+      }
+    }
   }
   //////////////////////////////////////////
 }
@@ -29244,7 +29486,7 @@ const _M = {
     OnClickLink(evt, {type,value,params}={}) {
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
-        console.log("onClickLink", "nav:to", {type,value,params})
+        //console.log("onClickLink", "nav:to", {type,value,params})
         this.$notify("nav:to", {type,value,params})
       }
     },
@@ -29424,7 +29666,7 @@ const _M = {
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
         if(value) {
-          console.log("onClickLink", "nav:to", {type,value,params})
+          //console.log("onClickLink", "nav:to", {type,value,params})
           this.$notify("nav:to", {type,value,params})
         }
       }
@@ -31101,6 +31343,9 @@ const _M = {
     },
     //--------------------------------------
     evalBackgroundStyle(bg) {
+      if(_.isEmpty(bg)){
+        return {}
+      }
       // Background image
       if(_.isObject(bg)) {
         return {
@@ -31272,7 +31517,10 @@ Ti.Preload("ti/com/web/shelf/scroller/web-shelf-scroller.html", `<div class="web
         v-for="it in ItemList"
           class="scroller-tile"
           :key="it.key"
-          :style="ItemStyle">
+          :style="ItemStyle"
+          :class="it.className"
+          @mouseenter="OnEnterTile(it.rawData)"
+          @mouseleave="OnLeaveTile(it.rawData)">
           <component
             :is="it.comType"
             v-bind="it.comConf"/>
@@ -31307,8 +31555,11 @@ const _M = {
     // Item count per-row
     "cols" : {
       type : Number,
-      default : 4,
-      validator: v => v > 0
+      default : 4
+    },
+    "itemWidth" : {
+      type : [String, Number],
+      default: undefined
     },
     // Item comType
     "comType": {
@@ -31328,6 +31579,18 @@ const _M = {
     "iconRight": {
       type: String,
       default: "zmdi-chevron-right"
+    },
+    "enterItem" : {
+      type: [String, Function],
+      default: undefined
+    },
+    "leaveItem" : {
+      type: [String, Function],
+      default: undefined
+    },
+    "keepScrolling" : {
+      type : Boolean,
+      default : false
     }
   },
   //////////////////////////////////////////
@@ -31344,8 +31607,15 @@ const _M = {
     },
     //--------------------------------------
     ItemStyle() {
-      return {
-        "width" : Ti.Types.toPercent(1/this.cols)
+      if(!Ti.Util.isNil(this.itemWidth)) {
+        return Ti.Css.toSizeRem100({
+          "width" : this.itemWidth
+        })
+      }
+      if(this.cols > 0) {
+        return {
+          "width" : Ti.Types.toPercent(1/this.cols)
+        }
       }
     },
     //--------------------------------------
@@ -31381,7 +31651,9 @@ const _M = {
         let comConf = Ti.Util.explainObj(it, this.comConf)
         list.push({
           key: `It-${i}`,
-          comType: this.comType,
+          className: it.className,
+          rawData : it,
+          comType : this.comType,
           comConf
         })
       }
@@ -31416,6 +31688,24 @@ const _M = {
       this.myScrollLeft -= step
     },
     //--------------------------------------
+    OnEnterTile(it) {
+      if(_.isFunction(this.enterItem)) {
+        this.enterItem(it)
+      }
+      else if(_.isString(this.enterItem)) {
+        this.$notify(this.enterItem, it)
+      }
+    },
+    //--------------------------------------
+    OnLeaveTile(it) {
+      if(_.isFunction(this.leaveItem)) {
+        this.leaveItem(it)
+      }
+      else if(_.isString(this.leaveItem)) {
+        this.$notify(this.leaveItem, it)
+      }
+    },
+    //--------------------------------------
     evalScrolling() {
       this.myMaxScroll = this.$refs.inner.scrollWidth;
       this.myScrollWidth = this.$refs.inner.getBoundingClientRect().width;
@@ -31426,10 +31716,14 @@ const _M = {
   //////////////////////////////////////////
   watch: {
     "data": {
-      handler: function(){
-        this.$nextTick(()=>{
-          this.evalScrolling()
-        })
+      handler: function(newData, oldData){
+        let lenNew = _.size(newData)
+        let lenOld = _.size(oldData)
+        if(!this.keepScrolling || !this.myScrollWidth || lenNew != lenOld) {
+          this.$nextTick(()=>{
+            this.evalScrolling()
+          })
+        }
       },
       immediate: true
     }
@@ -32075,7 +32369,7 @@ Ti.Preload("ti/com/web/tile/address/web-tile-address.html", `<div class="web-til
   <div
     v-if="can.remove || can.edit || can.choose" 
       class="at-right-top is-float">
-      <a v-if="can.remove" @click="OnRemove">{{'remove'|i18n}}</a>
+      <a v-if="can.remove" @click="OnRemove">{{'del'|i18n}}</a>
       <a v-if="can.edit" @click="OnEdit">{{'edit'|i18n}}</a>
       <a v-if="can.choose" @click="OnChoose">{{'choose'|i18n}}</a>
       <a v-if="can.add" @click="OnAdd">{{'address-shipping-add'|i18n}}</a>
@@ -38467,7 +38761,8 @@ const _M = {
   //-----------------------------------
   "dirNameTip" : {
     type : String,
-    default : "i18n:thing-files"
+    default : undefined
+    //default : "i18n:thing-files"
   },
   "dirNameComType" : {
     type : String,
@@ -41408,7 +41703,7 @@ const _M = {
     hard |= beh.hardRemove
 
     // If hard, warn at first
-    if(hard) {
+    if(hard || state.status.inRecycleBin) {
       if(! (await Ti.Confirm('i18n:del-hard'))) {
         return
       }
@@ -43857,7 +44152,7 @@ const _M = {
       }
       //.....................................
       // Join the http send Promise
-      console.log(`will send to "${url}"`, options)
+      //console.log(`will send to "${url}"`, options)
       let reo;
       try{
         // Invoke Action
@@ -44039,7 +44334,7 @@ const _M = {
         pinfo.anchor = anchor
       }
       pinfo.params = _.merge({}, pinfo.params, params)
-      pinfo.path = path
+      pinfo.path = pinfo.path || path
       //.....................................
       // Update Path url
       let link = Ti.Util.Link({url:path, params, anchor})
@@ -44085,7 +44380,7 @@ const _M = {
           keys.push(k)
         }
       })
-      console.log(keyGroups)
+      //console.log(keyGroups)
       //.....................................
       // init: data
       for(let keys of keyGroups) {
@@ -44534,6 +44829,13 @@ const _M = {
         }
       }
       //..........................................
+      // Warn user for remove
+      if(reset && n <= 0) {
+        if(! (await Ti.Confirm("i18n:shop-basket-remove-confirm"))) {
+          return
+        }
+      }
+      //..........................................
       // Check to remote
       commit("setLoading", true, {root:true})
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -44602,7 +44904,7 @@ const _M = {
     },
     //--------------------------------------------
     async reloadBasket({commit, getters, rootState}) {
-      console.log("shop:reloadBasket")
+      //console.log("shop:reloadBasket")
       //..........................................
       // Guard Ticket
       let ticket  = rootState.auth.ticket
@@ -44672,8 +44974,8 @@ const _M = {
             for(let i=0; i<m.length; i++) {
               let val = m[i]
               context[i] = val
-              let k = _.nth(names, i)
-              if(k) {
+              let key = _.nth(names, i)
+              if(key) {
                 _.set(context, key, val)
               }
             }
@@ -45930,6 +46232,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "admin-new": "New admin",
   "admin-nickname": "Admin nickname",
   "admin-no-detail": "Select an admin for detail",
+  "ar-cate": "Catetory",
   "ar-content": "Content",
   "ar-flt-tip": "Filter by article title",
   "ar-meta": "Article property",
@@ -46208,6 +46511,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "role-select-tip": "Select role",
   "role-val": "Role value",
   "shop-basket-clean-confirm": "Are you sure you want to empty the shopping cart? this is an operation that cannot be undone.",
+  "shop-basket-remove-confirm": "Are you sure you want to remove this item from your shopping cart?",
   "sort": "Sort",
   "sort-tip-asc": "The smaller at first",
   "sort-tip-desc": "The bigger at first",
@@ -46352,6 +46656,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "create": "New",
   "create-now": "Create now",
   "creating": "Creating",
+  "date": "Date",
   "debug": "Debug",
   "default": "Default",
   "del": "Delete",
@@ -46409,6 +46714,12 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "label": "Label",
   "lat": "Latitude",
   "lbs-place-add": "Add place",
+  "lbs-ro-rnb-k-first": "Starting number",
+  "lbs-ro-rnb-k-type": "Display type",
+  "lbs-ro-rnb-k-type-alpha": "Alphabet",
+  "lbs-ro-rnb-k-type-capital": "Capital",
+  "lbs-ro-rnb-k-type-number": "Number",
+  "lbs-ro-rnb-title": "Autosets line label",
   "link": "Link",
   "link-href": "Link target",
   "link-text": "Link text",
@@ -46887,6 +47198,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "admin-new": "新管理员",
   "admin-nickname": "管理员昵称",
   "admin-no-detail": "请选择一个管理员查看详情",
+  "ar-cate": "文章分类",
   "ar-content": "文章内容",
   "ar-flt-tip": "请输入文章标题过滤",
   "ar-meta": "文章属性",
@@ -47165,6 +47477,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "role-select-tip": "请选择角色",
   "role-val": "角色值",
   "shop-basket-clean-confirm": "您确定要清空购物车内全部商品吗？这是一个不能撤回的操作。",
+  "shop-basket-remove-confirm": "您确定要从购物车中删除这个商品吗？",
   "sort": "排序",
   "sort-tip-asc": "越小越靠前",
   "sort-tip-desc": "越大越靠前",
@@ -47309,6 +47622,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "create": "新建",
   "create-now": "立即创建",
   "creating": "正在创建...",
+  "date": "日期",
   "debug": "调试",
   "default": "默认",
   "del": "删除",
@@ -47366,6 +47680,12 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "label": "标签",
   "lat": "纬度",
   "lbs-place-add": "添加地点",
+  "lbs-ro-rnb-k-first": "起始数字",
+  "lbs-ro-rnb-k-type": "显示类型",
+  "lbs-ro-rnb-k-type-alpha": "小写字母",
+  "lbs-ro-rnb-k-type-capital": "大写字母",
+  "lbs-ro-rnb-k-type-number": "数字",
+  "lbs-ro-rnb-title": "自动设置线路标签",
   "link": "链接",
   "link-href": "链接目标",
   "link-text": "链接文字",

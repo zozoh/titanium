@@ -47,7 +47,6 @@ const _M = {
      *    href   : "/path/to/uri"  // The <a href>
      *    newtab : false,        // if href, the open target
      *    emit   : "do:login"      // Mutex(href)
-     *    inSession : true       // Show only in session
      * }
      * ```
      */
@@ -68,31 +67,31 @@ const _M = {
     },
     //--------------------------------------
     theLinks() {
-      let list = []
+      let list = _.cloneDeep(this.links) || []
       //---------------------------
-      // Join the links
-      for(let li of this.links) {
-        // Ignore out-of-session link
-        if(li.inSession && !this.hasSession) {
-          continue;
-        }
-        // Join
-        list.push(li)
-      }
+      // // Join the links
+      // for(let li of this.links) {
+      //   // Ignore out-of-session link
+      //   if(li.inSession && !this.hasSession) {
+      //     continue;
+      //   }
+      //   // Join
+      //   list.push(li)
+      // }
       //---------------------------
       // Add the Login/Logout link
       if(this.autoSignLink) {
         if(this.hasSession) {
           list.push({
-            text : "i18n:logout",
-            emit : this.logoutEvent
+            title : "i18n:logout",
+            emit  : this.logoutEvent
           })
         }
         // Login 
         else {
           list.push({
-            text : "i18n:login",
-            emit : this.loginEvent
+            title : "i18n:login",
+            emit  : this.loginEvent
           })
         }
       }
