@@ -1,4 +1,4 @@
-// Pack At: 2020-10-07 23:12:10
+// Pack At: 2020-10-09 00:45:25
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -8763,6 +8763,33 @@ const {WWW} = (function(){
       }
       // The Default
       return dftSrc
+    },
+    //---------------------------------------
+    getSSRData(key, {
+      root=document.documentElement,
+      as="text",
+      trimed=true,
+      autoRemove=true,
+      dft=null
+    }={}){
+      let selector = `.wn-ssr-data[data-ssr-key="${key}"]`
+      let $el = Ti.Dom.find(selector, root)
+      // Find the data
+      if(_.isElement($el)) {
+        let str = $el.textContent
+        if(trimed) {
+          str = _.trim(str)
+        }
+        if(autoRemove) {
+          Ti.Dom.remove($el)
+        }
+        if("json" == as) {
+          return JSON.parse(str)
+        }
+        return str
+      }
+      // Withtout find
+      return dft
     }
     
   }
@@ -10898,7 +10925,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201007.231210",
+  "version" : "2.5-20201009.004525",
   "dev" : false,
   "appName" : null,
   "session" : {},

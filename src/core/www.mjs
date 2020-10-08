@@ -218,6 +218,33 @@ const TiWWW = {
     }
     // The Default
     return dftSrc
+  },
+  //---------------------------------------
+  getSSRData(key, {
+    root=document.documentElement,
+    as="text",
+    trimed=true,
+    autoRemove=true,
+    dft=null
+  }={}){
+    let selector = `.wn-ssr-data[data-ssr-key="${key}"]`
+    let $el = Ti.Dom.find(selector, root)
+    // Find the data
+    if(_.isElement($el)) {
+      let str = $el.textContent
+      if(trimed) {
+        str = _.trim(str)
+      }
+      if(autoRemove) {
+        Ti.Dom.remove($el)
+      }
+      if("json" == as) {
+        return JSON.parse(str)
+      }
+      return str
+    }
+    // Withtout find
+    return dft
   }
   
 }

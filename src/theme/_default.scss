@@ -44,6 +44,10 @@ body {
   scrollbar-color: map-get($color-line, dark) map-get($color-line, shallow);
 }
 //...................................................
+.wn-ssr-data {
+  display: none;
+}
+//...................................................
 pre {
   @include font-fixed;
   tab-size: 4; -moz-tab-size:4;

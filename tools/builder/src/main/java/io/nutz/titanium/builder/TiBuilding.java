@@ -27,6 +27,8 @@ public class TiBuilding implements Atom {
     private TiBuildEntry entry;
 
     private File home;
+    
+    private File homeDir;
 
     private List<String> outputs;
 
@@ -35,6 +37,11 @@ public class TiBuilding implements Atom {
     public TiBuilding(TiBuildEntry entry, List<String> outputs) {
         this.entry = entry;
         this.home = Files.findFile(entry.getPath());
+        if(this.home.isFile()) {
+            this.homeDir = this.home.getParentFile();
+        } else {
+            this.homeDir = this.home;
+        }
 
         this.outputs = outputs;
 
@@ -47,7 +54,7 @@ public class TiBuilding implements Atom {
     private void walk(TiWalker walker, String regex) {
         int[] count = Nums.array(0);
         Disks.visitFile(home, f -> {
-            String rph = Disks.getRelativePath(home, f);
+            String rph = Disks.getRelativePath(homeDir, f);
             if (entry.isSkip(rph)) {
                 System.out.printf("!SKIP: %s\n", rph);
                 return;
@@ -82,7 +89,7 @@ public class TiBuilding implements Atom {
     @Override
     public void run() {
         // 内联模式
-        if (home.isFile()) {
+        if (home.isFile() && home.getName().matches("^.+[.]m?js$")) {
             this.extendImports();
         }
         // 打包模式
