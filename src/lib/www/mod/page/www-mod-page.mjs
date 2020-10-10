@@ -32,6 +32,7 @@ const _M = {
       _.forEach(SiteApis, (api, key)=>{
         if(api.pages) {
           api = _.cloneDeep(api)
+          api.name = api.name || key
           PageApis[key] = api
         }
       })
@@ -45,6 +46,7 @@ const _M = {
         // Marge the page api
         let api = _.cloneDeep(siteApi)
         _.defaults(api, {
+          name    : key,
           method  : "GET",
           headers : {},
           params  : {},
@@ -85,6 +87,7 @@ const _M = {
         _.assign(api, _.pick(pageApi, 
           "body", 
           "preload",
+          "ssr",
           "transformer", 
           "dataKey",
           "dataMerge",
@@ -378,7 +381,7 @@ const _M = {
       //.....................................
       // Join the http send Promise
       //console.log(`will send to "${url}"`, options)
-      let reo;
+      let reo = undefined;
       try{
         // Invoke Action
         if(api.method == "INVOKE") {
@@ -386,7 +389,18 @@ const _M = {
         }
         // Send HTTP Request
         else {
-          reo = await Ti.Http.sendAndProcess(url, options);
+          // Check the page local ssr cache
+          if(api.ssr && "GET" == api.method) {
+            //console.log("try", api)
+            let paramsJson = JSON.stringify(options.params || {})
+            let ssrConf = _.pick(options, "as")
+            ssrConf.dft = undefined
+            ssrConf.ssrFinger = Ti.Alg.sha1(paramsJson)
+            reo = Ti.WWW.getSSRData(`api-${api.name}`, ssrConf)
+          }
+          if(_.isUndefined(reo)) {
+            reo = await Ti.Http.sendAndProcess(url, options);
+          }
         }
       }
       // Cache the Error
@@ -601,7 +615,7 @@ const _M = {
         if(!_.isNumber(preload)) {
           preload = preload ? 1 : -1
         }
-        if(preload > 0) {
+        if(preload >= 0) {
           let keys = _.nth(keyGroups, preload)
           if(!_.isArray(keys)){
             keys = []

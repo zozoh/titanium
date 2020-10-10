@@ -225,12 +225,18 @@ const TiWWW = {
     as="text",
     trimed=true,
     autoRemove=true,
-    dft=null
+    ssrFinger=undefined,
+    dft=undefined
   }={}){
     let selector = `.wn-ssr-data[data-ssr-key="${key}"]`
     let $el = Ti.Dom.find(selector, root)
     // Find the data
     if(_.isElement($el)) {
+      if(!Ti.Util.isNil(ssrFinger)) {
+        let fng = $el.getAttribute("data-ssr-finger")
+        if(fng != ssrFinger)
+          return dft
+      }
       let str = $el.textContent
       if(trimed) {
         str = _.trim(str)

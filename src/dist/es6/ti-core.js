@@ -1,4 +1,4 @@
-// Pack At: 2020-10-09 00:45:25
+// Pack At: 2020-10-10 15:14:05
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -8770,12 +8770,18 @@ const {WWW} = (function(){
       as="text",
       trimed=true,
       autoRemove=true,
-      dft=null
+      ssrFinger=undefined,
+      dft=undefined
     }={}){
       let selector = `.wn-ssr-data[data-ssr-key="${key}"]`
       let $el = Ti.Dom.find(selector, root)
       // Find the data
       if(_.isElement($el)) {
+        if(!Ti.Util.isNil(ssrFinger)) {
+          let fng = $el.getAttribute("data-ssr-finger")
+          if(fng != ssrFinger)
+            return dft
+        }
         let str = $el.textContent
         if(trimed) {
           str = _.trim(str)
@@ -10925,7 +10931,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201009.004525",
+  "version" : "2.5-20201010.151405",
   "dev" : false,
   "appName" : null,
   "session" : {},
