@@ -9,9 +9,10 @@
     "aliyun_vod"  : "aliyun-vod-manager"
   },
   "mimes" : {
-    "text" : "text-editor",
     "text/json" : "json-editor",
-    "application/json" : "json-editor"
+    "application/json" : "json-editor",
+    "application/x-javascript" : "text-editor",
+    "text/*" : "text-editor"
   },
   "races" : {
     "DIR"  : "dir-explorer",
