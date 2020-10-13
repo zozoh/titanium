@@ -1,10 +1,25 @@
 const _M = {
   /////////////////////////////////////////
   data : ()=>({
+    // + Move cooling
+    myLastMove : undefined,
+    // => Input cooling
     mySyncTime : undefined,
     myUpTime: undefined,
     myCenterMarker: undefined,
-    myLayers: {}
+    /*
+    {
+      [layerName] : Polyline,
+      [layerName] : [Marker...]
+    }
+    */
+    myLayers: {},
+    myGrid: {
+      x: [],
+      y: [],
+      x_step: undefined,
+      y_step: undefined
+    }
   }),
   /////////////////////////////////////////
   props : {
@@ -76,6 +91,15 @@ const _M = {
       type: String,
       default: "auto",
       validator: v=>/^(cooperative|greedy|none|auto)$/.test(v)
+    },
+    /*
+    {
+      x: 10, y: 10, label: "=n", src: "/img/abc.png"
+    }
+    */
+    "clustering": {
+      type: Object,
+      default: undefined
     }
   },
   //////////////////////////////////////////
@@ -145,64 +169,312 @@ const _M = {
       iconSize, iconSizeHoverScale,
       clickable
     }={}) {
+      //..................................
       if(!name) {
         throw "draw_as_point without layer name!"
       }
-      // Draw in loop
-      let list = []
-      for(let it of items) {
-        if(it && _.isNumber(it.lat) && _.isNumber(it.lng)) {
-          // Label
-          let label = it.label;
-          if(_.isString(label)) {
-            label = {
-              color: "#FFF",
-              text: label
+      //console.log("draw_as_point", name)
+      //..................................
+      let doClustering = !_.isUndefined(this.myGrid.x_step)
+                      && !_.isUndefined(this.myGrid.y_step)
+      //..................................
+      // Get map bound for clustering
+      let bound = this.$map.getBounds()
+      if(!bound)
+        return
+      bound = bound.toJSON()
+      //..................................
+      // Prepare the layer marker list
+      let markerList = []
+      let matrix = []     // matrix for clustering
+      //..................................
+      // Define the marker drawing function
+      let draw_marker = it => {
+        let icon, size, size2;
+        let label = it.label;
+        if(_.isString(label)) {
+          label = {
+            color: "#FFF",
+            text: label
+          }
+        }
+        // Item icon
+        if(it.src) {
+          size = iconSize || {width:100, height:100}
+          icon = {url:it.src, scaledSize:size}
+          if(iconSizeHoverScale) {
+            size2 = {
+              width : size.width  * iconSizeHoverScale,
+              height: size.height * iconSizeHoverScale
             }
           }
-          // Icon
-          let icon;
-          let size;
-          let size2;
-          if(it.src) {
-            size = iconSize || {width:100, height:100}
-            icon = {url:it.src, scaledSize:size}
-            if(iconSizeHoverScale) {
-              size2 = {
-                width : size.width  * iconSizeHoverScale,
-                height: size.height * iconSizeHoverScale
-              }
-            }
-          }
-          // Draw to map
-          let marker = new google.maps.Marker({
-            position: it,
-            map: this.$map,
-            title: it.title,
-            label, icon,
-            clickable
-          })
-          list.push(marker)
-          // Event
-          if(clickable) {
-            marker.addListener("click", ()=>{
-              this.$notify("point:click", it)
+        }
+        // Create marker
+        let marker = new google.maps.Marker({
+          position: it,
+          title: it.title,
+          label, icon,
+          //label: `x:${box.x}: y:${box.y}`,
+          clickable
+        })
+        markerList.push(marker)
+        // Event
+        if(clickable) {
+          marker.addListener("click", ()=>{
+            this.$notify("point:click", it)
+          });
+          // Hover to change the size
+          if(size2) {
+            marker.addListener("mouseover", function(){
+              //marker.setAnimation(google.maps.Animation.BOUNCE)
+              marker.setIcon({url: it.src, scaledSize: size2})
             });
-            // Hover to change the size
-            if(size2) {
-              marker.addListener("mouseover", function(){
-                marker.setAnimation(google.maps.Animation.BOUNCE)
-                //marker.setIcon({url: it.src, scaledSize: size2})
-              });
-              marker.addListener("mouseout", function(){
-                marker.setAnimation(null)
-                //marker.setIcon({url:it.src, scaledSize:size})
-              });
+            marker.addListener("mouseout", function(){
+              //marker.setAnimation(null)
+              marker.setIcon({url:it.src, scaledSize:size})
+            });
+          }
+        }
+      }
+      //..................................
+      // Define the multi-marker drawing function
+      let draw_multi_markers = its=>{
+        let icon, icon2, size, size2, label;
+        let ctx = {
+          n : its.length,
+          title0 : its[0].title,
+          title1 : its[1].title
+        }
+        // title
+        let title = Ti.Util.explainObj(ctx, this.clustering.title || "->${n} places")
+        // label
+        if(this.clustering.label) {
+          label = Ti.Util.explainObj(ctx, this.clustering.label)
+        }
+        // Icon
+        if(this.clustering.src) {
+          size = iconSize || {width:100, height:100}
+          icon = {url:this.clustering.src, scaledSize:size}
+          if(iconSizeHoverScale) {
+            size2 = {
+              width : size.width  * iconSizeHoverScale,
+              height: size.height * iconSizeHoverScale
+            }
+            icon2 = {url:this.clustering.src, scaledSize:size2}
+          }
+        }
+        // Get center
+        let lalList = []
+        _.forEach(its, ({it})=>lalList.push(it))
+        let lalCenter = Ti.GPS.getCenter(lalList)
+        // Create marker
+        let marker = new google.maps.Marker({
+          position: lalCenter,
+          title, label, icon,
+          //label: `x:${box.x}: y:${box.y}`,
+          clickable : true
+        })
+        // Click to zoom
+        marker.addListener("click", ()=>{
+          this.$map.panTo(lalCenter)
+          this.$map.setZoom(this.$map.getZoom()+1)
+        });
+        // Hover to change the size
+        if(icon2) {
+          marker.addListener("mouseover", function(){
+            //marker.setAnimation(google.maps.Animation.BOUNCE)
+            marker.setIcon(icon2)
+          });
+          marker.addListener("mouseout", function(){
+            //marker.setAnimation(null)
+            marker.setIcon(icon)
+          });
+        }
+        // Add to markers
+        markerList.push(marker)
+      }
+      //..................................
+      // Define the items drawing function
+      let draw_item = it => {
+        // Clustering items
+        if(_.isArray(it)) {
+          // Multi-marker
+          if(it.length > 1) {
+            draw_multi_markers(it)
+          }
+          // Single marker
+          else if(it.length > 0) {
+            draw_marker(it[0].it)
+          }
+        }
+        // Single item
+        else {
+          draw_marker(it)
+        }
+      }
+      //..................................
+      if(doClustering) {
+        for(let it of items) {
+          if(!it || !_.isNumber(it.lat) || !_.isNumber(it.lng)) 
+            continue
+          // Count box base clustering
+          let box = {}
+          //console.log("haha", it.title)
+          box.x = Math.round(Ti.GPS.getLngToWest(it.lng,  bound.west) /this.myGrid.x_step)
+          box.y = Math.round(Ti.GPS.getLatToSouth(it.lat, bound.south)/this.myGrid.y_step)
+          let rows = matrix[box.y]
+          if(!_.isArray(rows)){
+            rows = []
+            matrix[box.y] = rows
+          }
+          let cell = rows[box.x]
+          if(!_.isArray(cell)) {
+            cell = []
+            rows[box.x] = cell
+          }
+          cell.push({...box, title: it.title, it})
+        }
+        console.log(this.__dump_matrix(matrix))
+        let cluList = this.clusteringMatrix(matrix)
+        console.log(cluList)
+        _.forEach(cluList, draw_item)
+      }
+      // Add marker to map
+      else {
+        _.forEach(items, draw_marker)
+      }
+      //..................................
+      // Add to global layer list for clean later
+      this.myLayers[name] = markerList
+      //..................................
+      // Append to map
+      _.forEach(markerList, marker => marker.setMap(this.$map))
+    },
+    //-------------------------------------
+    clusteringMatrix(matrix) {
+      let list = []
+      for(let y=0; y<matrix.length; y++) {
+        let rows = matrix[y]
+        if(rows) {
+          for(let x=0; x<rows.length; x++) {
+            let cell = rows[x]
+            // find my adjacent cell
+            if(cell && cell.length>0) {
+              // Right
+              let next = rows[x+1]
+              if(next && next.length>0) {
+                rows[x+1] = undefined
+                cell.push(...next)
+              }
+              // Down
+              let adjRow = matrix[y+1]
+              if(adjRow && adjRow.length > 0) {
+                // Down
+                next = adjRow[x]
+                if(next && next.length>0) {
+                  adjRow[x] = undefined
+                  cell.push(...next)
+                }
+                // Down right
+                next = adjRow[x+1]
+                if(next && next.length>0) {
+                  adjRow[x+1] = undefined
+                  cell.push(...next)
+                }
+              }
+              // Join to list
+              list.push(cell)
             }
           }
         }
       }
-      this.myLayers[name] = list
+      // Done
+      return list
+    },
+    //-------------------------------------
+    __dump_matrix(matrix) {
+      let sb = ""
+      for(let y=0; y<matrix.length; y++) {
+        let rows = matrix[y]
+        sb += `${y}: `
+        if(rows) {
+          for(let x=0; x<rows.length; x++) {
+            let cell = rows[x]
+            sb += `[${cell ? cell.length : 0}]`
+          }
+        }
+        sb += "\n"
+      }
+      console.log(sb)
+    },
+    //-------------------------------------
+    tidyGridAxisLine(list, n) {
+      if(list.length > n) {
+        let more = list.slice(n)
+        for(let pol of more) {
+          pol.setMap(null)
+        }
+        return list.slice(0, n)
+      }
+      for(let i=list.length;i<n;i++) {
+        list.push(new google.maps.Polyline({
+          map: this.$map,
+          geodesic: false,
+          strokeColor: "#FF0000",
+          strokeOpacity: 1.0,
+          strokeWeight: 1,     
+        }))
+      }
+      return list
+    },
+    //-------------------------------------
+    eval_grid(x=10, y=10) {
+      let bound = this.$map.getBounds()
+      if(!bound)
+        return
+      bound = bound.toJSON()
+      let ew = bound.east  - bound.west
+      let ns = bound.north - bound.south
+      if(ew < 0) {
+        ew += 360
+      }
+      let lngStep = ew / x
+      let latStep = ns / y
+      //console.log({ew, ns, ew_u: lngStep, ns_u: latStep})
+
+      // Build enouth grid
+      let xN = x - 1;
+      let yN = y - 1;
+      this.myGrid.x = this.tidyGridAxisLine(this.myGrid.x, xN)
+      this.myGrid.y = this.tidyGridAxisLine(this.myGrid.y, yN)
+      this.myGrid.x_step = lngStep
+      this.myGrid.y_step = latStep
+
+      // // Draw line : X
+      if(this.showGrid) {
+        for(let i=1; i<x; i++) {
+          let off = lngStep*i
+          let lng = Ti.GPS.normlizedLng(bound.west + off)
+          //console.log(i, {off, lng})
+          let path = [
+            {lat:bound.north, lng},
+            {lat:bound.south, lng}
+          ]
+          this.myGrid.x[i-1].setPath(path)
+        }
+
+        // Draw line : Y
+        for(let i=1; i<y; i++) {
+          let off = latStep*i
+          let lat = Ti.GPS.normlizedLat(bound.south + off)
+          //console.log(i, {off, lat})
+          let path = [
+            {lat, lng:bound.west},
+            {lat, lng:bound.east}
+          ]
+          this.myGrid.y[i-1].setPath(path)
+        }
+      }
     },
     //-------------------------------------
     draw_as_path({name, items=[], iconSize, clickable}={}) {
@@ -233,7 +505,11 @@ const _M = {
     },
     //-------------------------------------
     drawLayers() {
-      //console.log("drawLayers")
+      // console.log("drawLayers")
+      if(this.clustering) {
+        let {x, y} = this.clustering
+        this.eval_grid(x, y);
+      }
       //...................................
       // Pin Center
       if(this.pinCenter) {
@@ -295,6 +571,25 @@ const _M = {
         // Reset
         this.myLayers = {}
       }
+    },
+    //-------------------------------------
+    redrawLayers(){
+      this.cleanLayers()
+      this.drawLayers()
+    },
+    //-------------------------------------
+    redrawWhenMoveCoolDown() {
+      let du = Date.now() - this.myLastMove;
+      if(isNaN(du))
+        return
+      if(du > 500) {
+        this.redrawLayers()
+        this.myLastMove = undefined
+        return
+      }
+      _.delay(()=>{
+        this.redrawWhenMoveCoolDown()
+      }, du)
     }
     //-------------------------------------
   },
@@ -307,8 +602,7 @@ const _M = {
     //"value" : function(){this.drawValue()}
     "layers": function(newVal, oldVal) {
       if(!_.isEqual(newVal, oldVal)) {
-        this.cleanLayers()
-        this.drawLayers()
+        this.redrawLayers()
       }
     },
     "center": function(newVal, oldVal) {
@@ -361,17 +655,32 @@ const _M = {
       gestureHandling : this.gestureHandling,
       //...................................
       center_changed: ()=>{
+        //console.log(this.$map.getBounds().toJSON(), this.$map.getCenter().toJSON())
         let lal = this.$map.getCenter()
+        if(this.clustering) {
+          // May need to redraw when move cool down
+          if(_.isUndefined(this.myLastMove)) {
+            _.delay(()=>{
+              this.redrawWhenMoveCoolDown()
+            }, 500)
+          }
+        }
+        this.myLastMove = Date.now()
         if(this.pinCenter) {
           this.draw_center_marker(lal)
         }
         if(!this.isInSync()) {
           this.myUpTime = Date.now()
-          this.$emit("center:change", lal.toJSON())
+          let lan = lal.toJSON()
+          lan.lng = Ti.GPS.normlizedLng(lan.lng)
+          this.$emit("center:change", lan)
         }
       },
       //...................................
       zoom_changed: ()=> {
+        if(this.clustering) {
+          this.redrawLayers()
+        }
         this.myUpTime = Date.now()
         this.$emit("zoom:change", this.$map.getZoom())
       }
@@ -379,7 +688,9 @@ const _M = {
     })
     //......................................
     // Draw Value
-    this.drawLayers()
+    _.delay(()=>{
+      this.redrawLayers()
+    }, 1000)
   }
   //////////////////////////////////////////
 }

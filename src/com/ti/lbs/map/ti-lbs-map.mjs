@@ -129,6 +129,10 @@ const _M = {
       type: String,
       default: "auto",
       validator: v=>/^(cooperative|greedy|none|auto)$/.test(v)
+    },
+    "clustering": {
+      type: Object,
+      default: undefined
     }
   },
   //////////////////////////////////////////
@@ -188,6 +192,7 @@ const _M = {
         "minZoom" : this.minZoom,
         "boundPadding": this.boundPadding,
         "gestureHandling" : this.TheGestureHandling,
+        "clustering" : this.clustering,
         ...this.MapComConfByMode
       }
     },
@@ -292,7 +297,7 @@ const _M = {
       }
       // Polygon
       if(_.isArray(this.LalValue)) {
-        return this.getBounds(this.LalValue)
+        return Ti.GPS.getBounds(this.LalValue)
       }
       // Point
       return _.pick(this.LalValue, "lng", "lat")
@@ -425,56 +430,6 @@ const _M = {
           this.checkUpdate()
         }, this.cooling)
       }
-    },
-    //-------------------------------------
-    /*
-    CROSS MODE:
-          lng:180        360:0                 180
-          +----------------+------------------NE  lat:90
-          |                |           lng_min|lat_max
-          |                |                  |
-          +----------------+------------------+-- lat:0
-          |                |                  |
-   lat_min|lng_max         |                  |
-          SW---------------+------------------+   lat:-90
-    
-    SIDE MODE:
-          lng:0           180                360
-          +----------------+------------------NE  lat:90
-          |                |           lng_max|lat_max
-          |                |                  |
-          +----------------+------------------+-- lat:0
-          |                |                  |
-   lat_min|lng_min         |                  |
-          SW---------------+------------------+   lat:-90
-    
-    @return [SW, NE]
-    */
-    getBounds(lalList=[]) {
-      let lng_max = undefined;
-      let lng_min = undefined;
-      let lat_max = undefined;
-      let lat_min = undefined;
-      for(let lal of this.LalValue) {
-        lng_max = _.isUndefined(lng_max)
-                    ? lal.lng : Math.max(lng_max, lal.lng)
-        lng_min = _.isUndefined(lng_min)
-                    ? lal.lng : Math.min(lng_min, lal.lng)
-        lat_max = _.isUndefined(lat_max)
-                    ? lal.lat : Math.max(lat_max, lal.lat)
-        lat_min = _.isUndefined(lat_min)
-                    ? lal.lat : Math.min(lat_min, lal.lat)
-      }
-      // Cross mode
-      if((lng_max-lng_min) > 180) {
-        return [
-          {lat: lat_min, lng:lng_max},
-          {lat: lat_max, lng:lng_min}]
-      }
-      // Side mode
-      return [
-        {lat: lat_min, lng:lng_min},
-        {lat: lat_max, lng:lng_max}]      
     },
     //-------------------------------------
     autoLatLng(val) {
