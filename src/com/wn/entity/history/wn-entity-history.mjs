@@ -52,6 +52,11 @@ const _M = {
 
       let items = []
       _.forEach(this.data.list, it=> {
+        // Guard
+        if('FILE' != it.race || !it.nm.endsWith(".json"))
+          return
+        
+        // Eval the history item tab name
         let name  = Ti.Util.getMajorName(it.nm)
         let title = it.title
         if(!title) {
