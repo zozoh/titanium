@@ -42,6 +42,9 @@ const _M = {
     },
     //------------------------------------------------
     HistoryItems() {
+      if(!this.meta) {
+        return []
+      }
       // Make sure in history folder
       if(this.prefix) {
         let fph = Wn.Io.getFormedPath(this.meta)

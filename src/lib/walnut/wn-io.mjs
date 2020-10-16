@@ -14,10 +14,10 @@ function AJAX_RETURN(reo, invalid) {
 ////////////////////////////////////////////
 const WnIo = {
   isFullObjId(id) {
-    return /^[0-9a-v]{26}(:file:.+)?$/.test(id)
+    return /^[0-9a-v]{26}(:.+)?$/.test(id)
   },
   isFullObjIdPath(idPath) {
-    return /^id:[0-9a-v]{26}(:file:.+)?$/.test(idPath)
+    return /^id:[0-9a-v]{26}(:.+)?$/.test(idPath)
   },
   /***
    * Get object meta by id(fullobjId) or path

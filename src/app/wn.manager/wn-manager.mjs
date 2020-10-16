@@ -202,7 +202,6 @@ const _M = {
     async openView(oid) {
       if(!_.isString(oid))
         return
-
       // Guard it
       let bombed = await Ti.Fuse.fire()
       if(!bombed) {
