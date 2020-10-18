@@ -1,0 +1,62 @@
+<div class="ti-chart-combo"
+  :class="TopClass">
+  <!--
+    头部
+  -->
+  <div class="as-head">
+    <!--
+      标题: 选择
+    -->
+    <TiDroplist
+      v-if="hasMultiChartNames"
+        v-bind="ChartNameListOptions"
+        :auto-i18n="true"
+        :options="nameList"
+        :value="name"
+        @change="OnChartNameChange"/>
+    <div
+      v-else
+        class="as-title">{{ChartTitle | i18n}}</div>
+    <!--
+      图表类型选择
+    -->
+    <TiSwitcher
+      v-if="hasMultiChartTypes"
+        :options="ChartTypeList"
+        :value="ChartType"
+        @change="OnChartTypeChange"/>
+    <!--
+      时间选择
+    -->
+    <div class="as-date-range">
+      <span>{{DateRangeText}}</span>
+      <a @click.left="OnPickDateRange">{{'modify'|i18n}}</a>
+    </div>
+    <!--
+      操作部分
+    -->
+    <TiActionbar align="right"
+      :items="HeadActionBarItems"
+      :status="myActionStatus"/>
+  </div>
+  <!---
+    图表
+  -->
+  <div class="as-chart">
+    <!--
+      Show chart
+    -->
+    <component
+      v-if="hasChartCom"
+        class="ti-fill-parent"
+        :is="myChartCom.comType"
+        v-bind="myChartCom.comConf"
+        :data="ChartData"/>
+    <!--
+      Show loading
+    -->
+    <ti-loading
+      v-else
+        class="as-mid-tip"/>
+  </div>
+</div>

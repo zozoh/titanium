@@ -12,6 +12,10 @@ const _M = {
   }),
   ////////////////////////////////////////////////////
   props : {
+    "keepWidthWhenDrop" : {
+      type : Boolean, 
+      default : true
+    },
     "width" : {
       type : [Number, String],
       default : null
@@ -70,10 +74,11 @@ const _M = {
     },
     //------------------------------------------------
     topStyle() {
-      return Ti.Css.toStyle({
-        //width  : this.box.width,
-        height : this.box.height
-      })
+      let width;
+      if(this.keepWidthWhenDrop)
+        width = this.box.width
+      let height = this.box.height
+      return Ti.Css.toStyle({width, height})
     },
     //------------------------------------------------
     theBoxStyle() {
@@ -114,7 +119,7 @@ const _M = {
           let r_drop = Ti.Rects.createBy($drop)
           //..........................................
           // Mark box to fixed position
-          _.assign(this.box, {position:"fixed"}, r_box.raw())
+          this.box = _.assign({position:"fixed"}, r_box.raw())
           //..........................................
           // Make drop same width with box
           let dropStyle = {}
@@ -161,10 +166,7 @@ const _M = {
     //------------------------------------------------
     resetBoxStyle() {
       // Recover the $box width/height
-      _.assign(this.box, {
-        position:null, top:null, left:null, 
-        width: this.width, height: this.height
-      })
+      this.box = {}
       this.myDropDockReady = false
     },
     //------------------------------------------------

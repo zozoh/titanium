@@ -38,7 +38,9 @@ const _M = {
       return _.assign({}, this, {
         readonly : !this.canInput || this.readonly,
         autoI18n : this.autoI18n,
-        placeholder : this.placeholder
+        placeholder : this.placeholder,
+        hover: this.hover,
+        prefixIconForClean : this.prefixIconForClean
       })
     },
     //------------------------------------------------
@@ -220,6 +222,7 @@ const _M = {
     //-----------------------------------------------
     async evalMyItem(val=this.value) {
       let it = await this.Dict.getItem(val)
+      //console.log("evalMyItem", val)
       if(_.isArray(it)) {
         console.error("!!!!!!! kao ~~~~~~~")
         it = null
@@ -318,7 +321,11 @@ const _M = {
   watch : {
     //-----------------------------------------------
     "value" : {
-      handler: "evalMyItem",
+      handler: function(){
+        this.$nextTick(()=>{
+          this.evalMyItem()
+        })
+      },
       immediate : true
     },
     //-----------------------------------------------

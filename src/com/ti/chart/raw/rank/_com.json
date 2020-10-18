@@ -1,0 +1,8 @@
+{
+  "name" : "ti-chart-raw-rank",
+  "globally" : true,
+  "template" : "./ti-chart-raw-rank.html",
+  "props"    : ["@com:ti/chart/raw/support/chart-props.mjs"],
+  "mixins"   : ["./ti-chart-raw-rank.mjs"],
+  "components" : ["@com:ti/chart/g2"]
+}

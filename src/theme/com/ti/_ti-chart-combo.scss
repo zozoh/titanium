@@ -1,0 +1,33 @@
+.ti-chart-combo {
+  @include flex-align-v-nowrap;
+  //---------------------------------------------
+  > .as-head {
+    @include flex-align($ai:center);
+    @include border(1px, solid, shallow, bottom);
+    padding: .06rem;
+    //-------------------------------------------
+    > .as-title {
+      margin:0 .5em; white-space: nowrap;
+      font-weight: bold;
+    }
+    //-------------------------------------------
+    .ti-switcher {
+      margin: .5em;
+    }
+    //-------------------------------------------
+    > .as-date-range {
+      padding: .06rem;
+    }
+    //-------------------------------------------
+    > .ti-actionbar {
+      flex: 1 1 auto;
+    }
+    //-------------------------------------------
+  }
+  //---------------------------------------------
+  > .as-chart {
+    flex:1 1 auto;
+    padding: .5em;
+  }
+  //---------------------------------------------
+}

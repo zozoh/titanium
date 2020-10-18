@@ -1,0 +1,17 @@
+<div class="wn-chart-combo"
+  :class="TopClass">
+  <!--
+    Chart List
+  -->
+  <div class="as-main">
+    <TiChartCombo
+      v-for="li of TheChartList" 
+        :key="li.index"
+        v-bind="li"
+        :data="getChartData(li.index)"
+        @change:chart:name="OnChangeChartName(li, $event)"
+        @change:chart:type="OnChangeChartType(li, $event)"
+        @change:chart:datespan="OnChangeChartDateSpan(li, $event)"
+        @reload:data="OnReloadChartData(li, $event)"/>
+  </div>
+</div>

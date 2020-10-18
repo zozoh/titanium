@@ -70,6 +70,10 @@ export default {
   //-----------------------------------
   // Measure
   //-----------------------------------
+  "keepWidthWhenDrop" : {
+    type : Boolean, 
+    default : undefined
+  },
   "dropWidth" : {
     type : [Number, String],
     default : "box"

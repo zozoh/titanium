@@ -1,0 +1,8 @@
+{
+  "name" : "ti-chart-raw-line",
+  "globally" : true,
+  "template" : "./ti-chart-raw-line.html",
+  "props"    : ["@com:ti/chart/raw/support/chart-props.mjs"],
+  "mixins"   : ["./ti-chart-raw-line.mjs"],
+  "components" : ["@com:ti/chart/g2"]
+}

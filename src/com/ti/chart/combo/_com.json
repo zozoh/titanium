@@ -1,0 +1,14 @@
+{
+  "name" : "ti-chart-combo",
+  "globally" : true,
+  "template" : "./ti-chart-combo.html",
+  "mixins"   : ["./ti-chart-combo.mjs"],
+  "components" : [
+    "@com:ti/actionbar",
+    "@com:ti/form",
+    "@com:ti/droplist",
+    "@com:ti/switcher",
+    "@com:ti/input/date",
+    "@com:ti/chart/g2"
+  ]
+}

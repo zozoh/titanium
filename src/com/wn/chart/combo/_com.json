@@ -1,0 +1,10 @@
+{
+  "name" : "wn-chart-combo",
+  "globally" : true,
+  "template" : "./wn-chart-combo.html",
+  "mixins"   : ["./wn-chart-combo.mjs"],
+  "components" : [
+    "@com:ti/chart/combo"
+  ],
+  "deps" : []
+}

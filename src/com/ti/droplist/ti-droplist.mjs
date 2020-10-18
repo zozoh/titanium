@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   props : {
     "multi" : {
