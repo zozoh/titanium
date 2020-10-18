@@ -62,7 +62,7 @@ export default {
               style: (element) => {
                 const shape = element.shape;
                 return {
-                  matrix: Util.zoom(shape, 1.5),
+                  matrix: G2.Util.zoom(shape, 1.5),
                 }
               }
             }

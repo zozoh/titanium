@@ -1,4 +1,4 @@
-// Pack At: 2020-10-11 02:36:09
+// Pack At: 2020-10-19 02:46:36
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -5175,60 +5175,496 @@ Ti.Preload("ti/com/ti/calendar/_com.json", {
     "@com:ti/input/month"]
 });
 //============================================================
+// JOIN: ti/chart/combo/ti-chart-combo.html
+//============================================================
+Ti.Preload("ti/com/ti/chart/combo/ti-chart-combo.html", `<div class="ti-chart-combo"
+  :class="TopClass">
+  <!--
+    头部
+  -->
+  <div class="as-head">
+    <!--
+      标题: 选择
+    -->
+    <TiDroplist
+      v-if="hasMultiChartNames"
+        v-bind="ChartNameListOptions"
+        :auto-i18n="true"
+        :options="nameList"
+        :value="name"
+        @change="OnChartNameChange"/>
+    <div
+      v-else
+        class="as-title">{{ChartTitle | i18n}}</div>
+    <!--
+      图表类型选择
+    -->
+    <TiSwitcher
+      v-if="hasMultiChartTypes"
+        :options="ChartTypeList"
+        :value="ChartType"
+        @change="OnChartTypeChange"/>
+    <!--
+      时间选择
+    -->
+    <div class="as-date-range">
+      <span>{{DateRangeText}}</span>
+      <a @click.left="OnPickDateRange">{{'modify'|i18n}}</a>
+    </div>
+    <!--
+      操作部分
+    -->
+    <TiActionbar align="right"
+      :items="HeadActionBarItems"
+      :status="myActionStatus"/>
+  </div>
+  <!---
+    图表
+  -->
+  <div class="as-chart">
+    <!--
+      Show chart
+    -->
+    <component
+      v-if="hasChartCom"
+        class="ti-fill-parent"
+        :is="myChartCom.comType"
+        v-bind="myChartCom.comConf"
+        :data="ChartData"/>
+    <!--
+      Show loading
+    -->
+    <ti-loading
+      v-else
+        class="as-mid-tip"/>
+  </div>
+</div>`);
+//============================================================
+// JOIN: ti/chart/combo/ti-chart-combo.mjs
+//============================================================
+(function(){
+//////////////////////////////////////////////////////
+var _CHARTS = {
+  "pie" : {
+    "icon"  : "im-pie-chart",
+    "tip" : "i18n:chart-pie",
+    "comPath" : "@com:ti/chart/raw/pie",
+    "comType" : "TiChartRawPie",
+    "comConf" : {}
+  },
+  "bar" : {
+    "icon"  : "im-bar-chart",
+    "tip" : "i18n:chart-bar",
+    "comPath" : "@com:ti/chart/raw/bar",
+    "comType" : "TiChartRawBar",
+    "comConf" : {}
+  },
+  "line" : {
+    "icon"  : "im-line-chart-up",
+    "tip" : "i18n:chart-line",
+    "comPath" : "@com:ti/chart/raw/line",
+    "comType" : "TiChartRawLine",
+    "comConf" : {}
+  },
+  "rank" : {
+    "icon"  : "zmdi-sort-amount-desc",
+    "tip" : "i18n:chart-rank",
+    "comPath" : "@com:ti/chart/raw/rank",
+    "comType" : "TiChartRawRank",
+    "comConf" : {}
+  }
+}
+//////////////////////////////////////////////////////
+const _M = {
+  ////////////////////////////////////////////////////
+  data: ()=>({
+    myActionStatus : {
+      reloading : false,
+      force : false
+    },
+    myChartCom : undefined
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    // array -> droplist
+    // object/string -> single title
+    "nameList" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "name" : {
+      type : String,
+      default : undefined
+    },
+    "date" : {
+      type : [Number, String, Date],
+      default : undefined
+    },
+    "maxDate" : {
+      type : [Number, String, Date],
+      default : undefined
+    },
+    "span" : {
+      type : String,
+      default : "7d"
+    },
+    "spanOptions" : {
+      type : Array,
+      default : ()=>[{
+        text  : "7",
+        value : "7d"
+      }, {
+        text  : "30",
+        value : "30d"
+      }, {
+        text  : "60",
+        value : "60d"
+      }, {
+        text  : "90",
+        value : "90d"
+      }]
+    },
+    "chartDefines" : {
+      type : Object,
+      default : undefined
+    },
+    "chartTypes" : {
+      type : [Array, String],
+      default : "pie,bar,line"
+    },
+    "type" : {
+      type : String,
+      default : undefined
+    },
+    // {pie:{..}, bar:{..}, line:{..}  ...}
+    "chartOptions" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "data" : {
+      type : Array,
+      default : ()=>[]
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass();
+    },
+    //------------------------------------------------
+    hasChartCom() {
+      return this.myChartCom && this.myChartCom.comType
+        ? true
+        : false
+    },
+    //------------------------------------------------
+    hasMultiChartNames() {
+      return !_.isEmpty(this.nameList) && this.nameList.length > 0
+    },
+    //------------------------------------------------
+    ChartNameListOptions() {
+      return {
+        prefixIconForClean : false,
+        keepWidthWhenDrop : true,
+        hover: "suffixIcon",
+        valueBy : "name",
+        textBy  : "title",
+        dropDisplay : "title"
+      }
+    },
+    //------------------------------------------------
+    ChartTitle() {
+      if(!_.isEmpty(this.nameList)){
+        for(let li of this.nameList) {
+          if(li.name == this.name) {
+            return li.title
+          }
+        }
+      }
+      return this.name
+    },
+    //------------------------------------------------
+    HeadActionBarItems() {
+      return [{
+        "name"  : "reloading",
+        "type" : "action",
+        "icon" : "zmdi-refresh",
+        "text" : "i18n:refresh",
+        "altDisplay" : {
+          "icon" : "zmdi-refresh zmdi-hc-spin",
+          "text" : "i18n:loading"
+        },
+        "action" : ()=> this.reloadData(false),
+      }, {
+        "type" : "group",
+        "icon" : "im-menu-dot-v",
+        "items" : [{
+            "name"  : "forceReloading",
+            "type" : "action",
+            "icon" : "im-reset",
+            "text" : "i18n:refresh-hard",
+            "altDisplay" : {
+              "icon" : "zmdi-refresh zmdi-hc-spin",
+              "text" : "i18n:loading",
+              "match" : {
+                "reloading" : true,
+                "force" : true
+              }
+            },
+            "action" : ()=> this.reloadData(true),
+          }]
+      }]
+    },
+    //------------------------------------------------
+    TheDate() {
+      let d = Ti.DateTime.moveDate(new Date(), -1)
+      if(this.date) {
+        d = Ti.DateTime.parse(this.date)
+      }
+      return Ti.DateTime.format(d, "yyyy-MM-dd")
+    },
+    //------------------------------------------------
+    TheMaxDate() {
+      let d = Ti.DateTime.moveDate(new Date(), -1)
+      if(this.maxDate) {
+        d = Ti.DateTime.parse(this.maxDate)
+      }
+      return d
+    },
+    //------------------------------------------------
+    TheSpan() {
+      return this.span || "7d"
+    },
+    //------------------------------------------------
+    DateRangeText() {
+      // Prepare the text
+      let str = []
+
+      // Get date
+      let d = this.TheDate;
+      str.push(Ti.DateTime.format(d, "yyyy-MM-dd"))
+
+      // Get span
+      let m = /^(\d+)([smhdw])?$/.exec(this.TheSpan)
+      if(m) {
+        let val = parseInt(m[1])
+        let unitText = ({
+          "w"  : "dt-u-week",
+          "d"  : "dt-u-day",
+          "h"  : "dt-u-hour",
+          "m"  : "dt-u-min",
+          "s"  : "dt-u-sec",
+          "ms" : "dt-u-ms"
+        })[m[2] || "ms"]
+        let s = `${val}${Ti.I18n.get(unitText)}`
+        str.push(Ti.I18n.getf("dt-in", {val:s}))
+      }
+
+      return str.join(" ")
+    },
+    //------------------------------------------------
+    hasMultiChartTypes() {
+      return !_.isEmpty(this.chartTypes) && this.chartTypes.length > 0
+    },
+    //------------------------------------------------
+    ChartTypeList() {
+      let types = this.chartTypes
+      if(_.isString(types)) {
+        types = Ti.S.toArray(types)
+      }
+      let list = []
+      for(let type of types) {
+        let li =this.loadChartDefine(type)
+        if(li) {
+          li.value = type
+          list.push(li)
+        }
+      }
+      return list
+    },
+    //------------------------------------------------
+    ChartType() {
+      if(this.type)
+        return this.type
+      
+      if(!_.isEmpty(this.chartTypes))
+        return _.first(this.ChartTypeList).value
+      
+      return undefined
+    },
+    //------------------------------------------------
+    ChartData() {
+      return this.data || []
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    OnChartNameChange(name) {
+      this.$notify("change:chart:name", name)
+    },
+    //------------------------------------------------
+    OnChartTypeChange(name) {
+      this.$notify("change:chart:type", name)
+    },
+    //------------------------------------------------
+    async OnPickDateRange() {
+      // Open the form dialog
+      let reo = await Ti.App.Open({
+        title : "i18n:edit",
+        width  : "5rem",
+        height : "5rem",
+        result : {
+          date : this.TheDate,
+          span : this.TheSpan
+        },
+        model : {prop:"data", event:"change"},
+        comType : "TiForm",
+        comConf : [{
+          fields : [{
+              title : "i18n:stat-date-at",
+              name  : "date",
+              comType : "TiInputDate",
+              comConf : {}
+            }, {
+              title : "i18n:stat-date-span",
+              name  : "span",
+              tip   : "i18n:dt-u-day",
+              width : "auto",
+              comType : "TiSwitcher",
+              comConf : {
+                options : this.spanOptions
+              }
+            }]
+        }]
+      })
+
+      // User Cancel
+      if(!reo || !reo.date)
+        return
+
+      // Invalid date
+      let d = Ti.DateTime.parse(reo.date)
+      if(d.getTime() > this.TheMaxDate.getTime()) {
+        return await Ti.Toast.Open("i18n:stat-date-at-oor", "warn")
+      }
+
+      this.$notify("change:chart:datespan", {
+        date : reo.date,
+        span : reo.span
+      })
+    },
+    //------------------------------------------------
+    loadChartDefine(type) {
+      let chart = _.get(this.chartDefines, type)
+
+      if(!chart) {
+        chart = _.get(_CHARTS, type)
+      }
+
+      if(chart) {
+        return _.cloneDeep(chart)
+      }
+    },
+    //------------------------------------------------
+    reloadData(force=false) {
+      this.myActionStatus = {reloading:true,  force}
+      this.$notify("reload:data", {
+        force,
+        done: ()=>{
+          this.myActionStatus = {}
+        }
+      })
+    },
+    ////////////////////////////////////////////////////
+    async reloadChartCom(type=this.type) {
+      let chart = this.loadChartDefine(type)
+      if(!chart) {
+        console.warn(`Fail to reloadChartCom by type : "${type}"`)
+        return
+      }
+
+      // Load chart com
+      await Ti.App(this).loadView({
+        comType : chart.comPath
+      })
+
+      // Eval The Chart Com
+      let comType = chart.comType
+      let comConf = _.assign({}, 
+          chart.comConf, 
+          _.get(this.chartOptions, this.type))
+
+      // Assign com
+      this.myChartCom = {comType, comConf}
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    "type" : {
+      handler : "reloadChartCom",
+      immediate : true
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/chart/combo/ti-chart-combo.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/chart/combo/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/chart/combo/_com.json", {
+  "name" : "ti-chart-combo",
+  "globally" : true,
+  "template" : "./ti-chart-combo.html",
+  "mixins"   : ["./ti-chart-combo.mjs"],
+  "components" : [
+    "@com:ti/actionbar",
+    "@com:ti/form",
+    "@com:ti/droplist",
+    "@com:ti/switcher",
+    "@com:ti/input/date",
+    "@com:ti/chart/g2"
+  ]
+});
+//============================================================
 // JOIN: ti/chart/g2/ti-chart-g2.html
 //============================================================
-Ti.Preload("ti/com/ti/chart/g2/ti-chart-g2.html", `<div class="ti-chart ti-chart-g2">
-  <section ref="chart"
-    class="chart-main ti-fill-parent"></section>
+Ti.Preload("ti/com/ti/chart/g2/ti-chart-g2.html", `<div class="ti-chart ti-chart-g2"
+  :class="TopClass"
+  :style="TopStyle">
+  <div ref="chart"
+    class="chart-main ti-fill-parent"></div>
 </div>`);
 //============================================================
 // JOIN: ti/chart/g2/ti-chart-g2.mjs
 //============================================================
 (function(){
-function draw_chart({
-  $refs,
-  padding,
-  data,
-  setup=_.identity,
-  autoSource
-}={}) {
-  let $container = $refs.chart
-  //console.log(data)
-  let width  = G2.DomUtil.getWidth($container)
-  let height = G2.DomUtil.getHeight($container)
-  //.......................................
-  // Create The Chart
-  let chart = new G2.Chart({
-    container: $container,
-    padding, width, height
-  })
-  //.......................................
-  // Set datasource
-  if(autoSource && data && !_.isEmpty(data))
-    chart.source(data)
-  //.......................................
-  // Setup chart
-  setup(chart, data, {
-    width, height
-  })
-  //.......................................
-  // 渲染并返回
-  chart.render()
-  return chart
-}
-///////////////////////////////////////////
 const _M = {
-  /////////////////////////////////////////
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
     "data" : {
       type : Array,
       default : ()=>[]
     },
+    "width" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "height" : {
+      type : [Number, String],
+      default : undefined
+    },
     "padding" : {
       type : [Number, Array, String],
       default : "auto"
+    },
+    "appendPadding" : {
+      type : [Number, Array, String],
+      default : undefined
     },
     // Function(chart, data):void
     "setup" : {
@@ -5241,26 +5677,66 @@ const _M = {
     }
   },
   //////////////////////////////////////////
-  watch : {
-    "data" : function() {this.debounceRedrawChart()},
-  },
-  //////////////////////////////////////////
   computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
+    },
+    //--------------------------------------
+    hasData() {
+      return !_.isEmpty(this.data)
+    }
+    //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
-    //......................................
+    //--------------------------------------
+    draw_chart() {
+      let $container = this.$refs.chart
+      //let rect = Ti.Rects.createBy($container)
+      //let {width, height} = rect
+      //--------------------------------------.
+      // Create The Chart
+      let chart = new G2.Chart({
+        container: $container,
+        padding : this.padding,
+        appendPadding : this.appendPadding,
+        autoFit: true,
+        //width, height
+      })
+      //--------------------------------------.
+      // Set datasource
+      if(this.autoSource && this.hasData)
+        chart.data(this.data)
+      //--------------------------------------.
+      // Setup chart
+      if(_.isFunction(this.setup)) {
+        this.setup(chart, this.data)
+      }
+      //--------------------------------------.
+      // 渲染并返回
+      chart.render()
+      return chart
+    },
+    //--------------------------------------
     redrawChart() {
       if(!_.isElement(this.$refs.chart)) {
         return
       }
-      if(this.__g2_chart) {
+      if(this.$G2Chart) {
         try{
-          this.__g2_chart.destroy()
+          this.$G2Chart.destroy()
         }catch(E){}
         $(this.$refs.chart).empty()
       }
-      this.__g2_chart = draw_chart(this)
+      this.$G2Chart = this.draw_chart(this)
     },
     drawAll() {
       //console.log("I am drawAll")
@@ -5268,40 +5744,40 @@ const _M = {
         this.redrawChart()
       })
     }
-    //......................................
+    //--------------------------------------
   },
-  /////////////////////////////////////////
+  //////////////////////////////////////////
+  watch : {
+    "data" : "drawAll"
+  },
+  //////////////////////////////////////////
   mounted : function() {
     this.drawAll()
-    this.debounceRedrawChart = _.debounce(()=>{
-      this.redrawChart()
-    }, 500)
-    this.debounceRedrawAll = _.debounce(()=>{
-      this.drawAll()
-    }, 500)
+
     // 监控窗口尺寸变化
     Ti.Viewport.watch(this, {
       resize: function() {
-        let chart = this.__g2_chart
+        let chart = this.$G2Chart
         if(chart) {
           this.$notify("before_resize")
-          let $container = this.$refs.chart
-          let width  = G2.DomUtil.getWidth($container)
-          let height = G2.DomUtil.getHeight($container)
-          chart.changeWidth(width)
-          chart.changeHeight(height)
+          // let $container = this.$refs.chart
+          // let rect = Ti.Rects.createBy($container)
+          // let {width, height} = rect
+          //chart.changeSize({width, height})
+          chart.forceFit()
         }
       }
     })
   },
+  //////////////////////////////////////////
   beforeDestroy : function(){
-    if(this.__g2_chart) {
-      this.__g2_chart.destroy()
+    if(this.$G2Chart) {
+      this.$G2Chart.destroy()
     }
     // 解除窗口监控
     Ti.Viewport.unwatch(this)
   }
-  /////////////////////////////////////////
+  //////////////////////////////////////////
 }
 Ti.Preload("ti/com/ti/chart/g2/ti-chart-g2.mjs", _M);
 })();
@@ -5314,8 +5790,469 @@ Ti.Preload("ti/com/ti/chart/g2/_com.json", {
   "template" : "./ti-chart-g2.html",
   "mixins"   : ["./ti-chart-g2.mjs"],
   "components" : [],
-  "deps" : []
+  "deps" : [
+    "@/gu/rs/ti/deps/antv/g2/g2.min.js"
+  ]
 });
+//============================================================
+// JOIN: ti/chart/raw/bar/ti-chart-raw-bar.html
+//============================================================
+Ti.Preload("ti/com/ti/chart/raw/bar/ti-chart-raw-bar.html", `<TiChartG2
+  class="as-bar"
+  :class-name="className"
+  :data="data"
+  :width="width"
+  :height="height"
+  :padding="padding"
+  :append-padding="appendPadding"
+  :auto-source="false"
+  :setup="ChartSetup"/>`);
+//============================================================
+// JOIN: ti/chart/raw/bar/ti-chart-raw-bar.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  props : {
+    "valueTickNb" : {
+      type : Number,
+      default : 10
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    ChartSetup() {
+      return (chart, data)=>{
+        //console.log(data)
+        let list = []
+        let maxValue = 0
+        for(let it of data) {
+          if(!it)
+            return
+          let value = it[this.valueBy]*1 || 0
+          maxValue = Math.max(maxValue, value)
+          list.push({
+            name: Ti.I18n.text(it[this.nameBy]),
+            value : value
+          })
+        }
+        if(_.isEmpty(list))
+          return
+
+        // Set data
+        chart.data(list);
+
+        // Tick
+        if(this.valueTickNb > 0) {
+          let tickInterval = Math.round(maxValue / this.valueTickNb)
+          chart.scale(this.valueBy, {tickInterval});
+        }
+        chart
+          .interval()
+          .position(`name*value`)
+        
+
+      } // ~ function
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/chart/raw/bar/ti-chart-raw-bar.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/chart/raw/bar/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/chart/raw/bar/_com.json", {
+  "name" : "ti-chart-raw-bar",
+  "globally" : true,
+  "template" : "./ti-chart-raw-bar.html",
+  "props"    : ["@com:ti/chart/raw/support/chart-props.mjs"],
+  "mixins"   : ["./ti-chart-raw-bar.mjs"],
+  "components" : ["@com:ti/chart/g2"]
+});
+//============================================================
+// JOIN: ti/chart/raw/line/ti-chart-raw-line.html
+//============================================================
+Ti.Preload("ti/com/ti/chart/raw/line/ti-chart-raw-line.html", `<TiChartG2
+  class="as-line"
+  :class-name="className"
+  :data="data"
+  :width="width"
+  :height="height"
+  :padding="padding"
+  :append-padding="appendPadding"
+  :auto-source="false"
+  :setup="ChartSetup"/>`);
+//============================================================
+// JOIN: ti/chart/raw/line/ti-chart-raw-line.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  props : {
+    "valueTickNb" : {
+      type : Number,
+      default : 10
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    ChartSetup() {
+      return (chart, data)=>{
+        //console.log(data)
+        let list = []
+        let maxValue = 0
+        for(let it of data) {
+          if(!it)
+            return
+          let value = it[this.valueBy]*1 || 0
+          maxValue = Math.max(maxValue, value)
+          list.push({
+            name: Ti.I18n.text(it[this.nameBy]),
+            value : value
+          })
+        }
+        if(_.isEmpty(list))
+          return
+
+        // Set data
+        chart.data(list);
+
+        // Tick
+        if(this.valueTickNb > 0) {
+          let tickInterval = Math.round(maxValue / this.valueTickNb)
+          chart.scale(this.valueBy, {tickInterval});
+        }
+        chart
+          .line()
+          .position(`name*value`)
+        chart
+          .point()
+          .position(`name*value`)
+          .size(4)
+          .shape('circle')
+          .style({
+            stroke: '#fff',
+            lineWidth: 1
+          });
+
+      } // ~ function
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/chart/raw/line/ti-chart-raw-line.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/chart/raw/line/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/chart/raw/line/_com.json", {
+  "name" : "ti-chart-raw-line",
+  "globally" : true,
+  "template" : "./ti-chart-raw-line.html",
+  "props"    : ["@com:ti/chart/raw/support/chart-props.mjs"],
+  "mixins"   : ["./ti-chart-raw-line.mjs"],
+  "components" : ["@com:ti/chart/g2"]
+});
+//============================================================
+// JOIN: ti/chart/raw/pie/ti-chart-raw-pie.html
+//============================================================
+Ti.Preload("ti/com/ti/chart/raw/pie/ti-chart-raw-pie.html", `<TiChartG2
+  class="as-pie"
+  :class-name="className"
+  :data="data"
+  :width="width"
+  :height="height"
+  :padding="padding"
+  :append-padding="appendPadding"
+  :auto-source="false"
+  :setup="ChartSetup"/>`);
+//============================================================
+// JOIN: ti/chart/raw/pie/ti-chart-raw-pie.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  props : {
+    "percentBy" : {
+      type : String,
+      default : "percent"
+    },
+    "precise" : {
+      type : Number,
+      default : 2
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    ChartSetup() {
+      return (chart, data)=>{
+        // Tidy date: summary
+        let list = []
+        let sum = 0
+        for(let it of data) {
+          if(!it)
+            return
+          let name  = it[this.nameBy]
+          let value = it[this.valueBy]*1 || 0
+          let percent = it[this.percentBy]
+          sum += value
+
+          list.push({name,value,percent})
+        }
+
+        // Eval percent
+        for(let li of list) {
+          if(_.isUndefined(li.percent)) {
+            li.percent = Ti.Num.precise(li.value / sum, this.precise)
+          }
+        }
+
+        if(_.isEmpty(list))
+          return
+
+        //console.log(list)
+        chart.data(list);
+        
+        chart.coordinate('theta', {
+          radius: 0.75
+        });
+        chart.tooltip({
+          showMarkers: false
+        });
+        
+        const interval = chart
+          .interval()
+          .adjust('stack')
+          .position('value')
+          .color('name')
+          .style({
+            opacity: 0.4
+          })
+          .state({
+            active: {
+              style: (element) => {
+                const shape = element.shape;
+                return {
+                  matrix: G2.Util.zoom(shape, 1.5),
+                }
+              }
+            }
+          })
+          .label('name', (val) => {
+            return {
+              offset: -30,
+              content: (obj) => {
+                return Ti.I18n.text(obj.name) + '\n' + obj.percent + '%';
+              },
+            };
+          });
+        
+        chart.interaction('element-single-selected');
+
+      } // ~ function
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/chart/raw/pie/ti-chart-raw-pie.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/chart/raw/pie/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/chart/raw/pie/_com.json", {
+  "name" : "ti-chart-raw-pie",
+  "globally" : true,
+  "template" : "./ti-chart-raw-pie.html",
+  "props"    : ["@com:ti/chart/raw/support/chart-props.mjs"],
+  "mixins"   : ["./ti-chart-raw-pie.mjs"],
+  "components" : ["@com:ti/chart/g2"]
+});
+//============================================================
+// JOIN: ti/chart/raw/rank/ti-chart-raw-rank.html
+//============================================================
+Ti.Preload("ti/com/ti/chart/raw/rank/ti-chart-raw-rank.html", `<TiChartG2
+  class="as-bar"
+  :class-name="className"
+  :data="data"
+  :width="width"
+  :height="height"
+  :padding="padding"
+  :append-padding="appendPadding"
+  :auto-source="false"
+  :setup="ChartSetup"/>`);
+//============================================================
+// JOIN: ti/chart/raw/rank/ti-chart-raw-rank.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  props : {
+    "valueAlias" : {
+      type : String,
+      default : "i18n:value"
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    ChartSetup() {
+      return (chart, data)=>{
+        //console.log(data)
+        let list = []
+        let maxValue = 0
+        for(let it of data) {
+          if(!it)
+            return
+          let value = it[this.valueBy]*1 || 0
+          maxValue = Math.max(maxValue, value)
+          list.push({
+            name: Ti.I18n.text(it[this.nameBy]),
+            value : value
+          })
+        }
+        if(_.isEmpty(list))
+          return
+
+        // Set data
+        list.reverse()
+        chart.data(list);
+
+        // Scale
+        chart.scale({
+          value: {
+            max: maxValue,
+            min: 0,
+            alias: Ti.I18n.text(this.valueAlias),
+          },
+        });
+
+        chart.axis('name', {
+          title: null,
+          tickLine: null,
+          line: null,
+        });
+        
+        chart.axis('value', {
+          label: null,
+          title: {
+            offset: 30,
+            style: {
+              fontSize: 12,
+              fontWeight: 300,
+            },
+          },
+        });
+        chart.legend(false);
+        chart.coordinate().transpose();
+
+        chart
+          .interval()
+          .position(`name*value`)
+          .size(26)
+          .label('value', {
+            style: {
+              fill: '#8d8d8d',
+            },
+            offset: 10,
+          });
+        
+        chart.interaction('element-active');
+        
+
+      } // ~ function
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/chart/raw/rank/ti-chart-raw-rank.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/chart/raw/rank/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/chart/raw/rank/_com.json", {
+  "name" : "ti-chart-raw-rank",
+  "globally" : true,
+  "template" : "./ti-chart-raw-rank.html",
+  "props"    : ["@com:ti/chart/raw/support/chart-props.mjs"],
+  "mixins"   : ["./ti-chart-raw-rank.mjs"],
+  "components" : ["@com:ti/chart/g2"]
+});
+//============================================================
+// JOIN: ti/chart/raw/support/chart-props.mjs
+//============================================================
+(function(){
+const _M = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "data" : {
+    type : Array,
+    default : ()=>[]
+  },
+  "nameBy" : {
+    type : String,
+    default : "name"
+  },
+  "valueBy" : {
+    type : String,
+    default : "value"
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "padding" : {
+    type : [Number, Array, String],
+    default : "auto"
+  },
+  "appendPadding" : {
+    type : [Number, Array, String],
+    default : undefined
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+  "width" : {
+    type : [Number, String],
+    default : undefined
+  },
+  "height" : {
+    type : [Number, String],
+    default : undefined
+  }
+}
+Ti.Preload("ti/com/ti/chart/raw/support/chart-props.mjs", _M);
+})();
 //============================================================
 // JOIN: ti/chart/simple/ti-chart-simple.html
 //============================================================
@@ -5901,6 +6838,10 @@ const _M = {
   }),
   ////////////////////////////////////////////////////
   props : {
+    "keepWidthWhenDrop" : {
+      type : Boolean, 
+      default : true
+    },
     "width" : {
       type : [Number, String],
       default : null
@@ -5959,10 +6900,11 @@ const _M = {
     },
     //------------------------------------------------
     topStyle() {
-      return Ti.Css.toStyle({
-        //width  : this.box.width,
-        height : this.box.height
-      })
+      let width;
+      if(this.keepWidthWhenDrop)
+        width = this.box.width
+      let height = this.box.height
+      return Ti.Css.toStyle({width, height})
     },
     //------------------------------------------------
     theBoxStyle() {
@@ -6003,7 +6945,7 @@ const _M = {
           let r_drop = Ti.Rects.createBy($drop)
           //..........................................
           // Mark box to fixed position
-          _.assign(this.box, {position:"fixed"}, r_box.raw())
+          this.box = _.assign({position:"fixed"}, r_box.raw())
           //..........................................
           // Make drop same width with box
           let dropStyle = {}
@@ -6050,10 +6992,7 @@ const _M = {
     //------------------------------------------------
     resetBoxStyle() {
       // Recover the $box width/height
-      _.assign(this.box, {
-        position:null, top:null, left:null, 
-        width: this.width, height: this.height
-      })
+      this.box = {}
       this.myDropDockReady = false
     },
     //------------------------------------------------
@@ -6471,6 +7410,10 @@ const _M = {
   //-----------------------------------
   // Measure
   //-----------------------------------
+  "keepWidthWhenDrop" : {
+    type : Boolean, 
+    default : undefined
+  },
   "dropWidth" : {
     type : [Number, String],
     default : "box"
@@ -6488,6 +7431,7 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input-props.mjs", _M);
 Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box 
   class="ti-combo-input full-field"
   :class="TopClass"
+  :keep-width-when-drop="keepWidthWhenDrop"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
   :status="myDropStatus"
@@ -6567,7 +7511,9 @@ const _M = {
       return _.assign({}, this, {
         readonly : !this.canInput || this.readonly,
         autoI18n : this.autoI18n,
-        placeholder : this.placeholder
+        placeholder : this.placeholder,
+        hover: this.hover,
+        prefixIconForClean : this.prefixIconForClean
       })
     },
     //------------------------------------------------
@@ -6749,6 +7695,7 @@ const _M = {
     //-----------------------------------------------
     async evalMyItem(val=this.value) {
       let it = await this.Dict.getItem(val)
+      //console.log("evalMyItem", val)
       if(_.isArray(it)) {
         console.error("!!!!!!! kao ~~~~~~~")
         it = null
@@ -6847,7 +7794,11 @@ const _M = {
   watch : {
     //-----------------------------------------------
     "value" : {
-      handler: "evalMyItem",
+      handler: function(){
+        this.$nextTick(()=>{
+          this.evalMyItem()
+        })
+      },
       immediate : true
     },
     //-----------------------------------------------
@@ -8567,7 +9518,6 @@ Ti.Preload("ti/com/ti/droplist/ti-droplist.html", `<component
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   props : {
     "multi" : {
@@ -15571,6 +16521,8 @@ Ti.Preload("ti/com/ti/lbs/map/baidu/_com.json", {
 //============================================================
 Ti.Preload("ti/com/ti/lbs/map/google/ti-lbs-map-google.html", `<div class="ti-lbs-map by-google ti-fill-parent">
   <div ref="arena" class="map-arena ti-fill-parent"></div>
+  <!--div style="background:#FF0;position: absolute; bottom:0;right:0;"
+    @click="redrawLayers()">Redraw</div-->
 </div>`);
 //============================================================
 // JOIN: ti/lbs/map/google/ti-lbs-map-google.mjs
@@ -15579,10 +16531,25 @@ Ti.Preload("ti/com/ti/lbs/map/google/ti-lbs-map-google.html", `<div class="ti-lb
 const _M = {
   /////////////////////////////////////////
   data : ()=>({
+    // + Move cooling
+    myLastMove : undefined,
+    // => Input cooling
     mySyncTime : undefined,
     myUpTime: undefined,
     myCenterMarker: undefined,
-    myLayers: {}
+    /*
+    {
+      [layerName] : Polyline,
+      [layerName] : [Marker...]
+    }
+    */
+    myLayers: {},
+    myGrid: {
+      x: [],
+      y: [],
+      x_step: undefined,
+      y_step: undefined
+    }
   }),
   /////////////////////////////////////////
   props : {
@@ -15654,6 +16621,15 @@ const _M = {
       type: String,
       default: "auto",
       validator: v=>/^(cooperative|greedy|none|auto)$/.test(v)
+    },
+    /*
+    {
+      x: 10, y: 10, label: "=n", src: "/img/abc.png"
+    }
+    */
+    "clustering": {
+      type: Object,
+      default: undefined
     }
   },
   //////////////////////////////////////////
@@ -15723,64 +16699,312 @@ const _M = {
       iconSize, iconSizeHoverScale,
       clickable
     }={}) {
+      //..................................
       if(!name) {
         throw "draw_as_point without layer name!"
       }
-      // Draw in loop
-      let list = []
-      for(let it of items) {
-        if(it && _.isNumber(it.lat) && _.isNumber(it.lng)) {
-          // Label
-          let label = it.label;
-          if(_.isString(label)) {
-            label = {
-              color: "#FFF",
-              text: label
+      //console.log("draw_as_point", name)
+      //..................................
+      let doClustering = !_.isUndefined(this.myGrid.x_step)
+                      && !_.isUndefined(this.myGrid.y_step)
+      //..................................
+      // Get map bound for clustering
+      let bound = this.$map.getBounds()
+      if(!bound)
+        return
+      bound = bound.toJSON()
+      //..................................
+      // Prepare the layer marker list
+      let markerList = []
+      let matrix = []     // matrix for clustering
+      //..................................
+      // Define the marker drawing function
+      let draw_marker = it => {
+        let icon, size, size2;
+        let label = it.label;
+        if(_.isString(label)) {
+          label = {
+            color: "#FFF",
+            text: label
+          }
+        }
+        // Item icon
+        if(it.src) {
+          size = iconSize || {width:100, height:100}
+          icon = {url:it.src, scaledSize:size}
+          if(iconSizeHoverScale) {
+            size2 = {
+              width : size.width  * iconSizeHoverScale,
+              height: size.height * iconSizeHoverScale
             }
           }
-          // Icon
-          let icon;
-          let size;
-          let size2;
-          if(it.src) {
-            size = iconSize || {width:100, height:100}
-            icon = {url:it.src, scaledSize:size}
-            if(iconSizeHoverScale) {
-              size2 = {
-                width : size.width  * iconSizeHoverScale,
-                height: size.height * iconSizeHoverScale
-              }
-            }
-          }
-          // Draw to map
-          let marker = new google.maps.Marker({
-            position: it,
-            map: this.$map,
-            title: it.title,
-            label, icon,
-            clickable
-          })
-          list.push(marker)
-          // Event
-          if(clickable) {
-            marker.addListener("click", ()=>{
-              this.$notify("point:click", it)
+        }
+        // Create marker
+        let marker = new google.maps.Marker({
+          position: it,
+          title: it.title,
+          label, icon,
+          //label: `x:${box.x}: y:${box.y}`,
+          clickable
+        })
+        markerList.push(marker)
+        // Event
+        if(clickable) {
+          marker.addListener("click", ()=>{
+            this.$notify("point:click", it)
+          });
+          // Hover to change the size
+          if(size2) {
+            marker.addListener("mouseover", function(){
+              //marker.setAnimation(google.maps.Animation.BOUNCE)
+              marker.setIcon({url: it.src, scaledSize: size2})
             });
-            // Hover to change the size
-            if(size2) {
-              marker.addListener("mouseover", function(){
-                marker.setAnimation(google.maps.Animation.BOUNCE)
-                //marker.setIcon({url: it.src, scaledSize: size2})
-              });
-              marker.addListener("mouseout", function(){
-                marker.setAnimation(null)
-                //marker.setIcon({url:it.src, scaledSize:size})
-              });
+            marker.addListener("mouseout", function(){
+              //marker.setAnimation(null)
+              marker.setIcon({url:it.src, scaledSize:size})
+            });
+          }
+        }
+      }
+      //..................................
+      // Define the multi-marker drawing function
+      let draw_multi_markers = its=>{
+        let icon, icon2, size, size2, label;
+        let ctx = {
+          n : its.length,
+          title0 : its[0].title,
+          title1 : its[1].title
+        }
+        // title
+        let title = Ti.Util.explainObj(ctx, this.clustering.title || "->${n} places")
+        // label
+        if(this.clustering.label) {
+          label = Ti.Util.explainObj(ctx, this.clustering.label)
+        }
+        // Icon
+        if(this.clustering.src) {
+          size = iconSize || {width:100, height:100}
+          icon = {url:this.clustering.src, scaledSize:size}
+          if(iconSizeHoverScale) {
+            size2 = {
+              width : size.width  * iconSizeHoverScale,
+              height: size.height * iconSizeHoverScale
+            }
+            icon2 = {url:this.clustering.src, scaledSize:size2}
+          }
+        }
+        // Get center
+        let lalList = []
+        _.forEach(its, ({it})=>lalList.push(it))
+        let lalCenter = Ti.GPS.getCenter(lalList)
+        // Create marker
+        let marker = new google.maps.Marker({
+          position: lalCenter,
+          title, label, icon,
+          //label: `x:${box.x}: y:${box.y}`,
+          clickable : true
+        })
+        // Click to zoom
+        marker.addListener("click", ()=>{
+          this.$map.panTo(lalCenter)
+          this.$map.setZoom(this.$map.getZoom()+1)
+        });
+        // Hover to change the size
+        if(icon2) {
+          marker.addListener("mouseover", function(){
+            //marker.setAnimation(google.maps.Animation.BOUNCE)
+            marker.setIcon(icon2)
+          });
+          marker.addListener("mouseout", function(){
+            //marker.setAnimation(null)
+            marker.setIcon(icon)
+          });
+        }
+        // Add to markers
+        markerList.push(marker)
+      }
+      //..................................
+      // Define the items drawing function
+      let draw_item = it => {
+        // Clustering items
+        if(_.isArray(it)) {
+          // Multi-marker
+          if(it.length > 1) {
+            draw_multi_markers(it)
+          }
+          // Single marker
+          else if(it.length > 0) {
+            draw_marker(it[0].it)
+          }
+        }
+        // Single item
+        else {
+          draw_marker(it)
+        }
+      }
+      //..................................
+      if(doClustering) {
+        for(let it of items) {
+          if(!it || !_.isNumber(it.lat) || !_.isNumber(it.lng)) 
+            continue
+          // Count box base clustering
+          let box = {}
+          //console.log("haha", it.title)
+          box.x = Math.round(Ti.GPS.getLngToWest(it.lng,  bound.west) /this.myGrid.x_step)
+          box.y = Math.round(Ti.GPS.getLatToSouth(it.lat, bound.south)/this.myGrid.y_step)
+          let rows = matrix[box.y]
+          if(!_.isArray(rows)){
+            rows = []
+            matrix[box.y] = rows
+          }
+          let cell = rows[box.x]
+          if(!_.isArray(cell)) {
+            cell = []
+            rows[box.x] = cell
+          }
+          cell.push({...box, title: it.title, it})
+        }
+        console.log(this.__dump_matrix(matrix))
+        let cluList = this.clusteringMatrix(matrix)
+        console.log(cluList)
+        _.forEach(cluList, draw_item)
+      }
+      // Add marker to map
+      else {
+        _.forEach(items, draw_marker)
+      }
+      //..................................
+      // Add to global layer list for clean later
+      this.myLayers[name] = markerList
+      //..................................
+      // Append to map
+      _.forEach(markerList, marker => marker.setMap(this.$map))
+    },
+    //-------------------------------------
+    clusteringMatrix(matrix) {
+      let list = []
+      for(let y=0; y<matrix.length; y++) {
+        let rows = matrix[y]
+        if(rows) {
+          for(let x=0; x<rows.length; x++) {
+            let cell = rows[x]
+            // find my adjacent cell
+            if(cell && cell.length>0) {
+              // Right
+              let next = rows[x+1]
+              if(next && next.length>0) {
+                rows[x+1] = undefined
+                cell.push(...next)
+              }
+              // Down
+              let adjRow = matrix[y+1]
+              if(adjRow && adjRow.length > 0) {
+                // Down
+                next = adjRow[x]
+                if(next && next.length>0) {
+                  adjRow[x] = undefined
+                  cell.push(...next)
+                }
+                // Down right
+                next = adjRow[x+1]
+                if(next && next.length>0) {
+                  adjRow[x+1] = undefined
+                  cell.push(...next)
+                }
+              }
+              // Join to list
+              list.push(cell)
             }
           }
         }
       }
-      this.myLayers[name] = list
+      // Done
+      return list
+    },
+    //-------------------------------------
+    __dump_matrix(matrix) {
+      let sb = ""
+      for(let y=0; y<matrix.length; y++) {
+        let rows = matrix[y]
+        sb += `${y}: `
+        if(rows) {
+          for(let x=0; x<rows.length; x++) {
+            let cell = rows[x]
+            sb += `[${cell ? cell.length : 0}]`
+          }
+        }
+        sb += "\n"
+      }
+      console.log(sb)
+    },
+    //-------------------------------------
+    tidyGridAxisLine(list, n) {
+      if(list.length > n) {
+        let more = list.slice(n)
+        for(let pol of more) {
+          pol.setMap(null)
+        }
+        return list.slice(0, n)
+      }
+      for(let i=list.length;i<n;i++) {
+        list.push(new google.maps.Polyline({
+          map: this.$map,
+          geodesic: false,
+          strokeColor: "#FF0000",
+          strokeOpacity: 1.0,
+          strokeWeight: 1,     
+        }))
+      }
+      return list
+    },
+    //-------------------------------------
+    eval_grid(x=10, y=10) {
+      let bound = this.$map.getBounds()
+      if(!bound)
+        return
+      bound = bound.toJSON()
+      let ew = bound.east  - bound.west
+      let ns = bound.north - bound.south
+      if(ew < 0) {
+        ew += 360
+      }
+      let lngStep = ew / x
+      let latStep = ns / y
+      //console.log({ew, ns, ew_u: lngStep, ns_u: latStep})
+
+      // Build enouth grid
+      let xN = x - 1;
+      let yN = y - 1;
+      this.myGrid.x = this.tidyGridAxisLine(this.myGrid.x, xN)
+      this.myGrid.y = this.tidyGridAxisLine(this.myGrid.y, yN)
+      this.myGrid.x_step = lngStep
+      this.myGrid.y_step = latStep
+
+      // // Draw line : X
+      if(this.showGrid) {
+        for(let i=1; i<x; i++) {
+          let off = lngStep*i
+          let lng = Ti.GPS.normlizedLng(bound.west + off)
+          //console.log(i, {off, lng})
+          let path = [
+            {lat:bound.north, lng},
+            {lat:bound.south, lng}
+          ]
+          this.myGrid.x[i-1].setPath(path)
+        }
+
+        // Draw line : Y
+        for(let i=1; i<y; i++) {
+          let off = latStep*i
+          let lat = Ti.GPS.normlizedLat(bound.south + off)
+          //console.log(i, {off, lat})
+          let path = [
+            {lat, lng:bound.west},
+            {lat, lng:bound.east}
+          ]
+          this.myGrid.y[i-1].setPath(path)
+        }
+      }
     },
     //-------------------------------------
     draw_as_path({name, items=[], iconSize, clickable}={}) {
@@ -15811,7 +17035,11 @@ const _M = {
     },
     //-------------------------------------
     drawLayers() {
-      //console.log("drawLayers")
+      // console.log("drawLayers")
+      if(this.clustering) {
+        let {x, y} = this.clustering
+        this.eval_grid(x, y);
+      }
       //...................................
       // Pin Center
       if(this.pinCenter) {
@@ -15873,6 +17101,25 @@ const _M = {
         // Reset
         this.myLayers = {}
       }
+    },
+    //-------------------------------------
+    redrawLayers(){
+      this.cleanLayers()
+      this.drawLayers()
+    },
+    //-------------------------------------
+    redrawWhenMoveCoolDown() {
+      let du = Date.now() - this.myLastMove;
+      if(isNaN(du))
+        return
+      if(du > 500) {
+        this.redrawLayers()
+        this.myLastMove = undefined
+        return
+      }
+      _.delay(()=>{
+        this.redrawWhenMoveCoolDown()
+      }, du)
     }
     //-------------------------------------
   },
@@ -15885,8 +17132,7 @@ const _M = {
     //"value" : function(){this.drawValue()}
     "layers": function(newVal, oldVal) {
       if(!_.isEqual(newVal, oldVal)) {
-        this.cleanLayers()
-        this.drawLayers()
+        this.redrawLayers()
       }
     },
     "center": function(newVal, oldVal) {
@@ -15939,17 +17185,32 @@ const _M = {
       gestureHandling : this.gestureHandling,
       //...................................
       center_changed: ()=>{
+        //console.log(this.$map.getBounds().toJSON(), this.$map.getCenter().toJSON())
         let lal = this.$map.getCenter()
+        if(this.clustering) {
+          // May need to redraw when move cool down
+          if(_.isUndefined(this.myLastMove)) {
+            _.delay(()=>{
+              this.redrawWhenMoveCoolDown()
+            }, 500)
+          }
+        }
+        this.myLastMove = Date.now()
         if(this.pinCenter) {
           this.draw_center_marker(lal)
         }
         if(!this.isInSync()) {
           this.myUpTime = Date.now()
-          this.$emit("center:change", lal.toJSON())
+          let lan = lal.toJSON()
+          lan.lng = Ti.GPS.normlizedLng(lan.lng)
+          this.$emit("center:change", lan)
         }
       },
       //...................................
       zoom_changed: ()=> {
+        if(this.clustering) {
+          this.redrawLayers()
+        }
         this.myUpTime = Date.now()
         this.$emit("zoom:change", this.$map.getZoom())
       }
@@ -15957,7 +17218,9 @@ const _M = {
     })
     //......................................
     // Draw Value
-    this.drawLayers()
+    _.delay(()=>{
+      this.redrawLayers()
+    }, 1000)
   }
   //////////////////////////////////////////
 }
@@ -16309,6 +17572,10 @@ const _M = {
       type: String,
       default: "auto",
       validator: v=>/^(cooperative|greedy|none|auto)$/.test(v)
+    },
+    "clustering": {
+      type: Object,
+      default: undefined
     }
   },
   //////////////////////////////////////////
@@ -16368,6 +17635,7 @@ const _M = {
         "minZoom" : this.minZoom,
         "boundPadding": this.boundPadding,
         "gestureHandling" : this.TheGestureHandling,
+        "clustering" : this.clustering,
         ...this.MapComConfByMode
       }
     },
@@ -16472,7 +17740,7 @@ const _M = {
       }
       // Polygon
       if(_.isArray(this.LalValue)) {
-        return this.getBounds(this.LalValue)
+        return Ti.GPS.getBounds(this.LalValue)
       }
       // Point
       return _.pick(this.LalValue, "lng", "lat")
@@ -16605,56 +17873,6 @@ const _M = {
           this.checkUpdate()
         }, this.cooling)
       }
-    },
-    //-------------------------------------
-    /*
-    CROSS MODE:
-          lng:180        360:0                 180
-          +----------------+------------------NE  lat:90
-          |                |           lng_min|lat_max
-          |                |                  |
-          +----------------+------------------+-- lat:0
-          |                |                  |
-   lat_min|lng_max         |                  |
-          SW---------------+------------------+   lat:-90
-    
-    SIDE MODE:
-          lng:0           180                360
-          +----------------+------------------NE  lat:90
-          |                |           lng_max|lat_max
-          |                |                  |
-          +----------------+------------------+-- lat:0
-          |                |                  |
-   lat_min|lng_min         |                  |
-          SW---------------+------------------+   lat:-90
-    
-    @return [SW, NE]
-    */
-    getBounds(lalList=[]) {
-      let lng_max = undefined;
-      let lng_min = undefined;
-      let lat_max = undefined;
-      let lat_min = undefined;
-      for(let lal of this.LalValue) {
-        lng_max = _.isUndefined(lng_max)
-                    ? lal.lng : Math.max(lng_max, lal.lng)
-        lng_min = _.isUndefined(lng_min)
-                    ? lal.lng : Math.min(lng_min, lal.lng)
-        lat_max = _.isUndefined(lat_max)
-                    ? lal.lat : Math.max(lat_max, lal.lat)
-        lat_min = _.isUndefined(lat_min)
-                    ? lal.lat : Math.min(lat_min, lal.lat)
-      }
-      // Cross mode
-      if((lng_max-lng_min) > 180) {
-        return [
-          {lat: lat_min, lng:lng_max},
-          {lat: lat_max, lng:lng_min}]
-      }
-      // Side mode
-      return [
-        {lat: lat_min, lng:lng_min},
-        {lat: lat_max, lng:lng_max}]      
     },
     //-------------------------------------
     autoLatLng(val) {
@@ -34196,6 +35414,274 @@ Ti.Preload("ti/com/wn/adaptlist/_com.json", {
     "@com:ti/wall"]
 });
 //============================================================
+// JOIN: wn/chart/combo/wn-chart-combo.html
+//============================================================
+Ti.Preload("ti/com/wn/chart/combo/wn-chart-combo.html", `<div class="wn-chart-combo"
+  :class="TopClass">
+  <!--
+    Chart List
+  -->
+  <div class="as-main">
+    <TiChartCombo
+      v-for="li of TheChartList" 
+        :key="li.index"
+        v-bind="li"
+        :data="getChartData(li.index)"
+        @change:chart:name="OnChangeChartName(li, $event)"
+        @change:chart:type="OnChangeChartType(li, $event)"
+        @change:chart:datespan="OnChangeChartDateSpan(li, $event)"
+        @reload:data="OnReloadChartData(li, $event)"/>
+  </div>
+</div>`);
+//============================================================
+// JOIN: wn/chart/combo/wn-chart-combo.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data: ()=>({
+    /*
+    [{
+      name: "video-view",
+      date: "2020-09-21",
+      span: "7d",
+      type: "pie"
+    }]
+    */
+    myCharts : [],
+    myShowChartNames : [],
+    /*
+    {
+      $ChartName : {}
+    }
+    */
+    myChartData : {},
+    myDate : undefined,
+    mySpan : undefined,
+    myChartComConf : {}
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    "chartDefines" : {
+      type : Object,
+      default : undefined
+    },
+    "chartOptions" : {
+      type : Object,
+      default : undefined
+    },
+    /*
+    [{name, title, agg, sum, sumOptions, types, type, chartOptions}]
+    */
+    "charts" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "showCharts" : {
+      type : [String, Array],
+      default : undefined
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-multi-chart" : this.TheChartList.length > 1
+      });
+    },
+    //------------------------------------------------
+    TheShowChartNames() {
+      if(_.isEmpty(this.myShowChartNames)) {
+        return this.showCharts
+      }
+      return this.myShowChartNames
+    },
+    //------------------------------------------------
+    TheChartNameList() {
+      let list = []
+      _.forEach(this.charts, ca => {
+        list.push(_.pick(ca, "name", "title", "icon"))
+      })
+      return list
+    },
+    //------------------------------------------------
+    TheChartMap() {
+      let map = {}
+      _.forEach(this.charts, ca => {
+        map[ca.name] = ca
+      })
+      return map
+    },
+    //------------------------------------------------
+    TheChartList() {
+      let names = _.concat(this.TheShowChartNames)
+      let list = []
+      _.forEach(names, (caName, index) => {
+        let ca = _.get(this.TheChartMap, caName)
+        if(!ca)
+          return
+
+        let myChart = _.nth(this.myCharts, index) || {}
+        let li = _.cloneDeep(myChart)
+        let options = _.cloneDeep(this.chartOptions)
+        console.log(options)
+        options = _.merge(options, ca.chartOptions)
+        // Set default value
+        _.defaults(li, {
+          chartDefines : this.chartDefines,
+          nameList : this.TheChartNameList,
+          index,
+          name : ca.name,
+          chartTypes : ca.types,
+          type : ca.type,
+          chartOptions : options
+        })
+        // Test the type
+        if(li.type && _.indexOf(li.chartTypes, li.type)<0) {
+            li.type = ca.type
+        }
+
+        // Join to list
+        list.push(li)
+      })
+      return list
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    async OnReloadChartData({index}, {force, done}) {
+      await this.reloadChartData(index, force)
+
+      if(_.isFunction(done)) {
+        done()
+      }
+    },
+    //------------------------------------------------
+    OnChangeChartName({index}, name) {
+      // Update my chart setting
+      this.$set(this.myShowChartNames, index, name)
+      this.$nextTick(()=>{
+        this.reloadChartData(index)
+      })
+    },
+    //------------------------------------------------
+    OnChangeChartType({index}, type) {
+      // Update my chart setting
+      this.setMyChart(index, {type})
+    },
+    //------------------------------------------------
+    OnChangeChartDateSpan({index}, {date, span}) {
+      // Update my chart setting
+      this.setMyChart(index, {date, span})
+    },
+    //------------------------------------------------
+    //
+    // Utility
+    //
+    //------------------------------------------------
+    setMyChart(index, obj) {
+      let ca = _.nth(this.myCharts, index) || {}
+      ca = _.assign({}, ca, obj)
+      this.$set(this.myCharts, index, ca)
+    },
+    //------------------------------------------------
+    getChartData(index) {
+      //console.log("getChartData", name)
+      return _.get(this.myChartData, index)
+    },
+    //------------------------------------------------
+    //
+    // Actions
+    //
+    //------------------------------------------------
+    async reloadChartData(index, force) {
+      let chartName = _.nth(this.TheShowChartNames, index)
+      let chart = _.get(this.TheChartMap, chartName)
+      if(!chart) {
+        return
+      }
+      let {name, agg, sum, sumOptions} = chart
+      let {date, span} = _.nth(this.myCharts, index) || {}
+
+      // Prepare the command text
+      let cmd = [`statistics sum '${sum}' -json -cqn`]
+      // Date & span
+      if(date) {
+        cmd.push(`-date '${date}'`)
+      }
+      if(span) {
+        cmd.push(`-span '${span}'`)
+      }
+      // Agg
+      if(agg) {
+        cmd.push(`-agg '${agg}'`)
+      }
+      // Force
+      if(force){
+        cmd.push("-force")
+      }
+      // More options
+      _.forEach(sumOptions, (v, k)=>{
+        let str
+        if(_.isString(v) || _.isNumber(v) || _.isBoolean(v)) {
+          str = v
+        } else {
+          str = JSON.stringify(v)
+        }
+        cmd.push(`-${k} '${str}'`)
+      })
+
+      // Executed command
+      let cmdText = cmd.join(" ")
+      console.log("reloadChartData", cmdText)
+      let reo = await Wn.Sys.exec2(cmdText, {as: "json"})
+      if(reo && _.isArray(reo)) {
+        this.$set(this.myChartData, index, reo)
+      }
+    },
+    //------------------------------------------------
+    preloadChartData() {
+      if(!_.isEmpty(this.showCharts)) {
+        for(let i=0; i<this.showCharts.length; i++) {
+          this.reloadChartData(i)
+        }
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    "showCharts" : {
+      handler: function(newVal, oldVal) {
+        this.myShowChartNames = _.cloneDeep(this.showCharts)
+        if(!_.isEqual(newVal, oldVal)) {
+          this.preloadChartData()
+        }
+      },
+      immediate : true
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/chart/combo/wn-chart-combo.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/chart/combo/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/chart/combo/_com.json", {
+  "name" : "wn-chart-combo",
+  "globally" : true,
+  "template" : "./wn-chart-combo.html",
+  "mixins"   : ["./wn-chart-combo.mjs"],
+  "components" : [
+    "@com:ti/chart/combo"
+  ],
+  "deps" : []
+});
+//============================================================
 // JOIN: wn/cmd/panel/wn-cmd-panel.html
 //============================================================
 Ti.Preload("ti/com/wn/cmd/panel/wn-cmd-panel.html", `<pre class="wn-cmd-panel"
@@ -34712,6 +36198,9 @@ const _M = {
     },
     //------------------------------------------------
     HistoryItems() {
+      if(!this.meta) {
+        return []
+      }
       // Make sure in history folder
       if(this.prefix) {
         let fph = Wn.Io.getFormedPath(this.meta)
@@ -34722,6 +36211,11 @@ const _M = {
 
       let items = []
       _.forEach(this.data.list, it=> {
+        // Guard
+        if('FILE' != it.race || !it.nm.endsWith(".json"))
+          return
+        
+        // Eval the history item tab name
         let name  = Ti.Util.getMajorName(it.nm)
         let title = it.title
         if(!title) {
@@ -45918,7 +47412,6 @@ const _M = {
     async openView(oid) {
       if(!_.isString(oid))
         return
-
       // Guard it
       let bombed = await Ti.Fuse.fire()
       if(!bombed) {
@@ -46640,6 +48133,18 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN: en-us/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "stat-date-at" : "Stat at",
+  "stat-date-at-oor" : "Statistics on this date are not ready yet",
+  "stat-date-span" : "Date span",
+  "dt-in" : "in ${val}",
+  "dt-u-day" : "Day",
+  "dt-u-hour" : "Hour",
+  "dt-u-min" : "Min",
+  "dt-u-sec" : "Seconds",
+  "dt-u-ms" : "Milliseconds",
+  "dt-u-week" : "Week",
+  "dt-u-month" : "Month",
+  "dt-u-year" : "Year",
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
@@ -46661,6 +48166,11 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "captcha": "Captcha",
   "captcha-chagne": "Next",
   "captcha-tip": "Please enter the captcha",
+  "chart": "Chart",
+  "chart-rank": "Rank Chart",
+  "chart-bar": "Bar Chart",
+  "chart-line": "Line Chart",
+  "chart-pie": "Pie Chart",
   "checked": "Checked",
   "choose": "Select",
   "choose-file": "Select file",
@@ -46759,6 +48269,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "meta": "Meta data",
   "mine": "Mine",
   "modal": "Modal",
+  "modify": "Modify",
   "more": "More",
   "msg": "Message",
   "name": "Name",
@@ -46802,6 +48313,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "publish": "Publish",
   "publishing": "Publishing ...",
   "refresh": "Refresh",
+  "refresh-hard": "Refresh Hardly",
   "reloading": "Reloading ...",
   "remove": "Remove",
   "removing": "Removing ...",
@@ -47606,6 +49118,18 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "stat-date-at" : "统计日期",
+  "stat-date-at-oor" : "这个日期的统计数据还未就绪",
+  "stat-date-span" : "时间跨度",
+  "dt-in" : "在${val}内",
+  "dt-u-day" : "天",
+  "dt-u-hour" : "小时",
+  "dt-u-min" : "分钟",
+  "dt-u-sec" : "秒",
+  "dt-u-ms" : "好眠",
+  "dt-u-week" : "周",
+  "dt-u-month" : "月",
+  "dt-u-year" : "年",
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",
@@ -47627,6 +49151,11 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "captcha": "验证码",
   "captcha-chagne": "换一张",
   "captcha-tip": "请输入图中的验证码",
+  "chart": "图表",
+  "chart-rank": "条状图",
+  "chart-bar": "柱状图",
+  "chart-line": "折线图",
+  "chart-pie": "饼状图",
   "checked": "已选中",
   "choose": "选择",
   "choose-file": "选择文件",
@@ -47725,6 +49254,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "meta": "元数据",
   "mine": "我的",
   "modal": "模式",
+  "modify": "修改",
   "more": "更多",
   "msg": "消息",
   "name": "名称",
@@ -47768,6 +49298,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "publish": "发布",
   "publishing": "正在发布...",
   "refresh": "刷新",
+  "refresh-hard": "硬性刷新",
   "reloading": "重新加载数据...",
   "remove": "移除",
   "removing": "正在移除...",

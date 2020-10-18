@@ -1,4 +1,4 @@
-// Pack At: 2020-10-11 02:36:09
+// Pack At: 2020-10-19 02:46:36
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -8951,6 +8951,97 @@ const {GPS} = (function(){
         ret += (150.0 * Math.sin(x / 12.0 * pi) + 300.0 * Math.sin(x / 30.0
                 * pi)) * 2.0 / 3.0;
         return ret;
+    },
+  
+    getLngToWest(lng, west){
+      let re = lng - west;
+      if(west<0 && lng>0){
+        return 360 - re
+      }
+      return re
+    },
+  
+    getLatToSouth(lat, south) {
+      return lat - south
+    },
+  
+    normlizedLat(lat) {
+      return lat
+    },
+  
+    normlizedLng(lng) {
+      if(lng > 360) {
+        lng = lng % 360
+      }
+      if(lng > 180) {
+        return lng - 360
+      }
+      if(lng < -360) {
+        lng = lng % 360
+      }
+      if(lng < -180) {
+        return lng + 360
+      }
+      return lng
+    },
+  
+    //-------------------------------------
+      /*
+      CROSS MODE:
+            lng:180        360:0                 180
+            +----------------+------------------NE  lat:90
+            |                |           lng_min|lat_max
+            |                |                  |
+            +----------------+------------------+-- lat:0
+            |                |                  |
+     lat_min|lng_max         |                  |
+            SW---------------+------------------+   lat:-90
+      
+      SIDE MODE:
+            lng:0           180                360
+            +----------------+------------------NE  lat:90
+            |                |           lng_max|lat_max
+            |                |                  |
+            +----------------+------------------+-- lat:0
+            |                |                  |
+     lat_min|lng_min         |                  |
+            SW---------------+------------------+   lat:-90
+      
+      @return [SW, NE]
+      */
+     getBounds(lalList=[]) {
+      let lng_max = undefined;
+      let lng_min = undefined;
+      let lat_max = undefined;
+      let lat_min = undefined;
+      for(let lal of lalList) {
+        lng_max = _.isUndefined(lng_max)
+                    ? lal.lng : Math.max(lng_max, lal.lng)
+        lng_min = _.isUndefined(lng_min)
+                    ? lal.lng : Math.min(lng_min, lal.lng)
+        lat_max = _.isUndefined(lat_max)
+                    ? lal.lat : Math.max(lat_max, lal.lat)
+        lat_min = _.isUndefined(lat_min)
+                    ? lal.lat : Math.min(lat_min, lal.lat)
+      }
+      // Cross mode
+      if((lng_max-lng_min) > 180) {
+        return [
+          {lat: lat_min, lng:lng_max},
+          {lat: lat_max, lng:lng_min}]
+      }
+      // Side mode
+      return [
+        {lat: lat_min, lng:lng_min},
+        {lat: lat_max, lng:lng_max}]      
+    },
+  
+    getCenter(lalList=[]) {
+      let [sw, ne] = TiGPS.getBounds(lalList)
+      return {
+        lat: (ne.lat + sw.lat)/2,
+        lng: (ne.lng + sw.lng)/2
+      }
     }
   }
   //---------------------------------------
@@ -10931,7 +11022,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201011.023609",
+  "version" : "2.5-20201019.024636",
   "dev" : false,
   "appName" : null,
   "session" : {},

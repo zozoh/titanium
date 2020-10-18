@@ -1,4 +1,4 @@
-// Pack At: 2020-10-11 02:36:09
+// Pack At: 2020-10-19 02:46:36
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -18,10 +18,10 @@ const Io = (function(){
   ////////////////////////////////////////////
   const WnIo = {
     isFullObjId(id) {
-      return /^[0-9a-v]{26}(:file:.+)?$/.test(id)
+      return /^[0-9a-v]{26}(:.+)?$/.test(id)
     },
     isFullObjIdPath(idPath) {
-      return /^id:[0-9a-v]{26}(:file:.+)?$/.test(idPath)
+      return /^id:[0-9a-v]{26}(:.+)?$/.test(idPath)
     },
     /***
      * Get object meta by id(fullobjId) or path
@@ -2158,7 +2158,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20201011.023609"
+const WALNUT_VERSION = "2.1-20201019.024636"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
