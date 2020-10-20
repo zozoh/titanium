@@ -1,6 +1,7 @@
 {
   "className": null,
   "title" : null,
+  "name"  : null,
   "path"  : null,
   "pageUri": null,
   "ready" : 0,

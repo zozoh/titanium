@@ -21,6 +21,7 @@ import {Storage}      from "./storage.mjs"
 import {Shortcut}     from "./shortcut.mjs"
 import {TiWebsocket}  from "./websocket.mjs"
 import {Validate}     from "./validate.mjs"
+import {AutoMatch}    from "./automatch.mjs"
 import {Types}        from "./types.mjs"
 import {Util}         from "./util.mjs"
 import {Trees}        from "./trees.mjs"
@@ -104,6 +105,7 @@ export const Ti = {
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
   WWW, GPS, Validate, DateTime, Num, Trees, Bank,
   Mapping, Dict, DictFactory, Rects, Rect,
+  AutoMatch,
   //-----------------------------------------------------
   Websocket: TiWebsocket,
   //-----------------------------------------------------

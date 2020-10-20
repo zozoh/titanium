@@ -233,12 +233,15 @@ DIV(@app)             # Vue(root) : index.wnml
       // 这个机制被封装在 SSR-JSON 里面
       // 数字 0 为默认值，表示不预加载
       // 大于 0 的数字，按从小到大，依次加载
+      // 如果数字小于 0，则表示等页面都加载完毕后，再加载
+      // 并且这个加载是不会用 await 阻断的。
+      // 非常适合记录页面访问统计数据等脚本
       "preload" : 0,
       // 本选项表示即使页面不声明本 api，也加入页面
       // 通常用作全局的数据检查，譬如 auth/doCheckMe
       "pages" : true,
       // 如果开启了 preload, 这个选项可以根据 rootState 动态判断是否需要加载
-      // Ti.Validate.match(rootState, api.preloadWhen, false)
+      // Ti.AutoMatch.test(api.preloadWhen, rootState)
       "preloadWhen" : {..}
       // 得到的数据对象应该存放到 data 段的哪个键下，
       // 可选，如果未定义，则用 API 的键作为 dataKey

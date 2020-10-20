@@ -28,23 +28,12 @@ const _M = {
       let apiBase  = rootState.apiBase || "/"
       let SiteApis = rootState.apis || {}
       let PageApis = {}
-      // Join site apis
-      _.forEach(SiteApis, (api, key)=>{
-        if(api.pages) {
-          api = _.cloneDeep(api)
-          api.name = api.name || key
-          PageApis[key] = api
-        }
-      })
-      // For each api declared in current page
-      _.forEach(state.apis, (pageApi, key)=>{
-        //..........................................
-        // Get SiteApi template
-        let siteApi = _.get(SiteApis, pageApi.apiName || key)
-        //console.log(key, siteApi)
-        //..........................................
-        // Marge the page api
+
+      // Define the api tidy func
+      const hydrateApi = function(key, siteApi, pageApi={}) {
         let api = _.cloneDeep(siteApi)
+
+        // Assign default value
         _.defaults(api, {
           name    : key,
           method  : "GET",
@@ -53,11 +42,13 @@ const _M = {
           vars    : {},
           as      : "json"
         })
+
         // API path is required
         if(!api.path) {
           console.warn(`!!!API[${key}] without defined in site!!!`, api)
           return
         }
+
         //..........................................
         // Merge vars
         _.assign(api.vars, pageApi.vars)
@@ -66,22 +57,18 @@ const _M = {
         _.assign(api.headers, pageApi.headers)
         //..........................................
         // Merge params
-        _.forEach(api.params, (param, name) => {
-          let paramVal = _.get(pageApi.params, name)
-          if(!_.isUndefined(paramVal)) {
-            param.value = paramVal
-          }
-        })
-        //console.log("params", params)
+        _.assign(api.params, pageApi.params)
         //..........................................
         // Absolute URL
-        if(/^(https?:\/\/|\/)/.test(api.path)) {
-          api.url = api.path
+        if("INVOKE" != api.method) {
+          if(/^(https?:\/\/|\/)/.test(api.path)) {
+            api.url = api.path
+          }
+          // Join with the apiBase
+          else {
+            api.url = Ti.Util.appendPath(apiBase, api.path)
+          }
         }
-        // Join with the apiBase
-        else {
-          api.url = Ti.Util.appendPath(apiBase, api.path)
-        }       
         //..........................................
         // Copy the Setting from page
         _.assign(api, _.pick(pageApi, 
@@ -100,8 +87,30 @@ const _M = {
           dataKey  : key
         })
         //..........................................
-        // Join to map
-        PageApis[key] = api
+        // Then done
+        return api
+      }  // const hydrateApi = function
+
+      // Join site apis
+      _.forEach(SiteApis, (api, key)=>{
+        if(api.pages) {
+          api = hydrateApi(key, api)
+          if(api) {
+            PageApis[key] = api
+          }
+        }
+      })
+      // For each api declared in current page
+      _.forEach(state.apis, (pageApi, key)=>{
+        //..........................................
+        // Get SiteApi template
+        let siteApi = _.get(SiteApis, pageApi.apiName || key)
+        //console.log(key, siteApi)
+        let api = hydrateApi(key, siteApi, pageApi)
+
+        if(api) {
+          PageApis[key] = api
+        }
         //..........................................
       })  // _.forEach(state.apis, (info, key)=>{
       // console.log("APIs", PageApis)
@@ -319,14 +328,7 @@ const _M = {
       // Override api
       api = _.cloneDeep(api)
       _.assign(api.vars, vars)
-      if(!_.isEmpty(params)) {
-        _.forEach(api.params, (pa, k) => {
-          let v = _.get(params, k)
-          if(!Ti.Util.isNil(v)) {
-            pa.value = v
-          }
-        })
-      }
+      _.assign(api.params, params)
       _.assign(api.headers, headers)
       if(!Ti.Util.isNil(body)) {
         api.body = body
@@ -350,17 +352,7 @@ const _M = {
       options.headers = Ti.Util.explainObj(rootState, api.headers)
       //.....................................
       // Eval the params
-      options.params = {}
-      _.forEach(api.params, (param, key)=>{
-        let val = Ti.Util.explainObj(rootState, param.value)
-        // Check required
-        if(param.required && Ti.Util.isNil(val)) {
-          let errMsg = `${url}: lack required param: ${key}`
-          Ti.Toast.Open(errMsg, "error")
-          throw errMsg
-        }
-        options.params[key] = val
-      })
+      options.params = Ti.Util.explainObj(rootState, api.params)
       //.....................................
       // Prepare the body
       if("POST" == api.method && api.body) {
@@ -405,9 +397,9 @@ const _M = {
       }
       // Cache the Error
       catch (err) {
-        console.warn(err)
+        console.warn(`Fail to invoke ${url}`, {api, url, options}, err)
         dispatch("doAction", fail, {root:true})
-         return
+        return
       }
       let data = reo
       //.....................................
@@ -474,16 +466,13 @@ const _M = {
       let isAll = _.isEmpty(keys)
       let apis = _.filter(getters.pageApis, (api, k)=>{
         // Auto preload
-        if(isAll) {
-          if(api.preload > 0) {
-            if(api.preloadWhen) {
-              return Ti.Validate.match(rootState, api.preloadWhen, false)
-            }
-            return true
+        if((isAll && api.preload > 0) || _.indexOf(keys, k)>=0) {
+          if(api.preloadWhen) {
+            return Ti.AutoMatch.test(api.preloadWhen, rootState)
           }
+          return true
         }
-        // Specify apis
-        return _.indexOf(keys, k)>=0
+        return false
       })
       //.......................................
       // Sort preload
@@ -579,6 +568,7 @@ const _M = {
       }
       pinfo.params = _.merge({}, pinfo.params, params)
       pinfo.path = pinfo.path || path
+      pinfo.name = Ti.Util.getMajorName(pinfo.path)
       //.....................................
       // Update Path url
       let link = Ti.Util.Link({url:path, params, anchor})
@@ -610,18 +600,30 @@ const _M = {
       //.....................................
       // Conclude the api loading keys
       let keyGroups = []
+      let afterLoadkeys = []   // After page loaded, those api should be load
       _.forEach(getters.pageApis, (api, k)=>{
         let preload = api.preload
-        if(!_.isNumber(preload)) {
-          preload = preload ? 1 : -1
-        }
-        if(preload >= 0) {
-          let keys = _.nth(keyGroups, preload)
-          if(!_.isArray(keys)){
-            keys = []
-            keyGroups[preload] = keys
+        // Considering preload=true
+        if(_.isBoolean(preload)) {
+          if(!preload) {
+            return
           }
-          keys.push(k)
+          preload = 1
+        }
+        // Preload before display
+        if(_.isNumber(preload)) {
+          if(preload >= 0) {
+            let keys = _.nth(keyGroups, preload)
+            if(!_.isArray(keys)){
+              keys = []
+              keyGroups[preload] = keys
+            }
+            keys.push(k)
+          }
+          // After page load
+          else {
+            afterLoadkeys.push(k)
+          }
         }
       })
       //console.log(keyGroups)
@@ -642,6 +644,11 @@ const _M = {
       //console.log("@page:ready ...")
       commit("setReady", 2)
       await dispatch("invokeAction", {name:"@page:ready"}, {root:true})
+      //.....................................
+      // Load the after page api
+      if(afterLoadkeys.length > 0) {
+        dispatch("reloadData", afterLoadkeys)
+      }
       //.....................................
     }
     //--------------------------------------------
