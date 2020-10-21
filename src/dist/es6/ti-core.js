@@ -1,4 +1,4 @@
-// Pack At: 2020-10-19 02:46:36
+// Pack At: 2020-10-21 16:51:41
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -5659,6 +5659,191 @@ const {Validate} = (function(){
   return {Validate: TiValidate};
 })();
 //##################################################
+// # import {AutoMatch}    from "./automatch.mjs"
+const {AutoMatch} = (function(){
+  ///////////////////////////////////////
+  function DoAutoMatch(input) {
+    // null
+    if (Ti.Util.isNil(input)) {
+      return new NilMatch();
+    }
+    // Boolean
+    if (_.isBoolean(input)) {
+      return BooleanMatch(input);
+    }
+    // Number
+    if(_.isNumber(input)) {
+      return NumberMatch(input);
+    }
+    // Array
+    if (_.isArray(input)) {
+      let ms = []
+      for(let o of input) {
+        let m = DoAutoMatch(o)
+        ms.push(m)
+      }
+      return ParallelMatch(...ms);
+    }
+    // Map
+    if (_.isPlainObject(input)) {
+      return MapMatch(input);
+    }
+    // String
+    if (_.isString(input)) {
+      return AutoStrMatch(input);
+    }
+    throw Ti.Err.make("e.match.unsupport", input);
+  }
+  function AutoStrMatch(input) {
+    // nil
+    if (Ti.Util.isNil(input)) {
+      return NilMatch();
+    }
+    // empty
+    if ("" == input) {
+      return EmptyMatch();
+    }
+    // blank
+    if (Ti.S.isBlank(input) || "[BLANK]" == input) {
+      return BlankMatch();
+    }
+    // Regex
+    if(/^!?\^/.test(input)) {
+      return RegexMatch(input)
+    }
+    // Wildcard
+    if(/\*/.test(input)) {
+      return WildcardMatch(input)
+    }
+    // StringMatch
+    return StringMatch(input)
+  }
+  function BlankMatch() {
+    return function(val) {
+      return Ti.Util.isNil(val) || Ti.S.isBlank(val)
+    }
+  }
+  function BooleanMatch(bool) {
+    let b = bool ? true : false
+    return function(val) {
+      let ib = val ? true : false
+      return ib === b
+    }
+  }
+  function NumberMatch(n) {
+    return function(val){
+      return val == n
+    }
+  }
+  function EmptyMatch() {
+    return function(val){
+      return Ti.Util.isNil(val) || "" === val
+    }
+  }
+  function MapMatch(map) {
+    // Pre-build
+    let matchs = []
+    _.forEach(map, (val, key)=>{
+      let not = key.startsWith("!")
+      let m = DoAutoMatch(val)
+      if(not) {
+        key = key.substring(1).trim()
+        m = NotMatch(m)
+      }
+      matchs.push({key, m})
+    })
+    // return matcher
+    return function(val) {
+      if(!val || !_.isPlainObject(val)){
+        return false
+      }
+      for(let it of matchs) {
+        let key = it.key
+        let v = _.get(val, key)
+        let m = it.m
+        if(!m(v))
+          return false
+      }
+      return true
+    }
+  }
+  function NilMatch() {
+    return function(val) {
+      return Ti.Util.isNil(val)
+    }
+  }
+  function NotMatch(m) {
+    return function(input) {
+      return !m(input)
+    }
+  }
+  function ParallelMatch(...ms) {
+    return function(val){
+      if(_.isEmpty(ms))
+        return false
+      for(let m of ms){
+        if(m(val))
+          return true
+      }
+      return false
+    }
+  }
+  function RegexMatch(regex) {
+    let not = false
+    if(regex.startsWith("!")) {
+      not = true
+      regex = regex.substring(1).trim()
+    }
+    let P = new RegExp(regex)
+    return function(val) {
+      if(Ti.Util.isNil(val))
+        return not
+      return P.test(val) ? !not : not
+    }
+  }
+  function StringMatch(input) {
+    let ignoreCase = false
+    if (input.startsWith("~~")) {
+      ignoreCase = true;
+      input = input.substring(2).toUpperCase();
+    }
+    return function(val) {
+      if(Ti.Util.isNil(val)){
+        return Ti.Util.isNil(input)
+      }
+      if(ignoreCase) {
+        return input == val.toUpperCase()
+      }
+      return input == val
+    }
+  }
+  function WildcardMatch(wildcard) {
+    let not = false
+    if(wildcard.startsWith("!")) {
+      not = true
+      wildcard = wildcard.substring(1).trim()
+    }
+    let regex = "^" + wildcard.replaceAll("*", ".*") + "$"
+    let P = new RegExp(regex)
+    return function(val) {
+      if(Ti.Util.isNil(val))
+        return not
+      return P.test(val) ? !not : not
+    }
+  }
+  ///////////////////////////////////////
+  const TiAutoMatch = {
+    parse(input) {
+      return DoAutoMatch(input)
+    },
+    test(input, val) {
+      return DoAutoMatch(input)(val)
+    }
+  }
+  ///////////////////////////////////////
+  return {AutoMatch: TiAutoMatch};
+})();
+//##################################################
 // # import {Types}        from "./types.mjs"
 const {Types} = (function(){
   /////////////////////////////////////
@@ -11022,7 +11207,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201019.024636",
+  "version" : "2.5-20201021.165141",
   "dev" : false,
   "appName" : null,
   "session" : {},
@@ -11053,6 +11238,7 @@ export const Ti = {
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
   WWW, GPS, Validate, DateTime, Num, Trees, Bank,
   Mapping, Dict, DictFactory, Rects, Rect,
+  AutoMatch,
   //-----------------------------------------------------
   Websocket: TiWebsocket,
   //-----------------------------------------------------

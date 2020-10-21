@@ -86,7 +86,7 @@ export default {
         let myChart = _.nth(this.myCharts, index) || {}
         let li = _.cloneDeep(myChart)
         let options = _.cloneDeep(this.chartOptions)
-        console.log(options)
+        //console.log(options)
         options = _.merge(options, ca.chartOptions)
         // Set default value
         _.defaults(li, {
@@ -113,8 +113,8 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    async OnReloadChartData({index}, {force, done}) {
-      await this.reloadChartData(index, force)
+    async OnReloadChartData({index}, {force, cleanCache, done}) {
+      await this.reloadChartData(index, {force, cleanCache})
 
       if(_.isFunction(done)) {
         done()
@@ -137,6 +137,9 @@ export default {
     OnChangeChartDateSpan({index}, {date, span}) {
       // Update my chart setting
       this.setMyChart(index, {date, span})
+      this.$nextTick(()=>{
+        this.reloadChartData(index)
+      })
     },
     //------------------------------------------------
     //
@@ -158,7 +161,7 @@ export default {
     // Actions
     //
     //------------------------------------------------
-    async reloadChartData(index, force) {
+    async reloadChartData(index, {force=false, cleanCache=false}={}) {
       let chartName = _.nth(this.TheShowChartNames, index)
       let chart = _.get(this.TheChartMap, chartName)
       if(!chart) {
@@ -179,6 +182,9 @@ export default {
       // Agg
       if(agg) {
         cmd.push(`-agg '${agg}'`)
+        if(cleanCache) {
+          cmd.push('-agg-force')
+        }
       }
       // Force
       if(force){

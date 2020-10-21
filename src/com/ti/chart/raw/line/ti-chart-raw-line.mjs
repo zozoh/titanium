@@ -4,6 +4,18 @@ export default {
     "valueTickNb" : {
       type : Number,
       default : 10
+    },
+    "lineAs" : {
+      type : [Object, Boolean],
+      default : true
+    },
+    "areaAs" : {
+      type : [Object, Boolean],
+      default : false
+    },
+    "pointAs" : {
+      type : [Object, Boolean],
+      default : true
     }
   },
   ////////////////////////////////////////////////////
@@ -31,22 +43,64 @@ export default {
         chart.data(list);
 
         // Tick
+        let tickInterval;
         if(this.valueTickNb > 0) {
-          let tickInterval = Math.round(maxValue / this.valueTickNb)
-          chart.scale(this.valueBy, {tickInterval});
+          tickInterval = Math.round(maxValue / this.valueTickNb)
         }
-        chart
-          .line()
-          .position(`name*value`)
-        chart
-          .point()
-          .position(`name*value`)
-          .size(4)
-          .shape('circle')
-          .style({
-            stroke: '#fff',
-            lineWidth: 1
-          });
+
+        // Scale value axis
+        chart.scale("value", {
+          min: 0, max: maxValue,
+          nice: true,
+          tickInterval
+        })
+
+        // Draw line
+        if(this.lineAs) {
+          let lineAs = _.assign({   
+            
+          }, this.lineAs)
+
+          let view = chart.line().position(`name*value`)
+          _.forEach(lineAs, (v, k)=>{
+            if(Ti.Util.isNil(v))
+              return
+            view[k](v)
+          })
+        }
+
+        // Draw point
+        if(this.areaAs) {
+          let areaAs = _.assign({   
+            
+          }, this.areaAs)
+
+          let view = chart.area().position(`name*value`)
+          _.forEach(areaAs, (v, k)=>{
+            if(Ti.Util.isNil(v))
+              return
+            view[k](v)
+          })
+        }
+
+        // Draw point
+        if(this.pointAs) {
+          let pointAs = _.assign({   
+            size  : 4,
+            shape : 'circle',
+            style : {
+              stroke: '#FFF',
+              lineWidth: 1
+            }
+          }, this.pointAs)
+
+          let view = chart.point().position(`name*value`)
+          _.forEach(pointAs, (v, k)=>{
+            if(Ti.Util.isNil(v))
+              return
+            view[k](v)
+          })
+        }
 
       } // ~ function
     }

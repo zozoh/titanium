@@ -168,6 +168,20 @@ export default {
               }
             },
             "action" : ()=> this.reloadData(true),
+          }, {
+            "name"  : "forceClearReloading",
+            "type" : "action",
+            "icon" : "im-reset",
+            "text" : "i18n:refresh-hard-clear",
+            "altDisplay" : {
+              "icon" : "zmdi-refresh zmdi-hc-spin",
+              "text" : "i18n:loading",
+              "match" : {
+                "reloading" : true,
+                "force" : true
+              }
+            },
+            "action" : ()=> this.reloadData(true, true),
           }]
       }]
     },
@@ -324,10 +338,10 @@ export default {
       }
     },
     //------------------------------------------------
-    reloadData(force=false) {
+    reloadData(force=false, cleanCache=false) {
       this.myActionStatus = {reloading:true,  force}
       this.$notify("reload:data", {
-        force,
+        force, cleanCache, 
         done: ()=>{
           this.myActionStatus = {}
         }

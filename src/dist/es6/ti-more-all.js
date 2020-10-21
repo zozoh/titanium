@@ -1,4 +1,4 @@
-// Pack At: 2020-10-19 02:46:36
+// Pack At: 2020-10-21 16:51:41
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -5413,6 +5413,20 @@ const _M = {
               }
             },
             "action" : ()=> this.reloadData(true),
+          }, {
+            "name"  : "forceClearReloading",
+            "type" : "action",
+            "icon" : "im-reset",
+            "text" : "i18n:refresh-hard-clear",
+            "altDisplay" : {
+              "icon" : "zmdi-refresh zmdi-hc-spin",
+              "text" : "i18n:loading",
+              "match" : {
+                "reloading" : true,
+                "force" : true
+              }
+            },
+            "action" : ()=> this.reloadData(true, true),
           }]
       }]
     },
@@ -5569,10 +5583,10 @@ const _M = {
       }
     },
     //------------------------------------------------
-    reloadData(force=false) {
+    reloadData(force=false, cleanCache=false) {
       this.myActionStatus = {reloading:true,  force}
       this.$notify("reload:data", {
-        force,
+        force, cleanCache, 
         done: ()=>{
           this.myActionStatus = {}
         }
@@ -5900,6 +5914,18 @@ const _M = {
     "valueTickNb" : {
       type : Number,
       default : 10
+    },
+    "lineAs" : {
+      type : [Object, Boolean],
+      default : true
+    },
+    "areaAs" : {
+      type : [Object, Boolean],
+      default : false
+    },
+    "pointAs" : {
+      type : [Object, Boolean],
+      default : true
     }
   },
   ////////////////////////////////////////////////////
@@ -5927,22 +5953,64 @@ const _M = {
         chart.data(list);
 
         // Tick
+        let tickInterval;
         if(this.valueTickNb > 0) {
-          let tickInterval = Math.round(maxValue / this.valueTickNb)
-          chart.scale(this.valueBy, {tickInterval});
+          tickInterval = Math.round(maxValue / this.valueTickNb)
         }
-        chart
-          .line()
-          .position(`name*value`)
-        chart
-          .point()
-          .position(`name*value`)
-          .size(4)
-          .shape('circle')
-          .style({
-            stroke: '#fff',
-            lineWidth: 1
-          });
+
+        // Scale value axis
+        chart.scale("value", {
+          min: 0, max: maxValue,
+          nice: true,
+          tickInterval
+        })
+
+        // Draw line
+        if(this.lineAs) {
+          let lineAs = _.assign({   
+            
+          }, this.lineAs)
+
+          let view = chart.line().position(`name*value`)
+          _.forEach(lineAs, (v, k)=>{
+            if(Ti.Util.isNil(v))
+              return
+            view[k](v)
+          })
+        }
+
+        // Draw point
+        if(this.areaAs) {
+          let areaAs = _.assign({   
+            
+          }, this.areaAs)
+
+          let view = chart.area().position(`name*value`)
+          _.forEach(areaAs, (v, k)=>{
+            if(Ti.Util.isNil(v))
+              return
+            view[k](v)
+          })
+        }
+
+        // Draw point
+        if(this.pointAs) {
+          let pointAs = _.assign({   
+            size  : 4,
+            shape : 'circle',
+            style : {
+              stroke: '#FFF',
+              lineWidth: 1
+            }
+          }, this.pointAs)
+
+          let view = chart.point().position(`name*value`)
+          _.forEach(pointAs, (v, k)=>{
+            if(Ti.Util.isNil(v))
+              return
+            view[k](v)
+          })
+        }
 
       } // ~ function
     }
@@ -35525,7 +35593,7 @@ const _M = {
         let myChart = _.nth(this.myCharts, index) || {}
         let li = _.cloneDeep(myChart)
         let options = _.cloneDeep(this.chartOptions)
-        console.log(options)
+        //console.log(options)
         options = _.merge(options, ca.chartOptions)
         // Set default value
         _.defaults(li, {
@@ -35552,8 +35620,8 @@ const _M = {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    async OnReloadChartData({index}, {force, done}) {
-      await this.reloadChartData(index, force)
+    async OnReloadChartData({index}, {force, cleanCache, done}) {
+      await this.reloadChartData(index, {force, cleanCache})
 
       if(_.isFunction(done)) {
         done()
@@ -35576,6 +35644,9 @@ const _M = {
     OnChangeChartDateSpan({index}, {date, span}) {
       // Update my chart setting
       this.setMyChart(index, {date, span})
+      this.$nextTick(()=>{
+        this.reloadChartData(index)
+      })
     },
     //------------------------------------------------
     //
@@ -35597,7 +35668,7 @@ const _M = {
     // Actions
     //
     //------------------------------------------------
-    async reloadChartData(index, force) {
+    async reloadChartData(index, {force=false, cleanCache=false}={}) {
       let chartName = _.nth(this.TheShowChartNames, index)
       let chart = _.get(this.TheChartMap, chartName)
       if(!chart) {
@@ -35618,6 +35689,9 @@ const _M = {
       // Agg
       if(agg) {
         cmd.push(`-agg '${agg}'`)
+        if(cleanCache) {
+          cmd.push('-agg-force')
+        }
       }
       // Force
       if(force){
@@ -45244,6 +45318,7 @@ Ti.Preload("ti/lib/www/mod/auth/_mod.json", {
 Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "className": null,
   "title" : null,
+  "name"  : null,
   "path"  : null,
   "pageUri": null,
   "ready" : 0,
@@ -45297,23 +45372,12 @@ const _M = {
       let apiBase  = rootState.apiBase || "/"
       let SiteApis = rootState.apis || {}
       let PageApis = {}
-      // Join site apis
-      _.forEach(SiteApis, (api, key)=>{
-        if(api.pages) {
-          api = _.cloneDeep(api)
-          api.name = api.name || key
-          PageApis[key] = api
-        }
-      })
-      // For each api declared in current page
-      _.forEach(state.apis, (pageApi, key)=>{
-        //..........................................
-        // Get SiteApi template
-        let siteApi = _.get(SiteApis, pageApi.apiName || key)
-        //console.log(key, siteApi)
-        //..........................................
-        // Marge the page api
+
+      // Define the api tidy func
+      const hydrateApi = function(key, siteApi, pageApi={}) {
         let api = _.cloneDeep(siteApi)
+
+        // Assign default value
         _.defaults(api, {
           name    : key,
           method  : "GET",
@@ -45322,11 +45386,13 @@ const _M = {
           vars    : {},
           as      : "json"
         })
+
         // API path is required
         if(!api.path) {
           console.warn(`!!!API[${key}] without defined in site!!!`, api)
           return
         }
+
         //..........................................
         // Merge vars
         _.assign(api.vars, pageApi.vars)
@@ -45335,22 +45401,18 @@ const _M = {
         _.assign(api.headers, pageApi.headers)
         //..........................................
         // Merge params
-        _.forEach(api.params, (param, name) => {
-          let paramVal = _.get(pageApi.params, name)
-          if(!_.isUndefined(paramVal)) {
-            param.value = paramVal
-          }
-        })
-        //console.log("params", params)
+        _.assign(api.params, pageApi.params)
         //..........................................
         // Absolute URL
-        if(/^(https?:\/\/|\/)/.test(api.path)) {
-          api.url = api.path
+        if("INVOKE" != api.method) {
+          if(/^(https?:\/\/|\/)/.test(api.path)) {
+            api.url = api.path
+          }
+          // Join with the apiBase
+          else {
+            api.url = Ti.Util.appendPath(apiBase, api.path)
+          }
         }
-        // Join with the apiBase
-        else {
-          api.url = Ti.Util.appendPath(apiBase, api.path)
-        }       
         //..........................................
         // Copy the Setting from page
         _.assign(api, _.pick(pageApi, 
@@ -45369,8 +45431,30 @@ const _M = {
           dataKey  : key
         })
         //..........................................
-        // Join to map
-        PageApis[key] = api
+        // Then done
+        return api
+      }  // const hydrateApi = function
+
+      // Join site apis
+      _.forEach(SiteApis, (api, key)=>{
+        if(api.pages) {
+          api = hydrateApi(key, api)
+          if(api) {
+            PageApis[key] = api
+          }
+        }
+      })
+      // For each api declared in current page
+      _.forEach(state.apis, (pageApi, key)=>{
+        //..........................................
+        // Get SiteApi template
+        let siteApi = _.get(SiteApis, pageApi.apiName || key)
+        //console.log(key, siteApi)
+        let api = hydrateApi(key, siteApi, pageApi)
+
+        if(api) {
+          PageApis[key] = api
+        }
         //..........................................
       })  // _.forEach(state.apis, (info, key)=>{
       // console.log("APIs", PageApis)
@@ -45588,14 +45672,7 @@ const _M = {
       // Override api
       api = _.cloneDeep(api)
       _.assign(api.vars, vars)
-      if(!_.isEmpty(params)) {
-        _.forEach(api.params, (pa, k) => {
-          let v = _.get(params, k)
-          if(!Ti.Util.isNil(v)) {
-            pa.value = v
-          }
-        })
-      }
+      _.assign(api.params, params)
       _.assign(api.headers, headers)
       if(!Ti.Util.isNil(body)) {
         api.body = body
@@ -45619,17 +45696,7 @@ const _M = {
       options.headers = Ti.Util.explainObj(rootState, api.headers)
       //.....................................
       // Eval the params
-      options.params = {}
-      _.forEach(api.params, (param, key)=>{
-        let val = Ti.Util.explainObj(rootState, param.value)
-        // Check required
-        if(param.required && Ti.Util.isNil(val)) {
-          let errMsg = `${url}: lack required param: ${key}`
-          Ti.Toast.Open(errMsg, "error")
-          throw errMsg
-        }
-        options.params[key] = val
-      })
+      options.params = Ti.Util.explainObj(rootState, api.params)
       //.....................................
       // Prepare the body
       if("POST" == api.method && api.body) {
@@ -45674,9 +45741,9 @@ const _M = {
       }
       // Cache the Error
       catch (err) {
-        console.warn(err)
+        console.warn(`Fail to invoke ${url}`, {api, url, options}, err)
         dispatch("doAction", fail, {root:true})
-         return
+        return
       }
       let data = reo
       //.....................................
@@ -45743,16 +45810,13 @@ const _M = {
       let isAll = _.isEmpty(keys)
       let apis = _.filter(getters.pageApis, (api, k)=>{
         // Auto preload
-        if(isAll) {
-          if(api.preload > 0) {
-            if(api.preloadWhen) {
-              return Ti.Validate.match(rootState, api.preloadWhen, false)
-            }
-            return true
+        if((isAll && api.preload > 0) || _.indexOf(keys, k)>=0) {
+          if(api.preloadWhen) {
+            return Ti.AutoMatch.test(api.preloadWhen, rootState)
           }
+          return true
         }
-        // Specify apis
-        return _.indexOf(keys, k)>=0
+        return false
       })
       //.......................................
       // Sort preload
@@ -45848,6 +45912,7 @@ const _M = {
       }
       pinfo.params = _.merge({}, pinfo.params, params)
       pinfo.path = pinfo.path || path
+      pinfo.name = Ti.Util.getMajorName(pinfo.path)
       //.....................................
       // Update Path url
       let link = Ti.Util.Link({url:path, params, anchor})
@@ -45879,18 +45944,30 @@ const _M = {
       //.....................................
       // Conclude the api loading keys
       let keyGroups = []
+      let afterLoadkeys = []   // After page loaded, those api should be load
       _.forEach(getters.pageApis, (api, k)=>{
         let preload = api.preload
-        if(!_.isNumber(preload)) {
-          preload = preload ? 1 : -1
-        }
-        if(preload >= 0) {
-          let keys = _.nth(keyGroups, preload)
-          if(!_.isArray(keys)){
-            keys = []
-            keyGroups[preload] = keys
+        // Considering preload=true
+        if(_.isBoolean(preload)) {
+          if(!preload) {
+            return
           }
-          keys.push(k)
+          preload = 1
+        }
+        // Preload before display
+        if(_.isNumber(preload)) {
+          if(preload >= 0) {
+            let keys = _.nth(keyGroups, preload)
+            if(!_.isArray(keys)){
+              keys = []
+              keyGroups[preload] = keys
+            }
+            keys.push(k)
+          }
+          // After page load
+          else {
+            afterLoadkeys.push(k)
+          }
         }
       })
       //console.log(keyGroups)
@@ -45911,6 +45988,11 @@ const _M = {
       //console.log("@page:ready ...")
       commit("setReady", 2)
       await dispatch("invokeAction", {name:"@page:ready"}, {root:true})
+      //.....................................
+      // Load the after page api
+      if(afterLoadkeys.length > 0) {
+        dispatch("reloadData", afterLoadkeys)
+      }
       //.....................................
     }
     //--------------------------------------------
@@ -48313,7 +48395,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "publish": "Publish",
   "publishing": "Publishing ...",
   "refresh": "Refresh",
-  "refresh-hard": "Refresh Hardly",
+  "refresh-hard": "Hard refresh",
+  "refresh-hard-clear": "Clean cache & hard refresh",
   "reloading": "Reloading ...",
   "remove": "Remove",
   "removing": "Removing ...",
@@ -49299,6 +49382,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "publishing": "正在发布...",
   "refresh": "刷新",
   "refresh-hard": "硬性刷新",
+  "refresh-hard-clear": "清空缓存并硬性刷新",
   "reloading": "重新加载数据...",
   "remove": "移除",
   "removing": "正在移除...",
