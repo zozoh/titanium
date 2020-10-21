@@ -779,6 +779,33 @@ const TiUtil = {
     return Ti.Util.fallback(_.get(obj, key), dft)
   },
   /***
+   * Get value from obj
+   * 
+   * @param key{String|Array} value key, if array will pick out a new obj
+   * 
+   * @return new obj or value
+   */
+  getOrPickNoBlank(obj, key, dft) {
+    // Array to pick
+    if(_.isArray(key)) {
+      return Ti.Util.fallback(_.pick(obj, key), dft)
+    }
+    // Function to eval
+    if(_.isFunction(key)) {
+      return Ti.Util.fallback(key(obj), dft)
+    }
+    // String
+    if(_.isString(key)) {
+      // get multi candicate
+      let keys = key.split("|")
+      if(keys.length > 1) {
+        return Ti.Util.fallback(Ti.Util.getFallbackBlank(obj, keys), dft)
+      }
+    }
+    // Get by path
+    return Ti.Util.fallback(_.get(obj, key), dft)
+  },
+  /***
    * @param obj{Object}
    */
   truthyKeys(obj={}) {
@@ -828,6 +855,16 @@ const TiUtil = {
       }
     }
   },
+  getFallbackBlank(obj, ...keys) {
+    let ks = _.flattenDeep(keys)
+    for(let k of ks) {
+      if(k) {
+        let v = _.get(obj, k)
+        if(!Ti.Util.isBlank(v))
+          return v
+      }
+    }
+  },
   getFallbackNaN(obj, ...keys) {
     let ks = _.flattenDeep(keys)
     for(let k of ks) {
@@ -858,6 +895,12 @@ const TiUtil = {
   fallbackEmpty(...args) {
     for(let arg of args) {
       if(!_.isEmpty(arg))
+        return arg
+    }
+  },
+  fallbackBlank(...args) {
+    for(let arg of args) {
+      if(!Ti.S.isBlank(arg))
         return arg
     }
   },

@@ -405,7 +405,7 @@ const _M = {
         }
         sb += "\n"
       }
-      console.log(sb)
+      //console.log(sb)
     },
     //-------------------------------------
     tidyGridAxisLine(list, n) {

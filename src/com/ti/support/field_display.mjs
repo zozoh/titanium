@@ -271,6 +271,7 @@ const FieldDisplay = {
     displayItem={}, 
     vars={},
     autoIgnoreNil=true,
+    autoIgnoreBlank=true,
     autoValue="value",
     uniqueKey
   }={}) {
@@ -300,7 +301,7 @@ const FieldDisplay = {
       // Dynamic value
       else {
         value = Ti.Util.fallback(
-          Ti.Util.getOrPick(itemData, dis.key),
+          Ti.Util.getOrPickNoBlank(itemData, dis.key),
           value
         )
       }
@@ -312,6 +313,12 @@ const FieldDisplay = {
       // Sometimes, we need transform nil also
       if(!Ti.Util.isNil(value) || dis.transNil) {
         value = dis.transformer(value)
+      }
+    }
+    // Ignore the Blank
+    if(autoIgnoreBlank && Ti.S.isBlank(value)) {
+      if(Ti.Util.fallback(dis.ignoreBlank, true)) {
+        return
       }
     }
     // Ignore the undefined/null

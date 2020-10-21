@@ -179,6 +179,7 @@ const _M = {
           "disabled"  : this.disabled
         },
         autoIgnoreNil : false,
+        autoIgnoreBlank : false,
         autoValue : this.autoValue
       })
       // console.log("evalTheCom", {
@@ -189,6 +190,13 @@ const _M = {
       //   newComType : theCom.comType,
       //   newComConf : _.cloneDeep(theCom.comConf),
       // })
+
+      if(!theCom) {
+        this.myComType = undefined
+        this.myComConf = undefined
+        this.isComReady = false
+        return
+      }
       
       this.myComType = theCom.comType
       this.myComConf = theCom.comConf

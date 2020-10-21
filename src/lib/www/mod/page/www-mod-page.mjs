@@ -550,7 +550,7 @@ const _M = {
       }
       //.....................................
       // Notify: init
-      //console.log("@page:init ...")
+      console.log("@page:init ...")
       commit("setReady", 0)
       await dispatch("invokeAction", {name:"@page:init"}, {root:true})
       //.....................................
