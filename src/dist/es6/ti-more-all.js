@@ -1,4 +1,4 @@
-// Pack At: 2020-10-21 16:51:41
+// Pack At: 2020-10-22 17:31:06
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -9976,6 +9976,7 @@ const _M = {
           "disabled"  : this.disabled
         },
         autoIgnoreNil : false,
+        autoIgnoreBlank : false,
         autoValue : this.autoValue
       })
       // console.log("evalTheCom", {
@@ -9986,6 +9987,13 @@ const _M = {
       //   newComType : theCom.comType,
       //   newComConf : _.cloneDeep(theCom.comConf),
       // })
+
+      if(!theCom) {
+        this.myComType = undefined
+        this.myComConf = undefined
+        this.isComReady = false
+        return
+      }
       
       this.myComType = theCom.comType
       this.myComConf = theCom.comConf
@@ -17003,7 +17011,7 @@ const _M = {
         }
         sb += "\n"
       }
-      console.log(sb)
+      //console.log(sb)
     },
     //-------------------------------------
     tidyGridAxisLine(list, n) {
@@ -21209,6 +21217,7 @@ const FieldDisplay = {
     displayItem={}, 
     vars={},
     autoIgnoreNil=true,
+    autoIgnoreBlank=true,
     autoValue="value",
     uniqueKey
   }={}) {
@@ -21238,7 +21247,7 @@ const FieldDisplay = {
       // Dynamic value
       else {
         value = Ti.Util.fallback(
-          Ti.Util.getOrPick(itemData, dis.key),
+          Ti.Util.getOrPickNoBlank(itemData, dis.key),
           value
         )
       }
@@ -21250,6 +21259,12 @@ const FieldDisplay = {
       // Sometimes, we need transform nil also
       if(!Ti.Util.isNil(value) || dis.transNil) {
         value = dis.transformer(value)
+      }
+    }
+    // Ignore the Blank
+    if(autoIgnoreBlank && Ti.S.isBlank(value)) {
+      if(Ti.Util.fallback(dis.ignoreBlank, true)) {
+        return
       }
     }
     // Ignore the undefined/null
@@ -45894,7 +45909,7 @@ const _M = {
       }
       //.....................................
       // Notify: init
-      //console.log("@page:init ...")
+      console.log("@page:init ...")
       commit("setReady", 0)
       await dispatch("invokeAction", {name:"@page:init"}, {root:true})
       //.....................................
