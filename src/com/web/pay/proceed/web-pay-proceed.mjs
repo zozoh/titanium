@@ -195,6 +195,7 @@ const _M = {
           let payItems = _.map(this.items, it=>({
             id: it.id,
             amount: it.amount || 1,
+            cate : it.cate,
             title: it.title,
             price: it.price
           }))

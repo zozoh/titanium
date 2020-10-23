@@ -1,4 +1,4 @@
-// Pack At: 2020-10-22 17:31:06
+// Pack At: 2020-10-23 19:12:38
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -32169,6 +32169,7 @@ const _M = {
           let payItems = _.map(this.items, it=>({
             id: it.id,
             amount: it.amount || 1,
+            cate : it.cate,
             title: it.title,
             price: it.price
           }))
@@ -45909,7 +45910,7 @@ const _M = {
       }
       //.....................................
       // Notify: init
-      console.log("@page:init ...")
+      //console.log("@page:init ...")
       commit("setReady", 0)
       await dispatch("invokeAction", {name:"@page:init"}, {root:true})
       //.....................................
@@ -46841,7 +46842,7 @@ const _M = {
         })
       }
       //....................................
-      console.log("invoke->", action, pld)
+      //console.log("invoke->", action, pld)
       //....................................
       if(_.isFunction(action)) {
         await action(pld)
