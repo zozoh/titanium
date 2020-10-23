@@ -1,64 +1,76 @@
 export default {
   ////////////////////////////////////////////////////
   props : {
-    "percentBy" : {
+    "percentKey" : {
       type : String,
       default : "percent"
     },
     "precise" : {
       type : Number,
       default : 2
-    }
+    },
+    "labelX" : {
+      type : [Boolean, Object, String, Function],
+      default: "${i18n:name} : ${percent}% : ${value}"
+    },
+    "tooltip" : {
+      type : [Boolean, Object],
+      default : ()=>({
+        showTitle: false,
+        showMarkers : false,
+        showCrosshairs : false,
+        itemTpl: '<li class="g2-tooltip-list-item">{name} : {percent}% : {value}</li>',
+      })
+    },
+    "view" : {
+      type : Object,
+      default : ()=>({
+        tooltip : ["name*percent*value", (n,p,v)=>{
+          return {
+            name: n, percent: p, value: v
+          }
+        }]
+      })
+    },
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     ChartSetup() {
       return (chart, data)=>{
-        // Tidy date: summary
-        let list = []
-        let sum = 0
-        for(let it of data) {
-          if(!it)
-            return
-          let name  = it[this.nameBy]
-          let value = it[this.valueBy]*1 || 0
-          let percent = it[this.percentBy]
-          sum += value
-
-          list.push({name,value,percent})
-        }
-
-        // Eval percent
-        for(let li of list) {
-          if(_.isUndefined(li.percent)) {
-            li.percent = Ti.Num.precise(li.value / sum, this.precise)
-          }
-        }
-
+        let {list, sum} = this.evalXYData(data)
         if(_.isEmpty(list))
           return
 
+        // Eval percent
+        for(let li of list) {
+          let v = li[this.positionY]
+          li[this.percentKey] = Ti.Num.precise(v * 100 / sum, this.precise)
+        }
+
         //console.log(list)
         chart.data(list);
+
+        // Axis/Tick/Tooltip ...
+        this.applyChartSetup(chart)
         
+        // Coordinate
         chart.coordinate('theta', {
           radius: 0.75
         });
-        chart.tooltip({
-          showMarkers: false
-        });
         
-        const interval = chart
-          .interval()
-          .adjust('stack')
-          .position('value')
-          .color('name')
-          .style({
+        const view = chart.interval().adjust('stack')
+        view.position(this.percentKey).color(this.positionX);
+
+        // View label
+        this.applyViewLabel(view)
+
+        this.applyViewOptions(view, {
+          style : {
             opacity: 0.4
-          })
-          .state({
-            active: {
+          },
+          state : {
+            active : {
               style: (element) => {
                 const shape = element.shape;
                 return {
@@ -66,16 +78,9 @@ export default {
                 }
               }
             }
-          })
-          .label('name', (val) => {
-            return {
-              offset: -30,
-              content: (obj) => {
-                return Ti.I18n.text(obj.name) + '\n' + obj.percent + '%';
-              },
-            };
-          });
-        
+          }
+        }, this.view)
+      
         chart.interaction('element-single-selected');
 
       } // ~ function

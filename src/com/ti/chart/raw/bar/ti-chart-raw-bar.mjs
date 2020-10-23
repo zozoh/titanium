@@ -1,9 +1,11 @@
 export default {
   ////////////////////////////////////////////////////
   props : {
-    "valueTickNb" : {
-      type : Number,
-      default : 10
+    "scaleX" : {
+      type : Object,
+      default : ()=>({
+        "range": [0.1, 0.9]
+      })
     }
   },
   ////////////////////////////////////////////////////
@@ -12,33 +14,19 @@ export default {
     ChartSetup() {
       return (chart, data)=>{
         //console.log(data)
-        let list = []
-        let maxValue = 0
-        for(let it of data) {
-          if(!it)
-            return
-          let value = it[this.valueBy]*1 || 0
-          maxValue = Math.max(maxValue, value)
-          list.push({
-            name: Ti.I18n.text(it[this.nameBy]),
-            value : value
-          })
-        }
+        let {list} = this.evalXYData(data)
         if(_.isEmpty(list))
           return
 
         // Set data
         chart.data(list);
 
-        // Tick
-        if(this.valueTickNb > 0) {
-          let tickInterval = Math.round(maxValue / this.valueTickNb)
-          chart.scale(this.valueBy, {tickInterval});
-        }
-        chart
-          .interval()
-          .position(`name*value`)
-        
+        // Axis/Tick/Tooltip ...
+        this.applyChartSetup(chart)
+
+        // Setup view
+        let view = chart.interval().position(this.ChartPosition)
+        this.applyViewOptions(view, this.view)
 
       } // ~ function
     }

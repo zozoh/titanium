@@ -124,6 +124,7 @@ export default {
     OnChangeChartName({index}, name) {
       // Update my chart setting
       this.$set(this.myShowChartNames, index, name)
+      this.$set(this.myChartData, index, [])
       this.$nextTick(()=>{
         this.reloadChartData(index)
       })
@@ -203,7 +204,7 @@ export default {
 
       // Executed command
       let cmdText = cmd.join(" ")
-      console.log("reloadChartData", cmdText)
+      //console.log("reloadChartData", cmdText)
       let reo = await Wn.Sys.exec2(cmdText, {as: "json"})
       if(reo && _.isArray(reo)) {
         this.$set(this.myChartData, index, reo)

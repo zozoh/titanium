@@ -55,11 +55,21 @@ const TiStr = {
           dft = _.trim(varName.substring(pos+1))
           varName = _.trim(varName.substring(0, pos))
         }
+        // I18n ? 
+        let i18n = false
+        if(varName.startsWith("i18n:")) {
+          i18n = true
+          varName = varName.substring(5).trim()
+        }
         // pick value
-        return Ti.Util.fallback(
+        let reValue =  Ti.Util.fallback(
           Ti.Util.getOrPick(vars, varName),
           dft
         )
+        if(i18n) {
+          return Ti.I18n.get(reValue)
+        }
+        return reValue
       }
     }
     // Array

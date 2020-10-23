@@ -55,6 +55,32 @@ const TiNum = {
         return Math.round(n * y) / y;
     }
     return n;
+  },
+  /***
+   * @param v{Number} input number
+   * @param unit{Number} number unit
+   * 
+   * @return new ceil value for unit
+   */
+  ceilUnit(v, unit=0) {
+    if(_.isNumber(v) && unit > 0) {
+      let n = Math.ceil(v / unit)
+      return n * unit
+    }
+    return v
+  },
+  /***
+   * @param v{Number} input number
+   * @param unit{Number} number unit
+   * 
+   * @return new floor value for unit
+   */
+  floorUnit(v, unit=0) {
+    if(_.isNumber(v) && unit > 0) {
+      let n = Math.floor(v / unit)
+      return n * unit
+    }
+    return v
   }
 }
 //---------------------------------------

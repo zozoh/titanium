@@ -182,15 +182,15 @@ const FieldDisplay = {
         //......................................
         // #DictName(xxx) -> ti-label
         // just like `#RelayStatus(status)`
-        m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:(.+))?$/.exec(displayItem)
+        m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:([^:]*)(:([^:]+))?)?$/.exec(displayItem)
         if(m) {
           return {
             key : m[3] || defaultKey,
             comType : "ti-label",
             comConf : {
               dict : m[2],
-              className: "is-nowrap",
-              format: m[5],
+              format: m[5] || undefined,
+              className: m[7] || "is-nowrap",
               autoLoadDictIcon : m[1]!="!"
             }
           }
@@ -211,17 +211,17 @@ const FieldDisplay = {
         // - "text+>/a/link?nm=${name}"
         // - "'More'->/a/link?id=${id}"
         // - "name:【${val}】->/a/link?id=${id}"
-        m = /^([^+-:>]+)(:([^+-]+))?(([+-])>([^%]*))?$/.exec(displayItem)
+        m = /^([^+-:>]+)(:([^+-:]*)(:([^:]+))?)?(([+-])>([^%]*))?$/.exec(displayItem)
         if(m) {
           let key  = _.trim(m[1] || m[0])
-          let format = m[3]
-          let newTab = m[5] == "+"
-          let href = _.trim(m[6])
+          let format = m[3] || undefined
+          let newTab = m[7] == "+"
+          let href = _.trim(m[8])
           return {
             key,
             comType : "ti-label",
             comConf : {
-              className: "is-nowrap",
+              className: m[5] || "is-nowrap",
               newTab, 
               href, 
               format

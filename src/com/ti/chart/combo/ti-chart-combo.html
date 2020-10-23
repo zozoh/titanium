@@ -24,6 +24,7 @@
       v-if="hasMultiChartTypes"
         :options="ChartTypeList"
         :value="ChartType"
+        :allow-empty="false"
         @change="OnChartTypeChange"/>
     <!--
       时间选择

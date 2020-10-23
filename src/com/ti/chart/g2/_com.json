@@ -5,6 +5,6 @@
   "mixins"   : ["./ti-chart-g2.mjs"],
   "components" : [],
   "deps" : [
-    "@/gu/rs/ti/deps/antv/g2/g2.min.js"
+    "@/gu/rs/ti/deps/antv/v4/g2/g2.min.js"
   ]
 }

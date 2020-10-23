@@ -14,13 +14,6 @@
     Show thead/tbody
   -->
   <template v-else>
-    <!--checker-->
-    <div
-      v-if="checkable && multi && isShowHead"
-        class="as-checker"
-        @click.left="OnClickHeadChecker">
-        <ti-icon :value="HeadCheckerIcon"/>
-    </div>
     <!--
       Table
     -->
@@ -68,5 +61,12 @@
             @open="OnRowOpen"/>
         </tbody>
     </table>
+    <!--checker-->
+    <div
+      v-if="checkable && multi && isShowHead"
+        class="as-checker"
+        @click.left="OnClickHeadChecker">
+        <ti-icon :value="HeadCheckerIcon"/>
+    </div>
   </template>
 </div>

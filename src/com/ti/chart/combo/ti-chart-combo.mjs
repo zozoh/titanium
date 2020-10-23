@@ -115,7 +115,7 @@ export default {
     },
     //------------------------------------------------
     hasMultiChartNames() {
-      return !_.isEmpty(this.nameList) && this.nameList.length > 0
+      return !_.isEmpty(this.nameList) && this.nameList.length > 1
     },
     //------------------------------------------------
     ChartNameListOptions() {
@@ -360,6 +360,7 @@ export default {
         comType : chart.comPath
       })
 
+      console.log({type, chart})
       // Eval The Chart Com
       let comType = chart.comType
       let comConf = _.assign({}, 
@@ -376,6 +377,9 @@ export default {
     "type" : {
       handler : "reloadChartCom",
       immediate : true
+    },
+    "name" : function() {
+      this.reloadChartCom()
     }
   }
   ////////////////////////////////////////////////////
