@@ -1,4 +1,4 @@
-// Pack At: 2020-10-23 19:12:38
+// Pack At: 2020-10-26 22:38:02
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -944,11 +944,21 @@ const {S} = (function(){
             dft = _.trim(varName.substring(pos+1))
             varName = _.trim(varName.substring(0, pos))
           }
+          // I18n ? 
+          let i18n = false
+          if(varName.startsWith("i18n:")) {
+            i18n = true
+            varName = varName.substring(5).trim()
+          }
           // pick value
-          return Ti.Util.fallback(
+          let reValue =  Ti.Util.fallback(
             Ti.Util.getOrPick(vars, varName),
             dft
           )
+          if(i18n) {
+            return Ti.I18n.get(reValue)
+          }
+          return reValue
         }
       }
       // Array
@@ -9706,6 +9716,32 @@ const {Num} = (function(){
           return Math.round(n * y) / y;
       }
       return n;
+    },
+    /***
+     * @param v{Number} input number
+     * @param unit{Number} number unit
+     * 
+     * @return new ceil value for unit
+     */
+    ceilUnit(v, unit=0) {
+      if(_.isNumber(v) && unit > 0) {
+        let n = Math.ceil(v / unit)
+        return n * unit
+      }
+      return v
+    },
+    /***
+     * @param v{Number} input number
+     * @param unit{Number} number unit
+     * 
+     * @return new floor value for unit
+     */
+    floorUnit(v, unit=0) {
+      if(_.isNumber(v) && unit > 0) {
+        let n = Math.floor(v / unit)
+        return n * unit
+      }
+      return v
     }
   }
   //---------------------------------------
@@ -11250,7 +11286,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201023.191238",
+  "version" : "2.5-20201026.223802",
   "dev" : false,
   "appName" : null,
   "session" : {},

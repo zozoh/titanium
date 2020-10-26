@@ -1,4 +1,4 @@
-// Pack At: 2020-10-23 19:12:38
+// Pack At: 2020-10-26 22:38:02
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -5203,6 +5203,7 @@ Ti.Preload("ti/com/ti/chart/combo/ti-chart-combo.html", `<div class="ti-chart-co
       v-if="hasMultiChartTypes"
         :options="ChartTypeList"
         :value="ChartType"
+        :allow-empty="false"
         @change="OnChartTypeChange"/>
     <!--
       时间选择
@@ -5360,7 +5361,7 @@ const _M = {
     },
     //------------------------------------------------
     hasMultiChartNames() {
-      return !_.isEmpty(this.nameList) && this.nameList.length > 0
+      return !_.isEmpty(this.nameList) && this.nameList.length > 1
     },
     //------------------------------------------------
     ChartNameListOptions() {
@@ -5605,6 +5606,7 @@ const _M = {
         comType : chart.comPath
       })
 
+      console.log({type, chart})
       // Eval The Chart Com
       let comType = chart.comType
       let comConf = _.assign({}, 
@@ -5621,6 +5623,9 @@ const _M = {
     "type" : {
       handler : "reloadChartCom",
       immediate : true
+    },
+    "name" : function() {
+      this.reloadChartCom()
     }
   }
   ////////////////////////////////////////////////////
@@ -5805,7 +5810,7 @@ Ti.Preload("ti/com/ti/chart/g2/_com.json", {
   "mixins"   : ["./ti-chart-g2.mjs"],
   "components" : [],
   "deps" : [
-    "@/gu/rs/ti/deps/antv/g2/g2.min.js"
+    "@/gu/rs/ti/deps/antv/v4/g2/g2.min.js"
   ]
 });
 //============================================================
@@ -5828,9 +5833,11 @@ Ti.Preload("ti/com/ti/chart/raw/bar/ti-chart-raw-bar.html", `<TiChartG2
 const _M = {
   ////////////////////////////////////////////////////
   props : {
-    "valueTickNb" : {
-      type : Number,
-      default : 10
+    "scaleX" : {
+      type : Object,
+      default : ()=>({
+        "range": [0.1, 0.9]
+      })
     }
   },
   ////////////////////////////////////////////////////
@@ -5839,33 +5846,19 @@ const _M = {
     ChartSetup() {
       return (chart, data)=>{
         //console.log(data)
-        let list = []
-        let maxValue = 0
-        for(let it of data) {
-          if(!it)
-            return
-          let value = it[this.valueBy]*1 || 0
-          maxValue = Math.max(maxValue, value)
-          list.push({
-            name: Ti.I18n.text(it[this.nameBy]),
-            value : value
-          })
-        }
+        let {list} = this.evalXYData(data)
         if(_.isEmpty(list))
           return
 
         // Set data
         chart.data(list);
 
-        // Tick
-        if(this.valueTickNb > 0) {
-          let tickInterval = Math.round(maxValue / this.valueTickNb)
-          chart.scale(this.valueBy, {tickInterval});
-        }
-        chart
-          .interval()
-          .position(`name*value`)
-        
+        // Axis/Tick/Tooltip ...
+        this.applyChartSetup(chart)
+
+        // Setup view
+        let view = chart.interval().position(this.ChartPosition)
+        this.applyViewOptions(view, this.view)
 
       } // ~ function
     }
@@ -5887,8 +5880,9 @@ Ti.Preload("ti/com/ti/chart/raw/bar/_com.json", {
   "name" : "ti-chart-raw-bar",
   "globally" : true,
   "template" : "./ti-chart-raw-bar.html",
-  "props"    : ["@com:ti/chart/raw/support/chart-props.mjs"],
-  "mixins"   : ["./ti-chart-raw-bar.mjs"],
+  "mixins"   : [
+    "@com:ti/chart/raw/ti-chart-raw.mjs",
+    "./ti-chart-raw-bar.mjs"],
   "components" : ["@com:ti/chart/g2"]
 });
 //============================================================
@@ -5911,19 +5905,11 @@ Ti.Preload("ti/com/ti/chart/raw/line/ti-chart-raw-line.html", `<TiChartG2
 const _M = {
   ////////////////////////////////////////////////////
   props : {
-    "valueTickNb" : {
-      type : Number,
-      default : 10
-    },
-    "lineAs" : {
-      type : [Object, Boolean],
-      default : true
-    },
-    "areaAs" : {
+    "areaView" : {
       type : [Object, Boolean],
       default : false
     },
-    "pointAs" : {
+    "pointView" : {
       type : [Object, Boolean],
       default : true
     }
@@ -5934,82 +5920,37 @@ const _M = {
     ChartSetup() {
       return (chart, data)=>{
         //console.log(data)
-        let list = []
-        let maxValue = 0
-        for(let it of data) {
-          if(!it)
-            return
-          let value = it[this.valueBy]*1 || 0
-          maxValue = Math.max(maxValue, value)
-          list.push({
-            name: Ti.I18n.text(it[this.nameBy]),
-            value : value
-          })
-        }
+        let {list} = this.evalXYData(data)
         if(_.isEmpty(list))
           return
 
         // Set data
         chart.data(list);
 
-        // Tick
-        let tickInterval;
-        if(this.valueTickNb > 0) {
-          tickInterval = Math.round(maxValue / this.valueTickNb)
-        }
-
-        // Scale value axis
-        chart.scale("value", {
-          min: 0, max: maxValue,
-          nice: true,
-          tickInterval
-        })
+        // Axis/Tick/Tooltip ...
+        this.applyChartSetup(chart)
 
         // Draw line
-        if(this.lineAs) {
-          let lineAs = _.assign({   
-            
-          }, this.lineAs)
+        let view = chart.line().position(this.ChartPosition)
+        this.applyViewOptions(view, this.view)
 
-          let view = chart.line().position(`name*value`)
-          _.forEach(lineAs, (v, k)=>{
-            if(Ti.Util.isNil(v))
-              return
-            view[k](v)
-          })
+        // Draw point
+        if(this.areaView) {
+          view = chart.area().position(this.ChartPosition)
+          this.applyViewOptions(view, this.areaView)
         }
 
         // Draw point
-        if(this.areaAs) {
-          let areaAs = _.assign({   
-            
-          }, this.areaAs)
-
-          let view = chart.area().position(`name*value`)
-          _.forEach(areaAs, (v, k)=>{
-            if(Ti.Util.isNil(v))
-              return
-            view[k](v)
-          })
-        }
-
-        // Draw point
-        if(this.pointAs) {
-          let pointAs = _.assign({   
+        if(this.pointView) {
+          view = chart.point().position(this.ChartPosition)
+          this.applyViewOptions(view, {   
             size  : 4,
             shape : 'circle',
             style : {
               stroke: '#FFF',
               lineWidth: 1
             }
-          }, this.pointAs)
-
-          let view = chart.point().position(`name*value`)
-          _.forEach(pointAs, (v, k)=>{
-            if(Ti.Util.isNil(v))
-              return
-            view[k](v)
-          })
+          }, this.pointView)
         }
 
       } // ~ function
@@ -6032,8 +5973,9 @@ Ti.Preload("ti/com/ti/chart/raw/line/_com.json", {
   "name" : "ti-chart-raw-line",
   "globally" : true,
   "template" : "./ti-chart-raw-line.html",
-  "props"    : ["@com:ti/chart/raw/support/chart-props.mjs"],
-  "mixins"   : ["./ti-chart-raw-line.mjs"],
+  "mixins"   : [
+    "@com:ti/chart/raw/ti-chart-raw.mjs",
+    "./ti-chart-raw-line.mjs"],
   "components" : ["@com:ti/chart/g2"]
 });
 //============================================================
@@ -6056,64 +5998,76 @@ Ti.Preload("ti/com/ti/chart/raw/pie/ti-chart-raw-pie.html", `<TiChartG2
 const _M = {
   ////////////////////////////////////////////////////
   props : {
-    "percentBy" : {
+    "percentKey" : {
       type : String,
       default : "percent"
     },
     "precise" : {
       type : Number,
       default : 2
-    }
+    },
+    "labelX" : {
+      type : [Boolean, Object, String, Function],
+      default: "${i18n:name} : ${percent}% : ${value}"
+    },
+    "tooltip" : {
+      type : [Boolean, Object],
+      default : ()=>({
+        showTitle: false,
+        showMarkers : false,
+        showCrosshairs : false,
+        itemTpl: '<li class="g2-tooltip-list-item">{name} : {percent}% : {value}</li>',
+      })
+    },
+    "view" : {
+      type : Object,
+      default : ()=>({
+        tooltip : ["name*percent*value", (n,p,v)=>{
+          return {
+            name: n, percent: p, value: v
+          }
+        }]
+      })
+    },
   },
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     ChartSetup() {
       return (chart, data)=>{
-        // Tidy date: summary
-        let list = []
-        let sum = 0
-        for(let it of data) {
-          if(!it)
-            return
-          let name  = it[this.nameBy]
-          let value = it[this.valueBy]*1 || 0
-          let percent = it[this.percentBy]
-          sum += value
-
-          list.push({name,value,percent})
-        }
-
-        // Eval percent
-        for(let li of list) {
-          if(_.isUndefined(li.percent)) {
-            li.percent = Ti.Num.precise(li.value / sum, this.precise)
-          }
-        }
-
+        let {list, sum} = this.evalXYData(data)
         if(_.isEmpty(list))
           return
 
+        // Eval percent
+        for(let li of list) {
+          let v = li[this.positionY]
+          li[this.percentKey] = Ti.Num.precise(v * 100 / sum, this.precise)
+        }
+
         //console.log(list)
         chart.data(list);
+
+        // Axis/Tick/Tooltip ...
+        this.applyChartSetup(chart)
         
+        // Coordinate
         chart.coordinate('theta', {
           radius: 0.75
         });
-        chart.tooltip({
-          showMarkers: false
-        });
         
-        const interval = chart
-          .interval()
-          .adjust('stack')
-          .position('value')
-          .color('name')
-          .style({
+        const view = chart.interval().adjust('stack')
+        view.position(this.percentKey).color(this.positionX);
+
+        // View label
+        this.applyViewLabel(view)
+
+        this.applyViewOptions(view, {
+          style : {
             opacity: 0.4
-          })
-          .state({
-            active: {
+          },
+          state : {
+            active : {
               style: (element) => {
                 const shape = element.shape;
                 return {
@@ -6121,16 +6075,9 @@ const _M = {
                 }
               }
             }
-          })
-          .label('name', (val) => {
-            return {
-              offset: -30,
-              content: (obj) => {
-                return Ti.I18n.text(obj.name) + '\n' + obj.percent + '%';
-              },
-            };
-          });
-        
+          }
+        }, this.view)
+      
         chart.interaction('element-single-selected');
 
       } // ~ function
@@ -6153,8 +6100,9 @@ Ti.Preload("ti/com/ti/chart/raw/pie/_com.json", {
   "name" : "ti-chart-raw-pie",
   "globally" : true,
   "template" : "./ti-chart-raw-pie.html",
-  "props"    : ["@com:ti/chart/raw/support/chart-props.mjs"],
-  "mixins"   : ["./ti-chart-raw-pie.mjs"],
+  "mixins"   : [
+    "@com:ti/chart/raw/ti-chart-raw.mjs",
+    "./ti-chart-raw-pie.mjs"],
   "components" : ["@com:ti/chart/g2"]
 });
 //============================================================
@@ -6177,10 +6125,6 @@ Ti.Preload("ti/com/ti/chart/raw/rank/ti-chart-raw-rank.html", `<TiChartG2
 const _M = {
   ////////////////////////////////////////////////////
   props : {
-    "valueAlias" : {
-      type : String,
-      default : "i18n:value"
-    }
   },
   ////////////////////////////////////////////////////
   computed : {
@@ -6188,64 +6132,22 @@ const _M = {
     ChartSetup() {
       return (chart, data)=>{
         //console.log(data)
-        let list = []
-        let maxValue = 0
-        for(let it of data) {
-          if(!it)
-            return
-          let value = it[this.valueBy]*1 || 0
-          maxValue = Math.max(maxValue, value)
-          list.push({
-            name: Ti.I18n.text(it[this.nameBy]),
-            value : value
-          })
-        }
+        let {list} = this.evalXYData(data)
         if(_.isEmpty(list))
           return
 
         // Set data
-        list.reverse()
+        //list.reverse()
         chart.data(list);
 
-        // Scale
-        chart.scale({
-          value: {
-            max: maxValue,
-            min: 0,
-            alias: Ti.I18n.text(this.valueAlias),
-          },
-        });
+        // Axis/Tick/Tooltip ...
+        this.applyChartSetup(chart)
 
-        chart.axis('name', {
-          title: null,
-          tickLine: null,
-          line: null,
-        });
-        
-        chart.axis('value', {
-          label: null,
-          title: {
-            offset: 30,
-            style: {
-              fontSize: 12,
-              fontWeight: 300,
-            },
-          },
-        });
-        chart.legend(false);
         chart.coordinate().transpose();
 
-        chart
-          .interval()
-          .position(`name*value`)
-          .size(26)
-          .label('value', {
-            style: {
-              fill: '#8d8d8d',
-            },
-            offset: 10,
-          });
-        
+        let view = chart.interval().position(this.ChartPosition)
+        this.applyViewOptions(view, this.view)
+       
         chart.interaction('element-active');
         
 
@@ -6269,57 +6171,253 @@ Ti.Preload("ti/com/ti/chart/raw/rank/_com.json", {
   "name" : "ti-chart-raw-rank",
   "globally" : true,
   "template" : "./ti-chart-raw-rank.html",
-  "props"    : ["@com:ti/chart/raw/support/chart-props.mjs"],
-  "mixins"   : ["./ti-chart-raw-rank.mjs"],
+  "mixins"   : [
+    "@com:ti/chart/raw/ti-chart-raw.mjs",
+    "./ti-chart-raw-rank.mjs"],
   "components" : ["@com:ti/chart/g2"]
 });
 //============================================================
-// JOIN: ti/chart/raw/support/chart-props.mjs
+// JOIN: ti/chart/raw/ti-chart-raw.mjs
 //============================================================
 (function(){
 const _M = {
-  //-----------------------------------
-  // Data
-  //-----------------------------------
-  "data" : {
-    type : Array,
-    default : ()=>[]
+  ////////////////////////////////////////////////////
+  data : ()=>({
+    minDataValue : undefined,
+    maxDataValue : undefined
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "data" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "xKey" : {
+      type : String,
+      default : "name"
+    },
+    "yKey" : {
+      type : String,
+      default : "value"
+    },
+    "positionX" : {
+      type : String,
+      default : "name"
+    },
+    "positionY" : {
+      type : String,
+      default : "value"
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "scaleX" : {
+      type : Object,
+      default : ()=>({})
+    },
+    // Plus support: 
+    //  - tickUnit : 50  // for tickCount, unit to 50
+    "scaleY" : {
+      type : Object,
+      default : ()=>({
+        nice : true,
+        tickCount: 10
+      })
+    },
+    "axisX" : {
+      type : Object,
+      default : undefined
+    },
+    "axisY" : {
+      type : Object,
+      default : undefined
+    },
+    "labelX" : {
+      type : [Boolean, Object, String, Function],
+      default : undefined
+    },
+    "labelY" : {
+      type : [Boolean, Object, String, Function],
+      default : undefined
+    },
+    "tooltip" : {
+      type : [Boolean, Object],
+      default : ()=>({
+        showCrosshairs : true
+      })
+    },
+    "legend" : {
+      type : [Boolean, Object],
+      default : ()=>({
+        flipPage: false
+      })
+    },
+    "view" : {
+      type : Object,
+      default : undefined
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "padding" : {
+      type : [Number, Array, String],
+      default : "auto"
+    },
+    "appendPadding" : {
+      type : [Number, Array, String],
+      default : undefined
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "width" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "height" : {
+      type : [Number, String],
+      default : undefined
+    }
   },
-  "nameBy" : {
-    type : String,
-    default : "name"
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    ChartPosition() {
+      return `${this.positionX}*${this.positionY}`
+    }
+    //------------------------------------------------
   },
-  "valueBy" : {
-    type : String,
-    default : "value"
-  },
-  //-----------------------------------
-  // Behavior
-  //-----------------------------------
-  //-----------------------------------
-  // Aspect
-  //-----------------------------------
-  "padding" : {
-    type : [Number, Array, String],
-    default : "auto"
-  },
-  "appendPadding" : {
-    type : [Number, Array, String],
-    default : undefined
-  },
-  //-----------------------------------
-  // Measure
-  //-----------------------------------
-  "width" : {
-    type : [Number, String],
-    default : undefined
-  },
-  "height" : {
-    type : [Number, String],
-    default : undefined
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    evalXYData(data, iteratee=_.identity) {
+      let list = []
+      let max, min, sum = 0;
+      let i = 0;
+      for(let it of data) {
+        let value = (it[this.yKey] * 1) || 0
+        let li = iteratee({
+          [this.positionX]: Ti.I18n.text(it[this.xKey]),
+          [this.positionY] : value
+        })
+        list.push(li)
+
+        sum += value
+
+        if((i++) > 0) {
+          min = Math.min(value, min)
+          max = Math.max(value, max)
+        } else {
+          min = value
+          max = value
+        }
+      }
+      this.maxDataValue = max
+      this.minDataValue = min
+      return {list, max, min, sum}
+    },
+    //------------------------------------------------
+    getChartScaleX() {
+      return _.assign({}, this.scaleX)
+    },
+    //------------------------------------------------
+    getChartScaleY() {
+      let config = _.cloneDeep(this.scaleY) || {}
+      if("auto" == config.min || true === config.min) {
+        config.min = this.minDataValue
+      }
+      if("auto" == config.max || true === config.max) {
+        config.max = this.maxDataValue
+      }
+      return config
+    },
+    //------------------------------------------------
+    applyChartScale(chart) {
+      this.__apply_scale(chart, this.positionX, this.getChartScaleX())
+      this.__apply_scale(chart, this.positionY, this.getChartScaleY())
+    },
+    //------------------------------------------------
+    __apply_scale(chart, key, config) {
+      if(!_.isEmpty(config)){
+        if(config.tickUnit > 0) {
+          config.min = Ti.Num.floorUnit(config.min, config.tickUnit)
+          config.max = Ti.Num.ceilUnit(config.max, config.tickUnit)
+        }
+        chart.scale(key, config)
+      }
+    },
+    //------------------------------------------------
+    applyChartAxis(chart) {
+      if(!_.isEmpty(this.axisX)) {
+        chart.axis(this.positionX, this.axisX)
+      }
+      if(!_.isEmpty(this.axisY)) {
+        chart.axis(this.positionY, this.axisY)
+      }
+    },
+    //------------------------------------------------
+    applyChartTooltip(chart) {
+      if(!_.isEmpty(this.tooltip)) {
+        chart.tooltip(this.tooltip);
+      }
+    },
+    //------------------------------------------------
+    applyChartSetup(chart) {
+      // Axis
+      this.applyChartAxis(chart)
+        
+      // Tick
+      this.applyChartScale(chart)
+
+      // Tooltip
+      this.applyChartTooltip(chart)
+
+      // legend
+      if(!_.isUndefined(this.legend)) {
+        chart.legend(this.legend)
+      }
+    },
+    //------------------------------------------------
+    applyViewLabel(view) {
+      this.__apply_view_label(view, this.positionX, this.labelX)
+      this.__apply_view_label(view, this.positionY, this.labelY)
+    },
+    //------------------------------------------------
+    __apply_view_label(view, key, labelConfig) {
+      if(!Ti.Util.isNil(labelConfig)) {
+        let config = _.cloneDeep(labelConfig)
+
+        if(_.isString(config)) {
+          config = {content: config}
+        }
+        if(_.isString(config.content)) {
+          let tmpl = config.content
+          config.content = (obj) => {
+            return Ti.S.renderBy(tmpl, obj)
+          }
+        }
+
+        view.label(key, config)
+      }
+    },
+    //------------------------------------------------
+    applyViewOptions(view, ...options) {
+      let config = _.merge({}, ...options)
+      _.forEach(config, (v, k)=>{
+        if(Ti.Util.isNil(v))
+          return
+        let args = _.concat(v)
+        view[k].apply(view, args)
+      })
+    }
+    //------------------------------------------------
   }
+  ////////////////////////////////////////////////////
 }
-Ti.Preload("ti/com/ti/chart/raw/support/chart-props.mjs", _M);
+Ti.Preload("ti/com/ti/chart/raw/ti-chart-raw.mjs", _M);
 })();
 //============================================================
 // JOIN: ti/chart/simple/ti-chart-simple.html
@@ -21128,15 +21226,15 @@ const FieldDisplay = {
         //......................................
         // #DictName(xxx) -> ti-label
         // just like `#RelayStatus(status)`
-        m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:(.+))?$/.exec(displayItem)
+        m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:([^:]*)(:([^:]+))?)?$/.exec(displayItem)
         if(m) {
           return {
             key : m[3] || defaultKey,
             comType : "ti-label",
             comConf : {
               dict : m[2],
-              className: "is-nowrap",
-              format: m[5],
+              format: m[5] || undefined,
+              className: m[7] || "is-nowrap",
               autoLoadDictIcon : m[1]!="!"
             }
           }
@@ -21157,17 +21255,17 @@ const FieldDisplay = {
         // - "text+>/a/link?nm=${name}"
         // - "'More'->/a/link?id=${id}"
         // - "name:【${val}】->/a/link?id=${id}"
-        m = /^([^+-:>]+)(:([^+-]+))?(([+-])>([^%]*))?$/.exec(displayItem)
+        m = /^([^+-:>]+)(:([^+-:]*)(:([^:]+))?)?(([+-])>([^%]*))?$/.exec(displayItem)
         if(m) {
           let key  = _.trim(m[1] || m[0])
-          let format = m[3]
-          let newTab = m[5] == "+"
-          let href = _.trim(m[6])
+          let format = m[3] || undefined
+          let newTab = m[7] == "+"
+          let href = _.trim(m[8])
           return {
             key,
             comType : "ti-label",
             comConf : {
-              className: "is-nowrap",
+              className: m[5] || "is-nowrap",
               newTab, 
               href, 
               format
@@ -23189,13 +23287,6 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
     Show thead/tbody
   -->
   <template v-else>
-    <!--checker-->
-    <div
-      v-if="checkable && multi && isShowHead"
-        class="as-checker"
-        @click.left="OnClickHeadChecker">
-        <ti-icon :value="HeadCheckerIcon"/>
-    </div>
     <!--
       Table
     -->
@@ -23243,6 +23334,13 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
             @open="OnRowOpen"/>
         </tbody>
     </table>
+    <!--checker-->
+    <div
+      v-if="checkable && multi && isShowHead"
+        class="as-checker"
+        @click.left="OnClickHeadChecker">
+        <ti-icon :value="HeadCheckerIcon"/>
+    </div>
   </template>
 </div>`);
 //============================================================
@@ -35647,6 +35745,7 @@ const _M = {
     OnChangeChartName({index}, name) {
       // Update my chart setting
       this.$set(this.myShowChartNames, index, name)
+      this.$set(this.myChartData, index, [])
       this.$nextTick(()=>{
         this.reloadChartData(index)
       })
@@ -35726,7 +35825,7 @@ const _M = {
 
       // Executed command
       let cmdText = cmd.join(" ")
-      console.log("reloadChartData", cmdText)
+      //console.log("reloadChartData", cmdText)
       let reo = await Wn.Sys.exec2(cmdText, {as: "json"})
       if(reo && _.isArray(reo)) {
         this.$set(this.myChartData, index, reo)
