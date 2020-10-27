@@ -26,7 +26,7 @@ const _M = {
     },
     "currentDataDir" : {
       type : String,
-      default : "media"
+      default : undefined
     },
     "status" : {
       type : Object,

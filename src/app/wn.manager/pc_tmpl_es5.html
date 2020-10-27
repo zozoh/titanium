@@ -42,6 +42,7 @@
   }
 </script>
 <script src="${rs}ti/dist/es5/ti-core.js"></script>
+<script src="${rs}ti/dist/es5/ti-more-all.js"></script>
 <script src="${rs}ti/dist/es5/ti-walnut.js"></script>
 <script>
 //---------------------------------------
@@ -67,7 +68,7 @@ Ti.WalnutAppMain({
   viewport: true,
   theme: "${theme}",
   lang: _app.session.envs["LANG"] || "zh-cn",
-  preloads: ${preloads(json:cqn)?-array-}
+  preloads: []
 })    
 //---------------------------------------
 </script>

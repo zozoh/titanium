@@ -73,11 +73,6 @@ const _M = {
     OnDirNameChanged(dirName) {
       Ti.App(this).commit("main/setCurrentDataDir", dirName)
       
-      let skey = this.getStateLocalKey("dirname");
-      if(skey) {
-        Ti.Storage.session.set(skey, dirName)
-      }
-
       this.$nextTick(()=>{
         this.reloadData()
       })
@@ -205,19 +200,9 @@ const _M = {
   },
   ///////////////////////////////////////////
   watch : {
-    "dataHome" : {
+    "dirName" : {
       handler : "reloadData",
       immediate : true
-    }
-  },
-  ///////////////////////////////////////////
-  created: function() {
-    let skey = this.getStateLocalKey("dirname");
-    if(skey) {
-      let dirName = Ti.Storage.session.getString(skey)
-      if(dirName) {
-        Ti.App(this).commit("main/setCurrentDataDir", dirName)
-      }
     }
   },
   ///////////////////////////////////////////

@@ -39,6 +39,7 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+// Pack At: 2020-10-27 20:55:44
 //##################################################
 // # import Io      from "./wn-io.mjs"
 var Io = function () {
@@ -60,10 +61,10 @@ var Io = function () {
 
   var WnIo = {
     isFullObjId: function isFullObjId(id) {
-      return /^[0-9a-v]{26}(:file:.+)?$/.test(id);
+      return /^[0-9a-v]{26}(:.+)?$/.test(id);
     },
     isFullObjIdPath: function isFullObjIdPath(idPath) {
-      return /^id:[0-9a-v]{26}(:file:.+)?$/.test(idPath);
+      return /^id:[0-9a-v]{26}(:.+)?$/.test(idPath);
     },
 
     /***
@@ -766,6 +767,10 @@ var Io = function () {
         },
         id: function id() {
           return meta.id;
+        },
+        obj: function obj() {
+          var keys = oRefer || ['id', 'nm', 'thumb', 'title', 'mime', 'tp', 'sha1', 'len'];
+          return _.pick(meta, keys);
         }
       }[mode];
 
@@ -942,7 +947,9 @@ var Obj = function () {
       name: "len",
       width: "auto",
       transformer: function transformer(v) {
-        return Ti.S.sizeText(v);
+        return Ti.S.sizeText(v, {
+          bytes: true
+        });
       }
     } //---------------------------------------------
 
@@ -1257,6 +1264,10 @@ var Obj = function () {
         var i = fromIndex; // find by homePath
 
         if (homePath) {
+          if (homePath.endsWith("/")) {
+            homePath = homePath.substring(0, homePath.length - 1);
+          }
+
           for (; i < ans.length; i++) {
             var an = ans[i];
 
@@ -1614,19 +1625,20 @@ var Sys = function () {
 
 
                 if (!parsing.isError) {
-                  _context14.next = 21;
+                  _context14.next = 22;
                   break;
                 }
 
                 str = re.lines.join("\n");
 
                 if (!_.isFunction(errorBy)) {
-                  _context14.next = 20;
+                  _context14.next = 21;
                   break;
                 }
 
                 _str$split = str.split(/ *: */), _str$split2 = _toArray(_str$split), code = _str$split2[0], datas = _str$split2.slice(1);
                 data = datas.join(" : ");
+                code = _.trim(code);
                 msgKey = code.replace(/[.]/g, "-");
                 return _context14.abrupt("return", errorBy({
                   code: code,
@@ -1634,10 +1646,10 @@ var Sys = function () {
                   data: data
                 }));
 
-              case 20:
+              case 21:
                 throw str;
 
-              case 21:
+              case 22:
                 return _context14.abrupt("return", {
                   raw: function raw() {
                     return re;
@@ -1683,7 +1695,7 @@ var Sys = function () {
                   }
                 }[as]());
 
-              case 22:
+              case 23:
               case "end":
                 return _context14.stop();
             }
@@ -1712,10 +1724,11 @@ var Sys = function () {
                           switch (_context15.prev = _context15.next) {
                             case 0:
                               code = _ref11.code, msgKey = _ref11.msgKey, data = _ref11.data;
+                              //console.log(code, msgKey, data)
                               // Eval error message
                               msg = Ti.I18n.get(msgKey);
 
-                              if (!Ti.Util.isNil(data)) {
+                              if (!Ti.Util.isNil(data) && (!_.isString(data) || data)) {
                                 msg += " : " + Ti.Types.toStr(data);
                               } // Show it to user
 
@@ -1956,11 +1969,22 @@ var Util = function () {
 
       return dftIcon;
     },
-    getObjThumbIcon2: function getObjThumbIcon2(canIcon, meta) {
-      //console.log(canIcon, meta)
-      return WnUtil.getObjThumbIcon(_.defaults({
-        candidateIcon: canIcon
-      }, meta));
+    getObjThumbIcon2: function getObjThumbIcon2(meta, canIcon) {
+      //console.log(meta, canIcon)
+      if (meta.thumb) {
+        var src = "/o/content?str=".concat(meta.thumb);
+        return {
+          type: "image",
+          value: src
+        };
+      }
+
+      if (meta.icon) {
+        return meta.icon;
+      }
+
+      if (canIcon) return canIcon;
+      return Ti.Icons.get(meta);
     },
 
     /***
@@ -1968,7 +1992,7 @@ var Util = function () {
      */
     getObjDisplayName: function getObjDisplayName(meta) {
       var keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-      return Ti.Util.getFallback(meta, keys, "title", "nm");
+      return Ti.Util.getFallbackEmpty(meta, keys, "title", "nm");
     },
 
     /***
@@ -2007,10 +2031,25 @@ var Util = function () {
           SE = _ref14$SE === void 0 ? null : _ref14$SE;
 
       var bg = {};
-      if (NW && meta[NW[0]]) bg.NW = NW[1];
-      if (NE && meta[NE[0]]) bg.NE = NE[1];
-      if (SW && meta[SW[0]]) bg.SW = SW[1];
-      if (SE && meta[SE[0]]) bg.SE = SE[1];
+
+      var badge = function badge(name, BD) {
+        if (!BD) return;
+
+        if (_.isString(BD)) {
+          bg[name] = BD;
+        }
+
+        if (BD.length == 1) {
+          bg[name] = BD[0];
+        } else if (BD.length > 1 && meta[BD[0]]) {
+          bg[name] = BD[1];
+        }
+      };
+
+      badge("NW", NW);
+      badge("NE", NE);
+      badge("SW", SW);
+      badge("SE", SE);
       return bg;
     },
     getObjThumbInfo: function getObjThumbInfo() {
@@ -2043,6 +2082,7 @@ var Util = function () {
 
       return {
         id: meta.id,
+        nm: meta.nm,
         title: WnUtil.getObjDisplayName(meta),
         preview: WnUtil.genPreviewObj(meta),
         href: WnUtil.getAppLinkStr(meta),
@@ -2324,7 +2364,9 @@ var Dict = function () {
               vkey: null
             }),
             query: Wn.Util.genQuery(dict.query),
-            item: Wn.Util.genQuery(dict.item),
+            item: Wn.Util.genQuery(dict.item, {
+              blankAs: "{}"
+            }),
             children: Wn.Util.genQuery(dict.children),
             //...............................................
             getValue: Ti.Util.genGetter(dict.value),
@@ -2439,6 +2481,8 @@ var OpenObjSelector = function () {
           homePath,
           _ref22$fallbackPath,
           fallbackPath,
+          _ref22$filter,
+          filter,
           _ref22$selected,
           selected,
           meta,
@@ -2450,31 +2494,43 @@ var OpenObjSelector = function () {
           switch (_context22.prev = _context22.next) {
             case 0:
               pathOrObj = _args22.length > 0 && _args22[0] !== undefined ? _args22[0] : "~";
-              _ref22 = _args22.length > 1 && _args22[1] !== undefined ? _args22[1] : {}, _ref22$title = _ref22.title, title = _ref22$title === void 0 ? "i18n:select" : _ref22$title, _ref22$icon = _ref22.icon, icon = _ref22$icon === void 0 ? "im-folder-open" : _ref22$icon, _ref22$type = _ref22.type, type = _ref22$type === void 0 ? "info" : _ref22$type, _ref22$closer = _ref22.closer, closer = _ref22$closer === void 0 ? true : _ref22$closer, _ref22$textOk = _ref22.textOk, textOk = _ref22$textOk === void 0 ? "i18n:ok" : _ref22$textOk, _ref22$textCancel = _ref22.textCancel, textCancel = _ref22$textCancel === void 0 ? "i18n:cancel" : _ref22$textCancel, _ref22$position = _ref22.position, position = _ref22$position === void 0 ? "top" : _ref22$position, _ref22$width = _ref22.width, width = _ref22$width === void 0 ? "80%" : _ref22$width, _ref22$height = _ref22.height, height = _ref22$height === void 0 ? "90%" : _ref22$height, spacing = _ref22.spacing, _ref22$multi = _ref22.multi, multi = _ref22$multi === void 0 ? true : _ref22$multi, _ref22$fromIndex = _ref22.fromIndex, fromIndex = _ref22$fromIndex === void 0 ? 0 : _ref22$fromIndex, _ref22$homePath = _ref22.homePath, homePath = _ref22$homePath === void 0 ? Wn.Session.getHomePath() : _ref22$homePath, _ref22$fallbackPath = _ref22.fallbackPath, fallbackPath = _ref22$fallbackPath === void 0 ? Wn.Session.getHomePath() : _ref22$fallbackPath, _ref22$selected = _ref22.selected, selected = _ref22$selected === void 0 ? [] : _ref22$selected;
-              _context22.next = 4;
+              _ref22 = _args22.length > 1 && _args22[1] !== undefined ? _args22[1] : {}, _ref22$title = _ref22.title, title = _ref22$title === void 0 ? "i18n:select" : _ref22$title, _ref22$icon = _ref22.icon, icon = _ref22$icon === void 0 ? "im-folder-open" : _ref22$icon, _ref22$type = _ref22.type, type = _ref22$type === void 0 ? "info" : _ref22$type, _ref22$closer = _ref22.closer, closer = _ref22$closer === void 0 ? true : _ref22$closer, _ref22$textOk = _ref22.textOk, textOk = _ref22$textOk === void 0 ? "i18n:ok" : _ref22$textOk, _ref22$textCancel = _ref22.textCancel, textCancel = _ref22$textCancel === void 0 ? "i18n:cancel" : _ref22$textCancel, _ref22$position = _ref22.position, position = _ref22$position === void 0 ? "top" : _ref22$position, _ref22$width = _ref22.width, width = _ref22$width === void 0 ? "80%" : _ref22$width, _ref22$height = _ref22.height, height = _ref22$height === void 0 ? "90%" : _ref22$height, spacing = _ref22.spacing, _ref22$multi = _ref22.multi, multi = _ref22$multi === void 0 ? true : _ref22$multi, _ref22$fromIndex = _ref22.fromIndex, fromIndex = _ref22$fromIndex === void 0 ? 0 : _ref22$fromIndex, _ref22$homePath = _ref22.homePath, homePath = _ref22$homePath === void 0 ? Wn.Session.getHomePath() : _ref22$homePath, _ref22$fallbackPath = _ref22.fallbackPath, fallbackPath = _ref22$fallbackPath === void 0 ? Wn.Session.getHomePath() : _ref22$fallbackPath, _ref22$filter = _ref22.filter, filter = _ref22$filter === void 0 ? function (o) {
+                return "FILE" == o.race;
+              } : _ref22$filter, _ref22$selected = _ref22.selected, selected = _ref22$selected === void 0 ? [] : _ref22$selected;
+              //................................................
+              // Load the target object
+              meta = pathOrObj;
+
+              if (!_.isString(pathOrObj)) {
+                _context22.next = 7;
+                break;
+              }
+
+              _context22.next = 6;
               return Wn.Io.loadMeta(pathOrObj);
 
-            case 4:
+            case 6:
               meta = _context22.sent;
 
+            case 7:
               if (!(!meta && fallbackPath && pathOrObj != fallbackPath)) {
-                _context22.next = 9;
+                _context22.next = 11;
                 break;
               }
 
-              _context22.next = 8;
+              _context22.next = 10;
               return Wn.Io.loadMeta(fallbackPath);
 
-            case 8:
+            case 10:
               meta = _context22.sent;
 
-            case 9:
+            case 11:
               if (meta) {
-                _context22.next = 13;
+                _context22.next = 15;
                 break;
               }
 
-              _context22.next = 12;
+              _context22.next = 14;
               return Ti.Toast.Open({
                 content: "i18n:e-io-obj-noexistsf",
                 vars: _.isString(pathOrObj) ? {
@@ -2483,27 +2539,27 @@ var OpenObjSelector = function () {
                 } : pathOrObj.ph
               }, "warn");
 
-            case 12:
+            case 14:
               return _context22.abrupt("return", _context22.sent);
 
-            case 13:
+            case 15:
               if (!("DIR" != meta.race)) {
-                _context22.next = 21;
+                _context22.next = 23;
                 break;
               }
 
-              _context22.next = 16;
+              _context22.next = 18;
               return Wn.Io.loadMetaById(meta.pid);
 
-            case 16:
+            case 18:
               meta = _context22.sent;
 
               if (meta) {
-                _context22.next = 21;
+                _context22.next = 23;
                 break;
               }
 
-              _context22.next = 20;
+              _context22.next = 22;
               return Ti.Toast.Open({
                 content: "i18n:e-io-obj-noexistsf",
                 vars: {
@@ -2512,11 +2568,11 @@ var OpenObjSelector = function () {
                 }
               }, "warn");
 
-            case 20:
+            case 22:
               return _context22.abrupt("return", _context22.sent);
 
-            case 21:
-              _context22.next = 23;
+            case 23:
+              _context22.next = 25;
               return Ti.App.Open({
                 //------------------------------------------
                 type: type,
@@ -2610,6 +2666,9 @@ var OpenObjSelector = function () {
                         "sky": {
                           comType: "ti-crumb",
                           comConf: {
+                            "style": {
+                              padding: "0 .1rem"
+                            },
                             "data": this.theCrumbData
                           }
                         },
@@ -2642,9 +2701,8 @@ var OpenObjSelector = function () {
                     //--------------------------------------
                     OnArenaSelect: function OnArenaSelect(_ref25) {
                       var checked = _ref25.checked;
-                      this.myChecked = _.filter(checked, function (o) {
-                        return "FILE" == o.race;
-                      });
+                      //console.log("OnArenaSelect", checked)
+                      if (_.isFunction(filter)) this.myChecked = _.filter(checked, filter);else this.myChecked = checked;
                     },
                     //--------------------------------------
                     open: function open(obj) {
@@ -2702,11 +2760,11 @@ var OpenObjSelector = function () {
 
               });
 
-            case 23:
+            case 25:
               reObj = _context22.sent;
               return _context22.abrupt("return", reObj);
 
-            case 25:
+            case 27:
             case "end":
               return _context22.stop();
           }
@@ -2946,7 +3004,7 @@ var EditObjMeta = function () {
           switch (_context25.prev = _context25.next) {
             case 0:
               pathOrObj = _args25.length > 0 && _args25[0] !== undefined ? _args25[0] : "~";
-              _ref28 = _args25.length > 1 && _args25[1] !== undefined ? _args25[1] : {}, icon = _ref28.icon, title = _ref28.title, _ref28$type = _ref28.type, type = _ref28$type === void 0 ? "info" : _ref28$type, _ref28$closer = _ref28.closer, closer = _ref28$closer === void 0 ? true : _ref28$closer, _ref28$escape = _ref28.escape, escape = _ref28$escape === void 0 ? true : _ref28$escape, _ref28$textOk = _ref28.textOk, textOk = _ref28$textOk === void 0 ? "i18n:ok" : _ref28$textOk, _ref28$textCancel = _ref28.textCancel, textCancel = _ref28$textCancel === void 0 ? "i18n:cancel" : _ref28$textCancel, _ref28$position = _ref28.position, position = _ref28$position === void 0 ? "top" : _ref28$position, _ref28$width = _ref28.width, width = _ref28$width === void 0 ? 640 : _ref28$width, _ref28$height = _ref28.height, height = _ref28$height === void 0 ? "80%" : _ref28$height, spacing = _ref28.spacing, _ref28$currentTab = _ref28.currentTab, currentTab = _ref28$currentTab === void 0 ? 0 : _ref28$currentTab, _ref28$fields = _ref28.fields, fields = _ref28$fields === void 0 ? [] : _ref28$fields, _ref28$fixedKeys = _ref28.fixedKeys, fixedKeys = _ref28$fixedKeys === void 0 ? ["thumb"] : _ref28$fixedKeys, _ref28$saveKeys = _ref28.saveKeys, saveKeys = _ref28$saveKeys === void 0 ? ["thumb"] : _ref28$saveKeys, _ref28$autoSave = _ref28.autoSave, autoSave = _ref28$autoSave === void 0 ? true : _ref28$autoSave;
+              _ref28 = _args25.length > 1 && _args25[1] !== undefined ? _args25[1] : {}, icon = _ref28.icon, title = _ref28.title, _ref28$type = _ref28.type, type = _ref28$type === void 0 ? "info" : _ref28$type, _ref28$closer = _ref28.closer, closer = _ref28$closer === void 0 ? true : _ref28$closer, _ref28$escape = _ref28.escape, escape = _ref28$escape === void 0 ? true : _ref28$escape, _ref28$textOk = _ref28.textOk, textOk = _ref28$textOk === void 0 ? "i18n:ok" : _ref28$textOk, _ref28$textCancel = _ref28.textCancel, textCancel = _ref28$textCancel === void 0 ? "i18n:cancel" : _ref28$textCancel, _ref28$position = _ref28.position, position = _ref28$position === void 0 ? "top" : _ref28$position, _ref28$width = _ref28.width, width = _ref28$width === void 0 ? 640 : _ref28$width, _ref28$height = _ref28.height, height = _ref28$height === void 0 ? "90%" : _ref28$height, spacing = _ref28.spacing, _ref28$currentTab = _ref28.currentTab, currentTab = _ref28$currentTab === void 0 ? 0 : _ref28$currentTab, _ref28$fields = _ref28.fields, fields = _ref28$fields === void 0 ? [] : _ref28$fields, _ref28$fixedKeys = _ref28.fixedKeys, fixedKeys = _ref28$fixedKeys === void 0 ? ["thumb"] : _ref28$fixedKeys, _ref28$saveKeys = _ref28.saveKeys, saveKeys = _ref28$saveKeys === void 0 ? ["thumb"] : _ref28$saveKeys, _ref28$autoSave = _ref28.autoSave, autoSave = _ref28$autoSave === void 0 ? true : _ref28$autoSave;
               //............................................
               // Load meta
               meta = pathOrObj;
@@ -3005,7 +3063,7 @@ var EditObjMeta = function () {
               if (_.isEmpty(fields) || !_.isArray(fields)) {
                 fields = [{
                   title: "basic",
-                  fields: ["id", "nm", "title", "icon", "thumb", "ph", "race", "tp", "mime", "width", "height", "len"]
+                  fields: ["id", "nm", "title", "icon", "thumb", "ph", "race", "tp", "mime", "width", "height", "len", "sha1"]
                 }, {
                   title: "privilege",
                   fields: ["c", "m", "g", "md", "pvg"]
@@ -3211,8 +3269,8 @@ var EditObjContent = function () {
           _ref32$showEditorTitl,
           showEditorTitle,
           content,
-          _ref32$blankText,
-          blankText,
+          _ref32$placeholder,
+          placeholder,
           meta,
           autoSave,
           theIcon,
@@ -3226,7 +3284,7 @@ var EditObjContent = function () {
           switch (_context26.prev = _context26.next) {
             case 0:
               pathOrObj = _args26.length > 0 && _args26[0] !== undefined ? _args26[0] : "~";
-              _ref32 = _args26.length > 1 && _args26[1] !== undefined ? _args26[1] : {}, title = _ref32.title, icon = _ref32.icon, _ref32$type = _ref32.type, type = _ref32$type === void 0 ? "info" : _ref32$type, _ref32$closer = _ref32.closer, closer = _ref32$closer === void 0 ? true : _ref32$closer, _ref32$textOk = _ref32.textOk, textOk = _ref32$textOk === void 0 ? undefined : _ref32$textOk, _ref32$textCancel = _ref32.textCancel, textCancel = _ref32$textCancel === void 0 ? "i18n:cancel" : _ref32$textCancel, _ref32$position = _ref32.position, position = _ref32$position === void 0 ? "top" : _ref32$position, _ref32$width = _ref32.width, width = _ref32$width === void 0 ? 640 : _ref32$width, _ref32$height = _ref32.height, height = _ref32$height === void 0 ? "80%" : _ref32$height, spacing = _ref32.spacing, _ref32$readonly = _ref32.readonly, readonly = _ref32$readonly === void 0 ? false : _ref32$readonly, _ref32$showEditorTitl = _ref32.showEditorTitle, showEditorTitle = _ref32$showEditorTitl === void 0 ? true : _ref32$showEditorTitl, content = _ref32.content, _ref32$blankText = _ref32.blankText, blankText = _ref32$blankText === void 0 ? "i18n:blank" : _ref32$blankText;
+              _ref32 = _args26.length > 1 && _args26[1] !== undefined ? _args26[1] : {}, title = _ref32.title, icon = _ref32.icon, _ref32$type = _ref32.type, type = _ref32$type === void 0 ? "info" : _ref32$type, _ref32$closer = _ref32.closer, closer = _ref32$closer === void 0 ? true : _ref32$closer, _ref32$textOk = _ref32.textOk, textOk = _ref32$textOk === void 0 ? undefined : _ref32$textOk, _ref32$textCancel = _ref32.textCancel, textCancel = _ref32$textCancel === void 0 ? "i18n:cancel" : _ref32$textCancel, _ref32$position = _ref32.position, position = _ref32$position === void 0 ? "top" : _ref32$position, _ref32$width = _ref32.width, width = _ref32$width === void 0 ? 640 : _ref32$width, _ref32$height = _ref32.height, height = _ref32$height === void 0 ? "80%" : _ref32$height, spacing = _ref32.spacing, _ref32$readonly = _ref32.readonly, readonly = _ref32$readonly === void 0 ? false : _ref32$readonly, _ref32$showEditorTitl = _ref32.showEditorTitle, showEditorTitle = _ref32$showEditorTitl === void 0 ? true : _ref32$showEditorTitl, content = _ref32.content, _ref32$placeholder = _ref32.placeholder, placeholder = _ref32$placeholder === void 0 ? "i18n:blank" : _ref32$placeholder;
               //............................................
               // Load meta
               meta = pathOrObj;
@@ -3287,7 +3345,7 @@ var EditObjContent = function () {
                 comType: "ti-text-raw",
                 comConf: {
                   readonly: readonly,
-                  blankText: blankText,
+                  placeholder: placeholder,
                   icon: theIcon,
                   title: Wn.Util.getObjDisplayName(meta),
                   content: theContent,
@@ -3417,10 +3475,88 @@ var EditTiComponent = function () {
   }
 
   return EditTiComponent;
+}(); //##################################################
+// # import OpenCmdPanel     from "./wn-run-cmd-panel.mjs"
+
+
+var OpenCmdPanel = function () {
+  /***
+   * Open Modal Dialog to explore one or multi files
+   */
+  function OpenCmdPanel(_x6) {
+    return _OpenCmdPanel.apply(this, arguments);
+  } ////////////////////////////////////////////
+
+
+  function _OpenCmdPanel() {
+    _OpenCmdPanel = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee28(cmdText) {
+      var _ref35,
+          _ref35$title,
+          title,
+          _ref35$icon,
+          icon,
+          _ref35$type,
+          type,
+          _ref35$closer,
+          closer,
+          _ref35$textCancel,
+          textCancel,
+          _ref35$position,
+          position,
+          _ref35$width,
+          width,
+          _ref35$height,
+          height,
+          spacing,
+          vars,
+          _args28 = arguments;
+
+      return regeneratorRuntime.wrap(function _callee28$(_context28) {
+        while (1) {
+          switch (_context28.prev = _context28.next) {
+            case 0:
+              _ref35 = _args28.length > 1 && _args28[1] !== undefined ? _args28[1] : {}, _ref35$title = _ref35.title, title = _ref35$title === void 0 ? "i18n:run" : _ref35$title, _ref35$icon = _ref35.icon, icon = _ref35$icon === void 0 ? "fas-running" : _ref35$icon, _ref35$type = _ref35.type, type = _ref35$type === void 0 ? "info" : _ref35$type, _ref35$closer = _ref35.closer, closer = _ref35$closer === void 0 ? true : _ref35$closer, _ref35$textCancel = _ref35.textCancel, textCancel = _ref35$textCancel === void 0 ? "i18n:close" : _ref35$textCancel, _ref35$position = _ref35.position, position = _ref35$position === void 0 ? "top" : _ref35$position, _ref35$width = _ref35.width, width = _ref35$width === void 0 ? "80%" : _ref35$width, _ref35$height = _ref35.height, height = _ref35$height === void 0 ? "90%" : _ref35$height, spacing = _ref35.spacing, vars = _ref35.vars;
+              _context28.next = 3;
+              return Ti.App.Open({
+                //------------------------------------------
+                type: type,
+                width: width,
+                height: height,
+                spacing: spacing,
+                position: position,
+                closer: closer,
+                icon: icon,
+                title: title,
+                textCancel: textCancel,
+                textOk: null,
+                //------------------------------------------
+                model: null,
+                //------------------------------------------
+                comType: "WnCmdPanel",
+                comConf: {
+                  "value": cmdText,
+                  "vars": vars
+                },
+                //------------------------------------------
+                components: ["@com:wn/cmd/panel"] //------------------------------------------
+
+              });
+
+            case 3:
+            case "end":
+              return _context28.stop();
+          }
+        }
+      }, _callee28);
+    }));
+    return _OpenCmdPanel.apply(this, arguments);
+  }
+
+  return OpenCmdPanel;
 }(); //---------------------------------------
 
 
-var WALNUT_VERSION = "1.0"; //---------------------------------------
+var WALNUT_VERSION = "2.1-20201027.205544"; //---------------------------------------
 // For Wn.Sys.exec command result callback
 
 var HOOKs = {}; //---------------------------------------
@@ -3438,6 +3574,7 @@ var Wn = {
   EditObjContent: EditObjContent,
   EditTiComponent: EditTiComponent,
   OpenThingManager: OpenThingManager,
+  OpenCmdPanel: OpenCmdPanel,
   //-------------------------------------
   addHook: function addHook(key, fn) {
     Ti.Util.pushValue(HOOKs, key, fn);

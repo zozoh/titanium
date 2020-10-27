@@ -53,6 +53,7 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+// Pack At: 2020-10-27 20:55:44
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 var _ref = function () {
@@ -97,6 +98,7 @@ var _ref = function () {
 
               _context.next = 7;
               return Ti.App.Open({
+                className: "is-alert in-top-z-index",
                 //------------------------------------------
                 type: type,
                 width: width,
@@ -186,7 +188,7 @@ var _ref3 = function () {
           switch (_context2.prev = _context2.next) {
             case 0:
               msg = _args2.length > 0 && _args2[0] !== undefined ? _args2[0] : "";
-              _ref4 = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {}, title = _ref4.title, icon = _ref4.icon, _ref4$closer = _ref4.closer, closer = _ref4$closer === void 0 ? false : _ref4$closer, _ref4$type = _ref4.type, type = _ref4$type === void 0 ? "warn" : _ref4$type, _ref4$position = _ref4.position, position = _ref4$position === void 0 ? "center" : _ref4$position, _ref4$textYes = _ref4.textYes, textYes = _ref4$textYes === void 0 ? "i18n:yes" : _ref4$textYes, _ref4$textNo = _ref4.textNo, textNo = _ref4$textNo === void 0 ? "i18n:no" : _ref4$textNo, _ref4$width = _ref4.width, width = _ref4$width === void 0 ? 480 : _ref4$width, height = _ref4.height;
+              _ref4 = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {}, title = _ref4.title, icon = _ref4.icon, _ref4$closer = _ref4.closer, closer = _ref4$closer === void 0 ? false : _ref4$closer, _ref4$type = _ref4.type, type = _ref4$type === void 0 ? "info" : _ref4$type, _ref4$position = _ref4.position, position = _ref4$position === void 0 ? "center" : _ref4$position, _ref4$textYes = _ref4.textYes, textYes = _ref4$textYes === void 0 ? "i18n:yes" : _ref4$textYes, _ref4$textNo = _ref4.textNo, textNo = _ref4$textNo === void 0 ? "i18n:no" : _ref4$textNo, _ref4$width = _ref4.width, width = _ref4$width === void 0 ? 480 : _ref4$width, height = _ref4.height;
               //............................................
               text = Ti.I18n.text(msg);
               theIcon = icon || "zmdi-help";
@@ -847,7 +849,7 @@ var _ref12 = function () {
           var $in = Ti.Dom.createElement({
             $p: $form,
             tagName: 'input',
-            attrs: {
+            props: {
               name: name,
               value: value,
               type: "hidden"
@@ -859,8 +861,8 @@ var _ref12 = function () {
         _.delay(function () {
           // Submit it
           $form.submit(); // Remove it
-
-          Ti.Dom.remove($form); // Done
+          //Ti.Dom.remove($form)
+          // Done
 
           resolve({
             url: url,
@@ -1326,10 +1328,24 @@ var _ref17 = function () {
           if (pos > 0) {
             dft = _.trim(varName.substring(pos + 1));
             varName = _.trim(varName.substring(0, pos));
+          } // I18n ? 
+
+
+          var i18n = false;
+
+          if (varName.startsWith("i18n:")) {
+            i18n = true;
+            varName = varName.substring(5).trim();
           } // pick value
 
 
-          return Ti.Util.fallback(Ti.Util.getOrPick(vars, varName), dft);
+          var reValue = Ti.Util.fallback(Ti.Util.getOrPick(vars, varName), dft);
+
+          if (i18n) {
+            return Ti.I18n.get(reValue);
+          }
+
+          return reValue;
         };
       } // Array
 
@@ -1569,8 +1585,8 @@ var _ref17 = function () {
       // Boolean
 
 
-      if (/^(true|false|yes|no|on|off)$/i.test(str)) {
-        return /^(true|yes|on)$/i.test(str);
+      if (/^(true|false|yes|no|on|off)$/.test(str)) {
+        return /^(true|yes|on)$/.test(str);
       } //...............................................
       // JS String
 
@@ -1852,6 +1868,8 @@ var _ref17 = function () {
           fixed = _ref25$fixed === void 0 ? 2 : _ref25$fixed,
           _ref25$M = _ref25.M,
           M = _ref25$M === void 0 ? 1024 : _ref25$M,
+          _ref25$bytes = _ref25.bytes,
+          bytes = _ref25$bytes === void 0 ? false : _ref25$bytes,
           _ref25$units = _ref25.units,
           units = _ref25$units === void 0 ? ["Bytes", "KB", "MB", "GB", "PB", "TB"] : _ref25$units;
 
@@ -1869,12 +1887,19 @@ var _ref17 = function () {
       }
 
       var unit = units[i];
+      var re;
 
       if (nb == parseInt(nb)) {
-        return nb + unit;
+        re = nb + unit;
+      } else {
+        re = nb.toFixed(fixed) + unit;
       }
 
-      return nb.toFixed(fixed) + unit;
+      if (bytes) {
+        return re + " (".concat(_byte, " bytes)");
+      }
+
+      return re;
     },
 
     /***
@@ -1997,10 +2022,16 @@ var _ref27 = function () {
       // Remote Link @http://xxx
       if (/^@https?:\/\//.test(str)) {
         return str.substring(1);
-      } // Absolute Link @/xxx
+      } // Remote Link @js://xxx
 
 
-      if (/^@\/.+/.test(str)) {
+      if (/^@!(js|css|html|mjs|text|json):\/\//.test(str)) {
+        return str.substring(1);
+      } // Remote Link @//xxx
+      // Absolute Link @/xxx
+
+
+      if (/^@\/{1,2}/.test(str)) {
         return str.substring(1);
       } // @com:xxx or @mod:xxx
 
@@ -2924,6 +2955,7 @@ var _ref27 = function () {
       function TiAppModal() {
         _classCallCheck(this, TiAppModal);
 
+        this.className = undefined;
         this.icon = undefined;
         this.title = undefined; // info|warn|error|success|track
 
@@ -2953,7 +2985,7 @@ var _ref27 = function () {
         // Some component will auto resize, it need a static
         // window measurement.
 
-        this.transDelay = 300, //--------------------------------------------
+        this.transDelay = 350, //--------------------------------------------
         this.comType = "ti-label";
         this.comConf = {};
         this.components = []; //--------------------------------------------
@@ -2965,6 +2997,7 @@ var _ref27 = function () {
         this.mask = true; // !TODO maybe blur or something else
 
         this.clickMaskToClose = false;
+        this.changeToClose = false;
         /*
         validator : (v)=>{
           return /^(left|right|top|bottom|center)$/.test(v)
@@ -2983,10 +3016,17 @@ var _ref27 = function () {
         //--------------------------------------------
         // data model
 
-        this.result = undefined; //--------------------------------------------
+        this.result = undefined;
+        this.model = {
+          prop: "value",
+          event: "change"
+        }; //--------------------------------------------
         // modules
 
         this.modules = {}; //--------------------------------------------
+        // Events
+
+        this.events = {}; //--------------------------------------------
 
         this.topActions = []; //--------------------------------------------
         // callback
@@ -3039,6 +3079,9 @@ var _ref27 = function () {
 
             var resolve,
                 TheActions,
+                model,
+                AppModalEvents,
+                eventStub,
                 html,
                 appInfo,
                 app,
@@ -3071,10 +3114,31 @@ var _ref27 = function () {
                           });
                         }
                       } //..........................................
+
+
+                    model = "";
+
+                    if (this.model) {
+                      if (this.model.event) {
+                        model += " @".concat(this.model.event, "=\"OnChange\"");
+                      }
+
+                      if (this.model.prop) {
+                        model += " :".concat(this.model.prop, "=\"result\"");
+                      }
+                    } //..........................................
+
+
+                    AppModalEvents = _.cloneDeep(this.events);
+                    eventStub = [];
+
+                    _.forEach(AppModalEvents, function (fn, key) {
+                      eventStub.push("@".concat(key, "=\"OnEvent('").concat(key, "', $event)\""));
+                    }); //..........................................
                     // Setup content
 
 
-                    html = "<transition :name=\"TransName\" @after-leave=\"OnAfterLeave\">\n          <div class=\"ti-app-modal\"\n            v-if=\"!hidden\"\n              :class=\"TopClass\"\n              :style=\"TopStyle\"\n              @click.left=\"OnClickTop\"\n              v-ti-activable>\n    \n              <div class=\"modal-con\" \n                :class=\"ConClass\"\n                :style=\"ConStyle\"\n                @click.left.stop>\n    \n                <div class=\"modal-head\"\n                  v-if=\"isShowHead\">\n                    <div class=\"as-icon\" v-if=\"icon\"><ti-icon :value=\"icon\"/></div>\n                    <div class=\"as-title\">{{title|i18n}}</div>\n                    <div\n                      v-if=\"hasTopActionBar\"\n                        class=\"as-bar\">\n                          <ti-actionbar\n                            :items=\"topActions\"\n                            align=\"right\"\n                            :status=\"TopActionBarStatus\"/>\n                    </div>\n                </div>\n    \n                <div class=\"modal-main\">\n                  <component\n                    v-if=\"comType\"\n                      class=\"ti-fill-parent\"\n                      :class=\"MainClass\"\n                      :is=\"comType\"\n                      v-bind=\"TheComConf\"\n                      :on-init=\"OnMainInit\"\n                      :value=\"result\"\n                      @close=\"OnClose\"\n                      @ok=\"OnOk\"\n                      @change=\"OnChange\"\n                      @actions:update=\"OnActionsUpdated\"/>\n                </div>\n    \n                <div class=\"modal-actions\"\n                  v-if=\"hasActions\">\n                    <div class=\"as-action\"\n                      v-for=\"a of actions\"\n                        @click.left=\"OnClickActon(a)\">\n                        <div class=\"as-icon\" v-if=\"a.icon\">\n                          <ti-icon :value=\"a.icon\"/></div>\n                        <div class=\"as-text\">{{a.text|i18n}}</div>\n                    </div>\n                </div>\n    \n                <div class=\"modal-closer\"\n                  v-if=\"hasCloser\"\n                    :class=\"CloserClass\">\n                      <ti-icon value=\"zmdi-close\" @click.native=\"OnClose\"/>\n                </div>\n            </div>\n        </div></transition>"; //..........................................
+                    html = "<transition :name=\"TransName\" @after-leave=\"OnAfterLeave\">\n          <div class=\"ti-app-modal ".concat(this.className || '', "\"\n            v-if=\"!hidden\"\n              :class=\"TopClass\"\n              :style=\"TopStyle\"\n              @click.left=\"OnClickTop\"\n              v-ti-activable>\n    \n              <div class=\"modal-con\" \n                :class=\"ConClass\"\n                :style=\"ConStyle\"\n                @click.left.stop>\n    \n                <div class=\"modal-head\"\n                  v-if=\"isShowHead\">\n                    <div class=\"as-icon\" v-if=\"icon\"><ti-icon :value=\"icon\"/></div>\n                    <div class=\"as-title\">{{title|i18n}}</div>\n                    <div\n                      v-if=\"hasTopActionBar\"\n                        class=\"as-bar\">\n                          <ti-actionbar\n                            :items=\"topActions\"\n                            align=\"right\"\n                            :status=\"TopActionBarStatus\"/>\n                    </div>\n                </div>\n    \n                <div class=\"modal-main\">\n                  <component\n                    v-if=\"comType\"\n                      class=\"ti-fill-parent\"\n                      :class=\"MainClass\"\n                      :is=\"comType\"\n                      v-bind=\"TheComConf\"\n                      :on-init=\"OnMainInit\"\n                      ").concat(model, "\n                      ").concat(eventStub.join(" "), "\n                      @close=\"OnClose\"\n                      @ok=\"OnOk\"\n                      @actions:update=\"OnActionsUpdated\"/>\n                </div>\n    \n                <div class=\"modal-actions\"\n                  v-if=\"hasActions\">\n                    <div class=\"as-action\"\n                      v-for=\"a of actions\"\n                        @click.left=\"OnClickActon(a)\">\n                        <div class=\"as-icon\" v-if=\"a.icon\">\n                          <ti-icon :value=\"a.icon\"/></div>\n                        <div class=\"as-text\">{{a.text|i18n}}</div>\n                    </div>\n                </div>\n    \n                <div class=\"modal-closer\"\n                  v-if=\"hasCloser\"\n                    :class=\"CloserClass\">\n                      <ti-icon value=\"zmdi-close\" @click.native=\"OnClose\"/>\n                </div>\n            </div>\n        </div></transition>"); //..........................................
                     // Prepare the app info
 
                     appInfo = {
@@ -3107,6 +3171,7 @@ var _ref27 = function () {
                         mask: this.mask,
                         position: this.position,
                         clickMaskToClose: this.clickMaskToClose,
+                        changeToClose: this.changeToClose,
                         //--------------------------------------
                         width: this.width,
                         height: this.height,
@@ -3238,12 +3303,22 @@ var _ref27 = function () {
                         //--------------------------------------
                         OnChange: function OnChange(newVal) {
                           this.result = newVal;
+
+                          if (this.changeToClose) {
+                            this.close(this.result);
+                          }
                         },
                         //--------------------------------------
                         OnActionsUpdated: function OnActionsUpdated() {
                           var actions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
                           this.topActions = actions;
                           Ti.App(this).reWatchShortcut(actions);
+                        },
+                        //--------------------------------------
+                        OnEvent: function OnEvent(key, payload) {
+                          var fn = _.get(AppModalEvents, key);
+
+                          fn(payload);
                         },
                         //--------------------------------------
                         OnClickActon: function OnClickActon(a) {
@@ -3323,7 +3398,7 @@ var _ref27 = function () {
                             this.returnValue = re;
                           }
 
-                          this.hidden = true;
+                          this.hidden = true; // -> trans -> beforeDestroy
                         },
                         //--------------------------------------
                         setResult: function setResult(result) {
@@ -3353,10 +3428,10 @@ var _ref27 = function () {
 
                     app = Ti.App(appInfo); //..........................................
 
-                    _context13.next = 8;
+                    _context13.next = 13;
                     return app.init();
 
-                  case 8:
+                  case 13:
                     //..........................................
                     // Mount to stub
                     $stub = Ti.Dom.createElement({
@@ -3364,10 +3439,10 @@ var _ref27 = function () {
                       className: "the-stub"
                     }); //..........................................
 
-                    _context13.next = 11;
+                    _context13.next = 16;
                     return this.preload(app);
 
-                  case 11:
+                  case 16:
                     //..........................................
                     app.mountTo($stub); // The set the main com
 
@@ -3378,7 +3453,7 @@ var _ref27 = function () {
                     //..........................................
 
 
-                  case 13:
+                  case 18:
                   case "end":
                     return _context13.stop();
                 }
@@ -3499,7 +3574,10 @@ var _ref27 = function () {
 
                 case 3:
                   conf = _context14.sent;
-                  this.appDecorator(conf);
+                  _context14.next = 6;
+                  return this.appDecorator(conf);
+
+                case 6:
                   this.$conf(conf);
 
                   if (Ti.IsInfo("TiApp")) {
@@ -3543,7 +3621,7 @@ var _ref27 = function () {
 
                   return _context14.abrupt("return", this);
 
-                case 14:
+                case 15:
                 case "end":
                   return _context14.stop();
               }
@@ -3947,19 +4025,24 @@ var _ref27 = function () {
 
                 case 11:
                   comInfo = _context17.sent;
-                  _context17.next = 14;
+                  //.....................................
+                  // Push View dependance components
+                  Ti.Util.pushValue(comInfo, "components", view.components); //.....................................
+                  // Load all relative stuff
+
+                  _context17.next = 15;
                   return LoadTiLinkedObj(comInfo, {
                     dynamicAlias: new Ti.Config.AliasMapping({
                       "^\./": view.comType + "/"
                     })
                   });
 
-                case 14:
+                case 15:
                   comConf = _context17.sent;
                   //.....................................
                   // TODO: shoudl I put this below to LoadTiLinkedObj?
                   // It is sames a litter bit violence -_-! so put here for now...
-                  //Ti.I18n.put(comInfo.i18n)
+                  // Ti.I18n.put(comInfo.i18n)
                   // Setup ...
                   setup = TiVue.Setup(comConf); //.....................................
                   // Get the formed comName
@@ -3997,7 +4080,7 @@ var _ref27 = function () {
                     mod: mod
                   }));
 
-                case 22:
+                case 23:
                 case "end":
                   return _context17.stop();
               }
@@ -4179,6 +4262,7 @@ var _ref42 = function () {
         var _this8 = this;
 
         var alias = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+        this.list = [];
 
         _.forOwn(alias, function (val, key) {
           _this8.list.push({
@@ -4369,52 +4453,44 @@ var _ref42 = function () {
           dynamicPrefix = _ref45$dynamicPrefix === void 0 ? {} : _ref45$dynamicPrefix,
           dynamicAlias = _ref45.dynamicAlias;
 
+      //.........................................
+      // Full-url, just return
+      if (/^((https?:)?\/\/)/.test(path)) {
+        return path;
+      } //.........................................
       // apply alias
-      var ph, m; //.........................................
+
+
+      var ph = path; //.........................................
       // amend the url dynamically
 
       if (dynamicAlias) {
         var a_map = dynamicAlias instanceof AliasMapping ? dynamicAlias : new AliasMapping().reset(dynamicAlias);
         ph = a_map.get(path, null);
-      } //.........................................
-      // Full-url, just return
-
-
-      var loadUrl;
-
-      if (/^((https?:)?\/\/)/.test(ph)) {
-        // expend suffix
-        if (!/^.+\.(css|js|mjs|json|txt|text|html|xml)$/.test(ph)) {
-          loadUrl = SUFFIX.get(ph);
-        } // Keep orignal
-        else {
-            loadUrl = ph;
-          }
       } // amend the url statictly
-      else {
-          ph = ALIAS.get(ph || path); //.........................................
-          // expend suffix
-
-          if (!/^.+\.(css|js|mjs|json|txt|text|html|xml)$/.test(ph)) {
-            ph = SUFFIX.get(ph);
-          } //.........................................
-          // expend prefix
 
 
-          m = /^(@([^:]+):?)(.*)/.exec(ph);
-          if (!m) return ph;
+      ph = ALIAS.get(ph || path); //.........................................
+      // expend suffix
 
-          var _m$slice = m.slice(2),
-              _m$slice2 = _slicedToArray(_m$slice, 2),
-              prefixName = _m$slice2[0],
-              url = _m$slice2[1];
+      if (!/^.+\.(css|js|mjs|json|txt|text|html|xml)$/.test(ph)) {
+        ph = SUFFIX.get(ph);
+      } //.........................................
+      // expend prefix
 
-          var prefix = dynamicPrefix[prefixName] || CONFIG.prefix[prefixName];
-          if (!prefix) throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName); //.........................................
 
-          loadUrl = prefix + url;
-        } //console.log("load::", loadUrl)
+      var m = /^(@([^:]+):?)(.*)/.exec(ph);
+      if (!m) return ph;
 
+      var _m$slice = m.slice(2),
+          _m$slice2 = _slicedToArray(_m$slice, 2),
+          prefixName = _m$slice2[0],
+          url = _m$slice2[1];
+
+      var prefix = dynamicPrefix[prefixName] || CONFIG.prefix[prefixName];
+      if (!prefix) throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName); //.........................................
+
+      var loadUrl = prefix + url; //console.log("load::", loadUrl)
 
       return loadUrl; //...........................................
     }
@@ -6468,6 +6544,7 @@ var _ref63 = function () {
         console.log("TiHttp.send", url, options);
       }
 
+      if (!url) return;
       var _options$method = options.method,
           method = _options$method === void 0 ? "GET" : _options$method,
           _options$params = options.params,
@@ -6771,6 +6848,28 @@ var _ref66 = function () {
       }
 
       return Ti.S.renderBy(str, vars);
+    },
+    render: function render() {
+      var vars = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var str = arguments.length > 1 ? arguments[1] : undefined;
+      return Ti18n.textf(str, vars);
+    },
+    explain: function explain(str) {
+      var s = _.trim(str);
+
+      var pos = s.indexOf(':');
+
+      if (pos > 0) {
+        var code = _.trim(s.substring(0, pos));
+
+        var data = _.trim(s.substring(pos + 1));
+
+        return Ti18n.getf(code, {
+          val: data
+        });
+      }
+
+      return Ti18n.get(s);
     }
   }; //---------------------------------------
 
@@ -6787,6 +6886,7 @@ var _ref67 = function () {
   var TYPES = {
     "7z": "fas-file-archive",
     "apk": "zmdi-android",
+    "bin": "fas-file",
     "css": "fab-css3",
     "csv": "fas-file-csv",
     "doc": "far-file-word",
@@ -7899,7 +7999,7 @@ var _ref78 = function () {
       var fv = Ti.Util.genInvoking(str, {
         context: context,
         funcSet: VALIDATORS,
-        partialRight: true
+        partial: "right"
       });
 
       if (!_.isFunction(fv)) {
@@ -7916,6 +8016,12 @@ var _ref78 = function () {
     },
     //-----------------------------------
     getBy: function getBy(fn) {
+      if (_.isBoolean(fn)) {
+        return function () {
+          return fn;
+        };
+      }
+
       if (_.isFunction(fn)) {
         return fn;
       }
@@ -7927,7 +8033,13 @@ var _ref78 = function () {
       if (_.isPlainObject(fn)) {
         var name = fn.name;
         var args = _.isUndefined(fn.args) ? [] : [].concat(fn.args);
-        var not = fn.not;
+        var not = fn.not ? true : false;
+
+        if (/^!/.test(name)) {
+          name = name.substring(1).trim();
+          not = true;
+        }
+
         return TiValidate.get(name, args, not);
       }
 
@@ -7936,7 +8048,14 @@ var _ref78 = function () {
 
         var _args27 = fn.slice(1, fn.length);
 
-        return TiValidate.get(_name, _args27);
+        var _not = false;
+
+        if (/^!/.test(_name)) {
+          _name = _name.substring(1).trim();
+          _not = true;
+        }
+
+        return TiValidate.get(_name, _args27, _not);
       }
     },
     //-----------------------------------
@@ -8016,6 +8135,12 @@ var _ref78 = function () {
       }
 
       return true;
+    },
+    //-----------------------------------
+    compile: function compile(validates, allowEmpty) {
+      return function (obj) {
+        return TiValidate.match(obj, validates, allowEmpty);
+      };
     } //-----------------------------------
 
   }; ///////////////////////////////////////
@@ -8025,10 +8150,277 @@ var _ref78 = function () {
   };
 }(),
     Validate = _ref78.Validate; //##################################################
-// # import {Types}        from "./types.mjs"
+// # import {AutoMatch}    from "./automatch.mjs"
 
 
 var _ref81 = function () {
+  ///////////////////////////////////////
+  function DoAutoMatch(input) {
+    // null
+    if (Ti.Util.isNil(input)) {
+      return new NilMatch();
+    } // Boolean
+
+
+    if (_.isBoolean(input)) {
+      return BooleanMatch(input);
+    } // Number
+
+
+    if (_.isNumber(input)) {
+      return NumberMatch(input);
+    } // Array
+
+
+    if (_.isArray(input)) {
+      var _ms3 = [];
+
+      var _iterator26 = _createForOfIteratorHelper(input),
+          _step26;
+
+      try {
+        for (_iterator26.s(); !(_step26 = _iterator26.n()).done;) {
+          var o = _step26.value;
+
+          var _m4 = DoAutoMatch(o);
+
+          _ms3.push(_m4);
+        }
+      } catch (err) {
+        _iterator26.e(err);
+      } finally {
+        _iterator26.f();
+      }
+
+      return ParallelMatch.apply(void 0, _ms3);
+    } // Map
+
+
+    if (_.isPlainObject(input)) {
+      return MapMatch(input);
+    } // String
+
+
+    if (_.isString(input)) {
+      return AutoStrMatch(input);
+    }
+
+    throw Ti.Err.make("e.match.unsupport", input);
+  }
+
+  function AutoStrMatch(input) {
+    // nil
+    if (Ti.Util.isNil(input)) {
+      return NilMatch();
+    } // empty
+
+
+    if ("" == input) {
+      return EmptyMatch();
+    } // blank
+
+
+    if (Ti.S.isBlank(input) || "[BLANK]" == input) {
+      return BlankMatch();
+    } // Regex
+
+
+    if (/^!?\^/.test(input)) {
+      return RegexMatch(input);
+    } // Wildcard
+
+
+    if (/\*/.test(input)) {
+      return WildcardMatch(input);
+    } // StringMatch
+
+
+    return StringMatch(input);
+  }
+
+  function BlankMatch() {
+    return function (val) {
+      return Ti.Util.isNil(val) || Ti.S.isBlank(val);
+    };
+  }
+
+  function BooleanMatch(bool) {
+    var b = bool ? true : false;
+    return function (val) {
+      var ib = val ? true : false;
+      return ib === b;
+    };
+  }
+
+  function NumberMatch(n) {
+    return function (val) {
+      return val == n;
+    };
+  }
+
+  function EmptyMatch() {
+    return function (val) {
+      return Ti.Util.isNil(val) || "" === val;
+    };
+  }
+
+  function MapMatch(map) {
+    // Pre-build
+    var matchs = [];
+
+    _.forEach(map, function (val, key) {
+      var not = key.startsWith("!");
+      var m = DoAutoMatch(val);
+
+      if (not) {
+        key = key.substring(1).trim();
+        m = NotMatch(m);
+      }
+
+      matchs.push({
+        key: key,
+        m: m
+      });
+    }); // return matcher
+
+
+    return function (val) {
+      if (!val || !_.isPlainObject(val)) {
+        return false;
+      }
+
+      var _iterator27 = _createForOfIteratorHelper(matchs),
+          _step27;
+
+      try {
+        for (_iterator27.s(); !(_step27 = _iterator27.n()).done;) {
+          var it = _step27.value;
+          var key = it.key;
+
+          var _v3 = _.get(val, key);
+
+          var _m5 = it.m;
+          if (!_m5(_v3)) return false;
+        }
+      } catch (err) {
+        _iterator27.e(err);
+      } finally {
+        _iterator27.f();
+      }
+
+      return true;
+    };
+  }
+
+  function NilMatch() {
+    return function (val) {
+      return Ti.Util.isNil(val);
+    };
+  }
+
+  function NotMatch(m) {
+    return function (input) {
+      return !m(input);
+    };
+  }
+
+  function ParallelMatch() {
+    for (var _len19 = arguments.length, ms = new Array(_len19), _key20 = 0; _key20 < _len19; _key20++) {
+      ms[_key20] = arguments[_key20];
+    }
+
+    return function (val) {
+      if (_.isEmpty(ms)) return false;
+
+      var _iterator28 = _createForOfIteratorHelper(ms),
+          _step28;
+
+      try {
+        for (_iterator28.s(); !(_step28 = _iterator28.n()).done;) {
+          var _m6 = _step28.value;
+          if (_m6(val)) return true;
+        }
+      } catch (err) {
+        _iterator28.e(err);
+      } finally {
+        _iterator28.f();
+      }
+
+      return false;
+    };
+  }
+
+  function RegexMatch(regex) {
+    var not = false;
+
+    if (regex.startsWith("!")) {
+      not = true;
+      regex = regex.substring(1).trim();
+    }
+
+    var P = new RegExp(regex);
+    return function (val) {
+      if (Ti.Util.isNil(val)) return not;
+      return P.test(val) ? !not : not;
+    };
+  }
+
+  function StringMatch(input) {
+    var ignoreCase = false;
+
+    if (input.startsWith("~~")) {
+      ignoreCase = true;
+      input = input.substring(2).toUpperCase();
+    }
+
+    return function (val) {
+      if (Ti.Util.isNil(val)) {
+        return Ti.Util.isNil(input);
+      }
+
+      if (ignoreCase) {
+        return input == val.toUpperCase();
+      }
+
+      return input == val;
+    };
+  }
+
+  function WildcardMatch(wildcard) {
+    var not = false;
+
+    if (wildcard.startsWith("!")) {
+      not = true;
+      wildcard = wildcard.substring(1).trim();
+    }
+
+    var regex = "^" + wildcard.replaceAll("*", ".*") + "$";
+    var P = new RegExp(regex);
+    return function (val) {
+      if (Ti.Util.isNil(val)) return not;
+      return P.test(val) ? !not : not;
+    };
+  } ///////////////////////////////////////
+
+
+  var TiAutoMatch = {
+    parse: function parse(input) {
+      return DoAutoMatch(input);
+    },
+    test: function test(input, val) {
+      return DoAutoMatch(input)(val);
+    }
+  }; ///////////////////////////////////////
+
+  return {
+    AutoMatch: TiAutoMatch
+  };
+}(),
+    AutoMatch = _ref81.AutoMatch; //##################################################
+// # import {Types}        from "./types.mjs"
+
+
+var _ref82 = function () {
   /////////////////////////////////////
   // Time Object
   var TiTime = /*#__PURE__*/function () {
@@ -8085,11 +8477,11 @@ var _ref81 = function () {
     }, {
       key: "setTimes",
       value: function setTimes() {
-        var _ref82 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            hours = _ref82.hours,
-            minutes = _ref82.minutes,
-            seconds = _ref82.seconds,
-            milliseconds = _ref82.milliseconds;
+        var _ref83 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            hours = _ref83.hours,
+            minutes = _ref83.minutes,
+            seconds = _ref83.seconds,
+            milliseconds = _ref83.milliseconds;
 
         this.__cached = {};
         this.hours = _.clamp(Ti.Util.fallback(hours, this.hours), 0, 23);
@@ -8117,9 +8509,9 @@ var _ref81 = function () {
             this.milliseconds = input.milliseconds;
           } // Number as Seconds
           else if (_.isNumber(input)) {
-              var _ms3 = {
+              var _ms4 = {
                 "ms": function ms(v) {
-                  return v;
+                  return Math.round(v);
                 },
                 "s": function s(v) {
                   return Math.round(v * 1000);
@@ -8132,36 +8524,36 @@ var _ref81 = function () {
                 }
               }[unit](input);
 
-              _ms3 = _.clamp(_ms3, 0, 86400000);
-              var sec = parseInt(_ms3 / 1000);
-              this.milliseconds = _ms3 - sec * 1000;
+              _ms4 = _.clamp(_ms4, 0, 86400000);
+              var sec = parseInt(_ms4 / 1000);
+              this.milliseconds = _ms4 - sec * 1000;
               this.hours = parseInt(sec / 3600);
               sec -= this.hours * 3600;
               this.minutes = parseInt(sec / 60);
               this.seconds = sec - this.minutes * 60;
             } // String
             else if (_.isString(input)) {
-                var _m4 = /^([0-9]{1,2}):?([0-9]{1,2})(:?([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/.exec(input);
+                var _m7 = /^([0-9]{1,2}):?([0-9]{1,2})(:?([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/.exec(input);
 
-                if (_m4) {
+                if (_m7) {
                   // Min: 23:59
-                  if (!_m4[3]) {
-                    this.hours = _.clamp(parseInt(_m4[1]), 0, 23);
-                    this.minutes = _.clamp(parseInt(_m4[2]), 0, 59);
+                  if (!_m7[3]) {
+                    this.hours = _.clamp(parseInt(_m7[1]), 0, 23);
+                    this.minutes = _.clamp(parseInt(_m7[2]), 0, 59);
                     this.seconds = 0;
                     this.milliseconds = 0;
                   } // Sec: 23:59:59
-                  else if (!_m4[5]) {
-                      this.hours = _.clamp(parseInt(_m4[1]), 0, 23);
-                      this.minutes = _.clamp(parseInt(_m4[2]), 0, 59);
-                      this.seconds = _.clamp(parseInt(_m4[4]), 0, 59);
+                  else if (!_m7[5]) {
+                      this.hours = _.clamp(parseInt(_m7[1]), 0, 23);
+                      this.minutes = _.clamp(parseInt(_m7[2]), 0, 59);
+                      this.seconds = _.clamp(parseInt(_m7[4]), 0, 59);
                       this.milliseconds = 0;
                     } // Ms: 23:59:59.234
                     else {
-                        this.hours = _.clamp(parseInt(_m4[1]), 0, 23);
-                        this.minutes = _.clamp(parseInt(_m4[2]), 0, 59);
-                        this.seconds = _.clamp(parseInt(_m4[4]), 0, 59);
-                        this.milliseconds = _.clamp(parseInt(_m4[6]), 0, 999);
+                        this.hours = _.clamp(parseInt(_m7[1]), 0, 23);
+                        this.minutes = _.clamp(parseInt(_m7[2]), 0, 59);
+                        this.seconds = _.clamp(parseInt(_m7[4]), 0, 59);
+                        this.milliseconds = _.clamp(parseInt(_m7[6]), 0, 999);
                       }
                 } // if(m)
 
@@ -8347,11 +8739,11 @@ var _ref81 = function () {
     }, {
       key: "setRGBA",
       value: function setRGBA() {
-        var _ref83 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            r = _ref83.r,
-            g = _ref83.g,
-            b = _ref83.b,
-            a = _ref83.a;
+        var _ref84 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            r = _ref84.r,
+            g = _ref84.g,
+            b = _ref84.b,
+            a = _ref84.a;
 
         this.__cached = {};
 
@@ -8401,35 +8793,35 @@ var _ref81 = function () {
           else {
               var str = input.replace(/[ \t\r\n]+/g, "").toUpperCase();
 
-              var _m5; // HEX: #FFF
+              var _m8; // HEX: #FFF
 
 
-              if (_m5 = /^#?([0-9A-F])([0-9A-F])([0-9A-F]);?$/.exec(str)) {
-                this.red = parseInt(_m5[1] + _m5[1], 16);
-                this.green = parseInt(_m5[2] + _m5[2], 16);
-                this.blue = parseInt(_m5[3] + _m5[3], 16);
+              if (_m8 = /^#?([0-9A-F])([0-9A-F])([0-9A-F]);?$/.exec(str)) {
+                this.red = parseInt(_m8[1] + _m8[1], 16);
+                this.green = parseInt(_m8[2] + _m8[2], 16);
+                this.blue = parseInt(_m8[3] + _m8[3], 16);
               } // HEX2: #F0F0F0
-              else if (_m5 = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
-                  this.red = parseInt(_m5[1], 16);
-                  this.green = parseInt(_m5[2], 16);
-                  this.blue = parseInt(_m5[3], 16);
+              else if (_m8 = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
+                  this.red = parseInt(_m8[1], 16);
+                  this.green = parseInt(_m8[2], 16);
+                  this.blue = parseInt(_m8[3], 16);
                 } // RGB: rgb(255,33,89)
-                else if (_m5 = /^RGB\((\d+),(\d+),(\d+)\)$/.exec(str)) {
-                    this.red = parseInt(_m5[1], 10);
-                    this.green = parseInt(_m5[2], 10);
-                    this.blue = parseInt(_m5[3], 10);
+                else if (_m8 = /^RGB\((\d+),(\d+),(\d+)\)$/.exec(str)) {
+                    this.red = parseInt(_m8[1], 10);
+                    this.green = parseInt(_m8[2], 10);
+                    this.blue = parseInt(_m8[3], 10);
                   } // RGBA: rgba(6,6,6,0.9)
-                  else if (_m5 = /^RGBA\((\d+),(\d+),(\d+),([\d.]+)\)$/.exec(str)) {
-                      this.red = parseInt(_m5[1], 10);
-                      this.green = parseInt(_m5[2], 10);
-                      this.blue = parseInt(_m5[3], 10);
-                      this.alpha = _m5[4] * 1;
+                  else if (_m8 = /^RGBA\((\d+),(\d+),(\d+),([\d.]+)\)$/.exec(str)) {
+                      this.red = parseInt(_m8[1], 10);
+                      this.green = parseInt(_m8[2], 10);
+                      this.blue = parseInt(_m8[3], 10);
+                      this.alpha = _m8[4] * 1;
                     } // AARRGGBB : 0xFF000000
-                    else if (_m5 = /^0[xX]([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
-                        this.alpha = parseInt(_m5[1], 16) / 255;
-                        this.red = parseInt(_m5[2], 16);
-                        this.green = parseInt(_m5[3], 16);
-                        this.blue = parseInt(_m5[4], 16);
+                    else if (_m8 = /^0[xX]([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
+                        this.alpha = parseInt(_m8[1], 16) / 255;
+                        this.red = parseInt(_m8[2], 16);
+                        this.green = parseInt(_m8[3], 16);
+                        this.blue = parseInt(_m8[4], 16);
                       }
             }
         } // Number 
@@ -8504,9 +8896,9 @@ var _ref81 = function () {
       value: function between(otherColor) {
         var pos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.5;
 
-        var _ref84 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+        var _ref85 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-        _objectDestructuringEmpty(_ref84);
+        _objectDestructuringEmpty(_ref85);
 
         pos = _.clamp(pos, 0, 1);
         var r0 = otherColor.red - this.red;
@@ -8522,13 +8914,13 @@ var _ref81 = function () {
     }, {
       key: "adjustByHSL",
       value: function adjustByHSL() {
-        var _ref85 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            _ref85$h = _ref85.h,
-            h = _ref85$h === void 0 ? 0 : _ref85$h,
-            _ref85$s = _ref85.s,
-            s = _ref85$s === void 0 ? 0 : _ref85$s,
-            _ref85$l = _ref85.l,
-            l = _ref85$l === void 0 ? 0 : _ref85$l;
+        var _ref86 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            _ref86$h = _ref86.h,
+            h = _ref86$h === void 0 ? 0 : _ref86$h,
+            _ref86$s = _ref86.s,
+            s = _ref86$s === void 0 ? 0 : _ref86$s,
+            _ref86$l = _ref86.l,
+            l = _ref86$l === void 0 ? 0 : _ref86$l;
 
         var hsl = this.toHSL();
         hsl.h = _.clamp(hsl.h + h, 0, 1);
@@ -8583,10 +8975,10 @@ var _ref81 = function () {
     }, {
       key: "fromHSL",
       value: function fromHSL() {
-        var _ref86 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            h = _ref86.h,
-            s = _ref86.s,
-            l = _ref86.l;
+        var _ref87 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            h = _ref87.h,
+            s = _ref87.s,
+            l = _ref87.l;
 
         var r,
             g,
@@ -8801,15 +9193,15 @@ var _ref81 = function () {
     },
     //.......................................
     toInteger: function toInteger(val) {
-      var _ref87 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref87$mode = _ref87.mode,
-          mode = _ref87$mode === void 0 ? "int" : _ref87$mode,
-          _ref87$dft = _ref87.dft,
-          dft = _ref87$dft === void 0 ? NaN : _ref87$dft,
-          _ref87$range = _ref87.range,
-          range = _ref87$range === void 0 ? [] : _ref87$range,
-          _ref87$border = _ref87.border,
-          border = _ref87$border === void 0 ? [true, true] : _ref87$border;
+      var _ref88 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref88$mode = _ref88.mode,
+          mode = _ref88$mode === void 0 ? "int" : _ref88$mode,
+          _ref88$dft = _ref88.dft,
+          dft = _ref88$dft === void 0 ? NaN : _ref88$dft,
+          _ref88$range = _ref88.range,
+          range = _ref88$range === void 0 ? [] : _ref88$range,
+          _ref88$border = _ref88.border,
+          border = _ref88$border === void 0 ? [true, true] : _ref88$border;
 
       if (_.isBoolean(val)) {
         return val ? 1 : 0;
@@ -8879,11 +9271,11 @@ var _ref81 = function () {
     //.......................................
     // precision: if less then 0, keep original
     toFloat: function toFloat(val) {
-      var _ref88 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref88$precision = _ref88.precision,
-          precision = _ref88$precision === void 0 ? 2 : _ref88$precision,
-          _ref88$dft = _ref88.dft,
-          dft = _ref88$dft === void 0 ? NaN : _ref88$dft;
+      var _ref89 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref89$precision = _ref89.precision,
+          precision = _ref89$precision === void 0 ? 2 : _ref89$precision,
+          _ref89$dft = _ref89.dft,
+          dft = _ref89$dft === void 0 ? NaN : _ref89$dft;
 
       var n = val * 1;
 
@@ -8901,11 +9293,11 @@ var _ref81 = function () {
     },
     //.......................................
     toPercent: function toPercent(val) {
-      var _ref89 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref89$fixed = _ref89.fixed,
-          fixed = _ref89$fixed === void 0 ? 2 : _ref89$fixed,
-          _ref89$auto = _ref89.auto,
-          auto = _ref89$auto === void 0 ? true : _ref89$auto;
+      var _ref90 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref90$fixed = _ref90.fixed,
+          fixed = _ref90$fixed === void 0 ? 2 : _ref90$fixed,
+          _ref90$auto = _ref90.auto,
+          auto = _ref90$auto === void 0 ? true : _ref90$auto;
 
       return Ti.S.toPercent(val, {
         fixed: fixed,
@@ -8955,13 +9347,13 @@ var _ref81 = function () {
     toObjByPair: function toObjByPair() {
       var pair = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var _ref90 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref90$nameBy = _ref90.nameBy,
-          nameBy = _ref90$nameBy === void 0 ? "name" : _ref90$nameBy,
-          _ref90$valueBy = _ref90.valueBy,
-          valueBy = _ref90$valueBy === void 0 ? "value" : _ref90$valueBy,
-          _ref90$dft = _ref90.dft,
-          dft = _ref90$dft === void 0 ? {} : _ref90$dft;
+      var _ref91 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref91$nameBy = _ref91.nameBy,
+          nameBy = _ref91$nameBy === void 0 ? "name" : _ref91$nameBy,
+          _ref91$valueBy = _ref91.valueBy,
+          valueBy = _ref91$valueBy === void 0 ? "value" : _ref91$valueBy,
+          _ref91$dft = _ref91.dft,
+          dft = _ref91$dft === void 0 ? {} : _ref91$dft;
 
       var name = pair[nameBy];
       var value = pair[valueBy];
@@ -8973,18 +9365,18 @@ var _ref81 = function () {
         data[name] = value;
       } // Multi fields
       else if (_.isArray(name)) {
-          var _iterator26 = _createForOfIteratorHelper(name),
-              _step26;
+          var _iterator29 = _createForOfIteratorHelper(name),
+              _step29;
 
           try {
-            for (_iterator26.s(); !(_step26 = _iterator26.n()).done;) {
-              var nm = _step26.value;
+            for (_iterator29.s(); !(_step29 = _iterator29.n()).done;) {
+              var nm = _step29.value;
               data[nm] = value[nm];
             }
           } catch (err) {
-            _iterator26.e(err);
+            _iterator29.e(err);
           } finally {
-            _iterator26.f();
+            _iterator29.f();
           }
         }
 
@@ -8992,9 +9384,9 @@ var _ref81 = function () {
     },
     //.......................................
     toArray: function toArray(val) {
-      var _ref91 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref91$sep = _ref91.sep,
-          sep = _ref91$sep === void 0 ? /[ ,;\/、，；\r\n]+/ : _ref91$sep;
+      var _ref92 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref92$sep = _ref92.sep,
+          sep = _ref92$sep === void 0 ? /[ ,;\/、，；\r\n]+/ : _ref92$sep;
 
       if (Ti.Util.isNil(val)) {
         return val;
@@ -9040,9 +9432,9 @@ var _ref81 = function () {
     },
     //.......................................
     toTime: function toTime(val) {
-      var _ref92 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          dft = _ref92.dft,
-          unit = _ref92.unit;
+      var _ref93 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          dft = _ref93.dft,
+          unit = _ref93.unit;
 
       if (_.isNull(val) || _.isUndefined(val)) {
         return dft;
@@ -9111,7 +9503,8 @@ var _ref81 = function () {
     },
     //.......................................
     formatTime: function formatTime(time) {
-      var fmt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "auto";
+      var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "ms";
+      var fmt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "auto";
 
       if (_.isUndefined(time) || _.isNull(time)) {
         return "";
@@ -9122,19 +9515,19 @@ var _ref81 = function () {
         //console.log("formatDate", date, fmt)
         var _list4 = [];
 
-        var _iterator27 = _createForOfIteratorHelper(time),
-            _step27;
+        var _iterator30 = _createForOfIteratorHelper(time),
+            _step30;
 
         try {
-          for (_iterator27.s(); !(_step27 = _iterator27.n()).done;) {
-            var t = _step27.value;
+          for (_iterator30.s(); !(_step30 = _iterator30.n()).done;) {
+            var t = _step30.value;
 
             _list4.push(TiTypes.formatTime(t, fmt));
           }
         } catch (err) {
-          _iterator27.e(err);
+          _iterator30.e(err);
         } finally {
-          _iterator27.f();
+          _iterator30.f();
         }
 
         return _list4;
@@ -9142,7 +9535,7 @@ var _ref81 = function () {
 
 
       if (!(time instanceof TiTime)) {
-        time = new TiTime(time);
+        time = new TiTime(time, unit);
       } // Format it
 
 
@@ -9282,9 +9675,9 @@ var _ref81 = function () {
         if (!_.isFunction(fn2)) return; // Partical args ...
 
         if (_.isArray(fn.args) && fn.args.length > 0) {
-          var _ref93;
+          var _ref94;
 
-          return (_ref93 = _).partialRight.apply(_ref93, [fn2].concat(_toConsumableArray(fn.args)));
+          return (_ref94 = _).partialRight.apply(_ref94, [fn2].concat(_toConsumableArray(fn.args)));
         } // Partical one arg
 
 
@@ -9324,9 +9717,9 @@ var _ref81 = function () {
         if (!_.isFunction(fn2)) return; // Partical args ...
 
         if (_.isArray(fn.args) && fn.args.length > 0) {
-          var _ref94;
+          var _ref95;
 
-          return (_ref94 = _).partialRight.apply(_ref94, [fn2].concat(_toConsumableArray(fn.args)));
+          return (_ref95 = _).partialRight.apply(_ref95, [fn2].concat(_toConsumableArray(fn.args)));
         } // Partical one arg
 
 
@@ -9386,11 +9779,11 @@ var _ref81 = function () {
     Types: TiTypes
   };
 }(),
-    Types = _ref81.Types; //##################################################
+    Types = _ref82.Types; //##################################################
 // # import {Util}         from "./util.mjs"
 
 
-var _ref95 = function () {
+var _ref96 = function () {
   //################################################
   // # import TiPaths from "./util-paths.mjs"
   var TiPaths = function () {
@@ -9501,8 +9894,8 @@ var _ref95 = function () {
       appendPath: function appendPath() {
         var re = [];
 
-        for (var _len19 = arguments.length, args = new Array(_len19), _key20 = 0; _key20 < _len19; _key20++) {
-          args[_key20] = arguments[_key20];
+        for (var _len20 = arguments.length, args = new Array(_len20), _key21 = 0; _key21 < _len20; _key21++) {
+          args[_key21] = arguments[_key21];
         }
 
         for (var _i12 = 0, _args28 = args; _i12 < _args28.length; _i12++) {
@@ -9513,10 +9906,10 @@ var _ref95 = function () {
           } // remove the last '/'
 
 
-          var _m6 = /\/*$/.exec(ph);
+          var _m9 = /\/*$/.exec(ph);
 
-          if (_m6) {
-            ph = ph.substring(0, _m6.index);
+          if (_m9) {
+            ph = ph.substring(0, _m9.index);
           } // add the middle '/'
 
 
@@ -9646,7 +10039,26 @@ var _ref95 = function () {
             search: m[9],
             query: m[10],
             hash: m[11],
-            anchor: m[12]
+            anchor: m[12],
+            toString: function toString() {
+              var s = "".concat(this.protocol, "://").concat(this.host).concat(this.path);
+
+              if (!_.isEmpty(this.params)) {
+                var pp = [];
+
+                _.forEach(this.params, function (v, k) {
+                  pp.push("".concat(k, "=").concat(v));
+                });
+
+                s += '?' + pp.join("&");
+              }
+
+              if (this.hash) {
+                s += this.hash;
+              }
+
+              return s;
+            }
           };
 
           if (link.query) {
@@ -9654,29 +10066,29 @@ var _ref95 = function () {
 
             var _ss3 = link.query.split('&');
 
-            var _iterator28 = _createForOfIteratorHelper(_ss3),
-                _step28;
+            var _iterator31 = _createForOfIteratorHelper(_ss3),
+                _step31;
 
             try {
-              for (_iterator28.s(); !(_step28 = _iterator28.n()).done;) {
-                var _s4 = _step28.value;
+              for (_iterator31.s(); !(_step31 = _iterator31.n()).done;) {
+                var _s4 = _step31.value;
 
                 var _pos = _s4.indexOf('=');
 
                 if (_pos > 0) {
                   var k = _s4.substring(0, _pos);
 
-                  var _v3 = _s4.substring(_pos + 1);
+                  var _v4 = _s4.substring(_pos + 1);
 
-                  params[k] = decodeURIComponent(_v3);
+                  params[k] = decodeURIComponent(_v4);
                 } else {
                   params[_s4] = true;
                 }
               }
             } catch (err) {
-              _iterator28.e(err);
+              _iterator31.e(err);
             } finally {
-              _iterator28.f();
+              _iterator31.f();
             }
 
             link.params = params;
@@ -9699,14 +10111,16 @@ var _ref95 = function () {
   var TiLink = function () {
     var TiLinkObj = /*#__PURE__*/function () {
       function TiLinkObj() {
-        var _ref96 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            url = _ref96.url,
-            params = _ref96.params;
+        var _ref97 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            url = _ref97.url,
+            params = _ref97.params,
+            anchor = _ref97.anchor;
 
         _classCallCheck(this, TiLinkObj);
 
         this.url = url;
         this.params = params;
+        this.anchor = anchor;
         this.__S = null;
         this.set({
           url: url,
@@ -9717,14 +10131,16 @@ var _ref95 = function () {
       _createClass(TiLinkObj, [{
         key: "set",
         value: function set() {
-          var _ref97 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-              _ref97$url = _ref97.url,
-              url = _ref97$url === void 0 ? "" : _ref97$url,
-              _ref97$params = _ref97.params,
-              params = _ref97$params === void 0 ? {} : _ref97$params;
+          var _ref98 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref98$url = _ref98.url,
+              url = _ref98$url === void 0 ? "" : _ref98$url,
+              _ref98$params = _ref98.params,
+              params = _ref98$params === void 0 ? {} : _ref98$params,
+              anchor = _ref98.anchor;
 
           this.url = url;
           this.params = params;
+          this.anchor = anchor;
           this.__S = null;
           return this;
         }
@@ -9748,7 +10164,18 @@ var _ref95 = function () {
               _ss4.push(qs.join("&"));
             }
 
-            this.__S = _ss4.join("?");
+            var url = _ss4.join("?");
+
+            if (this.anchor) {
+              if (/^#/.test(this.anchor)) {
+                url += this.anchor;
+              } else {
+                url += "#" + this.anchor;
+              }
+            } // cache it
+
+
+            this.__S = url;
           }
 
           return this.__S;
@@ -9761,13 +10188,15 @@ var _ref95 = function () {
 
     var TiLink = {
       Link: function Link() {
-        var _ref98 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            url = _ref98.url,
-            params = _ref98.params;
+        var _ref99 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            url = _ref99.url,
+            params = _ref99.params,
+            anchor = _ref99.anchor;
 
         return new TiLinkObj({
           url: url,
-          params: params
+          params: params,
+          anchor: anchor
         });
       }
     }; //-----------------------------------
@@ -9793,8 +10222,8 @@ var _ref95 = function () {
     merge: function merge() {
       var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      for (var _len20 = arguments.length, args = new Array(_len20 > 1 ? _len20 - 1 : 0), _key21 = 1; _key21 < _len20; _key21++) {
-        args[_key21 - 1] = arguments[_key21];
+      for (var _len21 = arguments.length, args = new Array(_len21 > 1 ? _len21 - 1 : 0), _key22 = 1; _key22 < _len21; _key22++) {
+        args[_key22 - 1] = arguments[_key22];
       }
 
       return TiUtil.mergeWith.apply(TiUtil, [undefined, obj].concat(args));
@@ -9803,18 +10232,18 @@ var _ref95 = function () {
       var customizer = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _.identity;
       var obj = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      for (var _len21 = arguments.length, args = new Array(_len21 > 2 ? _len21 - 2 : 0), _key22 = 2; _key22 < _len21; _key22++) {
-        args[_key22 - 2] = arguments[_key22];
+      for (var _len22 = arguments.length, args = new Array(_len22 > 2 ? _len22 - 2 : 0), _key23 = 2; _key23 < _len22; _key23++) {
+        args[_key23 - 2] = arguments[_key23];
       }
 
       var list = _.flattenDeep(args);
 
-      var _iterator29 = _createForOfIteratorHelper(list),
-          _step29;
+      var _iterator32 = _createForOfIteratorHelper(list),
+          _step32;
 
       try {
-        for (_iterator29.s(); !(_step29 = _iterator29.n()).done;) {
-          var arg = _step29.value;
+        for (_iterator32.s(); !(_step32 = _iterator32.n()).done;) {
+          var arg = _step32.value;
 
           if (!arg) {
             continue;
@@ -9834,9 +10263,9 @@ var _ref95 = function () {
 
         }
       } catch (err) {
-        _iterator29.e(err);
+        _iterator32.e(err);
       } finally {
-        _iterator29.f();
+        _iterator32.f();
       }
 
       return obj;
@@ -9846,15 +10275,15 @@ var _ref95 = function () {
      * Unlike the `_.merge`, it will replace `Array` value
      */
     deepMergeObj: function deepMergeObj() {
-      var _ref99;
+      var _ref100;
 
       var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      for (var _len22 = arguments.length, others = new Array(_len22 > 1 ? _len22 - 1 : 0), _key23 = 1; _key23 < _len22; _key23++) {
-        others[_key23 - 1] = arguments[_key23];
+      for (var _len23 = arguments.length, others = new Array(_len23 > 1 ? _len23 - 1 : 0), _key24 = 1; _key24 < _len23; _key24++) {
+        others[_key24 - 1] = arguments[_key24];
       }
 
-      return (_ref99 = _).mergeWith.apply(_ref99, [obj].concat(others, [function (objValue, srcValue) {
+      return (_ref100 = _).mergeWith.apply(_ref100, [obj].concat(others, [function (objValue, srcValue) {
         if (_.isArray(objValue) || _.isArray(srcValue)) {
           return srcValue;
         }
@@ -9868,16 +10297,16 @@ var _ref95 = function () {
       var list = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var groupKey = arguments.length > 1 ? arguments[1] : undefined;
 
-      var _ref100 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref100$titles = _ref100.titles,
-          titles = _ref100$titles === void 0 ? [] : _ref100$titles,
-          _ref100$otherTitle = _ref100.otherTitle,
-          otherTitle = _ref100$otherTitle === void 0 ? {
+      var _ref101 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref101$titles = _ref101.titles,
+          titles = _ref101$titles === void 0 ? [] : _ref101$titles,
+          _ref101$otherTitle = _ref101.otherTitle,
+          otherTitle = _ref101$otherTitle === void 0 ? {
         value: "Others",
         text: "Others"
-      } : _ref100$otherTitle,
-          _ref100$asList = _ref100.asList,
-          asList = _ref100$asList === void 0 ? false : _ref100$asList;
+      } : _ref101$otherTitle,
+          _ref101$asList = _ref101.asList,
+          asList = _ref101$asList === void 0 ? false : _ref101$asList;
 
       var reMap = {}; //...............................................
       // Build title map
@@ -9949,8 +10378,8 @@ var _ref95 = function () {
       var list = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var pos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
 
-      for (var _len23 = arguments.length, items = new Array(_len23 > 2 ? _len23 - 2 : 0), _key24 = 2; _key24 < _len23; _key24++) {
-        items[_key24 - 2] = arguments[_key24];
+      for (var _len24 = arguments.length, items = new Array(_len24 > 2 ? _len24 - 2 : 0), _key25 = 2; _key25 < _len24; _key25++) {
+        items[_key25 - 2] = arguments[_key25];
       }
 
       // Guard
@@ -10021,15 +10450,15 @@ var _ref95 = function () {
     walk: function walk() {
       var input = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var _ref101 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref101$root = _ref101.root,
-          root = _ref101$root === void 0 ? _.identity : _ref101$root,
-          _ref101$all = _ref101.all,
-          all = _ref101$all === void 0 ? _.identity : _ref101$all,
-          _ref101$leaf = _ref101.leaf,
-          leaf = _ref101$leaf === void 0 ? _.identity : _ref101$leaf,
-          _ref101$node = _ref101.node,
-          node = _ref101$node === void 0 ? _.identity : _ref101$node;
+      var _ref102 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref102$root = _ref102.root,
+          root = _ref102$root === void 0 ? _.identity : _ref102$root,
+          _ref102$all = _ref102.all,
+          all = _ref102$all === void 0 ? _.identity : _ref102$all,
+          _ref102$leaf = _ref102.leaf,
+          leaf = _ref102$leaf === void 0 ? _.identity : _ref102$leaf,
+          _ref102$node = _ref102.node,
+          node = _ref102$node === void 0 ? _.identity : _ref102$node;
 
       //..............................
       var WalkAny = function WalkAny(input) {
@@ -10063,12 +10492,12 @@ var _ref95 = function () {
         else if (isPojo) {
             var _keys2 = _.keys(input);
 
-            var _iterator30 = _createForOfIteratorHelper(_keys2),
-                _step30;
+            var _iterator33 = _createForOfIteratorHelper(_keys2),
+                _step33;
 
             try {
-              for (_iterator30.s(); !(_step30 = _iterator30.n()).done;) {
-                var k = _step30.value;
+              for (_iterator33.s(); !(_step33 = _iterator33.n()).done;) {
+                var k = _step33.value;
                 var _val2 = input[k];
 
                 var _ph = path.concat(k);
@@ -10076,9 +10505,9 @@ var _ref95 = function () {
                 WalkAny(_val2, _ph);
               }
             } catch (err) {
-              _iterator30.e(err);
+              _iterator33.e(err);
             } finally {
-              _iterator30.f();
+              _iterator33.f();
             }
           }
       }; //..............................
@@ -10126,27 +10555,27 @@ var _ref95 = function () {
       var iteratee = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _.identity;
       var list2 = [];
 
-      var _iterator31 = _createForOfIteratorHelper(list),
-          _step31;
+      var _iterator34 = _createForOfIteratorHelper(list),
+          _step34;
 
       try {
-        for (_iterator31.s(); !(_step31 = _iterator31.n()).done;) {
-          var li = _step31.value;
+        for (_iterator34.s(); !(_step34 = _iterator34.n()).done;) {
+          var li = _step34.value;
           var li2 = iteratee(li); // Multi values returned
 
           if (_.isArray(li2) && !_.isEmpty(li2)) {
-            var _iterator32 = _createForOfIteratorHelper(li2),
-                _step32;
+            var _iterator35 = _createForOfIteratorHelper(li2),
+                _step35;
 
             try {
-              for (_iterator32.s(); !(_step32 = _iterator32.n()).done;) {
-                var li22 = _step32.value;
+              for (_iterator35.s(); !(_step35 = _iterator35.n()).done;) {
+                var li22 = _step35.value;
                 list2.push(li22);
               }
             } catch (err) {
-              _iterator32.e(err);
+              _iterator35.e(err);
             } finally {
-              _iterator32.f();
+              _iterator35.f();
             }
           } // value returned
 
@@ -10156,9 +10585,9 @@ var _ref95 = function () {
           }
         }
       } catch (err) {
-        _iterator31.e(err);
+        _iterator34.e(err);
       } finally {
-        _iterator31.f();
+        _iterator34.f();
       }
 
       return list2;
@@ -10174,11 +10603,11 @@ var _ref95 = function () {
       var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       var obj = arguments.length > 1 ? arguments[1] : undefined;
 
-      var _ref102 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref102$evalFunc = _ref102.evalFunc,
-          evalFunc = _ref102$evalFunc === void 0 ? false : _ref102$evalFunc,
-          _ref102$iteratee = _ref102.iteratee,
-          iteratee = _ref102$iteratee === void 0 ? _.identity : _ref102$iteratee;
+      var _ref103 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref103$evalFunc = _ref103.evalFunc,
+          evalFunc = _ref103$evalFunc === void 0 ? false : _ref103$evalFunc,
+          _ref103$iteratee = _ref103.iteratee,
+          iteratee = _ref103$iteratee === void 0 ? _.identity : _ref103$iteratee;
 
       //......................................
       var ExplainValue = function ExplainValue(anyValue) {
@@ -10187,27 +10616,27 @@ var _ref95 = function () {
 
         if (_.isString(theValue)) {
           // Escape
-          var _m7 = /^:((=|==|!=|=>|->)(.+))$/.exec(theValue);
+          var _m10 = /^:(:*(=|==|!=|=>>?|->)(.+))$/.exec(theValue);
 
-          if (_m7) {
-            return iteratee(_m7[1]);
+          if (_m10) {
+            return iteratee(_m10[1]);
           }
 
           var m_type, m_val, m_dft; // Match template
 
-          _m7 = /^(==|!=|=>|->)(.+)$/.exec(theValue);
+          _m10 = /^(==|!=|=>>?|->)(.+)$/.exec(theValue);
 
-          if (_m7) {
-            m_type = _m7[1];
-            m_val = _.trim(_m7[2]);
+          if (_m10) {
+            m_type = _m10[1];
+            m_val = _.trim(_m10[2]);
           } // Find key in context
           else {
-              _m7 = /^(=)([^?]+)(\?(.*))?$/.exec(theValue);
+              _m10 = /^(=)([^?]+)(\?(.*))?$/.exec(theValue);
 
-              if (_m7) {
-                m_type = _m7[1];
-                m_val = _.trim(_m7[2]);
-                m_dft = _m7[4];
+              if (_m10) {
+                m_type = _m10[1];
+                m_val = _.trim(_m10[2]);
+                m_dft = _m10[4];
               }
             } // Matched
 
@@ -10272,16 +10701,45 @@ var _ref95 = function () {
                 return re;
               }),
               // =>Ti.Types.toStr(meta)
+              "=>>": function _(val) {
+                var fn = Ti.Util.genInvoking(val, {
+                  context: context,
+                  partial: "right"
+                });
+                return fn();
+              },
+              // =>Ti.Types.toStr(meta)
               "=>": function _(val) {
                 var fn = Ti.Util.genInvoking(val, {
-                  context: context
+                  context: context,
+                  partial: "left"
                 });
                 return fn();
               },
               // Render template
-              "->": function _(val) {
-                return Ti.S.renderBy(val, context);
-              } // :=xxx  # Get Value Later
+              "->": function (_5) {
+                function _(_x18) {
+                  return _5.apply(this, arguments);
+                }
+
+                _.toString = function () {
+                  return _5.toString();
+                };
+
+                return _;
+              }(function (val) {
+                var m2 = /^(([\w\d_.]+)\?\?)?(.+)$/.exec(val);
+                var test = m2[2];
+                var tmpl = m2[3];
+
+                if (test) {
+                  if (Ti.Util.isNil(_.get(context, test))) {
+                    return;
+                  }
+                }
+
+                return Ti.S.renderBy(tmpl, context);
+              }) // :=xxx  # Get Value Later
               // ":=" : (val, dft)=>{
               //   return (c2)=>{return _.get(c2, val)}
               // },
@@ -10321,20 +10779,20 @@ var _ref95 = function () {
           else if (_.isArray(theValue)) {
               var _list5 = [];
 
-              var _iterator33 = _createForOfIteratorHelper(theValue),
-                  _step33;
+              var _iterator36 = _createForOfIteratorHelper(theValue),
+                  _step36;
 
               try {
-                for (_iterator33.s(); !(_step33 = _iterator33.n()).done;) {
-                  var li = _step33.value;
+                for (_iterator36.s(); !(_step36 = _iterator36.n()).done;) {
+                  var li = _step36.value;
                   var v2 = ExplainValue(li);
 
                   _list5.push(iteratee(v2));
                 }
               } catch (err) {
-                _iterator33.e(err);
+                _iterator36.e(err);
               } finally {
-                _iterator33.f();
+                _iterator36.f();
               }
 
               return _list5;
@@ -10349,10 +10807,13 @@ var _ref95 = function () {
 
                   if ("..." == k2) {
                     _.assign(o2, v4);
-                  } // set value
-                  else {
-                      o2[k2] = v4;
-                    }
+                  } // escape the "..."
+                  else if (/^\.{3,}$/.test(k2)) {
+                      o2[k2.substring(1)] = v4;
+                    } // set value
+                    else {
+                        o2[k2] = v4;
+                      }
                 });
 
                 return o2;
@@ -10367,6 +10828,40 @@ var _ref95 = function () {
 
 
       return ExplainValue(obj);
+    },
+
+    /***
+     * Call explainObj for each element if input is Array
+     */
+    explainObjs: function explainObjs() {
+      var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var obj = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var options = arguments.length > 2 ? arguments[2] : undefined;
+
+      if (_.isArray(context)) {
+        var _re9 = [];
+
+        var _iterator37 = _createForOfIteratorHelper(context),
+            _step37;
+
+        try {
+          for (_iterator37.s(); !(_step37 = _iterator37.n()).done;) {
+            var li = _step37.value;
+            var it = TiUtil.explainObj(li, obj, options);
+
+            _re9.push(it);
+          }
+        } catch (err) {
+          _iterator37.e(err);
+        } finally {
+          _iterator37.f();
+        }
+
+        return _re9;
+      } // Take input as normal POJO
+
+
+      return TiUtil.explainObj(context, obj, options);
     },
 
     /***
@@ -10391,8 +10886,8 @@ var _ref95 = function () {
      * @return `Function` grouping the passed on function list
      */
     groupCall: function groupCall() {
-      for (var _len24 = arguments.length, fns = new Array(_len24), _key25 = 0; _key25 < _len24; _key25++) {
-        fns[_key25] = arguments[_key25];
+      for (var _len25 = arguments.length, fns = new Array(_len25), _key26 = 0; _key26 < _len25; _key26++) {
+        fns[_key26] = arguments[_key26];
       }
 
       var list = _.flattenDeep(fns).filter(function (fn) {
@@ -10410,22 +10905,22 @@ var _ref95 = function () {
       }
 
       return function () {
-        for (var _len25 = arguments.length, args = new Array(_len25), _key26 = 0; _key26 < _len25; _key26++) {
-          args[_key26] = arguments[_key26];
+        for (var _len26 = arguments.length, args = new Array(_len26), _key27 = 0; _key27 < _len26; _key27++) {
+          args[_key27] = arguments[_key27];
         }
 
-        var _iterator34 = _createForOfIteratorHelper(list),
-            _step34;
+        var _iterator38 = _createForOfIteratorHelper(list),
+            _step38;
 
         try {
-          for (_iterator34.s(); !(_step34 = _iterator34.n()).done;) {
-            var fn = _step34.value;
+          for (_iterator38.s(); !(_step38 = _iterator38.n()).done;) {
+            var fn = _step38.value;
             fn.apply(this, args);
           }
         } catch (err) {
-          _iterator34.e(err);
+          _iterator38.e(err);
         } finally {
-          _iterator34.f();
+          _iterator38.f();
         }
       };
     },
@@ -10459,7 +10954,7 @@ var _ref95 = function () {
         _.set(obj, key, _.uniq(_.concat(old, val || [])));
       }
     },
-    pushUniqValueBefre: function pushUniqValueBefre(obj, key, val) {
+    pushUniqValueBefore: function pushUniqValueBefore(obj, key, val) {
       var rawSet = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       var old = _.get(obj, key) || [];
 
@@ -10589,6 +11084,41 @@ var _ref95 = function () {
         }
 
         return _list6;
+      } // Mapping String like:
+      // "A=a;B=2;"
+
+
+      if (_.isString(mapping)) {
+        var _ss5 = mapping.split(/[:;]/g);
+
+        var map = {};
+
+        var _iterator39 = _createForOfIteratorHelper(_ss5),
+            _step39;
+
+        try {
+          for (_iterator39.s(); !(_step39 = _iterator39.n()).done;) {
+            var _s5 = _step39.value;
+            _s5 = _.trim(_s5);
+
+            var _m11 = /^([^=]+)=(.+)$/.exec(_s5);
+
+            if (_m11) {
+              map[_m11[1]] = _m11[2];
+            }
+          }
+        } catch (err) {
+          _iterator39.e(err);
+        } finally {
+          _iterator39.f();
+        }
+
+        mapping = map;
+      } // If source is string, just get the value
+
+
+      if (_.isString(source)) {
+        return _.get(mapping, source);
       } // Take as plain object
 
 
@@ -10620,28 +11150,28 @@ var _ref95 = function () {
     pureCloneDeep: function pureCloneDeep(obj) {
       // Array to recur
       if (_.isArray(obj)) {
-        var _re9 = [];
+        var _re10 = [];
 
         _.forEach(obj, function (v, i) {
           if (!_.isUndefined(v) && !_.isFunction(v)) {
-            _re9[i] = TiUtil.pureCloneDeep(v);
-          }
-        });
-
-        return _re9;
-      } // Object to omit the function
-
-
-      if (_.isPlainObject(obj)) {
-        var _re10 = {};
-
-        _.forEach(obj, function (v, k) {
-          if (!_.isUndefined(v) && !_.isFunction(v)) {
-            _re10[k] = TiUtil.pureCloneDeep(v);
+            _re10[i] = TiUtil.pureCloneDeep(v);
           }
         });
 
         return _re10;
+      } // Object to omit the function
+
+
+      if (_.isPlainObject(obj)) {
+        var _re11 = {};
+
+        _.forEach(obj, function (v, k) {
+          if (!_.isUndefined(v) && !_.isFunction(v)) {
+            _re11[k] = TiUtil.pureCloneDeep(v);
+          }
+        });
+
+        return _re11;
       } // Just clone it
 
 
@@ -10705,12 +11235,12 @@ var _ref95 = function () {
           if (keys.length == offset + 1) {
             var theKey = keys[offset];
 
-            var _iterator35 = _createForOfIteratorHelper(srcKeys),
-                _step35;
+            var _iterator40 = _createForOfIteratorHelper(srcKeys),
+                _step40;
 
             try {
-              for (_iterator35.s(); !(_step35 = _iterator35.n()).done;) {
-                var key = _step35.value;
+              for (_iterator40.s(); !(_step40 = _iterator40.n()).done;) {
+                var key = _step40.value;
                 var _val3 = src[key]; // Now replace it
 
                 if (theKey == key) {
@@ -10721,26 +11251,26 @@ var _ref95 = function () {
                   }
               }
             } catch (err) {
-              _iterator35.e(err);
+              _iterator40.e(err);
             } finally {
-              _iterator35.f();
+              _iterator40.f();
             }
           } // Call-down
           else {
-              var _iterator36 = _createForOfIteratorHelper(srcKeys),
-                  _step36;
+              var _iterator41 = _createForOfIteratorHelper(srcKeys),
+                  _step41;
 
               try {
-                for (_iterator36.s(); !(_step36 = _iterator36.n()).done;) {
-                  var _key27 = _step36.value;
-                  var _val4 = src[_key27];
+                for (_iterator41.s(); !(_step41 = _iterator41.n()).done;) {
+                  var _key28 = _step41.value;
+                  var _val4 = src[_key28];
                   var v2 = set_key_by(_val4, keys, offset + 1, newKey);
-                  _reo[_key27] = v2;
+                  _reo[_key28] = v2;
                 }
               } catch (err) {
-                _iterator36.e(err);
+                _iterator41.e(err);
               } finally {
-                _iterator36.f();
+                _iterator41.f();
               }
             }
 
@@ -10793,6 +11323,38 @@ var _ref95 = function () {
     },
 
     /***
+     * Get value from obj
+     * 
+     * @param key{String|Array} value key, if array will pick out a new obj
+     * 
+     * @return new obj or value
+     */
+    getOrPickNoBlank: function getOrPickNoBlank(obj, key, dft) {
+      // Array to pick
+      if (_.isArray(key)) {
+        return Ti.Util.fallback(_.pick(obj, key), dft);
+      } // Function to eval
+
+
+      if (_.isFunction(key)) {
+        return Ti.Util.fallback(key(obj), dft);
+      } // String
+
+
+      if (_.isString(key)) {
+        // get multi candicate
+        var _keys4 = key.split("|");
+
+        if (_keys4.length > 1) {
+          return Ti.Util.fallback(Ti.Util.getFallbackBlank(obj, _keys4), dft);
+        }
+      } // Get by path
+
+
+      return Ti.Util.fallback(_.get(obj, key), dft);
+    },
+
+    /***
      * @param obj{Object}
      */
     truthyKeys: function truthyKeys() {
@@ -10817,55 +11379,133 @@ var _ref95 = function () {
      * @return `undefined` if not found
      */
     getFallback: function getFallback(obj) {
-      for (var _len26 = arguments.length, keys = new Array(_len26 > 1 ? _len26 - 1 : 0), _key28 = 1; _key28 < _len26; _key28++) {
-        keys[_key28 - 1] = arguments[_key28];
-      }
-
-      var ks = _.flattenDeep(keys);
-
-      var _iterator37 = _createForOfIteratorHelper(ks),
-          _step37;
-
-      try {
-        for (_iterator37.s(); !(_step37 = _iterator37.n()).done;) {
-          var k = _step37.value;
-
-          if (k) {
-            var _v4 = _.get(obj, k);
-
-            if (!_.isUndefined(_v4)) return _v4;
-          }
-        }
-      } catch (err) {
-        _iterator37.e(err);
-      } finally {
-        _iterator37.f();
-      }
-    },
-    getFallbackNil: function getFallbackNil(obj) {
       for (var _len27 = arguments.length, keys = new Array(_len27 > 1 ? _len27 - 1 : 0), _key29 = 1; _key29 < _len27; _key29++) {
         keys[_key29 - 1] = arguments[_key29];
       }
 
       var ks = _.flattenDeep(keys);
 
-      var _iterator38 = _createForOfIteratorHelper(ks),
-          _step38;
+      var _iterator42 = _createForOfIteratorHelper(ks),
+          _step42;
 
       try {
-        for (_iterator38.s(); !(_step38 = _iterator38.n()).done;) {
-          var k = _step38.value;
+        for (_iterator42.s(); !(_step42 = _iterator42.n()).done;) {
+          var k = _step42.value;
 
           if (k) {
             var _v5 = _.get(obj, k);
 
-            if (!TiUtil.isNil(_v5)) return _v5;
+            if (!_.isUndefined(_v5)) return _v5;
           }
         }
       } catch (err) {
-        _iterator38.e(err);
+        _iterator42.e(err);
       } finally {
-        _iterator38.f();
+        _iterator42.f();
+      }
+    },
+    getFallbackNil: function getFallbackNil(obj) {
+      for (var _len28 = arguments.length, keys = new Array(_len28 > 1 ? _len28 - 1 : 0), _key30 = 1; _key30 < _len28; _key30++) {
+        keys[_key30 - 1] = arguments[_key30];
+      }
+
+      var ks = _.flattenDeep(keys);
+
+      var _iterator43 = _createForOfIteratorHelper(ks),
+          _step43;
+
+      try {
+        for (_iterator43.s(); !(_step43 = _iterator43.n()).done;) {
+          var k = _step43.value;
+
+          if (k) {
+            var _v6 = _.get(obj, k);
+
+            if (!TiUtil.isNil(_v6)) return _v6;
+          }
+        }
+      } catch (err) {
+        _iterator43.e(err);
+      } finally {
+        _iterator43.f();
+      }
+    },
+    getFallbackEmpty: function getFallbackEmpty(obj) {
+      for (var _len29 = arguments.length, keys = new Array(_len29 > 1 ? _len29 - 1 : 0), _key31 = 1; _key31 < _len29; _key31++) {
+        keys[_key31 - 1] = arguments[_key31];
+      }
+
+      var ks = _.flattenDeep(keys);
+
+      var _iterator44 = _createForOfIteratorHelper(ks),
+          _step44;
+
+      try {
+        for (_iterator44.s(); !(_step44 = _iterator44.n()).done;) {
+          var k = _step44.value;
+
+          if (k) {
+            var _v7 = _.get(obj, k);
+
+            if (!_.isEmpty(_v7)) return _v7;
+          }
+        }
+      } catch (err) {
+        _iterator44.e(err);
+      } finally {
+        _iterator44.f();
+      }
+    },
+    getFallbackBlank: function getFallbackBlank(obj) {
+      for (var _len30 = arguments.length, keys = new Array(_len30 > 1 ? _len30 - 1 : 0), _key32 = 1; _key32 < _len30; _key32++) {
+        keys[_key32 - 1] = arguments[_key32];
+      }
+
+      var ks = _.flattenDeep(keys);
+
+      var _iterator45 = _createForOfIteratorHelper(ks),
+          _step45;
+
+      try {
+        for (_iterator45.s(); !(_step45 = _iterator45.n()).done;) {
+          var k = _step45.value;
+
+          if (k) {
+            var _v8 = _.get(obj, k);
+
+            if (!Ti.Util.isBlank(_v8)) return _v8;
+          }
+        }
+      } catch (err) {
+        _iterator45.e(err);
+      } finally {
+        _iterator45.f();
+      }
+    },
+    getFallbackNaN: function getFallbackNaN(obj) {
+      for (var _len31 = arguments.length, keys = new Array(_len31 > 1 ? _len31 - 1 : 0), _key33 = 1; _key33 < _len31; _key33++) {
+        keys[_key33 - 1] = arguments[_key33];
+      }
+
+      var ks = _.flattenDeep(keys);
+
+      var _iterator46 = _createForOfIteratorHelper(ks),
+          _step46;
+
+      try {
+        for (_iterator46.s(); !(_step46 = _iterator46.n()).done;) {
+          var k = _step46.value;
+
+          if (k) {
+            var _v9 = _.get(obj, k);
+
+            if (!isNaN(_v9)) return _v9;
+          }
+        }
+      } catch (err) {
+        _iterator46.e(err);
+      } finally {
+        _iterator46.f();
       }
     },
 
@@ -10875,8 +11515,8 @@ var _ref95 = function () {
      * @return The first one which is not undefined
      */
     fallback: function fallback() {
-      for (var _len28 = arguments.length, args = new Array(_len28), _key30 = 0; _key30 < _len28; _key30++) {
-        args[_key30] = arguments[_key30];
+      for (var _len32 = arguments.length, args = new Array(_len32), _key34 = 0; _key34 < _len32; _key34++) {
+        args[_key34] = arguments[_key34];
       }
 
       for (var _i20 = 0, _args29 = args; _i20 < _args29.length; _i20++) {
@@ -10885,8 +11525,8 @@ var _ref95 = function () {
       }
     },
     fallbackNil: function fallbackNil() {
-      for (var _len29 = arguments.length, args = new Array(_len29), _key31 = 0; _key31 < _len29; _key31++) {
-        args[_key31] = arguments[_key31];
+      for (var _len33 = arguments.length, args = new Array(_len33), _key35 = 0; _key35 < _len33; _key35++) {
+        args[_key35] = arguments[_key35];
       }
 
       for (var _i21 = 0, _args30 = args; _i21 < _args30.length; _i21++) {
@@ -10894,13 +11534,33 @@ var _ref95 = function () {
         if (!TiUtil.isNil(arg)) return arg;
       }
     },
-    fallbackNaN: function fallbackNaN() {
-      for (var _len30 = arguments.length, args = new Array(_len30), _key32 = 0; _key32 < _len30; _key32++) {
-        args[_key32] = arguments[_key32];
+    fallbackEmpty: function fallbackEmpty() {
+      for (var _len34 = arguments.length, args = new Array(_len34), _key36 = 0; _key36 < _len34; _key36++) {
+        args[_key36] = arguments[_key36];
       }
 
       for (var _i22 = 0, _args31 = args; _i22 < _args31.length; _i22++) {
         var arg = _args31[_i22];
+        if (!_.isEmpty(arg)) return arg;
+      }
+    },
+    fallbackBlank: function fallbackBlank() {
+      for (var _len35 = arguments.length, args = new Array(_len35), _key37 = 0; _key37 < _len35; _key37++) {
+        args[_key37] = arguments[_key37];
+      }
+
+      for (var _i23 = 0, _args32 = args; _i23 < _args32.length; _i23++) {
+        var arg = _args32[_i23];
+        if (!Ti.S.isBlank(arg)) return arg;
+      }
+    },
+    fallbackNaN: function fallbackNaN() {
+      for (var _len36 = arguments.length, args = new Array(_len36), _key38 = 0; _key38 < _len36; _key38++) {
+        args[_key38] = arguments[_key38];
+      }
+
+      for (var _i24 = 0, _args33 = args; _i24 < _args33.length; _i24++) {
+        var arg = _args33[_i24];
         if (!isNaN(arg)) return arg;
       }
     },
@@ -11023,16 +11683,16 @@ var _ref95 = function () {
      * @return Function to pick value
      */
     genGetter: function genGetter(key) {
-      var _ref103 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          indexPrefix = _ref103.indexPrefix,
-          _ref103$dftKeys = _ref103.dftKeys,
-          dftKeys = _ref103$dftKeys === void 0 ? [] : _ref103$dftKeys,
-          _ref103$context = _ref103.context,
-          context = _ref103$context === void 0 ? {} : _ref103$context,
-          _ref103$funcSet = _ref103.funcSet,
-          funcSet = _ref103$funcSet === void 0 ? window : _ref103$funcSet,
-          _ref103$partialRight = _ref103.partialRight,
-          partialRight = _ref103$partialRight === void 0 ? false : _ref103$partialRight;
+      var _ref104 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          indexPrefix = _ref104.indexPrefix,
+          _ref104$dftKeys = _ref104.dftKeys,
+          dftKeys = _ref104$dftKeys === void 0 ? [] : _ref104$dftKeys,
+          _ref104$context = _ref104.context,
+          context = _ref104$context === void 0 ? {} : _ref104$context,
+          _ref104$funcSet = _ref104.funcSet,
+          funcSet = _ref104$funcSet === void 0 ? window : _ref104$funcSet,
+          _ref104$partial = _ref104.partial,
+          partial = _ref104$partial === void 0 ? "right" : _ref104$partial;
 
       //.............................................
       // Customized Function
@@ -11055,24 +11715,24 @@ var _ref95 = function () {
         // Static value
 
 
-        var _m8 = /^'(.+)'$/.exec(key);
+        var _m12 = /^'(.+)'$/.exec(key);
 
-        if (_m8) {
+        if (_m12) {
           return function () {
-            return _m8[1];
+            return _m12[1];
           };
         } //...........................................
         // Invoke mode
 
 
-        _m8 = /^=>(.+)$/.exec(key);
+        _m12 = /^=>(.+)$/.exec(key);
 
-        if (_m8) {
-          var invoke = _m8[1];
+        if (_m12) {
+          var invoke = _m12[1];
           return TiUtil.genInvoking(invoke, {
             context: context,
             funcSet: funcSet,
-            partialRight: partialRight
+            partial: partial
           });
         } //...........................................
         // Default Mode
@@ -11101,13 +11761,13 @@ var _ref95 = function () {
      * {name:"xxx", args:[..]} -> Function
      */
     genInvoking: function genInvoking(str) {
-      var _ref104 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref104$context = _ref104.context,
-          context = _ref104$context === void 0 ? {} : _ref104$context,
-          _ref104$funcSet = _ref104.funcSet,
-          funcSet = _ref104$funcSet === void 0 ? window : _ref104$funcSet,
-          _ref104$partialRight = _ref104.partialRight,
-          partialRight = _ref104$partialRight === void 0 ? false : _ref104$partialRight;
+      var _ref105 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref105$context = _ref105.context,
+          context = _ref105$context === void 0 ? {} : _ref105$context,
+          _ref105$funcSet = _ref105.funcSet,
+          funcSet = _ref105$funcSet === void 0 ? window : _ref105$funcSet,
+          _ref105$partial = _ref105.partial,
+          partial = _ref105$partial === void 0 ? "left" : _ref105$partial;
 
       //.............................................
       if (_.isFunction(str)) {
@@ -11117,16 +11777,16 @@ var _ref95 = function () {
 
       var callPath, callArgs; // Object mode
 
-      if (str.name && str.args) {
+      if (str.name && !_.isUndefined(str.args)) {
         callPath = str.name;
         callArgs = _.concat(str.args);
       } // String mode
       else {
-          var _m9 = /^([^()]+)(\((.+)\))?$/.exec(str);
+          var _m13 = /^([^()]+)(\((.+)\))?$/.exec(str);
 
-          if (_m9) {
-            callPath = _.trim(_m9[1]);
-            callArgs = _.trim(_m9[3]);
+          if (_m13) {
+            callPath = _.trim(_m13[1]);
+            callArgs = _.trim(_m13[3]);
           }
         } //.............................................
       //console.log(callPath, callArgs)
@@ -11142,15 +11802,25 @@ var _ref95 = function () {
         });
 
         if (!_.isEmpty(args)) {
-          var _ref106;
+          // [ ? --> ... ]
+          if ("right" == partial) {
+            return function (input) {
+              var as = _.isUndefined(input) ? args : _.concat([input], args);
+              return func.apply(this, as);
+            };
+          } // [ ... <-- ?]
+          else if ("left" == partial) {
+              return function (input) {
+                var as = _.concat(args, [input]);
 
-          if (partialRight) {
-            var _ref105;
+                return func.apply(this, as);
+              };
+            } // [..]
 
-            return (_ref105 = _).partialRight.apply(_ref105, [func].concat(_toConsumableArray(args)));
-          }
 
-          return (_ref106 = _).partial.apply(_ref106, [func].concat(_toConsumableArray(args)));
+          return function () {
+            return func.apply(void 0, _toConsumableArray(args));
+          };
         }
 
         return func;
@@ -11187,25 +11857,25 @@ var _ref95 = function () {
 
       if (_.isArray(matchBy)) {
         return function (it, str) {
-          var _iterator39 = _createForOfIteratorHelper(matchBy),
-              _step39;
+          var _iterator47 = _createForOfIteratorHelper(matchBy),
+              _step47;
 
           try {
-            for (_iterator39.s(); !(_step39 = _iterator39.n()).done;) {
-              var k = _step39.value;
+            for (_iterator47.s(); !(_step47 = _iterator47.n()).done;) {
+              var k = _step47.value;
 
-              var _v6 = Ti.Util.getOrPick(it, k);
+              var _v10 = Ti.Util.getOrPick(it, k);
 
               if (partially) {
-                if (_.indexOf(_v6, str) >= 0) return true;
+                if (_.indexOf(_v10, str) >= 0) return true;
               } else {
-                if (_.isEqual(_v6, str)) return true;
+                if (_.isEqual(_v10, str)) return true;
               }
             }
           } catch (err) {
-            _iterator39.e(err);
+            _iterator47.e(err);
           } finally {
-            _iterator39.f();
+            _iterator47.f();
           }
 
           return false;
@@ -11300,11 +11970,11 @@ var _ref95 = function () {
     Util: TiUtil
   };
 }(),
-    Util = _ref95.Util; //##################################################
+    Util = _ref96.Util; //##################################################
 // # import {Trees}        from "./trees.mjs"
 
 
-var _ref107 = function () {
+var _ref106 = function () {
   /*
   Tree Node: 
   {
@@ -11375,12 +12045,12 @@ var _ref107 = function () {
           };
           var index = 0;
 
-          var _iterator40 = _createForOfIteratorHelper(c.node.children),
-              _step40;
+          var _iterator48 = _createForOfIteratorHelper(c.node.children),
+              _step48;
 
           try {
-            for (_iterator40.s(); !(_step40 = _iterator40.n()).done;) {
-              var child = _step40.value;
+            for (_iterator48.s(); !(_step48 = _iterator48.n()).done;) {
+              var child = _step48.value;
 
               var _walking = walking(_objectSpread({
                 index: index,
@@ -11396,9 +12066,9 @@ var _ref107 = function () {
               if (stop) return [data, stop];
             }
           } catch (err) {
-            _iterator40.e(err);
+            _iterator48.e(err);
           } finally {
-            _iterator40.f();
+            _iterator48.f();
           }
         } // Default return
 
@@ -11450,12 +12120,12 @@ var _ref107 = function () {
           };
           var index = 0; // For Children Check
 
-          var _iterator41 = _createForOfIteratorHelper(c.node.children),
-              _step41;
+          var _iterator49 = _createForOfIteratorHelper(c.node.children),
+              _step49;
 
           try {
-            for (_iterator41.s(); !(_step41 = _iterator41.n()).done;) {
-              var child = _step41.value;
+            for (_iterator49.s(); !(_step49 = _iterator49.n()).done;) {
+              var child = _step49.value;
 
               var _c2 = _objectSpread({
                 index: index,
@@ -11475,13 +12145,13 @@ var _ref107 = function () {
             } // For Children Deep
 
           } catch (err) {
-            _iterator41.e(err);
+            _iterator49.e(err);
           } finally {
-            _iterator41.f();
+            _iterator49.f();
           }
 
-          for (var _i23 = 0, _cs = cs; _i23 < _cs.length; _i23++) {
-            var c2 = _cs[_i23];
+          for (var _i25 = 0, _cs = cs; _i25 < _cs.length; _i25++) {
+            var c2 = _cs[_i25];
 
             var _walking5 = walking(c2),
                 _walking6 = _slicedToArray(_walking5, 2),
@@ -11732,11 +12402,11 @@ var _ref107 = function () {
     Trees: TiTrees
   };
 }(),
-    Trees = _ref107.Trees; //##################################################
+    Trees = _ref106.Trees; //##################################################
 // # import {Viewport}     from "./viewport.mjs"
 
 
-var _ref108 = function () {
+var _ref107 = function () {
   var TiViewport = /*#__PURE__*/function () {
     function TiViewport() {
       _classCallCheck(this, TiViewport);
@@ -11755,9 +12425,9 @@ var _ref108 = function () {
     }, {
       key: "watch",
       value: function watch(context) {
-        var _ref109 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            scroll = _ref109.scroll,
-            resize = _ref109.resize;
+        var _ref108 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            scroll = _ref108.scroll,
+            resize = _ref108.resize;
 
         if (_.isFunction(scroll)) {
           this.scrolling.push({
@@ -11776,13 +12446,13 @@ var _ref108 = function () {
     }, {
       key: "unwatch",
       value: function unwatch(theContext) {
-        _.remove(this.scrolling, function (_ref110) {
-          var context = _ref110.context;
+        _.remove(this.scrolling, function (_ref109) {
+          var context = _ref109.context;
           return context === theContext;
         });
 
-        _.remove(this.resizing, function (_ref111) {
-          var context = _ref111.context;
+        _.remove(this.resizing, function (_ref110) {
+          var context = _ref110.context;
           return context === theContext;
         });
       }
@@ -11794,34 +12464,34 @@ var _ref108 = function () {
         if (this.isListening) return; // Do listen: resize
 
         window.addEventListener("resize", function (evt) {
-          var _iterator42 = _createForOfIteratorHelper(vp.resizing),
-              _step42;
+          var _iterator50 = _createForOfIteratorHelper(vp.resizing),
+              _step50;
 
           try {
-            for (_iterator42.s(); !(_step42 = _iterator42.n()).done;) {
-              var call = _step42.value;
+            for (_iterator50.s(); !(_step50 = _iterator50.n()).done;) {
+              var call = _step50.value;
               call.handler.apply(call.context, [evt]);
             }
           } catch (err) {
-            _iterator42.e(err);
+            _iterator50.e(err);
           } finally {
-            _iterator42.f();
+            _iterator50.f();
           }
         }); // Do listen: scroll
 
         window.addEventListener("scroll", function (evt) {
-          var _iterator43 = _createForOfIteratorHelper(vp.scrolling),
-              _step43;
+          var _iterator51 = _createForOfIteratorHelper(vp.scrolling),
+              _step51;
 
           try {
-            for (_iterator43.s(); !(_step43 = _iterator43.n()).done;) {
-              var call = _step43.value;
+            for (_iterator51.s(); !(_step51 = _iterator51.n()).done;) {
+              var call = _step51.value;
               call.handler.apply(call.context, [evt]);
             }
           } catch (err) {
-            _iterator43.e(err);
+            _iterator51.e(err);
           } finally {
-            _iterator43.f();
+            _iterator51.f();
           }
         }); // Mark
 
@@ -11837,11 +12507,11 @@ var _ref108 = function () {
     Viewport: new TiViewport()
   };
 }(),
-    Viewport = _ref108.Viewport; //##################################################
+    Viewport = _ref107.Viewport; //##################################################
 // # import {WWW}          from "./www.mjs"
 
 
-var _ref112 = function () {
+var _ref111 = function () {
   ///////////////////////////////////////////
   var TiWWW = {
     //---------------------------------------
@@ -11873,21 +12543,21 @@ var _ref112 = function () {
       var suffix = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ".html";
       var list = [];
 
-      var _iterator44 = _createForOfIteratorHelper(navItems),
-          _step44;
+      var _iterator52 = _createForOfIteratorHelper(navItems),
+          _step52;
 
       try {
-        for (_iterator44.s(); !(_step44 = _iterator44.n()).done;) {
-          var it = _step44.value;
+        for (_iterator52.s(); !(_step52 = _iterator52.n()).done;) {
+          var it = _step52.value;
 
           var li = _objectSpread({
             type: "page"
-          }, _.pick(it, "icon", "title", "type", "value", "href", "target")); //..........................................
+          }, _.pick(it, "icon", "title", "type", "value", "href", "target", "params")); //..........................................
           // Link to Site Page
 
 
           if ('page' == it.type) {
-            if (!li.href) {
+            if (!li.href && it.value) {
               var path = it.value;
 
               if (!path.endsWith(suffix)) {
@@ -11899,7 +12569,7 @@ var _ref112 = function () {
               li.href = TiWWW.joinHrefParams(aph, it.params, it.anchor);
             }
 
-            li.highlightBy = TiWWW.evalHighlightBy(it.highlightBy || li.value);
+            li.highlightBy = TiWWW.evalHighlightBy(it.highlightBy || li.value, it);
 
             if (!li.target && it.newTab) {
               li.target = "_blank";
@@ -11926,7 +12596,7 @@ var _ref112 = function () {
 
 
           if (_.isArray(it.items)) {
-            li.items = TiWWW.explainNavigation(it.items, base);
+            li.items = TiWWW.explainNavigation(it.items, base, suffix);
           } //..........................................
           // Join to list
 
@@ -11934,9 +12604,9 @@ var _ref112 = function () {
           list.push(li);
         }
       } catch (err) {
-        _iterator44.e(err);
+        _iterator52.e(err);
       } finally {
-        _iterator44.f();
+        _iterator52.f();
       }
 
       return list;
@@ -11944,6 +12614,7 @@ var _ref112 = function () {
     //---------------------------------------
     evalHighlightBy: function evalHighlightBy() {
       var highlightBy = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var it = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       // Function ... skip
       if (_.isFunction(highlightBy)) {
@@ -11961,8 +12632,15 @@ var _ref112 = function () {
         } // Static value
 
 
-        return function (path) {
-          return _.isEqual(path, highlightBy);
+        return function (path, params) {
+          if (!_.isEqual(path, highlightBy)) return false; // Need check the params
+
+          if (!_.isEmpty(it.params) && params) {
+            if (!_.isEqual(it.params, params)) return false;
+          } // Then ok
+
+
+          return true;
         };
       } // RegExp
 
@@ -12024,11 +12702,11 @@ var _ref112 = function () {
      * Evaluate the order item real fee
      */
     evalFee: function evalFee() {
-      var _ref113 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          _ref113$price = _ref113.price,
-          price = _ref113$price === void 0 ? 0 : _ref113$price,
-          _ref113$amount = _ref113.amount,
-          amount = _ref113$amount === void 0 ? 1 : _ref113$amount;
+      var _ref112 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref112$price = _ref112.price,
+          price = _ref112$price === void 0 ? 0 : _ref112$price,
+          _ref112$amount = _ref112.amount,
+          amount = _ref112$amount === void 0 ? 1 : _ref112$amount;
 
       return price * amount;
     },
@@ -12052,9 +12730,9 @@ var _ref112 = function () {
       var fee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       var currency = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "RMB";
 
-      var _ref114 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref114$autoSuffix = _ref114.autoSuffix,
-          autoSuffix = _ref114$autoSuffix === void 0 ? true : _ref114$autoSuffix;
+      var _ref113 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref113$autoSuffix = _ref113.autoSuffix,
+          autoSuffix = _ref113$autoSuffix === void 0 ? true : _ref113$autoSuffix;
 
       var cu = _.upperCase(currency);
 
@@ -12072,19 +12750,109 @@ var _ref112 = function () {
       }
 
       return ss.join("");
-    } //---------------------------------------
+    },
+    //---------------------------------------
+    evalObjPreviewSrc: function evalObjPreviewSrc(obj) {
+      var _ref114 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          previewKey = _ref114.previewKey,
+          previewObj = _ref114.previewObj,
+          _ref114$sha1Path = _ref114.sha1Path,
+          sha1Path = _ref114$sha1Path === void 0 ? 4 : _ref114$sha1Path,
+          apiTmpl = _ref114.apiTmpl,
+          cdnTmpl = _ref114.cdnTmpl,
+          dftSrc = _ref114.dftSrc;
 
+      // obj is the src
+      if (_.isString(obj)) {
+        return obj;
+      } // preview obj for sha1
+
+
+      if (cdnTmpl) {
+        var po = ".." == previewObj ? obj : _.get(obj, previewObj);
+
+        if (po && po.sha1) {
+          po = _.cloneDeep(po); // sha1 path
+
+          if (sha1Path > 0) {
+            po.sha1Path = po.sha1.substring(0, sha1Path) + "/" + po.sha1.substring(sha1Path);
+          } else {
+            po.sha1Path = po.sha1;
+          }
+
+          return Ti.S.renderBy(cdnTmpl, po);
+        }
+      } // preview obj for id
+
+
+      if (apiTmpl) {
+        // 看看有木有对象
+        var oph = _.get(obj, previewKey);
+
+        if (oph) {
+          return Ti.S.renderBy(apiTmpl, obj);
+        }
+      } // The Default
+
+
+      return dftSrc;
+    },
+    //---------------------------------------
+    getSSRData: function getSSRData(key) {
+      var _ref115 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref115$root = _ref115.root,
+          root = _ref115$root === void 0 ? document.documentElement : _ref115$root,
+          _ref115$as = _ref115.as,
+          as = _ref115$as === void 0 ? "text" : _ref115$as,
+          _ref115$trimed = _ref115.trimed,
+          trimed = _ref115$trimed === void 0 ? true : _ref115$trimed,
+          _ref115$autoRemove = _ref115.autoRemove,
+          autoRemove = _ref115$autoRemove === void 0 ? true : _ref115$autoRemove,
+          _ref115$ssrFinger = _ref115.ssrFinger,
+          ssrFinger = _ref115$ssrFinger === void 0 ? undefined : _ref115$ssrFinger,
+          _ref115$dft = _ref115.dft,
+          dft = _ref115$dft === void 0 ? undefined : _ref115$dft;
+
+      var selector = ".wn-ssr-data[data-ssr-key=\"".concat(key, "\"]");
+      var $el = Ti.Dom.find(selector, root); // Find the data
+
+      if (_.isElement($el)) {
+        if (!Ti.Util.isNil(ssrFinger)) {
+          var fng = $el.getAttribute("data-ssr-finger");
+          if (fng != ssrFinger) return dft;
+        }
+
+        var str = $el.textContent;
+
+        if (trimed) {
+          str = _.trim(str);
+        }
+
+        if (autoRemove) {
+          Ti.Dom.remove($el);
+        }
+
+        if ("json" == as) {
+          return JSON.parse(str);
+        }
+
+        return str;
+      } // Withtout find
+
+
+      return dft;
+    }
   }; ///////////////////////////////////////////
 
   return {
     WWW: TiWWW
   };
 }(),
-    WWW = _ref112.WWW; //##################################################
+    WWW = _ref111.WWW; //##################################################
 // # import {GPS}          from "./gps.mjs"
 
 
-var _ref115 = function () {
+var _ref116 = function () {
   //const BAIDU_LBS_TYPE = "bd09ll";
   var pi = 3.1415926535897932384626;
   var a = 6378245.0;
@@ -12248,6 +13016,122 @@ var _ref115 = function () {
       ret += (20.0 * Math.sin(x * pi) + 40.0 * Math.sin(x / 3.0 * pi)) * 2.0 / 3.0;
       ret += (150.0 * Math.sin(x / 12.0 * pi) + 300.0 * Math.sin(x / 30.0 * pi)) * 2.0 / 3.0;
       return ret;
+    },
+    getLngToWest: function getLngToWest(lng, west) {
+      var re = lng - west;
+
+      if (west < 0 && lng > 0) {
+        return 360 - re;
+      }
+
+      return re;
+    },
+    getLatToSouth: function getLatToSouth(lat, south) {
+      return lat - south;
+    },
+    normlizedLat: function normlizedLat(lat) {
+      return lat;
+    },
+    normlizedLng: function normlizedLng(lng) {
+      if (lng > 360) {
+        lng = lng % 360;
+      }
+
+      if (lng > 180) {
+        return lng - 360;
+      }
+
+      if (lng < -360) {
+        lng = lng % 360;
+      }
+
+      if (lng < -180) {
+        return lng + 360;
+      }
+
+      return lng;
+    },
+    //-------------------------------------
+
+    /*
+    CROSS MODE:
+          lng:180        360:0                 180
+          +----------------+------------------NE  lat:90
+          |                |           lng_min|lat_max
+          |                |                  |
+          +----------------+------------------+-- lat:0
+          |                |                  |
+    lat_min|lng_max         |                  |
+          SW---------------+------------------+   lat:-90
+    
+    SIDE MODE:
+          lng:0           180                360
+          +----------------+------------------NE  lat:90
+          |                |           lng_max|lat_max
+          |                |                  |
+          +----------------+------------------+-- lat:0
+          |                |                  |
+    lat_min|lng_min         |                  |
+          SW---------------+------------------+   lat:-90
+    
+    @return [SW, NE]
+    */
+    getBounds: function getBounds() {
+      var lalList = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var lng_max = undefined;
+      var lng_min = undefined;
+      var lat_max = undefined;
+      var lat_min = undefined;
+
+      var _iterator53 = _createForOfIteratorHelper(lalList),
+          _step53;
+
+      try {
+        for (_iterator53.s(); !(_step53 = _iterator53.n()).done;) {
+          var lal = _step53.value;
+          lng_max = _.isUndefined(lng_max) ? lal.lng : Math.max(lng_max, lal.lng);
+          lng_min = _.isUndefined(lng_min) ? lal.lng : Math.min(lng_min, lal.lng);
+          lat_max = _.isUndefined(lat_max) ? lal.lat : Math.max(lat_max, lal.lat);
+          lat_min = _.isUndefined(lat_min) ? lal.lat : Math.min(lat_min, lal.lat);
+        } // Cross mode
+
+      } catch (err) {
+        _iterator53.e(err);
+      } finally {
+        _iterator53.f();
+      }
+
+      if (lng_max - lng_min > 180) {
+        return [{
+          lat: lat_min,
+          lng: lng_max
+        }, {
+          lat: lat_max,
+          lng: lng_min
+        }];
+      } // Side mode
+
+
+      return [{
+        lat: lat_min,
+        lng: lng_min
+      }, {
+        lat: lat_max,
+        lng: lng_max
+      }];
+    },
+    getCenter: function getCenter() {
+      var lalList = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+      var _TiGPS$getBounds = TiGPS.getBounds(lalList),
+          _TiGPS$getBounds2 = _slicedToArray(_TiGPS$getBounds, 2),
+          sw = _TiGPS$getBounds2[0],
+          ne = _TiGPS$getBounds2[1];
+
+      return {
+        lat: (ne.lat + sw.lat) / 2,
+        lng: (ne.lng + sw.lng) / 2
+      };
     }
   }; //---------------------------------------
 
@@ -12255,11 +13139,11 @@ var _ref115 = function () {
     GPS: TiGPS
   };
 }(),
-    GPS = _ref115.GPS; //##################################################
+    GPS = _ref116.GPS; //##################################################
 // # import {Bank}         from "./bank.mjs"
 
 
-var _ref116 = function () {
+var _ref117 = function () {
   ///////////////////////////////////////
   var TiBank = {
     //-----------------------------------
@@ -12292,11 +13176,11 @@ var _ref116 = function () {
     },
     //-----------------------------------
     getPayTypeChooseI18nText: function getPayTypeChooseI18nText(payType) {
-      var _ref117 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref117$text = _ref117.text,
-          text = _ref117$text === void 0 ? 'pay-step-choose-tip2' : _ref117$text,
-          _ref117$nil = _ref117.nil,
-          nil = _ref117$nil === void 0 ? 'pay-step-choose-nil' : _ref117$nil;
+      var _ref118 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref118$text = _ref118.text,
+          text = _ref118$text === void 0 ? 'pay-step-choose-tip2' : _ref118$text,
+          _ref118$nil = _ref118.nil,
+          nil = _ref118$nil === void 0 ? 'pay-step-choose-nil' : _ref118$nil;
 
       var ptt = Ti.Bank.getPayTypeText(payType, true);
 
@@ -12315,11 +13199,11 @@ var _ref116 = function () {
     Bank: TiBank
   };
 }(),
-    Bank = _ref116.Bank; //##################################################
+    Bank = _ref117.Bank; //##################################################
 // # import {DateTime}     from "./datetime.mjs"
 
 
-var _ref118 = function () {
+var _ref119 = function () {
   ///////////////////////////////////////////
   var I_DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
   var I_WEEK = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -12376,9 +13260,9 @@ var _ref118 = function () {
         } // Try to tidy string 
 
 
-        var _m10 = P_DATE.exec(d);
+        var _m14 = P_DATE.exec(d);
 
-        if (_m10) {
+        if (_m14) {
           var _int = function _int(m, index, dft) {
             var s = m[index];
 
@@ -12391,22 +13275,22 @@ var _ref118 = function () {
 
           var today = new Date();
 
-          var yy = _int(_m10, 2, today.getFullYear());
+          var yy = _int(_m14, 2, today.getFullYear());
 
-          var MM = _int(_m10, 4, _m10[2] ? 1 : today.getMonth() + 1);
+          var MM = _int(_m14, 4, _m14[2] ? 1 : today.getMonth() + 1);
 
-          var dd = _int(_m10, 6, _m10[2] ? 1 : today.getDate());
+          var dd = _int(_m14, 6, _m14[2] ? 1 : today.getDate());
 
-          var HH = _int(_m10, 9, 0);
+          var HH = _int(_m14, 9, 0);
 
-          var mm = _int(_m10, 11, 0);
+          var mm = _int(_m14, 11, 0);
 
-          var _ss5 = _int(_m10, 14, 0);
+          var _ss6 = _int(_m14, 14, 0);
 
-          var _ms4 = _int(_m10, 17, 0);
+          var _ms5 = _int(_m14, 17, 0);
 
-          var _list8 = [_.padStart(yy, 4, "0"), "-", _.padStart(MM, 2, "0"), "-", _.padStart(dd, 2, "0"), "T", _.padStart(HH, 2, "0"), ":", _.padStart(mm, 2, "0"), ":", _.padStart(_ss5, 2, "0"), ".", _.padStart(_ms4, 3, "0")];
-          if (_m10[18]) _list8.push(_m10[18]);
+          var _list8 = [_.padStart(yy, 4, "0"), "-", _.padStart(MM, 2, "0"), "-", _.padStart(dd, 2, "0"), "T", _.padStart(HH, 2, "0"), ":", _.padStart(mm, 2, "0"), ":", _.padStart(_ss6, 2, "0"), ".", _.padStart(_ms5, 3, "0")];
+          if (_m14[18]) _list8.push(_m14[18]);
 
           var dateStr = _list8.join("");
 
@@ -12426,19 +13310,19 @@ var _ref118 = function () {
         //console.log("formatDate", date, fmt)
         var _list9 = [];
 
-        var _iterator45 = _createForOfIteratorHelper(date),
-            _step45;
+        var _iterator54 = _createForOfIteratorHelper(date),
+            _step54;
 
         try {
-          for (_iterator45.s(); !(_step45 = _iterator45.n()).done;) {
-            var _d2 = _step45.value;
+          for (_iterator54.s(); !(_step54 = _iterator54.n()).done;) {
+            var _d2 = _step54.value;
 
             _list9.push(TiDateTime.format(_d2, fmt));
           }
         } catch (err) {
-          _iterator45.e(err);
+          _iterator54.e(err);
         } finally {
-          _iterator45.f();
+          _iterator54.f();
         }
 
         return _list9;
@@ -12452,6 +13336,17 @@ var _ref118 = function () {
       if (!date) return null; // TODO here add another param
       // to format the datetime to "in 5min" like string
       // Maybe the param should named as "shorthand"
+
+      /*
+      E   :Mon
+      EE  :Mon
+      EEE :Mon
+      EEEE:Monday
+      M   :9
+      MM  :09
+      MMM :Sep
+      MMMM:September
+      */
       // Format by pattern
 
       var yyyy = date.getFullYear();
@@ -12461,6 +13356,17 @@ var _ref118 = function () {
       var m = date.getMinutes();
       var s = date.getSeconds();
       var S = date.getMilliseconds();
+      var mkey = MONTH_ABBR[date.getMonth()];
+      var MMM = Ti.I18n.get("cal.abbr.".concat(mkey));
+      var MMMM = Ti.I18n.get(mkey);
+      var day = date.getDay();
+
+      var dayK0 = _.upperFirst(I_DAYS[day]);
+
+      var dayK1 = _.upperFirst(I_WEEK[day]);
+
+      var E = Ti.I18n.get(dayK0);
+      var EEEE = Ti.I18n.get(dayK1);
       var _c = {
         yyyy: yyyy,
         M: M,
@@ -12477,9 +13383,15 @@ var _ref118 = function () {
         mm: _.padStart(m, 2, '0'),
         ss: _.padStart(s, 2, '0'),
         SS: _.padStart(S, 3, '0'),
-        SSS: _.padStart(S, 3, '0')
+        SSS: _.padStart(S, 3, '0'),
+        E: E,
+        EE: E,
+        EEE: E,
+        EEEE: EEEE,
+        MMM: MMM,
+        MMMM: MMMM
       };
-      var regex = /(y{2,4}|M{1,2}|d{1,2}|H{1,2}|m{1,2}|s{1,2}|S{1,3}|'([^']+)')/g;
+      var regex = /(y{2,4}|M{1,4}|dd?|HH?|mm?|ss?|S{1,3}|E{1,4}|'([^']+)')/g;
       var ma;
       var list = [];
       var last = 0;
@@ -12611,11 +13523,11 @@ var _ref118 = function () {
     // - inYear  : Jun 19     : < This Year
     // - anyTime : 2020/12/32 : Any time
     timeText: function timeText(d) {
-      var _ref119 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref119$justNow = _ref119.justNow,
-          justNow = _ref119$justNow === void 0 ? 10 : _ref119$justNow,
-          _ref119$i18n = _ref119.i18n,
-          i18n = _ref119$i18n === void 0 ? Ti.I18n.get("time") : _ref119$i18n;
+      var _ref120 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref120$justNow = _ref120.justNow,
+          justNow = _ref120$justNow === void 0 ? 10 : _ref120$justNow,
+          _ref120$i18n = _ref120.i18n,
+          i18n = _ref120$i18n === void 0 ? Ti.I18n.get("time") : _ref120$i18n;
 
       d = TiDateTime.parse(d);
       var ams = d.getTime();
@@ -12682,11 +13594,11 @@ var _ref118 = function () {
     DateTime: TiDateTime
   };
 }(),
-    DateTime = _ref118.DateTime; //##################################################
+    DateTime = _ref119.DateTime; //##################################################
 // # import {Num}          from "./num.mjs"
 
 
-var _ref120 = function () {
+var _ref121 = function () {
   //-----------------------------------
   var TiNum = {
     /***
@@ -12704,14 +13616,14 @@ var _ref120 = function () {
       var startValue = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 
-      var _ref121 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref121$ary = _ref121.ary,
-          ary = _ref121$ary === void 0 ? [] : _ref121$ary,
-          _ref121$step = _ref121.step,
-          step = _ref121$step === void 0 ? 1 : _ref121$step;
+      var _ref122 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref122$ary = _ref122.ary,
+          ary = _ref122$ary === void 0 ? [] : _ref122$ary,
+          _ref122$step = _ref122.step,
+          step = _ref122$step === void 0 ? 1 : _ref122$step;
 
-      for (var _i24 = 0; _i24 < len; _i24++) {
-        ary[_i24] = startValue + _i24 * step;
+      for (var _i26 = 0; _i26 < len; _i26++) {
+        ary[_i26] = startValue + _i26 * step;
       }
 
       return ary;
@@ -12758,6 +13670,40 @@ var _ref120 = function () {
       }
 
       return n;
+    },
+
+    /***
+     * @param v{Number} input number
+     * @param unit{Number} number unit
+     * 
+     * @return new ceil value for unit
+     */
+    ceilUnit: function ceilUnit(v) {
+      var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+      if (_.isNumber(v) && unit > 0) {
+        var n = Math.ceil(v / unit);
+        return n * unit;
+      }
+
+      return v;
+    },
+
+    /***
+     * @param v{Number} input number
+     * @param unit{Number} number unit
+     * 
+     * @return new floor value for unit
+     */
+    floorUnit: function floorUnit(v) {
+      var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+      if (_.isNumber(v) && unit > 0) {
+        var n = Math.floor(v / unit);
+        return n * unit;
+      }
+
+      return v;
     }
   }; //---------------------------------------
 
@@ -12765,11 +13711,11 @@ var _ref120 = function () {
     Num: TiNum
   };
 }(),
-    Num = _ref120.Num; //##################################################
+    Num = _ref121.Num; //##################################################
 // # import {Css}          from "./css.mjs"
 
 
-var _ref122 = function () {
+var _ref123 = function () {
   ///////////////////////////////////////
   var TiCss = {
     //-----------------------------------
@@ -12806,11 +13752,11 @@ var _ref122 = function () {
     },
     //-----------------------------------
     toSize: function toSize(sz) {
-      var _ref123 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref123$autoPercent = _ref123.autoPercent,
-          autoPercent = _ref123$autoPercent === void 0 ? true : _ref123$autoPercent,
-          _ref123$remBase = _ref123.remBase,
-          remBase = _ref123$remBase === void 0 ? 0 : _ref123$remBase;
+      var _ref124 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref124$autoPercent = _ref124.autoPercent,
+          autoPercent = _ref124$autoPercent === void 0 ? true : _ref124$autoPercent,
+          _ref124$remBase = _ref124.remBase,
+          remBase = _ref124$remBase === void 0 ? 0 : _ref124$remBase;
 
       if (_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
         if (0 == sz) return sz;
@@ -12876,41 +13822,41 @@ var _ref122 = function () {
         if (Ti.Util.isNil(kla)) return; // Function
 
         if (_.isFunction(kla)) {
-          var _re11 = kla();
+          var _re12 = kla();
 
-          __join_class(_re11);
+          __join_class(_re12);
         } // String
         else if (_.isString(kla)) {
-            var _ss6 = _.without(_.split(kla, / +/g), "");
+            var _ss7 = _.without(_.split(kla, / +/g), "");
 
-            var _iterator46 = _createForOfIteratorHelper(_ss6),
-                _step46;
+            var _iterator55 = _createForOfIteratorHelper(_ss7),
+                _step55;
 
             try {
-              for (_iterator46.s(); !(_step46 = _iterator46.n()).done;) {
-                var _s5 = _step46.value;
-                klass[_s5] = true;
+              for (_iterator55.s(); !(_step55 = _iterator55.n()).done;) {
+                var _s6 = _step55.value;
+                klass[_s6] = true;
               }
             } catch (err) {
-              _iterator46.e(err);
+              _iterator55.e(err);
             } finally {
-              _iterator46.f();
+              _iterator55.f();
             }
           } // Array
           else if (_.isArray(kla)) {
-              var _iterator47 = _createForOfIteratorHelper(kla),
-                  _step47;
+              var _iterator56 = _createForOfIteratorHelper(kla),
+                  _step56;
 
               try {
-                for (_iterator47.s(); !(_step47 = _iterator47.n()).done;) {
-                  var a = _step47.value;
+                for (_iterator56.s(); !(_step56 = _iterator56.n()).done;) {
+                  var a = _step56.value;
 
                   __join_class(a);
                 }
               } catch (err) {
-                _iterator47.e(err);
+                _iterator56.e(err);
               } finally {
-                _iterator47.f();
+                _iterator56.f();
               }
             } // Object
             else if (_.isPlainObject(kla)) {
@@ -12923,8 +13869,8 @@ var _ref122 = function () {
       }; //.................................
 
 
-      for (var _len31 = arguments.length, args = new Array(_len31), _key33 = 0; _key33 < _len31; _key33++) {
-        args[_key33] = arguments[_key33];
+      for (var _len37 = arguments.length, args = new Array(_len37), _key39 = 0; _key39 < _len37; _key39++) {
+        args[_key39] = arguments[_key39];
       }
 
       __join_class(args); //.................................
@@ -12950,11 +13896,11 @@ var _ref122 = function () {
     Css: TiCss
   };
 }(),
-    Css = _ref122.Css; //##################################################
+    Css = _ref123.Css; //##################################################
 // # import {Mapping}      from "./mapping.mjs"
 
 
-var _ref124 = function () {
+var _ref125 = function () {
   /////////////////////////////////////////////
   var MatchPath = /*#__PURE__*/function () {
     function MatchPath(path, data) {
@@ -12975,9 +13921,9 @@ var _ref124 = function () {
       value: function match(str) {
         var list = _.isArray(str) ? str : _.without(str.split("/"), "");
 
-        for (var _i25 = 0; _i25 < list.length; _i25++) {
-          var li = list[_i25];
-          var ph = this.path[_i25]; // Wildcard
+        for (var _i27 = 0; _i27 < list.length; _i27++) {
+          var li = list[_i27];
+          var ph = this.path[_i27]; // Wildcard
 
           if ("*" == ph) {
             continue;
@@ -13039,12 +13985,12 @@ var _ref124 = function () {
             return _.trim(v);
           });
 
-          var _iterator48 = _createForOfIteratorHelper(ks),
-              _step48;
+          var _iterator57 = _createForOfIteratorHelper(ks),
+              _step57;
 
           try {
-            for (_iterator48.s(); !(_step48 = _iterator48.n()).done;) {
-              var key = _step48.value;
+            for (_iterator57.s(); !(_step57 = _iterator57.n()).done;) {
+              var key = _step57.value;
 
               // RegExp
               if (key.startsWith("^")) {
@@ -13058,9 +14004,9 @@ var _ref124 = function () {
                   }
             }
           } catch (err) {
-            _iterator48.e(err);
+            _iterator57.e(err);
           } finally {
-            _iterator48.f();
+            _iterator57.f();
           }
         });
       }
@@ -13075,41 +14021,41 @@ var _ref124 = function () {
           } // Find by path
 
 
-          var _iterator49 = _createForOfIteratorHelper(this.paths),
-              _step49;
+          var _iterator58 = _createForOfIteratorHelper(this.paths),
+              _step58;
 
           try {
-            for (_iterator49.s(); !(_step49 = _iterator49.n()).done;) {
-              var _m11 = _step49.value;
+            for (_iterator58.s(); !(_step58 = _iterator58.n()).done;) {
+              var _m15 = _step58.value;
 
               var _list10 = _.without(key.split("/"), "");
 
-              if (_m11.match(_list10)) {
-                return _m11.data;
+              if (_m15.match(_list10)) {
+                return _m15.data;
               }
             } // Find by Regexp
 
           } catch (err) {
-            _iterator49.e(err);
+            _iterator58.e(err);
           } finally {
-            _iterator49.f();
+            _iterator58.f();
           }
 
-          var _iterator50 = _createForOfIteratorHelper(this.regexs),
-              _step50;
+          var _iterator59 = _createForOfIteratorHelper(this.regexs),
+              _step59;
 
           try {
-            for (_iterator50.s(); !(_step50 = _iterator50.n()).done;) {
-              var _m12 = _step50.value;
+            for (_iterator59.s(); !(_step59 = _iterator59.n()).done;) {
+              var _m16 = _step59.value;
 
-              if (_m12.match(key)) {
-                return _m12.data;
+              if (_m16.match(key)) {
+                return _m16.data;
               }
             }
           } catch (err) {
-            _iterator50.e(err);
+            _iterator59.e(err);
           } finally {
-            _iterator50.f();
+            _iterator59.f();
           }
         } // Find nothing
 
@@ -13126,11 +14072,11 @@ var _ref124 = function () {
     Mapping: TiMapping
   };
 }(),
-    Mapping = _ref124.Mapping; //##################################################
+    Mapping = _ref125.Mapping; //##################################################
 // # import {Dict,DictFactory} from "./dict.mjs"
 
 
-var _ref125 = function () {
+var _ref126 = function () {
   ///////////////////////////////////////////////
   var K = {
     item: Symbol("item"),
@@ -13217,8 +14163,8 @@ var _ref125 = function () {
       value: function addHooks() {
         var _this17 = this;
 
-        for (var _len32 = arguments.length, hooks = new Array(_len32), _key34 = 0; _key34 < _len32; _key34++) {
-          hooks[_key34] = arguments[_key34];
+        for (var _len38 = arguments.length, hooks = new Array(_len38), _key40 = 0; _key40 < _len38; _key40++) {
+          hooks[_key40] = arguments[_key40];
         }
 
         var list = _.flattenDeep(hooks);
@@ -13241,20 +14187,20 @@ var _ref125 = function () {
       value: function doHooks() {
         var loading = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
-        var _iterator51 = _createForOfIteratorHelper(this[K.hooks]),
-            _step51;
+        var _iterator60 = _createForOfIteratorHelper(this[K.hooks]),
+            _step60;
 
         try {
-          for (_iterator51.s(); !(_step51 = _iterator51.n()).done;) {
-            var hk = _step51.value;
+          for (_iterator60.s(); !(_step60 = _iterator60.n()).done;) {
+            var hk = _step60.value;
             hk({
               loading: loading
             });
           }
         } catch (err) {
-          _iterator51.e(err);
+          _iterator60.e(err);
         } finally {
-          _iterator51.f();
+          _iterator60.f();
         }
       } //-------------------------------------------
 
@@ -13264,8 +14210,8 @@ var _ref125 = function () {
         var func = this[K[methodName]];
 
         if (_.isFunction(func)) {
-          for (var _len33 = arguments.length, args = new Array(_len33 > 1 ? _len33 - 1 : 0), _key35 = 1; _key35 < _len33; _key35++) {
-            args[_key35 - 1] = arguments[_key35];
+          for (var _len39 = arguments.length, args = new Array(_len39 > 1 ? _len39 - 1 : 0), _key41 = 1; _key41 < _len39; _key41++) {
+            args[_key41 - 1] = arguments[_key41];
           }
 
           return func.apply(this, [].concat(args, [this]));
@@ -13277,11 +14223,11 @@ var _ref125 = function () {
       value: function () {
         var _invokeAsync = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee27(methodName) {
           var func,
-              _len34,
+              _len40,
               args,
-              _key36,
+              _key42,
               are,
-              _args33 = arguments;
+              _args35 = arguments;
 
           return regeneratorRuntime.wrap(function _callee27$(_context27) {
             while (1) {
@@ -13294,8 +14240,8 @@ var _ref125 = function () {
                     break;
                   }
 
-                  for (_len34 = _args33.length, args = new Array(_len34 > 1 ? _len34 - 1 : 0), _key36 = 1; _key36 < _len34; _key36++) {
-                    args[_key36 - 1] = _args33[_key36];
+                  for (_len40 = _args35.length, args = new Array(_len40 > 1 ? _len40 - 1 : 0), _key42 = 1; _key42 < _len40; _key42++) {
+                    args[_key42 - 1] = _args35[_key42];
                   }
 
                   _context27.next = 5;
@@ -13313,7 +14259,7 @@ var _ref125 = function () {
           }, _callee27, this);
         }));
 
-        function invokeAsync(_x18) {
+        function invokeAsync(_x19) {
           return _invokeAsync.apply(this, arguments);
         }
 
@@ -13334,17 +14280,19 @@ var _ref125 = function () {
 
     }, {
       key: "duplicate",
-      value: function duplicate(_ref126) {
+      value: function duplicate() {
         var _this19 = this;
 
-        var _ref126$hooks = _ref126.hooks,
-            hooks = _ref126$hooks === void 0 ? false : _ref126$hooks,
-            _ref126$cache = _ref126.cache,
-            cache = _ref126$cache === void 0 ? true : _ref126$cache,
-            _ref126$dataCache = _ref126.dataCache,
-            dataCache = _ref126$dataCache === void 0 ? true : _ref126$dataCache,
-            _ref126$itemCache = _ref126.itemCache,
-            itemCache = _ref126$itemCache === void 0 ? true : _ref126$itemCache;
+        var _ref127 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            _ref127$hooks = _ref127.hooks,
+            hooks = _ref127$hooks === void 0 ? false : _ref127$hooks,
+            _ref127$cache = _ref127.cache,
+            cache = _ref127$cache === void 0 ? true : _ref127$cache,
+            _ref127$dataCache = _ref127.dataCache,
+            dataCache = _ref127$dataCache === void 0 ? true : _ref127$dataCache,
+            _ref127$itemCache = _ref127.itemCache,
+            itemCache = _ref127$itemCache === void 0 ? true : _ref127$itemCache;
+
         var d = new Dict();
 
         _.forEach(K, function (s_key) {
@@ -13409,12 +14357,12 @@ var _ref125 = function () {
       value: function findItem(val) {
         var list = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
-        var _iterator52 = _createForOfIteratorHelper(list),
-            _step52;
+        var _iterator61 = _createForOfIteratorHelper(list),
+            _step61;
 
         try {
-          for (_iterator52.s(); !(_step52 = _iterator52.n()).done;) {
-            var it = _step52.value;
+          for (_iterator61.s(); !(_step61 = _iterator61.n()).done;) {
+            var it = _step61.value;
             var itV = this.getValue(it);
 
             if (_.isEqual(val, itV)) {
@@ -13422,9 +14370,9 @@ var _ref125 = function () {
             }
           }
         } catch (err) {
-          _iterator52.e(err);
+          _iterator61.e(err);
         } finally {
-          _iterator52.f();
+          _iterator61.f();
         }
       } //-------------------------------------------
       // Core Methods
@@ -13434,7 +14382,7 @@ var _ref125 = function () {
       key: "getItem",
       value: function () {
         var _getItem = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee28(val) {
-          var it, loading, _iterator53, _step53, resolve;
+          var it, loading, _iterator62, _step62, resolve;
 
           return regeneratorRuntime.wrap(function _callee28$(_context28) {
             while (1) {
@@ -13486,35 +14434,46 @@ var _ref125 = function () {
                 case 14:
                   it = _context28.sent;
                   this.doHooks(false);
-                  this.addItemToCache(it, val); // Release loading
 
-                  _iterator53 = _createForOfIteratorHelper(loading);
+                  if (it && _.isPlainObject(it)) {
+                    this.addItemToCache(it, val);
+                  } // Release loading
+
+
+                  _iterator62 = _createForOfIteratorHelper(loading);
 
                   try {
-                    for (_iterator53.s(); !(_step53 = _iterator53.n()).done;) {
-                      resolve = _step53.value;
+                    for (_iterator62.s(); !(_step62 = _iterator62.n()).done;) {
+                      resolve = _step62.value;
                       resolve(it || null);
                     }
                   } catch (err) {
-                    _iterator53.e(err);
+                    _iterator62.e(err);
                   } finally {
-                    _iterator53.f();
+                    _iterator62.f();
                   }
 
                   delete __item_loading[val];
 
                 case 20:
+                  // Warn !!
+                  // 不知道什么时候，在 anju 项目，总出现返回值为空数组 `[]`
+                  // 诡异啊，加个 log 观察一下
+                  if (_.isArray(it)) {
+                    console.warn("!!!! Dict.getItem=>[] !!! 靠，又出现了 val=", val);
+                  }
+
                   if (!this.isShadowed()) {
-                    _context28.next = 22;
+                    _context28.next = 23;
                     break;
                   }
 
                   return _context28.abrupt("return", _.cloneDeep(it));
 
-                case 22:
+                case 23:
                   return _context28.abrupt("return", it);
 
-                case 23:
+                case 24:
                 case "end":
                   return _context28.stop();
               }
@@ -13522,7 +14481,7 @@ var _ref125 = function () {
           }, _callee28, this);
         }));
 
-        function getItem(_x19) {
+        function getItem(_x20) {
           return _getItem.apply(this, arguments);
         }
 
@@ -13537,12 +14496,12 @@ var _ref125 = function () {
 
           var force,
               list,
-              _args35 = arguments;
+              _args37 = arguments;
           return regeneratorRuntime.wrap(function _callee29$(_context29) {
             while (1) {
               switch (_context29.prev = _context29.next) {
                 case 0:
-                  force = _args35.length > 0 && _args35[0] !== undefined ? _args35[0] : false;
+                  force = _args37.length > 0 && _args37[0] !== undefined ? _args37[0] : false;
                   list = this[K.dataCache];
 
                   if (!(force || _.isEmpty(list))) {
@@ -13605,29 +14564,34 @@ var _ref125 = function () {
         var _queryData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee30(str) {
           var _this21 = this;
 
-          var list;
+          var s, list;
           return regeneratorRuntime.wrap(function _callee30$(_context30) {
             while (1) {
               switch (_context30.prev = _context30.next) {
                 case 0:
-                  if (str) {
-                    _context30.next = 4;
+                  //console.log("@Dict.queryData", str)
+                  // Empty string will take as query all
+                  s = _.trim(str);
+
+                  if (s) {
+                    _context30.next = 6;
                     break;
                   }
 
-                  _context30.next = 3;
+                  _context30.next = 4;
                   return this.getData();
 
-                case 3:
-                  return _context30.abrupt("return", _context30.sent);
-
                 case 4:
+                  list = _context30.sent;
+                  return _context30.abrupt("return", list);
+
+                case 6:
                   // Find by string
                   this.doHooks(true);
-                  _context30.next = 7;
-                  return this.invokeAsync("query", str);
+                  _context30.next = 9;
+                  return this.invokeAsync("query", s);
 
-                case 7:
+                case 9:
                   list = _context30.sent;
                   this.doHooks(false); // Cache items
 
@@ -13636,16 +14600,16 @@ var _ref125 = function () {
                   });
 
                   if (!this.isShadowed()) {
-                    _context30.next = 12;
+                    _context30.next = 14;
                     break;
                   }
 
                   return _context30.abrupt("return", _.cloneDeep(list) || []);
 
-                case 12:
+                case 14:
                   return _context30.abrupt("return", list || []);
 
-                case 13:
+                case 15:
                 case "end":
                   return _context30.stop();
               }
@@ -13653,7 +14617,7 @@ var _ref125 = function () {
           }, _callee30, this);
         }));
 
-        function queryData(_x20) {
+        function queryData(_x21) {
           return _queryData.apply(this, arguments);
         }
 
@@ -13714,7 +14678,7 @@ var _ref125 = function () {
           }, _callee31, this);
         }));
 
-        function getChildren(_x21) {
+        function getChildren(_x22) {
           return _getChildren.apply(this, arguments);
         }
 
@@ -13804,7 +14768,7 @@ var _ref125 = function () {
           }, _callee32, this);
         }));
 
-        function checkItem(_x22) {
+        function checkItem(_x23) {
           return _checkItem.apply(this, arguments);
         }
 
@@ -13841,7 +14805,7 @@ var _ref125 = function () {
           }, _callee33, this);
         }));
 
-        function getItemText(_x23) {
+        function getItemText(_x24) {
           return _getItemText.apply(this, arguments);
         }
 
@@ -13878,7 +14842,7 @@ var _ref125 = function () {
           }, _callee34, this);
         }));
 
-        function getItemIcon(_x24) {
+        function getItemIcon(_x25) {
           return _getItemIcon.apply(this, arguments);
         }
 
@@ -13915,7 +14879,7 @@ var _ref125 = function () {
           }, _callee35, this);
         }));
 
-        function getItemAs(_x25, _x26) {
+        function getItemAs(_x26, _x27) {
           return _getItemAs.apply(this, arguments);
         }
 
@@ -13934,10 +14898,10 @@ var _ref125 = function () {
     //-------------------------------------------
     DictReferName: function DictReferName(str) {
       if (_.isString(str)) {
-        var _m13 = /^(@Dict:|#)(.+)$/.exec(str);
+        var _m17 = /^(@Dict:|#)(.+)$/.exec(str);
 
-        if (_m13) {
-          return _.trim(_m13[2]);
+        if (_m17) {
+          return _.trim(_m17[2]);
         }
       }
     },
@@ -13945,9 +14909,9 @@ var _ref125 = function () {
     GetOrCreate: function GetOrCreate() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var _ref127 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          hooks = _ref127.hooks,
-          name = _ref127.name;
+      var _ref128 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          hooks = _ref128.hooks,
+          name = _ref128.name;
 
       var d; // Aready a dict
 
@@ -13982,20 +14946,20 @@ var _ref125 = function () {
     },
     //-------------------------------------------
     CreateDict: function CreateDict() {
-      var _ref128 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          data = _ref128.data,
-          query = _ref128.query,
-          item = _ref128.item,
-          children = _ref128.children,
-          getValue = _ref128.getValue,
-          getText = _ref128.getText,
-          getIcon = _ref128.getIcon,
-          isMatched = _ref128.isMatched,
-          shadowed = _ref128.shadowed;
+      var _ref129 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          data = _ref129.data,
+          query = _ref129.query,
+          item = _ref129.item,
+          children = _ref129.children,
+          getValue = _ref129.getValue,
+          getText = _ref129.getText,
+          getIcon = _ref129.getIcon,
+          isMatched = _ref129.isMatched,
+          shadowed = _ref129.shadowed;
 
-      var _ref129 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          hooks = _ref129.hooks,
-          name = _ref129.name;
+      var _ref130 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          hooks = _ref130.hooks,
+          name = _ref130.name;
 
       //console.log("CreateDict", {data, query, item})
       //.........................................
@@ -14015,8 +14979,8 @@ var _ref125 = function () {
 
       if (!item) {
         item = /*#__PURE__*/function () {
-          var _ref130 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee36(val, $dict) {
-            var aryData, _iterator54, _step54, it, itV;
+          var _ref131 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee36(val, $dict) {
+            var aryData, _iterator63, _step63, it, itV;
 
             return regeneratorRuntime.wrap(function _callee36$(_context36) {
               while (1) {
@@ -14027,18 +14991,18 @@ var _ref125 = function () {
 
                   case 2:
                     aryData = _context36.sent;
-                    _iterator54 = _createForOfIteratorHelper(aryData);
+                    _iterator63 = _createForOfIteratorHelper(aryData);
                     _context36.prev = 4;
 
-                    _iterator54.s();
+                    _iterator63.s();
 
                   case 6:
-                    if ((_step54 = _iterator54.n()).done) {
+                    if ((_step63 = _iterator63.n()).done) {
                       _context36.next = 13;
                       break;
                     }
 
-                    it = _step54.value;
+                    it = _step63.value;
                     itV = $dict.getValue(it); //if(_.isEqual(itV, val)) {
 
                     if (!(itV == val || _.isEqual(itV, val))) {
@@ -14060,12 +15024,12 @@ var _ref125 = function () {
                     _context36.prev = 15;
                     _context36.t0 = _context36["catch"](4);
 
-                    _iterator54.e(_context36.t0);
+                    _iterator63.e(_context36.t0);
 
                   case 18:
                     _context36.prev = 18;
 
-                    _iterator54.f();
+                    _iterator63.f();
 
                     return _context36.finish(18);
 
@@ -14077,8 +15041,8 @@ var _ref125 = function () {
             }, _callee36, null, [[4, 15, 18, 21]]);
           }));
 
-          return function item(_x27, _x28) {
-            return _ref130.apply(this, arguments);
+          return function item(_x28, _x29) {
+            return _ref131.apply(this, arguments);
           };
         }();
       } //.........................................
@@ -14086,8 +15050,8 @@ var _ref125 = function () {
 
       if (!query) {
         query = /*#__PURE__*/function () {
-          var _ref131 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee37(v, $dict) {
-            var aryData, list, _iterator55, _step55, it;
+          var _ref132 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee37(v, $dict) {
+            var aryData, list, _iterator64, _step64, it;
 
             return regeneratorRuntime.wrap(function _callee37$(_context37) {
               while (1) {
@@ -14099,20 +15063,20 @@ var _ref125 = function () {
                   case 2:
                     aryData = _context37.sent;
                     list = [];
-                    _iterator55 = _createForOfIteratorHelper(aryData);
+                    _iterator64 = _createForOfIteratorHelper(aryData);
 
                     try {
-                      for (_iterator55.s(); !(_step55 = _iterator55.n()).done;) {
-                        it = _step55.value;
+                      for (_iterator64.s(); !(_step64 = _iterator64.n()).done;) {
+                        it = _step64.value;
 
                         if ($dict.isMatched(it, v)) {
                           list.push(it);
                         }
                       }
                     } catch (err) {
-                      _iterator55.e(err);
+                      _iterator64.e(err);
                     } finally {
-                      _iterator55.f();
+                      _iterator64.f();
                     }
 
                     return _context37.abrupt("return", list);
@@ -14125,8 +15089,8 @@ var _ref125 = function () {
             }, _callee37);
           }));
 
-          return function query(_x29, _x30) {
-            return _ref131.apply(this, arguments);
+          return function query(_x30, _x31) {
+            return _ref132.apply(this, arguments);
           };
         }();
       } //.........................................
@@ -14382,12 +15346,12 @@ var _ref125 = function () {
     DictFactory: DictFactory
   };
 }(),
-    Dict = _ref125.Dict,
-    DictFactory = _ref125.DictFactory; //##################################################
+    Dict = _ref126.Dict,
+    DictFactory = _ref126.DictFactory; //##################################################
 // # import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
 
 
-var _ref132 = function () {
+var _ref133 = function () {
   ///////////////////////////////////////////////////
   var TryBubble = function TryBubble(vm, event) {
     var stop = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -14407,8 +15371,8 @@ var _ref132 = function () {
 
 
   var Notify = function Notify(name) {
-    for (var _len35 = arguments.length, args = new Array(_len35 > 1 ? _len35 - 1 : 0), _key37 = 1; _key37 < _len35; _key37++) {
-      args[_key37 - 1] = arguments[_key37];
+    for (var _len41 = arguments.length, args = new Array(_len41 > 1 ? _len41 - 1 : 0), _key43 = 1; _key43 < _len41; _key43++) {
+      args[_key43 - 1] = arguments[_key43];
     }
 
     // if(name.endsWith("select"))
@@ -14466,9 +15430,9 @@ var _ref132 = function () {
 
   var VueEventBubble = {
     install: function install(Vue) {
-      var _ref133 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref133$overrideEmit = _ref133.overrideEmit,
-          overrideEmit = _ref133$overrideEmit === void 0 ? false : _ref133$overrideEmit;
+      var _ref134 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref134$overrideEmit = _ref134.overrideEmit,
+          overrideEmit = _ref134$overrideEmit === void 0 ? false : _ref134$overrideEmit;
 
       // Append the methods
       _.assign(Vue.prototype, {
@@ -14513,11 +15477,11 @@ var _ref132 = function () {
     VueEventBubble: VueEventBubble
   };
 }(),
-    VueEventBubble = _ref132.VueEventBubble; //##################################################
+    VueEventBubble = _ref133.VueEventBubble; //##################################################
 // # import {VueTiCom} from "./vue/vue-ti-com.mjs"
 
 
-var _ref134 = function () {
+var _ref135 = function () {
   /////////////////////////////////////////////////////
   var TiComMixin = {
     inheritAttrs: false,
@@ -14542,8 +15506,8 @@ var _ref134 = function () {
         var _this23 = this;
 
         return function () {
-          for (var _len36 = arguments.length, klass = new Array(_len36), _key38 = 0; _key38 < _len36; _key38++) {
-            klass[_key38] = arguments[_key38];
+          for (var _len42 = arguments.length, klass = new Array(_len42), _key44 = 0; _key44 < _len42; _key44++) {
+            klass[_key44] = arguments[_key44];
           }
 
           return Ti.Css.mergeClassName({
@@ -14681,7 +15645,7 @@ var _ref134 = function () {
           fixed: fixed,
           auto: auto
         });
-      }); // Filter: percent
+      }); // Filter: float
 
       Vue.filter("float", function (val) {
         var precision = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
@@ -14690,6 +15654,11 @@ var _ref134 = function () {
           precision: precision,
           dft: dft
         });
+      }); // Filter: datetime
+
+      Vue.filter("datetime", function (val) {
+        var fmt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "yyyy-MM-dd";
+        return Ti.DateTime.format(val, fmt);
       }); //...............................................
       // Directive: v-drop-files
       //  - value : f() | [f(), "i18n:mask-tip"]
@@ -14806,9 +15775,9 @@ var _ref134 = function () {
       // Directive: v-ti-on-actived="this"
 
       Vue.directive("tiActivable", {
-        bind: function bind($el, _ref135, _ref136) {
-          var value = _ref135.value;
-          var context = _ref136.context;
+        bind: function bind($el, _ref136, _ref137) {
+          var value = _ref136.value;
+          var context = _ref137.context;
           var vm = context;
           vm.__ti_activable__ = true;
           $el.addEventListener("click", function (evt) {
@@ -14827,12 +15796,12 @@ var _ref134 = function () {
     VueTiCom: VueTiCom
   };
 }(),
-    VueTiCom = _ref134.VueTiCom; //---------------------------------------
+    VueTiCom = _ref135.VueTiCom; //---------------------------------------
 //##################################################
 // # import {WalnutAppMain} from "./ti-walnut-app-main.mjs"
 
 
-var _ref137 = function () {
+var _ref138 = function () {
   ///////////////////////////////////////////////
   function WalnutAppMain() {
     return _WalnutAppMain.apply(this, arguments);
@@ -14840,54 +15809,57 @@ var _ref137 = function () {
 
 
   function _WalnutAppMain() {
-    _WalnutAppMain = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee43() {
-      var _ref138,
-          _ref138$rs,
+    _WalnutAppMain = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee44() {
+      var _ref139,
+          _ref139$rs,
           rs,
-          _ref138$appName,
+          _ref139$appName,
           appName,
-          _ref138$preloads,
+          _ref139$preloads,
           preloads,
-          _ref138$debug,
+          _ref139$debug,
           debug,
-          _ref138$logging,
+          _ref139$logging,
           logging,
-          _ref138$shortcute,
+          _ref139$shortcute,
           shortcute,
-          _ref138$viewport,
+          theme,
+          _ref139$lang,
+          lang,
+          _ref139$viewport,
           viewport,
           pres,
           tiConf,
           exCssList,
-          _iterator56,
-          _step56,
+          _iterator65,
+          _step65,
           css,
           cssPath,
           appInfo,
           _pres,
           pxs,
-          _iterator57,
-          _step57,
+          _iterator66,
+          _step66,
           key,
           val,
           mod,
           app,
           basePath,
-          _args49 = arguments;
+          _args52 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee43$(_context43) {
+      return regeneratorRuntime.wrap(function _callee44$(_context44) {
         while (1) {
-          switch (_context43.prev = _context43.next) {
+          switch (_context44.prev = _context44.next) {
             case 0:
-              _ref138 = _args49.length > 0 && _args49[0] !== undefined ? _args49[0] : {}, _ref138$rs = _ref138.rs, rs = _ref138$rs === void 0 ? "/gu/rs/" : _ref138$rs, _ref138$appName = _ref138.appName, appName = _ref138$appName === void 0 ? "wn.manager" : _ref138$appName, _ref138$preloads = _ref138.preloads, preloads = _ref138$preloads === void 0 ? [] : _ref138$preloads, _ref138$debug = _ref138.debug, debug = _ref138$debug === void 0 ? false : _ref138$debug, _ref138$logging = _ref138.logging, logging = _ref138$logging === void 0 ? {
+              _ref139 = _args52.length > 0 && _args52[0] !== undefined ? _args52[0] : {}, _ref139$rs = _ref139.rs, rs = _ref139$rs === void 0 ? "/gu/rs/" : _ref139$rs, _ref139$appName = _ref139.appName, appName = _ref139$appName === void 0 ? "wn.manager" : _ref139$appName, _ref139$preloads = _ref139.preloads, preloads = _ref139$preloads === void 0 ? [] : _ref139$preloads, _ref139$debug = _ref139.debug, debug = _ref139$debug === void 0 ? false : _ref139$debug, _ref139$logging = _ref139.logging, logging = _ref139$logging === void 0 ? {
                 root: "warn"
-              } : _ref138$logging, _ref138$shortcute = _ref138.shortcute, shortcute = _ref138$shortcute === void 0 ? true : _ref138$shortcute, _ref138$viewport = _ref138.viewport, viewport = _ref138$viewport === void 0 ? {
+              } : _ref139$logging, _ref139$shortcute = _ref139.shortcute, shortcute = _ref139$shortcute === void 0 ? true : _ref139$shortcute, theme = _ref139.theme, _ref139$lang = _ref139.lang, lang = _ref139$lang === void 0 ? "zh-cn" : _ref139$lang, _ref139$viewport = _ref139.viewport, viewport = _ref139$viewport === void 0 ? {
                 phoneMaxWidth: 540,
                 tabletMaxWidth: 768,
                 designWidth: 1000,
                 max: 100,
                 min: 80
-              } : _ref138$viewport;
+              } : _ref139$viewport;
               //---------------------------------------
               Ti.AddResourcePrefix(rs); //---------------------------------------
 
@@ -14932,9 +15904,9 @@ var _ref137 = function () {
                 alias: {
                   "^\./": "@MyApp:",
                   "^@MyApp:?$": "@MyApp:_app.json",
-                  "^@i18n:(.+)$": "@i18n:zh-cn/$1",
-                  "\/i18n\/": "\/i18n\/zh-cn/",
-                  "^(@[A-Za-z]+):i18n/(.+)$": "$1:i18n/zh-cn/$2"
+                  "^@i18n:(.+)$": "@i18n:".concat(lang, "/$1"),
+                  "\/i18n\/": "/i18n/".concat(lang, "/"),
+                  "^(@[A-Za-z]+):i18n/(.+)$": "$1:i18n/".concat(lang, "/$2")
                 },
                 suffix: {
                   "^@theme:": ".css",
@@ -14943,12 +15915,12 @@ var _ref137 = function () {
                   "(^@com:|[\/:]com\/)": "/_com.json",
                   "(^@i18n:|[\/:]i18n\/)": ".i18n.json"
                 },
-                lang: "zh-cn"
+                lang: lang
               }); //---------------------------------------
               // Preload resources
 
               if (_.isEmpty(preloads)) {
-                _context43.next = 16;
+                _context44.next = 16;
                 break;
               }
 
@@ -14958,27 +15930,27 @@ var _ref137 = function () {
                 pres.push(Ti.Load(url));
               });
 
-              _context43.next = 16;
+              _context44.next = 16;
               return Promise.all(pres);
 
             case 16:
-              _context43.t0 = Ti.I18n;
-              _context43.next = 19;
+              _context44.t0 = Ti.I18n;
+              _context44.next = 19;
               return Ti.Load(["@i18n:_ti", "@i18n:_wn", "@i18n:_net", "@i18n:web", "@i18n:ti-datetime"]);
 
             case 19:
-              _context43.t1 = _context43.sent;
+              _context44.t1 = _context44.sent;
 
-              _context43.t0.put.call(_context43.t0, _context43.t1);
+              _context44.t0.put.call(_context44.t0, _context44.t1);
 
-              _context43.next = 23;
+              _context44.next = 23;
               return Wn.Sys.exec("ti config -cqn", {
                 appName: appName,
                 as: "json"
               });
 
             case 23:
-              tiConf = _context43.sent;
+              tiConf = _context44.sent;
 
               if (!_.isEmpty(tiConf)) {
                 Ti.Config.update(tiConf);
@@ -14987,71 +15959,71 @@ var _ref137 = function () {
 
 
               if (!tiConf.i18n) {
-                _context43.next = 31;
+                _context44.next = 31;
                 break;
               }
 
-              _context43.t2 = Ti.I18n;
-              _context43.next = 29;
+              _context44.t2 = Ti.I18n;
+              _context44.next = 29;
               return Ti.Load(tiConf.i18n);
 
             case 29:
-              _context43.t3 = _context43.sent;
+              _context44.t3 = _context44.sent;
 
-              _context43.t2.put.call(_context43.t2, _context43.t3);
+              _context44.t2.put.call(_context44.t2, _context44.t3);
 
             case 31:
               if (!tiConf.css) {
-                _context43.next = 51;
+                _context44.next = 51;
                 break;
               }
 
               exCssList = [].concat(tiConf.css);
-              _iterator56 = _createForOfIteratorHelper(exCssList);
-              _context43.prev = 34;
+              _iterator65 = _createForOfIteratorHelper(exCssList);
+              _context44.prev = 34;
 
-              _iterator56.s();
+              _iterator65.s();
 
             case 36:
-              if ((_step56 = _iterator56.n()).done) {
-                _context43.next = 43;
+              if ((_step65 = _iterator65.n()).done) {
+                _context44.next = 43;
                 break;
               }
 
-              css = _step56.value;
+              css = _step65.value;
               cssPath = _.template(css)({
-                theme: "${theme}"
+                theme: theme
               });
-              _context43.next = 41;
+              _context44.next = 41;
               return Ti.Load(cssPath);
 
             case 41:
-              _context43.next = 36;
+              _context44.next = 36;
               break;
 
             case 43:
-              _context43.next = 48;
+              _context44.next = 48;
               break;
 
             case 45:
-              _context43.prev = 45;
-              _context43.t4 = _context43["catch"](34);
+              _context44.prev = 45;
+              _context44.t4 = _context44["catch"](34);
 
-              _iterator56.e(_context43.t4);
+              _iterator65.e(_context44.t4);
 
             case 48:
-              _context43.prev = 48;
+              _context44.prev = 48;
 
-              _iterator56.f();
+              _iterator65.f();
 
-              return _context43.finish(48);
+              return _context44.finish(48);
 
             case 51:
-              _context43.next = 53;
+              _context44.next = 53;
               return Ti.Load("@MyApp");
 
             case 53:
-              appInfo = _context43.sent;
+              appInfo = _context44.sent;
 
               //---------------------------------------
               // Merge customized GUI setting in "data"
@@ -15072,7 +16044,7 @@ var _ref137 = function () {
 
 
               if (_.isEmpty(tiConf.preloads)) {
-                _context43.next = 62;
+                _context44.next = 62;
                 break;
               }
 
@@ -15082,7 +16054,7 @@ var _ref137 = function () {
                 _pres.push(Ti.Load(url));
               });
 
-              _context43.next = 62;
+              _context44.next = 62;
               return Promise.all(_pres);
 
             case 62:
@@ -15093,63 +16065,100 @@ var _ref137 = function () {
               // Load the global util modules
 
 
-              _iterator57 = _createForOfIteratorHelper(_.keys(tiConf.global));
-              _context43.prev = 64;
+              _iterator66 = _createForOfIteratorHelper(_.keys(tiConf.global));
+              _context44.prev = 64;
 
-              _iterator57.s();
+              _iterator66.s();
 
             case 66:
-              if ((_step57 = _iterator57.n()).done) {
-                _context43.next = 75;
+              if ((_step66 = _iterator66.n()).done) {
+                _context44.next = 75;
                 break;
               }
 
-              key = _step57.value;
+              key = _step66.value;
               val = tiConf.global[key];
-              _context43.next = 71;
+              _context44.next = 71;
               return Ti.Load(val);
 
             case 71:
-              mod = _context43.sent;
+              mod = _context44.sent;
               window[key] = mod;
 
             case 73:
-              _context43.next = 66;
+              _context44.next = 66;
               break;
 
             case 75:
-              _context43.next = 80;
+              _context44.next = 80;
               break;
 
             case 77:
-              _context43.prev = 77;
-              _context43.t5 = _context43["catch"](64);
+              _context44.prev = 77;
+              _context44.t5 = _context44["catch"](64);
 
-              _iterator57.e(_context43.t5);
+              _iterator66.e(_context44.t5);
 
             case 80:
-              _context43.prev = 80;
+              _context44.prev = 80;
 
-              _iterator57.f();
+              _iterator66.f();
 
-              return _context43.finish(80);
+              return _context44.finish(80);
 
             case 83:
               //---------------------------------------
               // Setup dictionaly
               Wn.Dict.setup(tiConf.dictionary); //---------------------------------------
               // Initialize the App
+              // Load app extends vars (Map)
+              // You can put your secretive information in it.
+              // Sucn as api key, password...
+              // The vars should be a runtime file of your domain files
 
-              app = Ti.App(appInfo);
-              _context43.next = 87;
+              app = Ti.App(appInfo, /*#__PURE__*/function () {
+                var _ref140 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee43(conf) {
+                  var vars;
+                  return regeneratorRuntime.wrap(function _callee43$(_context43) {
+                    while (1) {
+                      switch (_context43.prev = _context43.next) {
+                        case 0:
+                          if (!conf.varLoadPath) {
+                            _context43.next = 5;
+                            break;
+                          }
+
+                          _context43.next = 3;
+                          return Wn.Io.loadContent(conf.varLoadPath, {
+                            as: "json"
+                          });
+
+                        case 3:
+                          vars = _context43.sent;
+
+                          _.set(conf, "data.vars", vars);
+
+                        case 5:
+                        case "end":
+                          return _context43.stop();
+                      }
+                    }
+                  }, _callee43);
+                }));
+
+                return function (_x32) {
+                  return _ref140.apply(this, arguments);
+                };
+              }());
+              _context44.next = 87;
               return app.init();
 
             case 87:
               //---------------------------------------
-              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref139) {
-                var $root = _ref139.$root,
-                    mode = _ref139.mode,
-                    fontSize = _ref139.fontSize;
+              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref141) {
+                var $root = _ref141.$root,
+                    mode = _ref141.mode,
+                    fontSize = _ref141.fontSize;
                 $root.style.fontSize = fontSize + "px";
                 $root.setAttribute("as", mode);
                 Ti.App.eachInstance(function (app) {
@@ -15186,18 +16195,18 @@ var _ref137 = function () {
                 basePath = "id:" + _app.obj.id;
               }
 
-              _context43.next = 96;
+              _context44.next = 96;
               return app.dispatch("current/reload", basePath);
 
             case 96:
-              return _context43.abrupt("return", app.get("obj"));
+              return _context44.abrupt("return", app.get("obj"));
 
             case 97:
             case "end":
-              return _context43.stop();
+              return _context44.stop();
           }
         }
-      }, _callee43, null, [[34, 45, 48, 51], [64, 77, 80, 83]]);
+      }, _callee44, null, [[34, 45, 48, 51], [64, 77, 80, 83]]);
     }));
     return _WalnutAppMain.apply(this, arguments);
   }
@@ -15206,11 +16215,11 @@ var _ref137 = function () {
     WalnutAppMain: WalnutAppMain
   };
 }(),
-    WalnutAppMain = _ref137.WalnutAppMain; //##################################################
+    WalnutAppMain = _ref138.WalnutAppMain; //##################################################
 // # import {WebAppMain} from "./ti-web-app-main.mjs"
 
 
-var _ref140 = function () {
+var _ref142 = function () {
   ///////////////////////////////////////////////
   function WebAppMain() {
     return _WebAppMain.apply(this, arguments);
@@ -15218,53 +16227,56 @@ var _ref140 = function () {
 
 
   function _WebAppMain() {
-    _WebAppMain = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee44() {
-      var _ref141,
-          _ref141$www_host,
-          www_host,
-          _ref141$www_port_suff,
-          www_port_suffix,
-          _ref141$rs,
+    _WebAppMain = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee45() {
+      var _ref143,
+          _ref143$rs,
           rs,
-          _ref141$siteRs,
+          _ref143$siteRs,
           siteRs,
-          _ref141$lang,
+          _ref143$vars,
+          vars,
+          _ref143$lang,
           lang,
           appJson,
           siteId,
           domain,
-          _ref141$preloads,
+          _ref143$preloads,
           preloads,
-          _ref141$debug,
+          _ref143$debug,
           debug,
-          _ref141$logging,
+          _ref143$logging,
           logging,
-          _ref141$shortcute,
+          _ref143$shortcute,
           shortcute,
-          _ref141$viewport,
+          _ref143$viewport,
           viewport,
           pres,
           exCssList,
-          _iterator58,
-          _step58,
+          _iterator67,
+          _step67,
           css,
           app,
-          _args50 = arguments;
+          _args53 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee44$(_context44) {
+      return regeneratorRuntime.wrap(function _callee45$(_context45) {
         while (1) {
-          switch (_context44.prev = _context44.next) {
+          switch (_context45.prev = _context45.next) {
             case 0:
-              _ref141 = _args50.length > 0 && _args50[0] !== undefined ? _args50[0] : {}, _ref141$www_host = _ref141.www_host, www_host = _ref141$www_host === void 0 ? "localhost" : _ref141$www_host, _ref141$www_port_suff = _ref141.www_port_suffix, www_port_suffix = _ref141$www_port_suff === void 0 ? ":8080" : _ref141$www_port_suff, _ref141$rs = _ref141.rs, rs = _ref141$rs === void 0 ? "/gu/rs/" : _ref141$rs, _ref141$siteRs = _ref141.siteRs, siteRs = _ref141$siteRs === void 0 ? "/" : _ref141$siteRs, _ref141$lang = _ref141.lang, lang = _ref141$lang === void 0 ? "zh-cn" : _ref141$lang, appJson = _ref141.appJson, siteId = _ref141.siteId, domain = _ref141.domain, _ref141$preloads = _ref141.preloads, preloads = _ref141$preloads === void 0 ? [] : _ref141$preloads, _ref141$debug = _ref141.debug, debug = _ref141$debug === void 0 ? false : _ref141$debug, _ref141$logging = _ref141.logging, logging = _ref141$logging === void 0 ? {
+              _ref143 = _args53.length > 0 && _args53[0] !== undefined ? _args53[0] : {}, _ref143$rs = _ref143.rs, rs = _ref143$rs === void 0 ? "/gu/rs/" : _ref143$rs, _ref143$siteRs = _ref143.siteRs, siteRs = _ref143$siteRs === void 0 ? "/" : _ref143$siteRs, _ref143$vars = _ref143.vars, vars = _ref143$vars === void 0 ? {} : _ref143$vars, _ref143$lang = _ref143.lang, lang = _ref143$lang === void 0 ? "zh-cn" : _ref143$lang, appJson = _ref143.appJson, siteId = _ref143.siteId, domain = _ref143.domain, _ref143$preloads = _ref143.preloads, preloads = _ref143$preloads === void 0 ? [] : _ref143$preloads, _ref143$debug = _ref143.debug, debug = _ref143$debug === void 0 ? false : _ref143$debug, _ref143$logging = _ref143.logging, logging = _ref143$logging === void 0 ? {
                 root: "warn"
-              } : _ref141$logging, _ref141$shortcute = _ref141.shortcute, shortcute = _ref141$shortcute === void 0 ? true : _ref141$shortcute, _ref141$viewport = _ref141.viewport, viewport = _ref141$viewport === void 0 ? {
+              } : _ref143$logging, _ref143$shortcute = _ref143.shortcute, shortcute = _ref143$shortcute === void 0 ? true : _ref143$shortcute, _ref143$viewport = _ref143.viewport, viewport = _ref143$viewport === void 0 ? {
                 phoneMaxWidth: 640,
                 tabletMaxWidth: 900,
                 designWidth: 1200,
                 max: 100,
                 min: 70
-              } : _ref141$viewport;
+              } : _ref143$viewport;
               //---------------------------------------
+              // Override the rs/siteRs by vars
+              rs = _.get(vars, "rs") || rs;
+              siteRs = _.get(vars, "siteRs") || siteRs;
+              lang = _.get(vars, "lang") || lang; //---------------------------------------
+
               Ti.AddResourcePrefix(rs, siteRs); //---------------------------------------
 
               Vue.use(Ti.Vue.EventBubble);
@@ -15319,7 +16331,7 @@ var _ref140 = function () {
               // Preload resources
 
               if (_.isEmpty(preloads)) {
-                _context44.next = 15;
+                _context45.next = 18;
                 break;
               }
 
@@ -15329,100 +16341,105 @@ var _ref140 = function () {
                 pres.push(Ti.Load(url));
               });
 
-              _context44.next = 15;
+              _context45.next = 18;
               return Promise.all(pres);
 
-            case 15:
-              _context44.t0 = Ti.I18n;
-              _context44.next = 18;
-              return Ti.Load(["@i18n:_ti", "@i18n:_net", "@i18n:web", "@i18n:ti-datetime"]);
-
             case 18:
-              _context44.t1 = _context44.sent;
+              _context45.t0 = Ti.I18n;
+              _context45.next = 21;
+              return Ti.Load(["@i18n:_ti", "@i18n:_net", "@i18n:_wn", "@i18n:web", "@i18n:ti-datetime"]);
 
-              _context44.t0.put.call(_context44.t0, _context44.t1);
+            case 21:
+              _context45.t1 = _context45.sent;
+
+              _context45.t0.put.call(_context45.t0, _context45.t1);
 
               if (!appJson.css) {
-                _context44.next = 40;
+                _context45.next = 43;
                 break;
               }
 
               exCssList = _.concat(appJson.css);
-              _iterator58 = _createForOfIteratorHelper(exCssList);
-              _context44.prev = 23;
+              _iterator67 = _createForOfIteratorHelper(exCssList);
+              _context45.prev = 26;
 
-              _iterator58.s();
+              _iterator67.s();
 
-            case 25:
-              if ((_step58 = _iterator58.n()).done) {
-                _context44.next = 32;
+            case 28:
+              if ((_step67 = _iterator67.n()).done) {
+                _context45.next = 35;
                 break;
               }
 
-              css = _step58.value;
+              css = _step67.value;
 
               if (!css) {
-                _context44.next = 30;
+                _context45.next = 33;
                 break;
               }
 
-              _context44.next = 30;
+              _context45.next = 33;
               return Ti.Load(css);
 
-            case 30:
-              _context44.next = 25;
+            case 33:
+              _context45.next = 28;
               break;
 
-            case 32:
-              _context44.next = 37;
+            case 35:
+              _context45.next = 40;
               break;
-
-            case 34:
-              _context44.prev = 34;
-              _context44.t2 = _context44["catch"](23);
-
-              _iterator58.e(_context44.t2);
 
             case 37:
-              _context44.prev = 37;
+              _context45.prev = 37;
+              _context45.t2 = _context45["catch"](26);
 
-              _iterator58.f();
-
-              return _context44.finish(37);
+              _iterator67.e(_context45.t2);
 
             case 40:
-              _context44.next = 42;
+              _context45.prev = 40;
+
+              _iterator67.f();
+
+              return _context45.finish(40);
+
+            case 43:
+              //---------------------------------------
+              // Append extra deps
+              //console.log("Append extra deps")
+              if (_.isArray(vars.deps)) {
+                Ti.Util.pushUniqValue(appJson, "deps", vars.deps);
+              } //---------------------------------------
+              // Load main app
+              // If "i18n" or "deps" declared, it will be loaded too
+
+
+              _context45.next = 46;
               return Ti.App(appJson, function (conf) {
                 //console.log("appConf", conf)
-                _.assign(conf.store.state, {
+                _.assign(conf.store.state, vars, {
                   loading: false,
                   siteId: siteId,
                   domain: domain,
-                  rs: rs,
-                  www_host: www_host,
-                  www_port_suffix: www_port_suffix
+                  rs: rs
                 });
 
                 return conf;
               });
 
-            case 42:
-              app = _context44.sent;
-              _context44.next = 45;
+            case 46:
+              app = _context45.sent;
+              _context45.next = 49;
               return app.init();
 
-            case 45:
+            case 49:
               Ti.App.pushInstance(app); // Save current app name
 
-              Ti.SetAppName(app.name()); // Prepare the data,
-              //  - base/apiBase/cdnBase will be explained
+              Ti.SetAppName(app.name()); //---------------------------------------
 
-              app.commit("explainSiteState"); //---------------------------------------
-
-              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref142) {
-                var $root = _ref142.$root,
-                    mode = _ref142.mode,
-                    fontSize = _ref142.fontSize;
+              Ti.Dom.watchAutoRootFontSize(viewport, function (_ref144) {
+                var $root = _ref144.$root,
+                    mode = _ref144.mode,
+                    fontSize = _ref144.fontSize;
                 $root.style.fontSize = fontSize + "px";
                 $root.setAttribute("as", mode);
                 Ti.App.eachInstance(function (app) {
@@ -15432,18 +16449,18 @@ var _ref140 = function () {
 
               app.mountTo("#app"); // Reload the page data
 
-              _context44.next = 52;
+              _context45.next = 55;
               return app.dispatch("reload");
 
-            case 52:
-              return _context44.abrupt("return", app);
+            case 55:
+              return _context45.abrupt("return", app);
 
-            case 53:
+            case 56:
             case "end":
-              return _context44.stop();
+              return _context45.stop();
           }
         }
-      }, _callee44, null, [[23, 34, 37, 40]]);
+      }, _callee45, null, [[26, 37, 40, 43]]);
     }));
     return _WebAppMain.apply(this, arguments);
   }
@@ -15452,7 +16469,7 @@ var _ref140 = function () {
     WebAppMain: WebAppMain
   };
 }(),
-    WebAppMain = _ref140.WebAppMain; //---------------------------------------
+    WebAppMain = _ref142.WebAppMain; //---------------------------------------
 
 
 var LOAD_CACHE = {};
@@ -15467,12 +16484,12 @@ function Preload(url, anyObj) {
 var RS_PREFIXs = [];
 
 function AddResourcePrefix() {
-  for (var _len37 = arguments.length, prefixes = new Array(_len37), _key39 = 0; _key39 < _len37; _key39++) {
-    prefixes[_key39] = arguments[_key39];
+  for (var _len43 = arguments.length, prefixes = new Array(_len43), _key45 = 0; _key45 < _len43; _key45++) {
+    prefixes[_key45] = arguments[_key45];
   }
 
-  for (var _i26 = 0, _prefixes = prefixes; _i26 < _prefixes.length; _i26++) {
-    var prefix = _prefixes[_i26];
+  for (var _i28 = 0, _prefixes = prefixes; _i28 < _prefixes.length; _i28++) {
+    var prefix = _prefixes[_i28];
 
     if (prefix) {
       if (!prefix.endsWith("/")) {
@@ -15490,12 +16507,12 @@ function MatchCache(url) {
     return;
   }
 
-  var _iterator59 = _createForOfIteratorHelper(RS_PREFIXs),
-      _step59;
+  var _iterator68 = _createForOfIteratorHelper(RS_PREFIXs),
+      _step68;
 
   try {
-    for (_iterator59.s(); !(_step59 = _iterator59.n()).done;) {
-      var prefix = _step59.value;
+    for (_iterator68.s(); !(_step68 = _iterator68.n()).done;) {
+      var prefix = _step68.value;
 
       if (prefix && url.startsWith(prefix)) {
         url = url.substring(prefix.length);
@@ -15503,9 +16520,9 @@ function MatchCache(url) {
       }
     }
   } catch (err) {
-    _iterator59.e(err);
+    _iterator68.e(err);
   } finally {
-    _iterator59.f();
+    _iterator68.f();
   }
 
   return LOAD_CACHE[url];
@@ -15513,7 +16530,7 @@ function MatchCache(url) {
 
 
 var ENV = {
-  "version": "2.2-20200627.185053",
+  "version": "2.5-20201027.205544",
   "dev": false,
   "appName": null,
   "session": {},
@@ -15574,6 +16591,7 @@ var Ti = {
   DictFactory: DictFactory,
   Rects: Rects,
   Rect: Rect,
+  AutoMatch: AutoMatch,
   //-----------------------------------------------------
   Websocket: TiWebsocket,
   //-----------------------------------------------------
@@ -15690,43 +16708,43 @@ var Ti = {
     var _arguments2 = arguments,
         _this24 = this;
 
-    return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee45() {
+    return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee46() {
       var args, context;
-      return regeneratorRuntime.wrap(function _callee45$(_context45) {
+      return regeneratorRuntime.wrap(function _callee46$(_context46) {
         while (1) {
-          switch (_context45.prev = _context45.next) {
+          switch (_context46.prev = _context46.next) {
             case 0:
               args = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : [];
               context = _arguments2.length > 2 ? _arguments2[2] : undefined;
 
               if (!_.isFunction(fn)) {
-                _context45.next = 7;
+                _context46.next = 7;
                 break;
               }
 
               context = context || _this24;
-              _context45.next = 6;
+              _context46.next = 6;
               return fn.apply(context, args);
 
             case 6:
-              return _context45.abrupt("return", _context45.sent);
+              return _context46.abrupt("return", _context46.sent);
 
             case 7:
             case "end":
-              return _context45.stop();
+              return _context46.stop();
           }
         }
-      }, _callee45);
+      }, _callee46);
     }))();
   },
   //-----------------------------------------------------
   DoInvokeBy: function DoInvokeBy() {
     var _arguments3 = arguments;
-    return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee46() {
+    return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee47() {
       var target, funcName, args, context;
-      return regeneratorRuntime.wrap(function _callee46$(_context46) {
+      return regeneratorRuntime.wrap(function _callee47$(_context47) {
         while (1) {
-          switch (_context46.prev = _context46.next) {
+          switch (_context47.prev = _context47.next) {
             case 0:
               target = _arguments3.length > 0 && _arguments3[0] !== undefined ? _arguments3[0] : {};
               funcName = _arguments3.length > 1 ? _arguments3[1] : undefined;
@@ -15734,22 +16752,22 @@ var Ti = {
               context = _arguments3.length > 3 ? _arguments3[3] : undefined;
 
               if (!target) {
-                _context46.next = 8;
+                _context47.next = 8;
                 break;
               }
 
-              _context46.next = 7;
+              _context47.next = 7;
               return Ti.DoInvoke(target[funcName], args, context || target);
 
             case 7:
-              return _context46.abrupt("return", _context46.sent);
+              return _context47.abrupt("return", _context47.sent);
 
             case 8:
             case "end":
-              return _context46.stop();
+              return _context47.stop();
           }
         }
-      }, _callee46);
+      }, _callee47);
     }))();
   },
   //-----------------------------------------------------

@@ -4,11 +4,11 @@ export default {
   //-----------------------------------
   "dirName" : {
     type : String,
-    default : "media"
+    default : undefined
   },
   "dataHome" : {
     type : String,
-    default : null
+    default : undefined
   },
   //-----------------------------------
   // Behavior

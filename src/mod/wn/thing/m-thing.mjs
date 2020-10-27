@@ -16,6 +16,10 @@ export default {
     },
     setCurrentDataDir(state, dirName) {
       state.currentDataDir = dirName
+      if(state.meta) {
+        let localDirNameKey = `${state.meta.id}_dirname`
+        Ti.Storage.session.set(localDirNameKey, dirName)
+      }
     },
     setCurrentDataHome(state, dataHome) {
       state.currentDataHome = dataHome

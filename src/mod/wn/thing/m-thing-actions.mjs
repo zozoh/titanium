@@ -482,10 +482,13 @@ const _M = {
     await dispatch("config/reload", meta)
 
     // Update the default filesDirName
-    let dirName = _.get(state.config, "schema.behavior.filesDirName")
-    if(dirName) {
-      commit("setCurrentDataDir", dirName)
+    let localDirNameKey = `${meta.id}_dirname`
+    let dirName = Ti.Storage.session.getString(localDirNameKey)
+    if(!dirName) {
+      dirName = _.get(state.config, "schema.behavior.filesDirName")
+                || "media"
     }
+    commit("setCurrentDataDir", dirName || "media")
 
     // Load local status
     let local = Ti.Storage.session.getObject(meta.id) || {}

@@ -1,4 +1,4 @@
-// Pack At: 2020-10-26 22:38:02
+// Pack At: 2020-10-27 20:55:44
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -40380,11 +40380,11 @@ const _M = {
   //-----------------------------------
   "dirName" : {
     type : String,
-    default : "media"
+    default : undefined
   },
   "dataHome" : {
     type : String,
-    default : null
+    default : undefined
   },
   //-----------------------------------
   // Behavior
@@ -40626,11 +40626,6 @@ const _M = {
     OnDirNameChanged(dirName) {
       Ti.App(this).commit("main/setCurrentDataDir", dirName)
       
-      let skey = this.getStateLocalKey("dirname");
-      if(skey) {
-        Ti.Storage.session.set(skey, dirName)
-      }
-
       this.$nextTick(()=>{
         this.reloadData()
       })
@@ -40758,19 +40753,9 @@ const _M = {
   },
   ///////////////////////////////////////////
   watch : {
-    "dataHome" : {
+    "dirName" : {
       handler : "reloadData",
       immediate : true
-    }
-  },
-  ///////////////////////////////////////////
-  created: function() {
-    let skey = this.getStateLocalKey("dirname");
-    if(skey) {
-      let dirName = Ti.Storage.session.getString(skey)
-      if(dirName) {
-        Ti.App(this).commit("main/setCurrentDataDir", dirName)
-      }
     }
   },
   ///////////////////////////////////////////
@@ -41173,7 +41158,7 @@ const _M = {
     },
     "currentDataDir" : {
       type : String,
-      default : "media"
+      default : undefined
     },
     "status" : {
       type : Object,
@@ -43682,10 +43667,13 @@ const _M = {
     await dispatch("config/reload", meta)
 
     // Update the default filesDirName
-    let dirName = _.get(state.config, "schema.behavior.filesDirName")
-    if(dirName) {
-      commit("setCurrentDataDir", dirName)
+    let localDirNameKey = `${meta.id}_dirname`
+    let dirName = Ti.Storage.session.getString(localDirNameKey)
+    if(!dirName) {
+      dirName = _.get(state.config, "schema.behavior.filesDirName")
+                || "media"
     }
+    commit("setCurrentDataDir", dirName || "media")
 
     // Load local status
     let local = Ti.Storage.session.getObject(meta.id) || {}
@@ -43755,7 +43743,7 @@ Ti.Preload("ti/mod/wn/thing/m-thing-actions.mjs", _M);
 //============================================================
 Ti.Preload("ti/mod/wn/thing/m-thing.json", {
   "meta": null,
-  "currentDataDir"  : "media",
+  "currentDataDir"  : null,
   "currentDataHome" : null,
   "currentDataHomeObj" : null,
   "status" : {
@@ -43791,6 +43779,10 @@ const _M = {
     },
     setCurrentDataDir(state, dirName) {
       state.currentDataDir = dirName
+      if(state.meta) {
+        let localDirNameKey = `${state.meta.id}_dirname`
+        Ti.Storage.session.set(localDirNameKey, dirName)
+      }
     },
     setCurrentDataHome(state, dataHome) {
       state.currentDataHome = dataHome
@@ -48330,18 +48322,6 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN: en-us/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
-  "stat-date-at" : "Stat at",
-  "stat-date-at-oor" : "Statistics on this date are not ready yet",
-  "stat-date-span" : "Date span",
-  "dt-in" : "in ${val}",
-  "dt-u-day" : "Day",
-  "dt-u-hour" : "Hour",
-  "dt-u-min" : "Min",
-  "dt-u-sec" : "Seconds",
-  "dt-u-ms" : "Milliseconds",
-  "dt-u-week" : "Week",
-  "dt-u-month" : "Month",
-  "dt-u-year" : "Year",
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
@@ -48364,10 +48344,10 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "captcha-chagne": "Next",
   "captcha-tip": "Please enter the captcha",
   "chart": "Chart",
-  "chart-rank": "Rank Chart",
   "chart-bar": "Bar Chart",
   "chart-line": "Line Chart",
   "chart-pie": "Pie Chart",
+  "chart-rank": "Rank Chart",
   "checked": "Checked",
   "choose": "Select",
   "choose-file": "Select file",
@@ -48400,6 +48380,15 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "download-to-local": "Download to local",
   "drop-file-here-to-upload": "Drop file here to upload",
   "drop-here": "Drop here",
+  "dt-in": "in ${val}",
+  "dt-u-day": "Day",
+  "dt-u-hour": "Hour",
+  "dt-u-min": "Min",
+  "dt-u-month": "Month",
+  "dt-u-ms": "Milliseconds",
+  "dt-u-sec": "Seconds",
+  "dt-u-week": "Week",
+  "dt-u-year": "Year",
   "e-auth-account-noexists": "Account not exists",
   "e-auth-home-forbidden": "Auth home forbidden",
   "e-auth-login-NoPhoneOrEmail": "Invalid phone number or email address",
@@ -48539,6 +48528,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "settings": "Settings",
   "slogan": "Slogan",
   "source-code": "Source code",
+  "stat-date-at": "Stat at",
+  "stat-date-at-oor": "Statistics on this date are not ready yet",
+  "stat-date-span": "Date span",
   "stop": "Stop",
   "structure": "Structure",
   "success": "Success",
@@ -49316,18 +49308,6 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
-  "stat-date-at" : "统计日期",
-  "stat-date-at-oor" : "这个日期的统计数据还未就绪",
-  "stat-date-span" : "时间跨度",
-  "dt-in" : "在${val}内",
-  "dt-u-day" : "天",
-  "dt-u-hour" : "小时",
-  "dt-u-min" : "分钟",
-  "dt-u-sec" : "秒",
-  "dt-u-ms" : "好眠",
-  "dt-u-week" : "周",
-  "dt-u-month" : "月",
-  "dt-u-year" : "年",
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",
@@ -49350,10 +49330,10 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "captcha-chagne": "换一张",
   "captcha-tip": "请输入图中的验证码",
   "chart": "图表",
-  "chart-rank": "条状图",
   "chart-bar": "柱状图",
   "chart-line": "折线图",
   "chart-pie": "饼状图",
+  "chart-rank": "条状图",
   "checked": "已选中",
   "choose": "选择",
   "choose-file": "选择文件",
@@ -49386,6 +49366,15 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "download-to-local": "下载到本地",
   "drop-file-here-to-upload": "拖拽文件至此以便上传",
   "drop-here": "拖拽文件至此",
+  "dt-in": "在${val}内",
+  "dt-u-day": "天",
+  "dt-u-hour": "小时",
+  "dt-u-min": "分钟",
+  "dt-u-month": "月",
+  "dt-u-ms": "好眠",
+  "dt-u-sec": "秒",
+  "dt-u-week": "周",
+  "dt-u-year": "年",
   "e-auth-account-noexists": "账户不存在",
   "e-auth-home-forbidden": "账户不具备进入主目录的权限",
   "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
@@ -49525,6 +49514,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "settings": "设置",
   "slogan": "标语",
   "source-code": "源代码",
+  "stat-date-at": "统计日期",
+  "stat-date-at-oor": "这个日期的统计数据还未就绪",
+  "stat-date-span": "时间跨度",
   "stop": "停止",
   "structure": "结构",
   "success": "成功",
