@@ -15,7 +15,7 @@ async function EditObjMeta(pathOrObj="~", {
   // if emtpy, apply the default
   // “auto" will load by `ti editmeta`, it will override the currentTab
   fields     = [],
-  fixedKeys  = ["thumb"],
+  fixedKeys  = ["thumb", "title"],
   saveKeys   = ["thumb"],  // If the key changed, `cancel` same as `OK`
   autoSave   = true
 }={}){

@@ -257,9 +257,10 @@ const _M = {
         // Actions
         else {
           btn = _.assign({}, stepBtn)
+          //console.log({stepBtn, val: this.value})
           // Eval enabled
           if(_.isPlainObject(btn.enabled)) {
-            btn.enabled = Ti.Validate.match(this.value, btn.enabled)
+            btn.enabled = Ti.AutoMatch.test(btn.enabled, this.value)
           }
           // Customized
           else if(_.isFunction(btn.enabled)) {

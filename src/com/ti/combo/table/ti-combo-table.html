@@ -1,0 +1,17 @@
+<div class="ti-combo-table"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Actions
+  -->
+  <TiActionbar
+    :items="ActionItems"
+    :align="actionAlign"/>
+  <!--
+    Table
+  -->
+  <TiTable
+    v-bind="TableConfig"
+    @select="OnTableRowSelect"
+    @open="OnTableRowOpen"/>
+</div>

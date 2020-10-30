@@ -233,14 +233,14 @@ const _M = {
     evalFormField(fld={}, nbs=[]) {
       // Hide or disabled
       if(fld.hidden) {
-        if(Ti.Validate.match(this.data, fld.hidden)) {
+        if(Ti.AutoMatch.test(fld.hidden, this.data)) {
           return
         }
       }
       // Disable
       let disabled = false
       if(fld.disabled) {
-        disabled = Ti.Validate.match(this.data, fld.disabled)
+        disabled = Ti.AutoMatch.test(fld.disabled, this.data)
       }
 
       // The key

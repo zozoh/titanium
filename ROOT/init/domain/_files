@@ -382,146 +382,146 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
   icon: "zmdi-steam"
 }
 #---------------------------------------------------------
-@FILE demo/ti-calendar-month.comt
-{
-  title : "日历",
-  com: "/rs/ti/test/components/demo-ti-calendar-month.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-form-0.comt
+@FILE demo/ti-form/ti-form-0.comt
 {
   title : "表单",
-  com: "/rs/ti/test/components/demo-ti-form-0.json"
+  com: "/rs/ti/test/components/ti-form/demo-ti-form-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-color-icon.comt
+@FILE demo/ti-form/ti-form-color-icon.comt
 {
   title : "表单·颜色图标",
-  com: "/rs/ti/test/components/demo-ti-form-color-icon.json"
+  com: "/rs/ti/test/components/ti-form/demo-ti-form-color-icon.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-combo-input.comt
+@FILE demo/ti-form/ti-form-combo-input.comt
 {
   title : "组合【单】选框",
-  com: "/rs/ti/test/components/demo-ti-combo-input.json"
+  com: "/rs/ti/test/components/ti-form/demo-ti-combo-input.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-combo-multi-input.comt
+@FILE demo/ti-form/ti-form-combo-multi-input.comt
 {
   title : "组合【多】选框",
-  com: "/rs/ti/test/components/demo-ti-combo-multi-input.json"
+  com: "/rs/ti/test/components/ti-form/demo-ti-combo-multi-input.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-datetime.comt
+@FILE demo/ti-form/ti-form-datetime.comt
 {
   title : "表单·日期时间",
-  com: "/rs/ti/test/components/demo-ti-form-datetime.json"
+  com: "/rs/ti/test/components/ti-form/demo-ti-form-datetime.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-form-input-tags.comt
+@FILE demo/ti-form/ti-form-input-tags.comt
 {
   title : "表单·输入标签",
-  com: "/rs/ti/test/components/demo-ti-form-input-tags.json"
+  com: "/rs/ti/test/components/ti-form/demo-ti-form-input-tags.json"
 }
 #---------------------------------------------------------
-@FILE demo/wizard-0.comt
+@FILE demo/ti-form/ti-transfer-0.comt
 {
-  title : "向导·普通",
-  com: "/rs/ti/test/components/demo-wizard-0.json"
+  title : "穿梭框",
+  com: "/rs/ti/test/components/ti-form/demo-ti-transfer-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/tree-0.comt
+@FILE demo/ti-form/ti-combo-table.comt
 {
-  title : "树",
-  ln : "/rs/ti/test/components/demo-ti-tree-0.data.json", 
-  com: "/rs/ti/test/components/demo-ti-tree-0.json"
+  title : "组合表格",
+  com: "/rs/ti/test/components/ti-form/demo-ti-combo-table.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-obj-pair.comt
+@FILE demo/ti-obj/ti-obj-pair.comt
 {
   title : "对象值表",
-  com: "/rs/ti/test/components/demo-ti-obj-pair.json"
+  com: "/rs/ti/test/components/ti-obj/demo-ti-obj-pair.json"
 }
 #---------------------------------------------------------
+@FILE demo/ti-obj/ti-obj-json-0.comt
+{
+  title : "JSON对象编辑",
+  com: "/rs/ti/test/components/ti-obj/demo-ti-obj-json-0.json"
+}
+%COPY> /rs/ti/test/components/ti-obj/demo-ti-obj-json-0.data.json
+#---------------------------------------------------------
 #@FILE demo/ti-list-0.comt
-#{
+# {
 #  title : "列表",
 #  ln : "/rs/ti/test/components/demo-ti-list-0.data.json", 
 #  com: "/rs/ti/test/components/demo-ti-list-0.json"
 #}
 #---------------------------------------------------------
-@FILE demo/ti-table-0.comt
+@FILE demo/ti-container/tree-0.comt
+{
+  title : "树",
+  ln : "/rs/ti/test/components/ti-container/demo-ti-tree-0.data.json", 
+  com: "/rs/ti/test/components/ti-container/demo-ti-tree-0.json"
+}
+#---------------------------------------------------------
+@FILE demo/ti-container/ti-table-0.comt
 {
   title : "表格",
-  com: "/rs/ti/test/components/demo-ti-table-0.json"
+  com: "/rs/ti/test/components/ti-container/demo-ti-table-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-obj-json-0.comt
+@FILE demo/ti-gui/wizard-0.comt
 {
-  title : "JSON对象编辑",
-  com: "/rs/ti/test/components/demo-ti-obj-json-0.json"
+  title : "向导·普通",
+  com: "/rs/ti/test/components/ti-gui/demo-wizard-0.json"
 }
-%COPY> /rs/ti/test/components/demo-ti-obj-json-0.data.json
 #---------------------------------------------------------
-@FILE demo/ti-gui-0.comt
+@FILE demo/ti-gui/ti-gui-0.comt
 {
   title : "GUI布局",
-  com: "/rs/ti/test/components/demo-ti-gui-0.json"
+  com: "/rs/ti/test/components/ti-gui/demo-ti-gui-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-transfer-0.comt
-{
-  title : "穿梭框",
-  com: "/rs/ti/test/components/demo-ti-transfer-0.json"
-}
-#---------------------------------------------------------
-@FILE demo/wn-combo-input.comt
+@FILE demo/wn-form/wn-combo-input.comt
 {
   title : "动态组合【单】选框",
-  com: "/rs/ti/test/components/demo-wn-combo-input.json"
+  com: "/rs/ti/test/components/wn-form/demo-wn-combo-input.json"
 }
 #---------------------------------------------------------
-@FILE demo/wn-combo-multi-input.comt
+@FILE demo/wn-form/wn-combo-multi-input.comt
 {
   title : "动态组合【多】选框",
-  com: "/rs/ti/test/components/demo-wn-combo-multi-input.json"
+  com: "/rs/ti/test/components/wn-form/demo-wn-combo-multi-input.json"
 }
 #---------------------------------------------------------
-@FILE demo/wn-transfer-0.comt
+@FILE demo/wn-form/wn-transfer-0.comt
 {
   title : "动态穿梭框",
-  com: "/rs/ti/test/components/demo-wn-transfer-0.json"
+  com: "/rs/ti/test/components/wn-form/demo-wn-transfer-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/wn-upload-0.comt
+@FILE demo/wn-form/wn-upload-0.comt
 {
   title : "文件上传",
-  com: "/rs/ti/test/components/demo-wn-upload-0.json"
+  com: "/rs/ti/test/components/wn-form/demo-wn-upload-0.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-app-modal.comt
+@FILE demo/ti-others/ti-calendar-month.comt
+{
+  title : "日历",
+  com: "/rs/ti/test/components/ti-others/demo-ti-calendar-month.json"
+}
+#---------------------------------------------------------
+@FILE demo/ti-others/ti-app-modal.comt
 {
   title : "弹出层测试",
-  com: "/rs/ti/test/components/demo-ti-app-modal.json"
+  com: "/rs/ti/test/components/ti-others/demo-ti-app-modal.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-markdown-preview.comt
+@FILE demo/ti-others/ti-markdown-preview.comt
 {
   title : "Markdown解析预览",
-  ln : "/rs/ti/test/components/demo-ti-markdown-preview.md", 
-  com: "/rs/ti/test/components/demo-ti-markdown-preview.json"
+  ln : "/rs/ti/test/components/ti-others/demo-ti-markdown-preview.md", 
+  com: "/rs/ti/test/components/ti-others/demo-ti-markdown-preview.json"
 }
 #---------------------------------------------------------
-@FILE demo/ti-markdown-richeditor.comt
+@FILE demo/ti-others/ti-markdown-richeditor.comt
 {
   title : "Markdown富文本编辑",
-  com: "/rs/ti/test/components/demo-ti-markdown-richeditor.json"
-}
-#---------------------------------------------------------
-@FILE demo/hmaker-edit-com.comt
-{
-  title : "hMaker控件编辑",
-  com: "/rs/ti/test/components/demo-hmaker-edit-com.json"
+  com: "/rs/ti/test/components/ti-others/demo-ti-markdown-richeditor.json"
 }
 #---------------------------------------------------------
 @FILE demo/lbs/map-point-google.comt
@@ -543,6 +543,12 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
   com: "/rs/ti/test/components/lbs/demo-ti-lbs-route-path-google.json"
 }
 %COPY> lbs/demo-ti-lbs-map-path.data.json
+#---------------------------------------------------------
+@FILE demo/hmaker/hmaker-edit-com.comt
+{
+  title : "hMaker控件编辑",
+  com: "/rs/ti/test/components/hmaker/demo-hmaker-edit-com.json"
+}
 ##########################################################
 #
 #                     站点·数据部分

@@ -115,10 +115,10 @@ export default {
       }
 
       // Eval Filter
-      console.log("hahha")
+      //console.log("hahha")
       let filter;
       if(this.filterBy) {
-        filter = Ti.Validate.compile(this.filterBy)
+        filter = Ti.AutoMatch.parse(this.filterBy)
       }
 
       let objs = await Wn.OpenObjSelector(meta, {

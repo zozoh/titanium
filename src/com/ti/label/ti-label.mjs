@@ -18,6 +18,10 @@ const _M = {
     "fullField": {
       type : Boolean,
       default : true
+    },
+    "multiValSep" : {
+      type : String,
+      default: ", "
     }
   },
   //////////////////////////////////////////
@@ -138,14 +142,29 @@ const _M = {
     async evalDisplay(val) {
       // By Dict Item
       if(this.Dict) {
-        let it = await this.Dict.getItem(val)
-        if(it) {
-          if(this.autoLoadDictIcon) {
-            this.myDisplayIcon = this.Dict.getIcon(it)
+        // console.log(val)
+        // Array value
+        if(_.isArray(val)) {
+          this.myDisplayIcon = undefined
+          let ss = []
+          for(let v of val) {
+            let it = await this.Dict.getItem(v)
+            let s = this.Dict.getBy(this.myDictValKey, it, v)
+            ss.push(s)
           }
-          val = this.Dict.getBy(this.myDictValKey, it, val)
-        } else {
-          this.myDisplayIcon = null
+          val = ss.join(this.multiValSep)
+        }
+        // Single value
+        else {
+          let it = await this.Dict.getItem(val)
+          if(it) {
+            if(this.autoLoadDictIcon) {
+              this.myDisplayIcon = this.Dict.getIcon(it)
+            }
+            val = this.Dict.getBy(this.myDictValKey, it, val)
+          } else {
+            this.myDisplayIcon = null
+          }
         }
       }
       // Number
@@ -156,7 +175,14 @@ const _M = {
         return val
       }
       // Collection
-      if(_.isArray(val) || _.isPlainObject(val)) {
+      if(_.isArray(val)) {
+        if(val.length > 1 && (_.isPlainObject(val[0]) || _.isArray(val[0]))) {
+          return JSON.stringify(val)  
+        }
+        return val.join(this.multiValSep)
+      }
+      // Object
+      if(_.isPlainObject(val)) {
         return JSON.stringify(val, null, '  ')
       }
       // Normal value

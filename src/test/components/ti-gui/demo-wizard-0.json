@@ -1,7 +1,7 @@
 {
   "comType" : "ti-wizard",
   "comConf" : {
-    "current" : 1,
+    "current" : 0,
     "value" : "=data",
     "steps" : [{
         "title": "基本信息",
@@ -32,10 +32,10 @@
         "prev" : false,
         "next" : {
           "enabled" : {
-            "age"   : "inRange(40,50)",
-            "name"  : "!isBlank",
-            "great" : "isTrue",
-            "location"  : "notBlank"
+            "age"   : "[40, 50]",
+            "!name"  : "[BLANK]",
+            "great" : true,
+            "!location"  : "[BLANK]"
           }
         }
       }, {
@@ -56,8 +56,8 @@
         "prev" : true,
         "next" : {
           "enabled" : {
-            "phone" : "!isBlank",
-            "email" : "!isBlank"
+            "!phone" : "[BLANK]",
+            "!email" : "[BLANK]"
           }
         }
       }, {
@@ -76,7 +76,7 @@
           "icon" : "far-check-circle",
           "text" : "完成",
           "enabled" : {
-            "lbls" : "!isEmpty"
+            "!lbls" : ""
           }
         }
       }]

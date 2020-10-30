@@ -87,8 +87,16 @@
     a:hover {text-decoration: underline;}
   }
   //-----------------------------------------
+  &.as-tip {
+    font-size: 0.9em; opacity: 0.7;
+  }
+  //-----------------------------------------
   &.align-left   > .as-value {justify-content: flex-start;}
   &.align-center > .as-value {justify-content: center;}
   &.align-right  > .as-value {justify-content: flex-end;}
+  //-----------------------------------------
+  &.flex-auto {
+    flex: 1 1 auto;
+  }
   //-----------------------------------------
 }

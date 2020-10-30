@@ -1,0 +1,35 @@
+{
+  "comType" : "ti-combo-table",
+  "comConf" : {
+    "value" : "=data",
+    "list"  : {
+      "fields" : [{
+        "title" : "标题",
+        "display" : "title"
+      }, {
+        "title" : "开启",
+        "display" : "enabled"
+      }, {
+        "title" : "权重",
+        "display" : "weight"
+      }]
+    },
+    "form" : {
+      "fields" : [{
+          "title" : "标题",
+          "name"  : "title",
+          "comType" : "ti-input"
+        }, {
+          "title" : "开启",
+          "name"  : "enabled",
+          "type"  : "Boolean",
+          "comType" : "ti-toggle"
+        }, {
+          "title" : "权重",
+          "name"  : "weight",
+          "type"  : "Integer",
+          "comType" : "ti-input-num"
+        }]
+    }
+  }
+}

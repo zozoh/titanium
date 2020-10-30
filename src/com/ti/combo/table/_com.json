@@ -1,0 +1,11 @@
+{
+  "name" : "ti-combo-table",
+  "globally" : true,
+  "template" : "./ti-combo-table.html",
+  "props"    : "./ti-combo-table-props.mjs",
+  "mixins"   : "./ti-combo-table.mjs",
+  "components" : [
+    "@com:ti/actionbar",
+    "@com:ti/table",
+    "@com:ti/form"]
+}

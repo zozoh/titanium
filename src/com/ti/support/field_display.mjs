@@ -181,7 +181,7 @@ const FieldDisplay = {
         }
         //......................................
         // #DictName(xxx) -> ti-label
-        // just like `#RelayStatus(status)`
+        // just like `#RelayStatus(status):xxx:is-nowrap`
         m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:([^:]*)(:([^:]+))?)?$/.exec(displayItem)
         if(m) {
           return {

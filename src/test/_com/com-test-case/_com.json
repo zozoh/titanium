@@ -16,6 +16,7 @@
     "@com:ti/text/json",
     "@com:ti/text/markdown/preview",
     "@com:ti/text/markdown/richeditor",
+    "@com:ti/combo/table",
     "@com:wn/transfer",
     "@com:wn/droplist",
     "@com:ti/lbs/route",

@@ -44,6 +44,11 @@ function AutoStrMatch(input) {
   if (Ti.S.isBlank(input) || "[BLANK]" == input) {
     return BlankMatch();
   }
+  // Range
+  let m = /^([(\[])([^\]]+)([)\]])$/.exec(input)
+  if(m) {
+    return NumberRangeMatch(m)
+  }
   // Regex
   if(/^!?\^/.test(input)) {
     return RegexMatch(input)
@@ -74,7 +79,44 @@ function NumberMatch(n) {
 }
 function EmptyMatch() {
   return function(val){
-    return Ti.Util.isNil(val) || "" === val
+    return _.isEmpty(val)
+  }
+}
+function NumberRangeMatch(input) {
+  let m = input
+  if(_.isString(input)) {
+    m = /^([(\[])([^\]]+)([)\]])$/.exec(input)
+  }
+  if(!m) {
+    return function(){return false}
+  }
+  let vals = JSON.parse('['+m[2]+']')
+  let left = {
+    val  : _.first(vals),
+    open : '(' == m[1]
+  }
+  let right = {
+    val  : _.last(vals),
+    open : ')' == m[3]
+  }
+  return function(val) {
+    let n = val * 1
+    if(isNaN(n))
+      return false
+    
+    if(left.open && n <= left.val)
+      return false
+    
+    if(n < left.val)
+      return false
+
+    if(right.open && n >= right.val)
+      return false
+
+    if(n > right.val)
+      return false
+
+    return true
   }
 }
 function MapMatch(map) {

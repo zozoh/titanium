@@ -198,7 +198,7 @@ const _M = {
           return Ti.Validate.match(this.status, mat.validate)
         }
         // Match  | `{saving:true}`
-        return _.isMatch(this.status, mat)
+        return Ti.AutoMatch.test(mat, this.status)
       }
       return false
     }
