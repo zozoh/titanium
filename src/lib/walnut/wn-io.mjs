@@ -161,7 +161,7 @@ const WnIo = {
   async findInBy(value, parent, {
     skip=0, limit=100, sort={}, mine=true, match={},
     keys = {
-      "^[0-9a-v]{26}$" : ["id", "${val}"]
+      "^[0-9a-v]{26}(:.+)$" : ["id", "${val}"]
     },
     dftKey = ["nm", "^.*${val}.*$"]
   }={}) {
@@ -179,7 +179,11 @@ const WnIo = {
       match[k] = v
     }
     // Eval Parent
-    if(parent) {
+    if(parent && parent.id && parent.ph) {
+      match.pid = parent.id
+    }
+    // Parent patn => get back id
+    else if(_.isString(parent)) {
       let oP = await WnIo.loadMeta(parent)
       match.pid = oP.id
     }

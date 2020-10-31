@@ -1,0 +1,10 @@
+{
+  "name" : "wn-fileset-list",
+  "globally" : true,
+  "template" : "./wn-fileset-list.html",
+  "mixins"   : [
+    "@com:wn/support/wn-fileset-mixins.mjs",
+    "./wn-fileset-list.mjs"],
+  "components" : [],
+  "deps" : []
+}

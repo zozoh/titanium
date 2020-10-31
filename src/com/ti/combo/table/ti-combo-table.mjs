@@ -1,10 +1,6 @@
 const _M = {
   ////////////////////////////////////////////////////
   data : ()=>({   
-    myCurrentData : undefined,
-    myCurrentId : undefined,
-    myCurrentIndex : -1,
-    myCheckedIds : {}
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -66,7 +62,9 @@ const _M = {
       config.data = this.value
       _.defaults(config, {
         blankAs    : this.blankAs,
-        blankClass : this.blankClass
+        blankClass : this.blankClass,
+        multi : true,
+        checkable : true
       })
       return config
     }
@@ -75,11 +73,15 @@ const _M = {
   ////////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
+    OnInitTable($table) {
+      this.$table = $table
+    },
+    //-----------------------------------------------
     OnTableRowSelect({currentId, current, currentIndex, checkedIds}) {
-      this.myCurrentData = current
-      this.myCurrentId = currentId
-      this.myCurrentIndex = currentIndex
-      this.myCheckedIds = checkedIds
+      // this.myCurrentData = current
+      // this.myCurrentId = currentId
+      // this.myCurrentIndex = currentIndex
+      // this.myCheckedIds = checkedIds
     },
     //-----------------------------------------------
     async OnTableRowOpen({index, rawData}) {
@@ -108,11 +110,12 @@ const _M = {
     },
     //-----------------------------------------------
     async doEditCurrent() {
-      if(!this.myCurrentData) {
+      let row = this.$table.getCurrentRow()
+      if(!row) {
         return await Ti.Toast.Open("i18n:nil-item", "warn")
       }
-
-      let reo = await this.openDialog(this.myCurrentData);
+      let {rawData, index} = row
+      let reo = await this.openDialog(rawData);
 
       // User cancel
       if(_.isUndefined(reo))
@@ -120,20 +123,34 @@ const _M = {
 
       // Join to 
       let list = _.cloneDeep(this.value||[])
-      list.splice(this.myCurrentIndex, 1, reo)
+      list.splice(index, 1, reo)
       this.notifyChange(list)
     },
     //-----------------------------------------------
     removeChecked() {
+      let {checked, remains} = this.$table.removeChecked()
+      if(_.isEmpty(checked))
+        return
 
+      this.notifyChange(remains)
     },
     //-----------------------------------------------
     moveCheckedUp() {
+      let {list, nextCheckedIds} = this.$table.moveChecked(-1)
 
+      this.notifyChange(list)
+      this.$nextTick(()=>{
+        this.$table.checkRow(nextCheckedIds)
+      })
     },
     //-----------------------------------------------
     moveCheckedDown() {
-      
+      let {list, nextCheckedIds} = this.$table.moveChecked(1)
+
+      this.notifyChange(list)
+      this.$nextTick(()=>{
+        this.$table.checkRow(nextCheckedIds)
+      })
     },
     //-----------------------------------------------
     async openDialog(result={}) {

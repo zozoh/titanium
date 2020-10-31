@@ -1,0 +1,10 @@
+{
+  "name" : "wn-fileset-tabs",
+  "globally" : true,
+  "template" : "./wn-fileset-tabs.html",
+  "mixins"   : [
+    "@com:wn/support/wn-fileset-mixins.mjs",
+    "./wn-fileset-tabs.mjs"],
+  "components" : [],
+  "deps" : []
+}

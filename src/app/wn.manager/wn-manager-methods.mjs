@@ -67,6 +67,9 @@ const _M = {
       this.myMessage = null
       this.myIndicator = null
       this.OnUpdateActions(view.actions)
+      this.$nextTick(()=>{
+        this.myViewReady = true
+      })
     }
     // Clean
     finally {

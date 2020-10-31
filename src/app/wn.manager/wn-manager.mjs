@@ -27,7 +27,9 @@ const _M = {
     view : null,
     // Message and Indicator
     myMessage   : null,
-    myIndicator : null
+    myIndicator : null,
+    // View ready
+    myViewReady : false
   }),
   ///////////////////////////////////////////
   computed : {
@@ -42,6 +44,7 @@ const _M = {
     // Status
     //---------------------------------------
     isLoading() {return this.loading || this.isReloading},
+    isViewReady() {return this.myViewReady},
     //---------------------------------------
     isChanged() {
       let modMain = this.$store.state.main
@@ -207,6 +210,9 @@ const _M = {
       if(!bombed) {
         return
       }
+      // Mark view ready
+      this.myViewReady = false
+
       // Open It
       let ph = Wn.Io.isFullObjId(oid)
                 ? `id:${oid}`

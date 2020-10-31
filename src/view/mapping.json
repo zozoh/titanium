@@ -1,6 +1,7 @@
 {
   "paths" : {
-    "~/.domain/history/": "view-history"
+    "~/.domain/history/": "view-history",
+    "~/.mail/": "fileset-config-email"
   },
   "types" : {
     "thing_set"   : "thing-manager",

@@ -169,6 +169,9 @@ const _M = {
     if(_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
+    else if(meta && meta.id) {
+      meta = await Wn.Io.loadMetaById(meta.id)
+    }
     //......................................
     // Guard
     if(!meta) {

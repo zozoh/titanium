@@ -12,6 +12,7 @@
   -->
   <TiTable
     v-bind="TableConfig"
+    :on-init="OnInitTable"
     @select="OnTableRowSelect"
     @open="OnTableRowOpen"/>
 </div>
