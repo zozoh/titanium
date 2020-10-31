@@ -2,6 +2,10 @@
   :class="TopClass">
   <!--current actived row indicator-->
   <div class="row-actived-indicator"></div>
+  <!--Changed Item-->
+  <div 
+    v-if="isChanged"
+      class="row-changed-indicator"></div>
   <!-- Indents -->
   <div v-for="n in indent"
   class="row-indent"></div>

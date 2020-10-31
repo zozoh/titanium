@@ -183,6 +183,7 @@
   "refresh": "刷新",
   "refresh-hard": "硬性刷新",
   "refresh-hard-clear": "清空缓存并硬性刷新",
+  "reload": "重新加载",
   "reloading": "重新加载数据...",
   "remove": "移除",
   "removing": "正在移除...",

@@ -85,6 +85,10 @@ export default {
     type : Boolean,
     default : false
   },
+  "onBeforeChangeSelect": {
+    type : Function,
+    default: undefined
+  },
   "onSelect": {
     type : Function,
     default: undefined

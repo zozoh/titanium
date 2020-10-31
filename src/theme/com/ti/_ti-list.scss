@@ -33,6 +33,7 @@
   //------------------------------------------
   > .list-row {
     @include flex-align-nowrap($ai:stretch);
+    position: relative;
     //-----------------------------------------
     > .row-actived-indicator {
       @include flex-center;
@@ -42,6 +43,20 @@
         height:SZ(12); width:1px;
         border-left :1px dotted map-get($color-primary, r);
         border-right:1px dotted map-get($color-primary, r);
+      }
+    }
+    //-----------------------------------------
+    > .row-changed-indicator {
+      @include pos-abs($r:0,$t:0,$b:0);
+      @include flex-center;
+      padding: .04rem .08rem;
+      &:before {
+        display:block; content: "";
+        width: .04rem; height: .04rem;
+        border-radius: 50%;
+        background: map-get($color-error, c);
+        border: 1px solid map-get($color-error, r);
+        box-shadow: .02rem .02rem .06rem map-get($color-shadow, thin);
       }
     }
     //-----------------------------------------

@@ -183,6 +183,7 @@
   "refresh": "Refresh",
   "refresh-hard": "Hard refresh",
   "refresh-hard-clear": "Clean cache & hard refresh",
+  "reload": "Reload",
   "reloading": "Reloading ...",
   "remove": "Remove",
   "removing": "Removing ...",

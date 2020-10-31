@@ -18,6 +18,7 @@
       spellcheck="false"
       :placeholder="placeholder | i18n"
       :value="myContent"
+      :readonly="isReadonly"
       @compositionstart="OnInputCompositionStart"
       @compositionend="OnInputCompositionEnd"
       @input="OnInputing"

@@ -230,8 +230,50 @@ const WnIo = {
   /***
    * Save obj content
    */
+  async update(meta, fields={}) {
+    // Guard
+    if(!meta || _.isEmpty(fields)) {
+      return
+    }
+    // Load meta 
+    if(_.isString(meta)) {
+      meta = await WnIo.loadMetaBy(meta)
+    }
+    if(!_.isPlainObject(meta)) {
+      throw Ti.Err.make('e-wn-io-invalidUpdateTarget', meta)
+    }
+    // do send
+    let url = URL("/update")
+    let reo = await Ti.Http.post(url, {
+      params : {
+        str : "id:"+meta.id
+      },
+      body : JSON.stringify(fields),
+      as:"json"
+    })
+
+    if(!reo.ok) {
+      throw Ti.Err.make(reo.errCode, reo.data, reo.msg)
+    }
+
+    return reo.data
+  },
+  /***
+   * Save obj content
+   */
   async saveContentAsText(meta, content) {
-    if(!meta || 'DIR' == meta.race) {
+    // Guard
+    if(!meta) {
+      return
+    }
+    // Load meta 
+    if(_.isString(meta)) {
+      meta = await WnIo.loadMetaBy(meta)
+    }
+    if(!_.isPlainObject(meta)) {
+      throw Ti.Err.make('e-wn-io-invalidTarget', meta)
+    }
+    if('DIR' == meta.race) {
       throw Ti.Err.make('e-wn-io-writeNoFile', meta.ph || meta.nm)
     }
     // Prepare params

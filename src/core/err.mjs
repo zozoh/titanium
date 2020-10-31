@@ -14,7 +14,7 @@ const TiError = {
       }
     }
     let errObj = new Error(errMsg.trim());
-    return _.assign(errObj, er)
+    return _.assign(errObj, er, {errMsg})
   }
 }
 //-----------------------------------

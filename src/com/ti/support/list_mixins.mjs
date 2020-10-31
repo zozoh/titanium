@@ -309,7 +309,17 @@ const LIST_MIXINS = {
       }
     },
     //-----------------------------------------------
-    selectRow(rowId, {quiet=false, payload}={}) {
+    async canSelectRow(payload) {
+      if(_.isFunction(this.onBeforeChangeSelect)) {
+        let canSelect = await this.onBeforeChangeSelect(payload)
+        if(false === canSelect) {
+          return false
+        }
+      }
+      return true
+    },
+    //-----------------------------------------------
+    async selectRow(rowId, {quiet=false, payload}={}) {
       let idMap = {}
       let curId = null
       
@@ -325,6 +335,11 @@ const LIST_MIXINS = {
       }
 
       let emitContext = this.getEmitContext(curId, idMap)
+
+      if(!(await this.canSelectRow(emitContext))) {
+        return;
+      }
+
       // Private Mode
       if(!this.puppetMode) {
         this.myCheckedIds = idMap
@@ -438,7 +453,7 @@ const LIST_MIXINS = {
       this.doNotifySelect(emitContext)
     },
     //-----------------------------------------------
-    cancelRow(rowId) {
+    async cancelRow(rowId) {
       let idMap = _.cloneDeep(this.theCheckedIds)
       let curId  = this.theCurrentId
       let index = -1
@@ -457,6 +472,11 @@ const LIST_MIXINS = {
       }
       // Eval context
       let emitContext = this.getEmitContext(curId, idMap)
+
+      if(!(await this.canSelectRow(emitContext))) {
+        return;
+      }
+
       // Private Mode
       if(!this.puppetMode) {
         this.myCheckedIds = idMap

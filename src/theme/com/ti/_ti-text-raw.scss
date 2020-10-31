@@ -21,14 +21,23 @@
   > .as-main {
     @include flex-full;
     padding:0;
+    //-------------------------------------------
     textarea {
+      //-----------------------------------------
       @include flex-full;
       @include text-input;
       border:1px dotted transparent;
       resize:none; outline:none;
       padding:SZ(10);
       font-size:SZ(16); line-height:SZ(20);
+      //-----------------------------------------
+      &[readonly] {
+        border-color:transparent;
+        cursor: default;
+      }
+      //-----------------------------------------
     }
+    //-------------------------------------------
   }
   //---------------------------------------------
 }

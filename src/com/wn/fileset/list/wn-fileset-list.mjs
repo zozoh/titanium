@@ -1,12 +1,15 @@
-import WnIo from "../../../../lib/walnut/wn-io.mjs"
-
 export default {
   ////////////////////////////////////////////////////
   data: ()=>({
-    myLoading : undefined,
+    updating : false,
+    saving : false,
+    reloading : undefined,
     listData : [],
+    currentIndex : undefined,
     currentMeta : undefined,
-    currentContent : undefined
+    currentContent : undefined,
+    loadedCurrentContent : undefined,
+    metaFieldStatus : {}
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -46,7 +49,7 @@ export default {
     },
     "metaTitle" : {
       type : String,
-      default : "i18n:meta"
+      default : "i18n:properties"
     },
     "metaType" : {
       type : String,
@@ -80,6 +83,24 @@ export default {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
+    isCurrentContentChanged() {
+      if(this.currentMeta) {
+        return this.currentContent != this.loadedCurrentContent
+      }
+    },
+    //------------------------------------------------
+    hasCurrent() {
+      return this.currentMeta ? true : false
+    },
+    //------------------------------------------------
+    isGUILoading() {
+      return this.updating || this.reloading || this.saving
+    },
+    //------------------------------------------------
+    CurrentId() {
+      return _.get(this.currentMeta, "id")
+    },
+    //------------------------------------------------
     GUILayout() {
       let listBlock = {
         title : this.listTitle,
@@ -100,7 +121,32 @@ export default {
         icon  : this.detailIcon,
         size  : this.detailSize,
         name  : "detail",
-        body  : "detail"
+        body  : "detail",
+        actions : [{
+            name : "saving",
+            text : "i18n:save",
+            icon : "zmdi-floppy",
+            altDisplay : {
+              "icon" : "fas-spinner fa-pulse",
+              "text" : "i18n:saving"
+            },
+            enabled : "changed",
+            action : ()=> {
+              this.doSaveCurrentContent()
+            }
+          }, {
+            name : "reloading", 
+            text : "i18n:reload",
+            icon : "fas-sync",
+            altDisplay : {
+              "icon" : "fas-sync fa-pulse",
+              "text" : "i18n:reloading"
+            },
+            enabled : "current",
+            action : ()=> {
+              this.doReloadCurrentContent()
+            }
+          }]
       }
       if(this.metaType && this.detailType) {
         return {
@@ -130,6 +176,14 @@ export default {
     GUISchema() {
       //..............................................
       let listConf = _.defaults({}, this.listConf, {
+        onBeforeChangeSelect : async ()=>{
+          if(!(await Ti.Fuse.get().fire())) {
+            return false
+          }
+        },
+        changedId : this.isCurrentContentChanged
+          ? this.CurrentId
+          : undefined,
         display : ["<icon:far-file>", "title|nm"],
         data : "=listData"
       })
@@ -141,6 +195,7 @@ export default {
           text : "i18n:blank-to-edit"
         },
         data : "=currentMeta",
+        fieldStatus : "=metaFieldStatus",
         fields : [{
           title: "i18n:wn-key-title",
           name : "title",
@@ -170,25 +225,104 @@ export default {
           comConf : Ti.Util.explainObj(this, detailConf)
         }
       }
+    },
+    //------------------------------------------------
+    DetailActionStatus() {
+      return {
+        saving : this.saving,
+        reloading : this.reloading,
+        changed : this.isCurrentContentChanged,
+        current : this.hasCurrent
+      }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    async OnListSelect({current}) {
-      this.currentMeta = current
-      this.myLoading = true
-      this.currentContent = await Wn.Io.loadContent(current, {as:"text"})
-      this.myLoading = false
+    async OnListSelect({current, currentIndex}) {
+      if(!current) {
+        this.currentIndex = undefined
+        this.currentMeta = undefined
+        this.currentContent = undefined
+      } else {
+        this.currentIndex = currentIndex
+        this.currentMeta = current
+        await this.doReloadCurrentContent()
+        this.metaFieldStatus = {}
+      }
     },
     //------------------------------------------------
     OnListOpen() {
-      // need to do nothing
+      // DO nothing
     },
     //------------------------------------------------
-    OnDetailChange() {
-      
+    OnMetaChange(payload) {
+      // DO nothing
+    },
+    //------------------------------------------------
+    async OnMetaFieldChange({name, value}) {
+      if(this.hasCurrent) {
+        this.updating = true
+        this.metaFieldStatus = {
+          [name] : {type : "spinning"}
+        }
+        try {
+          let reo = await Wn.Io.update(this.currentMeta, {
+            [name]: value
+          })
+          this.currentMeta = reo
+          this.listData.splice(this.currentIndex, 1, reo)
+
+          this.$nextTick(()=>{
+            this.metaFieldStatus = {
+              [name] : {type : "ok"}
+            }
+            _.delay(()=>{
+              this.metaFieldStatus = {}
+            }, 800)
+          })
+        }
+        // Error
+        catch(err) {
+          this.metaFieldStatus = {
+            [name] : {
+              type : "error",
+              text : err.errMsg
+            }
+          }
+        }
+        // unmark
+        finally {
+          this.updating = false
+        }
+      }
+    },
+    //------------------------------------------------
+    OnDetailChange(content) {
+      this.currentContent = content
+    },
+    //------------------------------------------------
+    async doSaveCurrentContent() {
+      if(this.hasCurrent && this.isCurrentContentChanged) {
+        this.saving = true
+        await Wn.Io.saveContentAsText(this.currentMeta, this.currentContent)
+        this.loadedCurrentContent = this.currentContent
+        this.$nextTick(()=>{
+          this.saving = false
+        })
+      }
+    },
+    //------------------------------------------------
+    async doReloadCurrentContent() {
+      if(this.hasCurrent) {
+        this.reloading = true
+        this.currentContent = await Wn.Io.loadContent(this.currentMeta, {as:"text"})
+        this.loadedCurrentContent = this.currentContent
+        this.$nextTick(()=>{
+          this.reloading = false
+        })
+      }
     },
     //------------------------------------------------
     async reload() {
@@ -196,6 +330,24 @@ export default {
       this.listData = await this.reloadChildren()
     }
     //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  mounted : function(){
+    //------------------------------------------------
+    Ti.Fuse.getOrCreate().add({
+      key : "wn-fileset-list",
+      everythingOk : ()=>{
+        return !this.isCurrentContentChanged
+      },
+      fail : ()=>{
+        Ti.Toast.Open("i18n:wn-obj-nosaved", "warn")
+      }
+    })
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Fuse.get().remove("wn-fileset-list")
   }
   ////////////////////////////////////////////////////
 }

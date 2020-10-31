@@ -4,7 +4,10 @@
   :layout="GUILayout"
   :schema="GUISchema"
   :can-loading="true"
-  :loading-as="myLoading"
+  :loading-as="isGUILoading"
+  :action-status="DetailActionStatus"
   @list::select="OnListSelect"
   @list::open="OnListOpen"
+  @meta::change="OnMetaChange"
+  @meta::field:change="OnMetaFieldChange"
   @detail::change="OnDetailChange"/>

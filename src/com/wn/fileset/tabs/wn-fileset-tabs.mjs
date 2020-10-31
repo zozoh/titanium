@@ -24,7 +24,6 @@ export default {
         blocks : []
       }
       _.forEach(this.myList, o => {
-        console.log(o, this.dataReady)
         let comConf = Ti.Util.explainObj({
           dataReady : this.dataReady,
           home : this.meta,

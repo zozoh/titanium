@@ -20,7 +20,7 @@ const _M = {
     },
     "value" : {
       type : String,
-      default : ""
+      default : undefined
     }, 
     "placeholder" : {
       type : String,
@@ -29,6 +29,14 @@ const _M = {
     "status": {
       type : Object,
       default: ()=>({})
+    },
+    "readonly" : {
+      type : Boolean,
+      default : false
+    },
+    "readonlyWhenNil" : {
+      type : Boolean,
+      default : true
     }
   },
   ///////////////////////////////////////////////////
@@ -48,6 +56,16 @@ const _M = {
     //-----------------------------------------------
     hasContent() {
       return !Ti.Util.isNil(this.value)
+    },
+    //-----------------------------------------------
+    isReadonly() {
+      if(this.readonly) {
+        return true
+      }
+      if(this.readonlyWhenNil && Ti.Util.isNil(this.value)) {
+        return true
+      }
+      return false
     }
     //-----------------------------------------------
   },
