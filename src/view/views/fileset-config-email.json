@@ -7,15 +7,17 @@
     "viewReady" : "=isViewReady",
     "mainConf" : {
       "viewReady" : ":=dataReady",
-      "metaSize" : 200,
+      "metaSize" :  180,
       "metaConf" : {
+        "spacing" : "tiny",
         "fields" : [{
-          "title": "场景名",
+          "title": "i18n:mail-scene-nm",
           "name" : "nm",
-          "tip" : "请用半角英文数字或者下划线组合，并保证唯一",
+          "tip" : "i18n:mail-scene-nm-tip",
+          "width" : "full",
           "comType" : "ti-input"
         }, {
-          "title": "邮件标题",
+          "title": "i18n:mail-subject",
           "name" : "subject",
           "comType" : "ti-input"
         }]

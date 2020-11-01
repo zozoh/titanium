@@ -1,4 +1,7 @@
 {
+  "wn-fsc-mail-tmpl-new" : "Enter new unique name (such as 'signup')",
+  "wn-fsc-mail-scene-new" : "New a email scenario",
+
   "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
   "wn-admin-tools": "Admin tools",
   "wn-ctt-css-text": "CSS File",
