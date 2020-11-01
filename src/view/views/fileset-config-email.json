@@ -1,4 +1,7 @@
 {
+  "components" : [
+    "@com:ti/text/raw"
+  ],
   "comIcon" : "fas-envelope-open-text",
   "comType" : "@com:wn/fileset/config",
   "comConf" : {

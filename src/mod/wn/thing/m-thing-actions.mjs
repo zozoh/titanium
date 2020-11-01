@@ -210,7 +210,7 @@ const _M = {
 
     // Get the removeIds
     let removeIds = _.filter(ids, id => !failIds[id])
-    console.log("removeIds:", removeIds)
+    //console.log("removeIds:", removeIds)
 
     // Remove it from search list
     if(!_.isEmpty(removeIds)) {

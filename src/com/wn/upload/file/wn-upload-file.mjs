@@ -9,7 +9,7 @@ const _M = {
   /////////////////////////////////////////
   props : {
     "value" : {
-      type : String,
+      type : [String, Object],
       default : null
     },
     // raw value is WnObj
@@ -171,8 +171,7 @@ const _M = {
     },
     //--------------------------------------
     async onUpload(file) {
-      //console.log("it will upload ", file)
-
+      // console.log("it will upload ", file)
       //................................
       // Check for support Types
       let type = Ti.Util.getSuffixName(file.name)
@@ -256,7 +255,7 @@ const _M = {
         this.oFile = await Wn.Io.loadMetaBy(this.value)
       }
       // Object
-      else if(_.get(this.value, "race") == "FILE") {
+      else if(this.value && this.value.id && this.value.mime) {
         this.oFile = _.cloneDeep(this.value)
       }
       // Reset

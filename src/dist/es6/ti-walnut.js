@@ -1,4 +1,4 @@
-// Pack At: 2020-10-27 20:55:44
+// Pack At: 2020-11-01 22:45:45
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -165,7 +165,7 @@ const Io = (function(){
     async findInBy(value, parent, {
       skip=0, limit=100, sort={}, mine=true, match={},
       keys = {
-        "^[0-9a-v]{26}$" : ["id", "${val}"]
+        "^[0-9a-v]{26}(:.+)$" : ["id", "${val}"]
       },
       dftKey = ["nm", "^.*${val}.*$"]
     }={}) {
@@ -183,7 +183,11 @@ const Io = (function(){
         match[k] = v
       }
       // Eval Parent
-      if(parent) {
+      if(parent && parent.id && parent.ph) {
+        match.pid = parent.id
+      }
+      // Parent patn => get back id
+      else if(_.isString(parent)) {
         let oP = await WnIo.loadMeta(parent)
         match.pid = oP.id
       }
@@ -230,8 +234,50 @@ const Io = (function(){
     /***
      * Save obj content
      */
+    async update(meta, fields={}) {
+      // Guard
+      if(!meta || _.isEmpty(fields)) {
+        return
+      }
+      // Load meta 
+      if(_.isString(meta)) {
+        meta = await WnIo.loadMetaBy(meta)
+      }
+      if(!_.isPlainObject(meta)) {
+        throw Ti.Err.make('e-wn-io-invalidUpdateTarget', meta)
+      }
+      // do send
+      let url = URL("/update")
+      let reo = await Ti.Http.post(url, {
+        params : {
+          str : "id:"+meta.id
+        },
+        body : JSON.stringify(fields),
+        as:"json"
+      })
+  
+      if(!reo.ok) {
+        throw Ti.Err.make(reo.errCode, reo.data, reo.msg)
+      }
+  
+      return reo.data
+    },
+    /***
+     * Save obj content
+     */
     async saveContentAsText(meta, content) {
-      if(!meta || 'DIR' == meta.race) {
+      // Guard
+      if(!meta) {
+        return
+      }
+      // Load meta 
+      if(_.isString(meta)) {
+        meta = await WnIo.loadMetaBy(meta)
+      }
+      if(!_.isPlainObject(meta)) {
+        throw Ti.Err.make('e-wn-io-invalidTarget', meta)
+      }
+      if('DIR' == meta.race) {
         throw Ti.Err.make('e-wn-io-writeNoFile', meta.ph || meta.nm)
       }
       // Prepare params
@@ -1865,7 +1911,7 @@ const EditObjMeta = (function(){
     // if emtpy, apply the default
     // “auto" will load by `ti editmeta`, it will override the currentTab
     fields     = [],
-    fixedKeys  = ["thumb"],
+    fixedKeys  = ["thumb", "title"],
     saveKeys   = ["thumb"],  // If the key changed, `cancel` same as `OK`
     autoSave   = true
   }={}){
@@ -2158,7 +2204,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20201027.205544"
+const WALNUT_VERSION = "2.1-20201101.224545"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

@@ -1,4 +1,4 @@
-// Pack At: 2020-10-27 20:55:44
+// Pack At: 2020-11-01 22:45:45
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -4292,7 +4292,7 @@ const _M = {
           return Ti.Validate.match(this.status, mat.validate)
         }
         // Match  | `{saving:true}`
-        return _.isMatch(this.status, mat)
+        return Ti.AutoMatch.test(mat, this.status)
       }
       return false
     }
@@ -9284,6 +9284,289 @@ Ti.Preload("ti/com/ti/combo/sorter/_com.json", {
   "components" : ["@com:ti/combo/box"]
 });
 //============================================================
+// JOIN: ti/combo/table/ti-combo-table-props.mjs
+//============================================================
+(function(){
+const _M = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "value" : {
+    type : [Array],
+    default : ()=>[]
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "form" : {
+    type : Object,
+    default : ()=>({})
+  },
+  "list" : {
+    type : Object,
+    default : ()=>({})
+  },
+  "dialog" : {
+    type : Object,
+    default : ()=>({
+      title  : "i18n:edit",
+      width  : 500,
+      height : 500
+    })
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "blankAs" : {
+    type : Object,
+    default : ()=>({
+      icon : "fas-disease",
+      text : "empty-data"
+    })
+  },
+  "blankClass" : {
+    type : String,
+    default : "as-mid-tip"
+  },
+  "actionAlign" : {
+    type : String,
+    default : undefined
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+  "width" : {
+    type : [Number, String],
+    default : undefined
+  },
+  "height" : {
+    type : [Number, String],
+    default : undefined
+  }
+}
+Ti.Preload("ti/com/ti/combo/table/ti-combo-table-props.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/combo/table/ti-combo-table.html
+//============================================================
+Ti.Preload("ti/com/ti/combo/table/ti-combo-table.html", `<div class="ti-combo-table"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Actions
+  -->
+  <TiActionbar
+    :items="ActionItems"
+    :align="actionAlign"/>
+  <!--
+    Table
+  -->
+  <TiTable
+    v-bind="TableConfig"
+    :on-init="OnInitTable"
+    @select="OnTableRowSelect"
+    @open="OnTableRowOpen"/>
+</div>`);
+//============================================================
+// JOIN: ti/combo/table/ti-combo-table.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data : ()=>({   
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //------------------------------------------------
+    ActionItems() {
+      return [{
+        icon : "fas-plus",
+        text : "i18n:new-item",
+        action : ()=>{
+          this.doAddNewItem()
+        }
+      }, {
+        type : "line"
+      }, {
+        icon : "far-trash-alt",
+        tip : "i18n:del-checked",
+        action : ()=>{
+          this.removeChecked()
+        }
+      }, {
+        icon : "far-edit",
+        tip : "i18n:edit",
+        action : ()=>{
+          this.doEditCurrent()
+        }
+      }, {
+        type : "line"
+      }, {
+        icon : "fas-long-arrow-alt-up",
+        tip : "i18n:move-up",
+        action : ()=>{
+          this.moveCheckedUp()
+        }
+      }, {
+        icon : "fas-long-arrow-alt-down",
+        tip : "i18n:move-down",
+        action : ()=>{
+          this.moveCheckedDown()
+        }
+      }]
+    },
+    //------------------------------------------------
+    TableConfig() {
+      let config = _.cloneDeep(this.list)
+      config.data = this.value
+      _.defaults(config, {
+        blankAs    : this.blankAs,
+        blankClass : this.blankClass,
+        multi : true,
+        checkable : true
+      })
+      return config
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    OnInitTable($table) {
+      this.$table = $table
+    },
+    //-----------------------------------------------
+    OnTableRowSelect({currentId, current, currentIndex, checkedIds}) {
+      // this.myCurrentData = current
+      // this.myCurrentId = currentId
+      // this.myCurrentIndex = currentIndex
+      // this.myCheckedIds = checkedIds
+    },
+    //-----------------------------------------------
+    async OnTableRowOpen({index, rawData}) {
+      let reo = await this.openDialog(rawData);
+
+      // User cancel
+      if(_.isUndefined(reo))
+        return
+
+      // Join to 
+      let list = _.cloneDeep(this.value||[])
+      list.splice(index, 1, reo)
+      this.notifyChange(list)
+    },
+    //-----------------------------------------------
+    async doAddNewItem() {
+      let reo = await this.openDialog();
+
+      // User cancel
+      if(_.isUndefined(reo))
+        return
+
+      // Join to 
+      let val = _.concat(this.value||[], reo)
+      this.notifyChange(val)
+    },
+    //-----------------------------------------------
+    async doEditCurrent() {
+      let row = this.$table.getCurrentRow()
+      if(!row) {
+        return await Ti.Toast.Open("i18n:nil-item", "warn")
+      }
+      let {rawData, index} = row
+      let reo = await this.openDialog(rawData);
+
+      // User cancel
+      if(_.isUndefined(reo))
+        return
+
+      // Join to 
+      let list = _.cloneDeep(this.value||[])
+      list.splice(index, 1, reo)
+      this.notifyChange(list)
+    },
+    //-----------------------------------------------
+    removeChecked() {
+      let {checked, remains} = this.$table.removeChecked()
+      if(_.isEmpty(checked))
+        return
+
+      this.notifyChange(remains)
+    },
+    //-----------------------------------------------
+    moveCheckedUp() {
+      let {list, nextCheckedIds} = this.$table.moveChecked(-1)
+
+      this.notifyChange(list)
+      this.$nextTick(()=>{
+        this.$table.checkRow(nextCheckedIds)
+      })
+    },
+    //-----------------------------------------------
+    moveCheckedDown() {
+      let {list, nextCheckedIds} = this.$table.moveChecked(1)
+
+      this.notifyChange(list)
+      this.$nextTick(()=>{
+        this.$table.checkRow(nextCheckedIds)
+      })
+    },
+    //-----------------------------------------------
+    async openDialog(result={}) {
+      let dialog = _.cloneDeep(this.dialog);
+      _.assign(dialog, {
+        result,
+        model : {prop:"data", event:"change"},
+        comType : "TiForm",
+        comConf : this.form
+      })
+
+      return await Ti.App.Open(dialog);
+    },
+    //-----------------------------------------------
+    notifyChange(val=[]) {
+      this.$notify("change", val)
+    }
+    //-----------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    //----------------------------------------------- 
+    //-----------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/combo/table/ti-combo-table.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/combo/table/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/combo/table/_com.json", {
+  "name" : "ti-combo-table",
+  "globally" : true,
+  "template" : "./ti-combo-table.html",
+  "props"    : "./ti-combo-table-props.mjs",
+  "mixins"   : "./ti-combo-table.mjs",
+  "components" : [
+    "@com:ti/actionbar",
+    "@com:ti/table",
+    "@com:ti/form"]
+});
+//============================================================
 // JOIN: ti/crumb/com/crumb-item/crumb-item.html
 //============================================================
 Ti.Preload("ti/com/ti/crumb/com/crumb-item/crumb-item.html", `<div class="ti-crumb-item" 
@@ -10665,14 +10948,14 @@ const _M = {
     evalFormField(fld={}, nbs=[]) {
       // Hide or disabled
       if(fld.hidden) {
-        if(Ti.Validate.match(this.data, fld.hidden)) {
+        if(Ti.AutoMatch.test(fld.hidden, this.data)) {
           return
         }
       }
       // Disable
       let disabled = false
       if(fld.disabled) {
-        disabled = Ti.Validate.match(this.data, fld.disabled)
+        disabled = Ti.AutoMatch.test(fld.disabled, this.data)
       }
 
       // The key
@@ -11160,8 +11443,37 @@ const _M = {
           args
         }
       }
+    },
+    //--------------------------------------
+    $main() {
+      return _.nth(this.$children, 0)
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "name" : {
+      handler : function(newVal, oldVal) {
+        // Guard
+        if(!this.$gui)
+          return
+        // Unregister old
+        if(oldVal) {
+          this.$gui.unregisterBlock(oldVal)
+        }
+        // Register self
+        if(newVal) {
+          this.$gui.registerBlock(newVal, this)
+        }
+      },
+      immediate : true
+    }
+  },
+  //////////////////////////////////////////
+  beforeDestroy : function(){
+    if(this.name) {
+      this.$gui.unregisterBlock(this.name)
+    }
   }
   //////////////////////////////////////////
 }
@@ -12010,6 +12322,7 @@ const _M = {
     myShown : {},
     myViewportWidth  : 0,
     myViewportHeight : 0,
+    myBlockMap : {}
   }),
   /////////////////////////////////////////
   props : {
@@ -12161,7 +12474,6 @@ const _M = {
     },
     //--------------------------------------
     updateShown(shown) {
-      //console.log("updateShown", shown)
       this.syncMyShown(shown)
       this.persistMyStatus()
     },
@@ -12189,6 +12501,7 @@ const _M = {
     },
     //--------------------------------------
     OnBlockShownUpdate(shown) {
+      //console.log(shown)
       // Update privated status
       if(this.keepShownTo) {
         this.updateShown(shown)
@@ -12223,6 +12536,21 @@ const _M = {
       let rect = Ti.Rects.createBy(this.$el);
       this.myViewportWidth  = rect.width
       this.myViewportHeight = rect.height
+    },
+    //--------------------------------------
+    $block(name) {
+      return this.myBlockMap[name]
+    },
+    //--------------------------------------
+    registerBlock(name, $block) {
+      //console.log("registerBlock", name, $block.tiComId)
+      this.myBlockMap[name] = $block
+    },
+    //--------------------------------------
+    unregisterBlock(name) {
+      if(this.myBlockMap[name]) {
+        delete this.myBlockMap[name]
+      }
     }
     //--------------------------------------
   },
@@ -16256,6 +16584,10 @@ const _M = {
     "fullField": {
       type : Boolean,
       default : true
+    },
+    "multiValSep" : {
+      type : String,
+      default: ", "
     }
   },
   //////////////////////////////////////////
@@ -16376,14 +16708,29 @@ const _M = {
     async evalDisplay(val) {
       // By Dict Item
       if(this.Dict) {
-        let it = await this.Dict.getItem(val)
-        if(it) {
-          if(this.autoLoadDictIcon) {
-            this.myDisplayIcon = this.Dict.getIcon(it)
+        // console.log(val)
+        // Array value
+        if(_.isArray(val)) {
+          this.myDisplayIcon = undefined
+          let ss = []
+          for(let v of val) {
+            let it = await this.Dict.getItem(v)
+            let s = this.Dict.getBy(this.myDictValKey, it, v)
+            ss.push(s)
           }
-          val = this.Dict.getBy(this.myDictValKey, it, val)
-        } else {
-          this.myDisplayIcon = null
+          val = ss.join(this.multiValSep)
+        }
+        // Single value
+        else {
+          let it = await this.Dict.getItem(val)
+          if(it) {
+            if(this.autoLoadDictIcon) {
+              this.myDisplayIcon = this.Dict.getIcon(it)
+            }
+            val = this.Dict.getBy(this.myDictValKey, it, val)
+          } else {
+            this.myDisplayIcon = null
+          }
         }
       }
       // Number
@@ -16394,7 +16741,14 @@ const _M = {
         return val
       }
       // Collection
-      if(_.isArray(val) || _.isPlainObject(val)) {
+      if(_.isArray(val)) {
+        if(val.length > 1 && (_.isPlainObject(val[0]) || _.isArray(val[0]))) {
+          return JSON.stringify(val)  
+        }
+        return val.join(this.multiValSep)
+      }
+      // Object
+      if(_.isPlainObject(val)) {
         return JSON.stringify(val, null, '  ')
       }
       // Normal value
@@ -18709,6 +19063,10 @@ Ti.Preload("ti/com/ti/list/com/list-row/list-row.html", `<div class="list-row"
   :class="TopClass">
   <!--current actived row indicator-->
   <div class="row-actived-indicator"></div>
+  <!--Changed Item-->
+  <div 
+    v-if="isChanged"
+      class="row-changed-indicator"></div>
   <!-- Indents -->
   <div v-for="n in indent"
   class="row-indent"></div>
@@ -21225,7 +21583,7 @@ const FieldDisplay = {
         }
         //......................................
         // #DictName(xxx) -> ti-label
-        // just like `#RelayStatus(status)`
+        // just like `#RelayStatus(status):xxx:is-nowrap`
         m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:([^:]*)(:([^:]+))?)?$/.exec(displayItem)
         if(m) {
           return {
@@ -21933,6 +22291,10 @@ const LIST_MIXINS = {
         }
       }
     },
+    //-----------------------------------------------
+    getRow(index=0) {
+      return _.nth(this.TheData, index)
+    },
     //------------------------------------------
     getCurrentRow(currentId=this.theCurrentId) {
       return this.findRowById(currentId)
@@ -21960,6 +22322,85 @@ const LIST_MIXINS = {
       return _.map(rows, row=>row.rawData)
     },
     //-----------------------------------------------
+    removeCheckedRow(idMap=this.theCheckedIds) {
+      let checkedIds = this.getCheckedIdsMap(idMap, false)
+      let minIndex = -1
+      let maxIndex = -1
+      let remainsRows = []
+      let checkedRows = []
+
+      _.forEach(this.TheData, row => {
+        if(idMap[row.id]) {
+          minIndex = minIndex < 0 
+                      ? row.index
+                      : Math.min(row.index, minIndex);
+
+          maxIndex = maxIndex < 0
+                      ? row.index
+                      : Math.max(row.index, maxIndex);
+
+          checkedRows.push(row)
+        } else {
+          remainsRows.push(row)
+        }
+      })
+
+      return {
+        remainsRows, checkedRows, minIndex, maxIndex, checkedIds
+      }
+    },
+    //-----------------------------------------------
+    removeChecked(idMap=this.theCheckedIds) {
+      let re = this.removeCheckedRow(idMap)
+      re.remains = _.map(re.remainsRows, row => row.rawData)
+      re.checked = _.map(re.checkedRows, row => row.rawData)
+      return re
+    },
+    //-----------------------------------------------
+    moveCheckedRow(offset=0, idMap=this.theCheckedIds) {
+      idMap = this.getCheckedIdsMap(idMap, false)
+      //console.log(idMap)
+      if(offset==0 || _.isEmpty(idMap))
+        return {rows:this.TheData, nextCheckedIds:idMap}
+
+      let {
+        checkedIds,
+        minIndex,
+        maxIndex,
+        remainsRows,
+        checkedRows
+      } = this.removeCheckedRow(idMap)
+
+      // targetIndex in remains[] list
+      let targetIndex = Math.max(0, minIndex-1)
+      if(offset > 0) {
+        targetIndex = Math.min(maxIndex - checkedRows.length + 2, remainsRows.length)
+      }
+      // Insert
+      let rows = _.cloneDeep(remainsRows)
+      rows.splice(targetIndex, 0, ...checkedRows)
+
+      if(_.isEmpty(rows))
+        return {rows:[], nextCheckedIds:{}}
+
+      // If the index style ID, adjust them
+      let nextCheckedIds = checkedIds
+      if(/^Row-\d+$/.test(rows[0].id)) {
+        nextCheckedIds = {}
+        for(let i=0; i<checkedRows.length; i++){
+          nextCheckedIds[`Row-${i + targetIndex}`] = true
+        }
+      }
+
+      return {rows, nextCheckedIds}
+    },
+    //-----------------------------------------------
+    moveChecked(offset=0, idMap=this.theCheckedIds) {
+      let re = this.moveCheckedRow(offset, idMap)
+      re.list = _.map(re.rows, row => row.rawData)
+      return re
+    },
+    //-----------------------------------------------
     getEmitContext(
       currentId, 
       checkedIds={}
@@ -21982,10 +22423,19 @@ const LIST_MIXINS = {
       }
     },
     //-----------------------------------------------
-    selectRow(rowId, {quiet=false, payload}={}) {
+    async canSelectRow(payload) {
+      if(_.isFunction(this.onBeforeChangeSelect)) {
+        let canSelect = await this.onBeforeChangeSelect(payload)
+        if(false === canSelect) {
+          return false
+        }
+      }
+      return true
+    },
+    //-----------------------------------------------
+    async selectRow(rowId, {quiet=false, payload}={}) {
       let idMap = {}
       let curId = null
-      
       // Change the current & checked
       if(this.autoCheckCurrent) {
         idMap = rowId ? {[rowId]:true} : {}
@@ -21998,6 +22448,11 @@ const LIST_MIXINS = {
       }
 
       let emitContext = this.getEmitContext(curId, idMap)
+
+      if(!(await this.canSelectRow(emitContext))) {
+        return;
+      }
+
       // Private Mode
       if(!this.puppetMode) {
         this.myCheckedIds = idMap
@@ -22080,6 +22535,18 @@ const LIST_MIXINS = {
           index = this.findRowIndexById(lastRowId)
         }
       }
+      // Object
+      else if(_.isPlainObject(rowId)) {
+        idMap = _.cloneDeep(rowId)
+        if(this.autoCheckCurrent) {
+          let lastRowId = undefined
+          for(let key in idMap) {
+            lastRowId = key
+            break;
+          }
+          index = this.findRowIndexById(lastRowId)
+        }
+      }
       // Single row
       else {
         idMap[rowId] = true
@@ -22099,7 +22566,7 @@ const LIST_MIXINS = {
       this.doNotifySelect(emitContext)
     },
     //-----------------------------------------------
-    cancelRow(rowId) {
+    async cancelRow(rowId) {
       let idMap = _.cloneDeep(this.theCheckedIds)
       let curId  = this.theCurrentId
       let index = -1
@@ -22118,6 +22585,11 @@ const LIST_MIXINS = {
       }
       // Eval context
       let emitContext = this.getEmitContext(curId, idMap)
+
+      if(!(await this.canSelectRow(emitContext))) {
+        return;
+      }
+
       // Private Mode
       if(!this.puppetMode) {
         this.myCheckedIds = idMap
@@ -22189,7 +22661,7 @@ const LIST_MIXINS = {
       }
     },
     //-----------------------------------------------
-    getCheckedIdsMap(idList=[]) {
+    getCheckedIdsMap(idList=[], autoCheckCurrent=this.autoCheckCurrent) {
       let idMap = {}
       // ID List
       if(_.isArray(idList)) {
@@ -22206,7 +22678,7 @@ const LIST_MIXINS = {
         })
       }
       // Force to check current
-      if(this.autoCheckCurrent && !Ti.Util.isNil(this.theCurrentId)) {
+      if(autoCheckCurrent && !Ti.Util.isNil(this.theCurrentId)) {
         idMap[this.theCurrentId] = true
       }
       return idMap
@@ -22345,6 +22817,10 @@ const _M = {
   "scrollIndex" : {
     type : Boolean,
     default : false
+  },
+  "onBeforeChangeSelect": {
+    type : Function,
+    default: undefined
   },
   "onSelect": {
     type : Function,
@@ -25970,6 +26446,7 @@ Ti.Preload("ti/com/ti/text/raw/ti-text-raw.html", `<div class="ti-text-raw"
       spellcheck="false"
       :placeholder="placeholder | i18n"
       :value="myContent"
+      :readonly="isReadonly"
       @compositionstart="OnInputCompositionStart"
       @compositionend="OnInputCompositionEnd"
       @input="OnInputing"
@@ -26002,7 +26479,7 @@ const _M = {
     },
     "value" : {
       type : String,
-      default : ""
+      default : undefined
     }, 
     "placeholder" : {
       type : String,
@@ -26011,6 +26488,14 @@ const _M = {
     "status": {
       type : Object,
       default: ()=>({})
+    },
+    "readonly" : {
+      type : Boolean,
+      default : false
+    },
+    "readonlyWhenNil" : {
+      type : Boolean,
+      default : true
     }
   },
   ///////////////////////////////////////////////////
@@ -26030,6 +26515,16 @@ const _M = {
     //-----------------------------------------------
     hasContent() {
       return !Ti.Util.isNil(this.value)
+    },
+    //-----------------------------------------------
+    isReadonly() {
+      if(this.readonly) {
+        return true
+      }
+      if(this.readonlyWhenNil && Ti.Util.isNil(this.value)) {
+        return true
+      }
+      return false
     }
     //-----------------------------------------------
   },
@@ -28573,9 +29068,10 @@ const _M = {
         // Actions
         else {
           btn = _.assign({}, stepBtn)
+          //console.log({stepBtn, val: this.value})
           // Eval enabled
           if(_.isPlainObject(btn.enabled)) {
-            btn.enabled = Ti.Validate.match(this.value, btn.enabled)
+            btn.enabled = Ti.AutoMatch.test(btn.enabled, this.value)
           }
           // Customized
           else if(_.isFunction(btn.enabled)) {
@@ -36847,6 +37343,741 @@ Ti.Preload("ti/com/wn/explorer/_com.json", {
   "mixins" : ["./wn-explorer.mjs"]
 });
 //============================================================
+// JOIN: wn/fileset/config/wn-fileset-config.html
+//============================================================
+Ti.Preload("ti/com/wn/fileset/config/wn-fileset-config.html", `<div class="wn-fileset-config"
+  :class="TopClass">
+  <WnFilesetTabs
+    v-bind="this"
+    com-type="wn-fileset-list"
+    :com-conf="FilesetListConf"
+    :meta="myHomeDir"
+    :on-init="OnTabsInit"/>
+</div>`);
+//============================================================
+// JOIN: wn/fileset/config/wn-fileset-config.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data: ()=>({
+    myHomeDir : undefined
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    // relative path to "meta"
+    "dirHome" : {
+      type : String,
+      default : undefined
+    },
+    "mainConf" : {
+      type : Object,
+      default : ()=>({})
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    FilesetListConf() {
+      return {
+        meta : "=meta",
+        ... this.mainConf
+      }
+    }    
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    OnTabsInit($tabs) {
+      this.$tabs = $tabs
+    },
+    //------------------------------------------------
+    doCreate(payload) {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        $mcom.doCreate(payload)
+      }
+    },
+    //------------------------------------------------
+    doDelete(payload) {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        $mcom.doDelete(payload)
+      }
+    },
+    //------------------------------------------------
+    async openCurrentMeta() {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom && $mcom.hasCurrent) {
+        return await $mcom.openCurrentMeta()
+      }
+      await Ti.App(this).dispatch("current/openMetaEditor")
+    },
+    //------------------------------------------------
+    async reloadAll() {
+      Ti.App(this).commit("current/setStatus", {reloading:true})
+      // Reload self
+      await this.reload()
+
+      // Reload tabs
+      await this.$tabs.reload()
+
+      // Reload main
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        await $mcom.reload()
+      }
+      Ti.App(this).commit("current/setStatus", {reloading:false})
+    },
+    //------------------------------------------------
+    async reload() {
+      if(this.meta && this.meta.id) {
+        //console.log("reload", this.meta.ph, this.viewReady)
+        if(this.dirHome) {
+          let ph = `id:${this.meta.id}/${this.dirHome}`
+          this.myHomeDir = await Wn.Io.loadMeta(ph)
+        }
+        // Meta is dirHome
+        else {
+          this.myHomeDir = this.meta
+        }
+      }
+    }
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/fileset/config/wn-fileset-config.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/fileset/config/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/fileset/config/_com.json", {
+  "name" : "wn-fileset-config",
+  "globally" : true,
+  "template" : "./wn-fileset-config.html",
+  "mixins"   : [
+    "@com:wn/support/wn-fileset-mixins.mjs",
+    "./wn-fileset-config.mjs"],
+  "components" : [
+    "@com:wn/fileset/list",
+    "@com:wn/fileset/tabs"
+  ],
+  "deps" : []
+});
+//============================================================
+// JOIN: wn/fileset/list/wn-fileset-list.html
+//============================================================
+Ti.Preload("ti/com/wn/fileset/list/wn-fileset-list.html", `<TiGui
+  class="wn-fileset-list"
+  :class="TopClass"
+  :layout="GUILayout"
+  :schema="GUISchema"
+  :can-loading="true"
+  :loading-as="isGUILoading"
+  :action-status="DetailActionStatus"
+  @list::select="OnListSelect"
+  @list::open="OnListOpen"
+  @meta::change="OnMetaChange"
+  @meta::field:change="OnMetaFieldChange"
+  @detail::change="OnDetailChange"/>`);
+//============================================================
+// JOIN: wn/fileset/list/wn-fileset-list.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data: ()=>({
+    updating : false,
+    saving : false,
+    reloading : undefined,
+    listData : [],
+    currentIndex : undefined,
+    currentMeta : undefined,
+    currentContent : undefined,
+    loadedCurrentContent : undefined,
+    metaFieldStatus : {}
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    "match" : {
+      type : Object,
+      default : ()=>({
+        race : "FILE"
+      })
+    },
+    "listSize" : {
+      type : [Number, String],
+      default : 0.3
+    },
+    "listIcon" : {
+      type : String,
+      default : "far-list-alt"
+    },
+    "listTitle" : {
+      type : String,
+      default : "i18n:list"
+    },
+    "listType" : {
+      type : String,
+      default : "TiList"
+    },
+    "listConf" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "metaSize" : {
+      type : [Number, String],
+      default : 0.3
+    },
+    "metaIcon" : {
+      type : String,
+      default : "fas-info-circle"
+    },
+    "metaTitle" : {
+      type : String,
+      default : "i18n:properties"
+    },
+    "metaType" : {
+      type : String,
+      default : "TiForm"
+    },
+    "metaConf" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "detailSize" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "detailIcon" : {
+      type : String,
+      default : "fas-info-circle"
+    },
+    "detailTitle" : {
+      type : String,
+      default : "i18n:detail"
+    },
+    "detailType" : {
+      type : String,
+      default : "TiTextRaw"
+    },
+    "detailConf" : {
+      type : Object,
+      default : ()=>({})
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    isCurrentContentChanged() {
+      if(this.currentMeta) {
+        return this.currentContent != this.loadedCurrentContent
+      }
+    },
+    //------------------------------------------------
+    hasCurrent() {
+      return this.currentMeta ? true : false
+    },
+    //------------------------------------------------
+    isGUILoading() {
+      return this.updating || this.reloading || this.saving
+    },
+    //------------------------------------------------
+    CurrentId() {
+      return _.get(this.currentMeta, "id")
+    },
+    //------------------------------------------------
+    GUILayout() {
+      let listBlock = {
+        title : this.listTitle,
+        icon  : this.listIcon,
+        name  : "list",
+        size  : this.listSize,
+        body  : "list"
+      }
+      let metaBlock = {
+        title : this.metaTitle,
+        icon  : this.metaIcon,
+        size  : this.metaSize,
+        name  : "meta",
+        body  : "meta"
+      }
+      let detailBlock = {
+        title : this.detailTitle,
+        icon  : this.detailIcon,
+        size  : this.detailSize,
+        name  : "detail",
+        body  : "detail",
+        actions : [{
+            name : "saving",
+            text : "i18n:save",
+            icon : "zmdi-floppy",
+            altDisplay : {
+              "icon" : "fas-spinner fa-pulse",
+              "text" : "i18n:saving"
+            },
+            enabled : "changed",
+            action : ()=> {
+              this.doSaveCurrentContent()
+            }
+          }, {
+            name : "reloading", 
+            text : "i18n:reload",
+            icon : "fas-sync",
+            altDisplay : {
+              "icon" : "fas-sync fa-pulse",
+              "text" : "i18n:reloading"
+            },
+            enabled : "current",
+            action : ()=> {
+              this.doReloadCurrentContent()
+            }
+          }]
+      }
+      if(this.metaType && this.detailType) {
+        return {
+          type : "cols",
+          border : true,
+          blocks : [listBlock, {
+              type : "rows",
+              border : true,
+              blocks : [metaBlock, detailBlock]
+            }]
+        }
+      }
+      if(this.metaType) {
+        return {
+          type : "cols",
+          className : "show-border",
+          blocks : [listBlock, metaBlock]
+        }
+      }
+      return {
+        type : "cols",
+        className : "show-border",
+        blocks : [listBlock, detailBlock]
+      }
+    },
+    //------------------------------------------------
+    GUISchema() {
+      //..............................................
+      let listConf = _.defaults({}, this.listConf, {
+        onBeforeChangeSelect : async ()=>{
+          if(!(await Ti.Fuse.get().fire())) {
+            return false
+          }
+        },
+        changedId : this.isCurrentContentChanged
+          ? this.CurrentId
+          : undefined,
+        display : ["<icon:far-file>", "title|nm"],
+        data : "=listData",
+        onInit : ($list) => {
+          this.$list = $list
+        }
+      })
+      //..............................................
+      let metaConf = _.defaults({}, this.metaConf, {
+        autoShowBlank : true,
+        blankAs : {
+          icon : "fas-brush",
+          text : "i18n:blank-to-edit"
+        },
+        data : "=currentMeta",
+        fieldStatus : "=metaFieldStatus",
+        fields : [{
+          title: "i18n:wn-key-title",
+          name : "title",
+          comType : "ti-input"
+        }, {
+          title: "i18n:wn-key-nm",
+          name : "nm",
+          comType : "ti-input"
+        }]
+      })
+      //..............................................
+      let detailConf = _.defaults({}, this.detailConf, {
+        value : "=currentContent"
+      })
+      //..............................................
+      return {
+        list : {
+          comType : this.listType,
+          comConf : Ti.Util.explainObj(this, listConf)
+        },
+        meta : {
+          comType : this.metaType,
+          comConf : Ti.Util.explainObj(this, metaConf)
+        },
+        detail : {
+          comType : this.detailType,
+          comConf : Ti.Util.explainObj(this, detailConf)
+        }
+      }
+    },
+    //------------------------------------------------
+    DetailActionStatus() {
+      return {
+        saving : this.saving,
+        reloading : this.reloading,
+        changed : this.isCurrentContentChanged,
+        current : this.hasCurrent
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    async OnListSelect({current, currentIndex}) {
+      if(!current) {
+        this.currentIndex = undefined
+        this.currentMeta = undefined
+        this.currentContent = undefined
+      } else {
+        this.currentIndex = currentIndex
+        this.currentMeta = current
+        await this.doReloadCurrentContent()
+        this.metaFieldStatus = {}
+      }
+    },
+    //------------------------------------------------
+    OnListOpen() {
+      // DO nothing
+    },
+    //------------------------------------------------
+    OnMetaChange(payload) {
+      // DO nothing
+    },
+    //------------------------------------------------
+    async OnMetaFieldChange({name, value}) {
+      if(this.hasCurrent) {
+        this.updating = true
+        this.metaFieldStatus = {
+          [name] : {type : "spinning"}
+        }
+        try {
+          let reo = await Wn.Io.update(this.currentMeta, {
+            [name]: value
+          })
+          this.updateCurrentMeta(reo)
+
+          this.$nextTick(()=>{
+            this.metaFieldStatus = {
+              [name] : {type : "ok"}
+            }
+            _.delay(()=>{
+              this.metaFieldStatus = {}
+            }, 800)
+          })
+        }
+        // Error
+        catch(err) {
+          this.metaFieldStatus = {
+            [name] : {
+              type : "error",
+              text : err.errMsg
+            }
+          }
+        }
+        // unmark
+        finally {
+          this.updating = false
+        }
+      }
+    },
+    //------------------------------------------------
+    OnDetailChange(content) {
+      this.currentContent = content
+    },
+    //------------------------------------------------
+    async doCreate() {
+      //console.log("doCreate for ", this.meta.ph)
+      let newName = _.trim(await Ti.Prompt("i18n:wn-fsc-mail-tmpl-new"))
+
+      if(!newName)
+        return
+
+      let cmdText = `touch id:${this.meta.id}/${newName}`
+      await Wn.Sys.exec(cmdText)
+
+      // Reload
+      await this.reload()
+
+      // Highlight it
+      let li = this.findDataInListByName(newName)
+
+      if(li && this.$list) {
+        this.$nextTick(()=>{
+          this.$list.selectRow(li.id)          
+        })
+      }
+      
+    },
+    //------------------------------------------------
+    async doDelete() {
+      if(this.hasCurrent && this.findIndexInList() >= 0) {
+        this.reloading = true
+        await Wn.Sys.exec(`rm id:${this.currentMeta.id}`)
+        await this.reload()
+        this.currentIndex = undefined
+        this.currentMeta = undefined
+        this.currentContent = undefined
+      }
+    },
+    //------------------------------------------------
+    async openCurrentMeta() {
+      let reo = await Wn.EditObjMeta(this.currentMeta, {fields:"auto"})
+
+      if(reo) {
+        let {data, saved} = reo
+        if(saved) {
+          this.updateCurrentMeta(data)
+        }
+      }
+    },
+    //------------------------------------------------
+    findIndexInList(meta=this.currentMeta) {
+      if(meta) {
+        let i = -1;
+        for(let li of this.listData) {
+          i++
+          if(li.id == meta.id)
+            return  i
+        }
+      }
+      return -1
+    },
+    //------------------------------------------------
+    findDataInListByName(name) {
+      if(name) {
+        for(let li of this.listData) {
+          if(li.nm == name)
+            return  li
+        }
+      }
+    },
+    //------------------------------------------------
+    getCurrentMeta() {
+      return _.cloneDeep(this.currentMeta)
+    },
+    //------------------------------------------------
+    updateCurrentMeta(meta) {
+      if(this.hasCurrent) {
+        this.currentMeta = meta
+        this.listData.splice(this.currentIndex, 1, meta)
+        if(this.$list) {
+          this.$nextTick(()=>{
+            this.$list.selectRow(meta.id, {quiet:true})
+          })
+        }
+      }
+    },
+    //------------------------------------------------
+    async doSaveCurrentContent() {
+      if(this.hasCurrent && this.isCurrentContentChanged) {
+        this.saving = true
+        await Wn.Io.saveContentAsText(this.currentMeta, this.currentContent)
+        this.loadedCurrentContent = this.currentContent
+        this.$nextTick(()=>{
+          this.saving = false
+        })
+      }
+    },
+    //------------------------------------------------
+    async doReloadCurrentContent() {
+      if(this.hasCurrent) {
+        this.reloading = true
+        this.currentContent = await Wn.Io.loadContent(this.currentMeta, {as:"text"})
+        this.loadedCurrentContent = this.currentContent
+        this.$nextTick(()=>{
+          this.reloading = false
+        })
+      }
+    },
+    //------------------------------------------------
+    async reload() {
+      this.reloading = true
+      this.listData = await this.reloadChildren()
+      this.$nextTick(()=>{
+        this.reloading = false
+      })
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  mounted : function(){
+    //------------------------------------------------
+    Ti.Fuse.getOrCreate().add({
+      key : "wn-fileset-list",
+      everythingOk : ()=>{
+        return !this.isCurrentContentChanged
+      },
+      fail : ()=>{
+        Ti.Toast.Open("i18n:wn-obj-nosaved", "warn")
+      }
+    })
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Fuse.get().remove("wn-fileset-list")
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/fileset/list/wn-fileset-list.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/fileset/list/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/fileset/list/_com.json", {
+  "name" : "wn-fileset-list",
+  "globally" : true,
+  "template" : "./wn-fileset-list.html",
+  "mixins"   : [
+    "@com:wn/support/wn-fileset-mixins.mjs",
+    "./wn-fileset-list.mjs"],
+  "components" : [],
+  "deps" : []
+});
+//============================================================
+// JOIN: wn/fileset/tabs/wn-fileset-tabs.html
+//============================================================
+Ti.Preload("ti/com/wn/fileset/tabs/wn-fileset-tabs.html", `<TiGui
+  class="wn-fileset-tabs"
+  :class="TopClass"
+  :layout="TabsGUILayout"
+  :on-init="OnGuiInit"
+  :shown="myShown"
+  @block:shown="OnShownChange"/>`);
+//============================================================
+// JOIN: wn/fileset/tabs/wn-fileset-tabs.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data: ()=>({
+    myShown : {},
+    myList : [],
+    dataReady : false
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    "comType" : {
+      type : String,
+      default : undefined
+    },
+    "comConf" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "keepShownTo" : {
+      type : String,
+      default : "keep_shown_${id}"
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TabsGUILayout() {
+      let gui = {
+        type : "tabs",
+        blocks : []
+      }
+      _.forEach(this.myList, o => {
+        let comConf = Ti.Util.explainObj({
+          dataReady : this.dataReady,
+          home : this.meta,
+          meta : o
+        }, this.comConf)
+        let li = {
+          title : o.title || o.nm,
+          name  : o.nm,
+          icon  : o.icon,
+          body : {
+            comType : this.comType,
+            comConf
+          }
+        }
+        gui.blocks.push(li)
+      })
+
+      return gui
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    OnGuiInit($gui) {
+      this.$gui = $gui
+    },
+    //------------------------------------------------
+    OnShownChange(shown) {
+      this.myShown = shown
+
+      let shownKey = this.getShownKey()
+      if(shownKey) {
+        Ti.Storage.session.setObject(shownKey, shown)
+      }
+    },
+    //------------------------------------------------
+    $MainBlock() {
+      let keys = [];
+      _.forEach(this.myShown, (v, k)=>{
+        if(v)
+        keys[0] = k
+      })
+      let key = _.nth(keys, 0)
+      if(key) {
+        return this.$gui.$block(key)
+      }
+    },
+    //------------------------------------------------
+    $MainCom() {
+      let $b = this.$MainBlock()
+      if($b)
+        return $b.$main()
+    },
+    //------------------------------------------------
+    getShownKey() {
+      if(this.keepShownTo && this.meta) {
+        return Ti.S.renderBy(this.keepShownTo, this.meta)
+      }
+    },
+    //------------------------------------------------
+    async reload() {
+      this.dataReady = false
+      this.myList = await this.reloadChildren()
+      this.dataReady = true
+
+      let shownKey = this.getShownKey()
+      if(shownKey) {
+        this.myShown = Ti.Storage.session.getObject(shownKey)
+      }
+    } 
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/fileset/tabs/wn-fileset-tabs.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/fileset/tabs/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/fileset/tabs/_com.json", {
+  "name" : "wn-fileset-tabs",
+  "globally" : true,
+  "template" : "./wn-fileset-tabs.html",
+  "mixins"   : [
+    "@com:wn/support/wn-fileset-mixins.mjs",
+    "./wn-fileset-tabs.mjs"],
+  "components" : [],
+  "deps" : []
+});
+//============================================================
 // JOIN: wn/gui/arena/wn-gui-arena.html
 //============================================================
 Ti.Preload("ti/com/wn/gui/arena/wn-gui-arena.html", `<div class="wn-gui-arena">
@@ -38933,10 +40164,10 @@ const _M = {
       }
 
       // Eval Filter
-      console.log("hahha")
+      //console.log("hahha")
       let filter;
       if(this.filterBy) {
-        filter = Ti.Validate.compile(this.filterBy)
+        filter = Ti.AutoMatch.parse(this.filterBy)
       }
 
       let objs = await Wn.OpenObjSelector(meta, {
@@ -40109,6 +41340,93 @@ Ti.Preload("ti/com/wn/session/badge/_com.json", {
     "@com:ti/session/badge"
   ]
 });
+//============================================================
+// JOIN: wn/support/wn-fileset-mixins.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  props : {
+    "meta" : {
+      type : Object,
+      default : undefined
+    },
+    "viewReady" : {
+      type : Boolean,
+      default : false
+    },
+    "match" : {
+      type : Object,
+      default : undefined
+    },
+    "sort" : {
+      type : Object,
+      default : ()=>({
+        nm : 1
+      })
+    },
+    "skip" : {
+      type : Number,
+      default: 0
+    },
+    "limit" : {
+      type : Number,
+      default: 100
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass();
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    async reloadChildren(obj=this.meta) {
+      if(!obj || !obj.id)
+        return []
+
+      let match = _.cloneDeep(this.match) || {}
+      match.pid = obj.id
+
+      let reo = await Wn.Io.find({
+        match,
+        skip  : this.skip,
+        limit : this.limit,
+        sort  : this.sort
+      })
+
+      return reo.list || []
+    },
+    //------------------------------------------------
+    async _try_reload() {
+      if(_.isFunction(this.reload) && this.meta && this.viewReady) {
+        await this.reload()
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    "meta" : {
+      handler : function(newVal, oldVal) {
+        if(!_.isEqual(newVal, oldVal)) {
+          this._try_reload()
+        }
+      }
+    },
+    "viewReady" : {
+      handler : "_try_reload",
+      immediate : true
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/support/wn-fileset-mixins.mjs", _M);
+})();
 //============================================================
 // JOIN: wn/support/wn_list_wrapper_mixins.mjs
 //============================================================
@@ -41598,7 +42916,7 @@ const _M = {
   /////////////////////////////////////////
   props : {
     "value" : {
-      type : String,
+      type : [String, Object],
       default : null
     },
     // raw value is WnObj
@@ -41760,8 +43078,7 @@ const _M = {
     },
     //--------------------------------------
     async onUpload(file) {
-      //console.log("it will upload ", file)
-
+      // console.log("it will upload ", file)
       //................................
       // Check for support Types
       let type = Ti.Util.getSuffixName(file.name)
@@ -41845,7 +43162,7 @@ const _M = {
         this.oFile = await Wn.Io.loadMetaBy(this.value)
       }
       // Object
-      else if(_.get(this.value, "race") == "FILE") {
+      else if(this.value && this.value.id && this.value.mime) {
         this.oFile = _.cloneDeep(this.value)
       }
       // Reset
@@ -42665,6 +43982,9 @@ const _M = {
     if(_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
+    else if(meta && meta.id) {
+      meta = await Wn.Io.loadMetaById(meta.id)
+    }
     //......................................
     // Guard
     if(!meta) {
@@ -43395,7 +44715,7 @@ const _M = {
 
     // Get the removeIds
     let removeIds = _.filter(ids, id => !failIds[id])
-    console.log("removeIds:", removeIds)
+    //console.log("removeIds:", removeIds)
 
     // Remove it from search list
     if(!_.isEmpty(removeIds)) {
@@ -47332,6 +48652,9 @@ const _M = {
       this.myMessage = null
       this.myIndicator = null
       this.OnUpdateActions(view.actions)
+      this.$nextTick(()=>{
+        this.myViewReady = true
+      })
     }
     // Clean
     finally {
@@ -47426,7 +48749,9 @@ const _M = {
     view : null,
     // Message and Indicator
     myMessage   : null,
-    myIndicator : null
+    myIndicator : null,
+    // View ready
+    myViewReady : false
   }),
   ///////////////////////////////////////////
   computed : {
@@ -47441,6 +48766,7 @@ const _M = {
     // Status
     //---------------------------------------
     isLoading() {return this.loading || this.isReloading},
+    isViewReady() {return this.myViewReady},
     //---------------------------------------
     isChanged() {
       let modMain = this.$store.state.main
@@ -47606,6 +48932,9 @@ const _M = {
       if(!bombed) {
         return
       }
+      // Mark view ready
+      this.myViewReady = false
+
       // Open It
       let ph = Wn.Io.isFullObjId(oid)
                 ? `id:${oid}`
@@ -48322,6 +49651,23 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN: en-us/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "mail-scene" : "Email scenarios",
+  "mail-scene-meta" : "Email scenario properties",
+  "mail-setup" : "Email setup",
+  "mail-scene-flt-tip" : "Filter by a scene name",
+  "mail-scene-nm" : "Scene name",
+  "mail-scene-nm-tip" : "Only include english letters or numbers or underline, and guarantee unique",
+  "mail-scene-ctmpl" : "Template",
+  "mail-scene-nil-detail" : "Please select a mail scene for details",
+  "mail-as-html" : "HTML Email",
+  "mail-to" : "TO",
+  "mail-cc" : "CC",
+  "mail-bcc" : "BCC",
+  "mail-r-addr" : "Email addr.",
+  "mail-r-name" : "Name",
+  "mail-charset" : "Email charset",
+  "mail-subject" : "Subject",
+
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
@@ -48438,6 +49784,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "link": "Link",
   "link-href": "Link target",
   "link-text": "Link text",
+  "list": "List",
   "lng": "Longitude",
   "loading": "Loading...",
   "login": "Sign in",
@@ -48457,12 +49804,16 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "modal": "Modal",
   "modify": "Modify",
   "more": "More",
+  "move": "Move",
+  "move-down": "Move down",
+  "move-up": "Move up",
   "msg": "Message",
   "name": "Name",
   "new-item": "New item",
   "newsfeed": "Newfeed",
   "next": "Next",
   "nil": "Nil",
+  "nil-item": "Please choose one item at first",
   "nil-obj": "Please choose one object",
   "no": "No",
   "no-saved": "You get data need to be saved",
@@ -48501,6 +49852,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "refresh": "Refresh",
   "refresh-hard": "Hard refresh",
   "refresh-hard-clear": "Clean cache & hard refresh",
+  "reload": "Reload",
   "reloading": "Reloading ...",
   "remove": "Remove",
   "removing": "Removing ...",
@@ -48565,6 +49917,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
 // JOIN: en-us/_wn.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
+  "wn-fsc-mail-tmpl-new" : "Enter new unique name (such as 'signup')",
+  "wn-fsc-mail-scene-new" : "New a email scenario",
+
   "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
   "wn-admin-tools": "Admin tools",
   "wn-ctt-css-text": "CSS File",
@@ -49308,6 +50663,23 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "mail-scene" : "邮件场景",
+  "mail-scene-meta" : "邮件场景属性",
+  "mail-setup" : "邮件设置",
+  "mail-scene-flt-tip" : "请输入场景名称查询",
+  "mail-scene-nm" : "场景名称",
+  "mail-scene-nm-tip" : "请用半角英文数字或者下划线组合，并保证唯一",
+  "mail-scene-ctmpl" : "内容模板",
+  "mail-scene-nil-detail" : "请选择一个邮件场景查看详情",
+  "mail-as-html" : "HTML邮件",
+  "mail-to" : "收信人",
+  "mail-cc" : "抄送",
+  "mail-bcc" : "密送",
+  "mail-r-addr" : "邮件地址",
+  "mail-r-name" : "名称",
+  "mail-charset" : "邮件字符编码",
+  "mail-subject" : "邮件标题",
+
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",
@@ -49424,6 +50796,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "link": "链接",
   "link-href": "链接目标",
   "link-text": "链接文字",
+  "list": "列表",
   "lng": "经度",
   "loading": "加载中...",
   "login": "登录",
@@ -49443,12 +50816,16 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "modal": "模式",
   "modify": "修改",
   "more": "更多",
+  "move": "移动",
+  "move-down": "下移",
+  "move-up": "上移",
   "msg": "消息",
   "name": "名称",
   "new-item": "新项目",
   "newsfeed": "消息流",
   "next": "下一步",
   "nil": "无",
+  "nil-item": "请先选择一项",
   "nil-obj": "请选择一个对象",
   "no": "否",
   "no-saved": "您有未保存的数据",
@@ -49487,6 +50864,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "refresh": "刷新",
   "refresh-hard": "硬性刷新",
   "refresh-hard-clear": "清空缓存并硬性刷新",
+  "reload": "重新加载",
   "reloading": "重新加载数据...",
   "remove": "移除",
   "removing": "正在移除...",
@@ -49551,6 +50929,10 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
 // JOIN: zh-cn/_wn.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
+  "wn-fsc-mail-tmpl-new" : "请输入新邮件模板的名称(要唯一，譬如 signup)",
+  "wn-fsc-mail-scene-new" : "新建一个邮件场景",
+  
+
   "wn-admin-check-obj-thumb": "检查图像缩略图...",
   "wn-admin-tools": "管理工具",
   "wn-ctt-css-text": "CSS样式文件",

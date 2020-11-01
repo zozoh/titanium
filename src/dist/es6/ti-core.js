@@ -1,4 +1,4 @@
-// Pack At: 2020-10-27 20:55:44
+// Pack At: 2020-11-01 22:45:45
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2990,7 +2990,7 @@ const {Err} = (function(){
         }
       }
       let errObj = new Error(errMsg.trim());
-      return _.assign(errObj, er)
+      return _.assign(errObj, er, {errMsg})
     }
   }
   //-----------------------------------
@@ -5717,6 +5717,11 @@ const {AutoMatch} = (function(){
     if (Ti.S.isBlank(input) || "[BLANK]" == input) {
       return BlankMatch();
     }
+    // Range
+    let m = /^([(\[])([^\]]+)([)\]])$/.exec(input)
+    if(m) {
+      return NumberRangeMatch(m)
+    }
     // Regex
     if(/^!?\^/.test(input)) {
       return RegexMatch(input)
@@ -5747,7 +5752,44 @@ const {AutoMatch} = (function(){
   }
   function EmptyMatch() {
     return function(val){
-      return Ti.Util.isNil(val) || "" === val
+      return _.isEmpty(val)
+    }
+  }
+  function NumberRangeMatch(input) {
+    let m = input
+    if(_.isString(input)) {
+      m = /^([(\[])([^\]]+)([)\]])$/.exec(input)
+    }
+    if(!m) {
+      return function(){return false}
+    }
+    let vals = JSON.parse('['+m[2]+']')
+    let left = {
+      val  : _.first(vals),
+      open : '(' == m[1]
+    }
+    let right = {
+      val  : _.last(vals),
+      open : ')' == m[3]
+    }
+    return function(val) {
+      let n = val * 1
+      if(isNaN(n))
+        return false
+      
+      if(left.open && n <= left.val)
+        return false
+      
+      if(n < left.val)
+        return false
+  
+      if(right.open && n >= right.val)
+        return false
+  
+      if(n > right.val)
+        return false
+  
+      return true
     }
   }
   function MapMatch(map) {
@@ -11286,7 +11328,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201027.205544",
+  "version" : "2.5-20201101.224545",
   "dev" : false,
   "appName" : null,
   "session" : {},
