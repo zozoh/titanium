@@ -229,8 +229,37 @@ export default {
           args
         }
       }
+    },
+    //--------------------------------------
+    $main() {
+      return _.nth(this.$children, 0)
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "name" : {
+      handler : function(newVal, oldVal) {
+        // Guard
+        if(!this.$gui)
+          return
+        // Unregister old
+        if(oldVal) {
+          this.$gui.unregisterBlock(oldVal)
+        }
+        // Register self
+        if(newVal) {
+          this.$gui.registerBlock(newVal, this)
+        }
+      },
+      immediate : true
+    }
+  },
+  //////////////////////////////////////////
+  beforeDestroy : function(){
+    if(this.name) {
+      this.$gui.unregisterBlock(this.name)
+    }
   }
   //////////////////////////////////////////
 }

@@ -1,6 +1,7 @@
 export default {
   ////////////////////////////////////////////////////
   data: ()=>({
+    myShown : {},
     myList : [],
     dataReady : false
   }),
@@ -13,6 +14,10 @@ export default {
     "comConf" : {
       type : Object,
       default : ()=>({})
+    },
+    "keepShownTo" : {
+      type : String,
+      default : "keep_shown_${id}"
     }
   },
   ////////////////////////////////////////////////////
@@ -48,10 +53,52 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
+    OnGuiInit($gui) {
+      this.$gui = $gui
+    },
+    //------------------------------------------------
+    OnShownChange(shown) {
+      this.myShown = shown
+
+      let shownKey = this.getShownKey()
+      if(shownKey) {
+        Ti.Storage.session.setObject(shownKey, shown)
+      }
+    },
+    //------------------------------------------------
+    $MainBlock() {
+      let keys = [];
+      _.forEach(this.myShown, (v, k)=>{
+        if(v)
+        keys[0] = k
+      })
+      let key = _.nth(keys, 0)
+      if(key) {
+        return this.$gui.$block(key)
+      }
+    },
+    //------------------------------------------------
+    $MainCom() {
+      let $b = this.$MainBlock()
+      if($b)
+        return $b.$main()
+    },
+    //------------------------------------------------
+    getShownKey() {
+      if(this.keepShownTo && this.meta) {
+        return Ti.S.renderBy(this.keepShownTo, this.meta)
+      }
+    },
+    //------------------------------------------------
     async reload() {
       this.dataReady = false
       this.myList = await this.reloadChildren()
       this.dataReady = true
+
+      let shownKey = this.getShownKey()
+      if(shownKey) {
+        this.myShown = Ti.Storage.session.getObject(shownKey)
+      }
     } 
     //------------------------------------------------
   }

@@ -322,7 +322,6 @@ const LIST_MIXINS = {
     async selectRow(rowId, {quiet=false, payload}={}) {
       let idMap = {}
       let curId = null
-      
       // Change the current & checked
       if(this.autoCheckCurrent) {
         idMap = rowId ? {[rowId]:true} : {}

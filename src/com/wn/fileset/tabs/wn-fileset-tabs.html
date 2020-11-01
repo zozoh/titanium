@@ -1,4 +1,7 @@
 <TiGui
   class="wn-fileset-tabs"
   :class="TopClass"
-  :layout="TabsGUILayout"/>
+  :layout="TabsGUILayout"
+  :on-init="OnGuiInit"
+  :shown="myShown"
+  @block:shown="OnShownChange"/>

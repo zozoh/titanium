@@ -185,7 +185,10 @@ export default {
           ? this.CurrentId
           : undefined,
         display : ["<icon:far-file>", "title|nm"],
-        data : "=listData"
+        data : "=listData",
+        onInit : ($list) => {
+          this.$list = $list
+        }
       })
       //..............................................
       let metaConf = _.defaults({}, this.metaConf, {
@@ -271,8 +274,7 @@ export default {
           let reo = await Wn.Io.update(this.currentMeta, {
             [name]: value
           })
-          this.currentMeta = reo
-          this.listData.splice(this.currentIndex, 1, reo)
+          this.updateCurrentMeta(reo)
 
           this.$nextTick(()=>{
             this.metaFieldStatus = {
@@ -303,6 +305,89 @@ export default {
       this.currentContent = content
     },
     //------------------------------------------------
+    async doCreate() {
+      //console.log("doCreate for ", this.meta.ph)
+      let newName = _.trim(await Ti.Prompt("i18n:wn-fsc-mail-tmpl-new"))
+
+      if(!newName)
+        return
+
+      let cmdText = `touch id:${this.meta.id}/${newName}`
+      await Wn.Sys.exec(cmdText)
+
+      // Reload
+      await this.reload()
+
+      // Highlight it
+      let li = this.findDataInListByName(newName)
+
+      if(li && this.$list) {
+        this.$nextTick(()=>{
+          this.$list.selectRow(li.id)          
+        })
+      }
+      
+    },
+    //------------------------------------------------
+    async doDelete() {
+      if(this.hasCurrent && this.findIndexInList() >= 0) {
+        this.reloading = true
+        await Wn.Sys.exec(`rm id:${this.currentMeta.id}`)
+        await this.reload()
+        this.currentIndex = undefined
+        this.currentMeta = undefined
+        this.currentContent = undefined
+      }
+    },
+    //------------------------------------------------
+    async openCurrentMeta() {
+      let reo = await Wn.EditObjMeta(this.currentMeta, {fields:"auto"})
+
+      if(reo) {
+        let {data, saved} = reo
+        if(saved) {
+          this.updateCurrentMeta(data)
+        }
+      }
+    },
+    //------------------------------------------------
+    findIndexInList(meta=this.currentMeta) {
+      if(meta) {
+        let i = -1;
+        for(let li of this.listData) {
+          i++
+          if(li.id == meta.id)
+            return  i
+        }
+      }
+      return -1
+    },
+    //------------------------------------------------
+    findDataInListByName(name) {
+      if(name) {
+        for(let li of this.listData) {
+          if(li.nm == name)
+            return  li
+        }
+      }
+    },
+    //------------------------------------------------
+    getCurrentMeta() {
+      return _.cloneDeep(this.currentMeta)
+    },
+    //------------------------------------------------
+    updateCurrentMeta(meta) {
+      if(this.hasCurrent) {
+        this.currentMeta = meta
+        this.listData.splice(this.currentIndex, 1, meta)
+        if(this.$list) {
+          this.$nextTick(()=>{
+            this.$list.selectRow(meta.id, {quiet:true})
+          })
+        }
+      }
+    },
+    //------------------------------------------------
     async doSaveCurrentContent() {
       if(this.hasCurrent && this.isCurrentContentChanged) {
         this.saving = true
@@ -326,8 +411,11 @@ export default {
     },
     //------------------------------------------------
     async reload() {
-      console.log("reload fileset list")
+      this.reloading = true
       this.listData = await this.reloadChildren()
+      this.$nextTick(()=>{
+        this.reloading = false
+      })
     }
     //------------------------------------------------
   },

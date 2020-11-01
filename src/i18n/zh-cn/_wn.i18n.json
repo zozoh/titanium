@@ -1,4 +1,7 @@
 {
+  "wn-fsc-mail-tmpl-new" : "请输入新邮件模板的名称(要唯一，譬如 signup)",
+  "wn-fsc-mail-scene-new" : "新建一个邮件场景",
+
   "wn-admin-check-obj-thumb": "检查图像缩略图...",
   "wn-admin-tools": "管理工具",
   "wn-ctt-css-text": "CSS样式文件",

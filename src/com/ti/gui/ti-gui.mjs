@@ -10,6 +10,7 @@ const _M = {
     myShown : {},
     myViewportWidth  : 0,
     myViewportHeight : 0,
+    myBlockMap : {}
   }),
   /////////////////////////////////////////
   props : {
@@ -161,7 +162,6 @@ const _M = {
     },
     //--------------------------------------
     updateShown(shown) {
-      //console.log("updateShown", shown)
       this.syncMyShown(shown)
       this.persistMyStatus()
     },
@@ -189,6 +189,7 @@ const _M = {
     },
     //--------------------------------------
     OnBlockShownUpdate(shown) {
+      //console.log(shown)
       // Update privated status
       if(this.keepShownTo) {
         this.updateShown(shown)
@@ -223,6 +224,21 @@ const _M = {
       let rect = Ti.Rects.createBy(this.$el);
       this.myViewportWidth  = rect.width
       this.myViewportHeight = rect.height
+    },
+    //--------------------------------------
+    $block(name) {
+      return this.myBlockMap[name]
+    },
+    //--------------------------------------
+    registerBlock(name, $block) {
+      //console.log("registerBlock", name, $block.tiComId)
+      this.myBlockMap[name] = $block
+    },
+    //--------------------------------------
+    unregisterBlock(name) {
+      if(this.myBlockMap[name]) {
+        delete this.myBlockMap[name]
+      }
     }
     //--------------------------------------
   },

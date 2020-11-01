@@ -10,8 +10,9 @@
       "metaSize" : 200,
       "metaConf" : {
         "fields" : [{
-          "title": "i18n:wn-key-nm",
+          "title": "场景名",
           "name" : "nm",
+          "tip" : "请用半角英文数字或者下划线组合，并保证唯一",
           "comType" : "ti-input"
         }, {
           "title": "邮件标题",
@@ -30,7 +31,7 @@
         "icon" : "zmdi-refresh zmdi-hc-spin",
         "text" : "i18n:loading"
       },
-      "action" : "dispatch:current/reload",
+      "action" : "main:reloadAll",
       "shortcut" : "CTRL+SHIFT+R",
       "wait" : 500
     },{
@@ -80,7 +81,7 @@
           "type" : "action",
           "icon" : "zmdi-info-outline",
           "text" : "i18n:properties",
-          "action" : "dispatch:current/openMetaEditor",
+          "action" : "main:openCurrentMeta",
           "shortcut" : "ALT+SHIFT+P"
         }]
     }]
