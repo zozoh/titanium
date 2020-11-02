@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   props : {
     "data" : {
@@ -22,12 +21,11 @@ export default {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
-      if(this.className)
-        return this.className
+    TopClass() {
+      return this.getTopClass()
     },
     //------------------------------------------------
-    theData() {
+    ItemList() {
       let list = []
       if(_.isArray(this.data)) {
         _.forEach(this.data, (val, index)=>{
@@ -39,13 +37,13 @@ export default {
       return list
     },
     //------------------------------------------------
-    theDataValues() {
-      let list = []
-      for(let it of this.theData) {
-        list.push(Ti.Util.fallback(it.value, null))
-      }
-      return list
-    }
+    // theDataValues() {
+    //   let list = []
+    //   for(let it of this.theData) {
+    //     list.push(Ti.Util.fallback(it.value, null))
+    //   }
+    //   return list
+    // }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////

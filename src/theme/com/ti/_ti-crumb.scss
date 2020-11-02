@@ -1,6 +1,6 @@
 .ti-crumb {
   @include noselect;
-  @include flex-align($ai:stretch,$ac:stretch);
+  @include flex-align-nowrap($ai:stretch,$ac:stretch);
 }
 //---------------------------------------------
 .ti-crumb-item {
@@ -20,8 +20,8 @@
   }
   //-------------------------------------------
   > .as-text {
-    @include flex-center;
-    padding:0 0 SZ(2) SZ(2);
+    @include flex-center($wp:nowrap);
+    padding:0 0 SZ(2) SZ(2); white-space: nowrap;
     &.without-icon    {padding-left:SZ(8);}
     &.without-options {padding-right:SZ(8);}
   }
