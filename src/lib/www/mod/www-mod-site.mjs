@@ -193,7 +193,7 @@ const _M = {
      * 
      * @return {void}
      */
-    async doAction({state, dispatch}, AT){
+    async doAction({dispatch}, AT){
       // Guard nil
       if(!AT) {
         return

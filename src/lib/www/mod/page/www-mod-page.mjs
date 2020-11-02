@@ -301,7 +301,7 @@ const _M = {
     }={}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
-      console.log("doApi", key, params, api)
+      console.log("doApi", {key, api, params, vars, body})
       //.....................................
       // Guard
       if(!api) {

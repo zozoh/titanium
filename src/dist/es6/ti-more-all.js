@@ -1,4 +1,4 @@
-// Pack At: 2020-11-01 22:45:45
+// Pack At: 2020-11-02 19:53:52
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -30137,6 +30137,7 @@ const _M = {
           this.data.passwd = ""
         },
         ok : ({duInMin=60}={})=>{
+          console.log(arguments)
           this.delay = this.getDelay
           Ti.Toast.Open({
             type : "success",
@@ -46415,7 +46416,7 @@ const _M = {
 
       // Success
       if(reo.ok && reo.data) {
-        await dispatch("doAction", [ok, reo], {root:true})
+        await dispatch("doAction", [ok, reo.data], {root:true})
       }
       // Fail 
       else {
@@ -47072,7 +47073,7 @@ const _M = {
     }={}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
-      console.log("doApi", key, params, api)
+      console.log("doApi", {key, api, params, vars, body})
       //.....................................
       // Guard
       if(!api) {
@@ -48170,7 +48171,7 @@ const _M = {
      * 
      * @return {void}
      */
-    async doAction({state, dispatch}, AT){
+    async doAction({dispatch}, AT){
       // Guard nil
       if(!AT) {
         return

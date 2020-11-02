@@ -373,6 +373,7 @@ const _M = {
           this.data.passwd = ""
         },
         ok : ({duInMin=60}={})=>{
+          console.log(arguments)
           this.delay = this.getDelay
           Ti.Toast.Open({
             type : "success",

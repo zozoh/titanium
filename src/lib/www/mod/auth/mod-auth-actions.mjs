@@ -291,7 +291,7 @@ const _M = {
 
       // Success
       if(reo.ok && reo.data) {
-        await dispatch("doAction", [ok, reo], {root:true})
+        await dispatch("doAction", [ok, reo.data], {root:true})
       }
       // Fail 
       else {
