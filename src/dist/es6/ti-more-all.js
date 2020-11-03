@@ -1,4 +1,4 @@
-// Pack At: 2020-11-02 19:53:52
+// Pack At: 2020-11-03 11:37:48
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -9723,11 +9723,11 @@ Ti.Preload("ti/com/ti/crumb/com/crumb-item/_com.json", {
 // JOIN: ti/crumb/ti-crumb.html
 //============================================================
 Ti.Preload("ti/com/ti/crumb/ti-crumb.html", `<div class="ti-crumb"
-  :class="topClass">
+  :class="TopClass">
   <!--
     Loop items
   -->
-  <crumb-item v-for="it in theData"
+  <crumb-item v-for="it in ItemList"
     :key="it.index"
     :path-icon="pathIcon"
     :cancel-bubble="cancelItemBubble"
@@ -9738,7 +9738,6 @@ Ti.Preload("ti/com/ti/crumb/ti-crumb.html", `<div class="ti-crumb"
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ////////////////////////////////////////////////////
   props : {
     "data" : {
@@ -9761,12 +9760,11 @@ const _M = {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
-    topClass() {
-      if(this.className)
-        return this.className
+    TopClass() {
+      return this.getTopClass()
     },
     //------------------------------------------------
-    theData() {
+    ItemList() {
       let list = []
       if(_.isArray(this.data)) {
         _.forEach(this.data, (val, index)=>{
@@ -9778,13 +9776,13 @@ const _M = {
       return list
     },
     //------------------------------------------------
-    theDataValues() {
-      let list = []
-      for(let it of this.theData) {
-        list.push(Ti.Util.fallback(it.value, null))
-      }
-      return list
-    }
+    // theDataValues() {
+    //   let list = []
+    //   for(let it of this.theData) {
+    //     list.push(Ti.Util.fallback(it.value, null))
+    //   }
+    //   return list
+    // }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -49652,23 +49650,6 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN: en-us/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
-  "mail-scene" : "Email scenarios",
-  "mail-scene-meta" : "Email scenario properties",
-  "mail-setup" : "Email setup",
-  "mail-scene-flt-tip" : "Filter by a scene name",
-  "mail-scene-nm" : "Scene name",
-  "mail-scene-nm-tip" : "Only include english letters or numbers or underline, and guarantee unique",
-  "mail-scene-ctmpl" : "Template",
-  "mail-scene-nil-detail" : "Please select a mail scene for details",
-  "mail-as-html" : "HTML Email",
-  "mail-to" : "TO",
-  "mail-cc" : "CC",
-  "mail-bcc" : "BCC",
-  "mail-r-addr" : "Email addr.",
-  "mail-r-name" : "Name",
-  "mail-charset" : "Email charset",
-  "mail-subject" : "Subject",
-
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
@@ -49792,6 +49773,22 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "login-name": "Login name",
   "logout": "Sign out",
   "logout-ing": "Log out ...",
+  "mail-as-html": "HTML Email",
+  "mail-bcc": "BCC",
+  "mail-cc": "CC",
+  "mail-charset": "Email charset",
+  "mail-r-addr": "Email addr.",
+  "mail-r-name": "Name",
+  "mail-scene": "Email scenarios",
+  "mail-scene-ctmpl": "Template",
+  "mail-scene-flt-tip": "Filter by a scene name",
+  "mail-scene-meta": "Email scenario properties",
+  "mail-scene-nil-detail": "Please select a mail scene for details",
+  "mail-scene-nm": "Scene name",
+  "mail-scene-nm-tip": "Only include english letters or numbers or underline, and guarantee unique",
+  "mail-setup": "Email setup",
+  "mail-subject": "Subject",
+  "mail-to": "TO",
   "male": "Male",
   "map-hybrid": "HYBIRD",
   "map-roadmap": "ROADMAP",
@@ -49918,9 +49915,6 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
 // JOIN: en-us/_wn.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
-  "wn-fsc-mail-tmpl-new" : "Enter new unique name (such as 'signup')",
-  "wn-fsc-mail-scene-new" : "New a email scenario",
-
   "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
   "wn-admin-tools": "Admin tools",
   "wn-ctt-css-text": "CSS File",
@@ -49949,6 +49943,8 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-en-his-unm": "User name",
   "wn-en-his-usr": "User",
   "wn-en-his-utp": "User type",
+  "wn-fsc-mail-scene-new": "New a email scenario",
+  "wn-fsc-mail-tmpl-new": "Enter new unique name (such as 'signup')",
   "wn-invalid-mimes": "Unsupported mime \"${current}\", only \"${supports}\" allowed",
   "wn-invalid-types": "Unsupported type \"${current}\", only \"${supports}\" allowed",
   "wn-key-c": "Creater",
@@ -50664,23 +50660,6 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
-  "mail-scene" : "邮件场景",
-  "mail-scene-meta" : "邮件场景属性",
-  "mail-setup" : "邮件设置",
-  "mail-scene-flt-tip" : "请输入场景名称查询",
-  "mail-scene-nm" : "场景名称",
-  "mail-scene-nm-tip" : "请用半角英文数字或者下划线组合，并保证唯一",
-  "mail-scene-ctmpl" : "内容模板",
-  "mail-scene-nil-detail" : "请选择一个邮件场景查看详情",
-  "mail-as-html" : "HTML邮件",
-  "mail-to" : "收信人",
-  "mail-cc" : "抄送",
-  "mail-bcc" : "密送",
-  "mail-r-addr" : "邮件地址",
-  "mail-r-name" : "名称",
-  "mail-charset" : "邮件字符编码",
-  "mail-subject" : "邮件标题",
-
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",
@@ -50804,6 +50783,22 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "login-name": "登录名",
   "logout": "退出",
   "logout-ing": "正在注销...",
+  "mail-as-html": "HTML邮件",
+  "mail-bcc": "密送",
+  "mail-cc": "抄送",
+  "mail-charset": "邮件字符编码",
+  "mail-r-addr": "邮件地址",
+  "mail-r-name": "名称",
+  "mail-scene": "邮件场景",
+  "mail-scene-ctmpl": "内容模板",
+  "mail-scene-flt-tip": "请输入场景名称查询",
+  "mail-scene-meta": "邮件场景属性",
+  "mail-scene-nil-detail": "请选择一个邮件场景查看详情",
+  "mail-scene-nm": "场景名称",
+  "mail-scene-nm-tip": "请用半角英文数字或者下划线组合，并保证唯一",
+  "mail-setup": "邮件设置",
+  "mail-subject": "邮件标题",
+  "mail-to": "收信人",
   "male": "男",
   "map-hybrid": "俯瞰地图",
   "map-roadmap": "道路地图",
@@ -50930,10 +50925,6 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
 // JOIN: zh-cn/_wn.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
-  "wn-fsc-mail-tmpl-new" : "请输入新邮件模板的名称(要唯一，譬如 signup)",
-  "wn-fsc-mail-scene-new" : "新建一个邮件场景",
-  
-
   "wn-admin-check-obj-thumb": "检查图像缩略图...",
   "wn-admin-tools": "管理工具",
   "wn-ctt-css-text": "CSS样式文件",
@@ -50962,6 +50953,8 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-en-his-unm": "用户名",
   "wn-en-his-usr": "用户",
   "wn-en-his-utp": "用户类型",
+  "wn-fsc-mail-scene-new": "新建一个邮件场景",
+  "wn-fsc-mail-tmpl-new": "请输入新邮件模板的名称(要唯一，譬如 signup)",
   "wn-invalid-mimes": "不支持的文件内容类型 \"${current}\"，仅能支持 \"${supports}\"",
   "wn-invalid-types": "不支持的文件扩展名 \"${current}\"，仅能支持 \"${supports}\"",
   "wn-key-c": "创建者",
