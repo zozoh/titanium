@@ -18,7 +18,6 @@ const _M = {
   methods : {
     //------------------------------------------------
     genFormFieldsByGroup(){
-      console.log("haha")
       let list = []
       _.forEach(this.value, (val, key)=>{
         let grp = _.defaults(this.getFieldDefine(key), {

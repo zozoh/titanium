@@ -1,4 +1,4 @@
-// Pack At: 2020-11-03 11:37:48
+// Pack At: 2020-11-04 19:40:03
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -8492,7 +8492,6 @@ const _M = {
   methods : {
     //------------------------------------------------
     genFormFieldsByGroup(){
-      console.log("haha")
       let list = []
       _.forEach(this.value, (val, key)=>{
         let grp = _.defaults(this.getFieldDefine(key), {
