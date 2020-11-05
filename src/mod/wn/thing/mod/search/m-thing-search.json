@@ -13,6 +13,8 @@
     "skip" : 0,
     "count": 0
   },
+  "showKeys" : null,
+  "count" : 0,
   "currentId" : null,
   "checkedIds" : [],
   "list" : [],

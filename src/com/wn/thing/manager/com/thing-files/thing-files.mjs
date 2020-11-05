@@ -203,6 +203,10 @@ const _M = {
     "dirName" : {
       handler : "reloadData",
       immediate : true
+    },
+    "dataHome" : {
+      handler : "reloadData",
+      immediate : true
     }
   },
   ///////////////////////////////////////////

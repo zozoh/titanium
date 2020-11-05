@@ -154,7 +154,7 @@ const _M = {
             displayItem, 
             vars : {
               "rowId"     : this.rowId,
-              "isCurrent" : this.isCurrent
+              //"isCurrent" : this.isCurrent
             },
             autoIgnoreNil : true,
             uniqueKey: `row${this.rowId}-cell${this.index}-${i}`
@@ -192,7 +192,7 @@ const _M = {
       handler : "evalCellDisplayItems",
       immediate : true
     },
-    "isCurrent" : "evalCellDisplayItems"
+    //"isCurrent" : "evalCellDisplayItems"
   }
   ///////////////////////////////////////////////////
 }

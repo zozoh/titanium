@@ -86,6 +86,9 @@ const _M = {
     },
     //--------------------------------------
     TableFields() {
+      if(!this.myTableRect) {
+        return
+      }
       let fields = []
       for(let i=0; i< this.fields.length; i++) {
         let fld = this.fields[i]
@@ -109,7 +112,7 @@ const _M = {
           fldWidth = "stretch"
         }
         //..................................
-        fields.push({
+        let cell = {
           index  : i,
           title  : fld.title,
           nowrap : fld.nowrap,
@@ -124,7 +127,12 @@ const _M = {
           comConf : fld.comConf,
           transformer : fld.transformer,
           serializer  : fld.serializer
-        })
+        }
+        //..................................
+        cell.headStyle = this.getHeadCellStyle(cell)
+        //..................................
+        fields.push(cell)
+        //..................................
       }
       return fields
     }
@@ -238,10 +246,7 @@ const _M = {
     },
     //--------------------------------------
     OnResize() {
-      if(this.$refs.table) {
-        this.myTableRect = Ti.Rects.createBy(this.$refs.table)
-        //console.log("OnResize", this.myTableRect.width)
-      }
+      this.myTableRect = Ti.Rects.createBy(this.$el)
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
@@ -278,7 +283,9 @@ const _M = {
         }
         // Check ready 
         if(_.isEmpty(this.data)) {
-          this.myCellsReady = true
+          this.$nextTick(()=>{
+            this.myCellsReady = true
+          })
         }
       },
       immediate : true
@@ -295,6 +302,8 @@ const _M = {
         this.scrollCurrentIntoView()
       }, 0)
     }
+    // Eval the table viewport Rect
+    this.myTableRect = Ti.Rects.createBy(this.$el)
   },
   ///////////////////////////////////////////////////
   beforeDestroy : function(){

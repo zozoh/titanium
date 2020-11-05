@@ -204,6 +204,10 @@ const _M = {
       })
     },
     //--------------------------------------------
+    selectItem(id) {
+      this.$innerList.selectRow(id)
+    },
+    //--------------------------------------------
     // For global menu invoke checkAll/cancleAll
     invokeList(methodName) {
       console.log("methodName")

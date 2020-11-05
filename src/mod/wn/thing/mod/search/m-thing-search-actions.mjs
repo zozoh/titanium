@@ -7,7 +7,7 @@ export default {
     await dispatch("reload")
   },
   //--------------------------------------------
-  async reload({state, commit, rootState}, meta) {
+  async reload({state, commit, getters, rootState}, meta) {
     //console.log("thing-manager-search.reload", meta)
     //............................................
     // Update New Meta
@@ -22,7 +22,7 @@ export default {
     // Mark reloading
     commit("setStatus", {reloading:true})
     //............................................
-    let cmds = [`thing id:${meta.id} query -pager -cqn`]
+    let cmds = [`thing id:${meta.id} query -cqn`]
     
     let {keyword, match} = state.filter || {}
     let flt = {}
@@ -79,12 +79,18 @@ export default {
     }
     //............................................
     // Eval Pager
-    let pg = state.pager
-    if(!_.isEmpty(pg) && pg.pgsz > 0 && pg.pn > 0) {
-      let limit = pg.pgsz
-      let skip  = pg.pgsz * (pg.pn - 1)
+    if(getters.isPagerEnabled) {
+      let limit = state.pager.pgsz
+      let skip  = state.pager.pgsz * (state.pager.pn - 1)
+      cmds.push(' -pager')
       cmds.push(`-limit ${limit}`)
       cmds.push(`-skip  ${skip}`)
+    }
+
+    //............................................
+    // Eval Showkeys
+    if(state.showKeys) {
+      cmds.push(` -e '${state.showKeys}'`)
     }
     
     //............................................
@@ -94,8 +100,12 @@ export default {
     let reo = await Wn.Sys.exec2(cmdText, {input, as:"json"})
     //............................................
     // All done
-    commit("setPager", reo.pager)
-    commit("setList", reo.list)
+    if(getters.isPagerEnabled) {
+      commit("setPager", reo.pager)
+      commit("setList", reo.list)
+    } else {
+      commit("setList", reo)
+    }
     commit("setStatus", {reloading:false})
   }
   //--------------------------------------------

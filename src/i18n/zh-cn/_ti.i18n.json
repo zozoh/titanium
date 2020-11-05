@@ -1,4 +1,6 @@
 {
+  "total" : "总共",
+  "total-items" : "总共${val}项",
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",

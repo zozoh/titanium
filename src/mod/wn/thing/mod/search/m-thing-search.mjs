@@ -43,6 +43,10 @@ const _M = {
       }
       // done
       return list
+    },
+    //---------------------------------------------------
+    isPagerEnabled(state) {
+      return state.pager && state.pager.pn > 0 && state.pager.pgsz > 0
     }
     //---------------------------------------------------
   },
@@ -84,10 +88,15 @@ const _M = {
     //---------------------------------------------------
     setList(state, list) {
       state.list = list
+      state.count = _.size(list)
     },
     //---------------------------------------------------
     setCurrentId(state, id) {
       state.currentId = id || null
+    },
+    //---------------------------------------------------
+    setShowKeys(state, showKeys) {
+      state.showKeys = showKeys
     },
     //---------------------------------------------------
     setCheckedIds(state, ids=[]) {

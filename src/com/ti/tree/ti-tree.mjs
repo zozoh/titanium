@@ -9,12 +9,28 @@ const TI_TREE = {
   props : {
     "nodeClassName" : {
       type : String,
-      default : null
+      default : undefined
     },
     // The list to be rendered
     "data" : {
       type : [Object, Array],
-      default : null
+      default : undefined
+    },
+    // If date is array
+    // it can auto group to tree like structure
+    // but I need the obj parent Id
+    "autoGroupBy" : {
+      type : String,
+      default : undefined
+    },
+    // the key of obj to match children parentId(autoGroupBy)
+    "autoGroupIdKey" : {
+      type : String,
+      default : "id"
+    },
+    "autoGroupTo" : {
+      type : String,
+      default : "children"
     },
     "idBy" : {
       type : [String, Function],
@@ -226,7 +242,13 @@ const TI_TREE = {
 
       // Array push to root
       if(_.isArray(this.data)) {
-        await this.joinTreeTableRow(tableData, {}, null, this.data)
+        let list = this.data
+        // Pre group data
+        if(this.autoGroupBy) {
+          list = this.groupTreeData(list)
+        }
+
+        await this.joinTreeTableRow(tableData, {}, null, list)
       }
       // already has root
       else if(this.data){
@@ -297,6 +319,45 @@ const TI_TREE = {
         }
       }
       //....................................
+    },
+    //--------------------------------------
+    groupTreeData(data=[], groupBy=this.autoGroupBy) {
+      if(!groupBy)
+        return
+      // Clone data
+      data = _.cloneDeep(data)
+
+      // Build map
+      let map = {}
+      _.forEach(data, it=>{
+        let key = it[this.autoGroupIdKey]
+        if(!Ti.Util.isNil(key))
+          map[key] = it
+      })
+
+      // Group to parent
+      // Find the top list (nil value for autoGroupBy)
+      let tops = []
+      _.forEach(data, it=>{
+        let pKey = it[this.autoGroupBy]
+        // Group to parent
+        if(!Ti.Util.isNil(pKey)) {
+          let pIt = map[pKey]
+          if(pIt) {
+            Ti.Util.pushValue(pIt, this.autoGroupTo, it);
+          }
+        }
+        // Join to tops
+        else {
+          tops.push(it)
+        }
+      })
+
+      // done
+      if(!_.isEmpty(tops))
+        return tops
+
+      return data
     },
     //--------------------------------------
     findTableRow(rowId) {

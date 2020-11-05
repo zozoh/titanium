@@ -461,7 +461,7 @@ const _M = {
   /***
    * Reload All
    */
-  async reload({state, commit, dispatch}, meta) {
+  async reload({state, commit, dispatch, getters}, meta) {
     //console.log("thing-manager.reload", state)
     // Update New Meta
     if(meta) {
@@ -514,8 +514,23 @@ const _M = {
     }
 
     // Pager
-    if(!_.isEmpty(local.pager)) {
-      commit("search/setPager", local.pager)
+    let pager = _.get(state.config.schema, "behavior.pager")
+    if(pager) {
+      commit("search/updatePager", pager)
+    }
+
+    // Show keys
+    let showKeys = _.get(state.config.schema, "behavior.showKeys")
+    if(showKeys) {
+      commit("search/setShowKeys", showKeys)
+    }
+
+    // If pager is enabled, try load from local
+    //console.log("root Getters", getters) 
+    if(getters["search/isPagerEnabled"]) {
+      if(!_.isEmpty(local.pager)) {
+        commit("search/setPager", local.pager)
+      }
     }
 
     // Reload Search

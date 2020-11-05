@@ -42,6 +42,15 @@ const _M = {
       })
     },
     //--------------------------------------
+    TheFormat() {
+      if(this.format) {
+        if(this.autoI18n) {
+          return Ti.I18n.text(this.format)
+        }
+        return this.format
+      }
+    },
+    //--------------------------------------
     ValueStyle() {
       return Ti.Css.toStyle({
         maxWidth : this.valueMaxWidth
@@ -169,8 +178,8 @@ const _M = {
       }
       // Number
       if(_.isNumber(val)) {
-        if(this.format) {
-          return Ti.Types.toStr(val, this.format)
+        if(this.TheFormat) {
+          return Ti.Types.toStr(val, this.TheFormat)
         }
         return val
       }
@@ -191,11 +200,11 @@ const _M = {
       }
       // Date
       if(_.isDate(val)) {
-        return Ti.Types.toStr(val, this.format)
+        return Ti.Types.toStr(val, this.TheFormat)
       }
       // Auto format
-      if(this.format) {
-        val = Ti.Types.toStr(val, this.format)
+      if(this.TheFormat) {
+        return Ti.Types.toStr(val, this.TheFormat)
       }
       // Return & auto-i18n
       return this.autoI18n 

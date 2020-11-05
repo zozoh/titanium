@@ -14,6 +14,13 @@
     Show thead/tbody
   -->
   <template v-else>
+    <!--checker-->
+    <div
+      v-if="checkable && multi && isShowHead"
+        class="as-checker"
+        @click.left="OnClickHeadChecker">
+        <ti-icon :value="HeadCheckerIcon"/>
+    </div>
     <!--
       Table
     -->
@@ -28,7 +35,7 @@
         <tr>
           <th
             v-for="fld in TableFields"
-              :style="getHeadCellStyle(fld)"
+              :style="fld.headStyle"
               :col-index="fld.index">
             <span class="table-head-cell-text">{{fld.title|i18n}}</span>
           </th>
@@ -61,12 +68,5 @@
             @open="OnRowOpen"/>
         </tbody>
     </table>
-    <!--checker-->
-    <div
-      v-if="checkable && multi && isShowHead"
-        class="as-checker"
-        @click.left="OnClickHeadChecker">
-        <ti-icon :value="HeadCheckerIcon"/>
-    </div>
   </template>
 </div>

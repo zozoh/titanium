@@ -146,7 +146,6 @@ const OBJ = {
     if(_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:wn-del-none', "warn")
     }
-    console.log("haha!!!")
     let delCount = 0
     // make removed files. it remove a video
     // it will auto-remove the `videoc_dir` in serverside also

@@ -62,7 +62,7 @@
     @include flex-center;
     @include border(1px, solid, shallow, right);
     cursor: pointer;
-    z-index: $z-above;
+    z-index: $z-above + 1;
     &:hover {@include color($color-weaktip, r, c);}
   }
   //---------------------------------------------
@@ -153,13 +153,14 @@
               width:SZ(16);
             }
             //-----------------------------------------
-            .row-icon.ti-icon, .row-checker {
-              cursor: pointer; 
-              &:hover {@include color($color-secondary, r, c);}
+            .row-handler {
+              padding:SZ(6); cursor: pointer;
+              &:hover {@include color($color-weaktip, r, c);}
             }
             //-----------------------------------------
             .row-checker {
-              padding:SZ(6);
+              padding:SZ(6); cursor: pointer;
+              &:hover {@include color($color-secondary, r, c);}
             }
             //-----------------------------------------
           }

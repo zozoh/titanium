@@ -1,4 +1,6 @@
 {
+  "total" : "Total",
+  "total-items" : "Total ${val} items",
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
