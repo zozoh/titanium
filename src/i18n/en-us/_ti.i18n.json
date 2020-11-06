@@ -1,6 +1,4 @@
 {
-  "total" : "Total",
-  "total-items" : "Total ${val} items",
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
@@ -242,7 +240,9 @@
   "text": "Text",
   "timestamp": "Timestamp",
   "title": "Title",
+  "total": "Total",
   "total-count": "Total ${nb?0} ${unit?items}",
+  "total-items": "Total ${val} items",
   "trace": "Trace",
   "track": "Track message",
   "true": "True",

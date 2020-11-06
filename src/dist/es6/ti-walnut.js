@@ -1,4 +1,4 @@
-// Pack At: 2020-11-04 19:40:03
+// Pack At: 2020-11-06 17:58:12
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1008,11 +1008,12 @@ const Sys = (function(){
       vars = {},
       input = "",
       appName = Ti.GetAppName(),
-      eachLine = _.identity,
+      eachLine = undefined,
       as = "text",
       blankAs = "",
       macroObjSep = DFT_MACRO_OBJ_SEP,
       autoRunMacro = true,
+      forceFlushBuffer = false,
       errorBy,
       PWD = Wn.Session.getCurrentPath()
     }={}) {
@@ -1024,7 +1025,8 @@ const Sys = (function(){
         "mos"  : macroObjSep,
         "PWD"  : PWD,
         "cmd"  : cmdText,
-        "in"   : input
+        "in"   : input,
+        "ffb"  : forceFlushBuffer
       }
       // Prepare analyzer
       let ing = {eachLine, macroObjSep}
@@ -1038,12 +1040,21 @@ const Sys = (function(){
       }
       let parsing = new WnSysRespParsing(ing)
   
+      // Watch each line if necessary
+      let readyStateChanged = undefined
+      if(forceFlushBuffer && _.isFunction(eachLine)) {
+        readyStateChanged = ()=>{
+          parsing.updated()
+        }
+      }
+  
       // Request remote
       await Ti.Http.send(url, {
         method : "POST", params, as:"text",
         created : ($req)=>{
           parsing.init(()=>$req.responseText)
-        }
+        },
+        readyStateChanged
       }).catch($req=>{
         parsing.isError = true
       }).finally(()=>{
@@ -2176,7 +2187,11 @@ const OpenCmdPanel = (function(){
     textCancel = "i18n:close",
     position = "top",
     width="80%", height="90%", spacing,
-    vars
+    vars,
+    input,
+    forceFlushBuffer,
+    cmdTipText,
+    cmdTipIcon
   }={}){
     //................................................
     // Open modal dialog
@@ -2191,7 +2206,9 @@ const OpenCmdPanel = (function(){
       comType : "WnCmdPanel",
       comConf : {
         "value" : cmdText,
-        "vars"  : vars
+        "tipText" : cmdTipText,
+        "tipIcon"  : cmdTipIcon,
+        vars, input, forceFlushBuffer
       },
       //------------------------------------------
       components : ["@com:wn/cmd/panel"]
@@ -2204,7 +2221,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20201104.194003"
+const WALNUT_VERSION = "2.1-20201106.175813"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

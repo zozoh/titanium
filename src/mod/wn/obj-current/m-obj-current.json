@@ -6,7 +6,8 @@
   "status" : {
     "changed"   : false,
     "saving"    : false,
-    "reloading" : false
+    "reloading" : false,
+    "publishing" : false
   },
   "fieldStatus" : {}
 }

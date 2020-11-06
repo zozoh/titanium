@@ -8,11 +8,12 @@ const WnSys = {
     vars = {},
     input = "",
     appName = Ti.GetAppName(),
-    eachLine = _.identity,
+    eachLine = undefined,
     as = "text",
     blankAs = "",
     macroObjSep = DFT_MACRO_OBJ_SEP,
     autoRunMacro = true,
+    forceFlushBuffer = false,
     errorBy,
     PWD = Wn.Session.getCurrentPath()
   }={}) {
@@ -24,7 +25,8 @@ const WnSys = {
       "mos"  : macroObjSep,
       "PWD"  : PWD,
       "cmd"  : cmdText,
-      "in"   : input
+      "in"   : input,
+      "ffb"  : forceFlushBuffer
     }
     // Prepare analyzer
     let ing = {eachLine, macroObjSep}
@@ -38,12 +40,21 @@ const WnSys = {
     }
     let parsing = new WnSysRespParsing(ing)
 
+    // Watch each line if necessary
+    let readyStateChanged = undefined
+    if(forceFlushBuffer && _.isFunction(eachLine)) {
+      readyStateChanged = ()=>{
+        parsing.updated()
+      }
+    }
+
     // Request remote
     await Ti.Http.send(url, {
       method : "POST", params, as:"text",
       created : ($req)=>{
         parsing.init(()=>$req.responseText)
-      }
+      },
+      readyStateChanged
     }).catch($req=>{
       parsing.isError = true
     }).finally(()=>{

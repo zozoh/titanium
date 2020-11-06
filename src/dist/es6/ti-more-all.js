@@ -1,4 +1,4 @@
-// Pack At: 2020-11-04 19:40:03
+// Pack At: 2020-11-06 17:58:12
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -16605,6 +16605,15 @@ const _M = {
       })
     },
     //--------------------------------------
+    TheFormat() {
+      if(this.format) {
+        if(this.autoI18n) {
+          return Ti.I18n.text(this.format)
+        }
+        return this.format
+      }
+    },
+    //--------------------------------------
     ValueStyle() {
       return Ti.Css.toStyle({
         maxWidth : this.valueMaxWidth
@@ -16732,8 +16741,8 @@ const _M = {
       }
       // Number
       if(_.isNumber(val)) {
-        if(this.format) {
-          return Ti.Types.toStr(val, this.format)
+        if(this.TheFormat) {
+          return Ti.Types.toStr(val, this.TheFormat)
         }
         return val
       }
@@ -16754,11 +16763,11 @@ const _M = {
       }
       // Date
       if(_.isDate(val)) {
-        return Ti.Types.toStr(val, this.format)
+        return Ti.Types.toStr(val, this.TheFormat)
       }
       // Auto format
-      if(this.format) {
-        val = Ti.Types.toStr(val, this.format)
+      if(this.TheFormat) {
+        return Ti.Types.toStr(val, this.TheFormat)
       }
       // Return & auto-i18n
       return this.autoI18n 
@@ -23323,7 +23332,7 @@ const _M = {
             displayItem, 
             vars : {
               "rowId"     : this.rowId,
-              "isCurrent" : this.isCurrent
+              //"isCurrent" : this.isCurrent
             },
             autoIgnoreNil : true,
             uniqueKey: `row${this.rowId}-cell${this.index}-${i}`
@@ -23361,7 +23370,7 @@ const _M = {
       handler : "evalCellDisplayItems",
       immediate : true
     },
-    "isCurrent" : "evalCellDisplayItems"
+    //"isCurrent" : "evalCellDisplayItems"
   }
   ///////////////////////////////////////////////////
 }
@@ -23409,7 +23418,7 @@ Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<tr class="table-row
         <template v-if="icon">
           <ti-icon
             v-if="hasRealIcon"
-              class="row-icon"
+              class="row-icon row-handler"
               :value="icon"
               @click.native.left.stop="OnClickIcon"/>
           <div v-else
@@ -23760,6 +23769,13 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
     Show thead/tbody
   -->
   <template v-else>
+    <!--checker-->
+    <div
+      v-if="checkable && multi && isShowHead"
+        class="as-checker"
+        @click.left="OnClickHeadChecker">
+        <ti-icon :value="HeadCheckerIcon"/>
+    </div>
     <!--
       Table
     -->
@@ -23774,7 +23790,7 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
         <tr>
           <th
             v-for="fld in TableFields"
-              :style="getHeadCellStyle(fld)"
+              :style="fld.headStyle"
               :col-index="fld.index">
             <span class="table-head-cell-text">{{fld.title|i18n}}</span>
           </th>
@@ -23807,13 +23823,6 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
             @open="OnRowOpen"/>
         </tbody>
     </table>
-    <!--checker-->
-    <div
-      v-if="checkable && multi && isShowHead"
-        class="as-checker"
-        @click.left="OnClickHeadChecker">
-        <ti-icon :value="HeadCheckerIcon"/>
-    </div>
   </template>
 </div>`);
 //============================================================
@@ -23908,6 +23917,9 @@ const _M = {
     },
     //--------------------------------------
     TableFields() {
+      if(!this.myTableRect) {
+        return
+      }
       let fields = []
       for(let i=0; i< this.fields.length; i++) {
         let fld = this.fields[i]
@@ -23931,7 +23943,7 @@ const _M = {
           fldWidth = "stretch"
         }
         //..................................
-        fields.push({
+        let cell = {
           index  : i,
           title  : fld.title,
           nowrap : fld.nowrap,
@@ -23946,7 +23958,12 @@ const _M = {
           comConf : fld.comConf,
           transformer : fld.transformer,
           serializer  : fld.serializer
-        })
+        }
+        //..................................
+        cell.headStyle = this.getHeadCellStyle(cell)
+        //..................................
+        fields.push(cell)
+        //..................................
       }
       return fields
     }
@@ -24060,10 +24077,7 @@ const _M = {
     },
     //--------------------------------------
     OnResize() {
-      if(this.$refs.table) {
-        this.myTableRect = Ti.Rects.createBy(this.$refs.table)
-        //console.log("OnResize", this.myTableRect.width)
-      }
+      this.myTableRect = Ti.Rects.createBy(this.$el)
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
@@ -24100,7 +24114,9 @@ const _M = {
         }
         // Check ready 
         if(_.isEmpty(this.data)) {
-          this.myCellsReady = true
+          this.$nextTick(()=>{
+            this.myCellsReady = true
+          })
         }
       },
       immediate : true
@@ -24117,6 +24133,8 @@ const _M = {
         this.scrollCurrentIntoView()
       }, 0)
     }
+    // Eval the table viewport Rect
+    this.myTableRect = Ti.Rects.createBy(this.$el)
   },
   ///////////////////////////////////////////////////
   beforeDestroy : function(){
@@ -27510,12 +27528,28 @@ const TI_TREE = {
   props : {
     "nodeClassName" : {
       type : String,
-      default : null
+      default : undefined
     },
     // The list to be rendered
     "data" : {
       type : [Object, Array],
-      default : null
+      default : undefined
+    },
+    // If date is array
+    // it can auto group to tree like structure
+    // but I need the obj parent Id
+    "autoGroupBy" : {
+      type : String,
+      default : undefined
+    },
+    // the key of obj to match children parentId(autoGroupBy)
+    "autoGroupIdKey" : {
+      type : String,
+      default : "id"
+    },
+    "autoGroupTo" : {
+      type : String,
+      default : "children"
     },
     "idBy" : {
       type : [String, Function],
@@ -27727,7 +27761,13 @@ const TI_TREE = {
 
       // Array push to root
       if(_.isArray(this.data)) {
-        await this.joinTreeTableRow(tableData, {}, null, this.data)
+        let list = this.data
+        // Pre group data
+        if(this.autoGroupBy) {
+          list = this.groupTreeData(list)
+        }
+
+        await this.joinTreeTableRow(tableData, {}, null, list)
       }
       // already has root
       else if(this.data){
@@ -27798,6 +27838,45 @@ const TI_TREE = {
         }
       }
       //....................................
+    },
+    //--------------------------------------
+    groupTreeData(data=[], groupBy=this.autoGroupBy) {
+      if(!groupBy)
+        return
+      // Clone data
+      data = _.cloneDeep(data)
+
+      // Build map
+      let map = {}
+      _.forEach(data, it=>{
+        let key = it[this.autoGroupIdKey]
+        if(!Ti.Util.isNil(key))
+          map[key] = it
+      })
+
+      // Group to parent
+      // Find the top list (nil value for autoGroupBy)
+      let tops = []
+      _.forEach(data, it=>{
+        let pKey = it[this.autoGroupBy]
+        // Group to parent
+        if(!Ti.Util.isNil(pKey)) {
+          let pIt = map[pKey]
+          if(pIt) {
+            Ti.Util.pushValue(pIt, this.autoGroupTo, it);
+          }
+        }
+        // Join to tops
+        else {
+          tops.push(it)
+        }
+      })
+
+      // done
+      if(!_.isEmpty(tops))
+        return tops
+
+      return data
     },
     //--------------------------------------
     findTableRow(rowId) {
@@ -35453,7 +35532,6 @@ const OBJ = {
     if(_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:wn-del-none', "warn")
     }
-    console.log("haha!!!")
     let delCount = 0
     // make removed files. it remove a video
     // it will auto-remove the `videoc_dir` in serverside also
@@ -35969,6 +36047,10 @@ const _M = {
       })
     },
     //--------------------------------------------
+    selectItem(id) {
+      this.$innerList.selectRow(id)
+    },
+    //--------------------------------------------
     // For global menu invoke checkAll/cancleAll
     invokeList(methodName) {
       console.log("methodName")
@@ -36367,12 +36449,24 @@ Ti.Preload("ti/com/wn/chart/combo/_com.json", {
 //============================================================
 // JOIN: wn/cmd/panel/wn-cmd-panel.html
 //============================================================
-Ti.Preload("ti/com/wn/cmd/panel/wn-cmd-panel.html", `<pre class="wn-cmd-panel"
-  :class="TopClass"><div  
-    v-for="(line, index) in lines"
-      :key="index"
-      class="as-line">{{line}}</div>
-</pre>`);
+Ti.Preload("ti/com/wn/cmd/panel/wn-cmd-panel.html", `<div class="wn-cmd-panel">
+  <!--Head-->
+  <div 
+    v-if="tipText"
+      class="as-tip">
+      <ti-icon 
+        v-if="tipIcon"
+          :value="tipIcon"/>
+      <div class="as-text">{{tipText|i18n}}</div>
+  </div>
+  <!--Logging-->
+  <pre ref="lines"
+    class="as-lines"
+    :class="TopClass"><div  
+      v-for="(line, index) in lines"
+        :key="index"
+        class="as-line">{{line}}</div></pre>
+</div>`);
 //============================================================
 // JOIN: wn/cmd/panel/wn-cmd-panel.mjs
 //============================================================
@@ -36388,6 +36482,14 @@ const _M = {
       type : String,
       default : undefined
     },
+    "tipText" : {
+      type : String,
+      default : undefined
+    },
+    "tipIcon" : {
+      type : String,
+      default : undefined
+    },
     "vars" : {
       type : Object,
       default: undefined
@@ -36399,6 +36501,14 @@ const _M = {
     "emitName": {
       type : String,
       default: undefined
+    },
+    "input" : {
+      type : String,
+      default: undefined
+    },
+    "forceFlushBuffer" : {
+      type : Boolean,
+      default: true
     }
   },
   ////////////////////////////////////////////////////
@@ -36428,6 +36538,8 @@ const _M = {
       let re = await Wn.Sys.exec(this.value, {
         as : this.as,
         vars : this.vars,
+        input : this.input, 
+        forceFlushBuffer : this.forceFlushBuffer,
         eachLine : (line)=>{
           this.lines.push(line)
         }
@@ -36451,7 +36563,9 @@ const _M = {
       immediate : true
     }, 
     "lines" : function() {
-      this.$el.scrollTop = this.$el.scrollHeight * 2
+      this.$nextTick(()=>{
+        this.$refs.lines.scrollTop = this.$refs.lines.scrollHeight * 2
+      })
     }
   }
   ////////////////////////////////////////////////////
@@ -42072,6 +42186,10 @@ const _M = {
     "dirName" : {
       handler : "reloadData",
       immediate : true
+    },
+    "dataHome" : {
+      handler : "reloadData",
+      immediate : true
     }
   },
   ///////////////////////////////////////////
@@ -44027,7 +44145,8 @@ Ti.Preload("ti/mod/wn/obj-current/m-obj-current.json", {
   "status" : {
     "changed"   : false,
     "saving"    : false,
-    "reloading" : false
+    "reloading" : false,
+    "publishing" : false
   },
   "fieldStatus" : {}
 });
@@ -44964,7 +45083,7 @@ const _M = {
   /***
    * Reload All
    */
-  async reload({state, commit, dispatch}, meta) {
+  async reload({state, commit, dispatch, getters}, meta) {
     //console.log("thing-manager.reload", state)
     // Update New Meta
     if(meta) {
@@ -45017,8 +45136,23 @@ const _M = {
     }
 
     // Pager
-    if(!_.isEmpty(local.pager)) {
-      commit("search/setPager", local.pager)
+    let pager = _.get(state.config.schema, "behavior.pager")
+    if(pager) {
+      commit("search/updatePager", pager)
+    }
+
+    // Show keys
+    let showKeys = _.get(state.config.schema, "behavior.showKeys")
+    if(showKeys) {
+      commit("search/setShowKeys", showKeys)
+    }
+
+    // If pager is enabled, try load from local
+    //console.log("root Getters", getters) 
+    if(getters["search/isPagerEnabled"]) {
+      if(!_.isEmpty(local.pager)) {
+        commit("search/setPager", local.pager)
+      }
     }
 
     // Reload Search
@@ -45297,7 +45431,7 @@ const _M = {
     await dispatch("reload")
   },
   //--------------------------------------------
-  async reload({state, commit, rootState}, meta) {
+  async reload({state, commit, getters, rootState}, meta) {
     //console.log("thing-manager-search.reload", meta)
     //............................................
     // Update New Meta
@@ -45312,7 +45446,7 @@ const _M = {
     // Mark reloading
     commit("setStatus", {reloading:true})
     //............................................
-    let cmds = [`thing id:${meta.id} query -pager -cqn`]
+    let cmds = [`thing id:${meta.id} query -cqn`]
     
     let {keyword, match} = state.filter || {}
     let flt = {}
@@ -45369,12 +45503,18 @@ const _M = {
     }
     //............................................
     // Eval Pager
-    let pg = state.pager
-    if(!_.isEmpty(pg) && pg.pgsz > 0 && pg.pn > 0) {
-      let limit = pg.pgsz
-      let skip  = pg.pgsz * (pg.pn - 1)
+    if(getters.isPagerEnabled) {
+      let limit = state.pager.pgsz
+      let skip  = state.pager.pgsz * (state.pager.pn - 1)
+      cmds.push(' -pager')
       cmds.push(`-limit ${limit}`)
       cmds.push(`-skip  ${skip}`)
+    }
+
+    //............................................
+    // Eval Showkeys
+    if(state.showKeys) {
+      cmds.push(` -e '${state.showKeys}'`)
     }
     
     //............................................
@@ -45384,8 +45524,12 @@ const _M = {
     let reo = await Wn.Sys.exec2(cmdText, {input, as:"json"})
     //............................................
     // All done
-    commit("setPager", reo.pager)
-    commit("setList", reo.list)
+    if(getters.isPagerEnabled) {
+      commit("setPager", reo.pager)
+      commit("setList", reo.list)
+    } else {
+      commit("setList", reo)
+    }
     commit("setStatus", {reloading:false})
   }
   //--------------------------------------------
@@ -45410,6 +45554,8 @@ Ti.Preload("ti/mod/wn/thing/mod/search/m-thing-search.json", {
     "skip" : 0,
     "count": 0
   },
+  "showKeys" : null,
+  "count" : 0,
   "currentId" : null,
   "checkedIds" : [],
   "list" : [],
@@ -45468,6 +45614,10 @@ const _M = {
       }
       // done
       return list
+    },
+    //---------------------------------------------------
+    isPagerEnabled(state) {
+      return state.pager && state.pager.pn > 0 && state.pager.pgsz > 0
     }
     //---------------------------------------------------
   },
@@ -45509,10 +45659,15 @@ const _M = {
     //---------------------------------------------------
     setList(state, list) {
       state.list = list
+      state.count = _.size(list)
     },
     //---------------------------------------------------
     setCurrentId(state, id) {
       state.currentId = id || null
+    },
+    //---------------------------------------------------
+    setShowKeys(state, showKeys) {
+      state.showKeys = showKeys
     },
     //---------------------------------------------------
     setCheckedIds(state, ids=[]) {
@@ -49649,6 +49804,8 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN: en-us/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "total" : "Total",
+  "total-items" : "Total ${val} items",
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
@@ -50659,6 +50816,8 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "total" : "总共",
+  "total-items" : "总共${val}项",
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",

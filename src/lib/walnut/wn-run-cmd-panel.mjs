@@ -8,7 +8,11 @@ async function OpenCmdPanel(cmdText, {
   textCancel = "i18n:close",
   position = "top",
   width="80%", height="90%", spacing,
-  vars
+  vars,
+  input,
+  forceFlushBuffer,
+  cmdTipText,
+  cmdTipIcon
 }={}){
   //................................................
   // Open modal dialog
@@ -23,7 +27,9 @@ async function OpenCmdPanel(cmdText, {
     comType : "WnCmdPanel",
     comConf : {
       "value" : cmdText,
-      "vars"  : vars
+      "tipText" : cmdTipText,
+      "tipIcon"  : cmdTipIcon,
+      vars, input, forceFlushBuffer
     },
     //------------------------------------------
     components : ["@com:wn/cmd/panel"]

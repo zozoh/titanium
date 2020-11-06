@@ -1,6 +1,4 @@
 {
-  "total" : "总共",
-  "total-items" : "总共${val}项",
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",
@@ -242,7 +240,9 @@
   "text": "文字",
   "timestamp": "时间戳",
   "title": "标题",
+  "total": "总共",
   "total-count": "共 ${nb?0} ${unit?项}",
+  "total-items": "总共${val}项",
   "trace": "跟踪",
   "track": "消息",
   "true": "是",

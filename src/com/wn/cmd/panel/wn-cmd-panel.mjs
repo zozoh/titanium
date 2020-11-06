@@ -9,6 +9,14 @@ const _M = {
       type : String,
       default : undefined
     },
+    "tipText" : {
+      type : String,
+      default : undefined
+    },
+    "tipIcon" : {
+      type : String,
+      default : undefined
+    },
     "vars" : {
       type : Object,
       default: undefined
@@ -20,6 +28,14 @@ const _M = {
     "emitName": {
       type : String,
       default: undefined
+    },
+    "input" : {
+      type : String,
+      default: undefined
+    },
+    "forceFlushBuffer" : {
+      type : Boolean,
+      default: true
     }
   },
   ////////////////////////////////////////////////////
@@ -49,6 +65,8 @@ const _M = {
       let re = await Wn.Sys.exec(this.value, {
         as : this.as,
         vars : this.vars,
+        input : this.input, 
+        forceFlushBuffer : this.forceFlushBuffer,
         eachLine : (line)=>{
           this.lines.push(line)
         }
@@ -72,7 +90,9 @@ const _M = {
       immediate : true
     }, 
     "lines" : function() {
-      this.$el.scrollTop = this.$el.scrollHeight * 2
+      this.$nextTick(()=>{
+        this.$refs.lines.scrollTop = this.$refs.lines.scrollHeight * 2
+      })
     }
   }
   ////////////////////////////////////////////////////

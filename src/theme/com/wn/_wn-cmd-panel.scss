@@ -1,7 +1,19 @@
 .wn-cmd-panel {
-  @include font-fixed;
-  @include color($color-mask, r, heavy);
-  overflow: auto;
-  padding: SZ(20); margin:0;
-  tab-size: 4; line-height: 1.6em;
+  @include flex-align-v-nowrap;
+  > .as-tip {
+    @include flex-align-nowrap;
+    flex:0 0 auto; padding: SZ(8);
+    > .ti-icon {margin: 0 .5em; }
+    > .as-text {
+      flex:1 1 auto; width:100px;
+    }
+  }
+  > .as-lines {
+    flex: 1 1 auto;
+    @include font-fixed; 
+    @include color($color-mask, r, heavy);
+    overflow: auto;
+    padding: SZ(10); margin:0;
+    tab-size: 4; line-height: 1.6em;
+  }
 }
