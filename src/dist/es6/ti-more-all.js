@@ -1,4 +1,4 @@
-// Pack At: 2020-11-06 17:58:12
+// Pack At: 2020-11-07 03:29:14
 (function(){
 //============================================================
 // JOIN: hmaker/edit-com/form/edit-com-form.html
@@ -29505,7 +29505,15 @@ const _M = {
         return "short"
       }
 
-      // 2 password unmatched
+      // Check the chart, must in 0x21[33](!) - 0x7E[126](~)
+      for(let c of this.myForm.passwd_new) {
+        let cd = c.charCodeAt(0)
+        if(cd > 126 || cd < 33) {
+          return "invalid"
+        }
+      }
+
+      // two password unmatched
       if(this.myForm.passwd_new != this.myForm.passwd_ren) {
         return "unmatch"
       }
@@ -29952,7 +29960,8 @@ const _M = {
           "codeGet"   : "i18n:auth-email-vcode-get",
           "btnText"   : "i18n:auth-login-or-signup",
           "linkLeft"  : "i18n:auth-go-passwd",
-          "linkRight" : "i18n:auth-vcode-lost",
+          // "linkRight" : "i18n:auth-vcode-lost",
+          "linkRight" : undefined,
           "blankName" : "i18n:auth-blank-email"
         }
       }
@@ -29965,7 +29974,8 @@ const _M = {
           "codeGet"   : "i18n:auth-phone-vcode-get",
           "btnText"   : "i18n:auth-bind",
           //"linkLeft"  : "i18n:auth-bind-link-left",
-          "linkRight" : "i18n:auth-vcode-lost",
+          //"linkRight" : "i18n:auth-vcode-lost",
+          "linkRight" : undefined,
           "blankName" : "i18n:auth-blank-phone"
         }
       }
@@ -30228,6 +30238,7 @@ const _M = {
           })
         },
         fail : ({errCode, data}={})=> {
+          console.log("haha")
           Ti.Toast.Open({
             type : "warn",
             position : "top",
@@ -33055,7 +33066,7 @@ const _M = {
         prev : true,
         next : {
           enabled: {
-            payType: "notBlank"
+            payType: "![BLANK]"
           }
         },
         comType: "WebPayChoose",
@@ -33069,7 +33080,7 @@ const _M = {
         next : {
           enabled: {
             payOk: "isBoolean",
-            orderId: "notBlank"
+            orderId: "![BLANK]"
           }
         },
         comType: "WebPayProceed",
@@ -35103,8 +35114,9 @@ Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.html", `<div class="web-w
   <div class="as-items">
     <a
       v-for="it in TheItems"
-        class="bar-item">
-      <i :class="it.iconClass"></i>
+        class="bar-item"
+        @click.left="OnClickItem(it)">
+        <i :class="it.iconClass"></i>
     </a>
   </div>
 </div>`);
@@ -35139,6 +35151,17 @@ const _M = {
   /////////////////////////////////////////
   methods : {
     //------------------------------------
+    OnClickItem({link, params}) {
+      if(!link)
+        return
+
+      let url = window.location.href
+      let title = window.document.title
+      params = Ti.Util.explainObj({url, title}, params)
+      console.log("haha", params)
+      Ti.Be.Open(link, {params})
+    },
+    //------------------------------------
     evalItems(items) {
       let list = []
       _.forEach(items, (it, index)=>{
@@ -35146,21 +35169,22 @@ const _M = {
         let li = ({
           //..............................
           "facebook": {
-            iconClass: "fab fa-facebook-f"
+            iconClass: "fab fa-facebook-f",
+            link : "https://www.facebook.com/sharer.php",
+            params : {
+              title : "=title",
+              u     : "=url"
+            }
           },
           //..............................
           "twitter": {
-            iconClass: "fab fa-twitter"
-          },
-          //..............................
-          "instagram": {
-            iconClass: "fab fa-instagram"
-          },
-          //..............................
-          "tumblr": {
-            iconClass: "fab fa-tumblr"
+            iconClass: "fab fa-twitter",
+            link : "https://twitter.com/share",
+            params : {
+              text : "=title",
+              url  : "=url"
+            }
           }
-          //..............................
           //..............................
         })[it]
         //................................
@@ -46530,7 +46554,7 @@ const _M = {
     account, captcha,
     done, ok, fail, error
   }={}) {
-    //console.log("getVcode", {type,scene, account, captcha})
+    console.log("getVcode", {type,scene, account, captcha})
 
     // Guard SiteId
     let siteId = rootState.siteId
@@ -49441,7 +49465,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "auth-login-or-signup": "Sign up or sign in",
   "auth-logout-confirm": "Are you sure you want to log out?",
   "auth-ok": "Verify successful",
-  "auth-passwd-getback": "Retrieve password",
+  "auth-passwd-getback": "Get back password",
   "auth-passwd-name-email-tip": "Email/Name",
   "auth-passwd-name-phone-tip": "Phone/Name",
   "auth-passwd-tip": "Password",
@@ -49452,6 +49476,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "auth-phone-vcode-get": "Get sms password",
   "auth-reset-passwd": "Reset password ...",
   "auth-reset-passwd-again": "Reset password again",
+  "auth-reset-passwd-btn-invalid": "Illegal characters",
   "auth-reset-passwd-btn-lack": "Lack information",
   "auth-reset-passwd-btn-ready": "Reset password",
   "auth-reset-passwd-btn-short": "Password too short (at least 6 chars)",
@@ -49516,6 +49541,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "e-cmd-www_passwd-LackTarget": "Missing target",
   "e-cmd-www_passwd-TooShort": "The new password is too short",
   "e-cmd-www_passwd-nopvg": "No permission to reset passwords",
+  "e-www-captcha-fail_send_by_email": "The email failed to send. Please check the account",
   "e-www-invalid-captcha": "Invalid ${ta?captcha}",
   "e-www-login-invalid-passwd": "Invalid password",
   "e-www-login-noexists": "Account not exists",
@@ -49804,8 +49830,6 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN: en-us/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
-  "total" : "Total",
-  "total-items" : "Total ${val} items",
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
@@ -49933,6 +49957,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "mail-bcc": "BCC",
   "mail-cc": "CC",
   "mail-charset": "Email charset",
+  "mail-notify": "Email notify",
   "mail-r-addr": "Email addr.",
   "mail-r-name": "Name",
   "mail-scene": "Email scenarios",
@@ -49942,6 +49967,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "mail-scene-nil-detail": "Please select a mail scene for details",
   "mail-scene-nm": "Scene name",
   "mail-scene-nm-tip": "Only include english letters or numbers or underline, and guarantee unique",
+  "mail-scene-var-trans": "Trans script",
+  "mail-scene-var-trans-placeholder": "Just like: jsc /path/to/script.js -vars",
+  "mail-scene-var-trans-tip": "Take primary vars as JSON input, output another JSON string",
   "mail-setup": "Email setup",
   "mail-subject": "Subject",
   "mail-to": "TO",
@@ -50047,7 +50075,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "text": "Text",
   "timestamp": "Timestamp",
   "title": "Title",
+  "total": "Total",
   "total-count": "Total ${nb?0} ${unit?items}",
+  "total-items": "Total ${val} items",
   "trace": "Trace",
   "track": "Track message",
   "true": "True",
@@ -50464,6 +50494,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-phone-vcode-get": "获取短信密码",
   "auth-reset-passwd": "重置密码 ...",
   "auth-reset-passwd-again": "再次重置密码",
+  "auth-reset-passwd-btn-invalid": "密码包含非法字符",
   "auth-reset-passwd-btn-lack": "请填写必要信息",
   "auth-reset-passwd-btn-ready": "立即重置密码",
   "auth-reset-passwd-btn-short": "密码至少6位",
@@ -50528,6 +50559,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "e-cmd-www_passwd-LackTarget": "缺少重置目标",
   "e-cmd-www_passwd-TooShort": "新密码太短",
   "e-cmd-www_passwd-nopvg": "没有重置密码的权限",
+  "e-www-captcha-fail_send_by_email": "邮件密码发送失败，请检查邮件账户是否正确",
   "e-www-invalid-captcha": "${ta?验证码}错误",
   "e-www-login-invalid-passwd": "账号密码错误",
   "e-www-login-noexists": "账号不存在",
@@ -50816,8 +50848,6 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
-  "total" : "总共",
-  "total-items" : "总共${val}项",
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",
@@ -50945,6 +50975,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "mail-bcc": "密送",
   "mail-cc": "抄送",
   "mail-charset": "邮件字符编码",
+  "mail-notify": "邮件通知",
   "mail-r-addr": "邮件地址",
   "mail-r-name": "名称",
   "mail-scene": "邮件场景",
@@ -50954,6 +50985,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "mail-scene-nil-detail": "请选择一个邮件场景查看详情",
   "mail-scene-nm": "场景名称",
   "mail-scene-nm-tip": "请用半角英文数字或者下划线组合，并保证唯一",
+  "mail-scene-var-trans": "转换脚本",
+  "mail-scene-var-trans-placeholder": "譬如 jsc /path/to/script.js -vars",
+  "mail-scene-var-trans-tip": "输入是原始变量的JSON，输出是一个JSON变量集合",
   "mail-setup": "邮件设置",
   "mail-subject": "邮件标题",
   "mail-to": "收信人",
@@ -51059,7 +51093,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "text": "文字",
   "timestamp": "时间戳",
   "title": "标题",
+  "total": "总共",
   "total-count": "共 ${nb?0} ${unit?项}",
+  "total-items": "总共${val}项",
   "trace": "跟踪",
   "track": "消息",
   "true": "是",

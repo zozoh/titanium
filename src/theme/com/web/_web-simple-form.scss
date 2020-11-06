@@ -103,6 +103,11 @@
           &:hover {@include color($color-error, r, c);}
         }
         //-----------------------------
+        &.is-invalid {
+          @include color($color-error, r, c);
+          cursor: no-drop;
+          &:hover {@include color($color-error, r, c);}
+        }
         //-----------------------------
       }
       //-------------------------------

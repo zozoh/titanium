@@ -253,7 +253,7 @@ const _M = {
     account, captcha,
     done, ok, fail, error
   }={}) {
-    //console.log("getVcode", {type,scene, account, captcha})
+    console.log("getVcode", {type,scene, account, captcha})
 
     // Guard SiteId
     let siteId = rootState.siteId

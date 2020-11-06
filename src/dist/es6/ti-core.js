@@ -1,4 +1,4 @@
-// Pack At: 2020-11-06 17:58:12
+// Pack At: 2020-11-07 03:29:14
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -5713,25 +5713,32 @@ const {AutoMatch} = (function(){
     if ("" == input) {
       return EmptyMatch();
     }
+  
+    let _W = fn => fn
+    if(input.startsWith("!")) {
+      _W = fn => NotMatch(fn)
+      input = input.substring(1).trim()
+    }
+  
     // blank
     if (Ti.S.isBlank(input) || "[BLANK]" == input) {
-      return BlankMatch();
+      return _W(BlankMatch());
     }
     // Range
     let m = /^([(\[])([^\]]+)([)\]])$/.exec(input)
     if(m) {
-      return NumberRangeMatch(m)
+      return _W(NumberRangeMatch(m))
     }
     // Regex
     if(/^!?\^/.test(input)) {
-      return RegexMatch(input)
+      return _W(RegexMatch(input))
     }
     // Wildcard
     if(/\*/.test(input)) {
-      return WildcardMatch(input)
+      return _W(WildcardMatch(input))
     }
     // StringMatch
-    return StringMatch(input)
+    return _W(StringMatch(input))
   }
   function BlankMatch() {
     return function(val) {
@@ -11328,7 +11335,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201106.175813",
+  "version" : "2.5-20201107.032916",
   "dev" : false,
   "appName" : null,
   "session" : {},

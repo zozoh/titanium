@@ -62,7 +62,7 @@ const _M = {
         prev : true,
         next : {
           enabled: {
-            payType: "notBlank"
+            payType: "![BLANK]"
           }
         },
         comType: "WebPayChoose",
@@ -76,7 +76,7 @@ const _M = {
         next : {
           enabled: {
             payOk: "isBoolean",
-            orderId: "notBlank"
+            orderId: "![BLANK]"
           }
         },
         comType: "WebPayProceed",

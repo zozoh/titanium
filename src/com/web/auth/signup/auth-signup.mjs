@@ -112,7 +112,8 @@ const _M = {
           "codeGet"   : "i18n:auth-email-vcode-get",
           "btnText"   : "i18n:auth-login-or-signup",
           "linkLeft"  : "i18n:auth-go-passwd",
-          "linkRight" : "i18n:auth-vcode-lost",
+          // "linkRight" : "i18n:auth-vcode-lost",
+          "linkRight" : undefined,
           "blankName" : "i18n:auth-blank-email"
         }
       }
@@ -125,7 +126,8 @@ const _M = {
           "codeGet"   : "i18n:auth-phone-vcode-get",
           "btnText"   : "i18n:auth-bind",
           //"linkLeft"  : "i18n:auth-bind-link-left",
-          "linkRight" : "i18n:auth-vcode-lost",
+          //"linkRight" : "i18n:auth-vcode-lost",
+          "linkRight" : undefined,
           "blankName" : "i18n:auth-blank-phone"
         }
       }
@@ -388,6 +390,7 @@ const _M = {
           })
         },
         fail : ({errCode, data}={})=> {
+          console.log("haha")
           Ti.Toast.Open({
             type : "warn",
             position : "top",

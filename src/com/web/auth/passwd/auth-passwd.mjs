@@ -152,7 +152,15 @@ const _M = {
         return "short"
       }
 
-      // 2 password unmatched
+      // Check the chart, must in 0x21[33](!) - 0x7E[126](~)
+      for(let c of this.myForm.passwd_new) {
+        let cd = c.charCodeAt(0)
+        if(cd > 126 || cd < 33) {
+          return "invalid"
+        }
+      }
+
+      // two password unmatched
       if(this.myForm.passwd_new != this.myForm.passwd_ren) {
         return "unmatch"
       }

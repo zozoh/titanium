@@ -40,25 +40,32 @@ function AutoStrMatch(input) {
   if ("" == input) {
     return EmptyMatch();
   }
+
+  let _W = fn => fn
+  if(input.startsWith("!")) {
+    _W = fn => NotMatch(fn)
+    input = input.substring(1).trim()
+  }
+
   // blank
   if (Ti.S.isBlank(input) || "[BLANK]" == input) {
-    return BlankMatch();
+    return _W(BlankMatch());
   }
   // Range
   let m = /^([(\[])([^\]]+)([)\]])$/.exec(input)
   if(m) {
-    return NumberRangeMatch(m)
+    return _W(NumberRangeMatch(m))
   }
   // Regex
   if(/^!?\^/.test(input)) {
-    return RegexMatch(input)
+    return _W(RegexMatch(input))
   }
   // Wildcard
   if(/\*/.test(input)) {
-    return WildcardMatch(input)
+    return _W(WildcardMatch(input))
   }
   // StringMatch
-  return StringMatch(input)
+  return _W(StringMatch(input))
 }
 function BlankMatch() {
   return function(val) {
