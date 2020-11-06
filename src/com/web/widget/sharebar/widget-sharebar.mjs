@@ -25,6 +25,17 @@ export default {
   /////////////////////////////////////////
   methods : {
     //------------------------------------
+    OnClickItem({link, params}) {
+      if(!link)
+        return
+
+      let url = window.location.href
+      let title = window.document.title
+      params = Ti.Util.explainObj({url, title}, params)
+      console.log("haha", params)
+      Ti.Be.Open(link, {params})
+    },
+    //------------------------------------
     evalItems(items) {
       let list = []
       _.forEach(items, (it, index)=>{
@@ -32,21 +43,22 @@ export default {
         let li = ({
           //..............................
           "facebook": {
-            iconClass: "fab fa-facebook-f"
+            iconClass: "fab fa-facebook-f",
+            link : "https://www.facebook.com/sharer.php",
+            params : {
+              title : "=title",
+              u     : "=url"
+            }
           },
           //..............................
           "twitter": {
-            iconClass: "fab fa-twitter"
-          },
-          //..............................
-          "instagram": {
-            iconClass: "fab fa-instagram"
-          },
-          //..............................
-          "tumblr": {
-            iconClass: "fab fa-tumblr"
+            iconClass: "fab fa-twitter",
+            link : "https://twitter.com/share",
+            params : {
+              text : "=title",
+              url  : "=url"
+            }
           }
-          //..............................
           //..............................
         })[it]
         //................................

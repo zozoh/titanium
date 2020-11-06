@@ -12,8 +12,9 @@
   <div class="as-items">
     <a
       v-for="it in TheItems"
-        class="bar-item">
-      <i :class="it.iconClass"></i>
+        class="bar-item"
+        @click.left="OnClickItem(it)">
+        <i :class="it.iconClass"></i>
     </a>
   </div>
 </div>
