@@ -127,9 +127,11 @@ const _M = {
     },
     //--------------------------------------------------
     FormBodyClass() {
-      if(this.CurrentTab) {
-        return `tab-body-${this.CurrentTab.index}`
+      let klass = Ti.Css.mergeClassName(`has-${this.FieldsInCurrentTab.length}-fields`)
+      if(this.isTabMode && this.CurrentTab) {
+        klass[`tab-body-${this.CurrentTab.index}`] = true
       }
+      return klass
     },
     //--------------------------------------------------
     FieldsInCurrentTab() {

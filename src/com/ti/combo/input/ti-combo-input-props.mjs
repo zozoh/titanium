@@ -52,6 +52,10 @@ export default {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "autoI18n" : {
+    type : Boolean,
+    default : true
+  },
   "statusIcons" : {
     type : Object,
     default : ()=>({

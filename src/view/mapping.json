@@ -1,7 +1,8 @@
 {
   "paths" : {
     "~/.domain/history/": "view-history",
-    "~/.mail/": "fileset-config-email"
+    "~/.mail/": "fileset-config-email",
+    "~/.io/": "hmaker-config-io"
   },
   "types" : {
     "thing_set"   : "thing-manager",

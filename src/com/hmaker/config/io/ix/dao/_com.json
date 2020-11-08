@@ -1,0 +1,9 @@
+{
+  "name" : "hmaker-config-io-ix-dao",
+  "globally" : true,
+  "template" : "./io-ix-dao.html",
+  "mixins"   : ["./io-ix-dao.mjs"],
+  "components" : [
+    "@com:ti/combo/table"
+  ]
+}

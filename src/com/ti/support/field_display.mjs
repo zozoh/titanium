@@ -197,10 +197,21 @@ const FieldDisplay = {
         }
         //......................................
         // "<=ti-label:key>" or ":<=ti-label>"
-        m = /^<=([^:]+)(:(.+))?>$/.exec(displayItem)
+        // or <=ti-icon:key>=>Ti.Types.toBoolStr(null,'fas-user')
+        m = /^<=([^:]+)(:(.+))?>(=>(.+))?$/.exec(displayItem)
         if(m) {
+          // Eval transformer
+          let transformer = undefined
+          if(m[5]) {
+            transformer = Ti.Util.genInvoking(m[5], {
+              context: this,
+              partial: "right"
+            })
+          }
+          // done for field
           return {
-            key       : m[3] || defaultKey || Symbol(displayItem),
+            key : m[3] || defaultKey || Symbol(displayItem),
+            transformer,
             comType   : m[1]
           }
         }
@@ -276,8 +287,6 @@ const FieldDisplay = {
     uniqueKey
   }={}) {
     let dis = displayItem;
-    // if("sex" == dis.key) 
-    //   console.log(dis)
     let value = dis.defaultAs;
     //.....................................
     // Array -> Obj
@@ -306,6 +315,8 @@ const FieldDisplay = {
         )
       }
     }
+    // if("name" == dis.key && 0 === value) 
+    //   console.log(dis, value)
     //.....................................
     // Transformer
     if(_.isFunction(dis.transformer)) {

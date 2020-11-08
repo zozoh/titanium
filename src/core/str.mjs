@@ -1,9 +1,13 @@
 const TiStr = {
   sBlank(str, dft) {
-    return str || dft
+    if(TiStr.isBlank(str))
+      return dft
+    return str
   },
   isBlank(str) {
-    return !str || /^\s*$/.test(str)
+    if(_.isString(str))
+      return !str || /^\s*$/.test(str)
+    return false
   },
   renderVars(vars={}, fmt="", {
     iteratee, 

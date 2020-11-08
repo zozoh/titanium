@@ -1,12 +1,19 @@
 .ti-combo-table {
-  padding: .04rem;
   //---------------------------------------------
-  .ti-actionbar {
-    @include border(1px, solid, shallow, bottom);
-  }
-  //---------------------------------------------
-  .ti-table {
-    height: 100%;
+  > .as-main-con {
+    width: 100%; height:100%;
+    position: relative;
+    padding-top: SZ(40);
+    //-------------------------------------------
+    .ti-actionbar {
+      @include border(1px, solid, shallow, bottom);
+      @include pos-abs($t:0, $l:0, $r:0);
+    }
+    //-------------------------------------------
+    .ti-table {
+      width:100%; height: 100%;
+    }
+    //-------------------------------------------
   }
   //---------------------------------------------
 }

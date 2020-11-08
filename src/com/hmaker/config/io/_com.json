@@ -1,0 +1,9 @@
+{
+  "name" : "hmaker-config-io",
+  "globally" : true,
+  "template" : "./hmaker-config-io.html",
+  "mixins"   : ["./hmaker-config-io.mjs"],
+  "components" : [
+    "@com:hmaker/config/io/detail"
+  ]
+}
