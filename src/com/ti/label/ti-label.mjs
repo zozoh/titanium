@@ -43,11 +43,19 @@ const _M = {
     },
     //--------------------------------------
     TheFormat() {
+      if(_.isFunction(this.format)) {
+        return this.format
+      }
       if(this.format) {
         if(this.autoI18n) {
-          return Ti.I18n.text(this.format)
+          let str = Ti.I18n.text(this.format)
+          return (val)=> {
+            return Ti.S.renderBy(str, val)
+          }
         }
-        return this.format
+        return (val)=> {
+          return Ti.S.renderBy(this.format, val)
+        }
       }
     },
     //--------------------------------------
@@ -203,8 +211,8 @@ const _M = {
         return Ti.Types.toStr(val, this.TheFormat)
       }
       // Auto format
-      if(this.TheFormat) {
-        return Ti.Types.toStr(val, this.TheFormat)
+      if(_.isFunction(this.TheFormat)) {
+        return this.TheFormat(val)
       }
       // Return & auto-i18n
       return this.autoI18n 

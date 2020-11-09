@@ -198,12 +198,14 @@ const FieldDisplay = {
         //......................................
         // "<=ti-label:key>" or ":<=ti-label>"
         // or <=ti-icon:key>=>Ti.Types.toBoolStr(null,'fas-user')
-        m = /^<=([^:]+)(:(.+))?>(=>(.+))?$/.exec(displayItem)
+        m = /^<=([^:]+)(:(.+))?>(\.([^=]+))?(=>(.+))?$/.exec(displayItem)
         if(m) {
+          // Eval className
+          let className = m[5] || undefined
           // Eval transformer
           let transformer = undefined
-          if(m[5]) {
-            transformer = Ti.Util.genInvoking(m[5], {
+          if(m[7]) {
+            transformer = Ti.Util.genInvoking(m[7], {
               context: this,
               partial: "right"
             })
@@ -212,7 +214,10 @@ const FieldDisplay = {
           return {
             key : m[3] || defaultKey || Symbol(displayItem),
             transformer,
-            comType   : m[1]
+            comType : m[1], 
+            comConf : {
+              className
+            }
           }
         }
         //......................................

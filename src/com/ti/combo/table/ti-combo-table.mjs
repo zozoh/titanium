@@ -54,6 +54,14 @@ const _M = {
         action : ()=>{
           this.moveCheckedDown()
         }
+      }, {
+        type : "line"
+      }, {
+        icon : "fas-code",
+        tip : "i18n:source",
+        action : ()=>{
+          this.doEditCurrent()
+        }
       }]
     },
     //------------------------------------------------

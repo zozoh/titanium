@@ -7,7 +7,8 @@
     //-------------------------------------------
     .ti-actionbar {
       @include border(1px, solid, shallow, bottom);
-      @include pos-abs($t:0, $l:0, $r:0);
+      @include pos-abs($t:0, $l:0, $r:0, $h: SZ(40));
+      padding: 0 SZ(4);
     }
     //-------------------------------------------
     .ti-table {

@@ -45,8 +45,8 @@ const _M = {
           className : _.kebabCase(`is-${it.nameType}`),
           editable  : 'Key' == it.nameType,
           format : ({
-              "Index" : "[${val}]",
-              "Label" : "i18n:json-${val}"
+              "Index" : v => `[${v}]`,
+              "Label" : v => Ti.I18n.text(`i18n:json-${v}`)
             })[it.nameType]
         })
       }
@@ -225,7 +225,7 @@ const _M = {
       }
       //.....................................
       // Other, it must be simple value
-      else if(path.length > 0){
+      else if(path.length >= 0){
         //...................................
         // get the parent node
         let p_ph = path.slice(0, path.length-1);
@@ -238,7 +238,8 @@ const _M = {
         // If array, insert nil after current
         if(_.isArray(parent)) {
           stub = parent
-          Ti.Util.insertToArray(parent, keyOrIndex+1, null)
+          let pos = Ti.Util.fallback(keyOrIndex, -1) + 1
+          Ti.Util.insertToArray(parent, pos, null)
         }
         //...................................
         // If Object

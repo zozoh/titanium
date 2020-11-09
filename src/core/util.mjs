@@ -165,12 +165,20 @@ const TiUtil = {
    */
   appendToObject(obj={}, key=null, data={}) {
     let stub = {}
-    _.forEach(obj, (v, k)=>{
-      stub[k] = v
-      if(key == k) {
-        _.assign(stub, data)
-      }
-    })
+    // Insert after key
+    if(!Ti.Util.isNil(key)) {
+      _.forEach(obj, (v, k)=>{
+        stub[k] = v
+        if(key == k) {
+          _.assign(stub, data)
+        }
+      })
+    }
+    // Just add to obj
+    else {
+      _.assign(stub, obj, data)
+    }
+    
     return stub
   },
   /***

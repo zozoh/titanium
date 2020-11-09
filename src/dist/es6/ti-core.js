@@ -1,4 +1,4 @@
-// Pack At: 2020-11-07 03:29:14
+// Pack At: 2020-11-09 15:45:51
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -889,10 +889,14 @@ const {Alg} = (function(){
 const {S} = (function(){
   const TiStr = {
     sBlank(str, dft) {
-      return str || dft
+      if(TiStr.isBlank(str))
+        return dft
+      return str
     },
     isBlank(str) {
-      return !str || /^\s*$/.test(str)
+      if(_.isString(str))
+        return !str || /^\s*$/.test(str)
+      return false
     },
     renderVars(vars={}, fmt="", {
       iteratee, 
@@ -7383,12 +7387,20 @@ const {Util} = (function(){
      */
     appendToObject(obj={}, key=null, data={}) {
       let stub = {}
-      _.forEach(obj, (v, k)=>{
-        stub[k] = v
-        if(key == k) {
-          _.assign(stub, data)
-        }
-      })
+      // Insert after key
+      if(!Ti.Util.isNil(key)) {
+        _.forEach(obj, (v, k)=>{
+          stub[k] = v
+          if(key == k) {
+            _.assign(stub, data)
+          }
+        })
+      }
+      // Just add to obj
+      else {
+        _.assign(stub, obj, data)
+      }
+      
       return stub
     },
     /***
@@ -11335,7 +11347,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201107.032916",
+  "version" : "2.5-20201109.154552",
   "dev" : false,
   "appName" : null,
   "session" : {},

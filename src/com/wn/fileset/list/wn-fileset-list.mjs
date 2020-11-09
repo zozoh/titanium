@@ -19,6 +19,10 @@ export default {
         race : "FILE"
       })
     },
+    "createTip" : {
+      type : String,
+      default : "i18n:wn-fsc-mail-tmpl-new"
+    },
     "listSize" : {
       type : [Number, String],
       default : 0.3
@@ -78,6 +82,10 @@ export default {
     "detailConf" : {
       type : Object,
       default : ()=>({})
+    },
+    "autoSelect" : {
+      type : Boolean,
+      default : true
     }
   },
   ////////////////////////////////////////////////////
@@ -307,7 +315,7 @@ export default {
     //------------------------------------------------
     async doCreate() {
       //console.log("doCreate for ", this.meta.ph)
-      let newName = _.trim(await Ti.Prompt("i18n:wn-fsc-mail-tmpl-new"))
+      let newName = _.trim(await Ti.Prompt(this.createTip))
 
       if(!newName)
         return
@@ -338,6 +346,52 @@ export default {
         this.currentMeta = undefined
         this.currentContent = undefined
       }
+      // Warn user
+      else {
+        return await Ti.Toast.Open('i18n:wn-del-none', "warn")
+      }
+    },
+    //------------------------------------------------
+    async doRename() {
+      if(this.hasCurrent && this.findIndexInList() >= 0) {
+        // Get newName from User input
+        let newName = await Ti.Prompt({
+          text : 'i18n:wn-rename',
+          vars : {name:this.currentMeta.nm}
+        }, {
+          title : "i18n:rename",
+          placeholder : this.currentMeta.nm,
+          value : this.currentMeta.nm
+        })
+
+        // Check name invalid or not
+        if(!Wn.Obj.isValidName(newName)) {
+          return
+        }
+
+        this.reloading = true
+        // Do the rename
+        let newMeta = await Wn.Sys.exec2(
+          `obj id:${this.CurrentId} -cqno -u 'nm:"${newName}"'`,
+          {as:"json"})
+
+        // Error
+        if(newMeta instanceof Error) {
+          await Ti.Toast.Open("i18n:wn-rename-fail", "error")
+        }
+        // Replace the data
+        else {
+          await Ti.Toast.Open("i18n:wn-rename-ok", "success")
+          this.updateCurrentMeta(newMeta)
+        }
+        this.$nextTick(()=>{
+          this.reloading = false
+        })
+      }
+      // Warn user
+      else {
+        return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
+      }
     },
     //------------------------------------------------
     async openCurrentMeta() {
@@ -349,6 +403,20 @@ export default {
           this.updateCurrentMeta(data)
         }
       }
+    },
+    //------------------------------------------------
+    async openContentEditor() {
+      let text = await Wn.EditObjContent(this.currentMeta, {
+        autoSave : true
+      })
+
+      // User cancel
+      if(Ti.Util.isNil(text))
+        return
+
+      // Update content
+      this.currentContent = text
+      this.loadedCurrentContent = text
     },
     //------------------------------------------------
     findIndexInList(meta=this.currentMeta) {
@@ -410,14 +478,37 @@ export default {
       }
     },
     //------------------------------------------------
+    autoSelectItem() {
+      if(!this.autoSelect)
+        return
+
+      if(_.isEmpty(this.listData)) 
+        return
+      
+      let row = this.$list.getRow(0)
+      if(row && row.id) {
+        this.$list.selectRow(row.id)
+      }
+    },
+    //------------------------------------------------
     async reload() {
       this.reloading = true
       this.listData = await this.reloadChildren()
       this.$nextTick(()=>{
         this.reloading = false
+        this.$nextTick(()=>{
+          this.autoSelectItem()
+        })
       })
     }
     //------------------------------------------------
+  },
+  watch : {
+    "isCurrentContentChanged" : function(changed) {
+      Ti.App(this).commit("current/setStatus", {
+        changed
+      })
+    }
   },
   ////////////////////////////////////////////////////
   mounted : function(){

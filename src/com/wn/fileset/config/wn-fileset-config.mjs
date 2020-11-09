@@ -47,6 +47,13 @@ export default {
       }
     },
     //------------------------------------------------
+    doRename(payload) {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        $mcom.doRename(payload)
+      }
+    },
+    //------------------------------------------------
     async openCurrentMeta() {
       let $mcom = this.$tabs.$MainCom()
       if($mcom && $mcom.hasCurrent) {

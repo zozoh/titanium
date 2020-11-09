@@ -1,4 +1,4 @@
-// Pack At: 2020-11-07 03:29:14
+// Pack At: 2020-11-09 15:45:51
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -540,6 +540,21 @@ const Obj = (function(){
   }
   ////////////////////////////////////////////
   const WnObj = {
+    //----------------------------------------
+    isValidName(newName) {
+      // Check the newName contains the invalid char
+      if(!newName || newName.search(/[%;:"'*?`\t^<>\/\\]/)>=0) {
+        Ti.Alert("i18n:wn-rename-invalid", {type:"warn"})
+        return false
+      }
+      // Check the newName length
+      if(newName.length > 256) {
+        Ti.Alert("i18n:wn-rename-too-long", {type:"warn"})
+        return false
+      }
+  
+      return true
+    },
     //----------------------------------------
     isBuiltInFields(key) {
       return FIELDS[key] ? true : false
@@ -2080,7 +2095,8 @@ const EditObjContent = (function(){
     readonly=false,
     showEditorTitle=true,
     content,
-    placeholder="i18n:blank"
+    placeholder="i18n:blank",
+    autoSave
   }={}){
     //............................................
     // Load meta
@@ -2093,7 +2109,7 @@ const EditObjContent = (function(){
       textOk = this.saveBy ? 'i18n:save' : 'i18n:ok'
     }
     //............................................
-    let autoSave = Ti.Util.isNil(content)
+    autoSave = Ti.Util.fallback(autoSave, Ti.Util.isNil(content))
     //............................................
     let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-receipt")
     let theTitle = title || "i18n:edit"
@@ -2221,7 +2237,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20201107.032917"
+const WALNUT_VERSION = "2.1-20201109.154552"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

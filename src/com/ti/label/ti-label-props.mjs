@@ -11,7 +11,10 @@ export default {
     type : Boolean,
     default : true
   },
-  "format" : undefined,
+  "format" : {
+    type : [String, Function],
+    default : undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

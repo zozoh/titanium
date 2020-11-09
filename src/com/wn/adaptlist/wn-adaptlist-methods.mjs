@@ -99,13 +99,9 @@ const OBJ = {
         })
       // Check the newName
       if(newName) {
-        // Check the newName contains the invalid char
-        if(newName.search(/[%;:"'*?`\t^<>\/\\]/)>=0) {
-          return await Ti.Alert('i18n:wn-rename-invalid')
-        }
-        // Check the newName length
-        if(newName.length > 256) {
-          return await Ti.Alert('i18n:wn-rename-too-long')
+        // Check name invalid or not
+        if(!Wn.Obj.isValidName(newName)) {
+          return
         }
         // Check the suffix Name
         let oldSuffix = Ti.Util.getSuffix(it.nm)
@@ -124,11 +120,11 @@ const OBJ = {
             {as:"json"})
         // Error
         if(newMeta instanceof Error) {
-          Ti.Toast.Open("i18n:wn-rename-fail", "error")
+          await Ti.Toast.Open("i18n:wn-rename-fail", "error")
         }
         // Replace the data
         else {
-          Ti.Toast.Open("i18n:wn-rename-ok", "success")
+          await Ti.Toast.Open("i18n:wn-rename-ok", "success")
           this.setItem(newMeta)
         }
         this.setItemStatus({id:it.id, status:{loading:false}})

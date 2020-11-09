@@ -163,6 +163,21 @@ const FIELDS = {
 ////////////////////////////////////////////
 const WnObj = {
   //----------------------------------------
+  isValidName(newName) {
+    // Check the newName contains the invalid char
+    if(!newName || newName.search(/[%;:"'*?`\t^<>\/\\]/)>=0) {
+      Ti.Alert("i18n:wn-rename-invalid", {type:"warn"})
+      return false
+    }
+    // Check the newName length
+    if(newName.length > 256) {
+      Ti.Alert("i18n:wn-rename-too-long", {type:"warn"})
+      return false
+    }
+
+    return true
+  },
+  //----------------------------------------
   isBuiltInFields(key) {
     return FIELDS[key] ? true : false
   },

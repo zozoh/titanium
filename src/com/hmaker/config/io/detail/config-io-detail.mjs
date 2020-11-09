@@ -14,7 +14,11 @@ export default {
     //------------------------------------
     MainData() {
       if(_.isString(this.value)) {
-        return JSON.parse(this.value)
+        let str = _.trim(this.value)
+        if(!str) {
+          return {}
+        }
+        return JSON.parse(str)
       }
       return _.cloneDeep(this.value)
     },

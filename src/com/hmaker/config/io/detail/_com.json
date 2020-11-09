@@ -4,6 +4,7 @@
   "template" : "./config-io-detail.html",
   "mixins"   : ["./config-io-detail.mjs"],
   "components" : [
+    "@com:ti/text/json",
     "@com:hmaker/config/io/ix/dao"
   ]
 }

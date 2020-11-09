@@ -119,26 +119,40 @@ export default {
                       display : "name"
                     }, {
                       title : "数据类型",
-                      display : "#JavaTypes(type)"
+                      display : {
+                        key : "type",
+                        defaultAs : "String",
+                        comType : "ti-label",
+                        comConf : {
+                          dict : "JavaTypes"
+                        }
+                      }
                     }, {
                       title : "存储类型",
-                      display : "#ColumnTypes(columnType)"
+                      display : {
+                        key : "columnType",
+                        defaultAs : "AUTO",
+                        comType : "ti-label",
+                        comConf : {
+                          dict : "ColumnTypes"
+                        }
+                      }
                     }, {
                       title : "存储长度",
                       width : 100,
-                      display : "width"
+                      display : "width::align-right"
                     }, {
                       title : "不可为空",
                       width : 80,
-                      display : "<=TiLabel:notNull>=>Ti.Types.toBoolStr(null,'i18n:yes')"
+                      display : "<=TiLabel:notNull>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
                     }, {
                       title : "可插入",
                       width : 50,
-                      display : "<=TiLabel:insert>=>Ti.Types.toBoolStr(null,'i18n:yes')"
+                      display : "<=TiLabel:insert>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
                     }, {
                       title : "可更新",
                       width : 50,
-                      display : "<=TiLabel:update>=>Ti.Types.toBoolStr(null,'i18n:yes')"
+                      display : "<=TiLabel:update>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
                     }]
                   },
                   dialog : {
@@ -223,11 +237,13 @@ export default {
   methods : {
     //------------------------------------
     OnFormChange(payload) {
-      console.log("change", payload)
+      //console.log("change", payload)
+      let json = JSON.stringify(payload, null, '   ')
+      this.$notify("change", json)
     },
     //------------------------------------
     OnFormFieldChange(payload){
-      console.log("field:change", payload)
+      //console.log("field:change", payload)
     }
     //------------------------------------
   },

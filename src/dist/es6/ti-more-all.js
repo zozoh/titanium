@@ -1,2931 +1,524 @@
-// Pack At: 2020-11-07 03:29:14
+// Pack At: 2020-11-09 15:45:51
 (function(){
 //============================================================
-// JOIN: hmaker/edit-com/form/edit-com-form.html
+// JOIN: hmaker/config/io/detail/config-io-detail.html
 //============================================================
-Ti.Preload("ti/com/hmaker/edit-com/form/edit-com-form.html", `<ti-form 
-  class="hmaker-edit-com-form"
-  v-bind="FormConf"/>`);
-//============================================================
-// JOIN: hmaker/edit-com/form/edit-com-form.mjs
-//============================================================
-(function(){
-const _M = {
-  //////////////////////////////////////////
-  props : {
-    "value" : {
-      type : Object,
-      default : undefined
-    },
-    "keepTabIndexBy" : {
-      type : String,
-      default : "hMakerEditComForm"
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    FormConf() {
-      return {
-        //..................................
-        mode: "tab",
-        keepTabIndexBy: this.keepTabIndexBy,
-        //..................................
-        spacing: "tiny",
-        //..................................
-        data : this.value,
-        //..................................
-        fields : [
-          //................................
-          // Aspect
-          {
-            type : "Group",
-            title : "i18n:hmk-aspect",
-            fields : [{
-                name: "title",
-                title: "i18n:hmk-title",
-                type : "String",
-                comType : "ti-input"
-              }, {
-                name: "icon",
-                title: "i18n:hmk-icon",
-                type : "String",
-                comType : "ti-input-icon"
-              }, {
-                name: "mode",
-                title: "i18n:hmk-mode",
-                type : "String",
-                defaultAs: "all",
-                comType : "ti-switcher",
-                comConf : {
-                  options: [
-                    {value:"all", text:"i18n:hmk-mode-all"},
-                    {value:"tab", text:"i18n:hmk-mode-tab"}]
-                }
-              }, {
-                name: "tabAt",
-                title: "i18n:hmk-tabAt",
-                type : "String",
-                defaultAs: "top-center",
-                width: 240,
-                hidden: {
-                  "mode" : {
-                    name: "isEqual",
-                    args: "tab",
-                    not: true
-                  }
-                },
-                comType : "ti-droplist",
-                comConf : {
-                  placeholder: "i18n:hmk-tabAt-top-center",
-                  autoI18n:true,
-                  options: [
-                    {value:"top-left",   text:"i18n:hmk-tabAt-top-left"},
-                    {value:"top-center", text:"i18n:hmk-tabAt-top-center"},
-                    {value:"top-right",  text:"i18n:hmk-tabAt-top-right"},
-                    {value:"bottom-left",   text:"i18n:hmk-tabAt-bottom-left"},
-                    {value:"bottom-center", text:"i18n:hmk-tabAt-bottom-center"},
-                    {value:"bottom-right",  text:"i18n:hmk-tabAt-bottom-right"}]
-                }
-              }, {
-                name: "currentTab",
-                title: "i18n:hmk-currentTab",
-                type : "Integer",
-                defaultAs: 0,
-                width : 120,
-                hidden: {
-                  "mode" : {
-                    name: "isEqual",
-                    args: "tab",
-                    not: true
-                  }
-                },
-                comType : "ti-input-num"
-              }, {
-                name: "spacing",
-                title: "i18n:hmk-spacing",
-                type : "String",
-                defaultAs: "comfy",
-                comType : "ti-switcher",
-                comConf : {
-                  options: [
-                    {value:"comfy", text:"i18n:hmk-spacing-comfy"},
-                    {value:"tiny",  text:"i18n:hmk-spacing-tiny"}]
-                }
-              }, {
-                name: "adjustDelay",
-                title: "i18n:hmk-adjustDelay",
-                type : "Integer",
-                defaultAs: 0,
-                width : 120,
-                comType : "ti-input-num"
-              }, {
-                name: "blankAs",
-                title: "i18n:hmk-blankAs",
-                type : "Object",
-                comType : "ti-input"
-              }]
-          },
-          //................................
-          // Fields
-          {
-            type : "Group",
-            title : "i18n:hmk-fields",
-            fields : [{
-                name: "fields",
-                type: "Array",
-                height: "100%",
-                comType: "hmaker-edit-form-fieldset",
-                comConf: {
-                  className: "ti-fill-parent",
-                  keepTabIndexBy : this.keepTabIndexBy
-                }
-              }]
-          },
-          //................................
-          // Data
-          {
-            type : "Group",
-            title : "i18n:hmk-data",
-            fields : [{
-              title: "i18n:hmk-form-data",
-              name: "data",
-              comType: "ti-input"
-            }, {
-              name: "fieldStatus",
-              title: "i18n:hmk-fieldStatus",
-              comType: "ti-input"
-            }, {
-              name: "onlyFields",
-              title: "i18n:hmk-form-onlyFields",
-              type: "Boolean",
-              defaultAs: true,
-              comType: "ti-toggle"
-            }]
-          },
-          //................................
-          // Measure
-          {
-            title: "i18n:hmk-measure",
-            fields: [{
-                title: "i18n:hmk-form-width",
-                name: "width",
-                comType: "ti-input"
-              }, {
-                title: "i18n:hmk-form-height",
-                name: "height",
-                comType: "ti-input"
-              }]
-          }]
-      }
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  created: async function() {
-    Wn.Dict.hMakerComponents()
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-com/form/edit-com-form.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-com/form/field/edit-form-field.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-com/form/field/edit-form-field.html", `<div class="hmaker-edit-form-field ti-scroll-v">
-  <!--
-    Empty
-  -->
-  <ti-loading 
-    v-if="isEmpty"
-      icon="fas-hand-point-left"
-      text="i18n:hmaker-edit-form-field-nil"/>
-  <!--
-    Editing
-  -->
-  <ti-form
-    v-else
-      v-bind="TheForm"
-      :data="value"/>
+Ti.Preload("ti/com/hmaker/config/io/detail/config-io-detail.html", `<div class="config-io-detail">
+  <component
+    class="ti-fill-parent"
+    :is="MainCom.comType"
+    v-bind="MainCom.comConf"/>
 </div>`);
 //============================================================
-// JOIN: hmaker/edit-com/form/field/edit-form-field.mjs
+// JOIN: hmaker/config/io/detail/config-io-detail.mjs
 //============================================================
 (function(){
 const _M = {
-  //////////////////////////////////////////
-  props : {
-    "value" : {
-      type : Object,
-      default : undefined
-    },
-    "keepTabIndexBy" : {
-      type : String,
-      default : undefined
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    isEmpty() {
-      return Ti.Util.isNil(this.value)
-    },
-    //--------------------------------------
-    TheFormGeneralFields() {
-      const gen_options = types => _.map(types, v => ({
-        icon : Ti.I18n.get("hm-type-icons")[v],
-        value: v,
-        text : Ti.I18n.get(`hm-type-${v}`)
-      }))
-      return [
-        //.................................
-        // type
-        {
-          hidden : this.isGroup,
-          name: "type",
-          title: "hmk-field-type",
-          defaultAs: "String",
-          comType: "ti-droplist",
-          comConf: {
-            placeholder: "i18n:hm-type-String",
-            options: gen_options([
-              "Object", "Number", "Integer", 
-              "Boolean", "String", "Array" ]),
-            dropDisplay: ["<icon>", "text", "value"]
-          }
-        },
-        //.................................
-        // title
-        {
-          name: "title",
-          title: "hmk-field-title",
-          comType: "ti-input"
-        },
-        //.................................
-        // icon
-        {
-          name: "icon",
-          title: "hmk-field-icon",
-          comType: "ti-input-icon"
-        },
-        //.................................
-        // name
-        {
-          hidden : this.isGroup,
-          name: "name",
-          title: "hmk-field-name",
-          comType: "ti-input"
-        },
-        //.................................
-        // tip
-        {
-          hidden : this.isGroup,
-          name: "tip",
-          title: "hmk-field-tip",
-          comType: "ti-input"
-        },
-        //.................................
-        // width
-        {
-          hidden : this.isGroup,
-          name: "width",
-          title: "hmk-field-width",
-          width: 120,
-          comType: "ti-input"
-        },
-        //.................................
-        // height
-        {
-          hidden : this.isGroup,
-          name: "height",
-          title: "hmk-field-height",
-          width: 120,
-          comType: "ti-input"
-        },
-        //.................................
-        // defaultAs
-        {
-          hidden : this.isGroup,
-          name: "defaultAs",
-          title: "hmk-field-defaultAs",
-          comType: "ti-input",
-          comConf: {
-            autoJsValue: true
-          }
-        },
-        //.................................
-        // com
-        {
-          hidden : this.isGroup,
-          name: ["comType","comConf"],
-          title: "hmk-field-com",
-          type: "Object",
-          width: "auto",
-          comType: "wn-combo-edit-com"
-        }
-        //.................................
-      ]
-    },
-    //--------------------------------------
-    TheFormAdvanceFields() {
-      return [
-        //.................................
-        // disabled
-        {
-          name: "disabled",
-          title: "hmk-field-disabled",
-          comType: "ti-input",
-          comConf: {
-            autoJsValue: true
-          }
-        },
-        //.................................
-        // hidden
-        {
-          name: "hidden",
-          title: "hmk-field-hidden",
-          comType: "ti-input",
-          comConf: {
-            autoJsValue: true
-          }
-        },
-        //.................................
-        // checkEquals
-        {
-          name: "checkEquals",
-          title: "hmk-field-checkEquals",
-          comType: "ti-toggle"
-        },
-        //.................................
-        // transformer
-        {
-          name: "transformer",
-          title: "hmk-field-transformer",
-          comType: "ti-input-text",
-          comConf: {
-            autoJsValue: true
-          }
-        },
-        //.................................
-        // serializer
-        {
-          name: "serializer",
-          title: "hmk-field-serializer",
-          comType: "ti-input-text",
-          comConf: {
-            autoJsValue: true
-          }
-        }
-        //.................................
-      ]
-    },
-    //--------------------------------------
-    TheForm() {
-      return {
-        //..................................
-        // mode : "tab",
-        // tabAt : "bottom-left",
-        spacing : "tiny",
-        keepTabIndexBy : this.keepTabIndexBy,
-        //..................................
-        fields: [{
-            type: "Group",
-            title: "i18n:hmk-fields-general",
-            fields: this.TheFormGeneralFields
-          }, {
-            type: "Group",
-            title: "i18n:hmk-fields-advance",
-            hidden : this.isGroup,
-            fields: this.TheFormAdvanceFields
-          }]
-        //..................................
-      }
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    isGroup(fld) {
-      return _.isArray(fld.fields) || "Group" == fld.type
-    }
-    //--------------------------------------
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-com/form/field/edit-form-field.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-com/form/field/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-com/form/field/_com.json", {
-  "name" : "hmaker-edit-form-field",
-  "globally" : true,
-  "template" : "./edit-form-field.html",
-  "mixins" : ["./edit-form-field.mjs"]
-});
-//============================================================
-// JOIN: hmaker/edit-com/form/fieldset/edit-form-fieldset.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-com/form/fieldset/edit-form-fieldset.html", `<ti-gui
-  class="hmaker-edit-form-fieldset"
-  :class="TopClass"
-  :layout="Layout"
-  :schema="Schema"
-  :can-loading="false"
-  @tree::select="OnFieldTreeSelect"
-  @detail::change="OnFieldChange"/>`);
-//============================================================
-// JOIN: hmaker/edit-com/form/fieldset/edit-form-fieldset.mjs
-//============================================================
-(function(){
-const _M = {
-  //////////////////////////////////////////
+  /////////////////////////////////////////
   data: ()=>({
-    myCurrentId: null
   }),
-  //////////////////////////////////////////
+  /////////////////////////////////////////
   props : {
     "value" : {
-      type : Array,
-      default : undefined
-    },
-    "keepTabIndexBy" : {
-      type : String,
-      default : "hMakerEditComForm"
+      type: [String, Object],
+      default: undefined
     }
   },
-  //////////////////////////////////////////
+  /////////////////////////////////////////
   computed : {
-    //--------------------------------------
-    TopClass() {
-      return this.getTopClass()
+    //------------------------------------
+    MainData() {
+      if(_.isString(this.value)) {
+        let str = _.trim(this.value)
+        if(!str) {
+          return {}
+        }
+        return JSON.parse(str)
+      }
+      return _.cloneDeep(this.value)
     },
-    //--------------------------------------
-    TheDetailCom() {
-      return {
-        comType: "hmaker-edit-form-field",
-        comConf: {
-          value: this.CurrentField,
-          keepTabIndexBy: this.keepTabIndexBy
-            ? `${this.keepTabIndexBy}-field`
-            : null
+    //------------------------------------
+    MainCom() {
+      // Nil
+      if(!this.MainData) {
+        return {
+          comType : 'TiLoading',
+          comConf : {
+            className : "as-big",
+            icon: "zmdi-arrow-left",
+            text: "i18n:nil-detail"
+          }
         }
       }
-    },
-    //--------------------------------------
-    CurrentField() {
-      if(this.myCurrentId) {
-        let node = this.$tree.findTableRow(this.myCurrentId)
-        if(node) {
-          return node.rawData
+      // Dao Mapping
+      if(this.MainData.dao && _.isArray(this.MainData.fields)) {
+        return {
+          comType : 'HmakerConfigIoIxDao',
+          comConf : {
+            value : this.MainData
+          }
         }
       }
-    },
-    //--------------------------------------
-    Layout() {
+      // Default as JSON
       return {
-        type: "cols",
-        border: true,
-        blocks: [{
-            type: "rows",
-            size: "37%",
-            border: true,
-            blocks: [{
-                size: 40,
-                body: "actions"
-              }, {
-                name: "tree",
-                body: "tree"
-              }]
-          }, {
-            name: "detail",
-            body: "detail"
-          }]
-      }
-    },
-    //--------------------------------------
-    Schema() {
-      return {
-        //..................................
-        actions: {
-          comType: "ti-actionbar",
-          comConf: {
-            items: [{
-                type: "action",
-                icon: "im-plus",
-                text: "i18n:hmaker-edit-form-new-field",
-                action: ()=>this.addNewField()
-              }, {
-                type: "action",
-                icon: "im-folder-add",
-                text: "i18n:hmaker-edit-form-new-group",
-                action: ()=>this.addNewGroup()
-              }, {
-                type: "line"
-              }, {
-                type: "action",
-                icon: "im-trash-can",
-                action: ()=>this.removeSelectedFieldOrGroup()
-              }, {
-                type: "line"
-              }, {
-                type: "action",
-                icon: "im-arrow-up",
-                action: ()=>this.moveSelectedFieldsUp()
-              }, {
-                type: "action",
-                icon: "im-arrow-down",
-                action: ()=>this.moveSelectedFieldsDown()
-              }]
-          }
-        },
-        //..................................
-        tree: {
-          comType: "ti-tree",
-          comConf: {
-            data: this.value,
-            showRoot: false,
-            puppetMode: true,
-            autoOpen: true,
-            border: "row",
-            defaultOpenDepth: 2,
-            currentId: this.myCurrentId,
-            nameBy: it => it.name || it.title,
-            childrenBy: it => it.fields,
-            leafBy: it => "Group" != it.type,
-            display: [{
-                key: "type",
-                transformer: {
-                  name: "toStr",
-                  args: [{
-                    "Group"   : "zmdi-collection-bookmark",
-                    "Object"  : "zmdi-toys",
-                    "Number"  : "zmdi-input-svideo",
-                    "Integer" : "zmdi-n-6-square",
-                    "Boolean" : "zmdi-toll",
-                    "String"  : "zmdi-translate",
-                    "Array"   : "zmdi-format-list-bulleted",
-                  }]
-                },
-                defaultAs: "im-question",
-                comType: "ti-icon"
-              }, {
-                key: "name",
-                transformer: v => _.isArray(v) ? v.join("+") : v,
-              },"title"],
-            onInit: this.OnTreeInit
-          }
-        },
-        //..................................
-        detail: this.TheDetailCom
-        //..................................
+        comType : "TiTextJson",
+        comConf : {
+          value : this.MainData
+        }
       }
     }
-    //--------------------------------------
+    //------------------------------------
   },
-  //////////////////////////////////////////
+  /////////////////////////////////////////
   methods : {
-    //--------------------------------------
-    OnTreeInit($tree){this.$tree = $tree},
-    //--------------------------------------
-    OnFieldTreeSelect({currentId}) {
-      this.myCurrentId = currentId
-    },
-    //--------------------------------------
-    OnFieldChange(newFld) {
-      this.updateCurrentField(newFld)
-    },
-    //--------------------------------------
-    // Utility
-    //--------------------------------------
-    getMyCurrent(fields=this.value){
-      if(!this.myCurrentId || !_.isArray(fields)) {
-        return
-      }
-
-      let path  = this.myCurrentId.split("/")
-      let re = {path, index:[], group:null, field:null}
-
-      // Find the top field or group
-      if(path.length > 0) {
-        let fnm = path[0]
-        for(let i=0; i<fields.length; i++) {
-          let fg = fields[i]
-          // Is group
-          if(_.isArray(fg.fields) || "Group" == fg.type) {
-            if(fnm == fg.title){
-              re.group = fg
-              re.index.push(i)
-              break
-            }
-          }
-          // Is field
-          else {
-            if(fnm == fg.name) {
-              re.field = fg
-              re.index.push(i)
-              break
-            }
-          }
-        }
-      }
-
-      // Find in group
-      if(path.length > 1 && re.group && _.isArray(re.group.fields)) {
-        let fnm = path[1]
-        for(let i=0; i<re.group.fields.length; i++) {
-          let fld = re.group.fields[i]
-          if(fnm == fld.name) {
-            re.field = fld
-            re.index.push(i)
-          }
-        }
-      }
-
-      // Done
-      return re
-    },
-    //--------------------------------------
-    isGroup(fld) {
-      return "Group" == fld.type || _.isArray(fld.fields)
-    },
-    //--------------------------------------
-    selectNextIdByIndex(index=[], fields=this.value) {
-      let names=[]
-      for(let i of index){
-        if(!fields || _.isEmpty(fields)) {
-          break
-        }
-        let fld = _.nth(fields, i)
-        // Find prev
-        if(!fld) {
-          fld = _.nth(fields, i-1)
-        }
-        // Join
-        if(fld) {
-          names.push(fld.name || fld.title)
-          fields = fld.fields
-        }
-      }
-      this.myCurrentId = names.join("/") || null
-    },
-    //--------------------------------------
-    findByName(name) {
-      // Guard
-      if(!_.isArray(this.value)) {
-        return
-      }
-      // Top list
-      for(let i=0; i<this.value.length; i++) {
-        let fld = this.value[i]
-        let fldName = fld.name || fld.title
-        if(_.isEqual(name, fldName)) {
-          let fd = {
-            index : [i],
-            path  : [fldName],
-            field : fld
-          }
-          if(this.isGroup(fld)){
-            fd.group = fld
-          } else {
-            fd.field = fld
-          }
-          return fd
-        }
-        // Group
-        if(this.isGroup(fld)) {
-          for(let x=0; x<fld.fields.length; x++) {
-            let sub = fld.fields[x]
-            let subName = sub.name || sub.title
-            if(_.isEqual(name, subName)) {
-              return {
-                index : [i, x],
-                path  : [fldName, subName],
-                group : fld,
-                field : sub
-              }
-            }
-          }
-        } // ~ if(this.isGroup(fld)) {
-      } // ~ for(let i=0; i<this.value.length; i++)
-    },
-    //--------------------------------------
-    existsName(name) {
-      let ff = this.findByName(name)
-      return ff ? true : false
-    },
-    //--------------------------------------
-    updateCurrentField(newFld) {
-      let fields = _.cloneDeep(this.value)
-      let cur = this.getMyCurrent(fields)
-      console.log(cur)
-      // Field in group
-      if(cur.group && cur.field) {
-        let i1 = _.last(cur.index)
-        cur.group.fields[i1] = newFld
-      }
-      // Group
-      else if(cur.group) {
-        let i0 = _.first(cur.index);
-        _.assign(fields[i0], newFld)
-      }
-      // Field
-      else if(cur.field) {
-        let i0 = _.first(cur.index)
-        fields[i0] = newFld
-      }
-      // Impossiable
-      else {
-        return
-      }
-      //....................................
-      // Select new item
-      this.selectNextIdByIndex(cur.index, fields)
-      //....................................
-      // Notify change
-      this.$notify("change", fields)
-    },
-    //--------------------------------------
-    addFieldOrGroup(fld) {
-      //....................................
-      // Clone the old
-      let fields = _.cloneDeep(this.value) || []
-      //....................................
-      // Find pos
-      let cur = this.getMyCurrent(fields)
-      let names = []
-      //....................................
-      // push to tail
-      if(!cur) {
-        fields.push(fld)
-      }
-      //....................................
-      // in group
-      else if(cur.group) {
-        if(this.isGroup(fld)) {
-          Ti.Util.insertToArray(fields, _.first(cur.index), fld)
-          names.push(fld.title)
-        }
-        // in position
-        else if(cur.field) {
-          Ti.Util.insertToArray(cur.group.fields, _.last(cur.index)+1, fld)
-          names.push(cur.path[0], fld.name)
-        }
-        // At the tail
-        else if(_.isArray(cur.group.fields)) {
-          cur.group.fields.push(fld)
-          names.push(cur.path[0], fld.name)
-        }
-        // New list
-        else {
-          cur.group.fields = [fld]
-          names.push(cur.path[0], fld.name)
-        }
-      }
-      // At top 
-      else {
-        Ti.Util.insertToArray(fields, _.last(cur.index)+1, fld)
-        names.push(fld.name || fld.title)
-      }
-      //....................................
-      // Notify change
-      this.$notify("change", fields)
-      //....................................
-      // Hightlight it
-      this.myCurrentId = names.join("/")
-    },
-    //--------------------------------------
-    async addNewField() {
-      let name = await Ti.Prompt("i18n:hmaker-edit-form-new-field-tip")
-      name = _.trim(name)
-      // User cancel
-      if(!name) {
-        return
-      }
-
-      // Form the name
-      let ss = _.without(name.split(/[\s\W]/), "")
-
-      // Check
-      for(let s of ss) {
-        if(!/^[a-z_][\da-z_]+$/.test(s)) {
-          return await Ti.Toast.Open("i18n:hmaker-edit-form-new-field-e0", "error")
-        }
-      }
-
-      // The field name
-      let fldName = ss.length == 1 ? name : ss
-
-      // Check Duplicate
-      if(this.existsName(fldName)) {
-        return await Ti.Toast.Open({
-          content: "i18n:hmaker-edit-form-new-field-e1",
-          type: "error",
-          vars: {val:name},
-          position: "center",
-          duration: 5000
-        })
-      }
-
-      // Then Add new 
-      this.addFieldOrGroup({
-        name: fldName,
-        type: _.isArray(fldName)?"Object":"String",
-        comType: "ti-input"
-      })
-    },
-    //--------------------------------------
-    async addNewGroup() {
-      let name = await Ti.Prompt("i18n:hmaker-edit-form-new-group-tip")
-      name = _.trim(name)
-      // User cancel
-      if(!name) {
-        return
-      }
-
-      // Check Duplicate
-      if(this.existsName(name)) {
-        return await Ti.Toast.Open({
-          content: "i18n:hmaker-edit-form-new-field-e1",
-          type: "error",
-          vars: {val:name},
-          position: "center",
-          duration: 5000
-        })
-      }
-
-      // Then Add new 
-      this.addFieldOrGroup({
-        type   : "Group",
-        title  : name,
-        fields : []
-      })
-    },
-    //--------------------------------------
-    async removeSelectedFieldOrGroup() {
-      let cur = this.getMyCurrent()
-      //....................................
-      // Guard
-      if(!cur) {
-        return Ti.Toast.Open("i18n:hmaker-edit-form-nil-field", "warn")
-      }
-      //....................................
-      // Prepare the newValue
-      let fields;
-      //....................................
-      // Delete group
-      if(cur.group && !cur.field) {
-        let ask = true
-        if(!_.isEmpty(cur.group.fields)) {
-          ask = await Ti.Confirm("i18n:hmaker-edit-form-del-group-confirm", {
-            closer : true,
-            textYes: "i18n:hmaker-edit-form-del-group-all",
-            textNo: "i18n:hmaker-edit-form-del-group-only",
-          })
-        }
-        // User Cancel
-        if(_.isUndefined(ask))
-          return
-        // Remove Group
-        let index = _.first(cur.index)
-        fields = _.filter(this.value, (_, i)=>i!=index)
-        // Group only, insert the fields back to list
-        if(false === ask) {
-          if(!_.isEmpty(cur.group.fields)) {
-            Ti.Util.insertToArray(fields,index, ...cur.group.fields) 
-          }
-        }
-      }
-      //....................................
-      // Delete field in group
-      else if(cur.group && cur.field) {
-        fields = _.cloneDeep(this.value)
-        let grp = _.cloneDeep(cur.group)
-        let i0 = _.first(cur.index)
-        let i1 = _.last(cur.index)
-        grp.fields = _.filter(grp.fields, (_, i)=>i!=i1)
-        fields[i0] = grp
-      }
-      //....................................
-      // Delete field
-      else {
-        let index = _.first(cur.index)
-        fields = _.filter(this.value, (_, i)=>i!=index)
-      }
-      //....................................
-      // Select next item
-      this.selectNextIdByIndex(cur.index, fields)
-      //....................................
-      // Notify change
-      this.$notify("change", fields)
-    },
-    //--------------------------------------
-    moveSelectedFieldsUp() {
-      let fields = _.cloneDeep(this.value)
-      let cur = this.getMyCurrent(fields)
-      //....................................
-      // Guard
-      if(!cur) {
-        return Ti.Toast.Open("i18n:hmaker-edit-form-nil-field", "warn")
-      }
-      let i0 = _.first(cur.index)
-      //....................................
-      // In Group
-      if(cur.group && cur.field) {
-        let i1 = _.last(cur.index)
-        // Move out from group
-        if(i1 == 0) {
-          _.remove(cur.group.fields, (_, i)=>i==i1)
-          Ti.Util.insertToArray(fields, i0, cur.field)
-          this.myCurrentId = _.last(cur.path)
-        }
-        // Just move up
-        else {
-          cur.group.fields[i1] = cur.group.fields[i1-1]
-          cur.group.fields[i1-1] = cur.field
-        }
-      }
-      // At top
-      else if(i0>0) {
-        let prev = fields[i0-1]
-        // Move in to group
-        if(this.isGroup(prev) && cur.field && this.$tree.isOpened(prev.title)) {
-          _.remove(fields, (_, i)=>i==i0)
-          if(_.isArray(prev.fields)) {
-            prev.fields.push(cur.field)
-          } else {
-            prev.fields = [cur.field]
-          }
-          this.myCurrentId = [prev.title, _.last(cur.path)].join("/")
-        }
-        // Switch
-        else {
-          fields[i0] = fields[i0-1]
-          fields[i0-1] = cur.field || cur.group
-        }
-      }
-      //....................................
-      // Notify change
-      this.$notify("change", fields)
-    },
-    //--------------------------------------
-    moveSelectedFieldsDown() {
-      let fields = _.cloneDeep(this.value)
-      let cur = this.getMyCurrent(fields)
-      //....................................
-      // Guard
-      if(!cur) {
-        return Ti.Toast.Open("i18n:hmaker-edit-form-nil-field", "warn")
-      }
-      let i0 = _.first(cur.index)
-      //....................................
-      // In Group
-      if(cur.group && cur.field) {
-        let i1 = _.last(cur.index)
-        // Move out from group
-        if(i1 >= (cur.group.fields.length - 1)) {
-          _.remove(cur.group.fields, (_, i)=>i==i1)
-          Ti.Util.insertToArray(fields, i0+1, cur.field)
-          this.myCurrentId = _.last(cur.path)
-        }
-        // Just move down
-        else {
-          cur.group.fields[i1] = cur.group.fields[i1+1]
-          cur.group.fields[i1+1] = cur.field
-        }
-      }
-      // At top
-      else if(i0 < (fields.length-1)) {
-        let next = fields[i0+1]
-        // Move in to group
-        if(this.isGroup(next) && cur.field && this.$tree.isOpened(next.title)) {
-          _.remove(fields, (_, i)=>i==i0)
-          if(_.isArray(next.fields)) {
-            Ti.Util.insertToArray(next.fields, 0, cur.field)
-          } else {
-            next.fields = [cur.field]
-          }
-          this.myCurrentId = [next.title, _.last(cur.path)].join("/")
-        }
-        // Switch
-        else {
-          fields[i0] = fields[i0+1]
-          fields[i0+1] = cur.field || cur.group
-        }
-      }
-      //....................................
-      // Notify change
-      this.$notify("change", fields)
-    }
-    //--------------------------------------
+    //------------------------------------
+    
+    //------------------------------------
   },
-  //////////////////////////////////////////
-  mounted: function() {
-    // !!!!!!!!!!!!!!!!!!!!!!!!!
-    //console.log("mounted")
-    let vueDropMe = Ti.Storage.local.getObject("vue-drop-me", null)
-    if(vueDropMe) {
-      let du = Date.now() - vueDropMe.timeInMs
-      console.log({du})
-      if(du < 1000) {
-        this.myCurrentId = vueDropMe.myCurrentId
-      }
-      Ti.Storage.local.remove("vue-drop-me")
-    }
-    // Auto Select first item
-    else {
-      this.selectNextIdByIndex([0])
-    }
-  },
-  //////////////////////////////////////////
-  beforeDestroy: function(){
-    // !!!!!!!!!!!!!!!!!!!!!!!!!
-    //console.log("beforeDestroy")
-    // Vue will drop the com in some magical time
-    // So I need  keep the state in 1000ms in case
-    Ti.Storage.local.setObject("vue-drop-me", {
-      myCurrentId : this.myCurrentId,
-      timeInMs : Date.now()
-    })
+  /////////////////////////////////////////
+  watch : {
+    
   }
-  //////////////////////////////////////////
+  /////////////////////////////////////////
 }
-Ti.Preload("ti/com/hmaker/edit-com/form/fieldset/edit-form-fieldset.mjs", _M);
+Ti.Preload("ti/com/hmaker/config/io/detail/config-io-detail.mjs", _M);
 })();
 //============================================================
-// JOIN: hmaker/edit-com/form/fieldset/_com.json
+// JOIN: hmaker/config/io/detail/_com.json
 //============================================================
-Ti.Preload("ti/com/hmaker/edit-com/form/fieldset/_com.json", {
-  "name" : "hmaker-edit-form-fieldset",
+Ti.Preload("ti/com/hmaker/config/io/detail/_com.json", {
+  "name" : "hmaker-config-io-detail",
   "globally" : true,
-  "template" : "./edit-form-fieldset.html",
-  "mixins" : ["./edit-form-fieldset.mjs"],
-  "components": [
-    "@com:hmaker/edit-com/form/field",
-    "@com:hmaker/edit-com/form/group"
+  "template" : "./config-io-detail.html",
+  "mixins"   : ["./config-io-detail.mjs"],
+  "components" : [
+    "@com:ti/text/json",
+    "@com:hmaker/config/io/ix/dao"
   ]
 });
 //============================================================
-// JOIN: hmaker/edit-com/form/group/edit-form-group.html
+// JOIN: hmaker/config/io/hmaker-config-io.html
 //============================================================
-Ti.Preload("ti/com/hmaker/edit-com/form/group/edit-form-group.html", `<div class="hmaker-edit-form-group">
-  Group: {{value}}
-</div>`);
+Ti.Preload("ti/com/hmaker/config/io/hmaker-config-io.html", `<WnFilesetTabs
+  :meta="oHome"
+  :view-ready="isViewReady"
+  com-type="wn-fileset-list"
+  :com-conf="FilesetListConf"
+  :on-init="OnTabsInit"/>`);
 //============================================================
-// JOIN: hmaker/edit-com/form/group/edit-form-group.mjs
-//============================================================
-(function(){
-const _M = {
-  //////////////////////////////////////////
-  props : {
-    "value" : {
-      type : Object,
-      default : undefined
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    
-    //--------------------------------------
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-com/form/group/edit-form-group.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-com/form/group/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-com/form/group/_com.json", {
-  "name" : "hmaker-edit-form-group",
-  "globally" : true,
-  "template" : "./edit-form-group.html",
-  "mixins" : ["./edit-form-group.mjs"]
-});
-//============================================================
-// JOIN: hmaker/edit-com/form/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-com/form/_com.json", {
-  "name" : "hmaker-edit-com-form",
-  "globally" : true,
-  "template" : "./edit-com-form.html",
-  "mixins" : ["./edit-com-form.mjs"],
-  "components": [
-    "@com:hmaker/edit-com/form/fieldset"
-  ]
-});
-//============================================================
-// JOIN: hmaker/edit-com/hmaker-edit-com.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-com/hmaker-edit-com.html", `<div class="hmaker-edit-com">
-  <!--
-    Select Com Type
-  -->
-  <div class="as-com-type">
-    <ti-combo-input 
-      v-bind="ComTypeComboInput"
-      :value="ComType"
-      @change="OnComTypeChange"/>
-  </div>
-  <!--
-    Edit Com Conf
-  -->
-  <div class="as-com-conf"><div class="as-con">
-    <!--
-      Show Com Editor
-    -->
-    <component
-      v-if="hasEditCom"
-        class="ti-fill-parent"
-        :is="EditComType"
-        v-bind="EditComConf"
-        @change="OnComConfChange"/>
-    <!--
-      Show Blank
-    -->
-    <ti-loading 
-      v-else
-        icon="fas-hand-pointer"
-        text="i18n:hmaker-com-conf-blank"/>
-  </div></div>
-</div>`);
-//============================================================
-// JOIN: hmaker/edit-com/hmaker-edit-com.mjs
+// JOIN: hmaker/config/io/hmaker-config-io.mjs
 //============================================================
 (function(){
 const _M = {
-  //////////////////////////////////////////
+  /////////////////////////////////////////
   data: ()=>({
-    myCom: null
+    oHome : undefined
   }),
-  //////////////////////////////////////////
+  /////////////////////////////////////////
   props : {
-    "value" : {
-      type : Object,
-      default : ()=>({})
+    "home" : {
+      type: [String, Object],
+      default: undefined
     }
   },
-  //////////////////////////////////////////
+  /////////////////////////////////////////
   computed : {
+    //------------------------------------
+    isViewReady() {
+      return this.oHome ? true : false
+    },
+    //------------------------------------
+    FilesetListConf() {
+      return {
+        meta : "=meta",
+        viewReady : this.isViewReady,
+        metaType : null,
+        createTip : "请输入新项目的名称",
+        listTitle : "映射列表",
+        listSize : 200,
+        detailIcon  : "fas-traffic-light",
+        detailTitle : "映射详情",
+        detailType : "HmakerConfigIoDetail",
+        detailConf : {
+          
+        }
+      }
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //------------------------------------
+    OnTabsInit($tabs) {
+      this.$tabs = $tabs;
+    },
     //------------------------------------------------
-    Dict() {
-      return Wn.Dict.hMakerComponents()
-    },
-    //--------------------------------------
-    ComTypeComboInput() {
-      return {
-        options : this.Dict,
-        placeholder : "i18n:hmaker-com-type-blank",
-        autoI18n : true,
-        mustInList : true,
-        autoCollapse : true,
-        dropDisplay : ["<icon:im-plugin>", "title|name"]
+    doCreate(payload) {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        $mcom.doCreate(payload)
       }
     },
-    //--------------------------------------
-    hasEditCom() {
-      return this.myCom ? true : false
-    },
-    //--------------------------------------
-    ComType() {
-      return _.get(this.value, "comType")
-    },
-    //--------------------------------------
-    ComConf() {
-      return _.get(this.value, "comConf")
-    },
-    //--------------------------------------
-    EditComType() {
-      return _.get(this.myCom, "editComType")
-    },
-    //--------------------------------------
-    EditComConf() {
-      let conf = _.get(this.myCom, "editComConf")
-      return Ti.Util.explainObj(this.value, conf)
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    async OnComTypeChange(comType) {
-      this.myCom = await this.Dict.getItem(comType)
-      this.notifyChange({
-        comType,
-        comConf: this.ComConf
-      })
-    },
-    //--------------------------------------
-    OnComConfChange(comConf={}) {
-      this.notifyChange({
-        comType: this.ComType,
-        comConf
-      })
-    },
-    //--------------------------------------
-    notifyChange(payload={}) {
-      this.$notify("change", payload)
-    },
-    //--------------------------------------
-    async reloadMyCom() {
-      if(!_.isEmpty(this.value)) {
-        let {comType} = this.value
-        this.myCom = await this.Dict.getItem(comType)
+    //------------------------------------------------
+    doDelete(payload) {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        $mcom.doDelete(payload)
       }
-      // Empty
-      else {
-        this.myCom = null
+    },
+    //------------------------------------------------
+    doRename(payload) {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        $mcom.doRename(payload)
+      }
+    },
+    //------------------------------------------------
+    async openContentEditor() {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom && $mcom.hasCurrent) {
+        return await $mcom.openContentEditor()
+      }
+    },
+    //------------------------------------------------
+    async openCurrentMeta() {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom && $mcom.hasCurrent) {
+        return await $mcom.openCurrentMeta()
+      }
+      await Ti.App(this).dispatch("current/openMetaEditor")
+    },
+    //------------------------------------------------
+    async reloadAll() {
+      Ti.App(this).commit("current/setStatus", {reloading:true})
+      // Reload self
+      await this.reload()
+
+      // Reload tabs
+      await this.$tabs.reload()
+
+      // Reload main
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        await $mcom.reload()
+      }
+      Ti.App(this).commit("current/setStatus", {reloading:false})
+    },
+    //------------------------------------
+    async reload() {
+      if(this.home) {
+        if(_.isString(this.home)) {
+          this.oHome = await Wn.Io.loadMeta(this.home)
+        } else {
+          this.oHome = _.cloneDeep(this.home)
+        }
       }
     }
-    //--------------------------------------
+    //------------------------------------
   },
-  //////////////////////////////////////////
-  watch: {
-    "value" : {
-      handler: "reloadMyCom",
+  /////////////////////////////////////////
+  watch : {
+    "home" : {
+      handler : "reload",
       immediate : true
     }
   }
-  //////////////////////////////////////////
+  /////////////////////////////////////////
 }
-Ti.Preload("ti/com/hmaker/edit-com/hmaker-edit-com.mjs", _M);
+Ti.Preload("ti/com/hmaker/config/io/hmaker-config-io.mjs", _M);
 })();
 //============================================================
-// JOIN: hmaker/edit-com/_com.json
+// JOIN: hmaker/config/io/ix/dao/io-ix-dao.html
 //============================================================
-Ti.Preload("ti/com/hmaker/edit-com/_com.json", {
-  "name" : "hmaker-edit-com",
-  "globally" : true,
-  "template" : "./hmaker-edit-com.html",
-  "mixins" : ["./hmaker-edit-com.mjs"],
-  "components" : [
-    "@com:hmaker/edit-com/form",
-    "@com:wn/combo/edit-com"
-  ]
-});
+Ti.Preload("ti/com/hmaker/config/io/ix/dao/io-ix-dao.html", `<TiForm
+  class="hmaker-config-io-ix-dao auto-fit-tab-field no-pad-tab-body"
+  v-bind="FormConf"
+  :data="TheData"
+  @change="OnFormChange"
+  @field:change="OnFormFieldChange"/>`);
 //============================================================
-// JOIN: hmaker/edit-site-actions/edit-site-actions.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-actions/edit-site-actions.html", `<div class="hmaker-edit-site-actions">
-  Actions
-</div>`);
-//============================================================
-// JOIN: hmaker/edit-site-actions/edit-site-actions.mjs
+// JOIN: hmaker/config/io/ix/dao/io-ix-dao.mjs
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
+  /////////////////////////////////////////
   data: ()=>({
-    
   }),
-  //////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Object,
-      default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    theConfig() {
-      
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    //--------------------------------------
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-site-actions/edit-site-actions.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-site-actions/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-actions/_com.json", {
-  "name" : "hmaker-edit-site-actions",
-  "globally" : true,
-  "template" : "./edit-site-actions.html",
-  "mixins" : ["./edit-site-actions.mjs"]
-});
-//============================================================
-// JOIN: hmaker/edit-site-apis/edit-site-apis.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-apis/edit-site-apis.html", `<div class="hmaker-edit-site-apis">
-  Apis
-</div>`);
-//============================================================
-// JOIN: hmaker/edit-site-apis/edit-site-apis.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  data: ()=>({
-    
-  }),
-  //////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Object,
-      default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    theConfig() {
-      
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    //--------------------------------------
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-site-apis/edit-site-apis.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-site-apis/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-apis/_com.json", {
-  "name" : "hmaker-edit-site-apis",
-  "globally" : true,
-  "template" : "./edit-site-apis.html",
-  "mixins" : ["./edit-site-apis.mjs"]
-});
-//============================================================
-// JOIN: hmaker/edit-site-blocks/edit-site-blocks.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-blocks/edit-site-blocks.html", `<div class="hmaker-edit-site-blocks">
-  Blocks
-</div>`);
-//============================================================
-// JOIN: hmaker/edit-site-blocks/edit-site-blocks.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  data: ()=>({
-    
-  }),
-  //////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Object,
-      default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    theConfig() {
-      
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    //--------------------------------------
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-site-blocks/edit-site-blocks.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-site-blocks/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-blocks/_com.json", {
-  "name" : "hmaker-edit-site-blocks",
-  "globally" : true,
-  "template" : "./edit-site-blocks.html",
-  "mixins" : ["./edit-site-blocks.mjs"]
-});
-//============================================================
-// JOIN: hmaker/edit-site-general/edit-site-general.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-general/edit-site-general.html", `<ti-form class="hmaker-edit-site-general"
-  :fields="TheFields"
-  :data="data"/>`);
-//============================================================
-// JOIN: hmaker/edit-site-general/edit-site-general.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  data: ()=>({
-    
-  }),
-  //////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Object,
-      default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    TheFields() {
-      return [{
-          title : "i18n:hmaker-site-k-domain",
-          name : "domain"
-        },{
-          title : "i18n:hmaker-site-k-apiBase",
-          name : "apiBase"
-        },{
-          title : "i18n:hmaker-site-k-captcha",
-          name : "captcha"
-        },{
-          title : "i18n:hmaker-site-k-base",
-          name : "base"
-        },{
-          title : "i18n:hmaker-site-k-entry",
-          name : "entry"
-        }]
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    //--------------------------------------
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-site-general/edit-site-general.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-site-general/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-general/_com.json", {
-  "name" : "hmaker-edit-site-general",
-  "globally" : true,
-  "template" : "./edit-site-general.html",
-  "mixins" : ["./edit-site-general.mjs"]
-});
-//============================================================
-// JOIN: hmaker/edit-site-nav/edit-site-nav.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-nav/edit-site-nav.html", `<div class="hmaker-edit-site-nav">
-  <!--
-    Nav Table
-  -->
-  <div class="as-table ti-fill-parent">
-    <ti-table class="ti-fill-parent"
-      :data="TableData"
-      :fields="TableFields"
-      :selectable="true"
-      :checkable="true"
-      :multi="true"
-      :current-id="myCurrentId"
-      :checked-ids="myCheckedIds"
-      @select="OnRowSelected"/>
-  </div>
-  <!--
-    Nav Form
-  -->
-  <div class="as-form">
-    <ti-form
-      class="ti-fill-parent"
-      :fields="FormFields"
-      :blank-as="FormBlankAs"
-      :data="FormData"
-      @change="OnFormChanged"/>
-  </div>
-</div>`);
-//============================================================
-// JOIN: hmaker/edit-site-nav/edit-site-nav.mjs
-//============================================================
-(function(){
-const _M = {
-  //////////////////////////////////////////
-  data: ()=>({
-    myCurrentIndex : -1,
-    myCurrentId : null,
-    myCheckedIds : {},
-    myActionStatus : {
-      "remove"   : false,
-      "moveUp"   : false,
-      "moveDown" : false,
-    }
-  }),
-  //////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Array,
-      default : ()=>[]
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    TableData() {
-      let list = []
-      _.forEach(this.data, (it, index)=>{
-        list.push(_.assign({
-          id : `N${index}`
-        }, it))
-      })
-      return list
-    },
-    //--------------------------------------
-    TableLastIndex() {
-      return this.TableData.length - 1
-    },
-    //--------------------------------------
-    TableFields() {
-      return [{
-        title : "i18n:hmaker-nav-k-display",
-        display : [{
-            key : "icon",
-            comType : "ti-icon"
-          }, "title"],
-        width   : -150
-      }, {
-        title : "i18n:hmaker-nav-k-type",
-        name  : "type",
-        width   : -100,
-        display : [{
-          comType : "ti-icon",
-          transformer : {
-            name : "toStr",
-            args : {
-              page : "zmdi-file",
-              href : "zmdi-link",
-              dispatch : "zmdi-flash-auto"
-            }
-          }
-        }, {
-          transformer : {
-            name : "toStr",
-            args : {
-              page : "i18n:hmaker-nav-tp-page",
-              href : "i18n:hmaker-nav-tp-href",
-              dispatch : "i18n:hmaker-nav-tp-dispatch"
-            }
-          }
-        }]
-      }, {
-          title : "i18n:hmaker-nav-k-value",
-          display : "value"
-        }]
-    },
-    //--------------------------------------
-    FormBlankAs() {
-      return {
-        icon : "zmdi-long-arrow-return zmdi-hc-rotate-90",
-        text : "i18n:hmaker-nav-blank-item"
-      }
-    },
-    //--------------------------------------
-    FormFields() {
-      return [{
-          title : "i18n:hmaker-nav-k-title",
-          name  : "title",
-          comType : "ti-input"
-        }, {
-          title : "i18n:hmaker-nav-k-icon",
-          name  : "icon",
-          comType : "ti-input-icon"
-        }, {
-          title : "i18n:hmaker-nav-k-type",
-          name  : "type",
-          comType : "ti-switcher",
-          comConf : {
-            options : [{
-              icon  : "zmdi-file",
-              text  : "i18n:hmaker-nav-tp-page",
-              value : "page"
-            }, {
-              icon  : "zmdi-link",
-              text  : "i18n:hmaker-nav-tp-href",
-              value : "href"
-            }, {
-              icon  : "zmdi-flash-auto",
-              text  : "i18n:hmaker-nav-tp-dispatch",
-              value : "dispatch"
-            }]
-          }
-        }, {
-          title : "i18n:hmaker-nav-k-value",
-          name  : "value",
-          comType : "ti-input"
-        }]
-    },
-    //--------------------------------------
-    FormData() {
-      if(this.myCurrentIndex >= 0) {
-        return this.TableData[this.myCurrentIndex]
-      }
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    OnRowSelected({currentId, checkedIds, currentIndex}) {
-      //console.log(currentId, current)
-      this.myCurrentIndex = currentIndex
-      this.myCurrentId = currentId
-      this.myCheckedIds = checkedIds
-
-      _.assign(this.myActionStatus, {
-        moveUp   : currentIndex > 0,
-        moveDown : currentIndex >= 0 && currentIndex < this.TableLastIndex,
-        remove   : currentIndex >= 0
-      })
-    },
-    //--------------------------------------
-    OnFormChanged({name, value}={}) {
-      //console.log("onFormChanged", {name, value})
-      if(this.myCurrentIndex>=0) {
-        let data = _.cloneDeep(this.data)
-        data[this.myCurrentIndex][name] = value
-        this.notifyChange(data)
-      }
-    },
-    //--------------------------------------
-    updateParentActionMenu() {
-      this.$notify("actions:update", {
-        data : [{
-            key  : "create",
-            text : "i18n:add-item",
-            type : "action",
-            icon : "zmdi-plus",
-            action : "$parent:callChild(createNewOne)"
-          }, {
-            type : "line"
-          }, {
-            key  : "remove",
-            type : "action",
-            icon : "zmdi-delete",
-            action : "$parent:callChild(removeChecked)",
-            enableBy : "remove"
-          }, {
-            type : "line"
-          }, {
-            key  : "moveUp",
-            type : "action",
-            icon : "zmdi-long-arrow-up",
-            action : "$parent:callChild(moveUp)",
-            enableBy : "moveUp"
-          }, {
-            key  : "moveDown",
-            type : "action",
-            icon : "zmdi-long-arrow-down",
-            action : "$parent:callChild(moveDown)",
-            enableBy : "moveDown"
-          }],
-        status : this.myActionStatus
-      })
-    },
-    //--------------------------------------
-    notifyChange(data=[]) {
-      let list = []
-      _.forEach(data, (it)=>{
-        list.push(_.pick(it, "icon", "title", "type", "value"))
-      })
-      this.$notify("change", list)
-    },
-    //--------------------------------------
-    __recover_selected(pos, len) {
-      let ids = {}
-      for(let i=0; i<len; i++) {
-        ids[`N${pos+i}`] = true
-      }
-      console.log(ids)
-      this.$nextTick(()=>{
-        this.OnRowSelected({
-          currentId  : `N${pos}`,
-          currentIndex : pos,
-          checkedIds : ids
-        })
-     })
-    },
-    //--------------------------------------
-    moveUp() {
-      let data = _.cloneDeep(this.TableData)
-      let items = _.remove(data, ({id})=>this.myCheckedIds[id])
-      if(!_.isEmpty(items)) {
-        let firstIndex = _.first(items).id.substring(1) * 1
-        let pos = Math.max(0, firstIndex - 1)
-        if(pos>=0) {
-          Ti.Util.insertToArray(data, pos, ...items)
-          this.notifyChange(data)
-
-          // Recover selected
-          this.__recover_selected(pos, items.length)
-        }
-      }
-    },
-    //--------------------------------------
-    moveDown() {
-      let data = _.cloneDeep(this.TableData)
-      let items = _.remove(data, ({id})=>this.myCheckedIds[id])
-      if(!_.isEmpty(items)) {
-        let firstIndex = _.first(items).id.substring(1) * 1
-        let pos = firstIndex + 1
-        if(pos<=(this.TableData.length-items.length)) {
-          Ti.Util.insertToArray(data, pos, ...items)
-          this.notifyChange(data)
-
-          // Recover selected
-          this.__recover_selected(pos, items.length)
-        }
-      }
-    },
-    //--------------------------------------
-    removeChecked() {
-      let data = _.filter(this.TableData, ({id})=>!this.myCheckedIds[id])
-      this.notifyChange(data)
-      this.myCurrentIndex = -1
-      this.myCurrentId = null
-      this.myCheckedIds = {}
-    },
-    //--------------------------------------
-    createNewOne() {
-      let data = _.cloneDeep(this.TableData)
-      Ti.Util.insertToArray(data, this.myCurrentIndex, {
-        title : Ti.I18n.get("new-item"),
-        type  : "page"
-      })
-      console.log(data)
-      this.notifyChange(data)
-    }
-    //--------------------------------------
-  },
-  mounted : function() {
-    this.updateParentActionMenu()
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-site-nav/edit-site-nav.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-site-nav/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-nav/_com.json", {
-  "name" : "hmaker-edit-site-nav",
-  "globally" : true,
-  "template" : "./edit-site-nav.html",
-  "mixins" : ["./edit-site-nav.mjs"]
-});
-//============================================================
-// JOIN: hmaker/edit-site-router/edit-site-router.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-router/edit-site-router.html", `<div class="hmaker-edit-site-router">
-  Routers
-</div>`);
-//============================================================
-// JOIN: hmaker/edit-site-router/edit-site-router.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  data: ()=>({
-    
-  }),
-  //////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Object,
-      default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    theConfig() {
-      
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    //--------------------------------------
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-site-router/edit-site-router.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-site-router/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-router/_com.json", {
-  "name" : "hmaker-edit-site-router",
-  "globally" : true,
-  "template" : "./edit-site-router.html",
-  "mixins" : ["./edit-site-router.mjs"]
-});
-//============================================================
-// JOIN: hmaker/edit-site-schema/edit-site-schema.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-schema/edit-site-schema.html", `<div class="hmaker-edit-site-schema">
-  SCHEMA
-</div>`);
-//============================================================
-// JOIN: hmaker/edit-site-schema/edit-site-schema.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  data: ()=>({
-    
-  }),
-  //////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Object,
-      default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    theConfig() {
-      
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    //--------------------------------------
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-site-schema/edit-site-schema.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-site-schema/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-schema/_com.json", {
-  "name" : "hmaker-edit-site-schema",
-  "globally" : true,
-  "template" : "./edit-site-schema.html",
-  "mixins" : ["./edit-site-schema.mjs"]
-});
-//============================================================
-// JOIN: hmaker/edit-site-utils/edit-site-utils.html
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-utils/edit-site-utils.html", `<div class="hmaker-edit-site-utils">
-  Utils
-</div>`);
-//============================================================
-// JOIN: hmaker/edit-site-utils/edit-site-utils.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  data: ()=>({
-    
-  }),
-  //////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Object,
-      default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    theConfig() {
-      
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    //--------------------------------------
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/edit-site-utils/edit-site-utils.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/edit-site-utils/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/edit-site-utils/_com.json", {
-  "name" : "hmaker-edit-site-utils",
-  "globally" : true,
-  "template" : "./edit-site-utils.html",
-  "mixins" : ["./edit-site-utils.mjs"]
-});
-//============================================================
-// JOIN: hmaker/site-current-view/com/current-view-con/current-view-con.html
-//============================================================
-Ti.Preload("ti/com/hmaker/site-current-view/com/current-view-con/current-view-con.html", `<div class="current-view-con">
-  <component :is="comType"
-    class="ti-cover-parent"
-    v-bind="comConf"/>
-</div>`);
-//============================================================
-// JOIN: hmaker/site-current-view/com/current-view-con/current-view-con.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
   /////////////////////////////////////////
   props : {
-    "comType" : {
-      type : String,
-      default : "ti-loading"
-    },
-    "comConf" : {
-      type : Object,
-      default : ()=>({})
-    }
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/site-current-view/com/current-view-con/current-view-con.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/site-current-view/com/current-view-con/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/site-current-view/com/current-view-con/_com.json", {
-  "name" : "current-view-con",
-  "globally" : false,
-  "template" : "./current-view-con.html",
-  "mixins" : ["./current-view-con.mjs"]
-});
-//============================================================
-// JOIN: hmaker/site-current-view/site-current-view.html
-//============================================================
-Ti.Preload("ti/com/hmaker/site-current-view/site-current-view.html", `<div class="site-current-view"
-  :class="topClass">
-  <!--
-    Title
-  -->
-  <div class="current-view-title">
-    <!-- For Site -->
-    <div class="as-name">
-      <ti-icon 
-        class="as-icon"
-        :value="theTitleIcon"/>
-      <span
-        class="as-text">{{theTitleText|i18n}}</span>
-    </div>
-    <!-- Crumb -->
-    <div class="as-crumb"></div>
-    <!-- Actions -->
-    <div class="as-actions">
-      <ti-menu
-        v-if="theCurrentAction"
-          :data="theCurrentAction"
-          :status="status"/>
-    </div>
-  </div>
-  <!--
-    Main Area
-  -->
-  <current-view-con
-    class="ti-fill-parent"
-    :com-type="theCurrentView.comType"
-    :com-conf="theCurrentView.comConf"/>
-</div>`);
-//============================================================
-// JOIN: hmaker/site-current-view/site-current-view.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  props : {
-    "home" : {
-      type : Object,
-      default : null
-    },
-    "tree" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "currentMeta" : {
-      type : Object,
-      default : null
-    },
-    "currentContent" : {
-      type : String,
-      default : null
-    },
-    "currentData" : {
-      type : Object,
-      default : null
-    },
-    "mapping" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "views" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "value" : {
+      type: [String, Object],
+      default: undefined
     }
   },
-  //////////////////////////////////////////
+  /////////////////////////////////////////
   computed : {
-    //--------------------------------------
-    topClass() {
+    //------------------------------------
+    TheData() {
+      if(_.isString(this.value)) {
+        return JSON.stringify(this.value)
+      }
+      return _.cloneDeep(this.value)
+    },
+    //------------------------------------
+    FormConf() {
       return {
-        "is-changed" : this.status.changed
-      }
-    },
-    //--------------------------------------
-    theViewsMapping() {
-      return new HmViewMapping(this.mapping || {})
-    },
-    //--------------------------------------
-    hasCurrent() {
-      return this.currentMeta
-    },
-    //--------------------------------------
-    theTitleIcon() {
-      return Wn.Util.getIconObj(this.currentMeta || this.home)
-    },
-    //--------------------------------------
-    theTitleText() {
-      return Wn.Util.getObjDisplayName(this.currentMeta || this.home)
-    },
-    //--------------------------------------
-    theCurrentView() {
-      // The default view
-      let view = {
-        comType : "ti-loading",
-        comConf : {
-          icon : "zmdi-alert-circle-o",
-          text : "i18n:blank"
-        }
-      }
-      // Find the view by current meta
-      if(this.hasCurrent) {
-        let homePath = this.home.ph
-        let currentPath = this.currentMeta.ph
-        view = this.theViewsMapping.getView({
-          path : Ti.Util.getRelativePath(homePath, currentPath),
-          type : this.currentMeta.tp,
-          mime : this.currentMeta.mime,
-          race : this.currentMeta.race
-        }, view)
-        if(_.isString(view)) {
-          view = this.views[view]
-        }
-      }
-      // Explain it ...
-      return Ti.Util.explainObj(this, view)
-    },
-    //--------------------------------------
-    theCurrentAction() {
-      return this.theCurrentView.actions
-    }
-    //--------------------------------------
-  }
-  //////////////////////////////////////////
-}
-/////////////////////////////////////////////
-class HmViewMapping {
-  constructor(mapping) {
-    this.paths = new Ti.Mapping(mapping.paths)
-    this.types = new Ti.Mapping(mapping.types)
-    this.mimes = new Ti.Mapping(mapping.mimes)
-    this.races = new Ti.Mapping(mapping.races)
-  }
-  getView({path,type,mime,race}={}, dft) {
-    return this.paths.get(path)
-      || this.types.get(type)
-      || this.mimes.get(mime)
-      || this.races.get(race)
-      || dft
-  }
-}
-Ti.Preload("ti/com/hmaker/site-current-view/site-current-view.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/site-current-view/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/site-current-view/_com.json", {
-  "name" : "hmaker-site-current-view",
-  "globally" : true,
-  "template" : "./site-current-view.html",
-  "mixins" : ["./site-current-view.mjs"],
-  "components" : [
-    "./com/current-view-con",
-    "@com:hmaker/site-state",
-    "@com:ti/text/raw",
-    "@com:ti/obj/json",
-    "@com:wn/obj/preview",
-    "@com:wn/adaptlist"
-  ]
-});
-//============================================================
-// JOIN: hmaker/site-manager/hm-site-manager.html
-//============================================================
-Ti.Preload("ti/com/hmaker/site-manager/hm-site-manager.html", `<ti-gui
-  class="hmaker-site-manager"
-  :class="className"
-  keep-shown-to="hmaker-site-manager"
-  :layout="theLayout"
-  :schema="theSchema"
-  :can-loading="true"
-  :loading-as="status.reloading"
-  @block:event="onBlockEvent"/>`);
-//============================================================
-// JOIN: hmaker/site-manager/hm-site-manager.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  props : {
-    "home" : {
-      type : Object,
-      default : null
-    },
-    "tree" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "current" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "config" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "status" : {
-      type : Object,
-      default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    theConfig() {
-      return this.config[this.viewportMode] || {}
-    },
-    //--------------------------------------
-    theLayout() {
-      return {
-        type : "cols",
-        border : true,
-        blocks : [{
-          title : "i18n:hmaker-site-tree",
-          size  : 280,
-          name  : "site-tree",
-          body  : "desktop-site-tree"
-        }, {
-          name  : "site-current",
-          body  : "desktop-site-current"
-        }]
-      }
-    },
-    //--------------------------------------
-    theSchema() {
-      //....................................
-      // Done
-      return {
-        "desktop-site-tree" : {
-          comType : "ti-tree", 
-          comConf : {
-            //=========================
-            data : this.tree.root,
-            //=========================
-            display : [{
-                key : "rawData",
-                type : "Object",
-                transformer : "getIconObj",
-                comType : "ti-icon"
-              },
-              "rawData.title",
-              "name"],
-            //=========================
-            blankAs : {
-              icon : "zmdi-settings zmdi-hc-spin",
-              text : "i18n:hmaker-site-tree-loading"
-            },
-            //=========================
-            currentId : this.tree.currentId,
-            showRoot:false,
-            defaultOpenDepth : 1,
-            extendFunctionSet : Wn.Util,
-            openedNodePaths : this.tree.openedNodePaths
-            //=========================
-          }
-        },
-        "desktop-site-current" : {
-          comType : "hmaker-site-current-view",
-          comConf : {
-            home    : this.home,
-            tree    : this.tree,
-            currentMeta    : this.current.meta,
-            currentContent : this.current.content,
-            currentData    : this.current.data,
-            mapping : this.theConfig.mapping,
-            views   : this.config.views,
-            status  : this.status
-          }
-        }
-      }
-      //....................................
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    onBlockEvent({block, name, args}={}) {
-      let evKey = _.concat(block||[], name||[]).join(".")
-      let data = _.first(args)
-      console.log("hmaker-site-manager:onBlockEvent",evKey, data)
-      //....................................
-      // Ignore the undefined data
-      if(_.isUndefined(data)) {
-        return
-      }
-      //....................................
-      // Opened Node
-      if("site-tree.opened" == evKey) {
-        Ti.App(this).dispatch("main/reloadTreeNode", {id:data.id})
-      }
-      //....................................
-      // Save Tree opened Status
-      if("site-tree.opened-status:change" == evKey) {
-        Ti.App(this).dispatch("main/setTreeOpenedNodePaths", data)
-      }
-      //....................................
-      // Save Tree selected Status
-      if("site-tree.select" == evKey) {
-        Ti.App(this).dispatch("main/setTreeSelected", data.currentId)
-      }
-      //....................................
-      // Save Tree selected Status
-      if("site-current.open" == evKey) {
-        Ti.App(this).dispatch("main/reloadCurrent", data.rawData)
-      }
-      //....................................
-      if("site-current.change" == evKey) {
-        Ti.App(this).dispatch("main/onCurrentChanged", data)
-      }
-      //....................................
-    },
-    //--------------------------------------
-    editCurrentObjMeta() {
-      let meta = this.current.meta || this.home
-
-      if(!meta) {
-        return Ti.Toast.Open("i18n:nil-obj")
-      }
-
-      Wn.EditObjMeta(meta)
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  mounted : function(){
-    //----------------------------------------
-    Ti.Fuse.getOrCreate().add({
-      key : "hmaker-site-manager",
-      everythingOk : ()=>{
-        return !this.status.changed
-      },
-      fail : ()=>{
-        Ti.Toast.Open("i18n:wn-obj-nosaved", "warn")
-      }
-    })
-    //----------------------------------------
-  },
-  //////////////////////////////////////////
-  beforeDestroy : function(){
-    Ti.Fuse.get().remove("hmaker-site-manager")
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/site-manager/hm-site-manager.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/site-manager/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/site-manager/_com.json", {
-  "name" : "hmaker-site-manager",
-  "globally" : true,
-  "i18n" : "@i18n:hmaker",
-  "template" : "./hm-site-manager.html",
-  "mixins" : ["./hm-site-manager.mjs"],
-  "components" : [
-    "@com:hmaker/site-current-view"
-  ]
-});
-//============================================================
-// JOIN: hmaker/site-state/com/site-node-editing/site-node-editing.html
-//============================================================
-Ti.Preload("ti/com/hmaker/site-state/com/site-node-editing/site-node-editing.html", `<div class="hmaker-site-node-editing">
-  <template v-if="hasNode">
-    <!--
-      Heading
-    -->
-    <div class="as-head">
-      <!--Title Bar-->
-      <div class="at-left">
-        <ti-icon :value="node.icon"/>
-        <span>{{node.title | i18n}}</span>
-      </div>
-      <!--Action Menu-->
-      <div 
-        v-if="hasActionMenu"
-          class="at-right">
-          <ti-menu v-bind="myActionMenu"/>
-      </div>
-    </div>
-    <!--
-      Editing
-    -->
-    <div class="as-edit">
-      <component class="ti-fill-parent"
-        :is="Com.comType"
-        v-bind="Com.comConf"
-        :on-init="OnChildInit"
-        @change="OnChange"
-        @actions:update="OnActionsUpdate"/>
-    </div>
-  </template>
-  <!--
-    Blank
-  -->
-  <template v-else>
-    <ti-loading
-      text="i18n:blank-to-edit"
-      icon="zmdi-arrow-left"/>
-  </template>
-</div>`);
-//============================================================
-// JOIN: hmaker/site-state/com/site-node-editing/site-node-editing.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  data: ()=>({
-    myActionMenu : null
-  }),
-  //////////////////////////////////////////
-  props : {
-    "path" : {
-      type : String,
-      default : null
-    },
-    "node" : {
-      type : Object,
-      default : ()=>({})
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    hasNode() {
-      return this.path && !_.isEmpty(this.node)
-    },
-    //--------------------------------------
-    hasActionMenu() {
-      return !_.isEmpty(this.myActionMenu)
-    },
-    //--------------------------------------
-    Com() {
-      //....................................
-      // General
-      if("general" == this.path) {
-        return {
-          comType : "hmaker-edit-site-general",
-          comConf : {
-            data : this.node.data
-          }
-        }
-      }
-      //....................................
-      // General
-      if("nav" == this.path) {
-        return {
-          comType : "hmaker-edit-site-nav",
-          comConf : {
-            data : this.node.data
-          }
-        }
-      }
-      //....................................
-      // Default
-      return  {
-        comType : "ti-form",
-        comConf : {
+        mode : "tab",
+        keepTabIndexBy : "hmaker-config-io-ix-dao-tabIndex",
+        fields: [{
+          //............................
+          // 基本设置
+          //............................
+          title : "基本",
           fields : [{
-            name  : "path",
-            //comConf : {value:this.path}
-          }, {
-            name : "node",
-            comType : "ti-input-text",
-            comConf : {
-              readonly : true,
-              height: "7rem"
-            }
-          }],
-          data : {
-            path : this.path,
-            node : JSON.stringify(this.node, null, '  ')
+              title : "数据源",
+              name  : "dao",
+              comType : "ti-input"
+            }, {
+              title : "数据表",
+              name  : "tableName",
+              comType : "ti-input"
+            }, {
+              title : "自动建表",
+              name  : "autoCreate",
+              type  : "Boolean",
+              tip   : "第一次访问时，会自动检查并确保数据库里有这个表",
+              comType : "ti-toggle"
+            }, {
+              title : "主键",
+              name  : "pks",
+              type  : "Array",
+              tip   : "默认为 `id` 字段",
+              comType : "ti-input-tags"
+            }]
+          },
+          //............................
+          // 映射字段
+          //............................
+          {
+            title : "映射字段",
+            fields : [{
+                name : "fields",
+                type : "Array",
+                comType : "ti-combo-table",
+                comConf : {
+                  className : "ti-cover-parent",
+                  form : {
+                    fields : [{
+                      title : "字段名",
+                      name  : "name",
+                      comType : "ti-input"
+                    }, {
+                      title : "数据类型",
+                      name  : "type",
+                      tip : "程序内存中的数据类型",
+                      defaultAs : "String",
+                      comType : "ti-droplist",
+                      comConf : {
+                        options: "#JavaTypes",
+                        dropDisplay : ["text::flex-auto", "value::as-tip"]
+                      }
+                    }, {
+                      title : "存储类型",
+                      name  : "columnType",
+                      tip : "数据库中的字段数据类型",
+                      defaultAs : "AUTO",
+                      comType : "ti-droplist",
+                      comConf : {
+                        options: "#ColumnTypes",
+                        dropDisplay : ["text::flex-auto", "value::as-tip"]
+                      }
+                    }, {
+                      title : "存储长度",
+                      name  : "width",
+                      type  : "Integer",
+                      tip : "数据库存储该字段所占的空间",
+                      width  : 120,
+                      comType : "ti-input"
+                    }, {
+                      title : "不可为空",
+                      name  : "notNull",
+                      type  : "Boolean",
+                      defaultAs : false,
+                      comType : "ti-toggle"
+                    }, {
+                      title : "可插入",
+                      name  : "insert",
+                      type  : "Boolean",
+                      defaultAs : true,
+                      comType : "ti-toggle"
+                    }, {
+                      title : "可更新",
+                      name  : "update",
+                      type  : "Boolean",
+                      defaultAs : true,
+                      comType : "ti-toggle"
+                    }]
+                  },
+                  list : {
+                    fields : [{
+                      title : "字段名",
+                      display : "name"
+                    }, {
+                      title : "数据类型",
+                      display : {
+                        key : "type",
+                        defaultAs : "String",
+                        comType : "ti-label",
+                        comConf : {
+                          dict : "JavaTypes"
+                        }
+                      }
+                    }, {
+                      title : "存储类型",
+                      display : {
+                        key : "columnType",
+                        defaultAs : "AUTO",
+                        comType : "ti-label",
+                        comConf : {
+                          dict : "ColumnTypes"
+                        }
+                      }
+                    }, {
+                      title : "存储长度",
+                      width : 100,
+                      display : "width::align-right"
+                    }, {
+                      title : "不可为空",
+                      width : 80,
+                      display : "<=TiLabel:notNull>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
+                    }, {
+                      title : "可插入",
+                      width : 50,
+                      display : "<=TiLabel:insert>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
+                    }, {
+                      title : "可更新",
+                      width : 50,
+                      display : "<=TiLabel:update>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
+                    }]
+                  },
+                  dialog : {
+                    title  : "编辑字段",
+                    width  : 640,
+                    height : 0.8
+                  }
+                }
+              }]
+          },
+          //............................
+          // 内置字段
+          //............................
+          {
+            title : "内置字段",
+            fields : [{
+              name : "objKeys",
+              type : "Array",
+              comType : "ti-input-text",
+              comConf : {
+                height: "100%"
+              }
+            }]
+          },
+          //............................
+          // 索引
+          //............................
+          {
+            title : "索引",
+            fields : [{
+              name : "indexes",
+              type : "Array",
+              comType : "ti-combo-table",
+              comConf : {
+                className : "ti-fill-parent",
+                form : {
+                  fields : [{
+                      title : "唯一性索引",
+                      name  : "unique",
+                      type  : "Boolean",
+                      comType : "ti-toggle"
+                    }, {
+                      title : "索引名称",
+                      name  : "name",
+                      comType : "ti-input"
+                    }, {
+                      title : "索引字段",
+                      name  : "fields",
+                      type  : "Array",
+                      comType : "ti-input-tags"
+                    }]
+                },
+                list : {
+                  fields: [{
+                    title : "索引名称",
+                    display : [
+                      "<=TiIcon:notNull>=>Ti.Types.toBoolStr(null,'fas-exclamation')",
+                      "name"]
+                  }, {
+                    title : "索引字段",
+                    display : "fields"
+                  }, {
+                    title : "唯一性",
+                    display : "<=TiLabel:unique>=>Ti.Types.toBoolStr(null,'唯一')"
+                  }]
+                },
+                dialog : {
+                  title  : "编辑索引",
+                  width  : 420,
+                  height : 500
+                }
+              }
+            }]
           }
-        }
-      }
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    OnChange(payload) {
-      //console.log("onChanged", payload)
-      this.$notify("change", {
-        path : this.path,
-        node : this.node,
-        payload
-      })
-    },
-    //--------------------------------------
-    OnActionsUpdate(menu={}) {
-      this.myActionMenu = menu
-    },
-    //--------------------------------------
-    OnChildInit($myChildCom) {
-      this.$myChildCom = $myChildCom
-    },
-    //--------------------------------------
-    callChild(actionName) {
-      console.log(actionName)
-      if(this.$myChildCom) {
-        this.$myChildCom[actionName]()
-      }
-    },
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  watch : {
-    "path" : function() {
-      this.myActionMenu = null
-    }
-  }
-  //////////////////////////////////////////
-}
-Ti.Preload("ti/com/hmaker/site-state/com/site-node-editing/site-node-editing.mjs", _M);
-})();
-//============================================================
-// JOIN: hmaker/site-state/com/site-node-editing/_com.json
-//============================================================
-Ti.Preload("ti/com/hmaker/site-state/com/site-node-editing/_com.json", {
-  "name" : "hmaker-site-node-editing",
-  "globally" : true,
-  "template" : "./site-node-editing.html",
-  "mixins" : ["./site-node-editing.mjs"],
-  "components" : [
-    "@com:hmaker/edit-site-general",
-    "@com:hmaker/edit-site-utils",
-    "@com:hmaker/edit-site-apis",
-    "@com:hmaker/edit-site-schema",
-    "@com:hmaker/edit-site-blocks",
-    "@com:hmaker/edit-site-nav",
-    "@com:hmaker/edit-site-router",
-    "@com:hmaker/edit-site-actions",
-    "@com:ti/form"
-  ]
-});
-//============================================================
-// JOIN: hmaker/site-state/hm-site-state.html
-//============================================================
-Ti.Preload("ti/com/hmaker/site-state/hm-site-state.html", `<ti-gui
-  class="hmaker-site-state ti-fill-parent"
-  keep-shown-to="hmaker-site-state"
-  :layout="theLayout"
-  :schema="theSchema"
-  @block:event="onBlockEvent"/>`);
-//============================================================
-// JOIN: hmaker/site-state/hm-site-state.mjs
-//============================================================
-(function(){
-const _M = {
-  inheritAttrs : false,
-  //////////////////////////////////////////
-  data: ()=>({
-    myCurrentPathId : null,
-    myTreeOpenedStatus : {}
-  }),
-  //////////////////////////////////////////
-  props : {
-    "home" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "content" : {
-      type : String,
-      default : null
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    theData () {
-      let str = _.trim(this.content)
-      if(!str) {
-        return {}
-      }
-      return JSON.parse(str)
-    },
-    //--------------------------------------
-    theTreeDisplay() {
-      return ["<icon>","title","tip"]
-    },
-    //--------------------------------------
-    theTreeData() {
-      return {
-        name : "ROOT",
-        children : [
-          this._general,
-          this._nav,
-          this._apis,
-          this._schema,
-          this._blocks,
-          this._router,
-          this._actions,
-          this._utils
+          //............................
         ]
       }
-    },
-    //--------------------------------------
-    _general(){
-      return {
-        icon  : "fas-sliders-h",
-        name  : "general",
-        title : "i18n:hmaker-site-state-general",
-        data  : _.pick(this.theData, [
-          "domain",
-          "apiBase",
-          "captcha",
-          "base",
-          "entry"
-        ])
-      }
-    },
-    //--------------------------------------
-    _utils() {
-      return {
-        icon  : "zmdi-card-sd",
-        name  : "utils",
-        title : "i18n:hmaker-site-state-utils",
-        data  : _.assign({}, this.theData.utils)
-      }
-    },
-    //--------------------------------------
-    _apis() {
-      let children = []
-      //....................................
-      _.forEach(this.theData.apis, (val, key)=>{
-        children.push({
-          icon  : "zmdi-input-power",
-          name  : key,
-          title : val.title || key,
-          tip   : key,
-          data  : val
-        })
-      })
-      //....................................
-      return {
-        icon  : "zmdi-input-composite",
-        name  : "apis",
-        title : "i18n:hmaker-site-state-apis",
-        children
-      }
-    },
-    //......................................
-    _schema() {
-      let children = []
-      //....................................
-      _.forEach(this.theData.schema, (val, key)=>{
-        children.push({
-          icon  : "fas-puzzle-piece",
-          name  : key,
-          title : val.title || key,
-          data  : val
-        })
-      })
-      //....................................
-      return {
-        icon  : "fas-pencil-ruler",
-        name  : "schema",
-        title : "i18n:hmaker-site-state-schema",
-        children
-      }
-    },
-    //......................................
-    _blocks() {
-      //....................................
-      const __sub_block = (block, key)=>{
-        //..................................
-        // Block as refer
-        if (_.isString(block)) {
-          return {
-            icon  : "fas-external-link-alt",
-            name  : key,
-            title : block,
-            data  : block
-          }
-        }
-        //..................................
-        // Block as component
-        else if(block.body) {
-          let comName = _.isString(block.body)
-            ? block.body
-            : (block.body.comType || "ti-label")
-          let titleKey = _.isNumber(key)
-            ? `[${key}]`
-            : `"${key}"`
-          return {
-            icon  : "fas-puzzle-piece",
-            name  : key,
-            title : `${titleKey}:<${comName}>`,
-            data  : block
-          }
-        }
-        //..................................
-        // Block as layout
-        else {
-          //................................
-          let children = []
-          //................................
-          _.forEach(block.blocks, (block, index)=>{
-            children.push(__sub_block(block, index))
-          })
-          //................................
-          let titleKey = _.isNumber(key)
-            ? `[${key}]`
-            : `"${key}"`
-          //................................
-          let blockName = [
-            titleKey, 
-            Ti.I18n.get(`hmaker-layout-${block.type||"cols"}`)
-          ]
-          //................................
-          return {
-            icon  : "im-layer",
-            name  : key,
-            title : blockName.join(":"),
-            data  : block,
-            children
-          }
-        }
-      }
-      //....................................
-      let children = []
-      _.forEach(this.theData.blocks, (deviceInfo, deviceType)=>{
-        //..................................
-        let subs = []
-        _.forEach(deviceInfo, (block, key)=>{
-          subs.push(__sub_block(block, key))
-        })
-        //..................................
-        children.push({
-          icon  : ({
-            "desktop" : "zmdi-desktop-windows",
-            "tablet"  : "zmdi-tablet",
-            "phone"   : "zmdi-smartphone-iphone",
-          })[deviceType],
-          name  : deviceType,
-          title : `i18n:${deviceType}`,
-          data  : deviceInfo,
-          children : subs
-        })
-        //..................................
-      })
-      //....................................
-      return {
-        icon  : "far-object-group",
-        name  : "blocks",
-        title : "i18n:hmaker-site-state-blocks",
-        children
-      }
-    },
-    //......................................
-    _nav() {
-      return {
-        icon  : "im-sitemap",
-        name  : "nav",
-        title : "i18n:hmaker-site-state-nav",
-        data  : this.theData.nav || []
-      }
-    },
-    //......................................
-    // router
-    _router() {
-      let children = []
-      //....................................
-      _.forEach(this.theData.router, (val, key)=>{
-        children.push({
-          icon  : "im-share",
-          name  : key,
-          title : val.match,
-          data  : val
-        })
-      })
-      //....................................
-      return {
-        icon  : "zmdi-router",
-        name  : "router",
-        title : "i18n:hmaker-site-state-router",
-        children
-      }
-    },
-    //......................................
-    _actions() {
-      let children = []
-      //....................................
-      _.forEach(this.theData.actions, (val, key)=>{
-        children.push({
-          icon  : "im-flash",
-          name  : key,
-          title : key,
-          data  : val
-        })
-      })
-      //....................................
-      return {
-        icon  : "im-rocket",
-        name  : "actions",
-        title : "i18n:hmaker-site-state-actions",
-        children
-      }
-    },
-    //--------------------------------------
-    theLayout() {
-      return {
-        type : "tabs",
-        tabAt : "bottom-left",
-        blocks : [{
-            title : "i18n:structure",
-            type : "cols",
-            border : true,
-            blocks : [{
-                size  : .372,
-                name  : "tree",
-                body  : "desktopStructureTree"
-              }, {
-                name  : "edit",
-                body  : "desktopStructureEdit"
-              }]
-          }, {
-            title : "i18n:source-code",
-            name  : "source",
-            body  : "desktopSourceCode"
-          }]
-      }
-    },
-    //--------------------------------------
-    theSchema() {
-      return {
-        // structure: tree
-        "desktopStructureTree" : {
-          comType : "ti-tree",
-          comConf : {
-            mainWidth        : 300,
-            border           : "cell",
-            multi            : false,
-            data             : this.theTreeData,
-            display          : this.theTreeDisplay,
-            autoOpen         : false,
-            currentId        : this.myCurrentPathId,
-            defaultOpenDepth : 0,
-            keepOpenBy       : `hm-site-state-${this.home.id}-opened`,
-            keepCurrentBy    : `hm-site-state-${this.home.id}-current`,
-            showRoot         : false
-          }
-        },
-        // structure: edit
-        "desktopStructureEdit" : {
-          comType : "hmaker-site-node-editing",
-          comConf : {
-            path : this.myCurrentPathId,
-            node : this.theCurrentNode
-          }
-        },
-        // source code 
-        "desktopSourceCode" : {
-          comType : "ti-text-raw",
-          comConf : {
-            showTitle : false,
-            content   : this.content,
-            ignoreKeyUp : true
-          }
-        }
-      }
-    },
-    //--------------------------------------
-    theCurrentNode() {
-      if(this.myCurrentPathId) {
-        return Ti.Trees.getNodeByPath(this.theTreeData, this.myCurrentPathId)
-      }
-      return null
     }
-    //--------------------------------------
+    //------------------------------------
   },
-  //////////////////////////////////////////
+  /////////////////////////////////////////
   methods : {
-    //--------------------------------------
-    updateByPath({path, payload}={}) {
-      //console.log("udpateByPath", path, payload)
-      let data = _.cloneDeep(this.theData)
-      _.set(data, path, payload)
-      //console.log(JSON.stringify(data, null, '  '))
-      Ti.App(this).dispatch("main/onCurrentChanged", data)
+    //------------------------------------
+    OnFormChange(payload) {
+      //console.log("change", payload)
+      let json = JSON.stringify(payload, null, '   ')
+      this.$notify("change", json)
     },
-    //--------------------------------------
-    onBlockEvent({block, name, args}={}) {
-      let evKey = _.concat(block||[], name||[]).join(".")
-      let data = _.first(args)
-      console.log("hmaker-site-state:onBlockEvent",evKey, data)
-      //....................................
-      // Ignore the undefined data
-      if(_.isUndefined(data)) {
-        return
-      }
-      //....................................
-      else if("tree.select" == evKey) {
-        this.onSelected(data)
-      }
-      //....................................
-      else if("tree.opened-status:change" == evKey) {
-        this.onOpenedStatusChanged(data)
-      }
-      //....................................
-      else if("edit.change" == evKey) {
-        this.updateByPath(data)
-      }
-      //....................................
-      else if("source.change" == evKey) {
-        Ti.App(this).dispatch("main/onCurrentChanged", data)
-      }
-      //....................................
-    },
-    //--------------------------------------
-    async onSelected({currentId, current}={}) {
-      //console.log("onSelected", currentId, _.cloneDeep(current))
-      this.myCurrentPathId = currentId
-    },
-    //--------------------------------------
-    onOpenedStatusChanged(opened) {
-      //console.log("onOpenedStatusChanged", _.cloneDeep(opened))
-      this.myTreeOpenedStatus = opened
+    //------------------------------------
+    OnFormFieldChange(payload){
+      //console.log("field:change", payload)
     }
-    //--------------------------------------
+    //------------------------------------
   },
-  //////////////////////////////////////////
+  /////////////////////////////////////////
+  watch : {
+    
+  }
+  /////////////////////////////////////////
 }
-Ti.Preload("ti/com/hmaker/site-state/hm-site-state.mjs", _M);
+Ti.Preload("ti/com/hmaker/config/io/ix/dao/io-ix-dao.mjs", _M);
 })();
 //============================================================
-// JOIN: hmaker/site-state/_com.json
+// JOIN: hmaker/config/io/ix/dao/_com.json
 //============================================================
-Ti.Preload("ti/com/hmaker/site-state/_com.json", {
-  "name" : "hmaker-site-state",
+Ti.Preload("ti/com/hmaker/config/io/ix/dao/_com.json", {
+  "name" : "hmaker-config-io-ix-dao",
   "globally" : true,
-  "template" : "./hm-site-state.html",
-  "mixins" : ["./hm-site-state.mjs"],
+  "template" : "./io-ix-dao.html",
+  "mixins"   : ["./io-ix-dao.mjs"],
   "components" : [
-    "./com/site-node-editing"
+    "@com:ti/combo/table"
+  ]
+});
+//============================================================
+// JOIN: hmaker/config/io/_com.json
+//============================================================
+Ti.Preload("ti/com/hmaker/config/io/_com.json", {
+  "name" : "hmaker-config-io",
+  "globally" : true,
+  "template" : "./hmaker-config-io.html",
+  "mixins"   : ["./hmaker-config-io.mjs"],
+  "components" : [
+    "@com:hmaker/config/io/detail"
   ]
 });
 //============================================================
@@ -7558,6 +5151,10 @@ const _M = {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "autoI18n" : {
+    type : Boolean,
+    default : true
+  },
   "statusIcons" : {
     type : Object,
     default : ()=>({
@@ -9351,20 +6948,23 @@ Ti.Preload("ti/com/ti/combo/table/ti-combo-table-props.mjs", _M);
 Ti.Preload("ti/com/ti/combo/table/ti-combo-table.html", `<div class="ti-combo-table"
   :class="TopClass"
   :style="TopStyle">
-  <!--
-    Actions
-  -->
-  <TiActionbar
-    :items="ActionItems"
-    :align="actionAlign"/>
-  <!--
-    Table
-  -->
-  <TiTable
-    v-bind="TableConfig"
-    :on-init="OnInitTable"
-    @select="OnTableRowSelect"
-    @open="OnTableRowOpen"/>
+  <!--wrap-->
+  <div class="as-main-con">
+    <!--
+      Actions
+    -->
+    <TiActionbar
+      :items="ActionItems"
+      :align="actionAlign"/>
+    <!--
+      Table
+    -->
+    <TiTable
+      v-bind="TableConfig"
+      :on-init="OnInitTable"
+      @select="OnTableRowSelect"
+      @open="OnTableRowOpen"/>
+  </div>
 </div>`);
 //============================================================
 // JOIN: ti/combo/table/ti-combo-table.mjs
@@ -9425,6 +7025,14 @@ const _M = {
         tip : "i18n:move-down",
         action : ()=>{
           this.moveCheckedDown()
+        }
+      }, {
+        type : "line"
+      }, {
+        icon : "fas-code",
+        tip : "i18n:source",
+        action : ()=>{
+          this.doEditCurrent()
         }
       }]
     },
@@ -10839,9 +8447,11 @@ const _M = {
     },
     //--------------------------------------------------
     FormBodyClass() {
-      if(this.CurrentTab) {
-        return `tab-body-${this.CurrentTab.index}`
+      let klass = Ti.Css.mergeClassName(`has-${this.FieldsInCurrentTab.length}-fields`)
+      if(this.isTabMode && this.CurrentTab) {
+        klass[`tab-body-${this.CurrentTab.index}`] = true
       }
+      return klass
     },
     //--------------------------------------------------
     FieldsInCurrentTab() {
@@ -16443,7 +14053,10 @@ const _M = {
     type : Boolean,
     default : true
   },
-  "format" : undefined,
+  "format" : {
+    type : [String, Function],
+    default : undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -16606,11 +14219,19 @@ const _M = {
     },
     //--------------------------------------
     TheFormat() {
+      if(_.isFunction(this.format)) {
+        return this.format
+      }
       if(this.format) {
         if(this.autoI18n) {
-          return Ti.I18n.text(this.format)
+          let str = Ti.I18n.text(this.format)
+          return (val)=> {
+            return Ti.S.renderBy(str, val)
+          }
         }
-        return this.format
+        return (val)=> {
+          return Ti.S.renderBy(this.format, val)
+        }
       }
     },
     //--------------------------------------
@@ -16766,8 +14387,8 @@ const _M = {
         return Ti.Types.toStr(val, this.TheFormat)
       }
       // Auto format
-      if(this.TheFormat) {
-        return Ti.Types.toStr(val, this.TheFormat)
+      if(_.isFunction(this.TheFormat)) {
+        return this.TheFormat(val)
       }
       // Return & auto-i18n
       return this.autoI18n 
@@ -21605,11 +19226,27 @@ const FieldDisplay = {
         }
         //......................................
         // "<=ti-label:key>" or ":<=ti-label>"
-        m = /^<=([^:]+)(:(.+))?>$/.exec(displayItem)
+        // or <=ti-icon:key>=>Ti.Types.toBoolStr(null,'fas-user')
+        m = /^<=([^:]+)(:(.+))?>(\.([^=]+))?(=>(.+))?$/.exec(displayItem)
         if(m) {
+          // Eval className
+          let className = m[5] || undefined
+          // Eval transformer
+          let transformer = undefined
+          if(m[7]) {
+            transformer = Ti.Util.genInvoking(m[7], {
+              context: this,
+              partial: "right"
+            })
+          }
+          // done for field
           return {
-            key       : m[3] || defaultKey || Symbol(displayItem),
-            comType   : m[1]
+            key : m[3] || defaultKey || Symbol(displayItem),
+            transformer,
+            comType : m[1], 
+            comConf : {
+              className
+            }
           }
         }
         //......................................
@@ -21684,8 +19321,6 @@ const FieldDisplay = {
     uniqueKey
   }={}) {
     let dis = displayItem;
-    // if("sex" == dis.key) 
-    //   console.log(dis)
     let value = dis.defaultAs;
     //.....................................
     // Array -> Obj
@@ -21714,6 +19349,8 @@ const FieldDisplay = {
         )
       }
     }
+    // if("name" == dis.key && 0 === value) 
+    //   console.log(dis, value)
     //.....................................
     // Transformer
     if(_.isFunction(dis.transformer)) {
@@ -23332,7 +20969,7 @@ const _M = {
             displayItem, 
             vars : {
               "rowId"     : this.rowId,
-              //"isCurrent" : this.isCurrent
+              "isCurrent" : this.isCurrent
             },
             autoIgnoreNil : true,
             uniqueKey: `row${this.rowId}-cell${this.index}-${i}`
@@ -23370,7 +21007,7 @@ const _M = {
       handler : "evalCellDisplayItems",
       immediate : true
     },
-    //"isCurrent" : "evalCellDisplayItems"
+    "isCurrent" : "evalCellDisplayItems"
   }
   ///////////////////////////////////////////////////
 }
@@ -25189,8 +22826,8 @@ const _M = {
           className : _.kebabCase(`is-${it.nameType}`),
           editable  : 'Key' == it.nameType,
           format : ({
-              "Index" : "[${val}]",
-              "Label" : "i18n:json-${val}"
+              "Index" : v => `[${v}]`,
+              "Label" : v => Ti.I18n.text(`i18n:json-${v}`)
             })[it.nameType]
         })
       }
@@ -25369,7 +23006,7 @@ const _M = {
       }
       //.....................................
       // Other, it must be simple value
-      else if(path.length > 0){
+      else if(path.length >= 0){
         //...................................
         // get the parent node
         let p_ph = path.slice(0, path.length-1);
@@ -25382,7 +23019,8 @@ const _M = {
         // If array, insert nil after current
         if(_.isArray(parent)) {
           stub = parent
-          Ti.Util.insertToArray(parent, keyOrIndex+1, null)
+          let pos = Ti.Util.fallback(keyOrIndex, -1) + 1
+          Ti.Util.insertToArray(parent, pos, null)
         }
         //...................................
         // If Object
@@ -25677,7 +23315,6 @@ Ti.Preload("ti/com/ti/text/json/tree/ti-text-json-tree.mjs", _M);
 Ti.Preload("ti/com/ti/text/json/tree/_com.json", {
   "name" : "ti-text-json-tree",
   "globally" : true,
-  "i18n" : "@i18n:ti-text-json",
   "template" : "./ti-text-json-tree.html",
   "mixins" : ["./ti-text-json-tree.mjs"],
   "components" : [
@@ -25691,7 +23328,6 @@ Ti.Preload("ti/com/ti/text/json/tree/_com.json", {
 Ti.Preload("ti/com/ti/text/json/_com.json", {
   "name" : "ti-text-json",
   "globally" : true,
-  "i18n" : "@i18n:ti-text-json",
   "template" : "./ti-text-json.html",
   "mixins" : ["./ti-text-json.mjs"],
   "components" : [
@@ -35509,13 +33145,9 @@ const OBJ = {
         })
       // Check the newName
       if(newName) {
-        // Check the newName contains the invalid char
-        if(newName.search(/[%;:"'*?`\t^<>\/\\]/)>=0) {
-          return await Ti.Alert('i18n:wn-rename-invalid')
-        }
-        // Check the newName length
-        if(newName.length > 256) {
-          return await Ti.Alert('i18n:wn-rename-too-long')
+        // Check name invalid or not
+        if(!Wn.Obj.isValidName(newName)) {
+          return
         }
         // Check the suffix Name
         let oldSuffix = Ti.Util.getSuffix(it.nm)
@@ -35534,11 +33166,11 @@ const OBJ = {
             {as:"json"})
         // Error
         if(newMeta instanceof Error) {
-          Ti.Toast.Open("i18n:wn-rename-fail", "error")
+          await Ti.Toast.Open("i18n:wn-rename-fail", "error")
         }
         // Replace the data
         else {
-          Ti.Toast.Open("i18n:wn-rename-ok", "success")
+          await Ti.Toast.Open("i18n:wn-rename-ok", "success")
           this.setItem(newMeta)
         }
         this.setItemStatus({id:it.id, status:{loading:false}})
@@ -37543,6 +35175,13 @@ const _M = {
       }
     },
     //------------------------------------------------
+    doRename(payload) {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        $mcom.doRename(payload)
+      }
+    },
+    //------------------------------------------------
     async openCurrentMeta() {
       let $mcom = this.$tabs.$MainCom()
       if($mcom && $mcom.hasCurrent) {
@@ -37643,6 +35282,10 @@ const _M = {
         race : "FILE"
       })
     },
+    "createTip" : {
+      type : String,
+      default : "i18n:wn-fsc-mail-tmpl-new"
+    },
     "listSize" : {
       type : [Number, String],
       default : 0.3
@@ -37702,6 +35345,10 @@ const _M = {
     "detailConf" : {
       type : Object,
       default : ()=>({})
+    },
+    "autoSelect" : {
+      type : Boolean,
+      default : true
     }
   },
   ////////////////////////////////////////////////////
@@ -37931,7 +35578,7 @@ const _M = {
     //------------------------------------------------
     async doCreate() {
       //console.log("doCreate for ", this.meta.ph)
-      let newName = _.trim(await Ti.Prompt("i18n:wn-fsc-mail-tmpl-new"))
+      let newName = _.trim(await Ti.Prompt(this.createTip))
 
       if(!newName)
         return
@@ -37962,6 +35609,52 @@ const _M = {
         this.currentMeta = undefined
         this.currentContent = undefined
       }
+      // Warn user
+      else {
+        return await Ti.Toast.Open('i18n:wn-del-none', "warn")
+      }
+    },
+    //------------------------------------------------
+    async doRename() {
+      if(this.hasCurrent && this.findIndexInList() >= 0) {
+        // Get newName from User input
+        let newName = await Ti.Prompt({
+          text : 'i18n:wn-rename',
+          vars : {name:this.currentMeta.nm}
+        }, {
+          title : "i18n:rename",
+          placeholder : this.currentMeta.nm,
+          value : this.currentMeta.nm
+        })
+
+        // Check name invalid or not
+        if(!Wn.Obj.isValidName(newName)) {
+          return
+        }
+
+        this.reloading = true
+        // Do the rename
+        let newMeta = await Wn.Sys.exec2(
+          `obj id:${this.CurrentId} -cqno -u 'nm:"${newName}"'`,
+          {as:"json"})
+
+        // Error
+        if(newMeta instanceof Error) {
+          await Ti.Toast.Open("i18n:wn-rename-fail", "error")
+        }
+        // Replace the data
+        else {
+          await Ti.Toast.Open("i18n:wn-rename-ok", "success")
+          this.updateCurrentMeta(newMeta)
+        }
+        this.$nextTick(()=>{
+          this.reloading = false
+        })
+      }
+      // Warn user
+      else {
+        return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
+      }
     },
     //------------------------------------------------
     async openCurrentMeta() {
@@ -37973,6 +35666,20 @@ const _M = {
           this.updateCurrentMeta(data)
         }
       }
+    },
+    //------------------------------------------------
+    async openContentEditor() {
+      let text = await Wn.EditObjContent(this.currentMeta, {
+        autoSave : true
+      })
+
+      // User cancel
+      if(Ti.Util.isNil(text))
+        return
+
+      // Update content
+      this.currentContent = text
+      this.loadedCurrentContent = text
     },
     //------------------------------------------------
     findIndexInList(meta=this.currentMeta) {
@@ -38034,14 +35741,37 @@ const _M = {
       }
     },
     //------------------------------------------------
+    autoSelectItem() {
+      if(!this.autoSelect)
+        return
+
+      if(_.isEmpty(this.listData)) 
+        return
+      
+      let row = this.$list.getRow(0)
+      if(row && row.id) {
+        this.$list.selectRow(row.id)
+      }
+    },
+    //------------------------------------------------
     async reload() {
       this.reloading = true
       this.listData = await this.reloadChildren()
       this.$nextTick(()=>{
         this.reloading = false
+        this.$nextTick(()=>{
+          this.autoSelectItem()
+        })
       })
     }
     //------------------------------------------------
+  },
+  watch : {
+    "isCurrentContentChanged" : function(changed) {
+      Ti.App(this).commit("current/setStatus", {
+        changed
+      })
+    }
   },
   ////////////////////////////////////////////////////
   mounted : function(){
@@ -38139,6 +35869,12 @@ const _M = {
         }
         gui.blocks.push(li)
       })
+
+      if(gui.blocks.length == 1) {
+        this.myShown = {
+          [gui.blocks[0].name] : true
+        }
+      }
 
       return gui
     }
@@ -49383,20 +47119,6 @@ Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
   "wordp-nil-sel": "Please select a paragraph first"
 });
 //============================================================
-// JOIN: en-us/ti-text-json.i18n.json
-//============================================================
-Ti.Preload("ti/i18n/en-us/ti-text-json.i18n.json", {
-  "json-Array": "Array",
-  "json-Boolean": "Boolean",
-  "json-Float": "Decimal",
-  "json-Integer": "Integer",
-  "json-Nil": "Nil",
-  "json-Number": "Number",
-  "json-Object": "Object",
-  "json-String": "String",
-  "json-new-key": "Enter a new key"
-});
-//============================================================
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
@@ -49830,6 +47552,37 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN: en-us/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "java-type-String" : "String",
+  "java-type-Integer" : "Integer",
+  "java-type-Long" : "Long",
+  "java-type-Float" : "Float",
+  "java-type-Double" : "Double",
+  "java-type-Boolean" : "Boolean",
+  "java-type-Object" : "Object",
+  "java-type-SArray" : "String Array",
+  "java-type-List" : "Object List",
+  "java-type-JSON" : "JSON",
+
+  "db-col-type-AUTO" : "AUTO",
+  "db-col-type-CHAR" : "CHAR",
+  "db-col-type-BOOLEAN" : "BOOLEAN",
+  "db-col-type-VARCHAR" : "VARCHAR",
+  "db-col-type-TEXT" : "TEXT",
+  "db-col-type-BINARY" : "BINARY",
+  "db-col-type-TIMESTAMP" : "TIMESTAMP",
+  "db-col-type-INT" : "INT",
+  "db-col-type-FLOAT" : "FLOAT",
+
+  "json-Array": "Array",
+  "json-Boolean": "Boolean",
+  "json-Float": "Decimal",
+  "json-Integer": "Integer",
+  "json-Nil": "Nil",
+  "json-Number": "Number",
+  "json-Object": "Object",
+  "json-String": "String",
+  "json-new-key": "Enter a new key",
+
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
@@ -49995,6 +47748,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "newsfeed": "Newfeed",
   "next": "Next",
   "nil": "Nil",
+  "nil-detail" : "Please choose one item for detail",
   "nil-item": "Please choose one item at first",
   "nil-obj": "Please choose one object",
   "no": "No",
@@ -50399,20 +48153,6 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-editor.i18n.json", {
   "wordp-heading": "标题级别",
   "wordp-link": "超链接",
   "wordp-nil-sel": "请先选择一段文字"
-});
-//============================================================
-// JOIN: zh-cn/ti-text-json.i18n.json
-//============================================================
-Ti.Preload("ti/i18n/zh-cn/ti-text-json.i18n.json", {
-  "json-Array": "数组",
-  "json-Boolean": "布尔",
-  "json-Float": "小数",
-  "json-Integer": "整数",
-  "json-Nil": "空值",
-  "json-Number": "数字",
-  "json-Object": "对象",
-  "json-String": "字符串",
-  "json-new-key": "请输入一个新键名"
 });
 //============================================================
 // JOIN: zh-cn/web.i18n.json
@@ -50848,6 +48588,37 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "java-type-String" : "字符串",
+  "java-type-Integer" : "整数",
+  "java-type-Long" : "长整数",
+  "java-type-Float" : "浮点",
+  "java-type-Double" : "双精度浮点",
+  "java-type-Boolean" : "布尔",
+  "java-type-Object" : "对象",
+  "java-type-SArray" : "字符串数组",
+  "java-type-List" : "对象列表",
+  "java-type-JSON" : "JSON对象",
+
+  "db-col-type-AUTO" : "自动",
+  "db-col-type-CHAR" : "定长字符",
+  "db-col-type-BOOLEAN" : "布尔",
+  "db-col-type-VARCHAR" : "变长字符",
+  "db-col-type-TEXT" : "长文本",
+  "db-col-type-BINARY" : "二进制",
+  "db-col-type-TIMESTAMP" : "时间戳",
+  "db-col-type-INT" : "整数",
+  "db-col-type-FLOAT" : "浮点数",
+
+  "json-Array": "数组",
+  "json-Boolean": "布尔",
+  "json-Float": "小数",
+  "json-Integer": "整数",
+  "json-Nil": "空值",
+  "json-Number": "数字",
+  "json-Object": "对象",
+  "json-String": "字符串",
+  "json-new-key": "请输入一个新键名",
+
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",
@@ -51013,6 +48784,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "newsfeed": "消息流",
   "next": "下一步",
   "nil": "无",
+  "nil-detail" : "请选择一项查看详情",
   "nil-item": "请先选择一项",
   "nil-obj": "请选择一个对象",
   "no": "否",

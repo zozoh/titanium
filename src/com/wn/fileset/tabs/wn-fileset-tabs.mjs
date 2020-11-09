@@ -46,6 +46,12 @@ export default {
         gui.blocks.push(li)
       })
 
+      if(gui.blocks.length == 1) {
+        this.myShown = {
+          [gui.blocks[0].name] : true
+        }
+      }
+
       return gui
     }
     //------------------------------------------------

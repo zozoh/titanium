@@ -10,7 +10,8 @@ async function EditObjContent(pathOrObj="~", {
   readonly=false,
   showEditorTitle=true,
   content,
-  placeholder="i18n:blank"
+  placeholder="i18n:blank",
+  autoSave
 }={}){
   //............................................
   // Load meta
@@ -23,7 +24,7 @@ async function EditObjContent(pathOrObj="~", {
     textOk = this.saveBy ? 'i18n:save' : 'i18n:ok'
   }
   //............................................
-  let autoSave = Ti.Util.isNil(content)
+  autoSave = Ti.Util.fallback(autoSave, Ti.Util.isNil(content))
   //............................................
   let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-receipt")
   let theTitle = title || "i18n:edit"
