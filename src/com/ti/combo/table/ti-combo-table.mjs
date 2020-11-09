@@ -38,7 +38,7 @@ const _M = {
         icon : "far-edit",
         tip : "i18n:edit",
         action : ()=>{
-          this.doEditCurrent()
+          this.doEditCurrentMeta()
         }
       }, {
         type : "line"
@@ -60,7 +60,7 @@ const _M = {
         icon : "fas-code",
         tip : "i18n:source",
         action : ()=>{
-          this.doEditCurrent()
+          this.doEditCurrentSource()
         }
       }]
     },
@@ -93,7 +93,7 @@ const _M = {
     },
     //-----------------------------------------------
     async OnTableRowOpen({index, rawData}) {
-      let reo = await this.openDialog(rawData);
+      let reo = await this.openDialogForMeta(rawData);
 
       // User cancel
       if(_.isUndefined(reo))
@@ -106,7 +106,7 @@ const _M = {
     },
     //-----------------------------------------------
     async doAddNewItem() {
-      let reo = await this.openDialog();
+      let reo = await this.openDialogForMeta();
 
       // User cancel
       if(_.isUndefined(reo))
@@ -117,13 +117,13 @@ const _M = {
       this.notifyChange(val)
     },
     //-----------------------------------------------
-    async doEditCurrent() {
+    async doEditCurrentMeta() {
       let row = this.$table.getCurrentRow()
       if(!row) {
         return await Ti.Toast.Open("i18n:nil-item", "warn")
       }
       let {rawData, index} = row
-      let reo = await this.openDialog(rawData);
+      let reo = await this.openDialogForMeta(rawData);
 
       // User cancel
       if(_.isUndefined(reo))
@@ -133,6 +133,28 @@ const _M = {
       let list = _.cloneDeep(this.value||[])
       list.splice(index, 1, reo)
       this.notifyChange(list)
+    },
+    //-----------------------------------------------
+    async doEditCurrentSource() {
+      let json = this.value || "[]"
+      if(!_.isString(json)) {
+        json = JSON.stringify(json, null, '   ')
+      }
+      json = await this.openDialogForSource(json);
+
+      // User cancel
+      if(_.isUndefined(json))
+        return
+
+      // Join to 
+      try {
+        let list = JSON.parse(json)
+        this.notifyChange(list)
+      }
+      // Invalid json
+      catch(E) {
+        await Ti.Toast.Open("")
+      }
     },
     //-----------------------------------------------
     removeChecked() {
@@ -161,13 +183,26 @@ const _M = {
       })
     },
     //-----------------------------------------------
-    async openDialog(result={}) {
+    async openDialogForMeta(result={}) {
       let dialog = _.cloneDeep(this.dialog);
       _.assign(dialog, {
         result,
         model : {prop:"data", event:"change"},
         comType : "TiForm",
         comConf : this.form
+      })
+
+      return await Ti.App.Open(dialog);
+    },
+    //-----------------------------------------------
+    async openDialogForSource(json='[]') {
+      let dialog = _.cloneDeep(this.dialog);
+      _.assign(dialog, {
+        result : json,
+        comType : "TiInputText",
+        comConf : {
+          height: "100%"
+        }
       })
 
       return await Ti.App.Open(dialog);

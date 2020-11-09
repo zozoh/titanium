@@ -1,0 +1,30 @@
+.ti-bullet-list {
+  overflow: auto;
+  //-------------------------------------
+  .as-bullet-item {
+    @include flex-align-nowrap($ai:flex-start);
+    cursor: pointer; line-height: 1.8em;
+    padding: 0.3em 0.6em; opacity: 0.8;
+    //-----------------------------------
+    &:hover {
+      @include color($color-weaktip, r, c);
+      opacity: 1;
+      .ti-icon.as-bullet i {
+        transform: scale(1.2);
+      }
+    }
+    //-----------------------------------
+    &.is-checked {
+      font-weight: bold; opacity: 1;
+    }
+    //-----------------------------------
+    .ti-icon {
+      margin-right: 1em; height: 1.8em;
+      > i {transition: transform 0.5s;}
+    }
+    //-----------------------------------
+  }
+  //-------------------------------------
+  
+  //-------------------------------------
+}

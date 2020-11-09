@@ -1,4 +1,4 @@
-// Pack At: 2020-11-09 15:45:51
+// Pack At: 2020-11-09 23:57:33
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -413,9 +413,13 @@ const _M = {
             fields : [{
               name : "objKeys",
               type : "Array",
-              comType : "ti-input-text",
+              comType : "ti-bullet-checkbox",
               comConf : {
-                height: "100%"
+                className : "ti-cover-parent",
+                options: "#BuiltInFields",
+                style : {
+                  padding : "1em"
+                }
               }
             }]
           },
@@ -506,7 +510,8 @@ Ti.Preload("ti/com/hmaker/config/io/ix/dao/_com.json", {
   "template" : "./io-ix-dao.html",
   "mixins"   : ["./io-ix-dao.mjs"],
   "components" : [
-    "@com:ti/combo/table"
+    "@com:ti/combo/table",
+    "@com:ti/bullet/checkbox"
   ]
 });
 //============================================================
@@ -2107,6 +2112,270 @@ Ti.Preload("ti/com/ti/actionbar/_com.json", {
     "./com/bar-item-info"
   ]
 });
+//============================================================
+// JOIN: ti/bullet/checkbox/ti-bullet-checkbox.mjs
+//============================================================
+(function(){
+const _M = {
+  //////////////////////////////////////////
+  data: ()=>({
+    myTypeName : "ti-radio-list"
+  }),
+  //////////////////////////////////////////
+  props: {
+    "bulletIconOn" : {
+      type : String,
+      default : "fas-check-square"
+    },
+    "bulletIconOff" : {
+      type : String,
+      default : "far-square"
+    }
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnClickItem({value}) {
+      let vals = []
+      _.forEach(this.myOptionsData, it => {
+        if(this.isItemChecked(it.value, this.value)) {
+          if(!_.isEqual(value, it.value)) {
+            vals.push(it.value)
+          }
+        }
+        // check it
+        else if(_.isEqual(value, it.value)) {
+          vals.push(it.value)
+        }
+      })
+      this.$notify("change", vals)
+    },
+    //--------------------------------------
+    isItemChecked(itValue, val) {
+      if(_.isArray(val)) {
+        return _.indexOf(val, itValue) >= 0
+      }
+      return _.isEqual(itValue, val)
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/bullet/checkbox/ti-bullet-checkbox.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/bullet/checkbox/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/bullet/checkbox/_com.json", {
+  "name" : "ti-bullet-checkbox",
+  "globally" : true,
+  "template" : "@com:ti/bullet/ti-bullet.html",
+  "mixins" : [
+    "@com:ti/bullet/ti-bullet-mixin.mjs",
+    "./ti-bullet-checkbox.mjs"]
+});
+//============================================================
+// JOIN: ti/bullet/radio/ti-bullet-radio.mjs
+//============================================================
+(function(){
+const _M = {
+  //////////////////////////////////////////
+  data: ()=>({
+    myTypeName : "ti-radio-list"
+  }),
+  //////////////////////////////////////////
+  props: {
+    "bulletIconOn" : {
+      type : String,
+      default : "fas-dot-circle"
+    },
+    "bulletIconOff" : {
+      type : String,
+      default : "far-circle"
+    }
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnClickItem({value}) {
+      this.$notify("change", value)
+    },
+    //--------------------------------------
+    isItemChecked(itValue, val) {
+      return _.isEqual(itValue, val)
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/bullet/radio/ti-bullet-radio.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/bullet/radio/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/bullet/radio/_com.json", {
+  "name" : "ti-bullet-radio",
+  "globally" : true,
+  "template" : "@com:ti/bullet/ti-bullet.html",
+  "mixins" : [
+    "@com:ti/bullet/ti-bullet-mixin.mjs",
+    "./ti-bullet-radio.mjs"]
+});
+//============================================================
+// JOIN: ti/bullet/ti-bullet-mixin.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data : ()=>({
+    myDict : undefined,
+    myOptionsData  : [],
+    loading : false
+  }),
+  ////////////////////////////////////////////////////
+  props: {
+    "value": undefined,
+    "options" : {
+      type : [String, Array, Function, Ti.Dict],
+      default : ()=>[]
+    },
+    "valueBy" : {
+      type : [String, Function],
+      default : "value"
+    },
+    "textBy" : {
+      type : [String, Function],
+      default : "text"
+    },
+    "iconeBy" : {
+      type : [String, Function],
+      default : "icon"
+    },
+    "bulletIconOn" : {
+      type : String,
+      default : "fas-check-circle"
+    },
+    "bulletIconOff" : {
+      type : String,
+      default : "far-circle"
+    },
+    "width" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "height" : {
+      type : [Number, String],
+      default : undefined
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass(this.myTypeName)
+    },
+    //------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height
+      })
+    },
+    //------------------------------------------------
+    ItemList() {
+      let list = []
+      _.forEach(this.myOptionsData, it => {
+        let li = _.cloneDeep(it)
+        if(this.isItemChecked(it.value, this.value)) {
+          li.className = "is-checked"
+          li.bullet = this.bulletIconOn
+        } else {
+          li.bullet = this.bulletIconOff
+        }
+        list.push(li)
+      })
+      return list
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    createDict() {
+      // Customized
+      if(this.options instanceof Ti.Dict) {
+        return this.options
+      }
+      // Refer dict
+      if(_.isString(this.options)) {
+        let dictName = Ti.DictFactory.DictReferName(this.options)
+        if(dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+            this.loading = loading
+          })
+        }
+      }
+      // Auto Create
+      return Ti.DictFactory.CreateDict({
+        data : this.options,
+        getValue : Ti.Util.genGetter(this.valueBy || "value"),
+        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
+        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+      })
+    },
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    "options" : {
+      handler : async function(newval, oldval) {
+        if(!_.isEqual(newval, oldval)) {
+          this.myDict = this.createDict()
+          this.loading = true
+          console.log("reload bullet options")
+          this.myOptionsData = await this.myDict.getData()
+          this.$nextTick(()=>{
+            this.loading = false
+          })
+        }
+      },
+      immediate : true
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/bullet/ti-bullet-mixin.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/bullet/ti-bullet.html
+//============================================================
+Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
+  :class="TopClass"
+  :style="TopStyle">
+  <div
+    v-for="it of ItemList"
+      class="as-bullet-item"
+      :class="it.className"
+      @click.left="OnClickItem(it)">
+      <!--
+        Bullet
+      -->
+      <ti-icon 
+        class="as-bullet"
+          :value="it.bullet"/>
+      <!--
+        Icon
+      -->
+      <ti-icon 
+        v-if="it.icon"
+          class="as-icon"
+            :value="it.icon"/>
+      <!--
+        Text
+      -->
+      <div class="as-text">{{it.text|i18n}}</div>
+  </div>
+</div>`);
 //============================================================
 // JOIN: ti/button/ti-button.html
 //============================================================
@@ -7010,7 +7279,7 @@ const _M = {
         icon : "far-edit",
         tip : "i18n:edit",
         action : ()=>{
-          this.doEditCurrent()
+          this.doEditCurrentMeta()
         }
       }, {
         type : "line"
@@ -7032,7 +7301,7 @@ const _M = {
         icon : "fas-code",
         tip : "i18n:source",
         action : ()=>{
-          this.doEditCurrent()
+          this.doEditCurrentSource()
         }
       }]
     },
@@ -7065,7 +7334,7 @@ const _M = {
     },
     //-----------------------------------------------
     async OnTableRowOpen({index, rawData}) {
-      let reo = await this.openDialog(rawData);
+      let reo = await this.openDialogForMeta(rawData);
 
       // User cancel
       if(_.isUndefined(reo))
@@ -7078,7 +7347,7 @@ const _M = {
     },
     //-----------------------------------------------
     async doAddNewItem() {
-      let reo = await this.openDialog();
+      let reo = await this.openDialogForMeta();
 
       // User cancel
       if(_.isUndefined(reo))
@@ -7089,13 +7358,13 @@ const _M = {
       this.notifyChange(val)
     },
     //-----------------------------------------------
-    async doEditCurrent() {
+    async doEditCurrentMeta() {
       let row = this.$table.getCurrentRow()
       if(!row) {
         return await Ti.Toast.Open("i18n:nil-item", "warn")
       }
       let {rawData, index} = row
-      let reo = await this.openDialog(rawData);
+      let reo = await this.openDialogForMeta(rawData);
 
       // User cancel
       if(_.isUndefined(reo))
@@ -7105,6 +7374,28 @@ const _M = {
       let list = _.cloneDeep(this.value||[])
       list.splice(index, 1, reo)
       this.notifyChange(list)
+    },
+    //-----------------------------------------------
+    async doEditCurrentSource() {
+      let json = this.value || "[]"
+      if(!_.isString(json)) {
+        json = JSON.stringify(json, null, '   ')
+      }
+      json = await this.openDialogForSource(json);
+
+      // User cancel
+      if(_.isUndefined(json))
+        return
+
+      // Join to 
+      try {
+        let list = JSON.parse(json)
+        this.notifyChange(list)
+      }
+      // Invalid json
+      catch(E) {
+        await Ti.Toast.Open("")
+      }
     },
     //-----------------------------------------------
     removeChecked() {
@@ -7133,13 +7424,26 @@ const _M = {
       })
     },
     //-----------------------------------------------
-    async openDialog(result={}) {
+    async openDialogForMeta(result={}) {
       let dialog = _.cloneDeep(this.dialog);
       _.assign(dialog, {
         result,
         model : {prop:"data", event:"change"},
         comType : "TiForm",
         comConf : this.form
+      })
+
+      return await Ti.App.Open(dialog);
+    },
+    //-----------------------------------------------
+    async openDialogForSource(json='[]') {
+      let dialog = _.cloneDeep(this.dialog);
+      _.assign(dialog, {
+        result : json,
+        comType : "TiInputText",
+        comConf : {
+          height: "100%"
+        }
       })
 
       return await Ti.App.Open(dialog);
@@ -8498,7 +8802,7 @@ const _M = {
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
       // Notify at first
-      //console.log("notify field")
+      console.log("notify field", {name, value})
       this.$notify("field:change", {name, value})
 
       // Notify later ...

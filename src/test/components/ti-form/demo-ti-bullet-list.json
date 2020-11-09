@@ -1,0 +1,38 @@
+{
+  "comType" : "ti-form",
+  "comConf" : {
+    "autoShowBlank" : false,
+    "data" : "=data",
+    "fields" : [{
+        "title" : "多选列表",
+        "name"  : "bc0",
+        "type"  : "Array",
+        "comType" : "ti-bullet-checkbox",
+        "comConf" : {
+          "options" : [
+            {"icon":"fas-rocket", "value": "A", "text": "Ansower A"},
+            {"icon":"fas-rocket", "value": "B", "text": "Ansower B"},
+            {"icon":"fas-rocket", "value": "C", "text": "Ansower C"},
+            {"icon":"fas-rocket", "value": "D", "text": "Ansower D"},
+            {"icon":"fas-rocket", "value": "E", "text": "Ansower E"},
+            {"icon":"fas-rocket", "value": "F", "text": "Ansower F"},
+            {"icon":"fas-rocket", "value": "G", "text": "Ansower G"}]
+        }
+      }, {
+        "title" : "单选列表",
+        "name"  : "br0",
+        "type"  : "String",
+        "comType" : "ti-bullet-radio",
+        "comConf" : {
+          "options" : [
+            {"value": "A", "text": "Ansower A"},
+            {"value": "B", "text": "Ansower B"},
+            {"value": "C", "text": "Ansower C"},
+            {"value": "D", "text": "Ansower D"},
+            {"value": "E", "text": "Ansower E"},
+            {"value": "F", "text": "Ansower F"},
+            {"value": "G", "text": "Ansower G"}]
+        }
+      }]
+  }
+}

@@ -33,6 +33,15 @@ const _M = {
     //----------------------------------------
     ComChanged() {
       return _.get(this.myCom, "changed") || ".."
+    },
+    //----------------------------------------
+    ComType() {
+      return _.get(this.myCom, "comType")
+    },
+    //----------------------------------------
+    ComConf() {
+      let conf = _.get(this.myCom, "comConf")
+      return Ti.Util.explainObj(this, conf)
     }
     //----------------------------------------
   },
@@ -57,19 +66,32 @@ const _M = {
       }
     },
     //----------------------------------------
-    evalMyCom() {
-      this.myComType = _.get(this.myCom, "comType")
-      let comConf = _.get(this.myCom, "comConf")
-      let theConf = Ti.Util.explainObj(this, comConf)
-      this.myComConf = theConf
-    },
+    // evalMyCom() {
+    //   this.myComType = null
+    //   this.myComConf = {}
+      
+    //   this.$nextTick(()=>{
+    //     this.myComType = _.get(this.myCom, "comType")
+    //     let comConf = _.get(this.myCom, "comConf")
+    //     let theConf = Ti.Util.explainObj(this, comConf)
+    //     this.myComConf = theConf
+    //   })
+    // },
     //----------------------------------------
     async reloadMyCom() {
       let aph = _.get(this.meta, "com")
+      this.myCom = {
+        comType : "TiLoading",
+        comConf : {}
+      }
       if(aph) {
+        // console.log("haha", JSON.stringify({
+        //   metaId: this.meta.id,
+        //   data  : JSON.stringify(this.data)
+        // }))
+        console.log("reloadMyCom")
         let com = await Wn.Io.loadMeta(aph)
         this.myCom = await Wn.Io.loadContent(com, {as:"json"})
-        this.evalMyCom()
       }
     }
     //----------------------------------------
@@ -77,11 +99,13 @@ const _M = {
   ////////////////////////////////////////////
   watch : {
     "meta" : {
-      handler : "reloadMyCom",
-      immediate : true
-    },
-    "data" : {
-      handler : "evalMyCom",
+      handler : function(newVal, oldVal) {
+        if(!_.isEqual(newVal, oldVal)) {
+          if(!newVal || !oldVal || newVal.com != oldVal.com) {
+            this.reloadMyCom()
+          }
+        }
+      },
       immediate : true
     }
   },

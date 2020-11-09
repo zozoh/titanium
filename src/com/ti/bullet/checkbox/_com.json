@@ -1,0 +1,8 @@
+{
+  "name" : "ti-bullet-checkbox",
+  "globally" : true,
+  "template" : "@com:ti/bullet/ti-bullet.html",
+  "mixins" : [
+    "@com:ti/bullet/ti-bullet-mixin.mjs",
+    "./ti-bullet-checkbox.mjs"]
+}

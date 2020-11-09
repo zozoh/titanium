@@ -5,7 +5,6 @@
   "template" : "./com-test-case.html",
   "mixins" : ["./com-test-case.mjs"],
   "components" : [
-    "@com:hmaker/edit-com",
     "@com:ti/form",
     "@com:ti/wizard",
     "@com:ti/calendar",
@@ -17,6 +16,8 @@
     "@com:ti/text/markdown/preview",
     "@com:ti/text/markdown/richeditor",
     "@com:ti/combo/table",
+    "@com:ti/bullet/checkbox",
+    "@com:ti/bullet/radio",
     "@com:wn/transfer",
     "@com:wn/droplist",
     "@com:ti/lbs/route",

@@ -171,9 +171,13 @@ export default {
             fields : [{
               name : "objKeys",
               type : "Array",
-              comType : "ti-input-text",
+              comType : "ti-bullet-checkbox",
               comConf : {
-                height: "100%"
+                className : "ti-cover-parent",
+                options: "#BuiltInFields",
+                style : {
+                  padding : "1em"
+                }
               }
             }]
           },

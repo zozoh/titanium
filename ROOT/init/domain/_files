@@ -430,6 +430,12 @@ newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
   com: "/rs/ti/test/components/ti-form/demo-ti-combo-table.json"
 }
 #---------------------------------------------------------
+@FILE demo/ti-form/ti-bullet-list.comt
+{
+  title : "选择列表",
+  com: "/rs/ti/test/components/ti-form/demo-ti-bullet-list.json"
+}
+#---------------------------------------------------------
 @FILE demo/ti-obj/ti-obj-pair.comt
 {
   title : "对象值表",

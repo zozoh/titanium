@@ -1,0 +1,27 @@
+<div class="ti-bullet-list"
+  :class="TopClass"
+  :style="TopStyle">
+  <div
+    v-for="it of ItemList"
+      class="as-bullet-item"
+      :class="it.className"
+      @click.left="OnClickItem(it)">
+      <!--
+        Bullet
+      -->
+      <ti-icon 
+        class="as-bullet"
+          :value="it.bullet"/>
+      <!--
+        Icon
+      -->
+      <ti-icon 
+        v-if="it.icon"
+          class="as-icon"
+            :value="it.icon"/>
+      <!--
+        Text
+      -->
+      <div class="as-text">{{it.text|i18n}}</div>
+  </div>
+</div>
