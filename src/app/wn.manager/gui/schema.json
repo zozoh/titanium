@@ -22,6 +22,7 @@
   "pcMainSideBar" : {
     "comType" : "wn-gui-side-nav",
     "comConf" : {
+      "statusStoreKey" : "=sidebarStatusStoreKey",
       "items" : "=sidebar",
       "highlightItemId"   : "=MetaId",
       "highlightItemPath" : "=MetaPath"

@@ -1,6 +1,10 @@
 const _M = {
   /////////////////////////////////////////
   props : {
+    "statusStoreKey": {
+      type : String,
+      default : undefined
+    },
     "items" : {
       type : Array,
       default : null
@@ -54,10 +58,16 @@ const _M = {
           items.push(this.evalItem(subIt))
         }
       }
+      // Store status
+      let groupStatusStoreKey = undefined
+      if(this.statusStoreKey) {
+        groupStatusStoreKey = this.statusStoreKey + "_" + it.key
+      }
+
       // Self
       return _.assign(_.pick(it, ["id","key","depth","icon","title","path","view"]), {
         items,
-        groupStatusStoreKey : it.key,
+        groupStatusStoreKey,
         highlightId : this.theHighlightItemId,
         href : it.id ? Wn.Util.getAppLink(it.id)+"" : null
       })

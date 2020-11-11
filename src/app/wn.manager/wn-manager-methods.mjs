@@ -87,6 +87,7 @@ const _M = {
   async reloadSidebar() {
     let reo = await Wn.Sys.exec("ti sidebar -cqn", {as:"json"});
     this.sidebar = reo.sidebar
+    this.sidebarStatusStoreKey = reo.statusStoreKey
   },
   //.........................................
   pushHistory(meta) {

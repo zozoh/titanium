@@ -86,6 +86,10 @@ export default {
     "autoSelect" : {
       type : Boolean,
       default : true
+    },
+    "autoKeepSelectBy" : {
+      type : String,
+      default : "CURRENT_ID"
     }
   },
   ////////////////////////////////////////////////////
@@ -484,10 +488,23 @@ export default {
 
       if(_.isEmpty(this.listData)) 
         return
+
+      // Recover current selected before
+      let rowId;
+      if(this.autoKeepSelectBy) {
+        let key = `${this.meta.id}_${this.autoKeepSelectBy}`
+        rowId = Ti.Storage.session.get(key)
+      }
+
+      // Select the first one
+      if(Ti.Util.isNil(rowId)) {
+        let row = this.$list.getRow(0)
+        rowId = _.get(row,  "id")
+      }
       
-      let row = this.$list.getRow(0)
-      if(row && row.id) {
-        this.$list.selectRow(row.id)
+      // Recover the previous selection
+      if(!Ti.Util.isNil(rowId)) {
+        this.$list.selectRow(rowId)
       }
     },
     //------------------------------------------------
@@ -508,6 +525,16 @@ export default {
       Ti.App(this).commit("current/setStatus", {
         changed
       })
+    },
+    "currentMeta" : function(newVal, oldVal) {
+      if(this.meta && !_.isEqual(newVal, oldVal) && this.autoKeepSelectBy) {
+        let key = `${this.meta.id}_${this.autoKeepSelectBy}`
+        if(newVal) {
+          Ti.Storage.session.set(key, newVal.id)
+        } else {
+          Ti.Storage.session.remove(key)
+        }
+      }
     }
   },
   ////////////////////////////////////////////////////

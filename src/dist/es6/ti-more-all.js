@@ -1,4 +1,4 @@
-// Pack At: 2020-11-09 23:57:33
+// Pack At: 2020-11-11 15:08:37
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -8802,7 +8802,7 @@ const _M = {
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
       // Notify at first
-      console.log("notify field", {name, value})
+      //console.log("notify field", {name, value})
       this.$notify("field:change", {name, value})
 
       // Notify later ...
@@ -14530,11 +14530,11 @@ const _M = {
         if(this.autoI18n) {
           let str = Ti.I18n.text(this.format)
           return (val)=> {
-            return Ti.S.renderBy(str, val)
+            return Ti.S.renderVars(val, str)
           }
         }
         return (val)=> {
-          return Ti.S.renderBy(this.format, val)
+          return Ti.S.renderVars(val, this.format)
         }
       }
     },
@@ -14639,7 +14639,6 @@ const _M = {
     async evalDisplay(val) {
       // By Dict Item
       if(this.Dict) {
-        // console.log(val)
         // Array value
         if(_.isArray(val)) {
           this.myDisplayIcon = undefined
@@ -35653,6 +35652,10 @@ const _M = {
     "autoSelect" : {
       type : Boolean,
       default : true
+    },
+    "autoKeepSelectBy" : {
+      type : String,
+      default : "CURRENT_ID"
     }
   },
   ////////////////////////////////////////////////////
@@ -36051,10 +36054,23 @@ const _M = {
 
       if(_.isEmpty(this.listData)) 
         return
+
+      // Recover current selected before
+      let rowId;
+      if(this.autoKeepSelectBy) {
+        let key = `${this.meta.id}_${this.autoKeepSelectBy}`
+        rowId = Ti.Storage.session.get(key)
+      }
+
+      // Select the first one
+      if(Ti.Util.isNil(rowId)) {
+        let row = this.$list.getRow(0)
+        rowId = _.get(row,  "id")
+      }
       
-      let row = this.$list.getRow(0)
-      if(row && row.id) {
-        this.$list.selectRow(row.id)
+      // Recover the previous selection
+      if(!Ti.Util.isNil(rowId)) {
+        this.$list.selectRow(rowId)
       }
     },
     //------------------------------------------------
@@ -36075,6 +36091,16 @@ const _M = {
       Ti.App(this).commit("current/setStatus", {
         changed
       })
+    },
+    "currentMeta" : function(newVal, oldVal) {
+      if(this.meta && !_.isEqual(newVal, oldVal) && this.autoKeepSelectBy) {
+        let key = `${this.meta.id}_${this.autoKeepSelectBy}`
+        if(newVal) {
+          Ti.Storage.session.set(key, newVal.id)
+        } else {
+          Ti.Storage.session.remove(key)
+        }
+      }
     }
   },
   ////////////////////////////////////////////////////
@@ -36400,7 +36426,6 @@ Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.html", `<div 
 //============================================================
 (function(){
 const _M = {
-  inheritAttrs : false,
   ///////////////////////////////////////////
   data : ()=>{
     return {
@@ -36453,7 +36478,7 @@ const _M = {
         this.collapse = !this.collapse
         // Save status
         if(this.groupStatusStoreKey) {
-          Ti.Storage.session.set(this.groupStatusStoreKey, this.collapse)
+          Ti.Storage.local.set(this.groupStatusStoreKey, this.collapse)
         }
       }
     },
@@ -36482,7 +36507,7 @@ const _M = {
       // Load local setting
       if(this.groupStatusStoreKey) {
         this.collapse = 
-          Ti.Storage.session.getBoolean(this.groupStatusStoreKey, this.collapse)
+          Ti.Storage.local.getBoolean(this.groupStatusStoreKey, this.collapse)
       }
     }
   }
@@ -36516,6 +36541,10 @@ Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.html", `<div class="wn-gui-si
 const _M = {
   /////////////////////////////////////////
   props : {
+    "statusStoreKey": {
+      type : String,
+      default : undefined
+    },
     "items" : {
       type : Array,
       default : null
@@ -36569,10 +36598,16 @@ const _M = {
           items.push(this.evalItem(subIt))
         }
       }
+      // Store status
+      let groupStatusStoreKey = undefined
+      if(this.statusStoreKey) {
+        groupStatusStoreKey = this.statusStoreKey + "_" + it.key
+      }
+
       // Self
       return _.assign(_.pick(it, ["id","key","depth","icon","title","path","view"]), {
         items,
-        groupStatusStoreKey : it.key,
+        groupStatusStoreKey,
         highlightId : this.theHighlightItemId,
         href : it.id ? Wn.Util.getAppLink(it.id)+"" : null
       })
@@ -46669,6 +46704,7 @@ Ti.Preload("/a/load/wn.manager/gui/schema.json", {
   "pcMainSideBar" : {
     "comType" : "wn-gui-side-nav",
     "comConf" : {
+      "statusStoreKey" : "=sidebarStatusStoreKey",
       "items" : "=sidebar",
       "highlightItemId"   : "=MetaId",
       "highlightItemPath" : "=MetaPath"
@@ -46889,6 +46925,7 @@ const _M = {
   async reloadSidebar() {
     let reo = await Wn.Sys.exec("ti sidebar -cqn", {as:"json"});
     this.sidebar = reo.sidebar
+    this.sidebarStatusStoreKey = reo.statusStoreKey
   },
   //.........................................
   pushHistory(meta) {
@@ -46959,6 +46996,7 @@ const _M = {
     comConf : {},
     actions : [],
     sidebar : [],
+    sidebarStatusStoreKey : undefined,
     // Current meta anestors
     ancestors : [],
     parent : null,
@@ -47856,37 +47894,6 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN: en-us/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
-  "java-type-String" : "String",
-  "java-type-Integer" : "Integer",
-  "java-type-Long" : "Long",
-  "java-type-Float" : "Float",
-  "java-type-Double" : "Double",
-  "java-type-Boolean" : "Boolean",
-  "java-type-Object" : "Object",
-  "java-type-SArray" : "String Array",
-  "java-type-List" : "Object List",
-  "java-type-JSON" : "JSON",
-
-  "db-col-type-AUTO" : "AUTO",
-  "db-col-type-CHAR" : "CHAR",
-  "db-col-type-BOOLEAN" : "BOOLEAN",
-  "db-col-type-VARCHAR" : "VARCHAR",
-  "db-col-type-TEXT" : "TEXT",
-  "db-col-type-BINARY" : "BINARY",
-  "db-col-type-TIMESTAMP" : "TIMESTAMP",
-  "db-col-type-INT" : "INT",
-  "db-col-type-FLOAT" : "FLOAT",
-
-  "json-Array": "Array",
-  "json-Boolean": "Boolean",
-  "json-Float": "Decimal",
-  "json-Integer": "Integer",
-  "json-Nil": "Nil",
-  "json-Number": "Number",
-  "json-Object": "Object",
-  "json-String": "String",
-  "json-new-key": "Enter a new key",
-
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
@@ -47928,6 +47935,15 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "create-now": "Create now",
   "creating": "Creating",
   "date": "Date",
+  "db-col-type-AUTO": "AUTO",
+  "db-col-type-BINARY": "BINARY",
+  "db-col-type-BOOLEAN": "BOOLEAN",
+  "db-col-type-CHAR": "CHAR",
+  "db-col-type-FLOAT": "FLOAT",
+  "db-col-type-INT": "INT",
+  "db-col-type-TEXT": "TEXT",
+  "db-col-type-TIMESTAMP": "TIMESTAMP",
+  "db-col-type-VARCHAR": "VARCHAR",
   "debug": "Debug",
   "default": "Default",
   "del": "Delete",
@@ -47991,6 +48007,25 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "info": "Information",
   "input": "Input",
   "input-tags": "Input tags",
+  "java-type-Boolean": "Boolean",
+  "java-type-Double": "Double",
+  "java-type-Float": "Float",
+  "java-type-Integer": "Integer",
+  "java-type-JSON": "JSON",
+  "java-type-List": "Object List",
+  "java-type-Long": "Long",
+  "java-type-Object": "Object",
+  "java-type-SArray": "String Array",
+  "java-type-String": "String",
+  "json-Array": "Array",
+  "json-Boolean": "Boolean",
+  "json-Float": "Decimal",
+  "json-Integer": "Integer",
+  "json-Nil": "Nil",
+  "json-Number": "Number",
+  "json-Object": "Object",
+  "json-String": "String",
+  "json-new-key": "Enter a new key",
   "label": "Label",
   "lat": "Latitude",
   "lbs-place-add": "Add place",
@@ -48052,7 +48087,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "newsfeed": "Newfeed",
   "next": "Next",
   "nil": "Nil",
-  "nil-detail" : "Please choose one item for detail",
+  "nil-detail": "Please choose one item for detail",
   "nil-item": "Please choose one item at first",
   "nil-obj": "Please choose one object",
   "no": "No",
@@ -48892,37 +48927,6 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
-  "java-type-String" : "字符串",
-  "java-type-Integer" : "整数",
-  "java-type-Long" : "长整数",
-  "java-type-Float" : "浮点",
-  "java-type-Double" : "双精度浮点",
-  "java-type-Boolean" : "布尔",
-  "java-type-Object" : "对象",
-  "java-type-SArray" : "字符串数组",
-  "java-type-List" : "对象列表",
-  "java-type-JSON" : "JSON对象",
-
-  "db-col-type-AUTO" : "自动",
-  "db-col-type-CHAR" : "定长字符",
-  "db-col-type-BOOLEAN" : "布尔",
-  "db-col-type-VARCHAR" : "变长字符",
-  "db-col-type-TEXT" : "长文本",
-  "db-col-type-BINARY" : "二进制",
-  "db-col-type-TIMESTAMP" : "时间戳",
-  "db-col-type-INT" : "整数",
-  "db-col-type-FLOAT" : "浮点数",
-
-  "json-Array": "数组",
-  "json-Boolean": "布尔",
-  "json-Float": "小数",
-  "json-Integer": "整数",
-  "json-Nil": "空值",
-  "json-Number": "数字",
-  "json-Object": "对象",
-  "json-String": "字符串",
-  "json-new-key": "请输入一个新键名",
-
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",
@@ -48964,6 +48968,15 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "create-now": "立即创建",
   "creating": "正在创建...",
   "date": "日期",
+  "db-col-type-AUTO": "自动",
+  "db-col-type-BINARY": "二进制",
+  "db-col-type-BOOLEAN": "布尔",
+  "db-col-type-CHAR": "定长字符",
+  "db-col-type-FLOAT": "浮点数",
+  "db-col-type-INT": "整数",
+  "db-col-type-TEXT": "长文本",
+  "db-col-type-TIMESTAMP": "时间戳",
+  "db-col-type-VARCHAR": "变长字符",
   "debug": "调试",
   "default": "默认",
   "del": "删除",
@@ -49027,6 +49040,25 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "info": "信息",
   "input": "输入",
   "input-tags": "输入标签",
+  "java-type-Boolean": "布尔",
+  "java-type-Double": "双精度浮点",
+  "java-type-Float": "浮点",
+  "java-type-Integer": "整数",
+  "java-type-JSON": "JSON对象",
+  "java-type-List": "对象列表",
+  "java-type-Long": "长整数",
+  "java-type-Object": "对象",
+  "java-type-SArray": "字符串数组",
+  "java-type-String": "字符串",
+  "json-Array": "数组",
+  "json-Boolean": "布尔",
+  "json-Float": "小数",
+  "json-Integer": "整数",
+  "json-Nil": "空值",
+  "json-Number": "数字",
+  "json-Object": "对象",
+  "json-String": "字符串",
+  "json-new-key": "请输入一个新键名",
   "label": "标签",
   "lat": "纬度",
   "lbs-place-add": "添加地点",
@@ -49088,7 +49120,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "newsfeed": "消息流",
   "next": "下一步",
   "nil": "无",
-  "nil-detail" : "请选择一项查看详情",
+  "nil-detail": "请选择一项查看详情",
   "nil-item": "请先选择一项",
   "nil-obj": "请选择一个对象",
   "no": "否",

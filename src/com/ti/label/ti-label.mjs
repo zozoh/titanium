@@ -50,11 +50,11 @@ const _M = {
         if(this.autoI18n) {
           let str = Ti.I18n.text(this.format)
           return (val)=> {
-            return Ti.S.renderBy(str, val)
+            return Ti.S.renderVars(val, str)
           }
         }
         return (val)=> {
-          return Ti.S.renderBy(this.format, val)
+          return Ti.S.renderVars(val, this.format)
         }
       }
     },
@@ -159,7 +159,6 @@ const _M = {
     async evalDisplay(val) {
       // By Dict Item
       if(this.Dict) {
-        // console.log(val)
         // Array value
         if(_.isArray(val)) {
           this.myDisplayIcon = undefined

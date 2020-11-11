@@ -20,6 +20,7 @@ const _M = {
     comConf : {},
     actions : [],
     sidebar : [],
+    sidebarStatusStoreKey : undefined,
     // Current meta anestors
     ancestors : [],
     parent : null,

@@ -1,5 +1,4 @@
 export default {
-  inheritAttrs : false,
   ///////////////////////////////////////////
   data : ()=>{
     return {
@@ -52,7 +51,7 @@ export default {
         this.collapse = !this.collapse
         // Save status
         if(this.groupStatusStoreKey) {
-          Ti.Storage.session.set(this.groupStatusStoreKey, this.collapse)
+          Ti.Storage.local.set(this.groupStatusStoreKey, this.collapse)
         }
       }
     },
@@ -81,7 +80,7 @@ export default {
       // Load local setting
       if(this.groupStatusStoreKey) {
         this.collapse = 
-          Ti.Storage.session.getBoolean(this.groupStatusStoreKey, this.collapse)
+          Ti.Storage.local.getBoolean(this.groupStatusStoreKey, this.collapse)
       }
     }
   }
