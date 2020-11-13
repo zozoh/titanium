@@ -124,6 +124,30 @@ const TiConfig = {
     return TiConfig.get("lang") || "zh-cn"
   },
   //...............................
+  cookUrl(url, {dynamicPrefix={}, dynamicAlias}={}) {
+    // url prefix indicate the type
+    let url2 = url
+
+    // try type by prefix
+    let type, m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
+    if(m) {
+      type = m[2]
+      url2 = m[3]
+    }
+
+    let url3 = TiConfig.url(url2, {dynamicPrefix, dynamicAlias})
+
+    // Try type by suffix
+    if(!type) {
+      m = /\.(m?js|css|json)$/.exec(url3)
+      type = m ? m[1] : "text"
+    }
+
+    return {
+      type, url: url3
+    }
+  },
+  //...............................
   url(path="", {dynamicPrefix={}, dynamicAlias}={}) {
     //.........................................
     // Full-url, just return

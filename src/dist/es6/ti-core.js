@@ -1,4 +1,4 @@
-// Pack At: 2020-11-12 17:27:29
+// Pack At: 2020-11-14 03:27:14
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1455,107 +1455,192 @@ const {App} = (function(){
       // Then it should be normal string
     }
     //---------------------------------------
-    async function LoadTiLinkedObj(
-      obj={}, 
-      {dynamicPrefix, dynamicAlias}={}
-    ) {
-      // Promise list
-      let ps = []
-      // walk Object Key shallowly
-      _.forOwn(obj, function(val, key){
-        // Escape "...", the syntax for MappingXXX of Vuex
-        if(/^\.{3}/.test(key)) {
-          return
-        }
-        // String
-        if(_.isString(val)) {
-          // only link like value should be respected
-          let linkURI = isTiLink(val)
-          if(!linkURI) {
-            return
-          }
-          ps.push(new Promise((resolve, reject)=>{
-            Ti.Load(linkURI, {dynamicPrefix, dynamicAlias}).then(async re=>{
-              const v2  = Ti.Config.url(linkURI, {dynamicPrefix, dynamicAlias})
-              const re2 = await LoadTiLinkedObj(re, {
-                dynamicAlias: new Ti.Config.AliasMapping({
-                  "^\./": Ti.Util.getParentPath(v2)
-                })
-              });
-              obj[key] = re2;
-              resolve(re2);
-            })
-          }))
-        }
-        // Array recur
-        else if(_.isArray(val)){
-          for(let i=0; i<val.length; i++) {
-            let linkURI = isTiLink(val[i]);
-            // only link like value should be respected
-            if(!linkURI) {
-              continue
-            }
-            ps.push(new Promise((resolve, reject)=>{
-              Ti.Load(linkURI, {dynamicPrefix, dynamicAlias}).then(async re=>{
-                const v2  = Ti.Config.url(linkURI, {dynamicPrefix, dynamicAlias})
-                const re2 = await LoadTiLinkedObj(re, {
-                  dynamicAlias: new Ti.Config.AliasMapping({
-                    "^\./": Ti.Util.getParentPath(v2)
-                  })
-                });
-                val[i] = re2
-                // If modules/components, apply the default name
-                if(!re2.name && /^(modules|components)$/.test(key)) {
-                  re2.name = Ti.Util.getLinkName(v)
-                }
-                // Done for loading
-                resolve(re2);
-              })
-            }))
-          }
-        }
-        // Object recur
-        else if(_.isPlainObject(val)){{
-          ps.push(LoadTiLinkedObj(val, {
-            dynamicPrefix, dynamicAlias
-          }))
-        }}
-      })
-      // Promise obj has been returned
-      if(ps.length > 0) {
-          await Promise.all(ps);
+    class LoadingTable {
+      //.....................................
+      constructor(afterLoaded){
+        this.itMap = {}
+        this.afterLoaded = afterLoaded
       }
-      return obj;
+      //.....................................
+      isAlreadyInLoading(link) {
+        return this.itMap[link] ? true : false
+      }
+      //.....................................
+      // @return true: add (should create promise), false: join
+      addItem(link) {
+        this.itMap[link] = {
+          done: false,
+          result : undefined
+        }
+      }
+      //.....................................
+      loadedItem(link, result) {
+        let it = this.itMap[link]
+        it.result = result
+        it.done = true
+      }
+      //.....................................
+      // Check table is done
+      tryFinished() {
+        for(let link in this.itMap) {
+          let it = this.itMap[link]
+          if(!it.done)
+            return
+        }
+        this.afterLoaded(this.itMap)
+      }
+      //.....................................
     }
     //---------------------------------------
-    function RemarkCssLink(cssLink, {key="",val=""}={}, $doc=document) {
-      if(!cssLink)
-        return
-      // Batch
-      if(_.isArray(cssLink) && cssLink.length > 0){
-        // Then remove the old
-        Ti.Dom.remove('link['+key+'="'+val+'"]', $doc.head)
-        // Mark the new one
-        for(let cl of cssLink) {
-          RemarkCssLink(cl, {key:"", val:""})
+    function __load_linked_obj(input, {
+      LT, dynamicPrefix, dynamicAlias
+    }={}) { 
+      //.....................................
+      // String
+      if(_.isString(input)) {
+        // Escape "...", the syntax for MappingXXX of Vuex
+        // only link like value should be respected
+        if(!/^\.{3}/.test(input)) {
+          let linkURI = isTiLink(input)
+          //.......................................
+          if(linkURI) {
+            let {url, type}  = Ti.Config.cookUrl(linkURI, {dynamicPrefix, dynamicAlias})
+    
+            if(!LT.isAlreadyInLoading(url)) {
+              LT.addItem(url)
+              Ti.Load(url, {dynamicPrefix, dynamicAlias, cooked:true, type})
+                .then( reo => {
+                  let parentPath = Ti.Util.getParentPath(url)
+                  // Check the result deeply
+                  __load_linked_obj(reo, {
+                    LT, dynamicPrefix, 
+                    dynamicAlias : new Ti.Config.AliasMapping({
+                      "^\./": parentPath
+                    })
+                  })
+    
+                  // Mark the result in LoadingTable
+                  LT.loadedItem(url, reo)
+    
+                  // Try end
+                  LT.tryFinished()
+                })
+            }
+          } // if(linkURI) {
         }
-        return
+        //.......................................
       }
-      // Already marked
-      if(key && cssLink.getAttribute(key) == val)
-        return
-      
-      // Mark the new
-      if(key && val)
-        cssLink.setAttribute(key, val)
+      //.....................................
+      // Array
+      else if(_.isArray(input)) {
+        for(let i=0; i<input.length; i++) {
+          let ele = input[i]
+          __load_linked_obj(ele, {LT, dynamicPrefix, dynamicAlias})
+        }
+      }
+      //.....................................
+      // Object
+      else if(_.isPlainObject(input)) {
+        for(let key in input) {
+          let val = input[key]
+          __load_linked_obj(val, {LT, dynamicPrefix, dynamicAlias})
+        }
+      }
+      //.....................................
+    }
+    //---------------------------------------
+    function __assemble_linked_obj(
+      input, 
+      itMap, 
+      memo={}, 
+      {dynamicPrefix, dynamicAlias}
+    ) {
+      //.....................................
+      // String
+      if(_.isString(input)) {
+        // Escape "...", the syntax for MappingXXX of Vuex
+        // only link like value should be respected
+        if(!/^\.{3}/.test(input)) {
+          let linkURI = isTiLink(input)
+          //.......................................
+          if(linkURI) {
+            let {url, type}  = Ti.Config.cookUrl(linkURI, {dynamicPrefix, dynamicAlias})
+            // Guard for infinity import loop
+            if(memo[url])
+              return
+            let reo = itMap[url].result
+            let parentPath = Ti.Util.getParentPath(url)
+            memo = _.assign({}, memo, {[url]:true})
+            let re2 = __assemble_linked_obj(reo, itMap, memo, {
+              dynamicPrefix, 
+              dynamicAlias : new Ti.Config.AliasMapping({
+                "^\./": parentPath
+              })
+            })
+            return re2
+          }
+        }
+        //.......................................
+      }
+      //.....................................
+      // Array
+      else if(_.isArray(input)) {
+        let list = []
+        for(let i=0; i<input.length; i++) {
+          let ele = input[i]
+          let e2 = __assemble_linked_obj(ele, itMap, memo, {dynamicPrefix, dynamicAlias})
+          if(!_.isUndefined(e2)) {
+            list.push(e2)
+          }
+        }
+        return list
+      }
+      //.....................................
+      // Object
+      else if(_.isPlainObject(input)) {
+        let obj = {}
+        for(let key in input) {
+          let val = input[key]
+          let v2 = __assemble_linked_obj(val, itMap, memo, {dynamicPrefix, dynamicAlias})
+          obj[key] = v2
+        }
+        return obj
+      }
+      //.....................................
+      // Others just return
+      return input
+      //.....................................
+    }
+    //---------------------------------------
+    function LoadTiLinkedObj(input, {
+      dynamicPrefix, dynamicAlias
+    }={}) { 
+      return new Promise((resolve, reject)=>{
+        // Prapare the loading table
+        // And register a callback function
+        // once the table done for load all linked 
+        // object deeply, it will be call to make the 
+        // result object
+        let LT = new LoadingTable((itMap)=>{
+          let reo = __assemble_linked_obj(input, itMap, {}, {dynamicPrefix, dynamicAlias})
+          resolve(reo)
+        })
+        // Start loading ...
+        __load_linked_obj(input, {
+          dynamicPrefix, 
+          dynamicAlias,
+          LT
+        })
+      })
     }
     /***
     Load all app info for app.json  
     */
     async function LoadTiAppInfo(info={}, $doc=document) {
       // Clone info and reload its all detail
-      let conf = _.cloneDeep(info)
-      await LoadTiLinkedObj(conf)
+      let conf = await LoadTiLinkedObj(info, {
+        "^\./": "@MyApp:"
+      })
       if(Ti.IsInfo("TiApp")) {
         console.log("await LoadTiLinkedObj(conf)", conf)
       }
@@ -1915,7 +2000,6 @@ const {App} = (function(){
             if(asset.globally) {
               // Special for components
               if("components" == key) {
-                // console.log("!!!", key, val, asset)
                 asset = TiVue.Options({
                   conf : asset, global
                 })
@@ -2043,9 +2127,9 @@ const {App} = (function(){
         })
     
         // components registration
-        const defineComponent = com=>{
+        const defineComponent = (com, index)=>{
           // define sub
-          _.map(com.components, defineComponent)
+          _.forEach(com.components, defineComponent)
           delete com.components
           // I18ns
           Ti.I18n.put(com.i18n)
@@ -2055,9 +2139,13 @@ const {App} = (function(){
           }
           // define self
           //Vue.component(com.name, com)
+          if(!com.name) {
+            console.warn(`com[${index}] without name`, com)
+            throw "!!!"
+          }
           this.registerComponent(com.name, com)
         }
-        _.map(setup.global.components, defineComponent)
+        _.forEach(setup.global.components, defineComponent)
     
         // Decorate it
         if(_.isFunction(decorator)){
@@ -3127,6 +3215,30 @@ const {Config} = (function(){
     //...............................
     lang() {
       return TiConfig.get("lang") || "zh-cn"
+    },
+    //...............................
+    cookUrl(url, {dynamicPrefix={}, dynamicAlias}={}) {
+      // url prefix indicate the type
+      let url2 = url
+  
+      // try type by prefix
+      let type, m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
+      if(m) {
+        type = m[2]
+        url2 = m[3]
+      }
+  
+      let url3 = TiConfig.url(url2, {dynamicPrefix, dynamicAlias})
+  
+      // Try type by suffix
+      if(!type) {
+        m = /\.(m?js|css|json)$/.exec(url3)
+        type = m ? m[1] : "text"
+      }
+  
+      return {
+        type, url: url3
+      }
     },
     //...............................
     url(path="", {dynamicPrefix={}, dynamicAlias}={}) {
@@ -4459,7 +4571,8 @@ const {Load} = (function(){
     }
   }
   //---------------------------------------
-  async function TiLoad(url=[], {dynamicPrefix, dynamicAlias}={}) {
+  // @cooked : the URL has been Ti.Config.url already
+  async function TiLoad(url=[], {dynamicPrefix, dynamicAlias, cooked, type}={}) {
     // dynamic url 
     if(_.isFunction(url)) {
       let u2 = url();
@@ -4483,49 +4596,27 @@ const {Load} = (function(){
       throw Ti.Err.make("e-ti-use-url_must_string", url)
     }
   
-    // url prefix indicate the type
-    let url2 = url
-    let type, m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
-    if(m) {
-      type = m[2]
-      url2 = m[3]
-    }
-  
-    // apply url prefix & alias
-    let url3 = Ti.Config.url(url2, {dynamicPrefix, dynamicAlias})
-    //console.log("load URL", url3)
-    if(Ti.IsInfo("TiLoad")) {
-      console.log("url：", url, 
-                    "\n  ::", url2, 
-                    "\n  ::", url3,
-                    "\n  ::", dynamicPrefix,
-                    "\n  ::", dynamicAlias)
-    }
-  
-    // auto type by suffix
-    if(!type) {
-      m = /\.(m?js|css|json)$/.exec(url3)
-      type = m ? m[1] : "text"
+    //
+    // Cook URL
+    //
+    if(!cooked) {
+      let cook = Ti.Config.cookUrl(url , {dynamicPrefix, dynamicAlias})
+      type = cook.type
+      url  = cook.url
     }
   
     // Try cache
-    // if(url3.indexOf("label")>0) {
-    //   console.log(url3)
-    // }
-    let reObj = Ti.MatchCache(url3)
+    let reObj = Ti.MatchCache(url)
     if(reObj)
       return reObj
   
     // invoke
     try {
-      // if(url3.indexOf("label")>0) {
-      //   console.log("   --> do load", url3)
-      // }
-      reObj = await LoadModes[type](url3)
+      reObj = await LoadModes[type](url)
       return reObj
     }catch(E) {
       if(Ti.IsWarn("TiLoad")) {
-        console.warn(`TiLoad Fail: [${type}]`, `"${url}" => "${url3}"`)
+        console.warn(`TiLoad Fail: [${type}]`, `"${url}"`)
       }
       throw E
     }
@@ -10983,7 +11074,9 @@ const {WalnutAppMain} = (function(){
     Ti.SetForDev(debug)
     //---------------------------------------
     Ti.SetLogLevel(logging.root)
-    _.forEach(logging.names, (v, k)=> Ti.SetLogLevel(k, v));
+    _.forEach(logging.names, (v, k)=>{
+      Ti.SetLogLevel(v, k)
+    });
     //---------------------------------------
     if(shortcute) {
       Ti.Shortcut.startListening()
@@ -11347,7 +11440,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201112.172729",
+  "version" : "2.5-20201114.032714",
   "dev" : false,
   "appName" : null,
   "session" : {},
@@ -11394,6 +11487,8 @@ export const Ti = {
   Alert, Confirm, Prompt, Toast, Captcha, 
   //-----------------------------------------------------
   Env(key, val) {
+    if(_.isUndefined(key))
+      return ENV
     return Ti.Util.geset(ENV, key, val)
   },
   //-----------------------------------------------------
@@ -11404,23 +11499,6 @@ export const Ti = {
   //-----------------------------------------------------
   SetAppName(appName){Ti.Env({appName})},
   GetAppName(){return Ti.Env("appName")},
-  //-----------------------------------------------------
-  // Session(session) {
-  //   return Ti.Util.geset(ENV.session, session)
-  // },
-  // SessionVar(vars) {
-  //   // Whole var set
-  //   if(_.isUndefined(vars)) {
-  //     return ENV.session.vars || {}
-  //   }
-  //   // GET
-  //   if(_.isString(vars) || _.isArray(vars)){
-  //     return Ti.Util.geset(ENV.session.vars, vars)
-  //   }
-  //   // Setter
-  //   ENV.session.vars = ENV.session.vars || {}
-  //   return _.assign(ENV.session.vars, vars)
-  // },
   //-----------------------------------------------------
   SetLogLevel(lv=0, cate="ROOT"){
     // Get number by name

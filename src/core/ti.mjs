@@ -121,6 +121,8 @@ export const Ti = {
   Alert, Confirm, Prompt, Toast, Captcha, 
   //-----------------------------------------------------
   Env(key, val) {
+    if(_.isUndefined(key))
+      return ENV
     return Ti.Util.geset(ENV, key, val)
   },
   //-----------------------------------------------------
@@ -131,23 +133,6 @@ export const Ti = {
   //-----------------------------------------------------
   SetAppName(appName){Ti.Env({appName})},
   GetAppName(){return Ti.Env("appName")},
-  //-----------------------------------------------------
-  // Session(session) {
-  //   return Ti.Util.geset(ENV.session, session)
-  // },
-  // SessionVar(vars) {
-  //   // Whole var set
-  //   if(_.isUndefined(vars)) {
-  //     return ENV.session.vars || {}
-  //   }
-  //   // GET
-  //   if(_.isString(vars) || _.isArray(vars)){
-  //     return Ti.Util.geset(ENV.session.vars, vars)
-  //   }
-  //   // Setter
-  //   ENV.session.vars = ENV.session.vars || {}
-  //   return _.assign(ENV.session.vars, vars)
-  // },
   //-----------------------------------------------------
   SetLogLevel(lv=0, cate="ROOT"){
     // Get number by name

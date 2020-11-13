@@ -167,7 +167,8 @@ const LoadModes = {
   }
 }
 //---------------------------------------
-async function TiLoad(url=[], {dynamicPrefix, dynamicAlias}={}) {
+// @cooked : the URL has been Ti.Config.url already
+async function TiLoad(url=[], {dynamicPrefix, dynamicAlias, cooked, type}={}) {
   // dynamic url 
   if(_.isFunction(url)) {
     let u2 = url();
@@ -191,49 +192,27 @@ async function TiLoad(url=[], {dynamicPrefix, dynamicAlias}={}) {
     throw Ti.Err.make("e-ti-use-url_must_string", url)
   }
 
-  // url prefix indicate the type
-  let url2 = url
-  let type, m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
-  if(m) {
-    type = m[2]
-    url2 = m[3]
-  }
-
-  // apply url prefix & alias
-  let url3 = Ti.Config.url(url2, {dynamicPrefix, dynamicAlias})
-  //console.log("load URL", url3)
-  if(Ti.IsInfo("TiLoad")) {
-    console.log("url：", url, 
-                  "\n  ::", url2, 
-                  "\n  ::", url3,
-                  "\n  ::", dynamicPrefix,
-                  "\n  ::", dynamicAlias)
-  }
-
-  // auto type by suffix
-  if(!type) {
-    m = /\.(m?js|css|json)$/.exec(url3)
-    type = m ? m[1] : "text"
+  //
+  // Cook URL
+  //
+  if(!cooked) {
+    let cook = Ti.Config.cookUrl(url , {dynamicPrefix, dynamicAlias})
+    type = cook.type
+    url  = cook.url
   }
 
   // Try cache
-  // if(url3.indexOf("label")>0) {
-  //   console.log(url3)
-  // }
-  let reObj = Ti.MatchCache(url3)
+  let reObj = Ti.MatchCache(url)
   if(reObj)
     return reObj
 
   // invoke
   try {
-    // if(url3.indexOf("label")>0) {
-    //   console.log("   --> do load", url3)
-    // }
-    reObj = await LoadModes[type](url3)
+    reObj = await LoadModes[type](url)
     return reObj
   }catch(E) {
     if(Ti.IsWarn("TiLoad")) {
-      console.warn(`TiLoad Fail: [${type}]`, `"${url}" => "${url3}"`)
+      console.warn(`TiLoad Fail: [${type}]`, `"${url}"`)
     }
     throw E
   }

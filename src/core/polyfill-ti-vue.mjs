@@ -142,7 +142,6 @@ export const TiVue = {
         if(asset.globally) {
           // Special for components
           if("components" == key) {
-            // console.log("!!!", key, val, asset)
             asset = TiVue.Options({
               conf : asset, global
             })
@@ -270,9 +269,9 @@ export const TiVue = {
     })
 
     // components registration
-    const defineComponent = com=>{
+    const defineComponent = (com, index)=>{
       // define sub
-      _.map(com.components, defineComponent)
+      _.forEach(com.components, defineComponent)
       delete com.components
       // I18ns
       Ti.I18n.put(com.i18n)
@@ -282,9 +281,13 @@ export const TiVue = {
       }
       // define self
       //Vue.component(com.name, com)
+      if(!com.name) {
+        console.warn(`com[${index}] without name`, com)
+        throw "!!!"
+      }
       this.registerComponent(com.name, com)
     }
-    _.map(setup.global.components, defineComponent)
+    _.forEach(setup.global.components, defineComponent)
 
     // Decorate it
     if(_.isFunction(decorator)){

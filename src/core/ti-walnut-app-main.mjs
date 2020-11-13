@@ -24,7 +24,9 @@ export async function WalnutAppMain({
   Ti.SetForDev(debug)
   //---------------------------------------
   Ti.SetLogLevel(logging.root)
-  _.forEach(logging.names, (v, k)=> Ti.SetLogLevel(k, v));
+  _.forEach(logging.names, (v, k)=>{
+    Ti.SetLogLevel(v, k)
+  });
   //---------------------------------------
   if(shortcute) {
     Ti.Shortcut.startListening()
