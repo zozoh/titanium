@@ -2,6 +2,7 @@
   "paths" : {
     "~/.domain/history/": "view-history",
     "~/.mail/": "fileset-config-email",
+    "~/.sms/": "fileset-config-sms",
     "~/.io/": "hmaker-config-io"
   },
   "types" : {

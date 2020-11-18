@@ -1,0 +1,89 @@
+{
+  "components" : [
+    "@com:ti/text/raw"
+  ],
+  "comIcon" : "fas-sms",
+  "comType" : "@com:wn/fileset/config",
+  "comConf" : {
+    "meta" : "=meta",
+    "dirHome" : "i18n",
+    "viewReady" : "=isViewReady",
+    "mainConf" : {
+      "viewReady" : ":=dataReady",
+      "metaSize" :  130,
+      "metaConf" : {
+        "spacing" : "tiny",
+        "fields" : [{
+          "title": "i18n:sms-scene-nm",
+          "name" : "nm",
+          "tip" : "i18n:sms-scene-nm-tip",
+          "width" : "full",
+          "comType" : "ti-input"
+        }]
+      }
+    }
+  },
+  "actions" : [{
+      "name" : "reloading",
+      "type" : "action",
+      "icon" : "zmdi-refresh",
+      "text" : "i18n:refresh",
+      "altDisplay" : {
+        "icon" : "zmdi-refresh zmdi-hc-spin",
+        "text" : "i18n:loading"
+      },
+      "action" : "main:reloadAll",
+      "shortcut" : "CTRL+SHIFT+R",
+      "wait" : 500
+    },{
+      "type":"line"
+    }, {
+      "type" : "group",
+      "icon" : "im-menu",
+      "items" : [{
+          "name" : "create",
+          "type" : "action",
+          "icon" : "zmdi-flare",
+          "text" : "i18n:create",
+          "action" : "main:doCreate",
+          "shortcut" : "ALT+SHIFT+N"
+        },{
+          "name" : "deleting",
+          "type" : "action",
+          "icon" : "zmdi-delete",
+          "text" : "i18n:del",
+          "altDisplay" : {
+            "icon" : "zmdi-refresh zmdi-hc-spin",
+            "text" : "i18n:del-ing"
+          },
+          "action" : "main:doDelete",
+          "shortcut" : "CTRL+DELETE"
+        },{
+          "type":"line"
+        },{
+          "name" : "renaming",
+          "type" : "action",
+          "icon" : "zmdi-space-bar",
+          "text" : "i18n:rename",
+          "altDisplay" : {
+            "icon" : "zmdi-refresh zmdi-hc-spin"
+          },
+          "action" : "main:doRename",
+          "shortcut" : "F2"
+        },{
+          "type":"line"
+        },{
+          "type" : "action",
+          "icon" : "fas-keyboard",
+          "text" : "i18n:console",
+          "action" : "=>Ti.Be.Open('/a/open/wn.console')",
+          "shortcut" : "ALT+SHIFT+T"
+        },{
+          "type" : "action",
+          "icon" : "zmdi-info-outline",
+          "text" : "i18n:properties",
+          "action" : "main:openCurrentMeta",
+          "shortcut" : "ALT+SHIFT+P"
+        }]
+    }]
+}

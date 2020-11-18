@@ -1,4 +1,11 @@
 {
+  "sms-setup" : "短信配置",
+  "sms-scene-nm" : "场景名称",
+  "sms-scene-nm-tip": "请用半角英文数字或者下划线组合，并保证唯一",
+  "www-home" : "网站管理",
+  "www-title" : "前端网站",
+  "www-admin-login" : "后台登录界面",
+
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",
