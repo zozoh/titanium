@@ -1,4 +1,4 @@
-// Pack At: 2020-11-16 03:58:15
+// Pack At: 2020-11-21 01:50:04
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -34468,6 +34468,10 @@ const _M = {
     "forceFlushBuffer" : {
       type : Boolean,
       default: true
+    },
+    "showRunTip" : {
+      type : Boolean,
+      default : true
     }
   },
   ////////////////////////////////////////////////////
@@ -34489,29 +34493,68 @@ const _M = {
       if(!this.value)
         return
       
-      this.lines.push("---------------------------------")
-      this.lines.push(Ti.I18n.get("run-welcome"))
-      this.lines.push("> " + this.value)
-      this.lines.push("---------------------------------")
+      if(this.showRunTip) {
+        this.printHR()
+        this.lines.push(Ti.I18n.get("run-welcome"))
+        this.printHR()
+      }
 
-      let re = await Wn.Sys.exec(this.value, {
+      // let re = await Wn.Sys.exec(this.value, {
+      //   as : this.as,
+      //   vars : this.vars,
+      //   input : this.input, 
+      //   forceFlushBuffer : this.forceFlushBuffer,
+      //   eachLine : (line)=>{
+      //     this.lines.push(line)
+      //   }
+      // })
+      let re = await this.exec(this.value)
+
+      if(this.emitName) {
+        this.$notify(this.emitName, re)
+      }
+    },
+    //------------------------------------------------
+    async exec(cmdText, options={}) {
+      if(this.showRunTip || options.showRunTip) {
+        this.printHR()
+        this.lines.push("> " + cmdText)
+        this.printHR()
+      }
+
+      let re = await Wn.Sys.exec(cmdText, {
+        //...............................
         as : this.as,
         vars : this.vars,
         input : this.input, 
         forceFlushBuffer : this.forceFlushBuffer,
+        //...............................
+        ... options,
+        //...............................
         eachLine : (line)=>{
           this.lines.push(line)
         }
       })
 
-      this.lines.push("---------------------------------")
-      this.lines.push("> " + this.value)
-      this.lines.push(Ti.I18n.get("run-finished"))
-      this.lines.push("---------------------------------")
-
-      if(this.emitName) {
-        this.$notify(this.emitName, re)
+      if(this.showRunTip || options.showRunTip) {
+        this.printHR()
+        this.lines.push("> " + cmdText)
+        this.lines.push(Ti.I18n.get("run-finished"))
       }
+
+      return re
+    },
+    //------------------------------------------------
+    println(str, vars) {
+      if(!_.isEmpty(vars)) {
+        str = Ti.S.renderBy(str, vars)
+      }
+      this.lines.push(str)
+    },
+    //------------------------------------------------
+    printHR(c="-") {
+      let hr = _.repeat(c, 40)
+      this.lines.push(hr)
     }
     //------------------------------------------------
   },
@@ -36252,6 +36295,7 @@ const _M = {
     //------------------------------------------------
     async reload() {
       this.dataReady = false
+      console.log("do reload")
       this.myList = await this.reloadChildren()
       this.dataReady = true
 
@@ -48927,6 +48971,28 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "sms-setup" : "短信配置",
+  "sms-scene-nm" : "场景名称",
+  "sms-scene-nm-tip": "请用半角英文数字或者下划线组合，并保证唯一",
+  "www-home" : "网站管理",
+  "www-title" : "前端网站",
+  "www-admin-login" : "后台登录界面",
+  "geo-lng" : "经度",
+  "geo-lat" : "维度",
+  "geo-hash" : "地理哈希",
+  "geo-alti" : "海拔",
+  "geo-azimuth" : "方向角",
+  "geo-sate-cno" : "可见卫星数",
+  "geo-sate-cnt" : "使用卫星数",
+  "geo-gcj02-lng" : "火星经度",
+  "geo-gcj02-lat" : "火星维度",
+  "vu-mv" : "毫伏",
+  "vu-v" : "伏特",
+  "zip" : "压缩",
+  "zipping" : "正在压缩...",
+  "unzip" : "解压缩",
+  "unzipping" : "正在解压缩...",
+
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",

@@ -36,6 +36,10 @@ const _M = {
     "forceFlushBuffer" : {
       type : Boolean,
       default: true
+    },
+    "showRunTip" : {
+      type : Boolean,
+      default : true
     }
   },
   ////////////////////////////////////////////////////
@@ -57,29 +61,68 @@ const _M = {
       if(!this.value)
         return
       
-      this.lines.push("---------------------------------")
-      this.lines.push(Ti.I18n.get("run-welcome"))
-      this.lines.push("> " + this.value)
-      this.lines.push("---------------------------------")
+      if(this.showRunTip) {
+        this.printHR()
+        this.lines.push(Ti.I18n.get("run-welcome"))
+        this.printHR()
+      }
 
-      let re = await Wn.Sys.exec(this.value, {
+      // let re = await Wn.Sys.exec(this.value, {
+      //   as : this.as,
+      //   vars : this.vars,
+      //   input : this.input, 
+      //   forceFlushBuffer : this.forceFlushBuffer,
+      //   eachLine : (line)=>{
+      //     this.lines.push(line)
+      //   }
+      // })
+      let re = await this.exec(this.value)
+
+      if(this.emitName) {
+        this.$notify(this.emitName, re)
+      }
+    },
+    //------------------------------------------------
+    async exec(cmdText, options={}) {
+      if(this.showRunTip || options.showRunTip) {
+        this.printHR()
+        this.lines.push("> " + cmdText)
+        this.printHR()
+      }
+
+      let re = await Wn.Sys.exec(cmdText, {
+        //...............................
         as : this.as,
         vars : this.vars,
         input : this.input, 
         forceFlushBuffer : this.forceFlushBuffer,
+        //...............................
+        ... options,
+        //...............................
         eachLine : (line)=>{
           this.lines.push(line)
         }
       })
 
-      this.lines.push("---------------------------------")
-      this.lines.push("> " + this.value)
-      this.lines.push(Ti.I18n.get("run-finished"))
-      this.lines.push("---------------------------------")
-
-      if(this.emitName) {
-        this.$notify(this.emitName, re)
+      if(this.showRunTip || options.showRunTip) {
+        this.printHR()
+        this.lines.push("> " + cmdText)
+        this.lines.push(Ti.I18n.get("run-finished"))
       }
+
+      return re
+    },
+    //------------------------------------------------
+    println(str, vars) {
+      if(!_.isEmpty(vars)) {
+        str = Ti.S.renderBy(str, vars)
+      }
+      this.lines.push(str)
+    },
+    //------------------------------------------------
+    printHR(c="-") {
+      let hr = _.repeat(c, 40)
+      this.lines.push(hr)
     }
     //------------------------------------------------
   },

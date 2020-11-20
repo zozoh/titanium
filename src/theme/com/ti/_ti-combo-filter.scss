@@ -2,7 +2,7 @@
   @include flex-align-nowrap($ai:stretch);
   //---------------------------------------------
   &.as-spacing-comfy {padding: SZ(8);}
-  &.as-spacing-tiny  {padding: SZ(4);}
+  &.as-spacing-tiny  {padding: SZ(3);}
   //---------------------------------------------
   &.is-enabled {
     > .ti-combo-box > .as-box > .ti-input {

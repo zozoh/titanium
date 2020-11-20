@@ -1,4 +1,4 @@
-// Pack At: 2020-11-16 03:58:15
+// Pack At: 2020-11-21 01:50:04
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2205,9 +2205,11 @@ const OpenCmdPanel = (function(){
     width="80%", height="90%", spacing,
     vars,
     input,
-    forceFlushBuffer,
+    forceFlushBuffer, showRunTip,
     cmdTipText,
-    cmdTipIcon
+    cmdTipIcon,
+    onBodyReady,
+    beforeClosed
   }={}){
     //................................................
     // Open modal dialog
@@ -2219,12 +2221,20 @@ const OpenCmdPanel = (function(){
       //------------------------------------------
       model : null,
       //------------------------------------------
+      ready : (app)=> {
+        if(_.isFunction(onBodyReady)) {
+          onBodyReady(app)
+        }
+      },
+      //------------------------------------------
+      beforeClosed,
+      //------------------------------------------
       comType : "WnCmdPanel",
       comConf : {
         "value" : cmdText,
         "tipText" : cmdTipText,
         "tipIcon"  : cmdTipIcon,
-        vars, input, forceFlushBuffer
+        vars, input, forceFlushBuffer, showRunTip
       },
       //------------------------------------------
       components : ["@com:wn/cmd/panel"]
@@ -2237,7 +2247,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20201116.035815"
+const WALNUT_VERSION = "2.1-20201121.015004"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

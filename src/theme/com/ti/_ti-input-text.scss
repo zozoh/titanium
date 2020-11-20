@@ -29,4 +29,9 @@
     color:inherit;
   }
   //----------------------------------
+  &.is-readonly {
+    @include color($color-track, c, r);
+    &.is-focused {border-color: map-get($color-line, dark);}
+  }
+  //----------------------------------
 }

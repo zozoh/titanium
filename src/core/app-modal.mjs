@@ -66,6 +66,7 @@ export class TiAppModal {
     // callback
     this.ready = async function(app){}
     this.preload = async function(app){}
+    this.beforeClosed = async function(app){}
   }
   //////////////////////////////////////////////
   // Methods
@@ -187,6 +188,7 @@ export class TiAppModal {
         type   : this.type,
         //--------------------------------------
         ready   : this.ready,
+        beforeClosed : this.beforeClosed,
         //--------------------------------------
         actions : TheActions,
         //--------------------------------------
@@ -416,8 +418,11 @@ export class TiAppModal {
         })
       },
       //////////////////////////////////////////
-      beforeDestroy : function(){
+      beforeDestroy : async function(){
         let app = Ti.App(this)
+        if(_.isFunction(this.beforeClosed)) {
+          await this.beforeClosed(app)
+        }
         Ti.App.pullInstance(app)
       }
       //////////////////////////////////////////

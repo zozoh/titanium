@@ -10,9 +10,11 @@ async function OpenCmdPanel(cmdText, {
   width="80%", height="90%", spacing,
   vars,
   input,
-  forceFlushBuffer,
+  forceFlushBuffer, showRunTip,
   cmdTipText,
-  cmdTipIcon
+  cmdTipIcon,
+  onBodyReady,
+  beforeClosed
 }={}){
   //................................................
   // Open modal dialog
@@ -24,12 +26,20 @@ async function OpenCmdPanel(cmdText, {
     //------------------------------------------
     model : null,
     //------------------------------------------
+    ready : (app)=> {
+      if(_.isFunction(onBodyReady)) {
+        onBodyReady(app)
+      }
+    },
+    //------------------------------------------
+    beforeClosed,
+    //------------------------------------------
     comType : "WnCmdPanel",
     comConf : {
       "value" : cmdText,
       "tipText" : cmdTipText,
       "tipIcon"  : cmdTipIcon,
-      vars, input, forceFlushBuffer
+      vars, input, forceFlushBuffer, showRunTip
     },
     //------------------------------------------
     components : ["@com:wn/cmd/panel"]

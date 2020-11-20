@@ -1,4 +1,4 @@
-// Pack At: 2020-11-16 03:58:15
+// Pack At: 2020-11-21 01:50:04
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2235,6 +2235,7 @@ const {App} = (function(){
         // callback
         this.ready = async function(app){}
         this.preload = async function(app){}
+        this.beforeClosed = async function(app){}
       }
       //////////////////////////////////////////////
       // Methods
@@ -2356,6 +2357,7 @@ const {App} = (function(){
             type   : this.type,
             //--------------------------------------
             ready   : this.ready,
+            beforeClosed : this.beforeClosed,
             //--------------------------------------
             actions : TheActions,
             //--------------------------------------
@@ -2585,8 +2587,11 @@ const {App} = (function(){
             })
           },
           //////////////////////////////////////////
-          beforeDestroy : function(){
+          beforeDestroy : async function(){
             let app = Ti.App(this)
+            if(_.isFunction(this.beforeClosed)) {
+              await this.beforeClosed(app)
+            }
             Ti.App.pullInstance(app)
           }
           //////////////////////////////////////////
@@ -6750,6 +6755,26 @@ const {Types} = (function(){
       return Ti.DateTime.parse(val)
     },
     //.......................................
+    toDateSec(val, dft=null) {
+      if(_.isNull(val) || _.isUndefined(val)) {
+        return dft
+      }
+      if(_.isArray(val)) {
+        let re = []
+        _.forEach(val, v => {
+          if(_.isNumber(v)) {
+            v = v * 1000
+          }
+          re.push(Ti.DateTime.parse(v))
+        })
+        return re
+      }
+      if(_.isNumber(val)) {
+        val = val * 1000
+      }
+      return Ti.DateTime.parse(val)
+    },
+    //.......................................
     toTime(val, {dft,unit}={}) {
       if(_.isNull(val) || _.isUndefined(val)) {
         return dft
@@ -6771,6 +6796,13 @@ const {Types} = (function(){
       let dt = Ti.DateTime.parse(val)
       if(_.isDate(dt))
         return dt.getTime()
+      return null
+    },
+    //.......................................
+    toSec(val) {
+      let dt = TiTypes.toDateSec(val)
+      if(_.isDate(dt))
+        return Math.round(dt.getTime()/1000)
       return null
     },
     //.......................................
@@ -6876,6 +6908,7 @@ const {Types} = (function(){
         'Array'    : {transformer:"toArray",   serializer:"toArray"},
         'DateTime' : {transformer:"toDate",    serializer:"formatDateTime"},
         'AMS'      : {transformer:"toDate",    serializer:"toAMS"},
+        'ASEC'     : {transformer:"toDateSec", serializer:"toSec"},
         'Time'     : {transformer:"toTime",    serializer:"formatTime"},
         'Date'     : {transformer:"toDate",    serializer:"formatDate"},
         'Color'    : {transformer:"toColor",   serializer:"toStr"},
@@ -11440,7 +11473,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201116.035815",
+  "version" : "2.5-20201121.015004",
   "dev" : false,
   "appName" : null,
   "session" : {},
