@@ -25,7 +25,7 @@ const _M = {
       default : ()=>[]
     },
     "background": {
-      type: String,
+      type: [String, Object],
       default: undefined
     },
     "color": {
@@ -41,7 +41,7 @@ const _M = {
       default: undefined
     },
     "mainBackground": {
-      type: String,
+      type: [String, Object],
       default: undefined
     },
     "mainWidth": {
@@ -138,7 +138,7 @@ const _M = {
       }
 
       // Backgrund color
-      if(/^(#[0-9A-F]{3,6}|rgba?\([0-9, ]+\))$/.test(bg)) {
+      if(/^(#[0-9A-Fa-f]{3,6}|rgba?\([0-9, ]+\))$/.test(bg)) {
         return {backgroundColor: bg}
       }
 

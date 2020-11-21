@@ -334,9 +334,9 @@ const _M = {
           }
           cell.push({...box, title: it.title, it})
         }
-        console.log(this.__dump_matrix(matrix))
+        //console.log(this.__dump_matrix(matrix))
         let cluList = this.clusteringMatrix(matrix)
-        console.log(cluList)
+        //console.log(cluList)
         _.forEach(cluList, draw_item)
       }
       // Add marker to map
