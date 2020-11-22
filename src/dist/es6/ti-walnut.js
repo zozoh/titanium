@@ -1,4 +1,4 @@
-// Pack At: 2020-11-21 19:11:55
+// Pack At: 2020-11-22 22:18:49
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1223,15 +1223,7 @@ const Util = (function(){
     },
     getIconObj(meta) {
       if(meta && meta.icon) {
-        // customized icon object
-        if(_.isPlainObject(meta.icon)) {
-          return _.assign(Ti.Icons.get(), meta.icon)
-        }
-        // customized icon name
-        return {
-          type  : "font",
-          value : WnUtil.getIconName(meta.icon)
-        }
+        return meta.icon
       }
       // return default
       return Ti.Icons.get(meta)
@@ -2247,7 +2239,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20201121.191156"
+const WALNUT_VERSION = "2.1-20201122.221849"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

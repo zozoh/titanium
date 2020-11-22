@@ -42,15 +42,7 @@ const WnUtil = {
   },
   getIconObj(meta) {
     if(meta && meta.icon) {
-      // customized icon object
-      if(_.isPlainObject(meta.icon)) {
-        return _.assign(Ti.Icons.get(), meta.icon)
-      }
-      // customized icon name
-      return {
-        type  : "font",
-        value : WnUtil.getIconName(meta.icon)
-      }
+      return meta.icon
     }
     // return default
     return Ti.Icons.get(meta)

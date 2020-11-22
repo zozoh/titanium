@@ -1,4 +1,4 @@
-// Pack At: 2020-11-21 19:11:55
+// Pack At: 2020-11-22 22:18:49
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -15322,9 +15322,9 @@ const _M = {
           }
           cell.push({...box, title: it.title, it})
         }
-        console.log(this.__dump_matrix(matrix))
+        //console.log(this.__dump_matrix(matrix))
         let cluList = this.clusteringMatrix(matrix)
-        console.log(cluList)
+        //console.log(cluList)
         _.forEach(cluList, draw_item)
       }
       // Add marker to map
@@ -31164,7 +31164,7 @@ const _M = {
       default : ()=>[]
     },
     "background": {
-      type: String,
+      type: [String, Object],
       default: undefined
     },
     "color": {
@@ -31180,7 +31180,7 @@ const _M = {
       default: undefined
     },
     "mainBackground": {
-      type: String,
+      type: [String, Object],
       default: undefined
     },
     "mainWidth": {
@@ -31277,7 +31277,7 @@ const _M = {
       }
 
       // Backgrund color
-      if(/^(#[0-9A-F]{3,6}|rgba?\([0-9, ]+\))$/.test(bg)) {
+      if(/^(#[0-9A-Fa-f]{3,6}|rgba?\([0-9, ]+\))$/.test(bg)) {
         return {backgroundColor: bg}
       }
 
@@ -46788,6 +46788,7 @@ Ti.Preload("/a/load/wn.manager/gui/setup.json", {
 const _M = {
   //.........................................
   Logo() {
+    console.log("Logo")
     if("<:home>" == this.setup.logo) {
       let crIt = _.nth(this.CrumbData, 0)
       return crIt ? crIt.icon : null
@@ -48040,6 +48041,15 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "find": "Find",
   "find-data": "Find data",
   "gender": "Gender",
+  "geo-alti": "Altitude",
+  "geo-azimuth": "Azimuth",
+  "geo-gcj02-lat": "GCJ02 Lat",
+  "geo-gcj02-lng": "GCJ02 Lng",
+  "geo-hash": "Geo hash",
+  "geo-lat": "Latitude",
+  "geo-lng": "Longitude",
+  "geo-sate-cno": "Satellite Ava",
+  "geo-sate-cnt": "Satellite used",
   "global-settings": "Global settings",
   "history-record": "History record",
   "home": "HOME",
@@ -48198,6 +48208,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "send": "Send",
   "settings": "Settings",
   "slogan": "Slogan",
+  "sms-scene-nm": "Scene name",
+  "sms-scene-nm-tip": "Only include english letters or numbers or underline, and guarantee unique",
+  "sms-setup": "SMS setup",
   "source-code": "Source code",
   "stat-date-at": "Stat at",
   "stat-date-at-oor": "Statistics on this date are not ready yet",
@@ -48221,6 +48234,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "type": "Type",
   "under-construction": "Under construction",
   "unknown": "Unknown",
+  "unzip": "Unzip",
+  "unzipping": "Unzipping...",
   "upload": "Upload",
   "upload-done": "Done for upload",
   "upload-file": "Uploading files ...",
@@ -48230,9 +48245,16 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "value": "Value",
   "view": "View",
   "view-resource": "View source code",
+  "vu-mv": "Millivolt",
+  "vu-v": "Volt",
   "warn": "Warn",
   "website": "Website",
-  "yes": "Yes"
+  "www-admin-login": "Admin login GUI",
+  "www-home": "WWW manage",
+  "www-title": "Website",
+  "yes": "Yes",
+  "zip": "Zip",
+  "zipping": "Zipping..."
 });
 //============================================================
 // JOIN: en-us/_wn.i18n.json
@@ -48971,28 +48993,6 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
-  "sms-setup" : "短信配置",
-  "sms-scene-nm" : "场景名称",
-  "sms-scene-nm-tip": "请用半角英文数字或者下划线组合，并保证唯一",
-  "www-home" : "网站管理",
-  "www-title" : "前端网站",
-  "www-admin-login" : "后台登录界面",
-  "geo-lng" : "经度",
-  "geo-lat" : "维度",
-  "geo-hash" : "地理哈希",
-  "geo-alti" : "海拔",
-  "geo-azimuth" : "方向角",
-  "geo-sate-cno" : "可见卫星数",
-  "geo-sate-cnt" : "使用卫星数",
-  "geo-gcj02-lng" : "火星经度",
-  "geo-gcj02-lat" : "火星维度",
-  "vu-mv" : "毫伏",
-  "vu-v" : "伏特",
-  "zip" : "压缩",
-  "zipping" : "正在压缩...",
-  "unzip" : "解压缩",
-  "unzipping" : "正在解压缩...",
-
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",
@@ -49095,6 +49095,15 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "find": "查找",
   "find-data": "查找数据",
   "gender": "性别",
+  "geo-alti": "海拔",
+  "geo-azimuth": "方向角",
+  "geo-gcj02-lat": "火星维度",
+  "geo-gcj02-lng": "火星经度",
+  "geo-hash": "地理哈希",
+  "geo-lat": "维度",
+  "geo-lng": "经度",
+  "geo-sate-cno": "可见卫星数",
+  "geo-sate-cnt": "使用卫星数",
   "global-settings": "全局设置",
   "history-record": "历史记录",
   "home": "主目录",
@@ -49253,6 +49262,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "send": "发送",
   "settings": "设置",
   "slogan": "标语",
+  "sms-scene-nm": "场景名称",
+  "sms-scene-nm-tip": "请用半角英文数字或者下划线组合，并保证唯一",
+  "sms-setup": "短信配置",
   "source-code": "源代码",
   "stat-date-at": "统计日期",
   "stat-date-at-oor": "这个日期的统计数据还未就绪",
@@ -49276,6 +49288,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "type": "类型",
   "under-construction": "正在施工中",
   "unknown": "未知",
+  "unzip": "解压缩",
+  "unzipping": "正在解压缩...",
   "upload": "上传",
   "upload-done": "文件上传已完成",
   "upload-file": "上传文件...",
@@ -49285,9 +49299,16 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "value": "值",
   "view": "查看",
   "view-resource": "查看源代码",
+  "vu-mv": "毫伏",
+  "vu-v": "伏特",
   "warn": "警告",
   "website": "网站",
-  "yes": "是"
+  "www-admin-login": "后台登录界面",
+  "www-home": "网站管理",
+  "www-title": "前端网站",
+  "yes": "是",
+  "zip": "压缩",
+  "zipping": "正在压缩..."
 });
 //============================================================
 // JOIN: zh-cn/_wn.i18n.json
