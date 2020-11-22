@@ -444,7 +444,8 @@ const _M = {
     }
     //..........................................
     // Reload Current
-    await dispatch("current/reload", meta)
+    let currentMeta = _.cloneDeep(meta)
+    commit("current/setMeta", currentMeta)
     //..........................................
   },
   //--------------------------------------------

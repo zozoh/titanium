@@ -1,4 +1,4 @@
-// Pack At: 2020-11-22 22:32:25
+// Pack At: 2020-11-23 04:08:13
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -43208,7 +43208,8 @@ const _M = {
     }
     //..........................................
     // Reload Current
-    await dispatch("current/reload", meta)
+    let currentMeta = _.cloneDeep(meta)
+    commit("current/setMeta", currentMeta)
     //..........................................
   },
   //--------------------------------------------
