@@ -1,4 +1,4 @@
-// Pack At: 2020-11-22 22:18:49
+// Pack At: 2020-11-22 22:32:25
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -2332,7 +2332,6 @@ const _M = {
         if(!_.isEqual(newval, oldval)) {
           this.myDict = this.createDict()
           this.loading = true
-          console.log("reload bullet options")
           this.myOptionsData = await this.myDict.getData()
           this.$nextTick(()=>{
             this.loading = false
@@ -46788,7 +46787,6 @@ Ti.Preload("/a/load/wn.manager/gui/setup.json", {
 const _M = {
   //.........................................
   Logo() {
-    console.log("Logo")
     if("<:home>" == this.setup.logo) {
       let crIt = _.nth(this.CrumbData, 0)
       return crIt ? crIt.icon : null

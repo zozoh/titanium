@@ -1,7 +1,6 @@
 const _M = {
   //.........................................
   Logo() {
-    console.log("Logo")
     if("<:home>" == this.setup.logo) {
       let crIt = _.nth(this.CrumbData, 0)
       return crIt ? crIt.icon : null

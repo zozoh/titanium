@@ -105,7 +105,6 @@ const _M = {
         if(!_.isEqual(newval, oldval)) {
           this.myDict = this.createDict()
           this.loading = true
-          console.log("reload bullet options")
           this.myOptionsData = await this.myDict.getData()
           this.$nextTick(()=>{
             this.loading = false
