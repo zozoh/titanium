@@ -1,4 +1,4 @@
-// Pack At: 2020-11-23 04:08:13
+// Pack At: 2020-11-23 22:32:10
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -24955,7 +24955,7 @@ Ti.Preload("ti/com/ti/transfer/ti-transfer.html", `<div class="ti-transfer"
     -->
     <div class="as-box-list">
       <component :is="SelListComType"
-        class="as-box-main ti-cover-parent"
+        class="as-box-main ti-fill-parent"
         v-bind="SelListComConf"
         @select="OnSelListSelected"/>
     </div>
