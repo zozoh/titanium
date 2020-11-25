@@ -3,7 +3,7 @@ const _M = {
   props : {
     "data" : {
       type : Array,
-      default : ()=>[]
+      default : undefined
     },
     // Item comType
     "comType": {
@@ -22,6 +22,10 @@ const _M = {
         text: "i18n:empty",
         icon: "fas-box-open"
       })
+    },
+    "loadingAs": {
+      type: [Object, Boolean],
+      default: ()=>({})
     }
   },
   //////////////////////////////////////////
@@ -49,8 +53,8 @@ const _M = {
       return list
     },
     //--------------------------------------
-    showBlank() {
-      return this.blankAs ? true : false
+    isLoading() {
+      return Ti.Util.isNil(this.data)
     },
     //--------------------------------------
     isEmpty() {

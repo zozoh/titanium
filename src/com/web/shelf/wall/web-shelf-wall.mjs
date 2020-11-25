@@ -3,7 +3,7 @@ const _M = {
   props : {
     "data" : {
       type : Array,
-      default : ()=>[]
+      default : undefined
     },
     // Item count per-row
     "cols" : {
@@ -28,6 +28,10 @@ const _M = {
         text: "i18n:empty",
         icon: "fas-box-open"
       })
+    },
+    "loadingAs": {
+      type: [Object, Boolean],
+      default: ()=>({})
     }
   },
   //////////////////////////////////////////
@@ -91,6 +95,10 @@ const _M = {
       }
       // Get the result
       return list
+    },
+    //--------------------------------------
+    isLoading() {
+      return Ti.Util.isNil(this.data)
     },
     //--------------------------------------
     isEmpty() {

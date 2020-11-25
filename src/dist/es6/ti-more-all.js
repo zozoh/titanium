@@ -1,4 +1,4 @@
-// Pack At: 2020-11-24 11:56:32
+// Pack At: 2020-11-25 17:13:38
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -31315,15 +31315,19 @@ Ti.Preload("ti/com/web/shelf/free/_com.json", {
 Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-list"
   :class="TopClass">
   <!--
+    Loading
+  -->
+  <ti-loading
+    v-if="isLoading"
+      class="as-big"
+      v-bind="loadingAs"/>
+  <!--
     Blank
   -->
-  <template 
-    v-if="isEmpty">
-    <ti-loading
-      v-if="showBlank"
-        class="as-big"
-        v-bind="blankAs"/>
-  </template>
+  <ti-loading
+    v-else-if="isEmpty"
+      class="as-big"
+      v-bind="blankAs"/>
   <!--
     Each Items
   -->
@@ -31347,7 +31351,7 @@ const _M = {
   props : {
     "data" : {
       type : Array,
-      default : ()=>[]
+      default : undefined
     },
     // Item comType
     "comType": {
@@ -31366,6 +31370,10 @@ const _M = {
         text: "i18n:empty",
         icon: "fas-box-open"
       })
+    },
+    "loadingAs": {
+      type: [Object, Boolean],
+      default: ()=>({})
     }
   },
   //////////////////////////////////////////
@@ -31393,8 +31401,8 @@ const _M = {
       return list
     },
     //--------------------------------------
-    showBlank() {
-      return this.blankAs ? true : false
+    isLoading() {
+      return Ti.Util.isNil(this.data)
     },
     //--------------------------------------
     isEmpty() {
@@ -31868,10 +31876,17 @@ Ti.Preload("ti/com/web/shelf/slide/_com.json", {
 Ti.Preload("ti/com/web/shelf/wall/web-shelf-wall.html", `<div class="web-shelf-wall"
   :class="TopClass">
   <!--
+    Loading
+  -->
+  <ti-loading
+    v-if="isLoading"
+      class="as-big"
+      v-bind="loadingAs"/>
+  <!--
     Blank
   -->
   <ti-loading
-    v-if="isEmpty"
+    v-else-if="isEmpty"
       class="as-big"
       v-bind="blankAs"/>
   <!--
@@ -31917,7 +31932,7 @@ const _M = {
   props : {
     "data" : {
       type : Array,
-      default : ()=>[]
+      default : undefined
     },
     // Item count per-row
     "cols" : {
@@ -31942,6 +31957,10 @@ const _M = {
         text: "i18n:empty",
         icon: "fas-box-open"
       })
+    },
+    "loadingAs": {
+      type: [Object, Boolean],
+      default: ()=>({})
     }
   },
   //////////////////////////////////////////
@@ -32005,6 +32024,10 @@ const _M = {
       }
       // Get the result
       return list
+    },
+    //--------------------------------------
+    isLoading() {
+      return Ti.Util.isNil(this.data)
     },
     //--------------------------------------
     isEmpty() {

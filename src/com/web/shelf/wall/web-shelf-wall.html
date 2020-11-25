@@ -1,10 +1,17 @@
 <div class="web-shelf-wall"
   :class="TopClass">
   <!--
+    Loading
+  -->
+  <ti-loading
+    v-if="isLoading"
+      class="as-big"
+      v-bind="loadingAs"/>
+  <!--
     Blank
   -->
   <ti-loading
-    v-if="isEmpty"
+    v-else-if="isEmpty"
       class="as-big"
       v-bind="blankAs"/>
   <!--

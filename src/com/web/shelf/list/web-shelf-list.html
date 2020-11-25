@@ -1,15 +1,19 @@
 <div class="web-shelf-list"
   :class="TopClass">
   <!--
+    Loading
+  -->
+  <ti-loading
+    v-if="isLoading"
+      class="as-big"
+      v-bind="loadingAs"/>
+  <!--
     Blank
   -->
-  <template 
-    v-if="isEmpty">
-    <ti-loading
-      v-if="showBlank"
-        class="as-big"
-        v-bind="blankAs"/>
-  </template>
+  <ti-loading
+    v-else-if="isEmpty"
+      class="as-big"
+      v-bind="blankAs"/>
   <!--
     Each Items
   -->
