@@ -1,4 +1,4 @@
-// Pack At: 2020-11-25 17:13:38
+// Pack At: 2020-11-29 22:57:03
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4956,6 +4956,16 @@ const {I18n} = (function(){
         return Ti18n.getf(code, {val:data})
       }
       return Ti18n.get(s)
+    },
+    translate(str) {
+      let s = _.trim(str)
+      let pos = s.indexOf(':')
+      if(pos>0) {
+        let code = _.trim(s.substring(0, pos))
+        let data = _.trim(s.substring(pos+1))
+        return Ti18n.get(code) + " : " + data
+      }
+      return Ti18n.get(s)
     }
   }
   //---------------------------------------
@@ -7475,25 +7485,13 @@ const {Util} = (function(){
       // Find the position
       let index = Ti.Num.scrollIndex(pos, list.length+1)
   
-      // At the head
-      if(0 == index) {
-        list.unshift(...items)
-      }
       // At the tail
-      else if(list.length == index) {
+      if(list.length == index) {
         list.push(...items)
       }
-      // At the middle
+      // Insert before the index
       else {
-        let size = items.length
-        // More for room
-        for(let i=list.length-1; i>=index; i--) {
-          list[i+size] = list[i]
-        }
-        // Copy the items
-        for(let i=0; i<size; i++) {
-          list[index+i] = items[i]
-        }
+        list.splice(index, 0, ...items)
       }
   
       // done
@@ -11473,7 +11471,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201125.171338",
+  "version" : "2.5-20201129.225703",
   "dev" : false,
   "appName" : null,
   "session" : {},

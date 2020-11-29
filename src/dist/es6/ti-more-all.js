@@ -1,4 +1,4 @@
-// Pack At: 2020-11-25 17:13:38
+// Pack At: 2020-11-29 22:57:03
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -1335,6 +1335,10 @@ const _M = {
       type : [Boolean, String],
       default: false
     },
+    "eventName" : {
+      type : String,
+      default: undefined
+    },
     "wait" : {
       type : Number,
       default: 0
@@ -1374,12 +1378,17 @@ const _M = {
         invoking()
       }
 
-      // notify
+      // notify: name/value object
       if(this.notifyName) {    
         this.$bar.notifyChange({
           name  : this.notifyName,
           value : val
         })
+      }
+
+      // notify: eventName
+      if(this.eventName) {
+        this.$bar.$notify(this.eventName)
       }
     }
   },
@@ -11266,7 +11275,7 @@ Ti.Preload("ti/com/ti/input/date/_com.json", {
 //============================================================
 Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<ti-combo-box class="as-daterange"
   :class="topClass"
-  :drop-width="null"
+  :drop-width="dropWidth"
   :status="status"
   @collapse="doCollapse">
   <!--
@@ -11372,6 +11381,10 @@ const _M = {
         collapse : "zmdi-chevron-down",
         extended : "zmdi-chevron-up"
       })
+    },
+    "dropWidth" : {
+      type : [Number, String],
+      default : null
     }
   },
   ////////////////////////////////////////////////////
@@ -17967,6 +17980,7 @@ Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair"
   -->
   <ti-loading
     v-if="isEmpty"
+      class="as-small-tip"
       v-bind="blankAs"/>
   <!--
     Show Pair
@@ -18596,7 +18610,7 @@ Ti.Preload("ti/com/ti/paging/button/ti-paging-button.html", `<div class="ti-pagi
   :class="TopClass">
   <div class="as-pg-btn is-prev" @click.left="JumpTo(PN-1)">
     <i class="im im-angle-left"></i>
-    <span>{{'i18n:prev'|i18n}}</span>
+    <span>{{'i18n:paging-prev'|i18n}}</span>
   </div>
   <template 
     v-for="btn of BtnList">
@@ -18612,7 +18626,7 @@ Ti.Preload("ti/com/ti/paging/button/ti-paging-button.html", `<div class="ti-pagi
           <span>{{btn.value}}</span></div>
   </template>
   <div class="as-pg-btn is-next" @click.left="JumpTo(PN+1)">
-    <span>{{'i18n:next'|i18n}}</span>
+    <span>{{'i18n:paging-next'|i18n}}</span>
     <i class="im im-angle-right"></i>
   </div>
 </div>`);
@@ -18911,8 +18925,10 @@ const _M = {
       // 通知修改
       this.$notify("change:pgsz", pgsz)
       this.$notify("change", {
-        pn   : 1, 
-        pgsz : pgsz
+        skip  : 0,
+        limit : pgsz,
+        pn    : 1, 
+        pgsz  : pgsz
       })
     }
   }
@@ -19501,13 +19517,16 @@ const FieldDisplay = {
       }
       //......................................
       if(_.isString(displayItem)){
-        // <icon:zmdi-user>
-        let m = /^<([^:>=]*)(:([^>]+))?>$/.exec(displayItem)
+        // <icon:zmdi-user:$ClassName>
+        let m = /^<([^:>=]*)(:([^>:]+))?(:([^>:]+))?>$/.exec(displayItem)
         if(m) {
           return {
             key       : m[1] || defaultKey || ":ti-icon",
             defaultAs : m[3] || undefined,
-            comType   : "ti-icon"
+            comType   : "ti-icon",
+            comConf   : {
+              className : m[5] || undefined
+            }
           }
         }
         //......................................
@@ -31332,14 +31351,20 @@ Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-l
     Each Items
   -->
   <template v-else>
-    <div
-      v-for="it in ItemList"
-        class="list-item"
-        :key="it.key">
-        <component
-          :is="it.comType"
-          v-bind="it.comConf"/>    
-    </div>
+    <transition-group
+      tag="div"
+      :name="ItemTransName"
+      class="ti-trans">
+      <div
+        v-for="it in ItemList"
+          class="list-item"
+          :class="ItemTransSpeedClassName"
+          :key="it.key">
+          <component
+            :is="it.comType"
+            v-bind="it.comConf"/>    
+      </div>
+    </transition-group>
   </template>
 </div>`);
 //============================================================
@@ -31364,6 +31389,10 @@ const _M = {
         value: "=.."
       })
     },
+    "itemKeyBy": {
+      type : String,
+      default: "id"
+    },
     "blankAs": {
       type: [Object, Boolean],
       default: ()=>({
@@ -31374,6 +31403,16 @@ const _M = {
     "loadingAs": {
       type: [Object, Boolean],
       default: ()=>({})
+    },
+    "transName" : {
+      type: String,
+      default: "slide-right",
+      validator: v => (!v || /^(fade|((slide)-(left|right|down|up)))$/.test(v))
+    },
+    "transSpeed" : {
+      type: String,
+      default: "normal",
+      validator: v => /^(slow|normal|fast)$/.test(v)
     }
   },
   //////////////////////////////////////////
@@ -31381,6 +31420,16 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
+    },
+    //--------------------------------------
+    ItemTransName() {
+      if(this.transName) {
+        return `ti-trans-${this.transName}`
+      }
+    },
+    //--------------------------------------
+    ItemTransSpeedClassName() {
+      return `is-speed-${this.transSpeed}`
     },
     //--------------------------------------
     ItemList() {
@@ -31391,8 +31440,12 @@ const _M = {
       for(let i=0; i < this.data.length; i++) {
         let it = this.data[i]
         let comConf = Ti.Util.explainObj(it, this.comConf)
+        let key = `It-${i}`
+        if(this.itemKeyBy) {
+          key = Ti.Util.fallbackNil(it[this.itemKeyBy], key)
+        }
         list.push({
-          key: `It-${i}`,
+          key,
           comType: this.comType,
           comConf
         })        
@@ -45255,6 +45308,29 @@ const _M = {
       state.data = _.assign({}, state.data, vobj)
     },
     //--------------------------------------------
+    updateDataBy(state, {key, value}) {
+      if(!key || _.isUndefined(value)) {
+        return
+      }
+      let data = _.cloneDeep(state.data)
+      _.set(data, key, value)
+      state.data = data
+    },
+    //--------------------------------------------
+    inserToData(state, {key, item, pos=0}={}) {
+      // Guard
+      if(Ti.Util.isNil(item)) {
+        return;
+      }
+      // Find the list
+      let list = _.get(state.data, key)
+      if(!_.isArray(list))
+        return
+
+      // Insert the data
+      Ti.Util.insertToArray(list, pos, item)
+    },
+    //--------------------------------------------
     mergeData(state, data) {
       if(!_.isEmpty(data) && _.isPlainObject(data)) {
         state.data = _.merge({}, state.data, data)
@@ -45310,6 +45386,12 @@ const _M = {
       }
     },
     //--------------------------------------------
+    changeParams({commit}, args) {
+      let params = Ti.Util.merge({}, args)
+      commit("mergeParams", params)
+      commit("updateFinger")
+    },
+    //--------------------------------------------
     /***
      * Usage:
      * 
@@ -45323,10 +45405,31 @@ const _M = {
       let data = Ti.Util.merge({}, args)
       commit("mergeData", data)
     },
-    changeParams({commit}, args) {
-      let params = Ti.Util.merge({}, args)
-      commit("mergeParams", params)
-      commit("updateFinger")
+    //--------------------------------------------
+    changeDataBy({commit}, payload) {
+      commit("updateDataBy", payload)
+    },
+    //--------------------------------------------
+    insertItemToData({commit}, payload) {
+      commit("inserToData", payload)
+    },
+    //--------------------------------------------
+    removeItemInDataById({state, commit}, {key, id, idKey="id"}={}) {
+      console.log("removeItemInDataById", {key, id, idKey})
+      // Guard
+      if(Ti.Util.isNil(id))
+        return
+
+      // Find the list
+      let list = _.get(state.data, key)
+      if(!_.isArray(list))
+        return
+
+      // Remove the data
+      let list2 = _.filter(list, li => li[idKey]!=id)
+      commit("updateDataBy", {
+        key, value: list2
+      })
     },
     //--------------------------------------------
     /***
@@ -45391,7 +45494,7 @@ const _M = {
     }={}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
-      console.log("doApi", {key, api, params, vars, body})
+      //console.log("doApi", {key, api, params, vars, body})
       //.....................................
       // Guard
       if(!api) {
@@ -45401,6 +45504,13 @@ const _M = {
       commit("setLoading", true, {root:true})
       await dispatch("__run_api", {api,params,vars,body, ok, fail})     
       commit("setLoading", false, {root:true})
+    },
+    //--------------------------------------------
+    async showApiError({}, {
+      api, url, options, err, errText
+    } = {}) {
+      let msg = Ti.I18n.translate(errText)
+      await Ti.Alert(msg, {type: "error"})
     },
     //--------------------------------------------
     //
@@ -45487,8 +45597,14 @@ const _M = {
       }
       // Cache the Error
       catch (err) {
-        console.warn(`Fail to invoke ${url}`, {api, url, options}, err)
-        dispatch("doAction", fail, {root:true})
+        console.warn(`Fail to invoke ${url}`, {api, url, options, err})
+        // Prepare fail Object
+        let failAction = Ti.Util.explainObj({
+          api, url, options,
+          err,
+          errText : err.responseText
+        }, fail)
+        dispatch("doAction", failAction, {root:true})
         return
       }
       let data = reo
@@ -46594,6 +46710,7 @@ const _M = {
         payload : {} | [] | ...
       } 
       */
+      //console.log("invokeAction", name, args)
       let actions = getters.actions;
       let AT = _.get(actions, name)
 
@@ -47531,6 +47648,12 @@ Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
+  "order-k-pro-retail" : "Retail",
+  "order-k-pro-subretail" : "Sub-Retail",
+  "order-k-nominal" : "Nominal",
+  "order-k-profit" : "Profit",
+  "order-k-prefee" : "Base price",
+
   "account": "Account",
   "account-flt-tip": "Filter by account name",
   "account-manage": "Accounts",
@@ -47762,7 +47885,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-pro-amount": "Amount",
   "order-k-pro-price": "Price",
   "order-k-pro-subtotal": "Subtotal",
-  "order-k-pro-title": "Title",
+  "order-k-pro-title": "Product Title",
   "order-k-products": "Goods",
   "order-k-seller": "Seller",
   "order-k-sp_at": "Shipping at",
@@ -48585,6 +48708,12 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-editor.i18n.json", {
 // JOIN: zh-cn/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
+  "order-k-pro-retail" : "零售价",
+  "order-k-pro-subretail" : "零计",
+  "order-k-nominal" : "标称总价",
+  "order-k-profit" : "收益金额",
+  "order-k-prefee" : "基础金额",
+
   "account": "账户",
   "account-flt-tip": "请输入账号名过滤",
   "account-manage": "账户管理",
@@ -48813,10 +48942,10 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-pay_tp": "支付类型",
   "order-k-payment": "支付信息",
   "order-k-price": "订单金额",
-  "order-k-pro-amount": "购买数量",
+  "order-k-pro-amount": "数量",
   "order-k-pro-price": "单价",
   "order-k-pro-subtotal": "小计",
-  "order-k-pro-title": "商品",
+  "order-k-pro-title": "商品标题",
   "order-k-products": "商品信息",
   "order-k-seller": "卖家",
   "order-k-sp_at": "发货时间",
