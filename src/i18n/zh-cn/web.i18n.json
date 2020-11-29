@@ -1,4 +1,10 @@
 {
+  "order-k-pro-retail" : "零售价",
+  "order-k-pro-subretail" : "零计",
+  "order-k-nominal" : "标称总价",
+  "order-k-profit" : "收益金额",
+  "order-k-prefee" : "基础金额",
+
   "account": "账户",
   "account-flt-tip": "请输入账号名过滤",
   "account-manage": "账户管理",
@@ -227,10 +233,10 @@
   "order-k-pay_tp": "支付类型",
   "order-k-payment": "支付信息",
   "order-k-price": "订单金额",
-  "order-k-pro-amount": "购买数量",
+  "order-k-pro-amount": "数量",
   "order-k-pro-price": "单价",
   "order-k-pro-subtotal": "小计",
-  "order-k-pro-title": "商品",
+  "order-k-pro-title": "商品标题",
   "order-k-products": "商品信息",
   "order-k-seller": "卖家",
   "order-k-sp_at": "发货时间",

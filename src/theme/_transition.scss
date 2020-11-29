@@ -15,3 +15,77 @@
 .ti-trans-vlist-leave-active {
   position: absolute;
 }
+
+/*------------------------------------*/
+//
+// List Item : fade
+//
+/*------------------------------------*/
+.ti-trans > .is-speed-slow   {transition-duration: 1s;}
+.ti-trans > .is-speed-normal {transition-duration: 0.5s;}
+.ti-trans > .is-speed-fast   {transition-duration: 0.3s;}
+/*------------------------------------*/
+//
+// List Item : fade
+//
+/*------------------------------------*/
+.ti-trans-fade-enter-active,
+.ti-trans-fade-leave-active {
+  transition: opacity 0.5s;
+}
+.ti-trans-fade-enter,
+.ti-trans-fade-leave-to {
+  opacity: 0;
+}
+/*------------------------------------*/
+//
+// List Item : slide left
+//
+/*------------------------------------*/
+.ti-trans-slide-left-enter-active,
+.ti-trans-slide-left-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+.ti-trans-slide-left-enter,
+.ti-trans-slide-left-leave-to {
+  opacity: 0; transform: translateX(SZ(-100));
+}
+/*------------------------------------*/
+//
+// List Item : slide right
+//
+/*------------------------------------*/
+.ti-trans-slide-right-enter-active,
+.ti-trans-slide-right-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+.ti-trans-slide-right-enter,
+.ti-trans-slide-right-leave-to {
+  opacity: 0; transform: translateX(SZ(100));
+}
+/*------------------------------------*/
+//
+// List Item : slide up
+//
+/*------------------------------------*/
+.ti-trans-slide-up-enter-active,
+.ti-trans-slide-up-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+.ti-trans-slide-up-enter,
+.ti-trans-slide-up-leave-to {
+  opacity: 0; transform: translateY(SZ(-100));
+}
+/*------------------------------------*/
+//
+// List Item : slide down
+//
+/*------------------------------------*/
+.ti-trans-slide-down-enter-active,
+.ti-trans-slide-down-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+.ti-trans-slide-down-enter,
+.ti-trans-slide-down-leave-to {
+  opacity: 0; transform: translateY(SZ(-100));
+}

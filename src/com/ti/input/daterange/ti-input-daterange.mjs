@@ -65,6 +65,10 @@ const _M = {
         collapse : "zmdi-chevron-down",
         extended : "zmdi-chevron-up"
       })
+    },
+    "dropWidth" : {
+      type : [Number, String],
+      default : null
     }
   },
   ////////////////////////////////////////////////////

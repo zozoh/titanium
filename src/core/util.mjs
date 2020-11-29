@@ -129,25 +129,13 @@ const TiUtil = {
     // Find the position
     let index = Ti.Num.scrollIndex(pos, list.length+1)
 
-    // At the head
-    if(0 == index) {
-      list.unshift(...items)
-    }
     // At the tail
-    else if(list.length == index) {
+    if(list.length == index) {
       list.push(...items)
     }
-    // At the middle
+    // Insert before the index
     else {
-      let size = items.length
-      // More for room
-      for(let i=list.length-1; i>=index; i--) {
-        list[i+size] = list[i]
-      }
-      // Copy the items
-      for(let i=0; i<size; i++) {
-        list[index+i] = items[i]
-      }
+      list.splice(index, 0, ...items)
     }
 
     // done

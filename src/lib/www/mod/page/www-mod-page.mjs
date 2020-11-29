@@ -165,6 +165,29 @@ const _M = {
       state.data = _.assign({}, state.data, vobj)
     },
     //--------------------------------------------
+    updateDataBy(state, {key, value}) {
+      if(!key || _.isUndefined(value)) {
+        return
+      }
+      let data = _.cloneDeep(state.data)
+      _.set(data, key, value)
+      state.data = data
+    },
+    //--------------------------------------------
+    inserToData(state, {key, item, pos=0}={}) {
+      // Guard
+      if(Ti.Util.isNil(item)) {
+        return;
+      }
+      // Find the list
+      let list = _.get(state.data, key)
+      if(!_.isArray(list))
+        return
+
+      // Insert the data
+      Ti.Util.insertToArray(list, pos, item)
+    },
+    //--------------------------------------------
     mergeData(state, data) {
       if(!_.isEmpty(data) && _.isPlainObject(data)) {
         state.data = _.merge({}, state.data, data)
@@ -220,6 +243,12 @@ const _M = {
       }
     },
     //--------------------------------------------
+    changeParams({commit}, args) {
+      let params = Ti.Util.merge({}, args)
+      commit("mergeParams", params)
+      commit("updateFinger")
+    },
+    //--------------------------------------------
     /***
      * Usage:
      * 
@@ -233,10 +262,31 @@ const _M = {
       let data = Ti.Util.merge({}, args)
       commit("mergeData", data)
     },
-    changeParams({commit}, args) {
-      let params = Ti.Util.merge({}, args)
-      commit("mergeParams", params)
-      commit("updateFinger")
+    //--------------------------------------------
+    changeDataBy({commit}, payload) {
+      commit("updateDataBy", payload)
+    },
+    //--------------------------------------------
+    insertItemToData({commit}, payload) {
+      commit("inserToData", payload)
+    },
+    //--------------------------------------------
+    removeItemInDataById({state, commit}, {key, id, idKey="id"}={}) {
+      console.log("removeItemInDataById", {key, id, idKey})
+      // Guard
+      if(Ti.Util.isNil(id))
+        return
+
+      // Find the list
+      let list = _.get(state.data, key)
+      if(!_.isArray(list))
+        return
+
+      // Remove the data
+      let list2 = _.filter(list, li => li[idKey]!=id)
+      commit("updateDataBy", {
+        key, value: list2
+      })
     },
     //--------------------------------------------
     /***
@@ -301,7 +351,7 @@ const _M = {
     }={}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
-      console.log("doApi", {key, api, params, vars, body})
+      //console.log("doApi", {key, api, params, vars, body})
       //.....................................
       // Guard
       if(!api) {
@@ -311,6 +361,13 @@ const _M = {
       commit("setLoading", true, {root:true})
       await dispatch("__run_api", {api,params,vars,body, ok, fail})     
       commit("setLoading", false, {root:true})
+    },
+    //--------------------------------------------
+    async showApiError({}, {
+      api, url, options, err, errText
+    } = {}) {
+      let msg = Ti.I18n.translate(errText)
+      await Ti.Alert(msg, {type: "error"})
     },
     //--------------------------------------------
     //
@@ -397,8 +454,14 @@ const _M = {
       }
       // Cache the Error
       catch (err) {
-        console.warn(`Fail to invoke ${url}`, {api, url, options}, err)
-        dispatch("doAction", fail, {root:true})
+        console.warn(`Fail to invoke ${url}`, {api, url, options, err})
+        // Prepare fail Object
+        let failAction = Ti.Util.explainObj({
+          api, url, options,
+          err,
+          errText : err.responseText
+        }, fail)
+        dispatch("doAction", failAction, {root:true})
         return
       }
       let data = reo

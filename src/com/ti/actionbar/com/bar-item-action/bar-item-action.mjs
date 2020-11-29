@@ -65,6 +65,10 @@ const _M = {
       type : [Boolean, String],
       default: false
     },
+    "eventName" : {
+      type : String,
+      default: undefined
+    },
     "wait" : {
       type : Number,
       default: 0
@@ -104,12 +108,17 @@ const _M = {
         invoking()
       }
 
-      // notify
+      // notify: name/value object
       if(this.notifyName) {    
         this.$bar.notifyChange({
           name  : this.notifyName,
           value : val
         })
+      }
+
+      // notify: eventName
+      if(this.eventName) {
+        this.$bar.$notify(this.eventName)
       }
     }
   },

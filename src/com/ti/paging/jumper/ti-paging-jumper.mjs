@@ -118,8 +118,10 @@ export default {
       // 通知修改
       this.$notify("change:pgsz", pgsz)
       this.$notify("change", {
-        pn   : 1, 
-        pgsz : pgsz
+        skip  : 0,
+        limit : pgsz,
+        pn    : 1, 
+        pgsz  : pgsz
       })
     }
   }

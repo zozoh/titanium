@@ -1,4 +1,10 @@
 {
+  "order-k-pro-retail" : "Retail",
+  "order-k-pro-subretail" : "Sub-Retail",
+  "order-k-nominal" : "Nominal",
+  "order-k-profit" : "Profit",
+  "order-k-prefee" : "Base price",
+
   "account": "Account",
   "account-flt-tip": "Filter by account name",
   "account-manage": "Accounts",
@@ -230,7 +236,7 @@
   "order-k-pro-amount": "Amount",
   "order-k-pro-price": "Price",
   "order-k-pro-subtotal": "Subtotal",
-  "order-k-pro-title": "Title",
+  "order-k-pro-title": "Product Title",
   "order-k-products": "Goods",
   "order-k-seller": "Seller",
   "order-k-sp_at": "Shipping at",

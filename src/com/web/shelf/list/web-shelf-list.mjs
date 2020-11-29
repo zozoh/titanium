@@ -16,6 +16,10 @@ const _M = {
         value: "=.."
       })
     },
+    "itemKeyBy": {
+      type : String,
+      default: "id"
+    },
     "blankAs": {
       type: [Object, Boolean],
       default: ()=>({
@@ -26,6 +30,16 @@ const _M = {
     "loadingAs": {
       type: [Object, Boolean],
       default: ()=>({})
+    },
+    "transName" : {
+      type: String,
+      default: "slide-right",
+      validator: v => (!v || /^(fade|((slide)-(left|right|down|up)))$/.test(v))
+    },
+    "transSpeed" : {
+      type: String,
+      default: "normal",
+      validator: v => /^(slow|normal|fast)$/.test(v)
     }
   },
   //////////////////////////////////////////
@@ -33,6 +47,16 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
+    },
+    //--------------------------------------
+    ItemTransName() {
+      if(this.transName) {
+        return `ti-trans-${this.transName}`
+      }
+    },
+    //--------------------------------------
+    ItemTransSpeedClassName() {
+      return `is-speed-${this.transSpeed}`
     },
     //--------------------------------------
     ItemList() {
@@ -43,8 +67,12 @@ const _M = {
       for(let i=0; i < this.data.length; i++) {
         let it = this.data[i]
         let comConf = Ti.Util.explainObj(it, this.comConf)
+        let key = `It-${i}`
+        if(this.itemKeyBy) {
+          key = Ti.Util.fallbackNil(it[this.itemKeyBy], key)
+        }
         list.push({
-          key: `It-${i}`,
+          key,
           comType: this.comType,
           comConf
         })        

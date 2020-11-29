@@ -170,13 +170,16 @@ const FieldDisplay = {
       }
       //......................................
       if(_.isString(displayItem)){
-        // <icon:zmdi-user>
-        let m = /^<([^:>=]*)(:([^>]+))?>$/.exec(displayItem)
+        // <icon:zmdi-user:$ClassName>
+        let m = /^<([^:>=]*)(:([^>:]+))?(:([^>:]+))?>$/.exec(displayItem)
         if(m) {
           return {
             key       : m[1] || defaultKey || ":ti-icon",
             defaultAs : m[3] || undefined,
-            comType   : "ti-icon"
+            comType   : "ti-icon",
+            comConf   : {
+              className : m[5] || undefined
+            }
           }
         }
         //......................................

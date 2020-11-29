@@ -18,13 +18,19 @@
     Each Items
   -->
   <template v-else>
-    <div
-      v-for="it in ItemList"
-        class="list-item"
-        :key="it.key">
-        <component
-          :is="it.comType"
-          v-bind="it.comConf"/>    
-    </div>
+    <transition-group
+      tag="div"
+      :name="ItemTransName"
+      class="ti-trans">
+      <div
+        v-for="it in ItemList"
+          class="list-item"
+          :class="ItemTransSpeedClassName"
+          :key="it.key">
+          <component
+            :is="it.comType"
+            v-bind="it.comConf"/>    
+      </div>
+    </transition-group>
   </template>
 </div>
