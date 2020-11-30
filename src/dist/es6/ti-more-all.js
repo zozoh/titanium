@@ -1,4 +1,4 @@
-// Pack At: 2020-11-29 22:57:03
+// Pack At: 2020-12-01 01:50:37
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -47892,8 +47892,8 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-st": "Order status",
   "order-k-title": "Order title",
   "order-k-total": "Total",
-  "order-k-total-m": "Alt Total",
-  "order-k-total-m-tip": "Enter the new total price",
+  "order-k-prefee-m": "Alt Total",
+  "order-k-prefee-m-tip": "Enter the new total price",
   "order-k-user_email": "User email",
   "order-k-user_name": "User name",
   "order-k-user_phone": "User phone",
@@ -48952,8 +48952,8 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-st": "订单状态",
   "order-k-title": "订单标题",
   "order-k-total": "商品总价",
-  "order-k-total-m": "修改总价",
-  "order-k-total-m-tip": "为用户输入新的协商后的商品总价",
+  "order-k-prefee-m": "修改总价",
+  "order-k-prefee-m-tip": "为用户输入新的协商后的商品总价",
   "order-k-user_email": "收货人邮箱",
   "order-k-user_name": "收货人姓名",
   "order-k-user_phone": "收货人手机",
