@@ -1,0 +1,209 @@
+$luo-c-bg    : #003567;
+$luo-c-f     : #fff;
+$luo-c-light : #25f4af;
+//--------------------------------------------
+// Reset Default
+//--------------------------------------------
+body {
+  background:$luo-c-bg; 
+  color:$luo-c-f;
+}
+.luatos-page {
+  a {color:#EEE;}
+  a:hover {color:#FFF; text-decoration: underline;}
+}
+//--------------------------------------------
+// Main Block
+//--------------------------------------------
+.site-main {
+  @include flex-align-v-nowrap;
+  min-height: 100%;
+  > .ti-gui {
+    flex:1 0 auto;
+  }
+}
+//--------------------------------------------
+.ti-mask-loading {
+  color: rgba(255,255,255,0.4);
+}
+.site-main > .site-page.is-loading > .ti-mask-loading {
+  left:unset; bottom: unset; padding:0;
+  .ti-loading {
+    font-size: SZ(16); padding:.5em;
+    background: rgba(50,50,50,0.4); color:#FFF;
+    border-radius: 0 0 0 SZ(12);
+  }
+}
+//--------------------------------------------
+// Page Sky Nav Links 
+//--------------------------------------------
+@mixin NavLinks() {
+  //------------------------------------------
+  .web-nav-links {
+    a {
+      color:$luo-c-f;
+      padding:0 1em;
+      span {
+        @include flex-center;
+        position: relative;
+        padding: .8em .2em;
+        &:after {
+          @include pos-abs($l:50%,$r:50%,$t:SZ(-10),$h:SZ(4));
+          display: block; content:"";
+          margin: SZ(12) auto 0 auto;
+          background: $luo-c-f; opacity: 0;
+          transition: .5s;
+        }
+      }
+      &:hover {
+        text-decoration: none;
+        text-shadow: 0 0 SZ(4) #FFF;
+        span:after {
+          opacity: 1; left:0; right:0;
+        }
+      }
+    }
+    a.is-highlight {
+      &:hover span::after, span::after {
+        background: $luo-c-light;
+        width:100%; left:0; opacity: 1;
+      }
+    }
+    //----------------------------------------
+    $bbSZ: SZ(30);
+    //----------------------------------------
+    .sub-items {
+      padding-top:$bbSZ / 2;
+    }
+    //----------------------------------------
+    .items-con {
+      border-top:SZ(12) solid #2b2b2b;
+      border-bottom:SZ(4) solid #2b2b2b;
+      background:#4a4a4a;
+      border-radius: SZ(4);
+      box-shadow: SZ(5) SZ(5) SZ(20) rgba(0,0,0,0.5);
+      position: relative;
+      //--------------------------------------
+      &::before {
+        display:block; content:"";
+        position: absolute;
+        width:0; height:0; left:50%; top:$bbSZ * -2;
+        margin-left: $bbSZ * -0.5;
+        border-top: $bbSZ solid transparent;
+        border-bottom: $bbSZ solid #2b2b2b;
+        border-left: $bbSZ/2 solid transparent;
+        border-right: $bbSZ/2 solid transparent;
+      }
+      //--------------------------------------
+      a {font-size:1.2em; padding:.8em; justify-content: center;}
+      a:hover {background:#6a6a6a;}
+      //--------------------------------------
+    }
+    //----------------------------------------
+  }
+}
+//--------------------------------------------
+// Page Sky Session Badge
+//--------------------------------------------
+@mixin SessionBadge() {
+  .ti-session-badge {
+    color: $luo-c-f; padding-left:SZ(12);
+    a {color:$luo-c-f;}
+    a:hover {text-decoration: underline;}
+  }
+}
+//--------------------------------------------
+// Page SkyBar
+//--------------------------------------------
+.page-skybar.no-mask {
+  //z-index: $z-menu;
+  @include NavLinks;
+  @include SessionBadge();
+  //------------------------------------------
+  > .panel-con {
+    padding-top:SZ(20);
+    background: transparent;
+    border:0;
+    > .ti-gui-block {
+      max-width: SZ(1300); margin:0 auto;
+    }
+  }
+  //------------------------------------------
+}
+//--------------------------------------------
+// Page Head
+//--------------------------------------------
+.page-head {
+  > .block-main > .block-main-con {
+    width:100%; height:100%;
+  }
+}
+//--------------------------------------------
+// Page Section
+//--------------------------------------------
+.page-section {
+  width: SZ(1200); margin:0 auto;
+  //------------------------------------------
+  &.gui-block-wall,
+  &.gui-block-article {
+    min-height: SZ(380); padding-bottom: SZ(120);
+  }
+  //------------------------------------------
+}
+//--------------------------------------------
+// Page Footer
+//--------------------------------------------
+.page-section {
+  width: SZ(1200); margin:0 auto;
+  //------------------------------------------
+  &.gui-block-wall,
+  &.gui-block-article {
+    min-height: SZ(380); padding-bottom: SZ(120);
+  }
+  //------------------------------------------
+}
+//--------------------------------------------
+// Page
+//--------------------------------------------
+.page-footer {
+  padding-top: 3em;
+  &:before {
+    display:block; content:"";
+    height: 30px;
+    background:
+      repeat-X url(footer/footer-line-bg.png),
+      no-repeat url(footer/footer-line-light.png) center;
+  }
+  .page-section {
+    text-align: center; padding:1em 0;
+    &.as-copyright {
+      padding: 5em 0;
+    }
+  }
+}
+//--------------------------------------------
+// Page Section Heading
+//--------------------------------------------
+.web-text-heading.luo-title {
+  justify-content: center; 
+  font-size: SZ(24);
+  padding: 4em 0;
+  .as-title {
+    padding: .5em 0;
+    border-bottom: SZ(8) solid $luo-c-light;
+  }
+}
+.web-text-heading.luo-title-sub {
+  justify-content: center; 
+  font-size: SZ(18);
+  padding: 1em 0;
+}
+//--------------------------------------------
+// Page Inbuilding
+//--------------------------------------------
+.ti-roadblock {
+  background: transparent;
+  color:rgba(0,0,0,0.4);
+  height: SZ(800);
+  padding: SZ(10);
+}

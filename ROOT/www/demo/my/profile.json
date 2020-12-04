@@ -1,0 +1,112 @@
+{
+  "title" : "Minke工作台",
+  "apis" : {
+    "myProjects" : {
+      "apiName" : "thing-list",
+      "params" : {
+        "ts" : "projects",
+        "m" : {"uid": "=auth.me.id"},
+        "s" : {"ct": -1}
+      },
+      "preload" : 1
+    },
+    "createProject" : {
+      "apiName" : "thing-create",
+      "params" : {
+        "ts" : "projects"
+      },
+      "dataKey" : "project"
+    },
+    "updateProject" : {
+      "apiName" : "thing-update",
+      "params" : {
+        "ts" : "projects",
+        "id" : "=page.data.project.id"
+      },
+      "dataKey" : "project"
+    }
+  },
+  "data" : {
+    "project" : null,
+    "myProjects" : []
+  },
+  "layout" : {
+    "desktop" : {
+      "type" : "rows",
+      "className" : "luatos-page is-workbench",
+      "blocks" : [
+        "@BLOCK(desktop.mySky)",
+        {
+          "className": "page-main",
+          "name" : "main",
+          "body" : "pcMain"
+        },
+        "@BLOCK(desktop.footer)"],
+      "panels" : []
+    },
+    "tablet" : "desktop",
+    "phone"  : "desktop"
+  },
+  "shown" : {},
+  "schema" : {
+    "pcSkyTitle" : {
+      "comType" : "LuoWorkbenchHead",
+      "comConf" : {
+        "projects" : "=page.data.myProjects",
+        "currentId" : "=page.data.project.id"
+      }
+    },
+    "pcMain": {
+      "comType": "LuoWorkbench",
+      "comConf": {
+        
+      }
+    }
+  },
+  "actions" : {
+    "@page:prepare" : {
+      "action" : "auth/doCheckMe",
+      "payload" : {
+        "force" : false,
+        "fail" : {
+          "action": "navTo",
+          "payload": {
+            "value": "page/home.html"
+          }
+        }
+      }
+    },
+    "do:logout" : {
+      "action": "navTo",
+      "payload": {
+        "value": "page/home.html"
+      }
+    },
+    "create:project" : [{
+        "action" : "page/doApi",
+        "payload" : {
+          "key" : "createProject",
+          "body" : "=>_.set($args[0], 'uid', auth.me.id)"
+        }
+      }, {
+        "action" : "page/reloadData",
+        "payload" : ["myProjects"]
+      }],
+    "update:project" : [{
+        "action" : "page/doApi",
+        "payload" : {
+          "key" : "updateProject",
+          "body" : "=$args[0]"
+        }
+      }, {
+        "action" : "page/reloadData",
+        "payload" : ["myProjects"]
+      }],
+    "switch:project" : {
+      "action" : "page/changeData",
+      "payload" : {
+        "project" : "=$args[0]"
+      }
+    }
+  }
+}

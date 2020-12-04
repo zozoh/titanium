@@ -1,0 +1,25 @@
+.web-gsi-leaflet {
+  user-select: none;
+  position: relative;
+  //-----------------------------------------
+  > .wgl-map-info {
+    @include flex-align($jc:space-between);
+    @include pos-abs($b:0, $r:0);
+    @include color($color-mask, r, bushy);
+    @include font-fixed;
+    user-select: text; font-size:SZ(10);
+    z-index: $z-mask;
+    padding: .8em; line-height: 2.4em;
+    //---------------------------------------
+    .info-ele {
+      white-space: nowrap; 
+      > i {
+        display: inline-block; font-size: inherit;
+        vertical-align: middle;
+        width: 1.6em; text-align: center;
+      }
+    }
+    //---------------------------------------
+  }
+  //-----------------------------------------
+}

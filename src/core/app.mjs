@@ -293,6 +293,11 @@ class OneTiApp {
     return this.$vm()[key]
   }
   //---------------------------------------
+  // view = {
+  //    modType: "@mod:xx/xx",
+  //    comType: "@com:xx.xx", 
+  //    components: ["@com:xx/xx"]
+  // }
   async loadView(view) {
     // [Optional] Load the module
     //.....................................
@@ -369,6 +374,7 @@ class OneTiApp {
     }
     //.....................................
   }
+  //---------------------------------------
 }
 //---------------------------------------
 const TiApp = function(a0, decorator=_.identity) {

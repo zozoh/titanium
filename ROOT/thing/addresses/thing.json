@@ -1,0 +1,23 @@
+{
+  "uniqueKeys" : [],
+  "fields": [],
+  "linkKeys" : {
+    "dftaddr": {
+      "testPrimary": [{
+          "!uid": "[BLANK]"
+        }],
+      "testUpdate": [{
+          "!dftaddr": true
+        }],
+      "target": {
+        "filter": {
+          "uid": "${uid}",
+          "dftaddr":true
+        }
+      },
+      "set": {
+        "dftaddr": false
+      }
+    }
+  }
+}

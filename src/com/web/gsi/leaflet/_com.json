@@ -1,0 +1,15 @@
+{
+  "name" : "web-gsi-leaflet",
+  "globally" : true,
+  "template" : "./web-gsi-leaflet.html",
+  "props"   : "./web-gsi-leaflet-props.mjs",
+  "methods" : [
+      "./leaflet-tiles-methods.mjs",
+      "./leaflet-mock-methods.mjs"
+    ],
+  "mixins"   : ["./web-gsi-leaflet.mjs"],
+  "deps" : [
+    "@deps:leaflet/leaflet.js",
+    "@deps:leaflet/leaflet.css"
+  ]
+}

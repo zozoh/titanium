@@ -1,0 +1,39 @@
+{
+  "schema" : {
+    "accounts" : {
+      "path"  : "~/accounts/index",
+      "limit" : 10
+    },
+    "devices"   : {
+      "path"  : "~/devices",
+      "query" : {},
+      "sort"  : {"ct":-1},
+      "limit" : 20,
+      "skip"  : 0
+    }
+  },
+  "id" : {
+    "gen" : "FAKE-ACC-${seq}"
+  },
+  "userId" : {
+    "value" : "ANY"
+  },
+  "userName" : {
+    "schema" : "accounts",
+    "key"  : "nickname"
+  },
+  "targetId" : {
+    "schema" : "devices",
+    "key" : "nm"
+  },
+  "targetName" : {
+    "schema" : "devices",
+    "key" : "title"
+  },
+  "targetType" : {
+    "cans" : ["vod","shop","tour"]
+  },
+  "operation" : {
+    "value" : "access"
+  }
+}

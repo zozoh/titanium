@@ -1,0 +1,7 @@
+{
+  "comPath" : "@com:web/gsi/leaflet",
+  "comType" : "WebGsiLeaflet",
+  "comConf" : {
+    "value" : "=data"
+  }
+}

@@ -1,0 +1,33 @@
+<div class="web-gsi-leaflet ti-fill-parent">
+  <div class="wgl-map-main ti-fill-parent" ref="main"></div>
+  <div class="wgl-map-info">
+    <!--
+      Center
+    -->
+    <div class="info-ele">
+      <i class="fas fa-map-marker"></i>
+      <span>{{GeoValue(geo.center.lat)}}</span>/<span>{{GeoValue(geo.center.lng)}}</span>
+    </div>
+    <!--
+      Latitude range
+    -->
+    <div class="info-ele">
+      <i class="fas fa-arrows-alt-v"></i>
+      <span>{{GeoValue(geo.N)}}</span>/<span>{{GeoValue(geo.S)}}</span>
+    </div>
+    <!--
+      Longitude range
+    -->
+    <div class="info-ele">
+      <i class="fas fa-arrows-alt-h"></i>
+      <span>{{GeoValue(geo.W)}}</span>/<span>{{GeoValue(geo.E)}}</span>
+    </div>
+    <!--
+      Mouse
+    -->
+    <div class="info-ele">
+      <i class="fas fa-mouse"></i>
+      <span>{{GeoValue(mouse.lat)}}</span>/<span>{{GeoValue(mouse.lng)}}</span>
+    </div>
+  </div>
+</div>

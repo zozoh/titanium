@@ -1,9 +1,22 @@
 {
+  "behavior" : {
+    "sorter": {"ct":-1},
+    "keyword": {
+      "=id": "^[0-9a-z]{26}$",
+      "title": "^.+"
+    }
+  },
   "filter" : {
     "comType" : "wn-thing-filter",
     "comConf" : {
-      "placeholder" : "请输入买家ID过滤",
-      "status" : "=status"
+      "placeholder" : "i18n:order-flt-tip",
+      "status" : "=status",
+      "value" : "=search",
+      "sorter" : {
+        "options": [
+          {"value":"ct",    "text":"i18n:wn-key-ct"},
+          {"value":"price", "text":"i18n:price"}]
+      }
     }
   },
   "list" : {
@@ -16,32 +29,19 @@
       "checkable" : true,
       "multi"  : true,
       "fields" : [{
-        "title" : "订单",
+        "title"   : "i18n:order-k-title",
         "display" : ["title"]
       }, {
-        "title" : "支付类型",
-        "display" : {
-          "key" : "pay_tp",
-          "transformer" : {
-            "name" : "Ti.Types.toStr",
-            "args" : {
-              "wx.qrcode"  : "微信扫码",
-              "wx.scan"    : "微信付款码",
-              "wx.jsapi"   : "微信JSAPI",
-              "zfb.qrcode" : "支付宝扫码",
-              "zfb.scan"   : "支付宝付款码",
-              "free"       : "免费"
-            }
-          }
-        }
+        "title"   : "i18n:order-k-pay_tp",
+        "display" : "#PayTypes(pay_tp)"
       }, {
-        "title" : "买家",
+        "title"   : "i18n:order-k-buyer_id",
         "display" : {
           "key"  : "buyer_id", 
           "dict" : "Accounts"
         }
       }, {
-        "title" : "金额",
+        "title"   : "i18n:order-k-fee",
         "display" : {
           "key" : ["price", "fee"],
           "transformer" : {
@@ -50,21 +50,8 @@
           }
         }
       }, {
-        "title" : "状态",
-        "display" : {
-          "key" : "st",
-          "transformer" : {
-            "name" : "Ti.Types.toStr",
-            "args" : {
-              "NW" : "新建",
-              "WT" : "待支付",
-              "OK" : "支付成功",
-              "FA" : "支付失败",
-              "SD" : "已发货",
-              "DN" : "已完成"
-            }
-          }
-        }
+        "title"   : "i18n:order-k-st",
+        "display" : "#OrderStatus(or_st)"
       }]
     }
   },
@@ -77,49 +64,46 @@
   "meta" : {
     "comType" : "wn-obj-form",
     "comConf" : {
-      "className" : "ti-fill-parent",
       "data"   : "=current.meta",
+      "blankAs" : {
+        "icon" : "zmdi-arrow-left",
+        "text" : "请选择一个商品包查看详情"
+      },
       "status" : "=current.status",
       "fieldStatus" : "=current.fieldStatus",
       "fields" : [{
-          "title"   : "订单标题",
+          "title"   : "i18n:order-k-title",
           "name"    : "title"
         },{
-          "title"   : "订单状态",
-          "name"    : "st",
-          "transformer" : {
-            "name" : "Ti.Types.toStr",
-            "args" : {
-              "NW" : "新建",
-              "WT" : "待支付",
-              "OK" : "支付成功",
-              "FA" : "支付失败",
-              "SD" : "已发货",
-              "DN" : "已完成"
-            }
+          "title"   : "i18n:order-k-note",
+          "name"    : "note"
+        },{
+          "title"   : "i18n:order-k-st",
+          "name"    : "or_st",
+          "comConf" : {
+            "dict": "OrderStatus"
           }
         },{
-          "title"   : "摘要信息",
+          "title"   : "i18n:brief",
           "type"    : "Group",
           "fields"  : [{
-              "title"  : "ID",
+            "title"   : "i18n:order-k-id",
               "name"   : "id"
             },{
-              "title"   : "卖家",
+              "title"   : "i18n:order-k-seller",
               "name"    : "seller"
             }, {
-              "title"   : "用户库",
+              "title"   : "i18n:order-k-accounts",
               "name"    : "accounts"
             }, {
-              "title"   : "买家",
+              "title"   : "i18n:order-k-buyer_id",
               "name"    : "buyer_id",
               "comConf" : {
-                "dict" : "Accounts",
-                "suffixIcon" : "zmdi-help-outline"
+                "dict" : "Accounts"
               }
             }]
         },{
-          "title"   : "商品信息",
+          "title"   : "i18n:order-k-products",
           "type"    : "Group",
           "fields"  : [{
               "title"  : null,
@@ -130,117 +114,273 @@
                 "data" : "${=value}",
                 "selectable" : false,
                 "fields" : [{
-                    "title"   : "商品",
+                  "title"   : "i18n:order-k-pro-title",
                     "display" : "title"
                   }, {
-                    "title"   : "单价/元",
-                    "display" : "price"
+                    "title"   : "i18n:order-k-pro-price",
+                    "width"   : 0.13,
+                    "display" : "price:￥$$${val}:align-right"
                   }, {
-                    "title"   : "购买数量",
-                    "display" : "amount"
+                    "title"   : "i18n:order-k-pro-retail",
+                    "width"   : 0.13,
+                    "display" : "retail:￥$$${val}:align-right"
+                  }, {
+                    "title"   : "i18n:order-k-pro-amount",
+                    "width"   : 0.06,
+                    "display" : "amount::align-right"
+                  }, {
+                    "title"   : "i18n:order-k-pro-subtotal",
+                    "width"   : 0.13,
+                    "display" : "subtotal:￥$$${val}:align-right"
+                  }, {
+                    "title"   : "i18n:order-k-pro-subretail",
+                    "width"   : 0.13,
+                    "display" : "subretail:￥$$${val}:align-right"
                   }]
               }
             }]
         },{
-          "title"   : "优惠信息",
+          "title"   : "i18n:order-k-waybil",
           "type"    : "Group",
+          "hidden"  : {
+            "addr_user_code" : "[BLANK]"
+          },
           "fields"  : [{
-              "title"  : null,
-              "name"   : "coupons",
-              "type"   : "Array",
-              "comType" : "wn-table",
+              "title"   : "i18n:order-k-waybil_com",
+              "name"   : "waybil_com",
+              "comType" : "ti-droplist",
               "comConf" : {
-                "data" : "${=value}",
-                "selectable" : false,
-                "fields" : [{
-                    "title"   : "优惠券名",
-                    "display" : "title"
-                  }, {
-                    "title"   : "类型",
-                    "display" : {
-                      "key" : "value",
-                      "transformer" : {
-                        "name" : "Ti.Types.toStr",
-                        "args" : {"1":"代金","2":"折扣"}
-                      }
-                    }
-                  }, {
-                    "title"   : "值",
-                    "display" : "value"
-                  }, {
-                    "title"   : "阈",
-                    "display" : "thres"
-                  }]
+                "autoI18n" : true,
+                "options" : "#WaybilComs",
+                "dropDisplay" : [
+                  "<icon:fas-truck>", 
+                  "text::flex-auto", 
+                  "value::as-tip"],
+                "prefixIcon" : "fas-truck"
               }
+            },{
+              "title"   : "i18n:order-k-waybil_nb",
+              "name"    : "waybil_nb",
+              "comType" : "ti-input"
             }]
         },{
-          "title"   : "支付信息",
+          "title"   : "i18n:order-k-addr_ship",
+          "type"    : "Group",
+          "hidden"  : {
+            "addr_ship_code" : "[BLANK]"
+          },
+          "fields"  : [{
+              "title"   : "i18n:order-k-addr_ship_country",
+              "name"   : "addr_ship_country"
+            },{
+              "title"   : "i18n:order-k-addr_ship_code",
+              "name"    : "addr_ship_code"
+            }, {
+              "title"   : "i18n:order-k-addr_ship_door",
+              "name"    : "addr_ship_door"
+            }]
+        },{
+          "title"   : "i18n:order-k-addr_user",
+          "type"    : "Group",
+          "hidden"  : {
+            "addr_user_code" : "[BLANK]"
+          },
+          "fields"  : [{
+              "title"   : "i18n:order-k-addr_user_country",
+              "name"   : "addr_user_country"
+            },{
+              "title"   : "i18n:order-k-addr_user_code",
+              "name"    : "addr_user_code"
+            }, {
+              "title"   : "i18n:order-k-addr_user_door",
+              "name"    : "addr_user_door"
+            }, {
+              "title"   : "i18n:order-k-user_name",
+              "name"    : "user_name"
+            }, {
+              "title"   : "i18n:order-k-user_phone",
+              "name"    : "user_phone"
+            }, {
+              "title"   : "i18n:order-k-user_email",
+              "name"    : "user_email"
+            }]
+        },{
+          "title"   : "i18n:order-k-payment",
           "type"    : "Group",
           "fields"  : [{
-              "title"   : "订单金额",
+              "title"   : "i18n:order-k-total",
+              "name"    : "total",
+              "comConf" : {
+                "prefixText" : "￥"
+              }
+            }, {
+              "title"   : "i18n:order-k-nominal",
+              "name"    : "nominal",
+              "comConf" : {
+                "prefixText" : "￥"
+              }
+            }, {
+              "title"   : "i18n:order-k-profit",
+              "name"    : "profit",
+              "comConf" : {
+                "prefixText" : "￥"
+              }
+            }, {
+              "title"   : "i18n:order-k-prefee",
+              "name"    : "prefee",
+              "comConf" : {
+                "prefixText" : "￥"
+              }
+            }, {
+              "title"   : "i18n:order-k-prefee-m",
+              "name"    : "prefee_m",
+              "type"    : "Float",
+              "tip"     : "i18n:order-k-prefee-m-tip",
+              "hidden"  : {
+                "!or_st" : "WT"
+              },
+              "comType" : "ti-input",
+              "comConf" : {
+                "width" : 160,
+                "suffixText" : "￥"
+              }
+            }, {
+              "title"   : "i18n:order-k-freight",
+              "name"    : "freight",
+              "comConf" : {
+                "prefixText" : "￥"
+              }
+            }, {
+              "title"   : "i18n:order-k-freight-m",
+              "name"    : "freight_m",
+              "type"    : "Float",
+              "tip"     : "i18n:order-k-freight-m-tip",
+              "hidden"  : {
+                "!or_st" : "WT"
+              },
+              "comType" : "ti-input",
+              "comConf" : {
+                "width" : 160,
+                "suffixText" : "￥"
+              }
+            }, {
+              "title"   : "i18n:order-k-price",
               "name"    : "price",
               "comConf" : {
-                "prefixIcon" : "fas-yen-sign",
-                "suffixText" : "元"
+                "prefixText" : "￥"
               }
             }, {
-              "title"   : "支付金额",
+              "title"   : "i18n:order-k-discount",
+              "name"    : "discount",
+              "comConf" : {
+                "prefixText" : "￥"
+              }
+            }, {
+              "title"   : "i18n:order-k-fee",
               "name"    : "fee",
               "comConf" : {
-                "prefixIcon" : "fas-yen-sign",
-                "suffixText" : "元"
+                "prefixText" : "￥"
               }
             }, {
-              "title"   : "支付类型",
+              "title"   : "i18n:order-k-currency",
+              "name"    : "currency"
+            }, {
+              "title"   : "i18n:order-k-pay_tp",
               "name"    : "pay_tp",
-              "transformer" : {
-                "name" : "Ti.Types.toStr",
-                "args" : {
-                  "wx.qrcode"  : "微信扫码",
-                  "wx.scan"    : "微信付款码",
-                  "wx.jsapi"   : "微信JSAPI",
-                  "zfb.qrcode" : "支付宝扫码",
-                  "zfb.scan"   : "支付宝付款码",
-                  "free"       : "免费"
+              "comConf": {
+                "dict": "PayTypes"
+              }
+            }, {
+              "title"   : "i18n:order-k-pay_id",
+              "name"    : "pay_id",
+              "comType" : "wn-label",
+              "comConf" : {
+                "openRefer": {
+                  "title" : "交易记录详情",
+                  "position" : "bottom",
+                  "height" : "90%",
+                  "comType" : "ti-obj-pair",
+                  "comConf" : {
+                    "className" : "ti-scroll-v as-comfy as-full",
+                    "onlyFields" : true,
+                    "fields": [
+                      {"name":"id", "title": "支付单号"},
+                      {"name":"wx_openid", "title": "微信用户ID"},
+                      {"name":"pay_tp", "title": "支付类型"},
+                      {"name":"re_obj.mch_id", "title": "商户号"},
+                      {"name":"re_obj.transaction_id", "title": "微信交易号"},
+                      {"name":"re_obj.trade_type", "title": "交易类型"},
+                      {"name":"re_obj.prepay_id", "title": "流水号"},
+                      {"name":"re_obj.timeStamp", "title": "时间戳"},
+                      {"name":"re_obj.cash_fee", "title": "支付金额（分）"},
+                      {"name":"re_obj.fee_type", "title": "货币单位"},
+                      {"name":"re_obj.bank_type", "title": "交易银行"},
+                      {"name":"re_obj.device_info", "title": "交易设备"},
+                      {"name":"re_obj.result_code", "title": "接口结果码"},
+                      {"name":"re_obj.return_code", "title": "接口返回码"}
+                    ]
+                  }
                 }
               }
-            }, {
-              "title"   : "支付单",
-              "name"    : "pay_id"
+            }]
+        }, {
+          "title"   : "i18n:order-k-invoice",
+          "fields"  : [{
+              "name" : "invoice",
+              "comType" : "TiObjPair",
+              "comConf" : {
+                "blankAs" : {
+                  "icon" : "fas-receipt",
+                  "text" : "i18n:nil"
+                },
+                "showHead" : false,
+                "fields" : [
+                  {"name":"inv_title", "title": "i18n:invoice-k-invtitle"},
+                  {"name":"u_name", "title": "i18n:invoice-k-uname"},
+                  {"name":"inv_type", "title": "i18n:invoice-k-type", "dict": "InvoiceTypes"},
+                  {"name":"u_phone", "title": "i18n:invoice-k-uphone"},
+                  {"name":"u_email", "title": "i18n:invoice-k-uemail"},
+                  {"name":"inv_tfn", "title": "i18n:invoice-k-invtfn"},
+                  {"name":"bank_name", "title": "i18n:invoice-k-bankname"},
+                  {"name":"bank_account", "title": "i18n:invoice-k-bankaccount"},
+                  {"name":"busi_addr", "title": "i18n:invoice-k-busiaddr"},
+                  {"name":"busi_phone", "title": "i18n:invoice-k-busiphone"}
+                ]
+              }
             }]
         },{
-          "title"   : "时间戳",
+          "title"   : "i18n:timestamp",
           "type"    : "Group",
           "fields"  : [{
-              "title" : "创建时间",
+              "title" : "i18n:wn-key-ct",
               "name"  : "ct",
               "type"  : "AMS"
             }, {
-              "title" : "最后变动",
+              "title" : "i18n:wn-key-ct",
               "name"  : "lm",
               "type"  : "AMS"
             }, {
-              "title" : "过期时间",
+              "title" : "i18n:wn-key-expi",
               "name"  : "expi",
               "type"  : "AMS"
             }, {
-              "title" : "创建支付单",
+              "title" : "i18n:order-k-wt_at",
               "name"  : "wt_at",
               "type"  : "AMS"
             }, {
-              "title" : "支付成功",
+              "title" : "i18n:order-k-ok_at",
               "name"  : "ok_at",
               "type"  : "AMS"
             }, {
-              "title" : "支付失败",
+              "title" : "i18n:order-k-fa_at",
               "name"  : "fa_at",
               "type"  : "AMS"
             }, {
-              "title" : "发货时间",
+              "title" : "i18n:order-k-sp_at",
               "name"  : "sp_at",
               "type"  : "AMS"
             }, {
-              "title" : "完成时间",
+              "title" : "i18n:order-k-dn_at",
               "name"  : "dn_at",
               "type"  : "AMS"
             }]

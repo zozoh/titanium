@@ -5,848 +5,252 @@
 # cp /mnt/ti/ROOT/init/domain/vars.json ~/.domain/
 # cat ~/.domain/vars.json | app init /mnt/ti/ROOT/init/domain ~
 #
-# 其中 ~/.domain/vars.jsson 作为上下文，保存一些关键敏感信息，格式可以看本目录下的例子
+# 站点发布脚本
+#
+# cat ~/.domain/publish.json | ti www /mnt/project/minke/www/minke ~/www/minke -flt "!^com.*" -wnml
 #
 ##########################################################
-# 管理界面配置(pc_tmpl.html通过 `ti config` 读取)
-@DIR .ti/
-{
-  ln : "/mnt/ti/ROOT/_ti/"
-}
+# 管理界面配置
+@DIR .ti/ -> ${mntRoot}/_ti/
+@DIR .domain/ 'i18n:sys-settings/<fas-cogs>'
+{"debug-app-wn-manager":"=debugApp"}
 #---------------------------------------------------------
-# 域配置
-@DIR .domain/
-{
-  title : "系统设置",
-  icon  : "zmdi-settings-square"
-}
-#---------------------------------------------------------
-# 域配置：扩展 JS 库
-@FILE .domain/wn.manager-extlibs.html
-{
-  ln : "/mnt/ti/ROOT/init/domain/wn.manager-extlibs.html"
-}
-#---------------------------------------------------------
-# 支付单完成后的订单同步代码
-@FILE .domain/payment/after
-%COPY:
-www payafter ${or_id}
-%END%
-##########################################################
-#
-#                   SQL 数据源
-#
-##########################################################
+# 默认 JDBC 数据源
 @FILE .dao/default.dao.json
-%COPY:
-{
-  "url" : "jdbc:mysql://127.0.0.1:3306/walnut_ti",
-  "username" : "root",
-  "password" : "root",
-  "maxActive": 50,
-  "maxWait" : 15000,
-  "testWhileIdle" : true
-}
-%END%
+%TMPL> /etc/init/domain/dao/dao0.json.txt
+#---------------------------------------------------------
+@FILE .dao/history.dao.json
+%TMPL> /etc/init/domain/dao/dao1.json.txt
 ##########################################################
 #
-#                   通用实体配置
+#                   映射索引管理器
 #
 ##########################################################
-# 点赞
-@FILE .domain/like/_like.json
-%COPY:
-{
-  "host"  : "127.0.0.1",
-  "port"  : 6379,
-  "ssl"   : false,
-  "password"  : "",
-  "database": 0
-}
-%END%
+@DIR .io/ -> ${mntRoot}/_io/
+# @FILE .io/ix/dev.json
+# %TMPL> io/ix_dev.json.txt
+# #---------------------------------------------------------
+# @FILE .io/ix/gps.json
+# %TMPL> io/ix_gps.json.txt
+# #---------------------------------------------------------
+# @FILE .io/ix/log.json
+# %TMPL> io/ix_log.json.txt
+# #---------------------------------------------------------
+# @FILE .io/ix/usr.json
+# %TMPL> io/ix_usr.json.txt
+##########################################################
+#
+#                   历史记录
+#
+##########################################################
+# 历史记录
+@DIR .domain/history/ 'i18n:history-record/<zmdi-time-restore>'
 #---------------------------------------------------------
-# 收藏
-@FILE .domain/favor/_favor.json
-%COPY:
-{
-  "host"  : "127.0.0.1",
-  "port"  : 6379,
-  "ssl"   : false,
-  "password"  : "",
-  "database": 1
-}
-%END%
-#---------------------------------------------------------
-# 打分
-@FILE .domain/score/_score.json
-%COPY:
-{
-  "host"  : "127.0.0.1",
-  "port"  : 6379,
-  "ssl"   : false,
-  "password"  : "",
-  "database": 2
-}
-%END%
-#---------------------------------------------------------
-# 消息流
 @FILE .domain/history/_history.json
-%COPY:
-{
-  "dao": "default",
-  "tableName": "t_history"
-}
-%END%
+%TMPL> /etc/init/domain/history/history.json.txt
 #---------------------------------------------------------
-# 消息流
-@FILE .domain/newsfeed/_newsfeed.json
-%COPY:
-{
-  "dao": "default",
-  "tableName": "t_newsfeed"
-}
-%END%
+@DIR .domain/fake/ -> fake/
 ##########################################################
 #
-#                      API 部分
+#                    测试场
 #
 ##########################################################
+@DIR mock/media/ 'i18n:media/<fas-photo-video>'
+@DIR mock/components/ '组件测试/<fas-vials>'
 #---------------------------------------------------------
+@FILE mock/components/gsi/web-gsi-leaflet.comt 'GSI-LEAFLET'
+{com:'/rs/ti/test/components/gsi/demo-web-gsi-leaflet.json'}
+#---------------------------------------------------------
+@FILE mock/components/hmaker/hmaker-edit-com.comt 'EDIT-COM'
+{com:'/rs/ti/test/components/hmaker/demo-hmaker-edit-com.json'}
+#---------------------------------------------------------
+@FILE mock/components/lbs/ti-lbs-map-path-google.comt 'LBS-MAP-PATH-GOOGLE'
+{com:'/rs/ti/test/components/lbs/demo-ti-lbs-map-path-google.json'}
+#---------------------------------------------------------
+@FILE mock/components/lbs/ti-lbs-map-point-google.comt 'LBS-MAP-POINT-GOOGLE'
+{com:'/rs/ti/test/components/lbs/demo-ti-lbs-map-point-google.json'}
+#---------------------------------------------------------
+@FILE mock/components/lbs/ti-lbs-route-path-google.comt 'LBS-ROUTE-PATH-GOOGLE'
+{com:'/rs/ti/test/components/lbs/demo-ti-lbs-route-path-google.json'}
+#---------------------------------------------------------
+@FILE mock/components/lbs/lbs.comt ''
+{com:'/rs/ti/test/components/lbs/form-lbs.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-container/ti-table.comt 'TABLE'
+{com:'/rs/ti/test/components/ti-container/demo-ti-table.json'}
+?COPY> /rs/ti/test/components/ti-container/demo-ti-table.data.json
+#---------------------------------------------------------
+@FILE mock/components/ti-container/ti-tree.comt 'TREE'
+{com:'/rs/ti/test/components/ti-container/demo-ti-tree.json'}
+?COPY> /rs/ti/test/components/ti-container/demo-ti-tree.data.json
+#---------------------------------------------------------
+@FILE mock/components/ti-form/ti-bullet-list.comt 'BULLET-LIST'
+{com:'/rs/ti/test/components/ti-form/demo-ti-bullet-list.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-form/ti-combo-input.comt 'COMBO-INPUT'
+{com:'/rs/ti/test/components/ti-form/demo-ti-combo-input.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-form/ti-combo-multi-input.comt 'COMBO-MULTI-INPUT'
+{com:'/rs/ti/test/components/ti-form/demo-ti-combo-multi-input.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-form/ti-combo-table.comt 'COMBO-TABLE'
+{com:'/rs/ti/test/components/ti-form/demo-ti-combo-table.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-form/ti-form-color-icon.comt 'FORM-COLOR-ICON'
+{com:'/rs/ti/test/components/ti-form/demo-ti-form-color-icon.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-form/ti-form-datetime.comt 'FORM-DATETIME'
+{com:'/rs/ti/test/components/ti-form/demo-ti-form-datetime.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-form/ti-form-input-tags.comt 'FORM-INPUT-TAGS'
+{com:'/rs/ti/test/components/ti-form/demo-ti-form-input-tags.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-form/ti-form.comt 'FORM'
+{com:'/rs/ti/test/components/ti-form/demo-ti-form.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-form/ti-transfer.comt 'TRANSFER'
+{com:'/rs/ti/test/components/ti-form/demo-ti-transfer.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-gui/ti-gui.comt 'GUI'
+{com:'/rs/ti/test/components/ti-gui/demo-ti-gui.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-gui/ti-wizard.comt 'WIZARD'
+{com:'/rs/ti/test/components/ti-gui/demo-ti-wizard.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-obj/ti-obj-json.comt 'OBJ-JSON'
+{com:'/rs/ti/test/components/ti-obj/demo-ti-obj-json.json'}
+?COPY> /rs/ti/test/components/ti-obj/demo-ti-obj-json.data.json
+#---------------------------------------------------------
+@FILE mock/components/ti-obj/ti-obj-pair.comt 'OBJ-PAIR'
+{com:'/rs/ti/test/components/ti-obj/demo-ti-obj-pair.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-others/ti-app-modal.comt 'APP-MODAL'
+{com:'/rs/ti/test/components/ti-others/demo-ti-app-modal.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-others/ti-calendar-month.comt 'CALENDAR-MONTH'
+{com:'/rs/ti/test/components/ti-others/demo-ti-calendar-month.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-others/ti-markdown-preview.comt 'MARKDOWN-PREVIEW'
+{com:'/rs/ti/test/components/ti-others/demo-ti-markdown-preview.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-others/ti-markdown-richeditor.comt 'MARKDOWN-RICHEDITOR'
+{com:'/rs/ti/test/components/ti-others/demo-ti-markdown-richeditor.json'}
+#---------------------------------------------------------
+@FILE mock/components/wn-form/wn-combo-input.comt 'COMBO-INPUT'
+{com:'/rs/ti/test/components/wn-form/demo-wn-combo-input.json'}
+#---------------------------------------------------------
+@FILE mock/components/wn-form/wn-combo-multi-input.comt 'COMBO-MULTI-INPUT'
+{com:'/rs/ti/test/components/wn-form/demo-wn-combo-multi-input.json'}
+#---------------------------------------------------------
+@FILE mock/components/wn-form/wn-transfer.comt 'TRANSFER'
+{com:'/rs/ti/test/components/wn-form/demo-wn-transfer.json'}
+#---------------------------------------------------------
+@FILE mock/components/wn-form/wn-upload.comt 'UPLOAD'
+{com:'/rs/ti/test/components/wn-form/demo-wn-upload.json'}
+
+#---------------------------------------------------------
+##########################################################
 #
-#                    通用 Thing 接口
+#                    网站工程
 #
-#---------------------------------------------------------
-# API(thing): 缩略图
-@FILE .regapi/api/thumb
-{
-  "http-dynamic-header": true
-}
-%COPY:
-httpout -body `obj ${http-qs} -V -e "^thumb$"` \
-  -etag  '${http-header-IF-NONE-MATCH?none}' \
-  -range '${http-header-RANGE?}'
-%END%
-#---------------------------------------------------------
-# API(thing): 数据集列表
-@FILE .regapi/api/thing/query
-{
-   "http-header-Content-Type" : "text/json"
-}
-%COPY:
-thing ${http-qs-ts} query  -cqn -pager
-%END%
-#---------------------------------------------------------
-# API(thing): 数据集对象详情
-@FILE .regapi/api/thing/get
-{
-   "http-header-Content-Type" : "text/json"
-}
-%COPY:
-thing `obj id:${http-qs-id} -e "th_set" -V` get ${http-qs-id} -full -cqn
-%END%
-#---------------------------------------------------------
-# API(thing): 媒体内容
-@FILE .regapi/api/thing/media
-{
-  "http-dynamic-header": true
-}
-%COPY:
-thing ${http-qs-ts} media ${http-qs-id} -cat '${http-qs-fnm}' \
-    -etag  '${http-header-IF-NONE-MATCH?none}' \
-    -range '${http-header-RANGE?}' \
-    -download '${http-qs-d<boolean>?false}' \
-    -UserAgent '${http-header-USER-AGENT?}'
-%END%
-#---------------------------------------------------------
+##########################################################
+@DIR workspace/demo/ ->  ${mntRoot}/www/demo/
+##########################################################
 #
-#                      微信
+#                    数据集
 #
+##########################################################
+@THING accounts 'i18n:account-manage/<fas-address-book>' -> ../../thing/accounts/
+{website:"~/www/${domain}"}
 #---------------------------------------------------------
-# API(weixin): 微信响应
-@FILE .regapi/api/weixin/in
-%COPY:
-weixin zozoh in id:${id}
-%END%
+@THING roles    'i18n:role-manage/<far-smile>'    -> ../../thing/roles/
 #---------------------------------------------------------
-# API(auth): 微信重定向跳板
-@FILE .regapi/api/weixin/oauth2_gh
-{
-   "http-resp-code": 302
-}
+@THING articles  '静态文章/<fas-book>' -> ../../thing/articles/
+@THING coupons '发票管理/<fas-ticket-alt>' -> ../../thing/coupons/
+@THING invoices '优惠券管理/<fas-receipt>' -> ../../thing/invoices/
+@THING orders '订单管理/<fas-file-invoice-dollar>' -> ../../thing/orders/
+@THING addresses '地址管理/<fas-map-marked-alt>' -> ../../thing/addresses/
+#---------------------------------------------------------
+@THING products '商品管理/<fas-gifts>' -> ../../thing/products/
+##########################################################
+#
+#                           WWW 站点
+#
+##########################################################
+@FILE .domain/publish.json
 %TMPL:
-weixin zozoh oauth2 \
-  "http://${hostAndPort}/www/${domain}/page/$${http-qs-page?home}" \
-  -scope ${http-qs-scope?snsapi_userinfo}
+{
+  "base"     : "${base?}",
+  "apiBase"  : "${apiBase?}",
+  "cdnTmpl"  : "${cdnTmpl?}",
+  "rs"       : "${rs}",
+  "lang"     : "${lang?zh-cn}",
+  "siteRs"   : "${siteRs}",
+  "TiJs"     : "${TiJs}",
+  "preloads" : ${preloads<json:cqn>?-array-},
+  "payReturnUrl" : "${payReturnUrl}",
+  "googleMapKey" : "${googleMapKey}",
+  "deps": []
+}
 %END%
 #---------------------------------------------------------
-#
-#                    www 站点
-#
+@DIR www 'i18n:www-home/<fas-globe>'
 #---------------------------------------------------------
-# API(auth): 取得当前账户
-@FILE .regapi/api/auth/checkme
-{
-   "http-header-Content-Type" : "text/json"
-}
-%COPY:
-www checkme id:${http-qs-site?unkonw} ${http-qs-ticket?-nil-} -ajax -cqn
-%END%
-#---------------------------------------------------------
-# API(auth): 微信自动登录
-@FILE .regapi/api/auth/login_by_wxcode
-{
-   "http-header-Content-Type" : "text/json",
-}
-%COPY:
-httpparam -in id:${id} \
-  | run www auth id:$${site?} $${code?} -wxcode -ajax -cqn
-%END%
-#---------------------------------------------------------
-# API(auth): 账号密码登录
-@FILE .regapi/api/auth/login_by_passwd
-{
-   "http-header-Content-Type" : "text/json"
-}
-%COPY:
-httpparam -in id:${id} \
-  | run www auth id:$${site?} $${name?} -p $${passwd?} -ajax -cqn
-%END%
-#---------------------------------------------------------
-# API(auth): 短信密码登录
-@FILE .regapi/api/auth/login_by_phone
-{
-   "http-header-Content-Type" : "text/json",
-}
-%COPY:
-httpparam -in id:${id} \
-  | run www auth id:$${site?} $${name?} -scene $${scene?auth} -v $${vcode?} \
-    -ajax -cqn
-%END%
-#---------------------------------------------------------
-# API(auth): 绑定手机/邮箱
-@FILE .regapi/api/auth/bind_account
-{
-   "http-header-Content-Type" : "text/json",
-}
-%COPY:
-httpparam -in id:${id} \
-  | run www auth id:$${site?} $${name?} -scene $${scene?auth} -v $${vcode?} \
-    -ticket $${ticket?-nil-} \
-    -ajax -cqn
-%END%
-#---------------------------------------------------------
-# API(auth): 获取短信验证码
-@FILE .regapi/api/auth/get_sms_vcode
-{
-   "http-header-Content-Type" : "text/json"
-}
-%COPY:
-www captcha id:${http-qs-site} ${http-qs-scene?auth} ${http-qs-account?} \
-  -cap ${http-qs-captcha} \
-  -as sms -du 5 \
-  -ajax -cqn
-%END%
-#---------------------------------------------------------
-# API(auth): 获取邮箱验证码
-@FILE .regapi/api/auth/get_email_vcode
-{
-   "http-header-Content-Type" : "text/json"
-}
-%COPY:
-www captcha id:${http-qs-site} ${http-qs-scene?auth} ${http-qs-account?} \
-  -cap ${http-qs-captcha} \
-  -as email -du 20 \
-  -ajax -cqn
-%END%
-#---------------------------------------------------------
-# API(auth): 获取图形验证码
-@FILE .regapi/api/auth/captcha
-{
-   "http-header-Content-Type" : "image/png"
-}
-%COPY:
-www captcha id:${http-qs-site} ${http-qs-scene?robot} ${http-qs-account?} \
-  -size ${http-qs-size?100x50} \
-  -as png
-%END%
-#---------------------------------------------------------
-# API(auth): 注销会话
-@FILE .regapi/api/auth/logout
-{
-   "http-header-Content-Type" : "text/json"
-}
-%COPY:
-www logout id:${http-qs-site?unkonw} ${http-qs-ticket?-nil-} -ajax -cqn
-%END%
-#---------------------------------------------------------
-#
-#                      支付
-#
-#---------------------------------------------------------
-# API : 支付:创建订单和支付单
-@FILE .regapi/api/pay/buy
-%COPY:
-cat id:${id} | www buy ~/www \
-  -upick '{wx_gh_strato:"wx_openid"}' \
-  -cqn -ajax -ticket "${http-qs-ticket}"
-%END%
-#---------------------------------------------------------
-# API : 支付:检查订单支付状态
-@FILE .regapi/api/pay/check_order
-%COPY:
-www paycheck "${http-qs-id}" -cqn
-%END%
-#---------------------------------------------------------
-# API : 支付:支付宝回调
-@FILE .regapi/api/pay/re_zfb
-%COPY:
-httpparam -in id:${id} | pay re -idkey out_trade_no -s
-%END%
-#---------------------------------------------------------
-# API : 支付:微信回调
-@FILE .regapi/api/pay/re_wx
-%COPY:
-xml tojson id:${id} | pay re -idkey out_trade_no -s
-%END%
-#---------------------------------------------------------
-#
-#                    信息流
-#
-#---------------------------------------------------------
-# 我的消息流
-@FILE .regapi/api/newsfeed/mine
-{
-  "http-www-home"   : "~/www",
-  "http-www-ticket" : "http-qs-ticket"
-}
-%COPY:
-newsfeed query \
-  'targetId:"${http-www-me-id}"' \
-  -pn ${http-qs-pn?1} \
-  -pgsz ${http-qs-pgsz?20} \
-  -sort '${http-qs-sort?ct:1}' \
-    | ajaxre -cqn
-%END%
-#---------------------------------------------------------
-# 标记消息已读·未读
-@FILE .regapi/api/newsfeed/read
-%COPY:
-httpparam -in id:${id} -out \
-  'newsfeed readed "@{id}" -read @{read?true} -target @{taid?}' \
-    | run | ajaxre -cqn
-%END%
-#---------------------------------------------------------
-# 标记消息加星·去星
-@FILE .regapi/api/newsfeed/star
-%COPY:
-httpparam -in id:${id} -out \
-  'newsfeed stared "@{id}" -star @{star?true}' \
-    | run | ajaxre -cqn
-%END%
-#---------------------------------------------------------
-# 删除消息
-@FILE .regapi/api/newsfeed/remove
-%COPY:
-httpparam -in id:${id} -out \
-  'newsfeed remove "@{id}"' \
-    | run | ajaxre -cqn
-%END%
-#---------------------------------------------------------
-# 清除已读消息
-@FILE .regapi/api/newsfeed/clean
-{
-  "http-www-home"   : "~/www",
-  "http-www-ticket" : "http-qs-ticket"
-}
-%COPY:
-newsfeed clean -target '${http-www-me-id}' | ajaxre -cqn
-%END%
-##########################################################
-#
-#                     普通测试目录
-#
-##########################################################
-@DIR .tmp/
-@DIR media/
-{
-  title : "媒体目录"
-}
-##########################################################
-#
-#                     组件测试目录
-#
-##########################################################
-@DIR demo/
-{
-  title : "控件Demo",
-  icon: "zmdi-steam"
-}
-#---------------------------------------------------------
-@FILE demo/ti-form/ti-form-0.comt
-{
-  title : "表单",
-  com: "/rs/ti/test/components/ti-form/demo-ti-form-0.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-form/ti-form-color-icon.comt
-{
-  title : "表单·颜色图标",
-  com: "/rs/ti/test/components/ti-form/demo-ti-form-color-icon.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-form/ti-form-combo-input.comt
-{
-  title : "组合【单】选框",
-  com: "/rs/ti/test/components/ti-form/demo-ti-combo-input.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-form/ti-form-combo-multi-input.comt
-{
-  title : "组合【多】选框",
-  com: "/rs/ti/test/components/ti-form/demo-ti-combo-multi-input.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-form/ti-form-datetime.comt
-{
-  title : "表单·日期时间",
-  com: "/rs/ti/test/components/ti-form/demo-ti-form-datetime.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-form/ti-form-input-tags.comt
-{
-  title : "表单·输入标签",
-  com: "/rs/ti/test/components/ti-form/demo-ti-form-input-tags.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-form/ti-transfer-0.comt
-{
-  title : "穿梭框",
-  com: "/rs/ti/test/components/ti-form/demo-ti-transfer-0.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-form/ti-combo-table.comt
-{
-  title : "组合表格",
-  com: "/rs/ti/test/components/ti-form/demo-ti-combo-table.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-form/ti-bullet-list.comt
-{
-  title : "选择列表",
-  com: "/rs/ti/test/components/ti-form/demo-ti-bullet-list.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-obj/ti-obj-pair.comt
-{
-  title : "对象值表",
-  com: "/rs/ti/test/components/ti-obj/demo-ti-obj-pair.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-obj/ti-obj-json-0.comt
-{
-  title : "JSON对象编辑",
-  com: "/rs/ti/test/components/ti-obj/demo-ti-obj-json-0.json"
-}
-%COPY> /rs/ti/test/components/ti-obj/demo-ti-obj-json-0.data.json
-#---------------------------------------------------------
-#@FILE demo/ti-list-0.comt
-# {
-#  title : "列表",
-#  ln : "/rs/ti/test/components/demo-ti-list-0.data.json", 
-#  com: "/rs/ti/test/components/demo-ti-list-0.json"
-#}
-#---------------------------------------------------------
-@FILE demo/ti-container/tree-0.comt
-{
-  title : "树",
-  ln : "/rs/ti/test/components/ti-container/demo-ti-tree-0.data.json", 
-  com: "/rs/ti/test/components/ti-container/demo-ti-tree-0.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-container/ti-table-0.comt
-{
-  title : "表格",
-  com: "/rs/ti/test/components/ti-container/demo-ti-table-0.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-gui/wizard-0.comt
-{
-  title : "向导·普通",
-  com: "/rs/ti/test/components/ti-gui/demo-wizard-0.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-gui/ti-gui-0.comt
-{
-  title : "GUI布局",
-  com: "/rs/ti/test/components/ti-gui/demo-ti-gui-0.json"
-}
-#---------------------------------------------------------
-@FILE demo/wn-form/wn-combo-input.comt
-{
-  title : "动态组合【单】选框",
-  com: "/rs/ti/test/components/wn-form/demo-wn-combo-input.json"
-}
-#---------------------------------------------------------
-@FILE demo/wn-form/wn-combo-multi-input.comt
-{
-  title : "动态组合【多】选框",
-  com: "/rs/ti/test/components/wn-form/demo-wn-combo-multi-input.json"
-}
-#---------------------------------------------------------
-@FILE demo/wn-form/wn-transfer-0.comt
-{
-  title : "动态穿梭框",
-  com: "/rs/ti/test/components/wn-form/demo-wn-transfer-0.json"
-}
+# 系统默认登录界面
+@DIR www/login/ 'i18n:www-admin-login/<fas-dungeon>' -> ${mntRoot}/www/login/
 #---------------------------------------------------------
-@FILE demo/wn-form/wn-upload-0.comt
-{
-  title : "文件上传",
-  com: "/rs/ti/test/components/wn-form/demo-wn-upload-0.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-others/ti-calendar-month.comt
-{
-  title : "日历",
-  com: "/rs/ti/test/components/ti-others/demo-ti-calendar-month.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-others/ti-app-modal.comt
-{
-  title : "弹出层测试",
-  com: "/rs/ti/test/components/ti-others/demo-ti-app-modal.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-others/ti-markdown-preview.comt
-{
-  title : "Markdown解析预览",
-  ln : "/rs/ti/test/components/ti-others/demo-ti-markdown-preview.md", 
-  com: "/rs/ti/test/components/ti-others/demo-ti-markdown-preview.json"
-}
-#---------------------------------------------------------
-@FILE demo/ti-others/ti-markdown-richeditor.comt
-{
-  title : "Markdown富文本编辑",
-  com: "/rs/ti/test/components/ti-others/demo-ti-markdown-richeditor.json"
-}
-#---------------------------------------------------------
-@FILE demo/lbs/map-point-google.comt
-{
-  title : "lbs地图·点·Google",
-  com: "/rs/ti/test/components/lbs/demo-ti-lbs-map-point-google.json"
-}
-#---------------------------------------------------------
-@FILE demo/lbs/map-path-google.comt
-{
-  title : "lbs地图·路径·Google",
-  com: "/rs/ti/test/components/lbs/demo-ti-lbs-map-path-google.json"
-}
-%COPY> lbs/demo-ti-lbs-map-path.data.json
-#---------------------------------------------------------
-@FILE demo/lbs/route-google.comt
-{
-  title : "线路编辑·Google",
-  com: "/rs/ti/test/components/lbs/demo-ti-lbs-route-path-google.json"
-}
-%COPY> lbs/demo-ti-lbs-map-path.data.json
-#---------------------------------------------------------
-@FILE demo/hmaker/hmaker-edit-com.comt
-{
-  title : "hMaker控件编辑",
-  com: "/rs/ti/test/components/hmaker/demo-hmaker-edit-com.json"
-}
-##########################################################
-#
-#                     站点·数据部分
-#
-##########################################################
-# 数据:静态文章列表
-@DIR articles/
-{
-  title : "静态文章"
-  th_auto_select: true,
-  tp : "thing_set",
-  icon : "fas-book-reader"
-}
-#---------------------------------------------------------
-@FILE articles/thing-actions.json
-{
-  ln : "/mnt/ti/ROOT/thing/articles/thing-actions.json"
-}
-#---------------------------------------------------------
-@FILE articles/thing-layout.json
-{
-  ln : "/mnt/ti/ROOT/thing/articles/thing-layout.json"
-}
-#---------------------------------------------------------
-@FILE articles/thing-schema.json
-{
-  ln : "/mnt/ti/ROOT/thing/articles/thing-schema.json"
-}
-#---------------------------------------------------------
-# 数据:产品
-@DIR products/
-{
-  title : "产品"
-  th_auto_select: true,
-  tp : "thing_set",
-  icon : "fas-tablet-alt"
-}
-#---------------------------------------------------------
-@FILE products/thing-actions.json
-{
-  ln : "/mnt/ti/ROOT/thing/products/thing-actions.json"
-}
-#---------------------------------------------------------
-@FILE products/thing-layout.json
-{
-  ln : "/mnt/ti/ROOT/thing/products/thing-layout.json"
-}
-#---------------------------------------------------------
-@FILE products/thing-schema.json
-{
-  ln : "/mnt/ti/ROOT/thing/products/thing-schema.json"
-}
-#---------------------------------------------------------
-# 数据:订单
-@DIR orders/
-{
-  title : "订单库"
-  tp : "thing_set",
-  th_auto_select: true,
-  icon : "fas-database"
-}
-#---------------------------------------------------------
-@FILE orders/thing-actions.json
-{
-  ln : "/mnt/ti/ROOT/thing/orders/thing-actions.json"
-}
-#---------------------------------------------------------
-@FILE orders/thing-layout.json
-{
-  ln : "/mnt/ti/ROOT/thing/orders/thing-layout.json"
-}
-#---------------------------------------------------------
-@FILE orders/thing-schema.json
-{
-  ln : "/mnt/ti/ROOT/thing/orders/thing-schema.json"
-}
-#---------------------------------------------------------
-# 数据:优惠券
-@DIR coupons/
-{
-  title : "优惠券库"
-  tp : "thing_set",
-  th_auto_select: true,
-  icon : "fas-ticket-alt"
-}
-#---------------------------------------------------------
-@FILE coupons/thing-actions.json
-{
-  ln : "/mnt/ti/ROOT/thing/coupons/thing-actions.json"
-}
-#---------------------------------------------------------
-@FILE coupons/thing-layout.json
-{
-  ln : "/mnt/ti/ROOT/thing/coupons/thing-layout.json"
-}
-#---------------------------------------------------------
-@FILE coupons/thing-schema.json
-{
-  ln : "/mnt/ti/ROOT/thing/coupons/thing-schema.json"
-}
-#---------------------------------------------------------
-# 数据:用户
-@DIR accounts/
-{
-  title : "用户库"
-  tp : "thing_set",
-  th_auto_select: true,
-  icon : "fas-address-book"
-}
-#---------------------------------------------------------
-@FILE accounts/thing-actions.json
-{
-  ln : "/mnt/ti/ROOT/thing/accounts/thing-actions.json"
-}
-#---------------------------------------------------------
-@FILE accounts/thing-layout.json
-{
-  ln : "/mnt/ti/ROOT/thing/accounts/thing-layout.json"
-}
-#---------------------------------------------------------
-@FILE accounts/thing-schema.json
-{
-  ln : "/mnt/ti/ROOT/thing/accounts/thing-schema.json"
-}
-#---------------------------------------------------------
-@FILE accounts/accounts-methods.mjs
-{
-  ln : "/mnt/ti/ROOT/thing/accounts/accounts-methods.mjs"
-}
-#---------------------------------------------------------
-# 数据:角色
-@DIR roles/
-{
-  title : "角色库"
-  tp : "thing_set",
-  th_auto_select: true,
-  icon : "far-smile"
-}
-#---------------------------------------------------------
-@FILE roles/thing-actions.json
-{
-  ln : "/mnt/ti/ROOT/thing/roles/thing-actions.json"
-}
-#---------------------------------------------------------
-@FILE roles/thing-layout.json
-{
-  ln : "/mnt/ti/ROOT/thing/roles/thing-layout.json"
-}
-#---------------------------------------------------------
-@FILE roles/thing-schema.json
-{
-  ln : "/mnt/ti/ROOT/thing/roles/thing-schema.json"
-}
-#---------------------------------------------------------
-@FILE roles/account-actions.mjs
-{
-  ln : "/mnt/ti/ROOT/thing/roles/account-actions.mjs"
-}
-##########################################################
-#
-#                     站点·编辑部分
-#
-##########################################################
-@DIR sites/demo
-{
-  title : "演示网站工程",
-  tp    : "hmaker_site"
-}
-##########################################################
-#
-#                     站点·功能部分
-#
-##########################################################
-@DIR www/
+# 前端网站
+@DIR www/${domain}/ 'i18n:www-title/<fab-chrome>'
 {
-  title : "${domainName}"
-  icon : "im-chrome",
-  ln : "/mnt/ti/ROOT/www",
-  www : "ROOT",
-  www_pages: "index.wnml:page/*",
+  www : "${www_host}",
+  www_pages: ["index.html:page/*,my/*", "index.wnml:page/*,my/*"],
+  www_entry: ["index.html", "index.wnml"],
   accounts : "~/accounts",
   roles    : "~/roles",
-  orders   : "~/orders",
-  products : "~/products",
-  coupons  : "~/coupons",
-  env : {
-    "THEME" : "dark",
-    "PATH"  : "/bin:/sbin:~/bin",
-    "OPEN"  : "wn.manager",
-    "APP_PATH"  : "/rs/ti/app:/app",
-    "QUIT"      : "/www/strato_website",
-    "VIEW_PATH" : "/rs/ti/view/",
-    "SIDEBAR_PATH" : "~/.ti/user_sidebar.json"
-  },
-  sellers : {
-    wx  : "${wxGhName}",
-    zfb : "${zfbName}"
-  },
   se_dft_du : 86400,
   se_tmp_du : 60
 }
-##########################################################
-# 支付宝的配置信息
-@FILE .alipay/${zfbName}/alipayconf
-%TMPL:
-{
-  "seller_email" : "${zfbSellerEmail}",
-  "partner" : "${zfbPartner}",
-  "key" : "${zfbKey}",
-  "pay_notify_url": "http://${hostAndPort}/api/${domain}/pay/re_zfb"
-}
-%END% 
+#---------------------------------------------------------
 
 ##########################################################
-# 微信的配置信息
-@FILE .weixin/${wxGhName}/wxconf
-%TMPL:
-{
-  "appID": "${wxAppId}",
-  "appsecret": "${wxAppSecret}",
-  "pay_mch_id" : "${wxPayMchId}",
-  "pay_key" : "${wxPayKey}",
-  "pay_notify_url": "http://${hostAndPort}/api/${domain}/pay/re_wx"
-}
-%END% 
-
+#
+#                           接口部分 
+#
 ##########################################################
-# 微信的开放平台配置信息
-@FILE .weixin/${wxOpenName}/wxconf
-%TMPL:
-{
-  "appID": "${wxOpenAppId}",
-  "appsecret": "${wxOpenAppSecret}"
-}
-%END% 
-
+@INCLUDE /etc/init/include/api_read.init
+#---------------------------------------------------------
+#
+#                    Thing 查询/列表
+#
+#---------------------------------------------------------
+@INCLUDE /etc/init/include/api_thing_query.init
+@INCLUDE /etc/init/include/api_thing_list.init
+@INCLUDE /etc/init/include/api_thing_get.init
+@INCLUDE /etc/init/include/api_thing_cud.init
+#---------------------------------------------------------
+@INCLUDE /etc/init/include/api_thing_file_read.init
+@INCLUDE /etc/init/include/api_thing_file_cud.init
+#---------------------------------------------------------
+@INCLUDE /etc/init/include/api_auth.init
 ##########################################################
-# 短信的配置信息
-@FILE .sms/config_Yunpian
-%TMPL:
-{
-  "apikey" : "${smsKey}",
-  "header" : "【${domainName}服务】",
-  "lang"   : "zh-cn",
-}
-%END%
-#.........................................................
-# 验证码模板: 注册新用户
-@FILE .sms/i18n/zh-cn/signup
-%TMPL:
-您的验证码是 $${code}。有效期为 $${min} 分钟，感谢您使用${domainName}服务 ^_^
-%END%
-#.........................................................
-# 验证码模板: 找回密码
-@FILE .sms/i18n/zh-cn/passwdback
-%TMPL:
-您的验证码是 $${code}。有效期为 $${min} 分钟，感谢您使用${domainName}服务 ^_^
-%END%
-
+#
+#                    第三方服务配置
+#
 ##########################################################
-# 邮件的配置信息
-@FILE .email/config_default
-%TMPL:
+# 短信配置
+@INCLUDE /etc/init/include/conf_sms_yunpian.init
+#---------------------------------------------------------
+# 邮件配置
+@INCLUDE /etc/init/include/conf_mail.init
+##########################################################
+#
+#                    主目录和环境变量
+#
+##########################################################
+@INCLUDE /etc/init/include/home_env.init
 {
-  "host"     : "${smtpHost}",
-  "port"     : ${smtpPort},
-  "account"  : '${smtpAccount}',
-  "from"     : "${domainName}",         
-  "alias"    : '${smtpAlias}',
-  "password" : '${smtpPasswd}',
-  "lang"     : "zh-cn",
-  "ssl"      : true
+  "domainLogin" : "~/www/login"
 }
-%END%
-#.........................................................
-# 验证码模板: 注册新用户
-@FILE .email/i18n/zh-cn/signup
-%TMPL:
-您的验证码是 $${code}。有效期为 $${day} 天，请在注册界面输入您的验证码，感谢您使用${domainName}服务 ^_^
-%END%
-#.........................................................
-# 验证码模板: 找回密码
-@FILE .email/i18n/zh-cn/passwdback
-%TMPL:
-您的验证码是 $${code}。有效期为 $${day} 天，请在注册界面输入您的验证码，感谢您使用${domainName}服务 ^_^
-%END%
-#.........................................................
-# 各个场景的邮件标题
-@FILE .email/i18n/zh-cn/_subjects
-%TMPL:
-{
-  "signup"     : "「验证码」注册${domainName}用户",
-  "passwdback" : "「验证码」找回${domainName}用户密码"
-}
-%END%
+##########################################################
+# 结束
+##########################################################

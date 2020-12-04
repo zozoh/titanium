@@ -1,0 +1,1 @@
+Your captcha is $${code}.Valid for $${min} minutes, thank you for using ${smsAlias} ^_^

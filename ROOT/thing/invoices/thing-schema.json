@@ -1,0 +1,207 @@
+{
+  "behavior" : {
+    "hardRemove": true,
+    "sorter": {"ct":-1},
+    "keyword": {
+      "=id": "^[\\d\\w]{26}$",
+      "=u_phone": "^[\\d+-]{10,}$",
+      "u_name": "^.+"
+    }
+  },
+  "filter" : {
+    "comType" : "wn-thing-filter",
+    "comConf" : {
+      "placeholder" : "请输入发票ID或收票人名称或电话过滤",
+      "status" : "=status",
+      "value" : "=search",
+      "sorter" : {
+        "options": [
+          {"value":"ct", "text":"创建时间"}]
+      }
+    }
+  },
+  "list" : {
+    "comType" : "wn-table",
+    "comConf" : {
+      "data" : "=search.list",
+      "changedId"  : "=changedRowId",
+      "currentId"  : "=search.currentId",
+      "checkedIds" : "=search.checkedIds",
+      "checkable" : true,
+      "multi"  : true,
+      "fields" : [{
+        "title" : "发票抬头",
+        "display" : [{
+            "key":"inv_dft",
+            "transformer": {
+              "name": "Ti.Types.toBoolStr",
+              "args": [null, "fas-sun"]
+            },
+            "comType": "ti-icon"
+          }, "inv_title", "#Accounts(uid)"]
+      }, {
+        "title" : "收票人",
+        "display" : ["<:fas-receipt>", "u_name"]
+      }, {
+        "title" : "创建时间",
+        "className" : "align-right",
+        "display" : {
+          "key"  : "ct", 
+          "transformer" : "Ti.DateTime.timeText"
+        }
+      }]
+    }
+  },
+  "pager" : {
+    "comType" : "ti-paging-jumper",
+    "comConf" : {
+      "value" : "=search.pager"
+    }
+  },
+  "creator" : {
+    "comType" : "wn-thing-creator",
+    "comConf" : {
+      "fields" : [{
+          "title"   : "i18n:invoice-k-uid",
+          "name"   : "uid",
+          "comType" : "wn-combo-input",
+          "comConf" : {
+            "placeholder": "i18n:invoice-k-uid-tip",
+            "options": "#Accounts",
+            "dropDisplay": ["@<thumb:zmdi-account>", "nickname"],
+            "mustInList" : true,
+            "autoCollapse" : true
+          }
+        },{
+          "title"   : "发票抬头",
+          "name"   : "inv_title",
+          "comType" : "ti-input"
+        }, {
+          "title"   : "收票人名称",
+          "name"   : "u_name",
+          "comType" : "ti-input"
+        }],
+      "data" : {
+        "inv_title": "新发票",
+        "u_name": "王XX"
+      }
+    }
+  },
+  "meta" : {
+    "comType" : "wn-obj-form",
+    "comConf" : {
+      "data"   : "=current.meta",
+      "blankAs" : {
+        "icon" : "zmdi-arrow-left",
+        "text" : "请选择一个发票查看详情"
+      },
+      "status" : "=current.status",
+      "fieldStatus" : "=current.fieldStatus",
+      "fields" : [{
+          "title"  : "ID",
+          "name"   : "id"
+        },{
+          "title"  : "i18n:wn-key-ct",
+          "name"   : "ct",
+          "type"   : "AMS"
+        },{
+          "title"   : "i18n:invoice-k-uid",
+          "name"   : "uid",
+          "comType" : "wn-combo-input",
+          "comConf" : {
+            "placeholder": "i18n:invoice-k-uid-tip",
+            "options": "#Accounts",
+            "dropDisplay": ["@<thumb:zmdi-account>", "nickname"],
+            "mustInList" : true,
+            "autoCollapse" : true
+          }
+        },{
+          "title"  : "i18n:invoice-k-type",
+          "name"   : "inv_type",
+          "type"   : "Integer",
+          "comType" : "ti-droplist",
+          "comConf" : {
+            "options" : "#InvoiceTypes"
+          }
+        },{
+          "title"   : "i18n:invoice-kg-u",
+          "fields" : [{
+              "title"   : "i18n:invoice-k-uname",
+              "name"   : "u_name",
+              "comType" : "ti-input"
+            },{
+              "title"   : "i18n:invoice-k-uphone",
+              "name"   : "u_phone",
+              "comType" : "ti-input"
+            },{
+              "title"   : "i18n:invoice-k-uemail",
+              "name"   : "u_email",
+              "comType" : "ti-input"
+            }]
+        },{
+          "title"   : "i18n:invoice-kg-inv",
+          "fields" : [{
+              "title"   : "i18n:invoice-k-invtitle",
+              "name"   : "inv_title",
+              "comType" : "ti-input"
+            },{
+              "title"   : "i18n:invoice-k-invtfn",
+              "name"   : "inv_tfn",
+              "comType" : "ti-input"
+            },{
+              "title"   : "i18n:invoice-k-invdft",
+              "name"   : "inv_dft",
+              "type"   : "Boolean",
+              "comType" : "ti-toggle"
+            }]
+        },{
+          "title"   : "i18n:invoice-kg-bank",
+          "fields" : [{
+              "title"   : "i18n:invoice-k-bankname",
+              "name"   : "bank_name",
+              "comType" : "ti-input"
+            },{
+              "title"   : "i18n:invoice-k-bankaccount",
+              "name"   : "bank_account",
+              "comType" : "ti-input"
+            }]
+        },{
+          "title"   : "i18n:invoice-kg-busi",
+          "fields" : [{
+              "title"   : "i18n:invoice-k-busiaddr",
+              "name"   : "busi_addr",
+              "comType" : "ti-input"
+            },{
+              "title"   : "i18n:invoice-k-busiphone",
+              "name"   : "busi_phone",
+              "comType" : "ti-input"
+            }]
+        }],
+      "updateBy" : {
+        "method" : "dispatch",
+        "target" : "main/updateCurrent"
+      },
+      "setFieldStatusBy" : {
+        "method" : "commit",
+        "target" : "main/current/setMetaFieldStatus"
+      }
+    }
+  },
+  "content" : {
+    "comType" : "wn-obj-puretext",
+    "comConf" : {
+      "showTitle"    : false,
+      "meta"         : "=current.meta",
+      "content"      : "=current.content",
+      "savedContent" : "=current.__saved_content",
+      "contentType"  : "=current.contentType",
+      "status"       : "=current.status"
+    }
+  },
+  "files" : {
+    "comType" : "wn-thing-files",
+    "comConf" : {
+      "..." : "=files"
+    }
+  }
+}

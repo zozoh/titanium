@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit" />
+<meta name="force-rendering" content="webkit" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minke Admin</title>
+<link rel="stylesheet" type="text/css" href="index.css">
+<script src="/gu/rs/ti/deps/jquery.js"></script>
+<script src="/gu/rs/ti/deps/lodash.min.js"></script>
+</head>
+<body class="main-body">
+<form method="POST" action="/a/sys_login_by_passwd">
+  <div>
+    <img class="as-logo" src="logo.png">
+    <br>
+    <span>LuatOS OTA Platform</span>
+  </div>
+  <hr>
+  <section>
+    <input name="name" placeholder="User Name" spellcheck="false">
+  </section>
+  <section>
+    <input name="passwd" placeholder="Password" type="password" spellcheck="false">
+  </section>
+  <section>
+    <button>Sign in</button>
+  </section>
+</form>
+</body>
+<script src="index.js"></script>
+</html>

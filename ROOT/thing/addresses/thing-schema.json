@@ -1,0 +1,227 @@
+{
+  "behavior" : {
+    "hardRemove": true,
+    "sorter": {"code":1},
+    "keyword": {
+      "=uid": "^[\\d\\w]{26}$",
+      "=country": "^[A-Z]{2}$",
+      "=code": "^[0-9]{6,12}$",
+      "door": "^.+"
+    }
+  },
+  "filter" : {
+    "comType" : "wn-thing-filter",
+    "comConf" : {
+      "placeholder": "i18n:address-flt-tip",
+      "status" : "=status",
+      "value" : "=search",
+      "sorter" : {
+        "options": [{
+            "value": "ct",
+            "text": "i18n:k-ct-date"
+          }, {
+            "value": "code",
+            "text": "i18n:address-k-postcode"
+          }]
+      }
+    }
+  },
+  "list" : {
+    "comType" : "wn-table",
+    "comConf" : {
+      "data" : "=search.list",
+      "changedId"  : "=changedRowId",
+      "currentId"  : "=search.currentId",
+      "checkedIds" : "=search.checkedIds",
+      "checkable" : true,
+      "multi"  : true,
+      "fields" : [{
+        "title" : "i18n:address-k-title",
+        "className" : "align-left",
+        "display" : [{
+            "key":"dftaddr",
+            "transformer": "Ti.Types.toBoolStr('im-location','im-flag')",
+            "comType": "ti-icon"
+          }, {
+            "key":"tp",
+            "transformer": "Ti.Util.translate('U=im-user-circle; S=im-store')",
+            "comType": "ti-icon"
+          }, "#ChinaAddresses(code)"]
+      }, {
+        "title" : "i18n:address-k-door",
+        "display" : "door"
+      }, {
+        "title" : "i18n:address-k-uid",
+        "width" : -120,
+        "display" : "#Accounts(uid)"
+      }]
+    }
+  },
+  "pager" : {
+    "comType" : "ti-paging-jumper",
+    "comConf" : {
+      "value" : "=search.pager"
+    }
+  },
+  "creator" : {
+    "comType" : "wn-thing-creator",
+    "comConf" : {
+      "fields" : [{
+          "title"  : "i18n:address-k-tp",
+          "name"   : "tp",
+          "comType" : "ti-switcher",
+          "comConf" : {
+            "options": [
+              {"value":"U", "text":"i18n:address-k-tp-u"},
+              {"value":"S", "text":"i18n:address-k-tp-s"}]
+          }
+        }, {
+          "title"   : "i18n:address-k-dftaddr",
+          "name"    : "dftaddr",
+          "type"    : "Boolean",
+          "comType" : "ti-toggle"
+        }, {
+          "title"   : "i18n:address-k-uid",
+          "name"   : "uid",
+          "comType" : "wn-combo-input",
+          "comConf" : {
+            "placeholder": "i18n:address-k-uid-tip",
+            "options": "#Accounts",
+            "dropDisplay": ["@<thumb:zmdi-account>", "nickname"],
+            "autoCollapse": true,
+            "mustInList" : true
+          }
+        },{
+          "title"   : "i18n:address-k-country",
+          "name"    : "country",
+          "comType" : "ti-combo-input",
+          "comConf" : {
+            "mustInList": true,
+            "autoCollapse": true,
+            "valueCase": "upper",
+            "options": "#Countries",
+            "dropDisplay": "name"
+          }
+        },{
+          "title"   : "i18n:address-k-code",
+          "name"   : "code",
+          "comType" : "ti-input"
+        },{
+          "title"   : "i18n:address-k-postcode",
+          "name"    : "postcode",
+          "comType" : "ti-input",
+          "comConf" : {
+            "valueCase": "upper"
+          }
+        }],
+      "data" : {
+        "country" : "CN",
+        "tp" : "S",
+        "dftaddr" : false
+      }
+    }
+  },
+  "meta" : {
+    "comType" : "wn-obj-form",
+    "comConf" : {
+      "data"   : "=current.meta",
+      "blankAs" : {
+        "icon" : "zmdi-arrow-left",
+        "text" : "请选择一个地址查看详情"
+      },
+      "status" : "=current.status",
+      "fieldStatus" : "=current.fieldStatus",
+      "fields" : [{
+          "title"  : "ID",
+          "name"   : "id"
+        },{
+          "title"  : "i18n:address-k-tp",
+          "name"   : "tp",
+          "comType" : "ti-switcher",
+          "comConf" : {
+            "options": [
+              {"value":"U", "text":"i18n:address-k-tp-u"},
+              {"value":"S", "text":"i18n:address-k-tp-s"}]
+          }
+        },{
+          "title"   : "i18n:address-k-dftaddr",
+          "name"    : "dftaddr",
+          "type"    : "Boolean",
+          "comType" : "ti-toggle"
+        },{
+          "title"   : "i18n:address-k-uid",
+          "name"   : "uid",
+          "comType" : "wn-combo-input",
+          "comConf" : {
+            "placeholder": "i18n:address-k-uid-tip",
+            "options": "#Accounts",
+            "dropDisplay": ["@<thumb:zmdi-account>", "nickname"],
+            "autoCollapse": true,
+            "mustInList" : true
+          }
+        },{
+          "title"   : "i18n:address-k-country",
+          "name"    : "country",
+          "comType" : "ti-combo-input",
+          "comConf" : {
+            "mustInList": true,
+            "autoCollapse": true,
+            "valueCase": "upper",
+            "options": "#Countries",
+            "dropDisplay": "name"
+          }
+        },{
+          "title"   : "i18n:address-k-code",
+          "name"   : "code",
+          "comType" : "ti-input"
+        },{
+          "title"   : "i18n:address-k-postcode",
+          "name"    : "postcode",
+          "comType" : "ti-input",
+          "comConf" : {
+            "valueCase": "upper"
+          }
+        },{
+          "title"   : "i18n:address-k-province",
+          "name"    : "province",
+          "comType" : "ti-input"
+        },{
+          "title"   : "i18n:address-k-city",
+          "name"    : "city",
+          "comType" : "ti-input"
+        },{
+          "title"   : "i18n:address-k-area",
+          "name"    : "area",
+          "comType" : "ti-input"
+        },{
+          "title"   : "i18n:address-k-street",
+          "name"    : "street",
+          "comType" : "ti-input"
+        },{
+          "title"   : "i18n:address-k-door",
+          "name"    : "door",
+          "comType" : "ti-input"
+        },{
+          "title"   : "i18n:address-k-consignee",
+          "name"    : "consignee",
+          "comType" : "ti-input"
+        },{
+          "title"   : "i18n:address-k-phone",
+          "name"    : "phone",
+          "comType" : "ti-input"
+        },{
+          "title"   : "i18n:address-k-email",
+          "name"    : "email",
+          "comType" : "ti-input"
+        }],
+      "updateBy" : {
+        "method" : "dispatch",
+        "target" : "main/updateCurrent"
+      },
+      "setFieldStatusBy" : {
+        "method" : "commit",
+        "target" : "main/current/setMetaFieldStatus"
+      }
+    }
+  }
+}

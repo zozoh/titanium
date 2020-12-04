@@ -14,7 +14,7 @@
     "border" : true,
     "blocks" : [{
       "name" : "search",
-      "size" : "40%",
+      "size" : "50%",
       "type" : "rows",
       "border" : true,
       "blocks" : [{
@@ -24,7 +24,7 @@
         }, {
           "name" : "list",
           "size" : "stretch",
-          "overflow" : "hidden",
+          "overflow" : "cover",
           "body" : "list"
         }, {
           "name" : "pager",

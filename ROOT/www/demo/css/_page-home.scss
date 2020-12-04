@@ -1,0 +1,98 @@
+.luatos-page.is-home {
+  //------------------------------------------
+  .page-section {
+    width: 9rem;
+  }
+  //------------------------------------------
+  .gui-block-feature {
+    border-top: 1px solid $luo-c-light;
+    margin-bottom: 2em;
+    //----------------------------------------
+    .free-main {
+      flex-wrap: nowrap;
+      width: 9rem;
+    }
+    //----------------------------------------
+    .free-item {
+      //--------------------------------------
+      .web-text-raw {
+        @include flex-center;
+        line-height: 1.5em; height: SZ(79);
+      }
+      //--------------------------------------
+      &.i-0 {
+        flex:0 0 auto;
+        background: url(home/fea-ssd.png) no-repeat;
+        background-position: left center;
+        background-size: SZ(65) SZ(79);
+        padding-left: SZ(80);
+      }
+      //--------------------------------------
+      &.i-1 .web-text-raw {
+        flex:1 1 auto;
+        background: url(home/fea-elec.png) no-repeat;
+        background-position: left center;
+        background-size: SZ(45) SZ(79);
+        padding-left: SZ(60);
+      }
+      //--------------------------------------
+      &.i-2 .web-text-raw {
+        flex:0 0 auto;
+        background: url(home/fea-upgrade.png) no-repeat;
+        background-position: left center;
+        background-size: SZ(62) SZ(63);
+        padding-left: SZ(77);
+      }
+    }
+    //----------------------------------------
+  } // .gui-block-feature
+  //------------------------------------------
+  .page-section.as-code-pic {
+    padding-bottom: SZ(50);
+    .web-media-image {
+      width: 9rem;
+    }
+  }
+  //------------------------------------------
+  .page-section.as-ext-items {
+    padding-bottom: SZ(50);
+    //----------------------------------------
+    .list-item {
+       .web-text-raw {
+         border:2px solid $luo-c-f;
+         background: rgba(0,0,0,0.6); color: $luo-c-f;
+         padding: 1em; font-size: SZ(20);
+         width: 8em; text-align: center;
+       }
+    }
+    //----------------------------------------
+  }
+  //------------------------------------------
+  .page-section.as-more {
+    padding-bottom: SZ(50);
+    .web-media-image {
+      .as-text {padding:.2em;}
+    }
+  }
+  //------------------------------------------
+  .gui-block-extension {
+    .free-main {
+      padding-bottom: SZ(50);
+    }
+    .web-media-image {
+      img {width: SZ(132); height: SZ(132); margin:0 auto;}
+    }
+  } // .gui-block-chips
+  //------------------------------------------
+  .gui-block-chips {
+    .free-main {
+      padding-bottom: SZ(100);
+    }
+    .web-media-image {
+      img {width: SZ(141); height: SZ(141); margin:0 auto;}
+      border:2px solid $luo-c-f;
+      padding: SZ(20) SZ(40);
+    }
+  } // .gui-block-chips
+  //------------------------------------------
+}

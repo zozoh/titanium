@@ -1,0 +1,5 @@
+{
+  "uniqueKeys": [],
+  "fields": [],
+  "onUpdated": ["www updateorder ${obj.id}"]
+}

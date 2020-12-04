@@ -1,0 +1,39 @@
+{
+  "title" : "文档-LuatOS",
+  "apis" : {
+  },
+  "data" : {
+  },
+  "layout" : {
+    "desktop" : {
+      "type" : "rows",
+      "className" : "luatos-page is-home",
+      "blocks" : [{
+          "className": "page-head",
+          "name" : "home",
+          "body" : "pcHead"
+        },
+        "@BLOCK(desktop.footer)"],
+      "panels" : [
+        "@BLOCK(desktop.sky)"]
+    },
+    "tablet" : "desktop",
+    "phone"  : "desktop"
+  },
+  "shown" : {
+    "login" : false,
+    "sky" : true
+  },
+  "schema" : {
+    "pcHead": {
+      "comType": "TiRoadblock",
+      "comConf": {
+        "className": "as-hug",
+        "icon": "fas-book",
+        "text": "LuatOS 文档页面正在建设中..."
+      }
+    }
+  },
+  "actions" : {
+  }
+}

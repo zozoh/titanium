@@ -1,0 +1,341 @@
+{
+  "title" : "Home-LuatOS",
+  "apis" : {
+  },
+  "data" : {
+  },
+  "layout" : {
+    "desktop" : {
+      "type" : "rows",
+      "className" : "luatos-page is-home",
+      "blocks" : [{
+          "className": "page-head",
+          "name" : "home",
+          "body" : "pcHead"
+        }, {
+          "className": "page-head",
+          "name" : "feature",
+          "body" : "pcFeature"
+        }, {
+          "className": "page-section",
+          "body" : {
+            "comType": "WebTextHeading",
+            "comConf": {"className":"luo-title-sub","title": "GPIO"}
+          }
+        }, {
+          "className": "page-section as-code-pic",
+          "body" : {
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/home-code-gpio.png"}
+          }
+        }, {
+          "className": "page-section",
+          "body" : {
+            "comType": "WebTextHeading",
+            "comConf": {"className":"luo-title-sub","title": "MQTT"}
+          }
+        }, {
+          "className": "page-section as-code-pic",
+          "body" : {
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/home-code-mqtt.png"}
+          }
+        }, {
+          "className": "page-section",
+          "body" : {
+            "comType": "WebTextHeading",
+            "comConf": {"className":"luo-title-sub","title": "HTTP"}
+          }
+        }, {
+          "className": "page-section as-code-pic",
+          "body" : {
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/home-code-http.png"}
+          }
+        }, {
+          "className": "page-section",
+          "body" : {
+            "comType": "WebTextHeading",
+            "comConf": {"className":"luo-title-sub","title": "UDP"}
+          }
+        }, {
+          "className": "page-section as-code-pic",
+          "body" : {
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/home-code-udp.png"}
+          }
+        }, {
+          "className": "page-section",
+          "body" : {
+            "comType": "WebTextHeading",
+            "comConf": {
+              "className":"luo-title",
+              "title":"内置的功能足够支持绝大多数物联网场景"}
+          }
+        }, {
+          "className": "page-section as-ext-items",
+          "body" : {
+            "comType": "WebShelfList",
+            "comConf": {
+              "className": "as-flex is-center",
+              "data": [
+                {"text": "Socket"},
+                {"text": "传感器"},
+                {"text": "外设"},
+                {"text": "IoT"},
+                {"icon": "fas-ellipsis-h"}
+              ],
+              "comType": "WebTextRaw",
+              "comConf": {
+                "className": "as-flex is-center",
+                "icon"  : ":=icon",
+                "value" : ":=text"
+              }
+             }
+          }
+        }, {
+          "className": "page-section as-more ti-noselect",
+          "body" : {
+            "comType": "WebMediaImage",
+            "comConf": {
+              "className": "text-at-top primary-img-size",
+              "text": "查看更多的内置功能",
+              "src": "->${base}img/icon-more.png"}
+          }
+        }, {
+          "className": "page-section",
+          "body" : {
+            "comType": "WebTextHeading",
+            "comConf": {"className":"luo-title","title":"如果必要，你可以无限扩展"}
+          }
+        }, {
+          "className": "page-section",
+          "name" : "extension",
+          "body" : "pcExtension"
+        }, {
+          "className": "page-section",
+          "body" : {
+            "comType": "WebTextHeading",
+            "comConf": {
+              "className":"luo-title",
+              "title":"我们会为你支持越来越多精挑细选出的芯片型号"}
+          }
+        }, {
+          "className": "page-section",
+          "name" : "chips",
+          "body" : "pcChips"
+        }, {
+          "className": "page-section",
+          "body" : {
+            "comType": "WebTextHeading",
+            "comConf": {
+              "className":"luo-title",
+              "title":"码云最有价值开源项目 - GVP"}
+          }
+        }, {
+          "className": "page-head",
+          "body" : {
+            "comType": "WebMediaImage",
+            "comConf": {
+              "style": {
+                "width":"10.55rem", "margin": "0 auto",
+                "borderRadius": ".2rem",
+                "overflow": "hidden",
+                "boxShadow": "5px 5px 20px rgba(0,0,0,0.4)",
+                "marginBottom": "6em"
+              },
+              "src": "->${base}img/home-gvp.png"}
+          }
+        },
+        "@BLOCK(desktop.footer)"],
+      "panels" : [
+        "@BLOCK(desktop.login)",
+        "@BLOCK(desktop.sky)"]
+    },
+    "tablet" : "desktop",
+    "phone"  : "desktop"
+  },
+  "shown" : {
+    "login" : false,
+    "sky" : true
+  },
+  "schema" : {
+    "pcHead": {
+      "comType": "WebShelfFree",
+      "comConf": {
+        "background" : "->${base}img/home-head-bg.jpg",
+        "mainWidth"  : "12rem",
+        "mainHeight" : "5.5rem",
+        "items" : [{
+            "position": "top",
+            "appear" : {
+              "transform": "translateY(-10px)",
+              "opacity": 0
+            },
+            "style": {
+              "paddingTop": "1.3rem",
+              "transition": ".5s ease-out"
+            },
+            "comType": "WebTextRaw",
+            "comConf": {
+              "className": "as-align is-center is-big",
+              "value": "下一代物联网嵌入式操作系统"
+            }
+          }, {
+            "position": "right",
+            "appear" : {
+              "transform": "translateX(-30px)",
+              "opacity": 0
+            },
+            "style": {
+              "paddingTop": "2rem",
+              "paddingRight": "7.6rem",
+              "transition": ".3s ease-out",
+              "transition-delay": ".2s"
+            },
+            "comType": "WebTextRaw",
+            "comConf": {
+              "className": "as-align is-right is-big",
+              "value": "更小更快\n低功耗长续航\n最底层的扩展能力"
+            }
+          }, {
+            "position": "left",
+            "appear" : {
+              "transform": "translateX(30px)",
+              "opacity": 0
+            },
+            "style": {
+              "paddingTop": "2rem",
+              "paddingLeft": "7.6rem",
+              "transition": ".3s ease-out",
+              "transition-delay": ".3s"
+            },
+            "comType": "WebTextRaw",
+            "comConf": {
+              "className": "as-align is-left is-big",
+              "value": "开箱即用\n业务逻辑快速完成\n最高效的脚本解决方案"
+            }
+          }, {
+            "position": "center",
+            "appear" : {
+              "transform": "scale(0.9)",
+              "opacity": 0
+            },
+            "style": {
+              "transition": ".5s ease-out"
+            },
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/home-head-logo.png",
+              "width"  : "2.84rem",
+              "height" : "1.79rem"
+            }
+          }, {
+            "position": "bottom",
+            "appear" : {
+              "transform": "translateY(10px)",
+              "opacity": 0
+            },
+            "style": {
+              "transition": ".3s ease-out"
+            },
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/home-head-person.png",
+              "width"  : "3.61rem",
+              "height" : "2.66rem"
+            }
+          }]
+      }
+    }, 
+    "pcFeature": {
+      "comType": "WebShelfFree",
+      "comConf": {
+        "className": "as-flex is-between",
+        "background" : "#000",
+        "mainHeight" : "1.8rem",
+        "items" : [{
+            "comType": "WebTextRaw",
+            "comConf": {
+              "className": "is-normal",
+              "value": "最低32k ram, \n96k flash"
+            }
+          }, {
+            "comType": "WebTextRaw",
+            "comConf": {
+              "className": "is-normal",
+              "value": "优化资源调度策略\n超低功耗长时间运行"
+            }
+          }, {
+            "comType": "WebTextRaw",
+            "comConf": {
+              "className": "is-normal",
+              "value": "内置在线升级\n可裁剪,可扩展"
+            }
+          }]
+      }
+    },
+    "pcExtension": {
+      "comType": "WebShelfFree",
+      "comConf": {
+        "className": "as-flex is-around",
+        "items" : [{
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/ex-clang.png",
+              "text": "使用底层C接口",
+              "className": "text-at-bottom"
+            }
+          }, {
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/ex-lua.png",
+              "text": "扩展Lua的能力",
+              "className": "text-at-bottom"
+            }
+          }, {
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/ex-chip.png",
+              "text": "自定义芯片支持",
+              "className": "text-at-bottom"
+            }
+          }]
+      }
+    },
+    "pcChips": {
+      "comType": "WebShelfFree",
+      "comConf": {
+        "className": "as-flex is-around",
+        "items" : [{
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/cm-air302.png",
+              "text": "Air302",
+              "className": "text-at-bottom"
+            }
+          }, {
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/cm-stm32f103re.png",
+              "text": "Stm32f103re",
+              "className": "text-at-bottom"
+            }
+          }, {
+            "comType": "WebMediaImage",
+            "comConf": {
+              "src": "->${base}img/cm-w60x.png",
+              "text": "W60x",
+              "className": "text-at-bottom"
+            }
+          }]
+      }
+    }
+  },
+  "actions" : {
+  }
+}

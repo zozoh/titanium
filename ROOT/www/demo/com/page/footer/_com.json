@@ -1,0 +1,11 @@
+{
+  "name" : "luo-page-footer",
+  "globally" : true,
+  "inject": {
+    "apiBase" : {"default" : "/api"},
+    "cdnTmpl" : {"default" : null}, 
+    "base"    : {"default" : "/"}
+  },
+  "template" : "./page-footer.html",
+  "mixins" : ["./page-footer.mjs"]
+}

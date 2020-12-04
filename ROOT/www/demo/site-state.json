@@ -1,0 +1,269 @@
+{
+  "entry" : "page/home.html",
+  "logo" : "img/logo.png",
+  "base"    : "-no-set-",
+  "apiBase" : "-no-set-",
+  "payReturnUrl": "-no-set-",
+  "cdnTmpl" : "-no-set-",
+  "captcha" : "auth/captcha?site=${site}&account=${account}&scene=${scene}",
+  "apis" : {
+    "checkme" : {
+      "title"  : "检查自身登录信息",
+      "path"   : "auth/doCheckMe",
+      "method" : "INVOKE",
+      "params" : {
+        "force" : false
+      },
+      "dataKey" : null,
+      "preload" : 0,
+      "pages"   : true
+    },
+    "thing-query" : {
+      "title"  : "数据集·分页查询",
+      "path"   : "thing/query",
+      "method" : "GET",
+      "params" : {
+        "ts" : "=page.params.ts",
+        "m"  : {},
+        "s"  : {},
+        "sha1" : "thumb,poster",
+        "e" : "%EXT-THC",
+        "content" : false,
+        "skip"  :  0,
+        "limit" : 20
+      }
+    },
+    "thing-list" : {
+      "title"  : "数据集·全部数据",
+      "path"   : "thing/list",
+      "method" : "GET",
+      "params" : {
+        "ts" : "=page.params.ts",
+        "m"  : {},
+        "s"  : {},
+        "sha1" : "thumb,poster",
+        "e" : "%EXT-THC",
+        "content"  : false,
+        "skip"  : 0,
+        "limit" : 100
+      }
+    },
+    "thing-get" : {
+      "title"  : "数据集·获取指定详情",
+      "path"   : "thing/get",
+      "method" : "GET",
+      "params" : {
+        "ts" : "=page.params.ts",
+        "id" : "=page.params.id",
+        "sha1" : "thumb,poster",
+        "e" : "%EXT-THC"
+      }
+    },
+    "thing-getone" : {
+      "title"  : "数据集·查询某个详情",
+      "path"   : "thing/getone",
+      "method" : "GET",
+      "params" : {
+        "ts" : "=page.params.ts",
+        "m" : null,
+        "e" : "%EXT-THC"
+      }
+    },
+    "thing-create" : {
+      "title"  : "数据集·提交数据",
+      "path"   : "thing/create",
+      "method" : "POST",
+      "params" : {
+        "ticket" : "=auth.ticket",
+        "ts" : null,
+        "e" : "%EXT-THC"
+      },
+      "body" : "=page.data.postBody",
+      "bodyType" : "json"
+    },
+    "thing-update" : {
+      "title"  : "数据集·更新数据",
+      "path"   : "thing/update",
+      "method" : "POST",
+      "params" : {
+        "ticket" : "=auth.ticket",
+        "ts" : null,
+        "id" : "=page.params.id",
+        "e" : "%EXT-THC"
+      },
+      "body" : "=page.data.postBody",
+      "bodyType" : "json"
+    },
+    "thing-delete" : {
+      "title"  : "数据集·删除数据",
+      "path"   : "thing/delete",
+      "method" : "GET",
+      "params" : {
+        "ticket" : "=auth.ticket",
+        "ts" : null,
+        "id" : null,
+        "e" : "%EXT-THC"
+      },
+      "body" : "=page.data.postBody",
+      "bodyType" : "json"
+    }
+  },
+  "schema": {
+    "pcSkyLogo": {
+      "comType" : "TiIcon",
+      "comConf" : {
+        "value" : "=SiteLogo",
+        "height" : ".32rem"
+      }
+    },
+    "pcSkyLinks": {
+      "comType": "WebNavLinks",
+      "comConf": {
+        "base"   : "=base",
+        "path"   : "=page.path",
+        "items"  : "=nav.sky",
+        "spacing": "wide",
+        "align"  : "right",
+        "border" : "solid"
+      }
+    },
+    "pcSkySession": {
+      "comType" : "TiSessionBadge",
+      "comConf" : {
+        "me" : "=auth.me",
+        "nameKeys" : "nickname|nm",
+        "avatarKey" : "thumb",
+        "avatarSrc" : "->${apiBase}thumb?id:${auth.me.id}",
+        "links" : [{
+            "title" : "工作台",
+            "href"  : "/my/workbench.html"
+          }, {
+            "title" : "设备",
+            "href"  : "/my/devices.html"
+          }]
+      }
+    }
+  },
+  "blocks" : {
+    "desktop" : {
+      "sky" : {
+        "name" : "sky",
+        "className" : "page-skybar",
+        "size" : ".6rem",
+        "position" : "top",
+        "width"   : "100%",
+        "height"  : ".8rem",
+        "mask"    : false,
+        "closer"  : null,
+        "type" : "cols",
+        "blocks" : [{
+            "flex" : "none",
+            "overflow": "fill",
+            "body" : "pcSkyLogo"
+          },{
+            "flex" : "both",
+            "body" : "pcSkyLinks"
+          },{
+            "flex" : "none",
+            "overflow": "fill",
+            "body" : "pcSkySession"
+          }]
+      },
+      "mySky" : {
+        "className": "page-head",
+        "name" : "head",
+        "type" : "cols",
+        "blocks": [{
+            "flex": "both",
+            "body": "pcSkyTitle"
+          }, {
+            "body": "pcSkyLinks"
+          }, {
+            "body": "pcSkySession"
+          }]
+      },
+      "footer" : {
+        "body" : {
+          "comType" : "LuoPageFooter"
+        }
+      },
+      "login" : {
+        "name" : "login",
+        "body" : {
+          "comType" : "WebAuthSignup",
+          "comConf" : {
+            "mode"    : "=SiteLoginMode",
+            "captcha" : "=SiteCaptcha",
+            "toggleMode": "login_by_email"
+          }
+        },
+        "position" : "center",
+        "fixed" : true,
+        "width"   : "4.8rem",
+        "height"  : 500,
+        "mask"    : true,
+        "closer"  : "default"
+      }
+    }
+  },
+  "nav" : {
+    "sky": [{
+        "title" : "首页",
+        "type"  : "page",
+        "value" : "page/home"
+      }, {
+        "title" : "文档",
+        "type"  : "href",
+        "target": "_blank",
+        "href"  : "https://gitee.com/openLuat/LuatOS/blob/master/docs/api/lua/README.md"
+      }, {
+        "title" : "下载",
+        "type"  : "href",
+        "target": "_blank",
+        "value" : "https://gitee.com/openLuat/LuatOS/releases"
+      }, {
+        "title" : "关于",
+        "type"  : "page",
+        "value" : "page/about"
+      }]
+  },
+  "provide": {
+    "rs": "=rs",
+    "apiBase": "=apiBase",
+    "base": "=base",
+    "cdnTmpl": "=cdnTmpl"
+  },
+  "router" : [{
+      "match" : "^(page|my)/([^.]+)(.html)?",
+      "page"  : {
+        "path": "->${1}/${2}.html"
+      }
+    }],
+  "actions" : {
+    "do:login" : [{
+      "action"  : "page/showBlock",
+      "payload" : "login"
+    }],
+    "do:logout" : [{
+      "action": "auth/doLogout",
+      "payload": {
+        "done": {
+          "action": "page/resetDataByKey",
+          "payload": "=page.data.resetAfterLogout"
+        }
+      }
+    }],
+    "get:vcode" : "auth/doGetVcode",
+    "passwd:reset": "auth/doResetPasswd",
+    "auth:send" : "auth/doAuth",
+    "auth:ok" : [{
+        "action" : "page/hideBlock",
+        "payload" : "login"
+      }, {
+        "action": "page/reloadData",
+        "payload": "=page.data.reloadAfterLogin"
+      }],
+    "nav:back" : "navBackward",
+    "nav:to" : "navTo"
+  }
+}

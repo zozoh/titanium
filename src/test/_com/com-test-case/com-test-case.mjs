@@ -89,9 +89,16 @@ const _M = {
         //   metaId: this.meta.id,
         //   data  : JSON.stringify(this.data)
         // }))
-        console.log("reloadMyCom")
+        console.log("reloadMyCom", aph)
         let com = await Wn.Io.loadMeta(aph)
-        this.myCom = await Wn.Io.loadContent(com, {as:"json"})
+        let comInfo = await Wn.Io.loadContent(com, {as:"json"})
+        if(comInfo.comPath) {
+          await Ti.App(this).loadView({
+            comType    : comInfo.comPath,
+            components : comInfo.components
+          })
+        }
+        this.myCom = comInfo
       }
     }
     //----------------------------------------

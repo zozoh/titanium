@@ -1,9 +1,24 @@
 {
+  "behavior" : {
+    "hardRemove": true,
+    "sorter": {"ct":-1},
+    "keyword": {
+      "=id": "^[0-9a-z]{26}$",
+      "title": "^.+"
+    }
+  },
   "filter" : {
     "comType" : "wn-thing-filter",
     "comConf" : {
       "placeholder" : "请输入优惠券名称过滤",
-      "status" : "=status"
+      "status" : "=status",
+      "value" : "=search",
+      "sorter" : {
+        "options": [
+          {"value":"ct",   "text":"创建时间"},
+          {"value":"type", "text":"类型"},
+          {"value":"cpn_expi", "text":"过期时间"}]
+      }
     }
   },
   "list" : {
@@ -38,9 +53,11 @@
         }
       }, {
         "title" : "过期时间",
+        "type"  : "AMS",
+        "className" : "align-right",
         "display" : {
-          "key" : "cpn_expi",
-          "type" : "AMS"
+          "key"  : "cpn_expi", 
+          "transformer" : "Ti.DateTime.timeText"
         }
       }]
     }

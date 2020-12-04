@@ -1,0 +1,24 @@
+{
+  "uniqueKeys" : [],
+  "fields": [],
+  "linkKeys" : {
+    "inv_dft": {
+      "testPrimary": [{
+          "uid": "notBlank",
+          "inv_dft": "!isTrue"
+        }],
+      "testUpdate": [{
+          "inv_dft": "isTrue"
+        }],
+      "target": {
+        "filter": {
+          "uid": "${uid}",
+          "inv_dft":true
+        }
+      },
+      "set": {
+        "inv_dft": false
+      }
+    }
+  }
+}

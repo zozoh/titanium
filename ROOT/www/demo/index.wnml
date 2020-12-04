@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  Load data
+-->
+<script class="wn-datasource" name="app" type="json">
+cat "${CURRENT_DIR}/_app.json" 
+</script>
+<script class="wn-datasource" name="vars" type="json">
+cat "~/.domain/publish.json" 
+</script>
+<!--
+  Page Head
+-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${app.title}</title>
+  <!--link rel="stylesheet" type="text/css"
+        href="${rs}core/css/font-md/css/material-design-iconic-font.css"-->
+  <script src="${rs}ti/deps/crypto-js.js"></script>
+  <script src="${rs}ti/deps/jquery.js"></script>
+  <script src="${rs}ti/deps/lodash.min.js"></script>
+  <script src="${rs}ti/deps/vue.js"></script>
+  <script src="${rs}ti/deps/vuex.js"></script>
+
+  <link rel="stylesheet" href="${rs}ti/theme/${app.theme}.css">
+  <link rel="stylesheet" href="${rs}ti/deps/md/iconfont/material-icons.css">
+  <link rel="stylesheet" href="${rs}ti/deps/zmdi/css/material-design-iconic-font.css">
+  <link rel="stylesheet" href="${rs}ti/deps/fontawesome/5.13.0-web/css/all.css">
+  <link rel="stylesheet" href="${rs}ti/deps/iconmonstr/css/iconmonstr-iconic-font.css">
+
+</head>
+<!--
+  Page Body
+-->
+<body style="background:#003567;">
+<div id="app" class="app-loading" style="color:#3f6e9b;">
+  <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
+</div>
+<!--set key="cc">API.getContextJsonString(false, false)</set>
+<pre>${cc}</pre-->
+<!--
+  Main Script
+-->
+<script type="module">
+//---------------------------------------
+import Ti from "${rs}${TiJs?ti/core/ti.mjs}";
+//---------------------------------------
+let appJson = ${app(json:n)?-obj-};
+//---------------------------------------
+Ti.WebAppMain({
+  rs: "${rs}",
+  siteRs: "${siteRs}",
+  appJson,
+  siteId : "${WWW.id}",
+  domain : "${grp}",
+  viewport: appJson.viewport,
+  vars: ${vars(json:cqn)?-obj-},
+  preloads: ${preloads(json:cqn)?-array-}
+})
+//---------------------------------------
+</script>
+</body>
+</html>

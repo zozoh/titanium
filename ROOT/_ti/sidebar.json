@@ -2,19 +2,21 @@
   "sidebar" : [{
     "key" : "public",
     "icon"   : "im-network",
-    "title"  : "控件测试",
+    "title"  : "测试场",
     "items" : [{
-        "path" : "~/demo"
+        "path" : "~/mock/components"
       }, {
-        "path" : "~/media"
+        "path" : "~/mock/media"
       }]
   }, {
     "key" : "sites",
     "icon"   : "zmdi-compass",
     "title"  : "网站工程",
     "items" : [{
-        "command"  : "obj ~/sites -mine -match 'tp:\"hmaker_site\"' -l -cqn"
-      }]
+          "path" : "~/workspace/demo"
+        }, {
+          "path" : "~/www"
+        }]
   }, {
     "key" : "things",
     "icon"   : "zmdi-archive",
@@ -28,6 +30,10 @@
       }, {
         "path" : "~/coupons"
       }, {
+        "path" : "~/invoices"
+      }, {
+        "path" : "~/addresses"
+      }, {
         "path" : "~/accounts"
       }, {
         "path" : "~/roles"
@@ -37,11 +43,7 @@
     "icon"   : "zmdi-settings-square",
     "title"  : "系统设置",
     "items" : [{
-        "path" : "~/www"
-      }, {
         "path" : "~/.domain/vars.json"
-      }, {
-        "path" : "~/.tmp"
       }]
   }]
 }
