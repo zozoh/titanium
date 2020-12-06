@@ -5,20 +5,43 @@ export default {
   "value" : {
     type : [Array, Object]
   },
-  // - obj       : {lat, lng} 
-  // - obj-list  : [{lat, lng}..]
-  // - latlng      : [lat, lng]
-  // - latlng-list : [[lat, lng]..]
-  // - geojson   : {type:"Point"...}
+  // - obj         : {lat, lng} 
+  // - obj-list    : [{lat, lng}..]
+  // - pair        : [lat, lng]
+  // - pair-list   : [[lat, lng]..]
+  // - geojson     : {type:"Point"...}
   "valueType" : {
     type : String,
     default : "obj",
-    validator: v => /^(geojson|(obj|latlng)(-list)?)$/.test(v)
+    validator: v => /^(geojson|(obj|pair)(-list)?)$/.test(v)
   },
-  "valueCoord" : {
+  // - WGS84
+  // - GCJ02
+  // - BD09
+  "valueCoords" : {
     type : String,
     default : "WGS84",
-    validator: v => /^(WGS84|WGS84|BD09)$/.test(v)
+    validator: v => /^(WGS84|GCJ02|BD09)$/.test(v)
+  },
+  "latlngPrecise" : {
+    type : Number,
+    default : 5
+  },
+  "displayType" : {
+    type : String,
+    default : "Point",
+    validator: v => /^(Point|Cluster|Polyline|Polygon|Rectangle|Circle|GeoJson)$/.test(v)
+  },
+  "circleRadius" : {
+    type : Number,
+    default : 100   // In meters
+  },
+  "defaultLocation" : {
+    type : Object,
+    default : ()=>({
+      lat: 39.97773512677837,
+      lng: 116.3385673945887
+    })
   },
   //-----------------------------------
   // Behavior
@@ -33,22 +56,64 @@ export default {
   },
   "zoom" : {
     type : Number,
-    default : 12
+    default : 14
+  },
+  "mapOptions" : {
+    type : Object,
+    default : ()=>({})
+  },
+  "showMarker" : {
+    type : Boolean,
+    default : false
+  },
+  "editPoint" : {
+    type : String,
+    default : "none",
+    validator : v=>/^(none|drag|pin)$/.test(v)
+  },
+  "autoFitBounds" : {
+    type : Boolean,
+    default : true
+  },
+  "fitBoundsBy" : {
+    type : Object,
+    default : ()=>({
+      padding: [50, 50]
+    })
+  },
+  "showInfo" : {
+    type : [Boolean, Object],
+    default : ()=>({
+      
+    })
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "geoDisplayPrecise" : {
-    type : Number,
-    default : 5
+  "markerIcon" : {
+    type : [String, Object],
+    //default : "png/map-pin-1.png"
+    default : undefined
+  },
+  "markerIconOptions" : {
+    type : Object,
+    default: ()=>({})
+  },
+  "imageIconBase" : {
+    type : String,
+    default : "/gu/rs/ti/icons/"
   },
   "baseTileLayer" : {
     type : String,
-    default: "GAODE_SATElITE"
+    default: "QQ_VECTOR_NOTE"
   },
   "noteTileLayer" : {
     type : String,
     default: null
+  },
+  "aspect" : {
+    type : Object,
+    default: ()=>({})
   },
   //-----------------------------------
   // Measure

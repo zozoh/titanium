@@ -5,6 +5,7 @@
   "props"   : "./web-gsi-leaflet-props.mjs",
   "methods" : [
       "./leaflet-tiles-methods.mjs",
+      "./leaflet-redraw-methods.mjs",
       "./leaflet-mock-methods.mjs"
     ],
   "mixins"   : ["./web-gsi-leaflet.mjs"],

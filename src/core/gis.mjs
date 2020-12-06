@@ -5,6 +5,78 @@ const ee = 0.00669342162296594323;
 ////////////////////////////////////////////////////
 const TiGis = {
   //------------------------------------------------
+  __build_bounds({N,S,E,W}={}) {
+    return {
+      N,S,E,W,
+      // Corner
+      NE : {lat: N, lng: E},
+      NW : {lat: N, lng: W},
+      SE : {lat: S, lng: E},
+      SW : {lat: S, lng: W},
+      // Center
+      lat : (N + S) / 2,
+      lng : (W + E) / 2
+    }
+  },
+  //------------------------------------------------
+  getLatlngPairBounds(latlngPairs=[]) {
+    let bo = {
+      N: -90,  S:90,
+      W: 180,  E:-180
+    }
+    _.forEach(latlngPairs, ([lat,lng])=>{
+      bo.N = Math.max(lat, bo.N)
+      bo.S = Math.min(lat, bo.S)
+      bo.E = Math.max(lng, bo.E)
+      bo.W = Math.min(lng, bo.W)
+    })
+    return TiGis.__build_bounds(bo)
+  },
+  //------------------------------------------------
+  getLnglatPairBounds(latlngPairs=[]) {
+    let bo = {
+      N: -90,  S:90,
+      W: 180,  E:-180
+    }
+    _.forEach(latlngPairs, ([lng, lat])=>{
+      bo.N = Math.max(lat, bo.N)
+      bo.S = Math.min(lat, bo.S)
+      bo.E = Math.max(lng, bo.E)
+      bo.W = Math.min(lng, bo.W)
+    })
+    return TiGis.__build_bounds(bo)
+  },
+  //------------------------------------------------
+  getLatlngObjBounds(latlngObjs=[]) {
+    let bo = {
+      N: -90,  S:90,
+      W: 180,  E:-180
+    }
+    _.forEach(latlngObjs, ({lat,lng})=>{
+      bo.N = Math.max(lat, bo.N)
+      bo.S = Math.min(lat, bo.S)
+      bo.E = Math.max(lng, bo.E)
+      bo.W = Math.min(lng, bo.W)
+    })
+    return TiGis.__build_bounds(bo)
+  },
+  //------------------------------------------------
+  latlngPairToObj([lat, lng]=[]){
+    return {lat, lng}
+  },
+  //------------------------------------------------
+  lnglatPairToObj([lng, lat]=[]){
+    return {lat, lng}
+  },
+  //------------------------------------------------
+  objToLatlngPair({lat, lng}={}){
+    return [lat, lng]
+  },
+  //------------------------------------------------
+  objToLnglatPair({lat, lng}={}){
+    return [lng, lat]
+  },
+  //------------------------------------------------
   /**
    * 
    * @param pair
@@ -29,31 +101,13 @@ const TiGis = {
   },
   //------------------------------------------------
   // @return {lat, lng}
-  transLatlngObj(latlng, mode="WGS84_TO_GCJ02") {
+  transLatlngObj(latlng, mode="WGS84_TO_GCJ02", keep=false) {
     let {lat, lng} = latlng
-    return TiGis[mode](lat, lng)
-  },
-  //------------------------------------------------
-  /**
-   * 
-   * @param latlng {Array|Object} could be `[lat,lng]` or {lat,lng}
-   */
-  transLatlng(latlng, mode) {
-    if(_.isArray(latlng)) {
-      return GIS.transLatlngPair(latlng, mode)
+    let obj2 = TiGis[mode](lat, lng)
+    if(keep) {
+      return {...latlng,  ...obj2}
     }
-    return GIS.transLatlngObj(latlng, mode)
-  },
-  //------------------------------------------------
-  /**
-   * 
-   * @param lnglat {Array|Object} could be `[lng, lat]` or {lng,lat}
-   */
-  transLnglat(lnglat, mode) {
-    if(_.isArray(lnglat)) {
-      return GIS.transLnglatPair(lnglat, mode)
-    }
-    return GIS.transLatlngObj(lnglat, mode)
+    return obj2
   },
   //------------------------------------------------
   /**

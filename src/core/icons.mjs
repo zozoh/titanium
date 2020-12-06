@@ -126,6 +126,30 @@ const TiIcons = {
   getByName(iconName, dft=null) {
     return Ti.Util.fallback(NAMES[iconName], dft, DEFAULT)
   },
+  evalIconObj(input, dft) {
+    if(!input)
+      return dft
+    
+    if(_.isString(input)) {
+      // Font icon
+      let m = /^(fa\w|zmdi|im)-([\d\w-]+)$/.exec(input)
+      if(m) {
+        let [value, cate, name] = m
+        return {
+          type  : "font",
+          value, cate, name
+        }
+      }
+
+      // Image icon
+      return {
+        type : "image",
+        value : input
+      }
+    }
+    // Take as object
+    return input
+  },
   parseFontIcon(val, dft={}) {
     if(!val)
       return dft

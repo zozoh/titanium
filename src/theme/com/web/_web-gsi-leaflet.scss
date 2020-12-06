@@ -5,20 +5,46 @@
   > .wgl-map-info {
     @include flex-align($jc:space-between);
     @include pos-abs($b:0, $r:0);
-    @include color($color-mask, r, bushy);
     @include font-fixed;
-    user-select: text; font-size:SZ(10);
+    color: #444; 
+    user-select: text; font-size:SZ(12);
     z-index: $z-mask;
-    padding: .8em; line-height: 2.4em;
+    padding: .4em;
     //---------------------------------------
     .info-ele {
-      white-space: nowrap; 
+      white-space: nowrap; padding:0.2em;
+      background: rgba(255,255,255,0.5);
       > i {
         display: inline-block; font-size: inherit;
         vertical-align: middle;
         width: 1.6em; text-align: center;
       }
     }
+    //---------------------------------------
+  }
+  //-----------------------------------------
+  .ti-gsi-mark-icon {
+    @include flex-center; line-height: 1em;
+    text-shadow: SZ(2) SZ(2) SZ(5) map-get($color-shadow, thin);
+    //---------------------------------------
+    &.is-size-16 {font-size: 16px;}
+    &.is-size-24 {font-size: 24px;}
+    &.is-size-32 {font-size: 32px;}
+    &.is-size-48 {font-size: 48px;}
+    &.is-size-64 {font-size: 64px;}
+    &.is-size-96 {font-size: 96px;}
+    &.is-size-128 {font-size: 128px;}
+    //---------------------------------------
+    &.is-color-primary   {color: map-get($color-primary, c);}
+    &.is-color-secondary {color: map-get($color-secondary, c);}
+    &.is-color-success   {color: map-get($color-success, c);}
+    &.is-color-warn      {color: map-get($color-warn, c);}
+    &.is-color-info      {color: map-get($color-info, c);}
+    &.is-color-error     {color: map-get($color-error, c);}
+    &.is-color-track     {color: map-get($color-track, c);}
+    &.is-color-disable   {color: map-get($color-disable, c);}
+    &.is-color-text      {color: map-get($color-text, c);}
+    &.is-color-number    {color: map-get($color-number, c);}
     //---------------------------------------
   }
   //-----------------------------------------

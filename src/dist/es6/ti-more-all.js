@@ -1,4 +1,4 @@
-// Pack At: 2020-12-01 01:50:37
+// Pack At: 2020-12-06 09:15:22
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -28311,6 +28311,1073 @@ Ti.Preload("ti/com/web/footer/_com.json", {
   "globally" : true,
   "template" : "./web-footer.html",
   "mixins"   : ["./web-footer.mjs"]
+});
+//============================================================
+// JOIN: web/gsi/leaflet/leaflet-mock-methods.mjs
+//============================================================
+(function(){
+const _M = {
+  //--------------------------------------
+  // @return [lat, lng]
+  mockPair(lat_lng=true) {
+    let lat = this.geo.S + (this.geo.N - this.geo.S) * Math.random()
+    let lng = this.geo.W + (this.geo.E - this.geo.W) * Math.random()
+    return lat_lng 
+      ? [lat, lng]
+      : [lng, lat]
+  },
+  //--------------------------------------
+  mockPairList(n = 100, lat_lng=true) {
+    let list = []
+    for(let i=0; i<n; i++){
+      list.push(this.mockPair(lat_lng))
+    }
+    return list
+  }
+  //--------------------------------------
+}
+Ti.Preload("ti/com/web/gsi/leaflet/leaflet-mock-methods.mjs", _M);
+})();
+//============================================================
+// JOIN: web/gsi/leaflet/leaflet-redraw-methods.mjs
+//============================================================
+(function(){
+const _M = {
+  //--------------------------------------
+  __set_marker_icon($marker, obj={}) {
+    if(this.markerIcon) {
+      let icon = Ti.Util.explainObj(obj, this.markerIcon)
+      if(icon)
+        $marker.setIcon(this.Icon(icon, this.markerIconOptions))
+    }
+  },
+  //--------------------------------------
+  //
+  // Single Point
+  //
+  //--------------------------------------
+  draw_obj_as_point(latlng, convert=_.identity) {
+    let $marker = L.marker(latlng, {
+      autoPan : true
+    }).addTo(this.$live)
+
+    // Save old data
+    $marker.rawData = latlng
+
+    // Can edit by drag
+    if("drag" == this.editPoint) {
+      $marker.dragging.enable()
+      $marker.on("dragend", ({target})=>{
+        let newLatlng = target.getLatLng()
+        newLatlng = this.trans_obj_from_tiles_to_value(newLatlng)
+        newLatlng = convert(newLatlng)
+        this.$notify("change", {
+          ... target.rawData,
+          ... newLatlng
+        })
+      })
+    }
+    // Can edit by move map
+    else if("pin" == this.editPoint) {
+      this.$map.on("move", ()=>{
+        let newLatlng = this.$map.getCenter();
+        newLatlng = this.trans_obj_from_value_to_tiles(newLatlng)
+        $marker.setLatLng(newLatlng)
+      })
+      this.$map.on("moveend", ()=>{
+        let newLatlng = this.$map.getCenter();
+        newLatlng = convert(newLatlng)
+        this.$notify("change", newLatlng)
+      })
+    }
+
+    // Customized Icon
+    this.__set_marker_icon($marker, latlng)
+
+    return $marker
+  },
+  //--------------------------------------
+  draw_pair_as_point(latlng) {
+    return this.draw_obj_as_point(latlng, ({lat, lng})=>[lat, lng])
+  },
+  //--------------------------------------
+  //
+  // Multi Points
+  //
+  //--------------------------------------
+  draw_obj_list_as_point(list, convert=_.identity) {
+    _.forEach(list, (latlng, index)=>{
+      let $marker = L.marker(latlng, {
+        autoPan : true
+      }).addTo(this.$live)
+
+      // Add customized value
+      $marker.index = index
+      $marker.rawData = latlng
+  
+      // Can edit by drag
+      if("drag" == this.editPoint) {
+        $marker.dragging.enable()
+        $marker.on("dragend", ({target})=>{
+          let newLatlng = target.getLatLng()
+          newLatlng = this.trans_obj_from_tiles_to_value(newLatlng)
+          newLatlng = convert(newLatlng)
+          
+          let list = _.cloneDeep(this.value)
+          list[target.index] = {
+            ... target.rawData,
+            ... newLatlng
+          }
+          this.$notify("change", list)
+        })
+      }
+  
+      // Customized Icon
+      this.__set_marker_icon($marker, latlng)
+    })
+  },
+  //--------------------------------------
+  draw_pair_list_as_point(list) {
+    this.draw_obj_list_as_point(list, ({lat, lng})=>[lat, lng])
+  },
+  //--------------------------------------
+  //
+  // Polyline
+  //
+  //--------------------------------------
+  draw_obj_list_as_polyline(latlngs, showMarker=this.showMarker) {
+    let $polyline = this.draw_pair_list_as_polyline(latlngs, false)
+
+    if(showMarker) {
+      this.draw_obj_list_as_point(latlngs)
+    }
+
+    return $polyline
+  },
+  //--------------------------------------
+  draw_pair_list_as_polyline(latlngs, showMarker=this.showMarker) {
+    let $polyline = L.polyline(latlngs, {
+      color: '#08F',
+      ... this.aspect
+    }).addTo(this.$live);
+
+    if(showMarker) {
+      this.draw_pair_list_as_point(latlngs)
+    }
+
+    if(this.autoFitBounds) {
+      this.fitBounds($polyline.getBounds());
+    }
+
+    return $polyline
+  },
+  //--------------------------------------
+  //
+  // Polygon
+  //
+  //--------------------------------------
+  draw_obj_list_as_polygon(latlngs, showMarker=this.showMarker) {
+    let $polygon = this.draw_pair_list_as_polygon(latlngs, false)
+
+    if(showMarker) {
+      this.draw_obj_list_as_point(latlngs)
+    }
+
+    return $polygon
+  },
+  //--------------------------------------
+  draw_pair_list_as_polygon(latlngs, showMarker=this.showMarker) {
+    let $polygon = L.polygon(latlngs, {
+      color: '#08F',
+      ... this.aspect
+    }).addTo(this.$live);
+
+    if(showMarker) {
+      this.draw_pair_list_as_point(latlngs)
+    }
+
+    if(this.autoFitBounds) {
+      this.fitBounds($polygon.getBounds());
+    }
+
+    return $polygon
+  },
+  //--------------------------------------
+  //
+  // Rectangle
+  //
+  //--------------------------------------
+  draw_obj_list_as_rectangle(latlngs, showMarker=this.showMarker) {
+    let [SW, NE] = latlngs
+    let $rect = L.rectangle([SW, NE], {
+      color: '#08F',
+      ... this.aspect
+    }).addTo(this.$live);
+
+    if(showMarker) {
+      this.draw_obj_list_as_point([SW, NE])
+    }
+
+    if(this.autoFitBounds) {
+      this.fitBounds($rect.getBounds());
+    }
+
+    return $rect
+  },
+  //--------------------------------------
+  draw_pair_list_as_rectangle(latlngs, showMarker=this.showMarker) {
+    let $rect = this.draw_obj_list_as_rectangle(latlngs, false)
+
+    if(showMarker) {
+      let bounds = $rect.getBounds()
+      let SW = bounds.getSouthWest()
+      let NE = bounds.getNorthEast()
+      this.draw_pair_list_as_point([SW, NE])
+    }
+
+    return $rect
+  },
+  //--------------------------------------
+  //
+  // Circle
+  //
+  //--------------------------------------
+  draw_obj_as_circle(latlng, showMarker=this.showMarker) {
+    let $circle = L.circle(latlng, {
+      radius : this.circleRadius,
+      color: '#08F',
+      ... this.aspect
+    }).addTo(this.$live);
+
+    if(showMarker) {
+      this.draw_obj_as_point(latlng)
+    }
+
+    if(this.autoFitBounds) {
+      this.fitBounds($circle.getBounds());
+    }
+
+    return $circle
+  },
+  //--------------------------------------
+  draw_pair_as_circle(latlng, showMarker=this.showMarker) {
+    let $circle = this.draw_obj_as_circle(latlng, false)
+
+    if(showMarker) {
+      this.draw_pair_as_point(latlng)
+    }
+
+    return $circle
+  },
+  //--------------------------------------
+  //
+  // Cluster
+  //
+  //--------------------------------------
+  draw_obj_list_as_cluster(latlngs) {
+    var $cluster = L.markerClusterGroup();
+
+    _.forEach(latlngs, (latlng, index)=>{
+      let $marker = L.marker(latlng, {
+        autoPan : true
+      }).addTo($cluster)
+
+      // Add customized value
+      $marker.index = index
+      $marker.rawData = latlng
+    
+      // Customized Icon
+      this.__set_marker_icon($marker, latlng)
+    })
+
+    this.$live.addLayer($cluster)
+
+    return $cluster
+  },
+  //--------------------------------------
+  draw_pair_list_as_cluster(latlngs) {
+    return this.draw_obj_list_as_cluster(latlngs)
+  },
+  //--------------------------------------
+}
+Ti.Preload("ti/com/web/gsi/leaflet/leaflet-redraw-methods.mjs", _M);
+})();
+//============================================================
+// JOIN: web/gsi/leaflet/leaflet-tiles-methods.mjs
+//============================================================
+(function(){
+const TILES = {
+  // 高德路网：
+  "GAODE_ROADMAP" : {
+    tmpl : "https://wprd0{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang={lang}&size=1&scl=2&style={style}&ltype={type}",
+    vars : {subdomains: "1234", style: "8", type: "11", lang: "zh_cn"},
+    coords : "GCJ02"
+  },
+  // 高德影像：
+  "GAODE_SATElITE" : {
+    tmpl : "https://webst0{s}.is.autonavi.com/appmaptile?style={style}&x={x}&y={y}&z={z}",
+    vars : {subdomains: "1234", style: "6"},
+    coords : "GCJ02"
+  },
+  // 高德矢量：
+  "GAODE_VECTOR" : {
+    tmpl : "http://wprd0{s}.is.autonavi.com/appmaptile?lang={lang}&size=1&style={style}&x={x}&y={y}&z={z}",
+    vars : {subdomains: "1234", style: "7", lang: "zh_cn"},
+    coords : "GCJ02"
+  },
+  // 腾讯地图矢量：
+  "QQ_VECTOR_NOTE" : {
+    tmpl : "http://rt{s}.map.gtimg.com/realtimerender?z={z}&x={x}&y={-y}&type={type}&style={style}",
+    vars : {subdomains: "0123", style: "0", type: "vector"},
+    coords : "GCJ02"
+  },
+  // 谷歌矢量：
+  "GOOGLE_VECTOR" : {
+    tmpl : "http://mt{s}.google.cn/vt/lyrs=m&scale=2&hl={lang}&gl=cn&x={x}&y={y}&z={z}",
+    vars : {subdomains: "0123", lang: "zh-CN"},
+    coords : "GCJ02"
+  },
+  // 谷歌路网：
+  "GOOGLE_ROADMAP" : {
+    tmpl : "https://mt{s}.google.com/vt/lyrs=h&x={x}&y={y}&z={z}",
+    vars : {subdomains: "0123"},
+    coords : "WGS84"
+  },
+  // 谷歌影像：
+  "GOOGLE_SATElITE" : {
+    tmpl : "http://www.google.cn/maps/vt?lyrs=s@189&gl=${lang}&x={x}&y={y}&z={z}",
+    vars : {subdomains: "0123", lang: "cn"},
+    coords : "WGS84"
+  },
+  // 谷歌影像带注记：
+  "GOOGLE_SATElITE_NOTE" : {
+    tmpl : "https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+    vars : {subdomains: "0123"},
+    coords : "WGS84"
+  },
+  // 谷歌地形：
+  "GOOGLE_TERRAIN" : {
+    tmpl : "https://mt{s}.google.com/vt/lyrs=t&x={x}&y={y}&z={z}",
+    vars : {subdomains: "0123"},
+    coords : "WGS84"
+  },
+  // 谷歌地图矢量带地形渲染：
+  "GOOGLE_VECTOR_TERRAIN" : {
+    tmpl : "https://mt{s}.google.com/vt/lyrs=r&x={x}&y={y}&z={z}",
+    vars : {subdomains: "0123"},
+    coords : "WGS84"
+  },
+  // 街景地图：
+  "OPENSTREAT" : {
+    tmpl : "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    vars : {},
+    coords : "WGS84"
+  },
+  // CartoDB
+  "CARTO" : {
+    tmpl : "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png",
+    vars : {},
+    coords : "WGS84"
+  },
+  "CARTO_ALL" : {
+    tmpl : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+    vars : {},
+    coords : "WGS84"
+  },
+  "CARTO_LABEL" : {
+    tmpl : "https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png",
+    vars : {},
+    coords : "WGS84"
+  },
+  // 天地图影像：
+  "TIANDITU_SATElITE" : {
+    tmpl : "http://t7.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=e3b434f191257368fc43c5b011ab5911",
+    vars : {},
+    coords : "WGS84"
+  },
+  // 天地图影像注记：
+  "TIANDITU_SATElITE_NOTE" : {
+    tmpl : "http://t7.tianditu.gov.cn/cia_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cia&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=e3b434f191257368fc43c5b011ab5911",
+    vars : {},
+    coords : "WGS84"
+  },
+  // 天地矢量：
+  "TIANDITU_VECTOR" : {
+    tmpl : "http://t7.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=e3b434f191257368fc43c5b011ab5911",
+    vars : {},
+    coords : "WGS84"
+  },
+  // 天地矢量注记：
+  "TIANDITU_VECTOR_NOTE" : {
+    tmpl : "http://t7.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=e3b434f191257368fc43c5b011ab5911",
+    vars : {},
+    coords : "WGS84"
+  },
+  // 天地图地形：
+  "TIANDITU_TERRAIN" : {
+    tmpl : "http://t7.tianditu.gov.cn/ter_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ter&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=e3b434f191257368fc43c5b011ab5911",
+    vars : {},
+    coords : "WGS84"
+  },
+  // 天地图地形注记：
+  "TIANDITU_TERRAIN_NOTE" : {
+    tmpl : "http://t7.tianditu.gov.cn/cta_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cta&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=e3b434f191257368fc43c5b011ab5911",
+    vars : {},
+    coords : "WGS84"
+  }
+}
+////////////////////////////////////////////
+const _M = {
+  getTileCoords(type) {
+    return _.get(TILES[type], "coords")
+  },
+  createTileLayer(type, vars) {
+    let it = TILES[type]
+    if(!it) {
+      throw `Unknown tile layer type '${type}'`
+    }
+    let options = _.assign({}, it.vars, vars)
+    return L.tileLayer(it.tmpl, options)
+  }
+}
+////////////////////////////////////////////
+Ti.Preload("ti/com/web/gsi/leaflet/leaflet-tiles-methods.mjs", _M);
+})();
+//============================================================
+// JOIN: web/gsi/leaflet/web-gsi-leaflet-props.mjs
+//============================================================
+(function(){
+const _M = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "value" : {
+    type : [Array, Object]
+  },
+  // - obj         : {lat, lng} 
+  // - obj-list    : [{lat, lng}..]
+  // - pair        : [lat, lng]
+  // - pair-list   : [[lat, lng]..]
+  // - geojson     : {type:"Point"...}
+  "valueType" : {
+    type : String,
+    default : "obj",
+    validator: v => /^(geojson|(obj|pair)(-list)?)$/.test(v)
+  },
+  // - WGS84
+  // - GCJ02
+  // - BD09
+  "valueCoords" : {
+    type : String,
+    default : "WGS84",
+    validator: v => /^(WGS84|GCJ02|BD09)$/.test(v)
+  },
+  "latlngPrecise" : {
+    type : Number,
+    default : 5
+  },
+  "displayType" : {
+    type : String,
+    default : "Point",
+    validator: v => /^(Point|Cluster|Polyline|Polygon|Rectangle|Circle|GeoJson)$/.test(v)
+  },
+  "circleRadius" : {
+    type : Number,
+    default : 100   // In meters
+  },
+  "defaultLocation" : {
+    type : Object,
+    default : ()=>({
+      lat: 39.97773512677837,
+      lng: 116.3385673945887
+    })
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "minZoom" : {
+    type : Number,
+    default : 1
+  },
+  "maxZoom" : {
+    type : Number,
+    default : 18
+  },
+  "zoom" : {
+    type : Number,
+    default : 14
+  },
+  "mapOptions" : {
+    type : Object,
+    default : ()=>({})
+  },
+  "showMarker" : {
+    type : Boolean,
+    default : false
+  },
+  "editPoint" : {
+    type : String,
+    default : "none",
+    validator : v=>/^(none|drag|pin)$/.test(v)
+  },
+  "autoFitBounds" : {
+    type : Boolean,
+    default : true
+  },
+  "fitBoundsBy" : {
+    type : Object,
+    default : ()=>({
+      padding: [50, 50]
+    })
+  },
+  "showInfo" : {
+    type : [Boolean, Object],
+    default : ()=>({
+      
+    })
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "markerIcon" : {
+    type : [String, Object],
+    //default : "png/map-pin-1.png"
+    default : undefined
+  },
+  "markerIconOptions" : {
+    type : Object,
+    default: ()=>({})
+  },
+  "imageIconBase" : {
+    type : String,
+    default : "/gu/rs/ti/icons/"
+  },
+  "baseTileLayer" : {
+    type : String,
+    default: "QQ_VECTOR_NOTE"
+  },
+  "noteTileLayer" : {
+    type : String,
+    default: null
+  },
+  "aspect" : {
+    type : Object,
+    default: ()=>({})
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+  "width" : {
+    type : [Number, String],
+    default : undefined
+  },
+  "height" : {
+    type : [Number, String],
+    default : undefined
+  }
+}
+Ti.Preload("ti/com/web/gsi/leaflet/web-gsi-leaflet-props.mjs", _M);
+})();
+//============================================================
+// JOIN: web/gsi/leaflet/web-gsi-leaflet.html
+//============================================================
+Ti.Preload("ti/com/web/gsi/leaflet/web-gsi-leaflet.html", `<div class="web-gsi-leaflet ti-fill-parent">
+  <div class="wgl-map-main ti-fill-parent" ref="main"></div>
+  <!--
+    Tip Info
+  -->
+  <div 
+    v-if="isShowInfo"
+      class="wgl-map-info">
+      <!--
+        Zoom
+      -->
+      <div class="info-ele" v-if="ShowInfo.zoom">
+        <i class="fas fa-search-location"></i>
+        <span>{{geo.zoom}}</span>
+      </div>
+      <!--
+        Center
+      -->
+      <div class="info-ele" v-if="ShowInfo.center">
+        <i class="fas fa-arrows-alt"></i>
+        <span>{{GeoStr(geo.center.lat)}}</span>/<span>{{GeoStr(geo.center.lng)}}</span>
+      </div>
+      <!--
+        Latitude range
+      -->
+      <div class="info-ele" v-if="ShowInfo.latRange">
+        <i class="fas fa-arrows-alt-v"></i>
+        <span>{{GeoStr(geo.N)}}</span>/<span>{{GeoStr(geo.S)}}</span>
+      </div>
+      <!--
+        Longitude range
+      -->
+      <div class="info-ele" v-if="ShowInfo.lngRange">
+        <i class="fas fa-arrows-alt-h"></i>
+        <span>{{GeoStr(geo.W)}}</span>/<span>{{GeoStr(geo.E)}}</span>
+      </div>
+      <!--
+        Mouse
+      -->
+      <div class="info-ele" v-if="ShowInfo.pointer">
+        <i class="fas fa-map-marker"></i>
+        <span>{{GeoStr(mouse.lat)}}</span>/<span>{{GeoStr(mouse.lng)}}</span>
+      </div>
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/gsi/leaflet/web-gsi-leaflet.mjs
+//============================================================
+(function(){
+const _M = {
+  ///////////////////////////////////
+  data: ()=>({
+    $map  : null,
+    $live : null,
+    mouse : {/*lat:0, lng:0*/},
+    geo: {
+      center: {},
+      SW: {},
+      SE: {},
+      NE: {},
+      NW: {},
+      W: 0,
+      E: 0,
+      S: 0,
+      N: 0,
+      zoom : 0
+    },
+  }),
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+      })
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toSizeRem100({
+        width  : this.width,
+        height : this.height
+      })
+    },
+    //--------------------------------------
+    TileCoords() {
+      return this.getTileCoords(this.baseTileLayer)
+    },
+    //--------------------------------------
+    // value -> trans to fit the -> base tile
+    coords_value_to_tiles() {
+      if(this.valueCoords != this.TileCoords) {
+        return `${this.valueCoords}_TO_${this.TileCoords}`
+      }
+    },
+    //--------------------------------------
+    // base tile -> trans to fit the -> value
+    coords_tiles_to_value() {
+      if(this.valueCoords != this.TileCoords) {
+        return `${this.TileCoords}_TO_${this.valueCoords}`
+      }
+    },
+    //--------------------------------------
+    RedrawFuncName(){
+      return _.snakeCase("draw_" + this.valueType + "_as_" + this.displayType)
+    },
+    //--------------------------------------
+    MapData() {
+      // Guard
+      if(!this.value && !this.defaultLocation) {
+        return null
+      }
+
+      // Format the value
+      return ({
+        //..................................
+        "obj" : (latlng)=>{
+          latlng = latlng || this.defaultLocation
+          if(this.coords_value_to_tiles) {
+            return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
+          }
+          return latlng
+        },
+        //..................................
+        "obj-list" : (list=[])=>{
+          if(!list)
+            return []
+          if(this.coords_value_to_tiles) {
+            return _.map(list, (latlng)=>{
+              return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
+            })
+          }
+          return list
+        },
+        //..................................
+        "pair" : (latlng)=>{
+          latlng = latlng || Ti.GIS.objToLatlngPair(this.defaultLocation)
+          if(this.coords_value_to_tiles) {
+            return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
+          }
+          return latlng
+        },
+        //..................................
+        "pair-list" : (list=[]) => {
+          if(!list)
+            return []
+          if(this.coords_value_to_tiles) {
+            return _.map(list, (latlng)=>{
+              return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
+            })
+          }
+          return list
+        },
+        //..................................
+        "geojson" : (geojson) => {
+          if(!geojson) {
+            return {
+              type : "Point",
+              coordinates : Ti.GIS.objToLnglatPair(this.defaultLocation)
+            }
+          }
+
+          // TODO here to translate coords for geojson
+          return geojson
+        }
+        //..................................
+      })[this.valueType](this.value)
+    },
+    //--------------------------------------
+    hasMapData() {
+      return !_.isEmpty(this.MapData)
+    },
+    //--------------------------------------
+    isShowInfo() {
+      return this.showInfo ? true : false
+    },
+    //--------------------------------------
+    ShowInfo() {
+      if(!this.showInfo)
+        return {}
+      
+      let si = true === this.showInfo ? {} : this.showInfo
+        
+      return {
+        zoom     : true,
+        center   : false,
+        latRange : false,
+        lngRange : false,
+        pointer  : false,
+        ... si
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    //
+    // Events
+    //
+    //--------------------------------------
+    OnMapMove(evt) {
+      //console.log("map move", evt)
+      let bou = this.$map.getBounds()
+      this.geo = {
+        zoom   : this.$map.getZoom(),
+        center : bou.getCenter(),
+        SW: bou.getSouthWest(),
+        SE: bou.getSouthEast(),
+        NE: bou.getNorthEast(),
+        NW: bou.getNorthWest(),
+        W: bou.getWest(),
+        E: bou.getEast(),
+        S: bou.getSouth(),
+        N: bou.getNorth()
+      }
+    },
+    //--------------------------------------
+    OnMouseMove(evt) {
+      this.mouse = evt.latlng
+    },
+    //--------------------------------------
+    //
+    // Drawing methods
+    //
+    //--------------------------------------
+    redraw() {
+      // Prepare the function name
+
+      // Clear live layer
+      this.$live.clearLayers()
+      
+      // Draw data
+      if(this.hasMapData) {
+        let func = this[this.RedrawFuncName]
+        if(_.isFunction(func)) {
+          func(this.MapData)
+        } else {
+          throw `Invalid RedrawFuncName="${this.RedrawFuncName}"`
+        }
+      }
+    },
+    //--------------------------------------
+    //
+    // Utility
+    //
+    //--------------------------------------
+    GeoStr(v, precise=this.latlngPrecise) {
+      if(_.isUndefined(v))
+        return ""
+      let s = '' + Ti.Num.precise(v, precise)
+      let ss = s.split('.')
+      ss[1] = _.padEnd(ss[1], precise, '0')
+      return ss.join('.')
+    },
+    //--------------------------------------
+    LatlngForDi(latlng) {
+      if(this.coords_value_to_tiles) {
+        return Ti.GIS.transLatlng(latlng, this.coords_value_to_tiles)
+      }
+      return latlng
+    },
+    //--------------------------------------
+    Icon(urlOrIcon, {
+      size = 32,
+      color = "primary",
+      iconSize = [24, 41],
+      iconAnchor = [12, 41],
+      shadow = true,
+      shadowSize = [41, 41],
+      shadowAnchor = [12, 41]
+    }={}) {
+      if(!urlOrIcon)
+        return new L.Icon.Default()
+
+      // Eval the icon
+      let {type, value} = Ti.Icons.evalIconObj(urlOrIcon)
+
+      // Font icon
+      if("font" == type) {
+        let html = Ti.Icons.fontIconHtml(value)
+        let ansz = size / 2
+        return L.divIcon({
+          className: `ti-gsi-mark-icon 
+                      is-size-${size} 
+                      is-color-${color}
+                      ${shadow?'has-shadow':''}`,
+          html,
+          iconSize : [size, size],
+          iconAnchor: [ansz, ansz]
+        })
+      }
+
+      // Image Icon
+      if("image" == type) {
+        let shadowUrl;
+        if(shadow) {
+          shadowUrl = shadow
+          if(_.isBoolean(shadow)) {
+            let [_, nmPath, suffix] = /^([^.]+)\.(\w+)$/.exec(value)
+            shadowUrl = `${nmPath}-shadow.${suffix}`
+          }
+          shadowUrl = `${this.imageIconBase}${shadowUrl}`
+        }
+        return L.icon({
+          iconUrl : `${this.imageIconBase}${value}`,
+          iconSize, iconAnchor,
+          shadowUrl, shadowSize, shadowAnchor
+        })
+      }
+
+      // Keep original input
+      return L.icon(urlOrIcon)
+    },
+    //--------------------------------------
+    trans_obj_from_value_to_tiles(obj) {
+      if(this.coords_value_to_tiles) {
+        return Ti.GIS.transLatlngObj(obj, this.coords_value_to_tiles, true)
+      }
+      return obj
+    },
+    //--------------------------------------
+    trans_pair_from_value_to_tiles(pair) {
+      if(this.coords_value_to_tiles) {
+        return Ti.GIS.transLatlngPair(pair, this.coords_value_to_tiles)
+      }
+      return pair
+    },
+    //--------------------------------------
+    trans_obj_from_tiles_to_value(obj) {
+      if(this.coords_tiles_to_value) {
+        return Ti.GIS.transLatlngObj(obj, this.coords_tiles_to_value, true)
+      }
+      return obj
+    },
+    //--------------------------------------
+    trans_pair_from_tiles_to_value(pair) {
+      if(this.coords_tiles_to_value) {
+        return Ti.GIS.transLatlngPair(pair, this.coords_tiles_to_value)
+      }
+      return pair
+    },
+    //--------------------------------------
+    fitBounds(bounds) {
+      this.$map.fitBounds(bounds, this.fitBoundsBy)
+    },
+    //--------------------------------------
+    initMapControls() {
+      let vm = this
+      let MockButton = L.Control.extend({
+        options: {
+            position: 'topright'
+     
+        },
+        initialize: function (options) {
+          L.Util.extend(this.options, options);
+  
+        },
+        onAdd: function(map) {
+          let $con = Ti.Dom.createElement({})
+          $con.innerHTML = `<b>hahaha</b>`
+          $($con).on("click", function(evt){
+            let list = vm.mockPairList(1000)
+            vm.$notify("change", list)
+          })
+          return $con
+        }
+      })
+
+      let mm = new MockButton()
+      mm.addTo(this.$map)
+    },
+    //--------------------------------------
+    initMapView(data=this.MapData) {
+      // Get current zoom, keep the last user zoom state
+      let zoom = this.geo.zoom || this.zoom
+
+      // Default view
+      if(!this.hasMapData) {
+        let dftCenter = Ti.GIS.transLatlngObj(this.defaultLocation || {
+          lat: 39.97773512677837,
+          lng: 116.3385673945887
+        })
+        this.$map.setView(dftCenter, zoom)
+        return
+      }
+
+      // Auto fit the data
+      ({
+        //..................................
+        "obj" : (latlng)=>{
+          this.$map.setView(latlng, zoom)
+        },
+        //..................................
+        "obj-list" : (list=[])=>{
+          let {SW,NE} = Ti.GIS.getLatlngObjBounds(list)
+          this.fitBounds([SW, NE])
+        },
+        //..................................
+        "pair" : (latlng)=>{
+          this.$map.setView(latlng, zoom)
+        },
+        //..................................
+        "pair-list" : (list=[]) => {
+          let {SW,NE} = Ti.GIS.getLatlngPairBounds(list)
+          this.fitBounds([SW, NE])
+        },
+        //..................................
+        "geojson" : (geojson) => {
+          throw "Not implement geojson get center"
+        }
+        //..................................
+      })[this.valueType](data)
+    },
+    //--------------------------------------
+    initMap() {
+      // Create Map
+      this.$map = L.map(this.$refs.main, {
+        ... this.mapOptions,
+        attributionControl : false,
+        minZoom : this.minZoom,
+        maxZoom : this.maxZoom
+      });
+
+      L.control.scale({
+        metric : true,
+        imperial : false,
+        updateWhenIdle : true
+      }).addTo(this.$map);
+
+      // Create the main bg-layer
+      if(this.baseTileLayer) {
+        this.createTileLayer(this.baseTileLayer).addTo(this.$map)
+      }
+      if(this.noteTileLayer) {
+        this.createTileLayer(this.noteTileLayer).addTo(this.$map)
+      }
+      
+      // Events
+      this.$map.on("move", (evt) => {this.OnMapMove(evt)})
+      this.$map.on("mousemove", (evt) => {this.OnMouseMove(evt)})
+
+      // Prepare live layer for the presentation of value data 
+      this.$live = L.layerGroup().addTo(this.$map)
+
+      // Customized control
+      //this.initMapControls()
+
+      // Init map view
+      this.initMapView()
+
+      // Then Render the data
+      this.redraw()
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "MapData": function() {
+      if(this.autoFitBounds) {
+        this.initMapView()
+      }
+      this.redraw()
+    }
+  },
+  //////////////////////////////////////////
+  mounted : async function() {
+    if("Cluster" == this.displayType) {
+      await Ti.Load([
+        "@deps:leaflet/leaflet.markercluster-src.js",
+        "@deps:leaflet/marker-cluster.css",
+        "@deps:leaflet/marker-cluster.default.css"
+      ])
+    }
+    
+    this.initMap()
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/gsi/leaflet/web-gsi-leaflet.mjs", _M);
+})();
+//============================================================
+// JOIN: web/gsi/leaflet/_com.json
+//============================================================
+Ti.Preload("ti/com/web/gsi/leaflet/_com.json", {
+  "name" : "web-gsi-leaflet",
+  "globally" : true,
+  "template" : "./web-gsi-leaflet.html",
+  "props"   : "./web-gsi-leaflet-props.mjs",
+  "methods" : [
+      "./leaflet-tiles-methods.mjs",
+      "./leaflet-redraw-methods.mjs",
+      "./leaflet-mock-methods.mjs"
+    ],
+  "mixins"   : ["./web-gsi-leaflet.mjs"],
+  "deps" : [
+    "@deps:leaflet/leaflet.js",
+    "@deps:leaflet/leaflet.css"
+  ]
 });
 //============================================================
 // JOIN: web/media/image/web-media-image.html

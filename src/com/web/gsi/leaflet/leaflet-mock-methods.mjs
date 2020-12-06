@@ -15,28 +15,6 @@ export default {
       list.push(this.mockPair(lat_lng))
     }
     return list
-  },
-  //--------------------------------------
-  mockGeoJsonPoint() {
-    return {
-      type : "Point",
-      coordinates : this.TransLnglat([116.39126, 39.90667])
-    }
-  },
-  //--------------------------------------
-  showMock() {
-    let poi = this.mockGeoJsonPoint()
-    let ged = {
-      "type": "Feature",
-      "properties": {
-          "name": "Coors Field",
-          "amenity": "Baseball Stadium",
-          "popupContent": "This is where the Rockies play!"
-      },
-      "geometry": this.mockGeoJsonPoint()
-    }
-    console.log(ged)
-    L.geoJSON(ged).addTo(this.$map);
   }
   //--------------------------------------
 }

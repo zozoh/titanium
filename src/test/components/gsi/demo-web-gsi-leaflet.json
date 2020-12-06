@@ -2,6 +2,13 @@
   "comPath" : "@com:web/gsi/leaflet",
   "comType" : "WebGsiLeaflet",
   "comConf" : {
-    "value" : "=data"
+    "value" : "=data",
+    "valueType" : "pair-list",
+    "editPoint" : "drag",
+    "displayType" : "Polyline",
+    "autoFitBounds" : false,
+    "showMarker" : false,
+    "baseTileLayer" : "QQ_VECTOR_NOTE",
+    "mapOptions" : null
   }
 }
