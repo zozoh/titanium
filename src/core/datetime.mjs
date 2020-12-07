@@ -28,7 +28,7 @@ const TiDateTime = {
   parse(d) {
     //console.log("parseDate:", d)
     // Default return today
-    if(_.isUndefined(d) || "today" === d){
+    if(_.isUndefined(d) || "today" === d || "now" === d){
       return new Date()
     }
     // keep null
@@ -254,6 +254,15 @@ const TiDateTime = {
       d2.setDate(d2.getDate() + offset)
       return d2
     }
+  },
+  //---------------------------------------
+  rangeStr({date, time="3h"}={}, tmpl='[${from},${to}]') {
+    date = date || 'now'
+    let context = {
+      from : `${date}-${time}`, 
+      to   : date
+    }
+    return Ti.S.renderBy(tmpl, context)
   },
   //---------------------------------------
   // - inMin   : just now   : < 10min

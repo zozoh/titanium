@@ -3,7 +3,8 @@ export default {
   data: ()=>({
     $map  : null,
     $live : null,
-    mouse : {/*lat:0, lng:0*/},
+    pointerClick : {/*lat:0, lng:0*/},
+    pointerHover : {/*lat:0, lng:0*/},
     geo: {
       center: {},
       SW: {},
@@ -21,8 +22,7 @@ export default {
   computed : {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass({
-      })
+      return this.getTopClass({})
     },
     //--------------------------------------
     TopStyle() {
@@ -135,7 +135,8 @@ export default {
         center   : false,
         latRange : false,
         lngRange : false,
-        pointer  : false,
+        pointerHover  : false,
+        pointerClick  : false,
         ... si
       }
     }
@@ -165,8 +166,12 @@ export default {
       }
     },
     //--------------------------------------
-    OnMouseMove(evt) {
-      this.mouse = evt.latlng
+    OnMapPointerMove(evt) {
+      this.pointerHover = evt.latlng
+    },
+    //--------------------------------------
+    OnMapPointerClick(evt) {
+      this.pointerClick = evt.latlng
     },
     //--------------------------------------
     //
@@ -387,7 +392,8 @@ export default {
       
       // Events
       this.$map.on("move", (evt) => {this.OnMapMove(evt)})
-      this.$map.on("mousemove", (evt) => {this.OnMouseMove(evt)})
+      this.$map.on("click", (evt) => {this.OnMapPointerClick(evt)})
+      this.$map.on("mousemove", (evt) => {this.OnMapPointerMove(evt)})
 
       // Prepare live layer for the presentation of value data 
       this.$live = L.layerGroup().addTo(this.$map)

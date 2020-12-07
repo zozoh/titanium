@@ -42,6 +42,7 @@
     "@com:ti/actionbar",
     "@com:ti/form",
     "@com:ti/obj/thumb",
+    "@com:wn/obj/id",
     "@com:wn/session/badge",
     "@com:wn/gui/arena",
     "@com:wn/gui/side/nav",

@@ -1,4 +1,9 @@
-<div class="web-gsi-leaflet ti-fill-parent">
+<div class="web-gsi-leaflet ti-fill-parent"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Main for the map
+  -->
   <div class="wgl-map-main ti-fill-parent" ref="main"></div>
   <!--
     Tip Info
@@ -18,7 +23,7 @@
       -->
       <div class="info-ele" v-if="ShowInfo.center">
         <i class="fas fa-arrows-alt"></i>
-        <span>{{GeoStr(geo.center.lat)}}</span>/<span>{{GeoStr(geo.center.lng)}}</span>
+        <span>{{GeoStr(geo.center.lat)}}, {{GeoStr(geo.center.lng)}}</span>
       </div>
       <!--
         Latitude range
@@ -35,11 +40,22 @@
         <span>{{GeoStr(geo.W)}}</span>/<span>{{GeoStr(geo.E)}}</span>
       </div>
       <!--
-        Mouse
+        Pointer Hover
       -->
-      <div class="info-ele" v-if="ShowInfo.pointer">
-        <i class="fas fa-map-marker"></i>
-        <span>{{GeoStr(mouse.lat)}}</span>/<span>{{GeoStr(mouse.lng)}}</span>
+      <div 
+        v-if="ShowInfo.pointerHover && !_.isEmpty(pointerHover)"
+          class="info-ele">
+          <i class="fas fa-map-marker"></i>
+          <span>{{GeoStr(pointerHover.lat)}}, {{GeoStr(pointerHover.lng)}}</span>
+      </div>
+      <!--
+        Pointer Click
+      -->
+      <div 
+        v-if="ShowInfo.pointerClick && !_.isEmpty(pointerClick)"
+          class="info-ele">
+          <i class="fas fa-mouse" @click.left="pointerClick={}"></i>
+          <span>{{GeoStr(pointerClick.lat)}}, {{GeoStr(pointerClick.lng)}}</span>
       </div>
   </div>
 </div>

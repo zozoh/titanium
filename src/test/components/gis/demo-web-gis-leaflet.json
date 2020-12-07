@@ -1,0 +1,22 @@
+{
+  "comPath" : "@com:web/gis/leaflet",
+  "comType" : "WebGisLeaflet",
+  "comConf" : {
+    "value" : "=data",
+    "valueType" : "pair-list",
+    "editPoint" : "drag",
+    "displayType" : "Polyline",
+    "autoFitBounds" : false,
+    "showMarker" : false,
+    "showInfo" : {
+      "zoom"     : true,
+      "center"   : false,
+      "latRange" : false,
+      "lngRange" : false,
+      "pointerHover"  : true,
+      "pointerClick"  : true
+    },
+    "baseTileLayer" : "QQ_VECTOR_NOTE",
+    "mapOptions" : null
+  }
+}

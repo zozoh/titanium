@@ -1018,6 +1018,24 @@ const TiTypes = {
     }
     // Default is Object
     return "Object"
+  },
+  //.......................................
+  parseTowStageID(str, sep=":"){
+    if(!_.isString(str)) {
+      return {}
+    }
+    // Is simple ID ?
+    let pos = str.indexOf(sep);
+    if (pos < 0) {
+      return {
+        homeId: null, myId: _.trim(str)
+      }
+    } 
+    // Two stage ID
+    return {
+      homeId : _.trim(str.substring(0, pos)),
+      myId : _.trim(str.substring(pos+1))
+    }
   }
   //.......................................
 }

@@ -1,0 +1,82 @@
+.wn-obj-id {
+  width: 100%; 
+  //------------------------------------------
+  &.is-none {color: map-get($color-disable, c);}
+  &.is-simple {
+    color: map-get($color-primary, c);
+    &:hover {background: map-get($color-weaktip, c);}
+  }
+  &.is-two-stage {
+    color: map-get($color-secondary, c);
+    &:hover {background: map-get($color-weaktip, c);}
+  }
+  //------------------------------------------
+  .as-info-brief {
+    @include flex-align-nowrap($jc:flex-start);
+    user-select: none; cursor: pointer;
+    width: 100%; padding: 0.3em 0;
+    border-radius: SZ(4);
+    //----------------------------------------
+    > .as-icon {
+      flex:0 0 auto; padding:0 .3em 0 .5em; opacity: 0.7;
+    }
+    //----------------------------------------
+    > .as-text {
+      flex:1 1 auto;
+      width:SZ(64); overflow: hidden; 
+      white-space: nowrap;
+      text-overflow: ellipsis;
+
+      span {@include font-fixed;}
+    }
+    //----------------------------------------
+  }
+  //------------------------------------------
+  .as-info-detail {
+    @include color($color-body, r, c);
+    border:3px dashed map-get($color-line, dark);
+    position: fixed; transition: opacity 0.5s;
+    padding: 1em; border-radius: SZ(5);
+    box-shadow: SZ(3) SZ(3) SZ(6) map-get($color-shadow, thin);
+    z-index: $z-over;
+    //----------------------------------------
+    table {
+      border-spacing: 8px;
+    }
+    //----------------------------------------
+    td {
+      @include font-fixed;
+      @include color($color-primary, c);
+      border:1px solid map-get($color-primary, c);
+      padding: .5em; 
+      &:first-child {
+        @include color($color-primary, r, c);
+        text-align: right; 
+      }
+    }
+    //----------------------------------------
+  }
+  //------------------------------------------
+  &.is-two-stage .as-info-detail {
+    tr.is-my-id {
+      td {
+        border-color: map-get($color-secondary, c);
+        color: map-get($color-secondary, c);
+        &:first-child {@include color($color-secondary, r, c);}
+      }
+    }
+  }
+  //------------------------------------------
+  &.is-detail-hide {
+    > .as-info-detail {display: none;}
+  }
+  //------------------------------------------
+  &.is-detail-show {
+    > .as-info-detail {display: block; opacity: 0;}
+  }
+  //------------------------------------------
+  &.is-detail-ready {
+    > .as-info-detail {display: block; opacity: 1;}
+  }
+  //------------------------------------------
+}

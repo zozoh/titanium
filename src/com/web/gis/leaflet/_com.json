@@ -1,14 +1,14 @@
 {
-  "name" : "web-gsi-leaflet",
+  "name" : "web-gis-leaflet",
   "globally" : true,
-  "template" : "./web-gsi-leaflet.html",
-  "props"   : "./web-gsi-leaflet-props.mjs",
+  "template" : "./web-gis-leaflet.html",
+  "props"   : "./web-gis-leaflet-props.mjs",
   "methods" : [
       "./leaflet-tiles-methods.mjs",
       "./leaflet-redraw-methods.mjs",
       "./leaflet-mock-methods.mjs"
     ],
-  "mixins"   : ["./web-gsi-leaflet.mjs"],
+  "mixins"   : ["./web-gis-leaflet.mjs"],
   "deps" : [
     "@deps:leaflet/leaflet.js",
     "@deps:leaflet/leaflet.css"

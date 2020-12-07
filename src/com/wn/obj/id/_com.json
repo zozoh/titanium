@@ -1,0 +1,6 @@
+{
+  "name" : "wn-obj-id",
+  "globally" : true,
+  "template" : "./wn-obj-id.html",
+  "mixins" : ["./wn-obj-id.mjs"]
+}

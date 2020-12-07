@@ -58,8 +58,8 @@
 @DIR mock/media/ 'i18n:media/<fas-photo-video>'
 @DIR mock/components/ '组件测试/<fas-vials>'
 #---------------------------------------------------------
-@FILE mock/components/gsi/web-gsi-leaflet.comt 'GSI-LEAFLET'
-{com:'/rs/ti/test/components/gsi/demo-web-gsi-leaflet.json'}
+@FILE mock/components/gis/web-gis-leaflet.comt 'GIS-LEAFLET'
+{com:'/rs/ti/test/components/gis/demo-web-gis-leaflet.json'}
 #---------------------------------------------------------
 @FILE mock/components/hmaker/hmaker-edit-com.comt 'EDIT-COM'
 {com:'/rs/ti/test/components/hmaker/demo-hmaker-edit-com.json'}

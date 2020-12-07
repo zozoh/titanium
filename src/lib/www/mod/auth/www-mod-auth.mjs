@@ -40,6 +40,11 @@ const _M = {
     },
     //--------------------------------------------
     setMe(state, me) {
+      // Auto deal with Two-Stage-ID
+      if(me && me.id) {
+        me.OID = Ti.Types.parseTowStageID(me.id)
+      }
+      // Update state
       state.me = me
     },
     //--------------------------------------------

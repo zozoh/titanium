@@ -1,0 +1,47 @@
+<div class="wn-obj-id"
+  :class="TopClass"
+  @mouseenter="OnMouseEnter"
+  @mouseleave="OnMouseLeave">
+  <!--
+    Info Brief
+  -->
+  <div class="as-info-brief" ref="box">
+    <!--
+      ICON
+    -->
+    <div class="as-icon"><i class="fas fa-dna"></i></div>
+    <!-- Empty -->
+    <div 
+      v-if="!value"
+        class="as-text">
+        <em>{{'i18n:blank' | i18n}}</em>
+    </div>
+    <!-- Simple ID -->
+    <div
+      v-else-if="!OID.homeId"
+        class="as-text">
+        <span>{{OID.myId}}</span>
+    </div>
+    <!-- Two stage ID-->
+    <div 
+      v-else
+        class="as-text">
+        <span>{{OID.myId}}</span>
+    </div>
+  </div>
+  <!--
+    Info Detail
+  -->
+  <div class="as-info-detail" ref="detail">
+    <table>
+      <tr v-if="OID.homeId"
+        class="is-home-id">
+        <td>HOME ID</td><td>{{OID.homeId}}</td>
+      </tr>
+      <tr
+        class="is-my-id">
+        <td>MY ID</td><td>{{OID.myId}}</td>
+      </tr>
+    </table>
+  </div>
+</div>
