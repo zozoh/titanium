@@ -1,4 +1,4 @@
-// Pack At: 2020-12-06 09:15:22
+// Pack At: 2020-12-10 16:27:32
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -7065,6 +7065,24 @@ const {Types} = (function(){
       }
       // Default is Object
       return "Object"
+    },
+    //.......................................
+    parseTowStageID(str, sep=":"){
+      if(!_.isString(str)) {
+        return {}
+      }
+      // Is simple ID ?
+      let pos = str.indexOf(sep);
+      if (pos < 0) {
+        return {
+          homeId: null, myId: _.trim(str)
+        }
+      } 
+      // Two stage ID
+      return {
+        homeId : _.trim(str.substring(0, pos)),
+        myId : _.trim(str.substring(pos+1))
+      }
     }
     //.......................................
   }
@@ -9843,7 +9861,7 @@ const {DateTime} = (function(){
     parse(d) {
       //console.log("parseDate:", d)
       // Default return today
-      if(_.isUndefined(d) || "today" === d){
+      if(_.isUndefined(d) || "today" === d || "now" === d){
         return new Date()
       }
       // keep null
@@ -10069,6 +10087,15 @@ const {DateTime} = (function(){
         d2.setDate(d2.getDate() + offset)
         return d2
       }
+    },
+    //---------------------------------------
+    rangeStr({date, time="3h"}={}, tmpl='[${from},${to}]') {
+      date = date || 'now'
+      let context = {
+        from : `${date}-${time}`, 
+        to   : date
+      }
+      return Ti.S.renderBy(tmpl, context)
     },
     //---------------------------------------
     // - inMin   : just now   : < 10min
@@ -11763,7 +11790,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201206.091522",
+  "version" : "2.5-20201210.162732",
   "dev" : false,
   "appName" : null,
   "session" : {},

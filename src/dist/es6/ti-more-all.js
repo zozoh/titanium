@@ -1,4 +1,4 @@
-// Pack At: 2020-12-06 09:15:22
+// Pack At: 2020-12-10 16:27:32
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -28313,7 +28313,7 @@ Ti.Preload("ti/com/web/footer/_com.json", {
   "mixins"   : ["./web-footer.mjs"]
 });
 //============================================================
-// JOIN: web/gsi/leaflet/leaflet-mock-methods.mjs
+// JOIN: web/gis/leaflet/leaflet-mock-methods.mjs
 //============================================================
 (function(){
 const _M = {
@@ -28336,10 +28336,10 @@ const _M = {
   }
   //--------------------------------------
 }
-Ti.Preload("ti/com/web/gsi/leaflet/leaflet-mock-methods.mjs", _M);
+Ti.Preload("ti/com/web/gis/leaflet/leaflet-mock-methods.mjs", _M);
 })();
 //============================================================
-// JOIN: web/gsi/leaflet/leaflet-redraw-methods.mjs
+// JOIN: web/gis/leaflet/leaflet-redraw-methods.mjs
 //============================================================
 (function(){
 const _M = {
@@ -28600,10 +28600,10 @@ const _M = {
   },
   //--------------------------------------
 }
-Ti.Preload("ti/com/web/gsi/leaflet/leaflet-redraw-methods.mjs", _M);
+Ti.Preload("ti/com/web/gis/leaflet/leaflet-redraw-methods.mjs", _M);
 })();
 //============================================================
-// JOIN: web/gsi/leaflet/leaflet-tiles-methods.mjs
+// JOIN: web/gis/leaflet/leaflet-tiles-methods.mjs
 //============================================================
 (function(){
 const TILES = {
@@ -28741,10 +28741,10 @@ const _M = {
   }
 }
 ////////////////////////////////////////////
-Ti.Preload("ti/com/web/gsi/leaflet/leaflet-tiles-methods.mjs", _M);
+Ti.Preload("ti/com/web/gis/leaflet/leaflet-tiles-methods.mjs", _M);
 })();
 //============================================================
-// JOIN: web/gsi/leaflet/web-gsi-leaflet-props.mjs
+// JOIN: web/gis/leaflet/web-gis-leaflet-props.mjs
 //============================================================
 (function(){
 const _M = {
@@ -28876,12 +28876,17 @@ const _M = {
     default : undefined
   }
 }
-Ti.Preload("ti/com/web/gsi/leaflet/web-gsi-leaflet-props.mjs", _M);
+Ti.Preload("ti/com/web/gis/leaflet/web-gis-leaflet-props.mjs", _M);
 })();
 //============================================================
-// JOIN: web/gsi/leaflet/web-gsi-leaflet.html
+// JOIN: web/gis/leaflet/web-gis-leaflet.html
 //============================================================
-Ti.Preload("ti/com/web/gsi/leaflet/web-gsi-leaflet.html", `<div class="web-gsi-leaflet ti-fill-parent">
+Ti.Preload("ti/com/web/gis/leaflet/web-gis-leaflet.html", `<div class="web-gsi-leaflet ti-fill-parent"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Main for the map
+  -->
   <div class="wgl-map-main ti-fill-parent" ref="main"></div>
   <!--
     Tip Info
@@ -28901,7 +28906,7 @@ Ti.Preload("ti/com/web/gsi/leaflet/web-gsi-leaflet.html", `<div class="web-gsi-l
       -->
       <div class="info-ele" v-if="ShowInfo.center">
         <i class="fas fa-arrows-alt"></i>
-        <span>{{GeoStr(geo.center.lat)}}</span>/<span>{{GeoStr(geo.center.lng)}}</span>
+        <span>{{GeoStr(geo.center.lat)}}, {{GeoStr(geo.center.lng)}}</span>
       </div>
       <!--
         Latitude range
@@ -28918,16 +28923,27 @@ Ti.Preload("ti/com/web/gsi/leaflet/web-gsi-leaflet.html", `<div class="web-gsi-l
         <span>{{GeoStr(geo.W)}}</span>/<span>{{GeoStr(geo.E)}}</span>
       </div>
       <!--
-        Mouse
+        Pointer Hover
       -->
-      <div class="info-ele" v-if="ShowInfo.pointer">
-        <i class="fas fa-map-marker"></i>
-        <span>{{GeoStr(mouse.lat)}}</span>/<span>{{GeoStr(mouse.lng)}}</span>
+      <div 
+        v-if="ShowInfo.pointerHover && !_.isEmpty(pointerHover)"
+          class="info-ele">
+          <i class="fas fa-map-marker"></i>
+          <span>{{GeoStr(pointerHover.lat)}}, {{GeoStr(pointerHover.lng)}}</span>
+      </div>
+      <!--
+        Pointer Click
+      -->
+      <div 
+        v-if="ShowInfo.pointerClick && !_.isEmpty(pointerClick)"
+          class="info-ele">
+          <i class="fas fa-mouse" @click.left="pointerClick={}"></i>
+          <span>{{GeoStr(pointerClick.lat)}}, {{GeoStr(pointerClick.lng)}}</span>
       </div>
   </div>
 </div>`);
 //============================================================
-// JOIN: web/gsi/leaflet/web-gsi-leaflet.mjs
+// JOIN: web/gis/leaflet/web-gis-leaflet.mjs
 //============================================================
 (function(){
 const _M = {
@@ -28935,7 +28951,8 @@ const _M = {
   data: ()=>({
     $map  : null,
     $live : null,
-    mouse : {/*lat:0, lng:0*/},
+    pointerClick : {/*lat:0, lng:0*/},
+    pointerHover : {/*lat:0, lng:0*/},
     geo: {
       center: {},
       SW: {},
@@ -28953,8 +28970,7 @@ const _M = {
   computed : {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass({
-      })
+      return this.getTopClass({})
     },
     //--------------------------------------
     TopStyle() {
@@ -29067,7 +29083,8 @@ const _M = {
         center   : false,
         latRange : false,
         lngRange : false,
-        pointer  : false,
+        pointerHover  : false,
+        pointerClick  : false,
         ... si
       }
     }
@@ -29097,8 +29114,12 @@ const _M = {
       }
     },
     //--------------------------------------
-    OnMouseMove(evt) {
-      this.mouse = evt.latlng
+    OnMapPointerMove(evt) {
+      this.pointerHover = evt.latlng
+    },
+    //--------------------------------------
+    OnMapPointerClick(evt) {
+      this.pointerClick = evt.latlng
     },
     //--------------------------------------
     //
@@ -29319,7 +29340,8 @@ const _M = {
       
       // Events
       this.$map.on("move", (evt) => {this.OnMapMove(evt)})
-      this.$map.on("mousemove", (evt) => {this.OnMouseMove(evt)})
+      this.$map.on("click", (evt) => {this.OnMapPointerClick(evt)})
+      this.$map.on("mousemove", (evt) => {this.OnMapPointerMove(evt)})
 
       // Prepare live layer for the presentation of value data 
       this.$live = L.layerGroup().addTo(this.$map)
@@ -29358,22 +29380,22 @@ const _M = {
   }
   //////////////////////////////////////////
 }
-Ti.Preload("ti/com/web/gsi/leaflet/web-gsi-leaflet.mjs", _M);
+Ti.Preload("ti/com/web/gis/leaflet/web-gis-leaflet.mjs", _M);
 })();
 //============================================================
-// JOIN: web/gsi/leaflet/_com.json
+// JOIN: web/gis/leaflet/_com.json
 //============================================================
-Ti.Preload("ti/com/web/gsi/leaflet/_com.json", {
-  "name" : "web-gsi-leaflet",
+Ti.Preload("ti/com/web/gis/leaflet/_com.json", {
+  "name" : "web-gis-leaflet",
   "globally" : true,
-  "template" : "./web-gsi-leaflet.html",
-  "props"   : "./web-gsi-leaflet-props.mjs",
+  "template" : "./web-gis-leaflet.html",
+  "props"   : "./web-gis-leaflet-props.mjs",
   "methods" : [
       "./leaflet-tiles-methods.mjs",
       "./leaflet-redraw-methods.mjs",
       "./leaflet-mock-methods.mjs"
     ],
-  "mixins"   : ["./web-gsi-leaflet.mjs"],
+  "mixins"   : ["./web-gis-leaflet.mjs"],
   "deps" : [
     "@deps:leaflet/leaflet.js",
     "@deps:leaflet/leaflet.css"
@@ -39075,6 +39097,141 @@ Ti.Preload("ti/com/wn/obj/icon/_com.json", {
   "mixins" : ["./wn-obj-icon.mjs"]
 });
 //============================================================
+// JOIN: wn/obj/id/wn-obj-id.html
+//============================================================
+Ti.Preload("ti/com/wn/obj/id/wn-obj-id.html", `<div class="wn-obj-id"
+  :class="TopClass"
+  @mouseenter="OnMouseEnter"
+  @mouseleave="OnMouseLeave">
+  <!--
+    Info Brief
+  -->
+  <div class="as-info-brief" ref="box">
+    <!--
+      ICON
+    -->
+    <div class="as-icon"><i class="fas fa-dna"></i></div>
+    <!-- Empty -->
+    <div 
+      v-if="!value"
+        class="as-text">
+        <em>{{'i18n:blank' | i18n}}</em>
+    </div>
+    <!-- Simple ID -->
+    <div
+      v-else-if="!OID.homeId"
+        class="as-text">
+        <span>{{OID.myId}}</span>
+    </div>
+    <!-- Two stage ID-->
+    <div 
+      v-else
+        class="as-text">
+        <span>{{OID.myId}}</span>
+    </div>
+  </div>
+  <!--
+    Info Detail
+  -->
+  <div class="as-info-detail" ref="detail">
+    <table>
+      <tr v-if="OID.homeId"
+        class="is-home-id">
+        <td>HOME ID</td><td>{{OID.homeId}}</td>
+      </tr>
+      <tr
+        class="is-my-id">
+        <td>MY ID</td><td>{{OID.myId}}</td>
+      </tr>
+    </table>
+  </div>
+</div>`);
+//============================================================
+// JOIN: wn/obj/id/wn-obj-id.mjs
+//============================================================
+(function(){
+/////////////////////////////////////////////////////
+const _M = {
+  ///////////////////////////////////////////////////
+  data : ()=>({
+    showDetail : "hide"
+  }),
+  ///////////////////////////////////////////////////
+  props : {
+    // icon string
+    "value" : {
+      type : String,
+      default : null
+    }
+  },
+  ///////////////////////////////////////////////////
+  computed : {
+    //-----------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        'is-none' : !this.value,
+        'is-simple' : !this.OID.homeId,
+        'is-two-stage' : this.OID.homeId
+      }, `is-detail-${this.showDetail}`)
+    },
+    //-----------------------------------------------
+    OID() {
+      if(!this.value) {
+        return {}
+      }
+      // One stage ID
+      let str = _.trim(this.value)
+      let pos = str.indexOf(':');
+      if (pos < 0) {
+          return {
+            id : str,
+            myId : str
+          }
+      }
+      // Two stage ID
+      return {
+        id: str,
+        homeId : str.substring(0, pos).trim(),
+        myId : str.substring(pos + 1).trim()
+      }
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    OnMouseEnter() {
+      if(!this.value) {
+        return
+      }
+      this.showDetail = "show"
+      this.$nextTick(()=>{
+        Ti.Dom.dockTo(this.$refs.detail, this.$refs.box, {
+          mode : "V"
+        })
+        this.showDetail = "ready"
+      })
+    },
+    //-----------------------------------------------
+    OnMouseLeave() {
+      this.showDetail = "hide"
+    }
+    //-----------------------------------------------
+  }
+  ///////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/obj/id/wn-obj-id.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/obj/id/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/obj/id/_com.json", {
+  "name" : "wn-obj-id",
+  "globally" : true,
+  "template" : "./wn-obj-id.html",
+  "mixins" : ["./wn-obj-id.mjs"]
+});
+//============================================================
 // JOIN: wn/obj/json/wn-obj-json.html
 //============================================================
 Ti.Preload("ti/com/wn/obj/json/wn-obj-json.html", `<div class="wn-obj-json">
@@ -43284,7 +43441,7 @@ const _M = {
   // Update to remote
   //----------------------------------------
   async updateMeta({commit, dispatch}, {name, value}={}) {
-    //console.log("I am update", name, value)
+    console.log("I am update", name, value)
     let data = Ti.Types.toObjByPair({name, value})
     await dispatch("updateMetas", data)
   },
@@ -46124,6 +46281,11 @@ const _M = {
     },
     //--------------------------------------------
     setMe(state, me) {
+      // Auto deal with Two-Stage-ID
+      if(me && me.id) {
+        me.OID = Ti.Types.parseTowStageID(me.id)
+      }
+      // Update state
       state.me = me
     },
     //--------------------------------------------
@@ -48715,12 +48877,6 @@ Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
-  "order-k-pro-retail" : "Retail",
-  "order-k-pro-subretail" : "Sub-Retail",
-  "order-k-nominal" : "Nominal",
-  "order-k-profit" : "Profit",
-  "order-k-prefee" : "Base price",
-
   "account": "Account",
   "account-flt-tip": "Filter by account name",
   "account-manage": "Accounts",
@@ -48943,24 +49099,29 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-freight-m-tip": "Enter 0 to waive shipping costs",
   "order-k-id": "Order id",
   "order-k-invoice": "Invoice",
+  "order-k-nominal": "Nominal",
   "order-k-note": "Note",
   "order-k-ok_at": "OK at",
   "order-k-pay_id": "Payment id",
   "order-k-pay_tp": "Pay type",
   "order-k-payment": "Total",
+  "order-k-prefee": "Base price",
+  "order-k-prefee-m": "Alt Total",
+  "order-k-prefee-m-tip": "Enter the new total price",
   "order-k-price": "Order price",
   "order-k-pro-amount": "Amount",
   "order-k-pro-price": "Price",
+  "order-k-pro-retail": "Retail",
+  "order-k-pro-subretail": "Sub-Retail",
   "order-k-pro-subtotal": "Subtotal",
   "order-k-pro-title": "Product Title",
   "order-k-products": "Goods",
+  "order-k-profit": "Profit",
   "order-k-seller": "Seller",
   "order-k-sp_at": "Shipping at",
   "order-k-st": "Order status",
   "order-k-title": "Order title",
   "order-k-total": "Total",
-  "order-k-prefee-m": "Alt Total",
-  "order-k-prefee-m-tip": "Enter the new total price",
   "order-k-user_email": "User email",
   "order-k-user_name": "User name",
   "order-k-user_phone": "User phone",
@@ -49775,12 +49936,6 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-editor.i18n.json", {
 // JOIN: zh-cn/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
-  "order-k-pro-retail" : "零售价",
-  "order-k-pro-subretail" : "零计",
-  "order-k-nominal" : "标称总价",
-  "order-k-profit" : "收益金额",
-  "order-k-prefee" : "基础金额",
-
   "account": "账户",
   "account-flt-tip": "请输入账号名过滤",
   "account-manage": "账户管理",
@@ -50003,24 +50158,29 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-freight-m-tip": "可以在这里输入0为客户免去运费",
   "order-k-id": "订单号",
   "order-k-invoice": "发票信息",
+  "order-k-nominal": "标称总价",
   "order-k-note": "备注",
   "order-k-ok_at": "支付成功",
   "order-k-pay_id": "支付单",
   "order-k-pay_tp": "支付类型",
   "order-k-payment": "支付信息",
+  "order-k-prefee": "基础金额",
+  "order-k-prefee-m": "修改总价",
+  "order-k-prefee-m-tip": "为用户输入新的协商后的商品总价",
   "order-k-price": "订单金额",
   "order-k-pro-amount": "数量",
   "order-k-pro-price": "单价",
+  "order-k-pro-retail": "零售价",
+  "order-k-pro-subretail": "零计",
   "order-k-pro-subtotal": "小计",
   "order-k-pro-title": "商品标题",
   "order-k-products": "商品信息",
+  "order-k-profit": "收益金额",
   "order-k-seller": "卖家",
   "order-k-sp_at": "发货时间",
   "order-k-st": "订单状态",
   "order-k-title": "订单标题",
   "order-k-total": "商品总价",
-  "order-k-prefee-m": "修改总价",
-  "order-k-prefee-m-tip": "为用户输入新的协商后的商品总价",
   "order-k-user_email": "收货人邮箱",
   "order-k-user_name": "收货人姓名",
   "order-k-user_phone": "收货人手机",
@@ -50315,10 +50475,10 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "gender": "性别",
   "geo-alti": "海拔",
   "geo-azimuth": "方向角",
-  "geo-gcj02-lat": "火星维度",
+  "geo-gcj02-lat": "火星纬度",
   "geo-gcj02-lng": "火星经度",
   "geo-hash": "地理哈希",
-  "geo-lat": "维度",
+  "geo-lat": "纬度",
   "geo-lng": "经度",
   "geo-sate-cno": "可见卫星数",
   "geo-sate-cnt": "使用卫星数",
