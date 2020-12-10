@@ -28,9 +28,10 @@ export default {
       position : "top",
       textOk: null, textCancel: null,
       result : {
-        mode : "csv",
+        mode : "xls",
         page : "current",
         name : exportName,
+        expiIn : 3,
         fltInput,
         cmdText : null
       },
@@ -50,6 +51,7 @@ export default {
               comType : "TiSwitcher",
               comConf : {
                 options: [
+                  {value: "csv", text: "CSV文件"},
                   {value: "xls", text: "电子表格"},
                   {value: "full", text: "完整数据包"}
                 ]
@@ -69,6 +71,17 @@ export default {
               name : "name", 
               comType : "TiInput",
               comConf : {
+              }
+            }, {
+              title : "保存时间",
+              name : "expiIn", 
+              comType : "TiSwitcher",
+              comConf : {
+                options: [
+                  {value: 3,  text: "三天"},
+                  {value: 7,  text: "七天"},
+                  {value: 14, text: "十四天"}
+                ]
               }
             }]
           },
