@@ -47,6 +47,66 @@ const _M = {
     //---------------------------------------------------
     isPagerEnabled(state) {
       return state.pager && state.pager.pn > 0 && state.pager.pgsz > 0
+    },
+    //---------------------------------------------------
+    filterObj(state, getters, rootState) {
+      let {keyword, match} = state.filter || {}
+      let flt = {}
+      //............................................
+      // Eval Filter: keyword
+      if(keyword) {
+        if(/^[0-9a-z]{32}$/.test(keyword)) {
+          flt.id = keyword
+        }
+        // Find
+        else {
+          let knm = "title"
+          let beh = _.get(rootState, "main.config.schema.behavior") || {}
+          let keys = _.keys(beh.keyword)
+          //........................................
+          for(let k of keys) {
+            let val = beh.keyword[k]
+            if(new RegExp(val).test(keyword)) {
+              knm = k;
+              break;
+            }
+          }
+          //........................................
+          // Accurate equal
+          if(knm.startsWith("=")) {
+            flt[knm.substring(1).trim()] = keyword
+          }
+          // Default is like
+          else {
+            flt[knm] = "^.*"+keyword;
+          }
+          //........................................
+        }
+      }
+      //............................................
+      // Eval Filter: match
+      if(!_.isEmpty(match)) {
+        _.assign(flt, match)
+      }
+      //............................................
+      // Fix filter
+      let beMatch = _.get(rootState, "main.config.schema.behavior.match")
+      if(!_.isEmpty(beMatch)) {
+        _.assign(flt, beMatch)
+      }
+      //............................................
+      // InRecycleBin 
+      flt.th_live = state.inRecycleBin ? -1 : 1
+      //............................................
+      // Done
+      return flt
+    },
+    //---------------------------------------------------
+    filterStr(state, getters) {
+      let flt = getters['filterObj']
+      return _.isEmpty(flt)
+        ? undefined
+        : JSON.stringify(flt)
     }
     //---------------------------------------------------
   },

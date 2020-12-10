@@ -2,7 +2,11 @@
   "name" : "wn-thing",
   "namespaced" : true,
   "state" : "./m-thing.json",
-  "actions" : "./m-thing-actions.mjs",
+  "actions" : [
+    "./m-thing-actions.mjs",
+    "./m-thing-import.mjs",
+    "./m-thing-export.mjs"
+  ],
   "mixins" : "./m-thing.mjs",
   "modules" : {
     "config" : "./mod/config",

@@ -1,4 +1,4 @@
-// Pack At: 2020-12-10 16:27:32
+// Pack At: 2020-12-10 23:54:34
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -32437,13 +32437,13 @@ Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-l
       class="as-big"
       v-bind="blankAs"/>
   <!--
-    Each Items
+    Each Items in trans
   -->
-  <template v-else>
+  <template v-else-if="ItemTransName">
     <transition-group
       tag="div"
       :name="ItemTransName"
-      class="ti-trans">
+      class="list-con ti-trans">
       <div
         v-for="it in ItemList"
           class="list-item"
@@ -32455,6 +32455,22 @@ Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-l
       </div>
     </transition-group>
   </template>
+  <!--
+    Each Items no trans
+  -->
+  <div
+    v-else
+      class="list-con">
+      <div
+        v-for="it in ItemList"
+          class="list-item"
+          :class="ItemTransSpeedClassName"
+          :key="it.key">
+          <component
+            :is="it.comType"
+            v-bind="it.comConf"/>    
+      </div>
+  </div>
 </div>`);
 //============================================================
 // JOIN: web/shelf/list/web-shelf-list.mjs
@@ -44634,6 +44650,119 @@ const _M = {
 Ti.Preload("ti/mod/wn/thing/m-thing-actions.mjs", _M);
 })();
 //============================================================
+// JOIN: wn/thing/m-thing-export.mjs
+//============================================================
+(function(){
+const _M = {
+  //--------------------------------------------
+  //
+  // Export to csv or excel
+  //
+  //--------------------------------------------
+  async exportData({state, getters}) {
+    let meta = state.meta
+    let cmds = [`thing id:${meta.id} query -cqn`]
+    //............................................
+    // Eval Sorter
+    if(!_.isEmpty(state.sorter)) {
+      let sort = JSON.stringify(state.sorter)
+      cmds.push(`-sort '${sort}'`)
+    }
+    //............................................
+    let fltInput = getters["search/filterStr"]
+    //............................................
+    // Eval default export name
+    let ts = Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
+    let exportName = `${Ti.I18n.text(meta.title||meta.nm)}-${ts}`
+    //............................................
+    // Open the dialog to collection user selection
+    await Ti.App.Open({
+      title  : "i18n:export-data",
+      width  : 640,
+      height : 640,
+      position : "top",
+      textOk: null, textCancel: null,
+      result : {
+        mode : "csv",
+        page : "current",
+        name : exportName,
+        fltInput,
+        cmdText : null
+      },
+      comType : "TiWizard",
+      comConf : {
+        style : {
+          padding: ".5em"
+        },
+        steps : [{
+          title : "i18n:thing-export-setup",
+          comType : "TiForm",
+          comConf : {
+            data : ":=..",
+            fields : [{
+              title : "导出模式",
+              name : "mode",
+              comType : "TiSwitcher",
+              comConf : {
+                options: [
+                  {value: "xls", text: "电子表格"},
+                  {value: "full", text: "完整数据包"}
+                ]
+              }
+            }, {
+              title : "数据范围",
+              name : "page", 
+              comType : "TiSwitcher",
+              comConf : {
+                options: [
+                  {value: "current",  text: "当前页"},
+                  {value: "all",      text: "全部页"}
+                ]
+              }
+            }, {
+              title : "导出文件名称",
+              name : "name", 
+              comType : "TiInput",
+              comConf : {
+              }
+            }]
+          },
+          prev : false,
+          next : {
+            enabled : {
+              name : "![BLANK]"
+            },
+            handler : function() {
+              let cmdText = cmds.join(" ")
+              this.$notify("change", {
+                ...this.value,
+                cmdText
+              })
+              this.gotoFromCurrent(-1)
+            }
+          }
+        }, {
+          title : "i18n:thing-export-ing",
+          dataKey : "cmdText",
+          comType : "TiLabel",
+          comConf : {
+            value : ":=.."
+          }
+        }]
+      },
+      components : [
+        "@com:ti/wizard",
+        "@com:ti/form"
+      ]
+    })
+  }
+}
+Ti.Preload("ti/mod/wn/thing/m-thing-export.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/thing/m-thing-import.mjs
+//============================================================
+//============================================================
 // JOIN: wn/thing/m-thing.json
 //============================================================
 Ti.Preload("ti/mod/wn/thing/m-thing.json", {
@@ -44890,54 +45019,6 @@ const _M = {
     commit("setStatus", {reloading:true})
     //............................................
     let cmds = [`thing id:${meta.id} query -cqn`]
-    
-    let {keyword, match} = state.filter || {}
-    let flt = {}
-    //............................................
-    // Eval Filter: keyword
-    if(keyword) {
-      if(/^[0-9a-z]{32}$/.test(keyword)) {
-        flt.id = keyword
-      }
-      // Find
-      else {
-        let knm = "title"
-        let beh = _.get(rootState, "main.config.schema.behavior") || {}
-        let keys = _.keys(beh.keyword)
-        //........................................
-        for(let k of keys) {
-          let val = beh.keyword[k]
-          if(new RegExp(val).test(keyword)) {
-            knm = k;
-            break;
-          }
-        }
-        //........................................
-        // Accurate equal
-        if(knm.startsWith("=")) {
-          flt[knm.substring(1).trim()] = keyword
-        }
-        // Default is like
-        else {
-          flt[knm] = "^.*"+keyword;
-        }
-        //........................................
-      }
-    }
-    //............................................
-    // Eval Filter: match
-    if(!_.isEmpty(match)) {
-      _.assign(flt, match)
-    }
-    //............................................
-    // Fix filter
-    let beMatch = _.get(rootState, "main.config.schema.behavior.match")
-    if(!_.isEmpty(beMatch)) {
-      _.assign(flt, beMatch)
-    }
-    //............................................
-    // InRecycleBin 
-    flt.th_live = state.inRecycleBin ? -1 : 1
     //............................................
     // Eval Sorter
     if(!_.isEmpty(state.sorter)) {
@@ -44962,7 +45043,7 @@ const _M = {
     
     //............................................
     // Run Command
-    let input = _.isEmpty(flt) ? undefined : JSON.stringify(flt)
+    let input = getters.filterStr
     let cmdText = cmds.join(" ")
     let reo = await Wn.Sys.exec2(cmdText, {input, as:"json"})
     //............................................
@@ -45061,6 +45142,66 @@ const _M = {
     //---------------------------------------------------
     isPagerEnabled(state) {
       return state.pager && state.pager.pn > 0 && state.pager.pgsz > 0
+    },
+    //---------------------------------------------------
+    filterObj(state, getters, rootState) {
+      let {keyword, match} = state.filter || {}
+      let flt = {}
+      //............................................
+      // Eval Filter: keyword
+      if(keyword) {
+        if(/^[0-9a-z]{32}$/.test(keyword)) {
+          flt.id = keyword
+        }
+        // Find
+        else {
+          let knm = "title"
+          let beh = _.get(rootState, "main.config.schema.behavior") || {}
+          let keys = _.keys(beh.keyword)
+          //........................................
+          for(let k of keys) {
+            let val = beh.keyword[k]
+            if(new RegExp(val).test(keyword)) {
+              knm = k;
+              break;
+            }
+          }
+          //........................................
+          // Accurate equal
+          if(knm.startsWith("=")) {
+            flt[knm.substring(1).trim()] = keyword
+          }
+          // Default is like
+          else {
+            flt[knm] = "^.*"+keyword;
+          }
+          //........................................
+        }
+      }
+      //............................................
+      // Eval Filter: match
+      if(!_.isEmpty(match)) {
+        _.assign(flt, match)
+      }
+      //............................................
+      // Fix filter
+      let beMatch = _.get(rootState, "main.config.schema.behavior.match")
+      if(!_.isEmpty(beMatch)) {
+        _.assign(flt, beMatch)
+      }
+      //............................................
+      // InRecycleBin 
+      flt.th_live = state.inRecycleBin ? -1 : 1
+      //............................................
+      // Done
+      return flt
+    },
+    //---------------------------------------------------
+    filterStr(state, getters) {
+      let flt = getters['filterObj']
+      return _.isEmpty(flt)
+        ? undefined
+        : JSON.stringify(flt)
     }
     //---------------------------------------------------
   },
@@ -45223,7 +45364,11 @@ Ti.Preload("ti/mod/wn/thing/_mod.json", {
   "name" : "wn-thing",
   "namespaced" : true,
   "state" : "./m-thing.json",
-  "actions" : "./m-thing-actions.mjs",
+  "actions" : [
+    "./m-thing-actions.mjs",
+    "./m-thing-import.mjs",
+    "./m-thing-export.mjs"
+  ],
   "mixins" : "./m-thing.mjs",
   "modules" : {
     "config" : "./mod/config",
@@ -50331,6 +50476,10 @@ Ti.Preload("ti/i18n/zh-cn/wn-obj-preview.i18n.json", {
 // JOIN: zh-cn/wn-thing.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/wn-thing.i18n.json", {
+  "thing-export-setup" : "导出设置",
+  "thing-export-ing" : "执行导出",
+  "thing-export-done" : "完成",
+
   "thing-clean": "清空回收站",
   "thing-cleaning": "正在清空...",
   "thing-content": "对象内容",

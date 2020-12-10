@@ -62,6 +62,14 @@
       }, {
         "type" : "line"
       }, {
+        "key"  : "exportData",
+        "type" : "action",
+        "text" : "i18n:export-data",
+        "action" : "dispatch:main/exportData",
+        "shortcut" : "ALT+CTRL+SHIFT+O"
+      }, {
+        "type" : "line"
+      }, {
         "name" : "inRecycleBin",
         "type" : "action",
         "icon" : "fas-recycle",

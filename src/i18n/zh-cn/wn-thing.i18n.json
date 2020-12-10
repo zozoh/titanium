@@ -1,4 +1,8 @@
 {
+  "thing-export-setup" : "导出设置",
+  "thing-export-ing" : "执行导出",
+  "thing-export-done" : "完成",
+
   "thing-clean": "清空回收站",
   "thing-cleaning": "正在清空...",
   "thing-content": "对象内容",
