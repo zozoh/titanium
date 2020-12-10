@@ -15,13 +15,13 @@
       class="as-big"
       v-bind="blankAs"/>
   <!--
-    Each Items
+    Each Items in trans
   -->
-  <template v-else>
+  <template v-else-if="ItemTransName">
     <transition-group
       tag="div"
       :name="ItemTransName"
-      class="ti-trans">
+      class="list-con ti-trans">
       <div
         v-for="it in ItemList"
           class="list-item"
@@ -33,4 +33,20 @@
       </div>
     </transition-group>
   </template>
+  <!--
+    Each Items no trans
+  -->
+  <div
+    v-else
+      class="list-con">
+      <div
+        v-for="it in ItemList"
+          class="list-item"
+          :class="ItemTransSpeedClassName"
+          :key="it.key">
+          <component
+            :is="it.comType"
+            v-bind="it.comConf"/>    
+      </div>
+  </div>
 </div>

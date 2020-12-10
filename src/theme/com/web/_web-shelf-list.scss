@@ -1,37 +1,37 @@
 .web-shelf-list {
   //------------------------------------------
-  > .list-item {
+  > .list-con > .list-item {
     @include flex($ai:stretch, $ac:stretch);
     padding: .5em;
     > * {flex:1 1 auto;}
   }
   //------------------------------------------
   &.with-solid-border {
-    > .list-item {
+    > .list-con> .list-item {
       @include border(1px, solid, shallow, top);
       &:first-child {border-top:0;}
     }
   }
   //------------------------------------------
   &.with-dashed-border {
-    > .list-item {
+    > .list-con> .list-item {
       @include border(1px, dashed, shallow, top);
       &:first-child {border-top:0;}
     }
   }
   //------------------------------------------
   &.with-dotted-border {
-    > .list-item {
+    > .list-con> .list-item {
       @include border(1px, dotted, shallow, top);
       &:first-child {border-top:0;}
     }
   }
   //------------------------------------------
   &.no-item-padding {
-    > .list-item {padding: 0;}
+    > .list-con > .list-item {padding: 0;}
   }
   //------------------------------------------
-  &.as-flex {
+  &.as-flex > .list-con {
     @include flex-align;
     //---------------------------------------
     &.is-wrap    {flex-wrap: nowrap;}
