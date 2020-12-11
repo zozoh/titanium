@@ -233,7 +233,7 @@ const WnUtil = {
         : val
     }
     // META: "~/path/to/obj"
-    if(/^(\/|~)/.test(meta)) {
+    if(/^(\/|~|id:)/.test(meta)) {
       params2[pathKey] = __V(meta)
     }
     // META: "478e..6ea2"

@@ -29,6 +29,7 @@
   //-----------------------------------------
   > .as-links {
     padding: 2em 0;
+    li {padding: 0.3em;}
     li a {
       @include flex-align-nowrap;
       .ti-icon {margin-right: .5em;}

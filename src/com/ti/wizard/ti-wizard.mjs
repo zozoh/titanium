@@ -260,13 +260,13 @@ const _M = {
         else {
           btn = _.assign({}, stepBtn)
           //console.log({stepBtn, val: this.value})
-          // Eval enabled
-          if(_.isPlainObject(btn.enabled)) {
-            btn.enabled = Ti.AutoMatch.test(btn.enabled, this.value)
-          }
           // Customized
-          else if(_.isFunction(btn.enabled)) {
+          if(_.isFunction(btn.enabled)) {
             btn.enabled = btn.enabled()
+          }
+          // Eval enabled
+          else if(btn.enabled) {
+            btn.enabled = Ti.AutoMatch.test(btn.enabled, this.value)
           }
         }
         // Setup 

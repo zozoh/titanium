@@ -74,7 +74,7 @@ const _M = {
     await dispatch("updateMetas", data)
   },
   //----------------------------------------
-  async updateMetas({state, commit}, data={}) {
+  async updateMetas({state, commit, rootState}, data={}) {
     // Check Necessary
     if(_.isMatchWith(state.meta, data, _.isEqual)) {
       return
@@ -87,9 +87,9 @@ const _M = {
 
     // Do the update
     let json = JSON.stringify(data)
-    let th_set = state.meta.th_set
+    let th_set = rootState.main.meta.id
     let th_id  = state.meta.id
-    let cmdText = `thing ${th_set} update ${th_id} -fields -cqn`
+    let cmdText = `thing id:${th_set} update ${th_id} -fields -cqn`
     let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
     let isError = reo instanceof Error;
 

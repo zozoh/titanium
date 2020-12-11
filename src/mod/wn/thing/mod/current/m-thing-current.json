@@ -1,0 +1,13 @@
+{
+  "meta" : null,
+  "content" : null,
+  "data" : null,
+  "__saved_content" : null,
+  "status" : {
+    "changed"   : false,
+    "saving"    : false,
+    "reloading" : false,
+    "publishing" : false
+  },
+  "fieldStatus" : {}
+}

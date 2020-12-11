@@ -11,6 +11,6 @@
   "modules" : {
     "config" : "./mod/config",
     "search" : "./mod/search",
-    "current" : "@mod:wn/obj-current"
+    "current" : "./mod/current"
   }
 }

@@ -10,7 +10,7 @@ export default {
     await Ti.Be.Open(link.url, {params:link.params})
   },
   //--------------------------------------------
-  async exportDataByModes({dispatch}, mode="csv;xls;data") {
+  async exportDataByModes({dispatch}, mode="csv;xls;json;zip") {
     await dispatch("exportData", {mode})
   },
   //--------------------------------------------
@@ -19,7 +19,11 @@ export default {
   //
   //--------------------------------------------
   async exportData({state, getters}, {
-    target, mode="csv;xls;data"
+    target, 
+    mode="csv;xls;json;zip",
+    page="current;all",
+    name="${title|nm}-${time}",
+    mappingDir="id:${id}/export/"
   }={}) {
     let meta = state.meta
     let cmds = [`thing id:${meta.id} query -cqn`]
@@ -35,19 +39,22 @@ export default {
     let fltInput = getters["search/filterStr"]
     //............................................
     // Eval default export name
-    let ts = Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
-    let exportName = `${Ti.I18n.text(meta.title||meta.nm)}-${ts}`
+    let exportName = Ti.S.renderBy(name, {
+      ... meta,
+      time : Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
+    })
     //............................................
     // Try load export mapping template
-    let oExDir = await Wn.Io.loadMeta(`id:${meta.id}/export/`)
-    let oExList = []
-    if(oExDir) {
-      oExList = (await Wn.Io.loadChildren(oExDir)).list;
+    let phMappingDir = Ti.S.renderBy(mappingDir, meta)
+    let oMappingDir = await Wn.Io.loadMeta(phMappingDir)
+    let oMapplingItems = []
+    if(oMappingDir) {
+      oMapplingItems = (await Wn.Io.loadChildren(oMappingDir)).list;
     }
     //............................................
     // Prepare the result
     let result = {
-      mode : "xls",
+      mode : "csv",
       page : "current",
       name : exportName,
       expiIn : 3,
@@ -62,12 +69,28 @@ export default {
     let modeMap = {
       csv  : {value: "csv",  text: "i18n:thing-export-c-mode-csv"},
       xls  : {value: "xls",  text: "i18n:thing-export-c-mode-xls"},
-      data : {value: "data", text: "i18n:thing-export-c-mode-data"}
+      json : {value: "json", text: "i18n:thing-export-c-mode-json"},
+      zip  : {value: "zip",  text: "i18n:thing-export-c-mode-zip"}
     }
     let modeOptions = []
     _.forEach(modeNames, nm => {
-      modeOptions.push(modeMap[nm])
+      if(modeMap[nm])
+        modeOptions.push(modeMap[nm])
     })
+    result.mode = _.first(modeOptions).value
+    //............................................
+    // Eval page options
+    let pageModes = page.split(";")
+    let pageMap = {
+      current: {value: "current",  text: "i18n:thing-export-c-page-current"},
+      all    : {value: "all",      text: "i18n:thing-export-c-page-all"}
+    }
+    let pageOptions = []
+    _.forEach(pageModes, md => {
+      if(pageMap[md])
+      pageOptions.push(pageMap[md])
+    })
+    result.page = _.first(pageOptions).value
     //............................................
     // Make the config form fields
     let formFields = [];
@@ -76,22 +99,20 @@ export default {
       name : "mode",
       comType : "TiSwitcher",
       comConf : {
+        allowEmpty: false,
         options: modeOptions
       }
     })
-    if(!_.isEmpty(oExList)) {
-      result.mapping = _.first(oExList).nm
+    if(!_.isEmpty(oMapplingItems)) {
+      result.mapping = _.first(oMapplingItems).id
       formFields.push({
         title : "i18n:thing-export-c-mapping",
         name : "mapping",
-        disabled : {
-          mode : "full"
-        },
         comType : "TiDroplist",
         comConf : {
-          options : oExList,
+          options : oMapplingItems,
           iconBy  : "icon",
-          valueBy : "nm",
+          valueBy : "id",
           textBy  : "title|nm",
           dropDisplay: ['<icon:zmdi-book>', 'title|nm']
         }
@@ -102,10 +123,8 @@ export default {
       name : "page", 
       comType : "TiSwitcher",
       comConf : {
-        options: [
-          {value: "current",  text: "i18n:thing-export-c-page-current"},
-          {value: "all",      text: "i18n:thing-export-c-page-all"}
-        ]
+        allowEmpty: false,
+        options: pageOptions
       }
     })
     formFields.push({
@@ -120,6 +139,7 @@ export default {
       name : "expiIn", 
       comType : "TiSwitcher",
       comConf : {
+        allowEmpty: false,
         options: [
           {value: 3,  text: "i18n:thing-export-c-expi-3d"},
           {value: 7,  text: "i18n:thing-export-c-expi-7d"},
@@ -167,7 +187,12 @@ export default {
               // Join the export 
               cmds.push('|', 'sheet -process "${P} : ${id} : ${title} : ${nm}"')
               cmds.push("-tpo " + this.value.mode)
-              cmds.push(`-out '${outPath}';`)
+              // Mapping
+              if(this.value.mapping) {
+                cmds.push(`-mapping id:${this.value.mapping}`)
+              }
+
+              cmds.push(`-out '${outPath}';\n`)
 
               // expi time
               if(this.value.expiIn > 0) {
@@ -205,7 +230,6 @@ export default {
           title : "i18n:thing-export-done",
           prepare : async function(){
             let oTa = await Wn.Io.loadMeta(this.value.outPath)
-            console.log(oTa)
             this.$notify("change", {
               ... this.value,
               target : oTa
@@ -218,12 +242,17 @@ export default {
             icon  : "fas-check-circle",
             title : "i18n:thing-export-done-ok",
             brief : "i18n:thing-export-done-tip",
-            links : {
+            links : [{
               icon : "fas-download",
               text : ":=target.nm",
               href : ":->/o/content?str=id:${target.id}&d=true",
               newtab : true
-            }
+            }, {
+              icon : "fas-external-link-alt",
+              text : "i18n:thing-export-open-dir",
+              href : Wn.Util.getAppLink(taDir),
+              newtab : true
+            }]
           }
         }]
       },

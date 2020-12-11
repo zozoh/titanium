@@ -1,4 +1,4 @@
-// Pack At: 2020-12-12 03:06:03
+// Pack At: 2020-12-12 04:45:53
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -27104,13 +27104,13 @@ const _M = {
         else {
           btn = _.assign({}, stepBtn)
           //console.log({stepBtn, val: this.value})
-          // Eval enabled
-          if(_.isPlainObject(btn.enabled)) {
-            btn.enabled = Ti.AutoMatch.test(btn.enabled, this.value)
-          }
           // Customized
-          else if(_.isFunction(btn.enabled)) {
+          if(_.isFunction(btn.enabled)) {
             btn.enabled = btn.enabled()
+          }
+          // Eval enabled
+          else if(btn.enabled) {
+            btn.enabled = Ti.AutoMatch.test(btn.enabled, this.value)
           }
         }
         // Setup 
@@ -43674,7 +43674,6 @@ const _M = {
   // Update to remote
   //----------------------------------------
   async updateMeta({commit, dispatch}, {name, value}={}) {
-    console.log("I am update", name, value)
     let data = Ti.Types.toObjByPair({name, value})
     await dispatch("updateMetas", data)
   },
@@ -44882,7 +44881,7 @@ const _M = {
     await Ti.Be.Open(link.url, {params:link.params})
   },
   //--------------------------------------------
-  async exportDataByModes({dispatch}, mode="csv;xls;data") {
+  async exportDataByModes({dispatch}, mode="csv;xls;json;zip") {
     await dispatch("exportData", {mode})
   },
   //--------------------------------------------
@@ -44891,7 +44890,11 @@ const _M = {
   //
   //--------------------------------------------
   async exportData({state, getters}, {
-    target, mode="csv;xls;data"
+    target, 
+    mode="csv;xls;json;zip",
+    page="current;all",
+    name="${title|nm}-${time}",
+    mappingDir="id:${id}/export/"
   }={}) {
     let meta = state.meta
     let cmds = [`thing id:${meta.id} query -cqn`]
@@ -44907,19 +44910,22 @@ const _M = {
     let fltInput = getters["search/filterStr"]
     //............................................
     // Eval default export name
-    let ts = Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
-    let exportName = `${Ti.I18n.text(meta.title||meta.nm)}-${ts}`
+    let exportName = Ti.S.renderBy(name, {
+      ... meta,
+      time : Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
+    })
     //............................................
     // Try load export mapping template
-    let oExDir = await Wn.Io.loadMeta(`id:${meta.id}/export/`)
-    let oExList = []
-    if(oExDir) {
-      oExList = (await Wn.Io.loadChildren(oExDir)).list;
+    let phMappingDir = Ti.S.renderBy(mappingDir, meta)
+    let oMappingDir = await Wn.Io.loadMeta(phMappingDir)
+    let oMapplingItems = []
+    if(oMappingDir) {
+      oMapplingItems = (await Wn.Io.loadChildren(oMappingDir)).list;
     }
     //............................................
     // Prepare the result
     let result = {
-      mode : "xls",
+      mode : "csv",
       page : "current",
       name : exportName,
       expiIn : 3,
@@ -44934,12 +44940,28 @@ const _M = {
     let modeMap = {
       csv  : {value: "csv",  text: "i18n:thing-export-c-mode-csv"},
       xls  : {value: "xls",  text: "i18n:thing-export-c-mode-xls"},
-      data : {value: "data", text: "i18n:thing-export-c-mode-data"}
+      json : {value: "json", text: "i18n:thing-export-c-mode-json"},
+      zip  : {value: "zip",  text: "i18n:thing-export-c-mode-zip"}
     }
     let modeOptions = []
     _.forEach(modeNames, nm => {
-      modeOptions.push(modeMap[nm])
+      if(modeMap[nm])
+        modeOptions.push(modeMap[nm])
     })
+    result.mode = _.first(modeOptions).value
+    //............................................
+    // Eval page options
+    let pageModes = page.split(";")
+    let pageMap = {
+      current: {value: "current",  text: "i18n:thing-export-c-page-current"},
+      all    : {value: "all",      text: "i18n:thing-export-c-page-all"}
+    }
+    let pageOptions = []
+    _.forEach(pageModes, md => {
+      if(pageMap[md])
+      pageOptions.push(pageMap[md])
+    })
+    result.page = _.first(pageOptions).value
     //............................................
     // Make the config form fields
     let formFields = [];
@@ -44948,22 +44970,20 @@ const _M = {
       name : "mode",
       comType : "TiSwitcher",
       comConf : {
+        allowEmpty: false,
         options: modeOptions
       }
     })
-    if(!_.isEmpty(oExList)) {
-      result.mapping = _.first(oExList).nm
+    if(!_.isEmpty(oMapplingItems)) {
+      result.mapping = _.first(oMapplingItems).id
       formFields.push({
         title : "i18n:thing-export-c-mapping",
         name : "mapping",
-        disabled : {
-          mode : "full"
-        },
         comType : "TiDroplist",
         comConf : {
-          options : oExList,
+          options : oMapplingItems,
           iconBy  : "icon",
-          valueBy : "nm",
+          valueBy : "id",
           textBy  : "title|nm",
           dropDisplay: ['<icon:zmdi-book>', 'title|nm']
         }
@@ -44974,10 +44994,8 @@ const _M = {
       name : "page", 
       comType : "TiSwitcher",
       comConf : {
-        options: [
-          {value: "current",  text: "i18n:thing-export-c-page-current"},
-          {value: "all",      text: "i18n:thing-export-c-page-all"}
-        ]
+        allowEmpty: false,
+        options: pageOptions
       }
     })
     formFields.push({
@@ -44992,6 +45010,7 @@ const _M = {
       name : "expiIn", 
       comType : "TiSwitcher",
       comConf : {
+        allowEmpty: false,
         options: [
           {value: 3,  text: "i18n:thing-export-c-expi-3d"},
           {value: 7,  text: "i18n:thing-export-c-expi-7d"},
@@ -45039,7 +45058,12 @@ const _M = {
               // Join the export 
               cmds.push('|', 'sheet -process "${P} : ${id} : ${title} : ${nm}"')
               cmds.push("-tpo " + this.value.mode)
-              cmds.push(`-out '${outPath}';`)
+              // Mapping
+              if(this.value.mapping) {
+                cmds.push(`-mapping id:${this.value.mapping}`)
+              }
+
+              cmds.push(`-out '${outPath}';\n`)
 
               // expi time
               if(this.value.expiIn > 0) {
@@ -45077,7 +45101,6 @@ const _M = {
           title : "i18n:thing-export-done",
           prepare : async function(){
             let oTa = await Wn.Io.loadMeta(this.value.outPath)
-            console.log(oTa)
             this.$notify("change", {
               ... this.value,
               target : oTa
@@ -45090,12 +45113,17 @@ const _M = {
             icon  : "fas-check-circle",
             title : "i18n:thing-export-done-ok",
             brief : "i18n:thing-export-done-tip",
-            links : {
+            links : [{
               icon : "fas-download",
               text : ":=target.nm",
               href : ":->/o/content?str=id:${target.id}&d=true",
               newtab : true
-            }
+            }, {
+              icon : "fas-external-link-alt",
+              text : "i18n:thing-export-open-dir",
+              href : Wn.Util.getAppLink(taDir),
+              newtab : true
+            }]
           }
         }]
       },
@@ -45340,6 +45368,358 @@ Ti.Preload("ti/mod/wn/thing/mod/config/_mod.json", {
   "state" : "./m-thing-config.json",
   "actions" : "./m-thing-config-actions.mjs",
   "mixins" : "./m-thing-config.mjs"
+});
+//============================================================
+// JOIN: wn/thing/mod/current/m-thing-current-actions.mjs
+//============================================================
+(function(){
+const _M = {
+  //----------------------------------------
+  // Combin Mutations
+  //----------------------------------------
+  onChanged({dispatch}, payload) {
+    dispatch("changeContent", payload)
+  },
+  //----------------------------------------
+  changeContent({commit}, payload) {
+    commit("setContent", payload)
+    commit("syncStatusChanged");
+  },
+  //----------------------------------------
+  changeMeta({commit}, {name, value}={}) {
+    if(name) {
+      let meta = _.set({}, name, value)
+      commit("mergeMeta", meta)
+      commit("syncStatusChanged")
+    }
+  },
+  //----------------------------------------
+  updateContent({state, commit}, content) {
+    commit("setContent", content)
+    if(state.meta && "FILE" == state.meta.race) {
+      commit("setSavedContent", content)
+    }
+    commit("syncStatusChanged")
+  },
+  //--------------------------------------------
+  // User Interactivity
+  //--------------------------------------------
+  async openMetaEditor({state, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let reo = await Wn.EditObjMeta(state.meta, {fields:"auto"})
+
+    // Cancel the editing
+    if(_.isUndefined(reo)) {
+      return
+    }
+
+    // Update the current editing
+    if(reo.saved) {
+      await dispatch("reload", reo.data)
+    }
+  },
+  //--------------------------------------------
+  async openContentEditor({state, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let newContent = await Wn.EditObjContent(state.meta, {
+      content : state.content
+    })
+
+    // Cancel the editing
+    if(_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("changeContent", newContent)
+  },
+  //--------------------------------------------
+  // Update to remote
+  //----------------------------------------
+  async updateMeta({commit, dispatch}, {name, value}={}) {
+    let data = Ti.Types.toObjByPair({name, value})
+    await dispatch("updateMetas", data)
+  },
+  //----------------------------------------
+  async updateMetas({state, commit, rootState}, data={}) {
+    // Check Necessary
+    if(_.isMatchWith(state.meta, data, _.isEqual)) {
+      return
+    }
+
+    // Mark field status
+    _.forEach(data, (val, name)=>{
+      commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
+    })
+
+    // Do the update
+    let json = JSON.stringify(data)
+    let th_set = rootState.main.meta.id
+    let th_id  = state.meta.id
+    let cmdText = `thing id:${th_set} update ${th_id} -fields -cqn`
+    let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+    let isError = reo instanceof Error;
+
+    if(!isError && !Ti.Util.isNil(reo)) {
+      commit("setMeta", reo)
+    }
+
+    _.forEach(data, (val, name)=>{
+      if(isError) {
+        commit("setFieldStatus", {
+          name, 
+          type: "warn", 
+          text: reo.message || "i18n:fail"
+        })
+      } else {
+        commit("setFieldStatus", {
+          name, 
+          type: "ok", 
+          text: "i18n:ok"
+        })
+        _.delay(()=>{commit("clearFieldStatus", name)}, 500)
+      }
+    })
+  },
+  //--------------------------------------------
+  // Reload & Save
+  //--------------------------------------------
+  // async setCurrent({state, commit,dispatch}, {
+  //   meta=null, force=false
+  // }={}) {
+  //   //console.log("setCurrent", meta, loadContent)
+
+  //   // Not need to reload
+  //   if(state.meta && meta && state.meta.id == meta.id) {
+  //     if((_.isString(state.content)) && !force) {
+  //       return
+  //     }
+  //   }
+
+  //   // do reload
+  //   await dispatch("reload", meta)
+
+  // },
+  //----------------------------------------
+  async save({state, commit}) {
+    if(state.status.saving || !state.status.changed){
+      return
+    }
+
+    commit("setStatus", {saving:true})
+
+    let meta = state.meta
+    let content = state.content
+    let newMeta = await Wn.Io.saveContentAsText(meta, content)
+
+    commit("setStatus", {saving:false})
+    commit("setMeta", newMeta)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+
+    // return the new meta
+    return newMeta
+  },
+  //----------------------------------------
+  async reload({state, commit, dispatch}, meta) {
+    if(state.status.reloading
+      || state.status.saving){
+      return
+    }
+    //......................................
+    // Use the default meta
+    if(_.isUndefined(meta)) {
+      meta = state.meta
+    }
+    //......................................
+    if(_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+    else if(meta && meta.id) {
+      meta = await Wn.Io.loadMetaById(meta.id)
+    }
+    //......................................
+    // Guard
+    if(!meta) {
+      commit("setMeta", null)
+      commit("setContent", null)
+      return
+    }
+    // Init content as null
+    let content = null
+    commit("setStatus", {reloading:true})
+    //......................................
+    // For file
+    if("FILE" == meta.race) {
+      // need to be reload content
+      content = await Wn.Io.loadContent(meta)
+    }
+    //......................................
+    // For dir
+    else if('DIR' == meta.race) {
+      content = await Wn.Io.loadChildren(meta)
+    }
+    //......................................
+    // Just update the meta
+    commit("setStatus", {reloading:false})
+    commit("setMeta", meta)
+    commit("clearFieldStatus")
+    // Update content and sync state
+    dispatch("updateContent", content)
+  }
+  //----------------------------------------
+}
+Ti.Preload("ti/mod/wn/thing/mod/current/m-thing-current-actions.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/thing/mod/current/m-thing-current.json
+//============================================================
+Ti.Preload("ti/mod/wn/thing/mod/current/m-thing-current.json", {
+  "meta" : null,
+  "content" : null,
+  "data" : null,
+  "__saved_content" : null,
+  "status" : {
+    "changed"   : false,
+    "saving"    : false,
+    "reloading" : false,
+    "publishing" : false
+  },
+  "fieldStatus" : {}
+});
+//============================================================
+// JOIN: wn/thing/mod/current/m-thing-current.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////
+  mutations : {
+    //----------------------------------------
+    setMeta(state, meta) {
+      state.meta = meta
+    },
+    //--------------------------------------------
+    assignMeta(state, meta) {
+      state.meta = _.assign({}, state.meta, meta);
+    },
+    //--------------------------------------------
+    mergeMeta(state, meta) {
+      state.meta = _.merge({}, state.meta, meta);
+    },
+    //----------------------------------------
+    setContent(state, content) {
+      let meta = state.meta;
+      // Guard
+      if(!meta || Ti.Util.isNil(content)) {
+        state.content = null
+        state.data = null
+        state.__saved_content = null
+        state.status.changed = false
+        return
+      }
+      //......................................
+      // DIR
+      if("DIR" == meta.race) {
+        state.content = null
+        state.__saved_content = null
+        state.data = content
+      }
+      //......................................
+      // File
+      else if("FILE" == meta.race) {
+        //....................................
+        // String content
+        if(_.isString(content)) {
+          state.content = content
+          // JSON
+          if(Wn.Util.isMimeJson(meta.mime)) {
+            try{
+              state.data = JSON.parse(content)
+            } catch(E) {
+              state.data = null
+            }
+          }
+          // Pure Text
+          else if(Wn.Util.isMimeText(meta.mime)) {
+            state.data = null
+          }
+        }
+        //....................................
+        // Take content as plain object or Array
+        else {
+          state.content = JSON.stringify(content, null, '  ')
+          // JSON
+          if(Wn.Util.isMimeJson(meta.mime)) {
+            state.data = content
+          }
+          // Pure Text
+          else if(Wn.Util.isMimeText(meta.mime)) {
+            state.data = null
+          }
+        }
+        //....................................
+      }
+    },
+    //----------------------------------------
+    setData(state, data) {
+      state.data = data
+    },
+    //----------------------------------------
+    setSavedContent(state, content) {
+      state.__saved_content = content
+    },
+    //----------------------------------------
+    setStatus(state, status) {
+      state.status = _.assign({}, state.status, status)
+    },
+    //----------------------------------------
+    syncStatusChanged(state){
+      if(Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
+        state.status.changed = false
+      } else {
+        state.status.changed = !_.isEqual(state.content, state.__saved_content)
+      }
+    },
+    //----------------------------------------
+    setFieldStatus(state, {name, type, text}={}) {
+      if(name){
+        let ukey = _.concat(name).join("-")
+        Vue.set(state.fieldStatus, ukey, {type, text})
+      }
+    },
+    //----------------------------------------
+    clearFieldStatus(state, names=[]) {
+      // Clean All
+      if(_.isEmpty(names)) {
+        state.fieldStatus = {}
+      }
+      // Clear one
+      else {
+        state.fieldStatus = _.omit(state.fieldStatus, names)
+      }
+    },
+    //----------------------------------------
+  }
+  ////////////////////////////////////////////
+}
+Ti.Preload("ti/mod/wn/thing/mod/current/m-thing-current.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/thing/mod/current/_mod.json
+//============================================================
+Ti.Preload("ti/mod/wn/thing/mod/current/_mod.json", {
+  "namespaced" : true,
+  "state" : "./m-thing-current.json",
+  "actions" : "./m-thing-current-actions.mjs",
+  "mixins" : "./m-thing-current.mjs"
 });
 //============================================================
 // JOIN: wn/thing/mod/search/m-thing-search-actions.mjs
@@ -45724,7 +46104,7 @@ Ti.Preload("ti/mod/wn/thing/_mod.json", {
   "modules" : {
     "config" : "./mod/config",
     "search" : "./mod/search",
-    "current" : "@mod:wn/obj-current"
+    "current" : "./mod/current"
   }
 });
 //============================================================
@@ -49777,7 +50157,8 @@ Ti.Preload("ti/i18n/en-us/wn-thing.i18n.json", {
   "thing-export-c-mode" : "Export mode",
   "thing-export-c-mode-csv" : "CSV File",
   "thing-export-c-mode-xls" : "Spreadsheet",
-  "thing-export-c-mode-data" : "Full data",
+  "thing-export-c-mode-json" : "JSON",
+  "thing-export-c-mode-zip" : "Zip data",
   "thing-export-c-mapping" : "Mapping",
   "thing-export-c-page" : "Data scope",
   "thing-export-c-page-current" : "Current page",
@@ -50858,7 +51239,8 @@ Ti.Preload("ti/i18n/zh-cn/wn-thing.i18n.json", {
   "thing-export-c-mode" : "导出模式",
   "thing-export-c-mode-csv" : "CSV文件",
   "thing-export-c-mode-xls" : "电子表格",
-  "thing-export-c-mode-data" : "完整数据",
+  "thing-export-c-mode-json" : "JSON",
+  "thing-export-c-mode-zip" : "数据压缩包",
   "thing-export-c-mapping" : "映射方式",
   "thing-export-c-page" : "数据范围",
   "thing-export-c-page-current" : "当前页",
