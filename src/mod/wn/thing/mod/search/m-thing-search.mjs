@@ -50,7 +50,7 @@ const _M = {
     },
     //---------------------------------------------------
     filterObj(state, getters, rootState) {
-      let {keyword, match} = state.filter || {}
+      let {keyword, match, majorKey, majorValue} = state.filter || {}
       let flt = {}
       //............................................
       // Eval Filter: keyword
@@ -89,6 +89,11 @@ const _M = {
         _.assign(flt, match)
       }
       //............................................
+      // Eval Filter: major
+      if(majorKey && !Ti.Util.isNil(majorValue)) {
+        _.set(flt, majorKey, majorValue)
+      }
+      //............................................
       // Fix filter
       let beMatch = _.get(rootState, "main.config.schema.behavior.match")
       if(!_.isEmpty(beMatch)) {
@@ -121,6 +126,7 @@ const _M = {
     },
     //---------------------------------------------------
     setFilter(state, filter={}) {
+      //console.log("setFilter", JSON.stringify(filter))
       state.filter = filter
       saveToLocal(state.meta, "filter", state.filter)
     },

@@ -498,12 +498,14 @@ const _M = {
       sorter: {},
       pager: {}
     })
-    
     // Setup default filter and sorter
     let filter = _.get(state.config.schema, "behavior.filter") || {}
-    filter = _.assign({}, filter, local.filter)
-    if(!_.isEmpty(filter)) {
-      commit("search/setFilter", filter)
+    let filter2 = _.assign({}, filter, local.filter)
+    if(!filter.majorKey) {
+      delete filter2.majorKey;
+    }
+    if(!_.isEmpty(filter2)) {
+      commit("search/setFilter", filter2)
     }
     // Sorter
     let sorter = _.get(state.config.schema, "behavior.sorter") || {}

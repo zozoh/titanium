@@ -1,7 +1,11 @@
 const _M  = {
+  "major" : {
+    type : Object,
+    default : undefined
+  },
   "form" : {
     type : Object,
-    default : null
+    default : undefined
   },
   "autoCollapse" : {
     type : Boolean,
@@ -29,7 +33,7 @@ const _M  = {
   },
   "dropHeight" : {
     type : [Number, String],
-    default : null
+    default : undefined
   }
 }
 export default _M;

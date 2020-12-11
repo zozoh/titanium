@@ -10,7 +10,8 @@ const _M = {
   data : ()=>({
     myDropStatus : "collapse",
     myFreeValue : null,
-    myFormData  : {}
+    myFormData  : {},
+    myMajorValue : undefined
   }),
   ////////////////////////////////////////////////////
   computed : {
@@ -24,6 +25,14 @@ const _M = {
     //------------------------------------------------
     isCollapse() {return "collapse"==this.myDropStatus},
     isExtended() {return "extended"==this.myDropStatus},
+    //------------------------------------------------
+    MajorConfig() {
+      if(this.major && this.major.options) {
+        return _.assign({
+          width: 120
+        }, this.major)
+      }
+    },
     //------------------------------------------------
     hasForm() {
       return !_.isEmpty(this.form)
@@ -59,6 +68,11 @@ const _M = {
   },
   ////////////////////////////////////////////////////
   methods : {
+    //------------------------------------------------
+    OnMajorChange(val) {
+      this.myMajorValue = val
+      this.tryNotifyChanged()
+    },
     //------------------------------------------------
     OnCollapse() {this.doCollapse()},
     //-----------------------------------------------
@@ -122,8 +136,10 @@ const _M = {
     //-----------------------------------------------
     genValue() {
       return {
-        keyword : this.myFreeValue,
-        match   : this.myFormData
+        majorKey   : this.myMajorKey,
+        majorValue : this.myMajorValue,
+        keyword    : this.myFreeValue,
+        match      : this.myFormData
       }
     },
     //-----------------------------------------------
@@ -131,6 +147,8 @@ const _M = {
       let val = _.assign({}, this.value)
       this.myFreeValue = val.keyword
       this.myFormData  = val.match
+      this.myMajorKey   = val.majorKey
+      this.myMajorValue = val.majorValue
     },
     //-----------------------------------------------
     // Callback

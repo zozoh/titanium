@@ -1,4 +1,4 @@
-// Pack At: 2020-12-12 04:45:53
+// Pack At: 2020-12-12 05:50:53
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -5089,9 +5089,13 @@ Ti.Preload("ti/com/ti/combo/box/_com.json", {
 //============================================================
 (function(){
 const _M  = {
+  "major" : {
+    type : Object,
+    default : undefined
+  },
   "form" : {
     type : Object,
-    default : null
+    default : undefined
   },
   "autoCollapse" : {
     type : Boolean,
@@ -5119,7 +5123,7 @@ const _M  = {
   },
   "dropHeight" : {
     type : [Number, String],
-    default : null
+    default : undefined
   }
 }
 Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter-props.mjs", _M);
@@ -5130,9 +5134,13 @@ Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter-props.mjs", _M);
 Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter.html", `<div class="ti-combo-filter"
   :class="TopClass">
   <!--
-    Marjor type
+    Major type
   -->
-
+  <TiDroplist
+    v-if="myMajorKey && MajorConfig"
+      v-bind="MajorConfig"
+      :value="myMajorValue"
+      @change="OnMajorChange"/>
   <!--
     Filter input box
   -->
@@ -5189,7 +5197,8 @@ const _M = {
   data : ()=>({
     myDropStatus : "collapse",
     myFreeValue : null,
-    myFormData  : {}
+    myFormData  : {},
+    myMajorValue : undefined
   }),
   ////////////////////////////////////////////////////
   computed : {
@@ -5203,6 +5212,14 @@ const _M = {
     //------------------------------------------------
     isCollapse() {return "collapse"==this.myDropStatus},
     isExtended() {return "extended"==this.myDropStatus},
+    //------------------------------------------------
+    MajorConfig() {
+      if(this.major && this.major.options) {
+        return _.assign({
+          width: 120
+        }, this.major)
+      }
+    },
     //------------------------------------------------
     hasForm() {
       return !_.isEmpty(this.form)
@@ -5238,6 +5255,11 @@ const _M = {
   },
   ////////////////////////////////////////////////////
   methods : {
+    //------------------------------------------------
+    OnMajorChange(val) {
+      this.myMajorValue = val
+      this.tryNotifyChanged()
+    },
     //------------------------------------------------
     OnCollapse() {this.doCollapse()},
     //-----------------------------------------------
@@ -5301,8 +5323,10 @@ const _M = {
     //-----------------------------------------------
     genValue() {
       return {
-        keyword : this.myFreeValue,
-        match   : this.myFormData
+        majorKey   : this.myMajorKey,
+        majorValue : this.myMajorValue,
+        keyword    : this.myFreeValue,
+        match      : this.myFormData
       }
     },
     //-----------------------------------------------
@@ -5310,6 +5334,8 @@ const _M = {
       let val = _.assign({}, this.value)
       this.myFreeValue = val.keyword
       this.myFormData  = val.match
+      this.myMajorKey   = val.majorKey
+      this.myMajorValue = val.majorValue
     },
     //-----------------------------------------------
     // Callback
@@ -5553,7 +5579,9 @@ const _M = {
         autoI18n : this.autoI18n,
         placeholder : this.placeholder,
         hover: this.hover,
-        prefixIconForClean : this.prefixIconForClean
+        prefixIconForClean : this.prefixIconForClean,
+        width: this.width,
+        height: this.height
       })
     },
     //------------------------------------------------
@@ -44794,12 +44822,14 @@ const _M = {
       sorter: {},
       pager: {}
     })
-    
     // Setup default filter and sorter
     let filter = _.get(state.config.schema, "behavior.filter") || {}
-    filter = _.assign({}, filter, local.filter)
-    if(!_.isEmpty(filter)) {
-      commit("search/setFilter", filter)
+    let filter2 = _.assign({}, filter, local.filter)
+    if(!filter.majorKey) {
+      delete filter2.majorKey;
+    }
+    if(!_.isEmpty(filter2)) {
+      commit("search/setFilter", filter2)
     }
     // Sorter
     let sorter = _.get(state.config.schema, "behavior.sorter") || {}
@@ -45876,7 +45906,7 @@ const _M = {
     },
     //---------------------------------------------------
     filterObj(state, getters, rootState) {
-      let {keyword, match} = state.filter || {}
+      let {keyword, match, majorKey, majorValue} = state.filter || {}
       let flt = {}
       //............................................
       // Eval Filter: keyword
@@ -45915,6 +45945,11 @@ const _M = {
         _.assign(flt, match)
       }
       //............................................
+      // Eval Filter: major
+      if(majorKey && !Ti.Util.isNil(majorValue)) {
+        _.set(flt, majorKey, majorValue)
+      }
+      //............................................
       // Fix filter
       let beMatch = _.get(rootState, "main.config.schema.behavior.match")
       if(!_.isEmpty(beMatch)) {
@@ -45947,6 +45982,7 @@ const _M = {
     },
     //---------------------------------------------------
     setFilter(state, filter={}) {
+      //console.log("setFilter", JSON.stringify(filter))
       state.filter = filter
       saveToLocal(state.meta, "filter", state.filter)
     },

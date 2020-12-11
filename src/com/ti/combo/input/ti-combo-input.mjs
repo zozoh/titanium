@@ -40,7 +40,9 @@ const _M = {
         autoI18n : this.autoI18n,
         placeholder : this.placeholder,
         hover: this.hover,
-        prefixIconForClean : this.prefixIconForClean
+        prefixIconForClean : this.prefixIconForClean,
+        width: this.width,
+        height: this.height
       })
     },
     //------------------------------------------------

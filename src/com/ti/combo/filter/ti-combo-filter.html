@@ -1,9 +1,13 @@
 <div class="ti-combo-filter"
   :class="TopClass">
   <!--
-    Marjor type
+    Major type
   -->
-
+  <TiDroplist
+    v-if="myMajorKey && MajorConfig"
+      v-bind="MajorConfig"
+      :value="myMajorValue"
+      @change="OnMajorChange"/>
   <!--
     Filter input box
   -->
