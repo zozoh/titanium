@@ -52,6 +52,7 @@ const _M = {
             title     : step.title   || stepKey,
             comType   : step.comType || "ti-label",
             comConf   : step.comConf,
+            prepare   : step.prepare,
             serializer: step.serializer,
             prev : step.prev,
             next : step.next
@@ -152,11 +153,11 @@ const _M = {
     //----------------------------------------------
     OnStepChange(payload) {
       // Prev
-      if("@prev" == payload) {
+      if("%prev" == payload) {
         this.gotoFromCurrent(-1)
       }
       // Next
-      else if("@next" == payload) {
+      else if("%next" == payload) {
         this.gotoFromCurrent(1)
       }
       // absolute step
@@ -228,6 +229,7 @@ const _M = {
       if(step) {
         let oldStep = _.cloneDeep(this.CurrentStep)
         this.myCurrent = step.index
+
         this.$notify("step:chanage", {
           index: step.index,
           step,
@@ -284,6 +286,19 @@ const _M = {
       }
     }
     //----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "CurrentStep" : {
+      handler : function(step, oldstep) {
+        if(step && _.isFunction(step.prepare)) {
+          if(!oldstep || step.stepKey != oldstep.stepKey) {
+            step.prepare.apply(this, [step])
+          }
+        }
+      },
+      immediate : true
+    }
   }
   ///////////////////////////////////////////////////
 }

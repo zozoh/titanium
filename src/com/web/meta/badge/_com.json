@@ -1,0 +1,6 @@
+{
+  "name" : "web-meta-badge",
+  "globally" : true,
+  "template" : "./web-meta-badge.html",
+  "mixins"   : ["./web-meta-badge.mjs"]
+}

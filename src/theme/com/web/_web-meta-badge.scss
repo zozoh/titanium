@@ -1,0 +1,38 @@
+.web-meta-badge {
+  @include flex-center;
+  user-select: none; 
+  padding: 1em;
+  //-----------------------------------------
+  &.is-success {@include color($color-success, c);}
+  &.is-warn    {@include color($color-warn, c);}
+  &.is-info    {@include color($color-info, c);}
+  &.is-error   {@include color($color-error, c);}
+  &.is-track   {@include color($color-track, c);}
+  &.is-disable {@include color($color-disable, c);}
+  &.is-text    {@include color($color-text, c);}
+  &.is-number  {@include color($color-number, c);}
+  //-----------------------------------------
+  > .as-icon {
+    margin: .5em; font-size: SZ(64);
+  }
+  //-----------------------------------------
+  > .as-title {
+    font-size: 2em; font-weight: bold;
+    margin: .2em; width:100%;
+    text-align: center;
+  }
+  //-----------------------------------------
+  > .as-brief {
+    opacity: 0.7; width:100%;
+    text-align: center;
+  }
+  //-----------------------------------------
+  > .as-links {
+    padding: 2em 0;
+    li a {
+      @include flex-align-nowrap;
+      .ti-icon {margin-right: .5em;}
+    }
+  }
+  //-----------------------------------------
+}

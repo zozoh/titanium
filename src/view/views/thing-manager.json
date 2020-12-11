@@ -68,6 +68,11 @@
         "action" : "dispatch:main/exportData",
         "shortcut" : "ALT+CTRL+SHIFT+O"
       }, {
+        "key"  : "openExportDataDir",
+        "type" : "action",
+        "text" : "i18n:thing-export-open-dir",
+        "action" : "dispatch:main/openExportDataDir"
+      }, {
         "type" : "line"
       }, {
         "name" : "inRecycleBin",

@@ -1,4 +1,4 @@
-// Pack At: 2020-12-10 23:54:34
+// Pack At: 2020-12-12 03:06:03
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -26896,6 +26896,7 @@ const _M = {
             title     : step.title   || stepKey,
             comType   : step.comType || "ti-label",
             comConf   : step.comConf,
+            prepare   : step.prepare,
             serializer: step.serializer,
             prev : step.prev,
             next : step.next
@@ -26996,11 +26997,11 @@ const _M = {
     //----------------------------------------------
     OnStepChange(payload) {
       // Prev
-      if("@prev" == payload) {
+      if("%prev" == payload) {
         this.gotoFromCurrent(-1)
       }
       // Next
-      else if("@next" == payload) {
+      else if("%next" == payload) {
         this.gotoFromCurrent(1)
       }
       // absolute step
@@ -27072,6 +27073,7 @@ const _M = {
       if(step) {
         let oldStep = _.cloneDeep(this.CurrentStep)
         this.myCurrent = step.index
+
         this.$notify("step:chanage", {
           index: step.index,
           step,
@@ -27128,6 +27130,19 @@ const _M = {
       }
     }
     //----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "CurrentStep" : {
+      handler : function(step, oldstep) {
+        if(step && _.isFunction(step.prepare)) {
+          if(!oldstep || step.stepKey != oldstep.stepKey) {
+            step.prepare.apply(this, [step])
+          }
+        }
+      },
+      immediate : true
+    }
   }
   ///////////////////////////////////////////////////
 }
@@ -29885,6 +29900,199 @@ Ti.Preload("ti/com/web/meta/article/_com.json", {
   "globally" : true,
   "template" : "./web-meta-article.html",
   "mixins"   : ["./web-meta-article.mjs"]
+});
+//============================================================
+// JOIN: web/meta/badge/web-meta-badge.html
+//============================================================
+Ti.Preload("ti/com/web/meta/badge/web-meta-badge.html", `<div class="web-meta-badge"
+  :class="TopClass">
+  <!--==============================-->
+  <ti-icon
+    v-if="TheIcon"
+      class="as-icon"
+      :value="TheIcon"
+      :style="IconStyle"/>
+  <!--==============================-->
+  <div
+    v-if="TheTitle"
+      class="as-title">{{TheTitle | i18n}}</div>
+  <!--==============================-->
+  <div
+    v-if="TheBrief"
+      class="as-brief">{{TheBrief | i18n}}</div>
+  <!--==============================-->
+  <div
+    v-if="hasLinks"
+      class="as-links">
+      <ul>
+        <li
+          v-for="li in TheLinks">
+            <a 
+              @click.left="OnClickLink(li, $event)"
+              :href="li.href"
+              :target="li.newtab?'_blank':'_self'">
+                <ti-icon v-if="li.icon" :value="li.icon"/>
+                <span>{{li.text | i18n}}</span></a>
+        </li>
+      </ul>
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/meta/badge/web-meta-badge.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  data: ()=>({
+    myData: undefined
+  }),
+  /////////////////////////////////////////
+  props : {
+    //--------------------------------------
+    // Data
+    //--------------------------------------
+    "value" : undefined,
+    "transformer" : {
+      type : [String, Function, Object],
+      default : undefined
+    },
+    //--------------------------------------
+    // Behavior
+    //--------------------------------------
+    // ...
+    //--------------------------------------
+    // Aspect
+    //--------------------------------------
+    // "=xxx" : get icon from value
+    // F(this.value)
+    // "fas-xx"  : static value
+    // "xxx.png" : static image (SVG supported)
+    "icon" : {
+      type : [String, Function],
+      default : "=icon"
+    },
+    "title" : {
+      type : [String, Function],
+      default : "=title"
+    },
+    "brief" : {
+      type : [String, Function],
+      default : "=brief"
+    },
+    // [{icon, text, href, newtab, emitName, payload}]
+    "links" : {
+      type : [Array, String, Function, Object],
+      default : "=links"
+    },
+    //--------------------------------------
+    // Measure
+    //--------------------------------------
+    "iconWidth" : {
+      type : [String, Number],
+      default : undefined
+    },
+    "iconHeight" : {
+      type : [String, Number],
+      default : undefined
+    },
+    "iconSize" : {
+      type : [String, Number],
+      default : undefined
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass(_.get(this.myData, "className"))
+    },
+    //--------------------------------------
+    IconStyle() {
+      return Ti.Css.toStyle({
+        width: this.iconWidth,
+        height : this.iconHeight,
+        fontSize : this.iconSize
+      })
+    },
+    //--------------------------------------
+    TheIcon() {
+      return Ti.Util.explainObj(this.myData, this.icon);
+    },
+    //--------------------------------------
+    TheTitle() {
+      return Ti.Util.explainObj(this.myData, this.title);
+    },
+    //--------------------------------------
+    TheBrief() {
+      return Ti.Util.explainObj(this.myData, this.brief);
+    },
+    //--------------------------------------
+    TheLinks() {
+      let links = Ti.Util.explainObj(this.myData, this.links);
+      if(!links)
+        return []
+      if(!_.isArray(links)) {
+        links = [links]
+      }
+      let list = []
+      for(let i=0; i<links.length; i++) {
+        let li = links[i]
+        if(li.text) {
+          list.push({index: i, ... li})
+        }
+      }
+      return list
+    },
+    //--------------------------------------
+    hasLinks() {
+      return !_.isEmpty(this.TheLinks)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnClickLink({href, emitName, payload}={}, evn) {
+      if(!href) {
+        evn.preventDefault()
+        if(emitName) {
+          this.$notify(emitName, payload)
+        }
+      }
+    },
+    //--------------------------------------
+    async evalData() {
+      if(this.transformer) {
+        if(_.isFunction(this.transformer)) {
+          this.myData = await this.transformer(this.value)
+        } else {
+          this.myData = Ti.Util.explainObj(this.value, this.transformer)
+        }
+      } else {
+        this.myData = this.value
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "value" : {
+      handler: "evalData",
+      immediate : true
+    }
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/meta/badge/web-meta-badge.mjs", _M);
+})();
+//============================================================
+// JOIN: web/meta/badge/_com.json
+//============================================================
+Ti.Preload("ti/com/web/meta/badge/_com.json", {
+  "name" : "web-meta-badge",
+  "globally" : true,
+  "template" : "./web-meta-badge.html",
+  "mixins"   : ["./web-meta-badge.mjs"]
 });
 //============================================================
 // JOIN: web/meta/commodity/web-meta-commodity.html
@@ -35641,6 +35849,7 @@ const _M = {
       type : String,
       default: undefined
     },
+    "emitPayload" : undefined,
     "input" : {
       type : String,
       default: undefined
@@ -35652,6 +35861,10 @@ const _M = {
     "showRunTip" : {
       type : Boolean,
       default : true
+    },
+    "afterRunCommand" : {
+      type : Function,
+      default : undefined
     }
   },
   ////////////////////////////////////////////////////
@@ -35676,7 +35889,6 @@ const _M = {
       if(this.showRunTip) {
         this.printHR()
         this.lines.push(Ti.I18n.get("run-welcome"))
-        this.printHR()
       }
 
       // let re = await Wn.Sys.exec(this.value, {
@@ -35690,8 +35902,12 @@ const _M = {
       // })
       let re = await this.exec(this.value)
 
+      if(_.isFunction(this.afterRunCommand)) {
+        await this.afterRunCommand(re)
+      }
+
       if(this.emitName) {
-        this.$notify(this.emitName, re)
+        this.$notify(this.emitName, this.emitPayload || re)
       }
     },
     //------------------------------------------------
@@ -35719,6 +35935,7 @@ const _M = {
       if(this.showRunTip || options.showRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)
+        this.printHR()
         this.lines.push(Ti.I18n.get("run-finished"))
       }
 
@@ -44655,13 +44872,31 @@ Ti.Preload("ti/mod/wn/thing/m-thing-actions.mjs", _M);
 (function(){
 const _M = {
   //--------------------------------------------
+  async openExportDataDir({state}, target) {
+    let meta = state.meta
+    let taDir = target || `id:${meta.id}/export_data`
+    console.log(taDir)
+    let oDir = await Wn.Io.loadMeta(taDir)
+    let link = Wn.Util.getAppLink(oDir)
+
+    await Ti.Be.Open(link.url, {params:link.params})
+  },
+  //--------------------------------------------
+  async exportDataByModes({dispatch}, mode="csv;xls;data") {
+    await dispatch("exportData", {mode})
+  },
+  //--------------------------------------------
   //
   // Export to csv or excel
   //
   //--------------------------------------------
-  async exportData({state, getters}) {
+  async exportData({state, getters}, {
+    target, mode="csv;xls;data"
+  }={}) {
     let meta = state.meta
     let cmds = [`thing id:${meta.id} query -cqn`]
+    //............................................
+    let taDir = target || `id:${meta.id}/export_data`
     //............................................
     // Eval Sorter
     if(!_.isEmpty(state.sorter)) {
@@ -44675,6 +44910,97 @@ const _M = {
     let ts = Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
     let exportName = `${Ti.I18n.text(meta.title||meta.nm)}-${ts}`
     //............................................
+    // Try load export mapping template
+    let oExDir = await Wn.Io.loadMeta(`id:${meta.id}/export/`)
+    let oExList = []
+    if(oExDir) {
+      oExList = (await Wn.Io.loadChildren(oExDir)).list;
+    }
+    //............................................
+    // Prepare the result
+    let result = {
+      mode : "xls",
+      page : "current",
+      name : exportName,
+      expiIn : 3,
+      fltInput,
+      cmdText : undefined,
+      outPath : undefined,
+      target : undefined
+    }
+    //............................................
+    // Eval modes options
+    let modeNames = mode.split(";")
+    let modeMap = {
+      csv  : {value: "csv",  text: "i18n:thing-export-c-mode-csv"},
+      xls  : {value: "xls",  text: "i18n:thing-export-c-mode-xls"},
+      data : {value: "data", text: "i18n:thing-export-c-mode-data"}
+    }
+    let modeOptions = []
+    _.forEach(modeNames, nm => {
+      modeOptions.push(modeMap[nm])
+    })
+    //............................................
+    // Make the config form fields
+    let formFields = [];
+    formFields.push({
+      title : "i18n:thing-export-c-mode",
+      name : "mode",
+      comType : "TiSwitcher",
+      comConf : {
+        options: modeOptions
+      }
+    })
+    if(!_.isEmpty(oExList)) {
+      result.mapping = _.first(oExList).nm
+      formFields.push({
+        title : "i18n:thing-export-c-mapping",
+        name : "mapping",
+        disabled : {
+          mode : "full"
+        },
+        comType : "TiDroplist",
+        comConf : {
+          options : oExList,
+          iconBy  : "icon",
+          valueBy : "nm",
+          textBy  : "title|nm",
+          dropDisplay: ['<icon:zmdi-book>', 'title|nm']
+        }
+      })
+    }
+    formFields.push({
+      title : "i18n:thing-export-c-page",
+      name : "page", 
+      comType : "TiSwitcher",
+      comConf : {
+        options: [
+          {value: "current",  text: "i18n:thing-export-c-page-current"},
+          {value: "all",      text: "i18n:thing-export-c-page-all"}
+        ]
+      }
+    })
+    formFields.push({
+      title : "i18n:thing-export-c-name",
+      name : "name", 
+      comType : "TiInput",
+      comConf : {
+      }
+    })
+    formFields.push({
+      title : "i18n:thing-export-c-expi",
+      name : "expiIn", 
+      comType : "TiSwitcher",
+      comConf : {
+        options: [
+          {value: 3,  text: "i18n:thing-export-c-expi-3d"},
+          {value: 7,  text: "i18n:thing-export-c-expi-7d"},
+          {value: 14, text: "i18n:thing-export-c-expi-14d"},
+          {value: 0,  text: "i18n:thing-export-c-expi-off"}
+        ]
+      }
+    })
+    //............................................
     // Open the dialog to collection user selection
     await Ti.App.Open({
       title  : "i18n:export-data",
@@ -44682,13 +45008,7 @@ const _M = {
       height : 640,
       position : "top",
       textOk: null, textCancel: null,
-      result : {
-        mode : "csv",
-        page : "current",
-        name : exportName,
-        fltInput,
-        cmdText : null
-      },
+      result,
       comType : "TiWizard",
       comConf : {
         style : {
@@ -44699,33 +45019,7 @@ const _M = {
           comType : "TiForm",
           comConf : {
             data : ":=..",
-            fields : [{
-              title : "导出模式",
-              name : "mode",
-              comType : "TiSwitcher",
-              comConf : {
-                options: [
-                  {value: "xls", text: "电子表格"},
-                  {value: "full", text: "完整数据包"}
-                ]
-              }
-            }, {
-              title : "数据范围",
-              name : "page", 
-              comType : "TiSwitcher",
-              comConf : {
-                options: [
-                  {value: "current",  text: "当前页"},
-                  {value: "all",      text: "全部页"}
-                ]
-              }
-            }, {
-              title : "导出文件名称",
-              name : "name", 
-              comType : "TiInput",
-              comConf : {
-              }
-            }]
+            fields : formFields
           },
           prev : false,
           next : {
@@ -44733,26 +45027,83 @@ const _M = {
               name : "![BLANK]"
             },
             handler : function() {
+              let outPath = `${taDir}/${this.value.name}.${this.value.mode}`
+              // Join pager
+              if("current" == this.value.page) {
+                let limit = state.pager.pgsz
+                let skip  = state.pager.pgsz * (state.pager.pn - 1)
+                cmds.push(`-limit ${limit}`)
+                cmds.push(`-skip  ${skip}`)
+              }
+
+              // Join the export 
+              cmds.push('|', 'sheet -process "${P} : ${id} : ${title} : ${nm}"')
+              cmds.push("-tpo " + this.value.mode)
+              cmds.push(`-out '${outPath}';`)
+
+              // expi time
+              if(this.value.expiIn > 0) {
+                cmds.push(`obj ${outPath} -u 'expi:"%ms:now+${this.value.expiIn}d"';`)
+              }
+
+              // Join command
               let cmdText = cmds.join(" ")
+
+              // Confirm change
               this.$notify("change", {
                 ...this.value,
+                outPath,
                 cmdText
               })
-              this.gotoFromCurrent(-1)
+
+              // Go to run command
+              this.gotoFromCurrent(1)
             }
           }
         }, {
           title : "i18n:thing-export-ing",
-          dataKey : "cmdText",
-          comType : "TiLabel",
+          comType : "WnCmdPanel",
           comConf : {
-            value : ":=.."
+            value : ":=cmdText",
+            input : fltInput,
+            tipText : "i18n:thing-export-ing-tip",
+            tipIcon : "fas-bullhorn",
+            emitName : "step:change",
+            emitPayload : "%next"
+          },
+          prev : false,
+          next : false
+        }, {
+          title : "i18n:thing-export-done",
+          prepare : async function(){
+            let oTa = await Wn.Io.loadMeta(this.value.outPath)
+            console.log(oTa)
+            this.$notify("change", {
+              ... this.value,
+              target : oTa
+            })
+          },
+          comType : "WebMetaBadge",
+          comConf : {
+            className : "is-success",
+            value : ":=target",
+            icon  : "fas-check-circle",
+            title : "i18n:thing-export-done-ok",
+            brief : "i18n:thing-export-done-tip",
+            links : {
+              icon : "fas-download",
+              text : ":=target.nm",
+              href : ":->/o/content?str=id:${target.id}&d=true",
+              newtab : true
+            }
           }
         }]
       },
       components : [
         "@com:ti/wizard",
-        "@com:ti/form"
+        "@com:ti/form",
+        "@com:wn/cmd/panel",
+        "@com:web/meta/badge"
       ]
     })
   }
@@ -49417,6 +49768,28 @@ Ti.Preload("ti/i18n/en-us/wn-obj-preview.i18n.json", {
 // JOIN: en-us/wn-thing.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/wn-thing.i18n.json", {
+  "thing-export-setup" : "Export setup",
+  "thing-export-ing" : "Processing",
+  "thing-export-ing-tip" : "The export script is running, please wait for a while",
+  "thing-export-done" : "Finished",
+  "thing-export-done-ok" : "Export success",
+  "thing-export-done-tip" : "Please click the link below to download",
+  "thing-export-c-mode" : "Export mode",
+  "thing-export-c-mode-csv" : "CSV File",
+  "thing-export-c-mode-xls" : "Spreadsheet",
+  "thing-export-c-mode-data" : "Full data",
+  "thing-export-c-mapping" : "Mapping",
+  "thing-export-c-page" : "Data scope",
+  "thing-export-c-page-current" : "Current page",
+  "thing-export-c-page-all" : "All page",
+  "thing-export-c-name" : "Export name",
+  "thing-export-c-expi" : "Expire in",
+  "thing-export-c-expi-3d" : "3Days",
+  "thing-export-c-expi-7d" : "7Days",
+  "thing-export-c-expi-14d" : "14Days",
+  "thing-export-c-expi-off" : "Never",
+  "thing-export-open-dir" : "Open export history dir...",
+
   "thing-clean": "Empty the recycle bin",
   "thing-cleaning": "Cleaning...",
   "thing-content": "Object content",
@@ -50478,7 +50851,26 @@ Ti.Preload("ti/i18n/zh-cn/wn-obj-preview.i18n.json", {
 Ti.Preload("ti/i18n/zh-cn/wn-thing.i18n.json", {
   "thing-export-setup" : "导出设置",
   "thing-export-ing" : "执行导出",
+  "thing-export-ing-tip" : "正在执行导出脚本，请稍后",
   "thing-export-done" : "完成",
+  "thing-export-done-ok" : "导出成功",
+  "thing-export-done-tip" : "请点击下载链接下载",
+  "thing-export-c-mode" : "导出模式",
+  "thing-export-c-mode-csv" : "CSV文件",
+  "thing-export-c-mode-xls" : "电子表格",
+  "thing-export-c-mode-data" : "完整数据",
+  "thing-export-c-mapping" : "映射方式",
+  "thing-export-c-page" : "数据范围",
+  "thing-export-c-page-current" : "当前页",
+  "thing-export-c-page-all" : "全部页",
+  "thing-export-c-name" : "导出文件名称",
+  "thing-export-c-expi" : "保存时间",
+  "thing-export-c-expi-3d" : "三天",
+  "thing-export-c-expi-7d" : "七天",
+  "thing-export-c-expi-14d" : "十四天",
+  "thing-export-c-expi-off" : "永远",
+  "thing-export-open-dir" : "打开导出历史目录...",
+ 
 
   "thing-clean": "清空回收站",
   "thing-cleaning": "正在清空...",

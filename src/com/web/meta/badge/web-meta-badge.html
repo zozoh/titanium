@@ -1,0 +1,33 @@
+<div class="web-meta-badge"
+  :class="TopClass">
+  <!--==============================-->
+  <ti-icon
+    v-if="TheIcon"
+      class="as-icon"
+      :value="TheIcon"
+      :style="IconStyle"/>
+  <!--==============================-->
+  <div
+    v-if="TheTitle"
+      class="as-title">{{TheTitle | i18n}}</div>
+  <!--==============================-->
+  <div
+    v-if="TheBrief"
+      class="as-brief">{{TheBrief | i18n}}</div>
+  <!--==============================-->
+  <div
+    v-if="hasLinks"
+      class="as-links">
+      <ul>
+        <li
+          v-for="li in TheLinks">
+            <a 
+              @click.left="OnClickLink(li, $event)"
+              :href="li.href"
+              :target="li.newtab?'_blank':'_self'">
+                <ti-icon v-if="li.icon" :value="li.icon"/>
+                <span>{{li.text | i18n}}</span></a>
+        </li>
+      </ul>
+  </div>
+</div>

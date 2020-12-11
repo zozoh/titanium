@@ -29,6 +29,7 @@ const _M = {
       type : String,
       default: undefined
     },
+    "emitPayload" : undefined,
     "input" : {
       type : String,
       default: undefined
@@ -40,6 +41,10 @@ const _M = {
     "showRunTip" : {
       type : Boolean,
       default : true
+    },
+    "afterRunCommand" : {
+      type : Function,
+      default : undefined
     }
   },
   ////////////////////////////////////////////////////
@@ -64,7 +69,6 @@ const _M = {
       if(this.showRunTip) {
         this.printHR()
         this.lines.push(Ti.I18n.get("run-welcome"))
-        this.printHR()
       }
 
       // let re = await Wn.Sys.exec(this.value, {
@@ -78,8 +82,12 @@ const _M = {
       // })
       let re = await this.exec(this.value)
 
+      if(_.isFunction(this.afterRunCommand)) {
+        await this.afterRunCommand(re)
+      }
+
       if(this.emitName) {
-        this.$notify(this.emitName, re)
+        this.$notify(this.emitName, this.emitPayload || re)
       }
     },
     //------------------------------------------------
@@ -107,6 +115,7 @@ const _M = {
       if(this.showRunTip || options.showRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)
+        this.printHR()
         this.lines.push(Ti.I18n.get("run-finished"))
       }
 
