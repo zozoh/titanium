@@ -29,7 +29,8 @@ const _M = {
     MajorConfig() {
       if(this.major && this.major.options) {
         return _.assign({
-          width: 120
+          width: 120,
+          dropDisplay: ['<icon>', "text|title|nm"]
         }, this.major)
       }
     },

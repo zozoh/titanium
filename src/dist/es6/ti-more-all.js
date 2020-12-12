@@ -1,4 +1,4 @@
-// Pack At: 2020-12-12 05:50:53
+// Pack At: 2020-12-12 18:23:11
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -5216,7 +5216,8 @@ const _M = {
     MajorConfig() {
       if(this.major && this.major.options) {
         return _.assign({
-          width: 120
+          width: 120,
+          dropDisplay: ['<icon>', "text|title|nm"]
         }, this.major)
       }
     },
