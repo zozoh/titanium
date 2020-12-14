@@ -55,7 +55,7 @@ const _M = {
       //............................................
       // Eval Filter: keyword
       if(keyword) {
-        if(/^[0-9a-z]{32}$/.test(keyword)) {
+        if(/"^[\d\w]{26}(:.+)?$"/.test(keyword)) {
           flt.id = keyword
         }
         // Find

@@ -80,11 +80,25 @@ author: zozohtnt@gmail.com
 # 属性:外观
 
 ------------------------------------------------------
-## `pinIcon`大头针图标
+## `markerIcon`大头针图标
 
 只有在`editPoint`为`pin`模式下才有效
 
 可以自定义大头针图标
+
+------------------------------------------------------
+## `markerIconOptions`图标更多配置
+
+```js
+{
+  color ： "primary",
+  iconSize ： [24, 41],
+  iconAnchor ： [12, 41],
+  shadow ： true,
+  shadowSize ： [41, 41],
+  shadowAnchor ： [12, 41]
+}
+```
 
 ------------------------------------------------------
 ## `imageIconBase`图标基础路径
@@ -92,7 +106,7 @@ author: zozohtnt@gmail.com
 所有自定义图标，只要不是绝对路径，会自动拼合上这个基础路径。
 默认为 `/gu/rs/ti/icons/`。
 
-也就是说，如果你的图标，譬如 `pinIcon="out/abc.png"`
+也就是说，如果你的图标，譬如 `markerIcon="out/abc.png"`
 那么，实际上会生成这样的的代码:
 
 ```html

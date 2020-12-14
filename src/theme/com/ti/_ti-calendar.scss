@@ -54,6 +54,7 @@ $ti-cal-width: SZ(260);
   //---------------------------------
   > .as-matrix-table {
     @include flex-align-nowrap($ai:stretch);
+    overflow: hidden;
     > .as-matrix {
       border-left:1px solid map-get($color-line, shallow);
       width:$ti-cal-width;

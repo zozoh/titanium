@@ -58,6 +58,10 @@ export default {
     type : Number,
     default : 14
   },
+  "keepZoomBy" : {
+    type : String,
+    default : undefined
+  },
   "mapOptions" : {
     type : Object,
     default : ()=>({})

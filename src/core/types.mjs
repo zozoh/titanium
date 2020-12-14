@@ -803,6 +803,50 @@ const TiTypes = {
     return JSON.stringify(obj, null, tabs)
   },
   //.......................................
+  // translate {keyword,majorKey,majorVlue,match} -> {...}
+  toFilter(flt={}, options={}) {
+    console.log("toFilter", flt)
+    let reo = {}
+    let {keyword, match, majorKey, majorValue} = flt || {}
+    let kwSetup = options.keyword || {
+      "=id"   : "^[\\d\\w]{26}(:.+)?$",
+      "=nm"   : "^[\\d\\w_.-]{3,}$",
+      "title" : "^.+"
+    }
+    //.....................................
+    if(keyword) {
+      let knm = "title"
+      let keys = _.keys(kwSetup)
+      for(let k of keys) {
+        let val = kwSetup[k]
+        if(new RegExp(val).test(keyword)) {
+          knm = k;
+          break;
+        }
+      }
+      // Accurate equal
+      if(knm.startsWith("=")) {
+        reo[knm.substring(1).trim()] = keyword
+      }
+      // Default is like
+      else {
+        reo[knm] = "^.*"+keyword;
+      }
+    }
+    //.....................................
+    // Eval Filter: match
+    if(!_.isEmpty(match)) {
+      _.assign(reo, match)
+    }
+    //.....................................
+    // Eval Filter: major
+    if(majorKey && !Ti.Util.isNil(majorValue)) {
+      _.set(reo, majorKey, majorValue)
+    }
+    //.....................................
+    return reo
+  },
+  //.......................................
   /***
    * parse JSON safely. It will support un-quoted key like `{x:100}`.
    * Before eval, it will replace the key-word `function` to `Function`

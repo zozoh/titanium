@@ -1,4 +1,4 @@
-// Pack At: 2020-12-12 18:23:11
+// Pack At: 2020-12-14 18:52:11
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -28851,6 +28851,10 @@ const _M = {
     type : Number,
     default : 14
   },
+  "keepZoomBy" : {
+    type : String,
+    default : undefined
+  },
   "mapOptions" : {
     type : Object,
     default : ()=>({})
@@ -29156,6 +29160,10 @@ const _M = {
         S: bou.getSouth(),
         N: bou.getNorth()
       }
+      // Keep zoom in local
+      if(this.keepZoomBy) {
+        Ti.Storage.local.set(this.keepZoomBy, this.geo.zoom)
+      }
     },
     //--------------------------------------
     OnMapPointerMove(evt) {
@@ -29339,8 +29347,13 @@ const _M = {
         },
         //..................................
         "obj-list" : (list=[])=>{
-          let {SW,NE} = Ti.GIS.getLatlngObjBounds(list)
-          this.fitBounds([SW, NE])
+          if(list.length > 1) {
+            let {SW,NE} = Ti.GIS.getLatlngObjBounds(list)
+            this.fitBounds([SW, NE])
+          } else if(list.length == 1) {
+            let latlng = list[0]
+            this.$map.setView(latlng, zoom)
+          }
         },
         //..................................
         "pair" : (latlng)=>{
@@ -29348,8 +29361,13 @@ const _M = {
         },
         //..................................
         "pair-list" : (list=[]) => {
-          let {SW,NE} = Ti.GIS.getLatlngPairBounds(list)
-          this.fitBounds([SW, NE])
+          if(list.length > 1) {
+            let {SW,NE} = Ti.GIS.getLatlngObjBounds(list)
+            this.fitBounds([SW, NE])
+          } else if(list.length == 1) {
+            let latlng = list[0]
+            this.$map.setView(latlng, zoom)
+          }
         },
         //..................................
         "geojson" : (geojson) => {
@@ -29408,6 +29426,14 @@ const _M = {
         this.initMapView()
       }
       this.redraw()
+    }
+  },
+  //////////////////////////////////////////
+  created : function() {
+    // Restore the Kept zoom in local
+    if(this.keepZoomBy) {
+      let zoom = Ti.Storage.local.getInt(this.keepZoomBy, this.zoom)
+      this.geo.zoom = zoom
     }
   },
   //////////////////////////////////////////
@@ -45912,7 +45938,7 @@ const _M = {
       //............................................
       // Eval Filter: keyword
       if(keyword) {
-        if(/^[0-9a-z]{32}$/.test(keyword)) {
+        if(/"^[\d\w]{26}(:.+)?$"/.test(keyword)) {
           flt.id = keyword
         }
         // Find
