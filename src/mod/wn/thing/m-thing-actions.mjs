@@ -445,7 +445,14 @@ const _M = {
     //..........................................
     // Reload Current
     let currentMeta = _.cloneDeep(meta)
-    commit("current/setMeta", currentMeta)
+    // Reload if show content
+    if(_.get(state.config, "shown.content")) {
+      await dispatch("current/reload", currentMeta)
+    }
+    // Just update the meta
+    else {
+      commit("current/setMeta", currentMeta)
+    }
     //..........................................
   },
   //--------------------------------------------
@@ -455,8 +462,15 @@ const _M = {
    * If show content/files, it may check if need to be reload data
    */
   async doChangeShown({state, commit, dispatch}, shown) {
+    let oldShownContent = _.get(state, "config.shown.content") || false
     // Just mark the shown
     dispatch("config/updateShown", shown)
+
+    // If show changed, and content is true
+    if(!oldShownContent && shown.content) {
+      console.log("reload current content")
+      await dispatch("current/reload")
+    }
   },
   //--------------------------------------------
   /***

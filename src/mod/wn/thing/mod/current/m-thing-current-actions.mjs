@@ -165,6 +165,12 @@ const _M = {
       meta = state.meta
     }
     //......................................
+    // Before reload content and meta,
+    // Update meta at first
+    let preContent = meta ? "" : null
+    commit("setContent", preContent)
+    commit("setSavedContent", preContent)
+    //......................................
     if(_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
@@ -174,8 +180,6 @@ const _M = {
     //......................................
     // Guard
     if(!meta) {
-      commit("setMeta", null)
-      commit("setContent", null)
       return
     }
     // Init content as null
