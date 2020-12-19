@@ -230,7 +230,6 @@ const FieldDisplay = {
         // - "text+>/a/link?nm=${name}"
         // - "'More'->/a/link?id=${id}"
         // - "name:【${val}】->/a/link?id=${id}"
-        console.log(displayItem)
         m = /^([^+:>-]+)(:([^+:-]*)(:([^:]+))?)?(([+-])>([^%]*))?$/.exec(displayItem)
         if(m) {
           let key  = _.trim(m[1] || m[0])

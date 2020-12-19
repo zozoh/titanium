@@ -1,4 +1,4 @@
-// Pack At: 2020-12-19 19:01:01
+// Pack At: 2020-12-19 19:19:41
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -19606,7 +19606,6 @@ const FieldDisplay = {
         // - "text+>/a/link?nm=${name}"
         // - "'More'->/a/link?id=${id}"
         // - "name:【${val}】->/a/link?id=${id}"
-        console.log(displayItem)
         m = /^([^+:>-]+)(:([^+:-]*)(:([^:]+))?)?(([+-])>([^%]*))?$/.exec(displayItem)
         if(m) {
           let key  = _.trim(m[1] || m[0])
@@ -44986,6 +44985,7 @@ const _M = {
       ... meta,
       time : Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
     })
+    exportName = Ti.I18n.text(exportName)
     //............................................
     // Try load export mapping template
     let phMappingDir = Ti.S.renderBy(mappingDir, meta)
@@ -45121,8 +45121,8 @@ const _M = {
               let outPath = `${taDir}/${this.value.name}.${this.value.mode}`
               // Join pager
               if("current" == this.value.page) {
-                let limit = state.pager.pgsz
-                let skip  = state.pager.pgsz * (state.pager.pn - 1)
+                let limit = state.search.pager.pgsz
+                let skip  = state.search.pager.pgsz * (state.search.pager.pn - 1)
                 cmds.push(`-limit ${limit}`)
                 cmds.push(`-skip  ${skip}`)
               }

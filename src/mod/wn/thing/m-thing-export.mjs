@@ -43,6 +43,7 @@ export default {
       ... meta,
       time : Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
     })
+    exportName = Ti.I18n.text(exportName)
     //............................................
     // Try load export mapping template
     let phMappingDir = Ti.S.renderBy(mappingDir, meta)
@@ -178,8 +179,8 @@ export default {
               let outPath = `${taDir}/${this.value.name}.${this.value.mode}`
               // Join pager
               if("current" == this.value.page) {
-                let limit = state.pager.pgsz
-                let skip  = state.pager.pgsz * (state.pager.pn - 1)
+                let limit = state.search.pager.pgsz
+                let skip  = state.search.pager.pgsz * (state.search.pager.pn - 1)
                 cmds.push(`-limit ${limit}`)
                 cmds.push(`-skip  ${skip}`)
               }
