@@ -1,4 +1,4 @@
-// Pack At: 2020-12-14 18:52:11
+// Pack At: 2020-12-19 19:01:01
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -19606,7 +19606,8 @@ const FieldDisplay = {
         // - "text+>/a/link?nm=${name}"
         // - "'More'->/a/link?id=${id}"
         // - "name:【${val}】->/a/link?id=${id}"
-        m = /^([^+-:>]+)(:([^+-:]*)(:([^:]+))?)?(([+-])>([^%]*))?$/.exec(displayItem)
+        console.log(displayItem)
+        m = /^([^+:>-]+)(:([^+:-]*)(:([^:]+))?)?(([+-])>([^%]*))?$/.exec(displayItem)
         if(m) {
           let key  = _.trim(m[1] || m[0])
           let format = m[3] || undefined
@@ -44796,7 +44797,14 @@ const _M = {
     //..........................................
     // Reload Current
     let currentMeta = _.cloneDeep(meta)
-    commit("current/setMeta", currentMeta)
+    // Reload if show content
+    if(_.get(state.config, "shown.content")) {
+      await dispatch("current/reload", currentMeta)
+    }
+    // Just update the meta
+    else {
+      commit("current/setMeta", currentMeta)
+    }
     //..........................................
   },
   //--------------------------------------------
@@ -44806,8 +44814,15 @@ const _M = {
    * If show content/files, it may check if need to be reload data
    */
   async doChangeShown({state, commit, dispatch}, shown) {
+    let oldShownContent = _.get(state, "config.shown.content") || false
     // Just mark the shown
     dispatch("config/updateShown", shown)
+
+    // If show changed, and content is true
+    if(!oldShownContent && shown.content) {
+      console.log("reload current content")
+      await dispatch("current/reload")
+    }
   },
   //--------------------------------------------
   /***
@@ -45597,6 +45612,12 @@ const _M = {
       meta = state.meta
     }
     //......................................
+    // Before reload content and meta,
+    // Update meta at first
+    let preContent = meta ? "" : null
+    commit("setContent", preContent)
+    commit("setSavedContent", preContent)
+    //......................................
     if(_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
@@ -45606,8 +45627,6 @@ const _M = {
     //......................................
     // Guard
     if(!meta) {
-      commit("setMeta", null)
-      commit("setContent", null)
       return
     }
     // Init content as null
