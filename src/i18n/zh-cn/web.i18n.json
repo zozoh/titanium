@@ -1,4 +1,12 @@
 {
+  "blog" : "博客",
+  "blog-manage" : "博客管理",
+  "ar-pubat" : "发布日期",
+  "ar-watch-c" : "浏览次数",
+  "ar-thumb" : "缩略封面",
+  "ar-duration" : "阅读时长",
+  "ar-meta-tip" : "请选择一篇文章查看详情",
+
   "account": "账户",
   "account-flt-tip": "请输入账号名过滤",
   "account-manage": "账户管理",

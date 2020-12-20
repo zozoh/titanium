@@ -1,0 +1,6 @@
+{
+  "name" : "web-row-article",
+  "globally" : true,
+  "template" : "./web-row-article.html",
+  "mixins" : ["./web-row-article.mjs"]
+}

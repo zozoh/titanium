@@ -9,5 +9,8 @@
   "mixins"   : ["./thing-markdown-richeditor.mjs"],
   "components" : [
     "@com:wn/obj/markdown/richeditor"
+  ],
+  "deps" : [
+    "@lib:code2a/cheap-markdown.mjs"
   ]
 }

@@ -32,6 +32,8 @@
   "thing-create-in-recyclebin": "请先退出回收站，再创建新对象",
   "thing-enter-recyclebin": "打开回收站",
   "thing-files": "对象文件表",
+  "thing-files-media": "媒体目录",
+  "thing-files-attachment": "附件目录",
   "thing-files-hide": "隐藏文件表",
   "thing-files-show": "显示文件表",
   "thing-filter-kwdplhd": "请输入查询条件",

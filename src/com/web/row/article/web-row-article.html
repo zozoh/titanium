@@ -1,0 +1,51 @@
+<div class="web-row-article"
+  :class="TopClass">
+  <!--
+    Left: Thumbnail
+  -->
+  <div 
+    class="at-left"
+      v-if="ThumbSrc">
+      <a
+        :href="ArticleLinkHref"
+        :target="ArticleLinkTarget"
+        @click.left="OnClickLink($event)">
+        <img :src="ThumbSrc" :style="ThumbImageStyle"/>
+      </a>
+  </div>
+  <!--
+    Right: Comment
+  -->
+  <div class="at-right">
+    <!-- Title -->
+    <div class="as-title">
+      <a
+        :href="ArticleLinkHref"
+        :target="ArticleLinkTarget"
+        @click.left="OnClickLink($event)">{{Article.title}}</a>
+    </div>
+    <!--Info-->
+    <div 
+      v-if="hasInfo"
+        class="as-info">
+        <!--Date-->
+        <div
+          v-if="DateText" 
+            class="as-date">{{DateText}}</div>
+        <!--Watch count-->
+        <div 
+          v-if="Article.watchCount"
+            class="as-watch-count">
+            <i class="fas fa-eye"></i>
+            <span>{{Article.watchCount}}</span></div>
+        <!--Read time-->
+        <div 
+          v-if="Article.readTime"
+            class="as-read-time">
+            <span>{{'i18n:du-in-min'|i18n({n:Article.readTime})}}</span>
+          </div>
+    </div>
+    <!--Brief-->
+    <div class="as-brief">{{Article.brief}}</div>
+  </div>
+</div>

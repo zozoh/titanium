@@ -103,6 +103,17 @@ export default {
     type : Object,
     default: ()=>({})
   },
+  // String : html template
+  // Array  : list
+  // Object : pair table
+  // Function : customized HTML
+  "markerPopup" : undefined,
+  "markerPopupOptions" : {
+    type : Object,
+    default: ()=>({
+      offset : [0, -40]
+    })
+  },
   "imageIconBase" : {
     type : String,
     default : "/gu/rs/ti/icons/"

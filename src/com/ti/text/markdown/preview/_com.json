@@ -2,5 +2,8 @@
   "name" : "ti-text-markdown-preview",
   "globally" : true,
   "template" : "./markdown-preview.html",
-  "mixins" : ["./markdown-preview.mjs"]
+  "mixins" : ["./markdown-preview.mjs"],
+  "deps": [
+    "@lib:code2a/cheap-markdown.mjs"
+  ]
 }

@@ -1,10 +1,40 @@
 export default {
   //--------------------------------------
-  __set_marker_icon($marker, obj={}) {
+  __customize_marker_behaviors($marker, obj={}) {
+    // Customized Icon
     if(this.markerIcon) {
       let icon = Ti.Util.explainObj(obj, this.markerIcon)
-      if(icon)
+      if(icon) {
         $marker.setIcon(this.Icon(icon, this.markerIconOptions))
+      }
+    }
+    // Customized popup
+    if(this.markerPopup) {
+      let popup = Ti.Util.explainObj(obj, this.markerPopup, {
+        evalFunc : true
+      })
+      // Eval the html
+      let html;
+      // For Array
+      if(_.isArray(popup)) {
+        let list = _.map(popup, li=>`<li>${li}</li>`)
+        html = `<ul>${list.join("")}</ul>`
+      }
+      // For Object pair
+      else if(_.isPlainObject(popup)) {
+        let rows = _.map(popup, (v,k)=>{
+          let text = Ti.I18n.text(k)
+          return `<tr><td>${text}</td><td>${v}</td></tr>`
+        })
+        html = `<table>${rows.join("")}</table>`
+      }
+      // For HTML
+      else {
+        html = popup
+      }
+
+      // HTML
+      $marker.bindPopup(html, this.markerPopupOptions).openPopup();
     }
   },
   //--------------------------------------
@@ -48,7 +78,7 @@ export default {
     }
 
     // Customized Icon
-    this.__set_marker_icon($marker, latlng)
+    this.__customize_marker_behaviors($marker, latlng)
 
     return $marker
   },
@@ -89,7 +119,7 @@ export default {
       }
   
       // Customized Icon
-      this.__set_marker_icon($marker, latlng)
+      this.__customize_marker_behaviors($marker, latlng)
     })
   },
   //--------------------------------------
@@ -243,7 +273,7 @@ export default {
       $marker.rawData = latlng
     
       // Customized Icon
-      this.__set_marker_icon($marker, latlng)
+      this.__customize_marker_behaviors($marker, latlng)
     })
 
     this.$live.addLayer($cluster)

@@ -1,0 +1,7 @@
+{
+  "name" : "web-nav-crumb",
+  "globally" : true,
+  "template" : "./nav-crumb.html",
+  "mixins"   : ["./nav-crumb.mjs"],
+  "components" : []
+}

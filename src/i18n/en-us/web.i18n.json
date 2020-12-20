@@ -1,4 +1,12 @@
 {
+  "blog" : "Blog",
+  "blog-manage" : "Blog management",
+  "ar-pubat" : "Publish at",
+  "ar-watch-c" : "Watch count",
+  "ar-thumb" : "Thumbnail",
+  "ar-duration" : "Reading time",
+  "ar-meta-tip" : "Choose an article for detail",
+
   "account": "Account",
   "account-flt-tip": "Filter by account name",
   "account-manage": "Accounts",

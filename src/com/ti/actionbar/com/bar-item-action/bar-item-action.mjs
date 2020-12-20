@@ -69,6 +69,7 @@ const _M = {
       type : String,
       default: undefined
     },
+    "payload" : undefined,
     "wait" : {
       type : Number,
       default: 0
@@ -118,7 +119,7 @@ const _M = {
 
       // notify: eventName
       if(this.eventName) {
-        this.$bar.$notify(this.eventName)
+        this.$bar.$notify(this.eventName, this.payload)
       }
     }
   },

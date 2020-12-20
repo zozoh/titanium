@@ -1,0 +1,29 @@
+.web-row-article {
+  @include flex-align-nowrap($ai:flex-start);
+  padding:1em;
+  //-----------------------------------------
+  > .at-left {
+    margin-right: 1.6em;
+    img {
+      border:0;
+      width:100%; border-radius: SZ(8);
+    }
+  }
+  //-----------------------------------------
+  > .at-right {
+    //---------------------------------------
+    > .as-title {
+      font-size: 1.2em;
+    }
+    //---------------------------------------
+    > .as-info {
+      @include flex-align;
+      font-size: 0.9em; padding: 1em 0; opacity: 0.8;
+      > div {
+        margin:0 0.5em;
+      }
+    }
+    //---------------------------------------
+  }
+  //-----------------------------------------
+}

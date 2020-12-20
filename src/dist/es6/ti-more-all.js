@@ -1,4 +1,4 @@
-// Pack At: 2020-12-19 19:19:41
+// Pack At: 2020-12-21 06:09:40
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -1339,6 +1339,7 @@ const _M = {
       type : String,
       default: undefined
     },
+    "payload" : undefined,
     "wait" : {
       type : Number,
       default: 0
@@ -1388,7 +1389,7 @@ const _M = {
 
       // notify: eventName
       if(this.eventName) {
-        this.$bar.$notify(this.eventName)
+        this.$bar.$notify(this.eventName, this.payload)
       }
     }
   },
@@ -5198,6 +5199,7 @@ const _M = {
     myDropStatus : "collapse",
     myFreeValue : null,
     myFormData  : {},
+    myMajorKey : undefined,
     myMajorValue : undefined
   }),
   ////////////////////////////////////////////////////
@@ -23802,7 +23804,10 @@ Ti.Preload("ti/com/ti/text/markdown/preview/_com.json", {
   "name" : "ti-text-markdown-preview",
   "globally" : true,
   "template" : "./markdown-preview.html",
-  "mixins" : ["./markdown-preview.mjs"]
+  "mixins" : ["./markdown-preview.mjs"],
+  "deps": [
+    "@lib:code2a/cheap-markdown.mjs"
+  ]
 });
 //============================================================
 // JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs
@@ -28388,11 +28393,41 @@ Ti.Preload("ti/com/web/gis/leaflet/leaflet-mock-methods.mjs", _M);
 (function(){
 const _M = {
   //--------------------------------------
-  __set_marker_icon($marker, obj={}) {
+  __customize_marker_behaviors($marker, obj={}) {
+    // Customized Icon
     if(this.markerIcon) {
       let icon = Ti.Util.explainObj(obj, this.markerIcon)
-      if(icon)
+      if(icon) {
         $marker.setIcon(this.Icon(icon, this.markerIconOptions))
+      }
+    }
+    // Customized popup
+    if(this.markerPopup) {
+      let popup = Ti.Util.explainObj(obj, this.markerPopup, {
+        evalFunc : true
+      })
+      // Eval the html
+      let html;
+      // For Array
+      if(_.isArray(popup)) {
+        let list = _.map(popup, li=>`<li>${li}</li>`)
+        html = `<ul>${list.join("")}</ul>`
+      }
+      // For Object pair
+      else if(_.isPlainObject(popup)) {
+        let rows = _.map(popup, (v,k)=>{
+          let text = Ti.I18n.text(k)
+          return `<tr><td>${text}</td><td>${v}</td></tr>`
+        })
+        html = `<table>${rows.join("")}</table>`
+      }
+      // For HTML
+      else {
+        html = popup
+      }
+
+      // HTML
+      $marker.bindPopup(html, this.markerPopupOptions).openPopup();
     }
   },
   //--------------------------------------
@@ -28436,7 +28471,7 @@ const _M = {
     }
 
     // Customized Icon
-    this.__set_marker_icon($marker, latlng)
+    this.__customize_marker_behaviors($marker, latlng)
 
     return $marker
   },
@@ -28477,7 +28512,7 @@ const _M = {
       }
   
       // Customized Icon
-      this.__set_marker_icon($marker, latlng)
+      this.__customize_marker_behaviors($marker, latlng)
     })
   },
   //--------------------------------------
@@ -28631,7 +28666,7 @@ const _M = {
       $marker.rawData = latlng
     
       // Customized Icon
-      this.__set_marker_icon($marker, latlng)
+      this.__customize_marker_behaviors($marker, latlng)
     })
 
     this.$live.addLayer($cluster)
@@ -28895,6 +28930,17 @@ const _M = {
   "markerIconOptions" : {
     type : Object,
     default: ()=>({})
+  },
+  // String : html template
+  // Array  : list
+  // Object : pair table
+  // Function : customized HTML
+  "markerPopup" : undefined,
+  "markerPopupOptions" : {
+    type : Object,
+    default: ()=>({
+      offset : [0, -40]
+    })
   },
   "imageIconBase" : {
     type : String,
@@ -30835,6 +30881,140 @@ Ti.Preload("ti/com/web/nav/columns/_com.json", {
   "components" : []
 });
 //============================================================
+// JOIN: web/nav/crumb/nav-crumb.html
+//============================================================
+Ti.Preload("ti/com/web/nav/crumb/nav-crumb.html", `<nav class="web-nav-crumb"
+  :class="TopClass">
+  <!--=======================================-->
+  <template 
+    v-for="it in TheItems">
+      <a
+        :key="it.index"
+        class="link-item"
+        :class="it.className"
+        :href="it.href"
+        :target="it.target"
+        @click.left="OnClickLink($event, it)">
+        <!--Icon-->
+        <ti-icon
+          v-if="it.icon"
+            :value="it.icon"/>
+        <!--Text-->
+        <span
+          v-if="it.title"
+            class="as-text">{{it.title}}</span>
+      </a>
+      <!--Sep-->
+      <TiIcon :value="sep"/>
+  </template>
+  <!--=======================================-->
+  <div 
+    v-if="title"
+      class="as-title">{{title|i18n}}</div>
+  <!--=======================================-->
+</nav>`);
+//============================================================
+// JOIN: web/nav/crumb/nav-crumb.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  props : {
+    /*
+    {text, icon, href, newtab, path, payload}
+    */
+    "items" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "title" : {
+      type : String,
+      default: undefined
+    },
+    "base" : {
+      type : String,
+      default : undefined
+    },
+    "sep" : {
+      type : String,
+      default : "fas-angle-right"
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------
+    TheItems() {
+      return this.evalItems(this.items)
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //------------------------------------
+    OnClickLink(evt, {type,value,params}={}) {
+      if(/^(page|action)$/.test(type)) {
+        evt.preventDefault()
+        //console.log("onClickLink", "nav:to", {type,value,params})
+        this.$notify("nav:to", {type,value,params})
+      }
+    },
+    //------------------------------------
+    evalItems(items) {
+      // Explain first
+      items = Ti.WWW.explainNavigation(items, this.base)
+
+      // The Eval
+      let list = []
+      _.forEach(items, (it, index)=>{
+        //................................
+        let li = _.pick(it, [
+          "icon", "title", "type", "params",
+          "href", "target", "value"])
+        //................................
+        li.index = index
+        //................................
+        if(this.path) {
+          li.highlight = it.highlightBy(this.path)
+        }
+        //................................
+        let hasHref = li.href ? true : false;
+        li.className = {
+          "has-href"    : hasHref,
+          "nil-href"    : !hasHref,
+          "is-highlight": li.highlight,
+          "is-normal"   : !li.highlight,
+        }
+        //................................
+        if(it.items) {
+          li.items = this.evalItems(it.items)
+        }
+        //................................
+        list.push(li)
+        //................................
+      })
+      return list
+    }
+    //------------------------------------
+  }
+  /////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/nav/crumb/nav-crumb.mjs", _M);
+})();
+//============================================================
+// JOIN: web/nav/crumb/_com.json
+//============================================================
+Ti.Preload("ti/com/web/nav/crumb/_com.json", {
+  "name" : "web-nav-crumb",
+  "globally" : true,
+  "template" : "./nav-crumb.html",
+  "mixins"   : ["./nav-crumb.mjs"],
+  "components" : []
+});
+//============================================================
 // JOIN: web/nav/links/nav-links.html
 //============================================================
 Ti.Preload("ti/com/web/nav/links/nav-links.html", `<nav class="web-nav-links"
@@ -32480,6 +32660,193 @@ Ti.Preload("ti/com/web/pay/_com.json", {
     "@com:web/pay/proceed",
     "@com:web/pay/done"
   ]
+});
+//============================================================
+// JOIN: web/row/article/web-row-article.html
+//============================================================
+Ti.Preload("ti/com/web/row/article/web-row-article.html", `<div class="web-row-article"
+  :class="TopClass">
+  <!--
+    Left: Thumbnail
+  -->
+  <div 
+    class="at-left"
+      v-if="ThumbSrc">
+      <a
+        :href="ArticleLinkHref"
+        :target="ArticleLinkTarget"
+        @click.left="OnClickLink($event)">
+        <img :src="ThumbSrc" :style="ThumbImageStyle"/>
+      </a>
+  </div>
+  <!--
+    Right: Comment
+  -->
+  <div class="at-right">
+    <!-- Title -->
+    <div class="as-title">
+      <a
+        :href="ArticleLinkHref"
+        :target="ArticleLinkTarget"
+        @click.left="OnClickLink($event)">{{Article.title}}</a>
+    </div>
+    <!--Info-->
+    <div 
+      v-if="hasInfo"
+        class="as-info">
+        <!--Date-->
+        <div
+          v-if="DateText" 
+            class="as-date">{{DateText}}</div>
+        <!--Watch count-->
+        <div 
+          v-if="Article.watchCount"
+            class="as-watch-count">
+            <i class="fas fa-eye"></i>
+            <span>{{Article.watchCount}}</span></div>
+        <!--Read time-->
+        <div 
+          v-if="Article.readTime"
+            class="as-read-time">
+            <span>{{'i18n:du-in-min'|i18n({n:Article.readTime})}}</span>
+          </div>
+    </div>
+    <!--Brief-->
+    <div class="as-brief">{{Article.brief}}</div>
+  </div>
+</div>`);
+//============================================================
+// JOIN: web/row/article/web-row-article.mjs
+//============================================================
+(function(){
+const _M = {
+  //////////////////////////////////////////
+  props : {
+    "value" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "previewKey" : {
+      type:String,
+      default: "thumb"
+    },
+    "previewObj" : {
+      type:String,
+      default: "thumb_obj"
+    },
+    "mapping": {
+      type: Object,
+      default: ()=>({
+        id : "id",
+        title : "title",
+        brief : "brief",
+        watchCount : "watch_c",
+        readTime    : "duration",
+        date : "pubat"
+      })
+    },
+    "hrefTmpl": {
+      type: String,
+      default: undefined
+    },
+    "emitName": {
+      type: String,
+      default: undefined
+    },
+    "payload": undefined,
+    "newtab": {
+      type: Boolean,
+      default: false
+    },
+    "apiTmpl": {
+      type: String,
+      default: undefined
+    },
+    "cdnTmpl": {
+      type: String,
+      default: undefined
+    },
+    "dftThumbSrc": {
+      type: String,
+      default: undefined
+    },
+    "imgStyle" : {
+      type: Object,
+      default: undefined
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    Article() {
+      let it = Ti.Util.translate(this.value, this.mapping)
+      return it || {}
+    },
+    //--------------------------------------
+    ThumbSrc() {
+      return Ti.WWW.evalObjPreviewSrc(this.value, {
+        previewKey : this.previewKey,
+        previewObj : this.previewObj,
+        apiTmpl    : this.apiTmpl,
+        cdnTmpl    : this.cdnTmpl,
+        dftSrc     : this.dftThumbSrc
+      })
+    },
+    //--------------------------------------
+    ThumbImageStyle() {
+      return Ti.Css.toStyle(this.imgStyle)
+    },
+    //--------------------------------------
+    ArticleLinkHref() {
+      if(this.hrefTmpl) {
+        return Ti.S.renderBy(this.hrefTmpl, this.value)
+      }
+    },
+    //--------------------------------------
+    ArticleLinkTarget() {
+      return this.newtab ? "_blank" : undefined
+    },
+    //--------------------------------------
+    hasInfo() {
+      return this.DateText
+        || this.Article.watchCount
+        || this.Article.readTime
+    },
+    //--------------------------------------
+    DateText() {
+      if(this.Article.date)
+        return Ti.DateTime.timeText(this.Article.date)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnClickLink(evt) {
+      if(this.emitName) {
+        evt.preventDefault()
+        let payload = Ti.Util.explainObj(this.value, this.payload)
+        this.$notify(this.emitName, payload)
+      }
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/row/article/web-row-article.mjs", _M);
+})();
+//============================================================
+// JOIN: web/row/article/_com.json
+//============================================================
+Ti.Preload("ti/com/web/row/article/_com.json", {
+  "name" : "web-row-article",
+  "globally" : true,
+  "template" : "./web-row-article.html",
+  "mixins" : ["./web-row-article.mjs"]
 });
 //============================================================
 // JOIN: web/shelf/free/web-shelf-free.html
@@ -42664,6 +43031,9 @@ Ti.Preload("ti/com/wn/thing/markdown/richeditor/_com.json", {
   "mixins"   : ["./thing-markdown-richeditor.mjs"],
   "components" : [
     "@com:wn/obj/markdown/richeditor"
+  ],
+  "deps" : [
+    "@lib:code2a/cheap-markdown.mjs"
   ]
 });
 //============================================================
@@ -49835,6 +50205,14 @@ Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
+  "blog" : "Blog",
+  "blog-manage" : "Blog management",
+  "ar-pubat" : "Publish at",
+  "ar-watch-c" : "Watch count",
+  "ar-thumb" : "Thumbnail",
+  "ar-duration" : "Reading time",
+  "ar-meta-tip" : "Choose an article for detail",
+
   "account": "Account",
   "account-flt-tip": "Filter by account name",
   "account-manage": "Accounts",
@@ -50262,6 +50640,8 @@ Ti.Preload("ti/i18n/en-us/wn-thing.i18n.json", {
   "thing-create-in-recyclebin": "Exit recycle bin before create object",
   "thing-enter-recyclebin": "Enter recyclebin",
   "thing-files": "Object files",
+  "thing-files-media": "Medias",
+  "thing-files-attachment": "Attachments",
   "thing-files-hide": "Hide files",
   "thing-files-show": "Show files",
   "thing-filter-kwdplhd": "Enter the query criteria",
@@ -50917,6 +51297,14 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-editor.i18n.json", {
 // JOIN: zh-cn/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
+  "blog" : "博客",
+  "blog-manage" : "博客管理",
+  "ar-pubat" : "发布日期",
+  "ar-watch-c" : "浏览次数",
+  "ar-thumb" : "缩略封面",
+  "ar-duration" : "阅读时长",
+  "ar-meta-tip" : "请选择一篇文章查看详情",
+
   "account": "账户",
   "account-flt-tip": "请输入账号名过滤",
   "account-manage": "账户管理",
@@ -51345,6 +51733,8 @@ Ti.Preload("ti/i18n/zh-cn/wn-thing.i18n.json", {
   "thing-create-in-recyclebin": "请先退出回收站，再创建新对象",
   "thing-enter-recyclebin": "打开回收站",
   "thing-files": "对象文件表",
+  "thing-files-media": "媒体目录",
+  "thing-files-attachment": "附件目录",
   "thing-files-hide": "隐藏文件表",
   "thing-files-show": "显示文件表",
   "thing-filter-kwdplhd": "请输入查询条件",

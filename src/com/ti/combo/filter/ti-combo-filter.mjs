@@ -11,6 +11,7 @@ const _M = {
     myDropStatus : "collapse",
     myFreeValue : null,
     myFormData  : {},
+    myMajorKey : undefined,
     myMajorValue : undefined
   }),
   ////////////////////////////////////////////////////

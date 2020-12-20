@@ -13,10 +13,6 @@
     }
   }
   //-----------------------------------------------
-  &.is-image {
-    align-items: center;
-  }
-  //-----------------------------------------------
   &.as-inline {
     display:inline-block;
     vertical-align: middle;
@@ -32,7 +28,17 @@
     i {font-size:inherit;}
   }
   //-----------------------------------------------
-  &.is-image .icon-icon {align-items:stretch; align-content: stretch;}
+  &.is-image {
+    align-items: center;
+    .icon-icon {
+      align-items:stretch; align-content: stretch;
+    }
+    &.img-contain {
+      .icon-icon img {
+        object-fit: contain;
+      }
+    }
+  }
   //-----------------------------------------------
   &.icon-16 {
     width: SZ(16); height:SZ(16);

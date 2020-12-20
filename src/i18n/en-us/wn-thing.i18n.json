@@ -31,6 +31,8 @@
   "thing-create-in-recyclebin": "Exit recycle bin before create object",
   "thing-enter-recyclebin": "Enter recyclebin",
   "thing-files": "Object files",
+  "thing-files-media": "Medias",
+  "thing-files-attachment": "Attachments",
   "thing-files-hide": "Hide files",
   "thing-files-show": "Show files",
   "thing-filter-kwdplhd": "Enter the query criteria",

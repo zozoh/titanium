@@ -1,0 +1,5 @@
+.web-nav-crumb {
+  @include flex-align;
+  padding: 1em .5em;
+  .ti-icon {margin:0 0.5em; opacity: 0.4;}
+}
