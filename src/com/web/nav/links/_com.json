@@ -2,6 +2,9 @@
   "name" : "web-nav-links",
   "globally" : true,
   "template" : "./nav-links.html",
-  "mixins"   : ["./nav-links.mjs"],
+  "mixins"   : [
+    "@com:web/nav/support/web-nav-mixins.mjs",
+    "./nav-links.mjs"
+  ],
   "components" : []
 }

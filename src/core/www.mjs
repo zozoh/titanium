@@ -22,10 +22,27 @@ const TiWWW = {
     "target" : "_blank"
   }]
   */
-  explainNavigation(navItems=[], base="/", suffix=".html") {
+  explainNavigation(navItems=[], {
+    base="/", 
+    depth=0,
+    suffix=".html",
+    iteratee=_.identity,
+    idBy=undefined,
+    indexPath=[]
+  }={}) {
     let list = []
-    for(let it of navItems) {
+    for(let index=0; index<navItems.length; index++) {
+      let it = navItems[index]
+      let ixPath = [].concat(indexPath, index)
+      //..........................................
+      // Eval Id
+      let id = Ti.Util.explainObj(it, idBy, {evalFunc:true})
+      if(Ti.Util.isNil(id)) {
+        id = "it-" + ixPath.join("-")
+      }
+      //..........................................
       let li = {
+        id, index, depth,
         type : "page",
         ..._.pick(it, "icon","title","type","value","href","target","params")
       }
@@ -63,9 +80,16 @@ const TiWWW = {
         //   li.href = "javascript:void(0)"
       }
       //..........................................
+      li = iteratee(li)
+      //..........................................
       // Children
       if(_.isArray(it.items)) {
-        li.items = TiWWW.explainNavigation(it.items, base, suffix)
+        li.items = TiWWW.explainNavigation(it.items, {
+          base, suffix, iteratee,
+          depth: depth+1,
+          idBy,
+          indexPath: ixPath
+        })
       }
       //..........................................
       // Join to list

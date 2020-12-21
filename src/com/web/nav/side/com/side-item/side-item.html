@@ -3,7 +3,8 @@
   <!--
     Self Info
   -->
-  <div class="it-info" >
+  <div class="it-info"
+    @click.left="OnClickItemInfo">
     <!--Icon-->
     <span
       v-if="icon"
@@ -19,17 +20,36 @@
       v-else
         class="it-info-text"
         :href="href"
-        @click.stop.prevent="OnClickItemInfo">{{title|i18n}}</a>
+        @click.left="OnClickItemLink($event)">{{title|i18n}}</a>
+    <!--
+      Status icon
+    -->
+    <TiIcon 
+      v-if="isGroup"
+        class="it-status-icon"
+          :value="OpenStatusIcon"/>
   </div>
   <!--
     Sub Container
   -->
-  <div 
-    v-if="hasSubItems"
-      class="it-con">
-      <SideItem
-        v-for="subIt in items"
-          :key="subIt.key"
-          v-bind="subIt"/>
-  </div>
+  <transition name="ti-trans-folder"
+    @before-enter="OnTransBeforeEnter"
+    @enter="OnTransEnter"
+    @after-enter="OnTransAfterEnter"
+
+    @before-leave="OnTransBeforeLeave"
+    @leave="OnTransLeave"
+    @after-leave="OnTransAfterLeave">
+    <div 
+      v-if="hasSubItems && isOpened"
+        class="it-con">
+          <SideItem
+            v-for="subIt in items"
+              :key="subIt.id"
+              v-bind="subIt"
+              :opened-ids="openedIds"
+              :opened-depth="openedDepth"
+              :opened-icons="openedIcons"/>
+    </div>
+  </transition>
 </div>

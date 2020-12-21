@@ -2,6 +2,9 @@
   "name" : "web-nav-side",
   "globally" : true,
   "template" : "./web-nav-side.html",
-  "mixins"   : ["./web-nav-side.mjs"],
+  "mixins"   : [
+    "@com:web/nav/support/web-nav-mixins.mjs",
+    "./web-nav-side.mjs"
+  ],
   "components" : ["./com/side-item"]
 }

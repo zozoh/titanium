@@ -1,4 +1,4 @@
-// Pack At: 2020-12-21 06:09:40
+// Pack At: 2020-12-21 20:08:45
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -30877,7 +30877,10 @@ Ti.Preload("ti/com/web/nav/columns/_com.json", {
   "name" : "web-nav-columns",
   "globally" : true,
   "template" : "./nav-columns.html",
-  "mixins"   : ["./nav-columns.mjs"],
+  "mixins"   : [
+    "@com:web/nav/support/web-nav-mixins.mjs",
+    "./nav-columns.mjs"
+  ],
   "components" : []
 });
 //============================================================
@@ -30920,20 +30923,9 @@ Ti.Preload("ti/com/web/nav/crumb/nav-crumb.html", `<nav class="web-nav-crumb"
 const _M = {
   /////////////////////////////////////////
   props : {
-    /*
-    {text, icon, href, newtab, path, payload}
-    */
-    "items" : {
-      type : Array,
-      default : ()=>[]
-    },
     "title" : {
       type : String,
       default: undefined
-    },
-    "base" : {
-      type : String,
-      default : undefined
     },
     "sep" : {
       type : String,
@@ -30943,61 +30935,11 @@ const _M = {
   /////////////////////////////////////////
   computed : {
     //------------------------------------
-    TopClass() {
-      return this.getTopClass()
-    },
-    //------------------------------------
-    TheItems() {
-      return this.evalItems(this.items)
-    }
     //------------------------------------
   },
   /////////////////////////////////////////
   methods : {
     //------------------------------------
-    OnClickLink(evt, {type,value,params}={}) {
-      if(/^(page|action)$/.test(type)) {
-        evt.preventDefault()
-        //console.log("onClickLink", "nav:to", {type,value,params})
-        this.$notify("nav:to", {type,value,params})
-      }
-    },
-    //------------------------------------
-    evalItems(items) {
-      // Explain first
-      items = Ti.WWW.explainNavigation(items, this.base)
-
-      // The Eval
-      let list = []
-      _.forEach(items, (it, index)=>{
-        //................................
-        let li = _.pick(it, [
-          "icon", "title", "type", "params",
-          "href", "target", "value"])
-        //................................
-        li.index = index
-        //................................
-        if(this.path) {
-          li.highlight = it.highlightBy(this.path)
-        }
-        //................................
-        let hasHref = li.href ? true : false;
-        li.className = {
-          "has-href"    : hasHref,
-          "nil-href"    : !hasHref,
-          "is-highlight": li.highlight,
-          "is-normal"   : !li.highlight,
-        }
-        //................................
-        if(it.items) {
-          li.items = this.evalItems(it.items)
-        }
-        //................................
-        list.push(li)
-        //................................
-      })
-      return list
-    }
     //------------------------------------
   }
   /////////////////////////////////////////
@@ -31011,7 +30953,10 @@ Ti.Preload("ti/com/web/nav/crumb/_com.json", {
   "name" : "web-nav-crumb",
   "globally" : true,
   "template" : "./nav-crumb.html",
-  "mixins"   : ["./nav-crumb.mjs"],
+  "mixins"   : [
+    "@com:web/nav/support/web-nav-mixins.mjs",
+    "./nav-crumb.mjs"
+  ],
   "components" : []
 });
 //============================================================
@@ -31079,24 +31024,6 @@ const _M = {
   }),
   /////////////////////////////////////////
   props : {
-    "base" : {
-      type: String,
-      default: "/"
-    },
-    "items" : {
-      type : Array,
-      default : ()=>[]
-    },
-    // for highlight
-    "path" : {
-      type : String,
-      default: undefined
-    },
-    // for highlight
-    "params": {
-      type : Object,
-      default: undefined
-    },
     "align" : {
       type : String,
       default : "left",
@@ -31124,25 +31051,11 @@ const _M = {
             return `is-border-${this.border}`
         }
       )
-    },
-    //------------------------------------
-    TheItems() {
-      return this.evalItems(this.items)
     }
     //------------------------------------
   },
   /////////////////////////////////////////
   methods : {
-    //------------------------------------
-    OnClickLink(evt, {type,value,params}={}) {
-      if(/^(page|action)$/.test(type)) {
-        evt.preventDefault()
-        if(value) {
-          //console.log("onClickLink", "nav:to", {type,value,params})
-          this.$notify("nav:to", {type,value,params})
-        }
-      }
-    },
     //------------------------------------
     OnItemMouseEnter({index, items}) {
       // Guard
@@ -31181,39 +31094,6 @@ const _M = {
         left : (rAn.width - rSub.width)/2
       })
       Ti.Dom.setStyle($sub, css)
-    },
-    //------------------------------------
-    evalItems(items) {
-      // Explain first
-      items = Ti.WWW.explainNavigation(items, this.base)
-
-      // The Eval
-      let list = []
-      _.forEach(items, (it, index)=>{
-        //................................
-        let li = _.pick(it, [
-          "icon", "title", "type", "params",
-          "href", "target", "value",
-          "items"])
-        //................................
-        li.index = index
-        //................................
-        if(this.path) {
-          li.highlight = it.highlightBy(this.path, this.params)
-        }
-        //................................
-        let hasHref = li.href ? true : false;
-        li.className = {
-          "has-href"    : hasHref,
-          "nil-href"    : !hasHref,
-          "is-highlight": li.highlight,
-          "is-normal"   : !li.highlight,
-        }
-        //................................
-        list.push(li)
-        //................................
-      })
-      return list
     }
     //------------------------------------
   }
@@ -31228,7 +31108,10 @@ Ti.Preload("ti/com/web/nav/links/_com.json", {
   "name" : "web-nav-links",
   "globally" : true,
   "template" : "./nav-links.html",
-  "mixins"   : ["./nav-links.mjs"],
+  "mixins"   : [
+    "@com:web/nav/support/web-nav-mixins.mjs",
+    "./nav-links.mjs"
+  ],
   "components" : []
 });
 //============================================================
@@ -31239,7 +31122,8 @@ Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.html", `<div class="side
   <!--
     Self Info
   -->
-  <div class="it-info" >
+  <div class="it-info"
+    @click.left="OnClickItemInfo">
     <!--Icon-->
     <span
       v-if="icon"
@@ -31255,19 +31139,38 @@ Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.html", `<div class="side
       v-else
         class="it-info-text"
         :href="href"
-        @click.stop.prevent="OnClickItemInfo">{{title|i18n}}</a>
+        @click.left="OnClickItemLink($event)">{{title|i18n}}</a>
+    <!--
+      Status icon
+    -->
+    <TiIcon 
+      v-if="isGroup"
+        class="it-status-icon"
+          :value="OpenStatusIcon"/>
   </div>
   <!--
     Sub Container
   -->
-  <div 
-    v-if="hasSubItems"
-      class="it-con">
-      <SideItem
-        v-for="subIt in items"
-          :key="subIt.key"
-          v-bind="subIt"/>
-  </div>
+  <transition name="ti-trans-folder"
+    @before-enter="OnTransBeforeEnter"
+    @enter="OnTransEnter"
+    @after-enter="OnTransAfterEnter"
+
+    @before-leave="OnTransBeforeLeave"
+    @leave="OnTransLeave"
+    @after-leave="OnTransAfterLeave">
+    <div 
+      v-if="hasSubItems && isOpened"
+        class="it-con">
+          <SideItem
+            v-for="subIt in items"
+              :key="subIt.id"
+              v-bind="subIt"
+              :opened-ids="openedIds"
+              :opened-depth="openedDepth"
+              :opened-icons="openedIcons"/>
+    </div>
+  </transition>
 </div>`);
 //============================================================
 // JOIN: web/nav/side/com/side-item/side-item.mjs
@@ -31276,9 +31179,13 @@ Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.html", `<div class="side
 const _M = {
   ///////////////////////////////////////////////////////
   props : {
+    "id" : {
+      type: String,
+      default: undefined
+    },
     "depth" : {
       type:Number, 
-      default:0
+      default: 0
     },
     "icon"  : {
       type:[String,Object], 
@@ -31288,30 +31195,45 @@ const _M = {
       type:String, 
       default:undefined
     },
-    "page"  : {
+    "type"  : {
       type:String, 
+      default:undefined
+    },
+    "params"  : {
+      type: Object, 
       default:undefined
     },
     "href"  : {
       type:String, 
       default:undefined
     },
+    "target"  : {
+      type:String, 
+      default:undefined
+    },
+    "value"  : {
+      type:String, 
+      default:undefined
+    },
     "items" : {
       type : Array,
       default : undefined
-    }
+    },
+    "openedIds"   : undefined,
+    "openedDepth" : undefined,
+    "openedIcons" : undefined
   },
   ///////////////////////////////////////////////////////
   computed : {
     //---------------------------------------------------
     TopClass() {
-      return {
+      return this.getTopClass({
         "is-top"   : this.isTop,
         "is-sub"   : !this.isTop,
         "is-group" : this.isGroup,
         "is-item"  : !this.isGroup,
         "is-highlight" : this.isHighlight
-      }
+      })
     },
     //---------------------------------------------------
     isTop() {
@@ -31328,6 +31250,23 @@ const _M = {
     //---------------------------------------------------
     hasSubItems() {
       return !_.isEmpty(this.items)
+    },
+    //---------------------------------------------------
+    isOpened() {
+      if(this.isGroup) {
+        let opened = _.get(this.openedIds, this.id)
+        if(_.isUndefined(opened)) {
+          return this.depth < this.openedDepth
+        }
+        return opened
+      }
+      return false
+    },
+    //---------------------------------------------------
+    OpenStatusIcon() {
+      return this.isOpened
+        ? this.openedIcons.opened
+        : this.openedIcons.closed
     }
     //---------------------------------------------------
   },
@@ -31335,8 +31274,62 @@ const _M = {
   methods : {
     //---------------------------------------------------
     OnClickItemInfo() {
-      this.$notify("nav:to", {
-        value: this.page
+      if(this.isGroup) {
+        this.$notify("change:opened", {
+          id     : this.id,  
+          type   : this.type,
+          params : this.params,
+          href   : this.href,
+          target : this.target,
+          value  : this.value,
+          opened : !this.isOpened
+        })
+      }
+    },
+    //---------------------------------------------------
+    OnClickItemLink(evt) {
+      if(this.href) {
+        evt.stopPropagation()
+      }
+      this.$notify("click:item", evt, {
+        id     : this.id,
+        type   : this.type,
+        params : this.params,
+        href   : this.href,
+        target : this.target,
+        value  : this.value
+      })
+    },
+    //---------------------------------------------------
+    OnTransBeforeEnter($con) {
+      // console.log("before enter")
+      Ti.Dom.setStyle($con, {height: 0, overflow: "hidden"})
+    },
+    OnTransEnter($con) {
+      // console.log("enter")
+      Ti.Dom.setStyle($con, {height: $con.scrollHeight - 4})
+    },
+    OnTransAfterEnter($con) {
+      // console.log("after enter")
+      _.delay(()=>{
+        Ti.Dom.setStyle($con, {height: "", overflow: ""})
+      })
+    },
+    //---------------------------------------------------
+    OnTransBeforeLeave($con) {
+      //console.log("before leave", height)
+      Ti.Dom.setStyle($con, {height: $con.scrollHeight, overflow: "hidden"})
+    },
+    OnTransLeave($con) {
+      //console.log("leave", $con.scrollHeight)
+      _.delay(()=>{
+        Ti.Dom.setStyle($con, {height: 0})
+      })
+    },
+    OnTransAfterLeave($con) {
+      //console.log("after leave")
+      _.delay(()=>{
+        Ti.Dom.setStyle($con, {height: "", overflow: ""})
       })
     }
     //---------------------------------------------------
@@ -31361,8 +31354,13 @@ Ti.Preload("ti/com/web/nav/side/web-nav-side.html", `<div class="web-nav-side"
   v-ti-activable>
   <SideItem
     v-for="it in TheItems"
-      :key="it.key"
-        v-bind="it"/>
+      :key="it.id"
+        v-bind="it"
+        :opened-ids="myOpenedIds"
+        :opened-depth="openedDepth"
+        :opened-icons="openedIcons"
+        @click:item="OnClickLink"
+        @change:opened="OnChangeOpened"/>
 </div>`);
 //============================================================
 // JOIN: web/nav/side/web-nav-side.mjs
@@ -31370,59 +31368,35 @@ Ti.Preload("ti/com/web/nav/side/web-nav-side.html", `<div class="web-nav-side"
 (function(){
 const _M = {
   /////////////////////////////////////////
+  data: ()=>({
+    myOpenedIds : {}
+  }),
+  /////////////////////////////////////////
   props : {
-    "base": {
-      type: String,
-      default: undefined
+    "openedDepth" : {
+      type : Number,
+      default : 1
     },
-    "items" : {
-      type : Array,
-      default : null
+    "openedIcons" : {
+      type : Object,
+      default: ()=>({
+        opened : "im-angle-up",
+        closed : "im-angle-down"
+      })
     }
   },
   //////////////////////////////////////////
   computed : {
-    //--------------------------------------
-    TopClass() {
-      return this.getTopClass()
-    },
     //-------------------------------------
-    TheItems() {
-      let list = []
-      _.forEach(this.items, (it, index)=> {
-        list.push(this.evalItem(it, index, 0))
-      })
-      return list;
-    }
     //-------------------------------------
   },
   //////////////////////////////////////////
   methods : {
-    //-------------------------------------
-    evalItem(it={}, index=0, depth=0) {
-      // Children
-      let items = undefined
-      if(_.isArray(it.items)) {
-        items = []
-        _.forEach(it.items, (subIt, subIndex)=>{
-          items.push(this.evalItem(subIt, subIndex, depth+1))
-        })
-        it.items = items
-      }
-      // href
-      let href = it.href || it.page
-      if(this.base && !/^(https?)?\/\/?/.test(href)) {
-        href = Ti.Util.appendPath(this.base, href)
-      }
-      //console.log("href", href)
-      // Self
-      return {
-        ...it,
-        index,
-        href,
-        depth,
-        key: `it-${index}`
-      }
+    //-------------------------------------\
+    OnChangeOpened({id, opened}) {
+      this.myOpenedIds = _.assign({}, this.myOpenedIds, {
+        [id] : opened
+      })
     }
     //-------------------------------------
   }
@@ -31437,9 +31411,92 @@ Ti.Preload("ti/com/web/nav/side/_com.json", {
   "name" : "web-nav-side",
   "globally" : true,
   "template" : "./web-nav-side.html",
-  "mixins"   : ["./web-nav-side.mjs"],
+  "mixins"   : [
+    "@com:web/nav/support/web-nav-mixins.mjs",
+    "./web-nav-side.mjs"
+  ],
   "components" : ["./com/side-item"]
 });
+//============================================================
+// JOIN: web/nav/support/web-nav-mixins.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  props : {
+    /*
+    {text, icon, href, newtab, path, payload}
+    */
+    "items" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "base": {
+      type: String,
+      default: undefined
+    },
+    // for highlight
+    "path" : {
+      type : String,
+      default: undefined
+    },
+    // for highlight
+    "params": {
+      type : Object,
+      default: undefined
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------
+    TheItems() {
+      return this.evalItems(this.items)
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //------------------------------------
+    OnClickLink(evt, {type,value,params}={}) {
+      if(/^(page|action)$/.test(type)) {
+        evt.preventDefault()
+        //console.log("onClickLink", "nav:to", {type,value,params})
+        if(value) {
+          this.$notify("nav:to", {type,value,params})
+        }
+      }
+    },
+    //------------------------------------
+    evalItems(items, depth=0) {
+      // Explain first
+      return Ti.WWW.explainNavigation(items, {
+        depth,
+        base: this.base, 
+        iteratee: (li)=>{
+          if(this.path) {
+            li.highlight = li.highlightBy(this.path, this.params)
+          }
+          let hasHref = li.href ? true : false;
+          li.className = {
+            "has-href"    : hasHref,
+            "nil-href"    : !hasHref,
+            "is-highlight": li.highlight,
+            "is-normal"   : !li.highlight,
+          }
+          return li
+        }
+      })
+    }
+    //------------------------------------
+  }
+  /////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/nav/support/web-nav-mixins.mjs", _M);
+})();
 //============================================================
 // JOIN: web/pay/checkout/web-pay-checkout-props.mjs
 //============================================================

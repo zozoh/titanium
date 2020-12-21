@@ -2,6 +2,9 @@
   "name" : "web-nav-crumb",
   "globally" : true,
   "template" : "./nav-crumb.html",
-  "mixins"   : ["./nav-crumb.mjs"],
+  "mixins"   : [
+    "@com:web/nav/support/web-nav-mixins.mjs",
+    "./nav-crumb.mjs"
+  ],
   "components" : []
 }

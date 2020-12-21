@@ -89,3 +89,16 @@
 .ti-trans-slide-down-leave-to {
   opacity: 0; transform: translateY(SZ(-100));
 }
+/*------------------------------------*/
+//
+// Box : folder down
+//
+/*------------------------------------*/
+.ti-trans-folder-enter-active,
+.ti-trans-folder-leave-active {
+  transition: 0.3s; overflow: hidden; height: 2rem;
+}
+.ti-trans-folder-enter,
+.ti-trans-folder-leave-to {
+  height: 0;  opacity: 0;
+}

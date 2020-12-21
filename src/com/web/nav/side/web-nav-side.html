@@ -3,6 +3,11 @@
   v-ti-activable>
   <SideItem
     v-for="it in TheItems"
-      :key="it.key"
-        v-bind="it"/>
+      :key="it.id"
+        v-bind="it"
+        :opened-ids="myOpenedIds"
+        :opened-depth="openedDepth"
+        :opened-icons="openedIcons"
+        @click:item="OnClickLink"
+        @change:opened="OnChangeOpened"/>
 </div>

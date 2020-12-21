@@ -2,6 +2,9 @@
   "name" : "web-nav-columns",
   "globally" : true,
   "template" : "./nav-columns.html",
-  "mixins"   : ["./nav-columns.mjs"],
+  "mixins"   : [
+    "@com:web/nav/support/web-nav-mixins.mjs",
+    "./nav-columns.mjs"
+  ],
   "components" : []
 }

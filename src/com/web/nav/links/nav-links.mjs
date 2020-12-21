@@ -6,24 +6,6 @@ export default {
   }),
   /////////////////////////////////////////
   props : {
-    "base" : {
-      type: String,
-      default: "/"
-    },
-    "items" : {
-      type : Array,
-      default : ()=>[]
-    },
-    // for highlight
-    "path" : {
-      type : String,
-      default: undefined
-    },
-    // for highlight
-    "params": {
-      type : Object,
-      default: undefined
-    },
     "align" : {
       type : String,
       default : "left",
@@ -51,25 +33,11 @@ export default {
             return `is-border-${this.border}`
         }
       )
-    },
-    //------------------------------------
-    TheItems() {
-      return this.evalItems(this.items)
     }
     //------------------------------------
   },
   /////////////////////////////////////////
   methods : {
-    //------------------------------------
-    OnClickLink(evt, {type,value,params}={}) {
-      if(/^(page|action)$/.test(type)) {
-        evt.preventDefault()
-        if(value) {
-          //console.log("onClickLink", "nav:to", {type,value,params})
-          this.$notify("nav:to", {type,value,params})
-        }
-      }
-    },
     //------------------------------------
     OnItemMouseEnter({index, items}) {
       // Guard
@@ -108,39 +76,6 @@ export default {
         left : (rAn.width - rSub.width)/2
       })
       Ti.Dom.setStyle($sub, css)
-    },
-    //------------------------------------
-    evalItems(items) {
-      // Explain first
-      items = Ti.WWW.explainNavigation(items, this.base)
-
-      // The Eval
-      let list = []
-      _.forEach(items, (it, index)=>{
-        //................................
-        let li = _.pick(it, [
-          "icon", "title", "type", "params",
-          "href", "target", "value",
-          "items"])
-        //................................
-        li.index = index
-        //................................
-        if(this.path) {
-          li.highlight = it.highlightBy(this.path, this.params)
-        }
-        //................................
-        let hasHref = li.href ? true : false;
-        li.className = {
-          "has-href"    : hasHref,
-          "nil-href"    : !hasHref,
-          "is-highlight": li.highlight,
-          "is-normal"   : !li.highlight,
-        }
-        //................................
-        list.push(li)
-        //................................
-      })
-      return list
     }
     //------------------------------------
   }

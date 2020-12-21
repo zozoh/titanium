@@ -1,6 +1,6 @@
 .web-nav-side {
   width:100%; height:100%;
-  padding: 1em; line-height: 2em;
+  padding: .6em 0;
   //------------------------------------
   .side-item {
     //----------------------------------
@@ -8,6 +8,7 @@
       @include noselect;
       @include flex-align($ai:center, $wp:nowrap);
       width:100%; cursor: pointer;
+      padding: .6em 1.2em;
       > .it-info-icon {
         @include flex-center;
         width:SZ(28); font-size: SZ(18);
@@ -17,10 +18,14 @@
         flex:1 1 auto; 
         @include text-overflow;
       }
+      > .it-status-icon {
+        opacity: 0.6; font-size: 0.8em;
+      }
     }
     //----------------------------------
     .it-con {
-      padding:.2em 0 1em 0;
+      > .side-item:first-child {margin-top: .3em;}
+      > .side-item:last-child {margin-bottom: 1.2em;}
     }
     //----------------------------------
     &.is-highlight {
@@ -31,8 +36,11 @@
       }
     }
     //----------------------------------
+    &.is-top {
+      > .it-info {font-size: 1.1em;}
+    }
+    //----------------------------------
     &.is-group {
-      padding: .5em;
       > .it-info {font-weight: bold;}
     }
     //----------------------------------
