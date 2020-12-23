@@ -4,3 +4,4 @@ output
 *.map
 dist/**
 .VSCodeCounter
+.idea/
