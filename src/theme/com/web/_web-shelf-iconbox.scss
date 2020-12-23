@@ -1,0 +1,44 @@
+.web-shelf-iconbox {
+  @include flex-align-nowrap($ai:stretch);
+  //------------------------------------
+  > .as-icon {
+    @include flex-align-center;
+    padding: .5em;
+  }
+  //------------------------------------
+  > .as-mask {
+    @include pos-fixed-full;
+    @include color($color-mask, null, thin);
+    z-index: $z-mask;
+  }
+  //------------------------------------
+  > .as-panel {
+    @include color($color-chip, r, c);
+    position: fixed; top:0; bottom:0; width: 61.8%;
+    z-index: $z-mask;
+    box-shadow: 0 0 SZ(10) map-get($color-shadow, thin);
+    //----------------------------------
+    > .as-con {
+      width:100%; height:100%; overflow: auto;
+      position: relative;
+      //--------------------------------
+      > .as-closer {
+        position: absolute; top:0; padding: SZ(10);
+      }
+      //--------------------------------
+    }
+    //----------------------------------
+    //----------------------------------
+  }
+  //------------------------------------
+  &.is-mode-left > .as-panel  {
+    left:0; 
+    > .as-con > .as-closer {right:0;}
+  }
+  //------------------------------------
+  &.is-mode-right > .as-panel {
+    right: 0;
+    > .as-con > .as-closer {left:0;}
+  }
+  //------------------------------------
+}

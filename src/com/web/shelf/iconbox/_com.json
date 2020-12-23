@@ -1,0 +1,6 @@
+{
+  "name" : "web-shelf-iconbox",
+  "globally" : true,
+  "template" : "./web-shelf-iconbox.html",
+  "mixins" : ["./web-shelf-iconbox.mjs"]
+}

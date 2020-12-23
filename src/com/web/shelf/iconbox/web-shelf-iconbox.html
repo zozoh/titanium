@@ -1,0 +1,53 @@
+<div class="web-shelf-iconbox"
+  :class="TopClass">
+  <!--
+    Icon
+  -->
+  <div class="as-icon" @click.left="OnToggleMode">
+    <ti-icon :value="icon"/>
+  </div>
+  <!--
+    Mask
+  -->
+  <transition name="ti-trans-fade">
+    <div
+      v-if="isOpened"
+        class="as-mask"
+        @click.left="OnToggleMode"></div>
+  </transition>
+  <!--
+    Panel
+  -->
+  <transition :name="PanelTransName">
+    <div
+      v-if="isOpened"
+        class="as-panel"
+        :style="PanelStyle"><div class="as-con">
+        <!--Head-->
+        <component
+          v-if="hasHead"
+            class="as-head"
+            :is="head.comType"
+            v-bind="head.comConf"/>
+        <!--Body-->
+        <component
+          v-if="hasBody"
+            class="as-body"
+            :is="body.comType"
+            v-bind="body.comConf"/>
+        <!--Foot-->
+        <component
+          v-if="hasFoot"
+            class="as-foot"
+            :is="foot.comType"
+            v-bind="foot.comConf"/>
+        <!--Closer-->
+        <div
+          v-if="closeIcon"
+            class="as-closer"
+            @click.left="OnToggleMode">
+            <ti-icon :value="closeIcon"/>
+        </div>
+    </div></div>
+  </transition>
+</div>
