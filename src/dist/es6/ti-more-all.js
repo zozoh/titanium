@@ -1,4 +1,4 @@
-// Pack At: 2020-12-21 20:08:45
+// Pack At: 2020-12-24 22:54:52
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -33105,6 +33105,164 @@ Ti.Preload("ti/com/web/shelf/free/_com.json", {
   "mixins" : ["./web-shelf-free.mjs"]
 });
 //============================================================
+// JOIN: web/shelf/iconbox/web-shelf-iconbox.html
+//============================================================
+Ti.Preload("ti/com/web/shelf/iconbox/web-shelf-iconbox.html", `<div class="web-shelf-iconbox"
+  :class="TopClass">
+  <!--
+    Icon
+  -->
+  <div class="as-icon" @click.left="OnToggleMode">
+    <ti-icon :value="icon"/>
+  </div>
+  <!--
+    Mask
+  -->
+  <transition name="ti-trans-fade">
+    <div
+      v-if="isOpened"
+        class="as-mask"
+        @click.left="OnToggleMode"></div>
+  </transition>
+  <!--
+    Panel
+  -->
+  <transition :name="PanelTransName">
+    <div
+      v-if="isOpened"
+        class="as-panel"
+        :style="PanelStyle"><div class="as-con">
+        <!--Head-->
+        <component
+          v-if="hasHead"
+            class="as-head"
+            :is="head.comType"
+            v-bind="head.comConf"/>
+        <!--Body-->
+        <component
+          v-if="hasBody"
+            class="as-body"
+            :is="body.comType"
+            v-bind="body.comConf"/>
+        <!--Foot-->
+        <component
+          v-if="hasFoot"
+            class="as-foot"
+            :is="foot.comType"
+            v-bind="foot.comConf"/>
+        <!--Closer-->
+        <div
+          v-if="closeIcon"
+            class="as-closer"
+            @click.left="OnToggleMode">
+            <ti-icon :value="closeIcon"/>
+        </div>
+    </div></div>
+  </transition>
+</div>`);
+//============================================================
+// JOIN: web/shelf/iconbox/web-shelf-iconbox.mjs
+//============================================================
+(function(){
+const _M = {
+  //////////////////////////////////////////
+  data : ()=>({
+    isOpened: true
+  }),
+  //////////////////////////////////////////
+  props : {
+    "icon": {
+      type: [Object, String],
+      default: "im-menu"
+    },
+    "closeIcon": {
+      type: [Object, String],
+      default: "im-x-mark"
+    },
+    "mode": {
+      type: String,
+      default: "left",
+      validator: v => /^(left|right)$/.test(v)
+    },
+    "head": {
+      type: Object,
+      /* {comType, comConf} */
+      default: undefined
+    },
+    "body": {
+      type: Object,
+      /* {comType, comConf} */
+      default: undefined
+    },
+    "foot": {
+      type: Object,
+      /* {comType, comConf} */
+      default: undefined
+    },
+    "width": {
+      type: [Number, String],
+      default: undefined
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-opened" : this.isOpened,
+        "is-closed" : !this.isOpened,
+      }, `is-mode-${this.mode}`)
+    },
+    //--------------------------------------
+    hasHead() {
+      return this.head && this.head.comType
+    },
+    //--------------------------------------
+    hasBody() {
+      return this.body && this.body.comType
+    },
+    //--------------------------------------
+    hasFoot() {
+      return this.foot && this.foot.comType
+    },
+    //--------------------------------------
+    PanelStyle() {
+      return Ti.Css.toStyle({
+        width: this.width
+      })
+    },
+    //--------------------------------------
+    PanelTransName() {
+      return `ti-trans-slide-${this.mode}`
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnToggleMode() {
+      this.isOpened = !this.isOpened
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    
+  }
+  //////////////////////////////////////////
+}
+Ti.Preload("ti/com/web/shelf/iconbox/web-shelf-iconbox.mjs", _M);
+})();
+//============================================================
+// JOIN: web/shelf/iconbox/_com.json
+//============================================================
+Ti.Preload("ti/com/web/shelf/iconbox/_com.json", {
+  "name" : "web-shelf-iconbox",
+  "globally" : true,
+  "template" : "./web-shelf-iconbox.html",
+  "mixins" : ["./web-shelf-iconbox.mjs"]
+});
+//============================================================
 // JOIN: web/shelf/list/web-shelf-list.html
 //============================================================
 Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-list"
@@ -50262,13 +50420,13 @@ Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
-  "blog" : "Blog",
-  "blog-manage" : "Blog management",
-  "ar-pubat" : "Publish at",
-  "ar-watch-c" : "Watch count",
-  "ar-thumb" : "Thumbnail",
-  "ar-duration" : "Reading time",
-  "ar-meta-tip" : "Choose an article for detail",
+  "blog": "Blog",
+  "blog-manage": "Blog management",
+  "ar-pubat": "Publish at",
+  "ar-watch-c": "Watch count",
+  "ar-thumb": "Thumbnail",
+  "ar-duration": "Reading time",
+  "ar-meta-tip": "Choose an article for detail",
 
   "account": "Account",
   "account-flt-tip": "Filter by account name",
@@ -50466,6 +50624,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "or-st-ok": "Pay ok",
   "or-st-sp": "Shipped",
   "or-st-wt": "Wait for pay",
+  "or-st-ca": "Canceled",
   "ord-detail": "Order detail",
   "order-flt-tip": "Query by order id",
   "order-k-accounts": "Accounts",
@@ -50522,6 +50681,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-waybil_com": "Waybil COM",
   "order-k-waybil_nb": "Waybil NB",
   "order-k-wt_at": "Pay at",
+  "order-k-ca_at": "Cancel at",
   "order-nil-detail": "Please select an order for details",
   "order-pay-id": "Pay ID",
   "order-pay-status": "Payment status",
@@ -51354,13 +51514,13 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-editor.i18n.json", {
 // JOIN: zh-cn/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
-  "blog" : "博客",
-  "blog-manage" : "博客管理",
-  "ar-pubat" : "发布日期",
-  "ar-watch-c" : "浏览次数",
-  "ar-thumb" : "缩略封面",
-  "ar-duration" : "阅读时长",
-  "ar-meta-tip" : "请选择一篇文章查看详情",
+  "blog": "博客",
+  "blog-manage": "博客管理",
+  "ar-pubat": "发布日期",
+  "ar-watch-c": "浏览次数",
+  "ar-thumb": "缩略封面",
+  "ar-duration": "阅读时长",
+  "ar-meta-tip": "请选择一篇文章查看详情",
 
   "account": "账户",
   "account-flt-tip": "请输入账号名过滤",
@@ -51558,6 +51718,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "or-st-ok": "支付成功",
   "or-st-sp": "已发货",
   "or-st-wt": "待支付",
+  "or-st-ca": "已取消",
   "ord-detail": "订单详情",
   "order-flt-tip": "请输入订单ID查询",
   "order-k-accounts": "用户库",
@@ -51614,6 +51775,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-waybil_com": "物流公司",
   "order-k-waybil_nb": "运单号",
   "order-k-wt_at": "支付时间",
+  "order-k-ca_at": "取消时间",
   "order-nil-detail": "请选择一个订单查看详情",
   "order-pay-id": "支付单号",
   "order-pay-status": "交易状态",
