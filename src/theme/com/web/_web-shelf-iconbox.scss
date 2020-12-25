@@ -1,5 +1,5 @@
 .web-shelf-iconbox {
-  @include flex-align-nowrap($ai:stretch);
+  @include flex-align-nowrap($ai:stretch, $jc:center); 
   //------------------------------------
   > .as-icon {
     @include flex-align-center;

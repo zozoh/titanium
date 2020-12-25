@@ -1,4 +1,4 @@
-// Pack At: 2020-12-24 22:54:52
+// Pack At: 2020-12-26 07:59:32
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -33108,7 +33108,8 @@ Ti.Preload("ti/com/web/shelf/free/_com.json", {
 // JOIN: web/shelf/iconbox/web-shelf-iconbox.html
 //============================================================
 Ti.Preload("ti/com/web/shelf/iconbox/web-shelf-iconbox.html", `<div class="web-shelf-iconbox"
-  :class="TopClass">
+  :class="TopClass"
+  :style="TopStyle">
   <!--
     Icon
   -->
@@ -33167,7 +33168,7 @@ Ti.Preload("ti/com/web/shelf/iconbox/web-shelf-iconbox.html", `<div class="web-s
 const _M = {
   //////////////////////////////////////////
   data : ()=>({
-    isOpened: true
+    isOpened: false
   }),
   //////////////////////////////////////////
   props : {
@@ -33202,6 +33203,10 @@ const _M = {
     "width": {
       type: [Number, String],
       default: undefined
+    },
+    "panelWidth" : {
+      type: [Number, String],
+      default: undefined
     }
   },
   //////////////////////////////////////////
@@ -33212,6 +33217,12 @@ const _M = {
         "is-opened" : this.isOpened,
         "is-closed" : !this.isOpened,
       }, `is-mode-${this.mode}`)
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width
+      })
     },
     //--------------------------------------
     hasHead() {
@@ -33228,7 +33239,7 @@ const _M = {
     //--------------------------------------
     PanelStyle() {
       return Ti.Css.toStyle({
-        width: this.width
+        width: this.panelWidth
       })
     },
     //--------------------------------------

@@ -1,6 +1,7 @@
 .ti-session-badge {
   @include noselect;
   @include flex-align-nowrap;
+  //-------------------------------------
   > .as-avatar {
     @include flex-center;
     > img {
@@ -10,13 +11,16 @@
       border-radius: 50%;
     }
   }
+  //-------------------------------------
   > .as-icon {
     font-size:1.2em; padding:0 0.3em;
   }
+  //-------------------------------------
   > .as-name {
     padding:0 SZ(8);
     a:hover {text-decoration: underline;}
   }
+  //-------------------------------------
   > .as-link {
     @include border(1px,solid,shallow,left);
     @include flex-align-nowrap;
@@ -25,4 +29,30 @@
     a:hover {text-decoration: underline;}
     > .it-icon {margin-right:SZ(6);}
   }
+  //-------------------------------------
+  &.is-vertical {
+    @include flex-align-v-nowrap;
+    padding: 2em 1em;
+    //-----------------------------------
+    > .as-avatar {
+      padding: SZ(10);
+      > img {height:SZ(92); width:SZ(92);}
+    }
+    //-----------------------------------
+    > .as-icon {
+      font-size: SZ(92); padding: SZ(10);
+    }
+    //-----------------------------------
+    > .as-name {
+      padding: SZ(8); text-align: center;
+    }
+    //-----------------------------------
+    > .as-link {
+      @include flex-align-v-nowrap($ai:center);
+      border:0; padding: .5em 0;
+      @include border(1px,solid,shallow,top);
+    }
+    //-----------------------------------
+  }
+  //-------------------------------------
 }

@@ -1,7 +1,7 @@
 const _M = {
   //////////////////////////////////////////
   data : ()=>({
-    isOpened: true
+    isOpened: false
   }),
   //////////////////////////////////////////
   props : {
@@ -36,6 +36,10 @@ const _M = {
     "width": {
       type: [Number, String],
       default: undefined
+    },
+    "panelWidth" : {
+      type: [Number, String],
+      default: undefined
     }
   },
   //////////////////////////////////////////
@@ -46,6 +50,12 @@ const _M = {
         "is-opened" : this.isOpened,
         "is-closed" : !this.isOpened,
       }, `is-mode-${this.mode}`)
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width
+      })
     },
     //--------------------------------------
     hasHead() {
@@ -62,7 +72,7 @@ const _M = {
     //--------------------------------------
     PanelStyle() {
       return Ti.Css.toStyle({
-        width: this.width
+        width: this.panelWidth
       })
     },
     //--------------------------------------
