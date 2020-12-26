@@ -40,6 +40,10 @@ const _M = {
     "panelWidth" : {
       type: [Number, String],
       default: undefined
+    },
+    "autoCloseEventNames" : {
+      type: [Array, String],
+      default: "nav:to"
     }
   },
   //////////////////////////////////////////
@@ -78,6 +82,10 @@ const _M = {
     //--------------------------------------
     PanelTransName() {
       return `ti-trans-slide-${this.mode}`
+    },
+    //--------------------------------------
+    TheAutoCloseEventNames() {
+      return _.concat(this.autoCloseEventNames)
     }
     //--------------------------------------
   },
@@ -86,6 +94,15 @@ const _M = {
     //--------------------------------------
     OnToggleMode() {
       this.isOpened = !this.isOpened
+    },
+    //--------------------------------------
+    __on_events(name) {
+      //console.log("__on_events", name)
+      if(_.indexOf(this.TheAutoCloseEventNames, name)>=0) {
+        _.delay(()=>{
+          this.isOpened = false
+        })
+      }
     }
     //--------------------------------------
   },

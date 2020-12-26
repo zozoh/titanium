@@ -1,4 +1,4 @@
-// Pack At: 2020-12-26 07:59:32
+// Pack At: 2020-12-26 08:13:50
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -33207,6 +33207,10 @@ const _M = {
     "panelWidth" : {
       type: [Number, String],
       default: undefined
+    },
+    "autoCloseEventNames" : {
+      type: [Array, String],
+      default: "nav:to"
     }
   },
   //////////////////////////////////////////
@@ -33245,6 +33249,10 @@ const _M = {
     //--------------------------------------
     PanelTransName() {
       return `ti-trans-slide-${this.mode}`
+    },
+    //--------------------------------------
+    TheAutoCloseEventNames() {
+      return _.concat(this.autoCloseEventNames)
     }
     //--------------------------------------
   },
@@ -33253,6 +33261,15 @@ const _M = {
     //--------------------------------------
     OnToggleMode() {
       this.isOpened = !this.isOpened
+    },
+    //--------------------------------------
+    __on_events(name) {
+      //console.log("__on_events", name)
+      if(_.indexOf(this.TheAutoCloseEventNames, name)>=0) {
+        _.delay(()=>{
+          this.isOpened = false
+        })
+      }
     }
     //--------------------------------------
   },
