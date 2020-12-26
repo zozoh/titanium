@@ -11,6 +11,8 @@ $color-disable: (c:rgba(160,160,160,.6), r:rgba(0,0,0,.38));
 $color-text   : (c:#00CC00, r:#FFF);
 $color-number : (c:#44AAFF, r:#FFF);
 //...........................................
+$color-sky : (c:#110, r:#FFF);
+//...........................................
 $color-paper : (c:#444, r:#FFF);
 $color-chip  : (c:#666, r:#E0E0E0);
 $color-cloak : (c:rgba(20,20,20,0.95), r:#DDD);
@@ -36,7 +38,7 @@ $color-mask: (
   bushy : rgba(50,50,50,0.8),
   thin  : rgba(50,50,50,0.4),
   weak  : rgba(100,100,100,0.4),
-  r : #e0e0e0
+  r : #AAA
 );
 //...........................................
 $color-line: (

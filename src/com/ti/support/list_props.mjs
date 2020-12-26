@@ -103,7 +103,7 @@ export default {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "fas-disease",
+      icon : "far-list-alt",
       text : "empty-data"
     })
   },

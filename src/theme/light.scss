@@ -12,6 +12,9 @@
 @import "_default.scss";
 @import "_utility.scss";
 //-----------------------------------------------------
+// App
+@import "app/_wn-manager.scss";
+//-----------------------------------------------------
 // AUTO-INCLUDE-COM-STUB
 @import "com/_hmaker.scss";
 @import "com/net/_net-aliyun-vod-video-info.scss";

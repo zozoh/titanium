@@ -36,9 +36,11 @@ const _M = {
   computed : {
     //---------------------------------------
     TopClass() {
+      let skyColorized = _.get(this.session, "envs.SKY_COLORIZED")
       return this.getTopClass({
         "is-current-as-home" : this.CurrentIsHome,
-        "is-current-no-home" : !this.CurrentIsHome
+        "is-current-no-home" : !this.CurrentIsHome,
+        "is-sky-colorized" : /^(yes|true)$/.test(skyColorized)
       },this.appClassName)
     },
     //---------------------------------------
