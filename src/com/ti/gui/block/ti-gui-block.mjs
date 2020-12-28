@@ -78,6 +78,11 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "mainConClass" : undefined,
+    "mainConStyle" : {
+      type: Object,
+      default: undefined
+    },
     // Those 3 props for by-pass to sub-(cols/rows)
     "tabAt"       : undefined,
     "adjustable"  : undefined,
@@ -114,12 +119,18 @@ export default {
     },
     //--------------------------------------
     MainConClass() {
+      let klass = {}
       if(!this.isFlexNil) {
-        return {
+        _.assign(klass, {
           "fill-parent"  : "fill"==this.TheOverflow,
           "cover-parent" : "cover"==this.TheOverflow
-        }
+        })
       }
+      return Ti.Css.mergeClassName(klass, this.mainConClass)
+    },
+    //--------------------------------------
+    MainConStyle() {
+      return Ti.Css.toStyle(this.mainConStyle)
     },
     //--------------------------------------
     MainComponentClass() {

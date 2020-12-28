@@ -1,4 +1,4 @@
-// Pack At: 2020-12-26 08:13:50
+// Pack At: 2020-12-28 20:21:20
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -1344,6 +1344,10 @@ const _M = {
       type : Number,
       default: 0
     },
+    "delay" : {
+      type : Number,
+      default: 0
+    },
     "shortcut": {
       type: String,
       default: undefined
@@ -1368,6 +1372,7 @@ const _M = {
   ///////////////////////////////////////
   methods : {
     OnFired(val) {
+      console.log("OnFire")
       // Call Action
       if(this.action) {
         let app = Ti.App(this)
@@ -1376,20 +1381,27 @@ const _M = {
           argContext: app.$state()
         })
         // Invoke it
-        invoking()
+        _.delay(()=>{
+          invoking()
+        }, this.delay)
       }
 
       // notify: name/value object
       if(this.notifyName) {    
-        this.$bar.notifyChange({
-          name  : this.notifyName,
-          value : val
-        })
+        _.delay(()=>{
+          this.$bar.notifyChange({
+            name  : this.notifyName,
+            value : val
+          })
+        }, this.delay)
       }
 
       // notify: eventName
       if(this.eventName) {
-        this.$bar.$notify(this.eventName, this.payload)
+        _.delay(()=>{
+          console.log("this.$bar.$notify",this.eventName)
+          this.$bar.$notify(this.eventName, this.payload)
+        }, this.delay)
       }
     }
   },
@@ -1867,6 +1879,7 @@ const _M = {
   methods : {
     //---------------------------------------
     OnClickTop() {
+      console.log("OClickTop")
       if(!this.isDisabled) {
         let val = this.isHighlight
           ? _.last(this.TheValues)
@@ -2449,7 +2462,7 @@ const _M = {
         it.eventName = li.eventName || it.name
         it.payload = li.payload
         it.icon = li.icon
-        it.text = li.text
+        it.text = li.disabled ? li.disabledText || li.text : li.text
         it.disabled = li.disabled
         it.handler = li.handler
         it.buttonClass = {
@@ -5139,6 +5152,7 @@ Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter.html", `<div class="ti-combo-
   -->
   <TiDroplist
     v-if="myMajorKey && MajorConfig"
+      class="as-major"
       v-bind="MajorConfig"
       :value="myMajorValue"
       @change="OnMajorChange"/>
@@ -5871,6 +5885,12 @@ const _M = {
         })
       },
       immediate : true
+    },
+    //-----------------------------------------------
+    "myOptionsData" : function(){
+      this.$nextTick(()=>{
+        this.evalMyItem()
+      })
     },
     //-----------------------------------------------
     "options" : function(newval, oldval) {
@@ -9149,7 +9169,8 @@ Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block"
   -->
   <div class="block-main" v-if="TheCom">
     <div class="block-main-con"
-      :class="MainConClass">
+      :class="MainConClass"
+      :style="MainConStyle">
       <component 
         :class="MainComponentClass"
         :is="TheCom.comType"
@@ -9242,6 +9263,11 @@ const _M = {
       type : Object,
       default : ()=>({})
     },
+    "mainConClass" : undefined,
+    "mainConStyle" : {
+      type: Object,
+      default: undefined
+    },
     // Those 3 props for by-pass to sub-(cols/rows)
     "tabAt"       : undefined,
     "adjustable"  : undefined,
@@ -9278,12 +9304,18 @@ const _M = {
     },
     //--------------------------------------
     MainConClass() {
+      let klass = {}
       if(!this.isFlexNil) {
-        return {
+        _.assign(klass, {
           "fill-parent"  : "fill"==this.TheOverflow,
           "cover-parent" : "cover"==this.TheOverflow
-        }
+        })
       }
+      return Ti.Css.mergeClassName(klass, this.mainConClass)
+    },
+    //--------------------------------------
+    MainConStyle() {
+      return Ti.Css.toStyle(this.mainConStyle)
     },
     //--------------------------------------
     MainComponentClass() {
@@ -9545,6 +9577,8 @@ Ti.Preload("ti/com/ti/gui/panel/ti-gui-panel.html", `<div class="ti-gui-panel"
       :name="name"
       :blocks="blocks"
       :body="body"
+      :main-con-class="mainConClass"
+      :main-con-style="mainConStyle"
       :overflow="overflow"
       :schema="schema"
       :shown="shown"
@@ -9611,6 +9645,11 @@ const _M = {
     "body" : {
       type : [String, Object],
       default : null
+    },
+    "mainConClass" : undefined,
+    "mainConStyle" : {
+      type: Object,
+      default: undefined
     },
     "adjustable" : {
       type : [Boolean, String],
@@ -20831,7 +20870,7 @@ const _M = {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "fas-disease",
+      icon : "far-list-alt",
       text : "empty-data"
     })
   },
@@ -48117,7 +48156,7 @@ const _M = {
       state.data = data
     },
     //--------------------------------------------
-    inserToData(state, {key, item, pos=0}={}) {
+    inserToDataList(state, {key, item, pos=0}={}) {
       // Guard
       if(Ti.Util.isNil(item)) {
         return;
@@ -48129,6 +48168,44 @@ const _M = {
 
       // Insert the data
       Ti.Util.insertToArray(list, pos, item)
+    },
+    //--------------------------------------------
+    updateToDataList(state, {key, item, idBy="id"}={}) {
+      // Guard
+      if(Ti.Util.isNil(item)) {
+        return;
+      }
+      // Find the list
+      let list = _.get(state.data, key)
+      if(!_.isArray(list))
+        return
+
+      // Replace item
+      let list2 = _.map(list, li=>{
+        let id0 = _.get(li, idBy)
+        let id1 = _.get(item, idBy)
+        if(id0 == id1)
+          return item
+        return li
+      })
+      _.set(state.data, key, list2)
+    },
+    //--------------------------------------------
+    mergeToDataList(state, {key, value}={}) {
+      // Guard
+      if(Ti.Util.isNil(value)) {
+        return;
+      }
+      // Find the list
+      let list = _.get(state.data, key)
+      if(!_.isArray(list))
+        return
+
+      // Replace item
+      let list2 = _.map(list, li=>{
+        return _.assign(li, value)
+      })
+      _.set(state.data, key, list2)
     },
     //--------------------------------------------
     mergeData(state, data) {
@@ -48192,6 +48269,32 @@ const _M = {
       commit("updateFinger")
     },
     //--------------------------------------------
+    pickDataTo({commit, state}, {
+      from,  /* source key in data, point to a list */
+      to,    /* target key in data */
+      by,    /* AutoMatch */
+      dft=null
+    }={}) {
+      //console.log({from, to, by})
+      let val = dft
+      if(!_.isEmpty(by)) {
+        let am = Ti.AutoMatch.parse(by)
+        let list = _.get(state.data, from)
+        if(_.isArray(list) && !_.isEmpty(list)) {
+          for(let li of list) {
+            if(am(li)) {
+              val = li
+              break
+            }
+          }
+        }
+      }
+      commit("updateDataBy", {
+        key: to, 
+        value : val
+      })
+    },
+    //--------------------------------------------
     /***
      * Usage:
      * 
@@ -48211,7 +48314,15 @@ const _M = {
     },
     //--------------------------------------------
     insertItemToData({commit}, payload) {
-      commit("inserToData", payload)
+      commit("inserToDataList", payload)
+    },
+    //--------------------------------------------
+    updateItemToData({commit}, payload) {
+      commit("updateToDataList", payload)
+    },
+    //--------------------------------------------
+    mergeItemToData({commit}, payload) {
+      commit("mergeToDataList", payload)
     },
     //--------------------------------------------
     removeItemInDataById({state, commit}, {key, id, idKey="id"}={}) {
@@ -48294,7 +48405,7 @@ const _M = {
     }={}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
-      //console.log("doApi", {key, api, params, vars, body})
+      console.log("doApi", {key, api, params, vars, body})
       //.....................................
       // Guard
       if(!api) {
@@ -48534,7 +48645,7 @@ const _M = {
       path,
       anchor,
       params={}
-    }) {
+    }={}) {
       //console.log(rootGetters.routerList)
       //console.log(" # -> page.reload", {path,params,anchor})
       let pinfo;
@@ -49421,30 +49532,31 @@ const _M = {
       //....................................
       // Combo: [F(), args] or [{action}, args]
       //....................................
-      if(_.isArray(AT) && AT.length == 2) {
-        let actn = AT[0]
-        let args = AT[1]
-        if(!_.isUndefined(args) && !_.isArray(args)) {
-          args = [args]
-        }
-        if(_.isFunction(actn)) {
-          AT = {
-            action: actn,
-            args
-          }
-        }
-        // Grouping Action
-        else if(_.isArray(actn)) {
-          AT = []
-          for(let an of actn) {
-            AT.push(_.assign({}, an, {args}))
-          }
-        }
-        // Merge
-        else {
-          AT = _.assign({}, actn, {args})
-        }
-      }
+      // zozoh(20201228): 这段逻辑徒增复杂性，华而不实，甚至它都不华
+      // if(_.isArray(AT) && AT.length == 2) {
+      //   let actn = AT[0]
+      //   let args = AT[1]
+      //   if(!_.isUndefined(args) && !_.isArray(args)) {
+      //     args = [args]
+      //   }
+      //   if(_.isFunction(actn)) {
+      //     AT = {
+      //       action: actn,
+      //       args
+      //     }
+      //   }
+      //   // Grouping Action
+      //   else if(_.isArray(actn)) {
+      //     AT = []
+      //     for(let an of actn) {
+      //       AT.push(_.assign({}, an, {args}))
+      //     }
+      //   }
+      //   // Merge
+      //   else {
+      //     AT = _.assign({}, actn, {args})
+      //   }
+      // }
       //....................................
       // String
       if(_.isString(AT)) {
@@ -49464,13 +49576,34 @@ const _M = {
       }
     },
     //--------------------------------------------
-    async runAction({state, dispatch}, {action,payload,args}={}) {
+    async runAction({state, dispatch}, {
+      action, 
+      test,       // AutoMatch
+      testMsg="i18n:e-run-action-test-fail",
+      confirm,
+      payload,
+      args
+    }={}) {
       //....................................
       if(!action)
         return;
 
-      args = args || []
       //....................................
+      // Test precondition
+      if(test) {
+        if(!Ti.AutoMatch.test(test, state)) {
+          return await Ti.Toast.Open(testMsg, "warn")
+        }
+      }
+      //....................................
+      // Confirm the operation with user
+      if(confirm) {
+        if(!(await Ti.Confirm(confirm, {type:"warn"}))) {
+          return
+        }
+      }
+      //....................................
+      args = args || []
       let pld;
 
       // Use args directrly cause payload without defined
@@ -49538,8 +49671,7 @@ const _M = {
         if(_.isArray(AT)) {
           for(let a of AT) {
             await dispatch("doAction", {
-              action  : a.action,
-              payload : a.payload,
+              ... a,
               args
             })
           }
@@ -49554,8 +49686,7 @@ const _M = {
         // Direct call : Object
         else {
           await dispatch("doAction", {
-            action  : AT.action,
-            payload : AT.payload,
+            ... AT,
             args
           })
         }
@@ -49996,9 +50127,11 @@ const _M = {
   computed : {
     //---------------------------------------
     TopClass() {
+      let skyColorized = _.get(this.session, "envs.SKY_COLORIZED")
       return this.getTopClass({
         "is-current-as-home" : this.CurrentIsHome,
-        "is-current-no-home" : !this.CurrentIsHome
+        "is-current-no-home" : !this.CurrentIsHome,
+        "is-sky-colorized" : /^(yes|true)$/.test(skyColorized)
       },this.appClassName)
     },
     //---------------------------------------
@@ -50448,14 +50581,7 @@ Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
-  "blog": "Blog",
-  "blog-manage": "Blog management",
-  "ar-pubat": "Publish at",
-  "ar-watch-c": "Watch count",
-  "ar-thumb": "Thumbnail",
-  "ar-duration": "Reading time",
-  "ar-meta-tip": "Choose an article for detail",
-
+  "e-run-action-test-fail" : "Insufficient action preconditions",
   "account": "Account",
   "account-flt-tip": "Filter by account name",
   "account-manage": "Accounts",
@@ -50497,10 +50623,15 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "admin-no-detail": "Select an admin for detail",
   "ar-cate": "Catetory",
   "ar-content": "Content",
+  "ar-duration": "Reading time",
   "ar-flt-tip": "Filter by article title",
   "ar-meta": "Article property",
+  "ar-meta-tip": "Choose an article for detail",
   "ar-new": "New article",
+  "ar-pubat": "Publish at",
+  "ar-thumb": "Thumbnail",
   "ar-title": "Title",
+  "ar-watch-c": "Watch count",
   "auth-bind": "Bind",
   "auth-bind-email-title": "Bind email",
   "auth-bind-phone-title": "Bind phone",
@@ -50560,6 +50691,8 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "auth-vcode-delay": "Resend after ${sec}s",
   "auth-vcode-lost": "Can't get password?",
   "base-info": "Base info",
+  "blog": "Blog",
+  "blog-manage": "Blog management",
   "buy-checkout-nil": "You have nothing to checkout",
   "cate": "Category",
   "cate-flt-tip": "Filter by category name",
@@ -50646,13 +50779,13 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "my-profile": "My profile",
   "my-shipping-address": "Shipping address",
   "my-shopping-car": "Shopping car",
+  "or-st-ca": "Canceled",
   "or-st-dn": "Done",
   "or-st-fa": "Fail to create order",
   "or-st-nw": "New order",
   "or-st-ok": "Pay ok",
   "or-st-sp": "Shipped",
   "or-st-wt": "Wait for pay",
-  "or-st-ca": "Canceled",
   "ord-detail": "Order detail",
   "order-flt-tip": "Query by order id",
   "order-k-accounts": "Accounts",
@@ -50669,6 +50802,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-addr_user_province": "Province",
   "order-k-addr_user_street": "Street",
   "order-k-buyer_id": "Buyer",
+  "order-k-ca_at": "Cancel at",
   "order-k-currency": "Currency",
   "order-k-discount": "Discount",
   "order-k-dn_at": "Done at",
@@ -50709,7 +50843,6 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "order-k-waybil_com": "Waybil COM",
   "order-k-waybil_nb": "Waybil NB",
   "order-k-wt_at": "Pay at",
-  "order-k-ca_at": "Cancel at",
   "order-nil-detail": "Please select an order for details",
   "order-pay-id": "Pay ID",
   "order-pay-status": "Payment status",
@@ -50853,29 +50986,6 @@ Ti.Preload("ti/i18n/en-us/wn-obj-preview.i18n.json", {
 // JOIN: en-us/wn-thing.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/wn-thing.i18n.json", {
-  "thing-export-setup" : "Export setup",
-  "thing-export-ing" : "Processing",
-  "thing-export-ing-tip" : "The export script is running, please wait for a while",
-  "thing-export-done" : "Finished",
-  "thing-export-done-ok" : "Export success",
-  "thing-export-done-tip" : "Please click the link below to download",
-  "thing-export-c-mode" : "Export mode",
-  "thing-export-c-mode-csv" : "CSV File",
-  "thing-export-c-mode-xls" : "Spreadsheet",
-  "thing-export-c-mode-json" : "JSON",
-  "thing-export-c-mode-zip" : "Zip data",
-  "thing-export-c-mapping" : "Mapping",
-  "thing-export-c-page" : "Data scope",
-  "thing-export-c-page-current" : "Current page",
-  "thing-export-c-page-all" : "All page",
-  "thing-export-c-name" : "Export name",
-  "thing-export-c-expi" : "Expire in",
-  "thing-export-c-expi-3d" : "3Days",
-  "thing-export-c-expi-7d" : "7Days",
-  "thing-export-c-expi-14d" : "14Days",
-  "thing-export-c-expi-off" : "Never",
-  "thing-export-open-dir" : "Open export history dir...",
-
   "thing-clean": "Empty the recycle bin",
   "thing-cleaning": "Cleaning...",
   "thing-content": "Object content",
@@ -50884,10 +50994,32 @@ Ti.Preload("ti/i18n/en-us/wn-thing.i18n.json", {
   "thing-create": "New object",
   "thing-create-in-recyclebin": "Exit recycle bin before create object",
   "thing-enter-recyclebin": "Enter recyclebin",
+  "thing-export-c-expi": "Expire in",
+  "thing-export-c-expi-14d": "14Days",
+  "thing-export-c-expi-3d": "3Days",
+  "thing-export-c-expi-7d": "7Days",
+  "thing-export-c-expi-off": "Never",
+  "thing-export-c-mapping": "Mapping",
+  "thing-export-c-mode": "Export mode",
+  "thing-export-c-mode-csv": "CSV File",
+  "thing-export-c-mode-json": "JSON",
+  "thing-export-c-mode-xls": "Spreadsheet",
+  "thing-export-c-mode-zip": "Zip data",
+  "thing-export-c-name": "Export name",
+  "thing-export-c-page": "Data scope",
+  "thing-export-c-page-all": "All page",
+  "thing-export-c-page-current": "Current page",
+  "thing-export-done": "Finished",
+  "thing-export-done-ok": "Export success",
+  "thing-export-done-tip": "Please click the link below to download",
+  "thing-export-ing": "Processing",
+  "thing-export-ing-tip": "The export script is running, please wait for a while",
+  "thing-export-open-dir": "Open export history dir...",
+  "thing-export-setup": "Export setup",
   "thing-files": "Object files",
-  "thing-files-media": "Medias",
   "thing-files-attachment": "Attachments",
   "thing-files-hide": "Hide files",
+  "thing-files-media": "Medias",
   "thing-files-show": "Show files",
   "thing-filter-kwdplhd": "Enter the query criteria",
   "thing-leave-recyclebin": "Leave recyclebin",
@@ -51229,7 +51361,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "warn": "Warn",
   "website": "Website",
   "www-admin-login": "Admin login GUI",
-  "www-home": "WWW manage",
+  "www-home": "WWW home",
   "www-title": "Website",
   "yes": "Yes",
   "zip": "Zip",
@@ -51542,14 +51674,7 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-editor.i18n.json", {
 // JOIN: zh-cn/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
-  "blog": "博客",
-  "blog-manage": "博客管理",
-  "ar-pubat": "发布日期",
-  "ar-watch-c": "浏览次数",
-  "ar-thumb": "缩略封面",
-  "ar-duration": "阅读时长",
-  "ar-meta-tip": "请选择一篇文章查看详情",
-
+  "e-run-action-test-fail" : "执行操作前置条件不足",
   "account": "账户",
   "account-flt-tip": "请输入账号名过滤",
   "account-manage": "账户管理",
@@ -51591,10 +51716,15 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "admin-no-detail": "请选择一个管理员查看详情",
   "ar-cate": "文章分类",
   "ar-content": "文章内容",
+  "ar-duration": "阅读时长",
   "ar-flt-tip": "请输入文章标题过滤",
   "ar-meta": "文章属性",
+  "ar-meta-tip": "请选择一篇文章查看详情",
   "ar-new": "新文章",
+  "ar-pubat": "发布日期",
+  "ar-thumb": "缩略封面",
   "ar-title": "文章标题",
+  "ar-watch-c": "浏览次数",
   "auth-bind": "绑定",
   "auth-bind-email-title": "绑定邮箱",
   "auth-bind-phone-title": "绑定手机",
@@ -51654,6 +51784,8 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "auth-vcode-delay": "${sec} 秒后重新发送",
   "auth-vcode-lost": "收不到验证码？",
   "base-info": "基本信息",
+  "blog": "博客",
+  "blog-manage": "博客管理",
   "buy-checkout-nil": "请选择要付款的商品",
   "cate": "分类",
   "cate-flt-tip": "请输入分类名过滤",
@@ -51740,13 +51872,13 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "my-profile": "我的资料",
   "my-shipping-address": "收货地址",
   "my-shopping-car": "购物车",
+  "or-st-ca": "已取消",
   "or-st-dn": "完成",
   "or-st-fa": "创建订单失败",
   "or-st-nw": "提交订单",
   "or-st-ok": "支付成功",
   "or-st-sp": "已发货",
   "or-st-wt": "待支付",
-  "or-st-ca": "已取消",
   "ord-detail": "订单详情",
   "order-flt-tip": "请输入订单ID查询",
   "order-k-accounts": "用户库",
@@ -51763,6 +51895,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-addr_user_province": "省",
   "order-k-addr_user_street": "街道",
   "order-k-buyer_id": "买家",
+  "order-k-ca_at": "取消时间",
   "order-k-currency": "货币单位",
   "order-k-discount": "优惠",
   "order-k-dn_at": "完成时间",
@@ -51803,7 +51936,6 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "order-k-waybil_com": "物流公司",
   "order-k-waybil_nb": "运单号",
   "order-k-wt_at": "支付时间",
-  "order-k-ca_at": "取消时间",
   "order-nil-detail": "请选择一个订单查看详情",
   "order-pay-id": "支付单号",
   "order-pay-status": "交易状态",
@@ -51947,30 +52079,6 @@ Ti.Preload("ti/i18n/zh-cn/wn-obj-preview.i18n.json", {
 // JOIN: zh-cn/wn-thing.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/wn-thing.i18n.json", {
-  "thing-export-setup" : "导出设置",
-  "thing-export-ing" : "执行导出",
-  "thing-export-ing-tip" : "正在执行导出脚本，请稍后",
-  "thing-export-done" : "完成",
-  "thing-export-done-ok" : "导出成功",
-  "thing-export-done-tip" : "请点击下载链接下载",
-  "thing-export-c-mode" : "导出模式",
-  "thing-export-c-mode-csv" : "CSV文件",
-  "thing-export-c-mode-xls" : "电子表格",
-  "thing-export-c-mode-json" : "JSON",
-  "thing-export-c-mode-zip" : "数据压缩包",
-  "thing-export-c-mapping" : "映射方式",
-  "thing-export-c-page" : "数据范围",
-  "thing-export-c-page-current" : "当前页",
-  "thing-export-c-page-all" : "全部页",
-  "thing-export-c-name" : "导出文件名称",
-  "thing-export-c-expi" : "保存时间",
-  "thing-export-c-expi-3d" : "三天",
-  "thing-export-c-expi-7d" : "七天",
-  "thing-export-c-expi-14d" : "十四天",
-  "thing-export-c-expi-off" : "永远",
-  "thing-export-open-dir" : "打开导出历史目录...",
- 
-
   "thing-clean": "清空回收站",
   "thing-cleaning": "正在清空...",
   "thing-content": "对象内容",
@@ -51979,10 +52087,32 @@ Ti.Preload("ti/i18n/zh-cn/wn-thing.i18n.json", {
   "thing-create": "创建新对象",
   "thing-create-in-recyclebin": "请先退出回收站，再创建新对象",
   "thing-enter-recyclebin": "打开回收站",
+  "thing-export-c-expi": "保存时间",
+  "thing-export-c-expi-14d": "十四天",
+  "thing-export-c-expi-3d": "三天",
+  "thing-export-c-expi-7d": "七天",
+  "thing-export-c-expi-off": "永远",
+  "thing-export-c-mapping": "映射方式",
+  "thing-export-c-mode": "导出模式",
+  "thing-export-c-mode-csv": "CSV文件",
+  "thing-export-c-mode-json": "JSON",
+  "thing-export-c-mode-xls": "电子表格",
+  "thing-export-c-mode-zip": "数据压缩包",
+  "thing-export-c-name": "导出文件名称",
+  "thing-export-c-page": "数据范围",
+  "thing-export-c-page-all": "全部页",
+  "thing-export-c-page-current": "当前页",
+  "thing-export-done": "完成",
+  "thing-export-done-ok": "导出成功",
+  "thing-export-done-tip": "请点击下载链接下载",
+  "thing-export-ing": "执行导出",
+  "thing-export-ing-tip": "正在执行导出脚本，请稍后",
+  "thing-export-open-dir": "打开导出历史目录...",
+  "thing-export-setup": "导出设置",
   "thing-files": "对象文件表",
-  "thing-files-media": "媒体目录",
   "thing-files-attachment": "附件目录",
   "thing-files-hide": "隐藏文件表",
+  "thing-files-media": "媒体目录",
   "thing-files-show": "显示文件表",
   "thing-filter-kwdplhd": "请输入查询条件",
   "thing-leave-recyclebin": "退出回收站",
@@ -52324,7 +52454,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "warn": "警告",
   "website": "网站",
   "www-admin-login": "后台登录界面",
-  "www-home": "网站管理",
+  "www-home": "网站目录",
   "www-title": "前端网站",
   "yes": "是",
   "zip": "压缩",

@@ -21,6 +21,7 @@ export async function WebAppMain({
   rs = _.get(vars, "rs") || rs
   siteRs = _.get(vars, "siteRs") || siteRs
   lang = _.get(vars, "lang") || lang
+  let confHome = _.get(vars, "confHome") || `/gu/mnt/project/${domain}/_ti/`
   //---------------------------------------
   Ti.AddResourcePrefix(rs, siteRs)
   //---------------------------------------
@@ -44,6 +45,7 @@ export async function WebAppMain({
   Ti.Config.set({
     prefix : {
       "Site"  : `${siteRs}`,
+      "Conf"  : `${confHome}`,
       "theme" : `${rs}ti/theme/`,
       "lib"   : `${rs}ti/lib/`,
       "deps"  : `${rs}ti/deps/`,

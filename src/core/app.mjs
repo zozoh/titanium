@@ -56,6 +56,14 @@ class OneTiApp {
       console.log("Ti.$conf", this.$conf())
     }
 
+    // Auto add i18n message map
+    if(conf.i18n) {
+      let i18nList = _.concat(conf.i18n)
+      for(let i18nMap of i18nList) {
+        Ti.I18n.put(i18nMap)
+      }
+    }
+
     // Store instance
     let store
     if(conf.store) {

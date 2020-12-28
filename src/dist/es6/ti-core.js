@@ -1,4 +1,4 @@
-// Pack At: 2020-12-26 08:13:50
+// Pack At: 2020-12-28 20:21:20
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1241,6 +1241,13 @@ const {S} = (function(){
       // Split value to array
       let vs = TiStr.toArray(s, {sep, ignoreNil})
   
+      // Make sure keys as array
+      if(_.isString(keys)) {
+        keys = TiStr.toArray(keys, {
+          sep: /[:,;\s]+/g
+        })
+      }
+  
       // Analyze the keys
       let a_ks = []   // assign key list
       let m_ks = []   // those keys must has value
@@ -1307,6 +1314,7 @@ const {S} = (function(){
       ignoreNil=true,
       keys=["value","text?value","icon"]
     }={}) {
+      console.log("toObjList", s)
       let list = TiStr.toArray(s, {sep:sepLine, ignoreNil})
       return _.map(list, v => TiStr.toObject(v, {
         sep : sepPair,
@@ -2676,6 +2684,14 @@ const {App} = (function(){
       this.$conf(conf)
       if(Ti.IsInfo("TiApp")) {
         console.log("Ti.$conf", this.$conf())
+      }
+  
+      // Auto add i18n message map
+      if(conf.i18n) {
+        let i18nList = _.concat(conf.i18n)
+        for(let i18nMap of i18nList) {
+          Ti.I18n.put(i18nMap)
+        }
       }
   
       // Store instance
@@ -6852,7 +6868,7 @@ const {Types} = (function(){
     //.......................................
     // translate {keyword,majorKey,majorVlue,match} -> {...}
     toFilter(flt={}, options={}) {
-      console.log("toFilter", flt)
+      //console.log("toFilter", flt)
       let reo = {}
       let {keyword, match, majorKey, majorValue} = flt || {}
       let kwSetup = options.keyword || {
@@ -8260,6 +8276,16 @@ const {Util} = (function(){
         }
       })
       return keys
+    },
+    /***
+     * @param obj{Object}
+     * @param sep{String}
+     * 
+     * @return String seperated by given seperator
+     */
+    joinTruthyKeys(obj={}, sep=",") {
+      let keys = TiUtil.truthyKeys(obj)
+      return keys.join(sep)
     },
     /***
      * Get value from object fallbackly
@@ -11702,6 +11728,7 @@ const {WebAppMain} = (function(){
     rs = _.get(vars, "rs") || rs
     siteRs = _.get(vars, "siteRs") || siteRs
     lang = _.get(vars, "lang") || lang
+    let confHome = _.get(vars, "confHome") || `/gu/mnt/project/${domain}/_ti/`
     //---------------------------------------
     Ti.AddResourcePrefix(rs, siteRs)
     //---------------------------------------
@@ -11725,6 +11752,7 @@ const {WebAppMain} = (function(){
     Ti.Config.set({
       prefix : {
         "Site"  : `${siteRs}`,
+        "Conf"  : `${confHome}`,
         "theme" : `${rs}ti/theme/`,
         "lib"   : `${rs}ti/lib/`,
         "deps"  : `${rs}ti/deps/`,
@@ -11858,7 +11886,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201226.081350",
+  "version" : "2.5-20201228.202120",
   "dev" : false,
   "appName" : null,
   "session" : {},

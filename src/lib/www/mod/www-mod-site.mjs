@@ -209,30 +209,31 @@ const _M = {
       //....................................
       // Combo: [F(), args] or [{action}, args]
       //....................................
-      if(_.isArray(AT) && AT.length == 2) {
-        let actn = AT[0]
-        let args = AT[1]
-        if(!_.isUndefined(args) && !_.isArray(args)) {
-          args = [args]
-        }
-        if(_.isFunction(actn)) {
-          AT = {
-            action: actn,
-            args
-          }
-        }
-        // Grouping Action
-        else if(_.isArray(actn)) {
-          AT = []
-          for(let an of actn) {
-            AT.push(_.assign({}, an, {args}))
-          }
-        }
-        // Merge
-        else {
-          AT = _.assign({}, actn, {args})
-        }
-      }
+      // zozoh(20201228): 这段逻辑徒增复杂性，华而不实，甚至它都不华
+      // if(_.isArray(AT) && AT.length == 2) {
+      //   let actn = AT[0]
+      //   let args = AT[1]
+      //   if(!_.isUndefined(args) && !_.isArray(args)) {
+      //     args = [args]
+      //   }
+      //   if(_.isFunction(actn)) {
+      //     AT = {
+      //       action: actn,
+      //       args
+      //     }
+      //   }
+      //   // Grouping Action
+      //   else if(_.isArray(actn)) {
+      //     AT = []
+      //     for(let an of actn) {
+      //       AT.push(_.assign({}, an, {args}))
+      //     }
+      //   }
+      //   // Merge
+      //   else {
+      //     AT = _.assign({}, actn, {args})
+      //   }
+      // }
       //....................................
       // String
       if(_.isString(AT)) {
@@ -252,13 +253,34 @@ const _M = {
       }
     },
     //--------------------------------------------
-    async runAction({state, dispatch}, {action,payload,args}={}) {
+    async runAction({state, dispatch}, {
+      action, 
+      test,       // AutoMatch
+      testMsg="i18n:e-run-action-test-fail",
+      confirm,
+      payload,
+      args
+    }={}) {
       //....................................
       if(!action)
         return;
 
-      args = args || []
       //....................................
+      // Test precondition
+      if(test) {
+        if(!Ti.AutoMatch.test(test, state)) {
+          return await Ti.Toast.Open(testMsg, "warn")
+        }
+      }
+      //....................................
+      // Confirm the operation with user
+      if(confirm) {
+        if(!(await Ti.Confirm(confirm, {type:"warn"}))) {
+          return
+        }
+      }
+      //....................................
+      args = args || []
       let pld;
 
       // Use args directrly cause payload without defined
@@ -326,8 +348,7 @@ const _M = {
         if(_.isArray(AT)) {
           for(let a of AT) {
             await dispatch("doAction", {
-              action  : a.action,
-              payload : a.payload,
+              ... a,
               args
             })
           }
@@ -342,8 +363,7 @@ const _M = {
         // Direct call : Object
         else {
           await dispatch("doAction", {
-            action  : AT.action,
-            payload : AT.payload,
+            ... AT,
             args
           })
         }

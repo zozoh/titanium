@@ -174,7 +174,7 @@ const _M = {
       state.data = data
     },
     //--------------------------------------------
-    inserToData(state, {key, item, pos=0}={}) {
+    inserToDataList(state, {key, item, pos=0}={}) {
       // Guard
       if(Ti.Util.isNil(item)) {
         return;
@@ -186,6 +186,44 @@ const _M = {
 
       // Insert the data
       Ti.Util.insertToArray(list, pos, item)
+    },
+    //--------------------------------------------
+    updateToDataList(state, {key, item, idBy="id"}={}) {
+      // Guard
+      if(Ti.Util.isNil(item)) {
+        return;
+      }
+      // Find the list
+      let list = _.get(state.data, key)
+      if(!_.isArray(list))
+        return
+
+      // Replace item
+      let list2 = _.map(list, li=>{
+        let id0 = _.get(li, idBy)
+        let id1 = _.get(item, idBy)
+        if(id0 == id1)
+          return item
+        return li
+      })
+      _.set(state.data, key, list2)
+    },
+    //--------------------------------------------
+    mergeToDataList(state, {key, value}={}) {
+      // Guard
+      if(Ti.Util.isNil(value)) {
+        return;
+      }
+      // Find the list
+      let list = _.get(state.data, key)
+      if(!_.isArray(list))
+        return
+
+      // Replace item
+      let list2 = _.map(list, li=>{
+        return _.assign(li, value)
+      })
+      _.set(state.data, key, list2)
     },
     //--------------------------------------------
     mergeData(state, data) {
@@ -249,6 +287,32 @@ const _M = {
       commit("updateFinger")
     },
     //--------------------------------------------
+    pickDataTo({commit, state}, {
+      from,  /* source key in data, point to a list */
+      to,    /* target key in data */
+      by,    /* AutoMatch */
+      dft=null
+    }={}) {
+      //console.log({from, to, by})
+      let val = dft
+      if(!_.isEmpty(by)) {
+        let am = Ti.AutoMatch.parse(by)
+        let list = _.get(state.data, from)
+        if(_.isArray(list) && !_.isEmpty(list)) {
+          for(let li of list) {
+            if(am(li)) {
+              val = li
+              break
+            }
+          }
+        }
+      }
+      commit("updateDataBy", {
+        key: to, 
+        value : val
+      })
+    },
+    //--------------------------------------------
     /***
      * Usage:
      * 
@@ -268,7 +332,15 @@ const _M = {
     },
     //--------------------------------------------
     insertItemToData({commit}, payload) {
-      commit("inserToData", payload)
+      commit("inserToDataList", payload)
+    },
+    //--------------------------------------------
+    updateItemToData({commit}, payload) {
+      commit("updateToDataList", payload)
+    },
+    //--------------------------------------------
+    mergeItemToData({commit}, payload) {
+      commit("mergeToDataList", payload)
     },
     //--------------------------------------------
     removeItemInDataById({state, commit}, {key, id, idKey="id"}={}) {
@@ -351,7 +423,7 @@ const _M = {
     }={}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
-      //console.log("doApi", {key, api, params, vars, body})
+      console.log("doApi", {key, api, params, vars, body})
       //.....................................
       // Guard
       if(!api) {
@@ -591,7 +663,7 @@ const _M = {
       path,
       anchor,
       params={}
-    }) {
+    }={}) {
       //console.log(rootGetters.routerList)
       //console.log(" # -> page.reload", {path,params,anchor})
       let pinfo;

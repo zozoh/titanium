@@ -44,6 +44,11 @@ export default {
       type : [String, Object],
       default : null
     },
+    "mainConClass" : undefined,
+    "mainConStyle" : {
+      type: Object,
+      default: undefined
+    },
     "adjustable" : {
       type : [Boolean, String],
       default : true,

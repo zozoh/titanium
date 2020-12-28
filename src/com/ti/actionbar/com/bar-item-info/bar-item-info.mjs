@@ -165,6 +165,7 @@ const _M = {
   methods : {
     //---------------------------------------
     OnClickTop() {
+      console.log("OClickTop")
       if(!this.isDisabled) {
         let val = this.isHighlight
           ? _.last(this.TheValues)

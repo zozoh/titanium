@@ -352,6 +352,13 @@ const TiStr = {
     // Split value to array
     let vs = TiStr.toArray(s, {sep, ignoreNil})
 
+    // Make sure keys as array
+    if(_.isString(keys)) {
+      keys = TiStr.toArray(keys, {
+        sep: /[:,;\s]+/g
+      })
+    }
+
     // Analyze the keys
     let a_ks = []   // assign key list
     let m_ks = []   // those keys must has value
@@ -418,6 +425,7 @@ const TiStr = {
     ignoreNil=true,
     keys=["value","text?value","icon"]
   }={}) {
+    console.log("toObjList", s)
     let list = TiStr.toArray(s, {sep:sepLine, ignoreNil})
     return _.map(list, v => TiStr.toObject(v, {
       sep : sepPair,

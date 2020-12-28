@@ -25,7 +25,8 @@
   -->
   <div class="block-main" v-if="TheCom">
     <div class="block-main-con"
-      :class="MainConClass">
+      :class="MainConClass"
+      :style="MainConStyle">
       <component 
         :class="MainComponentClass"
         :is="TheCom.comType"

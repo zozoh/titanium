@@ -5,6 +5,7 @@
   -->
   <TiDroplist
     v-if="myMajorKey && MajorConfig"
+      class="as-major"
       v-bind="MajorConfig"
       :value="myMajorValue"
       @change="OnMajorChange"/>

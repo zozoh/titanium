@@ -331,6 +331,12 @@ const _M = {
       immediate : true
     },
     //-----------------------------------------------
+    "myOptionsData" : function(){
+      this.$nextTick(()=>{
+        this.evalMyItem()
+      })
+    },
+    //-----------------------------------------------
     "options" : function(newval, oldval) {
       if(!_.isEqual(newval, oldval)) {
         this.myDict = this.createDict()

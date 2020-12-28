@@ -814,6 +814,16 @@ const TiUtil = {
     return keys
   },
   /***
+   * @param obj{Object}
+   * @param sep{String}
+   * 
+   * @return String seperated by given seperator
+   */
+  joinTruthyKeys(obj={}, sep=",") {
+    let keys = TiUtil.truthyKeys(obj)
+    return keys.join(sep)
+  },
+  /***
    * Get value from object fallbackly
    * 
    * @param obj{Object} - source object

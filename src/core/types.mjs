@@ -805,7 +805,7 @@ const TiTypes = {
   //.......................................
   // translate {keyword,majorKey,majorVlue,match} -> {...}
   toFilter(flt={}, options={}) {
-    console.log("toFilter", flt)
+    //console.log("toFilter", flt)
     let reo = {}
     let {keyword, match, majorKey, majorValue} = flt || {}
     let kwSetup = options.keyword || {

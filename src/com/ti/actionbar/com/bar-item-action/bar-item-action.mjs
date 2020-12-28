@@ -74,6 +74,10 @@ const _M = {
       type : Number,
       default: 0
     },
+    "delay" : {
+      type : Number,
+      default: 0
+    },
     "shortcut": {
       type: String,
       default: undefined
@@ -98,6 +102,7 @@ const _M = {
   ///////////////////////////////////////
   methods : {
     OnFired(val) {
+      console.log("OnFire")
       // Call Action
       if(this.action) {
         let app = Ti.App(this)
@@ -106,20 +111,27 @@ const _M = {
           argContext: app.$state()
         })
         // Invoke it
-        invoking()
+        _.delay(()=>{
+          invoking()
+        }, this.delay)
       }
 
       // notify: name/value object
       if(this.notifyName) {    
-        this.$bar.notifyChange({
-          name  : this.notifyName,
-          value : val
-        })
+        _.delay(()=>{
+          this.$bar.notifyChange({
+            name  : this.notifyName,
+            value : val
+          })
+        }, this.delay)
       }
 
       // notify: eventName
       if(this.eventName) {
-        this.$bar.$notify(this.eventName, this.payload)
+        _.delay(()=>{
+          console.log("this.$bar.$notify",this.eventName)
+          this.$bar.$notify(this.eventName, this.payload)
+        }, this.delay)
       }
     }
   },
