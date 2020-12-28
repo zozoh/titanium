@@ -173,7 +173,7 @@ const _M = {
     name, passwd,
     done, ok, fail, noexist, invalid, others
   }={}) {
-    //console.log("doAuth", name, passwd)
+    // console.log("doAuth", name, passwd)
 
     // Guard SiteId
     let siteId = rootState.siteId

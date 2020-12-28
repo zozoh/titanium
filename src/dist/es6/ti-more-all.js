@@ -1,4 +1,4 @@
-// Pack At: 2020-12-28 20:21:20
+// Pack At: 2020-12-28 21:13:31
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -47503,7 +47503,7 @@ const _M = {
     name, passwd,
     done, ok, fail, noexist, invalid, others
   }={}) {
-    //console.log("doAuth", name, passwd)
+    // console.log("doAuth", name, passwd)
 
     // Guard SiteId
     let siteId = rootState.siteId
@@ -49532,31 +49532,35 @@ const _M = {
       //....................................
       // Combo: [F(), args] or [{action}, args]
       //....................................
-      // zozoh(20201228): 这段逻辑徒增复杂性，华而不实，甚至它都不华
-      // if(_.isArray(AT) && AT.length == 2) {
-      //   let actn = AT[0]
-      //   let args = AT[1]
-      //   if(!_.isUndefined(args) && !_.isArray(args)) {
-      //     args = [args]
-      //   }
-      //   if(_.isFunction(actn)) {
-      //     AT = {
-      //       action: actn,
-      //       args
-      //     }
-      //   }
-      //   // Grouping Action
-      //   else if(_.isArray(actn)) {
-      //     AT = []
-      //     for(let an of actn) {
-      //       AT.push(_.assign({}, an, {args}))
-      //     }
-      //   }
-      //   // Merge
-      //   else {
-      //     AT = _.assign({}, actn, {args})
-      //   }
-      // }
+      if(_.isArray(AT) && AT.length == 2) {
+        let actn = AT[0]
+        let args = AT[1]
+        // Make sure it is not batch action call
+        if(args && !args.action && !_.isFunction(args)) {
+          // Force args to array
+          if(!_.isUndefined(args) && !_.isArray(args)) {
+            args = [args]
+          }
+          // Normlize action form
+          if(_.isFunction(actn)) {
+            AT = {
+              action: actn,
+              args
+            }
+          }
+          // Grouping Action
+          else if(_.isArray(actn)) {
+            AT = []
+            for(let an of actn) {
+              AT.push(_.assign({}, an, {args}))
+            }
+          }
+          // Merge
+          else {
+            AT = _.assign({}, actn, {args})
+          }
+        }
+      }
       //....................................
       // String
       if(_.isString(AT)) {
