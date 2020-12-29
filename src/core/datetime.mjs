@@ -265,6 +265,29 @@ const TiDateTime = {
     return Ti.S.renderBy(tmpl, context)
   },
   //---------------------------------------
+  /**
+   * Given date time in range
+   * 
+   * @param d{Date|String|Number} input datetime
+   * @param range{Number} range in ms
+   * @param falsy{Any} return if not in range
+   * @param trusy{Any} return if in range
+   * 
+   * @return falsy when given time not in range, 
+   * else, trusy will be returned.
+   */
+  toBoolStr(d, range=60000,  falsy="No", trusy="Yes") {
+    let ams = 0;
+    if(d) {
+      ams = TiDateTime.parse(d).getTime()
+    }
+    let du = Date.now() - ams
+    if(du > range) {
+      return falsy
+    }
+    return trusy
+  },
+  //---------------------------------------
   // - inMin   : just now   : < 10min
   // - inHour  : 56min      : < 1hour
   // - inDay   : 23hour     : < 1day

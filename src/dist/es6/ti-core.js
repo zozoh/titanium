@@ -1,4 +1,4 @@
-// Pack At: 2020-12-28 21:13:31
+// Pack At: 2020-12-29 19:27:09
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1314,7 +1314,7 @@ const {S} = (function(){
       ignoreNil=true,
       keys=["value","text?value","icon"]
     }={}) {
-      console.log("toObjList", s)
+      //console.log("toObjList", s)
       let list = TiStr.toArray(s, {sep:sepLine, ignoreNil})
       return _.map(list, v => TiStr.toObject(v, {
         sep : sepPair,
@@ -10192,6 +10192,29 @@ const {DateTime} = (function(){
       return Ti.S.renderBy(tmpl, context)
     },
     //---------------------------------------
+    /**
+     * Given date time in range
+     * 
+     * @param d{Date|String|Number} input datetime
+     * @param range{Number} range in ms
+     * @param falsy{Any} return if not in range
+     * @param trusy{Any} return if in range
+     * 
+     * @return falsy when given time not in range, 
+     * else, trusy will be returned.
+     */
+    toBoolStr(d, range=60000,  falsy="No", trusy="Yes") {
+      let ams = 0;
+      if(d) {
+        ams = TiDateTime.parse(d).getTime()
+      }
+      let du = Date.now() - ams
+      if(du > range) {
+        return falsy
+      }
+      return trusy
+    },
+    //---------------------------------------
     // - inMin   : just now   : < 10min
     // - inHour  : 56min      : < 1hour
     // - inDay   : 23hour     : < 1day
@@ -11886,7 +11909,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201228.211331",
+  "version" : "2.5-20201229.192709",
   "dev" : false,
   "appName" : null,
   "session" : {},

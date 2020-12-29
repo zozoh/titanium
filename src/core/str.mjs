@@ -425,7 +425,7 @@ const TiStr = {
     ignoreNil=true,
     keys=["value","text?value","icon"]
   }={}) {
-    console.log("toObjList", s)
+    //console.log("toObjList", s)
     let list = TiStr.toArray(s, {sep:sepLine, ignoreNil})
     return _.map(list, v => TiStr.toObject(v, {
       sep : sepPair,
