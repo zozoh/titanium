@@ -1,17 +1,17 @@
-<div class="ti-obj-pair" 
+<div class="ti-obj-pair full-field" 
     :class="TopClass">
   <!--
     Empty
   -->
   <ti-loading
-    v-if="isEmpty"
+    v-if="isEmpty && showEmpty"
       class="as-small-tip"
       v-bind="blankAs"/>
   <!--
     Show Pair
   -->
   <template v-else>
-    <table>
+    <table cellpadding="0">
       <thead v-if="showHead">
         <tr>
           <th class="as-name" >{{nameText  | i18n}}</th>
@@ -21,8 +21,22 @@
       <tbody>
         <tr
           v-for="pa in myPairList">
-          <td class="as-name" >{{pa.title}}</td>
-          <td class="as-value">{{pa.text || pa.value}}</td>
+            <!--
+              Name
+            -->
+            <td class="as-name"  width="1%">
+              <span>{{pa.title || pa.name}}</span>
+            </td>
+            <!--
+              Value
+            -->
+            <td class="as-value" width="99%">
+              <input 
+                v-if="canEditValue"
+                  :value="pa.value"/>
+              <span
+                v-else>{{pa.text || pa.value}}</span>
+            </td>
         </tr>
       </tbody>
     </table>

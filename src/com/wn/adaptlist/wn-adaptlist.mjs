@@ -59,7 +59,8 @@ const _M = {
         if(!this.isHiddenItem(it)) {
           let li = Wn.Util.getObjThumbInfo(it, {
             status : this.myItemStatus,
-            exposeHidden : this.myExposeHidden
+            exposeHidden : this.myExposeHidden,
+            titleKey : this.itemTitleKey
           })
           list.push(li)
           //list.push(it)

@@ -67,7 +67,7 @@ export default {
     type : Object,
     default : ()=>({
       icon : "fas-dna",
-      default : undefined
+      text : "i18n:empty"
     })
   },
   "icon" : {

@@ -203,6 +203,8 @@ const _M = {
     tryNotifyChanged() {
       let val = this.evalMyValue()
       //console.log("tryNotifyChanged", val)
+      if(Ti.Util.isNil(val) && Ti.Util.isNil(this.value))
+        return
       if(!_.isEqual(val, this.value)) {
         this.$notify("change", val)
       }

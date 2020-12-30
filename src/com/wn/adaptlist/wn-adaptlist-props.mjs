@@ -21,6 +21,10 @@ export default {
       reloading : false
     })
   },
+  "itemTitleKey" : {
+    type : String,
+    default : "title"
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

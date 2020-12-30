@@ -171,7 +171,8 @@ const WnUtil = {
     exposeHidden = false,
     status = {},
     progress = {},
-    badges=undefined
+    badges=undefined,
+    titleKey=undefined
   }={}) {
     // Guard
     if(!meta || !meta.nm) {
@@ -188,7 +189,7 @@ const WnUtil = {
     return {
       id    : meta.id,
       nm    : meta.nm,
-      title : WnUtil.getObjDisplayName(meta),
+      title : WnUtil.getObjDisplayName(meta, titleKey),
       preview : WnUtil.genPreviewObj(meta),
       href : WnUtil.getAppLinkStr(meta),
       visibility,

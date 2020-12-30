@@ -15,6 +15,14 @@ const _M = {
     //-----------------------------------
     // Behavior
     //-----------------------------------
+    "canEditName" : {
+      type : Boolean,
+      default : false
+    },
+    "canEditValue" : {
+      type : Boolean,
+      default : false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -37,11 +45,15 @@ const _M = {
     "blankAs" : {
       type : Object,
       default : ()=>({
-        icon : "im-plug",
-        default : undefined
+        icon : "im-plugin",
+        text : "i18n:empty"
       })
     },
     "showHead" : {
+      type : Boolean,
+      default : true
+    },
+    "showEmpty" : {
       type : Boolean,
       default : true
     },
@@ -57,7 +69,10 @@ const _M = {
   computed : {
     //--------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "can-edit-name"  : this.canEditName,
+        "can-edit-value" : this.canEditValue
+      })
     },
     //--------------------------------------------
     FieldsMap() {
@@ -98,7 +113,10 @@ const _M = {
       let list = []
       for(let fld  of this.fields) {
         let pa = pairs[fld.name]
-        if(pa) {
+        if(pa || !this.showEmpty) {
+          pa = pa || {
+            name : fld.name
+          }
           // Title
           let title = fld.title || fld.name
           if(this.autoI18n){
