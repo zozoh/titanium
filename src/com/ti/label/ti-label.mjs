@@ -179,6 +179,7 @@ const _M = {
             }
             val = this.Dict.getBy(this.myDictValKey, it, val)
           } else {
+            val = null
             this.myDisplayIcon = null
           }
         }

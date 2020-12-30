@@ -3,7 +3,7 @@
 .wn-gui-side-nav {
   width:100%; height:100%;
   overflow-x:hidden; overflow-y:auto; 
-  padding: SZ(6) SZ(6); line-height: 2.4em;
+  padding: 1px 0; line-height: 2.4em;
   .side-nav-item {
     .it-info {
       @include noselect;
@@ -17,6 +17,14 @@
       > .it-info-text {
         flex:1 1 auto; 
         @include text-overflow;
+      }
+      > .it-grp-status {
+        @include flex-center;
+        width: 1.4em; height:2em;
+        font-size: 0.9em;
+        &:hover {
+          @include color($color-weaktip, r, c);
+        }
       }
     }
     .it-con {
@@ -45,10 +53,9 @@
         background: map-get($color-chip, c);
         color: map-get($color-primary, c);
         border-bottom:1px solid transparent;
-        &:after {
-          display:block; flex:0 0 auto;
-          content:"..."; padding:0 .1em;
-        }
+      }
+      &.is-group.is-highlight  > .it-info {
+        @include color($color-primary, r, c);
       }
       > .it-con {
         display: none;

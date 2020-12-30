@@ -7,15 +7,42 @@ export default {
   },
   ///////////////////////////////////////////
   props : {
-    "groupStatusStoreKey" : {type:String, default:null},
-    "highlightId" : {type:String, default:null},
-    "id" : {type:String, default:null},
-    "depth" : {type:Number, default:0},
-    "icon"  : {type:[String,Object], default:null},
-    "title" : {type:String, default:null},
-    "path"  : {type:String, default:null},
-    "view"  : {type:String, default:null},
-    "href"  : {type:String, default:null},
+    "groupStatusStoreKey" : {
+      type:String, 
+      default:undefined
+    },
+    "highlightId" : {
+      type:String, 
+      default:undefined
+    },
+    "id" : {
+      type:String, 
+      default:undefined
+    },
+    "depth" : {
+      type:Number, 
+      default:0
+    },
+    "icon"  : {
+      type:[String,Object], 
+      default:undefined
+    },
+    "title" : {
+      type:String, 
+      default:undefined
+    },
+    "path"  : {
+      type:String, 
+      default:undefined
+    },
+    "view"  : {
+      type:String, 
+      default:undefined
+    },
+    "href"  : {
+      type:String, 
+      default:undefined
+    },
     "items" : {
       type : Array,
       default : ()=>[]
@@ -23,7 +50,8 @@ export default {
   },
   ///////////////////////////////////////////
   computed : {
-    topClass() {
+    //---------------------------------------
+    TopClass() {
       return {
         "is-top"   : this.isTop,
         "is-sub"   : !this.isTop,
@@ -34,19 +62,34 @@ export default {
         "is-highlight" : this.isHighlight
       }
     },
+    //---------------------------------------
     isTop() {
       return this.depth == 0
     },
+    //---------------------------------------
     isGroup() {
       return _.isArray(this.items)
     },
+    //---------------------------------------
+    hasHref() {
+      return !_.isEmpty(this.href)
+    },
+    //---------------------------------------
     isHighlight() {
       return this.id && this.id == this.highlightId
+    },
+    //---------------------------------------
+    GroupStatusIcon() {
+      return this.collapse
+        ? 'zmdi-chevron-down'
+        : 'zmdi-chevron-up'
     }
+    //---------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
-    onClickGroupInfo() {
+    //---------------------------------------
+    OnToggleGroupStatus() {
       if(this.isGroup) {
         this.collapse = !this.collapse
         // Save status
@@ -55,7 +98,8 @@ export default {
         }
       }
     },
-    onClickItemInfo() {
+    //---------------------------------------
+    OnClickItemInfo() {
       this.$notify("item:actived", {
         id: this.id,
         title : this.title,
@@ -64,6 +108,7 @@ export default {
         view : this.view
       })
     }
+    //---------------------------------------
   },
   ///////////////////////////////////////////
   mounted : function(){

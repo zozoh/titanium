@@ -1,4 +1,5 @@
-<div class="side-nav-item" :class="topClass">
+<div class="side-nav-item" 
+  :class="TopClass">
   <!--
     Self Info
   -->
@@ -8,16 +9,25 @@
       <ti-icon :value="icon" size=".16rem"/>
     </span>
     <!--Group-->
-    <span v-if="isGroup"
+    <span v-if="!hasHref"
       class="it-info-text"
-      @click.stop.prevent="onClickGroupInfo">{{title|i18n}}</span>
+      @click.left="OnToggleGroupStatus">{{title|i18n}}</span>
     <!--Item-->
     <a v-else
       class="it-info-text"
       :href="href"
-      @click.stop.prevent="onClickItemInfo">
+      @click.stop.prevent="OnClickItemInfo">
       {{title|i18n}}
     </a>
+    <!--
+      Group status icon
+    -->
+    <span
+      v-if="isGroup"
+        class="it-grp-status"
+        @click.left="OnToggleGroupStatus">
+        <ti-icon :value="GroupStatusIcon"/>
+    </span>
   </div>
   <!--
     Sub Container
@@ -27,7 +37,6 @@
         :key="subIt.key"
         :group-status-store-key="subIt.key"
         :highlight-id="highlightId"
-        v-bind="subIt"
-        @item:actived="$notify('item:actived', $event)"/>
+        v-bind="subIt"/>
   </div>
 </div>
