@@ -1,10 +1,8 @@
 .ti-switcher {
   @include noselect;
-  display:inline-block;
-  vertical-align: middle;
+  @include flex-center;
   > .switcher-con {
-    display:inline-block;
-    vertical-align: bottom;
+    @include flex-center;
     ul {
       @include raw-list;
       @include flex-align($wp:nowrap);

@@ -26,9 +26,9 @@ const _M = {
       type: String,
       default: undefined
     },
-    "altDisplay" : {
-      type: [Object, Array],
-      default: ()=>[]
+    "switcher" : {
+      type: Object,
+      default: ()=>({})
     },
     "enabled": {
       type: [String, Array, Object],
@@ -38,14 +38,6 @@ const _M = {
       type: [String, Array, Object],
       default: undefined
     },
-    "highlight": {
-      type: [String, Array, Object],
-      default: undefined
-    },
-    "value" : {
-      type: [Boolean, String, Number, Array],
-      default: true
-    },
     "depth": {
       type: Number,
       default: 0
@@ -54,6 +46,7 @@ const _M = {
       type : Object,
       default : ()=>({})
     },
+    "dftValue" : undefined,
     //-----------------------------------
     // Self Props
     //-----------------------------------
@@ -61,11 +54,7 @@ const _M = {
       type : [String, Object, Function],
       default: undefined
     },
-    "notifyChange" : {
-      type : [Boolean, String],
-      default: false
-    },
-    "eventName" : {
+    "notify" : {
       type : String,
       default: undefined
     },
@@ -77,21 +66,57 @@ const _M = {
     "delay" : {
       type : Number,
       default: 0
-    },
-    "shortcut": {
-      type: String,
-      default: undefined
     }
   },
   ///////////////////////////////////////
   computed: {
     //-----------------------------------
-    NotifyChangeName() {
-      if(this.notifyChange) {
-        return _.isString(this.notifyChange)
-                ? this.notifyChange
-                : this.name;
+    TopClass() {
+      return this.getTopClass({
+        "is-enabled"  : this.isEnabled,
+        "is-disabled" : this.isDisabled,
+        "is-highlight": this.isHighlight,
+        "is-top" : this.depth == 1,
+        "is-sub" : this.depth > 1,
+        "has-icon" : this.icon ? true : false,
+        "no-icon"  : this.icon ? false : true,
+        "show-icon": this.isShowIcon,
+        "hide-icon": !this.isShowIcon
+      }, `is-depth-${this.depth}`)
+    },
+    //-----------------------------------
+    isShowIcon() {
+      return !this.hideIcon || this.hasIcon
+    },
+    //-----------------------------------
+    hasIcon() {
+      return this.icon ? true : false
+    },
+    //-----------------------------------
+    isEnabled() {
+      if(!Ti.Util.isNil(this.enabled)) {
+        return this.isMatchStatus(this.enabled)
       }
+      if(!Ti.Util.isNil(this.disabled)) {
+        if(this.isMatchStatus(this.disabled)) {
+          return false
+        }
+      }
+      return true
+    },
+    //-----------------------------------
+    isDisabled() {
+      return !this.isEnabled
+    },
+    //-----------------------------------
+    TheSetup() {
+      return _.assign({
+        allowEmpty : false
+      }, this.switcher)
+    },
+    //-----------------------------------
+    TheValue() {
+      return Ti.Util.fallback(_.get(this.status, this.name), this.dftValue)
     },
     //-----------------------------------
     TheAction() {
@@ -104,8 +129,7 @@ const _M = {
   },
   ///////////////////////////////////////
   methods : {
-    OnFired(val) {
-      //console.log("OnFire")
+    OnSwitcherChange(val) {
       // Call Action
       if(this.action) {
         let app = Ti.App(this)
@@ -119,18 +143,8 @@ const _M = {
         }, this.delay)
       }
 
-      // notify: name/value object
-      if(this.NotifyChangeName) {    
-        _.delay(()=>{
-          this.$bar.notifyChange({
-            name  : this.NotifyChangeName,
-            value : val
-          })
-        }, this.delay)
-      }
-
       // notify: eventName
-      if(this.eventName) {
+      if(this.notify) {
         let payload = this.payload
         if(payload) {
           payload = Ti.Util.explainObj({
@@ -139,23 +153,9 @@ const _M = {
           }, payload)
         }
         _.delay(()=>{
-          this.$bar.$notify(this.eventName, payload)
+          this.$bar.$notify(this.notify, payload)
         }, this.delay)
       }
-    }
-  },
-  ///////////////////////////////////////
-  mounted : function() {
-    if(this.shortcut) {
-      Ti.App(this).guardShortcut(this, this.shortcut, ()=>{
-        return this.isEnabled
-      })
-    }
-  },
-  ///////////////////////////////////////
-  destroyed : function(){
-    if(this.shortcut) {
-      Ti.App(this).pulloutShortcut(this)
     }
   }
   ///////////////////////////////////////

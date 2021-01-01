@@ -33,7 +33,8 @@
             <td class="as-value" width="99%">
               <input 
                 v-if="canEditValue"
-                  :value="pa.value"/>
+                  :value="pa.value"
+                  @change="OnPairValueChange($event, pa)"/>
               <span
                 v-else>{{pa.text || pa.value}}</span>
             </td>

@@ -6,11 +6,13 @@
   :shown="GuiShown"
   :can-loading="GuiCanLoading"
   :loading-as="GuiLoadingAs"
+  @sky::menu::update:me:vars="OnUpdateMyVars"
   @arena::expose-hidden="OnExposeHidden"
   @do:logout="OnLogout"
   @item:active="OnCurrentMetaChange"
-  @arena::open="OnCurrentMetaChange"
+  @open:wn:obj="OnCurrentMetaChange"
   @arena::change="OnCurrentDataChange"
   @arena::actions:update="OnUpdateActions"
   @arena::indicate="OnArenaIndicate"
-  @arena::message="OnArenaMessage"/>
+  @arena::message="OnArenaMessage"
+  @arena::update:view:status="OnArenaViewStatusUpdated"/>

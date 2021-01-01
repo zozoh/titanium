@@ -59,6 +59,8 @@ export default {
   methods : {
     //-------------------------------------------------
     OnClickItem({value, index}, $event) {
+      if(this.readonly)
+        return
       let toggle = ($event.ctrlKey || $event.metaKey)
       let shift  = $event.shiftKey;
       // Multi + Shift Mode
@@ -81,6 +83,12 @@ export default {
       this.myLastIndex = index
       // Notify
       this.tryNotifyChanged()
+    },
+    //-------------------------------------------------
+    OnMouseDown({index}) {
+      if(this.readonly)
+        return
+      this.myFocusIndex = index
     },
     //-------------------------------------------------
     // Utility

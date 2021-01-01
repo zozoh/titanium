@@ -722,6 +722,8 @@ export const TiRects = {
   },
   //--------------------------------------
   createBy($el) {
+    if(!$el)
+      return
     // Whole window
     if(!$el.ownerDocument) {
       let $win = Ti.Dom.ownerWindow($el)

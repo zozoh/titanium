@@ -21,6 +21,9 @@ const _M = {
     actions : [],
     sidebar : [],
     sidebarStatusStoreKey : undefined,
+    // for main view customized status
+    // It will be clean each time reload main view
+    mainViewStatus : {},
     // Current meta anestors
     ancestors : [],
     parent : null,
@@ -108,18 +111,23 @@ const _M = {
     TheStatus() {
       let mainStatus = _.get(this.$store.state, "main.status")
       let reloading = _.get(mainStatus, "reloading") || this.status.reloading
-      return _.assign({}, mainStatus, this.status, {
+      return _.assign({}, this.session.envs, 
+        this.status, 
+        mainStatus, 
+        this.mainViewStatus,
+        {
         exposeHidden : this.myExposeHidden,
         changed      : this.isChanged,
-        reloading    : reloading
+        reloading    : reloading,
+        loading      : this.loading
       })
     },
     StatusText(){
-      let st = _.assign({}, this.status)
+      let st = this.TheStatus
       if(st.saving) {
         return Ti.I18n.text("i18n:saving")
       }
-      if(st.reloading) {
+      if(st.reloading || st.loading) {
         return Ti.I18n.text("i18n:loading")
       }
     },
@@ -183,6 +191,29 @@ const _M = {
     //--------------------------------------
     OnCurrentDataChange(data){
       Ti.App(this).dispatch("current/changeContent", data);
+    },
+    //--------------------------------------
+    OnArenaViewStatusUpdated(status) {
+      this.mainViewStatus = _.assign({}, this.mainViewStatus, status)
+    },
+    //--------------------------------------
+    async OnUpdateMyVars({
+      vars={}, 
+      reloadPage=false
+    }={}) {
+      // Update the session vars
+      await Ti.App(this).dispatch("session/updateMyVars", vars)
+
+      // Reload whole page
+      if(reloadPage) {
+        window.location.reload()
+      }
+      // Reload data
+      else {
+        this.reloadSidebar()
+        this.reloadAncestors()
+        this.reloadMain()
+      }
     },
     //--------------------------------------
     OnUpdateActions(actions) {

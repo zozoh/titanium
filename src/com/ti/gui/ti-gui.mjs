@@ -52,6 +52,14 @@ const _M = {
       type : Object,
       default : ()=>({})
     },
+    "shownEmitName" : {
+      type : String,
+      default : undefined
+    },
+    "shownNotifyName" : {
+      type : String,
+      default : undefined
+    },
     "canLoading" : {
       type : Boolean,
       default : false
@@ -203,6 +211,14 @@ const _M = {
     syncMyShown(...showns) {
       if(this.keepShownTo) {
         this.myShown = _.assign({}, this.myShown, ...showns)
+
+        if(this.shownEmitName) {
+          this.$emit(this.shownEmitName, this.myShown)
+        }
+  
+        if(this.shownNotifyName) {
+          this.$notify(this.shownNotifyName, this.myShown)
+        }
       }
     },
     //--------------------------------------

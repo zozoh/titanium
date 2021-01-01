@@ -404,6 +404,7 @@ const WnObj = {
     ancestors = [], 
     fromIndex=0, 
     homePath=null,
+    titleBy,
     iteratee=_.identity,
     self=_.identity
   }={}) {
@@ -431,7 +432,7 @@ const WnObj = {
         let an = ans[i]
         let item = {
           icon  : Wn.Util.getIconObj(an),
-          text  : Wn.Util.getObjDisplayName(an),
+          text  : Wn.Util.getObjDisplayName(an, titleBy),
           value : an.id,
           href  : Wn.Util.getAppLink(an) + ""
         }
@@ -444,7 +445,7 @@ const WnObj = {
       if(self) {
         let item = {
           icon  : Wn.Util.getIconObj(meta),
-          text  : Wn.Util.getObjDisplayName(meta),
+          text  : Wn.Util.getObjDisplayName(meta, titleBy),
           value : meta.id,
           href  : null,
           asterisk : _.get(this.mainStatus, "changed")

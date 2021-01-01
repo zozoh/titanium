@@ -22,6 +22,14 @@ const _M = {
       type : Number,
       default : -1
     },
+    "maxWidth" : {
+      type : [String, Number],
+      default : undefined
+    },
+    "maxHeight" : {
+      type : [String, Number],
+      default : undefined
+    },
     // Display width
     "width" : {
       type : [String, Number],
@@ -77,7 +85,9 @@ const _M = {
     ThumbStyle(){
       return Ti.Css.toStyle({
         width  : this.width,
-        height : this.height
+        height : this.height,
+        maxWidth : this.maxWidth,
+        maxHeight : this.maxHeight
       })
     },
     //--------------------------------------
@@ -142,6 +152,8 @@ const _M = {
     //--------------------------------------
     recountArea() {
       let rect = Ti.Rects.createBy(this.$refs.thumb)
+      if(_.isEmpty(rect))
+        return
       this.myArea = rect.width * rect.height
       if(this.$refs.actions) {
         this.myActionsWidth = this.$refs.actions.getBoundingClientRect().width

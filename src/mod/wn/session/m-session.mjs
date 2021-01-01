@@ -16,6 +16,9 @@ export default {
       state.unm    = session.unm;
       state.me     = session.me;
       state.envs   = _.cloneDeep(session.envs);
+    },
+    setEnvs(state, envs) {
+      state.envs = envs
     }
   },
   ////////////////////////////////////////////////
@@ -51,7 +54,7 @@ export default {
       if(!pwd)
         return
       
-      console.log(pwd)
+      //console.log(pwd)
       // Reset By old password
       if("passwd" == pwd.mode) {
         let cmdText = `passwd '${pwd.newpwd}' -old '${pwd.oldpwd}'`
@@ -72,11 +75,26 @@ export default {
 
     },
     //--------------------------------------------
-    reload() {
-      // TODO 这里需要想想，如何刷新会话，得到新票据的问题
-      _.delay(()=>{
-        console.log("hahah")
-      }, 1000)
+    async updateMyVars({commit}, vars={}) {
+      let cmds = []
+      _.forEach(vars, (v, k)=>{
+        cmds.push(`me -set '${k}=${v}'`)
+      })
+      if(_.isEmpty(cmds))
+        return 
+      
+      // Do update
+      let cmdText = cmds.join(";\n");
+      await Wn.Sys.exec(cmdText)
+
+      // Update envs
+      let envs = Wn.Session.env()
+      commit("setEnvs", envs)
+    },
+    //--------------------------------------------
+    async reload({commit}) {
+      let reo = await Wn.Sys.exec('session', {as:"json"})
+      commit("set", reo)
     }
     //--------------------------------------------
   }

@@ -141,7 +141,7 @@ const _M = {
     OnItemOpen() {
       let obj = this.getCurrentItem()
       if(obj) {
-        this.$notify("open", obj)
+        this.$notify("open:wn:obj", obj)
       }
     },
     //--------------------------------------------

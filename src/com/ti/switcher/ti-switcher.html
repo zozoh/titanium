@@ -16,7 +16,7 @@
         :key="it.value"
         :class="it.className"
         @click="OnClickItem(it, $event)"
-        @mousedown="myFocusIndex=it.index;">
+        @mousedown="OnMouseDown(it)">
         <ti-icon class="it-icon"
           size=".8em"
           v-if="it.icon" 

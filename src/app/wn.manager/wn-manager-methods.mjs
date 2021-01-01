@@ -66,6 +66,7 @@ const _M = {
       this.view = view
       this.myMessage = null
       this.myIndicator = null
+      this.mainViewStatus = {}
       this.OnUpdateActions(view.actions)
       this.$nextTick(()=>{
         this.myViewReady = true

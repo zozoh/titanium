@@ -183,25 +183,10 @@ const _M = {
       if(_.isString(mat)) {
         return _.get(this.status, mat) ? true : false
       }
-      // KeySet | `["saving","changed"]`
-      else if(_.isArray(mat)) {
-        for(let k of mat) {
-          if(!_.get(this.status, k)) {
-            return false
-          }
-        }
-        return true
-      }
       // Complex match
-      else if(_.isPlainObject(mat)) {
-        // Validate | `{validate:{..}}`
-        if(mat.validate) {
-          return Ti.Validate.match(this.status, mat.validate)
-        }
-        // Match  | `{saving:true}`
-        return Ti.AutoMatch.test(mat, this.status)
-      }
-      return false
+      // Match  | `{saving:true}`
+      console.log(mat, this.status)
+      return Ti.AutoMatch.test(mat, this.status)
     }
     //---------------------------------------
   }

@@ -1,4 +1,9 @@
 {
+  "lang" : "Language",
+  "lang-en-us" : "En",
+  "lang-zh-cn" : "Cn",
+  "lang-zh-hk" : "Hk",
+  "lang-zh-tw" : "Tw",
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",

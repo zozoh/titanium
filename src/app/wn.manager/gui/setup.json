@@ -11,5 +11,6 @@
   "canLoading" : true,
   "loadingAs" : false,
   "firstCrumbIndex" : 1,
+  "crumbTitleBy" : "title",
   "logo" : "<:home>"
 }

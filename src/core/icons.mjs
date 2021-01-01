@@ -34,7 +34,9 @@ const TYPES = {
   "xls"  : "far-file-excel",
   "xlsx" : "fas-file-excel",
   "xml"  : "far-file-code",
-  "zip"  : "fas-file-archive"
+  "zip"  : "fas-file-archive",
+  "category" : "zmdi-folder",
+  "article"  : "zmdi-file-text"
 }
 //-----------------------------------
 const MIMES = {

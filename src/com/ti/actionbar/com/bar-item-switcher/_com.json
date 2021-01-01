@@ -1,0 +1,8 @@
+{
+  "name" : "bar-item-switcher",
+  "template" : "./bar-item-switcher.html",
+  "mixins"   : ["./bar-item-switcher.mjs"],
+  "components" : [
+    "@com:ti/switcher"
+  ]
+}

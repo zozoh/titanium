@@ -104,6 +104,15 @@ const _M = {
   ////////////////////////////////////////////////
   methods : {
     //--------------------------------------------
+    OnPairValueChange(evt, {name, value}) {
+      let newVal = _.trim(evt.target.value)
+      if(newVal != value) {
+        let data = _.cloneDeep(this.TheData) 
+        _.set(data, name, newVal)
+        this.$notify("change", data)
+      }
+    },
+    //--------------------------------------------
     async evalThePairList() {
       // Flat pairs  [keyPath] : [pairValue]
       let pairs = {}

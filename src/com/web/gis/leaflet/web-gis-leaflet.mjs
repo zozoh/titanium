@@ -55,8 +55,12 @@ export default {
     },
     //--------------------------------------
     MapData() {
+      let val = this.value
+      if(_.isEmpty(val)) {
+        val = undefined
+      }
       // Guard
-      if(!this.value && !this.defaultLocation) {
+      if(val && !this.defaultLocation) {
         return null
       }
 
@@ -113,7 +117,7 @@ export default {
           return geojson
         }
         //..................................
-      })[this.valueType](this.value)
+      })[this.valueType](val)
     },
     //--------------------------------------
     hasMapData() {

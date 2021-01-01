@@ -10,11 +10,13 @@ const _M = {
   },
   //.........................................
   CrumbData() {
+    let titleBy = Ti.Util.explainObj(this.TheStatus, this.setup.crumbTitleBy)
     return Wn.Obj.evalCrumbData({
       meta      : this.meta,
       ancestors : this.ancestors,
       fromIndex : this.setup.firstCrumbIndex,
       homePath  : this.setup.skyHomePath,
+      titleBy,
       self : (item)=>{
         item.asterisk = this.isChanged
       }

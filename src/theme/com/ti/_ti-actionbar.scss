@@ -6,6 +6,7 @@
   &.align-left   {justify-content: flex-start;}
   &.align-center {justify-content: center;}
   &.align-right  {justify-content: flex-end;}
+  padding: 0 SZ(4);
   //////////////////////////////////////////////////
   .bar-item-group {
     //----------------------------------------------
@@ -99,6 +100,45 @@
     //----------------------------------------------
     &.is-top {
       padding:0 .6em;
+      height:2.4em; line-height:2.4em;
+      &.has-icon > .as-text {margin-left:.4em;}
+    }
+    //----------------------------------------------
+    &.is-sub {
+      padding:0 1em 0 .5em;
+      height:2.4em; line-height:2.4em;
+      //--------------------------------------------
+      &.no-icon.hide-icon {
+        padding-left:1em;
+      }
+      //--------------------------------------------
+      .as-icon {width:2.4em;}
+      //--------------------------------------------
+    }
+    //----------------------------------------------
+  }
+  //////////////////////////////////////////////////
+  .bar-item-switcher {
+    @include flex-align-nowrap;
+    //----------------------------------------------
+    &.is-disabled {opacity: 0.4;}
+    //----------------------------------------------
+    .as-icon {
+      @include flex-center;
+    }
+    //----------------------------------------------
+    .as-text {
+      white-space: nowrap;
+    }
+    //----------------------------------------------
+    .ti-switcher {
+      .switcher-con li {
+        padding:.4em; min-width: unset;
+      }
+    }
+    //----------------------------------------------
+    &.is-top {
+      padding:0 .2em;
       height:2.4em; line-height:2.4em;
       &.has-icon > .as-text {margin-left:.4em;}
     }

@@ -1,4 +1,4 @@
-// Pack At: 2020-12-29 19:27:09
+// Pack At: 2021-01-01 21:18:35
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -1331,7 +1331,7 @@ const _M = {
       type : [String, Object, Function],
       default: undefined
     },
-    "notify" : {
+    "notifyChange" : {
       type : [Boolean, String],
       default: false
     },
@@ -1355,24 +1355,27 @@ const _M = {
   },
   ///////////////////////////////////////
   computed: {
-    notifyName() {
-      if(this.notify) {
-        return _.isString(this.notify)
-                ? this.notify
+    //-----------------------------------
+    NotifyChangeName() {
+      if(this.notifyChange) {
+        return _.isString(this.notifyChange)
+                ? this.notifyChange
                 : this.name;
       }
     },
+    //-----------------------------------
     TheAction() {
       if(_.isFunction(this.action) && this.wait > 0) {
         return _.debounce(this.action, this.wait, {leading:true})
       }
       return this.action
     }
+    //-----------------------------------
   },
   ///////////////////////////////////////
   methods : {
     OnFired(val) {
-      console.log("OnFire")
+      //console.log("OnFire")
       // Call Action
       if(this.action) {
         let app = Ti.App(this)
@@ -1382,15 +1385,15 @@ const _M = {
         })
         // Invoke it
         _.delay(()=>{
-          invoking()
+          invoking(val)
         }, this.delay)
       }
 
       // notify: name/value object
-      if(this.notifyName) {    
+      if(this.NotifyChangeName) {    
         _.delay(()=>{
           this.$bar.notifyChange({
-            name  : this.notifyName,
+            name  : this.NotifyChangeName,
             value : val
           })
         }, this.delay)
@@ -1398,9 +1401,15 @@ const _M = {
 
       // notify: eventName
       if(this.eventName) {
+        let payload = this.payload
+        if(payload) {
+          payload = Ti.Util.explainObj({
+            name  : this.name,
+            value : val
+          }, payload)
+        }
         _.delay(()=>{
-          console.log("this.$bar.$notify",this.eventName)
-          this.$bar.$notify(this.eventName, this.payload)
+          this.$bar.$notify(this.eventName, payload)
         }, this.delay)
       }
     }
@@ -1452,9 +1461,16 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-group/bar-item-group.html", `<div c
     Group Children
   -->
   <template v-if="showChildren">
-    <div v-if="isDepth1"
-      class="as-mask"
-      @click="doCollapse"></div>
+    <!--
+      Mask
+    -->
+    <div 
+      v-if="isDepth1"
+        class="as-mask"
+        @click="doCollapse"></div>
+    <!--
+      Children list
+    -->
     <div ref="children"
       v-if="showChildren"
         class="as-children"
@@ -1879,7 +1895,7 @@ const _M = {
   methods : {
     //---------------------------------------
     OnClickTop() {
-      console.log("OClickTop")
+      //console.log("OClickTop")
       if(!this.isDisabled) {
         let val = this.isHighlight
           ? _.last(this.TheValues)
@@ -1897,25 +1913,10 @@ const _M = {
       if(_.isString(mat)) {
         return _.get(this.status, mat) ? true : false
       }
-      // KeySet | `["saving","changed"]`
-      else if(_.isArray(mat)) {
-        for(let k of mat) {
-          if(!_.get(this.status, k)) {
-            return false
-          }
-        }
-        return true
-      }
       // Complex match
-      else if(_.isPlainObject(mat)) {
-        // Validate | `{validate:{..}}`
-        if(mat.validate) {
-          return Ti.Validate.match(this.status, mat.validate)
-        }
-        // Match  | `{saving:true}`
-        return Ti.AutoMatch.test(mat, this.status)
-      }
-      return false
+      // Match  | `{saving:true}`
+      console.log(mat, this.status)
+      return Ti.AutoMatch.test(mat, this.status)
     }
     //---------------------------------------
   }
@@ -1972,6 +1973,216 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-line/_com.json", {
   "name" : "bar-item-line",
   "template" : "./bar-item-line.html",
   "mixins"   : ["./bar-item-line.mjs"]
+});
+//============================================================
+// JOIN: ti/actionbar/com/bar-item-switcher/bar-item-switcher.html
+//============================================================
+Ti.Preload("ti/com/ti/actionbar/com/bar-item-switcher/bar-item-switcher.html", `<div class="bar-item-switcher"
+  :class="TopClass">
+  <!--
+    Icon
+  -->
+  <span
+    v-if="isShowIcon"
+      class="as-icon">
+      <ti-icon
+        v-if="hasIcon" 
+          :value="icon"/>
+  </span>
+  <!--
+    Text
+  -->
+  <span
+    v-if="text"
+      class="as-text"
+        >{{text|i18n}}</span>
+  <!--
+    switcher
+  -->
+  <ti-switcher
+    v-bind="TheSetup"
+    :readonly="isDisabled"
+    :value="TheValue"
+    @change="OnSwitcherChange($event)"/>
+</div>`);
+//============================================================
+// JOIN: ti/actionbar/com/bar-item-switcher/bar-item-switcher.mjs
+//============================================================
+(function(){
+const _M = {
+  ///////////////////////////////////////
+  inject: ["$bar"],
+  ///////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Same as <bar-item-info>
+    //-----------------------------------
+    "name": {
+      type: String,
+      default: undefined
+    },
+    "icon": {
+      type: String,
+      default: undefined
+    },
+    "hideIcon" : {
+      type: Boolean,
+      default: false
+    },
+    "text": {
+      type: String,
+      default: undefined
+    },
+    "tip": {
+      type: String,
+      default: undefined
+    },
+    "switcher" : {
+      type: Object,
+      default: ()=>({})
+    },
+    "enabled": {
+      type: [String, Array, Object],
+      default: undefined
+    },
+    "disabled": {
+      type: [String, Array, Object],
+      default: undefined
+    },
+    "depth": {
+      type: Number,
+      default: 0
+    },
+    "status" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "dftValue" : undefined,
+    //-----------------------------------
+    // Self Props
+    //-----------------------------------
+    "action" : {
+      type : [String, Object, Function],
+      default: undefined
+    },
+    "notify" : {
+      type : String,
+      default: undefined
+    },
+    "payload" : undefined,
+    "wait" : {
+      type : Number,
+      default: 0
+    },
+    "delay" : {
+      type : Number,
+      default: 0
+    }
+  },
+  ///////////////////////////////////////
+  computed: {
+    //-----------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-enabled"  : this.isEnabled,
+        "is-disabled" : this.isDisabled,
+        "is-highlight": this.isHighlight,
+        "is-top" : this.depth == 1,
+        "is-sub" : this.depth > 1,
+        "has-icon" : this.icon ? true : false,
+        "no-icon"  : this.icon ? false : true,
+        "show-icon": this.isShowIcon,
+        "hide-icon": !this.isShowIcon
+      }, `is-depth-${this.depth}`)
+    },
+    //-----------------------------------
+    isShowIcon() {
+      return !this.hideIcon || this.hasIcon
+    },
+    //-----------------------------------
+    hasIcon() {
+      return this.icon ? true : false
+    },
+    //-----------------------------------
+    isEnabled() {
+      if(!Ti.Util.isNil(this.enabled)) {
+        return this.isMatchStatus(this.enabled)
+      }
+      if(!Ti.Util.isNil(this.disabled)) {
+        if(this.isMatchStatus(this.disabled)) {
+          return false
+        }
+      }
+      return true
+    },
+    //-----------------------------------
+    isDisabled() {
+      return !this.isEnabled
+    },
+    //-----------------------------------
+    TheSetup() {
+      return _.assign({
+        allowEmpty : false
+      }, this.switcher)
+    },
+    //-----------------------------------
+    TheValue() {
+      return Ti.Util.fallback(_.get(this.status, this.name), this.dftValue)
+    },
+    //-----------------------------------
+    TheAction() {
+      if(_.isFunction(this.action) && this.wait > 0) {
+        return _.debounce(this.action, this.wait, {leading:true})
+      }
+      return this.action
+    }
+    //-----------------------------------
+  },
+  ///////////////////////////////////////
+  methods : {
+    OnSwitcherChange(val) {
+      // Call Action
+      if(this.action) {
+        let app = Ti.App(this)
+        let invoking = Ti.Shortcut.genActionInvoking(this.TheAction, {
+          $com : this.$bar.$parent,
+          argContext: app.$state()
+        })
+        // Invoke it
+        _.delay(()=>{
+          invoking(val)
+        }, this.delay)
+      }
+
+      // notify: eventName
+      if(this.notify) {
+        let payload = this.payload
+        if(payload) {
+          payload = Ti.Util.explainObj({
+            name  : this.name,
+            value : val
+          }, payload)
+        }
+        _.delay(()=>{
+          this.$bar.$notify(this.notify, payload)
+        }, this.delay)
+      }
+    }
+  }
+  ///////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/actionbar/com/bar-item-switcher/bar-item-switcher.mjs", _M);
+})();
+//============================================================
+// JOIN: ti/actionbar/com/bar-item-switcher/_com.json
+//============================================================
+Ti.Preload("ti/com/ti/actionbar/com/bar-item-switcher/_com.json", {
+  "name" : "bar-item-switcher",
+  "template" : "./bar-item-switcher.html",
+  "mixins"   : ["./bar-item-switcher.mjs"],
+  "components" : [
+    "@com:ti/switcher"
+  ]
 });
 //============================================================
 // JOIN: ti/actionbar/ti-actionbar.html
@@ -2130,6 +2341,7 @@ Ti.Preload("ti/com/ti/actionbar/_com.json", {
   "mixins" : ["./ti-actionbar.mjs"],
   "components" : [
     "./com/bar-item-action",
+    "./com/bar-item-switcher",
     "./com/bar-item-group",
     "./com/bar-item-line",
     "./com/bar-item-info"
@@ -5759,6 +5971,8 @@ const _M = {
     tryNotifyChanged() {
       let val = this.evalMyValue()
       //console.log("tryNotifyChanged", val)
+      if(Ti.Util.isNil(val) && Ti.Util.isNil(this.value))
+        return
       if(!_.isEqual(val, this.value)) {
         this.$notify("change", val)
       }
@@ -8571,7 +8785,7 @@ const _M = {
     type : Object,
     default : ()=>({
       icon : "fas-dna",
-      default : undefined
+      text : "i18n:empty"
     })
   },
   "icon" : {
@@ -10353,6 +10567,14 @@ const _M = {
       type : Object,
       default : ()=>({})
     },
+    "shownEmitName" : {
+      type : String,
+      default : undefined
+    },
+    "shownNotifyName" : {
+      type : String,
+      default : undefined
+    },
     "canLoading" : {
       type : Boolean,
       default : false
@@ -10504,6 +10726,14 @@ const _M = {
     syncMyShown(...showns) {
       if(this.keepShownTo) {
         this.myShown = _.assign({}, this.myShown, ...showns)
+
+        if(this.shownEmitName) {
+          this.$emit(this.shownEmitName, this.myShown)
+        }
+  
+        if(this.shownNotifyName) {
+          this.$notify(this.shownNotifyName, this.myShown)
+        }
       }
     },
     //--------------------------------------
@@ -14741,6 +14971,7 @@ const _M = {
             }
             val = this.Dict.getBy(this.myDictValKey, it, val)
           } else {
+            val = null
             this.myDisplayIcon = null
           }
         }
@@ -18043,20 +18274,20 @@ Ti.Preload("ti/com/ti/month/_com.json", {
 //============================================================
 // JOIN: ti/obj/pair/ti-obj-pair.html
 //============================================================
-Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair" 
+Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair full-field" 
     :class="TopClass">
   <!--
     Empty
   -->
   <ti-loading
-    v-if="isEmpty"
+    v-if="isEmpty && showEmpty"
       class="as-small-tip"
       v-bind="blankAs"/>
   <!--
     Show Pair
   -->
   <template v-else>
-    <table>
+    <table cellpadding="0">
       <thead v-if="showHead">
         <tr>
           <th class="as-name" >{{nameText  | i18n}}</th>
@@ -18066,8 +18297,23 @@ Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair"
       <tbody>
         <tr
           v-for="pa in myPairList">
-          <td class="as-name" >{{pa.title}}</td>
-          <td class="as-value">{{pa.text || pa.value}}</td>
+            <!--
+              Name
+            -->
+            <td class="as-name"  width="1%">
+              <span>{{pa.title || pa.name}}</span>
+            </td>
+            <!--
+              Value
+            -->
+            <td class="as-value" width="99%">
+              <input 
+                v-if="canEditValue"
+                  :value="pa.value"
+                  @change="OnPairValueChange($event, pa)"/>
+              <span
+                v-else>{{pa.text || pa.value}}</span>
+            </td>
         </tr>
       </tbody>
     </table>
@@ -18094,6 +18340,14 @@ const _M = {
     //-----------------------------------
     // Behavior
     //-----------------------------------
+    "canEditName" : {
+      type : Boolean,
+      default : false
+    },
+    "canEditValue" : {
+      type : Boolean,
+      default : false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -18116,11 +18370,15 @@ const _M = {
     "blankAs" : {
       type : Object,
       default : ()=>({
-        icon : "im-plug",
-        default : undefined
+        icon : "im-plugin",
+        text : "i18n:empty"
       })
     },
     "showHead" : {
+      type : Boolean,
+      default : true
+    },
+    "showEmpty" : {
       type : Boolean,
       default : true
     },
@@ -18136,7 +18394,10 @@ const _M = {
   computed : {
     //--------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "can-edit-name"  : this.canEditName,
+        "can-edit-value" : this.canEditValue
+      })
     },
     //--------------------------------------------
     FieldsMap() {
@@ -18168,6 +18429,15 @@ const _M = {
   ////////////////////////////////////////////////
   methods : {
     //--------------------------------------------
+    OnPairValueChange(evt, {name, value}) {
+      let newVal = _.trim(evt.target.value)
+      if(newVal != value) {
+        let data = _.cloneDeep(this.TheData) 
+        _.set(data, name, newVal)
+        this.$notify("change", data)
+      }
+    },
+    //--------------------------------------------
     async evalThePairList() {
       // Flat pairs  [keyPath] : [pairValue]
       let pairs = {}
@@ -18177,7 +18447,10 @@ const _M = {
       let list = []
       for(let fld  of this.fields) {
         let pa = pairs[fld.name]
-        if(pa) {
+        if(pa || !this.showEmpty) {
+          pa = pa || {
+            name : fld.name
+          }
           // Title
           let title = fld.title || fld.name
           if(this.autoI18n){
@@ -20921,7 +21194,14 @@ const _M = {
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "multi" : false,
+  "readonly" : {
+    type : Boolean,
+    default : false
+  },
+  "multi" : {
+    type : Boolean,
+    default : false
+  },
   // In single mode, to keep at least one item selected,
   // you can set the prop to `false`
   "allowEmpty" : {
@@ -20977,7 +21257,7 @@ Ti.Preload("ti/com/ti/switcher/ti-switcher.html", `<div class="ti-switcher"
         :key="it.value"
         :class="it.className"
         @click="OnClickItem(it, $event)"
-        @mousedown="myFocusIndex=it.index;">
+        @mousedown="OnMouseDown(it)">
         <ti-icon class="it-icon"
           size=".8em"
           v-if="it.icon" 
@@ -21053,6 +21333,8 @@ const _M = {
   methods : {
     //-------------------------------------------------
     OnClickItem({value, index}, $event) {
+      if(this.readonly)
+        return
       let toggle = ($event.ctrlKey || $event.metaKey)
       let shift  = $event.shiftKey;
       // Multi + Shift Mode
@@ -21075,6 +21357,12 @@ const _M = {
       this.myLastIndex = index
       // Notify
       this.tryNotifyChanged()
+    },
+    //-------------------------------------------------
+    OnMouseDown({index}) {
+      if(this.readonly)
+        return
+      this.myFocusIndex = index
     },
     //-------------------------------------------------
     // Utility
@@ -26193,6 +26481,14 @@ const _M = {
       type : Number,
       default : -1
     },
+    "maxWidth" : {
+      type : [String, Number],
+      default : undefined
+    },
+    "maxHeight" : {
+      type : [String, Number],
+      default : undefined
+    },
     // Display width
     "width" : {
       type : [String, Number],
@@ -26248,7 +26544,9 @@ const _M = {
     ThumbStyle(){
       return Ti.Css.toStyle({
         width  : this.width,
-        height : this.height
+        height : this.height,
+        maxWidth : this.maxWidth,
+        maxHeight : this.maxHeight
       })
     },
     //--------------------------------------
@@ -26313,6 +26611,8 @@ const _M = {
     //--------------------------------------
     recountArea() {
       let rect = Ti.Rects.createBy(this.$refs.thumb)
+      if(_.isEmpty(rect))
+        return
       this.myArea = rect.width * rect.height
       if(this.$refs.actions) {
         this.myActionsWidth = this.$refs.actions.getBoundingClientRect().width
@@ -29136,8 +29436,12 @@ const _M = {
     },
     //--------------------------------------
     MapData() {
+      let val = this.value
+      if(_.isEmpty(val)) {
+        val = undefined
+      }
       // Guard
-      if(!this.value && !this.defaultLocation) {
+      if(val && !this.defaultLocation) {
         return null
       }
 
@@ -29194,7 +29498,7 @@ const _M = {
           return geojson
         }
         //..................................
-      })[this.valueType](this.value)
+      })[this.valueType](val)
     },
     //--------------------------------------
     hasMapData() {
@@ -35577,12 +35881,23 @@ const OBJ = {
     }
   },
   //--------------------------------------------
-  async doDelete() {
+  async doDelete(confirm=false) {
     let list = this.getCheckedItems()
     // Guard
     if(_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:wn-del-none', "warn")
     }
+
+    // Confirm
+    if(confirm) {
+      if(!(await Ti.Confirm({
+        text:"i18n:wn-del-confirm", 
+        vars:{N:list.length}}, {type: "warn"
+      }))) {
+        return
+      }
+    }
+
     let delCount = 0
     // make removed files. it remove a video
     // it will auto-remove the `videoc_dir` in serverside also
@@ -35753,6 +36068,10 @@ const _M = {
     default : ()=>({
       reloading : false
     })
+  },
+  "itemTitleKey" : {
+    type : String,
+    default : "title"
   },
   //-----------------------------------
   // Behavior
@@ -35953,7 +36272,8 @@ const _M = {
         if(!this.isHiddenItem(it)) {
           let li = Wn.Util.getObjThumbInfo(it, {
             status : this.myItemStatus,
-            exposeHidden : this.myExposeHidden
+            exposeHidden : this.myExposeHidden,
+            titleKey : this.itemTitleKey
           })
           list.push(li)
           //list.push(it)
@@ -36034,7 +36354,7 @@ const _M = {
     OnItemOpen() {
       let obj = this.getCurrentItem()
       if(obj) {
-        this.$notify("open", obj)
+        this.$notify("open:wn:obj", obj)
       }
     },
     //--------------------------------------------
@@ -38533,7 +38853,8 @@ Ti.Preload("ti/com/wn/gui/footer/_com.json", {
 //============================================================
 // JOIN: wn/gui/side/nav/com/side-nav-item/side-nav-item.html
 //============================================================
-Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.html", `<div class="side-nav-item" :class="topClass">
+Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.html", `<div class="side-nav-item" 
+  :class="TopClass">
   <!--
     Self Info
   -->
@@ -38543,16 +38864,25 @@ Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.html", `<div 
       <ti-icon :value="icon" size=".16rem"/>
     </span>
     <!--Group-->
-    <span v-if="isGroup"
+    <span v-if="!hasHref"
       class="it-info-text"
-      @click.stop.prevent="onClickGroupInfo">{{title|i18n}}</span>
+      @click.left="OnToggleGroupStatus">{{title|i18n}}</span>
     <!--Item-->
     <a v-else
       class="it-info-text"
       :href="href"
-      @click.stop.prevent="onClickItemInfo">
+      @click.stop.prevent="OnClickItemInfo">
       {{title|i18n}}
     </a>
+    <!--
+      Group status icon
+    -->
+    <span
+      v-if="isGroup"
+        class="it-grp-status"
+        @click.left="OnToggleGroupStatus">
+        <ti-icon :value="GroupStatusIcon"/>
+    </span>
   </div>
   <!--
     Sub Container
@@ -38562,8 +38892,7 @@ Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.html", `<div 
         :key="subIt.key"
         :group-status-store-key="subIt.key"
         :highlight-id="highlightId"
-        v-bind="subIt"
-        @item:actived="$notify('item:actived', $event)"/>
+        v-bind="subIt"/>
   </div>
 </div>`);
 //============================================================
@@ -38579,15 +38908,42 @@ const _M = {
   },
   ///////////////////////////////////////////
   props : {
-    "groupStatusStoreKey" : {type:String, default:null},
-    "highlightId" : {type:String, default:null},
-    "id" : {type:String, default:null},
-    "depth" : {type:Number, default:0},
-    "icon"  : {type:[String,Object], default:null},
-    "title" : {type:String, default:null},
-    "path"  : {type:String, default:null},
-    "view"  : {type:String, default:null},
-    "href"  : {type:String, default:null},
+    "groupStatusStoreKey" : {
+      type:String, 
+      default:undefined
+    },
+    "highlightId" : {
+      type:String, 
+      default:undefined
+    },
+    "id" : {
+      type:String, 
+      default:undefined
+    },
+    "depth" : {
+      type:Number, 
+      default:0
+    },
+    "icon"  : {
+      type:[String,Object], 
+      default:undefined
+    },
+    "title" : {
+      type:String, 
+      default:undefined
+    },
+    "path"  : {
+      type:String, 
+      default:undefined
+    },
+    "view"  : {
+      type:String, 
+      default:undefined
+    },
+    "href"  : {
+      type:String, 
+      default:undefined
+    },
     "items" : {
       type : Array,
       default : ()=>[]
@@ -38595,7 +38951,8 @@ const _M = {
   },
   ///////////////////////////////////////////
   computed : {
-    topClass() {
+    //---------------------------------------
+    TopClass() {
       return {
         "is-top"   : this.isTop,
         "is-sub"   : !this.isTop,
@@ -38606,19 +38963,34 @@ const _M = {
         "is-highlight" : this.isHighlight
       }
     },
+    //---------------------------------------
     isTop() {
       return this.depth == 0
     },
+    //---------------------------------------
     isGroup() {
       return _.isArray(this.items)
     },
+    //---------------------------------------
+    hasHref() {
+      return !_.isEmpty(this.href)
+    },
+    //---------------------------------------
     isHighlight() {
       return this.id && this.id == this.highlightId
+    },
+    //---------------------------------------
+    GroupStatusIcon() {
+      return this.collapse
+        ? 'zmdi-chevron-down'
+        : 'zmdi-chevron-up'
     }
+    //---------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
-    onClickGroupInfo() {
+    //---------------------------------------
+    OnToggleGroupStatus() {
       if(this.isGroup) {
         this.collapse = !this.collapse
         // Save status
@@ -38627,7 +38999,8 @@ const _M = {
         }
       }
     },
-    onClickItemInfo() {
+    //---------------------------------------
+    OnClickItemInfo() {
       this.$notify("item:actived", {
         id: this.id,
         title : this.title,
@@ -38636,6 +39009,7 @@ const _M = {
         view : this.view
       })
     }
+    //---------------------------------------
   },
   ///////////////////////////////////////////
   mounted : function(){
@@ -43393,6 +43767,8 @@ Ti.Preload("ti/com/wn/upload/file/wn-upload-file.html", `<TiUploadFile
   :preview="PreviewIcon"
   :width="width"
   :height="height"
+  :max-width="maxWidth"
+  :max-height="maxHeight"
   :progress="progress"
   :upload-file="uploadFile"
   :removable="removable"
@@ -43425,6 +43801,14 @@ const _M = {
       type: String,
       default: "obj",
       validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
+    },
+    "maxWidth" : {
+      type : [String, Number],
+      default : undefined
+    },
+    "maxHeight" : {
+      type : [String, Number],
+      default : undefined
     },
     // Display width
     "width" : {
@@ -44921,6 +45305,9 @@ const _M = {
       state.unm    = session.unm;
       state.me     = session.me;
       state.envs   = _.cloneDeep(session.envs);
+    },
+    setEnvs(state, envs) {
+      state.envs = envs
     }
   },
   ////////////////////////////////////////////////
@@ -44956,7 +45343,7 @@ const _M = {
       if(!pwd)
         return
       
-      console.log(pwd)
+      //console.log(pwd)
       // Reset By old password
       if("passwd" == pwd.mode) {
         let cmdText = `passwd '${pwd.newpwd}' -old '${pwd.oldpwd}'`
@@ -44977,11 +45364,26 @@ const _M = {
 
     },
     //--------------------------------------------
-    reload() {
-      // TODO 这里需要想想，如何刷新会话，得到新票据的问题
-      _.delay(()=>{
-        console.log("hahah")
-      }, 1000)
+    async updateMyVars({commit}, vars={}) {
+      let cmds = []
+      _.forEach(vars, (v, k)=>{
+        cmds.push(`me -set '${k}=${v}'`)
+      })
+      if(_.isEmpty(cmds))
+        return 
+      
+      // Do update
+      let cmdText = cmds.join(";\n");
+      await Wn.Sys.exec(cmdText)
+
+      // Update envs
+      let envs = Wn.Session.env()
+      commit("setEnvs", envs)
+    },
+    //--------------------------------------------
+    async reload({commit}) {
+      let reo = await Wn.Sys.exec('session', {as:"json"})
+      commit("set", reo)
     }
     //--------------------------------------------
   }
@@ -49854,6 +50256,7 @@ Ti.Preload("/a/load/wn.manager/gui/setup.json", {
   "canLoading" : true,
   "loadingAs" : false,
   "firstCrumbIndex" : 1,
+  "crumbTitleBy" : "title",
   "logo" : "<:home>"
 });
 //============================================================
@@ -49872,11 +50275,13 @@ const _M = {
   },
   //.........................................
   CrumbData() {
+    let titleBy = Ti.Util.explainObj(this.TheStatus, this.setup.crumbTitleBy)
     return Wn.Obj.evalCrumbData({
       meta      : this.meta,
       ancestors : this.ancestors,
       fromIndex : this.setup.firstCrumbIndex,
       homePath  : this.setup.skyHomePath,
+      titleBy,
       self : (item)=>{
         item.asterisk = this.isChanged
       }
@@ -50023,6 +50428,7 @@ const _M = {
       this.view = view
       this.myMessage = null
       this.myIndicator = null
+      this.mainViewStatus = {}
       this.OnUpdateActions(view.actions)
       this.$nextTick(()=>{
         this.myViewReady = true
@@ -50081,14 +50487,16 @@ Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
   :shown="GuiShown"
   :can-loading="GuiCanLoading"
   :loading-as="GuiLoadingAs"
+  @sky::menu::update:me:vars="OnUpdateMyVars"
   @arena::expose-hidden="OnExposeHidden"
   @do:logout="OnLogout"
   @item:active="OnCurrentMetaChange"
-  @arena::open="OnCurrentMetaChange"
+  @open:wn:obj="OnCurrentMetaChange"
   @arena::change="OnCurrentDataChange"
   @arena::actions:update="OnUpdateActions"
   @arena::indicate="OnArenaIndicate"
-  @arena::message="OnArenaMessage"/>`);
+  @arena::message="OnArenaMessage"
+  @arena::update:view:status="OnArenaViewStatusUpdated"/>`);
 //============================================================
 // JOIN: wn.manager/wn-manager.mjs
 //============================================================
@@ -50116,6 +50524,9 @@ const _M = {
     actions : [],
     sidebar : [],
     sidebarStatusStoreKey : undefined,
+    // for main view customized status
+    // It will be clean each time reload main view
+    mainViewStatus : {},
     // Current meta anestors
     ancestors : [],
     parent : null,
@@ -50203,18 +50614,23 @@ const _M = {
     TheStatus() {
       let mainStatus = _.get(this.$store.state, "main.status")
       let reloading = _.get(mainStatus, "reloading") || this.status.reloading
-      return _.assign({}, mainStatus, this.status, {
+      return _.assign({}, this.session.envs, 
+        this.status, 
+        mainStatus, 
+        this.mainViewStatus,
+        {
         exposeHidden : this.myExposeHidden,
         changed      : this.isChanged,
-        reloading    : reloading
+        reloading    : reloading,
+        loading      : this.loading
       })
     },
     StatusText(){
-      let st = _.assign({}, this.status)
+      let st = this.TheStatus
       if(st.saving) {
         return Ti.I18n.text("i18n:saving")
       }
-      if(st.reloading) {
+      if(st.reloading || st.loading) {
         return Ti.I18n.text("i18n:loading")
       }
     },
@@ -50278,6 +50694,29 @@ const _M = {
     //--------------------------------------
     OnCurrentDataChange(data){
       Ti.App(this).dispatch("current/changeContent", data);
+    },
+    //--------------------------------------
+    OnArenaViewStatusUpdated(status) {
+      this.mainViewStatus = _.assign({}, this.mainViewStatus, status)
+    },
+    //--------------------------------------
+    async OnUpdateMyVars({
+      vars={}, 
+      reloadPage=false
+    }={}) {
+      // Update the session vars
+      await Ti.App(this).dispatch("session/updateMyVars", vars)
+
+      // Reload whole page
+      if(reloadPage) {
+        window.location.reload()
+      }
+      // Reload data
+      else {
+        this.reloadSidebar()
+        this.reloadAncestors()
+        this.reloadMain()
+      }
     },
     //--------------------------------------
     OnUpdateActions(actions) {
@@ -50953,6 +51392,7 @@ Ti.Preload("ti/i18n/en-us/wn-manager.i18n.json", {
   "wn-create-invalid": "Illegal characters in object name",
   "wn-create-ok": "Create ok",
   "wn-create-too-long": "Object name too long",
+  "wn-del-confirm" : "Are you sure you want to delete the selected ${N} items? This is an irrevocable operation!",
   "wn-del-item": "Deleting: \"${name}\"",
   "wn-del-no-empty-folder": "The directory \"${nm}\" is not empty, do you want to delete all? click \"no\" to skip",
   "wn-del-none": "Please select at least one file to delete!",
@@ -51054,6 +51494,11 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN: en-us/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "lang" : "Language",
+  "lang-en-us" : "En",
+  "lang-zh-cn" : "Cn",
+  "lang-zh-hk" : "Hk",
+  "lang-zh-tw" : "Tw",
   "add": "Add",
   "add-item": "New item",
   "amount": "Amount",
@@ -52046,6 +52491,7 @@ Ti.Preload("ti/i18n/zh-cn/wn-manager.i18n.json", {
   "wn-create-invalid": "新对象名称不能包括非法字符",
   "wn-create-ok": "创建成功",
   "wn-create-too-long": "新对象名称过长",
+  "wn-del-confirm" : "您确定要删除选中的${N}个项目吗？这是一个不可撤销的操作！",
   "wn-del-item": "正在删除: \"${name}\"",
   "wn-del-no-empty-folder": "目录\"${nm}\"不是空的，您是否要全部删除？点击\"否\"跳过",
   "wn-del-none": "请选择至少一个文件进行删除!",
@@ -52147,6 +52593,11 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "lang" : "语言",
+  "lang-en-us" : "英",
+  "lang-zh-cn" : "简",
+  "lang-zh-hk" : "繁",
+  "lang-zh-tw" : "繁",
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",

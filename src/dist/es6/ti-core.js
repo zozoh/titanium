@@ -1,4 +1,4 @@
-// Pack At: 2020-12-29 19:27:09
+// Pack At: 2021-01-01 21:18:35
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4380,6 +4380,8 @@ const {Rect,Rects} = (function(){
     },
     //--------------------------------------
     createBy($el) {
+      if(!$el)
+        return
       // Whole window
       if(!$el.ownerDocument) {
         let $win = Ti.Dom.ownerWindow($el)
@@ -5033,7 +5035,9 @@ const {Icons} = (function(){
     "xls"  : "far-file-excel",
     "xlsx" : "fas-file-excel",
     "xml"  : "far-file-code",
-    "zip"  : "fas-file-archive"
+    "zip"  : "fas-file-archive",
+    "category" : "zmdi-folder",
+    "article"  : "zmdi-file-text"
   }
   //-----------------------------------
   const MIMES = {
@@ -11670,15 +11674,8 @@ const {WalnutAppMain} = (function(){
     Wn.Dict.setup(tiConf.dictionary)
     //---------------------------------------
     // Initialize the App
-    // Load app extends vars (Map)
-    // You can put your secretive information in it.
-    // Sucn as api key, password...
-    // The vars should be a runtime file of your domain files
     let app = Ti.App(appInfo, async conf => {
-      if(conf.varLoadPath) {
-        let vars = await  Wn.Io.loadContent(conf.varLoadPath, {as:"json"})
-        _.set(conf, "data.vars", vars)
-      }
+      _.merge(conf.data, tiConf.data)
     })
     await app.init()
     //---------------------------------------
@@ -11909,7 +11906,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20201229.192709",
+  "version" : "2.5-20210101.211835",
   "dev" : false,
   "appName" : null,
   "session" : {},

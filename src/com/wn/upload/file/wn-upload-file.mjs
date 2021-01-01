@@ -21,6 +21,14 @@ const _M = {
       default: "obj",
       validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
+    "maxWidth" : {
+      type : [String, Number],
+      default : undefined
+    },
+    "maxHeight" : {
+      type : [String, Number],
+      default : undefined
+    },
     // Display width
     "width" : {
       type : [String, Number],

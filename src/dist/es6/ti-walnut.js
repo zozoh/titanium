@@ -1,4 +1,4 @@
-// Pack At: 2020-12-29 19:27:09
+// Pack At: 2021-01-01 21:18:35
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -782,6 +782,7 @@ const Obj = (function(){
       ancestors = [], 
       fromIndex=0, 
       homePath=null,
+      titleBy,
       iteratee=_.identity,
       self=_.identity
     }={}) {
@@ -809,7 +810,7 @@ const Obj = (function(){
           let an = ans[i]
           let item = {
             icon  : Wn.Util.getIconObj(an),
-            text  : Wn.Util.getObjDisplayName(an),
+            text  : Wn.Util.getObjDisplayName(an, titleBy),
             value : an.id,
             href  : Wn.Util.getAppLink(an) + ""
           }
@@ -822,7 +823,7 @@ const Obj = (function(){
         if(self) {
           let item = {
             icon  : Wn.Util.getIconObj(meta),
-            text  : Wn.Util.getObjDisplayName(meta),
+            text  : Wn.Util.getObjDisplayName(meta, titleBy),
             value : meta.id,
             href  : null,
             asterisk : _.get(this.mainStatus, "changed")
@@ -1352,7 +1353,8 @@ const Util = (function(){
       exposeHidden = false,
       status = {},
       progress = {},
-      badges=undefined
+      badges=undefined,
+      titleKey=undefined
     }={}) {
       // Guard
       if(!meta || !meta.nm) {
@@ -1369,7 +1371,7 @@ const Util = (function(){
       return {
         id    : meta.id,
         nm    : meta.nm,
-        title : WnUtil.getObjDisplayName(meta),
+        title : WnUtil.getObjDisplayName(meta, titleKey),
         preview : WnUtil.genPreviewObj(meta),
         href : WnUtil.getAppLinkStr(meta),
         visibility,
@@ -2239,7 +2241,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20201229.192709"
+const WALNUT_VERSION = "2.1-20210101.211835"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

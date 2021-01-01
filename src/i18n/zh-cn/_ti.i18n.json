@@ -1,4 +1,9 @@
 {
+  "lang" : "语言",
+  "lang-en-us" : "英",
+  "lang-zh-cn" : "简",
+  "lang-zh-hk" : "繁",
+  "lang-zh-tw" : "繁",
   "add": "添加",
   "add-item": "添加新项",
   "amount": "数量",

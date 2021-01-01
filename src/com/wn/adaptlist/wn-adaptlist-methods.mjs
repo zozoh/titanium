@@ -136,12 +136,23 @@ const OBJ = {
     }
   },
   //--------------------------------------------
-  async doDelete() {
+  async doDelete(confirm=false) {
     let list = this.getCheckedItems()
     // Guard
     if(_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:wn-del-none', "warn")
     }
+
+    // Confirm
+    if(confirm) {
+      if(!(await Ti.Confirm({
+        text:"i18n:wn-del-confirm", 
+        vars:{N:list.length}}, {type: "warn"
+      }))) {
+        return
+      }
+    }
+
     let delCount = 0
     // make removed files. it remove a video
     // it will auto-remove the `videoc_dir` in serverside also
