@@ -1,5 +1,6 @@
 <div class="ti-table"
   :class="TopClass"
+  :style="TopStyle"
   @click="OnClickTop"
   v-ti-activable>
   <!--
@@ -55,13 +56,16 @@
             :icon="row.icon"
             :indent="row.indent"
             :data="row.rawData"
+
+            :checkable="row.checkable"
+            :selectable="row.selectable"
+            :openable="row.openable"
+
             :fields="TableFields"
             :current-id="theCurrentId"
             :checked-ids="theCheckedIds"
             :changed-id="changedId"
-            :checkable="checkable"
-            :selectable="selectable"
-            :openable="openable"
+
             @icon="$notify('icon', $event)"
             @checker="OnRowCheckerClick"
             @select="OnRowSelect"

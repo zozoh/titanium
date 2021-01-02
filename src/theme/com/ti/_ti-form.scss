@@ -56,10 +56,10 @@
       //--------------------------------
       &.no-padding {padding:0;}
       //--------------------------------
-      &.is-spinning {@include color($color-track,   r, c);}
-      &.is-error    {@include color($color-error,   r, c);}
-      &.is-warn     {@include color($color-warn,    r, c);}
-      &.is-ok       {@include color($color-success, c, r);}
+      &.is-spinning {@include color($color-track,   r);}
+      &.is-error    {@include color($color-error,   r);}
+      &.is-warn     {@include color($color-warn,    r);}
+      &.is-ok       {@include color($color-success, r);}
       //--------------------------------
       &.is-disabled {
         opacity: 0.4;

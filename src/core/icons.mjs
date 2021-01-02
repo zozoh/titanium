@@ -97,17 +97,19 @@ const TiIcons = {
     _.assign(RACES, races)
     _.assign(DEFAULT, dft)
   },
-  get(icon,dft=DEFAULT) {
+  evalIcon(input, dft) {
     // Default icon
-    if(!icon) {
-      return dft || DEFAULT
+    if(!input) {
+      return dft
     }
     // String: look up "ALL"
-    if(_.isString(icon)) {
-      return ALL[icon] || dft || DEFAULT
+    if(_.isString(input)) {
+      return ALL[input] || dft
     }
     // Base on the type
-    let {tp, type, mime, race, name} = icon
+    let {tp, type, mime, race, name, icon} = input
+    if(icon)
+      return icon
     // fallback to the mime Group Name
     // 'text/plain' will be presented as 'text'
     let mimeGroup = null
@@ -123,7 +125,9 @@ const TiIcons = {
            || RACES[race]
            || NAMES[name]
            || dft
-           || DEFAULT
+  },
+  get(input,dft=DEFAULT) {
+    return TiIcons.evalIcon(input, dft)
   },
   getByName(iconName, dft=null) {
     return Ti.Util.fallback(NAMES[iconName], dft, DEFAULT)

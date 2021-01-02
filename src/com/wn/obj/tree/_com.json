@@ -1,0 +1,7 @@
+{
+  "name" : "wn-obj-tree",
+  "globally" : true,
+  "template" : "./wn-obj-tree.html",
+  "mixins"   : ["./wn-obj-tree.mjs"],
+  "components" : ["@com:ti/tree"]
+}

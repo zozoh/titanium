@@ -39,6 +39,13 @@ const _M = {
       return klass
     },
     //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //--------------------------------------
     TableStyle() {
       if(this.myTableWidth>0) {
         return Ti.Css.toStyle({

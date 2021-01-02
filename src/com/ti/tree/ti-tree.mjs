@@ -16,6 +16,10 @@ const TI_TREE = {
       type : [Object, Array],
       default : undefined
     },
+    "testLoading" : {
+      type : [Object, Function],
+      default : undefined
+    },
     // If date is array
     // it can auto group to tree like structure
     // but I need the obj parent Id
@@ -45,8 +49,22 @@ const TI_TREE = {
       default : "children"
     },
     "leafBy" : {
-      type    : [String, Function],
-      default : "!children"
+      type    : [String, Object, Function],
+      default : ()=>({
+        "!children" : ""
+      })
+    },
+    "loadingNode" : {
+      type : Object,
+      default : ()=>({
+        name : "i18n:loading"
+      })
+    },
+    "emptyNode" : {
+      type : Object,
+      default : ()=>({
+        name : "i18n:empty"
+      })
     },
     "title" : {
       type : String,
@@ -109,6 +127,10 @@ const TI_TREE = {
       type : Boolean,
       default : true
     },
+    "openable" : {
+      type : Boolean,
+      default : true
+    },
     "hoverable" : {
       type : Boolean,
       default : false
@@ -124,6 +146,11 @@ const TI_TREE = {
     "height" : {
       type : [String, Number],
       default : null
+    },
+    "spacing" : {
+      type : String,
+      default : "comfy",
+      validator : v => /^(comfy|tiny)$/.test(v)
     },
     "autoScrollIntoView" : {
       type : Boolean,
@@ -166,10 +193,10 @@ const TI_TREE = {
   computed : {
     //--------------------------------------
     TopClass() {
-      return Ti.Css.mergeClassName({
+      return this.getTopClass({
         "is-selectable"  : this.selectable,
         "is-hoverable"   : this.hoverable
-      }, this.className)
+      }, `as-spacing-${this.spacing}`)
     },
     //--------------------------------------
     getNodeId() {
@@ -190,11 +217,39 @@ const TI_TREE = {
       if(_.isFunction(this.leafBy)) {
         return it => (this.leafBy(it) ? true : false)
       }
-      // Not
-      let m = /^(!)?(.+)$/.exec(this.leafBy)
-      let isNot = m[1] ? true : false
-      let keyPath = _.trim(m[2])
-      return it => (_.get(it, keyPath) ? !isNot : isNot)
+      // Auto Match
+      let mat = Ti.AutoMatch.parse(this.leafBy)
+      return it => mat(it)
+    },
+    //--------------------------------------
+    isNodeLoading() {
+      if(!this.testLoading) {
+        return ()=>false
+      }
+      if(_.isFunction(this.testLoading)) {
+        return this.testLoading
+      }
+      return Ti.AutoMatch.parse(this.testLoading)
+    },
+    //--------------------------------------
+    isNodeCheckable() {
+      return (row)=>!row.fake && this.checkable
+    },
+    //--------------------------------------
+    isNodeSelectable() {
+      return (row)=>!row.fake && this.selectable
+    },
+    //--------------------------------------
+    isNodeCancelable() {
+      return (row)=>!row.fake && this.cancelable
+    },
+    //--------------------------------------
+    isNodeOpenable() {
+      return (row)=>!row.fake && this.openable
+    },
+    //--------------------------------------
+    isNodeHoverable() {
+      return (row)=>!row.fake && this.hoverable
     },
     //--------------------------------------
     getNodeChildren() {
@@ -231,6 +286,10 @@ const TI_TREE = {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnTableInit($table) {
+      this.$table = $table
+    },
     //--------------------------------------
     async evalTreeTableData() {
       // if(_.get(this.data, "value.title"))
@@ -312,13 +371,44 @@ const TI_TREE = {
         if(!children) {
           children = await this.getNodeChildren(item)
         }
-        if(_.isArray(children)) {
+        // Empty or loading node
+        if(!_.isArray(children) || _.isEmpty(children)) {
+          // Loading node
+          if(this.isNodeLoading(self)) {
+            rows.push(this.genFakeLoadingNode(self.indent))  
+          }
+          // Empty node
+          else {
+            rows.push(this.genFakeEmptyNode(self.indent))
+          }
+        }
+        // Load children
+        else {
           for(let child of children) {
             await this.joinTreeTableRow(rows, child, self.path)
           }
         }
       }
       //....................................
+    },
+    //--------------------------------------
+    genFakeLoadingNode(indent=0) {
+      return {
+        indent  : indent + 2,
+        leaf    : true,
+        fake    : true,
+        icon    : "fas-spinner fa-spin",
+        rawData : this.loadingNode
+      }
+    },
+    //--------------------------------------
+    genFakeEmptyNode(indent=0) {
+      return {
+        indent  : indent + 3,
+        leaf    : true,
+        fake    : true,
+        rawData : this.emptyNode
+      }
     },
     //--------------------------------------
     groupTreeData(data=[], groupBy=this.autoGroupBy) {
@@ -457,6 +547,10 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
+    selectNodeById(rowId) {
+      this.$table.selectRow(rowId)
+    },
+    //--------------------------------------
     isOpened(rowOrId) {
       let row = _.isString(rowOrId) 
                   ? this.findTableRow(rowOrId)
@@ -489,6 +583,7 @@ const TI_TREE = {
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
+      console.log(uniqKey)
       if("ARROWLEFT" == uniqKey) {
         this.closeRow(this.myCurrentId)
       }

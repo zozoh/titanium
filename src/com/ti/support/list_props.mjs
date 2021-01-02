@@ -57,6 +57,26 @@ export default {
     type : [String, Array],
     default : ()=>["SPACE"]
   },
+  "rowCheckable" : {
+    type : [Object, Function],
+    default : undefined
+  },
+  "rowSelectable" : {
+    type : [Object, Function],
+    default : undefined
+  },
+  "rowOpenable" : {
+    type : [Object, Function],
+    default : undefined
+  },
+  "rowCancelable" : {
+    type : [Object, Function],
+    default : undefined
+  },
+  "rowHoverable" : {
+    type : [Object, Function],
+    default : undefined
+  },
   "checkable" : {
     type : Boolean,
     default : false

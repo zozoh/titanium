@@ -83,6 +83,12 @@ const LIST_MIXINS = {
         : this.myCheckedIds 
     },
     //-----------------------------------------------
+    isRowCheckable () {return Ti.AutoMatch.parse(this.rowCheckable ||this.checkable)},
+    isRowSelectable() {return Ti.AutoMatch.parse(this.rowSelectable||this.selectable)},
+    isRowOpenable  () {return Ti.AutoMatch.parse(this.rowOpenable  ||this.openable)},
+    isRowCancelable() {return Ti.AutoMatch.parse(this.rowCancelable||this.cancelable)},
+    isRowHoverable () {return Ti.AutoMatch.parse(this.rowHoverable ||this.hoverable)},
+    //-----------------------------------------------
     // fnSet() {
     //   return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
     // },
@@ -151,6 +157,11 @@ const LIST_MIXINS = {
           index,
           id      : this.getRowId(it, index),
           rawData : this.getRowData(it),
+          checkable  : this.isRowCheckable(it),
+          selectable : this.isRowSelectable(it),
+          openable   : this.isRowOpenable(it),
+          cancelable : this.isRowCancelable(it),
+          hoverable  : this.isRowHoverable(it),
           item : it
         }
         item = iteratee(item) || item

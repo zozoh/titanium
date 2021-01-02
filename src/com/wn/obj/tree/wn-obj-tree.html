@@ -1,0 +1,37 @@
+<div class="wn-obj-tree"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Tree
+  -->
+  <TiTree
+    :data="treeRoot"
+    :id-by="idBy"
+    :name-by="nameBy"
+    :children-by="childrenBy"
+    :test-loading="isNodeLoading"
+    :display="display"
+
+    :opened-node-paths="myOpenedNodePaths"
+    
+    :auto-open="autoOpen"
+    :show-root="showRoot"
+
+    :multi="multi"
+    :checkable="checkable"
+    :selectable="selectable"
+    :cancelable="cancelable"
+    :openable="openable"
+    :hoverable="hoverable"
+
+    :spacing="spacing"
+    :border="border"
+    :loading-node="loadingNode"
+    :empty-node="emptyNode"
+    height="100%"
+    :leaf-by="{race:'FILE'}"
+    :on-init="OnTreeInit"
+    @select="OnNodeSelect"
+    @opened="OnNodeOpened"
+    @opened-status:changed="OnTreeOpenedStatusChange"/>
+</div>

@@ -47,6 +47,10 @@
     tr.no-checked:hover {
       @include color($color-weaktip, r, c);
     }
+    > table > tbody td > .cell-wrapper .table-row-head {
+      .row-handler:hover {@include color($color-boldtip, r, c);}
+      .row-checker:hover {@include color($color-boldtip, r, c);}
+    }
   }
   //---------------------------------------------
   &.is-layout-fixed > table {
@@ -160,7 +164,7 @@
             //-----------------------------------------
             .row-checker {
               padding:SZ(6); cursor: pointer;
-              &:hover {@include color($color-secondary, r, c);}
+              &:hover {@include color($color-weaktip, r, c);}
             }
             //-----------------------------------------
           }

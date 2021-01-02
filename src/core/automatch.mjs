@@ -220,9 +220,15 @@ function WildcardMatch(wildcard) {
 ///////////////////////////////////////
 const TiAutoMatch = {
   parse(input) {
+    if(_.isFunction(input)){
+      return input
+    }
     return DoAutoMatch(input)
   },
   test(input, val) {
+    if(_.isFunction(input)){
+      return input(val)
+    }
     return DoAutoMatch(input)(val)
   }
 }

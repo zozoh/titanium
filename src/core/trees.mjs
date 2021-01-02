@@ -32,10 +32,17 @@ const TiTrees = {
    *   If return `undefined`, take it as `[null,false]`
    *   Return `true` or `[true]` for break walking and return undefined.
    */
-  walkDeep(root, iteratee=()=>({})) {
+  walkDeep(root, iteratee=()=>({}), {
+    idBy = "id",
+    nameBy = "name"
+  }={}) {
+    let rootId = _.get(root, idBy)
+    let rootName = _.get(root, nameBy)
     // Prepare context
     let context = {
       index     : 0,
+      id        : rootId,
+      name      : rootName,
       node      : root,
       path      : [],
       depth     : 0,
@@ -58,12 +65,17 @@ const TiTrees = {
         }
         let index = 0;
         for(let child of c.node.children) {
-          [data, stop] = walking({
+          let nodeId   = _.get(child, idBy)
+          let nodeName = _.get(child, nameBy)
+          let c2 = {
             index,
+            id     : nodeId,
+            name   : nodeName,
             node   : child,
-            path   : _.concat(c.path, child.name),
+            path   : _.concat(c.path, nodeName||index),
             ...subC
-          })
+          }
+          let [data, stop] = walking(c2)
           index ++
           if(stop)
             return [data, stop]
@@ -78,10 +90,17 @@ const TiTrees = {
     return re
   },
   //---------------------------------
-  walkBreadth(root, iteratee=()=>({})) {
+  walkBreadth(root, iteratee=()=>({}), {
+    idBy = "id",
+    nameBy = "name"
+  }={}) {
+    let rootId = _.get(root, idBy)
+    let rootName = _.get(root, nameBy)
     // Prepare context
     let context = {
       index     : 0,
+      id        : rootId,
+      name      : rootName,
       node      : root,
       path      : [],
       depth     : 0,
@@ -107,10 +126,14 @@ const TiTrees = {
         let index = 0;
         // For Children Check
         for(let child of c.node.children) {
+          let nodeId   = _.get(child, idBy)
+          let nodeName = _.get(child, nameBy)
           let c2 = {
             index,
+            id    : nodeId,
+            name  : nodeName,
             node  : child,
-            path  : _.concat(c.path, child.name||index),
+            path  : _.concat(c.path, nodeName||index),
             ...subC
           }
           let [data, stop] = _.concat(iteratee(c2)||[null,false])
@@ -136,18 +159,18 @@ const TiTrees = {
     return re
   },
   //---------------------------------
-  getById(root, nodeId) {
+  getById(root, nodeId, setup) {
     if(Ti.Util.isNil(nodeId)) {
       return
     }
     return TiTrees.walkDeep(root, (hie)=>{
-      if(hie.node.id == nodeId) {
+      if(hie.id == nodeId) {
         return [hie, true]
       }
-    })
+    }, setup)
   },
   //---------------------------------
-  getByPath(root, strOrArray=[]) {
+  getByPath(root, strOrArray=[], setup) {
     // Tidy node path
     let nodePath = TiTrees.path(strOrArray)
     // walking to find
@@ -155,18 +178,18 @@ const TiTrees = {
       if(_.isEqual(nodePath, hie.path)) {
         return [hie, true]
       }
-    })
+    }, setup)
   },
   //---------------------------------
-  getNodeById(root, nodeId) {
-    let hie = TiTrees.getById(root, nodeId)
+  getNodeById(root, nodeId, setup) {
+    let hie = TiTrees.getById(root, nodeId, setup)
     if(hie) {
       return hie.node
     }
   },
   //---------------------------------
-  getNodeByPath(root, strOrArray=[]) {
-    let hie = TiTrees.getByPath(root, strOrArray)
+  getNodeByPath(root, strOrArray=[], setup) {
+    let hie = TiTrees.getByPath(root, strOrArray, setup)
     if(hie) {
       return hie.node
     }

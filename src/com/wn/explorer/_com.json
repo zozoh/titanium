@@ -1,6 +1,0 @@
-{
-  "name" : "wn-explorer",
-  "globally" : true,
-  "template" : "./wn-explorer.html",
-  "mixins" : ["./wn-explorer.mjs"]
-}

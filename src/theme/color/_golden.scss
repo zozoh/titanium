@@ -1,15 +1,15 @@
 //-----------------------------------------------------
 // Define color variables
-$color-primary   : (c:#b47a10, r:#e9e3d7);
+$color-primary   : (c:#ca9f54, r:#e9e3d7);
 $color-secondary : (c:#010101, r:#EEE);
-$color-success: (c:#aedbb0, r:#03501d);
-$color-warn   : (c:#f0f00a, r:#000000);
-$color-info   : (c:#f8e2bd, r:#000000);
-$color-error  : (c:#db847e, r:#ff0000);
-$color-track  : (c:#b6b6b6, r:#555555);
-$color-disable: (c:#8f8f8f, r:#585858);
-$color-text   : (c:#93aac7, r:#2035a7);
-$color-number : (c:#c891ca, r:#720c86);
+$color-success: (c:#03501d, r:#aedbb0);
+$color-warn   : (c:#000000, r:#f0f00a);
+$color-info   : (c:#000000, r:#f8e2bd);
+$color-error  : (c:#ff0000, r:#db847e);
+$color-track  : (c:#555555, r:#c7c7c7);
+$color-disable: (c:#747171, r:#dfdbdb);
+$color-text   : (c:#2035a7, r:#93aac7);
+$color-number : (c:#720c86, r:#c891ca);
 //...........................................
 $color-sky : (c:#dfbb7e, r:#010101);
 //...........................................
@@ -30,8 +30,8 @@ $color-light  : (c:rgba(255,255,255,0.6), r:#444);
 $color-input  : (c:#444, r:#FFF);
 $color-ground-glass : (c:rgba(255,255,255,0.85), r:#444);
 //...........................................
-$color-weaktip  : (c:#cce8ff, r:#31a6ff);
-$color-boldtip  : (c:#EECC00, r:#000);
+$color-weaktip  : (c:#eee2c0, r:#dab203);
+$color-boldtip  : (c:#EECC00, r:rgb(0, 0, 0));
 //...........................................
 $color-mask: (
   heavy : rgba(0,0,0,0.95),
