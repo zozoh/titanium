@@ -34,7 +34,8 @@ const TiTrees = {
    */
   walkDeep(root, iteratee=()=>({}), {
     idBy = "id",
-    nameBy = "name"
+    nameBy = "name",
+    childrenBy = "children"
   }={}) {
     let rootId = _.get(root, idBy)
     let rootName = _.get(root, nameBy)
@@ -57,14 +58,15 @@ const TiTrees = {
       if(stop)
         return [data, stop]
       // For Children
-      if(_.isArray(c.node.children)) {
+      let children = _.get(c.node, childrenBy)
+      if(_.isArray(children)) {
         let subC = {
           depth     : c.depth + 1,
           parent    : c,
           ancestors : _.concat(c.ancestors, c)
         }
         let index = 0;
-        for(let child of c.node.children) {
+        for(let child of children) {
           let nodeId   = _.get(child, idBy)
           let nodeName = _.get(child, nameBy)
           let c2 = {
@@ -92,7 +94,8 @@ const TiTrees = {
   //---------------------------------
   walkBreadth(root, iteratee=()=>({}), {
     idBy = "id",
-    nameBy = "name"
+    nameBy = "name",
+    childrenBy = "children"
   }={}) {
     let rootId = _.get(root, idBy)
     let rootName = _.get(root, nameBy)
@@ -115,7 +118,8 @@ const TiTrees = {
     // Define the walking function
     // @c : {node, path, depth}
     const walking = (c)=>{
-      if(_.isArray(c.node.children)) {
+      let children = _.get(c.node, childrenBy)
+      if(_.isArray(children)) {
         // save contexts
         let cs = []
         let subC = {
@@ -125,7 +129,7 @@ const TiTrees = {
         }
         let index = 0;
         // For Children Check
-        for(let child of c.node.children) {
+        for(let child of children) {
           let nodeId   = _.get(child, idBy)
           let nodeName = _.get(child, nameBy)
           let c2 = {
@@ -328,6 +332,29 @@ const TiTrees = {
     return {
       hierarchy : hie,
       children, item, index
+    }
+  },
+  //---------------------------------
+  /***
+   * @return Object {
+   *   hierarchy : hie,
+   *   children:[],  // hie.parent.children, after changed
+   *   item,   // item
+   *   index   // the position of `item` in children
+   * })
+   */ 
+  replace(hie, item) {
+    // Guard
+    if(!hie || !hie.parent || _.isUndefined(item))
+      return
+
+    let children = hie.parent.node.children
+    children[hie.index] = item
+    
+    return {
+      hierarchy : hie,
+      children, item, 
+      index: hie.index
     }
   },
   //---------------------------------

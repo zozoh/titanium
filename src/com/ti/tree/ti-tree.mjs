@@ -63,6 +63,7 @@ const TI_TREE = {
     "emptyNode" : {
       type : Object,
       default : ()=>({
+        icon : "fas-braille",
         name : "i18n:empty"
       })
     },
@@ -113,6 +114,26 @@ const TI_TREE = {
     "multi" : {
       type : Boolean,
       default : false
+    },
+    "nodeCheckable" : {
+      type : [Object, Function],
+      default : undefined
+    },
+    "nodeSelectable" : {
+      type : [Object, Function],
+      default : undefined
+    },
+    "nodeOpenable" : {
+      type : [Object, Function],
+      default : undefined
+    },
+    "nodeCancelable" : {
+      type : [Object, Function],
+      default : undefined
+    },
+    "nodeHoverable" : {
+      type : [Object, Function],
+      default : undefined
     },
     "checkable" : {
       type : Boolean,
@@ -233,23 +254,23 @@ const TI_TREE = {
     },
     //--------------------------------------
     isNodeCheckable() {
-      return (row)=>!row.fake && this.checkable
+      return this.evalBehaviorsMatcher(this.nodeCheckable, this.checkable)
     },
     //--------------------------------------
     isNodeSelectable() {
-      return (row)=>!row.fake && this.selectable
+      return this.evalBehaviorsMatcher(this.nodeSelectable, this.selectable)
     },
     //--------------------------------------
     isNodeCancelable() {
-      return (row)=>!row.fake && this.cancelable
+      return this.evalBehaviorsMatcher(this.nodeCancelable, this.cancelable)
     },
     //--------------------------------------
     isNodeOpenable() {
-      return (row)=>!row.fake && this.openable
+      return this.evalBehaviorsMatcher(this.nodeOpenable, this.openable)
     },
     //--------------------------------------
     isNodeHoverable() {
-      return (row)=>!row.fake && this.hoverable
+      return this.evalBehaviorsMatcher(this.nodeHoverable, this.hoverable)
     },
     //--------------------------------------
     getNodeChildren() {
@@ -289,6 +310,23 @@ const TI_TREE = {
     //--------------------------------------
     OnTableInit($table) {
       this.$table = $table
+    },
+    //--------------------------------------
+    evalBehaviorsMatcher(cust, dft) {
+      let fn;
+      if(cust) {
+        fn = Ti.AutoMatch.parse(cust)
+      }
+      return (row)=>{
+        if(row.fake)
+          return false
+        
+        let re;
+        if(fn)
+          re = fn(row)
+
+        return Ti.Util.fallback(re, dft)
+      }
     },
     //--------------------------------------
     async evalTreeTableData() {

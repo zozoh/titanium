@@ -183,7 +183,8 @@ const WnObj = {
   },
   //----------------------------------------
   getGroupTitle(titleKey) {
-    if(/^(basic|privilege|thumb|timestamp|more|advance|customized|others)$/.test(titleKey))
+    if(/^(basic|privilege|thumb|timestamp|more|advance|customized|others)$/
+        .test(titleKey))
       return `i18n:wn-key-grp-${titleKey}`
     return titleKey
   },

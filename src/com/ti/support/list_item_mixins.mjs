@@ -10,7 +10,11 @@ export default {
       type : String,
       default : null
     },
-    "data" : null,
+    "data" : undefined,
+    "item" : {
+      type : Object,
+      default : ()=>({})
+    },
     "changedId" : {
       type : String,
       default : null

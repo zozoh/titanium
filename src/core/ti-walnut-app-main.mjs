@@ -96,7 +96,11 @@ export async function WalnutAppMain({
   if(!_.isEmpty(tiConf)) {
     Ti.Config.update(tiConf)
   }
-
+  //---------------------------------------
+  // join customized icons
+  if(tiConf.icons) {
+    Ti.Icons.put(tiConf.icons)
+  }
   //---------------------------------------
   // join customized i18n
   if(tiConf.i18n) {

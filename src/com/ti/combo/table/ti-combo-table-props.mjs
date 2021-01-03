@@ -31,7 +31,7 @@ export default {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "fas-disease",
+      icon : "fab-deezer",
       text : "empty-data"
     })
   },

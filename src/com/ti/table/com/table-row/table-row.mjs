@@ -20,12 +20,8 @@ export default {
     //-----------------------------------------------
     TopClass() {
       return this.getListItemClass({
-        "is-hover"   : this.isHover
+        "is-fake"   : this.item.fake
       }, `row-indent-${this.indent}`)
-    },
-    //-----------------------------------------------
-    isHover() {
-      return this.hoverId && this.rowId == this.hoverId
     },
     //-----------------------------------------------
     hasRealIcon() {

@@ -75,10 +75,6 @@ const _M = {
       type : Boolean,
       default : false
     },
-    "isHover" : {
-      type : Boolean,
-      default : false
-    },
     "isChecked" : {
       type : Boolean,
       default : false

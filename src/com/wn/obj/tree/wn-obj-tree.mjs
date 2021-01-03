@@ -41,6 +41,13 @@ export default {
     "autoOpen"   : undefined,
     "showRoot"   : undefined,
     "multi"      : undefined,
+
+    "nodeCheckable"  : undefined,
+    "nodeSelectable" : undefined,
+    "nodeOpenable"   : undefined,
+    "nodeCancelable" : undefined,
+    "nodeHoverable"  : undefined,
+
     "checkable"  : undefined,
     "selectable" : undefined,
     "openable"   : undefined,
@@ -78,6 +85,7 @@ export default {
     "emptyNode" : {
       type : Object,
       default : ()=>({
+        icon  : "fas-braille",
         title : "i18n:empty-data"
       })
     },
@@ -122,7 +130,7 @@ export default {
     },
     //------------------------------------------------
     OnTreeOpenedStatusChange(openedPath) {
-      this.myOpenedNodePaths = _.cloneDeep(openedPath)
+      this.myOpenedNodePaths = _.omitBy(openedPath, v=>!v)
       if(this.keepOpenBy) {
         Ti.Storage.session.setObject(this.keepOpenBy, openedPath)
       }
@@ -150,12 +158,92 @@ export default {
       }
     },
     //------------------------------------------------
+    async replaceNode(obj) {
+      let nodeId = _.get(obj, this.idBy)
+      let hie = this.getHierarchyById(nodeId)
+
+      // Guard
+      if(!hie)
+        return
+
+      console.log(hie)
+      // Keep the exists children
+      let oldPathId = hie.path.join("/")
+      let children = _.get(hie.node, this.childrenBy)
+      if(!_.isEmpty(children)) {
+        _.set(obj, this.childrenBy, children)
+      }
+
+      // Replace in tree and redraw
+      Ti.Trees.replace(hie, obj)
+
+      // Remove the opened path
+      hie = this.getHierarchyById(nodeId)
+      let openeds = {}
+      _.forEach(this.myOpenedNodePaths, (v, k)=> {
+        if(v) {
+          if(k == oldPathId) {
+            k = hie.path.join("/")
+          }
+          openeds[k] = true
+        }
+      })
+
+      // soft redraw
+      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+        this.myOpenedNodePaths = openeds
+      }
+      // Force redraw
+      else {
+        await this.$tree.evalTreeTableData()
+      }
+    },
+    //------------------------------------------------
     getHierarchyById(id, root=this.treeRoot) {
       return Ti.Trees.getById(root, id, {nameBy:this.nameBy})
     },
     //------------------------------------------------
     getHierarchyByPath(path, root=this.treeRoot) {
       return Ti.Trees.getByPath(root, path, {nameBy:this.nameBy})
+    },
+    //------------------------------------------------
+    getcloseNodesByPath(path) {
+      let pathId = _.isArray(path) ? path.join("/") : path
+      let openeds = {}
+      _.forEach(this.myOpenedNodePaths, (v, k)=>{
+        if(v && k.length > pathId.length && k.startsWith(pathId)) {
+          return
+        }
+        if(v) {
+          openeds[k] = true
+        }
+      })
+      return openeds
+    },
+    //------------------------------------------------
+    selectNodeById(id) {
+      this.$tree.selectNodeById(id)
+    },
+    //------------------------------------------------
+    selectNodeByPath(path) {
+      let hie = this.getHierarchyByPath(path)
+      if(hie) {
+        this.$tree.selectNodeById(hie.id)
+      }
+    },
+    //------------------------------------------------
+    async openNodeById(id) {
+      let hie = this.getHierarchyById(id)
+      if(hie) {
+        return await this.openNode(hie)
+      }
+    },
+    //------------------------------------------------
+    async openNodeByPath(id) {
+      let hie = this.getHierarchyByPath(path)
+      if(hie) {
+        return await this.openNode(hie)
+      }
     },
     //------------------------------------------------
     async openNode({id, node, path}) {
@@ -168,16 +256,9 @@ export default {
       this.myLoadingNodeId = null
 
       // Closed the children nodes
-      let pathId = path.join("/")
-      let openeds = {}
-      _.forEach(this.myOpenedNodePaths, (v, k)=>{
-        if(v && k.length > pathId.length && k.startsWith(pathId)) {
-          return
-        }
-        if(v) {
-          openeds[k] = true
-        }
-      })
+      let pathId = Ti.Trees.path(path).join("/")
+      let openeds = this.getcloseNodesByPath(pathId)
+      openeds[pathId] = true
 
       // soft redraw
       if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
@@ -239,6 +320,98 @@ export default {
       }
     },
     //------------------------------------------------
+    async deleteNodeById(id, confirm) {
+      let hie = this.getHierarchyById(id)
+      if(hie) {
+        return await this.deleteNode(hie, confirm)
+      }
+    },
+    //------------------------------------------------
+    async deleteNodeByPath(path, confirm) {
+      let hie = this.getHierarchyByPath(path)
+      if(hie) {
+        return await this.deleteNode(hie, confirm)
+      }
+    },
+    //------------------------------------------------
+    async deleteNode(hie, confirm) {
+      // Confirm
+      if(confirm) {
+        if(_.isBoolean(confirm)) {
+          confirm = {
+            text : "i18n:wn-del-confirm",
+            vars : {N:1}
+          }
+        }
+        if(!(await Ti.Confirm(confirm, {type:"warn"}))) {
+          return
+        }
+      }
+
+      // Get the condidate
+      let can = Ti.Trees.nextCandidate(hie)
+
+      // Remove the object
+      let cmdText = `rm -rf 'id:${hie.id}'`
+      await Wn.Sys.exec(cmdText)
+
+      // Get pareth path
+      let pPath = hie.path.slice(0, hie.path.length-1)
+      await this.reloadNodeByPath(pPath)
+
+      // Tip user
+      await Ti.Toast.Open({
+        position : "top",
+        content  : "i18n:wn-del-ok",
+        vars  : {N:1},
+        type  : "info"
+      })
+
+      // Highlight next
+      if(can) {
+        let nextNodeId = _.get(can.node, this.idBy)
+        _.delay(()=>{
+          this.selectNodeById(nextNodeId)
+        }, 200)
+      }
+    },
+    //------------------------------------------------
+    async reloadNodeById(id) {
+      let hie = this.getHierarchyById(id)
+      if(hie) {
+        return await this.reloadNode(hie)
+      }
+    },
+    //------------------------------------------------
+    async reloadNodeByPath(path) {
+      let hie = this.getHierarchyByPath(path)
+      if(hie) {
+        return await this.reloadNode(hie)
+      }
+    },
+    //------------------------------------------------
+    async reloadNode({id, node, path}) {
+      // Show loading
+      this.myLoadingNodeId = id
+      await this.$tree.evalTreeTableData()
+
+      // Do reload
+      await this.reloadChildren(node)
+      this.myLoadingNodeId = null
+
+      // Closed the children nodes
+      let openeds = this.getcloseNodesByPath(path)
+
+      // soft redraw
+      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+        this.myOpenedNodePaths = openeds
+      }
+      // Force redraw
+      else {
+        await this.$tree.evalTreeTableData()
+      }
+    },
+    //------------------------------------------------
     async reload() {
       // Guard
       if(!this.meta)
@@ -293,12 +466,12 @@ export default {
             openeds[currentPath.slice(0, i).join("/")] = true
           }
           this.myOpenedNodePaths = _.defaults({}, this.myOpenedNodePaths, openeds)
-
-          // Select it later
-          _.delay(()=>{
-            this.$tree.selectNodeById(this.myCurrentId)
-          }, 300)
         }
+
+        // Restore the current node
+        _.delay(()=>{
+          this.$tree.selectNodeById(this.myCurrentId)
+        }, 300)
       }
 
       // set to data

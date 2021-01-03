@@ -88,6 +88,8 @@
   "e-io-obj-exists": "但是对象已然存在",
   "e-io-obj-noexists": "对象其实并不存在",
   "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
+  "e-io-obj-BlankName" : "对象名称不能为空",
+  "e-io-obj-InvalidName" : "对象名称非法",
   "edit": "编辑",
   "edit-com": "编辑控件",
   "email": "邮箱",

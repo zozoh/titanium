@@ -133,6 +133,19 @@
           //---------------------------------------
         }
         //-----------------------------------------
+        &.is-fake {
+          font-size: SZ(10); font-style: italic;
+          color: map-get($color-track, c);
+          td {
+            padding: SZ(6);
+            .cell-wrapper {
+              @include border(1px, dashed, shallow);
+              padding: SZ(4);
+              .cell-con {opacity: 0.6;}
+            }
+          }
+        }
+        //-----------------------------------------
       }
       //-------------------------------------------
       // Table Cell

@@ -7,13 +7,12 @@ const OBJ = {
     // Load the creation setting
     let {
       types,
-      typeNames,
       freeCreate
     } = await Wn.Sys.exec(`ti creation -cqn id:${this.meta.id}`, {as:"json"})
 
     let no = await Ti.App.Open({
       title : "i18n:create",
-      type  : "success",
+      type  : "info",
       position: "top",
       width  : 640,
       height : "61.8%",

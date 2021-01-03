@@ -88,6 +88,8 @@
   "e-io-obj-exists": "Object already exists",
   "e-io-obj-noexists": "Object does't exists",
   "e-io-obj-noexistsf": "Object[${nm}] does't exists",
+  "e-io-obj-BlankName" : "The object name CANNOT be empty",
+  "e-io-obj-InvalidName" : "Invalid object name",
   "edit": "Edit",
   "edit-com": "Edit control",
   "email": "Email",
