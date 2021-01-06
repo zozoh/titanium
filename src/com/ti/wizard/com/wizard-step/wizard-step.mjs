@@ -40,6 +40,7 @@ const _M = {
       if(this.dataKey) {
         payload = _.set({}, this.dataKey, payload)
       }
+      console.log(payload)
       this.$emit("data:change", payload)
     }
     //----------------------------------------------

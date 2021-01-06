@@ -22,7 +22,9 @@ const _M = {
     },
     //--------------------------------------
     isItemChecked(itValue, val) {
-      return _.isEqual(itValue, val)
+      return !_.isUndefined(val)
+        && !_.isUndefined(itValue)
+        && _.isEqual(itValue, val)
     }
     //--------------------------------------
   }

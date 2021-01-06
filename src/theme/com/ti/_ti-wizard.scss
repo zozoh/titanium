@@ -56,28 +56,28 @@
         //----------------------------------
         &.is-passed {
           .as-indicator {
-            .as-line {background:map-get($color-success, c);}
+            .as-line {background:map-get($color-primary, c);}
             .as-dot {
-              @include color($color-success, c, r);
-              border-color:map-get($color-success, c);
+              @include color($color-primary, c, r);
+              border-color:map-get($color-primary, c);
             }
           }
           .as-text {
-            color:map-get($color-success, c);
+            color:map-get($color-primary, c);
           }
         }
         //----------------------------------
         &.is-current {
           font-weight: bold;
           .as-indicator {
-            .as-line.at-l {background:map-get($color-success, c);}
+            .as-line.at-l {background:map-get($color-primary, c);}
             .as-dot {
-              @include color($color-success, r, c);
-              border-color:map-get($color-success, c);
+              @include color($color-primary, r, c);
+              border-color:map-get($color-primary, c);
             }
           }
           .as-text {
-            color:map-get($color-success, c);
+            color:map-get($color-primary, c);
           }
         }
         //----------------------------------

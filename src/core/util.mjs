@@ -1006,6 +1006,8 @@ const TiUtil = {
     dftKeys=[],
     context={},
     funcSet = window,
+    dftValue,
+    notNil=false,
     partial = "right"  // "left" | "right" | Falsy
   }={}) {
     //.............................................
@@ -1051,6 +1053,13 @@ const TiUtil = {
       return it => Ti.Util.getFallback(it, ...dftKeys)
     }
     //.............................................
+    // Keep return default value
+    if(!_.isUndefined(dftValue) || notNil) {
+      return it => dftValue
+    }
+  },
+  genGetterNotNil(key, setup) {
+    return Ti.Util.genGetter(key, _.assign({}, setup, {notNil:true}))
   },
   /***
    * "Ti.Types.toStr(abc)" -> Function

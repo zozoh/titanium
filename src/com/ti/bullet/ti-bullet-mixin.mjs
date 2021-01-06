@@ -55,17 +55,25 @@ const _M = {
       })
     },
     //------------------------------------------------
+    getItemIcon()  {return Ti.Util.genGetterNotNil(this.iconBy)},
+    getItemText()  {return Ti.Util.genGetterNotNil(this.textBy)},
+    getItemValue() {return Ti.Util.genGetterNotNil(this.valueBy)},
+    //------------------------------------------------
     ItemList() {
       let list = []
-      _.forEach(this.myOptionsData, it => {
-        let li = _.cloneDeep(it)
-        if(this.isItemChecked(it.value, this.value)) {
-          li.className = "is-checked"
-          li.bullet = this.bulletIconOn
-        } else {
-          li.bullet = this.bulletIconOff
+      _.forEach(this.myOptionsData, li => {
+        let it = {
+          icon  : this.myDict.getIcon(li),
+          text  : this.myDict.getText(li),
+          value : this.myDict.getValue(li)
         }
-        list.push(li)
+        if(this.isItemChecked(it.value, this.value)) {
+          it.className = "is-checked"
+          it.bullet = this.bulletIconOn
+        } else {
+          it.bullet = this.bulletIconOff
+        }
+        list.push(it)
       })
       return list
     }
@@ -91,9 +99,9 @@ const _M = {
       // Auto Create
       return Ti.DictFactory.CreateDict({
         data : this.options,
-        getValue : Ti.Util.genGetter(this.valueBy || "value"),
-        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
-        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+        // getValue : Ti.Util.genGetter(this.valueBy || "value"),
+        // getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
+        // getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
       })
     },
     //------------------------------------------------
