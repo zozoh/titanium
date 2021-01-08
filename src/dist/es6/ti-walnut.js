@@ -1,4 +1,4 @@
-// Pack At: 2021-01-01 21:18:35
+// Pack At: 2021-01-08 12:47:33
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -561,7 +561,8 @@ const Obj = (function(){
     },
     //----------------------------------------
     getGroupTitle(titleKey) {
-      if(/^(basic|privilege|thumb|timestamp|more|advance|customized|others)$/.test(titleKey))
+      if(/^(basic|privilege|thumb|timestamp|more|advance|customized|others)$/
+          .test(titleKey))
         return `i18n:wn-key-grp-${titleKey}`
       return titleKey
     },
@@ -1931,7 +1932,7 @@ const EditObjMeta = (function(){
     // if emtpy, apply the default
     // “auto" will load by `ti editmeta`, it will override the currentTab
     fields     = [],
-    fixedKeys  = ["thumb", "title"],
+    fixedKeys  = ["icon", "thumb", "title"],
     saveKeys   = ["thumb"],  // If the key changed, `cancel` same as `OK`
     autoSave   = true
   }={}){
@@ -2241,7 +2242,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20210101.211835"
+const WALNUT_VERSION = "2.1-20210108.124733"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

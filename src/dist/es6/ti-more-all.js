@@ -1,4 +1,4 @@
-// Pack At: 2021-01-01 21:18:35
+// Pack At: 2021-01-08 12:47:33
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -1915,7 +1915,7 @@ const _M = {
       }
       // Complex match
       // Match  | `{saving:true}`
-      console.log(mat, this.status)
+      //console.log(mat, this.status)
       return Ti.AutoMatch.test(mat, this.status)
     }
     //---------------------------------------
@@ -2387,6 +2387,9 @@ const _M = {
     },
     //--------------------------------------
     isItemChecked(itValue, val) {
+      if(_.isUndefined(val) ||  !_.isUndefined(itValue)) {
+        return false
+      }
       if(_.isArray(val)) {
         return _.indexOf(val, itValue) >= 0
       }
@@ -2437,7 +2440,9 @@ const _M = {
     },
     //--------------------------------------
     isItemChecked(itValue, val) {
-      return _.isEqual(itValue, val)
+      return !_.isUndefined(val)
+        && !_.isUndefined(itValue)
+        && _.isEqual(itValue, val)
     }
     //--------------------------------------
   }
@@ -2517,17 +2522,25 @@ const _M = {
       })
     },
     //------------------------------------------------
+    getItemIcon()  {return Ti.Util.genGetterNotNil(this.iconBy)},
+    getItemText()  {return Ti.Util.genGetterNotNil(this.textBy)},
+    getItemValue() {return Ti.Util.genGetterNotNil(this.valueBy)},
+    //------------------------------------------------
     ItemList() {
       let list = []
-      _.forEach(this.myOptionsData, it => {
-        let li = _.cloneDeep(it)
-        if(this.isItemChecked(it.value, this.value)) {
-          li.className = "is-checked"
-          li.bullet = this.bulletIconOn
-        } else {
-          li.bullet = this.bulletIconOff
+      _.forEach(this.myOptionsData, li => {
+        let it = {
+          icon  : this.myDict.getIcon(li),
+          text  : this.myDict.getText(li),
+          value : this.myDict.getValue(li)
         }
-        list.push(li)
+        if(this.isItemChecked(it.value, this.value)) {
+          it.className = "is-checked"
+          it.bullet = this.bulletIconOn
+        } else {
+          it.bullet = this.bulletIconOff
+        }
+        list.push(it)
       })
       return list
     }
@@ -2553,9 +2566,9 @@ const _M = {
       // Auto Create
       return Ti.DictFactory.CreateDict({
         data : this.options,
-        getValue : Ti.Util.genGetter(this.valueBy || "value"),
-        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
-        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+        // getValue : Ti.Util.genGetter(this.valueBy || "value"),
+        // getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
+        // getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
       })
     },
     //------------------------------------------------
@@ -7458,7 +7471,7 @@ const _M = {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "fas-disease",
+      icon : "fab-deezer",
       text : "empty-data"
     })
   },
@@ -20288,7 +20301,11 @@ const _M = {
       type : String,
       default : null
     },
-    "data" : null,
+    "data" : undefined,
+    "item" : {
+      type : Object,
+      default : ()=>({})
+    },
     "changedId" : {
       type : String,
       default : null
@@ -20504,6 +20521,12 @@ const LIST_MIXINS = {
         : this.myCheckedIds 
     },
     //-----------------------------------------------
+    isRowCheckable () {return Ti.AutoMatch.parse(this.rowCheckable ||this.checkable)},
+    isRowSelectable() {return Ti.AutoMatch.parse(this.rowSelectable||this.selectable)},
+    isRowOpenable  () {return Ti.AutoMatch.parse(this.rowOpenable  ||this.openable)},
+    isRowCancelable() {return Ti.AutoMatch.parse(this.rowCancelable||this.cancelable)},
+    isRowHoverable () {return Ti.AutoMatch.parse(this.rowHoverable ||this.hoverable)},
+    //-----------------------------------------------
     // fnSet() {
     //   return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
     // },
@@ -20572,6 +20595,11 @@ const LIST_MIXINS = {
           index,
           id      : this.getRowId(it, index),
           rawData : this.getRowData(it),
+          checkable  : this.isRowCheckable(it),
+          selectable : this.isRowSelectable(it),
+          openable   : this.isRowOpenable(it),
+          cancelable : this.isRowCancelable(it),
+          hoverable  : this.isRowHoverable(it),
           item : it
         }
         item = iteratee(item) || item
@@ -21097,6 +21125,26 @@ const _M = {
     type : [String, Array],
     default : ()=>["SPACE"]
   },
+  "rowCheckable" : {
+    type : [Object, Function],
+    default : undefined
+  },
+  "rowSelectable" : {
+    type : [Object, Function],
+    default : undefined
+  },
+  "rowOpenable" : {
+    type : [Object, Function],
+    default : undefined
+  },
+  "rowCancelable" : {
+    type : [Object, Function],
+    default : undefined
+  },
+  "rowHoverable" : {
+    type : [Object, Function],
+    default : undefined
+  },
   "checkable" : {
     type : Boolean,
     default : false
@@ -21569,10 +21617,6 @@ const _M = {
       type : Boolean,
       default : false
     },
-    "isHover" : {
-      type : Boolean,
-      default : false
-    },
     "isChecked" : {
       type : Boolean,
       default : false
@@ -21720,7 +21764,6 @@ Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<tr class="table-row
     :row-id="rowId"
     :row-index="index"
     :is-current="isCurrent"
-    :is-hover="isHover"
     :is-checked="isChecked"
     :data="data">
     <template v-if="fld.index == 0">
@@ -21775,12 +21818,8 @@ const _M = {
     //-----------------------------------------------
     TopClass() {
       return this.getListItemClass({
-        "is-hover"   : this.isHover
+        "is-fake"   : this.item.fake
       }, `row-indent-${this.indent}`)
-    },
-    //-----------------------------------------------
-    isHover() {
-      return this.hoverId && this.rowId == this.hoverId
     },
     //-----------------------------------------------
     hasRealIcon() {
@@ -22071,6 +22110,7 @@ Ti.Preload("ti/com/ti/table/ti-table-resizes.mjs", _M);
 //============================================================
 Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
   :class="TopClass"
+  :style="TopStyle"
   @click="OnClickTop"
   v-ti-activable>
   <!--
@@ -22126,13 +22166,17 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
             :icon="row.icon"
             :indent="row.indent"
             :data="row.rawData"
+            :item="row.item"
+
+            :checkable="row.checkable"
+            :selectable="row.selectable"
+            :openable="row.openable"
+
             :fields="TableFields"
             :current-id="theCurrentId"
             :checked-ids="theCheckedIds"
             :changed-id="changedId"
-            :checkable="checkable"
-            :selectable="selectable"
-            :openable="openable"
+
             @icon="$notify('icon', $event)"
             @checker="OnRowCheckerClick"
             @select="OnRowSelect"
@@ -22184,6 +22228,13 @@ const _M = {
         klass[`is-layout-${tableLayout}`] = true
       }
       return klass
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
     },
     //--------------------------------------
     TableStyle() {
@@ -24223,7 +24274,8 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs"
 // JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor.html
 //============================================================
 Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.html", `<div class="ti-markdown-richeditor"
-  :class="TopClass">
+  :class="TopClass"
+  v-ti-activable>
   <!--
     Toolbar
   -->
@@ -24752,6 +24804,7 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor/_com.json", {
     "@com:wn/adaptlist"
   ],
   "deps" : [
+    "@lib:code2a/cheap-markdown.mjs",
     "@deps:quill/quill.js",
     "@deps:highlight/highlight.js"
   ]
@@ -25815,10 +25868,19 @@ Ti.Preload("ti/com/ti/tree/ti-tree.html", `<ti-table
   :current-id="currentId"
   :checked-ids="checkedIds"
   :multi="multi"
+
+  :row-checkable="isNodeCheckable"
+  :row-selectable="isNodeSelectable"
+  :row-cancelable="isNodeCancelable"
+  :row-openable="isNodeOpenable"
+  :row-hoverable="isNodeHoverable"
+
   :checkable="checkable"
   :selectable="selectable"
   :cancelable="cancelable"
+  :openable="openable"
   :hoverable="hoverable"
+
   :puppet-mode="puppetMode"
   :width="width"
   :height="height"
@@ -25826,6 +25888,9 @@ Ti.Preload("ti/com/ti/tree/ti-tree.html", `<ti-table
   :border="border"
   :blank-as="blankAs"
   :auto-scroll-into-view="autoScrollIntoView"
+
+  :on-init="OnTableInit"
+
   @icon="OnRowIconClick"
   @open="OnRowOpen"
   @select="OnRowSelect"
@@ -25851,6 +25916,10 @@ const TI_TREE = {
     // The list to be rendered
     "data" : {
       type : [Object, Array],
+      default : undefined
+    },
+    "testLoading" : {
+      type : [Object, Function],
       default : undefined
     },
     // If date is array
@@ -25882,8 +25951,23 @@ const TI_TREE = {
       default : "children"
     },
     "leafBy" : {
-      type    : [String, Function],
-      default : "!children"
+      type    : [String, Object, Function],
+      default : ()=>({
+        "children" : ""
+      })
+    },
+    "loadingNode" : {
+      type : Object,
+      default : ()=>({
+        name : "i18n:loading"
+      })
+    },
+    "emptyNode" : {
+      type : Object,
+      default : ()=>({
+        icon : "fas-braille",
+        name : "i18n:empty"
+      })
     },
     "title" : {
       type : String,
@@ -25933,6 +26017,26 @@ const TI_TREE = {
       type : Boolean,
       default : false
     },
+    "nodeCheckable" : {
+      type : [Object, Function],
+      default : undefined
+    },
+    "nodeSelectable" : {
+      type : [Object, Function],
+      default : undefined
+    },
+    "nodeOpenable" : {
+      type : [Object, Function],
+      default : undefined
+    },
+    "nodeCancelable" : {
+      type : [Object, Function],
+      default : undefined
+    },
+    "nodeHoverable" : {
+      type : [Object, Function],
+      default : undefined
+    },
     "checkable" : {
       type : Boolean,
       default : false
@@ -25943,6 +26047,10 @@ const TI_TREE = {
       default : true
     },
     "cancelable" : {
+      type : Boolean,
+      default : true
+    },
+    "openable" : {
       type : Boolean,
       default : true
     },
@@ -25961,6 +26069,11 @@ const TI_TREE = {
     "height" : {
       type : [String, Number],
       default : null
+    },
+    "spacing" : {
+      type : String,
+      default : "comfy",
+      validator : v => /^(comfy|tiny)$/.test(v)
     },
     "autoScrollIntoView" : {
       type : Boolean,
@@ -26003,10 +26116,10 @@ const TI_TREE = {
   computed : {
     //--------------------------------------
     TopClass() {
-      return Ti.Css.mergeClassName({
+      return this.getTopClass({
         "is-selectable"  : this.selectable,
         "is-hoverable"   : this.hoverable
-      }, this.className)
+      }, `as-spacing-${this.spacing}`)
     },
     //--------------------------------------
     getNodeId() {
@@ -26027,11 +26140,39 @@ const TI_TREE = {
       if(_.isFunction(this.leafBy)) {
         return it => (this.leafBy(it) ? true : false)
       }
-      // Not
-      let m = /^(!)?(.+)$/.exec(this.leafBy)
-      let isNot = m[1] ? true : false
-      let keyPath = _.trim(m[2])
-      return it => (_.get(it, keyPath) ? !isNot : isNot)
+      // Auto Match
+      let mat = Ti.AutoMatch.parse(this.leafBy)
+      return it => mat(it)
+    },
+    //--------------------------------------
+    isNodeLoading() {
+      if(!this.testLoading) {
+        return ()=>false
+      }
+      if(_.isFunction(this.testLoading)) {
+        return this.testLoading
+      }
+      return Ti.AutoMatch.parse(this.testLoading)
+    },
+    //--------------------------------------
+    isNodeCheckable() {
+      return this.evalBehaviorsMatcher(this.nodeCheckable, this.checkable)
+    },
+    //--------------------------------------
+    isNodeSelectable() {
+      return this.evalBehaviorsMatcher(this.nodeSelectable, this.selectable)
+    },
+    //--------------------------------------
+    isNodeCancelable() {
+      return this.evalBehaviorsMatcher(this.nodeCancelable, this.cancelable)
+    },
+    //--------------------------------------
+    isNodeOpenable() {
+      return this.evalBehaviorsMatcher(this.nodeOpenable, this.openable)
+    },
+    //--------------------------------------
+    isNodeHoverable() {
+      return this.evalBehaviorsMatcher(this.nodeHoverable, this.hoverable)
     },
     //--------------------------------------
     getNodeChildren() {
@@ -26069,13 +26210,34 @@ const TI_TREE = {
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
+    OnTableInit($table) {
+      this.$table = $table
+    },
+    //--------------------------------------
+    evalBehaviorsMatcher(cust, dft) {
+      let fn;
+      if(cust) {
+        fn = Ti.AutoMatch.parse(cust)
+      }
+      return (row)=>{
+        if(row.fake)
+          return false
+        
+        let re;
+        if(fn)
+          re = fn(row)
+
+        return Ti.Util.fallback(re, dft)
+      }
+    },
+    //--------------------------------------
     async evalTreeTableData() {
       // if(_.get(this.data, "value.title"))
       //     console.log("evalTreeTableData", _.get(this.data, "value.title"))
       let tableData = []
 
       //if(this.showRoot)
-      //console.log("evalTreeTableData", this.data)
+      console.log("evalTreeTableData", this.data)
 
       // Array push to root
       if(_.isArray(this.data)) {
@@ -26149,13 +26311,44 @@ const TI_TREE = {
         if(!children) {
           children = await this.getNodeChildren(item)
         }
-        if(_.isArray(children)) {
+        // Empty or loading node
+        if(!_.isArray(children) || _.isEmpty(children)) {
+          // Loading node
+          if(this.isNodeLoading(self)) {
+            rows.push(this.genFakeLoadingNode(self.indent))  
+          }
+          // Empty node
+          else {
+            rows.push(this.genFakeEmptyNode(self.indent))
+          }
+        }
+        // Load children
+        else {
           for(let child of children) {
             await this.joinTreeTableRow(rows, child, self.path)
           }
         }
       }
       //....................................
+    },
+    //--------------------------------------
+    genFakeLoadingNode(indent=0) {
+      return {
+        indent  : indent + 2,
+        leaf    : true,
+        fake    : true,
+        icon    : "fas-spinner fa-spin",
+        rawData : this.loadingNode
+      }
+    },
+    //--------------------------------------
+    genFakeEmptyNode(indent=0) {
+      return {
+        indent  : indent + 3,
+        leaf    : true,
+        fake    : true,
+        rawData : this.emptyNode
+      }
     },
     //--------------------------------------
     groupTreeData(data=[], groupBy=this.autoGroupBy) {
@@ -26294,6 +26487,10 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
+    selectNodeById(rowId) {
+      this.$table.selectRow(rowId)
+    },
+    //--------------------------------------
     isOpened(rowOrId) {
       let row = _.isString(rowOrId) 
                   ? this.findTableRow(rowOrId)
@@ -26326,6 +26523,7 @@ const TI_TREE = {
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
+      console.log(uniqKey)
       if("ARROWLEFT" == uniqKey) {
         this.closeRow(this.myCurrentId)
       }
@@ -27108,6 +27306,7 @@ const _M = {
       if(this.dataKey) {
         payload = _.set({}, this.dataKey, payload)
       }
+      console.log(payload)
       this.$emit("data:change", payload)
     }
     //----------------------------------------------
@@ -35752,13 +35951,12 @@ const OBJ = {
     // Load the creation setting
     let {
       types,
-      typeNames,
       freeCreate
     } = await Wn.Sys.exec(`ti creation -cqn id:${this.meta.id}`, {as:"json"})
 
     let no = await Ti.App.Open({
       title : "i18n:create",
-      type  : "success",
+      type  : "info",
       position: "top",
       width  : 640,
       height : "61.8%",
@@ -37732,150 +37930,6 @@ Ti.Preload("ti/com/wn/entity/history/_com.json", {
     "@com:ti/combo/filter",
     "@com:ti/paging/jumper"
   ]
-});
-//============================================================
-// JOIN: wn/explorer/wn-explorer.html
-//============================================================
-Ti.Preload("ti/com/wn/explorer/wn-explorer.html", `<div class="wn-explorer"
-  v-drop-off
-  :class="topClass">
-  <!--
-    Sky
-  -->
-  <div v-if="show.sky"
-    class="explorer-sky">
-    <!--Logo-->
-    <div v-if="show.logo"
-      class="sky-logo ti-flex-center">
-      <slot name="logo"></slot>
-    </div>
-    <!--Title/Crumb-->
-    <div v-if="!noTitle"
-      class="sky-title">
-      <slot name="title">
-        <ul class="as-address-bar">
-          <li v-for="an in ancestors" :key="an.id">
-            <a :href="getObjLink(an)"
-              @click.prevent="$notify('main:open', an)">{{getObjTitle(an)}}</a>
-            <ti-icon class="center" value="chevron_right"/>
-          </li>
-          <li v-if="meta">
-            <b>{{getObjTitle(meta)}}</b>
-            <span v-if="status.changed"
-              class="ti-mark-changed">*</span>
-          </li>
-        </ul>
-      </slot>
-    </div>
-    <!--Actions-->
-    <div v-if="show.action"
-      class="sky-action ti-flex-right">
-      <slot name="action"></slot>
-    </div>
-  </div>
-  <!--
-    Aside
-  -->
-  <div v-if="show.aside"
-    class="explorer-aside">
-    <slot name="aside"></slot>
-  </div>
-  <!--
-    Main Arena
-  -->
-  <div class="explorer-arena">
-    <slot name="arena"></slot>
-  </div>
-  <!--
-    Footer
-  -->
-  <div v-if="show.footer"
-    class="explorer-footer">
-    <slot name="footer"></slot>
-  </div>
-  <div v-if="loading" class="exploer-loading-mask"></div>
-</div>`);
-//============================================================
-// JOIN: wn/explorer/wn-explorer.mjs
-//============================================================
-(function(){
-const _M = {
-  //////////////////////////////////////////////
-  props : {
-    "loading" : {
-      type : Boolean,
-      default : false
-    },
-    "noTitle" : {
-      type : Boolean,
-      default : false
-    },
-    "meta" :{
-      type : Object,
-      default : ()=>({})
-    },
-    "ancestors" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "children" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "status" : {
-      type : Object,
-      default : ()=>({
-        changed : false
-      })
-    }
-  },
-  //////////////////////////////////////////////
-  computed : {
-    show() {
-      let re = {
-        logo   : this.$slots.logo   ? true : false,
-        action : this.$slots.action ? true : false,
-        aside  : this.$slots.aside  ? true : false,
-        footer : this.$slots.footer ? true : false,
-      }
-      re.sky = !(this.noTitle && !re.logo && !re.action)
-      return re
-    },
-    topClass() {
-      return {
-        "no-sky"    : !this.show.sky,
-        "no-aside"  : !this.show.aside,
-        "no-footer" : !this.show.footer,
-      }
-    }
-  },
-  //////////////////////////////////////////////
-  methods : {
-    //.........................................
-    getObjTitle(meta) {
-      let title = meta.title || meta.nm
-      return Ti.I18n.text(title)
-    },
-    //.........................................
-    getObjLink(meta) {
-      return Wn.Util.getAppLink(meta).toString()
-    },
-  },
-  //////////////////////////////////////////////
-  mounted : function() {
-    // console.log(this.$slots)
-  }
-}
-Ti.Preload("ti/com/wn/explorer/wn-explorer.mjs", _M);
-})();
-//============================================================
-// JOIN: wn/explorer/_com.json
-//============================================================
-Ti.Preload("ti/com/wn/explorer/_com.json", {
-  "name" : "wn-explorer",
-  "globally" : true,
-  "template" : "./wn-explorer.html",
-  "mixins" : ["./wn-explorer.mjs"]
 });
 //============================================================
 // JOIN: wn/fileset/config/wn-fileset-config.html
@@ -41908,6 +41962,571 @@ Ti.Preload("ti/com/wn/obj/puretext/_com.json", {
   "template" : "./wn-obj-puretext.html",
   "mixins" : ["./wn-obj-puretext.mjs"],
   "components" : ["@com:ti/text/raw"]
+});
+//============================================================
+// JOIN: wn/obj/tree/wn-obj-tree.html
+//============================================================
+Ti.Preload("ti/com/wn/obj/tree/wn-obj-tree.html", `<div class="wn-obj-tree"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Tree
+  -->
+  <TiTree
+    :data="treeRoot"
+    :id-by="idBy"
+    :name-by="nameBy"
+    :children-by="childrenBy"
+    :test-loading="isNodeLoading"
+    :display="display"
+
+    :opened-node-paths="myOpenedNodePaths"
+    
+    :auto-open="autoOpen"
+    :show-root="showRoot"
+    :multi="multi"
+
+    :node-checkable="nodeCheckable"
+    :node-selectable="nodeSelectable"
+    :node-openable="nodeOpenable"
+    :node-cancelable="nodeCancelable"
+    :node-hoverable="nodeHoverable"
+
+    :checkable="checkable"
+    :selectable="selectable"
+    :cancelable="cancelable"
+    :openable="openable"
+    :hoverable="hoverable"
+
+    :spacing="spacing"
+    :border="border"
+    :loading-node="loadingNode"
+    :empty-node="emptyNode"
+    height="100%"
+    :leaf-by="{race:'FILE'}"
+    :on-init="OnTreeInit"
+    @select="OnNodeSelect"
+    @opened="OnNodeOpened"
+    @opened-status:changed="OnTreeOpenedStatusChange"/>
+</div>`);
+//============================================================
+// JOIN: wn/obj/tree/wn-obj-tree.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data: ()=>({
+    treeRoot  : null,
+    myCurrentId : null,
+    myLoadingNodeId : null,
+    myOpenedNodePaths : {}
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    "meta" : {
+      type : Object,
+      default : undefined
+    },
+    "idBy" : {
+      type : String,
+      default : "id"
+    },
+    "nameBy" : {
+      type : String,
+      default : "nm"
+    },
+    "referBy" : {
+      type : String,
+      default : "pid"
+    },
+    "childrenBy" : {
+      type : String,
+      default : "children"
+    },
+    "sortBy" : {
+      type : Object,
+      default : ()=>({nm:1})
+    },
+    //------------------------------------------------
+    // Behavior
+    //------------------------------------------------
+    "autoOpen"   : undefined,
+    "showRoot"   : undefined,
+    "multi"      : undefined,
+
+    "nodeCheckable"  : undefined,
+    "nodeSelectable" : undefined,
+    "nodeOpenable"   : undefined,
+    "nodeCancelable" : undefined,
+    "nodeHoverable"  : undefined,
+
+    "checkable"  : undefined,
+    "selectable" : undefined,
+    "openable"   : undefined,
+    "cancelable" : undefined,
+    "hoverable"  : undefined,
+
+    // Local store to save the tree open status
+    "keepOpenBy" : {
+      type : String,
+      default : undefined
+    },
+    "keepCurrentBy" : {
+      type : String,
+      default : undefined
+    },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
+    "display" : {
+      type : [String, Object, Array],
+      default : ()=>[{
+        key : ['race', 'tp', 'mime', 'icon'],
+        transformer : Ti.Icons.evalIcon,
+        comType : "ti-icon"
+      }, "title|nm"]
+    },
+    "spacing" : undefined,
+    "border"  : undefined,
+    "loadingNode" : {
+      type : Object,
+      default : ()=>({
+        title : "i18n:loading"
+      })
+    },
+    "emptyNode" : {
+      type : Object,
+      default : ()=>({
+        icon  : "fas-braille",
+        title : "i18n:empty-data"
+      })
+    },
+    //------------------------------------------------
+    // Measure
+    //------------------------------------------------
+    "width" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "height" : {
+      type : [Number, String],
+      default : undefined
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //------------------------------------------------
+    isNodeLoading() {
+      return ({id})=>{
+        return id == this.myLoadingNodeId
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    OnTreeInit($tree) {
+      this.$tree = $tree
+    },
+    //------------------------------------------------
+    OnTreeOpenedStatusChange(openedPath) {
+      this.myOpenedNodePaths = _.omitBy(openedPath, v=>!v)
+      if(this.keepOpenBy) {
+        Ti.Storage.session.setObject(this.keepOpenBy, openedPath)
+      }
+    },
+    //------------------------------------------------
+    OnNodeSelect({currentId}) {
+      this.myCurrentId = currentId
+      if(this.keepCurrentBy) {
+        Ti.Storage.session.set(this.keepCurrentBy, currentId)
+      }
+      return false
+    },
+    //------------------------------------------------
+    async OnNodeOpened({id, leaf, path, rawData}) {
+      let hie = this.getHierarchyById(id)
+      if(hie) {
+        // console.log(hie)
+        // Not need reload
+        if(!_.isEmpty(_.get(hie.node, this.childrenBy))) {
+          return
+        }
+        
+        // Do reload
+        await this.openNode(hie)
+      }
+    },
+    //------------------------------------------------
+    async replaceNode(obj) {
+      let nodeId = _.get(obj, this.idBy)
+      let hie = this.getHierarchyById(nodeId)
+
+      // Guard
+      if(!hie)
+        return
+
+      console.log(hie)
+      // Keep the exists children
+      let oldPathId = hie.path.join("/")
+      let children = _.get(hie.node, this.childrenBy)
+      if(!_.isEmpty(children)) {
+        _.set(obj, this.childrenBy, children)
+      }
+
+      // Replace in tree and redraw
+      Ti.Trees.replace(hie, obj)
+
+      // Remove the opened path
+      hie = this.getHierarchyById(nodeId)
+      let openeds = {}
+      _.forEach(this.myOpenedNodePaths, (v, k)=> {
+        if(v) {
+          if(k == oldPathId) {
+            k = hie.path.join("/")
+          }
+          openeds[k] = true
+        }
+      })
+
+      // soft redraw
+      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+        this.myOpenedNodePaths = openeds
+      }
+      // Force redraw
+      else {
+        await this.$tree.evalTreeTableData()
+      }
+    },
+    //------------------------------------------------
+    getHierarchyById(id, root=this.treeRoot) {
+      return Ti.Trees.getById(root, id, {nameBy:this.nameBy})
+    },
+    //------------------------------------------------
+    getHierarchyByPath(path, root=this.treeRoot) {
+      return Ti.Trees.getByPath(root, path, {nameBy:this.nameBy})
+    },
+    //------------------------------------------------
+    getcloseNodesByPath(path) {
+      let pathId = _.isArray(path) ? path.join("/") : path
+      let openeds = {}
+      _.forEach(this.myOpenedNodePaths, (v, k)=>{
+        if(v && k.length > pathId.length && k.startsWith(pathId)) {
+          return
+        }
+        if(v) {
+          openeds[k] = true
+        }
+      })
+      return openeds
+    },
+    //------------------------------------------------
+    selectNodeById(id) {
+      this.$tree.selectNodeById(id)
+    },
+    //------------------------------------------------
+    selectNodeByPath(path) {
+      let hie = this.getHierarchyByPath(path)
+      if(hie) {
+        this.$tree.selectNodeById(hie.id)
+      }
+    },
+    //------------------------------------------------
+    async openNodeById(id) {
+      let hie = this.getHierarchyById(id)
+      if(hie) {
+        return await this.openNode(hie)
+      }
+    },
+    //------------------------------------------------
+    async openNodeByPath(id) {
+      let hie = this.getHierarchyByPath(path)
+      if(hie) {
+        return await this.openNode(hie)
+      }
+    },
+    //------------------------------------------------
+    async openNode({id, node, path}) {
+      // Show loading
+      this.myLoadingNodeId = id
+      await this.$tree.evalTreeTableData()
+
+      // Do reload
+      await this.reloadChildren(node)
+      this.myLoadingNodeId = null
+
+      // Closed the children nodes
+      let pathId = Ti.Trees.path(path).join("/")
+      let openeds = this.getcloseNodesByPath(pathId)
+      openeds[pathId] = true
+
+      // soft redraw
+      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+        this.myOpenedNodePaths = openeds
+      }
+      // Force redraw
+      else {
+        await this.$tree.evalTreeTableData()
+      }
+    },
+    //------------------------------------------------
+    async reloadChildren(obj) {
+      // Get the parent refer value
+      let prVal = _.get(obj, this.idBy)
+      if(Ti.Util.isNil(prVal))
+        return
+
+      // Reload top 
+      let query = {
+        skip: 0, limit: 0, sort: this.sortBy, mine:true,
+        match : {
+          [this.referBy] : prVal
+        }
+      }
+      let {list} = await Wn.Io.find(query)
+      //_.set(obj, this.childrenBy, list);
+      this.$set(obj, this.childrenBy, list)
+    },
+    //------------------------------------------------
+    async quietOpenNode(path=[], node=this.treeRoot) {
+      if('DIR' != node.race)
+        return
+
+      if(_.isEmpty(path))
+        return
+      let nodeName = _.first(path)
+      let hie = this.getHierarchyByPath(nodeName, node)
+      // Need to load the children
+      if(!hie) {
+        await this.reloadChildren(node)
+        // fetch again
+        hie = this.getHierarchyByPath(nodeName, node)
+      }
+
+      // The child is lost
+      if(!hie)
+        return
+
+      // Load the sub-level
+      let subPath = path.slice(1)
+
+      // Just open current node
+      if(_.isEmpty(subPath)) {
+        await this.reloadChildren(hie.node)
+      }
+      // Recur
+      else {
+        await this.quietOpenNode(subPath, hie.node)
+      }
+    },
+    //------------------------------------------------
+    async deleteNodeById(id, confirm) {
+      let hie = this.getHierarchyById(id)
+      if(hie) {
+        return await this.deleteNode(hie, confirm)
+      }
+    },
+    //------------------------------------------------
+    async deleteNodeByPath(path, confirm) {
+      let hie = this.getHierarchyByPath(path)
+      if(hie) {
+        return await this.deleteNode(hie, confirm)
+      }
+    },
+    //------------------------------------------------
+    async deleteNode(hie, confirm) {
+      // Confirm
+      if(confirm) {
+        if(_.isBoolean(confirm)) {
+          confirm = {
+            text : "i18n:wn-del-confirm",
+            vars : {N:1}
+          }
+        }
+        if(!(await Ti.Confirm(confirm, {type:"warn"}))) {
+          return
+        }
+      }
+
+      // Get the condidate
+      let can = Ti.Trees.nextCandidate(hie)
+
+      // Remove the object
+      let cmdText = `rm -rf 'id:${hie.id}'`
+      await Wn.Sys.exec(cmdText)
+
+      // Get pareth path
+      let pPath = hie.path.slice(0, hie.path.length-1)
+      await this.reloadNodeByPath(pPath)
+
+      // Tip user
+      await Ti.Toast.Open({
+        position : "top",
+        content  : "i18n:wn-del-ok",
+        vars  : {N:1},
+        type  : "info"
+      })
+
+      // Highlight next
+      if(can) {
+        let nextNodeId = _.get(can.node, this.idBy)
+        _.delay(()=>{
+          this.selectNodeById(nextNodeId)
+        }, 200)
+      }
+    },
+    //------------------------------------------------
+    async reloadNodeById(id) {
+      let hie = this.getHierarchyById(id)
+      if(hie) {
+        return await this.reloadNode(hie)
+      }
+    },
+    //------------------------------------------------
+    async reloadNodeByPath(path) {
+      let hie = this.getHierarchyByPath(path)
+      if(hie) {
+        return await this.reloadNode(hie)
+      }
+    },
+    //------------------------------------------------
+    async reloadNode({id, node, path}) {
+      // Show loading
+      this.myLoadingNodeId = id
+      await this.$tree.evalTreeTableData()
+
+      // Do reload
+      await this.reloadChildren(node)
+      this.myLoadingNodeId = null
+
+      // Closed the children nodes
+      let openeds = this.getcloseNodesByPath(path)
+
+      // soft redraw
+      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+        this.myOpenedNodePaths = openeds
+      }
+      // Force redraw
+      else {
+        await this.$tree.evalTreeTableData()
+      }
+    },
+    //------------------------------------------------
+    async reload() {
+      // Guard
+      if(!this.meta)
+        return
+
+      // Make tree root
+      let root = _.cloneDeep(this.meta)
+
+      // Load children
+      await this.reloadChildren(root)
+
+      // Open the node 
+      let openPathIds = Ti.Util.truthyKeys(this.myOpenedNodePaths)
+      for(let pathId of openPathIds) {
+        let path = Ti.Trees.path(pathId)
+        await this.quietOpenNode(path, root)
+      }
+
+      // Check the currentId
+      if(this.myCurrentId) {
+        // is it already loaded ?
+        let hie = this.getHierarchyById(this.myCurrentId, root)
+
+        // if not exists try to reload
+        if(!hie) {
+          // Load ancestors 
+          let ans = await Wn.Io.loadAncestors(`id:${this.myCurrentId}`)
+          
+          // find the first index of 
+          let index = 0
+          let homeId = _.get(this.meta, this.idBy)
+          for(; index<ans.length; index++) {
+            let an = ans[index]
+            if(_.get(an, this.idBy) == homeId) {
+              break
+            }
+          }
+
+          // Get the path
+          let currentPath = []
+          for(index++; index<ans.length; index++) {
+            let an = ans[index]
+            currentPath.push(_.get(an, this.nameBy))
+          }
+
+          // Open to it
+          await this.quietOpenNode(currentPath, root)
+
+          // Make sure current is opened
+          let openeds = {}
+          for(let i=1; i<=currentPath.length; i++) {
+            openeds[currentPath.slice(0, i).join("/")] = true
+          }
+          this.myOpenedNodePaths = _.defaults({}, this.myOpenedNodePaths, openeds)
+        }
+
+        // Restore the current node
+        _.delay(()=>{
+          this.$tree.selectNodeById(this.myCurrentId)
+        }, 300)
+      }
+
+      // set to data
+      this.treeRoot = root
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    "meta" : {
+      handler : function(newVal, oldVal) {
+        if(!_.isEqual(newVal, oldVal)) {
+          this.reload()
+        }
+      },
+      immediate : true
+    }
+  },
+  ////////////////////////////////////////////////////
+  created: function() {
+    if(this.keepCurrentBy) {
+      this.myCurrentId = Ti.Storage.session.getString(this.keepCurrentBy)
+    }
+    if(this.keepOpenBy) {
+      this.myOpenedNodePaths = Ti.Storage.session.getObject(this.keepOpenBy)
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/obj/tree/wn-obj-tree.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/obj/tree/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/obj/tree/_com.json", {
+  "name" : "wn-obj-tree",
+  "globally" : true,
+  "template" : "./wn-obj-tree.html",
+  "mixins"   : ["./wn-obj-tree.mjs"],
+  "components" : ["@com:ti/tree"]
 });
 //============================================================
 // JOIN: wn/obj/uploader/wn-obj-uploader.html
@@ -51583,6 +52202,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-io-obj-exists": "Object already exists",
   "e-io-obj-noexists": "Object does't exists",
   "e-io-obj-noexistsf": "Object[${nm}] does't exists",
+  "e-io-obj-BlankName" : "The object name CANNOT be empty",
+  "e-io-obj-InvalidName" : "Invalid object name",
   "edit": "Edit",
   "edit-com": "Edit control",
   "email": "Email",
@@ -52494,7 +53115,7 @@ Ti.Preload("ti/i18n/zh-cn/wn-manager.i18n.json", {
   "wn-del-confirm" : "您确定要删除选中的${N}个项目吗？这是一个不可撤销的操作！",
   "wn-del-item": "正在删除: \"${name}\"",
   "wn-del-no-empty-folder": "目录\"${nm}\"不是空的，您是否要全部删除？点击\"否\"跳过",
-  "wn-del-none": "请选择至少一个文件进行删除!",
+  "wn-del-none": "请选择至少一个对象进行删除!",
   "wn-del-ok": "已有 ${N} 个对象被移除",
   "wn-download-dir": "对象 \"${nm}\" 是一个目录，点击\"继续\"将跳过它并下载下一个文件，点击\"终止\"将结束本次操作!",
   "wn-download-none": "请选择至少一个文件进行下载!",
@@ -52682,6 +53303,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-io-obj-exists": "但是对象已然存在",
   "e-io-obj-noexists": "对象其实并不存在",
   "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
+  "e-io-obj-BlankName" : "对象名称不能为空",
+  "e-io-obj-InvalidName" : "对象名称非法",
   "edit": "编辑",
   "edit-com": "编辑控件",
   "email": "邮箱",

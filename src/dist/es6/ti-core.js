@@ -1,4 +1,4 @@
-// Pack At: 2021-01-01 21:18:35
+// Pack At: 2021-01-08 12:47:33
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -5098,17 +5098,19 @@ const {Icons} = (function(){
       _.assign(RACES, races)
       _.assign(DEFAULT, dft)
     },
-    get(icon,dft=DEFAULT) {
+    evalIcon(input, dft) {
       // Default icon
-      if(!icon) {
-        return dft || DEFAULT
+      if(!input) {
+        return dft
       }
       // String: look up "ALL"
-      if(_.isString(icon)) {
-        return ALL[icon] || dft || DEFAULT
+      if(_.isString(input)) {
+        return ALL[input] || dft
       }
       // Base on the type
-      let {tp, type, mime, race, name} = icon
+      let {tp, type, mime, race, name, icon} = input
+      if(icon)
+        return icon
       // fallback to the mime Group Name
       // 'text/plain' will be presented as 'text'
       let mimeGroup = null
@@ -5124,7 +5126,9 @@ const {Icons} = (function(){
              || RACES[race]
              || NAMES[name]
              || dft
-             || DEFAULT
+    },
+    get(input,dft=DEFAULT) {
+      return TiIcons.evalIcon(input, dft)
     },
     getByName(iconName, dft=null) {
       return Ti.Util.fallback(NAMES[iconName], dft, DEFAULT)
@@ -6053,9 +6057,15 @@ const {AutoMatch} = (function(){
   ///////////////////////////////////////
   const TiAutoMatch = {
     parse(input) {
+      if(_.isFunction(input)){
+        return input
+      }
       return DoAutoMatch(input)
     },
     test(input, val) {
+      if(_.isFunction(input)){
+        return input(val)
+      }
       return DoAutoMatch(input)(val)
     }
   }
@@ -8474,6 +8484,8 @@ const {Util} = (function(){
       dftKeys=[],
       context={},
       funcSet = window,
+      dftValue,
+      notNil=false,
       partial = "right"  // "left" | "right" | Falsy
     }={}) {
       //.............................................
@@ -8519,6 +8531,13 @@ const {Util} = (function(){
         return it => Ti.Util.getFallback(it, ...dftKeys)
       }
       //.............................................
+      // Keep return default value
+      if(!_.isUndefined(dftValue) || notNil) {
+        return it => dftValue
+      }
+    },
+    genGetterNotNil(key, setup) {
+      return Ti.Util.genGetter(key, _.assign({}, setup, {notNil:true}))
     },
     /***
      * "Ti.Types.toStr(abc)" -> Function
@@ -8702,10 +8721,18 @@ const {Trees} = (function(){
      *   If return `undefined`, take it as `[null,false]`
      *   Return `true` or `[true]` for break walking and return undefined.
      */
-    walkDeep(root, iteratee=()=>({})) {
+    walkDeep(root, iteratee=()=>({}), {
+      idBy = "id",
+      nameBy = "name",
+      childrenBy = "children"
+    }={}) {
+      let rootId = _.get(root, idBy)
+      let rootName = _.get(root, nameBy)
       // Prepare context
       let context = {
         index     : 0,
+        id        : rootId,
+        name      : rootName,
         node      : root,
         path      : [],
         depth     : 0,
@@ -8720,20 +8747,26 @@ const {Trees} = (function(){
         if(stop)
           return [data, stop]
         // For Children
-        if(_.isArray(c.node.children)) {
+        let children = _.get(c.node, childrenBy)
+        if(_.isArray(children)) {
           let subC = {
             depth     : c.depth + 1,
             parent    : c,
             ancestors : _.concat(c.ancestors, c)
           }
           let index = 0;
-          for(let child of c.node.children) {
-            [data, stop] = walking({
+          for(let child of children) {
+            let nodeId   = _.get(child, idBy)
+            let nodeName = _.get(child, nameBy)
+            let c2 = {
               index,
+              id     : nodeId,
+              name   : nodeName,
               node   : child,
-              path   : _.concat(c.path, child.name),
+              path   : _.concat(c.path, nodeName||index),
               ...subC
-            })
+            }
+            let [data, stop] = walking(c2)
             index ++
             if(stop)
               return [data, stop]
@@ -8748,10 +8781,18 @@ const {Trees} = (function(){
       return re
     },
     //---------------------------------
-    walkBreadth(root, iteratee=()=>({})) {
+    walkBreadth(root, iteratee=()=>({}), {
+      idBy = "id",
+      nameBy = "name",
+      childrenBy = "children"
+    }={}) {
+      let rootId = _.get(root, idBy)
+      let rootName = _.get(root, nameBy)
       // Prepare context
       let context = {
         index     : 0,
+        id        : rootId,
+        name      : rootName,
         node      : root,
         path      : [],
         depth     : 0,
@@ -8766,7 +8807,8 @@ const {Trees} = (function(){
       // Define the walking function
       // @c : {node, path, depth}
       const walking = (c)=>{
-        if(_.isArray(c.node.children)) {
+        let children = _.get(c.node, childrenBy)
+        if(_.isArray(children)) {
           // save contexts
           let cs = []
           let subC = {
@@ -8776,11 +8818,15 @@ const {Trees} = (function(){
           }
           let index = 0;
           // For Children Check
-          for(let child of c.node.children) {
+          for(let child of children) {
+            let nodeId   = _.get(child, idBy)
+            let nodeName = _.get(child, nameBy)
             let c2 = {
               index,
+              id    : nodeId,
+              name  : nodeName,
               node  : child,
-              path  : _.concat(c.path, child.name||index),
+              path  : _.concat(c.path, nodeName||index),
               ...subC
             }
             let [data, stop] = _.concat(iteratee(c2)||[null,false])
@@ -8806,18 +8852,18 @@ const {Trees} = (function(){
       return re
     },
     //---------------------------------
-    getById(root, nodeId) {
+    getById(root, nodeId, setup) {
       if(Ti.Util.isNil(nodeId)) {
         return
       }
       return TiTrees.walkDeep(root, (hie)=>{
-        if(hie.node.id == nodeId) {
+        if(hie.id == nodeId) {
           return [hie, true]
         }
-      })
+      }, setup)
     },
     //---------------------------------
-    getByPath(root, strOrArray=[]) {
+    getByPath(root, strOrArray=[], setup) {
       // Tidy node path
       let nodePath = TiTrees.path(strOrArray)
       // walking to find
@@ -8825,18 +8871,18 @@ const {Trees} = (function(){
         if(_.isEqual(nodePath, hie.path)) {
           return [hie, true]
         }
-      })
+      }, setup)
     },
     //---------------------------------
-    getNodeById(root, nodeId) {
-      let hie = TiTrees.getById(root, nodeId)
+    getNodeById(root, nodeId, setup) {
+      let hie = TiTrees.getById(root, nodeId, setup)
       if(hie) {
         return hie.node
       }
     },
     //---------------------------------
-    getNodeByPath(root, strOrArray=[]) {
-      let hie = TiTrees.getByPath(root, strOrArray)
+    getNodeByPath(root, strOrArray=[], setup) {
+      let hie = TiTrees.getByPath(root, strOrArray, setup)
       if(hie) {
         return hie.node
       }
@@ -8975,6 +9021,29 @@ const {Trees} = (function(){
       return {
         hierarchy : hie,
         children, item, index
+      }
+    },
+    //---------------------------------
+    /***
+     * @return Object {
+     *   hierarchy : hie,
+     *   children:[],  // hie.parent.children, after changed
+     *   item,   // item
+     *   index   // the position of `item` in children
+     * })
+     */ 
+    replace(hie, item) {
+      // Guard
+      if(!hie || !hie.parent || _.isUndefined(item))
+        return
+  
+      let children = hie.parent.node.children
+      children[hie.index] = item
+      
+      return {
+        hierarchy : hie,
+        children, item, 
+        index: hie.index
       }
     },
     //---------------------------------
@@ -11617,7 +11686,11 @@ const {WalnutAppMain} = (function(){
     if(!_.isEmpty(tiConf)) {
       Ti.Config.update(tiConf)
     }
-  
+    //---------------------------------------
+    // join customized icons
+    if(tiConf.icons) {
+      Ti.Icons.put(tiConf.icons)
+    }
     //---------------------------------------
     // join customized i18n
     if(tiConf.i18n) {
@@ -11906,7 +11979,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20210101.211835",
+  "version" : "2.5-20210108.124733",
   "dev" : false,
   "appName" : null,
   "session" : {},
