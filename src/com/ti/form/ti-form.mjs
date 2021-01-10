@@ -276,8 +276,8 @@ const _M = {
       // For Normal Field
       if(fld.name) {
         let field = _.defaults(_.omit(fld, "disabled"), {
-          type : "String",
-          comType : this.defaultComType,
+          type    : this.defaultFieldType || "String",
+          comType : this.defaultComType   || "TiLabel",
           disabled
         })
 

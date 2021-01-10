@@ -27,6 +27,10 @@ export default {
     type: Object,
     default: undefined
   },
+  "defaultFieldType" : {
+    type : String,
+    default : "String"
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

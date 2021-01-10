@@ -1,4 +1,4 @@
-// Pack At: 2021-01-08 12:47:33
+// Pack At: 2021-01-11 01:09:29
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -2268,6 +2268,25 @@ const _M = {
     },
     //---------------------------------------
     evalBarItem(it){
+      // Guard
+      if(!it)
+        return
+
+      // Test hidden
+      if(it.hidden) {
+        if(Ti.AutoMatch.test(it.hidden, this.status)){
+          return
+        }
+      }
+
+      // Test vibible
+      if(it.visible) {
+        if(!Ti.AutoMatch.test(it.visible, this.status)){
+          return
+        }
+      }
+
+      // Eval bar item
       let type = this.getItemType(it)
       let key = this.getItemKey(type)
       let bi = {
@@ -2281,7 +2300,9 @@ const _M = {
         bi.items = []
         for(let child of it.items) {
           let ci = this.evalBarItem(child)
-          bi.items.push(ci)
+          if(ci) {
+            bi.items.push(ci)
+          }
         }
       }
       return bi
@@ -8758,6 +8779,10 @@ const _M = {
     type: Object,
     default: undefined
   },
+  "defaultFieldType" : {
+    type : String,
+    default : "String"
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -9186,8 +9211,8 @@ const _M = {
       // For Normal Field
       if(fld.name) {
         let field = _.defaults(_.omit(fld, "disabled"), {
-          type : "String",
-          comType : this.defaultComType,
+          type    : this.defaultFieldType || "String",
+          comType : this.defaultComType   || "TiLabel",
           disabled
         })
 
@@ -18320,10 +18345,25 @@ Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair full-
               Value
             -->
             <td class="as-value" width="99%">
+              <!--
+                Customized display component
+              -->
+              <component
+                v-if="pa.comType"
+                  :is="pa.comType"
+                  v-bind="pa.comConf"
+                  :value="pa.value"
+                  @change="OnPairComChange($event, pa)"/>
+              <!--
+                Value editable
+              --> 
               <input 
-                v-if="canEditValue"
+                v-else-if="canEditValue"
                   :value="pa.value"
                   @change="OnPairValueChange($event, pa)"/>
+              <!--
+                Just show value
+              -->
               <span
                 v-else>{{pa.text || pa.value}}</span>
             </td>
@@ -18442,6 +18482,14 @@ const _M = {
   ////////////////////////////////////////////////
   methods : {
     //--------------------------------------------
+    OnPairComChange(newVal, {name, value}) {
+      if(!_.isEqual(newVal, value)) {
+        let data = _.cloneDeep(this.TheData) 
+        _.set(data, name, newVal)
+        this.$notify("change", data)
+      }
+    },
+    //--------------------------------------------
     OnPairValueChange(evt, {name, value}) {
       let newVal = _.trim(evt.target.value)
       if(newVal != value) {
@@ -18475,6 +18523,12 @@ const _M = {
             let d = Ti.DictFactory.CheckDict(fld.dict)
             pa.text = await d.getItemText(pa.value)
           }
+          // Customized the display text
+          if(fld.comType) {
+            pa.comType = fld.comType
+            pa.comConf = fld.comConf || {}
+          }
+
           // Push
           list.push(pa)
         }
@@ -18512,7 +18566,7 @@ const _M = {
       // join pair
       else {
         let name  = path.join(".")
-        let value = Ti.Types.toStr(obj)
+        let value = obj
         pairs[name] = {name, value}
       }
     }
@@ -23570,6 +23624,7 @@ const _M = {
         display : {
           key : "value",
           ignoreNil : false,
+          ignoreBlank : false,
           comType : "ti-text-json-tree-item",
           comConf : {
             valueType   : "${valueType}",
@@ -26237,7 +26292,7 @@ const TI_TREE = {
       let tableData = []
 
       //if(this.showRoot)
-      console.log("evalTreeTableData", this.data)
+      //console.log("evalTreeTableData", this.data)
 
       // Array push to root
       if(_.isArray(this.data)) {
@@ -40270,10 +40325,52 @@ Ti.Preload("ti/com/wn/obj/creation/_com.json", {
   "mixins" : ["./wn-obj-creation.mjs"]
 });
 //============================================================
+// JOIN: wn/obj/form/wn-obj-form-props.mjs
+//============================================================
+(function(){
+const _M = {
+  "fuse" : {
+    type : Object,
+    default : ()=>({
+      key  : "wn-obj-form",
+      noti : undefined
+    })
+  },
+  // {method : "dispatch", target : "main/onChanged"}
+  "setDataBy" : {
+    type : [String, Object, Boolean],
+    default : undefined
+  },
+  // {method : "dispatch", target : "main/changeMeta"}
+  "updateBy" : {
+    type : [String, Object, Boolean],
+    default : undefined
+  },
+  // {method : "commit", target : "main/setFieldStatus"}
+  "setFieldStatusBy" : {
+    type : [String, Object, Boolean],
+    default : undefined
+  },
+  // Load fields setting 
+  "fields" : {
+    type : [String, Array, Function],
+    default : ()=>[]
+  },
+  // Load fields setting 
+  "data" : {
+    type : [String, Object],
+    default : undefined
+  }
+}
+Ti.Preload("ti/com/wn/obj/form/wn-obj-form-props.mjs", _M);
+})();
+//============================================================
 // JOIN: wn/obj/form/wn-obj-form.html
 //============================================================
 Ti.Preload("ti/com/wn/obj/form/wn-obj-form.html", `<ti-form 
   v-bind="this"
+  :data="FormData"
+  :fields="myFields"
   :auto-show-blank="isAutoShowBlank"
   :class-name="className"
   @field:change="OnFieldChange"
@@ -40285,33 +40382,27 @@ Ti.Preload("ti/com/wn/obj/form/wn-obj-form.html", `<ti-form
 (function(){
 const _M = {
   //////////////////////////////////////////////////////
-  props : {
-    "fuse" : {
-      type : Object,
-      default : ()=>({
-        key  : "wn-obj-form",
-        noti : null
-      })
-    },
-    // {method : "dispatch", target : "main/onChanged"}
-    "setDataBy" : {
-      type : [String, Object, Boolean],
-      default : null
-    },
-    // {method : "dispatch", target : "main/changeMeta"}
-    "updateBy" : {
-      type : [String, Object, Boolean],
-      default : null
-    },
-    // {method : "commit", target : "main/setFieldStatus"}
-    "setFieldStatusBy" : {
-      type : [String, Object, Boolean],
-      default : null
-    }
-  },
+  data : ()=>({
+    myFields : []
+  }),
   //////////////////////////////////////////////////////
   computed : {
-    isAutoShowBlank() {return Ti.Util.fallback(this.autoShowBlank, true)},
+    //--------------------------------------------------
+    isAutoShowBlank() {
+      return Ti.Util.fallback(this.autoShowBlank, true)
+    },
+    //--------------------------------------------------
+    FormData() {
+      if(_.isString(this.data)) {
+        try{
+          return JSON.parse(this.data)
+        }catch(E){
+          return {}
+        }
+      }
+      return this.data
+    }
+    //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
   methods : {
@@ -40349,8 +40440,34 @@ const _M = {
         status  : "warn"
       }
       this.doAction("invalid", this.setFieldStatusBy, payload)
+    },
+    //--------------------------------------------------
+    async evalMyFields() {
+      if(_.isArray(this.fields)) {
+        this.myFields = this.fields
+      }
+      // Dynamic call
+      else if(_.isFunction(this.fields)) {
+        this.myFields = await this.fields()
+      }
+      // Load from server side
+      else if(_.isString(this.fields)) {
+        let o = await Wn.Io.loadMeta(this.fields)
+        if(null!=o) {
+          this.myFields = await Wn.Io.loadContent(o,  {as:"json"})
+        } else {
+          this.myFields = []
+        }
+      }
     }
     //--------------------------------------------------
+  },
+  //////////////////////////////////////////////////////
+  watch : {
+    "fields" : {
+      handler : "evalMyFields",
+      immediate : true
+    }
   }
   //////////////////////////////////////////////////////
 }
@@ -40363,7 +40480,10 @@ Ti.Preload("ti/com/wn/obj/form/_com.json", {
   "name" : "wn-obj-form",
   "globally" : true,
   "template" : "./wn-obj-form.html",
-  "props" : "@com:ti/form/ti-form-props.mjs",
+  "props" : [
+    "@com:ti/form/ti-form-props.mjs",
+    "./wn-obj-form-props.mjs"
+  ],
   "mixins" : ["./wn-obj-form.mjs"],
   "components" : [
     "@com:ti/form",
@@ -40606,7 +40726,6 @@ Ti.Preload("ti/com/wn/obj/json/wn-obj-json.html", `<div class="wn-obj-json">
   <ti-text-json v-if="hasMeta"
     class="ti-fill-parent"
     :value="value"
-    :data="data"
     @change="onChangeContent"/>
   <!--
     Empty Data
@@ -46492,8 +46611,9 @@ const _M = {
 
     // If show changed, and content is true
     if(!oldShownContent && shown.content) {
-      console.log("reload current content")
+      //console.log("reload current content")
       await dispatch("current/reload")
+      commit("syncStatusChanged")
     }
   },
   //--------------------------------------------
@@ -51072,6 +51192,10 @@ const _M = {
     this.sidebarStatusStoreKey = reo.statusStoreKey
   },
   //.........................................
+  async reloadPrivilege() {
+    this.privilege = await Wn.Sys.exec("www pvg -cqn", {as:"json"});
+  },
+  //.........................................
   pushHistory(meta) {
     // Push history to update the browser address bar
     let his = window.history
@@ -51142,6 +51266,7 @@ const _M = {
     comConf : {},
     actions : [],
     sidebar : [],
+    privilege : {},
     sidebarStatusStoreKey : undefined,
     // for main view customized status
     // It will be clean each time reload main view
@@ -51238,11 +51363,12 @@ const _M = {
         mainStatus, 
         this.mainViewStatus,
         {
-        exposeHidden : this.myExposeHidden,
-        changed      : this.isChanged,
-        reloading    : reloading,
-        loading      : this.loading
-      })
+          pvg : this.privilege,
+          exposeHidden : this.myExposeHidden,
+          changed      : this.isChanged,
+          reloading    : reloading,
+          loading      : this.loading
+        })
     },
     StatusText(){
       let st = this.TheStatus
@@ -51333,6 +51459,7 @@ const _M = {
       // Reload data
       else {
         this.reloadSidebar()
+        this.reloadPrivilege()
         this.reloadAncestors()
         this.reloadMain()
       }
@@ -51409,7 +51536,8 @@ const _M = {
   ///////////////////////////////////////////
   mounted : async function(){
     //......................................
-    await this.reloadSidebar()
+    this.reloadSidebar()
+    this.reloadPrivilege()
     //......................................
   },
   ///////////////////////////////////////////

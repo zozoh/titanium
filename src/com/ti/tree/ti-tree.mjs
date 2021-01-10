@@ -335,7 +335,7 @@ const TI_TREE = {
       let tableData = []
 
       //if(this.showRoot)
-      console.log("evalTreeTableData", this.data)
+      //console.log("evalTreeTableData", this.data)
 
       // Array push to root
       if(_.isArray(this.data)) {

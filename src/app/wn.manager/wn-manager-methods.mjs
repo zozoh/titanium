@@ -91,6 +91,10 @@ const _M = {
     this.sidebarStatusStoreKey = reo.statusStoreKey
   },
   //.........................................
+  async reloadPrivilege() {
+    this.privilege = await Wn.Sys.exec("www pvg -cqn", {as:"json"});
+  },
+  //.........................................
   pushHistory(meta) {
     // Push history to update the browser address bar
     let his = window.history

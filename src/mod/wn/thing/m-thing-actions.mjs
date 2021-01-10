@@ -468,8 +468,9 @@ const _M = {
 
     // If show changed, and content is true
     if(!oldShownContent && shown.content) {
-      console.log("reload current content")
+      //console.log("reload current content")
       await dispatch("current/reload")
+      commit("syncStatusChanged")
     }
   },
   //--------------------------------------------

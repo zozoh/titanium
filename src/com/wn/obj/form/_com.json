@@ -2,7 +2,10 @@
   "name" : "wn-obj-form",
   "globally" : true,
   "template" : "./wn-obj-form.html",
-  "props" : "@com:ti/form/ti-form-props.mjs",
+  "props" : [
+    "@com:ti/form/ti-form-props.mjs",
+    "./wn-obj-form-props.mjs"
+  ],
   "mixins" : ["./wn-obj-form.mjs"],
   "components" : [
     "@com:ti/form",

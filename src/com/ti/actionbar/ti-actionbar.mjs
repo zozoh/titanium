@@ -67,6 +67,25 @@ export default {
     },
     //---------------------------------------
     evalBarItem(it){
+      // Guard
+      if(!it)
+        return
+
+      // Test hidden
+      if(it.hidden) {
+        if(Ti.AutoMatch.test(it.hidden, this.status)){
+          return
+        }
+      }
+
+      // Test vibible
+      if(it.visible) {
+        if(!Ti.AutoMatch.test(it.visible, this.status)){
+          return
+        }
+      }
+
+      // Eval bar item
       let type = this.getItemType(it)
       let key = this.getItemKey(type)
       let bi = {
@@ -80,7 +99,9 @@ export default {
         bi.items = []
         for(let child of it.items) {
           let ci = this.evalBarItem(child)
-          bi.items.push(ci)
+          if(ci) {
+            bi.items.push(ci)
+          }
         }
       }
       return bi

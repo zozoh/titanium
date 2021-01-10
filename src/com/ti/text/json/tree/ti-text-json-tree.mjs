@@ -59,6 +59,7 @@ const _M = {
         display : {
           key : "value",
           ignoreNil : false,
+          ignoreBlank : false,
           comType : "ti-text-json-tree-item",
           comConf : {
             valueType   : "${valueType}",

@@ -31,10 +31,25 @@
               Value
             -->
             <td class="as-value" width="99%">
+              <!--
+                Customized display component
+              -->
+              <component
+                v-if="pa.comType"
+                  :is="pa.comType"
+                  v-bind="pa.comConf"
+                  :value="pa.value"
+                  @change="OnPairComChange($event, pa)"/>
+              <!--
+                Value editable
+              --> 
               <input 
-                v-if="canEditValue"
+                v-else-if="canEditValue"
                   :value="pa.value"
                   @change="OnPairValueChange($event, pa)"/>
+              <!--
+                Just show value
+              -->
               <span
                 v-else>{{pa.text || pa.value}}</span>
             </td>

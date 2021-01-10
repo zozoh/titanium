@@ -20,6 +20,7 @@ const _M = {
     comConf : {},
     actions : [],
     sidebar : [],
+    privilege : {},
     sidebarStatusStoreKey : undefined,
     // for main view customized status
     // It will be clean each time reload main view
@@ -116,11 +117,12 @@ const _M = {
         mainStatus, 
         this.mainViewStatus,
         {
-        exposeHidden : this.myExposeHidden,
-        changed      : this.isChanged,
-        reloading    : reloading,
-        loading      : this.loading
-      })
+          pvg : this.privilege,
+          exposeHidden : this.myExposeHidden,
+          changed      : this.isChanged,
+          reloading    : reloading,
+          loading      : this.loading
+        })
     },
     StatusText(){
       let st = this.TheStatus
@@ -211,6 +213,7 @@ const _M = {
       // Reload data
       else {
         this.reloadSidebar()
+        this.reloadPrivilege()
         this.reloadAncestors()
         this.reloadMain()
       }
@@ -287,7 +290,8 @@ const _M = {
   ///////////////////////////////////////////
   mounted : async function(){
     //......................................
-    await this.reloadSidebar()
+    this.reloadSidebar()
+    this.reloadPrivilege()
     //......................................
   },
   ///////////////////////////////////////////

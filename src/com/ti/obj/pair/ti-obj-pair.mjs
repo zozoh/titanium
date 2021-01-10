@@ -104,6 +104,14 @@ const _M = {
   ////////////////////////////////////////////////
   methods : {
     //--------------------------------------------
+    OnPairComChange(newVal, {name, value}) {
+      if(!_.isEqual(newVal, value)) {
+        let data = _.cloneDeep(this.TheData) 
+        _.set(data, name, newVal)
+        this.$notify("change", data)
+      }
+    },
+    //--------------------------------------------
     OnPairValueChange(evt, {name, value}) {
       let newVal = _.trim(evt.target.value)
       if(newVal != value) {
@@ -137,6 +145,12 @@ const _M = {
             let d = Ti.DictFactory.CheckDict(fld.dict)
             pa.text = await d.getItemText(pa.value)
           }
+          // Customized the display text
+          if(fld.comType) {
+            pa.comType = fld.comType
+            pa.comConf = fld.comConf || {}
+          }
+
           // Push
           list.push(pa)
         }
@@ -174,7 +188,7 @@ const _M = {
       // join pair
       else {
         let name  = path.join(".")
-        let value = Ti.Types.toStr(obj)
+        let value = obj
         pairs[name] = {name, value}
       }
     }

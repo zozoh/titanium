@@ -1,32 +1,26 @@
 const _M = {
   //////////////////////////////////////////////////////
-  props : {
-    "fuse" : {
-      type : Object,
-      default : ()=>({
-        key  : "wn-obj-form",
-        noti : null
-      })
-    },
-    // {method : "dispatch", target : "main/onChanged"}
-    "setDataBy" : {
-      type : [String, Object, Boolean],
-      default : null
-    },
-    // {method : "dispatch", target : "main/changeMeta"}
-    "updateBy" : {
-      type : [String, Object, Boolean],
-      default : null
-    },
-    // {method : "commit", target : "main/setFieldStatus"}
-    "setFieldStatusBy" : {
-      type : [String, Object, Boolean],
-      default : null
-    }
-  },
+  data : ()=>({
+    myFields : []
+  }),
   //////////////////////////////////////////////////////
   computed : {
-    isAutoShowBlank() {return Ti.Util.fallback(this.autoShowBlank, true)},
+    //--------------------------------------------------
+    isAutoShowBlank() {
+      return Ti.Util.fallback(this.autoShowBlank, true)
+    },
+    //--------------------------------------------------
+    FormData() {
+      if(_.isString(this.data)) {
+        try{
+          return JSON.parse(this.data)
+        }catch(E){
+          return {}
+        }
+      }
+      return this.data
+    }
+    //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
   methods : {
@@ -64,8 +58,34 @@ const _M = {
         status  : "warn"
       }
       this.doAction("invalid", this.setFieldStatusBy, payload)
+    },
+    //--------------------------------------------------
+    async evalMyFields() {
+      if(_.isArray(this.fields)) {
+        this.myFields = this.fields
+      }
+      // Dynamic call
+      else if(_.isFunction(this.fields)) {
+        this.myFields = await this.fields()
+      }
+      // Load from server side
+      else if(_.isString(this.fields)) {
+        let o = await Wn.Io.loadMeta(this.fields)
+        if(null!=o) {
+          this.myFields = await Wn.Io.loadContent(o,  {as:"json"})
+        } else {
+          this.myFields = []
+        }
+      }
     }
     //--------------------------------------------------
+  },
+  //////////////////////////////////////////////////////
+  watch : {
+    "fields" : {
+      handler : "evalMyFields",
+      immediate : true
+    }
   }
   //////////////////////////////////////////////////////
 }
