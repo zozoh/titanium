@@ -275,8 +275,32 @@ const TiWWW = {
     }
     // Withtout find
     return dft
+  },
+  //---------------------------------------
+  genQuery(query, {
+    vkey="val", 
+    wrapArray=false, 
+    errorAs,
+    blankAs= '[]'
+  }={}) {
+    // Customized query
+    if(_.isFunction(query)) {
+      return query
+    }
+    // Array
+    if(_.isArray(query)) {
+      if(wrapArray) {
+        return ()=>query
+      }
+      return query
+    }
+    // Call api
+    if(_.isString(query)) {
+      // TODO ...
+      throw "www:unsupport query: " + query
+    }
   }
-  
+  //---------------------------------------
 }
 ///////////////////////////////////////////
 export const WWW = TiWWW

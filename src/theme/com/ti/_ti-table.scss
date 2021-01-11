@@ -175,6 +175,12 @@
               &:hover {@include color($color-weaktip, r, c);}
             }
             //-----------------------------------------
+            .row-number {
+              @include font-fixed;
+              font-size: SZ(10); min-width: 3em; opacity: 0.6;
+              text-align: right;
+            }
+            //-----------------------------------------
             .row-checker {
               padding:SZ(6); cursor: pointer;
               &:hover {@include color($color-weaktip, r, c);}

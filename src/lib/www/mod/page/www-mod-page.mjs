@@ -237,7 +237,7 @@ const _M = {
     },
     //--------------------------------------------
     setShown(state, shown) {
-      _.assign(state.shown, shown)
+      state.shown = _.assign({}, state.shown, shown)
     },
     //--------------------------------------------
     // 0: before reload setting -> @page:init

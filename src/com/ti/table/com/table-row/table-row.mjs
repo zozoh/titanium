@@ -13,6 +13,10 @@ export default {
     "fields" : {
       type : Array,
       default : ()=>[]
+    },
+    "rowNumberBase" : {
+      type : Number,
+      default : undefined
     }
   },
   ///////////////////////////////////////////////////
@@ -26,6 +30,16 @@ export default {
     //-----------------------------------------------
     hasRealIcon() {
       return this.icon && _.isString(this.icon)
+    },
+    //-----------------------------------------------
+    hasRowNumber() {
+      return _.isNumber(this.rowNumberBase)
+    },
+    //-----------------------------------------------
+    RowNumber() {
+      if(this.hasRowNumber) {
+        return this.rowNumberBase + this.index
+      }
     }
     //-----------------------------------------------
   },

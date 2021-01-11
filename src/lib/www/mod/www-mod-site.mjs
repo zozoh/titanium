@@ -389,6 +389,33 @@ const _M = {
       // {href,protocol,host,port,path,search,query,hash,anchor}
       let loc = Ti.Util.parseHref(window.location.href)
 
+      //---------------------------------------
+      // Setup dictionary
+      if(state.dictionary) {
+        _.forEach(state.dictionary, (dict, name)=>{
+          let d = Ti.DictFactory.GetDict(name)
+          if(!d) {
+            //console.log("create", name, dict)
+            Ti.DictFactory.CreateDict({
+              //...............................................
+              data  : Ti.WWW.genQuery(dict.data, {vkey:null}),
+              query : Ti.WWW.genQuery(dict.query),
+              item  : Ti.WWW.genQuery(dict.item, {
+                blankAs: "{}"
+              }),
+              children : Ti.WWW.genQuery(dict.children),
+              //...............................................
+              getValue : Ti.Util.genGetter(dict.value),
+              getText  : Ti.Util.genGetter(dict.text),
+              getIcon  : Ti.Util.genGetter(dict.icon),
+              //...............................................
+              shadowed : Ti.Util.fallback(dict.shadowed, true)
+              //...............................................
+            }, {name})
+          }
+        })
+      }
+
       
       // Update the auth
       commit("auth/mergePaths", state.authPaths)

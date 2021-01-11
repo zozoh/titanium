@@ -1,12 +1,14 @@
 <div class="form-group"
   :class="topClass">
-  <div class="group-title">
-    <ti-icon
-      v-if="show.icon" 
-      :value="icon"/>
-    <span
-      v-if="show.title"
-      class="name-title">{{title|i18n}}</span>
+  <div
+    v-if="title" 
+      class="group-title">
+      <ti-icon
+        v-if="show.icon" 
+        :value="icon"/>
+      <span
+        v-if="show.title"
+        class="name-title">{{title|i18n}}</span>
   </div>
   <div class="group-fields">
       <ti-form-field v-for="fld in fields"

@@ -132,6 +132,10 @@ export default {
     default: "as-big-mask",
     validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
   },
+  "rowNumberBase" : {
+    type : Number,
+    default : undefined
+  },
   //-----------------------------------
   // Measure
   //-----------------------------------

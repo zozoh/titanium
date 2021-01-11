@@ -153,7 +153,7 @@ export async function WalnutAppMain({
     window[key] = mod
   }
   //---------------------------------------
-  // Setup dictionaly
+  // Setup dictionary
   Wn.Dict.setup(tiConf.dictionary)
   //---------------------------------------
   // Initialize the App

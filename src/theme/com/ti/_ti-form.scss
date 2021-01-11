@@ -46,6 +46,17 @@
       }
       // .group-fields {
       // }
+      //--------------------------------
+      &.as-columns {
+        @include flex-align-nowrap($ai:stretch, $ac:stretch);
+        > .group-title {
+          span {writing-mode:vertical-lr;}
+        }
+        > .group-fields {
+          @include flex-align-nowrap;
+        }
+      }
+      //--------------------------------
     }
     //----------------------------------
     > .form-group > .group-fields > .form-field,
