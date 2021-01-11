@@ -1,4 +1,4 @@
-// Pack At: 2021-01-11 01:09:29
+// Pack At: 2021-01-11 18:45:17
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9432,8 +9432,32 @@ const {WWW} = (function(){
       }
       // Withtout find
       return dft
+    },
+    //---------------------------------------
+    genQuery(query, {
+      vkey="val", 
+      wrapArray=false, 
+      errorAs,
+      blankAs= '[]'
+    }={}) {
+      // Customized query
+      if(_.isFunction(query)) {
+        return query
+      }
+      // Array
+      if(_.isArray(query)) {
+        if(wrapArray) {
+          return ()=>query
+        }
+        return query
+      }
+      // Call api
+      if(_.isString(query)) {
+        // TODO ...
+        throw "www:unsupport query: " + query
+      }
     }
-    
+    //---------------------------------------
   }
   ///////////////////////////////////////////
   return {WWW: TiWWW};
@@ -11743,7 +11767,7 @@ const {WalnutAppMain} = (function(){
       window[key] = mod
     }
     //---------------------------------------
-    // Setup dictionaly
+    // Setup dictionary
     Wn.Dict.setup(tiConf.dictionary)
     //---------------------------------------
     // Initialize the App
@@ -11979,7 +12003,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20210111.010929",
+  "version" : "2.5-20210111.184517",
   "dev" : false,
   "appName" : null,
   "session" : {},

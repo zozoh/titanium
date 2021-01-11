@@ -1,4 +1,4 @@
-// Pack At: 2021-01-11 01:09:29
+// Pack At: 2021-01-11 18:45:17
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -8690,13 +8690,15 @@ Ti.Preload("ti/com/ti/form/com/form-group/form-group-props.mjs", _M);
 //============================================================
 Ti.Preload("ti/com/ti/form/com/form-group/form-group.html", `<div class="form-group"
   :class="topClass">
-  <div class="group-title">
-    <ti-icon
-      v-if="show.icon" 
-      :value="icon"/>
-    <span
-      v-if="show.title"
-      class="name-title">{{title|i18n}}</span>
+  <div
+    v-if="title" 
+      class="group-title">
+      <ti-icon
+        v-if="show.icon" 
+        :value="icon"/>
+      <span
+        v-if="show.title"
+        class="name-title">{{title|i18n}}</span>
   </div>
   <div class="group-fields">
       <ti-form-field v-for="fld in fields"
@@ -21254,6 +21256,10 @@ const _M = {
     default: "as-big-mask",
     validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
   },
+  "rowNumberBase" : {
+    type : Number,
+    default : undefined
+  },
   //-----------------------------------
   // Measure
   //-----------------------------------
@@ -21837,6 +21843,10 @@ Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<tr class="table-row
           <div v-else
             class="row-icon"></div>
         </template>
+        <!--Row Number-->
+        <div 
+          v-if="hasRowNumber"
+            class="row-number">{{RowNumber}}</div>
         <!--ICON: Checker-->
         <ti-icon v-if="checkable"
             class="row-checker"
@@ -21865,6 +21875,10 @@ const _M = {
     "fields" : {
       type : Array,
       default : ()=>[]
+    },
+    "rowNumberBase" : {
+      type : Number,
+      default : undefined
     }
   },
   ///////////////////////////////////////////////////
@@ -21878,6 +21892,16 @@ const _M = {
     //-----------------------------------------------
     hasRealIcon() {
       return this.icon && _.isString(this.icon)
+    },
+    //-----------------------------------------------
+    hasRowNumber() {
+      return _.isNumber(this.rowNumberBase)
+    },
+    //-----------------------------------------------
+    RowNumber() {
+      if(this.hasRowNumber) {
+        return this.rowNumberBase + this.index
+      }
     }
     //-----------------------------------------------
   },
@@ -22221,6 +22245,7 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
             :indent="row.indent"
             :data="row.rawData"
             :item="row.item"
+            :row-number-base="rowNumberBase"
 
             :checkable="row.checkable"
             :selectable="row.selectable"
@@ -31488,22 +31513,41 @@ Ti.Preload("ti/com/web/nav/crumb/nav-crumb.html", `<nav class="web-nav-crumb"
   <!--=======================================-->
   <template 
     v-for="it in TheItems">
+      <!--Href render to A-->
       <a
-        :key="it.index"
-        class="link-item"
-        :class="it.className"
-        :href="it.href"
-        :target="it.target"
-        @click.left="OnClickLink($event, it)">
-        <!--Icon-->
-        <ti-icon
-          v-if="it.icon"
-            :value="it.icon"/>
-        <!--Text-->
-        <span
-          v-if="it.title"
-            class="as-text">{{it.title}}</span>
+        v-if="it.href"
+          :key="it.index"
+          class="link-item"
+          :class="it.className"
+          :href="it.href"
+          :target="it.target"
+          @click.left="OnClickLink($event, it)">
+          <!--Icon-->
+          <ti-icon
+            v-if="it.icon"
+              :value="it.icon"/>
+          <!--Text-->
+          <span
+            v-if="it.title"
+              class="as-text">{{it.title}}</span>
       </a>
+      <!--
+        Just text
+      -->
+      <span
+        v-else
+          :key="it.index"
+          class="link-item"
+          :class="it.className">
+          <!--Icon-->
+          <ti-icon
+            v-if="it.icon"
+              :value="it.icon"/>
+          <!--Text-->
+          <span
+            v-if="it.title"
+              class="as-text">{{it.title}}</span>
+      </span>
       <!--Sep-->
       <TiIcon :value="sep"/>
   </template>
@@ -49360,7 +49404,7 @@ const _M = {
     },
     //--------------------------------------------
     setShown(state, shown) {
-      _.assign(state.shown, shown)
+      state.shown = _.assign({}, state.shown, shown)
     },
     //--------------------------------------------
     // 0: before reload setting -> @page:init
@@ -50852,6 +50896,33 @@ const _M = {
       // Looking for the entry page
       // {href,protocol,host,port,path,search,query,hash,anchor}
       let loc = Ti.Util.parseHref(window.location.href)
+
+      //---------------------------------------
+      // Setup dictionary
+      if(state.dictionary) {
+        _.forEach(state.dictionary, (dict, name)=>{
+          let d = Ti.DictFactory.GetDict(name)
+          if(!d) {
+            //console.log("create", name, dict)
+            Ti.DictFactory.CreateDict({
+              //...............................................
+              data  : Ti.WWW.genQuery(dict.data, {vkey:null}),
+              query : Ti.WWW.genQuery(dict.query),
+              item  : Ti.WWW.genQuery(dict.item, {
+                blankAs: "{}"
+              }),
+              children : Ti.WWW.genQuery(dict.children),
+              //...............................................
+              getValue : Ti.Util.genGetter(dict.value),
+              getText  : Ti.Util.genGetter(dict.text),
+              getIcon  : Ti.Util.genGetter(dict.icon),
+              //...............................................
+              shadowed : Ti.Util.fallback(dict.shadowed, true)
+              //...............................................
+            }, {name})
+          }
+        })
+      }
 
       
       // Update the auth
