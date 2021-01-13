@@ -82,18 +82,19 @@ const TiDom = {
   }={}) {
     const $doc  = window.document
     const $root = document.documentElement
-    let size = ($win.innerWidth/designWidth) * max
+    const win_rect = Ti.Rects.createBy($win)
+    let size = (win_rect.width/designWidth) * max
     let fontSize = Math.min(Math.max(size,min), max)
     // apply the mark
     if(_.isFunction(callback)) {
-      let mode = $win.innerWidth > tabletMaxWidth
+      let mode = win_rect.width > tabletMaxWidth
                   ? "desktop"
-                  : ($win.innerWidth > phoneMaxWidth
+                  : (win_rect.width > phoneMaxWidth
                       ? "tablet" : "phone")
       callback({
         $win, $doc, $root, mode, fontSize,
-        width  : $win.innerWidth,
-        height : $win.innerHeight
+        width  : win_rect.width,
+        height : win_rect.height
       })
     }
   },

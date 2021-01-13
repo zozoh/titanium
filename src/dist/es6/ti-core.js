@@ -1,4 +1,4 @@
-// Pack At: 2021-01-11 18:45:17
+// Pack At: 2021-01-14 02:05:29
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3399,18 +3399,19 @@ const {Dom} = (function(){
     }={}) {
       const $doc  = window.document
       const $root = document.documentElement
-      let size = ($win.innerWidth/designWidth) * max
+      const win_rect = Ti.Rects.createBy($win)
+      let size = (win_rect.width/designWidth) * max
       let fontSize = Math.min(Math.max(size,min), max)
       // apply the mark
       if(_.isFunction(callback)) {
-        let mode = $win.innerWidth > tabletMaxWidth
+        let mode = win_rect.width > tabletMaxWidth
                     ? "desktop"
-                    : ($win.innerWidth > phoneMaxWidth
+                    : (win_rect.width > phoneMaxWidth
                         ? "tablet" : "phone")
         callback({
           $win, $doc, $root, mode, fontSize,
-          width  : $win.innerWidth,
-          height : $win.innerHeight
+          width  : win_rect.width,
+          height : win_rect.height
         })
       }
     },
@@ -4387,8 +4388,8 @@ const {Rect,Rects} = (function(){
         let $win = Ti.Dom.ownerWindow($el)
         return new Rect({
           top : 0, left: 0,
-          width  : $win.innerWidth,
-          height : $win.innerHeight
+          width  : $win.document.documentElement.clientWidth,
+          height : $win.document.documentElement.clientHeight
         })
       }
       // Element
@@ -12003,7 +12004,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20210111.184517",
+  "version" : "2.5-20210114.020529",
   "dev" : false,
   "appName" : null,
   "session" : {},

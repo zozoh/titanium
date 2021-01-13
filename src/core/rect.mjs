@@ -729,8 +729,8 @@ export const TiRects = {
       let $win = Ti.Dom.ownerWindow($el)
       return new Rect({
         top : 0, left: 0,
-        width  : $win.innerWidth,
-        height : $win.innerHeight
+        width  : $win.document.documentElement.clientWidth,
+        height : $win.document.documentElement.clientHeight
       })
     }
     // Element
