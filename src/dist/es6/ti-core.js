@@ -1,4 +1,4 @@
-// Pack At: 2021-01-14 02:05:29
+// Pack At: 2021-01-18 19:21:01
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10290,6 +10290,34 @@ const {DateTime} = (function(){
       return Ti.S.renderBy(tmpl, context)
     },
     //---------------------------------------
+    rangeFrom({from, to}={}, tmpl='[${from},${to}]') {
+      let amss = []
+      if(from) {
+        amss[0] = TiDateTime.parse(from).getTime()
+      }
+      if(to) {
+        amss[1] = TiDateTime.parse(to).getTime()
+      }
+      if(0 == amss.length) {
+        amss[1] = Date.now()
+      }
+      if(!amss[0]) {
+        amss[0] = amss[1] - 86400000;
+      }
+      if(!amss[1]) {
+        amss[1] = amss[0] + 86400000;
+      }
+      let [ms0, ms1] = amss
+      amss[0] = Math.min(ms0, ms1)
+      amss[1] = Math.max(ms0, ms1)
+  
+      let context = {
+        from : amss[0], 
+        to   : amss[1]
+      }
+      return Ti.S.renderBy(tmpl, context)
+    },
+    //---------------------------------------
     /**
      * Given date time in range
      * 
@@ -11506,6 +11534,8 @@ const {VueTiCom} = (function(){
           else if(_.isFunction(binding.value)) {
             handler = binding.value
           }
+          if(!handler)
+            return
           if(showMask) {
             maskHtml = Ti.I18n.text(
               maskHtml || "i18n:drop-file-here-to-upload"
@@ -11726,7 +11756,7 @@ const {WalnutAppMain} = (function(){
     if(tiConf.css) {
       let exCssList = [].concat(tiConf.css)
       for(let css of exCssList) {
-        let cssPath = _.template(css)({theme})
+        let cssPath = Ti.S.renderBy(css, {theme})
         await Ti.Load(cssPath)
       }
     }
@@ -12004,7 +12034,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "2.5-20210114.020529",
+  "version" : "2.5-20210118.192101",
   "dev" : false,
   "appName" : null,
   "session" : {},

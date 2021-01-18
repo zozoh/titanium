@@ -43,6 +43,20 @@ export default {
       lng: 116.3385673945887
     })
   },
+  "objValue" : {
+    type : [Array, Object],
+    default : undefined
+  },
+  "objType" : {
+    type : String,
+    default : "obj",
+    validator: v => /^(geojson|(obj|pair)(-list)?)$/.test(v)
+  },
+  "objDisplay" : {
+    type : String,
+    default : "Point",
+    validator: v => /^(Point|Cluster|Polyline|Polygon|Rectangle|Circle|GeoJson)$/.test(v)
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -65,10 +79,6 @@ export default {
   "mapOptions" : {
     type : Object,
     default : ()=>({})
-  },
-  "showMarker" : {
-    type : Boolean,
-    default : false
   },
   "editPoint" : {
     type : String,
@@ -94,6 +104,10 @@ export default {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "showMarker" : {
+    type : Boolean,
+    default : false
+  },
   "markerIcon" : {
     type : [String, Object],
     //default : "png/map-pin-1.png"
@@ -109,6 +123,30 @@ export default {
   // Function : customized HTML
   "markerPopup" : undefined,
   "markerPopupOptions" : {
+    type : Object,
+    default: ()=>({
+      offset : [0, -40]
+    })
+  },
+  "objShowMarker" : {
+    type : Boolean,
+    default : false
+  },
+  "objMarkerIcon" : {
+    type : [String, Object],
+    //default : "png/map-pin-1.png"
+    default : undefined
+  },
+  "objMarkerIconOptions" : {
+    type : Object,
+    default: ()=>({})
+  },
+  // String : html template
+  // Array  : list
+  // Object : pair table
+  // Function : customized HTML
+  "objMarkerPopup" : undefined,
+  "objMarkerPopupOptions" : {
     type : Object,
     default: ()=>({
       offset : [0, -40]

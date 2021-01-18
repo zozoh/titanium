@@ -64,64 +64,33 @@ export default {
         return null
       }
 
-      // Format the value
-      return ({
-        //..................................
-        "obj" : (latlng)=>{
-          latlng = latlng || this.defaultLocation
-          if(this.coords_value_to_tiles) {
-            return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
-          }
-          return latlng
-        },
-        //..................................
-        "obj-list" : (list=[])=>{
-          if(!list)
-            return []
-          if(this.coords_value_to_tiles) {
-            return _.map(list, (latlng)=>{
-              return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
-            })
-          }
-          return list
-        },
-        //..................................
-        "pair" : (latlng)=>{
-          latlng = latlng || Ti.GIS.objToLatlngPair(this.defaultLocation)
-          if(this.coords_value_to_tiles) {
-            return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
-          }
-          return latlng
-        },
-        //..................................
-        "pair-list" : (list=[]) => {
-          if(!list)
-            return []
-          if(this.coords_value_to_tiles) {
-            return _.map(list, (latlng)=>{
-              return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
-            })
-          }
-          return list
-        },
-        //..................................
-        "geojson" : (geojson) => {
-          if(!geojson) {
-            return {
-              type : "Point",
-              coordinates : Ti.GIS.objToLnglatPair(this.defaultLocation)
-            }
-          }
-
-          // TODO here to translate coords for geojson
-          return geojson
-        }
-        //..................................
-      })[this.valueType](val)
+      return this.evalMapData({
+        val, 
+        valType : this.valueType, 
+        dftLo   : this.defaultLocation
+      })
     },
     //--------------------------------------
     hasMapData() {
       return !_.isEmpty(this.MapData)
+    },
+    //--------------------------------------
+    RedrawObjName(){
+      return _.snakeCase("draw_" + this.objType + "_as_" + this.objDisplay)
+    },
+    //--------------------------------------
+    ObjData() {
+      if(this.objValue) {
+        return this.evalMapData({
+          val     : this.objValue, 
+          valType : this.objType, 
+          dftLo   : undefined
+        })
+      }
+    },
+    //--------------------------------------
+    hasObjData() {
+      return !_.isEmpty(this.ObjData)
     },
     //--------------------------------------
     isShowInfo() {
@@ -196,11 +165,93 @@ export default {
       if(this.hasMapData) {
         let func = this[this.RedrawFuncName]
         if(_.isFunction(func)) {
-          func(this.MapData)
+          func(this.MapData, {
+            autoFitBounds      : this.autoFitBounds,
+            showMarker         : this.showMarker,
+            markerIcon         : this.markerIcon,
+            markerIconOptions  : this.markerIconOptions,
+            markerPopup        : this.markerPopup,
+            markerPopupOptions : this.markerPopupOptions
+          })
         } else {
           throw `Invalid RedrawFuncName="${this.RedrawFuncName}"`
         }
       }
+
+      // Draw obj
+      if(this.hasObjData) {
+        let func = this[this.RedrawObjName]
+        if(_.isFunction(func)) {
+          func(this.ObjData, {
+            showMarker         : this.objShowMarker,
+            markerIcon         : this.objMarkerIcon,
+            markerIconOptions  : this.objMarkerIconOptions,
+            markerPopup        : this.objMarkerPopup,
+            markerPopupOptions : this.objMarkerPopupOptions
+          })
+        }
+      }
+    },
+    //--------------------------------------
+    //
+    // GEO Function
+    //
+    //--------------------------------------
+    evalMapData({val, valType="obj", dftLo}={}) {
+      // Format the value
+      return ({
+        //..................................
+        "obj" : (latlng)=>{
+          latlng = latlng || dftLo
+          if(this.coords_value_to_tiles) {
+            return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
+          }
+          return latlng
+        },
+        //..................................
+        "obj-list" : (list=[])=>{
+          if(!list)
+            return []
+          if(this.coords_value_to_tiles) {
+            return _.map(list, (latlng)=>{
+              return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
+            })
+          }
+          return list
+        },
+        //..................................
+        "pair" : (latlng)=>{
+          latlng = latlng || Ti.GIS.objToLatlngPair(dftLo)
+          if(this.coords_value_to_tiles) {
+            return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
+          }
+          return latlng
+        },
+        //..................................
+        "pair-list" : (list=[]) => {
+          if(!list)
+            return []
+          if(this.coords_value_to_tiles) {
+            return _.map(list, (latlng)=>{
+              return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
+            })
+          }
+          return list
+        },
+        //..................................
+        "geojson" : (geojson) => {
+          if(!geojson) {
+            return {
+              type : "Point",
+              coordinates : Ti.GIS.objToLnglatPair(dftLo)
+            }
+          }
+
+          // TODO here to translate coords for geojson
+          return geojson
+        }
+        //..................................
+      })[valType](val)
     },
     //--------------------------------------
     //
@@ -302,6 +353,10 @@ export default {
       }
       return pair
     },
+    //--------------------------------------
+    //
+    // Map Methods
+    //
     //--------------------------------------
     fitBounds(bounds) {
       this.$map.fitBounds(bounds, this.fitBoundsBy)

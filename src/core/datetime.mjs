@@ -265,6 +265,34 @@ const TiDateTime = {
     return Ti.S.renderBy(tmpl, context)
   },
   //---------------------------------------
+  rangeFrom({from, to}={}, tmpl='[${from},${to}]') {
+    let amss = []
+    if(from) {
+      amss[0] = TiDateTime.parse(from).getTime()
+    }
+    if(to) {
+      amss[1] = TiDateTime.parse(to).getTime()
+    }
+    if(0 == amss.length) {
+      amss[1] = Date.now()
+    }
+    if(!amss[0]) {
+      amss[0] = amss[1] - 86400000;
+    }
+    if(!amss[1]) {
+      amss[1] = amss[0] + 86400000;
+    }
+    let [ms0, ms1] = amss
+    amss[0] = Math.min(ms0, ms1)
+    amss[1] = Math.max(ms0, ms1)
+
+    let context = {
+      from : amss[0], 
+      to   : amss[1]
+    }
+    return Ti.S.renderBy(tmpl, context)
+  },
+  //---------------------------------------
   /**
    * Given date time in range
    * 

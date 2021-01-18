@@ -1,4 +1,4 @@
-// Pack At: 2021-01-14 02:05:29
+// Pack At: 2021-01-18 19:21:01
 (function(){
 //============================================================
 // JOIN: hmaker/config/io/detail/config-io-detail.html
@@ -8824,7 +8824,7 @@ const _M = {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "fas-dna",
+      icon : "fab-deezer",
       text : "i18n:empty"
     })
   },
@@ -10273,6 +10273,16 @@ const _M = {
       })
     },
     //--------------------------------------
+    $current() {
+      return _.nth(this.$children, 0)
+    },
+    //--------------------------------------
+    $currentMain() {
+      let $block = this.$current()
+      if($block)
+        return $block.$main()
+    },
+    //--------------------------------------
     syncCurrentTabFromShown() {
       //console.log("syncCurrentTabFromShown")
       for(let wrap of this.BlockWrapList) {
@@ -10496,50 +10506,57 @@ Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
     <!--
       Layout as rows
     -->
-    <ti-gui-rows v-if="isRowsLayout"
-      class="ti-fill-parent"
-      v-bind="TheLayout"
-      :schema="schema"
-      :shown="TheShown"
-      :default-flex="defaultFlex"
-      :action-status="actionStatus"/>
+    <ti-gui-rows 
+      v-if="isRowsLayout"
+        class="ti-fill-parent"
+        v-bind="TheLayout"
+        :schema="schema"
+        :shown="TheShown"
+        :default-flex="defaultFlex"
+        :action-status="actionStatus"
+        :on-init="OnMainTypeInit"/>
     <!--
       Layout as cols
     -->
-    <ti-gui-cols v-else-if="isColsLayout"
-      class="ti-fill-parent"
-      v-bind="TheLayout"
-      :schema="schema"
-      :shown="TheShown"
-      :default-flex="defaultFlex"
-      :action-status="actionStatus"/>
+    <ti-gui-cols 
+      v-else-if="isColsLayout"
+        class="ti-fill-parent"
+        v-bind="TheLayout"
+        :schema="schema"
+        :shown="TheShown"
+        :default-flex="defaultFlex"
+        :action-status="actionStatus"
+        :on-init="OnMainTypeInit"/>
     <!--
       Layout as tabs
     -->
-    <ti-gui-tabs v-else-if="isTabsLayout"
-      class="ti-fill-parent"
-      v-bind="TheLayout"
-      :schema="schema"
-      :shown="TheShown"
-      :default-flex="defaultFlex"
-      :action-status="actionStatus"/>
+    <ti-gui-tabs 
+      v-else-if="isTabsLayout"
+        class="ti-fill-parent"
+        v-bind="TheLayout"
+        :schema="schema"
+        :shown="TheShown"
+        :default-flex="defaultFlex"
+        :action-status="actionStatus"
+        :on-init="OnMainTypeInit"/>
   </div>
   <!--===========================================
     All float panels
   -->
-  <template v-for="pan in ThePanels">
-    <transition :name="pan.transName">
-      <ti-gui-panel
-        v-if="pan.visible"
-          :key="pan.key"
-          v-bind="pan.panel"
-          :viewport-width="myViewportWidth"
-          :viewport-height="myViewportHeight"
-          :schema="schema"
-          :shown="TheShown"
-          :default-flex="defaultFlex"
-          :action-status="actionStatus"/>
-    </transition>
+  <template 
+    v-for="pan in ThePanels">
+      <transition :name="pan.transName">
+        <ti-gui-panel
+          v-if="pan.visible"
+            :key="pan.key"
+            v-bind="pan.panel"
+            :viewport-width="myViewportWidth"
+            :viewport-height="myViewportHeight"
+            :schema="schema"
+            :shown="TheShown"
+            :default-flex="defaultFlex"
+            :action-status="actionStatus"/>
+      </transition>
   </template>
   <!--===========================================
     Loading
@@ -10562,6 +10579,7 @@ const _M = {
   },
   /////////////////////////////////////////
   data: ()=>({
+    $inner : undefined,
     myShown : {},
     myViewportWidth  : 0,
     myViewportHeight : 0,
@@ -10660,6 +10678,13 @@ const _M = {
     isColsLayout() {return "cols"==this.TheLayout.type},
     isTabsLayout() {return "tabs"==this.TheLayout.type},
     //--------------------------------------
+    BlockNames() {
+      if(!this.layout) {
+        return {}
+      }
+      return this.joinBlockNames({}, this.layout.blocks)
+    },
+    //--------------------------------------
     ThePanels() {
       let list = []
 
@@ -10698,6 +10723,22 @@ const _M = {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnMainTypeInit($innerCom) {
+      this.$inner = $innerCom
+    },
+    //--------------------------------------
+    joinBlockNames(names={}, blocks=[]) {
+      _.forEach(blocks, ({name, blocks}={}) => {
+        if(name) {
+          names[name] = true
+        }
+        if(_.isArray(blocks)) {
+          this.joinBlockNames(names, blocks)
+        }
+      })
+      return names;
+    },
     //--------------------------------------
     isShown(...names) {
       for(let name of names) {
@@ -10763,10 +10804,20 @@ const _M = {
       }
     },
     //--------------------------------------
+    filterShown(shown={}) {
+      return _.omitBy(shown, (v, k)=>{
+        if(!v)
+          return true
+        if(!this.BlockNames[k])
+          return true
+        return false
+      })
+    },
+    //--------------------------------------
     syncMyShown(...showns) {
       if(this.keepShownTo) {
-        this.myShown = _.assign({}, this.myShown, ...showns)
-
+        let shown  = _.assign({}, this.myShown, ...showns)
+        this.myShown = shown
         if(this.shownEmitName) {
           this.$emit(this.shownEmitName, this.myShown)
         }
@@ -10779,7 +10830,7 @@ const _M = {
     //--------------------------------------
     persistMyStatus() {
       if(this.keepShownTo) {
-        let shown = _.omitBy(this.myShown, (v)=>!v)
+        let shown = this.filterShown(this.myShown)
         Ti.Storage.session.setObject(this.keepShownTo, shown)
       }
     },
@@ -24295,7 +24346,7 @@ const _M = {
   },
   "value" : {
     type : String,
-    default : ""
+    default : undefined
   }, 
   //...............................................
   // Behavior
@@ -24340,11 +24391,23 @@ const _M = {
     default: "left",
     validator : v => /^(left|right|center)$/.test(v)
   },
+  "loadingAs" : {
+    type : Object,
+    default : ()=>({
+      className : "as-nil-mask as-big-mask",
+      icon : undefined,
+      text : undefined
+    })
+  },
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "fas-coffee",
-      text : null
+      comType : "TiLoading",
+      comConf : {
+        className : "as-nil-mask as-big-mask",
+        icon : "fas-coffee",
+        text : null
+      }
     })
   }
 }
@@ -24360,12 +24423,12 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.html", `<d
     Toolbar
   -->
   <ti-actionbar 
-    v-if="hasToolbar"
-      class="as-toolbar"
-      :items="ToolbarMenuData" 
-      :align="toolbarAlign"
-      :status="myToolbarStatus"
-      @change="OnToolbarChange"/>
+  v-if="hasToolbar"
+    class="as-toolbar"
+    :items="ToolbarMenuData" 
+    :align="toolbarAlign"
+    :status="myToolbarStatus"
+    @change="OnToolbarChange"/>
   <!--
     Stage
   -->
@@ -24374,12 +24437,20 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.html", `<d
     spellcheck="false"
     :class="ThemeClass"></div>
   <!--
-    Cover when nil
+    Show loading
   -->
-  <ti-loading
-    v-if="isNilContent"
+  <TiLoading
+    v-if="isContentLoading"
       class="as-nil-mask as-big-mask"
-      v-bind="blankAs"/>
+      v-bind="loadingAs"/>
+  <!--
+    Show blank
+  -->
+  <component
+    v-else-if="isContentNil"
+      :style="BlankComStyle"
+      :is="blankAs.comType"
+      v-bind="blankAs.comConf"/>
 </div>`);
 //============================================================
 // JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor.mjs
@@ -24414,27 +24485,27 @@ const BUILTIN_TOOLBAR_ACTIONS = {
   //.........................................
   "B" : {
     icon : "fas-bold",
-    notify: "bold",
+    notifyChange: "bold",
     highlight : "bold",
     disabled : "italic"
   },
   //.........................................
   "I" : {
     icon : "fas-italic",
-    notify : "italic",
+    notifyChange : "italic",
     highlight : "italic",
     disabled : "bold"
   },
   //.........................................
   "Link" : {
     icon : "fas-link",
-    notify : "link",
+    notifyChange : "link",
     highlight : "link"
   },
   //.........................................
   "Code" : {
     icon : "zmdi-code",
-    notify : "code",
+    notifyChange : "code",
     highlight : "code"
   },
   //.........................................
@@ -24444,37 +24515,37 @@ const BUILTIN_TOOLBAR_ACTIONS = {
     text : "i18n:wordp-heading",
     items : [{
         text: "i18n:wordp-h1",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h1",
         value: 1
       }, {
         text: "i18n:wordp-h2",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h2",
         value: 2
       }, {
         text: "i18n:wordp-h3",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h3",
         value: 3
       }, {
         text: "i18n:wordp-h4",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h4",
         value: 4
       }, {
         text: "i18n:wordp-h5",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h5",
         value: 5
       }, {
         text: "i18n:wordp-h6",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h6",
         value: 6
       }, {
         text: "i18n:wordp-h0",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h0",
         value:  0
       }]
@@ -24482,36 +24553,36 @@ const BUILTIN_TOOLBAR_ACTIONS = {
   //.........................................
   "BlockQuote" : {
     icon : "fas-quote-right",
-    notify : "blockquote",
+    notifyChange : "blockquote",
     highlight : "blockquote"
   },
   //.........................................
   "CodeBlock" : {
     icon : "fas-code",
-    notify : "code_block",
+    notifyChange : "code_block",
     highlight : "code-block"
   },
   //.........................................
   "Indent" : {
     icon : "fas-indent",
-    notify: "indent"
+    notifyChange: "indent"
   },
   //.........................................
   "Outdent" : {
     icon : "fas-outdent",
-    notify: "outdent"
+    notifyChange: "outdent"
   },
   //.........................................
   "UL" : {
     icon : "fas-list-ul",
-    notify : "list",
+    notifyChange : "list",
     value : "bullet",
     highlight: {list:"bullet"}
   },
   //.........................................
   "OL" : {
     icon : "fas-list-ol",
-    notify : "list",
+    notifyChange : "list",
     value : "ordered",
     highlight: {list:"ordered"}
   }
@@ -24530,8 +24601,8 @@ const _M = {
     //-----------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "nil-content" : this.isNilContent,
-        "has-content" : !this.isNilContent
+        "nil-content" : this.isContentNil,
+        "has-content" : !this.isContentNil
       })
     },
     //-----------------------------------------------
@@ -24549,8 +24620,19 @@ const _M = {
       return !_.isEmpty(this.ToolbarMenuData)
     },
     //-----------------------------------------------
-    isNilContent() {
+    isContentLoading() {
+      return _.isUndefined(this.value)
+    },
+    //-----------------------------------------------
+    isContentNil() {
       return Ti.Util.isNil(this.value)
+    },
+    //-----------------------------------------------
+    BlankComStyle() {
+      return {
+        position: "absolute",
+        top:0, right:0, bottom:0, left:0
+      }
     },
     //-----------------------------------------------
     ToolbarActions() {
@@ -24756,7 +24838,7 @@ const _M = {
       //console.log("changed", JSON.stringify(delta, null, '  '))
       //console.log("quillChanged")
       // Guard
-      if(this.isNilContent) {
+      if(this.isContentNil) {
         return
       }
 
@@ -24830,8 +24912,8 @@ const _M = {
       }, 1000)
       //.............................................
       this.$editor.on("text-change", (newDelta, oldDelta, source)=>{
-        //console.log("text-change",this.isNilContent, _.cloneDeep({newDelta, oldDelta}))
-        if(!this.isNilContent) {
+        //console.log("text-change",this.isContentNil, _.cloneDeep({newDelta, oldDelta}))
+        if(!this.isContentNil) {
           this.debounceQuillChanged(newDelta, oldDelta)
         }
       })
@@ -24847,8 +24929,8 @@ const _M = {
     "value" : {
       handler : "syncMarkdown"
     },
-    "isNilContent": function(newVal, oldVal){
-      //console.log("isNilContent", newVal, oldVal)
+    "isContentNil": function(newVal, oldVal){
+      //console.log("isContentNil", newVal, oldVal)
       if(newVal) {
         this.syncForbid = 0
       }
@@ -29011,17 +29093,22 @@ Ti.Preload("ti/com/web/gis/leaflet/leaflet-mock-methods.mjs", _M);
 (function(){
 const _M = {
   //--------------------------------------
-  __customize_marker_behaviors($marker, obj={}) {
+  __customize_marker_behaviors($marker, obj={}, {
+    markerIcon,
+    markerIconOptions,
+    markerPopup,
+    markerPopupOptions
+  }={}) {
     // Customized Icon
-    if(this.markerIcon) {
-      let icon = Ti.Util.explainObj(obj, this.markerIcon)
+    if(markerIcon) {
+      let icon = Ti.Util.explainObj(obj, markerIcon)
       if(icon) {
-        $marker.setIcon(this.Icon(icon, this.markerIconOptions))
+        $marker.setIcon(this.Icon(icon, markerIconOptions))
       }
     }
     // Customized popup
     if(this.markerPopup) {
-      let popup = Ti.Util.explainObj(obj, this.markerPopup, {
+      let popup = Ti.Util.explainObj(obj, markerPopup, {
         evalFunc : true
       })
       // Eval the html
@@ -29045,7 +29132,7 @@ const _M = {
       }
 
       // HTML
-      $marker.bindPopup(html, this.markerPopupOptions).openPopup();
+      $marker.bindPopup(html, markerPopupOptions).openPopup();
     }
   },
   //--------------------------------------
@@ -29053,7 +29140,8 @@ const _M = {
   // Single Point
   //
   //--------------------------------------
-  draw_obj_as_point(latlng, convert=_.identity) {
+  draw_obj_as_point(latlng, setup) {
+    let convert = _.get(setup, "convert") || _.identity
     let $marker = L.marker(latlng, {
       autoPan : true
     }).addTo(this.$live)
@@ -29089,20 +29177,22 @@ const _M = {
     }
 
     // Customized Icon
-    this.__customize_marker_behaviors($marker, latlng)
+    this.__customize_marker_behaviors($marker, latlng, setup)
 
     return $marker
   },
   //--------------------------------------
-  draw_pair_as_point(latlng) {
-    return this.draw_obj_as_point(latlng, ({lat, lng})=>[lat, lng])
+  draw_pair_as_point(latlng, setup={}) {
+    setup.convert = ({lat, lng})=>[lat, lng]
+    return this.draw_obj_as_point(latlng, setup)
   },
   //--------------------------------------
   //
   // Multi Points
   //
   //--------------------------------------
-  draw_obj_list_as_point(list, convert=_.identity) {
+  draw_obj_list_as_point(list, setup) {
+    let convert = _.get(setup, "convert") || _.identity
     _.forEach(list, (latlng, index)=>{
       let $marker = L.marker(latlng, {
         autoPan : true
@@ -29130,39 +29220,40 @@ const _M = {
       }
   
       // Customized Icon
-      this.__customize_marker_behaviors($marker, latlng)
+      this.__customize_marker_behaviors($marker, latlng, setup)
     })
   },
   //--------------------------------------
-  draw_pair_list_as_point(list) {
-    this.draw_obj_list_as_point(list, ({lat, lng})=>[lat, lng])
+  draw_pair_list_as_point(list, setup={}) {
+    setup.convert = ({lat, lng})=>[lat, lng]
+    this.draw_obj_list_as_point(list, setup)
   },
   //--------------------------------------
   //
   // Polyline
   //
   //--------------------------------------
-  draw_obj_list_as_polyline(latlngs, showMarker=this.showMarker) {
+  draw_obj_list_as_polyline(latlngs, setup={}) {
     let $polyline = this.draw_pair_list_as_polyline(latlngs, false)
 
-    if(showMarker) {
+    if(setup.showMarker) {
       this.draw_obj_list_as_point(latlngs)
     }
 
     return $polyline
   },
   //--------------------------------------
-  draw_pair_list_as_polyline(latlngs, showMarker=this.showMarker) {
+  draw_pair_list_as_polyline(latlngs, setup={}) {
     let $polyline = L.polyline(latlngs, {
       color: '#08F',
       ... this.aspect
     }).addTo(this.$live);
 
-    if(showMarker) {
+    if(setup.showMarker) {
       this.draw_pair_list_as_point(latlngs)
     }
 
-    if(this.autoFitBounds) {
+    if(setup.autoFitBounds) {
       this.fitBounds($polyline.getBounds());
     }
 
@@ -29173,27 +29264,27 @@ const _M = {
   // Polygon
   //
   //--------------------------------------
-  draw_obj_list_as_polygon(latlngs, showMarker=this.showMarker) {
-    let $polygon = this.draw_pair_list_as_polygon(latlngs, false)
+  draw_obj_list_as_polygon(latlngs, setup={}) {
+    let $polygon = this.draw_pair_list_as_polygon(latlngs, setup)
 
-    if(showMarker) {
-      this.draw_obj_list_as_point(latlngs)
+    if(setup.showMarker) {
+      this.draw_obj_list_as_point(latlngs, setup)
     }
 
     return $polygon
   },
   //--------------------------------------
-  draw_pair_list_as_polygon(latlngs, showMarker=this.showMarker) {
+  draw_pair_list_as_polygon(latlngs, setup={}) {
     let $polygon = L.polygon(latlngs, {
       color: '#08F',
       ... this.aspect
     }).addTo(this.$live);
 
-    if(showMarker) {
-      this.draw_pair_list_as_point(latlngs)
+    if(setup.showMarker) {
+      this.draw_pair_list_as_point(latlngs, setup)
     }
 
-    if(this.autoFitBounds) {
+    if(setup.autoFitBounds) {
       this.fitBounds($polygon.getBounds());
     }
 
@@ -29204,32 +29295,32 @@ const _M = {
   // Rectangle
   //
   //--------------------------------------
-  draw_obj_list_as_rectangle(latlngs, showMarker=this.showMarker) {
+  draw_obj_list_as_rectangle(latlngs, setup={}) {
     let [SW, NE] = latlngs
     let $rect = L.rectangle([SW, NE], {
       color: '#08F',
       ... this.aspect
     }).addTo(this.$live);
 
-    if(showMarker) {
-      this.draw_obj_list_as_point([SW, NE])
+    if(setup.showMarker) {
+      this.draw_obj_list_as_point([SW, NE], setup)
     }
 
-    if(this.autoFitBounds) {
+    if(setup.autoFitBounds) {
       this.fitBounds($rect.getBounds());
     }
 
     return $rect
   },
   //--------------------------------------
-  draw_pair_list_as_rectangle(latlngs, showMarker=this.showMarker) {
+  draw_pair_list_as_rectangle(latlngs, setup={}) {
     let $rect = this.draw_obj_list_as_rectangle(latlngs, false)
 
-    if(showMarker) {
+    if(setup.showMarker) {
       let bounds = $rect.getBounds()
       let SW = bounds.getSouthWest()
       let NE = bounds.getNorthEast()
-      this.draw_pair_list_as_point([SW, NE])
+      this.draw_pair_list_as_point([SW, NE], setup)
     }
 
     return $rect
@@ -29239,29 +29330,29 @@ const _M = {
   // Circle
   //
   //--------------------------------------
-  draw_obj_as_circle(latlng, showMarker=this.showMarker) {
+  draw_obj_as_circle(latlng, setup={}) {
     let $circle = L.circle(latlng, {
       radius : this.circleRadius,
       color: '#08F',
       ... this.aspect
     }).addTo(this.$live);
 
-    if(showMarker) {
+    if(setup.showMarker) {
       this.draw_obj_as_point(latlng)
     }
 
-    if(this.autoFitBounds) {
+    if(setup.autoFitBounds) {
       this.fitBounds($circle.getBounds());
     }
 
     return $circle
   },
   //--------------------------------------
-  draw_pair_as_circle(latlng, showMarker=this.showMarker) {
-    let $circle = this.draw_obj_as_circle(latlng, false)
+  draw_pair_as_circle(latlng, setup={}) {
+    let $circle = this.draw_obj_as_circle(latlng, setup)
 
-    if(showMarker) {
-      this.draw_pair_as_point(latlng)
+    if(setup.showMarker) {
+      this.draw_pair_as_point(latlng, setup)
     }
 
     return $circle
@@ -29271,7 +29362,7 @@ const _M = {
   // Cluster
   //
   //--------------------------------------
-  draw_obj_list_as_cluster(latlngs) {
+  draw_obj_list_as_cluster(latlngs, setup) {
     var $cluster = L.markerClusterGroup();
 
     _.forEach(latlngs, (latlng, index)=>{
@@ -29284,7 +29375,7 @@ const _M = {
       $marker.rawData = latlng
     
       // Customized Icon
-      this.__customize_marker_behaviors($marker, latlng)
+      this.__customize_marker_behaviors($marker, latlng, setup)
     })
 
     this.$live.addLayer($cluster)
@@ -29292,8 +29383,8 @@ const _M = {
     return $cluster
   },
   //--------------------------------------
-  draw_pair_list_as_cluster(latlngs) {
-    return this.draw_obj_list_as_cluster(latlngs)
+  draw_pair_list_as_cluster(latlngs, setup) {
+    return this.draw_obj_list_as_cluster(latlngs, setup)
   },
   //--------------------------------------
 }
@@ -29489,6 +29580,20 @@ const _M = {
       lng: 116.3385673945887
     })
   },
+  "objValue" : {
+    type : [Array, Object],
+    default : undefined
+  },
+  "objType" : {
+    type : String,
+    default : "obj",
+    validator: v => /^(geojson|(obj|pair)(-list)?)$/.test(v)
+  },
+  "objDisplay" : {
+    type : String,
+    default : "Point",
+    validator: v => /^(Point|Cluster|Polyline|Polygon|Rectangle|Circle|GeoJson)$/.test(v)
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -29511,10 +29616,6 @@ const _M = {
   "mapOptions" : {
     type : Object,
     default : ()=>({})
-  },
-  "showMarker" : {
-    type : Boolean,
-    default : false
   },
   "editPoint" : {
     type : String,
@@ -29540,6 +29641,10 @@ const _M = {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "showMarker" : {
+    type : Boolean,
+    default : false
+  },
   "markerIcon" : {
     type : [String, Object],
     //default : "png/map-pin-1.png"
@@ -29555,6 +29660,30 @@ const _M = {
   // Function : customized HTML
   "markerPopup" : undefined,
   "markerPopupOptions" : {
+    type : Object,
+    default: ()=>({
+      offset : [0, -40]
+    })
+  },
+  "objShowMarker" : {
+    type : Boolean,
+    default : false
+  },
+  "objMarkerIcon" : {
+    type : [String, Object],
+    //default : "png/map-pin-1.png"
+    default : undefined
+  },
+  "objMarkerIconOptions" : {
+    type : Object,
+    default: ()=>({})
+  },
+  // String : html template
+  // Array  : list
+  // Object : pair table
+  // Function : customized HTML
+  "objMarkerPopup" : undefined,
+  "objMarkerPopupOptions" : {
     type : Object,
     default: ()=>({
       offset : [0, -40]
@@ -29724,64 +29853,33 @@ const _M = {
         return null
       }
 
-      // Format the value
-      return ({
-        //..................................
-        "obj" : (latlng)=>{
-          latlng = latlng || this.defaultLocation
-          if(this.coords_value_to_tiles) {
-            return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
-          }
-          return latlng
-        },
-        //..................................
-        "obj-list" : (list=[])=>{
-          if(!list)
-            return []
-          if(this.coords_value_to_tiles) {
-            return _.map(list, (latlng)=>{
-              return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
-            })
-          }
-          return list
-        },
-        //..................................
-        "pair" : (latlng)=>{
-          latlng = latlng || Ti.GIS.objToLatlngPair(this.defaultLocation)
-          if(this.coords_value_to_tiles) {
-            return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
-          }
-          return latlng
-        },
-        //..................................
-        "pair-list" : (list=[]) => {
-          if(!list)
-            return []
-          if(this.coords_value_to_tiles) {
-            return _.map(list, (latlng)=>{
-              return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
-            })
-          }
-          return list
-        },
-        //..................................
-        "geojson" : (geojson) => {
-          if(!geojson) {
-            return {
-              type : "Point",
-              coordinates : Ti.GIS.objToLnglatPair(this.defaultLocation)
-            }
-          }
-
-          // TODO here to translate coords for geojson
-          return geojson
-        }
-        //..................................
-      })[this.valueType](val)
+      return this.evalMapData({
+        val, 
+        valType : this.valueType, 
+        dftLo   : this.defaultLocation
+      })
     },
     //--------------------------------------
     hasMapData() {
       return !_.isEmpty(this.MapData)
+    },
+    //--------------------------------------
+    RedrawObjName(){
+      return _.snakeCase("draw_" + this.objType + "_as_" + this.objDisplay)
+    },
+    //--------------------------------------
+    ObjData() {
+      if(this.objValue) {
+        return this.evalMapData({
+          val     : this.objValue, 
+          valType : this.objType, 
+          dftLo   : undefined
+        })
+      }
+    },
+    //--------------------------------------
+    hasObjData() {
+      return !_.isEmpty(this.ObjData)
     },
     //--------------------------------------
     isShowInfo() {
@@ -29856,11 +29954,93 @@ const _M = {
       if(this.hasMapData) {
         let func = this[this.RedrawFuncName]
         if(_.isFunction(func)) {
-          func(this.MapData)
+          func(this.MapData, {
+            autoFitBounds      : this.autoFitBounds,
+            showMarker         : this.showMarker,
+            markerIcon         : this.markerIcon,
+            markerIconOptions  : this.markerIconOptions,
+            markerPopup        : this.markerPopup,
+            markerPopupOptions : this.markerPopupOptions
+          })
         } else {
           throw `Invalid RedrawFuncName="${this.RedrawFuncName}"`
         }
       }
+
+      // Draw obj
+      if(this.hasObjData) {
+        let func = this[this.RedrawObjName]
+        if(_.isFunction(func)) {
+          func(this.ObjData, {
+            showMarker         : this.objShowMarker,
+            markerIcon         : this.objMarkerIcon,
+            markerIconOptions  : this.objMarkerIconOptions,
+            markerPopup        : this.objMarkerPopup,
+            markerPopupOptions : this.objMarkerPopupOptions
+          })
+        }
+      }
+    },
+    //--------------------------------------
+    //
+    // GEO Function
+    //
+    //--------------------------------------
+    evalMapData({val, valType="obj", dftLo}={}) {
+      // Format the value
+      return ({
+        //..................................
+        "obj" : (latlng)=>{
+          latlng = latlng || dftLo
+          if(this.coords_value_to_tiles) {
+            return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
+          }
+          return latlng
+        },
+        //..................................
+        "obj-list" : (list=[])=>{
+          if(!list)
+            return []
+          if(this.coords_value_to_tiles) {
+            return _.map(list, (latlng)=>{
+              return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
+            })
+          }
+          return list
+        },
+        //..................................
+        "pair" : (latlng)=>{
+          latlng = latlng || Ti.GIS.objToLatlngPair(dftLo)
+          if(this.coords_value_to_tiles) {
+            return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
+          }
+          return latlng
+        },
+        //..................................
+        "pair-list" : (list=[]) => {
+          if(!list)
+            return []
+          if(this.coords_value_to_tiles) {
+            return _.map(list, (latlng)=>{
+              return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
+            })
+          }
+          return list
+        },
+        //..................................
+        "geojson" : (geojson) => {
+          if(!geojson) {
+            return {
+              type : "Point",
+              coordinates : Ti.GIS.objToLnglatPair(dftLo)
+            }
+          }
+
+          // TODO here to translate coords for geojson
+          return geojson
+        }
+        //..................................
+      })[valType](val)
     },
     //--------------------------------------
     //
@@ -29962,6 +30142,10 @@ const _M = {
       }
       return pair
     },
+    //--------------------------------------
+    //
+    // Map Methods
+    //
     //--------------------------------------
     fitBounds(bounds) {
       this.$map.fitBounds(bounds, this.fitBoundsBy)
@@ -36416,6 +36600,10 @@ const _M = {
     type : Object,
     default : undefined
   },
+  "acceptUpload" : {
+    type : Array,
+    default : undefined
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -36441,7 +36629,7 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist"
   v-ti-activable>
   <div
     class="list-con ti-fill-parent"
-    v-drop-files.mask="OnDropFiles">
+    v-drop-files.mask="UploadDragAndDropHandler">
     <!--==================================
       Show Loading
     -->
@@ -36477,6 +36665,7 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist"
       type="file" 
       ref="file" 
       class="ti-hide"
+      :accept="AcceptUploadFiles"
       multiple
       @change.stop.seft="OnSelectLocalFilesToUpload">
     <!--==================================
@@ -36611,6 +36800,17 @@ const _M = {
       return re
     },
     //--------------------------------------------
+    AcceptUploadFiles() {
+      if(this.acceptUpload) {
+        if(_.isString(this.acceptUpload)) {
+          return this.acceptUpload
+        }
+        if(_.isArray(this.acceptUpload)) {
+          return this.acceptUpload.join(",")
+        }
+      }
+    },
+    //--------------------------------------------
     /***
      * has uploading
      */
@@ -36620,6 +36820,12 @@ const _M = {
     //--------------------------------------------
     UploadingClass() {
       return this.hasUploading ? "up-show" : "up-hide"
+    },
+    //--------------------------------------------
+    UploadDragAndDropHandler() {
+      if(this.droppable) {
+        return this.OnDropFiles
+      }
     }
     //--------------------------------------------
   },  // ~ computed
@@ -36763,7 +36969,8 @@ const _M = {
       let meta = this.getCurrentItem() || this.meta
 
       if(!meta) {
-        return Ti.Toast.Open("i18n:nil-obj")
+        await Ti.Toast.Open("i18n:nil-obj")
+        return
       }
 
       let reo = await Wn.EditObjMeta(meta, {fields:"auto"})
@@ -36774,6 +36981,8 @@ const _M = {
         // TODO if update the "thumb" may need to force reload the preview
         // Update to list
         this.setItem(data)
+
+        return data
       }
     },
     //--------------------------------------------
@@ -40369,6 +40578,103 @@ Ti.Preload("ti/com/wn/obj/creation/_com.json", {
   "mixins" : ["./wn-obj-creation.mjs"]
 });
 //============================================================
+// JOIN: wn/obj/detail/wn-obj-detail.html
+//============================================================
+Ti.Preload("ti/com/wn/obj/detail/wn-obj-detail.html", `<TiGui
+  class="wn-obj-detail"
+  :class="TopClass"
+  :layout="Layout"
+  :schema="Schema"/>`);
+//============================================================
+// JOIN: wn/obj/detail/wn-obj-detail.mjs
+//============================================================
+(function(){
+const _M = {
+  /////////////////////////////////////////
+  props : {
+    "value" : {
+      type : Object,
+      default : undefined
+    },
+    "fields" : {
+      type : Array,
+      default : undefined
+    },
+    "preview" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "form" : {
+      type : Object,
+      default : ()=>({})
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    Layout() {
+      return {
+        type : "rows",
+        border: true,
+        blocks: [{
+            size : "37%",
+            body : "preview",
+          }, {
+            body : "form"
+          }]
+      }
+    },
+    //--------------------------------------
+    Schema() {
+      return {
+        preview : {
+          comType : "WnObjPreview",
+          comConf : {
+            ... this.preview,
+            meta : this.value
+          }
+        },
+        form : {
+          comType : "WnObjForm",
+          comConf : {
+            spacing : "tiny",
+            ... this.form,
+            fields : this.fields,
+            data : this.value
+          }
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+   
+    //--------------------------------------
+  }
+  /////////////////////////////////////////
+}
+Ti.Preload("ti/com/wn/obj/detail/wn-obj-detail.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/obj/detail/_com.json
+//============================================================
+Ti.Preload("ti/com/wn/obj/detail/_com.json", {
+  "name" : "wn-obj-detail",
+  "globally" : true,
+  "template" : "./wn-obj-detail.html",
+  "mixins" : ["./wn-obj-detail.mjs"],
+  "components" : [
+    "@com:wn/obj/form",
+    "@com:wn/obj/preview"
+  ]
+});
+//============================================================
 // JOIN: wn/obj/form/wn-obj-form-props.mjs
 //============================================================
 (function(){
@@ -41652,13 +41958,13 @@ Ti.Preload("ti/com/wn/obj/preview/wn-obj-preview.html", `<div class="wn-obj-prev
     </div>
   </div>
   <!--
-    Empty 
+    Blank 
   -->
-  <div v-else
-    class="ti-blank is-big">
-    <ti-icon value="fas-file-image"/>
-    <span>{{'nil-obj'|i18n}}</span>
-  </div>
+  <ti-loading
+    v-else
+      v-bind="blankAs"
+      class="ti-fill-parent"
+      :class="blankClass"/>
 </div>`);
 //============================================================
 // JOIN: wn/obj/preview/wn-obj-preview.mjs
@@ -41680,6 +41986,18 @@ const _M = {
     "status" : {
       type : Object,
       default : ()=>({})
+    },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "fas-braille",
+        text : "i18n:empty"
+      })
+    },
+    "blankClass": {
+      type: String,
+      default: "as-big",
+      validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
     },
     "actions" : {
       type : Array,
@@ -42690,105 +43008,6 @@ Ti.Preload("ti/com/wn/obj/tree/_com.json", {
   "template" : "./wn-obj-tree.html",
   "mixins"   : ["./wn-obj-tree.mjs"],
   "components" : ["@com:ti/tree"]
-});
-//============================================================
-// JOIN: wn/obj/uploader/wn-obj-uploader.html
-//============================================================
-Ti.Preload("ti/com/wn/obj/uploader/wn-obj-uploader.html", `<ti-uploader
-  :value="formedValue"/>`);
-//============================================================
-// JOIN: wn/obj/uploader/wn-obj-uploader.mjs
-//============================================================
-(function(){
-const _M = {
-  /////////////////////////////////////////
-  props : {
-    "value" : {
-      type : [String, Object, Array],
-      default : null
-    },
-    // true - support multiple object 
-    "multi" : {
-      type : Boolean,
-      default : true
-    },
-    // support remove the objects
-    "removable" : {
-      type : Boolean,
-      default : true
-    },
-    // Before removed, how many objects shuld be remained at least
-    "remained" : {
-      type : Number,
-      default : 0
-    },
-    // If null value, new object will be uploaded to here
-    // path ends with `/` mean folder, it will keep the local name 
-    // if without define, can not upload new file
-    // for path, the "~" has been supported also
-    "target" : {
-      type : String,
-      default : null
-    },
-    // When create a new file to target folder, 
-    // how to format the local name
-    "nameTransformer" : {
-      type : [Function, String, Object],
-      default : null
-    },
-    // which type supported to upload
-    // nulllor empty array will support any types
-    "supportTypes" : {
-      type : [Array, String],
-      default : null
-    },
-    // Image object only: it will auto apply image filter
-    // just like clip the image size etc..
-    // @see cmd_imagic for more detail about the filter
-    "imageFilter" : {
-      type : [Array, String],
-      default : null
-    },
-    // Image object only: if `>0 and <=1` mean output quality
-    // if not match the range, will depends on the `cmd_imagic` default
-    "imageQuality" : {
-      type : Number,
-      default : 0
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    //--------------------------------------
-    formedValue() {
-      return null
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    getObj(income) {
-      if(income) {
-        if(_.isString(income)) {
-          
-        }
-      }
-    }
-  }
-}
-Ti.Preload("ti/com/wn/obj/uploader/wn-obj-uploader.mjs", _M);
-})();
-//============================================================
-// JOIN: wn/obj/uploader/_com.json
-//============================================================
-Ti.Preload("ti/com/wn/obj/uploader/_com.json", {
-  "name" : "wn-obj-uploader",
-  "globally" : true,
-  "template" : "./wn-obj-uploader.html",
-  "mixins" : ["./wn-obj-uploader.mjs"],
-  "components" : [
-    "@com:ti/uploader"
-  ]
 });
 //============================================================
 // JOIN: wn/session/badge/wn-session-badge.html
@@ -45470,6 +45689,105 @@ Ti.Preload("ti/mod/ti/viewport/ti-viewport.mjs", _M);
 Ti.Preload("ti/mod/ti/viewport/_mod.json", {
   "state" : "./ti-viewport.json",
   "mixins" : "./ti-viewport.mjs"
+});
+//============================================================
+// JOIN: wn/obj-axis/m-obj-axis-actions.mjs
+//============================================================
+(function(){
+const _M = {
+  //----------------------------------------
+  async reload({state, commit, dispatch}, meta) {
+    if(state.status.reloading){
+      return
+    }
+    //......................................
+    // Use the default meta
+    if(_.isUndefined(meta)) {
+      meta = state.meta
+    }
+    //......................................
+    if(_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+    //......................................
+    // Guard
+    if(!meta) {
+      commit("resetAll")
+      return
+    }
+    // Init content as null
+    commit("setStatus", {reloading:true})
+    //......................................
+    let ans = await Wn.Io.loadAncestors(`id:${meta.id}`)
+    //......................................
+    // Just update the meta
+    commit("setAncestors", ans)
+    commit("setMeta", meta)
+    commit("setStatus", {reloading:false})
+  }
+  //----------------------------------------
+}
+Ti.Preload("ti/mod/wn/obj-axis/m-obj-axis-actions.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/obj-axis/m-obj-axis.json
+//============================================================
+Ti.Preload("ti/mod/wn/obj-axis/m-obj-axis.json", {
+  "ancestors" : [], 
+  "parent" : null, 
+  "meta": null,
+  "status" : {
+    "changed"   : false,
+    "saving"    : false,
+    "reloading" : false
+  }
+});
+//============================================================
+// JOIN: wn/obj-axis/m-obj-axis.mjs
+//============================================================
+(function(){
+const _M = {
+  ////////////////////////////////////////////
+  mutations : {
+    //----------------------------------------
+    resetAll(state) {
+      state.meta = undefined
+      state.ancestors = undefined
+      state.parent = undefined
+      state.status = {}
+    },
+    //----------------------------------------
+    setMeta(state, meta) {
+      state.meta = meta
+    },
+    //-------------------------------------------
+    setAncestors(state, ancestors=[]) {
+      state.ancestors = _.concat(ancestors)
+      state.parent = _.last(state.ancestors)
+    },
+    //-------------------------------------------
+    setParent(state, parent) {
+      state.parent = parent
+    },
+    //----------------------------------------
+    setStatus(state, status) {
+      state.status = _.assign({}, state.status, status)
+    }
+    //----------------------------------------
+  }
+  ////////////////////////////////////////////
+}
+Ti.Preload("ti/mod/wn/obj-axis/m-obj-axis.mjs", _M);
+})();
+//============================================================
+// JOIN: wn/obj-axis/_mod.json
+//============================================================
+Ti.Preload("ti/mod/wn/obj-axis/_mod.json", {
+  "name" : "wn-obj-axis",
+  "namespaced" : true,
+  "state" : "./m-obj-axis.json",
+  "actions" : "./m-obj-axis-actions.mjs",
+  "mixins" : "./m-obj-axis.mjs"
 });
 //============================================================
 // JOIN: wn/obj-current/m-obj-current-actions.mjs
@@ -51092,6 +51410,12 @@ const _M = {
       fromIndex : this.setup.firstCrumbIndex,
       homePath  : this.setup.skyHomePath,
       titleBy,
+      iteratee : (item, i, {nm}={}) => {
+        if(!this.myExposeHidden && nm && nm.startsWith(".")) {
+          return
+        }
+        return item
+      },
       self : (item)=>{
         item.asterisk = this.isChanged
       }
@@ -51138,10 +51462,12 @@ const _M = {
       // prepare the vars
       let app = Ti.App(this);
       let comConf = Ti.Util.explainObj(this, this.comConf) || {
-        meta    : this.meta,
-        content : this.content,
-        data    : this.data,
-        status  : this.status
+        ancestors : this.ancestors,
+        parent    : this.parent,
+        meta      : this.meta,
+        content   : this.content,
+        data      : this.data,
+        status    : this.status
       }
       //let actions = this.actions
       // Add init hook to store the $main
@@ -51252,8 +51578,9 @@ const _M = {
   //.........................................
   async reloadAncestors() {
     if(this.hasMeta) {
-      this.ancestors = await Wn.Io.loadAncestors("id:"+this.MetaId)
-      this.parent = _.last(this.ancestors)
+      // this.ancestors = await Wn.Io.loadAncestors("id:"+this.MetaId)
+      // this.parent = _.last(this.ancestors)
+      await Ti.App(this).dispatch("axis/reload", this.meta)
     }
   },
   //.........................................
@@ -51265,6 +51592,14 @@ const _M = {
   //.........................................
   async reloadPrivilege() {
     this.privilege = await Wn.Sys.exec("www pvg -cqn", {as:"json"});
+  },
+  //.........................................
+  async reloadCurrent() {
+    let r0 = Ti.App(this).dispatch("current/reload")
+    let r1 = this.reloadSidebar()
+    let r2 = this.reloadPrivilege()
+    let r3 = this.reloadAncestors()
+    return await Promise.all([r0, r1, r2, r3])
   },
   //.........................................
   pushHistory(meta) {
@@ -51343,8 +51678,8 @@ const _M = {
     // It will be clean each time reload main view
     mainViewStatus : {},
     // Current meta anestors
-    ancestors : [],
-    parent : null,
+    // ancestors : [],
+    // parent : null,
     // Current view(main) information
     view : null,
     // Message and Indicator
@@ -51821,6 +52156,13 @@ Ti.Preload("ti/i18n/en-us/ti-datetime.i18n.json", {
   },
   "time-begin": "Begin Time",
   "time-end": "End Time",
+  "tu-sec" : "Sec.",
+  "tu-min" : "Min.",
+  "tu-hou" : "Hou.",
+  "tu-day" : "Day",
+  "tu-week" : "Week",
+  "tu-mon" : "Month",
+  "tu-year" : "Year",
   "today": "Today"
 });
 //============================================================
@@ -51842,7 +52184,6 @@ Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
 // JOIN: en-us/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
-  "e-run-action-test-fail" : "Insufficient action preconditions",
   "account": "Account",
   "account-flt-tip": "Filter by account name",
   "account-manage": "Accounts",
@@ -51888,6 +52229,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "ar-flt-tip": "Filter by article title",
   "ar-meta": "Article property",
   "ar-meta-tip": "Choose an article for detail",
+  "ar-nm" : "Name",
   "ar-new": "New article",
   "ar-pubat": "Publish at",
   "ar-thumb": "Thumbnail",
@@ -51991,6 +52333,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "e-cmd-www_passwd-LackTarget": "Missing target",
   "e-cmd-www_passwd-TooShort": "The new password is too short",
   "e-cmd-www_passwd-nopvg": "No permission to reset passwords",
+  "e-run-action-test-fail": "Insufficient action preconditions",
   "e-www-captcha-fail_send_by_email": "The email failed to send. Please check the account",
   "e-www-invalid-captcha": "Invalid ${ta?captcha}",
   "e-www-login-invalid-passwd": "Invalid password",
@@ -52178,12 +52521,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "role-val": "Role value",
   "shop-basket-clean-confirm": "Are you sure you want to empty the shopping cart? this is an operation that cannot be undone.",
   "shop-basket-remove-confirm": "Are you sure you want to remove this item from your shopping cart?",
-  "sort": "Sort",
-  "sort-tip-asc": "The smaller at first",
-  "sort-tip-desc": "The bigger at first",
-  "sort-val": "Sort value",
   "topic": "Topic",
-  "type": "Type",
   "type-new": "New type",
   "video-title": "Video title",
   "watch_c": "View count",
@@ -52210,7 +52548,7 @@ Ti.Preload("ti/i18n/en-us/wn-manager.i18n.json", {
   "wn-create-invalid": "Illegal characters in object name",
   "wn-create-ok": "Create ok",
   "wn-create-too-long": "Object name too long",
-  "wn-del-confirm" : "Are you sure you want to delete the selected ${N} items? This is an irrevocable operation!",
+  "wn-del-confirm": "Are you sure you want to delete the selected ${N} items? This is an irrevocable operation!",
   "wn-del-item": "Deleting: \"${name}\"",
   "wn-del-no-empty-folder": "The directory \"${nm}\" is not empty, do you want to delete all? click \"no\" to skip",
   "wn-del-none": "Please select at least one file to delete!",
@@ -52312,15 +52650,21 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN: en-us/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
-  "lang" : "Language",
-  "lang-en-us" : "En",
-  "lang-zh-cn" : "Cn",
-  "lang-zh-hk" : "Hk",
-  "lang-zh-tw" : "Tw",
+  "nil-content" : "Nil content",
+  "sort": "Sort",
+  "sort-tip-asc": "The smaller at first",
+  "sort-tip-desc": "The bigger at first",
+  "sort-val": "Sort value",
+  "init" : "Initiate",
+  "init-data" : "Initiate data",
   "add": "Add",
   "add-item": "New item",
+  "album": "Album",
+  "albums": "Albums",
   "amount": "Amount",
   "attachment": "Attachment",
+  "audio": "Audio",
+  "audios": "Audios",
   "avatar": "Avatar",
   "banner": "Banner",
   "batch-none": "Please choose at least one item for batch updating",
@@ -52398,11 +52742,11 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-auth-login-NoPhoneOrEmail": "Invalid phone number or email address",
   "e-auth-login-NoSaltedPasswd": "Password without salting",
   "e-auth-login-invalid-passwd": "Invalid password",
+  "e-io-obj-BlankName": "The object name CANNOT be empty",
+  "e-io-obj-InvalidName": "Invalid object name",
   "e-io-obj-exists": "Object already exists",
   "e-io-obj-noexists": "Object does't exists",
   "e-io-obj-noexistsf": "Object[${nm}] does't exists",
-  "e-io-obj-BlankName" : "The object name CANNOT be empty",
-  "e-io-obj-InvalidName" : "Invalid object name",
   "edit": "Edit",
   "edit-com": "Edit control",
   "email": "Email",
@@ -52431,6 +52775,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "geo-sate-cno": "Satellite Ava",
   "geo-sate-cnt": "Satellite used",
   "global-settings": "Global settings",
+  "hierarchy": "Hierarchy",
   "history-record": "History record",
   "home": "HOME",
   "i-known": "I known",
@@ -52461,6 +52806,11 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "json-String": "String",
   "json-new-key": "Enter a new key",
   "label": "Label",
+  "lang": "Language",
+  "lang-en-us": "En",
+  "lang-zh-cn": "Cn",
+  "lang-zh-hk": "Hk",
+  "lang-zh-tw": "Tw",
   "lat": "Latitude",
   "lbs-place-add": "Add place",
   "lbs-ro-rnb-k-first": "Starting number",
@@ -52475,6 +52825,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "list": "List",
   "lng": "Longitude",
   "loading": "Loading...",
+  "location": "Location",
   "login": "Sign in",
   "login-name": "Login name",
   "logout": "Sign out",
@@ -52623,6 +52974,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "uploading": "Uplading",
   "user-avator": "User avatar",
   "value": "Value",
+  "video": "Video",
+  "videos": "Videos",
   "view": "View",
   "view-resource": "View source code",
   "vu-mv": "Millivolt",
@@ -52922,6 +53275,14 @@ Ti.Preload("ti/i18n/zh-cn/ti-datetime.i18n.json", {
   },
   "time-begin": "开始时间",
   "time-end": "结束时间",
+  "time-ms" : "毫秒",
+  "tu-sec" : "秒",
+  "tu-min" : "分钟",
+  "tu-hou" : "小时",
+  "tu-day" : "天",
+  "tu-week" : "周",
+  "tu-mon" : "月",
+  "tu-year" : "年",
   "today": "今天"
 });
 //============================================================
@@ -52943,7 +53304,6 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-editor.i18n.json", {
 // JOIN: zh-cn/web.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
-  "e-run-action-test-fail" : "执行操作前置条件不足",
   "account": "账户",
   "account-flt-tip": "请输入账号名过滤",
   "account-manage": "账户管理",
@@ -52989,6 +53349,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "ar-flt-tip": "请输入文章标题过滤",
   "ar-meta": "文章属性",
   "ar-meta-tip": "请选择一篇文章查看详情",
+  "ar-nm" : "文章名称",
   "ar-new": "新文章",
   "ar-pubat": "发布日期",
   "ar-thumb": "缩略封面",
@@ -53092,6 +53453,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "e-cmd-www_passwd-LackTarget": "缺少重置目标",
   "e-cmd-www_passwd-TooShort": "新密码太短",
   "e-cmd-www_passwd-nopvg": "没有重置密码的权限",
+  "e-run-action-test-fail": "执行操作前置条件不足",
   "e-www-captcha-fail_send_by_email": "邮件密码发送失败，请检查邮件账户是否正确",
   "e-www-invalid-captcha": "${ta?验证码}错误",
   "e-www-login-invalid-passwd": "账号密码错误",
@@ -53279,12 +53641,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "role-val": "角色值",
   "shop-basket-clean-confirm": "您确定要清空购物车内全部商品吗？这是一个不能撤回的操作。",
   "shop-basket-remove-confirm": "您确定要从购物车中删除这个商品吗？",
-  "sort": "排序",
-  "sort-tip-asc": "越小越靠前",
-  "sort-tip-desc": "越大越靠前",
-  "sort-val": "排序值",
   "topic": "主题",
-  "type": "类型",
   "type-new": "新类型",
   "video-title": "视频标题",
   "watch_c": "浏览次数",
@@ -53311,7 +53668,7 @@ Ti.Preload("ti/i18n/zh-cn/wn-manager.i18n.json", {
   "wn-create-invalid": "新对象名称不能包括非法字符",
   "wn-create-ok": "创建成功",
   "wn-create-too-long": "新对象名称过长",
-  "wn-del-confirm" : "您确定要删除选中的${N}个项目吗？这是一个不可撤销的操作！",
+  "wn-del-confirm": "您确定要删除选中的${N}个项目吗？这是一个不可撤销的操作！",
   "wn-del-item": "正在删除: \"${name}\"",
   "wn-del-no-empty-folder": "目录\"${nm}\"不是空的，您是否要全部删除？点击\"否\"跳过",
   "wn-del-none": "请选择至少一个对象进行删除!",
@@ -53413,15 +53770,20 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN: zh-cn/_ti.i18n.json
 //============================================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
-  "lang" : "语言",
-  "lang-en-us" : "英",
-  "lang-zh-cn" : "简",
-  "lang-zh-hk" : "繁",
-  "lang-zh-tw" : "繁",
+  "sort": "排序",
+  "sort-tip-asc": "越小越靠前",
+  "sort-tip-desc": "越大越靠前",
+  "sort-val": "排序值",
+  "init" : "初始化",
+  "init-data" : "初始化数据",
   "add": "添加",
   "add-item": "添加新项",
+  "album": "相册",
+  "albums": "相册",
   "amount": "数量",
   "attachment": "附件",
+  "audio": "音频",
+  "audios": "音频",
   "avatar": "头像",
   "banner": "头图",
   "batch-none": "请从下面列表中选择至少一个对象进行批量更新",
@@ -53499,11 +53861,11 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
   "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
   "e-auth-login-invalid-passwd": "账户密码未通过校验",
+  "e-io-obj-BlankName": "对象名称不能为空",
+  "e-io-obj-InvalidName": "对象名称非法",
   "e-io-obj-exists": "但是对象已然存在",
   "e-io-obj-noexists": "对象其实并不存在",
   "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
-  "e-io-obj-BlankName" : "对象名称不能为空",
-  "e-io-obj-InvalidName" : "对象名称非法",
   "edit": "编辑",
   "edit-com": "编辑控件",
   "email": "邮箱",
@@ -53532,6 +53894,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "geo-sate-cno": "可见卫星数",
   "geo-sate-cnt": "使用卫星数",
   "global-settings": "全局设置",
+  "hierarchy": "层级",
   "history-record": "历史记录",
   "home": "主目录",
   "i-known": "我知道了",
@@ -53562,6 +53925,11 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "json-String": "字符串",
   "json-new-key": "请输入一个新键名",
   "label": "标签",
+  "lang": "语言",
+  "lang-en-us": "英",
+  "lang-zh-cn": "简",
+  "lang-zh-hk": "繁",
+  "lang-zh-tw": "繁",
   "lat": "纬度",
   "lbs-place-add": "添加地点",
   "lbs-ro-rnb-k-first": "起始数字",
@@ -53576,6 +53944,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "list": "列表",
   "lng": "经度",
   "loading": "加载中...",
+  "location": "位置",
   "login": "登录",
   "login-name": "登录名",
   "logout": "退出",
@@ -53625,6 +53994,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "nil-detail": "请选择一项查看详情",
   "nil-item": "请先选择一项",
   "nil-obj": "请选择一个对象",
+  "nil-content" : "无内容",
   "no": "否",
   "no-saved": "您有未保存的数据",
   "no-selected": "未选择",
@@ -53724,6 +54094,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "uploading": "正在上传",
   "user-avator": "用户头像",
   "value": "值",
+  "video": "视频",
+  "videos": "视频",
   "view": "查看",
   "view-resource": "查看源代码",
   "vu-mv": "毫伏",

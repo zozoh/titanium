@@ -1,4 +1,4 @@
-// Pack At: 2021-01-14 02:05:29
+// Pack At: 2021-01-18 19:21:01
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -107,7 +107,7 @@ const Io = (function(){
       if(!meta)
         return null
       if('DIR' != meta.race)
-        return []
+        return 0 === limit ? [] : {}
       //......................................
       // Load children when linked obj
       if(meta.mnt || meta.ln) {
@@ -381,7 +381,8 @@ const Obj = (function(){
     //---------------------------------------------
     "id" : {
       title : "i18n:wn-key-id",
-      name  : "id"
+      name  : "id",
+      comType : "WnObjId"
     },
     //---------------------------------------------
     "nm" : {
@@ -396,6 +397,17 @@ const Obj = (function(){
       name  : "title",
       display: "<=ti-label>",
       comType: "ti-input"
+    },
+    //---------------------------------------------
+    "sort" : {
+      title : "i18n:sort",
+      name  : "sort",
+      tip   : "i18n:sort-tip-asc",
+      type  : "Integer",
+      comType : "ti-input-num",
+      comConf : {
+        width : 140
+      }
     },
     //---------------------------------------------
     "icon" : {
@@ -527,7 +539,11 @@ const Obj = (function(){
     //---------------------------------------------
     "duration" : {
       title : "i18n:wn-key-duration",
-      name  : "duration"
+      name  : "duration",
+      width : "auto",
+      comConf : {
+        suffixText : "i18n:tu-sec"
+      }
     },
     //---------------------------------------------
     "len" : {
@@ -815,7 +831,7 @@ const Obj = (function(){
             value : an.id,
             href  : Wn.Util.getAppLink(an) + ""
           }
-          item = iteratee(item, i, meta) || item
+          item = iteratee(item, i, an)
           if(item) {
             list.push(item)
           }  
@@ -2242,7 +2258,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-20210114.020529"
+const WALNUT_VERSION = "2.1-20210118.192101"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

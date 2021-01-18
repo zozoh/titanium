@@ -1,6 +1,6 @@
 .ti-switcher {
   @include noselect;
-  @include flex-center;
+  @include flex-align-center;
   > .switcher-con {
     @include flex-center;
     ul {
