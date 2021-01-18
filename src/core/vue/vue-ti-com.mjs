@@ -159,6 +159,8 @@ export const VueTiCom = {
         else if(_.isFunction(binding.value)) {
           handler = binding.value
         }
+        if(!handler)
+          return
         if(showMask) {
           maskHtml = Ti.I18n.text(
             maskHtml || "i18n:drop-file-here-to-upload"

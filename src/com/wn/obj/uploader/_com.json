@@ -1,9 +1,0 @@
-{
-  "name" : "wn-obj-uploader",
-  "globally" : true,
-  "template" : "./wn-obj-uploader.html",
-  "mixins" : ["./wn-obj-uploader.mjs"],
-  "components" : [
-    "@com:ti/uploader"
-  ]
-}

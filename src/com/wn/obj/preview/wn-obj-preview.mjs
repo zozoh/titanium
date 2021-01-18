@@ -15,6 +15,18 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "fas-braille",
+        text : "i18n:empty"
+      })
+    },
+    "blankClass": {
+      type: String,
+      default: "as-big",
+      validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
+    },
     "actions" : {
       type : Array,
       default : ()=>["fullscreen", "newtab", "download", "info"]

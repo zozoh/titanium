@@ -80,8 +80,9 @@ const _M = {
   //.........................................
   async reloadAncestors() {
     if(this.hasMeta) {
-      this.ancestors = await Wn.Io.loadAncestors("id:"+this.MetaId)
-      this.parent = _.last(this.ancestors)
+      // this.ancestors = await Wn.Io.loadAncestors("id:"+this.MetaId)
+      // this.parent = _.last(this.ancestors)
+      await Ti.App(this).dispatch("axis/reload", this.meta)
     }
   },
   //.........................................
@@ -93,6 +94,14 @@ const _M = {
   //.........................................
   async reloadPrivilege() {
     this.privilege = await Wn.Sys.exec("www pvg -cqn", {as:"json"});
+  },
+  //.........................................
+  async reloadCurrent() {
+    let r0 = Ti.App(this).dispatch("current/reload")
+    let r1 = this.reloadSidebar()
+    let r2 = this.reloadPrivilege()
+    let r3 = this.reloadAncestors()
+    return await Promise.all([r0, r1, r2, r3])
   },
   //.........................................
   pushHistory(meta) {

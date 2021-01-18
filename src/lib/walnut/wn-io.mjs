@@ -103,7 +103,7 @@ const WnIo = {
     if(!meta)
       return null
     if('DIR' != meta.race)
-      return []
+      return 0 === limit ? [] : {}
     //......................................
     // Load children when linked obj
     if(meta.mnt || meta.ln) {

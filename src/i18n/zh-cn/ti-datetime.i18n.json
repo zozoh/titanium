@@ -69,5 +69,13 @@
   },
   "time-begin": "开始时间",
   "time-end": "结束时间",
+  "time-ms" : "毫秒",
+  "tu-sec" : "秒",
+  "tu-min" : "分钟",
+  "tu-hou" : "小时",
+  "tu-day" : "天",
+  "tu-week" : "周",
+  "tu-mon" : "月",
+  "tu-year" : "年",
   "today": "今天"
 }

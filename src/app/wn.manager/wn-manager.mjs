@@ -26,8 +26,8 @@ const _M = {
     // It will be clean each time reload main view
     mainViewStatus : {},
     // Current meta anestors
-    ancestors : [],
-    parent : null,
+    // ancestors : [],
+    // parent : null,
     // Current view(main) information
     view : null,
     // Message and Indicator

@@ -27,27 +27,27 @@ const BUILTIN_TOOLBAR_ACTIONS = {
   //.........................................
   "B" : {
     icon : "fas-bold",
-    notify: "bold",
+    notifyChange: "bold",
     highlight : "bold",
     disabled : "italic"
   },
   //.........................................
   "I" : {
     icon : "fas-italic",
-    notify : "italic",
+    notifyChange : "italic",
     highlight : "italic",
     disabled : "bold"
   },
   //.........................................
   "Link" : {
     icon : "fas-link",
-    notify : "link",
+    notifyChange : "link",
     highlight : "link"
   },
   //.........................................
   "Code" : {
     icon : "zmdi-code",
-    notify : "code",
+    notifyChange : "code",
     highlight : "code"
   },
   //.........................................
@@ -57,37 +57,37 @@ const BUILTIN_TOOLBAR_ACTIONS = {
     text : "i18n:wordp-heading",
     items : [{
         text: "i18n:wordp-h1",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h1",
         value: 1
       }, {
         text: "i18n:wordp-h2",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h2",
         value: 2
       }, {
         text: "i18n:wordp-h3",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h3",
         value: 3
       }, {
         text: "i18n:wordp-h4",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h4",
         value: 4
       }, {
         text: "i18n:wordp-h5",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h5",
         value: 5
       }, {
         text: "i18n:wordp-h6",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h6",
         value: 6
       }, {
         text: "i18n:wordp-h0",
-        notify: "header",
+        notifyChange: "header",
         highlight : "h0",
         value:  0
       }]
@@ -95,36 +95,36 @@ const BUILTIN_TOOLBAR_ACTIONS = {
   //.........................................
   "BlockQuote" : {
     icon : "fas-quote-right",
-    notify : "blockquote",
+    notifyChange : "blockquote",
     highlight : "blockquote"
   },
   //.........................................
   "CodeBlock" : {
     icon : "fas-code",
-    notify : "code_block",
+    notifyChange : "code_block",
     highlight : "code-block"
   },
   //.........................................
   "Indent" : {
     icon : "fas-indent",
-    notify: "indent"
+    notifyChange: "indent"
   },
   //.........................................
   "Outdent" : {
     icon : "fas-outdent",
-    notify: "outdent"
+    notifyChange: "outdent"
   },
   //.........................................
   "UL" : {
     icon : "fas-list-ul",
-    notify : "list",
+    notifyChange : "list",
     value : "bullet",
     highlight: {list:"bullet"}
   },
   //.........................................
   "OL" : {
     icon : "fas-list-ol",
-    notify : "list",
+    notifyChange : "list",
     value : "ordered",
     highlight: {list:"ordered"}
   }
@@ -143,8 +143,8 @@ const _M = {
     //-----------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "nil-content" : this.isNilContent,
-        "has-content" : !this.isNilContent
+        "nil-content" : this.isContentNil,
+        "has-content" : !this.isContentNil
       })
     },
     //-----------------------------------------------
@@ -162,8 +162,19 @@ const _M = {
       return !_.isEmpty(this.ToolbarMenuData)
     },
     //-----------------------------------------------
-    isNilContent() {
+    isContentLoading() {
+      return _.isUndefined(this.value)
+    },
+    //-----------------------------------------------
+    isContentNil() {
       return Ti.Util.isNil(this.value)
+    },
+    //-----------------------------------------------
+    BlankComStyle() {
+      return {
+        position: "absolute",
+        top:0, right:0, bottom:0, left:0
+      }
     },
     //-----------------------------------------------
     ToolbarActions() {
@@ -369,7 +380,7 @@ const _M = {
       //console.log("changed", JSON.stringify(delta, null, '  '))
       //console.log("quillChanged")
       // Guard
-      if(this.isNilContent) {
+      if(this.isContentNil) {
         return
       }
 
@@ -443,8 +454,8 @@ const _M = {
       }, 1000)
       //.............................................
       this.$editor.on("text-change", (newDelta, oldDelta, source)=>{
-        //console.log("text-change",this.isNilContent, _.cloneDeep({newDelta, oldDelta}))
-        if(!this.isNilContent) {
+        //console.log("text-change",this.isContentNil, _.cloneDeep({newDelta, oldDelta}))
+        if(!this.isContentNil) {
           this.debounceQuillChanged(newDelta, oldDelta)
         }
       })
@@ -460,8 +471,8 @@ const _M = {
     "value" : {
       handler : "syncMarkdown"
     },
-    "isNilContent": function(newVal, oldVal){
-      //console.log("isNilContent", newVal, oldVal)
+    "isContentNil": function(newVal, oldVal){
+      //console.log("isContentNil", newVal, oldVal)
       if(newVal) {
         this.syncForbid = 0
       }

@@ -1,0 +1,10 @@
+{
+  "name" : "wn-obj-detail",
+  "globally" : true,
+  "template" : "./wn-obj-detail.html",
+  "mixins" : ["./wn-obj-detail.mjs"],
+  "components" : [
+    "@com:wn/obj/form",
+    "@com:wn/obj/preview"
+  ]
+}

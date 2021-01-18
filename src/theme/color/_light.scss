@@ -20,7 +20,7 @@ $color-body  : (c:#FAFAFA, r:#444);
 $color-bar   : (c:#F0F0F0, r:#888);
 $color-func  : (c:#E0E0E0, r:#666);
 $color-shadow : (
-  c:rgba(20,20,20,0.4), r:#AAA,
+  c:rgba(20,20,20,0.3), r:#AAA,
   heavy : rgba(20,20,20,0.5),
   bushy : rgba(20,20,20,0.3),
   thin  : rgba(30,30,30,0.2),
@@ -37,12 +37,12 @@ $color-mask: (
   heavy : rgba(0,0,0,0.95),
   bushy : rgba(50,50,50,0.618),
   thin  : rgba(50,50,50,0.372),
-  weak  : rgba(200,200,200,0.4),
+  weak  : rgba(220,220,220,0.3),
   r : #e0e0e0
 );
 //...........................................
 $color-line: (
   dark      : rgba(0,0,0,0.2),
-  shallow   : rgba(20,20,20,0.1),
+  shallow   : rgba(0,0,0,0.1),
   highlight : map-get($color-primary, c)
 );

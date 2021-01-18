@@ -8,7 +8,7 @@ const _M = {
   },
   "value" : {
     type : String,
-    default : ""
+    default : undefined
   }, 
   //...............................................
   // Behavior
@@ -53,11 +53,23 @@ const _M = {
     default: "left",
     validator : v => /^(left|right|center)$/.test(v)
   },
+  "loadingAs" : {
+    type : Object,
+    default : ()=>({
+      className : "as-nil-mask as-big-mask",
+      icon : undefined,
+      text : undefined
+    })
+  },
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "fas-coffee",
-      text : null
+      comType : "TiLoading",
+      comConf : {
+        className : "as-nil-mask as-big-mask",
+        icon : "fas-coffee",
+        text : null
+      }
     })
   }
 }

@@ -71,6 +71,10 @@ export default {
     type : Object,
     default : undefined
   },
+  "acceptUpload" : {
+    type : Array,
+    default : undefined
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

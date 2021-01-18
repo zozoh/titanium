@@ -47,11 +47,11 @@
     </div>
   </div>
   <!--
-    Empty 
+    Blank 
   -->
-  <div v-else
-    class="ti-blank is-big">
-    <ti-icon value="fas-file-image"/>
-    <span>{{'nil-obj'|i18n}}</span>
-  </div>
+  <ti-loading
+    v-else
+      v-bind="blankAs"
+      class="ti-fill-parent"
+      :class="blankClass"/>
 </div>

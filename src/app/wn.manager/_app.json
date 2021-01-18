@@ -13,6 +13,12 @@
           "session" : "get"
         }
       },
+      "...axis" : {
+        "state" : {
+          "ancestors" : "ancestors",
+          "parent"    : "parent"
+        }
+      },
       "...current" : {
         "state" : {
           "meta"    : "meta",
@@ -29,6 +35,7 @@
     "modules" : {
       "viewport" : "@mod:ti/viewport",
       "session"  : "@mod:wn/session",
+      "axis"     : "@mod:wn/obj-axis",
       "current"  : "@mod:wn/obj-current"
     }
   },

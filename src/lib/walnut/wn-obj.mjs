@@ -3,7 +3,8 @@ const FIELDS = {
   //---------------------------------------------
   "id" : {
     title : "i18n:wn-key-id",
-    name  : "id"
+    name  : "id",
+    comType : "WnObjId"
   },
   //---------------------------------------------
   "nm" : {
@@ -18,6 +19,17 @@ const FIELDS = {
     name  : "title",
     display: "<=ti-label>",
     comType: "ti-input"
+  },
+  //---------------------------------------------
+  "sort" : {
+    title : "i18n:sort",
+    name  : "sort",
+    tip   : "i18n:sort-tip-asc",
+    type  : "Integer",
+    comType : "ti-input-num",
+    comConf : {
+      width : 140
+    }
   },
   //---------------------------------------------
   "icon" : {
@@ -149,7 +161,11 @@ const FIELDS = {
   //---------------------------------------------
   "duration" : {
     title : "i18n:wn-key-duration",
-    name  : "duration"
+    name  : "duration",
+    width : "auto",
+    comConf : {
+      suffixText : "i18n:tu-sec"
+    }
   },
   //---------------------------------------------
   "len" : {
@@ -437,7 +453,7 @@ const WnObj = {
           value : an.id,
           href  : Wn.Util.getAppLink(an) + ""
         }
-        item = iteratee(item, i, meta) || item
+        item = iteratee(item, i, an)
         if(item) {
           list.push(item)
         }  

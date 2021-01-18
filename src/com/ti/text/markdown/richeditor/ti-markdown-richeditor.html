@@ -5,12 +5,12 @@
     Toolbar
   -->
   <ti-actionbar 
-    v-if="hasToolbar"
-      class="as-toolbar"
-      :items="ToolbarMenuData" 
-      :align="toolbarAlign"
-      :status="myToolbarStatus"
-      @change="OnToolbarChange"/>
+  v-if="hasToolbar"
+    class="as-toolbar"
+    :items="ToolbarMenuData" 
+    :align="toolbarAlign"
+    :status="myToolbarStatus"
+    @change="OnToolbarChange"/>
   <!--
     Stage
   -->
@@ -19,10 +19,18 @@
     spellcheck="false"
     :class="ThemeClass"></div>
   <!--
-    Cover when nil
+    Show loading
   -->
-  <ti-loading
-    v-if="isNilContent"
+  <TiLoading
+    v-if="isContentLoading"
       class="as-nil-mask as-big-mask"
-      v-bind="blankAs"/>
+      v-bind="loadingAs"/>
+  <!--
+    Show blank
+  -->
+  <component
+    v-else-if="isContentNil"
+      :style="BlankComStyle"
+      :is="blankAs.comType"
+      v-bind="blankAs.comConf"/>
 </div>

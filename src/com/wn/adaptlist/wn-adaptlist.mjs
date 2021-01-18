@@ -101,6 +101,17 @@ const _M = {
       return re
     },
     //--------------------------------------------
+    AcceptUploadFiles() {
+      if(this.acceptUpload) {
+        if(_.isString(this.acceptUpload)) {
+          return this.acceptUpload
+        }
+        if(_.isArray(this.acceptUpload)) {
+          return this.acceptUpload.join(",")
+        }
+      }
+    },
+    //--------------------------------------------
     /***
      * has uploading
      */
@@ -110,6 +121,12 @@ const _M = {
     //--------------------------------------------
     UploadingClass() {
       return this.hasUploading ? "up-show" : "up-hide"
+    },
+    //--------------------------------------------
+    UploadDragAndDropHandler() {
+      if(this.droppable) {
+        return this.OnDropFiles
+      }
     }
     //--------------------------------------------
   },  // ~ computed
@@ -253,7 +270,8 @@ const _M = {
       let meta = this.getCurrentItem() || this.meta
 
       if(!meta) {
-        return Ti.Toast.Open("i18n:nil-obj")
+        await Ti.Toast.Open("i18n:nil-obj")
+        return
       }
 
       let reo = await Wn.EditObjMeta(meta, {fields:"auto"})
@@ -264,6 +282,8 @@ const _M = {
         // TODO if update the "thumb" may need to force reload the preview
         // Update to list
         this.setItem(data)
+
+        return data
       }
     },
     //--------------------------------------------

@@ -1,0 +1,7 @@
+{
+  "name" : "wn-obj-axis",
+  "namespaced" : true,
+  "state" : "./m-obj-axis.json",
+  "actions" : "./m-obj-axis-actions.mjs",
+  "mixins" : "./m-obj-axis.mjs"
+}

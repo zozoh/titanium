@@ -1,0 +1,10 @@
+{
+  "ancestors" : [], 
+  "parent" : null, 
+  "meta": null,
+  "status" : {
+    "changed"   : false,
+    "saving"    : false,
+    "reloading" : false
+  }
+}

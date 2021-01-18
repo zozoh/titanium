@@ -7,6 +7,7 @@ const _M = {
   },
   /////////////////////////////////////////
   data: ()=>({
+    $inner : undefined,
     myShown : {},
     myViewportWidth  : 0,
     myViewportHeight : 0,
@@ -105,6 +106,13 @@ const _M = {
     isColsLayout() {return "cols"==this.TheLayout.type},
     isTabsLayout() {return "tabs"==this.TheLayout.type},
     //--------------------------------------
+    BlockNames() {
+      if(!this.layout) {
+        return {}
+      }
+      return this.joinBlockNames({}, this.layout.blocks)
+    },
+    //--------------------------------------
     ThePanels() {
       let list = []
 
@@ -143,6 +151,22 @@ const _M = {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnMainTypeInit($innerCom) {
+      this.$inner = $innerCom
+    },
+    //--------------------------------------
+    joinBlockNames(names={}, blocks=[]) {
+      _.forEach(blocks, ({name, blocks}={}) => {
+        if(name) {
+          names[name] = true
+        }
+        if(_.isArray(blocks)) {
+          this.joinBlockNames(names, blocks)
+        }
+      })
+      return names;
+    },
     //--------------------------------------
     isShown(...names) {
       for(let name of names) {
@@ -208,10 +232,20 @@ const _M = {
       }
     },
     //--------------------------------------
+    filterShown(shown={}) {
+      return _.omitBy(shown, (v, k)=>{
+        if(!v)
+          return true
+        if(!this.BlockNames[k])
+          return true
+        return false
+      })
+    },
+    //--------------------------------------
     syncMyShown(...showns) {
       if(this.keepShownTo) {
-        this.myShown = _.assign({}, this.myShown, ...showns)
-
+        let shown  = _.assign({}, this.myShown, ...showns)
+        this.myShown = shown
         if(this.shownEmitName) {
           this.$emit(this.shownEmitName, this.myShown)
         }
@@ -224,7 +258,7 @@ const _M = {
     //--------------------------------------
     persistMyStatus() {
       if(this.keepShownTo) {
-        let shown = _.omitBy(this.myShown, (v)=>!v)
+        let shown = this.filterShown(this.myShown)
         Ti.Storage.session.setObject(this.keepShownTo, shown)
       }
     },

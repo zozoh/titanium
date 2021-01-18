@@ -106,6 +106,16 @@ export default {
       })
     },
     //--------------------------------------
+    $current() {
+      return _.nth(this.$children, 0)
+    },
+    //--------------------------------------
+    $currentMain() {
+      let $block = this.$current()
+      if($block)
+        return $block.$main()
+    },
+    //--------------------------------------
     syncCurrentTabFromShown() {
       //console.log("syncCurrentTabFromShown")
       for(let wrap of this.BlockWrapList) {

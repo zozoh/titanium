@@ -37,7 +37,7 @@
   //------------------------------------------
   &.as-big-mask {
     @include pos-abs-full;
-    @include color($color-shadow, r, weak);
+    @include color($color-mask, r, weak);
     @include flex-center;
     > .as-icon{font-size: SZ(64);}
     > .as-text{
@@ -58,7 +58,7 @@
   //------------------------------------------
   &.as-mid-tip-mask {
     @include pos-abs-full;
-    @include color($color-shadow, r, weak); 
+    @include color($color-mask, r, weak);
     @include flex-align;
     font-size: SZ(14);
     justify-content: flex-start;

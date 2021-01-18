@@ -111,7 +111,7 @@ export async function WalnutAppMain({
   if(tiConf.css) {
     let exCssList = [].concat(tiConf.css)
     for(let css of exCssList) {
-      let cssPath = _.template(css)({theme})
+      let cssPath = Ti.S.renderBy(css, {theme})
       await Ti.Load(cssPath)
     }
   }

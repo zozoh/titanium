@@ -17,6 +17,12 @@ const _M = {
       fromIndex : this.setup.firstCrumbIndex,
       homePath  : this.setup.skyHomePath,
       titleBy,
+      iteratee : (item, i, {nm}={}) => {
+        if(!this.myExposeHidden && nm && nm.startsWith(".")) {
+          return
+        }
+        return item
+      },
       self : (item)=>{
         item.asterisk = this.isChanged
       }
@@ -63,10 +69,12 @@ const _M = {
       // prepare the vars
       let app = Ti.App(this);
       let comConf = Ti.Util.explainObj(this, this.comConf) || {
-        meta    : this.meta,
-        content : this.content,
-        data    : this.data,
-        status  : this.status
+        ancestors : this.ancestors,
+        parent    : this.parent,
+        meta      : this.meta,
+        content   : this.content,
+        data      : this.data,
+        status    : this.status
       }
       //let actions = this.actions
       // Add init hook to store the $main

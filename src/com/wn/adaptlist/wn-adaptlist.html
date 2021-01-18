@@ -3,7 +3,7 @@
   v-ti-activable>
   <div
     class="list-con ti-fill-parent"
-    v-drop-files.mask="OnDropFiles">
+    v-drop-files.mask="UploadDragAndDropHandler">
     <!--==================================
       Show Loading
     -->
@@ -39,6 +39,7 @@
       type="file" 
       ref="file" 
       class="ti-hide"
+      :accept="AcceptUploadFiles"
       multiple
       @change.stop.seft="OnSelectLocalFilesToUpload">
     <!--==================================

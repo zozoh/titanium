@@ -70,7 +70,7 @@ export default {
   "blankAs" : {
     type : Object,
     default : ()=>({
-      icon : "fas-dna",
+      icon : "fab-deezer",
       text : "i18n:empty"
     })
   },
